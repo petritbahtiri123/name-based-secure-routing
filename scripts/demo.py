@@ -21,6 +21,12 @@ def gateway(ticket=None, method="GET", path="/api/payment-status"):
     return httpx.request(method, f"{GATEWAY}{path}", headers=headers, timeout=5)
 
 
+def tamper_ticket(ticket: str) -> str:
+    header, payload, signature = ticket.split(".")
+    changed_signature = ("A" if signature[0] != "A" else "B") + signature[1:]
+    return ".".join((header, payload, changed_signature))
+
+
 def main() -> int:
     rows: list[tuple[str, str, str, bool]] = []
 
@@ -35,7 +41,7 @@ def main() -> int:
     rows.append(("Unknown service", "DENY", "DENY" if unknown.status_code == 403 else "ALLOW", unknown.status_code == 403))
     missing = gateway()
     rows.append(("Missing ticket", "DENY", "DENY" if missing.status_code in (401, 403) else "ALLOW", missing.status_code in (401, 403)))
-    tampered = good_ticket[:-1] + ("A" if good_ticket[-1:] != "A" else "B")
+    tampered = tamper_ticket(good_ticket)
     bad = gateway(tampered)
     rows.append(("Tampered ticket", "DENY", "DENY" if bad.status_code in (401, 403) else "ALLOW", bad.status_code in (401, 403)))
 
