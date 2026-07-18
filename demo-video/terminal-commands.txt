@@ -1,0 +1,31 @@
+PRIMARY WINDOWS RECORDING SEQUENCE
+
+Set-Location "C:\Users\bajra\OneDrive\Documents\NBSR"
+
+docker compose up -d --build
+
+docker compose ps
+
+./scripts/video-demo.ps1 -Rehearsal
+
+git status --short
+
+
+NON-INTERACTIVE VALIDATION
+
+Set-Location "C:\Users\bajra\OneDrive\Documents\NBSR"
+
+docker compose up -d --build
+
+./scripts/video-demo.ps1 -NoPause
+
+
+PORTABLE RELATIVE-PATH SEQUENCE
+
+Set-Location "<path-to-your-clone>"
+
+docker compose up -d --build
+
+./scripts/video-demo.ps1 -NoPause
+
+./scripts/video-demo.ps1 -Rehearsal

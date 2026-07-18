@@ -1,0 +1,91 @@
+1
+00:00:00,000 --> 00:00:06,000
+Traditional DNS tells a workload where a service is.
+It does not decide whether that workload should reach it.
+
+2
+00:00:06,000 --> 00:00:12,000
+Name-Based Secure Routing adds identity, policy,
+and short-lived authorization to that route.
+
+3
+00:00:12,000 --> 00:00:19,000
+A client proves its workload identity to the NBSR control plane.
+The control plane asks an OPA default-deny policy.
+
+4
+00:00:19,000 --> 00:00:27,000
+The control plane alone holds the private ticket-signing key.
+When allowed, it creates a short-lived Ed25519 routing ticket.
+
+5
+00:00:27,000 --> 00:00:35,000
+The verifier receives only the public key. Envoy uses external authorization
+and a fixed allowlisted route to the private payments service.
+
+6
+00:00:35,000 --> 00:00:43,000
+The client cannot connect to that backend directly.
+All five Docker Compose services are ready.
+
+7
+00:00:43,000 --> 00:00:54,000
+The allowed workload resolves payments.internal
+and reaches the service through Envoy.
+
+8
+00:00:54,000 --> 00:01:05,000
+The denied identity receives no route.
+An unknown service is also denied by default.
+
+9
+00:01:05,000 --> 00:01:17,000
+A missing ticket is rejected.
+Changing real decoded signature bytes is also rejected.
+
+10
+00:01:17,000 --> 00:01:29,000
+An automated regression test protects the tamper case.
+The ticket cannot escalate its method or path.
+
+11
+00:01:29,000 --> 00:01:42,000
+The client cannot connect directly to the payments backend,
+proving real network isolation.
+
+12
+00:01:42,000 --> 00:01:55,000
+The short-lived ticket expires and is rejected.
+All eight real mandatory scenarios pass.
+
+13
+00:01:55,000 --> 00:02:05,000
+Tickets bind workload, service, method, path,
+gateway audience, and expiration.
+
+14
+00:02:05,000 --> 00:02:15,000
+Envoy fails closed. Clients cannot choose an upstream,
+and the backend has no published port.
+
+15
+00:02:15,000 --> 00:02:24,000
+Humans directed the concept, architecture, security requirements,
+technology, scope, fail-closed criteria, testing, and submission decisions.
+
+16
+00:02:24,000 --> 00:02:33,000
+GPT-5.6 and Codex accelerated the FastAPI services, OPA and Envoy integration,
+Docker and Kubernetes resources, tests, documentation, live validation,
+and correction of the Base64 URL tamper-test flaw.
+
+17
+00:02:33,000 --> 00:02:40,000
+Compose was validated live. Kubernetes resources passed
+offline validation, but live kind was not tested.
+
+18
+00:02:40,000 --> 00:02:48,000
+This is a validated prototype, not intended for production,
+and it does not replace DNS. Identity and policy decide the temporary route.
+The public repository is available on GitHub.

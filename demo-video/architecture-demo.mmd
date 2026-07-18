@@ -1,0 +1,32 @@
+flowchart LR
+  subgraph CN["CLIENT NETWORK"]
+    C["CLIENT WORKLOAD"]
+  end
+  subgraph CPB["CONTROL + POLICY BOUNDARY"]
+    CP["NBSR CONTROL PLANE<br/>Private ticket signing key"]
+    OPA["OPA DEFAULT-DENY POLICY"]
+    T["ED25519 ROUTING TICKET<br/>Short-lived route grant"]
+    CP -->|"authorization input"| OPA
+    OPA -->|"allow + scope"| CP
+    CP -->|"signs"| T
+  end
+  subgraph GEB["GATEWAY ENFORCEMENT BOUNDARY"]
+    E["ENVOY GATEWAY<br/>External authorization<br/>Fixed allowlisted upstream"]
+    V["TICKET VERIFIER<br/>Public key only"]
+    E <-->|"ext_authz"| V
+  end
+  subgraph PBN["PROTECTED BACKEND NETWORK"]
+    P["PRIVATE PAYMENTS SERVICE<br/>No published port"]
+  end
+  C -->|"identity + payments.internal"| CP
+  T --> C
+  C -->|"request + ticket"| E
+  E -->|"authorized fixed route"| P
+  C -. "DIRECT ACCESS BLOCKED" .-> P
+
+  classDef primary fill:#0b2942,stroke:#68d5ff,color:#ffffff,stroke-width:3px;
+  classDef policy fill:#3b1f55,stroke:#d8a5ff,color:#ffffff,stroke-width:3px;
+  classDef protected fill:#123c2f,stroke:#76e6ad,color:#ffffff,stroke-width:3px;
+  class C,CP,T,E,V primary;
+  class OPA policy;
+  class P protected;
