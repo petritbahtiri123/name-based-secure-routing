@@ -1,0 +1,155 @@
+apiVersion: v1
+kind: Namespace
+metadata: {name: nbsr}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata: {name: opa-policy, namespace: nbsr}
+data:
+  nbsr.rego: |
+    package nbsr.route
+    import rego.v1
+    default decision := {"allow": false, "reason": "default deny", "policy_version": "2026-07-18.1", "allowed_methods": [], "allowed_path_prefix": "", "ticket_ttl": 60}
+    decision := {"allow": true, "reason": "explicit grant", "policy_version": "2026-07-18.1", "allowed_methods": ["GET"], "allowed_path_prefix": "/api/payment-status", "ticket_ttl": 60} if {
+      input.identity == "spiffe://nbsr.local/workload/client-allowed"
+      input.service == "payments.internal"
+      input.method == "GET"
+      startswith(input.path, "/api/payment-status")
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: opa, namespace: nbsr}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: opa}}
+  template:
+    metadata: {labels: {app: opa}}
+    spec:
+      containers:
+        - name: opa
+          image: openpolicyagent/opa:1.4.2-static
+          args: ["run", "--server", "--addr=0.0.0.0:8181", "/policy"]
+          volumeMounts: [{name: policy, mountPath: /policy}]
+      volumes: [{name: policy, configMap: {name: opa-policy}}]
+---
+apiVersion: v1
+kind: Service
+metadata: {name: opa, namespace: nbsr}
+spec: {selector: {app: opa}, ports: [{port: 8181}]}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: payments-service, namespace: nbsr}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: payments}}
+  template:
+    metadata: {labels: {app: payments}}
+    spec:
+      containers:
+        - {name: payments, image: nbsr:local, args: ["nbsr.payments:app", "--host", "0.0.0.0", "--port", "7000"]}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: payments-service, namespace: nbsr}
+spec: {selector: {app: payments}, ports: [{port: 7000}]}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: control-plane, namespace: nbsr}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: control-plane}}
+  template:
+    metadata: {labels: {app: control-plane}}
+    spec:
+      containers:
+        - name: control-plane
+          image: nbsr:local
+          args: ["nbsr.control_plane:app", "--host", "0.0.0.0", "--port", "8000"]
+          env:
+            - {name: NBSR_OPA_URL, value: "http://opa:8181/v1/data/nbsr/route/decision"}
+            - {name: NBSR_GATEWAY_URL, value: "http://localhost:8080"}
+          volumeMounts: [{name: keys, mountPath: /run/secrets, readOnly: true}]
+      volumes: [{name: keys, secret: {secretName: nbsr-keys}}]
+---
+apiVersion: v1
+kind: Service
+metadata: {name: control-plane, namespace: nbsr}
+spec: {selector: {app: control-plane}, ports: [{port: 8000}]}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: ticket-verifier, namespace: nbsr}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: ticket-verifier}}
+  template:
+    metadata: {labels: {app: ticket-verifier}}
+    spec:
+      containers:
+        - name: ticket-verifier
+          image: nbsr:local
+          args: ["nbsr.ticket_verifier:app", "--host", "0.0.0.0", "--port", "9000"]
+          volumeMounts: [{name: keys, mountPath: /run/secrets, readOnly: true}]
+      volumes: [{name: keys, secret: {secretName: nbsr-keys}}]
+---
+apiVersion: v1
+kind: Service
+metadata: {name: ticket-verifier, namespace: nbsr}
+spec: {selector: {app: ticket-verifier}, ports: [{port: 9000}]}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: gateway, namespace: nbsr}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: gateway}}
+  template:
+    metadata: {labels: {app: gateway}}
+    spec:
+      containers:
+        - name: gateway
+          image: envoyproxy/envoy:v1.34.4
+          args: ["-c", "/etc/envoy/envoy.yaml", "--log-level", "warning"]
+          volumeMounts: [{name: config, mountPath: /etc/envoy, readOnly: true}]
+      volumes: [{name: config, configMap: {name: envoy-config}}]
+---
+apiVersion: v1
+kind: Service
+metadata: {name: gateway, namespace: nbsr}
+spec:
+  type: NodePort
+  selector: {app: gateway}
+  ports: [{port: 8080, targetPort: 8080, nodePort: 30080}]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: default-deny, namespace: nbsr}
+spec: {podSelector: {}, policyTypes: [Ingress, Egress]}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: payments-from-gateway-only, namespace: nbsr}
+spec:
+  podSelector: {matchLabels: {app: payments}}
+  policyTypes: [Ingress]
+  ingress:
+    - from: [{podSelector: {matchLabels: {app: gateway}}}]
+      ports: [{port: 7000, protocol: TCP}]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: allow-required-flows, namespace: nbsr}
+spec:
+  podSelector: {}
+  policyTypes: [Egress]
+  egress:
+    - to: [{namespaceSelector: {}}]
+      ports:
+        - {port: 53, protocol: UDP}
+        - {port: 53, protocol: TCP}
+        - {port: 7000, protocol: TCP}
+        - {port: 8181, protocol: TCP}
+        - {port: 9000, protocol: TCP}

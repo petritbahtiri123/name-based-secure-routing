@@ -1,0 +1,69 @@
+static_resources:
+  listeners:
+    - name: public_gateway
+      address:
+        socket_address: { address: 0.0.0.0, port_value: 8080 }
+      filter_chains:
+        - filters:
+            - name: envoy.filters.network.http_connection_manager
+              typed_config:
+                "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
+                stat_prefix: nbsr_gateway
+                route_config:
+                  name: fixed_routes
+                  virtual_hosts:
+                    - name: payments
+                      domains: ["*"]
+                      request_headers_to_add:
+                        - header: { key: x-nbsr-method, value: "%REQ(:METHOD)%" }
+                        - header: { key: x-nbsr-path, value: "%REQ(X-ENVOY-ORIGINAL-PATH?:PATH)%" }
+                        - header: { key: x-nbsr-service, value: "payments.internal" }
+                      routes:
+                        - match: { prefix: "/api/" }
+                          route: { cluster: payments, timeout: 5s }
+                http_filters:
+                  - name: envoy.filters.http.ext_authz
+                    typed_config:
+                      "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthz
+                      failure_mode_allow: false
+                      status_on_error: { code: ServiceUnavailable }
+                      http_service:
+                        server_uri:
+                          uri: http://ticket-verifier:9000
+                          cluster: verifier
+                          timeout: 2s
+                        path_prefix: /authorize
+                        authorization_request:
+                          allowed_headers:
+                            patterns:
+                              - exact: authorization
+                              - exact: x-nbsr-method
+                              - exact: x-nbsr-path
+                              - exact: x-nbsr-service
+                  - name: envoy.filters.http.router
+                    typed_config:
+                      "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
+  clusters:
+    - name: verifier
+      type: STRICT_DNS
+      connect_timeout: 2s
+      load_assignment:
+        cluster_name: verifier
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address: { address: ticket-verifier, port_value: 9000 }
+    - name: payments
+      type: STRICT_DNS
+      connect_timeout: 2s
+      load_assignment:
+        cluster_name: payments
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address: { address: payments-service, port_value: 7000 }
+admin:
+  address:
+    socket_address: { address: 0.0.0.0, port_value: 9901 }

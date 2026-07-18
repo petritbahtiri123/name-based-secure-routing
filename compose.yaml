@@ -1,0 +1,84 @@
+name: nbsr
+services:
+  opa:
+    image: openpolicyagent/opa:1.4.2-static
+    command: ["run", "--server", "--addr=0.0.0.0:8181", "/policy"]
+    volumes: ["./policy:/policy:ro"]
+    networks: [control-network]
+    healthcheck:
+      test: ["CMD", "/opa", "eval", "1"]
+      interval: 3s
+      timeout: 2s
+      retries: 20
+
+  control-plane:
+    build: .
+    command: ["nbsr.control_plane:app", "--host", "0.0.0.0", "--port", "8000"]
+    ports: ["8000:8000"]
+    environment:
+      NBSR_OPA_URL: http://opa:8181/v1/data/nbsr/route/decision
+      NBSR_GATEWAY_URL: http://localhost:8080
+      NBSR_TICKET_TTL_SECONDS: ${NBSR_TICKET_TTL_SECONDS:-60}
+    volumes:
+      - ./secrets/identity-public.pem:/run/secrets/identity-public.pem:ro
+      - ./secrets/ticket-private.pem:/run/secrets/ticket-private.pem:ro
+    networks: [client-network, control-network]
+    depends_on:
+      opa: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 3s
+      timeout: 2s
+      retries: 20
+
+  ticket-verifier:
+    build: .
+    command: ["nbsr.ticket_verifier:app", "--host", "0.0.0.0", "--port", "9000"]
+    volumes: ["./secrets/ticket-public.pem:/run/secrets/ticket-public.pem:ro"]
+    networks: [protected-network]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:9000/health')"]
+      interval: 3s
+      timeout: 2s
+      retries: 20
+
+  payments-service:
+    build: .
+    command: ["nbsr.payments:app", "--host", "0.0.0.0", "--port", "7000"]
+    networks: [protected-network]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:7000/health')"]
+      interval: 3s
+      timeout: 2s
+      retries: 20
+
+  gateway:
+    image: envoyproxy/envoy:v1.34.4
+    command: ["-c", "/etc/envoy/envoy.yaml", "--log-level", "warning"]
+    ports: ["8080:8080"]
+    volumes: ["./gateway/envoy.yaml:/etc/envoy/envoy.yaml:ro"]
+    networks: [client-network, protected-network]
+    depends_on:
+      ticket-verifier: { condition: service_healthy }
+      payments-service: { condition: service_healthy }
+
+  client-allowed:
+    build: .
+    entrypoint: ["python", "-m", "nbsr.demo_client"]
+    profiles: [demo]
+    volumes: ["./tokens:/run/tokens:ro"]
+    networks: [client-network]
+    depends_on:
+      control-plane: { condition: service_healthy }
+      gateway: { condition: service_started }
+
+  client-denied:
+    extends: client-allowed
+    command: ["--identity", "denied"]
+
+networks:
+  client-network: {}
+  control-network:
+    internal: true
+  protected-network:
+    internal: true
