@@ -1,6 +1,6 @@
 # NBSR Demo Narration
 
-**Target:** 2 minutes 48 seconds  
+**Target:** 2 minutes 48 seconds
 **Word count:** 297 words
 
 ## 0:00–0:12 — Title
