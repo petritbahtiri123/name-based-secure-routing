@@ -21,6 +21,8 @@ command -v docker >/dev/null || { echo "Docker is required." >&2; exit 1; }
 docker compose version >/dev/null
 docker info >/dev/null
 cd "$ROOT"
+"$ROOT/scripts/bootstrap.sh"
+NBSR_TICKET_TTL_SECONDS=2 docker compose up -d --no-build --wait --wait-timeout 120
 
 required=(control-plane opa gateway ticket-verifier payments-service)
 running="$(docker compose ps --status running --services)"

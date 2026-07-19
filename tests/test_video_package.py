@@ -35,6 +35,24 @@ def test_video_demo_has_required_modes_and_delegates_real_scenarios():
     assert "demo.py" in script
 
 
+def test_video_demo_refreshes_local_credentials_before_running_scenarios():
+    powershell = (ROOT / "scripts/video-demo.ps1").read_text(encoding="utf-8")
+    bash = (ROOT / "scripts/video-demo.sh").read_text(encoding="utf-8")
+
+    assert powershell.index("bootstrap.ps1") < powershell.index("demo.py")
+    assert bash.index("bootstrap.sh") < bash.index("demo.py")
+
+
+def test_video_demo_prepares_short_lived_demo_ticket_before_visible_run():
+    powershell = (ROOT / "scripts/video-demo.ps1").read_text(encoding="utf-8")
+    bash = (ROOT / "scripts/video-demo.sh").read_text(encoding="utf-8")
+
+    assert '$env:NBSR_TICKET_TTL_SECONDS = "2"' in powershell
+    assert powershell.index("docker compose up -d --no-build") < powershell.index("Clear-Host")
+    assert "NBSR_TICKET_TTL_SECONDS=2 docker compose up -d --no-build" in bash
+    assert bash.index("NBSR_TICKET_TTL_SECONDS=2") < bash.index("clear")
+
+
 def parse_time(value: str) -> int:
     hours, minutes, rest = value.split(":")
     seconds, millis = rest.split(",")

@@ -36,6 +36,10 @@ docker compose up -d --build
 
 The first command validates the real run without presentation delays. The
 second is the spoken rehearsal. Both fail if services or scenarios fail.
+Before the visible presentation, the wrapper refreshes ignored local demo
+credentials and recreates only the necessary Compose configuration with a
+two-second ticket lifetime for the expiration scenario. The normal prototype
+default remains 60 seconds.
 
 Open each HTML file directly in a browser and use full-screen mode. No server or
 internet connection is required. Render `architecture-demo.mmd` with a Mermaid

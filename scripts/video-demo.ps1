@@ -44,6 +44,11 @@ try {
   docker info *> $null
   if ($LASTEXITCODE -ne 0) { throw "Docker Desktop is not running." }
 
+  & (Join-Path $PSScriptRoot "bootstrap.ps1")
+  $env:NBSR_TICKET_TTL_SECONDS = "2"
+  docker compose up -d --no-build --wait --wait-timeout 120
+  if ($LASTEXITCODE -ne 0) { throw "Could not prepare the Compose stack for the short-lived ticket demonstration." }
+
   $Services = @(docker compose ps --format json | ConvertFrom-Json)
   foreach ($Required in $RequiredServices) {
     $Service = $Services | Where-Object { $_.Service -eq $Required }
