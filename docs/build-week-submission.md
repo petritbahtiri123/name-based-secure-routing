@@ -32,5 +32,3 @@ policy delivery, audit storage, rate limits, and multi-service registration.
 **Setup/testing:** Run `./scripts/bootstrap.ps1`, `docker compose up -d --build`,
 `./scripts/test.ps1`, and `./scripts/demo.ps1`; Bash equivalents are included.
 
-**Codex feedback session:** `CODEX_FEEDBACK_SESSION_ID_HERE` — repository owner
-must run `/feedback` and insert the real session ID.

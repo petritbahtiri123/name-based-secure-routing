@@ -12,5 +12,4 @@
 
 Recording checklist: fresh bootstrap; healthy Compose stack; readable terminal;
 no tokens visible; scenario table fully visible; kind view preloaded; mention
-prototype limitations; replace `CODEX_FEEDBACK_SESSION_ID_HERE` only after
-running `/feedback`.
+prototype limitations.
