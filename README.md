@@ -90,9 +90,33 @@ docker compose up -d --build
 ./scripts/demo.sh
 ```
 
-Only ports 8000 (control plane) and 8080 (Envoy) are published. The payments
-service is on an internal protected network. The demo prints a scenario table
-and exits nonzero on any mandatory mismatch.
+Ports 8000 (control plane), 8080 (Envoy), and 8443 (the NBSR name relay) are
+published. The payments service and deterministic name origin are on an
+internal protected network. The existing enterprise demo prints a scenario
+table and exits nonzero on any mandatory mismatch.
+
+## Deterministic name-routing demo
+
+After the Quick start stack is running, exercise the ISP-profile name-routing
+vertical slice on Windows:
+
+```powershell
+./scripts/name-route-demo.ps1
+```
+
+Or on Linux/macOS:
+
+```bash
+./scripts/name-route-demo.sh
+```
+
+The client requests `facebook.test`, receives only a loopback synthetic
+address and a signed 60-second binding, and sends opaque bytes to the published
+NBSR gateway. Only the gateway resolves `facebook.test`; the deterministic
+origin has no host port and is reachable only through the protected network.
+The demo prints the requested name, synthetic address, gateway, opaque origin
+response, and a checked assertion that the origin address never appeared in
+client-visible route state.
 
 For kind, install Docker, kind, and kubectl, then run `./scripts/kind-up.ps1`
 or `./scripts/kind-up.sh`; inspect with `kubectl -n nbsr get
@@ -120,6 +144,15 @@ optional bootstrap CA is local demonstration material; JWT is the reliable
 demo identity path. Production evolution should add SPIFFE/SPIRE or cloud
 workload identity, managed rotation, replay controls, hardened mTLS, audit
 storage, rate limits, and HA policy/enforcement services.
+
+The ISP-profile relay uses an Ed25519-bound ephemeral client session and a
+replay cache; it does not require the enterprise workload JWT, OPA, or client
+identity. It forwards HTTP/HTTPS TCP bytes without TLS interception or content
+inspection. The loopback Windows adapter proves the protocol boundary but is
+not a signed Windows Filtering Platform driver. HTTP/3/QUIC and arbitrary UDP
+are excluded from this first release. The gateway operator necessarily sees
+requested names and the destinations it resolves, so this prototype does not
+claim anonymity from that operator.
 
 ## Build Week notes
 

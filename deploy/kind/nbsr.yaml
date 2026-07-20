@@ -29,7 +29,7 @@ spec:
       containers:
         - name: opa
           image: openpolicyagent/opa:1.4.2-static
-          args: ["run", "--server", "--addr=0.0.0.0:8181", "/policy"]
+          args: ["run", "--server", "--addr=0.0.0.0:8181", "/policy/nbsr.rego"]
           volumeMounts: [{name: policy, mountPath: /policy}]
       volumes: [{name: policy, configMap: {name: opa-policy}}]
 ---
@@ -71,8 +71,18 @@ spec:
           env:
             - {name: NBSR_OPA_URL, value: "http://opa:8181/v1/data/nbsr/route/decision"}
             - {name: NBSR_GATEWAY_URL, value: "http://localhost:8080"}
-          volumeMounts: [{name: keys, mountPath: /run/secrets, readOnly: true}]
-      volumes: [{name: keys, secret: {secretName: nbsr-keys}}]
+            - {name: NBSR_IDENTITY_PUBLIC_KEY_PATH, value: "/run/nbsr-secrets/identity-public.pem"}
+            - {name: NBSR_TICKET_PRIVATE_KEY_PATH, value: "/run/nbsr-secrets/ticket-private.pem"}
+            - {name: NBSR_NAME_BINDING_PRIVATE_KEY_PATH, value: "/run/nbsr-secrets/name-binding-private.pem"}
+          volumeMounts: [{name: keys, mountPath: /run/nbsr-secrets, readOnly: true}]
+      volumes:
+        - name: keys
+          secret:
+            secretName: nbsr-keys
+            items:
+              - {key: identity-public.pem, path: identity-public.pem}
+              - {key: ticket-private.pem, path: ticket-private.pem}
+              - {key: name-binding-private.pem, path: name-binding-private.pem}
 ---
 apiVersion: v1
 kind: Service
@@ -92,8 +102,14 @@ spec:
         - name: ticket-verifier
           image: nbsr:local
           args: ["nbsr.ticket_verifier:app", "--host", "0.0.0.0", "--port", "9000"]
-          volumeMounts: [{name: keys, mountPath: /run/secrets, readOnly: true}]
-      volumes: [{name: keys, secret: {secretName: nbsr-keys}}]
+          env:
+            - {name: NBSR_TICKET_PUBLIC_KEY_PATH, value: "/run/nbsr-secrets/ticket-public.pem"}
+          volumeMounts: [{name: keys, mountPath: /run/nbsr-secrets, readOnly: true}]
+      volumes:
+        - name: keys
+          secret:
+            secretName: nbsr-keys
+            items: [{key: ticket-public.pem, path: ticket-public.pem}]
 ---
 apiVersion: v1
 kind: Service
@@ -124,6 +140,87 @@ spec:
   selector: {app: gateway}
   ports: [{port: 8080, targetPort: 8080, nodePort: 30080}]
 ---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: name-origin, namespace: nbsr}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: name-origin}}
+  template:
+    metadata: {labels: {app: name-origin}}
+    spec:
+      hostname: facebook
+      subdomain: test
+      containers:
+        - name: name-origin
+          image: nbsr:local
+          command: ["python", "-c"]
+          args:
+            - |
+              import asyncio
+              async def handle(reader, writer):
+                  try:
+                      while payload := await reader.read(65536):
+                          writer.write(b"hidden-origin:" + payload)
+                          await writer.drain()
+                  finally:
+                      writer.close()
+                      await writer.wait_closed()
+              async def main():
+                  server = await asyncio.start_server(handle, "0.0.0.0", 443)
+                  async with server:
+                      await server.serve_forever()
+              asyncio.run(main())
+---
+apiVersion: v1
+kind: Service
+metadata: {name: test, namespace: nbsr}
+spec:
+  clusterIP: None
+  selector: {app: name-origin}
+  ports: [{port: 443, targetPort: 443}]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: name-relay, namespace: nbsr}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: name-relay}}
+  template:
+    metadata: {labels: {app: name-relay}}
+    spec:
+      containers:
+        - name: name-relay
+          image: nbsr:local
+          command: ["python", "-c"]
+          env:
+            - {name: NBSR_NAME_BINDING_PUBLIC_KEY_PATH, value: "/run/nbsr-secrets/name-binding-public.pem"}
+          args:
+            - |
+              import asyncio
+              from nbsr.config import Settings
+              from nbsr.name_relay import NameRelay
+              async def main():
+                  relay = NameRelay(settings=Settings())
+                  server = await asyncio.start_server(relay.handle, "0.0.0.0", 8443)
+                  async with server:
+                      await server.serve_forever()
+              asyncio.run(main())
+          volumeMounts: [{name: name-binding-public, mountPath: /run/nbsr-secrets, readOnly: true}]
+      volumes:
+        - name: name-binding-public
+          secret:
+            secretName: nbsr-keys
+            items: [{key: name-binding-public.pem, path: name-binding-public.pem}]
+---
+apiVersion: v1
+kind: Service
+metadata: {name: name-relay, namespace: nbsr}
+spec:
+  type: NodePort
+  selector: {app: name-relay}
+  ports: [{port: 8443, targetPort: 8443, nodePort: 30443}]
+---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata: {name: default-deny, namespace: nbsr}
@@ -141,6 +238,25 @@ spec:
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
+metadata: {name: name-origin-from-relay-only, namespace: nbsr}
+spec:
+  podSelector: {matchLabels: {app: name-origin}}
+  policyTypes: [Ingress]
+  ingress:
+    - from: [{podSelector: {matchLabels: {app: name-relay}}}]
+      ports: [{port: 443, protocol: TCP}]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: name-relay-ingress, namespace: nbsr}
+spec:
+  podSelector: {matchLabels: {app: name-relay}}
+  policyTypes: [Ingress]
+  ingress:
+    - ports: [{port: 8443, protocol: TCP}]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
 metadata: {name: allow-required-flows, namespace: nbsr}
 spec:
   podSelector: {}
@@ -150,6 +266,7 @@ spec:
       ports:
         - {port: 53, protocol: UDP}
         - {port: 53, protocol: TCP}
+        - {port: 443, protocol: TCP}
         - {port: 7000, protocol: TCP}
         - {port: 8181, protocol: TCP}
         - {port: 9000, protocol: TCP}

@@ -22,6 +22,7 @@ services:
     volumes:
       - ./secrets/identity-public.pem:/run/secrets/identity-public.pem:ro
       - ./secrets/ticket-private.pem:/run/secrets/ticket-private.pem:ro
+      - ./secrets/name-binding-private.pem:/run/secrets/name-binding-private.pem:ro
     networks: [client-network, control-network]
     depends_on:
       opa: { condition: service_healthy }
@@ -61,6 +62,50 @@ services:
     depends_on:
       ticket-verifier: { condition: service_healthy }
       payments-service: { condition: service_healthy }
+
+  name-origin:
+    build: .
+    entrypoint: ["python", "-c"]
+    command:
+      - |
+        import asyncio
+        async def handle(reader, writer):
+            try:
+                while payload := await reader.read(65536):
+                    writer.write(b"hidden-origin:" + payload)
+                    await writer.drain()
+            finally:
+                writer.close()
+                await writer.wait_closed()
+        async def main():
+            server = await asyncio.start_server(handle, "0.0.0.0", 443)
+            async with server:
+                await server.serve_forever()
+        asyncio.run(main())
+    networks:
+      protected-network:
+        aliases: [facebook.test]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import socket; socket.create_connection(('localhost', 443), 2).close()"]
+      interval: 3s
+      timeout: 2s
+      retries: 20
+
+  name-relay:
+    build: .
+    entrypoint: ["python", "/opt/nbsr/name-relay/app.py", "serve"]
+    ports: ["8443:8443"]
+    volumes:
+      - ./services/name-relay:/opt/nbsr/name-relay:ro
+      - ./secrets/name-binding-public.pem:/run/secrets/name-binding-public.pem:ro
+    networks: [client-network, protected-network]
+    depends_on:
+      name-origin: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "python", "-c", "import socket; socket.create_connection(('localhost', 8443), 2).close()"]
+      interval: 3s
+      timeout: 2s
+      retries: 20
 
   client-allowed:
     build: .
