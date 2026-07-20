@@ -72,7 +72,7 @@ def _synthetic_address(value: str) -> str:
 
 
 def _binding_message(route_id: str, nonce: str, port: int) -> bytes:
-    if not isinstance(route_id, str) or not route_id or not isinstance(nonce, str) or not nonce or not isinstance(port, int):
+    if not isinstance(route_id, str) or not route_id or not isinstance(nonce, str) or not nonce or type(port) is not int:
         raise SecurityError("Invalid relay proof")
     return f"{route_id}\n{nonce}\n{port}".encode("utf-8")
 
@@ -154,12 +154,15 @@ def verify_name_binding(
         requested_address = _synthetic_address(synthetic_address)
     except (jwt.PyJWTError, ValueError, SecurityError) as exc:
         raise SecurityError("Invalid name route binding") from exc
+    bound_ports = claims.get("ports")
     if (
         claims.get("hostname") != requested_hostname
         or requested_address not in (claims.get("synthetic_ipv4"), claims.get("synthetic_ipv6"))
         or claims.get("gateway_id") != gateway_id
         or gateway_id != settings.name_binding_gateway_id
-        or port not in claims.get("ports", [])
+        or type(port) is not int
+        or not isinstance(bound_ports, list)
+        or port not in bound_ports
         or port not in _ALLOWED_PORTS
     ):
         raise SecurityError("Invalid name route binding")
@@ -178,7 +181,14 @@ def sign_relay_proof(session: ClientSession, route_id: str, nonce: str, port: in
 
 
 def verify_relay_proof(claims: dict[str, Any], route_id: str, nonce: str, port: int, proof: str) -> None:
-    if claims.get("jti") != route_id:
+    bound_ports = claims.get("ports")
+    if (
+        claims.get("jti") != route_id
+        or type(port) is not int
+        or not isinstance(bound_ports, list)
+        or port not in bound_ports
+        or port not in _ALLOWED_PORTS
+    ):
         raise SecurityError("Invalid relay proof")
     try:
         public_key = _session_public_key(claims["cnf"]["ed25519_public_key"])

@@ -56,6 +56,14 @@ def test_binding_rejects_unapproved_port(settings, port):
         verify_name_binding(token, "facebook.test", "127.80.0.1", port, "edge-local", settings)
 
 
+@pytest.mark.parametrize("port", [80.0, 443.0, "443", True, None])
+def test_binding_rejects_non_integer_port(settings, port):
+    token, _ = issue_binding(settings)
+
+    with pytest.raises(SecurityError):
+        verify_name_binding(token, "facebook.test", "127.80.0.1", port, "edge-local", settings)
+
+
 def test_binding_rejects_tampering(settings):
     token, _ = issue_binding(settings)
     header, payload, signature = token.split(".")
@@ -112,3 +120,13 @@ def test_relay_proof_rejects_modified_nonce(settings):
 
     with pytest.raises(SecurityError):
         verify_relay_proof(claims, claims["jti"], "modified-nonce", 443, proof)
+
+
+@pytest.mark.parametrize("port", [22, 53, 853, 8443])
+def test_relay_proof_rejects_unapproved_port(settings, port):
+    token, session = issue_binding(settings)
+    claims = verify_name_binding(token, "facebook.test", "127.80.0.1", 443, "edge-local", settings)
+    proof = sign_relay_proof(session, claims["jti"], "relay-nonce", port)
+
+    with pytest.raises(SecurityError):
+        verify_relay_proof(claims, claims["jti"], "relay-nonce", port, proof)
