@@ -23,10 +23,13 @@ secrets.mkdir(exist_ok=True)
 tokens.mkdir(exist_ok=True)
 identity = Ed25519PrivateKey.generate()
 ticket = Ed25519PrivateKey.generate()
+name_binding = Ed25519PrivateKey.generate()
 (secrets / "identity-private.pem").write_bytes(private_pem(identity))
 (secrets / "identity-public.pem").write_bytes(public_pem(identity))
 (secrets / "ticket-private.pem").write_bytes(private_pem(ticket))
 (secrets / "ticket-public.pem").write_bytes(public_pem(ticket))
+(secrets / "name-binding-private.pem").write_bytes(private_pem(name_binding))
+(secrets / "name-binding-public.pem").write_bytes(public_pem(name_binding))
 now = datetime.now(UTC)
 for short in ("allowed", "denied"):
     claims = {"iss": "https://identity.nbsr.local", "sub": f"spiffe://nbsr.local/workload/client-{short}", "aud": "nbsr-control-plane", "iat": now, "exp": now + timedelta(hours=8), "jti": f"demo-{short}-{int(now.timestamp())}"}
