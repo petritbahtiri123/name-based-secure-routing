@@ -79,6 +79,38 @@ def test_dns_stub_rejects_non_in_a_queries_with_notimp():
     assert answer.rr == []
 
 
+def test_dns_stub_rejects_response_packets_without_resolving():
+    calls: list[str] = []
+
+    def resolver(hostname: str) -> ClientRoute:
+        calls.append(hostname)
+        return route_for(hostname)
+
+    request = DNSRecord.question("facebook.test", "A")
+    request.header.qr = 1
+    answer = DNSRecord.parse(DnsStub(resolver, RouteTable()).resolve_query(request.pack()))
+
+    assert answer.header.id == request.header.id
+    assert answer.header.rcode == RCODE.FORMERR
+    assert calls == []
+
+
+def test_dns_stub_rejects_non_query_opcodes_without_resolving():
+    calls: list[str] = []
+
+    def resolver(hostname: str) -> ClientRoute:
+        calls.append(hostname)
+        return route_for(hostname)
+
+    request = DNSRecord.question("facebook.test", "A")
+    request.header.opcode = 5  # UPDATE
+    answer = DNSRecord.parse(DnsStub(resolver, RouteTable()).resolve_query(request.pack()))
+
+    assert answer.header.id == request.header.id
+    assert answer.header.rcode == RCODE.NOTIMP
+    assert calls == []
+
+
 def test_dns_stub_returns_formerr_for_malformed_packet_with_original_id():
     stub = DnsStub(route_for, RouteTable())
 

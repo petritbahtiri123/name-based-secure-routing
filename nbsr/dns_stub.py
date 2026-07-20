@@ -86,6 +86,10 @@ class DnsStub:
             request = DNSRecord.parse(packet)
         except DNSError:
             return self._error_response(request_id, RCODE.FORMERR)
+        if request.header.qr != 0:
+            return self._reply_with_error(request, RCODE.FORMERR)
+        if request.header.opcode != 0:
+            return self._reply_with_error(request, RCODE.NOTIMP)
         if len(request.questions) != 1:
             return self._reply_with_error(request, RCODE.FORMERR)
 
