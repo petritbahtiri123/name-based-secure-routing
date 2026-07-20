@@ -5,6 +5,10 @@ from ipaddress import IPv4Network, IPv6Network, ip_address, ip_network
 from nbsr.name_model import normalize_hostname
 
 
+_LOOPBACK_IPV4 = IPv4Network("127.0.0.0/8")
+_NBSR_SYNTHETIC_ULA = IPv6Network("fd00:6e62:7372::/48")
+
+
 class SyntheticPoolExhausted(Exception):
     """Raised when no unused synthetic address pair remains."""
 
@@ -23,6 +27,10 @@ class SyntheticAddressPool:
         self._ipv6_network = ip_network(ipv6_cidr)
         if not isinstance(self._ipv4_network, IPv4Network) or not isinstance(self._ipv6_network, IPv6Network):
             raise ValueError("Synthetic pools must be IPv4 and IPv6 networks")
+        if not self._ipv4_network.subnet_of(_LOOPBACK_IPV4):
+            raise ValueError("Synthetic IPv4 pool must be within the loopback range")
+        if not self._ipv6_network.subnet_of(_NBSR_SYNTHETIC_ULA):
+            raise ValueError("Synthetic IPv6 pool must be within the NBSR synthetic ULA prefix")
         self._ttl = timedelta(seconds=ttl_seconds)
         self._by_hostname: dict[str, SyntheticMapping] = {}
         self._by_address: dict[str, SyntheticMapping] = {}

@@ -10,6 +10,16 @@ def test_normalizes_dns_name():
     assert normalize_hostname("Facebook.COM.") == "facebook.com"
 
 
+def test_rejects_non_loopback_ipv4_pool():
+    with pytest.raises(ValueError, match="loopback"):
+        SyntheticAddressPool("10.0.0.0/29", "fd00:6e62:7372::/125", ttl_seconds=60)
+
+
+def test_rejects_ipv6_pool_outside_nbsr_synthetic_prefix():
+    with pytest.raises(ValueError, match="NBSR synthetic ULA prefix"):
+        SyntheticAddressPool("127.80.0.0/29", "fd00:6e62:7373::/125", ttl_seconds=60)
+
+
 def test_rejects_invalid_dns_names():
     for value in ("", ".", "facebook..test", "-facebook.test", "facebook-.test", "face_book.test"):
         with pytest.raises(ValueError, match="Invalid NBSR hostname"):
