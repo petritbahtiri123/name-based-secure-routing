@@ -1,11 +1,15 @@
 from datetime import UTC, datetime, timedelta
 
 import jwt
+import pytest
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from fastapi.testclient import TestClient
 
 from nbsr.config import Settings
-from nbsr.control_plane import app, get_settings
+from nbsr.control_plane import app, get_name_route_service, get_settings
+from nbsr.name_security import ClientSession
+from nbsr.name_service import NameRouteService
+from nbsr.synthetic import SyntheticAddressPool
 
 
 class FakeResponse:
@@ -57,3 +61,93 @@ def test_policy_denial_returns_403(monkeypatch):
     client, token = setup(monkeypatch, allow=False)
     response = client.post("/v1/routes/resolve", headers={"Authorization": f"Bearer {token}"}, json={"service": "payments.internal", "method": "GET", "path": "/api/payment-status"})
     assert response.status_code == 403
+
+
+def test_isp_route_does_not_require_authorization_header(monkeypatch):
+    client, _ = setup(monkeypatch)
+
+    response = client.post(
+        "/v1/name-routes/resolve",
+        json={
+            "protocol_version": 1,
+            "request_id": "request-1",
+            "hostname": "facebook.test",
+            "transport": "tcp",
+            "client_nonce": "client-nonce",
+            "client_public_key": ClientSession.generate().public_key_b64,
+            "capabilities": ["http", "https"],
+        },
+    )
+
+    assert response.status_code == 200
+    assert set(response.json()) == {
+        "protocol_version",
+        "request_id",
+        "hostname",
+        "synthetic_ipv4",
+        "synthetic_ipv6",
+        "gateway_id",
+        "route_binding",
+        "expires_in",
+    }
+
+
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("protocol_version", 2),
+        ("protocol_version", True),
+        ("transport", "udp"),
+        ("request_id", ""),
+        ("client_nonce", ""),
+        ("client_public_key", "invalid"),
+        ("capabilities", ["http", ""]),
+    ],
+)
+def test_name_route_rejects_invalid_requests(monkeypatch, field, value):
+    client, _ = setup(monkeypatch)
+    payload = {
+        "protocol_version": 1,
+        "request_id": "request-1",
+        "hostname": "facebook.test",
+        "transport": "tcp",
+        "client_nonce": "client-nonce",
+        "client_public_key": ClientSession.generate().public_key_b64,
+        "capabilities": ["http", "https"],
+    }
+    payload[field] = value
+
+    response = client.post("/v1/name-routes/resolve", json=payload)
+
+    assert response.status_code == 422
+
+
+def test_name_route_pool_exhaustion_returns_retryable_503(monkeypatch):
+    settings = Settings.for_tests(
+        ClientSession.generate().private_key,
+        ClientSession.generate().private_key,
+        ClientSession.generate().private_key,
+    )
+    service = NameRouteService(
+        pool=SyntheticAddressPool("127.80.0.0/30", "fd00:6e62:7372::/126", ttl_seconds=60),
+        settings=settings,
+    )
+    monkeypatch.setitem(app.dependency_overrides, get_name_route_service, lambda: service)
+    client = TestClient(app, raise_server_exceptions=False)
+    payload = {
+        "protocol_version": 1,
+        "request_id": "request-1",
+        "transport": "tcp",
+        "client_nonce": "client-nonce",
+        "client_public_key": ClientSession.generate().public_key_b64,
+        "capabilities": ["http", "https"],
+    }
+
+    for hostname in ("one.test", "two.test"):
+        response = client.post("/v1/name-routes/resolve", json={**payload, "hostname": hostname})
+        assert response.status_code == 200
+
+    response = client.post("/v1/name-routes/resolve", json={**payload, "hostname": "three.test"})
+
+    assert response.status_code == 503
+    assert response.headers["Retry-After"] == "60"
