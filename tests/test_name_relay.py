@@ -1,5 +1,6 @@
 import asyncio
 import json
+import socket
 import struct
 from dataclasses import dataclass
 from uuid import uuid4
@@ -40,6 +41,11 @@ class StaticResolver:
         return [ResolvedEndpoint(host, endpoint_port) for host, endpoint_port in self._mapping[hostname]]
 
 
+class UnresolvableResolver:
+    async def resolve(self, hostname: str, port: int) -> list[ResolvedEndpoint]:
+        raise socket.gaierror(socket.EAI_NONAME, "name not known")
+
+
 @pytest.fixture()
 def settings():
     return Settings.for_tests(
@@ -64,7 +70,7 @@ async def start_echo_origin(prefix: bytes) -> Listener:
     return Listener(server, host, port)
 
 
-async def start_name_relay(settings: Settings, resolver: StaticResolver) -> Listener:
+async def start_name_relay(settings: Settings, resolver: StaticResolver | UnresolvableResolver | None = None) -> Listener:
     relay = NameRelay(settings=settings, resolver=resolver)
     server = await asyncio.start_server(relay.handle, "127.0.0.1", 0)
     host, port = server.sockets[0].getsockname()[:2]
@@ -148,6 +154,15 @@ async def connect_with_valid_binding(
     finally:
         writer.close()
         await writer.wait_closed()
+
+
+def unused_loopback_port() -> int:
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        sock.bind(("127.0.0.1", 0))
+        return sock.getsockname()[1]
+    finally:
+        sock.close()
 
 
 @pytest.mark.asyncio
@@ -256,3 +271,64 @@ async def test_relay_rejects_oversized_handshake(settings):
         writer.close()
         await writer.wait_closed()
         await relay.close()
+
+
+@pytest.mark.asyncio
+async def test_unresolvable_signed_hostname_closes_without_asyncio_callback_error(settings):
+    relay = await start_name_relay(settings, UnresolvableResolver())
+    loop = asyncio.get_running_loop()
+    errors: list[dict[str, object]] = []
+    previous_exception_handler = loop.get_exception_handler()
+    loop.set_exception_handler(lambda _loop, context: errors.append(context))
+    try:
+        reader, writer = await open_with_valid_binding(relay, settings)
+        try:
+            assert await asyncio.wait_for(reader.read(), timeout=1) == b""
+        finally:
+            writer.close()
+            await writer.wait_closed()
+    finally:
+        loop.set_exception_handler(previous_exception_handler)
+        await relay.close()
+
+    assert errors == []
+
+
+@pytest.mark.asyncio
+async def test_relay_uses_the_first_resolved_endpoint_in_order(settings):
+    first_origin = await start_echo_origin(prefix=b"first:")
+    later_origin = await start_echo_origin(prefix=b"later:")
+    resolver = StaticResolver({"facebook.test": [("127.0.0.1", first_origin.port), ("127.0.0.1", later_origin.port)]})
+    relay = await start_name_relay(settings, resolver)
+    try:
+        assert await connect_with_valid_binding(relay, settings, payload=b"ordered") == b"first:ordered"
+    finally:
+        await relay.close()
+        await later_origin.close()
+        await first_origin.close()
+
+
+@pytest.mark.asyncio
+async def test_relay_falls_back_in_endpoint_order_after_failed_connection(settings):
+    origin = await start_echo_origin(prefix=b"origin:")
+    resolver = StaticResolver({"facebook.test": [("127.0.0.1", unused_loopback_port()), ("127.0.0.1", origin.port)]})
+    relay = await start_name_relay(settings, resolver)
+    try:
+        assert await connect_with_valid_binding(relay, settings, payload=b"fallback") == b"origin:fallback"
+    finally:
+        await relay.close()
+        await origin.close()
+
+
+@pytest.mark.asyncio
+async def test_relay_endpoint_cap_excludes_later_origins(settings):
+    settings.name_relay_max_endpoints = 1
+    origin = await start_echo_origin(prefix=b"origin:")
+    resolver = StaticResolver({"facebook.test": [("127.0.0.1", unused_loopback_port()), ("127.0.0.1", origin.port)]})
+    relay = await start_name_relay(settings, resolver)
+    try:
+        with pytest.raises(RelayRejected):
+            await connect_with_valid_binding(relay, settings, payload=b"must-not-reach-origin")
+    finally:
+        await relay.close()
+        await origin.close()

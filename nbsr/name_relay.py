@@ -125,7 +125,10 @@ class NameRelay:
         self._replay_cache.consume(handshake["route_id"], handshake["nonce"])
 
     async def _connect_origin(self, hostname: object, port: object) -> tuple[asyncio.StreamReader, asyncio.StreamWriter]:
-        endpoints = await self._resolver.resolve(hostname, port)
+        try:
+            endpoints = await self._resolver.resolve(hostname, port)
+        except OSError as exc:
+            raise RelayRejected("gateway could not resolve the named origin") from exc
         for endpoint in endpoints[: self._settings.name_relay_max_endpoints]:
             try:
                 return await asyncio.wait_for(
