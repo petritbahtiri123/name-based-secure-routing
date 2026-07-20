@@ -59,6 +59,10 @@ def _session_public_key(value: object) -> Ed25519PublicKey:
         raise SecurityError("Invalid client session key") from exc
 
 
+def validate_client_session_public_key(value: object) -> None:
+    _session_public_key(value)
+
+
 def _synthetic_address(value: str) -> str:
     try:
         parsed = ip_address(value)

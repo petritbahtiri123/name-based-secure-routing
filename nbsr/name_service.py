@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 from nbsr.config import Settings
 from nbsr.name_model import normalize_hostname
-from nbsr.name_security import issue_name_binding
+from nbsr.name_security import issue_name_binding, validate_client_session_public_key
 from nbsr.synthetic import SyntheticAddressPool
 
 
@@ -24,6 +24,7 @@ class NameRouteService:
 
     def resolve(self, hostname: str, session_public_key: str) -> NameRouteResponse:
         hostname = normalize_hostname(hostname)
+        validate_client_session_public_key(session_public_key)
         mapping = self._pool.allocate(hostname)
         route_binding = issue_name_binding(
             hostname=hostname,
