@@ -22,7 +22,6 @@ services:
     volumes:
       - ./secrets/identity-public.pem:/run/secrets/identity-public.pem:ro
       - ./secrets/ticket-private.pem:/run/secrets/ticket-private.pem:ro
-      - ./secrets/name-binding-private.pem:/run/secrets/name-binding-private.pem:ro
     networks: [client-network, control-network]
     depends_on:
       opa: { condition: service_healthy }
@@ -63,6 +62,31 @@ services:
       ticket-verifier: { condition: service_healthy }
       payments-service: { condition: service_healthy }
 
+  name-control:
+    build: .
+    command:
+      - nbsr.name_control:app
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8444"
+      - --ssl-certfile
+      - /run/secrets/isp-control-cert.pem
+      - --ssl-keyfile
+      - /run/secrets/isp-control-key.pem
+    ports: ["8444:8444"]
+    volumes:
+      - ./secrets/name-binding-private.pem:/run/secrets/name-binding-private.pem:ro
+      - ./secrets/isp-ca.pem:/run/secrets/isp-ca.pem:ro
+      - ./secrets/isp-control-cert.pem:/run/secrets/isp-control-cert.pem:ro
+      - ./secrets/isp-control-key.pem:/run/secrets/isp-control-key.pem:ro
+    networks: [client-network]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import ssl,urllib.request; c=ssl.create_default_context(cafile='/run/secrets/isp-ca.pem'); urllib.request.urlopen('https://localhost:8444/health', context=c)"]
+      interval: 3s
+      timeout: 2s
+      retries: 20
+
   name-origin:
     build: .
     entrypoint: ["python", "-c"]
@@ -70,6 +94,8 @@ services:
       - |
         import asyncio
         async def handle(reader, writer):
+            peer = writer.get_extra_info("peername")
+            print(f"ORIGIN_OBSERVED_PEER={peer[0]}", flush=True)
             try:
                 while payload := await reader.read(65536):
                     writer.write(b"hidden-origin:" + payload)
@@ -98,11 +124,14 @@ services:
     volumes:
       - ./services/name-relay:/opt/nbsr/name-relay:ro
       - ./secrets/name-binding-public.pem:/run/secrets/name-binding-public.pem:ro
+      - ./secrets/isp-ca.pem:/run/secrets/isp-ca.pem:ro
+      - ./secrets/isp-relay-cert.pem:/run/secrets/isp-relay-cert.pem:ro
+      - ./secrets/isp-relay-key.pem:/run/secrets/isp-relay-key.pem:ro
     networks: [client-network, protected-network]
     depends_on:
       name-origin: { condition: service_healthy }
     healthcheck:
-      test: ["CMD", "python", "-c", "import socket; socket.create_connection(('localhost', 8443), 2).close()"]
+      test: ["CMD", "python", "-c", "import socket,ssl; c=ssl.create_default_context(cafile='/run/secrets/isp-ca.pem'); s=c.wrap_socket(socket.socket(), server_hostname='name-relay'); s.settimeout(2); s.connect(('localhost', 8443)); s.close()"]
       interval: 3s
       timeout: 2s
       retries: 20

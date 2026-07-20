@@ -73,7 +73,6 @@ spec:
             - {name: NBSR_GATEWAY_URL, value: "http://localhost:8080"}
             - {name: NBSR_IDENTITY_PUBLIC_KEY_PATH, value: "/run/nbsr-secrets/identity-public.pem"}
             - {name: NBSR_TICKET_PRIVATE_KEY_PATH, value: "/run/nbsr-secrets/ticket-private.pem"}
-            - {name: NBSR_NAME_BINDING_PRIVATE_KEY_PATH, value: "/run/nbsr-secrets/name-binding-private.pem"}
           volumeMounts: [{name: keys, mountPath: /run/nbsr-secrets, readOnly: true}]
       volumes:
         - name: keys
@@ -82,12 +81,58 @@ spec:
             items:
               - {key: identity-public.pem, path: identity-public.pem}
               - {key: ticket-private.pem, path: ticket-private.pem}
-              - {key: name-binding-private.pem, path: name-binding-private.pem}
 ---
 apiVersion: v1
 kind: Service
 metadata: {name: control-plane, namespace: nbsr}
 spec: {selector: {app: control-plane}, ports: [{port: 8000}]}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: name-control, namespace: nbsr}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: name-control}}
+  template:
+    metadata: {labels: {app: name-control}}
+    spec:
+      containers:
+        - name: name-control
+          image: nbsr:local
+          args:
+            - nbsr.name_control:app
+            - --host
+            - 0.0.0.0
+            - --port
+            - "8444"
+            - --ssl-certfile
+            - /run/nbsr-tls/isp-control-cert.pem
+            - --ssl-keyfile
+            - /run/nbsr-tls/isp-control-key.pem
+          env:
+            - {name: NBSR_NAME_BINDING_PRIVATE_KEY_PATH, value: "/run/nbsr-signing/name-binding-private.pem"}
+          volumeMounts:
+            - {name: name-binding-private, mountPath: /run/nbsr-signing, readOnly: true}
+            - {name: control-tls, mountPath: /run/nbsr-tls, readOnly: true}
+      volumes:
+        - name: name-binding-private
+          secret:
+            secretName: nbsr-keys
+            items: [{key: name-binding-private.pem, path: name-binding-private.pem}]
+        - name: control-tls
+          secret:
+            secretName: nbsr-isp-tls
+            items:
+              - {key: isp-control-cert.pem, path: isp-control-cert.pem}
+              - {key: isp-control-key.pem, path: isp-control-key.pem}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: name-control, namespace: nbsr}
+spec:
+  type: NodePort
+  selector: {app: name-control}
+  ports: [{port: 8444, targetPort: 8444, nodePort: 30444}]
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -159,6 +204,8 @@ spec:
             - |
               import asyncio
               async def handle(reader, writer):
+                  peer = writer.get_extra_info("peername")
+                  print(f"ORIGIN_OBSERVED_PEER={peer[0]}", flush=True)
                   try:
                       while payload := await reader.read(65536):
                           writer.write(b"hidden-origin:" + payload)
@@ -194,24 +241,36 @@ spec:
           image: nbsr:local
           command: ["python", "-c"]
           env:
-            - {name: NBSR_NAME_BINDING_PUBLIC_KEY_PATH, value: "/run/nbsr-secrets/name-binding-public.pem"}
+            - {name: NBSR_NAME_BINDING_PUBLIC_KEY_PATH, value: "/run/nbsr-signing/name-binding-public.pem"}
           args:
             - |
               import asyncio
+              import ssl
               from nbsr.config import Settings
               from nbsr.name_relay import NameRelay
               async def main():
                   relay = NameRelay(settings=Settings())
-                  server = await asyncio.start_server(relay.handle, "0.0.0.0", 8443)
+                  tls = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+                  tls.minimum_version = ssl.TLSVersion.TLSv1_3
+                  tls.load_cert_chain("/run/nbsr-tls/isp-relay-cert.pem", "/run/nbsr-tls/isp-relay-key.pem")
+                  server = await asyncio.start_server(relay.handle, "0.0.0.0", 8443, ssl=tls)
                   async with server:
                       await server.serve_forever()
               asyncio.run(main())
-          volumeMounts: [{name: name-binding-public, mountPath: /run/nbsr-secrets, readOnly: true}]
+          volumeMounts:
+            - {name: name-binding-public, mountPath: /run/nbsr-signing, readOnly: true}
+            - {name: relay-tls, mountPath: /run/nbsr-tls, readOnly: true}
       volumes:
         - name: name-binding-public
           secret:
             secretName: nbsr-keys
             items: [{key: name-binding-public.pem, path: name-binding-public.pem}]
+        - name: relay-tls
+          secret:
+            secretName: nbsr-isp-tls
+            items:
+              - {key: isp-relay-cert.pem, path: isp-relay-cert.pem}
+              - {key: isp-relay-key.pem, path: isp-relay-key.pem}
 ---
 apiVersion: v1
 kind: Service
@@ -245,6 +304,15 @@ spec:
   ingress:
     - from: [{podSelector: {matchLabels: {app: name-relay}}}]
       ports: [{port: 443, protocol: TCP}]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: name-control-ingress, namespace: nbsr}
+spec:
+  podSelector: {matchLabels: {app: name-control}}
+  policyTypes: [Ingress]
+  ingress:
+    - ports: [{port: 8444, protocol: TCP}]
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy

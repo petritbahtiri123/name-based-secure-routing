@@ -3,10 +3,12 @@ from __future__ import annotations
 import asyncio
 import json
 import secrets
+import ssl
 import struct
 import subprocess
 from dataclasses import dataclass
 from ipaddress import IPv4Address, IPv4Network, IPv6Address, IPv6Network, ip_address
+from pathlib import Path
 from typing import Callable, Protocol, Sequence
 
 import jwt
@@ -145,6 +147,8 @@ class LoopbackInterceptor:
         relay_host: str,
         relay_port: int,
         gateway_id: str,
+        relay_tls_ca_path: Path | str | None = None,
+        relay_server_name: str = "name-relay",
         handshake_timeout_seconds: float = 2.0,
     ) -> None:
         if handshake_timeout_seconds <= 0:
@@ -154,6 +158,8 @@ class LoopbackInterceptor:
         self._relay_host = relay_host
         self._relay_port = relay_port
         self._gateway_id = gateway_id
+        self._relay_ssl_context = ssl.create_default_context(cafile=str(relay_tls_ca_path)) if relay_tls_ca_path else None
+        self._relay_server_name = relay_server_name
         self._handshake_timeout_seconds = handshake_timeout_seconds
         self._listeners: dict[tuple[str, int], BoundListener] = {}
 
@@ -198,7 +204,13 @@ class LoopbackInterceptor:
                 return
             local_port = socket_name[1]
             relay_reader, relay_writer = await asyncio.wait_for(
-                asyncio.open_connection(self._relay_host, self._relay_port), timeout=self._handshake_timeout_seconds
+                asyncio.open_connection(
+                    self._relay_host,
+                    self._relay_port,
+                    ssl=self._relay_ssl_context,
+                    server_hostname=self._relay_server_name if self._relay_ssl_context else None,
+                ),
+                timeout=self._handshake_timeout_seconds,
             )
             await asyncio.wait_for(self._send_handshake(relay_writer, route, socket_name[0], local_port), self._handshake_timeout_seconds)
             await asyncio.gather(self._copy(client_reader, relay_writer), self._copy(relay_reader, client_writer))
@@ -262,6 +274,8 @@ class WindowsNameAgent:
         relay_port: int,
         gateway_id: str,
         test_https_port: int = 443,
+        relay_tls_ca_path: Path | str | None = None,
+        relay_server_name: str = "name-relay",
         network_adapter: WindowsNetworkAdapter | None = None,
     ) -> None:
         self._name_route_service = name_route_service
@@ -277,6 +291,8 @@ class WindowsNameAgent:
             relay_host=relay_host,
             relay_port=relay_port,
             gateway_id=gateway_id,
+            relay_tls_ca_path=relay_tls_ca_path,
+            relay_server_name=relay_server_name,
         )
 
     async def resolve(self, hostname: str) -> ClientRoute:

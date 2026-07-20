@@ -14,15 +14,22 @@ limiting, durable audit logs, and production PKI are outside prototype scope.
 
 The name-route control boundary signs short-lived route bindings with a key
 separate from identity and enterprise routing-ticket keys. A deployed name
-relay receives only the name-binding public key. It verifies hostname,
+control service receives the name-binding private key plus only its ISP TLS
+server key; the legacy enterprise HTTP control plane receives neither. A
+deployed name relay receives only the name-binding public key plus its distinct
+ISP TLS server key. Clients receive and trust only the separate ISP demo CA.
+The ISP CA and both server certificates are separate from the optional
+enterprise demo CA and every JWT/signing key. The relay verifies hostname,
 synthetic address, gateway, allowed TCP port, expiry, client proof-of-possession,
 and relay-nonce replay before it privately resolves and opens the origin.
 Client-visible route state contains synthetic compatibility addresses, never
 the resolved destination address.
 
-The relay forwards opaque HTTP and HTTPS bytes. It does not terminate TLS,
-substitute certificates, inspect application content, or require subscriber
-identity. The gateway operator nevertheless sees each requested name and its
+The ISP name-control API and relay transport require server-authenticated TLS.
+The relay then forwards opaque HTTP and HTTPS application bytes inside that
+transport. It does not terminate application TLS, substitute application
+certificates, inspect content, or require subscriber identity. The gateway
+operator nevertheless sees each requested name and its
 resolved destination because the gateway performs resolution and routing;
 NBSR does not provide anonymity from that operator.
 

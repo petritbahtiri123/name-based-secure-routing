@@ -1,11 +1,13 @@
+import argparse
 from datetime import UTC, datetime, timedelta
+from ipaddress import ip_address
 from pathlib import Path
 
 import jwt
 from cryptography import x509
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
-from cryptography.x509.oid import NameOID
+from cryptography.x509.oid import ExtendedKeyUsageOID, NameOID
 
 
 def private_pem(key):
@@ -16,11 +18,19 @@ def public_pem(key):
     return key.public_key().public_bytes(serialization.Encoding.PEM, serialization.PublicFormat.SubjectPublicKeyInfo)
 
 
-root = Path(__file__).resolve().parents[1]
-secrets = root / "secrets"
-tokens = root / "tokens"
-secrets.mkdir(exist_ok=True)
-tokens.mkdir(exist_ok=True)
+repo_root = Path(__file__).resolve().parents[1]
+parser = argparse.ArgumentParser(description="Generate local NBSR demo trust material.")
+parser.add_argument(
+    "--output-root",
+    type=Path,
+    default=repo_root,
+    help="Root under which secrets/ and tokens/ are generated (defaults to the repository root).",
+)
+output_root = parser.parse_args().output_root.resolve()
+secrets = output_root / "secrets"
+tokens = output_root / "tokens"
+secrets.mkdir(parents=True, exist_ok=True)
+tokens.mkdir(parents=True, exist_ok=True)
 identity = Ed25519PrivateKey.generate()
 ticket = Ed25519PrivateKey.generate()
 name_binding = Ed25519PrivateKey.generate()
@@ -32,13 +42,107 @@ name_binding = Ed25519PrivateKey.generate()
 (secrets / "name-binding-public.pem").write_bytes(public_pem(name_binding))
 now = datetime.now(UTC)
 for short in ("allowed", "denied"):
-    claims = {"iss": "https://identity.nbsr.local", "sub": f"spiffe://nbsr.local/workload/client-{short}", "aud": "nbsr-control-plane", "iat": now, "exp": now + timedelta(hours=8), "jti": f"demo-{short}-{int(now.timestamp())}"}
+    claims = {
+        "iss": "https://identity.nbsr.local",
+        "sub": f"spiffe://nbsr.local/workload/client-{short}",
+        "aud": "nbsr-control-plane",
+        "iat": now,
+        "exp": now + timedelta(hours=8),
+        "jti": f"demo-{short}-{int(now.timestamp())}",
+    }
     (tokens / f"client-{short}.jwt").write_text(jwt.encode(claims, identity, algorithm="EdDSA"), encoding="utf-8")
 
 # Optional local mTLS material. It is not used by the reliable JWT path.
 ca_key = Ed25519PrivateKey.generate()
 name = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, "NBSR local demo CA")])
-ca = x509.CertificateBuilder().subject_name(name).issuer_name(name).public_key(ca_key.public_key()).serial_number(x509.random_serial_number()).not_valid_before(now).not_valid_after(now + timedelta(days=7)).add_extension(x509.BasicConstraints(ca=True, path_length=0), critical=True).sign(ca_key, algorithm=None)
+ca = (
+    x509.CertificateBuilder()
+    .subject_name(name)
+    .issuer_name(name)
+    .public_key(ca_key.public_key())
+    .serial_number(x509.random_serial_number())
+    .not_valid_before(now)
+    .not_valid_after(now + timedelta(days=7))
+    .add_extension(x509.BasicConstraints(ca=True, path_length=0), critical=True)
+    .sign(ca_key, algorithm=None)
+)
 (secrets / "demo-ca.pem").write_bytes(ca.public_bytes(serialization.Encoding.PEM))
 (secrets / "demo-ca-private.pem").write_bytes(private_pem(ca_key))
-print("Generated ignored local demo keys, tokens, and optional mTLS CA material.")
+
+# The ISP name-control and relay share a demo-only CA that is separate from the
+# optional enterprise CA and from every JWT/signing trust domain.
+isp_ca_key = Ed25519PrivateKey.generate()
+isp_ca_name = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, "NBSR ISP demo CA")])
+isp_ca = (
+    x509.CertificateBuilder()
+    .subject_name(isp_ca_name)
+    .issuer_name(isp_ca_name)
+    .public_key(isp_ca_key.public_key())
+    .serial_number(x509.random_serial_number())
+    .not_valid_before(now - timedelta(minutes=1))
+    .not_valid_after(now + timedelta(days=7))
+    .add_extension(x509.BasicConstraints(ca=True, path_length=0), critical=True)
+    .add_extension(
+        x509.KeyUsage(
+            digital_signature=True,
+            content_commitment=False,
+            key_encipherment=False,
+            data_encipherment=False,
+            key_agreement=False,
+            key_cert_sign=True,
+            crl_sign=True,
+            encipher_only=None,
+            decipher_only=None,
+        ),
+        critical=True,
+    )
+    .add_extension(x509.SubjectKeyIdentifier.from_public_key(isp_ca_key.public_key()), critical=False)
+    .sign(isp_ca_key, algorithm=None)
+)
+
+
+def issue_isp_server_certificate(common_name: str):
+    key = Ed25519PrivateKey.generate()
+    subject = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, common_name)])
+    cert = (
+        x509.CertificateBuilder()
+        .subject_name(subject)
+        .issuer_name(isp_ca.subject)
+        .public_key(key.public_key())
+        .serial_number(x509.random_serial_number())
+        .not_valid_before(now - timedelta(minutes=1))
+        .not_valid_after(now + timedelta(days=7))
+        .add_extension(
+            x509.SubjectAlternativeName([x509.DNSName(common_name), x509.DNSName("localhost"), x509.IPAddress(ip_address("127.0.0.1"))]),
+            critical=False,
+        )
+        .add_extension(x509.ExtendedKeyUsage([ExtendedKeyUsageOID.SERVER_AUTH]), critical=True)
+        .add_extension(
+            x509.KeyUsage(
+                digital_signature=True,
+                content_commitment=False,
+                key_encipherment=False,
+                data_encipherment=False,
+                key_agreement=False,
+                key_cert_sign=False,
+                crl_sign=False,
+                encipher_only=None,
+                decipher_only=None,
+            ),
+            critical=True,
+        )
+        .add_extension(x509.SubjectKeyIdentifier.from_public_key(key.public_key()), critical=False)
+        .add_extension(x509.AuthorityKeyIdentifier.from_issuer_public_key(isp_ca_key.public_key()), critical=False)
+        .sign(isp_ca_key, algorithm=None)
+    )
+    return key, cert
+
+
+(secrets / "isp-ca.pem").write_bytes(isp_ca.public_bytes(serialization.Encoding.PEM))
+(secrets / "isp-ca-private.pem").write_bytes(private_pem(isp_ca_key))
+for service_name, file_prefix in (("name-control", "control"), ("name-relay", "relay")):
+    server_key, server_cert = issue_isp_server_certificate(service_name)
+    (secrets / f"isp-{file_prefix}-key.pem").write_bytes(private_pem(server_key))
+    (secrets / f"isp-{file_prefix}-cert.pem").write_bytes(server_cert.public_bytes(serialization.Encoding.PEM))
+
+print("Generated ignored enterprise and ISP demo trust material.")

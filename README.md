@@ -90,10 +90,11 @@ docker compose up -d --build
 ./scripts/demo.sh
 ```
 
-Ports 8000 (control plane), 8080 (Envoy), and 8443 (the NBSR name relay) are
-published. The payments service and deterministic name origin are on an
-internal protected network. The existing enterprise demo prints a scenario
-table and exits nonzero on any mandatory mismatch.
+Ports 8000 (legacy enterprise control), 8080 (Envoy), 8443 (the TLS NBSR name
+relay), and 8444 (TLS ISP name control) are published. The payments service and
+deterministic name origin are on an internal protected network. The existing
+enterprise demo remains on its original HTTP endpoints, prints a scenario
+table, and exits nonzero on any mandatory mismatch.
 
 ## Deterministic name-routing demo
 
@@ -110,13 +111,16 @@ Or on Linux/macOS:
 ./scripts/name-route-demo.sh
 ```
 
-The client requests `facebook.test`, receives only a loopback synthetic
-address and a signed 60-second binding, and sends opaque bytes to the published
-NBSR gateway. Only the gateway resolves `facebook.test`; the deterministic
-origin has no host port and is reachable only through the protected network.
-The demo prints the requested name, synthetic address, gateway, opaque origin
-response, and a checked assertion that the origin address never appeared in
-client-visible route state.
+The client trusts only the separately generated ISP demo CA. It requests
+`facebook.test` over the server-authenticated TLS name-control endpoint,
+receives only a loopback synthetic address and a signed 60-second binding, and
+sends opaque bytes through a separately certified TLS relay. Only the gateway
+resolves `facebook.test`; the deterministic origin has no host port and is
+reachable only through the protected network. The demo prints the requested
+name, synthetic address, TLS gateway, opaque origin response, a checked
+assertion that the origin address never appeared in client-visible route
+state, and a checked assertion that the origin observed the relay container's
+network identity.
 
 For kind, install Docker, kind, and kubectl, then run `./scripts/kind-up.ps1`
 or `./scripts/kind-up.sh`; inspect with `kubectl -n nbsr get
@@ -148,7 +152,8 @@ storage, rate limits, and HA policy/enforcement services.
 The ISP-profile relay uses an Ed25519-bound ephemeral client session and a
 replay cache; it does not require the enterprise workload JWT, OPA, or client
 identity. It forwards HTTP/HTTPS TCP bytes without TLS interception or content
-inspection. The loopback Windows adapter proves the protocol boundary but is
+inspection. NBSR transport TLS wraps those opaque bytes and is independent of
+the application's end-to-end TLS connection. The loopback Windows adapter proves the protocol boundary but is
 not a signed Windows Filtering Platform driver. HTTP/3/QUIC and arbitrary UDP
 are excluded from this first release. The gateway operator necessarily sees
 requested names and the destinations it resolves, so this prototype does not
