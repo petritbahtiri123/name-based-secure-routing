@@ -4,6 +4,7 @@ version = "0.1.0"
 requires-python = ">=3.12"
 dependencies = [
   "cryptography>=44,<46",
+  "dnslib>=0.9.26,<0.10",
   "fastapi>=0.115,<0.117",
   "httpx>=0.28,<0.29",
   "pydantic-settings>=2.7,<3",
