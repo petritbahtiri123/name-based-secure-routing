@@ -266,6 +266,7 @@ spec:
       ports:
         - {port: 53, protocol: UDP}
         - {port: 53, protocol: TCP}
+        - {port: 80, protocol: TCP}
         - {port: 443, protocol: TCP}
         - {port: 7000, protocol: TCP}
         - {port: 8181, protocol: TCP}

@@ -169,6 +169,15 @@ def test_kubernetes_opa_loads_the_policy_file_not_configmap_symlinks():
     assert 'args: ["run", "--server", "--addr=0.0.0.0:8181", "/policy/nbsr.rego"]' in manifest
 
 
+def test_kubernetes_relay_supports_http_and_is_host_reachable_in_kind():
+    root = Path(__file__).parents[1]
+    manifest = (root / "deploy" / "kind" / "nbsr.yaml").read_text(encoding="utf-8")
+    cluster = (root / "deploy" / "kind" / "cluster.yaml").read_text(encoding="utf-8")
+    assert "- {port: 80, protocol: TCP}" in manifest
+    assert "containerPort: 30443" in cluster
+    assert "hostPort: 8443" in cluster
+
+
 def test_origin_leak_assertion_runs_inside_gateway(monkeypatch: pytest.MonkeyPatch):
     entrypoint = load_name_relay_entrypoint()
     observed: dict[str, object] = {}
