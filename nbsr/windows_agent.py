@@ -97,6 +97,8 @@ class OptInWindowsNetworkAdapter:
         self._interface_alias = interface_alias
         self._command_runner = command_runner
         self._enabled = enable_synthetic_ipv6
+        if self._enabled and ownership_journal_path is None:
+            raise ValueError("A persistent ownership journal is required when synthetic IPv6 mutation is enabled")
         self._owned_ipv6_addresses: set[str] = set()
         self._journal_path = Path(ownership_journal_path) if ownership_journal_path else None
         self.restoration_errors: tuple[str, ...] = ()
@@ -120,7 +122,16 @@ class OptInWindowsNetworkAdapter:
         if added.returncode != 0:
             return False
         self._owned_ipv6_addresses.add(address)
-        self._write_journal()
+        try:
+            self._write_journal()
+        except OSError as exc:
+            removed = self._command_runner.run(self._delete_address_command(address))
+            if removed.returncode == 0:
+                self._owned_ipv6_addresses.remove(address)
+            self.restoration_errors = tuple(sorted(self._owned_ipv6_addresses))
+            self._remove_temporary_journal()
+            outcome = "the new address was rolled back" if removed.returncode == 0 else "the immediate rollback also failed"
+            raise RuntimeError(f"Failed to persist ownership journal; {outcome}") from exc
         return True
 
     def restore_owned_state(self) -> None:
@@ -164,6 +175,10 @@ class OptInWindowsNetworkAdapter:
             encoding="utf-8",
         )
         temporary.replace(self._journal_path)
+
+    def _remove_temporary_journal(self) -> None:
+        if self._journal_path is not None:
+            self._journal_path.with_suffix(f"{self._journal_path.suffix}.tmp").unlink(missing_ok=True)
 
     def _show_addresses_command(self) -> tuple[str, ...]:
         return ("netsh", "interface", "ipv6", "show", "addresses", f"interface={self._interface_alias}")
@@ -233,14 +248,14 @@ class LoopbackInterceptor:
         if self._route_table.lookup(route.synthetic_ipv4) != route or self._route_table.lookup(route.synthetic_ipv6) != route:
             raise ValueError("interceptor only binds configured synthetic routes")
         key = (route.synthetic_ipv4, local_port)
+        self._hostnames_by_address[route.synthetic_ipv4] = route.hostname
+        self._hostnames_by_address[route.synthetic_ipv6] = route.hostname
         existing = self._listeners.get(key)
         if existing is not None:
             return existing
         server = await asyncio.start_server(self._handle_connection, route.synthetic_ipv4, local_port)
         listener = BoundListener(route.synthetic_ipv4, local_port, server)
         self._listeners[key] = listener
-        self._hostnames_by_address[route.synthetic_ipv4] = route.hostname
-        self._hostnames_by_address[route.synthetic_ipv6] = route.hostname
         if intercept_ipv6:
             try:
                 ipv6_server = await asyncio.start_server(self._handle_connection, route.synthetic_ipv6, local_port)

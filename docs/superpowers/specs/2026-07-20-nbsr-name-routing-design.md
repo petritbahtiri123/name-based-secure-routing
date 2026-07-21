@@ -158,10 +158,13 @@ NBSR fails closed for configured name traffic:
 
 The Windows adapter records only the settings it owns. Its opt-in IPv6 adapter
 persists successfully added addresses in an ownership journal before relying
-on them. Shutdown and uninstall surface failed deletions, while startup retries
-journaled cleanup after a crash. It never journals or removes an address that
-was already present, so recovery does not overwrite unrelated VPN, DNS,
-firewall, Hyper-V, WSL, container, or administrator configuration.
+on them. Mutation is refused without a configured journal; if persistence
+fails after an address is added, the adapter immediately removes that address
+and surfaces the failure. Shutdown and uninstall surface failed deletions,
+while startup retries journaled cleanup after a crash. It never journals or
+removes an address that was already present, so recovery does not overwrite
+unrelated VPN, DNS, firewall, Hyper-V, WSL, container, or administrator
+configuration.
 
 ## Privacy and logging
 

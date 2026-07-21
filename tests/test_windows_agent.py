@@ -151,10 +151,15 @@ async def test_agent_restores_only_recorded_windows_state_on_close(settings: Set
     assert adapter.owned_dns_stub is None
 
 
-def test_opt_in_adapter_assigns_and_removes_only_its_own_synthetic_ipv6_address():
+def test_opt_in_adapter_assigns_and_removes_only_its_own_synthetic_ipv6_address(tmp_path: Path):
     address = "fd00:6e62:7372::1"
     runner = FakeCommandRunner([CommandResult(0), CommandResult(0), CommandResult(0)])
-    adapter = OptInWindowsNetworkAdapter(interface_alias="NBSR Loopback", command_runner=runner, enable_synthetic_ipv6=True)
+    adapter = OptInWindowsNetworkAdapter(
+        interface_alias="NBSR Loopback",
+        command_runner=runner,
+        enable_synthetic_ipv6=True,
+        ownership_journal_path=tmp_path / "owned-state.json",
+    )
 
     assert adapter.ensure_synthetic_ipv6(address) is True
     adapter.restore_owned_state()
@@ -166,10 +171,15 @@ def test_opt_in_adapter_assigns_and_removes_only_its_own_synthetic_ipv6_address(
     ]
 
 
-def test_opt_in_adapter_never_removes_an_existing_or_unavailable_address():
+def test_opt_in_adapter_never_removes_an_existing_or_unavailable_address(tmp_path: Path):
     address = "fd00:6e62:7372::1"
     existing = FakeCommandRunner([CommandResult(0, f"address {address}")])
-    adapter = OptInWindowsNetworkAdapter(interface_alias="NBSR Loopback", command_runner=existing, enable_synthetic_ipv6=True)
+    adapter = OptInWindowsNetworkAdapter(
+        interface_alias="NBSR Loopback",
+        command_runner=existing,
+        enable_synthetic_ipv6=True,
+        ownership_journal_path=tmp_path / "existing-state.json",
+    )
 
     assert adapter.ensure_synthetic_ipv6(address) is True
     adapter.restore_owned_state()
@@ -181,10 +191,15 @@ def test_opt_in_adapter_never_removes_an_existing_or_unavailable_address():
     assert unavailable.calls == []
 
 
-def test_opt_in_adapter_does_not_confuse_a_prefix_collision_with_the_owned_address():
+def test_opt_in_adapter_does_not_confuse_a_prefix_collision_with_the_owned_address(tmp_path: Path):
     address = "fd00:6e62:7372::1"
     runner = FakeCommandRunner([CommandResult(0, "address fd00:6e62:7372::10"), CommandResult(0)])
-    adapter = OptInWindowsNetworkAdapter(interface_alias="NBSR Loopback", command_runner=runner, enable_synthetic_ipv6=True)
+    adapter = OptInWindowsNetworkAdapter(
+        interface_alias="NBSR Loopback",
+        command_runner=runner,
+        enable_synthetic_ipv6=True,
+        ownership_journal_path=tmp_path / "owned-state.json",
+    )
 
     assert adapter.ensure_synthetic_ipv6(address) is True
 
@@ -281,6 +296,59 @@ def test_recovery_never_executes_invalid_or_out_of_range_journal_entries(tmp_pat
     assert not journal.exists()
 
 
+def test_mutating_adapter_requires_a_persistent_ownership_journal():
+    with pytest.raises(ValueError, match="journal"):
+        OptInWindowsNetworkAdapter(
+            interface_alias="NBSR Loopback",
+            command_runner=FakeCommandRunner([]),
+            enable_synthetic_ipv6=True,
+        )
+
+
+def test_unwritable_journal_rolls_back_the_just_added_address(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    address = "fd00:6e62:7372::1"
+    journal = tmp_path / "owned-state.json"
+    runner = FakeCommandRunner([CommandResult(0), CommandResult(0), CommandResult(0)])
+    adapter = OptInWindowsNetworkAdapter(
+        interface_alias="NBSR Loopback",
+        command_runner=runner,
+        enable_synthetic_ipv6=True,
+        ownership_journal_path=journal,
+    )
+    monkeypatch.setattr(Path, "replace", lambda *_args, **_kwargs: (_ for _ in ()).throw(OSError("read-only journal")))
+
+    with pytest.raises(RuntimeError, match="journal"):
+        adapter.ensure_synthetic_ipv6(address)
+
+    assert runner.calls[-1] == (
+        "netsh",
+        "interface",
+        "ipv6",
+        "delete",
+        "address",
+        "interface=NBSR Loopback",
+        address,
+    )
+    assert adapter.restoration_errors == ()
+
+
+def test_unwritable_journal_surfaces_when_immediate_rollback_also_fails(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    address = "fd00:6e62:7372::1"
+    runner = FakeCommandRunner([CommandResult(0), CommandResult(0), CommandResult(1)])
+    adapter = OptInWindowsNetworkAdapter(
+        interface_alias="NBSR Loopback",
+        command_runner=runner,
+        enable_synthetic_ipv6=True,
+        ownership_journal_path=tmp_path / "owned-state.json",
+    )
+    monkeypatch.setattr(Path, "replace", lambda *_args, **_kwargs: (_ for _ in ()).throw(OSError("read-only journal")))
+
+    with pytest.raises(RuntimeError, match="rollback also failed"):
+        adapter.ensure_synthetic_ipv6(address)
+
+    assert adapter.restoration_errors == (address,)
+
+
 @pytest.mark.asyncio
 async def test_interceptor_rejects_non_loopback_or_unapproved_listener_ports():
     interceptor = LoopbackInterceptor(
@@ -315,6 +383,42 @@ async def test_interceptor_requires_a_pre_registered_synthetic_route():
 
     with pytest.raises(ValueError, match="configured"):
         await interceptor.start(route, 443)
+
+
+@pytest.mark.asyncio
+async def test_reused_listener_refreshes_the_new_hostname_after_address_reassignment():
+    route_table = RouteTable()
+    first = ClientRoute("first.test", "127.80.0.1", "fd00:6e62:7372::1", "first-binding", 60)
+    reassigned = ClientRoute("second.test", "127.80.0.1", "fd00:6e62:7372::1", "second-binding", 60)
+    refreshed_hostname: asyncio.Future[str] = asyncio.get_running_loop().create_future()
+
+    async def refresh(hostname: str) -> ClientRoute:
+        if not refreshed_hostname.done():
+            refreshed_hostname.set_result(hostname)
+        return reassigned
+
+    interceptor = LoopbackInterceptor(
+        route_table=route_table,
+        client_session=ClientSession.generate(),
+        relay_host="127.0.0.1",
+        relay_port=1,
+        gateway_id="edge-local",
+        refresh_route=refresh,
+    )
+    try:
+        route_table.put(first)
+        await interceptor.start(first, 443)
+        route_table.put(reassigned)
+        await interceptor.start(reassigned, 443)
+
+        _reader, writer = await asyncio.open_connection(reassigned.synthetic_ipv4, 443)
+        try:
+            assert await asyncio.wait_for(refreshed_hostname, timeout=1) == "second.test"
+        finally:
+            writer.close()
+            await writer.wait_closed()
+    finally:
+        await interceptor.close()
 
 
 @pytest.mark.asyncio

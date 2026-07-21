@@ -159,8 +159,9 @@ before each admission and tries authenticated gateway endpoints in order. The
 relay applies a complete-handshake deadline and returns an explicit admission
 result before forwarding application data. Synthetic allocation is serialized
 and renewed through binding expiry. The opt-in IPv6 adapter journals only the
-addresses it added and retries crash cleanup without deleting pre-existing
-addresses. The loopback Windows adapter proves the protocol boundary but is
+addresses it added, refuses mutation without a journal, rolls back additions
+whose journal cannot be persisted, and retries crash cleanup without deleting
+pre-existing addresses. The loopback Windows adapter proves the protocol boundary but is
 not a signed Windows Filtering Platform driver. HTTP/3/QUIC and arbitrary UDP
 are excluded from this first release. Mapping and replay state remain
 process-local, so multi-instance deployment needs shared state or sticky
