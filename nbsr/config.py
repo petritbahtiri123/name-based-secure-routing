@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     name_binding_gateway_id: str = "edge-local"
     name_relay_max_endpoints: int = Field(8, ge=1, le=32)
     name_relay_connect_timeout_seconds: float = Field(2.0, gt=0, le=10)
+    name_relay_handshake_timeout_seconds: float = Field(2.0, gt=0, le=30)
     gateway_url: str = "http://localhost:8080"
     opa_url: str = "http://opa:8181/v1/data/nbsr/route/decision"
     ticket_ttl_seconds: int = Field(60, ge=-1, le=300)

@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field, StrictInt, field_validator
 
 from nbsr.config import Settings
 from nbsr.name_model import normalize_hostname
+from nbsr.name_security import validate_name_binding_private_key
 from nbsr.name_service import NameRouteService
 from nbsr.security import SecurityError
 from nbsr.synthetic import SyntheticAddressPool, SyntheticPoolExhausted
@@ -63,7 +64,8 @@ def get_name_route_service(settings: Settings = Depends(get_settings)) -> NameRo
 
 
 @app.get("/health")
-def health() -> dict[str, str]:
+def health(settings: Settings = Depends(get_settings)) -> dict[str, str]:
+    validate_name_binding_private_key(settings)
     return {"status": "ok"}
 
 

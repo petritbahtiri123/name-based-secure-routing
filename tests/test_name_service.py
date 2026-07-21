@@ -1,3 +1,5 @@
+from datetime import UTC, datetime, timedelta
+
 import pytest
 
 from nbsr.config import Settings
@@ -57,3 +59,14 @@ def test_invalid_session_keys_do_not_consume_synthetic_addresses(settings):
     response = service.resolve("three.test", ClientSession.generate().public_key_b64)
 
     assert response.synthetic_ipv4 == "127.80.0.1"
+
+
+def test_route_binding_never_outlives_its_synthetic_mapping(settings):
+    pool = SyntheticAddressPool("127.80.0.0/29", "fd00:6e62:7372::/125", ttl_seconds=1)
+    service = NameRouteService(pool=pool, settings=settings)
+    before = datetime.now(UTC)
+
+    response = service.resolve("facebook.test", ClientSession.generate().public_key_b64)
+
+    mapping = pool.lookup(response.synthetic_ipv4, now=before + timedelta(seconds=30))
+    assert mapping is not None

@@ -5,13 +5,11 @@ import asyncio
 import json
 import os
 import ssl
-import struct
 import subprocess
 import sys
 from pathlib import Path
 
 import httpx
-import jwt
 
 ROOT = Path(__file__).resolve().parents[2]
 if (ROOT / "nbsr").is_dir():
@@ -21,8 +19,11 @@ if (ROOT / "nbsr").is_dir():
 async def serve(host: str, port: int, certfile: Path, keyfile: Path) -> None:
     from nbsr.config import Settings
     from nbsr.name_relay import NameRelay
+    from nbsr.name_security import validate_name_binding_public_key
 
-    relay = NameRelay(settings=Settings())
+    settings = Settings()
+    validate_name_binding_public_key(settings)
+    relay = NameRelay(settings=settings)
     tls = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
     tls.minimum_version = ssl.TLSVersion.TLSv1_3
     tls.load_cert_chain(certfile, keyfile)
@@ -98,7 +99,9 @@ async def demo(
     relay_ca: Path,
     relay_server_name: str,
 ) -> None:
-    from nbsr.name_security import ClientSession, sign_relay_proof
+    from nbsr.dns_stub import ClientRoute, RouteTable
+    from nbsr.name_security import ClientSession
+    from nbsr.windows_agent import LoopbackInterceptor
 
     hostname = "facebook.test"
     session = ClientSession.generate()
@@ -116,44 +119,61 @@ async def demo(
         response = await client.post(f"{control_url}/v1/name-routes/resolve", json=request)
         response.raise_for_status()
     route = response.json()
-    claims = jwt.decode(route["route_binding"], options={"verify_signature": False, "verify_exp": False})
-    nonce = "name-route-demo-relay-nonce"
-    handshake = {
-        "hostname": hostname,
-        "synthetic_address": route["synthetic_ipv4"],
-        "port": 443,
-        "gateway_id": route["gateway_id"],
-        "binding": route["route_binding"],
-        "route_id": claims["jti"],
-        "nonce": nonce,
-        "proof": sign_relay_proof(session, claims["jti"], nonce, 443),
-    }
-    encoded_handshake = json.dumps(handshake, separators=(",", ":")).encode()
-    relay_tls = ssl.create_default_context(cafile=str(relay_ca))
-    reader, writer = await asyncio.open_connection(
-        relay_host,
-        relay_port,
-        ssl=relay_tls,
-        server_hostname=relay_server_name,
+    client_route = ClientRoute(
+        hostname=hostname,
+        synthetic_ipv4=route["synthetic_ipv4"],
+        synthetic_ipv6=route["synthetic_ipv6"],
+        route_binding=route["route_binding"],
+        expires_in=route["expires_in"],
+    )
+    route_table = RouteTable()
+    route_table.put(client_route)
+    interceptor = LoopbackInterceptor(
+        route_table=route_table,
+        client_session=session,
+        relay_host=relay_host,
+        relay_port=relay_port,
+        gateway_id=route["gateway_id"],
+        relay_tls_ca_path=relay_ca,
+        relay_server_name=relay_server_name,
     )
     try:
-        writer.write(struct.pack(">I", len(encoded_handshake)) + encoded_handshake + b"client-hello")
-        await writer.drain()
-        response_bytes = await reader.readexactly(len(b"hidden-origin:client-hello"))
+        await interceptor.start(client_route, 80)
+        await interceptor.start(client_route, 443)
+
+        http_reader, http_writer = await asyncio.open_connection(route["synthetic_ipv4"], 80)
+        http_writer.write(b"GET / HTTP/1.1\r\nHost: facebook.test\r\nConnection: close\r\n\r\n")
+        await http_writer.drain()
+        http_response = await http_reader.read()
+        http_writer.close()
+        await http_writer.wait_closed()
+
+        origin_tls = ssl.create_default_context(cafile=str(relay_ca))
+        https_reader, https_writer = await asyncio.open_connection(
+            route["synthetic_ipv4"],
+            443,
+            ssl=origin_tls,
+            server_hostname=hostname,
+        )
+        https_writer.write(b"GET / HTTP/1.1\r\nHost: facebook.test\r\nConnection: close\r\n\r\n")
+        await https_writer.drain()
+        https_response = await https_reader.read()
+        https_writer.close()
+        await https_writer.wait_closed()
     finally:
-        writer.close()
-        await writer.wait_closed()
+        await interceptor.close()
 
     client_visible_state = json.dumps(route, sort_keys=True)
-    if response_bytes != b"hidden-origin:client-hello":
-        raise RuntimeError("opaque relay response did not match")
+    if b"hidden-origin-http" not in http_response or b"hidden-origin-https" not in https_response:
+        raise RuntimeError("HTTP/HTTPS relay response did not match")
     assert_origin_hidden(client_visible_state)
     assert_origin_observed_relay()
 
     print(f"Requested name: {hostname}")
     print(f"Synthetic address: {route['synthetic_ipv4']}")
     print(f"NBSR gateway: tls://{relay_host}:{relay_port}")
-    print(f"Opaque response: {response_bytes.decode()}")
+    print("HTTP 80 response: hidden-origin-http")
+    print("TLS 443 response: hidden-origin-https (facebook.test certificate and SNI verified)")
     print("PASS: no origin address appeared in client-visible state")
     print("PASS: protected origin observed the relay container peer")
 
@@ -199,7 +219,7 @@ def main() -> int:
                     args.relay_server_name,
                 )
             )
-    except (OSError, ssl.SSLError, RuntimeError, httpx.HTTPError, KeyError, jwt.PyJWTError, asyncio.IncompleteReadError) as exc:
+    except (OSError, ssl.SSLError, RuntimeError, httpx.HTTPError, KeyError, asyncio.IncompleteReadError) as exc:
         print(f"name-route {args.command or 'serve'} failed: {exc}", file=sys.stderr)
         return 1
     return 0

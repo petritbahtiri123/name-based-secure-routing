@@ -16,6 +16,8 @@ from nbsr.security import SecurityError
 _ALLOWED_PORTS = frozenset((80, 443))
 _HANDSHAKE_FIELDS = frozenset(("hostname", "synthetic_address", "port", "gateway_id", "binding", "route_id", "nonce", "proof"))
 _MAX_HANDSHAKE_BYTES = 64 * 1024
+_ADMISSION_ACCEPTED = b"\x01"
+_ADMISSION_REJECTED = b"\x00"
 
 
 class RelayRejected(Exception):
@@ -75,13 +77,33 @@ class NameRelay:
 
     async def handle(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
         origin_writer: asyncio.StreamWriter | None = None
+        admitted = False
         try:
-            handshake = await self._read_handshake(reader)
+            handshake = await asyncio.wait_for(
+                self._read_handshake(reader),
+                timeout=self._settings.name_relay_handshake_timeout_seconds,
+            )
             self._verify_admission(handshake)
             origin_reader, origin_writer = await self._connect_origin(handshake["hostname"], handshake["port"])
+            writer.write(_ADMISSION_ACCEPTED)
+            await writer.drain()
+            admitted = True
             await asyncio.gather(self._copy(reader, origin_writer), self._copy(origin_reader, writer))
-        except (RelayRejected, SecurityError, UnicodeDecodeError, json.JSONDecodeError, struct.error, asyncio.IncompleteReadError):
-            pass
+        except (
+            RelayRejected,
+            SecurityError,
+            UnicodeDecodeError,
+            json.JSONDecodeError,
+            struct.error,
+            asyncio.IncompleteReadError,
+            TimeoutError,
+        ):
+            if not admitted:
+                try:
+                    writer.write(_ADMISSION_REJECTED)
+                    await writer.drain()
+                except (ConnectionError, RuntimeError):
+                    pass
         finally:
             if origin_writer is not None:
                 origin_writer.close()

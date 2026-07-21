@@ -9,7 +9,7 @@ import subprocess
 from dataclasses import dataclass
 from ipaddress import IPv4Address, IPv4Network, IPv6Address, IPv6Network, ip_address
 from pathlib import Path
-from typing import Callable, Protocol, Sequence
+from typing import Awaitable, Callable, Protocol, Sequence
 
 import jwt
 
@@ -29,6 +29,14 @@ class BoundListener:
     host: str
     port: int
     server: asyncio.AbstractServer
+
+
+@dataclass(frozen=True)
+class RelayGateway:
+    host: str
+    port: int
+    tls_ca_path: Path | str | None = None
+    server_name: str = "name-relay"
 
 
 class WindowsNetworkAdapter(Protocol):
@@ -78,12 +86,22 @@ class RecordingWindowsNetworkAdapter:
 class OptInWindowsNetworkAdapter:
     """Owns only IPv6 ULA addresses it adds through an injected command runner."""
 
-    def __init__(self, *, interface_alias: str, command_runner: CommandRunner, enable_synthetic_ipv6: bool = False) -> None:
+    def __init__(
+        self,
+        *,
+        interface_alias: str,
+        command_runner: CommandRunner,
+        enable_synthetic_ipv6: bool = False,
+        ownership_journal_path: Path | str | None = None,
+    ) -> None:
         self._interface_alias = interface_alias
         self._command_runner = command_runner
         self._enabled = enable_synthetic_ipv6
         self._owned_ipv6_addresses: set[str] = set()
+        self._journal_path = Path(ownership_journal_path) if ownership_journal_path else None
+        self.restoration_errors: tuple[str, ...] = ()
         self.owned_dns_stub: tuple[str, int] | None = None
+        self._recover_owned_state()
 
     def configure_dns_stub(self, host: str, port: int) -> None:
         self.owned_dns_stub = (host, port)
@@ -102,16 +120,50 @@ class OptInWindowsNetworkAdapter:
         if added.returncode != 0:
             return False
         self._owned_ipv6_addresses.add(address)
+        self._write_journal()
         return True
 
     def restore_owned_state(self) -> None:
+        self._restore_owned_state(raise_on_failure=True)
+
+    def _restore_owned_state(self, *, raise_on_failure: bool) -> None:
         try:
             for address in tuple(self._owned_ipv6_addresses):
                 removed = self._command_runner.run(self._delete_address_command(address))
                 if removed.returncode == 0:
                     self._owned_ipv6_addresses.remove(address)
+            self.restoration_errors = tuple(sorted(self._owned_ipv6_addresses))
+            self._write_journal()
         finally:
             self.owned_dns_stub = None
+        if raise_on_failure and self.restoration_errors:
+            raise RuntimeError(f"Failed to restore owned synthetic IPv6 addresses: {', '.join(self.restoration_errors)}")
+
+    def _recover_owned_state(self) -> None:
+        if self._journal_path is None or not self._journal_path.exists():
+            return
+        try:
+            state = json.loads(self._journal_path.read_text(encoding="utf-8"))
+            addresses = state.get("synthetic_ipv6", []) if isinstance(state, dict) else []
+        except (OSError, json.JSONDecodeError):
+            self.restoration_errors = ("ownership journal unreadable",)
+            return
+        self._owned_ipv6_addresses = {address for address in addresses if isinstance(address, str) and self._is_synthetic_ipv6(address)}
+        self._restore_owned_state(raise_on_failure=False)
+
+    def _write_journal(self) -> None:
+        if self._journal_path is None:
+            return
+        if not self._owned_ipv6_addresses:
+            self._journal_path.unlink(missing_ok=True)
+            return
+        self._journal_path.parent.mkdir(parents=True, exist_ok=True)
+        temporary = self._journal_path.with_suffix(f"{self._journal_path.suffix}.tmp")
+        temporary.write_text(
+            json.dumps({"synthetic_ipv6": sorted(self._owned_ipv6_addresses)}, separators=(",", ":")),
+            encoding="utf-8",
+        )
+        temporary.replace(self._journal_path)
 
     def _show_addresses_command(self) -> tuple[str, ...]:
         return ("netsh", "interface", "ipv6", "show", "addresses", f"interface={self._interface_alias}")
@@ -124,7 +176,10 @@ class OptInWindowsNetworkAdapter:
 
     @staticmethod
     def _is_synthetic_ipv6(address: str) -> bool:
-        parsed = ip_address(address)
+        try:
+            parsed = ip_address(address)
+        except ValueError:
+            return False
         return isinstance(parsed, IPv6Address) and str(parsed) == address and parsed in _SYNTHETIC_IPV6_NETWORK
 
     @staticmethod
@@ -150,18 +205,25 @@ class LoopbackInterceptor:
         relay_tls_ca_path: Path | str | None = None,
         relay_server_name: str = "name-relay",
         handshake_timeout_seconds: float = 2.0,
+        gateways: Sequence[RelayGateway] | None = None,
+        refresh_route: Callable[[str], Awaitable[ClientRoute]] | None = None,
     ) -> None:
         if handshake_timeout_seconds <= 0:
             raise ValueError("handshake timeout must be positive")
         self._route_table = route_table
         self._client_session = client_session
-        self._relay_host = relay_host
-        self._relay_port = relay_port
         self._gateway_id = gateway_id
-        self._relay_ssl_context = ssl.create_default_context(cafile=str(relay_tls_ca_path)) if relay_tls_ca_path else None
-        self._relay_server_name = relay_server_name
+        configured_gateways = gateways or (RelayGateway(relay_host, relay_port, relay_tls_ca_path, relay_server_name),)
+        if not configured_gateways:
+            raise ValueError("at least one relay gateway is required")
+        self._gateways = tuple(configured_gateways)
+        self._gateway_tls = tuple(
+            ssl.create_default_context(cafile=str(gateway.tls_ca_path)) if gateway.tls_ca_path else None for gateway in self._gateways
+        )
+        self._refresh_route = refresh_route
         self._handshake_timeout_seconds = handshake_timeout_seconds
         self._listeners: dict[tuple[str, int], BoundListener] = {}
+        self._hostnames_by_address: dict[str, str] = {}
 
     async def start(self, route: ClientRoute, local_port: int, *, intercept_ipv6: bool = False) -> BoundListener:
         if type(local_port) is not int or local_port not in _ALLOWED_PORTS:
@@ -177,6 +239,8 @@ class LoopbackInterceptor:
         server = await asyncio.start_server(self._handle_connection, route.synthetic_ipv4, local_port)
         listener = BoundListener(route.synthetic_ipv4, local_port, server)
         self._listeners[key] = listener
+        self._hostnames_by_address[route.synthetic_ipv4] = route.hostname
+        self._hostnames_by_address[route.synthetic_ipv6] = route.hostname
         if intercept_ipv6:
             try:
                 ipv6_server = await asyncio.start_server(self._handle_connection, route.synthetic_ipv6, local_port)
@@ -191,6 +255,7 @@ class LoopbackInterceptor:
     async def close(self) -> None:
         listeners = tuple(self._listeners.values())
         self._listeners.clear()
+        self._hostnames_by_address.clear()
         for listener in listeners:
             listener.server.close()
         await asyncio.gather(*(listener.server.wait_closed() for listener in listeners))
@@ -199,20 +264,19 @@ class LoopbackInterceptor:
         relay_writer: asyncio.StreamWriter | None = None
         try:
             socket_name = client_writer.get_extra_info("sockname")
-            route = self._route_table.lookup(socket_name[0]) if socket_name else None
+            if not socket_name:
+                return
+            synthetic_address = socket_name[0]
+            hostname = self._hostnames_by_address.get(synthetic_address)
+            route = self._route_table.lookup(synthetic_address)
+            if hostname is not None and self._refresh_route is not None:
+                route = await self._refresh_route(hostname)
             if route is None:
                 return
+            if synthetic_address not in (route.synthetic_ipv4, route.synthetic_ipv6):
+                return
             local_port = socket_name[1]
-            relay_reader, relay_writer = await asyncio.wait_for(
-                asyncio.open_connection(
-                    self._relay_host,
-                    self._relay_port,
-                    ssl=self._relay_ssl_context,
-                    server_hostname=self._relay_server_name if self._relay_ssl_context else None,
-                ),
-                timeout=self._handshake_timeout_seconds,
-            )
-            await asyncio.wait_for(self._send_handshake(relay_writer, route, socket_name[0], local_port), self._handshake_timeout_seconds)
+            relay_reader, relay_writer = await self._open_admitted_gateway(route, synthetic_address, local_port)
             await asyncio.gather(self._copy(client_reader, relay_writer), self._copy(relay_reader, client_writer))
         except (OSError, TimeoutError, ValueError, jwt.PyJWTError, asyncio.IncompleteReadError):
             pass
@@ -222,6 +286,41 @@ class LoopbackInterceptor:
                 await relay_writer.wait_closed()
             client_writer.close()
             await client_writer.wait_closed()
+
+    async def _open_admitted_gateway(
+        self,
+        route: ClientRoute,
+        synthetic_address: str,
+        local_port: int,
+    ) -> tuple[asyncio.StreamReader, asyncio.StreamWriter]:
+        for gateway, tls_context in zip(self._gateways, self._gateway_tls, strict=True):
+            relay_writer: asyncio.StreamWriter | None = None
+            try:
+                relay_reader, relay_writer = await asyncio.wait_for(
+                    asyncio.open_connection(
+                        gateway.host,
+                        gateway.port,
+                        ssl=tls_context,
+                        server_hostname=gateway.server_name if tls_context else None,
+                    ),
+                    timeout=self._handshake_timeout_seconds,
+                )
+                await asyncio.wait_for(
+                    self._send_handshake(relay_writer, route, synthetic_address, local_port),
+                    self._handshake_timeout_seconds,
+                )
+                admission = await asyncio.wait_for(
+                    relay_reader.readexactly(1),
+                    timeout=self._handshake_timeout_seconds,
+                )
+                if admission == b"\x01":
+                    return relay_reader, relay_writer
+            except (OSError, TimeoutError, asyncio.IncompleteReadError):
+                pass
+            if relay_writer is not None:
+                relay_writer.close()
+                await relay_writer.wait_closed()
+        raise OSError("all configured NBSR gateways rejected or failed admission")
 
     async def _send_handshake(
         self, relay_writer: asyncio.StreamWriter, route: ClientRoute, synthetic_address: str, local_port: int
@@ -273,14 +372,21 @@ class WindowsNameAgent:
         relay_host: str,
         relay_port: int,
         gateway_id: str,
-        test_https_port: int = 443,
+        test_https_port: int | None = None,
+        listener_ports: Sequence[int] = (80, 443),
         relay_tls_ca_path: Path | str | None = None,
         relay_server_name: str = "name-relay",
+        gateways: Sequence[RelayGateway] | None = None,
         network_adapter: WindowsNetworkAdapter | None = None,
     ) -> None:
         self._name_route_service = name_route_service
         self._client_session = client_session
-        self.test_https_port = test_https_port
+        if test_https_port is not None:
+            listener_ports = (test_https_port,)
+        if not listener_ports or any(type(port) is not int or port not in _ALLOWED_PORTS for port in listener_ports):
+            raise ValueError("listener ports must contain HTTP 80 and/or HTTPS 443")
+        self.listener_ports = tuple(dict.fromkeys(listener_ports))
+        self.test_https_port = 443 if 443 in self.listener_ports else self.listener_ports[0]
         self.route_table = RouteTable()
         self.network_adapter = network_adapter or RecordingWindowsNetworkAdapter()
         self.ipv6_interception_available = False
@@ -293,9 +399,17 @@ class WindowsNameAgent:
             gateway_id=gateway_id,
             relay_tls_ca_path=relay_tls_ca_path,
             relay_server_name=relay_server_name,
+            gateways=gateways,
+            refresh_route=self._refresh_route,
         )
 
     async def resolve(self, hostname: str) -> ClientRoute:
+        route = await self._refresh_route(hostname)
+        for local_port in self.listener_ports:
+            await self.interceptor.start(route, local_port, intercept_ipv6=self.ipv6_interception_available)
+        return route
+
+    async def _refresh_route(self, hostname: str) -> ClientRoute:
         response = self._name_route_service.resolve(hostname, self._client_session.public_key_b64)
         route = self._from_response(response)
         self.route_table.put(route)
@@ -303,7 +417,6 @@ class WindowsNameAgent:
         self.ipv6_interception_status = (
             "available" if self.ipv6_interception_available else "unavailable: synthetic IPv6 assignment is disabled or failed"
         )
-        await self.interceptor.start(route, self.test_https_port, intercept_ipv6=self.ipv6_interception_available)
         return route
 
     def configure_dns_stub(self, host: str, port: int) -> None:

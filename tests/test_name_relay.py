@@ -145,6 +145,8 @@ async def connect_with_valid_binding(
 ) -> bytes:
     reader, writer = await open_with_valid_binding(relay, settings, hostname=hostname, nonce=nonce, credentials=credentials)
     try:
+        if await reader.readexactly(1) != b"\x01":
+            raise RelayRejected("relay rejected admission")
         writer.write(payload)
         await writer.drain()
         response = await reader.read(len(payload) + len(b"origin:"))
@@ -217,6 +219,7 @@ async def test_admitted_connection_continues_after_binding_expiry(settings):
     relay = await start_name_relay(settings, resolver)
     reader, writer = await open_with_valid_binding(relay, settings)
     try:
+        assert await reader.readexactly(1) == b"\x01"
         await asyncio.sleep(2.1)
         writer.write(b"after-expiry")
         await writer.drain()
@@ -236,7 +239,7 @@ async def test_relay_rejects_unknown_handshake_fields_and_unapproved_ports(setti
     try:
         reader, writer = await open_with_valid_binding(relay, settings, extra={"unexpected": True})
         try:
-            assert await reader.read() == b""
+            assert await reader.read() == b"\x00"
         finally:
             writer.close()
             await writer.wait_closed()
@@ -249,7 +252,7 @@ async def test_relay_rejects_unknown_handshake_fields_and_unapproved_ports(setti
         try:
             writer.write(struct.pack(">I", len(encoded)) + encoded)
             await writer.drain()
-            assert await reader.read() == b""
+            assert await reader.read() == b"\x00"
         finally:
             writer.close()
             await writer.wait_closed()
@@ -266,7 +269,7 @@ async def test_relay_rejects_oversized_handshake(settings):
     try:
         writer.write(struct.pack(">I", 65537))
         await writer.drain()
-        assert await reader.read() == b""
+        assert await reader.read() == b"\x00"
     finally:
         writer.close()
         await writer.wait_closed()
@@ -283,7 +286,7 @@ async def test_unresolvable_signed_hostname_closes_without_asyncio_callback_erro
     try:
         reader, writer = await open_with_valid_binding(relay, settings)
         try:
-            assert await asyncio.wait_for(reader.read(), timeout=1) == b""
+            assert await asyncio.wait_for(reader.read(), timeout=1) == b"\x00"
         finally:
             writer.close()
             await writer.wait_closed()
@@ -330,5 +333,41 @@ async def test_relay_endpoint_cap_excludes_later_origins(settings):
         with pytest.raises(RelayRejected):
             await connect_with_valid_binding(relay, settings, payload=b"must-not-reach-origin")
     finally:
+        await relay.close()
+        await origin.close()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("prefix_only", (True, False))
+async def test_relay_times_out_stalled_handshake_frames(settings, prefix_only):
+    settings.name_relay_handshake_timeout_seconds = 0.05
+    relay = await start_name_relay(settings, StaticResolver({"facebook.test": []}))
+    reader, writer = await asyncio.open_connection(relay.host, relay.port)
+    try:
+        writer.write(struct.pack(">I", 100))
+        if not prefix_only:
+            writer.write(b"{")
+        await writer.drain()
+        assert await asyncio.wait_for(reader.readexactly(1), timeout=0.5) == b"\x00"
+        assert await asyncio.wait_for(reader.read(), timeout=0.5) == b""
+    finally:
+        writer.close()
+        await writer.wait_closed()
+        await relay.close()
+
+
+@pytest.mark.asyncio
+async def test_relay_sends_explicit_admission_result_before_origin_bytes(settings):
+    origin = await start_echo_origin(prefix=b"origin:")
+    relay = await start_name_relay(settings, StaticResolver({"facebook.test": [(origin.host, origin.port)]}))
+    reader, writer = await open_with_valid_binding(relay, settings)
+    try:
+        assert await asyncio.wait_for(reader.readexactly(1), timeout=0.5) == b"\x01"
+        writer.write(b"payload")
+        await writer.drain()
+        assert await reader.readexactly(len(b"origin:payload")) == b"origin:payload"
+    finally:
+        writer.close()
+        await writer.wait_closed()
         await relay.close()
         await origin.close()

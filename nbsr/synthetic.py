@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from ipaddress import IPv4Network, IPv6Network, ip_address, ip_network
+from threading import RLock
 
 from nbsr.name_model import normalize_hostname
 
@@ -34,33 +35,49 @@ class SyntheticAddressPool:
         self._ttl = timedelta(seconds=ttl_seconds)
         self._by_hostname: dict[str, SyntheticMapping] = {}
         self._by_address: dict[str, SyntheticMapping] = {}
+        self._lock = RLock()
 
-    def allocate(self, hostname: str, now: datetime | None = None) -> SyntheticMapping:
+    def allocate(
+        self,
+        hostname: str,
+        now: datetime | None = None,
+        *,
+        minimum_valid_for_seconds: int = 0,
+    ) -> SyntheticMapping:
         now = now or datetime.now(UTC)
-        self._expire(now)
         hostname = normalize_hostname(hostname)
-        if mapping := self._by_hostname.get(hostname):
-            return mapping
-
-        for ipv4, ipv6 in zip(self._ipv4_network.hosts(), self._ipv6_network.hosts(), strict=False):
-            ipv4_text = str(ipv4)
-            ipv6_text = str(ipv6)
-            if ipv4_text not in self._by_address and ipv6_text not in self._by_address:
-                mapping = SyntheticMapping(hostname, ipv4_text, ipv6_text, now + self._ttl)
-                self._by_hostname[hostname] = mapping
-                self._by_address[ipv4_text] = mapping
-                self._by_address[ipv6_text] = mapping
+        required_expiry = now + timedelta(seconds=max(0, minimum_valid_for_seconds))
+        with self._lock:
+            self._expire(now)
+            if mapping := self._by_hostname.get(hostname):
+                if mapping.expires_at < required_expiry:
+                    mapping = SyntheticMapping(mapping.hostname, mapping.ipv4, mapping.ipv6, required_expiry)
+                    self._store(mapping)
                 return mapping
-        raise SyntheticPoolExhausted("Synthetic address pool exhausted")
+
+            for ipv4, ipv6 in zip(self._ipv4_network.hosts(), self._ipv6_network.hosts(), strict=False):
+                ipv4_text = str(ipv4)
+                ipv6_text = str(ipv6)
+                if ipv4_text not in self._by_address and ipv6_text not in self._by_address:
+                    mapping = SyntheticMapping(hostname, ipv4_text, ipv6_text, max(now + self._ttl, required_expiry))
+                    self._store(mapping)
+                    return mapping
+            raise SyntheticPoolExhausted("Synthetic address pool exhausted")
 
     def lookup(self, address: str, now: datetime | None = None) -> SyntheticMapping | None:
         now = now or datetime.now(UTC)
-        self._expire(now)
         try:
             address = str(ip_address(address))
         except ValueError:
             return None
-        return self._by_address.get(address)
+        with self._lock:
+            self._expire(now)
+            return self._by_address.get(address)
+
+    def _store(self, mapping: SyntheticMapping) -> None:
+        self._by_hostname[mapping.hostname] = mapping
+        self._by_address[mapping.ipv4] = mapping
+        self._by_address[mapping.ipv6] = mapping
 
     def _expire(self, now: datetime) -> None:
         for hostname, mapping in list(self._by_hostname.items()):

@@ -140,7 +140,7 @@ def issue_isp_server_certificate(common_name: str):
 
 (secrets / "isp-ca.pem").write_bytes(isp_ca.public_bytes(serialization.Encoding.PEM))
 (secrets / "isp-ca-private.pem").write_bytes(private_pem(isp_ca_key))
-for service_name, file_prefix in (("name-control", "control"), ("name-relay", "relay")):
+for service_name, file_prefix in (("name-control", "control"), ("name-relay", "relay"), ("facebook.test", "origin")):
     server_key, server_cert = issue_isp_server_certificate(service_name)
     (secrets / f"isp-{file_prefix}-key.pem").write_bytes(private_pem(server_key))
     (secrets / f"isp-{file_prefix}-cert.pem").write_bytes(server_cert.public_bytes(serialization.Encoding.PEM))

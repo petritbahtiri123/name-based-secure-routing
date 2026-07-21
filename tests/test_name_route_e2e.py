@@ -30,7 +30,7 @@ from nbsr.name_relay import NameRelay, ResolvedEndpoint
 from nbsr.name_security import ClientSession
 from nbsr.name_service import NameRouteResponse, NameRouteService
 from nbsr.synthetic import SyntheticAddressPool
-from nbsr.windows_agent import RecordingWindowsNetworkAdapter, WindowsNameAgent
+from nbsr.windows_agent import RecordingWindowsNetworkAdapter, RelayGateway, WindowsNameAgent
 
 
 @dataclass(frozen=True)
@@ -41,6 +41,8 @@ class TlsMaterial:
     control_key: Path
     relay_cert: Path
     relay_key: Path
+    origin_cert: Path
+    origin_key: Path
 
 
 def write_tls_material(directory: Path) -> TlsMaterial:
@@ -125,6 +127,7 @@ def write_tls_material(directory: Path) -> TlsMaterial:
 
     control_cert, control_key = create_server("name-control")
     relay_cert, relay_key = create_server("name-relay")
+    origin_cert, origin_key = create_server("facebook.test")
     paths = TlsMaterial(
         ca=directory / "isp-ca.pem",
         wrong_ca=directory / "wrong-ca.pem",
@@ -132,6 +135,8 @@ def write_tls_material(directory: Path) -> TlsMaterial:
         control_key=directory / "control-key.pem",
         relay_cert=directory / "relay-cert.pem",
         relay_key=directory / "relay-key.pem",
+        origin_cert=directory / "origin-cert.pem",
+        origin_key=directory / "origin-key.pem",
     )
     paths.ca.write_bytes(ca_cert.public_bytes(serialization.Encoding.PEM))
     paths.wrong_ca.write_bytes(wrong_ca_cert.public_bytes(serialization.Encoding.PEM))
@@ -139,6 +144,8 @@ def write_tls_material(directory: Path) -> TlsMaterial:
     paths.control_key.write_bytes(control_key)
     paths.relay_cert.write_bytes(relay_cert)
     paths.relay_key.write_bytes(relay_key)
+    paths.origin_cert.write_bytes(origin_cert)
+    paths.origin_key.write_bytes(origin_key)
     return paths
 
 
@@ -277,6 +284,24 @@ def test_name_relay_entrypoint_runs_outside_repository(tmp_path: Path):
     assert completed.returncode == 0, completed.stderr
 
 
+@pytest.mark.asyncio
+async def test_name_relay_entrypoint_fails_before_listening_with_invalid_verification_key(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    entrypoint = load_name_relay_entrypoint()
+    settings = Settings.for_tests(
+        Ed25519PrivateKey.generate(),
+        Ed25519PrivateKey.generate(),
+        Ed25519PrivateKey.generate(),
+    )
+    settings.name_binding_public_key_pem = b"invalid"
+    monkeypatch.setattr("nbsr.config.Settings", lambda: settings)
+
+    with pytest.raises(RuntimeError, match="public"):
+        await entrypoint.serve("127.0.0.1", 0, tmp_path / "unused-cert", tmp_path / "unused-key")
+
+
 def test_kubernetes_key_mounts_do_not_mask_service_account_secrets():
     manifest = (Path(__file__).parents[1] / "deploy" / "kind" / "nbsr.yaml").read_text(encoding="utf-8")
     assert "mountPath: /run/secrets" not in manifest
@@ -294,6 +319,19 @@ def test_kubernetes_relay_supports_http_and_is_host_reachable_in_kind():
     assert "- {port: 80, protocol: TCP}" in manifest
     assert "containerPort: 30443" in cluster
     assert "hostPort: 8443" in cluster
+    assert "ports: [{port: 80, targetPort: 80}, {port: 443, targetPort: 443}]" in manifest
+    assert 'asyncio.start_server(handle_http, "0.0.0.0", 80)' in manifest
+    assert 'asyncio.start_server(handle_https, "0.0.0.0", 443, ssl=tls)' in manifest
+    assert "secretName: nbsr-name-binding-keys" in manifest
+
+
+def test_kind_bootstrap_separates_name_binding_keys_and_mounts_origin_tls():
+    root = Path(__file__).parents[1]
+    for script in (root / "scripts" / "kind-up.ps1", root / "scripts" / "kind-up.sh"):
+        content = script.read_text(encoding="utf-8")
+        assert "nbsr-name-binding-keys" in content
+        assert "isp-origin-cert.pem" in content
+        assert "isp-origin-key.pem" in content
 
 
 def test_legacy_demo_waits_for_compose_readiness():
@@ -345,7 +383,7 @@ def test_bootstrap_creates_distinct_trusted_isp_server_certificates(tmp_path: Pa
     isp_ca = x509.load_pem_x509_certificate((tmp_path / "secrets" / "isp-ca.pem").read_bytes())
     enterprise_ca = x509.load_pem_x509_certificate((tmp_path / "secrets" / "demo-ca.pem").read_bytes())
     assert isp_ca.fingerprint(hashes.SHA256()) != enterprise_ca.fingerprint(hashes.SHA256())
-    for prefix, dns_name in (("control", "name-control"), ("relay", "name-relay")):
+    for prefix, dns_name in (("control", "name-control"), ("relay", "name-relay"), ("origin", "facebook.test")):
         certificate = x509.load_pem_x509_certificate((tmp_path / "secrets" / f"isp-{prefix}-cert.pem").read_bytes())
         san = certificate.extensions.get_extension_for_class(x509.SubjectAlternativeName).value
         assert certificate.issuer == isp_ca.subject
@@ -353,6 +391,18 @@ def test_bootstrap_creates_distinct_trusted_isp_server_certificates(tmp_path: Pa
         assert "localhost" in san.get_values_for_type(x509.DNSName)
         assert ip_address("127.0.0.1") in san.get_values_for_type(x509.IPAddress)
         isp_ca.public_key().verify(certificate.signature, certificate.tbs_certificate_bytes)
+
+
+def test_compose_origin_and_demo_exercise_real_http_and_tls_paths():
+    root = Path(__file__).parents[1]
+    compose = (root / "compose.yaml").read_text(encoding="utf-8")
+    demo = (root / "services" / "name-relay" / "app.py").read_text(encoding="utf-8")
+
+    assert 'asyncio.start_server(handle_http, "0.0.0.0", 80)' in compose
+    assert 'asyncio.start_server(handle_https, "0.0.0.0", 443, ssl=tls)' in compose
+    assert "server_hostname=hostname" in demo
+    assert "await interceptor.start(client_route, 80)" in demo
+    assert "await interceptor.start(client_route, 443)" in demo
 
 
 async def start_hidden_origin() -> HiddenOrigin:
@@ -438,6 +488,102 @@ async def test_name_route_end_to_end_hides_origin_address(stack: E2EStack):
     assert stack.origin.address not in route.model_dump_json()
     assert stack.origin.address not in stack.agent.export_client_state()
     assert stack.origin.observed_peer is not None
+
+
+@pytest.mark.asyncio
+async def test_real_http_and_end_to_end_tls_keep_hostname_and_relay_topology(tmp_path: Path):
+    tls = write_tls_material(tmp_path)
+    settings = Settings.for_tests(
+        Ed25519PrivateKey.generate(),
+        Ed25519PrivateKey.generate(),
+        Ed25519PrivateKey.generate(),
+    )
+    observed: dict[str, object] = {}
+
+    async def respond(reader: asyncio.StreamReader, writer: asyncio.StreamWriter, protocol: str) -> None:
+        observed[f"{protocol}_peer"] = writer.get_extra_info("peername")
+        try:
+            request = await reader.readuntil(b"\r\n\r\n")
+            assert b"Host: facebook.test" in request
+            body = f"hidden-{protocol}".encode()
+            writer.write(b"HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Length: " + str(len(body)).encode() + b"\r\n\r\n" + body)
+            await writer.drain()
+        finally:
+            writer.close()
+            await writer.wait_closed()
+
+    http_origin = await asyncio.start_server(lambda r, w: respond(r, w, "http"), "127.0.0.1", 0)
+    origin_tls = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    origin_tls.load_cert_chain(tls.origin_cert, tls.origin_key)
+    origin_tls.set_servername_callback(lambda _socket, name, _context: observed.__setitem__("sni", name))
+    https_origin = await asyncio.start_server(lambda r, w: respond(r, w, "https"), "127.0.0.1", 0, ssl=origin_tls)
+
+    class PortResolver:
+        async def resolve(self, hostname: str, port: int) -> list[ResolvedEndpoint]:
+            assert hostname == "facebook.test"
+            origin = http_origin if port == 80 else https_origin
+            host, origin_port = origin.sockets[0].getsockname()[:2]
+            return [ResolvedEndpoint(host, origin_port)]
+
+    relay_impl = NameRelay(settings=settings, resolver=PortResolver())
+    relay_tls = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    relay_tls.load_cert_chain(tls.relay_cert, tls.relay_key)
+    relay_server = await asyncio.start_server(relay_impl.handle, "127.0.0.1", 0, ssl=relay_tls)
+    service = NameRouteService(
+        pool=SyntheticAddressPool("127.80.0.0/29", "fd00:6e62:7372::/125", ttl_seconds=60),
+        settings=settings,
+    )
+    agent = WindowsNameAgent(
+        name_route_service=service,
+        client_session=ClientSession.generate(),
+        relay_host="127.0.0.1",
+        relay_port=relay_server.sockets[0].getsockname()[1],
+        gateway_id=settings.name_binding_gateway_id,
+        relay_tls_ca_path=tls.ca,
+        relay_server_name="name-relay",
+        gateways=(
+            RelayGateway("127.0.0.1", 1, tls.ca, "name-relay"),
+            RelayGateway("127.0.0.1", relay_server.sockets[0].getsockname()[1], tls.ca, "name-relay"),
+        ),
+    )
+    try:
+        route = await agent.resolve("facebook.test")
+
+        http_reader, http_writer = await asyncio.open_connection(route.synthetic_ipv4, 80)
+        http_client_endpoint = http_writer.get_extra_info("sockname")
+        http_writer.write(b"GET / HTTP/1.1\r\nHost: facebook.test\r\nConnection: close\r\n\r\n")
+        await http_writer.drain()
+        assert b"hidden-http" in await http_reader.read()
+        http_writer.close()
+        await http_writer.wait_closed()
+
+        application_tls = ssl.create_default_context(cafile=str(tls.ca))
+        https_reader, https_writer = await asyncio.open_connection(
+            route.synthetic_ipv4,
+            443,
+            ssl=application_tls,
+            server_hostname="facebook.test",
+        )
+        https_client_endpoint = https_writer.get_extra_info("sockname")
+        https_writer.write(b"GET / HTTP/1.1\r\nHost: facebook.test\r\nConnection: close\r\n\r\n")
+        await https_writer.drain()
+        assert b"hidden-https" in await https_reader.read()
+        https_writer.close()
+        await https_writer.wait_closed()
+
+        assert observed["sni"] == "facebook.test"
+        assert observed["http_peer"] != http_client_endpoint
+        assert observed["https_peer"] != https_client_endpoint
+    finally:
+        await agent.close()
+        relay_server.close()
+        http_origin.close()
+        https_origin.close()
+        await asyncio.gather(
+            relay_server.wait_closed(),
+            http_origin.wait_closed(),
+            https_origin.wait_closed(),
+        )
 
 
 @pytest.mark.asyncio

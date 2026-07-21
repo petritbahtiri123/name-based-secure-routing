@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import asyncio
+import json
+from pathlib import Path
 
 import pytest
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
@@ -16,6 +18,7 @@ from nbsr.windows_agent import (
     LoopbackInterceptor,
     OptInWindowsNetworkAdapter,
     RecordingWindowsNetworkAdapter,
+    RelayGateway,
     WindowsNameAgent,
 )
 
@@ -191,6 +194,93 @@ def test_opt_in_adapter_does_not_confuse_a_prefix_collision_with_the_owned_addre
     ]
 
 
+def test_opt_in_adapter_recovers_only_journaled_addresses_after_a_crash(tmp_path: Path):
+    address = "fd00:6e62:7372::1"
+    journal = tmp_path / "owned-state.json"
+    adding = FakeCommandRunner([CommandResult(0), CommandResult(0)])
+    first = OptInWindowsNetworkAdapter(
+        interface_alias="NBSR Loopback",
+        command_runner=adding,
+        enable_synthetic_ipv6=True,
+        ownership_journal_path=journal,
+    )
+    assert first.ensure_synthetic_ipv6(address) is True
+    assert json.loads(journal.read_text()) == {"synthetic_ipv6": [address]}
+
+    recovering = FakeCommandRunner([CommandResult(0)])
+    OptInWindowsNetworkAdapter(
+        interface_alias="NBSR Loopback",
+        command_runner=recovering,
+        enable_synthetic_ipv6=True,
+        ownership_journal_path=journal,
+    )
+
+    assert recovering.calls == [("netsh", "interface", "ipv6", "delete", "address", "interface=NBSR Loopback", address)]
+    assert not journal.exists()
+
+
+def test_failed_owned_address_restoration_is_journaled_and_retried(tmp_path: Path):
+    address = "fd00:6e62:7372::1"
+    journal = tmp_path / "owned-state.json"
+    journal.write_text(json.dumps({"synthetic_ipv6": [address]}))
+    failed = FakeCommandRunner([CommandResult(1)])
+
+    adapter = OptInWindowsNetworkAdapter(
+        interface_alias="NBSR Loopback",
+        command_runner=failed,
+        enable_synthetic_ipv6=True,
+        ownership_journal_path=journal,
+    )
+
+    assert adapter.restoration_errors == (address,)
+    assert json.loads(journal.read_text()) == {"synthetic_ipv6": [address]}
+
+    retry = FakeCommandRunner([CommandResult(0)])
+    recovered = OptInWindowsNetworkAdapter(
+        interface_alias="NBSR Loopback",
+        command_runner=retry,
+        enable_synthetic_ipv6=True,
+        ownership_journal_path=journal,
+    )
+    assert recovered.restoration_errors == ()
+    assert not journal.exists()
+
+
+def test_explicit_restoration_surfaces_a_delete_failure(tmp_path: Path):
+    address = "fd00:6e62:7372::1"
+    journal = tmp_path / "owned-state.json"
+    runner = FakeCommandRunner([CommandResult(0), CommandResult(0), CommandResult(1)])
+    adapter = OptInWindowsNetworkAdapter(
+        interface_alias="NBSR Loopback",
+        command_runner=runner,
+        enable_synthetic_ipv6=True,
+        ownership_journal_path=journal,
+    )
+    assert adapter.ensure_synthetic_ipv6(address) is True
+
+    with pytest.raises(RuntimeError, match=address):
+        adapter.restore_owned_state()
+
+    assert json.loads(journal.read_text()) == {"synthetic_ipv6": [address]}
+
+
+def test_recovery_never_executes_invalid_or_out_of_range_journal_entries(tmp_path: Path):
+    journal = tmp_path / "owned-state.json"
+    journal.write_text(json.dumps({"synthetic_ipv6": ["not-an-ip", "2001:db8::1"]}))
+    runner = FakeCommandRunner([])
+
+    adapter = OptInWindowsNetworkAdapter(
+        interface_alias="NBSR Loopback",
+        command_runner=runner,
+        enable_synthetic_ipv6=True,
+        ownership_journal_path=journal,
+    )
+
+    assert runner.calls == []
+    assert adapter.restoration_errors == ()
+    assert not journal.exists()
+
+
 @pytest.mark.asyncio
 async def test_interceptor_rejects_non_loopback_or_unapproved_listener_ports():
     interceptor = LoopbackInterceptor(
@@ -251,3 +341,103 @@ async def test_agent_restores_owned_state_even_when_listener_cleanup_fails(setti
         await agent.close()
 
     assert adapter.owned_dns_stub is None
+
+
+@pytest.mark.asyncio
+async def test_agent_starts_both_http_and_https_listener_paths(settings: Settings):
+    service = NameRouteService(pool=SyntheticAddressPool("127.80.0.0/29", "fd00:6e62:7372::/125", ttl_seconds=60), settings=settings)
+    agent = WindowsNameAgent(
+        name_route_service=service,
+        client_session=ClientSession.generate(),
+        relay_host="127.0.0.1",
+        relay_port=8443,
+        gateway_id=settings.name_binding_gateway_id,
+    )
+
+    class RecordingInterceptor:
+        def __init__(self):
+            self.ports = []
+
+        async def start(self, route, local_port, *, intercept_ipv6=False):
+            self.ports.append(local_port)
+
+        async def close(self):
+            pass
+
+    interceptor = RecordingInterceptor()
+    agent.interceptor = interceptor
+
+    await agent.resolve("facebook.test")
+
+    assert interceptor.ports == [80, 443]
+
+
+@pytest.mark.asyncio
+async def test_expired_route_is_refreshed_before_relay_admission():
+    origin, origin_port = await start_echo_origin()
+    settings = Settings.for_tests(Ed25519PrivateKey.generate(), Ed25519PrivateKey.generate())
+    settings.name_binding_ttl_seconds = 1
+    relay = NameRelay(settings=settings, resolver=StaticResolver(origin_port))
+    relay_server = await asyncio.start_server(relay.handle, "127.0.0.1", 0)
+
+    class CountingService(NameRouteService):
+        calls = 0
+
+        def resolve(self, hostname, session_public_key):
+            self.calls += 1
+            return super().resolve(hostname, session_public_key)
+
+    service = CountingService(
+        pool=SyntheticAddressPool("127.80.0.0/29", "fd00:6e62:7372::/125", ttl_seconds=1),
+        settings=settings,
+    )
+    agent = WindowsNameAgent(
+        name_route_service=service,
+        client_session=ClientSession.generate(),
+        relay_host="127.0.0.1",
+        relay_port=relay_server.sockets[0].getsockname()[1],
+        gateway_id=settings.name_binding_gateway_id,
+        listener_ports=(443,),
+    )
+    try:
+        route = await agent.resolve("facebook.test")
+        await asyncio.sleep(1.1)
+
+        assert await send_to_synthetic(route.synthetic_ipv4, 443, b"refreshed") == b"origin:refreshed"
+        assert service.calls >= 2
+    finally:
+        await agent.close()
+        relay_server.close()
+        await relay_server.wait_closed()
+        origin.close()
+        await origin.wait_closed()
+
+
+@pytest.mark.asyncio
+async def test_interceptor_fails_over_across_ordered_authenticated_gateways():
+    origin, origin_port = await start_echo_origin()
+    settings = Settings.for_tests(Ed25519PrivateKey.generate(), Ed25519PrivateKey.generate())
+    relay = NameRelay(settings=settings, resolver=StaticResolver(origin_port))
+    relay_server = await asyncio.start_server(relay.handle, "127.0.0.1", 0)
+    service = NameRouteService(pool=SyntheticAddressPool("127.80.0.0/29", "fd00:6e62:7372::/125", ttl_seconds=60), settings=settings)
+    agent = WindowsNameAgent(
+        name_route_service=service,
+        client_session=ClientSession.generate(),
+        relay_host="127.0.0.1",
+        relay_port=relay_server.sockets[0].getsockname()[1],
+        gateway_id=settings.name_binding_gateway_id,
+        listener_ports=(443,),
+        gateways=(
+            RelayGateway("127.0.0.1", 1),
+            RelayGateway("127.0.0.1", relay_server.sockets[0].getsockname()[1]),
+        ),
+    )
+    try:
+        route = await agent.resolve("facebook.test")
+        assert await send_to_synthetic(route.synthetic_ipv4, 443, b"fallback") == b"origin:fallback"
+    finally:
+        await agent.close()
+        relay_server.close()
+        await relay_server.wait_closed()
+        origin.close()
+        await origin.wait_closed()

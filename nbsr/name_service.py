@@ -25,7 +25,10 @@ class NameRouteService:
     def resolve(self, hostname: str, session_public_key: str) -> NameRouteResponse:
         hostname = normalize_hostname(hostname)
         validate_client_session_public_key(session_public_key)
-        mapping = self._pool.allocate(hostname)
+        mapping = self._pool.allocate(
+            hostname,
+            minimum_valid_for_seconds=self._settings.name_binding_ttl_seconds,
+        )
         route_binding = issue_name_binding(
             hostname=hostname,
             synthetic_ipv4=mapping.ipv4,

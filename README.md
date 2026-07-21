@@ -114,13 +114,14 @@ Or on Linux/macOS:
 The client trusts only the separately generated ISP demo CA. It requests
 `facebook.test` over the server-authenticated TLS name-control endpoint,
 receives only a loopback synthetic address and a signed 60-second binding, and
-sends opaque bytes through a separately certified TLS relay. Only the gateway
-resolves `facebook.test`; the deterministic origin has no host port and is
-reachable only through the protected network. The demo prints the requested
-name, synthetic address, TLS gateway, opaque origin response, a checked
-assertion that the origin address never appeared in client-visible route
-state, and a checked assertion that the origin observed the relay container's
-network identity.
+sends real HTTP on port 80 and end-to-end TLS on port 443 through a separately
+certified TLS relay. The HTTPS application validates the `facebook.test`
+certificate and sends that original hostname as SNI; NBSR never terminates the
+application TLS session. Only the gateway resolves `facebook.test`; the
+deterministic origin has no host port and is reachable only through the
+protected network. The demo prints both checked responses plus assertions that
+the origin address never appeared in client-visible state and that the origin
+observed the relay container's network identity.
 
 For kind, install Docker, kind, and kubectl, then run `./scripts/kind-up.ps1`
 or `./scripts/kind-up.sh`; inspect with `kubectl -n nbsr get
@@ -153,11 +154,20 @@ The ISP-profile relay uses an Ed25519-bound ephemeral client session and a
 replay cache; it does not require the enterprise workload JWT, OPA, or client
 identity. It forwards HTTP/HTTPS TCP bytes without TLS interception or content
 inspection. NBSR transport TLS wraps those opaque bytes and is independent of
-the application's end-to-end TLS connection. The loopback Windows adapter proves the protocol boundary but is
+the application's end-to-end TLS connection. The client refreshes its binding
+before each admission and tries authenticated gateway endpoints in order. The
+relay applies a complete-handshake deadline and returns an explicit admission
+result before forwarding application data. Synthetic allocation is serialized
+and renewed through binding expiry. The opt-in IPv6 adapter journals only the
+addresses it added and retries crash cleanup without deleting pre-existing
+addresses. The loopback Windows adapter proves the protocol boundary but is
 not a signed Windows Filtering Platform driver. HTTP/3/QUIC and arbitrary UDP
-are excluded from this first release. The gateway operator necessarily sees
-requested names and the destinations it resolves, so this prototype does not
-claim anonymity from that operator.
+are excluded from this first release. Mapping and replay state remain
+process-local, so multi-instance deployment needs shared state or sticky
+routing. The gateway operator necessarily sees requested names and the
+destinations it resolves, so this prototype does not claim anonymity from that
+operator. Destination-class blocking remains future hardening before public
+Internet exposure.
 
 ## Build Week notes
 

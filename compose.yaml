@@ -93,26 +93,43 @@ services:
     command:
       - |
         import asyncio
-        async def handle(reader, writer):
+        import ssl
+        def observed_sni(_socket, server_name, _context):
+            print(f"ORIGIN_OBSERVED_SNI={server_name}", flush=True)
+        async def respond(reader, writer, body):
             peer = writer.get_extra_info("peername")
             print(f"ORIGIN_OBSERVED_PEER={peer[0]}", flush=True)
             try:
-                while payload := await reader.read(65536):
-                    writer.write(b"hidden-origin:" + payload)
-                    await writer.drain()
+                await reader.readuntil(b"\r\n\r\n")
+                response = b"HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Length: " + str(len(body)).encode() + b"\r\n\r\n" + body
+                writer.write(response)
+                await writer.drain()
             finally:
                 writer.close()
                 await writer.wait_closed()
+        async def handle_http(reader, writer):
+            await respond(reader, writer, b"hidden-origin-http")
+        async def handle_https(reader, writer):
+            await respond(reader, writer, b"hidden-origin-https")
         async def main():
-            server = await asyncio.start_server(handle, "0.0.0.0", 443)
-            async with server:
-                await server.serve_forever()
+            tls = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+            tls.minimum_version = ssl.TLSVersion.TLSv1_3
+            tls.load_cert_chain("/run/secrets/isp-origin-cert.pem", "/run/secrets/isp-origin-key.pem")
+            tls.set_servername_callback(observed_sni)
+            http = await asyncio.start_server(handle_http, "0.0.0.0", 80)
+            https = await asyncio.start_server(handle_https, "0.0.0.0", 443, ssl=tls)
+            async with http, https:
+                await asyncio.gather(http.serve_forever(), https.serve_forever())
         asyncio.run(main())
+    volumes:
+      - ./secrets/isp-ca.pem:/run/secrets/isp-ca.pem:ro
+      - ./secrets/isp-origin-cert.pem:/run/secrets/isp-origin-cert.pem:ro
+      - ./secrets/isp-origin-key.pem:/run/secrets/isp-origin-key.pem:ro
     networks:
       protected-network:
         aliases: [facebook.test]
     healthcheck:
-      test: ["CMD", "python", "-c", "import socket; socket.create_connection(('localhost', 443), 2).close()"]
+      test: ["CMD", "python", "-c", "import socket,ssl; socket.create_connection(('localhost',80),2).close(); c=ssl.create_default_context(cafile='/run/secrets/isp-ca.pem'); c.wrap_socket(socket.socket(),server_hostname='facebook.test').connect(('localhost',443))"]
       interval: 3s
       timeout: 2s
       retries: 20

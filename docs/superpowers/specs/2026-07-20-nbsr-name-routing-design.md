@@ -81,6 +81,12 @@ and requested port with its session private key. The gateway verifies that proof
 against the public-key thumbprint in the route binding. This provides anonymous
 client-channel binding without requiring an ISP identity system.
 
+The relay bounds the time allowed to receive the complete length-prefixed
+handshake. After verification and a successful origin connection it returns a
+one-byte accepted result before any application bytes are forwarded; rejection
+returns a one-byte denied result and closes. The client tries configured,
+server-authenticated gateway endpoints in order until one accepts admission.
+
 The binding has a 60-second admission lifetime. It authorizes starting a new
 connection, not the duration of an accepted connection. An established relay
 may continue until either endpoint closes it or a separately configured
@@ -91,9 +97,11 @@ requires a new route binding.
 
 Synthetic addresses are client-local compatibility handles, not destination
 addresses. The allocator accepts configurable IPv4 and IPv6 pools, excludes
-addresses already in use, keeps forward and reverse mappings, reuses a mapping
-for the same hostname while it is valid, and reports pool exhaustion without
-falling back to a real address.
+addresses already in use, keeps forward and reverse mappings, and serializes
+allocation, expiry, renewal, and lookup. Reusing a hostname atomically renews
+its mapping through the lifetime of the newly issued binding so an address
+cannot be reassigned while that binding remains admissible. Exhaustion fails
+without falling back to a real address.
 
 The Windows prototype uses loopback-only synthetic addresses so the integration
 can run without installing an unsigned kernel driver. The production Windows
@@ -105,8 +113,11 @@ prototype loopback range.
 ## HTTP and HTTPS behavior
 
 The Windows stub becomes the name responder for configured traffic and returns
-only synthetic addresses. Connections to those addresses are associated with
-the stored route binding and relayed through NBSR.
+only synthetic addresses. By default the prototype manages both TCP listeners,
+HTTP 80 and HTTPS 443, for every registered route. Connections to those
+addresses are associated with refreshable hostname state; the client obtains a
+fresh route binding before admission and can fail over through its ordered
+gateway list.
 
 For HTTPS, the client application retains the original hostname for SNI and
 certificate verification. The NBSR client and gateway forward opaque TLS bytes;
@@ -145,8 +156,11 @@ NBSR fails closed for configured name traffic:
 - public DNS fallback is disabled unless an administrator explicitly enables
   diagnostic bypass.
 
-The Windows adapter records only the settings it owns. Shutdown, uninstall, and
-crash recovery restore those settings without overwriting unrelated VPN, DNS,
+The Windows adapter records only the settings it owns. Its opt-in IPv6 adapter
+persists successfully added addresses in an ownership journal before relying
+on them. Shutdown and uninstall surface failed deletions, while startup retries
+journaled cleanup after a crash. It never journals or removes an address that
+was already present, so recovery does not overwrite unrelated VPN, DNS,
 firewall, Hyper-V, WSL, container, or administrator configuration.
 
 ## Privacy and logging
@@ -169,9 +183,11 @@ wrong-host, wrong-gateway, and tampering.
 
 API tests prove that name-route responses contain synthetic addresses and never
 contain resolved destination addresses. Resolver tests use deterministic
-in-memory mappings rather than public DNS. Relay integration tests use a local
-HTTP/TLS origin and prove opaque byte relay, server-side-only resolution,
-admission expiry semantics, and active-connection continuity.
+in-memory mappings rather than public DNS. Relay integration tests use real
+local HTTP and TLS origins and prove opaque byte relay, original-hostname SNI
+and certificate validation, server-side-only resolution, explicit admission
+results, handshake deadlines, admission expiry semantics, active-connection
+continuity, and gateway failover.
 
 Windows-focused integration tests prove that a local name lookup returns a
 loopback synthetic address, a connection through that address reaches the
@@ -184,7 +200,7 @@ after the focused and Compose paths pass.
 
 The first release does not claim production readiness or implement a signed WFP
 kernel driver, arbitrary TCP/UDP/IP tunneling, HTTP/3, mobile or Apple clients,
-multi-region anycast, durable distributed mapping state, billing, subscriber
+multi-region anycast, durable distributed mapping or replay-cache state, billing, subscriber
 identity, ISP settlement, content inspection, or a production CA/rotation
 system. Its purpose is to prove the NBSR protocol and privacy boundary end to
 end for HTTP and HTTPS while preserving interfaces required by the full-tunnel

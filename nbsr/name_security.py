@@ -63,6 +63,24 @@ def validate_client_session_public_key(value: object) -> None:
     _session_public_key(value)
 
 
+def validate_name_binding_private_key(settings: Settings) -> None:
+    try:
+        key = serialization.load_pem_private_key(settings.key_bytes("name_binding_private_key"), password=None)
+    except (ValueError, TypeError, RuntimeError) as exc:
+        raise RuntimeError("Required name binding private key is invalid") from exc
+    if not isinstance(key, Ed25519PrivateKey):
+        raise RuntimeError("Required name binding private key is not Ed25519")
+
+
+def validate_name_binding_public_key(settings: Settings) -> None:
+    try:
+        key = serialization.load_pem_public_key(settings.key_bytes("name_binding_public_key"))
+    except (ValueError, TypeError, RuntimeError) as exc:
+        raise RuntimeError("Required name binding public key is invalid") from exc
+    if not isinstance(key, Ed25519PublicKey):
+        raise RuntimeError("Required name binding public key is not Ed25519")
+
+
 def _synthetic_address(value: str) -> str:
     try:
         parsed = ip_address(value)

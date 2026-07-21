@@ -8,6 +8,8 @@ from nbsr.name_security import (
     ClientSession,
     issue_name_binding,
     sign_relay_proof,
+    validate_name_binding_private_key,
+    validate_name_binding_public_key,
     verify_name_binding,
     verify_relay_proof,
 )
@@ -36,6 +38,16 @@ def issue_binding(settings: Settings, session: ClientSession | None = None) -> t
         ),
         session,
     )
+
+
+def test_readiness_key_validation_rejects_invalid_binding_key_material(settings):
+    settings.name_binding_private_key_pem = b"not a private key"
+    with pytest.raises(RuntimeError, match="private"):
+        validate_name_binding_private_key(settings)
+
+    settings.name_binding_public_key_pem = b"not a public key"
+    with pytest.raises(RuntimeError, match="public"):
+        validate_name_binding_public_key(settings)
 
 
 def test_binding_round_trip_requires_client_proof(settings):

@@ -1,4 +1,6 @@
 from datetime import UTC, datetime, timedelta
+from concurrent.futures import ThreadPoolExecutor
+from time import sleep
 
 import pytest
 
@@ -64,3 +66,39 @@ def test_pool_exhaustion_fails_closed():
 
     with pytest.raises(SyntheticPoolExhausted):
         pool.allocate("three.test")
+
+
+def test_reused_mapping_is_renewed_for_the_requested_admission_lifetime():
+    now = datetime(2026, 7, 20, tzinfo=UTC)
+    pool = SyntheticAddressPool("127.80.0.0/30", "fd00:6e62:7372::/126", ttl_seconds=60)
+    first = pool.allocate("facebook.test", now=now)
+
+    renewed = pool.allocate(
+        "facebook.test",
+        now=now + timedelta(seconds=59),
+        minimum_valid_for_seconds=60,
+    )
+
+    assert renewed.ipv4 == first.ipv4
+    assert renewed.ipv6 == first.ipv6
+    assert renewed.expires_at == now + timedelta(seconds=119)
+    assert pool.lookup(first.ipv4, now=now + timedelta(seconds=61)) == renewed
+    other = pool.allocate("other.test", now=now + timedelta(seconds=61))
+    assert (other.ipv4, other.ipv6) != (renewed.ipv4, renewed.ipv6)
+
+
+def test_concurrent_allocations_never_share_a_synthetic_pair():
+    pool = SyntheticAddressPool("127.80.0.0/29", "fd00:6e62:7372::/125", ttl_seconds=60)
+
+    class SlowContainsDict(dict):
+        def __contains__(self, key):
+            present = super().__contains__(key)
+            sleep(0.02)
+            return present
+
+    pool._by_address = SlowContainsDict()
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        first, second = executor.map(pool.allocate, ("one.test", "two.test"))
+
+    assert (first.ipv4, first.ipv6) != (second.ipv4, second.ipv6)

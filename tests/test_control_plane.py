@@ -132,6 +132,19 @@ def test_isp_route_does_not_require_authorization_header(monkeypatch):
     }
 
 
+def test_name_control_health_fails_when_binding_signing_key_is_invalid(monkeypatch):
+    settings = Settings.for_tests(
+        ClientSession.generate().private_key,
+        ClientSession.generate().private_key,
+        ClientSession.generate().private_key,
+    )
+    settings.name_binding_private_key_pem = b"invalid"
+    monkeypatch.setitem(name_app.dependency_overrides, get_name_settings, lambda: settings)
+    client = TestClient(name_app, raise_server_exceptions=False)
+
+    assert client.get("/health").status_code == 500
+
+
 def test_legacy_cleartext_control_plane_does_not_expose_isp_name_routes(monkeypatch):
     client, _ = setup(monkeypatch)
     response = client.post(
