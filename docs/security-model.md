@@ -7,8 +7,9 @@ received. Envoy exposes a fixed payments route; clients cannot select upstreams.
 
 The design fails closed when identity validation, OPA, verifier, or ticket
 validation fails. Sensitive credentials are not intentionally logged. Local
-demo keys are ignored by Git. Replay detection, rotation automation, rate
-limiting, durable audit logs, and production PKI are outside prototype scope.
+demo keys are ignored by Git. Replay detection for the legacy enterprise
+bearer-ticket path, rotation automation, rate limiting, durable audit logs, and
+production PKI are outside prototype scope.
 
 ## ISP name-routing profile
 
