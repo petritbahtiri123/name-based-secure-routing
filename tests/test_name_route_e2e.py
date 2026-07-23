@@ -319,7 +319,8 @@ def test_kubernetes_relay_supports_http_and_is_host_reachable_in_kind():
     assert "- {port: 80, protocol: TCP}" in manifest
     assert "containerPort: 30443" in cluster
     assert "hostPort: 8443" in cluster
-    assert "ports: [{port: 80, targetPort: 80}, {port: 443, targetPort: 443}]" in manifest
+    expected_ports = "ports: [{name: http, port: 80, targetPort: 80}, {name: https, port: 443, targetPort: 443}]"
+    assert expected_ports in manifest
     assert 'asyncio.start_server(handle_http, "0.0.0.0", 80)' in manifest
     assert 'asyncio.start_server(handle_https, "0.0.0.0", 443, ssl=tls)' in manifest
     assert "secretName: nbsr-name-binding-keys" in manifest
