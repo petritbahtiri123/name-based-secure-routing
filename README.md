@@ -90,11 +90,12 @@ docker compose up -d --build
 ./scripts/demo.sh
 ```
 
-Ports 8000 (legacy enterprise control), 8080 (Envoy), 8443 (the TLS NBSR name
-relay), and 8444 (TLS ISP name control) are published. The payments service and
-deterministic name origin are on an internal protected network. The existing
-enterprise demo remains on its original HTTP endpoints, prints a scenario
-table, and exits nonzero on any mandatory mismatch.
+Ports 8000 (TLS enterprise control), 8080 (TLS Envoy gateway), 8443 (the TLS
+NBSR name relay), and 8444 (TLS ISP name control) are published. The payments
+service and deterministic name origin are on an internal protected network.
+The enterprise demo trusts the generated local CA, prints a scenario table,
+and exits nonzero on any mandatory mismatch. Plain HTTP does not carry
+credentials or route tickets on either client-facing enterprise endpoint.
 
 ## Deterministic name-routing demo
 
@@ -123,10 +124,13 @@ protected network. The demo prints both checked responses plus assertions that
 the origin address never appeared in client-visible state and that the origin
 observed the relay container's network identity.
 
-For kind, install Docker, kind, and kubectl, then run `./scripts/kind-up.ps1`
-or `./scripts/kind-up.sh`; inspect with `kubectl -n nbsr get
-all,networkpolicy`; remove with the matching `kind-down` script. The kind path
-is secondary to Compose.
+For Kind, install Docker, Kind 0.24 or newer, and kubectl, then run
+`./scripts/kind-up.ps1` or `./scripts/kind-up.sh`. The scripts use a
+digest-pinned Kind node image and finish by proving required flows are allowed,
+forbidden cross-workload flows are denied, and container restart counts remain
+zero. Inspect with `kubectl -n nbsr get all,networkpolicy`; remove with the
+matching `kind-down` script. The Kind path is a reference deployment, not a
+wire-protocol dependency.
 
 ## Tests and troubleshooting
 
@@ -143,12 +147,13 @@ allowlists. Issuer, audience, time, SPIFFE-like subject, service, method, path,
 and required claims are checked. OPA and the verifier fail closed. Envoy has a
 fixed upstream; the public API never returns backend addressing.
 
-Tickets are bearer credentials and this prototype has no replay cache, rate
-limiting, HA, key rotation protocol, full SPIFFE/SPIRE, or production PKI. The
-optional bootstrap CA is local demonstration material; JWT is the reliable
-demo identity path. Production evolution should add SPIFFE/SPIRE or cloud
-workload identity, managed rotation, replay controls, hardened mTLS, audit
-storage, rate limits, and HA policy/enforcement services.
+Enterprise route tickets remain bearer credentials and that path has no replay
+store or channel binding. This prototype also has no HA, key rotation protocol,
+full SPIFFE/SPIRE, or production PKI. The bootstrap CAs are local
+demonstration material. Production evolution should add SPIFFE/SPIRE or cloud
+workload identity, managed rotation, durable replay and revocation controls,
+optional enterprise mTLS, audit storage, distributed rate limits, and HA
+policy/enforcement services.
 
 The ISP-profile relay uses an Ed25519-bound ephemeral client session and a
 replay cache; it does not require the enterprise workload JWT, OPA, or client
@@ -158,7 +163,13 @@ the application's end-to-end TLS connection. The client refreshes its binding
 before each admission and tries authenticated gateway endpoints in order. The
 relay applies a complete-handshake deadline and returns an explicit admission
 result before forwarding application data. Synthetic allocation is serialized
-and renewed through binding expiry. The opt-in IPv6 adapter journals only the
+and renewed through binding expiry. Name-route admission is bounded globally
+and per client; allocation and replay structures have hard capacity limits.
+Immediately before every upstream connection, the relay rejects loopback,
+private, link-local, multicast, reserved, unspecified, and otherwise
+non-global destinations unless the operator configured an exact trusted-origin
+rule. Route capabilities authorize only their matching TCP port. The opt-in
+IPv6 adapter journals only the
 addresses it added, refuses mutation without a journal, rolls back additions
 whose journal cannot be persisted, and retries crash cleanup without deleting
 pre-existing addresses. The loopback Windows adapter proves the protocol boundary but is
@@ -167,8 +178,13 @@ are excluded from this first release. Mapping and replay state remain
 process-local, so multi-instance deployment needs shared state or sticky
 routing. The gateway operator necessarily sees requested names and the
 destinations it resolves, so this prototype does not claim anonymity from that
-operator. Destination-class blocking remains future hardening before public
-Internet exposure.
+operator.
+
+See the [security hardening report](docs/security-hardening-report.md), the
+[updated threat model](docs/threat-model.md), and the
+[Vision v2 conformance matrix](docs/vision-v2-conformance.md). These documents
+separate verified prototype behavior from production and native-protocol work
+that is not implemented.
 
 ## Build Week notes
 
