@@ -46,7 +46,7 @@ try {
 
   & (Join-Path $PSScriptRoot "bootstrap.ps1")
   $env:NBSR_TICKET_TTL_SECONDS = "2"
-  docker compose up -d --no-build --wait --wait-timeout 120
+  docker compose up -d --no-build --wait --wait-timeout 120 --force-recreate
   if ($LASTEXITCODE -ne 0) { throw "Could not prepare the Compose stack for the short-lived ticket demonstration." }
 
   $Services = @(docker compose ps --format json | ConvertFrom-Json)

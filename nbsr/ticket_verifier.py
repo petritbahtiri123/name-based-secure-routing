@@ -27,8 +27,9 @@ def authorize(
     authorization = _single_header(request, "authorization", required=False)
     if not authorization or not authorization.startswith("NBSR "):
         raise HTTPException(401, "Routing authorization required")
-    metadata = tuple(_single_header(request, name, required=True) for name in ("x-nbsr-method", "x-nbsr-path", "x-nbsr-service"))
-    actual_method, actual_path, service = metadata
+    actual_method = request.method
+    actual_path = f"/{original_path}" if original_path else "/"
+    service = _single_header(request, "x-nbsr-service", required=True)
     try:
         claims = verify_ticket(authorization[5:], actual_method, actual_path, service, settings)
     except SecurityError as exc:

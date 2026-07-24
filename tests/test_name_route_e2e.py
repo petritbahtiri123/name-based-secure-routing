@@ -284,6 +284,13 @@ def test_name_relay_entrypoint_runs_outside_repository(tmp_path: Path):
     assert completed.returncode == 0, completed.stderr
 
 
+def test_name_route_demo_requests_both_relayed_web_ports():
+    path = Path(__file__).parents[1] / "services" / "name-relay" / "app.py"
+    source = path.read_text(encoding="utf-8")
+
+    assert '"capabilities": ["tcp:80", "tcp:443"]' in source
+
+
 @pytest.mark.asyncio
 async def test_name_relay_entrypoint_fails_before_listening_with_invalid_verification_key(
     tmp_path: Path,
@@ -335,10 +342,18 @@ def test_kind_bootstrap_separates_name_binding_keys_and_mounts_origin_tls():
         assert "isp-origin-key.pem" in content
 
 
-def test_legacy_demo_waits_for_compose_readiness():
+def test_demo_waits_for_readiness_and_recreates_atomic_certificate_mounts():
     root = Path(__file__).parents[1]
-    for script in (root / "scripts" / "demo.ps1", root / "scripts" / "demo.sh"):
-        assert "docker compose up -d --build --wait" in script.read_text(encoding="utf-8")
+    for script in (
+        root / "scripts" / "demo.ps1",
+        root / "scripts" / "demo.sh",
+        root / "scripts" / "video-demo.ps1",
+        root / "scripts" / "video-demo.sh",
+    ):
+        content = script.read_text(encoding="utf-8")
+        assert "docker compose up -d" in content
+        assert "--wait" in content
+        assert "--force-recreate" in content
 
 
 def test_origin_leak_assertion_runs_inside_gateway(monkeypatch: pytest.MonkeyPatch):
@@ -384,6 +399,13 @@ def test_bootstrap_creates_distinct_trusted_isp_server_certificates(tmp_path: Pa
     isp_ca = x509.load_pem_x509_certificate((tmp_path / "secrets" / "isp-ca.pem").read_bytes())
     enterprise_ca = x509.load_pem_x509_certificate((tmp_path / "secrets" / "demo-ca.pem").read_bytes())
     assert isp_ca.fingerprint(hashes.SHA256()) != enterprise_ca.fingerprint(hashes.SHA256())
+    for certificate_authority in (isp_ca, enterprise_ca):
+        constraints = certificate_authority.extensions.get_extension_for_class(x509.BasicConstraints).value
+        usage = certificate_authority.extensions.get_extension_for_class(x509.KeyUsage).value
+        certificate_authority.extensions.get_extension_for_class(x509.SubjectKeyIdentifier)
+        assert constraints.ca is True
+        assert usage.key_cert_sign is True
+        assert usage.crl_sign is True
     for prefix, dns_name in (("control", "name-control"), ("relay", "name-relay"), ("origin", "facebook.test")):
         certificate = x509.load_pem_x509_certificate((tmp_path / "secrets" / f"isp-{prefix}-cert.pem").read_bytes())
         san = certificate.extensions.get_extension_for_class(x509.SubjectAlternativeName).value

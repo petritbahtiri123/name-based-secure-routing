@@ -112,7 +112,7 @@ async def demo(
         "transport": "tcp",
         "client_nonce": "name-route-demo-nonce",
         "client_public_key": session.public_key_b64,
-        "capabilities": ["tcp:443"],
+        "capabilities": ["tcp:80", "tcp:443"],
     }
     control_tls = ssl.create_default_context(cafile=str(control_ca))
     async with httpx.AsyncClient(timeout=5.0, verify=control_tls) as client:
@@ -164,8 +164,14 @@ async def demo(
         await interceptor.close()
 
     client_visible_state = json.dumps(route, sort_keys=True)
-    if b"hidden-origin-http" not in http_response or b"hidden-origin-https" not in https_response:
-        raise RuntimeError("HTTP/HTTPS relay response did not match")
+    http_matched = b"hidden-origin-http" in http_response
+    https_matched = b"hidden-origin-https" in https_response
+    if not http_matched or not https_matched:
+        raise RuntimeError(
+            "HTTP/HTTPS relay response did not match "
+            f"(http_matched={http_matched}, http_bytes={len(http_response)}, "
+            f"https_matched={https_matched}, https_bytes={len(https_response)})"
+        )
     assert_origin_hidden(client_visible_state)
     assert_origin_observed_relay()
 

@@ -67,9 +67,24 @@ ca = (
     .issuer_name(name)
     .public_key(ca_key.public_key())
     .serial_number(x509.random_serial_number())
-    .not_valid_before(now)
+    .not_valid_before(now - timedelta(minutes=1))
     .not_valid_after(now + timedelta(days=7))
     .add_extension(x509.BasicConstraints(ca=True, path_length=0), critical=True)
+    .add_extension(
+        x509.KeyUsage(
+            digital_signature=True,
+            content_commitment=False,
+            key_encipherment=False,
+            data_encipherment=False,
+            key_agreement=False,
+            key_cert_sign=True,
+            crl_sign=True,
+            encipher_only=None,
+            decipher_only=None,
+        ),
+        critical=True,
+    )
+    .add_extension(x509.SubjectKeyIdentifier.from_public_key(ca_key.public_key()), critical=False)
     .sign(ca_key, algorithm=None)
 )
 (secrets / "demo-ca.pem").write_bytes(ca.public_bytes(serialization.Encoding.PEM))

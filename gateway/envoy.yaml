@@ -22,13 +22,6 @@ static_resources:
                   virtual_hosts:
                     - name: payments
                       domains: ["*"]
-                      request_headers_to_add:
-                        - header: { key: x-nbsr-method, value: "%REQ(:METHOD)%" }
-                          append_action: OVERWRITE_IF_EXISTS_OR_ADD
-                        - header: { key: x-nbsr-path, value: "%REQ(X-ENVOY-ORIGINAL-PATH?:PATH)%" }
-                          append_action: OVERWRITE_IF_EXISTS_OR_ADD
-                        - header: { key: x-nbsr-service, value: "payments.internal" }
-                          append_action: OVERWRITE_IF_EXISTS_OR_ADD
                       routes:
                         - match: { prefix: "/api/" }
                           route: { cluster: payments, timeout: 5s }
@@ -45,12 +38,8 @@ static_resources:
                           timeout: 2s
                         path_prefix: /authorize
                         authorization_request:
-                          allowed_headers:
-                            patterns:
-                              - exact: authorization
-                              - exact: x-nbsr-method
-                              - exact: x-nbsr-path
-                              - exact: x-nbsr-service
+                          headers_to_add:
+                            - { key: x-nbsr-service, value: "payments.internal" }
                   - name: envoy.filters.http.router
                     typed_config:
                       "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
