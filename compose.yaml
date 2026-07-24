@@ -70,8 +70,8 @@ services:
     ports: ["8080:8080"]
     volumes:
       - ./gateway/envoy.yaml:/etc/envoy/envoy.yaml:ro
-      - ./secrets/enterprise-gateway-cert.pem:/run/secrets/enterprise-gateway-cert.pem:ro
-      - ./secrets/enterprise-gateway-key.pem:/run/secrets/enterprise-gateway-key.pem:ro
+      - ./secrets/enterprise-gateway-cert.pem:/run/nbsr-tls/enterprise-gateway-cert.pem:ro
+      - ./secrets/enterprise-gateway-key.pem:/run/nbsr-tls/enterprise-gateway-key.pem:ro
     networks: [client-network, protected-network]
     depends_on:
       ticket-verifier: { condition: service_healthy }

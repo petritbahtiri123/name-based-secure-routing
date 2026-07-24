@@ -10,8 +10,8 @@ static_resources:
               "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.DownstreamTlsContext
               common_tls_context:
                 tls_certificates:
-                  - certificate_chain: { filename: /run/secrets/enterprise-gateway-cert.pem }
-                    private_key: { filename: /run/secrets/enterprise-gateway-key.pem }
+                  - certificate_chain: { filename: /run/nbsr-tls/enterprise-gateway-cert.pem }
+                    private_key: { filename: /run/nbsr-tls/enterprise-gateway-key.pem }
           filters:
             - name: envoy.filters.network.http_connection_manager
               typed_config:

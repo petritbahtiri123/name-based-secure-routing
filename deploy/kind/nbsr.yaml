@@ -67,13 +67,24 @@ spec:
       containers:
         - name: control-plane
           image: nbsr:local
-          args: ["nbsr.control_plane:app", "--host", "0.0.0.0", "--port", "8000"]
+          args:
+            - nbsr.control_plane:app
+            - --host
+            - 0.0.0.0
+            - --port
+            - "8000"
+            - --ssl-certfile
+            - /run/nbsr-tls/enterprise-control-plane-cert.pem
+            - --ssl-keyfile
+            - /run/nbsr-tls/enterprise-control-plane-key.pem
           env:
             - {name: NBSR_OPA_URL, value: "http://opa:8181/v1/data/nbsr/route/decision"}
-            - {name: NBSR_GATEWAY_URL, value: "http://localhost:8080"}
+            - {name: NBSR_GATEWAY_URL, value: "https://localhost:8080"}
             - {name: NBSR_IDENTITY_PUBLIC_KEY_PATH, value: "/run/nbsr-secrets/identity-public.pem"}
             - {name: NBSR_TICKET_PRIVATE_KEY_PATH, value: "/run/nbsr-secrets/ticket-private.pem"}
-          volumeMounts: [{name: keys, mountPath: /run/nbsr-secrets, readOnly: true}]
+          volumeMounts:
+            - {name: keys, mountPath: /run/nbsr-secrets, readOnly: true}
+            - {name: control-plane-tls, mountPath: /run/nbsr-tls, readOnly: true}
       volumes:
         - name: keys
           secret:
@@ -81,6 +92,12 @@ spec:
             items:
               - {key: identity-public.pem, path: identity-public.pem}
               - {key: ticket-private.pem, path: ticket-private.pem}
+        - name: control-plane-tls
+          secret:
+            secretName: nbsr-enterprise-tls
+            items:
+              - {key: enterprise-control-plane-cert.pem, path: enterprise-control-plane-cert.pem}
+              - {key: enterprise-control-plane-key.pem, path: enterprise-control-plane-key.pem}
 ---
 apiVersion: v1
 kind: Service
@@ -174,8 +191,17 @@ spec:
         - name: gateway
           image: envoyproxy/envoy:v1.34.4
           args: ["-c", "/etc/envoy/envoy.yaml", "--log-level", "warning"]
-          volumeMounts: [{name: config, mountPath: /etc/envoy, readOnly: true}]
-      volumes: [{name: config, configMap: {name: envoy-config}}]
+          volumeMounts:
+            - {name: config, mountPath: /etc/envoy, readOnly: true}
+            - {name: gateway-tls, mountPath: /run/nbsr-tls, readOnly: true}
+      volumes:
+        - {name: config, configMap: {name: envoy-config}}
+        - name: gateway-tls
+          secret:
+            secretName: nbsr-enterprise-tls
+            items:
+              - {key: enterprise-gateway-cert.pem, path: enterprise-gateway-cert.pem}
+              - {key: enterprise-gateway-key.pem, path: enterprise-gateway-key.pem}
 ---
 apiVersion: v1
 kind: Service
@@ -245,7 +271,7 @@ apiVersion: v1
 kind: Service
 metadata: {name: test, namespace: nbsr}
 spec:
-  clusterIP: None
+  clusterIP: 10.96.0.80
   selector: {app: name-origin}
   ports: [{name: http, port: 80, targetPort: 80}, {name: https, port: 443, targetPort: 443}]
 ---
@@ -258,12 +284,16 @@ spec:
   template:
     metadata: {labels: {app: name-relay}}
     spec:
+      hostAliases:
+        - ip: "10.96.0.80"
+          hostnames: ["facebook.test"]
       containers:
         - name: name-relay
           image: nbsr:local
           command: ["python", "-c"]
           env:
             - {name: NBSR_NAME_BINDING_PUBLIC_KEY_PATH, value: "/run/nbsr-signing/name-binding-public.pem"}
+            - {name: NBSR_TRUSTED_ORIGINS, value: "facebook.test=10.96.0.80/32"}
           args:
             - |
               import asyncio
@@ -312,12 +342,72 @@ spec: {podSelector: {}, policyTypes: [Ingress, Egress]}
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
+metadata: {name: opa-from-control-plane, namespace: nbsr}
+spec:
+  podSelector: {matchLabels: {app: opa}}
+  policyTypes: [Ingress]
+  ingress:
+    - from: [{podSelector: {matchLabels: {app: control-plane}}}]
+      ports: [{port: 8181, protocol: TCP}]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: control-plane-public-ingress, namespace: nbsr}
+spec:
+  podSelector: {matchLabels: {app: control-plane}}
+  policyTypes: [Ingress]
+  ingress:
+    - ports: [{port: 8000, protocol: TCP}]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: control-plane-to-opa, namespace: nbsr}
+spec:
+  podSelector: {matchLabels: {app: control-plane}}
+  policyTypes: [Egress]
+  egress:
+    - to: [{podSelector: {matchLabels: {app: opa}}}]
+      ports: [{port: 8181, protocol: TCP}]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: ticket-verifier-from-gateway, namespace: nbsr}
+spec:
+  podSelector: {matchLabels: {app: ticket-verifier}}
+  policyTypes: [Ingress]
+  ingress:
+    - from: [{podSelector: {matchLabels: {app: gateway}}}]
+      ports: [{port: 9000, protocol: TCP}]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
 metadata: {name: payments-from-gateway-only, namespace: nbsr}
 spec:
   podSelector: {matchLabels: {app: payments}}
   policyTypes: [Ingress]
   ingress:
     - from: [{podSelector: {matchLabels: {app: gateway}}}]
+      ports: [{port: 7000, protocol: TCP}]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: gateway-public-ingress, namespace: nbsr}
+spec:
+  podSelector: {matchLabels: {app: gateway}}
+  policyTypes: [Ingress]
+  ingress:
+    - ports: [{port: 8080, protocol: TCP}]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: gateway-to-backends, namespace: nbsr}
+spec:
+  podSelector: {matchLabels: {app: gateway}}
+  policyTypes: [Egress]
+  egress:
+    - to: [{podSelector: {matchLabels: {app: ticket-verifier}}}]
+      ports: [{port: 9000, protocol: TCP}]
+    - to: [{podSelector: {matchLabels: {app: payments}}}]
       ports: [{port: 7000, protocol: TCP}]
 ---
 apiVersion: networking.k8s.io/v1
@@ -350,17 +440,31 @@ spec:
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
-metadata: {name: allow-required-flows, namespace: nbsr}
+metadata: {name: name-relay-to-origin, namespace: nbsr}
 spec:
-  podSelector: {}
+  podSelector: {matchLabels: {app: name-relay}}
   policyTypes: [Egress]
   egress:
-    - to: [{namespaceSelector: {}}]
+    - to: [{podSelector: {matchLabels: {app: name-origin}}}]
+      ports:
+        - {port: 80, protocol: TCP}
+        - {port: 443, protocol: TCP}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: dns-egress, namespace: nbsr}
+spec:
+  podSelector:
+    matchExpressions:
+      - key: app
+        operator: In
+        values: [control-plane, gateway, name-relay]
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
       ports:
         - {port: 53, protocol: UDP}
         - {port: 53, protocol: TCP}
-        - {port: 80, protocol: TCP}
-        - {port: 443, protocol: TCP}
-        - {port: 7000, protocol: TCP}
-        - {port: 8181, protocol: TCP}
-        - {port: 9000, protocol: TCP}
