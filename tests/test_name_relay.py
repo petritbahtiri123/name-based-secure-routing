@@ -197,6 +197,22 @@ async def test_replay_nonce_is_rejected(settings):
         await origin.close()
 
 
+def test_replay_cache_rejects_new_entries_at_capacity_and_reuses_expired_capacity(settings, monkeypatch):
+    settings = settings.model_copy(update={"name_relay_replay_cache_max_entries": 2})
+    relay = NameRelay(settings=settings, resolver=StaticResolver({"facebook.test": []}))
+    now = [100.0]
+    monkeypatch.setattr("nbsr.name_relay.monotonic", lambda: now[0])
+
+    relay._replay_cache.consume("route-a", "nonce-a")
+    relay._replay_cache.consume("route-b", "nonce-b")
+    with pytest.raises(RelayRejected, match="capacity"):
+        relay._replay_cache.consume("route-c", "nonce-c")
+
+    now[0] += settings.name_binding_ttl_seconds + 1
+    relay._replay_cache.consume("route-c", "nonce-c")
+    assert len(relay._replay_cache._consumed) == 1
+
+
 @pytest.mark.asyncio
 async def test_expired_binding_rejects_new_admission(settings):
     settings.name_binding_ttl_seconds = -1

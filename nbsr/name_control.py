@@ -5,6 +5,7 @@ from typing import Annotated, Literal
 from fastapi import Depends, FastAPI, HTTPException, status
 from pydantic import BaseModel, Field, StrictInt, field_validator
 
+from nbsr.admission import AdmissionLimiter, NameRouteRateLimited
 from nbsr.config import Settings
 from nbsr.name_model import normalize_hostname
 from nbsr.name_security import validate_name_binding_private_key
@@ -57,10 +58,16 @@ def get_settings() -> Settings:
 
 
 _name_route_pool = SyntheticAddressPool("127.80.0.0/16", "fd00:6e62:7372::/64", ttl_seconds=60)
+_admission_settings = Settings()
+_name_route_admission = AdmissionLimiter(
+    global_limit=_admission_settings.name_route_global_requests_per_minute,
+    client_limit=_admission_settings.name_route_client_requests_per_minute,
+    max_clients=_admission_settings.name_route_admission_max_clients,
+)
 
 
 def get_name_route_service(settings: Settings = Depends(get_settings)) -> NameRouteService:
-    return NameRouteService(pool=_name_route_pool, settings=settings)
+    return NameRouteService(pool=_name_route_pool, settings=settings, admission_limiter=_name_route_admission)
 
 
 @app.get("/health")
@@ -78,6 +85,12 @@ def resolve_name_route(
         response = service.resolve(route.hostname, route.client_public_key, route.capabilities)
     except SecurityError as exc:
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, "Invalid name-route request") from exc
+    except NameRouteRateLimited as exc:
+        raise HTTPException(
+            status.HTTP_429_TOO_MANY_REQUESTS,
+            "Name-route request rate exceeded",
+            headers={"Retry-After": "60"},
+        ) from exc
     except SyntheticPoolExhausted as exc:
         raise HTTPException(
             status.HTTP_503_SERVICE_UNAVAILABLE,

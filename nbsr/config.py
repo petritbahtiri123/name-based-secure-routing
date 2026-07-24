@@ -22,6 +22,10 @@ class Settings(BaseSettings):
     name_relay_connect_timeout_seconds: float = Field(2.0, gt=0, le=10)
     name_relay_handshake_timeout_seconds: float = Field(2.0, gt=0, le=30)
     name_relay_trusted_origins: str = ""
+    name_relay_replay_cache_max_entries: int = Field(10_000, ge=1, le=1_000_000)
+    name_route_global_requests_per_minute: int = Field(600, ge=1, le=1_000_000)
+    name_route_client_requests_per_minute: int = Field(120, ge=1, le=100_000)
+    name_route_admission_max_clients: int = Field(10_000, ge=1, le=1_000_000)
     gateway_url: str = "http://localhost:8080"
     opa_url: str = "http://opa:8181/v1/data/nbsr/route/decision"
     ticket_ttl_seconds: int = Field(60, ge=-1, le=300)

@@ -181,6 +181,53 @@ def test_isp_route_rejects_unsupported_capability_before_issuing_a_binding():
     assert response.json()["detail"] == "Invalid name-route request"
 
 
+def test_name_route_rate_limit_rejects_before_synthetic_allocation(monkeypatch):
+    settings = Settings.for_tests(
+        ClientSession.generate().private_key,
+        ClientSession.generate().private_key,
+        ClientSession.generate().private_key,
+    ).model_copy(
+        update={
+            "name_route_client_requests_per_minute": 1,
+            "name_route_global_requests_per_minute": 10,
+            "name_route_admission_max_clients": 10,
+        }
+    )
+    service = NameRouteService(
+        pool=SyntheticAddressPool("127.80.0.0/30", "fd00:6e62:7372::/126", ttl_seconds=60),
+        settings=settings,
+    )
+    monkeypatch.setitem(name_app.dependency_overrides, get_name_settings, lambda: settings)
+    monkeypatch.setitem(name_app.dependency_overrides, get_name_route_service, lambda: service)
+    client = TestClient(name_app)
+    first_session = ClientSession.generate().public_key_b64
+    payload = {
+        "protocol_version": 1,
+        "request_id": "rate-limit",
+        "transport": "tcp",
+        "client_nonce": "client-nonce",
+        "client_public_key": first_session,
+        "capabilities": ["https"],
+    }
+
+    first = client.post("/v1/name-routes/resolve", json={**payload, "hostname": "one.test"})
+    limited = client.post("/v1/name-routes/resolve", json={**payload, "request_id": "limited", "hostname": "two.test"})
+    other_client = client.post(
+        "/v1/name-routes/resolve",
+        json={
+            **payload,
+            "request_id": "other-client",
+            "hostname": "three.test",
+            "client_public_key": ClientSession.generate().public_key_b64,
+        },
+    )
+
+    assert first.status_code == 200
+    assert limited.status_code == 429
+    assert limited.headers["Retry-After"] == "60"
+    assert other_client.status_code == 200
+
+
 def test_name_control_health_fails_when_binding_signing_key_is_invalid(monkeypatch):
     settings = Settings.for_tests(
         ClientSession.generate().private_key,

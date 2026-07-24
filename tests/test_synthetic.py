@@ -1,5 +1,6 @@
 from datetime import UTC, datetime, timedelta
 from concurrent.futures import ThreadPoolExecutor
+from ipaddress import IPv4Network, IPv6Network
 from time import sleep
 
 import pytest
@@ -66,6 +67,22 @@ def test_pool_exhaustion_fails_closed():
 
     with pytest.raises(SyntheticPoolExhausted):
         pool.allocate("three.test")
+
+
+def test_allocator_does_not_restart_network_iteration_for_each_request(monkeypatch):
+    pool = SyntheticAddressPool("127.80.0.0/29", "fd00:6e62:7372::/125", ttl_seconds=60)
+
+    def linear_scan_is_a_regression(_network):
+        raise AssertionError("allocation restarted a linear hosts() scan")
+
+    monkeypatch.setattr(IPv4Network, "hosts", linear_scan_is_a_regression)
+    monkeypatch.setattr(IPv6Network, "hosts", linear_scan_is_a_regression)
+
+    first = pool.allocate("one.test")
+    second = pool.allocate("two.test")
+
+    assert first.ipv4 == "127.80.0.1"
+    assert second.ipv4 == "127.80.0.2"
 
 
 def test_reused_mapping_is_renewed_for_the_requested_admission_lifetime():

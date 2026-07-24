@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import heapq
 import json
 import socket
 import struct
@@ -55,19 +56,31 @@ class PrivateResolver:
 
 
 class ReplayCache:
-    def __init__(self, ttl_seconds: int = 60):
+    def __init__(self, ttl_seconds: int = 60, max_entries: int = 10_000):
+        if ttl_seconds <= 0 or max_entries <= 0:
+            raise ValueError("Replay cache limits must be positive")
         self._ttl_seconds = ttl_seconds
+        self._max_entries = max_entries
         self._consumed: dict[tuple[str, str], float] = {}
+        self._expirations: list[tuple[float, tuple[str, str]]] = []
 
     def consume(self, route_id: str, nonce: str) -> None:
         now = monotonic()
-        expired = [key for key, expires_at in self._consumed.items() if expires_at <= now]
-        for key in expired:
-            del self._consumed[key]
+        self._expire(now)
         key = (route_id, nonce)
         if key in self._consumed:
             raise RelayRejected("relay proof has already been used")
-        self._consumed[key] = now + self._ttl_seconds
+        if len(self._consumed) >= self._max_entries:
+            raise RelayRejected("relay replay cache is at capacity")
+        expires_at = now + self._ttl_seconds
+        self._consumed[key] = expires_at
+        heapq.heappush(self._expirations, (expires_at, key))
+
+    def _expire(self, now: float) -> None:
+        while self._expirations and self._expirations[0][0] <= now:
+            expires_at, key = heapq.heappop(self._expirations)
+            if self._consumed.get(key) == expires_at:
+                del self._consumed[key]
 
 
 class NameRelay:
@@ -81,7 +94,10 @@ class NameRelay:
     ):
         self._settings = settings
         self._resolver = resolver or PrivateResolver(settings.name_relay_max_endpoints)
-        self._replay_cache = replay_cache or ReplayCache(settings.name_binding_ttl_seconds)
+        self._replay_cache = replay_cache or ReplayCache(
+            max(1, settings.name_binding_ttl_seconds),
+            settings.name_relay_replay_cache_max_entries,
+        )
         self._destination_policy = destination_policy or DestinationPolicy.from_config(settings.name_relay_trusted_origins)
 
     async def handle(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:

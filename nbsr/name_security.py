@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import base64
+import hashlib
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from ipaddress import IPv4Address, IPv4Network, IPv6Address, IPv6Network, ip_address
@@ -63,6 +64,12 @@ def _session_public_key(value: object) -> Ed25519PublicKey:
 
 def validate_client_session_public_key(value: object) -> None:
     _session_public_key(value)
+
+
+def client_session_thumbprint(value: object) -> str:
+    public_key = _session_public_key(value)
+    raw = public_key.public_bytes(serialization.Encoding.Raw, serialization.PublicFormat.Raw)
+    return _b64encode(hashlib.sha256(raw).digest())
 
 
 def validate_name_binding_private_key(settings: Settings) -> None:
