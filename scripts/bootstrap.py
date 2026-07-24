@@ -1,4 +1,5 @@
 import argparse
+import sys
 from datetime import UTC, datetime, timedelta
 from ipaddress import ip_address
 from pathlib import Path
@@ -9,6 +10,12 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from cryptography.x509.oid import ExtendedKeyUsageOID, NameOID
 
+repo_root = Path(__file__).resolve().parents[1]
+if str(repo_root) not in sys.path:
+    sys.path.insert(0, str(repo_root))
+
+from nbsr.secure_files import ensure_private_directory, secure_write_private, secure_write_text  # noqa: E402
+
 
 def private_pem(key):
     return key.private_bytes(serialization.Encoding.PEM, serialization.PrivateFormat.PKCS8, serialization.NoEncryption())
@@ -18,7 +25,6 @@ def public_pem(key):
     return key.public_key().public_bytes(serialization.Encoding.PEM, serialization.PublicFormat.SubjectPublicKeyInfo)
 
 
-repo_root = Path(__file__).resolve().parents[1]
 parser = argparse.ArgumentParser(description="Generate local NBSR demo trust material.")
 parser.add_argument(
     "--output-root",
@@ -29,16 +35,16 @@ parser.add_argument(
 output_root = parser.parse_args().output_root.resolve()
 secrets = output_root / "secrets"
 tokens = output_root / "tokens"
-secrets.mkdir(parents=True, exist_ok=True)
-tokens.mkdir(parents=True, exist_ok=True)
+ensure_private_directory(secrets)
+ensure_private_directory(tokens)
 identity = Ed25519PrivateKey.generate()
 ticket = Ed25519PrivateKey.generate()
 name_binding = Ed25519PrivateKey.generate()
-(secrets / "identity-private.pem").write_bytes(private_pem(identity))
+secure_write_private(secrets / "identity-private.pem", private_pem(identity))
 (secrets / "identity-public.pem").write_bytes(public_pem(identity))
-(secrets / "ticket-private.pem").write_bytes(private_pem(ticket))
+secure_write_private(secrets / "ticket-private.pem", private_pem(ticket))
 (secrets / "ticket-public.pem").write_bytes(public_pem(ticket))
-(secrets / "name-binding-private.pem").write_bytes(private_pem(name_binding))
+secure_write_private(secrets / "name-binding-private.pem", private_pem(name_binding))
 (secrets / "name-binding-public.pem").write_bytes(public_pem(name_binding))
 now = datetime.now(UTC)
 for short in ("allowed", "denied"):
@@ -50,7 +56,7 @@ for short in ("allowed", "denied"):
         "exp": now + timedelta(hours=8),
         "jti": f"demo-{short}-{int(now.timestamp())}",
     }
-    (tokens / f"client-{short}.jwt").write_text(jwt.encode(claims, identity, algorithm="EdDSA"), encoding="utf-8")
+    secure_write_text(tokens / f"client-{short}.jwt", jwt.encode(claims, identity, algorithm="EdDSA"))
 
 # Optional local mTLS material. It is not used by the reliable JWT path.
 ca_key = Ed25519PrivateKey.generate()
@@ -67,7 +73,7 @@ ca = (
     .sign(ca_key, algorithm=None)
 )
 (secrets / "demo-ca.pem").write_bytes(ca.public_bytes(serialization.Encoding.PEM))
-(secrets / "demo-ca-private.pem").write_bytes(private_pem(ca_key))
+secure_write_private(secrets / "demo-ca-private.pem", private_pem(ca_key))
 
 
 def issue_server_certificate(certificate_authority_key, certificate_authority, common_name: str):
@@ -112,7 +118,7 @@ def issue_server_certificate(certificate_authority_key, certificate_authority, c
 
 for service_name, file_prefix in (("control-plane", "control-plane"), ("gateway", "gateway")):
     server_key, server_cert = issue_server_certificate(ca_key, ca, service_name)
-    (secrets / f"enterprise-{file_prefix}-key.pem").write_bytes(private_pem(server_key))
+    secure_write_private(secrets / f"enterprise-{file_prefix}-key.pem", private_pem(server_key))
     (secrets / f"enterprise-{file_prefix}-cert.pem").write_bytes(server_cert.public_bytes(serialization.Encoding.PEM))
 
 # The ISP name-control and relay share a demo-only CA that is separate from the
@@ -148,10 +154,10 @@ isp_ca = (
 
 
 (secrets / "isp-ca.pem").write_bytes(isp_ca.public_bytes(serialization.Encoding.PEM))
-(secrets / "isp-ca-private.pem").write_bytes(private_pem(isp_ca_key))
+secure_write_private(secrets / "isp-ca-private.pem", private_pem(isp_ca_key))
 for service_name, file_prefix in (("name-control", "control"), ("name-relay", "relay"), ("facebook.test", "origin")):
     server_key, server_cert = issue_server_certificate(isp_ca_key, isp_ca, service_name)
-    (secrets / f"isp-{file_prefix}-key.pem").write_bytes(private_pem(server_key))
+    secure_write_private(secrets / f"isp-{file_prefix}-key.pem", private_pem(server_key))
     (secrets / f"isp-{file_prefix}-cert.pem").write_bytes(server_cert.public_bytes(serialization.Encoding.PEM))
 
 print("Generated ignored enterprise and ISP demo trust material.")

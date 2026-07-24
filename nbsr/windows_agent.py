@@ -16,6 +16,7 @@ import jwt
 from nbsr.dns_stub import ClientRoute, DnsStub, RouteTable
 from nbsr.name_security import ClientSession, sign_relay_proof
 from nbsr.name_service import NameRouteResponse, NameRouteService
+from nbsr.secure_files import secure_write_text
 
 
 _ALLOWED_PORTS = frozenset((80, 443))
@@ -124,7 +125,7 @@ class OptInWindowsNetworkAdapter:
         self._owned_ipv6_addresses.add(address)
         try:
             self._write_journal()
-        except OSError as exc:
+        except (OSError, RuntimeError) as exc:
             removed = self._command_runner.run(self._delete_address_command(address))
             if removed.returncode == 0:
                 self._owned_ipv6_addresses.remove(address)
@@ -168,13 +169,10 @@ class OptInWindowsNetworkAdapter:
         if not self._owned_ipv6_addresses:
             self._journal_path.unlink(missing_ok=True)
             return
-        self._journal_path.parent.mkdir(parents=True, exist_ok=True)
-        temporary = self._journal_path.with_suffix(f"{self._journal_path.suffix}.tmp")
-        temporary.write_text(
+        secure_write_text(
+            self._journal_path,
             json.dumps({"synthetic_ipv6": sorted(self._owned_ipv6_addresses)}, separators=(",", ":")),
-            encoding="utf-8",
         )
-        temporary.replace(self._journal_path)
 
     def _remove_temporary_journal(self) -> None:
         if self._journal_path is not None:

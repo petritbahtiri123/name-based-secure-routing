@@ -430,7 +430,10 @@ def test_unwritable_journal_rolls_back_the_just_added_address(tmp_path: Path, mo
         enable_synthetic_ipv6=True,
         ownership_journal_path=journal,
     )
-    monkeypatch.setattr(Path, "replace", lambda *_args, **_kwargs: (_ for _ in ()).throw(OSError("read-only journal")))
+    monkeypatch.setattr(
+        "nbsr.secure_files.os.replace",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(OSError("read-only journal")),
+    )
 
     with pytest.raises(RuntimeError, match="journal"):
         adapter.ensure_synthetic_ipv6(address)
@@ -456,7 +459,10 @@ def test_unwritable_journal_surfaces_when_immediate_rollback_also_fails(tmp_path
         enable_synthetic_ipv6=True,
         ownership_journal_path=tmp_path / "owned-state.json",
     )
-    monkeypatch.setattr(Path, "replace", lambda *_args, **_kwargs: (_ for _ in ()).throw(OSError("read-only journal")))
+    monkeypatch.setattr(
+        "nbsr.secure_files.os.replace",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(OSError("read-only journal")),
+    )
 
     with pytest.raises(RuntimeError, match="rollback also failed"):
         adapter.ensure_synthetic_ipv6(address)
