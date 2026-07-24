@@ -363,4 +363,3 @@ git commit -m "docs: record security hardening evidence"
 Archive the feature commit with Git, extract it to a clean directory, verify no
 `.git`, secrets, tokens, caches, or runtime artifacts exist, run static/package
 checks against the extracted tree, and write a SHA-256 sidecar.
-
