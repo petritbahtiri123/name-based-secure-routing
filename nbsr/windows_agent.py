@@ -433,7 +433,8 @@ class WindowsNameAgent:
         return route
 
     async def _refresh_route(self, hostname: str) -> ClientRoute:
-        response = self._name_route_service.resolve(hostname, self._client_session.public_key_b64)
+        capabilities = tuple(f"tcp:{port}" for port in self.listener_ports)
+        response = self._name_route_service.resolve(hostname, self._client_session.public_key_b64, capabilities)
         route = self._from_response(response)
         self.route_table.put(route)
         self.ipv6_interception_available = self.network_adapter.ensure_synthetic_ipv6(route.synthetic_ipv6)

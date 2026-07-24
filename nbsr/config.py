@@ -21,6 +21,7 @@ class Settings(BaseSettings):
     name_relay_max_endpoints: int = Field(8, ge=1, le=32)
     name_relay_connect_timeout_seconds: float = Field(2.0, gt=0, le=10)
     name_relay_handshake_timeout_seconds: float = Field(2.0, gt=0, le=30)
+    name_relay_trusted_origins: str = ""
     gateway_url: str = "http://localhost:8080"
     opa_url: str = "http://opa:8181/v1/data/nbsr/route/decision"
     ticket_ttl_seconds: int = Field(60, ge=-1, le=300)
@@ -54,6 +55,7 @@ class Settings(BaseSettings):
                 serialization.Encoding.PEM, private_format, serialization.NoEncryption()
             ),
             name_binding_public_key_pem=name_binding.public_key().public_bytes(serialization.Encoding.PEM, public_format),
+            name_relay_trusted_origins="facebook.test=127.0.0.1/32",
         )
 
     def key_bytes(self, kind: str) -> bytes:

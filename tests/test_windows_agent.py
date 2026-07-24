@@ -603,9 +603,9 @@ async def test_expired_route_is_refreshed_before_relay_admission(tmp_path: Path)
     class CountingService(NameRouteService):
         calls = 0
 
-        def resolve(self, hostname, session_public_key):
+        def resolve(self, hostname, session_public_key, capabilities=("http", "https")):
             self.calls += 1
-            return super().resolve(hostname, session_public_key)
+            return super().resolve(hostname, session_public_key, capabilities)
 
     service = CountingService(
         pool=SyntheticAddressPool("127.80.0.0/29", "fd00:6e62:7372::/125", ttl_seconds=1),

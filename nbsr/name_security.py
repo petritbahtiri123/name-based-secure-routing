@@ -4,6 +4,7 @@ import base64
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from ipaddress import IPv4Address, IPv4Network, IPv6Address, IPv6Network, ip_address
+from collections.abc import Sequence
 from typing import Any
 from uuid import uuid4
 
@@ -20,6 +21,7 @@ from nbsr.security import SecurityError
 _LOOPBACK_IPV4 = IPv4Network("127.0.0.0/8")
 _NBSR_SYNTHETIC_ULA = IPv6Network("fd00:6e62:7372::/48")
 _ALLOWED_PORTS = frozenset((80, 443))
+_CAPABILITY_PORTS = {"http": 80, "tcp:80": 80, "https": 443, "tcp:443": 443}
 _REQUIRED_BINDING_CLAIMS = (
     "iss",
     "aud",
@@ -81,6 +83,31 @@ def validate_name_binding_public_key(settings: Settings) -> None:
         raise RuntimeError("Required name binding public key is not Ed25519")
 
 
+def capability_ports(capabilities: Sequence[str]) -> tuple[int, ...]:
+    if isinstance(capabilities, (str, bytes)) or not capabilities:
+        raise SecurityError("Invalid route capabilities")
+    ports: set[int] = set()
+    for capability in capabilities:
+        if not isinstance(capability, str):
+            raise SecurityError("Invalid route capabilities")
+        port = _CAPABILITY_PORTS.get(capability.strip().lower())
+        if port is None:
+            raise SecurityError("Invalid route capabilities")
+        ports.add(port)
+    return tuple(sorted(ports))
+
+
+def _binding_ports(value: object) -> tuple[int, ...]:
+    if not isinstance(value, (list, tuple)) or not value:
+        raise SecurityError("Invalid route binding")
+    if any(type(port) is not int or port not in _ALLOWED_PORTS for port in value):
+        raise SecurityError("Invalid route binding")
+    ports = tuple(sorted(set(value)))
+    if len(ports) != len(value):
+        raise SecurityError("Invalid route binding")
+    return ports
+
+
 def _synthetic_address(value: str) -> str:
     try:
         parsed = ip_address(value)
@@ -124,6 +151,7 @@ def issue_name_binding(
     gateway_id: str,
     session_public_key: str,
     settings: Settings,
+    ports: Sequence[int] = (80, 443),
 ) -> str:
     try:
         hostname = normalize_hostname(hostname)
@@ -136,6 +164,7 @@ def issue_name_binding(
     _session_public_key(session_public_key)
     if gateway_id != settings.name_binding_gateway_id:
         raise SecurityError("Invalid route binding")
+    bound_ports = _binding_ports(ports)
 
     now = datetime.now(UTC)
     claims = {
@@ -149,7 +178,7 @@ def issue_name_binding(
         "synthetic_ipv4": synthetic_ipv4,
         "synthetic_ipv6": synthetic_ipv6,
         "gateway_id": gateway_id,
-        "ports": sorted(_ALLOWED_PORTS),
+        "ports": list(bound_ports),
         "cnf": {"ed25519_public_key": session_public_key},
     }
     return jwt.encode(claims, settings.key_bytes("name_binding_private_key"), algorithm="EdDSA")
@@ -176,14 +205,16 @@ def verify_name_binding(
         requested_address = _synthetic_address(synthetic_address)
     except (jwt.PyJWTError, ValueError, SecurityError) as exc:
         raise SecurityError("Invalid name route binding") from exc
-    bound_ports = claims.get("ports")
+    try:
+        bound_ports = _binding_ports(claims.get("ports"))
+    except SecurityError as exc:
+        raise SecurityError("Invalid name route binding") from exc
     if (
         claims.get("hostname") != requested_hostname
         or requested_address not in (claims.get("synthetic_ipv4"), claims.get("synthetic_ipv6"))
         or claims.get("gateway_id") != gateway_id
         or gateway_id != settings.name_binding_gateway_id
         or type(port) is not int
-        or not isinstance(bound_ports, list)
         or port not in bound_ports
         or port not in _ALLOWED_PORTS
     ):
@@ -203,11 +234,13 @@ def sign_relay_proof(session: ClientSession, route_id: str, nonce: str, port: in
 
 
 def verify_relay_proof(claims: dict[str, Any], route_id: str, nonce: str, port: int, proof: str) -> None:
-    bound_ports = claims.get("ports")
+    try:
+        bound_ports = _binding_ports(claims.get("ports"))
+    except SecurityError as exc:
+        raise SecurityError("Invalid relay proof") from exc
     if (
         claims.get("jti") != route_id
         or type(port) is not int
-        or not isinstance(bound_ports, list)
         or port not in bound_ports
         or port not in _ALLOWED_PORTS
     ):

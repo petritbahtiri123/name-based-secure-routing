@@ -9,6 +9,7 @@ from time import monotonic
 from typing import Protocol
 
 from nbsr.config import Settings
+from nbsr.destination_policy import DestinationDenied, DestinationPolicy
 from nbsr.name_security import verify_name_binding, verify_relay_proof
 from nbsr.security import SecurityError
 
@@ -70,10 +71,18 @@ class ReplayCache:
 
 
 class NameRelay:
-    def __init__(self, *, settings: Settings, resolver: Resolver | None = None, replay_cache: ReplayCache | None = None):
+    def __init__(
+        self,
+        *,
+        settings: Settings,
+        resolver: Resolver | None = None,
+        replay_cache: ReplayCache | None = None,
+        destination_policy: DestinationPolicy | None = None,
+    ):
         self._settings = settings
         self._resolver = resolver or PrivateResolver(settings.name_relay_max_endpoints)
         self._replay_cache = replay_cache or ReplayCache(settings.name_binding_ttl_seconds)
+        self._destination_policy = destination_policy or DestinationPolicy.from_config(settings.name_relay_trusted_origins)
 
     async def handle(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
         origin_writer: asyncio.StreamWriter | None = None
@@ -153,13 +162,17 @@ class NameRelay:
             raise RelayRejected("gateway could not resolve the named origin") from exc
         for endpoint in endpoints[: self._settings.name_relay_max_endpoints]:
             try:
+                destination = self._destination_policy.validate(hostname, endpoint.host)
+            except DestinationDenied:
+                continue
+            try:
                 return await asyncio.wait_for(
-                    asyncio.open_connection(endpoint.host, endpoint.port),
+                    asyncio.open_connection(destination, endpoint.port),
                     timeout=self._settings.name_relay_connect_timeout_seconds,
                 )
             except (OSError, TimeoutError):
                 continue
-        raise RelayRejected("gateway could not connect to the named origin")
+        raise RelayRejected("gateway destination policy denied or could not connect to the named origin")
 
     async def _copy(self, source: asyncio.StreamReader, destination: asyncio.StreamWriter) -> None:
         while data := await source.read(65536):

@@ -132,6 +132,55 @@ def test_isp_route_does_not_require_authorization_header(monkeypatch):
     }
 
 
+@pytest.mark.parametrize(
+    ("capabilities", "expected_ports"),
+    [
+        (["http"], [80]),
+        (["tcp:80"], [80]),
+        (["https"], [443]),
+        (["tcp:443"], [443]),
+        (["https", "http"], [80, 443]),
+    ],
+)
+def test_isp_route_binding_contains_only_requested_capability_ports(capabilities, expected_ports):
+    client = setup_name_control()
+    response = client.post(
+        "/v1/name-routes/resolve",
+        json={
+            "protocol_version": 1,
+            "request_id": "capability-scope",
+            "hostname": "facebook.test",
+            "transport": "tcp",
+            "client_nonce": "client-nonce",
+            "client_public_key": ClientSession.generate().public_key_b64,
+            "capabilities": capabilities,
+        },
+    )
+
+    assert response.status_code == 200
+    claims = jwt.decode(response.json()["route_binding"], options={"verify_signature": False})
+    assert claims["ports"] == expected_ports
+
+
+def test_isp_route_rejects_unsupported_capability_before_issuing_a_binding():
+    client = setup_name_control()
+    response = client.post(
+        "/v1/name-routes/resolve",
+        json={
+            "protocol_version": 1,
+            "request_id": "unsupported-capability",
+            "hostname": "facebook.test",
+            "transport": "tcp",
+            "client_nonce": "client-nonce",
+            "client_public_key": ClientSession.generate().public_key_b64,
+            "capabilities": ["ssh"],
+        },
+    )
+
+    assert response.status_code == 422
+    assert response.json()["detail"] == "Invalid name-route request"
+
+
 def test_name_control_health_fails_when_binding_signing_key_is_invalid(monkeypatch):
     settings = Settings.for_tests(
         ClientSession.generate().private_key,

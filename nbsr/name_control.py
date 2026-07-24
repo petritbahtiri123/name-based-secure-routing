@@ -75,7 +75,7 @@ def resolve_name_route(
     service: NameRouteService = Depends(get_name_route_service),
 ) -> dict[str, object]:
     try:
-        response = service.resolve(route.hostname, route.client_public_key)
+        response = service.resolve(route.hostname, route.client_public_key, route.capabilities)
     except SecurityError as exc:
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, "Invalid name-route request") from exc
     except SyntheticPoolExhausted as exc:

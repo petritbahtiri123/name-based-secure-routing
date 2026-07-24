@@ -143,6 +143,7 @@ services:
     networks:
       protected-network:
         aliases: [facebook.test]
+        ipv4_address: 172.30.0.10
     healthcheck:
       test: ["CMD", "python", "-c", "import socket,ssl; socket.create_connection(('localhost',80),2).close(); c=ssl.create_default_context(cafile='/run/secrets/isp-ca.pem'); c.wrap_socket(socket.socket(),server_hostname='facebook.test').connect(('localhost',443))"]
       interval: 3s
@@ -153,6 +154,8 @@ services:
     build: .
     entrypoint: ["python", "/opt/nbsr/name-relay/app.py", "serve"]
     ports: ["8443:8443"]
+    environment:
+      NBSR_NAME_RELAY_TRUSTED_ORIGINS: facebook.test=172.30.0.10/32
     volumes:
       - ./services/name-relay:/opt/nbsr/name-relay:ro
       - ./secrets/name-binding-public.pem:/run/secrets/name-binding-public.pem:ro
@@ -194,3 +197,6 @@ networks:
     internal: true
   protected-network:
     internal: true
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24

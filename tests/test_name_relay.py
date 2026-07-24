@@ -324,6 +324,27 @@ async def test_relay_falls_back_in_endpoint_order_after_failed_connection(settin
 
 
 @pytest.mark.asyncio
+async def test_relay_revalidates_each_resolved_literal_before_connecting(settings, monkeypatch):
+    settings = settings.model_copy(update={"name_relay_trusted_origins": ""})
+    relay = NameRelay(
+        settings=settings,
+        resolver=StaticResolver({"attacker.test": [("127.0.0.1", 443)]}),
+    )
+    attempted: list[tuple[str, int]] = []
+
+    async def record_connection(host: str, port: int):
+        attempted.append((host, port))
+        return object(), object()
+
+    monkeypatch.setattr("nbsr.name_relay.asyncio.open_connection", record_connection)
+
+    with pytest.raises(RelayRejected, match="destination"):
+        await relay._connect_origin("attacker.test", 443)
+
+    assert attempted == []
+
+
+@pytest.mark.asyncio
 async def test_relay_endpoint_cap_excludes_later_origins(settings):
     settings.name_relay_max_endpoints = 1
     origin = await start_echo_origin(prefix=b"origin:")
