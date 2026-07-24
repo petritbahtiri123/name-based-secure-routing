@@ -69,6 +69,52 @@ ca = (
 (secrets / "demo-ca.pem").write_bytes(ca.public_bytes(serialization.Encoding.PEM))
 (secrets / "demo-ca-private.pem").write_bytes(private_pem(ca_key))
 
+
+def issue_server_certificate(certificate_authority_key, certificate_authority, common_name: str):
+    key = Ed25519PrivateKey.generate()
+    subject = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, common_name)])
+    cert = (
+        x509.CertificateBuilder()
+        .subject_name(subject)
+        .issuer_name(certificate_authority.subject)
+        .public_key(key.public_key())
+        .serial_number(x509.random_serial_number())
+        .not_valid_before(now - timedelta(minutes=1))
+        .not_valid_after(now + timedelta(days=7))
+        .add_extension(
+            x509.SubjectAlternativeName([x509.DNSName(common_name), x509.DNSName("localhost"), x509.IPAddress(ip_address("127.0.0.1"))]),
+            critical=False,
+        )
+        .add_extension(x509.ExtendedKeyUsage([ExtendedKeyUsageOID.SERVER_AUTH]), critical=True)
+        .add_extension(
+            x509.KeyUsage(
+                digital_signature=True,
+                content_commitment=False,
+                key_encipherment=False,
+                data_encipherment=False,
+                key_agreement=False,
+                key_cert_sign=False,
+                crl_sign=False,
+                encipher_only=None,
+                decipher_only=None,
+            ),
+            critical=True,
+        )
+        .add_extension(x509.SubjectKeyIdentifier.from_public_key(key.public_key()), critical=False)
+        .add_extension(
+            x509.AuthorityKeyIdentifier.from_issuer_public_key(certificate_authority_key.public_key()),
+            critical=False,
+        )
+        .sign(certificate_authority_key, algorithm=None)
+    )
+    return key, cert
+
+
+for service_name, file_prefix in (("control-plane", "control-plane"), ("gateway", "gateway")):
+    server_key, server_cert = issue_server_certificate(ca_key, ca, service_name)
+    (secrets / f"enterprise-{file_prefix}-key.pem").write_bytes(private_pem(server_key))
+    (secrets / f"enterprise-{file_prefix}-cert.pem").write_bytes(server_cert.public_bytes(serialization.Encoding.PEM))
+
 # The ISP name-control and relay share a demo-only CA that is separate from the
 # optional enterprise CA and from every JWT/signing trust domain.
 isp_ca_key = Ed25519PrivateKey.generate()
@@ -101,47 +147,10 @@ isp_ca = (
 )
 
 
-def issue_isp_server_certificate(common_name: str):
-    key = Ed25519PrivateKey.generate()
-    subject = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, common_name)])
-    cert = (
-        x509.CertificateBuilder()
-        .subject_name(subject)
-        .issuer_name(isp_ca.subject)
-        .public_key(key.public_key())
-        .serial_number(x509.random_serial_number())
-        .not_valid_before(now - timedelta(minutes=1))
-        .not_valid_after(now + timedelta(days=7))
-        .add_extension(
-            x509.SubjectAlternativeName([x509.DNSName(common_name), x509.DNSName("localhost"), x509.IPAddress(ip_address("127.0.0.1"))]),
-            critical=False,
-        )
-        .add_extension(x509.ExtendedKeyUsage([ExtendedKeyUsageOID.SERVER_AUTH]), critical=True)
-        .add_extension(
-            x509.KeyUsage(
-                digital_signature=True,
-                content_commitment=False,
-                key_encipherment=False,
-                data_encipherment=False,
-                key_agreement=False,
-                key_cert_sign=False,
-                crl_sign=False,
-                encipher_only=None,
-                decipher_only=None,
-            ),
-            critical=True,
-        )
-        .add_extension(x509.SubjectKeyIdentifier.from_public_key(key.public_key()), critical=False)
-        .add_extension(x509.AuthorityKeyIdentifier.from_issuer_public_key(isp_ca_key.public_key()), critical=False)
-        .sign(isp_ca_key, algorithm=None)
-    )
-    return key, cert
-
-
 (secrets / "isp-ca.pem").write_bytes(isp_ca.public_bytes(serialization.Encoding.PEM))
 (secrets / "isp-ca-private.pem").write_bytes(private_pem(isp_ca_key))
 for service_name, file_prefix in (("name-control", "control"), ("name-relay", "relay"), ("facebook.test", "origin")):
-    server_key, server_cert = issue_isp_server_certificate(service_name)
+    server_key, server_cert = issue_server_certificate(isp_ca_key, isp_ca, service_name)
     (secrets / f"isp-{file_prefix}-key.pem").write_bytes(private_pem(server_key))
     (secrets / f"isp-{file_prefix}-cert.pem").write_bytes(server_cert.public_bytes(serialization.Encoding.PEM))
 

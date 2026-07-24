@@ -27,5 +27,64 @@ def test_verifier_rejects_missing_ticket():
 def test_verifier_rejects_method_escalation():
     client, settings = configured_client()
     ticket = issue_ticket("spiffe://nbsr.local/workload/client-allowed", "payments.internal", "GET", "/api/payment-status", {"policy_version": "1", "allowed_methods": ["GET"], "allowed_path_prefix": "/api/payment-status", "ticket_ttl": 60}, settings)
-    response = client.get("/authorize", headers={"Authorization": f"NBSR {ticket}", "x-nbsr-method": "POST", "x-nbsr-path": "/api/payments"})
+    response = client.get(
+        "/authorize",
+        headers={
+            "Authorization": f"NBSR {ticket}",
+            "x-nbsr-method": "POST",
+            "x-nbsr-path": "/api/payments",
+            "x-nbsr-service": "payments.internal",
+        },
+    )
     assert response.status_code == 403
+
+
+def test_verifier_rejects_missing_trusted_request_metadata():
+    client, settings = configured_client()
+    ticket = issue_ticket(
+        "spiffe://nbsr.local/workload/client-allowed",
+        "payments.internal",
+        "GET",
+        "/api/payment-status",
+        {
+            "policy_version": "1",
+            "allowed_methods": ["GET"],
+            "allowed_path_prefix": "/api/payment-status",
+            "ticket_ttl": 60,
+        },
+        settings,
+    )
+
+    response = client.get("/authorize/api/payment-status", headers={"Authorization": f"NBSR {ticket}"})
+
+    assert response.status_code == 400
+    assert response.json()["detail"] == "Trusted routing metadata required"
+
+
+def test_verifier_rejects_duplicate_trusted_request_metadata():
+    client, settings = configured_client()
+    ticket = issue_ticket(
+        "spiffe://nbsr.local/workload/client-allowed",
+        "payments.internal",
+        "GET",
+        "/api/payment-status",
+        {
+            "policy_version": "1",
+            "allowed_methods": ["GET"],
+            "allowed_path_prefix": "/api/payment-status",
+            "ticket_ttl": 60,
+        },
+        settings,
+    )
+    headers = [
+        ("Authorization", f"NBSR {ticket}"),
+        ("x-nbsr-method", "GET"),
+        ("x-nbsr-method", "POST"),
+        ("x-nbsr-path", "/api/payment-status"),
+        ("x-nbsr-service", "payments.internal"),
+    ]
+
+    response = client.get("/authorize", headers=headers)
+
+    assert response.status_code == 400
+    assert response.json()["detail"] == "Trusted routing metadata required"

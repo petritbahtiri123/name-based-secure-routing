@@ -392,6 +392,16 @@ def test_bootstrap_creates_distinct_trusted_isp_server_certificates(tmp_path: Pa
         assert "localhost" in san.get_values_for_type(x509.DNSName)
         assert ip_address("127.0.0.1") in san.get_values_for_type(x509.IPAddress)
         isp_ca.public_key().verify(certificate.signature, certificate.tbs_certificate_bytes)
+    for prefix, dns_name in (("control-plane", "control-plane"), ("gateway", "gateway")):
+        certificate_path = tmp_path / "secrets" / f"enterprise-{prefix}-cert.pem"
+        assert certificate_path.is_file()
+        certificate = x509.load_pem_x509_certificate(certificate_path.read_bytes())
+        san = certificate.extensions.get_extension_for_class(x509.SubjectAlternativeName).value
+        assert certificate.issuer == enterprise_ca.subject
+        assert dns_name in san.get_values_for_type(x509.DNSName)
+        assert "localhost" in san.get_values_for_type(x509.DNSName)
+        assert ip_address("127.0.0.1") in san.get_values_for_type(x509.IPAddress)
+        enterprise_ca.public_key().verify(certificate.signature, certificate.tbs_certificate_bytes)
 
 
 def test_compose_origin_and_demo_exercise_real_http_and_tls_paths():

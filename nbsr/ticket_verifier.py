@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from fastapi import Depends, FastAPI, Header, HTTPException, Request
+from fastapi import Depends, FastAPI, HTTPException, Request
 
 from nbsr.config import Settings
 from nbsr.security import SecurityError, verify_ticket
@@ -22,18 +22,25 @@ def health() -> dict[str, str]:
 def authorize(
     request: Request,
     original_path: str = "",
-    authorization: str | None = Header(default=None),
-    x_nbsr_method: str | None = Header(default=None),
-    x_nbsr_path: str | None = Header(default=None),
-    x_nbsr_service: str = Header(default="payments.internal"),
     settings: Settings = Depends(get_settings),
 ) -> dict[str, str]:
+    authorization = _single_header(request, "authorization", required=False)
     if not authorization or not authorization.startswith("NBSR "):
         raise HTTPException(401, "Routing authorization required")
-    actual_method = x_nbsr_method or request.method
-    actual_path = x_nbsr_path or f"/{original_path}"
+    metadata = tuple(_single_header(request, name, required=True) for name in ("x-nbsr-method", "x-nbsr-path", "x-nbsr-service"))
+    actual_method, actual_path, service = metadata
     try:
-        claims = verify_ticket(authorization[5:], actual_method, actual_path, x_nbsr_service, settings)
+        claims = verify_ticket(authorization[5:], actual_method, actual_path, service, settings)
     except SecurityError as exc:
         raise HTTPException(403, "Invalid routing authorization") from exc
     return {"status": "authorized", "subject": claims["sub"]}
+
+
+def _single_header(request: Request, name: str, *, required: bool) -> str | None:
+    values = request.headers.getlist(name)
+    if not values and not required:
+        return None
+    if len(values) != 1 or not values[0].strip():
+        detail = "Trusted routing metadata required" if name.startswith("x-nbsr-") else "Routing authorization required"
+        raise HTTPException(400, detail)
+    return values[0]

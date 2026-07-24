@@ -233,7 +233,7 @@ class LoopbackInterceptor:
             raise ValueError("at least one relay gateway is required")
         self._gateways = tuple(configured_gateways)
         self._gateway_tls = tuple(
-            ssl.create_default_context(cafile=str(gateway.tls_ca_path)) if gateway.tls_ca_path else None for gateway in self._gateways
+            self._create_gateway_tls_context(gateway) for gateway in self._gateways
         )
         self._refresh_route = refresh_route
         self._handshake_timeout_seconds = handshake_timeout_seconds
@@ -316,7 +316,7 @@ class LoopbackInterceptor:
                         gateway.host,
                         gateway.port,
                         ssl=tls_context,
-                        server_hostname=gateway.server_name if tls_context else None,
+                        server_hostname=gateway.server_name,
                     ),
                     timeout=self._handshake_timeout_seconds,
                 )
@@ -336,6 +336,14 @@ class LoopbackInterceptor:
                 relay_writer.close()
                 await relay_writer.wait_closed()
         raise OSError("all configured NBSR gateways rejected or failed admission")
+
+    @staticmethod
+    def _create_gateway_tls_context(gateway: RelayGateway) -> ssl.SSLContext:
+        context = ssl.create_default_context(cafile=str(gateway.tls_ca_path) if gateway.tls_ca_path else None)
+        context.minimum_version = ssl.TLSVersion.TLSv1_3
+        context.check_hostname = True
+        context.verify_mode = ssl.CERT_REQUIRED
+        return context
 
     async def _send_handshake(
         self, relay_writer: asyncio.StreamWriter, route: ClientRoute, synthetic_address: str, local_port: int

@@ -13,20 +13,32 @@ services:
 
   control-plane:
     build: .
-    command: ["nbsr.control_plane:app", "--host", "0.0.0.0", "--port", "8000"]
+    command:
+      - nbsr.control_plane:app
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8000"
+      - --ssl-certfile
+      - /run/secrets/enterprise-control-plane-cert.pem
+      - --ssl-keyfile
+      - /run/secrets/enterprise-control-plane-key.pem
     ports: ["8000:8000"]
     environment:
       NBSR_OPA_URL: http://opa:8181/v1/data/nbsr/route/decision
-      NBSR_GATEWAY_URL: http://localhost:8080
+      NBSR_GATEWAY_URL: https://localhost:8080
       NBSR_TICKET_TTL_SECONDS: ${NBSR_TICKET_TTL_SECONDS:-60}
     volumes:
       - ./secrets/identity-public.pem:/run/secrets/identity-public.pem:ro
       - ./secrets/ticket-private.pem:/run/secrets/ticket-private.pem:ro
+      - ./secrets/demo-ca.pem:/run/secrets/demo-ca.pem:ro
+      - ./secrets/enterprise-control-plane-cert.pem:/run/secrets/enterprise-control-plane-cert.pem:ro
+      - ./secrets/enterprise-control-plane-key.pem:/run/secrets/enterprise-control-plane-key.pem:ro
     networks: [client-network, control-network]
     depends_on:
       opa: { condition: service_healthy }
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      test: ["CMD", "python", "-c", "import ssl,urllib.request; c=ssl.create_default_context(cafile='/run/secrets/demo-ca.pem'); urllib.request.urlopen('https://localhost:8000/health', context=c)"]
       interval: 3s
       timeout: 2s
       retries: 20
@@ -56,7 +68,10 @@ services:
     image: envoyproxy/envoy:v1.34.4
     command: ["-c", "/etc/envoy/envoy.yaml", "--log-level", "warning"]
     ports: ["8080:8080"]
-    volumes: ["./gateway/envoy.yaml:/etc/envoy/envoy.yaml:ro"]
+    volumes:
+      - ./gateway/envoy.yaml:/etc/envoy/envoy.yaml:ro
+      - ./secrets/enterprise-gateway-cert.pem:/run/secrets/enterprise-gateway-cert.pem:ro
+      - ./secrets/enterprise-gateway-key.pem:/run/secrets/enterprise-gateway-key.pem:ro
     networks: [client-network, protected-network]
     depends_on:
       ticket-verifier: { condition: service_healthy }
@@ -157,7 +172,13 @@ services:
     build: .
     entrypoint: ["python", "-m", "nbsr.demo_client"]
     profiles: [demo]
-    volumes: ["./tokens:/run/tokens:ro"]
+    environment:
+      NBSR_CONTROL_URL: https://control-plane:8000
+      NBSR_GATEWAY_URL: https://gateway:8080
+      NBSR_ENTERPRISE_CA_PATH: /run/secrets/demo-ca.pem
+    volumes:
+      - ./tokens:/run/tokens:ro
+      - ./secrets/demo-ca.pem:/run/secrets/demo-ca.pem:ro
     networks: [client-network]
     depends_on:
       control-plane: { condition: service_healthy }

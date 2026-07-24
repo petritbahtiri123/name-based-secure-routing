@@ -6,19 +6,26 @@ import time
 
 import httpx
 
-CONTROL = "http://localhost:8000"
-GATEWAY = "http://localhost:8080"
+CONTROL = "https://localhost:8000"
+GATEWAY = "https://localhost:8080"
+ENTERPRISE_CA = "secrets/demo-ca.pem"
 
 
 def resolve(identity: str, service="payments.internal", method="GET", path="/api/payment-status", ttl=None):
     token = open(f"tokens/client-{identity}.jwt", encoding="utf-8").read().strip()  # noqa: SIM115
     headers = {"Authorization": f"Bearer {token}"}
-    return httpx.post(f"{CONTROL}/v1/routes/resolve", headers=headers, json={"service": service, "method": method, "path": path}, timeout=5)
+    return httpx.post(
+        f"{CONTROL}/v1/routes/resolve",
+        headers=headers,
+        json={"service": service, "method": method, "path": path},
+        timeout=5,
+        verify=ENTERPRISE_CA,
+    )
 
 
 def gateway(ticket=None, method="GET", path="/api/payment-status"):
     headers = {"Authorization": f"NBSR {ticket}"} if ticket else {}
-    return httpx.request(method, f"{GATEWAY}{path}", headers=headers, timeout=5)
+    return httpx.request(method, f"{GATEWAY}{path}", headers=headers, timeout=5, verify=ENTERPRISE_CA)
 
 
 def tamper_ticket(ticket: str) -> str:

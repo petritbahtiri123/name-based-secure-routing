@@ -4,7 +4,15 @@ static_resources:
       address:
         socket_address: { address: 0.0.0.0, port_value: 8080 }
       filter_chains:
-        - filters:
+        - transport_socket:
+            name: envoy.transport_sockets.tls
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.DownstreamTlsContext
+              common_tls_context:
+                tls_certificates:
+                  - certificate_chain: { filename: /run/secrets/enterprise-gateway-cert.pem }
+                    private_key: { filename: /run/secrets/enterprise-gateway-key.pem }
+          filters:
             - name: envoy.filters.network.http_connection_manager
               typed_config:
                 "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
@@ -16,8 +24,11 @@ static_resources:
                       domains: ["*"]
                       request_headers_to_add:
                         - header: { key: x-nbsr-method, value: "%REQ(:METHOD)%" }
+                          append_action: OVERWRITE_IF_EXISTS_OR_ADD
                         - header: { key: x-nbsr-path, value: "%REQ(X-ENVOY-ORIGINAL-PATH?:PATH)%" }
+                          append_action: OVERWRITE_IF_EXISTS_OR_ADD
                         - header: { key: x-nbsr-service, value: "payments.internal" }
+                          append_action: OVERWRITE_IF_EXISTS_OR_ADD
                       routes:
                         - match: { prefix: "/api/" }
                           route: { cluster: payments, timeout: 5s }
@@ -66,4 +77,4 @@ static_resources:
                     socket_address: { address: payments-service, port_value: 7000 }
 admin:
   address:
-    socket_address: { address: 0.0.0.0, port_value: 9901 }
+    socket_address: { address: 127.0.0.1, port_value: 9901 }

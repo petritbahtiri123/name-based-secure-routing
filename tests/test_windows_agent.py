@@ -2,10 +2,16 @@ from __future__ import annotations
 
 import asyncio
 import json
+import ssl
+from datetime import UTC, datetime, timedelta
+from ipaddress import ip_address
 from pathlib import Path
 
 import pytest
+from cryptography import x509
+from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+from cryptography.x509.oid import ExtendedKeyUsageOID, NameOID
 
 from nbsr.config import Settings
 from nbsr.dns_stub import ClientRoute, RouteTable
@@ -47,6 +53,101 @@ def settings() -> Settings:
     return Settings.for_tests(Ed25519PrivateKey.generate(), Ed25519PrivateKey.generate())
 
 
+def test_interceptor_uses_authenticated_tls_even_without_a_custom_ca():
+    interceptor = LoopbackInterceptor(
+        route_table=RouteTable(),
+        client_session=ClientSession.generate(),
+        relay_host="127.0.0.1",
+        relay_port=8443,
+        gateway_id="edge-local",
+    )
+
+    assert isinstance(interceptor._gateway_tls[0], ssl.SSLContext)
+
+
+def write_relay_tls_material(directory: Path) -> tuple[Path, ssl.SSLContext]:
+    now = datetime.now(UTC)
+    ca_key = Ed25519PrivateKey.generate()
+    ca_name = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, "NBSR relay unit-test CA")])
+    ca = (
+        x509.CertificateBuilder()
+        .subject_name(ca_name)
+        .issuer_name(ca_name)
+        .public_key(ca_key.public_key())
+        .serial_number(x509.random_serial_number())
+        .not_valid_before(now - timedelta(minutes=1))
+        .not_valid_after(now + timedelta(days=1))
+        .add_extension(x509.BasicConstraints(ca=True, path_length=0), critical=True)
+        .add_extension(
+            x509.KeyUsage(
+                digital_signature=True,
+                content_commitment=False,
+                key_encipherment=False,
+                data_encipherment=False,
+                key_agreement=False,
+                key_cert_sign=True,
+                crl_sign=True,
+                encipher_only=None,
+                decipher_only=None,
+            ),
+            critical=True,
+        )
+        .add_extension(x509.SubjectKeyIdentifier.from_public_key(ca_key.public_key()), critical=False)
+        .sign(ca_key, algorithm=None)
+    )
+    server_key = Ed25519PrivateKey.generate()
+    server_name = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, "name-relay")])
+    server = (
+        x509.CertificateBuilder()
+        .subject_name(server_name)
+        .issuer_name(ca.subject)
+        .public_key(server_key.public_key())
+        .serial_number(x509.random_serial_number())
+        .not_valid_before(now - timedelta(minutes=1))
+        .not_valid_after(now + timedelta(days=1))
+        .add_extension(
+            x509.SubjectAlternativeName(
+                [x509.DNSName("name-relay"), x509.DNSName("localhost"), x509.IPAddress(ip_address("127.0.0.1"))]
+            ),
+            critical=False,
+        )
+        .add_extension(x509.ExtendedKeyUsage([ExtendedKeyUsageOID.SERVER_AUTH]), critical=True)
+        .add_extension(
+            x509.KeyUsage(
+                digital_signature=True,
+                content_commitment=False,
+                key_encipherment=False,
+                data_encipherment=False,
+                key_agreement=False,
+                key_cert_sign=False,
+                crl_sign=False,
+                encipher_only=None,
+                decipher_only=None,
+            ),
+            critical=True,
+        )
+        .add_extension(x509.SubjectKeyIdentifier.from_public_key(server_key.public_key()), critical=False)
+        .add_extension(x509.AuthorityKeyIdentifier.from_issuer_public_key(ca_key.public_key()), critical=False)
+        .sign(ca_key, algorithm=None)
+    )
+    ca_path = directory / "relay-ca.pem"
+    cert_path = directory / "relay-cert.pem"
+    key_path = directory / "relay-key.pem"
+    ca_path.write_bytes(ca.public_bytes(serialization.Encoding.PEM))
+    cert_path.write_bytes(server.public_bytes(serialization.Encoding.PEM))
+    key_path.write_bytes(
+        server_key.private_bytes(
+            serialization.Encoding.PEM,
+            serialization.PrivateFormat.PKCS8,
+            serialization.NoEncryption(),
+        )
+    )
+    server_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    server_context.minimum_version = ssl.TLSVersion.TLSv1_3
+    server_context.load_cert_chain(cert_path, key_path)
+    return ca_path, server_context
+
+
 async def start_echo_origin() -> tuple[asyncio.AbstractServer, int]:
     async def echo(reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
         try:
@@ -73,11 +174,22 @@ async def send_to_synthetic(host: str, port: int, payload: bytes) -> bytes:
 
 
 @pytest.mark.asyncio
-async def test_loopback_interceptor_uses_route_binding():
+async def test_loopback_interceptor_uses_route_binding(tmp_path: Path):
     origin, origin_port = await start_echo_origin()
+    relay_ca, relay_tls = write_relay_tls_material(tmp_path)
     settings = Settings.for_tests(Ed25519PrivateKey.generate(), Ed25519PrivateKey.generate())
     relay = NameRelay(settings=settings, resolver=StaticResolver(origin_port))
-    relay_server = await asyncio.start_server(relay.handle, "127.0.0.1", 0)
+    relay_server = await asyncio.start_server(relay.handle, "127.0.0.1", 0, ssl=relay_tls)
+    probe_context = ssl.create_default_context(cafile=str(relay_ca))
+    _probe_reader, probe_writer = await asyncio.open_connection(
+        "127.0.0.1",
+        relay_server.sockets[0].getsockname()[1],
+        ssl=probe_context,
+        server_hostname="name-relay",
+    )
+    assert probe_writer.get_extra_info("ssl_object").version() == "TLSv1.3"
+    probe_writer.close()
+    await probe_writer.wait_closed()
     service = NameRouteService(pool=SyntheticAddressPool("127.80.0.0/29", "fd00:6e62:7372::/125", ttl_seconds=60), settings=settings)
     agent = WindowsNameAgent(
         name_route_service=service,
@@ -86,6 +198,7 @@ async def test_loopback_interceptor_uses_route_binding():
         relay_port=relay_server.sockets[0].getsockname()[1],
         gateway_id=settings.name_binding_gateway_id,
         test_https_port=443,
+        relay_tls_ca_path=relay_ca,
     )
     try:
         route = await agent.resolve("facebook.test")
@@ -105,11 +218,12 @@ async def test_loopback_interceptor_uses_route_binding():
 
 
 @pytest.mark.asyncio
-async def test_loopback_interceptor_uses_a_fresh_nonce_per_connection():
+async def test_loopback_interceptor_uses_a_fresh_nonce_per_connection(tmp_path: Path):
     origin, origin_port = await start_echo_origin()
+    relay_ca, relay_tls = write_relay_tls_material(tmp_path)
     settings = Settings.for_tests(Ed25519PrivateKey.generate(), Ed25519PrivateKey.generate())
     relay = NameRelay(settings=settings, resolver=StaticResolver(origin_port))
-    relay_server = await asyncio.start_server(relay.handle, "127.0.0.1", 0)
+    relay_server = await asyncio.start_server(relay.handle, "127.0.0.1", 0, ssl=relay_tls)
     service = NameRouteService(pool=SyntheticAddressPool("127.80.0.0/29", "fd00:6e62:7372::/125", ttl_seconds=60), settings=settings)
     agent = WindowsNameAgent(
         name_route_service=service,
@@ -118,6 +232,7 @@ async def test_loopback_interceptor_uses_a_fresh_nonce_per_connection():
         relay_port=relay_server.sockets[0].getsockname()[1],
         gateway_id=settings.name_binding_gateway_id,
         test_https_port=443,
+        relay_tls_ca_path=relay_ca,
     )
     try:
         route = await agent.resolve("facebook.test")
@@ -477,12 +592,13 @@ async def test_agent_starts_both_http_and_https_listener_paths(settings: Setting
 
 
 @pytest.mark.asyncio
-async def test_expired_route_is_refreshed_before_relay_admission():
+async def test_expired_route_is_refreshed_before_relay_admission(tmp_path: Path):
     origin, origin_port = await start_echo_origin()
+    relay_ca, relay_tls = write_relay_tls_material(tmp_path)
     settings = Settings.for_tests(Ed25519PrivateKey.generate(), Ed25519PrivateKey.generate())
     settings.name_binding_ttl_seconds = 1
     relay = NameRelay(settings=settings, resolver=StaticResolver(origin_port))
-    relay_server = await asyncio.start_server(relay.handle, "127.0.0.1", 0)
+    relay_server = await asyncio.start_server(relay.handle, "127.0.0.1", 0, ssl=relay_tls)
 
     class CountingService(NameRouteService):
         calls = 0
@@ -502,6 +618,7 @@ async def test_expired_route_is_refreshed_before_relay_admission():
         relay_port=relay_server.sockets[0].getsockname()[1],
         gateway_id=settings.name_binding_gateway_id,
         listener_ports=(443,),
+        relay_tls_ca_path=relay_ca,
     )
     try:
         route = await agent.resolve("facebook.test")
@@ -518,11 +635,12 @@ async def test_expired_route_is_refreshed_before_relay_admission():
 
 
 @pytest.mark.asyncio
-async def test_interceptor_fails_over_across_ordered_authenticated_gateways():
+async def test_interceptor_fails_over_across_ordered_authenticated_gateways(tmp_path: Path):
     origin, origin_port = await start_echo_origin()
+    relay_ca, relay_tls = write_relay_tls_material(tmp_path)
     settings = Settings.for_tests(Ed25519PrivateKey.generate(), Ed25519PrivateKey.generate())
     relay = NameRelay(settings=settings, resolver=StaticResolver(origin_port))
-    relay_server = await asyncio.start_server(relay.handle, "127.0.0.1", 0)
+    relay_server = await asyncio.start_server(relay.handle, "127.0.0.1", 0, ssl=relay_tls)
     service = NameRouteService(pool=SyntheticAddressPool("127.80.0.0/29", "fd00:6e62:7372::/125", ttl_seconds=60), settings=settings)
     agent = WindowsNameAgent(
         name_route_service=service,
@@ -532,8 +650,8 @@ async def test_interceptor_fails_over_across_ordered_authenticated_gateways():
         gateway_id=settings.name_binding_gateway_id,
         listener_ports=(443,),
         gateways=(
-            RelayGateway("127.0.0.1", 1),
-            RelayGateway("127.0.0.1", relay_server.sockets[0].getsockname()[1]),
+            RelayGateway("127.0.0.1", 1, relay_ca),
+            RelayGateway("127.0.0.1", relay_server.sockets[0].getsockname()[1], relay_ca),
         ),
     )
     try:
