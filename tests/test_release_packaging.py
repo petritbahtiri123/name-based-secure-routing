@@ -71,6 +71,8 @@ def test_packager_rejects_prohibited_paths_and_secret_like_content_without_echoi
     ):
         assert packager.prohibited_path_reason(path)
     assert packager.prohibited_path_reason("docs/security-model.md") is None
+    assert packager.prohibited_path_reason(".env.example") is None
+    assert packager.prohibited_path_reason(".env.local")
 
     finding = packager.secret_like_reason(b"prefix\n-----BEGIN " + b"PRIVATE KEY-----\nvalue")
     assert finding == "private-key material"

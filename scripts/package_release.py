@@ -109,7 +109,7 @@ def prohibited_path_reason(path: str) -> str | None:
     if any(part in PROHIBITED_DIRECTORY_NAMES or part.startswith(".pytest-") for part in lowered_parts):
         return "prohibited local or generated directory"
     name = lowered_parts[-1]
-    if name == ".env" or name.startswith(".env."):
+    if name == ".env" or (name.startswith(".env.") and name != ".env.example"):
         return "local environment configuration"
     lowered_path = path.casefold()
     if lowered_path.endswith(".tar.gz"):
