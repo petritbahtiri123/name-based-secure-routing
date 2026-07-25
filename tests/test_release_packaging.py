@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import re
+import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -57,6 +58,22 @@ def test_release_wrappers_require_an_explicit_ref_and_delegate_to_shared_package
     assert "package_release.py" in shell
     assert "command -v cygpath" in shell
     assert 'ROOT="$(cygpath -w "$ROOT")"' in shell
+    assert "NBSR_GIT_EXECUTABLE=git.exe" in shell
+
+
+def test_packager_honors_an_explicit_git_executable(monkeypatch, tmp_path: Path):
+    packager = load_packager()
+    observed: list[str] = []
+
+    def fake_run(args, *, cwd, capture_output=True, text=True):
+        observed.extend(args)
+        return subprocess.CompletedProcess(args, 0, stdout="clean\n")
+
+    monkeypatch.setenv("NBSR_GIT_EXECUTABLE", "git.exe")
+    monkeypatch.setattr(packager, "_run", fake_run)
+
+    assert packager._git(tmp_path, "status") == "clean\n"
+    assert observed[0] == "git.exe"
 
 
 def test_packager_rejects_prohibited_paths_and_secret_like_content_without_echoing_values():

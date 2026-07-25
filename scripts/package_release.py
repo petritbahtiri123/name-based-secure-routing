@@ -83,7 +83,8 @@ def _run(
 
 
 def _git(repo: Path, *args: str, text: bool = True) -> str | bytes:
-    return _run(["git", *args], cwd=repo, text=text).stdout
+    git_executable = os.environ.get("NBSR_GIT_EXECUTABLE") or "git"
+    return _run([git_executable, *args], cwd=repo, text=text).stdout
 
 
 def resolve_commit(repo: Path, ref: str) -> str:
