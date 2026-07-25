@@ -1,7 +1,11 @@
+[build-system]
+requires = ["setuptools==80.9.0"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "nbsr"
 version = "0.1.0"
-requires-python = ">=3.12"
+requires-python = ">=3.12,<3.14"
 dependencies = [
   "cryptography>=44,<46",
   "dnslib>=0.9.26,<0.10",
@@ -17,7 +21,14 @@ dev = ["pytest>=8.3,<9", "pytest-asyncio>=1.4,<2", "ruff>=0.9,<0.12"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+filterwarnings = [
+  "error::DeprecationWarning:nbsr(\\.|$)",
+  "error::PendingDeprecationWarning:nbsr(\\.|$)",
+]
 
 [tool.ruff]
 line-length = 140
-target-version = "py312"
+target-version = "py313"
+
+[tool.setuptools.packages.find]
+include = ["nbsr*"]

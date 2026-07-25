@@ -16,7 +16,14 @@ def configured_client():
 
 def test_verifier_accepts_valid_ticket():
     client, settings = configured_client()
-    ticket = issue_ticket("spiffe://nbsr.local/workload/client-allowed", "payments.internal", "GET", "/api/payment-status", {"policy_version": "1", "allowed_methods": ["GET"], "allowed_path_prefix": "/api/payment-status", "ticket_ttl": 60}, settings)
+    ticket = issue_ticket(
+        "spiffe://nbsr.local/workload/client-allowed",
+        "payments.internal",
+        "GET",
+        "/api/payment-status",
+        {"policy_version": "1", "allowed_methods": ["GET"], "allowed_path_prefix": "/api/payment-status", "ticket_ttl": 60},
+        settings,
+    )
     response = client.get(
         "/authorize/api/payment-status",
         headers={"Authorization": f"NBSR {ticket}", "x-nbsr-service": "payments.internal"},
@@ -31,7 +38,14 @@ def test_verifier_rejects_missing_ticket():
 
 def test_verifier_uses_actual_method_and_path_instead_of_spoofable_headers():
     client, settings = configured_client()
-    ticket = issue_ticket("spiffe://nbsr.local/workload/client-allowed", "payments.internal", "GET", "/api/payment-status", {"policy_version": "1", "allowed_methods": ["GET"], "allowed_path_prefix": "/api/payment-status", "ticket_ttl": 60}, settings)
+    ticket = issue_ticket(
+        "spiffe://nbsr.local/workload/client-allowed",
+        "payments.internal",
+        "GET",
+        "/api/payment-status",
+        {"policy_version": "1", "allowed_methods": ["GET"], "allowed_path_prefix": "/api/payment-status", "ticket_ttl": 60},
+        settings,
+    )
     response = client.post(
         "/authorize/api/payments",
         headers={

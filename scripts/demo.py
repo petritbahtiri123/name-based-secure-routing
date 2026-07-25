@@ -53,8 +53,24 @@ def main() -> int:
     rows.append(("Tampered ticket", "DENY", "DENY" if bad.status_code in (401, 403) else "ALLOW", bad.status_code in (401, 403)))
 
     escalated = gateway(good_ticket, method="POST", path="/api/payments")
-    rows.append(("Method/path escalation", "DENY", "DENY" if escalated.status_code in (401, 403) else "ALLOW", escalated.status_code in (401, 403)))
-    direct = subprocess.run(["docker", "compose", "run", "--rm", "--no-deps", "--entrypoint", "python", "client-allowed", "-c", "import urllib.request; urllib.request.urlopen('http://payments-service:7000/health', timeout=2)"], capture_output=True)
+    rows.append(
+        ("Method/path escalation", "DENY", "DENY" if escalated.status_code in (401, 403) else "ALLOW", escalated.status_code in (401, 403))
+    )
+    direct = subprocess.run(
+        [
+            "docker",
+            "compose",
+            "run",
+            "--rm",
+            "--no-deps",
+            "--entrypoint",
+            "python",
+            "client-allowed",
+            "-c",
+            "import urllib.request; urllib.request.urlopen('http://payments-service:7000/health', timeout=2)",
+        ],
+        capture_output=True,
+    )
     rows.append(("Direct backend access", "DENY", "DENY" if direct.returncode != 0 else "ALLOW", direct.returncode != 0))
     time.sleep(2.2)
     expired_response = gateway(good_ticket)

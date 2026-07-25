@@ -230,9 +230,7 @@ class LoopbackInterceptor:
         if not configured_gateways:
             raise ValueError("at least one relay gateway is required")
         self._gateways = tuple(configured_gateways)
-        self._gateway_tls = tuple(
-            self._create_gateway_tls_context(gateway) for gateway in self._gateways
-        )
+        self._gateway_tls = tuple(self._create_gateway_tls_context(gateway) for gateway in self._gateways)
         self._refresh_route = refresh_route
         self._handshake_timeout_seconds = handshake_timeout_seconds
         self._listeners: dict[tuple[str, int], BoundListener] = {}

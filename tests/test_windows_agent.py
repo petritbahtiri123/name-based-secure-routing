@@ -106,9 +106,7 @@ def write_relay_tls_material(directory: Path) -> tuple[Path, ssl.SSLContext]:
         .not_valid_before(now - timedelta(minutes=1))
         .not_valid_after(now + timedelta(days=1))
         .add_extension(
-            x509.SubjectAlternativeName(
-                [x509.DNSName("name-relay"), x509.DNSName("localhost"), x509.IPAddress(ip_address("127.0.0.1"))]
-            ),
+            x509.SubjectAlternativeName([x509.DNSName("name-relay"), x509.DNSName("localhost"), x509.IPAddress(ip_address("127.0.0.1"))]),
             critical=False,
         )
         .add_extension(x509.ExtendedKeyUsage([ExtendedKeyUsageOID.SERVER_AUTH]), critical=True)

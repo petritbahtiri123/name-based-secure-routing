@@ -29,7 +29,7 @@ def test_all_video_package_files_exist():
 def test_video_demo_has_required_modes_and_delegates_real_scenarios():
     script = (ROOT / "scripts/video-demo.ps1").read_text(encoding="utf-8")
     assert "Set-StrictMode -Version Latest" in script
-    assert "$ErrorActionPreference = \"Stop\"" in script
+    assert '$ErrorActionPreference = "Stop"' in script
     assert "[switch]$NoPause" in script
     assert "[switch]$Rehearsal" in script
     assert "demo.py" in script
@@ -84,21 +84,24 @@ def test_html_assets_are_offline_script_free_and_16_by_9():
 
 def test_package_avoids_prohibited_claims_and_secret_material():
     text = "\n".join(path.read_text(encoding="utf-8") for path in VIDEO.rglob("*") if path.is_file()).lower()
-    for phrase in ("unhackable", "production ready", "revolutionary", "dns replacement", "begin private key", "authorization: bearer", "authorization: nbsr"):
+    for phrase in (
+        "unhackable",
+        "production ready",
+        "revolutionary",
+        "dns replacement",
+        "begin private key",
+        "authorization: bearer",
+        "authorization: nbsr",
+    ):
         assert phrase not in text
 
 
 def test_subtitles_match_spoken_narration():
     narration = (VIDEO / "narration-script.md").read_text(encoding="utf-8").split("### Optional pronunciation")[0]
-    spoken_lines = [
-        line for line in narration.splitlines()
-        if line and not line.startswith("#") and not line.startswith("**")
-    ]
+    spoken_lines = [line for line in narration.splitlines() if line and not line.startswith("#") and not line.startswith("**")]
     subtitles = (VIDEO / "subtitles.srt").read_text(encoding="utf-8")
-    subtitle_lines = [
-        line for line in subtitles.splitlines()
-        if line and not line.isdigit() and "-->" not in line
-    ]
+    subtitle_lines = [line for line in subtitles.splitlines() if line and not line.isdigit() and "-->" not in line]
+
     def normalize(value: list[str]) -> list[str]:
         return re.sub(r"[`*_]", "", " ".join(value).replace("\n", " ")).split()
 

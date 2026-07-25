@@ -18,7 +18,11 @@ def main() -> int:
     control = os.getenv("NBSR_CONTROL_URL", "https://control-plane:8000")
     enterprise_ca = os.getenv("NBSR_ENTERPRISE_CA_PATH", "/run/secrets/demo-ca.pem")
     with httpx.Client(timeout=5, verify=enterprise_ca) as client:
-        resolved = client.post(f"{control}/v1/routes/resolve", headers={"Authorization": f"Bearer {token}"}, json={"service": args.service, "method": args.method, "path": args.path})
+        resolved = client.post(
+            f"{control}/v1/routes/resolve",
+            headers={"Authorization": f"Bearer {token}"},
+            json={"service": args.service, "method": args.method, "path": args.path},
+        )
         if resolved.status_code != 200:
             print(json.dumps({"stage": "resolve", "status": resolved.status_code}))
             return 1

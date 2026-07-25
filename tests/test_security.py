@@ -59,7 +59,9 @@ def test_identity_rejects_unsigned_token(settings):
 def test_ticket_round_trip_and_scope(settings):
     token = issue_ticket(
         "spiffe://nbsr.local/workload/client-allowed",
-        "payments.internal", "GET", "/api/payment-status",
+        "payments.internal",
+        "GET",
+        "/api/payment-status",
         {"policy_version": "1", "allowed_methods": ["GET"], "allowed_path_prefix": "/api/payment-status", "ticket_ttl": 60},
         settings,
     )
@@ -69,16 +71,34 @@ def test_ticket_round_trip_and_scope(settings):
 
 @pytest.mark.parametrize(
     ("method", "path", "service"),
-    [("POST", "/api/payment-status", "payments.internal"), ("GET", "/api/payments", "payments.internal"), ("GET", "/api/payment-status", "admin.internal")],
+    [
+        ("POST", "/api/payment-status", "payments.internal"),
+        ("GET", "/api/payments", "payments.internal"),
+        ("GET", "/api/payment-status", "admin.internal"),
+    ],
 )
 def test_ticket_rejects_scope_escalation(settings, method, path, service):
-    token = issue_ticket("spiffe://nbsr.local/workload/client-allowed", "payments.internal", "GET", "/api/payment-status", {"policy_version": "1", "allowed_methods": ["GET"], "allowed_path_prefix": "/api/payment-status", "ticket_ttl": 60}, settings)
+    token = issue_ticket(
+        "spiffe://nbsr.local/workload/client-allowed",
+        "payments.internal",
+        "GET",
+        "/api/payment-status",
+        {"policy_version": "1", "allowed_methods": ["GET"], "allowed_path_prefix": "/api/payment-status", "ticket_ttl": 60},
+        settings,
+    )
     with pytest.raises(SecurityError):
         verify_ticket(token, method, path, service, settings)
 
 
 def test_ticket_rejects_tampering(settings):
-    token = issue_ticket("spiffe://nbsr.local/workload/client-allowed", "payments.internal", "GET", "/api/payment-status", {"policy_version": "1", "allowed_methods": ["GET"], "allowed_path_prefix": "/api/payment-status", "ticket_ttl": 60}, settings)
+    token = issue_ticket(
+        "spiffe://nbsr.local/workload/client-allowed",
+        "payments.internal",
+        "GET",
+        "/api/payment-status",
+        {"policy_version": "1", "allowed_methods": ["GET"], "allowed_path_prefix": "/api/payment-status", "ticket_ttl": 60},
+        settings,
+    )
     head, payload, signature = token.split(".")
     signature = ("A" if signature[0] != "A" else "B") + signature[1:]
     tampered = ".".join((head, payload, signature))
@@ -88,13 +108,27 @@ def test_ticket_rejects_tampering(settings):
 
 def test_ticket_rejects_expired(settings):
     settings.ticket_ttl_seconds = -1
-    token = issue_ticket("spiffe://nbsr.local/workload/client-allowed", "payments.internal", "GET", "/api/payment-status", {"policy_version": "1", "allowed_methods": ["GET"], "allowed_path_prefix": "/api/payment-status", "ticket_ttl": -1}, settings)
+    token = issue_ticket(
+        "spiffe://nbsr.local/workload/client-allowed",
+        "payments.internal",
+        "GET",
+        "/api/payment-status",
+        {"policy_version": "1", "allowed_methods": ["GET"], "allowed_path_prefix": "/api/payment-status", "ticket_ttl": -1},
+        settings,
+    )
     with pytest.raises(SecurityError):
         verify_ticket(token, "GET", "/api/payment-status", "payments.internal", settings)
 
 
 def test_ticket_rejects_wrong_audience(settings):
-    token = issue_ticket("spiffe://nbsr.local/workload/client-allowed", "payments.internal", "GET", "/api/payment-status", {"policy_version": "1", "allowed_methods": ["GET"], "allowed_path_prefix": "/api/payment-status", "ticket_ttl": 60}, settings)
+    token = issue_ticket(
+        "spiffe://nbsr.local/workload/client-allowed",
+        "payments.internal",
+        "GET",
+        "/api/payment-status",
+        {"policy_version": "1", "allowed_methods": ["GET"], "allowed_path_prefix": "/api/payment-status", "ticket_ttl": 60},
+        settings,
+    )
     settings.ticket_audience = "another-gateway"
     with pytest.raises(SecurityError):
         verify_ticket(token, "GET", "/api/payment-status", "payments.internal", settings)
