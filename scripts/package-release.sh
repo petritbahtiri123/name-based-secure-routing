@@ -5,4 +5,8 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 REF="${1:?usage: package-release.sh <commit-or-ref>}"
 PYTHON="${PYTHON:-python3}"
 
+if command -v cygpath >/dev/null 2>&1; then
+  ROOT="$(cygpath -w "$ROOT")"
+fi
+
 "$PYTHON" "$ROOT/scripts/package_release.py" --repo-root "$ROOT" "$REF"

@@ -55,6 +55,8 @@ def test_release_wrappers_require_an_explicit_ref_and_delegate_to_shared_package
     assert "package_release.py" in powershell
     assert "${1:?" in shell
     assert "package_release.py" in shell
+    assert "command -v cygpath" in shell
+    assert 'ROOT="$(cygpath -w "$ROOT")"' in shell
 
 
 def test_packager_rejects_prohibited_paths_and_secret_like_content_without_echoing_values():
