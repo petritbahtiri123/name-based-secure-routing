@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib.util
 import re
 import subprocess
+import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -114,6 +115,8 @@ def test_packager_builds_sorted_inventory_and_byte_stable_zip(tmp_path: Path):
     packager.write_deterministic_zip(source, inventory, modes, first)
     packager.write_deterministic_zip(source, inventory, modes, second)
     assert first.read_bytes() == second.read_bytes()
+    with zipfile.ZipFile(first) as archive:
+        assert {entry.compress_type for entry in archive.infolist()} == {zipfile.ZIP_STORED}
 
 
 def test_ignore_files_exclude_release_and_sensitive_local_output():

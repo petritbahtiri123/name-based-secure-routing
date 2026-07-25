@@ -199,14 +199,14 @@ def write_deterministic_zip(
     temporary = output.with_suffix(output.suffix + ".tmp")
     temporary.unlink(missing_ok=True)
     try:
-        with zipfile.ZipFile(temporary, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
+        with zipfile.ZipFile(temporary, "w", compression=zipfile.ZIP_STORED) as archive:
             for entry in inventory:
                 info = zipfile.ZipInfo(entry.path, FIXED_ZIP_TIMESTAMP)
                 info.create_system = 3
                 permissions = 0o755 if modes.get(entry.path) == "100755" else 0o644
                 info.external_attr = permissions << 16
-                info.compress_type = zipfile.ZIP_DEFLATED
-                archive.writestr(info, (source / entry.path).read_bytes(), compress_type=zipfile.ZIP_DEFLATED, compresslevel=9)
+                info.compress_type = zipfile.ZIP_STORED
+                archive.writestr(info, (source / entry.path).read_bytes(), compress_type=zipfile.ZIP_STORED)
         os.replace(temporary, output)
     finally:
         temporary.unlink(missing_ok=True)
