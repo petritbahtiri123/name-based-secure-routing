@@ -14,6 +14,7 @@ from nbsr.name_security import (
     verify_relay_proof,
 )
 from nbsr.security import SecurityError
+from nbsr.route_registry import RouteRegistry
 
 
 @pytest.fixture()
@@ -27,6 +28,7 @@ def settings():
 
 def issue_binding(settings: Settings, session: ClientSession | None = None) -> tuple[str, ClientSession]:
     session = session or ClientSession.generate()
+    route = RouteRegistry.from_json(settings.name_route_registry_json).require_name("facebook.test")
     return (
         issue_name_binding(
             hostname="facebook.test",
@@ -35,6 +37,7 @@ def issue_binding(settings: Settings, session: ClientSession | None = None) -> t
             gateway_id="edge-local",
             session_public_key=session.public_key_b64,
             settings=settings,
+            route_policy=route,
         ),
         session,
     )
@@ -114,6 +117,21 @@ def test_binding_uses_urlsafe_raw_session_key_in_confirmation_claim(settings):
 
     assert claims["cnf"]["ed25519_public_key"] == session.public_key_b64
     assert base64.urlsafe_b64decode(session.public_key_b64 + "==") == session.public_key_bytes
+
+
+def test_binding_contains_the_complete_registered_route_policy(settings):
+    token, _ = issue_binding(settings)
+    claims = jwt.decode(token, options={"verify_signature": False})
+    route = RouteRegistry.from_json(settings.name_route_registry_json).require_name("facebook.test")
+
+    assert claims["route_id"] == route.route_id
+    assert claims["origin_hostname"] == route.origin_hostname
+    assert claims["authorized_endpoints"] == list(route.authorized_endpoints)
+    assert claims["allowed_cidrs"] == list(route.allowed_cidrs)
+    assert claims["route_policy_version"] == route.policy_version
+    assert claims["route_policy_fingerprint"] == route.fingerprint
+    assert claims["expected_http_host"] == route.expected_http_host
+    assert claims["expected_tls_sni"] == route.expected_tls_sni
 
 
 def test_relay_proof_rejects_wrong_session_key(settings):

@@ -16,6 +16,7 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey,
 
 from nbsr.config import Settings
 from nbsr.name_model import normalize_hostname
+from nbsr.route_registry import RoutePolicy
 from nbsr.security import SecurityError
 
 
@@ -35,6 +36,14 @@ _REQUIRED_BINDING_CLAIMS = (
     "synthetic_ipv6",
     "gateway_id",
     "ports",
+    "route_id",
+    "origin_hostname",
+    "authorized_endpoints",
+    "allowed_cidrs",
+    "expected_http_host",
+    "expected_tls_sni",
+    "route_policy_version",
+    "route_policy_fingerprint",
     "cnf",
 )
 
@@ -158,6 +167,7 @@ def issue_name_binding(
     gateway_id: str,
     session_public_key: str,
     settings: Settings,
+    route_policy: RoutePolicy,
     ports: Sequence[int] = (80, 443),
 ) -> str:
     try:
@@ -172,6 +182,8 @@ def issue_name_binding(
     if gateway_id != settings.name_binding_gateway_id:
         raise SecurityError("Invalid route binding")
     bound_ports = _binding_ports(ports)
+    if hostname != route_policy.name or not set(bound_ports).issubset(route_policy.ports):
+        raise SecurityError("Invalid route binding")
 
     now = datetime.now(UTC)
     claims = {
@@ -188,6 +200,7 @@ def issue_name_binding(
         "ports": list(bound_ports),
         "cnf": {"ed25519_public_key": session_public_key},
     }
+    claims.update(route_policy.as_claims())
     return jwt.encode(claims, settings.key_bytes("name_binding_private_key"), algorithm="EdDSA")
 
 
@@ -245,12 +258,7 @@ def verify_relay_proof(claims: dict[str, Any], route_id: str, nonce: str, port: 
         bound_ports = _binding_ports(claims.get("ports"))
     except SecurityError as exc:
         raise SecurityError("Invalid relay proof") from exc
-    if (
-        claims.get("jti") != route_id
-        or type(port) is not int
-        or port not in bound_ports
-        or port not in _ALLOWED_PORTS
-    ):
+    if claims.get("jti") != route_id or type(port) is not int or port not in bound_ports or port not in _ALLOWED_PORTS:
         raise SecurityError("Invalid relay proof")
     try:
         public_key = _session_public_key(claims["cnf"]["ed25519_public_key"])

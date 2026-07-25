@@ -11,6 +11,7 @@ import jwt
 from nbsr.config import Settings
 from nbsr.name_relay import NameRelay, RelayRejected, ResolvedEndpoint
 from nbsr.name_security import ClientSession, issue_name_binding, sign_relay_proof
+from nbsr.route_registry import RouteRegistry
 
 
 @dataclass
@@ -106,6 +107,7 @@ def valid_handshake(
 
 def issue_binding_credentials(settings: Settings, hostname: str, port: int) -> BindingCredentials:
     session = ClientSession.generate()
+    route = RouteRegistry.from_json(settings.name_route_registry_json).require_name(hostname)
     binding = issue_name_binding(
         hostname=hostname,
         synthetic_ipv4="127.80.0.1",
@@ -113,6 +115,7 @@ def issue_binding_credentials(settings: Settings, hostname: str, port: int) -> B
         gateway_id=settings.name_binding_gateway_id,
         session_public_key=session.public_key_b64,
         settings=settings,
+        route_policy=route,
     )
     claims = jwt.decode(binding, options={"verify_signature": False})
     return BindingCredentials(binding=binding, session=session, route_id=claims["jti"])
@@ -341,7 +344,6 @@ async def test_relay_falls_back_in_endpoint_order_after_failed_connection(settin
 
 @pytest.mark.asyncio
 async def test_relay_revalidates_each_resolved_literal_before_connecting(settings, monkeypatch):
-    settings = settings.model_copy(update={"name_relay_trusted_origins": ""})
     relay = NameRelay(
         settings=settings,
         resolver=StaticResolver({"attacker.test": [("127.0.0.1", 443)]}),
@@ -354,10 +356,69 @@ async def test_relay_revalidates_each_resolved_literal_before_connecting(setting
 
     monkeypatch.setattr("nbsr.name_relay.asyncio.open_connection", record_connection)
 
-    with pytest.raises(RelayRejected, match="destination"):
-        await relay._connect_origin("attacker.test", 443)
+    with pytest.raises(RelayRejected, match="not registered"):
+        await relay._connect_origin("attacker.test", 443, {})
 
     assert attempted == []
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "changed_address",
+    [
+        "127.0.0.2",
+        "10.0.0.1",
+        "100.64.0.1",
+        "169.254.169.254",
+        "192.0.2.1",
+        "224.0.0.1",
+        "0.0.0.0",
+        "::1",
+        "fe80::1",
+        "ff02::1",
+        "::",
+        "::ffff:127.0.0.1",
+    ],
+)
+async def test_relay_rejects_dns_results_outside_signed_and_local_policy(settings, changed_address):
+    relay = await start_name_relay(settings, StaticResolver({"facebook.test": [(changed_address, 443)]}))
+    try:
+        with pytest.raises(RelayRejected):
+            await connect_with_valid_binding(relay, settings)
+    finally:
+        await relay.close()
+
+
+@pytest.mark.asyncio
+async def test_relay_rejects_a_binding_after_local_policy_changes(settings):
+    credentials = issue_binding_credentials(settings, "facebook.test", 443)
+    changed_document = json.loads(settings.name_route_registry_json)
+    changed_document["routes"][0]["policy_version"] = 2
+    relay_settings = settings.model_copy(update={"name_route_registry_json": json.dumps(changed_document)})
+    relay = await start_name_relay(
+        relay_settings,
+        StaticResolver({"facebook.test": [("127.0.0.1", unused_loopback_port())]}),
+    )
+    try:
+        with pytest.raises(RelayRejected):
+            await connect_with_valid_binding(relay, relay_settings, credentials=credentials)
+    finally:
+        await relay.close()
+
+
+@pytest.mark.asyncio
+async def test_relay_rejects_resolution_with_an_extra_ambiguous_endpoint(settings):
+    origin = await start_echo_origin(prefix=b"origin:")
+    relay = await start_name_relay(
+        settings,
+        StaticResolver({"facebook.test": [("127.0.0.1", origin.port), ("127.0.0.2", origin.port)]}),
+    )
+    try:
+        with pytest.raises(RelayRejected):
+            await connect_with_valid_binding(relay, settings)
+    finally:
+        await relay.close()
+        await origin.close()
 
 
 @pytest.mark.asyncio

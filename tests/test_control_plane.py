@@ -268,6 +268,11 @@ def test_legacy_cleartext_control_plane_does_not_expose_isp_name_routes(monkeypa
         ("client_nonce", ""),
         ("client_public_key", "invalid"),
         ("capabilities", ["http", ""]),
+        ("hostname", "FACEBOOK.TEST"),
+        ("hostname", "facebook.test."),
+        ("hostname", "facebook\u3002test"),
+        ("hostname", "example.com"),
+        ("hostname", "93.184.216.34"),
     ],
 )
 def test_name_route_rejects_invalid_requests(monkeypatch, field, value):
@@ -286,6 +291,23 @@ def test_name_route_rejects_invalid_requests(monkeypatch, field, value):
     response = client.post("/v1/name-routes/resolve", json=payload)
 
     assert response.status_code == 422
+
+
+@pytest.mark.parametrize("override_field", ("destination", "origin_hostname", "resolved_address", "port"))
+def test_name_route_rejects_attacker_supplied_destination_overrides(override_field):
+    client = setup_name_control()
+    payload = {
+        "protocol_version": 1,
+        "request_id": "destination-override",
+        "hostname": "facebook.test",
+        "transport": "tcp",
+        "client_nonce": "client-nonce",
+        "client_public_key": ClientSession.generate().public_key_b64,
+        "capabilities": ["https"],
+        override_field: "93.184.216.34",
+    }
+
+    assert client.post("/v1/name-routes/resolve", json=payload).status_code == 422
 
 
 def test_name_route_pool_exhaustion_returns_retryable_503(monkeypatch):

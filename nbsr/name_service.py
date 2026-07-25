@@ -6,8 +6,8 @@ from pydantic import BaseModel
 
 from nbsr.admission import AdmissionLimiter
 from nbsr.config import Settings
-from nbsr.name_model import normalize_hostname
 from nbsr.name_security import capability_ports, client_session_thumbprint, issue_name_binding
+from nbsr.route_registry import RouteRegistry
 from nbsr.synthetic import SyntheticAddressPool
 
 
@@ -27,9 +27,11 @@ class NameRouteService:
         pool: SyntheticAddressPool,
         settings: Settings,
         admission_limiter: AdmissionLimiter | None = None,
+        route_registry: RouteRegistry | None = None,
     ):
         self._pool = pool
         self._settings = settings
+        self._route_registry = route_registry or RouteRegistry.from_settings(settings)
         self._admission_limiter = admission_limiter or AdmissionLimiter(
             global_limit=settings.name_route_global_requests_per_minute,
             client_limit=settings.name_route_client_requests_per_minute,
@@ -42,9 +44,11 @@ class NameRouteService:
         session_public_key: str,
         capabilities: Sequence[str] = ("http", "https"),
     ) -> NameRouteResponse:
-        hostname = normalize_hostname(hostname)
         client_id = client_session_thumbprint(session_public_key)
+        route_policy = self._route_registry.require_name(hostname)
         ports = capability_ports(capabilities)
+        if not set(ports).issubset(route_policy.ports):
+            raise ValueError("Requested port is outside the registered route policy")
         self._admission_limiter.consume(client_id)
         mapping = self._pool.allocate(
             hostname,
@@ -58,6 +62,7 @@ class NameRouteService:
             session_public_key=session_public_key,
             ports=ports,
             settings=self._settings,
+            route_policy=route_policy,
         )
         return NameRouteResponse(
             hostname=hostname,

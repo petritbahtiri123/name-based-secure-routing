@@ -17,6 +17,29 @@ data:
       startswith(input.path, "/api/payment-status")
     }
 ---
+apiVersion: v1
+kind: ConfigMap
+metadata: {name: name-route-registry, namespace: nbsr}
+data:
+  name-routes.json: |
+    {
+      "version": 1,
+      "routes": [
+        {
+          "name": "facebook.test",
+          "route_id": "isp-demo-facebook",
+          "origin_hostname": "facebook.test",
+          "ports": [80, 443],
+          "authorized_endpoints": ["10.96.0.80"],
+          "allowed_cidrs": ["10.96.0.80/32"],
+          "expected_http_host": "facebook.test",
+          "expected_tls_sni": "facebook.test",
+          "enabled": true,
+          "policy_version": 1
+        }
+      ]
+    }
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata: {name: opa, namespace: nbsr}
@@ -131,6 +154,7 @@ spec:
           volumeMounts:
             - {name: name-binding-private, mountPath: /run/nbsr-signing, readOnly: true}
             - {name: control-tls, mountPath: /run/nbsr-tls, readOnly: true}
+            - {name: name-route-registry, mountPath: /etc/nbsr, readOnly: true}
       volumes:
         - name: name-binding-private
           secret:
@@ -142,6 +166,7 @@ spec:
             items:
               - {key: isp-control-cert.pem, path: isp-control-cert.pem}
               - {key: isp-control-key.pem, path: isp-control-key.pem}
+        - {name: name-route-registry, configMap: {name: name-route-registry}}
 ---
 apiVersion: v1
 kind: Service
@@ -293,7 +318,6 @@ spec:
           command: ["python", "-c"]
           env:
             - {name: NBSR_NAME_BINDING_PUBLIC_KEY_PATH, value: "/run/nbsr-signing/name-binding-public.pem"}
-            - {name: NBSR_TRUSTED_ORIGINS, value: "facebook.test=10.96.0.80/32"}
           args:
             - |
               import asyncio
@@ -315,6 +339,7 @@ spec:
           volumeMounts:
             - {name: name-binding-public, mountPath: /run/nbsr-signing, readOnly: true}
             - {name: relay-tls, mountPath: /run/nbsr-tls, readOnly: true}
+            - {name: name-route-registry, mountPath: /etc/nbsr, readOnly: true}
       volumes:
         - name: name-binding-public
           secret:
@@ -326,6 +351,7 @@ spec:
             items:
               - {key: isp-relay-cert.pem, path: isp-relay-cert.pem}
               - {key: isp-relay-key.pem, path: isp-relay-key.pem}
+        - {name: name-route-registry, configMap: {name: name-route-registry}}
 ---
 apiVersion: v1
 kind: Service

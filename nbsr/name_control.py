@@ -3,13 +3,14 @@ from __future__ import annotations
 from typing import Annotated, Literal
 
 from fastapi import Depends, FastAPI, HTTPException, status
-from pydantic import BaseModel, Field, StrictInt, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictInt, field_validator
 
 from nbsr.admission import AdmissionLimiter, NameRouteRateLimited
 from nbsr.config import Settings
 from nbsr.name_model import normalize_hostname
 from nbsr.name_security import validate_name_binding_private_key
 from nbsr.name_service import NameRouteService
+from nbsr.route_registry import RouteRegistry, RouteRegistryError
 from nbsr.security import SecurityError
 from nbsr.synthetic import SyntheticAddressPool, SyntheticPoolExhausted
 
@@ -18,6 +19,8 @@ app = FastAPI(title="NBSR ISP name control")
 
 
 class NameRouteRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     protocol_version: StrictInt
     request_id: str = Field(min_length=1, max_length=128)
     hostname: str
@@ -43,7 +46,10 @@ class NameRouteRequest(BaseModel):
     @field_validator("hostname")
     @classmethod
     def normalize_requested_hostname(cls, value: str) -> str:
-        return normalize_hostname(value)
+        normalized = normalize_hostname(value)
+        if value != normalized:
+            raise ValueError("NBSR name must use its canonical representation")
+        return normalized
 
     @field_validator("capabilities")
     @classmethod
@@ -73,6 +79,7 @@ def get_name_route_service(settings: Settings = Depends(get_settings)) -> NameRo
 @app.get("/health")
 def health(settings: Settings = Depends(get_settings)) -> dict[str, str]:
     validate_name_binding_private_key(settings)
+    RouteRegistry.from_settings(settings)
     return {"status": "ok"}
 
 
@@ -83,7 +90,7 @@ def resolve_name_route(
 ) -> dict[str, object]:
     try:
         response = service.resolve(route.hostname, route.client_public_key, route.capabilities)
-    except SecurityError as exc:
+    except (SecurityError, RouteRegistryError) as exc:
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, "Invalid name-route request") from exc
     except NameRouteRateLimited as exc:
         raise HTTPException(

@@ -44,9 +44,9 @@ class DestinationPolicy:
             raise DestinationDenied("resolved destination is invalid") from exc
 
         effective: Address = parsed.ipv4_mapped if isinstance(parsed, IPv6Address) and parsed.ipv4_mapped else parsed
-        if self._is_global_unicast(effective):
-            return str(parsed)
-        if any(effective.version == network.version and effective in network for network in self._trusted_origins.get(normalized_hostname, ())):
+        if any(
+            effective.version == network.version and effective in network for network in self._trusted_origins.get(normalized_hostname, ())
+        ):
             return str(parsed)
         raise DestinationDenied("resolved destination is outside relay policy")
 

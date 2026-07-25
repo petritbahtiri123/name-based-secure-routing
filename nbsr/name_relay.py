@@ -12,6 +12,7 @@ from typing import Protocol
 from nbsr.config import Settings
 from nbsr.destination_policy import DestinationDenied, DestinationPolicy
 from nbsr.name_security import verify_name_binding, verify_relay_proof
+from nbsr.route_registry import RoutePolicy, RouteRegistry, RouteRegistryError
 from nbsr.security import SecurityError
 
 
@@ -50,7 +51,7 @@ class PrivateResolver:
             if identity not in seen:
                 seen.add(identity)
                 endpoints.append(endpoint)
-            if len(endpoints) == self._max_endpoints:
+            if len(endpoints) > self._max_endpoints:
                 break
         return endpoints
 
@@ -90,7 +91,7 @@ class NameRelay:
         settings: Settings,
         resolver: Resolver | None = None,
         replay_cache: ReplayCache | None = None,
-        destination_policy: DestinationPolicy | None = None,
+        route_registry: RouteRegistry | None = None,
     ):
         self._settings = settings
         self._resolver = resolver or PrivateResolver(settings.name_relay_max_endpoints)
@@ -98,7 +99,7 @@ class NameRelay:
             max(1, settings.name_binding_ttl_seconds),
             settings.name_relay_replay_cache_max_entries,
         )
-        self._destination_policy = destination_policy or DestinationPolicy.from_config(settings.name_relay_trusted_origins)
+        self._route_registry = route_registry or RouteRegistry.from_settings(settings)
 
     async def handle(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
         origin_writer: asyncio.StreamWriter | None = None
@@ -108,8 +109,13 @@ class NameRelay:
                 self._read_handshake(reader),
                 timeout=self._settings.name_relay_handshake_timeout_seconds,
             )
-            self._verify_admission(handshake)
-            origin_reader, origin_writer = await self._connect_origin(handshake["hostname"], handshake["port"])
+            claims, route_policy = self._verify_admission(handshake)
+            origin_reader, origin_writer = await self._connect_origin(
+                handshake["hostname"],
+                handshake["port"],
+                claims,
+                route_policy,
+            )
             writer.write(_ADMISSION_ACCEPTED)
             await writer.drain()
             admitted = True
@@ -153,7 +159,7 @@ class NameRelay:
             raise RelayRejected("relay port is not allowed")
         return handshake
 
-    def _verify_admission(self, handshake: dict[str, object]) -> None:
+    def _verify_admission(self, handshake: dict[str, object]) -> tuple[dict[str, object], RoutePolicy]:
         claims = verify_name_binding(
             handshake["binding"],
             handshake["hostname"],
@@ -162,6 +168,16 @@ class NameRelay:
             handshake["gateway_id"],
             self._settings,
         )
+        try:
+            route_policy = self._route_registry.require_route(claims.get("route_id"))
+        except RouteRegistryError as exc:
+            raise RelayRejected("signed route is not registered locally") from exc
+        if (
+            handshake["hostname"] != route_policy.name
+            or handshake["port"] not in route_policy.ports
+            or not route_policy.claims_match(claims)
+        ):
+            raise RelayRejected("signed route does not match current local policy")
         verify_relay_proof(
             claims,
             handshake["route_id"],
@@ -170,15 +186,38 @@ class NameRelay:
             handshake["proof"],
         )
         self._replay_cache.consume(handshake["route_id"], handshake["nonce"])
+        return claims, route_policy
 
-    async def _connect_origin(self, hostname: object, port: object) -> tuple[asyncio.StreamReader, asyncio.StreamWriter]:
+    async def _connect_origin(
+        self,
+        hostname: object,
+        port: object,
+        claims: dict[str, object],
+        route_policy: RoutePolicy | None = None,
+    ) -> tuple[asyncio.StreamReader, asyncio.StreamWriter]:
         try:
-            endpoints = await self._resolver.resolve(hostname, port)
+            route_policy = route_policy or self._route_registry.require_name(hostname)
+        except RouteRegistryError as exc:
+            raise RelayRejected("gateway route is not registered") from exc
+        if not route_policy.claims_match(claims) or port not in route_policy.ports:
+            raise RelayRejected("gateway route policy does not match signed authorization")
+        try:
+            endpoints = await self._resolver.resolve(route_policy.origin_hostname, port)
         except OSError as exc:
             raise RelayRejected("gateway could not resolve the named origin") from exc
+        if not endpoints or len(endpoints) > self._settings.name_relay_max_endpoints:
+            raise RelayRejected("gateway resolution is empty or ambiguous")
+        resolved_addresses = {endpoint.host for endpoint in endpoints[: self._settings.name_relay_max_endpoints]}
+        if resolved_addresses != set(route_policy.authorized_endpoints):
+            raise RelayRejected("gateway resolution changed or is ambiguous")
+        destination_policy = DestinationPolicy.from_config(
+            ";".join(f"{route_policy.origin_hostname}={cidr}" for cidr in route_policy.allowed_cidrs)
+        )
         for endpoint in endpoints[: self._settings.name_relay_max_endpoints]:
             try:
-                destination = self._destination_policy.validate(hostname, endpoint.host)
+                if endpoint.host not in claims["authorized_endpoints"]:
+                    continue
+                destination = destination_policy.validate(route_policy.origin_hostname, endpoint.host)
             except DestinationDenied:
                 continue
             try:

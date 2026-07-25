@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "routes": [
+    {
+      "name": "facebook.test",
+      "route_id": "isp-demo-facebook",
+      "origin_hostname": "facebook.test",
+      "ports": [
+        80,
+        443
+      ],
+      "authorized_endpoints": [
+        "172.30.0.10"
+      ],
+      "allowed_cidrs": [
+        "172.30.0.10/32"
+      ],
+      "expected_http_host": "facebook.test",
+      "expected_tls_sni": "facebook.test",
+      "enabled": true,
+      "policy_version": 1
+    }
+  ]
+}

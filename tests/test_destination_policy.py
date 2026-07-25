@@ -25,8 +25,9 @@ def test_default_destination_policy_rejects_non_global_addresses(address):
         DestinationPolicy().validate("attacker.test", address)
 
 
-def test_default_destination_policy_accepts_global_unicast():
-    assert DestinationPolicy().validate("example.com", "93.184.216.34") == "93.184.216.34"
+def test_default_destination_policy_rejects_global_unicast():
+    with pytest.raises(DestinationDenied):
+        DestinationPolicy().validate("example.com", "93.184.216.34")
 
 
 def test_trusted_origin_rule_is_exact_for_both_hostname_and_network():

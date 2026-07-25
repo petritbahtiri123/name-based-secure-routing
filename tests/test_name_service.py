@@ -35,9 +35,21 @@ def test_name_route_response_contains_only_synthetic_addresses(service):
     assert "resolved_addresses" not in encoded
 
 
-@pytest.mark.parametrize("hostname", ("", "facebook..test", "face_book.test"))
+@pytest.mark.parametrize(
+    "hostname",
+    (
+        "",
+        "facebook..test",
+        "face_book.test",
+        "FACEBOOK.TEST",
+        "facebook.test.",
+        "facebook\u3002test",
+        "example.com",
+        "93.184.216.34",
+    ),
+)
 def test_name_route_rejects_invalid_hostname(service, hostname):
-    with pytest.raises(ValueError, match="Invalid NBSR hostname"):
+    with pytest.raises(ValueError):
         service.resolve(hostname, ClientSession.generate().public_key_b64)
 
 
@@ -56,9 +68,14 @@ def test_invalid_session_keys_do_not_consume_synthetic_addresses(settings):
         with pytest.raises(ValueError, match="Invalid client session key"):
             service.resolve(hostname, "not-a-key")
 
-    response = service.resolve("three.test", ClientSession.generate().public_key_b64)
+    response = service.resolve("facebook.test", ClientSession.generate().public_key_b64)
 
     assert response.synthetic_ipv4 == "127.80.0.1"
+
+
+def test_name_route_rejects_capability_outside_registered_ports(service):
+    with pytest.raises(ValueError, match="route capabilities"):
+        service.resolve("facebook.test", ClientSession.generate().public_key_b64, ("tcp:22",))
 
 
 def test_route_binding_never_outlives_its_synthetic_mapping(settings):

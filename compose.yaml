@@ -92,6 +92,7 @@ services:
     ports: ["8444:8444"]
     volumes:
       - ./secrets/name-binding-private.pem:/run/secrets/name-binding-private.pem:ro
+      - ./config/name-routes.json:/etc/nbsr/name-routes.json:ro
       - ./secrets/isp-ca.pem:/run/secrets/isp-ca.pem:ro
       - ./secrets/isp-control-cert.pem:/run/secrets/isp-control-cert.pem:ro
       - ./secrets/isp-control-key.pem:/run/secrets/isp-control-key.pem:ro
@@ -154,10 +155,9 @@ services:
     build: .
     entrypoint: ["python", "/opt/nbsr/name-relay/app.py", "serve"]
     ports: ["8443:8443"]
-    environment:
-      NBSR_NAME_RELAY_TRUSTED_ORIGINS: facebook.test=172.30.0.10/32
     volumes:
       - ./services/name-relay:/opt/nbsr/name-relay:ro
+      - ./config/name-routes.json:/etc/nbsr/name-routes.json:ro
       - ./secrets/name-binding-public.pem:/run/secrets/name-binding-public.pem:ro
       - ./secrets/isp-ca.pem:/run/secrets/isp-ca.pem:ro
       - ./secrets/isp-relay-cert.pem:/run/secrets/isp-relay-cert.pem:ro

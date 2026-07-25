@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 from cryptography.hazmat.primitives import serialization
@@ -21,11 +22,12 @@ class Settings(BaseSettings):
     name_relay_max_endpoints: int = Field(8, ge=1, le=32)
     name_relay_connect_timeout_seconds: float = Field(2.0, gt=0, le=10)
     name_relay_handshake_timeout_seconds: float = Field(2.0, gt=0, le=30)
-    name_relay_trusted_origins: str = ""
     name_relay_replay_cache_max_entries: int = Field(10_000, ge=1, le=1_000_000)
     name_route_global_requests_per_minute: int = Field(600, ge=1, le=1_000_000)
     name_route_client_requests_per_minute: int = Field(120, ge=1, le=100_000)
     name_route_admission_max_clients: int = Field(10_000, ge=1, le=1_000_000)
+    name_route_registry_path: Path = Path("/etc/nbsr/name-routes.json")
+    name_route_registry_json: str | None = None
     gateway_url: str = "http://localhost:8080"
     opa_url: str = "http://opa:8181/v1/data/nbsr/route/decision"
     ticket_ttl_seconds: int = Field(60, ge=-1, le=300)
@@ -51,6 +53,23 @@ class Settings(BaseSettings):
         private_format = serialization.PrivateFormat.PKCS8
         public_format = serialization.PublicFormat.SubjectPublicKeyInfo
         name_binding = name_binding or Ed25519PrivateKey.generate()
+        test_routes = []
+        for name in ("facebook.test", "one.test", "two.test", "three.test"):
+            test_routes.append(
+                {
+                    "name": name,
+                    "route_id": f"test-{name.removesuffix('.test')}",
+                    "origin_hostname": name,
+                    "ports": [80, 443],
+                    "authorized_endpoints": ["127.0.0.1"],
+                    "allowed_cidrs": ["127.0.0.1/32"],
+                    "expected_http_host": name,
+                    "expected_tls_sni": name,
+                    "enabled": True,
+                    "policy_version": 1,
+                }
+            )
+        test_registry = json.dumps({"version": 1, "routes": test_routes}, separators=(",", ":"))
         return cls(
             identity_public_key_pem=identity.public_key().public_bytes(serialization.Encoding.PEM, public_format),
             ticket_private_key_pem=ticket.private_bytes(serialization.Encoding.PEM, private_format, serialization.NoEncryption()),
@@ -59,7 +78,7 @@ class Settings(BaseSettings):
                 serialization.Encoding.PEM, private_format, serialization.NoEncryption()
             ),
             name_binding_public_key_pem=name_binding.public_key().public_bytes(serialization.Encoding.PEM, public_format),
-            name_relay_trusted_origins="facebook.test=127.0.0.1/32",
+            name_route_registry_json=test_registry,
         )
 
     def key_bytes(self, kind: str) -> bytes:
