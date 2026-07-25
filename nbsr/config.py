@@ -28,8 +28,11 @@ class Settings(BaseSettings):
     name_route_admission_max_clients: int = Field(10_000, ge=1, le=1_000_000)
     name_route_registry_path: Path = Path("/etc/nbsr/name-routes.json")
     name_route_registry_json: str | None = None
-    gateway_url: str = "http://localhost:8080"
-    opa_url: str = "http://opa:8181/v1/data/nbsr/route/decision"
+    gateway_url: str = "https://localhost:8080"
+    opa_url: str = "https://opa:8181/v1/data/nbsr/route/decision"
+    enterprise_ca_path: Path = Path("/run/nbsr-tls/demo-ca.pem")
+    control_plane_client_cert_path: Path = Path("/run/nbsr-tls/enterprise-control-plane-client-cert.pem")
+    control_plane_client_key_path: Path = Path("/run/nbsr-tls/enterprise-control-plane-client-key.pem")
     ticket_ttl_seconds: int = Field(60, ge=-1, le=300)
     name_binding_ttl_seconds: int = Field(60, ge=-1, le=60)
     identity_public_key_path: Path = Path("/run/secrets/identity-public.pem")

@@ -20,6 +20,7 @@ import pytest_asyncio
 import uvicorn
 from cryptography import x509
 from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from cryptography.x509.oid import ExtendedKeyUsageOID, NameOID
 
@@ -316,7 +317,9 @@ def test_kubernetes_key_mounts_do_not_mask_service_account_secrets():
 
 def test_kubernetes_opa_loads_the_policy_file_not_configmap_symlinks():
     manifest = (Path(__file__).parents[1] / "deploy" / "kind" / "nbsr.yaml").read_text(encoding="utf-8")
-    assert 'args: ["run", "--server", "--addr=0.0.0.0:8181", "/policy/nbsr.rego"]' in manifest
+    assert "--addr=https://0.0.0.0:8181" in manifest
+    assert "--authentication=tls" in manifest
+    assert "/policy/nbsr.rego" in manifest
 
 
 def test_kubernetes_relay_supports_http_and_is_host_reachable_in_kind():
@@ -414,15 +417,42 @@ def test_bootstrap_creates_distinct_trusted_isp_server_certificates(tmp_path: Pa
         assert "localhost" in san.get_values_for_type(x509.DNSName)
         assert ip_address("127.0.0.1") in san.get_values_for_type(x509.IPAddress)
         isp_ca.public_key().verify(certificate.signature, certificate.tbs_certificate_bytes)
-    for prefix, dns_name in (("control-plane", "control-plane"), ("gateway", "gateway")):
+    for prefix, dns_name, local_alias in (
+        ("control-plane", "control-plane", True),
+        ("gateway", "gateway", True),
+        ("opa", "opa", False),
+        ("ticket-verifier", "ticket-verifier", False),
+        ("payments-service", "payments-service", False),
+    ):
         certificate_path = tmp_path / "secrets" / f"enterprise-{prefix}-cert.pem"
         assert certificate_path.is_file()
         certificate = x509.load_pem_x509_certificate(certificate_path.read_bytes())
         san = certificate.extensions.get_extension_for_class(x509.SubjectAlternativeName).value
+        eku = certificate.extensions.get_extension_for_class(x509.ExtendedKeyUsage).value
         assert certificate.issuer == enterprise_ca.subject
         assert dns_name in san.get_values_for_type(x509.DNSName)
-        assert "localhost" in san.get_values_for_type(x509.DNSName)
-        assert ip_address("127.0.0.1") in san.get_values_for_type(x509.IPAddress)
+        assert ("localhost" in san.get_values_for_type(x509.DNSName)) is local_alias
+        assert (ip_address("127.0.0.1") in san.get_values_for_type(x509.IPAddress)) is local_alias
+        assert ExtendedKeyUsageOID.SERVER_AUTH in eku
+        assert ExtendedKeyUsageOID.CLIENT_AUTH not in eku
+        enterprise_ca.public_key().verify(certificate.signature, certificate.tbs_certificate_bytes)
+    for prefix, dns_name in (
+        ("control-plane-client", "control-plane-client"),
+        ("gateway-client", "gateway-client"),
+    ):
+        private_key = serialization.load_pem_private_key(
+            (tmp_path / "secrets" / f"enterprise-{prefix}-key.pem").read_bytes(),
+            password=None,
+        )
+        certificate = x509.load_pem_x509_certificate((tmp_path / "secrets" / f"enterprise-{prefix}-cert.pem").read_bytes())
+        san = certificate.extensions.get_extension_for_class(x509.SubjectAlternativeName).value
+        eku = certificate.extensions.get_extension_for_class(x509.ExtendedKeyUsage).value
+        assert certificate.issuer == enterprise_ca.subject
+        assert san.get_values_for_type(x509.DNSName) == [dns_name]
+        assert ExtendedKeyUsageOID.CLIENT_AUTH in eku
+        assert ExtendedKeyUsageOID.SERVER_AUTH not in eku
+        assert isinstance(private_key, ec.EllipticCurvePrivateKey)
+        assert isinstance(private_key.curve, ec.SECP256R1)
         enterprise_ca.public_key().verify(certificate.signature, certificate.tbs_certificate_bytes)
 
 

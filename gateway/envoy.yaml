@@ -9,6 +9,9 @@ static_resources:
             typed_config:
               "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.DownstreamTlsContext
               common_tls_context:
+                tls_params:
+                  tls_minimum_protocol_version: TLSv1_3
+                  tls_maximum_protocol_version: TLSv1_3
                 tls_certificates:
                   - certificate_chain: { filename: /run/nbsr-tls/enterprise-gateway-cert.pem }
                     private_key: { filename: /run/nbsr-tls/enterprise-gateway-key.pem }
@@ -33,7 +36,7 @@ static_resources:
                       status_on_error: { code: ServiceUnavailable }
                       http_service:
                         server_uri:
-                          uri: http://ticket-verifier:9000
+                          uri: https://ticket-verifier:9000
                           cluster: verifier
                           timeout: 2s
                         path_prefix: /authorize
@@ -54,6 +57,23 @@ static_resources:
               - endpoint:
                   address:
                     socket_address: { address: ticket-verifier, port_value: 9000 }
+      transport_socket:
+        name: envoy.transport_sockets.tls
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.UpstreamTlsContext
+          sni: ticket-verifier
+          common_tls_context:
+            tls_params:
+              tls_minimum_protocol_version: TLSv1_3
+              tls_maximum_protocol_version: TLSv1_3
+            tls_certificates:
+              - certificate_chain: { filename: /run/nbsr-tls/enterprise-gateway-client-cert.pem }
+                private_key: { filename: /run/nbsr-tls/enterprise-gateway-client-key.pem }
+            validation_context:
+              trusted_ca: { filename: /run/nbsr-tls/demo-ca.pem }
+              match_typed_subject_alt_names:
+                - san_type: DNS
+                  matcher: { exact: ticket-verifier }
     - name: payments
       type: STRICT_DNS
       connect_timeout: 2s
@@ -64,6 +84,23 @@ static_resources:
               - endpoint:
                   address:
                     socket_address: { address: payments-service, port_value: 7000 }
+      transport_socket:
+        name: envoy.transport_sockets.tls
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.UpstreamTlsContext
+          sni: payments-service
+          common_tls_context:
+            tls_params:
+              tls_minimum_protocol_version: TLSv1_3
+              tls_maximum_protocol_version: TLSv1_3
+            tls_certificates:
+              - certificate_chain: { filename: /run/nbsr-tls/enterprise-gateway-client-cert.pem }
+                private_key: { filename: /run/nbsr-tls/enterprise-gateway-client-key.pem }
+            validation_context:
+              trusted_ca: { filename: /run/nbsr-tls/demo-ca.pem }
+              match_typed_subject_alt_names:
+                - san_type: DNS
+                  matcher: { exact: payments-service }
 admin:
   address:
     socket_address: { address: 127.0.0.1, port_value: 9901 }

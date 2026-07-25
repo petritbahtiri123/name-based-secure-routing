@@ -52,9 +52,27 @@ spec:
       containers:
         - name: opa
           image: openpolicyagent/opa:1.4.2-static
-          args: ["run", "--server", "--addr=0.0.0.0:8181", "/policy/nbsr.rego"]
-          volumeMounts: [{name: policy, mountPath: /policy}]
-      volumes: [{name: policy, configMap: {name: opa-policy}}]
+          args:
+            - run
+            - --server
+            - --addr=https://0.0.0.0:8181
+            - --tls-cert-file=/run/nbsr-tls/enterprise-opa-cert.pem
+            - --tls-private-key-file=/run/nbsr-tls/enterprise-opa-key.pem
+            - --tls-ca-cert-file=/run/nbsr-tls/demo-ca.pem
+            - --authentication=tls
+            - /policy/nbsr.rego
+          volumeMounts:
+            - {name: policy, mountPath: /policy}
+            - {name: enterprise-tls, mountPath: /run/nbsr-tls, readOnly: true}
+      volumes:
+        - {name: policy, configMap: {name: opa-policy}}
+        - name: enterprise-tls
+          secret:
+            secretName: nbsr-enterprise-tls
+            items:
+              - {key: demo-ca.pem, path: demo-ca.pem}
+              - {key: enterprise-opa-cert.pem, path: enterprise-opa-cert.pem}
+              - {key: enterprise-opa-key.pem, path: enterprise-opa-key.pem}
 ---
 apiVersion: v1
 kind: Service
@@ -71,7 +89,31 @@ spec:
     metadata: {labels: {app: payments}}
     spec:
       containers:
-        - {name: payments, image: nbsr:local, args: ["nbsr.payments:app", "--host", "0.0.0.0", "--port", "7000"]}
+        - name: payments
+          image: nbsr:local
+          args:
+            - nbsr.payments:app
+            - --host
+            - 0.0.0.0
+            - --port
+            - "7000"
+            - --ssl-certfile
+            - /run/nbsr-tls/enterprise-payments-service-cert.pem
+            - --ssl-keyfile
+            - /run/nbsr-tls/enterprise-payments-service-key.pem
+            - --ssl-ca-certs
+            - /run/nbsr-tls/demo-ca.pem
+            - --ssl-cert-reqs
+            - "2"
+          volumeMounts: [{name: enterprise-tls, mountPath: /run/nbsr-tls, readOnly: true}]
+      volumes:
+        - name: enterprise-tls
+          secret:
+            secretName: nbsr-enterprise-tls
+            items:
+              - {key: demo-ca.pem, path: demo-ca.pem}
+              - {key: enterprise-payments-service-cert.pem, path: enterprise-payments-service-cert.pem}
+              - {key: enterprise-payments-service-key.pem, path: enterprise-payments-service-key.pem}
 ---
 apiVersion: v1
 kind: Service
@@ -101,7 +143,7 @@ spec:
             - --ssl-keyfile
             - /run/nbsr-tls/enterprise-control-plane-key.pem
           env:
-            - {name: NBSR_OPA_URL, value: "http://opa:8181/v1/data/nbsr/route/decision"}
+            - {name: NBSR_OPA_URL, value: "https://opa:8181/v1/data/nbsr/route/decision"}
             - {name: NBSR_GATEWAY_URL, value: "https://localhost:8080"}
             - {name: NBSR_IDENTITY_PUBLIC_KEY_PATH, value: "/run/nbsr-secrets/identity-public.pem"}
             - {name: NBSR_TICKET_PRIVATE_KEY_PATH, value: "/run/nbsr-secrets/ticket-private.pem"}
@@ -121,6 +163,9 @@ spec:
             items:
               - {key: enterprise-control-plane-cert.pem, path: enterprise-control-plane-cert.pem}
               - {key: enterprise-control-plane-key.pem, path: enterprise-control-plane-key.pem}
+              - {key: demo-ca.pem, path: demo-ca.pem}
+              - {key: enterprise-control-plane-client-cert.pem, path: enterprise-control-plane-client-cert.pem}
+              - {key: enterprise-control-plane-client-key.pem, path: enterprise-control-plane-client-key.pem}
 ---
 apiVersion: v1
 kind: Service
@@ -188,15 +233,37 @@ spec:
       containers:
         - name: ticket-verifier
           image: nbsr:local
-          args: ["nbsr.ticket_verifier:app", "--host", "0.0.0.0", "--port", "9000"]
+          args:
+            - nbsr.ticket_verifier:app
+            - --host
+            - 0.0.0.0
+            - --port
+            - "9000"
+            - --ssl-certfile
+            - /run/nbsr-tls/enterprise-ticket-verifier-cert.pem
+            - --ssl-keyfile
+            - /run/nbsr-tls/enterprise-ticket-verifier-key.pem
+            - --ssl-ca-certs
+            - /run/nbsr-tls/demo-ca.pem
+            - --ssl-cert-reqs
+            - "2"
           env:
             - {name: NBSR_TICKET_PUBLIC_KEY_PATH, value: "/run/nbsr-secrets/ticket-public.pem"}
-          volumeMounts: [{name: keys, mountPath: /run/nbsr-secrets, readOnly: true}]
+          volumeMounts:
+            - {name: keys, mountPath: /run/nbsr-secrets, readOnly: true}
+            - {name: enterprise-tls, mountPath: /run/nbsr-tls, readOnly: true}
       volumes:
         - name: keys
           secret:
             secretName: nbsr-keys
             items: [{key: ticket-public.pem, path: ticket-public.pem}]
+        - name: enterprise-tls
+          secret:
+            secretName: nbsr-enterprise-tls
+            items:
+              - {key: demo-ca.pem, path: demo-ca.pem}
+              - {key: enterprise-ticket-verifier-cert.pem, path: enterprise-ticket-verifier-cert.pem}
+              - {key: enterprise-ticket-verifier-key.pem, path: enterprise-ticket-verifier-key.pem}
 ---
 apiVersion: v1
 kind: Service
@@ -227,6 +294,9 @@ spec:
             items:
               - {key: enterprise-gateway-cert.pem, path: enterprise-gateway-cert.pem}
               - {key: enterprise-gateway-key.pem, path: enterprise-gateway-key.pem}
+              - {key: demo-ca.pem, path: demo-ca.pem}
+              - {key: enterprise-gateway-client-cert.pem, path: enterprise-gateway-client-cert.pem}
+              - {key: enterprise-gateway-client-key.pem, path: enterprise-gateway-client-key.pem}
 ---
 apiVersion: v1
 kind: Service

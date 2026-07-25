@@ -2,9 +2,21 @@ name: nbsr
 services:
   opa:
     image: openpolicyagent/opa:1.4.2-static
-    command: ["run", "--server", "--addr=0.0.0.0:8181", "/policy"]
-    volumes: ["./policy:/policy:ro"]
-    networks: [control-network]
+    command:
+      - run
+      - --server
+      - --addr=https://0.0.0.0:8181
+      - --tls-cert-file=/run/nbsr-tls/enterprise-opa-cert.pem
+      - --tls-private-key-file=/run/nbsr-tls/enterprise-opa-key.pem
+      - --tls-ca-cert-file=/run/nbsr-tls/demo-ca.pem
+      - --authentication=tls
+      - /policy
+    volumes:
+      - ./policy:/policy:ro
+      - ./secrets/demo-ca.pem:/run/nbsr-tls/demo-ca.pem:ro
+      - ./secrets/enterprise-opa-cert.pem:/run/nbsr-tls/enterprise-opa-cert.pem:ro
+      - ./secrets/enterprise-opa-key.pem:/run/nbsr-tls/enterprise-opa-key.pem:ro
+    networks: [enterprise-control-network]
     healthcheck:
       test: ["CMD", "/opa", "eval", "1"]
       interval: 3s
@@ -23,9 +35,9 @@ services:
       - /run/secrets/enterprise-control-plane-cert.pem
       - --ssl-keyfile
       - /run/secrets/enterprise-control-plane-key.pem
-    ports: ["8000:8000"]
+    ports: ["127.0.0.1:8000:8000"]
     environment:
-      NBSR_OPA_URL: http://opa:8181/v1/data/nbsr/route/decision
+      NBSR_OPA_URL: https://opa:8181/v1/data/nbsr/route/decision
       NBSR_GATEWAY_URL: https://localhost:8080
       NBSR_TICKET_TTL_SECONDS: ${NBSR_TICKET_TTL_SECONDS:-60}
     volumes:
@@ -34,7 +46,10 @@ services:
       - ./secrets/demo-ca.pem:/run/secrets/demo-ca.pem:ro
       - ./secrets/enterprise-control-plane-cert.pem:/run/secrets/enterprise-control-plane-cert.pem:ro
       - ./secrets/enterprise-control-plane-key.pem:/run/secrets/enterprise-control-plane-key.pem:ro
-    networks: [client-network, control-network]
+      - ./secrets/demo-ca.pem:/run/nbsr-tls/demo-ca.pem:ro
+      - ./secrets/enterprise-control-plane-client-cert.pem:/run/nbsr-tls/enterprise-control-plane-client-cert.pem:ro
+      - ./secrets/enterprise-control-plane-client-key.pem:/run/nbsr-tls/enterprise-control-plane-client-key.pem:ro
+    networks: [enterprise-client-network, enterprise-control-network]
     depends_on:
       opa: { condition: service_healthy }
     healthcheck:
@@ -45,21 +60,57 @@ services:
 
   ticket-verifier:
     build: .
-    command: ["nbsr.ticket_verifier:app", "--host", "0.0.0.0", "--port", "9000"]
-    volumes: ["./secrets/ticket-public.pem:/run/secrets/ticket-public.pem:ro"]
-    networks: [protected-network]
+    command:
+      - nbsr.ticket_verifier:app
+      - --host
+      - 0.0.0.0
+      - --port
+      - "9000"
+      - --ssl-certfile
+      - /run/nbsr-tls/enterprise-ticket-verifier-cert.pem
+      - --ssl-keyfile
+      - /run/nbsr-tls/enterprise-ticket-verifier-key.pem
+      - --ssl-ca-certs
+      - /run/nbsr-tls/demo-ca.pem
+      - --ssl-cert-reqs
+      - "2"
+    volumes:
+      - ./secrets/ticket-public.pem:/run/secrets/ticket-public.pem:ro
+      - ./secrets/demo-ca.pem:/run/nbsr-tls/demo-ca.pem:ro
+      - ./secrets/enterprise-ticket-verifier-cert.pem:/run/nbsr-tls/enterprise-ticket-verifier-cert.pem:ro
+      - ./secrets/enterprise-ticket-verifier-key.pem:/run/nbsr-tls/enterprise-ticket-verifier-key.pem:ro
+    networks: [enterprise-protected-network]
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:9000/health')"]
+      test: ["CMD", "python", "-c", "import socket; socket.create_connection(('127.0.0.1',9000),2).close()"]
       interval: 3s
       timeout: 2s
       retries: 20
 
   payments-service:
     build: .
-    command: ["nbsr.payments:app", "--host", "0.0.0.0", "--port", "7000"]
-    networks: [protected-network]
+    command:
+      - nbsr.payments:app
+      - --host
+      - 0.0.0.0
+      - --port
+      - "7000"
+      - --ssl-certfile
+      - /run/nbsr-tls/enterprise-payments-service-cert.pem
+      - --ssl-keyfile
+      - /run/nbsr-tls/enterprise-payments-service-key.pem
+      - --ssl-ca-certs
+      - /run/nbsr-tls/demo-ca.pem
+      - --ssl-cert-reqs
+      - "2"
+    volumes:
+      - ./secrets/demo-ca.pem:/run/nbsr-tls/demo-ca.pem:ro
+      - ./secrets/enterprise-payments-service-cert.pem:/run/nbsr-tls/enterprise-payments-service-cert.pem:ro
+      - ./secrets/enterprise-payments-service-key.pem:/run/nbsr-tls/enterprise-payments-service-key.pem:ro
+    networks:
+      enterprise-protected-network:
+        ipv4_address: 172.30.0.10
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:7000/health')"]
+      test: ["CMD", "python", "-c", "import socket; socket.create_connection(('127.0.0.1',7000),2).close()"]
       interval: 3s
       timeout: 2s
       retries: 20
@@ -67,12 +118,15 @@ services:
   gateway:
     image: envoyproxy/envoy:v1.34.4
     command: ["-c", "/etc/envoy/envoy.yaml", "--log-level", "warning"]
-    ports: ["8080:8080"]
+    ports: ["127.0.0.1:8080:8080"]
     volumes:
       - ./gateway/envoy.yaml:/etc/envoy/envoy.yaml:ro
       - ./secrets/enterprise-gateway-cert.pem:/run/nbsr-tls/enterprise-gateway-cert.pem:ro
       - ./secrets/enterprise-gateway-key.pem:/run/nbsr-tls/enterprise-gateway-key.pem:ro
-    networks: [client-network, protected-network]
+      - ./secrets/demo-ca.pem:/run/nbsr-tls/demo-ca.pem:ro
+      - ./secrets/enterprise-gateway-client-cert.pem:/run/nbsr-tls/enterprise-gateway-client-cert.pem:ro
+      - ./secrets/enterprise-gateway-client-key.pem:/run/nbsr-tls/enterprise-gateway-client-key.pem:ro
+    networks: [enterprise-client-network, enterprise-protected-network]
     depends_on:
       ticket-verifier: { condition: service_healthy }
       payments-service: { condition: service_healthy }
@@ -89,14 +143,14 @@ services:
       - /run/secrets/isp-control-cert.pem
       - --ssl-keyfile
       - /run/secrets/isp-control-key.pem
-    ports: ["8444:8444"]
+    ports: ["127.0.0.1:8444:8444"]
     volumes:
       - ./secrets/name-binding-private.pem:/run/secrets/name-binding-private.pem:ro
       - ./config/name-routes.json:/etc/nbsr/name-routes.json:ro
       - ./secrets/isp-ca.pem:/run/secrets/isp-ca.pem:ro
       - ./secrets/isp-control-cert.pem:/run/secrets/isp-control-cert.pem:ro
       - ./secrets/isp-control-key.pem:/run/secrets/isp-control-key.pem:ro
-    networks: [client-network]
+    networks: [isp-client-network]
     healthcheck:
       test: ["CMD", "python", "-c", "import ssl,urllib.request; c=ssl.create_default_context(cafile='/run/secrets/isp-ca.pem'); urllib.request.urlopen('https://localhost:8444/health', context=c)"]
       interval: 3s
@@ -142,9 +196,9 @@ services:
       - ./secrets/isp-origin-cert.pem:/run/secrets/isp-origin-cert.pem:ro
       - ./secrets/isp-origin-key.pem:/run/secrets/isp-origin-key.pem:ro
     networks:
-      protected-network:
+      isp-origin-network:
         aliases: [facebook.test]
-        ipv4_address: 172.30.0.10
+        ipv4_address: 172.31.0.10
     healthcheck:
       test: ["CMD", "python", "-c", "import socket,ssl; socket.create_connection(('localhost',80),2).close(); c=ssl.create_default_context(cafile='/run/secrets/isp-ca.pem'); c.wrap_socket(socket.socket(),server_hostname='facebook.test').connect(('localhost',443))"]
       interval: 3s
@@ -154,7 +208,7 @@ services:
   name-relay:
     build: .
     entrypoint: ["python", "/opt/nbsr/name-relay/app.py", "serve"]
-    ports: ["8443:8443"]
+    ports: ["127.0.0.1:8443:8443"]
     volumes:
       - ./services/name-relay:/opt/nbsr/name-relay:ro
       - ./config/name-routes.json:/etc/nbsr/name-routes.json:ro
@@ -162,7 +216,7 @@ services:
       - ./secrets/isp-ca.pem:/run/secrets/isp-ca.pem:ro
       - ./secrets/isp-relay-cert.pem:/run/secrets/isp-relay-cert.pem:ro
       - ./secrets/isp-relay-key.pem:/run/secrets/isp-relay-key.pem:ro
-    networks: [client-network, protected-network]
+    networks: [isp-client-network, isp-origin-network]
     depends_on:
       name-origin: { condition: service_healthy }
     healthcheck:
@@ -182,7 +236,7 @@ services:
     volumes:
       - ./tokens:/run/tokens:ro
       - ./secrets/demo-ca.pem:/run/secrets/demo-ca.pem:ro
-    networks: [client-network]
+    networks: [enterprise-client-network]
     depends_on:
       control-plane: { condition: service_healthy }
       gateway: { condition: service_started }
@@ -192,11 +246,17 @@ services:
     command: ["--identity", "denied"]
 
 networks:
-  client-network: {}
-  control-network:
+  enterprise-client-network: {}
+  enterprise-control-network:
     internal: true
-  protected-network:
+  enterprise-protected-network:
     internal: true
     ipam:
       config:
         - subnet: 172.30.0.0/24
+  isp-client-network: {}
+  isp-origin-network:
+    internal: true
+    ipam:
+      config:
+        - subnet: 172.31.0.0/24

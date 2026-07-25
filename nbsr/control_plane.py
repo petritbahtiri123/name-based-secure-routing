@@ -8,6 +8,7 @@ from pydantic import BaseModel, Field, field_validator
 
 from nbsr.config import Settings
 from nbsr.security import SecurityError, issue_ticket, validate_identity
+from nbsr.service_tls import ServiceTlsError, create_mtls_client_context
 
 app = FastAPI(title="NBSR control plane")
 
@@ -39,6 +40,15 @@ def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
+def create_opa_mtls_context(settings: Settings):
+    return create_mtls_client_context(
+        url=settings.opa_url,
+        ca_path=settings.enterprise_ca_path,
+        certificate_path=settings.control_plane_client_cert_path,
+        private_key_path=settings.control_plane_client_key_path,
+    )
+
+
 @app.post("/v1/routes/resolve")
 async def resolve(
     route: RouteRequest,
@@ -53,11 +63,11 @@ async def resolve(
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid workload identity") from exc
     policy_input = {"identity": subject, "service": route.service, "method": route.method, "path": route.path}
     try:
-        async with httpx.AsyncClient(timeout=2.0) as client:
+        async with httpx.AsyncClient(timeout=2.0, verify=create_opa_mtls_context(settings)) as client:
             response = await client.post(settings.opa_url, json={"input": policy_input})
             response.raise_for_status()
             decision = response.json().get("result", {})
-    except (httpx.HTTPError, ValueError) as exc:
+    except (httpx.HTTPError, ValueError, ServiceTlsError) as exc:
         raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, "Authorization service unavailable") from exc
     if not decision.get("allow"):
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Route not authorized")

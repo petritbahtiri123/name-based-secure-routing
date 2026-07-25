@@ -18,6 +18,16 @@ $EnterpriseControlCert = Join-Path $Root "secrets/enterprise-control-plane-cert.
 $EnterpriseControlKey = Join-Path $Root "secrets/enterprise-control-plane-key.pem"
 $EnterpriseGatewayCert = Join-Path $Root "secrets/enterprise-gateway-cert.pem"
 $EnterpriseGatewayKey = Join-Path $Root "secrets/enterprise-gateway-key.pem"
+$EnterpriseOpaCert = Join-Path $Root "secrets/enterprise-opa-cert.pem"
+$EnterpriseOpaKey = Join-Path $Root "secrets/enterprise-opa-key.pem"
+$EnterpriseControlClientCert = Join-Path $Root "secrets/enterprise-control-plane-client-cert.pem"
+$EnterpriseControlClientKey = Join-Path $Root "secrets/enterprise-control-plane-client-key.pem"
+$EnterpriseGatewayClientCert = Join-Path $Root "secrets/enterprise-gateway-client-cert.pem"
+$EnterpriseGatewayClientKey = Join-Path $Root "secrets/enterprise-gateway-client-key.pem"
+$EnterpriseVerifierCert = Join-Path $Root "secrets/enterprise-ticket-verifier-cert.pem"
+$EnterpriseVerifierKey = Join-Path $Root "secrets/enterprise-ticket-verifier-key.pem"
+$EnterprisePaymentsCert = Join-Path $Root "secrets/enterprise-payments-service-cert.pem"
+$EnterprisePaymentsKey = Join-Path $Root "secrets/enterprise-payments-service-key.pem"
 $EnvoyConfig = Join-Path $Root "gateway/envoy.yaml"
 $KindNodeImage = if ($env:NBSR_KIND_NODE_IMAGE) {
     $env:NBSR_KIND_NODE_IMAGE
@@ -32,7 +42,7 @@ kubectl create namespace nbsr --dry-run=client -o yaml | kubectl apply -f -
 kubectl -n nbsr create secret generic nbsr-keys "--from-file=$IdentityPublic" "--from-file=$TicketPrivate" "--from-file=$TicketPublic" --dry-run=client -o yaml | kubectl apply -f -
 kubectl -n nbsr create secret generic nbsr-name-binding-keys "--from-file=$NameBindingPrivate" "--from-file=$NameBindingPublic" --dry-run=client -o yaml | kubectl apply -f -
 kubectl -n nbsr create secret generic nbsr-isp-tls "--from-file=$IspCa" "--from-file=$IspControlCert" "--from-file=$IspControlKey" "--from-file=$IspRelayCert" "--from-file=$IspRelayKey" "--from-file=$IspOriginCert" "--from-file=$IspOriginKey" --dry-run=client -o yaml | kubectl apply -f -
-kubectl -n nbsr create secret generic nbsr-enterprise-tls "--from-file=$EnterpriseCa" "--from-file=$EnterpriseControlCert" "--from-file=$EnterpriseControlKey" "--from-file=$EnterpriseGatewayCert" "--from-file=$EnterpriseGatewayKey" --dry-run=client -o yaml | kubectl apply -f -
+kubectl -n nbsr create secret generic nbsr-enterprise-tls "--from-file=$EnterpriseCa" "--from-file=$EnterpriseControlCert" "--from-file=$EnterpriseControlKey" "--from-file=$EnterpriseGatewayCert" "--from-file=$EnterpriseGatewayKey" "--from-file=$EnterpriseOpaCert" "--from-file=$EnterpriseOpaKey" "--from-file=$EnterpriseControlClientCert" "--from-file=$EnterpriseControlClientKey" "--from-file=$EnterpriseGatewayClientCert" "--from-file=$EnterpriseGatewayClientKey" "--from-file=$EnterpriseVerifierCert" "--from-file=$EnterpriseVerifierKey" "--from-file=$EnterprisePaymentsCert" "--from-file=$EnterprisePaymentsKey" --dry-run=client -o yaml | kubectl apply -f -
 kubectl -n nbsr create configmap envoy-config "--from-file=envoy.yaml=$EnvoyConfig" --dry-run=client -o yaml | kubectl apply -f -
 kubectl apply -f (Join-Path $Root "deploy/kind/nbsr.yaml")
 kubectl -n nbsr wait --for=condition=available deployment --all --timeout=180s

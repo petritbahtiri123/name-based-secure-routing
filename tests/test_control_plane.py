@@ -2,6 +2,7 @@ from datetime import UTC, datetime, timedelta
 
 import jwt
 import pytest
+import httpx
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from fastapi.testclient import TestClient
 
@@ -56,6 +57,7 @@ def setup(monkeypatch, allow=True):
     app.dependency_overrides[get_settings] = lambda: settings
     FakeAsyncClient.allow = allow
     monkeypatch.setattr("nbsr.control_plane.httpx.AsyncClient", FakeAsyncClient)
+    monkeypatch.setattr("nbsr.control_plane.create_opa_mtls_context", lambda _settings: object())
     now = datetime.now(UTC)
     token = jwt.encode(
         {
@@ -101,6 +103,26 @@ def test_policy_denial_returns_403(monkeypatch):
         json={"service": "payments.internal", "method": "GET", "path": "/api/payment-status"},
     )
     assert response.status_code == 403
+
+
+def test_opa_tls_failure_has_no_plaintext_retry(monkeypatch):
+    client, token = setup(monkeypatch)
+    attempted_urls = []
+
+    class FailingTlsClient(FakeAsyncClient):
+        async def post(self, url, **_kwargs):
+            attempted_urls.append(url)
+            raise httpx.ConnectError("TLS verification failed")
+
+    monkeypatch.setattr("nbsr.control_plane.httpx.AsyncClient", FailingTlsClient)
+    response = client.post(
+        "/v1/routes/resolve",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"service": "payments.internal", "method": "GET", "path": "/api/payment-status"},
+    )
+
+    assert response.status_code == 503
+    assert attempted_urls == ["https://opa:8181/v1/data/nbsr/route/decision"]
 
 
 def test_isp_route_does_not_require_authorization_header(monkeypatch):

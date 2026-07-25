@@ -10,10 +10,10 @@
         443
       ],
       "authorized_endpoints": [
-        "172.30.0.10"
+        "172.31.0.10"
       ],
       "allowed_cidrs": [
-        "172.30.0.10/32"
+        "172.31.0.10/32"
       ],
       "expected_http_host": "facebook.test",
       "expected_tls_sni": "facebook.test",

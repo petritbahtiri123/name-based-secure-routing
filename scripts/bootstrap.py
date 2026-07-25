@@ -7,6 +7,7 @@ from pathlib import Path
 import jwt
 from cryptography import x509
 from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from cryptography.x509.oid import ExtendedKeyUsageOID, NameOID
 
@@ -58,7 +59,7 @@ for short in ("allowed", "denied"):
     }
     secure_write_text(tokens / f"client-{short}.jwt", jwt.encode(claims, identity, algorithm="EdDSA"))
 
-# Optional local mTLS material. It is not used by the reliable JWT path.
+# Local enterprise TLS material protects every cross-container enterprise hop.
 ca_key = Ed25519PrivateKey.generate()
 name = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, "NBSR local demo CA")])
 ca = (
@@ -91,9 +92,19 @@ ca = (
 secure_write_private(secrets / "demo-ca-private.pem", private_pem(ca_key))
 
 
-def issue_server_certificate(certificate_authority_key, certificate_authority, common_name: str):
-    key = Ed25519PrivateKey.generate()
+def issue_certificate(
+    certificate_authority_key,
+    certificate_authority,
+    common_name: str,
+    extended_key_usage,
+    *,
+    include_localhost: bool = False,
+):
+    key = ec.generate_private_key(ec.SECP256R1())
     subject = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, common_name)])
+    names = [x509.DNSName(common_name)]
+    if include_localhost:
+        names.extend((x509.DNSName("localhost"), x509.IPAddress(ip_address("127.0.0.1"))))
     cert = (
         x509.CertificateBuilder()
         .subject_name(subject)
@@ -102,11 +113,9 @@ def issue_server_certificate(certificate_authority_key, certificate_authority, c
         .serial_number(x509.random_serial_number())
         .not_valid_before(now - timedelta(minutes=1))
         .not_valid_after(now + timedelta(days=7))
-        .add_extension(
-            x509.SubjectAlternativeName([x509.DNSName(common_name), x509.DNSName("localhost"), x509.IPAddress(ip_address("127.0.0.1"))]),
-            critical=False,
-        )
-        .add_extension(x509.ExtendedKeyUsage([ExtendedKeyUsageOID.SERVER_AUTH]), critical=True)
+        .add_extension(x509.BasicConstraints(ca=False, path_length=None), critical=True)
+        .add_extension(x509.SubjectAlternativeName(names), critical=False)
+        .add_extension(x509.ExtendedKeyUsage([extended_key_usage]), critical=True)
         .add_extension(
             x509.KeyUsage(
                 digital_signature=True,
@@ -131,13 +140,38 @@ def issue_server_certificate(certificate_authority_key, certificate_authority, c
     return key, cert
 
 
-for service_name, file_prefix in (("control-plane", "control-plane"), ("gateway", "gateway")):
-    server_key, server_cert = issue_server_certificate(ca_key, ca, service_name)
+for service_name, file_prefix, include_localhost in (
+    ("control-plane", "control-plane", True),
+    ("gateway", "gateway", True),
+    ("opa", "opa", False),
+    ("ticket-verifier", "ticket-verifier", False),
+    ("payments-service", "payments-service", False),
+):
+    server_key, server_cert = issue_certificate(
+        ca_key,
+        ca,
+        service_name,
+        ExtendedKeyUsageOID.SERVER_AUTH,
+        include_localhost=include_localhost,
+    )
     secure_write_private(secrets / f"enterprise-{file_prefix}-key.pem", private_pem(server_key))
     (secrets / f"enterprise-{file_prefix}-cert.pem").write_bytes(server_cert.public_bytes(serialization.Encoding.PEM))
 
+for client_name, file_prefix in (
+    ("control-plane-client", "control-plane-client"),
+    ("gateway-client", "gateway-client"),
+):
+    client_key, client_cert = issue_certificate(
+        ca_key,
+        ca,
+        client_name,
+        ExtendedKeyUsageOID.CLIENT_AUTH,
+    )
+    secure_write_private(secrets / f"enterprise-{file_prefix}-key.pem", private_pem(client_key))
+    (secrets / f"enterprise-{file_prefix}-cert.pem").write_bytes(client_cert.public_bytes(serialization.Encoding.PEM))
+
 # The ISP name-control and relay share a demo-only CA that is separate from the
-# optional enterprise CA and from every JWT/signing trust domain.
+# enterprise service CA and from every JWT/signing trust domain.
 isp_ca_key = Ed25519PrivateKey.generate()
 isp_ca_name = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, "NBSR ISP demo CA")])
 isp_ca = (
@@ -171,7 +205,13 @@ isp_ca = (
 (secrets / "isp-ca.pem").write_bytes(isp_ca.public_bytes(serialization.Encoding.PEM))
 secure_write_private(secrets / "isp-ca-private.pem", private_pem(isp_ca_key))
 for service_name, file_prefix in (("name-control", "control"), ("name-relay", "relay"), ("facebook.test", "origin")):
-    server_key, server_cert = issue_server_certificate(isp_ca_key, isp_ca, service_name)
+    server_key, server_cert = issue_certificate(
+        isp_ca_key,
+        isp_ca,
+        service_name,
+        ExtendedKeyUsageOID.SERVER_AUTH,
+        include_localhost=True,
+    )
     secure_write_private(secrets / f"isp-{file_prefix}-key.pem", private_pem(server_key))
     (secrets / f"isp-{file_prefix}-cert.pem").write_bytes(server_cert.public_bytes(serialization.Encoding.PEM))
 
