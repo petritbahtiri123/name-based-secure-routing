@@ -3,10 +3,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "deploy" / "kind" / "nbsr.yaml"
-PINNED_NODE_IMAGE = (
-    "kindest/node:v1.35.0@sha256:"
-    "452d707d4862f52530247495d180205e029056831160e22870e37e3f6c1ac31f"
-)
+CLUSTER = ROOT / "deploy" / "kind" / "cluster.yaml"
+PINNED_NODE_IMAGE = "kindest/node:v1.35.0@sha256:452d707d4862f52530247495d180205e029056831160e22870e37e3f6c1ac31f"
+CALICO_VERSION = "v3.32.1"
+CALICO_SHA256 = "a1df919d9721cf667accdc3e72848911b0cb25cfab7d2478ad0c996302c95744"
 
 
 def _document(name: str) -> str:
@@ -21,6 +21,13 @@ def test_kind_manifest_has_no_namespace_wide_egress_escape_hatch():
 
     assert "allow-required-flows" not in manifest
     assert "namespaceSelector: {}" not in manifest
+
+
+def test_kind_cluster_disables_kindnet_for_an_enforcing_cni():
+    cluster = CLUSTER.read_text(encoding="utf-8")
+
+    assert "disableDefaultCNI: true" in cluster
+    assert 'podSubnet: "192.168.0.0/16"' in cluster
 
 
 def test_kind_manifest_allows_only_named_workload_flows():
@@ -68,8 +75,19 @@ def test_kind_bootstrap_pins_node_image_and_runs_network_policy_probe():
     for script_name in ("kind-up.ps1", "kind-up.sh"):
         script = (ROOT / "scripts" / script_name).read_text(encoding="utf-8")
         assert PINNED_NODE_IMAGE in script
+        assert CALICO_VERSION in script
+        assert CALICO_SHA256 in script.lower()
+        assert "calico-node" in script
         assert "--image" in script
         assert "verify-kind-security" in script
+
+
+def test_dns_egress_selects_only_cluster_dns_workload():
+    dns_policy = _document("dns-egress")
+
+    assert "kubernetes.io/metadata.name: kube-system" in dns_policy
+    assert "k8s-app: kube-dns" in dns_policy
+    assert "port: 53" in dns_policy
 
 
 def test_kind_security_probe_covers_allowed_and_denied_paths():
@@ -77,12 +95,24 @@ def test_kind_security_probe_covers_allowed_and_denied_paths():
     shell = (ROOT / "scripts" / "verify-kind-security.sh").read_text(encoding="utf-8")
 
     for script in (powershell, shell):
+        assert "calico-node" in script
         assert "control-plane" in script
         assert "opa" in script
         assert "8181" in script
         assert "payments-service" in script
         assert "7000" in script
+        assert "ticket-verifier" in script
+        assert "9000" in script
         assert "name-relay" in script
         assert "test" in script
+        assert "80" in script
         assert "443" in script
+        assert "169.254.169.254" in script
+        assert "169.254.1.1" in script
+        assert "nbsr-policy-probe" in script
+        assert "nbsr-cross-namespace-probe" in script
+        assert "unrelated" in script
+        assert "PodIP" in script or "pod_ip" in script
+        assert "ServiceIP" in script or "service_ip" in script
+        assert "finally" in script or "trap" in script
         assert "restartCount" in script

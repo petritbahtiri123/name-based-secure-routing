@@ -34,8 +34,24 @@ $KindNodeImage = if ($env:NBSR_KIND_NODE_IMAGE) {
 } else {
     "kindest/node:v1.35.0@sha256:452d707d4862f52530247495d180205e029056831160e22870e37e3f6c1ac31f"
 }
+$CalicoVersion = "v3.32.1"
+$CalicoSha256 = "a1df919d9721cf667accdc3e72848911b0cb25cfab7d2478ad0c996302c95744"
+$CalicoUri = "https://raw.githubusercontent.com/projectcalico/calico/$CalicoVersion/manifests/calico.yaml"
+$CalicoManifest = Join-Path ([System.IO.Path]::GetTempPath()) "nbsr-calico-$CalicoVersion-$PID.yaml"
 & (Join-Path $PSScriptRoot "bootstrap.ps1")
 kind create cluster --name nbsr --config (Join-Path $Root "deploy/kind/cluster.yaml") --image $KindNodeImage
+try {
+    Invoke-WebRequest -UseBasicParsing -Uri $CalicoUri -OutFile $CalicoManifest
+    $ActualCalicoSha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $CalicoManifest).Hash.ToLowerInvariant()
+    if ($ActualCalicoSha256 -ne $CalicoSha256) {
+        throw "Calico manifest checksum mismatch."
+    }
+    kubectl apply -f $CalicoManifest
+    kubectl -n kube-system rollout status daemonset/calico-node --timeout=240s
+    kubectl -n kube-system rollout status deployment/calico-kube-controllers --timeout=240s
+} finally {
+    Remove-Item -LiteralPath $CalicoManifest -Force -ErrorAction SilentlyContinue
+}
 docker build -t nbsr:local $Root
 kind load docker-image nbsr:local --name nbsr
 kubectl create namespace nbsr --dry-run=client -o yaml | kubectl apply -f -
