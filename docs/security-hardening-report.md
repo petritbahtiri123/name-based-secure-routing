@@ -23,7 +23,7 @@ implemented.
 | 3. Host ports on all interfaces | Compose ports and Kind extra mappings defaulted to all host interfaces | Docker/Kind host publication | **Fixed.** Necessary developer ports explicitly bind `127.0.0.1`; backends publish none. | Compose `port` showed loopback for 8000/8080/8443/8444; Kind socket inspection showed loopback for 8080/8443/8444 |
 | 4. Sensitive internal plaintext hops | Control plane to OPA, Envoy ext_authz, and gateway to payments used HTTP | Service TLS contexts, OPA/Uvicorn servers, Envoy upstream TLS | **Fixed.** Internal enterprise hops use TLS 1.3 mTLS with separate service identities; gateway default is HTTPS; failures never retry plaintext. | Missing/untrusted CA, SAN, wrong-service, expiry, client-cert, plaintext, negotiation, no-retry, and valid mTLS tests; fresh live Compose flow |
 | 5. Incomplete Kubernetes policy/probes | DNS allowed any kube-system pod; Kind policy enforcement was inferred; required denials absent | Calico CNI and namespace/workload NetworkPolicy | **Fixed for the reference lab.** Kind disables default CNI, installs checksum-verified Calico v3.32.1, selects only kube-dns pods, and runs exhaustive probes. | Fresh cluster: Calico 1/1, all 18 observed pods ready, zero restarts; Service IP, Pod IP, unrelated pod, cross-namespace, metadata, and link-local denials; required flows allowed |
-| 6. No deterministic release packaging | Manual ZIP had no reproducible source/inventory/validation workflow | `package_release.py` plus PowerShell/Bash wrappers | **Fixed.** Explicit ref resolves to commit; tracked dirt blocks; Git archive source, prohibited path/content scan, deterministic inventory/ZIP, safe extraction, inventory comparison, extracted Python 3.13 pytest/Ruff, and SHA-256 sidecar are mandatory. | Unit tests prove path/content rejection and byte-stable ZIP; final clean-commit package run is a handoff gate |
+| 6. No deterministic release packaging | Manual ZIP had no reproducible source/inventory/validation workflow | `package_release.py` plus PowerShell/Bash wrappers | **Fixed.** Explicit ref resolves to commit; tracked dirt blocks; Git archive source, prohibited path/content scan, deterministic inventory/ZIP, safe extraction, inventory comparison, extracted Python 3.13 pytest/Ruff, and SHA-256 sidecar are mandatory. | PowerShell and Bash/WSL clean-commit runs produced the same byte-identical ZIP; extracted tests/Ruff and an independent 121-entry prohibited-content scan passed |
 | 7. Python 3.14 remained allowed | `requires-python` had no upper bound and container used Python 3.12 | Package metadata, constraints, pinned container runtime | **Fixed.** Supported range is `>=3.12,<3.14`; primary image is digest-pinned Python 3.13.14; exact runtime/dev constraints are repository-native; project deprecations fail tests. | Python 3.12.13: 248 passed, 1 skipped; Python 3.13.14: 248 passed, 1 skipped; primary Docker build and Ruff check/format passed |
 
 ## Route registry security details
@@ -93,17 +93,19 @@ demo passed all eight allow/deny scenarios after internal mTLS was enabled.
 | Default-deny route focused set | 172 passed; Ruff and Compose config passed |
 | TLS/deployment focused set | 57 passed; 6 Python 3.14 third-party warnings; Ruff passed |
 | Kind static focused set | 12 passed |
-| Python 3.12.13 full suite | 248 passed, 1 skipped |
-| Python 3.13.14 full suite | 248 passed, 1 skipped |
+| Python 3.12.13 full suite | 255 passed, 1 skipped |
+| Python 3.13.14 extracted-ZIP suite | 255 passed, 1 skipped from both wrappers |
 | Ruff | All checks passed; all Python files formatted |
 | OPA/Rego | 5 of 5 policy tests passed |
 | Enterprise Compose | 8 of 8 scenarios passed |
 | ISP Compose | HTTP/80 and HTTPS/443 passed; concealment and peer checks passed |
 | Kind NetworkPolicy | All required allow/deny probes passed; zero restarts |
+| Release packaging | PowerShell and Bash/WSL produced the same SHA-256; 121 entries and zero prohibited/secret-like content |
 
-The final full suite, OPA test, clean-commit package, extracted ZIP tests, and
-SHA-256 check are repeated after the documentation commit. Exact final artifact
-paths and digests belong in the branch handoff because they depend on that final
+Final host pytest, OPA, Python 3.12, both extracted-ZIP Python 3.13 runs,
+Ruff, clean-commit packaging, independent archive scanning, and SHA-256
+verification passed. Exact artifact paths and digests are emitted in the
+generated release summary and SHA sidecar because they depend on the final
 commit.
 
 ## Residual risks and production blockers

@@ -117,7 +117,7 @@ configuration, or lack of a host publication.
 | Fail-closed behavior | Confirmed functional | Registry, TLS, OPA, verifier, state bounds | Focused negative suites | Unknown/stale/ambiguous/TLS/policy/cache failures deny | Partial failure does not become allow | Distributed outage/partition behavior | Mandatory security | Core and enterprise |
 | Bounded admission/rate-limit state | Confirmed functional | Replay cache, allocator, admission registry | Relay/synthetic/name-service capacity tests | Hard bounds and expiry cleanup pass | Single-process memory growth bounded | Distributed tenant quotas/DDoS service | Phase 4 abuse control | Core protocol |
 | Safe ephemeral key/certificate handling | Partially functional | Bootstrap, secure files, ignore/build/package rules | Secure-file tests; build context and package scans | Generated material is atomic/protected/ignored and excluded | Source/archive leakage reduced | Developer host compromise, HSM/KMS, rotation | Trust operations | Deployment support |
-| Deterministic release archive | Implemented but not live-verified | Packaging engine and wrappers | Unit packaging tests; final clean-commit command pending | Dirty-source rejection and byte-stable ZIP unit controls pass | Design prevents uncommitted/sensitive archive input | Final commit-dependent ZIP/hash until handoff gate | Signed artifacts direction | Deployment support |
+| Deterministic release archive | Confirmed functional | Packaging engine and PowerShell/Bash wrappers | Both wrappers on final clean `HEAD`; independent archive scanner | Both wrappers produced the same byte-identical ZIP; extracted Python 3.13 pytest/Ruff, inventory, SHA sidecar, and prohibited-content scan passed | Clean Git source, fail-closed content policy, safe extraction, and cross-platform deterministic bytes | Artifact signing, transparency log, and reproducible external toolchain | Signed artifacts direction | Deployment support |
 
 ## Vision v2 conformance summary
 
@@ -143,8 +143,8 @@ configuration, or lack of a host publication.
 | Route registry/security focused suite | 172 passed |
 | Service TLS/deployment focused suite | 57 passed |
 | Kind static focused suite | 12 passed |
-| Full Python 3.12.13 suite | 248 passed, 1 skipped |
-| Full Python 3.13.14 suite | 248 passed, 1 skipped |
+| Full Python 3.12.13 suite | 255 passed, 1 skipped |
+| Full Python 3.13.14 extracted-ZIP suite | 255 passed, 1 skipped from both wrappers |
 | Ruff check and format | Passed |
 | OPA/Rego policy tests | 5 of 5 passed |
 | Enterprise Compose scenarios | 8/8 passed |
@@ -152,10 +152,12 @@ configuration, or lack of a host publication.
 | Compose relay-to-payments | DNS failed; direct IP/7000 timed out |
 | Kind Calico enforcement | All required positive/negative probes passed; zero restarts |
 | Host binding inspection | Tested NBSR host listeners were loopback-only |
+| Clean-commit packaging | PowerShell and Bash/WSL wrappers produced the same SHA-256; 121 entries and zero prohibited/secret-like content |
 
-The final post-documentation pytest, OPA, extracted-ZIP pytest/Ruff, inventory,
-and SHA-256 checks are intentionally rerun on the final clean commit. The
-commit-dependent artifact path and hash are reported in the branch handoff.
+Final host pytest, OPA, Python 3.12, both extracted-ZIP Python 3.13 runs,
+Ruff, inventory comparison, independent prohibited-content scan, and SHA-256
+verification passed. The commit-dependent artifact path and hash are reported
+in the generated release summary and SHA sidecar.
 
 ## Remaining attack paths
 
