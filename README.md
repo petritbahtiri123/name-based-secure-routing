@@ -1,197 +1,194 @@
 # Name-Based Secure Routing (NBSR)
 
-NBSR turns a logical service name into an authenticated, policy-authorized,
-temporary route. It is a local hackathon prototype, not a production system.
+> **North Star:** NBSR turns a name into a secure route, not an IP address.
 
-DNS answers “where?” but not “may this workload access this service, using this
-method and path, right now?” NBSR validates workload identity, asks OPA, issues
-a 60-second Ed25519 ticket, and has Envoy enforce that ticket before reaching a
-backend that clients cannot address directly.
+This repository is a hardened local protocol vertical slice and enterprise
+authorization proof of concept. It is not production-ready and does not claim
+full [NBSR Protocol Vision v2](docs/architecture/NBSR_Protocol_Vision_v2.pdf)
+conformance.
+
+## What is functional
+
+### ISP-profile registered-name routing
+
+An application requests the explicitly registered name `facebook.test`.
+Name control returns a synthetic local address and a short-lived Ed25519-signed
+route capability. The capability is bound to the canonical name, stable route
+ID, gateway, allowed port, exact resolved endpoint set, policy
+version/fingerprint, client session, and expiry.
+
+The TLS 1.3 relay independently enforces its local default-deny registry,
+re-resolves immediately before connection, and rejects changed, ambiguous, or
+out-of-policy endpoints. The client never receives the durable origin address.
+HTTPS remains opaque through the relay, so the client validates the origin
+certificate and preserves `facebook.test` as SNI and Host.
+
+Port 80 is a compatibility demonstration inside the authenticated
+client-to-relay TLS channel. It sends no NBSR credential to the origin and is
+not classified as native end-to-end authenticated NBSR.
+
+### Optional enterprise authorization
+
+The separate enterprise path validates an Ed25519 workload JWT, asks OPA over
+TLS 1.3 mTLS, issues a short-lived method/path/service-scoped ticket, and has
+Envoy enforce that ticket through an mTLS external-authorizer before a fixed
+mTLS backend route.
 
 ```mermaid
 flowchart LR
-  C["Workload client"] -->|"JWT + service name"| CP["Control plane"]
-  CP -->|"decision query"| OPA["OPA"]
-  CP -->|"Ed25519 route ticket"| C
-  C -->|"ticket + request"| E["Envoy gateway"]
-  E -->|"ext_authz"| V["Ticket verifier"]
-  E -->|"fixed route"| P["Protected payments"]
+    C["Workload"] -->|"JWT + logical service"| CP["Control plane"]
+    CP -->|"mTLS decision"| OPA["OPA default deny"]
+    CP -->|"Ed25519 route ticket"| C
+    C -->|"HTTPS request + ticket"| E["Envoy"]
+    E -->|"mTLS ext_authz"| V["Verifier"]
+    E -->|"mTLS fixed upstream"| P["Payments"]
 ```
 
-```mermaid
-sequenceDiagram
-  participant C as Allowed client
-  participant CP as Control plane
-  participant O as OPA
-  participant E as Envoy
-  participant V as Verifier
-  participant P as Payments
-  C->>CP: Resolve payments.internal + workload JWT
-  CP->>O: Identity, service, method, path
-  O-->>CP: Explicit allow + scope
-  CP-->>C: 60-second Ed25519 ticket
-  C->>E: GET + NBSR ticket
-  E->>V: Authorize actual method/path
-  V-->>E: Allow
-  E->>P: Fixed upstream request
-  P-->>C: Demo response
-```
+Enterprise tickets remain short-lived bearer credentials and can be replayed
+within their valid lifetime. Channel binding or a distributed one-time replay
+store is not implemented.
 
-```mermaid
-sequenceDiagram
-  participant C as Denied client
-  participant CP as Control plane
-  participant O as OPA
-  C->>CP: Resolve payments.internal
-  CP->>O: client-denied
-  O-->>CP: Default deny
-  CP-->>C: 403 without ticket
-```
+## Security boundaries
 
-```mermaid
-flowchart TB
-  subgraph Client["Client trust boundary"]
-    C["Demo clients"]
-  end
-  subgraph Control["Control boundary"]
-    CP["Control plane (identity public key, ticket private key)"]
-    O["OPA"]
-  end
-  subgraph Protected["Protected boundary"]
-    E["Envoy"]
-    V["Verifier (ticket public key)"]
-    P["Payments (no host port)"]
-  end
-  C --> CP
-  C --> E
-  CP --> O
-  E --> V
-  E --> P
-```
+- Arbitrary public hostnames, public IPs, destination overrides, private/special
+  addresses, Unicode ambiguity, stale policy, and DNS rebinding fail closed.
+- Public global-unicast status is never route authorization.
+- The ISP relay is not connected to the enterprise protected network.
+- Payments, verifier, OPA, and the demo origin have no host publications.
+- Developer ingress ports bind explicitly to `127.0.0.1`.
+- Every sensitive cross-container enterprise hop uses verified TLS 1.3 mTLS.
+- Generated secrets, tokens, and certificates are ignored and excluded from
+  Docker and release archives.
 
-## Quick start
+See [architecture](docs/architecture.md),
+[security model](docs/security-model.md), [threat model](docs/threat-model.md),
+and the [hardening report](docs/security-hardening-report.md).
 
-Prerequisites: Docker Desktop with Compose v2. On Windows:
+## Requirements
+
+- Docker Desktop with the Linux engine and Compose v2
+- Python `>=3.12,<3.14` for local development
+- OPA CLI for direct Rego tests
+- Kind v0.32+ and kubectl for the Kubernetes reference deployment
+
+The primary container runtime is digest-pinned Python 3.13.14. Exact runtime and
+development constraints are in `constraints/`.
+
+## Docker Compose demo
+
+Windows PowerShell:
 
 ```powershell
-./scripts/bootstrap.ps1
-docker compose up -d --build
-./scripts/test.ps1
 ./scripts/demo.ps1
 ```
 
-On Linux/macOS:
+Linux/macOS:
 
 ```bash
-chmod +x scripts/*.sh
-./scripts/bootstrap.sh
-docker compose up -d --build
-./scripts/test.sh
 ./scripts/demo.sh
 ```
 
-Ports 8000 (TLS enterprise control), 8080 (TLS Envoy gateway), 8443 (the TLS
-NBSR name relay), and 8444 (TLS ISP name control) are published. The payments
-service and deterministic name origin are on an internal protected network.
-The enterprise demo trusts the generated local CA, prints a scenario table,
-and exits nonzero on any mandatory mismatch. Plain HTTP does not carry
-credentials or route tickets on either client-facing enterprise endpoint.
+The wrapper regenerates ignored local credentials, performs a fresh Compose
+build/deployment, and runs eight mandatory enterprise allow/deny scenarios.
+Expected denials cover unauthorized identity, unknown service, missing ticket,
+tampering, method/path escalation, direct backend access, and expiry.
 
-## Deterministic name-routing demo
-
-After the Quick start stack is running, exercise the ISP-profile name-routing
-vertical slice on Windows:
+With the stack running, execute the registered-name demonstration:
 
 ```powershell
 ./scripts/name-route-demo.ps1
 ```
 
-Or on Linux/macOS:
+or:
 
 ```bash
 ./scripts/name-route-demo.sh
 ```
 
-The client trusts only the separately generated ISP demo CA. It requests
-`facebook.test` over the server-authenticated TLS name-control endpoint,
-receives only a loopback synthetic address and a signed 60-second binding, and
-sends real HTTP on port 80 and end-to-end TLS on port 443 through a separately
-certified TLS relay. The HTTPS application validates the `facebook.test`
-certificate and sends that original hostname as SNI; NBSR never terminates the
-application TLS session. Only the gateway resolves `facebook.test`; the
-deterministic origin has no host port and is reachable only through the
-protected network. The demo prints both checked responses plus assertions that
-the origin address never appeared in client-visible state and that the origin
-observed the relay container's network identity.
+Published developer endpoints are loopback-only:
 
-For Kind, install Docker, Kind 0.24 or newer, and kubectl, then run
-`./scripts/kind-up.ps1` or `./scripts/kind-up.sh`. The scripts use a
-digest-pinned Kind node image and finish by proving required flows are allowed,
-forbidden cross-workload flows are denied, and container restart counts remain
-zero. Inspect with `kubectl -n nbsr get all,networkpolicy`; remove with the
-matching `kind-down` script. The Kind path is a reference deployment, not a
-wire-protocol dependency.
+| Port | Endpoint |
+|---|---|
+| 8000 | Enterprise TLS control plane |
+| 8080 | Enterprise TLS Envoy gateway |
+| 8443 | ISP TLS name relay |
+| 8444 | ISP TLS name control |
 
-## Tests and troubleshooting
+Clean up:
 
-Run `python -m pip install -e ".[dev]"` and `python -m pytest -q` for local unit
-tests. Run `opa test policy -v` for policy tests. If startup fails, regenerate
-local keys with `scripts/bootstrap`, inspect `docker compose ps`, and then
-`docker compose logs <service>`. Tokens expire after eight hours; rerun
-bootstrap before a new demo. Do not commit `secrets/` or `tokens/`.
+```powershell
+docker compose down -v --remove-orphans
+```
 
-## Security model and limitations
+## Kind reference deployment
 
-The identity JWT and route ticket use separate Ed25519 keys and explicit EdDSA
-allowlists. Issuer, audience, time, SPIFFE-like subject, service, method, path,
-and required claims are checked. OPA and the verifier fail closed. Envoy has a
-fixed upstream; the public API never returns backend addressing.
+The Kind workflow disables Kind's default CNI and installs Calico v3.32.1 from
+a pinned URL only after verifying its SHA-256. It then deploys namespace-wide
+default-deny policy and runs positive/negative Service IP, Pod IP,
+cross-namespace, metadata, and link-local probes.
 
-Enterprise route tickets remain bearer credentials and that path has no replay
-store or channel binding. This prototype also has no HA, key rotation protocol,
-full SPIFFE/SPIRE, or production PKI. The bootstrap CAs are local
-demonstration material. Production evolution should add SPIFFE/SPIRE or cloud
-workload identity, managed rotation, durable replay and revocation controls,
-optional enterprise mTLS, audit storage, distributed rate limits, and HA
-policy/enforcement services.
+```powershell
+./scripts/kind-up.ps1
+```
 
-The ISP-profile relay uses an Ed25519-bound ephemeral client session and a
-replay cache; it does not require the enterprise workload JWT, OPA, or client
-identity. It forwards HTTP/HTTPS TCP bytes without TLS interception or content
-inspection. NBSR transport TLS wraps those opaque bytes and is independent of
-the application's end-to-end TLS connection. The client refreshes its binding
-before each admission and tries authenticated gateway endpoints in order. The
-relay applies a complete-handshake deadline and returns an explicit admission
-result before forwarding application data. Synthetic allocation is serialized
-and renewed through binding expiry. Name-route admission is bounded globally
-and per client; allocation and replay structures have hard capacity limits.
-Immediately before every upstream connection, the relay rejects loopback,
-private, link-local, multicast, reserved, unspecified, and otherwise
-non-global destinations unless the operator configured an exact trusted-origin
-rule. Route capabilities authorize only their matching TCP port. The opt-in
-IPv6 adapter journals only the
-addresses it added, refuses mutation without a journal, rolls back additions
-whose journal cannot be persisted, and retries crash cleanup without deleting
-pre-existing addresses. The loopback Windows adapter proves the protocol boundary but is
-not a signed Windows Filtering Platform driver. HTTP/3/QUIC and arbitrary UDP
-are excluded from this first release. Mapping and replay state remain
-process-local, so multi-instance deployment needs shared state or sticky
-routing. The gateway operator necessarily sees requested names and the
-destinations it resolves, so this prototype does not claim anonymity from that
-operator.
+or:
 
-See the [security hardening report](docs/security-hardening-report.md), the
-[updated threat model](docs/threat-model.md), and the
-[Vision v2 conformance matrix](docs/vision-v2-conformance.md). These documents
-separate verified prototype behavior from production and native-protocol work
-that is not implemented.
+```bash
+./scripts/kind-up.sh
+```
 
-## Build Week notes
+Remove all local cluster resources:
 
-GPT-5.6 and Codex accelerated implementation, test generation, cross-platform
-scripts, and security review. Human-directed decisions remain the trust model,
-OPA default-deny policy, Ed25519 key separation, Envoy enforcement boundary,
-fixed upstream mapping, and the decision not to claim production readiness.
-See [submission draft](docs/build-week-submission.md) and
-[three-minute demo](docs/demo-script.md). Before submission, run `/feedback`
-and replace the visible session-ID placeholder with the real value.
+```powershell
+./scripts/kind-down.ps1
+```
+
+## Tests
+
+Install the exact development set:
+
+```bash
+python -m pip install --constraint constraints/dev.txt -e ".[dev]"
+```
+
+Run:
+
+```bash
+python -m pytest -q
+python -m ruff check .
+python -m ruff format --check .
+opa test policy -v
+docker compose config --quiet
+```
+
+Python 3.12.13 and 3.13.14 are tested. Python 3.14 is intentionally outside the
+declared range.
+
+## Deterministic release archive
+
+Both wrappers require an explicit Git ref and reject tracked dirty source:
+
+```powershell
+./scripts/package-release.ps1 HEAD
+```
+
+```bash
+./scripts/package-release.sh HEAD
+```
+
+Packaging uses a Git-derived source set, rejects prohibited/secret-like
+content, writes a deterministic inventory and ZIP under ignored `dist/`,
+re-extracts and compares the archive, runs pytest plus Ruff from the extracted
+copy in digest-pinned Python 3.13.14, and writes a SHA-256 sidecar.
+
+## Explicit limitations
+
+Not implemented: native signed name ownership/delegation, a normative
+multiplexed tunnel profile, active lease renewal, key rotation, revocation
+distribution, migration/resumption, regional HA, real ISP federation,
+subscriber billing, QUIC/HTTP3, arbitrary UDP, mobile wake-up integration,
+production PKI/HSM, durable distributed replay state, a signed Windows
+Filtering Platform driver, or independent interoperable implementations.
+
+The current Windows adapter behavior is unit/in-process tested. It is not a
+validated full-device Windows networking deployment.

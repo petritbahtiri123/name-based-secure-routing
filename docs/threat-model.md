@@ -1,24 +1,83 @@
-# Threat model
+# NBSR threat model
 
-| Threat | Asset | Prototype mitigation | Remaining limitation | Production recommendation |
+## Scope
+
+Assets in scope are registered-name integrity, origin concealment from clients,
+route authorization, workload identity, signing/TLS keys, protected
+application payloads, policy decisions, synthetic adapter state, and deployment
+isolation. The current adversaries are a malicious client, compromised relay or
+workload, network attacker, DNS rebinding source, forged service, and
+misconfigured deployment.
+
+The gateway/operator is trusted to route and enforce policy. It necessarily sees
+requested names and resolved destinations. Node, Docker host, cluster
+administrator, signing-key holder, and certificate-authority compromise are
+outside the prototype's containment boundary.
+
+## Threats and controls
+
+| Threat | Concrete path | Enforcement boundary | Implemented control | Remaining limitation |
 |---|---|---|---|---|
-| Stolen identity token | Workload identity | Signature, audience, issuer, expiry | Usable until expiry | Hardware/workload-bound identity and revocation |
-| Stolen/replayed enterprise ticket | Route grant | 60s TTL, method/path/service scope, `jti` | Enterprise ticket remains bearer material | One-time nonce/replay store or channel binding |
-| Replayed ISP admission | Name route | Session-key proof, fresh nonce, bounded replay cache | Cache is process-local | Durable regional replay state or sticky routing |
-| Ticket tampering | Policy grant | Ed25519 verification | Endpoint compromise bypasses checks | HSM keys and attested enforcement |
-| Plaintext credential interception | Identity and route grants | Server-authenticated TLS on all client-facing control, gateway, and relay endpoints | Demo CA and server authentication only | Managed PKI; enterprise mTLS where policy requires it |
-| Client header spoofing | Enterprise authorization | Verifier uses ext-authz request method/path; Envoy overrides the fixed service header inside the auth request | Envoy compromise remains authoritative | Signed inter-service context or mutually authenticated mesh |
-| Malicious client | Backend/API | Default deny, scoped tickets, name-route rate limits, bounded state | Enterprise admission and limits are not distributed | Edge limits, tenant quotas, and abuse service |
-| Compromised gateway | Route integrity | Gateway lacks signing key | Can bypass forwarding rules | Hardened runtime, attestation, mesh policy |
-| Compromised control plane | Signing key | Isolated private key | Can mint tickets | HSM/KMS, rotation, HA, audit |
-| Compromised OPA/policy error | Authorization | Explicit versioned default deny | Allowed decision can be forged | Signed policy bundles and review gates |
-| Backend enumeration/bypass | Backend secrecy | No address in API or host port; default-deny and per-workload NetworkPolicy | Node or cluster administrator can bypass pod policy | Separate trust zones, firewalls, and service authentication |
-| Confused deputy | Route scope | Bind subject/service/method/path/audience | Bearer forwarding risks remain | Delegation chains and channel binding |
-| Service-name spoofing | Logical namespace | Pydantic syntax and policy allowlist | No ownership registry | Signed service registry |
-| DNS rebinding or SSRF | Relay destination | Revalidate every resolved literal at connect time; global-unicast default; exact trusted-origin exceptions | Operator-approved private origins remain trusted | Signed registry and independently managed egress policy |
-| Capability escalation | Relay scope | `http` authorizes only TCP/80 and `https` only TCP/443 | No richer protocol negotiation | Versioned capability registry and conformance tests |
-| Key leakage | Identity/routes | Separate keys; ignored, atomic, owner-restricted local files | File-based demo keys remain on the host | HSM/KMS and automated rotation |
-| Log leakage | Credentials | Stable errors; no deliberate token logs | Platform access logs need review | Central redaction controls |
-| Denial of service | Availability | Timeouts, bounded input/state, global and per-client name-route limits | Single-process counters; no HA coordination | Regional limits, autoscaling, circuit breakers |
-| Kubernetes lateral movement | Workload isolation | Default deny plus named peer/port policies; live positive/negative Kind probe | Kind is a reference lab, not a production cluster | Enforced production CNI, admission policy, and continuous probes |
-| Policy misconfiguration | Authorization | OPA tests and default deny | Human review required | CI policy tests and approvals |
+| Unauthorized public proxy | Caller asks for arbitrary public hostname/IP on 80/443 | Name control and relay registry | Only canonical enabled registry entries are admitted; public global-unicast is not authorization | Registry administration and signed ownership are local/manual |
+| Private SSRF and metadata | Registered or rebound name resolves to special-use address | Name control issuance and relay connect-time check | Exact endpoint constraints plus special-use IPv4/IPv6 rejection | A deliberately registered private demo origin is trusted by policy |
+| DNS rebinding/TOCTOU | Resolution changes after capability issuance | Relay immediately before socket open | Fresh resolution must exactly match signed set and current local policy | Conventional DNS still resolves the configured demo origin |
+| Capability replay across routes | Ticket for route A used for route B/port | Relay capability and proof verifier | Name, route ID, gateway, port, policy fingerprint, endpoint set, session, audience, issuer, expiry bound together | Replay state is process-local |
+| ISP admission replay | Captured route plus nonce reused | Bounded relay replay cache | Ephemeral Ed25519 proof and one-time nonce consumption | No regional durable replay coordination |
+| Enterprise ticket replay | Valid bearer ticket reused before expiry | Envoy/verifier | Short lifetime and request scope | Not prevented; channel binding or one-time distributed replay state required |
+| Header/method spoofing | Client forges service or authorization metadata | Envoy ext_authz and verifier | Gateway overwrites fixed service context; verifier checks actual method/path and rejects missing/duplicate metadata | Compromised Envoy remains authoritative |
+| Backend bypass from relay | Compromised ISP relay connects to payments | Compose network and Calico policy | Separate ISP origin network; no enterprise protected interface; default-deny policy | Host/root or cluster-admin compromise bypasses this isolation |
+| Unrelated Kubernetes pod lateral movement | Arbitrary pod reaches verifier/payments | Calico NetworkPolicy | Named source labels/ports only; live Service IP and Pod IP denial probes | Label/admission governance is not production-hardened |
+| Broad DNS egress | Workload uses arbitrary kube-system pod as egress | DNS NetworkPolicy | Namespace plus `k8s-app: kube-dns` selector, TCP/UDP 53 only | DNS content/authenticity remains cluster-DNS dependent |
+| Plaintext interception | Credentials or payload cross network in clear | TLS/mTLS service boundaries | Verified client-facing TLS and internal TLS 1.3 mTLS; no downgrade | Local bootstrap CA is not managed production PKI |
+| Wrong-service certificate | Valid cert for one service used for another | TLS hostname/SAN/EKU validation | Service-specific certificates and expected server names | Rotation and revocation automation absent |
+| Missing client identity | Peer reaches internal authorization/backend TLS endpoint | OPA, verifier, payments mTLS servers | Client certificate required before an HTTP response is served | Certificate identity maps to trust, not fine-grained service authorization |
+| Origin enumeration | Client learns durable origin IP or reaches host port | API response, adapter state, deployment topology | Synthetic address only; no backend/origin host port; relay-only origin ingress | Operator, host admin, and cluster admin see internal addressing |
+| Origin impersonation | Relay redirects HTTPS to wrong service | Application TLS | Client preserves registered SNI/Host and validates origin certificate | Compatibility HTTP has no end-to-end origin authentication |
+| State exhaustion | Attacker fills replay, allocator, or admission structures | In-process capacity guards | Hard limits, expiry cleanup, and fail-closed admission | No distributed quota or DDoS service |
+| Key leakage in source/archive | Generated keys enter build or release | Ignore/build/package boundaries | Atomic protected files, ignore rules, prohibited-path and content scans | Developer host compromise remains out of scope |
+| Downgrade | TLS or native requirement replaced by plaintext/weaker path | Client TLS context and service config | TLS-required URLs, minimum/maximum TLS 1.3 internally, no plaintext retry | A normative native transport negotiation protocol is not implemented |
+| Unicode/name alias confusion | Mixed case, trailing dot, or IDNA ambiguity bypasses policy | Request model and registry canonicalizer | Exact canonical ASCII registered name required | Internationalized native NBSR naming is not specified |
+| Policy rollback/staleness | Old capability survives registry change | Relay local registry | Version and deterministic fingerprint mismatch fails closed | No distributed policy rollout consistency protocol |
+
+## Residual risk by severity
+
+### Critical
+
+No confirmed Critical vulnerability remains within the bounded local prototype
+scope. This is not a production assurance statement.
+
+### High
+
+- A compromised control-plane signing key can mint enterprise tickets, and a
+  compromised name-binding key can mint ISP route capabilities. There is no
+  HSM/KMS, rotation, or distributed revocation.
+- Host/root or Kubernetes cluster-admin compromise bypasses container and
+  NetworkPolicy boundaries.
+
+### Medium
+
+- Valid enterprise bearer tickets are replayable during their short lifetime.
+- Replay, admission, route allocation, and policy state are process-local and
+  are not HA-safe.
+- Native signed name ownership, federation, and revocation distribution are
+  absent, so the local registry is an operator trust anchor.
+- Compatibility HTTP lacks end-to-end origin authentication even though the
+  outer relay transport is authenticated and encrypted.
+- The Windows adapter is a loopback prototype; no signed WFP driver or live
+  full-device interception was validated.
+
+### Low
+
+- Gateway/operator metadata retention and privacy controls are not implemented.
+- Health and operational telemetry are minimal.
+- Local demo certificate expiry requires regeneration rather than automated
+  rotation.
+
+## Required production work
+
+Before any production claim: independent protocol review, managed PKI/HSM,
+rotation and revocation, signed name ownership/delegation, enterprise replay
+control, multiple replicas with shared bounded state, hardened admission/label
+governance, regional failure testing, privacy/audit policy, Windows OS
+integration, supply-chain attestations, and at least two interoperable native
+implementations are required.

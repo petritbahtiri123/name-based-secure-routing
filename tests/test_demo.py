@@ -1,5 +1,6 @@
 from base64 import urlsafe_b64decode
 from io import StringIO
+from pathlib import Path
 
 from nbsr import demo_client
 from scripts import demo
@@ -20,6 +21,15 @@ def test_tamper_ticket_changes_decoded_signature_bytes():
 
     assert tampered_parts[:2] == original_parts[:2]
     assert decode_segment(tampered_parts[2]) != decode_segment(original_parts[2])
+
+
+def test_demo_wrappers_use_a_ttl_that_allows_the_positive_control_before_expiry():
+    root = Path(__file__).parents[1]
+    powershell = (root / "scripts" / "demo.ps1").read_text(encoding="utf-8")
+    shell = (root / "scripts" / "demo.sh").read_text(encoding="utf-8")
+
+    assert 'NBSR_TICKET_TTL_SECONDS = "3"' in powershell
+    assert "NBSR_TICKET_TTL_SECONDS=3" in shell
 
 
 def test_demo_sends_enterprise_credentials_only_over_https(monkeypatch, tmp_path):

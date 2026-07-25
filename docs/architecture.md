@@ -1,11 +1,118 @@
-# Architecture
+# NBSR architecture
 
-The Compose topology has three networks. Clients and the two public entry
-points share `client-network`. The control plane reaches OPA through the
-internal `control-network`. Envoy, verifier, and payments share the internal
-`protected-network`; the clients do not.
+The project direction is governed by
+[NBSR Protocol Vision v2](architecture/NBSR_Protocol_Vision_v2.pdf):
+**NBSR turns a name into a secure route, not an IP address.** This repository is
+a bounded Phase 1 vertical slice plus an enterprise authorization proof of
+concept. It is not the complete native protocol and is not production-ready.
 
-Control-plane resolution never reveals a backend address. The OPA response
-defines allowed methods, path prefix, policy version, and TTL. The signed ticket
-transports this decision to the verifier. Envoy supplies the actual method,
-path, and fixed logical service as external-authorization context.
+## Implemented profiles
+
+```mermaid
+flowchart LR
+    subgraph ISP["ISP-profile vertical slice"]
+        A["Application / Windows prototype"] -->|"registered name"| NC["Name control"]
+        NC -->|"bounded signed route capability"| A
+        A -->|"TLS 1.3 + proof"| R["Name relay"]
+        R -->|"fresh resolution + registry enforcement"| O["Registered origin"]
+    end
+    subgraph Enterprise["Optional enterprise extension"]
+        W["Workload"] -->|"Ed25519 JWT + logical service"| CP["Control plane"]
+        CP -->|"mTLS decision"| OPA["OPA"]
+        CP -->|"scoped signed ticket"| W
+        W -->|"HTTPS + ticket"| E["Envoy"]
+        E -->|"mTLS ext_authz"| V["Verifier"]
+        E -->|"mTLS fixed upstream"| P["Payments"]
+    end
+```
+
+The ISP profile does not require enterprise IAM, subscriber billing, content
+inspection, or workload authorization. The enterprise profile adds identity,
+OPA, method/path scope, and Envoy enforcement without redefining the core
+name-first goal.
+
+## Default-deny name-routing boundary
+
+`config/name-routes.json` is the operator-controlled registry used by the
+prototype. A route entry contains:
+
+- canonical NBSR name and stable route ID;
+- configured origin hostname;
+- permitted TCP ports;
+- allowed endpoint CIDRs or exact address constraints;
+- expected application Host and TLS SNI;
+- enabled state; and
+- policy version plus deterministic fingerprint.
+
+The public request accepts only the registered name and transport capability.
+It rejects arbitrary destinations, IP literals, destination overrides,
+non-canonical aliases, and Unicode ambiguity. Global-unicast status is never an
+authorization rule.
+
+The name control resolves the configured origin and signs the exact admitted
+endpoint set. The relay does not trust that signature alone: it independently
+loads local policy, checks route ID/version/fingerprint, re-resolves immediately
+before connection, and requires the fresh endpoint set to match both the signed
+authorization and current registry constraints.
+
+## Docker Compose trust topology
+
+Compose uses five explicit networks:
+
+| Network | Members | Purpose |
+|---|---|---|
+| `enterprise-client-network` | clients, control plane, gateway | Developer ingress to enterprise APIs. |
+| `enterprise-control-network` | control plane, OPA | Internal mTLS policy decision path. |
+| `enterprise-protected-network` | gateway, ticket verifier, payments | Fixed mTLS authorization and backend path. |
+| `isp-client-network` | name control, name relay | ISP-profile client/control ingress. |
+| `isp-origin-network` | name relay, name origin | Relay-only origin path. |
+
+The relay has no interface on the enterprise protected network. Payments,
+ticket verifier, OPA, and the deterministic origin publish no host ports. The
+only developer publications are TLS endpoints on `127.0.0.1`: 8000, 8080,
+8443, and 8444.
+
+Each cross-container identity, authorization, route-ticket, protected metadata,
+or application payload hop uses verified TLS. Control plane to OPA, Envoy to
+verifier, and Envoy to payments require TLS 1.3 mTLS with service-specific
+certificates, SANs, EKUs, and client identities. Client-facing control, gateway,
+name-control, and relay paths use server-authenticated TLS with separate
+enterprise and ISP demo trust domains.
+
+## Kubernetes reference deployment
+
+Kind is a deployment reference, not a protocol dependency. The cluster disables
+Kind's default CNI and installs checksum-verified Calico v3.32.1. Namespace-wide
+ingress and egress start default-deny. Workload policies permit only:
+
+- control plane to OPA;
+- gateway to ticket verifier and payments;
+- relay to the registered origin on ports 80 and 443; and
+- DNS from only the workloads that need it to pods labeled
+  `k8s-app: kube-dns` in `kube-system`.
+
+The verification harness proves both positive and negative paths, including
+Service IP, Pod IP, unrelated pod, cross-namespace, metadata, and link-local
+denials. Accepting the YAML is not treated as enforcement evidence.
+
+## Address concealment
+
+The application asks for a registered name and receives a synthetic local
+address plus a short-lived route capability. It does not receive the durable
+origin address. The relay operator necessarily observes the requested name and
+the destination it resolves; the prototype therefore claims backend
+concealment from the client, not anonymity from the operator.
+
+HTTPS is the preferred security demonstration. The relay copies opaque bytes,
+the client validates the origin certificate, and the origin observes the
+registered name as SNI and Host. Port 80 remains a documented compatibility
+mode inside the authenticated client-to-relay channel and is not classified as
+native end-to-end authenticated NBSR.
+
+## Explicitly unimplemented architecture
+
+The following Vision v2 phases remain design-only or absent: native signed name
+ownership and delegation, certified tunnel profiles, multiplexed streams, lease
+renewal, key rotation, revocation distribution, migration/resumption, regional
+HA, ISP source/destination federation, cross-operator trust, mobile wake-up
+integration, QUIC/HTTP3, arbitrary UDP, and independent interoperable clients.

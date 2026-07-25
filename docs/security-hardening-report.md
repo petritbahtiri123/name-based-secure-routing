@@ -1,85 +1,124 @@
-# NBSR security hardening report
+# NBSR final security hardening report
 
-## Scope and evidence status
+## Outcome and scope
 
-This report covers the July 2026 hardening of the Build Week enterprise
-authorization prototype, ISP name-routing vertical slice, Windows prototype
-adapter, Docker Compose deployment, and Kubernetes/Kind reference deployment.
-It does not claim production readiness or full NBSR Protocol Vision v2
-conformance.
+This bounded pass remediated the seven specified gaps on
+`codex/nbsr-final-hardening-validation`. It did not invoke the broken Codex
+Security Start scan/Deep Scan sealing workflow. Evidence came from direct code
+inspection, focused regression tests, fresh Compose and Kind deployments,
+manual trust-boundary review, and extracted-package validation.
 
-Codex Security scan
-`31dd72ff-236a-4f72-ba35-44d89f481e79` completed its analysis and produced 15
-closure records, 11 validated findings, coverage data, and a hardening
-portfolio. The scanner's terminal orchestration failed while sealing the run,
-so the UI did not record a final sealed state. The saved canonical artifacts
-were schema-validated in dry-run mode and were used as the remediation input;
-the seal failure is an evidence-handling limitation, not a claim that the scan
-completed normally.
+The result is a hardened local prototype, not a production system and not full
+[NBSR Protocol Vision v2](architecture/NBSR_Protocol_Vision_v2.pdf)
+conformance. QUIC, federation, native ownership/delegation, lifecycle renewal,
+key rotation, migration/resumption, and full ISP deployment were not
+implemented.
 
 ## Finding dispositions
 
-| ID | Severity | Boundary | Disposition | Verification |
+| Finding | Vulnerable path | Enforcement boundary | Disposition | Focused evidence |
 |---|---|---|---|---|
-| SEC-002 | High | Relay SSRF and DNS rebinding | Fixed. Every resolved literal is rechecked immediately before connect; non-global destinations require an exact trusted-origin hostname/network rule. | Destination-policy unit tests and relay rebinding regression |
-| SEC-003 | Low | Optional relay TLS | Fixed. The Windows relay client always creates a verifying TLS context, requires a CA or system trust, checks the hostname, and requires TLS 1.3. | Windows-agent TLS and untrusted-certificate tests |
-| SEC-004 | Medium | Plain enterprise control API | Fixed. Control-plane credentials and route grants use server-authenticated TLS. | HTTPS client tests, Compose config, and live plaintext rejection |
-| SEC-005 | Low | Plain enterprise gateway | Fixed. Envoy serves the client-facing gateway with TLS and dedicated key material. | Envoy config, client tests, and live plaintext rejection |
-| SEC-006 | Low | Exposed Envoy administration | Fixed. The admin listener binds only to container loopback and is not published. | Envoy config review and network reachability check |
-| SEC-007 | Low | Broad Kubernetes network policy | Fixed. Namespace-wide arbitrary egress was replaced by workload-specific peer and port policies. | Manifest regression tests and live allowed/denied Kind probes |
-| SEC-009 | Medium | Local credential permissions | Fixed for the prototype. Private keys, tokens, and the Windows journal use atomic protected writes and restricted permissions/DACLs. | Cross-platform secure-file tests |
-| SEC-010 | Medium | Docker build-context leakage | Fixed. `.dockerignore` excludes Git data, credentials, caches, logs, archives, and generated artifacts. | Scratch build-context archive audit |
-| SEC-011 | Medium | Synthetic allocator exhaustion | Fixed for one process. Allocation uses bounded indexed state and expiry heaps instead of repeated network scans. | Capacity, expiry, and no-linear-scan tests |
-| SEC-012 | Medium | Unbounded relay replay cache | Fixed for one process. Replay state has capacity and expiry bounds and fails closed when full. | Replay capacity and expiry tests |
-| SEC-014 | Medium | Client-controlled verifier metadata | Fixed. The verifier uses the actual method/path of Envoy's ext-authz request; Envoy overrides a fixed service header inside that request. | Spoof, duplicate, missing-header, and scope tests |
-| SEC-008 | Deferred during scan | Kind CNI enforcement uncertainty | Closed by implementation validation. Kind 0.24+ provides network-policy support; the workflow pins a v1.35.0 node image by digest and tests both permit and deny paths live. | `scripts/verify-kind-security.*` on Kind 0.32.0 |
+| 1. Default-allow public destination routing | Caller-controlled hostname reached `destination_policy.py` global-unicast allowance and could be signed by name control | `route_registry.py`, name control issuance, relay-local registry, relay connect-time resolution | **Fixed.** Only canonical enabled registered names are admitted. Signed and relay-local route ID, port, endpoint set, policy fingerprint/version, gateway, session, and expiry must agree. | Route registry, name service, relay, destination-policy, and API suites; arbitrary public name/IP, override, alias, Unicode, rebinding, stale policy, cross-route replay, CIDR, and special-use negatives |
+| 2. Compose relay-to-backend bypass | `name-relay` shared enterprise protected network with payments | Compose network attachment and internal addressing | **Fixed.** Relay uses only ISP client/origin networks; enterprise protected network contains gateway, verifier, and payments. | Live relay DNS lookup failed; direct `172.30.0.10:7000` connection timed out; enterprise and registered ISP positive paths passed |
+| 3. Host ports on all interfaces | Compose ports and Kind extra mappings defaulted to all host interfaces | Docker/Kind host publication | **Fixed.** Necessary developer ports explicitly bind `127.0.0.1`; backends publish none. | Compose `port` showed loopback for 8000/8080/8443/8444; Kind socket inspection showed loopback for 8080/8443/8444 |
+| 4. Sensitive internal plaintext hops | Control plane to OPA, Envoy ext_authz, and gateway to payments used HTTP | Service TLS contexts, OPA/Uvicorn servers, Envoy upstream TLS | **Fixed.** Internal enterprise hops use TLS 1.3 mTLS with separate service identities; gateway default is HTTPS; failures never retry plaintext. | Missing/untrusted CA, SAN, wrong-service, expiry, client-cert, plaintext, negotiation, no-retry, and valid mTLS tests; fresh live Compose flow |
+| 5. Incomplete Kubernetes policy/probes | DNS allowed any kube-system pod; Kind policy enforcement was inferred; required denials absent | Calico CNI and namespace/workload NetworkPolicy | **Fixed for the reference lab.** Kind disables default CNI, installs checksum-verified Calico v3.32.1, selects only kube-dns pods, and runs exhaustive probes. | Fresh cluster: Calico 1/1, all 18 observed pods ready, zero restarts; Service IP, Pod IP, unrelated pod, cross-namespace, metadata, and link-local denials; required flows allowed |
+| 6. No deterministic release packaging | Manual ZIP had no reproducible source/inventory/validation workflow | `package_release.py` plus PowerShell/Bash wrappers | **Fixed.** Explicit ref resolves to commit; tracked dirt blocks; Git archive source, prohibited path/content scan, deterministic inventory/ZIP, safe extraction, inventory comparison, extracted Python 3.13 pytest/Ruff, and SHA-256 sidecar are mandatory. | Unit tests prove path/content rejection and byte-stable ZIP; final clean-commit package run is a handoff gate |
+| 7. Python 3.14 remained allowed | `requires-python` had no upper bound and container used Python 3.12 | Package metadata, constraints, pinned container runtime | **Fixed.** Supported range is `>=3.12,<3.14`; primary image is digest-pinned Python 3.13.14; exact runtime/dev constraints are repository-native; project deprecations fail tests. | Python 3.12.13: 248 passed, 1 skipped; Python 3.13.14: 248 passed, 1 skipped; primary Docker build and Ruff check/format passed |
 
-SEC-001, SEC-013, and SEC-015 were rejected or ignored during validation and
-were not carried into the remediation finding set. This report does not
-reclassify them as vulnerabilities.
+## Route registry security details
 
-## Structural controls added
+`config/name-routes.json` registers the private demo explicitly. The request
+model exposes no destination field. Canonicalization accepts only the exact
+ASCII registry name and rejects case/trailing-dot aliases and IDNA ambiguity.
+An operator entry defines route ID, origin, ports, CIDR/exact endpoints,
+expected Host/SNI, enabled state, and version/fingerprint.
 
-- Dedicated enterprise and ISP TLS trust domains and server keys.
-- Strict request-context boundary between Envoy and the ticket verifier.
-- Global-unicast relay policy with explicit, exact private-origin exceptions.
-- Capability-to-port binding for HTTP/80 and HTTPS/443.
-- Bounded admission, replay, and synthetic-address state.
-- Atomic owner-restricted writes for local private material and journals.
-- Minimal Docker build context.
-- Default-deny Kubernetes isolation with explicit workload flows.
-- Digest-pinned Kind node image and executable enforcement probes.
+The relay independently loads the registry and re-resolves the configured
+origin immediately before connection. A valid signature does not override local
+policy. Fresh resolution must exactly match the signed endpoint set and every
+endpoint must remain within current constraints. Empty, expanded, changed, or
+stale results fail closed.
 
-## Validation results
+## TLS identity details
 
-The hardened branch produced the following observed results on 2026-07-25:
+Signing and transport roles remain separate:
 
-- `python -m pytest -q`: 180 passed, 1 skipped, with 12 upstream
-  FastAPI/Uvicorn deprecation warnings under Python 3.14.
-- `python -m ruff check .`: all checks passed.
-- `opa test /policy -v`: 5 of 5 policy tests passed.
-- `docker compose config --quiet`, a fresh `docker compose build`, and Envoy
-  `--mode validate`: passed.
-- Enterprise live demo: all eight allow/deny scenarios passed, including
-  tampering, expiry, scope escalation, and direct-backend denial.
-- ISP live demo: relayed HTTP/80 and HTTPS/443 both passed; the client-visible
-  state omitted the origin address and the origin observed the relay peer.
-- Additional live negative checks: plaintext on the two TLS ports was rejected,
-  spoofed route-context headers could not authorize a different method/path,
-  and Envoy's port 9901 was unreachable from the client network.
-- Kind 0.32.0 with the digest-pinned Kubernetes v1.35.0 node image: all eight
-  pods became ready with zero restarts, 13 NetworkPolicies were present,
-  required paths passed, and both tested forbidden paths were denied.
+- Ed25519 signs workload identities, enterprise route tickets, and ISP route
+  capabilities with different keys.
+- TLS leaf keys use ECDSA P-256, signed by the appropriate local demo CA.
+- Control plane, gateway, OPA, verifier, payments, name control, relay, and
+  origin have distinct certificates and SAN/EKU roles.
+- Enterprise and ISP demo trust domains are separate.
 
-The distributable archive is rechecked after extraction because its SHA-256
-depends on the final commit. Its exact path and digest belong in the branch
-handoff rather than this source-controlled report.
+The TLS test matrix covers valid connection, missing CA, untrusted CA, wrong
+hostname/SAN, wrong service certificate, expired certificate, missing client
+certificate, plaintext endpoint, and no plaintext retry. The live enterprise
+demo passed all eight allow/deny scenarios after internal mTLS was enabled.
 
-## Residual risk
+## Deployment evidence
 
-The prototype still lacks distributed replay/revocation state, HA, production
-PKI and rotation, HSM/KMS protection, enterprise ticket channel binding,
-signed name ownership, federation, QUIC/HTTP3, arbitrary UDP, raw IP tunnels,
-and a signed Windows Filtering Platform adapter. The ISP operator necessarily
-observes requested names and resolved destinations. These are explicit scope
-limits, not implicitly completed features.
+### Compose
+
+- Fresh image build completed.
+- `docker compose config --quiet` and Envoy `--mode validate` passed.
+- Authorized enterprise request passed through OPA, ticket issuance, Envoy
+  ext_authz, verifier, and payments.
+- Unauthorized identity, unknown service, missing/tampered/expired ticket,
+  method/path escalation, and direct backend access were denied.
+- ISP HTTP compatibility and HTTPS origin-security paths passed.
+- Client-visible state omitted the origin address; origin observed the relay
+  peer and HTTPS SNI.
+- Relay could neither resolve payments by service name nor connect to its
+  container IP/port.
+
+### Kind
+
+- Kind v0.32.0 created a Kubernetes v1.35.0 node from a digest-pinned image.
+- The Calico manifest URL and SHA-256 are fixed and checked before apply.
+- Calico node/controller, CoreDNS, control-plane components, and all eight NBSR
+  pods were ready with zero restart counts.
+- Required gateway-to-verifier/payments, control-to-OPA, relay-to-origin 80/443,
+  and DNS flows passed.
+- Relay-to-payments Service/Pod IP, relay-to-enterprise services, unrelated
+  pod-to-backends, cross-namespace, metadata, and second link-local flows were
+  denied.
+- Temporary probe pods and namespace were absent after the harness completed.
+
+## Test evidence recorded during the pass
+
+| Gate | Result |
+|---|---|
+| Baseline before modification | 180 passed, 1 skipped, 12 third-party Python 3.14 warnings |
+| Default-deny route focused set | 172 passed; Ruff and Compose config passed |
+| TLS/deployment focused set | 57 passed; 6 Python 3.14 third-party warnings; Ruff passed |
+| Kind static focused set | 12 passed |
+| Python 3.12.13 full suite | 248 passed, 1 skipped |
+| Python 3.13.14 full suite | 248 passed, 1 skipped |
+| Ruff | All checks passed; all Python files formatted |
+| OPA/Rego | 5 of 5 policy tests passed |
+| Enterprise Compose | 8 of 8 scenarios passed |
+| ISP Compose | HTTP/80 and HTTPS/443 passed; concealment and peer checks passed |
+| Kind NetworkPolicy | All required allow/deny probes passed; zero restarts |
+
+The final full suite, OPA test, clean-commit package, extracted ZIP tests, and
+SHA-256 check are repeated after the documentation commit. Exact final artifact
+paths and digests belong in the branch handoff because they depend on that final
+commit.
+
+## Residual risks and production blockers
+
+No confirmed Critical vulnerability remains inside this bounded local scope,
+but the following prevent production claims:
+
+- signing-key/CA compromise lacks HSM/KMS, automated rotation, and distributed
+  revocation;
+- enterprise bearer tickets can be replayed during their short lifetime;
+- route, replay, admission, and allocation state is process-local;
+- native signed name ownership, federation, and lifecycle are absent;
+- Kind is single-node/single-replica and has no SLO/chaos/HA evidence;
+- the Windows adapter is unit/in-process tested, not a signed live WFP driver;
+- compatibility HTTP lacks end-to-end origin authentication;
+- privacy retention, audit, incident response, and operator governance are not
+  implemented; and
+- there are no independent interoperable native NBSR implementations.
