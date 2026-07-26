@@ -41,8 +41,9 @@ def test_map_keys_use_rfc8949_bytewise_not_legacy_length_first_order() -> None:
     assert wire == bytes.fromhex("a21903e8646c6f6e67206573686f7274")
     assert wire != legacy_length_first
     assert decode_deterministic(wire) == {1000: "long", -1: "short"}
-    with pytest.raises(ProtocolViolation):
+    with pytest.raises(ProtocolViolation) as exc_info:
         decode_deterministic(legacy_length_first)
+    assert exc_info.value.code is ErrorCode.NBSR_E_PROFILE_UNSUPPORTED
 
 
 @pytest.mark.parametrize(
@@ -105,8 +106,10 @@ def test_supported_core_values_round_trip(value: object) -> None:
     ),
 )
 def test_non_core_deterministic_forms_are_rejected(wire: bytes) -> None:
-    with pytest.raises(ProtocolViolation):
+    with pytest.raises(ProtocolViolation) as exc_info:
         decode_deterministic(wire)
+
+    assert exc_info.value.code is ErrorCode.NBSR_E_PROFILE_UNSUPPORTED
 
 
 def test_structural_rejection_happens_before_cbor2_loads(
@@ -170,6 +173,20 @@ def test_encode_resource_limits_fail_closed(
 ) -> None:
     with pytest.raises(ProtocolViolation) as exc_info:
         encode_deterministic(value, limits)
+
+    assert exc_info.value.code is ErrorCode.NBSR_E_OVER_CAPACITY
+
+
+def test_encoder_stops_iterating_when_total_budget_is_exceeded() -> None:
+    class ExplodingTail(list[bytes]):
+        def __iter__(self):  # type: ignore[no-untyped-def]
+            yield b"nbsr"
+            raise AssertionError("encoder requested data after budget exhaustion")
+
+    limits = replace(DEFAULT_LIMITS, max_total_bytes=5)
+
+    with pytest.raises(ProtocolViolation) as exc_info:
+        encode_deterministic(ExplodingTail([b"nbsr"]), limits)
 
     assert exc_info.value.code is ErrorCode.NBSR_E_OVER_CAPACITY
 

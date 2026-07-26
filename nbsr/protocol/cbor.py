@@ -43,8 +43,8 @@ DEFAULT_LIMITS = CborLimits(
 
 def _invalid() -> ProtocolViolation:
     return ProtocolViolation(
-        ErrorCode.NBSR_E_INTERNAL,
-        "Invalid deterministic CBOR",
+        ErrorCode.NBSR_E_PROFILE_UNSUPPORTED,
+        "Unsupported or non-deterministic CBOR",
     )
 
 
@@ -82,23 +82,40 @@ def _encode_value(
     limits: CborLimits,
     depth: int,
     active_containers: set[int],
+    budget: int,
 ) -> bytes:
     if depth > limits.max_depth:
         raise _over_capacity()
     if value is None:
-        return b"\xf6"
+        encoded = b"\xf6"
+        if len(encoded) > budget:
+            raise _over_capacity()
+        return encoded
     if value is False:
-        return b"\xf4"
+        encoded = b"\xf4"
+        if len(encoded) > budget:
+            raise _over_capacity()
+        return encoded
     if value is True:
-        return b"\xf5"
+        encoded = b"\xf5"
+        if len(encoded) > budget:
+            raise _over_capacity()
+        return encoded
     if type(value) is int:
         if value >= 0:
-            return _encode_head(0, value)
-        return _encode_head(1, -1 - value)
+            encoded = _encode_head(0, value)
+        else:
+            encoded = _encode_head(1, -1 - value)
+        if len(encoded) > budget:
+            raise _over_capacity()
+        return encoded
     if isinstance(value, bytes):
         if len(value) > limits.max_byte_string_bytes:
             raise _over_capacity()
-        return _encode_head(2, len(value)) + value
+        head = _encode_head(2, len(value))
+        if len(head) + len(value) > budget:
+            raise _over_capacity()
+        return head + value
     if isinstance(value, str):
         try:
             encoded = value.encode("utf-8")
@@ -106,40 +123,77 @@ def _encode_value(
             raise _unsupported() from exc
         if len(encoded) > limits.max_text_bytes:
             raise _over_capacity()
-        return _encode_head(3, len(encoded)) + encoded
+        head = _encode_head(3, len(encoded))
+        if len(head) + len(encoded) > budget:
+            raise _over_capacity()
+        return head + encoded
     if isinstance(value, (list, tuple)):
         if len(value) > limits.max_array_items:
             raise _over_capacity()
-        container_id = id(value)
-        if container_id in active_containers:
-            raise _unsupported()
-        active_containers.add(container_id)
-        try:
-            items = b"".join(_encode_value(item, limits, depth + 1, active_containers) for item in value)
-        finally:
-            active_containers.remove(container_id)
-        return _encode_head(4, len(value)) + items
-    if isinstance(value, dict):
-        if len(value) > limits.max_map_pairs:
+        head = _encode_head(4, len(value))
+        if len(head) > budget:
             raise _over_capacity()
         container_id = id(value)
         if container_id in active_containers:
             raise _unsupported()
         active_containers.add(container_id)
         try:
-            entries = [
-                (
-                    _encode_value(key, limits, depth + 1, active_containers),
-                    _encode_value(item, limits, depth + 1, active_containers),
+            parts = [head]
+            remaining = budget - len(head)
+            for item in value:
+                encoded_item = _encode_value(
+                    item,
+                    limits,
+                    depth + 1,
+                    active_containers,
+                    remaining,
                 )
-                for key, item in value.items()
-            ]
+                parts.append(encoded_item)
+                remaining -= len(encoded_item)
         finally:
             active_containers.remove(container_id)
-        entries.sort(key=lambda entry: entry[0])
-        if any(previous[0] == current[0] for previous, current in zip(entries, entries[1:], strict=False)):
-            raise _invalid()
-        return _encode_head(5, len(entries)) + b"".join(key + item for key, item in entries)
+        return b"".join(parts)
+    if isinstance(value, dict):
+        if len(value) > limits.max_map_pairs:
+            raise _over_capacity()
+        head = _encode_head(5, len(value))
+        if len(head) > budget:
+            raise _over_capacity()
+        container_id = id(value)
+        if container_id in active_containers:
+            raise _unsupported()
+        active_containers.add(container_id)
+        try:
+            remaining = budget - len(head)
+            entries: list[tuple[bytes, object]] = []
+            for key, item in value.items():
+                encoded_key = _encode_value(
+                    key,
+                    limits,
+                    depth + 1,
+                    active_containers,
+                    remaining,
+                )
+                entries.append((encoded_key, item))
+                remaining -= len(encoded_key)
+            entries.sort(key=lambda entry: entry[0])
+            if any(previous[0] == current[0] for previous, current in zip(entries, entries[1:], strict=False)):
+                raise _invalid()
+            parts = [head]
+            for encoded_key, item in entries:
+                parts.append(encoded_key)
+                encoded_item = _encode_value(
+                    item,
+                    limits,
+                    depth + 1,
+                    active_containers,
+                    remaining,
+                )
+                parts.append(encoded_item)
+                remaining -= len(encoded_item)
+        finally:
+            active_containers.remove(container_id)
+        return b"".join(parts)
     raise _unsupported()
 
 
@@ -147,10 +201,7 @@ def encode_deterministic(
     value: object,
     limits: CborLimits = DEFAULT_LIMITS,
 ) -> bytes:
-    encoded = _encode_value(value, limits, 1, set())
-    if len(encoded) > limits.max_total_bytes:
-        raise _over_capacity()
-    return encoded
+    return _encode_value(value, limits, 1, set(), limits.max_total_bytes)
 
 
 class _StructuralScanner:
