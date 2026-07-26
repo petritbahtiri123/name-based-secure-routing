@@ -2,10 +2,35 @@
 
 > **North Star:** NBSR turns a name into a secure route, not an IP address.
 
+NBSR is being developed as a DNS-compatible name-resolution and secure-routing
+protocol. An upgraded NBSR Name Node resolves every configured name: legacy
+names retain DNS-compatible behavior, while NBSR-enabled names resolve into
+authenticated route state and never expose the private origin address to the
+client.
+
+The long-term deployable unit has two isolated planes: a Name/Resolution Plane
+and a Secure Route/Tunnel Plane. A Source NBSR Edge acts for ordinary devices
+behind an upgraded router, enterprise gateway, or ISP, so the first no-agent
+lab does not require per-device NBSR software. Networks that have not upgraded
+continue using conventional DNS and IP connectivity.
+
 This repository is a hardened local protocol vertical slice and enterprise
-authorization proof of concept. It is not production-ready and does not claim
-full [NBSR Protocol Vision v2](docs/architecture/NBSR_Protocol_Vision_v2.pdf)
-conformance.
+authorization proof of concept. It is not Protocol Core v0.1 and not a
+production system.
+
+## Authoritative direction and implementation status
+
+- [Protocol Vision V3 and Codex Build Directive](docs/architecture/NBSR_Protocol_Vision_V3_and_Codex_Build_Directive.md)
+  is the authoritative architecture and implementation program.
+- [Protocol terminology](docs/protocol/terminology.md) defines the canonical
+  project vocabulary.
+- [Implementation status](docs/protocol/status.md) separates verified
+  prototype behavior from partial, planned, and normative Core v0.1 behavior.
+- [WP1 implementation plan](docs/superpowers/plans/2026-07-26-wp1-protocol-data-model.md)
+  defines the next test-first work package but does not claim that WP1 exists.
+- Vision V2 and the original feasibility study remain available under
+  [`docs/history`](docs/history/README.md) and
+  [`docs/research`](docs/research/README.md).
 
 ## What is functional
 
@@ -62,7 +87,8 @@ store is not implemented.
 
 See [architecture](docs/architecture.md),
 [security model](docs/security-model.md), [threat model](docs/threat-model.md),
-and the [hardening report](docs/security-hardening-report.md).
+the [hardening report](docs/security-hardening-report.md), and the
+[current V3 implementation status](docs/protocol/status.md).
 
 ## Requirements
 

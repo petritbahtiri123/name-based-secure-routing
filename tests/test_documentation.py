@@ -46,6 +46,18 @@ def test_north_star_and_document_precedence_are_explicit():
     assert "does not claim native NBSR conformance" in conformance
 
 
+def test_readme_separates_v3_direction_from_current_implementation():
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    normalized = " ".join(readme.split())
+
+    assert "NBSR Name Node resolves every configured name" in readme
+    assert "Name/Resolution Plane" in readme
+    assert "Secure Route/Tunnel Plane" in readme
+    assert "not Protocol Core v0.1" in normalized
+    assert "not a production system" in normalized
+    assert "docs/protocol/status.md" in readme
+
+
 def test_state_machine_covers_required_design_states_and_marks_future_work():
     state_machine = (DOCS / "architecture" / "protocol-state-machine.md").read_text(encoding="utf-8").casefold()
 
