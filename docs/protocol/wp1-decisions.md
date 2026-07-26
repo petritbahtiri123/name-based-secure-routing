@@ -1,6 +1,7 @@
 # WP1 protocol decisions for approval
 
-**Status:** approved implementation freeze with amendments A1-A4; no WP1 production code exists
+**Status:** D1-D5 approved with amendments A1-A4; D6 proposed and pending
+human approval; WP1 Task 4 is not authorized
 **Scope:** Protocol Core v0.1 data model and deterministic vectors only
 **Decision:** approved for WP1 implementation on 2026-07-26 by Petrit Bahtiri
 with amendments A1-A4 recorded in this document.
@@ -117,8 +118,38 @@ Committed vectors contain only public test material:
 The generator must reproduce every checked-in byte exactly. Tests must fail if
 regeneration changes a vector without an explicit protocol review.
 
+## D6 - Core v0.1 wire schema freeze
+
+**Status:** proposed by Task 4A; pending human approval.
+
+The complete, individually assigned numeric field mappings, exact CBOR wire
+types, required/optional status, bounds, alphabets, patterns, and semantic
+validation rules for ServiceRecord, RouteIntent, RouteGrant, Revocation,
+ProtocolError, and ControlEnvelope are defined in
+`docs/protocol/core-v0.1-wire-schema.md`.
+
+D6 proposes and, once approved, freezes these choices:
+
+- RouteGrant uses only a 32-byte SHA-256 `name_digest`.
+- Core v0.1 uses `allowed_ports`; service-capability encoding is deferred.
+- ServiceRecord is a payload without an embedded signature; COSE Sign1 is its
+  only signature wrapper.
+- ControlEnvelope key 6 is the critical-extension-key list.
+- RouteIntent, Revocation, and ProtocolError use only their complete documented
+  schemas.
+- Numeric keys are explicit literals and are never derived from field order.
+- Unknown Core keys fail closed. Signed-object payload schemas are closed in
+  Core v0.1. Only ControlEnvelope permits non-critical extension keys at or
+  above 1000, and unknown critical extensions fail closed.
+
+Approval of D6 is required before creating `fields.py`, `models.py`, or
+`schemas.py`. Changes to D6 after approval require documentation-test updates
+and protocol version review when wire bytes or accepted values change.
+
 ## Approval gate
 
-Before WP1 code begins, approve or amend D1-D5. Approval freezes the first
-cross-language wire contract; changing these decisions later requires new
-vectors and an explicit versioning decision.
+D1-D5 are approved for the completed WP1 Tasks 1-3. D6 remains pending and
+MUST be approved or amended before Task 4 begins. Approval freezes the first
+cross-language object-field contract; changing it later requires updated
+documentation tests, new vectors when applicable, and an explicit versioning
+decision.

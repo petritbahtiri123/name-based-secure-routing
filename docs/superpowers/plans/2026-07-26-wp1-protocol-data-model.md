@@ -538,6 +538,11 @@ git commit -m "feat(protocol): enforce deterministic bounded CBOR"
 
 ### Task 4: Define immutable models and numeric wire schemas
 
+**Approval prerequisite:** D6 in `docs/protocol/wp1-decisions.md` must be
+human-approved. `docs/protocol/core-v0.1-wire-schema.md` is the sole source for
+all Task 4 numeric keys, required/optional fields, CBOR wire types, bounds, and
+semantic validation. Do not begin this task while D6 is pending.
+
 **Files:**
 - Create: `nbsr/protocol/fields.py`
 - Create: `nbsr/protocol/models.py`
@@ -596,7 +601,7 @@ def test_service_record_requires_monotonic_sequence() -> None:
 
 - [ ] **Step 3: Freeze envelope numeric keys**
 
-Use these Core keys:
+Implement these already-frozen D6 Core keys:
 
 | Key | Envelope field | Wire type |
 |---:|---|---|
@@ -614,29 +619,15 @@ when the target schema permits extensions and the key is not listed in field
 
 - [ ] **Step 4: Freeze signed-object field maps**
 
-Document and implement numeric keys in `schemas.py`. Use the field order from
-Vision V3 and reserve key 0 for each object version. The Route Grant must
-include every required claim in Vision V3 section 12. RouteIntent must include
-resolution-context digest, canonical name, service, source edge, destination
-operator/edge set, allowed transport/ports, creation/expiry, record sequence,
-policy hash, route ID, and lease ID; it must not include a routable origin.
+Copy each numeric key and field constraint as an explicit literal from D6 in
+`docs/protocol/core-v0.1-wire-schema.md`. Never infer a key from Vision V3
+field order, table order, dataclass order, or declaration order. The six
+implementation mappings must match the six approved D6 tables exactly.
 
-Revocation must include:
-
-```text
-revocation_version, revocation_id, issuer_key_id, generation,
-target_type, target_id, mode, not_before, expires_at,
-record_sequence, reason_code
-```
-
-ProtocolError must include:
-
-```text
-error_version, error_code, request_id, retryable,
-optional retry_after_seconds
-```
-
-No free-form remote error detail is serialized in Core v0.1.
+RouteGrant uses the single `name_digest` form and `allowed_ports`.
+ServiceRecord has no embedded signature. RouteIntent, Revocation, and
+ProtocolError use their complete D6 schemas. No free-form remote error detail
+is serialized in Core v0.1.
 
 - [ ] **Step 5: Implement frozen dataclasses and semantic validators**
 
