@@ -1,5 +1,9 @@
 # NBSR final security hardening report
 
+This report records the historical Vision V2 baseline and is not V3
+implementation evidence. Current direction is
+[NBSR Protocol Vision V3](architecture/NBSR_Protocol_Vision_V3_and_Codex_Build_Directive.md).
+
 ## Outcome and scope
 
 This bounded pass remediated the seven specified gaps on

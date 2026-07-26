@@ -1,9 +1,10 @@
 # NBSR security model
 
 This document describes the controls actually present in the hardened
-prototype. It does not claim production readiness or full
-[NBSR Protocol Vision v2](architecture/NBSR_Protocol_Vision_v2.pdf)
-conformance.
+prototype. Current architecture direction comes from
+[NBSR Protocol Vision V3](architecture/NBSR_Protocol_Vision_V3_and_Codex_Build_Directive.md).
+This security model does not claim production readiness or full Protocol Core
+v0.1 conformance.
 
 ## Security invariants
 

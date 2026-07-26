@@ -1,10 +1,11 @@
 # NBSR architecture
 
 The project direction is governed by
-[NBSR Protocol Vision v2](architecture/NBSR_Protocol_Vision_v2.pdf):
+[NBSR Protocol Vision V3](architecture/NBSR_Protocol_Vision_V3_and_Codex_Build_Directive.md):
 **NBSR turns a name into a secure route, not an IP address.** This repository is
 a bounded Phase 1 vertical slice plus an enterprise authorization proof of
 concept. It is not the complete native protocol and is not production-ready.
+Vision V2 remains available as historical design evidence.
 
 ## Implemented profiles
 

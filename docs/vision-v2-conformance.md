@@ -2,13 +2,17 @@
 
 ## Authority and status
 
-[NBSR Protocol Vision v2](architecture/NBSR_Protocol_Vision_v2.pdf) is the
-authoritative direction document. Its repository copy is byte-identical to the
-supplied source and has SHA-256
+This matrix records the historical Vision V2 baseline and is not V3
+implementation evidence. Current direction is
+[NBSR Protocol Vision V3](architecture/NBSR_Protocol_Vision_V3_and_Codex_Build_Directive.md).
+
+The retained
+[NBSR Protocol Vision v2](architecture/NBSR_Protocol_Vision_v2.pdf) repository
+copy is byte-identical to the supplied source and has SHA-256
 `746cbe07012dd646de71537470ed9ef55a85222509f065d5dda4668557e56806`.
-The earlier 19-page feasibility study remains supporting research according to
-Vision v2, but that source binary was not supplied to this checkout and was not
-reconstructed.
+At the time of this matrix, the earlier 19-page feasibility-study source binary
+had not been supplied to the checkout and was not reconstructed. It is now
+preserved separately under `docs/research/`.
 
 This matrix is an implementation-status record, not a conformance certificate.
 The current repository does not claim native NBSR conformance because it does

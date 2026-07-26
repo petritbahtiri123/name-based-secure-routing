@@ -1,12 +1,24 @@
 from __future__ import annotations
 
 import hashlib
+import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 DOCS = ROOT / "docs"
 VISION = DOCS / "architecture" / "NBSR_Protocol_Vision_v2.pdf"
 VISION_SHA256 = "746cbe07012dd646de71537470ed9ef55a85222509f065d5dda4668557e56806"
+MARKDOWN_LINK = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
+
+
+def _local_markdown_targets(path: Path) -> list[Path]:
+    targets: list[Path] = []
+    for raw_target in MARKDOWN_LINK.findall(path.read_text(encoding="utf-8")):
+        target = raw_target.split("#", 1)[0]
+        if not target or "://" in target or target.startswith("mailto:"):
+            continue
+        targets.append((path.parent / target).resolve())
+    return targets
 
 
 def test_required_security_and_vision_documents_exist():
@@ -28,6 +40,8 @@ def test_required_security_and_vision_documents_exist():
 
 def test_authoritative_vision_pdf_is_the_supplied_binary():
     assert hashlib.sha256(VISION.read_bytes()).hexdigest() == VISION_SHA256
+    history_copy = DOCS / "history" / "NBSR_Protocol_Vision_v2.pdf"
+    assert hashlib.sha256(history_copy.read_bytes()).hexdigest() == VISION_SHA256
 
 
 def test_north_star_and_document_precedence_are_explicit():
@@ -39,10 +53,22 @@ def test_north_star_and_document_precedence_are_explicit():
     ):
         assert north_star in path.read_text(encoding="utf-8")
 
-    conformance = (DOCS / "vision-v2-conformance.md").read_text(encoding="utf-8")
-    assert "authoritative direction document" in conformance
-    assert "supporting research" in conformance
-    assert "was not supplied" in conformance
+    vision_v3 = (
+        DOCS
+        / "architecture"
+        / "NBSR_Protocol_Vision_V3_and_Codex_Build_Directive.md"
+    ).read_text(encoding="utf-8")
+    assert "Authoritative architecture direction" in vision_v3
+    assert "Name/Resolution Plane" in vision_v3
+    assert "Secure Route/Tunnel Plane" in vision_v3
+
+    conformance = " ".join(
+        (DOCS / "vision-v2-conformance.md")
+        .read_text(encoding="utf-8")
+        .split()
+    )
+    assert "historical Vision V2 baseline" in conformance
+    assert "not V3 implementation evidence" in conformance
     assert "does not claim native NBSR conformance" in conformance
 
 
@@ -56,6 +82,71 @@ def test_readme_separates_v3_direction_from_current_implementation():
     assert "not Protocol Core v0.1" in normalized
     assert "not a production system" in normalized
     assert "docs/protocol/status.md" in readme
+
+
+def test_wp0_sources_are_preserved():
+    assert (
+        DOCS
+        / "architecture"
+        / "NBSR_Protocol_Vision_V3_and_Codex_Build_Directive.md"
+    ).is_file()
+    assert (
+        DOCS
+        / "architecture"
+        / "NBSR_Protocol_Vision_V3_and_Codex_Build_Directive.pdf"
+    ).is_file()
+    assert (DOCS / "history" / "NBSR_Protocol_Vision_v2.pdf").is_file()
+    assert (
+        DOCS / "research" / "Name-Based-Secure-Routing-feasibility-study.pdf"
+    ).is_file()
+
+
+def test_protocol_status_defines_required_vocabulary():
+    status = (DOCS / "protocol" / "status.md").read_text(encoding="utf-8")
+    for word in ("Implemented", "Partial", "Planned", "Normative"):
+        assert f"| {word} |" in status
+    assert "does not imply Core v0.1 conformance" in status
+
+
+def test_active_overviews_point_to_v3_authority():
+    v3_link = (
+        "architecture/NBSR_Protocol_Vision_V3_and_Codex_Build_Directive.md"
+    )
+    for path in (
+        DOCS / "architecture.md",
+        DOCS / "security-model.md",
+        DOCS / "threat-model.md",
+    ):
+        content = path.read_text(encoding="utf-8")
+        assert "Protocol Vision V3" in content
+        assert v3_link in content
+
+
+def test_v2_evidence_is_labeled_as_a_historical_baseline():
+    for path in (
+        DOCS / "vision-v2-conformance.md",
+        DOCS / "security-hardening-report.md",
+    ):
+        content = " ".join(path.read_text(encoding="utf-8").split())
+        assert "historical Vision V2 baseline" in content
+        assert "not V3 implementation evidence" in content
+
+
+def test_wp0_local_document_links_resolve():
+    paths = (
+        ROOT / "README.md",
+        DOCS / "architecture" / "README.md",
+        DOCS / "history" / "README.md",
+        DOCS / "research" / "README.md",
+        DOCS / "protocol" / "status.md",
+    )
+    missing = [
+        str(target.relative_to(ROOT))
+        for path in paths
+        for target in _local_markdown_targets(path)
+        if not target.exists()
+    ]
+    assert missing == []
 
 
 def test_state_machine_covers_required_design_states_and_marks_future_work():

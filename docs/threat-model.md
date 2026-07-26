@@ -1,5 +1,10 @@
 # NBSR threat model
 
+Current architecture direction comes from
+[NBSR Protocol Vision V3](architecture/NBSR_Protocol_Vision_V3_and_Codex_Build_Directive.md).
+This threat model describes the hardened prototype boundary; it does not claim
+that the planned Core v0.1, Name Node, QUIC tunnel, or federation exists.
+
 ## Scope
 
 Assets in scope are registered-name integrity, origin concealment from clients,
