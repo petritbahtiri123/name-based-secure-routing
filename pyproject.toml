@@ -7,6 +7,7 @@ name = "nbsr"
 version = "0.1.0"
 requires-python = ">=3.12,<3.14"
 dependencies = [
+  "cbor2>=5.7,<6",
   "cryptography>=44,<46",
   "dnslib>=0.9.26,<0.10",
   "fastapi>=0.115,<0.117",
@@ -17,7 +18,12 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8.3,<9", "pytest-asyncio>=1.4,<2", "ruff>=0.9,<0.12"]
+dev = [
+  "hypothesis>=6.136,<7",
+  "pytest>=8.3,<9",
+  "pytest-asyncio>=1.4,<2",
+  "ruff>=0.9,<0.12",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
