@@ -31,15 +31,21 @@ enterprise and ISP prototype paths remain untouched.
 - Work only on WP1. Do not begin the Name Node, QUIC transport, origin
   connector, federation, or gateway packaging.
 - Use RFC 8949 Core Deterministic Encoding for all signed payloads and native
-  messages.
-- Use COSE Sign1 with tag 18, protected `alg=-8`, protected non-empty `kid`,
-  empty external AAD, attached payload, and Ed25519 keys only.
+  messages, including bytewise lexicographic ordering of deterministic encoded
+  map keys.
+- The NBSR re-encoder owns deterministic encoding and acceptance checks; do
+  not use `cbor2.dumps(..., canonical=True)`.
+- Use COSE Sign1 with tag 18, protected `alg=-8`, protected opaque byte-string
+  `kid` of 1-64 bytes scoped to the caller trust context, empty external AAD,
+  attached payload, and Ed25519 keys only.
 - Use proof-of-possession data structures; do not add bearer authorization to
   the ISP/core profile.
 - Keep protocol code independent of current APIs and deployment adapters.
 - Keep all tests deterministic and offline.
 - Never place origin addresses, production secrets, raw subscriber identities,
-  or reusable grants in fixtures, vectors, errors, or logs.
+  or reusable grants in fixtures, valid vectors, errors, or logs. RFC 5737 and
+  RFC 3849 documentation literals are permitted only in invalid rejection
+  vectors that prove IP-shaped origin data fails closed.
 - Fail closed on duplicate keys, non-deterministic encodings, unknown Core
   fields, unknown critical extensions, unsupported algorithms, signature
   errors, stale sequence, rollback, invalid time windows, and resource bounds.
@@ -102,7 +108,8 @@ API, relay framing, and enterprise ticket code are not migrated in WP1.
 Add this line below the title in `docs/protocol/wp1-decisions.md`:
 
 ```markdown
-**Decision:** approved for WP1 implementation on 2026-07-26 by Petrit Bahtiri.
+**Decision:** approved for WP1 implementation on 2026-07-26 by Petrit Bahtiri
+with amendments A1-A4 recorded in `docs/protocol/wp1-decisions.md`.
 ```
 
 Do not continue if the human requests a different CBOR/COSE strategy.
@@ -277,10 +284,28 @@ def test_message_codes_are_frozen() -> None:
     }
 
 
-def test_error_codes_are_stable_and_contiguous() -> None:
-    assert [int(item) for item in ErrorCode] == list(range(1, 19))
-    assert ErrorCode.NBSR_E_NAME_INVALID == 1
-    assert ErrorCode.NBSR_E_INTERNAL == 18
+def test_error_code_mapping_is_frozen() -> None:
+    assert {item.name: int(item) for item in ErrorCode} == {
+        "NBSR_E_NAME_INVALID": 1,
+        "NBSR_E_NAME_NOT_FOUND": 2,
+        "NBSR_E_RECORD_UNTRUSTED": 3,
+        "NBSR_E_RECORD_STALE": 4,
+        "NBSR_E_RECORD_REVOKED": 5,
+        "NBSR_E_CONTEXT_REQUIRED": 6,
+        "NBSR_E_HANDLE_EXHAUSTED": 7,
+        "NBSR_E_ROUTE_DENIED": 8,
+        "NBSR_E_GRANT_INVALID": 9,
+        "NBSR_E_GRANT_EXPIRED": 10,
+        "NBSR_E_PROOF_INVALID": 11,
+        "NBSR_E_REPLAY": 12,
+        "NBSR_E_PROFILE_UNSUPPORTED": 13,
+        "NBSR_E_DOWNGRADE": 14,
+        "NBSR_E_EDGE_UNAVAILABLE": 15,
+        "NBSR_E_ORIGIN_UNAVAILABLE": 16,
+        "NBSR_E_REVOKED": 17,
+        "NBSR_E_OVER_CAPACITY": 18,
+        "NBSR_E_INTERNAL": 19,
+    }
 ```
 
 - [ ] **Step 2: Write state-transition tests**
@@ -368,6 +393,11 @@ class InvalidTransition(ProtocolViolation):
     def __init__(self) -> None:
         super().__init__(ErrorCode.NBSR_E_INTERNAL, "Invalid NBSR state transition")
 ```
+
+Use `NBSR_E_INTERNAL` only as a non-sensitive fallback when no specific
+registry code describes the failure. Parser, validation, trust, capacity,
+replay, expiry, policy, and cryptographic failures must use their applicable
+specific codes.
 
 - [ ] **Step 5: Add state enums and explicit transition tables**
 
@@ -474,14 +504,19 @@ key slices for maps. It must:
 - reject floats, unsupported simple values, and tags unless
   `allow_top_level_tag=18` was explicitly passed by the COSE entry point;
 - bound depth and container sizes before descending;
-- compare raw deterministic key encodings in strictly increasing bytewise
-  order;
+- compare complete deterministic encoded key bytes in strictly increasing
+  bytewise lexicographic order as required by RFC 8949 Core Deterministic
+  Encoding;
 - reject equal raw key encodings as duplicates;
 - reject trailing bytes.
 
-After scanning, decode with `cbor2.loads`, re-encode with
-`cbor2.dumps(value, canonical=True)`, and require exact byte equality. The COSE
-entry point compares tag-aware re-encoding.
+After scanning, decode primitives with `cbor2.loads`, re-encode with the NBSR
+deterministic encoder implemented in this module, and require exact byte
+equality. The NBSR encoder must directly emit preferred integer/length forms
+and sort map entries by bytewise lexicographic comparison of the complete
+deterministic encoded key bytes. It must not call
+`cbor2.dumps(..., canonical=True)`. The COSE entry point compares tag-aware
+NBSR re-encoding.
 
 - [ ] **Step 6: Run focused tests and Ruff**
 
@@ -672,7 +707,8 @@ Reject all of the following:
 - absent tag 18 or a different tag;
 - trailing bytes;
 - tampered protected header, payload, or signature;
-- key lookup miss.
+- `kid` encoded as text, integer, empty bytes, or more than 64 bytes;
+- key lookup miss within the caller-supplied trust context.
 
 - [ ] **Step 3: Run tests and confirm failure**
 
@@ -707,7 +743,8 @@ COSE Sign1 body before tag:
 
 Encode with required CBOR tag 18. Verification must structurally validate the
 tagged value, decode the protected bytes with the deterministic decoder,
-enforce the exact protected/unprotected header profile, look up `kid`, verify
+enforce the exact protected/unprotected header profile, preserve `kid` as
+opaque bytes, look it up only in the caller-supplied trust context, verify
 Ed25519, and return immutable verified data. Convert every cryptographic or
 format failure to stable `NBSR_E_GRANT_INVALID` or
 `NBSR_E_RECORD_UNTRUSTED` according to the caller-selected object class; do not
@@ -798,7 +835,8 @@ Invalid:
 - wrong `kid`;
 - tampered payload;
 - tampered signature;
-- origin-address-shaped unknown field.
+- origin-address-shaped unknown fields using `192.0.2.9`, `198.51.100.9`,
+  `203.0.113.9`, and `2001:db8::9` only in invalid rejection vectors.
 
 - [ ] **Step 3: Implement deterministic generation**
 
@@ -807,6 +845,8 @@ The generator must:
 - refuse to run if output is outside `tests/vectors/core-v0.1`;
 - use fixed Unix timestamps and fixed byte IDs;
 - use only reserved `.example` names;
+- use RFC 5737 IPv4 or RFC 3849 IPv6 literals only when generating explicitly
+  invalid origin-address rejection vectors;
 - use a fixed test-only 32-byte Ed25519 seed;
 - write files atomically;
 - sort manifest entries by name;
@@ -997,12 +1037,16 @@ Expected: no differences.
 
 ```bash
 rg -n \
-  'origin_(ip|address)|203\.0\.113\.|198\.51\.100\.|192\.0\.2\.|PRIVATE KEY|Bearer ' \
-  nbsr/protocol tests/vectors/core-v0.1 docs/protocol/core-v0.1-wire.md
+  'origin_(ip|address)|203\.0\.113\.|198\.51\.100\.|192\.0\.2\.|2001:db8:|PRIVATE KEY|Bearer ' \
+  nbsr/protocol docs/protocol/core-v0.1-wire.md
+python -m pytest tests/protocol/test_vectors.py -q -k documentation_ip
 ```
 
-Expected: no origin-address fields, bearer grants, or production secrets.
-The test-only key label may reference test material but must not use a PEM
+Expected: the source/document scan has no origin-address fields, bearer
+grants, documentation IP literals, or production secrets. The focused vector
+test passes only when RFC 5737/RFC 3849 literals occur in explicitly invalid
+rejection vectors and each produces its declared rejection code. The
+test-only key label may reference test material but must not use a PEM
 `PRIVATE KEY` block in the vector directory.
 
 - [ ] **Step 7: Commit**
@@ -1042,7 +1086,8 @@ WP1 is complete only when all of the following are evidenced:
 - **No-placeholder scan:** the plan contains explicit files, interfaces,
   commands, expected results, numeric registries, test cases, and commit
   boundaries.
-- **Type consistency:** IDs are 16-byte `bytes`, digests are 32-byte `bytes`,
-  times are integer Unix seconds, names are canonical ASCII strings, and all
-  model collections are immutable tuples throughout the plan.
+- **Type consistency:** IDs are 16-byte `bytes`, COSE `kid` is an opaque
+  1-64-byte `bytes` value scoped to caller trust context, digests are 32-byte
+  `bytes`, times are integer Unix seconds, names are canonical ASCII strings,
+  and all model collections are immutable tuples throughout the plan.
 - **Scope boundary:** no task implements WP2 Name Node or WP3 QUIC behavior.
