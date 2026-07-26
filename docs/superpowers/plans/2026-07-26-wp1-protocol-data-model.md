@@ -538,10 +538,11 @@ git commit -m "feat(protocol): enforce deterministic bounded CBOR"
 
 ### Task 4: Define immutable models and numeric wire schemas
 
-**Approval prerequisite:** D6 in `docs/protocol/wp1-decisions.md` must be
-human-approved. `docs/protocol/core-v0.1-wire-schema.md` is the sole source for
-all Task 4 numeric keys, required/optional fields, CBOR wire types, bounds, and
-semantic validation. Do not begin this task while D6 is pending.
+**Approval prerequisite:** D6 with D6-A1, D6-A2, and D6-A3 in
+`docs/protocol/wp1-decisions.md` must be human-approved.
+`docs/protocol/core-v0.1-wire-schema.md` is the sole source for all Task 4
+numeric keys, required/optional fields, CBOR wire types, bounds, and semantic
+validation. Do not begin this task while D6 or an amendment is pending.
 
 **Files:**
 - Create: `nbsr/protocol/fields.py`
@@ -572,8 +573,9 @@ Test:
 - IP literals, Unicode, empty labels, 64-octet labels, and names over 253
   octets fail;
 - identifiers reject uppercase, whitespace, path traversal, and control bytes;
-- timestamps reject booleans, negatives, reversed windows, and excessive
-  lifetime;
+- timestamps reject booleans, negatives, reversed windows, and
+  object-specific excessive lifetime; Revocation has no universal lifetime
+  cap under D6-A1;
 - IDs and nonces require exactly 16 bytes;
 - digests require exactly 32 bytes.
 
@@ -598,6 +600,16 @@ def test_service_record_requires_monotonic_sequence() -> None:
     with pytest.raises(ProtocolViolation):
         record.require_newer_than(42)
 ```
+
+Also test the D6-A1 and D6-A2 Revocation rules:
+
+- absent `expires_at` means no automatic expiry;
+- present `expires_at` is greater than `not_before`;
+- key-compromise reason rejects every `expires_at`;
+- highest accepted issuer-generation tombstones reject rollback and
+  resurrection even after expiry or administrative removal;
+- optional `target_sequence` is accepted only with service-record target type
+  and rejected for every other target type.
 
 - [ ] **Step 3: Freeze envelope numeric keys**
 
@@ -625,16 +637,20 @@ field order, table order, dataclass order, or declaration order. The six
 implementation mappings must match the six approved D6 tables exactly.
 
 RouteGrant uses the single `name_digest` form and `allowed_ports`.
-ServiceRecord has no embedded signature. RouteIntent, Revocation, and
-ProtocolError use their complete D6 schemas. No free-form remote error detail
-is serialized in Core v0.1.
+Under D6-A3, ServiceRecord, RouteGrant, and Revocation are payloads without
+embedded signatures; object-level COSE wrapping belongs to Task 5.
+RouteIntent, ProtocolError, and ControlEnvelope prohibit object-level COSE
+wrapping. RouteIntent, Revocation, and ProtocolError use their complete D6
+schemas. No free-form remote error detail is serialized in Core v0.1.
 
 - [ ] **Step 5: Implement frozen dataclasses and semantic validators**
 
 Use `@dataclass(frozen=True, slots=True)`. Convert list inputs to tuples during
 construction. Reject duplicate ports, transports, profiles, edge IDs, and
 critical keys. Permit only TCP in Core v0.1 models even though registries leave
-room for later UDP profiles.
+room for later UDP profiles. Model Revocation `expires_at` and
+`target_sequence` as optional values and keep issuer `generation` distinct
+from the service-record-only `target_sequence`.
 
 - [ ] **Step 6: Implement strict schema decode**
 
@@ -681,6 +697,17 @@ git commit -m "feat(protocol): add Core v0.1 models and wire schemas"
 Use `Ed25519PrivateKey.from_private_bytes(bytes(range(32)))` as clearly labeled
 test-only material. Assert signing the same payload twice produces identical
 COSE bytes and verification returns the original payload and `kid`.
+
+Add D6-A3 object-level binding tests:
+
+- ServiceRecord, RouteGrant, and Revocation payloads have no embedded
+  signature field and require COSE Sign1;
+- ServiceRecord `kid` equals `owner_key_id` byte-for-byte;
+- Revocation `kid` equals `issuer_key_id` byte-for-byte;
+- RouteGrant `kid` resolves only in the caller-supplied authorized issuer trust
+  context;
+- RouteIntent, ProtocolError, and ControlEnvelope have no object-level COSE
+  wrapper in Core v0.1.
 
 - [ ] **Step 2: Write algorithm-confusion tests**
 

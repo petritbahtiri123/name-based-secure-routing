@@ -1,7 +1,7 @@
 # WP1 protocol decisions for approval
 
-**Status:** D1-D5 approved with amendments A1-A4; D6 proposed and pending
-human approval; WP1 Task 4 is not authorized
+**Status:** D1-D5 approved with amendments A1-A4; D6 proposed with amendments
+D6-A1 through D6-A3 and pending human approval; WP1 Task 4 is not authorized
 **Scope:** Protocol Core v0.1 data model and deterministic vectors only
 **Decision:** approved for WP1 implementation on 2026-07-26 by Petrit Bahtiri
 with amendments A1-A4 recorded in this document.
@@ -120,7 +120,8 @@ regeneration changes a vector without an explicit protocol review.
 
 ## D6 - Core v0.1 wire schema freeze
 
-**Status:** proposed by Task 4A; pending human approval.
+**Status:** proposed by Task 4A with amendments D6-A1 through D6-A3; pending
+human approval.
 
 The complete, individually assigned numeric field mappings, exact CBOR wire
 types, required/optional status, bounds, alphabets, patterns, and semantic
@@ -132,8 +133,8 @@ D6 proposes and, once approved, freezes these choices:
 
 - RouteGrant uses only a 32-byte SHA-256 `name_digest`.
 - Core v0.1 uses `allowed_ports`; service-capability encoding is deferred.
-- ServiceRecord is a payload without an embedded signature; COSE Sign1 is its
-  only signature wrapper.
+- ServiceRecord, RouteGrant, and Revocation are payloads without embedded
+  signatures; COSE Sign1 is their exclusive object-level signature wrapper.
 - ControlEnvelope key 6 is the critical-extension-key list.
 - RouteIntent, Revocation, and ProtocolError use only their complete documented
   schemas.
@@ -142,14 +143,40 @@ D6 proposes and, once approved, freezes these choices:
   Core v0.1. Only ControlEnvelope permits non-critical extension keys at or
   above 1000, and unknown critical extensions fail closed.
 
+### D6-A1 - Revocation lifetime and tombstone
+
+`expires_at` is optional. Its absence means that a revocation does not expire
+automatically. When present it is greater than `not_before`, with no universal
+maximum revocation lifetime. Key-compromise revocations never carry
+`expires_at`. The highest accepted issuer generation is retained as a durable
+tombstone after expiry or removal so an old object cannot resurrect revoked
+state or roll the issuer generation back.
+
+### D6-A2 - Target sequence
+
+Revocation key 9 is the optional `target_sequence`, not `record_sequence`. It
+is permitted only for target type 1, service record, and rejected for every
+other target type. Revocation issuer monotonicity always uses `generation`.
+
+### D6-A3 - COSE wrappers
+
+ServiceRecord, RouteGrant, and Revocation are deterministic-CBOR payloads
+without embedded signatures and are the only D6 objects that require an
+object-level COSE Sign1 wrapper. ServiceRecord protected `kid` equals
+`owner_key_id` byte-for-byte; Revocation protected `kid` equals
+`issuer_key_id` byte-for-byte; RouteGrant protected `kid` resolves only in the
+caller-supplied authorized RouteGrant issuer trust context. RouteIntent,
+ProtocolError, and ControlEnvelope prohibit an object-level COSE wrapper in
+Core v0.1.
+
 Approval of D6 is required before creating `fields.py`, `models.py`, or
 `schemas.py`. Changes to D6 after approval require documentation-test updates
 and protocol version review when wire bytes or accepted values change.
 
 ## Approval gate
 
-D1-D5 are approved for the completed WP1 Tasks 1-3. D6 remains pending and
-MUST be approved or amended before Task 4 begins. Approval freezes the first
-cross-language object-field contract; changing it later requires updated
-documentation tests, new vectors when applicable, and an explicit versioning
-decision.
+D1-D5 are approved for the completed WP1 Tasks 1-3. D6 with D6-A1 through
+D6-A3 remains pending and MUST be approved or amended before Task 4 begins.
+Approval freezes the first cross-language object-field contract; changing it
+later requires updated documentation tests, new vectors when applicable, and
+an explicit versioning decision.

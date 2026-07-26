@@ -1,7 +1,9 @@
 # NBSR Core v0.1 wire schema freeze
 
-**Status:** proposed by Task 4A; pending human approval  
-**Scope:** deterministic CBOR payload schemas only; no production implementation  
+**Status:** proposed with D6-A1 through D6-A3; pending human approval
+
+**Scope:** deterministic CBOR payload schemas and wrapper requirements only; no production implementation
+
 **Authority after approval:** D6 in `docs/protocol/wp1-decisions.md`
 
 This document is the sole numeric-field source for WP1 Task 4. Every key is
@@ -44,12 +46,14 @@ order, table order, dataclass order, or the field order in Vision V3.
 | ServiceRecord | 604800 seconds |
 | RouteIntent | 300 seconds |
 | RouteGrant | 600 seconds |
-| Revocation | 31536000 seconds |
 
-For each object, the end timestamp MUST be greater than the start timestamp
-and the difference MUST NOT exceed the listed maximum. Construction validates
-the shape of the window. A caller that supplies `now` additionally rejects a
-not-yet-valid or expired object.
+For each object listed above, the end timestamp MUST be greater than the start
+timestamp and the difference MUST NOT exceed the listed maximum. Construction
+validates the shape of the window. A caller that supplies `now` additionally
+rejects a not-yet-valid or expired object.
+
+Revocation has no universal maximum lifetime. Its optional `expires_at`
+follows the D6-A1 rules in the Revocation table.
 
 ## Fixed semantic registries
 
@@ -82,10 +86,33 @@ bytes: canonical-name ASCII for a service record, opaque key-ID bytes for a
 signing key, raw 16-byte ID for a route or lease, and textual-ID ASCII for an
 operator, edge, or origin connector.
 
+## COSE Sign1 wrapper matrix
+
+Vision V3 section 10.3 makes COSE Sign1 the only object-level signature
+wrapper in Core v0.1. The signed objects are deterministic-CBOR payload maps
+without an embedded signature field.
+
+| Object | Object-level COSE Sign1 | Protected `kid` binding |
+|---|---|---|
+| ServiceRecord | required | `kid` equals `owner_key_id` byte-for-byte |
+| RouteGrant | required | `kid` resolves only in caller-supplied authorized issuer trust context |
+| Revocation | required | `kid` equals `issuer_key_id` byte-for-byte |
+| RouteIntent | prohibited | No object-level COSE wrapper |
+| ProtocolError | prohibited | No object-level COSE wrapper |
+| ControlEnvelope | prohibited | No object-level COSE wrapper |
+
+For ServiceRecord and Revocation, signature verification succeeds only when
+the protected-header `kid` exactly matches the corresponding payload byte
+string. RouteGrant has no issuer field: its protected `kid` is opaque and may
+select a key only from the caller-supplied authorized RouteGrant issuer trust
+context. No fallback to a global key namespace, payload-derived lookup, or
+unprotected-header key identifier is permitted.
+
 ## ServiceRecord
 
-ServiceRecord is the payload carried by COSE Sign1. It has no embedded
-signature field. Every listed field is required.
+ServiceRecord is the payload carried by the required COSE Sign1 wrapper. It
+has no embedded signature field, and the protected `kid` must equal
+`owner_key_id` byte-for-byte. Every listed field is required.
 
 | Key | Field | Presence | Exact CBOR wire type | Minimum | Maximum | Semantic validation |
 |---:|---|---|---|---|---|---|
@@ -134,7 +161,8 @@ resolution context to a canonical name before a RouteGrant exists.
 Core v0.1 uses only `name_digest`, never a canonical-name-or-digest union.
 `name_digest` is SHA-256 over the canonical-name ASCII bytes. Core v0.1 uses
 only `allowed_ports`; service-capability encoding is deferred to a later
-version.
+version. RouteGrant is a payload without an embedded signature and uses the
+required COSE Sign1 RouteGrant issuer trust-context rule above.
 
 | Key | Field | Presence | Exact CBOR wire type | Minimum | Maximum | Semantic validation |
 |---:|---|---|---|---|---|---|
@@ -160,20 +188,29 @@ version.
 
 Revocation has one fixed target representation: a target-type code plus a
 32-byte target digest. It contains no polymorphic text-or-bytes target field.
+It is a payload without an embedded signature, and its required COSE Sign1
+protected `kid` must equal `issuer_key_id` byte-for-byte.
 
 | Key | Field | Presence | Exact CBOR wire type | Minimum | Maximum | Semantic validation |
 |---:|---|---|---|---|---|---|
 | 0 | `revocation_version` | required | `uint` | 1 | 1 | Must equal Core object version 1 |
 | 1 | `revocation_id` | required | `bstr` | 16 bytes | 16 bytes | Unique revocation statement identifier |
 | 2 | `issuer_key_id` | required | opaque `bstr` | 1 byte | 64 bytes | Resolved only in caller trust context |
-| 3 | `generation` | required | `uint` | 1 | 18446744073709551615 | Must be greater than caller-supplied last accepted issuer generation |
+| 3 | `generation` | required | `uint` | 1 | 18446744073709551615 | Must exceed the stored highest accepted issuer generation; update the persistent tombstone before acceptance |
 | 4 | `target_type` | required | `uint` | 1 | 7 | Must be a fixed target-type registry code |
 | 5 | `target_id` | required | SHA-256 `bstr` | 32 bytes | 32 bytes | Digest formula is selected only by `target_type` as defined above |
 | 6 | `mode` | required | `uint` | 1 | 2 | Must be `deny new use` or `terminate active use` |
 | 7 | `not_before` | required | `uint` Unix seconds | 0 | 253402300799 | Start of the revocation validity window |
-| 8 | `expires_at` | required | `uint` Unix seconds | 1 | 253402300799 | Greater than `not_before`; lifetime at most 31536000 seconds |
-| 9 | `record_sequence` | required | `uint` | 1 | 18446744073709551615 | Rejects a revocation older than the current target record state |
-| 10 | `reason_code` | required | `uint` | 1 | 6 | Must be a fixed reason registry code; no remote free text |
+| 8 | `expires_at` | optional | `uint` Unix seconds | 1 | 253402300799 | When absent, the revocation does not expire automatically; when present, greater than `not_before`; MUST be absent for key compromise |
+| 9 | `target_sequence` | optional | `uint` | 1 | 18446744073709551615 | Allowed only when `target_type` 1 (service record); rejected for all other target types; when present, binds the targeted record sequence |
+| 10 | `reason_code` | required | `uint` | 1 | 6 | Fixed reason registry code; key compromise requires `expires_at` absent; no remote free text |
+
+Acceptance stores the highest accepted issuer generation as a durable
+tombstone even after a revocation expires or is administratively removed.
+An object at or below that generation is rejected, preventing revocation
+rollback and resurrection. `target_sequence` is not the issuer monotonicity
+mechanism; it only scopes a service-record target. Issuer monotonicity always
+uses `generation`.
 
 ## ProtocolError
 

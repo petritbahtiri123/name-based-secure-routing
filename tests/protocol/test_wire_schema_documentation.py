@@ -73,7 +73,7 @@ EXPECTED_FIELDS = {
         6: "mode",
         7: "not_before",
         8: "expires_at",
-        9: "record_sequence",
+        9: "target_sequence",
         10: "reason_code",
     },
     "ProtocolError": {
@@ -112,6 +112,10 @@ def _schema_rows(schema_name: str) -> list[list[str]]:
     return rows
 
 
+def _schema_row(schema_name: str, numeric_key: int) -> list[str]:
+    return next(row for row in _schema_rows(schema_name) if int(row[0]) == numeric_key)
+
+
 def test_all_six_wire_schema_tables_freeze_complete_unique_numeric_mappings() -> None:
     for schema_name, expected_fields in EXPECTED_FIELDS.items():
         rows = _schema_rows(schema_name)
@@ -139,3 +143,46 @@ def test_d6_and_task4_use_the_wire_schema_as_the_only_mapping_source() -> None:
     assert "docs/protocol/core-v0.1-wire-schema.md" in decisions
     assert "docs/protocol/core-v0.1-wire-schema.md" in plan
     assert "use the field order from" not in plan.lower()
+
+
+def test_revocation_expiry_and_target_sequence_are_optional_and_scoped() -> None:
+    generation = _schema_row("Revocation", 3)
+    expires_at = _schema_row("Revocation", 8)
+    target_sequence = _schema_row("Revocation", 9)
+    reason_code = _schema_row("Revocation", 10)
+
+    assert expires_at[2] == "optional"
+    assert "does not expire automatically" in expires_at[6]
+    assert "key compromise" in expires_at[6]
+    assert "31536000" not in expires_at[6]
+    assert target_sequence[1] == "`target_sequence`"
+    assert target_sequence[2] == "optional"
+    assert "target_type` 1" in target_sequence[6]
+    assert "all other target types" in target_sequence[6]
+    assert "highest accepted issuer generation" in generation[6]
+    assert "tombstone" in generation[6]
+    assert "key compromise" in reason_code[6]
+    assert "`expires_at` absent" in reason_code[6]
+
+
+def test_object_level_cose_wrapper_and_kid_bindings_are_frozen() -> None:
+    text = WIRE_SCHEMA.read_text(encoding="utf-8")
+    expected_rows = (
+        "| ServiceRecord | required | `kid` equals `owner_key_id` byte-for-byte |",
+        "| RouteGrant | required | `kid` resolves only in caller-supplied authorized issuer trust context |",
+        "| Revocation | required | `kid` equals `issuer_key_id` byte-for-byte |",
+        "| RouteIntent | prohibited | No object-level COSE wrapper |",
+        "| ProtocolError | prohibited | No object-level COSE wrapper |",
+        "| ControlEnvelope | prohibited | No object-level COSE wrapper |",
+    )
+
+    assert all(row in text for row in expected_rows)
+
+
+def test_d6_amendments_are_required_by_decisions_and_task4_plan() -> None:
+    decisions = DECISIONS.read_text(encoding="utf-8")
+    plan = PLAN.read_text(encoding="utf-8")
+
+    for amendment in ("D6-A1", "D6-A2", "D6-A3"):
+        assert amendment in decisions
+        assert amendment in plan
