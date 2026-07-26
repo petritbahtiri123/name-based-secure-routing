@@ -1,7 +1,7 @@
 # WP1 protocol decisions for approval
 
-**Status:** D1-D5 approved with amendments A1-A4; D6 proposed with amendments
-D6-A1 through D6-A3 and pending human approval; WP1 Task 4 is not authorized
+**Status:** D1-D6 approved; D1-D5 include amendments A1-A4 and D6 includes
+D6-A1 through D6-A3; WP1 Task 4 is authorized
 **Scope:** Protocol Core v0.1 data model and deterministic vectors only
 **Decision:** approved for WP1 implementation on 2026-07-26 by Petrit Bahtiri
 with amendments A1-A4 recorded in this document.
@@ -120,8 +120,7 @@ regeneration changes a vector without an explicit protocol review.
 
 ## D6 - Core v0.1 wire schema freeze
 
-**Status:** proposed by Task 4A with amendments D6-A1 through D6-A3; pending
-human approval.
+**Status:** approved on 2026-07-26 with amendments D6-A1 through D6-A3.
 
 The complete, individually assigned numeric field mappings, exact CBOR wire
 types, required/optional status, bounds, alphabets, patterns, and semantic
@@ -169,14 +168,13 @@ caller-supplied authorized RouteGrant issuer trust context. RouteIntent,
 ProtocolError, and ControlEnvelope prohibit an object-level COSE wrapper in
 Core v0.1.
 
-Approval of D6 is required before creating `fields.py`, `models.py`, or
-`schemas.py`. Changes to D6 after approval require documentation-test updates
-and protocol version review when wire bytes or accepted values change.
+D6 approval authorizes creation of `fields.py`, `models.py`, and `schemas.py`
+within WP1 Task 4. Changes to D6 after approval require documentation-test
+updates and protocol version review when wire bytes or accepted values change.
 
 ## Approval gate
 
 D1-D5 are approved for the completed WP1 Tasks 1-3. D6 with D6-A1 through
-D6-A3 remains pending and MUST be approved or amended before Task 4 begins.
-Approval freezes the first cross-language object-field contract; changing it
-later requires updated documentation tests, new vectors when applicable, and
-an explicit versioning decision.
+D6-A3 is approved for Task 4. This approval freezes the first cross-language
+object-field contract; changing it later requires updated documentation tests,
+new vectors when applicable, and an explicit versioning decision.

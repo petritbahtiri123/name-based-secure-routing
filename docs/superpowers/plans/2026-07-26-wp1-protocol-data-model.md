@@ -538,11 +538,11 @@ git commit -m "feat(protocol): enforce deterministic bounded CBOR"
 
 ### Task 4: Define immutable models and numeric wire schemas
 
-**Approval prerequisite:** D6 with D6-A1, D6-A2, and D6-A3 in
-`docs/protocol/wp1-decisions.md` must be human-approved.
+**Approval prerequisite:** satisfied on 2026-07-26. D6 with D6-A1, D6-A2,
+and D6-A3 in `docs/protocol/wp1-decisions.md` is human-approved.
 `docs/protocol/core-v0.1-wire-schema.md` is the sole source for all Task 4
 numeric keys, required/optional fields, CBOR wire types, bounds, and semantic
-validation. Do not begin this task while D6 or an amendment is pending.
+validation.
 
 **Files:**
 - Create: `nbsr/protocol/fields.py`

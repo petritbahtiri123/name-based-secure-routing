@@ -1,6 +1,6 @@
 # NBSR Core v0.1 wire schema freeze
 
-**Status:** proposed with D6-A1 through D6-A3; pending human approval
+**Status:** approved on 2026-07-26 with D6-A1 through D6-A3
 
 **Scope:** deterministic CBOR payload schemas and wrapper requirements only; no production implementation
 

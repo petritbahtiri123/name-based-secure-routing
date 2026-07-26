@@ -186,3 +186,13 @@ def test_d6_amendments_are_required_by_decisions_and_task4_plan() -> None:
     for amendment in ("D6-A1", "D6-A2", "D6-A3"):
         assert amendment in decisions
         assert amendment in plan
+
+
+def test_d6_approval_gate_is_recorded_before_task4() -> None:
+    wire_schema = WIRE_SCHEMA.read_text(encoding="utf-8")
+    decisions = DECISIONS.read_text(encoding="utf-8")
+    plan = PLAN.read_text(encoding="utf-8")
+
+    assert "**Status:** approved on 2026-07-26 with D6-A1 through D6-A3" in wire_schema
+    assert "**Status:** D1-D6 approved" in decisions
+    assert "**Approval prerequisite:** satisfied on 2026-07-26" in plan
