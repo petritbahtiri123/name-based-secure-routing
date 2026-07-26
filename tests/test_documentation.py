@@ -53,20 +53,12 @@ def test_north_star_and_document_precedence_are_explicit():
     ):
         assert north_star in path.read_text(encoding="utf-8")
 
-    vision_v3 = (
-        DOCS
-        / "architecture"
-        / "NBSR_Protocol_Vision_V3_and_Codex_Build_Directive.md"
-    ).read_text(encoding="utf-8")
+    vision_v3 = (DOCS / "architecture" / "NBSR_Protocol_Vision_V3_and_Codex_Build_Directive.md").read_text(encoding="utf-8")
     assert "Authoritative architecture direction" in vision_v3
     assert "Name/Resolution Plane" in vision_v3
     assert "Secure Route/Tunnel Plane" in vision_v3
 
-    conformance = " ".join(
-        (DOCS / "vision-v2-conformance.md")
-        .read_text(encoding="utf-8")
-        .split()
-    )
+    conformance = " ".join((DOCS / "vision-v2-conformance.md").read_text(encoding="utf-8").split())
     assert "historical Vision V2 baseline" in conformance
     assert "not V3 implementation evidence" in conformance
     assert "does not claim native NBSR conformance" in conformance
@@ -85,20 +77,10 @@ def test_readme_separates_v3_direction_from_current_implementation():
 
 
 def test_wp0_sources_are_preserved():
-    assert (
-        DOCS
-        / "architecture"
-        / "NBSR_Protocol_Vision_V3_and_Codex_Build_Directive.md"
-    ).is_file()
-    assert (
-        DOCS
-        / "architecture"
-        / "NBSR_Protocol_Vision_V3_and_Codex_Build_Directive.pdf"
-    ).is_file()
+    assert (DOCS / "architecture" / "NBSR_Protocol_Vision_V3_and_Codex_Build_Directive.md").is_file()
+    assert (DOCS / "architecture" / "NBSR_Protocol_Vision_V3_and_Codex_Build_Directive.pdf").is_file()
     assert (DOCS / "history" / "NBSR_Protocol_Vision_v2.pdf").is_file()
-    assert (
-        DOCS / "research" / "Name-Based-Secure-Routing-feasibility-study.pdf"
-    ).is_file()
+    assert (DOCS / "research" / "Name-Based-Secure-Routing-feasibility-study.pdf").is_file()
 
 
 def test_protocol_status_defines_required_vocabulary():
@@ -109,9 +91,7 @@ def test_protocol_status_defines_required_vocabulary():
 
 
 def test_active_overviews_point_to_v3_authority():
-    v3_link = (
-        "architecture/NBSR_Protocol_Vision_V3_and_Codex_Build_Directive.md"
-    )
+    v3_link = "architecture/NBSR_Protocol_Vision_V3_and_Codex_Build_Directive.md"
     for path in (
         DOCS / "architecture.md",
         DOCS / "security-model.md",
@@ -140,12 +120,7 @@ def test_wp0_local_document_links_resolve():
         DOCS / "research" / "README.md",
         DOCS / "protocol" / "status.md",
     )
-    missing = [
-        str(target.relative_to(ROOT))
-        for path in paths
-        for target in _local_markdown_targets(path)
-        if not target.exists()
-    ]
+    missing = [str(target.relative_to(ROOT)) for path in paths for target in _local_markdown_targets(path) if not target.exists()]
     assert missing == []
 
 

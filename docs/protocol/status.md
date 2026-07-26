@@ -2,9 +2,14 @@
 
 **Baseline date:** 2026-07-26  
 **Authority:** [Protocol Vision V3](../architecture/NBSR_Protocol_Vision_V3_and_Codex_Build_Directive.md)  
-**Evidence baseline:** hardened Build Week snapshot reporting 180 passed, 1
-skipped, Ruff clean, five OPA tests passed, Compose validation, live enterprise
-and ISP-profile demonstrations, and Kind isolation probes on 2026-07-25.
+**Evidence baseline:** the final hardened-branch report records 255 passed and
+1 skipped on supported Python 3.12 and 3.13, Ruff clean, five OPA tests passed,
+Compose validation, live enterprise and ISP-profile demonstrations, and Kind
+isolation probes. The WP0 merge was rechecked on 2026-07-26 with 261 passed and
+1 skipped, tracked Python files Ruff-clean, and Compose configuration valid.
+That local recheck used out-of-range Python 3.14 because no supported
+interpreter was installed; the available OPA launcher could not execute, so
+the earlier five-test OPA evidence was not refreshed.
 
 This file separates evidence from intent. `Implemented` means verified behavior
 exists at prototype scale. It does not imply Core v0.1 conformance, production
