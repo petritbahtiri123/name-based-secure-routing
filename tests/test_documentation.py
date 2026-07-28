@@ -44,23 +44,25 @@ def test_authoritative_vision_pdf_is_the_supplied_binary():
     assert hashlib.sha256(history_copy.read_bytes()).hexdigest() == VISION_SHA256
 
 
-def test_north_star_and_document_precedence_are_explicit():
-    north_star = "NBSR turns a name into a secure route, not an IP address."
+def test_v36_north_star_and_document_precedence_are_explicit():
+    north_star = "every successful"
     for path in (
         ROOT / "README.md",
         DOCS / "architecture.md",
-        DOCS / "architecture" / "terminology.md",
+        DOCS / "architecture" / "NBSR_Protocol_Vision_V3.6.md",
     ):
-        assert north_star in path.read_text(encoding="utf-8")
+        content = path.read_text(encoding="utf-8").casefold()
+        assert north_star in content
+        assert "synthetic ip" in content
 
-    vision_v3 = (DOCS / "architecture" / "NBSR_Protocol_Vision_V3_and_Codex_Build_Directive.md").read_text(encoding="utf-8")
-    assert "Authoritative architecture direction" in vision_v3
-    assert "Name/Resolution Plane" in vision_v3
-    assert "Secure Route/Tunnel Plane" in vision_v3
+    vision_v36 = (DOCS / "architecture" / "NBSR_Protocol_Vision_V3.6.md").read_text(encoding="utf-8")
+    assert "Current architectural source of truth" in vision_v36
+    assert "Transport Session -> Route Context / Service Channel -> Application Stream" in vision_v36
+    assert "OriginSet" in vision_v36
 
     conformance = " ".join((DOCS / "vision-v2-conformance.md").read_text(encoding="utf-8").split())
     assert "historical Vision V2 baseline" in conformance
-    assert "not V3 implementation evidence" in conformance
+    assert "not V3.6 implementation evidence" in conformance
     assert "does not claim native NBSR conformance" in conformance
 
 
@@ -68,7 +70,7 @@ def test_readme_separates_v3_direction_from_current_implementation():
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
     normalized = " ".join(readme.split())
 
-    assert "NBSR Name Node resolves every configured name" in readme
+    assert "synthetic IP for every successfully resolved name" in normalized
     assert "Name/Resolution Plane" in readme
     assert "Secure Route/Tunnel Plane" in readme
     assert "not Protocol Core v0.1" in normalized
@@ -90,16 +92,16 @@ def test_protocol_status_defines_required_vocabulary():
     assert "does not imply Core v0.1 conformance" in status
 
 
-def test_active_overviews_point_to_v3_authority():
-    v3_link = "architecture/NBSR_Protocol_Vision_V3_and_Codex_Build_Directive.md"
+def test_active_overviews_point_to_v36_authority():
+    v36_link = "architecture/NBSR_Protocol_Vision_V3.6.md"
     for path in (
         DOCS / "architecture.md",
         DOCS / "security-model.md",
         DOCS / "threat-model.md",
     ):
         content = path.read_text(encoding="utf-8")
-        assert "Protocol Vision V3" in content
-        assert v3_link in content
+        assert "NBSR Protocol Vision V3.6" in content
+        assert v36_link in content
 
 
 def test_v2_evidence_is_labeled_as_a_historical_baseline():
@@ -109,7 +111,7 @@ def test_v2_evidence_is_labeled_as_a_historical_baseline():
     ):
         content = " ".join(path.read_text(encoding="utf-8").split())
         assert "historical Vision V2 baseline" in content
-        assert "not V3 implementation evidence" in content
+        assert "not V3.6 implementation evidence" in content
 
 
 def test_wp0_local_document_links_resolve():
