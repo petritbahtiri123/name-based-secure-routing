@@ -1,18 +1,20 @@
 # OriginSet compatibility and authority decision
 
-**Decision ID:** D7 proposal
+**Decision ID:** D7
 
-**Status:** Human approval required
+**Status:** Approved
 
 **Date:** 2026-07-28
 
 **Scope:** Architecture placement, authority, trust, publication-mode mapping,
 rollback, and future wrapper direction only
 
-**Runtime authorization:** None. This decision package does not authorize
-runtime implementation.
+**Implementation authorization:** Phase C may implement and test the bounded
+internal Derived OriginSet model only. DNS adapters, routing, caching, wire
+serialization, native publication, Service Channels, and other runtime
+integration remain unauthorized.
 
-## Decision to review
+## Approved decision
 
 Adopt a two-layer OriginSet design:
 
@@ -165,7 +167,7 @@ Publisher conflicts are retained as security evidence. Whether a later
 transparency or quorum process can select a winner remains a Core v0.2/federation
 decision. WP2 does not invent that process.
 
-## D7-5 — Proposed Core v0.2 wrapper
+## D7-5 — Approved future Core v0.2 wrapper direction
 
 The proposed Core v0.2 wrapper is:
 
@@ -178,10 +180,11 @@ The proposed Core v0.2 wrapper is:
 - bound to the ServiceRecord generation, origin generation, sequence,
   validity, issuer role, and rollback/equivocation state.
 
-This wrapper is not approved by D1-D6. D2's Ed25519 COSE Sign1 constraints are
-a candidate profile to reuse, but OriginSet is a new object class. The exact
-payload keys, message code, kid binding, and vectors require separate approval.
-No implementation may infer them from this proposal.
+This wrapper is not part of D1-D6. D2's Ed25519 COSE Sign1 constraints are a
+candidate profile to reuse, but OriginSet is a new object class. D7 approves
+only this future wrapper direction. The exact payload keys, message code,
+`kid` binding, and vectors require separate approval. No implementation may
+infer them from this decision.
 
 ## Safe replacement behavior
 
@@ -212,17 +215,12 @@ Endpoint to the client.
 | WP3 | May later consume only the internal validated model |
 | WP6/Core v0.2 | Owns native serialization, authority exchange, replication, and federation behavior |
 
-## Approval ballot
+## Approval record
 
-Human approval is required separately for:
+D7-1 through D7-5 were approved by the human protocol owner on 2026-07-28.
+The same review authorized the minimal Phase C internal Derived OriginSet
+model and focused tests.
 
-1. D7-1 internal/Core v0.2 placement;
-2. D7-2 authority hierarchy and caller trust context;
-3. D7-3 publication-mode policy mapping;
-4. D7-4 rollback, equivocation, and tombstone rules; and
-5. D7-5 future COSE Sign1 direction.
-
-Approval of D7-1 through D7-4 would permit planning the internal model but
-would not authorize runtime code. Approval of D7-5 would approve only the
-wrapper direction; numeric schemas, messages, `kid` binding, vectors, and
-implementation would still require dedicated review.
+This approval does not authorize a DNS adapter, cache, route selector,
+Service Channel, native publisher, wire serialization, numeric schema,
+message, `kid` binding, interoperability vector, or runtime integration.

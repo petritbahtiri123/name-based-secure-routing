@@ -13,12 +13,14 @@ def _normalized(path: Path) -> str:
     return " ".join(path.read_text(encoding="utf-8").split())
 
 
-def test_originset_decision_package_exists_and_remains_review_gated() -> None:
+def test_originset_decision_is_approved_but_runtime_remains_gated() -> None:
     text = _normalized(DECISION)
 
-    assert "D7 proposal" in text
-    assert "human approval required" in text.casefold()
-    assert "does not authorize runtime implementation" in text
+    assert "**Decision ID:** D7" in text
+    assert "**Status:** Approved" in text
+    assert "D7-1 through D7-5 were approved" in text
+    assert "Phase C may implement and test" in text
+    assert "runtime integration remain unauthorized" in text
 
 
 def test_originset_placement_preserves_core_v01_and_defers_native_wire() -> None:
@@ -87,20 +89,21 @@ def test_originset_rollback_equivocation_and_tombstone_rules_fail_closed() -> No
         assert rule.casefold() in text.casefold()
 
 
-def test_originset_wrapper_proposal_is_not_misrepresented_as_approved() -> None:
+def test_originset_wrapper_direction_does_not_allocate_wire_details() -> None:
     text = _normalized(DECISION)
 
-    assert "Proposed Core v0.2 wrapper" in text
+    assert "Approved future Core v0.2 wrapper direction" in text
     assert "COSE Sign1" in text
-    assert "not approved by D1-D6" in text
-    assert "exact payload keys, message code, kid binding, and vectors require separate approval" in text
+    assert "not part of D1-D6" in text
+    assert "exact payload keys, message code, `kid` binding, and vectors require separate approval" in text
 
 
-def test_v36_record_and_roadmap_point_to_the_pending_d7_review() -> None:
+def test_v36_record_and_roadmap_point_to_phase_c_review() -> None:
     decisions = _normalized(V36_DECISIONS)
     roadmap = _normalized(ROADMAP)
 
-    assert "D7 proposal prepared" in decisions
-    assert "D7 is not approved" in decisions
-    assert "OriginSet D7 proposal review" in decisions
-    assert "Phase B decision package prepared; human approval pending" in roadmap
+    assert "D7 approved" in decisions
+    assert "D7-1 through D7-5 were approved" in decisions
+    assert "Phase C internal OriginSet model review" in decisions
+    assert "Phase B complete" in roadmap
+    assert "Service Channel modeling is deferred" in roadmap

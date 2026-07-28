@@ -136,7 +136,8 @@ def test_decision_record_separates_approved_direction_from_pending_wire_work() -
 
     for gate in (
         "exact wire representation of OriginSet",
-        "OriginSet wrapper and signing authority",
+        "exact OriginSet wrapper schema",
+        "`kid` binding",
         "message codes for origin update",
         "service-channel wire representation",
         "cryptographic channel derivation",
@@ -147,9 +148,11 @@ def test_decision_record_separates_approved_direction_from_pending_wire_work() -
         "route behavior when legacy DNS is unavailable",
         "origin health-check trust model",
         "graceful-drain maximum lifetime",
-        "Core v0.1 extension versus Core v0.2",
     ):
         assert gate.casefold() in pending.casefold()
+
+    assert "OriginSet" in compatibility
+    assert "Core v0.2 candidate" in compatibility
 
     for addition in (
         "Service Channel model",
