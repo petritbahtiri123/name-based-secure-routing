@@ -1,10 +1,15 @@
-# NBSR protocol state machine draft
+# NBSR protocol state machines
 
-This is a design-level state machine aligned with
-[NBSR Protocol Vision v2](NBSR_Protocol_Vision_v2.pdf). It is not a normative
-wire specification. The repository implements only the Phase 1 vertical slice
-identified below. Renewal, revocation distribution, migration, resumption,
-multiplexing, and federation are deliberately not implemented in this run.
+The current direction is
+[NBSR Protocol Vision V3.6](NBSR_Protocol_Vision_V3.6.md). The frozen Core v0.1
+state registries remain unchanged: Resolution, Tunnel, Stream, and Connector
+states/transitions are defined by D3/Task 2 and protected by executable tests.
+
+The original diagram and prototype commentary below are retained as historical
+design evidence. The V3.6 lifecycle diagrams later in this document are a
+**documentation-only proposal**. They do not allocate new states, transitions,
+message codes, or wire fields. Any normative registry change requires human
+approval and version/extension classification.
 
 ```mermaid
 stateDiagram-v2
@@ -159,3 +164,106 @@ tunnel lifetime semantics are design-only.
   policy availability fail closed.
 - Compatibility HTTP is labeled as coexistence mode, never as native
   end-to-end authenticated NBSR.
+
+## V3.6 proposed lifecycle decomposition
+
+These lifecycles describe required behavior independently so shared transport
+does not collapse service authorization or origin reachability into one
+machine.
+
+### Transport Session lifecycle
+
+Conceptual flow:
+
+`IDLE -> DISCOVERING -> HANDSHAKING -> AUTHENTICATING -> ACTIVE`
+
+`ACTIVE -> RENEWING -> ACTIVE`
+
+`ACTIVE -> DRAINING -> CLOSED`
+
+`ACTIVE -> MIGRATING -> ACTIVE`
+
+`ACTIVE -> FAILED -> RESUMING -> ACTIVE`
+
+These names already exist in the frozen Tunnel registry where applicable.
+V3.6 clarifies that the machine represents edge-to-edge transport, not
+universal service authorization. Session failure interrupts carried channels;
+session recovery does not authorize or revive any channel.
+
+### Service Channel lifecycle
+
+Conceptual documentation-only proposal:
+
+`NEW -> ADMISSION_PENDING -> ACTIVE -> DRAINING -> CLOSED`
+
+`NEW|ADMISSION_PENDING -> REJECTED`
+
+`ADMISSION_PENDING|ACTIVE|DRAINING -> REVOKED`
+
+Entry to `ACTIVE` requires service-specific admission and independent
+cryptographic/transcript binding. A rejected or revoked channel does not
+unnecessarily terminate another channel on the same Transport Session.
+Neither a Service Channel registry nor these transitions are frozen in Core
+v0.1; human approval is required.
+
+### Origin publication lifecycle
+
+Conceptual documentation-only proposal:
+
+`CANDIDATE -> AUTHENTICATING -> VALIDATING -> HEALTH_CHECKING -> ACTIVE`
+
+`ACTIVE -> SUPERSEDED -> DRAINING -> RETIRED`
+
+`CANDIDATE|AUTHENTICATING|VALIDATING|HEALTH_CHECKING -> REJECTED`
+
+Generation, sequence, validity, issuer, revocation, content digest, and rollback
+checks occur before activation. A same-sequence different-content candidate is
+rejected and recorded as equivocation. No OriginSet state registry is frozen;
+human approval is required before a native wire state exists.
+
+### Migration and resumption lifecycle
+
+Conceptual flow:
+
+`ACTIVE -> PATH_VALIDATING -> MIGRATED`
+
+or, after transport loss:
+
+`FAILED -> RESUME_PROOF_PENDING -> REAUTHORIZING -> RESUMED`
+
+Same-edge QUIC migration may preserve the Transport Session after path
+validation. Cross-edge recovery requires approved handover or fresh
+authorization. Every surviving Route Context / Service Channel remains
+expiry-, revocation-, replay-, gateway-, client/device-, service-, and
+policy-bound. The additional conceptual labels are not frozen states.
+
+### Graceful origin drain lifecycle
+
+Conceptual documentation-only proposal:
+
+`ACTIVE_OLD -> REPLACEMENT_VALIDATING -> DRAINING_OLD -> RETIRED_OLD`
+
+New channels use the validated replacement. Existing permitted Application
+Streams may finish within an approved bound unless explicit invalidation or
+revocation requires immediate termination. Blind delete-and-replace is
+forbidden. Drain maximum and native update signaling require human approval.
+
+## Failure containment across machines
+
+- Origin publication failure cannot reveal an Origin Endpoint or downgrade the
+  client to direct IP connectivity.
+- Service Channel failure cannot authorize or unnecessarily terminate another
+  service.
+- Transport Session migration/resumption cannot revive an expired or revoked
+  channel.
+- Destination Edge failover cannot bypass issuer, grant, service, policy, or
+  OriginSet validation.
+- Health-check state cannot create Service Identity or authorization.
+
+## Registry protection
+
+The V3.6 proposal deliberately reuses prose labels without adding them to
+`nbsr.protocol.states`. Before any label becomes normative, a decision must
+classify it as an editorial mapping, internal-only implementation state,
+backward-compatible extension, Core v0.2 state, or incompatible Core v0.1
+change. Tests must then freeze the approved exact names and transitions.
