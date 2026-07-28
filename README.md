@@ -32,6 +32,10 @@ production system.
   prototype behavior from partial, planned, and normative Core v0.1 behavior.
 - [V3.6 protocol roadmap](docs/superpowers/plans/2026-07-28-v3.6-protocol-roadmap.md)
   defines gated WP2-WP6 sequencing and does not authorize runtime work.
+- [Standards reuse matrix](docs/protocol/standards-reuse-matrix.md) and
+  [minimal NBSR surface](docs/protocol/minimal-nbsr-protocol-surface.md)
+  separate reused Internet standards, NBSR profiles, and genuinely new NBSR
+  semantics.
 - Vision V2 and the original feasibility study remain available under
   [`docs/history`](docs/history/README.md) and
   [`docs/research`](docs/research/README.md).

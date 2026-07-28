@@ -69,6 +69,16 @@ not claim implementation.
 | Service-channel starvation or noisy-neighbor behavior | One service exhausts streams, flow control, memory, or audit capacity on shared transport | Independent quotas, fair scheduling, bounded buffers, per-service attribution | Throttle/deny affected channel without implicit cross-service termination |
 | Split-brain origin publication | Multiple authorized publishers issue incompatible current sets | Approved publisher precedence, transparency/checkpoints, equivocation evidence, bounded last-known-good behavior | Fail closed when no deterministic authorized winner exists |
 | Route continuation after service revocation | Existing channel continues or revives through drain, migration, resumption, or replica failover | Per-service revocation checks at new stream, renewal, resume, migrate, handover, and origin update boundaries | Immediate revoke or approved bounded drain; never resurrect |
+| QUIC migration misuse | Valid transport path migration is treated as fresh service, grant, gateway, or policy authorization | Limit default migration to the same authenticated edge pair; recheck every NBSR binding | Path validation proves path reachability only; cross-edge resume requires reauthorization |
+| TLS exporter context confusion | Exporter label, context encoding, direction, or channel identifier collides across services | Dedicated label, canonical unambiguous context, domain separation, independent vectors, and cryptographic review | Do not deploy Service Channel derivation until exact inputs and vectors are approved |
+| SVCB/HTTPS poisoning | Attacker supplies an alternate target, port, ALPN, or address hint that bypasses origin policy | Treat every parameter as reachability input; validate mandatory keys, final addresses, requested service identity, and Web PKI | Reject the Derived OriginSet; never expose or directly connect the client to the target |
+| DNSSEC downgrade | A previously secure discovery path is silently accepted as insecure, indeterminate, or bogus | Track validation state and prior policy; distinguish secure, insecure, bogus, and indeterminate | Bogus fails closed; mode-specific insecure handling is a human gate |
+| CGN/synthetic range collision | 100.64.0.0/10 or another synthetic prefix overlaps access-network, VPN, LAN, or container routing | Configurable prefixes, startup and change-time collision checks, explicit route ownership, containment filters | Fail closed and require operator reconfiguration; 100.64.0.0/10 is not universally safe |
+| MTU black hole | Encapsulation overhead or blocked ICMP causes repeated oversized loss | Reuse QUIC DPLPMTUD, account for all overhead, bound inner payload, and test low-MTU paths | Do not invent PMTU; reject safely without origin disclosure |
+| Retry token abuse | Forged, replayed, long-lived, or cross-context Retry token causes amplification, tracking, or admission bypass | QUIC-compliant integrity, narrow scope, short lifetime, rotation, rate limits, and no authorization meaning | Drop invalid token cheaply; Retry success never allocates an NBSR route |
+| Logging leakage | Operator or client telemetry correlates raw name, client, Service Channel, and Origin Endpoint beyond authorization | Origin-free client schemas, pseudonymous client IDs, field allowlists, separated security/operations access, bounded retention | No origin in client errors or normal client telemetry; audit fields require privacy review |
+| Stale distributed state | Replica lacks current revocation, replay, tombstone, OriginSet, or policy state and accepts rolled-back work | Bounded staleness, monotonic generation/sequence, signed snapshots or replicated log, read barriers where required | Fail closed when freshness required for authorization cannot be proven |
+| Interception bypass | Traffic to a Synthetic IP escapes TPROXY, TUN, eBPF, WFP, policy routing, or local resolver capture | Synthetic-prefix-only capture, explicit reject route, startup/self-test, route-change monitoring, signed platform component where required | Uncaptured or ambiguous traffic is blocked; direct origin fallback remains forbidden |
 
 ## V3.6 trust-boundary changes
 
@@ -82,6 +92,39 @@ not claim implementation.
   revocation, replay, and tombstone state to prevent rollback or resurrection.
 - Default telemetry must distinguish per-service channels while remaining
   unable to reconstruct a client-to-origin map.
+
+## Logging, privacy, and observability requirements
+
+Protocol invariants, independent of logging backend:
+
+- no Origin Endpoint appears in client-visible errors, normal client telemetry,
+  or fallback behavior;
+- raw names are logged only under an approved purpose, access policy, and
+  bounded retention; pseudonymous service/route identifiers are the default;
+- client/device identifiers used for audit are pseudonymous and scoped so they
+  do not become universal tracking identifiers;
+- shared transports retain per-service audit attribution without exposing
+  another service's channel metadata;
+- security logs and operational logs have separate access and retention
+  policies; and
+- each operator sees only the identifiers and reachability needed for its trust
+  boundary, unless an approved federation/audit exchange says otherwise.
+
+These are protocol privacy constraints, not a requirement for a particular
+logging backend.
+
+## HA correctness requirements
+
+NBSR does not define a distributed database protocol. A deployment may use
+etcd/Raft, PostgreSQL replication, signed snapshots, replicated logs, or
+another reviewed system. Regardless of technology, replicas must preserve
+highest accepted issuer generation, monotonic sequence, tombstones, replay
+state, revocation state, OriginSet digest/state, and policy version.
+
+Bounded staleness must be explicit per decision. When a replica cannot prove
+fresh enough state for route/channel authorization, resume, migration, or
+handover, it fails closed. Availability pressure must never resurrect revoked
+state.
 
 ## Residual risk by severity
 

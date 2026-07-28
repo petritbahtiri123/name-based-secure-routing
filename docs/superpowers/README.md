@@ -6,6 +6,9 @@ Forward-looking work follows:
 
 - [NBSR Protocol Vision V3.6](../architecture/NBSR_Protocol_Vision_V3.6.md);
 - [V3.6 decision and compatibility record](../protocol/v3.6-decisions.md); and
+- [standards reuse matrix](../protocol/standards-reuse-matrix.md);
+- [minimal NBSR-specific surface](../protocol/minimal-nbsr-protocol-surface.md);
+  and
 - [V3.6 protocol roadmap](plans/2026-07-28-v3.6-protocol-roadmap.md).
 
 The V3.6 roadmap is documentation and sequencing only. It does not authorize

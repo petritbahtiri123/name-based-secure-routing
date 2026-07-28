@@ -18,6 +18,12 @@ Supporting current architecture:
 - [Origin publication and migration](origin-publication-migration.md)
 - [Protocol state machines](protocol-state-machine.md)
 - [V3.6 decision and compatibility record](../protocol/v3.6-decisions.md)
+- [NBSR QUIC/TLS transport profile](nbsr-transport-profile.md)
+- [Legacy DNS/Web PKI compatibility profile](legacy-compatibility-profile.md)
+- [Synthetic address profile](synthetic-address-profile.md)
+- [Standards reuse matrix](../protocol/standards-reuse-matrix.md)
+- [Minimal NBSR-specific surface](../protocol/minimal-nbsr-protocol-surface.md)
+- [Resource and timeout profile](../protocol/resource-timeout-profile.md)
 
 Earlier architectural material is preserved under
 [`../history`](../history/README.md). Supporting research is preserved under
