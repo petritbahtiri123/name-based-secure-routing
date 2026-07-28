@@ -1,9 +1,10 @@
 # NBSR threat model
 
 Current architecture direction comes from
-[NBSR Protocol Vision V3](architecture/NBSR_Protocol_Vision_V3_and_Codex_Build_Directive.md).
+[NBSR Protocol Vision V3.6](architecture/NBSR_Protocol_Vision_V3.6.md).
 This threat model describes the hardened prototype boundary; it does not claim
-that the planned Core v0.1, Name Node, QUIC tunnel, or federation exists.
+that the planned Name Node, OriginSet publication, QUIC Transport Session,
+Service Channels, mobility profile, or federation exists.
 
 ## Scope
 
@@ -43,6 +44,44 @@ outside the prototype's containment boundary.
 | Downgrade | TLS or native requirement replaced by plaintext/weaker path | Client TLS context and service config | TLS-required URLs, minimum/maximum TLS 1.3 internally, no plaintext retry | A normative native transport negotiation protocol is not implemented |
 | Unicode/name alias confusion | Mixed case, trailing dot, or IDNA ambiguity bypasses policy | Request model and registry canonicalizer | Exact canonical ASCII registered name required | Internationalized native NBSR naming is not specified |
 | Policy rollback/staleness | Old capability survives registry change | Relay local registry | Version and deterministic fingerprint mismatch fails closed | No distributed policy rollout consistency protocol |
+
+## V3.6 architecture threats and required future controls
+
+The following rows are forward-looking requirements. `Planned control` does
+not claim implementation.
+
+| Threat | Concrete path | Required future control | Failure rule / remaining gate |
+|---|---|---|---|
+| Malicious or compromised legacy DNS | Adapter returns attacker-selected or rapidly changing origins | Treat DNS as constrained reachability only; bind results to accepted Service Identity/policy; bound and validate temporary OriginSet | Never authorize from DNS and never return an origin fallback |
+| Stale origin update | Old but validly signed update arrives after a newer set | Durable accepted generation/sequence/digest and validity checks | Reject stale update; preserve newer accepted state |
+| Rollback or resurrection of an old OriginSet | Publisher replays a prior generation after expiry, revocation, or failover | Tombstone/highest-generation retention plus rollback binding | Fail closed; exact native mechanism is a human gate |
+| Same-sequence different-content equivocation | Two updates use the same issuer/generation/sequence with different endpoints | Compare deterministic content digest and retain conflict evidence | Reject both conflicting candidates or follow an approved transparency policy |
+| Compromised Destination Edge | Edge redirects channels to an unauthorized endpoint or widens service access | Independent owner/issuer authority, bounded OriginSet selection, per-service admission, revocation, and audit | Edge compromise cannot mint owner identity or authorize another service |
+| Cross-service authorization confusion | Grant or admission for service A opens service B on a shared session | Independently authorize and name/service-bind every Service Channel | Reject channel; do not reuse service authorization |
+| Channel key/context confusion | Channel A's key or transcript is accepted for channel B | Independent cryptographic or transcript-bound context including service, route, channel, grant, edges, and policy | Fail affected channel; exact derivation is a human gate |
+| Transport-session compromise blast radius | Shared edge transport secrets expose or manipulate multiple channels | Forward secrecy, key updates, independent channel context, per-channel authorization, bounded session scope, emergency revocation | Do not treat transport compromise as authority for new services |
+| Malicious session migration | Attacker redirects a valid session or Route Context to another path/edge | Path validation and explicit same-edge/cross-edge policy with binding checks | No new authorization from path or source-IP change |
+| Replayed resume proof | Captured proof restores expired or revoked state | One-time/replay-safe proof, durable replay state, expiry and revocation recheck | Reject replay without reviving state |
+| Unauthorized gateway handover | Gateway transfers a grant or channel to an unapproved peer | Explicit handover authority, target binding, fresh proof, policy and revocation validation | No grant or Route Context transfers blindly |
+| Origin leak through logs, errors, telemetry, or fallback | Internal endpoint appears in a client error, route dump, metric label, log, or downgrade | Origin-free public schemas, redaction, opaque IDs, field allowlists, no direct fallback | Stable non-sensitive error; leak test required |
+| Origin churn denial of service | Attacker forces repeated OriginSet changes, checks, reconnects, or drains | Generation/sequence rules, bounded update/check budgets, debounce/rate limits, last-known-good policy | Fail closed without global disruption or unbounded work |
+| Poisoned health checks | Malicious endpoint or checker marks unauthorized target healthy | Check only authorized exact candidates, bind result to set digest, bound redirect/response/retry behavior | Health never creates identity or authority; trust model is a gate |
+| Service-channel starvation or noisy-neighbor behavior | One service exhausts streams, flow control, memory, or audit capacity on shared transport | Independent quotas, fair scheduling, bounded buffers, per-service attribution | Throttle/deny affected channel without implicit cross-service termination |
+| Split-brain origin publication | Multiple authorized publishers issue incompatible current sets | Approved publisher precedence, transparency/checkpoints, equivocation evidence, bounded last-known-good behavior | Fail closed when no deterministic authorized winner exists |
+| Route continuation after service revocation | Existing channel continues or revives through drain, migration, resumption, or replica failover | Per-service revocation checks at new stream, renewal, resume, migrate, handover, and origin update boundaries | Immediate revoke or approved bounded drain; never resurrect |
+
+## V3.6 trust-boundary changes
+
+- Legacy DNS, delegated reachability, and health checks are untrusted inputs,
+  not identity authorities.
+- A Transport Session authenticates edges but is not a universal VPN-like
+  authorization context.
+- A Destination Edge can affect final-segment reachability but cannot become a
+  service owner merely because it can reach an origin.
+- Replicas must share enough accepted generation, sequence, digest,
+  revocation, replay, and tombstone state to prevent rollback or resurrection.
+- Default telemetry must distinguish per-service channels while remaining
+  unable to reconstruct a client-to-origin map.
 
 ## Residual risk by severity
 
