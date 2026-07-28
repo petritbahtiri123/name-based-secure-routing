@@ -11,4 +11,5 @@ current implementation authority.
   hardened prototype's July 2026 evidence against that earlier vision.
 
 For current direction, read
-[Protocol Vision V3](../architecture/NBSR_Protocol_Vision_V3_and_Codex_Build_Directive.md).
+[NBSR Protocol Vision V3.6](../architecture/NBSR_Protocol_Vision_V3.6.md).
+The retained Vision V3 working document is also historical as of 2026-07-28.

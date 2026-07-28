@@ -2,9 +2,9 @@
 
 ## Authority and status
 
-This matrix records the historical Vision V2 baseline and is not V3
+This matrix records the historical Vision V2 baseline and is not V3.6
 implementation evidence. Current direction is
-[NBSR Protocol Vision V3](architecture/NBSR_Protocol_Vision_V3_and_Codex_Build_Directive.md).
+[NBSR Protocol Vision V3.6](architecture/NBSR_Protocol_Vision_V3.6.md).
 
 The retained
 [NBSR Protocol Vision v2](architecture/NBSR_Protocol_Vision_v2.pdf) repository

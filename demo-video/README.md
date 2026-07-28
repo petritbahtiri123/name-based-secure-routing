@@ -1,5 +1,9 @@
 # NBSR Demo Video Production Package
 
+> **Historical demo package:** Claims in this folder describe the July 2026
+> Build Week prototype, not the forward-looking NBSR Protocol Vision V3.6
+> architecture.
+
 This package supports a single continuous 2:48 narrated screen recording. It
 does not contain a fabricated recording or generated voice track.
 

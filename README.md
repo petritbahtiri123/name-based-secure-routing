@@ -1,12 +1,14 @@
 # Name-Based Secure Routing (NBSR)
 
-> **North Star:** NBSR turns a name into a secure route, not an IP address.
+> **North Star:** Every successful NBSR resolution returns a scoped synthetic
+> IP; connecting to it creates or reuses a secure route while the origin stays
+> internal.
 
 NBSR is being developed as a DNS-compatible name-resolution and secure-routing
-protocol. An upgraded NBSR Name Node resolves every configured name: legacy
-names retain DNS-compatible behavior, while NBSR-enabled names resolve into
-authenticated route state and never expose the private origin address to the
-client.
+protocol. An upgraded NBSR Name Node returns a scoped synthetic IP for every
+successfully resolved name. NBSR-aware services use signed identity and policy;
+legacy DNS may supply constrained internal reachability metadata. Neither path
+returns the origin IP to the client or permits direct-origin fallback.
 
 The long-term deployable unit has two isolated planes: a Name/Resolution Plane
 and a Secure Route/Tunnel Plane. A Source NBSR Edge acts for ordinary devices
@@ -20,14 +22,16 @@ production system.
 
 ## Authoritative direction and implementation status
 
-- [Protocol Vision V3 and Codex Build Directive](docs/architecture/NBSR_Protocol_Vision_V3_and_Codex_Build_Directive.md)
+- [NBSR Protocol Vision V3.6](docs/architecture/NBSR_Protocol_Vision_V3.6.md)
   is the authoritative architecture and implementation program.
+- [V3.6 decisions and compatibility impact](docs/protocol/v3.6-decisions.md)
+  preserve the frozen Core v0.1 decisions and list unresolved human gates.
 - [Protocol terminology](docs/protocol/terminology.md) defines the canonical
   project vocabulary.
 - [Implementation status](docs/protocol/status.md) separates verified
   prototype behavior from partial, planned, and normative Core v0.1 behavior.
-- [WP1 implementation plan](docs/superpowers/plans/2026-07-26-wp1-protocol-data-model.md)
-  defines the next test-first work package but does not claim that WP1 exists.
+- [V3.6 protocol roadmap](docs/superpowers/plans/2026-07-28-v3.6-protocol-roadmap.md)
+  defines gated WP2-WP6 sequencing and does not authorize runtime work.
 - Vision V2 and the original feasibility study remain available under
   [`docs/history`](docs/history/README.md) and
   [`docs/research`](docs/research/README.md).
@@ -88,7 +92,7 @@ store is not implemented.
 See [architecture](docs/architecture.md),
 [security model](docs/security-model.md), [threat model](docs/threat-model.md),
 the [hardening report](docs/security-hardening-report.md), and the
-[current V3 implementation status](docs/protocol/status.md).
+[current V3.6 implementation status](docs/protocol/status.md).
 
 ## Requirements
 
@@ -209,12 +213,14 @@ copy in digest-pinned Python 3.13.14, and writes a SHA-256 sidecar.
 
 ## Explicit limitations
 
-Not implemented: native signed name ownership/delegation, a normative
-multiplexed tunnel profile, active lease renewal, key rotation, revocation
-distribution, migration/resumption, regional HA, real ISP federation,
-subscriber billing, QUIC/HTTP3, arbitrary UDP, mobile wake-up integration,
-production PKI/HSM, durable distributed replay state, a signed Windows
-Filtering Platform driver, or independent interoperable implementations.
+Not implemented: the universal NBSR Name Node, DNS-backed OriginSet adapter,
+native signed OriginSet publication, a normative QUIC Transport Session,
+multi-service Service Channels, channel cryptographic separation, active lease
+renewal, key rotation, distributed revocation, live migration/resumption or
+handover, regional HA, real ISP federation, subscriber billing, arbitrary UDP,
+mobile wake-up integration, production PKI/HSM, durable distributed replay
+state, a signed Windows Filtering Platform driver, or independent
+interoperable implementations.
 
 The current Windows adapter behavior is unit/in-process tested. It is not a
 validated full-device Windows networking deployment.

@@ -2,7 +2,15 @@
 
 ## Protocol Vision V3, Pre-Standardization Core v0.1, and Codex Build Directive
 
-**Status:** Authoritative architecture direction and implementation program  
+> **Historical status:** Superseded on 2026-07-28 for forward-looking
+> architecture by
+> [NBSR Protocol Vision V3.6](NBSR_Protocol_Vision_V3.6.md). This document is
+> preserved as the approved Vision V3/WP0-WP1 source. Its D1-D6-derived Core
+> v0.1 decisions remain preserved in `docs/protocol/`; statements allowing a
+> client-visible legacy origin response are superseded by V3.6's universal
+> synthetic-resolution rule.
+
+**Status:** Historical Vision V3 architecture and WP0/WP1 program
 **Version:** 3.0 working draft  
 **Date:** 2026-07-26  
 **Audience:** Protocol implementers, Codex, security reviewers, network operators, cloud providers, ISPs, and standards contributors
@@ -1272,4 +1280,3 @@ Every major design, feature, pull request, or Codex task must answer:
 16. Does the test prove behavior without relying on public Internet services?
 17. Is rollback safe and ownership-scoped?
 18. Does the implementation claim only what evidence proves?
-

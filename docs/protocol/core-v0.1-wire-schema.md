@@ -6,6 +6,10 @@
 
 **Authority after approval:** D6 in `docs/protocol/wp1-decisions.md`
 
+**V3.6 protection:** This schema remains frozen. V3.6 OriginSet, Service
+Channel, native origin update, migration/resume, and handover concepts are not
+additional fields or aliases in these six schemas.
+
 This document is the sole numeric-field source for WP1 Task 4. Every key is
 assigned explicitly. Implementations MUST NOT derive keys from declaration
 order, table order, dataclass order, or the field order in Vision V3.

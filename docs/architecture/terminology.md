@@ -1,6 +1,11 @@
 # NBSR terminology
 
-The authoritative direction is [NBSR Protocol Vision v2](NBSR_Protocol_Vision_v2.pdf).
+> **Historical glossary:** This page describes the July 2026 prototype and
+> Vision V2 vocabulary. Current forward-looking terms and invariants are in
+> [NBSR protocol terminology](../protocol/terminology.md), governed by
+> [NBSR Protocol Vision V3.6](NBSR_Protocol_Vision_V3.6.md).
+
+The historical direction was [NBSR Protocol Vision v2](NBSR_Protocol_Vision_v2.pdf).
 Its North Star is: **NBSR turns a name into a secure route, not an IP address.**
 The earlier feasibility study remains supporting research, but its binary is
 not present in this repository.

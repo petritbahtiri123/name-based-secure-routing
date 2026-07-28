@@ -1,5 +1,9 @@
 # Build Week submission draft
 
+> **Historical submission evidence:** Preserved as written for the July 2026
+> prototype. Its product framing is not the current
+> [NBSR Protocol Vision V3.6](architecture/NBSR_Protocol_Vision_V3.6.md).
+
 **Title:** Name-Based Secure Routing (NBSR)
 
 **Pitch:** Turn a service name into an authenticated, policy-authorized,

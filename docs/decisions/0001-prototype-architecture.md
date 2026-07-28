@@ -1,5 +1,8 @@
 # ADR 0001: Prototype architecture
 
+**Historical scope:** Accepted for the Build Week prototype. It does not define
+the current V3.6 protocol architecture or override frozen Core v0.1 decisions.
+
 Accepted decisions: Python/FastAPI for small auditable services; Docker Compose
 as the mandatory path and kind as secondary; signed JWT identity with optional
 local mTLS material but no SPIRE; Ed25519 ticket signatures; OPA explicit

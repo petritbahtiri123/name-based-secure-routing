@@ -7,4 +7,4 @@ deployment, and operations.
 
 It does not override the resolver-first architecture or work-package boundaries
 defined by
-[Protocol Vision V3](../architecture/NBSR_Protocol_Vision_V3_and_Codex_Build_Directive.md).
+[NBSR Protocol Vision V3.6](../architecture/NBSR_Protocol_Vision_V3.6.md).

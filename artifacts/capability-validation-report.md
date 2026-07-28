@@ -1,5 +1,9 @@
 # NBSR capability validation report
 
+> **Historical evidence snapshot:** This report preserves the July 2026
+> prototype validation against Vision V2. It is not V3.6 implementation or
+> conformance evidence.
+
 ## Executive verdict
 
 **Security remediation outcome: fixed within the bounded local prototype.**

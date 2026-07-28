@@ -6,6 +6,11 @@ D6-A1 through D6-A3; WP1 Task 4 is authorized
 **Decision:** approved for WP1 implementation on 2026-07-26 by Petrit Bahtiri
 with amendments A1-A4 recorded in this document.
 
+**V3.6 reconciliation:** D1-D6 remain approved and unchanged. V3.6 does not
+add OriginSet, Service Channel fields, publication-mode aliases, messages,
+states, transitions, extensions, or COSE wrappers to this freeze. See
+`docs/protocol/v3.6-decisions.md` for forward-looking compatibility gates.
+
 ## D1 - CBOR profile
 
 Use RFC 8949 Core Deterministic Encoding for every signed payload and native

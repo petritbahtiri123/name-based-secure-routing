@@ -1,11 +1,19 @@
 # NBSR architecture
 
 The project direction is governed by
-[NBSR Protocol Vision V3](architecture/NBSR_Protocol_Vision_V3_and_Codex_Build_Directive.md):
-**NBSR turns a name into a secure route, not an IP address.** This repository is
-a bounded Phase 1 vertical slice plus an enterprise authorization proof of
-concept. It is not the complete native protocol and is not production-ready.
-Vision V2 remains available as historical design evidence.
+[NBSR Protocol Vision V3.6](architecture/NBSR_Protocol_Vision_V3.6.md):
+every successful resolution through an upgraded NBSR network returns a scoped
+Synthetic IP, and connecting to it creates or reuses a secure route while the
+origin remains internal. This repository is a bounded prototype plus frozen
+Core v0.1 data work. It is not the complete native protocol and is not
+production-ready. Vision V3 and Vision V2 remain historical design evidence.
+
+Forward-looking architecture is split into:
+
+- [Transport Session and Service Channel architecture](architecture/session-channel-model.md);
+- [Origin publication and migration](architecture/origin-publication-migration.md);
+- [V3.6 state-machine proposals](architecture/protocol-state-machine.md); and
+- [V3.6 decisions and compatibility impact](protocol/v3.6-decisions.md).
 
 ## Implemented profiles
 
@@ -112,8 +120,10 @@ native end-to-end authenticated NBSR.
 
 ## Explicitly unimplemented architecture
 
-The following Vision v2 phases remain design-only or absent: native signed name
-ownership and delegation, certified tunnel profiles, multiplexed streams, lease
-renewal, key rotation, revocation distribution, migration/resumption, regional
-HA, ISP source/destination federation, cross-operator trust, mobile wake-up
-integration, QUIC/HTTP3, arbitrary UDP, and independent interoperable clients.
+The following V3.6 architecture remains design-only or absent: a universal
+synthetic Name Node, OriginSet discovery/publication, certified QUIC Transport
+Sessions, reusable multi-service Service Channels, independent channel
+cryptographic contexts, lease renewal, key rotation, distributed revocation,
+live migration/resumption/handover, regional HA, ISP source/destination
+federation, cross-operator trust, arbitrary UDP, and independent interoperable
+implementations.
