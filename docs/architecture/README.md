@@ -24,6 +24,7 @@ Supporting current architecture:
 - [Standards reuse matrix](../protocol/standards-reuse-matrix.md)
 - [Minimal NBSR-specific surface](../protocol/minimal-nbsr-protocol-surface.md)
 - [Resource and timeout profile](../protocol/resource-timeout-profile.md)
+- [OriginSet compatibility and authority D7 proposal](../protocol/originset-compatibility-authority-decision.md)
 
 Earlier architectural material is preserved under
 [`../history`](../history/README.md). Supporting research is preserved under
