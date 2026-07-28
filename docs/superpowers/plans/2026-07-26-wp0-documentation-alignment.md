@@ -1,5 +1,8 @@
 # NBSR WP0 Documentation Alignment Implementation Plan
 
+> **Historical completed plan:** Retained as the Vision V3/WP0 execution
+> record. V3.6 supersedes its current-vision pointer but not its evidence.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Make Protocol Vision V3 the repository authority while preserving the hardened prototype, Vision V2, feasibility research, and all verified evidence.
@@ -331,4 +334,3 @@ git commit -m "docs: record verified WP0 status"
 ```
 
 If no correction was required, do not create an empty commit.
-

@@ -1,5 +1,9 @@
 # NBSR WP1 Protocol Data Model Implementation Plan
 
+> **Frozen-scope plan:** Continue to use this plan only for approved Core v0.1
+> D1-D6 work. V3.6 concepts must not change its registries, schemas, wrappers,
+> states, or transitions; future WP2-WP6 work follows the gated V3.6 roadmap.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use
 > `superpowers:subagent-driven-development` (recommended) or
 > `superpowers:executing-plans` to implement this plan task-by-task. Steps use

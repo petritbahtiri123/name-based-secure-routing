@@ -1,5 +1,10 @@
 # NBSR Vision V3 WP0 and WP1 Design
 
+> **Historical approved scope:** Preserved as the WP0/WP1 design that produced
+> the frozen Core v0.1 decisions. Forward-looking work now follows
+> `docs/architecture/NBSR_Protocol_Vision_V3.6.md`; V3.6 does not rewrite this
+> design's approved D1-D6 output.
+
 **Status:** Approved design for implementation planning  
 **Date:** 2026-07-26  
 **Branch:** `codex/nbsr-v3-wp0-wp1`  
@@ -335,4 +340,3 @@ policy. All other Vision V3 decision gates remain deferred because this cycle
 does not implement operator trust, production address allocation, gateway
 capture, lifecycle enforcement, distributed replay, federation, logging
 retention, a second implementation, or standardization.
-
