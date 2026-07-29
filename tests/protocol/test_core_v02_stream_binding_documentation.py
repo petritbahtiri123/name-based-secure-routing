@@ -151,8 +151,8 @@ def test_decision_records_point_to_the_schema_approval_gate() -> None:
 
     assert "Core v0.2 stream-binding schema proposal prepared" in wp3
     assert "approved as a frozen candidate" in decisions
-    assert "session/route schema approval" in decisions
-    assert "Core v0.2 session and route schema proposal prepared" in roadmap
+    assert "D8 written record prepared" in decisions
+    assert "written D8 version-selection record" in roadmap
     assert "runtime remains blocked" in roadmap
 
 

@@ -1,6 +1,6 @@
 # Core v0.2 session and route schema proposal
 
-**Status:** human approval required; not frozen
+**Status:** approved on 2026-07-29; frozen as a Core v0.2 candidate
 
 **Date:** 2026-07-29
 
@@ -249,9 +249,10 @@ The missing vectors and still-unallocated protocol version 2 each blocks WP3
 runtime. No Python model, serializer, QUIC dependency, or transport integration
 may be created from this proposal alone.
 
-## Approval ballot
+## Approved ballot
 
-Human approval is required for:
+The human protocol owner approved these nine candidate decisions on
+2026-07-29:
 
 1. every numeric key, required field, exact type, and bound in all five tables;
 2. source-chosen session ID and per-direction control sequencing;
@@ -263,6 +264,6 @@ Human approval is required for:
 8. ROUTE acceptance before any STREAM exchange; and
 9. preparation of deterministic vectors as the final pre-runtime wire gate.
 
-Approval freezes only this documentation proposal after its status is amended.
-It does not authorize protocol version allocation, production code, dependency
-installation, or runtime integration.
+This approval freezes the candidate mapping. D8 separately approves the
+future protocol version value and downgrade behavior. Neither approval
+authorizes production code, dependency installation, or runtime integration.

@@ -95,12 +95,12 @@ def test_wp3_decision_preserves_every_frozen_core_surface() -> None:
         assert rule.casefold() in text.casefold()
 
 
-def test_v36_record_and_roadmap_point_to_session_route_schema_review() -> None:
+def test_v36_record_and_roadmap_point_to_written_d8_review() -> None:
     decisions = " ".join(V36_DECISIONS.read_text(encoding="utf-8").split())
     roadmap = " ".join(ROADMAP.read_text(encoding="utf-8").split())
 
     assert "WP3 single-service transport proposal prepared" in decisions
-    assert "WP3 transport and STREAM body candidate decisions were approved" in decisions
-    assert "Core v0.2 session/route schema approval" in decisions
-    assert "Phase E transport and STREAM candidate decisions approved" in roadmap
+    assert "high-level version-selection direction were approved" in decisions
+    assert "written D8 record review" in decisions
+    assert "written D8 version-selection record" in roadmap
     assert "runtime remains blocked" in roadmap
