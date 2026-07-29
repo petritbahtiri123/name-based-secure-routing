@@ -1,6 +1,6 @@
 # WP3 single-service transport decision proposal
 
-**Status: Human approval required**
+**Status: Approved on 2026-07-29; runtime remains gated**
 
 **Date:** 2026-07-29
 
@@ -172,6 +172,18 @@ CBOR vectors. It may determine that versioned message codes are safer.
 This proposal allocates no new numeric body keys, message code, state, or
 transition.
 
+## Core v0.2 stream-binding schema proposal prepared
+
+The separately gated
+[Core v0.2 stream-binding schema proposal](core-v0.2-stream-binding-schema-proposal.md)
+now assigns explicit candidate body keys for `STREAM_OPEN`, `STREAM_ACCEPT`,
+and `STREAM_REJECT`, plus bounded control-stream framing and fail-closed
+binding rules. The proposal is not frozen and authorizes no runtime.
+
+Its dependency review also confirms that `CLIENT_HELLO`, `EDGE_HELLO`, and the
+three `ROUTE_*` message bodies still need separate numeric schemas before WP3
+runtime. Approval of the STREAM tables alone does not fill those gaps.
+
 ## Origin and application boundary
 
 The Destination Edge selects a final endpoint only from the accepted internal
@@ -214,9 +226,9 @@ The 17 message codes remain unchanged. The 19 error codes remain unchanged.
 The six D6 schemas remain unchanged. Frozen state transitions remain
 unchanged. There is no new critical extension and no new COSE wrapper.
 
-## Approval ballot
+## Approved ballot
 
-Human approval is required separately for:
+The human protocol owner approved these nine decisions on 2026-07-29:
 
 1. `aioquic` as the Python prototype dependency only;
 2. Source Edge client and Destination Edge server roles;
@@ -229,6 +241,6 @@ Human approval is required separately for:
 9. continued prohibition of 0-RTT for all route-changing controls.
 
 Approval of items 1 through 7 permits dependency pinning and a transport
-handshake spike only after a written TDD plan. Item 8 remains a distinct wire
-schema freeze. No Phase E runtime implementation begins from this proposal
-alone.
+handshake spike only after a written TDD plan. Item 8 authorized preparation
+of the distinct wire schema proposal, not its freeze. No Phase E runtime
+implementation begins from this approval alone.

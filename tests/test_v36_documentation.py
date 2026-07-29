@@ -182,13 +182,13 @@ def test_decision_record_separates_approved_direction_from_pending_wire_work() -
     assert "19 error codes" in decisions
 
 
-def test_phase_d_is_implemented_for_review_without_authorizing_wp3() -> None:
+def test_phase_d_is_approved_without_ungating_transport_runtime() -> None:
     roadmap = _normalized(ROADMAP)
 
-    assert "Phase D implementation complete for human review" in roadmap
+    assert "Phase D implementation approved and complete" in roadmap
     assert "bounded last-known-good" in roadmap
     assert "NameRelay integration remains gated" in roadmap
-    assert "Do not begin WP3" in roadmap
+    assert "runtime remains blocked" in roadmap
 
 
 def test_session_model_enforces_reuse_with_service_isolation() -> None:

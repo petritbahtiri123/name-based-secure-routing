@@ -98,12 +98,13 @@ def test_originset_wrapper_direction_does_not_allocate_wire_details() -> None:
     assert "exact payload keys, message code, `kid` binding, and vectors require separate approval" in text
 
 
-def test_v36_record_and_roadmap_point_to_phase_c_review() -> None:
+def test_v36_record_and_roadmap_record_phase_c_approval() -> None:
     decisions = _normalized(V36_DECISIONS)
     roadmap = _normalized(ROADMAP)
 
     assert "D7 approved" in decisions
     assert "D7-1 through D7-5 were approved" in decisions
-    assert "Phase C internal OriginSet model review" in decisions
+    assert "Phase C authorization is limited" in decisions
     assert "Phase B complete" in roadmap
+    assert "Phase C approved and complete" in roadmap
     assert "Service Channel modeling is deferred" in roadmap

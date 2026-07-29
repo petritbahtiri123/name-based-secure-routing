@@ -13,10 +13,10 @@ def _normalized() -> str:
     return " ".join(DECISION.read_text(encoding="utf-8").split())
 
 
-def test_wp3_transport_decision_exists_and_remains_review_gated() -> None:
+def test_wp3_transport_decision_records_approval_and_runtime_gate() -> None:
     text = _normalized()
 
-    assert "Status: Human approval required" in text
+    assert "Status: Approved on 2026-07-29; runtime remains gated" in text
     assert "Runtime authorization: None" in text
     assert "does not authorize WP3 implementation" in text
 
@@ -95,11 +95,12 @@ def test_wp3_decision_preserves_every_frozen_core_surface() -> None:
         assert rule.casefold() in text.casefold()
 
 
-def test_v36_record_and_roadmap_point_to_wp3_transport_review() -> None:
+def test_v36_record_and_roadmap_point_to_stream_schema_review() -> None:
     decisions = " ".join(V36_DECISIONS.read_text(encoding="utf-8").split())
     roadmap = " ".join(ROADMAP.read_text(encoding="utf-8").split())
 
     assert "WP3 single-service transport proposal prepared" in decisions
-    assert "WP3 transport decision review" in decisions
-    assert "Phase E decision package prepared; human approval pending" in roadmap
-    assert "application-stream binding wire gap" in roadmap
+    assert "WP3 transport decisions were approved" in decisions
+    assert "Core v0.2 stream-binding schema approval" in decisions
+    assert "Phase E transport decisions approved" in roadmap
+    assert "runtime remains blocked" in roadmap
