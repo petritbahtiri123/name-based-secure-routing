@@ -162,7 +162,9 @@ def _readme() -> bytes:
         "Valid vectors contain no Origin Endpoint or IP literal. Test seeds "
         "are public and never production keys. These vectors make no "
         "production-readiness or cross-language claim until a second "
-        "independent verifier passes.\n"
+        "independent verifier passes.\n\n"
+        "**Status:** generated package pending human byte and checksum "
+        "approval.\n"
     ).encode()
 
 

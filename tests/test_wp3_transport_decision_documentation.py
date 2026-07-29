@@ -100,7 +100,7 @@ def test_v36_record_and_roadmap_point_to_written_d8_review() -> None:
     roadmap = " ".join(ROADMAP.read_text(encoding="utf-8").split())
 
     assert "WP3 single-service transport proposal prepared" in decisions
-    assert "high-level version-selection direction were approved" in decisions
-    assert "written D8 record review" in decisions
-    assert "written D8 version-selection record" in roadmap
+    assert "D8 approved" in decisions
+    assert "generated package pending byte approval" in decisions
+    assert "pending human byte and checksum review" in roadmap
     assert "runtime remains blocked" in roadmap

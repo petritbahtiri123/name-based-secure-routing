@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import subprocess
+import ipaddress
 from hashlib import sha256
 from pathlib import Path
 
@@ -21,6 +22,7 @@ from scripts.core_v02_vectors.generate import (
     build_valid_package,
     run_scenario,
 )
+from scripts.core_v02_vectors.manifest import load_manifest, validate_package
 from scripts.core_v02_vectors.reference import (
     ConformanceState,
     ReferenceContext,
@@ -29,6 +31,10 @@ from scripts.core_v02_vectors.reference import (
     verify_envelope,
 )
 from scripts.generate_core_v02_vectors import check_package, write_package
+
+
+ROOT = Path(__file__).resolve().parents[2]
+COMMITTED = ROOT / "vectors" / "core-v0.2"
 
 
 VALID_IDS = {
@@ -283,3 +289,52 @@ def test_check_detects_missing_extra_and_changed_files(tmp_path: Path) -> None:
 
         with pytest.raises(ValueError, match="package drift"):
             check_package(output, package)
+
+
+def _walk_text(value: object) -> list[str]:
+    if isinstance(value, str):
+        return [value]
+    if isinstance(value, list):
+        return [text for item in value for text in _walk_text(item)]
+    if isinstance(value, dict):
+        return [text for key, item in value.items() for text in (*_walk_text(key), *_walk_text(item))]
+    return []
+
+
+def test_committed_package_validates_and_regenerates_byte_identically() -> None:
+    manifest = load_manifest(COMMITTED / "manifest.json")
+
+    validate_package(COMMITTED, manifest)
+    check_package(COMMITTED, build_package())
+
+
+def test_valid_artifacts_contain_no_ip_or_origin_text() -> None:
+    manifest = load_manifest(COMMITTED / "manifest.json")
+    texts: list[str] = []
+    for entry in manifest.vectors:
+        if entry.vector_class != "valid" or entry.artifact_type in {
+            "ed25519-signature",
+            "malformed-bytes",
+        }:
+            continue
+        wire = (COMMITTED / entry.artifact_path).read_bytes()
+        if entry.artifact_type == "cose-sign1":
+            value = decode_deterministic(wire[1:])
+        else:
+            value = decode_deterministic(wire)
+        texts.extend(_walk_text(value))
+
+    assert all("origin" not in value.casefold() for value in texts)
+    for value in texts:
+        try:
+            ipaddress.ip_address(value)
+        except ValueError:
+            continue
+        raise AssertionError(f"valid vector exposes an IP literal: {value}")
+
+
+def test_runtime_package_does_not_import_vector_tooling() -> None:
+    for path in (ROOT / "nbsr").rglob("*.py"):
+        source = path.read_text(encoding="utf-8")
+        assert "scripts.core_v02_vectors" not in source
+        assert "generate_core_v02_vectors" not in source

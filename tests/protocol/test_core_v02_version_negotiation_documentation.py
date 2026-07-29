@@ -8,13 +8,7 @@ ROOT = Path(__file__).resolve().parents[2]
 DECISION = ROOT / "docs" / "protocol" / "core-v0.2-version-negotiation-decision.md"
 V36_DECISIONS = ROOT / "docs" / "protocol" / "v3.6-decisions.md"
 ROADMAP = ROOT / "docs" / "superpowers" / "plans" / "2026-07-28-v3.6-protocol-roadmap.md"
-VECTOR_SPEC = (
-    ROOT
-    / "docs"
-    / "superpowers"
-    / "specs"
-    / "2026-07-29-core-v0.2-deterministic-vectors-design.md"
-)
+VECTOR_SPEC = ROOT / "docs" / "superpowers" / "specs" / "2026-07-29-core-v0.2-deterministic-vectors-design.md"
 MARKDOWN_LINK = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
 
 
@@ -105,13 +99,22 @@ def test_d8_preserves_frozen_registries_and_lists_conformance_cases() -> None:
         assert rule.casefold() in text.casefold()
 
 
-def test_v36_record_and_roadmap_point_to_exact_public_fixture_review() -> None:
+def test_v36_record_and_roadmap_record_fixture_approval_and_byte_review() -> None:
     decisions = _normalized(V36_DECISIONS)
     roadmap = _normalized(ROADMAP)
 
-    assert "exact public fixture review" in decisions
-    assert "exact public fixture" in roadmap
+    assert "exact public fixtures were approved" in decisions
+    assert "pending human byte and checksum review" in roadmap
     assert "runtime remains blocked" in roadmap
+
+
+def test_v36_records_generated_package_pending_byte_approval() -> None:
+    decisions = _normalized(V36_DECISIONS)
+    roadmap = _normalized(ROADMAP)
+
+    assert "generated package pending byte approval" in decisions.casefold()
+    assert "human byte and checksum review" in roadmap.casefold()
+    assert "cross-language interoperability is not yet proven" in decisions.casefold()
 
 
 def test_changed_document_local_links_resolve() -> None:

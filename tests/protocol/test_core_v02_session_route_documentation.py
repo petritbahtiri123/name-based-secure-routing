@@ -175,8 +175,8 @@ def test_stream_proposal_approval_and_next_gate_are_recorded() -> None:
     assert "**Status:** approved on 2026-07-29" in stream
     assert "Core v0.2 session and route schema proposal prepared" in decisions
     assert "was approved as a frozen candidate" in decisions
-    assert "D8 written record prepared" in decisions
-    assert "written D8 version-selection record" in roadmap
+    assert "D8 approved" in decisions
+    assert "pending human byte and checksum review" in roadmap
     assert "runtime remains blocked" in roadmap
 
 
