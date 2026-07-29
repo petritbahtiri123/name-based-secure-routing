@@ -106,6 +106,12 @@ def test_legacy_profile_keeps_dns_reachability_separate_from_authorization() -> 
     assert "DNS TTL is not Route Grant expiry" in text
     assert "origin IP is never returned to the client" in text
     assert "direct fallback to an origin endpoint is forbidden" in text
+    assert "bounded last-known-good" in text
+    assert "300-second prototype grace" in text
+    assert "timeout or SERVFAIL" in text
+    assert "authenticated NXDOMAIN" in text
+    assert "DNSSEC bogus" in text
+    assert "production value remains pending" in text
 
 
 def test_synthetic_profile_rejects_universal_cgn_safety_claim() -> None:
@@ -128,6 +134,9 @@ def test_resource_profile_separates_dns_origin_grant_channel_and_transport_time(
     ):
         assert lifetime.casefold() in text.casefold()
     assert "DNS TTL does not authorize a route" in text
+    assert "1,024 entries" in text
+    assert "300-second last-known-good grace" in text
+    assert "prototype profile" in text.casefold()
 
 
 def test_frozen_core_registry_and_schema_guard_remains_explicit() -> None:

@@ -29,7 +29,10 @@ defaults. Values marked **pending** require human approval before production.
 | Buffered bytes per stream | **Lab recommendation:** 1 MiB; production pending | Backpressure rather than unbounded buffering |
 | Buffered bytes per Service Channel | **Lab recommendation:** 8 MiB; production pending | Independent accounting; throttle only the offending channel when possible |
 | Replay cache | **Bound required; exact entries pending** | Cover accepted proof lifetime plus clock skew and tombstone requirements; reject on capacity uncertainty |
-| DNS/Derived OriginSet cache | **Bound required; exact entries pending** | TTL-limited reachability cache; deterministic eviction must not authorize stale data |
+| DNS/Derived OriginSet cache | **Prototype profile:** 1,024 entries; production pending | Reject insertion at capacity; never silently evict accepted security state or tombstones |
+| Legacy OriginSet source TTL | **Prototype profile:** clamp to 300 seconds; production pending | Reachability freshness only; proactive refresh begins at 80 percent |
+| Legacy OriginSet outage grace | **Prototype profile:** 300-second last-known-good grace; production pending | Temporary timeout/SERVFAIL only; authenticated negative, DNSSEC bogus/downgrade, policy failure, rollback, and equivocation invalidate immediately |
+| Legacy OriginSet retry | **Prototype profile:** 1, 2, 4, 8, 16, then 30 seconds | Retry work is bounded and never extends grant or OriginSet validity |
 | Signature-result cache | **Bound required; exact entries pending** | Key by exact signed bytes, trust context, key generation, and policy state; never cache a broad success |
 | Audit queue | **Bound required; exact entries pending** | Apply backpressure or fail closed for mandatory security audit events |
 

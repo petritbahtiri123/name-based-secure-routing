@@ -1,6 +1,7 @@
 # NBSR legacy compatibility profile
 
-**Status:** WP2/WP3 decision preparation; no runtime authorization
+**Status:** Phase D isolated WP2 adapter implemented for human review; relay
+integration and WP3 remain gated
 
 ## Purpose
 
@@ -94,11 +95,21 @@ Positive and negative DNS answers follow DNS cache semantics with configured
 upper bounds. A Derived OriginSet expires independently according to accepted
 source freshness and policy. No DNS refresh may extend a Route Grant.
 
-When DNS is unavailable, NBSR does not expose the last origin to the client.
-Whether a bounded, previously validated last-known-good Derived OriginSet may
-serve new channels is unresolved. Until approved, new route establishment
-fails closed; already-authorized streams follow their independent drain and
-expiry policy.
+The approved Phase D prototype uses bounded last-known-good behavior:
+
+- refresh begins at 80 percent of the accepted source TTL;
+- timeout or SERVFAIL retains the previously validated set for a 300-second
+  prototype grace and retries after 1, 2, 4, 8, 16, then 30 seconds;
+- authenticated NXDOMAIN/NODATA, DNSSEC bogus or downgrade, policy mismatch,
+  rollback, equivocation, and tombstone state invalidate new use immediately;
+- after grace expiry, new use fails closed;
+- the origin is never returned to the client and direct fallback remains
+  forbidden; and
+- already-authorized streams follow their independent drain and expiry policy.
+
+The 300-second prototype grace is configurable and non-normative. Its
+production value remains pending load, outage, Web PKI, health-check, and
+operational review.
 
 ## Security and test requirements
 
