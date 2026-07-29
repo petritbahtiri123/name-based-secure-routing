@@ -1,0 +1,12 @@
+{
+  "name": "nbsr-core-v02-vector-verifier",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {
+    "test": "node --test test/verifier.test.mjs",
+    "verify": "node verify.mjs ../../vectors/core-v0.2"
+  }
+}
