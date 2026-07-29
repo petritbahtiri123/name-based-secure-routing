@@ -71,6 +71,7 @@ def test_d8_locks_one_version_per_session_and_forbids_fallback() -> None:
 
 def test_d8_defines_safe_mismatch_and_unknown_version_failure() -> None:
     text = _normalized()
+    vector_spec = _normalized(VECTOR_SPEC)
 
     for rule in (
         "`NBSR_E_DOWNGRADE`",
@@ -81,6 +82,8 @@ def test_d8_defines_safe_mismatch_and_unknown_version_failure() -> None:
         "Origin Endpoints",
     ):
         assert rule.casefold() in text.casefold()
+    assert "no Core v0.2 `ERROR` envelope" in vector_spec
+    assert "generic transport close" in vector_spec
 
 
 def test_d8_preserves_frozen_registries_and_lists_conformance_cases() -> None:

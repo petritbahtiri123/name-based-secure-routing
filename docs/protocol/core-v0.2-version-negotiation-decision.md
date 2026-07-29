@@ -107,6 +107,12 @@ application failure. D8 does not allocate a QUIC application error code.
 Client-visible text must not expose supported-version inventory, trust
 internals, Origin Endpoints, or policy details.
 
+The same generic-close rule applies when structural parsing cannot safely
+recover and authenticate the Core version, session ID, and request ID. No
+version-specific `ERROR` envelope is synthesized from partial or
+unauthenticated bytes. A future Core v0.2 `ERROR` body schema requires its own
+explicit review; D8 does not create one.
+
 An unknown version is never interpreted as the nearest known version. A Core
 v0.1 decoder never accepts a version-2 envelope, and a Core v0.2 decoder never
 accepts a version-1 envelope on a session selected as v0.2.
