@@ -1,5 +1,15 @@
 import assert from "node:assert/strict";
-import { cp, mkdtemp, readFile, rm, unlink, writeFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
+import { spawnSync } from "node:child_process";
+import {
+  cp,
+  mkdtemp,
+  readFile,
+  readdir,
+  rm,
+  unlink,
+  writeFile,
+} from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
@@ -29,6 +39,7 @@ import {
   createVerifierContext,
   evaluateVector,
 } from "../lib/semantics.mjs";
+import { verifyVectorPackage } from "../verify.mjs";
 
 const REPO_ROOT = path.resolve(import.meta.dirname, "../../..");
 const VECTOR_ROOT = path.join(REPO_ROOT, "vectors", "core-v0.2");
@@ -49,6 +60,26 @@ async function mutateManifest(root, mutate) {
   const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
   mutate(manifest);
   await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
+}
+
+async function packageSnapshot(root) {
+  const result = new Map();
+  async function visit(directory) {
+    const entries = await readdir(directory, {withFileTypes: true});
+    for (const entry of entries) {
+      const absolute = path.join(directory, entry.name);
+      if (entry.isDirectory()) {
+        await visit(absolute);
+      } else if (entry.isFile()) {
+        result.set(
+          path.relative(root, absolute).split(path.sep).join("/"),
+          createHash("sha256").update(await readFile(absolute)).digest("hex"),
+        );
+      }
+    }
+  }
+  await visit(root);
+  return result;
 }
 
 test("strict JSON rejects duplicate object keys", () => {
@@ -514,4 +545,64 @@ test("portable semantics reject boolean protocol versions as profile errors", as
     evaluateVector(entry, encodeDeterministic(changed), context),
     {outcome: "reject", error: ERROR.PROFILE},
   );
+});
+
+test("complete checked-in package verifies read-only", async () => {
+  const before = await packageSnapshot(VECTOR_ROOT);
+  assert.deepEqual(await verifyVectorPackage(VECTOR_ROOT), {
+    valid: 14,
+    invalid: 18,
+    scenarios: 8,
+  });
+  assert.deepEqual(await packageSnapshot(VECTOR_ROOT), before);
+});
+
+test("scenario catalog requires exact referenced vector outcomes", async () => {
+  await withPackageCopy(async (root) => {
+    await mutateManifest(root, (manifest) => {
+      manifest.scenarios[0].steps[0].expected_outcome = "close";
+      manifest.scenarios[0].steps[0].expected_error = null;
+    });
+    await assert.rejects(() => verifyVectorPackage(root), ManifestError);
+  });
+});
+
+test("package verification fails read-only after one artifact byte changes", async () => {
+  await withPackageCopy(async (root) => {
+    const manifest = await loadManifest(root);
+    const artifactPath = path.join(root, manifest.vectors[0].artifact_path);
+    const changed = Buffer.from(await readFile(artifactPath));
+    changed[0] ^= 1;
+    await writeFile(artifactPath, changed);
+    const before = await packageSnapshot(root);
+    await assert.rejects(() => verifyVectorPackage(root), ManifestError);
+    assert.deepEqual(await packageSnapshot(root), before);
+  });
+});
+
+test("CLI prints one bounded success line", () => {
+  const cli = path.join(REPO_ROOT, "tools", "core-v02-node-verifier", "verify.mjs");
+  const result = spawnSync(process.execPath, [cli, VECTOR_ROOT], {
+    encoding: "utf8",
+    windowsHide: true,
+  });
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(
+    result.stdout,
+    "NBSR Core v0.2 vectors verified: 14 valid, 18 invalid, 8 scenarios.\n",
+  );
+  assert.equal(result.stderr, "");
+});
+
+test("CLI rejects missing and extra arguments", () => {
+  const cli = path.join(REPO_ROOT, "tools", "core-v02-node-verifier", "verify.mjs");
+  for (const args of [[], [VECTOR_ROOT, VECTOR_ROOT]]) {
+    const result = spawnSync(process.execPath, [cli, ...args], {
+      encoding: "utf8",
+      windowsHide: true,
+    });
+    assert.equal(result.status, 1);
+    assert.equal(result.stdout, "");
+    assert.match(result.stderr, /^Core v0\.2 verification failed: .{1,200}\n$/u);
+  }
 });
