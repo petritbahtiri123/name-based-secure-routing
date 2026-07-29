@@ -5,7 +5,10 @@ import pytest
 from nbsr.legacy_origin import (
     LegacyDnsResult,
     LegacyDnsSnapshot,
+    LegacyOriginCache,
+    LegacyOriginCapacityError,
     LegacyOriginRequest,
+    LegacyOriginUnavailable,
     LegacyOriginValidationError,
     derive_originset,
 )
@@ -177,3 +180,183 @@ def test_conversion_rejects_bogus_nonpositive_and_validator_denial_without_ip_le
             validator=lambda _request, _endpoint: False,
         )
     assert "192.0.2.10" not in str(denied.value)
+
+
+def temporary_snapshot(observed_at: int) -> LegacyDnsSnapshot:
+    return snapshot(
+        result=LegacyDnsResult.TEMPORARY_FAILURE,
+        endpoints=[],
+        ttl_seconds=1,
+        observed_at=observed_at,
+    )
+
+
+def authenticated_negative(observed_at: int) -> LegacyDnsSnapshot:
+    return snapshot(
+        result=LegacyDnsResult.AUTHENTICATED_NEGATIVE,
+        endpoints=[],
+        ttl_seconds=30,
+        observed_at=observed_at,
+    )
+
+
+def test_successful_refresh_sets_independent_freshness_and_grace_deadlines() -> None:
+    cache = LegacyOriginCache()
+
+    view = cache.apply_snapshot(request(), snapshot(), validator=allow)
+
+    assert view.fresh is True
+    assert view.originset.sequence == 1
+    assert view.dns_fresh_until == NOW + 60
+    assert view.last_known_good_until == NOW + 360
+    assert view.next_refresh_at == NOW + 48
+
+
+def test_temporary_failure_uses_last_known_good_only_within_grace() -> None:
+    cache = LegacyOriginCache()
+    cache.apply_snapshot(request(), snapshot(), validator=allow)
+
+    stale = cache.apply_snapshot(
+        request(),
+        temporary_snapshot(NOW + 61),
+        validator=allow,
+    )
+
+    assert stale.fresh is False
+    assert stale.originset.sequence == 1
+    assert stale.next_refresh_at == NOW + 62
+    with pytest.raises(LegacyOriginUnavailable):
+        cache.lookup(request(), now=NOW + 360)
+
+
+def test_temporary_failure_retry_backoff_is_bounded() -> None:
+    cache = LegacyOriginCache()
+    cache.apply_snapshot(request(), snapshot(), validator=allow)
+
+    observed = NOW + 61
+    expected_delays = (1, 2, 4, 8, 16, 30, 30)
+    for offset, expected_delay in enumerate(expected_delays):
+        view = cache.apply_snapshot(
+            request(),
+            temporary_snapshot(observed + offset),
+            validator=allow,
+        )
+        assert view.next_refresh_at == observed + offset + expected_delay
+
+
+def test_successful_refresh_replaces_atomically_and_chains_digest() -> None:
+    cache = LegacyOriginCache()
+    first = cache.apply_snapshot(request(), snapshot(), validator=allow)
+
+    second = cache.apply_snapshot(
+        request(),
+        snapshot(
+            endpoints=[endpoint("192.0.2.11")],
+            observed_at=NOW + 50,
+        ),
+        validator=allow,
+    )
+
+    assert second.originset.sequence == 2
+    assert second.originset.previous_digest == first.originset.content_digest
+    assert [item.address for item in second.originset.endpoints] == ["192.0.2.11"]
+
+
+def test_repeated_observation_is_idempotent_and_different_content_equivocates() -> None:
+    cache = LegacyOriginCache()
+    first = cache.apply_snapshot(request(), snapshot(), validator=allow)
+
+    repeated = cache.apply_snapshot(request(), snapshot(), validator=allow)
+
+    assert repeated.originset is first.originset
+    assert repeated.originset.sequence == 1
+    with pytest.raises(LegacyOriginUnavailable):
+        cache.apply_snapshot(
+            request(),
+            snapshot(endpoints=[endpoint("192.0.2.11")]),
+            validator=allow,
+        )
+
+
+def test_older_observation_fails_closed() -> None:
+    cache = LegacyOriginCache()
+    cache.apply_snapshot(request(), snapshot(), validator=allow)
+
+    with pytest.raises(LegacyOriginUnavailable):
+        cache.apply_snapshot(
+            request(),
+            snapshot(observed_at=NOW - 1),
+            validator=allow,
+        )
+
+
+@pytest.mark.parametrize(
+    "failure",
+    (
+        authenticated_negative(NOW + 10),
+        snapshot(
+            dnssec_status=DnssecStatus.BOGUS,
+            observed_at=NOW + 10,
+        ),
+        snapshot(
+            dnssec_status=DnssecStatus.INSECURE,
+            observed_at=NOW + 10,
+        ),
+        temporary_snapshot(NOW + 10),
+    ),
+)
+def test_hard_failure_invalidates_new_use_immediately(
+    failure: LegacyDnsSnapshot,
+) -> None:
+    cache = LegacyOriginCache()
+    cache.apply_snapshot(request(), snapshot(), validator=allow)
+
+    if failure.result is LegacyDnsResult.TEMPORARY_FAILURE:
+        failure = snapshot(
+            result=LegacyDnsResult.TEMPORARY_FAILURE,
+            endpoints=[],
+            ttl_seconds=1,
+            dnssec_status=DnssecStatus.BOGUS,
+            observed_at=NOW + 10,
+        )
+    with pytest.raises(LegacyOriginUnavailable) as unavailable:
+        cache.apply_snapshot(request(), failure, validator=allow)
+    with pytest.raises(LegacyOriginUnavailable):
+        cache.lookup(request(), now=NOW + 11)
+
+    assert "192.0.2.10" not in str(unavailable.value)
+
+
+def test_tombstone_prevents_same_state_resurrection() -> None:
+    cache = LegacyOriginCache()
+    first = cache.apply_snapshot(request(), snapshot(), validator=allow)
+    with pytest.raises(LegacyOriginUnavailable):
+        cache.apply_snapshot(
+            request(),
+            authenticated_negative(NOW + 10),
+            validator=allow,
+        )
+
+    restored = cache.apply_snapshot(
+        request(),
+        snapshot(observed_at=NOW + 20),
+        validator=allow,
+    )
+
+    assert restored.originset.sequence == 2
+    assert restored.originset.previous_digest == first.originset.content_digest
+
+
+def test_cache_capacity_fails_closed_without_evicting_security_state() -> None:
+    cache = LegacyOriginCache(max_entries=1)
+    first_request = request()
+    cache.apply_snapshot(first_request, snapshot(), validator=allow)
+
+    with pytest.raises(LegacyOriginCapacityError):
+        cache.apply_snapshot(
+            request(service_id="svc_other", issuer_id=b"resolver-b"),
+            snapshot(),
+            validator=allow,
+        )
+
+    assert cache.lookup(first_request, now=NOW + 1).originset.service_id == "svc_api"

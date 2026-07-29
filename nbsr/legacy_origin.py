@@ -14,8 +14,11 @@ from nbsr.originset import (
     DerivedOriginSet,
     DnssecStatus,
     OriginEndpoint,
+    OriginSetTombstone,
     OriginSetError,
     PublicationMode,
+    accept_originset,
+    make_tombstone,
 )
 
 
@@ -33,6 +36,14 @@ class LegacyOriginError(ValueError):
 
 class LegacyOriginValidationError(LegacyOriginError):
     """A snapshot or caller policy failed closed."""
+
+
+class LegacyOriginUnavailable(LegacyOriginError):
+    """No validated OriginSet is currently available for new use."""
+
+
+class LegacyOriginCapacityError(LegacyOriginError):
+    """The bounded cache cannot accept another service context."""
 
 
 class LegacyDnsResult(StrEnum):
@@ -208,6 +219,8 @@ def derive_originset(
     previous_digest: bytes | None,
     validator: CandidateValidator,
     previous_dnssec_status: DnssecStatus | None = None,
+    max_ttl_seconds: int = PROTOTYPE_MAX_DNS_TTL_SECONDS,
+    last_known_good_seconds: int = PROTOTYPE_LAST_KNOWN_GOOD_SECONDS,
 ) -> DerivedOriginSet:
     """Validate one positive snapshot and create an internal candidate."""
 
@@ -226,6 +239,18 @@ def derive_originset(
         raise LegacyOriginValidationError("previous_digest is invalid")
     if not callable(validator):
         raise LegacyOriginValidationError("candidate validator is invalid")
+    checked_max_ttl = _uint(
+        "max_ttl_seconds",
+        max_ttl_seconds,
+        1,
+        PROTOTYPE_MAX_DNS_TTL_SECONDS,
+    )
+    checked_grace = _uint(
+        "last_known_good_seconds",
+        last_known_good_seconds,
+        1,
+        PROTOTYPE_LAST_KNOWN_GOOD_SECONDS,
+    )
     if not 1 <= len(snapshot.endpoints) <= request.max_endpoints:
         raise LegacyOriginValidationError("endpoint count is outside policy")
 
@@ -250,8 +275,8 @@ def derive_originset(
         if accepted is not True:
             raise LegacyOriginValidationError("candidate validation failed")
 
-    ttl = min(snapshot.ttl_seconds, PROTOTYPE_MAX_DNS_TTL_SECONDS)
-    expires_at = snapshot.observed_at + ttl + PROTOTYPE_LAST_KNOWN_GOOD_SECONDS
+    ttl = min(snapshot.ttl_seconds, checked_max_ttl)
+    expires_at = snapshot.observed_at + ttl + checked_grace
     if expires_at > MAX_TIMESTAMP:
         raise LegacyOriginValidationError("snapshot validity is outside bounds")
     try:
@@ -271,3 +296,195 @@ def derive_originset(
         )
     except OriginSetError as exc:
         raise LegacyOriginValidationError("OriginSet candidate is invalid") from exc
+
+
+@dataclass(frozen=True, slots=True)
+class LegacyOriginView:
+    originset: DerivedOriginSet
+    fresh: bool
+    dns_fresh_until: int
+    last_known_good_until: int
+    next_refresh_at: int
+
+
+@dataclass(slots=True)
+class _CacheEntry:
+    active: DerivedOriginSet | None
+    tombstone: OriginSetTombstone | None
+    dns_fresh_until: int
+    last_known_good_until: int
+    next_refresh_at: int
+    temporary_failures: int = 0
+
+
+_RETRY_DELAYS = (1, 2, 4, 8, 16, 30)
+
+
+class LegacyOriginCache:
+    """Bounded accepted legacy-origin state with no scheduler or wire surface."""
+
+    def __init__(
+        self,
+        *,
+        max_entries: int = 1_024,
+        max_ttl_seconds: int = PROTOTYPE_MAX_DNS_TTL_SECONDS,
+        last_known_good_seconds: int = PROTOTYPE_LAST_KNOWN_GOOD_SECONDS,
+    ) -> None:
+        self._max_entries = _uint("max_entries", max_entries, 1, 1_000_000)
+        self._max_ttl_seconds = _uint(
+            "max_ttl_seconds",
+            max_ttl_seconds,
+            1,
+            PROTOTYPE_MAX_DNS_TTL_SECONDS,
+        )
+        self._last_known_good_seconds = _uint(
+            "last_known_good_seconds",
+            last_known_good_seconds,
+            1,
+            PROTOTYPE_LAST_KNOWN_GOOD_SECONDS,
+        )
+        self._entries: dict[tuple[str, bytes], _CacheEntry] = {}
+
+    @staticmethod
+    def _key(request: LegacyOriginRequest) -> tuple[str, bytes]:
+        if type(request) is not LegacyOriginRequest:
+            raise LegacyOriginValidationError("request is invalid")
+        return request.service_id, request.issuer_id
+
+    def apply_snapshot(
+        self,
+        request: LegacyOriginRequest,
+        snapshot: LegacyDnsSnapshot,
+        *,
+        validator: CandidateValidator,
+    ) -> LegacyOriginView:
+        key = self._key(request)
+        if type(snapshot) is not LegacyDnsSnapshot:
+            raise LegacyOriginValidationError("snapshot is invalid")
+        entry = self._entries.get(key)
+        if entry is None:
+            if len(self._entries) >= self._max_entries:
+                raise LegacyOriginCapacityError("legacy origin cache is at capacity")
+            entry = _CacheEntry(None, None, 0, 0, 0)
+            self._entries[key] = entry
+
+        if snapshot.dnssec_status is DnssecStatus.BOGUS or (
+            snapshot.result is LegacyDnsResult.AUTHENTICATED_NEGATIVE and snapshot.dnssec_status is not DnssecStatus.SECURE
+        ):
+            self._hard_invalidate(entry)
+            raise LegacyOriginUnavailable("legacy origin state is invalid")
+        if snapshot.result is LegacyDnsResult.TEMPORARY_FAILURE:
+            return self._temporary_failure(entry, snapshot.observed_at)
+        if snapshot.result is not LegacyDnsResult.POSITIVE:
+            self._hard_invalidate(entry)
+            raise LegacyOriginUnavailable("legacy origin state is invalid")
+
+        if entry.active is not None and snapshot.observed_at <= entry.active.not_before:
+            if snapshot.observed_at < entry.active.not_before:
+                self._hard_invalidate(entry)
+                raise LegacyOriginUnavailable("legacy origin observation is stale")
+            accepted_ttl = min(snapshot.ttl_seconds, self._max_ttl_seconds)
+            same_content = (
+                snapshot.endpoints == entry.active.endpoints
+                and snapshot.dnssec_status is entry.active.dnssec_status
+                and snapshot.observed_at + accepted_ttl + self._last_known_good_seconds == entry.active.expires_at
+            )
+            if same_content:
+                entry.temporary_failures = 0
+                return self._view(entry, fresh=True)
+            self._hard_invalidate(entry)
+            raise LegacyOriginUnavailable(
+                "legacy origin observation equivocated",
+            )
+
+        baseline = entry.active or entry.tombstone
+        sequence = 1 if baseline is None else baseline.sequence + 1
+        if sequence > MAX_UINT64:
+            self._hard_invalidate(entry)
+            raise LegacyOriginUnavailable("legacy origin sequence is exhausted")
+        previous_digest = None if baseline is None else baseline.content_digest
+        previous_dnssec_status = entry.active.dnssec_status if entry.active is not None else None
+        try:
+            candidate = derive_originset(
+                request,
+                snapshot,
+                sequence=sequence,
+                previous_digest=previous_digest,
+                validator=validator,
+                previous_dnssec_status=previous_dnssec_status,
+                max_ttl_seconds=self._max_ttl_seconds,
+                last_known_good_seconds=self._last_known_good_seconds,
+            )
+            accepted = accept_originset(
+                candidate,
+                current=entry.active,
+                tombstone=entry.tombstone,
+            )
+        except (LegacyOriginValidationError, OriginSetError) as exc:
+            self._hard_invalidate(entry)
+            raise LegacyOriginUnavailable(
+                "legacy origin refresh failed validation",
+            ) from exc
+
+        accepted_ttl = min(snapshot.ttl_seconds, self._max_ttl_seconds)
+        dns_fresh_until = snapshot.observed_at + accepted_ttl
+        refresh_offset = max(0, int(accepted_ttl * 0.8))
+        entry.active = accepted
+        entry.dns_fresh_until = dns_fresh_until
+        entry.last_known_good_until = accepted.expires_at
+        entry.next_refresh_at = snapshot.observed_at + refresh_offset
+        entry.temporary_failures = 0
+        return self._view(entry, fresh=True)
+
+    def lookup(
+        self,
+        request: LegacyOriginRequest,
+        *,
+        now: int,
+    ) -> LegacyOriginView:
+        checked_now = _uint("now", now, 0, MAX_TIMESTAMP)
+        entry = self._entries.get(self._key(request))
+        if entry is None or entry.active is None:
+            raise LegacyOriginUnavailable("legacy origin state is unavailable")
+        if checked_now >= entry.last_known_good_until:
+            self._hard_invalidate(entry)
+            raise LegacyOriginUnavailable("legacy origin state is unavailable")
+        return self._view(entry, fresh=checked_now < entry.dns_fresh_until)
+
+    def _temporary_failure(
+        self,
+        entry: _CacheEntry,
+        observed_at: int,
+    ) -> LegacyOriginView:
+        if entry.active is None or observed_at >= entry.last_known_good_until:
+            self._hard_invalidate(entry)
+            raise LegacyOriginUnavailable("legacy origin state is unavailable")
+        delay_index = min(entry.temporary_failures, len(_RETRY_DELAYS) - 1)
+        entry.temporary_failures += 1
+        entry.next_refresh_at = min(
+            observed_at + _RETRY_DELAYS[delay_index],
+            entry.last_known_good_until,
+        )
+        return self._view(entry, fresh=False)
+
+    @staticmethod
+    def _hard_invalidate(entry: _CacheEntry) -> None:
+        if entry.active is not None:
+            entry.tombstone = make_tombstone(entry.active)
+            entry.active = None
+        entry.dns_fresh_until = 0
+        entry.last_known_good_until = 0
+        entry.next_refresh_at = 0
+        entry.temporary_failures = 0
+
+    @staticmethod
+    def _view(entry: _CacheEntry, *, fresh: bool) -> LegacyOriginView:
+        if entry.active is None:
+            raise LegacyOriginUnavailable("legacy origin state is unavailable")
+        return LegacyOriginView(
+            originset=entry.active,
+            fresh=fresh,
+            dns_fresh_until=entry.dns_fresh_until,
+            last_known_good_until=entry.last_known_good_until,
+            next_refresh_at=entry.next_refresh_at,
+        )
