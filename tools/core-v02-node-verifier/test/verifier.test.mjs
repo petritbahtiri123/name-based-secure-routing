@@ -24,6 +24,11 @@ import {
   verifyCoseSign1,
   verifyProof,
 } from "../lib/crypto.mjs";
+import {
+  ERROR,
+  createVerifierContext,
+  evaluateVector,
+} from "../lib/semantics.mjs";
 
 const REPO_ROOT = path.resolve(import.meta.dirname, "../../..");
 const VECTOR_ROOT = path.join(REPO_ROOT, "vectors", "core-v0.2");
@@ -391,5 +396,122 @@ test("proof verification rejects a one-bit transcript mutation", async () => {
       publicKey,
     ),
     CryptoVerificationError,
+  );
+});
+
+const VALID_IDS = [
+  "client-hello",
+  "client-hello-body",
+  "edge-hello",
+  "edge-hello-body",
+  "route-accept",
+  "route-grant-payload",
+  "route-grant-sign1",
+  "route-open",
+  "route-open-proof-signature",
+  "route-open-proof-transcript",
+  "route-reject",
+  "stream-accept",
+  "stream-open",
+  "stream-reject",
+];
+
+const INVALID_IDS = [
+  "boolean-protocol-version",
+  "cbor-duplicate-map-key",
+  "cbor-float",
+  "cbor-indefinite-map",
+  "cbor-nonpreferred-integer",
+  "cbor-over-total-bytes",
+  "cbor-trailing-bytes",
+  "cbor-truncated",
+  "cbor-unsupported-tag",
+  "cbor-wrong-map-order",
+  "cose-bad-signature",
+  "cose-missing-tag",
+  "cose-wrong-algorithm",
+  "grant-expired",
+  "proof-bad-signature",
+  "route-port-not-authorized",
+  "version-one-on-v2",
+  "version-three-generic-close",
+];
+
+test("all 32 artifact outcomes match the manifest exactly", async () => {
+  const manifest = await loadManifest(VECTOR_ROOT);
+  const artifacts = await verifyPackageInventory(VECTOR_ROOT, manifest);
+  const context = await createVerifierContext(VECTOR_ROOT, artifacts);
+  assert.equal(manifest.vectors.length, 32);
+  assert.deepEqual(
+    manifest.vectors.filter((entry) => entry.class === "valid").map((entry) => entry.id),
+    VALID_IDS,
+  );
+  assert.deepEqual(
+    manifest.vectors.filter((entry) => entry.class === "invalid").map((entry) => entry.id),
+    INVALID_IDS,
+  );
+  for (const entry of manifest.vectors) {
+    const actual = evaluateVector(entry, artifacts.get(entry.id), context);
+    assert.deepEqual(actual, {
+      outcome: entry.expected_outcome,
+      error: entry.expected_error,
+    }, entry.id);
+  }
+});
+
+test("portable semantics reject unknown and missing body keys", async () => {
+  const manifest = await loadManifest(VECTOR_ROOT);
+  const artifacts = await verifyPackageInventory(VECTOR_ROOT, manifest);
+  const context = await createVerifierContext(VECTOR_ROOT, artifacts);
+  const entry = manifest.vectors.find((vector) => vector.id === "client-hello");
+  const valid = decodeDeterministic(artifacts.get("client-hello"));
+
+  for (const mutate of [
+    (body) => body.delete(7),
+    (body) => body.set(99, 1),
+  ]) {
+    const changed = new Map(valid);
+    const body = new Map(changed.get(5));
+    mutate(body);
+    changed.set(5, body);
+    assert.deepEqual(
+      evaluateVector(entry, encodeDeterministic(changed), context),
+      {outcome: "reject", error: ERROR.PROFILE},
+    );
+  }
+});
+
+test("portable semantics distinguish downgrade from unknown-version close", async () => {
+  const manifest = await loadManifest(VECTOR_ROOT);
+  const artifacts = await verifyPackageInventory(VECTOR_ROOT, manifest);
+  const context = await createVerifierContext(VECTOR_ROOT, artifacts);
+  const entry = manifest.vectors.find((vector) => vector.id === "client-hello");
+  const valid = decodeDeterministic(artifacts.get("client-hello"));
+
+  const versionOne = new Map(valid);
+  versionOne.set(0, 1);
+  assert.deepEqual(
+    evaluateVector(entry, encodeDeterministic(versionOne), context),
+    {outcome: "reject", error: ERROR.DOWNGRADE},
+  );
+
+  const versionThree = new Map(valid);
+  versionThree.set(0, 3);
+  assert.deepEqual(
+    evaluateVector(entry, encodeDeterministic(versionThree), context),
+    {outcome: "close", error: null},
+  );
+});
+
+test("portable semantics reject boolean protocol versions as profile errors", async () => {
+  const manifest = await loadManifest(VECTOR_ROOT);
+  const artifacts = await verifyPackageInventory(VECTOR_ROOT, manifest);
+  const context = await createVerifierContext(VECTOR_ROOT, artifacts);
+  const entry = manifest.vectors.find((vector) => vector.id === "client-hello");
+  const changed = decodeDeterministic(artifacts.get("client-hello"));
+  changed.set(0, true);
+  assert.deepEqual(
+    evaluateVector(entry, encodeDeterministic(changed), context),
+    {outcome: "reject", error: ERROR.PROFILE},
   );
 });
