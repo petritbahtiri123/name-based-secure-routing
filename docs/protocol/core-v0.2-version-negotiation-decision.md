@@ -1,6 +1,6 @@
 # Core v0.2 version selection and downgrade decision
 
-**Status:** design direction approved on 2026-07-29; written D8 record pending review
+**Status:** approved on 2026-07-29
 
 **Decision:** D8
 
@@ -146,7 +146,7 @@ session keys, or unauthorised service names.
 |---|---|---|
 | ALPN `nbsr-quic-1` | Existing approved transport profile | Unchanged |
 | `CORE_0_1 = 1` | Frozen Core v0.1 registry | Unchanged |
-| `CORE_0_2 = 2` | New Core v0.2 version value | Proposed D8 allocation pending written-record review |
+| `CORE_0_2 = 2` | New Core v0.2 version value | Approved future allocation; runtime registry remains unchanged |
 | Envelope keys 0 through 6 | Reused numeric layout in a new versioned schema | Core v0.1 acceptance rules remain unchanged |
 | Automatic version fallback | Prohibited NBSR behavior | Downgrade attempts fail closed |
 | Version-list negotiation message | Not created | No new message code |
@@ -198,12 +198,11 @@ not authorize their runtime implementation today.
 
 Before WP3 runtime:
 
-1. approve the written D8 record;
-2. produce and independently verify deterministic envelope, HELLO, ROUTE,
+1. produce and independently verify deterministic envelope, HELLO, ROUTE,
    STREAM, proof, mismatch, and downgrade vectors;
-3. write a TDD implementation plan for a version-dispatch boundary that keeps
+2. write a TDD implementation plan for a version-dispatch boundary that keeps
    the Core v0.1 decoder unchanged; and
-4. separately approve any QUIC application close code if interoperability
+3. separately approve any QUIC application close code if interoperability
    requires one.
 
 No runtime implementation begins from D8 alone.
