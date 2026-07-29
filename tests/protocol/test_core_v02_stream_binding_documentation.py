@@ -144,7 +144,7 @@ def test_stream_binding_does_not_change_frozen_core_v01() -> None:
         assert rule.casefold() in text.casefold()
 
 
-def test_decision_records_point_to_the_schema_approval_gate() -> None:
+def test_decision_records_point_to_the_completed_vector_gate() -> None:
     wp3 = _normalized(WP3_DECISION)
     decisions = _normalized(V36_DECISIONS)
     roadmap = _normalized(ROADMAP)
@@ -152,8 +152,8 @@ def test_decision_records_point_to_the_schema_approval_gate() -> None:
     assert "Core v0.2 stream-binding schema proposal prepared" in wp3
     assert "approved as a frozen candidate" in decisions
     assert "D8 approved" in decisions
-    assert "pending human byte and checksum review" in roadmap
-    assert "runtime remains blocked" in roadmap
+    assert "second-language conformance gate is complete" in roadmap
+    assert "WP3 runtime remains separately gated" in roadmap
 
 
 def test_changed_document_local_links_resolve() -> None:

@@ -188,7 +188,7 @@ def test_phase_d_is_approved_without_ungating_transport_runtime() -> None:
     assert "Phase D implementation approved and complete" in roadmap
     assert "bounded last-known-good" in roadmap
     assert "NameRelay integration remains gated" in roadmap
-    assert "runtime remains blocked" in roadmap
+    assert "WP3 runtime remains separately gated" in roadmap
 
 
 def test_session_model_enforces_reuse_with_service_isolation() -> None:

@@ -95,12 +95,12 @@ def test_wp3_decision_preserves_every_frozen_core_surface() -> None:
         assert rule.casefold() in text.casefold()
 
 
-def test_v36_record_and_roadmap_point_to_written_d8_review() -> None:
+def test_v36_record_and_roadmap_point_to_completed_vector_gate() -> None:
     decisions = " ".join(V36_DECISIONS.read_text(encoding="utf-8").split())
     roadmap = " ".join(ROADMAP.read_text(encoding="utf-8").split())
 
     assert "WP3 single-service transport proposal prepared" in decisions
     assert "D8 approved" in decisions
-    assert "generated package pending byte approval" in decisions
-    assert "pending human byte and checksum review" in roadmap
-    assert "runtime remains blocked" in roadmap
+    assert "cross-language Core v0.2 vector agreement verified" in decisions
+    assert "second-language conformance gate is complete" in roadmap
+    assert "WP3 runtime remains separately gated" in roadmap

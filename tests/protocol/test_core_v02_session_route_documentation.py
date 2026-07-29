@@ -167,7 +167,7 @@ def test_proposal_preserves_core_v01_and_records_remaining_vector_gate() -> None
         assert rule.casefold() in text.casefold()
 
 
-def test_stream_proposal_approval_and_next_gate_are_recorded() -> None:
+def test_stream_proposal_and_completed_vector_gate_are_recorded() -> None:
     stream = _normalized(STREAM_PROPOSAL)
     decisions = _normalized(V36_DECISIONS)
     roadmap = _normalized(ROADMAP)
@@ -176,8 +176,8 @@ def test_stream_proposal_approval_and_next_gate_are_recorded() -> None:
     assert "Core v0.2 session and route schema proposal prepared" in decisions
     assert "was approved as a frozen candidate" in decisions
     assert "D8 approved" in decisions
-    assert "pending human byte and checksum review" in roadmap
-    assert "runtime remains blocked" in roadmap
+    assert "second-language conformance gate is complete" in roadmap
+    assert "WP3 runtime remains separately gated" in roadmap
 
 
 def test_changed_document_local_links_resolve() -> None:

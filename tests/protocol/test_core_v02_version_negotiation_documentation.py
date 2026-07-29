@@ -99,22 +99,23 @@ def test_d8_preserves_frozen_registries_and_lists_conformance_cases() -> None:
         assert rule.casefold() in text.casefold()
 
 
-def test_v36_record_and_roadmap_record_fixture_approval_and_byte_review() -> None:
+def test_v36_record_and_roadmap_record_completed_vector_review() -> None:
     decisions = _normalized(V36_DECISIONS)
     roadmap = _normalized(ROADMAP)
 
     assert "exact public fixtures were approved" in decisions
-    assert "pending human byte and checksum review" in roadmap
-    assert "runtime remains blocked" in roadmap
+    assert "second-language conformance gate is complete" in roadmap
+    assert "WP3 runtime remains separately gated" in roadmap
 
 
-def test_v36_records_generated_package_pending_byte_approval() -> None:
+def test_v36_records_cross_language_vector_agreement_without_runtime_approval() -> None:
     decisions = _normalized(V36_DECISIONS)
     roadmap = _normalized(ROADMAP)
 
-    assert "generated package pending byte approval" in decisions.casefold()
-    assert "human byte and checksum review" in roadmap.casefold()
-    assert "cross-language interoperability is not yet proven" in decisions.casefold()
+    assert "cross-language core v0.2 vector agreement verified" in decisions.casefold()
+    assert "dependency-free node.js 24 verifier passes" in decisions.casefold()
+    assert "does not authorize wp3" in decisions.casefold()
+    assert "wp3 runtime remains separately gated" in roadmap.casefold()
 
 
 def test_changed_document_local_links_resolve() -> None:
