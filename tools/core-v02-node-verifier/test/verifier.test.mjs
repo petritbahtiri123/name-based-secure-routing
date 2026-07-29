@@ -17,6 +17,13 @@ import {
   decodeDeterministic,
   encodeDeterministic,
 } from "../lib/cbor.mjs";
+import {
+  CryptoVerificationError,
+  importRawEd25519PublicKey,
+  loadPublicKeyHex,
+  verifyCoseSign1,
+  verifyProof,
+} from "../lib/crypto.mjs";
 
 const REPO_ROOT = path.resolve(import.meta.dirname, "../../..");
 const VECTOR_ROOT = path.join(REPO_ROOT, "vectors", "core-v0.2");
@@ -242,4 +249,147 @@ test("CBOR encoder rejects cycles and duplicate deterministic map keys", () => {
   duplicate.set(1, "first");
   duplicate.set(1n, "second");
   assert.throws(() => encodeDeterministic(duplicate), CborError);
+});
+
+function routeOpenBody(wire) {
+  const envelope = decodeDeterministic(wire);
+  assert.ok(envelope instanceof Map);
+  const body = envelope.get(5);
+  assert.ok(body instanceof Map);
+  return body;
+}
+
+test("public Ed25519 key files have the exact test-only format", async () => {
+  for (const name of [
+    "test-only-route-grant-ed25519-public.hex",
+    "test-only-session-ed25519-public.hex",
+  ]) {
+    const publicKey = await loadPublicKeyHex(path.join(VECTOR_ROOT, "keys", name));
+    assert.equal(publicKey.length, 32);
+    assert.doesNotThrow(() => importRawEd25519PublicKey(publicKey));
+  }
+  for (const length of [0, 31, 33]) {
+    assert.throws(
+      () => importRawEd25519PublicKey(Buffer.alloc(length)),
+      CryptoVerificationError,
+    );
+  }
+});
+
+test("valid RouteGrant COSE Sign1 verifies independently", async () => {
+  const publicKey = await loadPublicKeyHex(
+    path.join(VECTOR_ROOT, "keys", "test-only-route-grant-ed25519-public.hex"),
+  );
+  const manifest = await loadManifest(VECTOR_ROOT);
+  const artifacts = await verifyPackageInventory(VECTOR_ROOT, manifest);
+  const result = verifyCoseSign1(artifacts.get("route-grant-sign1"), publicKey);
+  assert.deepEqual(result.payload, artifacts.get("route-grant-payload"));
+  assert.ok(result.kid.length >= 1 && result.kid.length <= 64);
+});
+
+test("valid Route Open proof verifies independently", async () => {
+  const publicKey = await loadPublicKeyHex(
+    path.join(VECTOR_ROOT, "keys", "test-only-session-ed25519-public.hex"),
+  );
+  const artifacts = await verifyPackageInventory(
+    VECTOR_ROOT,
+    await loadManifest(VECTOR_ROOT),
+  );
+  assert.doesNotThrow(() => verifyProof(
+    artifacts.get("route-open-proof-transcript"),
+    artifacts.get("route-open-proof-signature"),
+    publicKey,
+  ));
+});
+
+test("all three invalid COSE vectors fail independently", async () => {
+  const publicKey = await loadPublicKeyHex(
+    path.join(VECTOR_ROOT, "keys", "test-only-route-grant-ed25519-public.hex"),
+  );
+  const artifacts = await verifyPackageInventory(
+    VECTOR_ROOT,
+    await loadManifest(VECTOR_ROOT),
+  );
+  for (const id of ["cose-bad-signature", "cose-missing-tag", "cose-wrong-algorithm"]) {
+    const grant = routeOpenBody(artifacts.get(id)).get(2);
+    assert.throws(() => verifyCoseSign1(grant, publicKey), CryptoVerificationError, id);
+  }
+});
+
+test("invalid Route Open proof vector fails independently", async () => {
+  const publicKey = await loadPublicKeyHex(
+    path.join(VECTOR_ROOT, "keys", "test-only-session-ed25519-public.hex"),
+  );
+  const artifacts = await verifyPackageInventory(
+    VECTOR_ROOT,
+    await loadManifest(VECTOR_ROOT),
+  );
+  const badSignature = routeOpenBody(artifacts.get("proof-bad-signature")).get(7);
+  assert.throws(
+    () => verifyProof(
+      artifacts.get("route-open-proof-transcript"),
+      badSignature,
+      publicKey,
+    ),
+    CryptoVerificationError,
+  );
+});
+
+test("COSE rejects malformed profile fields before signature verification", async () => {
+  const publicKey = await loadPublicKeyHex(
+    path.join(VECTOR_ROOT, "keys", "test-only-route-grant-ed25519-public.hex"),
+  );
+  const artifacts = await verifyPackageInventory(
+    VECTOR_ROOT,
+    await loadManifest(VECTOR_ROOT),
+  );
+  const tagged = decodeDeterministic(artifacts.get("route-grant-sign1"), {allowTag18: true});
+  const [protectedBytes, unprotected, payload, signature] = tagged.value;
+  const protectedHeaders = decodeDeterministic(protectedBytes);
+
+  const mutations = [
+    new CborTag(18, [encodeDeterministic(new Map([[1, -8]])), unprotected, payload, signature]),
+    new CborTag(18, [encodeDeterministic(new Map([[1, -8], [4, "text-kid"]])), unprotected, payload, signature]),
+    new CborTag(18, [encodeDeterministic(new Map([[1, -8], [4, Buffer.alloc(0)]])), unprotected, payload, signature]),
+    new CborTag(18, [protectedBytes, new Map([[1, 1]]), payload, signature]),
+    new CborTag(18, [protectedBytes, unprotected, null, signature]),
+    new CborTag(18, [protectedBytes, unprotected, payload, Buffer.alloc(63)]),
+  ];
+  for (const mutation of mutations) {
+    const wire = encodeDeterministic(mutation, {allowTag18: true});
+    assert.throws(() => verifyCoseSign1(wire, publicKey), CryptoVerificationError);
+  }
+
+  const kid65 = new Map(protectedHeaders);
+  kid65.set(4, Buffer.alloc(65));
+  assert.throws(
+    () => verifyCoseSign1(
+      encodeDeterministic(
+        new CborTag(18, [encodeDeterministic(kid65), unprotected, payload, signature]),
+        {allowTag18: true},
+      ),
+      publicKey,
+    ),
+    CryptoVerificationError,
+  );
+});
+
+test("proof verification rejects a one-bit transcript mutation", async () => {
+  const publicKey = await loadPublicKeyHex(
+    path.join(VECTOR_ROOT, "keys", "test-only-session-ed25519-public.hex"),
+  );
+  const artifacts = await verifyPackageInventory(
+    VECTOR_ROOT,
+    await loadManifest(VECTOR_ROOT),
+  );
+  const transcript = Buffer.from(artifacts.get("route-open-proof-transcript"));
+  transcript[transcript.length - 1] ^= 1;
+  assert.throws(
+    () => verifyProof(
+      transcript,
+      artifacts.get("route-open-proof-signature"),
+      publicKey,
+    ),
+    CryptoVerificationError,
+  );
 });
