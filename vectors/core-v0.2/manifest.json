@@ -1,0 +1,632 @@
+{
+  "alpn": "nbsr-quic-1",
+  "format_version": 1,
+  "hash": "sha256",
+  "protocol": "NBSR",
+  "protocol_version": 2,
+  "scenarios": [
+    {
+      "final_assertions": [
+        "transport-session-active",
+        "route-context-active",
+        "stream-active",
+        "no-origin-disclosure"
+      ],
+      "id": "accepted-route-stream-chain",
+      "initial_core_version": 2,
+      "steps": [
+        {
+          "expected_error": null,
+          "expected_outcome": "accept",
+          "sequence": 1,
+          "vector_id": "client-hello"
+        },
+        {
+          "expected_error": null,
+          "expected_outcome": "accept",
+          "sequence": 2,
+          "vector_id": "edge-hello"
+        },
+        {
+          "expected_error": null,
+          "expected_outcome": "accept",
+          "sequence": 3,
+          "vector_id": "route-open"
+        },
+        {
+          "expected_error": null,
+          "expected_outcome": "accept",
+          "sequence": 4,
+          "vector_id": "route-accept"
+        },
+        {
+          "expected_error": null,
+          "expected_outcome": "accept",
+          "sequence": 5,
+          "vector_id": "stream-open"
+        },
+        {
+          "expected_error": null,
+          "expected_outcome": "accept",
+          "sequence": 6,
+          "vector_id": "stream-accept"
+        }
+      ]
+    },
+    {
+      "final_assertions": [
+        "no-version-fallback",
+        "no-route-state",
+        "no-stream-state"
+      ],
+      "id": "generic-close-no-fallback",
+      "initial_core_version": 2,
+      "steps": [
+        {
+          "expected_error": null,
+          "expected_outcome": "close",
+          "sequence": 1,
+          "vector_id": "version-three-generic-close"
+        }
+      ]
+    },
+    {
+      "final_assertions": [
+        "transport-session-active",
+        "no-origin-disclosure"
+      ],
+      "id": "no-origin-disclosure",
+      "initial_core_version": 2,
+      "steps": [
+        {
+          "expected_error": null,
+          "expected_outcome": "accept",
+          "sequence": 1,
+          "vector_id": "client-hello"
+        },
+        {
+          "expected_error": null,
+          "expected_outcome": "accept",
+          "sequence": 2,
+          "vector_id": "edge-hello"
+        }
+      ]
+    },
+    {
+      "final_assertions": [
+        "no-route-state",
+        "no-stream-state"
+      ],
+      "id": "no-route-before-admission",
+      "initial_core_version": 2,
+      "steps": [
+        {
+          "expected_error": "NBSR_E_ROUTE_DENIED",
+          "expected_outcome": "reject",
+          "sequence": 1,
+          "vector_id": "route-open"
+        }
+      ]
+    },
+    {
+      "final_assertions": [
+        "transport-session-active",
+        "no-stream-state"
+      ],
+      "id": "no-stream-before-route-accept",
+      "initial_core_version": 2,
+      "steps": [
+        {
+          "expected_error": null,
+          "expected_outcome": "accept",
+          "sequence": 1,
+          "vector_id": "client-hello"
+        },
+        {
+          "expected_error": null,
+          "expected_outcome": "accept",
+          "sequence": 2,
+          "vector_id": "edge-hello"
+        },
+        {
+          "expected_error": "NBSR_E_ROUTE_DENIED",
+          "expected_outcome": "reject",
+          "sequence": 3,
+          "vector_id": "stream-open"
+        }
+      ]
+    },
+    {
+      "final_assertions": [
+        "transport-session-active",
+        "no-route-state",
+        "no-stream-state"
+      ],
+      "id": "rejected-route-leaves-no-state",
+      "initial_core_version": 2,
+      "steps": [
+        {
+          "expected_error": null,
+          "expected_outcome": "accept",
+          "sequence": 1,
+          "vector_id": "client-hello"
+        },
+        {
+          "expected_error": null,
+          "expected_outcome": "accept",
+          "sequence": 2,
+          "vector_id": "edge-hello"
+        },
+        {
+          "expected_error": null,
+          "expected_outcome": "accept",
+          "sequence": 3,
+          "vector_id": "route-open"
+        },
+        {
+          "expected_error": null,
+          "expected_outcome": "accept",
+          "sequence": 4,
+          "vector_id": "route-reject"
+        }
+      ]
+    },
+    {
+      "final_assertions": [
+        "replay-state-unchanged",
+        "no-route-state"
+      ],
+      "id": "request-replay-rejected",
+      "initial_core_version": 2,
+      "steps": [
+        {
+          "expected_error": null,
+          "expected_outcome": "accept",
+          "sequence": 1,
+          "vector_id": "client-hello"
+        },
+        {
+          "expected_error": "NBSR_E_REPLAY",
+          "expected_outcome": "reject",
+          "sequence": 2,
+          "vector_id": "client-hello"
+        }
+      ]
+    },
+    {
+      "final_assertions": [
+        "no-version-fallback",
+        "no-route-state",
+        "no-stream-state"
+      ],
+      "id": "version-mismatch-no-fallback",
+      "initial_core_version": 2,
+      "steps": [
+        {
+          "expected_error": "NBSR_E_DOWNGRADE",
+          "expected_outcome": "reject",
+          "sequence": 1,
+          "vector_id": "version-one-on-v2"
+        }
+      ]
+    }
+  ],
+  "vectors": [
+    {
+      "artifact_path": "artifacts/invalid/envelope-schema/boolean-protocol-version.cbor",
+      "artifact_type": "control-envelope-cbor",
+      "class": "invalid",
+      "expected_error": "NBSR_E_PROFILE_UNSUPPORTED",
+      "expected_outcome": "reject",
+      "id": "boolean-protocol-version",
+      "length": 193,
+      "message_type": "CLIENT_HELLO",
+      "scenario_only": false,
+      "sha256": "5ea544cd2f915ba9dd850e49cab1c515ab49b32e6a6d3a9556832dda8057f603",
+      "validation_stage": "envelope-schema"
+    },
+    {
+      "artifact_path": "artifacts/invalid/structural/cbor-duplicate-map-key.bin",
+      "artifact_type": "malformed-bytes",
+      "class": "invalid",
+      "expected_error": "NBSR_E_PROFILE_UNSUPPORTED",
+      "expected_outcome": "reject",
+      "id": "cbor-duplicate-map-key",
+      "length": 5,
+      "message_type": null,
+      "scenario_only": false,
+      "sha256": "19cd12cb770a0f11531faf8bf57ac7c8e1d96461875c8487293b46622258bb5c",
+      "validation_stage": "structural"
+    },
+    {
+      "artifact_path": "artifacts/invalid/structural/cbor-float.bin",
+      "artifact_type": "malformed-bytes",
+      "class": "invalid",
+      "expected_error": "NBSR_E_PROFILE_UNSUPPORTED",
+      "expected_outcome": "reject",
+      "id": "cbor-float",
+      "length": 3,
+      "message_type": null,
+      "scenario_only": false,
+      "sha256": "3c213998cb56b97b31168d9dce02d084fb5f5103caef41fb6dc375f593749a7d",
+      "validation_stage": "structural"
+    },
+    {
+      "artifact_path": "artifacts/invalid/structural/cbor-indefinite-map.bin",
+      "artifact_type": "malformed-bytes",
+      "class": "invalid",
+      "expected_error": "NBSR_E_PROFILE_UNSUPPORTED",
+      "expected_outcome": "reject",
+      "id": "cbor-indefinite-map",
+      "length": 2,
+      "message_type": null,
+      "scenario_only": false,
+      "sha256": "58daaf73604c8f2c4e3584b7bf43e64efaf6845deca4ef4f295a94633876e900",
+      "validation_stage": "structural"
+    },
+    {
+      "artifact_path": "artifacts/invalid/structural/cbor-nonpreferred-integer.bin",
+      "artifact_type": "malformed-bytes",
+      "class": "invalid",
+      "expected_error": "NBSR_E_PROFILE_UNSUPPORTED",
+      "expected_outcome": "reject",
+      "id": "cbor-nonpreferred-integer",
+      "length": 2,
+      "message_type": null,
+      "scenario_only": false,
+      "sha256": "78a23af8da46b1b37e8767921a2d3f528fdc8eca37cea8aea775fd2b283d3776",
+      "validation_stage": "structural"
+    },
+    {
+      "artifact_path": "artifacts/invalid/structural/cbor-over-total-bytes.bin",
+      "artifact_type": "malformed-bytes",
+      "class": "invalid",
+      "expected_error": "NBSR_E_OVER_CAPACITY",
+      "expected_outcome": "reject",
+      "id": "cbor-over-total-bytes",
+      "length": 65537,
+      "message_type": null,
+      "scenario_only": false,
+      "sha256": "ccdfd982948b0f498fe03527626494b8ea4783821e8c02a7fa0970d9524af567",
+      "validation_stage": "structural"
+    },
+    {
+      "artifact_path": "artifacts/invalid/structural/cbor-trailing-bytes.bin",
+      "artifact_type": "malformed-bytes",
+      "class": "invalid",
+      "expected_error": "NBSR_E_PROFILE_UNSUPPORTED",
+      "expected_outcome": "reject",
+      "id": "cbor-trailing-bytes",
+      "length": 2,
+      "message_type": null,
+      "scenario_only": false,
+      "sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7",
+      "validation_stage": "structural"
+    },
+    {
+      "artifact_path": "artifacts/invalid/structural/cbor-truncated.bin",
+      "artifact_type": "malformed-bytes",
+      "class": "invalid",
+      "expected_error": "NBSR_E_PROFILE_UNSUPPORTED",
+      "expected_outcome": "reject",
+      "id": "cbor-truncated",
+      "length": 1,
+      "message_type": null,
+      "scenario_only": false,
+      "sha256": "8a8950f7623663222542c9469c73be3c4c81bbdf019e2c577590a61f2ce9a157",
+      "validation_stage": "structural"
+    },
+    {
+      "artifact_path": "artifacts/invalid/structural/cbor-unsupported-tag.bin",
+      "artifact_type": "malformed-bytes",
+      "class": "invalid",
+      "expected_error": "NBSR_E_PROFILE_UNSUPPORTED",
+      "expected_outcome": "reject",
+      "id": "cbor-unsupported-tag",
+      "length": 2,
+      "message_type": null,
+      "scenario_only": false,
+      "sha256": "e9aff84fdb699ca706c0a1fed47bb095cb25e3c95aa5d1c5d216ff2cfbcd4998",
+      "validation_stage": "structural"
+    },
+    {
+      "artifact_path": "artifacts/invalid/structural/cbor-wrong-map-order.bin",
+      "artifact_type": "malformed-bytes",
+      "class": "invalid",
+      "expected_error": "NBSR_E_PROFILE_UNSUPPORTED",
+      "expected_outcome": "reject",
+      "id": "cbor-wrong-map-order",
+      "length": 5,
+      "message_type": null,
+      "scenario_only": false,
+      "sha256": "c4ebf770bae281220ad7bae82d64a32fd52c24e9d02865000175bf4b0815c86f",
+      "validation_stage": "structural"
+    },
+    {
+      "artifact_path": "artifacts/valid/envelopes/client-hello.cbor",
+      "artifact_type": "control-envelope-cbor",
+      "class": "valid",
+      "expected_error": null,
+      "expected_outcome": "accept",
+      "id": "client-hello",
+      "length": 193,
+      "message_type": "CLIENT_HELLO",
+      "scenario_only": false,
+      "sha256": "10cf1f69b24bba84f0a9669a33a99d98c513849d28e1ab9bff7004fe42ed361c",
+      "validation_stage": "message-schema"
+    },
+    {
+      "artifact_path": "artifacts/valid/envelopes/client-hello-body.cbor",
+      "artifact_type": "core-object-cbor",
+      "class": "valid",
+      "expected_error": null,
+      "expected_outcome": "accept",
+      "id": "client-hello-body",
+      "length": 149,
+      "message_type": "CLIENT_HELLO",
+      "scenario_only": false,
+      "sha256": "4a82d5df573bd5341dfe6b827a153921b47e4f33865eacb48ddc05b4795543e0",
+      "validation_stage": "message-schema"
+    },
+    {
+      "artifact_path": "artifacts/invalid/cose/cose-bad-signature.cbor",
+      "artifact_type": "control-envelope-cbor",
+      "class": "invalid",
+      "expected_error": "NBSR_E_GRANT_INVALID",
+      "expected_outcome": "reject",
+      "id": "cose-bad-signature",
+      "length": 567,
+      "message_type": "ROUTE_OPEN",
+      "scenario_only": false,
+      "sha256": "a3d53cb9ad8b39ab88aecc52b648b10d3644544b7cd9b6920fbc91429e6f4c27",
+      "validation_stage": "cose"
+    },
+    {
+      "artifact_path": "artifacts/invalid/cose/cose-missing-tag.cbor",
+      "artifact_type": "control-envelope-cbor",
+      "class": "invalid",
+      "expected_error": "NBSR_E_PROFILE_UNSUPPORTED",
+      "expected_outcome": "reject",
+      "id": "cose-missing-tag",
+      "length": 566,
+      "message_type": "ROUTE_OPEN",
+      "scenario_only": false,
+      "sha256": "aa3116db1de205a3e09e1d45e9a4861ddddf71e656d0f3b136b25323faf124ba",
+      "validation_stage": "cose"
+    },
+    {
+      "artifact_path": "artifacts/invalid/cose/cose-wrong-algorithm.cbor",
+      "artifact_type": "control-envelope-cbor",
+      "class": "invalid",
+      "expected_error": "NBSR_E_PROFILE_UNSUPPORTED",
+      "expected_outcome": "reject",
+      "id": "cose-wrong-algorithm",
+      "length": 567,
+      "message_type": "ROUTE_OPEN",
+      "scenario_only": false,
+      "sha256": "55931254a7458701746ccf7dcbb27a54d19815bf956711b25d2788fb78be3fd5",
+      "validation_stage": "cose"
+    },
+    {
+      "artifact_path": "artifacts/valid/envelopes/edge-hello.cbor",
+      "artifact_type": "control-envelope-cbor",
+      "class": "valid",
+      "expected_error": null,
+      "expected_outcome": "accept",
+      "id": "edge-hello",
+      "length": 189,
+      "message_type": "EDGE_HELLO",
+      "scenario_only": false,
+      "sha256": "f33ec7de580b4303c20e1072ec1a67d2bbace29fb426358bc2ace79005b870c8",
+      "validation_stage": "message-schema"
+    },
+    {
+      "artifact_path": "artifacts/valid/envelopes/edge-hello-body.cbor",
+      "artifact_type": "core-object-cbor",
+      "class": "valid",
+      "expected_error": null,
+      "expected_outcome": "accept",
+      "id": "edge-hello-body",
+      "length": 145,
+      "message_type": "EDGE_HELLO",
+      "scenario_only": false,
+      "sha256": "ae745d0db91721a31bc1f539dedade0f9b2500399422f7d43516139ca9ca9e85",
+      "validation_stage": "message-schema"
+    },
+    {
+      "artifact_path": "artifacts/invalid/binding/grant-expired.cbor",
+      "artifact_type": "control-envelope-cbor",
+      "class": "invalid",
+      "expected_error": "NBSR_E_GRANT_EXPIRED",
+      "expected_outcome": "reject",
+      "id": "grant-expired",
+      "length": 567,
+      "message_type": "ROUTE_OPEN",
+      "scenario_only": false,
+      "sha256": "76af03ba7afd661eafd1179e97c9547e7289940913cbaa6ee53d326d1752c47a",
+      "validation_stage": "binding"
+    },
+    {
+      "artifact_path": "artifacts/invalid/proof/proof-bad-signature.cbor",
+      "artifact_type": "control-envelope-cbor",
+      "class": "invalid",
+      "expected_error": "NBSR_E_PROOF_INVALID",
+      "expected_outcome": "reject",
+      "id": "proof-bad-signature",
+      "length": 567,
+      "message_type": "ROUTE_OPEN",
+      "scenario_only": false,
+      "sha256": "c46e4e5569bbc10190d4f2eee1ae65a72199cf0663c99396698c091322001f81",
+      "validation_stage": "proof"
+    },
+    {
+      "artifact_path": "artifacts/valid/envelopes/route-accept.cbor",
+      "artifact_type": "control-envelope-cbor",
+      "class": "valid",
+      "expected_error": null,
+      "expected_outcome": "accept",
+      "id": "route-accept",
+      "length": 124,
+      "message_type": "ROUTE_ACCEPT",
+      "scenario_only": false,
+      "sha256": "fcf84ff3fd3449c3246c2ee4a96b3234a6c3ff112e1b3521c7a756af53ecc04c",
+      "validation_stage": "binding"
+    },
+    {
+      "artifact_path": "artifacts/valid/objects/route-grant-payload.cbor",
+      "artifact_type": "core-object-cbor",
+      "class": "valid",
+      "expected_error": null,
+      "expected_outcome": "accept",
+      "id": "route-grant-payload",
+      "length": 276,
+      "message_type": null,
+      "scenario_only": false,
+      "sha256": "debb176a4e93e0ca98ff379d4ac449ea4e802449e95b6ddbc4ba9427b7f297a9",
+      "validation_stage": "object-schema"
+    },
+    {
+      "artifact_path": "artifacts/valid/objects/route-grant-sign1.cose",
+      "artifact_type": "cose-sign1",
+      "class": "valid",
+      "expected_error": null,
+      "expected_outcome": "accept",
+      "id": "route-grant-sign1",
+      "length": 381,
+      "message_type": null,
+      "scenario_only": false,
+      "sha256": "fbb7f3d48699fca2eedd7b2f331613c81edccfdcd5f2348726bde8aa022fa56f",
+      "validation_stage": "cose"
+    },
+    {
+      "artifact_path": "artifacts/valid/envelopes/route-open.cbor",
+      "artifact_type": "control-envelope-cbor",
+      "class": "valid",
+      "expected_error": null,
+      "expected_outcome": "accept",
+      "id": "route-open",
+      "length": 567,
+      "message_type": "ROUTE_OPEN",
+      "scenario_only": false,
+      "sha256": "c7b13d48727c70572544d6ff12436a6f761f948b0a3f5a21bb4825c1a351b868",
+      "validation_stage": "binding"
+    },
+    {
+      "artifact_path": "artifacts/valid/proofs/route-open-signature.bin",
+      "artifact_type": "ed25519-signature",
+      "class": "valid",
+      "expected_error": null,
+      "expected_outcome": "accept",
+      "id": "route-open-proof-signature",
+      "length": 64,
+      "message_type": null,
+      "scenario_only": false,
+      "sha256": "e232f1147cb85dd1cf98fef762cf281180867adc42b32ca33f111298f5ef63ed",
+      "validation_stage": "proof"
+    },
+    {
+      "artifact_path": "artifacts/valid/proofs/route-open-transcript.cbor",
+      "artifact_type": "proof-transcript-cbor",
+      "class": "valid",
+      "expected_error": null,
+      "expected_outcome": "accept",
+      "id": "route-open-proof-transcript",
+      "length": 202,
+      "message_type": null,
+      "scenario_only": false,
+      "sha256": "fe7678ed6179fb944977f9b891c7879bdad84707b8b7d9c48ab60caa46e5bdf2",
+      "validation_stage": "proof"
+    },
+    {
+      "artifact_path": "artifacts/invalid/binding/route-port-not-authorized.cbor",
+      "artifact_type": "control-envelope-cbor",
+      "class": "invalid",
+      "expected_error": "NBSR_E_ROUTE_DENIED",
+      "expected_outcome": "reject",
+      "id": "route-port-not-authorized",
+      "length": 567,
+      "message_type": "ROUTE_OPEN",
+      "scenario_only": false,
+      "sha256": "e8a985090ca929ccb52eb24d9687e36bd7da019eec6cbf9154eb6950bfbbd400",
+      "validation_stage": "binding"
+    },
+    {
+      "artifact_path": "artifacts/valid/envelopes/route-reject.cbor",
+      "artifact_type": "control-envelope-cbor",
+      "class": "valid",
+      "expected_error": null,
+      "expected_outcome": "accept",
+      "id": "route-reject",
+      "length": 144,
+      "message_type": "ROUTE_REJECT",
+      "scenario_only": true,
+      "sha256": "265d4c17610c370baebb2241b5150269932b9b21503882fe7f0b088fb77a2216",
+      "validation_stage": "message-schema"
+    },
+    {
+      "artifact_path": "artifacts/valid/envelopes/stream-accept.cbor",
+      "artifact_type": "control-envelope-cbor",
+      "class": "valid",
+      "expected_error": null,
+      "expected_outcome": "accept",
+      "id": "stream-accept",
+      "length": 91,
+      "message_type": "STREAM_ACCEPT",
+      "scenario_only": false,
+      "sha256": "d189d4329ef723050f465cc44cc815a8150dddf1b10200072df6402b03380caf",
+      "validation_stage": "binding"
+    },
+    {
+      "artifact_path": "artifacts/valid/envelopes/stream-open.cbor",
+      "artifact_type": "control-envelope-cbor",
+      "class": "valid",
+      "expected_error": null,
+      "expected_outcome": "accept",
+      "id": "stream-open",
+      "length": 129,
+      "message_type": "STREAM_OPEN",
+      "scenario_only": false,
+      "sha256": "6bfdc396db674c64dd70b33d7a1e31cd2a1cae9ad0ffa0f13605da11ce960894",
+      "validation_stage": "binding"
+    },
+    {
+      "artifact_path": "artifacts/valid/envelopes/stream-reject.cbor",
+      "artifact_type": "control-envelope-cbor",
+      "class": "valid",
+      "expected_error": null,
+      "expected_outcome": "accept",
+      "id": "stream-reject",
+      "length": 111,
+      "message_type": "STREAM_REJECT",
+      "scenario_only": true,
+      "sha256": "823cdd283e04ac00384a0759f5a88216126a45aa710b0e3c26f671f5812308d5",
+      "validation_stage": "message-schema"
+    },
+    {
+      "artifact_path": "artifacts/invalid/version-dispatch/version-one-on-v2.cbor",
+      "artifact_type": "control-envelope-cbor",
+      "class": "invalid",
+      "expected_error": "NBSR_E_DOWNGRADE",
+      "expected_outcome": "reject",
+      "id": "version-one-on-v2",
+      "length": 193,
+      "message_type": "CLIENT_HELLO",
+      "scenario_only": false,
+      "sha256": "253c9016fe4185b13b36c880b7905e72d960ea2e62977efe608069da5071131f",
+      "validation_stage": "version-dispatch"
+    },
+    {
+      "artifact_path": "artifacts/invalid/version-dispatch/version-three-generic-close.cbor",
+      "artifact_type": "control-envelope-cbor",
+      "class": "invalid",
+      "expected_error": null,
+      "expected_outcome": "close",
+      "id": "version-three-generic-close",
+      "length": 193,
+      "message_type": "CLIENT_HELLO",
+      "scenario_only": false,
+      "sha256": "3ea867cb3b54a0485e564883feb28fbc7f76b469de3c0c7636ede2359979239c",
+      "validation_stage": "version-dispatch"
+    }
+  ]
+}

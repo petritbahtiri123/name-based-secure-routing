@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import os
+import subprocess
 from hashlib import sha256
 from pathlib import Path
 
@@ -229,6 +231,21 @@ def test_write_and_check_package_are_byte_identical(tmp_path: Path) -> None:
     assert before == after
     assert "manifest.json" in before
     assert "README.md" in before
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Windows ACL regression")
+def test_write_directory_inherits_parent_windows_acl(tmp_path: Path) -> None:
+    output = tmp_path / "core-v0.2"
+
+    write_package(output, build_package())
+    result = subprocess.run(
+        ["icacls", str(output)],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    assert "(I)" in result.stdout
 
 
 @pytest.mark.parametrize("name", ["vectors", "other", "."])

@@ -3,7 +3,6 @@ from __future__ import annotations
 import argparse
 import shutil
 import sys
-import tempfile
 from hashlib import sha256
 from pathlib import Path
 from uuid import uuid4
@@ -60,29 +59,50 @@ def _write_files(root: Path, files: dict[str, bytes]) -> None:
         target.write_bytes(payload)
 
 
+def _sync_files(root: Path, files: dict[str, bytes]) -> None:
+    existing = {path.relative_to(root).as_posix(): path for path in root.rglob("*") if path.is_file()}
+    for relative, path in existing.items():
+        if relative not in files:
+            path.unlink()
+    _write_files(root, files)
+    for directory in sorted(
+        (path for path in root.rglob("*") if path.is_dir()),
+        key=lambda path: len(path.parts),
+        reverse=True,
+    ):
+        try:
+            directory.rmdir()
+        except OSError:
+            pass
+
+
 def write_package(output: Path, package: GeneratedPackage) -> None:
     target = _validate_target(output)
     target.parent.mkdir(parents=True, exist_ok=True)
     _validate_owned_existing(target)
     expected = _expected_files(package)
-    temporary = Path(tempfile.mkdtemp(prefix=".core-v0.2-write-", dir=target.parent))
-    backup = target.parent / f".core-v0.2-backup-{uuid4().hex}"
+    temporary = target.parent / f".core-v0.2-write-{uuid4().hex}"
+    temporary.mkdir()
     try:
         _write_files(temporary, expected)
         manifest = load_manifest(temporary / "manifest.json")
         validate_package(temporary, manifest)
         if _actual_files(temporary) != expected:
             raise ValueError("generated package file set is incomplete")
-        if target.exists():
-            target.rename(backup)
+        previous = _actual_files(target) if target.exists() else None
+        if not target.exists():
+            target.mkdir()
         try:
-            temporary.rename(target)
+            _sync_files(target, expected)
+            validate_package(target, load_manifest(target / "manifest.json"))
+            if _actual_files(target) != expected:
+                raise ValueError("written package differs from validated staging")
         except BaseException:
-            if backup.exists() and not target.exists():
-                backup.rename(target)
+            if previous is None:
+                shutil.rmtree(target)
+            else:
+                _sync_files(target, previous)
             raise
-        if backup.exists():
-            shutil.rmtree(backup)
     finally:
         if temporary.exists():
             shutil.rmtree(temporary)
