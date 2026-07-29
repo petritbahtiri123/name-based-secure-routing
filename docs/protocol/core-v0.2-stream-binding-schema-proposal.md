@@ -1,6 +1,6 @@
 # Core v0.2 stream-binding schema proposal
 
-**Status:** human approval required; not frozen
+**Status:** approved on 2026-07-29; frozen as a Core v0.2 candidate
 
 **Date:** 2026-07-29
 
@@ -158,9 +158,10 @@ new bodies requires separate approval of protocol version 2 negotiation and
 downgrade behavior. A Core v0.1 peer must never interpret these proposed
 bodies.
 
-## Approval ballot
+## Approved ballot
 
-Human approval is required for:
+The human protocol owner approved these eight candidate decisions on
+2026-07-29:
 
 1. the exact numeric mappings in all three body tables;
 2. stream 0 as the sole control stream and the length-prefixed framing;
@@ -172,6 +173,6 @@ Human approval is required for:
 8. preparation, but not implementation, of the prerequisite HELLO and ROUTE
    body schemas.
 
-Approval freezes only this documentation proposal after its status is amended.
-It does not authorize runtime until every dependency above has passed its own
-gate and an implementation plan is approved.
+This approval freezes this candidate mapping but does not allocate protocol
+version 2 or authorize runtime. Every dependency above must pass its own gate
+and an implementation plan must be approved first.

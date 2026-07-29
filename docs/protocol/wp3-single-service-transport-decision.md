@@ -178,11 +178,13 @@ The separately gated
 [Core v0.2 stream-binding schema proposal](core-v0.2-stream-binding-schema-proposal.md)
 now assigns explicit candidate body keys for `STREAM_OPEN`, `STREAM_ACCEPT`,
 and `STREAM_REJECT`, plus bounded control-stream framing and fail-closed
-binding rules. The proposal is not frozen and authorizes no runtime.
+binding rules. The candidate was approved on 2026-07-29 but does not allocate
+protocol version 2 or authorize runtime.
 
-Its dependency review also confirms that `CLIENT_HELLO`, `EDGE_HELLO`, and the
-three `ROUTE_*` message bodies still need separate numeric schemas before WP3
-runtime. Approval of the STREAM tables alone does not fill those gaps.
+The dependency is now covered by the separately gated
+[Core v0.2 session and route schema proposal](core-v0.2-session-route-schema-proposal.md).
+That proposal and cross-language deterministic vectors still require separate
+approval before WP3 runtime.
 
 ## Origin and application boundary
 

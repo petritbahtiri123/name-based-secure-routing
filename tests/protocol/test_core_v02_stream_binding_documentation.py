@@ -58,8 +58,8 @@ def _schema_rows(schema_name: str) -> list[list[str]]:
     return rows
 
 
-def test_stream_binding_proposal_is_complete_unique_and_review_gated() -> None:
-    assert "**Status:** human approval required; not frozen" in PROPOSAL.read_text(encoding="utf-8")
+def test_stream_binding_proposal_is_complete_unique_and_approved() -> None:
+    assert "**Status:** approved on 2026-07-29; frozen as a Core v0.2 candidate" in PROPOSAL.read_text(encoding="utf-8")
 
     for schema_name, expected_fields in EXPECTED_FIELDS.items():
         rows = _schema_rows(schema_name)
@@ -150,8 +150,9 @@ def test_decision_records_point_to_the_schema_approval_gate() -> None:
     roadmap = _normalized(ROADMAP)
 
     assert "Core v0.2 stream-binding schema proposal prepared" in wp3
-    assert "stream-binding schema approval" in decisions
-    assert "Core v0.2 stream-binding schema proposal prepared" in roadmap
+    assert "approved as a frozen candidate" in decisions
+    assert "session/route schema approval" in decisions
+    assert "Core v0.2 session and route schema proposal prepared" in roadmap
     assert "runtime remains blocked" in roadmap
 
 
