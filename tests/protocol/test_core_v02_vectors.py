@@ -3,16 +3,21 @@ from __future__ import annotations
 from hashlib import sha256
 
 from nbsr.protocol.cbor import decode_deterministic, encode_deterministic
+from nbsr.protocol.errors import ProtocolViolation
 from nbsr.protocol.registry import MessageType
 from scripts.core_v02_vectors.crypto import (
     verify_cose_sign1,
     verify_route_open,
 )
 from scripts.core_v02_vectors.fixtures import FIXTURES
-from scripts.core_v02_vectors.generate import build_valid_package
+from scripts.core_v02_vectors.generate import (
+    build_invalid_artifacts,
+    build_valid_package,
+)
 from scripts.core_v02_vectors.reference import (
     ConformanceState,
     ReferenceContext,
+    UnknownCoreVersion,
     apply_envelope,
     verify_envelope,
 )
@@ -33,6 +38,25 @@ VALID_IDS = {
     "stream-open",
     "stream-accept",
     "stream-reject",
+}
+INVALID_EXPECTATIONS = {
+    "boolean-protocol-version": "NBSR_E_PROFILE_UNSUPPORTED",
+    "cbor-duplicate-map-key": "NBSR_E_PROFILE_UNSUPPORTED",
+    "cbor-float": "NBSR_E_PROFILE_UNSUPPORTED",
+    "cbor-indefinite-map": "NBSR_E_PROFILE_UNSUPPORTED",
+    "cbor-nonpreferred-integer": "NBSR_E_PROFILE_UNSUPPORTED",
+    "cbor-over-total-bytes": "NBSR_E_OVER_CAPACITY",
+    "cbor-trailing-bytes": "NBSR_E_PROFILE_UNSUPPORTED",
+    "cbor-truncated": "NBSR_E_PROFILE_UNSUPPORTED",
+    "cbor-unsupported-tag": "NBSR_E_PROFILE_UNSUPPORTED",
+    "cbor-wrong-map-order": "NBSR_E_PROFILE_UNSUPPORTED",
+    "cose-bad-signature": "NBSR_E_GRANT_INVALID",
+    "cose-missing-tag": "NBSR_E_PROFILE_UNSUPPORTED",
+    "cose-wrong-algorithm": "NBSR_E_PROFILE_UNSUPPORTED",
+    "grant-expired": "NBSR_E_GRANT_EXPIRED",
+    "proof-bad-signature": "NBSR_E_PROOF_INVALID",
+    "route-port-not-authorized": "NBSR_E_ROUTE_DENIED",
+    "version-one-on-v2": "NBSR_E_DOWNGRADE",
 }
 
 
@@ -120,3 +144,35 @@ def test_route_and_stream_rejections_embed_safe_protocol_error() -> None:
     assert route_reject.protocol_error is not None
     assert stream_reject.message_type is MessageType.STREAM_REJECT
     assert stream_reject.protocol_error is not None
+
+
+def test_invalid_vector_coverage_and_exact_error_mapping() -> None:
+    valid = build_valid_package()
+    invalid = build_invalid_artifacts(valid)
+
+    assert {
+        artifact.entry.id: artifact.entry.expected_error for artifact in invalid if artifact.entry.expected_outcome == "reject"
+    } == INVALID_EXPECTATIONS
+    close = [item for item in invalid if item.entry.expected_outcome == "close"]
+    assert [item.entry.id for item in close] == ["version-three-generic-close"]
+    assert close[0].entry.expected_error is None
+
+
+def test_invalid_vectors_fail_at_the_declared_boundary() -> None:
+    valid = build_valid_package()
+    for artifact in build_invalid_artifacts(valid):
+        if artifact.entry.expected_outcome == "close":
+            try:
+                verify_envelope(artifact.wire, _context())
+            except UnknownCoreVersion:
+                continue
+            raise AssertionError(f"{artifact.entry.id} did not request generic close")
+        try:
+            if artifact.entry.artifact_type == "malformed-bytes":
+                decode_deterministic(artifact.wire)
+            else:
+                verify_envelope(artifact.wire, _context())
+        except ProtocolViolation as exc:
+            assert exc.code.name == artifact.entry.expected_error, artifact.entry.id
+            continue
+        raise AssertionError(f"{artifact.entry.id} was unexpectedly accepted")

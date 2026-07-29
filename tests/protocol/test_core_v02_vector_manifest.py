@@ -191,6 +191,20 @@ def test_manifest_rejects_invalid_error_pairing(
         load_manifest(path)
 
 
+def test_manifest_allows_generic_close_without_nbsr_error(tmp_path: Path) -> None:
+    raw = _manifest_dict()
+    raw["vectors"][0]["expected_outcome"] = "close"  # type: ignore[index]
+    raw["vectors"][0]["expected_error"] = None  # type: ignore[index]
+    raw["vectors"][0]["validation_stage"] = "version-dispatch"  # type: ignore[index]
+    path = tmp_path / "manifest.json"
+    _write_json(path, raw)
+
+    manifest = load_manifest(path)
+
+    assert manifest.vectors[0].expected_outcome == "close"
+    assert manifest.vectors[0].expected_error is None
+
+
 @pytest.mark.parametrize("field", ["format_version", "protocol_version", "length"])
 def test_manifest_rejects_booleans_as_integers(tmp_path: Path, field: str) -> None:
     raw = _manifest_dict()

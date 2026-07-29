@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from hashlib import sha256
 from typing import Mapping
 
-from nbsr.protocol.cbor import encode_deterministic
+from nbsr.protocol.cbor import decode_deterministic, encode_deterministic
 from nbsr.protocol.models import RouteGrant
 from nbsr.protocol.registry import ErrorCode, MessageType
 from nbsr.protocol.schemas import encode_model
@@ -83,6 +83,34 @@ def _entry(
             validation_stage=stage,
             message_type=message_type.name if message_type is not None else None,
             scenario_only=scenario_only,
+        ),
+        wire=wire,
+    )
+
+
+def _invalid_entry(
+    vector_id: str,
+    wire: bytes,
+    *,
+    error: ErrorCode | None,
+    stage: str,
+    artifact_type: str,
+    message_type: MessageType | None = None,
+) -> GeneratedArtifact:
+    extension = "bin" if artifact_type == "malformed-bytes" else "cbor"
+    return GeneratedArtifact(
+        entry=VectorEntry(
+            id=vector_id,
+            vector_class="invalid",
+            artifact_type=artifact_type,
+            artifact_path=f"artifacts/invalid/{stage}/{vector_id}.{extension}",
+            length=len(wire),
+            sha256=sha256(wire).hexdigest(),
+            expected_outcome="close" if error is None else "reject",
+            expected_error=error.name if error is not None else None,
+            validation_stage=stage,
+            message_type=message_type.name if message_type is not None else None,
+            scenario_only=False,
         ),
         wire=wire,
     )
@@ -409,3 +437,201 @@ def build_valid_package() -> GeneratedPackage:
         artifacts=ordered,
         support_files=_support_files(),
     )
+
+
+def _decoded_map(wire: bytes) -> dict[int, object]:
+    value = decode_deterministic(wire)
+    if not isinstance(value, dict):
+        raise AssertionError("fixture is not a map")
+    return value
+
+
+def _mutated_route_open(
+    valid: GeneratedPackage,
+    mutate: object,
+) -> bytes:
+    envelope = _decoded_map(valid.artifact_map()["route-open"])
+    body = envelope[5]
+    if not isinstance(body, dict):
+        raise AssertionError("Route Open body is not a map")
+    mutate(body)  # type: ignore[operator]
+    return encode_deterministic(envelope)
+
+
+def build_invalid_artifacts(
+    valid: GeneratedPackage,
+) -> tuple[GeneratedArtifact, ...]:
+    malformed = (
+        ("cbor-duplicate-map-key", b"\xa2\x00\x01\x00\x02"),
+        ("cbor-indefinite-map", b"\xbf\xff"),
+        ("cbor-nonpreferred-integer", b"\x18\x00"),
+        ("cbor-wrong-map-order", b"\xa2\x01\x00\x00\x00"),
+        ("cbor-float", b"\xf9\x00\x00"),
+        ("cbor-unsupported-tag", b"\xc0\x00"),
+        ("cbor-trailing-bytes", b"\x00\x00"),
+        ("cbor-truncated", b"\xa1"),
+    )
+    artifacts = [
+        _invalid_entry(
+            vector_id,
+            wire,
+            error=ErrorCode.NBSR_E_PROFILE_UNSUPPORTED,
+            stage="structural",
+            artifact_type="malformed-bytes",
+        )
+        for vector_id, wire in malformed
+    ]
+    artifacts.append(
+        _invalid_entry(
+            "cbor-over-total-bytes",
+            b"\x00" + b"x" * 65_536,
+            error=ErrorCode.NBSR_E_OVER_CAPACITY,
+            stage="structural",
+            artifact_type="malformed-bytes",
+        )
+    )
+
+    client = _decoded_map(valid.artifact_map()["client-hello"])
+    client[0] = True
+    artifacts.append(
+        _invalid_entry(
+            "boolean-protocol-version",
+            encode_deterministic(client),
+            error=ErrorCode.NBSR_E_PROFILE_UNSUPPORTED,
+            stage="envelope-schema",
+            artifact_type="control-envelope-cbor",
+            message_type=MessageType.CLIENT_HELLO,
+        )
+    )
+
+    grant_wire = valid.artifact_map()["route-grant-sign1"]
+    cose_parts = decode_deterministic(grant_wire[1:])
+    if not isinstance(cose_parts, list):
+        raise AssertionError("COSE fixture is not an array")
+
+    artifacts.append(
+        _invalid_entry(
+            "cose-missing-tag",
+            _mutated_route_open(
+                valid,
+                lambda body: body.__setitem__(2, grant_wire[1:]),
+            ),
+            error=ErrorCode.NBSR_E_PROFILE_UNSUPPORTED,
+            stage="cose",
+            artifact_type="control-envelope-cbor",
+            message_type=MessageType.ROUTE_OPEN,
+        )
+    )
+    wrong_algorithm = list(cose_parts)
+    wrong_algorithm[0] = encode_deterministic({1: -7, 4: FIXTURES.kid})
+    wrong_algorithm_wire = b"\xd2" + encode_deterministic(wrong_algorithm)
+    artifacts.append(
+        _invalid_entry(
+            "cose-wrong-algorithm",
+            _mutated_route_open(
+                valid,
+                lambda body: body.__setitem__(2, wrong_algorithm_wire),
+            ),
+            error=ErrorCode.NBSR_E_PROFILE_UNSUPPORTED,
+            stage="cose",
+            artifact_type="control-envelope-cbor",
+            message_type=MessageType.ROUTE_OPEN,
+        )
+    )
+    bad_signature = list(cose_parts)
+    signature = bytearray(bad_signature[3])
+    signature[32] ^= 1
+    bad_signature[3] = bytes(signature)
+    bad_signature_wire = b"\xd2" + encode_deterministic(bad_signature)
+    artifacts.append(
+        _invalid_entry(
+            "cose-bad-signature",
+            _mutated_route_open(
+                valid,
+                lambda body: body.__setitem__(2, bad_signature_wire),
+            ),
+            error=ErrorCode.NBSR_E_GRANT_INVALID,
+            stage="cose",
+            artifact_type="control-envelope-cbor",
+            message_type=MessageType.ROUTE_OPEN,
+        )
+    )
+
+    expired_grant = replace(
+        _route_grant(),
+        not_before=FIXTURES.opened_at - 100,
+        expires_at=FIXTURES.opened_at - 1,
+    )
+    expired_wire = encode_cose_sign1(
+        encode_model(expired_grant),
+        FIXTURES.route_grant_seed,
+        FIXTURES.kid,
+    )
+    artifacts.append(
+        _invalid_entry(
+            "grant-expired",
+            _mutated_route_open(
+                valid,
+                lambda body: body.__setitem__(2, expired_wire),
+            ),
+            error=ErrorCode.NBSR_E_GRANT_EXPIRED,
+            stage="binding",
+            artifact_type="control-envelope-cbor",
+            message_type=MessageType.ROUTE_OPEN,
+        )
+    )
+
+    def _bad_proof(body: dict[int, object]) -> None:
+        proof = bytearray(body[7])
+        proof[32] ^= 1
+        body[7] = bytes(proof)
+
+    artifacts.append(
+        _invalid_entry(
+            "proof-bad-signature",
+            _mutated_route_open(valid, _bad_proof),
+            error=ErrorCode.NBSR_E_PROOF_INVALID,
+            stage="proof",
+            artifact_type="control-envelope-cbor",
+            message_type=MessageType.ROUTE_OPEN,
+        )
+    )
+    artifacts.append(
+        _invalid_entry(
+            "route-port-not-authorized",
+            _mutated_route_open(
+                valid,
+                lambda body: body.__setitem__(5, FIXTURES.port + 1),
+            ),
+            error=ErrorCode.NBSR_E_ROUTE_DENIED,
+            stage="binding",
+            artifact_type="control-envelope-cbor",
+            message_type=MessageType.ROUTE_OPEN,
+        )
+    )
+
+    version_one = _decoded_map(valid.artifact_map()["client-hello"])
+    version_one[0] = 1
+    artifacts.append(
+        _invalid_entry(
+            "version-one-on-v2",
+            encode_deterministic(version_one),
+            error=ErrorCode.NBSR_E_DOWNGRADE,
+            stage="version-dispatch",
+            artifact_type="control-envelope-cbor",
+            message_type=MessageType.CLIENT_HELLO,
+        )
+    )
+    version_three = _decoded_map(valid.artifact_map()["client-hello"])
+    version_three[0] = 3
+    artifacts.append(
+        _invalid_entry(
+            "version-three-generic-close",
+            encode_deterministic(version_three),
+            error=None,
+            stage="version-dispatch",
+            artifact_type="control-envelope-cbor",
+            message_type=MessageType.CLIENT_HELLO,
+        )
+    )
+    return tuple(sorted(artifacts, key=lambda item: item.entry.id))

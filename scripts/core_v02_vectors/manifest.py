@@ -24,7 +24,7 @@ ARTIFACT_TYPES = frozenset(
         "malformed-bytes",
     }
 )
-OUTCOMES = frozenset({"accept", "reject"})
+OUTCOMES = frozenset({"accept", "reject", "close"})
 VALIDATION_STAGES = frozenset(
     {
         "structural",
@@ -169,9 +169,9 @@ def _validate_outcome(outcome: object, error: object) -> tuple[str, str | None]:
     valid_outcome = _require_string(outcome, "expected_outcome")
     if valid_outcome not in OUTCOMES:
         raise ValueError("invalid expected_outcome")
-    if valid_outcome == "accept":
+    if valid_outcome in {"accept", "close"}:
         if error is not None:
-            raise ValueError("expected_error must be null for accept")
+            raise ValueError(f"expected_error must be null for {valid_outcome}")
         return valid_outcome, None
     if not isinstance(error, str) or error not in ERROR_NAMES:
         raise ValueError("expected_error must name a frozen error")
@@ -216,6 +216,8 @@ def _parse_vector(raw: object) -> VectorEntry:
         raw["expected_outcome"],
         raw["expected_error"],
     )
+    if outcome == "close" and stage not in {"structural", "version-dispatch"}:
+        raise ValueError("close outcome requires structural or version-dispatch stage")
     return VectorEntry(
         id=_require_id(raw["id"]),
         vector_class=vector_class,
