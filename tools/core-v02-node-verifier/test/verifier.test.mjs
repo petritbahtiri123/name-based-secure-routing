@@ -11,6 +11,12 @@ import {
   validateManifest,
   verifyPackageInventory,
 } from "../lib/manifest.mjs";
+import {
+  CborError,
+  CborTag,
+  decodeDeterministic,
+  encodeDeterministic,
+} from "../lib/cbor.mjs";
 
 const REPO_ROOT = path.resolve(import.meta.dirname, "../../..");
 const VECTOR_ROOT = path.join(REPO_ROOT, "vectors", "core-v0.2");
@@ -142,4 +148,98 @@ test("package root must be a real core-v0.2 directory", async () => {
     () => loadManifest(path.join(os.tmpdir(), "not-a-vector-package")),
     ManifestError,
   );
+});
+
+test("RFC 8949 map ordering is bytewise, not length-first", () => {
+  const decoded = decodeDeterministic(Buffer.from("a21818002001", "hex"));
+  assert.deepEqual([...decoded.keys()], [24, -1]);
+  assert.equal(encodeDeterministic(decoded).toString("hex"), "a21818002001");
+});
+
+test("all valid CBOR artifacts decode and re-encode identically", async () => {
+  const manifest = await loadManifest(VECTOR_ROOT);
+  const artifacts = await verifyPackageInventory(VECTOR_ROOT, manifest);
+  for (const entry of manifest.vectors.filter(
+    (vector) => vector.class === "valid" && vector.artifact_type !== "ed25519-signature",
+  )) {
+    const options = { allowTag18: entry.artifact_type === "cose-sign1" };
+    const decoded = decodeDeterministic(artifacts.get(entry.id), options);
+    assert.deepEqual(encodeDeterministic(decoded, options), artifacts.get(entry.id), entry.id);
+  }
+});
+
+test("all structural invalid vectors fail with the exact CBOR error kind", async () => {
+  const manifest = await loadManifest(VECTOR_ROOT);
+  const artifacts = await verifyPackageInventory(VECTOR_ROOT, manifest);
+  const entries = manifest.vectors.filter((vector) => vector.validation_stage === "structural");
+  assert.deepEqual(
+    entries.map((entry) => entry.id),
+    [
+      "cbor-duplicate-map-key",
+      "cbor-float",
+      "cbor-indefinite-map",
+      "cbor-nonpreferred-integer",
+      "cbor-over-total-bytes",
+      "cbor-trailing-bytes",
+      "cbor-truncated",
+      "cbor-unsupported-tag",
+      "cbor-wrong-map-order",
+    ],
+  );
+  for (const entry of entries) {
+    assert.throws(
+      () => decodeDeterministic(artifacts.get(entry.id)),
+      (error) => error instanceof CborError
+        && error.kind === (entry.id === "cbor-over-total-bytes" ? "capacity" : "profile"),
+      entry.id,
+    );
+  }
+});
+
+test("CBOR rejects unsupported values and invalid UTF-8", () => {
+  for (const hex of ["f7", "f8ff", "f93c00", "c100", "61ff"]) {
+    assert.throws(
+      () => decodeDeterministic(Buffer.from(hex, "hex")),
+      (error) => error instanceof CborError && error.kind === "profile",
+      hex,
+    );
+  }
+});
+
+test("CBOR enforces each configured resource limit", () => {
+  const cases = [
+    [Buffer.from("8100", "hex"), {maxArrayItems: 0}],
+    [Buffer.from("a10000", "hex"), {maxMapPairs: 0}],
+    [Buffer.from("6161", "hex"), {maxTextBytes: 0}],
+    [Buffer.from("4100", "hex"), {maxByteStringBytes: 0}],
+    [Buffer.from("8100", "hex"), {maxDepth: 1}],
+    [Buffer.from("1818", "hex"), {maxTotalBytes: 1}],
+  ];
+  for (const [wire, limits] of cases) {
+    assert.throws(
+      () => decodeDeterministic(wire, {limits}),
+      (error) => error instanceof CborError && error.kind === "capacity",
+    );
+  }
+});
+
+test("CBOR supports tag 18 only when explicitly enabled", () => {
+  const tagged = Buffer.from("d28100", "hex");
+  assert.throws(() => decodeDeterministic(tagged), CborError);
+  const decoded = decodeDeterministic(tagged, {allowTag18: true});
+  assert.ok(decoded instanceof CborTag);
+  assert.equal(decoded.tag, 18);
+  assert.deepEqual(decoded.value, [0]);
+  assert.deepEqual(encodeDeterministic(decoded, {allowTag18: true}), tagged);
+});
+
+test("CBOR encoder rejects cycles and duplicate deterministic map keys", () => {
+  const cyclic = [];
+  cyclic.push(cyclic);
+  assert.throws(() => encodeDeterministic(cyclic), CborError);
+
+  const duplicate = new Map();
+  duplicate.set(1, "first");
+  duplicate.set(1n, "second");
+  assert.throws(() => encodeDeterministic(duplicate), CborError);
 });
