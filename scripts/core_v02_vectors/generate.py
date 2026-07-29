@@ -5,6 +5,7 @@ from hashlib import sha256
 from typing import Mapping
 
 from nbsr.protocol.cbor import decode_deterministic, encode_deterministic
+from nbsr.protocol.errors import ProtocolViolation
 from nbsr.protocol.models import RouteGrant
 from nbsr.protocol.registry import ErrorCode, MessageType
 from nbsr.protocol.schemas import encode_model
@@ -14,7 +15,19 @@ from scripts.core_v02_vectors.crypto import (
     sign_route_open,
 )
 from scripts.core_v02_vectors.fixtures import FIXTURES
-from scripts.core_v02_vectors.manifest import VectorEntry, VectorManifest
+from scripts.core_v02_vectors.manifest import (
+    ScenarioEntry,
+    ScenarioStep,
+    VectorEntry,
+    VectorManifest,
+)
+from scripts.core_v02_vectors.reference import (
+    ConformanceState,
+    ReferenceContext,
+    UnknownCoreVersion,
+    apply_envelope,
+    verify_envelope,
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -635,3 +648,214 @@ def build_invalid_artifacts(
         )
     )
     return tuple(sorted(artifacts, key=lambda item: item.entry.id))
+
+
+def _scenario(
+    scenario_id: str,
+    steps: tuple[tuple[str, str, ErrorCode | None], ...],
+    assertions: tuple[str, ...],
+) -> ScenarioEntry:
+    return ScenarioEntry(
+        id=scenario_id,
+        initial_core_version=2,
+        steps=tuple(
+            ScenarioStep(
+                sequence=index,
+                vector_id=vector_id,
+                expected_outcome=outcome,
+                expected_error=error.name if error is not None else None,
+            )
+            for index, (vector_id, outcome, error) in enumerate(steps, start=1)
+        ),
+        final_assertions=assertions,
+    )
+
+
+def _scenarios() -> tuple[ScenarioEntry, ...]:
+    accepted = (
+        ("client-hello", "accept", None),
+        ("edge-hello", "accept", None),
+        ("route-open", "accept", None),
+        ("route-accept", "accept", None),
+        ("stream-open", "accept", None),
+        ("stream-accept", "accept", None),
+    )
+    return tuple(
+        sorted(
+            (
+                _scenario(
+                    "accepted-route-stream-chain",
+                    accepted,
+                    (
+                        "transport-session-active",
+                        "route-context-active",
+                        "stream-active",
+                        "no-origin-disclosure",
+                    ),
+                ),
+                _scenario(
+                    "generic-close-no-fallback",
+                    (("version-three-generic-close", "close", None),),
+                    (
+                        "no-version-fallback",
+                        "no-route-state",
+                        "no-stream-state",
+                    ),
+                ),
+                _scenario(
+                    "no-origin-disclosure",
+                    accepted[:2],
+                    ("transport-session-active", "no-origin-disclosure"),
+                ),
+                _scenario(
+                    "no-route-before-admission",
+                    (
+                        (
+                            "route-open",
+                            "reject",
+                            ErrorCode.NBSR_E_ROUTE_DENIED,
+                        ),
+                    ),
+                    ("no-route-state", "no-stream-state"),
+                ),
+                _scenario(
+                    "no-stream-before-route-accept",
+                    (
+                        ("client-hello", "accept", None),
+                        ("edge-hello", "accept", None),
+                        (
+                            "stream-open",
+                            "reject",
+                            ErrorCode.NBSR_E_ROUTE_DENIED,
+                        ),
+                    ),
+                    ("transport-session-active", "no-stream-state"),
+                ),
+                _scenario(
+                    "rejected-route-leaves-no-state",
+                    (
+                        ("client-hello", "accept", None),
+                        ("edge-hello", "accept", None),
+                        ("route-open", "accept", None),
+                        ("route-reject", "accept", None),
+                    ),
+                    (
+                        "transport-session-active",
+                        "no-route-state",
+                        "no-stream-state",
+                    ),
+                ),
+                _scenario(
+                    "request-replay-rejected",
+                    (
+                        ("client-hello", "accept", None),
+                        (
+                            "client-hello",
+                            "reject",
+                            ErrorCode.NBSR_E_REPLAY,
+                        ),
+                    ),
+                    ("replay-state-unchanged", "no-route-state"),
+                ),
+                _scenario(
+                    "version-mismatch-no-fallback",
+                    (
+                        (
+                            "version-one-on-v2",
+                            "reject",
+                            ErrorCode.NBSR_E_DOWNGRADE,
+                        ),
+                    ),
+                    (
+                        "no-version-fallback",
+                        "no-route-state",
+                        "no-stream-state",
+                    ),
+                ),
+            ),
+            key=lambda item: item.id,
+        )
+    )
+
+
+def build_package() -> GeneratedPackage:
+    valid = build_valid_package()
+    artifacts = tuple(
+        sorted(
+            (*valid.artifacts, *build_invalid_artifacts(valid)),
+            key=lambda item: item.entry.id,
+        )
+    )
+    manifest = replace(
+        valid.manifest,
+        vectors=tuple(item.entry for item in artifacts),
+        scenarios=_scenarios(),
+    )
+    return GeneratedPackage(
+        manifest=manifest,
+        artifacts=artifacts,
+        support_files=valid.support_files,
+    )
+
+
+def _reference_context() -> ReferenceContext:
+    return ReferenceContext(
+        expected_core_version=2,
+        source_operator_id=FIXTURES.source_operator_id,
+        source_edge_id=FIXTURES.source_edge_id,
+        destination_operator_id=FIXTURES.destination_operator_id,
+        destination_edge_id=FIXTURES.destination_edge_id,
+        route_grant_issuer_public_key=FIXTURES.route_grant_public_key,
+        route_grant_kid=FIXTURES.kid,
+        client_session_public_key=FIXTURES.session_public_key,
+        now=FIXTURES.opened_at,
+        accepted_record_sequence=FIXTURES.record_sequence,
+        max_clock_skew_seconds=60,
+        expected_policy_hash=FIXTURES.policy_hash,
+    )
+
+
+def run_scenario(
+    entry: ScenarioEntry,
+    artifacts: Mapping[str, bytes],
+) -> ConformanceState:
+    state = ConformanceState()
+    context = _reference_context()
+    for step in entry.steps:
+        if step.vector_id not in artifacts:
+            raise ValueError(f"unknown scenario vector: {step.vector_id}")
+        before = state
+        try:
+            envelope = verify_envelope(artifacts[step.vector_id], context)
+            state = apply_envelope(state, envelope)
+        except UnknownCoreVersion:
+            if step.expected_outcome != "close" or step.expected_error is not None:
+                raise AssertionError(f"unexpected close at step {step.sequence}")
+            if state != before:
+                raise AssertionError("close mutated conformance state")
+            continue
+        except ProtocolViolation as exc:
+            if step.expected_outcome != "reject" or step.expected_error != exc.code.name:
+                raise AssertionError(f"unexpected rejection at step {step.sequence}: {exc.code.name}") from exc
+            if state != before:
+                raise AssertionError("rejection mutated conformance state")
+            continue
+        if step.expected_outcome != "accept":
+            raise AssertionError(f"step {step.sequence} was unexpectedly accepted")
+
+    assertions = set(entry.final_assertions)
+    if "transport-session-active" in assertions and not state.transport_session_active:
+        raise AssertionError("transport session is not active")
+    if "route-context-active" in assertions and not state.active_channel_ids:
+        raise AssertionError("route context is not active")
+    if "stream-active" in assertions and not state.active_stream_ids:
+        raise AssertionError("stream is not active")
+    if "no-route-state" in assertions and state.active_channel_ids:
+        raise AssertionError("unexpected route state")
+    if "no-stream-state" in assertions and state.active_stream_ids:
+        raise AssertionError("unexpected stream state")
+    if "no-origin-disclosure" in assertions:
+        for step in entry.steps:
+            if b"origin" in artifacts[step.vector_id].lower():
+                raise AssertionError("origin-shaped data in scenario artifact")
+    return state

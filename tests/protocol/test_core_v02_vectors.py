@@ -11,8 +11,10 @@ from scripts.core_v02_vectors.crypto import (
 )
 from scripts.core_v02_vectors.fixtures import FIXTURES
 from scripts.core_v02_vectors.generate import (
+    build_package,
     build_invalid_artifacts,
     build_valid_package,
+    run_scenario,
 )
 from scripts.core_v02_vectors.reference import (
     ConformanceState,
@@ -176,3 +178,36 @@ def test_invalid_vectors_fail_at_the_declared_boundary() -> None:
             assert exc.code.name == artifact.entry.expected_error, artifact.entry.id
             continue
         raise AssertionError(f"{artifact.entry.id} was unexpectedly accepted")
+
+
+def test_scenario_registry_covers_only_approved_stateful_semantics() -> None:
+    package = build_package()
+
+    assert {scenario.id for scenario in package.manifest.scenarios} == {
+        "accepted-route-stream-chain",
+        "generic-close-no-fallback",
+        "no-origin-disclosure",
+        "no-route-before-admission",
+        "no-stream-before-route-accept",
+        "rejected-route-leaves-no-state",
+        "request-replay-rejected",
+        "version-mismatch-no-fallback",
+    }
+
+
+def test_all_scenarios_match_outcomes_and_preserve_rejected_state() -> None:
+    package = build_package()
+    artifacts = package.artifact_map()
+
+    for scenario in package.manifest.scenarios:
+        state = run_scenario(scenario, artifacts)
+        if "transport-session-active" in scenario.final_assertions:
+            assert state.transport_session_active
+        if "route-context-active" in scenario.final_assertions:
+            assert state.active_channel_ids
+        if "stream-active" in scenario.final_assertions:
+            assert state.active_stream_ids
+        if "no-route-state" in scenario.final_assertions:
+            assert not state.active_channel_ids
+        if "no-stream-state" in scenario.final_assertions:
+            assert not state.active_stream_ids
