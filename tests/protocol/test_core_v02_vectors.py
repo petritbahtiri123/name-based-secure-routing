@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 from hashlib import sha256
+from pathlib import Path
+
+import pytest
 
 from nbsr.protocol.cbor import decode_deterministic, encode_deterministic
 from nbsr.protocol.errors import ProtocolViolation
@@ -23,6 +26,7 @@ from scripts.core_v02_vectors.reference import (
     apply_envelope,
     verify_envelope,
 )
+from scripts.generate_core_v02_vectors import check_package, write_package
 
 
 VALID_IDS = {
@@ -211,3 +215,54 @@ def test_all_scenarios_match_outcomes_and_preserve_rejected_state() -> None:
             assert not state.active_channel_ids
         if "no-stream-state" in scenario.final_assertions:
             assert not state.active_stream_ids
+
+
+def test_write_and_check_package_are_byte_identical(tmp_path: Path) -> None:
+    output = tmp_path / "core-v0.2"
+    package = build_package()
+
+    write_package(output, package)
+    before = {path.relative_to(output).as_posix(): path.read_bytes() for path in output.rglob("*") if path.is_file()}
+    check_package(output, package)
+    after = {path.relative_to(output).as_posix(): path.read_bytes() for path in output.rglob("*") if path.is_file()}
+
+    assert before == after
+    assert "manifest.json" in before
+    assert "README.md" in before
+
+
+@pytest.mark.parametrize("name", ["vectors", "other", "."])
+def test_write_rejects_non_vector_target_names(tmp_path: Path, name: str) -> None:
+    output = tmp_path / name
+
+    with pytest.raises(ValueError, match="core-v0.2"):
+        write_package(output, build_package())
+
+
+def test_write_rejects_unrelated_nonempty_target(tmp_path: Path) -> None:
+    output = tmp_path / "core-v0.2"
+    output.mkdir()
+    marker = output / "unrelated.txt"
+    marker.write_text("preserve", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="owned package"):
+        write_package(output, build_package())
+
+    assert marker.read_text(encoding="utf-8") == "preserve"
+
+
+def test_check_detects_missing_extra_and_changed_files(tmp_path: Path) -> None:
+    package = build_package()
+    for mutation in ("missing", "extra", "changed"):
+        output = tmp_path / mutation / "core-v0.2"
+        write_package(output, package)
+        artifact = next((output / "artifacts").rglob("*.*"))
+        if mutation == "missing":
+            artifact.unlink()
+        elif mutation == "extra":
+            (output / "artifacts" / "extra.bin").write_bytes(b"x")
+        else:
+            artifact.write_bytes(artifact.read_bytes() + b"x")
+
+        with pytest.raises(ValueError, match="package drift"):
+            check_package(output, package)

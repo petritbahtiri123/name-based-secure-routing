@@ -344,7 +344,12 @@ def _manifest_dict(manifest: VectorManifest) -> dict[str, object]:
         value = asdict(entry)
         value["class"] = value.pop("vector_class")
         vectors.append(value)
-    scenarios = [asdict(item) for item in sorted(manifest.scenarios, key=lambda item: item.id)]
+    scenarios = []
+    for item in sorted(manifest.scenarios, key=lambda item: item.id):
+        value = asdict(item)
+        value["steps"] = list(value["steps"])
+        value["final_assertions"] = list(value["final_assertions"])
+        scenarios.append(value)
     return {
         "format_version": manifest.format_version,
         "protocol": manifest.protocol,
