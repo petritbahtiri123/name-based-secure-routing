@@ -106,7 +106,7 @@ def test_status_records_current_wp2_and_wp3_evidence_without_runtime_claims() ->
 
     for required in (
         "2026-07-30",
-        "680 passed",
+        "683 passed",
         "derived originset",
         "bounded legacy dns",
         "quinn 0.11.11",
@@ -115,6 +115,8 @@ def test_status_records_current_wp2_and_wp3_evidence_without_runtime_claims() ->
         "34 core v0.1 vectors",
         "6 valid and 28 invalid",
         "bounded property coverage",
+        "core v0.1 wire contract",
+        "wp1 tasks 1-8",
         "cose sign1 | implemented",
         "wp3 runtime remains gated",
     ):

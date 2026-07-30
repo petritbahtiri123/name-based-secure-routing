@@ -12,7 +12,7 @@ That local recheck used out-of-range Python 3.14 because no supported
 interpreter was installed; the available OPA launcher could not execute, so
 the earlier five-test OPA evidence was not refreshed.
 
-The current branch was revalidated on 2026-07-30 with 680 passed and 1 skipped,
+The current branch was revalidated on 2026-07-30 with 683 passed and 1 skipped,
 Ruff check and format clean across tracked Python source/tests/scripts,
 `pip check` clean, Core v0.2 vectors reproduced exactly, and all Rust
 format/Clippy checks clean. The isolated Rust transport crate passed 8
@@ -63,6 +63,7 @@ readiness, global federation, or independent interoperability.
 | Explicit Ed25519 algorithm allowlist | Implemented | The Core v0.1 COSE boundary accepts only typed Ed25519 keys and rejects algorithm confusion; existing prototype JWT paths remain separate |
 | Core v0.1 deterministic vectors | Implemented | WP1 Task 6 freezes a hash-bound package of 6 valid and 28 invalid vectors covering objects, deterministic CBOR, schemas, COSE, bindings, time/sequence state, and documentation-only IP rejection |
 | Core v0.1 bounded property coverage | Implemented | WP1 Task 7 runs 300 deterministic Hypothesis examples per property across model round trips, arbitrary bytes, signed-object mutations, malformed lengths, and critical-extension rejection |
+| [Core v0.1 wire contract](core-v0.1-wire.md) | Implemented | WP1 Task 8 publishes the reviewed cross-language contract and stable `nbsr.protocol` API; this is a protocol data boundary, not runtime integration or independent interoperability evidence |
 | `nbsr-quic-1` inter-edge tunnel | Partial | An isolated Quinn 0.11.11/rustls 0.23.43 loopback handshake boundary now proves TLS 1.3 mTLS, exact ALPN, and bounded failure; no tunnel runtime or streams exist |
 | Independent source and destination admission | Partial | The isolated handshake verifies exact Source/Destination Edge certificate SANs; RouteGrant, policy, Service Channel, and runtime admission remain WP3 work |
 | Outbound origin connector | Planned | Protected prototype origins exist, but the V3 connector state machine does not |
@@ -105,7 +106,7 @@ The repository MUST NOT claim any of the following:
 
 ## Next approved boundary
 
-WP0 documentation alignment, WP1 Tasks 1-7, the wire-neutral Derived OriginSet
+WP0 documentation alignment, WP1 Tasks 1-8, the wire-neutral Derived OriginSet
 model, the bounded legacy DNS adapter, the Core v0.2 deterministic vector
 package, and the isolated Rust QUIC/TLS handshake spike are complete at their
 documented prototype scope.
