@@ -8,6 +8,7 @@ from datetime import UTC, datetime
 from hashlib import sha256
 from ipaddress import IPv4Address, IPv6Address, ip_address, ip_network
 from threading import RLock
+from time import monotonic
 
 from nbsr.legacy_origin import (
     CandidateValidator,
@@ -19,6 +20,7 @@ from nbsr.legacy_origin import (
     LegacyOriginValidationError,
 )
 from nbsr.name_registry import SignedServiceRegistry
+from nbsr.name_node_observability import NameNodeEvent
 from nbsr.protocol import ErrorCode, ProtocolViolation, RouteIntent, ServiceRecord
 from nbsr.protocol.fields import (
     normalize_presentation_name,
@@ -211,6 +213,9 @@ class NameNode:
         id_source: Callable[[int], bytes],
         *,
         route_intent_lifetime_seconds: int = 300,
+        event_sink: Callable[[NameNodeEvent], None] | None = None,
+        audit_key: bytes | None = None,
+        monotonic_clock: Callable[[], float] = monotonic,
     ) -> None:
         if type(nbsr_policies) is not tuple or any(type(policy) is not NbsrServicePolicy for policy in nbsr_policies):
             raise _profile_error("nbsr_policies must contain immutable policy objects")
@@ -224,6 +229,13 @@ class NameNode:
             raise _profile_error("Name Node dependencies must be callable")
         if type(route_intent_lifetime_seconds) is not int or not 1 <= route_intent_lifetime_seconds <= 300:
             raise _profile_error("RouteIntent lifetime must be from 1 to 300 seconds")
+        if event_sink is not None:
+            if not callable(event_sink):
+                raise _profile_error("event_sink must be callable")
+            if type(audit_key) is not bytes or not 32 <= len(audit_key) <= 64:
+                raise _profile_error("audit_key must contain 32 to 64 bytes")
+        if not callable(monotonic_clock):
+            raise _profile_error("monotonic_clock must be callable")
 
         self._registry = registry
         self._snapshot_provider = snapshot_provider
@@ -233,6 +245,9 @@ class NameNode:
         self._context_store = context_store
         self._id_source = id_source
         self._route_intent_lifetime_seconds = route_intent_lifetime_seconds
+        self._event_sink = event_sink
+        self._audit_key = audit_key
+        self._monotonic_clock = monotonic_clock
         self._issued_ids: set[bytes] = set()
         self._lock = RLock()
 
@@ -248,27 +263,88 @@ class NameNode:
         return indexed
 
     def resolve(self, presentation_name: str, *, now: int) -> NameResolution:
+        started_at = self._safe_clock()
+        canonical_name: str | None = None
+        classification: NameClassification | None = None
         try:
             canonical_name = normalize_presentation_name(presentation_name)
             checked_now = require_timestamp(now, message="Invalid Name Node time")
             with self._lock:
                 policy = self._nbsr_policies.get(canonical_name)
                 if policy is not None:
-                    return self._resolve_nbsr(policy, checked_now)
-                legacy_policy = self._legacy_policies.get(canonical_name)
-                if legacy_policy is not None:
-                    return self._resolve_legacy(legacy_policy, checked_now)
-                raise ProtocolViolation(
-                    ErrorCode.NBSR_E_NAME_NOT_FOUND,
-                    "Name is not configured",
-                )
-        except ProtocolViolation:
+                    classification = NameClassification.NBSR_SERVICE
+                    resolution = self._resolve_nbsr(policy, checked_now)
+                else:
+                    legacy_policy = self._legacy_policies.get(canonical_name)
+                    if legacy_policy is None:
+                        raise ProtocolViolation(
+                            ErrorCode.NBSR_E_NAME_NOT_FOUND,
+                            "Name is not configured",
+                        )
+                    classification = NameClassification.LEGACY_SERVICE
+                    resolution = self._resolve_legacy(legacy_policy, checked_now)
+            self._emit_event(
+                canonical_name=canonical_name,
+                classification=resolution.classification,
+                error_code=None,
+                started_at=started_at,
+            )
+            return resolution
+        except ProtocolViolation as exc:
+            self._emit_event(
+                canonical_name=canonical_name,
+                classification=classification,
+                error_code=exc.code,
+                started_at=started_at,
+            )
             raise
         except Exception as exc:
-            raise ProtocolViolation(
+            violation = ProtocolViolation(
                 ErrorCode.NBSR_E_INTERNAL,
                 "Name resolution failed",
-            ) from exc
+            )
+            self._emit_event(
+                canonical_name=canonical_name,
+                classification=classification,
+                error_code=violation.code,
+                started_at=started_at,
+            )
+            raise violation from exc
+
+    def _safe_clock(self) -> float:
+        try:
+            value = self._monotonic_clock()
+            return float(value)
+        except Exception:
+            return 0.0
+
+    def _emit_event(
+        self,
+        *,
+        canonical_name: str | None,
+        classification: NameClassification | None,
+        error_code: ErrorCode | None,
+        started_at: float,
+    ) -> None:
+        if self._event_sink is None or self._audit_key is None:
+            return
+        try:
+            event = NameNodeEvent.create(
+                audit_key=self._audit_key,
+                canonical_name=canonical_name or "invalid.nbsr",
+                event_kind="resolution-failed" if error_code is not None else "resolution-succeeded",
+                classification=classification,
+                error_code=error_code,
+                duration_ms=max(0.0, (self._safe_clock() - started_at) * 1_000),
+                capacity_exhausted=error_code
+                in (
+                    ErrorCode.NBSR_E_HANDLE_EXHAUSTED,
+                    ErrorCode.NBSR_E_OVER_CAPACITY,
+                ),
+            )
+            self._event_sink(event)
+        except Exception:
+            pass
 
     def _resolve_nbsr(self, policy: NbsrServicePolicy, now: int) -> NameResolution:
         record = self._registry.resolve(policy.canonical_name, now=now)
