@@ -47,10 +47,13 @@ mutual TLS without a fork, private-library access, or new NBSR authentication
 semantics. The crate remains isolated so this choice neither migrates the
 existing Python runtime nor commits the full NBSR implementation to Rust.
 
-The approved direct dependency set is Quinn `0.11.11`, rustls `0.23.43`, and
-Tokio `1.53.1`, using rustls's `ring` provider and TLS 1.3 only. `rcgen 0.14.8`
-is permitted as a development dependency solely to generate ephemeral test
-certificates. `Cargo.lock` freezes the complete resolved dependency graph.
+The approved direct dependency set is Quinn `0.11.11`, rustls `0.23.43`, Tokio
+`1.53.1`, and x509-parser `0.18.1`, using rustls's `ring` provider and TLS 1.3
+only. x509-parser reads the authenticated leaf certificate's SAN after rustls
+has validated its chain; it performs no parallel cryptographic verification.
+`rcgen 0.14.8` is permitted as a development dependency solely to generate
+ephemeral test certificates. `Cargo.lock` freezes the complete resolved
+dependency graph.
 
 ### Alternatives not selected
 
@@ -292,8 +295,8 @@ This spike does not:
 
 The later implementation is acceptable only when:
 
-- Quinn `0.11.11`, rustls `0.23.43`, Tokio `1.53.1`, and rcgen `0.14.8`
-  are pinned and resolved in the checked-in `Cargo.lock`;
+- Quinn `0.11.11`, rustls `0.23.43`, Tokio `1.53.1`, x509-parser `0.18.1`,
+  and rcgen `0.14.8` are pinned and resolved in the checked-in `Cargo.lock`;
 - all QUIC-specific code is confined to the standalone Rust crate;
 - a loopback QUIC v1 / TLS 1.3 handshake mutually authenticates exact Source
   Edge and Destination Edge identities;
