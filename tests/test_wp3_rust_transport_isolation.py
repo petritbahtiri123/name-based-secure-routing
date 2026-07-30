@@ -106,11 +106,13 @@ def test_status_records_current_wp2_and_wp3_evidence_without_runtime_claims() ->
 
     for required in (
         "2026-07-30",
-        "627 passed",
+        "664 passed",
         "derived originset",
         "bounded legacy dns",
         "quinn 0.11.11",
         "11 handshake tests",
+        "36 focused cose tests",
+        "cose sign1 | implemented",
         "wp3 runtime remains gated",
     ):
         assert required in text

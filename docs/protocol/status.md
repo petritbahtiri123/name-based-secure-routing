@@ -12,13 +12,14 @@ That local recheck used out-of-range Python 3.14 because no supported
 interpreter was installed; the available OPA launcher could not execute, so
 the earlier five-test OPA evidence was not refreshed.
 
-The current branch was revalidated on 2026-07-30 with 627 passed and 1 skipped,
+The current branch was revalidated on 2026-07-30 with 664 passed and 1 skipped,
 Ruff check and format clean across tracked Python source/tests/scripts,
 `pip check` clean, Core v0.2 vectors reproduced exactly, and all Rust
 format/Clippy checks clean. The isolated Rust transport crate passed 8
-configuration tests and 11 handshake tests. Python 3.14 remains outside the
-supported interpreter range, so this is development evidence rather than a
-release certification.
+configuration tests and 11 handshake tests. The Core v0.1 COSE Sign1 profile
+passed 36 focused COSE tests. Python 3.14 remains outside the supported
+interpreter range, so this is development evidence rather than a release
+certification.
 
 This file separates evidence from intent. `Implemented` means verified behavior
 exists at prototype scale. It does not imply Core v0.1 conformance, production
@@ -54,8 +55,8 @@ readiness, global federation, or independent interoperability.
 | Proof-of-possession admission | Implemented | Ephemeral Ed25519 client session signs the relay admission context |
 | Core v0.1 immutable D6 models and schemas | Implemented | WP1 Tasks 1-4 freeze registries, states, deterministic CBOR, and the six D6 model/schema mappings; not integrated into runtime |
 | Deterministic CBOR | Implemented | Bounded RFC 8949 scanner/encoder and focused tests; no network integration |
-| COSE Sign1 | Planned | WP1 Task 5; current enterprise and ISP slices still use JSON/JWT |
-| Explicit Ed25519 algorithm allowlist | Partial | Existing JWT paths use explicit EdDSA allowlists; the Core v0.1 COSE profile is still planned |
+| COSE Sign1 | Implemented | WP1 Task 5 provides exact tag-18, protected `alg=-8`/opaque `kid`, attached-payload Ed25519 signing and caller-context verification; it is not integrated into runtime |
+| Explicit Ed25519 algorithm allowlist | Implemented | The Core v0.1 COSE boundary accepts only typed Ed25519 keys and rejects algorithm confusion; existing prototype JWT paths remain separate |
 | `nbsr-quic-1` inter-edge tunnel | Partial | An isolated Quinn 0.11.11/rustls 0.23.43 loopback handshake boundary now proves TLS 1.3 mTLS, exact ALPN, and bounded failure; no tunnel runtime or streams exist |
 | Independent source and destination admission | Partial | The isolated handshake verifies exact Source/Destination Edge certificate SANs; RouteGrant, policy, Service Channel, and runtime admission remain WP3 work |
 | Outbound origin connector | Planned | Protected prototype origins exist, but the V3 connector state machine does not |
@@ -98,7 +99,7 @@ The repository MUST NOT claim any of the following:
 
 ## Next approved boundary
 
-WP0 documentation alignment, WP1 Tasks 1-4, the wire-neutral Derived OriginSet
+WP0 documentation alignment, WP1 Tasks 1-5, the wire-neutral Derived OriginSet
 model, the bounded legacy DNS adapter, the Core v0.2 deterministic vector
 package, and the isolated Rust QUIC/TLS handshake spike are complete at their
 documented prototype scope.
