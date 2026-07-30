@@ -119,6 +119,14 @@ class NameClassification(StrEnum):
 
 
 @dataclass(frozen=True, slots=True)
+class NbsrServicePolicy:
+    canonical_name: str
+    source_operator_id: str
+    source_edge_id: str
+    policy_hash: bytes
+
+
+@dataclass(frozen=True, slots=True)
 class LegacyServicePolicy:
     canonical_name: str
     service_id: str
@@ -179,6 +187,13 @@ generation tombstones, target digest/sequence, and revocation mode. An invalid
 configured NBSR record is a hard security failure, never a signal to try
 legacy DNS.
 
+A ServiceRecord revocation with `target_sequence` applies only to that exact
+record sequence. When `target_sequence` is absent, it applies to every
+sequence for that service name while the revocation is active. A higher record
+sequence never overrides an active broad revocation. Expiry may end new-use
+denial, but the highest issuer generation tombstone remains and prevents an
+older revocation statement from being replayed.
+
 ```python
 @dataclass(frozen=True, slots=True)
 class ResolutionBinding:
@@ -216,14 +231,14 @@ class NameNode:
     ) -> NameResolution: ...
 ```
 
-The constructor injects registry, legacy policy map, snapshot provider,
-candidate validator, legacy cache, synthetic pool, context store, source-edge
-identity, ID source, and maximum RouteIntent lifetime.
+The constructor injects registry, NBSR and legacy policy maps, snapshot
+provider, candidate validator, legacy cache, synthetic pool, context store, ID
+source, and maximum RouteIntent lifetime.
 
 ## Classification and resolution rules
 
 1. Normalize the presentation name with the frozen canonical-name rules.
-2. Check whether the name is configured as an NBSR service.
+2. Check whether the name has an `NbsrServicePolicy`.
 3. If configured, require a valid signed ServiceRecord. Signature, `kid`,
    validity, sequence, and revocation failures return the specific frozen
    `ProtocolViolation`; legacy fallback is forbidden.

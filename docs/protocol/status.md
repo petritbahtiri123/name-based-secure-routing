@@ -12,7 +12,7 @@ That local recheck used out-of-range Python 3.14 because no supported
 interpreter was installed; the available OPA launcher could not execute, so
 the earlier five-test OPA evidence was not refreshed.
 
-The current branch was revalidated on 2026-07-30 with 683 passed and 1 skipped,
+The current branch was revalidated on 2026-07-30 with 686 passed and 1 skipped,
 Ruff check and format clean across tracked Python source/tests/scripts,
 `pip check` clean, Core v0.2 vectors reproduced exactly, and all Rust
 format/Clippy checks clean. The isolated Rust transport crate passed 8
@@ -43,9 +43,10 @@ readiness, global federation, or independent interoperability.
 | Capability | Status | Evidence or gap |
 |---|---|---|
 | V3.6 universal synthetic resolver architecture | Normative | Every successful upgraded-network resolution returns a Synthetic IP; current code is not yet that universal resolver |
-| DNS-compatible legacy reachability through NBSR | Partial | A loopback DNS adapter and deterministic gateway resolution exist; full Name Node behavior and temporary DNS-backed OriginSet conversion are WP2 |
+| DNS-compatible legacy reachability through NBSR | Partial | A loopback DNS adapter and bounded DNS-backed OriginSet conversion exist; the approved WP2A plan adds the signed, synthetic-only Name Node core |
 | NBSR name request without origin IP in client state | Implemented | Name-route responses and synthetic mappings omit the origin address |
 | Signed NBSR Service Record | Planned | WP1 freezes the schema and signature vectors; WP2 adds a signed local registry |
+| WP2A Name Node core | Planned | Owner-delegated design and TDD plan are approved; no WP2A runtime implementation exists yet |
 | Resolution Context ID | Partial | Local adapter/session correlation exists, but subscriber/CPE/DoH/DoT context contracts are not defined |
 | Synthetic-handle allocation | Implemented | Bounded IPv4/IPv6 prototype pools, expiry, collision controls, and ownership journaling exist |
 | Shared source-edge address mode | Planned | Requires a trustworthy name signal and is not the primary WP2 path |
@@ -111,10 +112,13 @@ model, the bounded legacy DNS adapter, the Core v0.2 deterministic vector
 package, and the isolated Rust QUIC/TLS handshake spike are complete at their
 documented prototype scope.
 
-The next boundary is the Phase E single-service path. The handshake evidence
-does not authorize it: WP3 runtime remains gated. Before implementation, a
-separate reviewed design and TDD plan must define the minimum Transport
-Session-to-Service Channel binding, RouteGrant admission, control framing,
-validated OriginSet selection, application-stream lifecycle, origin
-concealment, and exact abort criteria. No new Core v0.1 key, message code,
-error code, state, transition, extension, or COSE wrapper may be introduced.
+The next approved boundary is the isolated WP2A Name Node core defined by the
+owner-delegated
+[design](../superpowers/specs/2026-07-30-wp2-name-node-core-design.md) and
+[TDD plan](../superpowers/plans/2026-07-30-wp2-name-node-core.md). It may add
+the signed local registry, bounded Resolution Context/RouteIntent state,
+synthetic-only resolution core, privacy-safe events, and loopback lab DNS
+boundary. It may not add real recursive DNS/DNSSEC or Web PKI policy, connect
+the relay, or start WP3. WP3 runtime remains gated. No new Core v0.1 key,
+message code, error code, state, transition, extension, or COSE wrapper may be
+introduced.
