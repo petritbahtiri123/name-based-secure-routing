@@ -52,7 +52,6 @@ impl fmt::Debug for TlsMaterial {
 }
 
 pub struct ClientEndpointConfig {
-    #[expect(dead_code, reason = "consumed by the Task 3 Quinn adapter")]
     pub(crate) quinn: ClientConfig,
     pub(crate) policy: PeerPolicy,
 }
@@ -67,7 +66,6 @@ impl fmt::Debug for ClientEndpointConfig {
 }
 
 pub struct ServerEndpointConfig {
-    #[expect(dead_code, reason = "consumed by the Task 3 Quinn adapter")]
     pub(crate) quinn: ServerConfig,
     pub(crate) policy: PeerPolicy,
 }

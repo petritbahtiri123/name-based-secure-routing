@@ -1,11 +1,15 @@
 #![allow(dead_code)]
 
+use quinn::crypto::rustls::{QuicClientConfig, QuicServerConfig};
 use rcgen::{
     BasicConstraints, CertificateParams, CertifiedIssuer, ExtendedKeyUsagePurpose, IsCa, KeyPair,
-    KeyUsagePurpose,
+    KeyUsagePurpose, date_time_ymd,
 };
 use rustls::RootCertStore;
 use rustls::pki_types::{CertificateDer, PrivateKeyDer, PrivatePkcs8KeyDer};
+use rustls::server::WebPkiClientVerifier;
+use rustls::version;
+use std::sync::Arc;
 
 pub struct TestPki {
     ca: CertificateDer<'static>,
@@ -17,6 +21,18 @@ pub struct TestPki {
 
 impl TestPki {
     pub fn generate() -> Self {
+        Self::generate_with_expired_leaf(None)
+    }
+
+    pub fn generate_with_expired_source() -> Self {
+        Self::generate_with_expired_leaf(Some("source-edge.test"))
+    }
+
+    pub fn generate_with_expired_destination() -> Self {
+        Self::generate_with_expired_leaf(Some("destination-edge.test"))
+    }
+
+    fn generate_with_expired_leaf(expired_leaf: Option<&str>) -> Self {
         let mut ca_params = CertificateParams::default();
         ca_params.is_ca = IsCa::Ca(BasicConstraints::Unconstrained);
         ca_params.key_usages = vec![
@@ -30,8 +46,16 @@ impl TestPki {
         )
         .expect("generate test CA certificate");
 
-        let (source_cert, source_key) = issue_leaf(&ca, "source-edge.test");
-        let (destination_cert, destination_key) = issue_leaf(&ca, "destination-edge.test");
+        let (source_cert, source_key) = issue_leaf(
+            &ca,
+            "source-edge.test",
+            expired_leaf == Some("source-edge.test"),
+        );
+        let (destination_cert, destination_key) = issue_leaf(
+            &ca,
+            "destination-edge.test",
+            expired_leaf == Some("destination-edge.test"),
+        );
 
         Self {
             ca: ca.der().clone(),
@@ -58,16 +82,73 @@ impl TestPki {
         )
     }
 
+    pub fn source_material_trusting(&self, trusted: &Self) -> nbsr_transport::TlsMaterial {
+        material(
+            trusted.ca.clone(),
+            self.source_cert.clone(),
+            self.source_key.clone(),
+        )
+    }
+
+    pub fn destination_material_trusting(&self, trusted: &Self) -> nbsr_transport::TlsMaterial {
+        material(
+            trusted.ca.clone(),
+            self.destination_cert.clone(),
+            self.destination_key.clone(),
+        )
+    }
+
     pub fn roots(&self) -> RootCertStore {
         roots(self.ca.clone())
+    }
+
+    pub fn client_config_without_certificate(&self, alpn: &[u8]) -> quinn::ClientConfig {
+        let provider = Arc::new(rustls::crypto::ring::default_provider());
+        let mut tls = rustls::ClientConfig::builder_with_provider(provider)
+            .with_protocol_versions(&[&version::TLS13])
+            .expect("TLS 1.3")
+            .with_root_certificates(self.roots())
+            .with_no_client_auth();
+        tls.alpn_protocols = vec![alpn.to_vec()];
+        quinn::ClientConfig::new(Arc::new(
+            QuicClientConfig::try_from(tls).expect("test QUIC client config"),
+        ))
+    }
+
+    pub fn server_config_with_alpn(&self, alpn: &[u8]) -> quinn::ServerConfig {
+        let provider = Arc::new(rustls::crypto::ring::default_provider());
+        let verifier = WebPkiClientVerifier::builder_with_provider(
+            Arc::new(self.roots()),
+            Arc::clone(&provider),
+        )
+        .build()
+        .expect("test client verifier");
+        let mut tls = rustls::ServerConfig::builder_with_provider(provider)
+            .with_protocol_versions(&[&version::TLS13])
+            .expect("TLS 1.3")
+            .with_client_cert_verifier(verifier)
+            .with_single_cert(
+                vec![self.destination_cert.clone()],
+                PrivateKeyDer::Pkcs8(PrivatePkcs8KeyDer::from(self.destination_key.clone())),
+            )
+            .expect("test server certificate");
+        tls.alpn_protocols = vec![alpn.to_vec()];
+        quinn::ServerConfig::with_crypto(Arc::new(
+            QuicServerConfig::try_from(tls).expect("test QUIC server config"),
+        ))
     }
 }
 
 fn issue_leaf(
     issuer: &CertifiedIssuer<'_, KeyPair>,
     dns_name: &str,
+    expired: bool,
 ) -> (CertificateDer<'static>, Vec<u8>) {
     let mut params = CertificateParams::new(vec![dns_name.to_owned()]).expect("valid test DNS SAN");
+    if expired {
+        params.not_before = date_time_ymd(2020, 1, 1);
+        params.not_after = date_time_ymd(2020, 1, 2);
+    }
     params.extended_key_usages = vec![
         ExtendedKeyUsagePurpose::ClientAuth,
         ExtendedKeyUsagePurpose::ServerAuth,
