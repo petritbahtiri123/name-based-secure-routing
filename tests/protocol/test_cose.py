@@ -5,14 +5,30 @@ from cryptography.hazmat.primitives.asymmetric.x25519 import X25519PrivateKey
 import pytest
 
 from nbsr.protocol.cbor import DEFAULT_LIMITS, decode_deterministic, encode_deterministic
-from nbsr.protocol.cose import sign1, verify_sign1
+from nbsr.protocol.cose import require_kid, sign1, verify_sign1
 from nbsr.protocol.errors import ProtocolViolation
+from nbsr.protocol.models import (
+    Revocation,
+    RevocationMode,
+    RevocationReason,
+    RevocationTargetType,
+    RouteGrant,
+    ServiceRecord,
+)
 from nbsr.protocol.registry import ErrorCode
+from nbsr.protocol.schemas import (
+    decode_revocation,
+    decode_route_grant,
+    decode_service_record,
+    encode_model,
+)
 
 
 PRIVATE_KEY = Ed25519PrivateKey.from_private_bytes(bytes(range(32)))
 KID = b"test-owner-key"
 PAYLOAD = b"\xa1\x00\x01"
+ID16 = bytes(range(16))
+DIGEST32 = bytes(range(32))
 
 
 def raw_sign1(
@@ -164,7 +180,7 @@ def test_rejects_tampered_protected_payload_and_signature() -> None:
 
 
 def test_preserves_cbor_over_capacity_error() -> None:
-    oversized = b"\xd2" + b"\x00" * (DEFAULT_LIMITS.max_total_bytes + 1)
+    oversized = b"\xd2" + b"\x00" * DEFAULT_LIMITS.max_total_bytes
 
     with pytest.raises(ProtocolViolation) as rejected:
         verify_sign1(
@@ -194,3 +210,126 @@ def test_sign1_rejects_non_profile_local_inputs(
         sign1(payload, kid, key)  # type: ignore[arg-type]
 
     assert rejected.value.code is ErrorCode.NBSR_E_PROFILE_UNSUPPORTED
+
+
+def service_record() -> ServiceRecord:
+    return ServiceRecord(
+        1,
+        "api.example.com",
+        42,
+        KID,
+        "svc_api",
+        "op_destination",
+        ("edge-a",),
+        "connector-a",
+        ("tcp",),
+        (443,),
+        ("nbsr-quic-1",),
+        "nbsr-secure-only",
+        1_785_000_000,
+        1_785_003_600,
+        "revset_2026_207",
+    )
+
+
+def revocation() -> Revocation:
+    return Revocation(
+        1,
+        ID16,
+        b"issuer-key",
+        7,
+        RevocationTargetType.SERVICE_RECORD,
+        DIGEST32,
+        RevocationMode.DENY_NEW_USE,
+        1_785_000_000,
+        None,
+        42,
+        RevocationReason.ADMINISTRATIVE,
+    )
+
+
+def route_grant() -> RouteGrant:
+    return RouteGrant(
+        1,
+        ID16,
+        DIGEST32,
+        "svc_api",
+        "op_source",
+        "edge-source",
+        "op_destination",
+        ("edge-a",),
+        ("tcp",),
+        (443,),
+        DIGEST32,
+        1_785_000_000,
+        1_785_000_120,
+        bytes(reversed(ID16)),
+        42,
+        DIGEST32,
+        b"nonce-1234567890",
+    )
+
+
+@pytest.mark.parametrize(
+    ("model", "decoder", "expected_kid"),
+    (
+        (service_record(), decode_service_record, KID),
+        (revocation(), decode_revocation, b"issuer-key"),
+    ),
+)
+def test_service_record_and_revocation_require_payload_kid_binding(
+    model: object,
+    decoder: object,
+    expected_kid: bytes,
+) -> None:
+    payload = encode_model(model)
+    verified = verify_sign1(
+        sign1(payload, expected_kid, PRIVATE_KEY),
+        {expected_kid: PRIVATE_KEY.public_key()},
+        ErrorCode.NBSR_E_RECORD_UNTRUSTED,
+    )
+    decoded = decoder(verified.payload)  # type: ignore[operator]
+    payload_kid = decoded.owner_key_id if isinstance(decoded, ServiceRecord) else decoded.issuer_key_id
+
+    require_kid(
+        verified,
+        payload_kid,
+        ErrorCode.NBSR_E_RECORD_UNTRUSTED,
+    )
+
+    with pytest.raises(ProtocolViolation) as mismatch:
+        require_kid(
+            verified,
+            b"different-key",
+            ErrorCode.NBSR_E_RECORD_UNTRUSTED,
+        )
+    assert mismatch.value.code is ErrorCode.NBSR_E_RECORD_UNTRUSTED
+
+
+def test_route_grant_kid_resolves_only_in_authorized_issuer_context() -> None:
+    grant = route_grant()
+    issuer_kid = b"authorized-grant-issuer"
+    message = sign1(encode_model(grant), issuer_kid, PRIVATE_KEY)
+
+    with pytest.raises(ProtocolViolation) as unauthorized:
+        verify_sign1(message, {}, ErrorCode.NBSR_E_GRANT_INVALID)
+    assert unauthorized.value.code is ErrorCode.NBSR_E_GRANT_INVALID
+
+    verified = verify_sign1(
+        message,
+        {issuer_kid: PRIVATE_KEY.public_key()},
+        ErrorCode.NBSR_E_GRANT_INVALID,
+    )
+    assert decode_route_grant(verified.payload) == grant
+    assert verified.kid == issuer_kid
+
+
+def test_require_kid_rejects_invalid_error_context() -> None:
+    verified = verify_sign1(
+        sign1(PAYLOAD, KID, PRIVATE_KEY),
+        {KID: PRIVATE_KEY.public_key()},
+        ErrorCode.NBSR_E_RECORD_UNTRUSTED,
+    )
+
+    with pytest.raises(ValueError):
+        require_kid(verified, KID, ErrorCode.NBSR_E_INTERNAL)

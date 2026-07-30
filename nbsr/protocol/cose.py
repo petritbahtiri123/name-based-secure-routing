@@ -9,7 +9,7 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import (
     Ed25519PublicKey,
 )
 
-from nbsr.protocol.cbor import decode_deterministic, encode_deterministic
+from nbsr.protocol.cbor import DEFAULT_LIMITS, decode_deterministic, encode_deterministic
 from nbsr.protocol.errors import ProtocolViolation
 from nbsr.protocol.registry import ErrorCode
 
@@ -72,6 +72,11 @@ def verify_sign1(
         raise TypeError("keys must be a mapping")
 
     try:
+        if type(message) is bytes and len(message) > DEFAULT_LIMITS.max_total_bytes:
+            raise ProtocolViolation(
+                ErrorCode.NBSR_E_OVER_CAPACITY,
+                "COSE resource limit exceeded",
+            )
         if type(message) is not bytes or not message.startswith(_TAG_18):
             raise _verification_error(failure_code)
         body = decode_deterministic(message[1:])
@@ -109,3 +114,14 @@ def verify_sign1(
         raise _verification_error(failure_code) from exc
     except (InvalidSignature, KeyError, TypeError, ValueError) as exc:
         raise _verification_error(failure_code) from exc
+
+
+def require_kid(
+    verified: VerifiedSign1,
+    expected_kid: bytes,
+    failure_code: ErrorCode,
+) -> None:
+    if type(failure_code) is not ErrorCode or failure_code not in _VERIFICATION_CODES:
+        raise ValueError("unsupported COSE verification failure code")
+    if not isinstance(verified, VerifiedSign1) or type(expected_kid) is not bytes or verified.kid != expected_kid:
+        raise _verification_error(failure_code)
