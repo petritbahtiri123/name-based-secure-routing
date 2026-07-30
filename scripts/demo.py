@@ -3,6 +3,7 @@ from __future__ import annotations
 import subprocess
 import sys
 import time
+from pathlib import Path
 
 import httpx
 
@@ -12,7 +13,7 @@ ENTERPRISE_CA = "secrets/demo-ca.pem"
 
 
 def resolve(identity: str, service="payments.internal", method="GET", path="/api/payment-status", ttl=None):
-    token = open(f"tokens/client-{identity}.jwt", encoding="utf-8").read().strip()  # noqa: SIM115
+    token = (Path("tokens") / f"client-{identity}.jwt").read_text(encoding="utf-8").strip()
     headers = {"Authorization": f"Bearer {token}"}
     return httpx.post(
         f"{CONTROL}/v1/routes/resolve",

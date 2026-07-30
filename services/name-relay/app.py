@@ -28,8 +28,11 @@ async def serve(host: str, port: int, certfile: Path, keyfile: Path) -> None:
     tls.minimum_version = ssl.TLSVersion.TLSv1_3
     tls.load_cert_chain(certfile, keyfile)
     server = await asyncio.start_server(relay.handle, host, port, ssl=tls)
-    async with server:
-        await server.serve_forever()
+    try:
+        async with server:
+            await server.serve_forever()
+    finally:
+        await relay.close()
 
 
 def assert_origin_hidden(client_visible_state: str) -> None:

@@ -100,8 +100,12 @@ class NameRelay:
             settings.name_relay_replay_cache_max_entries,
         )
         self._route_registry = route_registry or RouteRegistry.from_settings(settings)
+        self._connections: set[asyncio.Task[None]] = set()
 
     async def handle(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
+        connection = asyncio.current_task()
+        if connection is not None:
+            self._connections.add(connection)
         origin_writer: asyncio.StreamWriter | None = None
         admitted = False
         try:
@@ -137,10 +141,25 @@ class NameRelay:
                     pass
         finally:
             if origin_writer is not None:
-                origin_writer.close()
-                await origin_writer.wait_closed()
-            writer.close()
+                await self._close_writer(origin_writer)
+            await self._close_writer(writer)
+            if connection is not None:
+                self._connections.discard(connection)
+
+    async def close(self) -> None:
+        connections = tuple(self._connections)
+        for connection in connections:
+            connection.cancel()
+        if connections:
+            await asyncio.gather(*connections, return_exceptions=True)
+
+    @staticmethod
+    async def _close_writer(writer: asyncio.StreamWriter) -> None:
+        writer.close()
+        try:
             await writer.wait_closed()
+        except (ConnectionError, OSError, RuntimeError):
+            pass
 
     async def _read_handshake(self, reader: asyncio.StreamReader) -> dict[str, object]:
         declared_length = struct.unpack(">I", await reader.readexactly(4))[0]

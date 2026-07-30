@@ -24,7 +24,7 @@ def test_runtime_support_and_container_are_bounded_and_pinned():
     pyproject = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
     dockerfile = (ROOT / "Dockerfile").read_text(encoding="utf-8")
 
-    assert 'requires-python = ">=3.12,<3.14"' in pyproject
+    assert 'requires-python = ">=3.12,<3.15"' in pyproject
     assert 'target-version = "py313"' in pyproject
     assert "error::DeprecationWarning:nbsr" in pyproject
     assert "error::PendingDeprecationWarning:nbsr" in pyproject

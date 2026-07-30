@@ -19,10 +19,13 @@ class Listener:
     server: asyncio.AbstractServer
     host: str
     port: int
+    relay: NameRelay | None = None
 
     async def close(self) -> None:
         self.server.close()
         await self.server.wait_closed()
+        if self.relay is not None:
+            await self.relay.close()
 
 
 @dataclass(frozen=True)
@@ -75,7 +78,7 @@ async def start_name_relay(settings: Settings, resolver: StaticResolver | Unreso
     relay = NameRelay(settings=settings, resolver=resolver)
     server = await asyncio.start_server(relay.handle, "127.0.0.1", 0)
     host, port = server.sockets[0].getsockname()[:2]
-    return Listener(server, host, port)
+    return Listener(server, host, port, relay)
 
 
 def valid_handshake(
@@ -312,6 +315,29 @@ async def test_unresolvable_signed_hostname_closes_without_asyncio_callback_erro
     finally:
         loop.set_exception_handler(previous_exception_handler)
         await relay.close()
+
+    assert errors == []
+
+
+@pytest.mark.asyncio
+async def test_relay_shutdown_closes_active_connections_without_asyncio_errors(settings):
+    relay = await start_name_relay(settings, StaticResolver({"facebook.test": []}))
+    loop = asyncio.get_running_loop()
+    errors: list[dict[str, object]] = []
+    previous_exception_handler = loop.get_exception_handler()
+    loop.set_exception_handler(lambda _loop, context: errors.append(context))
+    reader, writer = await asyncio.open_connection(relay.host, relay.port)
+    try:
+        writer.write(struct.pack(">I", 100))
+        await writer.drain()
+        await asyncio.sleep(0.01)
+        await relay.close()
+        assert await asyncio.wait_for(reader.read(), timeout=1) in (b"", b"\x00")
+        await asyncio.sleep(0)
+    finally:
+        loop.set_exception_handler(previous_exception_handler)
+        writer.close()
+        await writer.wait_closed()
 
     assert errors == []
 
