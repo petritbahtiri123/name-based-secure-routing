@@ -1,0 +1,408 @@
+{
+  "format_version": 1,
+  "protocol_version": 1,
+  "public_key": {
+    "file": "test-ed25519-public.hex",
+    "kid_hex": "746573742d6b65792d763031",
+    "sha256": "ef5d759f7608f49322bcb47de61380c1e69890140bd298a3d594a569cd11d195"
+  },
+  "vectors": [
+    {
+      "expected": {
+        "error": "NBSR_E_PROFILE_UNSUPPORTED"
+      },
+      "file": "cbor-duplicate-key.cbor",
+      "kind": "invalid_cbor",
+      "name": "cbor-duplicate-key",
+      "sha256": "19cd12cb770a0f11531faf8bf57ac7c8e1d96461875c8487293b46622258bb5c",
+      "valid": false
+    },
+    {
+      "expected": {
+        "error": "NBSR_E_OVER_CAPACITY"
+      },
+      "file": "cbor-excessive-nesting.cbor",
+      "kind": "invalid_cbor",
+      "name": "cbor-excessive-nesting",
+      "sha256": "ccf764f7abf64e6cd763921453c30afdaa9f81355d385ea0d9e368bff1740579",
+      "valid": false
+    },
+    {
+      "expected": {
+        "error": "NBSR_E_PROFILE_UNSUPPORTED"
+      },
+      "file": "cbor-indefinite-map.cbor",
+      "kind": "invalid_cbor",
+      "name": "cbor-indefinite-map",
+      "sha256": "58daaf73604c8f2c4e3584b7bf43e64efaf6845deca4ef4f295a94633876e900",
+      "valid": false
+    },
+    {
+      "expected": {
+        "error": "NBSR_E_PROFILE_UNSUPPORTED"
+      },
+      "file": "cbor-non-shortest-integer.cbor",
+      "kind": "invalid_cbor",
+      "name": "cbor-non-shortest-integer",
+      "sha256": "d8ffb41f9785cc166ba6d923dd209402959c6dcdf797a4fd526a4cf77aec289d",
+      "valid": false
+    },
+    {
+      "expected": {
+        "error": "NBSR_E_PROFILE_UNSUPPORTED"
+      },
+      "file": "cbor-unsorted-map-key.cbor",
+      "kind": "invalid_cbor",
+      "name": "cbor-unsorted-map-key",
+      "sha256": "6034663cfa62bc92dbce2bb781f99fdbc7cc98096dad1d8d07d6116bf7473b2f",
+      "valid": false
+    },
+    {
+      "expected": {
+        "error": "NBSR_E_PROFILE_UNSUPPORTED"
+      },
+      "file": "control-envelope-duplicate-critical-extension.cbor",
+      "kind": "invalid_control_envelope",
+      "name": "control-envelope-duplicate-critical-extension",
+      "sha256": "d91bb0c540c074d8d360d7e5af2fd3a85bcdd734d20ccee55bd8744de9010403",
+      "valid": false
+    },
+    {
+      "expected": {
+        "error": "NBSR_E_PROFILE_UNSUPPORTED"
+      },
+      "file": "control-envelope-unknown-critical-extension.cbor",
+      "kind": "invalid_control_envelope",
+      "name": "control-envelope-unknown-critical-extension",
+      "sha256": "f7a7374f0c5298786e065aa4648764dd7a0b9337accdfb5d78d9f48950d27fce",
+      "valid": false
+    },
+    {
+      "expected": {
+        "message_type": "PING",
+        "monotonic_sequence": 9,
+        "request_id": "000102030405060708090a0b0c0d0e0f"
+      },
+      "file": "control-envelope-valid-01.cbor",
+      "kind": "control_envelope",
+      "name": "control-envelope-valid-01",
+      "sha256": "19d3478eef8873bf0ced5503cb687ae0295b84d60d5c17693016d26efabb6fcb",
+      "valid": true
+    },
+    {
+      "expected": {
+        "error": "NBSR_E_GRANT_INVALID"
+      },
+      "file": "cose-alg-unprotected.cbor",
+      "kind": "invalid_signed_route_grant",
+      "name": "cose-alg-unprotected",
+      "sha256": "a8880c421b901b453f1ef9bf9c864a32669bf2ba0c62f49e6a68cbc79ba5d6d5",
+      "valid": false
+    },
+    {
+      "expected": {
+        "error": "NBSR_E_GRANT_INVALID"
+      },
+      "file": "cose-missing-alg.cbor",
+      "kind": "invalid_signed_route_grant",
+      "name": "cose-missing-alg",
+      "sha256": "f1ab075254ad2e8108c364b1e2457af72284f04807b9acb0827fbf3fe59cf5ad",
+      "valid": false
+    },
+    {
+      "expected": {
+        "error": "NBSR_E_GRANT_INVALID"
+      },
+      "file": "cose-tampered-payload.cbor",
+      "kind": "invalid_signed_route_grant",
+      "name": "cose-tampered-payload",
+      "sha256": "e37dd17af8c661d7eb347310f8ea4950be85cbd4ddeacc62a4d6c9199617c6db",
+      "valid": false
+    },
+    {
+      "expected": {
+        "error": "NBSR_E_GRANT_INVALID"
+      },
+      "file": "cose-tampered-signature.cbor",
+      "kind": "invalid_signed_route_grant",
+      "name": "cose-tampered-signature",
+      "sha256": "a8844c7d78ac56cf5163881d863fe98bd96927cb576baad728467b2476a51042",
+      "valid": false
+    },
+    {
+      "expected": {
+        "error": "NBSR_E_GRANT_INVALID"
+      },
+      "file": "cose-wrong-alg.cbor",
+      "kind": "invalid_signed_route_grant",
+      "name": "cose-wrong-alg",
+      "sha256": "80cd5885dad38cb1a4db9c25564a7fc4e25d75791ea1758990bdf72fdbafeeff",
+      "valid": false
+    },
+    {
+      "expected": {
+        "error": "NBSR_E_GRANT_INVALID"
+      },
+      "file": "cose-wrong-kid.cbor",
+      "kind": "invalid_signed_route_grant",
+      "name": "cose-wrong-kid",
+      "sha256": "3848d5003015438503ddd3d34f87e5572823166742da4597f8370ab7e7f6e8a4",
+      "valid": false
+    },
+    {
+      "expected": {
+        "documentation_ip": "192.0.2.9",
+        "error": "NBSR_E_PROFILE_UNSUPPORTED"
+      },
+      "file": "origin-ipv4-192-0-2-9.cbor",
+      "kind": "invalid_service_record_origin",
+      "name": "origin-ipv4-192-0-2-9",
+      "sha256": "2d883d995179ffe5804851d6fd407f9247edeb3eb3f01355ced6fe3253d13c28",
+      "valid": false
+    },
+    {
+      "expected": {
+        "documentation_ip": "198.51.100.9",
+        "error": "NBSR_E_PROFILE_UNSUPPORTED"
+      },
+      "file": "origin-ipv4-198-51-100-9.cbor",
+      "kind": "invalid_service_record_origin",
+      "name": "origin-ipv4-198-51-100-9",
+      "sha256": "f384f1aed5246e4ded1c015254d86f56cab8f08cbf7843205ef770c2d5bbe04f",
+      "valid": false
+    },
+    {
+      "expected": {
+        "documentation_ip": "203.0.113.9",
+        "error": "NBSR_E_PROFILE_UNSUPPORTED"
+      },
+      "file": "origin-ipv4-203-0-113-9.cbor",
+      "kind": "invalid_service_record_origin",
+      "name": "origin-ipv4-203-0-113-9",
+      "sha256": "789afd0035450daa3611ea41ac4e8563e6b38b872f978481a796ef9dd4ec9b9e",
+      "valid": false
+    },
+    {
+      "expected": {
+        "documentation_ip": "2001:db8::9",
+        "error": "NBSR_E_PROFILE_UNSUPPORTED"
+      },
+      "file": "origin-ipv6-2001-db8-9.cbor",
+      "kind": "invalid_service_record_origin",
+      "name": "origin-ipv6-2001-db8-9",
+      "sha256": "c0e106670159e9128b0aae33b7f837e25e352fa784132141900a386922d3a49a",
+      "valid": false
+    },
+    {
+      "expected": {
+        "error_code": "NBSR_E_OVER_CAPACITY",
+        "request_id": "000102030405060708090a0b0c0d0e0f",
+        "retryable": true
+      },
+      "file": "protocol-error-valid-01.cbor",
+      "kind": "protocol_error",
+      "name": "protocol-error-valid-01",
+      "sha256": "a53b2986cf529f8fae3e0eb57ed49a19724e7b0efbbb1413c992d9494e6458ed",
+      "valid": true
+    },
+    {
+      "expected": {
+        "generation": 7,
+        "issuer_key_id": "746573742d6b65792d763031",
+        "revocation_id": "000102030405060708090a0b0c0d0e0f"
+      },
+      "file": "revocation-immediate-valid-01.cbor",
+      "kind": "signed_revocation",
+      "name": "revocation-immediate-valid-01",
+      "sha256": "8a0c90064ad8b7553c6343bc84c7be0325854a99689275aa5aab7e512d2b057f",
+      "valid": true
+    },
+    {
+      "expected": {
+        "error": "NBSR_E_GRANT_INVALID"
+      },
+      "file": "route-grant-reversed-window.cbor",
+      "kind": "invalid_route_grant",
+      "name": "route-grant-reversed-window",
+      "sha256": "a5172c8cdf35f0a5843191ec168c730cd486b862c543e2725f8c64080455bd1a",
+      "valid": false
+    },
+    {
+      "expected": {
+        "kid": "746573742d6b65792d763031",
+        "record_sequence": 42,
+        "route_id": "000102030405060708090a0b0c0d0e0f",
+        "service_id": "svc_api"
+      },
+      "file": "route-grant-valid-01.cbor",
+      "kind": "signed_route_grant",
+      "name": "route-grant-valid-01",
+      "sha256": "c79c592b60993a61f53d1ce2e95874122f028035f16cb15d21a00e12789390b5",
+      "valid": true
+    },
+    {
+      "expected": {
+        "context": {
+          "destination_edge_id": "edge-b",
+          "name_digest": "74c544fdc6adb01464121a35fb8f154ab7504d43dd286ef252f461b172393437",
+          "port": 443,
+          "service_id": "svc_api",
+          "transport": "tcp"
+        },
+        "error": "NBSR_E_GRANT_INVALID"
+      },
+      "file": "route-grant-wrong-edge.cbor",
+      "kind": "signed_route_grant_binding",
+      "name": "route-grant-wrong-edge",
+      "sha256": "c79c592b60993a61f53d1ce2e95874122f028035f16cb15d21a00e12789390b5",
+      "valid": false
+    },
+    {
+      "expected": {
+        "context": {
+          "destination_edge_id": "edge-a",
+          "name_digest": "6fb112794332cbf37f92725f863988d293f2b659ca8d24a4bc67be37cbc68c3c",
+          "port": 443,
+          "service_id": "svc_api",
+          "transport": "tcp"
+        },
+        "error": "NBSR_E_GRANT_INVALID"
+      },
+      "file": "route-grant-wrong-name.cbor",
+      "kind": "signed_route_grant_binding",
+      "name": "route-grant-wrong-name",
+      "sha256": "c79c592b60993a61f53d1ce2e95874122f028035f16cb15d21a00e12789390b5",
+      "valid": false
+    },
+    {
+      "expected": {
+        "context": {
+          "destination_edge_id": "edge-a",
+          "name_digest": "74c544fdc6adb01464121a35fb8f154ab7504d43dd286ef252f461b172393437",
+          "port": 8443,
+          "service_id": "svc_api",
+          "transport": "tcp"
+        },
+        "error": "NBSR_E_GRANT_INVALID"
+      },
+      "file": "route-grant-wrong-port.cbor",
+      "kind": "signed_route_grant_binding",
+      "name": "route-grant-wrong-port",
+      "sha256": "c79c592b60993a61f53d1ce2e95874122f028035f16cb15d21a00e12789390b5",
+      "valid": false
+    },
+    {
+      "expected": {
+        "context": {
+          "destination_edge_id": "edge-a",
+          "name_digest": "74c544fdc6adb01464121a35fb8f154ab7504d43dd286ef252f461b172393437",
+          "port": 443,
+          "service_id": "svc_other",
+          "transport": "tcp"
+        },
+        "error": "NBSR_E_GRANT_INVALID"
+      },
+      "file": "route-grant-wrong-service.cbor",
+      "kind": "signed_route_grant_binding",
+      "name": "route-grant-wrong-service",
+      "sha256": "c79c592b60993a61f53d1ce2e95874122f028035f16cb15d21a00e12789390b5",
+      "valid": false
+    },
+    {
+      "expected": {
+        "context": {
+          "destination_edge_id": "edge-a",
+          "name_digest": "74c544fdc6adb01464121a35fb8f154ab7504d43dd286ef252f461b172393437",
+          "port": 443,
+          "service_id": "svc_api",
+          "transport": "udp"
+        },
+        "error": "NBSR_E_GRANT_INVALID"
+      },
+      "file": "route-grant-wrong-transport.cbor",
+      "kind": "signed_route_grant_binding",
+      "name": "route-grant-wrong-transport",
+      "sha256": "c79c592b60993a61f53d1ce2e95874122f028035f16cb15d21a00e12789390b5",
+      "valid": false
+    },
+    {
+      "expected": {
+        "lease_id": "0f0e0d0c0b0a09080706050403020100",
+        "record_sequence": 42,
+        "route_id": "000102030405060708090a0b0c0d0e0f",
+        "service_id": "svc_api"
+      },
+      "file": "route-intent-valid-01.cbor",
+      "kind": "route_intent",
+      "name": "route-intent-valid-01",
+      "sha256": "6d5ba8ac7ace9cc5f3480882d0d52f76842559d70a787caa084320e805ce6d9c",
+      "valid": true
+    },
+    {
+      "expected": {
+        "error": "NBSR_E_RECORD_UNTRUSTED",
+        "now": 1785003600
+      },
+      "file": "service-record-expired.cbor",
+      "kind": "signed_service_record_state",
+      "name": "service-record-expired",
+      "sha256": "9157ff2010aa9bbb6fedf2813ec16c03b7f819c52fd11249ef74cc8bd1480aa9",
+      "valid": false
+    },
+    {
+      "expected": {
+        "error": "NBSR_E_RECORD_UNTRUSTED",
+        "now": 1784999999
+      },
+      "file": "service-record-not-yet-valid.cbor",
+      "kind": "signed_service_record_state",
+      "name": "service-record-not-yet-valid",
+      "sha256": "9157ff2010aa9bbb6fedf2813ec16c03b7f819c52fd11249ef74cc8bd1480aa9",
+      "valid": false
+    },
+    {
+      "expected": {
+        "error": "NBSR_E_RECORD_STALE",
+        "highest_sequence": 42
+      },
+      "file": "service-record-stale-sequence.cbor",
+      "kind": "signed_service_record_state",
+      "name": "service-record-stale-sequence",
+      "sha256": "9157ff2010aa9bbb6fedf2813ec16c03b7f819c52fd11249ef74cc8bd1480aa9",
+      "valid": false
+    },
+    {
+      "expected": {
+        "error": "NBSR_E_PROFILE_UNSUPPORTED"
+      },
+      "file": "service-record-unknown-core-field.cbor",
+      "kind": "invalid_service_record",
+      "name": "service-record-unknown-core-field",
+      "sha256": "0d2cd21aa1972ee9f67c364e42f3c41b604f572686c84eeb45000c9f5561dc40",
+      "valid": false
+    },
+    {
+      "expected": {
+        "canonical_name": "api.example.com",
+        "owner_key_id": "746573742d6b65792d763031",
+        "sequence": 42,
+        "service_id": "svc_api"
+      },
+      "file": "service-record-valid-01.cbor",
+      "kind": "signed_service_record",
+      "name": "service-record-valid-01",
+      "sha256": "9157ff2010aa9bbb6fedf2813ec16c03b7f819c52fd11249ef74cc8bd1480aa9",
+      "valid": true
+    },
+    {
+      "expected": {
+        "error": "NBSR_E_PROFILE_UNSUPPORTED"
+      },
+      "file": "service-record-wrong-field-type.cbor",
+      "kind": "invalid_service_record",
+      "name": "service-record-wrong-field-type",
+      "sha256": "e54175e9d575775d1ac88aee44ceeff50b357c2449ec8cc849d8cd57a92018d7",
+      "valid": false
+    }
+  ]
+}
