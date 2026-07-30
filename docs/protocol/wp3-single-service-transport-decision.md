@@ -59,29 +59,37 @@ packet protection scheme, custom TLS handshake, or custom QUIC stack.
 
 ## Library decision
 
-### A. `aioquic` behind an NBSR transport adapter — recommended for the Python prototype
+### A. `aioquic` behind an NBSR transport adapter — superseded spike choice
 
 `aioquic` is a Python asyncio QUIC/TLS 1.3 implementation designed for
 embedding and tested for QUIC interoperability. Its documented API exposes
 QUIC configuration, ALPN selection, certificates, streams, connection events,
 idle timeout, connection migration, and NAT rebinding.
 
-The recommendation is prototype-only:
+This was the approved prototype recommendation on 2026-07-29. During the
+pre-implementation API review on 2026-07-30, `aioquic` 1.3.0 exposed mandatory
+client-certificate requests only through the private, test-only
+`_request_client_certificate` attribute. That conflicts with the approved
+public-API-only boundary. The choice is therefore **superseded for this
+handshake spike**, without changing any protocol decision or rejecting
+`aioquic` for unrelated future experiments.
 
-- pin an reviewed `aioquic` version after dependency approval;
-- wrap it behind an NBSR-owned transport interface;
-- do not depend on private `aioquic` attributes;
-- disable application 0-RTT;
-- verify mutual authentication, Retry, stream limits, migration behavior, and
-  origin-free errors in local tests; and
-- do not make a production-readiness claim from the Python prototype.
+No private `aioquic` attribute was used and no Python runtime dependency was
+added.
 
-### B. Quinn/rustls service — production candidate, not WP3 default
+### B. Quinn/rustls isolated handshake crate — approved spike choice
 
 Quinn is a pure-Rust async QUIC implementation with rustls integration and
-public exporter support. It is a stronger candidate for a later hardened edge
-data plane, but adopting it now creates a second language/runtime, IPC
-boundary, packaging work, and a much larger implementation task.
+public mutual-certificate-verifier and authenticated peer-identity APIs. The
+2026-07-30 amendment approved Quinn/rustls only for the isolated WP3 handshake
+boundary. It does not approve a Rust migration, IPC boundary, packaged edge
+service, or production data plane. Quinn/rustls remains a **production
+candidate** requiring separate architecture, packaging, operational, and
+security review.
+
+The exact direct dependencies are Quinn 0.11.11, rustls 0.23.43, Tokio
+1.53.1, and x509-parser 0.18.1. They are pinned and locked under
+`crates/nbsr-transport`.
 
 ### C. Custom QUIC implementation — rejected
 
@@ -172,6 +180,27 @@ CBOR vectors. It may determine that versioned message codes are safer.
 This proposal allocates no new numeric body keys, message code, state, or
 transition.
 
+## Observed isolated handshake evidence
+
+The approved TDD spike completed on 2026-07-30 as a standalone Rust crate:
+
+- 8 configuration tests and 11 handshake tests pass on loopback;
+- the positive test mutually authenticates exact
+  `source-edge.test`/`destination-edge.test` DNS SAN identities and exact ALPN
+  `nbsr-quic-1`;
+- negative tests reject unknown client/server CAs, missing or expired
+  certificates, Source/Destination SAN mismatch, ALPN mismatch, timeout, and
+  peer refusal during setup;
+- TLS 1.3 is the only enabled TLS version; resumption and early data are
+  disabled;
+- the authenticated connection exposes no stream API and exchanges no NBSR
+  control or application data; and
+- Quinn endpoint and connection operations remain confined to the adapter.
+
+This is a **handshake boundary**, not a completed Transport Session, Service
+Channel, route, final-origin segment, runtime integration, interoperability,
+or production-readiness result. WP3 runtime remains separately gated.
+
 ## Core v0.2 stream-binding schema proposal prepared
 
 The separately gated
@@ -216,7 +245,8 @@ succeeds.
 | Surface | Classification | Result |
 |---|---|---|
 | QUIC/TLS transport | Reuse existing standard | No custom transport |
-| `aioquic` dependency | Prototype implementation choice | Human approval required |
+| `aioquic` dependency | Superseded spike implementation choice | No dependency added |
+| Quinn/rustls crate | Isolated implementation evidence | Approved for handshake spike only |
 | ALPN `nbsr-quic-1` | NBSR profile/wire behavior | Human approval required |
 | Lab mTLS profile | NBSR constraint | Human approval required |
 | Transport reuse key | New internal NBSR semantic | Human approval required |
@@ -246,3 +276,7 @@ Approval of items 1 through 7 permits dependency pinning and a transport
 handshake spike only after a written TDD plan. Item 8 authorized preparation
 of the distinct wire schema proposal, not its freeze. No Phase E runtime
 implementation begins from this approval alone.
+
+On 2026-07-30, the protocol owner approved the public-API review result and
+the minimal switch from ballot item 1 to the isolated Quinn/rustls handshake
+crate. The remaining ballot decisions and all runtime gates are unchanged.
