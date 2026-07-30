@@ -3,6 +3,7 @@ from __future__ import annotations
 from dnslib import DNSRecord, QTYPE, RCODE
 
 from nbsr.dns_stub import ClientRoute, DnsStub, RouteTable
+from nbsr.protocol import ErrorCode, ProtocolViolation
 
 
 def route_for(hostname: str) -> ClientRoute:
@@ -131,6 +132,39 @@ def test_dns_stub_returns_servfail_when_route_resolution_fails():
 
     assert answer.header.id == request.header.id
     assert answer.header.rcode == RCODE.SERVFAIL
+
+
+def test_dns_stub_maps_only_name_not_found_to_nxdomain():
+    def missing(_: str) -> ClientRoute:
+        raise ProtocolViolation(
+            ErrorCode.NBSR_E_NAME_NOT_FOUND,
+            "name is not configured",
+        )
+
+    request = DNSRecord.question("missing.example", "A")
+    answer = DNSRecord.parse(DnsStub(missing, RouteTable()).resolve_query(request.pack()))
+
+    assert answer.header.id == request.header.id
+    assert answer.header.rcode == RCODE.NXDOMAIN
+    assert answer.rr == []
+
+
+def test_dns_stub_maps_other_protocol_errors_to_servfail_without_error_text():
+    origin_literal = b"192.0.2.10"
+
+    def rejected(_: str) -> ClientRoute:
+        raise ProtocolViolation(
+            ErrorCode.NBSR_E_ORIGIN_UNAVAILABLE,
+            origin_literal.decode("ascii"),
+        )
+
+    request = DNSRecord.question("legacy.example", "AAAA")
+    response = DnsStub(rejected, RouteTable()).resolve_query(request.pack())
+    answer = DNSRecord.parse(response)
+
+    assert answer.header.rcode == RCODE.SERVFAIL
+    assert answer.rr == []
+    assert origin_literal not in response
 
 
 def test_dns_stub_never_emits_a_non_synthetic_resolver_address():

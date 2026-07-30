@@ -8,6 +8,8 @@ from typing import Callable
 from dnslib import A, AAAA, CLASS, DNSHeader, DNSRecord, QTYPE, RCODE, RR
 from dnslib.dns import DNSError
 
+from nbsr.protocol import ErrorCode, ProtocolViolation
+
 
 _MAX_DNS_TTL = 60
 _NBSR_SYNTHETIC_IPV4 = IPv4Network("127.80.0.0/16")
@@ -109,6 +111,9 @@ class DnsStub:
             answer = request.reply(ra=1)
             answer.add_answer(RR(question.qname, question.qtype, CLASS.IN, ttl, A(address) if question.qtype == QTYPE.A else AAAA(address)))
             return answer.pack()
+        except ProtocolViolation as exc:
+            code = RCODE.NXDOMAIN if exc.code is ErrorCode.NBSR_E_NAME_NOT_FOUND else RCODE.SERVFAIL
+            return self._reply_with_error(request, code)
         except Exception:
             return self._reply_with_error(request, RCODE.SERVFAIL)
 
