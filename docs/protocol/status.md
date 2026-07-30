@@ -12,18 +12,19 @@ That local recheck used out-of-range Python 3.14 because no supported
 interpreter was installed; the available OPA launcher could not execute, so
 the earlier five-test OPA evidence was not refreshed.
 
-The current branch was revalidated on 2026-07-30 with 686 passed and 1 skipped,
-Ruff check and format clean across tracked Python source/tests/scripts,
-`pip check` clean, Core v0.2 vectors reproduced exactly, and all Rust
-format/Clippy checks clean. The isolated Rust transport crate passed 8
-configuration tests and 11 handshake tests. The Core v0.1 COSE Sign1 profile
-passed 36 focused COSE tests. The deterministic Core v0.1 package contains 34
-Core v0.1 vectors—6 valid and 28 invalid—and regenerates byte-for-byte. Core
-v0.1 now also has deterministic bounded property coverage across all six
-models, arbitrary CBOR bytes, malformed lengths, schema critical extensions,
-and byte mutations of every signed object segment. Python
-3.14 remains outside the supported interpreter range, so this is development
-evidence rather than a release certification.
+The current branch was revalidated on 2026-07-30 with 815 passed and 1 skipped,
+including 207 focused WP2A tests and 167 frozen
+registry/schema/state/vector/CBOR/COSE tests. Ruff check and format, `pip
+check`, both vector regeneration checks, and Compose configuration passed.
+The local Docker configuration produced an access warning, and OPA could not
+be refreshed because no executable `opa` command was present. The isolated
+Rust transport evidence remains 8 configuration tests and 11 handshake tests.
+The Core v0.1 COSE Sign1 profile retains 36 focused COSE tests. Its 34 Core
+v0.1 vectors—6 valid and 28 invalid—regenerate byte-for-byte, and bounded
+property coverage remains in place across all six models, CBOR, schema
+extensions, and signed-object mutation. Python 3.14 is now inside the declared
+development range; this remains prototype evidence rather than release
+certification.
 
 This file separates evidence from intent. `Implemented` means verified behavior
 exists at prototype scale. It does not imply Core v0.1 conformance, production
@@ -45,8 +46,9 @@ readiness, global federation, or independent interoperability.
 | V3.6 universal synthetic resolver architecture | Normative | Every successful upgraded-network resolution returns a Synthetic IP; current code is not yet that universal resolver |
 | DNS-compatible legacy reachability through NBSR | Partial | A loopback DNS adapter and bounded DNS-backed OriginSet conversion exist; the approved WP2A plan adds the signed, synthetic-only Name Node core |
 | NBSR name request without origin IP in client state | Implemented | Name-route responses and synthetic mappings omit the origin address |
-| Signed NBSR Service Record | Planned | WP1 freezes the schema and signature vectors; WP2 adds a signed local registry |
-| WP2A Name Node core | Planned | Owner-delegated design and TDD plan are approved; no WP2A runtime implementation exists yet |
+| Signed NBSR Service Record | Implemented | WP2A adds a bounded owner-bound local registry; no federation or production trust distribution |
+| WP2A Name Node core | Implemented | Signed registry, bounded resolution state, synthetic-only core, privacy-safe observability, and loopback UDP/TCP DNS are verified at lab scope |
+| Real recursive DNS, production DNSSEC, and Web PKI validation | Planned | WP2A accepts only injected normalized discovery data and makes no production resolver or certificate-validation claim |
 | Resolution Context ID | Partial | Local adapter/session correlation exists, but subscriber/CPE/DoH/DoT context contracts are not defined |
 | Synthetic-handle allocation | Implemented | Bounded IPv4/IPv6 prototype pools, expiry, collision controls, and ownership journaling exist |
 | Shared source-edge address mode | Planned | Requires a trustworthy name signal and is not the primary WP2 path |
@@ -109,16 +111,13 @@ The repository MUST NOT claim any of the following:
 
 WP0 documentation alignment, WP1 Tasks 1-8, the wire-neutral Derived OriginSet
 model, the bounded legacy DNS adapter, the Core v0.2 deterministic vector
-package, and the isolated Rust QUIC/TLS handshake spike are complete at their
-documented prototype scope.
+package, the isolated Rust QUIC/TLS handshake spike, and
+[WP2A](wp2a-name-node-core.md) are complete at their documented prototype
+scope.
 
-The next approved boundary is the isolated WP2A Name Node core defined by the
-owner-delegated
-[design](../superpowers/specs/2026-07-30-wp2-name-node-core-design.md) and
-[TDD plan](../superpowers/plans/2026-07-30-wp2-name-node-core.md). It may add
-the signed local registry, bounded Resolution Context/RouteIntent state,
-synthetic-only resolution core, privacy-safe events, and loopback lab DNS
-boundary. It may not add real recursive DNS/DNSSEC or Web PKI policy, connect
-the relay, or start WP3. WP3 runtime remains gated. No new Core v0.1 key,
-message code, error code, state, transition, extension, or COSE wrapper may be
-introduced.
+WP3 runtime remains gated. Its next task requires a separately approved TDD
+plan for Route Context / Service Channel binding, admission, validated
+OriginSet selection, and Application Stream handling. No real recursive DNS,
+production DNSSEC/Web PKI policy, relay integration, native OriginSet
+publication, new Core v0.1 registry allocation, or production-readiness claim
+is authorized by WP2A.

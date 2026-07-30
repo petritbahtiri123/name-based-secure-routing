@@ -4,15 +4,24 @@ from dataclasses import FrozenInstanceError, replace
 from datetime import UTC, datetime
 
 import pytest
+from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+from hypothesis import given, settings, strategies as st
 
 from nbsr.legacy_origin import (
     LegacyDnsResult,
     LegacyDnsSnapshot,
     LegacyOriginCache,
 )
+from nbsr.name_registry import SignedServiceRegistry
 from nbsr.name_node import LegacyServicePolicy, NameNode, NbsrServicePolicy
 from nbsr.originset import DnssecStatus, OriginEndpoint
-from nbsr.protocol import ErrorCode, ProtocolViolation, ServiceRecord
+from nbsr.protocol import (
+    ErrorCode,
+    ProtocolViolation,
+    ServiceRecord,
+    encode_model,
+    sign1,
+)
 from nbsr.resolution_state import NameClassification, ResolutionContextStore
 from nbsr.synthetic import SyntheticAddressPool
 
@@ -503,3 +512,139 @@ def test_name_node_rejects_duplicate_or_overlapping_policy_names(nbsr_policies, 
             ResolutionContextStore(max_entries=8),
             GeneratedIds(),
         )
+
+
+@settings(max_examples=300, deadline=None, derandomize=True)
+@given(
+    st.lists(
+        st.booleans(),
+        min_size=len("api.example"),
+        max_size=len("api.example"),
+    ),
+    st.booleans(),
+)
+def test_configured_nbsr_name_always_returns_synthetic_pair(
+    uppercase: list[bool],
+    trailing_dot: bool,
+) -> None:
+    presentation = "".join(
+        character.upper() if make_upper else character for character, make_upper in zip("api.example", uppercase, strict=True)
+    )
+    node, _, _ = configured_nbsr_node()
+
+    resolution = node.resolve(presentation + ("." if trailing_dot else ""), now=100)
+
+    assert resolution.synthetic_ipv4.startswith("127.80.")
+    assert resolution.synthetic_ipv6.startswith("fd00:6e62:7372:")
+    assert not hasattr(resolution, "origin_address")
+    assert "192.0.2" not in repr(resolution)
+
+
+@settings(max_examples=300, deadline=None, derandomize=True)
+@given(st.binary(max_size=512))
+def test_random_invalid_signed_messages_only_raise_protocol_violation(message: bytes) -> None:
+    registry = SignedServiceRegistry({}, {}, max_records=8)
+
+    with pytest.raises(ProtocolViolation):
+        registry.install_record(message, now=100)
+
+
+@settings(max_examples=300, deadline=None, derandomize=True)
+@given(st.lists(st.integers(min_value=1, max_value=1_000), min_size=1, max_size=8))
+def test_arbitrary_record_update_order_never_decreases_sequence_tombstone(
+    sequences: list[int],
+) -> None:
+    owner_key = Ed25519PrivateKey.from_private_bytes(bytes(range(32)))
+    owner_kid = b"owner"
+    registry = SignedServiceRegistry(
+        {owner_kid: owner_key.public_key()},
+        {},
+        max_records=8,
+    )
+    highest = 0
+
+    for sequence in sequences:
+        record = service_record(sequence=sequence, owner_key_id=owner_kid)
+        message = sign1(encode_model(record), owner_kid, owner_key)
+        if sequence > highest:
+            assert registry.install_record(message, now=100).sequence == sequence
+            highest = sequence
+        else:
+            with pytest.raises(ProtocolViolation) as rejected:
+                registry.install_record(message, now=100)
+            assert rejected.value.code is ErrorCode.NBSR_E_RECORD_STALE
+        assert registry.resolve(record.canonical_name, now=100).sequence == highest
+
+    expired_replay = service_record(
+        sequence=highest,
+        owner_key_id=owner_kid,
+        not_before=500,
+        not_after=900,
+    )
+    with pytest.raises(ProtocolViolation) as rejected:
+        registry.install_record(
+            sign1(encode_model(expired_replay), owner_kid, owner_key),
+            now=500,
+        )
+    assert rejected.value.code is ErrorCode.NBSR_E_RECORD_STALE
+
+
+@settings(max_examples=300, deadline=None, derandomize=True)
+@given(st.lists(st.integers(min_value=10, max_value=250), min_size=1, max_size=8))
+def test_accepted_legacy_refresh_preserves_synthetic_pair(
+    endpoint_octets: list[int],
+) -> None:
+    node, provider, _ = configured_legacy_node()
+    initial = node.resolve("legacy.example", now=100)
+
+    for offset, octet in enumerate(endpoint_octets, start=1):
+        provider.set_snapshot(
+            legacy_snapshot(
+                address=f"192.0.2.{octet}",
+                observed_at=100 + offset,
+            )
+        )
+        refreshed = node.resolve("legacy.example", now=100 + offset)
+        assert refreshed.synthetic_ipv4 == initial.synthetic_ipv4
+        assert refreshed.synthetic_ipv6 == initial.synthetic_ipv6
+        assert f"192.0.2.{octet}" not in repr(refreshed)
+
+
+@settings(max_examples=300, deadline=None, derandomize=True)
+@given(
+    st.lists(
+        st.sampled_from(
+            (
+                LegacyDnsResult.TEMPORARY_FAILURE,
+                LegacyDnsResult.AUTHENTICATED_NEGATIVE,
+                LegacyDnsResult.INVALID,
+            )
+        ),
+        min_size=1,
+        max_size=8,
+    )
+)
+def test_arbitrary_failure_order_never_exposes_origin_or_direct_address(
+    failures: list[LegacyDnsResult],
+) -> None:
+    node, provider, _ = configured_legacy_node()
+    initial = node.resolve("legacy.example", now=100)
+    assert "192.0.2" not in repr(initial)
+
+    for offset, result in enumerate(failures, start=1):
+        status = DnssecStatus.SECURE if result is LegacyDnsResult.AUTHENTICATED_NEGATIVE else DnssecStatus.INDETERMINATE
+        provider.set_snapshot(
+            legacy_snapshot(
+                observed_at=100 + offset,
+                result=result,
+                dnssec_status=status,
+            )
+        )
+        try:
+            resolution = node.resolve("legacy.example", now=100 + offset)
+        except ProtocolViolation as error:
+            assert "192.0.2" not in str(error)
+        else:
+            assert resolution.synthetic_ipv4 == initial.synthetic_ipv4
+            assert resolution.synthetic_ipv6 == initial.synthetic_ipv6
+            assert "192.0.2" not in repr(resolution)

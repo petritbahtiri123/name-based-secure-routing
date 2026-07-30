@@ -59,13 +59,13 @@ def test_wp2a_plan_is_tdd_bounded_and_has_no_wire_registry_changes() -> None:
     assert "TODO" not in text
 
 
-def test_status_records_wp2a_plan_as_approved_but_not_implemented() -> None:
+def test_status_records_wp2a_as_implemented_without_advancing_wp3() -> None:
     text = " ".join(STATUS.read_text(encoding="utf-8").split()).casefold()
 
     for required in (
-        "wp2a name node core | planned",
-        "owner-delegated design and tdd plan are approved",
-        "no wp2a runtime implementation exists yet",
+        "wp2a name node core | implemented",
+        "signed registry, bounded resolution state, synthetic-only core",
+        "real recursive dns, production dnssec, and web pki validation | planned",
         "wp3 runtime remains gated",
     ):
         assert required in text

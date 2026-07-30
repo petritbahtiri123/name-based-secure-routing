@@ -106,7 +106,7 @@ def test_status_records_current_wp2_and_wp3_evidence_without_runtime_claims() ->
 
     for required in (
         "2026-07-30",
-        "686 passed",
+        "815 passed",
         "derived originset",
         "bounded legacy dns",
         "quinn 0.11.11",
