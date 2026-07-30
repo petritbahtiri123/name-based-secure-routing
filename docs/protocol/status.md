@@ -12,13 +12,16 @@ That local recheck used out-of-range Python 3.14 because no supported
 interpreter was installed; the available OPA launcher could not execute, so
 the earlier five-test OPA evidence was not refreshed.
 
-The current branch was revalidated on 2026-07-30 with 669 passed and 1 skipped,
+The current branch was revalidated on 2026-07-30 with 680 passed and 1 skipped,
 Ruff check and format clean across tracked Python source/tests/scripts,
 `pip check` clean, Core v0.2 vectors reproduced exactly, and all Rust
 format/Clippy checks clean. The isolated Rust transport crate passed 8
 configuration tests and 11 handshake tests. The Core v0.1 COSE Sign1 profile
 passed 36 focused COSE tests. The deterministic Core v0.1 package contains 34
-Core v0.1 vectors—6 valid and 28 invalid—and regenerates byte-for-byte. Python
+Core v0.1 vectors—6 valid and 28 invalid—and regenerates byte-for-byte. Core
+v0.1 now also has deterministic bounded property coverage across all six
+models, arbitrary CBOR bytes, malformed lengths, schema critical extensions,
+and byte mutations of every signed object segment. Python
 3.14 remains outside the supported interpreter range, so this is development
 evidence rather than a release certification.
 
@@ -59,6 +62,7 @@ readiness, global federation, or independent interoperability.
 | COSE Sign1 | Implemented | WP1 Task 5 provides exact tag-18, protected `alg=-8`/opaque `kid`, attached-payload Ed25519 signing and caller-context verification; it is not integrated into runtime |
 | Explicit Ed25519 algorithm allowlist | Implemented | The Core v0.1 COSE boundary accepts only typed Ed25519 keys and rejects algorithm confusion; existing prototype JWT paths remain separate |
 | Core v0.1 deterministic vectors | Implemented | WP1 Task 6 freezes a hash-bound package of 6 valid and 28 invalid vectors covering objects, deterministic CBOR, schemas, COSE, bindings, time/sequence state, and documentation-only IP rejection |
+| Core v0.1 bounded property coverage | Implemented | WP1 Task 7 runs 300 deterministic Hypothesis examples per property across model round trips, arbitrary bytes, signed-object mutations, malformed lengths, and critical-extension rejection |
 | `nbsr-quic-1` inter-edge tunnel | Partial | An isolated Quinn 0.11.11/rustls 0.23.43 loopback handshake boundary now proves TLS 1.3 mTLS, exact ALPN, and bounded failure; no tunnel runtime or streams exist |
 | Independent source and destination admission | Partial | The isolated handshake verifies exact Source/Destination Edge certificate SANs; RouteGrant, policy, Service Channel, and runtime admission remain WP3 work |
 | Outbound origin connector | Planned | Protected prototype origins exist, but the V3 connector state machine does not |
@@ -101,7 +105,7 @@ The repository MUST NOT claim any of the following:
 
 ## Next approved boundary
 
-WP0 documentation alignment, WP1 Tasks 1-6, the wire-neutral Derived OriginSet
+WP0 documentation alignment, WP1 Tasks 1-7, the wire-neutral Derived OriginSet
 model, the bounded legacy DNS adapter, the Core v0.2 deterministic vector
 package, and the isolated Rust QUIC/TLS handshake spike are complete at their
 documented prototype scope.

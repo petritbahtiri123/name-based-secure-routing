@@ -331,6 +331,17 @@ def test_envelope_rejects_present_but_empty_critical_extension_list() -> None:
         decode_envelope(encode_deterministic(value))
 
 
+def test_envelope_rejects_duplicate_critical_extension_keys() -> None:
+    model, _ = models_and_decoders()[-1]
+    value = decode_deterministic(encode_model(model))
+    value[6] = [1000, 1000]
+
+    with pytest.raises(ProtocolViolation) as exc_info:
+        decode_envelope(encode_deterministic(value))
+
+    assert exc_info.value.code is ErrorCode.NBSR_E_PROFILE_UNSUPPORTED
+
+
 def test_schema_rejects_boolean_where_uint_is_required() -> None:
     record, _ = models_and_decoders()[0]
     value = decode_deterministic(encode_model(record))

@@ -112,6 +112,22 @@ def test_non_core_deterministic_forms_are_rejected(wire: bytes) -> None:
     assert exc_info.value.code is ErrorCode.NBSR_E_PROFILE_UNSUPPORTED
 
 
+@pytest.mark.parametrize(
+    "wire",
+    (
+        b"\x43\x00\x01",
+        b"\x63ab",
+        b"\x82\x01",
+        b"\xa1\x01",
+    ),
+)
+def test_declared_lengths_beyond_available_bytes_fail_closed(wire: bytes) -> None:
+    with pytest.raises(ProtocolViolation) as exc_info:
+        decode_deterministic(wire)
+
+    assert exc_info.value.code is ErrorCode.NBSR_E_PROFILE_UNSUPPORTED
+
+
 def test_structural_rejection_happens_before_cbor2_loads(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

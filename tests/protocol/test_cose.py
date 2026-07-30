@@ -179,6 +179,14 @@ def test_rejects_tampered_protected_payload_and_signature() -> None:
     assert_record_rejected(b"\xd2" + encode_deterministic([protected, unprotected, payload, changed_signature]))
 
 
+def test_rejects_protected_map_with_declared_length_beyond_available_bytes() -> None:
+    protected = b"\xa2\x01\x27\x04"
+    signature = PRIVATE_KEY.sign(encode_deterministic(["Signature1", protected, b"", PAYLOAD]))
+    message = b"\xd2" + encode_deterministic([protected, {}, PAYLOAD, signature])
+
+    assert_record_rejected(message)
+
+
 def test_preserves_cbor_over_capacity_error() -> None:
     oversized = b"\xd2" + b"\x00" * DEFAULT_LIMITS.max_total_bytes
 
