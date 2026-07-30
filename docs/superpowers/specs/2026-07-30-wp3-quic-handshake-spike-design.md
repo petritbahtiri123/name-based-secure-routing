@@ -3,9 +3,9 @@
 **Status:** approved in principle on 2026-07-30; written specification pending
 human review
 
-**Scope:** the smallest Phase E runtime slice: an isolated Python transport
-adapter proving an authenticated QUIC v1 / TLS 1.3 handshake between a Source
-Edge and a Destination Edge
+**Scope:** the smallest Phase E runtime slice: an isolated Rust transport crate
+proving an authenticated QUIC v1 / TLS 1.3 handshake between a Source Edge and
+a Destination Edge
 
 **Runtime authorization:** none. This design does not authorize implementation.
 Implementation remains blocked until a separate TDD plan is reviewed and
@@ -33,27 +33,36 @@ with the existing relay.
 
 ## Selected approach
 
-Use a reviewed, pinned `aioquic` release behind an NBSR-owned asynchronous
+Use pinned Quinn and rustls releases behind an NBSR-owned asynchronous
 transport adapter.
 
-This is the smallest approved path because the current prototype is Python and
-asyncio-based, `aioquic` reuses QUIC v1 and TLS 1.3 rather than recreating
-transport or cryptography, and the adapter preserves the option to replace the
-prototype data plane later.
+This replaces the original Python recommendation after dependency review found
+that `aioquic 1.3.0` can request a client certificate only through the private
+`_request_client_certificate` field, marked by that library as test-only. That
+fails this design's public-API and mutual-authentication abort criterion.
 
-The dependency is not added by this design commit. The implementation plan must
-identify the exact reviewed version and record the dependency validation before
-any package file changes.
+Quinn with rustls exposes public client- and server-certificate configuration,
+including a mandatory `WebPkiClientVerifier`. It can therefore prove real
+mutual TLS without a fork, private-library access, or new NBSR authentication
+semantics. The crate remains isolated so this choice neither migrates the
+existing Python runtime nor commits the full NBSR implementation to Rust.
+
+The approved direct dependency set is Quinn `0.11.11`, rustls `0.23.43`, and
+Tokio `1.53.1`, using rustls's `ring` provider and TLS 1.3 only. `rcgen 0.14.8`
+is permitted as a development dependency solely to generate ephemeral test
+certificates. `Cargo.lock` freezes the complete resolved dependency graph.
 
 ### Alternatives not selected
 
-1. **Integrate QUIC directly into `NameRelay`.** Rejected for the spike because
+1. **Use `aioquic 1.3.0`.** Rejected because server-side client-certificate
+   requests require a private, explicitly test-only TLS field. One-way TLS
+   would not satisfy the approved mutual edge authentication profile.
+2. **Integrate QUIC directly into `NameRelay`.** Rejected for the spike because
    it would mix a historical signed-JSON TCP prototype with the future Core
    v0.2 transport boundary and make rollback difficult.
-2. **Implement the first spike in Rust with Quinn/rustls.** Deferred because it
-   adds a second runtime, IPC, packaging, and deployment boundary before the
-   protocol-facing adapter has been proven.
-3. **Build a custom QUIC or TLS stack.** Rejected because packet protection,
+3. **Fork `aioquic` or access private fields.** Rejected because the spike must
+   use reviewed public APIs and remain maintainable across dependency updates.
+4. **Build a custom QUIC or TLS stack.** Rejected because packet protection,
    loss recovery, congestion control, path validation, and TLS are reused
    standards, not new NBSR semantics.
 
@@ -63,34 +72,36 @@ The spike introduces a transport-neutral boundary under a new module namespace,
 expected to be shaped as:
 
 ```text
-nbsr/
-  transport/
-    __init__.py
-    interface.py
-    identity.py
-    aioquic_adapter.py
-
-tests/
-  transport/
-    test_identity.py
-    test_aioquic_handshake.py
-    test_aioquic_failures.py
+crates/
+  nbsr-transport/
+    Cargo.toml
+    Cargo.lock
+    src/
+      lib.rs
+      config.rs
+      error.rs
+      quinn_adapter.rs
+    tests/
+      handshake.rs
+      support/
+        mod.rs
 ```
 
 These filenames are planning targets, not frozen public APIs.
 
-`interface.py` defines the minimum NBSR-owned connection contract. Protocol,
-route, service, origin, and application-stream types are deliberately absent.
-`aioquic_adapter.py` is the only module permitted to import `aioquic`.
-Existing runtime modules must not import `aioquic` directly.
+`lib.rs` exposes the minimum NBSR-owned connection contract. Protocol, route,
+service, origin, and application-stream types are deliberately absent.
+`quinn_adapter.rs` is the only module permitted to import Quinn-specific
+connection types. Existing Python runtime modules do not import or invoke the
+crate.
 
 The initial interface exposes only lifecycle behavior equivalent to:
 
 ```text
-connect(local_edge, expected_peer, endpoint, trust_profile) -> connection
-accept(local_edge, expected_peer_policy, trust_profile) -> connection
-connection.authenticated_peer
-connection.close()
+connect(config: ClientConfig, endpoint: SocketAddr) -> AuthenticatedConnection
+accept(config: ServerConfig, bind: SocketAddr) -> (listener, accepted connection)
+AuthenticatedConnection.authenticated_peer() -> EdgeIdentity
+AuthenticatedConnection.close()
 ```
 
 The concrete spelling is finalized by the TDD plan. The interface must not
@@ -108,7 +119,10 @@ The private-lab trust profile contains:
 - ALPN `nbsr-quic-1`;
 - handshake timeout;
 - idle timeout for the bounded test connection; and
-- a flag that keeps application 0-RTT disabled.
+- TLS 1.3-only rustls configuration;
+- disabled session resumption for the spike;
+- a connection API that never invokes Quinn's `into_0rtt`; and
+- a bounded close timeout.
 
 The spike uses certificates generated only for tests. Private keys are never
 committed, logged, returned in errors, or embedded in fixtures intended for
@@ -117,8 +131,7 @@ production use.
 Authentication succeeds only when:
 
 1. the certificate chain validates to the configured test trust anchor;
-2. the certificate validity interval is current under the injected test clock
-   or the library's validated clock boundary;
+2. the certificate validity interval is current under rustls validation;
 3. the peer identity exactly matches the configured certificate SAN;
 4. the peer role is allowed by local configuration;
 5. ALPN is exactly `nbsr-quic-1`; and
@@ -222,7 +235,11 @@ occurred.
 
 ### Isolation and anti-drift tests
 
-- only the concrete adapter imports `aioquic`;
+- only the concrete adapter exposes Quinn-specific connection handling;
+- rustls client-certificate verification is mandatory on the server;
+- the client configuration provides its certificate and validates the server;
+- TLS 1.2 and session resumption are not enabled;
+- no code path invokes Quinn's `into_0rtt`;
 - the existing `NameRelay` remains unchanged and does not import the adapter;
 - frozen Core v0.1 registry, schemas, states, CBOR, and COSE surfaces remain
   unchanged;
@@ -240,11 +257,12 @@ The future implementation must run, in this order:
 3. focused negative handshake tests;
 4. transport isolation and anti-drift tests;
 5. existing Core v0.1 and Core v0.2 protocol tests;
-6. the full Python suite;
-7. Ruff check and format check;
-8. `pip check`;
-9. deterministic Core v0.2 vector regeneration and byte comparison; and
-10. `git diff --check`.
+6. `cargo test`, `cargo fmt --check`, and `cargo clippy -- -D warnings`;
+7. the full Python suite;
+8. Ruff check and format check;
+9. `pip check`;
+10. deterministic Core v0.2 vector regeneration and byte comparison; and
+11. `git diff --check`.
 
 The implementation plan must record exact commands. A passing loopback
 handshake proves only the prototype adapter boundary, not internet
@@ -274,8 +292,9 @@ This spike does not:
 
 The later implementation is acceptable only when:
 
-- `aioquic` is pinned to a separately reviewed version;
-- all QUIC-specific code is confined behind the NBSR adapter;
+- Quinn `0.11.11`, rustls `0.23.43`, Tokio `1.53.1`, and rcgen `0.14.8`
+  are pinned and resolved in the checked-in `Cargo.lock`;
+- all QUIC-specific code is confined to the standalone Rust crate;
 - a loopback QUIC v1 / TLS 1.3 handshake mutually authenticates exact Source
   Edge and Destination Edge identities;
 - ALPN is exactly `nbsr-quic-1`;
@@ -290,8 +309,8 @@ The later implementation is acceptable only when:
 
 Stop implementation and return for human review if:
 
-- the selected `aioquic` public API cannot enforce mutual client certificate
-  validation and exact peer identity without private-library access;
+- Quinn/rustls cannot enforce mutual client-certificate validation and exact
+  peer identity through public APIs;
 - the adapter requires a new wire message, numeric key, error code, state,
   transition, critical extension, or COSE wrapper;
 - disabling 0-RTT cannot be demonstrated;
