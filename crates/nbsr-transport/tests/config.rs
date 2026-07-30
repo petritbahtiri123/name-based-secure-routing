@@ -1,6 +1,13 @@
 use std::time::Duration;
 
-use nbsr_transport::{EdgeIdentity, EdgeRole, PeerPolicy, TransportError};
+use nbsr_transport::{
+    EdgeIdentity, EdgeRole, PeerPolicy, TlsMaterial, TransportError, build_client_config,
+    build_server_config,
+};
+use rustls::RootCertStore;
+use rustls::pki_types::{PrivateKeyDer, PrivatePkcs8KeyDer};
+
+mod support;
 
 fn identity(value: &str) -> EdgeIdentity {
     EdgeIdentity::from_dns_name(value).expect("valid test identity")
@@ -91,4 +98,77 @@ fn accepts_complementary_edge_roles() {
         destination_policy.expected_peer().as_str(),
         "source-edge.test"
     );
+}
+
+#[test]
+fn builds_mutual_tls_client_and_server_configuration() {
+    let pki = support::TestPki::generate();
+
+    build_client_config(
+        PeerPolicy::new(
+            EdgeRole::Source,
+            EdgeRole::Destination,
+            identity("destination-edge.test"),
+            Duration::from_secs(2),
+            Duration::from_secs(5),
+        )
+        .unwrap(),
+        pki.source_material(),
+    )
+    .expect("source client configuration");
+
+    build_server_config(
+        PeerPolicy::new(
+            EdgeRole::Destination,
+            EdgeRole::Source,
+            identity("source-edge.test"),
+            Duration::from_secs(2),
+            Duration::from_secs(5),
+        )
+        .unwrap(),
+        pki.destination_material(),
+    )
+    .expect("destination server configuration");
+}
+
+#[test]
+fn rejects_endpoint_role_reversal() {
+    let pki = support::TestPki::generate();
+    let destination_as_client = PeerPolicy::new(
+        EdgeRole::Destination,
+        EdgeRole::Source,
+        identity("source-edge.test"),
+        Duration::from_secs(2),
+        Duration::from_secs(5),
+    )
+    .unwrap();
+    let source_as_server = PeerPolicy::new(
+        EdgeRole::Source,
+        EdgeRole::Destination,
+        identity("destination-edge.test"),
+        Duration::from_secs(2),
+        Duration::from_secs(5),
+    )
+    .unwrap();
+
+    assert_eq!(
+        build_client_config(destination_as_client, pki.destination_material()).unwrap_err(),
+        TransportError::InvalidEndpointRole
+    );
+    assert_eq!(
+        build_server_config(source_as_server, pki.source_material()).unwrap_err(),
+        TransportError::InvalidEndpointRole
+    );
+}
+
+#[test]
+fn rejects_empty_tls_material() {
+    let error = TlsMaterial::new(
+        Vec::new(),
+        PrivateKeyDer::Pkcs8(PrivatePkcs8KeyDer::from(vec![1, 2, 3])),
+        RootCertStore::empty(),
+    )
+    .unwrap_err();
+
+    assert_eq!(error, TransportError::InvalidTlsMaterial);
 }

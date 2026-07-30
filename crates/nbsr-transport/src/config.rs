@@ -1,13 +1,156 @@
+use std::fmt;
+use std::sync::Arc;
 use std::time::Duration;
 
-use rustls::pki_types::ServerName;
+use quinn::crypto::rustls::{QuicClientConfig, QuicServerConfig};
+use quinn::{ClientConfig, ServerConfig, TransportConfig, VarInt};
+use rustls::client::Resumption;
+use rustls::pki_types::{CertificateDer, PrivateKeyDer, ServerName};
+use rustls::server::WebPkiClientVerifier;
+use rustls::{RootCertStore, version};
 
-use crate::TransportError;
+use crate::{ALPN, TransportError};
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum EdgeRole {
     Source,
     Destination,
+}
+
+pub struct TlsMaterial {
+    certificate_chain: Vec<CertificateDer<'static>>,
+    private_key: PrivateKeyDer<'static>,
+    trust_roots: RootCertStore,
+}
+
+impl TlsMaterial {
+    pub fn new(
+        certificate_chain: Vec<CertificateDer<'static>>,
+        private_key: PrivateKeyDer<'static>,
+        trust_roots: RootCertStore,
+    ) -> Result<Self, TransportError> {
+        if certificate_chain.is_empty() || trust_roots.is_empty() {
+            return Err(TransportError::InvalidTlsMaterial);
+        }
+        Ok(Self {
+            certificate_chain,
+            private_key,
+            trust_roots,
+        })
+    }
+}
+
+impl fmt::Debug for TlsMaterial {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        formatter
+            .debug_struct("TlsMaterial")
+            .field("certificate_count", &self.certificate_chain.len())
+            .field("private_key", &"[redacted]")
+            .field("trust_anchor_count", &self.trust_roots.len())
+            .finish()
+    }
+}
+
+pub struct ClientEndpointConfig {
+    #[expect(dead_code, reason = "consumed by the Task 3 Quinn adapter")]
+    pub(crate) quinn: ClientConfig,
+    pub(crate) policy: PeerPolicy,
+}
+
+impl fmt::Debug for ClientEndpointConfig {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        formatter
+            .debug_struct("ClientEndpointConfig")
+            .field("policy", &self.policy)
+            .finish_non_exhaustive()
+    }
+}
+
+pub struct ServerEndpointConfig {
+    #[expect(dead_code, reason = "consumed by the Task 3 Quinn adapter")]
+    pub(crate) quinn: ServerConfig,
+    pub(crate) policy: PeerPolicy,
+}
+
+impl fmt::Debug for ServerEndpointConfig {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        formatter
+            .debug_struct("ServerEndpointConfig")
+            .field("policy", &self.policy)
+            .finish_non_exhaustive()
+    }
+}
+
+pub fn build_client_config(
+    policy: PeerPolicy,
+    material: TlsMaterial,
+) -> Result<ClientEndpointConfig, TransportError> {
+    if policy.local_role() != EdgeRole::Source
+        || policy.expected_peer_role() != EdgeRole::Destination
+    {
+        return Err(TransportError::InvalidEndpointRole);
+    }
+
+    let provider = Arc::new(rustls::crypto::ring::default_provider());
+    let mut tls = rustls::ClientConfig::builder_with_provider(provider)
+        .with_protocol_versions(&[&version::TLS13])
+        .map_err(|_| TransportError::InvalidTlsMaterial)?
+        .with_root_certificates(material.trust_roots)
+        .with_client_auth_cert(material.certificate_chain, material.private_key)
+        .map_err(|_| TransportError::InvalidTlsMaterial)?;
+    tls.alpn_protocols = vec![ALPN.to_vec()];
+    tls.enable_early_data = false;
+    tls.resumption = Resumption::disabled();
+
+    let crypto = QuicClientConfig::try_from(tls).map_err(|_| TransportError::InvalidTlsMaterial)?;
+    let mut quinn = ClientConfig::new(Arc::new(crypto));
+    quinn.transport_config(transport_config(policy.idle_timeout())?);
+
+    Ok(ClientEndpointConfig { quinn, policy })
+}
+
+pub fn build_server_config(
+    policy: PeerPolicy,
+    material: TlsMaterial,
+) -> Result<ServerEndpointConfig, TransportError> {
+    if policy.local_role() != EdgeRole::Destination
+        || policy.expected_peer_role() != EdgeRole::Source
+    {
+        return Err(TransportError::InvalidEndpointRole);
+    }
+
+    let provider = Arc::new(rustls::crypto::ring::default_provider());
+    let verifier = WebPkiClientVerifier::builder_with_provider(
+        Arc::new(material.trust_roots),
+        Arc::clone(&provider),
+    )
+    .build()
+    .map_err(|_| TransportError::InvalidTlsMaterial)?;
+    let mut tls = rustls::ServerConfig::builder_with_provider(provider)
+        .with_protocol_versions(&[&version::TLS13])
+        .map_err(|_| TransportError::InvalidTlsMaterial)?
+        .with_client_cert_verifier(verifier)
+        .with_single_cert(material.certificate_chain, material.private_key)
+        .map_err(|_| TransportError::InvalidTlsMaterial)?;
+    tls.alpn_protocols = vec![ALPN.to_vec()];
+    tls.max_early_data_size = 0;
+
+    let crypto = QuicServerConfig::try_from(tls).map_err(|_| TransportError::InvalidTlsMaterial)?;
+    let mut quinn = ServerConfig::with_crypto(Arc::new(crypto));
+    quinn.transport = transport_config(policy.idle_timeout())?;
+
+    Ok(ServerEndpointConfig { quinn, policy })
+}
+
+fn transport_config(idle_timeout: Duration) -> Result<Arc<TransportConfig>, TransportError> {
+    let idle_timeout = idle_timeout
+        .try_into()
+        .map_err(|_| TransportError::InvalidTimeout)?;
+    let mut transport = TransportConfig::default();
+    transport.max_idle_timeout(Some(idle_timeout));
+    transport.max_concurrent_bidi_streams(VarInt::from_u32(0));
+    transport.max_concurrent_uni_streams(VarInt::from_u32(0));
+    Ok(Arc::new(transport))
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
