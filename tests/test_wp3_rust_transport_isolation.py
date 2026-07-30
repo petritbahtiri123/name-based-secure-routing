@@ -11,6 +11,7 @@ CRATE = ROOT / "crates" / "nbsr-transport"
 DECISION = ROOT / "docs" / "protocol" / "wp3-single-service-transport-decision.md"
 V36_DECISIONS = ROOT / "docs" / "protocol" / "v3.6-decisions.md"
 ROADMAP = ROOT / "docs" / "superpowers" / "plans" / "2026-07-28-v3.6-protocol-roadmap.md"
+STATUS = ROOT / "docs" / "protocol" / "status.md"
 
 
 def _cargo_metadata() -> dict[str, object]:
@@ -96,5 +97,20 @@ def test_docs_record_observed_spike_without_authorizing_wp3_runtime() -> None:
         "wp3 runtime remains separately gated",
         "17 message codes remain unchanged",
         "19 error codes remain unchanged",
+    ):
+        assert required in text
+
+
+def test_status_records_current_wp2_and_wp3_evidence_without_runtime_claims() -> None:
+    text = " ".join(STATUS.read_text(encoding="utf-8").split()).casefold()
+
+    for required in (
+        "2026-07-30",
+        "627 passed",
+        "derived originset",
+        "bounded legacy dns",
+        "quinn 0.11.11",
+        "11 handshake tests",
+        "wp3 runtime remains gated",
     ):
         assert required in text

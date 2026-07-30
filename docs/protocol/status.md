@@ -1,6 +1,6 @@
 # NBSR implementation status
 
-**Baseline date:** 2026-07-28
+**Baseline date:** 2026-07-30
 
 **Authority:** [NBSR Protocol Vision V3.6](../architecture/NBSR_Protocol_Vision_V3.6.md)
 **Evidence baseline:** the final hardened-branch report records 255 passed and
@@ -11,6 +11,14 @@ isolation probes. The WP0 merge was rechecked on 2026-07-26 with 261 passed and
 That local recheck used out-of-range Python 3.14 because no supported
 interpreter was installed; the available OPA launcher could not execute, so
 the earlier five-test OPA evidence was not refreshed.
+
+The current branch was revalidated on 2026-07-30 with 627 passed and 1 skipped,
+Ruff check and format clean across tracked Python source/tests/scripts,
+`pip check` clean, Core v0.2 vectors reproduced exactly, and all Rust
+format/Clippy checks clean. The isolated Rust transport crate passed 8
+configuration tests and 11 handshake tests. Python 3.14 remains outside the
+supported interpreter range, so this is development evidence rather than a
+release certification.
 
 This file separates evidence from intent. `Implemented` means verified behavior
 exists at prototype scale. It does not imply Core v0.1 conformance, production
@@ -48,13 +56,14 @@ readiness, global federation, or independent interoperability.
 | Deterministic CBOR | Implemented | Bounded RFC 8949 scanner/encoder and focused tests; no network integration |
 | COSE Sign1 | Planned | WP1 Task 5; current enterprise and ISP slices still use JSON/JWT |
 | Explicit Ed25519 algorithm allowlist | Partial | Existing JWT paths use explicit EdDSA allowlists; the Core v0.1 COSE profile is still planned |
-| `nbsr-quic-1` inter-edge tunnel | Planned | WP3; current relay uses TLS 1.3 over TCP |
-| Independent source and destination admission | Planned | WP3 |
+| `nbsr-quic-1` inter-edge tunnel | Partial | An isolated Quinn 0.11.11/rustls 0.23.43 loopback handshake boundary now proves TLS 1.3 mTLS, exact ALPN, and bounded failure; no tunnel runtime or streams exist |
+| Independent source and destination admission | Partial | The isolated handshake verifies exact Source/Destination Edge certificate SANs; RouteGrant, policy, Service Channel, and runtime admission remain WP3 work |
 | Outbound origin connector | Planned | Protected prototype origins exist, but the V3 connector state machine does not |
 | Opaque HTTP/HTTPS forwarding | Implemented | ISP vertical slice relays TCP bytes and preserves end-to-end application TLS |
-| Explicit Transport Session and single Service Channel binding | Planned | WP3 |
+| Explicit Transport Session and single Service Channel binding | Planned | The handshake crate deliberately exposes no stream API and allocates no Route Context or Service Channel |
 | Reusable multi-service Transport Session with isolated Service Channels | Planned | WP4; wire representation and key schedule require approval |
-| Legacy DNS-backed internal OriginSet | Planned | WP2; internal model only until its compatibility gate passes |
+| Internal Derived OriginSet | Implemented | Immutable, wire-neutral model with bounded endpoints, generation/sequence rollback protection, same-sequence equivocation rejection, and deterministic tests |
+| Legacy DNS-backed internal OriginSet | Implemented | Isolated bounded legacy DNS adapter builds Derived OriginSet values, preserves stable synthetic mapping inputs, separates DNS TTL from authorization, and supports the approved last-known-good policy; NameRelay integration remains gated |
 | Signed NBSR-native OriginSet publication | Planned | Core v0.2 or approved extension decision required |
 | Multiplexed streams, renewal, origin drain, and key update | Planned | WP4 |
 | Partition-safe replay and revocation | Planned | WP6; current replay cache is bounded but process-local |
@@ -70,6 +79,7 @@ readiness, global federation, or independent interoperability.
 | Two-operator ISP lab | Planned | WP7 |
 | Signed ownership, delegation, transparency, and global federation | Planned | WP8 |
 | Independent second-language implementation | Planned | WP8 |
+| Independent Core v0.2 vector verification | Implemented | Dependency-free Node.js verifier independently validates the 32-artifact deterministic package; this is conformance evidence, not a second runtime |
 | Public conformance suite and Internet-Draft | Planned | WP8 |
 
 ## Current non-claims
@@ -88,8 +98,15 @@ The repository MUST NOT claim any of the following:
 
 ## Next approved boundary
 
-WP0 aligns documentation and preserves evidence without changing code behavior.
-WP1 freezes protocol data structures, numeric registries, deterministic bytes,
-COSE Sign1 Ed25519 behavior, state types, and valid/invalid vectors. V3.6 adds
-documentation and future gates without changing that freeze. WP2 and later
-runtime work MUST NOT begin without separate approval.
+WP0 documentation alignment, WP1 Tasks 1-4, the wire-neutral Derived OriginSet
+model, the bounded legacy DNS adapter, the Core v0.2 deterministic vector
+package, and the isolated Rust QUIC/TLS handshake spike are complete at their
+documented prototype scope.
+
+The next boundary is the Phase E single-service path. The handshake evidence
+does not authorize it: WP3 runtime remains gated. Before implementation, a
+separate reviewed design and TDD plan must define the minimum Transport
+Session-to-Service Channel binding, RouteGrant admission, control framing,
+validated OriginSet selection, application-stream lifecycle, origin
+concealment, and exact abort criteria. No new Core v0.1 key, message code,
+error code, state, transition, extension, or COSE wrapper may be introduced.
