@@ -26,6 +26,13 @@ extensions, and signed-object mutation. Python 3.14 is now inside the declared
 development range; this remains prototype evidence rather than release
 certification.
 
+The WP3 continuation was freshly revalidated on 2026-07-31 with 817 passed and
+1 skipped across the full Python suite, 70 focused WP3/frozen-protocol tests,
+and 29 passing Rust tests. Rust formatting and Clippy, Python Ruff check and
+format, `pip check`, both vector regeneration checks, and `git diff --check`
+passed. This evidence remains limited to the origin-free single-service lab
+boundary documented below.
+
 This file separates evidence from intent. `Implemented` means verified behavior
 exists at prototype scale. It does not imply Core v0.1 conformance, production
 readiness, global federation, or independent interoperability.
@@ -116,13 +123,18 @@ package, the isolated Rust QUIC/TLS handshake spike, and
 scope.
 
 WP3 runtime remains gated from any origin, relay, multi-service, or production
-implementation. WP3 has a limited Rust loopback slice: Core v0.2 fixture structural validation,
-caller-supplied RouteGrant COSE trust-context validation, a bounded
-Destination-admission model, a version-locked QUIC control stream, and a
-single service-bound application-stream gate. The Core-v0.2 fixture,
-admission, and control-stream tests passed locally; the final stream-gate test
-compiled but Windows Application Control blocked its new test executable
-(`os error 4551`). Full-suite revalidation is therefore still required.
+implementation. The verified 2026-07-31 Rust slice has 29 passing tests. A
+decoded RouteOpen and caller-trusted signed RouteGrant now feed bounded
+Destination admission after the existing session-key thumbprint, edge nonce,
+RouteOpen proof, service, transport, port, policy, expiry, replay, and capacity
+checks. It admits one Service Channel and one TCP Application Stream through a
+logical stream gate; it does not yet prove the application-byte QUIC lifecycle.
+The Origin Endpoint remains internal and is not connected. Core v0.2 failure
+never retries as Core v0.1. Multi-service Transport Session reuse remains WP4.
+NameRelay remains unchanged. This is no production readiness claim.
+
+The boundary has no OriginSet selection, no origin connection, no relay
+integration, no multi-service reuse, and no production-readiness claim.
 
 No real recursive DNS, production DNSSEC/Web PKI policy, relay integration,
 validated OriginSet selection, native OriginSet publication, new Core v0.1

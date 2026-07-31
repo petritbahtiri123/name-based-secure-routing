@@ -8,6 +8,13 @@
 implementation, dependency installation, wire allocation, or integration with
 the current relay.
 
+**Verified implementation update (2026-07-31):** the approved Rust-only slice
+now decodes RouteOpen, validates the caller-trusted signed RouteGrant and
+RouteOpen proof, and admits one service/transport/port-bound logical channel.
+This evidence does not supersede the runtime-authorization boundary below: it
+adds no Origin Endpoint connection, application-byte forwarding, OriginSet
+selection, NameRelay integration, multi-service reuse, or production claim.
+
 ## Purpose
 
 Define the smallest standards-based transport profile that can carry one

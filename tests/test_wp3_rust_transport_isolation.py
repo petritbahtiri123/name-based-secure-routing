@@ -41,8 +41,10 @@ def test_rust_transport_dependencies_are_exact_and_locked() -> None:
     actual = {dependency["name"]: dependency["req"] for dependency in package["dependencies"] if dependency["kind"] is None}
 
     assert actual == {
+        "ed25519-dalek": "=2.2.0",
         "quinn": "=0.11.11",
         "rustls": "=0.23.43",
+        "sha2": "=0.11.0",
         "tokio": "=1.53.1",
         "x509-parser": "=0.18.1",
     }
@@ -62,14 +64,14 @@ def test_quinn_connection_operations_are_confined_to_adapter_source() -> None:
         if path.name == "quinn_adapter.rs":
             continue
         text = path.read_text(encoding="utf-8")
-        if "Endpoint::" in text or "quinn::Connection" in text:
+        if any(token in text for token in ("Endpoint::", "quinn::Connection", ".open_bi()", ".accept_bi()")):
             offenders.append(path.name)
 
     assert offenders == []
     adapter = (CRATE / "src" / "quinn_adapter.rs").read_text(encoding="utf-8")
     assert "into_0rtt" not in adapter
-    assert "open_bi" not in adapter
-    assert "accept_bi" not in adapter
+    assert ".open_bi()" in adapter
+    assert ".accept_bi()" in adapter
 
 
 def test_no_certificate_or_private_key_fixture_is_committed() -> None:
