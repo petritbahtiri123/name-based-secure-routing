@@ -5,11 +5,10 @@ use std::time::Duration;
 
 use ed25519_dalek::{Signer, SigningKey};
 use nbsr_transport::{
-    ActiveChannel, AdmissionPolicy, AdmissionReject, AuthorizedServicePolicy, ChannelLimits,
-    ChannelRegistry, ControlSession, CoreV02Envelope, CoreV02Limits, DestinationAdmission,
-    EdgeIdentity, EdgeRole, PeerPolicy, RouteGrantClaims, RouteGrantIssuer, RouteOpenRequest,
-    SessionReject, TransportListener, build_client_config, build_server_config, connect,
-    decode_control_envelope,
+    AdmissionPolicy, AdmissionReject, AuthorizedServicePolicy, ControlSession, CoreV02Envelope,
+    CoreV02Limits, DestinationAdmission, EdgeIdentity, EdgeRole, PeerPolicy, RouteGrantClaims,
+    RouteGrantIssuer, RouteOpenRequest, SessionReject, TransportListener, build_client_config,
+    build_server_config, connect, decode_control_envelope,
 };
 use sha2::{Digest, Sha256};
 
@@ -170,10 +169,27 @@ fn signed_route(
     policy_hash: [u8; 32],
     sequence: u64,
 ) -> SignedRoute {
+    signed_route_with_nonce(
+        id,
+        [id.wrapping_add(0x80); 16],
+        service_id,
+        record_sequence,
+        policy_hash,
+        sequence,
+    )
+}
+
+fn signed_route_with_nonce(
+    id: u8,
+    unique_nonce: [u8; 16],
+    service_id: &str,
+    record_sequence: u64,
+    policy_hash: [u8; 32],
+    sequence: u64,
+) -> SignedRoute {
     let request_id = [id.wrapping_add(0x20); 16];
     let channel_id = [id; 16];
     let route_id = [id.wrapping_add(0x40); 16];
-    let unique_nonce = [id.wrapping_add(0x80); 16];
     let grant_wire = signed_grant(
         route_id,
         unique_nonce,
@@ -400,77 +416,6 @@ fn argument(target: &mut Vec<u8>, major: u8, value: u64) {
     }
 }
 
-fn channel(id: u8, service_id: &str) -> ActiveChannel {
-    ActiveChannel {
-        channel_id: [id; 16],
-        route_id: [id.wrapping_add(0x40); 16],
-        service_id: service_id.into(),
-        route_grant_digest: [id.wrapping_add(0x80); 32],
-        transport: "tcp".into(),
-        port: 8443,
-    }
-}
-
-#[test]
-fn registry_enforces_lab_session_and_per_service_bounds() {
-    let limits = ChannelLimits::default();
-    assert_eq!(limits.max_channels_per_session, 32);
-    assert_eq!(limits.max_channels_per_service, 8);
-
-    let mut per_service = ChannelRegistry::new(limits);
-    for id in 1..=8 {
-        per_service
-            .admit_pending(channel(id, "service-a"), [id; 16])
-            .expect("first eight channels for one service");
-        per_service
-            .confirm_active(&[id; 16])
-            .expect("pending channel activates");
-    }
-    assert_eq!(per_service.active_for_service("service-a"), 8);
-    assert_eq!(
-        per_service.admit_pending(channel(9, "service-a"), [9; 16]),
-        Err(AdmissionReject::OverCapacity)
-    );
-
-    let mut per_session = ChannelRegistry::new(limits);
-    for id in 1..=32 {
-        let service_id = format!("service-{id}");
-        per_session
-            .admit_pending(channel(id, &service_id), [id; 16])
-            .expect("first 32 session channels");
-        per_session
-            .confirm_active(&[id; 16])
-            .expect("pending channel activates");
-    }
-    assert_eq!(per_session.active_len(), 32);
-    assert_eq!(
-        per_session.admit_pending(channel(33, "service-33"), [33; 16]),
-        Err(AdmissionReject::OverCapacity)
-    );
-}
-
-#[test]
-fn registry_retains_channel_and_nonce_replay_history_after_removal() {
-    let mut registry = ChannelRegistry::new(ChannelLimits::default());
-    registry
-        .admit_pending(channel(1, "service-a"), [0xa1; 16])
-        .expect("fresh channel");
-    registry
-        .confirm_active(&[1; 16])
-        .expect("activate fresh channel");
-    assert!(registry.remove(&[1; 16]).is_some());
-    assert_eq!(registry.active_len(), 0);
-
-    assert_eq!(
-        registry.admit_pending(channel(1, "service-b"), [0xa2; 16]),
-        Err(AdmissionReject::Replay)
-    );
-    assert_eq!(
-        registry.admit_pending(channel(2, "service-b"), [0xa1; 16]),
-        Err(AdmissionReject::Replay)
-    );
-}
-
 #[test]
 fn admission_keeps_independently_authorized_channels_pending_until_confirmation() {
     let mut admission = DestinationAdmission::new(admission_policy());
@@ -484,6 +429,54 @@ fn admission_keeps_independently_authorized_channels_pending_until_confirmation(
     assert_eq!(first.service_id, "service-a");
     assert_eq!(second.service_id, "service-b");
     assert_eq!(admission.active_channels(), 0);
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn signed_grant_nonce_replay_cannot_disturb_an_active_sibling() {
+    let (listener, source, destination) = connection_pair().await;
+    let issuer_key = SigningKey::from_bytes(&ROUTE_GRANT_SEED)
+        .verifying_key()
+        .to_bytes();
+    let mut session = ControlSession::new(
+        &destination,
+        DestinationAdmission::new(runtime_policy()),
+        vec![RouteGrantIssuer {
+            kid: KID.to_vec(),
+            public_key: issuer_key,
+        }],
+    );
+    session
+        .accept_client_hello(&decode(vector(
+            "artifacts/valid/envelopes/client-hello.cbor",
+        )))
+        .expect("one CLIENT_HELLO");
+    session
+        .confirm_edge_hello(&decode(vector("artifacts/valid/envelopes/edge-hello.cbor")))
+        .expect("one EDGE_HELLO");
+
+    let active = signed_route(1, "service-a", 42, POLICY_A, 2);
+    session
+        .accept_route_open(&active.open)
+        .expect("fresh signed grant");
+    session
+        .confirm_route_accept(&active.accept)
+        .expect("activate fresh signed grant");
+
+    let replay = signed_route_with_nonce(2, [0x81; 16], "service-b", 43, POLICY_B, 3);
+    assert_eq!(
+        session.accept_route_open(&replay.open),
+        Err(SessionReject::Admission(AdmissionReject::Replay))
+    );
+    assert_eq!(session.active_channels(), 1);
+    assert!(session.stream_gate(active.channel_id).is_ok());
+    assert_eq!(
+        session.stream_gate(replay.channel_id).err(),
+        Some(SessionReject::UnexpectedMessage)
+    );
+
+    source.close().await.expect("source close");
+    destination.close().await.expect("destination close");
+    listener.close().await.expect("listener close");
 }
 
 #[test]

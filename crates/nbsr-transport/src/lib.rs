@@ -1,3 +1,9 @@
+//! Safe callers cannot construct or activate channel-registry state directly.
+//!
+//! ```compile_fail
+//! use nbsr_transport::ChannelRegistry;
+//! ```
+
 #![forbid(unsafe_code)]
 
 mod admission;
@@ -13,7 +19,7 @@ pub use admission::{
     ActiveChannel, AdmissionPolicy, AdmissionReject, AuthorizedServicePolicy, DestinationAdmission,
     RouteGrantClaims, RouteOpenRequest,
 };
-pub use channel_registry::{ChannelLimits, ChannelRegistry};
+pub use channel_registry::ChannelLimits;
 pub use config::{
     ClientEndpointConfig, EdgeIdentity, EdgeRole, PeerPolicy, ServerEndpointConfig, TlsMaterial,
     build_client_config, build_server_config,

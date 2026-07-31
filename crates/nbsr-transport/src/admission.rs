@@ -8,7 +8,8 @@ use std::collections::BTreeMap;
 use ed25519_dalek::{Signature, VerifyingKey};
 use sha2::{Digest, Sha256};
 
-use crate::{ChannelLimits, ChannelRegistry, CoreV02Envelope, CoreV02Reject, RouteGrantIssuer};
+use crate::channel_registry::ChannelRegistry;
+use crate::{ChannelLimits, CoreV02Envelope, CoreV02Reject, RouteGrantIssuer};
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct AuthorizedServicePolicy {
