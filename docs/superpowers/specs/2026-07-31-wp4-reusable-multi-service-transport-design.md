@@ -213,4 +213,3 @@ After focused tests pass, run the complete Rust suite, Rustfmt, Clippy with
 records only freshly observed results. Code and evidence remain separate
 commits. Independent review must report Critical and Important findings and
 all such findings must be fixed with regression tests before completion.
-

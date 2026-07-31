@@ -232,4 +232,3 @@
 - **Scope:** Origin selection/connection, NameRelay, cross-edge continuity, production packaging, HTTP/3/MASQUE, 0-RTT, and frozen Core v0.1 changes remain excluded.
 - **Type consistency:** `ChannelRegistry` owns `ActiveChannel`; `ChannelStreams`, lifecycle, resumption, and datagram gates all address the same `[u8; 16] channel_id`; Quinn/rustls objects remain adapter-private.
 - **No placeholders:** Every task names exact files, test intent, limits, interfaces, commands, and commit boundary.
-
