@@ -60,6 +60,46 @@ def test_wp4_decision_freezes_exporter_context_and_exact_bounds() -> None:
         assert rule.casefold() in text.casefold()
 
 
+def test_wp4_decision_binds_exporter_construction_and_resource_limits() -> None:
+    text = _normalized(DECISION)
+    decision = DECISION.read_text(encoding="utf-8")
+
+    expected_context = """
+    [
+      "NBSR-SERVICE-CHANNEL-CONTEXT-v2",
+      2,
+      session_id,
+      source_edge_id,
+      destination_edge_id,
+      channel_id,
+      route_id,
+      route_grant_digest,
+      service_id,
+      transport,
+      port,
+      policy_hash,
+      client_nonce,
+      edge_nonce
+    ]
+    """
+    assert "The exporter context is the SHA-256 of the deterministic CBOR encoding of:" in decision
+    assert " ".join(expected_context.split()) in text
+    assert "expected 32-byte exporter result" in decision
+
+    for resource_limit in (
+        "| Active channels per Transport Session | 32 |",
+        "| Active channels per service per session | 8 |",
+        "| Concurrent reliable streams per channel | 64 |",
+        "| Buffered bytes per reliable stream | 1 MiB |",
+        "| Buffered reliable bytes per channel | 8 MiB |",
+        "| Audit queue | 1024 events |",
+        "| Replay/tombstone entries per session | 4096 |",
+        "| Channel drain maximum | 30 seconds |",
+        "| Same-edge resume window | 30 seconds and never beyond grant/session expiry |",
+    ):
+        assert resource_limit in decision
+
+
 def test_wp4_decision_retains_native_datagram_and_same_edge_limits() -> None:
     text = _normalized(DECISION)
 
@@ -86,12 +126,16 @@ def test_wp4_decision_and_tracking_record_approved_in_progress_scope() -> None:
     for rule in (
         "Approved for implementation",
         "implementation is in progress",
-        "does not select or connect an Origin Endpoint",
-        "does not integrate NameRelay",
-        "does not modify frozen Core v0.1 D1-D6",
-        "does not claim production readiness",
+        "implementation is approved and in progress, not complete",
+        "does not authorize OriginSet selection",
+        "Origin Endpoint connection",
+        "NameRelay integration",
+        "production claim",
+        "frozen Core v0.1 change",
+        "A RouteGrant is single-use per Service Channel admission",
+        "The existing 16-byte `channel_id` is the only Service Channel wire identifier in `ROUTE_*`, `STREAM_*`, exporter context, audit records, quota state, drain state, resume state, and UDP framing.",
     ):
         assert rule.casefold() in decision.casefold()
 
-    assert "Reusable multi-service Transport Session with isolated Service Channels | Planned | WP4 implementation is approved and in progress" in status
-    assert "WP4 implementation is approved and in progress" in roadmap
+    assert "Reusable multi-service Transport Session with isolated Service Channels | Planned | WP4 design is approved and implementation work is in progress, but no reusable multi-service runtime exists yet." in status
+    assert "WP4 design is approved and implementation work is in progress" in roadmap

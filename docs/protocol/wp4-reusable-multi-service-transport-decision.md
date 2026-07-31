@@ -9,12 +9,11 @@ runtime behavior or production readiness.
 WP4 extends the completed origin-free WP3 Rust loopback lab in
 `crates/nbsr-transport` so one compatible, mutually authenticated QUIC
 Transport Session can carry multiple independently authorized Service Channels.
-It does not select or connect an Origin Endpoint, integrate NameRelay, modify
-frozen Core v0.1 D1-D6 registries, schemas, states, or wrappers, claim
-production readiness, implement 0-RTT, or implement cross-edge continuity.
-It does not integrate NameRelay or claim production readiness.
-It does not modify frozen Core v0.1 D1-D6.
-It does not claim production readiness.
+It does not authorize OriginSet selection, an Origin Endpoint connection,
+NameRelay integration, a production claim, 0-RTT, cross-edge resume, or a
+frozen Core v0.1 change; it does not select or connect an Origin Endpoint,
+integrate NameRelay, claim production readiness, or modify frozen Core v0.1
+D1-D6 registries, schemas, states, or wrappers.
 
 The existing native Core v0.2 candidate profile over Quinn remains the basis.
 WP4 does not add HTTP/3, QPACK, MASQUE, CONNECT-UDP, Capsules, a second channel
@@ -37,7 +36,7 @@ protocol version, outside reauthentication policy, or incompatible with the
 requested service policy. Path and capacity are eligibility state, not tuple
 fields. Service Identity and RouteGrant are never Transport Session authority.
 
-Each RouteGrant is single-use for Service Channel admission. Its exact signed
+A RouteGrant is single-use per Service Channel admission. Its exact signed
 bytes, digest, route ID, service, unique nonce, policy, transport, port,
 authenticated edges, proof key, and validity bind one `channel_id`. Opening
 another channel, including one for the same service, requires a fresh
