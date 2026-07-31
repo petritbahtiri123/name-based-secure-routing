@@ -1,10 +1,16 @@
 use std::fmt;
 
+use crate::CoreV02Reject;
+
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum TransportError {
     AlpnMismatch,
     BindFailed,
     CloseTimeout,
+    ControlFrameInvalid,
+    ControlFrameTooLarge,
+    ControlRejected(CoreV02Reject),
+    ControlStreamFailed,
     ConnectFailed,
     HandshakeFailed,
     HandshakeTimeout,
@@ -24,6 +30,10 @@ impl fmt::Display for TransportError {
             Self::AlpnMismatch => "ALPN mismatch",
             Self::BindFailed => "transport bind failed",
             Self::CloseTimeout => "transport close timed out",
+            Self::ControlFrameInvalid => "invalid control frame",
+            Self::ControlFrameTooLarge => "control frame exceeds the profile bound",
+            Self::ControlRejected(_) => "control frame rejected",
+            Self::ControlStreamFailed => "control stream failed",
             Self::ConnectFailed => "transport connect failed",
             Self::HandshakeFailed => "transport handshake failed",
             Self::HandshakeTimeout => "transport handshake timed out",

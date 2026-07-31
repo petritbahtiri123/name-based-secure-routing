@@ -1,8 +1,9 @@
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 
 use quinn::crypto::rustls::HandshakeData;
-use quinn::{Connection, Endpoint, VarInt};
+use quinn::{Connection, Endpoint, RecvStream, SendStream, VarInt};
 use rustls::pki_types::CertificateDer;
+use tokio::io::AsyncReadExt;
 use tokio::time::timeout;
 use x509_parser::extensions::GeneralName;
 use x509_parser::prelude::{FromDer, X509Certificate};
@@ -55,6 +56,88 @@ impl TransportListener {
     }
 }
 
+pub struct ControlStream {
+    send: SendStream,
+    receive: RecvStream,
+}
+
+impl ControlStream {
+    pub async fn send_envelope(
+        &mut self,
+        envelope: &crate::CoreV02Envelope,
+    ) -> Result<(), TransportError> {
+        let wire = envelope.encode();
+        let prefix = encode_frame_length(wire.len())?;
+        self.send
+            .write_all(&prefix)
+            .await
+            .map_err(|_| TransportError::ControlStreamFailed)?;
+        self.send
+            .write_all(&wire)
+            .await
+            .map_err(|_| TransportError::ControlStreamFailed)
+    }
+
+    pub async fn receive_envelope(
+        &mut self,
+        limits: crate::CoreV02Limits,
+    ) -> Result<crate::CoreV02Envelope, TransportError> {
+        let first = self
+            .receive
+            .read_u8()
+            .await
+            .map_err(|_| TransportError::ControlStreamFailed)?;
+        let length = decode_frame_length(first, &mut self.receive).await?;
+        if length == 0 || length > limits.max_frame_bytes || length > 65_536 {
+            return Err(TransportError::ControlFrameTooLarge);
+        }
+        let mut wire = vec![0; length];
+        self.receive
+            .read_exact(&mut wire)
+            .await
+            .map_err(|_| TransportError::ControlStreamFailed)?;
+        crate::decode_control_envelope(&wire, limits).map_err(TransportError::ControlRejected)
+    }
+}
+
+fn encode_frame_length(length: usize) -> Result<Vec<u8>, TransportError> {
+    if !(1..=65_536).contains(&length) {
+        return Err(TransportError::ControlFrameTooLarge);
+    }
+    let length = length as u64;
+    if length <= 63 {
+        Ok(vec![length as u8])
+    } else if length <= 16_383 {
+        Ok(((0x4000 | length as u16).to_be_bytes()).to_vec())
+    } else {
+        Ok(((0x8000_0000 | length as u32).to_be_bytes()).to_vec())
+    }
+}
+
+async fn decode_frame_length(first: u8, receive: &mut RecvStream) -> Result<usize, TransportError> {
+    let width = 1usize << (first >> 6);
+    let mut bytes = vec![first & 0x3f];
+    if width > 1 {
+        let mut rest = vec![0; width - 1];
+        receive
+            .read_exact(&mut rest)
+            .await
+            .map_err(|_| TransportError::ControlStreamFailed)?;
+        bytes.extend_from_slice(&rest);
+    }
+    let value = bytes
+        .into_iter()
+        .fold(0usize, |value, byte| (value << 8) | usize::from(byte));
+    if (width == 1 && value > 63)
+        || (width == 2 && !(64..=16_383).contains(&value))
+        || (width == 4 && !(16_384..=1_073_741_823).contains(&value))
+        || width == 8
+    {
+        return Err(TransportError::ControlFrameInvalid);
+    }
+    Ok(value)
+}
+
 pub async fn connect(
     config: ClientEndpointConfig,
     remote: SocketAddr,
@@ -95,6 +178,24 @@ impl AuthenticatedConnection {
         timeout(self.close_timeout, self.endpoint.wait_idle())
             .await
             .map_err(|_| TransportError::CloseTimeout)
+    }
+
+    pub async fn open_control_stream(&self) -> Result<ControlStream, TransportError> {
+        let (send, receive) = self
+            .connection
+            .open_bi()
+            .await
+            .map_err(|_| TransportError::ControlStreamFailed)?;
+        Ok(ControlStream { send, receive })
+    }
+
+    pub async fn accept_control_stream(&self) -> Result<ControlStream, TransportError> {
+        let (send, receive) = self
+            .connection
+            .accept_bi()
+            .await
+            .map_err(|_| TransportError::ControlStreamFailed)?;
+        Ok(ControlStream { send, receive })
     }
 }
 

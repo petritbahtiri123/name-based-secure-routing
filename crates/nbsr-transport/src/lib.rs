@@ -19,6 +19,6 @@ pub use core_v02::{
     ValidatedRouteGrant, decode_control_envelope, validate_route_grant_sign1,
 };
 pub use error::TransportError;
-pub use quinn_adapter::{AuthenticatedConnection, TransportListener, connect};
+pub use quinn_adapter::{AuthenticatedConnection, ControlStream, TransportListener, connect};
 
 pub const ALPN: &[u8] = b"nbsr-quic-1";

@@ -8,7 +8,7 @@ publish = false
 ed25519-dalek = { version = "=2.2.0", default-features = false, features = ["std"] }
 quinn = { version = "=0.11.11", default-features = false, features = ["runtime-tokio", "rustls-ring"] }
 rustls = { version = "=0.23.43", default-features = false, features = ["ring", "std"] }
-tokio = { version = "=1.53.1", features = ["rt", "time"] }
+tokio = { version = "=1.53.1", features = ["io-util", "rt", "time"] }
 x509-parser = { version = "=0.18.1", default-features = false }
 
 [dev-dependencies]

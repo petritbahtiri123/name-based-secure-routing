@@ -146,7 +146,8 @@ fn transport_config(idle_timeout: Duration) -> Result<Arc<TransportConfig>, Tran
         .map_err(|_| TransportError::InvalidTimeout)?;
     let mut transport = TransportConfig::default();
     transport.max_idle_timeout(Some(idle_timeout));
-    transport.max_concurrent_bidi_streams(VarInt::from_u32(0));
+    // Stream 0 is the only control stream; WP3 permits one application stream.
+    transport.max_concurrent_bidi_streams(VarInt::from_u32(2));
     transport.max_concurrent_uni_streams(VarInt::from_u32(0));
     Ok(Arc::new(transport))
 }
