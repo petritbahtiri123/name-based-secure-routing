@@ -1,10 +1,15 @@
 #![forbid(unsafe_code)]
 
+mod admission;
 mod config;
 mod core_v02;
 mod error;
 mod quinn_adapter;
 
+pub use admission::{
+    ActiveChannel, AdmissionPolicy, AdmissionReject, DestinationAdmission, RouteGrantClaims,
+    RouteOpenRequest,
+};
 pub use config::{
     ClientEndpointConfig, EdgeIdentity, EdgeRole, PeerPolicy, ServerEndpointConfig, TlsMaterial,
     build_client_config, build_server_config,
