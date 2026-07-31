@@ -22,7 +22,7 @@ pub struct StreamOpenRequest {
     pub port: u16,
 }
 
-pub struct StreamGate {
+pub(crate) struct StreamGate {
     channel: ActiveChannel,
     state: StreamGateState,
 }
@@ -44,14 +44,17 @@ struct StreamControlBinding {
 }
 
 impl StreamGate {
-    pub fn new(channel: ActiveChannel) -> Self {
+    pub(crate) fn new(channel: ActiveChannel) -> Self {
         Self {
             channel,
             state: StreamGateState::AwaitingOpen,
         }
     }
 
-    pub fn authorize_open(&mut self, envelope: &CoreV02Envelope) -> Result<(), StreamReject> {
+    pub(crate) fn authorize_open(
+        &mut self,
+        envelope: &CoreV02Envelope,
+    ) -> Result<(), StreamReject> {
         if !matches!(self.state, StreamGateState::AwaitingOpen) {
             return Err(StreamReject::DuplicateStream);
         }
@@ -72,7 +75,7 @@ impl StreamGate {
         Ok(())
     }
 
-    pub fn accept(&mut self, envelope: &CoreV02Envelope) -> Result<(), StreamReject> {
+    pub(crate) fn accept(&mut self, envelope: &CoreV02Envelope) -> Result<(), StreamReject> {
         let StreamGateState::AwaitingAccept { control, request } = &self.state else {
             return Err(StreamReject::ControlRejected);
         };

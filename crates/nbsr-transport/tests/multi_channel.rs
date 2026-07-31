@@ -468,11 +468,8 @@ async fn signed_grant_nonce_replay_cannot_disturb_an_active_sibling() {
         Err(SessionReject::Admission(AdmissionReject::Replay))
     );
     assert_eq!(session.active_channels(), 1);
-    assert!(session.stream_gate(active.channel_id).is_ok());
-    assert_eq!(
-        session.stream_gate(replay.channel_id).err(),
-        Some(SessionReject::UnexpectedMessage)
-    );
+    assert!(session.has_active_channel(active.channel_id));
+    assert!(!session.has_active_channel(replay.channel_id));
 
     source.close().await.expect("source close");
     destination.close().await.expect("destination close");
@@ -527,17 +524,14 @@ async fn one_hello_session_repeats_isolated_signed_route_exchanges() {
     session
         .confirm_route_accept(&service_a.accept)
         .expect("service A route accept");
-    assert!(session.stream_gate(service_a.channel_id).is_ok());
+    assert!(session.has_active_channel(service_a.channel_id));
 
     let service_b = signed_route(2, "service-b", 43, POLICY_B, 3);
     session
         .accept_route_open(&service_b.open)
         .expect("service B route open");
     assert_eq!(session.active_channels(), 1);
-    assert_eq!(
-        session.stream_gate(service_b.channel_id).err(),
-        Some(SessionReject::UnexpectedMessage)
-    );
+    assert!(!session.has_active_channel(service_b.channel_id));
 
     let wrong_accepts = [
         route_accept(
@@ -572,7 +566,7 @@ async fn one_hello_session_repeats_isolated_signed_route_exchanges() {
     for wrong in &wrong_accepts {
         assert!(session.confirm_route_accept(wrong).is_err());
         assert_eq!(session.active_channels(), 1);
-        assert!(session.stream_gate(service_a.channel_id).is_ok());
+        assert!(session.has_active_channel(service_a.channel_id));
     }
     session
         .confirm_route_accept(&service_b.accept)
@@ -599,7 +593,7 @@ async fn one_hello_session_repeats_isolated_signed_route_exchanges() {
         service_b.channel_id,
         second_a.channel_id,
     ] {
-        assert!(session.stream_gate(channel_id).is_ok());
+        assert!(session.has_active_channel(channel_id));
     }
 
     source.close().await.expect("source close");

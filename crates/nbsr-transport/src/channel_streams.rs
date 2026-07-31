@@ -2,7 +2,8 @@
 
 use std::collections::{HashMap, HashSet};
 
-use crate::{ActiveChannel, CoreV02Envelope, StreamGate, StreamReject};
+use crate::stream_gate::StreamGate;
+use crate::{ActiveChannel, CoreV02Envelope, StreamReject};
 
 const MAX_STREAMS_PER_CHANNEL: usize = 64;
 const MAX_BUFFERED_PER_STREAM: usize = 1_048_576;

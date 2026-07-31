@@ -90,3 +90,54 @@ The required non-OneDrive Cargo target was used throughout:
 None. This is bounded in-memory transport evidence only; it does not establish
 origin forwarding, production readiness, exporter binding, lifecycle/drain,
 resume, UDP, or cross-edge continuity.
+
+## Fix round 1: close the legacy stream-gate bypass
+
+### Review finding
+
+The initial Task 3 commit left three legacy public entry points:
+`StreamGate`, `ControlSession::stream_gate`, and
+`AuthenticatedConnection::accept_application_stream`. Together with the
+publicly constructible `ActiveChannel`, those APIs could bypass the
+session-owned `ChannelStreams` replay, ownership, and quota enforcement.
+
+### RED/GREEN
+
+- RED: added three independent `compile_fail` doctests. All three failed with
+  "Test compiled successfully" while the bypass APIs remained public.
+- GREEN: made `StreamGate` and its construction/control methods crate-private,
+  removed its public re-export, removed `ControlSession::stream_gate`, and
+  removed the standalone Quinn acceptance method. The four public-boundary
+  doctests (including the existing channel-registry boundary) pass 4/4.
+- Migrated active-channel checks to the read-only
+  `ControlSession::has_active_channel` query and migrated the oversized payload
+  regression to `accept_session_stream` with a fully established route.
+
+### Real control-stream evidence
+
+The two-channel Quinn loopback no longer sends one unused stream-4 control.
+For stream IDs 4, 8, and 12 it now sends and receives each matching
+`STREAM_OPEN`, processes the received open through `ControlSession`, sends and
+receives the matching `STREAM_ACCEPT`, processes that received accept, and only
+then accepts payload through `accept_session_stream`.
+
+### Verification
+
+- Internal `ChannelStreams` unit tests: 5 passed.
+- Public-boundary compile-fail doctests: 4 passed.
+- Required integration set (`application_stream`, `stream_gate`,
+  `multi_channel`, `control`, `route_context`, `admission`, `multi_stream`):
+  16 passed.
+- `cargo fmt --check`: passed.
+- `cargo clippy --all-targets -- -D warnings`: passed.
+- `git diff --check`: passed with only the checkout's LF/CRLF notices.
+
+### Fix commit
+
+`fix(wp4): close legacy stream gate bypass`
+
+### Fix-round concerns
+
+None. The public application-stream receive path now requires the
+session-owned registry. The same Task 3 non-claims and bounded in-memory scope
+remain unchanged.

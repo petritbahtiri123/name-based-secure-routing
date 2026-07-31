@@ -7,7 +7,7 @@ use sha2::{Digest, Sha256};
 use crate::channel_streams::ChannelStreams;
 use crate::{
     ActiveChannel, AdmissionReject, AuthenticatedConnection, CoreV02Envelope, CoreV02MessageType,
-    DestinationAdmission, EdgeIdentity, RouteGrantIssuer, StreamGate, StreamReject,
+    DestinationAdmission, EdgeIdentity, RouteGrantIssuer, StreamReject,
 };
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -72,6 +72,10 @@ impl ControlSession {
 
     pub fn active_channels(&self) -> usize {
         self.admission.active_channels()
+    }
+
+    pub fn has_active_channel(&self, channel_id: [u8; 16]) -> bool {
+        self.admission.channel(&channel_id).is_some()
     }
 
     pub fn accept_client_hello(&mut self, envelope: &CoreV02Envelope) -> Result<(), SessionReject> {
@@ -248,14 +252,6 @@ impl ControlSession {
         *destination_sequence = sequence;
         *pending = None;
         Ok(())
-    }
-
-    pub fn stream_gate(&self, channel_id: [u8; 16]) -> Result<StreamGate, SessionReject> {
-        self.admission
-            .channel(&channel_id)
-            .cloned()
-            .map(StreamGate::new)
-            .ok_or(SessionReject::UnexpectedMessage)
     }
 
     pub fn authorize_stream_open(

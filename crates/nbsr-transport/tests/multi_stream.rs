@@ -7,8 +7,8 @@ use ed25519_dalek::{Signer, SigningKey};
 use nbsr_transport::{
     ActiveChannel, AdmissionPolicy, AuthorizedServicePolicy, ControlSession, CoreV02Envelope,
     CoreV02Limits, DestinationAdmission, EdgeIdentity, EdgeRole, PeerPolicy, RouteGrantIssuer,
-    StreamGate, StreamReject, TransportListener, build_client_config, build_server_config, connect,
-    decode_control_envelope,
+    SessionReject, StreamReject, TransportListener, build_client_config, build_server_config,
+    connect, decode_control_envelope,
 };
 use sha2::{Digest, Sha256};
 
@@ -102,81 +102,10 @@ fn decode_envelope(
 }
 
 #[test]
-fn source_bidirectional_stream_ids_beyond_four_are_independently_accepted() {
-    for stream_id in [4, 8, 12, 4_611_686_018_427_387_900] {
-        let active = channel(stream_id as u8);
-        let request_id = [stream_id as u8; 16];
-        let mut gate = StreamGate::new(active.clone());
-        gate.authorize_open(&stream_open(&active, stream_id, request_id))
-            .expect("valid source-initiated bidirectional ID");
-        gate.accept(&stream_accept(&active, stream_id, request_id, SESSION_ID))
-            .expect("matching accept");
-    }
-}
-
-#[test]
-fn accept_requires_the_exact_open_request_and_session_binding() {
-    let active = channel(1);
-    let request_id = [0x31; 16];
-    let mut wrong_request = StreamGate::new(active.clone());
-    wrong_request
-        .authorize_open(&stream_open(&active, 4, request_id))
-        .expect("valid open");
-    assert_eq!(
-        wrong_request.accept(&stream_accept(&active, 4, [0x32; 16], SESSION_ID)),
-        Err(StreamReject::ControlRejected)
-    );
-
-    let mut wrong_session = StreamGate::new(active.clone());
-    wrong_session
-        .authorize_open(&stream_open(&active, 4, request_id))
-        .expect("valid open");
-    assert_eq!(
-        wrong_session.accept(&stream_accept(&active, 4, request_id, [0x11; 16])),
-        Err(StreamReject::ControlRejected)
-    );
-}
-
-#[test]
 fn invalid_role_parity_reserved_and_overflow_ids_fail_closed() {
     let active = channel(1);
     for stream_id in [0, 1, 2, 3, 5, 6, 7, 4_611_686_018_427_387_904] {
         assert!(decode_stream_open(&active, stream_id, [0x41; 16]).is_err());
-    }
-}
-
-#[test]
-fn wrong_route_grant_transport_and_port_never_authorize() {
-    let active = channel(1);
-    let request_id = [0x51; 16];
-    let mutations = [
-        {
-            let mut value = active.clone();
-            value.route_id = [0xee; 16];
-            value
-        },
-        {
-            let mut value = active.clone();
-            value.route_grant_digest = [0xdd; 32];
-            value
-        },
-        {
-            let mut value = active.clone();
-            value.transport = "udp".into();
-            value
-        },
-        {
-            let mut value = active.clone();
-            value.port = 443;
-            value
-        },
-    ];
-    for mutated in mutations {
-        let mut gate = StreamGate::new(mutated);
-        assert!(
-            gate.authorize_open(&stream_open(&active, 4, request_id))
-                .is_err()
-        );
     }
 }
 
@@ -218,19 +147,54 @@ async fn quinn_streams_four_eight_and_twelve_echo_on_two_bound_channels() {
         .expect("service B route accept");
     assert_eq!(session.active_channels(), 2);
 
+    let max_stream_id = 4_611_686_018_427_387_900;
+    session
+        .authorize_stream_open(
+            channel_a.channel_id,
+            &stream_open(&channel_a, max_stream_id, [0xfc; 16]),
+        )
+        .expect("maximum source bidirectional stream ID");
+    session
+        .confirm_stream_accept(
+            channel_a.channel_id,
+            &stream_accept(&channel_a, max_stream_id, [0xfc; 16], SESSION_ID),
+        )
+        .expect("maximum stream accept binding");
+    session
+        .release_stream(channel_a.channel_id, max_stream_id)
+        .expect("release maximum stream fixture");
+
+    for (stream_id, mutated, expected) in [
+        {
+            let mut value = channel_a.clone();
+            value.route_id = [0xee; 16];
+            (16, value, StreamReject::RouteMismatch)
+        },
+        {
+            let mut value = channel_a.clone();
+            value.route_grant_digest = [0xdd; 32];
+            (20, value, StreamReject::ChannelMismatch)
+        },
+        {
+            let mut value = channel_a.clone();
+            value.port = 443;
+            (24, value, StreamReject::UnsupportedTransport)
+        },
+    ] {
+        assert_eq!(
+            session.authorize_stream_open(
+                channel_a.channel_id,
+                &stream_open(&mutated, stream_id, [stream_id as u8; 16]),
+            ),
+            Err(SessionReject::Stream(expected))
+        );
+    }
+    let mut wrong_transport = channel_a.clone();
+    wrong_transport.transport = "udp".into();
+    assert!(decode_stream_open(&wrong_transport, 28, [28; 16]).is_err());
+
     let mut source_control = source.open_control_stream().await.expect("source control");
-    source_control
-        .send_envelope(&stream_open(&channel_a, 4, [4; 16]))
-        .await
-        .expect("send control fixture");
-    let mut destination_control = destination
-        .accept_control_stream()
-        .await
-        .expect("destination control");
-    destination_control
-        .receive_envelope(CoreV02Limits::default())
-        .await
-        .expect("receive control fixture");
+    let mut destination_control = None;
 
     for (stream_id, active, payload) in [
         (4, &channel_a, b"channel-a-first".to_vec()),
@@ -238,17 +202,59 @@ async fn quinn_streams_four_eight_and_twelve_echo_on_two_bound_channels() {
         (12, &channel_a, vec![0x5a; 4_096]),
     ] {
         let request_id = [stream_id as u8; 16];
+        let open = stream_open(active, stream_id, request_id);
+        source_control
+            .send_envelope(&open)
+            .await
+            .expect("send STREAM_OPEN");
+        if destination_control.is_none() {
+            destination_control = Some(
+                destination
+                    .accept_control_stream()
+                    .await
+                    .expect("destination control"),
+            );
+        }
+        let received_open = destination_control
+            .as_mut()
+            .expect("control stream established")
+            .receive_envelope(CoreV02Limits::default())
+            .await
+            .expect("receive STREAM_OPEN");
         session
-            .authorize_stream_open(
-                active.channel_id,
-                &stream_open(active, stream_id, request_id),
-            )
+            .authorize_stream_open(active.channel_id, &received_open)
             .expect("bind stream open");
+
+        if stream_id == 4 {
+            assert_eq!(
+                session.confirm_stream_accept(
+                    active.channel_id,
+                    &stream_accept(active, stream_id, [0x32; 16], SESSION_ID),
+                ),
+                Err(SessionReject::Stream(StreamReject::ControlRejected))
+            );
+            assert_eq!(
+                session.confirm_stream_accept(
+                    active.channel_id,
+                    &stream_accept(active, stream_id, request_id, [0x11; 16]),
+                ),
+                Err(SessionReject::Replay)
+            );
+        }
+
+        let accept = stream_accept(active, stream_id, request_id, SESSION_ID);
+        destination_control
+            .as_mut()
+            .expect("control stream established")
+            .send_envelope(&accept)
+            .await
+            .expect("send STREAM_ACCEPT");
+        let received_accept = source_control
+            .receive_envelope(CoreV02Limits::default())
+            .await
+            .expect("receive STREAM_ACCEPT");
         session
-            .confirm_stream_accept(
-                active.channel_id,
-                &stream_accept(active, stream_id, request_id, SESSION_ID),
-            )
+            .confirm_stream_accept(active.channel_id, &received_accept)
             .expect("bind stream accept");
 
         let (at_destination, at_source) = tokio::join!(

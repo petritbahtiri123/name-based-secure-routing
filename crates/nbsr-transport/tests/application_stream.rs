@@ -5,9 +5,8 @@ use std::time::Duration;
 
 use nbsr_transport::{
     ActiveChannel, AdmissionPolicy, AuthorizedServicePolicy, ControlSession, CoreV02Limits,
-    DestinationAdmission, EdgeIdentity, EdgeRole, PeerPolicy, RouteGrantIssuer, StreamGate,
-    TransportError, TransportListener, build_client_config, build_server_config, connect,
-    decode_control_envelope,
+    DestinationAdmission, EdgeIdentity, EdgeRole, PeerPolicy, RouteGrantIssuer, TransportError,
+    TransportListener, build_client_config, build_server_config, connect, decode_control_envelope,
 };
 use sha2::{Digest, Sha256};
 
@@ -179,10 +178,7 @@ async fn accepted_stream_id_four_echoes_only_the_bounded_in_memory_payload() {
     session
         .accept_route_open(&received_route_open)
         .expect("admit received ROUTE_OPEN");
-    assert_eq!(
-        session.stream_gate(channel().channel_id).err(),
-        Some(nbsr_transport::SessionReject::UnexpectedMessage)
-    );
+    assert!(!session.has_active_channel(channel().channel_id));
 
     let route_accept = decode_control_envelope(
         &vector("artifacts/valid/envelopes/route-accept.cbor"),
@@ -319,6 +315,44 @@ async fn payload_before_stream_accept_is_reset_without_delivery() {
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn payload_over_four_kib_is_reset_without_echo() {
     let (listener, source, destination) = connection_pair().await;
+    let mut session = control_session(&destination);
+    session
+        .accept_client_hello(
+            &decode_control_envelope(
+                &vector("artifacts/valid/envelopes/client-hello.cbor"),
+                CoreV02Limits::default(),
+            )
+            .expect("CLIENT_HELLO fixture"),
+        )
+        .expect("accept CLIENT_HELLO");
+    session
+        .confirm_edge_hello(
+            &decode_control_envelope(
+                &vector("artifacts/valid/envelopes/edge-hello.cbor"),
+                CoreV02Limits::default(),
+            )
+            .expect("EDGE_HELLO fixture"),
+        )
+        .expect("confirm EDGE_HELLO");
+    session
+        .accept_route_open(
+            &decode_control_envelope(
+                &vector("artifacts/valid/envelopes/route-open.cbor"),
+                CoreV02Limits::default(),
+            )
+            .expect("ROUTE_OPEN fixture"),
+        )
+        .expect("accept ROUTE_OPEN");
+    session
+        .confirm_route_accept(
+            &decode_control_envelope(
+                &vector("artifacts/valid/envelopes/route-accept.cbor"),
+                CoreV02Limits::default(),
+            )
+            .expect("ROUTE_ACCEPT fixture"),
+        )
+        .expect("confirm ROUTE_ACCEPT");
+    let channel_id = channel().channel_id;
     let mut source_control = source.open_control_stream().await.expect("source control");
     let stream_open = decode_control_envelope(
         &vector("artifacts/valid/envelopes/stream-open.cbor"),
@@ -342,25 +376,26 @@ async fn payload_over_four_kib_is_reset_without_echo() {
         CoreV02Limits::default(),
     )
     .expect("STREAM_ACCEPT fixture");
-    let mut gate = StreamGate::new(channel());
-    gate.authorize_open(&received_open)
+    session
+        .authorize_stream_open(channel_id, &received_open)
         .expect("authorize received STREAM_OPEN");
-    gate.accept(&stream_accept)
-        .expect("bind matching STREAM_ACCEPT");
     destination_control
         .send_envelope(&stream_accept)
         .await
         .expect("send STREAM_ACCEPT");
-    source_control
+    let received_accept = source_control
         .receive_envelope(CoreV02Limits::default())
         .await
         .expect("receive STREAM_ACCEPT");
+    session
+        .confirm_stream_accept(channel_id, &received_accept)
+        .expect("bind matching STREAM_ACCEPT");
 
     let payload = vec![0x5a; 4_097];
     let (destination_result, source_result) = tokio::join!(
         async {
             let mut stream = destination
-                .accept_application_stream(&mut gate)
+                .accept_session_stream(&mut session, channel_id)
                 .await
                 .expect("accept application stream");
             stream.echo_once().await

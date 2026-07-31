@@ -10,7 +10,7 @@ use x509_parser::prelude::{FromDer, X509Certificate};
 
 use crate::{
     ALPN, ClientEndpointConfig, ControlSession, EdgeIdentity, PeerPolicy, ServerEndpointConfig,
-    StreamGate, TransportError,
+    TransportError,
 };
 
 pub struct TransportListener {
@@ -269,23 +269,6 @@ impl AuthenticatedConnection {
             .await
             .map_err(|_| TransportError::ApplicationStreamFailed)?;
         Ok(ApplicationStream { send, receive })
-    }
-
-    pub async fn accept_application_stream(
-        &self,
-        gate: &mut StreamGate,
-    ) -> Result<ApplicationStream, TransportError> {
-        let (send, receive) = self
-            .connection
-            .accept_bi()
-            .await
-            .map_err(|_| TransportError::ApplicationStreamFailed)?;
-        let stream = ApplicationStream { send, receive };
-        if gate.authorize_application_stream(stream.id()).is_err() {
-            let _ = stream.reject();
-            return Err(TransportError::ApplicationStreamRejected);
-        }
-        Ok(stream)
     }
 
     pub async fn accept_session_stream(

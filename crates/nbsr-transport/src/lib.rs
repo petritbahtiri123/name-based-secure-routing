@@ -3,6 +3,22 @@
 //! ```compile_fail
 //! use nbsr_transport::ChannelRegistry;
 //! ```
+//!
+//! Application-stream admission is available only through an established
+//! [`ControlSession`]. Internal per-stream gates and the legacy standalone
+//! acceptance path are not public bypass APIs.
+//!
+//! ```compile_fail
+//! use nbsr_transport::StreamGate;
+//! ```
+//!
+//! ```compile_fail
+//! let _ = nbsr_transport::ControlSession::stream_gate;
+//! ```
+//!
+//! ```compile_fail
+//! let _ = nbsr_transport::AuthenticatedConnection::accept_application_stream;
+//! ```
 
 #![forbid(unsafe_code)]
 
@@ -34,6 +50,6 @@ pub use quinn_adapter::{
     ApplicationStream, AuthenticatedConnection, ControlStream, TransportListener, connect,
 };
 pub use session::{ControlSession, SessionReject};
-pub use stream_gate::{StreamGate, StreamOpenRequest, StreamReject};
+pub use stream_gate::{StreamOpenRequest, StreamReject};
 
 pub const ALPN: &[u8] = b"nbsr-quic-1";
