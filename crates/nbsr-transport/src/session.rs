@@ -1,4 +1,4 @@
-//! Origin-free WP3 control-session sequencing and route admission.
+//! Origin-free control-session sequencing and reusable route admission.
 
 use std::collections::HashSet;
 
@@ -35,18 +35,20 @@ enum SessionState {
         session_id: [u8; 16],
         source_sequence: u64,
     },
-    AwaitingRouteOpen {
+    Established {
         destination_sequence: u64,
+        pending: Option<PendingRoute>,
         session_id: [u8; 16],
         source_sequence: u64,
     },
-    AwaitingRouteAccept {
-        channel: ActiveChannel,
-        destination_sequence: u64,
-        request_id: [u8; 16],
-        session_id: [u8; 16],
-    },
-    RouteAccepted(ActiveChannel),
+}
+
+#[derive(Clone, Copy)]
+struct PendingRoute {
+    channel_id: [u8; 16],
+    grant_digest: [u8; 32],
+    request_id: [u8; 16],
+    route_id: [u8; 16],
 }
 
 impl ControlSession {
@@ -138,8 +140,9 @@ impl ControlSession {
         {
             return Err(SessionReject::ControlRejected);
         }
-        self.state = SessionState::AwaitingRouteOpen {
+        self.state = SessionState::Established {
             destination_sequence: sequence,
+            pending: None,
             session_id,
             source_sequence: *source_sequence,
         };
@@ -154,18 +157,22 @@ impl ControlSession {
         if self.request_ids.contains(&request_id) {
             return Err(SessionReject::Replay);
         }
-        let SessionState::AwaitingRouteOpen {
-            destination_sequence,
+        let SessionState::Established {
+            destination_sequence: _,
+            pending,
             session_id: expected_session_id,
             source_sequence,
-        } = self.state
+        } = &self.state
         else {
             return Err(SessionReject::UnexpectedMessage);
         };
+        if pending.is_some() {
+            return Err(SessionReject::UnexpectedMessage);
+        }
         if envelope.message_type() != CoreV02MessageType::RouteOpen {
             return Err(SessionReject::UnexpectedMessage);
         }
-        if session_id != expected_session_id || sequence <= source_sequence {
+        if session_id != *expected_session_id || sequence <= *source_sequence {
             return Err(SessionReject::Replay);
         }
         let channel = self
@@ -173,12 +180,21 @@ impl ControlSession {
             .admit_route_open(envelope, &self.trusted_issuers)
             .map_err(SessionReject::Admission)?;
         self.request_ids.insert(request_id);
-        self.state = SessionState::AwaitingRouteAccept {
-            channel: channel.clone(),
-            destination_sequence,
-            request_id,
-            session_id,
+        let SessionState::Established {
+            pending,
+            source_sequence,
+            ..
+        } = &mut self.state
+        else {
+            return Err(SessionReject::UnexpectedMessage);
         };
+        *source_sequence = sequence;
+        *pending = Some(PendingRoute {
+            channel_id: channel.channel_id,
+            grant_digest: channel.route_grant_digest,
+            request_id,
+            route_id: channel.route_id,
+        });
         Ok(channel)
     }
 
@@ -187,11 +203,11 @@ impl ControlSession {
         envelope: &CoreV02Envelope,
     ) -> Result<(), SessionReject> {
         let (request_id, session_id, sequence) = binding(envelope)?;
-        let SessionState::AwaitingRouteAccept {
-            channel,
+        let SessionState::Established {
             destination_sequence,
-            request_id: route_request_id,
+            pending: Some(pending),
             session_id: route_session_id,
+            ..
         } = &self.state
         else {
             return Err(SessionReject::UnexpectedMessage);
@@ -199,7 +215,7 @@ impl ControlSession {
         if envelope.message_type() != CoreV02MessageType::RouteAccept {
             return Err(SessionReject::UnexpectedMessage);
         }
-        if request_id != *route_request_id
+        if request_id != pending.request_id
             || session_id != *route_session_id
             || sequence <= *destination_sequence
         {
@@ -208,21 +224,34 @@ impl ControlSession {
         let binding = envelope
             .route_accept_binding()
             .map_err(|_| SessionReject::ControlRejected)?;
-        if binding.channel_id != channel.channel_id
-            || binding.route_id != channel.route_id
-            || binding.route_grant_digest != channel.route_grant_digest
+        if binding.channel_id != pending.channel_id
+            || binding.route_id != pending.route_id
+            || binding.route_grant_digest != pending.grant_digest
         {
             return Err(SessionReject::ControlRejected);
         }
-        self.state = SessionState::RouteAccepted(channel.clone());
+        self.admission
+            .confirm_channel(&pending.channel_id)
+            .map_err(SessionReject::Admission)?;
+        let SessionState::Established {
+            destination_sequence,
+            pending,
+            ..
+        } = &mut self.state
+        else {
+            return Err(SessionReject::UnexpectedMessage);
+        };
+        *destination_sequence = sequence;
+        *pending = None;
         Ok(())
     }
 
-    pub fn stream_gate(&self) -> Result<StreamGate, SessionReject> {
-        let SessionState::RouteAccepted(channel) = &self.state else {
-            return Err(SessionReject::UnexpectedMessage);
-        };
-        Ok(StreamGate::new(channel.clone()))
+    pub fn stream_gate(&self, channel_id: [u8; 16]) -> Result<StreamGate, SessionReject> {
+        self.admission
+            .channel(&channel_id)
+            .cloned()
+            .map(StreamGate::new)
+            .ok_or(SessionReject::UnexpectedMessage)
     }
 }
 

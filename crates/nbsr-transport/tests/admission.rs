@@ -1,5 +1,8 @@
+use std::collections::BTreeMap;
+
 use nbsr_transport::{
-    AdmissionPolicy, AdmissionReject, DestinationAdmission, RouteGrantClaims, RouteOpenRequest,
+    AdmissionPolicy, AdmissionReject, AuthorizedServicePolicy, ChannelLimits, DestinationAdmission,
+    RouteGrantClaims, RouteOpenRequest,
 };
 
 const CHANNEL_ID: [u8; 16] = [0x40; 16];
@@ -13,11 +16,14 @@ fn policy() -> AdmissionPolicy {
         source_edge_id: "source.edge".into(),
         destination_operator_id: "destination.operator".into(),
         destination_edge_id: "destination.edge".into(),
-        service_id: "service.example".into(),
-        accepted_record_sequence: 42,
-        policy_hash: POLICY_HASH,
+        authorized_services: BTreeMap::from([(
+            "service.example".into(),
+            AuthorizedServicePolicy {
+                accepted_record_sequence: 42,
+                policy_hash: POLICY_HASH,
+            },
+        )]),
         now: 1_893_456_000,
-        max_channels: 1,
         client_session_public_key: THUMBPRINT,
         edge_nonce: [0x80; 32],
     }
@@ -60,7 +66,7 @@ fn valid_request_allocates_exactly_one_service_bound_channel() {
     assert_eq!(accepted.channel_id, CHANNEL_ID);
     assert_eq!(accepted.route_id, ROUTE_ID);
     assert_eq!(accepted.service_id, "service.example");
-    assert_eq!(admission.active_channels(), 1);
+    assert_eq!(admission.active_channels(), 0);
 }
 
 #[test]
@@ -73,12 +79,18 @@ fn invalid_or_replayed_requests_leave_no_channel_state() {
 
     admission.admit(request()).expect("first use accepted");
     assert_eq!(admission.admit(request()), Err(AdmissionReject::Replay));
-    assert_eq!(admission.active_channels(), 1);
+    assert_eq!(admission.active_channels(), 0);
 }
 
 #[test]
 fn grant_binding_expiry_and_capacity_are_independent_fail_closed_checks() {
-    let mut admission = DestinationAdmission::new(policy());
+    let mut admission = DestinationAdmission::with_limits(
+        policy(),
+        ChannelLimits {
+            max_channels_per_session: 1,
+            max_channels_per_service: 1,
+        },
+    );
     let mut wrong_edge = request();
     wrong_edge.grant.destination_edge_ids = vec!["other.edge".into()];
     assert_eq!(

@@ -1,6 +1,7 @@
 #![forbid(unsafe_code)]
 
 mod admission;
+mod channel_registry;
 mod config;
 mod core_v02;
 mod error;
@@ -9,9 +10,10 @@ mod session;
 mod stream_gate;
 
 pub use admission::{
-    ActiveChannel, AdmissionPolicy, AdmissionReject, DestinationAdmission, RouteGrantClaims,
-    RouteOpenRequest,
+    ActiveChannel, AdmissionPolicy, AdmissionReject, AuthorizedServicePolicy, DestinationAdmission,
+    RouteGrantClaims, RouteOpenRequest,
 };
+pub use channel_registry::{ChannelLimits, ChannelRegistry};
 pub use config::{
     ClientEndpointConfig, EdgeIdentity, EdgeRole, PeerPolicy, ServerEndpointConfig, TlsMaterial,
     build_client_config, build_server_config,

@@ -1,14 +1,20 @@
-//! Destination-edge admission for one independently authorized service channel.
+//! Destination-edge admission for bounded independently authorized service channels.
 //!
 //! Validation completes before a channel is reserved.  This deliberately keeps
 //! RouteGrant semantics separate from the authenticated transport session.
 
-use std::collections::HashSet;
+use std::collections::BTreeMap;
 
 use ed25519_dalek::{Signature, VerifyingKey};
 use sha2::{Digest, Sha256};
 
-use crate::{CoreV02Envelope, CoreV02Reject, RouteGrantIssuer};
+use crate::{ChannelLimits, ChannelRegistry, CoreV02Envelope, CoreV02Reject, RouteGrantIssuer};
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct AuthorizedServicePolicy {
+    pub accepted_record_sequence: u64,
+    pub policy_hash: [u8; 32],
+}
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct AdmissionPolicy {
@@ -16,11 +22,8 @@ pub struct AdmissionPolicy {
     pub source_edge_id: String,
     pub destination_operator_id: String,
     pub destination_edge_id: String,
-    pub service_id: String,
-    pub accepted_record_sequence: u64,
-    pub policy_hash: [u8; 32],
+    pub authorized_services: BTreeMap<String, AuthorizedServicePolicy>,
     pub now: u64,
-    pub max_channels: usize,
     pub client_session_public_key: [u8; 32],
     pub edge_nonce: [u8; 32],
 }
@@ -73,23 +76,31 @@ pub enum AdmissionReject {
 
 pub struct DestinationAdmission {
     policy: AdmissionPolicy,
-    used_channel_ids: HashSet<[u8; 16]>,
-    used_grant_nonces: HashSet<[u8; 16]>,
-    active: Vec<ActiveChannel>,
+    channels: ChannelRegistry,
 }
 
 impl DestinationAdmission {
     pub fn new(policy: AdmissionPolicy) -> Self {
+        Self::with_limits(policy, ChannelLimits::default())
+    }
+
+    pub fn with_limits(policy: AdmissionPolicy, limits: ChannelLimits) -> Self {
         Self {
             policy,
-            used_channel_ids: HashSet::new(),
-            used_grant_nonces: HashSet::new(),
-            active: Vec::new(),
+            channels: ChannelRegistry::new(limits),
         }
     }
 
     pub fn active_channels(&self) -> usize {
-        self.active.len()
+        self.channels.active_len()
+    }
+
+    pub(crate) fn confirm_channel(&mut self, channel_id: &[u8; 16]) -> Result<(), AdmissionReject> {
+        self.channels.confirm_active(channel_id)
+    }
+
+    pub(crate) fn channel(&self, channel_id: &[u8; 16]) -> Option<&ActiveChannel> {
+        self.channels.channel(channel_id)
     }
 
     pub(crate) fn matches_client_hello(
@@ -113,14 +124,6 @@ impl DestinationAdmission {
 
     pub fn admit(&mut self, request: RouteOpenRequest) -> Result<ActiveChannel, AdmissionReject> {
         validate_request(&self.policy, &request)?;
-        if self.used_channel_ids.contains(&request.channel_id)
-            || self.used_grant_nonces.contains(&request.grant.unique_nonce)
-        {
-            return Err(AdmissionReject::Replay);
-        }
-        if self.active.len() >= self.policy.max_channels {
-            return Err(AdmissionReject::OverCapacity);
-        }
 
         let channel = ActiveChannel {
             channel_id: request.channel_id,
@@ -130,9 +133,8 @@ impl DestinationAdmission {
             transport: request.requested_transport.clone(),
             port: request.requested_port,
         };
-        self.used_channel_ids.insert(request.channel_id);
-        self.used_grant_nonces.insert(request.grant.unique_nonce);
-        self.active.push(channel.clone());
+        self.channels
+            .admit_pending(channel.clone(), request.grant.unique_nonce)?;
         Ok(channel)
     }
 
@@ -264,6 +266,10 @@ fn validate_request(
     request: &RouteOpenRequest,
 ) -> Result<(), AdmissionReject> {
     let grant = &request.grant;
+    let service_policy = policy
+        .authorized_services
+        .get(&grant.service_id)
+        .ok_or(AdmissionReject::RouteDenied)?;
     if request.channel_id == [0; 16]
         || grant.route_id == [0; 16]
         || grant.unique_nonce == [0; 16]
@@ -288,15 +294,12 @@ fn validate_request(
             .destination_edge_ids
             .iter()
             .any(|edge| edge == &policy.destination_edge_id)
-        || grant.record_sequence != policy.accepted_record_sequence
-        || grant.policy_hash != policy.policy_hash
+        || grant.record_sequence != service_policy.accepted_record_sequence
+        || grant.policy_hash != service_policy.policy_hash
     {
         return Err(AdmissionReject::GrantInvalid);
     }
     if !grant.allowed_ports.contains(&request.requested_port) {
-        return Err(AdmissionReject::RouteDenied);
-    }
-    if grant.service_id != policy.service_id {
         return Err(AdmissionReject::RouteDenied);
     }
     Ok(())

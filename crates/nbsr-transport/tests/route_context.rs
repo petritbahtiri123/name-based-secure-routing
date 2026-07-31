@@ -1,8 +1,10 @@
+use std::collections::BTreeMap;
 use std::fs;
 use std::path::PathBuf;
 
 use nbsr_transport::{
-    AdmissionPolicy, CoreV02Limits, DestinationAdmission, RouteGrantIssuer, decode_control_envelope,
+    AdmissionPolicy, AuthorizedServicePolicy, CoreV02Limits, DestinationAdmission,
+    RouteGrantIssuer, decode_control_envelope,
 };
 
 fn vector(relative: &str) -> Vec<u8> {
@@ -29,15 +31,18 @@ fn fixture_policy() -> AdmissionPolicy {
         source_edge_id: "source.edge".into(),
         destination_operator_id: "destination.operator".into(),
         destination_edge_id: "destination.edge".into(),
-        service_id: "service.example".into(),
-        accepted_record_sequence: 42,
-        policy_hash: [
-            0x09, 0xfe, 0x3b, 0x1c, 0x85, 0x49, 0x99, 0x49, 0xda, 0x22, 0x2d, 0xd4, 0xe2, 0xa4,
-            0x60, 0xf5, 0x94, 0xae, 0xe8, 0x25, 0xf4, 0x44, 0xa7, 0x22, 0x58, 0xd2, 0xf1, 0x79,
-            0x7b, 0xf1, 0x14, 0x3f,
-        ],
+        authorized_services: BTreeMap::from([(
+            "service.example".into(),
+            AuthorizedServicePolicy {
+                accepted_record_sequence: 42,
+                policy_hash: [
+                    0x09, 0xfe, 0x3b, 0x1c, 0x85, 0x49, 0x99, 0x49, 0xda, 0x22, 0x2d, 0xd4, 0xe2,
+                    0xa4, 0x60, 0xf5, 0x94, 0xae, 0xe8, 0x25, 0xf4, 0x44, 0xa7, 0x22, 0x58, 0xd2,
+                    0xf1, 0x79, 0x7b, 0xf1, 0x14, 0x3f,
+                ],
+            },
+        )]),
         now: 1_893_456_000,
-        max_channels: 1,
         client_session_public_key: [
             0x3d, 0x40, 0x17, 0xc3, 0xe8, 0x43, 0x89, 0x5a, 0x92, 0xb7, 0x0a, 0xa7, 0x4d, 0x1b,
             0x7e, 0xbc, 0x9c, 0x98, 0x2c, 0xcf, 0x2e, 0xc4, 0x96, 0x8c, 0xc0, 0xcd, 0x55, 0xf1,
@@ -74,7 +79,7 @@ fn decoded_route_open_and_trusted_signed_grant_create_the_fixture_channel() {
         (0x20..0x30).collect::<Vec<_>>().as_slice()
     );
     assert_eq!(accepted.service_id, "service.example");
-    assert_eq!(admission.active_channels(), 1);
+    assert_eq!(admission.active_channels(), 0);
 }
 
 #[test]
