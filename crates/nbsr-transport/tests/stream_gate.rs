@@ -6,6 +6,8 @@ fn channel() -> ActiveChannel {
         route_id: [2; 16],
         service_id: "service.example".into(),
         route_grant_digest: [3; 32],
+        transport: "tcp".into(),
+        port: 8443,
     }
 }
 
@@ -35,5 +37,13 @@ fn one_stream_is_bound_to_only_the_accepted_service_channel() {
     assert_eq!(
         new_gate.authorize(&other),
         Err(StreamReject::ChannelMismatch)
+    );
+
+    let mut wrong_port = request();
+    wrong_port.port = 443;
+    let mut port_gate = StreamGate::new(channel());
+    assert_eq!(
+        port_gate.authorize(&wrong_port),
+        Err(StreamReject::UnsupportedTransport)
     );
 }

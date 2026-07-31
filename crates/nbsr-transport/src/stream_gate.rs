@@ -34,7 +34,7 @@ impl StreamGate {
     }
 
     pub fn authorize(&mut self, request: &StreamOpenRequest) -> Result<(), StreamReject> {
-        if request.transport != "tcp" || request.port == 0 {
+        if request.transport != self.channel.transport || request.port != self.channel.port {
             return Err(StreamReject::UnsupportedTransport);
         }
         if request.channel_id != self.channel.channel_id

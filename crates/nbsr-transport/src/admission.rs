@@ -16,6 +16,7 @@ pub struct AdmissionPolicy {
     pub source_edge_id: String,
     pub destination_operator_id: String,
     pub destination_edge_id: String,
+    pub service_id: String,
     pub accepted_record_sequence: u64,
     pub policy_hash: [u8; 32],
     pub now: u64,
@@ -57,6 +58,8 @@ pub struct ActiveChannel {
     pub route_id: [u8; 16],
     pub service_id: String,
     pub route_grant_digest: [u8; 32],
+    pub transport: String,
+    pub port: u16,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -105,6 +108,8 @@ impl DestinationAdmission {
             route_id: request.grant.route_id,
             service_id: request.grant.service_id.clone(),
             route_grant_digest: request.route_grant_digest,
+            transport: request.requested_transport.clone(),
+            port: request.requested_port,
         };
         self.used_channel_ids.insert(request.channel_id);
         self.used_grant_nonces.insert(request.grant.unique_nonce);
@@ -270,6 +275,9 @@ fn validate_request(
         return Err(AdmissionReject::GrantInvalid);
     }
     if !grant.allowed_ports.contains(&request.requested_port) {
+        return Err(AdmissionReject::RouteDenied);
+    }
+    if grant.service_id != policy.service_id {
         return Err(AdmissionReject::RouteDenied);
     }
     Ok(())

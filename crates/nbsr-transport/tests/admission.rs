@@ -13,6 +13,7 @@ fn policy() -> AdmissionPolicy {
         source_edge_id: "source.edge".into(),
         destination_operator_id: "destination.operator".into(),
         destination_edge_id: "destination.edge".into(),
+        service_id: "service.example".into(),
         accepted_record_sequence: 42,
         policy_hash: POLICY_HASH,
         now: 1_893_456_000,
@@ -88,6 +89,13 @@ fn grant_binding_expiry_and_capacity_are_independent_fail_closed_checks() {
     let mut expired = request();
     expired.grant.expires_at = 1_893_455_999;
     assert_eq!(admission.admit(expired), Err(AdmissionReject::GrantExpired));
+
+    let mut wrong_service = request();
+    wrong_service.grant.service_id = "other.service".into();
+    assert_eq!(
+        admission.admit(wrong_service),
+        Err(AdmissionReject::RouteDenied)
+    );
 
     admission.admit(request()).expect("capacity first channel");
     let mut second = request();

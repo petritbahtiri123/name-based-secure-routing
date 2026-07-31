@@ -29,6 +29,7 @@ fn fixture_policy() -> AdmissionPolicy {
         source_edge_id: "source.edge".into(),
         destination_operator_id: "destination.operator".into(),
         destination_edge_id: "destination.edge".into(),
+        service_id: "service.example".into(),
         accepted_record_sequence: 42,
         policy_hash: [
             0x09, 0xfe, 0x3b, 0x1c, 0x85, 0x49, 0x99, 0x49, 0xda, 0x22, 0x2d, 0xd4, 0xe2, 0xa4,
