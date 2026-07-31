@@ -156,3 +156,76 @@ is included in that commit.
 - `ServiceChannelBinding::as_bytes` intentionally remains public only for the
   frozen Task 4 fixture conformance API. It is a different type and cannot
   activate or bind a live `ControlSession`.
+
+## Review round 1/5: exact originating connection
+
+### Finding and correction
+
+The initial implementation retained only authenticated peer name and role in
+`ControlSession`. Before any binding existed, a fresh connection with the same
+PKI, role, and peer name could therefore install its own exporter result into a
+session created from another handshake. The earlier report statement that
+"wrong-handshake" attempts fail was too broad: the original test attempted the
+replacement only after the originating handshake had installed a different
+value, so it proved replacement protection but not exact session provenance.
+
+`AuthenticatedConnection` now receives one adapter-private
+`ConnectionBindingCapability` after Quinn authentication. The capability is an
+`Arc` allocation around a private marker; only the adapter can construct it.
+`ControlSession::new` clones that opaque capability, keeping the allocation
+alive for the complete session lifetime, and `bind_channel` requires
+`Arc::ptr_eq` before it reads a binding request or invokes the exporter. A
+fresh connection cannot acquire the same live allocation identity, while the
+capability has no public type export, constructor, accessor, or debug output.
+
+Source and destination peers now use separate `ControlSession` instances,
+each created from that peer's own exact authenticated connection. HELLO peer
+checks are orientation-aware: a Source session authenticates the destination
+edge, and a Destination session authenticates the source edge. Both retain the
+same verified source/destination transcript values for exporter context.
+
+### TDD evidence
+
+The first focused RED moved the same-PKI replacement before any legitimate
+binding. The assertion expected `ConnectionMismatch` but observed `Ok(())`,
+reproducing the finding exactly. After expressing the required two-session
+orientation, a second RED failed source-side `CLIENT_HELLO` with
+`ControlRejected`, proving the prior session model was destination-oriented
+only.
+
+After the capability and orientation changes, the focused test proves:
+
+- session A rejects same-PKI/same-name/same-role connection B with
+  `ConnectionMismatch` before any binding;
+- the channel remains unbound and rejects the same `STREAM_OPEN` request;
+- originating connection A then binds and authorizes that unchanged request;
+- source A and destination A each bind through a session created from their own
+  exact connection; and
+- wrong-name, pending, unknown, sibling, and stream-isolation checks remain
+  intact.
+
+### Review-round verification
+
+```text
+cargo test --locked --manifest-path crates/nbsr-transport/Cargo.toml --test channel_binding --test multi_stream
+  PASS: 6 passed
+
+cargo test --locked --manifest-path crates/nbsr-transport/Cargo.toml --test exporter_vectors --test handshake --test control --test multi_channel --test multi_stream --test application_stream --test channel_binding
+  PASS: 28 passed
+
+cargo test --locked --manifest-path crates/nbsr-transport/Cargo.toml
+  PASS: 53 unit/integration tests plus 6 compile-fail doctests (59 total)
+
+cargo fmt --manifest-path crates/nbsr-transport/Cargo.toml -- --check
+  PASS
+
+cargo clippy --locked --manifest-path crates/nbsr-transport/Cargo.toml --all-targets -- -D warnings
+  PASS
+
+git diff --check
+  PASS
+```
+
+Review-fix commit subject: `fix(wp4): bind session to exact quinn connection`.
+The immutable Git object ID is returned in the review handoff after this report
+append is included in that commit.

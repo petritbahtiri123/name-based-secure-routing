@@ -1,4 +1,5 @@
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
+use std::sync::Arc;
 
 use quinn::crypto::rustls::HandshakeData;
 use quinn::{Connection, Endpoint, RecvStream, SendStream, VarInt};
@@ -227,9 +228,29 @@ pub struct AuthenticatedConnection {
     connection: Connection,
     authenticated_peer: EdgeIdentity,
     authenticated_peer_role: EdgeRole,
+    binding_capability: ConnectionBindingCapability,
     local_role: EdgeRole,
     negotiated_alpn: Vec<u8>,
     close_timeout: std::time::Duration,
+}
+
+struct ConnectionBindingMarker;
+
+/// Opaque exact-connection capability minted once after Quinn authentication.
+///
+/// A session clone keeps the allocation alive, so another live connection
+/// cannot acquire the same allocation identity even if names and roles match.
+#[derive(Clone)]
+pub(crate) struct ConnectionBindingCapability(Arc<ConnectionBindingMarker>);
+
+impl ConnectionBindingCapability {
+    fn new() -> Self {
+        Self(Arc::new(ConnectionBindingMarker))
+    }
+
+    pub(crate) fn matches(&self, other: &Self) -> bool {
+        Arc::ptr_eq(&self.0, &other.0)
+    }
 }
 
 impl AuthenticatedConnection {
@@ -239,6 +260,14 @@ impl AuthenticatedConnection {
 
     pub fn negotiated_alpn(&self) -> &[u8] {
         &self.negotiated_alpn
+    }
+
+    pub(crate) fn binding_capability(&self) -> ConnectionBindingCapability {
+        self.binding_capability.clone()
+    }
+
+    pub(crate) fn local_role(&self) -> EdgeRole {
+        self.local_role
     }
 
     pub fn export_channel_binding(
@@ -258,6 +287,9 @@ impl AuthenticatedConnection {
         session: &mut ControlSession,
         channel_id: [u8; 16],
     ) -> Result<(), SessionReject> {
+        if !session.matches_connection(&self.binding_capability) {
+            return Err(SessionReject::ConnectionMismatch);
+        }
         let request = session.channel_binding_request(channel_id)?;
         let matches_session = match (self.local_role, self.authenticated_peer_role) {
             (EdgeRole::Source, EdgeRole::Destination) => {
@@ -395,6 +427,7 @@ fn authenticate_connection(
         connection,
         authenticated_peer: policy.expected_peer().clone(),
         authenticated_peer_role: policy.expected_peer_role(),
+        binding_capability: ConnectionBindingCapability::new(),
         local_role: policy.local_role(),
         negotiated_alpn,
         close_timeout: policy.handshake_timeout(),

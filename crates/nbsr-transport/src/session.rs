@@ -6,9 +6,11 @@ use sha2::{Digest, Sha256};
 
 use crate::channel_binding::ChannelBindingRequest;
 use crate::channel_streams::ChannelStreams;
+use crate::quinn_adapter::ConnectionBindingCapability;
 use crate::{
     ActiveChannel, AdmissionReject, AuthenticatedConnection, ChannelBinding, CoreV02Envelope,
-    CoreV02MessageType, DestinationAdmission, EdgeIdentity, RouteGrantIssuer, StreamReject,
+    CoreV02MessageType, DestinationAdmission, EdgeIdentity, EdgeRole, RouteGrantIssuer,
+    StreamReject,
 };
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -26,6 +28,8 @@ pub enum SessionReject {
 pub struct ControlSession {
     admission: DestinationAdmission,
     authenticated_peer: EdgeIdentity,
+    connection_capability: ConnectionBindingCapability,
+    local_role: EdgeRole,
     trusted_issuers: Vec<RouteGrantIssuer>,
     state: SessionState,
     request_ids: HashSet<[u8; 16]>,
@@ -40,6 +44,7 @@ enum SessionState {
         destination_edge_id: String,
         request_id: [u8; 16],
         session_id: [u8; 16],
+        source_edge_id: String,
         source_sequence: u64,
     },
     Established {
@@ -71,6 +76,8 @@ impl ControlSession {
         Self {
             admission,
             authenticated_peer: connection.authenticated_peer().clone(),
+            connection_capability: connection.binding_capability(),
+            local_role: connection.local_role(),
             trusted_issuers,
             state: SessionState::AwaitingClientHello,
             request_ids: HashSet::new(),
@@ -102,7 +109,7 @@ impl ControlSession {
         if request_id == [0; 16]
             || session_id == [0; 16]
             || hello.client_nonce == [0; 32]
-            || hello.source_edge_id != self.authenticated_peer.as_str()
+            || !self.authenticated_peer_matches(&hello.source_edge_id, &hello.destination_edge_id)
             || !self.admission.matches_client_hello(
                 &hello.source_operator_id,
                 &hello.source_edge_id,
@@ -120,6 +127,7 @@ impl ControlSession {
             destination_edge_id: hello.destination_edge_id,
             request_id,
             session_id,
+            source_edge_id: hello.source_edge_id,
             source_sequence: sequence,
         };
         Ok(())
@@ -133,6 +141,7 @@ impl ControlSession {
             destination_edge_id,
             request_id: hello_request_id,
             session_id: hello_session_id,
+            source_edge_id,
             source_sequence,
         } = &self.state
         else {
@@ -148,8 +157,9 @@ impl ControlSession {
             .edge_hello_context()
             .map_err(|_| SessionReject::ControlRejected)?;
         let thumbprint: [u8; 32] = Sha256::digest(client_session_public_key).into();
-        if hello.source_edge_id != self.authenticated_peer.as_str()
+        if hello.source_edge_id != *source_edge_id
             || hello.destination_edge_id != *destination_edge_id
+            || !self.authenticated_peer_matches(&hello.source_edge_id, &hello.destination_edge_id)
             || hello.client_nonce != *client_nonce
             || hello.edge_nonce != self.admission.expected_edge_nonce()
             || hello.client_session_key_thumbprint != thumbprint
@@ -163,7 +173,7 @@ impl ControlSession {
             edge_nonce: hello.edge_nonce,
             pending: None,
             session_id,
-            source_edge_id: self.authenticated_peer.as_str().to_owned(),
+            source_edge_id: source_edge_id.clone(),
             source_sequence: *source_sequence,
         };
         Ok(())
@@ -408,6 +418,10 @@ impl ControlSession {
         })
     }
 
+    pub(crate) fn matches_connection(&self, capability: &ConnectionBindingCapability) -> bool {
+        self.connection_capability.matches(capability)
+    }
+
     pub(crate) fn install_channel_binding(
         &mut self,
         channel_id: [u8; 16],
@@ -425,6 +439,13 @@ impl ControlSession {
             Err(SessionReject::ChannelBindingRequired)
         } else {
             Err(SessionReject::UnexpectedMessage)
+        }
+    }
+
+    fn authenticated_peer_matches(&self, source_edge_id: &str, destination_edge_id: &str) -> bool {
+        match self.local_role {
+            EdgeRole::Source => self.authenticated_peer.as_str() == destination_edge_id,
+            EdgeRole::Destination => self.authenticated_peer.as_str() == source_edge_id,
         }
     }
 }
