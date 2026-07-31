@@ -8,8 +8,10 @@ use tokio::time::timeout;
 use x509_parser::extensions::GeneralName;
 use x509_parser::prelude::{FromDer, X509Certificate};
 
+use crate::channel_binding::{EXPORTER_LABEL, EXPORTER_LENGTH, service_channel_context_hash};
 use crate::{
-    ALPN, ClientEndpointConfig, ControlSession, EdgeIdentity, PeerPolicy, ServerEndpointConfig,
+    ALPN, ChannelBinding, ClientEndpointConfig, ControlSession, EdgeIdentity, EdgeRole, PeerPolicy,
+    ServerEndpointConfig, ServiceChannelContext, ServiceChannelExporterError, SessionReject,
     TransportError,
 };
 
@@ -224,6 +226,8 @@ pub struct AuthenticatedConnection {
     endpoint: Endpoint,
     connection: Connection,
     authenticated_peer: EdgeIdentity,
+    authenticated_peer_role: EdgeRole,
+    local_role: EdgeRole,
     negotiated_alpn: Vec<u8>,
     close_timeout: std::time::Duration,
 }
@@ -235,6 +239,42 @@ impl AuthenticatedConnection {
 
     pub fn negotiated_alpn(&self) -> &[u8] {
         &self.negotiated_alpn
+    }
+
+    pub fn export_channel_binding(
+        &self,
+        context: &ServiceChannelContext<'_>,
+    ) -> Result<ChannelBinding, ServiceChannelExporterError> {
+        let context_hash = service_channel_context_hash(context)?;
+        let mut output = [0_u8; EXPORTER_LENGTH];
+        self.connection
+            .export_keying_material(&mut output, EXPORTER_LABEL, &context_hash)
+            .map_err(|_| ServiceChannelExporterError::LiveExportFailed)?;
+        Ok(ChannelBinding::from_exporter(context.channel_id, output))
+    }
+
+    pub fn bind_channel(
+        &self,
+        session: &mut ControlSession,
+        channel_id: [u8; 16],
+    ) -> Result<(), SessionReject> {
+        let request = session.channel_binding_request(channel_id)?;
+        let matches_session = match (self.local_role, self.authenticated_peer_role) {
+            (EdgeRole::Source, EdgeRole::Destination) => {
+                self.authenticated_peer.as_str() == request.destination_edge_id
+            }
+            (EdgeRole::Destination, EdgeRole::Source) => {
+                self.authenticated_peer.as_str() == request.source_edge_id
+            }
+            _ => false,
+        };
+        if !matches_session {
+            return Err(SessionReject::ConnectionMismatch);
+        }
+        let binding = self
+            .export_channel_binding(&request.context())
+            .map_err(|_| SessionReject::ChannelBindingFailed)?;
+        session.install_channel_binding(channel_id, binding)
     }
 
     pub async fn close(self) -> Result<(), TransportError> {
@@ -354,6 +394,8 @@ fn authenticate_connection(
         endpoint,
         connection,
         authenticated_peer: policy.expected_peer().clone(),
+        authenticated_peer_role: policy.expected_peer_role(),
+        local_role: policy.local_role(),
         negotiated_alpn,
         close_timeout: policy.handshake_timeout(),
     })

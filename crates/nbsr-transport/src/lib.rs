@@ -19,6 +19,19 @@
 //! ```compile_fail
 //! let _ = nbsr_transport::AuthenticatedConnection::accept_application_stream;
 //! ```
+//!
+//! Live channel bindings expose neither a constructor nor their bytes.
+//!
+//! ```compile_fail
+//! use nbsr_transport::ChannelBinding;
+//! let _ = ChannelBinding([0_u8; 32]);
+//! ```
+//!
+//! ```compile_fail
+//! fn expose(binding: &nbsr_transport::ChannelBinding) {
+//!     let _ = binding.as_bytes();
+//! }
+//! ```
 
 #![forbid(unsafe_code)]
 
@@ -38,7 +51,7 @@ pub use admission::{
     RouteGrantClaims, RouteOpenRequest,
 };
 pub use channel_binding::{
-    ServiceChannelBinding, ServiceChannelContext, ServiceChannelExporterError,
+    ChannelBinding, ServiceChannelBinding, ServiceChannelContext, ServiceChannelExporterError,
     canonical_service_channel_context, derive_service_channel_exporter_fixture,
 };
 pub use channel_registry::ChannelLimits;

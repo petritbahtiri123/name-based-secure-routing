@@ -1,15 +1,16 @@
-//! Pure Service Channel context and fixture-secret exporter conformance logic.
+//! Service Channel context, opaque live binding state, and fixture conformance.
 //!
-//! This module does not access a live TLS connection or exporter secret. The
-//! caller must supply an explicit fixture secret to the conformance function.
+//! This module does not access a live TLS connection. Live derivation stays in
+//! the Quinn adapter; the conformance function requires an explicit fixture
+//! secret and cannot activate a channel.
 
 use core::fmt;
 
 use sha2::{Digest, Sha256};
 
 const CONTEXT_PROFILE: &str = "NBSR-SERVICE-CHANNEL-CONTEXT-v2";
-const EXPORTER_LABEL: &[u8] = b"EXPORTER-NBSR-Service-Channel-v2";
-const EXPORTER_LENGTH: usize = 32;
+pub(crate) const EXPORTER_LABEL: &[u8] = b"EXPORTER-NBSR-Service-Channel-v2";
+pub(crate) const EXPORTER_LENGTH: usize = 32;
 const SHA256_BLOCK_LENGTH: usize = 64;
 const SHA256_OUTPUT_LENGTH: usize = 32;
 
@@ -32,6 +33,40 @@ pub struct ServiceChannelContext<'a> {
     pub edge_nonce: [u8; 32],
 }
 
+pub(crate) struct ChannelBindingRequest {
+    pub(crate) session_id: [u8; 16],
+    pub(crate) source_edge_id: String,
+    pub(crate) destination_edge_id: String,
+    pub(crate) channel_id: [u8; 16],
+    pub(crate) route_id: [u8; 16],
+    pub(crate) route_grant_digest: [u8; 32],
+    pub(crate) service_id: String,
+    pub(crate) transport: String,
+    pub(crate) port: u16,
+    pub(crate) policy_hash: [u8; 32],
+    pub(crate) client_nonce: [u8; 32],
+    pub(crate) edge_nonce: [u8; 32],
+}
+
+impl ChannelBindingRequest {
+    pub(crate) fn context(&self) -> ServiceChannelContext<'_> {
+        ServiceChannelContext {
+            session_id: self.session_id,
+            source_edge_id: &self.source_edge_id,
+            destination_edge_id: &self.destination_edge_id,
+            channel_id: self.channel_id,
+            route_id: self.route_id,
+            route_grant_digest: self.route_grant_digest,
+            service_id: &self.service_id,
+            transport: &self.transport,
+            port: self.port,
+            policy_hash: self.policy_hash,
+            client_nonce: self.client_nonce,
+            edge_nonce: self.edge_nonce,
+        }
+    }
+}
+
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum ServiceChannelExporterError {
     InvalidSourceEdgeId,
@@ -42,6 +77,40 @@ pub enum ServiceChannelExporterError {
     HkdfOutputLength,
     TlsLabelLength,
     TlsContextLength,
+    LiveExportFailed,
+}
+
+/// Opaque binding derived from one live authenticated TLS connection.
+///
+/// The value can be compared by callers but cannot be constructed, mutated, or
+/// read as bytes through the public API.
+pub struct ChannelBinding {
+    channel_id: [u8; 16],
+    value: [u8; EXPORTER_LENGTH],
+}
+
+impl ChannelBinding {
+    pub(crate) fn from_exporter(channel_id: [u8; 16], value: [u8; EXPORTER_LENGTH]) -> Self {
+        Self { channel_id, value }
+    }
+
+    pub(crate) fn is_for_channel(&self, channel_id: &[u8; 16]) -> bool {
+        &self.channel_id == channel_id
+    }
+}
+
+impl PartialEq for ChannelBinding {
+    fn eq(&self, other: &Self) -> bool {
+        self.value == other.value
+    }
+}
+
+impl Eq for ChannelBinding {}
+
+impl fmt::Debug for ChannelBinding {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        formatter.write_str("ChannelBinding([REDACTED])")
+    }
 }
 
 /// A derived Service Channel binding whose debug representation is redacted.
@@ -141,6 +210,12 @@ pub fn canonical_service_channel_context(
     encode_bytes(&mut wire, &context.client_nonce);
     encode_bytes(&mut wire, &context.edge_nonce);
     Ok(wire)
+}
+
+pub(crate) fn service_channel_context_hash(
+    context: &ServiceChannelContext<'_>,
+) -> Result<[u8; SHA256_OUTPUT_LENGTH], ServiceChannelExporterError> {
+    Ok(Sha256::digest(canonical_service_channel_context(context)?).into())
 }
 
 fn hmac_sha256(key: &[u8], input: &[u8]) -> [u8; SHA256_OUTPUT_LENGTH] {

@@ -142,17 +142,66 @@ async fn quinn_streams_four_eight_and_twelve_echo_on_two_bound_channels() {
     let channel_b = session
         .accept_route_open(&route_b)
         .expect("service B route open");
+    assert_eq!(
+        destination.bind_channel(&mut session, channel_b.channel_id),
+        Err(SessionReject::UnexpectedMessage)
+    );
     session
         .confirm_route_accept(&accept_b)
         .expect("service B route accept");
     assert_eq!(session.active_channels(), 2);
 
     let max_stream_id = 4_611_686_018_427_387_900;
+    let max_stream_open = stream_open(&channel_a, max_stream_id, [0xfc; 16]);
+    assert_eq!(
+        session.authorize_stream_open(channel_a.channel_id, &max_stream_open),
+        Err(SessionReject::ChannelBindingRequired)
+    );
+    let (wrong_listener, wrong_source, wrong_destination) =
+        connection_pair_for("wrong-source.edge", "wrong-destination.edge").await;
+    assert_eq!(
+        wrong_destination.bind_channel(&mut session, channel_a.channel_id),
+        Err(SessionReject::ConnectionMismatch)
+    );
+    wrong_source.close().await.expect("wrong source close");
+    wrong_destination
+        .close()
+        .await
+        .expect("wrong destination close");
+    wrong_listener.close().await.expect("wrong listener close");
+    source
+        .bind_channel(&mut session, channel_a.channel_id)
+        .expect("source peer derives channel A binding");
+    destination
+        .bind_channel(&mut session, channel_a.channel_id)
+        .expect("destination peer derives the same channel A binding");
+    destination
+        .bind_channel(&mut session, channel_b.channel_id)
+        .expect("destination peer derives independent channel B binding");
+    let (replacement_listener, replacement_source, replacement_destination) =
+        connection_pair().await;
+    assert_eq!(
+        replacement_destination.bind_channel(&mut session, channel_a.channel_id),
+        Err(SessionReject::ChannelBindingFailed)
+    );
+    replacement_source
+        .close()
+        .await
+        .expect("replacement source close");
+    replacement_destination
+        .close()
+        .await
+        .expect("replacement destination close");
+    replacement_listener
+        .close()
+        .await
+        .expect("replacement listener close");
+    assert_eq!(
+        destination.bind_channel(&mut session, [0xee; 16]),
+        Err(SessionReject::UnexpectedMessage)
+    );
     session
-        .authorize_stream_open(
-            channel_a.channel_id,
-            &stream_open(&channel_a, max_stream_id, [0xfc; 16]),
-        )
+        .authorize_stream_open(channel_a.channel_id, &max_stream_open)
         .expect("maximum source bidirectional stream ID");
     session
         .confirm_stream_accept(
@@ -296,11 +345,22 @@ async fn connection_pair() -> (
     nbsr_transport::AuthenticatedConnection,
     nbsr_transport::AuthenticatedConnection,
 ) {
-    let pki = support::TestPki::generate_for("source.edge", "destination.edge");
+    connection_pair_for("source.edge", "destination.edge").await
+}
+
+async fn connection_pair_for(
+    source_edge_id: &str,
+    destination_edge_id: &str,
+) -> (
+    TransportListener,
+    nbsr_transport::AuthenticatedConnection,
+    nbsr_transport::AuthenticatedConnection,
+) {
+    let pki = support::TestPki::generate_for(source_edge_id, destination_edge_id);
     let destination_policy = PeerPolicy::new(
         EdgeRole::Destination,
         EdgeRole::Source,
-        identity("source.edge"),
+        identity(source_edge_id),
         Duration::from_secs(2),
         Duration::from_secs(5),
     )
@@ -308,7 +368,7 @@ async fn connection_pair() -> (
     let source_policy = PeerPolicy::new(
         EdgeRole::Source,
         EdgeRole::Destination,
-        identity("destination.edge"),
+        identity(destination_edge_id),
         Duration::from_secs(2),
         Duration::from_secs(5),
     )

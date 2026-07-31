@@ -587,6 +587,10 @@ async fn one_hello_session_repeats_isolated_signed_route_exchanges() {
         session.accept_route_open(&policy_substitution.open),
         Err(SessionReject::Admission(AdmissionReject::GrantInvalid))
     );
+    assert_eq!(
+        destination.bind_channel(&mut session, policy_substitution.channel_id),
+        Err(SessionReject::UnexpectedMessage)
+    );
     assert_eq!(session.active_channels(), 3);
     for channel_id in [
         service_a.channel_id,

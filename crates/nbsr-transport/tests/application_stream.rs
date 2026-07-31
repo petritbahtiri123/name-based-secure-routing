@@ -196,6 +196,10 @@ async fn accepted_stream_id_four_echoes_only_the_bounded_in_memory_payload() {
     session
         .confirm_route_accept(&received_route_accept)
         .expect("confirm admitted ROUTE_ACCEPT");
+    let channel_id = channel().channel_id;
+    destination
+        .bind_channel(&mut session, channel_id)
+        .expect("derive live channel binding");
 
     let stream_open = decode_control_envelope(
         &vector("artifacts/valid/envelopes/stream-open.cbor"),
@@ -215,7 +219,6 @@ async fn accepted_stream_id_four_echoes_only_the_bounded_in_memory_payload() {
         .receive_envelope(CoreV02Limits::default())
         .await
         .expect("receive STREAM_OPEN");
-    let channel_id = channel().channel_id;
     session
         .authorize_stream_open(channel_id, &received_open)
         .expect("authorize received STREAM_OPEN");
@@ -353,6 +356,9 @@ async fn payload_over_four_kib_is_reset_without_echo() {
         )
         .expect("confirm ROUTE_ACCEPT");
     let channel_id = channel().channel_id;
+    destination
+        .bind_channel(&mut session, channel_id)
+        .expect("derive live channel binding");
     let mut source_control = source.open_control_stream().await.expect("source control");
     let stream_open = decode_control_envelope(
         &vector("artifacts/valid/envelopes/stream-open.cbor"),

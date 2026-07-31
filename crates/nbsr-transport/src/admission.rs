@@ -8,8 +8,8 @@ use std::collections::BTreeMap;
 use ed25519_dalek::{Signature, VerifyingKey};
 use sha2::{Digest, Sha256};
 
-use crate::channel_registry::ChannelRegistry;
-use crate::{ChannelLimits, CoreV02Envelope, CoreV02Reject, RouteGrantIssuer};
+use crate::channel_registry::{ChannelBindingInstallError, ChannelRegistry};
+use crate::{ChannelBinding, ChannelLimits, CoreV02Envelope, CoreV02Reject, RouteGrantIssuer};
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct AuthorizedServicePolicy {
@@ -102,6 +102,25 @@ impl DestinationAdmission {
 
     pub(crate) fn channel(&self, channel_id: &[u8; 16]) -> Option<&ActiveChannel> {
         self.channels.channel(channel_id)
+    }
+
+    pub(crate) fn bound_channel(&self, channel_id: &[u8; 16]) -> Option<&ActiveChannel> {
+        self.channels.bound_channel(channel_id)
+    }
+
+    pub(crate) fn install_binding(
+        &mut self,
+        channel_id: &[u8; 16],
+        binding: ChannelBinding,
+    ) -> Result<(), ChannelBindingInstallError> {
+        self.channels.install_binding(channel_id, binding)
+    }
+
+    pub(crate) fn policy_hash(&self, service_id: &str) -> Option<[u8; 32]> {
+        self.policy
+            .authorized_services
+            .get(service_id)
+            .map(|policy| policy.policy_hash)
     }
 
     pub(crate) fn matches_client_hello(

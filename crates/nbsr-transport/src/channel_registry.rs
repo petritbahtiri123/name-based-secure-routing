@@ -2,7 +2,7 @@
 
 use std::collections::{HashMap, HashSet};
 
-use crate::{ActiveChannel, AdmissionReject};
+use crate::{ActiveChannel, AdmissionReject, ChannelBinding};
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct ChannelLimits {
@@ -26,9 +26,20 @@ struct PendingChannel {
 pub(crate) struct ChannelRegistry {
     limits: ChannelLimits,
     pending: HashMap<[u8; 16], PendingChannel>,
-    active: HashMap<[u8; 16], ActiveChannel>,
+    active: HashMap<[u8; 16], ActiveChannelEntry>,
     used_channel_ids: HashSet<[u8; 16]>,
     used_grant_nonces: HashSet<[u8; 16]>,
+}
+
+struct ActiveChannelEntry {
+    channel: ActiveChannel,
+    binding: Option<ChannelBinding>,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(crate) enum ChannelBindingInstallError {
+    UnknownChannel,
+    Mismatch,
 }
 
 impl ChannelRegistry {
@@ -72,21 +83,59 @@ impl ChannelRegistry {
             .pending
             .remove(channel_id)
             .ok_or(AdmissionReject::RouteDenied)?;
-        self.active.insert(*channel_id, pending.channel);
+        self.active.insert(
+            *channel_id,
+            ActiveChannelEntry {
+                channel: pending.channel,
+                binding: None,
+            },
+        );
         Ok(())
     }
 
     pub(crate) fn channel(&self, channel_id: &[u8; 16]) -> Option<&ActiveChannel> {
-        self.active.get(channel_id)
+        self.active.get(channel_id).map(|entry| &entry.channel)
+    }
+
+    pub(crate) fn bound_channel(&self, channel_id: &[u8; 16]) -> Option<&ActiveChannel> {
+        self.active
+            .get(channel_id)
+            .filter(|entry| entry.binding.is_some())
+            .map(|entry| &entry.channel)
+    }
+
+    pub(crate) fn install_binding(
+        &mut self,
+        channel_id: &[u8; 16],
+        binding: ChannelBinding,
+    ) -> Result<(), ChannelBindingInstallError> {
+        let entry = self
+            .active
+            .get_mut(channel_id)
+            .ok_or(ChannelBindingInstallError::UnknownChannel)?;
+        if !binding.is_for_channel(channel_id) {
+            return Err(ChannelBindingInstallError::Mismatch);
+        }
+        match entry.binding.as_ref() {
+            Some(existing) if existing == &binding => Ok(()),
+            Some(_) => Err(ChannelBindingInstallError::Mismatch),
+            None => {
+                entry.binding = Some(binding);
+                Ok(())
+            }
+        }
     }
 
     #[allow(dead_code)] // Reserved for the later bounded channel-lifecycle task.
     pub(crate) fn remove(&mut self, channel_id: &[u8; 16]) -> Option<ActiveChannel> {
-        self.active.remove(channel_id).or_else(|| {
-            self.pending
-                .remove(channel_id)
-                .map(|pending| pending.channel)
-        })
+        self.active
+            .remove(channel_id)
+            .map(|entry| entry.channel)
+            .or_else(|| {
+                self.pending
+                    .remove(channel_id)
+                    .map(|pending| pending.channel)
+            })
     }
 
     pub(crate) fn active_len(&self) -> usize {
@@ -96,7 +145,7 @@ impl ChannelRegistry {
     pub(crate) fn active_for_service(&self, service_id: &str) -> usize {
         self.active
             .values()
-            .filter(|channel| channel.service_id == service_id)
+            .filter(|entry| entry.channel.service_id == service_id)
             .count()
     }
 
@@ -181,5 +230,25 @@ mod tests {
             registry.admit_pending(channel(2, "service-b"), [0xa1; 16]),
             Err(AdmissionReject::Replay)
         );
+    }
+
+    #[test]
+    fn a_binding_derived_for_one_channel_cannot_bind_a_sibling() {
+        let mut registry = ChannelRegistry::new(ChannelLimits::default());
+        for id in 1..=2 {
+            registry
+                .admit_pending(channel(id, &format!("service-{id}")), [id; 16])
+                .expect("fresh sibling channel");
+            registry
+                .confirm_active(&[id; 16])
+                .expect("activate sibling channel");
+        }
+
+        let first_binding = ChannelBinding::from_exporter([1; 16], [0xa5; 32]);
+        assert_eq!(
+            registry.install_binding(&[2; 16], first_binding),
+            Err(ChannelBindingInstallError::Mismatch)
+        );
+        assert!(registry.bound_channel(&[2; 16]).is_none());
     }
 }

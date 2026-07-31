@@ -4,15 +4,19 @@ use std::collections::HashSet;
 
 use sha2::{Digest, Sha256};
 
+use crate::channel_binding::ChannelBindingRequest;
 use crate::channel_streams::ChannelStreams;
 use crate::{
-    ActiveChannel, AdmissionReject, AuthenticatedConnection, CoreV02Envelope, CoreV02MessageType,
-    DestinationAdmission, EdgeIdentity, RouteGrantIssuer, StreamReject,
+    ActiveChannel, AdmissionReject, AuthenticatedConnection, ChannelBinding, CoreV02Envelope,
+    CoreV02MessageType, DestinationAdmission, EdgeIdentity, RouteGrantIssuer, StreamReject,
 };
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum SessionReject {
     Admission(AdmissionReject),
+    ChannelBindingFailed,
+    ChannelBindingRequired,
+    ConnectionMismatch,
     ControlRejected,
     Replay,
     Stream(StreamReject),
@@ -39,9 +43,13 @@ enum SessionState {
         source_sequence: u64,
     },
     Established {
+        client_nonce: [u8; 32],
         destination_sequence: u64,
+        destination_edge_id: String,
+        edge_nonce: [u8; 32],
         pending: Option<PendingRoute>,
         session_id: [u8; 16],
+        source_edge_id: String,
         source_sequence: u64,
     },
 }
@@ -149,9 +157,13 @@ impl ControlSession {
             return Err(SessionReject::ControlRejected);
         }
         self.state = SessionState::Established {
+            client_nonce: *client_nonce,
             destination_sequence: sequence,
+            destination_edge_id: destination_edge_id.clone(),
+            edge_nonce: hello.edge_nonce,
             pending: None,
             session_id,
+            source_edge_id: self.authenticated_peer.as_str().to_owned(),
             source_sequence: *source_sequence,
         };
         Ok(())
@@ -170,6 +182,7 @@ impl ControlSession {
             pending,
             session_id: expected_session_id,
             source_sequence,
+            ..
         } = &self.state
         else {
             return Err(SessionReject::UnexpectedMessage);
@@ -266,9 +279,15 @@ impl ControlSession {
         }
         let channel = self
             .admission
-            .channel(&channel_id)
+            .bound_channel(&channel_id)
             .cloned()
-            .ok_or(SessionReject::UnexpectedMessage)?;
+            .ok_or_else(|| {
+                if self.admission.channel(&channel_id).is_some() {
+                    SessionReject::ChannelBindingRequired
+                } else {
+                    SessionReject::UnexpectedMessage
+                }
+            })?;
         self.streams
             .authorize_open(&channel, envelope)
             .map_err(SessionReject::Stream)?;
@@ -285,8 +304,12 @@ impl ControlSession {
         if session_id != self.established_session_id()? {
             return Err(SessionReject::Replay);
         }
-        if self.admission.channel(&channel_id).is_none() {
-            return Err(SessionReject::UnexpectedMessage);
+        if self.admission.bound_channel(&channel_id).is_none() {
+            return Err(if self.admission.channel(&channel_id).is_some() {
+                SessionReject::ChannelBindingRequired
+            } else {
+                SessionReject::UnexpectedMessage
+            });
         }
         self.streams
             .confirm_accept(&channel_id, envelope)
@@ -299,6 +322,7 @@ impl ControlSession {
         stream_id: u64,
         bytes: usize,
     ) -> Result<(), SessionReject> {
+        self.require_bound_channel(&channel_id)?;
         self.streams
             .reserve_bytes(&channel_id, stream_id, bytes)
             .map_err(SessionReject::Stream)
@@ -310,6 +334,7 @@ impl ControlSession {
         stream_id: u64,
         bytes: usize,
     ) -> Result<(), SessionReject> {
+        self.require_bound_channel(&channel_id)?;
         self.streams
             .release_bytes(&channel_id, stream_id, bytes)
             .map_err(SessionReject::Stream)
@@ -320,6 +345,7 @@ impl ControlSession {
         channel_id: [u8; 16],
         stream_id: u64,
     ) -> Result<(), SessionReject> {
+        self.require_bound_channel(&channel_id)?;
         self.streams
             .release_stream(&channel_id, stream_id)
             .map_err(SessionReject::Stream)
@@ -330,6 +356,7 @@ impl ControlSession {
         channel_id: [u8; 16],
         actual_stream_id: u64,
     ) -> Result<(), SessionReject> {
+        self.require_bound_channel(&channel_id)?;
         self.streams
             .authorize_application_stream(&channel_id, actual_stream_id)
             .map_err(SessionReject::Stream)
@@ -340,6 +367,65 @@ impl ControlSession {
             return Err(SessionReject::UnexpectedMessage);
         };
         Ok(*session_id)
+    }
+
+    pub(crate) fn channel_binding_request(
+        &self,
+        channel_id: [u8; 16],
+    ) -> Result<ChannelBindingRequest, SessionReject> {
+        let SessionState::Established {
+            client_nonce,
+            destination_edge_id,
+            edge_nonce,
+            session_id,
+            source_edge_id,
+            ..
+        } = &self.state
+        else {
+            return Err(SessionReject::UnexpectedMessage);
+        };
+        let channel = self
+            .admission
+            .channel(&channel_id)
+            .ok_or(SessionReject::UnexpectedMessage)?;
+        let policy_hash = self
+            .admission
+            .policy_hash(&channel.service_id)
+            .ok_or(SessionReject::ChannelBindingFailed)?;
+        Ok(ChannelBindingRequest {
+            session_id: *session_id,
+            source_edge_id: source_edge_id.clone(),
+            destination_edge_id: destination_edge_id.clone(),
+            channel_id: channel.channel_id,
+            route_id: channel.route_id,
+            route_grant_digest: channel.route_grant_digest,
+            service_id: channel.service_id.clone(),
+            transport: channel.transport.clone(),
+            port: channel.port,
+            policy_hash,
+            client_nonce: *client_nonce,
+            edge_nonce: *edge_nonce,
+        })
+    }
+
+    pub(crate) fn install_channel_binding(
+        &mut self,
+        channel_id: [u8; 16],
+        binding: ChannelBinding,
+    ) -> Result<(), SessionReject> {
+        self.admission
+            .install_binding(&channel_id, binding)
+            .map_err(|_| SessionReject::ChannelBindingFailed)
+    }
+
+    fn require_bound_channel(&self, channel_id: &[u8; 16]) -> Result<(), SessionReject> {
+        if self.admission.bound_channel(channel_id).is_some() {
+            Ok(())
+        } else if self.admission.channel(channel_id).is_some() {
+            Err(SessionReject::ChannelBindingRequired)
+        } else {
+            Err(SessionReject::UnexpectedMessage)
+        }
     }
 }
 
