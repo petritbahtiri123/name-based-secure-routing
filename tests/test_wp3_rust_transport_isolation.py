@@ -96,7 +96,7 @@ def test_docs_record_observed_spike_without_authorizing_wp3_runtime() -> None:
         "superseded",
         "handshake boundary",
         "no stream api",
-        "wp3 runtime remains separately gated",
+        "origin-free lab implementation complete",
         "17 message codes remain unchanged",
         "19 error codes remain unchanged",
     ):
@@ -120,6 +120,6 @@ def test_status_records_current_wp2_and_wp3_evidence_without_runtime_claims() ->
         "core v0.1 wire contract",
         "wp1 tasks 1-8",
         "cose sign1 | implemented",
-        "wp3 runtime remains gated",
+        "wp3 is complete at its documented origin-free",
     ):
         assert required in text

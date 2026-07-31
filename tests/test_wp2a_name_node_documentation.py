@@ -56,7 +56,7 @@ def test_status_marks_only_wp2a_lab_scope_implemented() -> None:
     assert "| Signed NBSR-native OriginSet publication | Planned |" in status
     assert "| Multi-zone HA and shared security state | Planned |" in status
     assert "| Signed ownership, delegation, transparency, and global federation | Planned |" in status
-    assert "WP3 runtime remains gated" in status
+    assert "WP3 is complete at its documented origin-free" in status
     assert "- production readiness;" in status
 
 
@@ -64,5 +64,5 @@ def test_roadmap_records_wp2a_completion_without_advancing_wp3() -> None:
     roadmap = ROADMAP.read_text(encoding="utf-8")
 
     assert "**WP2A status:** Implemented at bounded loopback lab scope." in roadmap
-    assert "WP3 remains gated and unimplemented" in roadmap
+    assert "WP3 is complete at its documented origin-free" in roadmap
     assert "No Core v0.1 registry, schema, state, transition, extension, or COSE wrapper changed." in roadmap

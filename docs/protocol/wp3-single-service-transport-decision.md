@@ -1,19 +1,21 @@
 # WP3 single-service transport decision proposal
 
-**Status: Approved on 2026-07-29; runtime remains gated**
+**Status: Approved on 2026-07-29; origin-free lab implementation complete on 2026-07-31**
 
 **Date:** 2026-07-29
 
-**Runtime authorization: None.** This proposal does not authorize WP3
-implementation, dependency installation, wire allocation, or integration with
-the current relay.
+**Further runtime authorization: None.** The approved origin-free Rust lab
+slice is complete. This record does not authorize OriginSet selection, an
+Origin Endpoint connection, relay integration, new wire allocation,
+multi-service reuse, or production deployment.
 
 **Verified implementation update (2026-07-31):** the approved Rust-only slice
-now decodes RouteOpen, validates the caller-trusted signed RouteGrant and
-RouteOpen proof, and admits one service/transport/port-bound logical channel.
-The slice now includes a real loopback QUIC application stream with a bounded
-4 KiB in-memory echo and pre-accept reset. This evidence does not supersede the
-runtime-authorization boundary below: it adds no Origin Endpoint connection or
+binds the authenticated Quinn peer through HELLO/ROUTE control sequencing,
+decodes RouteOpen, validates the caller-trusted signed RouteGrant and RouteOpen
+proof, and admits one service/transport/port-bound logical channel. A matching
+ROUTE_ACCEPT is mandatory before that admitted channel creates the StreamGate
+for actual Quinn stream ID 4. The real loopback stream has a bounded 4 KiB
+in-memory echo and pre-accept reset. It adds no Origin Endpoint connection or
 forwarding, OriginSet selection, NameRelay integration, multi-service reuse,
 or production claim.
 

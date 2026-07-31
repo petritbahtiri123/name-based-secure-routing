@@ -116,7 +116,8 @@ def test_status_documents_record_cross_language_agreement_without_runtime_claim(
     assert "does not authorize wp3" in decisions
 
     assert "second-language conformance gate is complete" in roadmap
-    assert "wp3 runtime remains separately gated" in roadmap
+    assert "wp3 is complete at its documented origin-free" in roadmap
+    assert "production runtime remain unimplemented and separately gated" in roadmap
 
 
 def test_generated_vector_readme_preserves_node_verifier_status() -> None:

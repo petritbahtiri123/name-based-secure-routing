@@ -66,6 +66,6 @@ def test_status_records_wp2a_as_implemented_without_advancing_wp3() -> None:
         "wp2a name node core | implemented",
         "signed registry, bounded resolution state, synthetic-only core",
         "real recursive dns, production dnssec, and web pki validation | planned",
-        "wp3 runtime remains gated",
+        "wp3 is complete at its documented origin-free",
     ):
         assert required in text

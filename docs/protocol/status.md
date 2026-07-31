@@ -75,10 +75,10 @@ readiness, global federation, or independent interoperability.
 | Core v0.1 bounded property coverage | Implemented | WP1 Task 7 runs 300 deterministic Hypothesis examples per property across model round trips, arbitrary bytes, signed-object mutations, malformed lengths, and critical-extension rejection |
 | [Core v0.1 wire contract](core-v0.1-wire.md) | Implemented | WP1 Task 8 publishes the reviewed cross-language contract and stable `nbsr.protocol` API; this is a protocol data boundary, not runtime integration or independent interoperability evidence |
 | `nbsr-quic-1` inter-edge tunnel | Partial | The isolated Quinn 0.11.11/rustls 0.23.43 loopback boundary proves TLS 1.3 mTLS, exact ALPN, bounded Core v0.2 control framing, and no Core v1 fallback; it is not a production tunnel or origin connector |
-| Independent source and destination admission | Partial | Destination-side bounded admission now checks a supplied RouteGrant claim set, policy/record binding, expiry, replay identifiers, and capacity before creating one channel; source admission and live signed-claim integration remain incomplete |
+| Independent source and destination admission | Partial | At the WP3 origin-free lab boundary, the authenticated Quinn peer SAN is bound through CLIENT_HELLO/EDGE_HELLO to the policy identities before caller-trusted signed RouteGrant admission. Production trust operation and origin-segment admission remain unimplemented. |
 | Outbound origin connector | Planned | Protected prototype origins exist, but the V3 connector state machine does not |
 | Opaque HTTP/HTTPS forwarding | Implemented | ISP vertical slice relays TCP bytes and preserves end-to-end application TLS |
-| Explicit Transport Session and single Service Channel binding | Partial | WP3 adds a Rust-only single-channel admission and a one-stream gate. It is loopback evidence only: it has no OriginSet selection, origin connection, relay integration, multi-service reuse, or production claim. |
+| Explicit Transport Session and single Service Channel binding | Implemented | WP3 completes the Rust-only origin-free lab slice: authenticated HELLO/ROUTE sequencing, signed admission, correlated ROUTE_ACCEPT, one admitted channel, and one actual Quinn stream. It has no OriginSet selection, origin connection, relay integration, multi-service reuse, or production claim. |
 | Reusable multi-service Transport Session with isolated Service Channels | Planned | WP4; wire representation and key schedule require approval |
 | Internal Derived OriginSet | Implemented | Immutable, wire-neutral model with bounded endpoints, generation/sequence rollback protection, same-sequence equivocation rejection, and deterministic tests |
 | Legacy DNS-backed internal OriginSet | Implemented | Isolated bounded legacy DNS adapter builds Derived OriginSet values, preserves stable synthetic mapping inputs, separates DNS TTL from authorization, and supports the approved last-known-good policy; NameRelay integration remains gated |
@@ -122,18 +122,21 @@ package, the isolated Rust QUIC/TLS handshake spike, and
 [WP2A](wp2a-name-node-core.md) are complete at their documented prototype
 scope.
 
-WP3 runtime remains gated from any origin, relay, multi-service, or production
-implementation. The verified 2026-07-31 Rust slice has 32 passing tests. A
-decoded RouteOpen and caller-trusted signed RouteGrant now feed bounded
-Destination admission after the existing session-key thumbprint, edge nonce,
+WP3 is complete at its documented origin-free single-service loopback lab
+scope. The freshly verified 2026-07-31 Rust slice has 32 passing tests. The
+authenticated Quinn peer SAN is bound to CLIENT_HELLO and EDGE_HELLO; decoded
+RouteOpen plus a caller-trusted signed RouteGrant feed bounded Destination
+admission after session/request sequence, session-key thumbprint, edge nonce,
 RouteOpen proof, service, transport, port, policy, expiry, replay, and capacity
-checks. It admits one Service Channel and one TCP Application Stream through a
-real loopback QUIC application-stream lifecycle. Payload before STREAM_ACCEPT
-is reset without delivery; an accepted payload is echoed only in memory up to
-the 4 KiB bound, and an oversized payload is reset without echo. The Origin
-Endpoint remains internal and is not connected. Core v0.2 failure
-never retries as Core v0.1. Multi-service Transport Session reuse remains WP4.
-NameRelay remains unchanged. This is no production readiness claim.
+checks. A correlated ROUTE_ACCEPT is required before the admitted channel can
+create its StreamGate. That exact channel admits one Service Channel and one
+TCP Application Stream through the real loopback QUIC application-stream
+lifecycle. Payload before STREAM_ACCEPT is reset without delivery; an accepted
+payload is echoed only in memory up to the 4 KiB bound, and an oversized
+payload is reset without echo. The Origin Endpoint remains internal and is not
+connected. Core v0.2 failure never retries as Core v0.1. Multi-service
+Transport Session reuse remains WP4. NameRelay remains unchanged. This is no
+production readiness claim.
 
 The boundary has no OriginSet selection, no origin connection, no relay
 integration, no multi-service reuse, and no production-readiness claim.

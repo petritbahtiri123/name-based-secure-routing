@@ -105,7 +105,8 @@ def test_v36_record_and_roadmap_record_completed_vector_review() -> None:
 
     assert "exact public fixtures were approved" in decisions
     assert "second-language conformance gate is complete" in roadmap
-    assert "WP3 runtime remains separately gated" in roadmap
+    assert "WP3 is complete at its documented origin-free" in roadmap
+    assert "production runtime remain unimplemented and separately gated" in roadmap
 
 
 def test_v36_records_cross_language_vector_agreement_without_runtime_approval() -> None:
@@ -115,7 +116,8 @@ def test_v36_records_cross_language_vector_agreement_without_runtime_approval() 
     assert "cross-language core v0.2 vector agreement verified" in decisions.casefold()
     assert "dependency-free node.js 24 verifier passes" in decisions.casefold()
     assert "does not authorize wp3" in decisions.casefold()
-    assert "wp3 runtime remains separately gated" in roadmap.casefold()
+    assert "wp3 is complete at its documented origin-free" in roadmap.casefold()
+    assert "production runtime remain unimplemented and separately gated" in roadmap.casefold()
 
 
 def test_changed_document_local_links_resolve() -> None:

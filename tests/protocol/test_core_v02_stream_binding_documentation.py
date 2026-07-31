@@ -153,7 +153,8 @@ def test_decision_records_point_to_the_completed_vector_gate() -> None:
     assert "approved as a frozen candidate" in decisions
     assert "D8 approved" in decisions
     assert "second-language conformance gate is complete" in roadmap
-    assert "WP3 runtime remains separately gated" in roadmap
+    assert "WP3 is complete at its documented origin-free" in roadmap
+    assert "production runtime remain unimplemented and separately gated" in roadmap
 
 
 def test_changed_document_local_links_resolve() -> None:

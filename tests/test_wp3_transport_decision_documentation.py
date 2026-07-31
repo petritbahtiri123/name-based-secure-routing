@@ -16,9 +16,9 @@ def _normalized() -> str:
 def test_wp3_transport_decision_records_approval_and_runtime_gate() -> None:
     text = _normalized()
 
-    assert "Status: Approved on 2026-07-29; runtime remains gated" in text
-    assert "Runtime authorization: None" in text
-    assert "does not authorize WP3 implementation" in text
+    assert "Status: Approved on 2026-07-29; origin-free lab implementation complete on 2026-07-31" in text
+    assert "Further runtime authorization: None" in text
+    assert "does not authorize OriginSet selection" in text
 
 
 def test_wp3_reuses_quic_and_recommends_only_a_prototype_library() -> None:
@@ -103,4 +103,5 @@ def test_v36_record_and_roadmap_point_to_completed_vector_gate() -> None:
     assert "D8 approved" in decisions
     assert "cross-language Core v0.2 vector agreement verified" in decisions
     assert "second-language conformance gate is complete" in roadmap
-    assert "WP3 runtime remains separately gated" in roadmap
+    assert "WP3 is complete at its documented origin-free" in roadmap
+    assert "production runtime remain unimplemented and separately gated" in roadmap
