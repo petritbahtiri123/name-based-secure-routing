@@ -7,6 +7,7 @@ pub enum StreamReject {
     ChannelMismatch,
     ControlRejected,
     DuplicateStream,
+    OverCapacity,
     RouteMismatch,
     UnsupportedTransport,
 }
@@ -28,9 +29,18 @@ pub struct StreamGate {
 
 enum StreamGateState {
     AwaitingOpen,
-    AwaitingAccept(StreamOpenRequest),
+    AwaitingAccept {
+        control: StreamControlBinding,
+        request: StreamOpenRequest,
+    },
     Accepted(StreamOpenRequest),
     Opened,
+}
+
+#[derive(Clone, Copy)]
+struct StreamControlBinding {
+    request_id: [u8; 16],
+    session_id: [u8; 16],
 }
 
 impl StreamGate {
@@ -49,14 +59,29 @@ impl StreamGate {
             .stream_open_request()
             .map_err(|_| StreamReject::ControlRejected)?;
         self.validate_request(&request)?;
-        self.state = StreamGateState::AwaitingAccept(request);
+        let (request_id, session_id, _) = envelope
+            .session_binding()
+            .map_err(|_| StreamReject::ControlRejected)?;
+        self.state = StreamGateState::AwaitingAccept {
+            control: StreamControlBinding {
+                request_id,
+                session_id,
+            },
+            request,
+        };
         Ok(())
     }
 
     pub fn accept(&mut self, envelope: &CoreV02Envelope) -> Result<(), StreamReject> {
-        let StreamGateState::AwaitingAccept(request) = &self.state else {
+        let StreamGateState::AwaitingAccept { control, request } = &self.state else {
             return Err(StreamReject::ControlRejected);
         };
+        let (request_id, session_id, _) = envelope
+            .session_binding()
+            .map_err(|_| StreamReject::ControlRejected)?;
+        if request_id != control.request_id || session_id != control.session_id {
+            return Err(StreamReject::ControlRejected);
+        }
         let (stream_id, channel_id, route_id) = envelope
             .stream_accept_binding()
             .map_err(|_| StreamReject::ControlRejected)?;
@@ -84,6 +109,10 @@ impl StreamGate {
         Ok(())
     }
 
+    pub(crate) fn is_opened(&self) -> bool {
+        matches!(self.state, StreamGateState::Opened)
+    }
+
     fn validate_request(&self, request: &StreamOpenRequest) -> Result<(), StreamReject> {
         if request.transport != self.channel.transport || request.port != self.channel.port {
             return Err(StreamReject::UnsupportedTransport);
@@ -96,7 +125,10 @@ impl StreamGate {
         if request.route_id != self.channel.route_id {
             return Err(StreamReject::RouteMismatch);
         }
-        if request.quic_stream_id != 4 {
+        if request.quic_stream_id < 4
+            || !request.quic_stream_id.is_multiple_of(4)
+            || request.quic_stream_id > 4_611_686_018_427_387_903
+        {
             return Err(StreamReject::DuplicateStream);
         }
         Ok(())

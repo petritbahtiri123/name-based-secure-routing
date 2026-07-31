@@ -1,0 +1,432 @@
+//! Independently bounded application streams for active Service Channels.
+
+use std::collections::{HashMap, HashSet};
+
+use crate::{ActiveChannel, CoreV02Envelope, StreamGate, StreamReject};
+
+const MAX_STREAMS_PER_CHANNEL: usize = 64;
+const MAX_BUFFERED_PER_STREAM: usize = 1_048_576;
+const MAX_BUFFERED_PER_CHANNEL: usize = 8_388_608;
+
+pub(crate) struct ChannelStreams {
+    channels: HashMap<[u8; 16], ChannelStreamState>,
+    used_stream_ids: HashSet<u64>,
+}
+
+struct ChannelStreamState {
+    buffered: usize,
+    streams: HashMap<u64, StreamEntry>,
+}
+
+struct StreamEntry {
+    buffered: usize,
+    gate: StreamGate,
+}
+
+impl ChannelStreams {
+    pub(crate) fn new() -> Self {
+        Self {
+            channels: HashMap::new(),
+            used_stream_ids: HashSet::new(),
+        }
+    }
+
+    pub(crate) fn authorize_open(
+        &mut self,
+        channel: &ActiveChannel,
+        envelope: &CoreV02Envelope,
+    ) -> Result<(), StreamReject> {
+        let request = envelope
+            .stream_open_request()
+            .map_err(|_| StreamReject::ControlRejected)?;
+        if self.used_stream_ids.contains(&request.quic_stream_id) {
+            return Err(StreamReject::DuplicateStream);
+        }
+        let channel_state =
+            self.channels
+                .entry(channel.channel_id)
+                .or_insert_with(|| ChannelStreamState {
+                    buffered: 0,
+                    streams: HashMap::new(),
+                });
+        if channel_state.streams.len() >= MAX_STREAMS_PER_CHANNEL {
+            return Err(StreamReject::OverCapacity);
+        }
+
+        let mut gate = StreamGate::new(channel.clone());
+        gate.authorize_open(envelope)?;
+        self.used_stream_ids.insert(request.quic_stream_id);
+        channel_state
+            .streams
+            .insert(request.quic_stream_id, StreamEntry { buffered: 0, gate });
+        Ok(())
+    }
+
+    pub(crate) fn confirm_accept(
+        &mut self,
+        channel_id: &[u8; 16],
+        envelope: &CoreV02Envelope,
+    ) -> Result<(), StreamReject> {
+        let (stream_id, _, _) = envelope
+            .stream_accept_binding()
+            .map_err(|_| StreamReject::ControlRejected)?;
+        self.entry_mut(channel_id, stream_id)?.gate.accept(envelope)
+    }
+
+    pub(crate) fn authorize_application_stream(
+        &mut self,
+        channel_id: &[u8; 16],
+        actual_stream_id: u64,
+    ) -> Result<(), StreamReject> {
+        self.entry_mut(channel_id, actual_stream_id)?
+            .gate
+            .authorize_application_stream(actual_stream_id)
+    }
+
+    pub(crate) fn reserve_bytes(
+        &mut self,
+        channel_id: &[u8; 16],
+        stream_id: u64,
+        bytes: usize,
+    ) -> Result<(), StreamReject> {
+        let channel = self
+            .channels
+            .get_mut(channel_id)
+            .ok_or(StreamReject::ControlRejected)?;
+        let entry = channel
+            .streams
+            .get_mut(&stream_id)
+            .ok_or(StreamReject::ControlRejected)?;
+        if !entry.gate.is_opened() {
+            return Err(StreamReject::ControlRejected);
+        }
+        let stream_buffered = entry
+            .buffered
+            .checked_add(bytes)
+            .ok_or(StreamReject::OverCapacity)?;
+        let channel_buffered = channel
+            .buffered
+            .checked_add(bytes)
+            .ok_or(StreamReject::OverCapacity)?;
+        if stream_buffered > MAX_BUFFERED_PER_STREAM || channel_buffered > MAX_BUFFERED_PER_CHANNEL
+        {
+            return Err(StreamReject::OverCapacity);
+        }
+        entry.buffered = stream_buffered;
+        channel.buffered = channel_buffered;
+        Ok(())
+    }
+
+    pub(crate) fn release_bytes(
+        &mut self,
+        channel_id: &[u8; 16],
+        stream_id: u64,
+        bytes: usize,
+    ) -> Result<(), StreamReject> {
+        let channel = self
+            .channels
+            .get_mut(channel_id)
+            .ok_or(StreamReject::ControlRejected)?;
+        let entry = channel
+            .streams
+            .get_mut(&stream_id)
+            .ok_or(StreamReject::ControlRejected)?;
+        let stream_buffered = entry
+            .buffered
+            .checked_sub(bytes)
+            .ok_or(StreamReject::ControlRejected)?;
+        let channel_buffered = channel
+            .buffered
+            .checked_sub(bytes)
+            .ok_or(StreamReject::ControlRejected)?;
+        entry.buffered = stream_buffered;
+        channel.buffered = channel_buffered;
+        Ok(())
+    }
+
+    pub(crate) fn release_stream(
+        &mut self,
+        channel_id: &[u8; 16],
+        stream_id: u64,
+    ) -> Result<(), StreamReject> {
+        let channel = self
+            .channels
+            .get_mut(channel_id)
+            .ok_or(StreamReject::ControlRejected)?;
+        let entry = channel
+            .streams
+            .remove(&stream_id)
+            .ok_or(StreamReject::ControlRejected)?;
+        channel.buffered = channel
+            .buffered
+            .checked_sub(entry.buffered)
+            .ok_or(StreamReject::ControlRejected)?;
+        Ok(())
+    }
+
+    fn entry_mut(
+        &mut self,
+        channel_id: &[u8; 16],
+        stream_id: u64,
+    ) -> Result<&mut StreamEntry, StreamReject> {
+        self.channels
+            .get_mut(channel_id)
+            .and_then(|channel| channel.streams.get_mut(&stream_id))
+            .ok_or(StreamReject::ControlRejected)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::ChannelStreams;
+    use crate::{
+        ActiveChannel, CoreV02Envelope, CoreV02Limits, StreamReject, decode_control_envelope,
+    };
+
+    const SESSION_ID: [u8; 16] = [0x10; 16];
+
+    fn channel(id: u8) -> ActiveChannel {
+        ActiveChannel {
+            channel_id: [id; 16],
+            route_id: [id.wrapping_add(0x40); 16],
+            service_id: format!("service-{id}"),
+            route_grant_digest: [id.wrapping_add(0x80); 32],
+            transport: "tcp".into(),
+            port: 8443,
+        }
+    }
+
+    fn open(channel: &ActiveChannel, stream_id: u64) -> CoreV02Envelope {
+        let mut body = Vec::new();
+        map(&mut body, 7);
+        field_uint(&mut body, 0, 1);
+        field_uint(&mut body, 1, stream_id);
+        field_bytes(&mut body, 2, &channel.channel_id);
+        field_bytes(&mut body, 3, &channel.route_id);
+        field_bytes(&mut body, 4, &channel.route_grant_digest);
+        field_text(&mut body, 5, &channel.transport);
+        field_uint(&mut body, 6, u64::from(channel.port));
+        envelope(6, [stream_id as u8; 16], 5, body)
+    }
+
+    fn accept(channel: &ActiveChannel, stream_id: u64) -> CoreV02Envelope {
+        let mut body = Vec::new();
+        map(&mut body, 5);
+        field_uint(&mut body, 0, 1);
+        field_uint(&mut body, 1, stream_id);
+        field_bytes(&mut body, 2, &channel.channel_id);
+        field_bytes(&mut body, 3, &channel.route_id);
+        field_uint(&mut body, 4, 1_893_456_000);
+        envelope(7, [stream_id as u8; 16], 6, body)
+    }
+
+    fn authorize(streams: &mut ChannelStreams, channel: &ActiveChannel, stream_id: u64) {
+        streams
+            .authorize_open(channel, &open(channel, stream_id))
+            .expect("open authorized");
+        streams
+            .confirm_accept(&channel.channel_id, &accept(channel, stream_id))
+            .expect("accept confirmed");
+        streams
+            .authorize_application_stream(&channel.channel_id, stream_id)
+            .expect("actual stream confirmed");
+    }
+
+    #[test]
+    fn duplicate_stream_ids_fail_across_channels_and_after_release() {
+        let first = channel(1);
+        let second = channel(2);
+        let mut streams = ChannelStreams::new();
+        authorize(&mut streams, &first, 4);
+        assert_eq!(
+            streams.authorize_open(&second, &open(&second, 4)),
+            Err(StreamReject::DuplicateStream)
+        );
+        streams
+            .release_stream(&first.channel_id, 4)
+            .expect("release first stream");
+        assert_eq!(
+            streams.authorize_open(&second, &open(&second, 4)),
+            Err(StreamReject::DuplicateStream)
+        );
+    }
+
+    #[test]
+    fn sixty_four_streams_are_allowed_but_the_sixty_fifth_is_scoped() {
+        let first = channel(1);
+        let sibling = channel(2);
+        let mut streams = ChannelStreams::new();
+        for stream_id in (4..=256).step_by(4) {
+            streams
+                .authorize_open(&first, &open(&first, stream_id))
+                .expect("first 64 streams");
+        }
+        assert_eq!(
+            streams.authorize_open(&first, &open(&first, 260)),
+            Err(StreamReject::OverCapacity)
+        );
+        streams
+            .release_stream(&first.channel_id, 4)
+            .expect("release one active slot");
+        streams
+            .authorize_open(&first, &open(&first, 268))
+            .expect("released slot is available to a fresh stream ID");
+        streams
+            .authorize_open(&sibling, &open(&sibling, 264))
+            .expect("sibling remains independent");
+    }
+
+    #[test]
+    fn byte_limits_are_exact_and_failed_reservations_do_not_mutate_counts() {
+        let active = channel(1);
+        let mut streams = ChannelStreams::new();
+        for stream_id in (4..=32).step_by(4) {
+            authorize(&mut streams, &active, stream_id);
+            streams
+                .reserve_bytes(&active.channel_id, stream_id, 1_048_576)
+                .expect("exact one MiB per stream");
+        }
+        assert_eq!(
+            streams.reserve_bytes(&active.channel_id, 4, 1),
+            Err(StreamReject::OverCapacity)
+        );
+
+        authorize(&mut streams, &active, 36);
+        assert_eq!(
+            streams.reserve_bytes(&active.channel_id, 36, 1),
+            Err(StreamReject::OverCapacity)
+        );
+        streams
+            .release_bytes(&active.channel_id, 4, 1)
+            .expect("release one accounted byte");
+        streams
+            .reserve_bytes(&active.channel_id, 36, 1)
+            .expect("failed reservation left channel count unchanged");
+        assert_eq!(
+            streams.reserve_bytes(&active.channel_id, 36, usize::MAX),
+            Err(StreamReject::OverCapacity)
+        );
+        streams
+            .release_bytes(&active.channel_id, 36, 1)
+            .expect("overflow attempt left stream count unchanged");
+    }
+
+    #[test]
+    fn releasing_a_stream_frees_all_bytes_without_mutating_a_sibling() {
+        let first = channel(1);
+        let sibling = channel(2);
+        let mut streams = ChannelStreams::new();
+        authorize(&mut streams, &first, 4);
+        authorize(&mut streams, &sibling, 8);
+        streams
+            .reserve_bytes(&first.channel_id, 4, 1_048_576)
+            .expect("first reservation");
+        streams
+            .reserve_bytes(&sibling.channel_id, 8, 17)
+            .expect("sibling reservation");
+        streams
+            .release_stream(&first.channel_id, 4)
+            .expect("release first stream");
+
+        authorize(&mut streams, &first, 12);
+        streams
+            .reserve_bytes(&first.channel_id, 12, 1_048_576)
+            .expect("released bytes are available");
+        streams
+            .release_bytes(&sibling.channel_id, 8, 17)
+            .expect("sibling accounting unchanged");
+    }
+
+    #[test]
+    fn pre_accept_payload_failure_is_scoped_to_only_that_stream() {
+        let first = channel(1);
+        let sibling = channel(2);
+        let mut streams = ChannelStreams::new();
+        streams
+            .authorize_open(&first, &open(&first, 4))
+            .expect("first open");
+        assert_eq!(
+            streams.authorize_application_stream(&first.channel_id, 4),
+            Err(StreamReject::ControlRejected)
+        );
+
+        authorize(&mut streams, &sibling, 8);
+        streams
+            .reserve_bytes(&sibling.channel_id, 8, 17)
+            .expect("sibling remains usable");
+        streams
+            .release_bytes(&sibling.channel_id, 8, 17)
+            .expect("sibling accounting remains exact");
+    }
+
+    fn envelope(
+        message_type: u64,
+        request_id: [u8; 16],
+        sequence: u64,
+        body: Vec<u8>,
+    ) -> CoreV02Envelope {
+        let mut wire = Vec::new();
+        map(&mut wire, 6);
+        field_uint(&mut wire, 0, 2);
+        field_uint(&mut wire, 1, message_type);
+        field_bytes(&mut wire, 2, &request_id);
+        field_bytes(&mut wire, 3, &SESSION_ID);
+        field_uint(&mut wire, 4, sequence);
+        uint(&mut wire, 5);
+        wire.extend_from_slice(&body);
+        decode_control_envelope(&wire, CoreV02Limits::default()).expect("valid stream control")
+    }
+
+    fn field_uint(target: &mut Vec<u8>, key: u64, value: u64) {
+        uint(target, key);
+        uint(target, value);
+    }
+
+    fn field_bytes(target: &mut Vec<u8>, key: u64, value: &[u8]) {
+        uint(target, key);
+        bytes(target, value);
+    }
+
+    fn field_text(target: &mut Vec<u8>, key: u64, value: &str) {
+        uint(target, key);
+        text(target, value);
+    }
+
+    fn uint(target: &mut Vec<u8>, value: u64) {
+        argument(target, 0, value);
+    }
+
+    fn bytes(target: &mut Vec<u8>, value: &[u8]) {
+        argument(target, 2, value.len() as u64);
+        target.extend_from_slice(value);
+    }
+
+    fn text(target: &mut Vec<u8>, value: &str) {
+        argument(target, 3, value.len() as u64);
+        target.extend_from_slice(value.as_bytes());
+    }
+
+    fn map(target: &mut Vec<u8>, len: u64) {
+        argument(target, 5, len);
+    }
+
+    fn argument(target: &mut Vec<u8>, major: u8, value: u64) {
+        let initial = major << 5;
+        match value {
+            0..=23 => target.push(initial | value as u8),
+            24..=0xff => target.extend_from_slice(&[initial | 24, value as u8]),
+            0x100..=0xffff => {
+                target.push(initial | 25);
+                target.extend_from_slice(&(value as u16).to_be_bytes());
+            }
+            0x1_0000..=0xffff_ffff => {
+                target.push(initial | 26);
+                target.extend_from_slice(&(value as u32).to_be_bytes());
+            }
+            _ => {
+                target.push(initial | 27);
+                target.extend_from_slice(&value.to_be_bytes());
+            }
+        }
+    }
+}

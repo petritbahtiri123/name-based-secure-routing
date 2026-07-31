@@ -219,12 +219,12 @@ async fn accepted_stream_id_four_echoes_only_the_bounded_in_memory_payload() {
         .receive_envelope(CoreV02Limits::default())
         .await
         .expect("receive STREAM_OPEN");
-    let mut gate = session
-        .stream_gate(channel().channel_id)
-        .expect("accepted route creates stream gate");
-    gate.authorize_open(&received_open)
+    let channel_id = channel().channel_id;
+    session
+        .authorize_stream_open(channel_id, &received_open)
         .expect("authorize received STREAM_OPEN");
-    gate.accept(&stream_accept)
+    session
+        .confirm_stream_accept(channel_id, &stream_accept)
         .expect("bind matching STREAM_ACCEPT");
     destination_control
         .send_envelope(&stream_accept)
@@ -238,7 +238,7 @@ async fn accepted_stream_id_four_echoes_only_the_bounded_in_memory_payload() {
     let (echoed_at_destination, echoed_at_source) = tokio::join!(
         async {
             let mut stream = destination
-                .accept_application_stream(&mut gate)
+                .accept_session_stream(&mut session, channel_id)
                 .await
                 .expect("accept application stream");
             assert_eq!(stream.id(), 4);

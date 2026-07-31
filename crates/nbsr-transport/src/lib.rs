@@ -8,6 +8,7 @@
 
 mod admission;
 mod channel_registry;
+mod channel_streams;
 mod config;
 mod core_v02;
 mod error;

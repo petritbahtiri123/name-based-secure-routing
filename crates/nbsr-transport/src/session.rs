@@ -4,9 +4,10 @@ use std::collections::HashSet;
 
 use sha2::{Digest, Sha256};
 
+use crate::channel_streams::ChannelStreams;
 use crate::{
     ActiveChannel, AdmissionReject, AuthenticatedConnection, CoreV02Envelope, CoreV02MessageType,
-    DestinationAdmission, EdgeIdentity, RouteGrantIssuer, StreamGate,
+    DestinationAdmission, EdgeIdentity, RouteGrantIssuer, StreamGate, StreamReject,
 };
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -14,6 +15,7 @@ pub enum SessionReject {
     Admission(AdmissionReject),
     ControlRejected,
     Replay,
+    Stream(StreamReject),
     UnexpectedMessage,
 }
 
@@ -23,6 +25,7 @@ pub struct ControlSession {
     trusted_issuers: Vec<RouteGrantIssuer>,
     state: SessionState,
     request_ids: HashSet<[u8; 16]>,
+    streams: ChannelStreams,
 }
 
 enum SessionState {
@@ -63,6 +66,7 @@ impl ControlSession {
             trusted_issuers,
             state: SessionState::AwaitingClientHello,
             request_ids: HashSet::new(),
+            streams: ChannelStreams::new(),
         }
     }
 
@@ -252,6 +256,94 @@ impl ControlSession {
             .cloned()
             .map(StreamGate::new)
             .ok_or(SessionReject::UnexpectedMessage)
+    }
+
+    pub fn authorize_stream_open(
+        &mut self,
+        channel_id: [u8; 16],
+        envelope: &CoreV02Envelope,
+    ) -> Result<(), SessionReject> {
+        let (request_id, session_id, _) = binding(envelope)?;
+        let expected_session_id = self.established_session_id()?;
+        if session_id != expected_session_id || self.request_ids.contains(&request_id) {
+            return Err(SessionReject::Replay);
+        }
+        let channel = self
+            .admission
+            .channel(&channel_id)
+            .cloned()
+            .ok_or(SessionReject::UnexpectedMessage)?;
+        self.streams
+            .authorize_open(&channel, envelope)
+            .map_err(SessionReject::Stream)?;
+        self.request_ids.insert(request_id);
+        Ok(())
+    }
+
+    pub fn confirm_stream_accept(
+        &mut self,
+        channel_id: [u8; 16],
+        envelope: &CoreV02Envelope,
+    ) -> Result<(), SessionReject> {
+        let (_, session_id, _) = binding(envelope)?;
+        if session_id != self.established_session_id()? {
+            return Err(SessionReject::Replay);
+        }
+        if self.admission.channel(&channel_id).is_none() {
+            return Err(SessionReject::UnexpectedMessage);
+        }
+        self.streams
+            .confirm_accept(&channel_id, envelope)
+            .map_err(SessionReject::Stream)
+    }
+
+    pub fn reserve_stream_bytes(
+        &mut self,
+        channel_id: [u8; 16],
+        stream_id: u64,
+        bytes: usize,
+    ) -> Result<(), SessionReject> {
+        self.streams
+            .reserve_bytes(&channel_id, stream_id, bytes)
+            .map_err(SessionReject::Stream)
+    }
+
+    pub fn release_stream_bytes(
+        &mut self,
+        channel_id: [u8; 16],
+        stream_id: u64,
+        bytes: usize,
+    ) -> Result<(), SessionReject> {
+        self.streams
+            .release_bytes(&channel_id, stream_id, bytes)
+            .map_err(SessionReject::Stream)
+    }
+
+    pub fn release_stream(
+        &mut self,
+        channel_id: [u8; 16],
+        stream_id: u64,
+    ) -> Result<(), SessionReject> {
+        self.streams
+            .release_stream(&channel_id, stream_id)
+            .map_err(SessionReject::Stream)
+    }
+
+    pub(crate) fn authorize_application_stream(
+        &mut self,
+        channel_id: [u8; 16],
+        actual_stream_id: u64,
+    ) -> Result<(), SessionReject> {
+        self.streams
+            .authorize_application_stream(&channel_id, actual_stream_id)
+            .map_err(SessionReject::Stream)
+    }
+
+    fn established_session_id(&self) -> Result<[u8; 16], SessionReject> {
+        let SessionState::Established { session_id, .. } = &self.state else {
+            return Err(SessionReject::UnexpectedMessage);
+        };
+        Ok(*session_id)
     }
 }
 
