@@ -9,7 +9,8 @@ use x509_parser::extensions::GeneralName;
 use x509_parser::prelude::{FromDer, X509Certificate};
 
 use crate::{
-    ALPN, ClientEndpointConfig, EdgeIdentity, PeerPolicy, ServerEndpointConfig, TransportError,
+    ALPN, ClientEndpointConfig, EdgeIdentity, PeerPolicy, ServerEndpointConfig, StreamGate,
+    TransportError,
 };
 
 pub struct TransportListener {
@@ -59,6 +60,69 @@ impl TransportListener {
 pub struct ControlStream {
     send: SendStream,
     receive: RecvStream,
+}
+
+pub struct ApplicationStream {
+    send: SendStream,
+    receive: RecvStream,
+}
+
+impl ApplicationStream {
+    pub fn id(&self) -> u64 {
+        VarInt::from(self.send.id()).into_inner()
+    }
+
+    pub async fn send_payload(&mut self, payload: &[u8]) -> Result<(), TransportError> {
+        self.send
+            .write_all(payload)
+            .await
+            .map_err(|_| TransportError::ApplicationStreamFailed)?;
+        self.send
+            .finish()
+            .map_err(|_| TransportError::ApplicationStreamFailed)
+    }
+
+    pub async fn receive_payload(&mut self) -> Result<Vec<u8>, TransportError> {
+        self.receive
+            .read_to_end(4_096)
+            .await
+            .map_err(|_| TransportError::ApplicationStreamRejected)
+    }
+
+    pub async fn send_and_receive(&mut self, payload: &[u8]) -> Result<Vec<u8>, TransportError> {
+        self.send_payload(payload).await?;
+        self.receive_payload().await
+    }
+
+    fn reject(mut self) -> Result<(), TransportError> {
+        let code = VarInt::from_u32(1);
+        self.send
+            .reset(code)
+            .map_err(|_| TransportError::ApplicationStreamFailed)?;
+        self.receive
+            .stop(code)
+            .map_err(|_| TransportError::ApplicationStreamFailed)
+    }
+
+    pub async fn echo_once(&mut self) -> Result<Vec<u8>, TransportError> {
+        let payload = match self.receive.read_to_end(4_097).await {
+            Ok(payload) if payload.len() <= 4_096 => payload,
+            Ok(_) | Err(_) => {
+                let code = VarInt::from_u32(2);
+                let _ = self.send.reset(code);
+                let _ = self.receive.stop(code);
+                return Err(TransportError::ApplicationPayloadTooLarge);
+            }
+        };
+        self.send
+            .write_all(&payload)
+            .await
+            .map_err(|_| TransportError::ApplicationStreamFailed)?;
+        self.send
+            .finish()
+            .map_err(|_| TransportError::ApplicationStreamFailed)?;
+        Ok(payload)
+    }
 }
 
 impl ControlStream {
@@ -196,6 +260,44 @@ impl AuthenticatedConnection {
             .await
             .map_err(|_| TransportError::ControlStreamFailed)?;
         Ok(ControlStream { send, receive })
+    }
+
+    pub async fn open_application_stream(&self) -> Result<ApplicationStream, TransportError> {
+        let (send, receive) = self
+            .connection
+            .open_bi()
+            .await
+            .map_err(|_| TransportError::ApplicationStreamFailed)?;
+        Ok(ApplicationStream { send, receive })
+    }
+
+    pub async fn accept_application_stream(
+        &self,
+        gate: &mut StreamGate,
+    ) -> Result<ApplicationStream, TransportError> {
+        let (send, receive) = self
+            .connection
+            .accept_bi()
+            .await
+            .map_err(|_| TransportError::ApplicationStreamFailed)?;
+        let stream = ApplicationStream { send, receive };
+        if gate.authorize_application_stream(stream.id()).is_err() {
+            let _ = stream.reject();
+            return Err(TransportError::ApplicationStreamRejected);
+        }
+        Ok(stream)
+    }
+
+    pub async fn reject_next_application_stream(&self) -> Result<u64, TransportError> {
+        let (send, receive) = self
+            .connection
+            .accept_bi()
+            .await
+            .map_err(|_| TransportError::ApplicationStreamFailed)?;
+        let stream = ApplicationStream { send, receive };
+        let id = stream.id();
+        stream.reject()?;
+        Ok(id)
     }
 }
 

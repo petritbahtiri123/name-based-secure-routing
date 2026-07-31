@@ -6,7 +6,7 @@
 
 use ed25519_dalek::{Signature, VerifyingKey};
 
-use crate::RouteGrantClaims;
+use crate::{RouteGrantClaims, StreamOpenRequest};
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct CoreV02Limits {
@@ -253,6 +253,48 @@ impl CoreV02Envelope {
             grant,
         })
     }
+
+    pub(crate) fn stream_open_request(&self) -> Result<StreamOpenRequest, CoreV02Reject> {
+        if self.message_type != CoreV02MessageType::StreamOpen {
+            return Err(CoreV02Reject::ProfileUnsupported);
+        }
+        let root = decode_stored_envelope(&self.wire)?;
+        let envelope = map(&root)?;
+        let body = map(required(envelope, 5)?)?;
+        Ok(StreamOpenRequest {
+            quic_stream_id: uint(required(body, 1)?)?,
+            channel_id: fixed_bytes(required(body, 2)?)?,
+            route_id: fixed_bytes(required(body, 3)?)?,
+            route_grant_digest: fixed_bytes(required(body, 4)?)?,
+            transport: text(required(body, 5)?)?.to_owned(),
+            port: uint(required(body, 6)?)?
+                .try_into()
+                .map_err(|_| CoreV02Reject::ProfileUnsupported)?,
+        })
+    }
+
+    pub(crate) fn stream_accept_binding(&self) -> Result<(u64, [u8; 16], [u8; 16]), CoreV02Reject> {
+        if self.message_type != CoreV02MessageType::StreamAccept {
+            return Err(CoreV02Reject::ProfileUnsupported);
+        }
+        let root = decode_stored_envelope(&self.wire)?;
+        let envelope = map(&root)?;
+        let body = map(required(envelope, 5)?)?;
+        Ok((
+            uint(required(body, 1)?)?,
+            fixed_bytes(required(body, 2)?)?,
+            fixed_bytes(required(body, 3)?)?,
+        ))
+    }
+}
+
+fn decode_stored_envelope(wire: &[u8]) -> Result<Node, CoreV02Reject> {
+    let mut decoder = Decoder::new(wire, CoreV02Limits::default());
+    let root = decoder.node(0)?;
+    if decoder.position != wire.len() {
+        return Err(CoreV02Reject::ProfileUnsupported);
+    }
+    Ok(root)
 }
 
 fn decode_route_grant_claims(payload: &[u8]) -> Result<RouteGrantClaims, CoreV02Reject> {

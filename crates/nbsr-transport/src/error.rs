@@ -5,6 +5,9 @@ use crate::CoreV02Reject;
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum TransportError {
     AlpnMismatch,
+    ApplicationPayloadTooLarge,
+    ApplicationStreamFailed,
+    ApplicationStreamRejected,
     BindFailed,
     CloseTimeout,
     ControlFrameInvalid,
@@ -28,6 +31,9 @@ impl fmt::Display for TransportError {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         let message = match self {
             Self::AlpnMismatch => "ALPN mismatch",
+            Self::ApplicationPayloadTooLarge => "application payload exceeds the profile bound",
+            Self::ApplicationStreamFailed => "application stream failed",
+            Self::ApplicationStreamRejected => "application stream rejected",
             Self::BindFailed => "transport bind failed",
             Self::CloseTimeout => "transport close timed out",
             Self::ControlFrameInvalid => "invalid control frame",
