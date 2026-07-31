@@ -5,6 +5,7 @@ mod config;
 mod core_v02;
 mod error;
 mod quinn_adapter;
+mod stream_gate;
 
 pub use admission::{
     ActiveChannel, AdmissionPolicy, AdmissionReject, DestinationAdmission, RouteGrantClaims,
@@ -20,5 +21,6 @@ pub use core_v02::{
 };
 pub use error::TransportError;
 pub use quinn_adapter::{AuthenticatedConnection, ControlStream, TransportListener, connect};
+pub use stream_gate::{StreamGate, StreamOpenRequest, StreamReject};
 
 pub const ALPN: &[u8] = b"nbsr-quic-1";
