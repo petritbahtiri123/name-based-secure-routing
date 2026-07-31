@@ -6,6 +6,8 @@
 
 use ed25519_dalek::{Signature, VerifyingKey};
 
+use crate::RouteGrantClaims;
+
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct CoreV02Limits {
     pub max_frame_bytes: usize,
@@ -61,6 +63,19 @@ pub struct RouteGrantIssuer {
 pub struct ValidatedRouteGrant {
     pub issuer_kid: Vec<u8>,
     pub payload: Vec<u8>,
+}
+
+pub(crate) struct ValidatedRouteOpen {
+    pub request_id: [u8; 16],
+    pub session_id: [u8; 16],
+    pub channel_id: [u8; 16],
+    pub edge_nonce: [u8; 32],
+    pub requested_transport: String,
+    pub requested_port: u16,
+    pub opened_at: u64,
+    pub proof_signature: [u8; 64],
+    pub grant_wire: Vec<u8>,
+    pub grant: RouteGrantClaims,
 }
 
 /// Validates the frozen COSE Sign1 wrapper in the caller-provided issuer trust
@@ -205,6 +220,106 @@ impl CoreV02Envelope {
     pub fn encode(&self) -> Vec<u8> {
         self.wire.clone()
     }
+
+    pub(crate) fn validated_route_open(
+        &self,
+        trusted_issuers: &[RouteGrantIssuer],
+    ) -> Result<ValidatedRouteOpen, CoreV02Reject> {
+        if self.message_type != CoreV02MessageType::RouteOpen {
+            return Err(CoreV02Reject::ProfileUnsupported);
+        }
+        let mut decoder = Decoder::new(&self.wire, CoreV02Limits::default());
+        let root = decoder.node(0)?;
+        if decoder.position != self.wire.len() {
+            return Err(CoreV02Reject::ProfileUnsupported);
+        }
+        let envelope = map(&root)?;
+        let body = map(required(envelope, 5)?)?;
+        let grant_wire = bytes(required(body, 2)?)?.to_vec();
+        let validated = validate_route_grant_sign1(&grant_wire, trusted_issuers)?;
+        let grant = decode_route_grant_claims(&validated.payload)?;
+        Ok(ValidatedRouteOpen {
+            request_id: fixed_bytes(required(envelope, 2)?)?,
+            session_id: fixed_bytes(required(envelope, 3)?)?,
+            channel_id: fixed_bytes(required(body, 1)?)?,
+            edge_nonce: fixed_bytes(required(body, 3)?)?,
+            requested_transport: text(required(body, 4)?)?.to_owned(),
+            requested_port: uint(required(body, 5)?)?
+                .try_into()
+                .map_err(|_| CoreV02Reject::ProfileUnsupported)?,
+            opened_at: uint(required(body, 6)?)?,
+            proof_signature: fixed_bytes(required(body, 7)?)?,
+            grant_wire,
+            grant,
+        })
+    }
+}
+
+fn decode_route_grant_claims(payload: &[u8]) -> Result<RouteGrantClaims, CoreV02Reject> {
+    let mut decoder = Decoder::new(payload, CoreV02Limits::default());
+    let root = decoder.node(0)?;
+    if decoder.position != payload.len() {
+        return Err(CoreV02Reject::ProfileUnsupported);
+    }
+    let fields = map(&root)?;
+    exact_keys(fields, 16)?;
+    exact_uint(fields, 0, 1)?;
+    bytes_exact(required(fields, 2)?, 32)?;
+    bytes_exact(required(fields, 13)?, 16)?;
+    let allowed_transports = array(required(fields, 8)?)?;
+    if allowed_transports.len() != 1 || text(&allowed_transports[0])? != "tcp" {
+        return Err(CoreV02Reject::ProfileUnsupported);
+    }
+    let destination_edge_ids = text_array(required(fields, 7)?)?;
+    let allowed_ports = port_array(required(fields, 9)?)?;
+    Ok(RouteGrantClaims {
+        route_id: fixed_bytes(required(fields, 1)?)?,
+        service_id: text(required(fields, 3)?)?.to_owned(),
+        source_operator_id: text(required(fields, 4)?)?.to_owned(),
+        source_edge_id: text(required(fields, 5)?)?.to_owned(),
+        destination_operator_id: text(required(fields, 6)?)?.to_owned(),
+        destination_edge_ids,
+        allowed_ports,
+        client_session_key_thumbprint: fixed_bytes(required(fields, 10)?)?,
+        not_before: uint(required(fields, 11)?)?,
+        expires_at: uint(required(fields, 12)?)?,
+        record_sequence: uint(required(fields, 14)?)?,
+        policy_hash: fixed_bytes(required(fields, 15)?)?,
+        unique_nonce: fixed_bytes(required(fields, 16)?)?,
+    })
+}
+
+fn fixed_bytes<const N: usize>(node: &Node) -> Result<[u8; N], CoreV02Reject> {
+    bytes(node)?
+        .try_into()
+        .map_err(|_| CoreV02Reject::ProfileUnsupported)
+}
+
+fn text_array(node: &Node) -> Result<Vec<String>, CoreV02Reject> {
+    let values = array(node)?;
+    if values.is_empty() || values.len() > 32 {
+        return Err(CoreV02Reject::ProfileUnsupported);
+    }
+    values
+        .iter()
+        .map(|value| Ok(text(value)?.to_owned()))
+        .collect()
+}
+
+fn port_array(node: &Node) -> Result<Vec<u16>, CoreV02Reject> {
+    let values = array(node)?;
+    if values.is_empty() || values.len() > 32 {
+        return Err(CoreV02Reject::ProfileUnsupported);
+    }
+    values
+        .iter()
+        .map(|value| {
+            port(value)?;
+            uint(value)?
+                .try_into()
+                .map_err(|_| CoreV02Reject::ProfileUnsupported)
+        })
+        .collect()
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]

@@ -17,6 +17,8 @@ fn policy() -> AdmissionPolicy {
         policy_hash: POLICY_HASH,
         now: 1_893_456_000,
         max_channels: 1,
+        client_session_public_key: THUMBPRINT,
+        edge_nonce: [0x80; 32],
     }
 }
 
