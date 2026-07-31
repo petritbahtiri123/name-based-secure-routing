@@ -1,6 +1,6 @@
 # NBSR implementation status
 
-**Baseline date:** 2026-07-30
+**Baseline date:** 2026-07-31
 
 **Authority:** [NBSR Protocol Vision V3.6](../architecture/NBSR_Protocol_Vision_V3.6.md)
 **Evidence baseline:** the final hardened-branch report records 255 passed and
@@ -67,11 +67,11 @@ readiness, global federation, or independent interoperability.
 | Core v0.1 deterministic vectors | Implemented | WP1 Task 6 freezes a hash-bound package of 6 valid and 28 invalid vectors covering objects, deterministic CBOR, schemas, COSE, bindings, time/sequence state, and documentation-only IP rejection |
 | Core v0.1 bounded property coverage | Implemented | WP1 Task 7 runs 300 deterministic Hypothesis examples per property across model round trips, arbitrary bytes, signed-object mutations, malformed lengths, and critical-extension rejection |
 | [Core v0.1 wire contract](core-v0.1-wire.md) | Implemented | WP1 Task 8 publishes the reviewed cross-language contract and stable `nbsr.protocol` API; this is a protocol data boundary, not runtime integration or independent interoperability evidence |
-| `nbsr-quic-1` inter-edge tunnel | Partial | An isolated Quinn 0.11.11/rustls 0.23.43 loopback handshake boundary now proves TLS 1.3 mTLS, exact ALPN, and bounded failure; no tunnel runtime or streams exist |
-| Independent source and destination admission | Partial | The isolated handshake verifies exact Source/Destination Edge certificate SANs; RouteGrant, policy, Service Channel, and runtime admission remain WP3 work |
+| `nbsr-quic-1` inter-edge tunnel | Partial | The isolated Quinn 0.11.11/rustls 0.23.43 loopback boundary proves TLS 1.3 mTLS, exact ALPN, bounded Core v0.2 control framing, and no Core v1 fallback; it is not a production tunnel or origin connector |
+| Independent source and destination admission | Partial | Destination-side bounded admission now checks a supplied RouteGrant claim set, policy/record binding, expiry, replay identifiers, and capacity before creating one channel; source admission and live signed-claim integration remain incomplete |
 | Outbound origin connector | Planned | Protected prototype origins exist, but the V3 connector state machine does not |
 | Opaque HTTP/HTTPS forwarding | Implemented | ISP vertical slice relays TCP bytes and preserves end-to-end application TLS |
-| Explicit Transport Session and single Service Channel binding | Planned | The handshake crate deliberately exposes no stream API and allocates no Route Context or Service Channel |
+| Explicit Transport Session and single Service Channel binding | Partial | WP3 adds a Rust-only single-channel admission and a one-stream gate. It is loopback evidence only: it has no OriginSet selection, origin connection, relay integration, multi-service reuse, or production claim. |
 | Reusable multi-service Transport Session with isolated Service Channels | Planned | WP4; wire representation and key schedule require approval |
 | Internal Derived OriginSet | Implemented | Immutable, wire-neutral model with bounded endpoints, generation/sequence rollback protection, same-sequence equivocation rejection, and deterministic tests |
 | Legacy DNS-backed internal OriginSet | Implemented | Isolated bounded legacy DNS adapter builds Derived OriginSet values, preserves stable synthetic mapping inputs, separates DNS TTL from authorization, and supports the approved last-known-good policy; NameRelay integration remains gated |
@@ -115,9 +115,16 @@ package, the isolated Rust QUIC/TLS handshake spike, and
 [WP2A](wp2a-name-node-core.md) are complete at their documented prototype
 scope.
 
-WP3 runtime remains gated. Its next task requires a separately approved TDD
-plan for Route Context / Service Channel binding, admission, validated
-OriginSet selection, and Application Stream handling. No real recursive DNS,
-production DNSSEC/Web PKI policy, relay integration, native OriginSet
-publication, new Core v0.1 registry allocation, or production-readiness claim
-is authorized by WP2A.
+WP3 runtime remains gated from any origin, relay, multi-service, or production
+implementation. WP3 has a limited Rust loopback slice: Core v0.2 fixture structural validation,
+caller-supplied RouteGrant COSE trust-context validation, a bounded
+Destination-admission model, a version-locked QUIC control stream, and a
+single service-bound application-stream gate. The Core-v0.2 fixture,
+admission, and control-stream tests passed locally; the final stream-gate test
+compiled but Windows Application Control blocked its new test executable
+(`os error 4551`). Full-suite revalidation is therefore still required.
+
+No real recursive DNS, production DNSSEC/Web PKI policy, relay integration,
+validated OriginSet selection, native OriginSet publication, new Core v0.1
+registry allocation, multi-service reuse, or production-readiness claim is
+authorized by this slice.
