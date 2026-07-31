@@ -78,6 +78,29 @@ pub(crate) struct ValidatedRouteOpen {
     pub grant: RouteGrantClaims,
 }
 
+pub(crate) struct ClientHelloContext {
+    pub source_operator_id: String,
+    pub source_edge_id: String,
+    pub destination_operator_id: String,
+    pub destination_edge_id: String,
+    pub client_nonce: [u8; 32],
+    pub client_session_public_key: [u8; 32],
+}
+
+pub(crate) struct EdgeHelloContext {
+    pub source_edge_id: String,
+    pub destination_edge_id: String,
+    pub client_nonce: [u8; 32],
+    pub edge_nonce: [u8; 32],
+    pub client_session_key_thumbprint: [u8; 32],
+}
+
+pub(crate) struct RouteAcceptBinding {
+    pub channel_id: [u8; 16],
+    pub route_id: [u8; 16],
+    pub route_grant_digest: [u8; 32],
+}
+
 /// Validates the frozen COSE Sign1 wrapper in the caller-provided issuer trust
 /// context.  It deliberately does not choose a trust anchor itself.
 pub fn validate_route_grant_sign1(
@@ -219,6 +242,63 @@ impl CoreV02Envelope {
     /// added only with the later state-machine layer.
     pub fn encode(&self) -> Vec<u8> {
         self.wire.clone()
+    }
+
+    pub(crate) fn session_binding(&self) -> Result<([u8; 16], [u8; 16], u64), CoreV02Reject> {
+        let root = decode_stored_envelope(&self.wire)?;
+        let envelope = map(&root)?;
+        Ok((
+            fixed_bytes(required(envelope, 2)?)?,
+            fixed_bytes(required(envelope, 3)?)?,
+            uint(required(envelope, 4)?)?,
+        ))
+    }
+
+    pub(crate) fn client_hello_context(&self) -> Result<ClientHelloContext, CoreV02Reject> {
+        if self.message_type != CoreV02MessageType::ClientHello {
+            return Err(CoreV02Reject::ProfileUnsupported);
+        }
+        let root = decode_stored_envelope(&self.wire)?;
+        let envelope = map(&root)?;
+        let body = map(required(envelope, 5)?)?;
+        Ok(ClientHelloContext {
+            source_operator_id: text(required(body, 1)?)?.to_owned(),
+            source_edge_id: text(required(body, 2)?)?.to_owned(),
+            destination_operator_id: text(required(body, 3)?)?.to_owned(),
+            destination_edge_id: text(required(body, 4)?)?.to_owned(),
+            client_nonce: fixed_bytes(required(body, 5)?)?,
+            client_session_public_key: fixed_bytes(required(body, 6)?)?,
+        })
+    }
+
+    pub(crate) fn edge_hello_context(&self) -> Result<EdgeHelloContext, CoreV02Reject> {
+        if self.message_type != CoreV02MessageType::EdgeHello {
+            return Err(CoreV02Reject::ProfileUnsupported);
+        }
+        let root = decode_stored_envelope(&self.wire)?;
+        let envelope = map(&root)?;
+        let body = map(required(envelope, 5)?)?;
+        Ok(EdgeHelloContext {
+            source_edge_id: text(required(body, 1)?)?.to_owned(),
+            destination_edge_id: text(required(body, 2)?)?.to_owned(),
+            client_nonce: fixed_bytes(required(body, 3)?)?,
+            edge_nonce: fixed_bytes(required(body, 4)?)?,
+            client_session_key_thumbprint: fixed_bytes(required(body, 5)?)?,
+        })
+    }
+
+    pub(crate) fn route_accept_binding(&self) -> Result<RouteAcceptBinding, CoreV02Reject> {
+        if self.message_type != CoreV02MessageType::RouteAccept {
+            return Err(CoreV02Reject::ProfileUnsupported);
+        }
+        let root = decode_stored_envelope(&self.wire)?;
+        let envelope = map(&root)?;
+        let body = map(required(envelope, 5)?)?;
+        Ok(RouteAcceptBinding {
+            channel_id: fixed_bytes(required(body, 1)?)?,
+            route_id: fixed_bytes(required(body, 2)?)?,
+            route_grant_digest: fixed_bytes(required(body, 3)?)?,
+        })
     }
 
     pub(crate) fn validated_route_open(

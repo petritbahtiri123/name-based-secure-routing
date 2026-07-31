@@ -24,6 +24,10 @@ impl TestPki {
         Self::generate_with_expired_leaf(None)
     }
 
+    pub fn generate_for(source_dns_name: &str, destination_dns_name: &str) -> Self {
+        Self::generate_with_names(source_dns_name, destination_dns_name, None)
+    }
+
     pub fn generate_with_expired_source() -> Self {
         Self::generate_with_expired_leaf(Some("source-edge.test"))
     }
@@ -33,6 +37,14 @@ impl TestPki {
     }
 
     fn generate_with_expired_leaf(expired_leaf: Option<&str>) -> Self {
+        Self::generate_with_names("source-edge.test", "destination-edge.test", expired_leaf)
+    }
+
+    fn generate_with_names(
+        source_dns_name: &str,
+        destination_dns_name: &str,
+        expired_leaf: Option<&str>,
+    ) -> Self {
         let mut ca_params = CertificateParams::default();
         ca_params.is_ca = IsCa::Ca(BasicConstraints::Unconstrained);
         ca_params.key_usages = vec![
@@ -46,15 +58,12 @@ impl TestPki {
         )
         .expect("generate test CA certificate");
 
-        let (source_cert, source_key) = issue_leaf(
-            &ca,
-            "source-edge.test",
-            expired_leaf == Some("source-edge.test"),
-        );
+        let (source_cert, source_key) =
+            issue_leaf(&ca, source_dns_name, expired_leaf == Some(source_dns_name));
         let (destination_cert, destination_key) = issue_leaf(
             &ca,
-            "destination-edge.test",
-            expired_leaf == Some("destination-edge.test"),
+            destination_dns_name,
+            expired_leaf == Some(destination_dns_name),
         );
 
         Self {

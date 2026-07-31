@@ -92,6 +92,25 @@ impl DestinationAdmission {
         self.active.len()
     }
 
+    pub(crate) fn matches_client_hello(
+        &self,
+        source_operator_id: &str,
+        source_edge_id: &str,
+        destination_operator_id: &str,
+        destination_edge_id: &str,
+        client_session_public_key: &[u8; 32],
+    ) -> bool {
+        source_operator_id == self.policy.source_operator_id
+            && source_edge_id == self.policy.source_edge_id
+            && destination_operator_id == self.policy.destination_operator_id
+            && destination_edge_id == self.policy.destination_edge_id
+            && client_session_public_key == &self.policy.client_session_public_key
+    }
+
+    pub(crate) fn expected_edge_nonce(&self) -> [u8; 32] {
+        self.policy.edge_nonce
+    }
+
     pub fn admit(&mut self, request: RouteOpenRequest) -> Result<ActiveChannel, AdmissionReject> {
         validate_request(&self.policy, &request)?;
         if self.used_channel_ids.contains(&request.channel_id)
