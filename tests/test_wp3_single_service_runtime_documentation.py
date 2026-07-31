@@ -23,6 +23,9 @@ def test_wp3_docs_record_only_the_verified_single_service_boundary() -> None:
         "no production readiness claim",
         "decoded routeopen",
         "caller-trusted signed routegrant",
+        "real loopback quic application-stream lifecycle",
+        "4 kib",
+        "payload before stream_accept is reset without delivery",
     ):
         assert required in text
 

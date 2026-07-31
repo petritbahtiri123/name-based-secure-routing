@@ -28,7 +28,7 @@ certification.
 
 The WP3 continuation was freshly revalidated on 2026-07-31 with 817 passed and
 1 skipped across the full Python suite, 70 focused WP3/frozen-protocol tests,
-and 29 passing Rust tests. Rust formatting and Clippy, Python Ruff check and
+and 32 passing Rust tests. Rust formatting and Clippy, Python Ruff check and
 format, `pip check`, both vector regeneration checks, and `git diff --check`
 passed. This evidence remains limited to the origin-free single-service lab
 boundary documented below.
@@ -123,13 +123,15 @@ package, the isolated Rust QUIC/TLS handshake spike, and
 scope.
 
 WP3 runtime remains gated from any origin, relay, multi-service, or production
-implementation. The verified 2026-07-31 Rust slice has 29 passing tests. A
+implementation. The verified 2026-07-31 Rust slice has 32 passing tests. A
 decoded RouteOpen and caller-trusted signed RouteGrant now feed bounded
 Destination admission after the existing session-key thumbprint, edge nonce,
 RouteOpen proof, service, transport, port, policy, expiry, replay, and capacity
 checks. It admits one Service Channel and one TCP Application Stream through a
-logical stream gate; it does not yet prove the application-byte QUIC lifecycle.
-The Origin Endpoint remains internal and is not connected. Core v0.2 failure
+real loopback QUIC application-stream lifecycle. Payload before STREAM_ACCEPT
+is reset without delivery; an accepted payload is echoed only in memory up to
+the 4 KiB bound, and an oversized payload is reset without echo. The Origin
+Endpoint remains internal and is not connected. Core v0.2 failure
 never retries as Core v0.1. Multi-service Transport Session reuse remains WP4.
 NameRelay remains unchanged. This is no production readiness claim.
 

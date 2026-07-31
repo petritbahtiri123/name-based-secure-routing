@@ -11,9 +11,11 @@ the current relay.
 **Verified implementation update (2026-07-31):** the approved Rust-only slice
 now decodes RouteOpen, validates the caller-trusted signed RouteGrant and
 RouteOpen proof, and admits one service/transport/port-bound logical channel.
-This evidence does not supersede the runtime-authorization boundary below: it
-adds no Origin Endpoint connection, application-byte forwarding, OriginSet
-selection, NameRelay integration, multi-service reuse, or production claim.
+The slice now includes a real loopback QUIC application stream with a bounded
+4 KiB in-memory echo and pre-accept reset. This evidence does not supersede the
+runtime-authorization boundary below: it adds no Origin Endpoint connection or
+forwarding, OriginSet selection, NameRelay integration, multi-service reuse,
+or production claim.
 
 ## Purpose
 
