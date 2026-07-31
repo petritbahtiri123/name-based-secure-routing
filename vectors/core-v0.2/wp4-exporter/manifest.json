@@ -1,0 +1,380 @@
+{
+  "invalid_cases": [
+    {
+      "artifact": {
+        "length": 289,
+        "path": "invalid/context-item-00.cbor",
+        "sha256": "679cd2cce1443739f8f860ebf5eb6593f4709166978fa64e8bbab04123c01370"
+      },
+      "artifact_type": "context-cbor",
+      "basis_vector": "service-channel-tcp-01",
+      "category": "context-item-0",
+      "expected_result": "reject",
+      "id": "context-item-00",
+      "reason": "profile-mismatch"
+    },
+    {
+      "artifact": {
+        "length": 289,
+        "path": "invalid/context-item-01.cbor",
+        "sha256": "3da53cd30f48aee106bff2e6011f08ccc5482019d57b282ffe6441408bfcadde"
+      },
+      "artifact_type": "context-cbor",
+      "basis_vector": "service-channel-tcp-01",
+      "category": "context-item-1",
+      "expected_result": "reject",
+      "id": "context-item-01",
+      "reason": "version-mismatch"
+    },
+    {
+      "artifact": {
+        "length": 288,
+        "path": "invalid/context-item-02.cbor",
+        "sha256": "dcd74b8a72bd5b687196df6decb4fa64ce1abf6045f92e43cb886ba423dde82e"
+      },
+      "artifact_type": "context-cbor",
+      "basis_vector": "service-channel-tcp-01",
+      "category": "context-item-2",
+      "expected_result": "reject",
+      "id": "context-item-02",
+      "reason": "session-id-length"
+    },
+    {
+      "artifact": {
+        "length": 272,
+        "path": "invalid/context-item-03.cbor",
+        "sha256": "5d97370aff6528968c460ff4a90c015110d896955bea1e03582489992bd9aebc"
+      },
+      "artifact_type": "context-cbor",
+      "basis_vector": "service-channel-tcp-01",
+      "category": "context-item-3",
+      "expected_result": "reject",
+      "id": "context-item-03",
+      "reason": "source-edge-id-invalid"
+    },
+    {
+      "artifact": {
+        "length": 287,
+        "path": "invalid/context-item-04.cbor",
+        "sha256": "69df70ee42ea79adf14f703901c0f271220e2287b4e95ec981dbd072038339a7"
+      },
+      "artifact_type": "context-cbor",
+      "basis_vector": "service-channel-tcp-01",
+      "category": "context-item-4",
+      "expected_result": "reject",
+      "id": "context-item-04",
+      "reason": "destination-edge-id-invalid"
+    },
+    {
+      "artifact": {
+        "length": 288,
+        "path": "invalid/context-item-05.cbor",
+        "sha256": "4cfcb2a5c36e7fa5b60df2fea652fbc0a01a92d616596f7101bab47d6a21b7fd"
+      },
+      "artifact_type": "context-cbor",
+      "basis_vector": "service-channel-tcp-01",
+      "category": "context-item-5",
+      "expected_result": "reject",
+      "id": "context-item-05",
+      "reason": "channel-id-length"
+    },
+    {
+      "artifact": {
+        "length": 288,
+        "path": "invalid/context-item-06.cbor",
+        "sha256": "666fac171af71b2b3c8fdab8aafec231a7c7a8d44df6bcdfd9b59536a9cd1b08"
+      },
+      "artifact_type": "context-cbor",
+      "basis_vector": "service-channel-tcp-01",
+      "category": "context-item-6",
+      "expected_result": "reject",
+      "id": "context-item-06",
+      "reason": "route-id-length"
+    },
+    {
+      "artifact": {
+        "length": 288,
+        "path": "invalid/context-item-07.cbor",
+        "sha256": "0302b41b2a83dae1e87d2b330bb42a618aea744ab58869b7449edc1dbe183aa5"
+      },
+      "artifact_type": "context-cbor",
+      "basis_vector": "service-channel-tcp-01",
+      "category": "context-item-7",
+      "expected_result": "reject",
+      "id": "context-item-07",
+      "reason": "route-grant-digest-length"
+    },
+    {
+      "artifact": {
+        "length": 270,
+        "path": "invalid/context-item-08.cbor",
+        "sha256": "3409e59aac9bf0f1599556cb47d5f9d22b2f8033c7b7d66871c94b61219a5705"
+      },
+      "artifact_type": "context-cbor",
+      "basis_vector": "service-channel-tcp-01",
+      "category": "context-item-8",
+      "expected_result": "reject",
+      "id": "context-item-08",
+      "reason": "service-id-invalid"
+    },
+    {
+      "artifact": {
+        "length": 290,
+        "path": "invalid/context-item-09.cbor",
+        "sha256": "490540c6670be148c6074add0f0ab7cec81a77973f9589d3f5de7db24e360268"
+      },
+      "artifact_type": "context-cbor",
+      "basis_vector": "service-channel-tcp-01",
+      "category": "context-item-9",
+      "expected_result": "reject",
+      "id": "context-item-09",
+      "reason": "transport-invalid"
+    },
+    {
+      "artifact": {
+        "length": 287,
+        "path": "invalid/context-item-10.cbor",
+        "sha256": "4f75949c20ea7b7b9229e4734cba6b0eebb936d9074e579d6337ba9b35f224ce"
+      },
+      "artifact_type": "context-cbor",
+      "basis_vector": "service-channel-tcp-01",
+      "category": "context-item-10",
+      "expected_result": "reject",
+      "id": "context-item-10",
+      "reason": "port-invalid"
+    },
+    {
+      "artifact": {
+        "length": 288,
+        "path": "invalid/context-item-11.cbor",
+        "sha256": "586a9495b1b9f07ddadd9520a481be8c82e3eb3935cd2f9643dad6093898cea4"
+      },
+      "artifact_type": "context-cbor",
+      "basis_vector": "service-channel-tcp-01",
+      "category": "context-item-11",
+      "expected_result": "reject",
+      "id": "context-item-11",
+      "reason": "policy-hash-length"
+    },
+    {
+      "artifact": {
+        "length": 288,
+        "path": "invalid/context-item-12.cbor",
+        "sha256": "acbdbd320fc9647b3ddf0addee365b7b78b05d108fd94bbce07859c59a609617"
+      },
+      "artifact_type": "context-cbor",
+      "basis_vector": "service-channel-tcp-01",
+      "category": "context-item-12",
+      "expected_result": "reject",
+      "id": "context-item-12",
+      "reason": "client-nonce-length"
+    },
+    {
+      "artifact": {
+        "length": 288,
+        "path": "invalid/context-item-13.cbor",
+        "sha256": "532d61b4b2c705d7213b2e54c1c3e8a2a4fded1844c7db03c103dc0da11905cb"
+      },
+      "artifact_type": "context-cbor",
+      "basis_vector": "service-channel-tcp-01",
+      "category": "context-item-13",
+      "expected_result": "reject",
+      "id": "context-item-13",
+      "reason": "edge-nonce-length"
+    },
+    {
+      "artifact": {
+        "length": 289,
+        "path": "invalid/array-reordered-source-destination.cbor",
+        "sha256": "fc2612c0107b0e557706f774405b1f0acece434e32349e46fe448217ebcfd13a"
+      },
+      "artifact_type": "context-cbor",
+      "basis_vector": "service-channel-tcp-01",
+      "category": "array-reordering",
+      "expected_result": "different",
+      "id": "array-reordered-source-destination",
+      "reason": "context-hash-differs"
+    },
+    {
+      "artifact": {
+        "length": 306,
+        "path": "invalid/wrong-cbor-type-session-id.cbor",
+        "sha256": "13686ce8de4b675ff0d19cc2bae83a4a87c3c59fb43864e585401bfde8e7d9ab"
+      },
+      "artifact_type": "context-cbor",
+      "basis_vector": "service-channel-tcp-01",
+      "category": "wrong-cbor-type",
+      "expected_result": "reject",
+      "id": "wrong-cbor-type-session-id",
+      "reason": "session-id-type"
+    },
+    {
+      "artifact": {
+        "length": 290,
+        "path": "invalid/wrong-fixed-length-route-id.cbor",
+        "sha256": "ca4cf2a5782f67aa67404fb5930d878d40d80966ae649f5bf97fa32357298a94"
+      },
+      "artifact_type": "context-cbor",
+      "basis_vector": "service-channel-tcp-01",
+      "category": "wrong-fixed-length",
+      "expected_result": "reject",
+      "id": "wrong-fixed-length-route-id",
+      "reason": "route-id-length"
+    },
+    {
+      "artifact": {
+        "length": 291,
+        "path": "invalid/non-canonical-port.cbor",
+        "sha256": "680d627295cfb6bca1cc36a7f7fde3bb4ba5e3332c5ef7502a047880dfbc0a46"
+      },
+      "artifact_type": "context-cbor",
+      "basis_vector": "service-channel-tcp-01",
+      "category": "non-canonical-cbor",
+      "expected_result": "reject",
+      "id": "non-canonical-port",
+      "reason": "non-canonical-cbor"
+    },
+    {
+      "artifact": {
+        "length": 32,
+        "path": "invalid/wrong-exporter-label.txt",
+        "sha256": "b2bc1d3f0e59b02996298aee84941edbb6f2262619d547710a1677b404a9e668"
+      },
+      "artifact_type": "exporter-label-ascii",
+      "basis_vector": "service-channel-tcp-01",
+      "category": "wrong-label",
+      "expected_result": "reject",
+      "id": "wrong-exporter-label",
+      "reason": "wrong-label"
+    },
+    {
+      "artifact": {
+        "length": 2,
+        "path": "invalid/wrong-output-length-31.bin",
+        "sha256": "d8f7720bd76b8e048289b3eeebc5d41e20c35822d4652364a429ab7cb7ea6b1f"
+      },
+      "artifact_type": "output-length-u16be",
+      "basis_vector": "service-channel-tcp-01",
+      "category": "wrong-output-length",
+      "expected_result": "reject",
+      "id": "wrong-output-length-31",
+      "reason": "wrong-output-length"
+    },
+    {
+      "artifact": {
+        "length": 32,
+        "path": "invalid/different-exporter-master-secret.bin",
+        "sha256": "bede29f96937e63f4f92f40e25f5bd20e43d84d60d21642f3ca9250534e990cb"
+      },
+      "artifact_type": "exporter-master-secret",
+      "basis_vector": "service-channel-tcp-01",
+      "category": "different-master-secret",
+      "expected_result": "different",
+      "id": "different-exporter-master-secret",
+      "reason": "exporter-value-differs"
+    }
+  ],
+  "profile": {
+    "context_array_items": 14,
+    "context_profile": "NBSR-SERVICE-CHANNEL-CONTEXT-v2",
+    "exporter_label": "EXPORTER-NBSR-Service-Channel-v2",
+    "hash": "SHA-256",
+    "output_length": 32
+  },
+  "schema": "nbsr-wp4-exporter-vectors",
+  "valid_vectors": [
+    {
+      "artifacts": {
+        "context_cbor": {
+          "length": 289,
+          "path": "valid/service-channel-tcp-01/context.cbor",
+          "sha256": "fd18996b1842d24078ac2863d1403880b858ab060b39b15aa14dacab73dd331e"
+        },
+        "context_hash": {
+          "length": 32,
+          "path": "valid/service-channel-tcp-01/context-hash.bin",
+          "sha256": "684f16dea26cd313bf5e4fa1e05f69af156eac3a2e34949dbad7e91d7e26f3e4"
+        },
+        "derived_secret": {
+          "length": 32,
+          "path": "valid/service-channel-tcp-01/derived-secret.bin",
+          "sha256": "48991b8601e115c7c8f081da08b1288e81cfc8e69428223e8893ea3dddec8dde"
+        },
+        "exporter_master_secret": {
+          "length": 32,
+          "path": "valid/service-channel-tcp-01/exporter-master-secret.bin",
+          "sha256": "630dcd2966c4336691125448bbb25b4ff412a49c732db2c8abc1b8581bd710dd"
+        },
+        "exporter_value": {
+          "length": 32,
+          "path": "valid/service-channel-tcp-01/exporter-value.bin",
+          "sha256": "1c928b2461994d06179c9f44305e8e60a4f6a4a40bf50bc03cdae019c5634a3d"
+        }
+      },
+      "context": {
+        "channel_id": "102132435465768798a9bacbdcedfe0f",
+        "client_nonce": "2222222222222222222222222222222222222222222222222222222222222222",
+        "destination_edge_id": "edge.destination.beta",
+        "edge_nonce": "3333333333333333333333333333333333333333333333333333333333333333",
+        "policy_hash": "1111111111111111111111111111111111111111111111111111111111111111",
+        "port": 443,
+        "profile": "NBSR-SERVICE-CHANNEL-CONTEXT-v2",
+        "route_grant_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "route_id": "ffeeddccbbaa99887766554433221100",
+        "service_id": "service.example.web",
+        "session_id": "00112233445566778899aabbccddeeff",
+        "source_edge_id": "edge.source.alpha",
+        "transport": "tcp",
+        "version": 2
+      },
+      "id": "service-channel-tcp-01"
+    },
+    {
+      "artifacts": {
+        "context_cbor": {
+          "length": 290,
+          "path": "valid/service-channel-udp-02/context.cbor",
+          "sha256": "144f73d996c28bdcfb82a0a777c7570b2c5cc84ee818f94b634d6abbc3bfb331"
+        },
+        "context_hash": {
+          "length": 32,
+          "path": "valid/service-channel-udp-02/context-hash.bin",
+          "sha256": "7bf3a6b21029b3ab66fa31c1cca9db45874188852420ef05fbbe63ff01b4fc34"
+        },
+        "derived_secret": {
+          "length": 32,
+          "path": "valid/service-channel-udp-02/derived-secret.bin",
+          "sha256": "0cd67ad2123f6e24f4006f8bb7922db823a9b36ed92c1940c57abf37079ce6ff"
+        },
+        "exporter_master_secret": {
+          "length": 32,
+          "path": "valid/service-channel-udp-02/exporter-master-secret.bin",
+          "sha256": "1865c00831e73f7ee23fc13cb2d0f588b9c341835ca7472f8ec035aba4b789d6"
+        },
+        "exporter_value": {
+          "length": 32,
+          "path": "valid/service-channel-udp-02/exporter-value.bin",
+          "sha256": "68f54487aed247c382a5256f01bf77ee48f03fa45ceb92db3a76001da3f84206"
+        }
+      },
+      "context": {
+        "channel_id": "8899aabbccddeeff0011223344556677",
+        "client_nonce": "6666666666666666666666666666666666666666666666666666666666666666",
+        "destination_edge_id": "edge.destination.delta",
+        "edge_nonce": "7777777777777777777777777777777777777777777777777777777777777777",
+        "policy_hash": "5555555555555555555555555555555555555555555555555555555555555555",
+        "port": 5353,
+        "profile": "NBSR-SERVICE-CHANNEL-CONTEXT-v2",
+        "route_grant_digest": "4444444444444444444444444444444444444444444444444444444444444444",
+        "route_id": "7766554433221100ffeeddccbbaa9988",
+        "service_id": "service.example.dns",
+        "session_id": "fedcba98765432100123456789abcdef",
+        "source_edge_id": "edge.source.gamma",
+        "transport": "udp",
+        "version": 2
+      },
+      "id": "service-channel-udp-02"
+    }
+  ],
+  "version": 1
+}

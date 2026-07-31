@@ -23,6 +23,7 @@
 #![forbid(unsafe_code)]
 
 mod admission;
+mod channel_binding;
 mod channel_registry;
 mod channel_streams;
 mod config;
@@ -35,6 +36,10 @@ mod stream_gate;
 pub use admission::{
     ActiveChannel, AdmissionPolicy, AdmissionReject, AuthorizedServicePolicy, DestinationAdmission,
     RouteGrantClaims, RouteOpenRequest,
+};
+pub use channel_binding::{
+    ServiceChannelBinding, ServiceChannelContext, ServiceChannelExporterError,
+    canonical_service_channel_context, derive_service_channel_exporter_fixture,
 };
 pub use channel_registry::ChannelLimits;
 pub use config::{
