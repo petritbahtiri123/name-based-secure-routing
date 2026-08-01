@@ -1,0 +1,11 @@
+{
+  "instance_id": "lab-edge-01",
+  "synthetic_ipv4": "192.0.2.0/24",
+  "synthetic_ipv6": "fd00:6e62:7372:5::/64",
+  "name_node_host": "127.0.0.1",
+  "name_node_port": 5353,
+  "source_edge_host": "127.0.0.1",
+  "source_edge_port": 7443,
+  "policy_table": 10042,
+  "firewall_mark": 1312948266
+}

@@ -18,6 +18,9 @@ dependencies = [
   "uvicorn>=0.36,<0.37",
 ]
 
+[project.scripts]
+nbsr-gateway-plan = "nbsr.gateway_cli:main"
+
 [project.optional-dependencies]
 dev = [
   "hypothesis>=6.136,<7",
