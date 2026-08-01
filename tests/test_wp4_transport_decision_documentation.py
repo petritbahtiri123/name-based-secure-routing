@@ -119,27 +119,22 @@ def test_wp4_decision_retains_native_datagram_and_same_edge_limits() -> None:
         assert rule.casefold() in text.casefold()
 
 
-def test_wp4_decision_and_tracking_record_approved_in_progress_scope() -> None:
+def test_wp4_decision_and_tracking_record_completed_lab_scope() -> None:
     decision = _normalized(DECISION)
     status = _normalized(STATUS)
     roadmap = _normalized(ROADMAP)
 
     for rule in (
-        "Approved for implementation",
-        "implementation is in progress",
-        "implementation is approved and in progress, not complete",
-        "does not authorize OriginSet selection",
+        "Complete at the approved origin-free reusable multi-service same-edge loopback lab scope",
+        "no OriginSet selection",
         "Origin Endpoint connection",
         "NameRelay integration",
-        "production claim",
-        "frozen Core v0.1 change",
+        "production readiness",
+        "frozen Core v0.1",
         "A RouteGrant is single-use per Service Channel admission",
         "The existing 16-byte `channel_id` is the only Service Channel wire identifier in `ROUTE_*`, `STREAM_*`, exporter context, audit records, quota state, drain state, resume state, and UDP framing.",
     ):
         assert rule.casefold() in decision.casefold()
 
-    assert (
-        "Reusable multi-service Transport Session with isolated Service Channels | Planned | WP4 design is approved and implementation work is in progress, but no reusable multi-service runtime exists yet."
-        in status
-    )
-    assert "WP4 design is approved and implementation work is in progress" in roadmap
+    assert "Reusable multi-service Transport Session with isolated Service Channels | Implemented" in status
+    assert "WP4 reusable multi-service transport is complete" in roadmap

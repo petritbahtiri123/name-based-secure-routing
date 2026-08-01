@@ -1,8 +1,7 @@
 # WP4 reusable multi-service transport decision
 
-**Status:** Approved for implementation on 2026-07-31; implementation is in
-progress. This records the approved origin-free lab design, not completed
-runtime behavior or production readiness.
+**Status:** Complete at the approved origin-free reusable multi-service
+same-edge loopback lab scope. This is not production readiness.
 
 ## Scope and frozen boundary
 
@@ -78,8 +77,9 @@ runtime decoding. No new Core v0.1 value is allocated.
 | Buffered bytes per reliable stream | 1 MiB |
 | Buffered reliable bytes per channel | 8 MiB |
 | UDP datagram payload | `min(peer QUIC DATAGRAM maximum minus framing, 1200 bytes)` |
+| Maximum encoded UDP frame | 1235 bytes |
 | Buffered UDP datagrams per channel | 64 |
-| UDP rate per channel | 100 datagrams/second with burst 200 |
+| UDP rate per channel | 100 datagrams/second with burst 100 |
 | Audit queue | 1024 events |
 | Replay/tombstone entries per session | 4096 |
 | Channel drain maximum | 30 seconds |
@@ -182,8 +182,8 @@ remain WP6.
 
 ## Native QUIC DATAGRAM profile
 
-Native QUIC DATAGRAM is a later WP4 task, implemented only after TCP, exporter,
-lifecycle, and resumption work passes. It uses Quinn's RFC 9221 QUIC DATAGRAM
+Native QUIC DATAGRAM was implemented after TCP, exporter, lifecycle, and
+resumption passed. It uses Quinn's RFC 9221 QUIC DATAGRAM
 support: no HTTP/3, no MASQUE, and no CONNECT-UDP. One QUIC DATAGRAM payload is one
 complete application datagram; NBSR does not fragment or reassemble it.
 
@@ -208,4 +208,21 @@ exporter fixtures require independent verification before their runtime path is
 enabled. Completion requires evidence that two services share one session while
 authorization, grant nonce, exporter context, stream/byte/datagram quota, audit,
 revocation, drain, failure, and resume state remain isolated. The implementation
-is approved and in progress, not complete.
+is complete only at that lab scope.
+
+## Completion evidence and review
+
+Fresh final validation passed 114 executable Rust tests plus 16 doctests (130
+total), 332 focused WP4/frozen-protocol Python tests, and 826 passed with 1
+skipped in the full Python suite. Rustfmt, Clippy with `-D warnings`, Ruff on
+107 formatted files, `pip check`, both Core regeneration checks, and
+`git diff --check` passed. The separately owned Core v0.2 exporter subtree
+passed canonical CBOR single hash regeneration plus Python and Node checks for
+2 valid and 21 invalid/mutation vectors.
+
+The original independent review found Critical and Important authorization
+and binding defects; each was fixed with a failing regression first.
+Final independent review: PASS with 0 Critical, 0 Important, and 0 Minor findings.
+This evidence adds no OriginSet selection, Origin Endpoint forwarding,
+NameRelay integration, production claim, cross-edge resume, 0-RTT, WP5+
+behavior, or frozen Core v0.1 schema/registry/state/wrapper change.

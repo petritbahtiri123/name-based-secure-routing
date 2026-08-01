@@ -33,6 +33,16 @@ format, `pip check`, both vector regeneration checks, and `git diff --check`
 passed. This evidence remains limited to the origin-free single-service lab
 boundary documented below.
 
+WP4 is complete at its documented origin-free reusable multi-service same-edge loopback lab scope.
+Fresh final validation passed 114 executable Rust tests and 16 doctests (130 total),
+332 focused WP4/frozen-protocol Python tests, and 826 passed and 1 skipped in the
+full Python suite. Rustfmt, Clippy with `-D warnings`, Ruff check and format
+(`107 files already formatted`), `pip check`, both Core regeneration checks,
+and `git diff --check` passed. The separately owned Core v0.2 exporter subtree
+passed Python and Node verification for 2 valid and 21 invalid/mutation cases.
+Final independent review reported 0 Critical, 0 Important, and 0 Minor findings
+after the original Critical and Important findings were fixed with regression tests.
+
 This file separates evidence from intent. `Implemented` means verified behavior
 exists at prototype scale. It does not imply Core v0.1 conformance, production
 readiness, global federation, or independent interoperability.
@@ -79,7 +89,7 @@ readiness, global federation, or independent interoperability.
 | Outbound origin connector | Planned | Protected prototype origins exist, but the V3 connector state machine does not |
 | Opaque HTTP/HTTPS forwarding | Implemented | ISP vertical slice relays TCP bytes and preserves end-to-end application TLS |
 | Explicit Transport Session and single Service Channel binding | Implemented | WP3 completes the Rust-only origin-free lab slice: authenticated HELLO/ROUTE sequencing, signed admission, correlated ROUTE_ACCEPT, one admitted channel, and one actual Quinn stream. It has no OriginSet selection, origin connection, relay integration, multi-service reuse, or production claim. |
-| Reusable multi-service Transport Session with isolated Service Channels | Planned | WP4 design is approved and implementation work is in progress, but no reusable multi-service runtime exists yet. Session reuse, isolated channels, exporter binding, bounded lifecycle, same-edge resume, and native QUIC DATAGRAM remain unimplemented runtime work. No OriginSet selection, Origin Endpoint connection, NameRelay integration, production claim, cross-edge resume, 0-RTT, or frozen Core v0.1 change is authorized. |
+| Reusable multi-service Transport Session with isolated Service Channels | Implemented | WP4 proves compatible-session reuse with independently authorized TCP/UDP Service Channels, exporter binding, bounded lifecycle, quotas, audit, drain, failure containment, and same-edge resume at origin-free loopback lab scope. |
 | Internal Derived OriginSet | Implemented | Immutable, wire-neutral model with bounded endpoints, generation/sequence rollback protection, same-sequence equivocation rejection, and deterministic tests |
 | Legacy DNS-backed internal OriginSet | Implemented | Isolated bounded legacy DNS adapter builds Derived OriginSet values, preserves stable synthetic mapping inputs, separates DNS TTL from authorization, and supports the approved last-known-good policy; NameRelay integration remains gated |
 | Signed NBSR-native OriginSet publication | Planned | Core v0.2 or approved extension decision required |
@@ -109,7 +119,7 @@ The repository MUST NOT claim any of the following:
 - global federation;
 - anonymity from source or destination operators;
 - DDoS elimination;
-- QUIC, arbitrary UDP, live mobility, or transparent failover;
+- system-wide arbitrary UDP, live mobility, or transparent failover;
 - distributed replay or revocation guarantees;
 - origin concealment against a compromised destination operator or host
   administrator.
@@ -140,6 +150,23 @@ production readiness claim.
 
 The boundary has no OriginSet selection, no origin connection, no relay
 integration, no multi-service reuse, and no production-readiness claim.
+
+WP4 supersedes only the WP3 single-service restriction. It proves the exact
+reuse key `(source_edge_id, destination_edge_id, trust_profile_id, ALPN,
+protocol_version)`, a fresh RouteGrant and fresh nonces per channel, canonical
+CBOR TLS-exporter binding with a single SHA-256 context hash, and isolated TCP
+and native QUIC DATAGRAM channels. Exact lab limits are 32 channels per
+session, 64 streams per channel, a 2,049-stream session transport cap including
+control, 1 MiB per stream, durable bidirectional 8 MiB per channel, 1,200-byte
+UDP application payloads in a 1,235-byte frame, queue 64, 100 datagrams/second
+with burst 100, 1,024 global audit events, a 3,600-second session maximum,
+30-second drain, and same-edge resume for at most 30 seconds capped by grant
+and old-session hard authority.
+
+WP4 retains no OriginSet selection, no Origin Endpoint connection or forwarding,
+no NameRelay integration, no production-readiness claim, no cross-edge resume,
+no 0-RTT, no WP5+ behavior, and no frozen Core v0.1
+registry, schema, state, or wrapper change.
 
 No real recursive DNS, production DNSSEC/Web PKI policy, relay integration,
 validated OriginSet selection, native OriginSet publication, new Core v0.1

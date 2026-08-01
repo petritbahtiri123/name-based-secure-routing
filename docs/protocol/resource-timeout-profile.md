@@ -29,6 +29,8 @@ defaults. Values marked **pending** require human approval before production.
 | Application Streams per Service Channel | **Lab recommendation:** 64 concurrent; production pending | Enforce below the QUIC connection stream limit |
 | Buffered bytes per stream | **Lab recommendation:** 1 MiB; production pending | Backpressure rather than unbounded buffering |
 | Buffered bytes per Service Channel | **Lab recommendation:** 8 MiB bidirectional live ownership; production pending | Successful send/receive payload reservations remain charged until explicit application release or safe stream drop/reset; throttle only the offending channel when possible |
+| WP4 native UDP | **Lab profile:** 1,200-byte application payload; 1,235-byte encoded frame; queue 64; 100 datagrams/second with burst 100 | Per-channel fail-closed quota and replay enforcement; no fragmentation |
+| WP4 mandatory audit queue | **Lab profile:** 1,024 events globally | Reject audited mutation before state change at capacity |
 | Replay cache | **Bound required; exact entries pending** | Cover accepted proof lifetime plus clock skew and tombstone requirements; reject on capacity uncertainty |
 | DNS/Derived OriginSet cache | **Prototype profile:** 1,024 entries; production pending | Reject insertion at capacity; never silently evict accepted security state or tombstones |
 | Legacy OriginSet source TTL | **Prototype profile:** clamp to 300 seconds; production pending | Reachability freshness only; proactive refresh begins at 80 percent |

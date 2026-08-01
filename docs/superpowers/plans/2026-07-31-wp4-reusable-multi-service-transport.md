@@ -2,6 +2,8 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
+**Status:** Complete at the origin-free reusable multi-service same-edge loopback lab scope.
+
 **Goal:** Extend the WP3 origin-free Rust loopback into a bounded reusable multi-service QUIC Transport Session with independently authorized TCP and UDP Service Channels, exporter binding, lifecycle isolation, and same-edge resumption.
 
 **Architecture:** Keep one authenticated Core v0.2 control session and replace its single-route state with a bounded channel registry. Each channel owns its authorization, exporter context, stream/datagram gates, quotas, audit state, drain/revocation state, and resume eligibility; Quinn types remain isolated in `quinn_adapter.rs`.
@@ -193,7 +195,7 @@
 - Modify: `crates/nbsr-transport/src/lib.rs`
 
 **Interfaces:**
-- Produces: canonical closed CBOR datagram body, `DatagramGate` with per-direction monotonic sequence, 1200-byte inner cap, 64 queued datagrams, and 100/s burst-200 token bucket.
+- Produces: canonical closed CBOR datagram body, `DatagramGate` with per-direction monotonic sequence, 1200-byte inner cap, 64 queued datagrams, and 100/s burst-100 token bucket.
 
 - [ ] **Step 1: Add failing schema/vector tests** for canonical body bytes, wrong channel/transport, replay/order, unknown fields, oversize, and non-canonical CBOR.
 - [ ] **Step 2: Add failing loopback/quota tests** proving one datagram maps to one payload, no fragmentation, drop-on-quota audit, and sibling containment.
@@ -216,15 +218,15 @@
 - Consumes: all WP4 code and focused test evidence.
 - Produces: reviewed completion record limited to the origin-free loopback lab.
 
-- [ ] **Step 1: Run fresh Rust validation**: locked full suite, Rustfmt check, and Clippy all-targets with `-D warnings`, using a non-OneDrive Cargo target.
-- [ ] **Step 2: Run focused WP4 and frozen-protocol Python tests**, then the full Python suite with a writable isolated `--basetemp`.
-- [ ] **Step 3: Run Ruff check/format, `pip check`, Core v0.1 and Core v0.2 regeneration checks, Node verifier, and `git diff --check`**.
-- [ ] **Step 4: Dispatch independent review** for Critical/Important authorization, exporter, lifecycle, quota, audit, drain, resume, UDP, isolation, privacy, and frozen-wire findings.
-- [ ] **Step 5: Fix every Critical/Important finding with a failing regression test first**, rerun affected focused tests, and commit fixes separately.
-- [ ] **Step 6: Write a failing runtime-documentation test** requiring exact fresh counts and every retained non-claim.
-- [ ] **Step 7: Record only freshly observed evidence** and verify the documentation test plus `git diff --check`.
-- [ ] **Step 8: Commit evidence only** with `docs(wp4): record reusable transport evidence`.
-- [ ] **Step 9: Reconfirm branch, HEAD, `main`, clean staging/worktree, and ignored `.codex-test-temp-w4/`**; do not merge or push.
+- [x] **Step 1: Run fresh Rust validation**: 114 executable Rust tests plus 16 doctests passed with Rustfmt and Clippy `-D warnings`.
+- [x] **Step 2: Run focused WP4 and frozen-protocol Python tests**: 332 focused passed; full suite 826 passed, 1 skipped.
+- [x] **Step 3: Run Ruff check/format, `pip check`, Core v0.1 and Core v0.2 regeneration checks, Node verifier, and `git diff --check`**.
+- [x] **Step 4: Dispatch independent review** across the specified WP4 security and isolation range.
+- [x] **Step 5: Fix every Critical/Important finding with a failing regression test first**; final review passed 0 Critical, 0 Important, 0 Minor.
+- [x] **Step 6: Write a failing runtime-documentation test** requiring exact fresh counts and every retained non-claim.
+- [x] **Step 7: Record only freshly observed evidence** and verify the documentation test plus `git diff --check`.
+- [x] **Step 8: Commit evidence only** with `docs(wp4): record reusable transport evidence`.
+- [x] **Step 9: Reconfirm branch, HEAD, `main`, clean staging/worktree, and ignored `.codex-test-temp-w4/`**; do not merge or push.
 
 ## Plan self-review
 
