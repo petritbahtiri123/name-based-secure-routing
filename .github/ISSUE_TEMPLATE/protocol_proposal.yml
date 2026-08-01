@@ -1,0 +1,75 @@
+name: Protocol proposal
+description: Propose a change to NBSR semantics, wire behavior, trust boundaries, or interoperability
+title: "[Protocol]: "
+labels:
+  - protocol
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Large protocol changes require an explicit problem statement, security analysis, compatibility plan, and approval before implementation.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem statement
+      description: Describe the concrete problem without assuming a preferred solution.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: Describe the smallest protocol change that solves the problem.
+    validations:
+      required: true
+  - type: textarea
+    id: boundaries
+    attributes:
+      label: Trust boundaries and threat model
+      description: Identify actors, identities, keys, operators, and attacker capabilities affected.
+    validations:
+      required: true
+  - type: textarea
+    id: wire
+    attributes:
+      label: Wire, schema, registry, and state impact
+      description: List new or changed messages, fields, encodings, states, error codes, and version-dispatch behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: failure
+    attributes:
+      label: Failure and downgrade behavior
+      description: Explain fail-closed behavior, replay, rollback, equivocation, revocation, timeout, and resource bounds.
+    validations:
+      required: true
+  - type: textarea
+    id: privacy
+    attributes:
+      label: Privacy and metadata impact
+      description: Explain what each operator, peer, client, and service can observe.
+    validations:
+      required: true
+  - type: textarea
+    id: migration
+    attributes:
+      label: Compatibility and migration
+      description: Explain legacy behavior, interoperability, deployment sequencing, and rollback.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Required evidence
+      description: List tests, vectors, independent verification, documentation, and lab validation needed.
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Proposal checks
+      options:
+        - label: This proposal does not claim production readiness or deployment evidence that does not exist.
+          required: true
+        - label: I reviewed the authoritative vision, decisions, terminology, and implementation status.
+          required: true
