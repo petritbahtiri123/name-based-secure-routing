@@ -155,6 +155,124 @@ impl DestinationAdmission {
         self.channels.bound_channel(channel_id)
     }
 
+    pub(crate) fn bound_existing_channel(&self, channel_id: &[u8; 16]) -> Option<&ActiveChannel> {
+        self.channels.bound_existing_channel(channel_id)
+    }
+
+    pub(crate) fn lifecycle_channel(&self, channel_id: &[u8; 16]) -> Option<&ActiveChannel> {
+        self.channels.lifecycle_channel(channel_id)
+    }
+
+    pub(crate) fn start_channel_drain(
+        &mut self,
+        channel_id: &[u8; 16],
+        requested: crate::DrainDeadline,
+        monotonic_now: u64,
+        unix_now: u64,
+        session_deadline: Option<crate::DrainDeadline>,
+    ) -> Result<crate::DrainDeadline, ChannelLifecycleError> {
+        let deadline = self.channels.prepare_drain(
+            channel_id,
+            requested,
+            monotonic_now,
+            unix_now,
+            session_deadline,
+        )?;
+        let service_id = self
+            .channels
+            .lifecycle_channel(channel_id)
+            .ok_or(ChannelLifecycleError::InvalidState)?
+            .service_id
+            .clone();
+        self.audit
+            .record(
+                Some(*channel_id),
+                &service_id,
+                AuditAction::ChannelDrainStarted,
+                AuditOutcome::Allowed,
+                AuditReason::None,
+            )
+            .map_err(|_| ChannelLifecycleError::AuditUnavailable)?;
+        self.channels.commit_drain(channel_id, deadline)?;
+        Ok(deadline)
+    }
+
+    pub(crate) fn channel_drain_deadline(
+        &self,
+        channel_id: &[u8; 16],
+    ) -> Option<crate::DrainDeadline> {
+        self.channels.drain_deadline(channel_id)
+    }
+
+    pub(crate) fn finish_channel_drain(
+        &mut self,
+        channel_id: &[u8; 16],
+    ) -> Result<(), ChannelLifecycleError> {
+        let service_id = self
+            .channels
+            .lifecycle_channel(channel_id)
+            .ok_or(ChannelLifecycleError::InvalidState)?
+            .service_id
+            .clone();
+        self.audit
+            .record(
+                Some(*channel_id),
+                &service_id,
+                AuditAction::ChannelDrainForced,
+                AuditOutcome::Allowed,
+                AuditReason::None,
+            )
+            .map_err(|_| ChannelLifecycleError::AuditUnavailable)?;
+        self.channels.finish_drain(channel_id)
+    }
+
+    pub(crate) fn audit_session_drain_started(&mut self) -> Result<(), ChannelLifecycleError> {
+        self.audit
+            .record(
+                None,
+                "transport-session",
+                AuditAction::SessionDrainStarted,
+                AuditOutcome::Allowed,
+                AuditReason::None,
+            )
+            .map_err(|_| ChannelLifecycleError::AuditUnavailable)
+    }
+
+    pub(crate) fn audit_session_drain_forced(&mut self) -> Result<(), ChannelLifecycleError> {
+        self.audit
+            .record(
+                None,
+                "transport-session",
+                AuditAction::SessionDrainForced,
+                AuditOutcome::Allowed,
+                AuditReason::None,
+            )
+            .map_err(|_| ChannelLifecycleError::AuditUnavailable)
+    }
+
+    pub(crate) fn close_live_channel(
+        &mut self,
+        channel_id: &[u8; 16],
+        closed_at: u64,
+    ) -> Result<(), ChannelLifecycleError> {
+        let service_id = self
+            .channels
+            .lifecycle_channel(channel_id)
+            .ok_or(ChannelLifecycleError::InvalidState)?
+            .service_id
+            .clone();
+        self.audit
+            .record(
+                Some(*channel_id),
+                &service_id,
+                AuditAction::ChannelClosed,
+                AuditOutcome::Allowed,
+                AuditReason::None,
+            )
+            .map_err(|_| ChannelLifecycleError::AuditUnavailable)?;
+        self.channels.close_live(channel_id, closed_at)
+    }
+
     pub(crate) fn install_binding(
         &mut self,
         channel_id: &[u8; 16],

@@ -2,7 +2,7 @@
 
 use std::collections::HashMap;
 
-use crate::channel_lifecycle::{ChannelState, ReplayPreflightError, ReplayStore};
+use crate::channel_lifecycle::{ChannelState, DrainDeadline, ReplayPreflightError, ReplayStore};
 use crate::{ActiveChannel, AdmissionReject, ChannelBinding};
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -36,6 +36,7 @@ pub(crate) struct ChannelRegistry {
 struct ActiveChannelEntry {
     channel: ActiveChannel,
     binding: Option<ChannelBinding>,
+    drain_deadline: Option<DrainDeadline>,
     grant_expires_at: u64,
 }
 
@@ -118,8 +119,12 @@ impl ChannelRegistry {
     pub(crate) fn channel_state(&self, channel_id: &[u8; 16]) -> Option<ChannelState> {
         if self.pending.contains_key(channel_id) {
             Some(ChannelState::Candidate)
-        } else if self.active.contains_key(channel_id) {
-            Some(ChannelState::Active)
+        } else if let Some(entry) = self.active.get(channel_id) {
+            Some(if entry.drain_deadline.is_some() {
+                ChannelState::Draining
+            } else {
+                ChannelState::Active
+            })
         } else {
             self.terminal.get(channel_id).map(|entry| entry.state)
         }
@@ -139,6 +144,7 @@ impl ChannelRegistry {
             ActiveChannelEntry {
                 channel: pending.channel,
                 binding: None,
+                drain_deadline: None,
                 grant_expires_at: pending.grant_expires_at,
             },
         );
@@ -146,14 +152,130 @@ impl ChannelRegistry {
     }
 
     pub(crate) fn channel(&self, channel_id: &[u8; 16]) -> Option<&ActiveChannel> {
-        self.active.get(channel_id).map(|entry| &entry.channel)
+        self.active
+            .get(channel_id)
+            .filter(|entry| entry.drain_deadline.is_none())
+            .map(|entry| &entry.channel)
     }
 
     pub(crate) fn bound_channel(&self, channel_id: &[u8; 16]) -> Option<&ActiveChannel> {
         self.active
             .get(channel_id)
+            .filter(|entry| entry.binding.is_some() && entry.drain_deadline.is_none())
+            .map(|entry| &entry.channel)
+    }
+
+    pub(crate) fn bound_existing_channel(&self, channel_id: &[u8; 16]) -> Option<&ActiveChannel> {
+        self.active
+            .get(channel_id)
             .filter(|entry| entry.binding.is_some())
             .map(|entry| &entry.channel)
+    }
+
+    pub(crate) fn lifecycle_channel(&self, channel_id: &[u8; 16]) -> Option<&ActiveChannel> {
+        self.active.get(channel_id).map(|entry| &entry.channel)
+    }
+
+    pub(crate) fn prepare_drain(
+        &self,
+        channel_id: &[u8; 16],
+        requested: DrainDeadline,
+        monotonic_now: u64,
+        unix_now: u64,
+        session_deadline: Option<DrainDeadline>,
+    ) -> Result<DrainDeadline, ChannelLifecycleError> {
+        let entry = self.active.get(channel_id).ok_or_else(|| {
+            if self.channel_state(channel_id).is_some() {
+                ChannelLifecycleError::InvalidState
+            } else {
+                ChannelLifecycleError::UnknownChannel
+            }
+        })?;
+        if entry.drain_deadline.is_some() {
+            return Err(ChannelLifecycleError::InvalidState);
+        }
+        let grant_remaining = entry.grant_expires_at.saturating_sub(unix_now);
+        let grant_deadline = DrainDeadline::new(monotonic_now, grant_remaining.min(30))
+            .map_err(|_| ChannelLifecycleError::InvalidState)?;
+        let mut effective = requested.no_later_than(grant_deadline);
+        if let Some(session_deadline) = session_deadline {
+            effective = effective.no_later_than(session_deadline);
+        }
+        Ok(effective)
+    }
+
+    pub(crate) fn commit_drain(
+        &mut self,
+        channel_id: &[u8; 16],
+        deadline: DrainDeadline,
+    ) -> Result<(), ChannelLifecycleError> {
+        let entry = self
+            .active
+            .get_mut(channel_id)
+            .ok_or(ChannelLifecycleError::UnknownChannel)?;
+        if entry.drain_deadline.is_some() {
+            return Err(ChannelLifecycleError::InvalidState);
+        }
+        entry.drain_deadline = Some(deadline);
+        Ok(())
+    }
+
+    pub(crate) fn drain_deadline(&self, channel_id: &[u8; 16]) -> Option<DrainDeadline> {
+        self.active.get(channel_id)?.drain_deadline
+    }
+
+    pub(crate) fn finish_drain(
+        &mut self,
+        channel_id: &[u8; 16],
+    ) -> Result<(), ChannelLifecycleError> {
+        let entry = self.active.remove(channel_id).ok_or_else(|| {
+            if self.channel_state(channel_id).is_some() {
+                ChannelLifecycleError::InvalidState
+            } else {
+                ChannelLifecycleError::UnknownChannel
+            }
+        })?;
+        if entry.drain_deadline.is_none() {
+            self.active.insert(*channel_id, entry);
+            return Err(ChannelLifecycleError::InvalidState);
+        }
+        self.replay
+            .mark_tombstone(channel_id, entry.grant_expires_at.saturating_add(30));
+        self.terminal.insert(
+            *channel_id,
+            TerminalChannelEntry {
+                channel: entry.channel,
+                state: ChannelState::Closed,
+            },
+        );
+        Ok(())
+    }
+
+    pub(crate) fn close_live(
+        &mut self,
+        channel_id: &[u8; 16],
+        closed_at: u64,
+    ) -> Result<(), ChannelLifecycleError> {
+        let entry = self.active.remove(channel_id).ok_or_else(|| {
+            if self.channel_state(channel_id).is_some() {
+                ChannelLifecycleError::InvalidState
+            } else {
+                ChannelLifecycleError::UnknownChannel
+            }
+        })?;
+        let tombstone_expires_at = entry
+            .grant_expires_at
+            .saturating_add(30)
+            .max(closed_at.saturating_add(30));
+        self.replay.mark_tombstone(channel_id, tombstone_expires_at);
+        self.terminal.insert(
+            *channel_id,
+            TerminalChannelEntry {
+                channel: entry.channel,
+                state: ChannelState::Closed,
+            },
+        );
+        Ok(())
     }
 
     pub(crate) fn install_binding(
@@ -465,5 +587,38 @@ mod tests {
             Err(ChannelBindingInstallError::Mismatch)
         );
         assert!(registry.bound_channel(&[2; 16]).is_none());
+    }
+
+    #[test]
+    fn draining_and_closing_one_channel_preserves_its_active_sibling() {
+        let mut registry = ChannelRegistry::new(ChannelLimits::default());
+        for id in 1..=2 {
+            let active = channel(id, &format!("service-{id}"));
+            registry
+                .preflight_pending(&active, &[id; 16])
+                .expect("fresh sibling channel");
+            registry.admit_pending(active, [id; 16], 1_000);
+            registry
+                .confirm_active(&[id; 16])
+                .expect("activate sibling channel");
+        }
+
+        let requested = DrainDeadline::new(100, 30).expect("bounded drain");
+        let deadline = registry
+            .prepare_drain(&[1; 16], requested, 100, 990, None)
+            .expect("prepare target drain");
+        registry
+            .commit_drain(&[1; 16], deadline)
+            .expect("commit target drain");
+        assert_eq!(
+            registry.channel_state(&[1; 16]),
+            Some(ChannelState::Draining)
+        );
+        assert_eq!(registry.channel_state(&[2; 16]), Some(ChannelState::Active));
+
+        registry.finish_drain(&[1; 16]).expect("close target only");
+        assert_eq!(registry.channel_state(&[1; 16]), Some(ChannelState::Closed));
+        assert_eq!(registry.channel_state(&[2; 16]), Some(ChannelState::Active));
+        assert!(registry.channel(&[2; 16]).is_some());
     }
 }

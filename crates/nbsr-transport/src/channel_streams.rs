@@ -135,6 +135,10 @@ impl ChannelStreams {
         self.channels.remove(channel_id);
     }
 
+    pub(crate) fn revoke_all(&mut self) {
+        self.channels.clear();
+    }
+
     pub(crate) fn reserve_bytes(
         &mut self,
         channel_id: &[u8; 16],

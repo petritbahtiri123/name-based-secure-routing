@@ -57,15 +57,19 @@ pub use channel_binding::{
     ChannelBinding, ServiceChannelBinding, ServiceChannelContext, ServiceChannelExporterError,
     canonical_service_channel_context, derive_service_channel_exporter_fixture,
 };
-pub use channel_lifecycle::ChannelState;
+pub use channel_lifecycle::{
+    AuditIntegrity, ChannelState, DrainDeadline, DrainEnforcement, DrainReject, MAX_DRAIN_SECONDS,
+    SessionDrainState,
+};
 pub use channel_registry::ChannelLimits;
 pub use config::{
     ClientEndpointConfig, EdgeIdentity, EdgeRole, PeerPolicy, ServerEndpointConfig, TlsMaterial,
     build_client_config, build_server_config,
 };
 pub use core_v02::{
-    CoreV02Envelope, CoreV02Limits, CoreV02MessageType, CoreV02Reject, RouteGrantIssuer,
-    ValidatedRouteGrant, decode_control_envelope, validate_route_grant_sign1,
+    CoreV02Envelope, CoreV02Limits, CoreV02MessageType, CoreV02Reject, RouteCloseBody,
+    RouteDrainBody, RouteGrantIssuer, RouteRevokeBody, ValidatedRouteGrant,
+    decode_control_envelope, validate_route_grant_sign1,
 };
 pub use error::TransportError;
 pub use quinn_adapter::{

@@ -30,6 +30,10 @@ pub enum AuditAction {
     BindingInstalled,
     ChannelRevoked,
     ChannelClosed,
+    ChannelDrainStarted,
+    ChannelDrainForced,
+    SessionDrainStarted,
+    SessionDrainForced,
     StreamAuthorized,
     QuotaDenied,
 }

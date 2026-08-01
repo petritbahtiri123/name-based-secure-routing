@@ -1,10 +1,13 @@
+use std::collections::HashMap;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
-use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::{Arc, Mutex, Weak};
 
 use quinn::crypto::rustls::HandshakeData;
 use quinn::{Connection, Endpoint, RecvStream, SendStream, VarInt};
 use rustls::pki_types::CertificateDer;
 use tokio::io::AsyncReadExt;
+use tokio::sync::{Mutex as AsyncMutex, Notify};
 use tokio::time::timeout;
 use x509_parser::extensions::GeneralName;
 use x509_parser::prelude::{FromDer, X509Certificate};
@@ -66,30 +69,151 @@ pub struct ControlStream {
 }
 
 pub struct ApplicationStream {
+    id: u64,
+    shared: Arc<SharedApplicationStream>,
+}
+
+struct ApplicationStreamParts {
     send: SendStream,
     receive: RecvStream,
 }
 
+struct SharedApplicationStream {
+    cancelled: AtomicBool,
+    inner: AsyncMutex<ApplicationStreamParts>,
+    notify: Notify,
+}
+
+type TrackedStream = Weak<SharedApplicationStream>;
+type TrackedChannelStreams = HashMap<u64, TrackedStream>;
+
+impl SharedApplicationStream {
+    fn force_reset(&self) {
+        self.cancelled.store(true, Ordering::Release);
+        self.notify.notify_waiters();
+        if let Ok(mut inner) = self.inner.try_lock() {
+            reset_parts(&mut inner);
+        }
+    }
+}
+
+struct TrackedApplicationStreams {
+    by_channel: Mutex<HashMap<[u8; 16], TrackedChannelStreams>>,
+}
+
+impl TrackedApplicationStreams {
+    fn new() -> Self {
+        Self {
+            by_channel: Mutex::new(HashMap::new()),
+        }
+    }
+
+    fn track(&self, channel_id: [u8; 16], stream: &ApplicationStream) {
+        let mut by_channel = self
+            .by_channel
+            .lock()
+            .unwrap_or_else(|error| error.into_inner());
+        let streams = by_channel.entry(channel_id).or_default();
+        streams.retain(|_, stream| stream.strong_count() != 0);
+        streams.insert(stream.id, Arc::downgrade(&stream.shared));
+    }
+
+    fn reset_channel(&self, channel_id: &[u8; 16]) {
+        let streams = self
+            .by_channel
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .remove(channel_id)
+            .unwrap_or_default();
+        for stream in streams.into_values().filter_map(|stream| stream.upgrade()) {
+            stream.force_reset();
+        }
+    }
+
+    fn reset_all(&self) {
+        let streams = std::mem::take(
+            &mut *self
+                .by_channel
+                .lock()
+                .unwrap_or_else(|error| error.into_inner()),
+        );
+        for stream in streams
+            .into_values()
+            .flat_map(HashMap::into_values)
+            .filter_map(|stream| stream.upgrade())
+        {
+            stream.force_reset();
+        }
+    }
+}
+
+fn application_stream(send: SendStream, receive: RecvStream) -> ApplicationStream {
+    let id = VarInt::from(send.id()).into_inner();
+    ApplicationStream {
+        id,
+        shared: Arc::new(SharedApplicationStream {
+            cancelled: AtomicBool::new(false),
+            inner: AsyncMutex::new(ApplicationStreamParts { send, receive }),
+            notify: Notify::new(),
+        }),
+    }
+}
+
+fn reset_parts(parts: &mut ApplicationStreamParts) {
+    let code = VarInt::from_u32(1);
+    let _ = parts.send.reset(code);
+    let _ = parts.receive.stop(code);
+}
+
 impl ApplicationStream {
     pub fn id(&self) -> u64 {
-        VarInt::from(self.send.id()).into_inner()
+        self.id
     }
 
     pub async fn send_payload(&mut self, payload: &[u8]) -> Result<(), TransportError> {
-        self.send
-            .write_all(payload)
-            .await
-            .map_err(|_| TransportError::ApplicationStreamFailed)?;
-        self.send
+        let notified = self.shared.notify.notified();
+        tokio::pin!(notified);
+        let mut inner = self.shared.inner.lock().await;
+        if self.shared.cancelled.load(Ordering::Acquire) {
+            reset_parts(&mut inner);
+            return Err(TransportError::ApplicationStreamRejected);
+        }
+        tokio::select! {
+            _ = &mut notified => {
+                reset_parts(&mut inner);
+                return Err(TransportError::ApplicationStreamRejected);
+            }
+            result = inner.send.write_all(payload) => {
+                result.map_err(|_| TransportError::ApplicationStreamFailed)?;
+            }
+        }
+        if self.shared.cancelled.load(Ordering::Acquire) {
+            reset_parts(&mut inner);
+            return Err(TransportError::ApplicationStreamRejected);
+        }
+        inner
+            .send
             .finish()
             .map_err(|_| TransportError::ApplicationStreamFailed)
     }
 
     pub async fn receive_payload(&mut self) -> Result<Vec<u8>, TransportError> {
-        self.receive
-            .read_to_end(4_096)
-            .await
-            .map_err(|_| TransportError::ApplicationStreamRejected)
+        let notified = self.shared.notify.notified();
+        tokio::pin!(notified);
+        let mut inner = self.shared.inner.lock().await;
+        if self.shared.cancelled.load(Ordering::Acquire) {
+            reset_parts(&mut inner);
+            return Err(TransportError::ApplicationStreamRejected);
+        }
+        tokio::select! {
+            _ = &mut notified => {
+                reset_parts(&mut inner);
+                Err(TransportError::ApplicationStreamRejected)
+            }
+            result = inner.receive.read_to_end(4_096) => {
+                result.map_err(|_| TransportError::ApplicationStreamRejected)
+            }
+        }
     }
 
     pub async fn send_and_receive(&mut self, payload: &[u8]) -> Result<Vec<u8>, TransportError> {
@@ -97,31 +221,55 @@ impl ApplicationStream {
         self.receive_payload().await
     }
 
-    fn reject(mut self) -> Result<(), TransportError> {
+    async fn reject(self) -> Result<(), TransportError> {
+        self.shared.cancelled.store(true, Ordering::Release);
+        self.shared.notify.notify_waiters();
+        let mut inner = self.shared.inner.lock().await;
         let code = VarInt::from_u32(1);
-        self.send
+        inner
+            .send
             .reset(code)
             .map_err(|_| TransportError::ApplicationStreamFailed)?;
-        self.receive
+        inner
+            .receive
             .stop(code)
             .map_err(|_| TransportError::ApplicationStreamFailed)
     }
 
     pub async fn echo_once(&mut self) -> Result<Vec<u8>, TransportError> {
-        let payload = match self.receive.read_to_end(4_097).await {
+        let notified = self.shared.notify.notified();
+        tokio::pin!(notified);
+        let mut inner = self.shared.inner.lock().await;
+        if self.shared.cancelled.load(Ordering::Acquire) {
+            reset_parts(&mut inner);
+            return Err(TransportError::ApplicationStreamRejected);
+        }
+        let payload = match tokio::select! {
+            _ = &mut notified => {
+                reset_parts(&mut inner);
+                return Err(TransportError::ApplicationStreamRejected);
+            }
+            result = inner.receive.read_to_end(4_097) => result,
+        } {
             Ok(payload) if payload.len() <= 4_096 => payload,
             Ok(_) | Err(_) => {
                 let code = VarInt::from_u32(2);
-                let _ = self.send.reset(code);
-                let _ = self.receive.stop(code);
+                let _ = inner.send.reset(code);
+                let _ = inner.receive.stop(code);
                 return Err(TransportError::ApplicationPayloadTooLarge);
             }
         };
-        self.send
-            .write_all(&payload)
-            .await
-            .map_err(|_| TransportError::ApplicationStreamFailed)?;
-        self.send
+        tokio::select! {
+            _ = &mut notified => {
+                reset_parts(&mut inner);
+                return Err(TransportError::ApplicationStreamRejected);
+            }
+            result = inner.send.write_all(&payload) => {
+                result.map_err(|_| TransportError::ApplicationStreamFailed)?;
+            }
+        }
+        inner
+            .send
             .finish()
             .map_err(|_| TransportError::ApplicationStreamFailed)?;
         Ok(payload)
@@ -232,6 +380,7 @@ pub struct AuthenticatedConnection {
     local_role: EdgeRole,
     negotiated_alpn: Vec<u8>,
     close_timeout: std::time::Duration,
+    tracked_streams: Arc<TrackedApplicationStreams>,
 }
 
 struct ConnectionBindingMarker;
@@ -340,7 +489,7 @@ impl AuthenticatedConnection {
             .open_bi()
             .await
             .map_err(|_| TransportError::ApplicationStreamFailed)?;
-        Ok(ApplicationStream { send, receive })
+        Ok(application_stream(send, receive))
     }
 
     pub async fn accept_session_stream(
@@ -353,14 +502,15 @@ impl AuthenticatedConnection {
             .accept_bi()
             .await
             .map_err(|_| TransportError::ApplicationStreamFailed)?;
-        let stream = ApplicationStream { send, receive };
+        let stream = application_stream(send, receive);
         if session
             .authorize_application_stream(channel_id, stream.id())
             .is_err()
         {
-            let _ = stream.reject();
+            let _ = stream.reject().await;
             return Err(TransportError::ApplicationStreamRejected);
         }
+        self.tracked_streams.track(channel_id, &stream);
         Ok(stream)
     }
 
@@ -370,10 +520,43 @@ impl AuthenticatedConnection {
             .accept_bi()
             .await
             .map_err(|_| TransportError::ApplicationStreamFailed)?;
-        let stream = ApplicationStream { send, receive };
+        let stream = application_stream(send, receive);
         let id = stream.id();
-        stream.reject()?;
+        stream.reject().await?;
         Ok(id)
+    }
+
+    pub async fn enforce_channel_drain(
+        &self,
+        session: &mut ControlSession,
+        channel_id: [u8; 16],
+        monotonic_now: u64,
+    ) -> Result<crate::DrainEnforcement, SessionReject> {
+        if !session.matches_connection(&self.binding_capability) {
+            return Err(SessionReject::ConnectionMismatch);
+        }
+        let result = session.enforce_channel_drain(channel_id, monotonic_now)?;
+        if matches!(result, crate::DrainEnforcement::Enforced { .. }) {
+            self.tracked_streams.reset_channel(&channel_id);
+        }
+        Ok(result)
+    }
+
+    pub async fn enforce_session_drain(
+        &self,
+        session: &mut ControlSession,
+        monotonic_now: u64,
+    ) -> Result<crate::DrainEnforcement, SessionReject> {
+        if !session.matches_connection(&self.binding_capability) {
+            return Err(SessionReject::ConnectionMismatch);
+        }
+        let result = session.enforce_session_drain(monotonic_now)?;
+        if matches!(result, crate::DrainEnforcement::Enforced { .. }) {
+            self.tracked_streams.reset_all();
+            self.connection
+                .close(VarInt::from_u32(1), b"session drain deadline");
+        }
+        Ok(result)
     }
 }
 
@@ -431,5 +614,6 @@ fn authenticate_connection(
         local_role: policy.local_role(),
         negotiated_alpn,
         close_timeout: policy.handshake_timeout(),
+        tracked_streams: Arc::new(TrackedApplicationStreams::new()),
     })
 }

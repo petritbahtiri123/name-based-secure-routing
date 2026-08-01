@@ -9,9 +9,10 @@ use crate::channel_registry::{ChannelBindingInstallError, ChannelLifecycleError}
 use crate::channel_streams::ChannelStreams;
 use crate::quinn_adapter::ConnectionBindingCapability;
 use crate::{
-    ActiveChannel, AdmissionReject, AuditEvent, AuthenticatedConnection, ChannelBinding,
-    ChannelState, CoreV02Envelope, CoreV02MessageType, DestinationAdmission, EdgeIdentity,
-    EdgeRole, RouteGrantIssuer, StreamReject,
+    ActiveChannel, AdmissionReject, AuditEvent, AuditIntegrity, AuthenticatedConnection,
+    ChannelBinding, ChannelState, CoreV02Envelope, CoreV02MessageType, DestinationAdmission,
+    DrainDeadline, DrainEnforcement, EdgeIdentity, EdgeRole, RouteGrantIssuer, SessionDrainState,
+    StreamReject,
 };
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -37,6 +38,9 @@ pub struct ControlSession {
     state: SessionState,
     request_ids: HashSet<[u8; 16]>,
     streams: ChannelStreams,
+    session_deadline: Option<DrainDeadline>,
+    session_drain_state: SessionDrainState,
+    session_drain_deadline: Option<DrainDeadline>,
 }
 
 enum SessionState {
@@ -76,6 +80,29 @@ impl ControlSession {
         admission: DestinationAdmission,
         trusted_issuers: Vec<RouteGrantIssuer>,
     ) -> Self {
+        Self::new_inner(connection, admission, trusted_issuers, None)
+    }
+
+    pub fn new_with_monotonic_deadline(
+        connection: &AuthenticatedConnection,
+        admission: DestinationAdmission,
+        trusted_issuers: Vec<RouteGrantIssuer>,
+        session_deadline: DrainDeadline,
+    ) -> Self {
+        Self::new_inner(
+            connection,
+            admission,
+            trusted_issuers,
+            Some(session_deadline),
+        )
+    }
+
+    fn new_inner(
+        connection: &AuthenticatedConnection,
+        admission: DestinationAdmission,
+        trusted_issuers: Vec<RouteGrantIssuer>,
+        session_deadline: Option<DrainDeadline>,
+    ) -> Self {
         Self {
             admission,
             authenticated_peer: connection.authenticated_peer().clone(),
@@ -85,6 +112,9 @@ impl ControlSession {
             state: SessionState::AwaitingClientHello,
             request_ids: HashSet::new(),
             streams: ChannelStreams::new(),
+            session_deadline,
+            session_drain_state: SessionDrainState::Active,
+            session_drain_deadline: None,
         }
     }
 
@@ -102,6 +132,71 @@ impl ControlSession {
 
     pub fn tombstone_expires_at(&self, channel_id: [u8; 16]) -> Option<u64> {
         self.admission.tombstone_expires_at(&channel_id)
+    }
+
+    pub fn channel_drain_deadline(&self, channel_id: [u8; 16]) -> Option<u64> {
+        self.admission
+            .channel_drain_deadline(&channel_id)
+            .map(DrainDeadline::monotonic_seconds)
+    }
+
+    pub fn session_drain_state(&self) -> SessionDrainState {
+        self.session_drain_state
+    }
+
+    pub fn session_drain_deadline(&self) -> Option<u64> {
+        self.session_drain_deadline
+            .map(DrainDeadline::monotonic_seconds)
+    }
+
+    pub fn begin_session_drain(
+        &mut self,
+        monotonic_now: u64,
+        requested_seconds: u64,
+    ) -> Result<(), SessionReject> {
+        self.established_session_id()?;
+        if self.session_drain_state != SessionDrainState::Active {
+            return Err(SessionReject::InvalidChannelState);
+        }
+        let mut deadline = DrainDeadline::new(monotonic_now, requested_seconds)
+            .map_err(|_| SessionReject::ControlRejected)?;
+        if let Some(session_deadline) = self.session_deadline {
+            deadline = deadline.no_later_than(session_deadline);
+        }
+        self.admission
+            .audit_session_drain_started()
+            .map_err(map_lifecycle)?;
+        self.session_drain_state = SessionDrainState::Draining;
+        self.session_drain_deadline = Some(deadline);
+        Ok(())
+    }
+
+    pub(crate) fn enforce_session_drain(
+        &mut self,
+        monotonic_now: u64,
+    ) -> Result<DrainEnforcement, SessionReject> {
+        if self.session_drain_state != SessionDrainState::Draining {
+            return Err(SessionReject::InvalidChannelState);
+        }
+        let deadline = self
+            .session_drain_deadline
+            .ok_or(SessionReject::InvalidChannelState)?;
+        if !deadline.is_due(monotonic_now) {
+            return Ok(DrainEnforcement::Pending);
+        }
+        match self.admission.audit_session_drain_forced() {
+            Ok(()) => {
+                self.streams.revoke_all();
+                self.session_drain_state = SessionDrainState::Closed;
+                Ok(DrainEnforcement::Enforced {
+                    audit_integrity: AuditIntegrity::Recorded,
+                })
+            }
+            Err(ChannelLifecycleError::AuditUnavailable) => Ok(DrainEnforcement::Enforced {
+                audit_integrity: AuditIntegrity::Failed,
+            }),
+            Err(error) => Err(map_lifecycle(error)),
+        }
     }
 
     pub fn audit_events(&self) -> impl ExactSizeIterator<Item = &AuditEvent> {
@@ -203,6 +298,7 @@ impl ControlSession {
         &mut self,
         envelope: &CoreV02Envelope,
     ) -> Result<ActiveChannel, SessionReject> {
+        self.require_session_active()?;
         let (request_id, session_id, sequence) = binding(envelope)?;
         if self.request_ids.contains(&request_id) {
             return Err(SessionReject::Replay);
@@ -253,6 +349,7 @@ impl ControlSession {
         &mut self,
         envelope: &CoreV02Envelope,
     ) -> Result<(), SessionReject> {
+        self.require_session_active()?;
         let (request_id, session_id, sequence) = binding(envelope)?;
         let SessionState::Established {
             destination_sequence,
@@ -302,6 +399,7 @@ impl ControlSession {
         channel_id: [u8; 16],
         envelope: &CoreV02Envelope,
     ) -> Result<(), SessionReject> {
+        self.require_session_active()?;
         let (request_id, session_id, _) = binding(envelope)?;
         let expected_session_id = self.established_session_id()?;
         if session_id != expected_session_id || self.request_ids.contains(&request_id) {
@@ -331,6 +429,7 @@ impl ControlSession {
         channel_id: [u8; 16],
         envelope: &CoreV02Envelope,
     ) -> Result<(), SessionReject> {
+        self.require_session_active()?;
         let (_, session_id, _) = binding(envelope)?;
         if session_id != self.established_session_id()? {
             return Err(SessionReject::Replay);
@@ -353,6 +452,7 @@ impl ControlSession {
         stream_id: u64,
         bytes: usize,
     ) -> Result<(), SessionReject> {
+        self.require_session_active()?;
         self.require_bound_channel(&channel_id)?;
         match self.streams.reserve_bytes(&channel_id, stream_id, bytes) {
             Err(StreamReject::OverCapacity) => {
@@ -371,7 +471,7 @@ impl ControlSession {
         stream_id: u64,
         bytes: usize,
     ) -> Result<(), SessionReject> {
-        self.require_bound_channel(&channel_id)?;
+        self.require_existing_bound_channel(&channel_id)?;
         self.streams
             .release_bytes(&channel_id, stream_id, bytes)
             .map_err(SessionReject::Stream)
@@ -382,7 +482,7 @@ impl ControlSession {
         channel_id: [u8; 16],
         stream_id: u64,
     ) -> Result<(), SessionReject> {
-        self.require_bound_channel(&channel_id)?;
+        self.require_existing_bound_channel(&channel_id)?;
         self.streams
             .release_stream(&channel_id, stream_id)
             .map_err(SessionReject::Stream)
@@ -393,6 +493,7 @@ impl ControlSession {
         channel_id: [u8; 16],
         actual_stream_id: u64,
     ) -> Result<(), SessionReject> {
+        self.require_session_active()?;
         self.require_bound_channel(&channel_id)?;
         let prepared = self
             .streams
@@ -417,6 +518,159 @@ impl ControlSession {
         Ok(())
     }
 
+    pub fn accept_route_drain(
+        &mut self,
+        channel_id: [u8; 16],
+        envelope: &CoreV02Envelope,
+        monotonic_now: u64,
+        unix_now: u64,
+    ) -> Result<(), SessionReject> {
+        let (request_id, session_id, sequence) = binding(envelope)?;
+        if self.request_ids.contains(&request_id) {
+            return Err(SessionReject::Replay);
+        }
+        let expected_session_id = self.established_session_id()?;
+        let source_sequence = match &self.state {
+            SessionState::Established {
+                source_sequence, ..
+            } => *source_sequence,
+            _ => return Err(SessionReject::UnexpectedMessage),
+        };
+        if request_id == [0; 16]
+            || session_id != expected_session_id
+            || sequence <= source_sequence
+            || envelope.message_type() != CoreV02MessageType::RouteDrain
+        {
+            return Err(SessionReject::Replay);
+        }
+        let body = envelope
+            .route_drain_body()
+            .map_err(|_| SessionReject::ControlRejected)?;
+        self.require_lifecycle_binding(
+            channel_id,
+            body.channel_id,
+            body.route_id,
+            body.route_grant_digest,
+        )?;
+        let requested = DrainDeadline::new(monotonic_now, body.drain_seconds)
+            .map_err(|_| SessionReject::ControlRejected)?;
+        self.admission
+            .start_channel_drain(
+                &channel_id,
+                requested,
+                monotonic_now,
+                unix_now,
+                self.session_deadline,
+            )
+            .map_err(map_lifecycle)?;
+        self.commit_source_control(request_id, sequence)?;
+        Ok(())
+    }
+
+    pub fn accept_route_revoke(
+        &mut self,
+        channel_id: [u8; 16],
+        envelope: &CoreV02Envelope,
+    ) -> Result<(), SessionReject> {
+        let (request_id, session_id, sequence) = binding(envelope)?;
+        if self.request_ids.contains(&request_id) {
+            return Err(SessionReject::Replay);
+        }
+        let expected_session_id = self.established_session_id()?;
+        let source_sequence = match &self.state {
+            SessionState::Established {
+                source_sequence, ..
+            } => *source_sequence,
+            _ => return Err(SessionReject::UnexpectedMessage),
+        };
+        if request_id == [0; 16]
+            || session_id != expected_session_id
+            || sequence <= source_sequence
+            || envelope.message_type() != CoreV02MessageType::RouteRevoke
+        {
+            return Err(SessionReject::Replay);
+        }
+        let body = envelope
+            .route_revoke_body()
+            .map_err(|_| SessionReject::ControlRejected)?;
+        self.require_lifecycle_binding(
+            channel_id,
+            body.channel_id,
+            body.route_id,
+            body.route_grant_digest,
+        )?;
+        self.admission
+            .revoke_channel(&channel_id, body.revoked_at)
+            .map_err(map_lifecycle)?;
+        self.streams.revoke_channel(&channel_id);
+        self.commit_source_control(request_id, sequence)
+    }
+
+    pub fn accept_route_close(
+        &mut self,
+        channel_id: [u8; 16],
+        envelope: &CoreV02Envelope,
+    ) -> Result<(), SessionReject> {
+        let (request_id, session_id, sequence) = binding(envelope)?;
+        if self.request_ids.contains(&request_id) {
+            return Err(SessionReject::Replay);
+        }
+        let expected_session_id = self.established_session_id()?;
+        let source_sequence = match &self.state {
+            SessionState::Established {
+                source_sequence, ..
+            } => *source_sequence,
+            _ => return Err(SessionReject::UnexpectedMessage),
+        };
+        if request_id == [0; 16]
+            || session_id != expected_session_id
+            || sequence <= source_sequence
+            || envelope.message_type() != CoreV02MessageType::RouteClose
+        {
+            return Err(SessionReject::Replay);
+        }
+        let body = envelope
+            .route_close_body()
+            .map_err(|_| SessionReject::ControlRejected)?;
+        self.require_lifecycle_binding(
+            channel_id,
+            body.channel_id,
+            body.route_id,
+            body.route_grant_digest,
+        )?;
+        self.admission
+            .close_live_channel(&channel_id, body.closed_at)
+            .map_err(map_lifecycle)?;
+        self.streams.revoke_channel(&channel_id);
+        self.commit_source_control(request_id, sequence)
+    }
+
+    pub(crate) fn enforce_channel_drain(
+        &mut self,
+        channel_id: [u8; 16],
+        monotonic_now: u64,
+    ) -> Result<DrainEnforcement, SessionReject> {
+        let deadline = self
+            .admission
+            .channel_drain_deadline(&channel_id)
+            .ok_or(SessionReject::InvalidChannelState)?;
+        if !deadline.is_due(monotonic_now) {
+            return Ok(DrainEnforcement::Pending);
+        }
+        match self.admission.finish_channel_drain(&channel_id) {
+            Ok(()) => {
+                self.streams.revoke_channel(&channel_id);
+                Ok(DrainEnforcement::Enforced {
+                    audit_integrity: AuditIntegrity::Recorded,
+                })
+            }
+            Err(ChannelLifecycleError::AuditUnavailable) => Ok(DrainEnforcement::Enforced {
+                audit_integrity: AuditIntegrity::Failed,
+            }),
+            Err(error) => Err(map_lifecycle(error)),
+        }
+    }
+
     pub fn close_channel(&mut self, channel_id: [u8; 16]) -> Result<(), SessionReject> {
         self.admission
             .close_channel(&channel_id)
@@ -434,6 +688,7 @@ impl ControlSession {
         &self,
         channel_id: [u8; 16],
     ) -> Result<ChannelBindingRequest, SessionReject> {
+        self.require_session_active()?;
         let SessionState::Established {
             client_nonce,
             destination_edge_id,
@@ -478,6 +733,7 @@ impl ControlSession {
         channel_id: [u8; 16],
         binding: ChannelBinding,
     ) -> Result<(), SessionReject> {
+        self.require_session_active()?;
         self.admission
             .install_binding(&channel_id, binding)
             .map_err(|error| match error {
@@ -496,6 +752,58 @@ impl ControlSession {
         } else {
             Err(self.inactive_channel_reject(channel_id))
         }
+    }
+
+    fn require_session_active(&self) -> Result<(), SessionReject> {
+        if self.session_drain_state == SessionDrainState::Active {
+            Ok(())
+        } else {
+            Err(SessionReject::InvalidChannelState)
+        }
+    }
+
+    fn require_existing_bound_channel(&self, channel_id: &[u8; 16]) -> Result<(), SessionReject> {
+        if self.admission.bound_existing_channel(channel_id).is_some() {
+            Ok(())
+        } else {
+            Err(self.inactive_channel_reject(channel_id))
+        }
+    }
+
+    fn require_lifecycle_binding(
+        &self,
+        channel_id: [u8; 16],
+        body_channel_id: [u8; 16],
+        route_id: [u8; 16],
+        route_grant_digest: [u8; 32],
+    ) -> Result<(), SessionReject> {
+        let channel = self
+            .admission
+            .lifecycle_channel(&channel_id)
+            .ok_or_else(|| self.inactive_channel_reject(&channel_id))?;
+        if body_channel_id != channel_id
+            || route_id != channel.route_id
+            || route_grant_digest != channel.route_grant_digest
+        {
+            return Err(SessionReject::ControlRejected);
+        }
+        Ok(())
+    }
+
+    fn commit_source_control(
+        &mut self,
+        request_id: [u8; 16],
+        sequence: u64,
+    ) -> Result<(), SessionReject> {
+        let SessionState::Established {
+            source_sequence, ..
+        } = &mut self.state
+        else {
+            return Err(SessionReject::UnexpectedMessage);
+        };
+        self.request_ids.insert(request_id);
+        *source_sequence = sequence;
+        Ok(())
     }
 
     fn bound_channel(&self, channel_id: &[u8; 16]) -> Result<&ActiveChannel, SessionReject> {

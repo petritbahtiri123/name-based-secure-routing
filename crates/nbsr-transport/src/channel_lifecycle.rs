@@ -3,6 +3,7 @@
 use std::collections::HashMap;
 
 const MAX_REPLAY_ENTRIES: usize = 4_096;
+pub const MAX_DRAIN_SECONDS: u64 = 30;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum ChannelState {
@@ -11,6 +12,60 @@ pub enum ChannelState {
     Draining,
     Revoked,
     Closed,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum SessionDrainState {
+    Active,
+    Draining,
+    Closed,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum DrainReject {
+    TooLong,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum AuditIntegrity {
+    Recorded,
+    Failed,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum DrainEnforcement {
+    Pending,
+    Enforced { audit_integrity: AuditIntegrity },
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct DrainDeadline {
+    monotonic_seconds: u64,
+}
+
+impl DrainDeadline {
+    pub fn new(monotonic_now: u64, requested_seconds: u64) -> Result<Self, DrainReject> {
+        if requested_seconds > MAX_DRAIN_SECONDS {
+            return Err(DrainReject::TooLong);
+        }
+        Ok(Self {
+            monotonic_seconds: monotonic_now.saturating_add(requested_seconds),
+        })
+    }
+
+    pub fn monotonic_seconds(self) -> u64 {
+        self.monotonic_seconds
+    }
+
+    pub fn is_due(self, monotonic_now: u64) -> bool {
+        monotonic_now >= self.monotonic_seconds
+    }
+
+    pub(crate) fn no_later_than(self, other: Self) -> Self {
+        Self {
+            monotonic_seconds: self.monotonic_seconds.min(other.monotonic_seconds),
+        }
+    }
 }
 
 pub(crate) struct ReplayStore {

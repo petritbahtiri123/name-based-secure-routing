@@ -45,6 +45,9 @@ pub enum CoreV02MessageType {
     StreamOpen,
     StreamAccept,
     StreamReject,
+    RouteDrain,
+    RouteRevoke,
+    RouteClose,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -63,6 +66,31 @@ pub struct RouteGrantIssuer {
 pub struct ValidatedRouteGrant {
     pub issuer_kid: Vec<u8>,
     pub payload: Vec<u8>,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct RouteDrainBody {
+    pub channel_id: [u8; 16],
+    pub route_id: [u8; 16],
+    pub route_grant_digest: [u8; 32],
+    pub requested_at: u64,
+    pub drain_seconds: u64,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct RouteRevokeBody {
+    pub channel_id: [u8; 16],
+    pub route_id: [u8; 16],
+    pub route_grant_digest: [u8; 32],
+    pub revoked_at: u64,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct RouteCloseBody {
+    pub channel_id: [u8; 16],
+    pub route_id: [u8; 16],
+    pub route_grant_digest: [u8; 32],
+    pub closed_at: u64,
 }
 
 pub(crate) struct ValidatedRouteOpen {
@@ -366,6 +394,52 @@ impl CoreV02Envelope {
             fixed_bytes(required(body, 3)?)?,
         ))
     }
+
+    pub fn route_drain_body(&self) -> Result<RouteDrainBody, CoreV02Reject> {
+        if self.message_type != CoreV02MessageType::RouteDrain {
+            return Err(CoreV02Reject::ProfileUnsupported);
+        }
+        let root = decode_stored_envelope(&self.wire)?;
+        let envelope = map(&root)?;
+        let body = map(required(envelope, 5)?)?;
+        Ok(RouteDrainBody {
+            channel_id: fixed_bytes(required(body, 1)?)?,
+            route_id: fixed_bytes(required(body, 2)?)?,
+            route_grant_digest: fixed_bytes(required(body, 3)?)?,
+            requested_at: uint(required(body, 4)?)?,
+            drain_seconds: uint(required(body, 5)?)?,
+        })
+    }
+
+    pub fn route_revoke_body(&self) -> Result<RouteRevokeBody, CoreV02Reject> {
+        if self.message_type != CoreV02MessageType::RouteRevoke {
+            return Err(CoreV02Reject::ProfileUnsupported);
+        }
+        let root = decode_stored_envelope(&self.wire)?;
+        let envelope = map(&root)?;
+        let body = map(required(envelope, 5)?)?;
+        Ok(RouteRevokeBody {
+            channel_id: fixed_bytes(required(body, 1)?)?,
+            route_id: fixed_bytes(required(body, 2)?)?,
+            route_grant_digest: fixed_bytes(required(body, 3)?)?,
+            revoked_at: uint(required(body, 4)?)?,
+        })
+    }
+
+    pub fn route_close_body(&self) -> Result<RouteCloseBody, CoreV02Reject> {
+        if self.message_type != CoreV02MessageType::RouteClose {
+            return Err(CoreV02Reject::ProfileUnsupported);
+        }
+        let root = decode_stored_envelope(&self.wire)?;
+        let envelope = map(&root)?;
+        let body = map(required(envelope, 5)?)?;
+        Ok(RouteCloseBody {
+            channel_id: fixed_bytes(required(body, 1)?)?,
+            route_id: fixed_bytes(required(body, 2)?)?,
+            route_grant_digest: fixed_bytes(required(body, 3)?)?,
+            closed_at: uint(required(body, 4)?)?,
+        })
+    }
 }
 
 fn decode_stored_envelope(wire: &[u8]) -> Result<Node, CoreV02Reject> {
@@ -594,8 +668,35 @@ fn validate_body(
             timestamp(required(body, 4)?)?;
         }
         CoreV02MessageType::StreamReject => validate_reject_body(body)?,
+        CoreV02MessageType::RouteDrain => {
+            exact_keys(body, 5)?;
+            validate_lifecycle_binding(body)?;
+            timestamp(required(body, 4)?)?;
+            if uint(required(body, 5)?)? > 30 {
+                return Err(CoreV02Reject::ProfileUnsupported);
+            }
+        }
+        CoreV02MessageType::RouteRevoke | CoreV02MessageType::RouteClose => {
+            exact_keys(body, 4)?;
+            validate_lifecycle_binding(body)?;
+            timestamp(required(body, 4)?)?;
+        }
     }
     Ok(())
+}
+
+fn validate_lifecycle_binding(body: &[(Node, Node)]) -> Result<(), CoreV02Reject> {
+    exact_uint(body, 0, 1)?;
+    let channel_id = bytes(required(body, 1)?)?;
+    let route_id = bytes(required(body, 2)?)?;
+    if channel_id.len() != 16
+        || channel_id.iter().all(|byte| *byte == 0)
+        || route_id.len() != 16
+        || route_id.iter().all(|byte| *byte == 0)
+    {
+        return Err(CoreV02Reject::ProfileUnsupported);
+    }
+    bytes_exact(required(body, 3)?, 32)
 }
 
 fn validate_reject_body(body: &[(Node, Node)]) -> Result<(), CoreV02Reject> {
@@ -720,6 +821,9 @@ fn message_type(value: u64) -> Result<CoreV02MessageType, CoreV02Reject> {
         6 => Ok(CoreV02MessageType::StreamOpen),
         7 => Ok(CoreV02MessageType::StreamAccept),
         8 => Ok(CoreV02MessageType::StreamReject),
+        12 => Ok(CoreV02MessageType::RouteDrain),
+        13 => Ok(CoreV02MessageType::RouteRevoke),
+        14 => Ok(CoreV02MessageType::RouteClose),
         _ => Err(CoreV02Reject::ProfileUnsupported),
     }
 }
