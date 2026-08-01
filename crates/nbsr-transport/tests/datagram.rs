@@ -421,7 +421,7 @@ async fn native_quinn_loopback_isolates_two_udp_channels_and_a_tcp_sibling() {
     );
 
     let mut source_control = source.open_control_stream().await.unwrap();
-    let tcp_open = stream_control(tcp, 4, 6, 5);
+    let tcp_open = stream_control(tcp, 4, 6, 10);
     source_control.send_envelope(&tcp_open).await.unwrap();
     let mut destination_control = destination.accept_control_stream().await.unwrap();
     let received_open = destination_control
@@ -431,7 +431,7 @@ async fn native_quinn_loopback_isolates_two_udp_channels_and_a_tcp_sibling() {
     destination_session
         .authorize_stream_open(tcp.channel_id, &received_open)
         .unwrap();
-    let tcp_accept = stream_control(tcp, 4, 7, 6);
+    let tcp_accept = stream_control(tcp, 4, 7, 10);
     destination_control
         .send_envelope(&tcp_accept)
         .await
@@ -520,7 +520,7 @@ async fn channel_a_audit_exhaustion_preserves_udp_b_tcp_c_and_session_lifecycle(
 
     while source_session.pop_audit_event().is_some() {}
     while destination_session.pop_audit_event().is_some() {}
-    for _ in 0..24 {
+    for _ in 0..1_024 {
         assert_eq!(
             source.send_udp_datagram(
                 &mut source_session,
@@ -536,13 +536,21 @@ async fn channel_a_audit_exhaustion_preserves_udp_b_tcp_c_and_session_lifecycle(
             .audit_events()
             .filter(|event| event.channel_id == Some(udp_a.channel_id))
             .count(),
-        24
+        1_024
     );
     assert_eq!(
         source.send_udp_datagram(&mut source_session, udp_a.channel_id, b"blocked-a", 0),
         Err(DatagramReject::AuditUnavailable)
     );
-    assert_eq!(source_session.audit_events().len(), 24);
+    assert_eq!(source_session.audit_events().len(), 1_024);
+
+    assert_eq!(
+        source.send_udp_datagram(&mut source_session, udp_b.channel_id, b"udp-b-survives", 0),
+        Err(DatagramReject::AuditUnavailable)
+    );
+    source_session
+        .pop_audit_event()
+        .expect("one global audit slot is released");
 
     source
         .send_udp_datagram(&mut source_session, udp_b.channel_id, b"udp-b-survives", 0)
@@ -563,7 +571,7 @@ async fn channel_a_audit_exhaustion_preserves_udp_b_tcp_c_and_session_lifecycle(
 
     let mut source_control = source.open_control_stream().await.unwrap();
     source_control
-        .send_envelope(&stream_control(tcp, 4, 6, 5))
+        .send_envelope(&stream_control(tcp, 4, 6, 10))
         .await
         .unwrap();
     let mut destination_control = destination.accept_control_stream().await.unwrap();
@@ -575,7 +583,7 @@ async fn channel_a_audit_exhaustion_preserves_udp_b_tcp_c_and_session_lifecycle(
         .authorize_stream_open(tcp.channel_id, &received_open)
         .unwrap();
     destination_control
-        .send_envelope(&stream_control(tcp, 4, 7, 6))
+        .send_envelope(&stream_control(tcp, 4, 7, 10))
         .await
         .unwrap();
     let received_accept = source_control
@@ -612,7 +620,7 @@ async fn channel_a_audit_exhaustion_preserves_udp_b_tcp_c_and_session_lifecycle(
             .audit_events()
             .filter(|event| event.channel_id == Some(udp_a.channel_id))
             .count(),
-        24
+        1_023
     );
 
     while source_session.pop_audit_event().is_some() {}

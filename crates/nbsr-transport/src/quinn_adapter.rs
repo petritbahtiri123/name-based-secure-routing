@@ -13,7 +13,7 @@ use tokio::time::timeout;
 use x509_parser::extensions::GeneralName;
 use x509_parser::prelude::{FromDer, X509Certificate};
 
-use crate::channel_binding::{EXPORTER_LABEL, EXPORTER_LENGTH, service_channel_context_hash};
+use crate::channel_binding::{EXPORTER_LABEL, EXPORTER_LENGTH, canonical_service_channel_context};
 use crate::{
     ALPN, ChannelBinding, ClientEndpointConfig, ControlSession, CoreV02Envelope, EdgeIdentity,
     EdgeRole, PeerPolicy, ServerEndpointConfig, ServiceChannelContext, ServiceChannelExporterError,
@@ -23,6 +23,14 @@ use crate::{
 const DATAGRAM_BUFFER_BYTES: usize = 262_144;
 // 23 fixed bytes + 9-byte u64 sequence + 3-byte length + 1200-byte payload.
 const MAX_LOCAL_ENCODED_DATAGRAM_BYTES: usize = 1_235;
+const MAX_BUFFERED_APPLICATION_BYTES_PER_STREAM: usize = 1_048_576;
+const MAX_BUFFERED_APPLICATION_BYTES_PER_CHANNEL: usize = 8_388_608;
+
+fn live_exporter_context(
+    context: &ServiceChannelContext<'_>,
+) -> Result<Vec<u8>, ServiceChannelExporterError> {
+    canonical_service_channel_context(context)
+}
 
 pub(crate) fn configure_datagram_buffers(transport: &mut quinn::TransportConfig) {
     transport.datagram_receive_buffer_size(Some(DATAGRAM_BUFFER_BYTES));
@@ -92,6 +100,48 @@ struct SharedApplicationStream {
     cancelled: AtomicBool,
     inner: AsyncMutex<ApplicationStreamParts>,
     notify: Notify,
+    channel_quota: Mutex<Option<Arc<ChannelByteQuota>>>,
+}
+
+#[derive(Default)]
+struct ChannelByteQuota {
+    buffered: Mutex<usize>,
+}
+
+struct ChannelByteReservation {
+    quota: Arc<ChannelByteQuota>,
+    bytes: usize,
+}
+
+impl ChannelByteQuota {
+    fn reserve(self: &Arc<Self>, bytes: usize) -> Result<ChannelByteReservation, TransportError> {
+        let mut buffered = self
+            .buffered
+            .lock()
+            .unwrap_or_else(|error| error.into_inner());
+        let next = buffered
+            .checked_add(bytes)
+            .ok_or(TransportError::ApplicationPayloadTooLarge)?;
+        if next > MAX_BUFFERED_APPLICATION_BYTES_PER_CHANNEL {
+            return Err(TransportError::ApplicationPayloadTooLarge);
+        }
+        *buffered = next;
+        Ok(ChannelByteReservation {
+            quota: Arc::clone(self),
+            bytes,
+        })
+    }
+}
+
+impl Drop for ChannelByteReservation {
+    fn drop(&mut self) {
+        let mut buffered = self
+            .quota
+            .buffered
+            .lock()
+            .unwrap_or_else(|error| error.into_inner());
+        *buffered = buffered.saturating_sub(self.bytes);
+    }
 }
 
 type TrackedStream = Weak<SharedApplicationStream>;
@@ -109,16 +159,37 @@ impl SharedApplicationStream {
 
 struct TrackedApplicationStreams {
     by_channel: Mutex<HashMap<[u8; 16], TrackedChannelStreams>>,
+    channel_quotas: Mutex<HashMap<[u8; 16], Weak<ChannelByteQuota>>>,
 }
 
 impl TrackedApplicationStreams {
     fn new() -> Self {
         Self {
             by_channel: Mutex::new(HashMap::new()),
+            channel_quotas: Mutex::new(HashMap::new()),
         }
     }
 
     fn track(&self, channel_id: [u8; 16], stream: &ApplicationStream) {
+        let quota = {
+            let mut quotas = self
+                .channel_quotas
+                .lock()
+                .unwrap_or_else(|error| error.into_inner());
+            quotas.retain(|_, quota| quota.strong_count() != 0);
+            if let Some(quota) = quotas.get(&channel_id).and_then(Weak::upgrade) {
+                quota
+            } else {
+                let quota = Arc::new(ChannelByteQuota::default());
+                quotas.insert(channel_id, Arc::downgrade(&quota));
+                quota
+            }
+        };
+        *stream
+            .shared
+            .channel_quota
+            .lock()
+            .unwrap_or_else(|error| error.into_inner()) = Some(quota);
         let mut by_channel = self
             .by_channel
             .lock()
@@ -165,6 +236,7 @@ fn application_stream(send: SendStream, receive: RecvStream) -> ApplicationStrea
             cancelled: AtomicBool::new(false),
             inner: AsyncMutex::new(ApplicationStreamParts { send, receive }),
             notify: Notify::new(),
+            channel_quota: Mutex::new(None),
         }),
     }
 }
@@ -175,12 +247,49 @@ fn reset_parts(parts: &mut ApplicationStreamParts) {
     let _ = parts.receive.stop(code);
 }
 
+async fn read_live_payload(
+    receive: &mut RecvStream,
+    quota: Option<Arc<ChannelByteQuota>>,
+) -> Result<Vec<u8>, TransportError> {
+    let mut payload = Vec::new();
+    let mut reservations = Vec::new();
+    let mut chunk = [0_u8; 16_384];
+    loop {
+        let read = receive
+            .read(&mut chunk)
+            .await
+            .map_err(|_| TransportError::ApplicationStreamFailed)?;
+        let Some(read) = read else { break };
+        if payload.len().saturating_add(read) > MAX_BUFFERED_APPLICATION_BYTES_PER_STREAM {
+            return Err(TransportError::ApplicationPayloadTooLarge);
+        }
+        if let Some(quota) = quota.as_ref() {
+            reservations.push(quota.reserve(read)?);
+        }
+        payload.extend_from_slice(&chunk[..read]);
+    }
+    Ok(payload)
+}
+
 impl ApplicationStream {
     pub fn id(&self) -> u64 {
         self.id
     }
 
     pub async fn send_payload(&mut self, payload: &[u8]) -> Result<(), TransportError> {
+        if payload.len() > MAX_BUFFERED_APPLICATION_BYTES_PER_STREAM {
+            return Err(TransportError::ApplicationPayloadTooLarge);
+        }
+        let quota = self
+            .shared
+            .channel_quota
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .clone();
+        let _reservation = quota
+            .as_ref()
+            .map(|quota| quota.reserve(payload.len()))
+            .transpose()?;
         let notified = self.shared.notify.notified();
         tokio::pin!(notified);
         let mut inner = self.shared.inner.lock().await;
@@ -215,13 +324,24 @@ impl ApplicationStream {
             reset_parts(&mut inner);
             return Err(TransportError::ApplicationStreamRejected);
         }
+        let quota = self
+            .shared
+            .channel_quota
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .clone();
         tokio::select! {
             _ = &mut notified => {
                 reset_parts(&mut inner);
                 Err(TransportError::ApplicationStreamRejected)
             }
-            result = inner.receive.read_to_end(4_096) => {
-                result.map_err(|_| TransportError::ApplicationStreamRejected)
+            result = read_live_payload(&mut inner.receive, quota) => {
+                result.map_err(|error| match error {
+                    TransportError::ApplicationStreamFailed => {
+                        TransportError::ApplicationStreamRejected
+                    }
+                    error => error,
+                })
             }
         }
     }
@@ -254,15 +374,21 @@ impl ApplicationStream {
             reset_parts(&mut inner);
             return Err(TransportError::ApplicationStreamRejected);
         }
+        let quota = self
+            .shared
+            .channel_quota
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .clone();
         let payload = match tokio::select! {
             _ = &mut notified => {
                 reset_parts(&mut inner);
                 return Err(TransportError::ApplicationStreamRejected);
             }
-            result = inner.receive.read_to_end(4_097) => result,
+            result = read_live_payload(&mut inner.receive, quota) => result,
         } {
-            Ok(payload) if payload.len() <= 4_096 => payload,
-            Ok(_) | Err(_) => {
+            Ok(payload) => payload,
+            Err(_) => {
                 let code = VarInt::from_u32(2);
                 let _ = inner.send.reset(code);
                 let _ = inner.receive.stop(code);
@@ -433,10 +559,12 @@ impl AuthenticatedConnection {
         &self,
         context: &ServiceChannelContext<'_>,
     ) -> Result<ChannelBinding, ServiceChannelExporterError> {
-        let context_hash = service_channel_context_hash(context)?;
+        // rustls applies RFC 8446 Hash(context) internally. Passing the
+        // already-hashed context here would hash it a second time.
+        let exporter_context = live_exporter_context(context)?;
         let mut output = [0_u8; EXPORTER_LENGTH];
         self.connection
-            .export_keying_material(&mut output, EXPORTER_LABEL, &context_hash)
+            .export_keying_material(&mut output, EXPORTER_LABEL, &exporter_context)
             .map_err(|_| ServiceChannelExporterError::LiveExportFailed)?;
         Ok(ChannelBinding::from_exporter(context.channel_id, output))
     }
@@ -589,8 +717,17 @@ impl AuthenticatedConnection {
         monotonic_now: u64,
         unix_now: u64,
     ) -> Result<crate::ResumeCorrelation, crate::ResumeReject> {
-        self.require_live_resume_connection(session, Some(new_channel_id))?;
-        manager.consume(preflight, session, new_channel_id, monotonic_now, unix_now)
+        let owns_admission = manager.owns_resume_admission(preflight, new_channel_id);
+        let result = self
+            .require_live_resume_connection(session, Some(new_channel_id))
+            .and_then(|_| {
+                manager.consume(preflight, session, new_channel_id, monotonic_now, unix_now)
+            });
+        if result.is_err() && owns_admission {
+            manager.retire_failed_admission(preflight);
+            session.rollback_resume_admission(new_channel_id)?;
+        }
+        result
     }
 
     fn require_live_resume_connection(
@@ -833,6 +970,39 @@ mod datagram_adapter_tests {
     use super::*;
     use std::time::Duration;
 
+    #[test]
+    fn live_exporter_supplies_canonical_context_for_rustls_to_hash_once() {
+        let context = ServiceChannelContext {
+            session_id: [0x01; 16],
+            source_edge_id: "source.edge",
+            destination_edge_id: "destination.edge",
+            channel_id: [0x02; 16],
+            route_id: [0x03; 16],
+            route_grant_digest: [0x04; 32],
+            service_id: "service.example",
+            transport: "tcp",
+            port: 443,
+            policy_hash: [0x05; 32],
+            client_nonce: [0x06; 32],
+            edge_nonce: [0x07; 32],
+        };
+        let expected = crate::canonical_service_channel_context(&context).unwrap();
+
+        assert_eq!(live_exporter_context(&context).unwrap(), expected);
+    }
+
+    #[test]
+    fn live_channel_quota_rejects_bytes_beyond_eight_mib() {
+        let quota = Arc::new(ChannelByteQuota::default());
+        let first = quota.reserve(8 * 1_048_576).expect("eight MiB admitted");
+        assert!(matches!(
+            quota.reserve(1),
+            Err(TransportError::ApplicationPayloadTooLarge)
+        ));
+        drop(first);
+        assert!(quota.reserve(1).is_ok());
+    }
+
     #[allow(dead_code)]
     mod support {
         include!(concat!(env!("CARGO_MANIFEST_DIR"), "/tests/support/mod.rs"));
@@ -944,6 +1114,58 @@ mod datagram_adapter_tests {
             Ok(crate::DatagramReceive::Queued)
         );
         assert_eq!(gate_b.pop(|_| Ok(())), Ok(Some(b"sibling".to_vec())));
+
+        let mut held_streams = Vec::new();
+        for _ in 0..64 {
+            let (mut send, receive) =
+                tokio::time::timeout(Duration::from_secs(1), source.connection.open_bi())
+                    .await
+                    .expect("transport admits 64 simultaneously open application streams")
+                    .unwrap();
+            // Quinn opens streams lazily on first use; materialize the stream
+            // before waiting for the peer's accept_bi future.
+            send.write_all(&[0]).await.unwrap();
+            let accepted =
+                tokio::time::timeout(Duration::from_secs(1), destination.connection.accept_bi())
+                    .await
+                    .expect("peer observes each held application stream")
+                    .unwrap();
+            held_streams.push(((send, receive), accepted));
+        }
+        drop(held_streams);
+
+        let quota = Arc::new(ChannelByteQuota::default());
+        let mut send_tasks = Vec::new();
+        let mut receive_tasks = Vec::new();
+        for _ in 0..9 {
+            let (mut send, _) = source.connection.open_bi().await.unwrap();
+            send_tasks.push(tokio::spawn(async move {
+                send.write_all(&vec![0x5a; 1_048_576]).await?;
+                std::future::pending::<()>().await;
+                Ok::<(), quinn::WriteError>(())
+            }));
+            let (_, mut receive) = destination.connection.accept_bi().await.unwrap();
+            let quota = Arc::clone(&quota);
+            receive_tasks.push(tokio::spawn(async move {
+                read_live_payload(&mut receive, Some(quota)).await
+            }));
+        }
+        tokio::time::timeout(Duration::from_secs(2), async {
+            loop {
+                if receive_tasks.iter().any(|task| task.is_finished()) {
+                    break;
+                }
+                tokio::task::yield_now().await;
+            }
+        })
+        .await
+        .expect("aggregate live reads reject bytes beyond eight MiB");
+        for task in send_tasks {
+            task.abort();
+        }
+        for task in receive_tasks {
+            task.abort();
+        }
 
         let (mut source_send, mut source_receive) = source.connection.open_bi().await.unwrap();
         source_send.write_all(b"tcp-sibling").await.unwrap();

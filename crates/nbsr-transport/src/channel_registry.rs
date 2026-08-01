@@ -53,7 +53,6 @@ struct TerminalChannelEntry {
 
 #[derive(Clone)]
 pub(crate) struct ResumeChannelContext {
-    pub(crate) authority_deadline: Option<u64>,
     pub(crate) channel: ActiveChannel,
     pub(crate) client_session_key_thumbprint: [u8; 32],
     pub(crate) grant_expires_at: u64,
@@ -348,7 +347,6 @@ impl ChannelRegistry {
         })?;
         let resume = (entry.binding.is_some() && entry.drain_deadline.is_none()).then(|| {
             ResumeChannelContext {
-                authority_deadline: entry.drain_deadline.map(DrainDeadline::monotonic_seconds),
                 channel: entry.channel.clone(),
                 client_session_key_thumbprint: entry.client_session_key_thumbprint,
                 grant_expires_at: entry.grant_expires_at,
@@ -495,7 +493,6 @@ impl ChannelRegistry {
     ) -> Option<ResumeChannelContext> {
         let entry = self.active.get(channel_id)?;
         (entry.binding.is_some() && entry.drain_deadline.is_none()).then(|| ResumeChannelContext {
-            authority_deadline: entry.drain_deadline.map(DrainDeadline::monotonic_seconds),
             channel: entry.channel.clone(),
             client_session_key_thumbprint: entry.client_session_key_thumbprint,
             grant_expires_at: entry.grant_expires_at,
@@ -504,7 +501,23 @@ impl ChannelRegistry {
         })
     }
 
-    #[allow(dead_code)] // Reserved for the later bounded channel-lifecycle task.
+    pub(crate) fn rollback_admission(&mut self, channel_id: &[u8; 16]) -> Option<ActiveChannel> {
+        let removed = self
+            .active
+            .remove(channel_id)
+            .map(|entry| entry.channel)
+            .or_else(|| {
+                self.pending
+                    .remove(channel_id)
+                    .map(|pending| pending.channel)
+            });
+        if removed.is_some() {
+            self.replay.rollback_live(channel_id);
+        }
+        removed
+    }
+
+    #[cfg(test)]
     pub(crate) fn remove(&mut self, channel_id: &[u8; 16]) -> Option<ActiveChannel> {
         self.active
             .remove(channel_id)

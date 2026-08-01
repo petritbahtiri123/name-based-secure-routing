@@ -1,14 +1,18 @@
 use std::collections::BTreeMap;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use std::path::PathBuf;
+use std::sync::{
+    Arc,
+    atomic::{AtomicU64, Ordering},
+};
 use std::time::Duration;
 
 use ed25519_dalek::{Signer, SigningKey};
 use nbsr_transport::{
     AdmissionPolicy, AdmissionReject, AuthorizedServicePolicy, ControlSession, CoreV02Envelope,
     CoreV02Limits, DestinationAdmission, EdgeIdentity, EdgeRole, PeerPolicy, RouteGrantClaims,
-    RouteGrantIssuer, RouteOpenRequest, SessionReject, TransportListener, TrustProfileId,
-    build_client_config, build_server_config, connect, decode_control_envelope,
+    RouteGrantIssuer, RouteOpenRequest, SessionClock, SessionReject, TransportListener,
+    TrustProfileId, build_client_config, build_server_config, connect, decode_control_envelope,
 };
 use sha2::{Digest, Sha256};
 
@@ -33,6 +37,31 @@ const SESSION_SEED: [u8; 32] = [
     0x5b, 0x8a, 0x31, 0x9f, 0x35, 0xab, 0xa6, 0x24, 0xda, 0x8c, 0xf6, 0xed, 0x4f, 0xb8, 0xa6, 0xfb,
 ];
 const KID: &[u8] = b"nbsr-test-route-grant-key";
+
+struct ManualClock {
+    unix: AtomicU64,
+    monotonic: AtomicU64,
+}
+impl ManualClock {
+    fn new() -> Self {
+        Self {
+            unix: AtomicU64::new(NOW),
+            monotonic: AtomicU64::new(0),
+        }
+    }
+    fn set(&self, unix: u64, monotonic: u64) {
+        self.unix.store(unix, Ordering::SeqCst);
+        self.monotonic.store(monotonic, Ordering::SeqCst);
+    }
+}
+impl SessionClock for ManualClock {
+    fn unix_seconds(&self) -> u64 {
+        self.unix.load(Ordering::SeqCst)
+    }
+    fn monotonic_seconds(&self) -> u64 {
+        self.monotonic.load(Ordering::SeqCst)
+    }
+}
 
 fn admission_policy() -> AdmissionPolicy {
     AdmissionPolicy {
@@ -608,4 +637,50 @@ async fn one_hello_session_repeats_isolated_signed_route_exchanges() {
     source.close().await.expect("source close");
     destination.close().await.expect("destination close");
     listener.close().await.expect("listener close");
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn live_session_rechecks_route_time_and_stops_at_mandatory_hour() {
+    let (listener, source, destination) = connection_pair().await;
+    let clock = Arc::new(ManualClock::new());
+    let mut session = ControlSession::new_with_clock(
+        &destination,
+        DestinationAdmission::new(runtime_policy()).expect("valid admission policy"),
+        vec![RouteGrantIssuer {
+            kid: KID.to_vec(),
+            public_key: SigningKey::from_bytes(&ROUTE_GRANT_SEED)
+                .verifying_key()
+                .to_bytes(),
+        }],
+        TrustProfileId::new("test-profile").expect("trust profile"),
+        clock.clone(),
+    );
+    session
+        .accept_client_hello(&decode(vector(
+            "artifacts/valid/envelopes/client-hello.cbor",
+        )))
+        .unwrap();
+    session
+        .confirm_edge_hello(&decode(vector("artifacts/valid/envelopes/edge-hello.cbor")))
+        .unwrap();
+
+    clock.set(NOW + 301, 3_599);
+    let stale = signed_route(1, "service-a", 42, POLICY_A, 2);
+    assert_eq!(
+        session.accept_route_open(&stale.open),
+        Err(SessionReject::Admission(AdmissionReject::GrantExpired))
+    );
+    assert_eq!(session.candidate_channels(), 0);
+
+    clock.set(NOW, 3_600);
+    let within_grant = signed_route(2, "service-b", 43, POLICY_B, 2);
+    assert_eq!(
+        session.accept_route_open(&within_grant.open),
+        Err(SessionReject::InvalidChannelState)
+    );
+    assert_eq!(session.candidate_channels(), 0);
+
+    source.close().await.unwrap();
+    destination.close().await.unwrap();
+    listener.close().await.unwrap();
 }

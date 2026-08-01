@@ -121,7 +121,7 @@ pub use resumption::{
     ResumeAdmissionReject, ResumeCorrelation, ResumeHandle, ResumePreflight, ResumeReject,
     SameEdgeResumeManager, TrustProfileId,
 };
-pub use session::{ControlSession, SessionReject};
+pub use session::{ControlSession, MAX_SESSION_SECONDS, SessionClock, SessionReject};
 pub use stream_gate::{StreamOpenRequest, StreamReject};
 
 pub const ALPN: &[u8] = b"nbsr-quic-1";

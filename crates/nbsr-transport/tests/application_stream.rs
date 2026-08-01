@@ -240,6 +240,7 @@ async fn accepted_stream_id_four_echoes_only_the_bounded_in_memory_payload() {
         .await
         .expect("receive STREAM_ACCEPT");
 
+    let payload = vec![0x5a; 1_048_576];
     let (echoed_at_destination, echoed_at_source) = tokio::join!(
         async {
             let mut stream = destination
@@ -256,13 +257,13 @@ async fn accepted_stream_id_four_echoes_only_the_bounded_in_memory_payload() {
                 .expect("open application stream");
             assert_eq!(stream.id(), 4);
             stream
-                .send_and_receive(b"nbsr-lab")
+                .send_and_receive(&payload)
                 .await
                 .expect("receive bounded echo")
         }
     );
-    assert_eq!(echoed_at_destination, b"nbsr-lab");
-    assert_eq!(echoed_at_source, b"nbsr-lab");
+    assert_eq!(echoed_at_destination, payload);
+    assert_eq!(echoed_at_source, payload);
 
     source.close().await.expect("source close");
     destination.close().await.expect("destination close");
@@ -322,7 +323,7 @@ async fn payload_before_stream_accept_is_reset_without_delivery() {
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-async fn payload_over_four_kib_is_reset_without_echo() {
+async fn outbound_payload_over_one_mib_is_rejected_before_delivery() {
     let (listener, source, destination) = connection_pair().await;
     let mut session = control_session(&destination);
     session
@@ -403,7 +404,7 @@ async fn payload_over_four_kib_is_reset_without_echo() {
         .confirm_stream_accept(channel_id, &received_accept)
         .expect("bind matching STREAM_ACCEPT");
 
-    let payload = vec![0x5a; 4_097];
+    let payload = vec![0x5a; 1_048_577];
     let (destination_result, source_result) = tokio::join!(
         async {
             let mut stream = destination
@@ -420,13 +421,10 @@ async fn payload_over_four_kib_is_reset_without_echo() {
             stream.send_and_receive(&payload).await
         }
     );
-    assert_eq!(
-        destination_result,
-        Err(TransportError::ApplicationPayloadTooLarge)
-    );
+    assert_eq!(destination_result, Ok(Vec::new()));
     assert_eq!(
         source_result,
-        Err(TransportError::ApplicationStreamRejected)
+        Err(TransportError::ApplicationPayloadTooLarge)
     );
 
     source.close().await.expect("source close");

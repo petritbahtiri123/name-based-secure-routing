@@ -133,6 +133,7 @@ The lab limits are exact:
 | Active channels per Transport Session | 32 |
 | Active channels per service per session | 8 |
 | Concurrent reliable streams per channel | 64 |
+| Peer-initiated bidirectional streams per Transport Session | 2049 (1 control plus 2048 application streams) |
 | Buffered bytes per reliable stream | 1 MiB |
 | Buffered reliable bytes per channel | 8 MiB |
 | UDP datagram payload | min(peer QUIC DATAGRAM maximum minus framing, 1200 bytes) |

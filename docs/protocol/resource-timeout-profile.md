@@ -35,6 +35,7 @@ defaults. Values marked **pending** require human approval before production.
 | Legacy OriginSet retry | **Prototype profile:** 1, 2, 4, 8, 16, then 30 seconds | Retry work is bounded and never extends grant or OriginSet validity |
 | Signature-result cache | **Bound required; exact entries pending** | Key by exact signed bytes, trust context, key generation, and policy state; never cache a broad success |
 | Audit queue | **Bound required; exact entries pending** | Apply backpressure or fail closed for mandatory security audit events |
+| WP4 peer-initiated bidirectional streams per Transport Session | **Lab profile: 2,049 total** | One control stream plus at most 2,048 simultaneous application streams (32 channels times 64); channel limits remain independently enforced |
 
 Every limit is configurable within an operator-approved safe range. Raising a
 transport limit must not implicitly raise a per-service quota.

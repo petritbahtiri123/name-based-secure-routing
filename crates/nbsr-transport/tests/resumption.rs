@@ -348,17 +348,22 @@ async fn stale_authority_fields_and_unbound_channels_fail_without_consuming_the_
         );
         assert_eq!(
             attempt.session.audit_events().len(),
-            audit_before + 1,
+            audit_before + 2,
             "{name}"
         );
         assert_eq!(
             attempt
                 .session
                 .audit_events()
-                .last()
+                .nth(audit_before)
                 .expect("typed reject audit")
                 .action,
             AuditAction::ResumeRejected,
+            "{name}"
+        );
+        assert_eq!(
+            attempt.session.audit_events().last().unwrap().action,
+            AuditAction::RouteRejected,
             "{name}"
         );
         assert_eq!(manager.retained_records(), index + 1, "{name}");
@@ -1202,14 +1207,14 @@ async fn store_retains_4096_unique_handles_and_rejects_4097_without_eviction() {
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-async fn exclusive_authority_deadline_blocks_consume_and_unlocks_capacity_at_equality() {
+async fn exclusive_session_deadline_blocks_consume_and_unlocks_capacity_at_equality() {
     let pki = support::TestPki::generate_for("source.edge", "destination.edge");
     let (old_listener, old_source, old_destination) = connection_pair_with_pki(&pki).await;
     let mut authority_limited = established_session_with_deadline(
         &old_destination,
         SessionSpec::new(0x10, 0x40, 0x20, 0x80),
         "regional-prod.1",
-        DrainDeadline::new(100, 30).expect("exclusive authority deadline"),
+        DrainDeadline::new(100, 30).expect("exclusive session deadline"),
     );
     let close = route_close(&authority_limited, 0x51);
     old_destination
@@ -1231,7 +1236,7 @@ async fn exclusive_authority_deadline_blocks_consume_and_unlocks_capacity_at_equ
                 100,
                 NOW,
             )
-            .expect("4096 authority-capped records");
+            .expect("4096 session-capped records");
         authority_limited
             .session
             .pop_audit_event()
@@ -1376,27 +1381,29 @@ async fn expired_fresh_grant_is_audited_then_consumes_the_resume_handle() {
     );
     assert_eq!(manager.retained_records(), 1);
 
-    expired
-        .session
-        .pop_audit_event()
-        .expect("make one audit slot available");
+    let (mut expired_retry, retry_preflight) = established_resume_session(
+        &new_destination,
+        &mut manager,
+        &handle,
+        expired_spec,
+        "regional-prod.1",
+        true,
+        105,
+    );
     assert_eq!(
         new_destination.consume_same_edge_resume(
             &mut manager,
-            &preflight,
-            &mut expired.session,
-            expired.channel.channel_id,
+            &retry_preflight,
+            &mut expired_retry.session,
+            expired_retry.channel.channel_id,
             105,
             NOW + 5,
         ),
         Err(ResumeReject::Expired)
     );
     assert_eq!(manager.retained_records(), 0);
-    let expiry = expired
-        .session
-        .audit_events()
-        .last()
-        .expect("terminal expiry audit");
+    let retry_audits = expired_retry.session.audit_events().collect::<Vec<_>>();
+    let expiry = retry_audits[retry_audits.len() - 2];
     assert_eq!(expiry.action, AuditAction::ResumeRejected);
     assert_eq!(expiry.reason, AuditReason::Expired);
 
@@ -1470,35 +1477,6 @@ async fn audited_post_admission_mismatch_retires_only_preflight_and_allows_fresh
         true,
         105,
     );
-    let missing = ResumeHandle::new([0xee; 32]).expect("missing audit filler");
-    while mismatch.session.audit_events().len() < 1_024 {
-        assert_eq!(
-            new_destination.preflight_same_edge_resume(
-                &mut manager,
-                &missing,
-                &mut mismatch.session,
-                105,
-            ),
-            Err(ResumeReject::Replay)
-        );
-    }
-    assert_eq!(
-        new_destination.consume_same_edge_resume(
-            &mut manager,
-            &stale_preflight,
-            &mut mismatch.session,
-            mismatch.channel.channel_id,
-            105,
-            NOW + 5,
-        ),
-        Err(ResumeReject::AuditUnavailable)
-    );
-    assert_eq!(manager.retained_records(), 1);
-
-    mismatch
-        .session
-        .pop_audit_event()
-        .expect("make mismatch audit slot available");
     assert_eq!(
         new_destination.consume_same_edge_resume(
             &mut manager,
@@ -1511,6 +1489,8 @@ async fn audited_post_admission_mismatch_retires_only_preflight_and_allows_fresh
         Err(ResumeReject::Mismatch)
     );
     assert_eq!(manager.retained_records(), 1);
+    assert_eq!(mismatch.session.candidate_channels(), 0);
+    assert_eq!(mismatch.session.active_channels(), 0);
 
     mismatch
         .session
@@ -1590,13 +1570,7 @@ async fn audit_exhaustion_rejects_issue_and_consume_before_store_mutation() {
             NOW,
         )
         .expect("one retained record");
-    while old
-        .session
-        .audit_events()
-        .filter(|event| event.channel_id == Some(old.channel.channel_id))
-        .count()
-        < 24
-    {
+    while old.session.audit_events().len() < 1_024 {
         assert_eq!(
             manager.issue(
                 &mut old.session,
@@ -1720,6 +1694,9 @@ async fn audit_exhaustion_rejects_issue_and_consume_before_store_mutation() {
         Err(ResumeReject::AuditUnavailable)
     );
     assert_eq!(manager.retained_records(), 2);
+
+    assert_eq!(fresh.session.candidate_channels(), 0);
+    assert_eq!(fresh.session.active_channels(), 0);
 
     old_source.close().await.expect("old source close");
     old_destination

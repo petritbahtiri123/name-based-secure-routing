@@ -46,13 +46,32 @@ fn channel(id: u8) -> ActiveChannel {
 }
 
 fn stream_open(channel: &ActiveChannel, stream_id: u64, request_id: [u8; 16]) -> CoreV02Envelope {
-    decode_stream_open(channel, stream_id, request_id).expect("valid stream control")
+    stream_open_with_sequence(channel, stream_id, request_id, 5 + stream_id / 4)
+}
+
+fn stream_open_with_sequence(
+    channel: &ActiveChannel,
+    stream_id: u64,
+    request_id: [u8; 16],
+    sequence: u64,
+) -> CoreV02Envelope {
+    decode_stream_open_with_sequence(channel, stream_id, request_id, sequence)
+        .expect("valid stream control")
 }
 
 fn decode_stream_open(
     channel: &ActiveChannel,
     stream_id: u64,
     request_id: [u8; 16],
+) -> Result<CoreV02Envelope, nbsr_transport::CoreV02Reject> {
+    decode_stream_open_with_sequence(channel, stream_id, request_id, 5)
+}
+
+fn decode_stream_open_with_sequence(
+    channel: &ActiveChannel,
+    stream_id: u64,
+    request_id: [u8; 16],
+    sequence: u64,
 ) -> Result<CoreV02Envelope, nbsr_transport::CoreV02Reject> {
     let mut body = Vec::new();
     map(&mut body, 7);
@@ -63,7 +82,7 @@ fn decode_stream_open(
     field_bytes(&mut body, 4, &channel.route_grant_digest);
     field_text(&mut body, 5, &channel.transport);
     field_uint(&mut body, 6, u64::from(channel.port));
-    decode_envelope(6, request_id, SESSION_ID, 5, body)
+    decode_envelope(6, request_id, SESSION_ID, sequence, body)
 }
 
 fn stream_accept(
@@ -72,6 +91,22 @@ fn stream_accept(
     request_id: [u8; 16],
     session_id: [u8; 16],
 ) -> CoreV02Envelope {
+    stream_accept_with_sequence(
+        channel,
+        stream_id,
+        request_id,
+        session_id,
+        6 + stream_id / 4,
+    )
+}
+
+fn stream_accept_with_sequence(
+    channel: &ActiveChannel,
+    stream_id: u64,
+    request_id: [u8; 16],
+    session_id: [u8; 16],
+    sequence: u64,
+) -> CoreV02Envelope {
     let mut body = Vec::new();
     map(&mut body, 5);
     field_uint(&mut body, 0, 1);
@@ -79,7 +114,7 @@ fn stream_accept(
     field_bytes(&mut body, 2, &channel.channel_id);
     field_bytes(&mut body, 3, &channel.route_id);
     field_uint(&mut body, 4, 1_893_456_000);
-    decode_envelope(7, request_id, session_id, 6, body).expect("valid stream control")
+    decode_envelope(7, request_id, session_id, sequence, body).expect("valid stream control")
 }
 
 fn route_revoke(
@@ -250,13 +285,14 @@ async fn quinn_streams_four_eight_and_twelve_echo_on_two_bound_channels() {
         destination.bind_channel(&mut session, [0xee; 16]),
         Err(SessionReject::UnexpectedMessage)
     );
+    let max_stream_open = stream_open_with_sequence(&channel_a, max_stream_id, [0xfc; 16], 5);
     session
         .authorize_stream_open(channel_a.channel_id, &max_stream_open)
         .expect("maximum source bidirectional stream ID");
     session
         .confirm_stream_accept(
             channel_a.channel_id,
-            &stream_accept(&channel_a, max_stream_id, [0xfc; 16], SESSION_ID),
+            &stream_accept_with_sequence(&channel_a, max_stream_id, [0xfc; 16], SESSION_ID, 6),
         )
         .expect("maximum stream accept binding");
     session
@@ -492,16 +528,25 @@ async fn revoked_channel_is_terminal_while_bound_sibling_remains_usable() {
         session
             .authorize_stream_open(
                 channel_b.channel_id,
-                &stream_open(&channel_b, stream_id, [0x50 + index as u8; 16]),
+                &stream_open_with_sequence(
+                    &channel_b,
+                    stream_id,
+                    [0x50 + index as u8; 16],
+                    100 + index as u64,
+                ),
             )
             .expect("fill sibling stream slots");
         while session.pop_audit_event().is_some() {}
     }
-    for _ in 0..24 {
+    for index in 0..1_024_u64 {
+        let mut request_id = [0xf0; 16];
+        request_id[8..].copy_from_slice(&index.to_be_bytes());
         assert_eq!(
             session.authorize_stream_open(
                 channel_b.channel_id,
-                &stream_open(&channel_b, 260, [0xf0; 16]),
+                // Failed authorization is mutation-free, so the same next
+                // control sequence remains reusable with each fresh request.
+                &stream_open_with_sequence(&channel_b, 260, request_id, 1_000),
             ),
             Err(SessionReject::Stream(StreamReject::OverCapacity))
         );
@@ -511,9 +556,9 @@ async fn revoked_channel_is_terminal_while_bound_sibling_remains_usable() {
             .audit_events()
             .filter(|event| event.channel_id == Some(channel_b.channel_id))
             .count(),
-        24
+        1_024
     );
-    let revoke_b = route_revoke(&channel_b, [0xa3; 16], 6, NOW + 200);
+    let revoke_b = route_revoke(&channel_b, [0xa3; 16], 3_000, NOW + 200);
     assert_eq!(
         destination.accept_route_revoke(&mut session, channel_b.channel_id, &revoke_b),
         Err(SessionReject::AuditUnavailable)

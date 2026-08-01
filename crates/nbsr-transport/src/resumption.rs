@@ -392,6 +392,24 @@ impl SameEdgeResumeManager {
             .admitted_channel_id = Some(channel_id);
     }
 
+    pub(crate) fn owns_resume_admission(
+        &self,
+        preflight: &ResumePreflight,
+        channel_id: [u8; 16],
+    ) -> bool {
+        Arc::ptr_eq(&self.manager_marker, &preflight.manager_marker)
+            && self
+                .preflights
+                .get(&preflight.id)
+                .is_some_and(|record| record.admitted_channel_id == Some(channel_id))
+    }
+
+    pub(crate) fn retire_failed_admission(&mut self, preflight: &ResumePreflight) {
+        if Arc::ptr_eq(&self.manager_marker, &preflight.manager_marker) {
+            self.preflights.remove(&preflight.id);
+        }
+    }
+
     pub(crate) fn consume(
         &mut self,
         preflight: &ResumePreflight,
@@ -544,10 +562,6 @@ fn audit_reason_for(reject: ResumeReject) -> AuditReason {
 fn old_authority_is_due(old: &ResumeSessionContext, monotonic_now: u64) -> bool {
     old.session_deadline
         .is_some_and(|deadline| monotonic_now >= deadline)
-        || old
-            .channel
-            .authority_deadline
-            .is_some_and(|deadline| monotonic_now >= deadline)
 }
 
 fn record_is_expired(record: &ResumeRecord, monotonic_now: u64) -> bool {

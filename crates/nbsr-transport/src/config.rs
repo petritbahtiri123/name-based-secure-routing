@@ -146,8 +146,9 @@ fn transport_config(idle_timeout: Duration) -> Result<Arc<TransportConfig>, Tran
         .map_err(|_| TransportError::InvalidTimeout)?;
     let mut transport = TransportConfig::default();
     transport.max_idle_timeout(Some(idle_timeout));
-    // Stream 0 is the only control stream; WP3 permits one application stream.
-    transport.max_concurrent_bidi_streams(VarInt::from_u32(2));
+    // One control stream plus the bounded WP4 session ceiling: 32 active
+    // channels, each with at most 64 reliable application streams.
+    transport.max_concurrent_bidi_streams(VarInt::from_u32(2_049));
     transport.max_concurrent_uni_streams(VarInt::from_u32(0));
     crate::quinn_adapter::configure_datagram_buffers(&mut transport);
     Ok(Arc::new(transport))

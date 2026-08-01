@@ -227,7 +227,7 @@ async fn channel_drain_denies_new_work_but_allows_release_until_the_exact_deadli
         &lifecycle_envelope(
             REQUEST_ID,
             12,
-            20,
+            23,
             (
                 channel.channel_id,
                 channel.route_id,
@@ -268,7 +268,7 @@ async fn channel_drain_denies_new_work_but_allows_release_until_the_exact_deadli
         b"accepted-before-drain"
     );
 
-    let fresh_stream_open = stream_open_envelope(&channel, 12, [0x77; 16]);
+    let fresh_stream_open = stream_open_envelope_with_sequence(&channel, 12, [0xdd; 16], 100);
     assert_eq!(
         session.authorize_stream_open(channel.channel_id, &fresh_stream_open),
         Err(SessionReject::InvalidChannelState)
@@ -521,20 +521,20 @@ async fn adapter_revoke_and_close_reset_only_after_valid_audited_commit() {
     let _revoke_reset_accepted = revoke_reset_accepted.expect("second tracked revoke target");
     let mut revoke_reset_opened = revoke_reset_opened.expect("second opened revoke target");
 
-    let invalid_revoke = lifecycle_control(&revoke_route, 13, [0x91; 16], 200, [0x99; 32]);
+    let invalid_revoke = lifecycle_control(&revoke_route, 13, [0x91; 16], 4_000, [0x99; 32]);
     let valid_revoke = lifecycle_control(
         &revoke_route,
         13,
         [0x91; 16],
-        200,
+        7_000,
         revoke_route.channel.route_grant_digest,
     );
-    let invalid_close = lifecycle_control(&close_route, 14, [0x92; 16], 201, [0x99; 32]);
+    let invalid_close = lifecycle_control(&close_route, 14, [0x92; 16], 9_000, [0x99; 32]);
     let valid_close = lifecycle_control(
         &close_route,
         14,
         [0x92; 16],
-        201,
+        12_000,
         close_route.channel.route_grant_digest,
     );
     let (other_listener, other_source, other_destination) = connection_pair().await;
@@ -560,7 +560,7 @@ async fn adapter_revoke_and_close_reset_only_after_valid_audited_commit() {
         ),
         Err(SessionReject::ControlRejected)
     );
-    fill_channel_audit_partition(&mut session, &revoke_route.channel);
+    fill_channel_audit_partition(&mut session, &revoke_route.channel, 5_000);
     assert_eq!(
         destination.accept_route_revoke(
             &mut session,
@@ -580,6 +580,7 @@ async fn adapter_revoke_and_close_reset_only_after_valid_audited_commit() {
         b"revoke-no-reset"
     );
 
+    pop_until_channel_slot(&mut session, revoke_route.channel.channel_id);
     let (sibling_accepted, sibling_opened) = tokio::join!(
         destination.accept_session_stream(&mut session, sibling_route.channel.channel_id),
         async {
@@ -630,7 +631,7 @@ async fn adapter_revoke_and_close_reset_only_after_valid_audited_commit() {
         ),
         Err(SessionReject::ControlRejected)
     );
-    fill_channel_audit_partition(&mut session, &close_route.channel);
+    fill_channel_audit_partition(&mut session, &close_route.channel, 10_000);
     assert_eq!(
         destination.accept_route_close(&mut session, close_route.channel.channel_id, &valid_close),
         Err(SessionReject::AuditUnavailable)
@@ -762,8 +763,7 @@ async fn local_session_drain_closes_only_its_connection_at_the_bounded_deadline(
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn session_drain_resets_a_live_channel_at_its_one_second_grant_deadline() {
     let (listener, source, destination) = connection_pair().await;
-    let mut policy = runtime_policy();
-    policy.now = NOW + 299;
+    let policy = runtime_policy();
     let mut session = ControlSession::new(
         &destination,
         DestinationAdmission::new(policy).expect("valid admission policy"),
@@ -845,8 +845,7 @@ async fn session_drain_resets_a_live_channel_at_its_one_second_grant_deadline() 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn session_drain_reports_due_channel_audit_failure_while_resetting_safely() {
     let (listener, source, destination) = connection_pair().await;
-    let mut policy = runtime_policy();
-    policy.now = NOW + 299;
+    let policy = runtime_policy();
     let mut session = ControlSession::new(
         &destination,
         DestinationAdmission::new(policy).expect("valid admission policy"),
@@ -887,7 +886,8 @@ async fn session_drain_reports_due_channel_audit_failure_while_resetting_safely(
     );
     let _accepted = accepted.expect("accepted live stream before session drain");
     let mut opened = opened.expect("opened live stream before session drain");
-    fill_channel_audit_partition(&mut session, &channel);
+    fill_channel_audit_partition(&mut session, &channel, 100);
+    pop_until_channel_slot(&mut session, channel.channel_id);
     session
         .begin_session_drain(1_000, NOW + 299, 30)
         .expect("channel exhaustion preserves the session lifecycle reserve");
@@ -896,7 +896,7 @@ async fn session_drain_reports_due_channel_audit_failure_while_resetting_safely(
             .audit_events()
             .filter(|event| event.channel_id == Some(channel.channel_id))
             .count(),
-        24
+        1_023
     );
     assert_eq!(
         session.audit_events().last().map(|event| event.channel_id),
@@ -983,13 +983,13 @@ async fn audit_exhaustion_preserves_start_state_and_deadline_enforcement_stays_s
     destination
         .bind_channel(&mut session, channel.channel_id)
         .expect("bind active channel");
-    fill_channel_audit_partition(&mut session, &channel);
+    fill_channel_audit_partition(&mut session, &channel, 100);
 
     let drain = decode_control_envelope(
         &lifecycle_envelope(
-            [0x7a; 16],
+            [0xde; 16],
             12,
-            20,
+            10_000,
             (
                 channel.channel_id,
                 channel.route_id,
@@ -1103,34 +1103,34 @@ fn lifecycle_control(
     .expect("valid generated lifecycle envelope")
 }
 
-fn fill_channel_audit_partition(session: &mut ControlSession, channel: &ActiveChannel) {
-    let first_stream_id = 24 + u64::from(channel.channel_id[0]) * 256;
-    for (offset, stream_id) in (first_stream_id..=first_stream_id + 248)
-        .step_by(4)
-        .enumerate()
-    {
+fn fill_channel_audit_partition(
+    session: &mut ControlSession,
+    channel: &ActiveChannel,
+    sequence_base: u64,
+) {
+    let first_stream_id = 24 + u64::from(channel.channel_id[0]) * 1_000_000;
+    let mut offset = 0_u64;
+    while session.audit_events().len() < 1_024 {
+        let stream_id = first_stream_id + offset * 4;
         let request_id = id(30_000 + stream_id);
-        let sequence = 100 + offset as u64;
+        let sequence = sequence_base + offset;
         let open = stream_open_envelope_with_sequence(channel, stream_id, request_id, sequence);
+        if let Err(error) = session.authorize_stream_open(channel.channel_id, &open) {
+            panic!("audit fill failed at offset {offset}, sequence {sequence}: {error:?}");
+        }
+        if session.audit_events().len() == 1_024 {
+            break;
+        }
         let accept = stream_accept_envelope(channel, stream_id, request_id, sequence + 100);
-        match session.authorize_stream_open(channel.channel_id, &open) {
-            Ok(()) => {}
-            Err(SessionReject::AuditUnavailable) => break,
-            Err(error) => panic!("fill channel audit partition: {error:?}"),
-        }
-        match session.confirm_stream_accept(channel.channel_id, &accept) {
-            Ok(()) => {}
-            Err(SessionReject::AuditUnavailable) => break,
-            Err(error) => panic!("confirm channel audit partition: {error:?}"),
-        }
-    }
-    assert_eq!(
         session
-            .audit_events()
-            .filter(|event| event.channel_id == Some(channel.channel_id))
-            .count(),
-        24
-    );
+            .confirm_stream_accept(channel.channel_id, &accept)
+            .expect("confirm transient audit-fill stream");
+        session
+            .release_stream(channel.channel_id, stream_id)
+            .expect("audit-fill stream leaves no capacity mutation");
+        offset += 1;
+    }
+    assert_eq!(session.audit_events().len(), 1_024);
 }
 
 fn pop_until_channel_slot(session: &mut ControlSession, channel_id: [u8; 16]) {

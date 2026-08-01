@@ -118,6 +118,13 @@ impl ReplayStore {
         }
     }
 
+    pub(crate) fn rollback_live(&mut self, channel_id: &[u8; 16]) {
+        if self.by_channel.get(channel_id) == Some(&None) {
+            self.by_channel.remove(channel_id);
+            self.by_nonce.retain(|_, owner| owner != channel_id);
+        }
+    }
+
     pub(crate) fn tombstone_expires_at(&self, channel_id: &[u8; 16]) -> Option<u64> {
         self.by_channel.get(channel_id).copied().flatten()
     }

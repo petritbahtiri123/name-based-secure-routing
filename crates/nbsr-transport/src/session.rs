@@ -1,6 +1,8 @@
 //! Origin-free control-session sequencing and reusable route admission.
 
 use std::collections::{HashMap, HashSet};
+use std::sync::Arc;
+use std::time::Instant;
 
 use sha2::{Digest, Sha256};
 
@@ -32,6 +34,27 @@ pub enum SessionReject {
     UnexpectedMessage,
 }
 
+pub const MAX_SESSION_SECONDS: u64 = 3_600;
+
+pub trait SessionClock: Send + Sync {
+    fn unix_seconds(&self) -> u64;
+    fn monotonic_seconds(&self) -> u64;
+}
+
+struct AnchoredClock {
+    unix_anchor: u64,
+    started: Instant,
+}
+impl SessionClock for AnchoredClock {
+    fn unix_seconds(&self) -> u64 {
+        self.unix_anchor
+            .saturating_add(self.started.elapsed().as_secs())
+    }
+    fn monotonic_seconds(&self) -> u64 {
+        self.started.elapsed().as_secs()
+    }
+}
+
 pub struct ControlSession {
     admission: DestinationAdmission,
     authenticated_peer: EdgeIdentity,
@@ -44,9 +67,11 @@ pub struct ControlSession {
     datagrams: HashMap<[u8; 16], crate::DatagramGate>,
     streams: ChannelStreams,
     session_deadline: Option<DrainDeadline>,
+    hard_session_deadline: u64,
     session_drain_state: SessionDrainState,
     session_drain_deadline: Option<DrainDeadline>,
     trust_profile_id: TrustProfileId,
+    clock: Arc<dyn SessionClock>,
 }
 
 enum SessionState {
@@ -87,11 +112,33 @@ impl ControlSession {
         trusted_issuers: Vec<RouteGrantIssuer>,
         trust_profile_id: TrustProfileId,
     ) -> Self {
+        let clock = Arc::new(AnchoredClock {
+            unix_anchor: admission.trusted_unix_anchor(),
+            started: Instant::now(),
+        });
         Self::new_inner(
             connection,
             admission,
             trusted_issuers,
             trust_profile_id,
+            clock,
+            None,
+        )
+    }
+
+    pub fn new_with_clock(
+        connection: &AuthenticatedConnection,
+        admission: DestinationAdmission,
+        trusted_issuers: Vec<RouteGrantIssuer>,
+        trust_profile_id: TrustProfileId,
+        clock: Arc<dyn SessionClock>,
+    ) -> Self {
+        Self::new_inner(
+            connection,
+            admission,
+            trusted_issuers,
+            trust_profile_id,
+            clock,
             None,
         )
     }
@@ -103,11 +150,16 @@ impl ControlSession {
         trust_profile_id: TrustProfileId,
         session_deadline: DrainDeadline,
     ) -> Self {
+        let clock = Arc::new(AnchoredClock {
+            unix_anchor: admission.trusted_unix_anchor(),
+            started: Instant::now(),
+        });
         Self::new_inner(
             connection,
             admission,
             trusted_issuers,
             trust_profile_id,
+            clock,
             Some(session_deadline),
         )
     }
@@ -117,6 +169,7 @@ impl ControlSession {
         admission: DestinationAdmission,
         trusted_issuers: Vec<RouteGrantIssuer>,
         trust_profile_id: TrustProfileId,
+        clock: Arc<dyn SessionClock>,
         session_deadline: Option<DrainDeadline>,
     ) -> Self {
         Self {
@@ -131,9 +184,13 @@ impl ControlSession {
             datagrams: HashMap::new(),
             streams: ChannelStreams::new(),
             session_deadline,
+            hard_session_deadline: clock
+                .monotonic_seconds()
+                .saturating_add(MAX_SESSION_SECONDS),
             session_drain_state: SessionDrainState::Active,
             session_drain_deadline: None,
             trust_profile_id,
+            clock,
         }
     }
 
@@ -178,6 +235,7 @@ impl ControlSession {
         unix_now: u64,
         requested_seconds: u64,
     ) -> Result<(), SessionReject> {
+        self.require_session_active()?;
         self.established_session_id()?;
         if self.session_drain_state != SessionDrainState::Active {
             return Err(SessionReject::InvalidChannelState);
@@ -363,7 +421,7 @@ impl ControlSession {
         }
         let channel = self
             .admission
-            .admit_route_open(envelope, &self.trusted_issuers)
+            .admit_route_open(envelope, &self.trusted_issuers, self.clock.unix_seconds())
             .map_err(SessionReject::Admission)?;
         self.request_ids.insert(request_id);
         let SessionState::Established {
@@ -433,17 +491,36 @@ impl ControlSession {
         Ok(())
     }
 
+    pub(crate) fn rollback_resume_admission(
+        &mut self,
+        channel_id: [u8; 16],
+    ) -> Result<(), ResumeReject> {
+        let result = self
+            .admission
+            .rollback_resume_admission(&channel_id)
+            .map_err(|_| ResumeReject::AuditUnavailable);
+        if let SessionState::Established { pending, .. } = &mut self.state
+            && pending
+                .as_ref()
+                .is_some_and(|candidate| candidate.channel_id == channel_id)
+        {
+            *pending = None;
+        }
+        result
+    }
+
     pub fn authorize_stream_open(
         &mut self,
         channel_id: [u8; 16],
         envelope: &CoreV02Envelope,
     ) -> Result<(), SessionReject> {
         self.require_session_active()?;
-        let (request_id, session_id, _) = binding(envelope)?;
+        let (request_id, session_id, sequence) = binding(envelope)?;
         let expected_session_id = self.established_session_id()?;
         if session_id != expected_session_id || self.request_ids.contains(&request_id) {
             return Err(SessionReject::Replay);
         }
+        self.preflight_source_control(sequence)?;
         let channel = self.bound_channel(&channel_id)?.clone();
         let prepared = match self.streams.prepare_open(&channel, envelope) {
             Ok(prepared) => prepared,
@@ -459,7 +536,7 @@ impl ControlSession {
             .audit_stream_authorized(&channel_id)
             .map_err(map_admission_audit)?;
         self.streams.commit_open(prepared);
-        self.request_ids.insert(request_id);
+        self.commit_source_control(request_id, sequence)?;
         Ok(())
     }
 
@@ -469,10 +546,11 @@ impl ControlSession {
         envelope: &CoreV02Envelope,
     ) -> Result<(), SessionReject> {
         self.require_session_active()?;
-        let (_, session_id, _) = binding(envelope)?;
-        if session_id != self.established_session_id()? {
+        let (request_id, session_id, sequence) = binding(envelope)?;
+        if request_id == [0; 16] || session_id != self.established_session_id()? {
             return Err(SessionReject::Replay);
         }
+        self.preflight_destination_control(sequence)?;
         self.bound_channel(&channel_id)?;
         let prepared = self
             .streams
@@ -482,6 +560,7 @@ impl ControlSession {
             .audit_stream_authorized(&channel_id)
             .map_err(map_admission_audit)?;
         self.streams.commit_transition(prepared);
+        self.commit_destination_control(sequence)?;
         Ok(())
     }
 
@@ -510,6 +589,7 @@ impl ControlSession {
         stream_id: u64,
         bytes: usize,
     ) -> Result<(), SessionReject> {
+        self.require_session_active()?;
         self.require_existing_bound_channel(&channel_id)?;
         self.streams
             .release_bytes(&channel_id, stream_id, bytes)
@@ -521,6 +601,7 @@ impl ControlSession {
         channel_id: [u8; 16],
         stream_id: u64,
     ) -> Result<(), SessionReject> {
+        self.require_session_active()?;
         self.require_existing_bound_channel(&channel_id)?;
         self.streams
             .release_stream(&channel_id, stream_id)
@@ -567,6 +648,7 @@ impl ControlSession {
         monotonic_now: u64,
         unix_now: u64,
     ) -> Result<(), SessionReject> {
+        self.require_session_active()?;
         let (request_id, session_id, sequence) = binding(envelope)?;
         if self.request_ids.contains(&request_id) {
             return Err(SessionReject::Replay);
@@ -617,6 +699,7 @@ impl ControlSession {
         channel_id: [u8; 16],
         envelope: &CoreV02Envelope,
     ) -> Result<(), SessionReject> {
+        self.require_session_active()?;
         let (request_id, session_id, sequence) = binding(envelope)?;
         if self.request_ids.contains(&request_id) {
             return Err(SessionReject::Replay);
@@ -653,6 +736,7 @@ impl ControlSession {
         channel_id: [u8; 16],
         envelope: &CoreV02Envelope,
     ) -> Result<(), SessionReject> {
+        self.require_session_active()?;
         let (request_id, session_id, sequence) = binding(envelope)?;
         if self.request_ids.contains(&request_id) {
             return Err(SessionReject::Replay);
@@ -1063,7 +1147,7 @@ impl ControlSession {
     }
 
     fn require_udp_channel(&self, channel_id: &[u8; 16]) -> Result<(), crate::DatagramReject> {
-        if self.session_drain_state != SessionDrainState::Active {
+        if self.session_drain_state != SessionDrainState::Active || self.session_expired() {
             return Err(crate::DatagramReject::InvalidState);
         }
         self.admission
@@ -1083,11 +1167,52 @@ impl ControlSession {
     }
 
     fn require_session_active(&self) -> Result<(), SessionReject> {
-        if self.session_drain_state == SessionDrainState::Active {
+        if self.session_drain_state == SessionDrainState::Active && !self.session_expired() {
             Ok(())
         } else {
             Err(SessionReject::InvalidChannelState)
         }
+    }
+
+    fn session_expired(&self) -> bool {
+        let now = self.clock.monotonic_seconds();
+        now >= self.hard_session_deadline
+            || self
+                .session_deadline
+                .is_some_and(|deadline| deadline.is_due(now))
+    }
+
+    fn preflight_source_control(&self, sequence: u64) -> Result<(), SessionReject> {
+        match &self.state {
+            SessionState::Established {
+                source_sequence, ..
+            } if sequence > *source_sequence => Ok(()),
+            SessionState::Established { .. } => Err(SessionReject::Replay),
+            _ => Err(SessionReject::UnexpectedMessage),
+        }
+    }
+
+    fn preflight_destination_control(&self, sequence: u64) -> Result<(), SessionReject> {
+        match &self.state {
+            SessionState::Established {
+                destination_sequence,
+                ..
+            } if sequence > *destination_sequence => Ok(()),
+            SessionState::Established { .. } => Err(SessionReject::Replay),
+            _ => Err(SessionReject::UnexpectedMessage),
+        }
+    }
+
+    fn commit_destination_control(&mut self, sequence: u64) -> Result<(), SessionReject> {
+        let SessionState::Established {
+            destination_sequence,
+            ..
+        } = &mut self.state
+        else {
+            return Err(SessionReject::UnexpectedMessage);
+        };
+        *destination_sequence = sequence;
+        Ok(())
     }
 
     fn require_existing_bound_channel(&self, channel_id: &[u8; 16]) -> Result<(), SessionReject> {

@@ -212,12 +212,6 @@ pub fn canonical_service_channel_context(
     Ok(wire)
 }
 
-pub(crate) fn service_channel_context_hash(
-    context: &ServiceChannelContext<'_>,
-) -> Result<[u8; SHA256_OUTPUT_LENGTH], ServiceChannelExporterError> {
-    Ok(Sha256::digest(canonical_service_channel_context(context)?).into())
-}
-
 fn hmac_sha256(key: &[u8], input: &[u8]) -> [u8; SHA256_OUTPUT_LENGTH] {
     let mut normalized_key = [0_u8; SHA256_BLOCK_LENGTH];
     if key.len() > SHA256_BLOCK_LENGTH {

@@ -89,6 +89,9 @@ pub struct DestinationAdmission {
 }
 
 impl DestinationAdmission {
+    pub(crate) fn trusted_unix_anchor(&self) -> u64 {
+        self.policy.now
+    }
     pub fn new(policy: AdmissionPolicy) -> Result<Self, AdmissionReject> {
         Self::with_limits(policy, ChannelLimits::default())
     }
@@ -151,6 +154,26 @@ impl DestinationAdmission {
             )
             .map_err(|_| AdmissionReject::AuditUnavailable)?;
         self.channels.confirm_active(channel_id)
+    }
+
+    pub(crate) fn rollback_resume_admission(
+        &mut self,
+        channel_id: &[u8; 16],
+    ) -> Result<(), AdmissionReject> {
+        let audit_result = self.channels.channel(channel_id).map(|channel| {
+            self.audit.record(
+                Some(*channel_id),
+                &channel.service_id,
+                AuditAction::RouteRejected,
+                AuditOutcome::Denied,
+                AuditReason::InvalidState,
+            )
+        });
+        self.channels.rollback_admission(channel_id);
+        audit_result
+            .transpose()
+            .map_err(|_| AdmissionReject::AuditUnavailable)?;
+        Ok(())
     }
 
     pub(crate) fn channel(&self, channel_id: &[u8; 16]) -> Option<&ActiveChannel> {
@@ -466,7 +489,15 @@ impl DestinationAdmission {
     }
 
     pub fn admit(&mut self, request: RouteOpenRequest) -> Result<ActiveChannel, AdmissionReject> {
-        validate_request(&self.policy, &request)?;
+        self.admit_at(request, self.policy.now)
+    }
+
+    fn admit_at(
+        &mut self,
+        request: RouteOpenRequest,
+        unix_now: u64,
+    ) -> Result<ActiveChannel, AdmissionReject> {
+        validate_request_at(&self.policy, &request, unix_now)?;
 
         let channel = ActiveChannel {
             channel_id: request.channel_id,
@@ -548,6 +579,7 @@ impl DestinationAdmission {
         &mut self,
         envelope: &CoreV02Envelope,
         trusted_issuers: &[RouteGrantIssuer],
+        unix_now: u64,
     ) -> Result<ActiveChannel, AdmissionReject> {
         let route_open = envelope
             .validated_route_open(trusted_issuers)
@@ -579,14 +611,15 @@ impl DestinationAdmission {
             &Signature::from_bytes(&route_open.proof_signature),
         )
         .map_err(|_| AdmissionReject::GrantInvalid)?;
-        self.admit(RouteOpenRequest {
+        let request = RouteOpenRequest {
             channel_id: route_open.channel_id,
             grant: route_open.grant,
             requested_transport: route_open.requested_transport,
             requested_port: route_open.requested_port,
             opened_at: route_open.opened_at,
             route_grant_digest,
-        })
+        };
+        self.admit_at(request, unix_now)
     }
 }
 
@@ -667,9 +700,10 @@ fn encode_argument(target: &mut Vec<u8>, major: u8, value: u64) -> Result<(), Ad
     Ok(())
 }
 
-fn validate_request(
+fn validate_request_at(
     policy: &AdmissionPolicy,
     request: &RouteOpenRequest,
+    unix_now: u64,
 ) -> Result<(), AdmissionReject> {
     let grant = &request.grant;
     let service_policy = policy
@@ -686,10 +720,11 @@ fn validate_request(
     }
     if grant.not_before > grant.expires_at
         || grant.expires_at.saturating_sub(grant.not_before) > 600
-        || policy.now < grant.not_before
-        || policy.now > grant.expires_at
+        || unix_now < grant.not_before
+        || unix_now > grant.expires_at
         || request.opened_at < grant.not_before
         || request.opened_at > grant.expires_at
+        || request.opened_at.abs_diff(unix_now) > 30
     {
         return Err(AdmissionReject::GrantExpired);
     }
@@ -714,4 +749,62 @@ fn validate_request(
         return Err(AdmissionReject::RouteDenied);
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod time_tests {
+    use super::*;
+
+    #[test]
+    fn route_time_uses_current_time_and_exact_thirty_second_skew() {
+        let mut policy = AdmissionPolicy {
+            source_operator_id: "source".into(),
+            source_edge_id: "source-edge".into(),
+            destination_operator_id: "destination".into(),
+            destination_edge_id: "destination-edge".into(),
+            authorized_services: BTreeMap::from([(
+                "svc".into(),
+                AuthorizedServicePolicy {
+                    accepted_record_sequence: 1,
+                    policy_hash: [7; 32],
+                },
+            )]),
+            now: 1,
+            client_session_public_key: [3; 32],
+            edge_nonce: [4; 32],
+        };
+        let request = RouteOpenRequest {
+            channel_id: [1; 16],
+            grant: RouteGrantClaims {
+                route_id: [2; 16],
+                service_id: "svc".into(),
+                source_operator_id: "source".into(),
+                source_edge_id: "source-edge".into(),
+                destination_operator_id: "destination".into(),
+                destination_edge_ids: vec!["destination-edge".into()],
+                allowed_transports: vec!["tcp".into()],
+                allowed_ports: vec![443],
+                client_session_key_thumbprint: [5; 32],
+                not_before: 100,
+                expires_at: 200,
+                record_sequence: 1,
+                policy_hash: [7; 32],
+                unique_nonce: [6; 16],
+            },
+            requested_transport: "tcp".into(),
+            requested_port: 443,
+            opened_at: 130,
+            route_grant_digest: [8; 32],
+        };
+        assert_eq!(validate_request_at(&policy, &request, 160), Ok(()));
+        assert_eq!(
+            validate_request_at(&policy, &request, 161),
+            Err(AdmissionReject::GrantExpired)
+        );
+        policy.now = 150;
+        assert_eq!(
+            validate_request_at(&policy, &request, 201),
+            Err(AdmissionReject::GrantExpired)
+        );
+    }
 }

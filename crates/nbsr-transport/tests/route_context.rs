@@ -65,7 +65,7 @@ fn decoded_route_open_and_trusted_signed_grant_create_the_fixture_channel() {
         DestinationAdmission::new(fixture_policy()).expect("valid admission policy");
 
     let accepted = admission
-        .admit_route_open(&envelope, &[trusted_issuer()])
+        .admit_route_open(&envelope, &[trusted_issuer()], 1_893_456_000)
         .expect("fixture RouteOpen admission");
 
     assert_eq!(
@@ -91,6 +91,10 @@ fn decoded_route_open_without_trusted_grant_issuer_allocates_no_channel() {
     let mut admission =
         DestinationAdmission::new(fixture_policy()).expect("valid admission policy");
 
-    assert!(admission.admit_route_open(&envelope, &[]).is_err());
+    assert!(
+        admission
+            .admit_route_open(&envelope, &[], 1_893_456_000)
+            .is_err()
+    );
     assert_eq!(admission.active_channels(), 0);
 }
