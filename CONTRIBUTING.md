@@ -27,11 +27,19 @@ python -m ruff check .
 python -m ruff format --check .
 python -m pip check
 cargo fmt --manifest-path crates/nbsr-transport/Cargo.toml --check
-cargo clippy --manifest-path crates/nbsr-transport/Cargo.toml --all-targets -- -D warnings
-cargo test --manifest-path crates/nbsr-transport/Cargo.toml
+cargo clippy --locked --manifest-path crates/nbsr-transport/Cargo.toml --all-targets -- -D warnings
+cargo test --locked --manifest-path crates/nbsr-transport/Cargo.toml
 ```
 
-Run OPA, Compose, Kind, vector-regeneration, and packaging checks when the affected area requires them.
+For Core v0.2 or WP4 exporter changes, also run the separately owned vector checks:
+
+```bash
+python scripts/generate_core_v02_vectors.py --check
+python scripts/generate_wp4_exporter_vectors.py --check
+node scripts/verify_wp4_exporter_vectors.mjs vectors/core-v0.2/wp4-exporter
+```
+
+Run OPA, Compose, Kind, other vector-regeneration, and packaging checks when the affected area requires them.
 
 ## Protocol change requirements
 

@@ -99,6 +99,19 @@ WP3 implemented an origin-free Rust QUIC/TLS laboratory boundary using Quinn and
 
 This slice intentionally does not yet select an OriginSet, connect to a real origin, integrate the Python NameRelay, or reuse one Transport Session for multiple services.
 
+## WP4 — reusable multi-service transport slice
+
+WP4 extended the origin-free Rust QUIC/TLS laboratory boundary so one authenticated Transport Session can carry multiple isolated services:
+
+- up to 32 isolated Service Channels per Transport Session;
+- up to 64 reliable streams per channel, with bounded per-stream and per-channel buffering;
+- a fresh RouteGrant and nonce for every additional channel;
+- TLS exporter binding over canonical channel context, checked by independent Python, Node.js, and Rust vectors;
+- bounded TCP and UDP behavior with per-service authorization, revocation, quotas, audit, and failure containment;
+- bounded drain and same-edge resume authority tied to the original session, grant, peer, and edge identity.
+
+This slice remains a same-edge loopback laboratory implementation. It does not select an OriginSet, connect to or forward traffic to an Origin Endpoint, integrate NameRelay, support cross-edge resume or 0-RTT, or establish production readiness.
+
 ## Active development branch
 
 The active protocol research and reference-implementation branch is:

@@ -37,6 +37,8 @@ Reports are especially relevant when they affect:
 - deterministic CBOR or schema validation;
 - COSE Sign1 or Ed25519 verification;
 - route, session, stream, identity, name, port, transport, nonce, expiry, or sequence binding;
+- Service Channel isolation, TLS exporter or channel binding, and per-service authorization;
+- quota or audit containment, drain or same-edge resume authority;
 - downgrade, replay, rollback, equivocation, or revocation behavior;
 - synthetic-address ownership and resolution state;
 - destination and OriginSet policy enforcement;
