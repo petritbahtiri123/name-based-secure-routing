@@ -7,21 +7,33 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
+import stat
 from dataclasses import dataclass, field
 from enum import StrEnum
+from pathlib import Path
+
+from nbsr.secure_files import secure_write_private
 
 
 MAX_UINT64 = 2**64 - 1
 MAX_TIMESTAMP = 253_402_300_799
 MAX_RECORDS = 4096
+MAX_REPLICAS = 32
+MAX_SNAPSHOT_BYTES = 256 * 1024
 _TEXT_ID = re.compile(r"[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*\Z")
 _OBJECT_ID = re.compile(r"[0-9a-f]{2,64}\Z")
 _RECORD_DOMAIN = "nbsr-continuity-record-v1"
+_SNAPSHOT_SCHEMA = "nbsr-continuity-snapshot-v1"
 
 
 class StateRejected(ValueError):
     """A continuity candidate cannot be accepted safely."""
+
+
+class SnapshotRejected(StateRejected):
+    """A snapshot cannot be trusted or decoded safely."""
 
 
 class StateKind(StrEnum):
@@ -175,3 +187,234 @@ class ContinuityState:
             raise StateRejected("candidate previous digest does not match retained state")
         updated = tuple(item for item in self.records if item.key != candidate.key)
         return ContinuityState(self.tenant_id, (*updated, candidate))
+
+
+@dataclass(frozen=True, slots=True)
+class ReplicaConfig:
+    tenant_id: str
+    replica_set_id: str
+    replica_ids: tuple[str, ...]
+    quorum: int
+
+    def __post_init__(self) -> None:
+        try:
+            object.__setattr__(self, "tenant_id", _text_id(self.tenant_id))
+            object.__setattr__(self, "replica_set_id", _text_id(self.replica_set_id))
+            if type(self.replica_ids) not in (tuple, list) or not 1 <= len(self.replica_ids) <= MAX_REPLICAS:
+                raise SnapshotRejected("replica count is outside bounds")
+            if any(type(item) is not str for item in self.replica_ids):
+                raise SnapshotRejected("replica identity is invalid")
+            checked = tuple(sorted(_text_id(item) for item in self.replica_ids))
+            if len(set(checked)) != len(checked):
+                raise SnapshotRejected("replica identities must be unique")
+            object.__setattr__(self, "replica_ids", checked)
+            quorum = _uint("quorum", self.quorum, minimum=1, maximum=len(checked))
+            if quorum <= len(checked) // 2:
+                raise SnapshotRejected("quorum must be a strict majority")
+            object.__setattr__(self, "quorum", quorum)
+        except StateRejected as exc:
+            if isinstance(exc, SnapshotRejected):
+                raise
+            raise SnapshotRejected(str(exc)) from exc
+
+
+@dataclass(frozen=True, slots=True)
+class ContinuitySnapshot:
+    config: ReplicaConfig
+    generation: int
+    created_at: int
+    state: ContinuityState
+    snapshot_digest: bytes = field(init=False, repr=False)
+
+    def __post_init__(self) -> None:
+        if type(self.config) is not ReplicaConfig or type(self.state) is not ContinuityState:
+            raise SnapshotRejected("snapshot context is invalid")
+        if self.config.tenant_id != self.state.tenant_id:
+            raise SnapshotRejected("snapshot tenant contexts do not match")
+        try:
+            object.__setattr__(self, "generation", _uint("snapshot generation", self.generation, minimum=1))
+            object.__setattr__(self, "created_at", _uint("created_at", self.created_at, maximum=MAX_TIMESTAMP))
+        except StateRejected as exc:
+            raise SnapshotRejected(str(exc)) from exc
+        object.__setattr__(self, "snapshot_digest", hashlib.sha256(_snapshot_payload_bytes(self)).digest())
+
+
+def _record_object(item: ContinuityRecord) -> dict[str, object]:
+    return {
+        "authority_digest": item.authority_digest.hex(),
+        "expires_at": item.expires_at,
+        "generation": item.generation,
+        "key": item.key.canonical_value(),
+        "previous_digest": item.previous_digest.hex() if item.previous_digest is not None else None,
+        "retained_until": item.retained_until,
+        "sequence": item.sequence,
+        "terminal": item.terminal,
+    }
+
+
+def _snapshot_payload(snapshot: ContinuitySnapshot) -> dict[str, object]:
+    return {
+        "created_at": snapshot.created_at,
+        "generation": snapshot.generation,
+        "quorum": snapshot.config.quorum,
+        "records": [_record_object(item) for item in snapshot.state.records],
+        "replica_ids": list(snapshot.config.replica_ids),
+        "replica_set_id": snapshot.config.replica_set_id,
+        "schema": _SNAPSHOT_SCHEMA,
+        "tenant_id": snapshot.config.tenant_id,
+    }
+
+
+def _canonical_json(value: object) -> bytes:
+    return json.dumps(value, ensure_ascii=True, sort_keys=True, separators=(",", ":")).encode("ascii")
+
+
+def _snapshot_payload_bytes(snapshot: ContinuitySnapshot) -> bytes:
+    return _canonical_json(_snapshot_payload(snapshot))
+
+
+def encode_snapshot(snapshot: ContinuitySnapshot) -> bytes:
+    if type(snapshot) is not ContinuitySnapshot:
+        raise SnapshotRejected("snapshot must be a ContinuitySnapshot")
+    value = _snapshot_payload(snapshot)
+    value["snapshot_digest"] = snapshot.snapshot_digest.hex()
+    encoded = _canonical_json(value) + b"\n"
+    if len(encoded) > MAX_SNAPSHOT_BYTES:
+        raise SnapshotRejected("snapshot exceeds encoded size limit")
+    return encoded
+
+
+def _closed(value: object, fields: frozenset[str], name: str) -> dict[str, object]:
+    if type(value) is not dict or frozenset(value) != fields:
+        raise SnapshotRejected(f"{name} has unknown or missing fields")
+    return value
+
+
+def _hex_digest(value: object, name: str) -> bytes:
+    if type(value) is not str or len(value) != 64:
+        raise SnapshotRejected(f"{name} is invalid")
+    try:
+        decoded = bytes.fromhex(value)
+    except ValueError as exc:
+        raise SnapshotRejected(f"{name} is invalid") from exc
+    if len(decoded) != 32 or value != decoded.hex():
+        raise SnapshotRejected(f"{name} is invalid")
+    return decoded
+
+
+def decode_snapshot(data: bytes) -> ContinuitySnapshot:
+    if type(data) is not bytes or not data or len(data) > MAX_SNAPSHOT_BYTES:
+        raise SnapshotRejected("snapshot input size is invalid")
+    try:
+        value = json.loads(data)
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise SnapshotRejected("snapshot is not valid JSON") from exc
+    root = _closed(
+        value,
+        frozenset(
+            {
+                "created_at",
+                "generation",
+                "quorum",
+                "records",
+                "replica_ids",
+                "replica_set_id",
+                "schema",
+                "snapshot_digest",
+                "tenant_id",
+            },
+        ),
+        "snapshot",
+    )
+    if root["schema"] != _SNAPSHOT_SCHEMA:
+        raise SnapshotRejected("snapshot schema is unsupported")
+    if type(root["records"]) is not list or len(root["records"]) > MAX_RECORDS:
+        raise SnapshotRejected("snapshot record count is invalid")
+    config = ReplicaConfig(root["tenant_id"], root["replica_set_id"], root["replica_ids"], root["quorum"])  # type: ignore[arg-type]
+    if root["replica_ids"] != list(config.replica_ids):
+        raise SnapshotRejected("replica identities are not canonical")
+    records: list[ContinuityRecord] = []
+    record_fields = frozenset(
+        {"authority_digest", "expires_at", "generation", "key", "previous_digest", "retained_until", "sequence", "terminal"},
+    )
+    for raw in root["records"]:
+        item = _closed(raw, record_fields, "record")
+        key_value = item["key"]
+        if type(key_value) is not list or len(key_value) != 4:
+            raise SnapshotRejected("record key is invalid")
+        previous = item["previous_digest"]
+        records.append(
+            ContinuityRecord(
+                StateKey(*key_value),
+                item["generation"],
+                item["sequence"],
+                _hex_digest(item["authority_digest"], "authority_digest"),
+                None if previous is None else _hex_digest(previous, "previous_digest"),
+                item["expires_at"],
+                item["retained_until"],
+                item["terminal"],
+            ),
+        )
+    try:
+        state = ContinuityState(config.tenant_id, tuple(records))
+    except StateRejected as exc:
+        raise SnapshotRejected(str(exc)) from exc
+    if records != list(state.records):
+        raise SnapshotRejected("snapshot records are not canonical")
+    snapshot = ContinuitySnapshot(config, root["generation"], root["created_at"], state)  # type: ignore[arg-type]
+    supplied = _hex_digest(root["snapshot_digest"], "snapshot_digest")
+    if supplied != snapshot.snapshot_digest:
+        raise SnapshotRejected("snapshot digest mismatch")
+    if data != encode_snapshot(snapshot):
+        raise SnapshotRejected("snapshot encoding is not canonical")
+    return snapshot
+
+
+class SnapshotRepository:
+    """Private-file adapter for one deterministic snapshot."""
+
+    def __init__(self, path: Path | str) -> None:
+        self.path = Path(path)
+
+    def load(self, *, minimum_generation: int = 1) -> ContinuitySnapshot:
+        checked_minimum = _uint("minimum_generation", minimum_generation, minimum=1)
+        snapshot = decode_snapshot(self._read_bounded_regular_file())
+        if snapshot.generation < checked_minimum:
+            raise SnapshotRejected("snapshot rollback rejected")
+        return snapshot
+
+    def save(self, snapshot: ContinuitySnapshot) -> None:
+        encoded = encode_snapshot(snapshot)
+        if self.path.exists() or self.path.is_symlink():
+            current = self.load()
+            if snapshot.config != current.config:
+                raise SnapshotRejected("snapshot context mismatch")
+            if snapshot.generation < current.generation:
+                raise SnapshotRejected("snapshot rollback rejected")
+            if snapshot.generation == current.generation and snapshot.snapshot_digest != current.snapshot_digest:
+                raise SnapshotRejected("snapshot generation equivocation")
+        secure_write_private(self.path, encoded)
+
+    def _read_bounded_regular_file(self) -> bytes:
+        try:
+            before = self.path.lstat()
+            if stat.S_ISLNK(before.st_mode) or not stat.S_ISREG(before.st_mode):
+                raise SnapshotRejected("snapshot path is not a regular file")
+            flags = os.O_RDONLY | getattr(os, "O_BINARY", 0)
+            if hasattr(os, "O_NOFOLLOW"):
+                flags |= os.O_NOFOLLOW
+            descriptor = os.open(self.path, flags)
+        except (OSError, ValueError) as exc:
+            raise SnapshotRejected("snapshot file is unavailable") from exc
+        try:
+            opened = os.fstat(descriptor)
+            if not stat.S_ISREG(opened.st_mode) or (opened.st_dev, opened.st_ino) != (before.st_dev, before.st_ino):
+                raise SnapshotRejected("snapshot file changed during open")
+            if opened.st_size > MAX_SNAPSHOT_BYTES:
+                raise SnapshotRejected("snapshot file exceeds size limit")
+            data = os.read(descriptor, MAX_SNAPSHOT_BYTES + 1)
+            if len(data) != opened.st_size or len(data) > MAX_SNAPSHOT_BYTES:
+                raise SnapshotRejected("snapshot file is partial or oversized")
+            return data
+        finally:
+            os.close(descriptor)
