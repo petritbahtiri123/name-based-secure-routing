@@ -1,7 +1,7 @@
 //! Origin-free control-session sequencing and reusable route admission.
 
 use std::collections::{HashMap, HashSet};
-use std::sync::Arc;
+use std::sync::{Arc, OnceLock};
 use std::time::Instant;
 
 use sha2::{Digest, Sha256};
@@ -45,14 +45,29 @@ struct AnchoredClock {
     unix_anchor: u64,
     started: Instant,
 }
+
+fn process_monotonic_seconds() -> u64 {
+    static PROCESS_MONOTONIC_ORIGIN: OnceLock<Instant> = OnceLock::new();
+    PROCESS_MONOTONIC_ORIGIN
+        .get_or_init(Instant::now)
+        .elapsed()
+        .as_secs()
+}
+
 impl SessionClock for AnchoredClock {
     fn unix_seconds(&self) -> u64 {
         self.unix_anchor
             .saturating_add(self.started.elapsed().as_secs())
     }
     fn monotonic_seconds(&self) -> u64 {
-        self.started.elapsed().as_secs()
+        process_monotonic_seconds()
     }
+}
+
+#[derive(Clone, Copy)]
+pub(crate) struct ResumeTimeAuthority {
+    pub(crate) monotonic_seconds: u64,
+    pub(crate) unix_seconds: u64,
 }
 
 pub struct ControlSession {
@@ -180,6 +195,13 @@ impl ControlSession {
 
     pub fn candidate_channels(&self) -> usize {
         self.admission.candidate_channels()
+    }
+
+    pub(crate) fn resume_time_authority(&self) -> ResumeTimeAuthority {
+        ResumeTimeAuthority {
+            monotonic_seconds: self.clock.monotonic_seconds(),
+            unix_seconds: self.clock.unix_seconds(),
+        }
     }
 
     pub fn has_active_channel(&self, channel_id: [u8; 16]) -> bool {

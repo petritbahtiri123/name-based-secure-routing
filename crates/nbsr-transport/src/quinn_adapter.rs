@@ -758,10 +758,9 @@ impl AuthenticatedConnection {
         manager: &mut crate::SameEdgeResumeManager,
         handle: &crate::ResumeHandle,
         session: &mut ControlSession,
-        monotonic_now: u64,
     ) -> Result<crate::ResumePreflight, crate::ResumeReject> {
         self.require_live_resume_connection(session, None)?;
-        manager.preflight_same_edge(handle, session, monotonic_now)
+        manager.preflight_same_edge(handle, session)
     }
 
     pub fn accept_route_open_for_resume(
@@ -770,12 +769,11 @@ impl AuthenticatedConnection {
         preflight: &crate::ResumePreflight,
         session: &mut ControlSession,
         envelope: &CoreV02Envelope,
-        monotonic_now: u64,
     ) -> Result<crate::ActiveChannel, crate::ResumeAdmissionReject> {
         self.require_live_resume_connection(session, None)
             .map_err(crate::ResumeAdmissionReject::Resume)?;
         manager
-            .prepare_resume_admission(preflight, session, monotonic_now)
+            .prepare_resume_admission(preflight, session)
             .map_err(crate::ResumeAdmissionReject::Resume)?;
         let channel = session
             .accept_route_open(envelope)
@@ -790,15 +788,11 @@ impl AuthenticatedConnection {
         preflight: &crate::ResumePreflight,
         session: &mut ControlSession,
         new_channel_id: [u8; 16],
-        monotonic_now: u64,
-        unix_now: u64,
     ) -> Result<crate::ResumeCorrelation, crate::ResumeReject> {
         let owns_admission = manager.owns_resume_admission(preflight, new_channel_id);
         let result = self
             .require_live_resume_connection(session, Some(new_channel_id))
-            .and_then(|_| {
-                manager.consume(preflight, session, new_channel_id, monotonic_now, unix_now)
-            });
+            .and_then(|_| manager.consume(preflight, session, new_channel_id));
         if result.is_err() && owns_admission {
             manager.retire_failed_admission(preflight);
             session.rollback_resume_admission(new_channel_id)?;

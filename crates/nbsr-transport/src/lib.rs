@@ -61,7 +61,45 @@
 //!     preflight: &nbsr_transport::ResumePreflight,
 //!     session: &mut nbsr_transport::ControlSession,
 //! ) {
-//!     let _ = manager.consume(preflight, session, [0x22; 16], 0, 0);
+//!     let _ = manager.consume(preflight, session, [0x22; 16]);
+//! }
+//! ```
+//!
+//! Resume authority APIs accept no caller-selected time.
+//!
+//! ```compile_fail
+//! fn inject_resume_time(
+//!     connection: &nbsr_transport::AuthenticatedConnection,
+//!     manager: &mut nbsr_transport::SameEdgeResumeManager,
+//!     handle: &nbsr_transport::ResumeHandle,
+//!     session: &mut nbsr_transport::ControlSession,
+//! ) {
+//!     let _ = connection.preflight_same_edge_resume(manager, handle, session, 0);
+//! }
+//! ```
+//!
+//! ```compile_fail
+//! fn inject_issue_time(
+//!     manager: &mut nbsr_transport::SameEdgeResumeManager,
+//!     session: &mut nbsr_transport::ControlSession,
+//!     handle: nbsr_transport::ResumeHandle,
+//! ) {
+//!     let _ = manager.issue(session, [0x11; 16], handle, 3_599, 0);
+//! }
+//! ```
+//!
+//! ```compile_fail
+//! fn inject_later_stage_time(
+//!     connection: &nbsr_transport::AuthenticatedConnection,
+//!     manager: &mut nbsr_transport::SameEdgeResumeManager,
+//!     preflight: &nbsr_transport::ResumePreflight,
+//!     session: &mut nbsr_transport::ControlSession,
+//!     envelope: &nbsr_transport::CoreV02Envelope,
+//! ) {
+//!     let _ = connection.accept_route_open_for_resume(manager, preflight, session, envelope, 0);
+//!     let _ = connection.consume_same_edge_resume(
+//!         manager, preflight, session, [0x22; 16], 0, 0,
+//!     );
 //! }
 //! ```
 //!

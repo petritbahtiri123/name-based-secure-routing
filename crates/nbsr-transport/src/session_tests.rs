@@ -182,8 +182,10 @@ async fn exact_hour_rejects_edge_hello_and_resume_scope_without_mutation() {
     clock.set_monotonic(3_599);
     session.confirm_edge_hello(&edge).unwrap();
     assert!(session.resume_scope().is_ok());
+    assert_eq!(session.resume_time_authority().monotonic_seconds, 3_599);
     clock.set_monotonic(3_600);
     assert!(matches!(session.resume_scope(), Err(ResumeReject::Expired)));
+    assert_eq!(session.resume_time_authority().monotonic_seconds, 3_600);
     source.close().await.unwrap();
     destination.close().await.unwrap();
     listener.close().await.unwrap();

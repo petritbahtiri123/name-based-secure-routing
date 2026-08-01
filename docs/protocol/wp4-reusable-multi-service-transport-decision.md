@@ -167,6 +167,9 @@ The issued record retains the old Transport Session's mandatory monotonic hard
 deadline. Its effective expiry is the earliest of issue plus 30 seconds,
 remaining RouteGrant validity, any shorter authority deadline, and that old
 session hard deadline; equality with an authority deadline is expired.
+Issue, preflight, admission, and consume read this authority only from the
+sealed `ControlSession` clock. Their public APIs accept no monotonic timestamp,
+and all retained-record and session deadlines share that clock domain.
 
 The prior channel must have closed without revocation, must not be draining,
 and all current expiry, policy, service, edge, client-key, replay, capacity,

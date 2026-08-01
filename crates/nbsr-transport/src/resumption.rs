@@ -186,9 +186,10 @@ impl SameEdgeResumeManager {
         old_session: &mut ControlSession,
         old_channel_id: [u8; 16],
         handle: ResumeHandle,
-        monotonic_now: u64,
-        unix_now: u64,
     ) -> Result<(), ResumeReject> {
+        let now = old_session.resume_time_authority();
+        let monotonic_now = now.monotonic_seconds;
+        let unix_now = now.unix_seconds;
         if let Err(error) = old_session.require_resume_authority() {
             old_session.audit_resume_reject(
                 old_channel_id,
@@ -275,8 +276,8 @@ impl SameEdgeResumeManager {
         &mut self,
         handle: &ResumeHandle,
         new_session: &mut ControlSession,
-        monotonic_now: u64,
     ) -> Result<ResumePreflight, ResumeReject> {
+        let monotonic_now = new_session.resume_time_authority().monotonic_seconds;
         let Some(record) = self.records.get(handle).cloned() else {
             new_session.audit_resume_session_reject(None, AuditReason::Replay)?;
             return Err(ResumeReject::Replay);
@@ -383,8 +384,8 @@ impl SameEdgeResumeManager {
         &mut self,
         preflight: &ResumePreflight,
         new_session: &mut ControlSession,
-        monotonic_now: u64,
     ) -> Result<(), ResumeReject> {
+        let monotonic_now = new_session.resume_time_authority().monotonic_seconds;
         let (_, preflight_record) =
             self.validate_preflight(preflight, new_session, monotonic_now, None)?;
         if preflight_record.admitted_channel_id.is_some() {
@@ -428,9 +429,10 @@ impl SameEdgeResumeManager {
         preflight: &ResumePreflight,
         new_session: &mut ControlSession,
         new_channel_id: [u8; 16],
-        monotonic_now: u64,
-        unix_now: u64,
     ) -> Result<ResumeCorrelation, ResumeReject> {
+        let now = new_session.resume_time_authority();
+        let monotonic_now = now.monotonic_seconds;
+        let unix_now = now.unix_seconds;
         let (handle, preflight_record) =
             self.validate_preflight(preflight, new_session, monotonic_now, Some(new_channel_id))?;
         if preflight_record.admitted_channel_id != Some(new_channel_id) {

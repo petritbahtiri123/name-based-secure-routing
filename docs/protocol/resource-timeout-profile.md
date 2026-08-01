@@ -21,7 +21,7 @@ defaults. Values marked **pending** require human approval before production.
 | Graceful drain timeout | **Lab recommendation:** 30 seconds; production pending | Stop new streams immediately; bound completion before forced close |
 | Reconnect backoff | **Lab recommendation:** exponential from 250 ms to 30 seconds with jitter | Bound retry load; authorization rechecks on every new session |
 | Same-edge resume | **Pending** | Resume transport only after expiry, revocation, replay, gateway, service, device/client, and policy checks |
-| WP4 same-edge resume authority | **Lab profile:** earliest of 30 seconds, remaining grant validity, any shorter authority, and the old-session 60-minute hard deadline | Deadline equality is expired; issuance never extends old Transport Session authority |
+| WP4 same-edge resume authority | **Lab profile:** earliest of 30 seconds, remaining grant validity, any shorter authority, and the old-session 60-minute hard deadline | Sealed ControlSession clock only; public resume APIs accept no time input; deadline equality is expired and issuance never extends old Transport Session authority |
 | Cross-edge resume | **Pending and disabled** | Requires explicit reauthorization and approved proof |
 | Transport Sessions per authenticated peer | **Lab recommendation:** 8; production pending | Reject excess before expensive route allocation |
 | Service Channels per Transport Session | **Lab recommendation:** 32; production pending | Independent authorization and quota per channel |
