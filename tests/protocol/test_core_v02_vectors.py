@@ -274,6 +274,22 @@ def test_write_rejects_unrelated_nonempty_target(tmp_path: Path) -> None:
     assert marker.read_text(encoding="utf-8") == "preserve"
 
 
+def test_write_preserves_wp4_exporter_and_removes_other_unexpected_files(tmp_path: Path) -> None:
+    output = tmp_path / "core-v0.2"
+    package = build_package()
+    write_package(output, package)
+    exporter_artifact = output / "wp4-exporter" / "valid" / "owned.bin"
+    exporter_artifact.parent.mkdir(parents=True)
+    exporter_artifact.write_bytes(b"owned by the WP4 exporter generator")
+    unexpected = output / "unexpected.bin"
+    unexpected.write_bytes(b"not owned by either generator")
+
+    write_package(output, package)
+
+    assert exporter_artifact.read_bytes() == b"owned by the WP4 exporter generator"
+    assert not unexpected.exists()
+
+
 def test_check_detects_missing_extra_and_changed_files(tmp_path: Path) -> None:
     package = build_package()
     for mutation in ("missing", "extra", "changed"):

@@ -81,6 +81,12 @@ def write_package(output: Path, package: GeneratedPackage) -> None:
     target.parent.mkdir(parents=True, exist_ok=True)
     _validate_owned_existing(target)
     expected = _expected_files(package)
+    preserved = (
+        {path: payload for path, payload in _actual_files(target).items() if path.startswith("wp4-exporter/")}
+        if target.exists()
+        else {}
+    )
+    written = expected | preserved
     temporary = target.parent / f".core-v0.2-write-{uuid4().hex}"
     temporary.mkdir()
     try:
@@ -93,9 +99,9 @@ def write_package(output: Path, package: GeneratedPackage) -> None:
         if not target.exists():
             target.mkdir()
         try:
-            _sync_files(target, expected)
+            _sync_files(target, written)
             validate_package(target, load_manifest(target / "manifest.json"))
-            if _actual_files(target) != expected:
+            if _actual_files(target) != written:
                 raise ValueError("written package differs from validated staging")
         except BaseException:
             if previous is None:
