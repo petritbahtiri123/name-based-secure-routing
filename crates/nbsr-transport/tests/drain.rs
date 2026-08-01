@@ -9,7 +9,7 @@ use nbsr_transport::{
     ControlSession, CoreV02Envelope, CoreV02Limits, CoreV02MessageType, CoreV02Reject,
     DestinationAdmission, DrainDeadline, DrainEnforcement, DrainReject, EdgeIdentity, EdgeRole,
     PeerPolicy, RouteCloseBody, RouteDrainBody, RouteGrantIssuer, RouteRevokeBody,
-    SessionDrainEnforcement, SessionDrainState, SessionReject, TransportListener,
+    SessionDrainEnforcement, SessionDrainState, SessionReject, TransportListener, TrustProfileId,
     build_client_config, build_server_config, connect, decode_control_envelope,
 };
 use sha2::{Digest, Sha256};
@@ -772,6 +772,7 @@ async fn session_drain_resets_a_live_channel_at_its_one_second_grant_deadline() 
         &destination,
         DestinationAdmission::new(policy).expect("valid admission policy"),
         vec![route_grant_issuer()],
+        TrustProfileId::new("test-profile").expect("trust profile"),
     );
     establish(&mut session);
     let channel = vector_channel();
@@ -854,6 +855,7 @@ async fn session_drain_reports_due_channel_audit_failure_while_resetting_safely(
         &destination,
         DestinationAdmission::new(policy).expect("valid admission policy"),
         vec![route_grant_issuer()],
+        TrustProfileId::new("test-profile").expect("trust profile"),
     );
     establish(&mut session);
     let channel = vector_channel();
@@ -925,6 +927,7 @@ async fn grant_and_session_deadlines_can_only_shorten_drain() {
         &destination,
         DestinationAdmission::new(runtime_policy()).expect("valid admission policy"),
         vec![route_grant_issuer()],
+        TrustProfileId::new("test-profile").expect("trust profile"),
         DrainDeadline::new(100, 10).expect("session authority deadline"),
     );
     establish(&mut session);
@@ -1263,6 +1266,7 @@ fn established_session(connection: &nbsr_transport::AuthenticatedConnection) -> 
         connection,
         DestinationAdmission::new(runtime_policy()).expect("valid admission policy"),
         vec![route_grant_issuer()],
+        TrustProfileId::new("test-profile").expect("trust profile"),
     );
     establish(&mut session);
     session

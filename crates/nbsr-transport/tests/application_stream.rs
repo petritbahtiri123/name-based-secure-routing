@@ -6,7 +6,8 @@ use std::time::Duration;
 use nbsr_transport::{
     ActiveChannel, AdmissionPolicy, AuthorizedServicePolicy, ControlSession, CoreV02Limits,
     DestinationAdmission, EdgeIdentity, EdgeRole, PeerPolicy, RouteGrantIssuer, TransportError,
-    TransportListener, build_client_config, build_server_config, connect, decode_control_envelope,
+    TransportListener, TrustProfileId, build_client_config, build_server_config, connect,
+    decode_control_envelope,
 };
 use sha2::{Digest, Sha256};
 
@@ -77,6 +78,7 @@ fn control_session(connection: &nbsr_transport::AuthenticatedConnection) -> Cont
         connection,
         DestinationAdmission::new(policy).expect("valid admission policy"),
         vec![issuer],
+        TrustProfileId::new("test-profile").expect("trust profile"),
     )
 }
 

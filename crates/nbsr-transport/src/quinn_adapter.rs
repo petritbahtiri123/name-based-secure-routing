@@ -458,6 +458,42 @@ impl AuthenticatedConnection {
         session.install_channel_binding(channel_id, binding)
     }
 
+    pub fn preflight_same_edge_resume(
+        &self,
+        manager: &mut crate::SameEdgeResumeManager,
+        handle: &crate::ResumeHandle,
+        session: &mut ControlSession,
+        monotonic_now: u64,
+    ) -> Result<(), crate::ResumeReject> {
+        if !session.matches_connection(&self.binding_capability) {
+            session.audit_resume_session_reject(
+                None,
+                crate::AuditReason::FreshAuthorizationRequired,
+            )?;
+            return Err(crate::ResumeReject::FreshAuthorizationRequired);
+        }
+        manager.preflight_same_edge(handle, session, monotonic_now)
+    }
+
+    pub fn consume_same_edge_resume(
+        &self,
+        manager: &mut crate::SameEdgeResumeManager,
+        handle: &crate::ResumeHandle,
+        session: &mut ControlSession,
+        new_channel_id: [u8; 16],
+        monotonic_now: u64,
+        unix_now: u64,
+    ) -> Result<crate::ResumeCorrelation, crate::ResumeReject> {
+        if !session.matches_connection(&self.binding_capability) {
+            session.audit_resume_session_reject(
+                Some(new_channel_id),
+                crate::AuditReason::FreshAuthorizationRequired,
+            )?;
+            return Err(crate::ResumeReject::FreshAuthorizationRequired);
+        }
+        manager.consume(handle, session, new_channel_id, monotonic_now, unix_now)
+    }
+
     pub async fn close(self) -> Result<(), TransportError> {
         self.connection.close(VarInt::from_u32(0), b"");
         timeout(self.close_timeout, self.endpoint.wait_idle())

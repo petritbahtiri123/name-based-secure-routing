@@ -12,6 +12,7 @@ use crate::audit::{AuditAction, AuditEvent, AuditLog, AuditOutcome, AuditReason,
 use crate::channel_lifecycle::ChannelState;
 use crate::channel_registry::{
     ChannelBindingInstallError, ChannelLifecycleError, ChannelRegistry, PendingAdmissionError,
+    ResumeChannelContext,
 };
 use crate::{ChannelBinding, ChannelLimits, CoreV02Envelope, CoreV02Reject, RouteGrantIssuer};
 
@@ -446,12 +447,41 @@ impl DestinationAdmission {
                 AuditReason::None,
             )
             .map_err(|_| AdmissionReject::AuditUnavailable)?;
-        self.channels.admit_pending(
+        self.channels.admit_pending_with_resume(
             channel.clone(),
             request.grant.unique_nonce,
             request.grant.expires_at,
+            request.grant.client_session_key_thumbprint,
+            request.grant.policy_hash,
         );
         Ok(channel)
+    }
+
+    pub(crate) fn closed_resume_context(
+        &self,
+        channel_id: &[u8; 16],
+    ) -> Option<ResumeChannelContext> {
+        self.channels.closed_resume_context(channel_id)
+    }
+
+    pub(crate) fn bound_resume_context(
+        &self,
+        channel_id: &[u8; 16],
+    ) -> Option<ResumeChannelContext> {
+        self.channels.bound_resume_context(channel_id)
+    }
+
+    pub(crate) fn audit_resume(
+        &mut self,
+        channel_id: Option<[u8; 16]>,
+        service_id: &str,
+        action: AuditAction,
+        outcome: AuditOutcome,
+        reason: AuditReason,
+    ) -> Result<(), AdmissionReject> {
+        self.audit
+            .record(channel_id, service_id, action, outcome, reason)
+            .map_err(|_| AdmissionReject::AuditUnavailable)
     }
 
     pub fn admit_route_open(

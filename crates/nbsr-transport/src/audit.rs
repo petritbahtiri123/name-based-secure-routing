@@ -36,6 +36,9 @@ pub enum AuditAction {
     SessionDrainForced,
     StreamAuthorized,
     QuotaDenied,
+    ResumeConsumed,
+    ResumeIssued,
+    ResumeRejected,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -48,6 +51,9 @@ pub enum AuditOutcome {
 pub enum AuditReason {
     None,
     Capacity,
+    CrossEdge,
+    Expired,
+    FreshAuthorizationRequired,
     Replay,
     InvalidState,
     UnknownChannel,

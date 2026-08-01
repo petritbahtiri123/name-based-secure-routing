@@ -7,7 +7,7 @@ use ed25519_dalek::{Signer, SigningKey};
 use nbsr_transport::{
     ActiveChannel, AdmissionPolicy, AuditAction, AuthorizedServicePolicy, ChannelState,
     ControlSession, CoreV02Envelope, CoreV02Limits, DestinationAdmission, EdgeIdentity, EdgeRole,
-    PeerPolicy, RouteGrantIssuer, SessionReject, StreamReject, TransportListener,
+    PeerPolicy, RouteGrantIssuer, SessionReject, StreamReject, TransportListener, TrustProfileId,
     build_client_config, build_server_config, connect, decode_control_envelope,
 };
 use sha2::{Digest, Sha256};
@@ -139,6 +139,7 @@ async fn quinn_streams_four_eight_and_twelve_echo_on_two_bound_channels() {
             kid: KID.to_vec(),
             public_key: issuer_key,
         }],
+        TrustProfileId::new("test-profile").expect("trust profile"),
     );
     let mut source_session = ControlSession::new(
         &source,
@@ -147,6 +148,7 @@ async fn quinn_streams_four_eight_and_twelve_echo_on_two_bound_channels() {
             kid: KID.to_vec(),
             public_key: issuer_key,
         }],
+        TrustProfileId::new("test-profile").expect("trust profile"),
     );
     let client_hello = decode_vector("artifacts/valid/envelopes/client-hello.cbor");
     let edge_hello = decode_vector("artifacts/valid/envelopes/edge-hello.cbor");
@@ -398,6 +400,7 @@ async fn revoked_channel_is_terminal_while_bound_sibling_remains_usable() {
             kid: KID.to_vec(),
             public_key: issuer_key,
         }],
+        TrustProfileId::new("test-profile").expect("trust profile"),
     );
     session
         .accept_client_hello(&decode_vector(

@@ -47,6 +47,19 @@
 //!     let _ = session.close_channel([0x11; 16], 0);
 //! }
 //! ```
+//!
+//! Resume-store consume remains behind a live authenticated connection; a
+//! caller cannot mutate it directly with only a retained session object.
+//!
+//! ```compile_fail
+//! fn bypass_resume(
+//!     manager: &mut nbsr_transport::SameEdgeResumeManager,
+//!     handle: &nbsr_transport::ResumeHandle,
+//!     session: &mut nbsr_transport::ControlSession,
+//! ) {
+//!     let _ = manager.consume(handle, session, [0x22; 16], 0, 0);
+//! }
+//! ```
 
 #![forbid(unsafe_code)]
 
@@ -60,6 +73,7 @@ mod config;
 mod core_v02;
 mod error;
 mod quinn_adapter;
+mod resumption;
 mod session;
 mod stream_gate;
 
@@ -89,6 +103,9 @@ pub use core_v02::{
 pub use error::TransportError;
 pub use quinn_adapter::{
     ApplicationStream, AuthenticatedConnection, ControlStream, TransportListener, connect,
+};
+pub use resumption::{
+    ResumeCorrelation, ResumeHandle, ResumeReject, SameEdgeResumeManager, TrustProfileId,
 };
 pub use session::{ControlSession, SessionReject};
 pub use stream_gate::{StreamOpenRequest, StreamReject};

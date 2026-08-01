@@ -22,7 +22,10 @@ impl Default for ChannelLimits {
 
 struct PendingChannel {
     channel: ActiveChannel,
+    client_session_key_thumbprint: [u8; 32],
     grant_expires_at: u64,
+    grant_nonce: [u8; 16],
+    policy_hash: [u8; 32],
 }
 
 pub(crate) struct ChannelRegistry {
@@ -36,12 +39,25 @@ pub(crate) struct ChannelRegistry {
 struct ActiveChannelEntry {
     channel: ActiveChannel,
     binding: Option<ChannelBinding>,
+    client_session_key_thumbprint: [u8; 32],
     drain_deadline: Option<DrainDeadline>,
     grant_expires_at: u64,
+    grant_nonce: [u8; 16],
+    policy_hash: [u8; 32],
 }
 
 struct TerminalChannelEntry {
+    resume: Option<ResumeChannelContext>,
     state: ChannelState,
+}
+
+#[derive(Clone)]
+pub(crate) struct ResumeChannelContext {
+    pub(crate) channel: ActiveChannel,
+    pub(crate) client_session_key_thumbprint: [u8; 32],
+    pub(crate) grant_expires_at: u64,
+    pub(crate) grant_nonce: [u8; 16],
+    pub(crate) policy_hash: [u8; 32],
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -99,18 +115,33 @@ impl ChannelRegistry {
         Ok(())
     }
 
+    #[cfg(test)]
     pub(crate) fn admit_pending(
         &mut self,
         channel: ActiveChannel,
         grant_nonce: [u8; 16],
         grant_expires_at: u64,
     ) {
+        self.admit_pending_with_resume(channel, grant_nonce, grant_expires_at, [0; 32], [0; 32]);
+    }
+
+    pub(crate) fn admit_pending_with_resume(
+        &mut self,
+        channel: ActiveChannel,
+        grant_nonce: [u8; 16],
+        grant_expires_at: u64,
+        client_session_key_thumbprint: [u8; 32],
+        policy_hash: [u8; 32],
+    ) {
         self.replay.insert(channel.channel_id, grant_nonce);
         self.pending.insert(
             channel.channel_id,
             PendingChannel {
                 channel,
+                client_session_key_thumbprint,
                 grant_expires_at,
+                grant_nonce,
+                policy_hash,
             },
         );
     }
@@ -143,8 +174,11 @@ impl ChannelRegistry {
             ActiveChannelEntry {
                 channel: pending.channel,
                 binding: None,
+                client_session_key_thumbprint: pending.client_session_key_thumbprint,
                 drain_deadline: None,
                 grant_expires_at: pending.grant_expires_at,
+                grant_nonce: pending.grant_nonce,
+                policy_hash: pending.policy_hash,
             },
         );
         Ok(())
@@ -287,6 +321,7 @@ impl ChannelRegistry {
         self.terminal.insert(
             *channel_id,
             TerminalChannelEntry {
+                resume: None,
                 state: ChannelState::Closed,
             },
         );
@@ -305,6 +340,15 @@ impl ChannelRegistry {
                 ChannelLifecycleError::UnknownChannel
             }
         })?;
+        let resume = (entry.binding.is_some() && entry.drain_deadline.is_none()).then(|| {
+            ResumeChannelContext {
+                channel: entry.channel.clone(),
+                client_session_key_thumbprint: entry.client_session_key_thumbprint,
+                grant_expires_at: entry.grant_expires_at,
+                grant_nonce: entry.grant_nonce,
+                policy_hash: entry.policy_hash,
+            }
+        });
         let tombstone_expires_at = entry
             .grant_expires_at
             .saturating_add(30)
@@ -313,6 +357,7 @@ impl ChannelRegistry {
         self.terminal.insert(
             *channel_id,
             TerminalChannelEntry {
+                resume,
                 state: ChannelState::Closed,
             },
         );
@@ -401,6 +446,7 @@ impl ChannelRegistry {
         self.terminal.insert(
             *channel_id,
             TerminalChannelEntry {
+                resume: None,
                 state: ChannelState::Revoked,
             },
         );
@@ -425,6 +471,29 @@ impl ChannelRegistry {
 
     pub(crate) fn tombstone_expires_at(&self, channel_id: &[u8; 16]) -> Option<u64> {
         self.replay.tombstone_expires_at(channel_id)
+    }
+
+    pub(crate) fn closed_resume_context(
+        &self,
+        channel_id: &[u8; 16],
+    ) -> Option<ResumeChannelContext> {
+        self.terminal
+            .get(channel_id)
+            .and_then(|entry| entry.resume.clone())
+    }
+
+    pub(crate) fn bound_resume_context(
+        &self,
+        channel_id: &[u8; 16],
+    ) -> Option<ResumeChannelContext> {
+        let entry = self.active.get(channel_id)?;
+        (entry.binding.is_some() && entry.drain_deadline.is_none()).then(|| ResumeChannelContext {
+            channel: entry.channel.clone(),
+            client_session_key_thumbprint: entry.client_session_key_thumbprint,
+            grant_expires_at: entry.grant_expires_at,
+            grant_nonce: entry.grant_nonce,
+            policy_hash: entry.policy_hash,
+        })
     }
 
     #[allow(dead_code)] // Reserved for the later bounded channel-lifecycle task.

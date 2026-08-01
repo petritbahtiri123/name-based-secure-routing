@@ -5,14 +5,17 @@ use std::collections::HashSet;
 use sha2::{Digest, Sha256};
 
 use crate::channel_binding::ChannelBindingRequest;
-use crate::channel_registry::{ChannelBindingInstallError, ChannelLifecycleError};
+use crate::channel_registry::{
+    ChannelBindingInstallError, ChannelLifecycleError, ResumeChannelContext,
+};
 use crate::channel_streams::ChannelStreams;
 use crate::quinn_adapter::ConnectionBindingCapability;
+use crate::resumption::{ResumeReuseKey, ResumeSessionContext, ResumeSessionScope};
 use crate::{
-    ActiveChannel, AdmissionReject, AuditEvent, AuditIntegrity, AuthenticatedConnection,
-    ChannelBinding, ChannelState, CoreV02Envelope, CoreV02MessageType, DestinationAdmission,
-    DrainDeadline, DrainEnforcement, EdgeIdentity, EdgeRole, RouteGrantIssuer, SessionDrainState,
-    StreamReject,
+    ActiveChannel, AdmissionReject, AuditAction, AuditEvent, AuditIntegrity, AuditOutcome,
+    AuditReason, AuthenticatedConnection, ChannelBinding, ChannelState, CoreV02Envelope,
+    CoreV02MessageType, DestinationAdmission, DrainDeadline, DrainEnforcement, EdgeIdentity,
+    EdgeRole, ResumeReject, RouteGrantIssuer, SessionDrainState, StreamReject, TrustProfileId,
 };
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -34,6 +37,7 @@ pub struct ControlSession {
     authenticated_peer: EdgeIdentity,
     connection_capability: ConnectionBindingCapability,
     local_role: EdgeRole,
+    negotiated_alpn: Vec<u8>,
     trusted_issuers: Vec<RouteGrantIssuer>,
     state: SessionState,
     request_ids: HashSet<[u8; 16]>,
@@ -41,6 +45,7 @@ pub struct ControlSession {
     session_deadline: Option<DrainDeadline>,
     session_drain_state: SessionDrainState,
     session_drain_deadline: Option<DrainDeadline>,
+    trust_profile_id: TrustProfileId,
 }
 
 enum SessionState {
@@ -79,20 +84,29 @@ impl ControlSession {
         connection: &AuthenticatedConnection,
         admission: DestinationAdmission,
         trusted_issuers: Vec<RouteGrantIssuer>,
+        trust_profile_id: TrustProfileId,
     ) -> Self {
-        Self::new_inner(connection, admission, trusted_issuers, None)
+        Self::new_inner(
+            connection,
+            admission,
+            trusted_issuers,
+            trust_profile_id,
+            None,
+        )
     }
 
     pub fn new_with_monotonic_deadline(
         connection: &AuthenticatedConnection,
         admission: DestinationAdmission,
         trusted_issuers: Vec<RouteGrantIssuer>,
+        trust_profile_id: TrustProfileId,
         session_deadline: DrainDeadline,
     ) -> Self {
         Self::new_inner(
             connection,
             admission,
             trusted_issuers,
+            trust_profile_id,
             Some(session_deadline),
         )
     }
@@ -101,6 +115,7 @@ impl ControlSession {
         connection: &AuthenticatedConnection,
         admission: DestinationAdmission,
         trusted_issuers: Vec<RouteGrantIssuer>,
+        trust_profile_id: TrustProfileId,
         session_deadline: Option<DrainDeadline>,
     ) -> Self {
         Self {
@@ -108,6 +123,7 @@ impl ControlSession {
             authenticated_peer: connection.authenticated_peer().clone(),
             connection_capability: connection.binding_capability(),
             local_role: connection.local_role(),
+            negotiated_alpn: connection.negotiated_alpn().to_vec(),
             trusted_issuers,
             state: SessionState::AwaitingClientHello,
             request_ids: HashSet::new(),
@@ -115,6 +131,7 @@ impl ControlSession {
             session_deadline,
             session_drain_state: SessionDrainState::Active,
             session_drain_deadline: None,
+            trust_profile_id,
         }
     }
 
@@ -680,6 +697,160 @@ impl ControlSession {
             .map_err(map_lifecycle)?;
         self.streams.revoke_channel(&channel_id);
         Ok(())
+    }
+
+    pub(crate) fn resume_scope(&self) -> Result<ResumeSessionScope, ResumeReject> {
+        let SessionState::Established {
+            destination_edge_id,
+            source_edge_id,
+            ..
+        } = &self.state
+        else {
+            return Err(ResumeReject::Ineligible);
+        };
+        if self.session_drain_state != SessionDrainState::Active {
+            return Err(ResumeReject::Ineligible);
+        }
+        Ok(ResumeSessionScope {
+            reuse_key: ResumeReuseKey {
+                source_edge_id: source_edge_id.clone(),
+                destination_edge_id: destination_edge_id.clone(),
+                trust_profile_id: self.trust_profile_id.clone(),
+                alpn: self.negotiated_alpn.clone(),
+                protocol_version: 2,
+            },
+        })
+    }
+
+    pub(crate) fn closed_resume_context(
+        &self,
+        channel_id: [u8; 16],
+    ) -> Result<ResumeSessionContext, ResumeReject> {
+        let channel = self
+            .admission
+            .closed_resume_context(&channel_id)
+            .ok_or(ResumeReject::Ineligible)?;
+        self.resume_context(channel)
+    }
+
+    pub(crate) fn bound_resume_context(
+        &self,
+        channel_id: [u8; 16],
+    ) -> Result<ResumeSessionContext, ResumeReject> {
+        let channel = self
+            .admission
+            .bound_resume_context(&channel_id)
+            .ok_or(ResumeReject::Ineligible)?;
+        self.resume_context(channel)
+    }
+
+    fn resume_context(
+        &self,
+        channel: ResumeChannelContext,
+    ) -> Result<ResumeSessionContext, ResumeReject> {
+        let SessionState::Established {
+            client_nonce,
+            destination_edge_id,
+            edge_nonce,
+            session_id,
+            source_edge_id,
+            ..
+        } = &self.state
+        else {
+            return Err(ResumeReject::Ineligible);
+        };
+        if self.session_drain_state != SessionDrainState::Active {
+            return Err(ResumeReject::Ineligible);
+        }
+        Ok(ResumeSessionContext {
+            reuse_key: ResumeReuseKey {
+                source_edge_id: source_edge_id.clone(),
+                destination_edge_id: destination_edge_id.clone(),
+                trust_profile_id: self.trust_profile_id.clone(),
+                alpn: self.negotiated_alpn.clone(),
+                protocol_version: 2,
+            },
+            authenticated_peer: self.authenticated_peer.as_str().to_owned(),
+            channel,
+            client_nonce: *client_nonce,
+            connection_capability: self.connection_capability.clone(),
+            edge_nonce: *edge_nonce,
+            local_role: self.local_role,
+            session_deadline: self.session_deadline.map(DrainDeadline::monotonic_seconds),
+            session_id: *session_id,
+        })
+    }
+
+    pub(crate) fn audit_resume_issue(
+        &mut self,
+        context: &ResumeSessionContext,
+    ) -> Result<(), ResumeReject> {
+        self.audit_resume(
+            context.channel.channel.channel_id,
+            &context.channel.channel.service_id,
+            AuditAction::ResumeIssued,
+        )
+    }
+
+    pub(crate) fn audit_resume_consume(
+        &mut self,
+        context: &ResumeSessionContext,
+    ) -> Result<(), ResumeReject> {
+        self.audit_resume(
+            context.channel.channel.channel_id,
+            &context.channel.channel.service_id,
+            AuditAction::ResumeConsumed,
+        )
+    }
+
+    pub(crate) fn audit_resume_reject(
+        &mut self,
+        channel_id: [u8; 16],
+        service_id: &str,
+        reason: AuditReason,
+    ) -> Result<(), ResumeReject> {
+        self.admission
+            .audit_resume(
+                Some(channel_id),
+                service_id,
+                AuditAction::ResumeRejected,
+                AuditOutcome::Denied,
+                reason,
+            )
+            .map_err(|_| ResumeReject::AuditUnavailable)
+    }
+
+    pub(crate) fn audit_resume_session_reject(
+        &mut self,
+        channel_id: Option<[u8; 16]>,
+        reason: AuditReason,
+    ) -> Result<(), ResumeReject> {
+        self.admission
+            .audit_resume(
+                channel_id,
+                "transport-resume",
+                AuditAction::ResumeRejected,
+                AuditOutcome::Denied,
+                reason,
+            )
+            .map_err(|_| ResumeReject::AuditUnavailable)
+    }
+
+    fn audit_resume(
+        &mut self,
+        channel_id: [u8; 16],
+        service_id: &str,
+        action: AuditAction,
+    ) -> Result<(), ResumeReject> {
+        self.admission
+            .audit_resume(
+                Some(channel_id),
+                service_id,
+                action,
+                AuditOutcome::Allowed,
+                AuditReason::None,
+            )
+            .map_err(|_| ResumeReject::AuditUnavailable)
     }
 
     fn established_session_id(&self) -> Result<[u8; 16], SessionReject> {

@@ -7,8 +7,8 @@ use ed25519_dalek::{Signer, SigningKey};
 use nbsr_transport::{
     AdmissionPolicy, AdmissionReject, AuthorizedServicePolicy, ControlSession, CoreV02Envelope,
     CoreV02Limits, DestinationAdmission, EdgeIdentity, EdgeRole, PeerPolicy, RouteGrantClaims,
-    RouteGrantIssuer, RouteOpenRequest, SessionReject, TransportListener, build_client_config,
-    build_server_config, connect, decode_control_envelope,
+    RouteGrantIssuer, RouteOpenRequest, SessionReject, TransportListener, TrustProfileId,
+    build_client_config, build_server_config, connect, decode_control_envelope,
 };
 use sha2::{Digest, Sha256};
 
@@ -445,6 +445,7 @@ async fn signed_grant_nonce_replay_cannot_disturb_an_active_sibling() {
             kid: KID.to_vec(),
             public_key: issuer_key,
         }],
+        TrustProfileId::new("test-profile").expect("trust profile"),
     );
     session
         .accept_client_hello(&decode(vector(
@@ -508,6 +509,7 @@ async fn one_hello_session_repeats_isolated_signed_route_exchanges() {
             kid: KID.to_vec(),
             public_key: issuer_key,
         }],
+        TrustProfileId::new("test-profile").expect("trust profile"),
     );
     let client_hello = decode(vector("artifacts/valid/envelopes/client-hello.cbor"));
     let edge_hello = decode(vector("artifacts/valid/envelopes/edge-hello.cbor"));
