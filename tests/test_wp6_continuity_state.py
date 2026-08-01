@@ -110,7 +110,7 @@ def test_terminal_security_fact_never_resurrects(kind: StateKind) -> None:
     state_key = key(kind)
     terminal = record(key=state_key, terminal=True)
     state = ContinuityState.empty(TENANT).apply(terminal)
-    with pytest.raises(StateRejected, match="terminal state"):
+    with pytest.raises(StateRejected, match="terminal"):
         state.apply(
             record(
                 key=state_key,
@@ -120,6 +120,12 @@ def test_terminal_security_fact_never_resurrects(kind: StateKind) -> None:
                 terminal=False,
             ),
         )
+
+
+@pytest.mark.parametrize("kind", [StateKind.REVOCATION, StateKind.TOMBSTONE])
+def test_revocation_and_tombstone_records_must_be_terminal(kind: StateKind) -> None:
+    with pytest.raises(StateRejected, match="must be terminal"):
+        record(key=key(kind), terminal=False)
 
 
 def test_state_rejects_cross_tenant_confusion_and_fails_closed_at_capacity() -> None:

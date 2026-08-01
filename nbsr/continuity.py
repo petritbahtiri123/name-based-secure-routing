@@ -10,11 +10,12 @@ import json
 import os
 import re
 import stat
+import threading
 from dataclasses import dataclass, field
 from enum import StrEnum
 from pathlib import Path
 
-from nbsr.secure_files import secure_write_private
+from nbsr.secure_files import ensure_private_directory, secure_write_private
 
 
 MAX_UINT64 = 2**64 - 1
@@ -121,6 +122,8 @@ class ContinuityRecord:
             raise StateRejected("retained_until cannot precede expires_at")
         if type(self.terminal) is not bool:
             raise StateRejected("terminal must be a boolean")
+        if self.key.kind in {StateKind.REVOCATION, StateKind.TOMBSTONE} and not self.terminal:
+            raise StateRejected("revocation and tombstone records must be terminal")
         object.__setattr__(self, "content_digest", hashlib.sha256(self.canonical_bytes()).digest())
 
     @property
@@ -383,25 +386,64 @@ class SnapshotRepository:
 
     def __init__(self, path: Path | str) -> None:
         self.path = Path(path)
+        self._minimum_generation = 1
+        self._mutex = threading.RLock()
 
     def load(self, *, minimum_generation: int = 1) -> ContinuitySnapshot:
-        checked_minimum = _uint("minimum_generation", minimum_generation, minimum=1)
-        snapshot = decode_snapshot(self._read_bounded_regular_file())
-        if snapshot.generation < checked_minimum:
-            raise SnapshotRejected("snapshot rollback rejected")
-        return snapshot
+        with self._mutex:
+            checked_minimum = _uint("minimum_generation", minimum_generation, minimum=1)
+            snapshot = decode_snapshot(self._read_bounded_regular_file())
+            if snapshot.generation < max(checked_minimum, self._minimum_generation):
+                raise SnapshotRejected("snapshot rollback rejected")
+            self._minimum_generation = snapshot.generation
+            return snapshot
 
     def save(self, snapshot: ContinuitySnapshot) -> None:
-        encoded = encode_snapshot(snapshot)
-        if self.path.exists() or self.path.is_symlink():
-            current = self.load()
-            if snapshot.config != current.config:
-                raise SnapshotRejected("snapshot context mismatch")
-            if snapshot.generation < current.generation:
-                raise SnapshotRejected("snapshot rollback rejected")
-            if snapshot.generation == current.generation and snapshot.snapshot_digest != current.snapshot_digest:
-                raise SnapshotRejected("snapshot generation equivocation")
-        secure_write_private(self.path, encoded)
+        with self._mutex:
+            encoded = encode_snapshot(snapshot)
+            lock_path, descriptor = self._acquire_writer_lock()
+            try:
+                if self.path.exists() or self.path.is_symlink():
+                    current = decode_snapshot(self._read_bounded_regular_file())
+                    if current.generation < self._minimum_generation:
+                        raise SnapshotRejected("snapshot rollback rejected")
+                    if snapshot.config != current.config:
+                        raise SnapshotRejected("snapshot context mismatch")
+                    if snapshot.generation < current.generation:
+                        raise SnapshotRejected("snapshot rollback rejected")
+                    if snapshot.generation == current.generation and snapshot.snapshot_digest != current.snapshot_digest:
+                        raise SnapshotRejected("snapshot generation equivocation")
+                    if snapshot.generation > current.generation:
+                        self._require_snapshot_successor(current, snapshot)
+                if snapshot.generation < self._minimum_generation:
+                    raise SnapshotRejected("snapshot rollback rejected")
+                secure_write_private(self.path, encoded)
+                self._minimum_generation = snapshot.generation
+            finally:
+                os.close(descriptor)
+                lock_path.unlink(missing_ok=True)
+
+    @staticmethod
+    def _require_snapshot_successor(current: ContinuitySnapshot, candidate: ContinuitySnapshot) -> None:
+        if candidate.created_at < current.created_at:
+            raise SnapshotRejected("snapshot time rollback rejected")
+        for retained in current.state.records:
+            successor = candidate.state.get(retained.key)
+            if successor is None:
+                raise SnapshotRejected("snapshot removed retained state")
+            try:
+                ContinuityState(current.state.tenant_id, (retained,)).apply(successor)
+            except StateRejected as exc:
+                raise SnapshotRejected("snapshot rolled back retained state") from exc
+
+    def _acquire_writer_lock(self) -> tuple[Path, int]:
+        ensure_private_directory(self.path.parent)
+        lock_path = self.path.with_name(f".{self.path.name}.lock")
+        try:
+            descriptor = os.open(lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY | getattr(os, "O_BINARY", 0), 0o600)
+        except OSError as exc:
+            raise SnapshotRejected("snapshot writer lock is unavailable") from exc
+        return lock_path, descriptor
 
     def _read_bounded_regular_file(self) -> bytes:
         try:
@@ -455,6 +497,9 @@ class QuorumView:
             raise QuorumRejected("quorum snapshot is invalid")
         if type(self.replica_ids) is not tuple or self.replica_ids != tuple(sorted(set(self.replica_ids))):
             raise QuorumRejected("quorum replica identities are invalid")
+        config = self.snapshot.config
+        if len(self.replica_ids) < config.quorum or any(item not in config.replica_ids for item in self.replica_ids):
+            raise QuorumRejected("quorum replica identities do not satisfy configured quorum")
 
 
 def resolve_quorum(
@@ -572,10 +617,7 @@ def evaluate_continuity(
     if snapshot.config.tenant_id != checked_tenant or snapshot.state.tenant_id != checked_tenant:
         raise ContinuityDenied("continuity tenant context mismatch")
     terminal_kinds = {StateKind.REVOCATION, StateKind.TOMBSTONE}
-    if any(
-        item.key.service_id == checked_service and item.key.kind in terminal_kinds and item.terminal and checked_now < item.retained_until
-        for item in snapshot.state.records
-    ):
+    if any(item.key.service_id == checked_service and item.key.kind in terminal_kinds and item.terminal for item in snapshot.state.records):
         raise ContinuityDenied("terminal revocation or tombstone state denies continuity")
     policy = _required_record(snapshot.state, policy_key, now=checked_now)
     if policy.authority_digest != checked_policy:

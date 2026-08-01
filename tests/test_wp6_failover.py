@@ -10,6 +10,7 @@ from nbsr.continuity import (
     ContinuitySnapshot,
     ContinuityState,
     QuorumRejected,
+    QuorumView,
     ReplicaConfig,
     ReplicaObservation,
     StateKey,
@@ -132,6 +133,27 @@ def test_continuity_fails_closed_for_context_missing_policy_and_expiry(changes: 
 def test_revocation_or_tombstone_denies_continuity(terminal: ContinuityRecord) -> None:
     with pytest.raises(ContinuityDenied, match="terminal"):
         permit(view=view(terminal))
+
+
+def test_retained_terminal_fact_never_becomes_positive_authority_after_retention_time() -> None:
+    terminal = ContinuityRecord(
+        StateKey(TENANT, SERVICE, StateKind.TOMBSTONE, "ee"),
+        1,
+        1,
+        bytes.fromhex("66" * 32),
+        None,
+        1_600,
+        1_600,
+        True,
+    )
+    with pytest.raises(ContinuityDenied, match="terminal"):
+        permit(view=view(terminal), now=1_700)
+
+
+def test_direct_quorum_view_cannot_claim_less_than_configured_quorum() -> None:
+    candidate = ContinuitySnapshot(CONFIG, 7, 1_000, state())
+    with pytest.raises(QuorumRejected, match="quorum"):
+        QuorumView(candidate, ("replica-a",))
 
 
 @pytest.mark.parametrize("kind,object_id", [(StateKind.CHANNEL, "aa"), (StateKind.GRANT, "bb"), (StateKind.REPLAY, "cc")])

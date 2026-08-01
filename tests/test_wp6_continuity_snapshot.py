@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import hashlib
 import json
+import threading
 from pathlib import Path
 
 import pytest
@@ -18,6 +20,7 @@ from nbsr.continuity import (
     decode_snapshot,
     encode_snapshot,
 )
+from scripts.verify_wp6_snapshot import canonical, verify
 
 
 def snapshot(*, generation: int = 7) -> ContinuitySnapshot:
@@ -91,6 +94,98 @@ def test_repository_round_trip_rejects_rollback_and_preserves_prior_file(tmp_pat
     assert path.read_bytes() == before
     with pytest.raises(SnapshotRejected, match="rollback"):
         repository.load(minimum_generation=8)
+
+
+def test_repository_instance_retains_monotonic_load_watermark(tmp_path: Path) -> None:
+    path = tmp_path / "continuity.json"
+    repository = SnapshotRepository(path)
+    repository.save(snapshot(generation=7))
+    path.write_bytes(encode_snapshot(snapshot(generation=6)))
+    with pytest.raises(SnapshotRejected, match="rollback"):
+        repository.load()
+
+
+def test_repository_lock_fails_closed_before_a_cooperating_writer_can_replace_state(tmp_path: Path) -> None:
+    path = tmp_path / "continuity.json"
+    repository = SnapshotRepository(path)
+    repository.save(snapshot(generation=7))
+    before = path.read_bytes()
+    lock_path = path.with_name(f".{path.name}.lock")
+    lock_path.write_bytes(b"")
+    with pytest.raises(SnapshotRejected, match="writer lock"):
+        repository.save(snapshot(generation=8))
+    assert path.read_bytes() == before
+
+
+def test_higher_snapshot_generation_cannot_remove_or_roll_back_retained_records(tmp_path: Path) -> None:
+    path = tmp_path / "continuity.json"
+    repository = SnapshotRepository(path)
+    current = snapshot(generation=7)
+    repository.save(current)
+    stale = ContinuitySnapshot(current.config, 8, 1_001, ContinuityState.empty("tenant-a"))
+    with pytest.raises(SnapshotRejected, match="retained state"):
+        repository.save(stale)
+    assert repository.load() == current
+
+
+def test_independent_verifier_rejects_semantically_invalid_canonical_snapshot(tmp_path: Path) -> None:
+    value = json.loads(encode_snapshot(snapshot()))
+    value["generation"] = -1
+    value.pop("snapshot_digest")
+    value["snapshot_digest"] = hashlib.sha256(canonical(value)).hexdigest()
+    path = tmp_path / "invalid.json"
+    path.write_bytes(canonical(value) + b"\n")
+    with pytest.raises(ValueError, match="generation"):
+        verify(path)
+
+
+def test_independent_verifier_rejects_non_text_replica_identities(tmp_path: Path) -> None:
+    value = json.loads(encode_snapshot(snapshot()))
+    value["replica_ids"] = [1, 2, 3]
+    value.pop("snapshot_digest")
+    value["snapshot_digest"] = hashlib.sha256(canonical(value)).hexdigest()
+    path = tmp_path / "invalid-replicas.json"
+    path.write_bytes(canonical(value) + b"\n")
+    with pytest.raises(ValueError, match="replica"):
+        verify(path)
+
+
+def test_repository_serializes_load_watermark_with_save_transition(tmp_path: Path) -> None:
+    path = tmp_path / "continuity.json"
+    repository = SnapshotRepository(path)
+    repository.save(snapshot(generation=7))
+    original_read = repository._read_bounded_regular_file
+    read_started = threading.Event()
+    release_read = threading.Event()
+    save_done = threading.Event()
+    order: list[str] = []
+
+    def delayed_read() -> bytes:
+        data = original_read()
+        if not read_started.is_set():
+            read_started.set()
+            assert release_read.wait(2)
+        return data
+
+    repository._read_bounded_regular_file = delayed_read  # type: ignore[method-assign]
+    loader = threading.Thread(target=lambda: (repository.load(), order.append("load-7")))
+
+    def save() -> None:
+        repository.save(snapshot(generation=8))
+        order.append("save-8")
+        save_done.set()
+
+    saver = threading.Thread(target=save)
+    loader.start()
+    assert read_started.wait(2)
+    saver.start()
+    assert not save_done.wait(1)
+    release_read.set()
+    loader.join(2)
+    saver.join(2)
+    assert not loader.is_alive() and not saver.is_alive()
+    assert order == ["load-7", "save-8"]
+    assert repository.load().generation == 8
 
 
 def test_repository_rejects_symlink_directory_torn_and_oversized_files(tmp_path: Path) -> None:
