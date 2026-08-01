@@ -190,3 +190,26 @@ async fn exact_hour_rejects_edge_hello_and_resume_scope_without_mutation() {
     destination.close().await.unwrap();
     listener.close().await.unwrap();
 }
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn shared_absolute_clock_keeps_old_and_new_session_ages_independent() {
+    let (listener, source, destination) = connection_pair().await;
+    let clock = Arc::new(ManualClock::new());
+    let old = session(&destination, clock.clone());
+    assert_eq!(old.monotonic_created_at(), 0);
+    assert_eq!(old.monotonic_hard_deadline(), 3_600);
+
+    clock.set_monotonic(3_599);
+    let new = session(&destination, clock.clone());
+    assert_eq!(new.monotonic_created_at(), 3_599);
+    assert_eq!(new.monotonic_hard_deadline(), 7_199);
+
+    clock.set_monotonic(3_600);
+    assert_eq!(old.monotonic_age(), 3_600);
+    assert_eq!(new.monotonic_age(), 1);
+    assert!(old.session_expired());
+    assert!(!new.session_expired());
+    source.close().await.unwrap();
+    destination.close().await.unwrap();
+    listener.close().await.unwrap();
+}

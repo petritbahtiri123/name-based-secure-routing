@@ -169,7 +169,10 @@ remaining RouteGrant validity, any shorter authority deadline, and that old
 session hard deadline; equality with an authority deadline is expired.
 Issue, preflight, admission, and consume read this authority only from the
 sealed `ControlSession` clock. Their public APIs accept no monotonic timestamp,
-and all retained-record and session deadlines share that clock domain.
+and all retained-record and session deadlines share one absolute
+process-monotonic domain. Each session stores its absolute creation instant and
+derives its absolute 60-minute hard deadline from that same snapshot; a newly
+created session therefore has age zero without resetting old-session authority.
 
 The prior channel must have closed without revocation, must not be draining,
 and all current expiry, policy, service, edge, client-key, replay, capacity,

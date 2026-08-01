@@ -82,6 +82,7 @@ pub struct ControlSession {
     datagrams: HashMap<[u8; 16], crate::DatagramGate>,
     streams: ChannelStreams,
     session_deadline: Option<DrainDeadline>,
+    created_at_monotonic: u64,
     hard_session_deadline: u64,
     session_drain_state: SessionDrainState,
     session_drain_deadline: Option<DrainDeadline>,
@@ -167,6 +168,7 @@ impl ControlSession {
         clock: Arc<dyn SessionClock>,
         session_deadline: Option<DrainDeadline>,
     ) -> Self {
+        let created_at_monotonic = clock.monotonic_seconds();
         Self {
             admission,
             authenticated_peer: connection.authenticated_peer().clone(),
@@ -179,9 +181,8 @@ impl ControlSession {
             datagrams: HashMap::new(),
             streams: ChannelStreams::new(),
             session_deadline,
-            hard_session_deadline: clock
-                .monotonic_seconds()
-                .saturating_add(MAX_SESSION_SECONDS),
+            created_at_monotonic,
+            hard_session_deadline: created_at_monotonic.saturating_add(MAX_SESSION_SECONDS),
             session_drain_state: SessionDrainState::Active,
             session_drain_deadline: None,
             trust_profile_id,
@@ -202,6 +203,23 @@ impl ControlSession {
             monotonic_seconds: self.clock.monotonic_seconds(),
             unix_seconds: self.clock.unix_seconds(),
         }
+    }
+
+    #[cfg(test)]
+    pub(crate) fn monotonic_created_at(&self) -> u64 {
+        self.created_at_monotonic
+    }
+
+    #[cfg(test)]
+    pub(crate) fn monotonic_hard_deadline(&self) -> u64 {
+        self.hard_session_deadline
+    }
+
+    #[cfg(test)]
+    pub(crate) fn monotonic_age(&self) -> u64 {
+        self.clock
+            .monotonic_seconds()
+            .saturating_sub(self.created_at_monotonic)
     }
 
     pub fn has_active_channel(&self, channel_id: [u8; 16]) -> bool {
@@ -1200,9 +1218,10 @@ impl ControlSession {
         }
     }
 
-    fn session_expired(&self) -> bool {
+    pub(crate) fn session_expired(&self) -> bool {
         let now = self.clock.monotonic_seconds();
         now >= self.hard_session_deadline
+            || now.saturating_sub(self.created_at_monotonic) >= MAX_SESSION_SECONDS
             || self
                 .session_deadline
                 .is_some_and(|deadline| deadline.is_due(now))

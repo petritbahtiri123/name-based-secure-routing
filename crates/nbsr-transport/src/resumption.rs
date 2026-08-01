@@ -616,4 +616,20 @@ mod authority_cap_tests {
         assert_eq!(effective_resume_expiry(100, 30, 600, 3_600), 130);
         assert_eq!(effective_resume_expiry(100, 30, 5, 3_600), 105);
     }
+
+    #[test]
+    fn old_and_new_session_deadlines_share_one_absolute_domain() {
+        let old_created_at = 0_u64;
+        let old_hard_deadline = old_created_at.saturating_add(crate::MAX_SESSION_SECONDS);
+        let issued_at = 3_599_u64;
+        let new_created_at = issued_at;
+        let new_hard_deadline = new_created_at.saturating_add(crate::MAX_SESSION_SECONDS);
+        let record_expiry = effective_resume_expiry(issued_at, 30, 600, old_hard_deadline);
+
+        assert_eq!(record_expiry, 3_600);
+        assert!(!resume_time_is_expired(3_599, record_expiry));
+        assert!(resume_time_is_expired(3_600, record_expiry));
+        assert!(!resume_time_is_expired(3_600, new_hard_deadline));
+        assert_eq!(3_600_u64.saturating_sub(new_created_at), 1);
+    }
 }
