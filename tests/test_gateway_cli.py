@@ -104,7 +104,15 @@ def test_verify_uses_stable_success_and_failure_exit_codes(tmp_path: Path) -> No
 
 def test_rollback_plan_is_deterministic_and_resolver_restore_is_last(tmp_path: Path) -> None:
     paths = cli_files(tmp_path)
-    result = run_cli("rollback-plan", "--plan", str(paths["plan"]), "--journal", str(paths["journal"]))
+    result = run_cli(
+        "rollback-plan",
+        "--profile",
+        str(paths["profile"]),
+        "--plan",
+        str(paths["plan"]),
+        "--journal",
+        str(paths["journal"]),
+    )
 
     assert result.returncode == 0
     value = json.loads(result.stdout)

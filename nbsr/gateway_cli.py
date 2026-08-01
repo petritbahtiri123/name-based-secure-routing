@@ -44,6 +44,7 @@ def _parser() -> argparse.ArgumentParser:
     verify.add_argument("--snapshot", required=True)
 
     rollback = subcommands.add_parser("rollback-plan")
+    rollback.add_argument("--profile", required=True)
     rollback.add_argument("--plan", required=True)
     rollback.add_argument("--journal", required=True)
     return parser
@@ -65,9 +66,10 @@ def main(arguments: Sequence[str] | None = None) -> int:
             report = verify_gateway(profile, plan, journal, snapshot)
             _emit(report.to_dict())
             return 0 if report.passed else 1
+        profile = GatewayProfile.from_dict(_load_json(args.profile))
         plan = GatewayPlan.from_dict(_load_json(args.plan))
         journal = OwnershipJournal.from_dict(_load_json(args.journal))
-        _emit(build_rollback_plan(plan, journal).to_dict())
+        _emit(build_rollback_plan(plan, journal, profile).to_dict())
         return 0
     except (OSError, UnicodeError, json.JSONDecodeError, TypeError, ValueError, ProfileError, PlanError, JournalError):
         sys.stderr.write(f"{_ERROR_CODE}\n")

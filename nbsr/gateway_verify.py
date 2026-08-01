@@ -86,7 +86,7 @@ def verify_gateway(
     except ProfileError:
         collision_free = False
     try:
-        rollback = build_rollback_plan(plan, journal)
+        rollback = build_rollback_plan(plan, journal, profile)
         rollback_complete = ownership and len(rollback.operations) == len(journal.applied_operation_ids) + 1
     except JournalError:
         rollback_complete = False

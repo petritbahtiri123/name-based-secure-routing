@@ -7,7 +7,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
-from nbsr.gateway_plan import GatewayPlan, Operation, OperationKind, PlanPhase
+from nbsr.gateway_plan import GatewayPlan, Operation, OperationKind, PlanPhase, plan_matches_profile
+from nbsr.gateway_profile import GatewayProfile
 from nbsr.secure_files import secure_write_text
 
 
@@ -123,10 +124,11 @@ class OwnershipJournal:
     def load(cls, path: Path | str) -> OwnershipJournal:
         target = Path(path)
         try:
-            if target.stat().st_size > _MAX_FILE_BYTES:
+            with target.open("rb") as stream:
+                encoded = stream.read(_MAX_FILE_BYTES + 1)
+            if len(encoded) > _MAX_FILE_BYTES:
                 raise JournalError("journal exceeds the maximum size")
-            raw = target.read_text(encoding="utf-8")
-            value = json.loads(raw)
+            value = json.loads(encoded.decode("utf-8"))
         except JournalError:
             raise
         except (OSError, UnicodeError, json.JSONDecodeError) as exc:
@@ -134,9 +136,9 @@ class OwnershipJournal:
         return cls.from_dict(value)
 
 
-def build_rollback_plan(plan: GatewayPlan, journal: OwnershipJournal) -> GatewayPlan:
+def build_rollback_plan(plan: GatewayPlan, journal: OwnershipJournal, profile: GatewayProfile) -> GatewayPlan:
     journal.validate_integrity()
-    if plan.profile_digest != journal.profile_digest:
+    if not plan_matches_profile(plan, profile) or plan.profile_digest != journal.profile_digest:
         raise JournalError("journal profile does not match the plan")
     by_id = {operation.operation_id: operation for operation in plan.operations}
     if not set(journal.applied_operation_ids) <= set(by_id):
