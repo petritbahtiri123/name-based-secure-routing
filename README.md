@@ -81,6 +81,14 @@ Enterprise tickets remain short-lived bearer credentials and can be replayed
 within their valid lifetime. Channel binding or a distributed one-time replay
 store is not implemented.
 
+### Deterministic Linux/OpenWrt gateway planning
+
+WP5 provides a dependency-free, lab-only planner and verifier for exact
+dual-stack Synthetic IP capture, terminal reject intent, policy routing, local
+DNS forwarding, independent plane health, ownership journaling, and
+trusted-profile-bound rollback planning. It emits declarative JSON operations
+and performs no live system mutation.
+
 ## Security boundaries
 
 - Arbitrary public hostnames, public IPs, destination overrides, private/special
@@ -217,14 +225,18 @@ copy in digest-pinned Python 3.13.14, and writes a SHA-256 sidecar.
 
 ## Explicit limitations
 
-Not implemented: the universal NBSR Name Node, DNS-backed OriginSet adapter,
-native signed OriginSet publication, a normative QUIC Transport Session,
-multi-service Service Channels, channel cryptographic separation, active lease
-renewal, key rotation, distributed revocation, live migration/resumption or
+Not implemented: the universal NBSR Name Node, native signed OriginSet
+publication, a production QUIC Transport Session, active lease renewal, key
+rotation, distributed revocation, live migration or cross-edge resumption or
 handover, regional HA, real ISP federation, subscriber billing, arbitrary UDP,
 mobile wake-up integration, production PKI/HSM, durable distributed replay
 state, a signed Windows Filtering Platform driver, or independent
 interoperable implementations.
+
+WP5 provides no live nftables validation, no live policy-routing validation,
+no OpenWrt validation, no clean no-agent client demonstration, no operational
+rollback execution, no privileged installer evidence, and no
+production-readiness claim.
 
 The current Windows adapter behavior is unit/in-process tested. It is not a
 validated full-device Windows networking deployment.

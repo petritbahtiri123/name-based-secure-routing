@@ -1,5 +1,10 @@
 # WP5 Linux Gateway Packaging Implementation Plan
 
+**Execution status:** Complete at deterministic planning and simulated
+policy-conformance scope on 2026-08-01. The checkboxes below preserve the
+original task plan; exact closure evidence is recorded in the protocol
+decision and status documents.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Build a deterministic, fail-closed Linux/OpenWrt gateway packaging and policy-conformance model without privileged platform mutation or unsupported live-deployment claims.
@@ -83,7 +88,7 @@
 
 **Interfaces:**
 - Consumes: `GatewayPlan`, its operation IDs, and `nbsr.secure_files.secure_write_text`.
-- Produces: `OwnershipJournal.create(plan, resolver_before, applied_operation_ids)`, `OwnershipJournal.load(path)`, `OwnershipJournal.save(path)`, and `build_rollback_plan(plan, journal) -> GatewayPlan`.
+- Produces: `OwnershipJournal.create(plan, resolver_before, applied_operation_ids)`, `OwnershipJournal.load(path)`, `OwnershipJournal.save(path)`, and `build_rollback_plan(plan, journal, profile) -> GatewayPlan`; rollback requires the trusted profile and rejects off-profile plans.
 - Journal schema is closed version `1`, contains `profile_digest`, bounded resolver state, ordered applied IDs, and a SHA-256 integrity digest over canonical fields.
 
 - [ ] **Step 1: Write failing tests** for atomic round trip, mode-safe existing writer use, unknown/corrupt/equivocated data rejection, duplicate or unknown applied IDs, profile mismatch, partial application rollback, exact reverse order, resolver restoration last, and zero operations on invalid state.
@@ -121,7 +126,7 @@
 
 **Interfaces:**
 - Consumes: profile/snapshot/plan/journal/verifier JSON models.
-- Produces: `nbsr-gateway-plan` console entry point with `plan`, `verify`, and `rollback-plan` subcommands; JSON output uses sorted compact encoding and stable error code `NBSR_GATEWAY_INPUT_REJECTED`.
+- Produces: `nbsr-gateway-plan` console entry point with `plan`, `verify`, and `rollback-plan` subcommands; `rollback-plan` requires explicit profile, plan, and journal paths; JSON output uses sorted compact encoding and stable error code `NBSR_GATEWAY_INPUT_REJECTED`.
 
 - [ ] **Step 1: Write failing subprocess tests** for deterministic plan output, verify success/failure exit codes, rollback-plan output, 64 KiB input bounds, unknown fields, missing explicit paths, non-mutation, and non-echoing errors.
 - [ ] **Step 2: Run `python -m pytest tests/test_gateway_cli.py -q`** and verify failure because the CLI is absent.

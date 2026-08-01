@@ -1,6 +1,6 @@
 # NBSR implementation status
 
-**Baseline date:** 2026-07-31
+**Baseline date:** 2026-08-01
 
 **Authority:** [NBSR Protocol Vision V3.6](../architecture/NBSR_Protocol_Vision_V3.6.md)
 **Evidence baseline:** the final hardened-branch report records 255 passed and
@@ -47,6 +47,22 @@ Post-documentation current validation: the same 114 executable Rust tests and
 in the full Python suite, and Ruff reported 108 files already formatted;
 Rustfmt, Clippy, `pip check`, both Core generators, WP4 Python and
 Node vector verification, and `git diff --check` also passed.
+
+WP5 is complete at deterministic planning and simulated policy-conformance scope.
+Fresh 2026-08-01 validation recorded 71 focused WP5 tests, 903 passed and 1 skipped
+in the full Python suite, and 114 executable Rust tests and 16 doctests
+(130 total). Ruff check passed; Ruff format reported 125 files already
+formatted; `pip check`, Core v0.1/Core v0.2 regeneration, WP4 exporter Python
+and Node verification (2 valid and 21 invalid/mutation cases), Compose
+configuration, OPA 5/5, Rustfmt, Clippy with `-D warnings`, and `git diff
+--check` passed. The finalized external scan covered 8/8 changed source/config
+files for `7d3a59a..fb3e302`, closed five candidates, and reported zero
+findings. The fresh closure review fixed two additional defects—journal-read
+TOCTOU and forged rollback-plan profile binding—with zero remaining findings.
+This is prototype/lab evidence only: no live nftables validation, no live
+policy-routing validation, no OpenWrt validation, no clean no-agent client
+demonstration, no operational rollback execution, no privileged installer
+evidence, and no production-readiness claim.
 
 This file separates evidence from intent. `Implemented` means verified behavior
 exists at prototype scale. It does not imply Core v0.1 conformance, production
@@ -106,9 +122,10 @@ readiness, global federation, or independent interoperability.
 
 | Capability | Status | Evidence or gap |
 |---|---|---|
-| One installable package with isolated planes | Planned | WP5 |
+| Deterministic Linux/OpenWrt gateway planning | Implemented | WP5 emits bounded declarative dual-stack capture, reject, policy-route, DNS, health, journal, verification, and rollback intent without live mutation |
+| One installable package with isolated planes | Partial | WP5 provides the dependency-free planner/CLI and simulated conformance model; no privileged installer or live platform package evidence |
 | Clean no-agent client behind an upgraded gateway | Partial | Windows adapter proves the boundary; router/enterprise/ISP packaging remains |
-| Reversible route/firewall ownership journal | Partial | Windows synthetic IPv6 ownership journal exists; full Linux/OpenWrt packaging remains |
+| Reversible route/firewall ownership journal | Implemented | WP5 records bounded applied operation IDs and exact prior resolver state, then emits trusted-profile-bound reverse-order rollback intent; operational rollback remains unverified |
 | Multi-zone HA and shared security state | Planned | WP6 |
 | Two-operator ISP lab | Planned | WP7 |
 | Signed ownership, delegation, transparency, and global federation | Planned | WP8 |
@@ -179,3 +196,8 @@ No real recursive DNS, production DNSSEC/Web PKI policy, relay integration,
 validated OriginSet selection, native OriginSet publication, new Core v0.1
 registry allocation, multi-service reuse, or production-readiness claim is
 authorized by this slice.
+
+WP5 adds deterministic gateway planning and simulated policy conformance only.
+No WP6 work is authorized. Any live nftables, policy-routing, OpenWrt,
+privileged-installer, operational-rollback, or clean no-agent exercise requires
+a separate human-approved validation gate.

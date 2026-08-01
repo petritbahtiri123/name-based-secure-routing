@@ -41,8 +41,9 @@ def test_wp5_decision_preserves_protocol_and_live_platform_non_claims() -> None:
         assert required in content
 
 
-def test_roadmap_marks_wp5_approved_in_progress_without_live_claim() -> None:
+def test_roadmap_marks_wp5_complete_without_live_claim() -> None:
     content = ROADMAP.read_text(encoding="utf-8")
 
-    assert "WP5 deterministic Linux/OpenWrt gateway planning is approved and in progress" in content
-    assert "Live interception and no-agent evidence remain separately gated" in content
+    assert "WP5 deterministic Linux/OpenWrt gateway planning is complete" in content
+    assert "interception and no-agent evidence remain separately gated" in content
+    assert "WP6 is not authorized by this closure" in content
