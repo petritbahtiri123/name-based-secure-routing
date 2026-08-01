@@ -89,6 +89,16 @@ DNS forwarding, independent plane health, ownership journaling, and
 trusted-profile-bound rollback planning. It emits declarative JSON operations
 and performs no live system mutation.
 
+### Deterministic replicated continuity state
+
+WP6 provides a deterministic storage-neutral state machine, bounded private
+snapshots, and simulated multi-replica quorum for OriginSet, policy,
+revocation, replay, tombstone, grant, and channel continuity facts. The lab
+model fails closed on stale, rolled-back, equivocated, partial, conflicting,
+or unavailable state; bounds failover to 5 seconds and drain to 30 seconds;
+and prevents retained terminal authority from resurrecting. It is simulated
+multi-replica evidence, not live HA or a new wire protocol.
+
 ## Security boundaries
 
 - Arbitrary public hostnames, public IPs, destination overrides, private/special
@@ -237,6 +247,15 @@ WP5 provides no live nftables validation, no live policy-routing validation,
 no OpenWrt validation, no clean no-agent client demonstration, no operational
 rollback execution, no privileged installer evidence, and no
 production-readiness claim.
+
+WP6 provides no live etcd, no live Raft, no live PostgreSQL, no live
+multi-host consensus, no production HA, no crash/reboot durability, no
+cross-edge handover, no cross-edge resumption, no OriginSet publication
+interoperability, no new wire protocol, no complete partition tolerance, no
+global federation, and no production-readiness claim. Its file repository has
+only a process-lifetime monotonic watermark for cooperating writers; stale
+locks fail closed and require operator cleanup, and external compare-and-swap
+remains a future proven-store adapter responsibility.
 
 The current Windows adapter behavior is unit/in-process tested. It is not a
 validated full-device Windows networking deployment.

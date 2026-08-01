@@ -35,7 +35,32 @@ Continuity is only a local safe decision over already approved state; it never
 mints cross-edge handover/resumption authority.
 
 Persistence uses atomic private writes and bounded descriptor-bound regular
-file reads. Corruption and rollback expose no state. Reports are deterministic
-and privacy-safe. Live consensus, multi-host HA, crash/reboot durability,
-partition tolerance, operational rollback, interoperability, and production
-readiness remain unavailable and unclaimed.
+file reads. Cooperating writers use an exclusive private-directory lock, and
+one repository instance serializes loads/saves with a process-lifetime
+monotonic watermark. Higher snapshots must preserve and monotonically advance
+every retained record. A stale lock after abrupt process death fails closed
+and requires operator cleanup. This is not external compare-and-swap,
+cross-process monotonic storage, or crash/reboot durability.
+
+Corruption and detected rollback expose no state. Reports are deterministic
+and privacy-safe. There is no live etcd, no live Raft, no live PostgreSQL, no
+live multi-host consensus, no production HA, no crash/reboot durability, no
+cross-edge handover, no cross-edge resumption, no OriginSet publication
+interoperability, no new wire protocol, no complete partition tolerance, no
+global federation, and no production-readiness claim.
+
+## Completion evidence
+
+WP6 is complete and evidence-closed at bounded deterministic prototype scope.
+Fresh validation on 2026-08-01 recorded 65 focused WP6 tests and 971 passed and
+1 skipped in the full Python suite. Ruff check passed; Ruff format reported
+132 files already formatted; `pip check`, Core v0.1/Core v0.2 regeneration,
+WP4 exporter Python and independent Node verification, the independent WP6
+snapshot verifier, Rustfmt, Clippy with `-D warnings`, Docker Compose
+configuration, OPA 5/5, and `git diff --check` passed. Cargo ran 114 executable
+tests and 16 doctests (130 total).
+
+Two independent review tracks validated five original security candidates and
+one follow-up concurrency defect. Regression-first fixes closed them all; the
+final correctness and security closure reviews report zero remaining confirmed
+findings.

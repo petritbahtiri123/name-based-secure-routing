@@ -64,6 +64,24 @@ policy-routing validation, no OpenWrt validation, no clean no-agent client
 demonstration, no operational rollback execution, no privileged installer
 evidence, and no production-readiness claim.
 
+WP6 is complete and evidence-closed at bounded deterministic prototype scope.
+The implementation is a deterministic storage-neutral state machine, private
+snapshot repository, and simulated multi-replica quorum model. Fresh
+2026-08-01 validation recorded 65 focused WP6 tests and 971 passed and 1
+skipped in the full Python suite. Ruff check passed and Ruff format reported
+132 files already formatted; dependency checks, Core v0.1/Core v0.2
+regeneration, WP4 exporter Python/Node verification, the independent WP6
+snapshot verifier, Rustfmt, Clippy, Docker Compose configuration, OPA 5/5, and
+`git diff --check` passed. Cargo ran 114 executable tests and 16 doctests (130
+total). Independent security and correctness closure reviews report zero
+remaining confirmed findings.
+
+WP6 evidence is simulated multi-replica behavior only. It proves bounded
+canonical snapshots, monotonic retained state, stale/replay/rollback/
+equivocation rejection, fail-closed quorum reads, 5-second failover, 30-second
+drain, and non-resurrection inside the approved prototype boundary. It is not
+live consensus, live HA, or crash-recovery evidence.
+
 This file separates evidence from intent. `Implemented` means verified behavior
 exists at prototype scale. It does not imply Core v0.1 conformance, production
 readiness, global federation, or independent interoperability.
@@ -116,7 +134,7 @@ readiness, global federation, or independent interoperability.
 | Signed NBSR-native OriginSet publication | Planned | Core v0.2 or approved extension decision required |
 | Multiplexed streams | Implemented | WP4 lab scope: 64 independently gated streams per channel and 2,049 peer-initiated bidirectional streams per Transport Session including control; no production claim |
 | Renewal, origin drain, and key update | Planned | WP5+ |
-| Partition-safe replay and revocation | Planned | WP6; current replay cache is bounded but process-local |
+| Partition-safe replay and revocation | Partial | WP6 deterministically simulates replicated replay/revocation continuity and fail-closed disagreement; no live partition or consensus evidence |
 
 ## Operations, federation, and conformance
 
@@ -126,7 +144,7 @@ readiness, global federation, or independent interoperability.
 | One installable package with isolated planes | Partial | WP5 provides the dependency-free planner/CLI and simulated conformance model; no privileged installer or live platform package evidence |
 | Clean no-agent client behind an upgraded gateway | Partial | Windows adapter proves the boundary; router/enterprise/ISP packaging remains |
 | Reversible route/firewall ownership journal | Implemented | WP5 records bounded applied operation IDs and exact prior resolver state, then emits trusted-profile-bound reverse-order rollback intent; operational rollback remains unverified |
-| Multi-zone HA and shared security state | Planned | WP6 |
+| Multi-zone HA and shared security state | Partial | WP6 provides a storage-neutral state machine and deterministic quorum simulation; no live multi-zone HA |
 | Two-operator ISP lab | Planned | WP7 |
 | Signed ownership, delegation, transparency, and global federation | Planned | WP8 |
 | Independent second-language implementation | Planned | WP8 |
@@ -144,6 +162,10 @@ The repository MUST NOT claim any of the following:
 - DDoS elimination;
 - system-wide arbitrary UDP, live mobility, or transparent failover;
 - distributed replay or revocation guarantees;
+- live etcd, live Raft, live PostgreSQL, or live multi-host consensus;
+- production HA, crash/reboot durability, or complete partition tolerance;
+- cross-edge handover or cross-edge resumption authority;
+- OriginSet publication interoperability or a new wire protocol;
 - origin concealment against a compromised destination operator or host
   administrator.
 
@@ -198,6 +220,15 @@ registry allocation, multi-service reuse, or production-readiness claim is
 authorized by this slice.
 
 WP5 adds deterministic gateway planning and simulated policy conformance only.
-No WP6 work is authorized. Any live nftables, policy-routing, OpenWrt,
+Any live nftables, policy-routing, OpenWrt,
 privileged-installer, operational-rollback, or clean no-agent exercise requires
 a separate human-approved validation gate.
+
+WP6 adds deterministic replicated origin and continuity state only. It reuses
+existing wire-neutral OriginSet and approved WP4 authority as safe digests and
+metadata; it allocates no wire semantics and mints no handover or resume proof.
+No live etcd, no live Raft, no live PostgreSQL, no live multi-host consensus,
+no production HA, no crash/reboot durability, no cross-edge handover, no
+cross-edge resumption, no OriginSet publication interoperability, no new wire
+protocol, no complete partition tolerance, no global federation, and no
+production-readiness claim are made.

@@ -1,5 +1,9 @@
 # WP6 Replicated Origin and Continuity State Implementation Plan
 
+**Completion status:** Implemented and independently reviewed at the bounded
+deterministic prototype and simulated multi-replica scope on 2026-08-01. Final
+evidence is recorded in the WP6 protocol decision and protocol status.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Build a bounded storage-neutral continuity state machine, deterministic snapshot repository, multi-replica quorum simulator, and fail-closed continuity decisions without new wire semantics.
