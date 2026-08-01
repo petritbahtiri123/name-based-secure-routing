@@ -163,6 +163,10 @@ a fresh RouteGrant, fresh nonces, fresh proof of possession, a new `session_id`,
 a new `channel_id`, and a fresh exporter binding. It may correlate to a prior
 channel only through an opaque 32-byte single-use resume handle retained for at
 most 30 seconds.
+The issued record retains the old Transport Session's mandatory monotonic hard
+deadline. Its effective expiry is the earliest of issue plus 30 seconds,
+remaining RouteGrant validity, any shorter authority deadline, and that old
+session hard deadline; equality with an authority deadline is expired.
 
 The prior channel must have closed without revocation, must not be draining,
 and all current expiry, policy, service, edge, client-key, replay, capacity,

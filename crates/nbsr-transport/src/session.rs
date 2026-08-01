@@ -911,6 +911,7 @@ impl ControlSession {
             connection_capability: self.connection_capability.clone(),
             edge_nonce: *edge_nonce,
             local_role: self.local_role,
+            hard_session_deadline: self.hard_session_deadline,
             session_deadline: self.session_deadline.map(DrainDeadline::monotonic_seconds),
             session_id: *session_id,
         })

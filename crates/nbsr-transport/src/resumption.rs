@@ -124,6 +124,7 @@ pub(crate) struct ResumeSessionContext {
     pub(crate) connection_capability: ConnectionBindingCapability,
     pub(crate) edge_nonce: [u8; 32],
     pub(crate) local_role: EdgeRole,
+    pub(crate) hard_session_deadline: u64,
     pub(crate) session_deadline: Option<u64>,
     pub(crate) session_id: [u8; 16],
 }
@@ -253,8 +254,12 @@ impl SameEdgeResumeManager {
             return Err(ResumeReject::Capacity);
         }
         let grant_remaining = old.channel.grant_expires_at.saturating_sub(unix_now);
-        let inclusive_expires_at =
-            monotonic_now.saturating_add(MAX_RESUME_SECONDS.min(grant_remaining));
+        let inclusive_expires_at = effective_resume_expiry(
+            monotonic_now,
+            MAX_RESUME_SECONDS,
+            grant_remaining,
+            old.hard_session_deadline,
+        );
         old_session.audit_resume_issue(&old)?;
         self.records.insert(
             handle,
@@ -568,10 +573,45 @@ fn audit_reason_for(reject: ResumeReject) -> AuditReason {
 }
 
 fn old_authority_is_due(old: &ResumeSessionContext, monotonic_now: u64) -> bool {
-    old.session_deadline
-        .is_some_and(|deadline| monotonic_now >= deadline)
+    resume_time_is_expired(monotonic_now, old.hard_session_deadline)
+        || old
+            .session_deadline
+            .is_some_and(|deadline| monotonic_now >= deadline)
+}
+
+fn effective_resume_expiry(
+    monotonic_now: u64,
+    resume_window: u64,
+    grant_remaining: u64,
+    hard_session_deadline: u64,
+) -> u64 {
+    monotonic_now
+        .saturating_add(resume_window.min(grant_remaining))
+        .min(hard_session_deadline)
+}
+
+fn resume_time_is_expired(monotonic_now: u64, authority_deadline: u64) -> bool {
+    monotonic_now >= authority_deadline
 }
 
 fn record_is_expired(record: &ResumeRecord, monotonic_now: u64) -> bool {
     monotonic_now > record.inclusive_expires_at || old_authority_is_due(&record.old, monotonic_now)
+}
+
+#[cfg(test)]
+mod authority_cap_tests {
+    use super::*;
+
+    #[test]
+    fn issued_at_3599_is_expired_at_old_session_hour_but_valid_before_it() {
+        assert_eq!(effective_resume_expiry(3_599, 30, 600, 3_600), 3_600);
+        assert!(!resume_time_is_expired(3_599, 3_600));
+        assert!(resume_time_is_expired(3_600, 3_600));
+    }
+
+    #[test]
+    fn ordinary_window_and_grant_caps_remain_earlier_authority() {
+        assert_eq!(effective_resume_expiry(100, 30, 600, 3_600), 130);
+        assert_eq!(effective_resume_expiry(100, 30, 5, 3_600), 105);
+    }
 }
