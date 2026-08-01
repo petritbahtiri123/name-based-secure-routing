@@ -81,9 +81,18 @@ immediate and terminal.
 Transport Session drain is local state and has no lifecycle wire message or
 all-zero `channel_id` sentinel. It audits before mutation, denies new routes and
 streams immediately, and gives existing reliable streams no more than 30
-seconds, subject to earlier authority. At the deadline the adapter resets
-tracked streams and closes only that Quinn connection; unrelated sessions are
-not affected.
+seconds, subject to earlier authority. The safe start API accepts trusted
+injected Unix and monotonic seconds so every active channel snapshots the
+earliest grant, existing channel-drain, and session deadline. The adapter resets
+each channel at that earlier deadline even while the session remains draining;
+at the session deadline it resets all remaining tracked streams and closes only
+that Quinn connection. Unrelated sessions are not affected.
+
+Received `ROUTE_REVOKE` and `ROUTE_CLOSE` controls enter through the exact
+authenticated connection adapter. Only after connection binding, control
+validation, audit, and logical commit succeed does the adapter reset that
+channel's tracked streams. The underlying session transitions are crate-private
+so public callers cannot bypass transport teardown.
 
 Audit exhaustion before a start or deadline commit leaves lifecycle state
 unchanged. At a deadline, authorization stays denied and the adapter still

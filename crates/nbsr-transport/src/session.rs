@@ -152,6 +152,7 @@ impl ControlSession {
     pub fn begin_session_drain(
         &mut self,
         monotonic_now: u64,
+        unix_now: u64,
         requested_seconds: u64,
     ) -> Result<(), SessionReject> {
         self.established_session_id()?;
@@ -164,7 +165,7 @@ impl ControlSession {
             deadline = deadline.no_later_than(session_deadline);
         }
         self.admission
-            .audit_session_drain_started()
+            .start_session_drain(monotonic_now, unix_now, deadline)
             .map_err(map_lifecycle)?;
         self.session_drain_state = SessionDrainState::Draining;
         self.session_drain_deadline = Some(deadline);
@@ -197,6 +198,10 @@ impl ControlSession {
             }),
             Err(error) => Err(map_lifecycle(error)),
         }
+    }
+
+    pub(crate) fn due_draining_channels(&self, monotonic_now: u64) -> Vec<[u8; 16]> {
+        self.admission.due_draining_channels(monotonic_now)
     }
 
     pub fn audit_events(&self) -> impl ExactSizeIterator<Item = &AuditEvent> {
@@ -567,7 +572,7 @@ impl ControlSession {
         Ok(())
     }
 
-    pub fn accept_route_revoke(
+    pub(crate) fn accept_route_revoke(
         &mut self,
         channel_id: [u8; 16],
         envelope: &CoreV02Envelope,
@@ -606,7 +611,7 @@ impl ControlSession {
         self.commit_source_control(request_id, sequence)
     }
 
-    pub fn accept_route_close(
+    pub(crate) fn accept_route_close(
         &mut self,
         channel_id: [u8; 16],
         envelope: &CoreV02Envelope,

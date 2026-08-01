@@ -224,6 +224,50 @@ impl ChannelRegistry {
         self.active.get(channel_id)?.drain_deadline
     }
 
+    pub(crate) fn prepare_session_drain(
+        &self,
+        monotonic_now: u64,
+        unix_now: u64,
+        session_deadline: DrainDeadline,
+    ) -> Result<Vec<([u8; 16], DrainDeadline)>, ChannelLifecycleError> {
+        self.active
+            .iter()
+            .map(|(channel_id, entry)| -> Result<_, ChannelLifecycleError> {
+                let grant_remaining = entry.grant_expires_at.saturating_sub(unix_now);
+                let grant_deadline = DrainDeadline::new(monotonic_now, grant_remaining.min(30))
+                    .map_err(|_| ChannelLifecycleError::InvalidState)?;
+                let mut effective = session_deadline.no_later_than(grant_deadline);
+                if let Some(channel_deadline) = entry.drain_deadline {
+                    effective = effective.no_later_than(channel_deadline);
+                }
+                Ok((*channel_id, effective))
+            })
+            .collect()
+    }
+
+    pub(crate) fn commit_session_drain(&mut self, channel_deadlines: &[([u8; 16], DrainDeadline)]) {
+        for (channel_id, deadline) in channel_deadlines {
+            if let Some(entry) = self.active.get_mut(channel_id) {
+                entry.drain_deadline = Some(*deadline);
+            }
+        }
+    }
+
+    pub(crate) fn due_draining_channels(&self, monotonic_now: u64) -> Vec<[u8; 16]> {
+        let mut due = self
+            .active
+            .iter()
+            .filter_map(|(channel_id, entry)| {
+                entry
+                    .drain_deadline
+                    .filter(|deadline| deadline.is_due(monotonic_now))
+                    .map(|_| *channel_id)
+            })
+            .collect::<Vec<_>>();
+        due.sort_unstable();
+        due
+    }
+
     pub(crate) fn finish_drain(
         &mut self,
         channel_id: &[u8; 16],

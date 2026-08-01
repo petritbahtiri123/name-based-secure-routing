@@ -162,3 +162,79 @@ report is included in that commit.
 No Task 7 blocker remains. Deadline progression is intentionally driven by
 callers supplying monotonic seconds to the enforcement APIs; integrating those
 calls into a production scheduler is outside this task's prototype scope.
+
+## Review round 1 of 5: authority and teardown corrections
+
+### Findings and root causes
+
+1. Session drain stored only its requested/session deadline. It did not map each
+   active grant's Unix expiry into the injected monotonic clock, so adapter
+   enforcement could leave an accepted channel alive until the 30-second
+   session boundary.
+2. `ROUTE_REVOKE` and `ROUTE_CLOSE` were public `ControlSession` transitions.
+   They removed logical stream state but bypassed the connection-owned tracked
+   Quinn streams, so a live target was not reset.
+
+### RED/GREEN evidence
+
+- RED: the completed loopback regressions failed to compile with 13 intended
+  missing-API errors: the trusted Unix-plus-monotonic session-drain signature
+  was absent at three call sites and adapter-bound revoke/close methods were
+  absent at ten call sites. The test fixtures otherwise compiled.
+- GREEN: focused `drain` passed 11/11. A requested 30-second session drain now
+  resets a preaccepted target at its one-second grant deadline while the
+  session remains `Draining` until second 30.
+- GREEN: real adapter tests preaccept target streams for revoke and close.
+  Connection mismatch, wrong digest, and audit exhaustion do not reset or
+  consume the controls. After an audit slot is available, the exact same valid
+  controls commit and immediately reset only the target; the live sibling
+  completes normally after both operations.
+
+Two fixture-only failures occurred while reaching GREEN and did not require
+production changes: generated stream request IDs initially collided with route
+request IDs, and the first layout exceeded the configured two-concurrent-bidi
+limit and assumed reusable one-message Application Streams. The final test uses
+independent IDs and sequences real streams within both transport contracts.
+
+### Implementation and ordering review
+
+- `begin_session_drain(monotonic_now, unix_now, requested_seconds)` prepares a
+  bounded snapshot of every active channel's earliest grant, existing channel,
+  and session deadline. The session-start audit occurs before the snapshot is
+  committed, so audit failure leaves session and channel deadlines unchanged.
+- Session enforcement deterministically enumerates due channels, commits their
+  logical deadline transition, and resets each exact tracked channel before
+  separately enforcing the later session close.
+- Public revoke/close entry points now belong to `AuthenticatedConnection`.
+  They reject connection mismatch first, then delegate validation, audit, and
+  logical commit to crate-private session handlers, and call `reset_channel`
+  only after success. Invalid and audit-failed controls cannot trigger reset.
+- Replay/tombstone retention, terminal revoke precedence, sibling isolation,
+  adapter confinement, and frozen Core v0.1 behavior remain intact.
+
+### Files changed in review round 1
+
+- `crates/nbsr-transport/src/channel_registry.rs`
+- `crates/nbsr-transport/src/admission.rs`
+- `crates/nbsr-transport/src/session.rs`
+- `crates/nbsr-transport/src/quinn_adapter.rs`
+- `crates/nbsr-transport/tests/drain.rs`
+- `docs/protocol/core-v0.2-channel-lifecycle-schema-proposal.md`
+- `.superpowers/sdd/2026-07-31-wp4-reusable-multi-service-transport/task-7-report.md`
+
+### Verification
+
+- Focused drain: 11 passed, 0 failed.
+- Required eight-target Rust matrix: 32 passed, 0 failed.
+- Full Rust unit/integration/doctest suite: 78 passed, 0 failed.
+- Frozen Core v0.1 Python protocol suite: 62 passed, 0 failed.
+- Formatting, clippy with warnings denied, and staged diff checks: required
+  before the review-round commit.
+
+### Commit and concerns
+
+Commit subject: `fix(wp4): enforce lifecycle transport teardown`.
+
+No blocker remains. Enforcement still uses caller-supplied trusted clock values
+and explicit scheduling, consistent with the prototype boundary documented
+above.

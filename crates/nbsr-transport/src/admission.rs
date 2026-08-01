@@ -226,7 +226,15 @@ impl DestinationAdmission {
         self.channels.finish_drain(channel_id)
     }
 
-    pub(crate) fn audit_session_drain_started(&mut self) -> Result<(), ChannelLifecycleError> {
+    pub(crate) fn start_session_drain(
+        &mut self,
+        monotonic_now: u64,
+        unix_now: u64,
+        session_deadline: crate::DrainDeadline,
+    ) -> Result<(), ChannelLifecycleError> {
+        let channel_deadlines =
+            self.channels
+                .prepare_session_drain(monotonic_now, unix_now, session_deadline)?;
         self.audit
             .record(
                 None,
@@ -235,7 +243,13 @@ impl DestinationAdmission {
                 AuditOutcome::Allowed,
                 AuditReason::None,
             )
-            .map_err(|_| ChannelLifecycleError::AuditUnavailable)
+            .map_err(|_| ChannelLifecycleError::AuditUnavailable)?;
+        self.channels.commit_session_drain(&channel_deadlines);
+        Ok(())
+    }
+
+    pub(crate) fn due_draining_channels(&self, monotonic_now: u64) -> Vec<[u8; 16]> {
+        self.channels.due_draining_channels(monotonic_now)
     }
 
     pub(crate) fn audit_session_drain_forced(&mut self) -> Result<(), ChannelLifecycleError> {

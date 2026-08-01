@@ -3,13 +3,14 @@ use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use std::path::PathBuf;
 use std::time::Duration;
 
+use ed25519_dalek::{Signer, SigningKey};
 use nbsr_transport::{
     ActiveChannel, AdmissionPolicy, AuditIntegrity, AuthorizedServicePolicy, ChannelState,
-    ControlSession, CoreV02Limits, CoreV02MessageType, CoreV02Reject, DestinationAdmission,
-    DrainDeadline, DrainEnforcement, DrainReject, EdgeIdentity, EdgeRole, PeerPolicy,
-    RouteCloseBody, RouteDrainBody, RouteGrantIssuer, RouteRevokeBody, SessionDrainState,
-    SessionReject, TransportListener, build_client_config, build_server_config, connect,
-    decode_control_envelope,
+    ControlSession, CoreV02Envelope, CoreV02Limits, CoreV02MessageType, CoreV02Reject,
+    DestinationAdmission, DrainDeadline, DrainEnforcement, DrainReject, EdgeIdentity, EdgeRole,
+    PeerPolicy, RouteCloseBody, RouteDrainBody, RouteGrantIssuer, RouteRevokeBody,
+    SessionDrainState, SessionReject, TransportListener, build_client_config, build_server_config,
+    connect, decode_control_envelope,
 };
 use sha2::{Digest, Sha256};
 
@@ -22,6 +23,24 @@ const SESSION_ID: [u8; 16] = [
 const CHANNEL_ID: [u8; 16] = [0x33; 16];
 const ROUTE_ID: [u8; 16] = [0x44; 16];
 const GRANT_DIGEST: [u8; 32] = [0x55; 32];
+const NOW: u64 = 1_893_456_000;
+const POLICY_HASH: [u8; 32] = [
+    0x09, 0xfe, 0x3b, 0x1c, 0x85, 0x49, 0x99, 0x49, 0xda, 0x22, 0x2d, 0xd4, 0xe2, 0xa4, 0x60, 0xf5,
+    0x94, 0xae, 0xe8, 0x25, 0xf4, 0x44, 0xa7, 0x22, 0x58, 0xd2, 0xf1, 0x79, 0x7b, 0xf1, 0x14, 0x3f,
+];
+const EDGE_NONCE: [u8; 32] = [
+    0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8a, 0x8b, 0x8c, 0x8d, 0x8e, 0x8f,
+    0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x9a, 0x9b, 0x9c, 0x9d, 0x9e, 0x9f,
+];
+const ROUTE_GRANT_SEED: [u8; 32] = [
+    0x9d, 0x61, 0xb1, 0x9d, 0xef, 0xfd, 0x5a, 0x60, 0xba, 0x84, 0x4a, 0xf4, 0x92, 0xec, 0x2c, 0xc4,
+    0x44, 0x49, 0xc5, 0x69, 0x7b, 0x32, 0x69, 0x19, 0x70, 0x3b, 0xac, 0x03, 0x1c, 0xae, 0x7f, 0x60,
+];
+const SESSION_SEED: [u8; 32] = [
+    0x4c, 0xcd, 0x08, 0x9b, 0x28, 0xff, 0x96, 0xda, 0x9d, 0xb6, 0xc3, 0x46, 0xec, 0x11, 0x4e, 0x0f,
+    0x5b, 0x8a, 0x31, 0x9f, 0x35, 0xab, 0xa6, 0x24, 0xda, 0x8c, 0xf6, 0xed, 0x4f, 0xb8, 0xa6, 0xfb,
+];
+const KID: &[u8] = b"nbsr-test-route-grant-key";
 
 #[test]
 fn exact_closed_lifecycle_bodies_decode_with_literal_lengths() {
@@ -372,15 +391,15 @@ async fn wrong_binding_does_not_consume_control_and_revoke_wins_during_drain() {
         CoreV02Limits::default(),
     )
     .expect("valid ROUTE_REVOKE");
-    session
-        .accept_route_revoke(channel.channel_id, &revoke)
+    destination
+        .accept_route_revoke(&mut session, channel.channel_id, &revoke)
         .expect("revoke takes precedence over drain");
     assert_eq!(
         session.channel_state(channel.channel_id),
         Some(ChannelState::Revoked)
     );
     assert_eq!(
-        session.accept_route_revoke(channel.channel_id, &revoke),
+        destination.accept_route_revoke(&mut session, channel.channel_id, &revoke),
         Err(SessionReject::Replay)
     );
     assert_eq!(
@@ -416,8 +435,8 @@ async fn route_close_is_bound_replay_terminal_and_retains_tombstone() {
         CoreV02Limits::default(),
     )
     .expect("valid ROUTE_CLOSE");
-    session
-        .accept_route_close(channel.channel_id, &close)
+    destination
+        .accept_route_close(&mut session, channel.channel_id, &close)
         .expect("close exact live channel");
     assert_eq!(
         session.channel_state(channel.channel_id),
@@ -425,8 +444,248 @@ async fn route_close_is_bound_replay_terminal_and_retains_tombstone() {
     );
     assert!(session.tombstone_expires_at(channel.channel_id).is_some());
     assert_eq!(
-        session.accept_route_close(channel.channel_id, &close),
+        destination.accept_route_close(&mut session, channel.channel_id, &close),
         Err(SessionReject::Replay)
+    );
+
+    source.close().await.expect("source close");
+    destination.close().await.expect("destination close");
+    listener.close().await.expect("listener close");
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn adapter_revoke_and_close_reset_only_after_valid_audited_commit() {
+    let (listener, source, destination) = connection_pair().await;
+    let mut session = established_session(&destination);
+    let revoke_route = signed_route(0x61, 10);
+    let close_route = signed_route(0x62, 11);
+    let sibling_route = signed_route(0x63, 12);
+    for route in [&revoke_route, &close_route, &sibling_route] {
+        session
+            .accept_route_open(&route.open)
+            .expect("fresh signed route");
+        session
+            .confirm_route_accept(&route.accept)
+            .expect("activate signed route");
+        destination
+            .bind_channel(&mut session, route.channel.channel_id)
+            .expect("bind signed route");
+    }
+
+    for (route, stream_id, request_id, sequence) in [
+        (&revoke_route, 4, [0xd1; 16], 20),
+        (&revoke_route, 8, [0xd2; 16], 21),
+        (&sibling_route, 12, [0xd3; 16], 22),
+        (&close_route, 16, [0xd4; 16], 23),
+        (&close_route, 20, [0xd5; 16], 24),
+    ] {
+        let open =
+            stream_open_envelope_with_sequence(&route.channel, stream_id, request_id, sequence);
+        let accept = stream_accept_envelope(&route.channel, stream_id, request_id, sequence + 20);
+        session
+            .authorize_stream_open(route.channel.channel_id, &open)
+            .expect("authorize real stream");
+        session
+            .confirm_stream_accept(route.channel.channel_id, &accept)
+            .expect("confirm real stream");
+    }
+    let (reserved, reserved_source) =
+        tokio::join!(destination.reject_next_application_stream(), async {
+            let mut stream = source.open_application_stream().await?;
+            stream.send_payload(b"reserve-control-stream-id").await?;
+            stream.receive_payload().await
+        });
+    assert_eq!(reserved.expect("reject stream zero"), 0);
+    assert_eq!(
+        reserved_source,
+        Err(nbsr_transport::TransportError::ApplicationStreamRejected)
+    );
+    let (revoke_accepted, revoke_opened) = tokio::join!(
+        destination.accept_session_stream(&mut session, revoke_route.channel.channel_id),
+        async {
+            let mut stream = source.open_application_stream().await?;
+            stream.send_payload(b"revoke-no-reset").await?;
+            Ok::<_, nbsr_transport::TransportError>(stream)
+        },
+    );
+    let mut revoke_accepted = revoke_accepted.expect("tracked revoke target");
+    let mut revoke_opened = revoke_opened.expect("opened revoke target");
+    let (revoke_reset_accepted, revoke_reset_opened) = tokio::join!(
+        destination.accept_session_stream(&mut session, revoke_route.channel.channel_id),
+        async {
+            let mut stream = source.open_application_stream().await?;
+            stream.send_payload(b"revoke-committed").await?;
+            Ok::<_, nbsr_transport::TransportError>(stream)
+        },
+    );
+    let _revoke_reset_accepted = revoke_reset_accepted.expect("second tracked revoke target");
+    let mut revoke_reset_opened = revoke_reset_opened.expect("second opened revoke target");
+
+    let invalid_revoke = lifecycle_control(&revoke_route, 13, [0x91; 16], 200, [0x99; 32]);
+    let valid_revoke = lifecycle_control(
+        &revoke_route,
+        13,
+        [0x91; 16],
+        200,
+        revoke_route.channel.route_grant_digest,
+    );
+    let invalid_close = lifecycle_control(&close_route, 14, [0x92; 16], 201, [0x99; 32]);
+    let valid_close = lifecycle_control(
+        &close_route,
+        14,
+        [0x92; 16],
+        201,
+        close_route.channel.route_grant_digest,
+    );
+    let (other_listener, other_source, other_destination) = connection_pair().await;
+    assert_eq!(
+        other_destination.accept_route_revoke(
+            &mut session,
+            revoke_route.channel.channel_id,
+            &valid_revoke,
+        ),
+        Err(SessionReject::ConnectionMismatch)
+    );
+    other_source.close().await.expect("other source close");
+    other_destination
+        .close()
+        .await
+        .expect("other destination close");
+    other_listener.close().await.expect("other listener close");
+    assert_eq!(
+        destination.accept_route_revoke(
+            &mut session,
+            revoke_route.channel.channel_id,
+            &invalid_revoke,
+        ),
+        Err(SessionReject::ControlRejected)
+    );
+    fill_audit_with_existing_stream(&mut session, &sibling_route.channel, 1_024);
+    assert_eq!(
+        destination.accept_route_revoke(
+            &mut session,
+            revoke_route.channel.channel_id,
+            &valid_revoke,
+        ),
+        Err(SessionReject::AuditUnavailable)
+    );
+    let (revoke_echo, revoke_reply) =
+        tokio::join!(revoke_accepted.echo_once(), revoke_opened.receive_payload());
+    assert_eq!(
+        revoke_echo.expect("invalid and audit-failed revoke did not reset"),
+        b"revoke-no-reset"
+    );
+    assert_eq!(
+        revoke_reply.expect("non-reset revoke response"),
+        b"revoke-no-reset"
+    );
+
+    session
+        .pop_audit_event()
+        .expect("one sibling application audit slot");
+    let (sibling_accepted, sibling_opened) = tokio::join!(
+        destination.accept_session_stream(&mut session, sibling_route.channel.channel_id),
+        async {
+            let mut stream = source.open_application_stream().await?;
+            stream.send_payload(b"sibling-survives").await?;
+            Ok::<_, nbsr_transport::TransportError>(stream)
+        },
+    );
+    let mut sibling_accepted = sibling_accepted.expect("tracked sibling");
+    let mut sibling_opened = sibling_opened.expect("opened sibling");
+    session.pop_audit_event().expect("one revoke audit slot");
+    destination
+        .accept_route_revoke(&mut session, revoke_route.channel.channel_id, &valid_revoke)
+        .expect("valid audited revoke");
+    assert_eq!(
+        tokio::time::timeout(
+            Duration::from_secs(1),
+            revoke_reset_opened.receive_payload()
+        )
+        .await,
+        Ok(Err(
+            nbsr_transport::TransportError::ApplicationStreamRejected
+        ))
+    );
+    assert_eq!(
+        session.channel_state(revoke_route.channel.channel_id),
+        Some(ChannelState::Revoked)
+    );
+
+    session
+        .pop_audit_event()
+        .expect("one close application audit slot");
+    let (close_accepted, close_opened) = tokio::join!(
+        destination.accept_session_stream(&mut session, close_route.channel.channel_id),
+        async {
+            let mut stream = source.open_application_stream().await?;
+            stream.send_payload(b"close-no-reset").await?;
+            Ok::<_, nbsr_transport::TransportError>(stream)
+        },
+    );
+    let mut close_accepted = close_accepted.expect("tracked close target");
+    let mut close_opened = close_opened.expect("opened close target");
+    assert_eq!(
+        destination.accept_route_close(
+            &mut session,
+            close_route.channel.channel_id,
+            &invalid_close,
+        ),
+        Err(SessionReject::ControlRejected)
+    );
+    assert_eq!(
+        destination.accept_route_close(&mut session, close_route.channel.channel_id, &valid_close),
+        Err(SessionReject::AuditUnavailable)
+    );
+    let (close_echo, close_reply) =
+        tokio::join!(close_accepted.echo_once(), close_opened.receive_payload());
+    assert_eq!(
+        close_echo.expect("invalid and audit-failed close did not reset"),
+        b"close-no-reset"
+    );
+    assert_eq!(
+        close_reply.expect("non-reset close response"),
+        b"close-no-reset"
+    );
+
+    session
+        .pop_audit_event()
+        .expect("second close application audit slot");
+    let (close_reset_accepted, close_reset_opened) = tokio::join!(
+        destination.accept_session_stream(&mut session, close_route.channel.channel_id),
+        async {
+            let mut stream = source.open_application_stream().await?;
+            stream.send_payload(b"close-committed").await?;
+            Ok::<_, nbsr_transport::TransportError>(stream)
+        },
+    );
+    let _close_reset_accepted = close_reset_accepted.expect("second tracked close target");
+    let mut close_reset_opened = close_reset_opened.expect("second opened close target");
+    session.pop_audit_event().expect("one close audit slot");
+    destination
+        .accept_route_close(&mut session, close_route.channel.channel_id, &valid_close)
+        .expect("valid audited close");
+    assert_eq!(
+        tokio::time::timeout(Duration::from_secs(1), close_reset_opened.receive_payload()).await,
+        Ok(Err(
+            nbsr_transport::TransportError::ApplicationStreamRejected
+        ))
+    );
+    assert_eq!(
+        session.channel_state(close_route.channel.channel_id),
+        Some(ChannelState::Closed)
+    );
+    let (sibling_echo, sibling_reply) = tokio::join!(
+        sibling_accepted.echo_once(),
+        sibling_opened.receive_payload()
+    );
+    assert_eq!(
+        sibling_echo.expect("sibling target remains live"),
+        b"sibling-survives"
+    );
+    assert_eq!(
+        sibling_reply.expect("sibling source remains live"),
+        b"sibling-survives"
     );
 
     source.close().await.expect("source close");
@@ -439,7 +698,7 @@ async fn local_session_drain_closes_only_its_connection_at_the_bounded_deadline(
     let (listener, source, destination) = connection_pair().await;
     let mut session = established_session(&destination);
     session
-        .begin_session_drain(1_000, 30)
+        .begin_session_drain(1_000, NOW, 30)
         .expect("start local session drain without a wire sentinel");
     assert_eq!(session.session_drain_state(), SessionDrainState::Draining);
     assert_eq!(session.session_drain_deadline(), Some(1_030));
@@ -503,6 +762,84 @@ async fn local_session_drain_closes_only_its_connection_at_the_bounded_deadline(
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn session_drain_resets_a_live_channel_at_its_one_second_grant_deadline() {
+    let (listener, source, destination) = connection_pair().await;
+    let mut policy = runtime_policy();
+    policy.now = NOW + 299;
+    let mut session = ControlSession::new(
+        &destination,
+        DestinationAdmission::new(policy).expect("valid admission policy"),
+        vec![route_grant_issuer()],
+    );
+    establish(&mut session);
+    let channel = vector_channel();
+    destination
+        .bind_channel(&mut session, channel.channel_id)
+        .expect("bind active channel");
+    let stream_open = stream_open_envelope(&channel, 4, [0x7b; 16]);
+    let stream_accept = stream_accept_envelope(&channel, 4, [0x7b; 16], 22);
+    session
+        .authorize_stream_open(channel.channel_id, &stream_open)
+        .expect("stream opened while grant is live");
+    session
+        .confirm_stream_accept(channel.channel_id, &stream_accept)
+        .expect("stream accepted while grant is live");
+    let (reserved, reserved_source) =
+        tokio::join!(destination.reject_next_application_stream(), async {
+            let mut stream = source.open_application_stream().await?;
+            stream.send_payload(b"reserve-control-stream-id").await?;
+            stream.receive_payload().await
+        });
+    assert_eq!(reserved.expect("reject stream zero"), 0);
+    assert_eq!(
+        reserved_source,
+        Err(nbsr_transport::TransportError::ApplicationStreamRejected)
+    );
+    let (accepted, opened) = tokio::join!(
+        destination.accept_session_stream(&mut session, channel.channel_id),
+        async {
+            let mut stream = source.open_application_stream().await?;
+            stream.send_payload(b"grant-expiry-reset").await?;
+            Ok::<_, nbsr_transport::TransportError>(stream)
+        },
+    );
+    let _accepted = accepted.expect("accepted live stream before session drain");
+    let mut opened = opened.expect("opened live stream before session drain");
+
+    session
+        .begin_session_drain(1_000, NOW + 299, 30)
+        .expect("start requested thirty-second session drain");
+    assert_eq!(session.session_drain_deadline(), Some(1_030));
+    assert_eq!(
+        session.channel_drain_deadline(channel.channel_id),
+        Some(1_001)
+    );
+    assert_eq!(
+        destination.enforce_session_drain(&mut session, 1_000).await,
+        Ok(DrainEnforcement::Pending)
+    );
+    assert_eq!(
+        destination.enforce_session_drain(&mut session, 1_001).await,
+        Ok(DrainEnforcement::Pending)
+    );
+    assert_eq!(session.session_drain_state(), SessionDrainState::Draining);
+    assert_eq!(
+        session.channel_state(channel.channel_id),
+        Some(ChannelState::Closed)
+    );
+    assert_eq!(
+        tokio::time::timeout(Duration::from_secs(1), opened.receive_payload()).await,
+        Ok(Err(
+            nbsr_transport::TransportError::ApplicationStreamRejected
+        ))
+    );
+
+    source.close().await.expect("source close");
+    destination.close().await.expect("destination close");
+    listener.close().await.expect("listener close");
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn grant_and_session_deadlines_can_only_shorten_drain() {
     let (listener, source, destination) = connection_pair().await;
     let mut session = ControlSession::new_with_monotonic_deadline(
@@ -532,6 +869,14 @@ async fn grant_and_session_deadlines_can_only_shorten_drain() {
     session
         .accept_route_drain(channel.channel_id, &drain, 100, 1_893_456_299)
         .expect("drain bounded by earlier authority");
+    assert_eq!(
+        session.channel_drain_deadline(channel.channel_id),
+        Some(101)
+    );
+    session
+        .begin_session_drain(100, NOW + 299, 30)
+        .expect("session drain preserves every earlier channel authority");
+    assert_eq!(session.session_drain_deadline(), Some(110));
     assert_eq!(
         session.channel_drain_deadline(channel.channel_id),
         Some(101)
@@ -578,10 +923,11 @@ async fn audit_exhaustion_preserves_start_state_and_deadline_enforcement_stays_s
     );
     assert_eq!(session.channel_drain_deadline(channel.channel_id), None);
     assert_eq!(
-        session.begin_session_drain(100, 1),
+        session.begin_session_drain(100, NOW, 1),
         Err(SessionReject::AuditUnavailable)
     );
     assert_eq!(session.session_drain_state(), SessionDrainState::Active);
+    assert_eq!(session.channel_drain_deadline(channel.channel_id), None);
 
     session.pop_audit_event().expect("make one audit slot");
     session
@@ -608,6 +954,229 @@ async fn audit_exhaustion_preserves_start_state_and_deadline_enforcement_stays_s
     source.close().await.expect("source close");
     destination.close().await.expect("destination close");
     listener.close().await.expect("listener close");
+}
+
+struct SignedRoute {
+    channel: ActiveChannel,
+    open: CoreV02Envelope,
+    accept: CoreV02Envelope,
+}
+
+fn signed_route(id: u8, sequence: u64) -> SignedRoute {
+    let request_id = [id.wrapping_add(0x20); 16];
+    let channel_id = [id; 16];
+    let route_id = [id.wrapping_add(0x40); 16];
+    let grant_wire = signed_grant(route_id, [id.wrapping_add(0x80); 16]);
+    let grant_digest = Sha256::digest(&grant_wire).into();
+    let proof = SigningKey::from_bytes(&SESSION_SEED).sign(&route_open_transcript(
+        request_id,
+        channel_id,
+        route_id,
+        grant_digest,
+    ));
+    let open = decode_generated_envelope(control_envelope(
+        3,
+        request_id,
+        sequence,
+        route_open_body(channel_id, &grant_wire, proof.to_bytes()),
+    ));
+    let accept = route_accept_envelope(request_id, sequence, channel_id, route_id, grant_digest);
+    SignedRoute {
+        channel: ActiveChannel {
+            channel_id,
+            route_id,
+            service_id: "service.example".into(),
+            route_grant_digest: grant_digest,
+            transport: "tcp".into(),
+            port: 8443,
+        },
+        open,
+        accept,
+    }
+}
+
+fn lifecycle_control(
+    route: &SignedRoute,
+    message_type: u64,
+    request_id: [u8; 16],
+    sequence: u64,
+    grant_digest: [u8; 32],
+) -> CoreV02Envelope {
+    decode_control_envelope(
+        &lifecycle_envelope(
+            request_id,
+            message_type,
+            sequence,
+            (
+                route.channel.channel_id,
+                route.channel.route_id,
+                grant_digest,
+            ),
+            NOW,
+            None,
+        ),
+        CoreV02Limits::default(),
+    )
+    .expect("valid generated lifecycle envelope")
+}
+
+fn fill_audit_with_existing_stream(
+    session: &mut ControlSession,
+    channel: &ActiveChannel,
+    wanted: usize,
+) {
+    for (offset, stream_id) in (24_u64..=272).step_by(4).enumerate() {
+        let request_id = id(30_000 + stream_id);
+        let sequence = 100 + offset as u64;
+        let open = stream_open_envelope_with_sequence(channel, stream_id, request_id, sequence);
+        let accept = stream_accept_envelope(channel, stream_id, request_id, sequence + 100);
+        session
+            .authorize_stream_open(channel.channel_id, &open)
+            .expect("fill remaining logical stream slots");
+        session
+            .confirm_stream_accept(channel.channel_id, &accept)
+            .expect("confirm remaining logical stream slots");
+    }
+    let over_capacity = stream_open_envelope_with_sequence(channel, 276, id(40_000), 1_000);
+    while session.audit_events().len() < wanted {
+        assert_eq!(
+            session.authorize_stream_open(channel.channel_id, &over_capacity),
+            Err(SessionReject::Stream(
+                nbsr_transport::StreamReject::OverCapacity
+            ))
+        );
+    }
+}
+
+fn signed_grant(route_id: [u8; 16], unique_nonce: [u8; 16]) -> Vec<u8> {
+    let session_public_key = SigningKey::from_bytes(&SESSION_SEED)
+        .verifying_key()
+        .to_bytes();
+    let thumbprint: [u8; 32] = Sha256::digest(session_public_key).into();
+    let mut payload = Vec::new();
+    map(&mut payload, 17);
+    field_uint(&mut payload, 0, 1);
+    field_bytes(&mut payload, 1, &route_id);
+    field_bytes(&mut payload, 2, &[0x11; 32]);
+    field_text(&mut payload, 3, "service.example");
+    field_text(&mut payload, 4, "source.operator");
+    field_text(&mut payload, 5, "source.edge");
+    field_text(&mut payload, 6, "destination.operator");
+    uint(&mut payload, 7);
+    array(&mut payload, 1);
+    text(&mut payload, "destination.edge");
+    uint(&mut payload, 8);
+    array(&mut payload, 1);
+    text(&mut payload, "tcp");
+    uint(&mut payload, 9);
+    array(&mut payload, 1);
+    uint(&mut payload, 8443);
+    field_bytes(&mut payload, 10, &thumbprint);
+    field_uint(&mut payload, 11, NOW - 60);
+    field_uint(&mut payload, 12, NOW + 300);
+    field_bytes(&mut payload, 13, &[0x33; 16]);
+    field_uint(&mut payload, 14, 42);
+    field_bytes(&mut payload, 15, &POLICY_HASH);
+    field_bytes(&mut payload, 16, &unique_nonce);
+
+    let mut protected = Vec::new();
+    map(&mut protected, 2);
+    uint(&mut protected, 1);
+    nint(&mut protected, -8);
+    field_bytes(&mut protected, 4, KID);
+
+    let mut signature_structure = Vec::new();
+    array(&mut signature_structure, 4);
+    text(&mut signature_structure, "Signature1");
+    bytes(&mut signature_structure, &protected);
+    bytes(&mut signature_structure, &[]);
+    bytes(&mut signature_structure, &payload);
+    let signature = SigningKey::from_bytes(&ROUTE_GRANT_SEED).sign(&signature_structure);
+
+    let mut wire = vec![0xd2];
+    array(&mut wire, 4);
+    bytes(&mut wire, &protected);
+    map(&mut wire, 0);
+    bytes(&mut wire, &payload);
+    bytes(&mut wire, &signature.to_bytes());
+    wire
+}
+
+fn route_open_transcript(
+    request_id: [u8; 16],
+    channel_id: [u8; 16],
+    route_id: [u8; 16],
+    grant_digest: [u8; 32],
+) -> Vec<u8> {
+    let mut wire = Vec::new();
+    array(&mut wire, 13);
+    text(&mut wire, "NBSR-ROUTE-OPEN-v2");
+    uint(&mut wire, 2);
+    bytes(&mut wire, &SESSION_ID);
+    bytes(&mut wire, &request_id);
+    bytes(&mut wire, &channel_id);
+    bytes(&mut wire, &route_id);
+    text(&mut wire, "service.example");
+    text(&mut wire, "destination.edge");
+    bytes(&mut wire, &EDGE_NONCE);
+    text(&mut wire, "tcp");
+    uint(&mut wire, 8443);
+    bytes(&mut wire, &grant_digest);
+    uint(&mut wire, NOW);
+    wire
+}
+
+fn route_open_body(channel_id: [u8; 16], grant_wire: &[u8], proof: [u8; 64]) -> Vec<u8> {
+    let mut body = Vec::new();
+    map(&mut body, 8);
+    field_uint(&mut body, 0, 1);
+    field_bytes(&mut body, 1, &channel_id);
+    field_bytes(&mut body, 2, grant_wire);
+    field_bytes(&mut body, 3, &EDGE_NONCE);
+    field_text(&mut body, 4, "tcp");
+    field_uint(&mut body, 5, 8443);
+    field_uint(&mut body, 6, NOW);
+    field_bytes(&mut body, 7, &proof);
+    body
+}
+
+fn route_accept_envelope(
+    request_id: [u8; 16],
+    sequence: u64,
+    channel_id: [u8; 16],
+    route_id: [u8; 16],
+    grant_digest: [u8; 32],
+) -> CoreV02Envelope {
+    let mut body = Vec::new();
+    map(&mut body, 5);
+    field_uint(&mut body, 0, 1);
+    field_bytes(&mut body, 1, &channel_id);
+    field_bytes(&mut body, 2, &route_id);
+    field_bytes(&mut body, 3, &grant_digest);
+    field_uint(&mut body, 4, NOW);
+    decode_generated_envelope(control_envelope(4, request_id, sequence, body))
+}
+
+fn control_envelope(
+    message_type: u64,
+    request_id: [u8; 16],
+    sequence: u64,
+    body: Vec<u8>,
+) -> Vec<u8> {
+    let mut wire = Vec::new();
+    map(&mut wire, 6);
+    field_uint(&mut wire, 0, 2);
+    field_uint(&mut wire, 1, message_type);
+    field_bytes(&mut wire, 2, &request_id);
+    field_bytes(&mut wire, 3, &SESSION_ID);
+    field_uint(&mut wire, 4, sequence);
+    uint(&mut wire, 5);
+    wire.extend_from_slice(&body);
+    wire
+}
+
+fn decode_generated_envelope(wire: Vec<u8>) -> CoreV02Envelope {
+    decode_control_envelope(&wire, CoreV02Limits::default()).expect("valid generated envelope")
 }
 
 fn established_session(connection: &nbsr_transport::AuthenticatedConnection) -> ControlSession {
@@ -808,6 +1377,15 @@ fn stream_open_envelope(
     stream_id: u64,
     request_id: [u8; 16],
 ) -> nbsr_transport::CoreV02Envelope {
+    stream_open_envelope_with_sequence(channel, stream_id, request_id, 21)
+}
+
+fn stream_open_envelope_with_sequence(
+    channel: &ActiveChannel,
+    stream_id: u64,
+    request_id: [u8; 16],
+    sequence: u64,
+) -> nbsr_transport::CoreV02Envelope {
     let mut body = Vec::new();
     map(&mut body, 7);
     field_uint(&mut body, 0, 1);
@@ -825,7 +1403,7 @@ fn stream_open_envelope(
     field_uint(&mut wire, 1, 6);
     field_bytes(&mut wire, 2, &request_id);
     field_bytes(&mut wire, 3, &SESSION_ID);
-    field_uint(&mut wire, 4, 21);
+    field_uint(&mut wire, 4, sequence);
     uint(&mut wire, 5);
     wire.extend_from_slice(&body);
     decode_control_envelope(&wire, CoreV02Limits::default()).expect("valid STREAM_OPEN")
@@ -867,8 +1445,17 @@ fn field_bytes(target: &mut Vec<u8>, key: u64, value: &[u8]) {
     bytes(target, value);
 }
 
+fn field_text(target: &mut Vec<u8>, key: u64, value: &str) {
+    uint(target, key);
+    text(target, value);
+}
+
 fn uint(target: &mut Vec<u8>, value: u64) {
     argument(target, 0, value);
+}
+
+fn nint(target: &mut Vec<u8>, value: i64) {
+    argument(target, 1, (-1 - value) as u64);
 }
 
 fn bytes(target: &mut Vec<u8>, value: &[u8]) {
@@ -879,6 +1466,10 @@ fn bytes(target: &mut Vec<u8>, value: &[u8]) {
 fn text(target: &mut Vec<u8>, value: &str) {
     argument(target, 3, value.len() as u64);
     target.extend_from_slice(value.as_bytes());
+}
+
+fn array(target: &mut Vec<u8>, length: u64) {
+    argument(target, 4, length);
 }
 
 fn map(target: &mut Vec<u8>, length: u64) {

@@ -14,9 +14,9 @@ use x509_parser::prelude::{FromDer, X509Certificate};
 
 use crate::channel_binding::{EXPORTER_LABEL, EXPORTER_LENGTH, service_channel_context_hash};
 use crate::{
-    ALPN, ChannelBinding, ClientEndpointConfig, ControlSession, EdgeIdentity, EdgeRole, PeerPolicy,
-    ServerEndpointConfig, ServiceChannelContext, ServiceChannelExporterError, SessionReject,
-    TransportError,
+    ALPN, ChannelBinding, ClientEndpointConfig, ControlSession, CoreV02Envelope, EdgeIdentity,
+    EdgeRole, PeerPolicy, ServerEndpointConfig, ServiceChannelContext, ServiceChannelExporterError,
+    SessionReject, TransportError,
 };
 
 pub struct TransportListener {
@@ -542,6 +542,34 @@ impl AuthenticatedConnection {
         Ok(result)
     }
 
+    pub fn accept_route_revoke(
+        &self,
+        session: &mut ControlSession,
+        channel_id: [u8; 16],
+        envelope: &CoreV02Envelope,
+    ) -> Result<(), SessionReject> {
+        if !session.matches_connection(&self.binding_capability) {
+            return Err(SessionReject::ConnectionMismatch);
+        }
+        session.accept_route_revoke(channel_id, envelope)?;
+        self.tracked_streams.reset_channel(&channel_id);
+        Ok(())
+    }
+
+    pub fn accept_route_close(
+        &self,
+        session: &mut ControlSession,
+        channel_id: [u8; 16],
+        envelope: &CoreV02Envelope,
+    ) -> Result<(), SessionReject> {
+        if !session.matches_connection(&self.binding_capability) {
+            return Err(SessionReject::ConnectionMismatch);
+        }
+        session.accept_route_close(channel_id, envelope)?;
+        self.tracked_streams.reset_channel(&channel_id);
+        Ok(())
+    }
+
     pub async fn enforce_session_drain(
         &self,
         session: &mut ControlSession,
@@ -549,6 +577,12 @@ impl AuthenticatedConnection {
     ) -> Result<crate::DrainEnforcement, SessionReject> {
         if !session.matches_connection(&self.binding_capability) {
             return Err(SessionReject::ConnectionMismatch);
+        }
+        for channel_id in session.due_draining_channels(monotonic_now) {
+            let channel_result = session.enforce_channel_drain(channel_id, monotonic_now)?;
+            if matches!(channel_result, crate::DrainEnforcement::Enforced { .. }) {
+                self.tracked_streams.reset_channel(&channel_id);
+            }
         }
         let result = session.enforce_session_drain(monotonic_now)?;
         if matches!(result, crate::DrainEnforcement::Enforced { .. }) {
