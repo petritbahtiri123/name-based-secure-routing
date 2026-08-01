@@ -82,9 +82,7 @@ def write_package(output: Path, package: GeneratedPackage) -> None:
     _validate_owned_existing(target)
     expected = _expected_files(package)
     preserved = (
-        {path: payload for path, payload in _actual_files(target).items() if path.startswith("wp4-exporter/")}
-        if target.exists()
-        else {}
+        {path: payload for path, payload in _actual_files(target).items() if path.startswith("wp4-exporter/")} if target.exists() else {}
     )
     written = expected | preserved
     temporary = target.parent / f".core-v0.2-write-{uuid4().hex}"
