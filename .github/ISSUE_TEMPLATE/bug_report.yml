@@ -1,0 +1,71 @@
+name: Bug report
+description: Report a reproducible non-security defect
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not report vulnerabilities here. Use the private process in SECURITY.md.
+  - type: input
+    id: revision
+    attributes:
+      label: Branch and commit
+      description: Identify the exact branch, commit, tag, or release.
+      placeholder: codex/nbsr-v3-wp0-wp1 at abc1234
+    validations:
+      required: true
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      options:
+        - Protocol data model / CBOR / COSE
+        - Name Node / synthetic resolution
+        - Route authorization / policy
+        - Rust QUIC transport
+        - Legacy DNS / OriginSet adapter
+        - Windows adapter
+        - Compose / Kubernetes deployment
+        - Tests / vectors / packaging
+        - Documentation
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction steps
+      description: Provide the smallest safe, authorized reproduction.
+    validations:
+      required: true
+  - type: textarea
+    id: validation
+    attributes:
+      label: Logs and validation output
+      description: Redact secrets, tokens, private keys, personal data, production addresses, and confidential information.
+      render: text
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Submission checks
+      options:
+        - label: This is not a security vulnerability.
+          required: true
+        - label: I tested only systems I own or am authorized to test.
+          required: true
+        - label: I removed secrets and confidential information.
+          required: true
