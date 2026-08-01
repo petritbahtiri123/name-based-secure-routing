@@ -18,9 +18,11 @@ _ERROR_CODE = "NBSR_GATEWAY_INPUT_REJECTED"
 
 def _load_json(path: str) -> Any:
     target = Path(path)
-    if target.stat().st_size > _MAX_INPUT_BYTES:
+    with target.open("rb") as stream:
+        encoded = stream.read(_MAX_INPUT_BYTES + 1)
+    if len(encoded) > _MAX_INPUT_BYTES:
         raise ValueError("input exceeds maximum size")
-    return json.loads(target.read_text(encoding="utf-8"))
+    return json.loads(encoded.decode("utf-8"))
 
 
 def _emit(value: object) -> None:

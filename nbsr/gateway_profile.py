@@ -65,8 +65,8 @@ def _host(value: object, label: str) -> str:
         parsed = ip_address(value)
     except ValueError as exc:
         raise ProfileError(f"{label} must be a canonical IP address") from exc
-    if str(parsed) != value or parsed.is_unspecified or parsed.is_multicast:
-        raise ProfileError(f"{label} must be a usable canonical IP address")
+    if str(parsed) != value or not parsed.is_loopback:
+        raise ProfileError(f"{label} must be a canonical loopback IP address")
     return value
 
 
@@ -170,6 +170,8 @@ class PlatformSnapshot:
             raise ProfileError("resolver_state must be a bounded string list")
         if type(observed) is not list or len(observed) > _MAX_ITEMS or not all(type(item) is str for item in observed):
             raise ProfileError("observed_operation_ids must be a bounded string list")
+        if len(observed) != len(set(observed)):
+            raise ProfileError("observed_operation_ids must be unique")
         flags = {}
         for field in _SNAPSHOT_FIELDS - {"resources", "resolver_state", "observed_operation_ids"}:
             if type(data[field]) is not bool:
@@ -183,13 +185,18 @@ class PlatformSnapshot:
         )
 
 
-def assert_collision_free(profile: GatewayProfile, snapshot: PlatformSnapshot) -> None:
+def assert_collision_free(
+    profile: GatewayProfile,
+    snapshot: PlatformSnapshot,
+    *,
+    trusted_owner: str | None = None,
+) -> None:
     configured = (ip_network(profile.synthetic_ipv4), ip_network(profile.synthetic_ipv6))
     for resource in snapshot.resources:
         existing = ip_network(resource.prefix)
         for wanted in configured:
             if existing.version != wanted.version or not existing.overlaps(wanted):
                 continue
-            if existing == wanted and resource.owner == profile.instance_id:
+            if existing == wanted and resource.owner == profile.instance_id == trusted_owner:
                 continue
             raise ProfileError("synthetic prefix collision detected")

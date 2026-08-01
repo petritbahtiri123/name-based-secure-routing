@@ -165,12 +165,11 @@ def _operation(kind: OperationKind, *arguments: str) -> Operation:
     return Operation.create(kind, arguments, kind, inverse)
 
 
-def build_gateway_plan(profile: GatewayProfile, snapshot: PlatformSnapshot) -> GatewayPlan:
-    assert_collision_free(profile, snapshot)
+def _canonical_operations(profile: GatewayProfile) -> tuple[Operation, ...]:
     instance = profile.instance_id
     mark = str(profile.firewall_mark)
     table = str(profile.policy_table)
-    operations = (
+    return (
         _operation(OperationKind.NFT_TABLE, instance),
         _operation(OperationKind.NFT_CHAIN, instance, "synthetic-capture"),
         _operation(OperationKind.CAPTURE_V4, profile.synthetic_ipv4, mark, profile.source_edge_host, str(profile.source_edge_port)),
@@ -186,4 +185,12 @@ def build_gateway_plan(profile: GatewayProfile, snapshot: PlatformSnapshot) -> G
         _operation(OperationKind.ROUTE_HEALTH, profile.source_edge_host, str(profile.source_edge_port)),
         _operation(OperationKind.SERVICE_QUOTA, instance, "per-service", "bounded-fair-share"),
     )
-    return GatewayPlan(profile.digest(), operations)
+
+
+def plan_matches_profile(plan: GatewayPlan, profile: GatewayProfile) -> bool:
+    return plan.phase is PlanPhase.INSTALL and plan.profile_digest == profile.digest() and plan.operations == _canonical_operations(profile)
+
+
+def build_gateway_plan(profile: GatewayProfile, snapshot: PlatformSnapshot) -> GatewayPlan:
+    assert_collision_free(profile, snapshot)
+    return GatewayPlan(profile.digest(), _canonical_operations(profile))

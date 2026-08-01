@@ -132,6 +132,19 @@ def test_rejected_input_is_bounded_closed_and_never_echoed(tmp_path: Path) -> No
     assert secret not in result.stderr
 
 
+def test_bounded_loader_reads_one_handle_without_preflight_stat(tmp_path: Path, monkeypatch) -> None:
+    from nbsr import gateway_cli
+
+    path = tmp_path / "small.json"
+    write_json(path, profile_data())
+
+    def forbidden_stat(self):
+        raise AssertionError("separate stat creates a check/read race")
+
+    monkeypatch.setattr(Path, "stat", forbidden_stat)
+    assert gateway_cli._load_json(str(path))["instance_id"] == "lab-edge-01"
+
+
 def test_cli_requires_explicit_paths_and_package_registers_entrypoint() -> None:
     result = run_cli("plan")
     assert result.returncode == 2

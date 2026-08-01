@@ -120,3 +120,33 @@ def test_report_never_contains_injected_sensitive_strings() -> None:
     for token in sensitive.split():
         assert token not in encoded
     assert len(encoded) < 8192
+
+
+def test_off_profile_operation_arguments_fail_conformance() -> None:
+    from nbsr.gateway_plan import GatewayPlan, Operation
+
+    profile, plan, _, _ = complete_inputs()
+    operations = list(plan.operations)
+    index = next(index for index, operation in enumerate(operations) if operation.kind is OperationKind.CAPTURE_V4)
+    original = operations[index]
+    forged_arguments = (*original.arguments[:2], "203.0.113.99", *original.arguments[3:])
+    forged_inverse = (*original.inverse_arguments[:3], "203.0.113.99", *original.inverse_arguments[4:])
+    operations[index] = Operation.create(original.kind, forged_arguments, original.inverse_kind, forged_inverse)
+    forged_plan = GatewayPlan(plan.profile_digest, tuple(operations))
+    observed = [operation.operation_id for operation in forged_plan.operations]
+    forged_journal = OwnershipJournal.create(forged_plan, (), observed)
+    forged_snapshot = PlatformSnapshot.from_dict(
+        snapshot_data(
+            observed_operation_ids=observed,
+            name_plane_healthy=True,
+            route_plane_healthy=True,
+            resolver_parity=True,
+            service_attribution=True,
+            fair_share=True,
+        )
+    )
+
+    report = verify_gateway(profile, forged_plan, forged_journal, forged_snapshot)
+
+    assert not report.passed
+    assert not next(check.passed for check in report.checks if check.code is CheckCode.OWNERSHIP)

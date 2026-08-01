@@ -61,7 +61,9 @@ def test_profile_accepts_exact_lab_boundary_and_is_immutable() -> None:
         ("synthetic_ipv6", "2001:db8::/64"),
         ("synthetic_ipv6", "fd00:6e62:7372:5::1/64"),
         ("name_node_host", "0.0.0.0"),
+        ("name_node_host", "8.8.8.8"),
         ("source_edge_host", "::"),
+        ("source_edge_host", "1.1.1.1"),
         ("name_node_port", 0),
         ("source_edge_port", True),
         ("policy_table", 9999),
@@ -91,6 +93,8 @@ def test_snapshot_is_closed_bounded_and_strictly_typed() -> None:
         PlatformSnapshot.from_dict(snapshot_data([{"kind": "route", "prefix": "192.0.2.0/24", "owner": 4}]))
     with pytest.raises(ProfileError):
         PlatformSnapshot.from_dict(snapshot_data([{"kind": "route", "prefix": "192.0.2.0/24", "owner": None}] * 257))
+    with pytest.raises(ProfileError, match="unique"):
+        PlatformSnapshot.from_dict(snapshot_data(observed_operation_ids=["a" * 24, "a" * 24]))
 
 
 @pytest.mark.parametrize("kind", ("interface", "route", "vpn", "container", "reserved"))
@@ -102,10 +106,11 @@ def test_collision_inventory_rejects_every_resource_kind(kind: str) -> None:
         assert_collision_free(profile, snapshot)
 
 
-def test_collision_allows_only_exact_prefix_owned_by_same_instance() -> None:
+def test_collision_rejects_snapshot_self_asserted_ownership() -> None:
     profile = GatewayProfile.from_dict(profile_data())
     owned = PlatformSnapshot.from_dict(snapshot_data([{"kind": "route", "prefix": "192.0.2.0/24", "owner": "lab-edge-01"}]))
-    assert_collision_free(profile, owned)
+    with pytest.raises(ProfileError, match="collision"):
+        assert_collision_free(profile, owned)
 
     for prefix, owner in (("192.0.2.0/24", "other-edge"), ("192.0.2.0/25", "lab-edge-01")):
         snapshot = PlatformSnapshot.from_dict(snapshot_data([{"kind": "route", "prefix": prefix, "owner": owner}]))

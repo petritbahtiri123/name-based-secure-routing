@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from enum import Enum
 
 from nbsr.gateway_journal import JournalError, OwnershipJournal, build_rollback_plan
-from nbsr.gateway_plan import GatewayPlan, OperationKind
+from nbsr.gateway_plan import GatewayPlan, OperationKind, plan_matches_profile
 from nbsr.gateway_profile import GatewayProfile, PlatformSnapshot, ProfileError, assert_collision_free
 
 
@@ -74,17 +74,17 @@ def verify_gateway(
     def seen(*kinds: OperationKind) -> bool:
         return all(kind in planned_by_kind and planned_by_kind[kind] in observed for kind in kinds)
 
-    try:
-        assert_collision_free(profile, snapshot)
-        collision_free = True
-    except ProfileError:
-        collision_free = False
-
     ownership = (
-        journal.profile_digest == profile.digest() == plan.profile_digest
+        plan_matches_profile(plan, profile)
+        and journal.profile_digest == profile.digest() == plan.profile_digest
         and set(journal.applied_operation_ids) == observed
         and set(journal.applied_operation_ids) <= {operation.operation_id for operation in plan.operations}
     )
+    try:
+        assert_collision_free(profile, snapshot, trusted_owner=profile.instance_id if ownership else None)
+        collision_free = True
+    except ProfileError:
+        collision_free = False
     try:
         rollback = build_rollback_plan(plan, journal)
         rollback_complete = ownership and len(rollback.operations) == len(journal.applied_operation_ids) + 1
