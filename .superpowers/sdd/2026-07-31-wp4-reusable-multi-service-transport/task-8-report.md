@@ -278,3 +278,95 @@ No review-round blocker remains. Capabilities and correlations remain bounded
 in-process prototype state using caller-supplied trusted clock values; future
 wire transport or cross-process persistence remains a separate schema and
 design gate.
+
+## Review round 2 of 5: exact preflight authority and deadline semantics
+
+### Findings and RED/GREEN evidence
+
+1. Reused transport/session authority reached post-admission validation.
+   - RED: after adding candidate-count observations, the same exact Quinn
+     connection produced a successful preflight instead of
+     `FreshAuthorizationRequired`.
+   - GREEN: preflight now compares the retained old context with the current
+     target scope before minting a capability. Exact connection-capability
+     reuse, session-ID reuse, local-role mismatch, or authenticated-peer
+     mismatch is audited and rejected. Real loopback assertions keep candidate
+     and active channel counts at zero and preserve all three handles.
+2. Sequential preflight IDs were not manager-specific capabilities.
+   - RED: manager A's first token was accepted by manager B because both
+     managers independently minted ID 1, allocating an active channel.
+   - GREEN: every manager owns a private process-local `Arc` marker and every
+     token carries that marker plus its ID. Validation requires exact pointer
+     identity before allocation. Manager A's token is `Replay` at manager B,
+     candidate/active counts remain zero, and manager B's own token remains
+     valid through fresh admission, binding, and consume.
+3. A shared inclusive expiry comparison extended old authority at equality.
+   - RED: a record capped by an old session authority deadline of 130 still
+     consumed successfully at monotonic second 130.
+   - GREEN: handle TTL and prior RouteGrant expiry retain their documented
+     inclusive semantics (`now > expiry`), while old session/channel authority
+     is due at `now >= deadline`. The same predicate is used by issue purging,
+     preflight, and capability validation. A 4096-record regression rejects
+     consume at exact equality, removes that expired record, then proves one
+     audited purge of the remaining 4095 unlocks capacity for a fresh record.
+     The exact +30 and prior-grant boundaries remain valid.
+4. An audited post-admission mismatch left its capability reusable forever.
+   - RED: after a successful mismatch audit, retrying the same capability
+     returned `Mismatch` again instead of `Replay`.
+   - GREEN: a successfully audited post-admission authority or binding
+     mismatch removes only that preflight association and retains the handle.
+     Audit exhaustion returns `AuditUnavailable` without mutation; after an
+     audit slot is available the mismatch retires the capability, its reuse is
+     `Replay`, and a fresh preflight plus a fresh valid channel can consume the
+     retained handle.
+
+### Scope and self-review
+
+- All four old/new authority comparisons happen during preflight, before the
+  resume-specific path can call ordinary RouteGrant admission.
+- `ResumePreflight` remains opaque, redacted, non-cloneable, and usable only
+  with the manager instance that minted it. The private marker is not derived
+  from a counter or caller-controlled value.
+- Inclusive correlation/grant retention and exclusive monotonic authority
+  deadlines are represented separately instead of collapsing them into one
+  scalar expiry.
+- Every new state mutation remains after its corresponding audit. In
+  particular, audit exhaustion cannot retire the mismatched preflight or
+  consume its handle.
+- No resume wire body, cross-edge handover, 0-RTT, state restoration, or
+  independent interoperability claim was added.
+
+### Files changed in review round 2
+
+- `crates/nbsr-transport/src/admission.rs`
+- `crates/nbsr-transport/src/channel_registry.rs`
+- `crates/nbsr-transport/src/resumption.rs`
+- `crates/nbsr-transport/src/session.rs`
+- `crates/nbsr-transport/tests/resumption.rs`
+- `.superpowers/sdd/2026-07-31-wp4-reusable-multi-service-transport/task-8-report.md`
+
+`Cargo.lock`, Core v0.1 artifacts, generated artifacts, and
+`.codex-test-temp-w4/` were not modified or staged.
+
+### Verification
+
+All Cargo commands used the required non-OneDrive target directory.
+
+- Focused resumption after all changes: 17 passed, 0 failed.
+- Required seven-target matrix: 46 passed, 0 failed.
+- Full crate: 90 unit/integration tests plus 9 compile-fail doctests passed;
+  0 failed.
+- Explicit doctests: 9 passed, 0 failed.
+- Formatting check: passed after applying rustfmt.
+- Clippy with all targets and warnings denied: passed.
+- `git diff --check`: passed before staging; the staged check is required
+  immediately before commit.
+
+### Commit and concerns
+
+Commit subject: `fix(wp4): bind resume authority before admission`.
+
+No review-round blocker remains. Correlations and manager markers remain
+bounded process-local prototype state using caller-supplied trusted clock
+values. Future wire transport, cross-process persistence, or production
+scheduling remains a separate schema and design gate.

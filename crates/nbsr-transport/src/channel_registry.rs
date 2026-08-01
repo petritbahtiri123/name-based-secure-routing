@@ -53,6 +53,7 @@ struct TerminalChannelEntry {
 
 #[derive(Clone)]
 pub(crate) struct ResumeChannelContext {
+    pub(crate) authority_deadline: Option<u64>,
     pub(crate) channel: ActiveChannel,
     pub(crate) client_session_key_thumbprint: [u8; 32],
     pub(crate) grant_expires_at: u64,
@@ -342,6 +343,7 @@ impl ChannelRegistry {
         })?;
         let resume = (entry.binding.is_some() && entry.drain_deadline.is_none()).then(|| {
             ResumeChannelContext {
+                authority_deadline: entry.drain_deadline.map(DrainDeadline::monotonic_seconds),
                 channel: entry.channel.clone(),
                 client_session_key_thumbprint: entry.client_session_key_thumbprint,
                 grant_expires_at: entry.grant_expires_at,
@@ -488,6 +490,7 @@ impl ChannelRegistry {
     ) -> Option<ResumeChannelContext> {
         let entry = self.active.get(channel_id)?;
         (entry.binding.is_some() && entry.drain_deadline.is_none()).then(|| ResumeChannelContext {
+            authority_deadline: entry.drain_deadline.map(DrainDeadline::monotonic_seconds),
             channel: entry.channel.clone(),
             client_session_key_thumbprint: entry.client_session_key_thumbprint,
             grant_expires_at: entry.grant_expires_at,
@@ -510,6 +513,10 @@ impl ChannelRegistry {
 
     pub(crate) fn active_len(&self) -> usize {
         self.active.len()
+    }
+
+    pub(crate) fn candidate_len(&self) -> usize {
+        self.pending.len()
     }
 
     pub(crate) fn active_for_service(&self, service_id: &str) -> usize {

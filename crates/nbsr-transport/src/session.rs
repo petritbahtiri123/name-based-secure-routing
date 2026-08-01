@@ -139,6 +139,10 @@ impl ControlSession {
         self.admission.active_channels()
     }
 
+    pub fn candidate_channels(&self) -> usize {
+        self.admission.candidate_channels()
+    }
+
     pub fn has_active_channel(&self, channel_id: [u8; 16]) -> bool {
         self.admission.channel(&channel_id).is_some()
     }

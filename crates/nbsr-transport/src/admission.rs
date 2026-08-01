@@ -115,6 +115,10 @@ impl DestinationAdmission {
         self.channels.active_len()
     }
 
+    pub fn candidate_channels(&self) -> usize {
+        self.channels.candidate_len()
+    }
+
     pub fn channel_state(&self, channel_id: [u8; 16]) -> Option<ChannelState> {
         self.channels.channel_state(&channel_id)
     }

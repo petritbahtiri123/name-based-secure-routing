@@ -2,6 +2,7 @@
 
 use std::collections::HashMap;
 use std::fmt;
+use std::sync::Arc;
 
 use crate::channel_registry::ResumeChannelContext;
 use crate::quinn_adapter::ConnectionBindingCapability;
@@ -84,10 +85,20 @@ pub struct ResumeCorrelation {
     pub new_channel_id: [u8; 16],
 }
 
-#[derive(Eq, PartialEq)]
 pub struct ResumePreflight {
     id: u64,
+    manager_marker: Arc<ResumeManagerMarker>,
 }
+
+struct ResumeManagerMarker;
+
+impl PartialEq for ResumePreflight {
+    fn eq(&self, other: &Self) -> bool {
+        self.id == other.id && Arc::ptr_eq(&self.manager_marker, &other.manager_marker)
+    }
+}
+
+impl Eq for ResumePreflight {}
 
 impl fmt::Debug for ResumePreflight {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -127,8 +138,8 @@ pub(crate) struct ResumeSessionScope {
 
 #[derive(Clone)]
 struct ResumeRecord {
+    inclusive_expires_at: u64,
     old: ResumeSessionContext,
-    expires_at: u64,
 }
 
 #[derive(Clone)]
@@ -143,6 +154,7 @@ struct ResumePreflightRecord {
 }
 
 pub struct SameEdgeResumeManager {
+    manager_marker: Arc<ResumeManagerMarker>,
     next_preflight_id: u64,
     preflights: HashMap<u64, ResumePreflightRecord>,
     records: HashMap<ResumeHandle, ResumeRecord>,
@@ -157,6 +169,7 @@ impl Default for SameEdgeResumeManager {
 impl SameEdgeResumeManager {
     pub fn new() -> Self {
         Self {
+            manager_marker: Arc::new(ResumeManagerMarker),
             next_preflight_id: 1,
             preflights: HashMap::new(),
             records: HashMap::new(),
@@ -194,11 +207,19 @@ impl SameEdgeResumeManager {
             )?;
             return Err(ResumeReject::Expired);
         }
+        if old_authority_is_due(&old, monotonic_now) {
+            old_session.audit_resume_reject(
+                old_channel_id,
+                &old.channel.channel.service_id,
+                AuditReason::Expired,
+            )?;
+            return Err(ResumeReject::Expired);
+        }
         let expired_handles: Vec<_> = self
             .records
             .iter()
             .filter_map(|(handle, record)| {
-                (monotonic_now > record.expires_at).then_some(handle.clone())
+                record_is_expired(record, monotonic_now).then_some(handle.clone())
             })
             .collect();
         if !expired_handles.is_empty() {
@@ -224,13 +245,16 @@ impl SameEdgeResumeManager {
             return Err(ResumeReject::Capacity);
         }
         let grant_remaining = old.channel.grant_expires_at.saturating_sub(unix_now);
-        let mut expires_at = monotonic_now.saturating_add(MAX_RESUME_SECONDS.min(grant_remaining));
-        if let Some(session_deadline) = old.session_deadline {
-            expires_at = expires_at.min(session_deadline);
-        }
+        let inclusive_expires_at =
+            monotonic_now.saturating_add(MAX_RESUME_SECONDS.min(grant_remaining));
         old_session.audit_resume_issue(&old)?;
-        self.records
-            .insert(handle, ResumeRecord { old, expires_at });
+        self.records.insert(
+            handle,
+            ResumeRecord {
+                inclusive_expires_at,
+                old,
+            },
+        );
         Ok(())
     }
 
@@ -244,7 +268,7 @@ impl SameEdgeResumeManager {
             new_session.audit_resume_session_reject(None, AuditReason::Replay)?;
             return Err(ResumeReject::Replay);
         };
-        if monotonic_now > record.expires_at {
+        if record_is_expired(&record, monotonic_now) {
             new_session.audit_resume_reject(
                 record.old.channel.channel.channel_id,
                 &record.old.channel.channel.service_id,
@@ -277,6 +301,21 @@ impl SameEdgeResumeManager {
                 AuditReason::BindingMismatch,
             )?;
             return Err(ResumeReject::Mismatch);
+        }
+        if record.old.local_role != scope.local_role
+            || record.old.authenticated_peer != scope.authenticated_peer
+            || record
+                .old
+                .connection_capability
+                .matches(&scope.connection_capability)
+            || record.old.session_id == scope.session_id
+        {
+            new_session.audit_resume_reject(
+                record.old.channel.channel.channel_id,
+                &record.old.channel.channel.service_id,
+                AuditReason::FreshAuthorizationRequired,
+            )?;
+            return Err(ResumeReject::FreshAuthorizationRequired);
         }
         if self
             .preflights
@@ -321,7 +360,10 @@ impl SameEdgeResumeManager {
                 session_id: scope.session_id,
             },
         );
-        Ok(ResumePreflight { id })
+        Ok(ResumePreflight {
+            id,
+            manager_marker: self.manager_marker.clone(),
+        })
     }
 
     pub(crate) fn prepare_resume_admission(
@@ -409,6 +451,7 @@ impl SameEdgeResumeManager {
                 &new.channel.channel.service_id,
                 AuditReason::FreshAuthorizationRequired,
             )?;
+            self.preflights.remove(&preflight.id);
             return Err(ResumeReject::FreshAuthorizationRequired);
         }
         if record.old.channel.channel.service_id != new.channel.channel.service_id
@@ -421,6 +464,7 @@ impl SameEdgeResumeManager {
                 &new.channel.channel.service_id,
                 AuditReason::BindingMismatch,
             )?;
+            self.preflights.remove(&preflight.id);
             return Err(ResumeReject::Mismatch);
         }
         new_session.audit_resume_consume(&new)?;
@@ -438,6 +482,10 @@ impl SameEdgeResumeManager {
         monotonic_now: u64,
         channel_id: Option<[u8; 16]>,
     ) -> Result<(ResumeHandle, ResumePreflightRecord), ResumeReject> {
+        if !Arc::ptr_eq(&self.manager_marker, &preflight.manager_marker) {
+            new_session.audit_resume_session_reject(channel_id, AuditReason::Replay)?;
+            return Err(ResumeReject::Replay);
+        }
         let Some(preflight_record) = self.preflights.get(&preflight.id).cloned() else {
             new_session.audit_resume_session_reject(channel_id, AuditReason::Replay)?;
             return Err(ResumeReject::Replay);
@@ -448,7 +496,7 @@ impl SameEdgeResumeManager {
             self.preflights.remove(&preflight.id);
             return Err(ResumeReject::Replay);
         };
-        if monotonic_now > record.expires_at {
+        if record_is_expired(&record, monotonic_now) {
             new_session.audit_resume_reject(
                 record.old.channel.channel.channel_id,
                 &record.old.channel.channel.service_id,
@@ -491,4 +539,17 @@ fn audit_reason_for(reject: ResumeReject) -> AuditReason {
         ResumeReject::Expired => AuditReason::Expired,
         _ => AuditReason::InvalidState,
     }
+}
+
+fn old_authority_is_due(old: &ResumeSessionContext, monotonic_now: u64) -> bool {
+    old.session_deadline
+        .is_some_and(|deadline| monotonic_now >= deadline)
+        || old
+            .channel
+            .authority_deadline
+            .is_some_and(|deadline| monotonic_now >= deadline)
+}
+
+fn record_is_expired(record: &ResumeRecord, monotonic_now: u64) -> bool {
+    monotonic_now > record.inclusive_expires_at || old_authority_is_due(&record.old, monotonic_now)
 }
