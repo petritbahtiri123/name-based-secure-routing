@@ -29,6 +29,12 @@ def test_wp4_status_records_reviewed_lab_completion_and_fresh_evidence() -> None
     )
     for text in required:
         assert text in status
+    assert "Pre-documentation implementation baseline" in status
+    assert "Post-documentation current validation" in status
+    assert "335 focused" in status
+    assert "829 passed and 1 skipped (830 collected)" in status
+    assert "108 files already formatted" in status
+    assert "Multiplexed streams | Implemented" in status
 
 
 def test_wp4_decision_records_exact_completed_limits_and_review_chain() -> None:
@@ -54,6 +60,9 @@ def test_wp4_decision_records_exact_completed_limits_and_review_chain() -> None:
     )
     for text in required:
         assert text in decision
+    assert "Pre-documentation implementation baseline" in decision
+    assert "Post-documentation current validation" in decision
+    assert "one queue shared across channels within a Transport Session" in decision
 
 
 def test_wp4_roadmap_and_plan_mark_only_the_approved_task_complete() -> None:
@@ -65,3 +74,6 @@ def test_wp4_roadmap_and_plan_mark_only_the_approved_task_complete() -> None:
         assert f"- [x] **Step {step}:" in plan
     assert "114 executable Rust tests plus 16 doctests" in plan
     assert "826 passed, 1 skipped" in plan
+    assert "Pre-documentation implementation baseline" in plan
+    assert "Post-documentation current validation" in plan
+    assert "829 passed, 1 skipped (830 collected)" in plan

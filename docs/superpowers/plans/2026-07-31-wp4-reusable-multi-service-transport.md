@@ -207,6 +207,13 @@
 
 ### Task 10: Fresh validation, independent review, fixes, and evidence
 
+Pre-documentation implementation baseline: 114 executable Rust tests plus 16
+doctests, 332 focused tests, 826 passed, 1 skipped in the full suite, and Ruff
+on 107 files. Post-documentation current validation: the same 130 Rust tests,
+335 focused tests, 829 passed, 1 skipped (830 collected), and Ruff on 108 files;
+all other recorded formatting, lint, dependency, generator, vector, Node, and
+diff gates passed.
+
 **Files:**
 - Modify: `docs/protocol/status.md`
 - Modify: `docs/protocol/wp4-reusable-multi-service-transport-decision.md`

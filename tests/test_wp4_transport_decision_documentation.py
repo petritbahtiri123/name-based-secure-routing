@@ -93,7 +93,7 @@ def test_wp4_decision_binds_exporter_construction_and_resource_limits() -> None:
         "| Peer-initiated bidirectional streams per Transport Session | 2049 (1 control plus 2048 application streams) |",
         "| Buffered bytes per reliable stream | 1 MiB |",
         "| Buffered reliable bytes per channel | 8 MiB |",
-        "| Audit queue | 1024 events |",
+        "| Audit queue | 1024 events in one queue shared across channels within a Transport Session |",
         "| Replay/tombstone entries per session | 4096 |",
         "| Channel drain maximum | 30 seconds |",
         "| Same-edge resume window | 30 seconds and never beyond grant/session expiry |",

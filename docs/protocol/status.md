@@ -34,7 +34,7 @@ passed. This evidence remains limited to the origin-free single-service lab
 boundary documented below.
 
 WP4 is complete at its documented origin-free reusable multi-service same-edge loopback lab scope.
-Fresh final validation passed 114 executable Rust tests and 16 doctests (130 total),
+Pre-documentation implementation baseline: 114 executable Rust tests and 16 doctests (130 total),
 332 focused WP4/frozen-protocol Python tests, and 826 passed and 1 skipped in the
 full Python suite. Rustfmt, Clippy with `-D warnings`, Ruff check and format
 (`107 files already formatted`), `pip check`, both Core regeneration checks,
@@ -42,6 +42,11 @@ and `git diff --check` passed. The separately owned Core v0.2 exporter subtree
 passed Python and Node verification for 2 valid and 21 invalid/mutation cases.
 Final independent review reported 0 Critical, 0 Important, and 0 Minor findings
 after the original Critical and Important findings were fixed with regression tests.
+Post-documentation current validation: the same 114 executable Rust tests and
+16 doctests (130 total), 335 focused tests, 829 passed and 1 skipped (830 collected)
+in the full Python suite, and Ruff reported 108 files already formatted;
+Rustfmt, Clippy, `pip check`, both Core generators, WP4 Python and
+Node vector verification, and `git diff --check` also passed.
 
 This file separates evidence from intent. `Implemented` means verified behavior
 exists at prototype scale. It does not imply Core v0.1 conformance, production
@@ -93,7 +98,8 @@ readiness, global federation, or independent interoperability.
 | Internal Derived OriginSet | Implemented | Immutable, wire-neutral model with bounded endpoints, generation/sequence rollback protection, same-sequence equivocation rejection, and deterministic tests |
 | Legacy DNS-backed internal OriginSet | Implemented | Isolated bounded legacy DNS adapter builds Derived OriginSet values, preserves stable synthetic mapping inputs, separates DNS TTL from authorization, and supports the approved last-known-good policy; NameRelay integration remains gated |
 | Signed NBSR-native OriginSet publication | Planned | Core v0.2 or approved extension decision required |
-| Multiplexed streams, renewal, origin drain, and key update | Planned | WP4 |
+| Multiplexed streams | Implemented | WP4 lab scope: 64 independently gated streams per channel and 2,049 peer-initiated bidirectional streams per Transport Session including control; no production claim |
+| Renewal, origin drain, and key update | Planned | WP5+ |
 | Partition-safe replay and revocation | Planned | WP6; current replay cache is bounded but process-local |
 
 ## Operations, federation, and conformance
@@ -159,7 +165,8 @@ and native QUIC DATAGRAM channels. Exact lab limits are 32 channels per
 session, 64 streams per channel, a 2,049-stream session transport cap including
 control, 1 MiB per stream, durable bidirectional 8 MiB per channel, 1,200-byte
 UDP application payloads in a 1,235-byte frame, queue 64, 100 datagrams/second
-with burst 100, 1,024 global audit events, a 3,600-second session maximum,
+with burst 100, one 1,024-event audit queue shared across channels within a
+Transport Session, a 3,600-second session maximum,
 30-second drain, and same-edge resume for at most 30 seconds capped by grant
 and old-session hard authority.
 

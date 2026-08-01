@@ -80,7 +80,7 @@ runtime decoding. No new Core v0.1 value is allocated.
 | Maximum encoded UDP frame | 1235 bytes |
 | Buffered UDP datagrams per channel | 64 |
 | UDP rate per channel | 100 datagrams/second with burst 100 |
-| Audit queue | 1024 events |
+| Audit queue | 1024 events in one queue shared across channels within a Transport Session |
 | Replay/tombstone entries per session | 4096 |
 | Channel drain maximum | 30 seconds |
 | Same-edge resume window | 30 seconds and never beyond grant/session expiry |
@@ -212,13 +212,18 @@ is complete only at that lab scope.
 
 ## Completion evidence and review
 
-Fresh final validation passed 114 executable Rust tests plus 16 doctests (130
-total), 332 focused WP4/frozen-protocol Python tests, and 826 passed with 1
+Pre-documentation implementation baseline: 114 executable Rust tests plus 16
+doctests (130 total), 332 focused WP4/frozen-protocol Python tests, and 826 passed with 1
 skipped in the full Python suite. Rustfmt, Clippy with `-D warnings`, Ruff on
 107 formatted files, `pip check`, both Core regeneration checks, and
 `git diff --check` passed. The separately owned Core v0.2 exporter subtree
 passed canonical CBOR single hash regeneration plus Python and Node checks for
 2 valid and 21 invalid/mutation vectors.
+
+Post-documentation current validation: 114 executable Rust tests plus 16
+doctests (130 total), 335 focused tests, 829 passed and 1 skipped (830 collected),
+and Ruff on 108 formatted files. Rustfmt, Clippy, `pip check`, both
+Core generators, both WP4 vector verifiers, and `git diff --check` passed.
 
 The original independent review found Critical and Important authorization
 and binding defects; each was fixed with a failing regression first.
