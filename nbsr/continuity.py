@@ -40,6 +40,10 @@ class QuorumRejected(StateRejected):
     """Replica evidence cannot support an unambiguous fail-closed read."""
 
 
+class ContinuityDenied(StateRejected):
+    """Replicated state does not authorize local continuity."""
+
+
 class StateKind(StrEnum):
     ORIGIN = "origin"
     POLICY = "policy"
@@ -501,3 +505,100 @@ def resolve_quorum(
     snapshot = agreed[0].snapshot
     assert snapshot is not None
     return QuorumView(snapshot, tuple(sorted(item.replica_id for item in agreed)))
+
+
+MAX_FAILOVER_MILLISECONDS = 5_000
+MAX_DRAIN_SECONDS = 30
+
+
+def bounded_failover(
+    config: ReplicaConfig,
+    observations: tuple[ReplicaObservation, ...] | list[ReplicaObservation],
+    *,
+    minimum_generation: int,
+    elapsed_ms: int,
+) -> QuorumView:
+    if type(elapsed_ms) is not int or not 0 <= elapsed_ms <= MAX_FAILOVER_MILLISECONDS:
+        raise QuorumRejected("failover elapsed time is invalid or exceeds the bound")
+    return resolve_quorum(config, observations, minimum_generation=minimum_generation)
+
+
+@dataclass(frozen=True, slots=True)
+class ContinuityPermit:
+    tenant_id: str
+    service_id: str
+    channel_digest: bytes
+    policy_fingerprint: bytes
+    snapshot_digest: bytes
+
+
+def _required_record(state: ContinuityState, key: StateKey, *, now: int) -> ContinuityRecord:
+    item = state.get(key)
+    if item is None:
+        raise ContinuityDenied("required continuity state is missing")
+    if item.terminal:
+        raise ContinuityDenied("required continuity state is terminal")
+    if now >= item.expires_at:
+        raise ContinuityDenied("required continuity state is expired")
+    return item
+
+
+def evaluate_continuity(
+    *,
+    view: QuorumView,
+    tenant_id: str,
+    service_id: str,
+    channel_id: str,
+    grant_id: str,
+    replay_id: str,
+    policy_fingerprint: bytes,
+    now: int,
+) -> ContinuityPermit:
+    if type(view) is not QuorumView:
+        raise ContinuityDenied("quorum view is invalid")
+    try:
+        checked_tenant = _text_id(tenant_id)
+        checked_service = _text_id(service_id)
+        checked_now = _uint("now", now, maximum=MAX_TIMESTAMP)
+        checked_policy = _digest("policy_fingerprint", policy_fingerprint)
+        assert checked_policy is not None
+        policy_key = StateKey(checked_tenant, checked_service, StateKind.POLICY, "00")
+        channel_key = StateKey(checked_tenant, checked_service, StateKind.CHANNEL, channel_id)
+        grant_key = StateKey(checked_tenant, checked_service, StateKind.GRANT, grant_id)
+        replay_key = StateKey(checked_tenant, checked_service, StateKind.REPLAY, replay_id)
+    except StateRejected as exc:
+        raise ContinuityDenied("continuity input context is invalid") from exc
+    snapshot = view.snapshot
+    if snapshot.config.tenant_id != checked_tenant or snapshot.state.tenant_id != checked_tenant:
+        raise ContinuityDenied("continuity tenant context mismatch")
+    terminal_kinds = {StateKind.REVOCATION, StateKind.TOMBSTONE}
+    if any(
+        item.key.service_id == checked_service and item.key.kind in terminal_kinds and item.terminal and checked_now < item.retained_until
+        for item in snapshot.state.records
+    ):
+        raise ContinuityDenied("terminal revocation or tombstone state denies continuity")
+    policy = _required_record(snapshot.state, policy_key, now=checked_now)
+    if policy.authority_digest != checked_policy:
+        raise ContinuityDenied("policy fingerprint does not match current state")
+    channel = _required_record(snapshot.state, channel_key, now=checked_now)
+    _required_record(snapshot.state, grant_key, now=checked_now)
+    _required_record(snapshot.state, replay_key, now=checked_now)
+    return ContinuityPermit(
+        checked_tenant,
+        checked_service,
+        channel.authority_digest,
+        checked_policy,
+        snapshot.snapshot_digest,
+    )
+
+
+def drain_deadline(*, now: int, requested_seconds: int, authority_expires_at: int) -> int:
+    try:
+        checked_now = _uint("now", now, maximum=MAX_TIMESTAMP)
+        checked_request = _uint("requested_seconds", requested_seconds, maximum=MAX_TIMESTAMP)
+        checked_expiry = _uint("authority_expires_at", authority_expires_at, maximum=MAX_TIMESTAMP)
+    except StateRejected as exc:
+        raise ContinuityDenied("drain timing is invalid") from exc
+    if checked_expiry < checked_now:
+        raise ContinuityDenied("drain authority is expired")
+    return min(checked_now + min(checked_request, MAX_DRAIN_SECONDS), checked_expiry)
