@@ -137,5 +137,8 @@ def test_wp4_decision_and_tracking_record_approved_in_progress_scope() -> None:
     ):
         assert rule.casefold() in decision.casefold()
 
-    assert "Reusable multi-service Transport Session with isolated Service Channels | Planned | WP4 design is approved and implementation work is in progress, but no reusable multi-service runtime exists yet." in status
+    assert (
+        "Reusable multi-service Transport Session with isolated Service Channels | Planned | WP4 design is approved and implementation work is in progress, but no reusable multi-service runtime exists yet."
+        in status
+    )
     assert "WP4 design is approved and implementation work is in progress" in roadmap

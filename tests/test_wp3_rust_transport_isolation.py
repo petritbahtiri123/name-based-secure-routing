@@ -41,6 +41,7 @@ def test_rust_transport_dependencies_are_exact_and_locked() -> None:
     actual = {dependency["name"]: dependency["req"] for dependency in package["dependencies"] if dependency["kind"] is None}
 
     assert actual == {
+        "bytes": "=1.12.1",
         "ed25519-dalek": "=2.2.0",
         "quinn": "=0.11.11",
         "rustls": "=0.23.43",

@@ -170,6 +170,11 @@ lifecycle, and resumption work passes. It uses Quinn's RFC 9221 QUIC DATAGRAM
 support: no HTTP/3, no MASQUE, and no CONNECT-UDP. One QUIC DATAGRAM payload is one
 complete application datagram; NBSR does not fragment or reassemble it.
 
+This WP4 integration adds direct exact-pinned `bytes = 1.12.1` beyond WP3's
+six-dependency baseline because Quinn's public `Connection::send_datagram`
+accepts `bytes::Bytes`. Version 1.12.1 was already present in the lockfile; the
+addition does not relax exact pinning or permit other direct dependencies.
+
 The NBSR payload is deterministic CBOR with a closed numeric-key map containing
 body version, `channel_id`, monotonically increasing per-direction datagram
 sequence, and a byte-string payload. Numeric keys and exact bytes are allocated

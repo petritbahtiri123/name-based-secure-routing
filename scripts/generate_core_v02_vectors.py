@@ -113,7 +113,7 @@ def check_package(committed: Path, package: GeneratedPackage) -> None:
     if not target.is_dir():
         raise ValueError("package drift: committed directory is missing")
     expected = _expected_files(package)
-    actual = _actual_files(target)
+    actual = {path: payload for path, payload in _actual_files(target).items() if not path.startswith("wp4-exporter/")}
     differences: list[str] = []
     for path in sorted(set(expected) | set(actual)):
         old = actual.get(path)

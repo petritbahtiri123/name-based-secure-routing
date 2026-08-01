@@ -98,9 +98,11 @@ service, or production data plane. Quinn/rustls remains a **production
 candidate** requiring separate architecture, packaging, operational, and
 security review.
 
-The exact direct dependencies are Quinn 0.11.11, rustls 0.23.43, Tokio
-1.53.1, and x509-parser 0.18.1. They are pinned and locked under
-`crates/nbsr-transport`.
+The completed WP3 slice's direct-dependency baseline is exactly six packages:
+ed25519-dalek 2.2.0, Quinn 0.11.11, rustls 0.23.43, SHA-2 0.11.0, Tokio
+1.53.1, and x509-parser 0.18.1. They are exact-pinned and locked under
+`crates/nbsr-transport`. WP4's later direct `bytes` addition is not part of
+this WP3 baseline and is justified in the WP4 decision record.
 
 ### C. Custom QUIC implementation — rejected
 

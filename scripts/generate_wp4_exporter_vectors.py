@@ -104,13 +104,7 @@ def expand_label(secret: bytes, label: bytes, context: bytes, length: int) -> by
         raise ValueError("TLS label does not fit uint8")
     if len(context) > 0xFF:
         raise ValueError("TLS label context does not fit uint8")
-    info = (
-        length.to_bytes(2, "big")
-        + bytes([len(full_label)])
-        + full_label
-        + bytes([len(context)])
-        + context
-    )
+    info = length.to_bytes(2, "big") + bytes([len(full_label)]) + full_label + bytes([len(context)]) + context
     return hkdf_expand(secret, info, length)
 
 
@@ -224,9 +218,7 @@ def build_package(package: Path) -> None:
             "context_cbor": write_artifact(package, f"{base}/context.cbor", context_cbor),
             "context_hash": write_artifact(package, f"{base}/context-hash.bin", context_hash),
             "derived_secret": write_artifact(package, f"{base}/derived-secret.bin", derived_secret),
-            "exporter_master_secret": write_artifact(
-                package, f"{base}/exporter-master-secret.bin", master_secret
-            ),
+            "exporter_master_secret": write_artifact(package, f"{base}/exporter-master-secret.bin", master_secret),
             "exporter_value": write_artifact(package, f"{base}/exporter-value.bin", exporter_value),
         }
         valid_vectors.append({"artifacts": artifacts, "context": context, "id": vector_id})
@@ -349,20 +341,14 @@ def build_package(package: Path) -> None:
         "valid_vectors": valid_vectors,
         "version": 1,
     }
-    manifest_bytes = json.dumps(
-        manifest, indent=2, sort_keys=True, ensure_ascii=True, separators=(",", ": ")
-    ).encode("utf-8") + b"\n"
+    manifest_bytes = json.dumps(manifest, indent=2, sort_keys=True, ensure_ascii=True, separators=(",", ": ")).encode("utf-8") + b"\n"
     write_artifact(package, "manifest.json", manifest_bytes)
 
 
 def files_under(root: Path) -> dict[str, bytes]:
     if not root.exists():
         return {}
-    return {
-        path.relative_to(root).as_posix(): path.read_bytes()
-        for path in sorted(root.rglob("*"))
-        if path.is_file()
-    }
+    return {path.relative_to(root).as_posix(): path.read_bytes() for path in sorted(root.rglob("*")) if path.is_file()}
 
 
 def check_package() -> int:
@@ -374,11 +360,7 @@ def check_package() -> int:
         if expected_files != checked_files:
             missing = sorted(expected_files.keys() - checked_files.keys())
             extra = sorted(checked_files.keys() - expected_files.keys())
-            changed = sorted(
-                path
-                for path in expected_files.keys() & checked_files.keys()
-                if expected_files[path] != checked_files[path]
-            )
+            changed = sorted(path for path in expected_files.keys() & checked_files.keys() if expected_files[path] != checked_files[path])
             print(f"WP4 exporter vectors are stale: missing={missing}, extra={extra}, changed={changed}")
             return 1
     print("WP4 exporter vectors are current (2 valid, 21 invalid/mutation cases)")

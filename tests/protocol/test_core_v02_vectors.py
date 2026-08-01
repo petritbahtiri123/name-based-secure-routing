@@ -291,6 +291,22 @@ def test_check_detects_missing_extra_and_changed_files(tmp_path: Path) -> None:
             check_package(output, package)
 
 
+def test_check_excludes_only_dedicated_wp4_exporter_subtree(tmp_path: Path) -> None:
+    output = tmp_path / "core-v0.2"
+    package = build_package()
+    write_package(output, package)
+    exporter_artifact = output / "wp4-exporter" / "valid" / "owned.bin"
+    exporter_artifact.parent.mkdir(parents=True)
+    exporter_artifact.write_bytes(b"owned by the WP4 exporter generator")
+
+    check_package(output, package)
+
+    unowned = output / "wp4-exporter-adjacent.bin"
+    unowned.write_bytes(b"not owned by the WP4 exporter generator")
+    with pytest.raises(ValueError, match="wp4-exporter-adjacent.bin"):
+        check_package(output, package)
+
+
 def _walk_text(value: object) -> list[str]:
     if isinstance(value, str):
         return [value]

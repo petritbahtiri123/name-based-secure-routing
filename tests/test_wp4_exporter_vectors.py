@@ -86,13 +86,7 @@ def _hkdf_expand(secret: bytes, info: bytes, length: int) -> bytes:
 
 def _expand_label(secret: bytes, label: bytes, context: bytes, length: int) -> bytes:
     full_label = b"tls13 " + label
-    info = (
-        length.to_bytes(2, "big")
-        + bytes([len(full_label)])
-        + full_label
-        + bytes([len(context)])
-        + context
-    )
+    info = length.to_bytes(2, "big") + bytes([len(full_label)]) + full_label + bytes([len(context)]) + context
     return _hkdf_expand(secret, info, length)
 
 
