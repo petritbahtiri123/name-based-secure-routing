@@ -39,6 +39,12 @@ pub enum DrainEnforcement {
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum SessionDrainEnforcement {
+    Pending { audit_integrity: AuditIntegrity },
+    Enforced { audit_integrity: AuditIntegrity },
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct DrainDeadline {
     monotonic_seconds: u64,
 }

@@ -41,7 +41,6 @@ struct ActiveChannelEntry {
 }
 
 struct TerminalChannelEntry {
-    channel: ActiveChannel,
     state: ChannelState,
 }
 
@@ -288,7 +287,6 @@ impl ChannelRegistry {
         self.terminal.insert(
             *channel_id,
             TerminalChannelEntry {
-                channel: entry.channel,
                 state: ChannelState::Closed,
             },
         );
@@ -315,7 +313,6 @@ impl ChannelRegistry {
         self.terminal.insert(
             *channel_id,
             TerminalChannelEntry {
-                channel: entry.channel,
                 state: ChannelState::Closed,
             },
         );
@@ -404,27 +401,13 @@ impl ChannelRegistry {
         self.terminal.insert(
             *channel_id,
             TerminalChannelEntry {
-                channel: entry.channel,
                 state: ChannelState::Revoked,
             },
         );
         Ok(())
     }
 
-    pub(crate) fn closable_channel(
-        &self,
-        channel_id: &[u8; 16],
-    ) -> Result<&ActiveChannel, ChannelLifecycleError> {
-        match self.terminal.get(channel_id) {
-            Some(entry) if entry.state == ChannelState::Revoked => Ok(&entry.channel),
-            Some(_) => Err(ChannelLifecycleError::InvalidState),
-            None if self.channel_state(channel_id).is_some() => {
-                Err(ChannelLifecycleError::InvalidState)
-            }
-            None => Err(ChannelLifecycleError::UnknownChannel),
-        }
-    }
-
+    #[cfg(test)]
     pub(crate) fn close_revoked(
         &mut self,
         channel_id: &[u8; 16],

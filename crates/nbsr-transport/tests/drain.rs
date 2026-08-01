@@ -9,8 +9,8 @@ use nbsr_transport::{
     ControlSession, CoreV02Envelope, CoreV02Limits, CoreV02MessageType, CoreV02Reject,
     DestinationAdmission, DrainDeadline, DrainEnforcement, DrainReject, EdgeIdentity, EdgeRole,
     PeerPolicy, RouteCloseBody, RouteDrainBody, RouteGrantIssuer, RouteRevokeBody,
-    SessionDrainState, SessionReject, TransportListener, build_client_config, build_server_config,
-    connect, decode_control_envelope,
+    SessionDrainEnforcement, SessionDrainState, SessionReject, TransportListener,
+    build_client_config, build_server_config, connect, decode_control_envelope,
 };
 use sha2::{Digest, Sha256};
 
@@ -711,11 +711,13 @@ async fn local_session_drain_closes_only_its_connection_at_the_bounded_deadline(
     );
     assert_eq!(
         destination.enforce_session_drain(&mut session, 1_029).await,
-        Ok(DrainEnforcement::Pending)
+        Ok(SessionDrainEnforcement::Pending {
+            audit_integrity: AuditIntegrity::Recorded,
+        })
     );
     assert_eq!(
         destination.enforce_session_drain(&mut session, 1_030).await,
-        Ok(DrainEnforcement::Enforced {
+        Ok(SessionDrainEnforcement::Enforced {
             audit_integrity: AuditIntegrity::Recorded,
         })
     );
@@ -816,16 +818,93 @@ async fn session_drain_resets_a_live_channel_at_its_one_second_grant_deadline() 
     );
     assert_eq!(
         destination.enforce_session_drain(&mut session, 1_000).await,
-        Ok(DrainEnforcement::Pending)
+        Ok(SessionDrainEnforcement::Pending {
+            audit_integrity: AuditIntegrity::Recorded,
+        })
     );
     assert_eq!(
         destination.enforce_session_drain(&mut session, 1_001).await,
-        Ok(DrainEnforcement::Pending)
+        Ok(SessionDrainEnforcement::Pending {
+            audit_integrity: AuditIntegrity::Recorded,
+        })
     );
     assert_eq!(session.session_drain_state(), SessionDrainState::Draining);
     assert_eq!(
         session.channel_state(channel.channel_id),
         Some(ChannelState::Closed)
+    );
+    assert_eq!(
+        tokio::time::timeout(Duration::from_secs(1), opened.receive_payload()).await,
+        Ok(Err(
+            nbsr_transport::TransportError::ApplicationStreamRejected
+        ))
+    );
+
+    source.close().await.expect("source close");
+    destination.close().await.expect("destination close");
+    listener.close().await.expect("listener close");
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn session_drain_reports_due_channel_audit_failure_while_resetting_safely() {
+    let (listener, source, destination) = connection_pair().await;
+    let mut policy = runtime_policy();
+    policy.now = NOW + 299;
+    let mut session = ControlSession::new(
+        &destination,
+        DestinationAdmission::new(policy).expect("valid admission policy"),
+        vec![route_grant_issuer()],
+    );
+    establish(&mut session);
+    let channel = vector_channel();
+    destination
+        .bind_channel(&mut session, channel.channel_id)
+        .expect("bind active channel");
+    let stream_open = stream_open_envelope(&channel, 4, [0x7c; 16]);
+    let stream_accept = stream_accept_envelope(&channel, 4, [0x7c; 16], 22);
+    session
+        .authorize_stream_open(channel.channel_id, &stream_open)
+        .expect("stream opened while grant is live");
+    session
+        .confirm_stream_accept(channel.channel_id, &stream_accept)
+        .expect("stream accepted while grant is live");
+    let (reserved, reserved_source) =
+        tokio::join!(destination.reject_next_application_stream(), async {
+            let mut stream = source.open_application_stream().await?;
+            stream.send_payload(b"reserve-control-stream-id").await?;
+            stream.receive_payload().await
+        });
+    assert_eq!(reserved.expect("reject stream zero"), 0);
+    assert_eq!(
+        reserved_source,
+        Err(nbsr_transport::TransportError::ApplicationStreamRejected)
+    );
+    let (accepted, opened) = tokio::join!(
+        destination.accept_session_stream(&mut session, channel.channel_id),
+        async {
+            let mut stream = source.open_application_stream().await?;
+            stream.send_payload(b"audit-failed-grant-expiry").await?;
+            Ok::<_, nbsr_transport::TransportError>(stream)
+        },
+    );
+    let _accepted = accepted.expect("accepted live stream before session drain");
+    let mut opened = opened.expect("opened live stream before session drain");
+    fill_audit_with_existing_stream(&mut session, &channel, 1_023);
+    session
+        .begin_session_drain(1_000, NOW + 299, 30)
+        .expect("last audit slot starts session drain");
+    assert_eq!(session.audit_events().len(), 1_024);
+
+    assert_eq!(
+        destination.enforce_session_drain(&mut session, 1_001).await,
+        Ok(SessionDrainEnforcement::Pending {
+            audit_integrity: AuditIntegrity::Failed,
+        })
+    );
+    assert_eq!(session.session_drain_state(), SessionDrainState::Draining);
+    assert_eq!(
+        session.channel_state(channel.channel_id),
+        Some(ChannelState::Draining)
     );
     assert_eq!(
         tokio::time::timeout(Duration::from_secs(1), opened.receive_payload()).await,

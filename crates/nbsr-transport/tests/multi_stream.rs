@@ -82,6 +82,22 @@ fn stream_accept(
     decode_envelope(7, request_id, session_id, 6, body).expect("valid stream control")
 }
 
+fn route_revoke(
+    channel: &ActiveChannel,
+    request_id: [u8; 16],
+    sequence: u64,
+    revoked_at: u64,
+) -> CoreV02Envelope {
+    let mut body = Vec::new();
+    map(&mut body, 5);
+    field_uint(&mut body, 0, 1);
+    field_bytes(&mut body, 1, &channel.channel_id);
+    field_bytes(&mut body, 2, &channel.route_id);
+    field_bytes(&mut body, 3, &channel.route_grant_digest);
+    field_uint(&mut body, 4, revoked_at);
+    decode_envelope(13, request_id, SESSION_ID, sequence, body).expect("valid ROUTE_REVOKE control")
+}
+
 fn decode_envelope(
     message_type: u64,
     request_id: [u8; 16],
@@ -409,8 +425,9 @@ async fn revoked_channel_is_terminal_while_bound_sibling_remains_usable() {
         .bind_channel(&mut session, channel_b.channel_id)
         .expect("bind B");
 
-    session
-        .revoke_channel(channel_a.channel_id, NOW + 100)
+    let revoke_a = route_revoke(&channel_a, [0xa1; 16], 4, NOW + 100);
+    destination
+        .accept_route_revoke(&mut session, channel_a.channel_id, &revoke_a)
         .expect("revoke A");
     assert_eq!(
         session.channel_state(channel_a.channel_id),
@@ -436,11 +453,13 @@ async fn revoked_channel_is_terminal_while_bound_sibling_remains_usable() {
         Err(SessionReject::InvalidChannelState)
     );
     assert_eq!(
-        session.revoke_channel(channel_a.channel_id, NOW + 101),
-        Err(SessionReject::InvalidChannelState)
+        destination.accept_route_revoke(&mut session, channel_a.channel_id, &revoke_a),
+        Err(SessionReject::Replay)
     );
+    let unknown = channel(0xee);
+    let revoke_unknown = route_revoke(&unknown, [0xa2; 16], 5, NOW + 101);
     assert_eq!(
-        session.revoke_channel([0xee; 16], NOW + 101),
+        destination.accept_route_revoke(&mut session, unknown.channel_id, &revoke_unknown),
         Err(SessionReject::UnexpectedMessage)
     );
 
@@ -454,23 +473,11 @@ async fn revoked_channel_is_terminal_while_bound_sibling_remains_usable() {
         session.channel_state(channel_b.channel_id),
         Some(ChannelState::Active)
     );
-    session
-        .close_channel(channel_a.channel_id)
-        .expect("revoked channel closes");
-    assert_eq!(
-        session.channel_state(channel_a.channel_id),
-        Some(ChannelState::Closed)
-    );
-    assert_eq!(
-        session.tombstone_expires_at(channel_a.channel_id),
-        Some(NOW + 330)
-    );
     let actions = session
         .audit_events()
         .map(|event| event.action)
         .collect::<Vec<_>>();
     assert!(actions.contains(&AuditAction::ChannelRevoked));
-    assert!(actions.contains(&AuditAction::ChannelClosed));
     assert!(actions.contains(&AuditAction::StreamAuthorized));
 
     for (index, stream_id) in (4..=256)
@@ -499,8 +506,9 @@ async fn revoked_channel_is_terminal_while_bound_sibling_remains_usable() {
         session.audit_events().last().map(|event| event.sequence),
         Some(1_024)
     );
+    let revoke_b = route_revoke(&channel_b, [0xa3; 16], 6, NOW + 200);
     assert_eq!(
-        session.revoke_channel(channel_b.channel_id, NOW + 200),
+        destination.accept_route_revoke(&mut session, channel_b.channel_id, &revoke_b),
         Err(SessionReject::AuditUnavailable)
     );
     assert_eq!(

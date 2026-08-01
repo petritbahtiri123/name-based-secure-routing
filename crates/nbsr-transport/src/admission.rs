@@ -336,27 +336,6 @@ impl DestinationAdmission {
         self.channels.revoke(channel_id, revoked_at)
     }
 
-    pub(crate) fn close_channel(
-        &mut self,
-        channel_id: &[u8; 16],
-    ) -> Result<(), ChannelLifecycleError> {
-        let service_id = self
-            .channels
-            .closable_channel(channel_id)?
-            .service_id
-            .clone();
-        self.audit
-            .record(
-                Some(*channel_id),
-                &service_id,
-                AuditAction::ChannelClosed,
-                AuditOutcome::Allowed,
-                AuditReason::None,
-            )
-            .map_err(|_| ChannelLifecycleError::AuditUnavailable)?;
-        self.channels.close_revoked(channel_id)
-    }
-
     pub(crate) fn audit_stream_authorized(
         &mut self,
         channel_id: &[u8; 16],

@@ -238,3 +238,86 @@ Commit subject: `fix(wp4): enforce lifecycle transport teardown`.
 No blocker remains. Enforcement still uses caller-supplied trusted clock values
 and explicit scheduling, consistent with the prototype boundary documented
 above.
+
+## Review round 2 of 5: public boundary and audit-integrity aggregation
+
+### Findings and root causes
+
+1. `ControlSession::revoke_channel` and `ControlSession::close_channel` remained
+   public direct logical mutators after the received-control handlers were
+   moved behind `AuthenticatedConnection`. A caller could therefore bypass the
+   connection-owned tracked-stream reset.
+2. `AuthenticatedConnection::enforce_session_drain` reset each due channel but
+   discarded that channel's `DrainEnforcement::Enforced` audit-integrity field.
+   If the audit log was exhausted, safety reset still occurred but the public
+   result incorrectly reported ordinary pending state with no typed failure.
+
+### RED/GREEN evidence
+
+- RED public boundary: two new `compile_fail` examples compiled successfully
+  against the old public mutators, so doctests failed 2/8 while the six existing
+  boundary examples passed.
+- RED aggregation: focused drain failed to compile because the wished-for
+  `SessionDrainEnforcement` typed public result did not exist.
+- GREEN public boundary: doctests pass 8/8. The logical revoke/close helpers are
+  crate-private and used only behind exact-connection adapter operations; the
+  former external lifecycle regression now sends a closed `ROUTE_REVOKE`
+  envelope through `AuthenticatedConnection`.
+- GREEN aggregation: focused drain passes 12/12. With the audit log filled by
+  the session-start record, a one-second due channel returns
+  `SessionDrainEnforcement::Pending { audit_integrity: Failed }`; the adapter
+  still resets the target, the session stays draining, and deterministic due
+  channel order is preserved.
+
+The safe-path test migration initially reused a request ID from its existing
+audit-fill range and correctly received `Replay`; moving lifecycle fixture IDs
+outside that range resolved the test-only collision without a production
+change.
+
+### Implementation and self-review
+
+- `SessionDrainEnforcement` distinguishes pending from session-enforced state
+  while carrying aggregate `AuditIntegrity` in both variants. This prevents a
+  per-channel failure from being misrepresented and avoids treating
+  `Pending { Failed }` as authority to close the whole connection early.
+- Session enforcement starts at `Recorded`, folds every sorted due-channel
+  result to `Failed` if any forced audit fails, resets every enforced target,
+  then folds the session-deadline result. Connection close occurs only for the
+  session-level `Enforced` variant.
+- Received revoke/close handlers validate and audit first, call crate-private
+  logical mutators, commit replay/sequence state, and return to the adapter;
+  only adapter success triggers `reset_channel`.
+- Obsolete revoked-to-closed external plumbing was removed from production
+  admission state. Registry-only terminal transition coverage remains confined
+  to unit tests, while public regressions exercise the supported wire/adapter
+  path.
+
+### Files changed in review round 2
+
+- `crates/nbsr-transport/src/channel_lifecycle.rs`
+- `crates/nbsr-transport/src/lib.rs`
+- `crates/nbsr-transport/src/session.rs`
+- `crates/nbsr-transport/src/quinn_adapter.rs`
+- `crates/nbsr-transport/src/admission.rs`
+- `crates/nbsr-transport/src/channel_registry.rs`
+- `crates/nbsr-transport/tests/drain.rs`
+- `crates/nbsr-transport/tests/multi_stream.rs`
+- `.superpowers/sdd/2026-07-31-wp4-reusable-multi-service-transport/task-7-report.md`
+
+### Verification
+
+- Focused drain: 12 passed, 0 failed.
+- Safe-path multi-stream regression: 3 passed, 0 failed.
+- Public-boundary doctests: 8 passed, 0 failed.
+- Full Rust unit/integration/doctest suite: 81 passed, 0 failed.
+- Frozen Core v0.1 Python protocol suite: 62 passed, 0 failed.
+- Formatting, warning-denied clippy, and staged diff checks are required before
+  the round-two commit.
+
+### Commit and concerns
+
+Commit subject: `fix(wp4): preserve lifecycle enforcement integrity`.
+
+No blocker remains. `AuditIntegrity::Failed` is an aggregate fail-closed signal;
+it does not reopen work, suppress target reset, or accelerate the later session
+connection close.

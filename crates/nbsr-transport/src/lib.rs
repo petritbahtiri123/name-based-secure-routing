@@ -32,6 +32,21 @@
 //!     let _ = binding.as_bytes();
 //! }
 //! ```
+//!
+//! Terminal channel mutation is a connection-owned transport operation. A
+//! caller cannot bypass tracked-stream reset through [`ControlSession`].
+//!
+//! ```compile_fail
+//! fn bypass_revoke(session: &mut nbsr_transport::ControlSession) {
+//!     let _ = session.revoke_channel([0x11; 16], 0);
+//! }
+//! ```
+//!
+//! ```compile_fail
+//! fn bypass_close(session: &mut nbsr_transport::ControlSession) {
+//!     let _ = session.close_channel([0x11; 16]);
+//! }
+//! ```
 
 #![forbid(unsafe_code)]
 
@@ -59,7 +74,7 @@ pub use channel_binding::{
 };
 pub use channel_lifecycle::{
     AuditIntegrity, ChannelState, DrainDeadline, DrainEnforcement, DrainReject, MAX_DRAIN_SECONDS,
-    SessionDrainState,
+    SessionDrainEnforcement, SessionDrainState,
 };
 pub use channel_registry::ChannelLimits;
 pub use config::{

@@ -574,23 +574,41 @@ impl AuthenticatedConnection {
         &self,
         session: &mut ControlSession,
         monotonic_now: u64,
-    ) -> Result<crate::DrainEnforcement, SessionReject> {
+    ) -> Result<crate::SessionDrainEnforcement, SessionReject> {
         if !session.matches_connection(&self.binding_capability) {
             return Err(SessionReject::ConnectionMismatch);
         }
+        let mut audit_integrity = crate::AuditIntegrity::Recorded;
         for channel_id in session.due_draining_channels(monotonic_now) {
             let channel_result = session.enforce_channel_drain(channel_id, monotonic_now)?;
             if matches!(channel_result, crate::DrainEnforcement::Enforced { .. }) {
                 self.tracked_streams.reset_channel(&channel_id);
             }
+            if matches!(
+                channel_result,
+                crate::DrainEnforcement::Enforced {
+                    audit_integrity: crate::AuditIntegrity::Failed,
+                }
+            ) {
+                audit_integrity = crate::AuditIntegrity::Failed;
+            }
         }
-        let result = session.enforce_session_drain(monotonic_now)?;
-        if matches!(result, crate::DrainEnforcement::Enforced { .. }) {
-            self.tracked_streams.reset_all();
-            self.connection
-                .close(VarInt::from_u32(1), b"session drain deadline");
+        match session.enforce_session_drain(monotonic_now)? {
+            crate::DrainEnforcement::Pending => {
+                Ok(crate::SessionDrainEnforcement::Pending { audit_integrity })
+            }
+            crate::DrainEnforcement::Enforced {
+                audit_integrity: session_audit_integrity,
+            } => {
+                if session_audit_integrity == crate::AuditIntegrity::Failed {
+                    audit_integrity = crate::AuditIntegrity::Failed;
+                }
+                self.tracked_streams.reset_all();
+                self.connection
+                    .close(VarInt::from_u32(1), b"session drain deadline");
+                Ok(crate::SessionDrainEnforcement::Enforced { audit_integrity })
+            }
         }
-        Ok(result)
     }
 }
 

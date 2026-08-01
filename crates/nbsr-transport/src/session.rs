@@ -511,7 +511,7 @@ impl ControlSession {
         Ok(())
     }
 
-    pub fn revoke_channel(
+    pub(crate) fn revoke_channel(
         &mut self,
         channel_id: [u8; 16],
         revoked_at: u64,
@@ -604,10 +604,7 @@ impl ControlSession {
             body.route_id,
             body.route_grant_digest,
         )?;
-        self.admission
-            .revoke_channel(&channel_id, body.revoked_at)
-            .map_err(map_lifecycle)?;
-        self.streams.revoke_channel(&channel_id);
+        self.revoke_channel(channel_id, body.revoked_at)?;
         self.commit_source_control(request_id, sequence)
     }
 
@@ -643,10 +640,7 @@ impl ControlSession {
             body.route_id,
             body.route_grant_digest,
         )?;
-        self.admission
-            .close_live_channel(&channel_id, body.closed_at)
-            .map_err(map_lifecycle)?;
-        self.streams.revoke_channel(&channel_id);
+        self.close_channel(channel_id, body.closed_at)?;
         self.commit_source_control(request_id, sequence)
     }
 
@@ -676,10 +670,16 @@ impl ControlSession {
         }
     }
 
-    pub fn close_channel(&mut self, channel_id: [u8; 16]) -> Result<(), SessionReject> {
+    pub(crate) fn close_channel(
+        &mut self,
+        channel_id: [u8; 16],
+        closed_at: u64,
+    ) -> Result<(), SessionReject> {
         self.admission
-            .close_channel(&channel_id)
-            .map_err(map_lifecycle)
+            .close_live_channel(&channel_id, closed_at)
+            .map_err(map_lifecycle)?;
+        self.streams.revoke_channel(&channel_id);
+        Ok(())
     }
 
     fn established_session_id(&self) -> Result<[u8; 16], SessionReject> {
