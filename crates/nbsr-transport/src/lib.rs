@@ -54,10 +54,10 @@
 //! ```compile_fail
 //! fn bypass_resume(
 //!     manager: &mut nbsr_transport::SameEdgeResumeManager,
-//!     handle: &nbsr_transport::ResumeHandle,
+//!     preflight: &nbsr_transport::ResumePreflight,
 //!     session: &mut nbsr_transport::ControlSession,
 //! ) {
-//!     let _ = manager.consume(handle, session, [0x22; 16], 0, 0);
+//!     let _ = manager.consume(preflight, session, [0x22; 16], 0, 0);
 //! }
 //! ```
 
@@ -105,7 +105,8 @@ pub use quinn_adapter::{
     ApplicationStream, AuthenticatedConnection, ControlStream, TransportListener, connect,
 };
 pub use resumption::{
-    ResumeCorrelation, ResumeHandle, ResumeReject, SameEdgeResumeManager, TrustProfileId,
+    ResumeAdmissionReject, ResumeCorrelation, ResumeHandle, ResumePreflight, ResumeReject,
+    SameEdgeResumeManager, TrustProfileId,
 };
 pub use session::{ControlSession, SessionReject};
 pub use stream_gate::{StreamOpenRequest, StreamReject};

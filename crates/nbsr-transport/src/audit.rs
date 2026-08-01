@@ -38,6 +38,8 @@ pub enum AuditAction {
     QuotaDenied,
     ResumeConsumed,
     ResumeIssued,
+    ResumePreflightIssued,
+    ResumePurged,
     ResumeRejected,
 }
 

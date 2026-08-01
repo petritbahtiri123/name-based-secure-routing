@@ -464,34 +464,61 @@ impl AuthenticatedConnection {
         handle: &crate::ResumeHandle,
         session: &mut ControlSession,
         monotonic_now: u64,
-    ) -> Result<(), crate::ResumeReject> {
-        if !session.matches_connection(&self.binding_capability) {
-            session.audit_resume_session_reject(
-                None,
-                crate::AuditReason::FreshAuthorizationRequired,
-            )?;
-            return Err(crate::ResumeReject::FreshAuthorizationRequired);
-        }
+    ) -> Result<crate::ResumePreflight, crate::ResumeReject> {
+        self.require_live_resume_connection(session, None)?;
         manager.preflight_same_edge(handle, session, monotonic_now)
+    }
+
+    pub fn accept_route_open_for_resume(
+        &self,
+        manager: &mut crate::SameEdgeResumeManager,
+        preflight: &crate::ResumePreflight,
+        session: &mut ControlSession,
+        envelope: &CoreV02Envelope,
+        monotonic_now: u64,
+    ) -> Result<crate::ActiveChannel, crate::ResumeAdmissionReject> {
+        self.require_live_resume_connection(session, None)
+            .map_err(crate::ResumeAdmissionReject::Resume)?;
+        manager
+            .prepare_resume_admission(preflight, session, monotonic_now)
+            .map_err(crate::ResumeAdmissionReject::Resume)?;
+        let channel = session
+            .accept_route_open(envelope)
+            .map_err(crate::ResumeAdmissionReject::Session)?;
+        manager.commit_resume_admission(preflight, channel.channel_id);
+        Ok(channel)
     }
 
     pub fn consume_same_edge_resume(
         &self,
         manager: &mut crate::SameEdgeResumeManager,
-        handle: &crate::ResumeHandle,
+        preflight: &crate::ResumePreflight,
         session: &mut ControlSession,
         new_channel_id: [u8; 16],
         monotonic_now: u64,
         unix_now: u64,
     ) -> Result<crate::ResumeCorrelation, crate::ResumeReject> {
+        self.require_live_resume_connection(session, Some(new_channel_id))?;
+        manager.consume(preflight, session, new_channel_id, monotonic_now, unix_now)
+    }
+
+    fn require_live_resume_connection(
+        &self,
+        session: &mut ControlSession,
+        channel_id: Option<[u8; 16]>,
+    ) -> Result<(), crate::ResumeReject> {
         if !session.matches_connection(&self.binding_capability) {
             session.audit_resume_session_reject(
-                Some(new_channel_id),
+                channel_id,
                 crate::AuditReason::FreshAuthorizationRequired,
             )?;
             return Err(crate::ResumeReject::FreshAuthorizationRequired);
         }
-        manager.consume(handle, session, new_channel_id, monotonic_now, unix_now)
+        if self.connection.close_reason().is_some() {
+            session.audit_resume_session_reject(channel_id, crate::AuditReason::InvalidState)?;
+            return Err(crate::ResumeReject::Ineligible);
+        }
+        Ok(())
     }
 
     pub async fn close(self) -> Result<(), TransportError> {

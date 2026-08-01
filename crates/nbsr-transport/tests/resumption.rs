@@ -7,9 +7,9 @@ use nbsr_transport::{
     ActiveChannel, AdmissionPolicy, AuditAction, AuditOutcome, AuditReason,
     AuthorizedServicePolicy, ChannelState, ControlSession, CoreV02Envelope, CoreV02Limits,
     DestinationAdmission, DrainDeadline, DrainEnforcement, EdgeIdentity, EdgeRole, PeerPolicy,
-    ResumeHandle, ResumeReject, RouteGrantIssuer, SameEdgeResumeManager, ServiceChannelContext,
-    SessionReject, TransportListener, TrustProfileId, build_client_config, build_server_config,
-    connect, decode_control_envelope,
+    ResumeAdmissionReject, ResumeHandle, ResumePreflight, ResumeReject, RouteGrantIssuer,
+    SameEdgeResumeManager, ServiceChannelContext, SessionReject, TransportListener, TrustProfileId,
+    build_client_config, build_server_config, connect, decode_control_envelope,
 };
 use sha2::{Digest, Sha256};
 
@@ -111,23 +111,46 @@ async fn fresh_same_edge_authorization_returns_only_single_use_correlation() {
     assert_eq!(manager.retained_records(), 1);
 
     let (new_listener, new_source, new_destination) = connection_pair_with_pki(&pki).await;
-    let mut fresh = established_bound_session(
-        &new_destination,
-        SessionSpec::new(0x60, 0x70, 0x30, 0x90),
-        "regional-prod.1",
-    );
+    let fresh_spec = SessionSpec::new(0x60, 0x70, 0x30, 0x90);
+    let mut fresh_session =
+        established_control_session(&new_destination, fresh_spec, "regional-prod.1");
+    let preflight = new_destination
+        .preflight_same_edge_resume(&mut manager, &handle, &mut fresh_session, 105)
+        .expect("same edge preflight capability");
+    assert!(matches!(
+        new_destination.preflight_same_edge_resume(&mut manager, &handle, &mut fresh_session, 105,),
+        Err(ResumeReject::Replay)
+    ));
+    let (route_open, route_accept) = signed_route(fresh_spec);
+    let fresh_channel = new_destination
+        .accept_route_open_for_resume(
+            &mut manager,
+            &preflight,
+            &mut fresh_session,
+            &route_open,
+            105,
+        )
+        .expect("preflight-gated fresh signed RouteGrant and proof");
+    fresh_session
+        .confirm_route_accept(&route_accept)
+        .expect("correlated ROUTE_ACCEPT");
+    new_destination
+        .bind_channel(&mut fresh_session, fresh_channel.channel_id)
+        .expect("fresh live exporter binding");
+    let mut fresh = EstablishedSession {
+        session: fresh_session,
+        channel: fresh_channel,
+        spec: fresh_spec,
+    };
     let fresh_context = fresh.context();
     let fresh_exporter = new_destination
         .export_channel_binding(&fresh_context)
         .expect("fresh live exporter");
     assert_ne!(old_exporter, fresh_exporter);
-    new_destination
-        .preflight_same_edge_resume(&mut manager, &handle, &mut fresh.session, 105)
-        .expect("same edge preflight");
     let correlation = new_destination
         .consume_same_edge_resume(
             &mut manager,
-            &handle,
+            &preflight,
             &mut fresh.session,
             fresh.channel.channel_id,
             105,
@@ -141,7 +164,7 @@ async fn fresh_same_edge_authorization_returns_only_single_use_correlation() {
     assert_eq!(
         new_destination.consume_same_edge_resume(
             &mut manager,
-            &handle,
+            &preflight,
             &mut fresh.session,
             fresh.channel.channel_id,
             105,
@@ -291,13 +314,6 @@ async fn stale_authority_fields_and_unbound_channels_fail_without_consuming_the_
             ResumeReject::Mismatch,
         ),
         (
-            "wrong trust profile",
-            valid_spec,
-            "regional-prod.2",
-            true,
-            ResumeReject::Mismatch,
-        ),
-        (
             "unbound new channel",
             valid_spec,
             "regional-prod.1",
@@ -318,12 +334,20 @@ async fn stale_authority_fields_and_unbound_channels_fail_without_consuming_the_
                 NOW,
             )
             .expect("independent record");
-        let mut attempt = established_session(&new_destination, spec, trust_profile, bind);
+        let (mut attempt, preflight) = established_resume_session(
+            &new_destination,
+            &mut manager,
+            &handle,
+            spec,
+            trust_profile,
+            bind,
+            105,
+        );
         let audit_before = attempt.session.audit_events().len();
         assert_eq!(
             new_destination.consume_same_edge_resume(
                 &mut manager,
-                &handle,
+                &preflight,
                 &mut attempt.session,
                 attempt.channel.channel_id,
                 105,
@@ -350,6 +374,30 @@ async fn stale_authority_fields_and_unbound_channels_fail_without_consuming_the_
         assert_eq!(manager.retained_records(), index + 1, "{name}");
     }
 
+    let wrong_trust_handle = ResumeHandle::new([0xcf; 32]).expect("wrong-trust handle");
+    manager
+        .issue(
+            &mut old.session,
+            old.channel.channel_id,
+            wrong_trust_handle.clone(),
+            100,
+            NOW,
+        )
+        .expect("wrong-trust record");
+    let mut wrong_trust =
+        established_control_session(&new_destination, valid_spec, "regional-prod.2");
+    assert_eq!(wrong_trust.active_channels(), 0);
+    assert!(matches!(
+        new_destination.preflight_same_edge_resume(
+            &mut manager,
+            &wrong_trust_handle,
+            &mut wrong_trust,
+            105,
+        ),
+        Err(ResumeReject::Mismatch)
+    ));
+    assert_eq!(wrong_trust.active_channels(), 0);
+
     let same_connection_handle = ResumeHandle::new([0xd0; 32]).expect("caller handle");
     manager
         .issue(
@@ -360,15 +408,19 @@ async fn stale_authority_fields_and_unbound_channels_fail_without_consuming_the_
             NOW,
         )
         .expect("same-connection negative record");
-    let mut same_connection = established_bound_session(
+    let (mut same_connection, same_connection_preflight) = established_resume_session(
         &old_destination,
+        &mut manager,
+        &same_connection_handle,
         SessionSpec::new(0x61, 0x71, 0x31, 0x91),
         "regional-prod.1",
+        true,
+        105,
     );
     assert_eq!(
         old_destination.consume_same_edge_resume(
             &mut manager,
-            &same_connection_handle,
+            &same_connection_preflight,
             &mut same_connection.session,
             same_connection.channel.channel_id,
             105,
@@ -376,7 +428,7 @@ async fn stale_authority_fields_and_unbound_channels_fail_without_consuming_the_
         ),
         Err(ResumeReject::FreshAuthorizationRequired)
     );
-    assert_eq!(manager.retained_records(), cases.len() + 1);
+    assert_eq!(manager.retained_records(), cases.len() + 2);
 
     let role_handle = ResumeHandle::new([0xd1; 32]).expect("role handle");
     manager
@@ -388,15 +440,19 @@ async fn stale_authority_fields_and_unbound_channels_fail_without_consuming_the_
             NOW,
         )
         .expect("role negative record");
-    let mut wrong_role = established_bound_session(
+    let (mut wrong_role, wrong_role_preflight) = established_resume_session(
         &new_source,
+        &mut manager,
+        &role_handle,
         SessionSpec::new(0x62, 0x72, 0x32, 0x92),
         "regional-prod.1",
+        true,
+        105,
     );
     assert_eq!(
         new_source.consume_same_edge_resume(
             &mut manager,
-            &role_handle,
+            &wrong_role_preflight,
             &mut wrong_role.session,
             wrong_role.channel.channel_id,
             105,
@@ -404,7 +460,7 @@ async fn stale_authority_fields_and_unbound_channels_fail_without_consuming_the_
         ),
         Err(ResumeReject::FreshAuthorizationRequired)
     );
-    assert_eq!(manager.retained_records(), cases.len() + 2);
+    assert_eq!(manager.retained_records(), cases.len() + 3);
 
     let adapter_handle = ResumeHandle::new([0xd2; 32]).expect("adapter handle");
     manager
@@ -416,11 +472,14 @@ async fn stale_authority_fields_and_unbound_channels_fail_without_consuming_the_
             NOW,
         )
         .expect("adapter negative record");
+    let adapter_preflight = new_destination
+        .preflight_same_edge_resume(&mut manager, &adapter_handle, &mut valid.session, 105)
+        .expect("adapter-bound preflight");
     let audit_before = valid.session.audit_events().len();
     assert_eq!(
         new_source.consume_same_edge_resume(
             &mut manager,
-            &adapter_handle,
+            &adapter_preflight,
             &mut valid.session,
             valid.channel.channel_id,
             105,
@@ -439,7 +498,7 @@ async fn stale_authority_fields_and_unbound_channels_fail_without_consuming_the_
         adapter_reject.reason,
         AuditReason::FreshAuthorizationRequired
     );
-    assert_eq!(manager.retained_records(), cases.len() + 3);
+    assert_eq!(manager.retained_records(), cases.len() + 4);
 
     drop(valid);
     old_source.close().await.expect("old source close");
@@ -487,10 +546,10 @@ async fn cross_edge_preflight_denies_before_channel_allocation_and_preserves_the
     };
     let mut other = established_control_session(&other_destination, other_spec, "regional-prod.1");
     assert_eq!(other.active_channels(), 0);
-    assert_eq!(
+    assert!(matches!(
         other_destination.preflight_same_edge_resume(&mut manager, &handle, &mut other, 105),
         Err(ResumeReject::CrossEdgeDenied)
-    );
+    ));
     assert_eq!(other.active_channels(), 0);
     assert_eq!(manager.retained_records(), 1);
     let rejection = other
@@ -503,23 +562,50 @@ async fn cross_edge_preflight_denies_before_channel_allocation_and_preserves_the
 
     let new_pki = support::TestPki::generate_for("source.edge", "destination.edge");
     let (new_listener, new_source, new_destination) = connection_pair_with_pki(&new_pki).await;
-    let mut fresh = established_bound_session(
-        &new_destination,
-        SessionSpec::new(0x61, 0x71, 0x31, 0x91),
-        "regional-prod.1",
+    let fresh_spec = SessionSpec::new(0x61, 0x71, 0x31, 0x91);
+    let mut fresh = established_control_session(&new_destination, fresh_spec, "regional-prod.1");
+    let preflight = new_destination
+        .preflight_same_edge_resume(&mut manager, &handle, &mut fresh, 105)
+        .expect("exact same-edge preflight capability");
+
+    let (other_route_open, _) = signed_route(other_spec);
+    assert_eq!(other.active_channels(), 0);
+    assert_eq!(
+        other_destination.accept_route_open_for_resume(
+            &mut manager,
+            &preflight,
+            &mut other,
+            &other_route_open,
+            105,
+        ),
+        Err(ResumeAdmissionReject::Resume(
+            ResumeReject::FreshAuthorizationRequired
+        ))
     );
-    assert!(
-        new_destination
-            .consume_same_edge_resume(
-                &mut manager,
-                &handle,
-                &mut fresh.session,
-                fresh.channel.channel_id,
-                105,
-                NOW + 5,
-            )
-            .is_ok()
+    assert_eq!(other.active_channels(), 0);
+
+    let (ordinary_open, ordinary_accept) = signed_route(fresh_spec);
+    let ordinary_channel = fresh
+        .accept_route_open(&ordinary_open)
+        .expect("ordinary admission remains independently available");
+    fresh
+        .confirm_route_accept(&ordinary_accept)
+        .expect("ordinary correlated ROUTE_ACCEPT");
+    new_destination
+        .bind_channel(&mut fresh, ordinary_channel.channel_id)
+        .expect("ordinary channel binding");
+    assert_eq!(
+        new_destination.consume_same_edge_resume(
+            &mut manager,
+            &preflight,
+            &mut fresh,
+            ordinary_channel.channel_id,
+            105,
+            NOW + 5,
+        ),
+        Err(ResumeReject::FreshAuthorizationRequired)
     );
+    assert_eq!(manager.retained_records(), 1);
 
     old_source.close().await.expect("old source close");
     old_destination
@@ -644,16 +730,20 @@ async fn retention_is_terminal_after_31_seconds_and_never_exceeds_authority_dead
     );
 
     let (new_listener, new_source, new_destination) = connection_pair_with_pki(&pki).await;
-    let mut fresh = established_bound_session(
+    let (mut fresh, at_30_preflight) = established_resume_session(
         &new_destination,
+        &mut manager,
+        &at_30,
         SessionSpec::new(0x60, 0x70, 0x30, 0x90),
         "regional-prod.1",
+        true,
+        130,
     );
     assert!(
         new_destination
             .consume_same_edge_resume(
                 &mut manager,
-                &at_30,
+                &at_30_preflight,
                 &mut fresh.session,
                 fresh.channel.channel_id,
                 130,
@@ -697,6 +787,184 @@ async fn retention_is_terminal_after_31_seconds_and_never_exceeds_authority_dead
         .await
         .expect("new destination close");
     new_listener.close().await.expect("new listener close");
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn expired_or_draining_new_session_is_rejected_before_resume_preflight() {
+    let pki = support::TestPki::generate_for("source.edge", "destination.edge");
+    let (old_listener, old_source, old_destination) = connection_pair_with_pki(&pki).await;
+    let mut old = established_bound_session(
+        &old_destination,
+        SessionSpec::new(0x10, 0x40, 0x20, 0x80),
+        "regional-prod.1",
+    );
+    let close = route_close(&old, 0x51);
+    old_destination
+        .accept_route_close(&mut old.session, old.channel.channel_id, &close)
+        .expect("normal bound close");
+    let expired_handle = ResumeHandle::new([0xe2; 32]).expect("expired-session handle");
+    let draining_handle = ResumeHandle::new([0xe3; 32]).expect("draining-session handle");
+    let mut manager = SameEdgeResumeManager::new();
+    for handle in [expired_handle.clone(), draining_handle.clone()] {
+        manager
+            .issue(&mut old.session, old.channel.channel_id, handle, 100, NOW)
+            .expect("eligible old correlation");
+    }
+
+    let (new_listener, new_source, new_destination) = connection_pair_with_pki(&pki).await;
+    let mut expired = established_session_with_deadline(
+        &new_destination,
+        SessionSpec::new(0x60, 0x70, 0x30, 0x90),
+        "regional-prod.1",
+        DrainDeadline::new(100, 5).expect("exact session authority deadline"),
+    );
+    assert_eq!(
+        new_destination.preflight_same_edge_resume(
+            &mut manager,
+            &expired_handle,
+            &mut expired.session,
+            105,
+        ),
+        Err(ResumeReject::Expired)
+    );
+    assert_eq!(
+        expired
+            .session
+            .audit_events()
+            .last()
+            .expect("expired session rejection audit")
+            .reason,
+        AuditReason::Expired
+    );
+
+    let mut draining = established_bound_session(
+        &new_destination,
+        SessionSpec::new(0x61, 0x71, 0x31, 0x91),
+        "regional-prod.1",
+    );
+    draining
+        .session
+        .begin_session_drain(100, NOW, 30)
+        .expect("session enters draining state");
+    assert_eq!(
+        new_destination.preflight_same_edge_resume(
+            &mut manager,
+            &draining_handle,
+            &mut draining.session,
+            105,
+        ),
+        Err(ResumeReject::Ineligible)
+    );
+    assert_eq!(manager.retained_records(), 2);
+
+    old_source.close().await.expect("old source close");
+    old_destination
+        .close()
+        .await
+        .expect("old destination close");
+    old_listener.close().await.expect("old listener close");
+    new_source.close().await.expect("new source close");
+    new_destination
+        .close()
+        .await
+        .expect("new destination close");
+    new_listener.close().await.expect("new listener close");
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn locally_or_peer_closed_quinn_connection_is_not_live_for_resume_preflight() {
+    let pki = support::TestPki::generate_for("source.edge", "destination.edge");
+    let (old_listener, old_source, old_destination) = connection_pair_with_pki(&pki).await;
+    let mut old = established_bound_session(
+        &old_destination,
+        SessionSpec::new(0x10, 0x40, 0x20, 0x80),
+        "regional-prod.1",
+    );
+    let close = route_close(&old, 0x51);
+    old_destination
+        .accept_route_close(&mut old.session, old.channel.channel_id, &close)
+        .expect("normal bound close");
+    let peer_handle = ResumeHandle::new([0xe4; 32]).expect("peer-close handle");
+    let local_handle = ResumeHandle::new([0xe5; 32]).expect("local-close handle");
+    let mut manager = SameEdgeResumeManager::new();
+    for handle in [peer_handle.clone(), local_handle.clone()] {
+        manager
+            .issue(&mut old.session, old.channel.channel_id, handle, 100, NOW)
+            .expect("eligible old correlation");
+    }
+
+    let (peer_listener, peer_source, peer_destination) = connection_pair_with_pki(&pki).await;
+    let (mut peer_session, peer_preflight) = established_resume_session(
+        &peer_destination,
+        &mut manager,
+        &peer_handle,
+        SessionSpec::new(0x60, 0x70, 0x30, 0x90),
+        "regional-prod.1",
+        true,
+        105,
+    );
+    peer_source.close().await.expect("peer closes connection");
+    assert_eq!(
+        peer_destination.consume_same_edge_resume(
+            &mut manager,
+            &peer_preflight,
+            &mut peer_session.session,
+            peer_session.channel.channel_id,
+            105,
+            NOW + 5,
+        ),
+        Err(ResumeReject::Ineligible)
+    );
+
+    let (local_listener, local_source, local_destination) = connection_pair_with_pki(&pki).await;
+    let mut closing_session = established_control_session(
+        &local_destination,
+        SessionSpec::new(0x61, 0x71, 0x31, 0x91),
+        "regional-prod.1",
+    );
+    let mut still_active_session = established_control_session(
+        &local_destination,
+        SessionSpec::new(0x62, 0x72, 0x32, 0x92),
+        "regional-prod.1",
+    );
+    closing_session
+        .begin_session_drain(105, NOW + 5, 0)
+        .expect("zero-second local drain");
+    local_destination
+        .enforce_session_drain(&mut closing_session, 105)
+        .await
+        .expect("adapter closes exact Quinn connection");
+    assert_eq!(
+        local_destination.preflight_same_edge_resume(
+            &mut manager,
+            &local_handle,
+            &mut still_active_session,
+            105,
+        ),
+        Err(ResumeReject::Ineligible)
+    );
+    assert_eq!(manager.retained_records(), 2);
+
+    old_source.close().await.expect("old source close");
+    old_destination
+        .close()
+        .await
+        .expect("old destination close");
+    old_listener.close().await.expect("old listener close");
+    peer_destination
+        .close()
+        .await
+        .expect("peer-closed destination cleanup");
+    peer_listener.close().await.expect("peer listener close");
+    local_source
+        .close()
+        .await
+        .expect("locally closed source cleanup");
+    local_destination
+        .close()
+        .await
+        .expect("locally closed destination cleanup");
+    local_listener.close().await.expect("local listener close");
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
@@ -745,9 +1013,173 @@ async fn store_retains_4096_unique_handles_and_rejects_4097_without_eviction() {
     assert_eq!(rejected.outcome, AuditOutcome::Denied);
     assert_eq!(rejected.reason, AuditReason::Capacity);
 
+    while old.session.audit_events().len() < 1_024 {
+        assert_eq!(
+            manager.issue(
+                &mut old.session,
+                old.channel.channel_id,
+                indexed_handle(1),
+                100,
+                NOW,
+            ),
+            Err(ResumeReject::Replay)
+        );
+    }
+    assert_eq!(
+        manager.issue(
+            &mut old.session,
+            old.channel.channel_id,
+            indexed_handle(4_097),
+            131,
+            NOW + 31,
+        ),
+        Err(ResumeReject::AuditUnavailable)
+    );
+    assert_eq!(manager.retained_records(), 4_096);
+
+    while old.session.pop_audit_event().is_some() {}
+    manager
+        .issue(
+            &mut old.session,
+            old.channel.channel_id,
+            indexed_handle(1),
+            131,
+            NOW + 31,
+        )
+        .expect("all expired records are purged before replay and capacity decisions");
+    assert_eq!(manager.retained_records(), 1);
+    let purge = old
+        .session
+        .pop_audit_event()
+        .expect("one bounded purge audit");
+    assert_eq!(purge.action, AuditAction::ResumePurged);
+    assert_eq!(purge.reason, AuditReason::Expired);
+    let issued = old.session.pop_audit_event().expect("new issue audit");
+    assert_eq!(issued.action, AuditAction::ResumeIssued);
+    assert!(old.session.pop_audit_event().is_none());
+
     source.close().await.expect("source close");
     destination.close().await.expect("destination close");
     listener.close().await.expect("listener close");
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn expired_fresh_grant_is_audited_then_consumes_the_resume_handle() {
+    let pki = support::TestPki::generate_for("source.edge", "destination.edge");
+    let (old_listener, old_source, old_destination) = connection_pair_with_pki(&pki).await;
+    let mut old = established_bound_session(
+        &old_destination,
+        SessionSpec::new(0x10, 0x40, 0x20, 0x80),
+        "regional-prod.1",
+    );
+    let close = route_close(&old, 0x51);
+    old_destination
+        .accept_route_close(&mut old.session, old.channel.channel_id, &close)
+        .expect("normal bound close");
+    let handle = ResumeHandle::new([0xe6; 32]).expect("terminal-expiry handle");
+    let mut manager = SameEdgeResumeManager::new();
+    manager
+        .issue(
+            &mut old.session,
+            old.channel.channel_id,
+            handle.clone(),
+            100,
+            NOW,
+        )
+        .expect("eligible old correlation");
+
+    let (new_listener, new_source, new_destination) = connection_pair_with_pki(&pki).await;
+    let expired_spec = SessionSpec {
+        grant_expires_at: NOW + 4,
+        ..SessionSpec::new(0x60, 0x70, 0x30, 0x90)
+    };
+    let (mut expired, preflight) = established_resume_session(
+        &new_destination,
+        &mut manager,
+        &handle,
+        expired_spec,
+        "regional-prod.1",
+        true,
+        105,
+    );
+    let missing = ResumeHandle::new([0xe7; 32]).expect("missing handle");
+    while expired.session.audit_events().len() < 1_024 {
+        assert_eq!(
+            new_destination.preflight_same_edge_resume(
+                &mut manager,
+                &missing,
+                &mut expired.session,
+                105,
+            ),
+            Err(ResumeReject::Replay)
+        );
+    }
+    assert_eq!(
+        new_destination.consume_same_edge_resume(
+            &mut manager,
+            &preflight,
+            &mut expired.session,
+            expired.channel.channel_id,
+            105,
+            NOW + 5,
+        ),
+        Err(ResumeReject::AuditUnavailable)
+    );
+    assert_eq!(manager.retained_records(), 1);
+
+    expired
+        .session
+        .pop_audit_event()
+        .expect("make one audit slot available");
+    assert_eq!(
+        new_destination.consume_same_edge_resume(
+            &mut manager,
+            &preflight,
+            &mut expired.session,
+            expired.channel.channel_id,
+            105,
+            NOW + 5,
+        ),
+        Err(ResumeReject::Expired)
+    );
+    assert_eq!(manager.retained_records(), 0);
+    let expiry = expired
+        .session
+        .audit_events()
+        .last()
+        .expect("terminal expiry audit");
+    assert_eq!(expiry.action, AuditAction::ResumeRejected);
+    assert_eq!(expiry.reason, AuditReason::Expired);
+
+    let mut later = established_bound_session(
+        &new_destination,
+        SessionSpec::new(0x61, 0x71, 0x31, 0x91),
+        "regional-prod.1",
+    );
+    assert_eq!(
+        new_destination.consume_same_edge_resume(
+            &mut manager,
+            &preflight,
+            &mut later.session,
+            later.channel.channel_id,
+            106,
+            NOW + 6,
+        ),
+        Err(ResumeReject::Replay)
+    );
+
+    old_source.close().await.expect("old source close");
+    old_destination
+        .close()
+        .await
+        .expect("old destination close");
+    old_listener.close().await.expect("old listener close");
+    new_source.close().await.expect("new source close");
+    new_destination
+        .close()
+        .await
+        .expect("new destination close");
+    new_listener.close().await.expect("new listener close");
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
@@ -824,11 +1256,58 @@ async fn audit_exhaustion_rejects_issue_and_consume_before_store_mutation() {
         .expect("mismatch record");
 
     let (new_listener, new_source, new_destination) = connection_pair_with_pki(&pki).await;
-    let mut fresh = established_bound_session(
-        &new_destination,
-        SessionSpec::new(0x60, 0x70, 0x30, 0x90),
-        "regional-prod.1",
+    let fresh_spec = SessionSpec::new(0x60, 0x70, 0x30, 0x90);
+    let mut fresh_session =
+        established_control_session(&new_destination, fresh_spec, "regional-prod.1");
+    let missing_handle = ResumeHandle::new([0xa4; 32]).expect("missing preflight handle");
+    while fresh_session.audit_events().len() < 1_024 {
+        assert_eq!(
+            new_destination.preflight_same_edge_resume(
+                &mut manager,
+                &missing_handle,
+                &mut fresh_session,
+                105,
+            ),
+            Err(ResumeReject::Replay)
+        );
+    }
+    assert_eq!(
+        new_destination.preflight_same_edge_resume(
+            &mut manager,
+            &valid_handle,
+            &mut fresh_session,
+            105,
+        ),
+        Err(ResumeReject::AuditUnavailable)
     );
+    fresh_session
+        .pop_audit_event()
+        .expect("make one preflight audit slot available");
+    let valid_preflight = new_destination
+        .preflight_same_edge_resume(&mut manager, &valid_handle, &mut fresh_session, 105)
+        .expect("audit failure did not retain a preflight capability");
+    while fresh_session.pop_audit_event().is_some() {}
+    let (route_open, route_accept) = signed_route(fresh_spec);
+    let fresh_channel = new_destination
+        .accept_route_open_for_resume(
+            &mut manager,
+            &valid_preflight,
+            &mut fresh_session,
+            &route_open,
+            105,
+        )
+        .expect("resume-specific fresh admission");
+    fresh_session
+        .confirm_route_accept(&route_accept)
+        .expect("fresh correlated ROUTE_ACCEPT");
+    new_destination
+        .bind_channel(&mut fresh_session, fresh_channel.channel_id)
+        .expect("fresh live exporter binding");
+    let mut fresh = EstablishedSession {
+        session: fresh_session,
+        channel: fresh_channel,
+        spec: fresh_spec,
+    };
     while fresh.session.audit_events().len() < 1_024 {
         assert_eq!(
             new_destination.preflight_same_edge_resume(
@@ -843,7 +1322,7 @@ async fn audit_exhaustion_rejects_issue_and_consume_before_store_mutation() {
     assert_eq!(
         new_destination.consume_same_edge_resume(
             &mut manager,
-            &valid_handle,
+            &valid_preflight,
             &mut fresh.session,
             fresh.channel.channel_id,
             105,
@@ -1073,7 +1552,15 @@ async fn consume_does_not_copy_old_state_or_disturb_a_fresh_sibling() {
 
     let (new_listener, new_source, new_destination) = connection_pair_with_pki(&pki).await;
     let fresh_spec = SessionSpec::new(0x60, 0x70, 0x30, 0x90);
-    let mut fresh = established_bound_session(&new_destination, fresh_spec, "regional-prod.1");
+    let (mut fresh, preflight) = established_resume_session(
+        &new_destination,
+        &mut manager,
+        &handle,
+        fresh_spec,
+        "regional-prod.1",
+        true,
+        105,
+    );
     let sibling_spec = SessionSpec {
         channel_id: [0x71; 16],
         route_id: [0x31; 16],
@@ -1103,7 +1590,7 @@ async fn consume_does_not_copy_old_state_or_disturb_a_fresh_sibling() {
     let correlation = new_destination
         .consume_same_edge_resume(
             &mut manager,
-            &handle,
+            &preflight,
             &mut fresh.session,
             fresh.channel.channel_id,
             105,
@@ -1300,6 +1787,47 @@ fn established_session(
         channel,
         spec,
     }
+}
+
+fn established_resume_session(
+    connection: &nbsr_transport::AuthenticatedConnection,
+    manager: &mut SameEdgeResumeManager,
+    handle: &ResumeHandle,
+    spec: SessionSpec,
+    trust_profile: &str,
+    bind: bool,
+    monotonic_now: u64,
+) -> (EstablishedSession, ResumePreflight) {
+    let mut session = established_control_session(connection, spec, trust_profile);
+    let preflight = connection
+        .preflight_same_edge_resume(manager, handle, &mut session, monotonic_now)
+        .expect("same-edge resume preflight");
+    let (route_open, route_accept) = signed_route(spec);
+    let channel = connection
+        .accept_route_open_for_resume(
+            manager,
+            &preflight,
+            &mut session,
+            &route_open,
+            monotonic_now,
+        )
+        .expect("preflight-gated fresh route admission");
+    session
+        .confirm_route_accept(&route_accept)
+        .expect("correlated ROUTE_ACCEPT");
+    if bind {
+        connection
+            .bind_channel(&mut session, channel.channel_id)
+            .expect("fresh live exporter binding");
+    }
+    (
+        EstablishedSession {
+            session,
+            channel,
+            spec,
+        },
+        preflight,
+    )
 }
 
 fn established_control_session(

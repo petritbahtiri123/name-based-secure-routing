@@ -699,9 +699,13 @@ impl ControlSession {
         Ok(())
     }
 
-    pub(crate) fn resume_scope(&self) -> Result<ResumeSessionScope, ResumeReject> {
+    pub(crate) fn resume_scope(
+        &self,
+        monotonic_now: u64,
+    ) -> Result<ResumeSessionScope, ResumeReject> {
         let SessionState::Established {
             destination_edge_id,
+            session_id,
             source_edge_id,
             ..
         } = &self.state
@@ -711,6 +715,12 @@ impl ControlSession {
         if self.session_drain_state != SessionDrainState::Active {
             return Err(ResumeReject::Ineligible);
         }
+        if self
+            .session_deadline
+            .is_some_and(|deadline| deadline.is_due(monotonic_now))
+        {
+            return Err(ResumeReject::Expired);
+        }
         Ok(ResumeSessionScope {
             reuse_key: ResumeReuseKey {
                 source_edge_id: source_edge_id.clone(),
@@ -719,6 +729,10 @@ impl ControlSession {
                 alpn: self.negotiated_alpn.clone(),
                 protocol_version: 2,
             },
+            authenticated_peer: self.authenticated_peer.as_str().to_owned(),
+            connection_capability: self.connection_capability.clone(),
+            local_role: self.local_role,
+            session_id: *session_id,
         })
     }
 
@@ -800,6 +814,29 @@ impl ControlSession {
             context.channel.channel.channel_id,
             &context.channel.channel.service_id,
             AuditAction::ResumeConsumed,
+        )
+    }
+
+    pub(crate) fn audit_resume_purge(&mut self) -> Result<(), ResumeReject> {
+        self.admission
+            .audit_resume(
+                None,
+                "transport-resume",
+                AuditAction::ResumePurged,
+                AuditOutcome::Allowed,
+                AuditReason::Expired,
+            )
+            .map_err(|_| ResumeReject::AuditUnavailable)
+    }
+
+    pub(crate) fn audit_resume_preflight(
+        &mut self,
+        context: &ResumeSessionContext,
+    ) -> Result<(), ResumeReject> {
+        self.audit_resume(
+            context.channel.channel.channel_id,
+            &context.channel.channel.service_id,
+            AuditAction::ResumePreflightIssued,
         )
     }
 

@@ -178,3 +178,103 @@ caller-supplied unpredictable handles and trusted monotonic clock values, and
 keeps correlations in process memory. A future wire-carried handle,
 cross-process store, or production scheduler requires a separate design and
 schema gate; none is implied here.
+
+## Review round 1 of 5: audited retention, live sessions, and gated admission
+
+### Findings and RED/GREEN evidence
+
+1. Expired records could capacity-lock the manager.
+   - RED: the strengthened 4096-record regression returned `Replay` when an
+     expired handle was reused at second 31 instead of purging the complete
+     expired set. The first RED also lacked a typed purge audit action.
+   - GREEN: a valid issue attempt computes at most 4096 expired handles,
+     records one `ResumePurged` audit before mutation, removes their associated
+     preflights, then evaluates replay and capacity. With the audit queue full,
+     all 4096 records remain and no new record is issued; after an audit slot is
+     available, the expired handle is reusable and only the new record remains.
+2. Target-session and exact-Quinn liveness were incomplete.
+   - RED: a target session whose authority deadline equaled `monotonic_now`
+     returned `Ok`, and both peer/local closed Quinn connections returned `Ok`
+     from preflight. A consume mutation that removed the adapter liveness gate
+     incorrectly returned a successful correlation after peer close.
+   - GREEN: preflight, resume admission, and consume all require the exact
+     session-owned connection capability and `Connection::close_reason() ==
+     None`. Session authority deadline equality is terminal `Expired` with an
+     `Expired` audit reason; draining/closed sessions are `Ineligible`. Real
+     loopback covers peer-closed consume and adapter-local-close preflight while
+     a second `ControlSession` remains logically active.
+3. Fresh RouteGrant expiry was not terminal.
+   - RED: after an expired fresh grant was audited, the manager still retained
+     one record and a later fresh attempt could reuse it.
+   - GREEN: audit exhaustion still preserves the handle; once the expiry audit
+     succeeds, the handle and all associated preflight state are removed before
+     returning `Expired`, and later use returns `Replay`.
+4. Cross-edge no-allocation was advisory because ordinary route admission
+   could precede a later consume call.
+   - RED: the focused success test failed to compile because no
+     resume-specific admission method existed and preflight returned `()`.
+   - GREEN: `ResumePreflight` is an opaque, redacted, non-cloneable capability
+     backed by a bounded one-per-handle manager record. It is bound to the
+     handle, exact reuse key, target session ID, authenticated role/peer, and
+     exact connection capability. `AuthenticatedConnection::
+     accept_route_open_for_resume` validates it before calling ordinary fresh
+     RouteGrant admission and then associates only that admitted channel.
+     Consume requires the same capability and channel association.
+
+### Capability and bypass properties
+
+- Duplicate preflight for one handle is `Replay`; the number of retained
+  preflights cannot exceed the 4096 retained handles, and expiry/purge/success
+  removes associated preflight state.
+- Preflight issuance adds `ResumePreflightIssued` before mutation. An
+  intentional audit-order mutation made the strengthened audit-exhaustion test
+  fail with `Replay`; restoring audit-before-insert returned it to green.
+- A capability used with another exact session/connection is rejected before
+  route allocation. The cross-edge target remains at zero active channels.
+- An ordinary channel admitted after preflight cannot be relabeled: consume
+  returns `FreshAuthorizationRequired` because only the resume-specific route
+  path can associate a channel with the capability.
+- Successful correlation removes the handle and preflight together after the
+  consume audit. Reuse of the capability is `Replay`.
+- Direct manager consume remains crate-private. Temporarily making the current
+  capability-shaped signature public caused exactly the intended compile-fail
+  doctest to fail (8/9); restoring `pub(crate)` returned 9/9 to green.
+- No resume wire message, closed ROUTE_OPEN change, cross-edge handover, 0-RTT,
+  state restoration, or independent interoperability claim was introduced.
+
+### Files changed in review round 1
+
+- `crates/nbsr-transport/src/audit.rs`
+- `crates/nbsr-transport/src/lib.rs`
+- `crates/nbsr-transport/src/quinn_adapter.rs`
+- `crates/nbsr-transport/src/resumption.rs`
+- `crates/nbsr-transport/src/session.rs`
+- `crates/nbsr-transport/tests/resumption.rs`
+- `.superpowers/sdd/2026-07-31-wp4-reusable-multi-service-transport/task-8-report.md`
+
+`Cargo.lock`, Core v0.1 artifacts, generated artifacts, and
+`.codex-test-temp-w4/` were not modified or staged.
+
+### Verification
+
+All Cargo commands used the required non-OneDrive target directory.
+
+- Focused resumption: 13 passed, 0 failed.
+- Required seven-target matrix: 42 passed, 0 failed.
+- Full crate: 86 unit/integration tests plus 9 compile-fail doctests passed;
+  0 failed.
+- Explicit doctests: 9 passed, 0 failed after restoring the visibility
+  mutation.
+- Formatting: the first final check reported one line-wrap-only difference;
+  rustfmt was applied and the repeated check passed.
+- Clippy with all targets and warnings denied: passed.
+- `git diff --check`: required before the review-round commit.
+
+### Commit and concerns
+
+Commit subject: `fix(wp4): gate same-edge resume admission`.
+
+No review-round blocker remains. Capabilities and correlations remain bounded
+in-process prototype state using caller-supplied trusted clock values; future
+wire transport or cross-process persistence remains a separate schema and
+design gate.
