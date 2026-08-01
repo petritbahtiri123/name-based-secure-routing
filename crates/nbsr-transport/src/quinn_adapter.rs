@@ -3,6 +3,7 @@ use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex, Weak};
 
+use bytes::Bytes;
 use quinn::crypto::rustls::HandshakeData;
 use quinn::{Connection, Endpoint, RecvStream, SendStream, VarInt};
 use rustls::pki_types::CertificateDer;
@@ -18,6 +19,13 @@ use crate::{
     EdgeRole, PeerPolicy, ServerEndpointConfig, ServiceChannelContext, ServiceChannelExporterError,
     SessionReject, TransportError,
 };
+
+const DATAGRAM_BUFFER_BYTES: usize = 262_144;
+
+pub(crate) fn configure_datagram_buffers(transport: &mut quinn::TransportConfig) {
+    transport.datagram_receive_buffer_size(Some(DATAGRAM_BUFFER_BYTES));
+    transport.datagram_send_buffer_size(DATAGRAM_BUFFER_BYTES);
+}
 
 pub struct TransportListener {
     endpoint: Endpoint,
@@ -456,6 +464,87 @@ impl AuthenticatedConnection {
             .export_channel_binding(&request.context())
             .map_err(|_| SessionReject::ChannelBindingFailed)?;
         session.install_channel_binding(channel_id, binding)
+    }
+
+    pub fn udp_payload_capacity(
+        &self,
+        session: &ControlSession,
+        channel_id: [u8; 16],
+    ) -> Result<usize, crate::DatagramReject> {
+        if !session.matches_connection(&self.binding_capability) {
+            return Err(crate::DatagramReject::ConnectionMismatch);
+        }
+        if self.connection.close_reason().is_some() {
+            return Err(crate::DatagramReject::TransportFailed);
+        }
+        let peer_maximum = self
+            .connection
+            .max_datagram_size()
+            .ok_or(crate::DatagramReject::PeerMaximum)?;
+        session.udp_payload_capacity(channel_id, peer_maximum)
+    }
+
+    pub fn send_udp_datagram(
+        &self,
+        session: &mut ControlSession,
+        channel_id: [u8; 16],
+        payload: &[u8],
+        monotonic_milliseconds: u64,
+    ) -> Result<(), crate::DatagramReject> {
+        if !session.matches_connection(&self.binding_capability) {
+            return Err(crate::DatagramReject::ConnectionMismatch);
+        }
+        if self.connection.close_reason().is_some() {
+            return Err(crate::DatagramReject::TransportFailed);
+        }
+        let peer_maximum = self
+            .connection
+            .max_datagram_size()
+            .ok_or(crate::DatagramReject::PeerMaximum)?;
+        let encoded =
+            session.send_udp_datagram(channel_id, payload, peer_maximum, monotonic_milliseconds)?;
+        self.connection
+            .send_datagram(Bytes::from(encoded))
+            .map_err(|error| match error {
+                quinn::SendDatagramError::TooLarge => crate::DatagramReject::PeerMaximum,
+                quinn::SendDatagramError::UnsupportedByPeer
+                | quinn::SendDatagramError::Disabled
+                | quinn::SendDatagramError::ConnectionLost(_) => {
+                    crate::DatagramReject::TransportFailed
+                }
+            })
+    }
+
+    pub async fn receive_udp_datagram(
+        &self,
+        session: &mut ControlSession,
+        monotonic_milliseconds: u64,
+    ) -> Result<crate::DatagramReceive, crate::DatagramReject> {
+        if !session.matches_connection(&self.binding_capability) {
+            return Err(crate::DatagramReject::ConnectionMismatch);
+        }
+        let peer_maximum = self
+            .connection
+            .max_datagram_size()
+            .ok_or(crate::DatagramReject::PeerMaximum)?;
+        let wire = self
+            .connection
+            .read_datagram()
+            .await
+            .map_err(|_| crate::DatagramReject::TransportFailed)?;
+        let frame = crate::decode_datagram_frame(&wire, peer_maximum)?;
+        session.receive_udp_datagram(frame, monotonic_milliseconds)
+    }
+
+    pub fn pop_udp_datagram(
+        &self,
+        session: &mut ControlSession,
+        channel_id: [u8; 16],
+    ) -> Result<Option<Vec<u8>>, crate::DatagramReject> {
+        if !session.matches_connection(&self.binding_capability) {
+            return Err(crate::DatagramReject::ConnectionMismatch);
+        }
+        session.pop_udp_datagram(channel_id)
     }
 
     pub fn preflight_same_edge_resume(

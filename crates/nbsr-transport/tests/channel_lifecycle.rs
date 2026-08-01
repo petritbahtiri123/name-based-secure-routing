@@ -47,6 +47,7 @@ fn request(value: u64) -> RouteOpenRequest {
             source_edge_id: "source.edge".into(),
             destination_operator_id: "destination.operator".into(),
             destination_edge_ids: vec!["destination.edge".into()],
+            allowed_transports: vec!["tcp".into()],
             allowed_ports: vec![8443],
             client_session_key_thumbprint: [0x30; 32],
             not_before: NOW - 60,

@@ -5,6 +5,7 @@ edition = "2024"
 publish = false
 
 [dependencies]
+bytes = "=1.12.1"
 ed25519-dalek = { version = "=2.2.0", default-features = false, features = ["std"] }
 quinn = { version = "=0.11.11", default-features = false, features = ["runtime-tokio", "rustls-ring"] }
 rustls = { version = "=0.23.43", default-features = false, features = ["ring", "std"] }

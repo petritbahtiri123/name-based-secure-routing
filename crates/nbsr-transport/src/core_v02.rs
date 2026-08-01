@@ -462,10 +462,7 @@ fn decode_route_grant_claims(payload: &[u8]) -> Result<RouteGrantClaims, CoreV02
     exact_uint(fields, 0, 1)?;
     bytes_exact(required(fields, 2)?, 32)?;
     bytes_exact(required(fields, 13)?, 16)?;
-    let allowed_transports = array(required(fields, 8)?)?;
-    if allowed_transports.len() != 1 || text(&allowed_transports[0])? != "tcp" {
-        return Err(CoreV02Reject::ProfileUnsupported);
-    }
+    let allowed_transports = transport_array(required(fields, 8)?)?;
     let destination_edge_ids = text_array(required(fields, 7)?)?;
     let allowed_ports = port_array(required(fields, 9)?)?;
     Ok(RouteGrantClaims {
@@ -475,6 +472,7 @@ fn decode_route_grant_claims(payload: &[u8]) -> Result<RouteGrantClaims, CoreV02
         source_edge_id: text(required(fields, 5)?)?.to_owned(),
         destination_operator_id: text(required(fields, 6)?)?.to_owned(),
         destination_edge_ids,
+        allowed_transports,
         allowed_ports,
         client_session_key_thumbprint: fixed_bytes(required(fields, 10)?)?,
         not_before: uint(required(fields, 11)?)?,
@@ -516,6 +514,24 @@ fn port_array(node: &Node) -> Result<Vec<u16>, CoreV02Reject> {
                 .map_err(|_| CoreV02Reject::ProfileUnsupported)
         })
         .collect()
+}
+
+fn transport_array(node: &Node) -> Result<Vec<String>, CoreV02Reject> {
+    let values = array(node)?;
+    let transports = values
+        .iter()
+        .map(|value| text(value).map(str::to_owned))
+        .collect::<Result<Vec<_>, _>>()?;
+    if transports.is_empty()
+        || transports.len() > 2
+        || transports
+            .iter()
+            .any(|value| !matches!(value.as_str(), "tcp" | "udp"))
+        || (transports.len() == 2 && transports[0] == transports[1])
+    {
+        return Err(CoreV02Reject::ProfileUnsupported);
+    }
+    Ok(transports)
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -625,7 +641,7 @@ fn validate_body(
                 return Err(CoreV02Reject::ProfileUnsupported);
             }
             bytes_exact(required(body, 3)?, 32)?;
-            if text(required(body, 4)?)? != "tcp" {
+            if !matches!(text(required(body, 4)?)?, "tcp" | "udp") {
                 return Err(CoreV02Reject::ProfileUnsupported);
             }
             port(required(body, 5)?)?;

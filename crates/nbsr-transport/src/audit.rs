@@ -35,6 +35,10 @@ pub enum AuditAction {
     SessionDrainStarted,
     SessionDrainForced,
     StreamAuthorized,
+    DatagramSendReserved,
+    DatagramReceived,
+    DatagramPopped,
+    DatagramDropped,
     QuotaDenied,
     ResumeConsumed,
     ResumeIssued,
@@ -63,6 +67,11 @@ pub enum AuditReason {
     ChannelNotBound,
     StreamRejected,
     QuotaExceeded,
+    DatagramMalformed,
+    DatagramOversize,
+    DatagramQueueFull,
+    DatagramRateLimited,
+    DatagramWrongChannel,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]

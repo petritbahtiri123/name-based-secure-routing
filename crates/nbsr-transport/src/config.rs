@@ -149,6 +149,7 @@ fn transport_config(idle_timeout: Duration) -> Result<Arc<TransportConfig>, Tran
     // Stream 0 is the only control stream; WP3 permits one application stream.
     transport.max_concurrent_bidi_streams(VarInt::from_u32(2));
     transport.max_concurrent_uni_streams(VarInt::from_u32(0));
+    crate::quinn_adapter::configure_datagram_buffers(&mut transport);
     Ok(Arc::new(transport))
 }
 

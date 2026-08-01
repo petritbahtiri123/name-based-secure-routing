@@ -199,6 +199,11 @@ impl ChannelRegistry {
             .map(|entry| &entry.channel)
     }
 
+    pub(crate) fn bound_udp_channel(&self, channel_id: &[u8; 16]) -> Option<&ActiveChannel> {
+        self.bound_channel(channel_id)
+            .filter(|channel| channel.transport == "udp")
+    }
+
     pub(crate) fn bound_existing_channel(&self, channel_id: &[u8; 16]) -> Option<&ActiveChannel> {
         self.active
             .get(channel_id)

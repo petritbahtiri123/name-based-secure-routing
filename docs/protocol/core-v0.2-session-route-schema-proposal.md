@@ -78,7 +78,7 @@ caller-supplied operator trust policy.
 | 1 | `channel_id` | required | byte string | exactly 16 bytes | exactly 16 bytes | Source-generated unpredictable identifier; not all zero; unique within this Transport Session |
 | 2 | `route_grant` | required | byte string containing one deterministic COSE Sign1 RouteGrant | 1 byte | 32768 bytes | Complete frozen RouteGrant wrapper; verified only in caller-supplied authorized issuer trust context; no trailing bytes |
 | 3 | `edge_nonce` | required | byte string | exactly 32 bytes | exactly 32 bytes | Exact unused challenge from the accepted EDGE_HELLO on this Transport Session |
-| 4 | `requested_transport` | required | ASCII text string | exactly 3 octets | exactly 3 octets | Exactly `tcp` and present in the verified RouteGrant `allowed_transports` |
+| 4 | `requested_transport` | required | ASCII text string | exactly 3 octets | exactly 3 octets | Exactly `tcp` or `udp` and present in the verified RouteGrant `allowed_transports`; UDP uses the separately approved Core v0.2 DATAGRAM profile |
 | 5 | `requested_port` | required | unsigned integer | 1 | 65535 | Present in the verified RouteGrant `allowed_ports` and current destination policy |
 | 6 | `opened_at` | required | unsigned integer Unix seconds | 0 | 253402300799 | Within bounded clock skew and the verified RouteGrant validity interval |
 | 7 | `proof_signature` | required | Ed25519 signature byte string | exactly 64 bytes | exactly 64 bytes | Valid RFC 8032 signature by the CLIENT_HELLO session public key over the exact transcript below |

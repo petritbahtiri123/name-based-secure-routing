@@ -1,6 +1,6 @@
 //! Origin-free control-session sequencing and reusable route admission.
 
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 use sha2::{Digest, Sha256};
 
@@ -41,6 +41,7 @@ pub struct ControlSession {
     trusted_issuers: Vec<RouteGrantIssuer>,
     state: SessionState,
     request_ids: HashSet<[u8; 16]>,
+    datagrams: HashMap<[u8; 16], crate::DatagramGate>,
     streams: ChannelStreams,
     session_deadline: Option<DrainDeadline>,
     session_drain_state: SessionDrainState,
@@ -127,6 +128,7 @@ impl ControlSession {
             trusted_issuers,
             state: SessionState::AwaitingClientHello,
             request_ids: HashSet::new(),
+            datagrams: HashMap::new(),
             streams: ChannelStreams::new(),
             session_deadline,
             session_drain_state: SessionDrainState::Active,
@@ -188,6 +190,9 @@ impl ControlSession {
         self.admission
             .start_session_drain(monotonic_now, unix_now, deadline)
             .map_err(map_lifecycle)?;
+        for gate in self.datagrams.values_mut() {
+            gate.deactivate();
+        }
         self.session_drain_state = SessionDrainState::Draining;
         self.session_drain_deadline = Some(deadline);
         Ok(())
@@ -209,14 +214,22 @@ impl ControlSession {
         match self.admission.audit_session_drain_forced() {
             Ok(()) => {
                 self.streams.revoke_all();
+                for gate in self.datagrams.values_mut() {
+                    gate.deactivate();
+                }
                 self.session_drain_state = SessionDrainState::Closed;
                 Ok(DrainEnforcement::Enforced {
                     audit_integrity: AuditIntegrity::Recorded,
                 })
             }
-            Err(ChannelLifecycleError::AuditUnavailable) => Ok(DrainEnforcement::Enforced {
-                audit_integrity: AuditIntegrity::Failed,
-            }),
+            Err(ChannelLifecycleError::AuditUnavailable) => {
+                for gate in self.datagrams.values_mut() {
+                    gate.deactivate();
+                }
+                Ok(DrainEnforcement::Enforced {
+                    audit_integrity: AuditIntegrity::Failed,
+                })
+            }
             Err(error) => Err(map_lifecycle(error)),
         }
     }
@@ -541,6 +554,9 @@ impl ControlSession {
             .revoke_channel(&channel_id, revoked_at)
             .map_err(map_lifecycle)?;
         self.streams.revoke_channel(&channel_id);
+        if let Some(gate) = self.datagrams.get_mut(&channel_id) {
+            gate.deactivate();
+        }
         Ok(())
     }
 
@@ -589,6 +605,9 @@ impl ControlSession {
                 self.session_deadline,
             )
             .map_err(map_lifecycle)?;
+        if let Some(gate) = self.datagrams.get_mut(&channel_id) {
+            gate.deactivate();
+        }
         self.commit_source_control(request_id, sequence)?;
         Ok(())
     }
@@ -680,13 +699,21 @@ impl ControlSession {
         match self.admission.finish_channel_drain(&channel_id) {
             Ok(()) => {
                 self.streams.revoke_channel(&channel_id);
+                if let Some(gate) = self.datagrams.get_mut(&channel_id) {
+                    gate.deactivate();
+                }
                 Ok(DrainEnforcement::Enforced {
                     audit_integrity: AuditIntegrity::Recorded,
                 })
             }
-            Err(ChannelLifecycleError::AuditUnavailable) => Ok(DrainEnforcement::Enforced {
-                audit_integrity: AuditIntegrity::Failed,
-            }),
+            Err(ChannelLifecycleError::AuditUnavailable) => {
+                if let Some(gate) = self.datagrams.get_mut(&channel_id) {
+                    gate.deactivate();
+                }
+                Ok(DrainEnforcement::Enforced {
+                    audit_integrity: AuditIntegrity::Failed,
+                })
+            }
             Err(error) => Err(map_lifecycle(error)),
         }
     }
@@ -700,6 +727,9 @@ impl ControlSession {
             .close_live_channel(&channel_id, closed_at)
             .map_err(map_lifecycle)?;
         self.streams.revoke_channel(&channel_id);
+        if let Some(gate) = self.datagrams.get_mut(&channel_id) {
+            gate.deactivate();
+        }
         Ok(())
     }
 
@@ -958,7 +988,88 @@ impl ControlSession {
                 ChannelBindingInstallError::InvalidState => SessionReject::InvalidChannelState,
                 ChannelBindingInstallError::UnknownChannel
                 | ChannelBindingInstallError::Mismatch => SessionReject::ChannelBindingFailed,
-            })
+            })?;
+        if self.admission.bound_udp_channel(&channel_id).is_some() {
+            self.datagrams
+                .entry(channel_id)
+                .or_insert_with(|| crate::DatagramGate::new(channel_id));
+        }
+        Ok(())
+    }
+
+    pub(crate) fn udp_payload_capacity(
+        &self,
+        channel_id: [u8; 16],
+        peer_maximum: usize,
+    ) -> Result<usize, crate::DatagramReject> {
+        self.require_udp_channel(&channel_id)?;
+        self.datagrams
+            .get(&channel_id)
+            .ok_or(crate::DatagramReject::InvalidState)?
+            .payload_capacity(peer_maximum)
+    }
+
+    pub(crate) fn send_udp_datagram(
+        &mut self,
+        channel_id: [u8; 16],
+        payload: &[u8],
+        peer_maximum: usize,
+        monotonic_milliseconds: u64,
+    ) -> Result<Vec<u8>, crate::DatagramReject> {
+        self.require_udp_channel(&channel_id)?;
+        let (admission, datagrams) = (&mut self.admission, &mut self.datagrams);
+        let gate = datagrams
+            .get_mut(&channel_id)
+            .ok_or(crate::DatagramReject::InvalidState)?;
+        gate.send(payload, peer_maximum, monotonic_milliseconds, |mutation| {
+            admission
+                .audit_datagram_mutation(&channel_id, mutation)
+                .map_err(|_| ())
+        })
+    }
+
+    pub(crate) fn receive_udp_datagram(
+        &mut self,
+        frame: crate::DatagramFrame,
+        monotonic_milliseconds: u64,
+    ) -> Result<crate::DatagramReceive, crate::DatagramReject> {
+        let channel_id = frame.channel_id();
+        self.require_udp_channel(&channel_id)?;
+        let (admission, datagrams) = (&mut self.admission, &mut self.datagrams);
+        let gate = datagrams
+            .get_mut(&channel_id)
+            .ok_or(crate::DatagramReject::InvalidState)?;
+        gate.receive(frame, monotonic_milliseconds, |mutation| {
+            admission
+                .audit_datagram_mutation(&channel_id, mutation)
+                .map_err(|_| ())
+        })
+    }
+
+    pub(crate) fn pop_udp_datagram(
+        &mut self,
+        channel_id: [u8; 16],
+    ) -> Result<Option<Vec<u8>>, crate::DatagramReject> {
+        self.require_udp_channel(&channel_id)?;
+        let (admission, datagrams) = (&mut self.admission, &mut self.datagrams);
+        let gate = datagrams
+            .get_mut(&channel_id)
+            .ok_or(crate::DatagramReject::InvalidState)?;
+        gate.pop(|mutation| {
+            admission
+                .audit_datagram_mutation(&channel_id, mutation)
+                .map_err(|_| ())
+        })
+    }
+
+    fn require_udp_channel(&self, channel_id: &[u8; 16]) -> Result<(), crate::DatagramReject> {
+        if self.session_drain_state != SessionDrainState::Active {
+            return Err(crate::DatagramReject::InvalidState);
+        }
+        self.admission
+            .bound_udp_channel(channel_id)
+            .ok_or(crate::DatagramReject::InvalidState)?;
+        Ok(())
     }
 
     fn require_bound_channel(&self, channel_id: &[u8; 16]) -> Result<(), SessionReject> {

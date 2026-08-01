@@ -37,6 +37,7 @@ fn grant() -> RouteGrantClaims {
         source_edge_id: "source.edge".into(),
         destination_operator_id: "destination.operator".into(),
         destination_edge_ids: vec!["destination.edge".into()],
+        allowed_transports: vec!["tcp".into()],
         allowed_ports: vec![8443],
         client_session_key_thumbprint: THUMBPRINT,
         not_before: 1_893_455_940,

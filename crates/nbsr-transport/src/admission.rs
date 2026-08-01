@@ -42,6 +42,7 @@ pub struct RouteGrantClaims {
     pub source_edge_id: String,
     pub destination_operator_id: String,
     pub destination_edge_ids: Vec<String>,
+    pub allowed_transports: Vec<String>,
     pub allowed_ports: Vec<u16>,
     pub client_session_key_thumbprint: [u8; 32],
     pub not_before: u64,
@@ -158,6 +159,10 @@ impl DestinationAdmission {
 
     pub(crate) fn bound_channel(&self, channel_id: &[u8; 16]) -> Option<&ActiveChannel> {
         self.channels.bound_channel(channel_id)
+    }
+
+    pub(crate) fn bound_udp_channel(&self, channel_id: &[u8; 16]) -> Option<&ActiveChannel> {
+        self.channels.bound_udp_channel(channel_id)
     }
 
     pub(crate) fn bound_existing_channel(&self, channel_id: &[u8; 16]) -> Option<&ActiveChannel> {
@@ -375,6 +380,57 @@ impl DestinationAdmission {
                 AuditAction::QuotaDenied,
                 AuditOutcome::Denied,
                 AuditReason::QuotaExceeded,
+            )
+            .map_err(|_| AdmissionReject::AuditUnavailable)
+    }
+
+    pub(crate) fn audit_datagram_mutation(
+        &mut self,
+        channel_id: &[u8; 16],
+        mutation: crate::DatagramAuditMutation,
+    ) -> Result<(), AdmissionReject> {
+        let channel = self
+            .channels
+            .bound_existing_channel(channel_id)
+            .ok_or(AdmissionReject::RouteDenied)?;
+        let (action, outcome, reason) = match mutation {
+            crate::DatagramAuditMutation::Send => (
+                AuditAction::DatagramSendReserved,
+                AuditOutcome::Allowed,
+                AuditReason::None,
+            ),
+            crate::DatagramAuditMutation::Receive => (
+                AuditAction::DatagramReceived,
+                AuditOutcome::Allowed,
+                AuditReason::None,
+            ),
+            crate::DatagramAuditMutation::Pop => (
+                AuditAction::DatagramPopped,
+                AuditOutcome::Allowed,
+                AuditReason::None,
+            ),
+            crate::DatagramAuditMutation::Drop(reason) => (
+                AuditAction::DatagramDropped,
+                AuditOutcome::Denied,
+                match reason {
+                    crate::DatagramDropReason::BackwardsTime
+                    | crate::DatagramDropReason::InvalidState => AuditReason::InvalidState,
+                    crate::DatagramDropReason::Oversize => AuditReason::DatagramOversize,
+                    crate::DatagramDropReason::QueueFull => AuditReason::DatagramQueueFull,
+                    crate::DatagramDropReason::RateLimit => AuditReason::DatagramRateLimited,
+                    crate::DatagramDropReason::Replay => AuditReason::Replay,
+                    crate::DatagramDropReason::SequenceExhausted => AuditReason::Capacity,
+                    crate::DatagramDropReason::WrongChannel => AuditReason::DatagramWrongChannel,
+                },
+            ),
+        };
+        self.audit
+            .record(
+                Some(*channel_id),
+                &channel.service_id,
+                action,
+                outcome,
+                reason,
             )
             .map_err(|_| AdmissionReject::AuditUnavailable)
     }
@@ -623,7 +679,7 @@ fn validate_request(
     if request.channel_id == [0; 16]
         || grant.route_id == [0; 16]
         || grant.unique_nonce == [0; 16]
-        || request.requested_transport != "tcp"
+        || !matches!(request.requested_transport.as_str(), "tcp" | "udp")
         || request.requested_port == 0
     {
         return Err(AdmissionReject::GrantInvalid);
@@ -649,7 +705,12 @@ fn validate_request(
     {
         return Err(AdmissionReject::GrantInvalid);
     }
-    if !grant.allowed_ports.contains(&request.requested_port) {
+    if !grant
+        .allowed_transports
+        .iter()
+        .any(|transport| transport == &request.requested_transport)
+        || !grant.allowed_ports.contains(&request.requested_port)
+    {
         return Err(AdmissionReject::RouteDenied);
     }
     Ok(())

@@ -13,6 +13,10 @@
 //! ```
 //!
 //! ```compile_fail
+//! use nbsr_transport::DatagramGate;
+//! ```
+//!
+//! ```compile_fail
 //! let _ = nbsr_transport::ControlSession::stream_gate;
 //! ```
 //!
@@ -71,6 +75,7 @@ mod channel_registry;
 mod channel_streams;
 mod config;
 mod core_v02;
+mod datagram_gate;
 mod error;
 mod quinn_adapter;
 mod resumption;
@@ -99,6 +104,11 @@ pub use core_v02::{
     CoreV02Envelope, CoreV02Limits, CoreV02MessageType, CoreV02Reject, RouteCloseBody,
     RouteDrainBody, RouteGrantIssuer, RouteRevokeBody, ValidatedRouteGrant,
     decode_control_envelope, validate_route_grant_sign1,
+};
+pub(crate) use datagram_gate::{DatagramAuditMutation, DatagramDropReason, DatagramGate};
+pub use datagram_gate::{
+    DatagramFrame, DatagramReceive, DatagramReject, MAX_DATAGRAM_PAYLOAD, decode_datagram_frame,
+    encode_datagram_frame, max_datagram_payload,
 };
 pub use error::TransportError;
 pub use quinn_adapter::{
