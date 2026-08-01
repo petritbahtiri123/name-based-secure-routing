@@ -36,6 +36,10 @@ class SnapshotRejected(StateRejected):
     """A snapshot cannot be trusted or decoded safely."""
 
 
+class QuorumRejected(StateRejected):
+    """Replica evidence cannot support an unambiguous fail-closed read."""
+
+
 class StateKind(StrEnum):
     ORIGIN = "origin"
     POLICY = "policy"
@@ -418,3 +422,82 @@ class SnapshotRepository:
             return data
         finally:
             os.close(descriptor)
+
+
+@dataclass(frozen=True, slots=True)
+class ReplicaObservation:
+    replica_id: str
+    snapshot: ContinuitySnapshot | None
+    complete: bool
+
+    def __post_init__(self) -> None:
+        try:
+            object.__setattr__(self, "replica_id", _text_id(self.replica_id))
+        except StateRejected as exc:
+            raise QuorumRejected("replica identity is invalid") from exc
+        if self.snapshot is not None and type(self.snapshot) is not ContinuitySnapshot:
+            raise QuorumRejected("replica snapshot is invalid")
+        if type(self.complete) is not bool:
+            raise QuorumRejected("replica completeness is invalid")
+
+
+@dataclass(frozen=True, slots=True)
+class QuorumView:
+    snapshot: ContinuitySnapshot
+    replica_ids: tuple[str, ...]
+
+    def __post_init__(self) -> None:
+        if type(self.snapshot) is not ContinuitySnapshot:
+            raise QuorumRejected("quorum snapshot is invalid")
+        if type(self.replica_ids) is not tuple or self.replica_ids != tuple(sorted(set(self.replica_ids))):
+            raise QuorumRejected("quorum replica identities are invalid")
+
+
+def resolve_quorum(
+    config: ReplicaConfig,
+    observations: tuple[ReplicaObservation, ...] | list[ReplicaObservation],
+    *,
+    minimum_generation: int,
+) -> QuorumView:
+    if type(config) is not ReplicaConfig or type(observations) not in (tuple, list):
+        raise QuorumRejected("quorum input is invalid")
+    try:
+        checked_minimum = _uint("minimum_generation", minimum_generation, minimum=1)
+    except StateRejected as exc:
+        raise QuorumRejected(str(exc)) from exc
+    if any(type(item) is not ReplicaObservation for item in observations):
+        raise QuorumRejected("replica observation is invalid")
+    identities = [item.replica_id for item in observations]
+    if len(set(identities)) != len(identities):
+        raise QuorumRejected("duplicate replica identity")
+    if any(identity not in config.replica_ids for identity in identities):
+        raise QuorumRejected("unknown replica identity")
+
+    complete: list[ReplicaObservation] = []
+    for item in observations:
+        if not item.complete:
+            if item.snapshot is not None:
+                raise QuorumRejected("partial replica state")
+            continue
+        if item.snapshot is None:
+            raise QuorumRejected("partial replica state")
+        if item.snapshot.config != config:
+            raise QuorumRejected("replica snapshot context mismatch")
+        if item.snapshot.generation < checked_minimum:
+            raise QuorumRejected("stale replica snapshot")
+        complete.append(item)
+    if len(complete) < config.quorum:
+        raise QuorumRejected("replica quorum is unavailable")
+
+    groups: dict[tuple[int, bytes], list[ReplicaObservation]] = {}
+    for item in complete:
+        assert item.snapshot is not None
+        groups.setdefault((item.snapshot.generation, item.snapshot.snapshot_digest), []).append(item)
+    if len(groups) != 1:
+        raise QuorumRejected("conflicting replica snapshots")
+    agreed = next(iter(groups.values()))
+    if len(agreed) < config.quorum:
+        raise QuorumRejected("replica quorum is unavailable")
+    snapshot = agreed[0].snapshot
+    assert snapshot is not None
+    return QuorumView(snapshot, tuple(sorted(item.replica_id for item in agreed)))
