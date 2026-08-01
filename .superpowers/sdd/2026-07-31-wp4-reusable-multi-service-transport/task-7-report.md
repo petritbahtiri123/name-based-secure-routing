@@ -321,3 +321,40 @@ Commit subject: `fix(wp4): preserve lifecycle enforcement integrity`.
 No blocker remains. `AuditIntegrity::Failed` is an aggregate fail-closed signal;
 it does not reopen work, suppress target reset, or accelerate the later session
 connection close.
+
+## Review round 3 of 5: close boundary arity correction
+
+### Finding and TDD evidence
+
+The close-boundary `compile_fail` example called `close_channel` with one
+argument even though the crate-private method takes `(channel_id, closed_at)`.
+That example could therefore keep failing on argument count if the method were
+accidentally made public, masking the visibility regression it is intended to
+detect.
+
+- RED mutation check: after correcting the example to
+  `session.close_channel([0x11; 16], 0)`, temporarily changing the method from
+  `pub(crate)` to `pub` made the close-boundary doctest fail with `Test compiled
+  successfully, but it's marked compile_fail.` The other seven boundary
+  doctests passed, for a 7/8 result.
+- GREEN: restoring `pub(crate)` made all eight doctests pass. The example now
+  uses the current signature, so its compile failure is caused only by the
+  intended visibility boundary.
+
+### Files changed in review round 3
+
+- `crates/nbsr-transport/src/lib.rs`
+- `.superpowers/sdd/2026-07-31-wp4-reusable-multi-service-transport/task-7-report.md`
+
+### Verification
+
+- Public-boundary doctests: 8 passed, 0 failed.
+- Focused drain: 12 passed, 0 failed.
+- Safe-path multi-stream regression: 3 passed, 0 failed.
+- Formatting, warning-denied clippy, and staged diff checks: passed.
+
+### Commit and concerns
+
+Commit subject: `test(wp4): verify close mutator visibility`.
+
+No blocker or follow-up concern remains.

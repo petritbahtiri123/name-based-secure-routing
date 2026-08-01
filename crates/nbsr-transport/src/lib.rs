@@ -44,7 +44,7 @@
 //!
 //! ```compile_fail
 //! fn bypass_close(session: &mut nbsr_transport::ControlSession) {
-//!     let _ = session.close_channel([0x11; 16]);
+//!     let _ = session.close_channel([0x11; 16], 0);
 //! }
 //! ```
 
