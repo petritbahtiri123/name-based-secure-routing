@@ -60,7 +60,7 @@ fn request() -> RouteOpenRequest {
 
 #[test]
 fn valid_request_allocates_exactly_one_service_bound_channel() {
-    let mut admission = DestinationAdmission::new(policy());
+    let mut admission = DestinationAdmission::new(policy()).expect("valid admission policy");
     let accepted = admission.admit(request()).expect("valid route admission");
 
     assert_eq!(accepted.channel_id, CHANNEL_ID);
@@ -71,7 +71,7 @@ fn valid_request_allocates_exactly_one_service_bound_channel() {
 
 #[test]
 fn invalid_or_replayed_requests_leave_no_channel_state() {
-    let mut admission = DestinationAdmission::new(policy());
+    let mut admission = DestinationAdmission::new(policy()).expect("valid admission policy");
     let mut denied = request();
     denied.requested_port = 443;
     assert_eq!(admission.admit(denied), Err(AdmissionReject::RouteDenied));
@@ -90,7 +90,8 @@ fn grant_binding_expiry_and_capacity_are_independent_fail_closed_checks() {
             max_channels_per_session: 1,
             max_channels_per_service: 1,
         },
-    );
+    )
+    .expect("valid admission policy");
     let mut wrong_edge = request();
     wrong_edge.grant.destination_edge_ids = vec!["other.edge".into()];
     assert_eq!(

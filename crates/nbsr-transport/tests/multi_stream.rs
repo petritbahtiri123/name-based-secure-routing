@@ -5,10 +5,10 @@ use std::time::Duration;
 
 use ed25519_dalek::{Signer, SigningKey};
 use nbsr_transport::{
-    ActiveChannel, AdmissionPolicy, AuthorizedServicePolicy, ControlSession, CoreV02Envelope,
-    CoreV02Limits, DestinationAdmission, EdgeIdentity, EdgeRole, PeerPolicy, RouteGrantIssuer,
-    SessionReject, StreamReject, TransportListener, build_client_config, build_server_config,
-    connect, decode_control_envelope,
+    ActiveChannel, AdmissionPolicy, AuditAction, AuthorizedServicePolicy, ChannelState,
+    ControlSession, CoreV02Envelope, CoreV02Limits, DestinationAdmission, EdgeIdentity, EdgeRole,
+    PeerPolicy, RouteGrantIssuer, SessionReject, StreamReject, TransportListener,
+    build_client_config, build_server_config, connect, decode_control_envelope,
 };
 use sha2::{Digest, Sha256};
 
@@ -118,7 +118,7 @@ async fn quinn_streams_four_eight_and_twelve_echo_on_two_bound_channels() {
         .to_bytes();
     let mut session = ControlSession::new(
         &destination,
-        DestinationAdmission::new(runtime_policy()),
+        DestinationAdmission::new(runtime_policy()).expect("valid admission policy"),
         vec![RouteGrantIssuer {
             kid: KID.to_vec(),
             public_key: issuer_key,
@@ -126,7 +126,7 @@ async fn quinn_streams_four_eight_and_twelve_echo_on_two_bound_channels() {
     );
     let mut source_session = ControlSession::new(
         &source,
-        DestinationAdmission::new(runtime_policy()),
+        DestinationAdmission::new(runtime_policy()).expect("valid admission policy"),
         vec![RouteGrantIssuer {
             kid: KID.to_vec(),
             public_key: issuer_key,
@@ -362,6 +362,154 @@ async fn quinn_streams_four_eight_and_twelve_echo_on_two_bound_channels() {
         assert_eq!(at_destination, payload);
         assert_eq!(at_source, payload);
     }
+
+    source.close().await.expect("source close");
+    destination.close().await.expect("destination close");
+    listener.close().await.expect("listener close");
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn revoked_channel_is_terminal_while_bound_sibling_remains_usable() {
+    let pki = support::TestPki::generate_for("source.edge", "destination.edge");
+    let (listener, source, destination) = connection_pair_with_pki(&pki).await;
+    let issuer_key = SigningKey::from_bytes(&ROUTE_GRANT_SEED)
+        .verifying_key()
+        .to_bytes();
+    let mut session = ControlSession::new(
+        &destination,
+        DestinationAdmission::new(runtime_policy()).expect("valid admission policy"),
+        vec![RouteGrantIssuer {
+            kid: KID.to_vec(),
+            public_key: issuer_key,
+        }],
+    );
+    session
+        .accept_client_hello(&decode_vector(
+            "artifacts/valid/envelopes/client-hello.cbor",
+        ))
+        .expect("CLIENT_HELLO");
+    session
+        .confirm_edge_hello(&decode_vector("artifacts/valid/envelopes/edge-hello.cbor"))
+        .expect("EDGE_HELLO");
+
+    let (route_a, accept_a) = signed_route(1, "service-a", 42, POLICY_A, 2);
+    let channel_a = session.accept_route_open(&route_a).expect("route A open");
+    session
+        .confirm_route_accept(&accept_a)
+        .expect("route A accept");
+    let (route_b, accept_b) = signed_route(2, "service-b", 43, POLICY_B, 3);
+    let channel_b = session.accept_route_open(&route_b).expect("route B open");
+    session
+        .confirm_route_accept(&accept_b)
+        .expect("route B accept");
+    destination
+        .bind_channel(&mut session, channel_a.channel_id)
+        .expect("bind A");
+    destination
+        .bind_channel(&mut session, channel_b.channel_id)
+        .expect("bind B");
+
+    session
+        .revoke_channel(channel_a.channel_id, NOW + 100)
+        .expect("revoke A");
+    assert_eq!(
+        session.channel_state(channel_a.channel_id),
+        Some(ChannelState::Revoked)
+    );
+    assert_eq!(
+        session.tombstone_expires_at(channel_a.channel_id),
+        Some(NOW + 330)
+    );
+    assert_eq!(
+        session.authorize_stream_open(
+            channel_a.channel_id,
+            &stream_open(&channel_a, 4, [0x41; 16])
+        ),
+        Err(SessionReject::InvalidChannelState)
+    );
+    assert_eq!(
+        session.reserve_stream_bytes(channel_a.channel_id, 4, 1),
+        Err(SessionReject::InvalidChannelState)
+    );
+    assert_eq!(
+        destination.bind_channel(&mut session, channel_a.channel_id),
+        Err(SessionReject::InvalidChannelState)
+    );
+    assert_eq!(
+        session.revoke_channel(channel_a.channel_id, NOW + 101),
+        Err(SessionReject::InvalidChannelState)
+    );
+    assert_eq!(
+        session.revoke_channel([0xee; 16], NOW + 101),
+        Err(SessionReject::UnexpectedMessage)
+    );
+
+    session
+        .authorize_stream_open(
+            channel_b.channel_id,
+            &stream_open(&channel_b, 8, [0x42; 16]),
+        )
+        .expect("bound sibling remains usable");
+    assert_eq!(
+        session.channel_state(channel_b.channel_id),
+        Some(ChannelState::Active)
+    );
+    session
+        .close_channel(channel_a.channel_id)
+        .expect("revoked channel closes");
+    assert_eq!(
+        session.channel_state(channel_a.channel_id),
+        Some(ChannelState::Closed)
+    );
+    assert_eq!(
+        session.tombstone_expires_at(channel_a.channel_id),
+        Some(NOW + 330)
+    );
+    let actions = session
+        .audit_events()
+        .map(|event| event.action)
+        .collect::<Vec<_>>();
+    assert!(actions.contains(&AuditAction::ChannelRevoked));
+    assert!(actions.contains(&AuditAction::ChannelClosed));
+    assert!(actions.contains(&AuditAction::StreamAuthorized));
+
+    for (index, stream_id) in (4..=256)
+        .step_by(4)
+        .filter(|stream_id| *stream_id != 8)
+        .enumerate()
+    {
+        session
+            .authorize_stream_open(
+                channel_b.channel_id,
+                &stream_open(&channel_b, stream_id, [0x50 + index as u8; 16]),
+            )
+            .expect("fill sibling stream slots");
+    }
+    while session.audit_events().len() < 1_024 {
+        assert_eq!(
+            session.authorize_stream_open(
+                channel_b.channel_id,
+                &stream_open(&channel_b, 260, [0xf0; 16]),
+            ),
+            Err(SessionReject::Stream(StreamReject::OverCapacity))
+        );
+    }
+    assert_eq!(session.audit_events().len(), 1_024);
+    assert_eq!(
+        session.audit_events().last().map(|event| event.sequence),
+        Some(1_024)
+    );
+    assert_eq!(
+        session.revoke_channel(channel_b.channel_id, NOW + 200),
+        Err(SessionReject::AuditUnavailable)
+    );
+    assert_eq!(
+        session.channel_state(channel_b.channel_id),
+        Some(ChannelState::Active)
+    );
+    destination
+        .bind_channel(&mut session, channel_b.channel_id)
+        .expect("audit exhaustion did not unbind sibling");
 
     source.close().await.expect("source close");
     destination.close().await.expect("destination close");

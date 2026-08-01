@@ -24,6 +24,18 @@ struct StreamEntry {
     gate: StreamGate,
 }
 
+pub(crate) struct PreparedStreamOpen {
+    channel_id: [u8; 16],
+    stream_id: u64,
+    gate: StreamGate,
+}
+
+pub(crate) struct PreparedStreamTransition {
+    channel_id: [u8; 16],
+    stream_id: u64,
+    gate: StreamGate,
+}
+
 impl ChannelStreams {
     pub(crate) fn new() -> Self {
         Self {
@@ -32,56 +44,95 @@ impl ChannelStreams {
         }
     }
 
-    pub(crate) fn authorize_open(
-        &mut self,
+    pub(crate) fn prepare_open(
+        &self,
         channel: &ActiveChannel,
         envelope: &CoreV02Envelope,
-    ) -> Result<(), StreamReject> {
+    ) -> Result<PreparedStreamOpen, StreamReject> {
         let request = envelope
             .stream_open_request()
             .map_err(|_| StreamReject::ControlRejected)?;
         if self.used_stream_ids.contains(&request.quic_stream_id) {
             return Err(StreamReject::DuplicateStream);
         }
-        let channel_state =
-            self.channels
-                .entry(channel.channel_id)
-                .or_insert_with(|| ChannelStreamState {
-                    buffered: 0,
-                    streams: HashMap::new(),
-                });
-        if channel_state.streams.len() >= MAX_STREAMS_PER_CHANNEL {
+        if self
+            .channels
+            .get(&channel.channel_id)
+            .map_or(0, |state| state.streams.len())
+            >= MAX_STREAMS_PER_CHANNEL
+        {
             return Err(StreamReject::OverCapacity);
         }
-
         let mut gate = StreamGate::new(channel.clone());
         gate.authorize_open(envelope)?;
-        self.used_stream_ids.insert(request.quic_stream_id);
-        channel_state
-            .streams
-            .insert(request.quic_stream_id, StreamEntry { buffered: 0, gate });
-        Ok(())
+        Ok(PreparedStreamOpen {
+            channel_id: channel.channel_id,
+            stream_id: request.quic_stream_id,
+            gate,
+        })
     }
 
-    pub(crate) fn confirm_accept(
-        &mut self,
+    pub(crate) fn commit_open(&mut self, prepared: PreparedStreamOpen) {
+        self.used_stream_ids.insert(prepared.stream_id);
+        self.channels
+            .entry(prepared.channel_id)
+            .or_insert_with(|| ChannelStreamState {
+                buffered: 0,
+                streams: HashMap::new(),
+            })
+            .streams
+            .insert(
+                prepared.stream_id,
+                StreamEntry {
+                    buffered: 0,
+                    gate: prepared.gate,
+                },
+            );
+    }
+
+    pub(crate) fn prepare_accept(
+        &self,
         channel_id: &[u8; 16],
         envelope: &CoreV02Envelope,
-    ) -> Result<(), StreamReject> {
+    ) -> Result<PreparedStreamTransition, StreamReject> {
         let (stream_id, _, _) = envelope
             .stream_accept_binding()
             .map_err(|_| StreamReject::ControlRejected)?;
-        self.entry_mut(channel_id, stream_id)?.gate.accept(envelope)
+        let mut gate = self.entry(channel_id, stream_id)?.gate.clone();
+        gate.accept(envelope)?;
+        Ok(PreparedStreamTransition {
+            channel_id: *channel_id,
+            stream_id,
+            gate,
+        })
     }
 
-    pub(crate) fn authorize_application_stream(
-        &mut self,
+    pub(crate) fn prepare_application_stream(
+        &self,
         channel_id: &[u8; 16],
-        actual_stream_id: u64,
-    ) -> Result<(), StreamReject> {
-        self.entry_mut(channel_id, actual_stream_id)?
-            .gate
-            .authorize_application_stream(actual_stream_id)
+        stream_id: u64,
+    ) -> Result<PreparedStreamTransition, StreamReject> {
+        let mut gate = self.entry(channel_id, stream_id)?.gate.clone();
+        gate.authorize_application_stream(stream_id)?;
+        Ok(PreparedStreamTransition {
+            channel_id: *channel_id,
+            stream_id,
+            gate,
+        })
+    }
+
+    pub(crate) fn commit_transition(&mut self, prepared: PreparedStreamTransition) {
+        if let Some(entry) = self
+            .channels
+            .get_mut(&prepared.channel_id)
+            .and_then(|channel| channel.streams.get_mut(&prepared.stream_id))
+        {
+            entry.gate = prepared.gate;
+        }
+    }
+
+    pub(crate) fn revoke_channel(&mut self, channel_id: &[u8; 16]) {
+        self.channels.remove(channel_id);
     }
 
     pub(crate) fn reserve_bytes(
@@ -165,14 +216,10 @@ impl ChannelStreams {
         Ok(())
     }
 
-    fn entry_mut(
-        &mut self,
-        channel_id: &[u8; 16],
-        stream_id: u64,
-    ) -> Result<&mut StreamEntry, StreamReject> {
+    fn entry(&self, channel_id: &[u8; 16], stream_id: u64) -> Result<&StreamEntry, StreamReject> {
         self.channels
-            .get_mut(channel_id)
-            .and_then(|channel| channel.streams.get_mut(&stream_id))
+            .get(channel_id)
+            .and_then(|channel| channel.streams.get(&stream_id))
             .ok_or(StreamReject::ControlRejected)
     }
 }
@@ -222,15 +269,28 @@ mod tests {
     }
 
     fn authorize(streams: &mut ChannelStreams, channel: &ActiveChannel, stream_id: u64) {
-        streams
-            .authorize_open(channel, &open(channel, stream_id))
+        let prepared = streams
+            .prepare_open(channel, &open(channel, stream_id))
             .expect("open authorized");
-        streams
-            .confirm_accept(&channel.channel_id, &accept(channel, stream_id))
+        streams.commit_open(prepared);
+        let prepared = streams
+            .prepare_accept(&channel.channel_id, &accept(channel, stream_id))
             .expect("accept confirmed");
-        streams
-            .authorize_application_stream(&channel.channel_id, stream_id)
+        streams.commit_transition(prepared);
+        let prepared = streams
+            .prepare_application_stream(&channel.channel_id, stream_id)
             .expect("actual stream confirmed");
+        streams.commit_transition(prepared);
+    }
+
+    fn authorize_open(
+        streams: &mut ChannelStreams,
+        channel: &ActiveChannel,
+        stream_id: u64,
+    ) -> Result<(), StreamReject> {
+        let prepared = streams.prepare_open(channel, &open(channel, stream_id))?;
+        streams.commit_open(prepared);
+        Ok(())
     }
 
     #[test]
@@ -240,15 +300,15 @@ mod tests {
         let mut streams = ChannelStreams::new();
         authorize(&mut streams, &first, 4);
         assert_eq!(
-            streams.authorize_open(&second, &open(&second, 4)),
-            Err(StreamReject::DuplicateStream)
+            streams.prepare_open(&second, &open(&second, 4)).err(),
+            Some(StreamReject::DuplicateStream)
         );
         streams
             .release_stream(&first.channel_id, 4)
             .expect("release first stream");
         assert_eq!(
-            streams.authorize_open(&second, &open(&second, 4)),
-            Err(StreamReject::DuplicateStream)
+            streams.prepare_open(&second, &open(&second, 4)).err(),
+            Some(StreamReject::DuplicateStream)
         );
     }
 
@@ -258,23 +318,18 @@ mod tests {
         let sibling = channel(2);
         let mut streams = ChannelStreams::new();
         for stream_id in (4..=256).step_by(4) {
-            streams
-                .authorize_open(&first, &open(&first, stream_id))
-                .expect("first 64 streams");
+            authorize_open(&mut streams, &first, stream_id).expect("first 64 streams");
         }
         assert_eq!(
-            streams.authorize_open(&first, &open(&first, 260)),
-            Err(StreamReject::OverCapacity)
+            streams.prepare_open(&first, &open(&first, 260)).err(),
+            Some(StreamReject::OverCapacity)
         );
         streams
             .release_stream(&first.channel_id, 4)
             .expect("release one active slot");
-        streams
-            .authorize_open(&first, &open(&first, 268))
+        authorize_open(&mut streams, &first, 268)
             .expect("released slot is available to a fresh stream ID");
-        streams
-            .authorize_open(&sibling, &open(&sibling, 264))
-            .expect("sibling remains independent");
+        authorize_open(&mut streams, &sibling, 264).expect("sibling remains independent");
     }
 
     #[test]
@@ -343,12 +398,12 @@ mod tests {
         let first = channel(1);
         let sibling = channel(2);
         let mut streams = ChannelStreams::new();
-        streams
-            .authorize_open(&first, &open(&first, 4))
-            .expect("first open");
+        authorize_open(&mut streams, &first, 4).expect("first open");
         assert_eq!(
-            streams.authorize_application_stream(&first.channel_id, 4),
-            Err(StreamReject::ControlRejected)
+            streams
+                .prepare_application_stream(&first.channel_id, 4)
+                .err(),
+            Some(StreamReject::ControlRejected)
         );
 
         authorize(&mut streams, &sibling, 8);
@@ -358,6 +413,33 @@ mod tests {
         streams
             .release_bytes(&sibling.channel_id, 8, 17)
             .expect("sibling accounting remains exact");
+    }
+
+    #[test]
+    fn revoking_one_channel_removes_only_its_stream_and_byte_state() {
+        let first = channel(1);
+        let sibling = channel(2);
+        let mut streams = ChannelStreams::new();
+        authorize(&mut streams, &first, 4);
+        authorize(&mut streams, &sibling, 8);
+        streams
+            .reserve_bytes(&first.channel_id, 4, 99)
+            .expect("first bytes");
+        streams
+            .reserve_bytes(&sibling.channel_id, 8, 17)
+            .expect("sibling bytes");
+
+        streams.revoke_channel(&first.channel_id);
+        assert_eq!(
+            streams.reserve_bytes(&first.channel_id, 4, 1),
+            Err(StreamReject::ControlRejected)
+        );
+        streams
+            .release_bytes(&sibling.channel_id, 8, 17)
+            .expect("sibling accounting unchanged");
+        streams
+            .reserve_bytes(&sibling.channel_id, 8, 1_048_576)
+            .expect("sibling remains independently usable");
     }
 
     fn envelope(

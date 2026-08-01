@@ -36,7 +36,9 @@
 #![forbid(unsafe_code)]
 
 mod admission;
+mod audit;
 mod channel_binding;
+mod channel_lifecycle;
 mod channel_registry;
 mod channel_streams;
 mod config;
@@ -50,10 +52,12 @@ pub use admission::{
     ActiveChannel, AdmissionPolicy, AdmissionReject, AuthorizedServicePolicy, DestinationAdmission,
     RouteGrantClaims, RouteOpenRequest,
 };
+pub use audit::{AuditAction, AuditEvent, AuditOutcome, AuditReason, SafeServiceId};
 pub use channel_binding::{
     ChannelBinding, ServiceChannelBinding, ServiceChannelContext, ServiceChannelExporterError,
     canonical_service_channel_context, derive_service_channel_exporter_fixture,
 };
+pub use channel_lifecycle::ChannelState;
 pub use channel_registry::ChannelLimits;
 pub use config::{
     ClientEndpointConfig, EdgeIdentity, EdgeRole, PeerPolicy, ServerEndpointConfig, TlsMaterial,

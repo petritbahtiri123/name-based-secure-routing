@@ -418,7 +418,8 @@ fn argument(target: &mut Vec<u8>, major: u8, value: u64) {
 
 #[test]
 fn admission_keeps_independently_authorized_channels_pending_until_confirmation() {
-    let mut admission = DestinationAdmission::new(admission_policy());
+    let mut admission =
+        DestinationAdmission::new(admission_policy()).expect("valid admission policy");
 
     let first = admission
         .admit(request(1, "service-a", 42, POLICY_A))
@@ -439,7 +440,7 @@ async fn signed_grant_nonce_replay_cannot_disturb_an_active_sibling() {
         .to_bytes();
     let mut session = ControlSession::new(
         &destination,
-        DestinationAdmission::new(runtime_policy()),
+        DestinationAdmission::new(runtime_policy()).expect("valid admission policy"),
         vec![RouteGrantIssuer {
             kid: KID.to_vec(),
             public_key: issuer_key,
@@ -478,7 +479,8 @@ async fn signed_grant_nonce_replay_cannot_disturb_an_active_sibling() {
 
 #[test]
 fn same_service_requires_fresh_grant_and_service_cannot_inherit_another_policy() {
-    let mut admission = DestinationAdmission::new(admission_policy());
+    let mut admission =
+        DestinationAdmission::new(admission_policy()).expect("valid admission policy");
     for id in 1..=2 {
         admission
             .admit(request(id, "service-a", 42, POLICY_A))
@@ -501,7 +503,7 @@ async fn one_hello_session_repeats_isolated_signed_route_exchanges() {
         .to_bytes();
     let mut session = ControlSession::new(
         &destination,
-        DestinationAdmission::new(runtime_policy()),
+        DestinationAdmission::new(runtime_policy()).expect("valid admission policy"),
         vec![RouteGrantIssuer {
             kid: KID.to_vec(),
             public_key: issuer_key,

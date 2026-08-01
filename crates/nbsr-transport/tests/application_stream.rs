@@ -73,7 +73,11 @@ fn control_session(connection: &nbsr_transport::AuthenticatedConnection) -> Cont
             0xf7, 0x07, 0x51, 0x1a,
         ],
     };
-    ControlSession::new(connection, DestinationAdmission::new(policy), vec![issuer])
+    ControlSession::new(
+        connection,
+        DestinationAdmission::new(policy).expect("valid admission policy"),
+        vec![issuer],
+    )
 }
 
 async fn connection_pair() -> (

@@ -22,11 +22,13 @@ pub struct StreamOpenRequest {
     pub port: u16,
 }
 
+#[derive(Clone)]
 pub(crate) struct StreamGate {
     channel: ActiveChannel,
     state: StreamGateState,
 }
 
+#[derive(Clone)]
 enum StreamGateState {
     AwaitingOpen,
     AwaitingAccept {

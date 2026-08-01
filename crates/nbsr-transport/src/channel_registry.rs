@@ -1,7 +1,8 @@
 //! Bounded in-memory Service Channel state for one authenticated session.
 
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 
+use crate::channel_lifecycle::{ChannelState, ReplayPreflightError, ReplayStore};
 use crate::{ActiveChannel, AdmissionReject, ChannelBinding};
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -21,25 +22,48 @@ impl Default for ChannelLimits {
 
 struct PendingChannel {
     channel: ActiveChannel,
+    grant_expires_at: u64,
 }
 
 pub(crate) struct ChannelRegistry {
     limits: ChannelLimits,
     pending: HashMap<[u8; 16], PendingChannel>,
     active: HashMap<[u8; 16], ActiveChannelEntry>,
-    used_channel_ids: HashSet<[u8; 16]>,
-    used_grant_nonces: HashSet<[u8; 16]>,
+    terminal: HashMap<[u8; 16], TerminalChannelEntry>,
+    replay: ReplayStore,
 }
 
 struct ActiveChannelEntry {
     channel: ActiveChannel,
     binding: Option<ChannelBinding>,
+    grant_expires_at: u64,
+}
+
+struct TerminalChannelEntry {
+    channel: ActiveChannel,
+    state: ChannelState,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(crate) enum ChannelBindingInstallError {
+    AuditUnavailable,
+    InvalidState,
     UnknownChannel,
     Mismatch,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(crate) enum ChannelLifecycleError {
+    AuditUnavailable,
+    UnknownChannel,
+    InvalidState,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(crate) enum PendingAdmissionError {
+    Replay,
+    ReplayCapacity,
+    ChannelCapacity,
 }
 
 impl ChannelRegistry {
@@ -48,34 +72,61 @@ impl ChannelRegistry {
             limits,
             pending: HashMap::new(),
             active: HashMap::new(),
-            used_channel_ids: HashSet::new(),
-            used_grant_nonces: HashSet::new(),
+            terminal: HashMap::new(),
+            replay: ReplayStore::new(),
         }
     }
 
-    pub(crate) fn admit_pending(
-        &mut self,
-        channel: ActiveChannel,
-        grant_nonce: [u8; 16],
-    ) -> Result<(), AdmissionReject> {
-        if self.used_channel_ids.contains(&channel.channel_id)
-            || self.used_grant_nonces.contains(&grant_nonce)
-        {
-            return Err(AdmissionReject::Replay);
+    pub(crate) fn preflight_pending(
+        &self,
+        channel: &ActiveChannel,
+        grant_nonce: &[u8; 16],
+    ) -> Result<(), PendingAdmissionError> {
+        match self.replay.preflight(&channel.channel_id, grant_nonce) {
+            Ok(()) => {}
+            Err(ReplayPreflightError::Replay) => return Err(PendingAdmissionError::Replay),
+            Err(ReplayPreflightError::Capacity) => {
+                return Err(PendingAdmissionError::ReplayCapacity);
+            }
         }
         if self.pending.len() + self.active.len() >= self.limits.max_channels_per_session
             || self.pending_for_service(&channel.service_id)
                 + self.active_for_service(&channel.service_id)
                 >= self.limits.max_channels_per_service
         {
-            return Err(AdmissionReject::OverCapacity);
+            return Err(PendingAdmissionError::ChannelCapacity);
         }
-
-        self.used_channel_ids.insert(channel.channel_id);
-        self.used_grant_nonces.insert(grant_nonce);
-        self.pending
-            .insert(channel.channel_id, PendingChannel { channel });
         Ok(())
+    }
+
+    pub(crate) fn admit_pending(
+        &mut self,
+        channel: ActiveChannel,
+        grant_nonce: [u8; 16],
+        grant_expires_at: u64,
+    ) {
+        self.replay.insert(channel.channel_id, grant_nonce);
+        self.pending.insert(
+            channel.channel_id,
+            PendingChannel {
+                channel,
+                grant_expires_at,
+            },
+        );
+    }
+
+    pub(crate) fn channel_state(&self, channel_id: &[u8; 16]) -> Option<ChannelState> {
+        if self.pending.contains_key(channel_id) {
+            Some(ChannelState::Candidate)
+        } else if self.active.contains_key(channel_id) {
+            Some(ChannelState::Active)
+        } else {
+            self.terminal.get(channel_id).map(|entry| entry.state)
+        }
+    }
+
+    pub(crate) fn candidate(&self, channel_id: &[u8; 16]) -> Option<&ActiveChannel> {
+        self.pending.get(channel_id).map(|entry| &entry.channel)
     }
 
     pub(crate) fn confirm_active(&mut self, channel_id: &[u8; 16]) -> Result<(), AdmissionReject> {
@@ -88,6 +139,7 @@ impl ChannelRegistry {
             ActiveChannelEntry {
                 channel: pending.channel,
                 binding: None,
+                grant_expires_at: pending.grant_expires_at,
             },
         );
         Ok(())
@@ -109,10 +161,14 @@ impl ChannelRegistry {
         channel_id: &[u8; 16],
         binding: ChannelBinding,
     ) -> Result<(), ChannelBindingInstallError> {
-        let entry = self
-            .active
-            .get_mut(channel_id)
-            .ok_or(ChannelBindingInstallError::UnknownChannel)?;
+        let known_channel = self.channel_state(channel_id).is_some();
+        let Some(entry) = self.active.get_mut(channel_id) else {
+            return Err(if known_channel {
+                ChannelBindingInstallError::InvalidState
+            } else {
+                ChannelBindingInstallError::UnknownChannel
+            });
+        };
         if !binding.is_for_channel(channel_id) {
             return Err(ChannelBindingInstallError::Mismatch);
         }
@@ -124,6 +180,102 @@ impl ChannelRegistry {
                 Ok(())
             }
         }
+    }
+
+    pub(crate) fn binding_needs_install(
+        &self,
+        channel_id: &[u8; 16],
+        binding: &ChannelBinding,
+    ) -> Result<bool, ChannelBindingInstallError> {
+        let entry = self.active.get(channel_id).ok_or_else(|| {
+            if self.channel_state(channel_id).is_some() {
+                ChannelBindingInstallError::InvalidState
+            } else {
+                ChannelBindingInstallError::UnknownChannel
+            }
+        })?;
+        if !binding.is_for_channel(channel_id) {
+            return Err(ChannelBindingInstallError::Mismatch);
+        }
+        match entry.binding.as_ref() {
+            Some(existing) if existing == binding => Ok(false),
+            Some(_) => Err(ChannelBindingInstallError::Mismatch),
+            None => Ok(true),
+        }
+    }
+
+    pub(crate) fn revocable_channel(
+        &self,
+        channel_id: &[u8; 16],
+    ) -> Result<&ActiveChannel, ChannelLifecycleError> {
+        if let Some(entry) = self.active.get(channel_id) {
+            return Ok(&entry.channel);
+        }
+        Err(if self.channel_state(channel_id).is_some() {
+            ChannelLifecycleError::InvalidState
+        } else {
+            ChannelLifecycleError::UnknownChannel
+        })
+    }
+
+    pub(crate) fn revoke(
+        &mut self,
+        channel_id: &[u8; 16],
+        revoked_at: u64,
+    ) -> Result<(), ChannelLifecycleError> {
+        let entry = self.active.remove(channel_id).ok_or_else(|| {
+            if self.channel_state(channel_id).is_some() {
+                ChannelLifecycleError::InvalidState
+            } else {
+                ChannelLifecycleError::UnknownChannel
+            }
+        })?;
+        let tombstone_expires_at = entry
+            .grant_expires_at
+            .saturating_add(30)
+            .max(revoked_at.saturating_add(30));
+        self.replay.mark_tombstone(channel_id, tombstone_expires_at);
+        self.terminal.insert(
+            *channel_id,
+            TerminalChannelEntry {
+                channel: entry.channel,
+                state: ChannelState::Revoked,
+            },
+        );
+        Ok(())
+    }
+
+    pub(crate) fn closable_channel(
+        &self,
+        channel_id: &[u8; 16],
+    ) -> Result<&ActiveChannel, ChannelLifecycleError> {
+        match self.terminal.get(channel_id) {
+            Some(entry) if entry.state == ChannelState::Revoked => Ok(&entry.channel),
+            Some(_) => Err(ChannelLifecycleError::InvalidState),
+            None if self.channel_state(channel_id).is_some() => {
+                Err(ChannelLifecycleError::InvalidState)
+            }
+            None => Err(ChannelLifecycleError::UnknownChannel),
+        }
+    }
+
+    pub(crate) fn close_revoked(
+        &mut self,
+        channel_id: &[u8; 16],
+    ) -> Result<(), ChannelLifecycleError> {
+        let entry = self
+            .terminal
+            .get_mut(channel_id)
+            .ok_or(ChannelLifecycleError::UnknownChannel)?;
+        if entry.state != ChannelState::Revoked {
+            return Err(ChannelLifecycleError::InvalidState);
+        }
+        entry.state = ChannelState::Closed;
+        Ok(())
+    }
+
+    pub(crate) fn tombstone_expires_at(&self, channel_id: &[u8; 16]) -> Option<u64> {
+        self.replay.tombstone_expires_at(channel_id)
     }
 
     #[allow(dead_code)] // Reserved for the later bounded channel-lifecycle task.
@@ -180,33 +332,37 @@ mod tests {
 
         let mut per_service = ChannelRegistry::new(limits);
         for id in 1..=8 {
+            let active = channel(id, "service-a");
             per_service
-                .admit_pending(channel(id, "service-a"), [id; 16])
+                .preflight_pending(&active, &[id; 16])
                 .expect("first eight channels for one service");
+            per_service.admit_pending(active, [id; 16], 1_000);
             per_service
                 .confirm_active(&[id; 16])
                 .expect("pending channel activates");
         }
         assert_eq!(per_service.active_for_service("service-a"), 8);
         assert_eq!(
-            per_service.admit_pending(channel(9, "service-a"), [9; 16]),
-            Err(AdmissionReject::OverCapacity)
+            per_service.preflight_pending(&channel(9, "service-a"), &[9; 16]),
+            Err(PendingAdmissionError::ChannelCapacity)
         );
 
         let mut per_session = ChannelRegistry::new(limits);
         for id in 1..=32 {
             let service_id = format!("service-{id}");
+            let active = channel(id, &service_id);
             per_session
-                .admit_pending(channel(id, &service_id), [id; 16])
+                .preflight_pending(&active, &[id; 16])
                 .expect("first 32 session channels");
+            per_session.admit_pending(active, [id; 16], 1_000);
             per_session
                 .confirm_active(&[id; 16])
                 .expect("pending channel activates");
         }
         assert_eq!(per_session.active_len(), 32);
         assert_eq!(
-            per_session.admit_pending(channel(33, "service-33"), [33; 16]),
-            Err(AdmissionReject::OverCapacity)
+            per_session.preflight_pending(&channel(33, "service-33"), &[33; 16]),
+            Err(PendingAdmissionError::ChannelCapacity)
         );
     }
 
@@ -214,8 +370,9 @@ mod tests {
     fn retains_channel_and_nonce_replay_history_after_removal() {
         let mut registry = ChannelRegistry::new(ChannelLimits::default());
         registry
-            .admit_pending(channel(1, "service-a"), [0xa1; 16])
+            .preflight_pending(&channel(1, "service-a"), &[0xa1; 16])
             .expect("fresh channel");
+        registry.admit_pending(channel(1, "service-a"), [0xa1; 16], 1_000);
         registry
             .confirm_active(&[1; 16])
             .expect("activate fresh channel");
@@ -223,22 +380,80 @@ mod tests {
         assert_eq!(registry.active_len(), 0);
 
         assert_eq!(
-            registry.admit_pending(channel(1, "service-b"), [0xa2; 16]),
-            Err(AdmissionReject::Replay)
+            registry.preflight_pending(&channel(1, "service-b"), &[0xa2; 16]),
+            Err(PendingAdmissionError::Replay)
         );
         assert_eq!(
-            registry.admit_pending(channel(2, "service-b"), [0xa1; 16]),
-            Err(AdmissionReject::Replay)
+            registry.preflight_pending(&channel(2, "service-b"), &[0xa1; 16]),
+            Err(PendingAdmissionError::Replay)
         );
+    }
+
+    #[test]
+    fn revocation_is_terminal_and_retains_saturating_tombstone_and_replay_keys() {
+        let mut registry = ChannelRegistry::new(ChannelLimits::default());
+        for id in 1..=2 {
+            let active = channel(id, &format!("service-{id}"));
+            registry
+                .preflight_pending(&active, &[id; 16])
+                .expect("fresh sibling channel");
+            registry.admit_pending(active, [id; 16], u64::MAX - 10);
+            registry
+                .confirm_active(&[id; 16])
+                .expect("activate sibling channel");
+        }
+
+        registry
+            .revoke(&[1; 16], u64::MAX - 20)
+            .expect("active channel revokes");
+        assert_eq!(
+            registry.channel_state(&[1; 16]),
+            Some(ChannelState::Revoked)
+        );
+        assert_eq!(registry.channel_state(&[2; 16]), Some(ChannelState::Active));
+        assert_eq!(registry.tombstone_expires_at(&[1; 16]), Some(u64::MAX));
+        assert_eq!(
+            registry.revoke(&[1; 16], u64::MAX),
+            Err(ChannelLifecycleError::InvalidState)
+        );
+        assert_eq!(
+            registry.revoke(&[9; 16], u64::MAX),
+            Err(ChannelLifecycleError::UnknownChannel)
+        );
+
+        registry
+            .close_revoked(&[1; 16])
+            .expect("revoked channel closes");
+        assert_eq!(registry.channel_state(&[1; 16]), Some(ChannelState::Closed));
+        assert_eq!(registry.tombstone_expires_at(&[1; 16]), Some(u64::MAX));
+        assert_eq!(
+            registry.preflight_pending(&channel(1, "service-new"), &[9; 16]),
+            Err(PendingAdmissionError::Replay)
+        );
+        assert_eq!(
+            registry.preflight_pending(&channel(9, "service-new"), &[1; 16]),
+            Err(PendingAdmissionError::Replay)
+        );
+        assert_eq!(
+            registry.revoke(&[1; 16], u64::MAX),
+            Err(ChannelLifecycleError::InvalidState)
+        );
+        assert_eq!(
+            registry.close_revoked(&[2; 16]),
+            Err(ChannelLifecycleError::UnknownChannel)
+        );
+        assert_eq!(registry.channel_state(&[2; 16]), Some(ChannelState::Active));
     }
 
     #[test]
     fn a_binding_derived_for_one_channel_cannot_bind_a_sibling() {
         let mut registry = ChannelRegistry::new(ChannelLimits::default());
         for id in 1..=2 {
+            let active = channel(id, &format!("service-{id}"));
             registry
-                .admit_pending(channel(id, &format!("service-{id}")), [id; 16])
+                .preflight_pending(&active, &[id; 16])
                 .expect("fresh sibling channel");
+            registry.admit_pending(active, [id; 16], 1_000);
             registry
                 .confirm_active(&[id; 16])
                 .expect("activate sibling channel");

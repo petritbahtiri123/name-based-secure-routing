@@ -8,7 +8,11 @@ use std::collections::BTreeMap;
 use ed25519_dalek::{Signature, VerifyingKey};
 use sha2::{Digest, Sha256};
 
-use crate::channel_registry::{ChannelBindingInstallError, ChannelRegistry};
+use crate::audit::{AuditAction, AuditEvent, AuditLog, AuditOutcome, AuditReason, SafeServiceId};
+use crate::channel_lifecycle::ChannelState;
+use crate::channel_registry::{
+    ChannelBindingInstallError, ChannelLifecycleError, ChannelRegistry, PendingAdmissionError,
+};
 use crate::{ChannelBinding, ChannelLimits, CoreV02Envelope, CoreV02Reject, RouteGrantIssuer};
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -68,6 +72,7 @@ pub struct ActiveChannel {
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum AdmissionReject {
+    AuditUnavailable,
     GrantInvalid,
     GrantExpired,
     Replay,
@@ -76,27 +81,69 @@ pub enum AdmissionReject {
 }
 
 pub struct DestinationAdmission {
+    audit: AuditLog,
     policy: AdmissionPolicy,
     channels: ChannelRegistry,
 }
 
 impl DestinationAdmission {
-    pub fn new(policy: AdmissionPolicy) -> Self {
+    pub fn new(policy: AdmissionPolicy) -> Result<Self, AdmissionReject> {
         Self::with_limits(policy, ChannelLimits::default())
     }
 
-    pub fn with_limits(policy: AdmissionPolicy, limits: ChannelLimits) -> Self {
-        Self {
+    pub fn with_limits(
+        policy: AdmissionPolicy,
+        limits: ChannelLimits,
+    ) -> Result<Self, AdmissionReject> {
+        if policy.authorized_services.len() > 32
+            || policy
+                .authorized_services
+                .keys()
+                .any(|service_id| !SafeServiceId::is_valid(service_id))
+        {
+            return Err(AdmissionReject::OverCapacity);
+        }
+        Ok(Self {
+            audit: AuditLog::new(),
             policy,
             channels: ChannelRegistry::new(limits),
-        }
+        })
     }
 
     pub fn active_channels(&self) -> usize {
         self.channels.active_len()
     }
 
+    pub fn channel_state(&self, channel_id: [u8; 16]) -> Option<ChannelState> {
+        self.channels.channel_state(&channel_id)
+    }
+
+    pub fn audit_events(&self) -> impl ExactSizeIterator<Item = &AuditEvent> {
+        self.audit.events().iter()
+    }
+
+    pub fn pop_audit_event(&mut self) -> Option<AuditEvent> {
+        self.audit.pop()
+    }
+
+    pub(crate) fn set_session_id(&mut self, session_id: [u8; 16]) {
+        self.audit.set_session_id(session_id);
+    }
+
     pub(crate) fn confirm_channel(&mut self, channel_id: &[u8; 16]) -> Result<(), AdmissionReject> {
+        let channel = self
+            .channels
+            .candidate(channel_id)
+            .ok_or(AdmissionReject::RouteDenied)?;
+        self.audit
+            .record(
+                Some(channel.channel_id),
+                &channel.service_id,
+                AuditAction::RouteActivated,
+                AuditOutcome::Allowed,
+                AuditReason::None,
+            )
+            .map_err(|_| AdmissionReject::AuditUnavailable)?;
         self.channels.confirm_active(channel_id)
     }
 
@@ -113,7 +160,111 @@ impl DestinationAdmission {
         channel_id: &[u8; 16],
         binding: ChannelBinding,
     ) -> Result<(), ChannelBindingInstallError> {
+        let needs_install = self.channels.binding_needs_install(channel_id, &binding)?;
+        if !needs_install {
+            return Ok(());
+        }
+        let service_id = self
+            .channels
+            .channel(channel_id)
+            .ok_or(ChannelBindingInstallError::InvalidState)?
+            .service_id
+            .clone();
+        self.audit
+            .record(
+                Some(*channel_id),
+                &service_id,
+                AuditAction::BindingInstalled,
+                AuditOutcome::Allowed,
+                AuditReason::None,
+            )
+            .map_err(|_| ChannelBindingInstallError::AuditUnavailable)?;
         self.channels.install_binding(channel_id, binding)
+    }
+
+    pub(crate) fn revoke_channel(
+        &mut self,
+        channel_id: &[u8; 16],
+        revoked_at: u64,
+    ) -> Result<(), ChannelLifecycleError> {
+        let service_id = self
+            .channels
+            .revocable_channel(channel_id)?
+            .service_id
+            .clone();
+        self.audit
+            .record(
+                Some(*channel_id),
+                &service_id,
+                AuditAction::ChannelRevoked,
+                AuditOutcome::Allowed,
+                AuditReason::None,
+            )
+            .map_err(|_| ChannelLifecycleError::AuditUnavailable)?;
+        self.channels.revoke(channel_id, revoked_at)
+    }
+
+    pub(crate) fn close_channel(
+        &mut self,
+        channel_id: &[u8; 16],
+    ) -> Result<(), ChannelLifecycleError> {
+        let service_id = self
+            .channels
+            .closable_channel(channel_id)?
+            .service_id
+            .clone();
+        self.audit
+            .record(
+                Some(*channel_id),
+                &service_id,
+                AuditAction::ChannelClosed,
+                AuditOutcome::Allowed,
+                AuditReason::None,
+            )
+            .map_err(|_| ChannelLifecycleError::AuditUnavailable)?;
+        self.channels.close_revoked(channel_id)
+    }
+
+    pub(crate) fn audit_stream_authorized(
+        &mut self,
+        channel_id: &[u8; 16],
+    ) -> Result<(), AdmissionReject> {
+        let channel = self
+            .channels
+            .bound_channel(channel_id)
+            .ok_or(AdmissionReject::RouteDenied)?;
+        self.audit
+            .record(
+                Some(*channel_id),
+                &channel.service_id,
+                AuditAction::StreamAuthorized,
+                AuditOutcome::Allowed,
+                AuditReason::None,
+            )
+            .map_err(|_| AdmissionReject::AuditUnavailable)
+    }
+
+    pub(crate) fn audit_quota_denial(
+        &mut self,
+        channel_id: &[u8; 16],
+    ) -> Result<(), AdmissionReject> {
+        let channel = self
+            .channels
+            .bound_channel(channel_id)
+            .ok_or(AdmissionReject::RouteDenied)?;
+        self.audit
+            .record(
+                Some(*channel_id),
+                &channel.service_id,
+                AuditAction::QuotaDenied,
+                AuditOutcome::Denied,
+                AuditReason::QuotaExceeded,
+            )
+            .map_err(|_| AdmissionReject::AuditUnavailable)
+    }
+
+    pub(crate) fn tombstone_expires_at(&self, channel_id: &[u8; 16]) -> Option<u64> {
+        self.channels.tombstone_expires_at(channel_id)
     }
 
     pub(crate) fn policy_hash(&self, service_id: &str) -> Option<[u8; 32]> {
@@ -153,8 +304,42 @@ impl DestinationAdmission {
             transport: request.requested_transport.clone(),
             port: request.requested_port,
         };
-        self.channels
-            .admit_pending(channel.clone(), request.grant.unique_nonce)?;
+        match self
+            .channels
+            .preflight_pending(&channel, &request.grant.unique_nonce)
+        {
+            Ok(()) => {}
+            Err(PendingAdmissionError::Replay) => return Err(AdmissionReject::Replay),
+            Err(PendingAdmissionError::ReplayCapacity) => {
+                return Err(AdmissionReject::OverCapacity);
+            }
+            Err(PendingAdmissionError::ChannelCapacity) => {
+                self.audit
+                    .record(
+                        Some(channel.channel_id),
+                        &channel.service_id,
+                        AuditAction::QuotaDenied,
+                        AuditOutcome::Denied,
+                        AuditReason::Capacity,
+                    )
+                    .map_err(|_| AdmissionReject::AuditUnavailable)?;
+                return Err(AdmissionReject::OverCapacity);
+            }
+        }
+        self.audit
+            .record(
+                Some(channel.channel_id),
+                &channel.service_id,
+                AuditAction::RouteCandidateReserved,
+                AuditOutcome::Allowed,
+                AuditReason::None,
+            )
+            .map_err(|_| AdmissionReject::AuditUnavailable)?;
+        self.channels.admit_pending(
+            channel.clone(),
+            request.grant.unique_nonce,
+            request.grant.expires_at,
+        );
         Ok(channel)
     }
 
