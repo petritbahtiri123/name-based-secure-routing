@@ -166,11 +166,15 @@ fn fake_clock_deadlines_cover_every_required_bound_and_saturate() {
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn channel_drain_denies_new_work_but_allows_release_until_the_exact_deadline() {
     let (listener, source, destination) = connection_pair().await;
+    let mut source_session = established_session(&source);
     let mut session = established_session(&destination);
     let channel = vector_channel();
     destination
         .bind_channel(&mut session, channel.channel_id)
         .expect("bind active channel");
+    source
+        .bind_channel(&mut source_session, channel.channel_id)
+        .expect("bind source channel");
 
     let stream_open = decode_vector("artifacts/valid/envelopes/stream-open.cbor");
     let stream_accept = decode_vector("artifacts/valid/envelopes/stream-accept.cbor");
@@ -180,21 +184,30 @@ async fn channel_drain_denies_new_work_but_allows_release_until_the_exact_deadli
     session
         .confirm_stream_accept(channel.channel_id, &stream_accept)
         .expect("confirmed stream before drain");
+    source_session
+        .authorize_stream_open(channel.channel_id, &stream_open)
+        .expect("source accepted stream before drain");
+    source_session
+        .confirm_stream_accept(channel.channel_id, &stream_accept)
+        .expect("source confirmed stream before drain");
+    let permit4 = source_session
+        .application_stream_permit(channel.channel_id, 4)
+        .expect("source stream permit");
     let (rejected_id, rejected_result) =
         tokio::join!(destination.reject_next_application_stream(), async {
-            let mut stream = source.open_application_stream().await?;
-            stream.send_payload(b"reserve-control-stream-id").await?;
-            stream.receive_payload().await
+            let mut stream = source.open_control_stream().await?;
+            stream.send_envelope(&stream_open).await?;
+            stream.receive_envelope(CoreV02Limits::default()).await
         },);
     assert_eq!(rejected_id.expect("reject stream zero"), 0);
     assert_eq!(
         rejected_result,
-        Err(nbsr_transport::TransportError::ApplicationStreamRejected)
+        Err(nbsr_transport::TransportError::ControlStreamFailed)
     );
     let (accepted, opened) = tokio::join!(
         destination.accept_session_stream(&mut session, channel.channel_id),
         async {
-            let mut stream = source.open_application_stream().await?;
+            let mut stream = source.open_session_stream(&permit4).await?;
             stream.send_payload(b"accepted-before-drain").await?;
             Ok::<_, nbsr_transport::TransportError>(stream)
         },
@@ -209,10 +222,19 @@ async fn channel_drain_denies_new_work_but_allows_release_until_the_exact_deadli
     session
         .confirm_stream_accept(channel.channel_id, &second_accept)
         .expect("second confirmed stream before drain");
+    source_session
+        .authorize_stream_open(channel.channel_id, &second_open)
+        .expect("source second stream open");
+    source_session
+        .confirm_stream_accept(channel.channel_id, &second_accept)
+        .expect("source second stream accept");
+    let permit8 = source_session
+        .application_stream_permit(channel.channel_id, 8)
+        .expect("source second stream permit");
     let (second_accepted, second_opened) = tokio::join!(
         destination.accept_session_stream(&mut session, channel.channel_id),
         async {
-            let mut stream = source.open_application_stream().await?;
+            let mut stream = source.open_session_stream(&permit8).await?;
             stream.send_payload(b"deadline-reset").await?;
             Ok::<_, nbsr_transport::TransportError>(stream)
         },
@@ -276,9 +298,9 @@ async fn channel_drain_denies_new_work_but_allows_release_until_the_exact_deadli
     let (rejected_after_drain, source_after_drain) = tokio::join!(
         destination.accept_session_stream(&mut session, channel.channel_id),
         async {
-            let mut stream = source.open_application_stream().await?;
-            stream.send_payload(b"new-after-drain").await?;
-            stream.receive_payload().await
+            let mut stream = source.open_control_stream().await?;
+            stream.send_envelope(&fresh_stream_open).await?;
+            stream.receive_envelope(CoreV02Limits::default()).await
         },
     );
     assert!(matches!(
@@ -287,7 +309,7 @@ async fn channel_drain_denies_new_work_but_allows_release_until_the_exact_deadli
     ));
     assert_eq!(
         source_after_drain,
-        Err(nbsr_transport::TransportError::ApplicationStreamRejected)
+        Err(nbsr_transport::TransportError::ControlStreamFailed)
     );
 
     assert_eq!(
@@ -456,6 +478,7 @@ async fn route_close_is_bound_replay_terminal_and_retains_tombstone() {
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn adapter_revoke_and_close_reset_only_after_valid_audited_commit() {
     let (listener, source, destination) = connection_pair().await;
+    let mut source_session = established_session(&source);
     let mut session = established_session(&destination);
     let revoke_route = signed_route(0x61, 10);
     let close_route = signed_route(0x62, 11);
@@ -470,6 +493,15 @@ async fn adapter_revoke_and_close_reset_only_after_valid_audited_commit() {
         destination
             .bind_channel(&mut session, route.channel.channel_id)
             .expect("bind signed route");
+        source_session
+            .accept_route_open(&route.open)
+            .expect("source fresh signed route");
+        source_session
+            .confirm_route_accept(&route.accept)
+            .expect("source activate signed route");
+        source
+            .bind_channel(&mut source_session, route.channel.channel_id)
+            .expect("bind source signed route");
     }
 
     for (route, stream_id, request_id, sequence) in [
@@ -488,22 +520,43 @@ async fn adapter_revoke_and_close_reset_only_after_valid_audited_commit() {
         session
             .confirm_stream_accept(route.channel.channel_id, &accept)
             .expect("confirm real stream");
+        source_session
+            .authorize_stream_open(route.channel.channel_id, &open)
+            .expect("source authorize real stream");
+        source_session
+            .confirm_stream_accept(route.channel.channel_id, &accept)
+            .expect("source confirm real stream");
     }
+    let permit4 = source_session
+        .application_stream_permit(revoke_route.channel.channel_id, 4)
+        .unwrap();
+    let permit8 = source_session
+        .application_stream_permit(revoke_route.channel.channel_id, 8)
+        .unwrap();
+    let permit12 = source_session
+        .application_stream_permit(sibling_route.channel.channel_id, 12)
+        .unwrap();
+    let permit16 = source_session
+        .application_stream_permit(close_route.channel.channel_id, 16)
+        .unwrap();
+    let permit20 = source_session
+        .application_stream_permit(close_route.channel.channel_id, 20)
+        .unwrap();
     let (reserved, reserved_source) =
         tokio::join!(destination.reject_next_application_stream(), async {
-            let mut stream = source.open_application_stream().await?;
-            stream.send_payload(b"reserve-control-stream-id").await?;
-            stream.receive_payload().await
+            let mut stream = source.open_control_stream().await?;
+            stream.send_envelope(&revoke_route.open).await?;
+            stream.receive_envelope(CoreV02Limits::default()).await
         });
     assert_eq!(reserved.expect("reject stream zero"), 0);
     assert_eq!(
         reserved_source,
-        Err(nbsr_transport::TransportError::ApplicationStreamRejected)
+        Err(nbsr_transport::TransportError::ControlStreamFailed)
     );
     let (revoke_accepted, revoke_opened) = tokio::join!(
         destination.accept_session_stream(&mut session, revoke_route.channel.channel_id),
         async {
-            let mut stream = source.open_application_stream().await?;
+            let mut stream = source.open_session_stream(&permit4).await?;
             stream.send_payload(b"revoke-no-reset").await?;
             Ok::<_, nbsr_transport::TransportError>(stream)
         },
@@ -513,7 +566,7 @@ async fn adapter_revoke_and_close_reset_only_after_valid_audited_commit() {
     let (revoke_reset_accepted, revoke_reset_opened) = tokio::join!(
         destination.accept_session_stream(&mut session, revoke_route.channel.channel_id),
         async {
-            let mut stream = source.open_application_stream().await?;
+            let mut stream = source.open_session_stream(&permit8).await?;
             stream.send_payload(b"revoke-committed").await?;
             Ok::<_, nbsr_transport::TransportError>(stream)
         },
@@ -584,7 +637,7 @@ async fn adapter_revoke_and_close_reset_only_after_valid_audited_commit() {
     let (sibling_accepted, sibling_opened) = tokio::join!(
         destination.accept_session_stream(&mut session, sibling_route.channel.channel_id),
         async {
-            let mut stream = source.open_application_stream().await?;
+            let mut stream = source.open_session_stream(&permit12).await?;
             stream.send_payload(b"sibling-survives").await?;
             Ok::<_, nbsr_transport::TransportError>(stream)
         },
@@ -616,7 +669,7 @@ async fn adapter_revoke_and_close_reset_only_after_valid_audited_commit() {
     let (close_accepted, close_opened) = tokio::join!(
         destination.accept_session_stream(&mut session, close_route.channel.channel_id),
         async {
-            let mut stream = source.open_application_stream().await?;
+            let mut stream = source.open_session_stream(&permit16).await?;
             stream.send_payload(b"close-no-reset").await?;
             Ok::<_, nbsr_transport::TransportError>(stream)
         },
@@ -651,7 +704,7 @@ async fn adapter_revoke_and_close_reset_only_after_valid_audited_commit() {
     let (close_reset_accepted, close_reset_opened) = tokio::join!(
         destination.accept_session_stream(&mut session, close_route.channel.channel_id),
         async {
-            let mut stream = source.open_application_stream().await?;
+            let mut stream = source.open_session_stream(&permit20).await?;
             stream.send_payload(b"close-committed").await?;
             Ok::<_, nbsr_transport::TransportError>(stream)
         },
@@ -720,11 +773,11 @@ async fn local_session_drain_closes_only_its_connection_at_the_bounded_deadline(
     );
     assert_eq!(session.session_drain_state(), SessionDrainState::Closed);
     let closed_result = tokio::time::timeout(Duration::from_secs(1), async {
-        let mut stream = source.open_application_stream().await?;
+        let mut stream = source.open_control_stream().await?;
         stream
-            .send_payload(b"must-not-cross-closed-session")
+            .send_envelope(&decode_vector("artifacts/valid/envelopes/stream-open.cbor"))
             .await?;
-        stream.receive_payload().await
+        stream.receive_envelope(CoreV02Limits::default()).await
     })
     .await
     .expect("closed session resolves");
@@ -733,14 +786,16 @@ async fn local_session_drain_closes_only_its_connection_at_the_bounded_deadline(
     let (other_listener, other_source, other_destination) = connection_pair().await;
     let (rejected, source_result) =
         tokio::join!(other_destination.reject_next_application_stream(), async {
-            let mut stream = other_source.open_application_stream().await?;
-            stream.send_payload(b"unrelated-session").await?;
-            stream.receive_payload().await
+            let mut stream = other_source.open_control_stream().await?;
+            stream
+                .send_envelope(&decode_vector("artifacts/valid/envelopes/stream-open.cbor"))
+                .await?;
+            stream.receive_envelope(CoreV02Limits::default()).await
         },);
     assert_eq!(rejected.expect("unrelated reset remains operational"), 0);
     assert_eq!(
         source_result,
-        Err(nbsr_transport::TransportError::ApplicationStreamRejected)
+        Err(nbsr_transport::TransportError::ControlStreamFailed)
     );
 
     other_source.close().await.expect("other source close");
@@ -763,6 +818,7 @@ async fn local_session_drain_closes_only_its_connection_at_the_bounded_deadline(
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn session_drain_resets_a_live_channel_at_its_one_second_grant_deadline() {
     let (listener, source, destination) = connection_pair().await;
+    let mut source_session = established_session(&source);
     let policy = runtime_policy();
     let mut session = ControlSession::new(
         &destination,
@@ -775,6 +831,9 @@ async fn session_drain_resets_a_live_channel_at_its_one_second_grant_deadline() 
     destination
         .bind_channel(&mut session, channel.channel_id)
         .expect("bind active channel");
+    source
+        .bind_channel(&mut source_session, channel.channel_id)
+        .expect("bind source channel");
     let stream_open = stream_open_envelope(&channel, 4, [0x7b; 16]);
     let stream_accept = stream_accept_envelope(&channel, 4, [0x7b; 16], 22);
     session
@@ -783,21 +842,30 @@ async fn session_drain_resets_a_live_channel_at_its_one_second_grant_deadline() 
     session
         .confirm_stream_accept(channel.channel_id, &stream_accept)
         .expect("stream accepted while grant is live");
+    source_session
+        .authorize_stream_open(channel.channel_id, &stream_open)
+        .unwrap();
+    source_session
+        .confirm_stream_accept(channel.channel_id, &stream_accept)
+        .unwrap();
+    let permit = source_session
+        .application_stream_permit(channel.channel_id, 4)
+        .unwrap();
     let (reserved, reserved_source) =
         tokio::join!(destination.reject_next_application_stream(), async {
-            let mut stream = source.open_application_stream().await?;
-            stream.send_payload(b"reserve-control-stream-id").await?;
-            stream.receive_payload().await
+            let mut stream = source.open_control_stream().await?;
+            stream.send_envelope(&stream_open).await?;
+            stream.receive_envelope(CoreV02Limits::default()).await
         });
     assert_eq!(reserved.expect("reject stream zero"), 0);
     assert_eq!(
         reserved_source,
-        Err(nbsr_transport::TransportError::ApplicationStreamRejected)
+        Err(nbsr_transport::TransportError::ControlStreamFailed)
     );
     let (accepted, opened) = tokio::join!(
         destination.accept_session_stream(&mut session, channel.channel_id),
         async {
-            let mut stream = source.open_application_stream().await?;
+            let mut stream = source.open_session_stream(&permit).await?;
             stream.send_payload(b"grant-expiry-reset").await?;
             Ok::<_, nbsr_transport::TransportError>(stream)
         },
@@ -845,6 +913,7 @@ async fn session_drain_resets_a_live_channel_at_its_one_second_grant_deadline() 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn session_drain_reports_due_channel_audit_failure_while_resetting_safely() {
     let (listener, source, destination) = connection_pair().await;
+    let mut source_session = established_session(&source);
     let policy = runtime_policy();
     let mut session = ControlSession::new(
         &destination,
@@ -857,6 +926,9 @@ async fn session_drain_reports_due_channel_audit_failure_while_resetting_safely(
     destination
         .bind_channel(&mut session, channel.channel_id)
         .expect("bind active channel");
+    source
+        .bind_channel(&mut source_session, channel.channel_id)
+        .expect("bind source channel");
     let stream_open = stream_open_envelope(&channel, 4, [0x7c; 16]);
     let stream_accept = stream_accept_envelope(&channel, 4, [0x7c; 16], 22);
     session
@@ -865,21 +937,30 @@ async fn session_drain_reports_due_channel_audit_failure_while_resetting_safely(
     session
         .confirm_stream_accept(channel.channel_id, &stream_accept)
         .expect("stream accepted while grant is live");
+    source_session
+        .authorize_stream_open(channel.channel_id, &stream_open)
+        .unwrap();
+    source_session
+        .confirm_stream_accept(channel.channel_id, &stream_accept)
+        .unwrap();
+    let permit = source_session
+        .application_stream_permit(channel.channel_id, 4)
+        .unwrap();
     let (reserved, reserved_source) =
         tokio::join!(destination.reject_next_application_stream(), async {
-            let mut stream = source.open_application_stream().await?;
-            stream.send_payload(b"reserve-control-stream-id").await?;
-            stream.receive_payload().await
+            let mut stream = source.open_control_stream().await?;
+            stream.send_envelope(&stream_open).await?;
+            stream.receive_envelope(CoreV02Limits::default()).await
         });
     assert_eq!(reserved.expect("reject stream zero"), 0);
     assert_eq!(
         reserved_source,
-        Err(nbsr_transport::TransportError::ApplicationStreamRejected)
+        Err(nbsr_transport::TransportError::ControlStreamFailed)
     );
     let (accepted, opened) = tokio::join!(
         destination.accept_session_stream(&mut session, channel.channel_id),
         async {
-            let mut stream = source.open_application_stream().await?;
+            let mut stream = source.open_session_stream(&permit).await?;
             stream.send_payload(b"audit-failed-grant-expiry").await?;
             Ok::<_, nbsr_transport::TransportError>(stream)
         },
@@ -927,14 +1008,13 @@ async fn session_drain_reports_due_channel_audit_failure_while_resetting_safely(
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-async fn grant_and_session_deadlines_can_only_shorten_drain() {
+async fn grant_deadlines_can_only_shorten_drain() {
     let (listener, source, destination) = connection_pair().await;
-    let mut session = ControlSession::new_with_monotonic_deadline(
+    let mut session = ControlSession::new(
         &destination,
         DestinationAdmission::new(runtime_policy()).expect("valid admission policy"),
         vec![route_grant_issuer()],
         TrustProfileId::new("test-profile").expect("trust profile"),
-        DrainDeadline::new(100, 10).expect("session authority deadline"),
     );
     establish(&mut session);
     let channel = vector_channel();
@@ -964,7 +1044,7 @@ async fn grant_and_session_deadlines_can_only_shorten_drain() {
     session
         .begin_session_drain(100, NOW + 299, 30)
         .expect("session drain preserves every earlier channel authority");
-    assert_eq!(session.session_drain_deadline(), Some(110));
+    assert_eq!(session.session_drain_deadline(), Some(130));
     assert_eq!(
         session.channel_drain_deadline(channel.channel_id),
         Some(101)

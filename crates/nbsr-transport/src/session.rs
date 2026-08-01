@@ -36,7 +36,7 @@ pub enum SessionReject {
 
 pub const MAX_SESSION_SECONDS: u64 = 3_600;
 
-pub trait SessionClock: Send + Sync {
+pub(crate) trait SessionClock: Send + Sync {
     fn unix_seconds(&self) -> u64;
     fn monotonic_seconds(&self) -> u64;
 }
@@ -126,7 +126,8 @@ impl ControlSession {
         )
     }
 
-    pub fn new_with_clock(
+    #[cfg(test)]
+    pub(crate) fn new_with_clock(
         connection: &AuthenticatedConnection,
         admission: DestinationAdmission,
         trusted_issuers: Vec<RouteGrantIssuer>,
@@ -140,27 +141,6 @@ impl ControlSession {
             trust_profile_id,
             clock,
             None,
-        )
-    }
-
-    pub fn new_with_monotonic_deadline(
-        connection: &AuthenticatedConnection,
-        admission: DestinationAdmission,
-        trusted_issuers: Vec<RouteGrantIssuer>,
-        trust_profile_id: TrustProfileId,
-        session_deadline: DrainDeadline,
-    ) -> Self {
-        let clock = Arc::new(AnchoredClock {
-            unix_anchor: admission.trusted_unix_anchor(),
-            started: Instant::now(),
-        });
-        Self::new_inner(
-            connection,
-            admission,
-            trusted_issuers,
-            trust_profile_id,
-            clock,
-            Some(session_deadline),
         )
     }
 
@@ -305,6 +285,7 @@ impl ControlSession {
     }
 
     pub fn accept_client_hello(&mut self, envelope: &CoreV02Envelope) -> Result<(), SessionReject> {
+        self.require_session_active()?;
         let (request_id, session_id, sequence) = binding(envelope)?;
         if self.request_ids.contains(&request_id) {
             return Err(SessionReject::Replay);
@@ -346,6 +327,7 @@ impl ControlSession {
     }
 
     pub fn confirm_edge_hello(&mut self, envelope: &CoreV02Envelope) -> Result<(), SessionReject> {
+        self.require_session_active()?;
         let (request_id, session_id, sequence) = binding(envelope)?;
         let SessionState::AwaitingEdgeHello {
             client_nonce,
@@ -626,6 +608,23 @@ impl ControlSession {
         Ok(())
     }
 
+    pub fn application_stream_permit(
+        &self,
+        channel_id: [u8; 16],
+        stream_id: u64,
+    ) -> Result<crate::ApplicationStreamPermit, SessionReject> {
+        self.require_session_active()?;
+        self.require_bound_channel(&channel_id)?;
+        self.streams
+            .validate_application_stream(&channel_id, stream_id)
+            .map_err(SessionReject::Stream)?;
+        Ok(crate::ApplicationStreamPermit::new(
+            self.connection_capability.clone(),
+            channel_id,
+            stream_id,
+        ))
+    }
+
     pub(crate) fn revoke_channel(
         &mut self,
         channel_id: [u8; 16],
@@ -817,10 +816,7 @@ impl ControlSession {
         Ok(())
     }
 
-    pub(crate) fn resume_scope(
-        &self,
-        monotonic_now: u64,
-    ) -> Result<ResumeSessionScope, ResumeReject> {
+    pub(crate) fn resume_scope(&self) -> Result<ResumeSessionScope, ResumeReject> {
         let SessionState::Established {
             destination_edge_id,
             session_id,
@@ -833,10 +829,7 @@ impl ControlSession {
         if self.session_drain_state != SessionDrainState::Active {
             return Err(ResumeReject::Ineligible);
         }
-        if self
-            .session_deadline
-            .is_some_and(|deadline| deadline.is_due(monotonic_now))
-        {
+        if self.session_expired() {
             return Err(ResumeReject::Expired);
         }
         Ok(ResumeSessionScope {
@@ -852,6 +845,16 @@ impl ControlSession {
             local_role: self.local_role,
             session_id: *session_id,
         })
+    }
+
+    pub(crate) fn require_resume_authority(&self) -> Result<(), ResumeReject> {
+        if self.session_expired() {
+            Err(ResumeReject::Expired)
+        } else if self.session_drain_state != SessionDrainState::Active {
+            Err(ResumeReject::Ineligible)
+        } else {
+            Ok(())
+        }
     }
 
     pub(crate) fn closed_resume_context(

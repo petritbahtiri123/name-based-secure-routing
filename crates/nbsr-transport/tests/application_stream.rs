@@ -241,6 +241,23 @@ async fn accepted_stream_id_four_echoes_only_the_bounded_in_memory_payload() {
         .expect("receive STREAM_ACCEPT");
 
     let payload = vec![0x5a; 1_048_576];
+    let mut source_session = control_session(&source);
+    source_session.accept_client_hello(&client_hello).unwrap();
+    source_session.confirm_edge_hello(&edge_hello).unwrap();
+    source_session.accept_route_open(&route_open).unwrap();
+    source_session.confirm_route_accept(&route_accept).unwrap();
+    source
+        .bind_channel(&mut source_session, channel_id)
+        .unwrap();
+    source_session
+        .authorize_stream_open(channel_id, &stream_open)
+        .unwrap();
+    source_session
+        .confirm_stream_accept(channel_id, &stream_accept)
+        .unwrap();
+    let permit = source_session
+        .application_stream_permit(channel_id, 4)
+        .expect("confirmed stream permit");
     let (echoed_at_destination, echoed_at_source) = tokio::join!(
         async {
             let mut stream = destination
@@ -252,7 +269,7 @@ async fn accepted_stream_id_four_echoes_only_the_bounded_in_memory_payload() {
         },
         async {
             let mut stream = source
-                .open_application_stream()
+                .open_session_stream(&permit)
                 .await
                 .expect("open application stream");
             assert_eq!(stream.id(), 4);
@@ -301,21 +318,18 @@ async fn payload_before_stream_accept_is_reset_without_delivery() {
         },
         async {
             let mut stream = source
-                .open_application_stream()
+                .open_control_stream()
                 .await
-                .expect("open unauthorized stream");
+                .expect("open unadmitted stream");
             stream
-                .send_payload(b"early")
+                .send_envelope(&client_hello)
                 .await
                 .expect("send early payload");
-            stream.receive_payload().await
+            stream.receive_envelope(CoreV02Limits::default()).await
         }
     );
     assert_eq!(rejected, 4);
-    assert_eq!(
-        source_result,
-        Err(TransportError::ApplicationStreamRejected)
-    );
+    assert_eq!(source_result, Err(TransportError::ControlStreamFailed));
 
     source.close().await.expect("source close");
     destination.close().await.expect("destination close");
@@ -405,6 +419,43 @@ async fn outbound_payload_over_one_mib_is_rejected_before_delivery() {
         .expect("bind matching STREAM_ACCEPT");
 
     let payload = vec![0x5a; 1_048_577];
+    let mut source_session = control_session(&source);
+    let client_hello = decode_control_envelope(
+        &vector("artifacts/valid/envelopes/client-hello.cbor"),
+        CoreV02Limits::default(),
+    )
+    .unwrap();
+    let edge_hello = decode_control_envelope(
+        &vector("artifacts/valid/envelopes/edge-hello.cbor"),
+        CoreV02Limits::default(),
+    )
+    .unwrap();
+    let route_open = decode_control_envelope(
+        &vector("artifacts/valid/envelopes/route-open.cbor"),
+        CoreV02Limits::default(),
+    )
+    .unwrap();
+    let route_accept = decode_control_envelope(
+        &vector("artifacts/valid/envelopes/route-accept.cbor"),
+        CoreV02Limits::default(),
+    )
+    .unwrap();
+    source_session.accept_client_hello(&client_hello).unwrap();
+    source_session.confirm_edge_hello(&edge_hello).unwrap();
+    source_session.accept_route_open(&route_open).unwrap();
+    source_session.confirm_route_accept(&route_accept).unwrap();
+    source
+        .bind_channel(&mut source_session, channel_id)
+        .unwrap();
+    source_session
+        .authorize_stream_open(channel_id, &stream_open)
+        .unwrap();
+    source_session
+        .confirm_stream_accept(channel_id, &stream_accept)
+        .unwrap();
+    let permit = source_session
+        .application_stream_permit(channel_id, 4)
+        .expect("confirmed stream permit");
     let (destination_result, source_result) = tokio::join!(
         async {
             let mut stream = destination
@@ -415,7 +466,7 @@ async fn outbound_payload_over_one_mib_is_rejected_before_delivery() {
         },
         async {
             let mut stream = source
-                .open_application_stream()
+                .open_session_stream(&permit)
                 .await
                 .expect("open application stream");
             stream.send_and_receive(&payload).await

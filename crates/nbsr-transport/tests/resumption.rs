@@ -4,9 +4,9 @@ use std::time::Duration;
 
 use ed25519_dalek::{Signer, SigningKey};
 use nbsr_transport::{
-    ActiveChannel, AdmissionPolicy, AuditAction, AuditOutcome, AuditReason,
+    ActiveChannel, AdmissionPolicy, AdmissionReject, AuditAction, AuditOutcome, AuditReason,
     AuthorizedServicePolicy, ChannelState, ControlSession, CoreV02Envelope, CoreV02Limits,
-    DestinationAdmission, DrainDeadline, DrainEnforcement, EdgeIdentity, EdgeRole, PeerPolicy,
+    DestinationAdmission, DrainEnforcement, EdgeIdentity, EdgeRole, PeerPolicy,
     ResumeAdmissionReject, ResumeHandle, ResumePreflight, ResumeReject, RouteGrantIssuer,
     SameEdgeResumeManager, ServiceChannelContext, SessionReject, TransportListener, TrustProfileId,
     build_client_config, build_server_config, connect, decode_control_envelope,
@@ -718,12 +718,8 @@ async fn retention_is_terminal_after_31_seconds_and_never_exceeds_authority_dead
         .expect("grant-limited record");
 
     let session_spec = SessionSpec::new(0x12, 0x42, 0x22, 0x82);
-    let mut session_limited = established_session_with_deadline(
-        &old_destination,
-        session_spec,
-        "regional-prod.1",
-        DrainDeadline::new(100, 7).expect("session authority deadline"),
-    );
+    let mut session_limited =
+        established_bound_session(&old_destination, session_spec, "regional-prod.1");
     let close = route_close(&session_limited, 0x53);
     old_destination
         .accept_route_close(
@@ -814,7 +810,7 @@ async fn retention_is_terminal_after_31_seconds_and_never_exceeds_authority_dead
             &mut manager,
             &session_handle,
             &mut fresh.session,
-            108,
+            131,
         ),
         Err(ResumeReject::Expired)
     );
@@ -835,7 +831,7 @@ async fn retention_is_terminal_after_31_seconds_and_never_exceeds_authority_dead
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-async fn expired_or_draining_new_session_is_rejected_before_resume_preflight() {
+async fn expired_handle_or_draining_new_session_is_rejected_before_resume_preflight() {
     let pki = support::TestPki::generate_for("source.edge", "destination.edge");
     let (old_listener, old_source, old_destination) = connection_pair_with_pki(&pki).await;
     let mut old = established_bound_session(
@@ -857,18 +853,17 @@ async fn expired_or_draining_new_session_is_rejected_before_resume_preflight() {
     }
 
     let (new_listener, new_source, new_destination) = connection_pair_with_pki(&pki).await;
-    let mut expired = established_session_with_deadline(
+    let mut expired = established_bound_session(
         &new_destination,
         SessionSpec::new(0x60, 0x70, 0x30, 0x90),
         "regional-prod.1",
-        DrainDeadline::new(100, 5).expect("exact session authority deadline"),
     );
     assert_eq!(
         new_destination.preflight_same_edge_resume(
             &mut manager,
             &expired_handle,
             &mut expired.session,
-            105,
+            131,
         ),
         Err(ResumeReject::Expired)
     );
@@ -900,7 +895,7 @@ async fn expired_or_draining_new_session_is_rejected_before_resume_preflight() {
         ),
         Err(ResumeReject::Ineligible)
     );
-    assert_eq!(manager.retained_records(), 2);
+    assert_eq!(manager.retained_records(), 1);
 
     old_source.close().await.expect("old source close");
     old_destination
@@ -1207,14 +1202,13 @@ async fn store_retains_4096_unique_handles_and_rejects_4097_without_eviction() {
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-async fn exclusive_session_deadline_blocks_consume_and_unlocks_capacity_at_equality() {
+async fn exclusive_resume_window_blocks_consume_and_unlocks_capacity_after_expiry() {
     let pki = support::TestPki::generate_for("source.edge", "destination.edge");
     let (old_listener, old_source, old_destination) = connection_pair_with_pki(&pki).await;
-    let mut authority_limited = established_session_with_deadline(
+    let mut authority_limited = established_bound_session(
         &old_destination,
         SessionSpec::new(0x10, 0x40, 0x20, 0x80),
         "regional-prod.1",
-        DrainDeadline::new(100, 30).expect("exclusive session deadline"),
     );
     let close = route_close(&authority_limited, 0x51);
     old_destination
@@ -1261,8 +1255,8 @@ async fn exclusive_session_deadline_blocks_consume_and_unlocks_capacity_at_equal
             &preflight,
             &mut fresh.session,
             fresh.channel.channel_id,
-            130,
-            NOW + 30,
+            131,
+            NOW + 31,
         ),
         Err(ResumeReject::Expired)
     );
@@ -1287,8 +1281,8 @@ async fn exclusive_session_deadline_blocks_consume_and_unlocks_capacity_at_equal
             &mut replacement.session,
             replacement.channel.channel_id,
             indexed_handle(40_000),
-            130,
-            NOW + 30,
+            131,
+            NOW + 31,
         )
         .expect("exclusive-deadline purge unlocks capacity at equality");
     assert_eq!(manager.retained_records(), 1);
@@ -1491,6 +1485,24 @@ async fn audited_post_admission_mismatch_retires_only_preflight_and_allows_fresh
     assert_eq!(manager.retained_records(), 1);
     assert_eq!(mismatch.session.candidate_channels(), 0);
     assert_eq!(mismatch.session.active_channels(), 0);
+    assert_eq!(
+        mismatch
+            .session
+            .tombstone_expires_at(mismatch.channel.channel_id),
+        Some(mismatch_spec.grant_expires_at + 30)
+    );
+
+    let replayed_grant = SessionSpec {
+        channel_id: [0x72; 16],
+        route_id: [0x32; 16],
+        request_id: [0x73; 16],
+        ..mismatch_spec
+    };
+    let (replayed_route_open, _) = signed_route_at(replayed_grant, 3);
+    assert_eq!(
+        mismatch.session.accept_route_open(&replayed_route_open),
+        Err(SessionReject::Admission(AdmissionReject::Replay))
+    );
 
     mismatch
         .session
@@ -2090,44 +2102,6 @@ fn established_bound_session(
     trust_profile: &str,
 ) -> EstablishedSession {
     established_session(connection, spec, trust_profile, true)
-}
-
-fn established_session_with_deadline(
-    connection: &nbsr_transport::AuthenticatedConnection,
-    spec: SessionSpec,
-    trust_profile: &str,
-    deadline: DrainDeadline,
-) -> EstablishedSession {
-    let mut session = ControlSession::new_with_monotonic_deadline(
-        connection,
-        DestinationAdmission::new(runtime_policy(spec)).expect("admission policy"),
-        vec![route_grant_issuer()],
-        TrustProfileId::new(trust_profile).expect("trust profile"),
-        deadline,
-    );
-    let client_hello = client_hello(spec);
-    let edge_hello = edge_hello(spec);
-    session
-        .accept_client_hello(&client_hello)
-        .expect("fresh CLIENT_HELLO");
-    session
-        .confirm_edge_hello(&edge_hello)
-        .expect("fresh EDGE_HELLO");
-    let (route_open, route_accept) = signed_route(spec);
-    let channel = session
-        .accept_route_open(&route_open)
-        .expect("fresh signed RouteGrant and proof");
-    session
-        .confirm_route_accept(&route_accept)
-        .expect("correlated ROUTE_ACCEPT");
-    connection
-        .bind_channel(&mut session, channel.channel_id)
-        .expect("fresh live exporter binding");
-    EstablishedSession {
-        session,
-        channel,
-        spec,
-    }
 }
 
 fn established_session(

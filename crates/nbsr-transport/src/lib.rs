@@ -64,6 +64,21 @@
 //!     let _ = manager.consume(preflight, session, [0x22; 16], 0, 0);
 //! }
 //! ```
+//!
+//! Session time is transport-owned authority. External callers cannot inject a
+//! clock or construct a session with caller-selected deadlines.
+//!
+//! ```compile_fail
+//! use nbsr_transport::SessionClock;
+//! ```
+//!
+//! ```compile_fail
+//! let _ = nbsr_transport::ControlSession::new_with_clock;
+//! ```
+//!
+//! ```compile_fail
+//! let _ = nbsr_transport::ControlSession::new_with_monotonic_deadline;
+//! ```
 
 #![forbid(unsafe_code)]
 
@@ -83,6 +98,8 @@ mod error;
 mod quinn_adapter;
 mod resumption;
 mod session;
+#[cfg(test)]
+mod session_tests;
 mod stream_gate;
 
 pub use admission::{
@@ -115,13 +132,14 @@ pub use datagram_gate::{
 };
 pub use error::TransportError;
 pub use quinn_adapter::{
-    ApplicationStream, AuthenticatedConnection, ControlStream, TransportListener, connect,
+    ApplicationStream, ApplicationStreamPermit, AuthenticatedConnection, ControlStream,
+    TransportListener, connect,
 };
 pub use resumption::{
     ResumeAdmissionReject, ResumeCorrelation, ResumeHandle, ResumePreflight, ResumeReject,
     SameEdgeResumeManager, TrustProfileId,
 };
-pub use session::{ControlSession, MAX_SESSION_SECONDS, SessionClock, SessionReject};
+pub use session::{ControlSession, MAX_SESSION_SECONDS, SessionReject};
 pub use stream_gate::{StreamOpenRequest, StreamReject};
 
 pub const ALPN: &[u8] = b"nbsr-quic-1";

@@ -118,6 +118,10 @@ impl StreamGate {
         matches!(self.state, StreamGateState::Opened)
     }
 
+    pub(crate) fn is_accepted(&self) -> bool {
+        matches!(self.state, StreamGateState::Accepted(_))
+    }
+
     fn validate_request(&self, request: &StreamOpenRequest) -> Result<(), StreamReject> {
         if request.transport != self.channel.transport || request.port != self.channel.port {
             return Err(StreamReject::UnsupportedTransport);

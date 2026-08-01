@@ -27,7 +27,7 @@ defaults. Values marked **pending** require human approval before production.
 | Service Channels per service per session | **Lab recommendation:** 8; production pending | Prevent one service consuming the shared session |
 | Application Streams per Service Channel | **Lab recommendation:** 64 concurrent; production pending | Enforce below the QUIC connection stream limit |
 | Buffered bytes per stream | **Lab recommendation:** 1 MiB; production pending | Backpressure rather than unbounded buffering |
-| Buffered bytes per Service Channel | **Lab recommendation:** 8 MiB; production pending | Independent accounting; throttle only the offending channel when possible |
+| Buffered bytes per Service Channel | **Lab recommendation:** 8 MiB bidirectional live ownership; production pending | Successful send/receive payload reservations remain charged until explicit application release or safe stream drop/reset; throttle only the offending channel when possible |
 | Replay cache | **Bound required; exact entries pending** | Cover accepted proof lifetime plus clock skew and tombstone requirements; reject on capacity uncertainty |
 | DNS/Derived OriginSet cache | **Prototype profile:** 1,024 entries; production pending | Reject insertion at capacity; never silently evict accepted security state or tombstones |
 | Legacy OriginSet source TTL | **Prototype profile:** clamp to 300 seconds; production pending | Reachability freshness only; proactive refresh begins at 80 percent |

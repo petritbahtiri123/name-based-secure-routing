@@ -431,6 +431,9 @@ async fn native_quinn_loopback_isolates_two_udp_channels_and_a_tcp_sibling() {
     destination_session
         .authorize_stream_open(tcp.channel_id, &received_open)
         .unwrap();
+    source_session
+        .authorize_stream_open(tcp.channel_id, &tcp_open)
+        .unwrap();
     let tcp_accept = stream_control(tcp, 4, 7, 10);
     destination_control
         .send_envelope(&tcp_accept)
@@ -443,6 +446,12 @@ async fn native_quinn_loopback_isolates_two_udp_channels_and_a_tcp_sibling() {
     destination_session
         .confirm_stream_accept(tcp.channel_id, &received_accept)
         .unwrap();
+    source_session
+        .confirm_stream_accept(tcp.channel_id, &tcp_accept)
+        .unwrap();
+    let permit = source_session
+        .application_stream_permit(tcp.channel_id, 4)
+        .unwrap();
     let (echoed, received) = tokio::join!(
         async {
             let mut stream = destination
@@ -453,7 +462,7 @@ async fn native_quinn_loopback_isolates_two_udp_channels_and_a_tcp_sibling() {
         },
         async {
             source
-                .open_application_stream()
+                .open_session_stream(&permit)
                 .await
                 .unwrap()
                 .send_and_receive(b"tcp-sibling")
@@ -582,6 +591,12 @@ async fn channel_a_audit_exhaustion_preserves_udp_b_tcp_c_and_session_lifecycle(
     destination_session
         .authorize_stream_open(tcp.channel_id, &received_open)
         .unwrap();
+    source_session
+        .pop_audit_event()
+        .expect("release audit capacity for source stream authorization");
+    source_session
+        .authorize_stream_open(tcp.channel_id, &received_open)
+        .unwrap();
     destination_control
         .send_envelope(&stream_control(tcp, 4, 7, 10))
         .await
@@ -592,6 +607,15 @@ async fn channel_a_audit_exhaustion_preserves_udp_b_tcp_c_and_session_lifecycle(
         .unwrap();
     destination_session
         .confirm_stream_accept(tcp.channel_id, &received_accept)
+        .unwrap();
+    source_session
+        .pop_audit_event()
+        .expect("release audit capacity for source stream acceptance");
+    source_session
+        .confirm_stream_accept(tcp.channel_id, &received_accept)
+        .unwrap();
+    let permit = source_session
+        .application_stream_permit(tcp.channel_id, 4)
         .unwrap();
     let (echoed, received) = tokio::join!(
         async {
@@ -605,7 +629,7 @@ async fn channel_a_audit_exhaustion_preserves_udp_b_tcp_c_and_session_lifecycle(
         },
         async {
             source
-                .open_application_stream()
+                .open_session_stream(&permit)
                 .await
                 .unwrap()
                 .send_and_receive(b"tcp-c-survives")
@@ -620,7 +644,7 @@ async fn channel_a_audit_exhaustion_preserves_udp_b_tcp_c_and_session_lifecycle(
             .audit_events()
             .filter(|event| event.channel_id == Some(udp_a.channel_id))
             .count(),
-        1_023
+        1_021
     );
 
     while source_session.pop_audit_event().is_some() {}

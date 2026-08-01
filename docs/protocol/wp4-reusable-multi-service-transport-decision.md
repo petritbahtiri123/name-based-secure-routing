@@ -85,7 +85,13 @@ runtime decoding. No new Core v0.1 value is allocated.
 | Channel drain maximum | 30 seconds |
 | Same-edge resume window | 30 seconds and never beyond grant/session expiry |
 
-Reliable-byte accounting uses backpressure and never exceeds either byte bound.
+Reliable-byte accounting is bidirectional, uses backpressure, and never exceeds
+either byte bound. A successful send or returned receive payload retains its
+channel reservation until the application explicitly releases that stream's
+buffered-payload ownership (or the stream is safely dropped/reset); returning a
+raw payload does not release or bypass accounting. Eight simultaneously held
+1 MiB payloads exhaust the channel allowance, and another payload is admitted
+only after a held reservation is released.
 Each channel permits at most 64 concurrent reliable streams per channel.
 UDP is drop-on-quota with a channel-scoped audit event. Mandatory audit queue
 exhaustion rejects the state-changing operation before mutation. Audit records

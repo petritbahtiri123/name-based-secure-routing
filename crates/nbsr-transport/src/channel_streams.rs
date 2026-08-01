@@ -131,6 +131,19 @@ impl ChannelStreams {
         }
     }
 
+    pub(crate) fn validate_application_stream(
+        &self,
+        channel_id: &[u8; 16],
+        stream_id: u64,
+    ) -> Result<(), StreamReject> {
+        let entry = self.entry(channel_id, stream_id)?;
+        if entry.gate.is_accepted() || entry.gate.is_opened() {
+            Ok(())
+        } else {
+            Err(StreamReject::ControlRejected)
+        }
+    }
+
     pub(crate) fn revoke_channel(&mut self, channel_id: &[u8; 16]) {
         self.channels.remove(channel_id);
     }

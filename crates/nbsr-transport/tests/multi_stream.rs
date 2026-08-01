@@ -359,6 +359,9 @@ async fn quinn_streams_four_eight_and_twelve_echo_on_two_bound_channels() {
         session
             .authorize_stream_open(active.channel_id, &received_open)
             .expect("bind stream open");
+        source_session
+            .authorize_stream_open(active.channel_id, &open)
+            .expect("source bind stream open");
 
         if stream_id == 4 {
             assert_eq!(
@@ -391,6 +394,12 @@ async fn quinn_streams_four_eight_and_twelve_echo_on_two_bound_channels() {
         session
             .confirm_stream_accept(active.channel_id, &received_accept)
             .expect("bind stream accept");
+        source_session
+            .confirm_stream_accept(active.channel_id, &received_accept)
+            .expect("source bind stream accept");
+        let permit = source_session
+            .application_stream_permit(active.channel_id, stream_id)
+            .expect("confirmed stream permit");
 
         let (at_destination, at_source) = tokio::join!(
             async {
@@ -403,7 +412,7 @@ async fn quinn_streams_four_eight_and_twelve_echo_on_two_bound_channels() {
             },
             async {
                 let mut stream = source
-                    .open_application_stream()
+                    .open_session_stream(&permit)
                     .await
                     .expect("open application stream");
                 assert_eq!(stream.id(), stream_id);

@@ -505,16 +505,17 @@ impl ChannelRegistry {
         let removed = self
             .active
             .remove(channel_id)
-            .map(|entry| entry.channel)
+            .map(|entry| (entry.channel, entry.grant_expires_at))
             .or_else(|| {
                 self.pending
                     .remove(channel_id)
-                    .map(|pending| pending.channel)
+                    .map(|pending| (pending.channel, pending.grant_expires_at))
             });
-        if removed.is_some() {
-            self.replay.rollback_live(channel_id);
-        }
-        removed
+        removed.map(|(channel, grant_expires_at)| {
+            self.replay
+                .mark_tombstone(channel_id, grant_expires_at.saturating_add(30));
+            channel
+        })
     }
 
     #[cfg(test)]

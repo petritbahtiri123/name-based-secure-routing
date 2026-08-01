@@ -188,6 +188,14 @@ impl SameEdgeResumeManager {
         monotonic_now: u64,
         unix_now: u64,
     ) -> Result<(), ResumeReject> {
+        if let Err(error) = old_session.require_resume_authority() {
+            old_session.audit_resume_reject(
+                old_channel_id,
+                "transport-resume",
+                audit_reason_for(error),
+            )?;
+            return Err(error);
+        }
         let old = match old_session.closed_resume_context(old_channel_id) {
             Ok(context) => context,
             Err(error) => {
@@ -277,7 +285,7 @@ impl SameEdgeResumeManager {
             self.remove_record_and_preflights(handle);
             return Err(ResumeReject::Expired);
         }
-        let scope = match new_session.resume_scope(monotonic_now) {
+        let scope = match new_session.resume_scope() {
             Ok(scope) => scope,
             Err(error) => {
                 new_session.audit_resume_session_reject(None, audit_reason_for(error))?;
@@ -523,7 +531,7 @@ impl SameEdgeResumeManager {
             self.remove_record_and_preflights(&handle);
             return Err(ResumeReject::Expired);
         }
-        let scope = match new_session.resume_scope(monotonic_now) {
+        let scope = match new_session.resume_scope() {
             Ok(scope) => scope,
             Err(error) => {
                 new_session.audit_resume_session_reject(channel_id, audit_reason_for(error))?;
