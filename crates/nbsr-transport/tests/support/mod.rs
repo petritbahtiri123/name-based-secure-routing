@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-
 use quinn::crypto::rustls::{QuicClientConfig, QuicServerConfig};
 use rcgen::{
     BasicConstraints, CertificateParams, CertifiedIssuer, ExtendedKeyUsagePurpose, IsCa, KeyPair,
@@ -11,6 +9,7 @@ use rustls::server::WebPkiClientVerifier;
 use rustls::version;
 use std::sync::Arc;
 
+#[allow(dead_code)]
 pub struct TestPki {
     ca: CertificateDer<'static>,
     source_cert: CertificateDer<'static>,
@@ -19,6 +18,7 @@ pub struct TestPki {
     destination_key: Vec<u8>,
 }
 
+#[allow(dead_code)]
 impl TestPki {
     pub fn generate() -> Self {
         Self::generate_with_expired_leaf(None)

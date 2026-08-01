@@ -154,6 +154,18 @@ a partial `ROUTE_REJECT`.
 
 ## Admission and error rules
 
+The lab's bounded AuditLog retains the Task 6 total of exactly 1024 queued
+events and adds a containment partition of exactly 24 queued channel-scoped
+events per `channel_id`. The 32-channel lab maximum therefore permits at most
+768 channel-scoped records and preserves at least 256 total slots for
+session/security lifecycle records whose `channel_id` is absent. The partition
+applies uniformly to route admission, binding, stream, UDP, quota, channel
+lifecycle, and channel-scoped resume audit reservations. Reaching channel A's
+24-event cap rejects A's next audited mutation before channel or global audit
+state changes; it does not consume channel B's budget or the session reserve.
+Popping an event releases its exact channel slot. The global 1024-event limit
+continues to fail closed before mutation.
+
 Source and destination admission are independent. A valid Source Edge
 decision never compels Destination Edge acceptance. Destination admission
 occurs in this order:

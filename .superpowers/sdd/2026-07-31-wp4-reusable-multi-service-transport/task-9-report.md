@@ -180,10 +180,138 @@ report is included in that commit.
 
 ## Concerns
 
-No implementation blocker remains. Because the adapter intentionally exposes
-neither raw Quinn access nor a malformed-frame injection bypass, malformed and
-replayed frames are covered deterministically at the exact codec/gate boundary,
-while the native authenticated loopback covers negotiated oversize rejection,
-quota/drop containment, target revoke, and UDP/TCP sibling survival. QUIC
-DATAGRAM remains loss-permitted and unordered; production scheduling or
-delivery guarantees require a separate design and are not implied.
+No implementation blocker remains. QUIC DATAGRAM remains loss-permitted and
+unordered; production scheduling or delivery guarantees require a separate
+design and are not implied.
+
+## Review round 1 of 5: audit containment and inbound adapter bounds
+
+### Findings and RED/GREEN evidence
+
+1. Per-channel audit isolation
+   - RED: after 24 queued records for channel A, the 25th record incorrectly
+     returned `Ok` and consumed a global queue/sequence slot.
+   - GREEN: `AuditLog` now checks the exact channel scope before global,
+     sequence, timestamp, or mutation work; the 25th A record is
+     `AuditUnavailable`, B receives sequence 25, an unscoped lifecycle record
+     receives sequence 26, and popping one A record returns one A slot.
+2. Aggregate session reserve
+   - RED: 32 channels at 24 events correctly occupied 768 records, but a 769th
+     scoped record for channel 33 was incorrectly admitted.
+   - GREEN: an exact aggregate 768 channel-scoped counter prevents any set of
+     channel IDs from entering the reserved 256 slots. Exactly 256 unscoped
+     events then fill the unchanged 1024-event total, and event 1025 fails
+     closed. Counts decrement with the corresponding popped channel event.
+3. Outbound-only Quinn maximum on receive
+   - RED: the adapter had no local-profile decoder and production receive used
+     `Connection::max_datagram_size`, which Quinn documents and implements as
+     an outbound peer/path limit.
+   - GREEN: the private read path decodes against the exact local maximum of
+     1235 bytes (23 fixed + 9 sequence + 3 payload length + 1200 payload) after
+     `read_datagram`. A 1235-byte canonical frame succeeds and 1236 fails.
+4. Raw native malformed/replay containment
+   - RED: the adapter-internal test failed to compile because no private raw
+     read/decode seam existed.
+   - GREEN: a `cfg(test)` module inside `quinn_adapter.rs` accesses the private
+     Quinn connection and private read helper without adding a public hook. A
+     non-preferred sequence encoding is rejected as `InvalidFrame`; the same
+     valid sequence delivered twice is rejected as `Replay` by the target
+     gate; UDP B and a bidirectional TCP stream remain usable afterward.
+5. Real 24-event service containment
+   - RED: the original 64/65 native UDP loopback reached the new A audit cap,
+     proving audit retention and payload queue state had been conflated in its
+     fixture.
+   - GREEN: the queue test now pops audit records independently while retaining
+     all 64 payloads. A separate authenticated loopback fills exactly 24 A
+     records, proves A's next valid send is `AuditUnavailable` without adding
+     an event or mutating its gate, then proves UDP B and TCP C traffic and an
+     unscoped session-drain audit still succeed. After A's audit records are
+     released, A sends and receives normally.
+6. Cross-module audit semantics
+   - RED: lifecycle, multi-stream, and resumption fixtures that intentionally
+     queued more than 24 records for one channel failed at the new boundary.
+   - GREEN: stream/UDP quota fixtures pop audit independently of application
+     state; lifecycle tests now exhaust the exact target partition and prove
+     sibling/session containment; resume tests distinguish 24-event
+     channel-scoped exhaustion from true 1024-event unscoped exhaustion.
+     Resume purge remains atomic when the global reserve is full.
+
+### Exact containment properties
+
+- Total queued audit capacity remains 1024.
+- One `channel_id` can retain at most 24 queued events.
+- All channel-scoped events together can retain at most 768 queued events,
+  independent of how many distinct candidate/rejected channel IDs are used.
+- At least 256 queue slots are therefore outside channel-scoped consumption.
+- Admission, binding, stream, UDP, quota, channel lifecycle, and
+  channel-scoped resume events all pass through the same `AuditLog::record`
+  checks; the rule is not UDP-specific.
+- Both the per-channel and aggregate checks run before the global capacity,
+  audit sequence, timestamp, event queue, and protected channel mutation.
+
+### Asymmetric Quinn configuration evidence
+
+The pinned Quinn 0.11.11 / quinn-proto 0.11.16 configuration does not support
+the proposed one-way test mode. Setting local
+`datagram_receive_buffer_size(None)` makes Quinn's send path return
+`SendDatagramError::Disabled` before considering peer support; the same local
+receive option controls both the advertised receive capability and Quinn's
+local send enablement. The attempted asymmetric behavior run captured that
+exact `Disabled` result. The implementation nevertheless no longer uses the
+outbound maximum for inbound validation, and the exact local bound has direct
+plus real native-read coverage.
+
+### Review-round commands and results
+
+All Cargo commands used the required non-OneDrive target directory.
+
+- `cargo test --locked --manifest-path crates/nbsr-transport/Cargo.toml --test datagram`
+  - PASS: 6 passed, 0 failed.
+- `cargo test --locked --manifest-path crates/nbsr-transport/Cargo.toml --test core_v02_vectors --test admission --test multi_channel --test multi_stream --test channel_binding --test channel_lifecycle --test drain --test resumption --test datagram`
+  - PASS: 55 passed, 0 failed across all nine required targets.
+- `cargo test --locked --manifest-path crates/nbsr-transport/Cargo.toml`
+  - PASS: 105 unit/integration tests plus 10 compile-fail doctests; 0 failed.
+- `python -m pytest tests/protocol/test_registry.py tests/protocol/test_schemas.py tests/protocol/test_states.py tests/protocol/test_vectors.py -q`
+  - PASS: 62 passed, 0 failed.
+- `cargo fmt --manifest-path crates/nbsr-transport/Cargo.toml -- --check`
+  - PASS.
+- `cargo clippy --locked --manifest-path crates/nbsr-transport/Cargo.toml --all-targets -- -D warnings`
+  - PASS.
+- `git diff --check`
+  - PASS (Git emitted only the checkout's existing LF-to-CRLF warnings).
+
+### Review-round files
+
+Modified:
+
+- `crates/nbsr-transport/src/audit.rs`
+- `crates/nbsr-transport/src/lib.rs`
+- `crates/nbsr-transport/src/quinn_adapter.rs`
+- `crates/nbsr-transport/tests/channel_lifecycle.rs`
+- `crates/nbsr-transport/tests/datagram.rs`
+- `crates/nbsr-transport/tests/drain.rs`
+- `crates/nbsr-transport/tests/multi_stream.rs`
+- `crates/nbsr-transport/tests/resumption.rs`
+- `crates/nbsr-transport/tests/support/mod.rs`
+- `docs/protocol/core-v0.2-session-route-schema-proposal.md`
+- `docs/protocol/core-v0.2-udp-datagram-schema-proposal.md`
+- `.superpowers/sdd/2026-07-31-wp4-reusable-multi-service-transport/task-9-report.md`
+
+No dependency, Core v0.1, generated artifact, or `.codex-test-temp-w4/`
+change was made.
+
+### Review-round commit
+
+Subject: `fix(wp4): contain channel audit failures`
+
+The immutable commit object ID is returned after this report is included in
+the review-round commit.
+
+### Review-round concerns
+
+No review-round blocker remains. Quinn's receive-enable setting cannot express
+a send-enabled/receive-disabled asymmetric endpoint in the pinned version, so
+that optional live configuration is not claimed. The outbound-independent
+inbound bound, raw native malformed/replay behavior, and sibling containment
+are verified directly. DATAGRAM delivery remains unreliable and unordered by
+design.

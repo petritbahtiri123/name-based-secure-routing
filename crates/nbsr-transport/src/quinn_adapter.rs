@@ -21,6 +21,8 @@ use crate::{
 };
 
 const DATAGRAM_BUFFER_BYTES: usize = 262_144;
+// 23 fixed bytes + 9-byte u64 sequence + 3-byte length + 1200-byte payload.
+const MAX_LOCAL_ENCODED_DATAGRAM_BYTES: usize = 1_235;
 
 pub(crate) fn configure_datagram_buffers(transport: &mut quinn::TransportConfig) {
     transport.datagram_receive_buffer_size(Some(DATAGRAM_BUFFER_BYTES));
@@ -523,17 +525,17 @@ impl AuthenticatedConnection {
         if !session.matches_connection(&self.binding_capability) {
             return Err(crate::DatagramReject::ConnectionMismatch);
         }
-        let peer_maximum = self
-            .connection
-            .max_datagram_size()
-            .ok_or(crate::DatagramReject::PeerMaximum)?;
+        let frame = self.read_inbound_datagram().await?;
+        session.receive_udp_datagram(frame, monotonic_milliseconds)
+    }
+
+    async fn read_inbound_datagram(&self) -> Result<crate::DatagramFrame, crate::DatagramReject> {
         let wire = self
             .connection
             .read_datagram()
             .await
             .map_err(|_| crate::DatagramReject::TransportFailed)?;
-        let frame = crate::decode_datagram_frame(&wire, peer_maximum)?;
-        session.receive_udp_datagram(frame, monotonic_milliseconds)
+        decode_inbound_datagram(&wire)
     }
 
     pub fn pop_udp_datagram(
@@ -764,6 +766,10 @@ impl AuthenticatedConnection {
     }
 }
 
+fn decode_inbound_datagram(wire: &[u8]) -> Result<crate::DatagramFrame, crate::DatagramReject> {
+    crate::decode_datagram_frame(wire, MAX_LOCAL_ENCODED_DATAGRAM_BYTES)
+}
+
 fn authenticate_connection(
     connection: Connection,
     endpoint: Endpoint,
@@ -820,4 +826,141 @@ fn authenticate_connection(
         close_timeout: policy.handshake_timeout(),
         tracked_streams: Arc::new(TrackedApplicationStreams::new()),
     })
+}
+
+#[cfg(test)]
+mod datagram_adapter_tests {
+    use super::*;
+    use std::time::Duration;
+
+    #[allow(dead_code)]
+    mod support {
+        include!(concat!(env!("CARGO_MANIFEST_DIR"), "/tests/support/mod.rs"));
+    }
+
+    #[test]
+    fn inbound_decode_uses_the_exact_local_profile_maximum() {
+        let wire = crate::encode_datagram_frame(
+            [0xa1; 16],
+            u64::MAX,
+            &[0x5a; crate::MAX_DATAGRAM_PAYLOAD],
+            usize::MAX,
+        )
+        .unwrap();
+        assert_eq!(wire.len(), 1_235);
+        assert_eq!(
+            decode_inbound_datagram(&wire).unwrap().payload().len(),
+            crate::MAX_DATAGRAM_PAYLOAD
+        );
+
+        let mut too_large = wire;
+        too_large.push(0);
+        assert_eq!(
+            decode_inbound_datagram(&too_large),
+            Err(crate::DatagramReject::PeerMaximum)
+        );
+    }
+
+    #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+    async fn raw_rejects_malformed_and_replay_without_harming_siblings() {
+        let pki = support::TestPki::generate_for("source.edge", "destination.edge");
+        let source_policy = PeerPolicy::new(
+            EdgeRole::Source,
+            EdgeRole::Destination,
+            EdgeIdentity::from_dns_name("destination.edge").unwrap(),
+            Duration::from_secs(2),
+            Duration::from_secs(10),
+        )
+        .unwrap();
+        let destination_policy = PeerPolicy::new(
+            EdgeRole::Destination,
+            EdgeRole::Source,
+            EdgeIdentity::from_dns_name("source.edge").unwrap(),
+            Duration::from_secs(2),
+            Duration::from_secs(10),
+        )
+        .unwrap();
+        let source_config =
+            crate::build_client_config(source_policy, pki.source_material()).unwrap();
+        let destination_config =
+            crate::build_server_config(destination_policy, pki.destination_material()).unwrap();
+        let listener = TransportListener::bind(
+            destination_config,
+            SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), 0),
+        )
+        .unwrap();
+        let address = listener.local_addr().unwrap();
+        let (source, destination) =
+            tokio::join!(connect(source_config, address), listener.accept_one());
+        let source = source.unwrap();
+        let destination = destination.unwrap();
+
+        assert!(source.connection.max_datagram_size().is_some());
+        assert!(destination.connection.max_datagram_size().is_some());
+
+        let channel_a = [0xa1; 16];
+        let channel_b = [0xb2; 16];
+        let valid_a = crate::encode_datagram_frame(channel_a, 1, b"target", usize::MAX).unwrap();
+        let mut malformed_a = valid_a.clone();
+        malformed_a.splice(22..23, [0x18, 0x01]);
+        source
+            .connection
+            .send_datagram(Bytes::from(malformed_a))
+            .unwrap();
+        assert_eq!(
+            destination.read_inbound_datagram().await,
+            Err(crate::DatagramReject::InvalidFrame)
+        );
+
+        let mut gate_a = crate::DatagramGate::new(channel_a);
+        source
+            .connection
+            .send_datagram(Bytes::from(valid_a.clone()))
+            .unwrap();
+        let first_a = destination.read_inbound_datagram().await.unwrap();
+        assert_eq!(
+            gate_a.receive(first_a, 0, |_| Ok(())),
+            Ok(crate::DatagramReceive::Queued)
+        );
+        source
+            .connection
+            .send_datagram(Bytes::from(valid_a))
+            .unwrap();
+        let replay_a = destination.read_inbound_datagram().await.unwrap();
+        assert_eq!(
+            gate_a.receive(replay_a, 0, |_| Ok(())),
+            Err(crate::DatagramReject::Replay)
+        );
+
+        let mut gate_b = crate::DatagramGate::new(channel_b);
+        let valid_b = crate::encode_datagram_frame(channel_b, 1, b"sibling", usize::MAX).unwrap();
+        source
+            .connection
+            .send_datagram(Bytes::from(valid_b))
+            .unwrap();
+        let frame_b = destination.read_inbound_datagram().await.unwrap();
+        assert_eq!(
+            gate_b.receive(frame_b, 0, |_| Ok(())),
+            Ok(crate::DatagramReceive::Queued)
+        );
+        assert_eq!(gate_b.pop(|_| Ok(())), Ok(Some(b"sibling".to_vec())));
+
+        let (mut source_send, mut source_receive) = source.connection.open_bi().await.unwrap();
+        source_send.write_all(b"tcp-sibling").await.unwrap();
+        source_send.finish().unwrap();
+        let (mut destination_send, mut destination_receive) =
+            destination.connection.accept_bi().await.unwrap();
+        let received = destination_receive.read_to_end(64).await.unwrap();
+        assert_eq!(received, b"tcp-sibling");
+        destination_send.write_all(&received).await.unwrap();
+        destination_send.finish().unwrap();
+        assert_eq!(
+            source_receive.read_to_end(64).await.unwrap(),
+            b"tcp-sibling"
+        );
+
+        source.close().await.unwrap();
+        destination.close().await.unwrap();
+        listener.close().await.unwrap();
+    }
 }

@@ -60,6 +60,12 @@ calculation; there is no fixed framing-overhead assumption. A 1200-byte payload
 at sequence 1 encodes to 1227 bytes. If even the 25-byte empty-payload frame
 does not fit, no application datagram is allowed.
 
+The largest locally valid profile frame is exactly 1235 bytes: 23 fixed bytes,
+a 9-byte `u64` sequence, a 3-byte 1200-length argument, and the 1200-byte
+payload. Inbound decoding applies this local profile maximum after Quinn
+`read_datagram`; Quinn's `max_datagram_size` is an outbound peer/path value and
+is not an inbound validation limit.
+
 ## Per-channel gate
 
 Each live exporter-bound UDP channel has independent inbound and outbound
@@ -76,6 +82,16 @@ state:
   mutation; and
 - an audit reservation failure fails closed before sequence, token, or queue
   mutation.
+
+The lab Transport Session audit queue remains exactly 1024 events. Every event
+with a `channel_id`, including admission, binding, stream, lifecycle, resume,
+quota, and UDP mutations, shares an exact per-channel queued-event cap of 24.
+With the lab maximum of 32 channels, channel-scoped records can therefore
+occupy at most 768 slots, leaving at least 256 slots for session/security
+lifecycle records without a channel scope. A 25th queued event for channel A
+is rejected before either A or the global audit reserve mutates; channel B and
+session-scoped records retain their independent remaining capacity. Popping a
+queued channel event returns exactly one slot to that channel.
 
 Popping or lifecycle-clearing a payload does not lower the inbound replay
 high-water mark. Drain stops new DATAGRAM operations immediately. Deadline,

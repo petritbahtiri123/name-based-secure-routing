@@ -560,7 +560,7 @@ async fn adapter_revoke_and_close_reset_only_after_valid_audited_commit() {
         ),
         Err(SessionReject::ControlRejected)
     );
-    fill_audit_with_existing_stream(&mut session, &sibling_route.channel, 1_024);
+    fill_channel_audit_partition(&mut session, &revoke_route.channel);
     assert_eq!(
         destination.accept_route_revoke(
             &mut session,
@@ -580,9 +580,6 @@ async fn adapter_revoke_and_close_reset_only_after_valid_audited_commit() {
         b"revoke-no-reset"
     );
 
-    session
-        .pop_audit_event()
-        .expect("one sibling application audit slot");
     let (sibling_accepted, sibling_opened) = tokio::join!(
         destination.accept_session_stream(&mut session, sibling_route.channel.channel_id),
         async {
@@ -593,7 +590,7 @@ async fn adapter_revoke_and_close_reset_only_after_valid_audited_commit() {
     );
     let mut sibling_accepted = sibling_accepted.expect("tracked sibling");
     let mut sibling_opened = sibling_opened.expect("opened sibling");
-    session.pop_audit_event().expect("one revoke audit slot");
+    pop_until_channel_slot(&mut session, revoke_route.channel.channel_id);
     destination
         .accept_route_revoke(&mut session, revoke_route.channel.channel_id, &valid_revoke)
         .expect("valid audited revoke");
@@ -633,6 +630,7 @@ async fn adapter_revoke_and_close_reset_only_after_valid_audited_commit() {
         ),
         Err(SessionReject::ControlRejected)
     );
+    fill_channel_audit_partition(&mut session, &close_route.channel);
     assert_eq!(
         destination.accept_route_close(&mut session, close_route.channel.channel_id, &valid_close),
         Err(SessionReject::AuditUnavailable)
@@ -648,9 +646,7 @@ async fn adapter_revoke_and_close_reset_only_after_valid_audited_commit() {
         b"close-no-reset"
     );
 
-    session
-        .pop_audit_event()
-        .expect("second close application audit slot");
+    pop_until_channel_slot(&mut session, close_route.channel.channel_id);
     let (close_reset_accepted, close_reset_opened) = tokio::join!(
         destination.accept_session_stream(&mut session, close_route.channel.channel_id),
         async {
@@ -661,7 +657,7 @@ async fn adapter_revoke_and_close_reset_only_after_valid_audited_commit() {
     );
     let _close_reset_accepted = close_reset_accepted.expect("second tracked close target");
     let mut close_reset_opened = close_reset_opened.expect("second opened close target");
-    session.pop_audit_event().expect("one close audit slot");
+    pop_until_channel_slot(&mut session, close_route.channel.channel_id);
     destination
         .accept_route_close(&mut session, close_route.channel.channel_id, &valid_close)
         .expect("valid audited close");
@@ -891,11 +887,21 @@ async fn session_drain_reports_due_channel_audit_failure_while_resetting_safely(
     );
     let _accepted = accepted.expect("accepted live stream before session drain");
     let mut opened = opened.expect("opened live stream before session drain");
-    fill_audit_with_existing_stream(&mut session, &channel, 1_023);
+    fill_channel_audit_partition(&mut session, &channel);
     session
         .begin_session_drain(1_000, NOW + 299, 30)
-        .expect("last audit slot starts session drain");
-    assert_eq!(session.audit_events().len(), 1_024);
+        .expect("channel exhaustion preserves the session lifecycle reserve");
+    assert_eq!(
+        session
+            .audit_events()
+            .filter(|event| event.channel_id == Some(channel.channel_id))
+            .count(),
+        24
+    );
+    assert_eq!(
+        session.audit_events().last().map(|event| event.channel_id),
+        Some(None)
+    );
 
     assert_eq!(
         destination.enforce_session_drain(&mut session, 1_001).await,
@@ -977,7 +983,7 @@ async fn audit_exhaustion_preserves_start_state_and_deadline_enforcement_stays_s
     destination
         .bind_channel(&mut session, channel.channel_id)
         .expect("bind active channel");
-    fill_audit_to(&mut session, &channel, 1_024);
+    fill_channel_audit_partition(&mut session, &channel);
 
     let drain = decode_control_envelope(
         &lifecycle_envelope(
@@ -1004,18 +1010,13 @@ async fn audit_exhaustion_preserves_start_state_and_deadline_enforcement_stays_s
         Some(ChannelState::Active)
     );
     assert_eq!(session.channel_drain_deadline(channel.channel_id), None);
-    assert_eq!(
-        session.begin_session_drain(100, NOW, 1),
-        Err(SessionReject::AuditUnavailable)
-    );
     assert_eq!(session.session_drain_state(), SessionDrainState::Active);
     assert_eq!(session.channel_drain_deadline(channel.channel_id), None);
 
-    session.pop_audit_event().expect("make one audit slot");
+    pop_until_channel_slot(&mut session, channel.channel_id);
     session
         .accept_route_drain(channel.channel_id, &drain, 100, 1_893_456_000)
         .expect("failed start consumed no request or sequence");
-    assert_eq!(session.audit_events().len(), 1_024);
     assert_eq!(
         destination
             .enforce_channel_drain(&mut session, channel.channel_id, 101)
@@ -1102,31 +1103,44 @@ fn lifecycle_control(
     .expect("valid generated lifecycle envelope")
 }
 
-fn fill_audit_with_existing_stream(
-    session: &mut ControlSession,
-    channel: &ActiveChannel,
-    wanted: usize,
-) {
-    for (offset, stream_id) in (24_u64..=272).step_by(4).enumerate() {
+fn fill_channel_audit_partition(session: &mut ControlSession, channel: &ActiveChannel) {
+    let first_stream_id = 24 + u64::from(channel.channel_id[0]) * 256;
+    for (offset, stream_id) in (first_stream_id..=first_stream_id + 248)
+        .step_by(4)
+        .enumerate()
+    {
         let request_id = id(30_000 + stream_id);
         let sequence = 100 + offset as u64;
         let open = stream_open_envelope_with_sequence(channel, stream_id, request_id, sequence);
         let accept = stream_accept_envelope(channel, stream_id, request_id, sequence + 100);
-        session
-            .authorize_stream_open(channel.channel_id, &open)
-            .expect("fill remaining logical stream slots");
-        session
-            .confirm_stream_accept(channel.channel_id, &accept)
-            .expect("confirm remaining logical stream slots");
+        match session.authorize_stream_open(channel.channel_id, &open) {
+            Ok(()) => {}
+            Err(SessionReject::AuditUnavailable) => break,
+            Err(error) => panic!("fill channel audit partition: {error:?}"),
+        }
+        match session.confirm_stream_accept(channel.channel_id, &accept) {
+            Ok(()) => {}
+            Err(SessionReject::AuditUnavailable) => break,
+            Err(error) => panic!("confirm channel audit partition: {error:?}"),
+        }
     }
-    let over_capacity = stream_open_envelope_with_sequence(channel, 276, id(40_000), 1_000);
-    while session.audit_events().len() < wanted {
-        assert_eq!(
-            session.authorize_stream_open(channel.channel_id, &over_capacity),
-            Err(SessionReject::Stream(
-                nbsr_transport::StreamReject::OverCapacity
-            ))
-        );
+    assert_eq!(
+        session
+            .audit_events()
+            .filter(|event| event.channel_id == Some(channel.channel_id))
+            .count(),
+        24
+    );
+}
+
+fn pop_until_channel_slot(session: &mut ControlSession, channel_id: [u8; 16]) {
+    loop {
+        let event = session
+            .pop_audit_event()
+            .expect("target channel has a queued audit event");
+        if event.channel_id == Some(channel_id) {
+            return;
+        }
     }
 }
 
@@ -1296,30 +1310,6 @@ fn establish(session: &mut ControlSession) {
     session
         .confirm_route_accept(&route_accept)
         .expect("ROUTE_ACCEPT");
-}
-
-fn fill_audit_to(session: &mut ControlSession, channel: &ActiveChannel, wanted: usize) {
-    for index in 1_u64..=64 {
-        let stream_id = index * 4;
-        let request_id = id(10_000 + index);
-        let open = stream_open_envelope(channel, stream_id, request_id);
-        let accept = stream_accept_envelope(channel, stream_id, request_id, 100 + index);
-        session
-            .authorize_stream_open(channel.channel_id, &open)
-            .expect("first 64 logical streams");
-        session
-            .confirm_stream_accept(channel.channel_id, &accept)
-            .expect("confirm first 64 logical streams");
-    }
-    let over_capacity = stream_open_envelope(channel, 260, id(20_000));
-    while session.audit_events().len() < wanted {
-        assert!(matches!(
-            session.authorize_stream_open(channel.channel_id, &over_capacity),
-            Err(SessionReject::Stream(
-                nbsr_transport::StreamReject::OverCapacity
-            ))
-        ));
-    }
 }
 
 fn id(value: u64) -> [u8; 16] {

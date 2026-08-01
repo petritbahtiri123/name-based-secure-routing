@@ -102,7 +102,7 @@ fn replay_history_accepts_4096_entries_then_rejects_new_keys_without_audit_mutat
 }
 
 #[test]
-fn audit_queue_retains_sequences_1_through_1024_and_rejects_the_next_mutation() {
+fn channel_scoped_audit_partition_retains_768_and_rejects_the_next_mutation() {
     let mut admission = DestinationAdmission::with_limits(
         policy(1),
         ChannelLimits {
@@ -117,14 +117,14 @@ fn audit_queue_retains_sequences_1_through_1024_and_rejects_the_next_mutation() 
         Some(ChannelState::Candidate)
     );
 
-    for value in 2..=1_024 {
+    for value in 2..=768 {
         assert_eq!(
             admission.admit(request(value)),
             Err(AdmissionReject::OverCapacity)
         );
     }
     let events = admission.audit_events().collect::<Vec<_>>();
-    assert_eq!(events.len(), 1_024);
+    assert_eq!(events.len(), 768);
     for (index, event) in events.iter().enumerate() {
         assert_eq!(event.sequence, index as u64 + 1);
         assert!(event.unix_timestamp > 0);
@@ -144,13 +144,13 @@ fn audit_queue_retains_sequences_1_through_1024_and_rejects_the_next_mutation() 
     assert!(!before.contains("certificate"));
 
     assert_eq!(
-        admission.admit(request(1_025)),
+        admission.admit(request(769)),
         Err(AdmissionReject::AuditUnavailable)
     );
-    assert_eq!(admission.audit_events().len(), 1_024);
+    assert_eq!(admission.audit_events().len(), 768);
     assert_eq!(
         admission.channel_state(id(1)),
         Some(ChannelState::Candidate)
     );
-    assert_eq!(admission.channel_state(id(1_025)), None);
+    assert_eq!(admission.channel_state(id(769)), None);
 }

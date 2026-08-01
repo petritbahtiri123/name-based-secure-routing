@@ -67,6 +67,9 @@
 
 #![forbid(unsafe_code)]
 
+#[cfg(test)]
+extern crate self as nbsr_transport;
+
 mod admission;
 mod audit;
 mod channel_binding;

@@ -1151,14 +1151,14 @@ async fn store_retains_4096_unique_handles_and_rejects_4097_without_eviction() {
     assert_eq!(rejected.outcome, AuditOutcome::Denied);
     assert_eq!(rejected.reason, AuditReason::Capacity);
 
+    let missing_audit_filler = indexed_handle(9_000);
     while old.session.audit_events().len() < 1_024 {
         assert_eq!(
-            manager.issue(
+            destination.preflight_same_edge_resume(
+                &mut manager,
+                &missing_audit_filler,
                 &mut old.session,
-                old.channel.channel_id,
-                indexed_handle(1),
                 100,
-                NOW,
             ),
             Err(ResumeReject::Replay)
         );
@@ -1590,7 +1590,13 @@ async fn audit_exhaustion_rejects_issue_and_consume_before_store_mutation() {
             NOW,
         )
         .expect("one retained record");
-    while old.session.audit_events().len() < 1_024 {
+    while old
+        .session
+        .audit_events()
+        .filter(|event| event.channel_id == Some(old.channel.channel_id))
+        .count()
+        < 24
+    {
         assert_eq!(
             manager.issue(
                 &mut old.session,
@@ -1695,11 +1701,11 @@ async fn audit_exhaustion_rejects_issue_and_consume_before_store_mutation() {
         assert_eq!(
             new_destination.preflight_same_edge_resume(
                 &mut manager,
-                &mismatch_handle,
+                &missing_handle,
                 &mut fresh.session,
                 105,
             ),
-            Err(ResumeReject::Mismatch)
+            Err(ResumeReject::Replay)
         );
     }
     assert_eq!(
@@ -1845,15 +1851,16 @@ async fn only_normally_closed_previously_active_bound_channels_are_issue_eligibl
         SessionSpec::new(0x26, 0x56, 0x36, 0x96),
         "regional-prod.1",
     );
+    let missing_audit_filler = indexed_handle(10_009);
     while audit_failed.session.audit_events().len() < 1_024 {
         assert_eq!(
             destination.preflight_same_edge_resume(
                 &mut manager,
-                &filler,
+                &missing_audit_filler,
                 &mut audit_failed.session,
                 105,
             ),
-            Err(ResumeReject::Mismatch)
+            Err(ResumeReject::Replay)
         );
     }
     let close = route_close(&audit_failed, 0x66);

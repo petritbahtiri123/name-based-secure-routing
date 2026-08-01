@@ -356,12 +356,15 @@ async fn native_quinn_loopback_isolates_two_udp_channels_and_a_tcp_sibling() {
         Some(b"bravo".to_vec())
     );
 
+    while source_session.pop_audit_event().is_some() {}
+    while destination_session.pop_audit_event().is_some() {}
     for sequence in 0..65_u8 {
         source
             .send_udp_datagram(&mut source_session, udp_a.channel_id, &[sequence], 0)
             .unwrap();
+        while source_session.pop_audit_event().is_some() {}
     }
-    let mut queue_drop_seen = false;
+    let mut quota_audit = None;
     for _ in 0..65 {
         let outcome = timeout(
             Duration::from_secs(2),
@@ -370,14 +373,16 @@ async fn native_quinn_loopback_isolates_two_udp_channels_and_a_tcp_sibling() {
         .await
         .expect("bounded loopback receive timeout")
         .unwrap();
-        queue_drop_seen |= outcome == DatagramReceive::DroppedQueueFull;
+        if outcome == DatagramReceive::DroppedQueueFull {
+            quota_audit = destination_session
+                .audit_events()
+                .filter(|event| event.action == AuditAction::DatagramDropped)
+                .last()
+                .cloned();
+        }
+        while destination_session.pop_audit_event().is_some() {}
     }
-    assert!(queue_drop_seen);
-    let quota_audit = destination_session
-        .audit_events()
-        .filter(|event| event.action == AuditAction::DatagramDropped)
-        .last()
-        .expect("typed queue quota audit");
+    let quota_audit = quota_audit.expect("typed queue quota audit");
     assert_eq!(quota_audit.channel_id, Some(udp_a.channel_id));
     assert_eq!(quota_audit.service_id.as_str(), "udp-a");
     assert_eq!(quota_audit.outcome, AuditOutcome::Denied);
@@ -464,6 +469,174 @@ async fn native_quinn_loopback_isolates_two_udp_channels_and_a_tcp_sibling() {
         source.send_udp_datagram(&mut source_session, udp_b.channel_id, b"draining", 100,),
         Err(DatagramReject::InvalidState)
     );
+
+    source.close().await.unwrap();
+    destination.close().await.unwrap();
+    listener.close().await.unwrap();
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn channel_a_audit_exhaustion_preserves_udp_b_tcp_c_and_session_lifecycle() {
+    let pki = support::TestPki::generate_for("source.edge", "destination.edge");
+    let (listener, source, destination) = datagram_connection_pair(&pki).await;
+    let issuer = RouteGrantIssuer {
+        kid: KID.to_vec(),
+        public_key: SigningKey::from_bytes(&ROUTE_GRANT_SEED)
+            .verifying_key()
+            .to_bytes(),
+    };
+    let mut source_session = loopback_session(&source, issuer.clone());
+    let mut destination_session = loopback_session(&destination, issuer);
+    establish_loopback_session(&mut source_session);
+    establish_loopback_session(&mut destination_session);
+
+    let (udp_a_open, udp_a_accept) =
+        signed_loopback_route(11, "udp-a", 41, [0xa1; 32], "udp", 5301, 2);
+    let (udp_b_open, udp_b_accept) =
+        signed_loopback_route(12, "udp-b", 42, [0xb2; 32], "udp", 5302, 3);
+    let (tcp_open, tcp_accept) = signed_loopback_route(13, "tcp-c", 43, [0xc3; 32], "tcp", 8443, 4);
+    let mut channels = Vec::new();
+    for (open, accept) in [
+        (&udp_a_open, &udp_a_accept),
+        (&udp_b_open, &udp_b_accept),
+        (&tcp_open, &tcp_accept),
+    ] {
+        let source_channel = source_session.accept_route_open(open).unwrap();
+        let destination_channel = destination_session.accept_route_open(open).unwrap();
+        assert_eq!(source_channel, destination_channel);
+        source_session.confirm_route_accept(accept).unwrap();
+        destination_session.confirm_route_accept(accept).unwrap();
+        source
+            .bind_channel(&mut source_session, source_channel.channel_id)
+            .unwrap();
+        destination
+            .bind_channel(&mut destination_session, destination_channel.channel_id)
+            .unwrap();
+        channels.push(source_channel);
+    }
+    let udp_a = &channels[0];
+    let udp_b = &channels[1];
+    let tcp = &channels[2];
+
+    while source_session.pop_audit_event().is_some() {}
+    while destination_session.pop_audit_event().is_some() {}
+    for _ in 0..24 {
+        assert_eq!(
+            source.send_udp_datagram(
+                &mut source_session,
+                udp_a.channel_id,
+                &[0x5a; MAX_DATAGRAM_PAYLOAD + 1],
+                0,
+            ),
+            Err(DatagramReject::PayloadTooLarge)
+        );
+    }
+    assert_eq!(
+        source_session
+            .audit_events()
+            .filter(|event| event.channel_id == Some(udp_a.channel_id))
+            .count(),
+        24
+    );
+    assert_eq!(
+        source.send_udp_datagram(&mut source_session, udp_a.channel_id, b"blocked-a", 0),
+        Err(DatagramReject::AuditUnavailable)
+    );
+    assert_eq!(source_session.audit_events().len(), 24);
+
+    source
+        .send_udp_datagram(&mut source_session, udp_b.channel_id, b"udp-b-survives", 0)
+        .unwrap();
+    timeout(
+        Duration::from_secs(2),
+        destination.receive_udp_datagram(&mut destination_session, 0),
+    )
+    .await
+    .expect("bounded sibling receive timeout")
+    .unwrap();
+    assert_eq!(
+        destination
+            .pop_udp_datagram(&mut destination_session, udp_b.channel_id)
+            .unwrap(),
+        Some(b"udp-b-survives".to_vec())
+    );
+
+    let mut source_control = source.open_control_stream().await.unwrap();
+    source_control
+        .send_envelope(&stream_control(tcp, 4, 6, 5))
+        .await
+        .unwrap();
+    let mut destination_control = destination.accept_control_stream().await.unwrap();
+    let received_open = destination_control
+        .receive_envelope(nbsr_transport::CoreV02Limits::default())
+        .await
+        .unwrap();
+    destination_session
+        .authorize_stream_open(tcp.channel_id, &received_open)
+        .unwrap();
+    destination_control
+        .send_envelope(&stream_control(tcp, 4, 7, 6))
+        .await
+        .unwrap();
+    let received_accept = source_control
+        .receive_envelope(nbsr_transport::CoreV02Limits::default())
+        .await
+        .unwrap();
+    destination_session
+        .confirm_stream_accept(tcp.channel_id, &received_accept)
+        .unwrap();
+    let (echoed, received) = tokio::join!(
+        async {
+            destination
+                .accept_session_stream(&mut destination_session, tcp.channel_id)
+                .await
+                .unwrap()
+                .echo_once()
+                .await
+                .unwrap()
+        },
+        async {
+            source
+                .open_application_stream()
+                .await
+                .unwrap()
+                .send_and_receive(b"tcp-c-survives")
+                .await
+                .unwrap()
+        }
+    );
+    assert_eq!(echoed, b"tcp-c-survives");
+    assert_eq!(received, b"tcp-c-survives");
+    assert_eq!(
+        source_session
+            .audit_events()
+            .filter(|event| event.channel_id == Some(udp_a.channel_id))
+            .count(),
+        24
+    );
+
+    while source_session.pop_audit_event().is_some() {}
+    source
+        .send_udp_datagram(&mut source_session, udp_a.channel_id, b"a-after-release", 0)
+        .expect("failed reservation did not mutate the target gate");
+    timeout(
+        Duration::from_secs(2),
+        destination.receive_udp_datagram(&mut destination_session, 0),
+    )
+    .await
+    .expect("bounded target receive timeout")
+    .unwrap();
+    assert_eq!(
+        destination
+            .pop_udp_datagram(&mut destination_session, udp_a.channel_id)
+            .unwrap(),
+        Some(b"a-after-release".to_vec())
+    );
+
+    source_session.begin_session_drain(100, NOW, 5).unwrap();
+    let session_event = source_session.audit_events().last().unwrap();
+    assert_eq!(session_event.channel_id, None);
+    assert_eq!(session_event.action, AuditAction::SessionDrainStarted);
 
     source.close().await.unwrap();
     destination.close().await.unwrap();

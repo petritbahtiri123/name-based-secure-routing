@@ -483,6 +483,7 @@ async fn revoked_channel_is_terminal_while_bound_sibling_remains_usable() {
     assert!(actions.contains(&AuditAction::ChannelRevoked));
     assert!(actions.contains(&AuditAction::StreamAuthorized));
 
+    while session.pop_audit_event().is_some() {}
     for (index, stream_id) in (4..=256)
         .step_by(4)
         .filter(|stream_id| *stream_id != 8)
@@ -494,8 +495,9 @@ async fn revoked_channel_is_terminal_while_bound_sibling_remains_usable() {
                 &stream_open(&channel_b, stream_id, [0x50 + index as u8; 16]),
             )
             .expect("fill sibling stream slots");
+        while session.pop_audit_event().is_some() {}
     }
-    while session.audit_events().len() < 1_024 {
+    for _ in 0..24 {
         assert_eq!(
             session.authorize_stream_open(
                 channel_b.channel_id,
@@ -504,10 +506,12 @@ async fn revoked_channel_is_terminal_while_bound_sibling_remains_usable() {
             Err(SessionReject::Stream(StreamReject::OverCapacity))
         );
     }
-    assert_eq!(session.audit_events().len(), 1_024);
     assert_eq!(
-        session.audit_events().last().map(|event| event.sequence),
-        Some(1_024)
+        session
+            .audit_events()
+            .filter(|event| event.channel_id == Some(channel_b.channel_id))
+            .count(),
+        24
     );
     let revoke_b = route_revoke(&channel_b, [0xa3; 16], 6, NOW + 200);
     assert_eq!(
