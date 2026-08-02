@@ -31,7 +31,8 @@ production system.
 - [Implementation status](docs/protocol/status.md) separates verified
   prototype behavior from partial, planned, and normative Core v0.1 behavior.
 - [V3.6 protocol roadmap](docs/superpowers/plans/2026-07-28-v3.6-protocol-roadmap.md)
-  defines gated WP2-WP6 sequencing and does not authorize runtime work.
+  records the gated WP2-WP7 sequence and does not itself authorize runtime
+  work.
 - [Standards reuse matrix](docs/protocol/standards-reuse-matrix.md) and
   [minimal NBSR surface](docs/protocol/minimal-nbsr-protocol-surface.md)
   separate reused Internet standards, NBSR profiles, and genuinely new NBSR
@@ -98,6 +99,19 @@ model fails closed on stale, rolled-back, equivocated, partial, conflicting,
 or unavailable state; bounds failover to 5 seconds and drain to 30 seconds;
 and prevents retained terminal authority from resurrecting. It is simulated
 multi-replica evidence, not live HA or a new wire protocol.
+
+### Deterministic two-operator ISP lab
+
+WP7 provides a source-first, two-domain admission and abuse simulation with
+separate operator policy, gateway, continuity, quota, audit, and resource
+ownership. One bounded `OperatorPairRuntime` owns pair-wide replay, capacity,
+fair-share, audit, and connector state. The ISP-B connector alone retains the
+Origin Endpoint, requires the exact registered admission capability, performs
+no network I/O, and exposes no endpoint-derived verifier. This is
+single-threaded, in-process simulated evidence, not a live two-ISP deployment
+or federation protocol. Fresh 2026-08-02 validation recorded 106 focused WP7
+tests, 1,077 passed and 1 skipped repository-wide, and 114 executable Rust
+tests plus 16 doctests.
 
 ## Security boundaries
 
@@ -256,6 +270,17 @@ global federation, and no production-readiness claim. Its file repository has
 only a process-lifetime monotonic watermark for cooperating writers; stale
 locks fail closed and require operator cleanup, and external compare-and-swap
 remains a future proven-store adapter responsibility.
+
+WP7 provides no production readiness, no live two-ISP deployment, no
+independent real administration, no real subscriber enforcement, no DDoS
+mitigation or elimination, no origin anonymity, no global federation, no
+signed ownership or delegation, no transparency, no trust distribution or
+rotation, no new wire protocol, no OriginSet publication interoperability, no
+cross-edge handover or resumption, no live consensus, no complete partition
+tolerance, no independent interoperability, and no raw-scan resistance
+outside the exact simulated topology. It also provides no process-global
+runtime uniqueness, distributed replay protection, persistence, concurrency
+safety, crash durability, or live resource scheduling.
 
 The current Windows adapter behavior is unit/in-process tested. It is not a
 validated full-device Windows networking deployment.

@@ -1,6 +1,6 @@
 # NBSR implementation status
 
-**Baseline date:** 2026-08-01
+**Baseline date:** 2026-08-02
 
 **Authority:** [NBSR Protocol Vision V3.6](../architecture/NBSR_Protocol_Vision_V3.6.md)
 **Evidence baseline:** the final hardened-branch report records 255 passed and
@@ -82,6 +82,31 @@ equivocation rejection, fail-closed quorum reads, 5-second failover, 30-second
 drain, and non-resurrection inside the approved prototype boundary. It is not
 live consensus, live HA, or crash-recovery evidence.
 
+WP7 is complete and evidence-closed at deterministic two-operator lab scope.
+The implementation is a single-threaded, in-process model with source-first
+admission, independent source and destination authority, pair-wide bounded
+quota/replay/audit state, deterministic fair-share eviction, and one confined
+destination connector. The documentation-inclusive focused suite contains 106
+focused WP7 tests. Independent correctness and security closure reviews report
+zero remaining confirmed findings.
+
+Fresh 2026-08-02 validation recorded 1,077 passed and 1 skipped in the full
+Python suite. Ruff check passed and Ruff format reported 140 files already
+formatted; `pip check`, Core v0.1/Core v0.2 regeneration, WP4 exporter Python
+and Node verification (2 valid and 21 invalid/mutation cases), the independent
+WP6 snapshot verifier, byte-identical double WP7 verification, Rustfmt, Clippy
+with `-D warnings`, Docker Compose configuration, OPA 5/5, bounded privacy and
+artifact scans, and `git diff --check` passed. Cargo ran 114 executable tests
+and 16 doctests (130 total).
+
+WP7 evidence proves the 5-second source admission, 5-second destination
+admission, 30-second drain, fail-closed overload and authority decisions,
+operator-owned audits, exact registered connector capabilities, canonical
+topology verification, and safe raw-scan behavior only inside the approved
+simulated model. The connector performs no network I/O and its receipt is not
+derived from the Origin Endpoint. This is not live deployment, federation,
+anonymity, or production evidence.
+
 This file separates evidence from intent. `Implemented` means verified behavior
 exists at prototype scale. It does not imply Core v0.1 conformance, production
 readiness, global federation, or independent interoperability.
@@ -145,7 +170,7 @@ readiness, global federation, or independent interoperability.
 | Clean no-agent client behind an upgraded gateway | Partial | Windows adapter proves the boundary; router/enterprise/ISP packaging remains |
 | Reversible route/firewall ownership journal | Implemented | WP5 records bounded applied operation IDs and exact prior resolver state, then emits trusted-profile-bound reverse-order rollback intent; operational rollback remains unverified |
 | Multi-zone HA and shared security state | Partial | WP6 provides a storage-neutral state machine and deterministic quorum simulation; no live multi-zone HA |
-| Two-operator ISP lab | Planned | WP7 |
+| Two-operator ISP lab | Implemented | WP7 deterministic single-threaded, in-process admission, abuse, audit, connector-confinement, and topology simulation; no live ISP or federation evidence |
 | Signed ownership, delegation, transparency, and global federation | Planned | WP8 |
 | Independent second-language implementation | Planned | WP8 |
 | Independent Core v0.2 vector verification | Implemented | Dependency-free Node.js verifier independently validates the 32-artifact deterministic package; this is conformance evidence, not a second runtime |
@@ -232,3 +257,17 @@ no production HA, no crash/reboot durability, no cross-edge handover, no
 cross-edge resumption, no OriginSet publication interoperability, no new wire
 protocol, no complete partition tolerance, no global federation, and no
 production-readiness claim are made.
+
+WP7 adds a deterministic two-operator simulation only. It allocates no wire
+semantics, and caller-verified local authority cannot mint, sign, distribute,
+rotate, or persist WP3-WP6 authority. WP7 makes no production readiness, no
+live two-ISP deployment, no independent real administration, no real
+subscriber enforcement, no DDoS mitigation or elimination, no origin
+anonymity, no global federation, no signed ownership or delegation, no
+transparency, no trust distribution or rotation, no new wire protocol, no
+OriginSet publication interoperability, no cross-edge handover or resumption,
+no live consensus, no complete partition tolerance, no independent
+interoperability, and no raw-scan resistance outside the exact simulated
+topology claims. It also provides no process-global runtime uniqueness,
+distributed replay protection, persistence, concurrency safety, crash
+durability, distributed transaction, or live resource scheduler.
