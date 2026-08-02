@@ -35,6 +35,8 @@ def context(**changes: object) -> AdmissionContext:
         "source_edge_id": "source-edge-a",
         "destination_edge_id": "destination-edge-b",
         "route_grant_digest": digest("grant-a"),
+        "channel_authority_digest": digest("channel-authority-a"),
+        "exporter_binding_digest": digest("exporter-binding-a"),
         "source_policy_digest": digest("source-policy"),
         "destination_policy_digest": digest("destination-policy"),
         "source_gateway_digest": digest("source-gateway"),
@@ -276,3 +278,56 @@ def test_bounded_active_allocation_map_fails_closed_without_growth() -> None:
         limits.allocate(second)
 
     assert limits.active_allocation_count == 1
+
+
+def test_substituted_authority_or_edge_cannot_inherit_or_release_an_allocation() -> None:
+    limits = ResourceLimiter(profile())
+    admitted = context()
+    substituted = replace(
+        admitted,
+        route_grant_digest=digest("foreign-grant"),
+        source_edge_id="foreign-source-edge",
+        source_policy_digest=digest("foreign-source-policy"),
+    )
+    limits.allocate(admitted)
+
+    with pytest.raises(LabRejected) as rejected:
+        limits.release(substituted)
+
+    assert rejected.value.code == "allocation-not-active"
+    assert limits.active_allocation_count == 1
+
+
+@pytest.mark.parametrize("owner", ["source", "destination"])
+def test_first_mover_excess_is_rebalanced_so_a_later_sibling_reaches_fair_share(owner: str) -> None:
+    limits = ResourceLimiter(profile(client_capacity=4, operator_capacity=4))
+    noisy_first = context()
+    noisy_second = replace(noisy_first, channel_id="channel-b", tunnel_id="tunnel-b")
+    noisy_third = replace(noisy_first, channel_id="channel-c", tunnel_id="tunnel-c")
+    if owner == "source":
+        sibling_first = replace(
+            noisy_first,
+            destination_operator="isp-d",
+            subscriber_pseudonym=digest("subscriber-b"),
+            channel_id="channel-d",
+            tunnel_id="tunnel-d",
+        )
+    else:
+        sibling_first = replace(
+            noisy_first,
+            source_operator="isp-c",
+            subscriber_pseudonym=digest("subscriber-b"),
+            channel_id="channel-d",
+            tunnel_id="tunnel-d",
+        )
+    sibling_second = replace(sibling_first, channel_id="channel-e", tunnel_id="tunnel-e")
+
+    for candidate in (noisy_first, noisy_second, noisy_third, sibling_first, sibling_second):
+        limits.allocate(candidate)
+
+    assert limits.active_allocation_count == 4
+    with pytest.raises(LabRejected) as rejected:
+        limits.release(noisy_third)
+    assert rejected.value.code == "allocation-not-active"
+    with pytest.raises(LabRejected, match="fair share"):
+        limits.allocate(noisy_third)

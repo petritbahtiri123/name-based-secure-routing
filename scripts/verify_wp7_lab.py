@@ -16,14 +16,29 @@ if str(ROOT) not in sys.path:
 from nbsr.two_operator_lab import LabRejected, LabTopology, simulate_raw_scan  # noqa: E402
 
 
+def _closed_json_object(pairs: list[tuple[str, object]]) -> dict[str, object]:
+    value: dict[str, object] = {}
+    for key, item in pairs:
+        if key in value:
+            raise LabRejected("topology configuration contains a duplicate JSON member", code="topology-duplicate-key")
+        value[key] = item
+    return value
+
+
+def parse_topology_config(raw: bytes) -> LabTopology:
+    """Decode one bounded closed JSON document and reject ambiguity at every object."""
+    if type(raw) is not bytes or len(raw) > MAX_CONFIG_BYTES:
+        raise LabRejected("topology configuration exceeds the bounded size", code="topology-config-size")
+    value = json.loads(raw.decode("utf-8"), object_pairs_hook=_closed_json_object)
+    return LabTopology.from_dict(value)
+
+
 def main() -> int:
     config_path = ROOT / "config" / "wp7-two-operator-lab.json"
     try:
         with config_path.open("rb") as config_file:
             raw = config_file.read(MAX_CONFIG_BYTES + 1)
-        if len(raw) > MAX_CONFIG_BYTES:
-            raise LabRejected("topology configuration exceeds the bounded size", code="topology-config-size")
-        topology = LabTopology.from_dict(json.loads(raw.decode("utf-8")))
+        topology = parse_topology_config(raw)
         scan = simulate_raw_scan(topology)
     except (OSError, UnicodeDecodeError, json.JSONDecodeError, LabRejected):
         return 1

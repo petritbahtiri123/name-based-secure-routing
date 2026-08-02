@@ -4,6 +4,7 @@ from dataclasses import FrozenInstanceError, replace
 
 import pytest
 
+import nbsr.two_operator_lab as wp7
 from nbsr.two_operator_lab import AdmissionContext, LabRejected, OperatorProfile, RouteTrust
 
 
@@ -47,6 +48,8 @@ def context(source: OperatorProfile, destination: OperatorProfile, **changes: ob
         "source_edge_id": "source-edge-a",
         "destination_edge_id": "destination-edge-b",
         "route_grant_digest": digest("e"),
+        "channel_authority_digest": digest("7"),
+        "exporter_binding_digest": digest("8"),
         "source_policy_digest": source.policy_digest,
         "destination_policy_digest": destination.policy_digest,
         "source_gateway_digest": source.gateway_profile_digest,
@@ -144,3 +147,31 @@ def test_context_rejects_substituted_destination_gateway_profile() -> None:
 
     with pytest.raises(LabRejected, match="destination gateway"):
         context(source, destination, destination_gateway_digest=digest("f")).validate(source, destination, trust(source, destination))
+
+
+def test_verified_authority_is_local_purpose_separated_and_lifecycle_bounded() -> None:
+    authority = wp7.VerifiedAuthority(
+        route_grant_digest=digest("e"),
+        channel_authority_digest=digest("7"),
+        exporter_binding_digest=digest("8"),
+        source_edge_id="source-edge-a",
+        destination_edge_id="destination-edge-b",
+        source_gateway_digest=digest("5"),
+        destination_gateway_digest=digest("9"),
+        source_gateway_conformant=True,
+        destination_gateway_conformant=True,
+        source_continuity_digest=digest("6"),
+        destination_continuity_digest=digest("a"),
+        source_continuity_status="current",
+        destination_continuity_status="current",
+        issued_at_ms=10,
+        expires_at_ms=20_000,
+    )
+
+    assert authority.expires_at_ms == 20_000
+    with pytest.raises(LabRejected, match="purpose"):
+        replace(authority, exporter_binding_digest=authority.route_grant_digest)
+    with pytest.raises(LabRejected, match="continuity status"):
+        replace(authority, destination_continuity_status="accepted")
+    with pytest.raises(LabRejected, match="lifetime"):
+        replace(authority, issued_at_ms=20_001)
