@@ -169,6 +169,90 @@ def test_active_allocations_enforce_dynamic_per_subscriber_fair_share() -> None:
     assert limits.active_allocation_count == 3
 
 
+def test_same_source_operator_cannot_exceed_its_aggregate_allocation_capacity() -> None:
+    limits = ResourceLimiter(profile(client_capacity=3, operator_capacity=2))
+    first = context()
+    second = replace(first, subscriber_pseudonym=digest("subscriber-b"), channel_id="channel-b", tunnel_id="tunnel-b")
+    third = replace(first, subscriber_pseudonym=digest("subscriber-c"), channel_id="channel-c", tunnel_id="tunnel-c")
+
+    limits.allocate(first)
+    limits.allocate(second)
+
+    with pytest.raises(LabRejected, match="source operator allocation capacity"):
+        limits.allocate(third)
+
+    assert limits.active_allocation_count == 2
+
+
+def test_unrelated_source_operator_allocations_do_not_reduce_a_subscriber_fair_share() -> None:
+    limits = ResourceLimiter(profile(client_capacity=4, operator_capacity=4))
+    isp_a_first = context()
+    isp_a_second = replace(isp_a_first, channel_id="channel-b", tunnel_id="tunnel-b")
+    unrelated = [
+        replace(
+            isp_a_first,
+            source_operator="isp-c",
+            destination_operator="isp-d",
+            subscriber_pseudonym=digest(f"subscriber-c-{index}"),
+            channel_id=f"channel-c-{index}",
+            tunnel_id=f"tunnel-c-{index}",
+        )
+        for index in range(1, 4)
+    ]
+
+    limits.allocate(isp_a_first)
+    for candidate in unrelated:
+        limits.allocate(candidate)
+    limits.allocate(isp_a_second)
+
+    assert limits.active_allocation_count == 5
+
+
+def test_destination_operator_capacity_and_fairness_are_independent_of_other_destinations() -> None:
+    capped = ResourceLimiter(profile(client_capacity=3, operator_capacity=2))
+    first = context()
+    second = replace(
+        first,
+        source_operator="isp-c",
+        subscriber_pseudonym=digest("subscriber-c"),
+        channel_id="channel-c",
+        tunnel_id="tunnel-c",
+    )
+    third = replace(
+        first,
+        source_operator="isp-d",
+        subscriber_pseudonym=digest("subscriber-d"),
+        channel_id="channel-d",
+        tunnel_id="tunnel-d",
+    )
+    capped.allocate(first)
+    capped.allocate(second)
+
+    with pytest.raises(LabRejected, match="destination operator allocation capacity"):
+        capped.allocate(third)
+
+    isolated = ResourceLimiter(profile(client_capacity=4, operator_capacity=4))
+    destination_b_first = context()
+    destination_b_second = replace(destination_b_first, channel_id="channel-b", tunnel_id="tunnel-b")
+    other_destination = [
+        replace(
+            destination_b_first,
+            source_operator=f"isp-c-{index}",
+            destination_operator="isp-d",
+            subscriber_pseudonym=digest(f"subscriber-d-{index}"),
+            channel_id=f"channel-d-{index}",
+            tunnel_id=f"tunnel-d-{index}",
+        )
+        for index in range(1, 4)
+    ]
+    isolated.allocate(destination_b_first)
+    for candidate in other_destination:
+        isolated.allocate(candidate)
+    isolated.allocate(destination_b_second)
+
+    assert isolated.active_allocation_count == 5
+
+
 def test_noisy_subscriber_cannot_consume_a_sibling_quota_or_allocation() -> None:
     limits = ResourceLimiter(profile(client_capacity=1, operator_capacity=2))
     noisy = context()

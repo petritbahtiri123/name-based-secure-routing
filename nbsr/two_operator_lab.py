@@ -565,28 +565,41 @@ class ResourceLimiter:
             request.tunnel_id,
         )
 
+    @staticmethod
+    def _owner_subscriber(entry: tuple[str, ...], owner: str) -> tuple[str, ...]:
+        if owner == "source":
+            return (entry[0], entry[2], entry[3])
+        return (entry[1], entry[2], entry[0], entry[3])
+
+    def _preflight_owner_allocation(self, request: AdmissionContext, owner: str) -> None:
+        if owner == "source":
+            operator_index = 0
+            operator = request.source_operator
+        else:
+            operator_index = 1
+            operator = request.destination_operator
+        owner_allocations = tuple(entry for entry in self._active_allocations if entry[operator_index] == operator)
+        if len(owner_allocations) >= self.profile.operator_capacity:
+            raise LabRejected(f"{owner} operator allocation capacity exhausted", code=f"{owner}-operator-allocation-capacity")
+        subscriber = self._owner_subscriber(self._allocation_key(request), owner)
+        active_subscribers = {self._owner_subscriber(entry, owner) for entry in owner_allocations}
+        active_subscribers.add(subscriber)
+        fair_share = max(1, self.profile.operator_capacity // len(active_subscribers))
+        fair_share = min(fair_share, self.profile.client_capacity)
+        subscriber_allocations = sum(self._owner_subscriber(entry, owner) == subscriber for entry in owner_allocations)
+        if subscriber_allocations >= fair_share:
+            raise LabRejected(f"{owner} subscriber fair share exhausted", code=f"{owner}-subscriber-fair-share")
+
     def allocate(self, request: AdmissionContext) -> None:
-        """Reserve one exact bounded resource allocation under source fair share."""
+        """Reserve one exact bounded allocation under both owners' fair shares."""
         self._scope_keys(request)
         allocation = self._allocation_key(request)
         if allocation in self._active_allocations:
             return
         if len(self._active_allocations) >= self.profile.max_active_allocations:
             raise LabRejected("allocation capacity exhausted", code="allocation-capacity")
-        subscriber_owner = (request.source_operator, request.tenant_id, request.subscriber_pseudonym)
-        active_subscribers = {
-            (entry[0], entry[2], entry[3])
-            for entry in self._active_allocations
-        }
-        active_subscribers.add(subscriber_owner)
-        fair_share = max(1, self.profile.operator_capacity // len(active_subscribers))
-        fair_share = min(fair_share, self.profile.client_capacity)
-        subscriber_allocations = sum(
-            (entry[0], entry[2], entry[3]) == subscriber_owner
-            for entry in self._active_allocations
-        )
-        if subscriber_allocations >= fair_share:
-            raise LabRejected("subscriber fair share exhausted", code="subscriber-fair-share")
+        self._preflight_owner_allocation(request, "source")
+        self._preflight_owner_allocation(request, "destination")
         self._active_allocations = self._active_allocations | frozenset((allocation,))
 
     def release(self, request: AdmissionContext) -> None:
