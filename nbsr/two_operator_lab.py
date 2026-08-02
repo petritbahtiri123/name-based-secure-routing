@@ -7,6 +7,7 @@ wire format, resolve endpoints, or allocate any resources.
 from __future__ import annotations
 
 import re
+from hashlib import sha256
 from dataclasses import dataclass, field as dataclass_field
 from typing import Any, Mapping
 
@@ -397,6 +398,53 @@ class TwoOperatorLab:
             admitted_at_ms=now_ms,
         )
 
+    def admit_audited(
+        self,
+        request: AdmissionContext,
+        *,
+        now_ms: int,
+        source_audit: "AuditLog",
+        destination_audit: "AuditLog",
+    ) -> AdmissionReceipt:
+        """Admit only when both independent local audit logs can record first."""
+        if type(source_audit) is not AuditLog or type(destination_audit) is not AuditLog:
+            self._reject("audit-log-invalid")
+        if (source_audit.operator_id, destination_audit.operator_id) != (self.source.operator_id, self.destination.operator_id):
+            self._reject("audit-operator-mismatch")
+        if type(request) is not AdmissionContext:
+            self._reject("source-context-invalid")
+        if type(now_ms) is not int or not 0 <= now_ms <= MAX_UINT64:
+            self._reject("admission-clock-invalid")
+        self.source_gate(request)
+        self.destination_gate(request)
+        grant_key = (
+            request.source_operator,
+            request.destination_operator,
+            request.route_id,
+            request.service_id,
+            request.route_grant_digest,
+        )
+        if grant_key in self._admitted_grants:
+            self._reject("destination-route-grant-replayed")
+        source_audit._preflight()
+        destination_audit._preflight()
+        source_audit.record(action="admitted", subject_digest=request.route_grant_digest)
+        destination_audit.record(action="admitted", subject_digest=request.route_grant_digest)
+        object.__setattr__(self, "_admitted_grants", self._admitted_grants | frozenset((grant_key,)))
+        return AdmissionReceipt(
+            source_operator=request.source_operator,
+            destination_operator=request.destination_operator,
+            tenant_id=request.tenant_id,
+            subscriber_pseudonym=request.subscriber_pseudonym,
+            name_id=request.name_id,
+            route_id=request.route_id,
+            service_id=request.service_id,
+            channel_id=request.channel_id,
+            tunnel_id=request.tunnel_id,
+            route_grant_digest=request.route_grant_digest,
+            admitted_at_ms=now_ms,
+        )
+
 
 def _positive_uint64(value: object, label: str) -> int:
     if type(value) is not int or not 1 <= value <= MAX_UINT64:
@@ -609,3 +657,213 @@ class ResourceLimiter:
         if allocation not in self._active_allocations:
             raise LabRejected("allocation is not active", code="allocation-not-active")
         self._active_allocations = self._active_allocations - frozenset((allocation,))
+
+
+@dataclass(frozen=True, slots=True)
+class AuditEvent:
+    """One opaque, operator-owned audit event with a monotonic uint64 sequence."""
+
+    sequence: int
+    operator_id: str
+    action: str
+    subject_digest: str
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "sequence", _version(self.sequence, "audit-sequence"))
+        object.__setattr__(self, "operator_id", _id(self.operator_id, "audit-operator"))
+        object.__setattr__(self, "action", _id(self.action, "audit-action"))
+        object.__setattr__(self, "subject_digest", _digest(self.subject_digest, "audit-subject"))
+
+
+class AuditLog:
+    """A bounded, append-only local audit log with no fallback destination."""
+
+    __slots__ = ("operator_id", "capacity", "_events", "_next_sequence", "_sequence_exhausted", "_sealed")
+
+    def __init__(self, *, operator_id: str, capacity: int, next_sequence: int = 1) -> None:
+        object.__setattr__(self, "operator_id", _id(operator_id, "audit-operator"))
+        object.__setattr__(self, "capacity", _positive_uint64(capacity, "audit-capacity"))
+        object.__setattr__(self, "_events", ())
+        object.__setattr__(self, "_next_sequence", _version(next_sequence, "audit-sequence"))
+        object.__setattr__(self, "_sequence_exhausted", False)
+        object.__setattr__(self, "_sealed", True)
+
+    def __setattr__(self, name: str, value: object) -> None:
+        if getattr(self, "_sealed", False):
+            raise AttributeError("audit log state is private")
+        object.__setattr__(self, name, value)
+
+    @property
+    def events(self) -> tuple[AuditEvent, ...]:
+        """Return an immutable local snapshot rather than mutable audit storage."""
+        return self._events
+
+    def _preflight(self) -> None:
+        if len(self._events) >= self.capacity:
+            raise LabRejected("audit capacity exhausted", code="audit-capacity")
+        if self._sequence_exhausted:
+            raise LabRejected("audit sequence exhausted", code="audit-sequence-exhausted")
+
+    def record(self, *, action: str, subject_digest: str) -> AuditEvent:
+        """Append locally or fail before returning any operation success to a caller."""
+        self._preflight()
+        event = AuditEvent(
+            sequence=self._next_sequence,
+            operator_id=self.operator_id,
+            action=action,
+            subject_digest=subject_digest,
+        )
+        object.__setattr__(self, "_events", self._events + (event,))
+        if event.sequence == MAX_UINT64:
+            object.__setattr__(self, "_sequence_exhausted", True)
+        else:
+            object.__setattr__(self, "_next_sequence", event.sequence + 1)
+        return event
+
+
+@dataclass(frozen=True, slots=True)
+class ConnectorReceipt:
+    """A public connector receipt deliberately limited to opaque digests."""
+
+    operator_id: str
+    route_grant_digest: str
+    connector_digest: str
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "operator_id", _id(self.operator_id, "connector-operator"))
+        object.__setattr__(self, "route_grant_digest", _digest(self.route_grant_digest, "connector-grant"))
+        object.__setattr__(self, "connector_digest", _digest(self.connector_digest, "connector-digest"))
+
+
+class DestinationConnector:
+    """The sole WP7 object allowed to retain an ISP-B private destination."""
+
+    __slots__ = ("operator_id", "_private_destination", "_sealed")
+
+    def __init__(self, *, operator_id: str, private_destination: str) -> None:
+        object.__setattr__(self, "operator_id", _id(operator_id, "connector-operator"))
+        if type(private_destination) is not str or not 1 <= len(private_destination) <= 512:
+            raise LabRejected("connector destination is invalid", code="connector-destination-invalid")
+        object.__setattr__(self, "_private_destination", private_destination)
+        object.__setattr__(self, "_sealed", True)
+
+    def __setattr__(self, name: str, value: object) -> None:
+        if getattr(self, "_sealed", False):
+            raise AttributeError("connector state is private")
+        object.__setattr__(self, name, value)
+
+    def connect(self, *, operator_id: str, route_grant_digest: str) -> ConnectorReceipt:
+        """Return only an opaque receipt; this deterministic model makes no connection."""
+        if _id(operator_id, "connector-request-operator") != self.operator_id:
+            raise LabRejected("connector operator rejected", code="connector-operator-rejected")
+        return ConnectorReceipt(
+            operator_id=self.operator_id,
+            route_grant_digest=route_grant_digest,
+            connector_digest=sha256(self._private_destination.encode("utf-8")).hexdigest(),
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class OperatorReport:
+    """A safe aggregate report with neither endpoint data nor raw audit subjects."""
+
+    operator_id: str
+    admitted: int
+    denied: int
+    overloads: int
+    audit_event_count: int
+    audit_tail_digest: str
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "operator_id", _id(self.operator_id, "report-operator"))
+        for field in ("admitted", "denied", "overloads", "audit_event_count"):
+            value = getattr(self, field)
+            if type(value) is not int or not 0 <= value <= MAX_UINT64:
+                raise LabRejected("report count is outside the uint64 range", code="report-count-invalid")
+        object.__setattr__(self, "audit_tail_digest", _digest(self.audit_tail_digest, "report-audit-tail"))
+
+    @classmethod
+    def from_audit(cls, audit: AuditLog, *, admitted: int, denied: int, overloads: int) -> OperatorReport:
+        if type(audit) is not AuditLog:
+            raise LabRejected("report audit is invalid", code="report-audit-invalid")
+        events = audit.events
+        tail = events[-1].sequence if events else 0
+        audit_tail_digest = sha256(f"{audit.operator_id}:{len(events)}:{tail}".encode("ascii")).hexdigest()
+        return cls(
+            operator_id=audit.operator_id,
+            admitted=admitted,
+            denied=denied,
+            overloads=overloads,
+            audit_event_count=len(events),
+            audit_tail_digest=audit_tail_digest,
+        )
+
+
+_TOPOLOGY_FIELDS = frozenset({"schema", "operators", "connector_id", "edges"})
+_TOPOLOGY_SCHEMA = "nbsr-wp7-two-operator-lab-v1"
+_CANONICAL_OPERATORS = ("isp-a", "isp-b")
+_CANONICAL_CONNECTOR = "isp-b-connector"
+_CANONICAL_EDGES = (("isp-a", "isp-b-connector"), ("isp-b-connector", "isp-b"))
+
+
+@dataclass(frozen=True, slots=True)
+class LabTopology:
+    """The closed three-node WP7 topology; it cannot represent a direct ISP edge."""
+
+    operators: tuple[str, str]
+    connector_id: str
+    edges: tuple[tuple[str, str], tuple[str, str]]
+
+    def __post_init__(self) -> None:
+        if self.operators != _CANONICAL_OPERATORS:
+            raise LabRejected("topology operators must be the canonical bounded pair", code="topology-operators-invalid")
+        if self.connector_id != _CANONICAL_CONNECTOR:
+            raise LabRejected("topology connector is not canonical", code="topology-connector-invalid")
+        if self.edges != _CANONICAL_EDGES:
+            if any(edge == _CANONICAL_OPERATORS for edge in self.edges):
+                raise LabRejected("topology direct operator edge is forbidden", code="topology-direct-edge")
+            raise LabRejected("topology edges are not canonical", code="topology-edges-invalid")
+
+    @classmethod
+    def from_dict(cls, value: object) -> LabTopology:
+        if not isinstance(value, dict) or set(value) != _TOPOLOGY_FIELDS or not all(type(key) is str for key in value):
+            raise LabRejected("topology must contain exactly the approved fields", code="topology-schema-invalid")
+        if value["schema"] != _TOPOLOGY_SCHEMA:
+            raise LabRejected("topology schema is invalid", code="topology-schema-invalid")
+        operators = value["operators"]
+        if type(operators) is not list or len(operators) != 2:
+            raise LabRejected("topology operators must be the canonical bounded pair", code="topology-operators-invalid")
+        if not all(type(item) is str for item in operators):
+            raise LabRejected("topology operators must be identifiers", code="topology-operators-invalid")
+        connector_id = _id(value["connector_id"], "topology-connector")
+        edges = value["edges"]
+        if type(edges) is not list or len(edges) != 2:
+            raise LabRejected("topology edges must be the canonical bounded pair", code="topology-edges-invalid")
+        parsed_edges: list[tuple[str, str]] = []
+        for edge in edges:
+            if not isinstance(edge, dict) or set(edge) != {"source", "destination"}:
+                raise LabRejected("topology edge is invalid", code="topology-edge-invalid")
+            parsed_edges.append((_id(edge["source"], "topology-edge-source"), _id(edge["destination"], "topology-edge-destination")))
+        if _CANONICAL_OPERATORS in parsed_edges:
+            raise LabRejected("topology direct operator edge is forbidden", code="topology-direct-edge")
+        return cls(operators=tuple(operators), connector_id=connector_id, edges=tuple(parsed_edges))  # type: ignore[arg-type]
+
+
+@dataclass(frozen=True, slots=True)
+class RawScanResult:
+    """Deterministic simulated reachability with no connector or origin discovery."""
+
+    reachable_nodes: tuple[str, str, str]
+    direct_operator_edges: tuple[()]
+    discovered_connector_digests: tuple[()]
+
+
+def simulate_raw_scan(topology: LabTopology) -> RawScanResult:
+    """Simulate a bounded raw scan of the public topology, never an origin probe."""
+    if type(topology) is not LabTopology:
+        raise LabRejected("scan topology is invalid", code="scan-topology-invalid")
+    return RawScanResult(
+        reachable_nodes=(topology.operators[0], topology.connector_id, topology.operators[1]),
+        direct_operator_edges=(),
+        discovered_connector_digests=(),
+    )

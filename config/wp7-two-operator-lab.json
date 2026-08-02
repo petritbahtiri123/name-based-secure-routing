@@ -1,0 +1,18 @@
+{
+  "connector_id": "isp-b-connector",
+  "edges": [
+    {
+      "destination": "isp-b-connector",
+      "source": "isp-a"
+    },
+    {
+      "destination": "isp-b",
+      "source": "isp-b-connector"
+    }
+  ],
+  "operators": [
+    "isp-a",
+    "isp-b"
+  ],
+  "schema": "nbsr-wp7-two-operator-lab-v1"
+}
