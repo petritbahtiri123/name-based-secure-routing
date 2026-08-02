@@ -271,7 +271,11 @@ class TwoOperatorLab:
     destination: OperatorProfile
     trust: RouteTrust
     expected_context: AdmissionContext
-    _admitted_grants: set[tuple[str, str, str, str, str]] = dataclass_field(default_factory=set, init=False, repr=False)
+    _admitted_grants: frozenset[tuple[str, str, str, str, str]] = dataclass_field(
+        default_factory=frozenset,
+        init=False,
+        repr=False,
+    )
 
     def __post_init__(self) -> None:
         if type(self.expected_context) is not AdmissionContext:
@@ -378,7 +382,7 @@ class TwoOperatorLab:
         )
         if grant_key in self._admitted_grants:
             self._reject("destination-route-grant-replayed")
-        self._admitted_grants.add(grant_key)
+        object.__setattr__(self, "_admitted_grants", self._admitted_grants | frozenset((grant_key,)))
         return AdmissionReceipt(
             source_operator=request.source_operator,
             destination_operator=request.destination_operator,

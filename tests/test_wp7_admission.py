@@ -141,6 +141,21 @@ def test_admission_rejects_replayed_exact_grant_after_a_success() -> None:
     assert lab.admitted_grant_count == 1
 
 
+def test_external_replay_ledger_mutation_cannot_enable_grant_readmission() -> None:
+    lab, candidate = lab_and_request()
+    lab.admit(candidate, now_ms=10)
+
+    with pytest.raises(AttributeError):
+        lab._admitted_grants.clear()  # type: ignore[attr-defined]
+    with pytest.raises(FrozenInstanceError):
+        lab._admitted_grants = frozenset()  # type: ignore[misc]
+    with pytest.raises(LabRejected) as rejected:
+        lab.admit(candidate, now_ms=11)
+
+    assert rejected.value.code == "destination-route-grant-replayed"
+    assert lab.admitted_grant_count == 1
+
+
 def test_admission_rejects_non_uint64_clock_without_consuming_a_grant() -> None:
     lab, candidate = lab_and_request()
 
