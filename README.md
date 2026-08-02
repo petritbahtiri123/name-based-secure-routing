@@ -102,7 +102,8 @@ multi-replica evidence, not live HA or a new wire protocol.
 
 ### Deterministic two-operator ISP lab
 
-WP7 provides a source-first, two-domain admission and abuse simulation with
+WP7 is complete and evidence-closed at deterministic two-operator lab scope.
+It provides a source-first, two-domain admission and abuse simulation with
 separate operator policy, gateway, continuity, quota, audit, and resource
 ownership. One bounded `OperatorPairRuntime` owns pair-wide replay, capacity,
 fair-share, audit, and connector state. The ISP-B connector alone retains the
