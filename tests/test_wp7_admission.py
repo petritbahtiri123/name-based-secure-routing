@@ -9,6 +9,7 @@ import pytest
 
 from nbsr.two_operator_lab import (
     AdmissionContext,
+    DestinationConnector,
     LabRejected,
     LimitProfile,
     OperatorPairRuntime,
@@ -111,8 +112,11 @@ def lab_and_request() -> tuple[TwoOperatorLab, AdmissionContext]:
         limit_profile=limits,
         source_audit_capacity=64,
         destination_audit_capacity=64,
-        connector_id="isp-b-connector",
-        private_destination="https://origin.internal.example/private",
+        connector=DestinationConnector(
+            operator_id=destination.operator_id,
+            connector_id="isp-b-connector",
+            private_destination="https://origin.internal.example/private",
+        ),
         max_registered_contexts=1,
     )
     lab = runtime.register_context(expected_context=candidate, trust=trust, verified_authority=authority)

@@ -372,26 +372,30 @@ class OperatorPairRuntime:
         limit_profile: "LimitProfile",
         source_audit_capacity: int,
         destination_audit_capacity: int,
-        connector_id: str,
-        private_destination: str,
+        connector: "DestinationConnector",
         max_registered_contexts: int,
     ) -> None:
         if type(source) is not OperatorProfile or type(destination) is not OperatorProfile:
             raise LabRejected("operator pair is invalid", code="operator-pair-invalid")
         if source.operator_id == destination.operator_id:
             raise LabRejected("operator pair must be distinct", code="operator-pair-invalid")
+        if type(connector) is not DestinationConnector:
+            raise LabRejected("destination connector is invalid", code="connector-invalid")
+        if connector.operator_id != destination.operator_id:
+            raise LabRejected("destination connector operator does not match", code="connector-operator-mismatch")
+        registry_capacity = _positive_uint64(max_registered_contexts, "context-registry-capacity")
+        limiter = ResourceLimiter(limit_profile)
+        source_audit = AuditLog(operator_id=source.operator_id, capacity=source_audit_capacity)
+        destination_audit = AuditLog(operator_id=destination.operator_id, capacity=destination_audit_capacity)
+        connector._claim(self, destination.operator_id)
         object.__setattr__(self, "source", source)
         object.__setattr__(self, "destination", destination)
-        object.__setattr__(self, "max_registered_contexts", _positive_uint64(max_registered_contexts, "context-registry-capacity"))
+        object.__setattr__(self, "max_registered_contexts", registry_capacity)
         object.__setattr__(self, "_registered_contexts", ())
-        object.__setattr__(self, "_limiter", ResourceLimiter(limit_profile))
-        object.__setattr__(self, "_source_audit", AuditLog(operator_id=source.operator_id, capacity=source_audit_capacity))
-        object.__setattr__(self, "_destination_audit", AuditLog(operator_id=destination.operator_id, capacity=destination_audit_capacity))
-        object.__setattr__(
-            self,
-            "_connector",
-            DestinationConnector(operator_id=destination.operator_id, connector_id=connector_id, private_destination=private_destination),
-        )
+        object.__setattr__(self, "_limiter", limiter)
+        object.__setattr__(self, "_source_audit", source_audit)
+        object.__setattr__(self, "_destination_audit", destination_audit)
+        object.__setattr__(self, "_connector", connector)
         object.__setattr__(self, "_admitted_grants", frozenset())
         object.__setattr__(self, "_capability_allocations", {})
         object.__setattr__(self, "_sealed", True)
@@ -749,10 +753,10 @@ class OperatorPairRuntime:
             self._destination_audit._commit(event)
         object.__setattr__(self, "_admitted_grants", self._admitted_grants | frozenset((grant_key,)))
         for digest, evicted_capability, _allocation in evicted_records:
-            self._connector._unregister(evicted_capability)
+            self._connector._unregister(self, evicted_capability)
             del self._capability_allocations[digest]
         self._capability_allocations[capability.capability_digest] = (capability, allocation_plan.allocation, registered)
-        self._connector._register(capability)
+        self._connector._register(self, capability)
         return capability
 
     def _drain(
@@ -792,7 +796,7 @@ class OperatorPairRuntime:
         self._source_audit._commit(source_event)
         self._destination_audit._commit(destination_event)
         del self._capability_allocations[capability.capability_digest]
-        self._connector._unregister(capability)
+        self._connector._unregister(self, capability)
 
 
 class TwoOperatorLab:
@@ -1267,7 +1271,7 @@ class ConnectorReceipt:
 class DestinationConnector:
     """The sole WP7 object allowed to retain an ISP-B private destination."""
 
-    __slots__ = ("operator_id", "connector_id", "_private_destination", "_capabilities", "_sealed")
+    __slots__ = ("operator_id", "connector_id", "_private_destination", "_owner", "_capabilities", "_sealed")
 
     def __init__(self, *, operator_id: str, private_destination: str, connector_id: str = "isp-b-connector") -> None:
         object.__setattr__(self, "operator_id", _id(operator_id, "connector-operator"))
@@ -1275,6 +1279,7 @@ class DestinationConnector:
         if type(private_destination) is not str or not 1 <= len(private_destination) <= 512:
             raise LabRejected("connector destination is invalid", code="connector-destination-invalid")
         object.__setattr__(self, "_private_destination", private_destination)
+        object.__setattr__(self, "_owner", None)
         object.__setattr__(self, "_capabilities", {})
         object.__setattr__(self, "_sealed", True)
 
@@ -1283,10 +1288,25 @@ class DestinationConnector:
             raise AttributeError("connector state is private")
         object.__setattr__(self, name, value)
 
-    def _register(self, capability: AdmissionCapability) -> None:
+    def _claim(self, owner: OperatorPairRuntime, operator_id: str) -> None:
+        if type(owner) is not OperatorPairRuntime:
+            raise LabRejected("connector owner is invalid", code="connector-owner-invalid")
+        if self.operator_id != operator_id:
+            raise LabRejected("destination connector operator does not match", code="connector-operator-mismatch")
+        if self._owner is not None:
+            raise LabRejected("destination connector already has an owner", code="connector-already-owned")
+        if self._capabilities:
+            raise LabRejected("destination connector is not unused", code="connector-not-unused")
+        object.__setattr__(self, "_owner", owner)
+
+    def _register(self, owner: OperatorPairRuntime, capability: AdmissionCapability) -> None:
+        if self._owner is not owner:
+            raise LabRejected("connector owner does not match", code="connector-owner-mismatch")
         self._capabilities[capability.capability_digest] = capability
 
-    def _unregister(self, capability: AdmissionCapability) -> None:
+    def _unregister(self, owner: OperatorPairRuntime, capability: AdmissionCapability) -> None:
+        if self._owner is not owner:
+            raise LabRejected("connector owner does not match", code="connector-owner-mismatch")
         if self._capabilities.get(capability.capability_digest) is capability:
             del self._capabilities[capability.capability_digest]
 

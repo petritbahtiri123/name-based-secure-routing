@@ -137,8 +137,11 @@ def audited_lab(
         limit_profile=limits,
         source_audit_capacity=source_audit_capacity,
         destination_audit_capacity=destination_audit_capacity,
-        connector_id="isp-b-connector",
-        private_destination="https://origin.internal.example:9443/private",
+        connector=DestinationConnector(
+            operator_id=destination.operator_id,
+            connector_id="isp-b-connector",
+            private_destination="https://origin.internal.example:9443/private",
+        ),
         max_registered_contexts=1,
     )
     lab = runtime.register_context(expected_context=request, trust=trust, verified_authority=authority)

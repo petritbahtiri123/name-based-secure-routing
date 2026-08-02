@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import replace
 from hashlib import sha256
+from inspect import signature
 
 import pytest
 
@@ -110,8 +111,11 @@ def build_lab(
         limit_profile=wp7.LimitProfile(**limit_values),
         source_audit_capacity=source_audit_capacity,
         destination_audit_capacity=destination_audit_capacity,
-        connector_id="isp-b-connector",
-        private_destination="https://origin.internal.example:9443/private",
+        connector=wp7.DestinationConnector(
+            operator_id=destination.operator_id,
+            connector_id="isp-b-connector",
+            private_destination="https://origin.internal.example:9443/private",
+        ),
         max_registered_contexts=1,
     )
     lab = runtime.register_context(expected_context=request, trust=trust, verified_authority=authority)
@@ -129,7 +133,7 @@ def admit(lab: wp7.TwoOperatorLab, request: wp7.AdmissionContext, *, amount: int
     )
 
 
-def build_runtime(*, operator_capacity: int, max_registered_contexts: int) -> wp7.OperatorPairRuntime:
+def runtime_profiles() -> tuple[wp7.OperatorProfile, wp7.OperatorProfile]:
     source = wp7.OperatorProfile(
         operator_id="isp-a",
         identity_fingerprint=digest("runtime-source-identity"),
@@ -150,27 +154,125 @@ def build_runtime(*, operator_capacity: int, max_registered_contexts: int) -> wp
         continuity_digest=digest("runtime-destination-continuity"),
         policy_version=1,
     )
+    return source, destination
+
+
+def runtime_limits(operator_capacity: int) -> wp7.LimitProfile:
+    return wp7.LimitProfile(
+        client_capacity=8,
+        name_capacity=8,
+        route_capacity=8,
+        service_capacity=8,
+        channel_capacity=8,
+        tunnel_capacity=8,
+        operator_capacity=operator_capacity,
+        refill_per_ms=1,
+        max_buckets=256,
+        max_active_allocations=64,
+    )
+
+
+def build_runtime(*, operator_capacity: int, max_registered_contexts: int) -> wp7.OperatorPairRuntime:
+    source, destination = runtime_profiles()
     return wp7.OperatorPairRuntime(
         source=source,
         destination=destination,
-        limit_profile=wp7.LimitProfile(
-            client_capacity=8,
-            name_capacity=8,
-            route_capacity=8,
-            service_capacity=8,
-            channel_capacity=8,
-            tunnel_capacity=8,
-            operator_capacity=operator_capacity,
-            refill_per_ms=1,
-            max_buckets=256,
-            max_active_allocations=64,
-        ),
+        limit_profile=runtime_limits(operator_capacity),
         source_audit_capacity=128,
         destination_audit_capacity=128,
-        connector_id="isp-b-connector",
-        private_destination="https://origin.internal.example:9443/private",
+        connector=wp7.DestinationConnector(
+            operator_id=destination.operator_id,
+            connector_id="isp-b-connector",
+            private_destination="https://origin.internal.example:9443/private",
+        ),
         max_registered_contexts=max_registered_contexts,
     )
+
+
+def build_runtime_with_connector(
+    connector: wp7.DestinationConnector,
+    *,
+    source: wp7.OperatorProfile,
+    destination: wp7.OperatorProfile,
+) -> wp7.OperatorPairRuntime:
+    return wp7.OperatorPairRuntime(
+        source=source,
+        destination=destination,
+        limit_profile=runtime_limits(8),
+        source_audit_capacity=128,
+        destination_audit_capacity=128,
+        connector=connector,
+        max_registered_contexts=2,
+    )
+
+
+def test_operator_pair_runtime_signature_accepts_connector_but_no_raw_destination() -> None:
+    assert tuple(signature(wp7.OperatorPairRuntime).parameters) == (
+        "source",
+        "destination",
+        "limit_profile",
+        "source_audit_capacity",
+        "destination_audit_capacity",
+        "connector",
+        "max_registered_contexts",
+    )
+
+
+def test_operator_pair_runtime_rejects_connector_substitution_and_wrong_operator() -> None:
+    source, destination = runtime_profiles()
+
+    class SubstituteConnector(wp7.DestinationConnector):
+        pass
+
+    cases = (
+        (
+            SubstituteConnector(
+                operator_id=destination.operator_id,
+                connector_id="isp-b-connector",
+                private_destination="https://substitute.internal.example/private",
+            ),
+            "connector-invalid",
+        ),
+        (
+            wp7.DestinationConnector(
+                operator_id=source.operator_id,
+                connector_id="isp-b-connector",
+                private_destination="https://wrong-operator.internal.example/private",
+            ),
+            "connector-operator-mismatch",
+        ),
+    )
+
+    for connector, code in cases:
+        with pytest.raises(wp7.LabRejected) as rejected:
+            build_runtime_with_connector(connector, source=source, destination=destination)
+        assert rejected.value.code == code
+
+
+def test_operator_pair_runtime_rejects_nonempty_or_reused_connector() -> None:
+    source, destination = runtime_profiles()
+    nonempty = wp7.DestinationConnector(
+        operator_id=destination.operator_id,
+        connector_id="isp-b-connector",
+        private_destination="https://nonempty.internal.example/private",
+    )
+    nonempty._capabilities[digest("foreign-capability")] = object()  # type: ignore[attr-defined]
+
+    with pytest.raises(wp7.LabRejected) as rejected:
+        build_runtime_with_connector(nonempty, source=source, destination=destination)
+    assert rejected.value.code == "connector-not-unused"
+
+    connector = wp7.DestinationConnector(
+        operator_id=destination.operator_id,
+        connector_id="isp-b-connector",
+        private_destination="https://owned.internal.example/private",
+    )
+    first = build_runtime_with_connector(connector, source=source, destination=destination)
+
+    assert first.connector is connector
+    with pytest.raises(wp7.LabRejected) as reused:
+        build_runtime_with_connector(connector, source=source, destination=destination)
+    assert reused.value.code == "connector-already-owned"
 
 
 def register_context(
