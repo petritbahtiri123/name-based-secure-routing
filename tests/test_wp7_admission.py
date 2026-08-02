@@ -11,6 +11,7 @@ from nbsr.two_operator_lab import (
     AdmissionContext,
     LabRejected,
     LimitProfile,
+    OperatorPairRuntime,
     OperatorProfile,
     RouteTrust,
     TwoOperatorLab,
@@ -104,18 +105,17 @@ def lab_and_request() -> tuple[TwoOperatorLab, AdmissionContext]:
         max_buckets=64,
         max_active_allocations=32,
     )
-    lab = TwoOperatorLab(
-        source,
-        destination,
-        trust,
-        candidate,
-        verified_authority=authority,
+    runtime = OperatorPairRuntime(
+        source=source,
+        destination=destination,
         limit_profile=limits,
         source_audit_capacity=64,
         destination_audit_capacity=64,
         connector_id="isp-b-connector",
         private_destination="https://origin.internal.example/private",
+        max_registered_contexts=1,
     )
+    lab = runtime.register_context(expected_context=candidate, trust=trust, verified_authority=authority)
     return lab, candidate
 
 

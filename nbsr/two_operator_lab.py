@@ -340,15 +340,21 @@ class AdmissionCapability:
 AdmissionReceipt = AdmissionCapability
 
 
-class TwoOperatorLab:
-    """Own and atomically compose every authority-bearing WP7 state machine."""
+@dataclass(frozen=True, slots=True)
+class _RegisteredContext:
+    expected_context: AdmissionContext
+    trust: RouteTrust
+    verified_authority: VerifiedAuthority
+
+
+class OperatorPairRuntime:
+    """Own the one bounded authority state shared by an operator pair."""
 
     __slots__ = (
         "source",
         "destination",
-        "trust",
-        "expected_context",
-        "_verified_authority",
+        "max_registered_contexts",
+        "_registered_contexts",
         "_limiter",
         "_source_audit",
         "_destination_audit",
@@ -362,26 +368,22 @@ class TwoOperatorLab:
         self,
         source: OperatorProfile,
         destination: OperatorProfile,
-        trust: RouteTrust,
-        expected_context: AdmissionContext,
         *,
-        verified_authority: VerifiedAuthority,
         limit_profile: "LimitProfile",
         source_audit_capacity: int,
         destination_audit_capacity: int,
         connector_id: str,
         private_destination: str,
+        max_registered_contexts: int,
     ) -> None:
-        if type(expected_context) is not AdmissionContext:
-            raise LabRejected("expected admission context is invalid", code="admission-context-invalid")
-        if type(verified_authority) is not VerifiedAuthority:
-            raise LabRejected("verified authority is invalid", code="verified-authority-invalid")
-        expected_context.validate(source, destination, trust)
+        if type(source) is not OperatorProfile or type(destination) is not OperatorProfile:
+            raise LabRejected("operator pair is invalid", code="operator-pair-invalid")
+        if source.operator_id == destination.operator_id:
+            raise LabRejected("operator pair must be distinct", code="operator-pair-invalid")
         object.__setattr__(self, "source", source)
         object.__setattr__(self, "destination", destination)
-        object.__setattr__(self, "trust", trust)
-        object.__setattr__(self, "expected_context", expected_context)
-        object.__setattr__(self, "_verified_authority", verified_authority)
+        object.__setattr__(self, "max_registered_contexts", _positive_uint64(max_registered_contexts, "context-registry-capacity"))
+        object.__setattr__(self, "_registered_contexts", ())
         object.__setattr__(self, "_limiter", ResourceLimiter(limit_profile))
         object.__setattr__(self, "_source_audit", AuditLog(operator_id=source.operator_id, capacity=source_audit_capacity))
         object.__setattr__(self, "_destination_audit", AuditLog(operator_id=destination.operator_id, capacity=destination_audit_capacity))
@@ -396,8 +398,35 @@ class TwoOperatorLab:
 
     def __setattr__(self, name: str, value: object) -> None:
         if getattr(self, "_sealed", False):
-            raise AttributeError("lab state is private")
+            raise AttributeError("operator-pair runtime state is private")
         object.__setattr__(self, name, value)
+
+    @property
+    def registered_context_count(self) -> int:
+        return len(self._registered_contexts)
+
+    def register_context(
+        self,
+        *,
+        expected_context: AdmissionContext,
+        trust: RouteTrust,
+        verified_authority: VerifiedAuthority,
+    ) -> TwoOperatorLab:
+        """Register one exact authority context and return its sealed handle."""
+        if type(expected_context) is not AdmissionContext:
+            raise LabRejected("expected admission context is invalid", code="admission-context-invalid")
+        if type(trust) is not RouteTrust:
+            raise LabRejected("route trust is invalid", code="route-trust-invalid")
+        if type(verified_authority) is not VerifiedAuthority:
+            raise LabRejected("verified authority is invalid", code="verified-authority-invalid")
+        expected_context.validate(self.source, self.destination, trust)
+        if len(self._registered_contexts) >= self.max_registered_contexts:
+            raise LabRejected("context registry capacity exhausted", code="context-registry-capacity")
+        if any(entry.expected_context == expected_context for entry in self._registered_contexts):
+            raise LabRejected("admission context is already registered", code="context-already-registered")
+        registered = _RegisteredContext(expected_context, trust, verified_authority)
+        object.__setattr__(self, "_registered_contexts", self._registered_contexts + (registered,))
+        return TwoOperatorLab._issue(self, registered)
 
     @property
     def admitted_grant_count(self) -> int:
@@ -436,9 +465,9 @@ class TwoOperatorLab:
     def _reject(code: str) -> None:
         raise LabRejected(code.replace("-", " "), code=code)
 
-    def _source_gate(self, request: AdmissionContext) -> None:
+    def _source_gate(self, registered: _RegisteredContext, request: AdmissionContext) -> None:
         """Validate only the facts owned by the source operator."""
-        expected = self.expected_context
+        expected = registered.expected_context
         if request.source_operator != self.source.operator_id:
             self._reject("source-operator-mismatch")
         if request.tenant_id != expected.tenant_id:
@@ -458,7 +487,7 @@ class TwoOperatorLab:
             self._reject("source-gateway-mismatch")
         if request.source_continuity_digest != self.source.continuity_digest:
             self._reject("source-continuity-denied")
-        authority = self._verified_authority
+        authority = registered.verified_authority
         if not authority.source_gateway_conformant:
             self._reject("source-gateway-conformance-denied")
         if authority.source_continuity_status != "current":
@@ -486,9 +515,9 @@ class TwoOperatorLab:
         ):
             self._reject("source-route-grant-mismatch")
 
-    def _destination_gate(self, request: AdmissionContext) -> None:
+    def _destination_gate(self, registered: _RegisteredContext, request: AdmissionContext) -> None:
         """Independently validate only the facts owned by the destination operator."""
-        expected = self.expected_context
+        expected = registered.expected_context
         if request.destination_operator != self.destination.operator_id:
             self._reject("destination-operator-mismatch")
         if request.tenant_id != expected.tenant_id:
@@ -512,7 +541,7 @@ class TwoOperatorLab:
             self._reject("destination-gateway-mismatch")
         if request.destination_continuity_digest != self.destination.continuity_digest:
             self._reject("destination-continuity-denied")
-        authority = self._verified_authority
+        authority = registered.verified_authority
         if not authority.destination_gateway_conformant:
             self._reject("destination-gateway-conformance-denied")
         if authority.destination_continuity_status != "current":
@@ -534,13 +563,13 @@ class TwoOperatorLab:
         ):
             self._reject("destination-verified-authority-mismatch")
         if (
-            self.trust.source_operator,
-            self.trust.source_identity_fingerprint,
-            self.trust.destination_operator,
-            self.trust.destination_identity_fingerprint,
-            self.trust.route_id,
-            self.trust.service_id,
-            self.trust.route_grant_digest,
+            registered.trust.source_operator,
+            registered.trust.source_identity_fingerprint,
+            registered.trust.destination_operator,
+            registered.trust.destination_identity_fingerprint,
+            registered.trust.route_id,
+            registered.trust.service_id,
+            registered.trust.route_grant_digest,
         ) != (
             self.source.operator_id,
             self.source.identity_fingerprint,
@@ -603,30 +632,31 @@ class TwoOperatorLab:
         self._source_audit._commit(plans[0])
         self._destination_audit._commit(plans[1])
 
-    def _source_timing(self, started_ms: int, completed_ms: int) -> None:
+    def _source_timing(self, authority: VerifiedAuthority, started_ms: int, completed_ms: int) -> None:
         started_ms = _uint64(started_ms, "source-started")
         completed_ms = _uint64(completed_ms, "source-completed")
         if completed_ms < started_ms:
             self._reject("source-clock-rollback")
         if completed_ms - started_ms > 5_000:
             self._reject("source-admission-timeout")
-        if started_ms < self._verified_authority.issued_at_ms:
+        if started_ms < authority.issued_at_ms:
             self._reject("source-authority-not-current")
-        if completed_ms > self._verified_authority.expires_at_ms:
+        if completed_ms > authority.expires_at_ms:
             self._reject("source-authority-expired")
 
-    def _destination_timing(self, source_completed_ms: int, started_ms: int, completed_ms: int) -> None:
+    def _destination_timing(self, authority: VerifiedAuthority, source_completed_ms: int, started_ms: int, completed_ms: int) -> None:
         started_ms = _uint64(started_ms, "destination-started")
         completed_ms = _uint64(completed_ms, "destination-completed")
         if started_ms < source_completed_ms or completed_ms < started_ms:
             self._reject("destination-clock-rollback")
         if completed_ms - started_ms > 5_000:
             self._reject("destination-admission-timeout")
-        if completed_ms > self._verified_authority.expires_at_ms:
+        if completed_ms > authority.expires_at_ms:
             self._reject("destination-authority-expired")
 
-    def admit(
+    def _admit(
         self,
+        registered: _RegisteredContext,
         request: AdmissionContext,
         *,
         amount: int,
@@ -636,28 +666,26 @@ class TwoOperatorLab:
         destination_completed_ms: int,
     ) -> AdmissionCapability:
         """Atomically admit, limit, allocate, audit, and issue one exact capability."""
+        if not any(entry is registered for entry in self._registered_contexts):
+            self._reject("context-handle-rejected")
         if type(request) is not AdmissionContext:
             self._reject("source-context-invalid")
         try:
-            self._source_gate(request)
-            self._source_timing(source_started_ms, source_completed_ms)
+            self._source_gate(registered, request)
+            self._source_timing(registered.verified_authority, source_started_ms, source_completed_ms)
         except LabRejected as rejected:
             self._record_rejection(request, rejected, destination_reached=False)
             raise
         try:
-            self._destination_gate(request)
-            self._destination_timing(source_completed_ms, destination_started_ms, destination_completed_ms)
+            self._destination_gate(registered, request)
+            self._destination_timing(registered.verified_authority, source_completed_ms, destination_started_ms, destination_completed_ms)
         except LabRejected as rejected:
             self._record_rejection(request, rejected, destination_reached=True)
             raise
         grant_key = (
             request.source_operator,
             request.destination_operator,
-            request.route_id,
-            request.service_id,
             request.route_grant_digest,
-            request.channel_authority_digest,
-            request.exporter_binding_digest,
         )
         if grant_key in self._admitted_grants:
             rejected = LabRejected("destination route grant replayed", code="destination-route-grant-replayed")
@@ -665,21 +693,33 @@ class TwoOperatorLab:
             raise rejected
 
         subject_digest = self._subject_digest(request)
-        self._source_audit._preflight()
-        self._destination_audit._preflight()
         try:
             consumption_plan = self._limiter._preflight_consume(request, amount=amount, now_ms=destination_completed_ms)
             allocation_plan = self._limiter._preflight_allocate(request)
         except LabRejected as rejected:
             self._record_rejection(request, rejected, destination_reached=True)
             raise
-        source_event = self._source_audit._plan(action="admitted", reason_code="admitted", subject_digest=subject_digest)
-        destination_event = self._destination_audit._plan(action="admitted", reason_code="admitted", subject_digest=subject_digest)
+        evicted_records = tuple(
+            sorted(
+                (
+                    (digest, evicted_capability, allocation)
+                    for digest, (evicted_capability, allocation, _owner) in self._capability_allocations.items()
+                    if allocation in allocation_plan.evictions
+                ),
+                key=lambda item: item[0],
+            )
+        )
+        audit_entries = (("admitted", "admitted", subject_digest),) + tuple(
+            ("revoked", "fair-share-evicted", evicted_capability.capability_digest)
+            for _digest_value, evicted_capability, _allocation in evicted_records
+        )
+        source_events = self._source_audit._plan_many(audit_entries)
+        destination_events = self._destination_audit._plan_many(audit_entries)
         capability_digest = sha256(
             b"nbsr-wp7-capability-v1\x00"
             + bytes.fromhex(subject_digest)
             + destination_completed_ms.to_bytes(8, "big")
-            + self._verified_authority.expires_at_ms.to_bytes(8, "big")
+            + registered.verified_authority.expires_at_ms.to_bytes(8, "big")
         ).hexdigest()
         capability = AdmissionCapability(
             source_operator=request.source_operator,
@@ -697,28 +737,41 @@ class TwoOperatorLab:
             channel_authority_digest=request.channel_authority_digest,
             exporter_binding_digest=request.exporter_binding_digest,
             admitted_at_ms=destination_completed_ms,
-            authority_expires_at_ms=self._verified_authority.expires_at_ms,
+            authority_expires_at_ms=registered.verified_authority.expires_at_ms,
             capability_digest=capability_digest,
         )
 
         self._limiter._commit_consume(consumption_plan)
         self._limiter._commit_allocate(allocation_plan)
-        self._source_audit._commit(source_event)
-        self._destination_audit._commit(destination_event)
+        for event in source_events:
+            self._source_audit._commit(event)
+        for event in destination_events:
+            self._destination_audit._commit(event)
         object.__setattr__(self, "_admitted_grants", self._admitted_grants | frozenset((grant_key,)))
-        for digest, (evicted_capability, allocation) in tuple(self._capability_allocations.items()):
-            if allocation in allocation_plan.evictions:
-                self._connector._unregister(evicted_capability)
-                del self._capability_allocations[digest]
-        self._capability_allocations[capability.capability_digest] = (capability, allocation_plan.allocation)
+        for digest, evicted_capability, _allocation in evicted_records:
+            self._connector._unregister(evicted_capability)
+            del self._capability_allocations[digest]
+        self._capability_allocations[capability.capability_digest] = (capability, allocation_plan.allocation, registered)
         self._connector._register(capability)
         return capability
 
-    def drain(self, *, capability: AdmissionCapability, started_ms: int, completed_ms: int) -> None:
+    def _drain(
+        self,
+        owner: _RegisteredContext,
+        *,
+        capability: AdmissionCapability,
+        started_ms: int,
+        completed_ms: int,
+    ) -> None:
         """Release an exact allocation within the 30-second and authority bounds."""
         try:
             registered = self._capability_allocations.get(getattr(capability, "capability_digest", None))
-            if type(capability) is not AdmissionCapability or registered is None or registered[0] is not capability:
+            if (
+                type(capability) is not AdmissionCapability
+                or registered is None
+                or registered[0] is not capability
+                or registered[2] is not owner
+            ):
                 self._reject("drain-capability-rejected")
             started_ms = _uint64(started_ms, "drain-started")
             completed_ms = _uint64(completed_ms, "drain-completed")
@@ -740,6 +793,99 @@ class TwoOperatorLab:
         self._destination_audit._commit(destination_event)
         del self._capability_allocations[capability.capability_digest]
         self._connector._unregister(capability)
+
+
+class TwoOperatorLab:
+    """A sealed exact-context handle into one authoritative operator-pair runtime."""
+
+    __slots__ = ("_runtime", "_registered", "_sealed")
+
+    def __init__(self, *_args: object, **_kwargs: object) -> None:
+        raise LabRejected("lab handles are issued only by an operator-pair runtime", code="context-handle-rejected")
+
+    @classmethod
+    def _issue(cls, runtime: OperatorPairRuntime, registered: _RegisteredContext) -> TwoOperatorLab:
+        if not any(entry is registered for entry in runtime._registered_contexts):
+            raise LabRejected("registered context is not authoritative", code="context-handle-rejected")
+        handle = object.__new__(cls)
+        object.__setattr__(handle, "_runtime", runtime)
+        object.__setattr__(handle, "_registered", registered)
+        object.__setattr__(handle, "_sealed", True)
+        return handle
+
+    def __setattr__(self, name: str, value: object) -> None:
+        if getattr(self, "_sealed", False):
+            raise AttributeError("lab handle state is private")
+        object.__setattr__(self, name, value)
+
+    @property
+    def source(self) -> OperatorProfile:
+        return self._runtime.source
+
+    @property
+    def destination(self) -> OperatorProfile:
+        return self._runtime.destination
+
+    @property
+    def trust(self) -> RouteTrust:
+        return self._registered.trust
+
+    @property
+    def expected_context(self) -> AdmissionContext:
+        return self._registered.expected_context
+
+    @property
+    def admitted_grant_count(self) -> int:
+        return self._runtime.admitted_grant_count
+
+    @property
+    def active_allocation_count(self) -> int:
+        return self._runtime.active_allocation_count
+
+    @property
+    def limit_bucket_count(self) -> int:
+        return self._runtime.limit_bucket_count
+
+    @property
+    def connector(self) -> "DestinationConnector":
+        return self._runtime.connector
+
+    def audit_events(self, operator_id: str) -> tuple["AuditEvent", ...]:
+        return self._runtime.audit_events(operator_id)
+
+    def report(self, operator_id: str) -> "OperatorReport":
+        return self._runtime.report(operator_id)
+
+    def _destination_gate(self, request: AdmissionContext) -> None:
+        self._runtime._destination_gate(self._registered, request)
+
+    def admit(
+        self,
+        request: AdmissionContext,
+        *,
+        amount: int,
+        source_started_ms: int,
+        source_completed_ms: int,
+        destination_started_ms: int,
+        destination_completed_ms: int,
+    ) -> AdmissionCapability:
+        return self._runtime._admit(
+            self._registered,
+            request,
+            amount=amount,
+            source_started_ms=source_started_ms,
+            source_completed_ms=source_completed_ms,
+            destination_started_ms=destination_started_ms,
+            destination_completed_ms=destination_completed_ms,
+        )
+
+    def drain(self, *, capability: AdmissionCapability, started_ms: int, completed_ms: int) -> None:
+        self._runtime._drain(
+            self._registered,
+            capability=capability,
+            started_ms=started_ms,
+            completed_ms=completed_ms,
+        )
 
 
 def _positive_uint64(value: object, label: str) -> int:
@@ -1070,13 +1216,24 @@ class AuditLog:
             raise LabRejected("audit sequence exhausted", code="audit-sequence-exhausted")
 
     def _plan(self, *, action: str, reason_code: str, subject_digest: str) -> AuditEvent:
-        self._preflight()
-        return AuditEvent(
-            sequence=self._next_sequence,
-            operator_id=self.operator_id,
-            action=action,
-            reason_code=reason_code,
-            subject_digest=subject_digest,
+        return self._plan_many(((action, reason_code, subject_digest),))[0]
+
+    def _plan_many(self, entries: tuple[tuple[str, str, str], ...]) -> tuple[AuditEvent, ...]:
+        if type(entries) is not tuple or not entries:
+            raise LabRejected("audit event plan is invalid", code="audit-plan-invalid")
+        if len(self._events) + len(entries) > self.capacity:
+            raise LabRejected("audit capacity exhausted", code="audit-capacity")
+        if self._sequence_exhausted or self._next_sequence > MAX_UINT64 - (len(entries) - 1):
+            raise LabRejected("audit sequence exhausted", code="audit-sequence-exhausted")
+        return tuple(
+            AuditEvent(
+                sequence=self._next_sequence + offset,
+                operator_id=self.operator_id,
+                action=action,
+                reason_code=reason_code,
+                subject_digest=subject_digest,
+            )
+            for offset, (action, reason_code, subject_digest) in enumerate(entries)
         )
 
     def _commit(self, event: AuditEvent) -> None:

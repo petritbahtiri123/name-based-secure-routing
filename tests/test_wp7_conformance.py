@@ -20,6 +20,7 @@ from nbsr.two_operator_lab import (
     LabRejected,
     LabTopology,
     LimitProfile,
+    OperatorPairRuntime,
     OperatorProfile,
     RouteTrust,
     TwoOperatorLab,
@@ -130,18 +131,17 @@ def audited_lab(
         max_buckets=64,
         max_active_allocations=32,
     )
-    lab = TwoOperatorLab(
+    runtime = OperatorPairRuntime(
         source=source,
         destination=destination,
-        trust=trust,
-        expected_context=request,
-        verified_authority=authority,
         limit_profile=limits,
         source_audit_capacity=source_audit_capacity,
         destination_audit_capacity=destination_audit_capacity,
         connector_id="isp-b-connector",
         private_destination="https://origin.internal.example:9443/private",
+        max_registered_contexts=1,
     )
+    lab = runtime.register_context(expected_context=request, trust=trust, verified_authority=authority)
     return lab, request
 
 

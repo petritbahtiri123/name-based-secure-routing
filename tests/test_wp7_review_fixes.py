@@ -104,18 +104,17 @@ def build_lab(
         "max_active_allocations": 32,
     }
     limit_values.update(limit_changes or {})
-    lab = wp7.TwoOperatorLab(
-        source,
-        destination,
-        trust,
-        request,
-        verified_authority=authority,
+    runtime = wp7.OperatorPairRuntime(
+        source=source,
+        destination=destination,
         limit_profile=wp7.LimitProfile(**limit_values),
         source_audit_capacity=source_audit_capacity,
         destination_audit_capacity=destination_audit_capacity,
         connector_id="isp-b-connector",
         private_destination="https://origin.internal.example:9443/private",
+        max_registered_contexts=1,
     )
+    lab = runtime.register_context(expected_context=request, trust=trust, verified_authority=authority)
     return lab, request, authority
 
 
@@ -128,6 +127,198 @@ def admit(lab: wp7.TwoOperatorLab, request: wp7.AdmissionContext, *, amount: int
         destination_started_ms=300,
         destination_completed_ms=400,
     )
+
+
+def build_runtime(*, operator_capacity: int, max_registered_contexts: int) -> wp7.OperatorPairRuntime:
+    source = wp7.OperatorProfile(
+        operator_id="isp-a",
+        identity_fingerprint=digest("runtime-source-identity"),
+        policy_fingerprint=digest("runtime-source-policy-key"),
+        audit_fingerprint=digest("runtime-source-audit-key"),
+        policy_digest=digest("runtime-source-policy"),
+        gateway_profile_digest=digest("runtime-source-gateway"),
+        continuity_digest=digest("runtime-source-continuity"),
+        policy_version=1,
+    )
+    destination = wp7.OperatorProfile(
+        operator_id="isp-b",
+        identity_fingerprint=digest("runtime-destination-identity"),
+        policy_fingerprint=digest("runtime-destination-policy-key"),
+        audit_fingerprint=digest("runtime-destination-audit-key"),
+        policy_digest=digest("runtime-destination-policy"),
+        gateway_profile_digest=digest("runtime-destination-gateway"),
+        continuity_digest=digest("runtime-destination-continuity"),
+        policy_version=1,
+    )
+    return wp7.OperatorPairRuntime(
+        source=source,
+        destination=destination,
+        limit_profile=wp7.LimitProfile(
+            client_capacity=8,
+            name_capacity=8,
+            route_capacity=8,
+            service_capacity=8,
+            channel_capacity=8,
+            tunnel_capacity=8,
+            operator_capacity=operator_capacity,
+            refill_per_ms=1,
+            max_buckets=256,
+            max_active_allocations=64,
+        ),
+        source_audit_capacity=128,
+        destination_audit_capacity=128,
+        connector_id="isp-b-connector",
+        private_destination="https://origin.internal.example:9443/private",
+        max_registered_contexts=max_registered_contexts,
+    )
+
+
+def register_context(
+    runtime: wp7.OperatorPairRuntime,
+    *,
+    label: str,
+    subscriber: str,
+    grant: str | None = None,
+    route_id: str = "route-a",
+    service_id: str = "payments",
+) -> tuple[wp7.TwoOperatorLab, wp7.AdmissionContext]:
+    grant = label if grant is None else grant
+    request = wp7.AdmissionContext(
+        source_operator=runtime.source.operator_id,
+        destination_operator=runtime.destination.operator_id,
+        tenant_id="tenant-a",
+        subscriber_pseudonym=digest(subscriber),
+        name_id="payments",
+        route_id=route_id,
+        service_id=service_id,
+        channel_id=f"channel-{label}",
+        tunnel_id=f"tunnel-{label}",
+        source_edge_id="source-edge-a",
+        destination_edge_id="destination-edge-b",
+        route_grant_digest=digest(f"grant-{grant}"),
+        channel_authority_digest=digest(f"channel-authority-{label}"),
+        exporter_binding_digest=digest(f"exporter-binding-{label}"),
+        source_policy_digest=runtime.source.policy_digest,
+        destination_policy_digest=runtime.destination.policy_digest,
+        source_gateway_digest=runtime.source.gateway_profile_digest,
+        destination_gateway_digest=runtime.destination.gateway_profile_digest,
+        source_continuity_digest=runtime.source.continuity_digest,
+        destination_continuity_digest=runtime.destination.continuity_digest,
+        source_policy_version=runtime.source.policy_version,
+        destination_policy_version=runtime.destination.policy_version,
+    )
+    trust = wp7.RouteTrust.from_profiles(
+        runtime.source,
+        runtime.destination,
+        route_id=request.route_id,
+        service_id=request.service_id,
+        route_grant_digest=request.route_grant_digest,
+    )
+    authority = wp7.VerifiedAuthority(
+        route_grant_digest=request.route_grant_digest,
+        channel_authority_digest=request.channel_authority_digest,
+        exporter_binding_digest=request.exporter_binding_digest,
+        source_edge_id=request.source_edge_id,
+        destination_edge_id=request.destination_edge_id,
+        source_gateway_digest=request.source_gateway_digest,
+        destination_gateway_digest=request.destination_gateway_digest,
+        source_gateway_conformant=True,
+        destination_gateway_conformant=True,
+        source_continuity_digest=request.source_continuity_digest,
+        destination_continuity_digest=request.destination_continuity_digest,
+        source_continuity_status="current",
+        destination_continuity_status="current",
+        issued_at_ms=0,
+        expires_at_ms=60_000,
+    )
+    return runtime.register_context(expected_context=request, trust=trust, verified_authority=authority), request
+
+
+def admit_registered(handle: wp7.TwoOperatorLab, request: wp7.AdmissionContext, *, completed_ms: int) -> wp7.AdmissionCapability:
+    return handle.admit(
+        request,
+        amount=1,
+        source_started_ms=completed_ms - 3,
+        source_completed_ms=completed_ms - 2,
+        destination_started_ms=completed_ms - 1,
+        destination_completed_ms=completed_ms,
+    )
+
+
+def test_operator_pair_runtime_enforces_aggregate_capacity_across_registered_contexts() -> None:
+    runtime = build_runtime(operator_capacity=1, max_registered_contexts=2)
+    first, first_request = register_context(runtime, label="a", subscriber="subscriber-a")
+    second, second_request = register_context(runtime, label="b", subscriber="subscriber-b")
+
+    admit_registered(first, first_request, completed_ms=400)
+    with pytest.raises(wp7.LabRejected) as rejected:
+        admit_registered(second, second_request, completed_ms=400)
+
+    assert rejected.value.code == "operator-limit"
+    assert first.active_allocation_count == second.active_allocation_count == 1
+    assert runtime.registered_context_count == 2
+
+
+def test_operator_pair_runtime_rejects_same_grant_replay_across_registered_handles() -> None:
+    runtime = build_runtime(operator_capacity=8, max_registered_contexts=2)
+    first, first_request = register_context(runtime, label="a", subscriber="subscriber-a", grant="shared")
+    second, second_request = register_context(
+        runtime,
+        label="b",
+        subscriber="subscriber-b",
+        grant="shared",
+        route_id="route-b",
+        service_id="ledger",
+    )
+
+    admit_registered(first, first_request, completed_ms=400)
+    with pytest.raises(wp7.LabRejected) as rejected:
+        admit_registered(second, second_request, completed_ms=401)
+
+    assert rejected.value.code == "destination-route-grant-replayed"
+    assert first.admitted_grant_count == second.admitted_grant_count == 1
+
+
+def test_composed_fair_share_revokes_and_audits_first_mover_excess_capability() -> None:
+    runtime = build_runtime(operator_capacity=4, max_registered_contexts=5)
+    registered = [
+        register_context(runtime, label=label, subscriber=subscriber)
+        for label, subscriber in (
+            ("a-one", "subscriber-a"),
+            ("a-two", "subscriber-a"),
+            ("a-z", "subscriber-a"),
+            ("b-one", "subscriber-b"),
+            ("b-two", "subscriber-b"),
+        )
+    ]
+
+    capabilities = [admit_registered(handle, request, completed_ms=400 + index) for index, (handle, request) in enumerate(registered)]
+
+    assert runtime.active_allocation_count == 4
+    with pytest.raises(wp7.LabRejected) as rejected:
+        runtime.connector.connect(capability=capabilities[2], now_ms=404)
+    assert rejected.value.code == "connector-capability-rejected"
+    for capability in (capabilities[0], capabilities[1], capabilities[3], capabilities[4]):
+        assert runtime.connector.connect(capability=capability, now_ms=404).route_grant_digest == capability.route_grant_digest
+    assert [(event.action, event.reason_code) for event in runtime.audit_events("isp-a")].count(("revoked", "fair-share-evicted")) == 1
+    assert runtime.report("isp-b").safe_code_counts == (("admitted", 5), ("fair-share-evicted", 1))
+
+
+def test_operator_pair_runtime_registry_is_bounded_without_exposing_mutable_state() -> None:
+    runtime = build_runtime(operator_capacity=8, max_registered_contexts=2)
+    first, _request = register_context(runtime, label="a", subscriber="subscriber-a")
+    register_context(runtime, label="b", subscriber="subscriber-b")
+
+    with pytest.raises(wp7.LabRejected) as rejected:
+        register_context(runtime, label="c", subscriber="subscriber-c")
+
+    assert rejected.value.code == "context-registry-capacity"
+    assert runtime.registered_context_count == 2
+    with pytest.raises(AttributeError):
+        runtime._registered_contexts.clear()  # type: ignore[attr-defined]
+    with pytest.raises(wp7.LabRejected) as forged:
+        wp7.TwoOperatorLab(runtime, first._registered)  # type: ignore[attr-defined]
+    assert forged.value.code == "context-handle-rejected"
 
 
 def test_composed_admission_commits_limits_allocation_audits_replay_and_exact_capability() -> None:
