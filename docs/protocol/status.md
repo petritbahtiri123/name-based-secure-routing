@@ -86,11 +86,11 @@ WP7 is complete and evidence-closed at deterministic two-operator lab scope.
 The implementation is a single-threaded, in-process model with source-first
 admission, independent source and destination authority, pair-wide bounded
 quota/replay/audit state, deterministic fair-share eviction, and one confined
-destination connector. The documentation-inclusive focused suite contains 106
+destination connector. The documentation-inclusive focused suite contains 109
 focused WP7 tests. Independent correctness and security closure reviews report
 zero remaining confirmed findings.
 
-Fresh 2026-08-02 validation recorded 1,077 passed and 1 skipped in the full
+Fresh 2026-08-02 validation recorded 1,080 passed and 1 skipped in the full
 Python suite. Ruff check passed and Ruff format reported 140 files already
 formatted; `pip check`, Core v0.1/Core v0.2 regeneration, WP4 exporter Python
 and Node verification (2 valid and 21 invalid/mutation cases), the independent

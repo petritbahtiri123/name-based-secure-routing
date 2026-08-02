@@ -16,13 +16,13 @@ def test_each_wp7_authoritative_doc_records_bounded_implemented_evidence() -> No
     expectations = {
         STATUS: (
             "WP7 is complete and evidence-closed at deterministic two-operator lab scope",
-            "106 focused WP7 tests",
-            "1,077 passed and 1 skipped",
+            "109 focused WP7 tests",
+            "1,080 passed and 1 skipped",
             "single-threaded, in-process",
         ),
         DECISION: (
             "WP7 is complete and evidence-closed at deterministic two-operator lab scope",
-            "106 focused WP7 tests",
+            "109 focused WP7 tests",
             "Source-first admission",
             "5-second source admission",
             "5-second destination admission",
@@ -31,14 +31,14 @@ def test_each_wp7_authoritative_doc_records_bounded_implemented_evidence() -> No
         ),
         README: (
             "WP7 is complete and evidence-closed at deterministic two-operator lab scope",
-            "106 focused WP7 tests",
-            "1,077 passed and 1 skipped",
+            "109 focused WP7 tests",
+            "1,080 passed and 1 skipped",
             "single-threaded, in-process",
         ),
         ROADMAP: (
             "WP7 is complete and evidence-closed at deterministic two-operator lab scope",
-            "106 focused WP7 tests",
-            "1,077 passed and 1 skipped",
+            "109 focused WP7 tests",
+            "1,080 passed and 1 skipped",
             "single-threaded, in-process",
         ),
     }

@@ -59,9 +59,16 @@ owns the shared authoritative state. The final static closure reviews report
 zero remaining confirmed findings and no new Critical or Important security
 regression within the approved lab model.
 
+A final connector-boundary review restored literal connector-only endpoint
+custody: `OperatorPairRuntime` accepts one exact-type, unused
+`DestinationConnector`, not raw destination material. Wrong-operator,
+substituted, nonempty, and already-owned connectors fail closed, and connector
+registration remains bound to its one owning runtime. This closure adds no
+network behavior or broader privacy claim.
+
 ## Completion evidence
 
-Fresh validation on 2026-08-02 recorded 106 focused WP7 tests and 1,077 passed
+Fresh validation on 2026-08-02 recorded 109 focused WP7 tests and 1,080 passed
 and 1 skipped in the full Python suite. Ruff check passed; Ruff format reported
 140 files already formatted; and `pip check`, Core v0.1/Core v0.2 regeneration,
 WP4 exporter Python and independent Node verification (2 valid and 21

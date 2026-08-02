@@ -110,8 +110,8 @@ fair-share, audit, and connector state. The ISP-B connector alone retains the
 Origin Endpoint, requires the exact registered admission capability, performs
 no network I/O, and exposes no endpoint-derived verifier. This is
 single-threaded, in-process simulated evidence, not a live two-ISP deployment
-or federation protocol. Fresh 2026-08-02 validation recorded 106 focused WP7
-tests, 1,077 passed and 1 skipped repository-wide, and 114 executable Rust
+or federation protocol. Fresh 2026-08-02 validation recorded 109 focused WP7
+tests, 1,080 passed and 1 skipped repository-wide, and 114 executable Rust
 tests plus 16 doctests.
 
 ## Security boundaries
