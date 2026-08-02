@@ -7,7 +7,7 @@ wire format, resolve endpoints, or allocate any resources.
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field as dataclass_field
 from typing import Any, Mapping
 
 
@@ -30,6 +30,10 @@ _HEX_DIGEST_RE = re.compile(r"[0-9a-f]{64}\Z")
 
 class LabRejected(ValueError):
     """A two-operator lab configuration or context is not trustworthy."""
+
+    def __init__(self, message: str, *, code: str = "lab-rejected") -> None:
+        super().__init__(message)
+        self.code = code
 
 
 def _mapping(value: object) -> Mapping[str, Any]:
@@ -240,3 +244,151 @@ class AdmissionContext:
         )
         if actual != expected:
             raise LabRejected("route trust tuple does not match the admission context")
+
+
+@dataclass(frozen=True, slots=True)
+class AdmissionReceipt:
+    """A privacy-safe record of one admitted opaque lab context."""
+
+    source_operator: str
+    destination_operator: str
+    tenant_id: str
+    subscriber_pseudonym: str
+    name_id: str
+    route_id: str
+    service_id: str
+    channel_id: str
+    tunnel_id: str
+    route_grant_digest: str
+    admitted_at_ms: int
+
+
+@dataclass(frozen=True, slots=True)
+class TwoOperatorLab:
+    """Deterministically admit opaque contexts through separate operator gates."""
+
+    source: OperatorProfile
+    destination: OperatorProfile
+    trust: RouteTrust
+    expected_context: AdmissionContext
+    _admitted_grants: set[tuple[str, str, str, str, str]] = dataclass_field(default_factory=set, init=False, repr=False)
+
+    def __post_init__(self) -> None:
+        if type(self.expected_context) is not AdmissionContext:
+            raise LabRejected("expected admission context is invalid", code="admission-context-invalid")
+        self.expected_context.validate(self.source, self.destination, self.trust)
+
+    @property
+    def admitted_grant_count(self) -> int:
+        """Return the number of successful opaque grant admissions."""
+        return len(self._admitted_grants)
+
+    @staticmethod
+    def _reject(code: str) -> None:
+        raise LabRejected(code.replace("-", " "), code=code)
+
+    def source_gate(self, request: AdmissionContext) -> None:
+        """Validate only the facts owned by the source operator."""
+        expected = self.expected_context
+        if request.source_operator != self.source.operator_id:
+            self._reject("source-operator-mismatch")
+        if request.tenant_id != expected.tenant_id:
+            self._reject("source-tenant-mismatch")
+        if request.subscriber_pseudonym != expected.subscriber_pseudonym:
+            self._reject("source-subscriber-mismatch")
+        if request.name_id != expected.name_id:
+            self._reject("source-name-mismatch")
+        if request.source_edge_id != expected.source_edge_id:
+            self._reject("source-edge-mismatch")
+        if (request.source_policy_digest, request.source_policy_version) != (
+            self.source.policy_digest,
+            self.source.policy_version,
+        ):
+            self._reject("source-policy-mismatch")
+        if request.source_gateway_digest != self.source.gateway_profile_digest:
+            self._reject("source-gateway-mismatch")
+        if request.source_continuity_digest != self.source.continuity_digest:
+            self._reject("source-continuity-denied")
+        if (request.route_id, request.service_id, request.route_grant_digest) != (
+            expected.route_id,
+            expected.service_id,
+            expected.route_grant_digest,
+        ):
+            self._reject("source-route-grant-mismatch")
+
+    def destination_gate(self, request: AdmissionContext) -> None:
+        """Independently validate only the facts owned by the destination operator."""
+        expected = self.expected_context
+        if request.destination_operator != self.destination.operator_id:
+            self._reject("destination-operator-mismatch")
+        if request.tenant_id != expected.tenant_id:
+            self._reject("destination-tenant-mismatch")
+        if request.service_id != expected.service_id:
+            self._reject("destination-service-mismatch")
+        if request.route_id != expected.route_id:
+            self._reject("destination-route-mismatch")
+        if request.channel_id != expected.channel_id:
+            self._reject("destination-channel-mismatch")
+        if request.tunnel_id != expected.tunnel_id:
+            self._reject("destination-tunnel-mismatch")
+        if request.destination_edge_id != expected.destination_edge_id:
+            self._reject("destination-edge-mismatch")
+        if (request.destination_policy_digest, request.destination_policy_version) != (
+            self.destination.policy_digest,
+            self.destination.policy_version,
+        ):
+            self._reject("destination-policy-mismatch")
+        if request.destination_gateway_digest != self.destination.gateway_profile_digest:
+            self._reject("destination-gateway-mismatch")
+        if request.destination_continuity_digest != self.destination.continuity_digest:
+            self._reject("destination-continuity-denied")
+        if (
+            self.trust.source_operator,
+            self.trust.source_identity_fingerprint,
+            self.trust.destination_operator,
+            self.trust.destination_identity_fingerprint,
+            self.trust.route_id,
+            self.trust.service_id,
+            self.trust.route_grant_digest,
+        ) != (
+            self.source.operator_id,
+            self.source.identity_fingerprint,
+            self.destination.operator_id,
+            self.destination.identity_fingerprint,
+            request.route_id,
+            request.service_id,
+            request.route_grant_digest,
+        ):
+            self._reject("destination-route-trust-mismatch")
+
+    def admit(self, request: AdmissionContext, now_ms: int) -> AdmissionReceipt:
+        """Admit a request only after both gates pass, then record its opaque grant."""
+        if type(request) is not AdmissionContext:
+            self._reject("source-context-invalid")
+        if type(now_ms) is not int or not 0 <= now_ms <= MAX_UINT64:
+            self._reject("admission-clock-invalid")
+        self.source_gate(request)
+        self.destination_gate(request)
+        grant_key = (
+            request.source_operator,
+            request.destination_operator,
+            request.route_id,
+            request.service_id,
+            request.route_grant_digest,
+        )
+        if grant_key in self._admitted_grants:
+            self._reject("destination-route-grant-replayed")
+        self._admitted_grants.add(grant_key)
+        return AdmissionReceipt(
+            source_operator=request.source_operator,
+            destination_operator=request.destination_operator,
+            tenant_id=request.tenant_id,
+            subscriber_pseudonym=request.subscriber_pseudonym,
+            name_id=request.name_id,
+            route_id=request.route_id,
+            service_id=request.service_id,
+            channel_id=request.channel_id,
+            tunnel_id=request.tunnel_id,
+            route_grant_digest=request.route_grant_digest,
+            admitted_at_ms=now_ms,
+        )
