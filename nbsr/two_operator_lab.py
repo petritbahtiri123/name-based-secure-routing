@@ -366,8 +366,8 @@ class TwoOperatorLab:
         ):
             self._reject("destination-route-trust-mismatch")
 
-    def admit(self, request: AdmissionContext, now_ms: int) -> AdmissionReceipt:
-        """Admit a request only after both gates pass, then record its opaque grant."""
+    def _preflight_admission(self, request: AdmissionContext, now_ms: int) -> tuple[str, str, str, str, str]:
+        """Run all non-mutating gates before audit or replay state can change."""
         if type(request) is not AdmissionContext:
             self._reject("source-context-invalid")
         if type(now_ms) is not int or not 0 <= now_ms <= MAX_UINT64:
@@ -383,6 +383,15 @@ class TwoOperatorLab:
         )
         if grant_key in self._admitted_grants:
             self._reject("destination-route-grant-replayed")
+        return grant_key
+
+    def _admit_after_audit(
+        self,
+        request: AdmissionContext,
+        now_ms: int,
+        grant_key: tuple[str, str, str, str, str],
+    ) -> AdmissionReceipt:
+        """Commit replay state only after both local audit records exist."""
         object.__setattr__(self, "_admitted_grants", self._admitted_grants | frozenset((grant_key,)))
         return AdmissionReceipt(
             source_operator=request.source_operator,
@@ -398,7 +407,7 @@ class TwoOperatorLab:
             admitted_at_ms=now_ms,
         )
 
-    def admit_audited(
+    def admit(
         self,
         request: AdmissionContext,
         *,
@@ -406,44 +415,17 @@ class TwoOperatorLab:
         source_audit: "AuditLog",
         destination_audit: "AuditLog",
     ) -> AdmissionReceipt:
-        """Admit only when both independent local audit logs can record first."""
+        """Public admission requires two available, independently owned audit logs."""
         if type(source_audit) is not AuditLog or type(destination_audit) is not AuditLog:
             self._reject("audit-log-invalid")
         if (source_audit.operator_id, destination_audit.operator_id) != (self.source.operator_id, self.destination.operator_id):
             self._reject("audit-operator-mismatch")
-        if type(request) is not AdmissionContext:
-            self._reject("source-context-invalid")
-        if type(now_ms) is not int or not 0 <= now_ms <= MAX_UINT64:
-            self._reject("admission-clock-invalid")
-        self.source_gate(request)
-        self.destination_gate(request)
-        grant_key = (
-            request.source_operator,
-            request.destination_operator,
-            request.route_id,
-            request.service_id,
-            request.route_grant_digest,
-        )
-        if grant_key in self._admitted_grants:
-            self._reject("destination-route-grant-replayed")
+        grant_key = self._preflight_admission(request, now_ms)
         source_audit._preflight()
         destination_audit._preflight()
         source_audit.record(action="admitted", subject_digest=request.route_grant_digest)
         destination_audit.record(action="admitted", subject_digest=request.route_grant_digest)
-        object.__setattr__(self, "_admitted_grants", self._admitted_grants | frozenset((grant_key,)))
-        return AdmissionReceipt(
-            source_operator=request.source_operator,
-            destination_operator=request.destination_operator,
-            tenant_id=request.tenant_id,
-            subscriber_pseudonym=request.subscriber_pseudonym,
-            name_id=request.name_id,
-            route_id=request.route_id,
-            service_id=request.service_id,
-            channel_id=request.channel_id,
-            tunnel_id=request.tunnel_id,
-            route_grant_digest=request.route_grant_digest,
-            admitted_at_ms=now_ms,
-        )
+        return self._admit_after_audit(request, now_ms, grant_key)
 
 
 def _positive_uint64(value: object, label: str) -> int:
@@ -804,6 +786,7 @@ _TOPOLOGY_SCHEMA = "nbsr-wp7-two-operator-lab-v1"
 _CANONICAL_OPERATORS = ("isp-a", "isp-b")
 _CANONICAL_CONNECTOR = "isp-b-connector"
 _CANONICAL_EDGES = (("isp-a", "isp-b-connector"), ("isp-b-connector", "isp-b"))
+_DIRECT_OPERATOR_EDGES = frozenset((_CANONICAL_OPERATORS, tuple(reversed(_CANONICAL_OPERATORS))))
 
 
 @dataclass(frozen=True, slots=True)
@@ -820,7 +803,7 @@ class LabTopology:
         if self.connector_id != _CANONICAL_CONNECTOR:
             raise LabRejected("topology connector is not canonical", code="topology-connector-invalid")
         if self.edges != _CANONICAL_EDGES:
-            if any(edge == _CANONICAL_OPERATORS for edge in self.edges):
+            if any(edge in _DIRECT_OPERATOR_EDGES for edge in self.edges):
                 raise LabRejected("topology direct operator edge is forbidden", code="topology-direct-edge")
             raise LabRejected("topology edges are not canonical", code="topology-edges-invalid")
 
@@ -844,7 +827,7 @@ class LabTopology:
             if not isinstance(edge, dict) or set(edge) != {"source", "destination"}:
                 raise LabRejected("topology edge is invalid", code="topology-edge-invalid")
             parsed_edges.append((_id(edge["source"], "topology-edge-source"), _id(edge["destination"], "topology-edge-destination")))
-        if _CANONICAL_OPERATORS in parsed_edges:
+        if any(edge in _DIRECT_OPERATOR_EDGES for edge in parsed_edges):
             raise LabRejected("topology direct operator edge is forbidden", code="topology-direct-edge")
         return cls(operators=tuple(operators), connector_id=connector_id, edges=tuple(parsed_edges))  # type: ignore[arg-type]
 

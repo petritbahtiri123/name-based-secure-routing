@@ -165,12 +165,29 @@ def test_audit_capacity_is_preflighted_before_admission_success_or_peer_audit_mu
     source_audit.record(action="admitted", subject_digest=digest("previous-grant"))
 
     with pytest.raises(LabRejected) as rejected:
-        lab.admit_audited(request, now_ms=10, source_audit=source_audit, destination_audit=destination_audit)
+        lab.admit(request, now_ms=10, source_audit=source_audit, destination_audit=destination_audit)
 
     assert rejected.value.code == "audit-capacity"
     assert lab.admitted_grant_count == 0
     assert len(source_audit.events) == 1
     assert destination_audit.events == ()
+
+
+def test_public_admission_cannot_bypass_full_or_missing_operator_audits() -> None:
+    lab, request = audited_lab()
+    source_audit = AuditLog(operator_id="isp-a", capacity=1)
+    destination_audit = AuditLog(operator_id="isp-b", capacity=1)
+    source_audit.record(action="admitted", subject_digest=digest("previous-grant"))
+
+    with pytest.raises(LabRejected) as rejected:
+        lab.admit(request, now_ms=10, source_audit=source_audit, destination_audit=destination_audit)
+    assert rejected.value.code == "audit-capacity"
+    assert lab.admitted_grant_count == 0
+    assert destination_audit.events == ()
+
+    with pytest.raises(TypeError):
+        lab.admit(request, now_ms=11)
+    assert lab.admitted_grant_count == 0
 
 
 def test_closed_topology_rejects_direct_operator_edge_and_oversized_collections() -> None:
@@ -180,11 +197,19 @@ def test_closed_topology_rejects_direct_operator_edge_and_oversized_collections(
             {"source": "isp-b-connector", "destination": "isp-b"},
         ]
     )
+    reverse_direct = topology_data(
+        edges=[
+            {"source": "isp-b", "destination": "isp-a"},
+            {"source": "isp-b-connector", "destination": "isp-b"},
+        ]
+    )
     oversized = topology_data(operators=["isp-a", "isp-b", "isp-c"])
     oversized_edges = topology_data(edges=[{"source": "isp-a"}, {"source": "isp-a"}, {"source": "isp-a"}])
 
     with pytest.raises(LabRejected, match="direct"):
         LabTopology.from_dict(direct)
+    with pytest.raises(LabRejected, match="direct"):
+        LabTopology.from_dict(reverse_direct)
     with pytest.raises(LabRejected, match="topology operators"):
         LabTopology.from_dict(oversized)
     with pytest.raises(LabRejected) as rejected:

@@ -7,7 +7,7 @@ from hashlib import sha256
 
 import pytest
 
-from nbsr.two_operator_lab import AdmissionContext, LabRejected, OperatorProfile, RouteTrust, TwoOperatorLab
+from nbsr.two_operator_lab import AuditLog, AdmissionContext, LabRejected, OperatorProfile, RouteTrust, TwoOperatorLab
 
 
 def digest(value: str) -> str:
@@ -68,6 +68,15 @@ def lab_and_request() -> tuple[TwoOperatorLab, AdmissionContext]:
     return TwoOperatorLab(source, destination, trust, candidate), candidate
 
 
+def admit(lab: TwoOperatorLab, candidate: AdmissionContext, *, now_ms: int) -> object:
+    return lab.admit(
+        candidate,
+        now_ms=now_ms,
+        source_audit=AuditLog(operator_id="isp-a", capacity=8),
+        destination_audit=AuditLog(operator_id="isp-b", capacity=8),
+    )
+
+
 @pytest.mark.parametrize(
     ("field", "value", "code"),
     [
@@ -97,7 +106,7 @@ def test_admission_rejects_each_spoofed_context_without_state_mutation(field: st
     lab, candidate = lab_and_request()
 
     with pytest.raises(LabRejected) as rejected:
-        lab.admit(replace(candidate, **{field: value}), now_ms=10)
+        admit(lab, replace(candidate, **{field: value}), now_ms=10)
 
     assert rejected.value.code == code
     assert lab.admitted_grant_count == 0
@@ -107,7 +116,7 @@ def test_source_gate_precedes_destination_gate() -> None:
     lab, candidate = lab_and_request()
 
     with pytest.raises(LabRejected) as rejected:
-        lab.admit(replace(candidate, name_id="forged-name", channel_id="forged-channel"), now_ms=10)
+        admit(lab, replace(candidate, name_id="forged-name", channel_id="forged-channel"), now_ms=10)
 
     assert rejected.value.code == "source-name-mismatch"
     assert lab.admitted_grant_count == 0
@@ -117,11 +126,11 @@ def test_rejected_request_does_not_consume_a_grant_and_valid_sibling_succeeds() 
     lab, candidate = lab_and_request()
 
     with pytest.raises(LabRejected) as rejected:
-        lab.admit(replace(candidate, destination_edge_id="forged-destination-edge"), now_ms=10)
+        admit(lab, replace(candidate, destination_edge_id="forged-destination-edge"), now_ms=10)
     assert rejected.value.code == "destination-edge-mismatch"
     assert lab.admitted_grant_count == 0
 
-    receipt = lab.admit(candidate, now_ms=11)
+    receipt = admit(lab, candidate, now_ms=11)
 
     assert receipt.admitted_at_ms == 11
     assert receipt.source_operator == "isp-a"
@@ -132,10 +141,10 @@ def test_rejected_request_does_not_consume_a_grant_and_valid_sibling_succeeds() 
 
 def test_admission_rejects_replayed_exact_grant_after_a_success() -> None:
     lab, candidate = lab_and_request()
-    lab.admit(candidate, now_ms=10)
+    admit(lab, candidate, now_ms=10)
 
     with pytest.raises(LabRejected) as rejected:
-        lab.admit(candidate, now_ms=11)
+        admit(lab, candidate, now_ms=11)
 
     assert rejected.value.code == "destination-route-grant-replayed"
     assert lab.admitted_grant_count == 1
@@ -143,14 +152,14 @@ def test_admission_rejects_replayed_exact_grant_after_a_success() -> None:
 
 def test_external_replay_ledger_mutation_cannot_enable_grant_readmission() -> None:
     lab, candidate = lab_and_request()
-    lab.admit(candidate, now_ms=10)
+    admit(lab, candidate, now_ms=10)
 
     with pytest.raises(AttributeError):
         lab._admitted_grants.clear()  # type: ignore[attr-defined]
     with pytest.raises(FrozenInstanceError):
         lab._admitted_grants = frozenset()  # type: ignore[misc]
     with pytest.raises(LabRejected) as rejected:
-        lab.admit(candidate, now_ms=11)
+        admit(lab, candidate, now_ms=11)
 
     assert rejected.value.code == "destination-route-grant-replayed"
     assert lab.admitted_grant_count == 1
@@ -160,7 +169,7 @@ def test_admission_rejects_non_uint64_clock_without_consuming_a_grant() -> None:
     lab, candidate = lab_and_request()
 
     with pytest.raises(LabRejected) as rejected:
-        lab.admit(candidate, now_ms=True)
+        admit(lab, candidate, now_ms=True)
 
     assert rejected.value.code == "admission-clock-invalid"
     assert lab.admitted_grant_count == 0
