@@ -50,6 +50,7 @@ def context(source: OperatorProfile, destination: OperatorProfile, **changes: ob
         "source_policy_digest": source.policy_digest,
         "destination_policy_digest": destination.policy_digest,
         "source_gateway_digest": source.gateway_profile_digest,
+        "destination_gateway_digest": destination.gateway_profile_digest,
         "source_continuity_digest": source.continuity_digest,
         "destination_continuity_digest": destination.continuity_digest,
         "source_policy_version": source.policy_version,
@@ -108,6 +109,18 @@ def test_profile_rejects_unknown_fields_and_purpose_confused_fingerprints() -> N
         OperatorProfile.from_dict(profile_data("isp-a", policy="1"))
 
 
+@pytest.mark.parametrize(
+    "values",
+    [
+        profile_data("ISP-A"),
+        profile_data("isp-a", policy="1"),
+    ],
+)
+def test_direct_profile_construction_enforces_field_and_key_purpose_invariants(values: dict[str, object]) -> None:
+    with pytest.raises(LabRejected):
+        OperatorProfile(**values)  # type: ignore[arg-type]
+
+
 def test_trust_rejects_duplicate_fingerprints_across_operator_key_purposes() -> None:
     source = OperatorProfile.from_dict(profile_data("isp-a"))
     destination = OperatorProfile.from_dict(profile_data("isp-b", identity="a", policy="1", audit="c"))
@@ -124,3 +137,10 @@ def test_context_rejects_stale_policy_versions_and_substituted_trust_tuple() -> 
         replace(candidate, source_policy_version=6).validate(source, destination, trust(source, destination))
     with pytest.raises(LabRejected, match="trust"):
         candidate.validate(source, destination, trust(source, destination, route_id="route-b"))
+
+
+def test_context_rejects_substituted_destination_gateway_profile() -> None:
+    source, destination = profiles()
+
+    with pytest.raises(LabRejected, match="destination gateway"):
+        context(source, destination, destination_gateway_digest=digest("f")).validate(source, destination, trust(source, destination))

@@ -69,22 +69,25 @@ class OperatorProfile:
     continuity_digest: str
     policy_version: int
 
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "operator_id", _id(self.operator_id, "operator_id"))
+        for field in (
+            "identity_fingerprint",
+            "policy_fingerprint",
+            "audit_fingerprint",
+            "policy_digest",
+            "gateway_profile_digest",
+            "continuity_digest",
+        ):
+            object.__setattr__(self, field, _digest(getattr(self, field), field))
+        object.__setattr__(self, "policy_version", _version(self.policy_version, "policy_version"))
+        if len({self.identity_fingerprint, self.policy_fingerprint, self.audit_fingerprint}) != 3:
+            raise LabRejected("operator key fingerprints must be unique by purpose")
+
     @classmethod
     def from_dict(cls, value: object) -> OperatorProfile:
         data = _mapping(value)
-        profile = cls(
-            operator_id=_id(data["operator_id"], "operator_id"),
-            identity_fingerprint=_digest(data["identity_fingerprint"], "identity_fingerprint"),
-            policy_fingerprint=_digest(data["policy_fingerprint"], "policy_fingerprint"),
-            audit_fingerprint=_digest(data["audit_fingerprint"], "audit_fingerprint"),
-            policy_digest=_digest(data["policy_digest"], "policy_digest"),
-            gateway_profile_digest=_digest(data["gateway_profile_digest"], "gateway_profile_digest"),
-            continuity_digest=_digest(data["continuity_digest"], "continuity_digest"),
-            policy_version=_version(data["policy_version"], "policy_version"),
-        )
-        if len({profile.identity_fingerprint, profile.policy_fingerprint, profile.audit_fingerprint}) != 3:
-            raise LabRejected("operator key fingerprints must be unique by purpose")
-        return profile
+        return cls(**data)
 
     @property
     def key_fingerprints(self) -> tuple[str, str, str]:
@@ -164,6 +167,7 @@ class AdmissionContext:
     source_policy_digest: str
     destination_policy_digest: str
     source_gateway_digest: str
+    destination_gateway_digest: str
     source_continuity_digest: str
     destination_continuity_digest: str
     source_policy_version: int
@@ -189,6 +193,7 @@ class AdmissionContext:
             "source_policy_digest",
             "destination_policy_digest",
             "source_gateway_digest",
+            "destination_gateway_digest",
             "source_continuity_digest",
             "destination_continuity_digest",
         ):
@@ -211,6 +216,8 @@ class AdmissionContext:
             raise LabRejected("destination policy digest or policy version is stale")
         if self.source_gateway_digest != source.gateway_profile_digest:
             raise LabRejected("source gateway digest does not match its profile")
+        if self.destination_gateway_digest != destination.gateway_profile_digest:
+            raise LabRejected("destination gateway digest does not match its profile")
         if self.source_continuity_digest != source.continuity_digest or self.destination_continuity_digest != destination.continuity_digest:
             raise LabRejected("continuity digest does not match its profile")
         expected = (
