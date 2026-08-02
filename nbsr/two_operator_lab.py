@@ -396,3 +396,203 @@ class TwoOperatorLab:
             route_grant_digest=request.route_grant_digest,
             admitted_at_ms=now_ms,
         )
+
+
+def _positive_uint64(value: object, label: str) -> int:
+    if type(value) is not int or not 1 <= value <= MAX_UINT64:
+        raise LabRejected(f"{label} must be a positive uint64", code=f"{label}-invalid")
+    return value
+
+
+@dataclass(frozen=True, slots=True)
+class LimitProfile:
+    """Closed, positive limits for the storage-neutral two-operator lab."""
+
+    client_capacity: int
+    name_capacity: int
+    route_capacity: int
+    service_capacity: int
+    channel_capacity: int
+    tunnel_capacity: int
+    operator_capacity: int
+    refill_per_ms: int
+    max_buckets: int
+    max_active_allocations: int
+
+    def __post_init__(self) -> None:
+        for field in (
+            "client_capacity",
+            "name_capacity",
+            "route_capacity",
+            "service_capacity",
+            "channel_capacity",
+            "tunnel_capacity",
+            "operator_capacity",
+            "refill_per_ms",
+            "max_buckets",
+            "max_active_allocations",
+        ):
+            object.__setattr__(self, field, _positive_uint64(getattr(self, field), field))
+
+    def capacity_for(self, scope: str) -> int:
+        if scope not in {"client", "name", "route", "service", "channel", "tunnel", "operator"}:
+            raise LabRejected("limit scope is invalid", code="limit-scope-invalid")
+        return getattr(self, f"{scope}_capacity")
+
+
+class TokenBucket:
+    """A caller-clocked, saturating uint64 token bucket with no fractions."""
+
+    __slots__ = ("capacity", "refill_per_ms", "_last_ms", "_tokens")
+
+    def __init__(self, *, capacity: int, refill_per_ms: int, now_ms: int) -> None:
+        self.capacity = _positive_uint64(capacity, "token-bucket-capacity")
+        self.refill_per_ms = _positive_uint64(refill_per_ms, "token-bucket-refill")
+        if type(now_ms) is not int or not 0 <= now_ms <= MAX_UINT64:
+            raise LabRejected("token bucket clock is not uint64", code="token-bucket-clock-invalid")
+        self._last_ms = now_ms
+        self._tokens = self.capacity
+
+    @property
+    def tokens(self) -> int:
+        return self._tokens
+
+    @property
+    def last_ms(self) -> int:
+        return self._last_ms
+
+    def _project(self, amount: int, now_ms: int) -> tuple[int, int]:
+        amount = _positive_uint64(amount, "token-bucket-amount")
+        if type(now_ms) is not int or not 0 <= now_ms <= MAX_UINT64:
+            raise LabRejected("token bucket clock is not uint64", code="token-bucket-clock-invalid")
+        if now_ms < self._last_ms:
+            raise LabRejected("token bucket clock rolled back", code="token-bucket-clock-rollback")
+        elapsed = now_ms - self._last_ms
+        missing = self.capacity - self._tokens
+        if missing == 0 or elapsed == 0:
+            available = self._tokens
+        else:
+            refill_needed_ms = (missing + self.refill_per_ms - 1) // self.refill_per_ms
+            if elapsed >= refill_needed_ms:
+                available = self.capacity
+            else:
+                available = self._tokens + elapsed * self.refill_per_ms
+        if amount > available:
+            raise LabRejected("token bucket limit exceeded", code="token-bucket-limit")
+        return available - amount, now_ms
+
+    def consume(self, *, amount: int, now_ms: int) -> None:
+        """Consume only after a uint64 monotonic-time projection can admit it."""
+        tokens, last_ms = self._project(amount, now_ms)
+        self._tokens = tokens
+        self._last_ms = last_ms
+
+
+class ResourceLimiter:
+    """Atomically apply all owned limit scopes and bounded fair allocations."""
+
+    __slots__ = ("profile", "_buckets", "_active_allocations")
+
+    def __init__(self, profile: LimitProfile) -> None:
+        if type(profile) is not LimitProfile:
+            raise LabRejected("limit profile is invalid", code="limit-profile-invalid")
+        self.profile = profile
+        self._buckets: dict[tuple[str, tuple[str, ...]], TokenBucket] = {}
+        self._active_allocations: frozenset[tuple[str, ...]] = frozenset()
+
+    @property
+    def active_allocation_count(self) -> int:
+        return len(self._active_allocations)
+
+    def _scope_keys(self, request: AdmissionContext) -> tuple[tuple[str, tuple[str, ...]], ...]:
+        if type(request) is not AdmissionContext:
+            raise LabRejected("limit context is invalid", code="limit-context-invalid")
+        source_owner = (request.source_operator, request.tenant_id)
+        destination_owner = (request.destination_operator, request.tenant_id)
+        return (
+            ("client", (*source_owner, request.subscriber_pseudonym)),
+            ("name", (*source_owner, request.name_id)),
+            ("route", (*destination_owner, request.route_id)),
+            ("service", (*destination_owner, request.service_id)),
+            ("channel", (*destination_owner, request.channel_id)),
+            ("tunnel", (*destination_owner, request.tunnel_id)),
+            ("operator", (request.source_operator,)),
+            ("operator", (request.destination_operator,)),
+        )
+
+    def consume(self, request: AdmissionContext, *, amount: int, now_ms: int) -> None:
+        """Preflight every scope, then mutate every bucket together or none."""
+        amount = _positive_uint64(amount, "limit-amount")
+        keys = self._scope_keys(request)
+        new_keys = tuple(key for key in keys if key not in self._buckets)
+        if len(self._buckets) + len(new_keys) > self.profile.max_buckets:
+            raise LabRejected("limit bucket capacity exhausted", code="limit-bucket-capacity")
+
+        plans: list[tuple[tuple[str, tuple[str, ...]], int, int]] = []
+        for scope, key in keys:
+            bucket_key = (scope, key)
+            bucket = self._buckets.get(bucket_key)
+            if bucket is None:
+                bucket = TokenBucket(capacity=self.profile.capacity_for(scope), refill_per_ms=self.profile.refill_per_ms, now_ms=now_ms)
+            try:
+                tokens, last_ms = bucket._project(amount, now_ms)
+            except LabRejected as rejected:
+                if rejected.code == "token-bucket-limit":
+                    raise LabRejected(f"{scope} limit exceeded", code=f"{scope}-limit") from None
+                raise
+            plans.append((bucket_key, tokens, last_ms))
+
+        for bucket_key, tokens, last_ms in plans:
+            bucket = self._buckets.get(bucket_key)
+            if bucket is None:
+                scope, _ = bucket_key
+                bucket = TokenBucket(capacity=self.profile.capacity_for(scope), refill_per_ms=self.profile.refill_per_ms, now_ms=now_ms)
+                self._buckets[bucket_key] = bucket
+            bucket._tokens = tokens
+            bucket._last_ms = last_ms
+
+    @staticmethod
+    def _allocation_key(request: AdmissionContext) -> tuple[str, ...]:
+        return (
+            request.source_operator,
+            request.destination_operator,
+            request.tenant_id,
+            request.subscriber_pseudonym,
+            request.name_id,
+            request.service_id,
+            request.route_id,
+            request.channel_id,
+            request.tunnel_id,
+        )
+
+    def allocate(self, request: AdmissionContext) -> None:
+        """Reserve one exact bounded resource allocation under source fair share."""
+        self._scope_keys(request)
+        allocation = self._allocation_key(request)
+        if allocation in self._active_allocations:
+            return
+        if len(self._active_allocations) >= self.profile.max_active_allocations:
+            raise LabRejected("allocation capacity exhausted", code="allocation-capacity")
+        subscriber_owner = (request.source_operator, request.tenant_id, request.subscriber_pseudonym)
+        active_subscribers = {
+            (entry[0], entry[2], entry[3])
+            for entry in self._active_allocations
+        }
+        active_subscribers.add(subscriber_owner)
+        fair_share = max(1, self.profile.operator_capacity // len(active_subscribers))
+        fair_share = min(fair_share, self.profile.client_capacity)
+        subscriber_allocations = sum(
+            (entry[0], entry[2], entry[3]) == subscriber_owner
+            for entry in self._active_allocations
+        )
+        if subscriber_allocations >= fair_share:
+            raise LabRejected("subscriber fair share exhausted", code="subscriber-fair-share")
+        self._active_allocations = self._active_allocations | frozenset((allocation,))
+
+    def release(self, request: AdmissionContext) -> None:
+        """Release exactly one owned allocation; unknown releases fail closed."""
+        self._scope_keys(request)
+        allocation = self._allocation_key(request)
+        if allocation not in self._active_allocations:
+            raise LabRejected("allocation is not active", code="allocation-not-active")
+        self._active_allocations = self._active_allocations - frozenset((allocation,))
