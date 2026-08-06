@@ -6,240 +6,2670 @@
   "allocation_policy": "All listed values are normative Development Profile proposals. They become approved Development Profile allocations only after human approval; none is a permanent Federation wire allocation until schemas and vectors are reviewed.",
   "registries": {
     "extension_ids": [
-      {"name": "FEDERATION", "value": 1, "status": "proposed-development-profile"}
+      {
+        "name": "FEDERATION",
+        "value": 1,
+        "status": "proposed-development-profile"
+      }
     ],
     "capability_ids": [
-      {"name": "FEDERATION_OBJECTS", "value": 1, "status": "proposed-development-profile"},
-      {"name": "FEDERATION_AUTHORIZATION", "value": 2, "status": "proposed-development-profile"},
-      {"name": "TRANSPARENCY_PROOFS", "value": 3, "status": "proposed-development-profile"},
-      {"name": "STATIC_TRUST_COMPATIBILITY", "value": 4, "status": "proposed-development-profile"},
-      {"name": "FEDERATION_CONTEXT_BINDING", "value": 5, "status": "proposed-development-profile"}
+      {
+        "name": "FEDERATION_OBJECTS",
+        "value": 1,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "FEDERATION_AUTHORIZATION",
+        "value": 2,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "TRANSPARENCY_PROOFS",
+        "value": 3,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "STATIC_TRUST_COMPATIBILITY",
+        "value": 4,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "FEDERATION_CONTEXT_BINDING",
+        "value": 5,
+        "status": "proposed-development-profile"
+      }
     ],
     "object_types": [
-      {"name": "OperatorRegistryRecord", "value": 1, "status": "proposed-development-profile"},
-      {"name": "KeyAuthorizationRecord", "value": 2, "status": "proposed-development-profile"},
-      {"name": "NameOwnershipRecord", "value": 3, "status": "proposed-development-profile"},
-      {"name": "DelegationRecord", "value": 4, "status": "proposed-development-profile"},
-      {"name": "FederationTrustBundle", "value": 5, "status": "proposed-development-profile"},
-      {"name": "TransparencyCheckpoint", "value": 6, "status": "proposed-development-profile"},
-      {"name": "InclusionProof", "value": 7, "status": "proposed-development-profile"},
-      {"name": "ConsistencyProof", "value": 8, "status": "proposed-development-profile"},
-      {"name": "WitnessStatement", "value": 9, "status": "proposed-development-profile"},
-      {"name": "OperatorEndpointRecord", "value": 10, "status": "proposed-development-profile"},
-      {"name": "FederationAuthorityProof", "value": 11, "status": "proposed-development-profile"},
-      {"name": "FederationAuthorizationContext", "value": 12, "status": "proposed-development-profile"},
-      {"name": "TypedRevocationRecord", "value": 13, "status": "proposed-development-profile"},
-      {"name": "ConflictEvidence", "value": 14, "status": "proposed-development-profile"},
-      {"name": "OperatorLifecycleRecord", "value": 15, "status": "proposed-development-profile"},
-      {"name": "RecoveryTransitionRecord", "value": 16, "status": "proposed-development-profile"},
-      {"name": "ConflictResolutionRecord", "value": 17, "status": "proposed-development-profile"},
-      {"name": "AppealDecisionRecord", "value": 18, "status": "proposed-development-profile"}
+      {
+        "name": "OperatorRegistryRecord",
+        "value": 1,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "KeyAuthorizationRecord",
+        "value": 2,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "NameOwnershipRecord",
+        "value": 3,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "DelegationRecord",
+        "value": 4,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "FederationTrustBundle",
+        "value": 5,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "TransparencyCheckpoint",
+        "value": 6,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "InclusionProof",
+        "value": 7,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "ConsistencyProof",
+        "value": 8,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "WitnessStatement",
+        "value": 9,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "OperatorEndpointRecord",
+        "value": 10,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "FederationAuthorityProof",
+        "value": 11,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "FederationAuthorizationContext",
+        "value": 12,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "TypedRevocationRecord",
+        "value": 13,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "ConflictEvidence",
+        "value": 14,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "OperatorLifecycleRecord",
+        "value": 15,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "RecoveryTransitionRecord",
+        "value": 16,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "ConflictResolutionRecord",
+        "value": 17,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "AppealDecisionRecord",
+        "value": 18,
+        "status": "proposed-development-profile"
+      }
     ],
     "message_types": [
-      {"name": "OPERATOR_RECORD_SUBMIT", "value": 16384, "status": "proposed-development-profile"},
-      {"name": "OPERATOR_RECORD_RESULT", "value": 16385, "status": "proposed-development-profile"},
-      {"name": "KEY_AUTHORIZATION_SUBMIT", "value": 16386, "status": "proposed-development-profile"},
-      {"name": "KEY_AUTHORIZATION_RESULT", "value": 16387, "status": "proposed-development-profile"},
-      {"name": "NAME_OWNERSHIP_SUBMIT", "value": 16388, "status": "proposed-development-profile"},
-      {"name": "NAME_OWNERSHIP_RESULT", "value": 16389, "status": "proposed-development-profile"},
-      {"name": "DELEGATION_SUBMIT", "value": 16390, "status": "proposed-development-profile"},
-      {"name": "DELEGATION_RESULT", "value": 16391, "status": "proposed-development-profile"},
-      {"name": "TRUST_BUNDLE_REQUEST", "value": 16392, "status": "proposed-development-profile"},
-      {"name": "TRUST_BUNDLE_RESULT", "value": 16393, "status": "proposed-development-profile"},
-      {"name": "CHECKPOINT_REQUEST", "value": 16394, "status": "proposed-development-profile"},
-      {"name": "CHECKPOINT_RESULT", "value": 16395, "status": "proposed-development-profile"},
-      {"name": "INCLUSION_PROOF_REQUEST", "value": 16396, "status": "proposed-development-profile"},
-      {"name": "INCLUSION_PROOF_RESULT", "value": 16397, "status": "proposed-development-profile"},
-      {"name": "CONSISTENCY_PROOF_REQUEST", "value": 16398, "status": "proposed-development-profile"},
-      {"name": "CONSISTENCY_PROOF_RESULT", "value": 16399, "status": "proposed-development-profile"},
-      {"name": "WITNESS_STATEMENT_SUBMIT", "value": 16400, "status": "proposed-development-profile"},
-      {"name": "WITNESS_STATEMENT_RESULT", "value": 16401, "status": "proposed-development-profile"},
-      {"name": "ENDPOINT_REQUEST", "value": 16402, "status": "proposed-development-profile"},
-      {"name": "ENDPOINT_RESULT", "value": 16403, "status": "proposed-development-profile"},
-      {"name": "AUTHORITY_PROOF_SUBMIT", "value": 16404, "status": "proposed-development-profile"},
-      {"name": "AUTHORITY_PROOF_RESULT", "value": 16405, "status": "proposed-development-profile"},
-      {"name": "AUTHORIZATION_REQUEST", "value": 16406, "status": "proposed-development-profile"},
-      {"name": "AUTHORIZATION_RESULT", "value": 16407, "status": "proposed-development-profile"},
-      {"name": "REVOCATION_SUBMIT", "value": 16408, "status": "proposed-development-profile"},
-      {"name": "REVOCATION_RESULT", "value": 16409, "status": "proposed-development-profile"},
-      {"name": "LIFECYCLE_SUBMIT", "value": 16410, "status": "proposed-development-profile"},
-      {"name": "LIFECYCLE_RESULT", "value": 16411, "status": "proposed-development-profile"},
-      {"name": "RECOVERY_SUBMIT", "value": 16412, "status": "proposed-development-profile"},
-      {"name": "RECOVERY_RESULT", "value": 16413, "status": "proposed-development-profile"},
-      {"name": "CONFLICT_SUBMIT", "value": 16414, "status": "proposed-development-profile"},
-      {"name": "CONFLICT_RESULT", "value": 16415, "status": "proposed-development-profile"},
-      {"name": "APPEAL_SUBMIT", "value": 16416, "status": "proposed-development-profile"},
-      {"name": "APPEAL_RESULT", "value": 16417, "status": "proposed-development-profile"}
+      {
+        "name": "FED_CAPABILITIES",
+        "value": 16384,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "FED_CAPABILITIES_ACK",
+        "value": 16385,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "OPERATOR_RECORD_QUERY",
+        "value": 16386,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "OPERATOR_RECORD_RESPONSE",
+        "value": 16387,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "ENDPOINT_RECORD_QUERY",
+        "value": 16388,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "ENDPOINT_RECORD_RESPONSE",
+        "value": 16389,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "OWNERSHIP_AUTHORITY_QUERY",
+        "value": 16390,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "OWNERSHIP_AUTHORITY_RESPONSE",
+        "value": 16391,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "AUTHORITY_PROOF_QUERY",
+        "value": 16392,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "AUTHORITY_PROOF_RESPONSE",
+        "value": 16393,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "TRUST_BUNDLE_REQUEST",
+        "value": 16394,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "TRUST_BUNDLE_RESPONSE",
+        "value": 16395,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "TRUST_BUNDLE_UPDATE",
+        "value": 16396,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "TRUST_BUNDLE_ACK",
+        "value": 16397,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "CHECKPOINT_QUERY",
+        "value": 16398,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "CHECKPOINT_RESPONSE",
+        "value": 16399,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "INCLUSION_PROOF_REQUEST",
+        "value": 16400,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "INCLUSION_PROOF_RESPONSE",
+        "value": 16401,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "CONSISTENCY_PROOF_REQUEST",
+        "value": 16402,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "CONSISTENCY_PROOF_RESPONSE",
+        "value": 16403,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "WITNESS_STATEMENT",
+        "value": 16404,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "AUTHORIZATION_REQUEST",
+        "value": 16405,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "AUTHORIZATION_RESPONSE",
+        "value": 16406,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "REVOCATION_PUSH",
+        "value": 16407,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "REVOCATION_ACK",
+        "value": 16408,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "REVOCATION_QUERY",
+        "value": 16409,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "REVOCATION_RESPONSE",
+        "value": 16410,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "CONFLICT_REPORT",
+        "value": 16411,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "CONFLICT_ACK",
+        "value": 16412,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "OPERATOR_STATUS_QUERY",
+        "value": 16413,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "OPERATOR_STATUS_RESPONSE",
+        "value": 16414,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "QUARANTINE_NOTICE",
+        "value": 16415,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "RECOVERY_NOTICE",
+        "value": 16416,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "REENTRY_EVIDENCE",
+        "value": 16417,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "OPERATOR_REGISTRATION_REQUEST",
+        "value": 16418,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "OPERATOR_REGISTRATION_RESPONSE",
+        "value": 16419,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "OPERATOR_RECORD_UPDATE",
+        "value": 16420,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "OPERATOR_RECORD_UPDATE_ACK",
+        "value": 16421,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "KEY_AUTHORIZATION_PUBLISH",
+        "value": 16422,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "KEY_AUTHORIZATION_ACK",
+        "value": 16423,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "KEY_AUTHORIZATION_UPDATE",
+        "value": 16424,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "KEY_AUTHORIZATION_UPDATE_ACK",
+        "value": 16425,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "NAME_OWNERSHIP_PUBLISH",
+        "value": 16426,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "NAME_OWNERSHIP_ACK",
+        "value": 16427,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "NAME_OWNERSHIP_UPDATE",
+        "value": 16428,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "NAME_OWNERSHIP_UPDATE_ACK",
+        "value": 16429,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "DELEGATION_PUBLISH",
+        "value": 16430,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "DELEGATION_ACK",
+        "value": 16431,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "DELEGATION_UPDATE",
+        "value": 16432,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "DELEGATION_UPDATE_ACK",
+        "value": 16433,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "ENDPOINT_RECORD_PUBLISH",
+        "value": 16434,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "ENDPOINT_RECORD_ACK",
+        "value": 16435,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "ENDPOINT_RECORD_UPDATE",
+        "value": 16436,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "ENDPOINT_RECORD_UPDATE_ACK",
+        "value": 16437,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "CONFLICT_RESOLUTION_PUBLISH",
+        "value": 16438,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "CONFLICT_RESOLUTION_ACK",
+        "value": 16439,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "APPEAL_REQUEST",
+        "value": 16440,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "APPEAL_RESPONSE",
+        "value": 16441,
+        "status": "proposed-development-profile"
+      }
     ],
     "reason_codes": [
-      {"name": "NONE", "value": 0, "status": "proposed-development-profile"},
-      {"name": "ERR_RESOURCE_LIMIT", "value": 1, "status": "proposed-development-profile"},
-      {"name": "ERR_PARSE", "value": 2, "status": "proposed-development-profile"},
-      {"name": "ERR_NON_CANONICAL", "value": 3, "status": "proposed-development-profile"},
-      {"name": "ERR_UNSUPPORTED_CRITICAL", "value": 4, "status": "proposed-development-profile"},
-      {"name": "ERR_CRYPTO_PROFILE", "value": 5, "status": "proposed-development-profile"},
-      {"name": "ERR_SIGNATURE_INVALID", "value": 6, "status": "proposed-development-profile"},
-      {"name": "ERR_IDENTITY", "value": 7, "status": "proposed-development-profile"},
-      {"name": "ERR_KEY_PURPOSE", "value": 8, "status": "proposed-development-profile"},
-      {"name": "ERR_KEY_LIFECYCLE", "value": 9, "status": "proposed-development-profile"},
-      {"name": "ERR_SCHEMA", "value": 10, "status": "proposed-development-profile"},
-      {"name": "ERR_VERSION", "value": 11, "status": "proposed-development-profile"},
-      {"name": "ERR_AUTHORITY", "value": 12, "status": "proposed-development-profile"},
-      {"name": "ERR_SCOPE", "value": 13, "status": "proposed-development-profile"},
-      {"name": "ERR_POLICY_EXPANSION", "value": 14, "status": "proposed-development-profile"},
-      {"name": "ERR_ROLLBACK", "value": 15, "status": "proposed-development-profile"},
-      {"name": "ERR_REPLAY", "value": 16, "status": "proposed-development-profile"},
-      {"name": "ERR_EQUIVOCATION", "value": 17, "status": "proposed-development-profile"},
-      {"name": "ERR_CONTINUITY", "value": 18, "status": "proposed-development-profile"},
-      {"name": "ERR_REVOKED", "value": 19, "status": "proposed-development-profile"},
-      {"name": "ERR_TERMINAL_STATE", "value": 20, "status": "proposed-development-profile"},
-      {"name": "ERR_TRANSPARENCY", "value": 21, "status": "proposed-development-profile"},
-      {"name": "ERR_CHECKPOINT", "value": 22, "status": "proposed-development-profile"},
-      {"name": "ERR_SPLIT_VIEW", "value": 23, "status": "proposed-development-profile"},
-      {"name": "ERR_WITNESS_THRESHOLD", "value": 24, "status": "proposed-development-profile"},
-      {"name": "ERR_FRESHNESS", "value": 25, "status": "proposed-development-profile"},
-      {"name": "ERR_EVIDENCE_MISSING", "value": 26, "status": "proposed-development-profile"},
-      {"name": "ERR_OUTAGE_POLICY", "value": 27, "status": "proposed-development-profile"},
-      {"name": "ERR_DOWNGRADE", "value": 28, "status": "proposed-development-profile"},
-      {"name": "ERR_LOCAL_POLICY", "value": 29, "status": "proposed-development-profile"},
-      {"name": "ERR_RECOVERY_INVALID", "value": 30, "status": "proposed-development-profile"},
-      {"name": "ERR_INTERNAL", "value": 31, "status": "proposed-development-profile"}
+      {
+        "name": "NONE",
+        "value": 0,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "ERR_RESOURCE_LIMIT",
+        "value": 1,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "ERR_PARSE",
+        "value": 2,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "ERR_NON_CANONICAL",
+        "value": 3,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "ERR_UNSUPPORTED_CRITICAL",
+        "value": 4,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "ERR_CRYPTO_PROFILE",
+        "value": 5,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "ERR_SIGNATURE_INVALID",
+        "value": 6,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "ERR_IDENTITY",
+        "value": 7,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "ERR_KEY_PURPOSE",
+        "value": 8,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "ERR_KEY_LIFECYCLE",
+        "value": 9,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "ERR_SCHEMA",
+        "value": 10,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "ERR_VERSION",
+        "value": 11,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "ERR_AUTHORITY",
+        "value": 12,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "ERR_SCOPE",
+        "value": 13,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "ERR_POLICY_EXPANSION",
+        "value": 14,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "ERR_ROLLBACK",
+        "value": 15,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "ERR_REPLAY",
+        "value": 16,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "ERR_EQUIVOCATION",
+        "value": 17,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "ERR_CONTINUITY",
+        "value": 18,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "ERR_REVOKED",
+        "value": 19,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "ERR_TERMINAL_STATE",
+        "value": 20,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "ERR_TRANSPARENCY",
+        "value": 21,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "ERR_CHECKPOINT",
+        "value": 22,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "ERR_SPLIT_VIEW",
+        "value": 23,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "ERR_WITNESS_THRESHOLD",
+        "value": 24,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "ERR_FRESHNESS",
+        "value": 25,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "ERR_EVIDENCE_MISSING",
+        "value": 26,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "ERR_OUTAGE_POLICY",
+        "value": 27,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "ERR_DOWNGRADE",
+        "value": 28,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "ERR_LOCAL_POLICY",
+        "value": 29,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "ERR_RECOVERY_INVALID",
+        "value": 30,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "ERR_INTERNAL",
+        "value": 31,
+        "status": "proposed-development-profile"
+      }
     ],
     "key_purposes": [
-      {"name": "IDENTITY_ROOT", "value": 1, "status": "proposed-development-profile"},
-      {"name": "RECOVERY", "value": 2, "status": "proposed-development-profile"},
-      {"name": "REGISTRY_SIGNING", "value": 3, "status": "proposed-development-profile"},
-      {"name": "KEY_AUTHORIZATION", "value": 4, "status": "proposed-development-profile"},
-      {"name": "NAME_OWNERSHIP", "value": 5, "status": "proposed-development-profile"},
-      {"name": "DELEGATION", "value": 6, "status": "proposed-development-profile"},
-      {"name": "TRUST_BUNDLE", "value": 7, "status": "proposed-development-profile"},
-      {"name": "TRANSPARENCY_LOG", "value": 8, "status": "proposed-development-profile"},
-      {"name": "WITNESS", "value": 9, "status": "proposed-development-profile"},
-      {"name": "ENDPOINT_DISCOVERY", "value": 10, "status": "proposed-development-profile"},
-      {"name": "FEDERATION_AUTHORIZATION", "value": 11, "status": "proposed-development-profile"},
-      {"name": "REVOCATION", "value": 12, "status": "proposed-development-profile"},
-      {"name": "GOVERNANCE", "value": 13, "status": "proposed-development-profile"},
-      {"name": "FEDERATION_TRANSPORT", "value": 14, "status": "proposed-development-profile"}
+      {
+        "name": "IDENTITY_ROOT",
+        "value": 1,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "RECOVERY",
+        "value": 2,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "REGISTRY_SIGNING",
+        "value": 3,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "KEY_AUTHORIZATION",
+        "value": 4,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "NAME_OWNERSHIP",
+        "value": 5,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "DELEGATION",
+        "value": 6,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "TRUST_BUNDLE",
+        "value": 7,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "TRANSPARENCY_LOG",
+        "value": 8,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "WITNESS",
+        "value": 9,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "ENDPOINT_DISCOVERY",
+        "value": 10,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "FEDERATION_AUTHORIZATION",
+        "value": 11,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "REVOCATION",
+        "value": 12,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "GOVERNANCE",
+        "value": 13,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "FEDERATION_TRANSPORT",
+        "value": 14,
+        "status": "proposed-development-profile"
+      }
     ],
     "key_lifecycles": [
-      {"name": "NEXT", "value": 1, "status": "proposed-development-profile"},
-      {"name": "ACTIVE", "value": 2, "status": "proposed-development-profile"},
-      {"name": "RETIRING", "value": 3, "status": "proposed-development-profile"},
-      {"name": "RETIRED", "value": 4, "status": "proposed-development-profile"},
-      {"name": "REVOKED", "value": 5, "status": "proposed-development-profile"}
+      {
+        "name": "NEXT",
+        "value": 1,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "ACTIVE",
+        "value": 2,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "RETIRING",
+        "value": 3,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "RETIRED",
+        "value": 4,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "REVOKED",
+        "value": 5,
+        "status": "proposed-development-profile"
+      }
     ],
     "operator_lifecycles": [
-      {"name": "APPLIED", "value": 1, "status": "proposed-development-profile"},
-      {"name": "VERIFIED", "value": 2, "status": "proposed-development-profile"},
-      {"name": "ACTIVE", "value": 3, "status": "proposed-development-profile"},
-      {"name": "RESTRICTED", "value": 4, "status": "proposed-development-profile"},
-      {"name": "QUARANTINED", "value": 5, "status": "proposed-development-profile"},
-      {"name": "SUSPENDED", "value": 6, "status": "proposed-development-profile"},
-      {"name": "RECOVERY_PENDING", "value": 7, "status": "proposed-development-profile"},
-      {"name": "REENTRY_PENDING", "value": 8, "status": "proposed-development-profile"},
-      {"name": "RETIRED", "value": 9, "status": "proposed-development-profile"},
-      {"name": "TERMINALLY_REVOKED", "value": 10, "status": "proposed-development-profile"}
+      {
+        "name": "APPLIED",
+        "value": 1,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "VERIFICATION_PENDING",
+        "value": 2,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "VERIFIED",
+        "value": 3,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "PROVISIONAL",
+        "value": 4,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "ACTIVE",
+        "value": 5,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "SUSPENDED",
+        "value": 6,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "QUARANTINED",
+        "value": 7,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "RECOVERY",
+        "value": 8,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "RETIRED",
+        "value": 9,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "TERMINALLY_REVOKED",
+        "value": 10,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "REJECTED",
+        "value": 11,
+        "status": "proposed-development-profile"
+      }
     ],
     "recovery_stages": [
-      {"name": "REQUESTED", "value": 1, "status": "proposed-development-profile"},
-      {"name": "EVIDENCE_VERIFIED", "value": 2, "status": "proposed-development-profile"},
-      {"name": "APPROVED", "value": 3, "status": "proposed-development-profile"},
-      {"name": "ACTIVATED", "value": 4, "status": "proposed-development-profile"},
-      {"name": "REENTRY_MONITORING", "value": 5, "status": "proposed-development-profile"},
-      {"name": "COMPLETE", "value": 6, "status": "proposed-development-profile"},
-      {"name": "REJECTED", "value": 7, "status": "proposed-development-profile"}
+      {
+        "name": "RECOVERY_PENDING",
+        "value": 1,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "RECOVERY_VERIFIED",
+        "value": 2,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "REENTRY_RESTRICTED",
+        "value": 3,
+        "status": "proposed-development-profile"
+      }
     ],
     "result_types": [
-      {"name": "VALIDATION", "value": 1, "status": "proposed-development-profile"},
-      {"name": "PUBLICATION", "value": 2, "status": "proposed-development-profile"},
-      {"name": "QUERY", "value": 3, "status": "proposed-development-profile"},
-      {"name": "AUTHORIZATION", "value": 4, "status": "proposed-development-profile"},
-      {"name": "LIFECYCLE", "value": 5, "status": "proposed-development-profile"},
-      {"name": "RECOVERY", "value": 6, "status": "proposed-development-profile"},
-      {"name": "CONFLICT", "value": 7, "status": "proposed-development-profile"},
-      {"name": "APPEAL", "value": 8, "status": "proposed-development-profile"}
+      {
+        "name": "VALIDATION",
+        "value": 1,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "PUBLICATION",
+        "value": 2,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "QUERY",
+        "value": 3,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "AUTHORIZATION",
+        "value": 4,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "LIFECYCLE",
+        "value": 5,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "RECOVERY",
+        "value": 6,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "CONFLICT",
+        "value": 7,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "APPEAL",
+        "value": 8,
+        "status": "proposed-development-profile"
+      }
     ],
     "decision_outcomes": [
-      {"name": "ACCEPT", "value": 1, "status": "proposed-development-profile"},
-      {"name": "REJECT", "value": 2, "status": "proposed-development-profile"},
-      {"name": "PENDING", "value": 3, "status": "proposed-development-profile"},
-      {"name": "RESTRICTED", "value": 4, "status": "proposed-development-profile"},
-      {"name": "QUARANTINE", "value": 5, "status": "proposed-development-profile"}
+      {
+        "name": "ACCEPT",
+        "value": 1,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "REJECT",
+        "value": 2,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "PENDING",
+        "value": 3,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "RESTRICTED",
+        "value": 4,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "QUARANTINE",
+        "value": 5,
+        "status": "proposed-development-profile"
+      }
     ],
     "enforcement_modes": [
-      {"name": "NONE", "value": 0, "status": "proposed-development-profile"},
-      {"name": "DENY_NEW_USE", "value": 1, "status": "proposed-development-profile"},
-      {"name": "REAUTHENTICATE", "value": 2, "status": "proposed-development-profile"},
-      {"name": "DRAIN", "value": 3, "status": "proposed-development-profile"},
-      {"name": "TERMINATE_ACTIVE_USE", "value": 4, "status": "proposed-development-profile"}
+      {
+        "name": "NONE",
+        "value": 0,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "DENY_NEW_USE",
+        "value": 1,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "REAUTHENTICATE",
+        "value": 2,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "DRAIN",
+        "value": 3,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "TERMINATE_ACTIVE_USE",
+        "value": 4,
+        "status": "proposed-development-profile"
+      }
     ],
     "authority_classes": [
-      {"name": "OPERATOR_IDENTITY_ROOT", "value": 1, "status": "proposed-development-profile"},
-      {"name": "OPERATOR_RECOVERY", "value": 2, "status": "proposed-development-profile"},
-      {"name": "DEVELOPMENT_REGISTRAR", "value": 3, "status": "proposed-development-profile"},
-      {"name": "FEDERATION_AUTHORITY", "value": 4, "status": "proposed-development-profile"},
-      {"name": "TRANSPARENCY_LOG", "value": 5, "status": "proposed-development-profile"},
-      {"name": "WITNESS", "value": 6, "status": "proposed-development-profile"},
-      {"name": "NAME_OWNER", "value": 7, "status": "proposed-development-profile"},
-      {"name": "DELEGATE", "value": 8, "status": "proposed-development-profile"},
-      {"name": "SOURCE_OPERATOR", "value": 9, "status": "proposed-development-profile"},
-      {"name": "DESTINATION_OPERATOR", "value": 10, "status": "proposed-development-profile"},
-      {"name": "CONFLICT_RESOLUTION", "value": 11, "status": "proposed-development-profile"},
-      {"name": "APPEAL", "value": 12, "status": "proposed-development-profile"},
-      {"name": "OPERATOR_ENDPOINT", "value": 13, "status": "proposed-development-profile"},
-      {"name": "TARGET_CONTROLLER", "value": 14, "status": "proposed-development-profile"}
+      {
+        "name": "OPERATOR_IDENTITY_ROOT",
+        "value": 1,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "OPERATOR_RECOVERY",
+        "value": 2,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "DEVELOPMENT_REGISTRAR",
+        "value": 3,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "FEDERATION_AUTHORITY",
+        "value": 4,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "TRANSPARENCY_LOG",
+        "value": 5,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "WITNESS",
+        "value": 6,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "NAME_OWNER",
+        "value": 7,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "DELEGATE",
+        "value": 8,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "SOURCE_OPERATOR",
+        "value": 9,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "DESTINATION_OPERATOR",
+        "value": 10,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "CONFLICT_RESOLUTION",
+        "value": 11,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "APPEAL",
+        "value": 12,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "OPERATOR_ENDPOINT",
+        "value": 13,
+        "status": "proposed-development-profile"
+      },
+      {
+        "name": "TARGET_CONTROLLER",
+        "value": 14,
+        "status": "proposed-development-profile"
+      }
     ]
   },
   "reserved_ranges": {
-    "extension_ids": [[2, 255]], "capability_ids": [[6, 255]],
-    "object_types": [[19, 255]], "message_types": [[16418, 16639]],
-    "reason_codes": [[32, 255]], "key_purposes": [[15, 255]],
-    "key_lifecycles": [[6, 255]], "operator_lifecycles": [[11, 255]],
-    "recovery_stages": [[8, 255]], "result_types": [[9, 255]], "decision_outcomes": [[6, 255]],
-    "enforcement_modes": [[5, 255]], "authority_classes": [[15, 255]]
+    "extension_ids": [
+      [
+        2,
+        255
+      ]
+    ],
+    "capability_ids": [
+      [
+        6,
+        255
+      ]
+    ],
+    "object_types": [
+      [
+        19,
+        255
+      ]
+    ],
+    "message_types": [
+      [
+        16442,
+        16639
+      ]
+    ],
+    "reason_codes": [
+      [
+        32,
+        255
+      ]
+    ],
+    "key_purposes": [
+      [
+        15,
+        255
+      ]
+    ],
+    "key_lifecycles": [
+      [
+        6,
+        255
+      ]
+    ],
+    "operator_lifecycles": [
+      [
+        12,
+        255
+      ]
+    ],
+    "recovery_stages": [
+      [
+        4,
+        255
+      ]
+    ],
+    "result_types": [
+      [
+        9,
+        255
+      ]
+    ],
+    "decision_outcomes": [
+      [
+        6,
+        255
+      ]
+    ],
+    "enforcement_modes": [
+      [
+        5,
+        255
+      ]
+    ],
+    "authority_classes": [
+      [
+        15,
+        255
+      ]
+    ]
   },
   "core_collision_proof": {
     "namespace_rule": "Federation registries are carried only inside extension ID 1 and never interpreted as Core message, object, or error values.",
     "rule": "extension-local-values-are-never-core-values",
     "core_registries": {
-      "protocol_versions": {"CORE_0_1": 1, "CORE_0_2": 2},
-      "message_types": {"minimum": 1, "maximum": 17},
-      "error_codes": {"minimum": 1, "maximum": 19},
+      "protocol_versions": {
+        "CORE_0_1": 1,
+        "CORE_0_2": 2
+      },
+      "message_types": {
+        "minimum": 1,
+        "maximum": 17
+      },
+      "error_codes": {
+        "minimum": 1,
+        "maximum": 19
+      },
       "object_types": "Core objects are selected by closed schema/context, not a numeric object registry"
     },
-    "core_message_values": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17],
-    "federation_message_range": [16384, 16417],
+    "core_message_values": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17
+    ],
+    "federation_message_range": [
+      16384,
+      16441
+    ],
     "disjoint": true
   },
   "unknown_value_policy": {
     "outcome": "REJECT",
     "reason": "ERR_UNSUPPORTED_CRITICAL",
     "state_changed": false,
-    "applies_to": ["authority_classes", "capability_ids", "decision_outcomes", "enforcement_modes", "extension_ids", "key_lifecycles", "key_purposes", "message_types", "object_types", "operator_lifecycles", "reason_codes", "recovery_stages", "result_types"]
+    "applies_to": [
+      "authority_classes",
+      "capability_ids",
+      "decision_outcomes",
+      "enforcement_modes",
+      "extension_ids",
+      "key_lifecycles",
+      "key_purposes",
+      "message_types",
+      "object_types",
+      "operator_lifecycles",
+      "reason_codes",
+      "recovery_stages",
+      "result_types"
+    ]
   },
   "signer_authority_matrix": {
-    "OperatorRegistryRecord": {"signer_sets": [{"authority": "DEVELOPMENT_REGISTRAR", "purpose": "REGISTRY_SIGNING", "threshold": [1, 1]}, {"authority": "WITNESS", "purpose": "WITNESS", "threshold": [2, 3]}], "combination": "all-sets-required"},
-    "KeyAuthorizationRecord": {"signer_sets": [{"authority": "OPERATOR_IDENTITY_ROOT", "purpose": "IDENTITY_ROOT", "threshold": [1, 1]}, {"authority": "OPERATOR_RECOVERY", "purpose": "RECOVERY", "threshold": [2, 3]}], "combination": "one-set-satisfies"},
-    "NameOwnershipRecord": {"signer_sets": [{"authority": "NAME_OWNER", "purpose": "NAME_OWNERSHIP", "threshold": [1, 1]}], "combination": "all-sets-required"},
-    "DelegationRecord": {"signer_sets": [{"authority": "NAME_OWNER", "purpose": "DELEGATION", "threshold": [1, 1]}, {"authority": "DELEGATE", "purpose": "DELEGATION", "threshold": [1, 1]}], "combination": "one-set-satisfies-with-scope"},
-    "FederationTrustBundle": {"signer_sets": [{"authority": "FEDERATION_AUTHORITY", "purpose": "TRUST_BUNDLE", "threshold": [3, 5]}, {"authority": "WITNESS", "purpose": "WITNESS", "threshold": [2, 3]}], "combination": "all-sets-required"},
-    "TransparencyCheckpoint": {"signer_sets": [{"authority": "TRANSPARENCY_LOG", "purpose": "TRANSPARENCY_LOG", "threshold": [1, 1]}], "combination": "all-sets-required"},
-    "InclusionProof": {"signer_sets": [{"authority": "TRANSPARENCY_LOG", "purpose": "TRANSPARENCY_LOG", "threshold": [1, 1]}], "combination": "checkpoint-signature-authorizes-proof"},
-    "ConsistencyProof": {"signer_sets": [{"authority": "TRANSPARENCY_LOG", "purpose": "TRANSPARENCY_LOG", "threshold": [1, 1]}], "combination": "checkpoint-signatures-authorize-proof"},
-    "WitnessStatement": {"signer_sets": [{"authority": "WITNESS", "purpose": "WITNESS", "threshold": [1, 1]}], "combination": "all-sets-required"},
-    "OperatorEndpointRecord": {"signer_sets": [{"authority": "OPERATOR_ENDPOINT", "purpose": "ENDPOINT_DISCOVERY", "threshold": [1, 1]}, {"authority": "DELEGATE", "purpose": "ENDPOINT_DISCOVERY", "threshold": [1, 1]}], "combination": "one-set-satisfies-with-scope"},
-    "FederationAuthorityProof": {"signer_sets": [{"authority": "SOURCE_OPERATOR", "purpose": "FEDERATION_AUTHORIZATION", "threshold": [1, 1]}, {"authority": "DESTINATION_OPERATOR", "purpose": "FEDERATION_AUTHORIZATION", "threshold": [1, 1]}], "combination": "role-specific"},
-    "FederationAuthorizationContext": {"signer_sets": [{"authority": "SOURCE_OPERATOR", "purpose": "FEDERATION_AUTHORIZATION", "threshold": [1, 1]}, {"authority": "DESTINATION_OPERATOR", "purpose": "FEDERATION_AUTHORIZATION", "threshold": [1, 1]}], "combination": "all-sets-required"},
-    "TypedRevocationRecord": {"alternatives": [{"name": "target-controller", "signer_sets": [{"authority": "TARGET_CONTROLLER", "purpose": "REVOCATION", "threshold": [1, 1]}], "constraints": ["same-target-scope"]}, {"name": "normal-threshold", "signer_sets": [{"authority": "FEDERATION_AUTHORITY", "purpose": "REVOCATION", "threshold": [3, 5]}], "constraints": []}, {"name": "emergency-deny-only", "signer_sets": [{"authority": "FEDERATION_AUTHORITY", "purpose": "REVOCATION", "threshold": [2, 5]}], "constraints": ["deny-only", "cannot-add-or-expand-trust", "maximum-300-seconds"]}], "combination": "exactly-one-alternative", "selection": {"mode_field": "revocation_authority_mode", "mode_is_signed": true, "validate_only_selected_alternative": true, "unknown_mode": "REJECT/ERR_UNSUPPORTED_CRITICAL"}},
-    "ConflictEvidence": {"signer_sets": [{"authority": "SOURCE_OPERATOR", "purpose": "GOVERNANCE", "threshold": [1, 1]}, {"authority": "DESTINATION_OPERATOR", "purpose": "GOVERNANCE", "threshold": [1, 1]}], "combination": "one-set-satisfies"},
-    "OperatorLifecycleRecord": {"signer_sets": [{"authority": "DEVELOPMENT_REGISTRAR", "purpose": "REGISTRY_SIGNING", "threshold": [1, 1]}], "combination": "all-sets-required"},
-    "RecoveryTransitionRecord": {"signer_sets": [{"authority": "OPERATOR_RECOVERY", "purpose": "RECOVERY", "threshold": [2, 3]}, {"authority": "DEVELOPMENT_REGISTRAR", "purpose": "REGISTRY_SIGNING", "threshold": [1, 1]}, {"authority": "WITNESS", "purpose": "WITNESS", "threshold": [2, 3]}], "combination": "all-sets-required"},
-    "ConflictResolutionRecord": {"signer_sets": [{"authority": "CONFLICT_RESOLUTION", "purpose": "GOVERNANCE", "threshold": [4, 5]}, {"authority": "WITNESS", "purpose": "WITNESS", "threshold": [3, 5]}], "combination": "all-sets-required"},
-    "AppealDecisionRecord": {"signer_sets": [{"authority": "APPEAL", "purpose": "GOVERNANCE", "threshold": [4, 5]}, {"authority": "WITNESS", "purpose": "WITNESS", "threshold": [3, 5]}], "combination": "all-sets-required"}
+    "OperatorRegistryRecord": {
+      "signer_sets": [
+        {
+          "authority": "DEVELOPMENT_REGISTRAR",
+          "purpose": "REGISTRY_SIGNING",
+          "threshold": [
+            1,
+            1
+          ]
+        },
+        {
+          "authority": "WITNESS",
+          "purpose": "WITNESS",
+          "threshold": [
+            2,
+            3
+          ]
+        }
+      ],
+      "combination": "all-sets-required"
+    },
+    "KeyAuthorizationRecord": {
+      "signer_sets": [
+        {
+          "authority": "OPERATOR_IDENTITY_ROOT",
+          "purpose": "IDENTITY_ROOT",
+          "threshold": [
+            1,
+            1
+          ]
+        },
+        {
+          "authority": "OPERATOR_RECOVERY",
+          "purpose": "RECOVERY",
+          "threshold": [
+            2,
+            3
+          ]
+        }
+      ],
+      "combination": "one-set-satisfies"
+    },
+    "NameOwnershipRecord": {
+      "signer_sets": [
+        {
+          "authority": "NAME_OWNER",
+          "purpose": "NAME_OWNERSHIP",
+          "threshold": [
+            1,
+            1
+          ]
+        }
+      ],
+      "combination": "all-sets-required"
+    },
+    "DelegationRecord": {
+      "signer_sets": [
+        {
+          "authority": "NAME_OWNER",
+          "purpose": "DELEGATION",
+          "threshold": [
+            1,
+            1
+          ]
+        },
+        {
+          "authority": "DELEGATE",
+          "purpose": "DELEGATION",
+          "threshold": [
+            1,
+            1
+          ]
+        }
+      ],
+      "combination": "one-set-satisfies-with-scope"
+    },
+    "FederationTrustBundle": {
+      "signer_sets": [
+        {
+          "authority": "FEDERATION_AUTHORITY",
+          "purpose": "TRUST_BUNDLE",
+          "threshold": [
+            3,
+            5
+          ]
+        },
+        {
+          "authority": "WITNESS",
+          "purpose": "WITNESS",
+          "threshold": [
+            2,
+            3
+          ]
+        }
+      ],
+      "combination": "all-sets-required"
+    },
+    "TransparencyCheckpoint": {
+      "signer_sets": [
+        {
+          "authority": "TRANSPARENCY_LOG",
+          "purpose": "TRANSPARENCY_LOG",
+          "threshold": [
+            1,
+            1
+          ]
+        }
+      ],
+      "combination": "all-sets-required"
+    },
+    "InclusionProof": {
+      "signer_sets": [
+        {
+          "authority": "TRANSPARENCY_LOG",
+          "purpose": "TRANSPARENCY_LOG",
+          "threshold": [
+            1,
+            1
+          ]
+        }
+      ],
+      "combination": "checkpoint-signature-authorizes-proof"
+    },
+    "ConsistencyProof": {
+      "signer_sets": [
+        {
+          "authority": "TRANSPARENCY_LOG",
+          "purpose": "TRANSPARENCY_LOG",
+          "threshold": [
+            1,
+            1
+          ]
+        }
+      ],
+      "combination": "checkpoint-signatures-authorize-proof"
+    },
+    "WitnessStatement": {
+      "signer_sets": [
+        {
+          "authority": "WITNESS",
+          "purpose": "WITNESS",
+          "threshold": [
+            1,
+            1
+          ]
+        }
+      ],
+      "combination": "all-sets-required"
+    },
+    "OperatorEndpointRecord": {
+      "signer_sets": [
+        {
+          "authority": "OPERATOR_ENDPOINT",
+          "purpose": "ENDPOINT_DISCOVERY",
+          "threshold": [
+            1,
+            1
+          ]
+        },
+        {
+          "authority": "DELEGATE",
+          "purpose": "ENDPOINT_DISCOVERY",
+          "threshold": [
+            1,
+            1
+          ]
+        }
+      ],
+      "combination": "one-set-satisfies-with-scope"
+    },
+    "FederationAuthorityProof": {
+      "signer_sets": [
+        {
+          "authority": "SOURCE_OPERATOR",
+          "purpose": "FEDERATION_AUTHORIZATION",
+          "threshold": [
+            1,
+            1
+          ]
+        },
+        {
+          "authority": "DESTINATION_OPERATOR",
+          "purpose": "FEDERATION_AUTHORIZATION",
+          "threshold": [
+            1,
+            1
+          ]
+        }
+      ],
+      "combination": "role-specific"
+    },
+    "FederationAuthorizationContext": {
+      "signer_sets": [
+        {
+          "authority": "SOURCE_OPERATOR",
+          "purpose": "FEDERATION_AUTHORIZATION",
+          "threshold": [
+            1,
+            1
+          ]
+        },
+        {
+          "authority": "DESTINATION_OPERATOR",
+          "purpose": "FEDERATION_AUTHORIZATION",
+          "threshold": [
+            1,
+            1
+          ]
+        }
+      ],
+      "combination": "all-sets-required"
+    },
+    "TypedRevocationRecord": {
+      "alternatives": [
+        {
+          "name": "target-controller",
+          "signer_sets": [
+            {
+              "authority": "TARGET_CONTROLLER",
+              "purpose": "REVOCATION",
+              "threshold": [
+                1,
+                1
+              ]
+            }
+          ],
+          "constraints": [
+            "same-target-scope"
+          ]
+        },
+        {
+          "name": "normal-threshold",
+          "signer_sets": [
+            {
+              "authority": "FEDERATION_AUTHORITY",
+              "purpose": "REVOCATION",
+              "threshold": [
+                3,
+                5
+              ]
+            }
+          ],
+          "constraints": []
+        },
+        {
+          "name": "emergency-deny-only",
+          "signer_sets": [
+            {
+              "authority": "FEDERATION_AUTHORITY",
+              "purpose": "REVOCATION",
+              "threshold": [
+                2,
+                5
+              ]
+            }
+          ],
+          "constraints": [
+            "deny-only",
+            "cannot-add-or-expand-trust",
+            "maximum-300-seconds"
+          ]
+        }
+      ],
+      "combination": "exactly-one-alternative",
+      "selection": {
+        "mode_field": "revocation_authority_mode",
+        "mode_is_signed": true,
+        "validate_only_selected_alternative": true,
+        "unknown_mode": "REJECT/ERR_UNSUPPORTED_CRITICAL"
+      }
+    },
+    "ConflictEvidence": {
+      "signer_sets": [
+        {
+          "authority": "SOURCE_OPERATOR",
+          "purpose": "GOVERNANCE",
+          "threshold": [
+            1,
+            1
+          ]
+        },
+        {
+          "authority": "DESTINATION_OPERATOR",
+          "purpose": "GOVERNANCE",
+          "threshold": [
+            1,
+            1
+          ]
+        }
+      ],
+      "combination": "one-set-satisfies"
+    },
+    "OperatorLifecycleRecord": {
+      "signer_sets": [
+        {
+          "authority": "DEVELOPMENT_REGISTRAR",
+          "purpose": "REGISTRY_SIGNING",
+          "threshold": [
+            1,
+            1
+          ]
+        }
+      ],
+      "combination": "all-sets-required"
+    },
+    "RecoveryTransitionRecord": {
+      "signer_sets": [
+        {
+          "authority": "OPERATOR_RECOVERY",
+          "purpose": "RECOVERY",
+          "threshold": [
+            2,
+            3
+          ]
+        },
+        {
+          "authority": "DEVELOPMENT_REGISTRAR",
+          "purpose": "REGISTRY_SIGNING",
+          "threshold": [
+            1,
+            1
+          ]
+        },
+        {
+          "authority": "WITNESS",
+          "purpose": "WITNESS",
+          "threshold": [
+            2,
+            3
+          ]
+        }
+      ],
+      "combination": "all-sets-required"
+    },
+    "ConflictResolutionRecord": {
+      "signer_sets": [
+        {
+          "authority": "CONFLICT_RESOLUTION",
+          "purpose": "GOVERNANCE",
+          "threshold": [
+            4,
+            5
+          ]
+        },
+        {
+          "authority": "WITNESS",
+          "purpose": "WITNESS",
+          "threshold": [
+            3,
+            5
+          ]
+        }
+      ],
+      "combination": "all-sets-required"
+    },
+    "AppealDecisionRecord": {
+      "signer_sets": [
+        {
+          "authority": "APPEAL",
+          "purpose": "GOVERNANCE",
+          "threshold": [
+            4,
+            5
+          ]
+        },
+        {
+          "authority": "WITNESS",
+          "purpose": "WITNESS",
+          "threshold": [
+            3,
+            5
+          ]
+        }
+      ],
+      "combination": "all-sets-required"
+    }
   },
-  "root_replacement": {"operator_recovery": [2, 3], "development_registry": [1, 1], "independent_witnesses": [2, 3], "all_sets_required": true, "compromised_or_terminal_root_may_sign": false, "missing_continuity": "lineage-breaking-recovery-only"},
-  "privacy_opening": {"authority": "CONFLICT_RESOLUTION", "purpose": "GOVERNANCE", "threshold": [4, 5], "witness_threshold": [3, 5], "binds": ["commitment", "object_digest", "request_id", "recipient_operator_id", "expires_at"], "single_use": true, "failure_outcome": "REJECT", "failure_reason": "ERR_AUTHORITY", "audit_required": true},
+  "root_replacement": {
+    "operator_recovery": [
+      2,
+      3
+    ],
+    "development_registry": [
+      1,
+      1
+    ],
+    "independent_witnesses": [
+      2,
+      3
+    ],
+    "all_sets_required": true,
+    "compromised_or_terminal_root_may_sign": false,
+    "missing_continuity": "lineage-breaking-recovery-only"
+  },
+  "privacy_opening": {
+    "authority": "CONFLICT_RESOLUTION",
+    "purpose": "GOVERNANCE",
+    "threshold": [
+      4,
+      5
+    ],
+    "witness_threshold": [
+      3,
+      5
+    ],
+    "binds": [
+      "commitment",
+      "object_digest",
+      "request_id",
+      "recipient_operator_id",
+      "expires_at"
+    ],
+    "single_use": true,
+    "failure_outcome": "REJECT",
+    "failure_reason": "ERR_AUTHORITY",
+    "audit_required": true
+  },
   "deferred_decisions": {
-    "WP8-SCHEMA-REQUIREDNESS-01": {"status": "blocking", "blocks": ["Task 2", "Task 3", "Task 4", "Task 5", "Task 6"], "required_deliverable": "object-by-object genesis/update requiredness matrix and literal schema vectors", "task1_registry_modules_allowed": true, "object_codec_or_validator_allowed": false}
+    "WP8-SCHEMA-REQUIREDNESS-01": {
+      "status": "blocking",
+      "blocks": [
+        "Task 2",
+        "Task 3",
+        "Task 4",
+        "Task 5",
+        "Task 6"
+      ],
+      "required_deliverable": "object-by-object genesis/update requiredness matrix and literal schema vectors",
+      "task1_registry_modules_allowed": true,
+      "object_codec_or_validator_allowed": false
+    },
+    "WP8-NORMATIVE-SOURCE-01": {
+      "status": "blocking",
+      "blocks": [
+        "Task 1",
+        "Task 2",
+        "Task 3",
+        "Task 4",
+        "Task 5",
+        "Task 6"
+      ],
+      "resolution": [
+        "check-in-exact-digest-pinned-historical-source",
+        "approve-complete-detailed-repository-replacement"
+      ],
+      "current_decision_index_complete_source": false,
+      "clean_room_implementation_allowed": false
+    }
+  },
+  "message_registry_policy": {
+    "allocation_basis": "semantic-requirements",
+    "target_count": null,
+    "derived_count": 58,
+    "namespace": "federation-extension-local"
+  },
+  "message_semantics": {
+    "FED_CAPABILITIES": {
+      "family": "capability-agreement",
+      "why": "Advertises compatible Federation extension/object/profile/capability/bound values after the selected authenticated Core context.",
+      "senders": [
+        "authenticated-federation-peer"
+      ],
+      "receivers": [
+        "authenticated-federation-peer"
+      ],
+      "class": "offer",
+      "replay_context": "authenticated-session-transcript",
+      "state_mutation": "federation-capability-state-only",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "core-v2-selected-peer-authenticated",
+      "object_type": null,
+      "authority_effect": "none"
+    },
+    "FED_CAPABILITIES_ACK": {
+      "family": "capability-agreement",
+      "why": "Confirms the exact compatible Federation selection and rejects unsupported critical semantics.",
+      "senders": [
+        "authenticated-federation-peer"
+      ],
+      "receivers": [
+        "authenticated-federation-peer"
+      ],
+      "class": "ack",
+      "replay_context": "authenticated-session-transcript",
+      "state_mutation": "federation-capability-state-only",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "core-v2-selected-peer-authenticated",
+      "object_type": null,
+      "authority_effect": "none"
+    },
+    "OPERATOR_RECORD_QUERY": {
+      "family": "operator-discovery",
+      "why": "Requests one exact Operator Registry Record without enumeration.",
+      "senders": [
+        "source-operator",
+        "destination-operator"
+      ],
+      "receivers": [
+        "registry-service"
+      ],
+      "class": "query",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "none",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "OperatorRegistryRecord",
+      "authority_effect": "none"
+    },
+    "OPERATOR_RECORD_RESPONSE": {
+      "family": "operator-discovery",
+      "why": "Returns the exact record or privacy-safe absence proof for the bound query.",
+      "senders": [
+        "registry-service"
+      ],
+      "receivers": [
+        "source-operator",
+        "destination-operator"
+      ],
+      "class": "response",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "verified-cache-only",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "OperatorRegistryRecord",
+      "authority_effect": "none-until-object-validation"
+    },
+    "ENDPOINT_RECORD_QUERY": {
+      "family": "endpoint-discovery",
+      "why": "Requests one exact Operator Endpoint Record after operator identity selection.",
+      "senders": [
+        "source-operator",
+        "destination-operator"
+      ],
+      "receivers": [
+        "registry-service"
+      ],
+      "class": "query",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "none",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "OperatorEndpointRecord",
+      "authority_effect": "none"
+    },
+    "ENDPOINT_RECORD_RESPONSE": {
+      "family": "endpoint-discovery",
+      "why": "Returns endpoint candidates cryptographically bound to the requested operator.",
+      "senders": [
+        "registry-service"
+      ],
+      "receivers": [
+        "source-operator",
+        "destination-operator"
+      ],
+      "class": "response",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "verified-cache-only",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "OperatorEndpointRecord",
+      "authority_effect": "none-until-object-validation"
+    },
+    "OWNERSHIP_AUTHORITY_QUERY": {
+      "family": "authority-retrieval",
+      "why": "Requests the bounded ownership and delegation chain for one service scope.",
+      "senders": [
+        "source-operator",
+        "destination-operator"
+      ],
+      "receivers": [
+        "registry-service"
+      ],
+      "class": "query",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "none",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "NameOwnershipRecord+DelegationRecord",
+      "authority_effect": "none"
+    },
+    "OWNERSHIP_AUTHORITY_RESPONSE": {
+      "family": "authority-retrieval",
+      "why": "Returns a bounded ordered ownership/delegation chain without granting authority by delivery.",
+      "senders": [
+        "registry-service"
+      ],
+      "receivers": [
+        "source-operator",
+        "destination-operator"
+      ],
+      "class": "response",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "verified-cache-only",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "NameOwnershipRecord+DelegationRecord",
+      "authority_effect": "none-until-chain-validation"
+    },
+    "AUTHORITY_PROOF_QUERY": {
+      "family": "authority-proof",
+      "why": "Requests one compact Federation Authority Proof for a bound bilateral context.",
+      "senders": [
+        "source-operator",
+        "destination-operator"
+      ],
+      "receivers": [
+        "authenticated-federation-peer"
+      ],
+      "class": "query",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "none",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "FederationAuthorityProof",
+      "authority_effect": "none"
+    },
+    "AUTHORITY_PROOF_RESPONSE": {
+      "family": "authority-proof",
+      "why": "Returns the requested compact proof bound to its exact dependencies.",
+      "senders": [
+        "authenticated-federation-peer"
+      ],
+      "receivers": [
+        "source-operator",
+        "destination-operator"
+      ],
+      "class": "response",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "verified-cache-only",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "FederationAuthorityProof",
+      "authority_effect": "none-until-proof-validation"
+    },
+    "TRUST_BUNDLE_REQUEST": {
+      "family": "trust-bundle-sync",
+      "why": "Requests a scoped bundle version or a newer compatible version.",
+      "senders": [
+        "authenticated-federation-peer"
+      ],
+      "receivers": [
+        "authenticated-federation-peer"
+      ],
+      "class": "query",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "none",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "FederationTrustBundle",
+      "authority_effect": "none"
+    },
+    "TRUST_BUNDLE_RESPONSE": {
+      "family": "trust-bundle-sync",
+      "why": "Returns the requested bundle and continuity evidence.",
+      "senders": [
+        "authenticated-federation-peer"
+      ],
+      "receivers": [
+        "authenticated-federation-peer"
+      ],
+      "class": "response",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "candidate-bundle-only",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "FederationTrustBundle",
+      "authority_effect": "none-until-bundle-validation"
+    },
+    "TRUST_BUNDLE_UPDATE": {
+      "family": "trust-bundle-sync",
+      "why": "Pushes a newer candidate bundle with continuity and transparency evidence.",
+      "senders": [
+        "authenticated-federation-peer"
+      ],
+      "receivers": [
+        "authenticated-federation-peer"
+      ],
+      "class": "update",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "candidate-bundle-only",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "FederationTrustBundle",
+      "authority_effect": "none-until-bundle-validation"
+    },
+    "TRUST_BUNDLE_ACK": {
+      "family": "trust-bundle-sync",
+      "why": "Acknowledges delivery and exact processing outcome without equating delivery with normative acceptance.",
+      "senders": [
+        "authenticated-federation-peer"
+      ],
+      "receivers": [
+        "authenticated-federation-peer"
+      ],
+      "class": "ack",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "acknowledgement-log-only",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "FederationTrustBundle",
+      "authority_effect": "delivery-and-exact-processing-result-only"
+    },
+    "CHECKPOINT_QUERY": {
+      "family": "transparency-sync",
+      "why": "Requests a checkpoint at or after a bound tree size.",
+      "senders": [
+        "authenticated-federation-peer"
+      ],
+      "receivers": [
+        "transparency-log"
+      ],
+      "class": "query",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "none",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "TransparencyCheckpoint",
+      "authority_effect": "none"
+    },
+    "CHECKPOINT_RESPONSE": {
+      "family": "transparency-sync",
+      "why": "Returns the exact signed checkpoint for the query.",
+      "senders": [
+        "transparency-log"
+      ],
+      "receivers": [
+        "authenticated-federation-peer"
+      ],
+      "class": "response",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "candidate-checkpoint-only",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "TransparencyCheckpoint",
+      "authority_effect": "none-until-checkpoint-validation"
+    },
+    "INCLUSION_PROOF_REQUEST": {
+      "family": "transparency-sync",
+      "why": "Requests inclusion of one exact object digest at one checkpoint.",
+      "senders": [
+        "authenticated-federation-peer"
+      ],
+      "receivers": [
+        "transparency-log"
+      ],
+      "class": "request",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "none",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "InclusionProof",
+      "authority_effect": "none"
+    },
+    "INCLUSION_PROOF_RESPONSE": {
+      "family": "transparency-sync",
+      "why": "Returns the bounded proof for the exact object and checkpoint.",
+      "senders": [
+        "transparency-log"
+      ],
+      "receivers": [
+        "authenticated-federation-peer"
+      ],
+      "class": "response",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "candidate-proof-only",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "InclusionProof",
+      "authority_effect": "none-until-proof-validation"
+    },
+    "CONSISTENCY_PROOF_REQUEST": {
+      "family": "transparency-sync",
+      "why": "Requests consistency between two exact checkpoint sizes and roots.",
+      "senders": [
+        "authenticated-federation-peer"
+      ],
+      "receivers": [
+        "transparency-log"
+      ],
+      "class": "request",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "none",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "ConsistencyProof",
+      "authority_effect": "none"
+    },
+    "CONSISTENCY_PROOF_RESPONSE": {
+      "family": "transparency-sync",
+      "why": "Returns the bounded proof connecting the requested checkpoints.",
+      "senders": [
+        "transparency-log"
+      ],
+      "receivers": [
+        "authenticated-federation-peer"
+      ],
+      "class": "response",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "candidate-proof-only",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "ConsistencyProof",
+      "authority_effect": "none-until-proof-validation"
+    },
+    "WITNESS_STATEMENT": {
+      "family": "transparency-sync",
+      "why": "Publishes a witness statement for one exact checkpoint and organization.",
+      "senders": [
+        "witness"
+      ],
+      "receivers": [
+        "authenticated-federation-peer"
+      ],
+      "class": "statement",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "candidate-witness-only",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "WitnessStatement",
+      "authority_effect": "none-until-threshold-validation"
+    },
+    "AUTHORIZATION_REQUEST": {
+      "family": "bilateral-authorization",
+      "why": "Requests destination authorization after independent source validation has succeeded.",
+      "senders": [
+        "source-operator"
+      ],
+      "receivers": [
+        "destination-operator"
+      ],
+      "class": "request",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "pending-authorization-only",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "FederationAuthorityProof",
+      "authority_effect": "none"
+    },
+    "AUTHORIZATION_RESPONSE": {
+      "family": "bilateral-authorization",
+      "why": "Returns the destination decision bound to the source-validated request without replacing source validation.",
+      "senders": [
+        "destination-operator"
+      ],
+      "receivers": [
+        "source-operator"
+      ],
+      "class": "response",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "bilateral-authorization-result",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "FederationAuthorizationContext",
+      "authority_effect": "only-after-independent-source-and-destination-validation"
+    },
+    "REVOCATION_PUSH": {
+      "family": "revocation",
+      "why": "Pushes a typed revocation for immediate validation and selective enforcement.",
+      "senders": [
+        "authenticated-federation-peer"
+      ],
+      "receivers": [
+        "authenticated-federation-peer"
+      ],
+      "class": "push",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "candidate-revocation-only",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "TypedRevocationRecord",
+      "authority_effect": "none-until-revocation-validation"
+    },
+    "REVOCATION_ACK": {
+      "family": "revocation",
+      "why": "Acknowledges the exact accepted or rejected revocation digest, reason, enforcement, and state result.",
+      "senders": [
+        "authenticated-federation-peer"
+      ],
+      "receivers": [
+        "authenticated-federation-peer"
+      ],
+      "class": "ack",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "acknowledgement-log-only",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "TypedRevocationRecord",
+      "authority_effect": "exact-processing-result-only"
+    },
+    "REVOCATION_QUERY": {
+      "family": "revocation",
+      "why": "Queries current revocation state for an exact target and generation.",
+      "senders": [
+        "authenticated-federation-peer"
+      ],
+      "receivers": [
+        "authenticated-federation-peer"
+      ],
+      "class": "query",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "none",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "TypedRevocationRecord",
+      "authority_effect": "none"
+    },
+    "REVOCATION_RESPONSE": {
+      "family": "revocation",
+      "why": "Returns current typed revocation state or privacy-safe absence evidence.",
+      "senders": [
+        "authenticated-federation-peer"
+      ],
+      "receivers": [
+        "authenticated-federation-peer"
+      ],
+      "class": "response",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "candidate-revocation-only",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "TypedRevocationRecord",
+      "authority_effect": "none-until-revocation-validation"
+    },
+    "CONFLICT_REPORT": {
+      "family": "conflict",
+      "why": "Reports retained equivocation or split-view evidence without unilateral conviction authority.",
+      "senders": [
+        "authenticated-federation-peer"
+      ],
+      "receivers": [
+        "conflict-resolution-authority"
+      ],
+      "class": "report",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "conflict-evidence-only",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "ConflictEvidence",
+      "authority_effect": "none-by-report"
+    },
+    "CONFLICT_ACK": {
+      "family": "conflict",
+      "why": "Acknowledges receipt and exact evidence digest without deciding the conflict.",
+      "senders": [
+        "conflict-resolution-authority"
+      ],
+      "receivers": [
+        "authenticated-federation-peer"
+      ],
+      "class": "ack",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "acknowledgement-log-only",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "ConflictEvidence",
+      "authority_effect": "none-by-delivery"
+    },
+    "OPERATOR_STATUS_QUERY": {
+      "family": "operator-lifecycle",
+      "why": "Queries exact current operator lifecycle generation and recovery stage.",
+      "senders": [
+        "authenticated-federation-peer"
+      ],
+      "receivers": [
+        "registry-service"
+      ],
+      "class": "query",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "none",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "OperatorLifecycleRecord",
+      "authority_effect": "none"
+    },
+    "OPERATOR_STATUS_RESPONSE": {
+      "family": "operator-lifecycle",
+      "why": "Returns the exact signed lifecycle record and dependencies.",
+      "senders": [
+        "registry-service"
+      ],
+      "receivers": [
+        "authenticated-federation-peer"
+      ],
+      "class": "response",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "candidate-lifecycle-only",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "OperatorLifecycleRecord",
+      "authority_effect": "none-until-lifecycle-validation"
+    },
+    "QUARANTINE_NOTICE": {
+      "family": "operator-lifecycle",
+      "why": "Notifies peers of quarantine evidence and required enforcement without creating authority by delivery.",
+      "senders": [
+        "registry-service"
+      ],
+      "receivers": [
+        "authenticated-federation-peer"
+      ],
+      "class": "notice",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "notice-log-only",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "operator-lifecycle=QUARANTINED",
+      "object_type": "OperatorLifecycleRecord",
+      "authority_effect": "none-by-delivery"
+    },
+    "RECOVERY_NOTICE": {
+      "family": "operator-lifecycle",
+      "why": "Notifies peers of a candidate recovery transition without activating recovered authority.",
+      "senders": [
+        "registry-service"
+      ],
+      "receivers": [
+        "authenticated-federation-peer"
+      ],
+      "class": "notice",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "notice-log-only",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "operator-lifecycle=RECOVERY;recovery-stage=RECOVERY_PENDING-or-RECOVERY_VERIFIED",
+      "object_type": "RecoveryTransitionRecord",
+      "authority_effect": "none-by-delivery"
+    },
+    "REENTRY_EVIDENCE": {
+      "family": "operator-lifecycle",
+      "why": "Supplies synchronization, checkpoint, revocation, monitoring, and readiness evidence for staged re-entry.",
+      "senders": [
+        "authenticated-federation-peer"
+      ],
+      "receivers": [
+        "registry-service"
+      ],
+      "class": "evidence",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "candidate-reentry-evidence-only",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "operator-lifecycle=RECOVERY;recovery-stage=REENTRY_RESTRICTED",
+      "object_type": "RecoveryTransitionRecord",
+      "authority_effect": "none-until-complete-gate-validation"
+    },
+    "OPERATOR_REGISTRATION_REQUEST": {
+      "family": "operator-publication",
+      "why": "Requests genesis registration under registrar and witness authority.",
+      "senders": [
+        "operator-applicant"
+      ],
+      "receivers": [
+        "registry-service"
+      ],
+      "class": "request",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "candidate-object-only",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "OperatorRegistryRecord",
+      "authority_effect": "none-until-registration-validation"
+    },
+    "OPERATOR_REGISTRATION_RESPONSE": {
+      "family": "operator-publication",
+      "why": "Returns exact registration acceptance, rejection, or pending result.",
+      "senders": [
+        "registry-service"
+      ],
+      "receivers": [
+        "operator-applicant"
+      ],
+      "class": "response",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "registry-result",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "OperatorRegistryRecord",
+      "authority_effect": "accepted-state-only"
+    },
+    "OPERATOR_RECORD_UPDATE": {
+      "family": "operator-publication",
+      "why": "Presents a monotonic signed operator record update with continuity evidence.",
+      "senders": [
+        "operator"
+      ],
+      "receivers": [
+        "registry-service"
+      ],
+      "class": "update",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "candidate-object-only",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "OperatorRegistryRecord",
+      "authority_effect": "none-until-update-validation"
+    },
+    "OPERATOR_RECORD_UPDATE_ACK": {
+      "family": "operator-publication",
+      "why": "Acknowledges the exact operator update digest and processing result.",
+      "senders": [
+        "registry-service"
+      ],
+      "receivers": [
+        "operator"
+      ],
+      "class": "ack",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "acknowledgement-log-only",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "OperatorRegistryRecord",
+      "authority_effect": "exact-processing-result-only"
+    },
+    "KEY_AUTHORIZATION_PUBLISH": {
+      "family": "key-publication",
+      "why": "Publishes a genesis purpose-bound key authorization.",
+      "senders": [
+        "operator-root-or-recovery"
+      ],
+      "receivers": [
+        "registry-service"
+      ],
+      "class": "publish",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "candidate-object-only",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "KeyAuthorizationRecord",
+      "authority_effect": "none-until-object-validation"
+    },
+    "KEY_AUTHORIZATION_ACK": {
+      "family": "key-publication",
+      "why": "Acknowledges the exact genesis key authorization processing result.",
+      "senders": [
+        "registry-service"
+      ],
+      "receivers": [
+        "operator"
+      ],
+      "class": "ack",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "acknowledgement-log-only",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "KeyAuthorizationRecord",
+      "authority_effect": "exact-processing-result-only"
+    },
+    "KEY_AUTHORIZATION_UPDATE": {
+      "family": "key-publication",
+      "why": "Publishes a monotonic key authorization rotation or lifecycle update.",
+      "senders": [
+        "operator-root-or-recovery"
+      ],
+      "receivers": [
+        "registry-service"
+      ],
+      "class": "update",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "candidate-object-only",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "KeyAuthorizationRecord",
+      "authority_effect": "none-until-object-validation"
+    },
+    "KEY_AUTHORIZATION_UPDATE_ACK": {
+      "family": "key-publication",
+      "why": "Acknowledges the exact key update digest and processing result.",
+      "senders": [
+        "registry-service"
+      ],
+      "receivers": [
+        "operator"
+      ],
+      "class": "ack",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "acknowledgement-log-only",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "KeyAuthorizationRecord",
+      "authority_effect": "exact-processing-result-only"
+    },
+    "NAME_OWNERSHIP_PUBLISH": {
+      "family": "ownership-publication",
+      "why": "Publishes genesis name ownership under registry-rooted authority.",
+      "senders": [
+        "name-owner"
+      ],
+      "receivers": [
+        "registry-service"
+      ],
+      "class": "publish",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "candidate-object-only",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "NameOwnershipRecord",
+      "authority_effect": "none-until-object-validation"
+    },
+    "NAME_OWNERSHIP_ACK": {
+      "family": "ownership-publication",
+      "why": "Acknowledges exact ownership publication processing state.",
+      "senders": [
+        "registry-service"
+      ],
+      "receivers": [
+        "name-owner"
+      ],
+      "class": "ack",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "acknowledgement-log-only",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "NameOwnershipRecord",
+      "authority_effect": "exact-processing-result-only"
+    },
+    "NAME_OWNERSHIP_UPDATE": {
+      "family": "ownership-publication",
+      "why": "Publishes a monotonic ownership update or dual-authorized transfer.",
+      "senders": [
+        "name-owner"
+      ],
+      "receivers": [
+        "registry-service"
+      ],
+      "class": "update",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "candidate-object-only",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "NameOwnershipRecord",
+      "authority_effect": "none-until-object-validation"
+    },
+    "NAME_OWNERSHIP_UPDATE_ACK": {
+      "family": "ownership-publication",
+      "why": "Acknowledges exact ownership update or transfer processing state.",
+      "senders": [
+        "registry-service"
+      ],
+      "receivers": [
+        "name-owner"
+      ],
+      "class": "ack",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "acknowledgement-log-only",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "NameOwnershipRecord",
+      "authority_effect": "exact-processing-result-only"
+    },
+    "DELEGATION_PUBLISH": {
+      "family": "delegation-publication",
+      "why": "Publishes a genesis scope-narrowing delegation.",
+      "senders": [
+        "name-owner",
+        "delegate"
+      ],
+      "receivers": [
+        "registry-service"
+      ],
+      "class": "publish",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "candidate-object-only",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "DelegationRecord",
+      "authority_effect": "none-until-chain-validation"
+    },
+    "DELEGATION_ACK": {
+      "family": "delegation-publication",
+      "why": "Acknowledges the exact delegation publication result.",
+      "senders": [
+        "registry-service"
+      ],
+      "receivers": [
+        "name-owner",
+        "delegate"
+      ],
+      "class": "ack",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "acknowledgement-log-only",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "DelegationRecord",
+      "authority_effect": "exact-processing-result-only"
+    },
+    "DELEGATION_UPDATE": {
+      "family": "delegation-publication",
+      "why": "Publishes a monotonic narrowing, expiry, or revocation-aware delegation update.",
+      "senders": [
+        "name-owner",
+        "delegate"
+      ],
+      "receivers": [
+        "registry-service"
+      ],
+      "class": "update",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "candidate-object-only",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "DelegationRecord",
+      "authority_effect": "none-until-chain-validation"
+    },
+    "DELEGATION_UPDATE_ACK": {
+      "family": "delegation-publication",
+      "why": "Acknowledges the exact delegation update result.",
+      "senders": [
+        "registry-service"
+      ],
+      "receivers": [
+        "name-owner",
+        "delegate"
+      ],
+      "class": "ack",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "acknowledgement-log-only",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "DelegationRecord",
+      "authority_effect": "exact-processing-result-only"
+    },
+    "ENDPOINT_RECORD_PUBLISH": {
+      "family": "endpoint-publication",
+      "why": "Publishes a genesis operator-bound endpoint record.",
+      "senders": [
+        "operator-endpoint-authority"
+      ],
+      "receivers": [
+        "registry-service"
+      ],
+      "class": "publish",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "candidate-object-only",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "OperatorEndpointRecord",
+      "authority_effect": "none-until-object-validation"
+    },
+    "ENDPOINT_RECORD_ACK": {
+      "family": "endpoint-publication",
+      "why": "Acknowledges exact endpoint publication processing state.",
+      "senders": [
+        "registry-service"
+      ],
+      "receivers": [
+        "operator-endpoint-authority"
+      ],
+      "class": "ack",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "acknowledgement-log-only",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "OperatorEndpointRecord",
+      "authority_effect": "exact-processing-result-only"
+    },
+    "ENDPOINT_RECORD_UPDATE": {
+      "family": "endpoint-publication",
+      "why": "Publishes a monotonic endpoint binding or key update.",
+      "senders": [
+        "operator-endpoint-authority"
+      ],
+      "receivers": [
+        "registry-service"
+      ],
+      "class": "update",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "candidate-object-only",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "OperatorEndpointRecord",
+      "authority_effect": "none-until-object-validation"
+    },
+    "ENDPOINT_RECORD_UPDATE_ACK": {
+      "family": "endpoint-publication",
+      "why": "Acknowledges exact endpoint update processing state.",
+      "senders": [
+        "registry-service"
+      ],
+      "receivers": [
+        "operator-endpoint-authority"
+      ],
+      "class": "ack",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "acknowledgement-log-only",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "OperatorEndpointRecord",
+      "authority_effect": "exact-processing-result-only"
+    },
+    "CONFLICT_RESOLUTION_PUBLISH": {
+      "family": "governance",
+      "why": "Publishes threshold-authorized conflict resolution without erasing retained evidence.",
+      "senders": [
+        "governance-authority"
+      ],
+      "receivers": [
+        "registry-service"
+      ],
+      "class": "publish",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "candidate-object-only",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "ConflictResolutionRecord",
+      "authority_effect": "none-until-governance-validation"
+    },
+    "CONFLICT_RESOLUTION_ACK": {
+      "family": "governance",
+      "why": "Acknowledges exact conflict resolution processing state.",
+      "senders": [
+        "registry-service"
+      ],
+      "receivers": [
+        "governance-authority"
+      ],
+      "class": "ack",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "acknowledgement-log-only",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "ConflictResolutionRecord",
+      "authority_effect": "exact-processing-result-only"
+    },
+    "APPEAL_REQUEST": {
+      "family": "governance",
+      "why": "Requests appeal review separately from recovery and without reactivating authority.",
+      "senders": [
+        "authorized-appellant"
+      ],
+      "receivers": [
+        "appeal-authority"
+      ],
+      "class": "request",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "appeal-case-only",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "AppealDecisionRecord",
+      "authority_effect": "none"
+    },
+    "APPEAL_RESPONSE": {
+      "family": "governance",
+      "why": "Returns a threshold-authorized appeal decision that cannot override terminal non-reactivation rules.",
+      "senders": [
+        "appeal-authority"
+      ],
+      "receivers": [
+        "authorized-appellant",
+        "registry-service"
+      ],
+      "class": "response",
+      "replay_context": "authenticated-peer-sequence-and-message-digest",
+      "state_mutation": "candidate-object-only",
+      "idempotency": "same-replay-context-and-canonical-digest-same-result",
+      "allowed_protocol_state": "federation-capabilities-agreed",
+      "object_type": "AppealDecisionRecord",
+      "authority_effect": "none-until-governance-validation"
+    }
+  },
+  "contextual_rules": {
+    "recovery_stage": {
+      "required_when": {
+        "operator_lifecycle": "RECOVERY"
+      },
+      "forbidden_otherwise": true,
+      "normal_active_transition_from": "REENTRY_RESTRICTED",
+      "active_gate_requires": [
+        "peer_synchronization",
+        "compatible_checkpoints",
+        "current_revocations",
+        "monitoring_complete",
+        "readiness_approved"
+      ]
+    }
+  },
+  "local_workflow_states": {
+    "recovery": {
+      "wire_registry": false,
+      "states": [
+        "REQUESTED",
+        "EVIDENCE_VERIFIED",
+        "APPROVED",
+        "ACTIVATED",
+        "REENTRY_MONITORING",
+        "COMPLETE",
+        "REJECTED"
+      ]
+    }
+  },
+  "operator_lifecycle_semantics": {
+    "monotonic": true,
+    "unknown_or_invalid_transition": "REJECT/ERR_CONTINUITY/no-mutation",
+    "APPLIED": {
+      "authority": "none",
+      "meaning": "application recorded; no federation authority"
+    },
+    "VERIFICATION_PENDING": {
+      "authority": "none",
+      "meaning": "verification evidence incomplete"
+    },
+    "VERIFIED": {
+      "authority": "none",
+      "meaning": "identity verified; provisioning not yet authorized"
+    },
+    "PROVISIONAL": {
+      "authority": "bounded-pilot-only",
+      "meaning": "explicit scope/time/resource pilot authority only"
+    },
+    "ACTIVE": {
+      "authority": "profile-authorized",
+      "meaning": "normal accepted authority subject to all dependencies"
+    },
+    "SUSPENDED": {
+      "authority": "none-for-new-use",
+      "meaning": "new use denied under suspension policy"
+    },
+    "QUARANTINED": {
+      "authority": "none-for-new-use",
+      "meaning": "conflicting or compromise evidence retained"
+    },
+    "RECOVERY": {
+      "authority": "stage-dependent-restricted",
+      "meaning": "recovery_stage required",
+      "requires_recovery_stage": true
+    },
+    "RETIRED": {
+      "authority": "none",
+      "meaning": "orderly permanent retirement"
+    },
+    "TERMINALLY_REVOKED": {
+      "authority": "none",
+      "meaning": "permanent tombstone; no resurrection"
+    },
+    "REJECTED": {
+      "authority": "none",
+      "meaning": "application rejected; creates no federation authority"
+    },
+    "monotonic_dimension": "identity-generation-and-record-sequence",
+    "lifecycle_values_are_ranked": false,
+    "same_state_update": "allowed-only-with-higher-sequence-and-valid-continuity",
+    "allowed_transitions": {
+      "APPLIED": [
+        "VERIFICATION_PENDING",
+        "REJECTED"
+      ],
+      "VERIFICATION_PENDING": [
+        "VERIFIED",
+        "REJECTED"
+      ],
+      "VERIFIED": [
+        "PROVISIONAL",
+        "ACTIVE",
+        "REJECTED"
+      ],
+      "PROVISIONAL": [
+        "ACTIVE",
+        "SUSPENDED",
+        "QUARANTINED",
+        "RECOVERY",
+        "RETIRED",
+        "TERMINALLY_REVOKED"
+      ],
+      "ACTIVE": [
+        "SUSPENDED",
+        "QUARANTINED",
+        "RECOVERY",
+        "RETIRED",
+        "TERMINALLY_REVOKED"
+      ],
+      "SUSPENDED": [
+        "ACTIVE",
+        "QUARANTINED",
+        "RECOVERY",
+        "RETIRED",
+        "TERMINALLY_REVOKED"
+      ],
+      "QUARANTINED": [
+        "RECOVERY",
+        "RETIRED",
+        "TERMINALLY_REVOKED"
+      ],
+      "RECOVERY": [
+        "ACTIVE",
+        "RETIRED",
+        "TERMINALLY_REVOKED"
+      ],
+      "RETIRED": [],
+      "TERMINALLY_REVOKED": [],
+      "REJECTED": []
+    },
+    "recovery_stage_transitions": {
+      "entry_stage": "RECOVERY_PENDING",
+      "RECOVERY_PENDING": [
+        "RECOVERY_VERIFIED"
+      ],
+      "RECOVERY_VERIFIED": [
+        "REENTRY_RESTRICTED"
+      ],
+      "REENTRY_RESTRICTED": [
+        "ACTIVE"
+      ],
+      "skip_or_rollback": "REJECT/ERR_CONTINUITY/no-mutation"
+    }
   }
 }

@@ -8,8 +8,13 @@ freeze, public/global production authorization, or interoperability claim.
 Questions.txt`, reviewed 2026-08-05, 2,664 lines, SHA-256
 `6058485d07d9c827c0cb62dad325fb389b213e35801c0799414bb6338d89848e`,
 was not repository-accessible during Task 0. The repository-contained
-`wp8-federation-v0.1-decisions.md` now states F1-F119 and V1-V6 individually
-and is the reviewable proposed authority. The digest remains provenance only.
+`wp8-federation-v0.1-decisions.md` is a condensed index with detailed normative
+appendices; it does not claim to reproduce the unavailable source verbatim.
+The supplements do not reconstruct every omitted detail. The named blocker
+`WP8-NORMATIVE-SOURCE-01` therefore remains open and Task 1 remains blocked
+until the exact digest-pinned source is checked in or a complete detailed
+repository replacement is approved. The digest remains provenance only, and
+clean-room implementation is not authorized while the blocker remains.
 
 **Repository baseline inspected:** branch `codex/nbsr-v3-wp0-wp1`, commit
 `b1edfa8cd4bb9a2f280e14a2973e404dd8e4c914`. The checked-in Core v0.2
@@ -231,7 +236,11 @@ tolerance.
 
 ## Task 0 planning errata (proposed for human approval)
 
-Task 0 internalizes F1-F119 and V1-V6 in `wp8-federation-v0.1-decisions.md`, proposes exact allocations in `registries/federation-v0.1-development.json`, and adds a Core v0.2 baseline lock. These are proposed Development Profile values, not permanent wire allocations.
+Task 0 indexes F1-F119 and V1-V6 and supplies detailed lifecycle, recovery,
+message, governance, and validation supplements in
+`wp8-federation-v0.1-decisions.md`; exact allocations and per-message behavior
+are in `registries/federation-v0.1-development.json`. These are proposed
+Development Profile values, not permanent wire allocations.
 
 Replay-state retention minimum: 86,400 seconds. Terminal tombstones are permanent through garbage collection, restart, compaction, backup restoration, and fresh-node synchronization. Continuity-preserving recovery retains the Operator ID at a strictly higher identity generation; lineage-breaking recovery terminally tombstones it and requires a new Operator ID.
 

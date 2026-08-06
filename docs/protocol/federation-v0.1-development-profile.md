@@ -1,6 +1,10 @@
 # Federation v0.1 Development Profile draft
 
-**Task 0 status:** Proposed for human approval. This becomes Task 1 authority only after approval. It is not a permanently frozen Federation wire allocation; production-profile values remain deferred.
+**Task 0 status:** Proposed for human approval. `WP8-NORMATIVE-SOURCE-01`
+remains blocking: Task 1 remains blocked until the exact digest-pinned historical
+source is checked in or a complete detailed repository replacement is approved.
+It is not a permanently frozen Federation wire allocation; production-profile
+values remain deferred.
 
 ## Base and identity
 
@@ -20,6 +24,54 @@ Continuity-preserving recovery retains the Operator ID with a strictly higher id
 Direction-document bounds and thresholds remain proposed. Replay-state retention minimum: 86,400 seconds. Terminal tombstones are permanent, non-expiring, and recoverable after garbage collection, restart, compaction, backup restoration, and fresh-node synchronization.
 
 Timing values are skew 300 seconds; key lifetime 30 days; overlap 1 hour through 24 hours; checkpoint interval 60 seconds and emergency deadline 30 seconds; trust freshness 300 seconds and degraded staleness 900 seconds; cache ceiling 300 seconds; missing evidence 30 seconds; quarantine reevaluation 300 seconds; drain 30 seconds; static warning 15 minutes and hard expiry 60 minutes without automatic reset.
+
+## Operator lifecycle and recovery stage
+
+Top-level lifecycle values are exactly `APPLIED`, `VERIFICATION_PENDING`,
+`VERIFIED`, `PROVISIONAL`, `ACTIVE`, `SUSPENDED`, `QUARANTINED`, `RECOVERY`,
+`RETIRED`, `TERMINALLY_REVOKED`, and `REJECTED`, in that numeric allocation
+order. The numbers are identifiers, not a lifecycle rank. Monotonicity applies
+to identity generation and record sequence, with valid continuity; same-state
+updates require a higher sequence.
+`RESTRICTED` is only a decision/outage behavior. `REJECTED` creates no
+Federation authority. `PROVISIONAL` creates only explicit bounded pilot
+authority. Invalid, skipped, rollback, or unknown transitions reject
+fail-closed without mutation.
+
+The exact transition graph is: `APPLIED -> {VERIFICATION_PENDING, REJECTED}`;
+`VERIFICATION_PENDING -> {VERIFIED, REJECTED}`; `VERIFIED -> {PROVISIONAL,
+ACTIVE, REJECTED}`; `PROVISIONAL -> {ACTIVE, SUSPENDED, QUARANTINED, RECOVERY,
+RETIRED, TERMINALLY_REVOKED}`; `ACTIVE -> {SUSPENDED, QUARANTINED, RECOVERY,
+RETIRED, TERMINALLY_REVOKED}`; `SUSPENDED -> {ACTIVE, QUARANTINED, RECOVERY,
+RETIRED, TERMINALLY_REVOKED}`; `QUARANTINED -> {RECOVERY, RETIRED,
+TERMINALLY_REVOKED}`; and `RECOVERY -> {ACTIVE, RETIRED,
+TERMINALLY_REVOKED}`. `RETIRED`, `TERMINALLY_REVOKED`, and `REJECTED` have no
+outgoing transitions.
+
+`recovery_stage` is required exactly for lifecycle `RECOVERY` and forbidden in
+every other lifecycle. Its only wire values are `RECOVERY_PENDING`,
+`RECOVERY_VERIFIED`, and `REENTRY_RESTRICTED`. Normal `ACTIVE` follows
+`REENTRY_RESTRICTED` only after peer synchronization, compatible checkpoints,
+current revocations, monitoring completion, and readiness approval. The seven
+workflow labels retained in the machine source are explicitly local and never
+wire or signed-object values.
+Recovery stages advance exactly `RECOVERY_PENDING -> RECOVERY_VERIFIED ->
+REENTRY_RESTRICTED -> ACTIVE`; skipping or rollback rejects
+`ERR_CONTINUITY` without mutation.
+
+## Federation semantic messages
+
+The 58-message count is derived from the complete semantic registry, not a
+target. Capability agreement occurs after exact Core v2 selection and peer
+authentication and never negotiates Core version lists. Discovery, authority
+retrieval, bundle synchronization, transparency, bilateral authorization,
+push/pull revocation, conflict evidence, lifecycle/recovery notices, explicit
+object publication/update acknowledgements, conflict resolution, and appeal
+remain distinct. Sender/receiver roles, class, replay context, mutation,
+idempotency, allowed protocol state, object association, authority effect, and
+purpose are normative in the machine registry and generated allocation table.
+ACK and notice delivery never creates authority unless the named signed-object
+validation and state transition independently succeeds.
 
 ## Cryptographic freeze gate
 

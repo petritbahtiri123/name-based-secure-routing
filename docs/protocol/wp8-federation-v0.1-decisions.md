@@ -1,6 +1,16 @@
 # WP8 Federation decisions F1-F119 and corrections V1-V6
 
-**Task 0 status:** Proposed repository-internal normative source for human approval. It replaces reliance on the unavailable digest-only external text. No Federation runtime or wire freeze is created.
+**Task 0 status:** Proposed for human approval. The F-number list is a canonical
+condensed index and does not replace the unavailable full historical source.
+Its detailed appendices, the Development Profile, direction document, and
+machine registry are repository-accessible detailed normative supplements,
+but they do not constitute the complete detailed source.
+`WP8-NORMATIVE-SOURCE-01` is therefore blocking:
+Task 1 remains blocked until either the exact digest-pinned historical source
+is checked in immutably or this document is expanded and approved as a complete
+detailed replacement for every F1-F119 and V1-V6 decision. Clean-room
+implementation is not authorized while the blocker remains. No Federation
+runtime or wire freeze is created.
 
 ## Identity and keys
 
@@ -135,7 +145,10 @@
 ## Extension and compatibility
 
 **F104.** Federation v0.1 is a separately versioned extension over required Core version 2.
-**F105.** Federation uses dedicated extension-local object, message, result, reason, lifecycle, purpose, authority, and capability registries; the exact Task 0 allocations are authoritative only after human approval.
+**F105.** Federation uses dedicated extension-local object, semantic message,
+result, reason, lifecycle, purpose, authority, and capability registries. The
+exact Task 0 allocations and per-message behavior are authoritative only after
+human approval; no target message count is normative.
 **F106.** Federation object schemas are closed and reject unknown critical semantics.
 **F107.** Unsupported critical capabilities fail closed.
 **F108.** Static trust compatibility is an explicit separate profile.
@@ -166,3 +179,102 @@
 ## Task 0 claim boundary
 
 Task 0 prepares repository-complete planning authority. No federation runtime is implemented by Task 0. It is not a permanently frozen Federation wire allocation and provides no live federation, public governance, independent interoperability, origin anonymity, DDoS elimination, complete partition tolerance, or production readiness.
+
+## Detailed F105 message semantics
+
+Capability agreement is `FED_CAPABILITIES` followed by
+`FED_CAPABILITIES_ACK`. It occurs only after Core version 2 is selected and the
+Core peer is authenticated. It advertises Federation extension/object versions,
+profiles, critical capabilities, and bounds only; it never carries a Core
+version list. Both messages bind the authenticated session transcript.
+
+Discovery separates `OPERATOR_RECORD_QUERY`/`OPERATOR_RECORD_RESPONSE` from
+`ENDPOINT_RECORD_QUERY`/`ENDPOINT_RECORD_RESPONSE`. Authority retrieval uses
+`OWNERSHIP_AUTHORITY_QUERY`/`OWNERSHIP_AUTHORITY_RESPONSE` for bounded
+ownership/delegation chains and
+`AUTHORITY_PROOF_QUERY`/`AUTHORITY_PROOF_RESPONSE` for compact proofs. Delivery
+never grants authority before the returned signed objects validate.
+
+Trust synchronization distinguishes `TRUST_BUNDLE_REQUEST`,
+`TRUST_BUNDLE_RESPONSE`, `TRUST_BUNDLE_UPDATE`, and `TRUST_BUNDLE_ACK`.
+Acknowledgement binds the exact digest and processing result but is not
+normative bundle acceptance. Transparency uses `CHECKPOINT_QUERY`,
+`CHECKPOINT_RESPONSE`, `INCLUSION_PROOF_REQUEST`,
+`INCLUSION_PROOF_RESPONSE`, `CONSISTENCY_PROOF_REQUEST`,
+`CONSISTENCY_PROOF_RESPONSE`, and `WITNESS_STATEMENT`.
+
+Bilateral admission uses `AUTHORIZATION_REQUEST` and
+`AUTHORIZATION_RESPONSE`; destination acceptance never replaces independent
+source validation. Revocation uses distinct `REVOCATION_PUSH`,
+`REVOCATION_ACK`, `REVOCATION_QUERY`, and `REVOCATION_RESPONSE`. The ACK binds
+the exact accepted/rejected revocation state, reason, enforcement, and digest.
+Conflict evidence uses `CONFLICT_REPORT` and `CONFLICT_ACK`; neither delivery
+nor acknowledgement creates conviction or unilateral revocation authority.
+
+Lifecycle synchronization uses `OPERATOR_STATUS_QUERY`,
+`OPERATOR_STATUS_RESPONSE`, `QUARANTINE_NOTICE`, `RECOVERY_NOTICE`, and
+`REENTRY_EVIDENCE`. Notices create no authority by delivery. Explicit object
+operations are `OPERATOR_REGISTRATION_REQUEST`,
+`OPERATOR_REGISTRATION_RESPONSE`, `OPERATOR_RECORD_UPDATE`,
+`OPERATOR_RECORD_UPDATE_ACK`, `KEY_AUTHORIZATION_PUBLISH`,
+`KEY_AUTHORIZATION_ACK`, `KEY_AUTHORIZATION_UPDATE`,
+`KEY_AUTHORIZATION_UPDATE_ACK`, `NAME_OWNERSHIP_PUBLISH`,
+`NAME_OWNERSHIP_ACK`, `NAME_OWNERSHIP_UPDATE`,
+`NAME_OWNERSHIP_UPDATE_ACK`, `DELEGATION_PUBLISH`, `DELEGATION_ACK`,
+`DELEGATION_UPDATE`, `DELEGATION_UPDATE_ACK`, `ENDPOINT_RECORD_PUBLISH`,
+`ENDPOINT_RECORD_ACK`, `ENDPOINT_RECORD_UPDATE`,
+`ENDPOINT_RECORD_UPDATE_ACK`, `CONFLICT_RESOLUTION_PUBLISH`,
+`CONFLICT_RESOLUTION_ACK`, `APPEAL_REQUEST`, and `APPEAL_RESPONSE`.
+
+The machine registry supplies every message's exact value, sender/receiver
+roles, class, replay context, mutation behavior, idempotency, allowed protocol
+state, associated object, authority effect, and reason for existence. Those 58
+semantic entries derive the count; no message is retained to meet a count.
+
+## Detailed F114 lifecycle semantics
+
+The exact top-level lifecycle allocation order is `APPLIED`,
+`VERIFICATION_PENDING`, `VERIFIED`, `PROVISIONAL`, `ACTIVE`, `SUSPENDED`,
+`QUARANTINED`, `RECOVERY`, `RETIRED`, `TERMINALLY_REVOKED`, and `REJECTED`.
+`RESTRICTED` is a decision/outage outcome, not lifecycle. `REJECTED` grants no
+authority. `PROVISIONAL` grants only explicit time/scope/resource-bounded pilot
+authority. Unknown, skipped, rollback, or invalid transitions fail
+`REJECT/ERR_CONTINUITY` without mutation; terminal tombstones never resurrect.
+Numeric lifecycle values are identifiers, not transition ranks. Monotonicity
+applies to identity generation and record sequence under valid continuity.
+The exact allowed transition graph is normative in the machine registry; it
+includes gated `RECOVERY -> ACTIVE` and has no outgoing transition from
+`RETIRED`, `TERMINALLY_REVOKED`, or `REJECTED`.
+
+When and only when lifecycle is `RECOVERY`, `recovery_stage` is required and is
+exactly one of `RECOVERY_PENDING`, `RECOVERY_VERIFIED`, or
+`REENTRY_RESTRICTED`. It is forbidden otherwise. Normal `ACTIVE` follows
+`REENTRY_RESTRICTED` only after peer synchronization, compatible checkpoints,
+current revocations, monitoring, and readiness gates pass. `REQUESTED`,
+`EVIDENCE_VERIFIED`, `APPROVED`, `ACTIVATED`, `REENTRY_MONITORING`, `COMPLETE`,
+and local `REJECTED` are implementation workflow labels only, never wire
+registry or signed-object values.
+Stages advance only `RECOVERY_PENDING -> RECOVERY_VERIFIED ->
+REENTRY_RESTRICTED -> ACTIVE`; skips and rollback fail without mutation.
+
+## Detailed F116 appeal and recovery separation
+
+Appeal reviews retained evidence under the independent appeal authority. It is
+not a recovery approval, cannot replace recovery thresholds, cannot erase
+conflict evidence, and cannot reactivate a retired or terminally revoked
+identity. Continuity-preserving recovery retains the Operator ID at a higher
+identity generation. Lineage-breaking recovery permanently tombstones the old
+ID and requires a new genesis-derived ID.
+
+## Detailed validation and failure behavior
+
+Resource/parsing, canonical encoding, cryptography, identity/purpose, schema,
+authority/scope, monotonic continuity, revocation/terminal state,
+transparency, freshness/outage, and local policy validate in that order before
+mutation. Queries and notices do not mutate authority. Responses, updates,
+pushes, publications, evidence, and ACKs mutate only the explicitly named
+candidate/cache/audit/result state in the machine table. Same replay context
+and canonical digest is idempotent; altered digest or context is replay or
+equivocation as applicable. Unknown messages, lifecycle values, recovery
+stages, critical capabilities, and reserved allocations fail closed without
+state mutation.

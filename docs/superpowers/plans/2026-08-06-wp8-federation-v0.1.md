@@ -24,7 +24,17 @@
 
 ### Task 0 approval gate
 
-Task 0 must receive human approval before Task 1. Literal allocations come only from `docs/protocol/registries/federation-v0.1-development.json`; Task 1 RED tests must copy those approved names and numbers. Replay-state retention minimum: 86,400 seconds. Terminal tombstones are permanent across garbage collection, restart, compaction, backup restoration, and fresh-node synchronization. Continuity-preserving recovery retains the Operator ID at higher generation; lineage-breaking recovery tombstones it and requires a new ID.
+Task 0 must receive human approval before Task 1. In addition,
+`WP8-NORMATIVE-SOURCE-01` is blocking and Task 1 remains blocked until the exact
+digest-pinned historical source is checked in or a complete detailed repository
+replacement is approved. Literal allocations come only from
+`docs/protocol/registries/federation-v0.1-development.json`; after both gates
+close, Task 1 RED tests must copy those approved names and numbers. Replay-state
+retention minimum: 86,400 seconds. Terminal tombstones are permanent across
+garbage collection, restart, compaction, backup restoration, and fresh-node
+synchronization. Continuity-preserving recovery retains the Operator ID at
+higher generation; lineage-breaking recovery tombstones it and requires a new
+ID.
 
 Core validation uses the following complete sequence. The generic verifier
 excludes only the independently inventoried `wp4-exporter/` subtree:
@@ -71,7 +81,7 @@ def test_extension_registry_is_closed_and_collision_free() -> None:
 ```
 
 `EXPECTED_OBJECT_TYPES` and `EXPECTED_MESSAGE_TYPES` are literal tuples in the
-RED test, containing all 18 and 34 name/value pairs copied from the approved
+RED test, containing all object and semantically derived message name/value pairs copied from the approved
 machine source. The existing Task 0 registry regression contains those exact
 literals and is the copying authority. RED tests must not derive a range or
 compute expectations from the implementation or JSON loader. Apply the same
@@ -101,8 +111,9 @@ class FederationProfile:
 ```
 
 Allocate the 18 object values in the exact order in
-`docs/protocol/wp8-federation-v0.1-direction.md`; allocate the 34 messages in
-the exact approved Task 0 order and values; allocate the exact approved reason,
+`docs/protocol/wp8-federation-v0.1-direction.md`; allocate every semantic
+message in the exact approved Task 0 order and values without a target count;
+allocate the exact approved reason,
 purpose, lifecycle, recovery, result, enforcement, authority, extension, and
 capability values. “F105 family order” alone is not an allocation. Document
 every table in the Development Profile.
@@ -134,7 +145,8 @@ coverage into the complete package.
 
 `WP8-SCHEMA-REQUIREDNESS-01` is a named blocking decision: Tasks 2-6 cannot
 begin until the object-by-object genesis/update requiredness matrix and literal
-schema vectors are approved. Task 1 registry modules are not blocked.
+schema vectors are approved. This decision adds no separate Task 1 blocker,
+but Task 1 registry modules remain blocked by `WP8-NORMATIVE-SOURCE-01`.
 
 **Files:**
 - Create: `nbsr/federation/fields.py`

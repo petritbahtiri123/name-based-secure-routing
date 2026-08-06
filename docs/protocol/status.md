@@ -1,6 +1,15 @@
 # NBSR implementation status
 
-**WP8 Task 0:** Proposed for human approval. Repository-contained decisions, Development Profile allocations, baseline locking, and verifier ownership are planning artifacts only. No federation runtime is implemented by Task 0; no Federation wire freeze or live-federation evidence is claimed.
+**WP8 Task 0:** Proposed for human approval. `WP8-NORMATIVE-SOURCE-01`
+remains open, so Task 1 is blocked until the exact historical source or a
+complete detailed replacement is approved. Repository-contained decisions,
+Development Profile allocations, baseline locking, and verifier ownership are
+planning artifacts only. No federation runtime is implemented by Task 0; no
+Federation wire freeze or live-federation evidence is claimed.
+
+The pending correction proposal uses the canonical 11-state Operator lifecycle,
+three recovery stages, and a semantics-derived Federation message registry;
+none is implemented runtime evidence.
 
 **Baseline date:** 2026-08-02
 

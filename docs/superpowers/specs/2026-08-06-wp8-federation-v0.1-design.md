@@ -1,7 +1,9 @@
 # WP8 Federation v0.1 design
 
-**Status:** Approved for implementation planning from F1-F119 and V1-V6. The
-first implementation tranche is profile/schema/vector freeze work, not an
+**Status:** Approved for implementation planning from F1-F119 and V1-V6.
+`WP8-NORMATIVE-SOURCE-01` remains open, so Task 1 is blocked until the exact
+historical source or a complete detailed replacement is approved. The first
+eventual implementation tranche is profile/schema/vector freeze work, not an
 unfrozen production runtime.
 
 ## Goal
@@ -159,3 +161,11 @@ or claim production readiness.
 The repository-contained F1-F119/V1-V6 decisions, machine registry, generated tables, profile draft, and Core baseline lock precede Task 1. Replay-state retention minimum: 86,400 seconds. Terminal tombstones are permanent across garbage collection, restart, compaction, backup restoration, and fresh-node synchronization. Continuity-preserving recovery retains the Operator ID at a higher generation; lineage-breaking recovery tombstones it and requires a new ID.
 
 Execution is registry and schema literal vectors; Python codecs and object validation; stateful scenario manifests with literal expected outcomes; Python state-machine implementation; complete generated vectors; then Node and Go independent verification. No federation runtime is implemented by Task 0.
+
+The correction tranche restores the 11-state Operator lifecycle and three
+contextual recovery stages. Its semantic message registry is count-independent
+and keeps capability agreement, discovery, proof retrieval, bundle and
+transparency synchronization, bilateral authorization, revocation push/pull,
+conflict evidence, lifecycle/recovery notices, and explicit object operations
+separate wherever authority, replay, acknowledgement, privacy, or mutation
+behavior differs.
