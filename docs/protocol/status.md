@@ -171,10 +171,10 @@ readiness, global federation, or independent interoperability.
 | Reversible route/firewall ownership journal | Implemented | WP5 records bounded applied operation IDs and exact prior resolver state, then emits trusted-profile-bound reverse-order rollback intent; operational rollback remains unverified |
 | Multi-zone HA and shared security state | Partial | WP6 provides a storage-neutral state machine and deterministic quorum simulation; no live multi-zone HA |
 | Two-operator ISP lab | Implemented | WP7 deterministic single-threaded, in-process admission, abuse, audit, connector-confinement, and topology simulation; no live ISP or federation evidence |
-| Signed ownership, delegation, transparency, and global federation | Planned | WP8 |
-| Independent second-language implementation | Planned | WP8 |
+| Signed ownership, delegation, transparency, and global federation | Planning-ready | WP8 F1-F119 architecture is indexed in `wp8-federation-v0.1-direction.md`; the Development Profile, schemas, registries, vectors, and runtime remain unimplemented |
+| Independent second-language implementation | Planned | WP8 selects a clean-room Go implementation after schema/vector freeze; the current Node verifier remains independent byte/object evidence, not a runtime |
 | Independent Core v0.2 vector verification | Implemented | Dependency-free Node.js verifier independently validates the 32-artifact deterministic package; this is conformance evidence, not a second runtime |
-| Public conformance suite and Internet-Draft | Planned | WP8 |
+| Public conformance suite and Internet-Draft | Planned | The WP8 plan defines vector, interoperability, evidence, and working-draft gates; none is implemented or standards-approved yet |
 
 ## Current non-claims
 
