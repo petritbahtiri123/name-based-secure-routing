@@ -16,7 +16,7 @@ def render() -> str:
     lines = [
         "# WP8 Federation v0.1 registry allocation amendment",
         "",
-        "**Task 0 status:** Proposed for human approval. These are normative Development Profile proposals, not permanently frozen Federation wire allocations. `WP8-NORMATIVE-SOURCE-01: CLOSED`; Task 1 may consume them only after human approval.",
+        "**Task 1 status:** Ratified Development Profile implementation authority. These are approved Development Profile allocations, not permanently frozen Federation wire allocations. `WP8-NORMATIVE-SOURCE-01: CLOSED`.",
         "",
         "The machine-readable authority is `registries/federation-v0.1-development.json`. This document is generated from it by `scripts/render_federation_registry.py`; tests require exact agreement. F105 supplies the semantic family requirement, while this amendment supplies the previously missing names, order, and values.",
         "",
@@ -52,13 +52,13 @@ def render() -> str:
                     metadata["object_type"] or "none",
                     metadata["authority_effect"],
                     metadata["why"],
-                    "proposed Development Profile",
+                    "approved Development Profile",
                 ]
                 lines.append("| " + " | ".join(cells) + " |")
         else:
             lines.extend(["| Value | Name | Status |", "|---:|---|---|"])
             for entry in entries:
-                lines.append(f"| {entry['value']} | `{entry['name']}` | proposed Development Profile |")
+                lines.append(f"| {entry['value']} | `{entry['name']}` | approved Development Profile |")
         ranges = source["reserved_ranges"][name]
         rendered = ", ".join(f"{start}..{end}" for start, end in ranges)
         lines.extend(["", f"Reserved: `{rendered}`.", ""])
@@ -85,7 +85,7 @@ def render() -> str:
             "",
             "## Approval and claim boundary",
             "",
-            "Human approval promotes these entries from proposed values to approved Development Profile values. It does not create permanently frozen wire allocations. That later gate requires closed schemas, literal vectors, cross-verifier agreement, and a separate decision. Production-profile values remain deferred. Task 0 implements no federation runtime and supplies no live federation, governance, interoperability, privacy, or production evidence.",
+            "Human approval has promoted these entries to approved Development Profile values. It does not create permanently frozen wire allocations. That later gate requires closed schemas, literal vectors, cross-verifier agreement, and a separate decision. Production-profile values remain deferred. Task 1 implements only profile constants, registry tables, and baseline enforcement; it supplies no live federation, governance, interoperability, privacy, or production evidence.",
             "",
         ]
     )

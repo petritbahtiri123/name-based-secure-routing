@@ -1,15 +1,24 @@
-# Federation v0.1 Development Profile draft
+# Federation v0.1 Development Profile
 
-**Task 0 status:** Proposed for human approval.
+**Task 1 status:** Ratified Development Profile implementation authority on
+2026-08-07. These allocations and constants are frozen for
+`nbsr-federation-dev-v1`; this is not a final Federation v0.1 wire freeze or a
+production-profile allocation.
+
+**Task 0 approval:** Approved at
+`06c912cd307467623d7d4ab69bfb3305de253f4b`.
+The Task 0 draft was proposed for human approval and is now accepted as the
+authority for this bounded Task 1 ratification.
 **WP8-NORMATIVE-SOURCE-01: CLOSED.** The exact 318,890-byte historical source
 is repository-accessible at
 `docs/protocol/history/NBSR-WP8-F1-F119-approved-source.txt` and matches the
-previously recorded SHA-256. Task 1 may begin after human approval. This draft
-is not a permanently frozen Federation wire allocation; production-profile
-values remain deferred.
+previously recorded SHA-256. Human approval authorized Task 1's bounded
+profile, registry, and baseline implementation. This profile is not a
+permanently frozen Federation wire allocation; production-profile values remain
+deferred.
 
 The historical source is the detailed F1-F119/V1-V6 decision authority. The
-condensed decision index is a cross-reference aid. After approval, this profile,
+condensed decision index is a cross-reference aid. This approved profile,
 the machine registry, generated allocation tables, and later expressly approved
 requiredness/vector decisions take precedence only for the exact values or
 ambiguities they explicitly freeze or correct; summaries never silently
@@ -18,6 +27,9 @@ override the historical source.
 ## Base and identity
 
 Required Core version is 2, baseline commit is `b1edfa8cd4bb9a2f280e14a2973e404dd8e4c914`, extension ID/version is 1/1, profile is `nbsr-federation-dev-v1`, and static compatibility is `nbsr-static-trust-v1`. The cryptographic profile is tagged COSE Sign1, protected `alg=-8`, protected non-empty `kid`, empty external AAD, Ed25519 only, and SHA-256 only. The registry and baseline authorities are `registries/federation-v0.1-development.json` and `registries/core-v0.2-baseline-lock.json`.
+
+The 110-artifact baseline lock is itself pinned by SHA-256
+`21d60dc60ee1bc00bef882b63fabaaea9229768770912ed7c93e6ae4d54453ef`.
 
 The lock proves every non-amended artifact byte-identical to the baseline
 commit. Its three named Task 0 exceptions are only the generic verifier README,
@@ -81,6 +93,34 @@ idempotency, allowed protocol state, object association, authority effect, and
 purpose are normative in the machine registry and generated allocation table.
 ACK and notice delivery never creates authority unless the named signed-object
 validation and state transition independently succeeds.
+
+## Ratified registry tables
+
+The exact ordered names and numeric values are the generated tables in
+`wp8-federation-v0.1-registry-allocation.md`, derived from
+`registries/federation-v0.1-development.json`. The Python `IntEnum` tables in
+`nbsr/federation/registry.py` reproduce those literals without loading or
+deriving them at runtime.
+
+| Registry | Ratified entries | Allocated values |
+|---|---:|---|
+| Extension IDs | 1 | 1 |
+| Capability IDs | 5 | 1..5 |
+| Object types | 18 | 1..18 |
+| Message types | 58 | 16384..16441 |
+| Reason codes | 32 | 0..31 |
+| Key purposes | 14 | 1..14 |
+| Key lifecycles | 5 | 1..5 |
+| Operator lifecycles | 11 | 1..11 |
+| Recovery stages | 3 | 1..3 |
+| Result types | 8 | 1..8 |
+| Decision outcomes | 5 | 1..5 |
+| Enforcement modes | 5 | 0..4 |
+| Authority classes | 14 | 1..14 |
+
+All remaining ranges shown in the generated allocation document remain
+reserved. Unknown and reserved values fail closed. These are approved
+Development Profile allocations, not permanent Federation wire allocations.
 
 ## Cryptographic freeze gate
 

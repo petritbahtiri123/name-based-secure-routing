@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from test_task0_registry import (
+from tests.federation.test_task0_registry import (
     EXPECTED_MESSAGES,
     EXPECTED_OPERATOR_LIFECYCLES,
     EXPECTED_RECOVERY_STAGES,

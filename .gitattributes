@@ -1,2 +1,3 @@
 *.sh text eol=lf
 docs/protocol/history/NBSR-WP8-F1-F119-approved-source.txt -text whitespace=cr-at-eol
+docs/protocol/registries/federation-v0.1-development.json text eol=lf

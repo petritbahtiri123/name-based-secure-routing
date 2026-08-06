@@ -291,12 +291,12 @@ def test_task0_allocates_every_required_closed_registry() -> None:
         assert entries, name
         values = [entry["value"] for entry in entries]
         assert len(values) == len(set(values)), name
-        assert all(entry["status"] == "proposed-development-profile" for entry in entries)
+        assert all(entry["status"] == "approved-development-profile" for entry in entries)
 
 
 def test_task0_registry_namespaces_and_reservations_are_explicit() -> None:
     source = _load()
-    assert source["status"] == "proposed-for-human-approval"
+    assert source["status"] == "approved-development-profile"
     assert source["wire_freeze"] is False
     assert source["core_collision_proof"]["core_message_values"] == list(range(1, 18))
     message_values = [entry["value"] for entry in source["registries"]["message_types"]]

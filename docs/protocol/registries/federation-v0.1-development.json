@@ -1,929 +1,929 @@
 {
   "format_version": 1,
   "profile": "nbsr-federation-dev-v1",
-  "status": "proposed-for-human-approval",
+  "status": "approved-development-profile",
   "wire_freeze": false,
-  "allocation_policy": "All listed values are normative Development Profile proposals. They become approved Development Profile allocations only after human approval; none is a permanent Federation wire allocation until schemas and vectors are reviewed.",
+  "allocation_policy": "All listed values are approved Development Profile allocations. None is a permanent Federation wire allocation until schemas and vectors are reviewed.",
   "registries": {
     "extension_ids": [
       {
         "name": "FEDERATION",
         "value": 1,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       }
     ],
     "capability_ids": [
       {
         "name": "FEDERATION_OBJECTS",
         "value": 1,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "FEDERATION_AUTHORIZATION",
         "value": 2,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "TRANSPARENCY_PROOFS",
         "value": 3,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "STATIC_TRUST_COMPATIBILITY",
         "value": 4,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "FEDERATION_CONTEXT_BINDING",
         "value": 5,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       }
     ],
     "object_types": [
       {
         "name": "OperatorRegistryRecord",
         "value": 1,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "KeyAuthorizationRecord",
         "value": 2,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "NameOwnershipRecord",
         "value": 3,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "DelegationRecord",
         "value": 4,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "FederationTrustBundle",
         "value": 5,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "TransparencyCheckpoint",
         "value": 6,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "InclusionProof",
         "value": 7,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "ConsistencyProof",
         "value": 8,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "WitnessStatement",
         "value": 9,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "OperatorEndpointRecord",
         "value": 10,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "FederationAuthorityProof",
         "value": 11,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "FederationAuthorizationContext",
         "value": 12,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "TypedRevocationRecord",
         "value": 13,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "ConflictEvidence",
         "value": 14,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "OperatorLifecycleRecord",
         "value": 15,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "RecoveryTransitionRecord",
         "value": 16,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "ConflictResolutionRecord",
         "value": 17,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "AppealDecisionRecord",
         "value": 18,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       }
     ],
     "message_types": [
       {
         "name": "FED_CAPABILITIES",
         "value": 16384,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "FED_CAPABILITIES_ACK",
         "value": 16385,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "OPERATOR_RECORD_QUERY",
         "value": 16386,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "OPERATOR_RECORD_RESPONSE",
         "value": 16387,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "ENDPOINT_RECORD_QUERY",
         "value": 16388,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "ENDPOINT_RECORD_RESPONSE",
         "value": 16389,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "OWNERSHIP_AUTHORITY_QUERY",
         "value": 16390,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "OWNERSHIP_AUTHORITY_RESPONSE",
         "value": 16391,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "AUTHORITY_PROOF_QUERY",
         "value": 16392,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "AUTHORITY_PROOF_RESPONSE",
         "value": 16393,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "TRUST_BUNDLE_REQUEST",
         "value": 16394,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "TRUST_BUNDLE_RESPONSE",
         "value": 16395,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "TRUST_BUNDLE_UPDATE",
         "value": 16396,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "TRUST_BUNDLE_ACK",
         "value": 16397,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "CHECKPOINT_QUERY",
         "value": 16398,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "CHECKPOINT_RESPONSE",
         "value": 16399,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "INCLUSION_PROOF_REQUEST",
         "value": 16400,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "INCLUSION_PROOF_RESPONSE",
         "value": 16401,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "CONSISTENCY_PROOF_REQUEST",
         "value": 16402,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "CONSISTENCY_PROOF_RESPONSE",
         "value": 16403,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "WITNESS_STATEMENT",
         "value": 16404,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "AUTHORIZATION_REQUEST",
         "value": 16405,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "AUTHORIZATION_RESPONSE",
         "value": 16406,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "REVOCATION_PUSH",
         "value": 16407,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "REVOCATION_ACK",
         "value": 16408,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "REVOCATION_QUERY",
         "value": 16409,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "REVOCATION_RESPONSE",
         "value": 16410,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "CONFLICT_REPORT",
         "value": 16411,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "CONFLICT_ACK",
         "value": 16412,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "OPERATOR_STATUS_QUERY",
         "value": 16413,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "OPERATOR_STATUS_RESPONSE",
         "value": 16414,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "QUARANTINE_NOTICE",
         "value": 16415,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "RECOVERY_NOTICE",
         "value": 16416,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "REENTRY_EVIDENCE",
         "value": 16417,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "OPERATOR_REGISTRATION_REQUEST",
         "value": 16418,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "OPERATOR_REGISTRATION_RESPONSE",
         "value": 16419,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "OPERATOR_RECORD_UPDATE",
         "value": 16420,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "OPERATOR_RECORD_UPDATE_ACK",
         "value": 16421,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "KEY_AUTHORIZATION_PUBLISH",
         "value": 16422,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "KEY_AUTHORIZATION_ACK",
         "value": 16423,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "KEY_AUTHORIZATION_UPDATE",
         "value": 16424,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "KEY_AUTHORIZATION_UPDATE_ACK",
         "value": 16425,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "NAME_OWNERSHIP_PUBLISH",
         "value": 16426,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "NAME_OWNERSHIP_ACK",
         "value": 16427,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "NAME_OWNERSHIP_UPDATE",
         "value": 16428,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "NAME_OWNERSHIP_UPDATE_ACK",
         "value": 16429,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "DELEGATION_PUBLISH",
         "value": 16430,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "DELEGATION_ACK",
         "value": 16431,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "DELEGATION_UPDATE",
         "value": 16432,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "DELEGATION_UPDATE_ACK",
         "value": 16433,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "ENDPOINT_RECORD_PUBLISH",
         "value": 16434,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "ENDPOINT_RECORD_ACK",
         "value": 16435,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "ENDPOINT_RECORD_UPDATE",
         "value": 16436,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "ENDPOINT_RECORD_UPDATE_ACK",
         "value": 16437,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "CONFLICT_RESOLUTION_PUBLISH",
         "value": 16438,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "CONFLICT_RESOLUTION_ACK",
         "value": 16439,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "APPEAL_REQUEST",
         "value": 16440,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "APPEAL_RESPONSE",
         "value": 16441,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       }
     ],
     "reason_codes": [
       {
         "name": "NONE",
         "value": 0,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "ERR_RESOURCE_LIMIT",
         "value": 1,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "ERR_PARSE",
         "value": 2,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "ERR_NON_CANONICAL",
         "value": 3,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "ERR_UNSUPPORTED_CRITICAL",
         "value": 4,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "ERR_CRYPTO_PROFILE",
         "value": 5,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "ERR_SIGNATURE_INVALID",
         "value": 6,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "ERR_IDENTITY",
         "value": 7,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "ERR_KEY_PURPOSE",
         "value": 8,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "ERR_KEY_LIFECYCLE",
         "value": 9,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "ERR_SCHEMA",
         "value": 10,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "ERR_VERSION",
         "value": 11,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "ERR_AUTHORITY",
         "value": 12,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "ERR_SCOPE",
         "value": 13,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "ERR_POLICY_EXPANSION",
         "value": 14,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "ERR_ROLLBACK",
         "value": 15,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "ERR_REPLAY",
         "value": 16,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "ERR_EQUIVOCATION",
         "value": 17,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "ERR_CONTINUITY",
         "value": 18,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "ERR_REVOKED",
         "value": 19,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "ERR_TERMINAL_STATE",
         "value": 20,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "ERR_TRANSPARENCY",
         "value": 21,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "ERR_CHECKPOINT",
         "value": 22,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "ERR_SPLIT_VIEW",
         "value": 23,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "ERR_WITNESS_THRESHOLD",
         "value": 24,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "ERR_FRESHNESS",
         "value": 25,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "ERR_EVIDENCE_MISSING",
         "value": 26,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "ERR_OUTAGE_POLICY",
         "value": 27,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "ERR_DOWNGRADE",
         "value": 28,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "ERR_LOCAL_POLICY",
         "value": 29,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "ERR_RECOVERY_INVALID",
         "value": 30,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "ERR_INTERNAL",
         "value": 31,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       }
     ],
     "key_purposes": [
       {
         "name": "IDENTITY_ROOT",
         "value": 1,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "RECOVERY",
         "value": 2,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "REGISTRY_SIGNING",
         "value": 3,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "KEY_AUTHORIZATION",
         "value": 4,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "NAME_OWNERSHIP",
         "value": 5,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "DELEGATION",
         "value": 6,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "TRUST_BUNDLE",
         "value": 7,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "TRANSPARENCY_LOG",
         "value": 8,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "WITNESS",
         "value": 9,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "ENDPOINT_DISCOVERY",
         "value": 10,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "FEDERATION_AUTHORIZATION",
         "value": 11,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "REVOCATION",
         "value": 12,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "GOVERNANCE",
         "value": 13,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "FEDERATION_TRANSPORT",
         "value": 14,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       }
     ],
     "key_lifecycles": [
       {
         "name": "NEXT",
         "value": 1,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "ACTIVE",
         "value": 2,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "RETIRING",
         "value": 3,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "RETIRED",
         "value": 4,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "REVOKED",
         "value": 5,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       }
     ],
     "operator_lifecycles": [
       {
         "name": "APPLIED",
         "value": 1,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "VERIFICATION_PENDING",
         "value": 2,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "VERIFIED",
         "value": 3,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "PROVISIONAL",
         "value": 4,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "ACTIVE",
         "value": 5,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "SUSPENDED",
         "value": 6,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "QUARANTINED",
         "value": 7,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "RECOVERY",
         "value": 8,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "RETIRED",
         "value": 9,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "TERMINALLY_REVOKED",
         "value": 10,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "REJECTED",
         "value": 11,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       }
     ],
     "recovery_stages": [
       {
         "name": "RECOVERY_PENDING",
         "value": 1,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "RECOVERY_VERIFIED",
         "value": 2,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "REENTRY_RESTRICTED",
         "value": 3,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       }
     ],
     "result_types": [
       {
         "name": "VALIDATION",
         "value": 1,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "PUBLICATION",
         "value": 2,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "QUERY",
         "value": 3,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "AUTHORIZATION",
         "value": 4,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "LIFECYCLE",
         "value": 5,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "RECOVERY",
         "value": 6,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "CONFLICT",
         "value": 7,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "APPEAL",
         "value": 8,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       }
     ],
     "decision_outcomes": [
       {
         "name": "ACCEPT",
         "value": 1,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "REJECT",
         "value": 2,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "PENDING",
         "value": 3,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "RESTRICTED",
         "value": 4,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "QUARANTINE",
         "value": 5,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       }
     ],
     "enforcement_modes": [
       {
         "name": "NONE",
         "value": 0,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "DENY_NEW_USE",
         "value": 1,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "REAUTHENTICATE",
         "value": 2,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "DRAIN",
         "value": 3,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "TERMINATE_ACTIVE_USE",
         "value": 4,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       }
     ],
     "authority_classes": [
       {
         "name": "OPERATOR_IDENTITY_ROOT",
         "value": 1,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "OPERATOR_RECOVERY",
         "value": 2,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "DEVELOPMENT_REGISTRAR",
         "value": 3,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "FEDERATION_AUTHORITY",
         "value": 4,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "TRANSPARENCY_LOG",
         "value": 5,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "WITNESS",
         "value": 6,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "NAME_OWNER",
         "value": 7,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "DELEGATE",
         "value": 8,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "SOURCE_OPERATOR",
         "value": 9,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "DESTINATION_OPERATOR",
         "value": 10,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "CONFLICT_RESOLUTION",
         "value": 11,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "APPEAL",
         "value": 12,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "OPERATOR_ENDPOINT",
         "value": 13,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       },
       {
         "name": "TARGET_CONTROLLER",
         "value": 14,
-        "status": "proposed-development-profile"
+        "status": "approved-development-profile"
       }
     ]
   },
