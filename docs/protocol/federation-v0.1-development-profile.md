@@ -1,0 +1,108 @@
+# Federation v0.1 Development Profile draft
+
+**Task 0 status:** Proposed for human approval. This becomes Task 1 authority only after approval. It is not a permanently frozen Federation wire allocation; production-profile values remain deferred.
+
+## Base and identity
+
+Required Core version is 2, baseline commit is `b1edfa8cd4bb9a2f280e14a2973e404dd8e4c914`, extension ID/version is 1/1, profile is `nbsr-federation-dev-v1`, and static compatibility is `nbsr-static-trust-v1`. The cryptographic profile is tagged COSE Sign1, protected `alg=-8`, protected non-empty `kid`, empty external AAD, Ed25519 only, and SHA-256 only. The registry and baseline authorities are `registries/federation-v0.1-development.json` and `registries/core-v0.2-baseline-lock.json`.
+
+The lock proves every non-amended artifact byte-identical to the baseline
+commit. Its three named Task 0 exceptions are only the generic verifier README,
+inventory implementation, and regression test required to separate WP4
+exporter ownership; their post-amendment bytes are independently locked.
+
+Operator ID binary/text mapping is `SHA-256("NBSR-FEDERATION-OPERATOR-ID-v1" || 0x00 || 0x01 || raw_32_byte_Ed25519_genesis_key)` and lowercase Bech32m HRP `nbsr` over those 32 bytes. Uppercase, mixed case, wrong HRP/checksum/length, and wrong discriminator fail.
+
+Continuity-preserving recovery retains the Operator ID with a strictly higher identity generation. Lineage-breaking recovery terminally tombstones the old Operator ID and requires a new genesis commitment and new Operator ID.
+
+## Retention, bounds, and timing
+
+Direction-document bounds and thresholds remain proposed. Replay-state retention minimum: 86,400 seconds. Terminal tombstones are permanent, non-expiring, and recoverable after garbage collection, restart, compaction, backup restoration, and fresh-node synchronization.
+
+Timing values are skew 300 seconds; key lifetime 30 days; overlap 1 hour through 24 hours; checkpoint interval 60 seconds and emergency deadline 30 seconds; trust freshness 300 seconds and degraded staleness 900 seconds; cache ceiling 300 seconds; missing evidence 30 seconds; quarantine reevaluation 300 seconds; drain 30 seconds; static warning 15 minutes and hard expiry 60 minutes without automatic reset.
+
+## Cryptographic freeze gate
+
+- Merkle leaf domain separator: `0x00`.
+- Merkle node domain separator: `0x01`.
+- Empty-tree root: `SHA-256("")`.
+- Leaf/node hashes: `SHA-256(0x00 || canonical_leaf)` and `SHA-256(0x01 || left || right)`.
+- Genesis checkpoint: signed `TransparencyCheckpoint`, tree size 0, empty-tree root, generation 1, sequence 1, absent predecessor, configured log ID, and timestamp 0 only in deterministic vectors.
+- Privacy commitment: HMAC-SHA-256 using a uniformly generated single-use 32-byte opening key over `"NBSR-FEDERATION-PRIVACY-COMMITMENT-v1" || 0x00 || canonical_value`.
+- Salt/keyed-commitment and opening rules: no separate public salt; authorized opening reveals the exact key and canonical value for recomputation. Keys are never logged or reused, and opening is audited.
+
+Task 4 cannot invent or replace these values before GREEN. A change requires a named blocking profile amendment, literal vectors, and approval.
+
+## Genesis/update requiredness
+
+The generic rule is: genesis is generation 1/sequence 1 with absent
+predecessor; same-generation update increments sequence and requires the
+immediately accepted canonical predecessor digest; new generation begins at
+sequence 1 and requires the prior terminal/transition digest plus recovery or
+transfer evidence. Object-specific requiredness is explicitly deferred by the
+named blocking decision `WP8-SCHEMA-REQUIREDNESS-01`. It blocks Tasks 2-6 until
+an object-by-object matrix and literal schema vectors are approved. Task 1
+registry modules may proceed; no object codec or validator may proceed.
+
+## Signer-authority matrix and COSE kid binding
+
+| Object family | Signer authority / key purpose |
+|---|---|
+| Operator registry | development registrar / registry signing plus witnesses |
+| Key authorization | identity root / identity root, or approved recovery / recovery |
+| Ownership and delegation | name owner / name ownership, then scoped owner or delegate / delegation |
+| Trust bundle | scoped federation authority / trust bundle |
+| Checkpoint and proofs | transparency log / transparency log |
+| Witness statement | independent witness / witness |
+| Endpoint | operator endpoint or scoped delegate / endpoint discovery |
+| Authority proof and context | exact source and destination / federation authorization |
+| Revocation | target controller 1-of-1, normal authority 3-of-5, or deny-only emergency authority 2-of-5 / revocation |
+| Lifecycle and recovery | registry plus operator recovery / recovery |
+| Conflict and appeal | conflict-resolution or appeal authority / governance |
+
+The exact signer-authority matrix is machine-readable in the registry source;
+its signer sets, purposes, thresholds, and combination rules override prose
+abbreviations in this table. Every COSE `kid` is 1..64 opaque bytes and resolves
+to exactly one accepted operator, public key, key purpose, authority class,
+validity interval, lifecycle, generation, and sequence. Ambiguous or
+cross-purpose resolution fails. Root replacement requires 2-of-3 recovery
+approvals, 1-of-1 development registry approval, and 2-of-3 witnesses. A
+compromised/terminal root cannot replace itself; absent continuity proof forces
+lineage-breaking recovery.
+
+Every registry is closed. Unknown, unallocated, or reserved values return
+`REJECT/ERR_UNSUPPORTED_CRITICAL` with `state_changed=false` before mutation.
+Privacy opening requires 4-of-5 conflict-resolution authorities using the
+governance purpose plus 3-of-5 witnesses. The signed single-use opening request
+binds commitment, object digest, request ID, recipient Operator ID, and expiry;
+authority or binding failure is `REJECT/ERR_AUTHORITY`, and every attempt is
+audited.
+
+`TypedRevocationRecord` carries a signed `revocation_authority_mode` selecting
+exactly one of `target-controller`, `normal-threshold`, or
+`emergency-deny-only`; validators evaluate only the selected alternative.
+Unknown modes fail `REJECT/ERR_UNSUPPORTED_CRITICAL`. Signature counts from an
+unselected alternative cannot make a record valid or ambiguous.
+
+## State and error rules
+
+Idempotency: equal version/equal digest is `ACCEPT` without mutation. Lower version is `REJECT/ERR_ROLLBACK`. Equivocation: equal version/different digest retains both branches and is `QUARANTINE/ERR_EQUIVOCATION`. Higher versions mutate only after complete validation.
+
+Error precedence is the numeric order in the machine registry: resource, parse, canonical/critical, cryptography/signature, identity/purpose/lifecycle, schema/version, authority/scope/expansion, rollback/replay/equivocation/continuity, revocation/terminal, transparency/checkpoint/split-view/witness, freshness/evidence/outage, downgrade, local policy, recovery, internal.
+
+## Staged vector-first execution
+
+1. Registry and schema literal vectors.
+2. Python codecs and object validation.
+3. Approved stateful scenario manifests with literal expected outcomes.
+4. Python state-machine implementation against those manifests.
+5. Complete generated vector package.
+6. Node and Go independent verification.
+
+Specification-authored literals are not derived from Python. Python may generate the complete byte package only after literals and outcomes are frozen.
+
+## Claims and non-claims
+
+Shared-transport evidence is not independent-runtime evidence. Object/vector, control-plane, shared-transport, independent-runtime, and independent end-to-end claims remain separate.
+
+No federation runtime is implemented by Task 0. There is no live federation, public/global authority, production registry/log/witness/governance/HSM custody, Go runtime, independent control-plane or end-to-end interoperability, production readiness, origin anonymity, DDoS elimination, or complete partition tolerance.

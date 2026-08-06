@@ -22,6 +22,21 @@
 - Claims remain tiered: vector agreement, object interoperability, control-plane interoperability, shared-transport interoperability, and independent end-to-end interoperability are never conflated.
 - Every behavior change uses RED-GREEN TDD and every confirmed review issue is reproduced with a failing regression before its fix.
 
+### Task 0 approval gate
+
+Task 0 must receive human approval before Task 1. Literal allocations come only from `docs/protocol/registries/federation-v0.1-development.json`; Task 1 RED tests must copy those approved names and numbers. Replay-state retention minimum: 86,400 seconds. Terminal tombstones are permanent across garbage collection, restart, compaction, backup restoration, and fresh-node synchronization. Continuity-preserving recovery retains the Operator ID at higher generation; lineage-breaking recovery tombstones it and requires a new ID.
+
+Core validation uses the following complete sequence. The generic verifier
+excludes only the independently inventoried `wp4-exporter/` subtree:
+
+```powershell
+python scripts/generate_core_v02_vectors.py --check vectors/core-v0.2
+node tools/core-v02-node-verifier/verify.mjs vectors/core-v0.2
+node scripts/verify_wp4_exporter_vectors.mjs vectors/core-v0.2/wp4-exporter
+```
+
+The corrected order is registry and schema literal vectors; Python codecs and object validation; stateful scenario manifests with literal expected outcomes; Python state-machine implementation; complete generated vectors; Node and Go independent verification. No federation runtime is implemented by Task 0.
+
 ---
 
 ### Task 1: Ratify Core v0.2 and freeze the Development Profile registries
@@ -51,9 +66,16 @@ def test_extension_registry_is_closed_and_collision_free() -> None:
     assert FederationProfile.extension_id == 1
     assert FederationProfile.extension_version == 1
     assert FederationProfile.required_core_version == 2
-    assert [item.value for item in ObjectType] == list(range(1, 19))
-    assert len({item.value for item in MessageType}) == 34
+    assert [(item.name, item.value) for item in ObjectType] == EXPECTED_OBJECT_TYPES
+    assert [(item.name, item.value) for item in MessageType] == EXPECTED_MESSAGE_TYPES
 ```
+
+`EXPECTED_OBJECT_TYPES` and `EXPECTED_MESSAGE_TYPES` are literal tuples in the
+RED test, containing all 18 and 34 name/value pairs copied from the approved
+machine source. The existing Task 0 registry regression contains those exact
+literals and is the copying authority. RED tests must not derive a range or
+compute expectations from the implementation or JSON loader. Apply the same
+literal rule to every other approved registry.
 
 - [ ] **Step 2: Run RED**
 
@@ -80,8 +102,10 @@ class FederationProfile:
 
 Allocate the 18 object values in the exact order in
 `docs/protocol/wp8-federation-v0.1-direction.md`; allocate the 34 messages in
-the F105 family order; allocate stable reason codes in validation-precedence
-order and document every table in the Development Profile.
+the exact approved Task 0 order and values; allocate the exact approved reason,
+purpose, lifecycle, recovery, result, enforcement, authority, extension, and
+capability values. “F105 family order” alone is not an allocation. Document
+every table in the Development Profile.
 
 - [ ] **Step 4: Verify GREEN and immutable Core artifacts**
 
@@ -99,6 +123,18 @@ Stage only the seven Task 1 paths. Inspect `git diff --cached --name-only`,
 `docs(wp8): freeze federation development profile`
 
 ### Task 2: Operator identity and purpose-bound key authorization
+
+**Vector-first gate for Tasks 2-5:** Before each Python codec/object validator
+is written, its closed schema and hand-authored registry/schema literal vectors
+(canonical valid form, each requiredness boundary, unknown critical field,
+wrong type, over-limit form, and signature-purpose case) must be reviewed and
+checked in. Python tests consume those literals; Python does not generate their
+expected bytes or outcomes. Task 7 later assembles these literals and generated
+coverage into the complete package.
+
+`WP8-SCHEMA-REQUIREDNESS-01` is a named blocking decision: Tasks 2-6 cannot
+begin until the object-by-object genesis/update requiredness matrix and literal
+schema vectors are approved. Task 1 registry modules are not blocked.
 
 **Files:**
 - Create: `nbsr/federation/fields.py`
@@ -273,6 +309,13 @@ Run Task 5 tests plus WP7 admission/privacy tests. Commit:
 
 ### Task 6: Immutable state machine, durable watermarks, and outage policy
 
+**State-vector gate:** Before `FederationState.apply` is implemented, check in
+the approved stateful scenario manifests with literal expected outcomes,
+reasons, enforcement modes, mutation flags, dependency effects, and state
+digests. Task 6 implements against those manifests. Task 7 packages them and
+may add reference-generated coverage, clearly labelled as generated rather
+than specification-authored.
+
 **Files:**
 - Create: `nbsr/federation/state.py`
 - Create: `nbsr/federation/store.py`
@@ -312,6 +355,12 @@ preflight.
 Commit: `feat(wp8): persist deterministic federation state`.
 
 ### Task 7: Deterministic Federation v0.1 vector package
+
+Task 7 is package completion, not the first appearance of vectors. It combines
+the pre-codec registry/schema literals, the pre-state-machine literal scenario
+manifests, and explicitly labelled reference-generated expansion cases. The
+manifest records provenance for each artifact as `specification-authored` or
+`reference-generated`.
 
 **Files:**
 - Create: `scripts/generate_federation_v01_vectors.py`

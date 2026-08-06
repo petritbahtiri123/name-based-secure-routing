@@ -606,3 +606,32 @@ test("CLI rejects missing and extra arguments", () => {
     assert.match(result.stderr, /^Core v0\.2 verification failed: .{1,200}\n$/u);
   }
 });
+
+test("dedicated WP4 exporter verifier detects an internal mutation", async () => {
+  await withPackageCopy(async (root) => {
+    const exporterRoot = path.join(root, "wp4-exporter");
+    const target = path.join(exporterRoot, "valid", "service-channel-tcp-01", "context.cbor");
+    const changed = Buffer.from(await readFile(target));
+    changed[0] ^= 1;
+    await writeFile(target, changed);
+    const verifier = path.join(REPO_ROOT, "scripts", "verify_wp4_exporter_vectors.mjs");
+    const result = spawnSync(process.execPath, [verifier, exporterRoot], {
+      encoding: "utf8",
+      windowsHide: true,
+    });
+    assert.equal(result.status, 1);
+    assert.equal(result.stderr, "artifact-digest\n");
+  });
+});
+
+test("documented Core v0.2 validation sequence passes", () => {
+  const commands = [
+    ["python", ["scripts/generate_core_v02_vectors.py", "--check", "vectors/core-v0.2"]],
+    [process.execPath, ["tools/core-v02-node-verifier/verify.mjs", "vectors/core-v0.2"]],
+    [process.execPath, ["scripts/verify_wp4_exporter_vectors.mjs", "vectors/core-v0.2/wp4-exporter"]],
+  ];
+  for (const [command, args] of commands) {
+    const result = spawnSync(command, args, {cwd: REPO_ROOT, encoding: "utf8", windowsHide: true});
+    assert.equal(result.status, 0, `${command} ${args.join(" ")}\n${result.stderr}`);
+  }
+});

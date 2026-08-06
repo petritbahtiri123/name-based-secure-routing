@@ -3,6 +3,12 @@
 This dependency-free Node.js 24 tool independently verifies the checked-in
 `vectors/core-v0.2` conformance package.
 
+The generic verifier owns the Core v0.2 root inventory except the exact
+`wp4-exporter/` directory. That directory is independently inventoried by its
+own manifest and checked with
+`node scripts/verify_wp4_exporter_vectors.mjs vectors/core-v0.2/wp4-exporter`.
+The generic verifier ignores no other directory, and no file has two owners.
+
 Run from the repository root:
 
 ```powershell

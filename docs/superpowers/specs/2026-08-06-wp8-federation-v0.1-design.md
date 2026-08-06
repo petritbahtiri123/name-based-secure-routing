@@ -113,10 +113,11 @@ split-view evidence, uncertain compromise scope, or invalid recovery lineage
 are `QUARANTINE`.
 
 No outcome creates partial authority. Retry is idempotent. Terminal identities,
-keys, revocations, and tombstones do not resurrect. Recovery creates a new
-generation through the approved threshold path and never changes the stable
-genesis-derived Operator ID. Static trust is a separate pre-authorized profile,
-never an automatic fallback.
+keys, revocations, and tombstones do not resurrect. Continuity-preserving
+recovery creates a higher identity generation for the same Operator ID;
+lineage-breaking recovery permanently tombstones the old ID and requires a new
+genesis-derived ID. Static trust is a separate pre-authorized profile, never an
+automatic fallback.
 
 ## Testing and review
 
@@ -134,12 +135,12 @@ limited to the strongest completed evidence gate.
 
 ## Delivery stages
 
-1. Ratify Core v0.2 and freeze Federation v0.1 Development Profile.
-2. Freeze object/message/field/error registries and all 18 schemas.
-3. Generate deterministic object and stateful vector packages.
-4. Implement Python reference validation/state transitions.
-5. Extend independent Node byte/object verification.
-6. Implement clean-room Go object and control-plane semantics.
+1. Approve Task 0, ratify Core v0.2, and freeze the Development Profile.
+2. Freeze registries/schemas and check in specification-authored literal vectors.
+3. Implement Python codecs and object validation against those literals.
+4. Approve literal stateful scenario manifests and implement Python state transitions.
+5. Complete the generated package with provenance-labelled expansion cases.
+6. Extend independent Node verification and implement clean-room Go semantics.
 7. Integrate the federation context with Rust Core v0.2 transport.
 8. Run role-reversed live control-plane tests, then progressively stronger
    routing, revocation, outage, quarantine, and recovery tests.
@@ -152,3 +153,9 @@ organization verification, require a vendor HSM, deploy public logs, allocate
 Internet-wide authority, promise anonymity or DDoS elimination, implement a
 second complete transport stack, publish a standards-consensus Internet-Draft,
 or claim production readiness.
+
+## Task 0 planning errata (proposed for human approval)
+
+The repository-contained F1-F119/V1-V6 decisions, machine registry, generated tables, profile draft, and Core baseline lock precede Task 1. Replay-state retention minimum: 86,400 seconds. Terminal tombstones are permanent across garbage collection, restart, compaction, backup restoration, and fresh-node synchronization. Continuity-preserving recovery retains the Operator ID at a higher generation; lineage-breaking recovery tombstones it and requires a new ID.
+
+Execution is registry and schema literal vectors; Python codecs and object validation; stateful scenario manifests with literal expected outcomes; Python state-machine implementation; complete generated vectors; then Node and Go independent verification. No federation runtime is implemented by Task 0.

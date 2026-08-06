@@ -1,0 +1,481 @@
+{
+  "format_version": 1,
+  "baseline_commit": "b1edfa8cd4bb9a2f280e14a2973e404dd8e4c914",
+  "inventory_basis": "Core semantic baseline at baseline_commit plus the Task 0 verifier-ownership amendment; this lock is ratified by the Task 0 commit.",
+  "task0_amended_paths": [
+    "tools/core-v02-node-verifier/README.md",
+    "tools/core-v02-node-verifier/lib/manifest.mjs",
+    "tools/core-v02-node-verifier/test/verifier.test.mjs"
+  ],
+  "scopes": [
+    "docs/protocol/core-v0.1-wire.md",
+    "docs/protocol/core-v0.1-wire-schema.md",
+    "docs/protocol/core-v0.2-version-negotiation-decision.md",
+    "docs/protocol/core-v0.2-session-route-schema-proposal.md",
+    "docs/protocol/core-v0.2-stream-binding-schema-proposal.md",
+    "docs/protocol/core-v0.2-channel-lifecycle-schema-proposal.md",
+    "docs/protocol/core-v0.2-udp-datagram-schema-proposal.md",
+    "docs/protocol/core-v0.2-service-channel-exporter.md",
+    "nbsr/protocol",
+    "scripts/generate_core_v02_vectors.py",
+    "scripts/core_v02_vectors",
+    "scripts/generate_wp4_exporter_vectors.py",
+    "scripts/verify_wp4_exporter_vectors.mjs",
+    "tools/core-v02-node-verifier",
+    "vectors/core-v0.2",
+    "crates/nbsr-transport/src/core_v02.rs",
+    "crates/nbsr-transport/src/lib.rs",
+    "crates/nbsr-transport/src/session.rs",
+    "crates/nbsr-transport/src/admission.rs",
+    "crates/nbsr-transport/src/quinn_adapter.rs",
+    "crates/nbsr-transport/tests/core_v02_vectors.rs"
+  ],
+  "external_packages": {
+    "vectors/core-v0.2/wp4-exporter": {
+      "owner": "scripts/verify_wp4_exporter_vectors.mjs",
+      "inventory": "vectors/core-v0.2/wp4-exporter/manifest.json"
+    }
+  },
+  "artifacts": {
+    "crates/nbsr-transport/src/admission.rs": {
+      "length": 27246,
+      "sha256": "3f7bc3197fb578f517c71b919422043b3d30400f777eb3bc874a174b4367eb52"
+    },
+    "crates/nbsr-transport/src/core_v02.rs": {
+      "length": 33952,
+      "sha256": "f1551f8926de6c0cf3114d354d4c0397108664d9a9eb0aac6823130a87ac64a2"
+    },
+    "crates/nbsr-transport/src/lib.rs": {
+      "length": 5879,
+      "sha256": "1ce1282b0faf457b23a9ed274748f2fbbff2f3c793c6b3613407616c7694e7d1"
+    },
+    "crates/nbsr-transport/src/quinn_adapter.rs": {
+      "length": 46946,
+      "sha256": "60ee9abcc97f0781121f00b76d2a379a95f33ed82b193ec8828a80ea11a5ad10"
+    },
+    "crates/nbsr-transport/src/session.rs": {
+      "length": 46604,
+      "sha256": "1b911ae166c7a13ac690449a9d363b74439b8b56639d405e0d5f7918093b7dc6"
+    },
+    "crates/nbsr-transport/tests/core_v02_vectors.rs": {
+      "length": 5143,
+      "sha256": "5f0f0f1684b356c74b8e29bcef338df212c0b2358aa10495c1a5528a98c7a01f"
+    },
+    "docs/protocol/core-v0.1-wire-schema.md": {
+      "length": 17961,
+      "sha256": "5661f6037c8b87f83f08d2298429d375062c4ae5f279e2d26d3f394a64640b10"
+    },
+    "docs/protocol/core-v0.1-wire.md": {
+      "length": 20532,
+      "sha256": "297a24699381958674c4d30826912c835d80fb8d336807eb972b9574297291a3"
+    },
+    "docs/protocol/core-v0.2-channel-lifecycle-schema-proposal.md": {
+      "length": 6601,
+      "sha256": "efea0f57cd409d7d62616a85f9a199d0b6eb696b4e7bd84128565d807e8f8a48"
+    },
+    "docs/protocol/core-v0.2-service-channel-exporter.md": {
+      "length": 3942,
+      "sha256": "d4005a596d06497df7459ede6c10f6c32fcc164130c5231eeff51af14b381ad5"
+    },
+    "docs/protocol/core-v0.2-session-route-schema-proposal.md": {
+      "length": 16325,
+      "sha256": "362e308190b65ebbc78be84934177c233165e2dc9313bdc9eb081495d051f231"
+    },
+    "docs/protocol/core-v0.2-stream-binding-schema-proposal.md": {
+      "length": 10316,
+      "sha256": "afac46ec41e25d8b1816d1d705e7defef0e2f6dc5c4258c0a032e041a79b1bba"
+    },
+    "docs/protocol/core-v0.2-udp-datagram-schema-proposal.md": {
+      "length": 6004,
+      "sha256": "c5547eaab673390b6e34066b4762a9d0f3268b47b6c63527277a11e23f082203"
+    },
+    "docs/protocol/core-v0.2-version-negotiation-decision.md": {
+      "length": 9297,
+      "sha256": "86d8623e11486494b9e0df4c9e63feac400f02ab9c0a748474b7f4b53987f566"
+    },
+    "nbsr/protocol/__init__.py": {
+      "length": 1688,
+      "sha256": "f38a7187e10d7ca106657a04c5e02071fff4bbf2dc300e4f03d41bb0f83d13e9"
+    },
+    "nbsr/protocol/cbor.py": {
+      "length": 9676,
+      "sha256": "1690e14243bbb43bb3aa310d2d3141d2ea89fa3f3dd73f2d392a9c9010e70e17"
+    },
+    "nbsr/protocol/cose.py": {
+      "length": 4381,
+      "sha256": "90df7499877412c7bd19e6190009bc5432d8d569224050349e37f07a148548f4"
+    },
+    "nbsr/protocol/errors.py": {
+      "length": 603,
+      "sha256": "fc9ca062e214cd03a76fb5cb829befe89584cfd29294960d0595363bb88ab5c9"
+    },
+    "nbsr/protocol/fields.py": {
+      "length": 7294,
+      "sha256": "fb7ffeff4901b9380d16c107955275f46db350ca9ac6ac1988fa07413e0e7d7b"
+    },
+    "nbsr/protocol/models.py": {
+      "length": 19794,
+      "sha256": "6d97fbb7f554880165b73c3666b9cd15fe4d6f13ee04bb44f6e038e91bfa3fca"
+    },
+    "nbsr/protocol/registry.py": {
+      "length": 1072,
+      "sha256": "90b1fbe0b4096142c2081a3eda36a4f82d132c65792c1ac879ff62279e26493b"
+    },
+    "nbsr/protocol/schemas.py": {
+      "length": 10313,
+      "sha256": "9702feaf93ceccc2e9ef0f32bb560e30976c3b6aa65e60db8e2ba6c9eeefda77"
+    },
+    "nbsr/protocol/states.py": {
+      "length": 5111,
+      "sha256": "dfcb2b0dcdc61f9c99319020f0714467cd1bf9823dd62662440a6f39d399df9b"
+    },
+    "scripts/core_v02_vectors/__init__.py": {
+      "length": 56,
+      "sha256": "2beb207438ab79bf43d5cd7d5250ee510511e2271a6f9557d1183954adfbc02d"
+    },
+    "scripts/core_v02_vectors/crypto.py": {
+      "length": 6361,
+      "sha256": "28edcd9436cfc5f6f9ac651cab0a57f68e299cb9316649d8a9399f2235217b59"
+    },
+    "scripts/core_v02_vectors/fixtures.py": {
+      "length": 2610,
+      "sha256": "d980eb7e78d3aaa14e6eb4c4d77faceec7cd72e2e38db65a047674cdf2eaefe4"
+    },
+    "scripts/core_v02_vectors/generate.py": {
+      "length": 28832,
+      "sha256": "d52d125bbf1209e429543484562100e8fddadb123acf66abe463085965caa085"
+    },
+    "scripts/core_v02_vectors/manifest.py": {
+      "length": 13639,
+      "sha256": "2b7b3f54fcc5ae63bb1c4d15a8e2c1e001b4cbc17c731571a61cf1e5031bf062"
+    },
+    "scripts/core_v02_vectors/reference.py": {
+      "length": 26961,
+      "sha256": "3ce94d0f3f6dcc11b0764b51bb5a4b859a1eed9a5aa0ad26b380c32d65194556"
+    },
+    "scripts/generate_core_v02_vectors.py": {
+      "length": 5674,
+      "sha256": "7a07833f536bc229c3061a962f0546a71820c245c050229805b04935102b07de"
+    },
+    "scripts/generate_wp4_exporter_vectors.py": {
+      "length": 13437,
+      "sha256": "bf31ad493640d5d3348f03d55d9cd2a86f3f34053364f93f29454a84014a7a6e"
+    },
+    "scripts/verify_wp4_exporter_vectors.mjs": {
+      "length": 14568,
+      "sha256": "6a45f2d57ce4eaffc3d3134e6c8f3ec418db6e2ff3fcd38534c8e04bf59621e1"
+    },
+    "tools/core-v02-node-verifier/README.md": {
+      "length": 1465,
+      "sha256": "95e7f0f739a8934b55040ffdecccaa2158e119bac1d1396420abe54ab9734910"
+    },
+    "tools/core-v02-node-verifier/lib/cbor.mjs": {
+      "length": 10289,
+      "sha256": "b6a93d120e34ace5cc6bf7d97bb2f18b172f6879b5c7b446abeeb2da329e463c"
+    },
+    "tools/core-v02-node-verifier/lib/crypto.mjs": {
+      "length": 4215,
+      "sha256": "86e0cdbaeb11415b61ce015e6eb9f844c0dcb3be1887e73bfaa637d14c66ff1e"
+    },
+    "tools/core-v02-node-verifier/lib/manifest.mjs": {
+      "length": 14069,
+      "sha256": "f5980452f8b67ff6182f78b60d2d7bf5f087de067abd7c00bd85b715f989ef20"
+    },
+    "tools/core-v02-node-verifier/lib/semantics.mjs": {
+      "length": 15433,
+      "sha256": "92767a2eb9ac6ecb993ddd58fb24ee847b9fe8e0d0c38b75a853557b60dd8058"
+    },
+    "tools/core-v02-node-verifier/package.json": {
+      "length": 254,
+      "sha256": "664d6954dbf44233d63ef703185fc413695403791dc591eda093cf034581bb57"
+    },
+    "tools/core-v02-node-verifier/test/verifier.test.mjs": {
+      "length": 22321,
+      "sha256": "8e82778d29d9ffb2d800b21a9ff3e679125d7f2700914599e06da1b11963fa1c"
+    },
+    "tools/core-v02-node-verifier/verify.mjs": {
+      "length": 2709,
+      "sha256": "d1dfcd1a95bd682de70b8b09ed54e7a6d4394884d3ccd77ec069f6156a8b773a"
+    },
+    "vectors/core-v0.2/README.md": {
+      "length": 1084,
+      "sha256": "0d40b7723d9b6f95b4275968f810527bb6e449f93eac68612de61e2face12781"
+    },
+    "vectors/core-v0.2/artifacts/invalid/binding/grant-expired.cbor": {
+      "length": 567,
+      "sha256": "76af03ba7afd661eafd1179e97c9547e7289940913cbaa6ee53d326d1752c47a"
+    },
+    "vectors/core-v0.2/artifacts/invalid/binding/route-port-not-authorized.cbor": {
+      "length": 567,
+      "sha256": "e8a985090ca929ccb52eb24d9687e36bd7da019eec6cbf9154eb6950bfbbd400"
+    },
+    "vectors/core-v0.2/artifacts/invalid/cose/cose-bad-signature.cbor": {
+      "length": 567,
+      "sha256": "a3d53cb9ad8b39ab88aecc52b648b10d3644544b7cd9b6920fbc91429e6f4c27"
+    },
+    "vectors/core-v0.2/artifacts/invalid/cose/cose-missing-tag.cbor": {
+      "length": 566,
+      "sha256": "aa3116db1de205a3e09e1d45e9a4861ddddf71e656d0f3b136b25323faf124ba"
+    },
+    "vectors/core-v0.2/artifacts/invalid/cose/cose-wrong-algorithm.cbor": {
+      "length": 567,
+      "sha256": "55931254a7458701746ccf7dcbb27a54d19815bf956711b25d2788fb78be3fd5"
+    },
+    "vectors/core-v0.2/artifacts/invalid/envelope-schema/boolean-protocol-version.cbor": {
+      "length": 193,
+      "sha256": "5ea544cd2f915ba9dd850e49cab1c515ab49b32e6a6d3a9556832dda8057f603"
+    },
+    "vectors/core-v0.2/artifacts/invalid/proof/proof-bad-signature.cbor": {
+      "length": 567,
+      "sha256": "c46e4e5569bbc10190d4f2eee1ae65a72199cf0663c99396698c091322001f81"
+    },
+    "vectors/core-v0.2/artifacts/invalid/structural/cbor-duplicate-map-key.bin": {
+      "length": 5,
+      "sha256": "19cd12cb770a0f11531faf8bf57ac7c8e1d96461875c8487293b46622258bb5c"
+    },
+    "vectors/core-v0.2/artifacts/invalid/structural/cbor-float.bin": {
+      "length": 3,
+      "sha256": "3c213998cb56b97b31168d9dce02d084fb5f5103caef41fb6dc375f593749a7d"
+    },
+    "vectors/core-v0.2/artifacts/invalid/structural/cbor-indefinite-map.bin": {
+      "length": 2,
+      "sha256": "58daaf73604c8f2c4e3584b7bf43e64efaf6845deca4ef4f295a94633876e900"
+    },
+    "vectors/core-v0.2/artifacts/invalid/structural/cbor-nonpreferred-integer.bin": {
+      "length": 2,
+      "sha256": "78a23af8da46b1b37e8767921a2d3f528fdc8eca37cea8aea775fd2b283d3776"
+    },
+    "vectors/core-v0.2/artifacts/invalid/structural/cbor-over-total-bytes.bin": {
+      "length": 65537,
+      "sha256": "ccdfd982948b0f498fe03527626494b8ea4783821e8c02a7fa0970d9524af567"
+    },
+    "vectors/core-v0.2/artifacts/invalid/structural/cbor-trailing-bytes.bin": {
+      "length": 2,
+      "sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+    },
+    "vectors/core-v0.2/artifacts/invalid/structural/cbor-truncated.bin": {
+      "length": 1,
+      "sha256": "8a8950f7623663222542c9469c73be3c4c81bbdf019e2c577590a61f2ce9a157"
+    },
+    "vectors/core-v0.2/artifacts/invalid/structural/cbor-unsupported-tag.bin": {
+      "length": 2,
+      "sha256": "e9aff84fdb699ca706c0a1fed47bb095cb25e3c95aa5d1c5d216ff2cfbcd4998"
+    },
+    "vectors/core-v0.2/artifacts/invalid/structural/cbor-wrong-map-order.bin": {
+      "length": 5,
+      "sha256": "c4ebf770bae281220ad7bae82d64a32fd52c24e9d02865000175bf4b0815c86f"
+    },
+    "vectors/core-v0.2/artifacts/invalid/version-dispatch/version-one-on-v2.cbor": {
+      "length": 193,
+      "sha256": "253c9016fe4185b13b36c880b7905e72d960ea2e62977efe608069da5071131f"
+    },
+    "vectors/core-v0.2/artifacts/invalid/version-dispatch/version-three-generic-close.cbor": {
+      "length": 193,
+      "sha256": "3ea867cb3b54a0485e564883feb28fbc7f76b469de3c0c7636ede2359979239c"
+    },
+    "vectors/core-v0.2/artifacts/valid/envelopes/client-hello-body.cbor": {
+      "length": 149,
+      "sha256": "4a82d5df573bd5341dfe6b827a153921b47e4f33865eacb48ddc05b4795543e0"
+    },
+    "vectors/core-v0.2/artifacts/valid/envelopes/client-hello.cbor": {
+      "length": 193,
+      "sha256": "10cf1f69b24bba84f0a9669a33a99d98c513849d28e1ab9bff7004fe42ed361c"
+    },
+    "vectors/core-v0.2/artifacts/valid/envelopes/edge-hello-body.cbor": {
+      "length": 145,
+      "sha256": "ae745d0db91721a31bc1f539dedade0f9b2500399422f7d43516139ca9ca9e85"
+    },
+    "vectors/core-v0.2/artifacts/valid/envelopes/edge-hello.cbor": {
+      "length": 189,
+      "sha256": "f33ec7de580b4303c20e1072ec1a67d2bbace29fb426358bc2ace79005b870c8"
+    },
+    "vectors/core-v0.2/artifacts/valid/envelopes/route-accept.cbor": {
+      "length": 124,
+      "sha256": "fcf84ff3fd3449c3246c2ee4a96b3234a6c3ff112e1b3521c7a756af53ecc04c"
+    },
+    "vectors/core-v0.2/artifacts/valid/envelopes/route-open.cbor": {
+      "length": 567,
+      "sha256": "c7b13d48727c70572544d6ff12436a6f761f948b0a3f5a21bb4825c1a351b868"
+    },
+    "vectors/core-v0.2/artifacts/valid/envelopes/route-reject.cbor": {
+      "length": 144,
+      "sha256": "265d4c17610c370baebb2241b5150269932b9b21503882fe7f0b088fb77a2216"
+    },
+    "vectors/core-v0.2/artifacts/valid/envelopes/stream-accept.cbor": {
+      "length": 91,
+      "sha256": "d189d4329ef723050f465cc44cc815a8150dddf1b10200072df6402b03380caf"
+    },
+    "vectors/core-v0.2/artifacts/valid/envelopes/stream-open.cbor": {
+      "length": 129,
+      "sha256": "6bfdc396db674c64dd70b33d7a1e31cd2a1cae9ad0ffa0f13605da11ce960894"
+    },
+    "vectors/core-v0.2/artifacts/valid/envelopes/stream-reject.cbor": {
+      "length": 111,
+      "sha256": "823cdd283e04ac00384a0759f5a88216126a45aa710b0e3c26f671f5812308d5"
+    },
+    "vectors/core-v0.2/artifacts/valid/objects/route-grant-payload.cbor": {
+      "length": 276,
+      "sha256": "debb176a4e93e0ca98ff379d4ac449ea4e802449e95b6ddbc4ba9427b7f297a9"
+    },
+    "vectors/core-v0.2/artifacts/valid/objects/route-grant-sign1.cose": {
+      "length": 381,
+      "sha256": "fbb7f3d48699fca2eedd7b2f331613c81edccfdcd5f2348726bde8aa022fa56f"
+    },
+    "vectors/core-v0.2/artifacts/valid/proofs/route-open-signature.bin": {
+      "length": 64,
+      "sha256": "e232f1147cb85dd1cf98fef762cf281180867adc42b32ca33f111298f5ef63ed"
+    },
+    "vectors/core-v0.2/artifacts/valid/proofs/route-open-transcript.cbor": {
+      "length": 202,
+      "sha256": "fe7678ed6179fb944977f9b891c7879bdad84707b8b7d9c48ab60caa46e5bdf2"
+    },
+    "vectors/core-v0.2/keys/test-only-route-grant-ed25519-public.hex": {
+      "length": 65,
+      "sha256": "40d359139cfd8af4ff3ebfbf9c8845468ca7876582189c11d3293b832f660632"
+    },
+    "vectors/core-v0.2/keys/test-only-route-grant-ed25519-seed.hex": {
+      "length": 65,
+      "sha256": "69cb65712b6e3b31d67de53e7eefa898027dc63e19f4f67ae0ae3e698a8fa0f8"
+    },
+    "vectors/core-v0.2/keys/test-only-session-ed25519-public.hex": {
+      "length": 65,
+      "sha256": "0d0b053c14976bfab1f4e944cbcceb3cb4e4fddc8e7fb152dd492748801d8903"
+    },
+    "vectors/core-v0.2/keys/test-only-session-ed25519-seed.hex": {
+      "length": 65,
+      "sha256": "295e6fc5a9aae5c29c37dc0f466258ff4c619a596f26a38cb8e22873ee0c944a"
+    },
+    "vectors/core-v0.2/manifest.json": {
+      "length": 20450,
+      "sha256": "d4cc06347be4ce7d4f118c004130a1ac7ab9a7d5fda6de3354fbb26bf72a3eeb"
+    },
+    "vectors/core-v0.2/wp4-exporter/invalid/array-reordered-source-destination.cbor": {
+      "length": 289,
+      "sha256": "fc2612c0107b0e557706f774405b1f0acece434e32349e46fe448217ebcfd13a"
+    },
+    "vectors/core-v0.2/wp4-exporter/invalid/context-item-00.cbor": {
+      "length": 289,
+      "sha256": "679cd2cce1443739f8f860ebf5eb6593f4709166978fa64e8bbab04123c01370"
+    },
+    "vectors/core-v0.2/wp4-exporter/invalid/context-item-01.cbor": {
+      "length": 289,
+      "sha256": "3da53cd30f48aee106bff2e6011f08ccc5482019d57b282ffe6441408bfcadde"
+    },
+    "vectors/core-v0.2/wp4-exporter/invalid/context-item-02.cbor": {
+      "length": 288,
+      "sha256": "dcd74b8a72bd5b687196df6decb4fa64ce1abf6045f92e43cb886ba423dde82e"
+    },
+    "vectors/core-v0.2/wp4-exporter/invalid/context-item-03.cbor": {
+      "length": 272,
+      "sha256": "5d97370aff6528968c460ff4a90c015110d896955bea1e03582489992bd9aebc"
+    },
+    "vectors/core-v0.2/wp4-exporter/invalid/context-item-04.cbor": {
+      "length": 287,
+      "sha256": "69df70ee42ea79adf14f703901c0f271220e2287b4e95ec981dbd072038339a7"
+    },
+    "vectors/core-v0.2/wp4-exporter/invalid/context-item-05.cbor": {
+      "length": 288,
+      "sha256": "4cfcb2a5c36e7fa5b60df2fea652fbc0a01a92d616596f7101bab47d6a21b7fd"
+    },
+    "vectors/core-v0.2/wp4-exporter/invalid/context-item-06.cbor": {
+      "length": 288,
+      "sha256": "666fac171af71b2b3c8fdab8aafec231a7c7a8d44df6bcdfd9b59536a9cd1b08"
+    },
+    "vectors/core-v0.2/wp4-exporter/invalid/context-item-07.cbor": {
+      "length": 288,
+      "sha256": "0302b41b2a83dae1e87d2b330bb42a618aea744ab58869b7449edc1dbe183aa5"
+    },
+    "vectors/core-v0.2/wp4-exporter/invalid/context-item-08.cbor": {
+      "length": 270,
+      "sha256": "3409e59aac9bf0f1599556cb47d5f9d22b2f8033c7b7d66871c94b61219a5705"
+    },
+    "vectors/core-v0.2/wp4-exporter/invalid/context-item-09.cbor": {
+      "length": 290,
+      "sha256": "490540c6670be148c6074add0f0ab7cec81a77973f9589d3f5de7db24e360268"
+    },
+    "vectors/core-v0.2/wp4-exporter/invalid/context-item-10.cbor": {
+      "length": 287,
+      "sha256": "4f75949c20ea7b7b9229e4734cba6b0eebb936d9074e579d6337ba9b35f224ce"
+    },
+    "vectors/core-v0.2/wp4-exporter/invalid/context-item-11.cbor": {
+      "length": 288,
+      "sha256": "586a9495b1b9f07ddadd9520a481be8c82e3eb3935cd2f9643dad6093898cea4"
+    },
+    "vectors/core-v0.2/wp4-exporter/invalid/context-item-12.cbor": {
+      "length": 288,
+      "sha256": "acbdbd320fc9647b3ddf0addee365b7b78b05d108fd94bbce07859c59a609617"
+    },
+    "vectors/core-v0.2/wp4-exporter/invalid/context-item-13.cbor": {
+      "length": 288,
+      "sha256": "532d61b4b2c705d7213b2e54c1c3e8a2a4fded1844c7db03c103dc0da11905cb"
+    },
+    "vectors/core-v0.2/wp4-exporter/invalid/different-exporter-master-secret.bin": {
+      "length": 32,
+      "sha256": "bede29f96937e63f4f92f40e25f5bd20e43d84d60d21642f3ca9250534e990cb"
+    },
+    "vectors/core-v0.2/wp4-exporter/invalid/non-canonical-port.cbor": {
+      "length": 291,
+      "sha256": "680d627295cfb6bca1cc36a7f7fde3bb4ba5e3332c5ef7502a047880dfbc0a46"
+    },
+    "vectors/core-v0.2/wp4-exporter/invalid/wrong-cbor-type-session-id.cbor": {
+      "length": 306,
+      "sha256": "13686ce8de4b675ff0d19cc2bae83a4a87c3c59fb43864e585401bfde8e7d9ab"
+    },
+    "vectors/core-v0.2/wp4-exporter/invalid/wrong-exporter-label.txt": {
+      "length": 32,
+      "sha256": "b2bc1d3f0e59b02996298aee84941edbb6f2262619d547710a1677b404a9e668"
+    },
+    "vectors/core-v0.2/wp4-exporter/invalid/wrong-fixed-length-route-id.cbor": {
+      "length": 290,
+      "sha256": "ca4cf2a5782f67aa67404fb5930d878d40d80966ae649f5bf97fa32357298a94"
+    },
+    "vectors/core-v0.2/wp4-exporter/invalid/wrong-output-length-31.bin": {
+      "length": 2,
+      "sha256": "d8f7720bd76b8e048289b3eeebc5d41e20c35822d4652364a429ab7cb7ea6b1f"
+    },
+    "vectors/core-v0.2/wp4-exporter/manifest.json": {
+      "length": 13470,
+      "sha256": "cd63e6a81317846c9764004bc7f309088d873900a268efe00ba474fb6ff65d30"
+    },
+    "vectors/core-v0.2/wp4-exporter/valid/service-channel-tcp-01/context-hash.bin": {
+      "length": 32,
+      "sha256": "684f16dea26cd313bf5e4fa1e05f69af156eac3a2e34949dbad7e91d7e26f3e4"
+    },
+    "vectors/core-v0.2/wp4-exporter/valid/service-channel-tcp-01/context.cbor": {
+      "length": 289,
+      "sha256": "fd18996b1842d24078ac2863d1403880b858ab060b39b15aa14dacab73dd331e"
+    },
+    "vectors/core-v0.2/wp4-exporter/valid/service-channel-tcp-01/derived-secret.bin": {
+      "length": 32,
+      "sha256": "48991b8601e115c7c8f081da08b1288e81cfc8e69428223e8893ea3dddec8dde"
+    },
+    "vectors/core-v0.2/wp4-exporter/valid/service-channel-tcp-01/exporter-master-secret.bin": {
+      "length": 32,
+      "sha256": "630dcd2966c4336691125448bbb25b4ff412a49c732db2c8abc1b8581bd710dd"
+    },
+    "vectors/core-v0.2/wp4-exporter/valid/service-channel-tcp-01/exporter-value.bin": {
+      "length": 32,
+      "sha256": "1c928b2461994d06179c9f44305e8e60a4f6a4a40bf50bc03cdae019c5634a3d"
+    },
+    "vectors/core-v0.2/wp4-exporter/valid/service-channel-udp-02/context-hash.bin": {
+      "length": 32,
+      "sha256": "7bf3a6b21029b3ab66fa31c1cca9db45874188852420ef05fbbe63ff01b4fc34"
+    },
+    "vectors/core-v0.2/wp4-exporter/valid/service-channel-udp-02/context.cbor": {
+      "length": 290,
+      "sha256": "144f73d996c28bdcfb82a0a777c7570b2c5cc84ee818f94b634d6abbc3bfb331"
+    },
+    "vectors/core-v0.2/wp4-exporter/valid/service-channel-udp-02/derived-secret.bin": {
+      "length": 32,
+      "sha256": "0cd67ad2123f6e24f4006f8bb7922db823a9b36ed92c1940c57abf37079ce6ff"
+    },
+    "vectors/core-v0.2/wp4-exporter/valid/service-channel-udp-02/exporter-master-secret.bin": {
+      "length": 32,
+      "sha256": "1865c00831e73f7ee23fc13cb2d0f588b9c341835ca7472f8ec035aba4b789d6"
+    },
+    "vectors/core-v0.2/wp4-exporter/valid/service-channel-udp-02/exporter-value.bin": {
+      "length": 32,
+      "sha256": "68f54487aed247c382a5256f01bf77ee48f03fa45ceb92db3a76001da3f84206"
+    }
+  }
+}

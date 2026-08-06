@@ -1,5 +1,7 @@
 # NBSR implementation status
 
+**WP8 Task 0:** Proposed for human approval. Repository-contained decisions, Development Profile allocations, baseline locking, and verifier ownership are planning artifacts only. No federation runtime is implemented by Task 0; no Federation wire freeze or live-federation evidence is claimed.
+
 **Baseline date:** 2026-08-02
 
 **Authority:** [NBSR Protocol Vision V3.6](../architecture/NBSR_Protocol_Vision_V3.6.md)
@@ -171,7 +173,7 @@ readiness, global federation, or independent interoperability.
 | Reversible route/firewall ownership journal | Implemented | WP5 records bounded applied operation IDs and exact prior resolver state, then emits trusted-profile-bound reverse-order rollback intent; operational rollback remains unverified |
 | Multi-zone HA and shared security state | Partial | WP6 provides a storage-neutral state machine and deterministic quorum simulation; no live multi-zone HA |
 | Two-operator ISP lab | Implemented | WP7 deterministic single-threaded, in-process admission, abuse, audit, connector-confinement, and topology simulation; no live ISP or federation evidence |
-| Signed ownership, delegation, transparency, and global federation | Planning-ready | WP8 F1-F119 architecture is indexed in `wp8-federation-v0.1-direction.md`; the Development Profile, schemas, registries, vectors, and runtime remain unimplemented |
+| Signed ownership, delegation, transparency, and global federation | Planned | WP8 Task 0 proposes repository-contained decisions, Development Profile allocations, and baseline locks for approval; schemas, vectors, and runtime remain unimplemented |
 | Independent second-language implementation | Planned | WP8 selects a clean-room Go implementation after schema/vector freeze; the current Node verifier remains independent byte/object evidence, not a runtime |
 | Independent Core v0.2 vector verification | Implemented | Dependency-free Node.js verifier independently validates the 32-artifact deterministic package; this is conformance evidence, not a second runtime |
 | Public conformance suite and Internet-Draft | Planned | The WP8 plan defines vector, interoperability, evidence, and working-draft gates; none is implemented or standards-approved yet |

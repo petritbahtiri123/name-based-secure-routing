@@ -4,9 +4,12 @@
 and Development Profile freeze work. This is not a Federation v0.1 wire
 freeze, public/global production authorization, or interoperability claim.
 
-**Imported decision source:** `NBSR WP8 Federation Decisions and Design
+**Historical decision source:** `NBSR WP8 Federation Decisions and Design
 Questions.txt`, reviewed 2026-08-05, 2,664 lines, SHA-256
-`6058485d07d9c827c0cb62dad325fb389b213e35801c0799414bb6338d89848e`.
+`6058485d07d9c827c0cb62dad325fb389b213e35801c0799414bb6338d89848e`,
+was not repository-accessible during Task 0. The repository-contained
+`wp8-federation-v0.1-decisions.md` now states F1-F119 and V1-V6 individually
+and is the reviewable proposed authority. The digest remains provenance only.
 
 **Repository baseline inspected:** branch `codex/nbsr-v3-wp0-wp1`, commit
 `b1edfa8cd4bb9a2f280e14a2973e404dd8e4c914`. The checked-in Core v0.2
@@ -19,7 +22,8 @@ manifest SHA-256 at that commit is
    semantics remain unchanged.
 2. Approved Core v0.2 candidate documents, D8 version selection, checked-in
    vectors, and the Node verifier define the candidate session/control base.
-3. F1-F119 and validation corrections V1-V6 define the WP8 architecture.
+3. Repository-contained F1-F119 and validation corrections V1-V6 in
+   `wp8-federation-v0.1-decisions.md` define the proposed WP8 architecture.
 4. The future Federation v0.1 Development Profile freezes exact encodings,
    identifiers, bounds, registries, authority matrices, and error precedence.
 5. V2 corrections override an earlier general statement only for the named
@@ -117,8 +121,10 @@ decision before runtime code uses them:
 - Text Operator ID: lowercase Bech32m using HRP `nbsr`, encoding exactly the
   same 32 bytes; uppercase or mixed-case input is rejected. The resulting
   63-character value fits the existing 64-character textual identifier bound.
-- Operational or recovery key rotation never changes the genesis commitment
-  or Operator ID. A retired or terminally revoked ID is never reused.
+- Operational-key rotation does not change the genesis commitment or Operator
+  ID. Continuity-preserving recovery retains it at a higher identity
+  generation; lineage-breaking recovery tombstones it and creates a new ID.
+  A retired or terminally revoked ID is never reused.
 
 ### Shared hard bounds
 
@@ -149,8 +155,8 @@ recommendations:
 - Checkpoint publication interval: 60 seconds; emergency publication deadline:
   30 seconds.
 - Normal trust freshness: 300 seconds; degraded maximum staleness: 900 seconds.
-- Cache lifetime ceiling: 300 seconds; replay/tombstone retention minimum:
-  86,400 seconds.
+- Cache lifetime ceiling: 300 seconds. Replay-state retention minimum: 86,400
+  seconds. Terminal tombstones are permanent and non-expiring.
 - Missing-evidence pending timeout: 30 seconds; quarantine reevaluation:
   300 seconds; route/channel drain ceiling: 30 seconds.
 - Static recovery activation: warning at 15 minutes, hard expiry at 60 minutes;
@@ -222,3 +228,15 @@ live federation, live multi-operator routing, independent Go runtime,
 independent end-to-end interoperability, Internet-Draft consensus, production
 readiness, origin anonymity, DDoS elimination, or complete partition
 tolerance.
+
+## Task 0 planning errata (proposed for human approval)
+
+Task 0 internalizes F1-F119 and V1-V6 in `wp8-federation-v0.1-decisions.md`, proposes exact allocations in `registries/federation-v0.1-development.json`, and adds a Core v0.2 baseline lock. These are proposed Development Profile values, not permanent wire allocations.
+
+Replay-state retention minimum: 86,400 seconds. Terminal tombstones are permanent through garbage collection, restart, compaction, backup restoration, and fresh-node synchronization. Continuity-preserving recovery retains the Operator ID at a strictly higher identity generation; lineage-breaking recovery terminally tombstones it and requires a new Operator ID.
+
+Execution is registry and schema literal vectors; Python codecs and object validation; stateful scenario manifests with literal expected outcomes; Python state-machine implementation; complete generated vectors; then Node and Go verification. The Development Profile contains the actual freeze gate. No federation runtime is implemented by Task 0.
+
+The generic Core v0.2 verifier owns the root package except the exact
+`wp4-exporter/` subtree. Its dedicated manifest and verifier own that subtree
+exclusively; no file belongs to both inventories.

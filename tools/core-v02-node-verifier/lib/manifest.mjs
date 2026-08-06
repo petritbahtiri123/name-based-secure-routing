@@ -116,6 +116,7 @@ const SUPPORT_FILES = new Set([
   "keys/test-only-session-ed25519-seed.hex",
   "keys/test-only-session-ed25519-public.hex",
 ]);
+const EXTERNAL_PACKAGE_DIRECTORIES = new Set(["wp4-exporter"]);
 const ID_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const SHA256_PATTERN = /^[0-9a-f]{64}$/;
 
@@ -447,6 +448,9 @@ async function listRegularFiles(root, current = root) {
     const relative = path.relative(root, absolute).split(path.sep).join("/");
     if (entry.isSymbolicLink()) {
       fail(`symbolic link prohibited: ${relative}`);
+    }
+    if (current === root && entry.isDirectory() && EXTERNAL_PACKAGE_DIRECTORIES.has(relative)) {
+      continue;
     }
     if (entry.isDirectory()) {
       relativeFiles.push(...await listRegularFiles(root, absolute));
