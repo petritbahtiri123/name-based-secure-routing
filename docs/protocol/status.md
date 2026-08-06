@@ -1,8 +1,9 @@
 # NBSR implementation status
 
-**WP8 Task 0:** Proposed for human approval. `WP8-NORMATIVE-SOURCE-01`
-remains open, so Task 1 is blocked until the exact historical source or a
-complete detailed replacement is approved. Repository-contained decisions,
+**WP8 Task 0:** Proposed for human approval.
+**WP8-NORMATIVE-SOURCE-01: CLOSED.** The exact digest-matching historical source
+is repository-accessible and provenance-locked. Task 1 may begin after human
+approval. Repository-contained decisions,
 Development Profile allocations, baseline locking, and verifier ownership are
 planning artifacts only. No federation runtime is implemented by Task 0; no
 Federation wire freeze or live-federation evidence is claimed.

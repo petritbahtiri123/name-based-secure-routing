@@ -4,17 +4,32 @@
 and Development Profile freeze work. This is not a Federation v0.1 wire
 freeze, public/global production authorization, or interoperability claim.
 
-**Historical decision source:** `NBSR WP8 Federation Decisions and Design
-Questions.txt`, reviewed 2026-08-05, 2,664 lines, SHA-256
+**Historical detailed decision authority:**
+`docs/protocol/history/NBSR-WP8-F1-F119-approved-source.txt` is the exact
+project-owner-supplied plain-text source titled “NBSR WP8 Federation Decisions
+and Design Questions,” reviewed 2026-08-05. It is 318,890 bytes with SHA-256
 `6058485d07d9c827c0cb62dad325fb389b213e35801c0799414bb6338d89848e`,
-was not repository-accessible during Task 0. The repository-contained
-`wp8-federation-v0.1-decisions.md` is a condensed index with detailed normative
-appendices; it does not claim to reproduce the unavailable source verbatim.
-The supplements do not reconstruct every omitted detail. The named blocker
-`WP8-NORMATIVE-SOURCE-01` therefore remains open and Task 1 remains blocked
-until the exact digest-pinned source is checked in or a complete detailed
-repository replacement is approved. The digest remains provenance only, and
-clean-room implementation is not authorized while the blocker remains.
+exactly matching the previously recorded digest. Its original UTF-8 BOM and
+CRLF bytes are preserved. It is the detailed historical approved record for
+F1-F119 and V1-V6 and becomes immutable evidence after approval; provenance is
+machine-locked in `docs/protocol/registries/wp8-planning-sources.json`.
+
+**WP8-NORMATIVE-SOURCE-01: CLOSED.** The complete digest-pinned source is now
+repository-accessible, documented, allowed as a clean-room input, and protected
+by exact length/digest tests. The condensed decision index remains a
+cross-reference aid, not a complete replacement.
+
+**Condensed decision index:**
+`docs/protocol/wp8-federation-v0.1-decisions.md` is the canonical navigation
+and cross-reference aid. It cannot silently override historical details and is
+not evidence that an omitted rule ceased to apply.
+
+**Current implementation-profile authority:** After human approval,
+`federation-v0.1-development-profile.md`, the machine registries and generated
+tables, and later approved requiredness matrices and literal schema/vector
+decisions control only for the exact values or ambiguities they expressly freeze or
+correct. Each intentional correction must identify its historical conflict and
+scope; no general summary has implicit precedence.
 
 **Repository baseline inspected:** branch `codex/nbsr-v3-wp0-wp1`, commit
 `b1edfa8cd4bb9a2f280e14a2973e404dd8e4c914`. The checked-in Core v0.2
@@ -27,11 +42,15 @@ manifest SHA-256 at that commit is
    semantics remain unchanged.
 2. Approved Core v0.2 candidate documents, D8 version selection, checked-in
    vectors, and the Node verifier define the candidate session/control base.
-3. Repository-contained F1-F119 and validation corrections V1-V6 in
-   `wp8-federation-v0.1-decisions.md` define the proposed WP8 architecture.
-4. The future Federation v0.1 Development Profile freezes exact encodings,
+3. The checked-in historical source preserves the detailed approved F1-F119
+   and V1-V6 record; the Markdown decision index is condensed and cannot
+   silently override it.
+4. After human approval, explicit Development Profile amendments, machine
+   registries, requiredness matrices, and literal schema/vector decisions
+   govern only the values and ambiguities they expressly freeze or correct.
+5. The future Federation v0.1 Development Profile freezes exact encodings,
    identifiers, bounds, registries, authority matrices, and error precedence.
-5. V2 corrections override an earlier general statement only for the named
+6. V2 corrections override an earlier general statement only for the named
    conflict. They do not rewrite historical Core decisions.
 
 No implementation may infer a missing wire value from prose, reuse a Core
@@ -41,8 +60,9 @@ vectors.
 
 ## Imported approved decisions
 
-The external decision record is incorporated by digest. Its decision groups
-are authoritative as follows:
+The checked-in historical decision source is locked by exact path, length, and
+digest. Its decision groups are summarized for navigation as follows; the
+source itself remains the detailed authority:
 
 | Decisions | Frozen direction |
 |---|---|

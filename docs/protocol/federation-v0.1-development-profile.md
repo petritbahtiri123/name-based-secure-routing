@@ -1,10 +1,19 @@
 # Federation v0.1 Development Profile draft
 
-**Task 0 status:** Proposed for human approval. `WP8-NORMATIVE-SOURCE-01`
-remains blocking: Task 1 remains blocked until the exact digest-pinned historical
-source is checked in or a complete detailed repository replacement is approved.
-It is not a permanently frozen Federation wire allocation; production-profile
+**Task 0 status:** Proposed for human approval.
+**WP8-NORMATIVE-SOURCE-01: CLOSED.** The exact 318,890-byte historical source
+is repository-accessible at
+`docs/protocol/history/NBSR-WP8-F1-F119-approved-source.txt` and matches the
+previously recorded SHA-256. Task 1 may begin after human approval. This draft
+is not a permanently frozen Federation wire allocation; production-profile
 values remain deferred.
+
+The historical source is the detailed F1-F119/V1-V6 decision authority. The
+condensed decision index is a cross-reference aid. After approval, this profile,
+the machine registry, generated allocation tables, and later expressly approved
+requiredness/vector decisions take precedence only for the exact values or
+ambiguities they explicitly freeze or correct; summaries never silently
+override the historical source.
 
 ## Base and identity
 

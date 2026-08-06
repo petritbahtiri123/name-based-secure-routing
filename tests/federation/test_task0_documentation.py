@@ -122,10 +122,9 @@ def test_profile_names_requiredness_blocker_and_matches_signer_authority() -> No
 def test_normative_source_model_is_repository_accessible_and_honest() -> None:
     decisions = _normalized(FILES["decisions"])
     assert "canonical condensed index" in decisions.casefold()
-    assert "does not replace the unavailable full historical source" in decisions.casefold()
-    assert "repository-accessible detailed normative supplements" in decisions.casefold()
-    assert "WP8-NORMATIVE-SOURCE-01" in decisions
-    assert "Task 1 remains blocked" in decisions
+    assert "not a complete replacement" in decisions.casefold()
+    assert "historical detailed decision authority" in decisions.casefold()
+    assert "WP8-NORMATIVE-SOURCE-01: CLOSED" in decisions
     assert "complete clean-room implementation authority" not in decisions.casefold()
     for heading in (
         "Detailed F105 message semantics",
@@ -138,22 +137,19 @@ def test_normative_source_model_is_repository_accessible_and_honest() -> None:
         assert f"`{name}`" in decisions
 
 
-def test_direction_and_plan_do_not_overclaim_normative_source_completeness() -> None:
+def test_direction_and_plan_close_normative_source_without_overclaiming_index() -> None:
     for name in ("direction", "plan", "profile"):
         text = _normalized(FILES[name])
-        assert "WP8-NORMATIVE-SOURCE-01" in text
-        assert "Task 1" in text and "blocked" in text.casefold()
+        assert "WP8-NORMATIVE-SOURCE-01: CLOSED" in text
     direction = _normalized(FILES["direction"]).casefold()
     assert "repository-accessible implementation authority" not in direction
 
 
-def test_status_roadmap_and_design_preserve_the_normative_source_blocker() -> None:
+def test_status_roadmap_and_design_record_normative_source_closure() -> None:
     for name in ("status", "roadmap", "design"):
         text = _normalized(FILES[name])
-        assert "WP8-NORMATIVE-SOURCE-01" in text
-        assert "Task 1" in text and "blocked" in text.casefold()
-    status = _normalized(FILES["status"]).casefold()
-    assert "task 1—the exact core v0.2 ratification" not in status
+        assert "WP8-NORMATIVE-SOURCE-01: CLOSED" in text
+        assert "Task 1" in text and "after human approval" in text.casefold()
 
 
 def test_task1_plan_has_no_obsolete_message_count_or_lifecycle_allocations() -> None:

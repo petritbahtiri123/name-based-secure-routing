@@ -1,0 +1,17 @@
+{
+  "format_version": 1,
+  "sources": [
+    {
+      "path": "docs/protocol/history/NBSR-WP8-F1-F119-approved-source.txt",
+      "title": "NBSR WP8 Federation Decisions and Design Questions",
+      "byte_length": 318890,
+      "sha256": "6058485d07d9c827c0cb62dad325fb389b213e35801c0799414bb6338d89848e",
+      "source_date": "2026-08-05",
+      "provenance": "project-owner-supplied-original-plain-text-source",
+      "status": "historical-normative-input-immutable-after-approval",
+      "decision_scope": "complete-detailed-F1-F119-and-V1-V6-record",
+      "representation": "original-UTF-8-BOM-and-CRLF-bytes-preserved",
+      "matches_previously_recorded_sha256": true
+    }
+  ]
+}

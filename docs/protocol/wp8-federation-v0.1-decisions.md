@@ -1,16 +1,19 @@
 # WP8 Federation decisions F1-F119 and corrections V1-V6
 
-**Task 0 status:** Proposed for human approval. The F-number list is a canonical
-condensed index and does not replace the unavailable full historical source.
-Its detailed appendices, the Development Profile, direction document, and
-machine registry are repository-accessible detailed normative supplements,
-but they do not constitute the complete detailed source.
-`WP8-NORMATIVE-SOURCE-01` is therefore blocking:
-Task 1 remains blocked until either the exact digest-pinned historical source
-is checked in immutably or this document is expanded and approved as a complete
-detailed replacement for every F1-F119 and V1-V6 decision. Clean-room
-implementation is not authorized while the blocker remains. No Federation
-runtime or wire freeze is created.
+**Task 0 status:** Proposed for human approval. This F-number list is a
+canonical condensed index and cross-reference aid, not a complete replacement
+for the historical detailed decision authority at
+`docs/protocol/history/NBSR-WP8-F1-F119-approved-source.txt`. That exact
+318,890-byte source contains the detailed approved F1-F119 and V1-V6 record and
+has SHA-256
+`6058485d07d9c827c0cb62dad325fb389b213e35801c0799414bb6338d89848e`.
+
+**WP8-NORMATIVE-SOURCE-01: CLOSED.** The digest-pinned complete source is now
+repository-accessible and an allowed clean-room input. This index and its
+appendices remain supplements; they do not silently override additional
+historical semantics. Later approved Development Profile corrections take
+precedence only for the exact ambiguity or value they expressly identify. No
+Federation runtime or wire freeze is created.
 
 ## Identity and keys
 

@@ -1,8 +1,9 @@
 # WP8 Federation v0.1 design
 
 **Status:** Approved for implementation planning from F1-F119 and V1-V6.
-`WP8-NORMATIVE-SOURCE-01` remains open, so Task 1 is blocked until the exact
-historical source or a complete detailed replacement is approved. The first
+**WP8-NORMATIVE-SOURCE-01: CLOSED.** The exact detailed historical source is
+repository-accessible and provenance-locked. Task 1 may begin after human
+approval. The first
 eventual implementation tranche is profile/schema/vector freeze work, not an
 unfrozen production runtime.
 

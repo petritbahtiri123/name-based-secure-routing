@@ -424,15 +424,15 @@ def test_schema_requiredness_is_a_named_blocking_decision() -> None:
     }
 
 
-def test_unavailable_historical_source_remains_an_explicit_task1_blocker() -> None:
+def test_historical_source_closes_task1_source_blocker() -> None:
     source = _load()
     assert source["deferred_decisions"]["WP8-NORMATIVE-SOURCE-01"] == {
-        "status": "blocking",
-        "blocks": ["Task 1", "Task 2", "Task 3", "Task 4", "Task 5", "Task 6"],
-        "resolution": [
-            "check-in-exact-digest-pinned-historical-source",
-            "approve-complete-detailed-repository-replacement",
-        ],
+        "status": "closed",
+        "resolution": "exact-digest-pinned-historical-source-checked-in",
+        "source_manifest": "docs/protocol/registries/wp8-planning-sources.json",
         "current_decision_index_complete_source": False,
+        "clean_room_source_input_allowed": True,
         "clean_room_implementation_allowed": False,
+        "implementation_blocked_by": "WP8-SCHEMA-REQUIREDNESS-01-and-later-task-gates",
+        "task1_after_human_approval": True,
     }

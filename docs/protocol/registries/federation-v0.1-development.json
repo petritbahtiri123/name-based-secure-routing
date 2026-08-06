@@ -1503,21 +1503,14 @@
       "object_codec_or_validator_allowed": false
     },
     "WP8-NORMATIVE-SOURCE-01": {
-      "status": "blocking",
-      "blocks": [
-        "Task 1",
-        "Task 2",
-        "Task 3",
-        "Task 4",
-        "Task 5",
-        "Task 6"
-      ],
-      "resolution": [
-        "check-in-exact-digest-pinned-historical-source",
-        "approve-complete-detailed-repository-replacement"
-      ],
+      "status": "closed",
+      "resolution": "exact-digest-pinned-historical-source-checked-in",
+      "source_manifest": "docs/protocol/registries/wp8-planning-sources.json",
       "current_decision_index_complete_source": false,
-      "clean_room_implementation_allowed": false
+      "clean_room_source_input_allowed": true,
+      "clean_room_implementation_allowed": false,
+      "implementation_blocked_by": "WP8-SCHEMA-REQUIREDNESS-01-and-later-task-gates",
+      "task1_after_human_approval": true
     }
   },
   "message_registry_policy": {

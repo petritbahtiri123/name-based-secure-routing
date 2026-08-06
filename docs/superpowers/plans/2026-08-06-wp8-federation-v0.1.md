@@ -24,12 +24,14 @@
 
 ### Task 0 approval gate
 
-Task 0 must receive human approval before Task 1. In addition,
-`WP8-NORMATIVE-SOURCE-01` is blocking and Task 1 remains blocked until the exact
-digest-pinned historical source is checked in or a complete detailed repository
-replacement is approved. Literal allocations come only from
-`docs/protocol/registries/federation-v0.1-development.json`; after both gates
-close, Task 1 RED tests must copy those approved names and numbers. Replay-state
+**WP8-NORMATIVE-SOURCE-01: CLOSED.** The exact detailed historical source is
+checked in at
+`docs/protocol/history/NBSR-WP8-F1-F119-approved-source.txt`, with provenance,
+length, and digest locked by
+`docs/protocol/registries/wp8-planning-sources.json`. It is a permitted
+clean-room input. Task 1 may begin after human approval. Literal allocations
+come only from `docs/protocol/registries/federation-v0.1-development.json`;
+Task 1 RED tests must copy those approved names and numbers. Replay-state
 retention minimum: 86,400 seconds. Terminal tombstones are permanent across
 garbage collection, restart, compaction, backup restoration, and fresh-node
 synchronization. Continuity-preserving recovery retains the Operator ID at
@@ -50,6 +52,13 @@ The corrected order is registry and schema literal vectors; Python codecs and ob
 ---
 
 ### Task 1: Ratify Core v0.2 and freeze the Development Profile registries
+
+**Authorization boundary:** After human approval, Task 1 may create only
+Development Profile constants, registry enums/tables, baseline immutability
+enforcement, and their literal RED/GREEN tests. Task 1 MUST NOT implement object
+codecs or validators. `WP8-SCHEMA-REQUIREDNESS-01` remains blocking for Tasks
+2-6 and all schema codec work that depends on the unresolved object-by-object
+requiredness matrix.
 
 **Files:**
 - Create: `docs/protocol/federation-v0.1-development-profile.md`
@@ -124,7 +133,11 @@ Run: `python -m pytest -q tests/federation/test_profile.py tests/federation/test
 
 Run: `python scripts/generate_core_v02_vectors.py --check vectors/core-v0.2`
 
+Run: `python scripts/generate_core_v02_baseline_lock.py --check`
+
 Run: `node tools/core-v02-node-verifier/verify.mjs vectors/core-v0.2`
+
+Run: `node scripts/verify_wp4_exporter_vectors.mjs vectors/core-v0.2/wp4-exporter`
 
 - [ ] **Step 5: Commit the ratification tranche**
 
@@ -143,10 +156,10 @@ checked in. Python tests consume those literals; Python does not generate their
 expected bytes or outcomes. Task 7 later assembles these literals and generated
 coverage into the complete package.
 
-`WP8-SCHEMA-REQUIREDNESS-01` is a named blocking decision: Tasks 2-6 cannot
+`WP8-SCHEMA-REQUIREDNESS-01` is a named blocking decision and blocks Tasks 2-6: they cannot
 begin until the object-by-object genesis/update requiredness matrix and literal
-schema vectors are approved. This decision adds no separate Task 1 blocker,
-but Task 1 registry modules remain blocked by `WP8-NORMATIVE-SOURCE-01`.
+schema vectors are approved. It does not block Task 1's profile, registry, and
+baseline-only surface, but it forbids object codecs and validators.
 
 **Files:**
 - Create: `nbsr/federation/fields.py`
@@ -424,9 +437,13 @@ immutability checks. Commit: `test(wp8): publish federation conformance vectors`
 
 - [ ] **Step 1: Create and approve a clean-room sub-plan**
 
-The implementer receives only normative WP8 docs, external standards,
-registries, vectors, public test keys, and expected outcomes. Record permitted
-inputs and prohibited source paths in the evidence manifest before coding.
+The implementer receives only normative WP8 docs, including the permitted
+clean-room input
+`docs/protocol/history/NBSR-WP8-F1-F119-approved-source.txt`, external
+standards, registries, vectors, public test keys, and expected outcomes. Record
+permitted inputs and prohibited source paths in the evidence manifest before
+coding. No unavailable local file, conversation, or absent external document is
+a prerequisite.
 
 - [ ] **Step 2: TDD the Node verifier**
 

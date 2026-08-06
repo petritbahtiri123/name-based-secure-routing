@@ -1,6 +1,6 @@
 # WP8 Federation v0.1 registry allocation amendment
 
-**Task 0 status:** Proposed for human approval. These are normative Development Profile proposals, not permanently frozen Federation wire allocations. `WP8-NORMATIVE-SOURCE-01` remains blocking, so Task 1 may not consume them until both the source blocker and human approval gate close.
+**Task 0 status:** Proposed for human approval. These are normative Development Profile proposals, not permanently frozen Federation wire allocations. `WP8-NORMATIVE-SOURCE-01: CLOSED`; Task 1 may consume them only after human approval.
 
 The machine-readable authority is `registries/federation-v0.1-development.json`. This document is generated from it by `scripts/render_federation_registry.py`; tests require exact agreement. F105 supplies the semantic family requirement, while this amendment supplies the previously missing names, order, and values.
 
