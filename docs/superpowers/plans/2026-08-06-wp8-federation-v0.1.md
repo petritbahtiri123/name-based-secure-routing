@@ -389,6 +389,17 @@ preflight.
 
 Commit: `feat(wp8): persist deterministic federation state`.
 
+### Threshold-container approval gate before Task 7
+
+`WP8-THRESHOLD-CONTAINER-01` freezes, subject to human approval, the exact
+versioned evidence envelope, independent COSE_Sign1 signature context, named
+multi-set policy groups, organizational diversity, canonical ordering,
+resource bounds, 78 specification-authored literals, and independent verifier.
+It allocates no nineteenth Federation authority object. Do not integrate the
+container into Task 2–6 or start Task 7 until the supplement is approved.
+After approval, Task 7 must consume its literal bytes and must not regenerate
+them through Task 7 reference/runtime generation code.
+
 ### Task 7: Deterministic Federation v0.1 vector package
 
 Task 7 is package completion, not the first appearance of vectors. It combines

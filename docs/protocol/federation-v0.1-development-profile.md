@@ -200,6 +200,19 @@ exactly one of `target-controller`, `normal-threshold`, or
 Unknown modes fail `REJECT/ERR_UNSUPPORTED_CRITICAL`. Signature counts from an
 unselected alternative cannot make a record valid or ambiguous.
 
+## Threshold signature container proposal
+
+Decision supplement `WP8-THRESHOLD-CONTAINER-01` proposes a versioned NBSR
+threshold evidence envelope containing named groups of independent tagged
+COSE_Sign1 values. It freezes exact policy, scope, lineage, replay/action,
+validity, organization-diversity, signer-ordering, authority-effect,
+capability, and resource bindings while
+allocating no nineteenth Federation authority object and changing no Core
+object or message. Its machine-readable profile, generated table, 78 literal
+fixtures, and independent verifier remain **proposed and require human
+approval**. Task 2–6 opaque threshold-evidence boundaries remain unchanged
+until that approval, and Task 7 is not authorized by the proposal.
+
 ## State and error rules
 
 Idempotency: equal version/equal digest is `ACCEPT` without mutation. Lower version is `REJECT/ERR_ROLLBACK`. Equivocation: equal version/different digest retains both branches and is `QUARANTINE/ERR_EQUIVOCATION`. Higher versions mutate only after complete validation.

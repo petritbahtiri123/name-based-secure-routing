@@ -213,6 +213,12 @@ These payload bytes are object payloads, not complete COSE envelopes. Signer,
 protected-`kid`, current-state, compromise, and terminal-reuse facts are
 literal validation context because Task 2 COSE wrapping is not yet authorized.
 
+The separate proposed `WP8-THRESHOLD-CONTAINER-01` supplement now defines the
+previously unresolved multi-authority evidence packaging. It does not modify
+these 18 object schemas or their 28 approved payload literals. Until separately
+approved, it is not runtime authority and Task 2–6 retain their existing opaque
+authenticated threshold-evidence boundaries.
+
 ## Approval and closure
 
 The proposal removes the requiredness, key-allocation, signer-substitution,

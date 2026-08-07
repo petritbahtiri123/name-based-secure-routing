@@ -29,14 +29,25 @@ unaltered.
 COSE Sign1 boundary are implemented. Registrar+witness and recovery-threshold
 signature-set transport packaging remains unresolved and is not invented.
 
+**WP8 threshold-container supplement:** `WP8-THRESHOLD-CONTAINER-01` is
+proposed and requires human approval. It selects a versioned NBSR evidence
+envelope with named groups of independent COSE_Sign1 values, exact common
+context binding, distinct-authority and organizational-diversity evaluation,
+approved-policy pinning, capability and validity checks, and bounded canonical
+encoding. The proposal allocates no nineteenth
+Federation authority object and does not modify Core. Its 78 literal fixtures
+and independent verifier are proposal evidence only. Task 7 and runtime
+integration have not started.
+
 **WP8 Task 3:** `NameOwnershipRecord`, the closed eleven-dimension
 `DelegationScope`, `DelegationRecord`, Task 2 key-authority reuse, and iterative
 bounded ownership/delegation-chain verification are implemented at deterministic
 Development Profile scope. Verification enforces exact name/Service ID ancestry,
 scope narrowing, parent-bounded validity, depth/chain/graph/traversal limits,
 lineage, revocation, terminal state, transfer, and explicitly permitted recovery.
-This is payload and semantic validation evidence only: no registrar+witness or
-recovery-threshold signature-set container has been invented, and no Task 5
+This is payload and semantic validation evidence only: the proposed
+registrar/witness and recovery threshold container is not approved or consumed,
+and no Task 5
 discovery, authorization, lifecycle, or revocation runtime is implemented.
 Typed transition bindings are trusted outputs from independently validated
 transfer/recovery semantics; they are not evidence that the unresolved
@@ -54,7 +65,8 @@ authority. Task 2 protected-`kid`, exact-purpose, Operator ID, lifecycle,
 validity, and revocation checks are reused for every supported signed Task 4
 object. Witness threshold inputs are opaque outputs of that COSE verifier.
 Registrar+witness, governance+witness, and recovery-threshold signature-set
-transport packaging remains unresolved and is not invented: a single trust
+transport packaging is defined only by the unapproved threshold-container
+supplement: a single trust
 bundle Sign1 and all new-generation trust mutation therefore fail closed.
 There is no Task 5 discovery, bilateral authorization, lifecycle, or revocation
 surface and no live/public federation, production log, witness, governance, or
@@ -244,7 +256,7 @@ readiness, global federation, or independent interoperability.
 | Reversible route/firewall ownership journal | Implemented | WP5 records bounded applied operation IDs and exact prior resolver state, then emits trusted-profile-bound reverse-order rollback intent; operational rollback remains unverified |
 | Multi-zone HA and shared security state | Partial | WP6 provides a storage-neutral state machine and deterministic quorum simulation; no live multi-zone HA |
 | Two-operator ISP lab | Implemented | WP7 deterministic single-threaded, in-process admission, abuse, audit, connector-confinement, and topology simulation; no live ISP or federation evidence |
-| Signed ownership, delegation, transparency, and global federation | Partial | WP8 Tasks 2-4 implement operator/key authority, ownership, closed scope algebra, bounded delegation chains, trust-bundle semantics, Merkle proofs, checkpoints, and verifier-produced independent witness thresholds at deterministic Development Profile scope; threshold-set transport packaging, Task 5 runtime, live federation, and global federation are not implemented |
+| Signed ownership, delegation, transparency, and global federation | Partial | WP8 Tasks 2-4 implement operator/key authority, ownership, closed scope algebra, bounded delegation chains, trust-bundle semantics, Merkle proofs, checkpoints, and verifier-produced independent witness thresholds at deterministic Development Profile scope; threshold-set transport packaging, Task 5 runtime, live federation, and global federation are not implemented. Tasks 5-6 separately add deterministic lifecycle and state behavior, not live federation runtime. A threshold-container wire supplement is proposed but unapproved; Task 7 packaging has not started |
 | Independent second-language implementation | Planned | WP8 selects a clean-room Go implementation after schema/vector freeze; the current Node verifier remains independent byte/object evidence, not a runtime |
 | Independent Core v0.2 vector verification | Implemented | Dependency-free Node.js verifier independently validates the 32-artifact deterministic package; this is conformance evidence, not a second runtime |
 | Public conformance suite and Internet-Draft | Planned | The WP8 plan defines vector, interoperability, evidence, and working-draft gates; none is implemented or standards-approved yet |
