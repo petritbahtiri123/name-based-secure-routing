@@ -6,9 +6,19 @@ from nbsr.federation.fields import (
     OperatorRegistryRecord,
     RecoveryTransitionBinding,
 )
-from nbsr.federation.cose import FederationAuthority, verify_federation_sign1
+from nbsr.federation.cose import FederationAuthority, authenticate_witness_sign1, verify_federation_sign1
 from nbsr.federation.delegation import DelegationRecord, DelegationScope, DelegationVerifier, SignedFederationObject
 from nbsr.federation.ownership import NameOwnershipRecord, OwnershipTransitionBinding, derive_service_id
+from nbsr.federation.trust import FederationTrustBundle, TrustBundleStore, TrustTransitionBinding, compose_bundles
+from nbsr.federation.transparency import (
+    AuthenticatedWitness,
+    ConsistencyProof,
+    InclusionProof,
+    TransparencyCheckpoint,
+    TransparencyVerifier,
+    WitnessStatement,
+    verify_witness_threshold,
+)
 from nbsr.federation.registry import (
     CONTEXTUAL_RULES,
     CORE_COLLISION_PROOF,
@@ -60,11 +70,20 @@ __all__ = [
     "FederationProfile",
     "FederationAuthority",
     "FederationValidationError",
+    "FederationTrustBundle",
     "KeyAuthorizationRecord",
     "KeyLifecycle",
     "KeyPurpose",
     "MessageType",
     "NameOwnershipRecord",
+    "TransparencyCheckpoint",
+    "InclusionProof",
+    "ConsistencyProof",
+    "WitnessStatement",
+    "AuthenticatedWitness",
+    "TransparencyVerifier",
+    "TrustBundleStore",
+    "TrustTransitionBinding",
     "ObjectType",
     "OperatorLifecycle",
     "OperatorId",
@@ -77,6 +96,9 @@ __all__ = [
     "ResultType",
     "SignedFederationObject",
     "assert_core_baseline",
+    "authenticate_witness_sign1",
     "derive_service_id",
     "verify_federation_sign1",
+    "verify_witness_threshold",
+    "compose_bundles",
 ]

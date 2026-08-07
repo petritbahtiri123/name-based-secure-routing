@@ -7,6 +7,15 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
 from nbsr.federation.delegation import DelegationRecord
 from nbsr.federation.fields import FederationValidationError, KeyAuthorizationRecord, OperatorRegistryRecord
 from nbsr.federation.ownership import NameOwnershipRecord
+from nbsr.federation.transparency import (
+    _AUTHENTICATED_WITNESS_TOKEN,
+    AuthenticatedWitness,
+    ConsistencyProof,
+    InclusionProof,
+    TransparencyCheckpoint,
+    WitnessStatement,
+)
+from nbsr.federation.trust import FederationTrustBundle
 from nbsr.federation.registry import AuthorityClass, KeyLifecycle, KeyPurpose, ObjectType
 from nbsr.protocol.cose import verify_sign1
 from nbsr.protocol.errors import ProtocolViolation
@@ -41,7 +50,17 @@ def verify_federation_sign1(
     expected_key_purpose: KeyPurpose = KeyPurpose.REGISTRY_SIGNING,
     current_record: NameOwnershipRecord | DelegationRecord | None = None,
     transition: object | None = None,
-) -> OperatorRegistryRecord | KeyAuthorizationRecord | NameOwnershipRecord | DelegationRecord:
+) -> (
+    OperatorRegistryRecord
+    | KeyAuthorizationRecord
+    | NameOwnershipRecord
+    | DelegationRecord
+    | FederationTrustBundle
+    | TransparencyCheckpoint
+    | InclusionProof
+    | ConsistencyProof
+    | WitnessStatement
+):
     """Verify the approved single-Sign1 Task 2 boundary.
 
     Multi-authority registrar/witness and recovery threshold packaging is not
@@ -138,4 +157,48 @@ def verify_federation_sign1(
                 _reject("delegation current-record context is invalid")
             delegation.require_newer_than(current_record, recovery_transition=transition)
         return delegation
+    if expected_object_type is ObjectType.FederationTrustBundle:
+        _reject("trust authority plus witness Sign1-set packaging is not frozen")
+    if expected_object_type is ObjectType.TransparencyCheckpoint:
+        if authority.purpose is not KeyPurpose.TRANSPARENCY_LOG or expected_key_purpose is not KeyPurpose.TRANSPARENCY_LOG:
+            _reject("checkpoint requires the exact transparency-log purpose")
+        checkpoint = TransparencyCheckpoint.from_bytes(verified.payload)
+        if checkpoint.log_id != authority.operator_id or checkpoint._payload[37] != authority.kid:
+            _reject("checkpoint does not identify the exact signer")
+        return checkpoint
+    if expected_object_type in {ObjectType.InclusionProof, ObjectType.ConsistencyProof}:
+        if authority.purpose is not KeyPurpose.TRANSPARENCY_LOG or expected_key_purpose is not KeyPurpose.TRANSPARENCY_LOG:
+            _reject("transparency proof requires the exact transparency-log purpose")
+        proof = (
+            InclusionProof.from_bytes(verified.payload)
+            if expected_object_type is ObjectType.InclusionProof
+            else ConsistencyProof.from_bytes(verified.payload)
+        )
+        if proof._payload[32] != authority.operator_id:
+            _reject("transparency proof log does not identify the exact signer")
+        return proof
+    if expected_object_type is ObjectType.WitnessStatement:
+        if authority.purpose is not KeyPurpose.WITNESS or expected_key_purpose is not KeyPurpose.WITNESS:
+            _reject("witness statement requires the exact witness purpose")
+        witness = WitnessStatement.from_bytes(verified.payload)
+        if witness._payload[32] != authority.operator_id or witness._payload[41] != authority.kid:
+            _reject("witness statement does not identify the exact signer")
+        return witness
     _reject("object type is outside the approved Task 2 COSE surface")
+
+
+def authenticate_witness_sign1(message: bytes, authority: FederationAuthority, organization: str, now: int) -> AuthenticatedWitness:
+    if type(organization) is not str or not organization:
+        _reject("witness organization is invalid")
+    statement = verify_federation_sign1(
+        message,
+        authority,
+        ObjectType.WitnessStatement,
+        now,
+        expected_key_purpose=KeyPurpose.WITNESS,
+    )
+    if not isinstance(statement, WitnessStatement):
+        _reject("witness verification returned the wrong object type")
+    return AuthenticatedWitness._from_cose_verifier(
+        statement, authority.operator_id, organization, authority.kid, _AUTHENTICATED_WITNESS_TOKEN
+    )
