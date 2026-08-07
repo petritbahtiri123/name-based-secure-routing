@@ -2,6 +2,11 @@
 
 > **APPROVED DEVELOPMENT PROFILE PROPOSAL — REQUIRES HUMAN APPROVAL**
 
+Approval status: `WP8-SCHEMA-REQUIREDNESS-01` is `CLOSED` by human approval
+of the supplement at commit `a0bb467b0f533886930745f855deadbd3d5904f7` on
+2026-08-07. The proposal package and its literal fixture bytes remain unchanged
+as the approval oracle.
+
 **Decision:** `WP8-SCHEMA-REQUIREDNESS-01`
 **Baseline:** `4c8c9ef9963e5cf2e0f9037a9d35b6555bb27776`
 **Runtime authority:** none; Task 2 remains prohibited until this proposal is
@@ -212,7 +217,7 @@ literal validation context because Task 2 COSE wrapping is not yet authorized.
 
 The proposal removes the requiredness, key-allocation, signer-substitution,
 and literal-byte choices that previously forced Task 2 to invent semantics.
-Before human approval, `WP8-SCHEMA-REQUIREDNESS-01` remains
-`PROPOSED-CLOSURE/PENDING-HUMAN-APPROVAL`, and Task 2 remains blocked. Human
-approval changes the decision to `CLOSED` without authorizing any broader Task
-2 or later runtime work; Task 2 still requires its own explicit approval.
+Historical pre-approval state was
+`PROPOSED-CLOSURE/PENDING-HUMAN-APPROVAL`. Human approval has changed the
+decision to `CLOSED` and separately authorized Task 2 only; it does not
+authorize Task 3 or any broader runtime work.

@@ -56,7 +56,8 @@ def test_status_marks_only_wp2a_lab_scope_implemented() -> None:
     assert "| Signed NBSR-native OriginSet publication | Planned |" in status
     assert "| Multi-zone HA and shared security state | Partial |" in status
     assert "no live multi-zone HA" in status
-    assert "| Signed ownership, delegation, transparency, and global federation | Planned |" in status
+    assert "| Signed ownership, delegation, transparency, and global federation | Partial |" in status
+    assert "ownership, delegation, transparency runtime, threshold packaging, and global federation are not implemented" in status
     assert "WP3 is complete at its documented origin-free" in status
     assert "- production readiness;" in status
 

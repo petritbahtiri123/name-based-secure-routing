@@ -1,4 +1,12 @@
 from nbsr.federation.profile import CoreBaselineError, FederationProfile, assert_core_baseline
+from nbsr.federation.identity import OperatorId, OperatorIdError
+from nbsr.federation.fields import (
+    FederationValidationError,
+    KeyAuthorizationRecord,
+    OperatorRegistryRecord,
+    RecoveryTransitionBinding,
+)
+from nbsr.federation.cose import FederationAuthority, verify_federation_sign1
 from nbsr.federation.registry import (
     CONTEXTUAL_RULES,
     CORE_COLLISION_PROOF,
@@ -45,13 +53,21 @@ __all__ = [
     "EnforcementMode",
     "ExtensionId",
     "FederationProfile",
+    "FederationAuthority",
+    "FederationValidationError",
+    "KeyAuthorizationRecord",
     "KeyLifecycle",
     "KeyPurpose",
     "MessageType",
     "ObjectType",
     "OperatorLifecycle",
+    "OperatorId",
+    "OperatorIdError",
+    "OperatorRegistryRecord",
     "ReasonCode",
     "RecoveryStage",
+    "RecoveryTransitionBinding",
     "ResultType",
     "assert_core_baseline",
+    "verify_federation_sign1",
 ]
