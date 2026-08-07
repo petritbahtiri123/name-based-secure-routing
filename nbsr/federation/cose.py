@@ -36,6 +36,32 @@ class FederationAuthority:
     revoked: bool
 
 
+_TASK5_AUTH_TOKEN = object()
+
+
+@dataclass(frozen=True, slots=True)
+class AuthenticatedFederationRecord:
+    record: object
+    authority: FederationAuthority
+    _token: object
+
+    def __post_init__(self) -> None:
+        if self._token is not _TASK5_AUTH_TOKEN:
+            _reject("authenticated Task 5 record must come from COSE verification")
+
+
+@dataclass(frozen=True, slots=True)
+class AuthenticatedBilateralContext:
+    context: object
+    source_authority: FederationAuthority
+    destination_authority: FederationAuthority
+    _token: object
+
+    def __post_init__(self) -> None:
+        if self._token is not _TASK5_AUTH_TOKEN:
+            _reject("bilateral context must come from two-signature verification")
+
+
 def _reject(message: str) -> None:
     raise FederationValidationError(message)
 
@@ -184,7 +210,61 @@ def verify_federation_sign1(
         if witness._payload[32] != authority.operator_id or witness._payload[41] != authority.kid:
             _reject("witness statement does not identify the exact signer")
         return witness
+    if expected_object_type is ObjectType.OperatorEndpointRecord:
+        from nbsr.federation.discovery import OperatorEndpointRecord
+
+        if authority.purpose is not KeyPurpose.ENDPOINT_DISCOVERY or expected_key_purpose is not KeyPurpose.ENDPOINT_DISCOVERY:
+            _reject("endpoint record requires the exact endpoint-discovery purpose")
+        endpoint = OperatorEndpointRecord.from_bytes(verified.payload)
+        issuer = endpoint._payload[3]
+        if issuer[2] != authority.operator_id or issuer[3] != authority.kid or issuer[4] != endpoint.operator_id:
+            _reject("endpoint issuer does not identify the exact signer")
+        endpoint.require_valid_at(now)
+        return endpoint
     _reject("object type is outside the approved Task 2 COSE surface")
+
+
+def authenticate_task5_sign1(
+    message: bytes, authority: FederationAuthority, expected_object_type: ObjectType, now: int, *, expected_key_purpose: KeyPurpose
+) -> AuthenticatedFederationRecord:
+    if expected_object_type is not ObjectType.OperatorEndpointRecord:
+        _reject("object does not use single-signer Task 5 authentication")
+    record = verify_federation_sign1(message, authority, expected_object_type, now, expected_key_purpose=expected_key_purpose)
+    return AuthenticatedFederationRecord(record, authority, _TASK5_AUTH_TOKEN)
+
+
+def authenticate_bilateral_context(
+    source_message: bytes,
+    source_authority: FederationAuthority,
+    destination_message: bytes,
+    destination_authority: FederationAuthority,
+    now: int,
+) -> AuthenticatedBilateralContext:
+    from nbsr.federation.authorization import FederationAuthorizationContext
+
+    for authority in (source_authority, destination_authority):
+        if (
+            authority.purpose is not KeyPurpose.FEDERATION_AUTHORIZATION
+            or authority.lifecycle is not KeyLifecycle.ACTIVE
+            or authority.revoked
+            or not authority.not_before <= now <= authority.expires_at
+        ):
+            _reject("bilateral authorization signer is ineligible")
+    if source_authority.operator_id == destination_authority.operator_id:
+        _reject("bilateral authorization requires distinct operators")
+    try:
+        source = verify_sign1(source_message, {source_authority.kid: source_authority.public_key}, ErrorCode.NBSR_E_RECORD_UNTRUSTED)
+        destination = verify_sign1(
+            destination_message, {destination_authority.kid: destination_authority.public_key}, ErrorCode.NBSR_E_RECORD_UNTRUSTED
+        )
+    except ProtocolViolation as exc:
+        raise FederationValidationError("bilateral Federation COSE verification failed") from exc
+    if source.payload != destination.payload:
+        _reject("bilateral signatures bind different contexts")
+    context = FederationAuthorizationContext.from_bytes(source.payload)
+    if context._payload[33] != source_authority.operator_id or context._payload[34] != destination_authority.operator_id:
+        _reject("bilateral signer Operator IDs differ from context")
+    return AuthenticatedBilateralContext(context, source_authority, destination_authority, _TASK5_AUTH_TOKEN)
 
 
 def authenticate_witness_sign1(message: bytes, authority: FederationAuthority, organization: str, now: int) -> AuthenticatedWitness:

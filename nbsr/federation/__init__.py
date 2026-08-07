@@ -6,7 +6,15 @@ from nbsr.federation.fields import (
     OperatorRegistryRecord,
     RecoveryTransitionBinding,
 )
-from nbsr.federation.cose import FederationAuthority, authenticate_witness_sign1, verify_federation_sign1
+from nbsr.federation.cose import (
+    AuthenticatedBilateralContext,
+    AuthenticatedFederationRecord,
+    FederationAuthority,
+    authenticate_bilateral_context,
+    authenticate_task5_sign1,
+    authenticate_witness_sign1,
+    verify_federation_sign1,
+)
 from nbsr.federation.delegation import DelegationRecord, DelegationScope, DelegationVerifier, SignedFederationObject
 from nbsr.federation.ownership import NameOwnershipRecord, OwnershipTransitionBinding, derive_service_id
 from nbsr.federation.trust import FederationTrustBundle, TrustBundleStore, TrustTransitionBinding, compose_bundles
@@ -18,6 +26,23 @@ from nbsr.federation.transparency import (
     TransparencyVerifier,
     WitnessStatement,
     verify_witness_threshold,
+)
+from nbsr.federation.discovery import DiscoveryCandidate, EndpointDirectory, OperatorEndpointRecord
+from nbsr.federation.authorization import (
+    AuthorizationEvidence,
+    BilateralAuthorizer,
+    FederationAuthorityProof,
+    FederationAuthorizationContext,
+    FederationResult,
+)
+from nbsr.federation.revocation import DependencyIndex, SemanticThresholdEvidence, TypedRevocationRecord
+from nbsr.federation.lifecycle import (
+    AppealDecisionRecord,
+    ConflictEvidence,
+    ConflictResolutionRecord,
+    OperatorLifecycleRecord,
+    RecoveryTransitionRecord,
+    SemanticRecoveryEvidence,
 )
 from nbsr.federation.registry import (
     CONTEXTUAL_RULES,
@@ -81,6 +106,8 @@ __all__ = [
     "ConsistencyProof",
     "WitnessStatement",
     "AuthenticatedWitness",
+    "AuthenticatedBilateralContext",
+    "AuthenticatedFederationRecord",
     "TransparencyVerifier",
     "TrustBundleStore",
     "TrustTransitionBinding",
@@ -97,8 +124,27 @@ __all__ = [
     "SignedFederationObject",
     "assert_core_baseline",
     "authenticate_witness_sign1",
+    "authenticate_bilateral_context",
+    "authenticate_task5_sign1",
     "derive_service_id",
     "verify_federation_sign1",
     "verify_witness_threshold",
     "compose_bundles",
+    "AppealDecisionRecord",
+    "AuthorizationEvidence",
+    "BilateralAuthorizer",
+    "ConflictEvidence",
+    "ConflictResolutionRecord",
+    "DependencyIndex",
+    "DiscoveryCandidate",
+    "EndpointDirectory",
+    "FederationAuthorityProof",
+    "FederationAuthorizationContext",
+    "FederationResult",
+    "OperatorEndpointRecord",
+    "OperatorLifecycleRecord",
+    "RecoveryTransitionRecord",
+    "SemanticThresholdEvidence",
+    "SemanticRecoveryEvidence",
+    "TypedRevocationRecord",
 ]
