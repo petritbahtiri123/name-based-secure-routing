@@ -7,7 +7,8 @@
   "container_id": "nbsr-federation-threshold-evidence-v1",
   "container_version": 1,
   "profile_id": "nbsr-federation-dev-v1",
-  "required_capability": "FEDERATION_OBJECTS",
+  "required_capability": "THRESHOLD_EVIDENCE",
+  "required_capability_id": 6,
   "object_registry_impact": "none-evidence-container-not-authority-object",
   "unsupported_version": "REJECT/ERR_VERSION/no-mutation",
   "container_fields": {
@@ -84,7 +85,17 @@
     "7": "group_id:tstr",
     "8": "authority_scope_digest:bstr32",
     "9": "lineage:LineageContext",
-    "10": "authorization_context:AuthorizationContext"
+    "10": "authorization_context:AuthorizationContext",
+    "11": "required_capability:uint=6:THRESHOLD_EVIDENCE",
+    "12": "capability_session_binding_digest:bstr32"
+  },
+  "capability_session_binding_preimage_fields": {
+    "1": "domain:tstr=NBSR-FEDERATION-CAPABILITY-SESSION-BINDING-v1",
+    "2": "selected_core_version:uint=2",
+    "3": "agreed_federation_version:uint=1",
+    "4": "agreed_profile_id:tstr=nbsr-federation-dev-v1",
+    "5": "authenticated_critical_capability_ids:[uint]:sorted-unique=[6]",
+    "6": "authenticated_session_transcript_digest:bstr32"
   },
   "signature_input": {
     "cose_structure": "tagged-COSE_Sign1",
@@ -105,7 +116,7 @@
   "invalid_entry_rule": "reject-whole-container-even-if-remaining-signatures-satisfy-threshold",
   "activation_rule": "all-required-groups-valid",
   "extension_rule": "approved-ExtensionEntry-rules-unknown-critical-reject-unknown-noncritical-preserve",
-  "required_validation_context": ["negotiated_capabilities", "accepted_authority_registry", "expected_request_event_transition_id", "now"],
+  "required_validation_context": ["capability_agreement_authenticated", "selected_core_version", "agreed_federation_version", "agreed_profile_id", "authenticated_session_transcript_digest", "negotiated_capabilities", "authenticated_capabilities", "accepted_authority_registry", "expected_request_event_transition_id", "now"],
   "authority_registry_invariant": "kid-and-public-key-resolve-to-exactly-one-authority-identity",
   "resource_limits": {
     "max_threshold_groups": 4,

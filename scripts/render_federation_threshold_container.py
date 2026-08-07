@@ -18,6 +18,8 @@ PROFILE_PATH = ROOT / "docs/protocol/registries/federation-v0.1-threshold-contai
 FIXTURE_PATH = ROOT / "vectors/federation-v0.1-threshold-container/literal-fixtures.json"
 TABLE_PATH = ROOT / "docs/protocol/wp8-federation-v0.1-threshold-container-allocation.md"
 DOMAIN = "NBSR-FEDERATION-THRESHOLD-SIGNATURE-v1"
+BINDING_DOMAIN = "NBSR-FEDERATION-CAPABILITY-SESSION-BINDING-v1"
+SESSION_TRANSCRIPT_DIGEST = hashlib.sha256(b"authenticated-federation-session-transcript-v1").digest()
 CLASS = {
     "OPERATOR_RECOVERY": 2,
     "DEVELOPMENT_REGISTRAR": 3,
@@ -49,6 +51,10 @@ MESSAGE = {
 
 def digest(value: object) -> bytes:
     return hashlib.sha256(encode_deterministic(value)).digest()
+
+
+def capability_session_binding() -> bytes:
+    return digest({1: BINDING_DOMAIN, 2: 2, 3: 1, 4: "nbsr-federation-dev-v1", 5: [6], 6: SESSION_TRANSCRIPT_DIGEST})
 
 
 def authority_id(authority_class: int, index: int) -> bytes:
@@ -159,6 +165,8 @@ def envelope(
         8: scope_digest,
         9: lineage,
         10: authorization,
+        11: 6,
+        12: capability_session_binding(),
     }
     groups = []
     authorities = []
@@ -190,9 +198,15 @@ def envelope(
         9: groups,
     }
     validation = {
+        "capability_agreement_authenticated": True,
+        "selected_core_version": 2,
+        "agreed_federation_version": 1,
+        "agreed_profile_id": "nbsr-federation-dev-v1",
+        "authenticated_session_transcript_digest": SESSION_TRANSCRIPT_DIGEST.hex(),
         "now": 1_750_000_100,
         "accepted_authority_registry": authorities,
-        "negotiated_capabilities": ["FEDERATION_OBJECTS"],
+        "negotiated_capabilities": ["THRESHOLD_EVIDENCE"],
+        "authenticated_capabilities": ["THRESHOLD_EVIDENCE"],
         "expected_request_event_transition_id": request_id.hex(),
     }
     return value, validation
@@ -392,9 +406,75 @@ def build_fixtures(profile: dict[str, Any]) -> dict[str, Any]:
     add(
         "invalid-missing-required-capability",
         "valid-witness-2-of-3",
-        lambda v, c: c.__setitem__("negotiated_capabilities", []),
+        lambda v, c: (c.__setitem__("negotiated_capabilities", []), c.__setitem__("authenticated_capabilities", [])),
         "ERR_UNSUPPORTED_CRITICAL",
     )
+    add(
+        "invalid-federation-objects-only",
+        "valid-witness-2-of-3",
+        lambda v, c: (
+            c.__setitem__("negotiated_capabilities", ["FEDERATION_OBJECTS"]),
+            c.__setitem__("authenticated_capabilities", ["FEDERATION_OBJECTS"]),
+        ),
+        "ERR_UNSUPPORTED_CRITICAL",
+    )
+    add(
+        "invalid-pre-capability-agreement",
+        "valid-witness-2-of-3",
+        lambda v, c: c.__setitem__("capability_agreement_authenticated", False),
+        "ERR_DOWNGRADE",
+    )
+    add(
+        "invalid-wrong-agreed-profile",
+        "valid-witness-2-of-3",
+        lambda v, c: c.__setitem__("agreed_profile_id", "nbsr-federation-other-v1"),
+        "ERR_VERSION",
+    )
+    add(
+        "invalid-wrong-agreed-federation-version",
+        "valid-witness-2-of-3",
+        lambda v, c: c.__setitem__("agreed_federation_version", 2),
+        "ERR_VERSION",
+    )
+    add(
+        "invalid-wrong-selected-core-version", "valid-witness-2-of-3", lambda v, c: c.__setitem__("selected_core_version", 1), "ERR_VERSION"
+    )
+    add("invalid-capability-stripping", "valid-witness-2-of-3", lambda v, c: c.__setitem__("negotiated_capabilities", []), "ERR_DOWNGRADE")
+    add(
+        "invalid-cross-session-replay",
+        "valid-witness-2-of-3",
+        lambda v, c: c.__setitem__(
+            "authenticated_session_transcript_digest", hashlib.sha256(b"different-authenticated-session").hexdigest()
+        ),
+        "ERR_REPLAY",
+    )
+    add(
+        "invalid-malformed-capability-collection",
+        "valid-witness-2-of-3",
+        lambda v, c: (
+            c.__setitem__("negotiated_capabilities", "THRESHOLD_EVIDENCE"),
+            c.__setitem__("authenticated_capabilities", "THRESHOLD_EVIDENCE"),
+        ),
+        "ERR_SCHEMA",
+    )
+    add(
+        "invalid-single-sign1-downgrade", "valid-witness-2-of-3", lambda v, c: c.__setitem__("single_sign1_fallback", True), "ERR_DOWNGRADE"
+    )
+    add(
+        "invalid-replay-without-threshold-capability",
+        "valid-witness-2-of-3",
+        lambda v, c: (c.__setitem__("negotiated_capabilities", []), c.__setitem__("authenticated_capabilities", [])),
+        "ERR_UNSUPPORTED_CRITICAL",
+    )
+
+    def wrong_signature_capability(value: dict[int, Any], _: dict[str, Any]) -> None:
+        cose = decode_deterministic(value[9][0][2][0][7][1:])
+        signed_context = decode_deterministic(cose[2])
+        signed_context[11] = 1
+        cose[2] = encode_deterministic(signed_context)
+        value[9][0][2][0][7] = b"\xd2" + encode_deterministic(cose)
+
+    add("invalid-signature-context-capability", "valid-witness-2-of-3", wrong_signature_capability, "ERR_DOWNGRADE")
     eligible, eligible_context = envelope(profile, "ordinary-witness-v1", [4], object_type=9, message_type=16404)
     items.append(fixture("invalid-eligible-count-exceeded", eligible, eligible_context, "REJECT", "ERR_AUTHORITY"))
     add("invalid-malformed-extension", "valid-witness-2-of-3", lambda v, c: v.__setitem__(10, [1]), "ERR_SCHEMA")

@@ -37,6 +37,11 @@
         "name": "FEDERATION_CONTEXT_BINDING",
         "value": 5,
         "status": "approved-development-profile"
+      },
+      {
+        "name": "THRESHOLD_EVIDENCE",
+        "value": 6,
+        "status": "approved-development-profile"
       }
     ],
     "object_types": [
@@ -936,7 +941,7 @@
     ],
     "capability_ids": [
       [
-        6,
+        7,
         255
       ]
     ],

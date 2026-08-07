@@ -51,6 +51,7 @@ EXPECTED_REGISTRIES = {
         ("TRANSPARENCY_PROOFS", 3),
         ("STATIC_TRUST_COMPATIBILITY", 4),
         ("FEDERATION_CONTEXT_BINDING", 5),
+        ("THRESHOLD_EVIDENCE", 6),
     ),
     ObjectType: (
         ("OperatorRegistryRecord", 1),
@@ -243,6 +244,12 @@ def test_registries_are_closed_for_unknown_and_reserved_values() -> None:
             enum_type(unknown)
 
 
+def test_threshold_evidence_capability_is_new_and_collision_free() -> None:
+    assert CapabilityId.THRESHOLD_EVIDENCE == 6
+    assert tuple(item.value for item in CapabilityId) == (1, 2, 3, 4, 5, 6)
+    assert len({item.value for item in CapabilityId}) == len(CapabilityId)
+
+
 def test_federation_message_namespace_is_disjoint_from_frozen_core() -> None:
     assert not {item.value for item in MessageType} & {item.value for item in CoreMessageType}
     assert min(item.value for item in MessageType) == 0x4000
@@ -281,7 +288,7 @@ def test_machine_registry_is_ratified_without_claiming_wire_freeze() -> None:
 
 
 def test_canonical_registry_metadata_is_complete_and_source_pinned() -> None:
-    assert REGISTRY_SOURCE_SHA256 == "6a2b1aef71f39392495c53e3cbc98caef0ea5a62a8e22f3bb0b8ff62a6ee3559"
+    assert REGISTRY_SOURCE_SHA256 == "29311cb8e952e328eef7c69fb4776a85504ff4af5edf7c55faad53194d60dc7e"
     assert len(MESSAGE_SEMANTICS) == 58
     assert len(SIGNER_AUTHORITY_MATRIX) == 18
     assert set(RESERVED_RANGES) == {

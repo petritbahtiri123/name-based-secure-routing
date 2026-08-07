@@ -27,8 +27,9 @@ Reserved: `2..255`.
 | 3 | `TRANSPARENCY_PROOFS` | approved Development Profile |
 | 4 | `STATIC_TRUST_COMPATIBILITY` | approved Development Profile |
 | 5 | `FEDERATION_CONTEXT_BINDING` | approved Development Profile |
+| 6 | `THRESHOLD_EVIDENCE` | approved Development Profile |
 
-Reserved: `6..255`.
+Reserved: `7..255`.
 
 ## Object Types
 

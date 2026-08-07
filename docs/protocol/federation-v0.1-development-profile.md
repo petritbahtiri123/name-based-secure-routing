@@ -208,7 +208,10 @@ COSE_Sign1 values. It freezes exact policy, scope, lineage, replay/action,
 validity, organization-diversity, signer-ordering, authority-effect,
 capability, and resource bindings while
 allocating no nineteenth Federation authority object and changing no Core
-object or message. Its machine-readable profile, generated table, 78 literal
+object or message. The pre-approval v1 correction allocates the dedicated
+Development Profile capability `THRESHOLD_EVIDENCE = 6`, without renumbering
+capabilities 1–5, and binds it into authenticated capability agreement and
+threshold signature-context keys 11–12. Its machine-readable profile, generated table, 89 literal
 fixtures, and independent verifier remain **proposed and require human
 approval**. Task 2–6 opaque threshold-evidence boundaries remain unchanged
 until that approval, and Task 7 is not authorized by the proposal.

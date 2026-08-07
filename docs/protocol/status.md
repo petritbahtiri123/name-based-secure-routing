@@ -33,9 +33,10 @@ signature-set transport packaging remains unresolved and is not invented.
 proposed and requires human approval. It selects a versioned NBSR evidence
 envelope with named groups of independent COSE_Sign1 values, exact common
 context binding, distinct-authority and organizational-diversity evaluation,
-approved-policy pinning, capability and validity checks, and bounded canonical
+approved-policy pinning, dedicated `THRESHOLD_EVIDENCE = 6` authenticated
+capability/session/signature-context binding, validity checks, and bounded canonical
 encoding. The proposal allocates no nineteenth
-Federation authority object and does not modify Core. Its 78 literal fixtures
+Federation authority object and does not modify Core. Its 89 literal fixtures
 and independent verifier are proposal evidence only. Task 7 and runtime
 integration have not started.
 

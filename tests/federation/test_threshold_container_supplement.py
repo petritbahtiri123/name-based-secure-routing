@@ -32,7 +32,8 @@ def test_threshold_container_freezes_option_c_without_nineteenth_object() -> Non
     assert profile["object_registry_impact"] == "none-evidence-container-not-authority-object"
     assert profile["container_id"] == "nbsr-federation-threshold-evidence-v1"
     assert profile["container_version"] == 1
-    assert profile["required_capability"] == "FEDERATION_OBJECTS"
+    assert profile["required_capability"] == "THRESHOLD_EVIDENCE"
+    assert profile["required_capability_id"] == 6
 
 
 def test_threshold_schema_freezes_exact_keys_types_and_common_signature_input() -> None:
@@ -66,6 +67,16 @@ def test_threshold_schema_freezes_exact_keys_types_and_common_signature_input() 
     assert signature["external_aad"] == "h''"
     assert signature["payload"] == "deterministic-CBOR-ThresholdSignatureContext"
     assert signature["domain"] == "NBSR-FEDERATION-THRESHOLD-SIGNATURE-v1"
+    assert profile["signature_context_fields"]["11"] == "required_capability:uint=6:THRESHOLD_EVIDENCE"
+    assert profile["signature_context_fields"]["12"] == "capability_session_binding_digest:bstr32"
+    assert profile["capability_session_binding_preimage_fields"] == {
+        "1": "domain:tstr=NBSR-FEDERATION-CAPABILITY-SESSION-BINDING-v1",
+        "2": "selected_core_version:uint=2",
+        "3": "agreed_federation_version:uint=1",
+        "4": "agreed_profile_id:tstr=nbsr-federation-dev-v1",
+        "5": "authenticated_critical_capability_ids:[uint]:sorted-unique=[6]",
+        "6": "authenticated_session_transcript_digest:bstr32",
+    }
 
 
 def test_policy_and_multi_group_rules_are_not_flattened() -> None:
@@ -151,6 +162,17 @@ def test_literal_fixture_inventory_and_canonical_bytes() -> None:
         "invalid-policy-object-substitution",
         "invalid-policy-message-substitution",
         "invalid-missing-required-capability",
+        "invalid-federation-objects-only",
+        "invalid-pre-capability-agreement",
+        "invalid-wrong-agreed-profile",
+        "invalid-wrong-agreed-federation-version",
+        "invalid-wrong-selected-core-version",
+        "invalid-capability-stripping",
+        "invalid-cross-session-replay",
+        "invalid-malformed-capability-collection",
+        "invalid-single-sign1-downgrade",
+        "invalid-replay-without-threshold-capability",
+        "invalid-signature-context-capability",
         "invalid-eligible-count-exceeded",
         "invalid-malformed-extension",
         "invalid-oversize-authority-id",
@@ -238,12 +260,92 @@ def test_policy_names_pin_object_message_effect_and_capability() -> None:
         ],
     }
     assert profile["required_validation_context"] == [
+        "capability_agreement_authenticated",
+        "selected_core_version",
+        "agreed_federation_version",
+        "agreed_profile_id",
+        "authenticated_session_transcript_digest",
         "negotiated_capabilities",
+        "authenticated_capabilities",
         "accepted_authority_registry",
         "expected_request_event_transition_id",
         "now",
     ]
     assert profile["authority_registry_invariant"] == "kid-and-public-key-resolve-to-exactly-one-authority-identity"
+
+
+def test_threshold_capability_agreement_and_signature_context_fail_closed() -> None:
+    fixtures = {item["name"]: item for item in _fixtures()["fixtures"]}
+    expected = {
+        "invalid-federation-objects-only": "ERR_UNSUPPORTED_CRITICAL",
+        "invalid-pre-capability-agreement": "ERR_DOWNGRADE",
+        "invalid-wrong-agreed-profile": "ERR_VERSION",
+        "invalid-wrong-agreed-federation-version": "ERR_VERSION",
+        "invalid-wrong-selected-core-version": "ERR_VERSION",
+        "invalid-capability-stripping": "ERR_DOWNGRADE",
+        "invalid-single-sign1-downgrade": "ERR_DOWNGRADE",
+        "invalid-replay-without-threshold-capability": "ERR_UNSUPPORTED_CRITICAL",
+        "invalid-signature-context-capability": "ERR_DOWNGRADE",
+    }
+    for name, reason in expected.items():
+        fixture = fixtures[name]
+        observed = verify_literal(
+            bytes.fromhex(fixture["canonical_cbor_hex"]),
+            fixture["validation_context"],
+            _profile(),
+        )
+        assert observed == ("REJECT", reason, False)
+
+
+def test_valid_signature_context_binds_exact_threshold_capability() -> None:
+    fixture = next(item for item in _fixtures()["fixtures"] if item["name"] == "valid-witness-2-of-3")
+    envelope = decode_deterministic(bytes.fromhex(fixture["canonical_cbor_hex"]))
+    cose = decode_deterministic(envelope[9][0][2][0][7][1:])
+    signed_context = decode_deterministic(cose[2])
+    assert signed_context[11] == 6
+    assert isinstance(signed_context[12], bytes) and len(signed_context[12]) == 32
+
+
+def test_malformed_authenticated_capability_collection_fails_closed() -> None:
+    fixture = next(item for item in _fixtures()["fixtures"] if item["name"] == "valid-witness-2-of-3")
+    validation = dict(fixture["validation_context"])
+    validation["negotiated_capabilities"] = "THRESHOLD_EVIDENCE"
+    validation["authenticated_capabilities"] = "THRESHOLD_EVIDENCE"
+    observed = verify_literal(bytes.fromhex(fixture["canonical_cbor_hex"]), validation, _profile())
+    assert observed == ("REJECT", "ERR_SCHEMA", False)
+
+
+def test_threshold_evidence_cannot_replay_across_authenticated_sessions() -> None:
+    fixture = next(item for item in _fixtures()["fixtures"] if item["name"] == "valid-witness-2-of-3")
+    validation = dict(fixture["validation_context"])
+    validation["authenticated_session_transcript_digest"] = hashlib.sha256(b"different-authenticated-session").hexdigest()
+    observed = verify_literal(bytes.fromhex(fixture["canonical_cbor_hex"]), validation, _profile())
+    assert observed == ("REJECT", "ERR_REPLAY", False)
+
+
+def test_missing_required_validation_context_fails_closed_without_exception() -> None:
+    fixture = next(item for item in _fixtures()["fixtures"] if item["name"] == "valid-witness-2-of-3")
+    validation = dict(fixture["validation_context"])
+    del validation["expected_request_event_transition_id"]
+    observed = verify_literal(bytes.fromhex(fixture["canonical_cbor_hex"]), validation, _profile())
+    assert observed == ("REJECT", "ERR_SCHEMA", False)
+
+
+def test_malformed_required_validation_context_types_fail_closed() -> None:
+    fixture = next(item for item in _fixtures()["fixtures"] if item["name"] == "valid-witness-2-of-3")
+    raw = bytes.fromhex(fixture["canonical_cbor_hex"])
+    for field, malformed in (("now", "bad"), ("accepted_authority_registry", None)):
+        validation = dict(fixture["validation_context"])
+        validation[field] = malformed
+        assert verify_literal(raw, validation, _profile()) == ("REJECT", "ERR_SCHEMA", False)
+
+
+def test_malformed_authority_registry_row_fails_closed() -> None:
+    fixture = next(item for item in _fixtures()["fixtures"] if item["name"] == "valid-witness-2-of-3")
+    validation = dict(fixture["validation_context"])
+    validation["accepted_authority_registry"] = [{}]
+    observed = verify_literal(bytes.fromhex(fixture["canonical_cbor_hex"]), validation, _profile())
+    assert observed == ("REJECT", "ERR_SCHEMA", False)
 
 
 def test_independent_verifier_and_renderer_checks_pass() -> None:

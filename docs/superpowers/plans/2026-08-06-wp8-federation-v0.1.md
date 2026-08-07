@@ -15,6 +15,7 @@
 - Pin Core v0.2 to repository commit `b1edfa8cd4bb9a2f280e14a2973e404dd8e4c914` and manifest SHA-256 `d4cc06347be4ce7d4f118c004130a1ac7ab9a7d5fda6de3354fbb26bf72a3eeb` before allocating Federation values.
 - Federation Extension ID is `1`, extension version is `1`, and required Core version is `2` only after Task 1 ratification tests pass.
 - No runtime consumes an unfrozen object, message, field, error, capability, signature input, or authority matrix.
+- The threshold-container v1 proposal requires the dedicated Development Profile capability `THRESHOLD_EVIDENCE = 6`; capabilities 1–5 remain unchanged, `FEDERATION_OBJECTS` alone is insufficient, and Task 7 remains gated on human approval.
 - Every accepted authority change is canonical, signed, scope-bound, monotonic, hash-linked where applicable, bounded, atomic, idempotent, revocation-aware, and privacy-safe.
 - Unknown critical behavior, downgrade, ambiguity, rollback, equivocation, split view, invalid recovery, and resource excess fail closed with no unauthorized state mutation.
 - Static trust is a separate pre-authorized profile and never an automatic federation fallback.

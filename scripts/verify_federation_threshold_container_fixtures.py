@@ -17,6 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PROFILE_PATH = ROOT / "docs/protocol/registries/federation-v0.1-threshold-container-proposal.json"
 FIXTURE_PATH = ROOT / "vectors/federation-v0.1-threshold-container/literal-fixtures.json"
 DOMAIN = "NBSR-FEDERATION-THRESHOLD-SIGNATURE-v1"
+BINDING_DOMAIN = "NBSR-FEDERATION-CAPABILITY-SESSION-BINDING-v1"
 CLASS = {
     "OPERATOR_RECOVERY": 2,
     "DEVELOPMENT_REGISTRAR": 3,
@@ -64,7 +65,20 @@ def nested_depth(value: object) -> int:
     return 0
 
 
-def expected_signature_context(envelope: dict[int, Any], group_id: str) -> dict[int, Any]:
+def capability_session_binding(validation: dict[str, Any]) -> bytes:
+    transcript_digest = bytes.fromhex(validation["authenticated_session_transcript_digest"])
+    value = {
+        1: BINDING_DOMAIN,
+        2: validation["selected_core_version"],
+        3: validation["agreed_federation_version"],
+        4: validation["agreed_profile_id"],
+        5: [6],
+        6: transcript_digest,
+    }
+    return hashlib.sha256(encode_deterministic(value)).digest()
+
+
+def expected_signature_context(envelope: dict[int, Any], group_id: str, session_binding: bytes) -> dict[int, Any]:
     return {
         1: DOMAIN,
         2: envelope[1],
@@ -76,6 +90,8 @@ def expected_signature_context(envelope: dict[int, Any], group_id: str) -> dict[
         8: envelope[6],
         9: envelope[7],
         10: envelope[8],
+        11: 6,
+        12: session_binding,
     }
 
 
@@ -94,10 +110,88 @@ def _extensions(value: object) -> str | None:
     return None
 
 
+def _valid_hex(value: object, minimum: int, maximum: int) -> bool:
+    if type(value) is not str:
+        return False
+    try:
+        decoded = bytes.fromhex(value)
+    except ValueError:
+        return False
+    return minimum <= len(decoded) <= maximum and decoded.hex() == value
+
+
+def _valid_authority_row(row: object) -> bool:
+    if type(row) is not dict or set(row) != {
+        "authority_id",
+        "authority_class",
+        "key_purpose",
+        "kid",
+        "organization_id",
+        "public_key",
+        "not_before",
+        "expires_at",
+        "revoked",
+        "eligible_policy_groups",
+    }:
+        return False
+    return (
+        _valid_hex(row["authority_id"], 1, 64)
+        and _valid_hex(row["kid"], 1, 64)
+        and _valid_hex(row["organization_id"], 1, 64)
+        and _valid_hex(row["public_key"], 32, 32)
+        and type(row["authority_class"]) is int
+        and type(row["key_purpose"]) is int
+        and type(row["not_before"]) is int
+        and type(row["expires_at"]) is int
+        and type(row["revoked"]) is bool
+        and type(row["eligible_policy_groups"]) is list
+        and all(type(item) is str and item for item in row["eligible_policy_groups"])
+    )
+
+
 def classify(raw: bytes, envelope: object, validation: dict[str, Any], profile: dict[str, Any]) -> tuple[str, str, bool]:
     limits = profile["resource_limits"]
     if type(envelope) is not dict:
         return result("REJECT", "ERR_SCHEMA")
+    if not set(profile["required_validation_context"]) <= set(validation):
+        return result("REJECT", "ERR_SCHEMA")
+    if (
+        type(validation.get("now")) is not int
+        or type(validation.get("expected_request_event_transition_id")) is not str
+        or type(validation.get("accepted_authority_registry")) is not list
+        or any(not _valid_authority_row(item) for item in validation["accepted_authority_registry"])
+    ):
+        return result("REJECT", "ERR_SCHEMA")
+    if validation.get("capability_agreement_authenticated") is not True:
+        return result("REJECT", "ERR_DOWNGRADE")
+    if validation.get("selected_core_version") != 2 or validation.get("agreed_federation_version") != 1:
+        return result("REJECT", "ERR_VERSION")
+    if validation.get("agreed_profile_id") != "nbsr-federation-dev-v1":
+        return result("REJECT", "ERR_VERSION")
+    negotiated = validation.get("negotiated_capabilities", [])
+    authenticated = validation.get("authenticated_capabilities", [])
+    if (
+        type(negotiated) is not list
+        or type(authenticated) is not list
+        or any(type(item) is not str or not item for item in negotiated + authenticated)
+        or negotiated != sorted(set(negotiated))
+        or authenticated != sorted(set(authenticated))
+    ):
+        return result("REJECT", "ERR_SCHEMA")
+    transcript_digest = validation.get("authenticated_session_transcript_digest")
+    try:
+        transcript_digest_bytes = bytes.fromhex(transcript_digest)
+    except (TypeError, ValueError):
+        return result("REJECT", "ERR_SCHEMA")
+    if len(transcript_digest_bytes) != 32:
+        return result("REJECT", "ERR_SCHEMA")
+    session_binding = capability_session_binding(validation)
+    if negotiated != authenticated:
+        return result("REJECT", "ERR_DOWNGRADE")
+    if validation.get("single_sign1_fallback") is True:
+        return result("REJECT", "ERR_DOWNGRADE")
+    if "THRESHOLD_EVIDENCE" not in negotiated:
+        return result("REJECT", "ERR_UNSUPPORTED_CRITICAL")
     groups = envelope.get(9)
     if type(groups) is not list:
         return result("REJECT", "ERR_SCHEMA")
@@ -188,8 +282,6 @@ def classify(raw: bytes, envelope: object, validation: dict[str, Any], profile: 
         return result("REJECT", "ERR_REPLAY")
     if authorization.get(2, b"").hex() != validation["expected_request_event_transition_id"]:
         return result("REJECT", "ERR_REPLAY")
-    if "FEDERATION_OBJECTS" not in validation.get("negotiated_capabilities", []):
-        return result("REJECT", "ERR_UNSUPPORTED_CRITICAL")
     if not authorization.get(3, -1) <= validation["now"] <= authorization.get(4, -1):
         return result("REJECT", "ERR_FRESHNESS")
     rows = validation["accepted_authority_registry"]
@@ -301,8 +393,12 @@ def classify(raw: bytes, envelope: object, validation: dict[str, Any], profile: 
                 signed_context = decode_deterministic(signed_payload)
                 if type(signed_context) is not dict:
                     return result("REJECT", "ERR_SCHEMA")
-                expected = expected_signature_context(envelope, group[1])
+                expected = expected_signature_context(envelope, group[1], session_binding)
                 if signed_context != expected:
+                    if signed_context.get(11) != 6:
+                        return result("REJECT", "ERR_DOWNGRADE")
+                    if signed_context.get(12) != expected[12]:
+                        return result("REJECT", "ERR_REPLAY")
                     if signed_context.get(5) != expected[5]:
                         return result("REJECT", "ERR_SIGNATURE_INVALID")
                     if signed_context.get(8) != expected[8]:

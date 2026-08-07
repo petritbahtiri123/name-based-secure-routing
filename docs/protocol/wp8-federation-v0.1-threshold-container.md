@@ -40,13 +40,22 @@ verifiable.
 ## Canonical envelope
 
 The container ID is `nbsr-federation-threshold-evidence-v1`, version is `1`,
-profile is `nbsr-federation-dev-v1`, and required capability is the already
-allocated `FEDERATION_OBJECTS`. Unsupported container or signature-context
+profile is `nbsr-federation-dev-v1`, and required capability is the dedicated
+Development Profile allocation `THRESHOLD_EVIDENCE = 6`. General support for
+`FEDERATION_OBJECTS` is insufficient. Unsupported container or signature-context
 versions reject `ERR_VERSION` without mutation. The exact integer-key schema,
 wire types, and generated tables are normative in
 `registries/federation-v0.1-threshold-container-proposal.json` and
 `wp8-federation-v0.1-threshold-container-allocation.md` if this supplement is
 approved.
+
+This approved allocation narrowly amends Task 1 registry provenance: the 179
+preexisting name/value pairs are unchanged, `THRESHOLD_EVIDENCE = 6` is the
+sole added pair, and the capability reserved range moves mechanically from
+`6..255` to `7..255`. The machine registry therefore contains 180 pairs across
+the same 13 surfaces and its embedded package copy remains byte-identical to
+the LF-pinned source. No existing capability or other Task 1 value is
+renumbered.
 
 The top-level map binds:
 
@@ -205,9 +214,31 @@ verification attempts. Exceeding any bound deterministically rejects
 container before decoding and may stop after the first deterministic error in
 the approved validation precedence.
 
-Verification requires the already allocated `FEDERATION_OBJECTS` capability
-in the authenticated negotiated-capability context. Missing capability rejects
-`ERR_UNSUPPORTED_CRITICAL` without signature work.
+Core version is selected first under D8. Federation Extension version and
+profile are then authenticated and agreed, and `THRESHOLD_EVIDENCE` is
+negotiated only when compatible with that selected Core/Federation pair. The
+signature context binds integer key 11 to exact capability ID `6`. Key 12 binds
+a SHA-256 digest of the exact integer-key deterministic-CBOR preimage frozen in
+the machine profile: domain, selected Core version, agreed Federation version,
+agreed profile ID, sorted unique numeric critical-capability IDs (`[6]`), and
+upstream-authenticated session transcript digest. Together
+they prevent replay into another session or evidence mechanism that did not
+negotiate the same authenticated context.
+
+The proposal verifier consumes the authenticated session transcript digest as
+a trusted output of the existing session/capability layer; it does not create
+or independently authenticate a `FED_CAPABILITIES`/`FED_CAPABILITIES_ACK`
+exchange. Live negotiation remains Task 9 scope. Malformed or missing binding
+inputs reject `ERR_SCHEMA` without mutation.
+
+An envelope received before authenticated capability agreement, under the
+wrong profile/version, or after detectable capability stripping rejects
+fail-closed without mutation. A peer lacking `THRESHOLD_EVIDENCE` rejects any
+operation whose authority depends on this envelope. There is no fallback to
+opaque semantic evidence, single Sign1, or static trust. Absence uses
+`ERR_UNSUPPORTED_CRITICAL`; authenticated-agreement stripping or attempted
+single-Sign1 fallback uses `ERR_DOWNGRADE`; profile/version mismatch uses
+`ERR_VERSION`.
 
 ## Privacy
 
@@ -221,7 +252,7 @@ a new commitment scheme.
 
 ## Literal vectors and implementation boundary
 
-The specification-authored package contains 78 literal valid, pending, and invalid
+The specification-authored package contains 89 literal valid, pending, and invalid
 containers. Each records canonical CBOR hex, SHA-256, decision, reason, and a
 false mutation flag. The independent verifier recomputes canonical encoding,
 policy and context digests, COSE protected headers and Ed25519 signatures,
