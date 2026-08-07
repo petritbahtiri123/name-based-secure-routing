@@ -4,8 +4,10 @@ from dataclasses import dataclass
 
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
 
+from nbsr.federation.delegation import DelegationRecord
 from nbsr.federation.fields import FederationValidationError, KeyAuthorizationRecord, OperatorRegistryRecord
-from nbsr.federation.registry import KeyLifecycle, KeyPurpose, ObjectType
+from nbsr.federation.ownership import NameOwnershipRecord
+from nbsr.federation.registry import AuthorityClass, KeyLifecycle, KeyPurpose, ObjectType
 from nbsr.protocol.cose import verify_sign1
 from nbsr.protocol.errors import ProtocolViolation
 from nbsr.protocol.registry import ErrorCode
@@ -37,7 +39,9 @@ def verify_federation_sign1(
     *,
     expected_payload: bytes | None = None,
     expected_key_purpose: KeyPurpose = KeyPurpose.REGISTRY_SIGNING,
-) -> OperatorRegistryRecord | KeyAuthorizationRecord:
+    current_record: NameOwnershipRecord | DelegationRecord | None = None,
+    transition: object | None = None,
+) -> OperatorRegistryRecord | KeyAuthorizationRecord | NameOwnershipRecord | DelegationRecord:
     """Verify the approved single-Sign1 Task 2 boundary.
 
     Multi-authority registrar/witness and recovery threshold packaging is not
@@ -94,4 +98,44 @@ def verify_federation_sign1(
 
     if expected_object_type is ObjectType.OperatorRegistryRecord:
         _reject("registrar plus witness Sign1-set packaging is not frozen")
+    if expected_object_type is ObjectType.NameOwnershipRecord:
+        if authority.purpose is not KeyPurpose.NAME_OWNERSHIP or expected_key_purpose is not KeyPurpose.NAME_OWNERSHIP:
+            _reject("name ownership requires the exact name-ownership purpose")
+        ownership = NameOwnershipRecord.from_bytes(verified.payload)
+        signer = ownership._payload[3]
+        if (
+            signer[1] != AuthorityClass.NAME_OWNER
+            or signer[2] != authority.operator_id
+            or signer[3] != authority.kid
+            or signer[4] != authority.operator_id
+        ):
+            _reject("ownership issuer does not identify the exact signer")
+        ownership.require_valid_at(now)
+        if 8 in ownership._payload and current_record is None:
+            _reject("non-genesis ownership verification requires current_record")
+        if current_record is not None:
+            if not isinstance(current_record, NameOwnershipRecord):
+                _reject("ownership current-record context is invalid")
+            ownership.require_newer_than(current_record, transition=transition)
+        return ownership
+    if expected_object_type is ObjectType.DelegationRecord:
+        if authority.purpose is not KeyPurpose.DELEGATION or expected_key_purpose is not KeyPurpose.DELEGATION:
+            _reject("delegation requires the exact delegation purpose")
+        delegation = DelegationRecord.from_bytes(verified.payload)
+        signer = delegation._payload[32]
+        if (
+            signer[1] not in {AuthorityClass.NAME_OWNER, AuthorityClass.DELEGATE}
+            or signer[2] != authority.operator_id
+            or signer[3] != authority.kid
+            or signer[4] != authority.operator_id
+        ):
+            _reject("delegator does not identify the exact signer")
+        delegation.require_valid_at(now)
+        if 8 in delegation._payload and current_record is None:
+            _reject("non-genesis delegation verification requires current_record")
+        if current_record is not None:
+            if not isinstance(current_record, DelegationRecord):
+                _reject("delegation current-record context is invalid")
+            delegation.require_newer_than(current_record, recovery_transition=transition)
+        return delegation
     _reject("object type is outside the approved Task 2 COSE surface")

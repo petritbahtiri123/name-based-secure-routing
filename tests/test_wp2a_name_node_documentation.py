@@ -57,7 +57,8 @@ def test_status_marks_only_wp2a_lab_scope_implemented() -> None:
     assert "| Multi-zone HA and shared security state | Partial |" in status
     assert "no live multi-zone HA" in status
     assert "| Signed ownership, delegation, transparency, and global federation | Partial |" in status
-    assert "ownership, delegation, transparency runtime, threshold packaging, and global federation are not implemented" in status
+    assert "WP8 Tasks 2-3 implement operator/key authority, ownership, closed scope algebra, bounded delegation chains" in status
+    assert "threshold packaging, Task 4 transparency/witness runtime, live federation, and global federation are not implemented" in status
     assert "WP3 is complete at its documented origin-free" in status
     assert "- production readiness;" in status
 

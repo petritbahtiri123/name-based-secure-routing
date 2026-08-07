@@ -7,6 +7,8 @@ from nbsr.federation.fields import (
     RecoveryTransitionBinding,
 )
 from nbsr.federation.cose import FederationAuthority, verify_federation_sign1
+from nbsr.federation.delegation import DelegationRecord, DelegationScope, DelegationVerifier, SignedFederationObject
+from nbsr.federation.ownership import NameOwnershipRecord, OwnershipTransitionBinding, derive_service_id
 from nbsr.federation.registry import (
     CONTEXTUAL_RULES,
     CORE_COLLISION_PROOF,
@@ -50,6 +52,9 @@ __all__ = [
     "CapabilityId",
     "CoreBaselineError",
     "DecisionOutcome",
+    "DelegationRecord",
+    "DelegationScope",
+    "DelegationVerifier",
     "EnforcementMode",
     "ExtensionId",
     "FederationProfile",
@@ -59,15 +64,19 @@ __all__ = [
     "KeyLifecycle",
     "KeyPurpose",
     "MessageType",
+    "NameOwnershipRecord",
     "ObjectType",
     "OperatorLifecycle",
     "OperatorId",
     "OperatorIdError",
     "OperatorRegistryRecord",
+    "OwnershipTransitionBinding",
     "ReasonCode",
     "RecoveryStage",
     "RecoveryTransitionBinding",
     "ResultType",
+    "SignedFederationObject",
     "assert_core_baseline",
+    "derive_service_id",
     "verify_federation_sign1",
 ]

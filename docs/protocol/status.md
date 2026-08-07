@@ -12,7 +12,7 @@ The pending correction proposal uses the canonical 11-state Operator lifecycle,
 three recovery stages, and a semantics-derived Federation message registry;
 none is implemented runtime evidence.
 
-**Baseline date:** 2026-08-02
+**Baseline date:** 2026-08-07
 
 **Authority:** [NBSR Protocol Vision V3.6](../architecture/NBSR_Protocol_Vision_V3.6.md)
 
@@ -20,13 +20,33 @@ none is implemented runtime evidence.
 Decision Supplement at `CLOSED` by human approval of commit
 `a0bb467b0f533886930745f855deadbd3d5904f7`. The approved proposal
 now controls the exact Development Profile schema decisions it freezes and
-authorizes Task 2 only. It does not alter Core or authorize Task 3.
+authorized Task 2 only at closure. A later explicit human approval authorizes
+Task 3 against the same unchanged supplement and Task 2 baseline; Core remains
+unaltered.
 
 **WP8 Task 2:** Operator ID, `OperatorRegistryRecord`,
 `KeyAuthorizationRecord`, and the uniquely determined root-authorized tagged
 COSE Sign1 boundary are implemented. Registrar+witness and recovery-threshold
-signature-set transport packaging remains unresolved and is not invented;
-Task 3 has not started.
+signature-set transport packaging remains unresolved and is not invented.
+
+**WP8 Task 3:** `NameOwnershipRecord`, the closed eleven-dimension
+`DelegationScope`, `DelegationRecord`, Task 2 key-authority reuse, and iterative
+bounded ownership/delegation-chain verification are implemented at deterministic
+Development Profile scope. Verification enforces exact name/Service ID ancestry,
+scope narrowing, parent-bounded validity, depth/chain/graph/traversal limits,
+lineage, revocation, terminal state, transfer, and explicitly permitted recovery.
+This is payload and semantic validation evidence only: no registrar+witness or
+recovery-threshold signature-set container has been invented, and no Task 4
+trust-bundle, transparency, or witness runtime is implemented.
+Typed transition bindings are trusted outputs from independently validated
+transfer/recovery semantics; they are not evidence that the unresolved
+multi-signature container has been authenticated.
+Fresh Task 3 closure evidence on 2026-08-07: 44 Task 3 tests, 123 Task 2-3
+tests, 213 Federation tests, and the full Python suite (`1293 passed, 1
+skipped`) passed. The 28 schema literals, schema and registry render checks,
+Core baseline lock, Core v0.1/v0.2 vectors, generic Node verifier, dedicated
+WP4 exporter verifier, Ruff check and format, `pip check`, and `git diff
+--check` also passed.
 Fresh Task 2 closure evidence on 2026-08-07: 169 Federation tests and the full
 Python suite (`1249 passed, 1 skipped`) passed; the 28 literal schema fixtures,
 schema renderer, 110-artifact Core v0.2 baseline lock, Core v0.1/v0.2 vector
@@ -200,7 +220,7 @@ readiness, global federation, or independent interoperability.
 | Reversible route/firewall ownership journal | Implemented | WP5 records bounded applied operation IDs and exact prior resolver state, then emits trusted-profile-bound reverse-order rollback intent; operational rollback remains unverified |
 | Multi-zone HA and shared security state | Partial | WP6 provides a storage-neutral state machine and deterministic quorum simulation; no live multi-zone HA |
 | Two-operator ISP lab | Implemented | WP7 deterministic single-threaded, in-process admission, abuse, audit, connector-confinement, and topology simulation; no live ISP or federation evidence |
-| Signed ownership, delegation, transparency, and global federation | Partial | WP8 Task 2 implements operator identity, operator/key authorization records, literal payload conformance, and the root-authorized single-Sign1 boundary; ownership, delegation, transparency runtime, threshold packaging, and global federation are not implemented |
+| Signed ownership, delegation, transparency, and global federation | Partial | WP8 Tasks 2-3 implement operator/key authority, ownership, closed scope algebra, bounded delegation chains, and exact-purpose single-Sign1 verification at deterministic Development Profile scope; threshold packaging, Task 4 transparency/witness runtime, live federation, and global federation are not implemented |
 | Independent second-language implementation | Planned | WP8 selects a clean-room Go implementation after schema/vector freeze; the current Node verifier remains independent byte/object evidence, not a runtime |
 | Independent Core v0.2 vector verification | Implemented | Dependency-free Node.js verifier independently validates the 32-artifact deterministic package; this is conformance evidence, not a second runtime |
 | Public conformance suite and Internet-Draft | Planned | The WP8 plan defines vector, interoperability, evidence, and working-draft gates; none is implemented or standards-approved yet |
