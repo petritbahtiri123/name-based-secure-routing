@@ -1,0 +1,10 @@
+{
+  "name": "nbsr-federation-v01-verifier",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=24 <25" },
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "verify": "node src/verifier.js ../../vectors/federation-v0.1"
+  }
+}
