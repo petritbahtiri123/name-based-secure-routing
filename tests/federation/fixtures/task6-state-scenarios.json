@@ -1,0 +1,58 @@
+{
+  "authority": "WP8 Task 6 specification-authored state scenarios",
+  "generated": false,
+  "scenarios": [
+    {
+      "dependency_effects": {"invalidated": [], "retained": ["1111111111111111111111111111111111111111111111111111111111111111"]},
+      "enforcement": "NONE",
+      "event": {"digest": "1111111111111111111111111111111111111111111111111111111111111111", "generation": 1, "key": "trust:global", "sequence": 1},
+      "evidence": [],
+      "expected_state_digest": "66b7286148ce4e2daeaa3128ec4289c376ddf4ce81cb93e7f43dcb0fd08f3225",
+      "id": "accept-initial",
+      "mutation": true,
+      "outcome": "ACCEPT",
+      "pre_state": "empty",
+      "reason": "NONE"
+    },
+    {
+      "dependency_effects": {"invalidated": [], "retained": ["1111111111111111111111111111111111111111111111111111111111111111"]},
+      "enforcement": "NONE",
+      "event": {"digest": "1111111111111111111111111111111111111111111111111111111111111111", "generation": 1, "key": "trust:global", "sequence": 1},
+      "evidence": [],
+      "expected_state_digest": "66b7286148ce4e2daeaa3128ec4289c376ddf4ce81cb93e7f43dcb0fd08f3225",
+      "id": "accept-idempotent",
+      "mutation": false,
+      "outcome": "ACCEPT",
+      "pre_state": "accept-initial",
+      "reason": "NONE"
+    },
+    {
+      "dependency_effects": {"invalidated": [], "retained": ["1111111111111111111111111111111111111111111111111111111111111111"]},
+      "enforcement": "DENY_NEW_USE",
+      "event": {"digest": "1111111111111111111111111111111111111111111111111111111111111111", "generation": 1, "key": "trust:global", "sequence": 0},
+      "evidence": [],
+      "expected_state_digest": "66b7286148ce4e2daeaa3128ec4289c376ddf4ce81cb93e7f43dcb0fd08f3225",
+      "id": "reject-rollback",
+      "mutation": false,
+      "outcome": "REJECT",
+      "pre_state": "accept-idempotent",
+      "reason": "ERR_ROLLBACK"
+    },
+    {
+      "dependency_effects": {"invalidated": [], "retained": ["1111111111111111111111111111111111111111111111111111111111111111", "2222222222222222222222222222222222222222222222222222222222222222"]},
+      "enforcement": "DENY_NEW_USE",
+      "event": {"digest": "2222222222222222222222222222222222222222222222222222222222222222", "generation": 1, "key": "trust:global", "sequence": 1},
+      "evidence": [
+        "1111111111111111111111111111111111111111111111111111111111111111",
+        "2222222222222222222222222222222222222222222222222222222222222222"
+      ],
+      "expected_state_digest": "5ec8492254dbd8cfbf7b506fea101e51d047ec2a3ecc066f85d411575262dd5a",
+      "id": "quarantine-equivocation",
+      "mutation": true,
+      "outcome": "QUARANTINE",
+      "pre_state": "reject-rollback",
+      "reason": "ERR_EQUIVOCATION"
+    }
+  ],
+  "schema": "nbsr-wp8-task6-state-scenarios-v1"
+}

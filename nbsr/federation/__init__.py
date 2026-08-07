@@ -35,6 +35,8 @@ from nbsr.federation.authorization import (
     FederationAuthorizationContext,
     FederationResult,
 )
+from nbsr.federation.state import FederationEvent, FederationState, StaticRecoveryPolicy
+from nbsr.federation.store import FederationSnapshotRejected, FederationStateRepository, decode_state, encode_state
 from nbsr.federation.revocation import DependencyIndex, SemanticThresholdEvidence, TypedRevocationRecord
 from nbsr.federation.lifecycle import (
     AppealDecisionRecord,
@@ -141,6 +143,13 @@ __all__ = [
     "FederationAuthorityProof",
     "FederationAuthorizationContext",
     "FederationResult",
+    "FederationEvent",
+    "FederationState",
+    "StaticRecoveryPolicy",
+    "FederationSnapshotRejected",
+    "FederationStateRepository",
+    "encode_state",
+    "decode_state",
     "OperatorEndpointRecord",
     "OperatorLifecycleRecord",
     "RecoveryTransitionRecord",

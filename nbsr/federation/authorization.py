@@ -6,7 +6,7 @@ from types import MappingProxyType
 
 from nbsr.federation.delegation import DelegationScope
 from nbsr.federation.fields import FederationValidationError, _Record, _authority_reference, _bytes, _extensions, _fail, _uint
-from nbsr.federation.registry import DecisionOutcome, ObjectType, ReasonCode
+from nbsr.federation.registry import DecisionOutcome, EnforcementMode, ObjectType, ReasonCode
 from nbsr.protocol.cbor import encode_deterministic
 
 
@@ -207,6 +207,14 @@ class AuthorizationEvidence:
 class FederationResult:
     outcome: DecisionOutcome
     reason: ReasonCode
+    enforcement: EnforcementMode = EnforcementMode.NONE
+    state_digest: bytes = b""
+    state_changed: bool = False
+    emitted: tuple[bytes, ...] = ()
+    evidence: tuple[bytes, ...] = ()
+    invalidated_dependencies: tuple[bytes, ...] = ()
+    retry_at: int | None = None
+    audit: tuple[str, ...] = ()
 
 
 class BilateralAuthorizer:
