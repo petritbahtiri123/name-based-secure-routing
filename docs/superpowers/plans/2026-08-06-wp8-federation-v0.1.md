@@ -161,6 +161,16 @@ begin until the object-by-object genesis/update requiredness matrix and literal
 schema vectors are approved. It does not block Task 1's profile, registry, and
 baseline-only surface, but it forbids object codecs and validators.
 
+**2026-08-07 proposal gate:** The Schema Decision Supplement now supplies a
+machine-readable 18-object matrix, generated tables, recovery matrix, 24
+specification-authored Task 2 payload literals, and four checkpoint/consistency
+continuity literals. It is labeled **APPROVED
+DEVELOPMENT PROFILE PROPOSAL — REQUIRES HUMAN APPROVAL**. Until that approval,
+the decision is `PROPOSED-CLOSURE/PENDING-HUMAN-APPROVAL`; this plan must not
+start Task 2. After approval, execute in the unchanged order: approved schema
+matrix, approved keys, approved literals, Task 2 codecs, Task 2 semantic
+validation, and only later the complete generated package.
+
 **Files:**
 - Create: `nbsr/federation/fields.py`
 - Create: `nbsr/federation/identity.py`

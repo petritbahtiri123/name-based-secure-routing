@@ -145,6 +145,21 @@ named blocking decision `WP8-SCHEMA-REQUIREDNESS-01`. It blocks Tasks 2-6 until
 an object-by-object matrix and literal schema vectors are approved. Task 1
 registry modules may proceed; no object codec or validator may proceed.
 
+### Schema Decision Supplement proposal
+
+> **APPROVED DEVELOPMENT PROFILE PROPOSAL — REQUIRES HUMAN APPROVAL**
+
+The proposed resolution is
+`wp8-federation-v0.1-schema-requiredness.md`, backed by
+`registries/federation-v0.1-schema-proposal.json`, the generated schema table,
+and specification-authored Task 2 literals. It selects lifecycle classes,
+field types and keys, closed composites, extension encoding, recovery
+substitution, and proof/decision continuity. These are new Development Profile
+decisions authorized for proposal on 2026-08-07; they are not claimed as
+already derived from F1-F119. Until human approval, the blocker state is
+`PROPOSED-CLOSURE/PENDING-HUMAN-APPROVAL` and no Task 2 codec or validator is
+authorized.
+
 ## Signer-authority matrix and COSE kid binding
 
 | Object family | Signer authority / key purpose |

@@ -15,6 +15,10 @@ none is implemented runtime evidence.
 **Baseline date:** 2026-08-02
 
 **Authority:** [NBSR Protocol Vision V3.6](../architecture/NBSR_Protocol_Vision_V3.6.md)
+
+**WP8 schema gate:** `WP8-SCHEMA-REQUIREDNESS-01` has a focused Schema
+Decision Supplement at `PROPOSED-CLOSURE/PENDING-HUMAN-APPROVAL`. The proposal
+is not runtime authority, does not alter Core, and does not authorize Task 2.
 **Evidence baseline:** the final hardened-branch report records 255 passed and
 1 skipped on supported Python 3.12 and 3.13, Ruff clean, five OPA tests passed,
 Compose validation, live enterprise and ISP-profile demonstrations, and Kind

@@ -266,6 +266,18 @@ Replay-state retention minimum: 86,400 seconds. Terminal tombstones are permanen
 
 Execution is registry and schema literal vectors; Python codecs and object validation; stateful scenario manifests with literal expected outcomes; Python state-machine implementation; complete generated vectors; then Node and Go verification. The Development Profile contains the actual freeze gate. No federation runtime is implemented by Task 0.
 
+## Schema Decision Supplement proposal
+
+> **APPROVED DEVELOPMENT PROFILE PROPOSAL — REQUIRES HUMAN APPROVAL**
+
+The 2026-08-07 supplement proposes the exact 18-object lifecycle
+classification, closed CBOR field/type/key registry, composite scope and
+dependency forms, recovery-signer substitutions, and 24 Task 2 literal
+payloads plus four checkpoint/consistency continuity literals. It is recorded in
+`wp8-federation-v0.1-schema-requiredness.md`. This is new proposal authority,
+not a reinterpretation of F1-F119. Task 2 remains blocked until a human accepts
+the supplement and separately approves Task 2 execution.
+
 The generic Core v0.2 verifier owns the root package except the exact
 `wp4-exporter/` subtree. Its dedicated manifest and verifier own that subtree
 exclusively; no file belongs to both inventories.

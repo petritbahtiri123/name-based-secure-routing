@@ -163,6 +163,18 @@ The repository-contained F1-F119/V1-V6 decisions, machine registry, generated ta
 
 Execution is registry and schema literal vectors; Python codecs and object validation; stateful scenario manifests with literal expected outcomes; Python state-machine implementation; complete generated vectors; then Node and Go independent verification. No federation runtime is implemented by Task 0.
 
+## Schema Decision Supplement proposal (2026-08-07)
+
+> **APPROVED DEVELOPMENT PROFILE PROPOSAL — REQUIRES HUMAN APPROVAL**
+
+The proposed supplement preserves the freeze-first design while resolving the
+previous schema gate: eight durable lineage objects, one immutable checkpoint
+snapshot class, five immutable proof/evidence objects, and four immutable
+decision/context objects. The machine schema source, generated allocation
+table, and Task 2 literal payloads become the only proposed schema authority.
+No runtime module is added, and Task 2 requires human approval after this
+proposal is reviewed.
+
 The correction tranche restores the 11-state Operator lifecycle and three
 contextual recovery stages. Its semantic message registry is count-independent
 and keeps capability agreement, discovery, proof retrieval, bundle and
