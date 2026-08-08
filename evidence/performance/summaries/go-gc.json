@@ -1,0 +1,5 @@
+{
+  "schema": "nbsr-performance-go-gc-summary-v1",
+  "status": "INCONCLUSIVE",
+  "reason": "Go runtime GC statistics were not captured in this headline baseline tranche"
+}

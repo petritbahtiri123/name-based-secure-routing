@@ -1,0 +1,15 @@
+{
+  "calibration.json": "e692d22670e23a941e3baf54513e1091d39609b8c21c941bca80b86542101bb6",
+  "environment.json": "00e86a459dadf2a6e4ba5d6000fa5e979d57df5c7dec9c8187ae4101bfe1180d",
+  "exclusions.json": "a5338d955b09046ec0b16f3a9625b7955c763aae07dc722e474e6078745f932f",
+  "raw/direct-quic-warm-existing-1024-idle.ndjson.gz": "38112d847b6c0167b71387dde449ac8e742be088fd1c2deab783535bbe701f21",
+  "raw/go-rust-warm-existing-1024-idle.ndjson.gz": "511be551ca651eac74b8a16965924d1c89d4d73bb277b0b94e1d78d9fded9297",
+  "raw/rust-rust-warm-existing-1024-idle.ndjson.gz": "97b1cf82f53f96801130095f9cb97c366f9bb47d1962b80d06c28f2db3b8b78b",
+  "raw-uncompressed-checksums.json": "4b43f0fec8769654c00f48e6386fb914b0d2d76a6f29b0173d8779ad25cf0721",
+  "reports/latency-and-performance-validation.md": "92e314bcdf5ed06d93bfde050f9b7d34d56cd01df5c24ef5c44f92bbc7e1938f",
+  "summaries/capacity.json": "bad47dccc36cdee682414105475d1b742056410eb5408b3d593f47faf88bd637",
+  "summaries/go-gc.json": "9bd1f85945b51732a02daeac470ee44e3f1a1cd5ad05bff4ea1ecc5b02affb2e",
+  "summaries/latency.json": "49456e765f17cd6c11d8968a8bacde3451f59f4a84dabe4b07b236c44554e0ec",
+  "summaries/resources.json": "0a8042ec70220e10d77d569d70fdbade03627e3d09a45c222b5a418e71e664f7",
+  "summaries/rust-memory.json": "07c7c41f29423c1ab6a7522a0908b4d123a6a19dfe8374ccfc0d6bd9407a05e2"
+}

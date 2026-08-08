@@ -1,0 +1,5 @@
+{
+  "schema": "nbsr-performance-capacity-summary-v1",
+  "status": "INCONCLUSIVE",
+  "reason": "open-loop capacity discovery was not executed in this headline baseline tranche"
+}

@@ -1,0 +1,95 @@
+{
+  "schema": "nbsr-performance-summary-v1",
+  "runs": {
+    "direct-quic-warm-existing-1024-idle": {
+      "request_latency_ns": {
+        "count": 100000,
+        "min": 62400,
+        "max": 4901500,
+        "p50": 134500,
+        "p95": 264000,
+        "p99": 476300,
+        "p99_9": 1031100
+      },
+      "total_scenario_ns": {
+        "count": 100000,
+        "min": 62700,
+        "max": 29525700,
+        "p50": 134900,
+        "p95": 264900,
+        "p99": 477900,
+        "p99_9": 1046200
+      },
+      "success": 100000,
+      "failure": 0
+    },
+    "go-rust-warm-existing-1024-idle": {
+      "request_latency_ns": {
+        "count": 100000,
+        "min": 118200,
+        "max": 18652200,
+        "p50": 198600,
+        "p95": 342900,
+        "p99": 498700,
+        "p99_9": 1151900
+      },
+      "total_scenario_ns": {
+        "count": 100000,
+        "min": 282600,
+        "max": 23920500,
+        "p50": 450100,
+        "p95": 742300,
+        "p99": 1026600,
+        "p99_9": 2177700
+      },
+      "success": 100000,
+      "failure": 0
+    },
+    "rust-rust-warm-existing-1024-idle": {
+      "request_latency_ns": {
+        "count": 100000,
+        "min": 85800,
+        "max": 3913900,
+        "p50": 181600,
+        "p95": 284000,
+        "p99": 371000,
+        "p99_9": 569900
+      },
+      "total_scenario_ns": {
+        "count": 100000,
+        "min": 253900,
+        "max": 5633600,
+        "p50": 421700,
+        "p95": 605300,
+        "p99": 741500,
+        "p99_9": 1106900
+      },
+      "success": 100000,
+      "failure": 0
+    }
+  },
+  "matched_warm_existing_overhead_ns": {
+    "rust-rust": {
+      "p50": 47100,
+      "p95": 20000,
+      "p99": -105300
+    },
+    "go-rust": {
+      "p50": 64100,
+      "p95": 78900,
+      "p99": 22400
+    }
+  },
+  "budgets": {
+    "rust-rust": {
+      "p50": "PASS",
+      "p95": "PASS",
+      "p99": "PASS"
+    },
+    "go-rust": {
+      "p50": "PASS",
+      "p95": "PASS",
+      "p99": "PASS"
+    }
+  }
+}

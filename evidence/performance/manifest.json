@@ -1,0 +1,21 @@
+{
+  "schema": "nbsr-performance-evidence-manifest-v1",
+  "repository_sha": "010a403ffdea70f8b461a9900b4f6a2581b67c9c",
+  "environment_digest": "e7c9a019d6564a4910c3f7198ecc57ed9e9bbd413d15bd001e86ab1624f170f8",
+  "files": [
+    "calibration.json",
+    "environment.json",
+    "exclusions.json",
+    "raw-uncompressed-checksums.json",
+    "raw/direct-quic-warm-existing-1024-idle.ndjson.gz",
+    "raw/go-rust-warm-existing-1024-idle.ndjson.gz",
+    "raw/rust-rust-warm-existing-1024-idle.ndjson.gz",
+    "reports/latency-and-performance-validation.md",
+    "summaries/capacity.json",
+    "summaries/go-gc.json",
+    "summaries/latency.json",
+    "summaries/resources.json",
+    "summaries/rust-memory.json"
+  ],
+  "outcome": "PARTIAL_BASELINE"
+}

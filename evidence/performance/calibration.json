@@ -1,0 +1,9 @@
+{
+  "schema": "nbsr-performance-calibration-v1",
+  "repository_sha": "010a403ffdea70f8b461a9900b4f6a2581b67c9c",
+  "release_smoke_samples_per_path": 2000,
+  "paths": ["direct-quic", "rust-rust", "go-rust"],
+  "go_clock": "Windows QueryPerformanceCounter",
+  "go_zero_duration_samples": 0,
+  "result": "PASS"
+}

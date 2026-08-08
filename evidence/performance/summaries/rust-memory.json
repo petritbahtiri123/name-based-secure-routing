@@ -1,0 +1,5 @@
+{
+  "schema": "nbsr-performance-rust-memory-summary-v1",
+  "status": "INCONCLUSIVE",
+  "reason": "Rust allocation and memory time series were not captured in this headline baseline tranche"
+}
