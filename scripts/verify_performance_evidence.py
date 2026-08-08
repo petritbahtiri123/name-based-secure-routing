@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import gzip
 import hashlib
 import json
 from pathlib import Path
@@ -26,10 +27,15 @@ def main() -> None:
     if manifest["files"] != sorted(checksums):
         raise SystemExit("manifest inventory differs from checksums")
     raw_count = 0
-    for path in (root / "raw").glob("*.ndjson"):
-        for line in path.read_text(encoding="utf-8").splitlines():
-            json.loads(line)
-            raw_count += 1
+    for path in (root / "raw").glob("*.ndjson*"):
+        if path.suffix == ".gz":
+            handle = gzip.open(path, "rt", encoding="utf-8")
+        else:
+            handle = path.open("r", encoding="utf-8")
+        with handle:
+            for line in handle:
+                json.loads(line)
+                raw_count += 1
     print(f"NBSR performance evidence: PASS ({len(checksums)} files, {raw_count} raw samples)")
 
 

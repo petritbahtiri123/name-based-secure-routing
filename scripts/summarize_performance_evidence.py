@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import gzip
 import hashlib
 import json
 from pathlib import Path
@@ -13,7 +14,11 @@ from scripts.performance.statistics import summarize  # noqa: E402
 
 
 def read_raw(path: Path) -> list[dict[str, Any]]:
-    records = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()]
+    if path.suffix == ".gz":
+        with gzip.open(path, "rt", encoding="utf-8") as handle:
+            records = [json.loads(line) for line in handle]
+    else:
+        records = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()]
     ids = [record["sample_id"] for record in records]
     if len(ids) != len(set(ids)) or ids != list(range(len(ids))):
         raise ValueError(f"invalid sample sequence in {path}")
@@ -31,7 +36,7 @@ def main() -> None:
     parser.add_argument("evidence", type=Path)
     args = parser.parse_args()
     root = args.evidence.resolve()
-    raw_paths = sorted((root / "raw").glob("*.ndjson"))
+    raw_paths = sorted((root / "raw").glob("*.ndjson*"))
     if not raw_paths:
         raise SystemExit("no raw evidence")
     summaries: dict[str, Any] = {}
@@ -129,7 +134,7 @@ Loopback only; no same-region or cross-region claim. This tranche covers the ful
 
 ## Raw evidence references
 
-See `raw/*.ndjson`, `summaries/latency.json`, and `checksums.json`.
+See `raw/*.ndjson.gz`, `summaries/latency.json`, and `checksums.json`.
 
 ## Candidate optimization opportunities — NOT IMPLEMENTED
 
