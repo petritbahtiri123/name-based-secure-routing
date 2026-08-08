@@ -6,20 +6,23 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import sys
 import tempfile
 from typing import Any
 
-from scripts.performance.authority import write_loopback_authority
-from scripts.performance.driver import FormalRunRequirements
-from scripts.performance.resources import ResourceSeries
-from scripts.performance.statistics import summarize
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from scripts.performance.authority import write_loopback_authority  # noqa: E402
+from scripts.performance.driver import FormalRunRequirements  # noqa: E402
+from scripts.performance.resources import ResourceSeries  # noqa: E402
+from scripts.performance.statistics import summarize  # noqa: E402
 from scripts.run_performance_validation import (
     build_release,
     direct_samples,
     environment,
     nbsr_samples,
     normalize,
-)
+)  # noqa: E402
 
 
 ROOT = Path(__file__).resolve().parents[1]
