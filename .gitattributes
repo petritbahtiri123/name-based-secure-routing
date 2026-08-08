@@ -1,3 +1,6 @@
 *.sh text eol=lf
 docs/protocol/history/NBSR-WP8-F1-F119-approved-source.txt -text whitespace=cr-at-eol
 docs/protocol/registries/federation-v0.1-development.json text eol=lf
+evidence/performance/memory-completion-6366334/memory/direct-quic-memory-3230-68pct-r1/finalized-cell/raw.ndjson.gz filter=lfs diff=lfs merge=lfs -text
+evidence/performance/memory-completion-6366334/memory/rust-rust-memory-1265.62-75pct-r1/finalized-cell/raw.ndjson.gz filter=lfs diff=lfs merge=lfs -text
+evidence/performance/memory-completion-6366334/memory/rust-rust-memory-843.75-50pct-r1/finalized-cell/raw.ndjson.gz filter=lfs diff=lfs merge=lfs -text

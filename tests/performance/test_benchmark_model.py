@@ -48,3 +48,44 @@ def test_channel_and_stream_authority_cannot_be_forged_by_instrumentation() -> N
     state.open_stream("service-00", 4)
     with pytest.raises(ValueError, match="stream replay"):
         state.open_stream("service-00", 4)
+
+
+def test_authorization_for_one_service_cannot_admit_another() -> None:
+    state = BenchmarkState()
+    state.establish_transport()
+    state.admit_service("service-00", b"A" * 16, authorization_id=b"X" * 32)
+    with pytest.raises(ValueError, match="authorization replay"):
+        state.admit_service("service-01", b"B" * 16, authorization_id=b"X" * 32)
+
+
+def test_stream_channel_binding_cannot_cross_services() -> None:
+    state = BenchmarkState()
+    state.establish_transport()
+    state.admit_service("service-00", b"A" * 16, authorization_id=b"X" * 32)
+    state.admit_service("service-01", b"B" * 16, authorization_id=b"Y" * 32)
+    with pytest.raises(ValueError, match="channel does not belong to service"):
+        state.open_stream("service-00", 4, channel_id=b"B" * 16)
+
+
+def test_stream_cleanup_allows_new_stream_without_route_readmission() -> None:
+    state = BenchmarkState()
+    state.establish_transport()
+    state.admit_service("service-00", b"A" * 16, authorization_id=b"X" * 32)
+    state.open_stream("service-00", 4, channel_id=b"A" * 16)
+    state.close_stream("service-00", 4)
+    state.open_stream("service-00", 8, channel_id=b"A" * 16)
+    assert state.active_streams == 1
+    assert state.route_admissions == 1
+    assert state.stream_admissions == 2
+
+
+def test_closing_one_channel_does_not_invalidate_another() -> None:
+    state = BenchmarkState()
+    state.establish_transport()
+    state.admit_service("service-00", b"A" * 16, authorization_id=b"X" * 32)
+    state.admit_service("service-01", b"B" * 16, authorization_id=b"Y" * 32)
+    state.close_service("service-00")
+    state.open_stream("service-01", 4, channel_id=b"B" * 16)
+    assert state.service_channels == 1
+    assert state.classify("service-00") is Scenario.NBSR_WARM_NEW_SERVICE
+    assert state.classify("service-01") is Scenario.NBSR_WARM_EXISTING_SERVICE
