@@ -1,0 +1,111 @@
+{
+  "commands": [
+    {
+      "argv": [
+        "C:\\Users\\bajra\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+        "-m",
+        "pytest",
+        "tests/federation/test_independent_peer_dependency_boundary.py",
+        "-q"
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 3,
+        "skipped": 0
+      },
+      "cwd": ".",
+      "exit_code": 0,
+      "id": "go-peer-dependency-boundary",
+      "status": "PASS"
+    },
+    {
+      "argv": [
+        "go",
+        "test",
+        "-json",
+        "./..."
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 30,
+        "skipped": 0
+      },
+      "cwd": "interop/nbsr-go-peer",
+      "exit_code": 0,
+      "id": "go-peer-unit",
+      "status": "PASS"
+    },
+    {
+      "argv": [
+        "go",
+        "vet",
+        "./..."
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 0,
+        "skipped": 0
+      },
+      "cwd": "interop/nbsr-go-peer",
+      "exit_code": 0,
+      "id": "go-peer-vet",
+      "status": "PASS"
+    },
+    {
+      "argv": [
+        "go",
+        "mod",
+        "verify"
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 0,
+        "skipped": 0
+      },
+      "cwd": "interop/nbsr-go-peer",
+      "exit_code": 0,
+      "id": "go-peer-module-lock",
+      "status": "PASS"
+    },
+    {
+      "argv": [
+        "C:\\Users\\bajra\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+        "-m",
+        "pytest",
+        "tests/federation/test_independent_wire_peer.py",
+        "-q"
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 4,
+        "skipped": 0
+      },
+      "cwd": ".",
+      "exit_code": 0,
+      "id": "independent-wire-live",
+      "status": "PASS"
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 0,
+        "skipped": 0
+      },
+      "cwd": ".",
+      "exit_code": 0,
+      "id": "git-diff-check",
+      "status": "PASS"
+    }
+  ],
+  "outcome": "PASS",
+  "totals": {
+    "failed": 0,
+    "passed": 37,
+    "skipped": 0
+  }
+}

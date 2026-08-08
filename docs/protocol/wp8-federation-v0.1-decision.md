@@ -4,22 +4,25 @@ Observed evidence tier:
 
 - live two-operator federation integration: PROVEN
 - independent federation semantic verification: PROVEN
-- independent route/stream wire interoperability: NOT YET PROVEN
-- WP8 evidence closure: BLOCKED
+- independent route/stream wire interoperability: PROVEN
+- WP8 evidence closure: COMPLETE — READY FOR HUMAN APPROVAL
 
 The live lab uses distinct source and destination TLS identities and separate
-typed Federation authority, then exercises the same Rust/Quinn `nbsr/1`
+typed Federation authority, then exercises the same Rust/Quinn `nbsr-quic-1`
 Transport Session, F75 ROUTE_OPEN v2 destination admission, Route Context,
 Service Channel binding, and Application Stream. It transfers only the safe
 fixture `NBSR-WP8-TASK10-LIVE-v1` after admission. Because both peers use the
-same Rust transport implementation, this is not independent wire
-interoperability.
+same Rust transport implementation, this path alone is not independent wire
+interoperability. Task 10B provides the separate independent proof.
 
-Python remains the Federation reference authority. Node and Go independently
-verify frozen Federation semantics and conformance artifacts; they are not
-wire peers. Implementing a second strict QUIC/TLS, Core, COSE, F75, session,
-exporter, channel, and stream implementation was assessed as a material
-transport architecture and was not fabricated for this task.
+Python remains the Federation reference authority. Node and the Task 9 Go
+implementation independently verify frozen Federation semantics and are not
+wire peers. Separately, Task 10B implements a clean Go/quic-go source peer that
+independently validates Core v0.2, COSE RouteGrant authority, F75, correlation,
+the WP4 exporter context, stream admission, and payload gating. It exchanged
+`CLIENT_HELLO`, `EDGE_HELLO`, `ROUTE_OPEN` v2, `ROUTE_ACCEPT`, `STREAM_OPEN`,
+and `STREAM_ACCEPT` with the Rust/Quinn destination and transferred the
+33-byte safe fixture only after admission.
 
 Public-safe packet evidence is
 `evidence/wp8-task10/live-federation.pcapng`, 20,260 bytes, SHA-256
@@ -32,9 +35,17 @@ short-header packets after the Initial exchange. The privacy regression finds
 no private-key marker, subscriber literal, protected Origin Endpoint, or safe
 plaintext fixture.
 
+Task 10B public-safe packet evidence is
+`evidence/wp8-task10b/independent-go-rust.pcapng`, 16,500 bytes, SHA-256
+`00b1c645f08521ecc88c8e8892fca3da986f679b1b6c4de5ba4532bda7341ac1`.
+Npcap loopback capture contains 27 allowlisted UDP/45976 packets with zero
+drops, no decryption key logging, and traffic in both directions.
+
 Run `python scripts/verify_wp8_conformance.py` for the manifest-first public
-matrix. The current result is `PASS_WITH_SKIPS`; the sole explicit skip is the
-unproven independent route/stream peer.
+matrix. The final run observed 2,594 passed, 0 failed, and one documented
+Windows platform skip for a POSIX-only file-mode assertion. Task 10B's nested
+runner observed 37 passed, 0 failed, and 0 skipped. Independent correctness and
+security/privacy reviews both returned `READY`.
 
 The original 110-artifact Core v0.2 lock remains byte-identical. The separate
 closed F75 overlay pins exactly four approved Rust integration replacements and

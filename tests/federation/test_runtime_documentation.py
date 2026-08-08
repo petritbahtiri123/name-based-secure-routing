@@ -55,11 +55,13 @@ def test_evidence_tiers_are_explicit_and_honest() -> None:
     text = (ROOT / "docs/protocol/wp8-federation-v0.1-decision.md").read_text(encoding="utf-8")
     assert "live two-operator federation integration: PROVEN" in text
     assert "independent federation semantic verification: PROVEN" in text
-    assert "independent route/stream wire interoperability: NOT YET PROVEN" in text
-    assert "WP8 evidence closure: BLOCKED" in text
+    assert "independent route/stream wire interoperability: PROVEN" in text
+    assert "WP8 evidence closure: COMPLETE — READY FOR HUMAN APPROVAL" in text
     assert "84c7c026b45acd98550c3487adfa3ce60cbc62c591a16aae7046ce9cd6b1c798" in text
     assert "Npcap 1.88" in text
     assert "udp port 45975 and host 127.0.0.1" in text
+    assert "00b1c645f08521ecc88c8e8892fca3da986f679b1b6c4de5ba4532bda7341ac1" in text
+    assert "UDP/45976" in text
     assert "python scripts/verify_wp8_conformance.py" in text
 
 

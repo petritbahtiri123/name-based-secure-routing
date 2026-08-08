@@ -155,11 +155,12 @@
         "-m",
         "pytest",
         "tests/federation",
+        "--ignore=tests/federation/test_independent_wire_peer.py",
         "-q"
       ],
       "counts": {
         "failed": 0,
-        "passed": 549,
+        "passed": 559,
         "skipped": 0
       },
       "cwd": ".",
@@ -197,7 +198,7 @@
       ],
       "counts": {
         "failed": 0,
-        "passed": 2,
+        "passed": 3,
         "skipped": 0
       },
       "cwd": ".",
@@ -210,11 +211,12 @@
         "C:\\Users\\bajra\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
         "-m",
         "pytest",
+        "--ignore=tests/federation/test_independent_wire_peer.py",
         "-q"
       ],
       "counts": {
         "failed": 0,
-        "passed": 1652,
+        "passed": 1662,
         "skipped": 1
       },
       "cwd": ".",
@@ -494,15 +496,25 @@
       "status": "PASS"
     },
     {
+      "argv": [
+        "C:\\Users\\bajra\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+        "scripts/verify_wp8_task10b.py"
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 0,
+        "skipped": 0
+      },
+      "cwd": ".",
+      "exit_code": 0,
       "id": "independent-wire-peer",
-      "skip_reason": "independent route/stream wire interoperability NOT YET PROVEN",
-      "status": "SKIP"
+      "status": "PASS"
     }
   ],
   "outcome": "PASS_WITH_SKIPS",
   "totals": {
     "failed": 0,
-    "passed": 2573,
-    "skipped": 2
+    "passed": 2594,
+    "skipped": 1
   }
 }

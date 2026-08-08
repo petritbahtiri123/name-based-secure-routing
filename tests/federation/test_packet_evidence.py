@@ -61,7 +61,7 @@ def _enhanced_packets(wire: bytes) -> list[tuple[int, bytes]]:
     return packets
 
 
-def _exact_loopback_udp(link_type: int, packet: bytes) -> tuple[int, int, bytes]:
+def _exact_loopback_udp(link_type: int, packet: bytes, capture_port: int = CAPTURE_PORT) -> tuple[int, int, bytes]:
     assert link_type == 0  # LINKTYPE_NULL from the Npcap loopback adapter.
     assert len(packet) >= 4 + 20 + 8
     assert struct.unpack_from("<I", packet)[0] == 2  # AF_INET
@@ -71,7 +71,7 @@ def _exact_loopback_udp(link_type: int, packet: bytes) -> tuple[int, int, bytes]
     assert ip[12:16] == b"\x7f\x00\x00\x01"
     assert ip[16:20] == b"\x7f\x00\x00\x01"
     source_port, destination_port = struct.unpack_from("!HH", ip, header_length)
-    assert CAPTURE_PORT in (source_port, destination_port)
+    assert capture_port in (source_port, destination_port)
     udp_length = struct.unpack_from("!H", ip, header_length + 4)[0]
     assert udp_length >= 9 and header_length + udp_length <= len(ip)
     return source_port, destination_port, ip[header_length + 8 : header_length + udp_length]
@@ -126,3 +126,30 @@ def test_public_packet_capture_is_real_closed_and_privacy_safe() -> None:
     assert any(payload[0] & 0x80 == 0 for _, _, payload in flows), (
         "capture must include protected QUIC short-header traffic after the Initial exchange"
     )
+
+
+def test_task10b_independent_capture_is_closed_and_public_safe() -> None:
+    evidence = ROOT / "evidence" / "wp8-task10b"
+    capture = evidence / "independent-go-rust.pcapng"
+    manifest = json.loads((evidence / "capture-manifest.json").read_text(encoding="utf-8"))
+    wire = capture.read_bytes()
+    port = 45976
+    assert manifest["capture"] == capture.name
+    assert manifest["interface_identifier"] == CAPTURE_INTERFACE
+    assert manifest["filter"] == f"udp port {port} and host 127.0.0.1"
+    assert manifest["flow"] == f"127.0.0.1 UDP/{port} QUIC/TLS nbsr-quic-1 Go-source to Rust-destination"
+    assert manifest["dropped_count"] == 0
+    assert manifest["length"] == len(wire)
+    assert manifest["sha256"] == hashlib.sha256(wire).hexdigest()
+    assert manifest["test_correlation"]["result"] == "passed"
+    assert "test_independent_wire_peer.py" in manifest["test_correlation"]["command"]
+    assert all(marker not in wire for marker in (
+        b"PRIVATE KEY", b"subscriber", b"origin.internal",
+        b"NBSR-WP8-TASK10B-INDEPENDENT-WIRE",
+    ))
+    packets = _enhanced_packets(wire)
+    assert manifest["packet_count"] == len(packets)
+    flows = [_exact_loopback_udp(link_type, packet, port) for link_type, packet in packets]
+    assert any(destination == port for _, destination, _ in flows)
+    assert any(source == port for source, _, _ in flows)
+    assert any(payload[0] & 0x80 == 0 for _, _, payload in flows)

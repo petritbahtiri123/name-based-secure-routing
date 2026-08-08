@@ -17,10 +17,10 @@ def command_matrix() -> list[Command]:
         Command("threshold-literals", (python, "scripts/verify_federation_threshold_container_fixtures.py", "--check"), manifest_gate=True),
         Command("f75-python", (python, "-m", "pytest", "tests/protocol/test_wp8_f75_vectors.py", "-q"), count_mode="pytest"),
         Command("f75-node", ("node", "scripts/verify_wp8_f75_vectors.mjs", "vectors/wp8-f75-route-open")),
-        Command("federation-python", (python, "-m", "pytest", "tests/federation", "-q"), count_mode="pytest"),
+        Command("federation-python", (python, "-m", "pytest", "tests/federation", "--ignore=tests/federation/test_independent_wire_peer.py", "-q"), count_mode="pytest"),
         Command("wp7-python", (python, "-m", "pytest", "tests/test_wp7_admission.py", "tests/test_wp7_conformance.py", "tests/test_wp7_review_fixes.py", "-q"), count_mode="pytest"),
         Command("packet-evidence", (python, "-m", "pytest", "tests/federation/test_packet_evidence.py", "-q"), count_mode="pytest"),
-        Command("full-python", (python, "-m", "pytest", "-q"), count_mode="pytest"),
+        Command("full-python", (python, "-m", "pytest", "--ignore=tests/federation/test_independent_wire_peer.py", "-q"), count_mode="pytest"),
         Command("ruff", (python, "-m", "ruff", "check", ".")),
         Command("pip-check", (python, "-m", "pip", "check")),
         Command("dependency-inspection", (python, "scripts/verify_wp8_repository_safety.py", "dependencies", "."), manifest_gate=True),
@@ -37,7 +37,7 @@ def command_matrix() -> list[Command]:
         Command("rust-all", ("cargo", "test", "--manifest-path", "crates/nbsr-transport/Cargo.toml"), count_mode="rust"),
         Command("documentation", (python, "-m", "pytest", "tests/federation/test_runtime_documentation.py", "-q"), count_mode="pytest"),
         Command("git-diff-check", ("git", "diff", "--check")),
-        Command("independent-wire-peer", (), skip_reason="independent route/stream wire interoperability NOT YET PROVEN"),
+        Command("independent-wire-peer", (python, "scripts/verify_wp8_task10b.py")),
     ]
 
 

@@ -1,0 +1,18 @@
+{
+    "capture":  "independent-go-rust.pcapng",
+    "capture_tool_version":  "Dumpcap (Wireshark) 4.6.7 (v4.6.7-0-gb439fb7b47a9).",
+    "interface_identifier":  "\\Device\\NPF_Loopback",
+    "filter":  "udp port 45976 and host 127.0.0.1",
+    "flow":  "127.0.0.1 UDP/45976 QUIC/TLS nbsr-quic-1 Go-source to Rust-destination",
+    "packet_count":  27,
+    "dropped_count":  0,
+    "length":  16500,
+    "sha256":  "00b1c645f08521ecc88c8e8892fca3da986f679b1b6c4de5ba4532bda7341ac1",
+    "privacy":  "public-safe ephemeral test identities; ciphertext only; no key logging; complete packet inventory allowlisted",
+    "test_correlation":  {
+                             "command":  "python -m pytest tests/federation/test_independent_wire_peer.py -k cross_process -q",
+                             "result":  "passed",
+                             "capture_started_utc":  "2026-08-08T18:32:06.9214936Z",
+                             "capture_stopped_utc":  "2026-08-08T18:32:16.7773707Z"
+                         }
+}

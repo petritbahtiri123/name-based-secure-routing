@@ -120,16 +120,18 @@ automatically.
 
 ## Implementation evidence
 
-Python is the reference Federation authority. Node and Go independently verify
-the frozen Federation artifacts. Rust consumes a sealed typed authorization and
-exercises the live same-Rust Quinn route/channel/stream path. A public-safe
-packet capture exists. Independent route/stream wire interoperability remains
-not proven because no second wire-capable implementation is present.
+Python is the reference Federation authority. Node and the Task 9 Go verifier
+independently verify the frozen Federation artifacts. Rust consumes a sealed
+typed authorization and exercises the live same-Rust Quinn path. Task 10B also
+provides an independent Go/quic-go source peer that exchanges the frozen Core
+v0.2 and F75 route/stream sequence with the Rust/Quinn destination using ALPN
+`nbsr-quic-1`. Public-safe captures exist for both live paths.
 
 ## Future work and non-claims
 
-Future work includes a genuinely independent wire peer, production custody and
-operations, deployment studies, and separate latency/performance evaluation.
+Future work includes production custody and operations, deployment studies,
+additional independent directions/implementations, and separate
+latency/performance evaluation.
 The evidence is not production readiness, not Internet-scale deployment, and
 not vendor or ISP adoption; it is not an IETF standard. It also does not prove global
 governance, anonymity, DDoS elimination, or production SLAs.
