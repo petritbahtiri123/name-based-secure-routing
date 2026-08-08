@@ -1,6 +1,6 @@
 # Federation v0.1 Development Profile conformance vectors
 
-This closed package is the normative deterministic cross-language test authority for the approved Federation v0.1 Development Profile. It binds static and signed objects, threshold-container v1 literals, capability agreement, ordered state transitions, exact decisions, symbolic reasons, enforcement, mutation, state digests, dependencies, fixed times, and resource expectations.
+This closed package is the normative deterministic cross-language test authority for the approved Federation v0.1 Development Profile. It binds static and signed objects, public trusted-signer records and payload-derived signer requirements, threshold-container v1 literals, capability agreement, ordered state transitions, exact decisions, symbolic reasons, enforcement, mutation, state digests, dependencies, fixed times, and resource expectations.
 
 The 28 Task 2 schema literals, Task 6 specification-authored state manifest, and 89 threshold-container literals remain independent oracles. Generation verifies and references their bytes; disagreement fails and never rewrites them. `THRESHOLD_EVIDENCE = 6` is required and `FEDERATION_OBJECTS` alone is insufficient.
 

@@ -122,26 +122,83 @@ def test_static_and_signed_vectors_cover_registry_and_defect_families() -> None:
 
 
 def test_signed_vectors_bind_the_same_payload_and_encode_wrong_kid_in_cose() -> None:
-    from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+    from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
     from nbsr.protocol.cose import verify_sign1
     from nbsr.protocol.errors import ProtocolViolation
     from nbsr.protocol.registry import ErrorCode
 
     package = load("signed-vectors.json")
-    key = Ed25519PrivateKey.from_private_bytes(bytes.fromhex(package["fixed_private_key_hex"])).public_key()
+    records = {item["kid"]: item for item in package["trusted_signers"]}
     for item in package["vectors"]:
         if item["case"] == "valid-sign1":
+            record = records[item["kid_hex"]]
+            key = Ed25519PublicKey.from_public_bytes(bytes.fromhex(record["signing_public_key"]))
             verified = verify_sign1(
                 bytes.fromhex(item["cose_sign1_hex"]), {bytes.fromhex(item["kid_hex"]): key}, ErrorCode.NBSR_E_RECORD_UNTRUSTED
             )
             assert hashlib.sha256(verified.payload).hexdigest() == item["payload_sha256"]
     wrong = next(item for item in package["vectors"] if item["case"] == "wrong-kid")
     with pytest.raises(ProtocolViolation):
+        record = next(iter(records.values()))
+        key = Ed25519PublicKey.from_public_bytes(bytes.fromhex(record["signing_public_key"]))
         verify_sign1(
-            bytes.fromhex(wrong["cose_sign1_hex"]), {bytes.fromhex(package["valid_kid_hex"]): key}, ErrorCode.NBSR_E_RECORD_UNTRUSTED
+            bytes.fromhex(wrong["cose_sign1_hex"]), {bytes.fromhex(record["kid"]): key}, ErrorCode.NBSR_E_RECORD_UNTRUSTED
         )
     wrong_purpose = next(item for item in package["vectors"] if item["case"] == "wrong-key-purpose")
-    assert wrong_purpose["authority_context"] == {"expected_key_purpose": 9, "registered_key_purpose": 1}
+    requirements = {item["requirement_id"]: item for item in package["signer_requirements"]}
+    assert records[wrong_purpose["kid_hex"]]["key_purpose"] != requirements["key-identity-root"]["key_purpose"]
+
+
+def test_signed_vectors_have_authoritative_signer_identity_and_key_bindings() -> None:
+    from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
+    from nbsr.protocol.cbor import decode_deterministic
+
+    package = load("signed-vectors.json")
+    records = package["trusted_signers"]
+    assert "fixed_private_key_hex" not in package
+    assert len({item["record_id"] for item in records}) == len(records)
+    for record in records:
+        assert set(record) == {
+            "authority_class",
+            "expires_at",
+            "generation",
+            "genesis_public_key",
+            "key_lifecycle",
+            "key_purpose",
+            "kid",
+            "not_before",
+            "operator_id",
+            "record_id",
+            "revoked",
+            "sequence",
+            "signing_public_key",
+            "subject_id",
+        }
+        genesis = bytes.fromhex(record["genesis_public_key"])
+        assert len(genesis) == 32
+        assert record["operator_id"] == hashlib.sha256(b"NBSR-FEDERATION-OPERATOR-ID-v1\x00\x01" + genesis).hexdigest()
+        Ed25519PublicKey.from_public_bytes(bytes.fromhex(record["signing_public_key"]))
+        assert 0 <= record["not_before"] <= 1_900_000_000 < record["expires_at"] <= 253_402_300_799
+        assert record["generation"] >= 1 and record["sequence"] >= 1
+        assert record["key_lifecycle"] == 2
+        assert record["revoked"] is False
+    assert all("signer_record_id" not in item and "signer_requirement_id" not in item for item in package["vectors"])
+    assert package["authority_state"] == {"evaluation_time": 1_900_000_000, "generation": 1, "sequence": 1}
+    assert all(item["generation"] == package["authority_state"]["generation"] for item in records)
+    assert all(item["sequence"] == package["authority_state"]["sequence"] for item in records)
+    assert any(item["genesis_public_key"] != item["signing_public_key"] for item in records)
+    assert {item["record_id"] for item in records} == {"identity-root", "recovery", "registrar", "transparency-log"}
+    by_kid = {item["kid"]: item for item in records}
+    for vector in package["vectors"]:
+        if vector["expected"] != "ACCEPT" or vector["object_class"] != "KeyAuthorizationRecord":
+            continue
+        sign1_value = decode_deterministic(bytes.fromhex(vector["cose_sign1_hex"])[1:])
+        payload = decode_deterministic(sign1_value[2])
+        record = by_kid[vector["kid_hex"]]
+        assert payload[32].hex() == record["subject_id"]
+        assert payload[37][2].hex() == record["subject_id"]
+        assert payload[37][3].hex() == record["kid"]
+        assert payload[37][4].hex() == record["subject_id"]
 
 
 def test_threshold_vectors_reference_all_immutable_literals() -> None:

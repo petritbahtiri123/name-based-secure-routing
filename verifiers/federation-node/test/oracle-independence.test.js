@@ -35,9 +35,28 @@ test("schema recursively validates collection items and nested bounds",async()=>
   assert.deepEqual(evaluateStaticVector(mutated,authorities),{outcome:"REJECT",reason:"ERR_SCHEMA"});
 });
 
-test("signed verification ignores package private-key material",async()=>{
+test("signed verification rejects trusted signer identity mutation",async()=>{
   const fixture=await load("signed-vectors.json");
-  assert.equal(verifySignedFixture({...fixture,fixed_private_key_hex:"00".repeat(32)}),12);
+  const changed=structuredClone(fixture);changed.trusted_signers[0].operator_id="00".repeat(32);
+  assert.throws(()=>verifySignedFixture(changed),/ERR_IDENTITY/);
+});
+
+test("signed payload digest remains a comparison oracle",async()=>{
+  const fixture=await load("signed-vectors.json"),changed=structuredClone(fixture);changed.vectors[0].payload_sha256="00".repeat(32);
+  assert.throws(()=>verifySignedFixture(changed),/payload digest oracle mismatch/);
+});
+
+test("signed authority JSON and hex fail closed",async()=>{
+  const fixture=await load("signed-vectors.json");
+  const mutations=[
+    copy=>{copy.vectors[0].cose_sign1_hex+="0";},
+    copy=>{copy.trusted_signers[0].unexpected=true;},
+    copy=>{copy.trusted_signers[0].not_before+=0.5;},
+    copy=>{copy.trusted_signers[0].generation+=0.5;copy.authority_state.generation+=0.5;},
+    copy=>{copy.trusted_signers[0].revoked=0;},
+    copy=>{copy.trusted_signers[1].signing_public_key=copy.trusted_signers[0].signing_public_key;},
+  ];
+  for(const mutate of mutations){const copy=structuredClone(fixture);mutate(copy);assert.throws(()=>verifySignedFixture(copy),/signed fixture|trusted signer inventory|canonical COSE hex/);}
 });
 
 test("capability replay decisions do not depend on case or expected fields",async()=>{

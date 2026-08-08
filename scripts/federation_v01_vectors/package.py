@@ -6,6 +6,7 @@ from dataclasses import replace
 from pathlib import Path, PurePosixPath
 
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
 
 from nbsr.protocol.cbor import decode_deterministic, encode_deterministic
 from nbsr.protocol.cose import sign1
@@ -19,7 +20,6 @@ FIXED_TIME = 1_900_000_000
 PACKAGE_VERSION = "federation-v0.1-development-v1"
 PROFILE = "federation-v0.1-development"
 KEY = Ed25519PrivateKey.from_private_bytes(bytes.fromhex("1f" * 32))
-KID = bytes.fromhex("a1b2c3d4e5f60708")
 OBJECTS = (
     "OperatorRegistryRecord",
     "KeyAuthorizationRecord",
@@ -78,6 +78,33 @@ def _json(value: object) -> bytes:
 
 def _sha(value: bytes) -> str:
     return hashlib.sha256(value).hexdigest()
+
+
+def _signed_vector_signer(
+    record_id: str, authority_class: int, key_purpose: int, operator_scope: str
+) -> tuple[Ed25519PrivateKey, dict[str, object]]:
+    seed = hashlib.sha256(b"NBSR-FEDERATION-SIGNED-VECTOR-KEY-v1\x00" + record_id.encode("ascii")).digest()
+    private_key = Ed25519PrivateKey.from_private_bytes(seed)
+    public_key = private_key.public_key().public_bytes(Encoding.Raw, PublicFormat.Raw)
+    genesis_seed = hashlib.sha256(b"NBSR-FEDERATION-SIGNED-VECTOR-GENESIS-v1\x00" + operator_scope.encode("ascii")).digest()
+    genesis_key = Ed25519PrivateKey.from_private_bytes(genesis_seed).public_key().public_bytes(Encoding.Raw, PublicFormat.Raw)
+    kid = hashlib.sha256(b"NBSR-FEDERATION-SIGNED-VECTOR-KID-v1\x00" + record_id.encode("ascii")).digest()[:8]
+    return private_key, {
+        "authority_class": authority_class,
+        "expires_at": FIXED_TIME + 1,
+        "generation": 1,
+        "genesis_public_key": genesis_key.hex(),
+        "key_lifecycle": 2,
+        "key_purpose": key_purpose,
+        "kid": kid.hex(),
+        "not_before": 1_700_000_000,
+        "operator_id": hashlib.sha256(b"NBSR-FEDERATION-OPERATOR-ID-v1\x00\x01" + genesis_key).hexdigest(),
+        "record_id": record_id,
+        "revoked": False,
+        "sequence": 1,
+        "signing_public_key": public_key.hex(),
+        "subject_id": "",
+    }
 
 
 def _fixed_context() -> dict[str, object]:
@@ -245,12 +272,62 @@ def _authority_locks() -> dict[str, object]:
 
 def _signed_vectors() -> dict[str, object]:
     vectors: list[dict[str, object]] = []
+    signer_specs = {
+        "registrar": (3, 3, "registrar"),
+        "identity-root": (1, 1, "operator-a"),
+        "recovery": (2, 2, "operator-a"),
+        "transparency-log": (5, 8, "transparency-log"),
+    }
+    signers: dict[str, tuple[Ed25519PrivateKey, dict[str, object]]] = {
+        record_id: _signed_vector_signer(record_id, authority_class, purpose, operator_scope)
+        for record_id, (authority_class, purpose, operator_scope) in signer_specs.items()
+    }
+    signers["identity-root"][1]["subject_id"] = signers["identity-root"][1]["operator_id"]
+    signers["recovery"][1]["subject_id"] = signers["recovery"][1]["operator_id"]
+    signers["transparency-log"][1]["subject_id"] = (b"L" * 32).hex()
+    requirements = {
+        "operator-registrar": {"authority_class": 3, "key_purpose": 3, "object_class": "OperatorRegistryRecord", "subject_field": 0},
+        "key-identity-root": {"authority_class": 1, "key_purpose": 1, "object_class": "KeyAuthorizationRecord", "subject_field": 32},
+        "key-recovery": {"authority_class": 2, "key_purpose": 2, "object_class": "KeyAuthorizationRecord", "subject_field": 32},
+        "checkpoint-log": {"authority_class": 5, "key_purpose": 8, "object_class": "TransparencyCheckpoint", "subject_field": 32},
+        "consistency-log": {"authority_class": 5, "key_purpose": 8, "object_class": "ConsistencyProof", "subject_field": 32},
+    }
+
+    def requirement(name: str) -> dict[str, object]:
+        return {"requirement_id": name, **requirements[name]}
+
     schema = json.loads((ROOT / "vectors/federation-v0.1-schema-proposal/literal-fixtures.json").read_bytes())
     accepted = [item for item in schema["fixtures"] if item["expected_outcome"] == "ACCEPT"]
+
+    def bind_key_subject(payload: bytes, signer: dict[str, object]) -> bytes:
+        value = decode_deterministic(payload)
+        subject = bytes.fromhex(str(signer["subject_id"]))
+        value[32] = subject
+        value[37][1] = signer["authority_class"]
+        value[37][2] = subject
+        value[37][3] = bytes.fromhex(str(signer["kid"]))
+        value[37][4] = subject
+        return encode_deterministic(value)
+
     for value, fixture in enumerate(accepted, 1):
         name = fixture["object_type"]
         payload = bytes.fromhex(fixture["canonical_cbor_hex"])
-        message = sign1(payload, KID, KEY)
+        if name == "OperatorRegistryRecord":
+            signer_id = "registrar"
+        elif name == "KeyAuthorizationRecord" and "recovery-authorized" in fixture["name"]:
+            signer_id = "recovery"
+        elif name == "KeyAuthorizationRecord":
+            signer_id = "identity-root"
+        elif name == "TransparencyCheckpoint":
+            signer_id = "transparency-log"
+        elif name == "ConsistencyProof":
+            signer_id = "transparency-log"
+        else:
+            raise ValueError(f"no authoritative single-signature requirement for {fixture['name']}")
+        private_key, signer = signers[signer_id]
+        if name == "KeyAuthorizationRecord":
+            payload = bind_key_subject(payload, signer)
+        message = sign1(payload, bytes.fromhex(str(signer["kid"])), private_key)
         vectors.append(
             {
                 "case": "valid-sign1",
@@ -260,12 +337,10 @@ def _signed_vectors() -> dict[str, object]:
                 "expected_reason": "NONE",
                 "fixed_context": _fixed_context(),
                 "id": f"signed-{value:02d}-{fixture['name']}",
-                "kid_hex": KID.hex(),
+                "kid_hex": signer["kid"],
                 "mutation": False,
                 "object_class": name,
                 "payload_sha256": _sha(payload),
-                "purpose": value if value <= 14 else 13,
-                "signer_operator_id": _sha(f"operator-{value}".encode()),
                 "threshold_envelope": None,
             }
         )
@@ -275,10 +350,18 @@ def _signed_vectors() -> dict[str, object]:
         ("wrong-kid", "ERR_IDENTITY"),
         ("wrong-key-purpose", "ERR_KEY_PURPOSE"),
     )
+    negative_authority = ("registrar", "identity-root", "registrar", "registrar")
+    key_fixture = next(item for item in accepted if item["object_type"] == "KeyAuthorizationRecord")
     for index, (case, reason) in enumerate(defects):
-        payload = encode_deterministic({0: index + 1})
-        signing_kid = b"wrong-kid" if case == "wrong-kid" else KID
-        message = bytearray(sign1(payload, signing_kid, KEY))
+        signer_id = negative_authority[index]
+        private_key, signer = signers[signer_id]
+        payload = (
+            bind_key_subject(bytes.fromhex(key_fixture["canonical_cbor_hex"]), signers["identity-root"][1])
+            if case == "wrong-key-purpose"
+            else encode_deterministic({0: index + 1})
+        )
+        signing_kid = b"wrong-kid" if case == "wrong-kid" else bytes.fromhex(str(signer["kid"]))
+        message = bytearray(sign1(payload, signing_kid, private_key))
         if case == "malformed-cose":
             message = message[:-1]
         elif case == "invalid-signature":
@@ -292,17 +375,10 @@ def _signed_vectors() -> dict[str, object]:
                 "expected_reason": reason,
                 "fixed_context": _fixed_context(),
                 "id": f"signed-negative-{case}",
-                "actual_purpose": 1,
-                "authority_context": {"expected_key_purpose": 9, "registered_key_purpose": 1}
-                if case == "wrong-key-purpose"
-                else {"expected_key_purpose": 1, "registered_key_purpose": 1},
-                "expected_purpose": 9 if case == "wrong-key-purpose" else 1,
                 "kid_hex": signing_kid.hex(),
                 "mutation": False,
-                "object_class": OBJECTS[index],
+                "object_class": "KeyAuthorizationRecord" if case == "wrong-key-purpose" else OBJECTS[index],
                 "payload_sha256": _sha(payload),
-                "purpose": 0 if case == "wrong-key-purpose" else 1,
-                "signer_operator_id": _sha(b"negative-operator"),
                 "threshold_envelope": None,
             }
         )
@@ -316,10 +392,11 @@ def _signed_vectors() -> dict[str, object]:
     ]
     return {
         "authority": "Federation v0.1 signed conformance vectors",
-        "fixed_private_key_hex": "1f" * 32,
+        "authority_state": {"evaluation_time": FIXED_TIME, "generation": 1, "sequence": 1},
         "format_version": 1,
         "object_coverage": coverage,
-        "valid_kid_hex": KID.hex(),
+        "signer_requirements": [requirement(name) for name in sorted(requirements)],
+        "trusted_signers": [signers[name][1] for name in sorted(signers)],
         "vectors": vectors,
     }
 
@@ -678,7 +755,7 @@ def _readme() -> bytes:
     return (
         "# Federation v0.1 Development Profile conformance vectors\n\n"
         "This closed package is the normative deterministic cross-language test authority for the approved Federation v0.1 Development Profile. "
-        "It binds static and signed objects, threshold-container v1 literals, capability agreement, ordered state transitions, exact decisions, symbolic reasons, enforcement, mutation, state digests, dependencies, fixed times, and resource expectations.\n\n"
+        "It binds static and signed objects, public trusted-signer records and payload-derived signer requirements, threshold-container v1 literals, capability agreement, ordered state transitions, exact decisions, symbolic reasons, enforcement, mutation, state digests, dependencies, fixed times, and resource expectations.\n\n"
         "The 28 Task 2 schema literals, Task 6 specification-authored state manifest, and 89 threshold-container literals remain independent oracles. "
         "Generation verifies and references their bytes; disagreement fails and never rewrites them. `THRESHOLD_EVIDENCE = 6` is required and `FEDERATION_OBJECTS` alone is insufficient.\n\n"
         "Run `python scripts/generate_federation_v01_vectors.py --check vectors/federation-v0.1`. Check mode is read-only.\n\n"
