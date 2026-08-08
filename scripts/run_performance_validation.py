@@ -268,6 +268,7 @@ def rust_lifecycle_samples(
     scenario: str,
     temp: Path,
     streams_per_service: int = 1,
+    concurrent: bool = False,
 ) -> list[dict[str, Any]]:
     if not 1 <= streams_per_service <= 64:
         raise ValueError("streams per service must be in 1..64")
@@ -299,6 +300,8 @@ def rust_lifecycle_samples(
             "NBSR_PERF_LIFECYCLE_SERVICES": str(services),
             "NBSR_PERF_STREAMS_PER_SERVICE": str(streams_per_service),
         }
+        if concurrent:
+            server_env["NBSR_PERF_CONCURRENT_STREAMS"] = "1"
         server = subprocess.Popen(
             [
                 str(binaries["server"]), "--ready", str(ready), "--result", str(result),
@@ -312,14 +315,17 @@ def rust_lifecycle_samples(
         )
         try:
             endpoint = wait_ready(ready, server)["endpoint"]
-            client = command(
-                [
+            client_command = [
                     str(binaries["rust"]), "--authority-dir", str(authority), "--endpoint", endpoint,
                     "--samples", "1", "--payload-bytes", str(payload),
                     "--lifecycle-authority-dir", str(lifecycle_root),
                     "--connections", str(connections), "--services", str(services),
                     "--streams-per-service", str(streams_per_service),
-                ],
+                ]
+            if concurrent:
+                client_command.extend(["--concurrent-streams", "true"])
+            client = command(
+                client_command,
                 timeout=3600,
             )
             batch_records = parse_ndjson(client.stdout)
@@ -332,6 +338,10 @@ def rust_lifecycle_samples(
             merge_destination_measurements(batch_records, json.loads(result.read_text(encoding="utf-8")))
             for record in batch_records:
                 record["sample_id"] = len(records)
+                record["transport_sessions"] = 1
+                record["service_channels"] = services
+                record["application_streams"] = expected_records
+                record["request_concurrency"] = expected_records if concurrent else 1
                 if scenario == "nbsr-warm-new-service":
                     record["transport_handshake_ns"] = None
                     record["hello_rtt_ns"] = None
@@ -351,6 +361,7 @@ def go_lifecycle_samples(
     scenario: str,
     temp: Path,
     streams_per_service: int = 1,
+    concurrent: bool = False,
 ) -> list[dict[str, Any]]:
     if not 1 <= streams_per_service <= 64:
         raise ValueError("streams per service must be in 1..64")
@@ -375,19 +386,22 @@ def go_lifecycle_samples(
         ack = temp / f"go-lifecycle-{scenario}-{ordinal}.ack"
         for connection_ordinal in range(connections):
             (lifecycle_root / f"connection-{connection_ordinal}.ack").unlink(missing_ok=True)
+        server_environment = {
+            **os.environ,
+            "NBSR_PERF_LIFECYCLE_ROOT": str(lifecycle_root),
+            "NBSR_PERF_LIFECYCLE_CONNECTIONS": str(connections),
+            "NBSR_PERF_LIFECYCLE_SERVICES": str(services),
+            "NBSR_PERF_STREAMS_PER_SERVICE": str(streams_per_service),
+        }
+        if concurrent:
+            server_environment["NBSR_PERF_CONCURRENT_STREAMS"] = "1"
         server = subprocess.Popen(
             [
                 str(binaries["server"]), "--ready", str(ready), "--result", str(result),
                 "--authority-dir", str(authority), "--completion-ack", str(ack),
             ],
             cwd=ROOT,
-            env={
-                **os.environ,
-                "NBSR_PERF_LIFECYCLE_ROOT": str(lifecycle_root),
-                "NBSR_PERF_LIFECYCLE_CONNECTIONS": str(connections),
-                "NBSR_PERF_LIFECYCLE_SERVICES": str(services),
-                "NBSR_PERF_STREAMS_PER_SERVICE": str(streams_per_service),
-            },
+            env=server_environment,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
@@ -407,6 +421,7 @@ def go_lifecycle_samples(
                         "lifecycle_connections": connections,
                         "lifecycle_services": services,
                         "lifecycle_streams_per_service": streams_per_service,
+                        "lifecycle_concurrent": concurrent,
                     }
                 ),
                 encoding="utf-8",
@@ -422,6 +437,10 @@ def go_lifecycle_samples(
             merge_destination_measurements(batch_records, json.loads(result.read_text(encoding="utf-8")))
             for record in batch_records:
                 record["sample_id"] = len(records)
+                record["transport_sessions"] = 1
+                record["service_channels"] = services
+                record["application_streams"] = expected_records
+                record["request_concurrency"] = expected_records if concurrent else 1
                 if scenario == "nbsr-warm-new-service":
                     record["transport_handshake_ns"] = None
                     record["hello_rtt_ns"] = None
@@ -458,10 +477,10 @@ def normalize(
             "path": path,
             "implementation_version": repository_sha,
             "scenario": scenario,
-            "transport_sessions": 1,
-            "service_channels": 0 if path == "direct-quic" else 1,
-            "application_streams": 1,
-            "request_concurrency": 1,
+            "transport_sessions": int(record.get("transport_sessions", 1)),
+            "service_channels": int(record.get("service_channels", 0 if path == "direct-quic" else 1)),
+            "application_streams": int(record.get("application_streams", 1)),
+            "request_concurrency": int(record.get("request_concurrency", 1)),
             "payload_bytes": payload,
             "load_level": "idle",
             "offered_load": None,

@@ -65,6 +65,18 @@ def lifecycle_batch_plan(*, samples: int, services_per_session: int = 20) -> tup
     return (services_per_session,) * full + ((remainder,) if remainder else ())
 
 
+def concurrency_distribution(*, requested: int, services: int, max_per_service: int = 64) -> tuple[int, ...]:
+    if services < 1 or services > 20:
+        raise ValueError("services must be in 1..20")
+    if requested < services:
+        raise ValueError("requested concurrency must cover every service")
+    configured_limit = services * max_per_service
+    if requested > configured_limit:
+        raise ValueError(f"requested concurrency {requested} exceeds configured limit {configured_limit}")
+    quotient, remainder = divmod(requested, services)
+    return tuple(quotient + (1 if index < remainder else 0) for index in range(services))
+
+
 def choose_sustainable_capacity(
     observations: list[CapacityObservation],
 ) -> dict[str, float]:

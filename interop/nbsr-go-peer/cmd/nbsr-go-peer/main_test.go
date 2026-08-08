@@ -22,6 +22,10 @@ func TestLifecycleConfigurationRequiresBoundedIndependentServices(t *testing.T) 
 	if err := invalid.validate(); err == nil {
 		t.Fatal("stream count above frozen per-channel limit accepted")
 	}
+	valid.LifecycleConcurrent = true
+	if err := valid.validate(); err != nil {
+		t.Fatalf("bounded concurrent lifecycle rejected: %v", err)
+	}
 }
 
 func TestLifecycleIDsAreDistinctAcrossServiceAuthorities(t *testing.T) {

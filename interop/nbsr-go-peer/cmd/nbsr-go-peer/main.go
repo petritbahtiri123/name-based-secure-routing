@@ -33,6 +33,7 @@ type config struct {
 	LifecycleConnections       int    `json:"lifecycle_connections,omitempty"`
 	LifecycleServices          int    `json:"lifecycle_services,omitempty"`
 	LifecycleStreamsPerService int    `json:"lifecycle_streams_per_service,omitempty"`
+	LifecycleConcurrent        bool   `json:"lifecycle_concurrent,omitempty"`
 }
 
 func (value config) validate() error {
@@ -502,6 +503,19 @@ func runLifecycle(ctx context.Context, configuration config) (result, error) {
 		if edge.MessageType != core.EdgeHello || edge.SessionID != sessionID || edge.RequestID != helloRequest || edge.Body[1] != "source.edge" || edge.Body[2] != "destination.edge" || !bytes.Equal(edge.Body[3].([]byte), clientNonce[:]) || !bytes.Equal(edge.Body[4].([]byte), edgeNonce[:]) || !bytes.Equal(edge.Body[5].([]byte), sha256Bytes(sessionPublic)) {
 			return result{}, errors.New("EDGE_HELLO authority or correlation mismatch")
 		}
+		type concurrentMetric struct {
+			service, localStream, ordinal int
+			scenarioStarted               int64
+			sourceAdmissionNS, routeNS    int64
+			bindingNS, streamNS           int64
+		}
+		type concurrentResult struct {
+			ordinal, requestNS int
+			error              error
+		}
+		concurrentStart := make(chan struct{})
+		concurrentResults := make(chan concurrentResult, configuration.LifecycleServices*configuration.LifecycleStreamsPerService)
+		concurrentMetrics := make([]concurrentMetric, 0, configuration.LifecycleServices*configuration.LifecycleStreamsPerService)
 		for serviceIndex := 0; serviceIndex < configuration.LifecycleServices; serviceIndex++ {
 			scenarioStarted := perfclock.Now()
 			directory := filepath.Join(configuration.LifecycleAuthorityDir, fmt.Sprintf("%02d", serviceIndex))
@@ -579,6 +593,61 @@ func runLifecycle(ctx context.Context, configuration config) (result, error) {
 				return result{}, errors.New("live WP4 exporter failed")
 			}
 			bindingNS := perfclock.Since(bindingStarted)
+			if configuration.LifecycleConcurrent {
+				for localStream := 0; localStream < configuration.LifecycleStreamsPerService; localStream++ {
+					streamOrdinal := firstStreamOrdinal + localStream
+					streamRequest = benchmarkStreamRequest(uint64(streamOrdinal))
+					if localStream > 0 {
+						if err := machine.NextStream(streamRequest); err != nil {
+							return result{}, err
+						}
+					}
+					application, err := peer.OpenApplication(ctx)
+					if err != nil {
+						return result{}, err
+					}
+					streamID := uint64(4 + 4*streamOrdinal)
+					if uint64(application.StreamID()) != streamID {
+						return result{}, errors.New("application stream ID mismatch")
+					}
+					streamBody := map[uint64]any{0: uint64(1), 1: streamID, 2: channelID[:], 3: routeID[:], 4: grant.Digest[:], 5: "tcp", 6: uint64(8443)}
+					if err := machine.StreamSent(streamID); err != nil {
+						return result{}, err
+					}
+					streamStarted := perfclock.Now()
+					if err := peer.SendEnvelope(core.Envelope{ProtocolVersion: 2, MessageType: core.StreamOpen, RequestID: streamRequest, SessionID: sessionID, Sequence: uint64(routeSequence + 1 + localStream), Body: streamBody}); err != nil {
+						return result{}, err
+					}
+					streamAccepted, err := peer.ReceiveEnvelope()
+					if err != nil {
+						return result{}, err
+					}
+					streamNS := perfclock.Since(streamStarted)
+					if err := machine.StreamAccepted(streamAccepted.SessionID, streamAccepted.RequestID, streamAccepted.Body[1].(uint64), bytes16(streamAccepted.Body[2]), bytes16(streamAccepted.Body[3])); err != nil || !machine.PayloadAllowed() {
+						return result{}, errors.New("stream payload gate remained closed")
+					}
+					concurrentMetrics = append(concurrentMetrics, concurrentMetric{serviceIndex, localStream, streamOrdinal, scenarioStarted, sourceAdmissionNS, routeNS, bindingNS, streamNS})
+					go func(ordinal int) {
+						<-concurrentStart
+						started := perfclock.Now()
+						if _, err := application.Write([]byte(configuration.SafePayload)); err != nil {
+							concurrentResults <- concurrentResult{ordinal: ordinal, error: err}
+							return
+						}
+						if err := application.Close(); err != nil {
+							concurrentResults <- concurrentResult{ordinal: ordinal, error: err}
+							return
+						}
+						echo := make([]byte, len(configuration.SafePayload))
+						if _, err := io.ReadFull(application, echo); err != nil || string(echo) != configuration.SafePayload {
+							concurrentResults <- concurrentResult{ordinal: ordinal, error: errors.New("concurrent application echo failed")}
+							return
+						}
+						concurrentResults <- concurrentResult{ordinal: ordinal, requestNS: int(perfclock.Since(started))}
+					}(streamOrdinal)
+				}
+				continue
+			}
 			for localStream := 0; localStream < configuration.LifecycleStreamsPerService; localStream++ {
 				streamOrdinal := firstStreamOrdinal + localStream
 				streamRequest = benchmarkStreamRequest(uint64(streamOrdinal))
@@ -635,6 +704,31 @@ func runLifecycle(ctx context.Context, configuration config) (result, error) {
 					entry.SourceAdmissionNS, entry.RouteOpenRTTNS, entry.ChannelBindingNS = measured(sourceAdmissionNS), measured(routeNS), measured(bindingNS)
 				}
 				if serviceIndex == 0 && localStream == 0 {
+					entry.TransportHandshakeNS, entry.HelloRTTNS = measured(handshakeNS), measured(helloNS)
+				}
+				observed = append(observed, entry)
+			}
+		}
+		if configuration.LifecycleConcurrent {
+			close(concurrentStart)
+			requestLatencies := make([]int64, configuration.LifecycleServices*configuration.LifecycleStreamsPerService)
+			for range concurrentMetrics {
+				completed := <-concurrentResults
+				if completed.error != nil {
+					return result{}, completed.error
+				}
+				requestLatencies[completed.ordinal] = int64(completed.requestNS)
+			}
+			for _, metric := range concurrentMetrics {
+				totalNS := perfclock.Since(metric.scenarioStarted)
+				if metric.service == 0 && metric.localStream == 0 {
+					totalNS = perfclock.Since(coldStarted)
+				}
+				entry := sample{SampleID: len(observed), Success: true, StreamOpenRTTNS: metric.streamNS, TTFABNS: totalNS, RequestLatencyNS: requestLatencies[metric.ordinal], TotalScenarioNS: totalNS, BytesTransmitted: len(configuration.SafePayload), BytesReceived: len(configuration.SafePayload)}
+				if metric.localStream == 0 {
+					entry.SourceAdmissionNS, entry.RouteOpenRTTNS, entry.ChannelBindingNS = measured(metric.sourceAdmissionNS), measured(metric.routeNS), measured(metric.bindingNS)
+				}
+				if metric.service == 0 && metric.localStream == 0 {
 					entry.TransportHandshakeNS, entry.HelloRTTNS = measured(handshakeNS), measured(helloNS)
 				}
 				observed = append(observed, entry)

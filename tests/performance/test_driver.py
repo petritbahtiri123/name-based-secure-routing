@@ -8,11 +8,12 @@ from scripts.performance.driver import (
     CapacityObservation,
     FormalRunRequirements,
     lifecycle_batch_plan,
+    concurrency_distribution,
     choose_sustainable_capacity,
     ensure_release_binary,
     open_loop_deadlines_ns,
 )
-from scripts.run_performance_validation import merge_destination_measurements
+from scripts.run_performance_validation import merge_destination_measurements, normalize
 
 
 def observation(path: str, rate: float, **changes: object) -> CapacityObservation:
@@ -108,3 +109,27 @@ def test_destination_measurements_are_joined_without_cross_process_clock_subtrac
     assert records == [{"sample_id": 0, "destination_admission_ns": 17, "application_processing_ns": 23}]
     with pytest.raises(ValueError, match="destination measurement count mismatch"):
         merge_destination_measurements(records, {"samples": []})
+
+
+def test_concurrency_is_distributed_without_silent_clamping() -> None:
+    assert concurrency_distribution(requested=10, services=3) == (4, 3, 3)
+    assert sum(concurrency_distribution(requested=64, services=1)) == 64
+    with pytest.raises(ValueError, match="requested concurrency 65 exceeds configured limit 64"):
+        concurrency_distribution(requested=65, services=1)
+    with pytest.raises(ValueError, match="requested concurrency must cover every service"):
+        concurrency_distribution(requested=19, services=20)
+
+
+def test_normalization_preserves_observed_cardinality_and_concurrency() -> None:
+    record = {
+        "success": True, "bytes_transmitted": 1, "bytes_received": 1,
+        "transport_sessions": 1, "service_channels": 20,
+        "application_streams": 20, "request_concurrency": 20,
+    }
+    observed = normalize(
+        record, sample_id=0, path="rust-rust", scenario="nbsr-warm-new-service",
+        payload=1, environment_digest="e", repository_sha="r", run_id="run",
+    )
+    assert observed["service_channels"] == 20
+    assert observed["application_streams"] == 20
+    assert observed["request_concurrency"] == 20

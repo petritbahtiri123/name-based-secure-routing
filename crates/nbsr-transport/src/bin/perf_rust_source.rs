@@ -3,6 +3,7 @@ use std::env;
 use std::fs;
 use std::net::SocketAddr;
 use std::path::{Path, PathBuf};
+use std::sync::Arc;
 use std::time::{Duration, Instant};
 
 use nbsr_transport::{
@@ -272,6 +273,7 @@ async fn run_lifecycle(
     connections: u64,
     services: u64,
     streams_per_service: u64,
+    concurrent: bool,
     payload_bytes: usize,
 ) {
     let payload = vec![0x5a; payload_bytes];
@@ -315,6 +317,11 @@ async fn run_lifecycle(
         );
         session.accept_client_hello(&client).unwrap();
         session.confirm_edge_hello(&edge).unwrap();
+        let concurrent_barrier = Arc::new(tokio::sync::Barrier::new(
+            (services * streams_per_service) as usize + 1,
+        ));
+        let mut concurrent_tasks = tokio::task::JoinSet::new();
+        let mut concurrent_metrics: Vec<(u64, u64, Instant, u128, u128, u128, u128)> = Vec::new();
         for service in 0..services {
             let scenario_started = Instant::now();
             let directory = root.join(format!("{service:02}"));
@@ -341,6 +348,51 @@ async fn run_lifecycle(
             let binding = Instant::now();
             connection.bind_channel(&mut session, channel).unwrap();
             let channel_binding_ns = binding.elapsed().as_nanos();
+            if concurrent {
+                for local_stream in 0..streams_per_service {
+                    let stream_ordinal = service * streams_per_service + local_stream;
+                    let stream = lifecycle_stream_open(
+                        root,
+                        service,
+                        stream_ordinal,
+                        route_sequence + 1 + local_stream,
+                    );
+                    session.authorize_stream_open(channel, &stream).unwrap();
+                    let stream_started = Instant::now();
+                    control.send_envelope(&stream).await.unwrap();
+                    let stream_accepted = control
+                        .receive_envelope(CoreV02Limits::default())
+                        .await
+                        .unwrap();
+                    session
+                        .confirm_stream_accept(channel, &stream_accepted)
+                        .unwrap();
+                    let stream_rtt_ns = stream_started.elapsed().as_nanos();
+                    let permit = session
+                        .application_stream_permit(channel, 4 + 4 * stream_ordinal)
+                        .unwrap();
+                    let mut application = connection.open_session_stream(&permit).await.unwrap();
+                    let task_barrier = concurrent_barrier.clone();
+                    let task_payload = payload.clone();
+                    concurrent_tasks.spawn(async move {
+                        task_barrier.wait().await;
+                        let request_started = Instant::now();
+                        let response = application.send_and_receive(&task_payload).await.unwrap();
+                        assert_eq!(response, task_payload);
+                        (stream_ordinal, request_started.elapsed().as_nanos())
+                    });
+                    concurrent_metrics.push((
+                        service,
+                        local_stream,
+                        scenario_started,
+                        source_admission_ns,
+                        route_open_rtt_ns,
+                        channel_binding_ns,
+                        stream_rtt_ns,
+                    ));
+                }
+                continue;
+            }
             for local_stream in 0..streams_per_service {
                 let stream_ordinal = service * streams_per_service + local_stream;
                 let stream = lifecycle_stream_open(
@@ -413,6 +465,67 @@ async fn run_lifecycle(
                 while session.pop_audit_event().is_some() {}
             }
         }
+        if concurrent {
+            concurrent_barrier.wait().await;
+            let mut request_latencies = vec![0_u128; (services * streams_per_service) as usize];
+            while let Some(joined) = concurrent_tasks.join_next().await {
+                let (stream_ordinal, request_ns) = joined.unwrap();
+                request_latencies[stream_ordinal as usize] = request_ns;
+                let service = stream_ordinal / streams_per_service;
+                let channel = fixed::<16>(&root.join(format!("{service:02}/channel-id.bin")));
+                session
+                    .release_stream(channel, 4 + 4 * stream_ordinal)
+                    .unwrap();
+            }
+            for (
+                service,
+                local_stream,
+                scenario_started,
+                source_admission_ns,
+                route_open_rtt_ns,
+                channel_binding_ns,
+                stream_open_rtt_ns,
+            ) in concurrent_metrics
+            {
+                let stream_ordinal = service * streams_per_service + local_stream;
+                let request_latency_ns = request_latencies[stream_ordinal as usize];
+                let total_ns = if service == 0 && local_stream == 0 {
+                    total_cold.elapsed().as_nanos()
+                } else {
+                    scenario_started.elapsed().as_nanos()
+                };
+                println!(
+                    "{{\"sample_id\":{sample_id},\"success\":true,\"transport_handshake_ns\":{},\"hello_rtt_ns\":{},\"source_admission_ns\":{},\"destination_admission_ns\":null,\"route_open_rtt_ns\":{},\"channel_binding_ns\":{},\"stream_open_rtt_ns\":{stream_open_rtt_ns},\"ttfab_ns\":{total_ns},\"request_latency_ns\":{request_latency_ns},\"application_processing_ns\":null,\"total_scenario_ns\":{total_ns},\"bytes_transmitted\":{payload_bytes},\"bytes_received\":{payload_bytes}}}",
+                    if service == 0 && local_stream == 0 {
+                        handshake_ns.to_string()
+                    } else {
+                        "null".into()
+                    },
+                    if service == 0 && local_stream == 0 {
+                        hello_rtt_ns.to_string()
+                    } else {
+                        "null".into()
+                    },
+                    if local_stream == 0 {
+                        source_admission_ns.to_string()
+                    } else {
+                        "null".into()
+                    },
+                    if local_stream == 0 {
+                        route_open_rtt_ns.to_string()
+                    } else {
+                        "null".into()
+                    },
+                    if local_stream == 0 {
+                        channel_binding_ns.to_string()
+                    } else {
+                        "null".into()
+                    },
+                );
+                sample_id += 1;
+            }
+            while session.pop_audit_event().is_some() {}
+        }
         fs::write(
             root.join(format!("connection-{connection_ordinal}.ack")),
             b"complete\n",
@@ -463,6 +576,7 @@ async fn main() {
             .unwrap_or_else(|| "1".into())
             .parse::<u64>()
             .unwrap();
+        let concurrent = optional_argument("--concurrent-streams").is_some();
         assert!((1..=20).contains(&services));
         assert!((1..=64).contains(&streams_per_service));
         run_lifecycle(
@@ -472,6 +586,7 @@ async fn main() {
             connections,
             services,
             streams_per_service,
+            concurrent,
             payload_bytes,
         )
         .await;
