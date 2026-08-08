@@ -32,6 +32,21 @@ fn optional_argument(name: &str) -> Option<String> {
         .map(|index| values[index + 1].clone())
 }
 
+async fn wait_until(deadline: Instant) {
+    loop {
+        let now = Instant::now();
+        if now >= deadline {
+            return;
+        }
+        let remaining = deadline - now;
+        if remaining > Duration::from_millis(20) {
+            tokio::time::sleep(remaining - Duration::from_millis(20)).await;
+        } else {
+            std::hint::spin_loop();
+        }
+    }
+}
+
 fn identity(value: &str) -> EdgeIdentity {
     EdgeIdentity::from_dns_name(value).unwrap()
 }
@@ -696,7 +711,7 @@ async fn main() {
             if let (Some(rate), Some(origin)) = (offered_rate, schedule_origin) {
                 let offset = Duration::from_secs_f64(index as f64 / rate);
                 let deadline = origin + offset;
-                tokio::time::sleep_until(deadline.into()).await;
+                wait_until(deadline).await;
                 let started = Instant::now();
                 (
                     offset.as_nanos(),

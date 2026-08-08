@@ -14,6 +14,7 @@ import (
 	"math"
 	"os"
 	"path/filepath"
+	"runtime"
 	"time"
 
 	"nbsr.local/interop/nbsr-go-peer/internal/authority"
@@ -102,6 +103,20 @@ type sample struct {
 }
 
 func measured(value int64) *int64 { return &value }
+
+func waitUntil(deadline time.Time) {
+	for {
+		remaining := time.Until(deadline)
+		if remaining <= 0 {
+			return
+		}
+		if remaining > 20*time.Millisecond {
+			time.Sleep(remaining - 20*time.Millisecond)
+		} else {
+			runtime.Gosched()
+		}
+	}
+}
 
 func loadConfig(path string) (config, error) {
 	file, err := os.Open(path)
@@ -416,7 +431,7 @@ func run(ctx context.Context, configuration config) (result, error) {
 		var scheduledNS, startedNS, startLatenessNS int64
 		if configuration.OfferedRate > 0 {
 			scheduledNS = int64(float64(index) / configuration.OfferedRate * 1_000_000_000)
-			time.Sleep(time.Until(scheduleWallOrigin.Add(time.Duration(scheduledNS))))
+			waitUntil(scheduleWallOrigin.Add(time.Duration(scheduledNS)))
 			startedNS = perfclock.Since(scheduleClockOrigin)
 			startLatenessNS = max(0, startedNS-scheduledNS)
 		}

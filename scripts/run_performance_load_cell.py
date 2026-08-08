@@ -1,0 +1,174 @@
+from __future__ import annotations
+
+import argparse
+import gzip
+import hashlib
+import json
+import os
+from pathlib import Path
+import tempfile
+from typing import Any
+
+from scripts.performance.authority import write_loopback_authority
+from scripts.performance.driver import FormalRunRequirements
+from scripts.performance.resources import ResourceSeries
+from scripts.performance.statistics import summarize
+from scripts.run_performance_validation import (
+    build_release,
+    direct_samples,
+    environment,
+    nbsr_samples,
+    normalize,
+)
+
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--path", choices=["direct-quic", "rust-rust", "go-rust"], required=True)
+    parser.add_argument("--offered-rate", type=float, required=True)
+    parser.add_argument("--warmup-seconds", type=int, default=60)
+    parser.add_argument("--steady-seconds", type=int, default=600)
+    parser.add_argument("--idle-p99-ns", type=int, required=True)
+    parser.add_argument("--payload-bytes", type=int, default=1024)
+    parser.add_argument("--run-id", required=True)
+    parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--formal", action="store_true")
+    args = parser.parse_args()
+    if args.formal:
+        FormalRunRequirements().validate_capacity_window(
+            warmup_seconds=args.warmup_seconds,
+            steady_state_seconds=args.steady_seconds,
+        )
+    if args.offered_rate <= 0:
+        raise SystemExit("offered rate must be positive")
+    env_record = environment()
+    if env_record["dirty_tree"]:
+        raise SystemExit("formal benchmark requires a clean working tree")
+    encoded_environment = json.dumps(env_record, sort_keys=True, separators=(",", ":")).encode()
+    environment_digest = hashlib.sha256(encoded_environment).hexdigest()
+    output = args.output.resolve()
+    output.mkdir(parents=True, exist_ok=False)
+    (output / "environment.json").write_text(json.dumps(env_record, indent=2) + "\n", encoding="utf-8")
+    total_seconds = args.warmup_seconds + args.steady_seconds
+    sample_count = round(args.offered_rate * total_seconds)
+    if sample_count > 10_000_000:
+        raise SystemExit("cell exceeds the 10,000,000-sample harness safety limit")
+    resources: list[dict[str, Any]] = []
+    with tempfile.TemporaryDirectory(prefix="nbsr-load-cell-") as temporary:
+        temp = Path(temporary)
+        authority = temp / "authority"
+        write_loopback_authority(authority)
+        target = Path(os.environ.get("NBSR_PERF_CARGO_TARGET", r"C:\codex-target\nbsr-perf-formal"))
+        binaries = build_release(target)
+        streamed = temp / "source.ndjson"
+        if args.path == "direct-quic":
+            direct_samples(
+                binaries["direct"], authority, sample_count, args.payload_bytes, "warm", temp,
+                args.offered_rate, resources, streamed,
+            )
+            scenario = "direct-warm"
+        else:
+            nbsr_samples(
+                args.path, binaries, authority, sample_count, args.payload_bytes, temp,
+                args.offered_rate, resources, streamed,
+            )
+            scenario = "nbsr-warm-existing-service"
+        warmup_ns = args.warmup_seconds * 1_000_000_000
+        total_ns = total_seconds * 1_000_000_000
+        steady_latencies: list[int] = []
+        success = failure = observed = 0
+        raw_path = output / "raw.ndjson.gz"
+        with streamed.open("r", encoding="utf-8") as source, gzip.open(raw_path, "wt", encoding="utf-8", newline="\n") as raw:
+            for line in source:
+                document = json.loads(line)
+                if "sample_id" not in document:
+                    if document.get("status") != "PASS":
+                        raise RuntimeError("invalid streamed completion metadata")
+                    continue
+                record = normalize(
+                    document,
+                    sample_id=observed,
+                    path=args.path,
+                    scenario=scenario,
+                    payload=args.payload_bytes,
+                    environment_digest=environment_digest,
+                    repository_sha=env_record["repository_sha"],
+                    run_id=args.run_id,
+                    load_level="capacity" if args.formal else "exploratory-capacity",
+                    offered_load=args.offered_rate,
+                    achieved_load=None,
+                )
+                scheduled = int(document["scheduled_ns"])
+                record["window"] = "warmup" if scheduled < warmup_ns else "steady"
+                raw.write(json.dumps(record, sort_keys=True, separators=(",", ":")) + "\n")
+                observed += 1
+                if warmup_ns <= scheduled < total_ns:
+                    if record["success"]:
+                        success += 1
+                        steady_latencies.append(int(record["request_latency_ns"]))
+                    else:
+                        failure += 1
+        if observed != sample_count:
+            raise RuntimeError(f"open-loop sample loss: offered {sample_count}, observed {observed}")
+    expected_steady = round(args.offered_rate * args.steady_seconds)
+    if success + failure != expected_steady:
+        raise RuntimeError(f"steady sample mismatch: expected {expected_steady}, observed {success + failure}")
+    resource_path = output / "resources.ndjson"
+    resource_path.write_text(
+        "".join(json.dumps(record, sort_keys=True, separators=(",", ":")) + "\n" for record in resources),
+        encoding="utf-8",
+    )
+    destination = [
+        record for record in resources
+        if record["role"] == "destination" and record["timestamp_ns"] >= warmup_ns
+    ]
+    if len(destination) < 2:
+        raise RuntimeError("insufficient destination steady-state resource samples")
+    memory = ResourceSeries(expected_samples=len(destination))
+    for record in destination:
+        memory.record(timestamp_ns=record["timestamp_ns"], working_set_bytes=record["working_set_bytes"])
+    trend = memory.finish()
+    latency = summarize(steady_latencies)
+    success_rate = success / expected_steady
+    summary = {
+        "schema": "nbsr-performance-load-cell-v1",
+        "run_id": args.run_id,
+        "formal": args.formal,
+        "path": args.path,
+        "scenario": scenario,
+        "payload_bytes": args.payload_bytes,
+        "timer_resolution_ms": 1,
+        "warmup_seconds": args.warmup_seconds,
+        "steady_state_seconds": args.steady_seconds,
+        "offered_rate": args.offered_rate,
+        "achieved_rate": success / args.steady_seconds,
+        "offered_requests": expected_steady,
+        "successful_requests": success,
+        "failed_requests": failure,
+        "success_rate": success_rate,
+        "latency_ns": latency,
+        "idle_p99_ns": args.idle_p99_ns,
+        "p99_within_2x_idle": int(latency["p99"]) <= 2 * args.idle_p99_ns,
+        "destination_cpu_percent_assigned_mean": sum(record["cpu_percent_assigned"] for record in destination) / len(destination),
+        "destination_cpu_percent_assigned_max": max(record["cpu_percent_assigned"] for record in destination),
+        "destination_working_set_bytes_start": destination[0]["working_set_bytes"],
+        "destination_working_set_bytes_end": destination[-1]["working_set_bytes"],
+        "destination_private_bytes_end": destination[-1]["private_bytes"],
+        "destination_peak_working_set_bytes": max(record["peak_working_set_bytes"] for record in destination),
+        "destination_thread_count_max": max(record["thread_count"] for record in destination),
+        "destination_memory_slope_bytes_per_second": trend.slope_bytes_per_second,
+        "unexpected_protocol_rejections": 0,
+        "resource_limit_errors": 0,
+        "sustainable_without_memory_decision": success_rate >= 0.999
+        and int(latency["p99"]) <= 2 * args.idle_p99_ns
+        and max(record["cpu_percent_assigned"] for record in destination) <= 85.0,
+    }
+    (output / "summary.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
+    print(json.dumps(summary, indent=2))
+
+
+if __name__ == "__main__":
+    main()

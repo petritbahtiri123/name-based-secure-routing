@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import ctypes
 from dataclasses import asdict
 import hashlib
 import json
@@ -48,19 +49,28 @@ def command(argv: list[str], *, cwd: Path = ROOT, timeout: int = 300) -> subproc
 
 def measured_client(
     argv: list[str], *, cwd: Path, server: subprocess.Popen[str], timeout: int,
+    stdout_path: Path | None = None,
 ) -> tuple[str, list[dict[str, Any]]]:
-    client = subprocess.Popen(argv, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    output_handle = stdout_path.open("w", encoding="utf-8", newline="\n") if stdout_path is not None else None
+    client = subprocess.Popen(
+        argv, cwd=cwd, stdout=output_handle if output_handle is not None else subprocess.PIPE,
+        stderr=subprocess.PIPE, text=True,
+    )
     sampler = ProcessResourceSampler(
         {"source": client.pid, "destination": server.pid},
         interval_seconds=1.0,
         assigned_logical_processors=os.cpu_count() or 1,
     )
     sampler.start()
-    stdout, stderr = client.communicate(timeout=timeout)
-    resources = [asdict(record) for record in sampler.stop()]
-    if client.returncode:
-        raise RuntimeError(f"command failed ({client.returncode}): {argv!r}\n{stderr}")
-    return stdout, resources
+    try:
+        stdout, stderr = client.communicate(timeout=timeout)
+        resources = [asdict(record) for record in sampler.stop()]
+        if client.returncode:
+            raise RuntimeError(f"command failed ({client.returncode}): {argv!r}\n{stderr}")
+        return stdout or "", resources
+    finally:
+        if output_handle is not None:
+            output_handle.close()
 
 
 def sha256(path: Path) -> str:
@@ -164,7 +174,13 @@ def direct_samples(
     binary: Path, authority: Path, samples: int, payload: int, lifecycle: str, temp: Path,
     offered_rate: float | None = None,
     resource_records: list[dict[str, Any]] | None = None,
+    raw_output: Path | None = None,
 ) -> list[dict[str, Any]]:
+    if raw_output is not None and resource_records is None:
+        raise ValueError("direct-to-disk load evidence requires resource capture")
+    winmm = ctypes.WinDLL("winmm", use_last_error=True) if offered_rate is not None else None
+    if winmm is not None and winmm.timeBeginPeriod(1) != 0:
+        raise RuntimeError("failed to request 1 ms Windows timer resolution")
     ready = temp / f"direct-{lifecycle}.ready.json"
     ready.unlink(missing_ok=True)
     connections = samples if lifecycle == "cold" else 1
@@ -210,23 +226,33 @@ def direct_samples(
         if resource_records is None:
             stdout = command(client_command, timeout=3600).stdout
         else:
-            stdout, observed_resources = measured_client(client_command, cwd=ROOT, server=server, timeout=3600)
+            stdout, observed_resources = measured_client(
+                client_command, cwd=ROOT, server=server, timeout=3600, stdout_path=raw_output,
+            )
             resource_records.extend(observed_resources)
         server.wait(30)
         if server.returncode:
             raise RuntimeError(server.stderr.read())
-        return parse_ndjson(stdout)
+        return [] if raw_output is not None else parse_ndjson(stdout)
     finally:
         if server.poll() is None:
             server.terminate()
             server.wait(10)
+        if winmm is not None and winmm.timeEndPeriod(1) != 0:
+            raise RuntimeError("failed to release 1 ms Windows timer resolution")
 
 
 def nbsr_samples(
     path: str, binaries: dict[str, Path], authority: Path, samples: int, payload: int, temp: Path,
     offered_rate: float | None = None,
     resource_records: list[dict[str, Any]] | None = None,
+    raw_output: Path | None = None,
 ) -> list[dict[str, Any]]:
+    if raw_output is not None and resource_records is None:
+        raise ValueError("direct-to-disk load evidence requires resource capture")
+    winmm = ctypes.WinDLL("winmm", use_last_error=True) if offered_rate is not None else None
+    if winmm is not None and winmm.timeBeginPeriod(1) != 0:
+        raise RuntimeError("failed to request 1 ms Windows timer resolution")
     ready, result, ack = temp / f"{path}.ready.json", temp / f"{path}.result.json", temp / f"{path}.ack"
     for stale in (ready, result, ack):
         stale.unlink(missing_ok=True)
@@ -266,9 +292,11 @@ def nbsr_samples(
             if resource_records is None:
                 stdout = command(client_command, timeout=3600).stdout
             else:
-                stdout, observed_resources = measured_client(client_command, cwd=ROOT, server=server, timeout=3600)
+                stdout, observed_resources = measured_client(
+                    client_command, cwd=ROOT, server=server, timeout=3600, stdout_path=raw_output,
+                )
                 resource_records.extend(observed_resources)
-            records = parse_ndjson(stdout)
+            records = [] if raw_output is not None else parse_ndjson(stdout)
         else:
             config = temp / "go-config.json"
             config.write_text(
@@ -288,9 +316,13 @@ def nbsr_samples(
             if resource_records is None:
                 stdout = command(client_command, cwd=GO_PEER, timeout=3600).stdout
             else:
-                stdout, observed_resources = measured_client(client_command, cwd=GO_PEER, server=server, timeout=3600)
+                stdout, observed_resources = measured_client(
+                    client_command, cwd=GO_PEER, server=server, timeout=3600, stdout_path=raw_output,
+                )
                 resource_records.extend(observed_resources)
-            if offered_rate is None:
+            if raw_output is not None:
+                records = []
+            elif offered_rate is None:
                 records = json.loads(stdout)["samples"]
             else:
                 documents = [json.loads(line) for line in stdout.splitlines() if line.strip()]
@@ -306,6 +338,8 @@ def nbsr_samples(
         if server.poll() is None:
             server.terminate()
             server.wait(10)
+        if winmm is not None and winmm.timeEndPeriod(1) != 0:
+            raise RuntimeError("failed to release 1 ms Windows timer resolution")
 
 
 def rust_lifecycle_samples(

@@ -168,6 +168,21 @@ async fn request(connection: &Connection, payload: &[u8]) -> Vec<u8> {
     receive.read_to_end(MAX_PAYLOAD).await.unwrap()
 }
 
+async fn wait_until(deadline: Instant) {
+    loop {
+        let now = Instant::now();
+        if now >= deadline {
+            return;
+        }
+        let remaining = deadline - now;
+        if remaining > Duration::from_millis(20) {
+            tokio::time::sleep(remaining - Duration::from_millis(20)).await;
+        } else {
+            std::hint::spin_loop();
+        }
+    }
+}
+
 async fn server() {
     let ready = PathBuf::from(argument("--ready"));
     let authority = PathBuf::from(argument("--authority-dir"));
@@ -233,7 +248,7 @@ async fn client() {
             let origin = *schedule_origin.get_or_insert_with(Instant::now);
             let offset = Duration::from_secs_f64(sample_id as f64 / rate);
             let deadline = origin + offset;
-            tokio::time::sleep_until(deadline.into()).await;
+            wait_until(deadline).await;
             let started = Instant::now();
             (
                 offset.as_nanos(),
