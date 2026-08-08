@@ -267,7 +267,10 @@ def rust_lifecycle_samples(
     payload: int,
     scenario: str,
     temp: Path,
+    streams_per_service: int = 1,
 ) -> list[dict[str, Any]]:
+    if not 1 <= streams_per_service <= 64:
+        raise ValueError("streams per service must be in 1..64")
     if scenario == "nbsr-cold":
         batches = (samples,)
         services_for_batch = lambda _batch: 1
@@ -294,6 +297,7 @@ def rust_lifecycle_samples(
             "NBSR_PERF_LIFECYCLE_ROOT": str(lifecycle_root),
             "NBSR_PERF_LIFECYCLE_CONNECTIONS": str(connections),
             "NBSR_PERF_LIFECYCLE_SERVICES": str(services),
+            "NBSR_PERF_STREAMS_PER_SERVICE": str(streams_per_service),
         }
         server = subprocess.Popen(
             [
@@ -314,12 +318,14 @@ def rust_lifecycle_samples(
                     "--samples", "1", "--payload-bytes", str(payload),
                     "--lifecycle-authority-dir", str(lifecycle_root),
                     "--connections", str(connections), "--services", str(services),
+                    "--streams-per-service", str(streams_per_service),
                 ],
                 timeout=3600,
             )
             batch_records = parse_ndjson(client.stdout)
-            if len(batch_records) != batch:
-                raise RuntimeError(f"lifecycle sample loss: expected {batch}, observed {len(batch_records)}")
+            expected_records = batch * streams_per_service
+            if len(batch_records) != expected_records:
+                raise RuntimeError(f"lifecycle sample loss: expected {expected_records}, observed {len(batch_records)}")
             server.wait(30)
             if server.returncode:
                 raise RuntimeError(server.stderr.read())
@@ -344,7 +350,10 @@ def go_lifecycle_samples(
     payload: int,
     scenario: str,
     temp: Path,
+    streams_per_service: int = 1,
 ) -> list[dict[str, Any]]:
+    if not 1 <= streams_per_service <= 64:
+        raise ValueError("streams per service must be in 1..64")
     if scenario == "nbsr-cold":
         batches = (samples,)
         services_for_batch = lambda _batch: 1
@@ -377,6 +386,7 @@ def go_lifecycle_samples(
                 "NBSR_PERF_LIFECYCLE_ROOT": str(lifecycle_root),
                 "NBSR_PERF_LIFECYCLE_CONNECTIONS": str(connections),
                 "NBSR_PERF_LIFECYCLE_SERVICES": str(services),
+                "NBSR_PERF_STREAMS_PER_SERVICE": str(streams_per_service),
             },
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
@@ -396,14 +406,16 @@ def go_lifecycle_samples(
                         "lifecycle_authority_dir": str(lifecycle_root),
                         "lifecycle_connections": connections,
                         "lifecycle_services": services,
+                        "lifecycle_streams_per_service": streams_per_service,
                     }
                 ),
                 encoding="utf-8",
             )
             client = command([str(binaries["go"]), "--config", str(config)], cwd=GO_PEER, timeout=3600)
             batch_records = json.loads(client.stdout)["samples"]
-            if len(batch_records) != batch:
-                raise RuntimeError(f"lifecycle sample loss: expected {batch}, observed {len(batch_records)}")
+            expected_records = batch * streams_per_service
+            if len(batch_records) != expected_records:
+                raise RuntimeError(f"lifecycle sample loss: expected {expected_records}, observed {len(batch_records)}")
             server.wait(30)
             if server.returncode:
                 raise RuntimeError(server.stderr.read())

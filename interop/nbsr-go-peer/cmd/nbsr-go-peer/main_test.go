@@ -3,7 +3,7 @@ package main
 import "testing"
 
 func TestLifecycleConfigurationRequiresBoundedIndependentServices(t *testing.T) {
-	valid := config{ReadinessPath: "ready", F75Package: "f75", LocalAttestationPackage: "local", SafePayload: "Z", LifecycleAuthorityDir: "authority", LifecycleConnections: 1, LifecycleServices: 20}
+	valid := config{ReadinessPath: "ready", F75Package: "f75", LocalAttestationPackage: "local", SafePayload: "Z", LifecycleAuthorityDir: "authority", LifecycleConnections: 1, LifecycleServices: 20, LifecycleStreamsPerService: 64}
 	if err := valid.validate(); err != nil {
 		t.Fatalf("valid lifecycle configuration rejected: %v", err)
 	}
@@ -16,6 +16,11 @@ func TestLifecycleConfigurationRequiresBoundedIndependentServices(t *testing.T) 
 	invalid.LifecycleConnections = 0
 	if err := invalid.validate(); err == nil {
 		t.Fatal("zero lifecycle connections accepted")
+	}
+	invalid = valid
+	invalid.LifecycleStreamsPerService = 65
+	if err := invalid.validate(); err == nil {
+		t.Fatal("stream count above frozen per-channel limit accepted")
 	}
 }
 

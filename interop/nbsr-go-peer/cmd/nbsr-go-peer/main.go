@@ -24,14 +24,15 @@ import (
 )
 
 type config struct {
-	ReadinessPath           string `json:"readiness_path"`
-	F75Package              string `json:"f75_package"`
-	LocalAttestationPackage string `json:"local_attestation_package"`
-	SafePayload             string `json:"safe_payload"`
-	BenchmarkSamples        int    `json:"benchmark_samples,omitempty"`
-	LifecycleAuthorityDir   string `json:"lifecycle_authority_dir,omitempty"`
-	LifecycleConnections    int    `json:"lifecycle_connections,omitempty"`
-	LifecycleServices       int    `json:"lifecycle_services,omitempty"`
+	ReadinessPath              string `json:"readiness_path"`
+	F75Package                 string `json:"f75_package"`
+	LocalAttestationPackage    string `json:"local_attestation_package"`
+	SafePayload                string `json:"safe_payload"`
+	BenchmarkSamples           int    `json:"benchmark_samples,omitempty"`
+	LifecycleAuthorityDir      string `json:"lifecycle_authority_dir,omitempty"`
+	LifecycleConnections       int    `json:"lifecycle_connections,omitempty"`
+	LifecycleServices          int    `json:"lifecycle_services,omitempty"`
+	LifecycleStreamsPerService int    `json:"lifecycle_streams_per_service,omitempty"`
 }
 
 func (value config) validate() error {
@@ -47,7 +48,7 @@ func (value config) validate() error {
 		}
 		return nil
 	}
-	if value.LifecycleConnections < 1 || value.LifecycleServices < 1 || value.LifecycleServices > 20 {
+	if value.LifecycleConnections < 1 || value.LifecycleServices < 1 || value.LifecycleServices > 20 || value.LifecycleStreamsPerService < 1 || value.LifecycleStreamsPerService > 64 {
 		return errors.New("lifecycle configuration is out of bounds")
 	}
 	return nil
@@ -510,7 +511,8 @@ func runLifecycle(ctx context.Context, configuration config) (result, error) {
 			}
 			serviceName := string(bytes.TrimSpace(nameRaw))
 			routeRequest, channelID, routeID := lifecycleIDs(serviceIndex)
-			streamRequest := benchmarkStreamRequest(uint64(serviceIndex))
+			firstStreamOrdinal := serviceIndex * configuration.LifecycleStreamsPerService
+			streamRequest := benchmarkStreamRequest(uint64(firstStreamOrdinal))
 			machine := state.NewSource(sessionID, helloRequest, routeRequest, streamRequest, channelID, routeID, serviceName, "tcp", 8443)
 			if err := machine.HelloSent(); err != nil {
 				return result{}, err
@@ -556,7 +558,8 @@ func runLifecycle(ctx context.Context, configuration config) (result, error) {
 				return result{}, err
 			}
 			routeStarted := perfclock.Now()
-			if err := peer.SendEnvelope(core.Envelope{ProtocolVersion: 2, MessageType: core.RouteOpen, RequestID: routeRequest, SessionID: sessionID, Sequence: uint64(2 + serviceIndex*2), Body: routeBody}); err != nil {
+			routeSequence := 2 + serviceIndex*(1+configuration.LifecycleStreamsPerService)
+			if err := peer.SendEnvelope(core.Envelope{ProtocolVersion: 2, MessageType: core.RouteOpen, RequestID: routeRequest, SessionID: sessionID, Sequence: uint64(routeSequence), Body: routeBody}); err != nil {
 				return result{}, err
 			}
 			routeAccepted, err := peer.ReceiveEnvelope()
@@ -576,50 +579,66 @@ func runLifecycle(ctx context.Context, configuration config) (result, error) {
 				return result{}, errors.New("live WP4 exporter failed")
 			}
 			bindingNS := perfclock.Since(bindingStarted)
-			application, err := peer.OpenApplication(ctx)
-			if err != nil {
-				return result{}, err
+			for localStream := 0; localStream < configuration.LifecycleStreamsPerService; localStream++ {
+				streamOrdinal := firstStreamOrdinal + localStream
+				streamRequest = benchmarkStreamRequest(uint64(streamOrdinal))
+				if localStream > 0 {
+					if err := machine.NextStream(streamRequest); err != nil {
+						return result{}, err
+					}
+				}
+				application, err := peer.OpenApplication(ctx)
+				if err != nil {
+					return result{}, err
+				}
+				streamID := uint64(4 + 4*streamOrdinal)
+				if uint64(application.StreamID()) != streamID {
+					return result{}, errors.New("application stream ID mismatch")
+				}
+				streamBody := map[uint64]any{0: uint64(1), 1: streamID, 2: channelID[:], 3: routeID[:], 4: grant.Digest[:], 5: "tcp", 6: uint64(8443)}
+				if err := machine.StreamSent(streamID); err != nil {
+					return result{}, err
+				}
+				streamStarted := perfclock.Now()
+				if err := peer.SendEnvelope(core.Envelope{ProtocolVersion: 2, MessageType: core.StreamOpen, RequestID: streamRequest, SessionID: sessionID, Sequence: uint64(routeSequence + 1 + localStream), Body: streamBody}); err != nil {
+					return result{}, err
+				}
+				streamAccepted, err := peer.ReceiveEnvelope()
+				if err != nil {
+					return result{}, err
+				}
+				streamNS := perfclock.Since(streamStarted)
+				if err := machine.StreamAccepted(streamAccepted.SessionID, streamAccepted.RequestID, streamAccepted.Body[1].(uint64), bytes16(streamAccepted.Body[2]), bytes16(streamAccepted.Body[3])); err != nil || !machine.PayloadAllowed() {
+					return result{}, errors.New("stream payload gate remained closed")
+				}
+				requestStarted := perfclock.Now()
+				if _, err := application.Write([]byte(configuration.SafePayload)); err != nil {
+					return result{}, err
+				}
+				if err := application.Close(); err != nil {
+					return result{}, err
+				}
+				echo := make([]byte, len(configuration.SafePayload))
+				if _, err := io.ReadFull(application, echo); err != nil {
+					return result{}, err
+				}
+				requestNS := perfclock.Since(requestStarted)
+				if string(echo) != configuration.SafePayload {
+					return result{}, errors.New("application payload echo mismatch")
+				}
+				totalNS := perfclock.Since(scenarioStarted)
+				if serviceIndex == 0 && localStream == 0 {
+					totalNS = perfclock.Since(coldStarted)
+				}
+				entry := sample{SampleID: len(observed), Success: true, StreamOpenRTTNS: streamNS, TTFABNS: totalNS, RequestLatencyNS: requestNS, TotalScenarioNS: totalNS, BytesTransmitted: len(echo), BytesReceived: len(echo)}
+				if localStream == 0 {
+					entry.SourceAdmissionNS, entry.RouteOpenRTTNS, entry.ChannelBindingNS = measured(sourceAdmissionNS), measured(routeNS), measured(bindingNS)
+				}
+				if serviceIndex == 0 && localStream == 0 {
+					entry.TransportHandshakeNS, entry.HelloRTTNS = measured(handshakeNS), measured(helloNS)
+				}
+				observed = append(observed, entry)
 			}
-			streamID := uint64(4 + 4*serviceIndex)
-			if uint64(application.StreamID()) != streamID {
-				return result{}, errors.New("application stream ID mismatch")
-			}
-			streamBody := map[uint64]any{0: uint64(1), 1: streamID, 2: channelID[:], 3: routeID[:], 4: grant.Digest[:], 5: "tcp", 6: uint64(8443)}
-			if err := machine.StreamSent(streamID); err != nil {
-				return result{}, err
-			}
-			streamStarted := perfclock.Now()
-			if err := peer.SendEnvelope(core.Envelope{ProtocolVersion: 2, MessageType: core.StreamOpen, RequestID: streamRequest, SessionID: sessionID, Sequence: uint64(3 + serviceIndex*2), Body: streamBody}); err != nil {
-				return result{}, err
-			}
-			streamAccepted, err := peer.ReceiveEnvelope()
-			if err != nil {
-				return result{}, err
-			}
-			streamNS := perfclock.Since(streamStarted)
-			if err := machine.StreamAccepted(streamAccepted.SessionID, streamAccepted.RequestID, streamAccepted.Body[1].(uint64), bytes16(streamAccepted.Body[2]), bytes16(streamAccepted.Body[3])); err != nil || !machine.PayloadAllowed() {
-				return result{}, errors.New("stream payload gate remained closed")
-			}
-			requestStarted := perfclock.Now()
-			if _, err := application.Write([]byte(configuration.SafePayload)); err != nil {
-				return result{}, err
-			}
-			if err := application.Close(); err != nil {
-				return result{}, err
-			}
-			echo := make([]byte, len(configuration.SafePayload))
-			if _, err := io.ReadFull(application, echo); err != nil {
-				return result{}, err
-			}
-			requestNS := perfclock.Since(requestStarted)
-			if string(echo) != configuration.SafePayload {
-				return result{}, errors.New("application payload echo mismatch")
-			}
-			totalNS := perfclock.Since(scenarioStarted)
-			if serviceIndex == 0 {
-				totalNS = perfclock.Since(coldStarted)
-			}
-			observed = append(observed, sample{SampleID: len(observed), Success: true, TransportHandshakeNS: measured(handshakeNS), HelloRTTNS: measured(helloNS), SourceAdmissionNS: measured(sourceAdmissionNS), RouteOpenRTTNS: measured(routeNS), ChannelBindingNS: measured(bindingNS), StreamOpenRTTNS: streamNS, TTFABNS: totalNS, RequestLatencyNS: requestNS, TotalScenarioNS: totalNS, BytesTransmitted: len(echo), BytesReceived: len(echo)})
 		}
 		if err := os.WriteFile(filepath.Join(configuration.LifecycleAuthorityDir, fmt.Sprintf("connection-%d.ack", connectionOrdinal)), []byte("complete\n"), 0o600); err != nil {
 			return result{}, err

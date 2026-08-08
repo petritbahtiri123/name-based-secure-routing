@@ -224,22 +224,31 @@ fn fixed<const N: usize>(path: &Path) -> [u8; N] {
     fs::read(path).unwrap().try_into().unwrap()
 }
 
-fn lifecycle_route_open(root: &Path, service: u64) -> nbsr_transport::CoreV02Envelope {
+fn lifecycle_route_open(
+    root: &Path,
+    service: u64,
+    sequence: u64,
+) -> nbsr_transport::CoreV02Envelope {
     let directory = root.join(format!("{service:02}"));
     envelope(
         3,
         fixed::<16>(&directory.join("request-id.bin")),
-        2 + service * 2,
+        sequence,
         fs::read(directory.join("route-open-body.cbor")).unwrap(),
     )
 }
 
-fn lifecycle_stream_open(root: &Path, service: u64) -> nbsr_transport::CoreV02Envelope {
+fn lifecycle_stream_open(
+    root: &Path,
+    service: u64,
+    stream_ordinal: u64,
+    sequence: u64,
+) -> nbsr_transport::CoreV02Envelope {
     let directory = root.join(format!("{service:02}"));
     let mut body = Vec::new();
     map(&mut body, 7);
     field_uint(&mut body, 0, 1);
-    field_uint(&mut body, 1, 4 + 4 * service);
+    field_uint(&mut body, 1, 4 + 4 * stream_ordinal);
     field_bytes(
         &mut body,
         2,
@@ -253,7 +262,7 @@ fn lifecycle_stream_open(root: &Path, service: u64) -> nbsr_transport::CoreV02En
     );
     field_text(&mut body, 5, "tcp");
     field_uint(&mut body, 6, 8443);
-    envelope(6, request(service), 3 + service * 2, body)
+    envelope(6, request(stream_ordinal), sequence, body)
 }
 
 async fn run_lifecycle(
@@ -262,6 +271,7 @@ async fn run_lifecycle(
     root: &Path,
     connections: u64,
     services: u64,
+    streams_per_service: u64,
     payload_bytes: usize,
 ) {
     let payload = vec![0x5a; payload_bytes];
@@ -308,7 +318,8 @@ async fn run_lifecycle(
         for service in 0..services {
             let scenario_started = Instant::now();
             let directory = root.join(format!("{service:02}"));
-            let route = lifecycle_route_open(root, service);
+            let route_sequence = 2 + service * (1 + streams_per_service);
+            let route = lifecycle_route_open(root, service, route_sequence);
             let attestations = LocalFederationAdmissionAttestations {
                 source: fs::read(directory.join("source.cose")).unwrap(),
                 destination: fs::read(directory.join("destination.cose")).unwrap(),
@@ -330,57 +341,77 @@ async fn run_lifecycle(
             let binding = Instant::now();
             connection.bind_channel(&mut session, channel).unwrap();
             let channel_binding_ns = binding.elapsed().as_nanos();
-            let stream = lifecycle_stream_open(root, service);
-            session.authorize_stream_open(channel, &stream).unwrap();
-            let stream_started = Instant::now();
-            control.send_envelope(&stream).await.unwrap();
-            let stream_accepted = control
-                .receive_envelope(CoreV02Limits::default())
-                .await
-                .unwrap();
-            session
-                .confirm_stream_accept(channel, &stream_accepted)
-                .unwrap();
-            let stream_open_rtt_ns = stream_started.elapsed().as_nanos();
-            let permit = session
-                .application_stream_permit(channel, 4 + 4 * service)
-                .unwrap();
-            let request_started = Instant::now();
-            let response = connection
-                .open_session_stream(&permit)
-                .await
-                .unwrap()
-                .send_and_receive(&payload)
-                .await
-                .unwrap();
-            let request_latency_ns = request_started.elapsed().as_nanos();
-            assert_eq!(response, payload);
-            session.release_stream(channel, 4 + 4 * service).unwrap();
-            println!(
-                "{{\"sample_id\":{sample_id},\"success\":true,\"transport_handshake_ns\":{},\"hello_rtt_ns\":{},\"source_admission_ns\":{source_admission_ns},\"destination_admission_ns\":null,\"route_open_rtt_ns\":{route_open_rtt_ns},\"channel_binding_ns\":{channel_binding_ns},\"stream_open_rtt_ns\":{stream_open_rtt_ns},\"ttfab_ns\":{},\"request_latency_ns\":{request_latency_ns},\"application_processing_ns\":null,\"total_scenario_ns\":{},\"bytes_transmitted\":{payload_bytes},\"bytes_received\":{payload_bytes}}}",
-                if service == 0 {
-                    handshake_ns.to_string()
-                } else {
-                    "null".into()
-                },
-                if service == 0 {
-                    hello_rtt_ns.to_string()
-                } else {
-                    "null".into()
-                },
-                if service == 0 {
+            for local_stream in 0..streams_per_service {
+                let stream_ordinal = service * streams_per_service + local_stream;
+                let stream = lifecycle_stream_open(
+                    root,
+                    service,
+                    stream_ordinal,
+                    route_sequence + 1 + local_stream,
+                );
+                session.authorize_stream_open(channel, &stream).unwrap();
+                let stream_started = Instant::now();
+                control.send_envelope(&stream).await.unwrap();
+                let stream_accepted = control
+                    .receive_envelope(CoreV02Limits::default())
+                    .await
+                    .unwrap();
+                session
+                    .confirm_stream_accept(channel, &stream_accepted)
+                    .unwrap();
+                let stream_open_rtt_ns = stream_started.elapsed().as_nanos();
+                let permit = session
+                    .application_stream_permit(channel, 4 + 4 * stream_ordinal)
+                    .unwrap();
+                let request_started = Instant::now();
+                let response = connection
+                    .open_session_stream(&permit)
+                    .await
+                    .unwrap()
+                    .send_and_receive(&payload)
+                    .await
+                    .unwrap();
+                let request_latency_ns = request_started.elapsed().as_nanos();
+                assert_eq!(response, payload);
+                session
+                    .release_stream(channel, 4 + 4 * stream_ordinal)
+                    .unwrap();
+                let total_ns = if service == 0 && local_stream == 0 {
                     total_cold.elapsed().as_nanos()
                 } else {
                     scenario_started.elapsed().as_nanos()
-                },
-                if service == 0 {
-                    total_cold.elapsed().as_nanos()
-                } else {
-                    scenario_started.elapsed().as_nanos()
-                },
-            );
-            sample_id += 1;
-            while session.pop_audit_event().is_some() {}
+                };
+                println!(
+                    "{{\"sample_id\":{sample_id},\"success\":true,\"transport_handshake_ns\":{},\"hello_rtt_ns\":{},\"source_admission_ns\":{},\"destination_admission_ns\":null,\"route_open_rtt_ns\":{},\"channel_binding_ns\":{},\"stream_open_rtt_ns\":{stream_open_rtt_ns},\"ttfab_ns\":{total_ns},\"request_latency_ns\":{request_latency_ns},\"application_processing_ns\":null,\"total_scenario_ns\":{total_ns},\"bytes_transmitted\":{payload_bytes},\"bytes_received\":{payload_bytes}}}",
+                    if service == 0 && local_stream == 0 {
+                        handshake_ns.to_string()
+                    } else {
+                        "null".into()
+                    },
+                    if service == 0 && local_stream == 0 {
+                        hello_rtt_ns.to_string()
+                    } else {
+                        "null".into()
+                    },
+                    if local_stream == 0 {
+                        source_admission_ns.to_string()
+                    } else {
+                        "null".into()
+                    },
+                    if local_stream == 0 {
+                        route_open_rtt_ns.to_string()
+                    } else {
+                        "null".into()
+                    },
+                    if local_stream == 0 {
+                        channel_binding_ns.to_string()
+                    } else {
+                        "null".into()
+                    },
+                );
+                sample_id += 1;
+                while session.pop_audit_event().is_some() {}
+            }
         }
         fs::write(
             root.join(format!("connection-{connection_ordinal}.ack")),
@@ -428,13 +459,19 @@ async fn main() {
     if let Some(lifecycle_root) = optional_argument("--lifecycle-authority-dir") {
         let connections = argument("--connections").parse::<u64>().unwrap();
         let services = argument("--services").parse::<u64>().unwrap();
+        let streams_per_service = optional_argument("--streams-per-service")
+            .unwrap_or_else(|| "1".into())
+            .parse::<u64>()
+            .unwrap();
         assert!((1..=20).contains(&services));
+        assert!((1..=64).contains(&streams_per_service));
         run_lifecycle(
             &authority,
             endpoint,
             &PathBuf::from(lifecycle_root),
             connections,
             services,
+            streams_per_service,
             payload_bytes,
         )
         .await;

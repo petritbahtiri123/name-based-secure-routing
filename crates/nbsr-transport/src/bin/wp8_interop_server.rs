@@ -202,7 +202,11 @@ fn fixed<const N: usize>(path: &Path) -> [u8; N] {
     fs::read(path).unwrap().try_into().unwrap()
 }
 
-fn lifecycle_route_accept(root: &Path, index: u64) -> nbsr_transport::CoreV02Envelope {
+fn lifecycle_route_accept(
+    root: &Path,
+    index: u64,
+    sequence: u64,
+) -> nbsr_transport::CoreV02Envelope {
     let directory = root.join(format!("{index:02}"));
     let mut body = Vec::new();
     map(&mut body, 5);
@@ -222,14 +226,19 @@ fn lifecycle_route_accept(root: &Path, index: u64) -> nbsr_transport::CoreV02Env
     envelope(
         4,
         fixed::<16>(&directory.join("request-id.bin")),
-        2 + index * 2,
+        sequence,
         body,
     )
 }
 
-fn lifecycle_stream_accept(root: &Path, service: u64) -> nbsr_transport::CoreV02Envelope {
+fn lifecycle_stream_accept(
+    root: &Path,
+    service: u64,
+    stream_ordinal: u64,
+    sequence: u64,
+) -> nbsr_transport::CoreV02Envelope {
     let directory = root.join(format!("{service:02}"));
-    let stream_id = 4 + service * 4;
+    let stream_id = 4 + stream_ordinal * 4;
     let mut body = Vec::new();
     map(&mut body, 5);
     field_uint(&mut body, 0, 1);
@@ -241,7 +250,7 @@ fn lifecycle_stream_accept(root: &Path, service: u64) -> nbsr_transport::CoreV02
     );
     field_bytes(&mut body, 3, &fixed::<16>(&directory.join("route-id.bin")));
     field_uint(&mut body, 4, 1_893_456_000);
-    envelope(7, stream_request(service), 3 + service * 2, body)
+    envelope(7, stream_request(stream_ordinal), sequence, body)
 }
 
 async fn run_lifecycle(
@@ -249,8 +258,10 @@ async fn run_lifecycle(
     root: &Path,
     connections: u64,
     services: u64,
+    streams_per_service: u64,
 ) -> Vec<(u128, u128)> {
-    let mut measurements = Vec::with_capacity((connections * services) as usize);
+    let mut measurements =
+        Vec::with_capacity((connections * services * streams_per_service) as usize);
     for connection_ordinal in 0..connections {
         let connection = listener.accept_one().await.unwrap();
         let mut control = connection.accept_control_stream().await.unwrap();
@@ -284,35 +295,50 @@ async fn run_lifecycle(
                 .accept_federated_route_open(&route, &attestations)
                 .unwrap();
             let destination_admission_ns = destination_admission.elapsed().as_nanos();
-            let accepted = lifecycle_route_accept(root, index);
+            let route_sequence = 2 + index * (1 + streams_per_service);
+            let accepted = lifecycle_route_accept(root, index, route_sequence);
             session.confirm_route_accept(&accepted).unwrap();
             control.send_envelope(&accepted).await.unwrap();
             let channel = fixed::<16>(&directory.join("channel-id.bin"));
             connection.bind_channel(&mut session, channel).unwrap();
-            let stream = control
-                .receive_envelope(CoreV02Limits::default())
-                .await
-                .unwrap();
-            session.authorize_stream_open(channel, &stream).unwrap();
-            let stream_accepted = lifecycle_stream_accept(root, index);
-            session
-                .confirm_stream_accept(channel, &stream_accepted)
-                .unwrap();
-            control.send_envelope(&stream_accepted).await.unwrap();
-            let application_processing = std::time::Instant::now();
-            let application = connection
-                .accept_session_stream(&mut session, channel)
-                .await;
-            if let Err(error) = &application {
-                eprintln!("nbsr-perf lifecycle application admission failed: {error:?}");
+            for local_stream in 0..streams_per_service {
+                let stream_ordinal = index * streams_per_service + local_stream;
+                let stream = control
+                    .receive_envelope(CoreV02Limits::default())
+                    .await
+                    .unwrap();
+                session.authorize_stream_open(channel, &stream).unwrap();
+                let stream_accepted = lifecycle_stream_accept(
+                    root,
+                    index,
+                    stream_ordinal,
+                    route_sequence + 1 + local_stream,
+                );
+                session
+                    .confirm_stream_accept(channel, &stream_accepted)
+                    .unwrap();
+                control.send_envelope(&stream_accepted).await.unwrap();
+                let application_processing = std::time::Instant::now();
+                let application = connection
+                    .accept_session_stream(&mut session, channel)
+                    .await;
+                if let Err(error) = &application {
+                    eprintln!("nbsr-perf lifecycle application admission failed: {error:?}");
+                }
+                application.unwrap().echo_once().await.unwrap();
+                measurements.push((
+                    if local_stream == 0 {
+                        destination_admission_ns
+                    } else {
+                        0
+                    },
+                    application_processing.elapsed().as_nanos(),
+                ));
+                session
+                    .release_stream(channel, 4 + stream_ordinal * 4)
+                    .unwrap();
+                while session.pop_audit_event().is_some() {}
             }
-            application.unwrap().echo_once().await.unwrap();
-            measurements.push((
-                destination_admission_ns,
-                application_processing.elapsed().as_nanos(),
-            ));
-            session.release_stream(channel, 4 + index * 4).unwrap();
-            while session.pop_audit_event().is_some() {}
         }
         tokio::time::timeout(Duration::from_secs(10), async {
             let acknowledgement = root.join(format!("connection-{connection_ordinal}.ack"));
@@ -387,12 +413,18 @@ async fn main() {
             .unwrap()
             .parse::<u64>()
             .unwrap();
+        let streams_per_service = env::var("NBSR_PERF_STREAMS_PER_SERVICE")
+            .unwrap_or_else(|_| "1".into())
+            .parse::<u64>()
+            .unwrap();
         assert!((1..=20).contains(&services));
+        assert!((1..=64).contains(&streams_per_service));
         let measurements = run_lifecycle(
             &listener,
             &PathBuf::from(lifecycle_root),
             connections,
             services,
+            streams_per_service,
         )
         .await;
         let samples = measurements
@@ -400,7 +432,7 @@ async fn main() {
             .map(|(destination, application)| format!("{{\"destination_admission_ns\":{destination},\"application_processing_ns\":{application}}}"))
             .collect::<Vec<_>>()
             .join(",");
-        fs::write(result, format!("{{\"connections\":{connections},\"services_per_connection\":{services},\"samples\":[{samples}],\"status\":\"PASS\"}}")).unwrap();
+        fs::write(result, format!("{{\"connections\":{connections},\"services_per_connection\":{services},\"streams_per_service\":{streams_per_service},\"samples\":[{samples}],\"status\":\"PASS\"}}")).unwrap();
         listener.close().await.unwrap();
         return;
     }
