@@ -1,6 +1,9 @@
 package perfclock
 
-import "syscall"
+import (
+	"reflect"
+	"syscall"
+)
 
 var (
 	kernel32                    = syscall.NewLazyDLL("kernel32.dll")
@@ -11,7 +14,7 @@ var (
 
 func frequency() int64 {
 	var value int64
-	result, _, callError := queryPerformanceFrequency.Call(uintptr(unsafePointer(&value)))
+	result, _, callError := queryPerformanceFrequency.Call(reflect.ValueOf(&value).Pointer())
 	if result == 0 {
 		panic(callError)
 	}
@@ -20,7 +23,7 @@ func frequency() int64 {
 
 func Now() int64 {
 	var value int64
-	result, _, callError := queryPerformanceCounter.Call(uintptr(unsafePointer(&value)))
+	result, _, callError := queryPerformanceCounter.Call(reflect.ValueOf(&value).Pointer())
 	if result == 0 {
 		panic(callError)
 	}

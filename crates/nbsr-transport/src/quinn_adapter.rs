@@ -623,56 +623,6 @@ impl AuthenticatedConnection {
         &self.negotiated_alpn
     }
 
-    /// Sends one length-delimited echo request without opening an NBSR control
-    /// stream. This exists only to provide a transport-equivalent direct
-    /// benchmark baseline; it creates no route, channel, stream, or protocol
-    /// authority.
-    pub async fn direct_benchmark_request(
-        &self,
-        payload: &[u8],
-    ) -> Result<Vec<u8>, TransportError> {
-        if payload.len() > MAX_BUFFERED_APPLICATION_BYTES_PER_STREAM {
-            return Err(TransportError::ApplicationStreamFailed);
-        }
-        let (mut send, mut receive) = self
-            .connection
-            .open_bi()
-            .await
-            .map_err(|_| TransportError::ApplicationStreamFailed)?;
-        send.write_all(payload)
-            .await
-            .map_err(|_| TransportError::ApplicationStreamFailed)?;
-        send.finish()
-            .map_err(|_| TransportError::ApplicationStreamFailed)?;
-        let (response, _) = read_live_payload(&mut receive, None).await?;
-        Ok(response)
-    }
-
-    /// Accepts and echoes one direct benchmark request. The authenticated QUIC
-    /// connection is real, while the NBSR control plane remains untouched.
-    pub async fn accept_direct_benchmark_echo(&self) -> Result<usize, TransportError> {
-        let (mut send, mut receive) = self
-            .connection
-            .accept_bi()
-            .await
-            .map_err(|_| TransportError::ApplicationStreamFailed)?;
-        let (payload, _) = read_live_payload(&mut receive, None).await?;
-        let length = payload.len();
-        send.write_all(&payload)
-            .await
-            .map_err(|_| TransportError::ApplicationStreamFailed)?;
-        send.finish()
-            .map_err(|_| TransportError::ApplicationStreamFailed)?;
-        Ok(length)
-    }
-
-    /// Waits until the authenticated direct-benchmark peer closes the QUIC
-    /// connection after consuming every response. This is a deterministic
-    /// shutdown acknowledgement and is outside request timing.
-    pub async fn wait_direct_benchmark_peer_close(&self) {
-        self.connection.closed().await;
-    }
-
     pub(crate) fn binding_capability(&self) -> ConnectionBindingCapability {
         self.binding_capability.clone()
     }
