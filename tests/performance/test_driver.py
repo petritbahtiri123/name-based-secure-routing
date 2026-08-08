@@ -9,6 +9,7 @@ from scripts.performance.driver import (
     FormalRunRequirements,
     lifecycle_batch_plan,
     concurrency_distribution,
+    progressive_counts,
     choose_sustainable_capacity,
     ensure_release_binary,
     open_loop_deadlines_ns,
@@ -133,3 +134,10 @@ def test_normalization_preserves_observed_cardinality_and_concurrency() -> None:
     assert observed["service_channels"] == 20
     assert observed["application_streams"] == 20
     assert observed["request_concurrency"] == 20
+
+
+def test_capacity_discovery_uses_bounded_progressive_counts() -> None:
+    assert progressive_counts(maximum=20) == (1, 2, 4, 8, 16, 20)
+    assert progressive_counts(maximum=1) == (1,)
+    with pytest.raises(ValueError, match="maximum must be positive"):
+        progressive_counts(maximum=0)

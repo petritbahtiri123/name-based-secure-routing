@@ -36,6 +36,8 @@ type config struct {
 	LifecycleServices          int    `json:"lifecycle_services,omitempty"`
 	LifecycleStreamsPerService int    `json:"lifecycle_streams_per_service,omitempty"`
 	LifecycleConcurrent        bool   `json:"lifecycle_concurrent,omitempty"`
+	LifecycleConnectionOffset  int    `json:"lifecycle_connection_offset,omitempty"`
+	LifecycleReportConnections bool   `json:"lifecycle_report_connections,omitempty"`
 }
 
 func (value config) validate() error {
@@ -493,6 +495,11 @@ func runLifecycle(ctx context.Context, configuration config) (result, error) {
 			return result{}, dialErr
 		}
 		handshakeNS := perfclock.Since(handshakeStarted)
+		if configuration.LifecycleReportConnections {
+			if err := os.WriteFile(filepath.Join(configuration.LifecycleAuthorityDir, fmt.Sprintf("connection-%d.connected", configuration.LifecycleConnectionOffset+connectionOrdinal)), []byte("connected\n"), 0o600); err != nil {
+				return result{}, err
+			}
+		}
 		helloStarted := perfclock.Now()
 		if err := peer.SendEnvelope(core.Envelope{ProtocolVersion: 2, MessageType: core.ClientHello, RequestID: helloRequest, SessionID: sessionID, Sequence: 1, Body: clientBody}); err != nil {
 			return result{}, err
@@ -736,7 +743,7 @@ func runLifecycle(ctx context.Context, configuration config) (result, error) {
 				observed = append(observed, entry)
 			}
 		}
-		if err := os.WriteFile(filepath.Join(configuration.LifecycleAuthorityDir, fmt.Sprintf("connection-%d.ack", connectionOrdinal)), []byte("complete\n"), 0o600); err != nil {
+		if err := os.WriteFile(filepath.Join(configuration.LifecycleAuthorityDir, fmt.Sprintf("connection-%d.ack", configuration.LifecycleConnectionOffset+connectionOrdinal)), []byte("complete\n"), 0o600); err != nil {
 			return result{}, err
 		}
 		if err := peer.Close(); err != nil {

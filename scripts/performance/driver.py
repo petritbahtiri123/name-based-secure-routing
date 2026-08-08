@@ -77,6 +77,19 @@ def concurrency_distribution(*, requested: int, services: int, max_per_service: 
     return tuple(quotient + (1 if index < remainder else 0) for index in range(services))
 
 
+def progressive_counts(*, maximum: int) -> tuple[int, ...]:
+    if maximum < 1:
+        raise ValueError("maximum must be positive")
+    values: list[int] = []
+    current = 1
+    while current < maximum:
+        values.append(current)
+        current *= 2
+    if not values or values[-1] != maximum:
+        values.append(maximum)
+    return tuple(values)
+
+
 def choose_sustainable_capacity(
     observations: list[CapacityObservation],
 ) -> dict[str, float]:

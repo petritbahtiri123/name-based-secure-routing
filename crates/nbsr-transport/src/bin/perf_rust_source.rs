@@ -274,6 +274,8 @@ async fn run_lifecycle(
     services: u64,
     streams_per_service: u64,
     concurrent: bool,
+    connection_offset: u64,
+    report_connections: bool,
     payload_bytes: usize,
 ) {
     let payload = vec![0x5a; payload_bytes];
@@ -299,6 +301,16 @@ async fn run_lifecycle(
         .await
         .unwrap();
         let handshake_ns = handshake.elapsed().as_nanos();
+        if report_connections {
+            fs::write(
+                root.join(format!(
+                    "connection-{}.connected",
+                    connection_offset + connection_ordinal
+                )),
+                b"connected\n",
+            )
+            .unwrap();
+        }
         let mut control = connection.open_control_stream().await.unwrap();
         let client = client_hello();
         let hello = Instant::now();
@@ -527,7 +539,10 @@ async fn run_lifecycle(
             while session.pop_audit_event().is_some() {}
         }
         fs::write(
-            root.join(format!("connection-{connection_ordinal}.ack")),
+            root.join(format!(
+                "connection-{}.ack",
+                connection_offset + connection_ordinal
+            )),
             b"complete\n",
         )
         .unwrap();
@@ -577,6 +592,12 @@ async fn main() {
             .parse::<u64>()
             .unwrap();
         let concurrent = optional_argument("--concurrent-streams").is_some();
+        let connection_offset_argument = optional_argument("--connection-offset");
+        let connection_offset = connection_offset_argument
+            .clone()
+            .unwrap_or_else(|| "0".into())
+            .parse::<u64>()
+            .unwrap();
         assert!((1..=20).contains(&services));
         assert!((1..=64).contains(&streams_per_service));
         run_lifecycle(
@@ -587,6 +608,8 @@ async fn main() {
             services,
             streams_per_service,
             concurrent,
+            connection_offset,
+            connection_offset_argument.is_some(),
             payload_bytes,
         )
         .await;

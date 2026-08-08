@@ -1,4 +1,4 @@
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, VecDeque};
 use std::env;
 use std::fs;
 use std::net::{Ipv4Addr, SocketAddr};
@@ -263,8 +263,19 @@ async fn run_lifecycle(
 ) -> Vec<(u128, u128)> {
     let mut measurements =
         Vec::with_capacity((connections * services * streams_per_service) as usize);
+    let concurrent_sessions = env::var_os("NBSR_PERF_CONCURRENT_SESSIONS").is_some();
+    let mut accepted_connections = VecDeque::new();
+    if concurrent_sessions {
+        for _ in 0..connections {
+            accepted_connections.push_back(listener.accept_one().await.unwrap());
+        }
+    }
     for connection_ordinal in 0..connections {
-        let connection = listener.accept_one().await.unwrap();
+        let connection = if concurrent_sessions {
+            accepted_connections.pop_front().unwrap()
+        } else {
+            listener.accept_one().await.unwrap()
+        };
         let mut control = connection.accept_control_stream().await.unwrap();
         let mut session = ControlSession::new(
             &connection,
@@ -406,14 +417,25 @@ async fn run_lifecycle(
             while session.pop_audit_event().is_some() {}
         }
         tokio::time::timeout(Duration::from_secs(10), async {
-            let acknowledgement = root.join(format!("connection-{connection_ordinal}.ack"));
-            while !acknowledgement.exists() {
+            while fs::read_dir(root)
+                .unwrap()
+                .filter_map(Result::ok)
+                .filter(|entry| {
+                    let name = entry.file_name();
+                    let name = name.to_string_lossy();
+                    name.starts_with("connection-") && name.ends_with(".ack")
+                })
+                .count()
+                < connection_ordinal as usize + 1
+            {
                 tokio::time::sleep(Duration::from_millis(1)).await;
             }
         })
         .await
         .expect("lifecycle client completion acknowledgement");
-        connection.close().await.unwrap();
+        if !concurrent_sessions {
+            connection.close().await.unwrap();
+        }
     }
     measurements
 }

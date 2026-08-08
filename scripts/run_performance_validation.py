@@ -455,6 +455,117 @@ def go_lifecycle_samples(
     return records
 
 
+def session_scaling_samples(
+    path: str,
+    binaries: dict[str, Path],
+    authority: Path,
+    sessions: int,
+    payload: int,
+    temp: Path,
+) -> dict[str, Any]:
+    if path not in {"direct-quic", "rust-rust", "go-rust"} or sessions < 1:
+        raise ValueError("unsupported session scaling request")
+    lifecycle_root = temp / f"{path}-session-scaling-authority"
+    if path != "direct-quic":
+        write_authority_set(lifecycle_root, 1)
+    else:
+        lifecycle_root.mkdir(parents=True, exist_ok=True)
+    for ordinal in range(sessions):
+        for suffix in ("ack", "connected"):
+            (lifecycle_root / f"connection-{ordinal}.{suffix}").unlink(missing_ok=True)
+    ready = temp / f"{path}-sessions-{sessions}.ready.json"
+    result = temp / f"{path}-sessions-{sessions}.result.json"
+    completion_ack = temp / f"{path}-sessions-{sessions}.ack"
+    for stale in (ready, result, completion_ack):
+        stale.unlink(missing_ok=True)
+    if path == "direct-quic":
+        server_argv = [str(binaries["direct"]), "--role", "server", "--ready", str(ready), "--authority-dir", str(authority), "--connections", str(sessions), "--requests-per-connection", "1"]
+        server_environment = os.environ.copy()
+    else:
+        server_argv = [str(binaries["server"]), "--ready", str(ready), "--result", str(result), "--authority-dir", str(authority), "--completion-ack", str(completion_ack)]
+        server_environment = {
+            **os.environ,
+            "NBSR_PERF_LIFECYCLE_ROOT": str(lifecycle_root),
+            "NBSR_PERF_LIFECYCLE_CONNECTIONS": str(sessions),
+            "NBSR_PERF_LIFECYCLE_SERVICES": "1",
+            "NBSR_PERF_STREAMS_PER_SERVICE": "1",
+            "NBSR_PERF_CONCURRENT_SESSIONS": "1",
+        }
+    server = subprocess.Popen(
+        server_argv,
+        cwd=ROOT,
+        env=server_environment,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+    clients: list[subprocess.Popen[str]] = []
+    try:
+        wait_ready(ready, server)
+        started = time.perf_counter()
+        endpoint = json.loads(ready.read_text(encoding="utf-8"))["endpoint"]
+        for ordinal in range(sessions):
+            if path == "direct-quic":
+                marker = lifecycle_root / f"connection-{ordinal}.connected"
+                argv = [str(binaries["direct"]), "--role", "client", "--authority-dir", str(authority), "--endpoint", endpoint, "--samples", "1", "--payload-bytes", str(payload), "--lifecycle", "warm", "--connected-marker", str(marker)]
+                clients.append(subprocess.Popen(argv, cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True))
+            elif path == "rust-rust":
+                argv = [
+                    str(binaries["rust"]), "--authority-dir", str(authority), "--endpoint", endpoint,
+                    "--samples", "1", "--payload-bytes", str(payload), "--lifecycle-authority-dir", str(lifecycle_root),
+                    "--connections", "1", "--services", "1", "--streams-per-service", "1", "--connection-offset", str(ordinal),
+                ]
+                clients.append(subprocess.Popen(argv, cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True))
+            else:
+                config = temp / f"go-session-{sessions}-{ordinal}.json"
+                config.write_text(json.dumps({
+                    "readiness_path": str(ready), "f75_package": str(ROOT / "vectors/wp8-f75-route-open"),
+                    "local_attestation_package": str(ROOT / "vectors/wp8-local-admission"), "safe_payload": "Z" * payload,
+                    "benchmark_samples": 1, "lifecycle_authority_dir": str(lifecycle_root), "lifecycle_connections": 1,
+                    "lifecycle_services": 1, "lifecycle_streams_per_service": 1,
+                    "lifecycle_connection_offset": ordinal, "lifecycle_report_connections": True,
+                }), encoding="utf-8")
+                clients.append(subprocess.Popen([str(binaries["go"]), "--config", str(config)], cwd=GO_PEER, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True))
+        deadline = time.monotonic() + 30
+        connected = [lifecycle_root / f"connection-{ordinal}.connected" for ordinal in range(sessions)]
+        while not all(marker.exists() for marker in connected) and time.monotonic() < deadline:
+            time.sleep(0.001)
+        if not all(marker.exists() for marker in connected):
+            raise RuntimeError("not all requested Transport Sessions became active")
+        establishment_seconds = time.perf_counter() - started
+        records: list[dict[str, Any]] = []
+        for ordinal, client in enumerate(clients):
+            stdout, stderr = client.communicate(timeout=60)
+            if client.returncode:
+                raise RuntimeError(f"session scaling client {ordinal} failed: {stderr}")
+            observed = parse_ndjson(stdout) if path in {"direct-quic", "rust-rust"} else json.loads(stdout)["samples"]
+            if len(observed) != 1:
+                raise RuntimeError(f"session scaling client {ordinal} sample loss")
+            observed[0].update({"sample_id": ordinal, "transport_sessions": sessions, "service_channels": sessions, "application_streams": sessions, "request_concurrency": sessions})
+            records.append(observed[0])
+        server.wait(30)
+        if server.returncode:
+            raise RuntimeError(server.stderr.read())
+        if path != "direct-quic":
+            merge_destination_measurements(records, json.loads(result.read_text(encoding="utf-8")))
+        return {
+            "active_transport_sessions": sessions,
+            "connection_establishment_seconds": establishment_seconds,
+            "connection_establishment_rate": sessions / establishment_seconds,
+            "successful_requests": len(records),
+            "failures": 0,
+            "records": records,
+        }
+    finally:
+        for client in clients:
+            if client.poll() is None:
+                client.terminate()
+                client.wait(10)
+        if server.poll() is None:
+            server.terminate()
+            server.wait(10)
+
+
 def normalize(
     record: dict[str, Any],
     *,

@@ -29,6 +29,14 @@ fn argument(name: &str) -> String {
         .clone()
 }
 
+fn optional_argument(name: &str) -> Option<String> {
+    let values = env::args().collect::<Vec<_>>();
+    values
+        .iter()
+        .position(|value| value == name)
+        .map(|index| values[index + 1].clone())
+}
+
 fn count(name: &str) -> usize {
     argument(name)
         .parse()
@@ -189,6 +197,7 @@ async fn client() {
     let samples = count("--samples");
     let payload_bytes = count("--payload-bytes");
     let lifecycle = argument("--lifecycle");
+    let connected_marker = optional_argument("--connected-marker").map(PathBuf::from);
     assert!(matches!(lifecycle.as_str(), "cold" | "warm"));
     assert!((1..=MAX_PAYLOAD).contains(&payload_bytes));
     let payload = vec![0x5a; payload_bytes];
@@ -207,6 +216,11 @@ async fn client() {
         } else {
             None
         };
+        if sample_id == 0 {
+            if let Some(marker) = &connected_marker {
+                fs::write(marker, b"connected\n").unwrap();
+            }
+        }
         let started = Instant::now();
         let response = request(&pair.1, &payload).await;
         let request_ns = started.elapsed().as_nanos();
