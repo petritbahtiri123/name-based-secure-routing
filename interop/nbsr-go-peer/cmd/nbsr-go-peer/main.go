@@ -29,6 +29,28 @@ type config struct {
 	LocalAttestationPackage string `json:"local_attestation_package"`
 	SafePayload             string `json:"safe_payload"`
 	BenchmarkSamples        int    `json:"benchmark_samples,omitempty"`
+	LifecycleAuthorityDir   string `json:"lifecycle_authority_dir,omitempty"`
+	LifecycleConnections    int    `json:"lifecycle_connections,omitempty"`
+	LifecycleServices       int    `json:"lifecycle_services,omitempty"`
+}
+
+func (value config) validate() error {
+	if value.ReadinessPath == "" || value.F75Package == "" || value.LocalAttestationPackage == "" || value.SafePayload == "" || len(value.SafePayload) > 4096 {
+		return errors.New("configuration fields are missing or out of bounds")
+	}
+	if value.BenchmarkSamples < 0 || value.BenchmarkSamples > 100_000 {
+		return errors.New("benchmark sample count is out of bounds")
+	}
+	if value.LifecycleAuthorityDir == "" {
+		if value.LifecycleConnections != 0 || value.LifecycleServices != 0 {
+			return errors.New("incomplete lifecycle configuration")
+		}
+		return nil
+	}
+	if value.LifecycleConnections < 1 || value.LifecycleServices < 1 || value.LifecycleServices > 20 {
+		return errors.New("lifecycle configuration is out of bounds")
+	}
+	return nil
 }
 
 type result struct {
@@ -43,13 +65,24 @@ type result struct {
 }
 
 type sample struct {
-	SampleID         int   `json:"sample_id"`
-	StreamOpenRTTNS  int64 `json:"stream_open_rtt_ns"`
-	RequestLatencyNS int64 `json:"request_latency_ns"`
-	TotalScenarioNS  int64 `json:"total_scenario_ns"`
-	BytesTransmitted int   `json:"bytes_transmitted"`
-	BytesReceived    int   `json:"bytes_received"`
+	SampleID                int    `json:"sample_id"`
+	Success                 bool   `json:"success"`
+	TransportHandshakeNS    *int64 `json:"transport_handshake_ns"`
+	HelloRTTNS              *int64 `json:"hello_rtt_ns"`
+	SourceAdmissionNS       *int64 `json:"source_admission_ns"`
+	DestinationAdmissionNS  *int64 `json:"destination_admission_ns"`
+	RouteOpenRTTNS          *int64 `json:"route_open_rtt_ns"`
+	ChannelBindingNS        *int64 `json:"channel_binding_ns"`
+	StreamOpenRTTNS         int64  `json:"stream_open_rtt_ns"`
+	TTFABNS                 int64  `json:"ttfab_ns"`
+	RequestLatencyNS        int64  `json:"request_latency_ns"`
+	ApplicationProcessingNS *int64 `json:"application_processing_ns"`
+	TotalScenarioNS         int64  `json:"total_scenario_ns"`
+	BytesTransmitted        int    `json:"bytes_transmitted"`
+	BytesReceived           int    `json:"bytes_received"`
 }
+
+func measured(value int64) *int64 { return &value }
 
 func loadConfig(path string) (config, error) {
 	file, err := os.Open(path)
@@ -66,13 +99,18 @@ func loadConfig(path string) (config, error) {
 	if err := decoder.Decode(&struct{}{}); !errors.Is(err, io.EOF) {
 		return config{}, errors.New("configuration must contain one JSON object")
 	}
-	if value.ReadinessPath == "" || value.F75Package == "" || value.LocalAttestationPackage == "" || value.SafePayload == "" || len(value.SafePayload) > 4096 {
-		return config{}, errors.New("configuration fields are missing or out of bounds")
-	}
-	if value.BenchmarkSamples < 0 || value.BenchmarkSamples > 100_000 {
-		return config{}, errors.New("benchmark sample count is out of bounds")
+	if err := value.validate(); err != nil {
+		return config{}, err
 	}
 	return value, nil
+}
+
+func lifecycleIDs(index int) (request, channel, route [16]byte) {
+	request[0], channel[0], route[0] = 0x70, 0x40, 0x20
+	binary.BigEndian.PutUint64(request[8:], uint64(index))
+	binary.BigEndian.PutUint64(channel[8:], uint64(index))
+	binary.BigEndian.PutUint64(route[8:], uint64(index))
+	return
 }
 
 func sequence(start byte) [16]byte {
@@ -416,10 +454,181 @@ func run(ctx context.Context, configuration config) (result, error) {
 		if string(echo) != configuration.SafePayload {
 			return result{}, errors.New("application payload echo mismatch")
 		}
-		observedSamples = append(observedSamples, sample{index, streamNS, requestNS, perfclock.Since(totalStarted), len(echo), len(echo)})
+		observedSamples = append(observedSamples, sample{SampleID: index, Success: true, StreamOpenRTTNS: streamNS, TTFABNS: requestNS, RequestLatencyNS: requestNS, TotalScenarioNS: perfclock.Since(totalStarted), BytesTransmitted: len(echo), BytesReceived: len(echo)})
 	}
 	digest := sha256.Sum256(echo)
 	return result{Status: "PASS", Messages: []string{"CLIENT_HELLO", "EDGE_HELLO", "ROUTE_OPEN", "ROUTE_ACCEPT", "STREAM_OPEN", "STREAM_ACCEPT"}, CoreVersion: 2, RouteOpenBodyVersion: 2, FederationProfile: "nbsr-federation-dev-v1", PayloadSHA256: hex.EncodeToString(digest[:]), BenchmarkSamples: samples, Samples: observedSamples}, nil
+}
+
+func runLifecycle(ctx context.Context, configuration config) (result, error) {
+	ready, err := transport.LoadReadiness(configuration.ReadinessPath)
+	if err != nil {
+		return result{}, err
+	}
+	sessionPublic, err := loadPublicKey(filepath.Join(filepath.Dir(configuration.F75Package), "core-v0.2", "keys", "test-only-session-ed25519-public.hex"))
+	if err != nil {
+		return result{}, err
+	}
+	issuerPublic, err := loadPublicKey(filepath.Join(filepath.Dir(configuration.F75Package), "core-v0.2", "keys", "test-only-route-grant-ed25519-public.hex"))
+	if err != nil {
+		return result{}, err
+	}
+	sourceAuthority, err := hex.DecodeString("f80cccdce4ae1c07ae208a2adf99a310ae4207e0306fa0236110b06827bbb8d0")
+	if err != nil {
+		return result{}, err
+	}
+	sessionID, helloRequest := sequence(0x10), sequence(0)
+	clientNonce, edgeNonce := sequence32(0x60), sequence32(0x80)
+	clientBody := map[uint64]any{0: uint64(1), 1: "nbsr12df4x56n2df4x56n2df4x56n2df4x56n2df4x56n2df4x56n2dfsk5743r", 2: "source.edge", 3: "nbsr1g3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zqel9ufg", 4: "destination.edge", 5: clientNonce[:], 6: []byte(sessionPublic), 7: uint64(1_893_456_000)}
+	observed := make([]sample, 0, configuration.LifecycleConnections*configuration.LifecycleServices)
+	for connectionOrdinal := 0; connectionOrdinal < configuration.LifecycleConnections; connectionOrdinal++ {
+		coldStarted := perfclock.Now()
+		handshakeStarted := perfclock.Now()
+		peer, dialErr := transport.Dial(ctx, ready)
+		if dialErr != nil {
+			return result{}, dialErr
+		}
+		handshakeNS := perfclock.Since(handshakeStarted)
+		helloStarted := perfclock.Now()
+		if err := peer.SendEnvelope(core.Envelope{ProtocolVersion: 2, MessageType: core.ClientHello, RequestID: helloRequest, SessionID: sessionID, Sequence: 1, Body: clientBody}); err != nil {
+			return result{}, err
+		}
+		edge, err := peer.ReceiveEnvelope()
+		if err != nil {
+			return result{}, err
+		}
+		helloNS := perfclock.Since(helloStarted)
+		if edge.MessageType != core.EdgeHello || edge.SessionID != sessionID || edge.RequestID != helloRequest || edge.Body[1] != "source.edge" || edge.Body[2] != "destination.edge" || !bytes.Equal(edge.Body[3].([]byte), clientNonce[:]) || !bytes.Equal(edge.Body[4].([]byte), edgeNonce[:]) || !bytes.Equal(edge.Body[5].([]byte), sha256Bytes(sessionPublic)) {
+			return result{}, errors.New("EDGE_HELLO authority or correlation mismatch")
+		}
+		for serviceIndex := 0; serviceIndex < configuration.LifecycleServices; serviceIndex++ {
+			scenarioStarted := perfclock.Now()
+			directory := filepath.Join(configuration.LifecycleAuthorityDir, fmt.Sprintf("%02d", serviceIndex))
+			nameRaw, err := mustRead(filepath.Join(directory, "name.txt"))
+			if err != nil {
+				return result{}, err
+			}
+			serviceName := string(bytes.TrimSpace(nameRaw))
+			routeRequest, channelID, routeID := lifecycleIDs(serviceIndex)
+			streamRequest := benchmarkStreamRequest(uint64(serviceIndex))
+			machine := state.NewSource(sessionID, helloRequest, routeRequest, streamRequest, channelID, routeID, serviceName, "tcp", 8443)
+			if err := machine.HelloSent(); err != nil {
+				return result{}, err
+			}
+			if err := machine.EdgeHelloAccepted(edge.SessionID, edge.RequestID); err != nil {
+				return result{}, err
+			}
+			bodyWire, err := mustRead(filepath.Join(directory, "route-open-body.cbor"))
+			if err != nil {
+				return result{}, err
+			}
+			decoded, err := cbor.DecodeExact(bodyWire, cbor.DefaultLimits())
+			if err != nil {
+				return result{}, err
+			}
+			routeBody := decoded.(map[uint64]any)
+			exactGrant := routeBody[2].([]byte)
+			grant, err := authority.VerifyRouteGrant(exactGrant, issuerPublic, []byte("nbsr-test-route-grant-key"), 1_893_456_000)
+			if err != nil {
+				return result{}, err
+			}
+			federationContext, err := mustRead(filepath.Join(directory, "federation-context.cbor"))
+			if err != nil {
+				return result{}, err
+			}
+			sourceAttestation, err := mustRead(filepath.Join(directory, "source.cose"))
+			if err != nil {
+				return result{}, err
+			}
+			sourceAdmissionStarted := perfclock.Now()
+			if err := authority.VerifySourceAdmission(sourceAttestation, ed25519.PublicKey(sourceAuthority), []byte("local-source"), authority.SourceAdmissionBinding{
+				SourceOperatorID: repeated32('S'), DestinationOperatorID: repeated32('D'), CanonicalName: serviceName, Transport: "tcp", Port: 8443,
+				RouteGrantDigest: grant.Digest, FederationContextDigest: sha256.Sum256(federationContext), OpenedAt: 1_893_456_000,
+			}); err != nil {
+				return result{}, fmt.Errorf("source federation admission: %w", err)
+			}
+			transcript, err := authority.BuildF75Transcript(sessionID, routeRequest, "destination.edge", routeBody, grant)
+			if err != nil || !ed25519.Verify(sessionPublic, transcript, routeBody[7].([]byte)) {
+				return result{}, errors.New("invalid F75 proof signature")
+			}
+			sourceAdmissionNS := perfclock.Since(sourceAdmissionStarted)
+			if err := machine.RouteSent(grant.ServiceID, grant.AllowedTransport, uint16(routeBody[5].(uint64))); err != nil {
+				return result{}, err
+			}
+			routeStarted := perfclock.Now()
+			if err := peer.SendEnvelope(core.Envelope{ProtocolVersion: 2, MessageType: core.RouteOpen, RequestID: routeRequest, SessionID: sessionID, Sequence: uint64(2 + serviceIndex*2), Body: routeBody}); err != nil {
+				return result{}, err
+			}
+			routeAccepted, err := peer.ReceiveEnvelope()
+			if err != nil {
+				return result{}, err
+			}
+			routeNS := perfclock.Since(routeStarted)
+			if err := machine.RouteAccepted(routeAccepted.SessionID, routeAccepted.RequestID, bytes16(routeAccepted.Body[1]), bytes16(routeAccepted.Body[2])); err != nil {
+				return result{}, err
+			}
+			bindingStarted := perfclock.Now()
+			exporterContext, err := cbor.Encode([]any{"NBSR-SERVICE-CHANNEL-CONTEXT-v2", uint64(2), sessionID[:], "source.edge", "destination.edge", channelID[:], routeID[:], grant.Digest[:], grant.ServiceID, "tcp", uint64(8443), grant.PolicyHash[:], clientNonce[:], edgeNonce[:]})
+			if err != nil {
+				return result{}, err
+			}
+			if exporter, err := peer.ExportKeyingMaterial(exporterContext); err != nil || len(exporter) != 32 {
+				return result{}, errors.New("live WP4 exporter failed")
+			}
+			bindingNS := perfclock.Since(bindingStarted)
+			application, err := peer.OpenApplication(ctx)
+			if err != nil {
+				return result{}, err
+			}
+			streamID := uint64(4 + 4*serviceIndex)
+			if uint64(application.StreamID()) != streamID {
+				return result{}, errors.New("application stream ID mismatch")
+			}
+			streamBody := map[uint64]any{0: uint64(1), 1: streamID, 2: channelID[:], 3: routeID[:], 4: grant.Digest[:], 5: "tcp", 6: uint64(8443)}
+			if err := machine.StreamSent(streamID); err != nil {
+				return result{}, err
+			}
+			streamStarted := perfclock.Now()
+			if err := peer.SendEnvelope(core.Envelope{ProtocolVersion: 2, MessageType: core.StreamOpen, RequestID: streamRequest, SessionID: sessionID, Sequence: uint64(3 + serviceIndex*2), Body: streamBody}); err != nil {
+				return result{}, err
+			}
+			streamAccepted, err := peer.ReceiveEnvelope()
+			if err != nil {
+				return result{}, err
+			}
+			streamNS := perfclock.Since(streamStarted)
+			if err := machine.StreamAccepted(streamAccepted.SessionID, streamAccepted.RequestID, streamAccepted.Body[1].(uint64), bytes16(streamAccepted.Body[2]), bytes16(streamAccepted.Body[3])); err != nil || !machine.PayloadAllowed() {
+				return result{}, errors.New("stream payload gate remained closed")
+			}
+			requestStarted := perfclock.Now()
+			if _, err := application.Write([]byte(configuration.SafePayload)); err != nil {
+				return result{}, err
+			}
+			if err := application.Close(); err != nil {
+				return result{}, err
+			}
+			echo := make([]byte, len(configuration.SafePayload))
+			if _, err := io.ReadFull(application, echo); err != nil {
+				return result{}, err
+			}
+			requestNS := perfclock.Since(requestStarted)
+			if string(echo) != configuration.SafePayload {
+				return result{}, errors.New("application payload echo mismatch")
+			}
+			totalNS := perfclock.Since(scenarioStarted)
+			if serviceIndex == 0 {
+				totalNS = perfclock.Since(coldStarted)
+			}
+			observed = append(observed, sample{SampleID: len(observed), Success: true, TransportHandshakeNS: measured(handshakeNS), HelloRTTNS: measured(helloNS), SourceAdmissionNS: measured(sourceAdmissionNS), RouteOpenRTTNS: measured(routeNS), ChannelBindingNS: measured(bindingNS), StreamOpenRTTNS: streamNS, TTFABNS: totalNS, RequestLatencyNS: requestNS, TotalScenarioNS: totalNS, BytesTransmitted: len(echo), BytesReceived: len(echo)})
+		}
+		if err := os.WriteFile(filepath.Join(configuration.LifecycleAuthorityDir, fmt.Sprintf("connection-%d.ack", connectionOrdinal)), []byte("complete\n"), 0o600); err != nil {
+			return result{}, err
+		}
+		if err := peer.Close(); err != nil {
+			return result{}, err
+		}
+	}
+	return result{Status: "PASS", Messages: []string{"CLIENT_HELLO", "EDGE_HELLO", "ROUTE_OPEN", "ROUTE_ACCEPT", "STREAM_OPEN", "STREAM_ACCEPT"}, CoreVersion: 2, RouteOpenBodyVersion: 2, FederationProfile: "nbsr-federation-dev-v1", BenchmarkSamples: len(observed), Samples: observed}, nil
 }
 
 func sequence32(start byte) [32]byte {
@@ -448,7 +657,12 @@ func main() {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), processDeadline)
 	defer cancel()
-	observed, err := run(ctx, configuration)
+	var observed result
+	if configuration.LifecycleAuthorityDir != "" {
+		observed, err = runLifecycle(ctx, configuration)
+	} else {
+		observed, err = run(ctx, configuration)
+	}
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)

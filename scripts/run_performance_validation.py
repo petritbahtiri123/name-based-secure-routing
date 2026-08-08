@@ -337,6 +337,90 @@ def rust_lifecycle_samples(
     return records
 
 
+def go_lifecycle_samples(
+    binaries: dict[str, Path],
+    authority: Path,
+    samples: int,
+    payload: int,
+    scenario: str,
+    temp: Path,
+) -> list[dict[str, Any]]:
+    if scenario == "nbsr-cold":
+        batches = (samples,)
+        services_for_batch = lambda _batch: 1
+        connections_for_batch = lambda batch: batch
+    elif scenario == "nbsr-warm-new-service":
+        batches = lifecycle_batch_plan(samples=samples)
+        services_for_batch = lambda batch: batch
+        connections_for_batch = lambda _batch: 1
+    else:
+        raise ValueError(f"unsupported lifecycle scenario {scenario}")
+    lifecycle_root = temp / "go-lifecycle-authority"
+    write_authority_set(lifecycle_root, 20)
+    records: list[dict[str, Any]] = []
+    for ordinal, batch in enumerate(batches):
+        services = services_for_batch(batch)
+        connections = connections_for_batch(batch)
+        ready = temp / f"go-lifecycle-{scenario}-{ordinal}.ready.json"
+        result = temp / f"go-lifecycle-{scenario}-{ordinal}.result.json"
+        ack = temp / f"go-lifecycle-{scenario}-{ordinal}.ack"
+        for connection_ordinal in range(connections):
+            (lifecycle_root / f"connection-{connection_ordinal}.ack").unlink(missing_ok=True)
+        server = subprocess.Popen(
+            [
+                str(binaries["server"]), "--ready", str(ready), "--result", str(result),
+                "--authority-dir", str(authority), "--completion-ack", str(ack),
+            ],
+            cwd=ROOT,
+            env={
+                **os.environ,
+                "NBSR_PERF_LIFECYCLE_ROOT": str(lifecycle_root),
+                "NBSR_PERF_LIFECYCLE_CONNECTIONS": str(connections),
+                "NBSR_PERF_LIFECYCLE_SERVICES": str(services),
+            },
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+        try:
+            wait_ready(ready, server)
+            config = temp / f"go-lifecycle-{scenario}-{ordinal}.json"
+            config.write_text(
+                json.dumps(
+                    {
+                        "readiness_path": str(ready),
+                        "f75_package": str(ROOT / "vectors/wp8-f75-route-open"),
+                        "local_attestation_package": str(ROOT / "vectors/wp8-local-admission"),
+                        "safe_payload": "Z" * payload,
+                        "benchmark_samples": batch,
+                        "lifecycle_authority_dir": str(lifecycle_root),
+                        "lifecycle_connections": connections,
+                        "lifecycle_services": services,
+                    }
+                ),
+                encoding="utf-8",
+            )
+            client = command([str(binaries["go"]), "--config", str(config)], cwd=GO_PEER, timeout=3600)
+            batch_records = json.loads(client.stdout)["samples"]
+            if len(batch_records) != batch:
+                raise RuntimeError(f"lifecycle sample loss: expected {batch}, observed {len(batch_records)}")
+            server.wait(30)
+            if server.returncode:
+                raise RuntimeError(server.stderr.read())
+            merge_destination_measurements(batch_records, json.loads(result.read_text(encoding="utf-8")))
+            for record in batch_records:
+                record["sample_id"] = len(records)
+                if scenario == "nbsr-warm-new-service":
+                    record["transport_handshake_ns"] = None
+                    record["hello_rtt_ns"] = None
+                records.append(record)
+        finally:
+            if server.poll() is None:
+                server.terminate()
+                server.wait(10)
+    return records
+
+
 def normalize(
     record: dict[str, Any],
     *,
