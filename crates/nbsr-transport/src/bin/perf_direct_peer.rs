@@ -87,6 +87,7 @@ async fn server() {
         for _ in 0..requests {
             connection.accept_direct_benchmark_echo().await.unwrap();
         }
+        connection.wait_direct_benchmark_peer_close().await;
         connection.close().await.unwrap();
     }
     listener.close().await.unwrap();

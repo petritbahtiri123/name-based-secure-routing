@@ -666,6 +666,13 @@ impl AuthenticatedConnection {
         Ok(length)
     }
 
+    /// Waits until the authenticated direct-benchmark peer closes the QUIC
+    /// connection after consuming every response. This is a deterministic
+    /// shutdown acknowledgement and is outside request timing.
+    pub async fn wait_direct_benchmark_peer_close(&self) {
+        self.connection.closed().await;
+    }
+
     pub(crate) fn binding_capability(&self) -> ConnectionBindingCapability {
         self.binding_capability.clone()
     }
