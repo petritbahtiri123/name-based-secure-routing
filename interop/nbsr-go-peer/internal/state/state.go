@@ -93,3 +93,17 @@ func (source *Source) StreamAccepted(session, request [16]byte, streamID uint64,
 }
 
 func (source *Source) PayloadAllowed() bool { return source.phase == payloadAllowedPhase }
+
+// NextStream returns an already accepted Service Channel to its route-accepted
+// state while replacing only the per-stream correlation authority. It cannot
+// create a route or inherit payload authority from the previous stream.
+func (source *Source) NextStream(request [16]byte) error {
+	if source.phase != payloadAllowedPhase || request == [16]byte{} || request == source.streamRequestID {
+		source.phase = failedPhase
+		return errors.New("next stream requires a distinct accepted-stream correlation")
+	}
+	source.streamRequestID = request
+	source.streamID = 0
+	source.phase = routeAcceptedPhase
+	return nil
+}

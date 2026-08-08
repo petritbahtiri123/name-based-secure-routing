@@ -126,3 +126,39 @@ func TestRouteServiceTransportAndPortAreImmutableAuthority(t *testing.T) {
 		}
 	}
 }
+
+func TestAcceptedChannelCanAuthorizeASecondIndependentStream(t *testing.T) {
+	session, hello, routeRequest, streamRequest, channel, route := IDs()
+	peer := state.NewSource(session, hello, routeRequest, streamRequest, channel, route, "service.example", "tcp", 8443)
+	_ = peer.HelloSent()
+	_ = peer.EdgeHelloAccepted(session, hello)
+	_ = peer.RouteSent("service.example", "tcp", 8443)
+	_ = peer.RouteAccepted(session, routeRequest, channel, route)
+	_ = peer.StreamSent(4)
+	_ = peer.StreamAccepted(session, streamRequest, 4, channel, route)
+	nextRequest := streamRequest
+	nextRequest[15]++
+	if err := peer.NextStream(nextRequest); err != nil {
+		t.Fatal(err)
+	}
+	if peer.PayloadAllowed() {
+		t.Fatal("next stream inherited payload authority")
+	}
+	if err := peer.StreamSent(8); err != nil {
+		t.Fatal(err)
+	}
+	if err := peer.StreamAccepted(session, nextRequest, 8, channel, route); err != nil {
+		t.Fatal(err)
+	}
+	if !peer.PayloadAllowed() {
+		t.Fatal("second accepted stream did not open payload gate")
+	}
+}
+
+func TestNextStreamCannotBypassPriorStreamAcceptance(t *testing.T) {
+	session, hello, routeRequest, streamRequest, channel, route := IDs()
+	peer := state.NewSource(session, hello, routeRequest, streamRequest, channel, route, "service.example", "tcp", 8443)
+	if err := peer.NextStream(streamRequest); err == nil {
+		t.Fatal("next stream bypassed accepted route and stream")
+	}
+}

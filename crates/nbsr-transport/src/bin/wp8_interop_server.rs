@@ -172,20 +172,23 @@ fn route_accept() -> nbsr_transport::CoreV02Envelope {
     )
 }
 
-fn stream_accept() -> nbsr_transport::CoreV02Envelope {
+fn stream_accept(index: u64) -> nbsr_transport::CoreV02Envelope {
     let mut body = Vec::new();
     map(&mut body, 5);
     field_uint(&mut body, 0, 1);
-    field_uint(&mut body, 1, 4);
+    field_uint(&mut body, 1, 4 + 4 * index);
     field_bytes(&mut body, 2, &(0x40..0x50).collect::<Vec<_>>());
     field_bytes(&mut body, 3, &(0x20..0x30).collect::<Vec<_>>());
     field_uint(&mut body, 4, 1_893_456_000);
-    envelope(
-        7,
-        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 17],
-        3,
-        body,
-    )
+    envelope(7, stream_request(index), 3 + index, body)
+}
+
+fn stream_request(index: u64) -> [u8; 16] {
+    let mut request: [u8; 16] = (0_u8..16).collect::<Vec<_>>().try_into().unwrap();
+    request[15] = 0x11;
+    let suffix = u64::from_be_bytes(request[8..16].try_into().unwrap()) + index;
+    request[8..16].copy_from_slice(&suffix.to_be_bytes());
+    request
 }
 
 #[tokio::main(flavor = "current_thread")]
@@ -253,37 +256,53 @@ async fn main() {
     control.send_envelope(&accepted).await.unwrap();
     let channel: [u8; 16] = (0x40..0x50).collect::<Vec<_>>().try_into().unwrap();
     connection.bind_channel(&mut session, channel).unwrap();
-    let stream = control
-        .receive_envelope(CoreV02Limits::default())
-        .await
-        .unwrap();
-    session.authorize_stream_open(channel, &stream).unwrap();
-    let stream_accepted = stream_accept();
-    session
-        .confirm_stream_accept(channel, &stream_accepted)
-        .unwrap();
-    control.send_envelope(&stream_accepted).await.unwrap();
-    let payload = connection
-        .accept_session_stream(&mut session, channel)
-        .await
-        .unwrap()
-        .echo_once()
-        .await
-        .unwrap();
+    let benchmark_samples = env::var("NBSR_PERF_STREAM_SAMPLES").ok();
+    let samples = benchmark_samples
+        .as_deref()
+        .map(|value| value.parse::<u64>().expect("valid sample count"))
+        .unwrap_or(1);
+    assert!((1..=100_000).contains(&samples));
+    let mut payload = Vec::new();
+    for index in 0..samples {
+        let stream = control
+            .receive_envelope(CoreV02Limits::default())
+            .await
+            .unwrap();
+        session.authorize_stream_open(channel, &stream).unwrap();
+        let stream_accepted = stream_accept(index);
+        session
+            .confirm_stream_accept(channel, &stream_accepted)
+            .unwrap();
+        control.send_envelope(&stream_accepted).await.unwrap();
+        payload = connection
+            .accept_session_stream(&mut session, channel)
+            .await
+            .unwrap()
+            .echo_once()
+            .await
+            .unwrap();
+        session.release_stream(channel, 4 + 4 * index).unwrap();
+    }
     let digest = Sha256::digest(&payload);
     let digest_hex = digest
         .iter()
         .map(|byte| format!("{byte:02x}"))
         .collect::<String>();
-    fs::write(
-        result,
+    let result_json = if benchmark_samples.is_some() {
+        format!(
+            "{{\"payload_bytes\":{},\"payload_sha256\":\"{}\",\"samples\":{},\"status\":\"PASS\"}}",
+            payload.len(),
+            digest_hex,
+            samples
+        )
+    } else {
         format!(
             "{{\"payload_bytes\":{},\"payload_sha256\":\"{}\",\"status\":\"PASS\"}}",
             payload.len(),
             digest_hex
-        ),
-    )
-    .unwrap();
+        )
+    };
+    fs::write(result, result_json).unwrap();
     tokio::time::timeout(Duration::from_secs(10), async {
         while !completion_ack.exists() {
             tokio::time::sleep(Duration::from_millis(10)).await;

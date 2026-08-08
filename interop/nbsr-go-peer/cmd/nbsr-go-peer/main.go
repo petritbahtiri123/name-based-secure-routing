@@ -5,6 +5,7 @@ import (
 	"context"
 	"crypto/ed25519"
 	"crypto/sha256"
+	"encoding/binary"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
@@ -26,6 +27,7 @@ type config struct {
 	F75Package              string `json:"f75_package"`
 	LocalAttestationPackage string `json:"local_attestation_package"`
 	SafePayload             string `json:"safe_payload"`
+	BenchmarkSamples        int    `json:"benchmark_samples,omitempty"`
 }
 
 type result struct {
@@ -35,6 +37,17 @@ type result struct {
 	RouteOpenBodyVersion uint64   `json:"route_open_body_version"`
 	FederationProfile    string   `json:"federation_profile"`
 	PayloadSHA256        string   `json:"payload_sha256"`
+	BenchmarkSamples     int      `json:"benchmark_samples,omitempty"`
+	Samples              []sample `json:"samples,omitempty"`
+}
+
+type sample struct {
+	SampleID         int   `json:"sample_id"`
+	StreamOpenRTTNS  int64 `json:"stream_open_rtt_ns"`
+	RequestLatencyNS int64 `json:"request_latency_ns"`
+	TotalScenarioNS  int64 `json:"total_scenario_ns"`
+	BytesTransmitted int   `json:"bytes_transmitted"`
+	BytesReceived    int   `json:"bytes_received"`
 }
 
 func loadConfig(path string) (config, error) {
@@ -55,6 +68,9 @@ func loadConfig(path string) (config, error) {
 	if value.ReadinessPath == "" || value.F75Package == "" || value.LocalAttestationPackage == "" || value.SafePayload == "" || len(value.SafePayload) > 4096 {
 		return config{}, errors.New("configuration fields are missing or out of bounds")
 	}
+	if value.BenchmarkSamples < 0 || value.BenchmarkSamples > 100_000 {
+		return config{}, errors.New("benchmark sample count is out of bounds")
+	}
 	return value, nil
 }
 
@@ -71,7 +87,13 @@ func repeated32(value byte) (result [32]byte) {
 	}
 	return
 }
-func specialRequest(last byte) [16]byte    { value := sequence(0); value[15] = last; return value }
+func specialRequest(last byte) [16]byte { value := sequence(0); value[15] = last; return value }
+func benchmarkStreamRequest(index uint64) [16]byte {
+	value := sequence(0)
+	value[15] = 0x11
+	binary.BigEndian.PutUint64(value[8:16], binary.BigEndian.Uint64(value[8:16])+index)
+	return value
+}
 func mustRead(path string) ([]byte, error) { return os.ReadFile(filepath.Clean(path)) }
 func loadPublicKey(path string) (ed25519.PublicKey, error) {
 	raw, err := mustRead(path)
@@ -324,58 +346,79 @@ func run(ctx context.Context, configuration config) (result, error) {
 		return result{}, errors.New("live WP4 exporter failed")
 	}
 
-	application, err := peer.OpenApplication(ctx)
-	if err != nil {
-		return result{}, err
+	samples := configuration.BenchmarkSamples
+	if samples == 0 {
+		samples = 1
 	}
-	if application.StreamID() != 4 {
-		return result{}, errors.New("application stream ID mismatch")
-	}
-	streamBody := map[uint64]any{0: uint64(1), 1: uint64(4), 2: channelID[:], 3: routeID[:], 4: grant.Digest[:], 5: "tcp", 6: uint64(8443)}
-	if mutation == "wrong_stream" {
-		streamBody[1] = uint64(8)
-	}
-	if err := machine.StreamSent(4); err != nil {
-		return result{}, err
-	}
-	if err := peer.SendEnvelope(core.Envelope{ProtocolVersion: 2, MessageType: core.StreamOpen, RequestID: streamRequest, SessionID: sessionID, Sequence: 3, Body: streamBody}); err != nil {
-		return result{}, err
-	}
-	if mutation == "wrong_stream" {
-		_, receiveErr := peer.ReceiveEnvelope()
-		if receiveErr == nil {
-			return result{}, errors.New("wrong stream correlation accepted")
+	observedSamples := make([]sample, 0, samples)
+	var echo []byte
+	for index := 0; index < samples; index++ {
+		totalStarted := time.Now()
+		request := benchmarkStreamRequest(uint64(index))
+		if index > 0 {
+			if err := machine.NextStream(request); err != nil {
+				return result{}, err
+			}
 		}
-		return result{}, fmt.Errorf("wrong stream correlation rejected: %w", receiveErr)
-	}
-	streamAccepted, err := peer.ReceiveEnvelope()
-	if err != nil {
-		return result{}, err
-	}
-	if streamAccepted.MessageType != core.StreamAccept {
-		return result{}, errors.New("STREAM_ACCEPT missing")
-	}
-	if err := machine.StreamAccepted(streamAccepted.SessionID, streamAccepted.RequestID, streamAccepted.Body[1].(uint64), bytes16(streamAccepted.Body[2]), bytes16(streamAccepted.Body[3])); err != nil {
-		return result{}, err
-	}
-	if !machine.PayloadAllowed() {
-		return result{}, errors.New("payload gate remained closed")
-	}
-	if _, err := application.Write([]byte(configuration.SafePayload)); err != nil {
-		return result{}, fmt.Errorf("application write: %w", err)
-	}
-	if err := application.Close(); err != nil {
-		return result{}, fmt.Errorf("application finish: %w", err)
-	}
-	echo := make([]byte, len(configuration.SafePayload))
-	if _, err := io.ReadFull(application, echo); err != nil {
-		return result{}, fmt.Errorf("application echo: %w", err)
-	}
-	if string(echo) != configuration.SafePayload {
-		return result{}, errors.New("application payload echo mismatch")
+		application, err := peer.OpenApplication(ctx)
+		if err != nil {
+			return result{}, err
+		}
+		streamID := uint64(4 + 4*index)
+		if uint64(application.StreamID()) != streamID {
+			return result{}, errors.New("application stream ID mismatch")
+		}
+		streamBody := map[uint64]any{0: uint64(1), 1: streamID, 2: channelID[:], 3: routeID[:], 4: grant.Digest[:], 5: "tcp", 6: uint64(8443)}
+		if mutation == "wrong_stream" {
+			streamBody[1] = streamID + 4
+		}
+		if err := machine.StreamSent(streamID); err != nil {
+			return result{}, err
+		}
+		streamStarted := time.Now()
+		if err := peer.SendEnvelope(core.Envelope{ProtocolVersion: 2, MessageType: core.StreamOpen, RequestID: request, SessionID: sessionID, Sequence: uint64(3 + index), Body: streamBody}); err != nil {
+			return result{}, err
+		}
+		if mutation == "wrong_stream" {
+			_, receiveErr := peer.ReceiveEnvelope()
+			if receiveErr == nil {
+				return result{}, errors.New("wrong stream correlation accepted")
+			}
+			return result{}, fmt.Errorf("wrong stream correlation rejected: %w", receiveErr)
+		}
+		streamAccepted, err := peer.ReceiveEnvelope()
+		if err != nil {
+			return result{}, err
+		}
+		if streamAccepted.MessageType != core.StreamAccept {
+			return result{}, errors.New("STREAM_ACCEPT missing")
+		}
+		if err := machine.StreamAccepted(streamAccepted.SessionID, streamAccepted.RequestID, streamAccepted.Body[1].(uint64), bytes16(streamAccepted.Body[2]), bytes16(streamAccepted.Body[3])); err != nil {
+			return result{}, err
+		}
+		streamNS := time.Since(streamStarted).Nanoseconds()
+		if !machine.PayloadAllowed() {
+			return result{}, errors.New("payload gate remained closed")
+		}
+		requestStarted := time.Now()
+		if _, err := application.Write([]byte(configuration.SafePayload)); err != nil {
+			return result{}, fmt.Errorf("application write: %w", err)
+		}
+		if err := application.Close(); err != nil {
+			return result{}, fmt.Errorf("application finish: %w", err)
+		}
+		echo = make([]byte, len(configuration.SafePayload))
+		if _, err := io.ReadFull(application, echo); err != nil {
+			return result{}, fmt.Errorf("application echo: %w", err)
+		}
+		requestNS := time.Since(requestStarted).Nanoseconds()
+		if string(echo) != configuration.SafePayload {
+			return result{}, errors.New("application payload echo mismatch")
+		}
+		observedSamples = append(observedSamples, sample{index, streamNS, requestNS, time.Since(totalStarted).Nanoseconds(), len(echo), len(echo)})
 	}
 	digest := sha256.Sum256(echo)
-	return result{Status: "PASS", Messages: []string{"CLIENT_HELLO", "EDGE_HELLO", "ROUTE_OPEN", "ROUTE_ACCEPT", "STREAM_OPEN", "STREAM_ACCEPT"}, CoreVersion: 2, RouteOpenBodyVersion: 2, FederationProfile: "nbsr-federation-dev-v1", PayloadSHA256: hex.EncodeToString(digest[:])}, nil
+	return result{Status: "PASS", Messages: []string{"CLIENT_HELLO", "EDGE_HELLO", "ROUTE_OPEN", "ROUTE_ACCEPT", "STREAM_OPEN", "STREAM_ACCEPT"}, CoreVersion: 2, RouteOpenBodyVersion: 2, FederationProfile: "nbsr-federation-dev-v1", PayloadSHA256: hex.EncodeToString(digest[:]), BenchmarkSamples: samples, Samples: observedSamples}, nil
 }
 
 func sequence32(start byte) [32]byte {
