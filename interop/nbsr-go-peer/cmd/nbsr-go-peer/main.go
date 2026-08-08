@@ -104,9 +104,9 @@ type sample struct {
 
 func measured(value int64) *int64 { return &value }
 
-func waitUntil(deadline time.Time) {
+func waitUntilQPC(origin int64, scheduledNS int64) {
 	for {
-		remaining := time.Until(deadline)
+		remaining := time.Duration(scheduledNS - perfclock.Since(origin))
 		if remaining <= 0 {
 			return
 		}
@@ -426,12 +426,11 @@ func run(ctx context.Context, configuration config) (result, error) {
 	observedSamples := make([]sample, 0, samples)
 	var echo []byte
 	scheduleClockOrigin := perfclock.Now()
-	scheduleWallOrigin := time.Now()
 	for index := 0; index < samples; index++ {
 		var scheduledNS, startedNS, startLatenessNS int64
 		if configuration.OfferedRate > 0 {
 			scheduledNS = int64(float64(index) / configuration.OfferedRate * 1_000_000_000)
-			waitUntil(scheduleWallOrigin.Add(time.Duration(scheduledNS)))
+			waitUntilQPC(scheduleClockOrigin, scheduledNS)
 			startedNS = perfclock.Since(scheduleClockOrigin)
 			startLatenessNS = max(0, startedNS-scheduledNS)
 		}

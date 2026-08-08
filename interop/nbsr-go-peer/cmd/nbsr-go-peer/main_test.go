@@ -1,6 +1,10 @@
 package main
 
-import "testing"
+import (
+	"testing"
+
+	"nbsr.local/interop/nbsr-go-peer/internal/perfclock"
+)
 
 func TestLifecycleConfigurationRequiresBoundedIndependentServices(t *testing.T) {
 	valid := config{ReadinessPath: "ready", F75Package: "f75", LocalAttestationPackage: "local", SafePayload: "Z", LifecycleAuthorityDir: "authority", LifecycleConnections: 1, LifecycleServices: 20, LifecycleStreamsPerService: 64}
@@ -80,5 +84,13 @@ func TestLargeSampleCountRequiresStreamingOpenLoopMode(t *testing.T) {
 	cell.BenchmarkSamples = 10_000_001
 	if err := cell.validate(); err == nil {
 		t.Fatal("sample count above harness safety limit accepted")
+	}
+}
+
+func TestOpenLoopWaitUsesTheSameQPCClockAsRecordedLatency(t *testing.T) {
+	origin := perfclock.Now()
+	waitUntilQPC(origin, 1_000_000)
+	if elapsed := perfclock.Since(origin); elapsed < 1_000_000 {
+		t.Fatalf("QPC deadline returned early: %d", elapsed)
 	}
 }
