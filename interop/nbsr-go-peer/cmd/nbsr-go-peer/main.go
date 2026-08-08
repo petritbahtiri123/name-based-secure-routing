@@ -18,6 +18,7 @@ import (
 	"nbsr.local/interop/nbsr-go-peer/internal/authority"
 	"nbsr.local/interop/nbsr-go-peer/internal/cbor"
 	"nbsr.local/interop/nbsr-go-peer/internal/core"
+	"nbsr.local/interop/nbsr-go-peer/internal/perfclock"
 	"nbsr.local/interop/nbsr-go-peer/internal/state"
 	"nbsr.local/interop/nbsr-go-peer/internal/transport"
 )
@@ -353,7 +354,7 @@ func run(ctx context.Context, configuration config) (result, error) {
 	observedSamples := make([]sample, 0, samples)
 	var echo []byte
 	for index := 0; index < samples; index++ {
-		totalStarted := time.Now()
+		totalStarted := perfclock.Now()
 		request := benchmarkStreamRequest(uint64(index))
 		if index > 0 {
 			if err := machine.NextStream(request); err != nil {
@@ -375,7 +376,7 @@ func run(ctx context.Context, configuration config) (result, error) {
 		if err := machine.StreamSent(streamID); err != nil {
 			return result{}, err
 		}
-		streamStarted := time.Now()
+		streamStarted := perfclock.Now()
 		if err := peer.SendEnvelope(core.Envelope{ProtocolVersion: 2, MessageType: core.StreamOpen, RequestID: request, SessionID: sessionID, Sequence: uint64(3 + index), Body: streamBody}); err != nil {
 			return result{}, err
 		}
@@ -396,11 +397,11 @@ func run(ctx context.Context, configuration config) (result, error) {
 		if err := machine.StreamAccepted(streamAccepted.SessionID, streamAccepted.RequestID, streamAccepted.Body[1].(uint64), bytes16(streamAccepted.Body[2]), bytes16(streamAccepted.Body[3])); err != nil {
 			return result{}, err
 		}
-		streamNS := time.Since(streamStarted).Nanoseconds()
+		streamNS := perfclock.Since(streamStarted)
 		if !machine.PayloadAllowed() {
 			return result{}, errors.New("payload gate remained closed")
 		}
-		requestStarted := time.Now()
+		requestStarted := perfclock.Now()
 		if _, err := application.Write([]byte(configuration.SafePayload)); err != nil {
 			return result{}, fmt.Errorf("application write: %w", err)
 		}
@@ -411,11 +412,11 @@ func run(ctx context.Context, configuration config) (result, error) {
 		if _, err := io.ReadFull(application, echo); err != nil {
 			return result{}, fmt.Errorf("application echo: %w", err)
 		}
-		requestNS := time.Since(requestStarted).Nanoseconds()
+		requestNS := perfclock.Since(requestStarted)
 		if string(echo) != configuration.SafePayload {
 			return result{}, errors.New("application payload echo mismatch")
 		}
-		observedSamples = append(observedSamples, sample{index, streamNS, requestNS, time.Since(totalStarted).Nanoseconds(), len(echo), len(echo)})
+		observedSamples = append(observedSamples, sample{index, streamNS, requestNS, perfclock.Since(totalStarted), len(echo), len(echo)})
 	}
 	digest := sha256.Sum256(echo)
 	return result{Status: "PASS", Messages: []string{"CLIENT_HELLO", "EDGE_HELLO", "ROUTE_OPEN", "ROUTE_ACCEPT", "STREAM_OPEN", "STREAM_ACCEPT"}, CoreVersion: 2, RouteOpenBodyVersion: 2, FederationProfile: "nbsr-federation-dev-v1", PayloadSHA256: hex.EncodeToString(digest[:]), BenchmarkSamples: samples, Samples: observedSamples}, nil
