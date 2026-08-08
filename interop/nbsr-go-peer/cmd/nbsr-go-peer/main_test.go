@@ -40,3 +40,15 @@ func TestLifecycleIDsAreDistinctAcrossServiceAuthorities(t *testing.T) {
 		seenChannels[channel] = true
 	}
 }
+
+func TestPayloadMatrixAcceptsOneMiBAndRejectsLargerInput(t *testing.T) {
+	base := config{ReadinessPath: "ready", F75Package: "f75", LocalAttestationPackage: "local", BenchmarkSamples: 1}
+	base.SafePayload = string(make([]byte, 1<<20))
+	if err := base.validate(); err != nil {
+		t.Fatalf("one MiB payload rejected: %v", err)
+	}
+	base.SafePayload += "x"
+	if err := base.validate(); err == nil {
+		t.Fatal("payload above one MiB accepted")
+	}
+}

@@ -143,6 +143,7 @@ def merge_destination_measurements(records: list[dict[str, Any]], result: dict[s
 
 def direct_samples(binary: Path, authority: Path, samples: int, payload: int, lifecycle: str, temp: Path) -> list[dict[str, Any]]:
     ready = temp / f"direct-{lifecycle}.ready.json"
+    ready.unlink(missing_ok=True)
     connections = samples if lifecycle == "cold" else 1
     per_connection = 1 if lifecycle == "cold" else samples
     server = subprocess.Popen(
@@ -196,6 +197,8 @@ def direct_samples(binary: Path, authority: Path, samples: int, payload: int, li
 
 def nbsr_samples(path: str, binaries: dict[str, Path], authority: Path, samples: int, payload: int, temp: Path) -> list[dict[str, Any]]:
     ready, result, ack = temp / f"{path}.ready.json", temp / f"{path}.result.json", temp / f"{path}.ack"
+    for stale in (ready, result, ack):
+        stale.unlink(missing_ok=True)
     env = {**os.environ, "NBSR_PERF_STREAM_SAMPLES": str(samples)}
     server = subprocess.Popen(
         [

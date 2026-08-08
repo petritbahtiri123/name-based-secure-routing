@@ -23,6 +23,8 @@ import (
 	"nbsr.local/interop/nbsr-go-peer/internal/transport"
 )
 
+const maxBenchmarkPayload = 1 << 20
+
 type config struct {
 	ReadinessPath              string `json:"readiness_path"`
 	F75Package                 string `json:"f75_package"`
@@ -37,7 +39,7 @@ type config struct {
 }
 
 func (value config) validate() error {
-	if value.ReadinessPath == "" || value.F75Package == "" || value.LocalAttestationPackage == "" || value.SafePayload == "" || len(value.SafePayload) > 4096 {
+	if value.ReadinessPath == "" || value.F75Package == "" || value.LocalAttestationPackage == "" || value.SafePayload == "" || len(value.SafePayload) > maxBenchmarkPayload {
 		return errors.New("configuration fields are missing or out of bounds")
 	}
 	if value.BenchmarkSamples < 0 || value.BenchmarkSamples > 100_000 {
@@ -92,7 +94,7 @@ func loadConfig(path string) (config, error) {
 		return config{}, err
 	}
 	defer file.Close()
-	decoder := json.NewDecoder(io.LimitReader(file, 16*1024))
+	decoder := json.NewDecoder(io.LimitReader(file, maxBenchmarkPayload+64*1024))
 	decoder.DisallowUnknownFields()
 	var value config
 	if err := decoder.Decode(&value); err != nil {
