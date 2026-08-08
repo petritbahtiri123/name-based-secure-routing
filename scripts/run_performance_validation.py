@@ -290,7 +290,13 @@ def nbsr_samples(
             else:
                 stdout, observed_resources = measured_client(client_command, cwd=GO_PEER, server=server, timeout=3600)
                 resource_records.extend(observed_resources)
-            records = json.loads(stdout)["samples"]
+            if offered_rate is None:
+                records = json.loads(stdout)["samples"]
+            else:
+                documents = [json.loads(line) for line in stdout.splitlines() if line.strip()]
+                records = [document for document in documents if "sample_id" in document]
+                if not documents or documents[-1].get("status") != "PASS":
+                    raise RuntimeError("Go load stream omitted completion metadata")
         ack.touch()
         server.wait(30)
         if server.returncode:

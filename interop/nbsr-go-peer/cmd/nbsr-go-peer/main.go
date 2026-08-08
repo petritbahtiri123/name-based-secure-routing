@@ -46,8 +46,11 @@ func (value config) validate() error {
 	if value.ReadinessPath == "" || value.F75Package == "" || value.LocalAttestationPackage == "" || value.SafePayload == "" || len(value.SafePayload) > maxBenchmarkPayload {
 		return errors.New("configuration fields are missing or out of bounds")
 	}
-	if value.BenchmarkSamples < 0 || value.BenchmarkSamples > 100_000 {
+	if value.BenchmarkSamples < 0 || value.BenchmarkSamples > 10_000_000 {
 		return errors.New("benchmark sample count is out of bounds")
+	}
+	if value.BenchmarkSamples > 100_000 && value.OfferedRate == 0 {
+		return errors.New("large benchmark sample count requires streaming open-loop mode")
 	}
 	if value.OfferedRate < 0 || math.IsNaN(value.OfferedRate) || math.IsInf(value.OfferedRate, 0) {
 		return errors.New("offered rate is out of bounds")
@@ -485,7 +488,14 @@ func run(ctx context.Context, configuration config) (result, error) {
 		if string(echo) != configuration.SafePayload {
 			return result{}, errors.New("application payload echo mismatch")
 		}
-		observedSamples = append(observedSamples, sample{SampleID: index, Success: true, StreamOpenRTTNS: streamNS, TTFABNS: requestNS, RequestLatencyNS: requestNS, TotalScenarioNS: perfclock.Since(totalStarted), BytesTransmitted: len(echo), BytesReceived: len(echo), ScheduledNS: scheduledNS, StartedNS: startedNS, CompletedNS: completedNS, StartLatenessNS: startLatenessNS, ServiceLatencyNS: serviceNS})
+		entry := sample{SampleID: index, Success: true, StreamOpenRTTNS: streamNS, TTFABNS: requestNS, RequestLatencyNS: requestNS, TotalScenarioNS: perfclock.Since(totalStarted), BytesTransmitted: len(echo), BytesReceived: len(echo), ScheduledNS: scheduledNS, StartedNS: startedNS, CompletedNS: completedNS, StartLatenessNS: startLatenessNS, ServiceLatencyNS: serviceNS}
+		if configuration.OfferedRate > 0 {
+			if err := json.NewEncoder(os.Stdout).Encode(entry); err != nil {
+				return result{}, err
+			}
+		} else {
+			observedSamples = append(observedSamples, entry)
+		}
 	}
 	digest := sha256.Sum256(echo)
 	return result{Status: "PASS", Messages: []string{"CLIENT_HELLO", "EDGE_HELLO", "ROUTE_OPEN", "ROUTE_ACCEPT", "STREAM_OPEN", "STREAM_ACCEPT"}, CoreVersion: 2, RouteOpenBodyVersion: 2, FederationProfile: "nbsr-federation-dev-v1", PayloadSHA256: hex.EncodeToString(digest[:]), BenchmarkSamples: samples, Samples: observedSamples}, nil
@@ -800,7 +810,7 @@ func main() {
 	}
 	processDeadline := 15 * time.Second
 	if configuration.BenchmarkSamples > 0 {
-		processDeadline = time.Hour
+		processDeadline = 2 * time.Hour
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), processDeadline)
 	defer cancel()

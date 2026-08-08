@@ -206,7 +206,11 @@ async fn client() {
     let payload = vec![0x5a; payload_bytes];
     let mut warm: Option<(Endpoint, Connection)> = None;
     let mut schedule_origin: Option<Instant> = None;
-    let mut records = Vec::with_capacity(samples);
+    let mut records = if offered_rate.is_some() {
+        Vec::new()
+    } else {
+        Vec::with_capacity(samples)
+    };
     for sample_id in 0..samples {
         let total = Instant::now();
         let handshake = Instant::now();
@@ -246,7 +250,17 @@ async fn client() {
             origin.elapsed().as_nanos() - scheduled_ns
         });
         assert_eq!(response, payload);
-        records.push(format!("{{\"sample_id\":{sample_id},\"success\":true,\"transport_handshake_ns\":{},\"request_latency_ns\":{request_ns},\"service_latency_ns\":{service_ns},\"scheduled_ns\":{scheduled_ns},\"started_ns\":{started_ns},\"completed_ns\":{},\"start_lateness_ns\":{start_lateness_ns},\"ttfab_ns\":{request_ns},\"total_scenario_ns\":{},\"bytes_transmitted\":{payload_bytes},\"bytes_received\":{payload_bytes}}}", handshake_ns.map_or_else(|| "null".into(), |value| value.to_string()), schedule_origin.map_or(0, |origin| origin.elapsed().as_nanos()), total.elapsed().as_nanos()));
+        let record = format!(
+            "{{\"sample_id\":{sample_id},\"success\":true,\"transport_handshake_ns\":{},\"request_latency_ns\":{request_ns},\"service_latency_ns\":{service_ns},\"scheduled_ns\":{scheduled_ns},\"started_ns\":{started_ns},\"completed_ns\":{},\"start_lateness_ns\":{start_lateness_ns},\"ttfab_ns\":{request_ns},\"total_scenario_ns\":{},\"bytes_transmitted\":{payload_bytes},\"bytes_received\":{payload_bytes}}}",
+            handshake_ns.map_or_else(|| "null".into(), |value| value.to_string()),
+            schedule_origin.map_or(0, |origin| origin.elapsed().as_nanos()),
+            total.elapsed().as_nanos()
+        );
+        if offered_rate.is_some() {
+            println!("{record}");
+        } else {
+            records.push(record);
+        }
         if lifecycle == "cold" {
             pair.1.close(VarInt::from_u32(0), b"");
             pair.0.wait_idle().await;

@@ -563,7 +563,7 @@ async fn main() {
         .as_deref()
         .map(|value| value.parse::<u64>().expect("valid sample count"))
         .unwrap_or(1);
-    assert!((1..=100_000).contains(&samples));
+    assert!((1..=10_000_000).contains(&samples));
     let mut payload = Vec::new();
     for index in 0..samples {
         let stream = control

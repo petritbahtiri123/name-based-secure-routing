@@ -617,8 +617,9 @@ async fn main() {
         .await;
         return;
     }
-    assert!((1..=100_000).contains(&samples));
+    assert!((1..=10_000_000).contains(&samples));
     assert!(offered_rate.is_none_or(|rate| rate.is_finite() && rate > 0.0));
+    assert!(samples <= 100_000 || offered_rate.is_some());
     assert!((1..=1_048_576).contains(&payload_bytes));
     let handshake = Instant::now();
     let connection = connect(
@@ -683,7 +684,11 @@ async fn main() {
     let channel: [u8; 16] = (0x40..0x50).collect::<Vec<_>>().try_into().unwrap();
     connection.bind_channel(&mut session, channel).unwrap();
     let payload = vec![0x5a; payload_bytes];
-    let mut records = Vec::with_capacity(samples as usize);
+    let mut records = if offered_rate.is_some() {
+        Vec::new()
+    } else {
+        Vec::with_capacity(samples as usize)
+    };
     let schedule_origin = offered_rate.map(|_| Instant::now());
     for index in 0..samples {
         let total = Instant::now();
@@ -730,7 +735,7 @@ async fn main() {
         });
         assert_eq!(response, payload);
         session.release_stream(channel, 4 + 4 * index).unwrap();
-        records.push(format!(
+        let record = format!(
             "{{\"sample_id\":{index},\"success\":true,\"transport_handshake_ns\":{},\"stream_open_rtt_ns\":{stream_ns},\"request_latency_ns\":{request_ns},\"service_latency_ns\":{service_ns},\"scheduled_ns\":{scheduled_ns},\"started_ns\":{started_ns},\"completed_ns\":{},\"start_lateness_ns\":{start_lateness_ns},\"ttfab_ns\":{request_ns},\"total_scenario_ns\":{},\"bytes_transmitted\":{payload_bytes},\"bytes_received\":{payload_bytes}}}",
             if index == 0 {
                 handshake_ns.to_string()
@@ -739,7 +744,12 @@ async fn main() {
             },
             schedule_origin.map_or(0, |origin| origin.elapsed().as_nanos()),
             total.elapsed().as_nanos()
-        ));
+        );
+        if offered_rate.is_some() {
+            println!("{record}");
+        } else {
+            records.push(record);
+        }
         while session.pop_audit_event().is_some() {}
     }
     connection.close().await.unwrap();

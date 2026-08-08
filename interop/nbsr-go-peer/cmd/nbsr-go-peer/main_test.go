@@ -67,3 +67,18 @@ func TestOpenLoopOfferedRateMustBePositive(t *testing.T) {
 		t.Fatal("negative offered rate accepted")
 	}
 }
+
+func TestLargeSampleCountRequiresStreamingOpenLoopMode(t *testing.T) {
+	cell := config{ReadinessPath: "ready", F75Package: "f75", LocalAttestationPackage: "local", SafePayload: "Z", BenchmarkSamples: 100_001}
+	if err := cell.validate(); err == nil {
+		t.Fatal("large buffered sample count accepted")
+	}
+	cell.OfferedRate = 1000
+	if err := cell.validate(); err != nil {
+		t.Fatalf("large streaming sample count rejected: %v", err)
+	}
+	cell.BenchmarkSamples = 10_000_001
+	if err := cell.validate(); err == nil {
+		t.Fatal("sample count above harness safety limit accepted")
+	}
+}
