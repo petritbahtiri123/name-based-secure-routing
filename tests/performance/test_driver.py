@@ -6,6 +6,7 @@ import pytest
 
 from scripts.performance.driver import (
     CapacityObservation,
+    FormalRunRequirements,
     choose_sustainable_capacity,
     ensure_release_binary,
     open_loop_deadlines_ns,
@@ -64,3 +65,19 @@ def test_capacity_is_chosen_independently_for_each_path() -> None:
 def test_any_protocol_or_resource_error_disqualifies_capacity() -> None:
     with pytest.raises(ValueError, match="no sustainable capacity"):
         choose_sustainable_capacity([observation("go-rust", 100, unexpected_rejections=1)])
+
+
+def test_formal_capacity_window_cannot_be_silently_shortened() -> None:
+    requirements = FormalRunRequirements()
+    requirements.validate_capacity_window(warmup_seconds=60, steady_state_seconds=600)
+    with pytest.raises(ValueError, match="60 second warm-up"):
+        requirements.validate_capacity_window(warmup_seconds=59, steady_state_seconds=600)
+    with pytest.raises(ValueError, match="600 second steady-state"):
+        requirements.validate_capacity_window(warmup_seconds=60, steady_state_seconds=599)
+
+
+def test_requested_concurrency_is_not_silently_clamped() -> None:
+    requirements = FormalRunRequirements()
+    requirements.validate_concurrency(requested=64, active=64)
+    with pytest.raises(ValueError, match="requested concurrency 64, active 32"):
+        requirements.validate_concurrency(requested=64, active=32)

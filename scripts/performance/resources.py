@@ -60,6 +60,41 @@ class ProcessResourceSample:
     thread_count: int
 
 
+@dataclass(frozen=True)
+class MemoryTrend:
+    sample_count: int
+    slope_bytes_per_second: float
+
+
+class ResourceSeries:
+    def __init__(self, *, expected_samples: int) -> None:
+        if expected_samples < 2:
+            raise ValueError("at least two resource samples are required")
+        self.expected_samples = expected_samples
+        self._samples: list[tuple[int, int]] = []
+
+    def record(self, *, timestamp_ns: int, working_set_bytes: int) -> None:
+        if self._samples and timestamp_ns <= self._samples[-1][0]:
+            raise ValueError("resource timestamps must increase")
+        if working_set_bytes < 0:
+            raise ValueError("working set cannot be negative")
+        self._samples.append((timestamp_ns, working_set_bytes))
+
+    def finish(self) -> MemoryTrend:
+        observed = len(self._samples)
+        if observed != self.expected_samples:
+            raise ValueError(f"expected {self.expected_samples} resource samples, observed {observed}")
+        seconds = [(timestamp - self._samples[0][0]) / 1_000_000_000 for timestamp, _ in self._samples]
+        memory = [value for _, value in self._samples]
+        mean_seconds = sum(seconds) / observed
+        mean_memory = sum(memory) / observed
+        denominator = sum((value - mean_seconds) ** 2 for value in seconds)
+        if denominator == 0:
+            raise ValueError("resource sample duration must be positive")
+        slope = sum((second - mean_seconds) * (value - mean_memory) for second, value in zip(seconds, memory, strict=True)) / denominator
+        return MemoryTrend(sample_count=observed, slope_bytes_per_second=slope)
+
+
 def _thread_count(pid: int) -> int:
     kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
     snapshot = kernel32.CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0)

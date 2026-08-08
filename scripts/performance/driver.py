@@ -5,6 +5,22 @@ from pathlib import Path
 
 
 @dataclass(frozen=True)
+class FormalRunRequirements:
+    warmup_seconds: int = 60
+    steady_state_seconds: int = 600
+
+    def validate_capacity_window(self, *, warmup_seconds: int, steady_state_seconds: int) -> None:
+        if warmup_seconds < self.warmup_seconds:
+            raise ValueError(f"formal capacity requires a {self.warmup_seconds} second warm-up")
+        if steady_state_seconds < self.steady_state_seconds:
+            raise ValueError(f"formal capacity requires a {self.steady_state_seconds} second steady-state window")
+
+    def validate_concurrency(self, *, requested: int, active: int) -> None:
+        if requested < 1 or active != requested:
+            raise ValueError(f"requested concurrency {requested}, active {active}")
+
+
+@dataclass(frozen=True)
 class CapacityObservation:
     path: str
     offered_rate: float
