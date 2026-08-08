@@ -102,6 +102,7 @@ async fn client() {
     assert!((1..=1_048_576).contains(&payload_bytes));
     let payload = vec![0x5a; payload_bytes];
     let mut warm = None;
+    let mut records = Vec::with_capacity(samples);
     for sample_id in 0..samples {
         let scenario_started = Instant::now();
         let handshake_started = Instant::now();
@@ -125,11 +126,11 @@ async fn client() {
         let response = connection.direct_benchmark_request(&payload).await.unwrap();
         let request_ns = request_started.elapsed().as_nanos();
         assert_eq!(response, payload);
-        println!(
+        records.push(format!(
             "{{\"sample_id\":{sample_id},\"success\":true,\"transport_handshake_ns\":{},\"request_latency_ns\":{request_ns},\"ttfab_ns\":{request_ns},\"total_scenario_ns\":{},\"bytes_transmitted\":{payload_bytes},\"bytes_received\":{payload_bytes}}}",
             handshake_ns.map_or_else(|| "null".to_string(), |value| value.to_string()),
             scenario_started.elapsed().as_nanos(),
-        );
+        ));
         if lifecycle == "cold" {
             connection.close().await.unwrap();
         } else {
@@ -138,6 +139,9 @@ async fn client() {
     }
     if let Some(connection) = warm {
         connection.close().await.unwrap();
+    }
+    for record in records {
+        println!("{record}");
     }
 }
 

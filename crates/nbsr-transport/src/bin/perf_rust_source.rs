@@ -285,6 +285,7 @@ async fn main() {
     let channel: [u8; 16] = (0x40..0x50).collect::<Vec<_>>().try_into().unwrap();
     connection.bind_channel(&mut session, channel).unwrap();
     let payload = vec![0x5a; payload_bytes];
+    let mut records = Vec::with_capacity(samples as usize);
     for index in 0..samples {
         let total = Instant::now();
         let stream = stream_open(index);
@@ -313,7 +314,7 @@ async fn main() {
         let request_ns = request_started.elapsed().as_nanos();
         assert_eq!(response, payload);
         session.release_stream(channel, 4 + 4 * index).unwrap();
-        println!(
+        records.push(format!(
             "{{\"sample_id\":{index},\"success\":true,\"transport_handshake_ns\":{},\"stream_open_rtt_ns\":{stream_ns},\"request_latency_ns\":{request_ns},\"ttfab_ns\":{request_ns},\"total_scenario_ns\":{},\"bytes_transmitted\":{payload_bytes},\"bytes_received\":{payload_bytes}}}",
             if index == 0 {
                 handshake_ns.to_string()
@@ -321,9 +322,12 @@ async fn main() {
                 "null".into()
             },
             total.elapsed().as_nanos()
-        );
+        ));
     }
     connection.close().await.unwrap();
+    for record in records {
+        println!("{record}");
+    }
 }
 
 trait ReadBytes {
