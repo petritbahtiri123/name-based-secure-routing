@@ -441,7 +441,11 @@ func main() {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(65)
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	processDeadline := 15 * time.Second
+	if configuration.BenchmarkSamples > 0 {
+		processDeadline = time.Hour
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), processDeadline)
 	defer cancel()
 	observed, err := run(ctx, configuration)
 	if err != nil {
