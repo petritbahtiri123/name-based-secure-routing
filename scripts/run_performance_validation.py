@@ -7,12 +7,15 @@ import os
 from pathlib import Path
 import platform
 import subprocess
+import sys
 import tempfile
 import time
 from typing import Any
 
-from scripts.performance.authority import write_loopback_authority
-from scripts.performance.driver import ensure_release_binary
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from scripts.performance.authority import write_loopback_authority  # noqa: E402
+from scripts.performance.driver import ensure_release_binary  # noqa: E402
 
 
 ROOT = Path(__file__).resolve().parents[1]
