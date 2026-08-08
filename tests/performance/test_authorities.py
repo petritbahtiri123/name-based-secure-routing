@@ -48,9 +48,13 @@ def test_route_open_binding_is_specific_to_each_service() -> None:
 
 def test_authority_set_is_written_without_ambiguous_overwrite(tmp_path) -> None:
     write_authority_set(tmp_path, 2)
+    before = {path.relative_to(tmp_path): path.read_bytes() for path in tmp_path.rglob("*") if path.is_file()}
+    write_authority_set(tmp_path, 2)
+    after = {path.relative_to(tmp_path): path.read_bytes() for path in tmp_path.rglob("*") if path.is_file()}
+    assert after == before
     assert (tmp_path / "00" / "name.txt").read_text(encoding="ascii") == "service-00.example\n"
     assert (tmp_path / "01" / "route-open-body.cbor").read_bytes()
     assert sorted(path.relative_to(tmp_path).as_posix() for path in tmp_path.rglob("*") if path.is_file()) == [
-        "00/destination.cose", "00/federation-context.cbor", "00/name.txt", "00/route-open-body.cbor", "00/source.cose",
-        "01/destination.cose", "01/federation-context.cbor", "01/name.txt", "01/route-open-body.cbor", "01/source.cose",
+        "00/channel-id.bin", "00/destination.cose", "00/federation-context.cbor", "00/grant-digest.bin", "00/name.txt", "00/request-id.bin", "00/route-id.bin", "00/route-open-body.cbor", "00/source.cose",
+        "01/channel-id.bin", "01/destination.cose", "01/federation-context.cbor", "01/grant-digest.bin", "01/name.txt", "01/request-id.bin", "01/route-id.bin", "01/route-open-body.cbor", "01/source.cose",
     ]

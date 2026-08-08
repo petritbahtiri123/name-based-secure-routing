@@ -15,7 +15,8 @@ from typing import Any
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from scripts.performance.authority import write_loopback_authority  # noqa: E402
-from scripts.performance.driver import ensure_release_binary  # noqa: E402
+from scripts.performance.authorities import write_authority_set  # noqa: E402
+from scripts.performance.driver import ensure_release_binary, lifecycle_batch_plan  # noqa: E402
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -128,6 +129,16 @@ def wait_ready(path: Path, process: subprocess.Popen[str]) -> dict[str, Any]:
 
 def parse_ndjson(text: str) -> list[dict[str, Any]]:
     return [json.loads(line) for line in text.splitlines() if line.strip()]
+
+
+def merge_destination_measurements(records: list[dict[str, Any]], result: dict[str, Any]) -> None:
+    measurements = result.get("samples")
+    if not isinstance(measurements, list) or len(measurements) != len(records):
+        observed = len(measurements) if isinstance(measurements, list) else "invalid"
+        raise ValueError(f"destination measurement count mismatch: source={len(records)} destination={observed}")
+    for record, measurement in zip(records, measurements, strict=True):
+        record["destination_admission_ns"] = int(measurement["destination_admission_ns"])
+        record["application_processing_ns"] = int(measurement["application_processing_ns"])
 
 
 def direct_samples(binary: Path, authority: Path, samples: int, payload: int, lifecycle: str, temp: Path) -> list[dict[str, Any]]:
@@ -247,6 +258,83 @@ def nbsr_samples(path: str, binaries: dict[str, Path], authority: Path, samples:
         if server.poll() is None:
             server.terminate()
             server.wait(10)
+
+
+def rust_lifecycle_samples(
+    binaries: dict[str, Path],
+    authority: Path,
+    samples: int,
+    payload: int,
+    scenario: str,
+    temp: Path,
+) -> list[dict[str, Any]]:
+    if scenario == "nbsr-cold":
+        batches = (samples,)
+        services_for_batch = lambda _batch: 1
+        connections_for_batch = lambda batch: batch
+    elif scenario == "nbsr-warm-new-service":
+        batches = lifecycle_batch_plan(samples=samples)
+        services_for_batch = lambda batch: batch
+        connections_for_batch = lambda _batch: 1
+    else:
+        raise ValueError(f"unsupported lifecycle scenario {scenario}")
+    lifecycle_root = temp / "lifecycle-authority"
+    write_authority_set(lifecycle_root, 20)
+    records: list[dict[str, Any]] = []
+    for ordinal, batch in enumerate(batches):
+        services = services_for_batch(batch)
+        connections = connections_for_batch(batch)
+        ready = temp / f"rust-lifecycle-{scenario}-{ordinal}.ready.json"
+        result = temp / f"rust-lifecycle-{scenario}-{ordinal}.result.json"
+        ack = temp / f"rust-lifecycle-{scenario}-{ordinal}.ack"
+        for connection_ordinal in range(connections):
+            (lifecycle_root / f"connection-{connection_ordinal}.ack").unlink(missing_ok=True)
+        server_env = {
+            **os.environ,
+            "NBSR_PERF_LIFECYCLE_ROOT": str(lifecycle_root),
+            "NBSR_PERF_LIFECYCLE_CONNECTIONS": str(connections),
+            "NBSR_PERF_LIFECYCLE_SERVICES": str(services),
+        }
+        server = subprocess.Popen(
+            [
+                str(binaries["server"]), "--ready", str(ready), "--result", str(result),
+                "--authority-dir", str(authority), "--completion-ack", str(ack),
+            ],
+            cwd=ROOT,
+            env=server_env,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+        try:
+            endpoint = wait_ready(ready, server)["endpoint"]
+            client = command(
+                [
+                    str(binaries["rust"]), "--authority-dir", str(authority), "--endpoint", endpoint,
+                    "--samples", "1", "--payload-bytes", str(payload),
+                    "--lifecycle-authority-dir", str(lifecycle_root),
+                    "--connections", str(connections), "--services", str(services),
+                ],
+                timeout=3600,
+            )
+            batch_records = parse_ndjson(client.stdout)
+            if len(batch_records) != batch:
+                raise RuntimeError(f"lifecycle sample loss: expected {batch}, observed {len(batch_records)}")
+            server.wait(30)
+            if server.returncode:
+                raise RuntimeError(server.stderr.read())
+            merge_destination_measurements(batch_records, json.loads(result.read_text(encoding="utf-8")))
+            for record in batch_records:
+                record["sample_id"] = len(records)
+                if scenario == "nbsr-warm-new-service":
+                    record["transport_handshake_ns"] = None
+                    record["hello_rtt_ns"] = None
+                records.append(record)
+        finally:
+            if server.poll() is None:
+                server.terminate()
+                server.wait(10)
+    return records
 
 
 def normalize(

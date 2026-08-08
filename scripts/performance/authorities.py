@@ -154,10 +154,14 @@ def write_authority_set(root: Path, count: int) -> tuple[ServiceAuthority, ...]:
     root.mkdir(parents=True, exist_ok=True)
     for index, service in enumerate(services):
         directory = root / f"{index:02d}"
-        directory.mkdir()
+        directory.mkdir(exist_ok=True)
         (directory / "name.txt").write_text(service.canonical_name + "\n", encoding="ascii", newline="\n")
         (directory / "route-open-body.cbor").write_bytes(service.route_open_body)
         (directory / "federation-context.cbor").write_bytes(service.federation_context)
         (directory / "source.cose").write_bytes(service.source_attestation)
         (directory / "destination.cose").write_bytes(service.destination_attestation)
+        (directory / "request-id.bin").write_bytes(service.route_request_id)
+        (directory / "channel-id.bin").write_bytes(service.channel_id)
+        (directory / "route-id.bin").write_bytes(service.route_id)
+        (directory / "grant-digest.bin").write_bytes(sha256(service.route_grant).digest())
     return services

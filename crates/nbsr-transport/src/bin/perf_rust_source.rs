@@ -23,6 +23,14 @@ fn argument(name: &str) -> String {
     values[index + 1].clone()
 }
 
+fn optional_argument(name: &str) -> Option<String> {
+    let values = env::args().collect::<Vec<_>>();
+    values
+        .iter()
+        .position(|value| value == name)
+        .map(|index| values[index + 1].clone())
+}
+
 fn identity(value: &str) -> EdgeIdentity {
     EdgeIdentity::from_dns_name(value).unwrap()
 }
@@ -64,6 +72,32 @@ fn policy() -> AdmissionPolicy {
             0x2a, 0xf4, 0x66, 0x0c,
         ],
         edge_nonce: (0x80..0xa0).collect::<Vec<_>>().try_into().unwrap(),
+    }
+}
+
+fn lifecycle_policy(root: &Path, services: u64) -> AdmissionPolicy {
+    let authorized_services = (0..services)
+        .map(|index| {
+            let name = fs::read_to_string(root.join(format!("{index:02}/name.txt")))
+                .unwrap()
+                .trim()
+                .to_owned();
+            (
+                name,
+                AuthorizedServicePolicy {
+                    accepted_record_sequence: 42,
+                    policy_hash: [
+                        0x09, 0xfe, 0x3b, 0x1c, 0x85, 0x49, 0x99, 0x49, 0xda, 0x22, 0x2d, 0xd4,
+                        0xe2, 0xa4, 0x60, 0xf5, 0x94, 0xae, 0xe8, 0x25, 0xf4, 0x44, 0xa7, 0x22,
+                        0x58, 0xd2, 0xf1, 0x79, 0x7b, 0xf1, 0x14, 0x3f,
+                    ],
+                },
+            )
+        })
+        .collect();
+    AdmissionPolicy {
+        authorized_services,
+        ..policy()
     }
 }
 
@@ -186,6 +220,177 @@ fn stream_open(index: u64) -> nbsr_transport::CoreV02Envelope {
     envelope(6, request(index), 3 + index, body)
 }
 
+fn fixed<const N: usize>(path: &Path) -> [u8; N] {
+    fs::read(path).unwrap().try_into().unwrap()
+}
+
+fn lifecycle_route_open(root: &Path, service: u64) -> nbsr_transport::CoreV02Envelope {
+    let directory = root.join(format!("{service:02}"));
+    envelope(
+        3,
+        fixed::<16>(&directory.join("request-id.bin")),
+        2 + service * 2,
+        fs::read(directory.join("route-open-body.cbor")).unwrap(),
+    )
+}
+
+fn lifecycle_stream_open(root: &Path, service: u64) -> nbsr_transport::CoreV02Envelope {
+    let directory = root.join(format!("{service:02}"));
+    let mut body = Vec::new();
+    map(&mut body, 7);
+    field_uint(&mut body, 0, 1);
+    field_uint(&mut body, 1, 4 + 4 * service);
+    field_bytes(
+        &mut body,
+        2,
+        &fixed::<16>(&directory.join("channel-id.bin")),
+    );
+    field_bytes(&mut body, 3, &fixed::<16>(&directory.join("route-id.bin")));
+    field_bytes(
+        &mut body,
+        4,
+        &fixed::<32>(&directory.join("grant-digest.bin")),
+    );
+    field_text(&mut body, 5, "tcp");
+    field_uint(&mut body, 6, 8443);
+    envelope(6, request(service), 3 + service * 2, body)
+}
+
+async fn run_lifecycle(
+    authority: &Path,
+    endpoint: SocketAddr,
+    root: &Path,
+    connections: u64,
+    services: u64,
+    payload_bytes: usize,
+) {
+    let payload = vec![0x5a; payload_bytes];
+    let mut sample_id = 0_u64;
+    for connection_ordinal in 0..connections {
+        let total_cold = Instant::now();
+        let handshake = Instant::now();
+        let connection = connect(
+            build_client_config(
+                PeerPolicy::new(
+                    EdgeRole::Source,
+                    EdgeRole::Destination,
+                    identity("destination.edge"),
+                    Duration::from_secs(5),
+                    Duration::from_secs(30),
+                )
+                .unwrap(),
+                tls_material(authority),
+            )
+            .unwrap(),
+            endpoint,
+        )
+        .await
+        .unwrap();
+        let handshake_ns = handshake.elapsed().as_nanos();
+        let mut control = connection.open_control_stream().await.unwrap();
+        let client = client_hello();
+        let hello = Instant::now();
+        control.send_envelope(&client).await.unwrap();
+        let edge = control
+            .receive_envelope(CoreV02Limits::default())
+            .await
+            .unwrap();
+        let hello_rtt_ns = hello.elapsed().as_nanos();
+        let mut session = ControlSession::new(
+            &connection,
+            DestinationAdmission::new_federated(lifecycle_policy(root, services), authorities())
+                .unwrap(),
+            vec![issuer()],
+            TrustProfileId::new("federation-dev-v1").unwrap(),
+        );
+        session.accept_client_hello(&client).unwrap();
+        session.confirm_edge_hello(&edge).unwrap();
+        for service in 0..services {
+            let scenario_started = Instant::now();
+            let directory = root.join(format!("{service:02}"));
+            let route = lifecycle_route_open(root, service);
+            let attestations = LocalFederationAdmissionAttestations {
+                source: fs::read(directory.join("source.cose")).unwrap(),
+                destination: fs::read(directory.join("destination.cose")).unwrap(),
+            };
+            let source_admission = Instant::now();
+            session
+                .accept_federated_route_open(&route, &attestations)
+                .unwrap();
+            let source_admission_ns = source_admission.elapsed().as_nanos();
+            let route_started = Instant::now();
+            control.send_envelope(&route).await.unwrap();
+            let accepted = control
+                .receive_envelope(CoreV02Limits::default())
+                .await
+                .unwrap();
+            let route_open_rtt_ns = route_started.elapsed().as_nanos();
+            session.confirm_route_accept(&accepted).unwrap();
+            let channel = fixed::<16>(&directory.join("channel-id.bin"));
+            let binding = Instant::now();
+            connection.bind_channel(&mut session, channel).unwrap();
+            let channel_binding_ns = binding.elapsed().as_nanos();
+            let stream = lifecycle_stream_open(root, service);
+            session.authorize_stream_open(channel, &stream).unwrap();
+            let stream_started = Instant::now();
+            control.send_envelope(&stream).await.unwrap();
+            let stream_accepted = control
+                .receive_envelope(CoreV02Limits::default())
+                .await
+                .unwrap();
+            session
+                .confirm_stream_accept(channel, &stream_accepted)
+                .unwrap();
+            let stream_open_rtt_ns = stream_started.elapsed().as_nanos();
+            let permit = session
+                .application_stream_permit(channel, 4 + 4 * service)
+                .unwrap();
+            let request_started = Instant::now();
+            let response = connection
+                .open_session_stream(&permit)
+                .await
+                .unwrap()
+                .send_and_receive(&payload)
+                .await
+                .unwrap();
+            let request_latency_ns = request_started.elapsed().as_nanos();
+            assert_eq!(response, payload);
+            session.release_stream(channel, 4 + 4 * service).unwrap();
+            println!(
+                "{{\"sample_id\":{sample_id},\"success\":true,\"transport_handshake_ns\":{},\"hello_rtt_ns\":{},\"source_admission_ns\":{source_admission_ns},\"destination_admission_ns\":null,\"route_open_rtt_ns\":{route_open_rtt_ns},\"channel_binding_ns\":{channel_binding_ns},\"stream_open_rtt_ns\":{stream_open_rtt_ns},\"ttfab_ns\":{},\"request_latency_ns\":{request_latency_ns},\"application_processing_ns\":null,\"total_scenario_ns\":{},\"bytes_transmitted\":{payload_bytes},\"bytes_received\":{payload_bytes}}}",
+                if service == 0 {
+                    handshake_ns.to_string()
+                } else {
+                    "null".into()
+                },
+                if service == 0 {
+                    hello_rtt_ns.to_string()
+                } else {
+                    "null".into()
+                },
+                if service == 0 {
+                    total_cold.elapsed().as_nanos()
+                } else {
+                    scenario_started.elapsed().as_nanos()
+                },
+                if service == 0 {
+                    total_cold.elapsed().as_nanos()
+                } else {
+                    scenario_started.elapsed().as_nanos()
+                },
+            );
+            sample_id += 1;
+            while session.pop_audit_event().is_some() {}
+        }
+        fs::write(
+            root.join(format!("connection-{connection_ordinal}.ack")),
+            b"complete\n",
+        )
+        .unwrap();
+        connection.close().await.unwrap();
+    }
+}
+
 fn client_hello() -> nbsr_transport::CoreV02Envelope {
     let mut body = Vec::new();
     map(&mut body, 8);
@@ -220,6 +425,21 @@ async fn main() {
     let endpoint: SocketAddr = argument("--endpoint").parse().unwrap();
     let samples: u64 = argument("--samples").parse().unwrap();
     let payload_bytes: usize = argument("--payload-bytes").parse().unwrap();
+    if let Some(lifecycle_root) = optional_argument("--lifecycle-authority-dir") {
+        let connections = argument("--connections").parse::<u64>().unwrap();
+        let services = argument("--services").parse::<u64>().unwrap();
+        assert!((1..=20).contains(&services));
+        run_lifecycle(
+            &authority,
+            endpoint,
+            &PathBuf::from(lifecycle_root),
+            connections,
+            services,
+            payload_bytes,
+        )
+        .await;
+        return;
+    }
     assert!((1..=100_000).contains(&samples));
     assert!((1..=1_048_576).contains(&payload_bytes));
     let handshake = Instant::now();

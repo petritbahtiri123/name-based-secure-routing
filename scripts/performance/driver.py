@@ -56,6 +56,15 @@ def open_loop_deadlines_ns(*, start_ns: int, rate_per_second: float, count: int)
     return [start_ns + round(index * interval) for index in range(count)]
 
 
+def lifecycle_batch_plan(*, samples: int, services_per_session: int = 20) -> tuple[int, ...]:
+    if samples < 1:
+        raise ValueError("samples must be positive")
+    if not 1 <= services_per_session <= 20:
+        raise ValueError("services per session must be in 1..20")
+    full, remainder = divmod(samples, services_per_session)
+    return (services_per_session,) * full + ((remainder,) if remainder else ())
+
+
 def choose_sustainable_capacity(
     observations: list[CapacityObservation],
 ) -> dict[str, float]:

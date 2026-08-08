@@ -7,10 +7,12 @@ import pytest
 from scripts.performance.driver import (
     CapacityObservation,
     FormalRunRequirements,
+    lifecycle_batch_plan,
     choose_sustainable_capacity,
     ensure_release_binary,
     open_loop_deadlines_ns,
 )
+from scripts.run_performance_validation import merge_destination_measurements
 
 
 def observation(path: str, rate: float, **changes: object) -> CapacityObservation:
@@ -81,3 +83,28 @@ def test_requested_concurrency_is_not_silently_clamped() -> None:
     requirements.validate_concurrency(requested=64, active=64)
     with pytest.raises(ValueError, match="requested concurrency 64, active 32"):
         requirements.validate_concurrency(requested=64, active=32)
+
+
+def test_warm_new_batches_preserve_every_sample_and_existing_transport() -> None:
+    batches = lifecycle_batch_plan(samples=45, services_per_session=20)
+    assert batches == (20, 20, 5)
+    assert sum(batches) == 45
+    assert all(batch <= 20 for batch in batches)
+
+
+def test_lifecycle_batch_plan_rejects_silent_zero_or_over_limit_values() -> None:
+    with pytest.raises(ValueError, match="samples must be positive"):
+        lifecycle_batch_plan(samples=0, services_per_session=20)
+    with pytest.raises(ValueError, match="services per session must be in 1..20"):
+        lifecycle_batch_plan(samples=1, services_per_session=21)
+
+
+def test_destination_measurements_are_joined_without_cross_process_clock_subtraction() -> None:
+    records = [{"sample_id": 0, "destination_admission_ns": None, "application_processing_ns": None}]
+    merge_destination_measurements(
+        records,
+        {"samples": [{"destination_admission_ns": 17, "application_processing_ns": 23}]},
+    )
+    assert records == [{"sample_id": 0, "destination_admission_ns": 17, "application_processing_ns": 23}]
+    with pytest.raises(ValueError, match="destination measurement count mismatch"):
+        merge_destination_measurements(records, {"samples": []})

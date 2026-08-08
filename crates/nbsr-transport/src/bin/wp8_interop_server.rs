@@ -71,6 +71,32 @@ fn policy() -> AdmissionPolicy {
     }
 }
 
+fn lifecycle_policy(root: &Path, services: u64) -> AdmissionPolicy {
+    let authorized_services = (0..services)
+        .map(|index| {
+            let name = fs::read_to_string(root.join(format!("{index:02}/name.txt")))
+                .unwrap()
+                .trim()
+                .to_owned();
+            (
+                name,
+                AuthorizedServicePolicy {
+                    accepted_record_sequence: 42,
+                    policy_hash: [
+                        0x09, 0xfe, 0x3b, 0x1c, 0x85, 0x49, 0x99, 0x49, 0xda, 0x22, 0x2d, 0xd4,
+                        0xe2, 0xa4, 0x60, 0xf5, 0x94, 0xae, 0xe8, 0x25, 0xf4, 0x44, 0xa7, 0x22,
+                        0x58, 0xd2, 0xf1, 0x79, 0x7b, 0xf1, 0x14, 0x3f,
+                    ],
+                },
+            )
+        })
+        .collect();
+    AdmissionPolicy {
+        authorized_services,
+        ..policy()
+    }
+}
+
 fn authorities() -> LocalFederationAdmissionAuthorities {
     let mut destination_key = [
         0xd7, 0x59, 0x79, 0x3b, 0xbc, 0x13, 0xa2, 0x81, 0x9a, 0x82, 0x7c, 0x76, 0xad, 0xb6, 0xfb,
@@ -172,6 +198,135 @@ fn route_accept() -> nbsr_transport::CoreV02Envelope {
     )
 }
 
+fn fixed<const N: usize>(path: &Path) -> [u8; N] {
+    fs::read(path).unwrap().try_into().unwrap()
+}
+
+fn lifecycle_route_accept(root: &Path, index: u64) -> nbsr_transport::CoreV02Envelope {
+    let directory = root.join(format!("{index:02}"));
+    let mut body = Vec::new();
+    map(&mut body, 5);
+    field_uint(&mut body, 0, 1);
+    field_bytes(
+        &mut body,
+        1,
+        &fixed::<16>(&directory.join("channel-id.bin")),
+    );
+    field_bytes(&mut body, 2, &fixed::<16>(&directory.join("route-id.bin")));
+    field_bytes(
+        &mut body,
+        3,
+        &fixed::<32>(&directory.join("grant-digest.bin")),
+    );
+    field_uint(&mut body, 4, 1_893_456_000);
+    envelope(
+        4,
+        fixed::<16>(&directory.join("request-id.bin")),
+        2 + index * 2,
+        body,
+    )
+}
+
+fn lifecycle_stream_accept(root: &Path, service: u64) -> nbsr_transport::CoreV02Envelope {
+    let directory = root.join(format!("{service:02}"));
+    let stream_id = 4 + service * 4;
+    let mut body = Vec::new();
+    map(&mut body, 5);
+    field_uint(&mut body, 0, 1);
+    field_uint(&mut body, 1, stream_id);
+    field_bytes(
+        &mut body,
+        2,
+        &fixed::<16>(&directory.join("channel-id.bin")),
+    );
+    field_bytes(&mut body, 3, &fixed::<16>(&directory.join("route-id.bin")));
+    field_uint(&mut body, 4, 1_893_456_000);
+    envelope(7, stream_request(service), 3 + service * 2, body)
+}
+
+async fn run_lifecycle(
+    listener: &TransportListener,
+    root: &Path,
+    connections: u64,
+    services: u64,
+) -> Vec<(u128, u128)> {
+    let mut measurements = Vec::with_capacity((connections * services) as usize);
+    for connection_ordinal in 0..connections {
+        let connection = listener.accept_one().await.unwrap();
+        let mut control = connection.accept_control_stream().await.unwrap();
+        let mut session = ControlSession::new(
+            &connection,
+            DestinationAdmission::new_federated(lifecycle_policy(root, services), authorities())
+                .unwrap(),
+            vec![issuer()],
+            TrustProfileId::new("federation-dev-v1").unwrap(),
+        );
+        let client = control
+            .receive_envelope(CoreV02Limits::default())
+            .await
+            .unwrap();
+        session.accept_client_hello(&client).unwrap();
+        let edge = edge_hello();
+        session.confirm_edge_hello(&edge).unwrap();
+        control.send_envelope(&edge).await.unwrap();
+        for index in 0..services {
+            let directory = root.join(format!("{index:02}"));
+            let route = control
+                .receive_envelope(CoreV02Limits::default())
+                .await
+                .unwrap();
+            let attestations = LocalFederationAdmissionAttestations {
+                source: fs::read(directory.join("source.cose")).unwrap(),
+                destination: fs::read(directory.join("destination.cose")).unwrap(),
+            };
+            let destination_admission = std::time::Instant::now();
+            session
+                .accept_federated_route_open(&route, &attestations)
+                .unwrap();
+            let destination_admission_ns = destination_admission.elapsed().as_nanos();
+            let accepted = lifecycle_route_accept(root, index);
+            session.confirm_route_accept(&accepted).unwrap();
+            control.send_envelope(&accepted).await.unwrap();
+            let channel = fixed::<16>(&directory.join("channel-id.bin"));
+            connection.bind_channel(&mut session, channel).unwrap();
+            let stream = control
+                .receive_envelope(CoreV02Limits::default())
+                .await
+                .unwrap();
+            session.authorize_stream_open(channel, &stream).unwrap();
+            let stream_accepted = lifecycle_stream_accept(root, index);
+            session
+                .confirm_stream_accept(channel, &stream_accepted)
+                .unwrap();
+            control.send_envelope(&stream_accepted).await.unwrap();
+            let application_processing = std::time::Instant::now();
+            let application = connection
+                .accept_session_stream(&mut session, channel)
+                .await;
+            if let Err(error) = &application {
+                eprintln!("nbsr-perf lifecycle application admission failed: {error:?}");
+            }
+            application.unwrap().echo_once().await.unwrap();
+            measurements.push((
+                destination_admission_ns,
+                application_processing.elapsed().as_nanos(),
+            ));
+            session.release_stream(channel, 4 + index * 4).unwrap();
+            while session.pop_audit_event().is_some() {}
+        }
+        tokio::time::timeout(Duration::from_secs(10), async {
+            let acknowledgement = root.join(format!("connection-{connection_ordinal}.ack"));
+            while !acknowledgement.exists() {
+                tokio::time::sleep(Duration::from_millis(1)).await;
+            }
+        })
+        .await
+        .expect("lifecycle client completion acknowledgement");
+        connection.close().await.unwrap();
+    }
+    measurements
+}
+
 fn stream_accept(index: u64) -> nbsr_transport::CoreV02Envelope {
     let mut body = Vec::new();
     map(&mut body, 5);
@@ -223,6 +378,32 @@ async fn main() {
             .replace('\\', "/")
     };
     fs::write(&ready,format!("{{\"alpn\":\"nbsr-quic-1\",\"ca_der\":\"{}\",\"client_cert_der\":\"{}\",\"client_key_der\":\"{}\",\"endpoint\":\"{}\",\"quic_version\":\"v1\",\"server_name\":\"destination.edge\",\"tls_version\":\"1.3\"}}",path("ca.der"),path("source.der"),path("source-key.der"),endpoint)).unwrap();
+    if let Some(lifecycle_root) = env::var_os("NBSR_PERF_LIFECYCLE_ROOT") {
+        let connections = env::var("NBSR_PERF_LIFECYCLE_CONNECTIONS")
+            .unwrap()
+            .parse::<u64>()
+            .unwrap();
+        let services = env::var("NBSR_PERF_LIFECYCLE_SERVICES")
+            .unwrap()
+            .parse::<u64>()
+            .unwrap();
+        assert!((1..=20).contains(&services));
+        let measurements = run_lifecycle(
+            &listener,
+            &PathBuf::from(lifecycle_root),
+            connections,
+            services,
+        )
+        .await;
+        let samples = measurements
+            .iter()
+            .map(|(destination, application)| format!("{{\"destination_admission_ns\":{destination},\"application_processing_ns\":{application}}}"))
+            .collect::<Vec<_>>()
+            .join(",");
+        fs::write(result, format!("{{\"connections\":{connections},\"services_per_connection\":{services},\"samples\":[{samples}],\"status\":\"PASS\"}}")).unwrap();
+        listener.close().await.unwrap();
+        return;
+    }
     let connection = listener.accept_one().await.unwrap();
     let mut control = connection.accept_control_stream().await.unwrap();
     let mut session = ControlSession::new(
