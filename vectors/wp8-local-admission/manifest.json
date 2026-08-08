@@ -1,0 +1,15 @@
+{
+  "format": "nbsr-wp8-local-admission-attestations-v1",
+  "artifacts": [
+    {
+      "path": "destination.cose",
+      "length": 524,
+      "sha256": "0e22e19d2f790e8a803927f75ec4d69d41063aef6d6539ab98a2a892e97a9379"
+    },
+    {
+      "path": "source.cose",
+      "length": 514,
+      "sha256": "48f67e84395bf1dcc98c92f5f34561193e9c7daaae03a93835bf110a4cd82e68"
+    }
+  ]
+}

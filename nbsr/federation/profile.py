@@ -4,6 +4,7 @@ import hashlib
 import json
 from dataclasses import dataclass
 from pathlib import Path
+from pathlib import PurePosixPath
 from typing import ClassVar
 
 
@@ -150,3 +151,142 @@ def assert_core_baseline(root: Path) -> None:
         payload = (root / relative).read_bytes()
         if len(payload) != expected["length"] or hashlib.sha256(payload).hexdigest() != expected["sha256"]:
             raise CoreBaselineError(f"modified Core v0.2 baseline artifact: {relative}")
+
+
+def assert_core_baseline_lock_authority(root: Path) -> None:
+    root = root.resolve()
+    lock_bytes, lock = _read_json_authority(
+        root / "docs/protocol/registries/core-v0.2-baseline-lock.json",
+        "Core v0.2 baseline lock",
+    )
+    if hashlib.sha256(lock_bytes).hexdigest() != FederationProfile.core_v02_baseline_lock_sha256:
+        raise CoreBaselineError("modified original baseline digest")
+    if lock.get("baseline_commit") != FederationProfile.core_baseline_commit:
+        raise CoreBaselineError("modified Core v0.2 baseline commit")
+    if type(lock.get("artifacts")) is not dict or len(lock["artifacts"]) != 110 or type(lock.get("scopes")) is not list:
+        raise CoreBaselineError("invalid Core v0.2 baseline inventory")
+
+
+_F75_OVERLAY_PATH = "docs/protocol/registries/core-v0.2-f75-overlay.json"
+_F75_REASON = "Human-approved F75 ROUTE_OPEN body_version = 2 federation-binding extension and admission integration only."
+_F75_REPLACEMENTS = frozenset(
+    {
+        "crates/nbsr-" "transport/src/admission.rs",
+        "crates/nbsr-" "transport/src/core_v02.rs",
+        "crates/nbsr-" "transport/src/lib.rs",
+        "crates/nbsr-" "transport/src/session.rs",
+    }
+)
+
+
+def _strict_object(pairs: list[tuple[str, object]]) -> dict[str, object]:
+    result: dict[str, object] = {}
+    for key, value in pairs:
+        if type(key) is not str or key in result:
+            raise CoreBaselineError("duplicate or invalid F75 overlay key")
+        result[key] = value
+    return result
+
+
+def _read_json_authority(path: Path, label: str) -> tuple[bytes, dict[str, object]]:
+    if path.is_symlink():
+        raise CoreBaselineError(f"{label} must not be a symlink")
+    try:
+        raw = path.read_bytes()
+        value = json.loads(raw, object_pairs_hook=_strict_object)
+    except CoreBaselineError:
+        raise
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise CoreBaselineError(f"invalid {label}") from exc
+    if type(value) is not dict:
+        raise CoreBaselineError(f"invalid {label}")
+    return raw, value
+
+
+def _safe_overlay_path(root: Path, relative: object) -> Path:
+    if type(relative) is not str or not relative or "\\" in relative:
+        raise CoreBaselineError("invalid F75 replacement path")
+    pure = PurePosixPath(relative)
+    if pure.is_absolute() or pure.as_posix() != relative or any(part in {"", ".", ".."} for part in pure.parts):
+        raise CoreBaselineError("invalid F75 replacement path")
+    candidate = root.joinpath(*pure.parts)
+    if candidate.is_symlink():
+        raise CoreBaselineError("F75 overlay replacement must not be a symlink")
+    try:
+        resolved = candidate.resolve(strict=True)
+    except OSError as exc:
+        raise CoreBaselineError(f"missing F75 overlay replacement: {relative}") from exc
+    if not resolved.is_relative_to(root):
+        raise CoreBaselineError("F75 replacement path escapes repository")
+    return candidate
+
+
+def assert_f75_core_overlay(root: Path) -> None:
+    root = root.resolve()
+    lock_path = root / "docs/protocol/registries/core-v0.2-baseline-lock.json"
+    lock_bytes, lock = _read_json_authority(lock_path, "Core v0.2 baseline lock")
+    original_digest = hashlib.sha256(lock_bytes).hexdigest()
+    if original_digest != FederationProfile.core_v02_baseline_lock_sha256:
+        raise CoreBaselineError("modified original baseline digest")
+    if lock.get("baseline_commit") != FederationProfile.core_baseline_commit:
+        raise CoreBaselineError("modified Core v0.2 baseline commit")
+    artifacts = lock.get("artifacts")
+    scopes = lock.get("scopes")
+    if type(artifacts) is not dict or type(scopes) is not list or len(artifacts) != 110:
+        raise CoreBaselineError("invalid Core v0.2 baseline inventory")
+
+    _, overlay = _read_json_authority(root / _F75_OVERLAY_PATH, "F75 overlay authority")
+    if set(overlay) != {"format_version", "authority_id", "reason", "original_baseline", "replacements"}:
+        raise CoreBaselineError("invalid F75 overlay authority schema")
+    original = overlay["original_baseline"]
+    replacements = overlay["replacements"]
+    if (
+        overlay["format_version"] != 1
+        or overlay["authority_id"] != "NBSR-WP8-TASK10-F75-CORE-OVERLAY"
+        or overlay["reason"] != _F75_REASON
+        or type(original) is not dict
+        or set(original) != {"path", "sha256"}
+        or original["path"] != "docs/protocol/registries/core-v0.2-baseline-lock.json"
+        or original["sha256"] != FederationProfile.core_v02_baseline_lock_sha256
+    ):
+        raise CoreBaselineError("invalid F75 original baseline reference")
+    if type(replacements) is not list or len(replacements) != 4:
+        raise CoreBaselineError("F75 overlay must contain exactly four replacements")
+
+    approved: dict[str, dict[str, object]] = {}
+    for entry in replacements:
+        if type(entry) is not dict or set(entry) != {"path", "length", "sha256"}:
+            raise CoreBaselineError("invalid F75 overlay replacement schema")
+        relative = entry["path"]
+        _safe_overlay_path(root, relative)
+        if relative in approved:
+            raise CoreBaselineError("duplicate F75 overlay replacement path")
+        if relative not in _F75_REPLACEMENTS:
+            raise CoreBaselineError("unauthorized F75 replacement path")
+        if (
+            type(entry["length"]) is not int
+            or entry["length"] <= 0
+            or type(entry["sha256"]) is not str
+            or len(entry["sha256"]) != 64
+            or any(character not in "0123456789abcdef" for character in entry["sha256"])
+        ):
+            raise CoreBaselineError("invalid F75 overlay replacement digest")
+        approved[relative] = entry
+    if set(approved) != _F75_REPLACEMENTS:
+        raise CoreBaselineError("F75 replacement path set is not exact")
+
+    expected_paths = set(artifacts)
+    actual_paths = set().union(*(_files_for_scope(root, scope) for scope in scopes))
+    if actual_paths - expected_paths:
+        raise CoreBaselineError(f"unlisted Core v0.2 baseline artifact: {min(actual_paths - expected_paths)}")
+    if expected_paths - actual_paths:
+        raise CoreBaselineError(f"missing Core v0.2 baseline artifact: {min(expected_paths - actual_paths)}")
+    for relative, original_entry in artifacts.items():
+        path = root / relative
+        if path.is_symlink():
+            raise CoreBaselineError(f"Core baseline artifact must not be a symlink: {relative}")
+        data = path.read_bytes()
+        expected = approved.get(relative, original_entry)
+        if len(data) != expected["length"] or hashlib.sha256(data).hexdigest() != expected["sha256"]:
+            label = "overlay replacement" if relative in approved else "baseline artifact"
+            raise CoreBaselineError(f"modified Core v0.2 {label}: {relative}")

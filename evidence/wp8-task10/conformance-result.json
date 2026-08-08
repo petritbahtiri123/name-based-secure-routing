@@ -1,0 +1,508 @@
+{
+  "commands": [
+    {
+      "argv": [
+        "C:\\Users\\bajra\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+        "scripts/verify_f75_core_overlay.py",
+        "original",
+        "."
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 0,
+        "skipped": 0
+      },
+      "cwd": ".",
+      "exit_code": 0,
+      "id": "core-v02-original-baseline-lock",
+      "status": "PASS"
+    },
+    {
+      "argv": [
+        "C:\\Users\\bajra\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+        "scripts/verify_f75_core_overlay.py",
+        "overlay",
+        "."
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 0,
+        "skipped": 0
+      },
+      "cwd": ".",
+      "exit_code": 0,
+      "id": "f75-additive-overlay",
+      "status": "PASS"
+    },
+    {
+      "argv": [
+        "C:\\Users\\bajra\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+        "scripts/generate_wp8_f75_vectors.py",
+        "--check",
+        "vectors/wp8-f75-route-open"
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 0,
+        "skipped": 0
+      },
+      "cwd": ".",
+      "exit_code": 0,
+      "id": "f75-manifest",
+      "status": "PASS"
+    },
+    {
+      "argv": [
+        "C:\\Users\\bajra\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+        "scripts/generate_wp8_local_admission_attestations.py",
+        "--check"
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 0,
+        "skipped": 0
+      },
+      "cwd": ".",
+      "exit_code": 0,
+      "id": "local-admission-attestations",
+      "status": "PASS"
+    },
+    {
+      "argv": [
+        "C:\\Users\\bajra\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+        "scripts/generate_federation_v01_vectors.py",
+        "--check",
+        "vectors/federation-v0.1"
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 0,
+        "skipped": 0
+      },
+      "cwd": ".",
+      "exit_code": 0,
+      "id": "federation-v01-manifest",
+      "status": "PASS"
+    },
+    {
+      "argv": [
+        "C:\\Users\\bajra\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+        "scripts/verify_federation_schema_fixtures.py"
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 0,
+        "skipped": 0
+      },
+      "cwd": ".",
+      "exit_code": 0,
+      "id": "schema-literals",
+      "status": "PASS"
+    },
+    {
+      "argv": [
+        "C:\\Users\\bajra\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+        "scripts/verify_federation_threshold_container_fixtures.py",
+        "--check"
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 0,
+        "skipped": 0
+      },
+      "cwd": ".",
+      "exit_code": 0,
+      "id": "threshold-literals",
+      "status": "PASS"
+    },
+    {
+      "argv": [
+        "C:\\Users\\bajra\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+        "-m",
+        "pytest",
+        "tests/protocol/test_wp8_f75_vectors.py",
+        "-q"
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 23,
+        "skipped": 0
+      },
+      "cwd": ".",
+      "exit_code": 0,
+      "id": "f75-python",
+      "status": "PASS"
+    },
+    {
+      "argv": [
+        "node",
+        "scripts/verify_wp8_f75_vectors.mjs",
+        "vectors/wp8-f75-route-open"
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 0,
+        "skipped": 0
+      },
+      "cwd": ".",
+      "exit_code": 0,
+      "id": "f75-node",
+      "status": "PASS"
+    },
+    {
+      "argv": [
+        "C:\\Users\\bajra\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+        "-m",
+        "pytest",
+        "tests/federation",
+        "-q"
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 549,
+        "skipped": 0
+      },
+      "cwd": ".",
+      "exit_code": 0,
+      "id": "federation-python",
+      "status": "PASS"
+    },
+    {
+      "argv": [
+        "C:\\Users\\bajra\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+        "-m",
+        "pytest",
+        "tests/test_wp7_admission.py",
+        "tests/test_wp7_conformance.py",
+        "tests/test_wp7_review_fixes.py",
+        "-q"
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 71,
+        "skipped": 0
+      },
+      "cwd": ".",
+      "exit_code": 0,
+      "id": "wp7-python",
+      "status": "PASS"
+    },
+    {
+      "argv": [
+        "C:\\Users\\bajra\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+        "-m",
+        "pytest",
+        "tests/federation/test_packet_evidence.py",
+        "-q"
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 2,
+        "skipped": 0
+      },
+      "cwd": ".",
+      "exit_code": 0,
+      "id": "packet-evidence",
+      "status": "PASS"
+    },
+    {
+      "argv": [
+        "C:\\Users\\bajra\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+        "-m",
+        "pytest",
+        "-q"
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 1652,
+        "skipped": 1
+      },
+      "cwd": ".",
+      "exit_code": 0,
+      "id": "full-python",
+      "status": "PASS"
+    },
+    {
+      "argv": [
+        "C:\\Users\\bajra\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+        "-m",
+        "ruff",
+        "check",
+        "."
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 0,
+        "skipped": 0
+      },
+      "cwd": ".",
+      "exit_code": 0,
+      "id": "ruff",
+      "status": "PASS"
+    },
+    {
+      "argv": [
+        "C:\\Users\\bajra\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+        "-m",
+        "pip",
+        "check"
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 0,
+        "skipped": 0
+      },
+      "cwd": ".",
+      "exit_code": 0,
+      "id": "pip-check",
+      "status": "PASS"
+    },
+    {
+      "argv": [
+        "C:\\Users\\bajra\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+        "scripts/verify_wp8_repository_safety.py",
+        "dependencies",
+        "."
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 0,
+        "skipped": 0
+      },
+      "cwd": ".",
+      "exit_code": 0,
+      "id": "dependency-inspection",
+      "status": "PASS"
+    },
+    {
+      "argv": [
+        "C:\\Users\\bajra\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+        "scripts/verify_wp8_repository_safety.py",
+        "privacy",
+        "."
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 0,
+        "skipped": 0
+      },
+      "cwd": ".",
+      "exit_code": 0,
+      "id": "repository-privacy-secret-scan",
+      "status": "PASS"
+    },
+    {
+      "argv": [
+        "npm",
+        "test"
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 23,
+        "skipped": 0
+      },
+      "cwd": "verifiers/federation-node",
+      "exit_code": 0,
+      "id": "node-federation-tests",
+      "status": "PASS"
+    },
+    {
+      "argv": [
+        "npm",
+        "run",
+        "verify"
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 0,
+        "skipped": 0
+      },
+      "cwd": "verifiers/federation-node",
+      "exit_code": 0,
+      "id": "node-federation-verify",
+      "status": "PASS"
+    },
+    {
+      "argv": [
+        "npm",
+        "test"
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 36,
+        "skipped": 0
+      },
+      "cwd": "tools/core-v02-node-verifier",
+      "exit_code": 0,
+      "id": "node-core-tests",
+      "status": "PASS"
+    },
+    {
+      "argv": [
+        "npm",
+        "run",
+        "verify"
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 0,
+        "skipped": 0
+      },
+      "cwd": "tools/core-v02-node-verifier",
+      "exit_code": 0,
+      "id": "node-core-verify",
+      "status": "PASS"
+    },
+    {
+      "argv": [
+        "node",
+        "scripts/verify_wp4_exporter_vectors.mjs",
+        "vectors/core-v0.2/wp4-exporter"
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 0,
+        "skipped": 0
+      },
+      "cwd": ".",
+      "exit_code": 0,
+      "id": "wp4-exporter",
+      "status": "PASS"
+    },
+    {
+      "argv": [
+        "go",
+        "test",
+        "-json",
+        "./..."
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 73,
+        "skipped": 0
+      },
+      "cwd": "verifiers/federation-go",
+      "exit_code": 0,
+      "id": "go-federation-tests",
+      "status": "PASS"
+    },
+    {
+      "argv": [
+        "go",
+        "vet",
+        "./..."
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 0,
+        "skipped": 0
+      },
+      "cwd": "verifiers/federation-go",
+      "exit_code": 0,
+      "id": "go-federation-vet",
+      "status": "PASS"
+    },
+    {
+      "argv": [
+        "cargo",
+        "fmt",
+        "--manifest-path",
+        "crates/nbsr-transport/Cargo.toml",
+        "--",
+        "--check"
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 0,
+        "skipped": 0
+      },
+      "cwd": ".",
+      "exit_code": 0,
+      "id": "rust-format",
+      "status": "PASS"
+    },
+    {
+      "argv": [
+        "cargo",
+        "clippy",
+        "--manifest-path",
+        "crates/nbsr-transport/Cargo.toml",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 0,
+        "skipped": 0
+      },
+      "cwd": ".",
+      "exit_code": 0,
+      "id": "rust-clippy",
+      "status": "PASS"
+    },
+    {
+      "argv": [
+        "cargo",
+        "test",
+        "--manifest-path",
+        "crates/nbsr-transport/Cargo.toml"
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 137,
+        "skipped": 0
+      },
+      "cwd": ".",
+      "exit_code": 0,
+      "id": "rust-all",
+      "status": "PASS"
+    },
+    {
+      "argv": [
+        "C:\\Users\\bajra\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+        "-m",
+        "pytest",
+        "tests/federation/test_runtime_documentation.py",
+        "-q"
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 7,
+        "skipped": 0
+      },
+      "cwd": ".",
+      "exit_code": 0,
+      "id": "documentation",
+      "status": "PASS"
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "counts": {
+        "failed": 0,
+        "passed": 0,
+        "skipped": 0
+      },
+      "cwd": ".",
+      "exit_code": 0,
+      "id": "git-diff-check",
+      "status": "PASS"
+    },
+    {
+      "id": "independent-wire-peer",
+      "skip_reason": "independent route/stream wire interoperability NOT YET PROVEN",
+      "status": "SKIP"
+    }
+  ],
+  "outcome": "PASS_WITH_SKIPS",
+  "totals": {
+    "failed": 0,
+    "passed": 2573,
+    "skipped": 2
+  }
+}

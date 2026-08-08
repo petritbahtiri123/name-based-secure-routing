@@ -4,10 +4,11 @@ use std::path::PathBuf;
 use std::time::Duration;
 
 use nbsr_transport::{
-    ActiveChannel, AdmissionPolicy, AuthorizedServicePolicy, ControlSession, CoreV02Limits,
-    DestinationAdmission, EdgeIdentity, EdgeRole, PeerPolicy, RouteGrantIssuer, TransportError,
-    TransportListener, TrustProfileId, build_client_config, build_server_config, connect,
-    decode_control_envelope,
+    ActiveChannel, AdmissionPolicy, AuthorizedServicePolicy, ControlSession, CoreV02Envelope,
+    CoreV02Limits, DestinationAdmission, EdgeIdentity, EdgeRole,
+    LocalFederationAdmissionAttestations, LocalFederationAdmissionAuthorities, PeerPolicy,
+    RouteGrantIssuer, TransportError, TransportListener, TrustProfileId, build_client_config,
+    build_server_config, connect, decode_control_envelope,
 };
 use sha2::{Digest, Sha256};
 
@@ -87,6 +88,14 @@ async fn connection_pair() -> (
     nbsr_transport::AuthenticatedConnection,
     nbsr_transport::AuthenticatedConnection,
 ) {
+    let listen_port = std::env::var("NBSR_WP8_CAPTURE_PORT")
+        .ok()
+        .map(|value| {
+            value
+                .parse::<u16>()
+                .expect("NBSR_WP8_CAPTURE_PORT must be a nonzero u16")
+        })
+        .unwrap_or(0);
     let pki = support::TestPki::generate_for("source.edge", "destination.edge");
     let destination_policy = PeerPolicy::new(
         EdgeRole::Destination,
@@ -106,7 +115,7 @@ async fn connection_pair() -> (
     .expect("source policy");
     let listener = TransportListener::bind(
         build_server_config(destination_policy, pki.destination_material()).expect("server config"),
-        SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), 0),
+        SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), listen_port),
     )
     .expect("listener");
     let remote = listener.local_addr().expect("address");
@@ -481,4 +490,362 @@ async fn outbound_payload_over_one_mib_is_rejected_before_delivery() {
     source.close().await.expect("source close");
     destination.close().await.expect("destination close");
     listener.close().await.expect("listener close");
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn federated_two_operator_route_transfers_only_after_f75_admission() {
+    let (listener, source, destination) = connection_pair().await;
+    let mut source_control = source.open_control_stream().await.expect("source control");
+    let mut destination_session = federated_control_session(&destination);
+    let client_hello = task10_client_hello();
+    source_control
+        .send_envelope(&client_hello)
+        .await
+        .expect("send CLIENT_HELLO");
+    let mut destination_control = destination
+        .accept_control_stream()
+        .await
+        .expect("destination control");
+    destination_session
+        .accept_client_hello(
+            &destination_control
+                .receive_envelope(CoreV02Limits::default())
+                .await
+                .expect("receive CLIENT_HELLO"),
+        )
+        .expect("source admission");
+    let edge_hello = decode_control_envelope(
+        &vector("artifacts/valid/envelopes/edge-hello.cbor"),
+        CoreV02Limits::default(),
+    )
+    .unwrap();
+    destination_control
+        .send_envelope(&edge_hello)
+        .await
+        .unwrap();
+    source_control
+        .receive_envelope(CoreV02Limits::default())
+        .await
+        .unwrap();
+    destination_session
+        .confirm_edge_hello(&edge_hello)
+        .expect("transport session");
+
+    let route_open = task10_f75_route_open();
+    let attestations = task10_federation_attestations();
+    let mut source_session = federated_control_session(&source);
+    source_session.accept_client_hello(&client_hello).unwrap();
+    source_session.confirm_edge_hello(&edge_hello).unwrap();
+    source_session
+        .accept_federated_route_open(&route_open, &attestations)
+        .expect("source F75 admission before transmission");
+    source_control.send_envelope(&route_open).await.unwrap();
+    let received = destination_control
+        .receive_envelope(CoreV02Limits::default())
+        .await
+        .unwrap();
+    destination_session
+        .accept_federated_route_open(&received, &attestations)
+        .expect("destination F75 admission");
+    let route_accept = task10_route_accept();
+    destination_control
+        .send_envelope(&route_accept)
+        .await
+        .unwrap();
+    source_control
+        .receive_envelope(CoreV02Limits::default())
+        .await
+        .unwrap();
+    destination_session
+        .confirm_route_accept(&route_accept)
+        .unwrap();
+    let channel_id: [u8; 16] = (0x40..0x50).collect::<Vec<_>>().try_into().unwrap();
+    destination
+        .bind_channel(&mut destination_session, channel_id)
+        .unwrap();
+
+    let stream_open = task10_stream_open();
+    let stream_accept = decode_control_envelope(
+        &vector("artifacts/valid/envelopes/stream-accept.cbor"),
+        CoreV02Limits::default(),
+    )
+    .unwrap();
+    destination_session
+        .authorize_stream_open(channel_id, &stream_open)
+        .unwrap();
+    destination_session
+        .confirm_stream_accept(channel_id, &stream_accept)
+        .unwrap();
+
+    source_session.confirm_route_accept(&route_accept).unwrap();
+    source
+        .bind_channel(&mut source_session, channel_id)
+        .unwrap();
+    source_session
+        .authorize_stream_open(channel_id, &stream_open)
+        .unwrap();
+    source_session
+        .confirm_stream_accept(channel_id, &stream_accept)
+        .unwrap();
+    let permit = source_session
+        .application_stream_permit(channel_id, 4)
+        .unwrap();
+    let payload = b"NBSR-WP8-TASK10-LIVE-v1".to_vec();
+    let (at_destination, at_source) = tokio::join!(
+        async {
+            destination
+                .accept_session_stream(&mut destination_session, channel_id)
+                .await
+                .unwrap()
+                .echo_once()
+                .await
+                .unwrap()
+        },
+        async {
+            source
+                .open_session_stream(&permit)
+                .await
+                .unwrap()
+                .send_and_receive(&payload)
+                .await
+                .unwrap()
+        }
+    );
+    assert_eq!(at_destination, payload);
+    assert_eq!(at_source, payload);
+    source.close().await.unwrap();
+    destination.close().await.unwrap();
+    listener.close().await.unwrap();
+}
+
+fn federated_control_session(
+    connection: &nbsr_transport::AuthenticatedConnection,
+) -> ControlSession {
+    let mut policy = control_session_policy();
+    policy.source_operator_id =
+        "nbsr12df4x56n2df4x56n2df4x56n2df4x56n2df4x56n2df4x56n2dfsk5743r".into();
+    policy.destination_operator_id =
+        "nbsr1g3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zqel9ufg".into();
+    ControlSession::new(
+        connection,
+        DestinationAdmission::new_federated(policy, task10_federation_authorities()).unwrap(),
+        vec![route_grant_issuer()],
+        TrustProfileId::new("federation-dev-v1").unwrap(),
+    )
+}
+
+fn control_session_policy() -> AdmissionPolicy {
+    AdmissionPolicy {
+        source_operator_id: "source.operator".into(),
+        source_edge_id: "source.edge".into(),
+        destination_operator_id: "destination.operator".into(),
+        destination_edge_id: "destination.edge".into(),
+        authorized_services: BTreeMap::from([(
+            "service.example".into(),
+            AuthorizedServicePolicy {
+                accepted_record_sequence: 42,
+                policy_hash: [
+                    0x09, 0xfe, 0x3b, 0x1c, 0x85, 0x49, 0x99, 0x49, 0xda, 0x22, 0x2d, 0xd4, 0xe2,
+                    0xa4, 0x60, 0xf5, 0x94, 0xae, 0xe8, 0x25, 0xf4, 0x44, 0xa7, 0x22, 0x58, 0xd2,
+                    0xf1, 0x79, 0x7b, 0xf1, 0x14, 0x3f,
+                ],
+            },
+        )]),
+        now: 1_893_456_000,
+        client_session_public_key: [
+            0x3d, 0x40, 0x17, 0xc3, 0xe8, 0x43, 0x89, 0x5a, 0x92, 0xb7, 0x0a, 0xa7, 0x4d, 0x1b,
+            0x7e, 0xbc, 0x9c, 0x98, 0x2c, 0xcf, 0x2e, 0xc4, 0x96, 0x8c, 0xc0, 0xcd, 0x55, 0xf1,
+            0x2a, 0xf4, 0x66, 0x0c,
+        ],
+        edge_nonce: (0x80..0xa0).collect::<Vec<_>>().try_into().unwrap(),
+    }
+}
+
+fn route_grant_issuer() -> RouteGrantIssuer {
+    RouteGrantIssuer {
+        kid: b"nbsr-test-route-grant-key".to_vec(),
+        public_key: [
+            0xd7, 0x5a, 0x98, 0x01, 0x82, 0xb1, 0x0a, 0xb7, 0xd5, 0x4b, 0xfe, 0xd3, 0xc9, 0x64,
+            0x07, 0x3a, 0x0e, 0xe1, 0x72, 0xf3, 0xda, 0xa6, 0x23, 0x25, 0xaf, 0x02, 0x1a, 0x68,
+            0xf7, 0x07, 0x51, 0x1a,
+        ],
+    }
+}
+
+fn task10_federation_attestations() -> LocalFederationAdmissionAttestations {
+    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..");
+    LocalFederationAdmissionAttestations {
+        source: std::fs::read(root.join("vectors/wp8-local-admission/source.cose")).unwrap(),
+        destination: std::fs::read(root.join("vectors/wp8-local-admission/destination.cose"))
+            .unwrap(),
+    }
+}
+
+fn task10_federation_authorities() -> LocalFederationAdmissionAuthorities {
+    LocalFederationAdmissionAuthorities::new(
+        b"local-source".to_vec(),
+        [
+            0xf8, 0x0c, 0xcc, 0xdc, 0xe4, 0xae, 0x1c, 0x07, 0xae, 0x20, 0x8a, 0x2a, 0xdf, 0x99,
+            0xa3, 0x10, 0xae, 0x42, 0x07, 0xe0, 0x30, 0x6f, 0xa0, 0x23, 0x61, 0x10, 0xb0, 0x68,
+            0x27, 0xbb, 0xb8, 0xd0,
+        ],
+        b"local-destination".to_vec(),
+        [
+            0xd7, 0x59, 0x79, 0x3b, 0xbc, 0x13, 0xa2, 0x81, 0x9a, 0x82, 0x7c, 0x76, 0xad, 0xb6,
+            0xfb, 0xa8, 0xa4, 0x9a, 0xee, 0x00, 0x7f, 0x49, 0xf2, 0xd0, 0x99, 0x2d, 0x99, 0xb8,
+            0x25, 0xad, 0x2c, 0x48,
+        ],
+    )
+    .unwrap()
+}
+
+fn task10_route_grant_digest() -> [u8; 32] {
+    [
+        0xf6, 0x09, 0x00, 0x54, 0xa8, 0x32, 0xc5, 0x59, 0xb2, 0x8b, 0xba, 0x38, 0x6f, 0x78, 0x61,
+        0x65, 0x57, 0xce, 0x13, 0xaf, 0x39, 0xe1, 0xa9, 0x5d, 0x3d, 0xff, 0x9e, 0x1f, 0x7b, 0xa9,
+        0x68, 0x60,
+    ]
+}
+
+fn task10_client_hello() -> CoreV02Envelope {
+    let mut body = Vec::new();
+    map_cbor(&mut body, 8);
+    field_uint_cbor(&mut body, 0, 1);
+    field_text_cbor(
+        &mut body,
+        1,
+        "nbsr12df4x56n2df4x56n2df4x56n2df4x56n2df4x56n2df4x56n2dfsk5743r",
+    );
+    field_text_cbor(&mut body, 2, "source.edge");
+    field_text_cbor(
+        &mut body,
+        3,
+        "nbsr1g3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zqel9ufg",
+    );
+    field_text_cbor(&mut body, 4, "destination.edge");
+    field_bytes_cbor(&mut body, 5, &(0x60..0x80).collect::<Vec<_>>());
+    field_bytes_cbor(
+        &mut body,
+        6,
+        &control_session_policy().client_session_public_key,
+    );
+    field_uint_cbor(&mut body, 7, 1_893_456_000);
+    task10_envelope(
+        1,
+        (0x00..0x10).collect::<Vec<_>>().try_into().unwrap(),
+        1,
+        body,
+    )
+}
+
+fn task10_f75_route_open() -> CoreV02Envelope {
+    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..");
+    let body = std::fs::read(root.join("vectors/wp8-f75-route-open/route-open-body.cbor")).unwrap();
+    task10_envelope(
+        3,
+        [
+            0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d,
+            0x0e, 0x10,
+        ],
+        2,
+        body,
+    )
+}
+
+fn task10_route_accept() -> CoreV02Envelope {
+    let mut body = Vec::new();
+    map_cbor(&mut body, 5);
+    field_uint_cbor(&mut body, 0, 1);
+    field_bytes_cbor(&mut body, 1, &(0x40..0x50).collect::<Vec<_>>());
+    field_bytes_cbor(&mut body, 2, &(0x20..0x30).collect::<Vec<_>>());
+    field_bytes_cbor(&mut body, 3, &task10_route_grant_digest());
+    field_uint_cbor(&mut body, 4, 1_893_456_000);
+    task10_envelope(
+        4,
+        [
+            0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d,
+            0x0e, 0x10,
+        ],
+        2,
+        body,
+    )
+}
+
+fn task10_stream_open() -> CoreV02Envelope {
+    let mut body = Vec::new();
+    map_cbor(&mut body, 7);
+    field_uint_cbor(&mut body, 0, 1);
+    field_uint_cbor(&mut body, 1, 4);
+    field_bytes_cbor(&mut body, 2, &(0x40..0x50).collect::<Vec<_>>());
+    field_bytes_cbor(&mut body, 3, &(0x20..0x30).collect::<Vec<_>>());
+    field_bytes_cbor(&mut body, 4, &task10_route_grant_digest());
+    field_text_cbor(&mut body, 5, "tcp");
+    field_uint_cbor(&mut body, 6, 8443);
+    task10_envelope(
+        6,
+        [
+            0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d,
+            0x0e, 0x11,
+        ],
+        3,
+        body,
+    )
+}
+
+fn task10_envelope(
+    message: u64,
+    request: [u8; 16],
+    sequence: u64,
+    body: Vec<u8>,
+) -> CoreV02Envelope {
+    let mut wire = Vec::new();
+    map_cbor(&mut wire, 6);
+    field_uint_cbor(&mut wire, 0, 2);
+    field_uint_cbor(&mut wire, 1, message);
+    field_bytes_cbor(&mut wire, 2, &request);
+    field_bytes_cbor(&mut wire, 3, &(0x10..0x20).collect::<Vec<_>>());
+    field_uint_cbor(&mut wire, 4, sequence);
+    uint_cbor(&mut wire, 5);
+    wire.extend_from_slice(&body);
+    decode_control_envelope(&wire, CoreV02Limits::default()).unwrap()
+}
+
+fn field_uint_cbor(target: &mut Vec<u8>, key: u64, value: u64) {
+    uint_cbor(target, key);
+    uint_cbor(target, value);
+}
+fn field_bytes_cbor(target: &mut Vec<u8>, key: u64, value: &[u8]) {
+    uint_cbor(target, key);
+    argument_cbor(target, 2, value.len() as u64);
+    target.extend_from_slice(value);
+}
+fn field_text_cbor(target: &mut Vec<u8>, key: u64, value: &str) {
+    uint_cbor(target, key);
+    argument_cbor(target, 3, value.len() as u64);
+    target.extend_from_slice(value.as_bytes());
+}
+fn uint_cbor(target: &mut Vec<u8>, value: u64) {
+    argument_cbor(target, 0, value);
+}
+fn map_cbor(target: &mut Vec<u8>, value: u64) {
+    argument_cbor(target, 5, value);
+}
+fn argument_cbor(target: &mut Vec<u8>, major: u8, value: u64) {
+    let initial = major << 5;
+    match value {
+        0..=23 => target.push(initial | value as u8),
+        24..=0xff => target.extend_from_slice(&[initial | 24, value as u8]),
+        0x100..=0xffff => {
+            target.push(initial | 25);
+            target.extend_from_slice(&(value as u16).to_be_bytes());
+        }
+        0x1_0000..=0xffff_ffff => {
+            target.push(initial | 26);
+            target.extend_from_slice(&(value as u32).to_be_bytes());
+        }
+        _ => {
+            target.push(initial | 27);
+            target.extend_from_slice(&value.to_be_bytes());
+        }
+    }
 }

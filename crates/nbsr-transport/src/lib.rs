@@ -133,6 +133,7 @@ mod config;
 mod core_v02;
 mod datagram_gate;
 mod error;
+mod federation;
 mod quinn_adapter;
 mod resumption;
 mod session;
@@ -159,8 +160,8 @@ pub use config::{
     build_client_config, build_server_config,
 };
 pub use core_v02::{
-    CoreV02Envelope, CoreV02Limits, CoreV02MessageType, CoreV02Reject, RouteCloseBody,
-    RouteDrainBody, RouteGrantIssuer, RouteRevokeBody, ValidatedRouteGrant,
+    CoreV02Envelope, CoreV02Limits, CoreV02MessageType, CoreV02Reject, FederationBinding,
+    RouteCloseBody, RouteDrainBody, RouteGrantIssuer, RouteRevokeBody, ValidatedRouteGrant,
     decode_control_envelope, validate_route_grant_sign1,
 };
 pub(crate) use datagram_gate::{DatagramAuditMutation, DatagramDropReason, DatagramGate};
@@ -169,6 +170,9 @@ pub use datagram_gate::{
     encode_datagram_frame, max_datagram_payload,
 };
 pub use error::TransportError;
+pub use federation::{
+    FederationReject, LocalFederationAdmissionAttestations, LocalFederationAdmissionAuthorities,
+};
 pub use quinn_adapter::{
     ApplicationStream, ApplicationStreamPermit, AuthenticatedConnection, ControlStream,
     TransportListener, connect,

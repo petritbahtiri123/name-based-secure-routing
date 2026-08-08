@@ -14,6 +14,10 @@ use crate::channel_registry::{
     ChannelBindingInstallError, ChannelLifecycleError, ChannelRegistry, PendingAdmissionError,
     ResumeChannelContext,
 };
+use crate::federation::{
+    LocalFederationAdmissionAttestations, LocalFederationAdmissionAuthorities,
+    verify_local_admission_attestations,
+};
 use crate::{ChannelBinding, ChannelLimits, CoreV02Envelope, CoreV02Reject, RouteGrantIssuer};
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -86,6 +90,7 @@ pub struct DestinationAdmission {
     audit: AuditLog,
     policy: AdmissionPolicy,
     channels: ChannelRegistry,
+    federation_authorities: Option<LocalFederationAdmissionAuthorities>,
 }
 
 impl DestinationAdmission {
@@ -96,9 +101,24 @@ impl DestinationAdmission {
         Self::with_limits(policy, ChannelLimits::default())
     }
 
+    pub fn new_federated(
+        policy: AdmissionPolicy,
+        authorities: LocalFederationAdmissionAuthorities,
+    ) -> Result<Self, AdmissionReject> {
+        Self::with_limits_and_federation(policy, ChannelLimits::default(), Some(authorities))
+    }
+
     pub fn with_limits(
         policy: AdmissionPolicy,
         limits: ChannelLimits,
+    ) -> Result<Self, AdmissionReject> {
+        Self::with_limits_and_federation(policy, limits, None)
+    }
+
+    fn with_limits_and_federation(
+        policy: AdmissionPolicy,
+        limits: ChannelLimits,
+        federation_authorities: Option<LocalFederationAdmissionAuthorities>,
     ) -> Result<Self, AdmissionReject> {
         if policy.authorized_services.len() > 32
             || policy
@@ -112,6 +132,7 @@ impl DestinationAdmission {
             audit: AuditLog::new(),
             policy,
             channels: ChannelRegistry::new(limits),
+            federation_authorities,
         })
     }
 
@@ -584,6 +605,9 @@ impl DestinationAdmission {
         let route_open = envelope
             .validated_route_open(trusted_issuers)
             .map_err(map_core_reject)?;
+        if route_open.body_version != 1 {
+            return Err(AdmissionReject::GrantInvalid);
+        }
         if route_open.edge_nonce != self.policy.edge_nonce
             || Sha256::digest(self.policy.client_session_public_key).as_slice()
                 != route_open.grant.client_session_key_thumbprint
@@ -620,6 +644,82 @@ impl DestinationAdmission {
             route_grant_digest,
         };
         self.admit_at(request, unix_now)
+    }
+
+    pub fn admit_federated_route_open(
+        &mut self,
+        envelope: &CoreV02Envelope,
+        trusted_issuers: &[RouteGrantIssuer],
+        unix_now: u64,
+        attestations: &LocalFederationAdmissionAttestations,
+    ) -> Result<ActiveChannel, AdmissionReject> {
+        let authorities = self
+            .federation_authorities
+            .as_ref()
+            .ok_or(AdmissionReject::GrantInvalid)?;
+        let authorization =
+            verify_local_admission_attestations(attestations, authorities, unix_now)
+                .map_err(|_| AdmissionReject::GrantInvalid)?;
+        let route_open = envelope
+            .validated_route_open(trusted_issuers)
+            .map_err(map_core_reject)?;
+        if route_open.body_version != 2
+            || route_open.edge_nonce != self.policy.edge_nonce
+            || Sha256::digest(self.policy.client_session_public_key).as_slice()
+                != route_open.grant.client_session_key_thumbprint
+        {
+            return Err(AdmissionReject::GrantInvalid);
+        }
+        let binding = route_open
+            .federation_binding
+            .as_ref()
+            .ok_or(AdmissionReject::GrantInvalid)?;
+        let route_grant_digest: [u8; 32] = Sha256::digest(&route_open.grant_wire).into();
+        if binding.route_grant_digest != route_grant_digest
+            || binding.federation_context_digest != *authorization.federation_context_digest()
+            || route_grant_digest != *authorization.route_grant_digest()
+            || route_open.grant.source_operator_id != authorization.source_operator_text()
+            || route_open.grant.destination_operator_id != authorization.destination_operator_text()
+            || route_open.grant.service_id != authorization.canonical_name()
+            || route_open.requested_transport != authorization.transport()
+            || route_open.requested_port != authorization.port()
+            || unix_now < authorization.effective_at()
+            || unix_now > authorization.valid_until()
+        {
+            return Err(AdmissionReject::GrantInvalid);
+        }
+        let transcript = federated_route_open_transcript(
+            route_open.session_id,
+            route_open.request_id,
+            route_open.channel_id,
+            route_open.grant.route_id,
+            &self.policy.destination_edge_id,
+            route_open.edge_nonce,
+            &route_open.requested_transport,
+            &route_open.grant.service_id,
+            route_open.requested_port,
+            route_grant_digest,
+            route_open.opened_at,
+            binding.federation_context_digest,
+        )?;
+        let key = VerifyingKey::from_bytes(&self.policy.client_session_public_key)
+            .map_err(|_| AdmissionReject::GrantInvalid)?;
+        key.verify_strict(
+            &transcript,
+            &Signature::from_bytes(&route_open.proof_signature),
+        )
+        .map_err(|_| AdmissionReject::GrantInvalid)?;
+        self.admit_at(
+            RouteOpenRequest {
+                channel_id: route_open.channel_id,
+                grant: route_open.grant,
+                requested_transport: route_open.requested_transport,
+                requested_port: route_open.requested_port,
+                opened_at: route_open.opened_at,
+                route_grant_digest,
+            },
+            unix_now,
+        )
     }
 }
 
@@ -660,6 +760,45 @@ fn route_open_transcript(
     encode_uint(&mut wire, u64::from(port))?;
     encode_bytes(&mut wire, &route_grant_digest)?;
     encode_uint(&mut wire, opened_at)?;
+    Ok(wire)
+}
+
+#[allow(clippy::too_many_arguments)]
+fn federated_route_open_transcript(
+    session_id: [u8; 16],
+    request_id: [u8; 16],
+    channel_id: [u8; 16],
+    route_id: [u8; 16],
+    destination_edge_id: &str,
+    edge_nonce: [u8; 32],
+    transport: &str,
+    service_id: &str,
+    port: u16,
+    route_grant_digest: [u8; 32],
+    opened_at: u64,
+    federation_context_digest: [u8; 32],
+) -> Result<Vec<u8>, AdmissionReject> {
+    let mut wire = Vec::with_capacity(320);
+    wire.push(0x90);
+    encode_text(&mut wire, "NBSR-FED-ROUTE-OPEN")?;
+    encode_uint(&mut wire, 2)?;
+    encode_uint(&mut wire, 2)?;
+    wire.push(0x84);
+    encode_uint(&mut wire, 1)?;
+    encode_uint(&mut wire, 1)?;
+    encode_uint(&mut wire, 1)?;
+    encode_text(&mut wire, "nbsr-federation-dev-v1")?;
+    for value in [&session_id[..], &request_id, &channel_id, &route_id] {
+        encode_bytes(&mut wire, value)?;
+    }
+    encode_text(&mut wire, destination_edge_id)?;
+    encode_bytes(&mut wire, &edge_nonce)?;
+    encode_text(&mut wire, transport)?;
+    encode_text(&mut wire, service_id)?;
+    encode_uint(&mut wire, u64::from(port))?;
+    encode_bytes(&mut wire, &route_grant_digest)?;
+    encode_uint(&mut wire, opened_at)?;
+    encode_bytes(&mut wire, &federation_context_digest)?;
     Ok(wire)
 }
 

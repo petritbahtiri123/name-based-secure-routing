@@ -31,6 +31,9 @@
 | Path | Responsibility |
 |---|---|
 | `nbsr/federation/live_lab.py` | Compose authenticated Federation decisions into the existing WP7 two-operator administrative model |
+| `vectors/wp8-f75-route-open/` | Task 10-owned additive ROUTE_OPEN v2 and F75 transcript vectors |
+| `scripts/generate_wp8_f75_vectors.py` | Deterministic F75 vector generator/check entrypoint |
+| `tests/protocol/test_wp8_f75_vectors.py` | Specification-authored RED literals, generator determinism, and mutation coverage |
 | `tests/federation/test_live_interoperability.py` | Python RED/GREEN success, malicious state, rotation, rollback, and split-view behavior |
 | `crates/nbsr-transport/src/federation.rs` | Sealed typed non-wire Rust federation authorization boundary |
 | `crates/nbsr-transport/tests/federation.rs` | Rust binding, construction, mismatch, expiry, revocation, replay, and downgrade tests |
@@ -66,7 +69,29 @@
 - [ ] Continue with authenticated Federation-to-WP7 integration, the sealed Rust boundary, live same-Rust federation, drills, packet capture, conformance, documentation, and reviews unless one of those tasks requires changing frozen authority or the feasibility investigation reveals a contradiction affecting the existing Rust/native path.
 - [ ] Keep the final report's live two-operator federation integration, independent federation semantic verification, and independent route/stream wire interoperability results separate. Never declare WP8 evidence-closed while the third result is `NOT YET PROVEN`.
 
-### Task 2: Feed authenticated Federation decisions into the WP7 operator model
+### Task 2: Freeze additive F75 ROUTE_OPEN v2 vectors
+
+**Files:**
+- Create: `tests/protocol/test_wp8_f75_vectors.py`
+- Create: `scripts/generate_wp8_f75_vectors.py`
+- Create: `scripts/wp8_f75_vectors/`
+- Create: `vectors/wp8-f75-route-open/manifest.json`
+- Create: `vectors/wp8-f75-route-open/valid/`
+- Create: `vectors/wp8-f75-route-open/invalid/`
+
+**Interfaces:**
+- Produces exact deterministic CBOR for the closed body-version-2 key 8 map and approved 16-item transcript, plus an Ed25519 signature and one-field mutation cases.
+- Preserves `vectors/federation-v0.1/` byte-identically.
+
+- [ ] Write specification-authored literal RED tests for the exact positive `federation_binding`, ROUTE_OPEN v2 body, 16-item transcript bytes, RouteGrant digest, Federation context digest, and signature.
+- [ ] Run the focused test and observe failure because no Task 10 F75 encoder/vector package exists.
+- [ ] Implement the smallest independent vector builder using existing deterministic CBOR and Ed25519 primitives; derive `route_grant_digest` only from exact signed RouteGrant bytes.
+- [ ] Add one literal mutation per bound transcript field plus missing/forbidden key 8, unknown/duplicate binding key, wrong versions/profile, malformed digests, digest mismatches, transcript substitution, non-canonical CBOR, and downgrade attempt.
+- [ ] Add a closed manifest with exact inventory, byte lengths, SHA-256 digests, provenance, expected result/reason, and dependency links.
+- [ ] Add `--check` mode and prove two generated temporary packages are byte-identical while the immutable Task 7 package remains unchanged.
+- [ ] Run the focused F75 suite and record exact counts before any live integration.
+
+### Task 3: Feed authenticated Federation decisions into the WP7 operator model
 
 **Files:**
 - Create: `nbsr/federation/live_lab.py`
@@ -86,7 +111,7 @@
 - [ ] Add RED rotation drills for safe operational signer rotation, safe trust-bundle rotation, revoked old key, new-key activation, stale bundle/ownership, conflicting generation, and compromised signer removal; implement only the adapter behavior needed to make them pass.
 - [ ] Run `python -m pytest -q tests/federation/test_live_interoperability.py` and record the exact count.
 
-### Task 3: Add the sealed Rust federation authorization boundary
+### Task 4: Add the sealed Rust federation authorization boundary
 
 **Files:**
 - Create: `crates/nbsr-transport/src/federation.rs`
@@ -109,7 +134,7 @@
 - [ ] Add RED selective-invalidation tests proving only dependent candidate/active channels are denied or enforced under the frozen mode and sibling channels remain isolated.
 - [ ] Run the focused Rust test after every GREEN and then run existing `admission`, `route_context`, `stream_gate`, `multi_channel`, `channel_binding`, and `application_stream` tests.
 
-### Task 4: Prove the live same-implementation two-operator Quinn path
+### Task 5: Prove the live same-implementation two-operator Quinn path
 
 **Files:**
 - Create: `crates/nbsr-transport/tests/live_federation.rs`
@@ -127,7 +152,7 @@
 - [ ] Verify original HTTPS/SNI/certificate semantics only if the existing test surface actually supports an application TLS fixture. Otherwise record it as unsupported, not passed.
 - [ ] Run `cargo test --manifest-path crates/nbsr-transport/Cargo.toml --test live_federation -- --nocapture` and record exact tests and deterministic payload result.
 
-### Task 5: Build and gate a genuinely independent wire peer
+### Task 6: Build and gate a genuinely independent wire peer
 
 **Files:**
 - Create conditionally: `interop/nbsr-go-peer/go.mod`
@@ -148,7 +173,7 @@
 - [ ] Add mutation tests for relabeled expected output, wrong request ID, wrong stream ID, wrong peer identity, wrong proof signature, payload-before-accept, malformed/over-limit CBOR, and unsupported version.
 - [ ] Run Go unit tests/vet and the cross-process test. If the independent exchange needs new wire semantics or material architecture, do not implement that peer, record independent wire interoperability as `NOT YET PROVEN`, and continue independently valid evidence work. Stop for human review only if the discovered contradiction also affects the existing Rust/native path.
 
-### Task 6: Produce and privacy-review real packet evidence
+### Task 7: Produce and privacy-review real packet evidence
 
 **Files:**
 - Create: `scripts/capture_wp8_live_interop.ps1`
@@ -168,7 +193,7 @@
 - [ ] Write the capture document with procedure, flow boundary, visible metadata, QUIC/TLS protection, privacy exclusions, and ciphertext inference limits.
 - [ ] Run the focused packet-evidence tests and record exact results.
 
-### Task 7: Add the public conformance entrypoint
+### Task 8: Add the public conformance entrypoint
 
 **Files:**
 - Create: `scripts/verify_wp8_conformance.py`
@@ -184,7 +209,7 @@
 - [ ] Run controlled focused tests to GREEN.
 - [ ] Run the real entrypoint only after Tasks 2-6 pass; write the result atomically and fail if rerunning changes deterministic fields other than explicitly non-normative timing.
 
-### Task 8: Publish the public draft and honest closure evidence
+### Task 9: Publish the public draft and honest closure evidence
 
 **Files:**
 - Create: `docs/protocol/federation-v0.1-wire.md`
@@ -205,7 +230,7 @@
 - [ ] Update status/README/roadmap only to the strongest observed tier. If Task 5 failed, state `independent route/stream wire interoperability: NOT YET PROVEN` and do not mark WP8 evidence-closed.
 - [ ] Run focused documentation tests to GREEN and run `git diff --check`.
 
-### Task 9: Independent correctness and security/privacy reviews
+### Task 10: Independent correctness and security/privacy reviews
 
 **Files:**
 - Create: `evidence/wp8-task10/correctness-review.md`
@@ -220,7 +245,7 @@
 - [ ] Reproduce every candidate locally. For each confirmed defect, add and observe a failing regression before the minimal fix, rerun focused and affected suites, and request re-review.
 - [ ] Do not proceed to closure until both reports state `READY` with no material blocker.
 
-### Task 10: Fresh validation, one commit, and final Git invariants
+### Task 11: Fresh validation, one commit, and final Git invariants
 
 **Files:**
 - Modify: `evidence/wp8-task10/conformance-result.json` with the final fresh run

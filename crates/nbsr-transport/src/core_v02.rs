@@ -63,6 +63,16 @@ pub struct RouteGrantIssuer {
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
+pub struct FederationBinding {
+    pub binding_version: u64,
+    pub federation_extension_id: u64,
+    pub federation_extension_version: u64,
+    pub federation_profile_id: String,
+    pub route_grant_digest: [u8; 32],
+    pub federation_context_digest: [u8; 32],
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct ValidatedRouteGrant {
     pub issuer_kid: Vec<u8>,
     pub payload: Vec<u8>,
@@ -94,6 +104,7 @@ pub struct RouteCloseBody {
 }
 
 pub(crate) struct ValidatedRouteOpen {
+    pub body_version: u64,
     pub request_id: [u8; 16],
     pub session_id: [u8; 16],
     pub channel_id: [u8; 16],
@@ -104,6 +115,7 @@ pub(crate) struct ValidatedRouteOpen {
     pub proof_signature: [u8; 64],
     pub grant_wire: Vec<u8>,
     pub grant: RouteGrantClaims,
+    pub federation_binding: Option<FederationBinding>,
 }
 
 pub(crate) struct ClientHelloContext {
@@ -132,6 +144,13 @@ pub(crate) struct RouteAcceptBinding {
 /// Validates the frozen COSE Sign1 wrapper in the caller-provided issuer trust
 /// context.  It deliberately does not choose a trust anchor itself.
 pub fn validate_route_grant_sign1(
+    wire: &[u8],
+    trusted_issuers: &[RouteGrantIssuer],
+) -> Result<ValidatedRouteGrant, CoreV02Reject> {
+    validate_ed25519_sign1(wire, trusted_issuers)
+}
+
+pub(crate) fn validate_ed25519_sign1(
     wire: &[u8],
     trusted_issuers: &[RouteGrantIssuer],
 ) -> Result<ValidatedRouteGrant, CoreV02Reject> {
@@ -261,6 +280,19 @@ fn encode_major_argument(target: &mut Vec<u8>, major: u8, value: u64) -> Result<
 }
 
 impl CoreV02Envelope {
+    pub fn federation_binding(&self) -> Result<FederationBinding, CoreV02Reject> {
+        if self.message_type != CoreV02MessageType::RouteOpen {
+            return Err(CoreV02Reject::ProfileUnsupported);
+        }
+        let root = decode_stored_envelope(&self.wire)?;
+        let envelope = map(&root)?;
+        let body = map(required(envelope, 5)?)?;
+        if uint(required(body, 0)?)? != 2 {
+            return Err(CoreV02Reject::ProfileUnsupported);
+        }
+        decode_federation_binding(required(body, 8)?)
+    }
+
     pub fn message_type(&self) -> CoreV02MessageType {
         self.message_type
     }
@@ -343,10 +375,12 @@ impl CoreV02Envelope {
         }
         let envelope = map(&root)?;
         let body = map(required(envelope, 5)?)?;
+        let body_version = uint(required(body, 0)?)?;
         let grant_wire = bytes(required(body, 2)?)?.to_vec();
         let validated = validate_route_grant_sign1(&grant_wire, trusted_issuers)?;
         let grant = decode_route_grant_claims(&validated.payload)?;
         Ok(ValidatedRouteOpen {
+            body_version,
             request_id: fixed_bytes(required(envelope, 2)?)?,
             session_id: fixed_bytes(required(envelope, 3)?)?,
             channel_id: fixed_bytes(required(body, 1)?)?,
@@ -359,6 +393,11 @@ impl CoreV02Envelope {
             proof_signature: fixed_bytes(required(body, 7)?)?,
             grant_wire,
             grant,
+            federation_binding: if body_version == 2 {
+                Some(decode_federation_binding(required(body, 8)?)?)
+            } else {
+                None
+            },
         })
     }
 
@@ -633,8 +672,15 @@ fn validate_body(
             timestamp(required(body, 6)?)?;
         }
         CoreV02MessageType::RouteOpen => {
-            exact_keys(body, 7)?;
-            exact_uint(body, 0, 1)?;
+            let body_version = uint(required(body, 0)?)?;
+            match body_version {
+                1 => exact_keys(body, 7)?,
+                2 => {
+                    exact_keys(body, 8)?;
+                    decode_federation_binding(required(body, 8)?)?;
+                }
+                _ => return Err(CoreV02Reject::ProfileUnsupported),
+            }
             bytes_exact(required(body, 1)?, 16)?;
             let grant = bytes(required(body, 2)?)?;
             if grant.is_empty() || grant.len() > 32_768 {
@@ -699,6 +745,26 @@ fn validate_body(
         }
     }
     Ok(())
+}
+
+fn decode_federation_binding(node: &Node) -> Result<FederationBinding, CoreV02Reject> {
+    let binding = map(node)?;
+    exact_keys(binding, 5)?;
+    exact_uint(binding, 0, 1)?;
+    exact_uint(binding, 1, 1)?;
+    exact_uint(binding, 2, 1)?;
+    let profile = text(required(binding, 3)?)?;
+    if profile != "nbsr-federation-dev-v1" {
+        return Err(CoreV02Reject::ProfileUnsupported);
+    }
+    Ok(FederationBinding {
+        binding_version: 1,
+        federation_extension_id: 1,
+        federation_extension_version: 1,
+        federation_profile_id: profile.to_owned(),
+        route_grant_digest: fixed_bytes(required(binding, 4)?)?,
+        federation_context_digest: fixed_bytes(required(binding, 5)?)?,
+    })
 }
 
 fn validate_lifecycle_binding(body: &[(Node, Node)]) -> Result<(), CoreV02Reject> {

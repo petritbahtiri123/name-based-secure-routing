@@ -1,5 +1,16 @@
 # NBSR implementation status
 
+**WP8 Task 10 (pending final review):** F75 ROUTE_OPEN v2, the sealed Rust
+Federation authorization boundary, and a live same-Rust two-operator Quinn
+route/channel/application-stream path are implemented. Python/Node/Go semantic
+verification and public-safe packet evidence pass. Independent route/stream
+wire interoperability is `NOT YET PROVEN` because no second wire-capable
+implementation exists; WP8 evidence closure is therefore `BLOCKED`. The
+original Core v0.2 lock remains byte-identical and a separately approved closed
+F75 overlay pins exactly four Rust integration replacements. This status does
+not claim production readiness, Internet-scale deployment, performance, or
+standard adoption.
+
 **WP8 Task 0:** Proposed for human approval.
 **WP8-NORMATIVE-SOURCE-01: CLOSED.** The exact digest-matching historical source
 is repository-accessible and provenance-locked. Task 1 may begin after human
@@ -260,7 +271,7 @@ readiness, global federation, or independent interoperability.
 | Signed ownership, delegation, transparency, and global federation | Partial | WP8 Tasks 2-4 implement operator/key authority, ownership, closed scope algebra, bounded delegation chains, trust-bundle semantics, Merkle proofs, checkpoints, and verifier-produced independent witness thresholds at deterministic Development Profile scope; threshold-set transport packaging, Task 5 runtime, live federation, and global federation are not implemented. Tasks 5-6 separately add deterministic lifecycle and state behavior, not live federation runtime. A threshold-container wire supplement is proposed but unapproved; Task 7 packaging has not started |
 | Independent second-language implementation | Planned | WP8 selects a clean-room Go implementation after schema/vector freeze; the current Node verifier remains independent byte/object evidence, not a runtime |
 | Independent Core v0.2 vector verification | Implemented | Dependency-free Node.js verifier independently validates the 32-artifact deterministic package; this is conformance evidence, not a second runtime |
-| Public conformance suite and Internet-Draft | Planned | The WP8 plan defines vector, interoperability, evidence, and working-draft gates; none is implemented or standards-approved yet |
+| Public conformance suite and Internet-Draft | Implemented | Task 10 provides the reproducible conformance runner and public implementation draft. The draft is not an approved standard, independent route/stream wire interoperability remains unproven, and WP8 evidence closure remains blocked. |
 
 ## Current non-claims
 

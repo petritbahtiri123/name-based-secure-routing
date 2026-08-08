@@ -114,6 +114,15 @@ or federation protocol. Fresh 2026-08-02 validation recorded 109 focused WP7
 tests, 1,080 passed and 1 skipped repository-wide, and 114 executable Rust
 tests plus 16 doctests.
 
+WP8 Task 10 now includes the approved F75 federated ROUTE_OPEN v2 binding, a
+sealed Rust authorization boundary, a live same-Rust two-operator Quinn
+route/channel/stream test, independent Python/Node/Go Federation semantics, and
+public-safe packet evidence. Run `python scripts/verify_wp8_conformance.py` for
+the reproducible matrix. Independent route/stream wire interoperability remains
+`NOT YET PROVEN`, so WP8 is not evidence-closed and no production or
+Internet-scale claim is made. See
+`docs/protocol/wp8-federation-v0.1-decision.md`.
+
 ## Security boundaries
 
 - Arbitrary public hostnames, public IPs, destination overrides, private/special

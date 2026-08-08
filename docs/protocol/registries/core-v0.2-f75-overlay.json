@@ -1,0 +1,31 @@
+{
+  "format_version": 1,
+  "authority_id": "NBSR-WP8-TASK10-F75-CORE-OVERLAY",
+  "reason": "Human-approved F75 ROUTE_OPEN body_version = 2 federation-binding extension and admission integration only.",
+  "original_baseline": {
+    "path": "docs/protocol/registries/core-v0.2-baseline-lock.json",
+    "sha256": "21d60dc60ee1bc00bef882b63fabaaea9229768770912ed7c93e6ae4d54453ef"
+  },
+  "replacements": [
+    {
+      "path": "crates/nbsr-transport/src/admission.rs",
+      "length": 32798,
+      "sha256": "aabee7566ff65c02a713eb6002e1b0399c845b90b4172196e9609fade77a5a03"
+    },
+    {
+      "path": "crates/nbsr-transport/src/core_v02.rs",
+      "length": 36355,
+      "sha256": "ac310dfc78843609a3834a239996b10fcf956e25bc9bda91cee852c1d261eab3"
+    },
+    {
+      "path": "crates/nbsr-transport/src/lib.rs",
+      "length": 6036,
+      "sha256": "66bca737463b00d15c03552d66b8722545562c81e9f31e470b9d734d5986d307"
+    },
+    {
+      "path": "crates/nbsr-transport/src/session.rs",
+      "length": 48472,
+      "sha256": "f86afdd3d682dd12687a01418c561422abe326cb55a22d534fae79af9f188caa"
+    }
+  ]
+}

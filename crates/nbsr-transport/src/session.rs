@@ -11,6 +11,7 @@ use crate::channel_registry::{
     ChannelBindingInstallError, ChannelLifecycleError, ResumeChannelContext,
 };
 use crate::channel_streams::ChannelStreams;
+use crate::federation::LocalFederationAdmissionAttestations;
 use crate::quinn_adapter::ConnectionBindingCapability;
 use crate::resumption::{ResumeReuseKey, ResumeSessionContext, ResumeSessionScope};
 use crate::{
@@ -444,6 +445,59 @@ impl ControlSession {
         let channel = self
             .admission
             .admit_route_open(envelope, &self.trusted_issuers, self.clock.unix_seconds())
+            .map_err(SessionReject::Admission)?;
+        self.request_ids.insert(request_id);
+        let SessionState::Established {
+            pending,
+            source_sequence,
+            ..
+        } = &mut self.state
+        else {
+            return Err(SessionReject::UnexpectedMessage);
+        };
+        *source_sequence = sequence;
+        *pending = Some(PendingRoute {
+            channel_id: channel.channel_id,
+            grant_digest: channel.route_grant_digest,
+            request_id,
+            route_id: channel.route_id,
+        });
+        Ok(channel)
+    }
+
+    pub fn accept_federated_route_open(
+        &mut self,
+        envelope: &CoreV02Envelope,
+        attestations: &LocalFederationAdmissionAttestations,
+    ) -> Result<ActiveChannel, SessionReject> {
+        self.require_session_active()?;
+        let (request_id, session_id, sequence) = binding(envelope)?;
+        if self.request_ids.contains(&request_id) {
+            return Err(SessionReject::Replay);
+        }
+        let SessionState::Established {
+            pending,
+            session_id: expected_session_id,
+            source_sequence,
+            ..
+        } = &self.state
+        else {
+            return Err(SessionReject::UnexpectedMessage);
+        };
+        if pending.is_some() || envelope.message_type() != CoreV02MessageType::RouteOpen {
+            return Err(SessionReject::UnexpectedMessage);
+        }
+        if session_id != *expected_session_id || sequence <= *source_sequence {
+            return Err(SessionReject::Replay);
+        }
+        let channel = self
+            .admission
+            .admit_federated_route_open(
+                envelope,
+                &self.trusted_issuers,
+                self.clock.unix_seconds(),
+                attestations,
+            )
             .map_err(SessionReject::Admission)?;
         self.request_ids.insert(request_id);
         let SessionState::Established {

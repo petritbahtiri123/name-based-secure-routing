@@ -1,0 +1,19 @@
+{
+    "capture":  "live-federation.pcapng",
+    "capture_tool_version":  "Dumpcap (Wireshark) 4.6.7 (v4.6.7-0-gb439fb7b47a9).",
+    "interface_identifier":  "\\Device\\NPF_Loopback",
+    "filter":  "udp port 45975 and host 127.0.0.1",
+    "flow":  "127.0.0.1 UDP/45975 QUIC/TLS nbsr/1 shared-rust-transport",
+    "packet_count":  36,
+    "dropped_count":  0,
+    "length":  20260,
+    "sha256":  "84c7c026b45acd98550c3487adfa3ce60cbc62c591a16aae7046ce9cd6b1c798",
+    "privacy":  "public-safe deterministic test identities; no decryption secrets; complete packet inventory allowlisted",
+    "test_correlation":  {
+                             "command":  "cargo test --manifest-path crates/nbsr-transport/Cargo.toml --test application_stream federated_two_operator_route_transfers_only_after_f75_admission",
+                             "test":  "federated_two_operator_route_transfers_only_after_f75_admission",
+                             "result":  "passed",
+                             "capture_started_utc":  "2026-08-08T17:08:19.2465781Z",
+                             "capture_stopped_utc":  "2026-08-08T17:08:21.7628139Z"
+                         }
+}

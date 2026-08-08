@@ -41,6 +41,49 @@ Implementation stops for human review if any required behavior needs:
 - public-safe packet evidence that cannot be captured credibly; or
 - a contradiction among the approved normative sources.
 
+### Approved F75 federated route binding
+
+The human protocol owner subsequently approved the Task 10 additive F75
+carriage. Non-federated `ROUTE_OPEN` body version 1 remains byte-for-byte
+unchanged and forbids key 8. Federated `ROUTE_OPEN` uses body version 2 and the
+same required keys 0 through 7 plus required key 8, `federation_binding`.
+
+`federation_binding` version 1 is a closed numeric-key map containing exactly:
+binding version 1; existing Federation extension ID 1; existing Federation
+extension version 1; profile ID `nbsr-federation-dev-v1`; SHA-256 of the exact
+signed RouteGrant bytes carried at body key 2; and the canonical digest of the
+fully authenticated bilateral `FederationAuthorizationContext`.
+
+The federated proof-of-possession signature covers the deterministic CBOR
+encoding of this exact 16-item array:
+
+```text
+[
+  "NBSR-FED-ROUTE-OPEN",
+  2,
+  2,
+  [1, 1, 1, "nbsr-federation-dev-v1"],
+  session_id,
+  request_id,
+  channel_id,
+  route_id,
+  authenticated_destination_edge_id,
+  edge_nonce,
+  requested_transport,
+  service_id,
+  requested_port,
+  route_grant_digest,
+  opened_at,
+  federation_context_digest
+]
+```
+
+Body v2 never falls back to the legacy transcript or body v1. Unknown,
+duplicate, missing, non-canonical, mismatched, malformed, or unsupported body
+or binding values fail closed. This is a single approved Federation binding,
+not a generic extension framework, new message code, Core version, exporter,
+or change to non-federated behavior.
+
 ## Existing implementation inventory
 
 The baseline contains one live wire implementation:

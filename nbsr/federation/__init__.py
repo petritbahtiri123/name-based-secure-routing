@@ -35,6 +35,13 @@ from nbsr.federation.authorization import (
     FederationAuthorizationContext,
     FederationResult,
 )
+from nbsr.federation.live_lab import LiveFederationAdmission, VerifiedLiveFederationRoute
+from nbsr.federation.local_attestation import (
+    DESTINATION_ADMISSION_PURPOSE,
+    SOURCE_ADMISSION_PURPOSE,
+    LocalAdmissionAttestor,
+    LocalAdmissionAuthority,
+)
 from nbsr.federation.state import FederationEvent, FederationState, StaticRecoveryPolicy
 from nbsr.federation.store import FederationSnapshotRejected, FederationStateRepository, decode_state, encode_state
 from nbsr.federation.revocation import DependencyIndex, SemanticThresholdEvidence, TypedRevocationRecord
@@ -143,6 +150,12 @@ __all__ = [
     "FederationAuthorityProof",
     "FederationAuthorizationContext",
     "FederationResult",
+    "LiveFederationAdmission",
+    "LocalAdmissionAttestor",
+    "LocalAdmissionAuthority",
+    "SOURCE_ADMISSION_PURPOSE",
+    "DESTINATION_ADMISSION_PURPOSE",
+    "VerifiedLiveFederationRoute",
     "FederationEvent",
     "FederationState",
     "StaticRecoveryPolicy",
