@@ -282,6 +282,7 @@ async fn main() {
             .await
             .unwrap();
         session.release_stream(channel, 4 + 4 * index).unwrap();
+        while session.pop_audit_event().is_some() {}
     }
     let digest = Sha256::digest(&payload);
     let digest_hex = digest

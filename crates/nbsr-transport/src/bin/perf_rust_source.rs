@@ -323,6 +323,7 @@ async fn main() {
             },
             total.elapsed().as_nanos()
         ));
+        while session.pop_audit_event().is_some() {}
     }
     connection.close().await.unwrap();
     for record in records {
