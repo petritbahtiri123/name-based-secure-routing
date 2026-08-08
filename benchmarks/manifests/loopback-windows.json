@@ -1,0 +1,17 @@
+{
+  "schema": "nbsr-performance-run-manifest-v1",
+  "topology": "windows-loopback",
+  "paths": ["direct-quic", "rust-rust", "go-rust"],
+  "payload_bytes": [1, 1024, 16384, 262144, 1048576],
+  "primary_payload_bytes": 1024,
+  "zero_rtt": false,
+  "http3": "NOT SUPPORTED BY CURRENT TEST SURFACE",
+  "power_plan_mutation": false,
+  "formal": {
+    "warm_success_samples": 100000,
+    "cold_success_samples": 2000,
+    "independent_runs": 5,
+    "warmup_seconds": 60,
+    "steady_state_seconds": 600
+  }
+}
