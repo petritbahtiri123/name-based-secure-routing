@@ -69,14 +69,26 @@ func (value config) validate() error {
 }
 
 type result struct {
-	Status               string   `json:"status"`
-	Messages             []string `json:"messages"`
-	CoreVersion          uint64   `json:"core_version"`
-	RouteOpenBodyVersion uint64   `json:"route_open_body_version"`
-	FederationProfile    string   `json:"federation_profile"`
-	PayloadSHA256        string   `json:"payload_sha256"`
-	BenchmarkSamples     int      `json:"benchmark_samples,omitempty"`
-	Samples              []sample `json:"samples,omitempty"`
+	Status               string          `json:"status"`
+	Messages             []string        `json:"messages"`
+	CoreVersion          uint64          `json:"core_version"`
+	RouteOpenBodyVersion uint64          `json:"route_open_body_version"`
+	FederationProfile    string          `json:"federation_profile"`
+	PayloadSHA256        string          `json:"payload_sha256"`
+	BenchmarkSamples     int             `json:"benchmark_samples,omitempty"`
+	Samples              []sample        `json:"samples,omitempty"`
+	GoRuntime            *goRuntimeStats `json:"go_runtime,omitempty"`
+}
+
+type goRuntimeStats struct {
+	HeapAllocBytes         uint64 `json:"heap_alloc_bytes"`
+	HeapSysBytes           uint64 `json:"heap_sys_bytes"`
+	TotalAllocBytes        uint64 `json:"total_alloc_bytes"`
+	Mallocs                uint64 `json:"mallocs"`
+	Frees                  uint64 `json:"frees"`
+	GCCycles               uint32 `json:"gc_cycles"`
+	TotalGCPauseNS         uint64 `json:"total_gc_pause_ns"`
+	MaximumRecentGCPauseNS uint64 `json:"maximum_recent_gc_pause_ns"`
 }
 
 type sample struct {
@@ -103,6 +115,20 @@ type sample struct {
 }
 
 func measured(value int64) *int64 { return &value }
+
+func runtimeDelta(start runtime.MemStats, end runtime.MemStats) *goRuntimeStats {
+	maximum := uint64(0)
+	for _, pause := range end.PauseNs {
+		maximum = max(maximum, pause)
+	}
+	return &goRuntimeStats{
+		HeapAllocBytes: end.HeapAlloc, HeapSysBytes: end.HeapSys,
+		TotalAllocBytes: end.TotalAlloc - start.TotalAlloc,
+		Mallocs:         end.Mallocs - start.Mallocs, Frees: end.Frees - start.Frees,
+		GCCycles: end.NumGC - start.NumGC, TotalGCPauseNS: end.PauseTotalNs - start.PauseTotalNs,
+		MaximumRecentGCPauseNS: maximum,
+	}
+}
 
 func waitUntilQPC(origin int64, scheduledNS int64) {
 	for {
@@ -425,6 +451,8 @@ func run(ctx context.Context, configuration config) (result, error) {
 	}
 	observedSamples := make([]sample, 0, samples)
 	var echo []byte
+	var runtimeStart runtime.MemStats
+	runtime.ReadMemStats(&runtimeStart)
 	scheduleClockOrigin := perfclock.Now()
 	for index := 0; index < samples; index++ {
 		var scheduledNS, startedNS, startLatenessNS int64
@@ -512,7 +540,9 @@ func run(ctx context.Context, configuration config) (result, error) {
 		}
 	}
 	digest := sha256.Sum256(echo)
-	return result{Status: "PASS", Messages: []string{"CLIENT_HELLO", "EDGE_HELLO", "ROUTE_OPEN", "ROUTE_ACCEPT", "STREAM_OPEN", "STREAM_ACCEPT"}, CoreVersion: 2, RouteOpenBodyVersion: 2, FederationProfile: "nbsr-federation-dev-v1", PayloadSHA256: hex.EncodeToString(digest[:]), BenchmarkSamples: samples, Samples: observedSamples}, nil
+	var runtimeEnd runtime.MemStats
+	runtime.ReadMemStats(&runtimeEnd)
+	return result{Status: "PASS", Messages: []string{"CLIENT_HELLO", "EDGE_HELLO", "ROUTE_OPEN", "ROUTE_ACCEPT", "STREAM_OPEN", "STREAM_ACCEPT"}, CoreVersion: 2, RouteOpenBodyVersion: 2, FederationProfile: "nbsr-federation-dev-v1", PayloadSHA256: hex.EncodeToString(digest[:]), BenchmarkSamples: samples, Samples: observedSamples, GoRuntime: runtimeDelta(runtimeStart, runtimeEnd)}, nil
 }
 
 func runLifecycle(ctx context.Context, configuration config) (result, error) {

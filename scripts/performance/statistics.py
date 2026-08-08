@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import math
+import random
 from dataclasses import dataclass
 from typing import Sequence
 
@@ -45,6 +46,30 @@ def summarize(samples: Sequence[int]) -> dict[str, int | None]:
         "p95": _nearest_rank(values, 0.95),
         "p99": _nearest_rank(values, 0.99),
         "p99_9": _nearest_rank(values, 0.999) if len(values) >= 100_000 else None,
+    }
+
+
+def bootstrap_run_ci(
+    run_statistics: Sequence[int], *, resamples: int = 10_000, seed: int = 75,
+) -> dict[str, int | str]:
+    if len(run_statistics) < 5:
+        raise ValueError("bootstrap confidence interval requires at least five independent runs")
+    if resamples < 100:
+        raise ValueError("bootstrap requires at least 100 resamples")
+    values = list(run_statistics)
+    generator = random.Random(seed)
+    estimates = sorted(
+        round(sum(generator.choice(values) for _ in values) / len(values))
+        for _ in range(resamples)
+    )
+    return {
+        "method": "independent-run-bootstrap-mean-v1",
+        "run_count": len(values),
+        "resamples": resamples,
+        "seed": seed,
+        "estimate": round(sum(values) / len(values)),
+        "lower": _nearest_rank(estimates, 0.025),
+        "upper": _nearest_rank(estimates, 0.975),
     }
 
 

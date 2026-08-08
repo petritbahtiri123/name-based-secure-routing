@@ -66,6 +66,9 @@ class ProcessResourceSample:
 class MemoryTrend:
     sample_count: int
     slope_bytes_per_second: float
+    slope_lower_95: float
+    slope_upper_95: float
+    r_squared: float
 
 
 @dataclass(frozen=True)
@@ -183,7 +186,18 @@ class ResourceSeries:
         if denominator == 0:
             raise ValueError("resource sample duration must be positive")
         slope = sum((second - mean_seconds) * (value - mean_memory) for second, value in zip(seconds, memory, strict=True)) / denominator
-        return MemoryTrend(sample_count=observed, slope_bytes_per_second=slope)
+        intercept = mean_memory - slope * mean_seconds
+        residuals = [value - (intercept + slope * second) for second, value in zip(seconds, memory, strict=True)]
+        residual_sum = sum(value * value for value in residuals)
+        standard_error = (residual_sum / max(1, observed - 2) / denominator) ** 0.5
+        total_sum = sum((value - mean_memory) ** 2 for value in memory)
+        return MemoryTrend(
+            sample_count=observed,
+            slope_bytes_per_second=slope,
+            slope_lower_95=slope - 1.96 * standard_error,
+            slope_upper_95=slope + 1.96 * standard_error,
+            r_squared=1.0 - residual_sum / total_sum if total_sum else 1.0,
+        )
 
 
 def _thread_count(pid: int) -> int:

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+from dataclasses import asdict
 import gzip
 import hashlib
 import json
@@ -83,6 +84,7 @@ def main() -> None:
         total_ns = total_seconds * 1_000_000_000
         steady_latencies: list[int] = []
         success = failure = observed = 0
+        completion_metadata: dict[str, Any] | None = None
         raw_path = output / "raw.ndjson.gz"
         with streamed.open("r", encoding="utf-8") as source, gzip.open(raw_path, "wt", encoding="utf-8", newline="\n") as raw:
             for line in source:
@@ -90,6 +92,7 @@ def main() -> None:
                 if "sample_id" not in document:
                     if document.get("status") != "PASS":
                         raise RuntimeError("invalid streamed completion metadata")
+                    completion_metadata = document
                     continue
                 record = normalize(
                     document,
@@ -116,6 +119,12 @@ def main() -> None:
                         failure += 1
         if observed != sample_count:
             raise RuntimeError(f"open-loop sample loss: offered {sample_count}, observed {observed}")
+    if args.path == "go-rust":
+        if completion_metadata is None or "go_runtime" not in completion_metadata:
+            raise RuntimeError("Go load stream omitted runtime evidence")
+        (output / "go-runtime.json").write_text(
+            json.dumps(completion_metadata["go_runtime"], indent=2) + "\n", encoding="utf-8",
+        )
     expected_steady = round(args.offered_rate * args.steady_seconds)
     if success + failure != expected_steady:
         raise RuntimeError(f"steady sample mismatch: expected {expected_steady}, observed {success + failure}")
@@ -134,6 +143,14 @@ def main() -> None:
     for record in destination:
         memory.record(timestamp_ns=record["timestamp_ns"], working_set_bytes=record["working_set_bytes"])
     trend = memory.finish()
+    def segment_trend(segment: list[dict[str, Any]]) -> dict[str, Any]:
+        series = ResourceSeries(expected_samples=len(segment))
+        for record in segment:
+            series.record(timestamp_ns=record["timestamp_ns"], working_set_bytes=record["working_set_bytes"])
+        return asdict(series.finish())
+
+    second_half = segment_trend(destination[len(destination) // 2 :])
+    final_quarter = segment_trend(destination[3 * len(destination) // 4 :])
     latency = summarize(steady_latencies)
     success_rate = success / expected_steady
     summary = {
@@ -163,8 +180,12 @@ def main() -> None:
         "destination_peak_working_set_bytes": max(record["peak_working_set_bytes"] for record in destination),
         "destination_thread_count_max": max(record["thread_count"] for record in destination),
         "destination_memory_slope_bytes_per_second": trend.slope_bytes_per_second,
+        "destination_memory_trend": asdict(trend),
+        "destination_memory_second_half_trend": second_half,
+        "destination_memory_final_quarter_trend": final_quarter,
         "unexpected_protocol_rejections": 0,
         "resource_limit_errors": 0,
+        "go_runtime": completion_metadata.get("go_runtime") if completion_metadata is not None else None,
         "sustainable_without_memory_decision": success_rate >= 0.999
         and int(latency["p99"]) <= 2 * args.idle_p99_ns
         and max(record["cpu_percent_assigned"] for record in destination) <= 85.0,

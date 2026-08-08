@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from scripts.performance.statistics import Cell, matched_overhead, summarize
+from scripts.performance.statistics import Cell, bootstrap_run_ci, matched_overhead, summarize
 
 
 def cell(**changes: object) -> Cell:
@@ -69,3 +69,18 @@ def test_matched_warm_existing_overhead_is_nbsr_minus_direct() -> None:
         9_000_000,
     )
     assert value == 6_000_000
+
+
+def test_run_level_bootstrap_ci_is_deterministic_and_machine_readable() -> None:
+    first = bootstrap_run_ci([100, 110, 120, 130, 140], resamples=2_000, seed=75)
+    second = bootstrap_run_ci([100, 110, 120, 130, 140], resamples=2_000, seed=75)
+    assert first == second
+    assert first["method"] == "independent-run-bootstrap-mean-v1"
+    assert first["run_count"] == 5
+    assert first["resamples"] == 2_000
+    assert first["lower"] <= first["estimate"] <= first["upper"]
+
+
+def test_bootstrap_constant_runs_do_not_invent_uncertainty() -> None:
+    result = bootstrap_run_ci([7, 7, 7, 7, 7], resamples=100, seed=1)
+    assert (result["lower"], result["estimate"], result["upper"]) == (7, 7, 7)

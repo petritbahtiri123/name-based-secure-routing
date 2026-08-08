@@ -1,6 +1,7 @@
 package main
 
 import (
+	"runtime"
 	"testing"
 
 	"nbsr.local/interop/nbsr-go-peer/internal/perfclock"
@@ -92,5 +93,15 @@ func TestOpenLoopWaitUsesTheSameQPCClockAsRecordedLatency(t *testing.T) {
 	waitUntilQPC(origin, 1_000_000)
 	if elapsed := perfclock.Since(origin); elapsed < 1_000_000 {
 		t.Fatalf("QPC deadline returned early: %d", elapsed)
+	}
+}
+
+func TestGoRuntimeDeltaRetainsAllocationAndGCEvidence(t *testing.T) {
+	start := runtime.MemStats{TotalAlloc: 100, Mallocs: 10, Frees: 4, NumGC: 2, PauseTotalNs: 7}
+	end := runtime.MemStats{HeapAlloc: 50, HeapSys: 80, TotalAlloc: 160, Mallocs: 16, Frees: 7, NumGC: 4, PauseTotalNs: 17}
+	end.PauseNs[0], end.PauseNs[1] = 3, 9
+	got := runtimeDelta(start, end)
+	if got.TotalAllocBytes != 60 || got.Mallocs != 6 || got.Frees != 3 || got.GCCycles != 2 || got.TotalGCPauseNS != 10 || got.MaximumRecentGCPauseNS != 9 {
+		t.Fatalf("unexpected runtime delta: %+v", got)
 	}
 }

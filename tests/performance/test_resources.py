@@ -33,6 +33,9 @@ def test_memory_slope_uses_all_post_warmup_samples() -> None:
     result = series.finish()
     assert result.sample_count == 4
     assert result.slope_bytes_per_second == pytest.approx(20.0)
+    assert result.slope_lower_95 == pytest.approx(20.0)
+    assert result.slope_upper_95 == pytest.approx(20.0)
+    assert result.r_squared == pytest.approx(1.0)
 
 
 def test_background_sampler_retains_every_authoritative_process_sample() -> None:
