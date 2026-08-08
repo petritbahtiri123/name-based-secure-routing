@@ -8,9 +8,13 @@ func TestLifecycleConfigurationRequiresBoundedIndependentServices(t *testing.T) 
 		t.Fatalf("valid lifecycle configuration rejected: %v", err)
 	}
 	invalid := valid
-	invalid.LifecycleServices = 21
+	invalid.LifecycleServices = 33
 	if err := invalid.validate(); err == nil {
-		t.Fatal("service count above frozen benchmark limit accepted")
+		t.Fatal("service count above frozen protocol limit accepted")
+	}
+	valid.LifecycleServices = 32
+	if err := valid.validate(); err != nil {
+		t.Fatalf("frozen 32-channel session limit rejected: %v", err)
 	}
 	invalid = valid
 	invalid.LifecycleConnections = 0

@@ -53,7 +53,7 @@ func (value config) validate() error {
 		}
 		return nil
 	}
-	if value.LifecycleConnections < 1 || value.LifecycleServices < 1 || value.LifecycleServices > 20 || value.LifecycleStreamsPerService < 1 || value.LifecycleStreamsPerService > 64 {
+	if value.LifecycleConnections < 1 || value.LifecycleServices < 1 || value.LifecycleServices > 32 || value.LifecycleStreamsPerService < 1 || value.LifecycleStreamsPerService > 64 {
 		return errors.New("lifecycle configuration is out of bounds")
 	}
 	return nil

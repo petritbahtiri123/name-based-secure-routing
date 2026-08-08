@@ -97,8 +97,8 @@ def test_warm_new_batches_preserve_every_sample_and_existing_transport() -> None
 def test_lifecycle_batch_plan_rejects_silent_zero_or_over_limit_values() -> None:
     with pytest.raises(ValueError, match="samples must be positive"):
         lifecycle_batch_plan(samples=0, services_per_session=20)
-    with pytest.raises(ValueError, match="services per session must be in 1..20"):
-        lifecycle_batch_plan(samples=1, services_per_session=21)
+    with pytest.raises(ValueError, match="services per session must be in 1..32"):
+        lifecycle_batch_plan(samples=1, services_per_session=33)
 
 
 def test_destination_measurements_are_joined_without_cross_process_clock_subtraction() -> None:

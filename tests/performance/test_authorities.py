@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from hashlib import sha256
 
+import pytest
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from nbsr.federation.ownership import derive_service_id
 from nbsr.protocol.cbor import decode_deterministic
@@ -32,6 +33,12 @@ def test_twenty_services_have_independent_signed_authority() -> None:
         assert claims[3] == expected_name
         assert context[35] == derive_service_id(b"S" * 32, expected_name)
         assert context[40][1] == expected_name
+
+
+def test_authority_generation_reaches_but_never_exceeds_session_channel_limit() -> None:
+    assert len(build_authority_set(32)) == 32
+    with pytest.raises(ValueError, match="1..32"):
+        build_authority_set(33)
 
 
 def test_route_open_binding_is_specific_to_each_service() -> None:

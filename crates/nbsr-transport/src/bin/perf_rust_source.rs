@@ -598,7 +598,7 @@ async fn main() {
             .unwrap_or_else(|| "0".into())
             .parse::<u64>()
             .unwrap();
-        assert!((1..=20).contains(&services));
+        assert!((1..=32).contains(&services));
         assert!((1..=64).contains(&streams_per_service));
         run_lifecycle(
             &authority,

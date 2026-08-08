@@ -272,6 +272,7 @@ def rust_lifecycle_samples(
     temp: Path,
     streams_per_service: int = 1,
     concurrent: bool = False,
+    services_per_session: int = 20,
 ) -> list[dict[str, Any]]:
     if not 1 <= streams_per_service <= 64:
         raise ValueError("streams per service must be in 1..64")
@@ -280,13 +281,13 @@ def rust_lifecycle_samples(
         services_for_batch = lambda _batch: 1
         connections_for_batch = lambda batch: batch
     elif scenario == "nbsr-warm-new-service":
-        batches = lifecycle_batch_plan(samples=samples)
+        batches = lifecycle_batch_plan(samples=samples, services_per_session=services_per_session)
         services_for_batch = lambda batch: batch
         connections_for_batch = lambda _batch: 1
     else:
         raise ValueError(f"unsupported lifecycle scenario {scenario}")
     lifecycle_root = temp / "lifecycle-authority"
-    write_authority_set(lifecycle_root, 20)
+    write_authority_set(lifecycle_root, services_per_session)
     records: list[dict[str, Any]] = []
     for ordinal, batch in enumerate(batches):
         services = services_for_batch(batch)
@@ -365,6 +366,7 @@ def go_lifecycle_samples(
     temp: Path,
     streams_per_service: int = 1,
     concurrent: bool = False,
+    services_per_session: int = 20,
 ) -> list[dict[str, Any]]:
     if not 1 <= streams_per_service <= 64:
         raise ValueError("streams per service must be in 1..64")
@@ -373,13 +375,13 @@ def go_lifecycle_samples(
         services_for_batch = lambda _batch: 1
         connections_for_batch = lambda batch: batch
     elif scenario == "nbsr-warm-new-service":
-        batches = lifecycle_batch_plan(samples=samples)
+        batches = lifecycle_batch_plan(samples=samples, services_per_session=services_per_session)
         services_for_batch = lambda batch: batch
         connections_for_batch = lambda _batch: 1
     else:
         raise ValueError(f"unsupported lifecycle scenario {scenario}")
     lifecycle_root = temp / "go-lifecycle-authority"
-    write_authority_set(lifecycle_root, 20)
+    write_authority_set(lifecycle_root, services_per_session)
     records: list[dict[str, Any]] = []
     for ordinal, batch in enumerate(batches):
         services = services_for_batch(batch)

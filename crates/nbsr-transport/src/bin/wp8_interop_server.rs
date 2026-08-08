@@ -505,7 +505,7 @@ async fn main() {
             .parse::<u64>()
             .unwrap();
         let concurrent = env::var_os("NBSR_PERF_CONCURRENT_STREAMS").is_some();
-        assert!((1..=20).contains(&services));
+        assert!((1..=32).contains(&services));
         assert!((1..=64).contains(&streams_per_service));
         let measurements = run_lifecycle(
             &listener,
