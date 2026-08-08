@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import os
+import time
 
 import pytest
 
-from scripts.performance.resources import ResourceSeries, sample_windows_process
+from scripts.performance.resources import ProcessResourceSampler, ResourceSeries, sample_windows_process
 
 
 def test_windows_resource_sample_reports_current_process() -> None:
@@ -32,3 +33,14 @@ def test_memory_slope_uses_all_post_warmup_samples() -> None:
     result = series.finish()
     assert result.sample_count == 4
     assert result.slope_bytes_per_second == pytest.approx(20.0)
+
+
+def test_background_sampler_retains_every_authoritative_process_sample() -> None:
+    sampler = ProcessResourceSampler({"source": os.getpid()}, interval_seconds=0.01, assigned_logical_processors=1)
+    sampler.start()
+    time.sleep(0.12)
+    records = sampler.stop()
+    assert len(records) >= 3
+    assert {record.role for record in records} == {"source"}
+    assert all(record.working_set_bytes > 0 for record in records)
+    assert all(record.cpu_percent_assigned >= 0 for record in records)

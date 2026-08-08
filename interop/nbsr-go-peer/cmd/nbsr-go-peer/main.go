@@ -11,6 +11,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math"
 	"os"
 	"path/filepath"
 	"time"
@@ -26,18 +27,19 @@ import (
 const maxBenchmarkPayload = 1 << 20
 
 type config struct {
-	ReadinessPath              string `json:"readiness_path"`
-	F75Package                 string `json:"f75_package"`
-	LocalAttestationPackage    string `json:"local_attestation_package"`
-	SafePayload                string `json:"safe_payload"`
-	BenchmarkSamples           int    `json:"benchmark_samples,omitempty"`
-	LifecycleAuthorityDir      string `json:"lifecycle_authority_dir,omitempty"`
-	LifecycleConnections       int    `json:"lifecycle_connections,omitempty"`
-	LifecycleServices          int    `json:"lifecycle_services,omitempty"`
-	LifecycleStreamsPerService int    `json:"lifecycle_streams_per_service,omitempty"`
-	LifecycleConcurrent        bool   `json:"lifecycle_concurrent,omitempty"`
-	LifecycleConnectionOffset  int    `json:"lifecycle_connection_offset,omitempty"`
-	LifecycleReportConnections bool   `json:"lifecycle_report_connections,omitempty"`
+	ReadinessPath              string  `json:"readiness_path"`
+	F75Package                 string  `json:"f75_package"`
+	LocalAttestationPackage    string  `json:"local_attestation_package"`
+	SafePayload                string  `json:"safe_payload"`
+	BenchmarkSamples           int     `json:"benchmark_samples,omitempty"`
+	OfferedRate                float64 `json:"offered_rate,omitempty"`
+	LifecycleAuthorityDir      string  `json:"lifecycle_authority_dir,omitempty"`
+	LifecycleConnections       int     `json:"lifecycle_connections,omitempty"`
+	LifecycleServices          int     `json:"lifecycle_services,omitempty"`
+	LifecycleStreamsPerService int     `json:"lifecycle_streams_per_service,omitempty"`
+	LifecycleConcurrent        bool    `json:"lifecycle_concurrent,omitempty"`
+	LifecycleConnectionOffset  int     `json:"lifecycle_connection_offset,omitempty"`
+	LifecycleReportConnections bool    `json:"lifecycle_report_connections,omitempty"`
 }
 
 func (value config) validate() error {
@@ -46,6 +48,9 @@ func (value config) validate() error {
 	}
 	if value.BenchmarkSamples < 0 || value.BenchmarkSamples > 100_000 {
 		return errors.New("benchmark sample count is out of bounds")
+	}
+	if value.OfferedRate < 0 || math.IsNaN(value.OfferedRate) || math.IsInf(value.OfferedRate, 0) {
+		return errors.New("offered rate is out of bounds")
 	}
 	if value.LifecycleAuthorityDir == "" {
 		if value.LifecycleConnections != 0 || value.LifecycleServices != 0 {
@@ -86,6 +91,11 @@ type sample struct {
 	TotalScenarioNS         int64  `json:"total_scenario_ns"`
 	BytesTransmitted        int    `json:"bytes_transmitted"`
 	BytesReceived           int    `json:"bytes_received"`
+	ScheduledNS             int64  `json:"scheduled_ns"`
+	StartedNS               int64  `json:"started_ns"`
+	CompletedNS             int64  `json:"completed_ns"`
+	StartLatenessNS         int64  `json:"start_lateness_ns"`
+	ServiceLatencyNS        int64  `json:"service_latency_ns"`
 }
 
 func measured(value int64) *int64 { return &value }
@@ -397,7 +407,16 @@ func run(ctx context.Context, configuration config) (result, error) {
 	}
 	observedSamples := make([]sample, 0, samples)
 	var echo []byte
+	scheduleClockOrigin := perfclock.Now()
+	scheduleWallOrigin := time.Now()
 	for index := 0; index < samples; index++ {
+		var scheduledNS, startedNS, startLatenessNS int64
+		if configuration.OfferedRate > 0 {
+			scheduledNS = int64(float64(index) / configuration.OfferedRate * 1_000_000_000)
+			time.Sleep(time.Until(scheduleWallOrigin.Add(time.Duration(scheduledNS))))
+			startedNS = perfclock.Since(scheduleClockOrigin)
+			startLatenessNS = max(0, startedNS-scheduledNS)
+		}
 		totalStarted := perfclock.Now()
 		request := benchmarkStreamRequest(uint64(index))
 		if index > 0 {
@@ -456,11 +475,17 @@ func run(ctx context.Context, configuration config) (result, error) {
 		if _, err := io.ReadFull(application, echo); err != nil {
 			return result{}, fmt.Errorf("application echo: %w", err)
 		}
-		requestNS := perfclock.Since(requestStarted)
+		serviceNS := perfclock.Since(requestStarted)
+		requestNS := serviceNS
+		completedNS := int64(0)
+		if configuration.OfferedRate > 0 {
+			completedNS = perfclock.Since(scheduleClockOrigin)
+			requestNS = completedNS - scheduledNS
+		}
 		if string(echo) != configuration.SafePayload {
 			return result{}, errors.New("application payload echo mismatch")
 		}
-		observedSamples = append(observedSamples, sample{SampleID: index, Success: true, StreamOpenRTTNS: streamNS, TTFABNS: requestNS, RequestLatencyNS: requestNS, TotalScenarioNS: perfclock.Since(totalStarted), BytesTransmitted: len(echo), BytesReceived: len(echo)})
+		observedSamples = append(observedSamples, sample{SampleID: index, Success: true, StreamOpenRTTNS: streamNS, TTFABNS: requestNS, RequestLatencyNS: requestNS, TotalScenarioNS: perfclock.Since(totalStarted), BytesTransmitted: len(echo), BytesReceived: len(echo), ScheduledNS: scheduledNS, StartedNS: startedNS, CompletedNS: completedNS, StartLatenessNS: startLatenessNS, ServiceLatencyNS: serviceNS})
 	}
 	digest := sha256.Sum256(echo)
 	return result{Status: "PASS", Messages: []string{"CLIENT_HELLO", "EDGE_HELLO", "ROUTE_OPEN", "ROUTE_ACCEPT", "STREAM_OPEN", "STREAM_ACCEPT"}, CoreVersion: 2, RouteOpenBodyVersion: 2, FederationProfile: "nbsr-federation-dev-v1", PayloadSHA256: hex.EncodeToString(digest[:]), BenchmarkSamples: samples, Samples: observedSamples}, nil

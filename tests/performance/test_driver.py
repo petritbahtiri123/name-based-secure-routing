@@ -13,6 +13,8 @@ from scripts.performance.driver import (
     choose_sustainable_capacity,
     ensure_release_binary,
     open_loop_deadlines_ns,
+    OpenLoopIssue,
+    summarize_open_loop_issues,
 )
 from scripts.run_performance_validation import merge_destination_measurements, normalize
 
@@ -48,6 +50,31 @@ def test_open_loop_deadlines_use_absolute_schedule() -> None:
         1_500_000_000,
         1_750_000_000,
     ]
+
+
+def test_open_loop_overload_remains_visible_as_backlog_and_failure() -> None:
+    issues = [
+        OpenLoopIssue(scheduled_ns=100, started_ns=100, completed_ns=150, success=True, error_type=None),
+        OpenLoopIssue(scheduled_ns=110, started_ns=140, completed_ns=170, success=True, error_type=None),
+        OpenLoopIssue(scheduled_ns=120, started_ns=170, completed_ns=180, success=False, error_type="timeout"),
+    ]
+    summary = summarize_open_loop_issues(issues, offered_rate=100.0, window_seconds=0.03)
+    assert summary.offered_requests == 3
+    assert summary.successful_requests == 2
+    assert summary.failed_requests == 1
+    assert summary.late_requests == 2
+    assert summary.max_start_lateness_ns == 50
+    assert summary.achieved_rate == pytest.approx(2 / 0.03)
+
+
+def test_open_loop_summary_rejects_silent_sample_loss() -> None:
+    with pytest.raises(ValueError, match="offered request count 4, observed 3"):
+        summarize_open_loop_issues(
+            [OpenLoopIssue(0, 0, 1, True, None)] * 3,
+            offered_rate=4.0,
+            window_seconds=1.0,
+            expected_requests=4,
+        )
 
 
 def test_capacity_is_chosen_independently_for_each_path() -> None:
@@ -134,6 +161,24 @@ def test_normalization_preserves_observed_cardinality_and_concurrency() -> None:
     assert observed["service_channels"] == 20
     assert observed["application_streams"] == 20
     assert observed["request_concurrency"] == 20
+
+
+def test_normalization_preserves_open_loop_schedule_evidence() -> None:
+    record = {
+        "success": False, "error_type": "timeout", "error_stage": "application",
+        "bytes_transmitted": 1, "bytes_received": 0,
+        "scheduled_ns": 100, "started_ns": 130, "completed_ns": 180,
+        "start_lateness_ns": 30, "service_latency_ns": 50,
+    }
+    observed = normalize(
+        record, sample_id=0, path="direct-quic", scenario="direct-warm",
+        payload=1, environment_digest="e", repository_sha="r", run_id="run",
+        load_level="capacity", offered_load=100.0, achieved_load=90.0,
+    )
+    assert observed["success"] is False
+    assert observed["start_lateness_ns"] == 30
+    assert observed["service_latency_ns"] == 50
+    assert observed["offered_load"] == 100.0
 
 
 def test_capacity_discovery_uses_bounded_progressive_counts() -> None:

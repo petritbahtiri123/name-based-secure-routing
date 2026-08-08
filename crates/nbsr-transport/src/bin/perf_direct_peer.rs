@@ -197,11 +197,15 @@ async fn client() {
     let samples = count("--samples");
     let payload_bytes = count("--payload-bytes");
     let lifecycle = argument("--lifecycle");
+    let offered_rate =
+        optional_argument("--offered-rate").map(|value| value.parse::<f64>().unwrap());
     let connected_marker = optional_argument("--connected-marker").map(PathBuf::from);
     assert!(matches!(lifecycle.as_str(), "cold" | "warm"));
+    assert!(offered_rate.is_none_or(|rate| rate.is_finite() && rate > 0.0 && lifecycle == "warm"));
     assert!((1..=MAX_PAYLOAD).contains(&payload_bytes));
     let payload = vec![0x5a; payload_bytes];
     let mut warm: Option<(Endpoint, Connection)> = None;
+    let mut schedule_origin: Option<Instant> = None;
     let mut records = Vec::with_capacity(samples);
     for sample_id in 0..samples {
         let total = Instant::now();
@@ -221,11 +225,28 @@ async fn client() {
                 fs::write(marker, b"connected\n").unwrap();
             }
         }
+        let (scheduled_ns, started_ns, start_lateness_ns) = if let Some(rate) = offered_rate {
+            let origin = *schedule_origin.get_or_insert_with(Instant::now);
+            let offset = Duration::from_secs_f64(sample_id as f64 / rate);
+            let deadline = origin + offset;
+            tokio::time::sleep_until(deadline.into()).await;
+            let started = Instant::now();
+            (
+                offset.as_nanos(),
+                started.duration_since(origin).as_nanos(),
+                started.saturating_duration_since(deadline).as_nanos(),
+            )
+        } else {
+            (0, 0, 0)
+        };
         let started = Instant::now();
         let response = request(&pair.1, &payload).await;
-        let request_ns = started.elapsed().as_nanos();
+        let service_ns = started.elapsed().as_nanos();
+        let request_ns = schedule_origin.map_or(service_ns, |origin| {
+            origin.elapsed().as_nanos() - scheduled_ns
+        });
         assert_eq!(response, payload);
-        records.push(format!("{{\"sample_id\":{sample_id},\"success\":true,\"transport_handshake_ns\":{},\"request_latency_ns\":{request_ns},\"ttfab_ns\":{request_ns},\"total_scenario_ns\":{},\"bytes_transmitted\":{payload_bytes},\"bytes_received\":{payload_bytes}}}", handshake_ns.map_or_else(|| "null".into(), |value| value.to_string()), total.elapsed().as_nanos()));
+        records.push(format!("{{\"sample_id\":{sample_id},\"success\":true,\"transport_handshake_ns\":{},\"request_latency_ns\":{request_ns},\"service_latency_ns\":{service_ns},\"scheduled_ns\":{scheduled_ns},\"started_ns\":{started_ns},\"completed_ns\":{},\"start_lateness_ns\":{start_lateness_ns},\"ttfab_ns\":{request_ns},\"total_scenario_ns\":{},\"bytes_transmitted\":{payload_bytes},\"bytes_received\":{payload_bytes}}}", handshake_ns.map_or_else(|| "null".into(), |value| value.to_string()), schedule_origin.map_or(0, |origin| origin.elapsed().as_nanos()), total.elapsed().as_nanos()));
         if lifecycle == "cold" {
             pair.1.close(VarInt::from_u32(0), b"");
             pair.0.wait_idle().await;

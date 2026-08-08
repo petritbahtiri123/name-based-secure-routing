@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+from dataclasses import asdict
 import hashlib
 import json
 import os
@@ -17,6 +18,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from scripts.performance.authority import write_loopback_authority  # noqa: E402
 from scripts.performance.authorities import write_authority_set  # noqa: E402
 from scripts.performance.driver import ensure_release_binary, lifecycle_batch_plan  # noqa: E402
+from scripts.performance.resources import ProcessResourceSampler  # noqa: E402
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -42,6 +44,23 @@ def command(argv: list[str], *, cwd: Path = ROOT, timeout: int = 300) -> subproc
     if result.returncode:
         raise RuntimeError(f"command failed ({result.returncode}): {argv!r}\n{result.stderr}")
     return result
+
+
+def measured_client(
+    argv: list[str], *, cwd: Path, server: subprocess.Popen[str], timeout: int,
+) -> tuple[str, list[dict[str, Any]]]:
+    client = subprocess.Popen(argv, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    sampler = ProcessResourceSampler(
+        {"source": client.pid, "destination": server.pid},
+        interval_seconds=1.0,
+        assigned_logical_processors=os.cpu_count() or 1,
+    )
+    sampler.start()
+    stdout, stderr = client.communicate(timeout=timeout)
+    resources = [asdict(record) for record in sampler.stop()]
+    if client.returncode:
+        raise RuntimeError(f"command failed ({client.returncode}): {argv!r}\n{stderr}")
+    return stdout, resources
 
 
 def sha256(path: Path) -> str:
@@ -141,7 +160,11 @@ def merge_destination_measurements(records: list[dict[str, Any]], result: dict[s
         record["application_processing_ns"] = int(measurement["application_processing_ns"])
 
 
-def direct_samples(binary: Path, authority: Path, samples: int, payload: int, lifecycle: str, temp: Path) -> list[dict[str, Any]]:
+def direct_samples(
+    binary: Path, authority: Path, samples: int, payload: int, lifecycle: str, temp: Path,
+    offered_rate: float | None = None,
+    resource_records: list[dict[str, Any]] | None = None,
+) -> list[dict[str, Any]]:
     ready = temp / f"direct-{lifecycle}.ready.json"
     ready.unlink(missing_ok=True)
     connections = samples if lifecycle == "cold" else 1
@@ -167,8 +190,7 @@ def direct_samples(binary: Path, authority: Path, samples: int, payload: int, li
     )
     try:
         endpoint = wait_ready(ready, server)["endpoint"]
-        client = command(
-            [
+        client_command = [
                 str(binary),
                 "--role",
                 "client",
@@ -182,20 +204,29 @@ def direct_samples(binary: Path, authority: Path, samples: int, payload: int, li
                 str(payload),
                 "--lifecycle",
                 lifecycle,
-            ],
-            timeout=3600,
-        )
+            ]
+        if offered_rate is not None:
+            client_command.extend(["--offered-rate", str(offered_rate)])
+        if resource_records is None:
+            stdout = command(client_command, timeout=3600).stdout
+        else:
+            stdout, observed_resources = measured_client(client_command, cwd=ROOT, server=server, timeout=3600)
+            resource_records.extend(observed_resources)
         server.wait(30)
         if server.returncode:
             raise RuntimeError(server.stderr.read())
-        return parse_ndjson(client.stdout)
+        return parse_ndjson(stdout)
     finally:
         if server.poll() is None:
             server.terminate()
             server.wait(10)
 
 
-def nbsr_samples(path: str, binaries: dict[str, Path], authority: Path, samples: int, payload: int, temp: Path) -> list[dict[str, Any]]:
+def nbsr_samples(
+    path: str, binaries: dict[str, Path], authority: Path, samples: int, payload: int, temp: Path,
+    offered_rate: float | None = None,
+    resource_records: list[dict[str, Any]] | None = None,
+) -> list[dict[str, Any]]:
     ready, result, ack = temp / f"{path}.ready.json", temp / f"{path}.result.json", temp / f"{path}.ack"
     for stale in (ready, result, ack):
         stale.unlink(missing_ok=True)
@@ -221,8 +252,7 @@ def nbsr_samples(path: str, binaries: dict[str, Path], authority: Path, samples:
     try:
         endpoint = wait_ready(ready, server)["endpoint"]
         if path == "rust-rust":
-            client = command(
-                [
+            client_command = [
                     str(binaries["rust"]),
                     "--authority-dir",
                     str(authority),
@@ -232,10 +262,13 @@ def nbsr_samples(path: str, binaries: dict[str, Path], authority: Path, samples:
                     str(samples),
                     "--payload-bytes",
                     str(payload),
-                ],
-                timeout=3600,
-            )
-            records = parse_ndjson(client.stdout)
+                ] + (["--offered-rate", str(offered_rate)] if offered_rate is not None else [])
+            if resource_records is None:
+                stdout = command(client_command, timeout=3600).stdout
+            else:
+                stdout, observed_resources = measured_client(client_command, cwd=ROOT, server=server, timeout=3600)
+                resource_records.extend(observed_resources)
+            records = parse_ndjson(stdout)
         else:
             config = temp / "go-config.json"
             config.write_text(
@@ -246,12 +279,18 @@ def nbsr_samples(path: str, binaries: dict[str, Path], authority: Path, samples:
                         "local_attestation_package": str(ROOT / "vectors/wp8-local-admission"),
                         "safe_payload": "Z" * payload,
                         "benchmark_samples": samples,
+                        "offered_rate": offered_rate,
                     }
                 ),
                 encoding="utf-8",
             )
-            client = command([str(binaries["go"]), "--config", str(config)], cwd=GO_PEER, timeout=3600)
-            records = json.loads(client.stdout)["samples"]
+            client_command = [str(binaries["go"]), "--config", str(config)]
+            if resource_records is None:
+                stdout = command(client_command, cwd=GO_PEER, timeout=3600).stdout
+            else:
+                stdout, observed_resources = measured_client(client_command, cwd=GO_PEER, server=server, timeout=3600)
+                resource_records.extend(observed_resources)
+            records = json.loads(stdout)["samples"]
         ack.touch()
         server.wait(30)
         if server.returncode:
@@ -578,6 +617,9 @@ def normalize(
     environment_digest: str,
     repository_sha: str,
     run_id: str,
+    load_level: str = "idle",
+    offered_load: float | None = None,
+    achieved_load: float | None = None,
 ) -> dict[str, Any]:
     result = {name: record.get(name) for name in DURATIONS}
     result.update(
@@ -598,9 +640,9 @@ def normalize(
             "application_streams": int(record.get("application_streams", 1)),
             "request_concurrency": int(record.get("request_concurrency", 1)),
             "payload_bytes": payload,
-            "load_level": "idle",
-            "offered_load": None,
-            "achieved_load": None,
+            "load_level": load_level,
+            "offered_load": offered_load,
+            "achieved_load": achieved_load,
             "success": bool(record.get("success", True)),
             "error_type": record.get("error_type"),
             "error_stage": record.get("error_stage"),
@@ -608,6 +650,9 @@ def normalize(
             "bytes_received": int(record["bytes_received"]),
         }
     )
+    for name in ("scheduled_ns", "started_ns", "completed_ns", "start_lateness_ns", "service_latency_ns"):
+        if name in record:
+            result[name] = int(record[name])
     return result
 
 

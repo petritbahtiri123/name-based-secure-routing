@@ -56,3 +56,14 @@ func TestPayloadMatrixAcceptsOneMiBAndRejectsLargerInput(t *testing.T) {
 		t.Fatal("payload above one MiB accepted")
 	}
 }
+
+func TestOpenLoopOfferedRateMustBePositive(t *testing.T) {
+	valid := config{ReadinessPath: "ready", F75Package: "f75", LocalAttestationPackage: "local", SafePayload: "Z", BenchmarkSamples: 1, OfferedRate: 100}
+	if err := valid.validate(); err != nil {
+		t.Fatalf("positive offered rate rejected: %v", err)
+	}
+	valid.OfferedRate = -1
+	if err := valid.validate(); err == nil {
+		t.Fatal("negative offered rate accepted")
+	}
+}

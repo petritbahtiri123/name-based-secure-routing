@@ -43,6 +43,57 @@ class CapacityObservation:
         )
 
 
+@dataclass(frozen=True)
+class OpenLoopIssue:
+    scheduled_ns: int
+    started_ns: int
+    completed_ns: int
+    success: bool
+    error_type: str | None
+
+    def __post_init__(self) -> None:
+        if self.started_ns < self.scheduled_ns or self.completed_ns < self.started_ns:
+            raise ValueError("open-loop timestamps are not monotonic")
+        if self.success == (self.error_type is not None):
+            raise ValueError("open-loop success and error type disagree")
+
+
+@dataclass(frozen=True)
+class OpenLoopSummary:
+    offered_rate: float
+    achieved_rate: float
+    offered_requests: int
+    successful_requests: int
+    failed_requests: int
+    late_requests: int
+    max_start_lateness_ns: int
+
+
+def summarize_open_loop_issues(
+    issues: list[OpenLoopIssue],
+    *,
+    offered_rate: float,
+    window_seconds: float,
+    expected_requests: int | None = None,
+) -> OpenLoopSummary:
+    if offered_rate <= 0 or window_seconds <= 0:
+        raise ValueError("offered rate and window must be positive")
+    expected = round(offered_rate * window_seconds) if expected_requests is None else expected_requests
+    if len(issues) != expected:
+        raise ValueError(f"offered request count {expected}, observed {len(issues)}")
+    successful = sum(issue.success for issue in issues)
+    lateness = [issue.started_ns - issue.scheduled_ns for issue in issues]
+    return OpenLoopSummary(
+        offered_rate=offered_rate,
+        achieved_rate=successful / window_seconds,
+        offered_requests=expected,
+        successful_requests=successful,
+        failed_requests=expected - successful,
+        late_requests=sum(value > 0 for value in lateness),
+        max_start_lateness_ns=max(lateness, default=0),
+    )
+
+
 def ensure_release_binary(path: Path) -> Path:
     if not path.is_file() or "release" not in {part.lower() for part in path.parts}:
         raise ValueError(f"not a release binary: {path}")

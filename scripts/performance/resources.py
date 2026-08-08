@@ -3,6 +3,8 @@ from __future__ import annotations
 import ctypes
 from ctypes import wintypes
 from dataclasses import dataclass
+import threading
+import time
 
 
 PROCESS_QUERY_INFORMATION = 0x0400
@@ -64,6 +66,95 @@ class ProcessResourceSample:
 class MemoryTrend:
     sample_count: int
     slope_bytes_per_second: float
+
+
+@dataclass(frozen=True)
+class TimedProcessResourceSample:
+    role: str
+    timestamp_ns: int
+    pid: int
+    user_cpu_ns: int
+    kernel_cpu_ns: int
+    cpu_percent_one_core: float
+    cpu_percent_assigned: float
+    working_set_bytes: int
+    peak_working_set_bytes: int
+    private_bytes: int
+    thread_count: int
+
+
+class ProcessResourceSampler:
+    def __init__(
+        self,
+        processes: dict[str, int],
+        *,
+        interval_seconds: float = 1.0,
+        assigned_logical_processors: int,
+    ) -> None:
+        if not processes or interval_seconds <= 0 or assigned_logical_processors < 1:
+            raise ValueError("invalid resource sampler configuration")
+        self.processes = dict(processes)
+        self.interval_seconds = interval_seconds
+        self.assigned_logical_processors = assigned_logical_processors
+        self._stop = threading.Event()
+        self._thread: threading.Thread | None = None
+        self._records: list[TimedProcessResourceSample] = []
+        self._error: BaseException | None = None
+
+    def start(self) -> None:
+        if self._thread is not None:
+            raise RuntimeError("resource sampler already started")
+        self._thread = threading.Thread(target=self._run, name="nbsr-resource-sampler", daemon=True)
+        self._thread.start()
+
+    def stop(self) -> list[TimedProcessResourceSample]:
+        if self._thread is None:
+            raise RuntimeError("resource sampler was not started")
+        self._stop.set()
+        self._thread.join(timeout=max(5.0, self.interval_seconds * 2))
+        if self._thread.is_alive():
+            raise RuntimeError("resource sampler did not stop")
+        if self._error is not None:
+            raise RuntimeError("authoritative resource sample disappeared") from self._error
+        if not self._records:
+            raise RuntimeError("no authoritative resource samples collected")
+        return list(self._records)
+
+    def _run(self) -> None:
+        previous: dict[str, tuple[int, int]] = {}
+        observed_roles: set[str] = set()
+        origin = time.perf_counter_ns()
+        try:
+            while not self._stop.is_set():
+                timestamp = time.perf_counter_ns()
+                for role, pid in self.processes.items():
+                    sample = sample_windows_process(pid)
+                    observed_roles.add(role)
+                    cpu_total = sample.user_cpu_ns + sample.kernel_cpu_ns
+                    prior = previous.get(role)
+                    cpu_one_core = 0.0 if prior is None else 100.0 * (cpu_total - prior[1]) / (timestamp - prior[0])
+                    previous[role] = (timestamp, cpu_total)
+                    self._records.append(
+                        TimedProcessResourceSample(
+                            role=role,
+                            timestamp_ns=timestamp - origin,
+                            pid=pid,
+                            user_cpu_ns=sample.user_cpu_ns,
+                            kernel_cpu_ns=sample.kernel_cpu_ns,
+                            cpu_percent_one_core=cpu_one_core,
+                            cpu_percent_assigned=cpu_one_core / self.assigned_logical_processors,
+                            working_set_bytes=sample.working_set_bytes,
+                            peak_working_set_bytes=sample.peak_working_set_bytes,
+                            private_bytes=sample.private_bytes,
+                            thread_count=sample.thread_count,
+                        )
+                    )
+                self._stop.wait(self.interval_seconds)
+        except ProcessLookupError as error:
+            if observed_roles != set(self.processes):
+                self._error = error
+        except BaseException as error:
+            self._error = error
 
 
 class ResourceSeries:
