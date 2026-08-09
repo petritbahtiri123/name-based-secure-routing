@@ -84,6 +84,8 @@ def main() -> None:
         total_ns = total_seconds * 1_000_000_000
         steady_latencies: list[int] = []
         success = failure = observed = 0
+        timeout_requests = rejected_requests = peak_backlog = 0
+        steady_start_lateness: list[int] = []
         completion_metadata: dict[str, Any] | None = None
         raw_path = output / "raw.ndjson.gz"
         with streamed.open("r", encoding="utf-8") as source, gzip.open(raw_path, "wt", encoding="utf-8", newline="\n") as raw:
@@ -111,12 +113,19 @@ def main() -> None:
                 record["window"] = "warmup" if scheduled < warmup_ns else "steady"
                 raw.write(json.dumps(record, sort_keys=True, separators=(",", ":")) + "\n")
                 observed += 1
+                started = int(document["started_ns"])
+                scheduled_arrivals = min(sample_count, int(started * args.offered_rate // 1_000_000_000) + 1)
+                peak_backlog = max(peak_backlog, scheduled_arrivals - (observed - 1))
                 if warmup_ns <= scheduled < total_ns:
+                    steady_start_lateness.append(int(document["start_lateness_ns"]))
                     if record["success"]:
                         success += 1
                         steady_latencies.append(int(record["request_latency_ns"]))
                     else:
                         failure += 1
+                        error_type = str(record.get("error_type") or "").lower()
+                        timeout_requests += "timeout" in error_type
+                        rejected_requests += "reject" in error_type
         if observed != sample_count:
             raise RuntimeError(f"open-loop sample loss: offered {sample_count}, observed {observed}")
     if args.path == "go-rust":
@@ -153,6 +162,8 @@ def main() -> None:
     final_quarter = segment_trend(destination[3 * len(destination) // 4 :])
     latency = summarize(steady_latencies)
     success_rate = success / expected_steady
+    sorted_lateness = sorted(steady_start_lateness)
+    p95_lateness = sorted_lateness[max(0, (95 * len(sorted_lateness) + 99) // 100 - 1)]
     summary = {
         "schema": "nbsr-performance-load-cell-v1",
         "run_id": args.run_id,
@@ -168,6 +179,13 @@ def main() -> None:
         "offered_requests": expected_steady,
         "successful_requests": success,
         "failed_requests": failure,
+        "completed_requests": success + failure,
+        "timeout_requests": timeout_requests,
+        "rejected_requests": rejected_requests,
+        "late_requests": sum(value > 0 for value in steady_start_lateness),
+        "max_start_lateness_ns": max(steady_start_lateness, default=0),
+        "p95_start_lateness_ns": p95_lateness,
+        "peak_backlog": peak_backlog,
         "success_rate": success_rate,
         "latency_ns": latency,
         "idle_p99_ns": args.idle_p99_ns,

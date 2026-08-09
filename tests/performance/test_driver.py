@@ -68,7 +68,26 @@ def test_open_loop_overload_remains_visible_as_backlog_and_failure() -> None:
     assert summary.failed_requests == 1
     assert summary.late_requests == 2
     assert summary.max_start_lateness_ns == 50
+    assert summary.peak_backlog == 2
+    assert summary.completed_requests == 3
     assert summary.achieved_rate == pytest.approx(2 / 0.03)
+
+
+def test_open_loop_scheduler_lag_and_backlog_remain_measurable() -> None:
+    issues = [
+        OpenLoopIssue(0, 0, 10, True, None),
+        OpenLoopIssue(5, 20, 30, True, None),
+        OpenLoopIssue(10, 30, 40, False, "timeout"),
+        OpenLoopIssue(15, 40, 50, False, "rejected"),
+    ]
+    summary = summarize_open_loop_issues(issues, offered_rate=4.0, window_seconds=1.0, expected_requests=4)
+    assert summary.offered_requests == 4
+    assert summary.completed_requests == 4
+    assert summary.failed_requests == 2
+    assert summary.timeout_requests == 1
+    assert summary.rejected_requests == 1
+    assert summary.peak_backlog == 3
+    assert summary.p95_start_lateness_ns == 25
 
 
 def test_open_loop_summary_rejects_silent_sample_loss() -> None:
@@ -173,6 +192,8 @@ def test_normalization_preserves_open_loop_schedule_evidence() -> None:
         "bytes_transmitted": 1, "bytes_received": 0,
         "scheduled_ns": 100, "started_ns": 130, "completed_ns": 180,
         "start_lateness_ns": 30, "service_latency_ns": 50,
+        "send_lag_ns": 7, "receive_lag_ns": 11, "queue_depth": 3,
+        "active_requests": 1,
     }
     observed = normalize(
         record, sample_id=0, path="direct-quic", scenario="direct-warm",
@@ -182,6 +203,10 @@ def test_normalization_preserves_open_loop_schedule_evidence() -> None:
     assert observed["success"] is False
     assert observed["start_lateness_ns"] == 30
     assert observed["service_latency_ns"] == 50
+    assert observed["send_lag_ns"] == 7
+    assert observed["receive_lag_ns"] == 11
+    assert observed["queue_depth"] == 3
+    assert observed["active_requests"] == 1
     assert observed["offered_load"] == 100.0
 
 

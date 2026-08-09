@@ -702,7 +702,10 @@ def normalize(
             "bytes_received": int(record["bytes_received"]),
         }
     )
-    for name in ("scheduled_ns", "started_ns", "completed_ns", "start_lateness_ns", "service_latency_ns"):
+    for name in (
+        "scheduled_ns", "started_ns", "completed_ns", "start_lateness_ns", "service_latency_ns",
+        "send_lag_ns", "receive_lag_ns", "queue_depth", "active_requests",
+    ):
         if name in record:
             result[name] = int(record[name])
     return result

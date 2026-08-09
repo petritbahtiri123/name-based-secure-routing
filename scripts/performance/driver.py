@@ -75,8 +75,13 @@ class OpenLoopSummary:
     offered_requests: int
     successful_requests: int
     failed_requests: int
+    completed_requests: int
+    timeout_requests: int
+    rejected_requests: int
     late_requests: int
     max_start_lateness_ns: int
+    p95_start_lateness_ns: int
+    peak_backlog: int
 
 
 def summarize_open_loop_issues(
@@ -92,15 +97,29 @@ def summarize_open_loop_issues(
     if len(issues) != expected:
         raise ValueError(f"offered request count {expected}, observed {len(issues)}")
     successful = sum(issue.success for issue in issues)
-    lateness = [issue.started_ns - issue.scheduled_ns for issue in issues]
+    lateness = sorted(issue.started_ns - issue.scheduled_ns for issue in issues)
+    events = sorted(
+        [(issue.scheduled_ns, 0, 1) for issue in issues]
+        + [(issue.started_ns, 1, -1) for issue in issues]
+    )
+    queued = peak_backlog = 0
+    for _, _, delta in events:
+        queued += delta
+        peak_backlog = max(peak_backlog, queued)
+    failures = [issue.error_type or "" for issue in issues if not issue.success]
     return OpenLoopSummary(
         offered_rate=offered_rate,
         achieved_rate=successful / window_seconds,
         offered_requests=expected,
         successful_requests=successful,
         failed_requests=expected - successful,
+        completed_requests=len(issues),
+        timeout_requests=sum("timeout" in error.lower() for error in failures),
+        rejected_requests=sum("reject" in error.lower() for error in failures),
         late_requests=sum(value > 0 for value in lateness),
         max_start_lateness_ns=max(lateness, default=0),
+        p95_start_lateness_ns=lateness[max(0, (95 * len(lateness) + 99) // 100 - 1)] if lateness else 0,
+        peak_backlog=peak_backlog,
     )
 
 
