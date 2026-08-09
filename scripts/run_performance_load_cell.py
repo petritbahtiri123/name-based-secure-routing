@@ -40,12 +40,18 @@ def main() -> None:
     parser.add_argument("--run-id", required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--formal", action="store_true")
+    parser.add_argument("--memory", action="store_true")
+    parser.add_argument("--sampling-cadence-seconds", type=int, default=1)
     args = parser.parse_args()
     if args.formal:
         FormalRunRequirements().validate_capacity_window(
             warmup_seconds=args.warmup_seconds,
             steady_state_seconds=args.steady_seconds,
         )
+    if args.memory and (args.warmup_seconds < 60 or args.steady_seconds < 1_800):
+        raise SystemExit("primary memory evidence requires 60 seconds warm-up and 1800 seconds steady state")
+    if args.sampling_cadence_seconds != 1:
+        raise SystemExit("completion memory sampling cadence is frozen at 1 second")
     if args.offered_rate <= 0:
         raise SystemExit("offered rate must be positive")
     env_record = environment()
@@ -168,6 +174,8 @@ def main() -> None:
         "schema": "nbsr-performance-load-cell-v1",
         "run_id": args.run_id,
         "formal": args.formal,
+        "memory_primary": args.memory,
+        "sampling_cadence_seconds": args.sampling_cadence_seconds,
         "path": args.path,
         "scenario": scenario,
         "payload_bytes": args.payload_bytes,
