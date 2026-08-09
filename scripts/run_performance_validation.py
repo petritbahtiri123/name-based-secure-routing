@@ -247,6 +247,7 @@ def nbsr_samples(
     offered_rate: float | None = None,
     resource_records: list[dict[str, Any]] | None = None,
     raw_output: Path | None = None,
+    go_runtime_series: Path | None = None,
 ) -> list[dict[str, Any]]:
     if raw_output is not None and resource_records is None:
         raise ValueError("direct-to-disk load evidence requires resource capture")
@@ -308,6 +309,8 @@ def nbsr_samples(
                         "safe_payload": "Z" * payload,
                         "benchmark_samples": samples,
                         "offered_rate": offered_rate,
+                        "runtime_series_path": str(go_runtime_series) if go_runtime_series is not None else "",
+                        "runtime_sampling_cadence_ms": 1000 if go_runtime_series is not None else 0,
                     }
                 ),
                 encoding="utf-8",

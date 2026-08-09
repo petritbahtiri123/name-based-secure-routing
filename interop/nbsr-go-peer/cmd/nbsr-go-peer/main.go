@@ -15,6 +15,8 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"sync"
+	"sync/atomic"
 	"time"
 
 	"nbsr.local/interop/nbsr-go-peer/internal/authority"
@@ -34,6 +36,8 @@ type config struct {
 	SafePayload                string  `json:"safe_payload"`
 	BenchmarkSamples           int     `json:"benchmark_samples,omitempty"`
 	OfferedRate                float64 `json:"offered_rate,omitempty"`
+	RuntimeSeriesPath          string  `json:"runtime_series_path,omitempty"`
+	RuntimeSamplingCadenceMS   int     `json:"runtime_sampling_cadence_ms,omitempty"`
 	LifecycleAuthorityDir      string  `json:"lifecycle_authority_dir,omitempty"`
 	LifecycleConnections       int     `json:"lifecycle_connections,omitempty"`
 	LifecycleServices          int     `json:"lifecycle_services,omitempty"`
@@ -55,6 +59,12 @@ func (value config) validate() error {
 	}
 	if value.OfferedRate < 0 || math.IsNaN(value.OfferedRate) || math.IsInf(value.OfferedRate, 0) {
 		return errors.New("offered rate is out of bounds")
+	}
+	if (value.RuntimeSeriesPath == "") != (value.RuntimeSamplingCadenceMS == 0) {
+		return errors.New("incomplete runtime sampling configuration")
+	}
+	if value.RuntimeSeriesPath != "" && (value.OfferedRate <= 0 || value.RuntimeSamplingCadenceMS != 1000) {
+		return errors.New("runtime sampling requires open-loop load and a 1000 ms cadence")
 	}
 	if value.LifecycleAuthorityDir == "" {
 		if value.LifecycleConnections != 0 || value.LifecycleServices != 0 {
@@ -83,12 +93,78 @@ type result struct {
 type goRuntimeStats struct {
 	HeapAllocBytes         uint64 `json:"heap_alloc_bytes"`
 	HeapSysBytes           uint64 `json:"heap_sys_bytes"`
+	HeapIdleBytes          uint64 `json:"heap_idle_bytes"`
+	HeapInuseBytes         uint64 `json:"heap_inuse_bytes"`
+	HeapReleasedBytes      uint64 `json:"heap_released_bytes"`
 	TotalAllocBytes        uint64 `json:"total_alloc_bytes"`
 	Mallocs                uint64 `json:"mallocs"`
 	Frees                  uint64 `json:"frees"`
 	GCCycles               uint32 `json:"gc_cycles"`
 	TotalGCPauseNS         uint64 `json:"total_gc_pause_ns"`
 	MaximumRecentGCPauseNS uint64 `json:"maximum_recent_gc_pause_ns"`
+}
+
+type goRuntimeSample struct {
+	ObservedAtNS      int64  `json:"observed_at_ns"`
+	ProcessedRequests uint64 `json:"processed_requests"`
+	HeapAllocBytes    uint64 `json:"heap_alloc_bytes"`
+	HeapSysBytes      uint64 `json:"heap_sys_bytes"`
+	HeapIdleBytes     uint64 `json:"heap_idle_bytes"`
+	HeapInuseBytes    uint64 `json:"heap_inuse_bytes"`
+	HeapReleasedBytes uint64 `json:"heap_released_bytes"`
+	NumGC             uint32 `json:"num_gc"`
+	TotalAllocBytes   uint64 `json:"total_alloc_bytes"`
+	Mallocs           uint64 `json:"mallocs"`
+	Frees             uint64 `json:"frees"`
+	TotalGCPauseNS    uint64 `json:"total_gc_pause_ns"`
+}
+
+func startRuntimeSampler(path string, cadence time.Duration, processed *atomic.Uint64) (func() error, error) {
+	if path == "" || cadence <= 0 || processed == nil {
+		return nil, errors.New("invalid runtime sampler configuration")
+	}
+	file, err := os.OpenFile(path, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0o600)
+	if err != nil {
+		return nil, err
+	}
+	stop := make(chan struct{})
+	done := make(chan error, 1)
+	var once sync.Once
+	var stopErr error
+	go func() {
+		ticker := time.NewTicker(cadence)
+		defer ticker.Stop()
+		encoder := json.NewEncoder(file)
+		for {
+			select {
+			case observed := <-ticker.C:
+				var stats runtime.MemStats
+				runtime.ReadMemStats(&stats)
+				sample := goRuntimeSample{
+					ObservedAtNS: observed.UnixNano(), ProcessedRequests: processed.Load(),
+					HeapAllocBytes: stats.HeapAlloc, HeapSysBytes: stats.HeapSys,
+					HeapIdleBytes: stats.HeapIdle, HeapInuseBytes: stats.HeapInuse, HeapReleasedBytes: stats.HeapReleased,
+					NumGC: stats.NumGC, TotalAllocBytes: stats.TotalAlloc, Mallocs: stats.Mallocs, Frees: stats.Frees,
+					TotalGCPauseNS: stats.PauseTotalNs,
+				}
+				if err := encoder.Encode(sample); err != nil {
+					_ = file.Close()
+					done <- err
+					return
+				}
+			case <-stop:
+				done <- file.Close()
+				return
+			}
+		}
+	}()
+	return func() error {
+		once.Do(func() {
+			close(stop)
+			stopErr = <-done
+		})
+		return stopErr
+	}, nil
 }
 
 type sample struct {
@@ -123,6 +199,7 @@ func runtimeDelta(start runtime.MemStats, end runtime.MemStats) *goRuntimeStats 
 	}
 	return &goRuntimeStats{
 		HeapAllocBytes: end.HeapAlloc, HeapSysBytes: end.HeapSys,
+		HeapIdleBytes: end.HeapIdle, HeapInuseBytes: end.HeapInuse, HeapReleasedBytes: end.HeapReleased,
 		TotalAllocBytes: end.TotalAlloc - start.TotalAlloc,
 		Mallocs:         end.Mallocs - start.Mallocs, Frees: end.Frees - start.Frees,
 		GCCycles: end.NumGC - start.NumGC, TotalGCPauseNS: end.PauseTotalNs - start.PauseTotalNs,
@@ -453,6 +530,19 @@ func run(ctx context.Context, configuration config) (result, error) {
 	var echo []byte
 	var runtimeStart runtime.MemStats
 	runtime.ReadMemStats(&runtimeStart)
+	var processed atomic.Uint64
+	stopRuntimeSampler := func() error { return nil }
+	if configuration.RuntimeSeriesPath != "" {
+		stopRuntimeSampler, err = startRuntimeSampler(
+			configuration.RuntimeSeriesPath,
+			time.Duration(configuration.RuntimeSamplingCadenceMS)*time.Millisecond,
+			&processed,
+		)
+		if err != nil {
+			return result{}, err
+		}
+		defer func() { _ = stopRuntimeSampler() }()
+	}
 	scheduleClockOrigin := perfclock.Now()
 	for index := 0; index < samples; index++ {
 		var scheduledNS, startedNS, startLatenessNS int64
@@ -538,6 +628,10 @@ func run(ctx context.Context, configuration config) (result, error) {
 		} else {
 			observedSamples = append(observedSamples, entry)
 		}
+		processed.Store(uint64(index + 1))
+	}
+	if err := stopRuntimeSampler(); err != nil {
+		return result{}, err
 	}
 	digest := sha256.Sum256(echo)
 	var runtimeEnd runtime.MemStats

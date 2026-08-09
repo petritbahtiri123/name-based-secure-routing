@@ -1,8 +1,13 @@
 package main
 
 import (
+	"bufio"
+	"encoding/json"
+	"os"
 	"runtime"
+	"sync/atomic"
 	"testing"
+	"time"
 
 	"nbsr.local/interop/nbsr-go-peer/internal/perfclock"
 )
@@ -34,6 +39,43 @@ func TestLifecycleConfigurationRequiresBoundedIndependentServices(t *testing.T) 
 	valid.LifecycleConcurrent = true
 	if err := valid.validate(); err != nil {
 		t.Fatalf("bounded concurrent lifecycle rejected: %v", err)
+	}
+}
+
+func TestRuntimeSamplerPreservesCadenceAndProcessedRequestCount(t *testing.T) {
+	path := t.TempDir() + "/runtime.ndjson"
+	var processed atomic.Uint64
+	stop, err := startRuntimeSampler(path, 10*time.Millisecond, &processed)
+	if err != nil {
+		t.Fatal(err)
+	}
+	processed.Store(17)
+	time.Sleep(35 * time.Millisecond)
+	if err := stop(); err != nil {
+		t.Fatal(err)
+	}
+	file, err := os.Open(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer file.Close()
+	scanner := bufio.NewScanner(file)
+	count := 0
+	for scanner.Scan() {
+		var sample goRuntimeSample
+		if err := json.Unmarshal(scanner.Bytes(), &sample); err != nil {
+			t.Fatal(err)
+		}
+		if sample.ProcessedRequests != 17 || sample.HeapSysBytes == 0 || sample.ObservedAtNS <= 0 {
+			t.Fatalf("incomplete runtime sample: %+v", sample)
+		}
+		count++
+	}
+	if err := scanner.Err(); err != nil {
+		t.Fatal(err)
+	}
+	if count < 2 {
+		t.Fatalf("runtime samples disappeared: %d", count)
 	}
 }
 
@@ -98,10 +140,13 @@ func TestOpenLoopWaitUsesTheSameQPCClockAsRecordedLatency(t *testing.T) {
 
 func TestGoRuntimeDeltaRetainsAllocationAndGCEvidence(t *testing.T) {
 	start := runtime.MemStats{TotalAlloc: 100, Mallocs: 10, Frees: 4, NumGC: 2, PauseTotalNs: 7}
-	end := runtime.MemStats{HeapAlloc: 50, HeapSys: 80, TotalAlloc: 160, Mallocs: 16, Frees: 7, NumGC: 4, PauseTotalNs: 17}
+	end := runtime.MemStats{HeapAlloc: 50, HeapSys: 80, HeapIdle: 20, HeapInuse: 60, HeapReleased: 10, TotalAlloc: 160, Mallocs: 16, Frees: 7, NumGC: 4, PauseTotalNs: 17}
 	end.PauseNs[0], end.PauseNs[1] = 3, 9
 	got := runtimeDelta(start, end)
 	if got.TotalAllocBytes != 60 || got.Mallocs != 6 || got.Frees != 3 || got.GCCycles != 2 || got.TotalGCPauseNS != 10 || got.MaximumRecentGCPauseNS != 9 {
 		t.Fatalf("unexpected runtime delta: %+v", got)
+	}
+	if got.HeapAllocBytes != 50 || got.HeapSysBytes != 80 || got.HeapIdleBytes != 20 || got.HeapInuseBytes != 60 || got.HeapReleasedBytes != 10 {
+		t.Fatalf("runtime heap fields disappeared: %+v", got)
 	}
 }

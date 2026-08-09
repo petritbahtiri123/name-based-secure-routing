@@ -7,6 +7,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import shutil
 import sys
 import tempfile
 from typing import Any
@@ -81,9 +82,10 @@ def main() -> None:
             )
             scenario = "direct-warm"
         else:
+            go_runtime_series = temp / "go-runtime-series.ndjson" if args.memory and args.path == "go-rust" else None
             nbsr_samples(
                 args.path, binaries, authority, sample_count, args.payload_bytes, temp,
-                args.offered_rate, resources, streamed,
+                args.offered_rate, resources, streamed, go_runtime_series,
             )
             scenario = "nbsr-warm-existing-service"
         warmup_ns = args.warmup_seconds * 1_000_000_000
@@ -134,6 +136,10 @@ def main() -> None:
                         rejected_requests += "reject" in error_type
         if observed != sample_count:
             raise RuntimeError(f"open-loop sample loss: offered {sample_count}, observed {observed}")
+        if args.memory and args.path == "go-rust":
+            if go_runtime_series is None or not go_runtime_series.is_file():
+                raise RuntimeError("Go memory run omitted runtime time series")
+            shutil.copyfile(go_runtime_series, output / "go-runtime-series.ndjson")
     if args.path == "go-rust":
         if completion_metadata is None or "go_runtime" not in completion_metadata:
             raise RuntimeError("Go load stream omitted runtime evidence")
