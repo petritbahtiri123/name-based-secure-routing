@@ -21,7 +21,8 @@ def verify_evidence(root: Path) -> tuple[int, int]:
     checksums = json.loads((root / "checksums.json").read_text(encoding="utf-8"))
     version_two = manifest["schema"] == "nbsr-performance-evidence-manifest-v2"
     external_index = manifest["schema"] == "nbsr-performance-external-index-manifest-v1"
-    excluded = {"checksums.json"} if version_two or external_index else {"checksums.json", "manifest.json"}
+    completion = manifest["schema"] == "nbsr-performance-completion-v1"
+    excluded = {"checksums.json"} if version_two or external_index or completion else {"checksums.json", "manifest.json"}
     nested_roots = {
         path.parent.resolve()
         for path in root.glob("*/manifest.json")
@@ -46,6 +47,21 @@ def verify_evidence(root: Path) -> tuple[int, int]:
         if manifest["outcome"] != "PARTIAL_BASELINE":
             raise ValueError("external index may not claim complete evidence")
         raw_count = sum(1 for path in root.rglob("raw.ndjson.gz") for _ in records(path))
+        return len(checksums), raw_count
+    if completion:
+        from scripts.performance.completion_evidence import summarize_completion_root
+
+        prior = (root.parent / manifest["prior_evidence"]["relative_root"]).resolve()
+        observed_prior = hashlib.sha256((prior / "checksums.json").read_bytes()).hexdigest()
+        if observed_prior != manifest["prior_evidence"]["checksums_sha256"]:
+            raise ValueError("prior evidence checksum binding mismatch")
+        regenerated = summarize_completion_root(root)
+        stored = json.loads((root / manifest["analysis"]).read_text(encoding="utf-8"))
+        if regenerated != stored:
+            raise ValueError("completion analysis does not regenerate from raw evidence")
+        if manifest["outcome"] != regenerated["outcome"] or manifest["completion_criteria"] != regenerated["completion_criteria"]:
+            raise ValueError("completion manifest classification mismatch")
+        raw_count = regenerated["raw_records"]
         return len(checksums), raw_count
     if not version_two:
         raw_count = sum(1 for path in (root / "raw").glob("*.ndjson*") for _ in records(path))
