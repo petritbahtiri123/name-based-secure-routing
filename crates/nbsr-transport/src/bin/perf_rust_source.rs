@@ -281,6 +281,7 @@ fn lifecycle_stream_open(
     envelope(6, request(stream_ordinal), sequence, body)
 }
 
+#[allow(clippy::too_many_arguments)]
 async fn run_lifecycle(
     authority: &Path,
     endpoint: SocketAddr,

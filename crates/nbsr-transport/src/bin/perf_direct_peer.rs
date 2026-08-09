@@ -239,10 +239,10 @@ async fn client() {
         } else {
             None
         };
-        if sample_id == 0 {
-            if let Some(marker) = &connected_marker {
-                fs::write(marker, b"connected\n").unwrap();
-            }
+        if sample_id == 0
+            && let Some(marker) = &connected_marker
+        {
+            fs::write(marker, b"connected\n").unwrap();
         }
         let (scheduled_ns, started_ns, start_lateness_ns) = if let Some(rate) = offered_rate {
             let origin = *schedule_origin.get_or_insert_with(Instant::now);

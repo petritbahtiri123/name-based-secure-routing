@@ -357,12 +357,18 @@ def rust_lifecycle_samples(
         raise ValueError("streams per service must be in 1..64")
     if scenario == "nbsr-cold":
         batches = (samples,)
-        services_for_batch = lambda _batch: 1
-        connections_for_batch = lambda batch: batch
+        def services_for_batch(_batch: int) -> int:
+            return 1
+
+        def connections_for_batch(batch: int) -> int:
+            return batch
     elif scenario == "nbsr-warm-new-service":
         batches = lifecycle_batch_plan(samples=samples, services_per_session=services_per_session)
-        services_for_batch = lambda batch: batch
-        connections_for_batch = lambda _batch: 1
+        def services_for_batch(batch: int) -> int:
+            return batch
+
+        def connections_for_batch(_batch: int) -> int:
+            return 1
     else:
         raise ValueError(f"unsupported lifecycle scenario {scenario}")
     lifecycle_root = temp / "lifecycle-authority"
@@ -451,12 +457,18 @@ def go_lifecycle_samples(
         raise ValueError("streams per service must be in 1..64")
     if scenario == "nbsr-cold":
         batches = (samples,)
-        services_for_batch = lambda _batch: 1
-        connections_for_batch = lambda batch: batch
+        def services_for_batch(_batch: int) -> int:
+            return 1
+
+        def connections_for_batch(batch: int) -> int:
+            return batch
     elif scenario == "nbsr-warm-new-service":
         batches = lifecycle_batch_plan(samples=samples, services_per_session=services_per_session)
-        services_for_batch = lambda batch: batch
-        connections_for_batch = lambda _batch: 1
+        def services_for_batch(batch: int) -> int:
+            return batch
+
+        def connections_for_batch(_batch: int) -> int:
+            return 1
     else:
         raise ValueError(f"unsupported lifecycle scenario {scenario}")
     lifecycle_root = temp / "go-lifecycle-authority"

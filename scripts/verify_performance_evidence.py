@@ -20,11 +20,19 @@ def verify_evidence(root: Path) -> tuple[int, int]:
     manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
     checksums = json.loads((root / "checksums.json").read_text(encoding="utf-8"))
     version_two = manifest["schema"] == "nbsr-performance-evidence-manifest-v2"
-    excluded = {"checksums.json"} if version_two else {"checksums.json", "manifest.json"}
+    external_index = manifest["schema"] == "nbsr-performance-external-index-manifest-v1"
+    excluded = {"checksums.json"} if version_two or external_index else {"checksums.json", "manifest.json"}
+    nested_roots = {
+        path.parent.resolve()
+        for path in root.glob("*/manifest.json")
+        if path.parent.resolve() != root
+    }
     actual = {
         path.relative_to(root).as_posix()
         for path in root.rglob("*")
-        if path.is_file() and path.relative_to(root).as_posix() not in excluded
+        if path.is_file()
+        and path.relative_to(root).as_posix() not in excluded
+        and (version_two or external_index or not any(parent in path.resolve().parents for parent in nested_roots))
     }
     if actual != set(checksums):
         raise ValueError(f"evidence inventory mismatch missing={set(checksums) - actual} extra={actual - set(checksums)}")
@@ -32,8 +40,13 @@ def verify_evidence(root: Path) -> tuple[int, int]:
         observed = hashlib.sha256((root / name).read_bytes()).hexdigest()
         if observed != expected:
             raise ValueError(f"evidence digest mismatch: {name}")
-    if manifest["files"] != sorted(checksums):
+    if not external_index and manifest["files"] != sorted(checksums):
         raise ValueError("manifest inventory differs from checksums")
+    if external_index:
+        if manifest["outcome"] != "PARTIAL_BASELINE":
+            raise ValueError("external index may not claim complete evidence")
+        raw_count = sum(1 for path in root.rglob("raw.ndjson.gz") for _ in records(path))
+        return len(checksums), raw_count
     if not version_two:
         raw_count = sum(1 for path in (root / "raw").glob("*.ndjson*") for _ in records(path))
         return len(checksums), raw_count
