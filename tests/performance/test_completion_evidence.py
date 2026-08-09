@@ -84,3 +84,19 @@ def test_completion_manifest_binds_prior_and_detects_mutation(tmp_path: Path) ->
     (prior / "checksums.json").write_text('{"frozen":"mutated"}\n', encoding="utf-8")
     with pytest.raises(ValueError, match="prior evidence checksum binding mismatch"):
         verify_evidence(root)
+
+
+def test_completion_manifest_checksums_retained_time_series(tmp_path: Path) -> None:
+    prior = tmp_path / "prior"
+    root = tmp_path / "completion"
+    write_prior(prior)
+    write_records(root)
+    series = root / "memory/direct/resources.ndjson"
+    series.parent.mkdir(parents=True)
+    series.write_text('{"working_set_bytes":1}\n', encoding="utf-8")
+
+    write_completion_manifest(root, prior)
+
+    manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
+    assert "memory/direct/resources.ndjson" in manifest["files"]
+    verify_evidence(root)

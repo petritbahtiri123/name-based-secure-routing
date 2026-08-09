@@ -80,8 +80,12 @@ def write_completion_manifest(root: Path, prior_root: Path) -> None:
     summary_path.write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     prior_checksums = prior_root / "checksums.json"
     files = sorted(
-        ["manifest.json", "summaries/analysis.json"]
-        + [path.relative_to(root).as_posix() for path in (root / "raw").rglob("*") if path.is_file()]
+        {"manifest.json"}
+        | {
+            path.relative_to(root).as_posix()
+            for path in root.rglob("*")
+            if path.is_file() and path.name not in {"manifest.json", "checksums.json"}
+        }
     )
     manifest = {
         "schema": "nbsr-performance-completion-v1",
