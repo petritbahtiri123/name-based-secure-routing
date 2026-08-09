@@ -1,0 +1,13 @@
+{
+  "heap_alloc_bytes": 63494656,
+  "heap_sys_bytes": 91979776,
+  "heap_idle_bytes": 27262976,
+  "heap_inuse_bytes": 64716800,
+  "heap_released_bytes": 4259840,
+  "total_alloc_bytes": 18844967800,
+  "mallocs": 2146355033,
+  "frees": 2145158002,
+  "gc_cycles": 470,
+  "total_gc_pause_ns": 19182900,
+  "maximum_recent_gc_pause_ns": 569900
+}

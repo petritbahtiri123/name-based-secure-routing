@@ -1,0 +1,24 @@
+{"record_type":"capacity-confirmation","path":"direct-quic","offered_rate":4750,"run_id":"direct-quic-confirm-4750-r1","passed":true,"p99_ns":261221,"idle_p99_ns":170840}
+{"record_type":"capacity-confirmation","path":"direct-quic","offered_rate":4750,"run_id":"direct-quic-confirm-4750-r2","passed":true,"p99_ns":226763,"idle_p99_ns":170840}
+{"record_type":"capacity-confirmation","path":"direct-quic","offered_rate":4750,"run_id":"direct-quic-confirm-4750-r3","passed":true,"p99_ns":213711,"idle_p99_ns":170840}
+{"record_type":"capacity-confirmation","path":"rust-rust","offered_rate":1687.5,"run_id":"rust-rust-confirm-1687.5-r1","passed":true,"p99_ns":729944,"idle_p99_ns":404000}
+{"record_type":"capacity-confirmation","path":"rust-rust","offered_rate":1687.5,"run_id":"rust-rust-confirm-1687.5-r2","passed":true,"p99_ns":487678,"idle_p99_ns":404000}
+{"record_type":"capacity-confirmation","path":"rust-rust","offered_rate":1687.5,"run_id":"rust-rust-confirm-1687.5-r3","passed":true,"p99_ns":488726,"idle_p99_ns":404000}
+{"record_type":"capacity-confirmation","path":"go-rust","offered_rate":400,"run_id":"go-rust-confirm-400-r1","passed":true,"p99_ns":784700,"idle_p99_ns":466540}
+{"record_type":"capacity-confirmation","path":"go-rust","offered_rate":400,"run_id":"go-rust-confirm-400-r2","passed":true,"p99_ns":755100,"idle_p99_ns":466540}
+{"record_type":"capacity-confirmation","path":"go-rust","offered_rate":400,"run_id":"go-rust-confirm-400-r3","passed":true,"p99_ns":696401,"idle_p99_ns":466540}
+{"record_type":"formal-load","path":"direct-quic","percent":25,"accepted_capacity":4750,"offered_rate":1187.5,"passed":true,"run_id":"direct-quic-formal-1187.5-25pct-r1"}
+{"record_type":"formal-load","path":"direct-quic","percent":50,"accepted_capacity":4750,"offered_rate":2375,"passed":true,"run_id":"direct-quic-formal-2375-50pct-r1"}
+{"record_type":"formal-load","path":"direct-quic","percent":75,"accepted_capacity":4750,"offered_rate":3562.5,"passed":true,"run_id":"direct-quic-formal-3562.5-75pct-r1"}
+{"record_type":"formal-load","path":"direct-quic","percent":90,"accepted_capacity":4750,"offered_rate":4275,"passed":true,"run_id":"direct-quic-formal-4275-90pct-r1"}
+{"record_type":"formal-load","path":"rust-rust","percent":25,"accepted_capacity":1687.5,"offered_rate":421.875,"passed":true,"run_id":"rust-rust-formal-421.875-25pct-r1"}
+{"record_type":"formal-load","path":"rust-rust","percent":50,"accepted_capacity":1687.5,"offered_rate":843.75,"passed":true,"run_id":"rust-rust-formal-843.75-50pct-r1"}
+{"record_type":"formal-load","path":"rust-rust","percent":75,"accepted_capacity":1687.5,"offered_rate":1265.625,"passed":true,"run_id":"rust-rust-formal-1265.625-75pct-r1-b59e7fc"}
+{"record_type":"formal-load","path":"rust-rust","percent":90,"accepted_capacity":1687.5,"offered_rate":1518.75,"passed":true,"run_id":"rust-rust-formal-1518.75-90pct-r1"}
+{"record_type":"formal-load","path":"go-rust","percent":25,"accepted_capacity":400,"offered_rate":100,"passed":true,"run_id":"go-rust-formal-100-25pct-r1"}
+{"record_type":"formal-load","path":"go-rust","percent":50,"accepted_capacity":400,"offered_rate":200,"passed":true,"run_id":"go-rust-formal-200-50pct-r1"}
+{"record_type":"formal-load","path":"go-rust","percent":75,"accepted_capacity":400,"offered_rate":300,"passed":true,"run_id":"go-rust-formal-300-75pct-r1"}
+{"record_type":"formal-load","path":"go-rust","percent":90,"accepted_capacity":400,"offered_rate":360,"passed":true,"run_id":"go-rust-formal-360-90pct-r1"}
+{"record_type":"memory-conclusion","path":"direct-quic","status":"INCONCLUSIVE","reason":"memory was bounded, but the 75% primary run was not a stable non-saturated operating point"}
+{"record_type":"memory-conclusion","path":"rust-rust","status":"INCONCLUSIVE","reason":"post-warm-up behavior does not reproduce as bounded or sustained growth"}
+{"record_type":"memory-conclusion","path":"go-rust","status":"INCONCLUSIVE","reason":"50% run timed out without retained time series; both primary runs are required"}

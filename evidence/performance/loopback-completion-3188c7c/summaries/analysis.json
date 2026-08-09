@@ -1,0 +1,21 @@
+{
+  "accepted_capacities": {
+    "direct-quic": 4750,
+    "go-rust": 400,
+    "rust-rust": 1687.5
+  },
+  "completion_criteria": {
+    "capacity_confirmations": true,
+    "formal_loads": true,
+    "memory_stability": false,
+    "unsupported_evidence_integrity": true
+  },
+  "memory_conclusions": {
+    "direct-quic": "INCONCLUSIVE",
+    "go-rust": "INCONCLUSIVE",
+    "rust-rust": "INCONCLUSIVE"
+  },
+  "outcome": "PARTIAL_BASELINE",
+  "raw_records": 1304,
+  "schema": "nbsr-performance-completion-analysis-v1"
+}
