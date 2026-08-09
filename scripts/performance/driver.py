@@ -44,6 +44,16 @@ class CapacityObservation:
 
 
 @dataclass(frozen=True)
+class CapacityConfirmation:
+    run_id: str
+    observation: CapacityObservation
+
+    def __post_init__(self) -> None:
+        if not self.run_id:
+            raise ValueError("capacity confirmation run ID cannot be empty")
+
+
+@dataclass(frozen=True)
 class OpenLoopIssue:
     scheduled_ns: int
     started_ns: int
@@ -152,3 +162,57 @@ def choose_sustainable_capacity(
             raise ValueError(f"no sustainable capacity for {path}")
         result[path] = max(accepted)
     return result
+
+
+def accept_confirmed_capacity(
+    confirmations: list[CapacityConfirmation], *, required_runs: int = 3,
+) -> dict[str, float]:
+    if required_runs < 3:
+        raise ValueError("capacity acceptance requires at least 3 confirmations")
+    run_ids = [confirmation.run_id for confirmation in confirmations]
+    if len(run_ids) != len(set(run_ids)):
+        raise ValueError("capacity confirmation run IDs must be unique")
+    groups: dict[tuple[str, float], list[CapacityConfirmation]] = {}
+    for confirmation in confirmations:
+        observation = confirmation.observation
+        groups.setdefault((observation.path, observation.offered_rate), []).append(confirmation)
+    paths = {path for path, _ in groups}
+    accepted: dict[str, float] = {}
+    errors: dict[str, str] = {}
+    for path in sorted(paths):
+        for (_, rate), group in sorted(
+            ((key, value) for key, value in groups.items() if key[0] == path),
+            key=lambda item: item[0][1],
+            reverse=True,
+        ):
+            if len(group) < required_runs:
+                errors[path] = f"capacity {path} at {rate:g} requires at least {required_runs} independent confirmations"
+                continue
+            failed = next((item for item in group if not item.observation.sustainable()), None)
+            if failed is not None:
+                errors[path] = f"confirmation {failed.run_id} failed frozen criteria"
+                continue
+            accepted[path] = rate
+            break
+        if path not in accepted:
+            raise ValueError(errors[path])
+    return accepted
+
+
+def formal_load_rate(path: str, percent: int, accepted_capacities: dict[str, float]) -> float:
+    if percent not in {25, 50, 75, 90}:
+        raise ValueError("formal load percent must be one of 25, 50, 75, 90")
+    try:
+        capacity = accepted_capacities[path]
+    except KeyError as error:
+        raise ValueError(f"accepted capacity missing for {path}") from error
+    return capacity * percent / 100
+
+
+def validate_formal_load_result(*, percent: int, observation: CapacityObservation) -> None:
+    if percent not in {25, 50, 75, 90}:
+        raise ValueError("formal load percent must be one of 25, 50, 75, 90")
+    if not observation.sustainable():
+        if percent == 90:
+            raise ValueError(f"capacity re-evaluation required for {observation.path}")
+        raise ValueError(f"formal {percent}% load failed frozen criteria for {observation.path}")

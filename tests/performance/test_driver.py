@@ -5,16 +5,20 @@ from pathlib import Path
 import pytest
 
 from scripts.performance.driver import (
+    CapacityConfirmation,
     CapacityObservation,
     FormalRunRequirements,
+    accept_confirmed_capacity,
     lifecycle_batch_plan,
     concurrency_distribution,
     progressive_counts,
     choose_sustainable_capacity,
     ensure_release_binary,
+    formal_load_rate,
     open_loop_deadlines_ns,
     OpenLoopIssue,
     summarize_open_loop_issues,
+    validate_formal_load_result,
 )
 from scripts.run_performance_validation import merge_destination_measurements, normalize
 
@@ -186,3 +190,52 @@ def test_capacity_discovery_uses_bounded_progressive_counts() -> None:
     assert progressive_counts(maximum=1) == (1,)
     with pytest.raises(ValueError, match="maximum must be positive"):
         progressive_counts(maximum=0)
+
+
+def test_capacity_candidate_requires_three_independent_confirmations() -> None:
+    confirmations = [
+        CapacityConfirmation(f"direct-r{ordinal}", observation("direct-quic", 1_000))
+        for ordinal in (1, 2)
+    ]
+    with pytest.raises(ValueError, match="requires at least 3 independent confirmations"):
+        accept_confirmed_capacity(confirmations)
+
+
+def test_failing_confirmation_invalidates_capacity_candidate() -> None:
+    confirmations = [
+        CapacityConfirmation("go-r1", observation("go-rust", 400)),
+        CapacityConfirmation("go-r2", observation("go-rust", 400, p99_ns=2_001)),
+        CapacityConfirmation("go-r3", observation("go-rust", 400)),
+    ]
+    with pytest.raises(ValueError, match="confirmation go-r2 failed frozen criteria"):
+        accept_confirmed_capacity(confirmations)
+
+
+def test_confirmed_capacities_remain_independent_by_path() -> None:
+    confirmations = [
+        *[
+            CapacityConfirmation(f"direct-r{ordinal}", observation("direct-quic", 1_000))
+            for ordinal in (1, 2, 3)
+        ],
+        *[
+            CapacityConfirmation(f"rust-r{ordinal}", observation("rust-rust", 700))
+            for ordinal in (1, 2, 3)
+        ],
+    ]
+    assert accept_confirmed_capacity(confirmations) == {"direct-quic": 1_000, "rust-rust": 700}
+
+
+def test_formal_load_uses_accepted_capacity_for_same_path() -> None:
+    accepted = {"direct-quic": 1_000, "rust-rust": 700, "go-rust": 400}
+    assert formal_load_rate("rust-rust", 90, accepted) == pytest.approx(630.0)
+    with pytest.raises(ValueError, match="accepted capacity missing for unknown"):
+        formal_load_rate("unknown", 90, accepted)
+    with pytest.raises(ValueError, match="formal load percent must be one of"):
+        formal_load_rate("rust-rust", 80, accepted)
+
+
+def test_formal_90_percent_failure_forces_capacity_re_evaluation() -> None:
+    failed = observation("rust-rust", 630, p99_ns=2_001)
+    with pytest.raises(ValueError, match="capacity re-evaluation required for rust-rust"):
+        validate_formal_load_result(percent=90, observation=failed)
+    validate_formal_load_result(percent=75, observation=observation("rust-rust", 525))
