@@ -1,0 +1,12 @@
+{
+  "schema": "nbsr-performance-unsupported-summary-v1",
+  "run_id": "rust-rust-640-completion",
+  "implementation": "rust-rust",
+  "requested_concurrency": 640,
+  "supported_benchmark_limit": 320,
+  "protocol_configured_stream_limit": 1280,
+  "attempts": 640,
+  "terminal_records": 640,
+  "all_fail_closed": true,
+  "observed_detail": "command failed (101): ['C:\\\\codex-target\\\\nbsr-perf-completion\\\\release\\\\perf_rust_source.exe', '--authority-dir', 'C:\\\\Users\\\\bajra\\\\AppData\\\\Local\\\\Temp\\\\nbsr-unsupported-640-l3k5pl84\\\\authority', '--endpoint', '127.0.0.1:58087', '--samples', '1', '--payload-bytes', '1024', '--lifecycle-authority-dir', 'C:\\\\Users\\\\bajra\\\\AppData\\\\Local\\\\Temp\\\\nbsr-unsupported-640-l3k5pl84\\\\lifecycle-authority', '--connections', '1', '--services', '20', '--streams-per-service', '32', '--concurrent-streams', 'true']\n\nthread 'main' (2140) panicked at src\\bin\\perf_rust_source.rs:388:69:\ncalled `Result::unwrap()` on an `Err` value: AuditUnavailable\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n"
+}
