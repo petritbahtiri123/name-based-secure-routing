@@ -4,6 +4,7 @@ import pytest
 
 from scripts.performance.failure_evidence import (
     UnsupportedAttempt,
+    classify_unsupported_error,
     reconcile_attempt_records,
     terminal_failure_record,
     unsupported_attempts,
@@ -110,3 +111,14 @@ def test_640_stream_plan_preserves_every_service_and_request_identity() -> None:
     assert attempts[32].service_id == "service-01"
     assert attempts[-1].sample_id == 639
     assert {item.service_id for item in attempts} == {f"service-{index:02d}" for index in range(20)}
+
+
+def test_observed_batch_errors_map_to_stable_typed_categories() -> None:
+    assert classify_unsupported_error("rust-rust", "called Result::unwrap on AuditUnavailable") == (
+        "AuditUnavailable", None,
+    )
+    assert classify_unsupported_error("go-rust", "timeout: no recent network activity") == (
+        "timeout", "no-recent-network-activity",
+    )
+    with pytest.raises(ValueError, match="unrecognized unsupported failure"):
+        classify_unsupported_error("go-rust", "unexpected protocol parse failure")

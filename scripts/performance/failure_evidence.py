@@ -33,7 +33,7 @@ class UnsupportedAttempt:
 
 def unsupported_attempts(
     *, run_id: str, implementation: str, requested_concurrency: int,
-    configured_limit: int, services: int,
+    configured_limit: int, services: int, admission_phase: str = "pre-admission",
 ) -> list[UnsupportedAttempt]:
     if services < 1 or requested_concurrency < services:
         raise ValueError("invalid unsupported attempt distribution")
@@ -55,13 +55,22 @@ def unsupported_attempts(
                     sample_id=sample_id,
                     scheduled_ns=None,
                     started_ns=None,
-                    admission_phase="pre-admission",
+                    admission_phase=admission_phase,
                     expected_fail_closed=True,
                     operating_point="unsupported",
                 )
             )
             sample_id += 1
     return attempts
+
+
+def classify_unsupported_error(implementation: str, detail: str) -> tuple[str, str | None]:
+    lowered = detail.lower()
+    if implementation == "rust-rust" and "auditunavailable" in lowered:
+        return "AuditUnavailable", None
+    if implementation == "go-rust" and "no recent network activity" in lowered:
+        return "timeout", "no-recent-network-activity"
+    raise ValueError(f"unrecognized unsupported failure for {implementation}")
 
 
 def terminal_failure_record(
