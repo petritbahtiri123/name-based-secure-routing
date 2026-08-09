@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from scripts.run_performance_completion import completion_plan
+from scripts.run_performance_load_cell import expected_steady_sample_count
 
 
 def test_discovery_plan_uses_independent_bounded_regions() -> None:
@@ -45,3 +46,7 @@ def test_memory_plan_has_six_identically_timed_non_saturated_runs() -> None:
     assert all(spec.steady_seconds == 1_800 for spec in specs)
     assert all(spec.sampling_cadence_seconds == 1 for spec in specs)
     assert all(spec.percent != 90 for spec in specs)
+
+
+def test_fractional_rate_steady_count_uses_total_minus_warmup_boundary() -> None:
+    assert expected_steady_sample_count(1265.625, warmup_seconds=60, steady_seconds=600) == 759_374

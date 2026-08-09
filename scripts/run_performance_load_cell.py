@@ -30,6 +30,14 @@ from scripts.run_performance_validation import (
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def expected_steady_sample_count(
+    offered_rate: float, *, warmup_seconds: int, steady_seconds: int
+) -> int:
+    total = round(offered_rate * (warmup_seconds + steady_seconds))
+    warmup = round(offered_rate * warmup_seconds)
+    return total - warmup
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--path", choices=["direct-quic", "rust-rust", "go-rust"], required=True)
@@ -156,7 +164,11 @@ def main() -> None:
         (output / "go-runtime.json").write_text(
             json.dumps(completion_metadata["go_runtime"], indent=2) + "\n", encoding="utf-8",
         )
-    expected_steady = round(args.offered_rate * args.steady_seconds)
+    expected_steady = expected_steady_sample_count(
+        args.offered_rate,
+        warmup_seconds=args.warmup_seconds,
+        steady_seconds=args.steady_seconds,
+    )
     if success + failure != expected_steady:
         raise RuntimeError(f"steady sample mismatch: expected {expected_steady}, observed {success + failure}")
     for record in resources:
