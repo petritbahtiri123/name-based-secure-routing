@@ -1,0 +1,23 @@
+{
+  "schema": "nbsr-performance-exclusions-v1",
+  "runs": [
+    {
+      "path": "C:/codex-evidence/nbsr-complete-loopback/capacity/go-rust-2000-r1",
+      "reason": "Invalid Go open-loop clock domain produced negative scheduled latency; retained, excluded from conclusions."
+    },
+    {
+      "path": "C:/codex-evidence/nbsr-complete-loopback-final-db55d18/scaling",
+      "reason": "First scaling attempt stopped at Rust 640-concurrency AuditUnavailable before evidence finalization; retained, superseded by scaling-v2."
+    },
+    {
+      "path": "C:/codex-evidence/nbsr-complete-loopback-final-db55d18/scaling-v2",
+      "cell": "rust-rust/640",
+      "reason": "AuditUnavailable failed closed but surfaced as a panic, not a typed raw request failure."
+    },
+    {
+      "path": "C:/codex-evidence/nbsr-complete-loopback-final-db55d18/scaling-v2",
+      "cell": "go-rust/640",
+      "reason": "No-recent-network-activity timeout was not retained as a typed raw request failure."
+    }
+  ]
+}

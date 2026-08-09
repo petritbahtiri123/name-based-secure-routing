@@ -1,0 +1,29 @@
+{
+  "schema": "nbsr-performance-headline-cell-v1",
+  "formal": true,
+  "run_id": "rust-rust-nbsr-cold-1024-idle-r2",
+  "run_ordinal": 2,
+  "path": "rust-rust",
+  "scenario": "nbsr-cold",
+  "payload_bytes": 1024,
+  "success": 2000,
+  "failure": 0,
+  "request_latency_ns": {
+    "count": 2000,
+    "min": 267100,
+    "max": 4931600,
+    "p50": 1341200,
+    "p95": 3255200,
+    "p99": 3496200,
+    "p99_9": null
+  },
+  "total_scenario_ns": {
+    "count": 2000,
+    "min": 4937700,
+    "max": 27613800,
+    "p50": 9008200,
+    "p95": 13411200,
+    "p99": 13815600,
+    "p99_9": null
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "schema": "nbsr-performance-headline-cell-v1",
+  "formal": true,
+  "run_id": "go-rust-nbsr-warm-new-service-1024-idle-r3",
+  "run_ordinal": 3,
+  "path": "go-rust",
+  "scenario": "nbsr-warm-new-service",
+  "payload_bytes": 1024,
+  "success": 100000,
+  "failure": 0,
+  "request_latency_ns": {
+    "count": 100000,
+    "min": 97600,
+    "max": 28148900,
+    "p50": 153600,
+    "p95": 232500,
+    "p99": 339500,
+    "p99_9": 498100
+  },
+  "total_scenario_ns": {
+    "count": 100000,
+    "min": 1655600,
+    "max": 327339500,
+    "p50": 1836200,
+    "p95": 2457300,
+    "p99": 10521400,
+    "p99_9": 11653100
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "schema": "nbsr-performance-load-cell-v1",
+  "run_id": "go-rust-load-90-pct-final",
+  "formal": true,
+  "path": "go-rust",
+  "scenario": "nbsr-warm-existing-service",
+  "payload_bytes": 1024,
+  "timer_resolution_ms": 1,
+  "warmup_seconds": 60,
+  "steady_state_seconds": 600,
+  "offered_rate": 450.0,
+  "achieved_rate": 450.0,
+  "offered_requests": 270000,
+  "successful_requests": 270000,
+  "failed_requests": 0,
+  "success_rate": 1.0,
+  "latency_ns": {
+    "count": 270000,
+    "min": 307423,
+    "max": 143518545,
+    "p50": 412467,
+    "p95": 659956,
+    "p99": 1192745,
+    "p99_9": 58079856
+  },
+  "idle_p99_ns": 466540,
+  "p99_within_2x_idle": false,
+  "destination_cpu_percent_assigned_mean": 1.3483976221862677,
+  "destination_cpu_percent_assigned_max": 3.6454649495068567,
+  "destination_working_set_bytes_start": 10612736,
+  "destination_working_set_bytes_end": 23371776,
+  "destination_private_bytes_end": 16150528,
+  "destination_peak_working_set_bytes": 25718784,
+  "destination_thread_count_max": 3,
+  "destination_memory_slope_bytes_per_second": 21984.318412053522,
+  "destination_memory_trend": {
+    "sample_count": 591,
+    "slope_bytes_per_second": 21984.318412053522,
+    "slope_lower_95": 21263.406718099486,
+    "slope_upper_95": 22705.23010600756,
+    "r_squared": 0.8584649927914828
+  },
+  "destination_memory_second_half_trend": {
+    "sample_count": 296,
+    "slope_bytes_per_second": 34006.87290428876,
+    "slope_lower_95": 31767.630834592437,
+    "slope_upper_95": 36246.11497398507,
+    "r_squared": 0.7508516479105533
+  },
+  "destination_memory_final_quarter_trend": {
+    "sample_count": 148,
+    "slope_bytes_per_second": 1980.2243498092573,
+    "slope_lower_95": -80.27868477204288,
+    "slope_upper_95": 4040.7273843905577,
+    "r_squared": 0.023725400540668184
+  },
+  "unexpected_protocol_rejections": 0,
+  "resource_limit_errors": 0,
+  "go_runtime": {
+    "heap_alloc_bytes": 82660584,
+    "heap_sys_bytes": 100368384,
+    "total_alloc_bytes": 26135852144,
+    "mallocs": 3031356372,
+    "frees": 3029386308,
+    "gc_cycles": 580,
+    "total_gc_pause_ns": 26997800,
+    "maximum_recent_gc_pause_ns": 707600
+  },
+  "sustainable_without_memory_decision": false
+}

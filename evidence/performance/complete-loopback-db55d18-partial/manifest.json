@@ -1,0 +1,32 @@
+{
+  "schema": "nbsr-performance-external-index-manifest-v1",
+  "outcome": "PARTIAL_BASELINE",
+  "initial_head": "67eb26a0af0bf83aa069fa5afccbdd458ae29ee2",
+  "benchmark_repository_sha": "db55d18cb2b5b570430b14b74d6ece73bbe448a4",
+  "external_root": "C:\\codex-evidence\\nbsr-complete-loopback-final-db55d18",
+  "previous_evidence": "evidence/performance",
+  "previous_raw_samples": 300000,
+  "new_decompressed_raw_samples": 32672967,
+  "external_files": 209,
+  "completion_criteria": {
+    "headline_lifecycle": true,
+    "five_independent_runs": true,
+    "twenty_service_reuse": true,
+    "sequential_scaling": true,
+    "concurrent_correctness_supported_range": true,
+    "payload_matrix": true,
+    "transport_session_scaling": true,
+    "service_channel_scaling": true,
+    "resource_evidence": true,
+    "bootstrap_confidence": true,
+    "evidence_integrity": true,
+    "capacity_reproducibility": false,
+    "memory_stability_conclusive": false,
+    "typed_limit_failures": false
+  },
+  "classification_reasons": [
+    "All three 90-percent load cells violated the 2x idle-p99 gate despite candidate capacity cells passing.",
+    "Memory showed allocation-step growth with mixed late-window behavior.",
+    "The 640-concurrent-stream boundary did not produce typed raw failure records."
+  ]
+}

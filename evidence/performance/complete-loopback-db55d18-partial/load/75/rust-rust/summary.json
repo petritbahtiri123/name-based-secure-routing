@@ -1,0 +1,61 @@
+{
+  "schema": "nbsr-performance-load-cell-v1",
+  "run_id": "rust-rust-load-75-pct-final",
+  "formal": true,
+  "path": "rust-rust",
+  "scenario": "nbsr-warm-existing-service",
+  "payload_bytes": 1024,
+  "timer_resolution_ms": 1,
+  "warmup_seconds": 60,
+  "steady_state_seconds": 600,
+  "offered_rate": 1875.0,
+  "achieved_rate": 1875.0,
+  "offered_requests": 1125000,
+  "successful_requests": 1125000,
+  "failed_requests": 0,
+  "success_rate": 1.0,
+  "latency_ns": {
+    "count": 1125000,
+    "min": 222100,
+    "max": 88853433,
+    "p50": 283600,
+    "p95": 376367,
+    "p99": 663467,
+    "p99_9": 19751167
+  },
+  "idle_p99_ns": 404000,
+  "p99_within_2x_idle": true,
+  "destination_cpu_percent_assigned_mean": 3.9742600230068414,
+  "destination_cpu_percent_assigned_max": 6.180971528071649,
+  "destination_working_set_bytes_start": 13090816,
+  "destination_working_set_bytes_end": 64745472,
+  "destination_private_bytes_end": 57147392,
+  "destination_peak_working_set_bytes": 74170368,
+  "destination_thread_count_max": 3,
+  "destination_memory_slope_bytes_per_second": 91639.07094184625,
+  "destination_memory_trend": {
+    "sample_count": 593,
+    "slope_bytes_per_second": 91639.07094184625,
+    "slope_lower_95": 88824.77955813392,
+    "slope_upper_95": 94453.36232555858,
+    "r_squared": 0.8732900761033702
+  },
+  "destination_memory_second_half_trend": {
+    "sample_count": 297,
+    "slope_bytes_per_second": 133528.86192469308,
+    "slope_lower_95": 124397.97959763897,
+    "slope_upper_95": 142659.74425174718,
+    "r_squared": 0.735794610498782
+  },
+  "destination_memory_final_quarter_trend": {
+    "sample_count": 149,
+    "slope_bytes_per_second": 156.0040725472405,
+    "slope_lower_95": 140.18231703975917,
+    "slope_upper_95": 171.82582805472182,
+    "r_squared": 0.7175718171801871
+  },
+  "unexpected_protocol_rejections": 0,
+  "resource_limit_errors": 0,
+  "go_runtime": null,
+  "sustainable_without_memory_decision": true
+}

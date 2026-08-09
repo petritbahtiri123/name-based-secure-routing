@@ -1,0 +1,991 @@
+{
+  "schema": "nbsr-performance-scaling-v1",
+  "repository_sha": "db55d18",
+  "cells": [
+    {
+      "kind": "sequential-streams",
+      "path": "rust-rust",
+      "services": 20,
+      "streams_per_service": 1,
+      "samples": 20,
+      "failures": 0,
+      "cell_id": 0,
+      "request_latency_ns": {
+        "count": 20,
+        "p50": 177900,
+        "p95": 233700,
+        "p99": 320600,
+        "max": 320600
+      },
+      "successful_requests": 20
+    },
+    {
+      "kind": "sequential-streams",
+      "path": "rust-rust",
+      "services": 20,
+      "streams_per_service": 8,
+      "samples": 160,
+      "failures": 0,
+      "cell_id": 1,
+      "request_latency_ns": {
+        "count": 160,
+        "p50": 139000,
+        "p95": 202100,
+        "p99": 236300,
+        "max": 268200
+      },
+      "successful_requests": 160
+    },
+    {
+      "kind": "sequential-streams",
+      "path": "rust-rust",
+      "services": 20,
+      "streams_per_service": 64,
+      "samples": 1280,
+      "failures": 0,
+      "cell_id": 2,
+      "request_latency_ns": {
+        "count": 1280,
+        "p50": 129000,
+        "p95": 162500,
+        "p99": 208000,
+        "max": 366200
+      },
+      "successful_requests": 1280
+    },
+    {
+      "kind": "concurrent-streams",
+      "path": "rust-rust",
+      "services": 1,
+      "offered_concurrency": 1,
+      "samples": 1,
+      "failures": 0,
+      "cell_id": 3,
+      "request_latency_ns": {
+        "count": 1,
+        "p50": 206400,
+        "p95": 206400,
+        "p99": 206400,
+        "max": 206400
+      },
+      "successful_requests": 1
+    },
+    {
+      "kind": "concurrent-streams",
+      "path": "rust-rust",
+      "services": 1,
+      "offered_concurrency": 8,
+      "samples": 8,
+      "failures": 0,
+      "cell_id": 4,
+      "request_latency_ns": {
+        "count": 8,
+        "p50": 572200,
+        "p95": 618900,
+        "p99": 618900,
+        "max": 618900
+      },
+      "successful_requests": 8
+    },
+    {
+      "kind": "concurrent-streams",
+      "path": "rust-rust",
+      "services": 1,
+      "offered_concurrency": 64,
+      "samples": 64,
+      "failures": 0,
+      "cell_id": 5,
+      "request_latency_ns": {
+        "count": 64,
+        "p50": 2273000,
+        "p95": 4349000,
+        "p99": 5892500,
+        "max": 5892500
+      },
+      "successful_requests": 64
+    },
+    {
+      "kind": "concurrent-streams",
+      "path": "rust-rust",
+      "services": 20,
+      "offered_concurrency": 20,
+      "samples": 20,
+      "failures": 0,
+      "cell_id": 6,
+      "request_latency_ns": {
+        "count": 20,
+        "p50": 1421900,
+        "p95": 1593900,
+        "p99": 1604000,
+        "max": 1604000
+      },
+      "successful_requests": 20
+    },
+    {
+      "kind": "concurrent-streams",
+      "path": "rust-rust",
+      "services": 20,
+      "offered_concurrency": 160,
+      "samples": 160,
+      "failures": 0,
+      "cell_id": 7,
+      "request_latency_ns": {
+        "count": 160,
+        "p50": 7343400,
+        "p95": 12788800,
+        "p99": 13331600,
+        "max": 13465500
+      },
+      "successful_requests": 160
+    },
+    {
+      "kind": "concurrent-streams",
+      "path": "rust-rust",
+      "services": 20,
+      "offered_concurrency": 320,
+      "samples": 320,
+      "failures": 0,
+      "cell_id": 8,
+      "request_latency_ns": {
+        "count": 320,
+        "p50": 16563100,
+        "p95": 25174000,
+        "p99": 25829300,
+        "max": 26089200
+      },
+      "successful_requests": 320
+    },
+    {
+      "kind": "concurrent-streams",
+      "path": "rust-rust",
+      "services": 20,
+      "offered_concurrency": 640,
+      "samples": 0,
+      "failures": 1,
+      "error_type": "AuditUnavailable",
+      "error": "command failed (101): ['C:\\\\codex-target\\\\nbsr-perf-formal\\\\release\\\\perf_rust_source.exe', '--authority-dir', 'C:\\\\Users\\\\bajra\\\\AppData\\\\Local\\\\Temp\\\\nbsr-scaling-v2-eu48hb5j\\\\authority', '--endpoint', '127.0.0.1:61348', '--samples', '1', '--payload-bytes', '1024', '--lifecycle-authority-dir', 'C:\\\\Users\\\\bajra\\\\AppData\\\\Local\\\\Temp\\\\nbsr-scaling-v2-eu48hb5j\\\\rust-rust-con-20-32\\\\lifecycle-authority', '--connections', '1', '--services', '20', '--streams-per-service', '32', '--concurrent-streams', 'true']\n\nthread 'main' (24156) panicked at src\\bin\\perf_rust_source.rs:387:69:\ncalled `Result::unwrap()` on an `Err` value: AuditUnavailable\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+      "cell_id": 9
+    },
+    {
+      "kind": "service-channel-scaling",
+      "path": "rust-rust",
+      "services": 1,
+      "transport_sessions": 1,
+      "samples": 1,
+      "failures": 0,
+      "cell_id": 10,
+      "request_latency_ns": {
+        "count": 1,
+        "p50": 293300,
+        "p95": 293300,
+        "p99": 293300,
+        "max": 293300
+      },
+      "successful_requests": 1
+    },
+    {
+      "kind": "service-channel-scaling",
+      "path": "rust-rust",
+      "services": 20,
+      "transport_sessions": 1,
+      "samples": 20,
+      "failures": 0,
+      "cell_id": 11,
+      "request_latency_ns": {
+        "count": 20,
+        "p50": 151400,
+        "p95": 186200,
+        "p99": 276100,
+        "max": 276100
+      },
+      "successful_requests": 20
+    },
+    {
+      "kind": "service-channel-scaling",
+      "path": "rust-rust",
+      "services": 32,
+      "transport_sessions": 1,
+      "samples": 32,
+      "failures": 0,
+      "cell_id": 12,
+      "request_latency_ns": {
+        "count": 32,
+        "p50": 185500,
+        "p95": 282300,
+        "p99": 373500,
+        "max": 373500
+      },
+      "successful_requests": 32
+    },
+    {
+      "kind": "sequential-streams",
+      "path": "go-rust",
+      "services": 20,
+      "streams_per_service": 1,
+      "samples": 20,
+      "failures": 0,
+      "cell_id": 13,
+      "request_latency_ns": {
+        "count": 20,
+        "p50": 222400,
+        "p95": 307000,
+        "p99": 377100,
+        "max": 377100
+      },
+      "successful_requests": 20
+    },
+    {
+      "kind": "sequential-streams",
+      "path": "go-rust",
+      "services": 20,
+      "streams_per_service": 8,
+      "samples": 160,
+      "failures": 0,
+      "cell_id": 14,
+      "request_latency_ns": {
+        "count": 160,
+        "p50": 147000,
+        "p95": 215500,
+        "p99": 303000,
+        "max": 411600
+      },
+      "successful_requests": 160
+    },
+    {
+      "kind": "sequential-streams",
+      "path": "go-rust",
+      "services": 20,
+      "streams_per_service": 64,
+      "samples": 1280,
+      "failures": 0,
+      "cell_id": 15,
+      "request_latency_ns": {
+        "count": 1280,
+        "p50": 137000,
+        "p95": 167300,
+        "p99": 235600,
+        "max": 359400
+      },
+      "successful_requests": 1280
+    },
+    {
+      "kind": "concurrent-streams",
+      "path": "go-rust",
+      "services": 1,
+      "offered_concurrency": 1,
+      "samples": 1,
+      "failures": 0,
+      "cell_id": 16,
+      "request_latency_ns": {
+        "count": 1,
+        "p50": 286600,
+        "p95": 286600,
+        "p99": 286600,
+        "max": 286600
+      },
+      "successful_requests": 1
+    },
+    {
+      "kind": "concurrent-streams",
+      "path": "go-rust",
+      "services": 1,
+      "offered_concurrency": 8,
+      "samples": 8,
+      "failures": 0,
+      "cell_id": 17,
+      "request_latency_ns": {
+        "count": 8,
+        "p50": 503400,
+        "p95": 534800,
+        "p99": 534800,
+        "max": 534800
+      },
+      "successful_requests": 8
+    },
+    {
+      "kind": "concurrent-streams",
+      "path": "go-rust",
+      "services": 1,
+      "offered_concurrency": 64,
+      "samples": 64,
+      "failures": 0,
+      "cell_id": 18,
+      "request_latency_ns": {
+        "count": 64,
+        "p50": 2280800,
+        "p95": 2427300,
+        "p99": 2459500,
+        "max": 2459500
+      },
+      "successful_requests": 64
+    },
+    {
+      "kind": "concurrent-streams",
+      "path": "go-rust",
+      "services": 20,
+      "offered_concurrency": 20,
+      "samples": 20,
+      "failures": 0,
+      "cell_id": 19,
+      "request_latency_ns": {
+        "count": 20,
+        "p50": 1127700,
+        "p95": 1207800,
+        "p99": 1209000,
+        "max": 1209000
+      },
+      "successful_requests": 20
+    },
+    {
+      "kind": "concurrent-streams",
+      "path": "go-rust",
+      "services": 20,
+      "offered_concurrency": 160,
+      "samples": 160,
+      "failures": 0,
+      "cell_id": 20,
+      "request_latency_ns": {
+        "count": 160,
+        "p50": 3745800,
+        "p95": 5192700,
+        "p99": 5315900,
+        "max": 5441400
+      },
+      "successful_requests": 160
+    },
+    {
+      "kind": "concurrent-streams",
+      "path": "go-rust",
+      "services": 20,
+      "offered_concurrency": 320,
+      "samples": 320,
+      "failures": 0,
+      "cell_id": 21,
+      "request_latency_ns": {
+        "count": 320,
+        "p50": 8341400,
+        "p95": 11571000,
+        "p99": 12434600,
+        "max": 12484400
+      },
+      "successful_requests": 320
+    },
+    {
+      "kind": "concurrent-streams",
+      "path": "go-rust",
+      "services": 20,
+      "offered_concurrency": 640,
+      "samples": 0,
+      "failures": 1,
+      "error_type": "RuntimeError",
+      "error": "command failed (1): ['C:\\\\codex-target\\\\nbsr-perf-formal\\\\release\\\\nbsr-go-peer.exe', '--config', 'C:\\\\Users\\\\bajra\\\\AppData\\\\Local\\\\Temp\\\\nbsr-scaling-v2-eu48hb5j\\\\go-rust-con-20-32\\\\go-lifecycle-nbsr-warm-new-service-0.json']\ntimeout: no recent network activity\n",
+      "cell_id": 22
+    },
+    {
+      "kind": "service-channel-scaling",
+      "path": "go-rust",
+      "services": 1,
+      "transport_sessions": 1,
+      "samples": 1,
+      "failures": 0,
+      "cell_id": 23,
+      "request_latency_ns": {
+        "count": 1,
+        "p50": 393200,
+        "p95": 393200,
+        "p99": 393200,
+        "max": 393200
+      },
+      "successful_requests": 1
+    },
+    {
+      "kind": "service-channel-scaling",
+      "path": "go-rust",
+      "services": 20,
+      "transport_sessions": 1,
+      "samples": 20,
+      "failures": 0,
+      "cell_id": 24,
+      "request_latency_ns": {
+        "count": 20,
+        "p50": 228800,
+        "p95": 257000,
+        "p99": 428200,
+        "max": 428200
+      },
+      "successful_requests": 20
+    },
+    {
+      "kind": "service-channel-scaling",
+      "path": "go-rust",
+      "services": 32,
+      "transport_sessions": 1,
+      "samples": 32,
+      "failures": 0,
+      "cell_id": 25,
+      "request_latency_ns": {
+        "count": 32,
+        "p50": 217700,
+        "p95": 276800,
+        "p99": 461600,
+        "max": 461600
+      },
+      "successful_requests": 32
+    },
+    {
+      "kind": "transport-session-scaling",
+      "path": "direct-quic",
+      "sessions": 1,
+      "samples": 1,
+      "failures": 0,
+      "active_transport_sessions": 1,
+      "connection_establishment_seconds": 0.014318299945443869,
+      "connection_establishment_rate": 69.84069364451352,
+      "successful_requests": 1,
+      "cell_id": 26,
+      "request_latency_ns": {
+        "count": 1,
+        "p50": 513500,
+        "p95": 513500,
+        "p99": 513500,
+        "max": 513500
+      }
+    },
+    {
+      "kind": "transport-session-scaling",
+      "path": "direct-quic",
+      "sessions": 4,
+      "samples": 4,
+      "failures": 0,
+      "active_transport_sessions": 4,
+      "connection_establishment_seconds": 0.033281799987889826,
+      "connection_establishment_rate": 120.18580730175265,
+      "successful_requests": 4,
+      "cell_id": 27,
+      "request_latency_ns": {
+        "count": 4,
+        "p50": 447600,
+        "p95": 525500,
+        "p99": 525500,
+        "max": 525500
+      }
+    },
+    {
+      "kind": "transport-session-scaling",
+      "path": "direct-quic",
+      "sessions": 8,
+      "samples": 8,
+      "failures": 0,
+      "active_transport_sessions": 8,
+      "connection_establishment_seconds": 0.06154909997712821,
+      "connection_establishment_rate": 129.97753018277797,
+      "successful_requests": 8,
+      "cell_id": 28,
+      "request_latency_ns": {
+        "count": 8,
+        "p50": 417700,
+        "p95": 604400,
+        "p99": 604400,
+        "max": 604400
+      }
+    },
+    {
+      "kind": "transport-session-scaling",
+      "path": "direct-quic",
+      "sessions": 20,
+      "samples": 20,
+      "failures": 0,
+      "active_transport_sessions": 20,
+      "connection_establishment_seconds": 0.15003080002497882,
+      "connection_establishment_rate": 133.3059611537776,
+      "successful_requests": 20,
+      "cell_id": 29,
+      "request_latency_ns": {
+        "count": 20,
+        "p50": 477600,
+        "p95": 689700,
+        "p99": 691500,
+        "max": 691500
+      }
+    },
+    {
+      "kind": "transport-session-scaling",
+      "path": "direct-quic",
+      "sessions": 32,
+      "samples": 32,
+      "failures": 0,
+      "active_transport_sessions": 32,
+      "connection_establishment_seconds": 0.2339837000472471,
+      "connection_establishment_rate": 136.76166328482884,
+      "successful_requests": 32,
+      "cell_id": 30,
+      "request_latency_ns": {
+        "count": 32,
+        "p50": 495900,
+        "p95": 640200,
+        "p99": 691800,
+        "max": 691800
+      }
+    },
+    {
+      "kind": "transport-session-scaling",
+      "path": "rust-rust",
+      "sessions": 1,
+      "samples": 1,
+      "failures": 0,
+      "active_transport_sessions": 1,
+      "connection_establishment_seconds": 0.03333490004297346,
+      "connection_establishment_rate": 29.998590027594407,
+      "successful_requests": 1,
+      "cell_id": 31,
+      "request_latency_ns": {
+        "count": 1,
+        "p50": 643900,
+        "p95": 643900,
+        "p99": 643900,
+        "max": 643900
+      }
+    },
+    {
+      "kind": "transport-session-scaling",
+      "path": "rust-rust",
+      "sessions": 4,
+      "samples": 4,
+      "failures": 0,
+      "active_transport_sessions": 4,
+      "connection_establishment_seconds": 0.03346780000720173,
+      "connection_establishment_rate": 119.51786490714252,
+      "successful_requests": 4,
+      "cell_id": 32,
+      "request_latency_ns": {
+        "count": 4,
+        "p50": 333900,
+        "p95": 450100,
+        "p99": 450100,
+        "max": 450100
+      }
+    },
+    {
+      "kind": "transport-session-scaling",
+      "path": "rust-rust",
+      "sessions": 8,
+      "samples": 8,
+      "failures": 0,
+      "active_transport_sessions": 8,
+      "connection_establishment_seconds": 0.06075639999471605,
+      "connection_establishment_rate": 131.67337104726013,
+      "successful_requests": 8,
+      "cell_id": 33,
+      "request_latency_ns": {
+        "count": 8,
+        "p50": 302400,
+        "p95": 534300,
+        "p99": 534300,
+        "max": 534300
+      }
+    },
+    {
+      "kind": "transport-session-scaling",
+      "path": "rust-rust",
+      "sessions": 20,
+      "samples": 20,
+      "failures": 0,
+      "active_transport_sessions": 20,
+      "connection_establishment_seconds": 0.1413575999904424,
+      "connection_establishment_rate": 141.4851412400342,
+      "successful_requests": 20,
+      "cell_id": 34,
+      "request_latency_ns": {
+        "count": 20,
+        "p50": 559200,
+        "p95": 720000,
+        "p99": 726800,
+        "max": 726800
+      }
+    },
+    {
+      "kind": "transport-session-scaling",
+      "path": "rust-rust",
+      "sessions": 32,
+      "samples": 32,
+      "failures": 0,
+      "active_transport_sessions": 32,
+      "connection_establishment_seconds": 0.22111839998979121,
+      "connection_establishment_rate": 144.71884746578033,
+      "successful_requests": 32,
+      "cell_id": 35,
+      "request_latency_ns": {
+        "count": 32,
+        "p50": 651400,
+        "p95": 843400,
+        "p99": 849800,
+        "max": 849800
+      }
+    },
+    {
+      "kind": "transport-session-scaling",
+      "path": "go-rust",
+      "sessions": 1,
+      "samples": 1,
+      "failures": 0,
+      "active_transport_sessions": 1,
+      "connection_establishment_seconds": 0.028717200038954616,
+      "connection_establishment_rate": 34.82233639224957,
+      "successful_requests": 1,
+      "cell_id": 36,
+      "request_latency_ns": {
+        "count": 1,
+        "p50": 328600,
+        "p95": 328600,
+        "p99": 328600,
+        "max": 328600
+      }
+    },
+    {
+      "kind": "transport-session-scaling",
+      "path": "go-rust",
+      "sessions": 4,
+      "samples": 4,
+      "failures": 0,
+      "active_transport_sessions": 4,
+      "connection_establishment_seconds": 0.056366999982856214,
+      "connection_establishment_rate": 70.9635070381,
+      "successful_requests": 4,
+      "cell_id": 37,
+      "request_latency_ns": {
+        "count": 4,
+        "p50": 283700,
+        "p95": 307700,
+        "p99": 307700,
+        "max": 307700
+      }
+    },
+    {
+      "kind": "transport-session-scaling",
+      "path": "go-rust",
+      "sessions": 8,
+      "samples": 8,
+      "failures": 0,
+      "active_transport_sessions": 8,
+      "connection_establishment_seconds": 0.08821890002582222,
+      "connection_establishment_rate": 90.68351563733339,
+      "successful_requests": 8,
+      "cell_id": 38,
+      "request_latency_ns": {
+        "count": 8,
+        "p50": 246200,
+        "p95": 364500,
+        "p99": 364500,
+        "max": 364500
+      }
+    },
+    {
+      "kind": "transport-session-scaling",
+      "path": "go-rust",
+      "sessions": 20,
+      "samples": 20,
+      "failures": 0,
+      "active_transport_sessions": 20,
+      "connection_establishment_seconds": 0.19122090004384518,
+      "connection_establishment_rate": 104.59107762495724,
+      "successful_requests": 20,
+      "cell_id": 39,
+      "request_latency_ns": {
+        "count": 20,
+        "p50": 529400,
+        "p95": 820900,
+        "p99": 863600,
+        "max": 863600
+      }
+    },
+    {
+      "kind": "transport-session-scaling",
+      "path": "go-rust",
+      "sessions": 32,
+      "samples": 32,
+      "failures": 0,
+      "active_transport_sessions": 32,
+      "connection_establishment_seconds": 0.3133623000467196,
+      "connection_establishment_rate": 102.11821905579923,
+      "successful_requests": 32,
+      "cell_id": 40,
+      "request_latency_ns": {
+        "count": 32,
+        "p50": 494300,
+        "p95": 941600,
+        "p99": 1319200,
+        "max": 1319200
+      }
+    },
+    {
+      "kind": "payload-matrix",
+      "classification": "SECONDARY_EXPLORATORY",
+      "path": "direct-quic",
+      "payload_bytes": 1,
+      "requested_samples": 1000,
+      "samples": 1000,
+      "failures": 0,
+      "cell_id": 41,
+      "request_latency_ns": {
+        "count": 1000,
+        "p50": 96600,
+        "p95": 123600,
+        "p99": 151200,
+        "max": 392500
+      },
+      "successful_requests": 1000
+    },
+    {
+      "kind": "payload-matrix",
+      "classification": "SECONDARY_EXPLORATORY",
+      "path": "rust-rust",
+      "payload_bytes": 1,
+      "requested_samples": 1000,
+      "samples": 1000,
+      "failures": 0,
+      "cell_id": 42,
+      "request_latency_ns": {
+        "count": 1000,
+        "p50": 101100,
+        "p95": 116300,
+        "p99": 147500,
+        "max": 723000
+      },
+      "successful_requests": 1000
+    },
+    {
+      "kind": "payload-matrix",
+      "classification": "SECONDARY_EXPLORATORY",
+      "path": "go-rust",
+      "payload_bytes": 1,
+      "requested_samples": 1000,
+      "samples": 1000,
+      "failures": 0,
+      "cell_id": 43,
+      "request_latency_ns": {
+        "count": 1000,
+        "p50": 121900,
+        "p95": 141800,
+        "p99": 173900,
+        "max": 2209800
+      },
+      "successful_requests": 1000
+    },
+    {
+      "kind": "payload-matrix",
+      "classification": "SECONDARY_EXPLORATORY",
+      "path": "direct-quic",
+      "payload_bytes": 1024,
+      "requested_samples": 1000,
+      "samples": 1000,
+      "failures": 0,
+      "cell_id": 44,
+      "request_latency_ns": {
+        "count": 1000,
+        "p50": 100400,
+        "p95": 134300,
+        "p99": 185700,
+        "max": 415400
+      },
+      "successful_requests": 1000
+    },
+    {
+      "kind": "payload-matrix",
+      "classification": "SECONDARY_EXPLORATORY",
+      "path": "rust-rust",
+      "payload_bytes": 1024,
+      "requested_samples": 1000,
+      "samples": 1000,
+      "failures": 0,
+      "cell_id": 45,
+      "request_latency_ns": {
+        "count": 1000,
+        "p50": 154400,
+        "p95": 278700,
+        "p99": 320400,
+        "max": 925200
+      },
+      "successful_requests": 1000
+    },
+    {
+      "kind": "payload-matrix",
+      "classification": "SECONDARY_EXPLORATORY",
+      "path": "go-rust",
+      "payload_bytes": 1024,
+      "requested_samples": 1000,
+      "samples": 1000,
+      "failures": 0,
+      "cell_id": 46,
+      "request_latency_ns": {
+        "count": 1000,
+        "p50": 146500,
+        "p95": 237200,
+        "p99": 297900,
+        "max": 1565500
+      },
+      "successful_requests": 1000
+    },
+    {
+      "kind": "payload-matrix",
+      "classification": "SECONDARY_EXPLORATORY",
+      "path": "direct-quic",
+      "payload_bytes": 16384,
+      "requested_samples": 1000,
+      "samples": 1000,
+      "failures": 0,
+      "cell_id": 47,
+      "request_latency_ns": {
+        "count": 1000,
+        "p50": 284100,
+        "p95": 1013000,
+        "p99": 1295900,
+        "max": 2321700
+      },
+      "successful_requests": 1000
+    },
+    {
+      "kind": "payload-matrix",
+      "classification": "SECONDARY_EXPLORATORY",
+      "path": "rust-rust",
+      "payload_bytes": 16384,
+      "requested_samples": 1000,
+      "samples": 1000,
+      "failures": 0,
+      "cell_id": 48,
+      "request_latency_ns": {
+        "count": 1000,
+        "p50": 286000,
+        "p95": 372700,
+        "p99": 435000,
+        "max": 963100
+      },
+      "successful_requests": 1000
+    },
+    {
+      "kind": "payload-matrix",
+      "classification": "SECONDARY_EXPLORATORY",
+      "path": "go-rust",
+      "payload_bytes": 16384,
+      "requested_samples": 1000,
+      "samples": 1000,
+      "failures": 0,
+      "cell_id": 49,
+      "request_latency_ns": {
+        "count": 1000,
+        "p50": 313800,
+        "p95": 401400,
+        "p99": 624100,
+        "max": 2521700
+      },
+      "successful_requests": 1000
+    },
+    {
+      "kind": "payload-matrix",
+      "classification": "SECONDARY_EXPLORATORY",
+      "path": "direct-quic",
+      "payload_bytes": 262144,
+      "requested_samples": 100,
+      "samples": 100,
+      "failures": 0,
+      "cell_id": 50,
+      "request_latency_ns": {
+        "count": 100,
+        "p50": 2360500,
+        "p95": 3658800,
+        "p99": 5462800,
+        "max": 12430000
+      },
+      "successful_requests": 100
+    },
+    {
+      "kind": "payload-matrix",
+      "classification": "SECONDARY_EXPLORATORY",
+      "path": "rust-rust",
+      "payload_bytes": 262144,
+      "requested_samples": 100,
+      "samples": 100,
+      "failures": 0,
+      "cell_id": 51,
+      "request_latency_ns": {
+        "count": 100,
+        "p50": 2352900,
+        "p95": 3733900,
+        "p99": 4331000,
+        "max": 12660400
+      },
+      "successful_requests": 100
+    },
+    {
+      "kind": "payload-matrix",
+      "classification": "SECONDARY_EXPLORATORY",
+      "path": "go-rust",
+      "payload_bytes": 262144,
+      "requested_samples": 100,
+      "samples": 100,
+      "failures": 0,
+      "cell_id": 52,
+      "request_latency_ns": {
+        "count": 100,
+        "p50": 3811800,
+        "p95": 5001400,
+        "p99": 6275600,
+        "max": 6750200
+      },
+      "successful_requests": 100
+    },
+    {
+      "kind": "payload-matrix",
+      "classification": "SECONDARY_EXPLORATORY",
+      "path": "direct-quic",
+      "payload_bytes": 1048576,
+      "requested_samples": 100,
+      "samples": 100,
+      "failures": 0,
+      "cell_id": 53,
+      "request_latency_ns": {
+        "count": 100,
+        "p50": 9996000,
+        "p95": 11808000,
+        "p99": 21846600,
+        "max": 71462700
+      },
+      "successful_requests": 100
+    },
+    {
+      "kind": "payload-matrix",
+      "classification": "SECONDARY_EXPLORATORY",
+      "path": "rust-rust",
+      "payload_bytes": 1048576,
+      "requested_samples": 100,
+      "samples": 100,
+      "failures": 0,
+      "cell_id": 54,
+      "request_latency_ns": {
+        "count": 100,
+        "p50": 8720000,
+        "p95": 36772400,
+        "p99": 50741900,
+        "max": 50835000
+      },
+      "successful_requests": 100
+    },
+    {
+      "kind": "payload-matrix",
+      "classification": "SECONDARY_EXPLORATORY",
+      "path": "go-rust",
+      "payload_bytes": 1048576,
+      "requested_samples": 100,
+      "samples": 100,
+      "failures": 0,
+      "cell_id": 55,
+      "request_latency_ns": {
+        "count": 100,
+        "p50": 14829000,
+        "p95": 17762200,
+        "p99": 22275400,
+        "max": 22406600
+      },
+      "successful_requests": 100
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "schema": "nbsr-performance-environment-v1",
+  "repository_sha": "db55d18cb2b5b570430b14b74d6ece73bbe448a4",
+  "dirty_tree": false,
+  "os": "Windows-11-10.0.26200-SP0",
+  "python": "3.14.6",
+  "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+  "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)",
+  "go": "go version go1.26.5 windows/amd64",
+  "cpu": "Intel(R) Core(TM) i5-10210U CPU @ 1.60GHz",
+  "cores": 4,
+  "logical_processors": 8,
+  "memory_bytes": 16942501888,
+  "power_plan": "Power Scheme GUID: 381b4222-f694-41f0-9685-ff5bb260df2e  (Balanced)",
+  "affinity": "inherited; not modified",
+  "topology": "windows-loopback"
+}

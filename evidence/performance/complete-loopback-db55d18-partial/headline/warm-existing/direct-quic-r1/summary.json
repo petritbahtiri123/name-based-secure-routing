@@ -1,0 +1,29 @@
+{
+  "schema": "nbsr-performance-headline-cell-v1",
+  "formal": true,
+  "run_id": "direct-quic-direct-warm-1024-idle-r1",
+  "run_ordinal": 1,
+  "path": "direct-quic",
+  "scenario": "direct-warm",
+  "payload_bytes": 1024,
+  "success": 100000,
+  "failure": 0,
+  "request_latency_ns": {
+    "count": 100000,
+    "min": 57600,
+    "max": 750300,
+    "p50": 97400,
+    "p95": 123900,
+    "p99": 160500,
+    "p99_9": 228900
+  },
+  "total_scenario_ns": {
+    "count": 100000,
+    "min": 57900,
+    "max": 19436400,
+    "p50": 97700,
+    "p95": 124200,
+    "p99": 160900,
+    "p99_9": 229600
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema": "nbsr-performance-calibration-v2",
+  "topology": "windows-loopback",
+  "timer_resolution_ms": 1,
+  "open_loop_clock": {
+    "rust": "std::time::Instant absolute deadlines",
+    "go": "Windows QueryPerformanceCounter absolute deadlines"
+  },
+  "http3": "NOT SUPPORTED BY CURRENT TEST SURFACE",
+  "build_profile": "release",
+  "zero_rtt": false
+}

@@ -1,0 +1,2179 @@
+{
+  "schema": "nbsr-performance-complete-loopback-analysis-v1",
+  "repository_sha": "db55d18",
+  "headline": {
+    "direct-warm": {
+      "runs": [
+        "direct-quic-direct-warm-1024-idle-r1",
+        "direct-quic-direct-warm-1024-idle-r2",
+        "direct-quic-direct-warm-1024-idle-r3",
+        "direct-quic-direct-warm-1024-idle-r4",
+        "direct-quic-direct-warm-1024-idle-r5"
+      ],
+      "request_latency_ns": {
+        "p50": {
+          "method": "independent-run-bootstrap-mean-v1",
+          "run_count": 5,
+          "resamples": 10000,
+          "seed": 75,
+          "estimate": 98360,
+          "lower": 96760,
+          "upper": 100720
+        },
+        "p95": {
+          "method": "independent-run-bootstrap-mean-v1",
+          "run_count": 5,
+          "resamples": 10000,
+          "seed": 75,
+          "estimate": 129140,
+          "lower": 125200,
+          "upper": 133080
+        },
+        "p99": {
+          "method": "independent-run-bootstrap-mean-v1",
+          "run_count": 5,
+          "resamples": 10000,
+          "seed": 75,
+          "estimate": 170260,
+          "lower": 158840,
+          "upper": 181680
+        },
+        "p99_9_runs": [
+          228900,
+          230800,
+          242200,
+          212000,
+          249500
+        ]
+      },
+      "total_scenario_ns": {
+        "p50": {
+          "method": "independent-run-bootstrap-mean-v1",
+          "run_count": 5,
+          "resamples": 10000,
+          "seed": 75,
+          "estimate": 98700,
+          "lower": 97080,
+          "upper": 101080
+        },
+        "p95": {
+          "method": "independent-run-bootstrap-mean-v1",
+          "run_count": 5,
+          "resamples": 10000,
+          "seed": 75,
+          "estimate": 129500,
+          "lower": 125520,
+          "upper": 133480
+        },
+        "p99": {
+          "method": "independent-run-bootstrap-mean-v1",
+          "run_count": 5,
+          "resamples": 10000,
+          "seed": 75,
+          "estimate": 170840,
+          "lower": 159280,
+          "upper": 182400
+        },
+        "p99_9_runs": [
+          229600,
+          232400,
+          243200,
+          212300,
+          250700
+        ]
+      }
+    },
+    "rust-warm-existing": {
+      "runs": [
+        "rust-rust-nbsr-warm-existing-service-1024-idle-r1",
+        "rust-rust-nbsr-warm-existing-service-1024-idle-r2",
+        "rust-rust-nbsr-warm-existing-service-1024-idle-r3",
+        "rust-rust-nbsr-warm-existing-service-1024-idle-r4",
+        "rust-rust-nbsr-warm-existing-service-1024-idle-r5"
+      ],
+      "request_latency_ns": {
+        "p50": {
+          "method": "independent-run-bootstrap-mean-v1",
+          "run_count": 5,
+          "resamples": 10000,
+          "seed": 75,
+          "estimate": 105680,
+          "lower": 104500,
+          "upper": 107260
+        },
+        "p95": {
+          "method": "independent-run-bootstrap-mean-v1",
+          "run_count": 5,
+          "resamples": 10000,
+          "seed": 75,
+          "estimate": 135240,
+          "lower": 129700,
+          "upper": 140460
+        },
+        "p99": {
+          "method": "independent-run-bootstrap-mean-v1",
+          "run_count": 5,
+          "resamples": 10000,
+          "seed": 75,
+          "estimate": 183340,
+          "lower": 164800,
+          "upper": 201080
+        },
+        "p99_9_runs": [
+          237700,
+          269900,
+          306000,
+          229500,
+          284300
+        ]
+      },
+      "total_scenario_ns": {
+        "p50": {
+          "method": "independent-run-bootstrap-mean-v1",
+          "run_count": 5,
+          "resamples": 10000,
+          "seed": 75,
+          "estimate": 245300,
+          "lower": 239420,
+          "upper": 251180
+        },
+        "p95": {
+          "method": "independent-run-bootstrap-mean-v1",
+          "run_count": 5,
+          "resamples": 10000,
+          "seed": 75,
+          "estimate": 288740,
+          "lower": 275460,
+          "upper": 302020
+        },
+        "p99": {
+          "method": "independent-run-bootstrap-mean-v1",
+          "run_count": 5,
+          "resamples": 10000,
+          "seed": 75,
+          "estimate": 404000,
+          "lower": 365960,
+          "upper": 441500
+        },
+        "p99_9_runs": [
+          475900,
+          589100,
+          641600,
+          495300,
+          585400
+        ]
+      }
+    },
+    "go-warm-existing": {
+      "runs": [
+        "go-rust-nbsr-warm-existing-service-1024-idle-r1",
+        "go-rust-nbsr-warm-existing-service-1024-idle-r2",
+        "go-rust-nbsr-warm-existing-service-1024-idle-r3",
+        "go-rust-nbsr-warm-existing-service-1024-idle-r4",
+        "go-rust-nbsr-warm-existing-service-1024-idle-r5"
+      ],
+      "request_latency_ns": {
+        "p50": {
+          "method": "independent-run-bootstrap-mean-v1",
+          "run_count": 5,
+          "resamples": 10000,
+          "seed": 75,
+          "estimate": 125180,
+          "lower": 120060,
+          "upper": 130300
+        },
+        "p95": {
+          "method": "independent-run-bootstrap-mean-v1",
+          "run_count": 5,
+          "resamples": 10000,
+          "seed": 75,
+          "estimate": 156640,
+          "lower": 148300,
+          "upper": 166300
+        },
+        "p99": {
+          "method": "independent-run-bootstrap-mean-v1",
+          "run_count": 5,
+          "resamples": 10000,
+          "seed": 75,
+          "estimate": 214060,
+          "lower": 195120,
+          "upper": 230840
+        },
+        "p99_9_runs": [
+          376200,
+          363100,
+          455700,
+          336500,
+          342900
+        ]
+      },
+      "total_scenario_ns": {
+        "p50": {
+          "method": "independent-run-bootstrap-mean-v1",
+          "run_count": 5,
+          "resamples": 10000,
+          "seed": 75,
+          "estimate": 275320,
+          "lower": 263820,
+          "upper": 287100
+        },
+        "p95": {
+          "method": "independent-run-bootstrap-mean-v1",
+          "run_count": 5,
+          "resamples": 10000,
+          "seed": 75,
+          "estimate": 334620,
+          "lower": 314800,
+          "upper": 359020
+        },
+        "p99": {
+          "method": "independent-run-bootstrap-mean-v1",
+          "run_count": 5,
+          "resamples": 10000,
+          "seed": 75,
+          "estimate": 466540,
+          "lower": 424220,
+          "upper": 506860
+        },
+        "p99_9_runs": [
+          797300,
+          814000,
+          1065700,
+          732900,
+          705800
+        ]
+      }
+    },
+    "direct-cold": {
+      "runs": [
+        "direct-quic-direct-cold-1024-idle-r1",
+        "direct-quic-direct-cold-1024-idle-r2",
+        "direct-quic-direct-cold-1024-idle-r3",
+        "direct-quic-direct-cold-1024-idle-r4",
+        "direct-quic-direct-cold-1024-idle-r5"
+      ],
+      "request_latency_ns": {
+        "p50": {
+          "method": "independent-run-bootstrap-mean-v1",
+          "run_count": 5,
+          "resamples": 10000,
+          "seed": 75,
+          "estimate": 739040,
+          "lower": 670780,
+          "upper": 782240
+        },
+        "p95": {
+          "method": "independent-run-bootstrap-mean-v1",
+          "run_count": 5,
+          "resamples": 10000,
+          "seed": 75,
+          "estimate": 938400,
+          "lower": 932500,
+          "upper": 943340
+        },
+        "p99": {
+          "method": "independent-run-bootstrap-mean-v1",
+          "run_count": 5,
+          "resamples": 10000,
+          "seed": 75,
+          "estimate": 970040,
+          "lower": 964380,
+          "upper": 978120
+        },
+        "p99_9_runs": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      "total_scenario_ns": {
+        "p50": {
+          "method": "independent-run-bootstrap-mean-v1",
+          "run_count": 5,
+          "resamples": 10000,
+          "seed": 75,
+          "estimate": 4193600,
+          "lower": 3861960,
+          "upper": 4431920
+        },
+        "p95": {
+          "method": "independent-run-bootstrap-mean-v1",
+          "run_count": 5,
+          "resamples": 10000,
+          "seed": 75,
+          "estimate": 5091800,
+          "lower": 5063740,
+          "upper": 5113200
+        },
+        "p99": {
+          "method": "independent-run-bootstrap-mean-v1",
+          "run_count": 5,
+          "resamples": 10000,
+          "seed": 75,
+          "estimate": 5355260,
+          "lower": 5310620,
+          "upper": 5408980
+        },
+        "p99_9_runs": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      }
+    },
+    "rust-cold": {
+      "runs": [
+        "rust-rust-nbsr-cold-1024-idle-r1",
+        "rust-rust-nbsr-cold-1024-idle-r2",
+        "rust-rust-nbsr-cold-1024-idle-r3",
+        "rust-rust-nbsr-cold-1024-idle-r4",
+        "rust-rust-nbsr-cold-1024-idle-r5"
+      ],
+      "request_latency_ns": {
+        "p50": {
+          "method": "independent-run-bootstrap-mean-v1",
+          "run_count": 5,
+          "resamples": 10000,
+          "seed": 75,
+          "estimate": 1348860,
+          "lower": 1333760,
+          "upper": 1363960
+        },
+        "p95": {
+          "method": "independent-run-bootstrap-mean-v1",
+          "run_count": 5,
+          "resamples": 10000,
+          "seed": 75,
+          "estimate": 3212880,
+          "lower": 3193300,
+          "upper": 3237680
+        },
+        "p99": {
+          "method": "independent-run-bootstrap-mean-v1",
+          "run_count": 5,
+          "resamples": 10000,
+          "seed": 75,
+          "estimate": 3487880,
+          "lower": 3471220,
+          "upper": 3502280
+        },
+        "p99_9_runs": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      "total_scenario_ns": {
+        "p50": {
+          "method": "independent-run-bootstrap-mean-v1",
+          "run_count": 5,
+          "resamples": 10000,
+          "seed": 75,
+          "estimate": 9338280,
+          "lower": 9071460,
+          "upper": 9605100
+        },
+        "p95": {
+          "method": "independent-run-bootstrap-mean-v1",
+          "run_count": 5,
+          "resamples": 10000,
+          "seed": 75,
+          "estimate": 13387360,
+          "lower": 13335000,
+          "upper": 13439720
+        },
+        "p99": {
+          "method": "independent-run-bootstrap-mean-v1",
+          "run_count": 5,
+          "resamples": 10000,
+          "seed": 75,
+          "estimate": 13848820,
+          "lower": 13799160,
+          "upper": 13927200
+        },
+        "p99_9_runs": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      }
+    },
+    "go-cold": {
+      "runs": [
+        "go-rust-nbsr-cold-1024-idle-r1",
+        "go-rust-nbsr-cold-1024-idle-r2",
+        "go-rust-nbsr-cold-1024-idle-r3",
+        "go-rust-nbsr-cold-1024-idle-r4",
+        "go-rust-nbsr-cold-1024-idle-r5"
+      ],
+      "request_latency_ns": {
+        "p50": {
+          "method": "independent-run-bootstrap-mean-v1",
+          "run_count": 5,
+          "resamples": 10000,
+          "seed": 75,
+          "estimate": 1371260,
+          "lower": 1337680,
+          "upper": 1404840
+        },
+        "p95": {
+          "method": "independent-run-bootstrap-mean-v1",
+          "run_count": 5,
+          "resamples": 10000,
+          "seed": 75,
+          "estimate": 3178760,
+          "lower": 3146460,
+          "upper": 3208260
+        },
+        "p99": {
+          "method": "independent-run-bootstrap-mean-v1",
+          "run_count": 5,
+          "resamples": 10000,
+          "seed": 75,
+          "estimate": 3487580,
+          "lower": 3474460,
+          "upper": 3500700
+        },
+        "p99_9_runs": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      "total_scenario_ns": {
+        "p50": {
+          "method": "independent-run-bootstrap-mean-v1",
+          "run_count": 5,
+          "resamples": 10000,
+          "seed": 75,
+          "estimate": 103425980,
+          "lower": 102755400,
+          "upper": 104055240
+        },
+        "p95": {
+          "method": "independent-run-bootstrap-mean-v1",
+          "run_count": 5,
+          "resamples": 10000,
+          "seed": 75,
+          "estimate": 114018880,
+          "lower": 113799540,
+          "upper": 114238220
+        },
+        "p99": {
+          "method": "independent-run-bootstrap-mean-v1",
+          "run_count": 5,
+          "resamples": 10000,
+          "seed": 75,
+          "estimate": 116706220,
+          "lower": 115985600,
+          "upper": 117432740
+        },
+        "p99_9_runs": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      }
+    },
+    "rust-warm-new": {
+      "runs": [
+        "rust-rust-nbsr-warm-new-service-1024-idle-r1",
+        "rust-rust-nbsr-warm-new-service-1024-idle-r2",
+        "rust-rust-nbsr-warm-new-service-1024-idle-r3",
+        "rust-rust-nbsr-warm-new-service-1024-idle-r4",
+        "rust-rust-nbsr-warm-new-service-1024-idle-r5"
+      ],
+      "request_latency_ns": {
+        "p50": {
+          "method": "independent-run-bootstrap-mean-v1",
+          "run_count": 5,
+          "resamples": 10000,
+          "seed": 75,
+          "estimate": 143980,
+          "lower": 143720,
+          "upper": 144240
+        },
+        "p95": {
+          "method": "independent-run-bootstrap-mean-v1",
+          "run_count": 5,
+          "resamples": 10000,
+          "seed": 75,
+          "estimate": 222360,
+          "lower": 217220,
+          "upper": 226860
+        },
+        "p99": {
+          "method": "independent-run-bootstrap-mean-v1",
+          "run_count": 5,
+          "resamples": 10000,
+          "seed": 75,
+          "estimate": 312460,
+          "lower": 311540,
+          "upper": 313380
+        },
+        "p99_9_runs": [
+          465200,
+          450500,
+          463000,
+          414100,
+          410600
+        ]
+      },
+      "total_scenario_ns": {
+        "p50": {
+          "method": "independent-run-bootstrap-mean-v1",
+          "run_count": 5,
+          "resamples": 10000,
+          "seed": 75,
+          "estimate": 1980260,
+          "lower": 1978060,
+          "upper": 1982100
+        },
+        "p95": {
+          "method": "independent-run-bootstrap-mean-v1",
+          "run_count": 5,
+          "resamples": 10000,
+          "seed": 75,
+          "estimate": 2566800,
+          "lower": 2505680,
+          "upper": 2622060
+        },
+        "p99": {
+          "method": "independent-run-bootstrap-mean-v1",
+          "run_count": 5,
+          "resamples": 10000,
+          "seed": 75,
+          "estimate": 12002360,
+          "lower": 11986000,
+          "upper": 12016460
+        },
+        "p99_9_runs": [
+          13019800,
+          13276000,
+          13132900,
+          12942000,
+          13151600
+        ]
+      }
+    },
+    "go-warm-new": {
+      "runs": [
+        "go-rust-nbsr-warm-new-service-1024-idle-r1",
+        "go-rust-nbsr-warm-new-service-1024-idle-r2",
+        "go-rust-nbsr-warm-new-service-1024-idle-r3",
+        "go-rust-nbsr-warm-new-service-1024-idle-r4",
+        "go-rust-nbsr-warm-new-service-1024-idle-r5"
+      ],
+      "request_latency_ns": {
+        "p50": {
+          "method": "independent-run-bootstrap-mean-v1",
+          "run_count": 5,
+          "resamples": 10000,
+          "seed": 75,
+          "estimate": 153500,
+          "lower": 152920,
+          "upper": 154180
+        },
+        "p95": {
+          "method": "independent-run-bootstrap-mean-v1",
+          "run_count": 5,
+          "resamples": 10000,
+          "seed": 75,
+          "estimate": 231980,
+          "lower": 226140,
+          "upper": 238600
+        },
+        "p99": {
+          "method": "independent-run-bootstrap-mean-v1",
+          "run_count": 5,
+          "resamples": 10000,
+          "seed": 75,
+          "estimate": 336880,
+          "lower": 332640,
+          "upper": 341020
+        },
+        "p99_9_runs": [
+          551400,
+          518100,
+          498100,
+          435100,
+          425400
+        ]
+      },
+      "total_scenario_ns": {
+        "p50": {
+          "method": "independent-run-bootstrap-mean-v1",
+          "run_count": 5,
+          "resamples": 10000,
+          "seed": 75,
+          "estimate": 1836800,
+          "lower": 1831440,
+          "upper": 1843160
+        },
+        "p95": {
+          "method": "independent-run-bootstrap-mean-v1",
+          "run_count": 5,
+          "resamples": 10000,
+          "seed": 75,
+          "estimate": 2449600,
+          "lower": 2370740,
+          "upper": 2536760
+        },
+        "p99": {
+          "method": "independent-run-bootstrap-mean-v1",
+          "run_count": 5,
+          "resamples": 10000,
+          "seed": 75,
+          "estimate": 10524020,
+          "lower": 10516480,
+          "upper": 10534940
+        },
+        "p99_9_runs": [
+          13146300,
+          11388300,
+          11653100,
+          11300800,
+          11160800
+        ]
+      }
+    }
+  },
+  "matched_overhead": {
+    "rust-warm-existing": {
+      "p50": {
+        "method": "independent-run-bootstrap-mean-v1",
+        "run_count": 5,
+        "resamples": 10000,
+        "seed": 75,
+        "estimate": 7320,
+        "lower": 6460,
+        "upper": 8240,
+        "paired_run_differences_ns": [
+          8800,
+          5800,
+          6800,
+          7100,
+          8100
+        ]
+      },
+      "p95": {
+        "method": "independent-run-bootstrap-mean-v1",
+        "run_count": 5,
+        "resamples": 10000,
+        "seed": 75,
+        "estimate": 6100,
+        "lower": 2980,
+        "upper": 9280,
+        "paired_run_differences_ns": [
+          8400,
+          11600,
+          6100,
+          1200,
+          3200
+        ]
+      },
+      "p99": {
+        "method": "independent-run-bootstrap-mean-v1",
+        "run_count": 5,
+        "resamples": 10000,
+        "seed": 75,
+        "estimate": 13080,
+        "lower": 5700,
+        "upper": 21660,
+        "paired_run_differences_ns": [
+          14900,
+          12700,
+          28100,
+          600,
+          9100
+        ]
+      }
+    },
+    "go-warm-existing": {
+      "p50": {
+        "method": "independent-run-bootstrap-mean-v1",
+        "run_count": 5,
+        "resamples": 10000,
+        "seed": 75,
+        "estimate": 26820,
+        "lower": 20420,
+        "upper": 33220,
+        "paired_run_differences_ns": [
+          23900,
+          16700,
+          35300,
+          22400,
+          35800
+        ]
+      },
+      "p95": {
+        "method": "independent-run-bootstrap-mean-v1",
+        "run_count": 5,
+        "resamples": 10000,
+        "seed": 75,
+        "estimate": 27500,
+        "lower": 21380,
+        "upper": 33620,
+        "paired_run_differences_ns": [
+          30700,
+          19400,
+          39000,
+          19700,
+          28700
+        ]
+      },
+      "p99": {
+        "method": "independent-run-bootstrap-mean-v1",
+        "run_count": 5,
+        "resamples": 10000,
+        "seed": 75,
+        "estimate": 43800,
+        "lower": 27280,
+        "upper": 60320,
+        "paired_run_differences_ns": [
+          65300,
+          62300,
+          46400,
+          29900,
+          15100
+        ]
+      }
+    },
+    "rust-warm-new": {
+      "p50": {
+        "method": "independent-run-bootstrap-mean-v1",
+        "run_count": 5,
+        "resamples": 10000,
+        "seed": 75,
+        "estimate": 1881560,
+        "lower": 1879700,
+        "upper": 1883400,
+        "paired_run_differences_ns": [
+          1878400,
+          1879700,
+          1883700,
+          1882400,
+          1883600
+        ]
+      },
+      "p95": {
+        "method": "independent-run-bootstrap-mean-v1",
+        "run_count": 5,
+        "resamples": 10000,
+        "seed": 75,
+        "estimate": 2437300,
+        "lower": 2379840,
+        "upper": 2492880,
+        "paired_run_differences_ns": [
+          2487800,
+          2507900,
+          2473000,
+          2346800,
+          2371000
+        ]
+      },
+      "p99": {
+        "method": "independent-run-bootstrap-mean-v1",
+        "run_count": 5,
+        "resamples": 10000,
+        "seed": 75,
+        "estimate": 11831520,
+        "lower": 11821780,
+        "upper": 11841260,
+        "paired_run_differences_ns": [
+          11837900,
+          11846200,
+          11815900,
+          11819600,
+          11838000
+        ]
+      }
+    },
+    "go-warm-new": {
+      "p50": {
+        "method": "independent-run-bootstrap-mean-v1",
+        "run_count": 5,
+        "resamples": 10000,
+        "seed": 75,
+        "estimate": 1738100,
+        "lower": 1733480,
+        "upper": 1744800,
+        "paired_run_differences_ns": [
+          1751200,
+          1735200,
+          1738000,
+          1731900,
+          1734200
+        ]
+      },
+      "p95": {
+        "method": "independent-run-bootstrap-mean-v1",
+        "run_count": 5,
+        "resamples": 10000,
+        "seed": 75,
+        "estimate": 2320100,
+        "lower": 2240920,
+        "upper": 2410740,
+        "paired_run_differences_ns": [
+          2496300,
+          2341000,
+          2321800,
+          2223800,
+          2217600
+        ]
+      },
+      "p99": {
+        "method": "independent-run-bootstrap-mean-v1",
+        "run_count": 5,
+        "resamples": 10000,
+        "seed": 75,
+        "estimate": 10353180,
+        "lower": 10337400,
+        "upper": 10370140,
+        "paired_run_differences_ns": [
+          10384100,
+          10351800,
+          10336000,
+          10362400,
+          10331600
+        ]
+      }
+    },
+    "rust-cold": {
+      "p50": {
+        "method": "independent-run-bootstrap-mean-v1",
+        "run_count": 5,
+        "resamples": 10000,
+        "seed": 75,
+        "estimate": 5144680,
+        "lower": 4860300,
+        "upper": 5402340,
+        "paired_run_differences_ns": [
+          5417600,
+          4603000,
+          5506400,
+          5121500,
+          5074900
+        ]
+      },
+      "p95": {
+        "method": "independent-run-bootstrap-mean-v1",
+        "run_count": 5,
+        "resamples": 10000,
+        "seed": 75,
+        "estimate": 8295560,
+        "lower": 8227700,
+        "upper": 8363420,
+        "paired_run_differences_ns": [
+          8406600,
+          8307700,
+          8208000,
+          8348100,
+          8207400
+        ]
+      },
+      "p99": {
+        "method": "independent-run-bootstrap-mean-v1",
+        "run_count": 5,
+        "resamples": 10000,
+        "seed": 75,
+        "estimate": 8493560,
+        "lower": 8419220,
+        "upper": 8585260,
+        "paired_run_differences_ns": [
+          8648800,
+          8367100,
+          8452900,
+          8542900,
+          8456100
+        ]
+      }
+    },
+    "go-cold": {
+      "p50": {
+        "method": "independent-run-bootstrap-mean-v1",
+        "run_count": 5,
+        "resamples": 10000,
+        "seed": 75,
+        "estimate": 99232380,
+        "lower": 98711720,
+        "upper": 99851800,
+        "paired_run_differences_ns": [
+          98798500,
+          98461700,
+          100331500,
+          99038200,
+          99532000
+        ]
+      },
+      "p95": {
+        "method": "independent-run-bootstrap-mean-v1",
+        "run_count": 5,
+        "resamples": 10000,
+        "seed": 75,
+        "estimate": 108927080,
+        "lower": 108716740,
+        "upper": 109137420,
+        "paired_run_differences_ns": [
+          108712300,
+          108592700,
+          109210400,
+          109146300,
+          108973700
+        ]
+      },
+      "p99": {
+        "method": "independent-run-bootstrap-mean-v1",
+        "run_count": 5,
+        "resamples": 10000,
+        "seed": 75,
+        "estimate": 111350960,
+        "lower": 110599900,
+        "upper": 112102420,
+        "paired_run_differences_ns": [
+          110684000,
+          110319100,
+          110993300,
+          112717300,
+          112041100
+        ]
+      }
+    }
+  },
+  "capacity": {
+    "direct-quic": {
+      "highest_formally_tested_passing": 5500,
+      "next_formally_tested_failing": 6000,
+      "passing_summary": {
+        "schema": "nbsr-performance-load-cell-v1",
+        "run_id": "direct-quic-capacity-candidate-5500-final",
+        "formal": true,
+        "path": "direct-quic",
+        "scenario": "direct-warm",
+        "payload_bytes": 1024,
+        "timer_resolution_ms": 1,
+        "warmup_seconds": 60,
+        "steady_state_seconds": 600,
+        "offered_rate": 5500.0,
+        "achieved_rate": 5500.0,
+        "offered_requests": 3300000,
+        "successful_requests": 3300000,
+        "failed_requests": 0,
+        "success_rate": 1.0,
+        "latency_ns": {
+          "count": 3300000,
+          "min": 62045,
+          "max": 50419364,
+          "p50": 100418,
+          "p95": 138627,
+          "p99": 238200,
+          "p99_9": 19511427
+        },
+        "idle_p99_ns": 170840,
+        "p99_within_2x_idle": true,
+        "destination_cpu_percent_assigned_mean": 4.584620983023168,
+        "destination_cpu_percent_assigned_max": 7.309478609320205,
+        "destination_working_set_bytes_start": 8331264,
+        "destination_working_set_bytes_end": 8454144,
+        "destination_private_bytes_end": 1904640,
+        "destination_peak_working_set_bytes": 8474624,
+        "destination_thread_count_max": 3,
+        "destination_memory_slope_bytes_per_second": 269.53581462157945,
+        "destination_memory_trend": {
+          "sample_count": 594,
+          "slope_bytes_per_second": 269.53581462157945,
+          "slope_lower_95": 254.42714303680347,
+          "slope_upper_95": 284.6444862063554,
+          "r_squared": 0.6737614266571292
+        },
+        "destination_memory_second_half_trend": {
+          "sample_count": 297,
+          "slope_bytes_per_second": 2.435335770582839,
+          "slope_lower_95": -8.96369321903491,
+          "slope_upper_95": 13.834364760200588,
+          "r_squared": 0.0005940377467116287
+        },
+        "destination_memory_final_quarter_trend": {
+          "sample_count": 149,
+          "slope_bytes_per_second": 156.29586778319415,
+          "slope_lower_95": 140.44407340036204,
+          "slope_upper_95": 172.14766216602627,
+          "r_squared": 0.7175604298268035
+        },
+        "unexpected_protocol_rejections": 0,
+        "resource_limit_errors": 0,
+        "go_runtime": null,
+        "sustainable_without_memory_decision": true
+      },
+      "failing_summary": {
+        "schema": "nbsr-performance-load-cell-v1",
+        "run_id": "direct-quic-capacity-candidate-6000-final",
+        "formal": true,
+        "path": "direct-quic",
+        "scenario": "direct-warm",
+        "payload_bytes": 1024,
+        "timer_resolution_ms": 1,
+        "warmup_seconds": 60,
+        "steady_state_seconds": 600,
+        "offered_rate": 6000.0,
+        "achieved_rate": 6000.0,
+        "offered_requests": 3600000,
+        "successful_requests": 3600000,
+        "failed_requests": 0,
+        "success_rate": 1.0,
+        "latency_ns": {
+          "count": 3600000,
+          "min": 64533,
+          "max": 92864267,
+          "p50": 101467,
+          "p95": 141533,
+          "p99": 5486500,
+          "p99_9": 69633600
+        },
+        "idle_p99_ns": 184900,
+        "p99_within_2x_idle": false,
+        "destination_cpu_percent_assigned_mean": 4.923101579519637,
+        "destination_cpu_percent_assigned_max": 7.732631198873079,
+        "destination_working_set_bytes_start": 9236480,
+        "destination_working_set_bytes_end": 9359360,
+        "destination_private_bytes_end": 1904640,
+        "destination_peak_working_set_bytes": 9359360,
+        "destination_thread_count_max": 2,
+        "destination_memory_slope_bytes_per_second": 270.54715891414327,
+        "destination_memory_trend": {
+          "sample_count": 594,
+          "slope_bytes_per_second": 270.54715891414327,
+          "slope_lower_95": 258.2968579740973,
+          "slope_upper_95": 282.79745985418924,
+          "r_squared": 0.7599078104045291
+        },
+        "destination_memory_second_half_trend": {
+          "sample_count": 297,
+          "slope_bytes_per_second": 52.19407351973212,
+          "slope_lower_95": 45.9651209050574,
+          "slope_upper_95": 58.42302613440685,
+          "r_squared": 0.4776237314858137
+        },
+        "destination_memory_final_quarter_trend": {
+          "sample_count": 149,
+          "slope_bytes_per_second": 156.29230212316122,
+          "slope_lower_95": 140.44195245969632,
+          "slope_upper_95": 172.14265178662612,
+          "r_squared": 0.7175881253498387
+        },
+        "unexpected_protocol_rejections": 0,
+        "resource_limit_errors": 0,
+        "go_runtime": null,
+        "sustainable_without_memory_decision": false
+      },
+      "classification": "INCONCLUSIVE_REPRODUCIBILITY"
+    },
+    "rust-rust": {
+      "highest_formally_tested_passing": 2500,
+      "next_formally_tested_failing": 3000,
+      "passing_summary": {
+        "schema": "nbsr-performance-load-cell-v1",
+        "run_id": "rust-rust-capacity-candidate-2500-final",
+        "formal": true,
+        "path": "rust-rust",
+        "scenario": "nbsr-warm-existing-service",
+        "payload_bytes": 1024,
+        "timer_resolution_ms": 1,
+        "warmup_seconds": 60,
+        "steady_state_seconds": 600,
+        "offered_rate": 2500.0,
+        "achieved_rate": 2500.0,
+        "offered_requests": 1500000,
+        "successful_requests": 1500000,
+        "failed_requests": 0,
+        "success_rate": 1.0,
+        "latency_ns": {
+          "count": 1500000,
+          "min": 216200,
+          "max": 89737200,
+          "p50": 249100,
+          "p95": 309800,
+          "p99": 573000,
+          "p99_9": 22458300
+        },
+        "idle_p99_ns": 404000,
+        "p99_within_2x_idle": true,
+        "destination_cpu_percent_assigned_mean": 4.845795008495212,
+        "destination_cpu_percent_assigned_max": 7.5418258056371705,
+        "destination_working_set_bytes_start": 15966208,
+        "destination_working_set_bytes_end": 63799296,
+        "destination_private_bytes_end": 57159680,
+        "destination_peak_working_set_bytes": 73244672,
+        "destination_thread_count_max": 3,
+        "destination_memory_slope_bytes_per_second": 94041.50734457064,
+        "destination_memory_trend": {
+          "sample_count": 594,
+          "slope_bytes_per_second": 94041.50734457064,
+          "slope_lower_95": 90868.02337907058,
+          "slope_upper_95": 97214.99131007069,
+          "r_squared": 0.850711802166356
+        },
+        "destination_memory_second_half_trend": {
+          "sample_count": 297,
+          "slope_bytes_per_second": 12552.19569052546,
+          "slope_lower_95": 7295.998252243172,
+          "slope_upper_95": 17808.393128807747,
+          "r_squared": 0.0691312841121895
+        },
+        "destination_memory_final_quarter_trend": {
+          "sample_count": 149,
+          "slope_bytes_per_second": 156.25601678583575,
+          "slope_lower_95": 140.40874019015612,
+          "slope_upper_95": 172.10329338151539,
+          "r_squared": 0.7175726051987432
+        },
+        "unexpected_protocol_rejections": 0,
+        "resource_limit_errors": 0,
+        "go_runtime": null,
+        "sustainable_without_memory_decision": true
+      },
+      "failing_summary": {
+        "schema": "nbsr-performance-load-cell-v1",
+        "run_id": "rust-rust-capacity-candidate-3000-final",
+        "formal": true,
+        "path": "rust-rust",
+        "scenario": "nbsr-warm-existing-service",
+        "payload_bytes": 1024,
+        "timer_resolution_ms": 1,
+        "warmup_seconds": 60,
+        "steady_state_seconds": 600,
+        "offered_rate": 3000.0,
+        "achieved_rate": 3000.0,
+        "offered_requests": 1800000,
+        "successful_requests": 1800000,
+        "failed_requests": 0,
+        "success_rate": 1.0,
+        "latency_ns": {
+          "count": 1800000,
+          "min": 211633,
+          "max": 180235867,
+          "p50": 252767,
+          "p95": 745933,
+          "p99": 21201400,
+          "p99_9": 79610367
+        },
+        "idle_p99_ns": 409100,
+        "p99_within_2x_idle": false,
+        "destination_cpu_percent_assigned_mean": 6.347950404514584,
+        "destination_cpu_percent_assigned_max": 8.696458264173943,
+        "destination_working_set_bytes_start": 15962112,
+        "destination_working_set_bytes_end": 118317056,
+        "destination_private_bytes_end": 111788032,
+        "destination_peak_working_set_bytes": 137195520,
+        "destination_thread_count_max": 3,
+        "destination_memory_slope_bytes_per_second": 126243.25816295082,
+        "destination_memory_trend": {
+          "sample_count": 594,
+          "slope_bytes_per_second": 126243.25816295082,
+          "slope_lower_95": 120635.54417949732,
+          "slope_upper_95": 131850.97214640433,
+          "r_squared": 0.7668335790715791
+        },
+        "destination_memory_second_half_trend": {
+          "sample_count": 297,
+          "slope_bytes_per_second": 147413.13771178955,
+          "slope_lower_95": 127091.74120181268,
+          "slope_upper_95": 167734.5342217664,
+          "r_squared": 0.40661976436535485
+        },
+        "destination_memory_final_quarter_trend": {
+          "sample_count": 149,
+          "slope_bytes_per_second": 474174.95466485,
+          "slope_lower_95": 418769.94589302875,
+          "slope_upper_95": 529579.9634366713,
+          "r_squared": 0.6568457305530164
+        },
+        "unexpected_protocol_rejections": 0,
+        "resource_limit_errors": 0,
+        "go_runtime": null,
+        "sustainable_without_memory_decision": false
+      },
+      "classification": "INCONCLUSIVE_REPRODUCIBILITY"
+    },
+    "go-rust": {
+      "highest_formally_tested_passing": 500,
+      "next_formally_tested_failing": 750,
+      "passing_summary": {
+        "schema": "nbsr-performance-load-cell-v1",
+        "run_id": "go-rust-capacity-candidate-500-final",
+        "formal": true,
+        "path": "go-rust",
+        "scenario": "nbsr-warm-existing-service",
+        "payload_bytes": 1024,
+        "timer_resolution_ms": 1,
+        "warmup_seconds": 60,
+        "steady_state_seconds": 600,
+        "offered_rate": 500.0,
+        "achieved_rate": 500.0,
+        "offered_requests": 300000,
+        "successful_requests": 300000,
+        "failed_requests": 0,
+        "success_rate": 1.0,
+        "latency_ns": {
+          "count": 300000,
+          "min": 276800,
+          "max": 19760200,
+          "p50": 336200,
+          "p95": 434200,
+          "p99": 577200,
+          "p99_9": 2900900
+        },
+        "idle_p99_ns": 466540,
+        "p99_within_2x_idle": true,
+        "destination_cpu_percent_assigned_mean": 1.0750722195636846,
+        "destination_cpu_percent_assigned_max": 2.121826192442247,
+        "destination_working_set_bytes_start": 11132928,
+        "destination_working_set_bytes_end": 22884352,
+        "destination_private_bytes_end": 16183296,
+        "destination_peak_working_set_bytes": 25231360,
+        "destination_thread_count_max": 3,
+        "destination_memory_slope_bytes_per_second": 23517.041063386445,
+        "destination_memory_trend": {
+          "sample_count": 594,
+          "slope_bytes_per_second": 23517.041063386445,
+          "slope_lower_95": 22824.49882191418,
+          "slope_upper_95": 24209.58330485871,
+          "r_squared": 0.8821141847409089
+        },
+        "destination_memory_second_half_trend": {
+          "sample_count": 297,
+          "slope_bytes_per_second": 30134.11037456429,
+          "slope_lower_95": 27688.948732825367,
+          "slope_upper_95": 32579.272016303214,
+          "r_squared": 0.6641864151350322
+        },
+        "destination_memory_final_quarter_trend": {
+          "sample_count": 149,
+          "slope_bytes_per_second": 157.0701133896815,
+          "slope_lower_95": 141.29800264250616,
+          "slope_upper_95": 172.84222413685683,
+          "r_squared": 0.7215884322955524
+        },
+        "unexpected_protocol_rejections": 0,
+        "resource_limit_errors": 0,
+        "go_runtime": {
+          "heap_alloc_bytes": 102716496,
+          "heap_sys_bytes": 112918528,
+          "total_alloc_bytes": 25807923040,
+          "mallocs": 2964576845,
+          "frees": 2961714621,
+          "gc_cycles": 516,
+          "total_gc_pause_ns": 24559600,
+          "maximum_recent_gc_pause_ns": 1023900
+        },
+        "sustainable_without_memory_decision": true
+      },
+      "failing_summary": {
+        "schema": "nbsr-performance-load-cell-v1",
+        "run_id": "go-rust-capacity-candidate-750-final",
+        "formal": true,
+        "path": "go-rust",
+        "scenario": "nbsr-warm-existing-service",
+        "payload_bytes": 1024,
+        "timer_resolution_ms": 1,
+        "warmup_seconds": 60,
+        "steady_state_seconds": 600,
+        "offered_rate": 750.0,
+        "achieved_rate": 750.0,
+        "offered_requests": 450000,
+        "successful_requests": 450000,
+        "failed_requests": 0,
+        "success_rate": 1.0,
+        "latency_ns": {
+          "count": 450000,
+          "min": 283500,
+          "max": 36132567,
+          "p50": 334434,
+          "p95": 423034,
+          "p99": 598600,
+          "p99_9": 4268367
+        },
+        "idle_p99_ns": 466540,
+        "p99_within_2x_idle": true,
+        "destination_cpu_percent_assigned_mean": 1.6998964208368965,
+        "destination_cpu_percent_assigned_max": 3.470704710147968,
+        "destination_working_set_bytes_start": 11145216,
+        "destination_working_set_bytes_end": 36528128,
+        "destination_private_bytes_end": 29843456,
+        "destination_peak_working_set_bytes": 41250816,
+        "destination_thread_count_max": 3,
+        "destination_memory_slope_bytes_per_second": 31690.005958058475,
+        "destination_memory_trend": {
+          "sample_count": 594,
+          "slope_bytes_per_second": 31690.005958058475,
+          "slope_lower_95": 30280.81527153651,
+          "slope_upper_95": 33099.19664458044,
+          "r_squared": 0.7664465345544381
+        },
+        "destination_memory_second_half_trend": {
+          "sample_count": 297,
+          "slope_bytes_per_second": 36943.19324989428,
+          "slope_lower_95": 31844.39471602049,
+          "slope_upper_95": 42041.99178376806,
+          "r_squared": 0.4060464778887185
+        },
+        "destination_memory_final_quarter_trend": {
+          "sample_count": 149,
+          "slope_bytes_per_second": 118788.35103713731,
+          "slope_lower_95": 104866.97817057293,
+          "slope_upper_95": 132709.7239037017,
+          "r_squared": 0.6554973555742004
+        },
+        "unexpected_protocol_rejections": 0,
+        "resource_limit_errors": 0,
+        "go_runtime": {
+          "heap_alloc_bytes": 141080856,
+          "heap_sys_bytes": 163282944,
+          "total_alloc_bytes": 24348609600,
+          "mallocs": 2652630645,
+          "frees": 2649242191,
+          "gc_cycles": 326,
+          "total_gc_pause_ns": 16733400,
+          "maximum_recent_gc_pause_ns": 1000400
+        },
+        "sustainable_without_memory_decision": true
+      },
+      "classification": "INCONCLUSIVE_REPRODUCIBILITY"
+    }
+  },
+  "loads": {
+    "25": {
+      "direct-quic": {
+        "schema": "nbsr-performance-load-cell-v1",
+        "run_id": "direct-quic-load-25-pct-final",
+        "formal": true,
+        "path": "direct-quic",
+        "scenario": "direct-warm",
+        "payload_bytes": 1024,
+        "timer_resolution_ms": 1,
+        "warmup_seconds": 60,
+        "steady_state_seconds": 600,
+        "offered_rate": 1375.0,
+        "achieved_rate": 1375.0,
+        "offered_requests": 825000,
+        "successful_requests": 825000,
+        "failed_requests": 0,
+        "success_rate": 1.0,
+        "latency_ns": {
+          "count": 825000,
+          "min": 62091,
+          "max": 16221682,
+          "p50": 136073,
+          "p95": 204455,
+          "p99": 249918,
+          "p99_9": 746964
+        },
+        "idle_p99_ns": 170840,
+        "p99_within_2x_idle": true,
+        "destination_cpu_percent_assigned_mean": 1.156684158577268,
+        "destination_cpu_percent_assigned_max": 2.3205121591866886,
+        "destination_working_set_bytes_start": 8331264,
+        "destination_working_set_bytes_end": 8454144,
+        "destination_private_bytes_end": 1916928,
+        "destination_peak_working_set_bytes": 8474624,
+        "destination_thread_count_max": 3,
+        "destination_memory_slope_bytes_per_second": 268.9145519636479,
+        "destination_memory_trend": {
+          "sample_count": 594,
+          "slope_bytes_per_second": 268.9145519636479,
+          "slope_lower_95": 253.81849617135703,
+          "slope_upper_95": 284.0106077559388,
+          "r_squared": 0.6731138769769964
+        },
+        "destination_memory_second_half_trend": {
+          "sample_count": 297,
+          "slope_bytes_per_second": 4.086132126372721,
+          "slope_lower_95": -7.26408489358422,
+          "slope_upper_95": 15.436349146329663,
+          "r_squared": 0.0016849004521453104
+        },
+        "destination_memory_final_quarter_trend": {
+          "sample_count": 149,
+          "slope_bytes_per_second": 156.94993573325223,
+          "slope_lower_95": 141.19114370257955,
+          "slope_upper_95": 172.7087277639249,
+          "r_squared": 0.7216203298926658
+        },
+        "unexpected_protocol_rejections": 0,
+        "resource_limit_errors": 0,
+        "go_runtime": null,
+        "sustainable_without_memory_decision": true
+      },
+      "rust-rust": {
+        "schema": "nbsr-performance-load-cell-v1",
+        "run_id": "rust-rust-load-25-pct-final",
+        "formal": true,
+        "path": "rust-rust",
+        "scenario": "nbsr-warm-existing-service",
+        "payload_bytes": 1024,
+        "timer_resolution_ms": 1,
+        "warmup_seconds": 60,
+        "steady_state_seconds": 600,
+        "offered_rate": 625.0,
+        "achieved_rate": 625.0,
+        "offered_requests": 375000,
+        "successful_requests": 375000,
+        "failed_requests": 0,
+        "success_rate": 1.0,
+        "latency_ns": {
+          "count": 375000,
+          "min": 226500,
+          "max": 19559800,
+          "p50": 275100,
+          "p95": 416500,
+          "p99": 510700,
+          "p99_9": 765800
+        },
+        "idle_p99_ns": 404000,
+        "p99_within_2x_idle": true,
+        "destination_cpu_percent_assigned_mean": 1.3610791709131487,
+        "destination_cpu_percent_assigned_max": 2.317215335471977,
+        "destination_working_set_bytes_start": 11153408,
+        "destination_working_set_bytes_end": 22904832,
+        "destination_private_bytes_end": 16183296,
+        "destination_peak_working_set_bytes": 25272320,
+        "destination_thread_count_max": 3,
+        "destination_memory_slope_bytes_per_second": 23568.941025150532,
+        "destination_memory_trend": {
+          "sample_count": 593,
+          "slope_bytes_per_second": 23568.941025150532,
+          "slope_lower_95": 22777.802142770295,
+          "slope_upper_95": 24360.07990753077,
+          "r_squared": 0.8522673440202722
+        },
+        "destination_memory_second_half_trend": {
+          "sample_count": 297,
+          "slope_bytes_per_second": 3571.981627243766,
+          "slope_lower_95": 2181.059145183408,
+          "slope_upper_95": 4962.904109304124,
+          "r_squared": 0.0790897181132394
+        },
+        "destination_memory_final_quarter_trend": {
+          "sample_count": 149,
+          "slope_bytes_per_second": 156.121514240831,
+          "slope_lower_95": 140.27998984702032,
+          "slope_upper_95": 171.9630386346417,
+          "r_squared": 0.7173706650936977
+        },
+        "unexpected_protocol_rejections": 0,
+        "resource_limit_errors": 0,
+        "go_runtime": null,
+        "sustainable_without_memory_decision": true
+      },
+      "go-rust": {
+        "schema": "nbsr-performance-load-cell-v1",
+        "run_id": "go-rust-load-25-pct-final",
+        "formal": true,
+        "path": "go-rust",
+        "scenario": "nbsr-warm-existing-service",
+        "payload_bytes": 1024,
+        "timer_resolution_ms": 1,
+        "warmup_seconds": 60,
+        "steady_state_seconds": 600,
+        "offered_rate": 125.0,
+        "achieved_rate": 125.0,
+        "offered_requests": 75000,
+        "successful_requests": 75000,
+        "failed_requests": 0,
+        "success_rate": 1.0,
+        "latency_ns": {
+          "count": 75000,
+          "min": 269600,
+          "max": 27220100,
+          "p50": 366600,
+          "p95": 545900,
+          "p99": 748000,
+          "p99_9": null
+        },
+        "idle_p99_ns": 466540,
+        "p99_within_2x_idle": true,
+        "destination_cpu_percent_assigned_mean": 0.3729920610466071,
+        "destination_cpu_percent_assigned_max": 0.9653551132769005,
+        "destination_working_set_bytes_start": 9629696,
+        "destination_working_set_bytes_end": 12660736,
+        "destination_private_bytes_end": 5931008,
+        "destination_peak_working_set_bytes": 13537280,
+        "destination_thread_count_max": 3,
+        "destination_memory_slope_bytes_per_second": 5846.801351088,
+        "destination_memory_trend": {
+          "sample_count": 594,
+          "slope_bytes_per_second": 5846.801351088,
+          "slope_lower_95": 5697.756088862349,
+          "slope_upper_95": 5995.846613313651,
+          "r_squared": 0.9089749068785606
+        },
+        "destination_memory_second_half_trend": {
+          "sample_count": 297,
+          "slope_bytes_per_second": 6215.900309413696,
+          "slope_lower_95": 5715.23696513138,
+          "slope_upper_95": 6716.563653696012,
+          "r_squared": 0.6674729118551748
+        },
+        "destination_memory_final_quarter_trend": {
+          "sample_count": 149,
+          "slope_bytes_per_second": 157.10189550793993,
+          "slope_lower_95": 141.32734942138876,
+          "slope_upper_95": 172.8764415944911,
+          "r_squared": 0.7216076888204137
+        },
+        "unexpected_protocol_rejections": 0,
+        "resource_limit_errors": 0,
+        "go_runtime": {
+          "heap_alloc_bytes": 18774792,
+          "heap_sys_bytes": 37453824,
+          "total_alloc_bytes": 28115484792,
+          "mallocs": 3444299092,
+          "frees": 3443982429,
+          "gc_cycles": 2219,
+          "total_gc_pause_ns": 102773200,
+          "maximum_recent_gc_pause_ns": 1033700
+        },
+        "sustainable_without_memory_decision": true
+      }
+    },
+    "50": {
+      "direct-quic": {
+        "schema": "nbsr-performance-load-cell-v1",
+        "run_id": "direct-quic-load-50-pct-final",
+        "formal": true,
+        "path": "direct-quic",
+        "scenario": "direct-warm",
+        "payload_bytes": 1024,
+        "timer_resolution_ms": 1,
+        "warmup_seconds": 60,
+        "steady_state_seconds": 600,
+        "offered_rate": 2750.0,
+        "achieved_rate": 2750.0,
+        "offered_requests": 1650000,
+        "successful_requests": 1650000,
+        "failed_requests": 0,
+        "success_rate": 1.0,
+        "latency_ns": {
+          "count": 1650000,
+          "min": 62900,
+          "max": 7186782,
+          "p50": 103791,
+          "p95": 157164,
+          "p99": 198009,
+          "p99_9": 354209
+        },
+        "idle_p99_ns": 170840,
+        "p99_within_2x_idle": true,
+        "destination_cpu_percent_assigned_mean": 2.2775934465002146,
+        "destination_cpu_percent_assigned_max": 3.6765652910935662,
+        "destination_working_set_bytes_start": 8331264,
+        "destination_working_set_bytes_end": 8454144,
+        "destination_private_bytes_end": 1921024,
+        "destination_peak_working_set_bytes": 8470528,
+        "destination_thread_count_max": 3,
+        "destination_memory_slope_bytes_per_second": 269.34745887517147,
+        "destination_memory_trend": {
+          "sample_count": 594,
+          "slope_bytes_per_second": 269.34745887517147,
+          "slope_lower_95": 254.83800475766398,
+          "slope_upper_95": 283.85691299267893,
+          "r_squared": 0.6909972891973415
+        },
+        "destination_memory_second_half_trend": {
+          "sample_count": 297,
+          "slope_bytes_per_second": 13.834374664513248,
+          "slope_lower_95": 3.7305233344125917,
+          "slope_upper_95": 23.938225994613905,
+          "r_squared": 0.02383196652094033
+        },
+        "destination_memory_final_quarter_trend": {
+          "sample_count": 149,
+          "slope_bytes_per_second": 157.08999843884916,
+          "slope_lower_95": 141.31706598216937,
+          "slope_upper_95": 172.86293089552896,
+          "r_squared": 0.7216183628948303
+        },
+        "unexpected_protocol_rejections": 0,
+        "resource_limit_errors": 0,
+        "go_runtime": null,
+        "sustainable_without_memory_decision": true
+      },
+      "rust-rust": {
+        "schema": "nbsr-performance-load-cell-v1",
+        "run_id": "rust-rust-load-50-pct-final",
+        "formal": true,
+        "path": "rust-rust",
+        "scenario": "nbsr-warm-existing-service",
+        "payload_bytes": 1024,
+        "timer_resolution_ms": 1,
+        "warmup_seconds": 60,
+        "steady_state_seconds": 600,
+        "offered_rate": 1250.0,
+        "achieved_rate": 1250.0,
+        "offered_requests": 750000,
+        "successful_requests": 750000,
+        "failed_requests": 0,
+        "success_rate": 1.0,
+        "latency_ns": {
+          "count": 750000,
+          "min": 214600,
+          "max": 43681800,
+          "p50": 260800,
+          "p95": 398600,
+          "p99": 464000,
+          "p99_9": 1390500
+        },
+        "idle_p99_ns": 404000,
+        "p99_within_2x_idle": true,
+        "destination_cpu_percent_assigned_mean": 2.608714073653545,
+        "destination_cpu_percent_assigned_max": 3.8712043739233097,
+        "destination_working_set_bytes_start": 12554240,
+        "destination_working_set_bytes_end": 36532224,
+        "destination_private_bytes_end": 29839360,
+        "destination_peak_working_set_bytes": 41259008,
+        "destination_thread_count_max": 3,
+        "destination_memory_slope_bytes_per_second": 47130.129130185946,
+        "destination_memory_trend": {
+          "sample_count": 594,
+          "slope_bytes_per_second": 47130.129130185946,
+          "slope_lower_95": 45543.232319472765,
+          "slope_upper_95": 48717.025940899126,
+          "r_squared": 0.8512762882132474
+        },
+        "destination_memory_second_half_trend": {
+          "sample_count": 297,
+          "slope_bytes_per_second": 6277.301730871674,
+          "slope_lower_95": 3651.729383462214,
+          "slope_upper_95": 8902.874078281135,
+          "r_squared": 0.06927989955289304
+        },
+        "destination_memory_final_quarter_trend": {
+          "sample_count": 149,
+          "slope_bytes_per_second": 157.08812171485766,
+          "slope_lower_95": 141.31486751857304,
+          "slope_upper_95": 172.8613759111423,
+          "r_squared": 0.7216053674858116
+        },
+        "unexpected_protocol_rejections": 0,
+        "resource_limit_errors": 0,
+        "go_runtime": null,
+        "sustainable_without_memory_decision": true
+      },
+      "go-rust": {
+        "schema": "nbsr-performance-load-cell-v1",
+        "run_id": "go-rust-load-50-pct-final",
+        "formal": true,
+        "path": "go-rust",
+        "scenario": "nbsr-warm-existing-service",
+        "payload_bytes": 1024,
+        "timer_resolution_ms": 1,
+        "warmup_seconds": 60,
+        "steady_state_seconds": 600,
+        "offered_rate": 250.0,
+        "achieved_rate": 250.0,
+        "offered_requests": 150000,
+        "successful_requests": 150000,
+        "failed_requests": 0,
+        "success_rate": 1.0,
+        "latency_ns": {
+          "count": 150000,
+          "min": 252500,
+          "max": 30750300,
+          "p50": 346700,
+          "p95": 495400,
+          "p99": 664900,
+          "p99_9": 2212500
+        },
+        "idle_p99_ns": 466540,
+        "p99_within_2x_idle": true,
+        "destination_cpu_percent_assigned_mean": 0.6700205032755183,
+        "destination_cpu_percent_assigned_max": 1.3524861112196536,
+        "destination_working_set_bytes_start": 10784768,
+        "destination_working_set_bytes_end": 16072704,
+        "destination_private_bytes_end": 9359360,
+        "destination_peak_working_set_bytes": 17240064,
+        "destination_thread_count_max": 3,
+        "destination_memory_slope_bytes_per_second": 11364.42950683036,
+        "destination_memory_trend": {
+          "sample_count": 594,
+          "slope_bytes_per_second": 11364.42950683036,
+          "slope_lower_95": 11005.8984128552,
+          "slope_upper_95": 11722.96060080552,
+          "r_squared": 0.8670171525782138
+        },
+        "destination_memory_second_half_trend": {
+          "sample_count": 297,
+          "slope_bytes_per_second": 15067.306415211624,
+          "slope_lower_95": 13846.8948675,
+          "slope_upper_95": 16287.717962923249,
+          "r_squared": 0.6649855921234065
+        },
+        "destination_memory_final_quarter_trend": {
+          "sample_count": 149,
+          "slope_bytes_per_second": 157.03094959804432,
+          "slope_lower_95": 141.2619737213571,
+          "slope_upper_95": 172.79992547473154,
+          "r_squared": 0.7215681047133284
+        },
+        "unexpected_protocol_rejections": 0,
+        "resource_limit_errors": 0,
+        "go_runtime": {
+          "heap_alloc_bytes": 30835440,
+          "heap_sys_bytes": 62652416,
+          "total_alloc_bytes": 27181755896,
+          "mallocs": 3265011033,
+          "frees": 3264770549,
+          "gc_cycles": 1075,
+          "total_gc_pause_ns": 50920100,
+          "maximum_recent_gc_pause_ns": 1004000
+        },
+        "sustainable_without_memory_decision": true
+      }
+    },
+    "75": {
+      "direct-quic": {
+        "schema": "nbsr-performance-load-cell-v1",
+        "run_id": "direct-quic-load-75-pct-final",
+        "formal": true,
+        "path": "direct-quic",
+        "scenario": "direct-warm",
+        "payload_bytes": 1024,
+        "timer_resolution_ms": 1,
+        "warmup_seconds": 60,
+        "steady_state_seconds": 600,
+        "offered_rate": 4125.0,
+        "achieved_rate": 4125.0,
+        "offered_requests": 2475000,
+        "successful_requests": 2475000,
+        "failed_requests": 0,
+        "success_rate": 1.0,
+        "latency_ns": {
+          "count": 2475000,
+          "min": 64136,
+          "max": 81854073,
+          "p50": 99191,
+          "p95": 135400,
+          "p99": 179864,
+          "p99_9": 32903855
+        },
+        "idle_p99_ns": 170840,
+        "p99_within_2x_idle": true,
+        "destination_cpu_percent_assigned_mean": 3.2354030427676403,
+        "destination_cpu_percent_assigned_max": 5.024129176501386,
+        "destination_working_set_bytes_start": 8335360,
+        "destination_working_set_bytes_end": 8458240,
+        "destination_private_bytes_end": 1916928,
+        "destination_peak_working_set_bytes": 8478720,
+        "destination_thread_count_max": 3,
+        "destination_memory_slope_bytes_per_second": 269.5650120150517,
+        "destination_memory_trend": {
+          "sample_count": 594,
+          "slope_bytes_per_second": 269.5650120150517,
+          "slope_lower_95": 254.45557431058143,
+          "slope_upper_95": 284.674449719522,
+          "r_squared": 0.6737867535669109
+        },
+        "destination_memory_second_half_trend": {
+          "sample_count": 297,
+          "slope_bytes_per_second": 2.4347990933085994,
+          "slope_lower_95": -8.966094928024393,
+          "slope_upper_95": 13.835693114641593,
+          "r_squared": 0.0005935819774058881
+        },
+        "destination_memory_final_quarter_trend": {
+          "sample_count": 149,
+          "slope_bytes_per_second": 156.32920323578995,
+          "slope_lower_95": 140.4755151558997,
+          "slope_upper_95": 172.1828913156802,
+          "r_squared": 0.7175984511419244
+        },
+        "unexpected_protocol_rejections": 0,
+        "resource_limit_errors": 0,
+        "go_runtime": null,
+        "sustainable_without_memory_decision": true
+      },
+      "rust-rust": {
+        "schema": "nbsr-performance-load-cell-v1",
+        "run_id": "rust-rust-load-75-pct-final",
+        "formal": true,
+        "path": "rust-rust",
+        "scenario": "nbsr-warm-existing-service",
+        "payload_bytes": 1024,
+        "timer_resolution_ms": 1,
+        "warmup_seconds": 60,
+        "steady_state_seconds": 600,
+        "offered_rate": 1875.0,
+        "achieved_rate": 1875.0,
+        "offered_requests": 1125000,
+        "successful_requests": 1125000,
+        "failed_requests": 0,
+        "success_rate": 1.0,
+        "latency_ns": {
+          "count": 1125000,
+          "min": 222100,
+          "max": 88853433,
+          "p50": 283600,
+          "p95": 376367,
+          "p99": 663467,
+          "p99_9": 19751167
+        },
+        "idle_p99_ns": 404000,
+        "p99_within_2x_idle": true,
+        "destination_cpu_percent_assigned_mean": 3.9742600230068414,
+        "destination_cpu_percent_assigned_max": 6.180971528071649,
+        "destination_working_set_bytes_start": 13090816,
+        "destination_working_set_bytes_end": 64745472,
+        "destination_private_bytes_end": 57147392,
+        "destination_peak_working_set_bytes": 74170368,
+        "destination_thread_count_max": 3,
+        "destination_memory_slope_bytes_per_second": 91639.07094184625,
+        "destination_memory_trend": {
+          "sample_count": 593,
+          "slope_bytes_per_second": 91639.07094184625,
+          "slope_lower_95": 88824.77955813392,
+          "slope_upper_95": 94453.36232555858,
+          "r_squared": 0.8732900761033702
+        },
+        "destination_memory_second_half_trend": {
+          "sample_count": 297,
+          "slope_bytes_per_second": 133528.86192469308,
+          "slope_lower_95": 124397.97959763897,
+          "slope_upper_95": 142659.74425174718,
+          "r_squared": 0.735794610498782
+        },
+        "destination_memory_final_quarter_trend": {
+          "sample_count": 149,
+          "slope_bytes_per_second": 156.0040725472405,
+          "slope_lower_95": 140.18231703975917,
+          "slope_upper_95": 171.82582805472182,
+          "r_squared": 0.7175718171801871
+        },
+        "unexpected_protocol_rejections": 0,
+        "resource_limit_errors": 0,
+        "go_runtime": null,
+        "sustainable_without_memory_decision": true
+      },
+      "go-rust": {
+        "schema": "nbsr-performance-load-cell-v1",
+        "run_id": "go-rust-load-75-pct-final",
+        "formal": true,
+        "path": "go-rust",
+        "scenario": "nbsr-warm-existing-service",
+        "payload_bytes": 1024,
+        "timer_resolution_ms": 1,
+        "warmup_seconds": 60,
+        "steady_state_seconds": 600,
+        "offered_rate": 375.0,
+        "achieved_rate": 375.0,
+        "offered_requests": 225000,
+        "successful_requests": 225000,
+        "failed_requests": 0,
+        "success_rate": 1.0,
+        "latency_ns": {
+          "count": 225000,
+          "min": 276000,
+          "max": 36311434,
+          "p50": 382734,
+          "p95": 541767,
+          "p99": 729067,
+          "p99_9": 2744000
+        },
+        "idle_p99_ns": 466540,
+        "p99_within_2x_idle": true,
+        "destination_cpu_percent_assigned_mean": 0.9725782683126182,
+        "destination_cpu_percent_assigned_max": 1.931373867504168,
+        "destination_working_set_bytes_start": 11276288,
+        "destination_working_set_bytes_end": 23371776,
+        "destination_private_bytes_end": 16183296,
+        "destination_peak_working_set_bytes": 25735168,
+        "destination_thread_count_max": 2,
+        "destination_memory_slope_bytes_per_second": 15830.700541247208,
+        "destination_memory_trend": {
+          "sample_count": 593,
+          "slope_bytes_per_second": 15830.700541247208,
+          "slope_lower_95": 15122.540754765892,
+          "slope_upper_95": 16538.860327728522,
+          "r_squared": 0.7646143273322727
+        },
+        "destination_memory_second_half_trend": {
+          "sample_count": 297,
+          "slope_bytes_per_second": 18504.045311287075,
+          "slope_lower_95": 15954.840099378196,
+          "slope_upper_95": 21053.25052319595,
+          "r_squared": 0.40693008082093995
+        },
+        "destination_memory_final_quarter_trend": {
+          "sample_count": 149,
+          "slope_bytes_per_second": 59434.707198669035,
+          "slope_lower_95": 52474.535632786836,
+          "slope_upper_95": 66394.87876455123,
+          "r_squared": 0.6558387865293486
+        },
+        "unexpected_protocol_rejections": 0,
+        "resource_limit_errors": 0,
+        "go_runtime": {
+          "heap_alloc_bytes": 41510952,
+          "heap_sys_bytes": 83591168,
+          "total_alloc_bytes": 29975980496,
+          "mallocs": 3549812860,
+          "frees": 3549725780,
+          "gc_cycles": 797,
+          "total_gc_pause_ns": 44417000,
+          "maximum_recent_gc_pause_ns": 1010000
+        },
+        "sustainable_without_memory_decision": true
+      }
+    },
+    "90": {
+      "direct-quic": {
+        "schema": "nbsr-performance-load-cell-v1",
+        "run_id": "direct-quic-load-90-pct-final",
+        "formal": true,
+        "path": "direct-quic",
+        "scenario": "direct-warm",
+        "payload_bytes": 1024,
+        "timer_resolution_ms": 1,
+        "warmup_seconds": 60,
+        "steady_state_seconds": 600,
+        "offered_rate": 4950.0,
+        "achieved_rate": 4950.0,
+        "offered_requests": 2970000,
+        "successful_requests": 2970000,
+        "failed_requests": 0,
+        "success_rate": 1.0,
+        "latency_ns": {
+          "count": 2970000,
+          "min": 73096,
+          "max": 235228905,
+          "p50": 116108,
+          "p95": 174539,
+          "p99": 22693123,
+          "p99_9": 185743547
+        },
+        "idle_p99_ns": 170840,
+        "p99_within_2x_idle": false,
+        "destination_cpu_percent_assigned_mean": 4.328945895647788,
+        "destination_cpu_percent_assigned_max": 7.900648888540722,
+        "destination_working_set_bytes_start": 9404416,
+        "destination_working_set_bytes_end": 9527296,
+        "destination_private_bytes_end": 1925120,
+        "destination_peak_working_set_bytes": 9547776,
+        "destination_thread_count_max": 3,
+        "destination_memory_slope_bytes_per_second": 269.1049008610993,
+        "destination_memory_trend": {
+          "sample_count": 594,
+          "slope_bytes_per_second": 269.1049008610993,
+          "slope_lower_95": 253.99862402105072,
+          "slope_upper_95": 284.21117770114785,
+          "r_squared": 0.6731274100237186
+        },
+        "destination_memory_second_half_trend": {
+          "sample_count": 297,
+          "slope_bytes_per_second": 4.083446625014989,
+          "slope_lower_95": -7.276375354650448,
+          "slope_upper_95": 15.443268604680426,
+          "r_squared": 0.001679850677229311
+        },
+        "destination_memory_final_quarter_trend": {
+          "sample_count": 149,
+          "slope_bytes_per_second": 157.10937172585022,
+          "slope_lower_95": 141.34012022315915,
+          "slope_upper_95": 172.8786232285413,
+          "r_squared": 0.7217616587315236
+        },
+        "unexpected_protocol_rejections": 0,
+        "resource_limit_errors": 0,
+        "go_runtime": null,
+        "sustainable_without_memory_decision": false
+      },
+      "rust-rust": {
+        "schema": "nbsr-performance-load-cell-v1",
+        "run_id": "rust-rust-load-90-pct-final",
+        "formal": true,
+        "path": "rust-rust",
+        "scenario": "nbsr-warm-existing-service",
+        "payload_bytes": 1024,
+        "timer_resolution_ms": 1,
+        "warmup_seconds": 60,
+        "steady_state_seconds": 600,
+        "offered_rate": 2250.0,
+        "achieved_rate": 2250.0,
+        "offered_requests": 1350000,
+        "successful_requests": 1350000,
+        "failed_requests": 0,
+        "success_rate": 1.0,
+        "latency_ns": {
+          "count": 1350000,
+          "min": 220400,
+          "max": 1786277744,
+          "p50": 288311,
+          "p95": 68680089,
+          "p99": 1231600956,
+          "p99_9": 1773214567
+        },
+        "idle_p99_ns": 404000,
+        "p99_within_2x_idle": false,
+        "destination_cpu_percent_assigned_mean": 4.988321897261575,
+        "destination_cpu_percent_assigned_max": 8.297227913906173,
+        "destination_working_set_bytes_start": 16900096,
+        "destination_working_set_bytes_end": 64729088,
+        "destination_private_bytes_end": 57143296,
+        "destination_peak_working_set_bytes": 74153984,
+        "destination_thread_count_max": 3,
+        "destination_memory_slope_bytes_per_second": 95940.45344625677,
+        "destination_memory_trend": {
+          "sample_count": 593,
+          "slope_bytes_per_second": 95940.45344625677,
+          "slope_lower_95": 93039.24067153542,
+          "slope_upper_95": 98841.66622097812,
+          "r_squared": 0.8766704032000899
+        },
+        "destination_memory_second_half_trend": {
+          "sample_count": 297,
+          "slope_bytes_per_second": 73836.3924206578,
+          "slope_lower_95": 63664.9168342668,
+          "slope_upper_95": 84007.86800704879,
+          "r_squared": 0.40695744691240165
+        },
+        "destination_memory_final_quarter_trend": {
+          "sample_count": 149,
+          "slope_bytes_per_second": 156.16617809229362,
+          "slope_lower_95": 140.32717733537314,
+          "slope_upper_95": 172.0051788492141,
+          "r_squared": 0.7175512239437023
+        },
+        "unexpected_protocol_rejections": 0,
+        "resource_limit_errors": 0,
+        "go_runtime": null,
+        "sustainable_without_memory_decision": false
+      },
+      "go-rust": {
+        "schema": "nbsr-performance-load-cell-v1",
+        "run_id": "go-rust-load-90-pct-final",
+        "formal": true,
+        "path": "go-rust",
+        "scenario": "nbsr-warm-existing-service",
+        "payload_bytes": 1024,
+        "timer_resolution_ms": 1,
+        "warmup_seconds": 60,
+        "steady_state_seconds": 600,
+        "offered_rate": 450.0,
+        "achieved_rate": 450.0,
+        "offered_requests": 270000,
+        "successful_requests": 270000,
+        "failed_requests": 0,
+        "success_rate": 1.0,
+        "latency_ns": {
+          "count": 270000,
+          "min": 307423,
+          "max": 143518545,
+          "p50": 412467,
+          "p95": 659956,
+          "p99": 1192745,
+          "p99_9": 58079856
+        },
+        "idle_p99_ns": 466540,
+        "p99_within_2x_idle": false,
+        "destination_cpu_percent_assigned_mean": 1.3483976221862677,
+        "destination_cpu_percent_assigned_max": 3.6454649495068567,
+        "destination_working_set_bytes_start": 10612736,
+        "destination_working_set_bytes_end": 23371776,
+        "destination_private_bytes_end": 16150528,
+        "destination_peak_working_set_bytes": 25718784,
+        "destination_thread_count_max": 3,
+        "destination_memory_slope_bytes_per_second": 21984.318412053522,
+        "destination_memory_trend": {
+          "sample_count": 591,
+          "slope_bytes_per_second": 21984.318412053522,
+          "slope_lower_95": 21263.406718099486,
+          "slope_upper_95": 22705.23010600756,
+          "r_squared": 0.8584649927914828
+        },
+        "destination_memory_second_half_trend": {
+          "sample_count": 296,
+          "slope_bytes_per_second": 34006.87290428876,
+          "slope_lower_95": 31767.630834592437,
+          "slope_upper_95": 36246.11497398507,
+          "r_squared": 0.7508516479105533
+        },
+        "destination_memory_final_quarter_trend": {
+          "sample_count": 148,
+          "slope_bytes_per_second": 1980.2243498092573,
+          "slope_lower_95": -80.27868477204288,
+          "slope_upper_95": 4040.7273843905577,
+          "r_squared": 0.023725400540668184
+        },
+        "unexpected_protocol_rejections": 0,
+        "resource_limit_errors": 0,
+        "go_runtime": {
+          "heap_alloc_bytes": 82660584,
+          "heap_sys_bytes": 100368384,
+          "total_alloc_bytes": 26135852144,
+          "mallocs": 3031356372,
+          "frees": 3029386308,
+          "gc_cycles": 580,
+          "total_gc_pause_ns": 26997800,
+          "maximum_recent_gc_pause_ns": 707600
+        },
+        "sustainable_without_memory_decision": false
+      }
+    }
+  },
+  "scaling_summary": {
+    "cells": 56,
+    "failed_cells": [
+      {
+        "kind": "concurrent-streams",
+        "path": "rust-rust",
+        "services": 20,
+        "offered_concurrency": 640,
+        "samples": 0,
+        "failures": 1,
+        "error_type": "AuditUnavailable",
+        "error": "command failed (101): ['C:\\\\codex-target\\\\nbsr-perf-formal\\\\release\\\\perf_rust_source.exe', '--authority-dir', 'C:\\\\Users\\\\bajra\\\\AppData\\\\Local\\\\Temp\\\\nbsr-scaling-v2-eu48hb5j\\\\authority', '--endpoint', '127.0.0.1:61348', '--samples', '1', '--payload-bytes', '1024', '--lifecycle-authority-dir', 'C:\\\\Users\\\\bajra\\\\AppData\\\\Local\\\\Temp\\\\nbsr-scaling-v2-eu48hb5j\\\\rust-rust-con-20-32\\\\lifecycle-authority', '--connections', '1', '--services', '20', '--streams-per-service', '32', '--concurrent-streams', 'true']\n\nthread 'main' (24156) panicked at src\\bin\\perf_rust_source.rs:387:69:\ncalled `Result::unwrap()` on an `Err` value: AuditUnavailable\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+        "cell_id": 9
+      },
+      {
+        "kind": "concurrent-streams",
+        "path": "go-rust",
+        "services": 20,
+        "offered_concurrency": 640,
+        "samples": 0,
+        "failures": 1,
+        "error_type": "RuntimeError",
+        "error": "command failed (1): ['C:\\\\codex-target\\\\nbsr-perf-formal\\\\release\\\\nbsr-go-peer.exe', '--config', 'C:\\\\Users\\\\bajra\\\\AppData\\\\Local\\\\Temp\\\\nbsr-scaling-v2-eu48hb5j\\\\go-rust-con-20-32\\\\go-lifecycle-nbsr-warm-new-service-0.json']\ntimeout: no recent network activity\n",
+        "cell_id": 22
+      }
+    ]
+  },
+  "decision_table": {
+    "warm-existing p50 budget": "PASS",
+    "warm-existing p95 budget": "PASS",
+    "warm-existing p99 budget": "PASS",
+    "warm-new p50": "PASS",
+    "warm-new p95": "PASS",
+    "warm-new p99": "PASS",
+    "cold overhead": "INCONCLUSIVE",
+    "throughput": "INCONCLUSIVE",
+    "failure rate": "PASS",
+    "memory stability": "INCONCLUSIVE",
+    "20-service Transport Session reuse": "PASS",
+    "concurrent stream correctness": "PASS",
+    "capacity methodology validity": "FAIL",
+    "five-run reproducibility": "PASS",
+    "evidence integrity": "INCONCLUSIVE"
+  }
+}
