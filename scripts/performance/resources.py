@@ -86,6 +86,44 @@ class TimedProcessResourceSample:
     thread_count: int
 
 
+@dataclass(frozen=True)
+class MemorySample:
+    timestamp_ns: int
+    working_set_bytes: int
+    private_bytes: int
+    peak_working_set_bytes: int
+    cpu_percent_assigned: float
+    processed_requests: int
+    active_concurrency: int
+    queue_depth: int
+    phase: str
+
+
+@dataclass(frozen=True)
+class MemoryWindow:
+    sample_count: int
+    working_set_full: MemoryTrend
+    working_set_second_half: MemoryTrend
+    working_set_final_quarter: MemoryTrend
+    private_bytes_full: MemoryTrend
+    private_bytes_second_half: MemoryTrend
+    private_bytes_final_quarter: MemoryTrend
+    working_set_second_half_range: int
+    private_bytes_second_half_range: int
+    working_set_bytes_end: int
+    private_bytes_end: int
+    processed_request_delta: int
+    working_set_bytes_per_request: float | None
+    private_bytes_per_request: float | None
+
+
+@dataclass(frozen=True)
+class MemoryConclusion:
+    path: str
+    status: str
+    reason: str
+
+
 class ProcessResourceSampler:
     def __init__(
         self,
@@ -198,6 +236,82 @@ class ResourceSeries:
             slope_upper_95=slope + 1.96 * standard_error,
             r_squared=1.0 - residual_sum / total_sum if total_sum else 1.0,
         )
+
+
+def _trend(samples: list[MemorySample], field: str) -> MemoryTrend:
+    series = ResourceSeries(expected_samples=len(samples))
+    for sample in samples:
+        series.record(timestamp_ns=sample.timestamp_ns, working_set_bytes=int(getattr(sample, field)))
+    return series.finish()
+
+
+def analyze_memory_window(
+    samples: list[MemorySample], *, warmup_end_ns: int, expected_cadence_ns: int,
+) -> MemoryWindow:
+    if expected_cadence_ns <= 0:
+        raise ValueError("memory sample cadence must be positive")
+    steady = [sample for sample in samples if sample.timestamp_ns >= warmup_end_ns and sample.phase == "steady"]
+    for previous, current in zip(steady, steady[1:], strict=False):
+        gap = current.timestamp_ns - previous.timestamp_ns
+        if gap <= 0 or gap > expected_cadence_ns * 3 // 2:
+            raise ValueError(f"memory sample cadence gap: {gap} ns")
+    if len(steady) < 4:
+        raise ValueError("at least four post-warm-up memory samples are required")
+    second_half = steady[len(steady) // 2 :]
+    final_quarter = steady[3 * len(steady) // 4 :]
+    if len(final_quarter) < 2:
+        final_quarter = steady[-2:]
+    request_delta = steady[-1].processed_requests - steady[0].processed_requests
+    working_delta = steady[-1].working_set_bytes - steady[0].working_set_bytes
+    private_delta = steady[-1].private_bytes - steady[0].private_bytes
+    return MemoryWindow(
+        sample_count=len(steady),
+        working_set_full=_trend(steady, "working_set_bytes"),
+        working_set_second_half=_trend(second_half, "working_set_bytes"),
+        working_set_final_quarter=_trend(final_quarter, "working_set_bytes"),
+        private_bytes_full=_trend(steady, "private_bytes"),
+        private_bytes_second_half=_trend(second_half, "private_bytes"),
+        private_bytes_final_quarter=_trend(final_quarter, "private_bytes"),
+        working_set_second_half_range=max(item.working_set_bytes for item in second_half)
+        - min(item.working_set_bytes for item in second_half),
+        private_bytes_second_half_range=max(item.private_bytes for item in second_half)
+        - min(item.private_bytes for item in second_half),
+        working_set_bytes_end=steady[-1].working_set_bytes,
+        private_bytes_end=steady[-1].private_bytes,
+        processed_request_delta=request_delta,
+        working_set_bytes_per_request=working_delta / request_delta if request_delta > 0 else None,
+        private_bytes_per_request=private_delta / request_delta if request_delta > 0 else None,
+    )
+
+
+def _bounded(window: MemoryWindow) -> bool:
+    return (
+        window.working_set_second_half_range <= max(1.0, window.working_set_bytes_end * 0.02)
+        and window.private_bytes_second_half_range <= max(1.0, window.private_bytes_end * 0.02)
+    )
+
+
+def _sustained_growth(window: MemoryWindow) -> bool:
+    trends = (window.working_set_full, window.working_set_final_quarter, window.private_bytes_full, window.private_bytes_final_quarter)
+    return (
+        window.processed_request_delta > 0
+        and window.working_set_bytes_per_request is not None
+        and window.working_set_bytes_per_request > 0
+        and window.private_bytes_per_request is not None
+        and window.private_bytes_per_request > 0
+        and all(trend.slope_lower_95 > 0 and trend.r_squared >= 0.8 for trend in trends)
+    )
+
+
+def classify_memory_stability(path: str, load_results: dict[int, MemoryWindow]) -> MemoryConclusion:
+    if set(load_results) != {50, 75}:
+        return MemoryConclusion(path, "INCONCLUSIVE", "both 50% and 75% stable-load runs are required")
+    windows = [load_results[50], load_results[75]]
+    if all(_bounded(window) for window in windows):
+        return MemoryConclusion(path, "PASS", "both stable loads show bounded post-warm-up retention")
+    if all(_sustained_growth(window) for window in windows):
+        return MemoryConclusion(path, "FAIL", "both stable loads show sustained request-correlated growth")
+    return MemoryConclusion(path, "INCONCLUSIVE", "post-warm-up behavior does not reproduce as bounded or sustained growth")
 
 
 def _thread_count(pid: int) -> int:
