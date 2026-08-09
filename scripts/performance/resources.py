@@ -3,6 +3,7 @@ from __future__ import annotations
 import ctypes
 from ctypes import wintypes
 from dataclasses import dataclass
+import math
 import threading
 import time
 
@@ -122,6 +123,58 @@ class MemoryConclusion:
     path: str
     status: str
     reason: str
+
+
+@dataclass(frozen=True)
+class RequestActivity:
+    processed_requests: int
+    active_concurrency: int
+    queue_depth: int
+
+
+class RequestActivityBuckets:
+    """Correlate completed raw requests with fixed-cadence resource samples."""
+
+    def __init__(self, *, offered_rate: float, sample_count: int, cadence_ns: int) -> None:
+        if offered_rate <= 0 or sample_count < 1 or cadence_ns < 1:
+            raise ValueError("invalid request activity configuration")
+        self.offered_rate = offered_rate
+        self.sample_count = sample_count
+        self.cadence_ns = cadence_ns
+        self._observed = 0
+        self._starts: dict[int, int] = {}
+        self._completions: dict[int, int] = {}
+
+    def record(self, *, started_ns: int, completed_ns: int) -> None:
+        if started_ns < 0 or completed_ns < started_ns:
+            raise ValueError("completion precedes start")
+        start_bucket = math.ceil(started_ns / self.cadence_ns)
+        completion_bucket = math.ceil(completed_ns / self.cadence_ns)
+        self._starts[start_bucket] = self._starts.get(start_bucket, 0) + 1
+        self._completions[completion_bucket] = self._completions.get(completion_bucket, 0) + 1
+        self._observed += 1
+
+    def finish(self) -> None:
+        if self._observed != self.sample_count:
+            raise ValueError(
+                f"expected {self.sample_count} request intervals, observed {self._observed}"
+            )
+
+    def at(self, timestamp_ns: int) -> RequestActivity:
+        if timestamp_ns < 0:
+            raise ValueError("activity timestamp cannot be negative")
+        bucket = timestamp_ns // self.cadence_ns
+        started = sum(count for index, count in self._starts.items() if index <= bucket)
+        completed = sum(count for index, count in self._completions.items() if index <= bucket)
+        scheduled = min(
+            self.sample_count,
+            int(timestamp_ns * self.offered_rate // 1_000_000_000),
+        )
+        return RequestActivity(
+            processed_requests=completed,
+            active_concurrency=max(0, started - completed),
+            queue_depth=max(0, scheduled - started),
+        )
 
 
 class ProcessResourceSampler:

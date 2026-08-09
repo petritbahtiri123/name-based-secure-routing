@@ -8,11 +8,41 @@ import pytest
 from scripts.performance.resources import (
     MemorySample,
     ProcessResourceSampler,
+    RequestActivityBuckets,
     ResourceSeries,
     analyze_memory_window,
     classify_memory_stability,
     sample_windows_process,
 )
+
+
+def test_request_activity_is_correlated_at_fixed_cadence() -> None:
+    activity = RequestActivityBuckets(
+        offered_rate=2.0,
+        sample_count=6,
+        cadence_ns=1_000_000_000,
+    )
+    activity.record(started_ns=100_000_000, completed_ns=400_000_000)
+    activity.record(started_ns=200_000_000, completed_ns=1_200_000_000)
+    activity.record(started_ns=1_100_000_000, completed_ns=2_200_000_000)
+
+    first = activity.at(1_000_000_000)
+    assert first.processed_requests == 1
+    assert first.active_concurrency == 1
+    assert first.queue_depth == 0
+
+    second = activity.at(2_000_000_000)
+    assert second.processed_requests == 2
+    assert second.active_concurrency == 1
+    assert second.queue_depth == 1
+
+
+def test_request_activity_rejects_missing_or_invalid_intervals() -> None:
+    activity = RequestActivityBuckets(offered_rate=1.0, sample_count=1, cadence_ns=1_000_000_000)
+    with pytest.raises(ValueError, match="completion precedes start"):
+        activity.record(started_ns=2, completed_ns=1)
+    with pytest.raises(ValueError, match="expected 1 request intervals, observed 0"):
+        activity.finish()
 
 
 def test_windows_resource_sample_reports_current_process() -> None:

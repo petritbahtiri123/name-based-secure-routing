@@ -16,7 +16,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from scripts.performance.authority import write_loopback_authority  # noqa: E402
 from scripts.performance.driver import FormalRunRequirements  # noqa: E402
-from scripts.performance.resources import ResourceSeries  # noqa: E402
+from scripts.performance.resources import RequestActivityBuckets, ResourceSeries  # noqa: E402
 from scripts.performance.statistics import summarize  # noqa: E402
 from scripts.run_performance_validation import (
     build_release,
@@ -68,6 +68,11 @@ def main() -> None:
     if sample_count > 10_000_000:
         raise SystemExit("cell exceeds the 10,000,000-sample harness safety limit")
     resources: list[dict[str, Any]] = []
+    activity = RequestActivityBuckets(
+        offered_rate=args.offered_rate,
+        sample_count=sample_count,
+        cadence_ns=args.sampling_cadence_seconds * 1_000_000_000,
+    )
     with tempfile.TemporaryDirectory(prefix="nbsr-load-cell-") as temporary:
         temp = Path(temporary)
         authority = temp / "authority"
@@ -122,6 +127,10 @@ def main() -> None:
                 raw.write(json.dumps(record, sort_keys=True, separators=(",", ":")) + "\n")
                 observed += 1
                 started = int(document["started_ns"])
+                activity.record(
+                    started_ns=started,
+                    completed_ns=started + int(record["request_latency_ns"]),
+                )
                 scheduled_arrivals = min(sample_count, int(started * args.offered_rate // 1_000_000_000) + 1)
                 peak_backlog = max(peak_backlog, scheduled_arrivals - (observed - 1))
                 if warmup_ns <= scheduled < total_ns:
@@ -136,6 +145,7 @@ def main() -> None:
                         rejected_requests += "reject" in error_type
         if observed != sample_count:
             raise RuntimeError(f"open-loop sample loss: offered {sample_count}, observed {observed}")
+        activity.finish()
         if args.memory and args.path == "go-rust":
             if go_runtime_series is None or not go_runtime_series.is_file():
                 raise RuntimeError("Go memory run omitted runtime time series")
@@ -149,6 +159,10 @@ def main() -> None:
     expected_steady = round(args.offered_rate * args.steady_seconds)
     if success + failure != expected_steady:
         raise RuntimeError(f"steady sample mismatch: expected {expected_steady}, observed {success + failure}")
+    for record in resources:
+        request_activity = activity.at(int(record["timestamp_ns"]))
+        record.update(asdict(request_activity))
+        record["phase"] = "warmup" if int(record["timestamp_ns"]) < warmup_ns else "steady"
     resource_path = output / "resources.ndjson"
     resource_path.write_text(
         "".join(json.dumps(record, sort_keys=True, separators=(",", ":")) + "\n" for record in resources),
