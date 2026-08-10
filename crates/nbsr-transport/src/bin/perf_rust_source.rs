@@ -795,7 +795,6 @@ async fn main() {
         }
     }
     drop(session);
-    connection.close().await.unwrap();
     if diagnostics_enabled {
         if let Some(path) = completion_ack {
             fs::write(path, b"diagnostic source completed measured transport\n").unwrap();
@@ -808,6 +807,7 @@ async fn main() {
         }
         emit_diagnostic(diagnostic_origin.elapsed().as_nanos(), "post_drain");
     }
+    connection.close().await.unwrap();
     for record in records {
         println!("{record}");
     }
