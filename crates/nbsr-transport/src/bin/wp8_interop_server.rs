@@ -619,10 +619,6 @@ async fn main() {
         session.release_stream(channel, 4 + 4 * index).unwrap();
         while session.pop_audit_event().is_some() {}
     }
-    diagnostic_stop.store(true, Ordering::Relaxed);
-    if let Some(task) = diagnostic_task {
-        task.join().unwrap();
-    }
     let digest = Sha256::digest(&payload);
     let digest_hex = digest
         .iter()
@@ -675,6 +671,10 @@ async fn main() {
             )
         );
         std::io::stdout().flush().unwrap();
+    }
+    diagnostic_stop.store(true, Ordering::Relaxed);
+    if let Some(task) = diagnostic_task {
+        task.join().unwrap();
     }
     connection.close().await.unwrap();
     listener.close().await.unwrap();
