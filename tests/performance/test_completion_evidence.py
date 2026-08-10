@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+import subprocess
+import sys
 
 import pytest
 
@@ -100,3 +102,20 @@ def test_completion_manifest_checksums_retained_time_series(tmp_path: Path) -> N
     manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
     assert "memory/direct/resources.ndjson" in manifest["files"]
     verify_evidence(root)
+
+
+def test_completion_verifier_runs_as_a_standalone_script(tmp_path: Path) -> None:
+    prior = tmp_path / "prior"
+    root = tmp_path / "completion"
+    write_prior(prior)
+    write_records(root)
+    write_completion_manifest(root, prior)
+    repo = Path(__file__).resolve().parents[2]
+
+    completed = subprocess.run(
+        [sys.executable, "scripts/verify_performance_evidence.py", str(root)],
+        cwd=repo, capture_output=True, text=True, check=False,
+    )
+
+    assert completed.returncode == 0, completed.stderr
+    assert "PASS" in completed.stdout

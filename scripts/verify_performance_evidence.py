@@ -22,7 +22,8 @@ def verify_evidence(root: Path) -> tuple[int, int]:
     version_two = manifest["schema"] == "nbsr-performance-evidence-manifest-v2"
     external_index = manifest["schema"] == "nbsr-performance-external-index-manifest-v1"
     completion = manifest["schema"] == "nbsr-performance-completion-v1"
-    excluded = {"checksums.json"} if version_two or external_index or completion else {"checksums.json", "manifest.json"}
+    memory_closure = manifest["schema"] == "nbsr-performance-memory-closure-v1"
+    excluded = {"checksums.json"} if version_two or external_index or completion or memory_closure else {"checksums.json", "manifest.json"}
     nested_roots = {
         path.parent.resolve()
         for path in root.glob("*/manifest.json")
@@ -48,8 +49,26 @@ def verify_evidence(root: Path) -> tuple[int, int]:
             raise ValueError("external index may not claim complete evidence")
         raw_count = sum(1 for path in root.rglob("raw.ndjson.gz") for _ in records(path))
         return len(checksums), raw_count
+    if memory_closure:
+        try:
+            from scripts.performance.memory_closure import verify_source_bindings
+        except ModuleNotFoundError:
+            from performance.memory_closure import verify_source_bindings
+
+        analysis = json.loads((root / manifest["analysis"]).read_text(encoding="utf-8"))
+        if manifest["outcome"] != analysis["classification"]["baseline"]:
+            raise ValueError("memory closure classification mismatch")
+        if manifest["classifications"] != {
+            key: analysis["classification"][key] for key in ("direct-quic", "rust-rust", "go-rust")
+        }:
+            raise ValueError("memory path classification mismatch")
+        verify_source_bindings(Path.cwd(), root / manifest["source_bindings"])
+        return len(checksums), 0
     if completion:
-        from scripts.performance.completion_evidence import summarize_completion_root
+        try:
+            from scripts.performance.completion_evidence import summarize_completion_root
+        except ModuleNotFoundError:
+            from performance.completion_evidence import summarize_completion_root
 
         prior = (root.parent / manifest["prior_evidence"]["relative_root"]).resolve()
         observed_prior = hashlib.sha256((prior / "checksums.json").read_bytes()).hexdigest()

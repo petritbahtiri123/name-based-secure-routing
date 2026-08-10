@@ -1,0 +1,13 @@
+{
+  "accepted_capacity_and_previous_memory": "evidence/performance/loopback-completion-3188c7c",
+  "new_memory_evidence": "evidence/performance/memory-completion-6366334",
+  "prior_partial_baseline": "evidence/performance/complete-loopback-db55d18-partial",
+  "superseded_or_invalid_attempts": [
+    "evidence/performance/memory-completion-adff461",
+    "evidence/performance/memory-completion-f5396ff",
+    "evidence/performance/memory-completion-f90bd61",
+    "evidence/performance/memory-completion-d8e40c5",
+    "evidence/performance/memory-completion-9fa77b5",
+    "evidence/performance/memory-completion-a6b11de"
+  ]
+}

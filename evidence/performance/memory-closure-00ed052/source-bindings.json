@@ -1,0 +1,1801 @@
+{
+  "files": [
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/calibration.json",
+      "sha256": "8ec3f169e173af7036d7846aff53043a1dbf0ae3b1bb35a1a96165859a527804"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/capacity/direct-quic-5000/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/capacity/direct-quic-5000/summary.json",
+      "sha256": "93f5624195ca070d098c3ccbbf63b8c1ccc93837bc5cb8c514621b97b245c039"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/capacity/direct-quic-5500/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/capacity/direct-quic-5500/summary.json",
+      "sha256": "24678ada03a12563aeaae4c4e89f77c9b860c623b9c0a153b423bb153df81142"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/capacity/direct-quic-6000/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/capacity/direct-quic-6000/summary.json",
+      "sha256": "65eb4a116e75935c00cf43aec38cf2e092c0bb899884120ebf2091d74dbfaaa1"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/capacity/go-rust-500/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/capacity/go-rust-500/go-runtime.json",
+      "sha256": "863940f85c4225c35f5276880d04c51b6eb6baeda5fcbc7f6c78e6817162a6bc"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/capacity/go-rust-500/summary.json",
+      "sha256": "b22e58700e5bda6de5f5fd5b096df13e703c3b1548ab49f29683276febe92313"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/capacity/go-rust-750/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/capacity/go-rust-750/go-runtime.json",
+      "sha256": "bef8e8f8ed7ae8ee1a2d0fc2c2c8b188a6e64ee94c09502a420e574e32803043"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/capacity/go-rust-750/summary.json",
+      "sha256": "f49bbb0fc1a252ec20f41e54bed6334501221056b56e329921e26c6fb67ef045"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/capacity/rust-rust-2000/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/capacity/rust-rust-2000/summary.json",
+      "sha256": "ccf5ad0505c8a94212e78583c8c111803a74f0edf4de34b1edf4281157bde55e"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/capacity/rust-rust-2500/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/capacity/rust-rust-2500/summary.json",
+      "sha256": "bf4a8f530c6ce0a78551fcb63522c41f6a1bcd3dbd7c6591072f79154cb8d46c"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/capacity/rust-rust-3000/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/capacity/rust-rust-3000/summary.json",
+      "sha256": "b3446518922f978401e7d9da3fb47f9fa09ae5e6cedcdecc2963671ffb104b12"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/checksums.json",
+      "sha256": "188e020b31130dd6f1f6882bbd843b1d9d6f5aeca516aa77d9c50c6bc5610b08"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/exclusions.json",
+      "sha256": "dade23677be7de73e1c464653b81c47df15b0fba97c8918c8c1af0dbe4424dcf"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/external-raw-checksums.json",
+      "sha256": "b2b001e5823ee9ccead686a8bdf7dcb34e5481b15b30a0ddb428f41743cab2f9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/cold/direct-quic-r1/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/cold/direct-quic-r1/raw.ndjson.gz",
+      "sha256": "4bc7e9737f42ed2861e447cf8cfb0b5655e1c19a8e4f170dd312ad80c8019a56"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/cold/direct-quic-r1/summary.json",
+      "sha256": "03b5153bfbf68f7da1bd70a43494815947fd87358f72e3608f12343d574d93e6"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/cold/direct-quic-r2/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/cold/direct-quic-r2/raw.ndjson.gz",
+      "sha256": "64abfe8f01bb40a699ed4a719e2494ad6e70e36e040ce640d015dbee56692acf"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/cold/direct-quic-r2/summary.json",
+      "sha256": "00eb690e46df3f3f9a103cf73d49a394ae9206783b0861d7c3c078db720a55b7"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/cold/direct-quic-r3/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/cold/direct-quic-r3/raw.ndjson.gz",
+      "sha256": "870c43b14a68ec459dd55b59660abcf021b0cfe15c715fc3e4018ca3e730e63a"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/cold/direct-quic-r3/summary.json",
+      "sha256": "02cea67fc4d4a8db9cc4a2bb8a8482e24d16dc3c27ba5be4dc9ac46f8baaa47a"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/cold/direct-quic-r4/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/cold/direct-quic-r4/raw.ndjson.gz",
+      "sha256": "ead4d2eed51b072d0ead0f34639577a8dc2d75d1983c1bdb695734faca8c42ec"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/cold/direct-quic-r4/summary.json",
+      "sha256": "5d9f3ffaeaf34a15636f7e1ee2f7a41921aadfa76988ff1b211d5037556070d0"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/cold/direct-quic-r5/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/cold/direct-quic-r5/raw.ndjson.gz",
+      "sha256": "6ba28822cab0f34c66b6e65a9216f28c82d2cd2b4483efb8494015052d6c300d"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/cold/direct-quic-r5/summary.json",
+      "sha256": "4ef1fab78f7c1ce50a7e5e551c2c039791092538cea8943d475e5c3ffd98913a"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/cold/go-rust-r1/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/cold/go-rust-r1/raw.ndjson.gz",
+      "sha256": "e5d3b1d0532b73da1a7accfe0ea0476b0578355e6f4f65fc6ab93a7c3360adc1"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/cold/go-rust-r1/summary.json",
+      "sha256": "e748c90d44ddf76b7f1fcadef12d63c1497c53b7e36ef17fcadf04afcf6bc2fa"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/cold/go-rust-r2/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/cold/go-rust-r2/raw.ndjson.gz",
+      "sha256": "93830072127be0bb0841ce555d54da91a7d2fe6c82bb0aa2127156ac67d8c23a"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/cold/go-rust-r2/summary.json",
+      "sha256": "eff174725b3b5530282e1b067d6f71e4e7e033af586f9ea36f4cb54b0f1c2eed"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/cold/go-rust-r3/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/cold/go-rust-r3/raw.ndjson.gz",
+      "sha256": "eda7b9faec083156bfc2409dd1cd32b2649bf980544ac7c015b17ee8e8fde44d"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/cold/go-rust-r3/summary.json",
+      "sha256": "483b20fc6e7cf3f2fe42c27810b77ac30c6cc0f79f1984eb1d64150836a613a1"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/cold/go-rust-r4/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/cold/go-rust-r4/raw.ndjson.gz",
+      "sha256": "6cde8040715ec7db4c74dbb1e53c232ecd05b91659ca3624a0c1471021b69970"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/cold/go-rust-r4/summary.json",
+      "sha256": "f250b308fe4e8a611d86a564c5e9c73d40d0f8a038e9780c2793df7baea0af0d"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/cold/go-rust-r5/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/cold/go-rust-r5/raw.ndjson.gz",
+      "sha256": "6e253654d890e1d97257df930d1450504fe20a840fe4ad399ed20a341f3085a8"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/cold/go-rust-r5/summary.json",
+      "sha256": "fcdebaefc8b3b195e7467e7d504e6a9f55217b433b5b24fd2e4e292cbf3a981e"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/cold/rust-rust-r1/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/cold/rust-rust-r1/raw.ndjson.gz",
+      "sha256": "e0a589a2dbb1395fa5779c5c08db70f54a297a783a3ab95a8e46158929099197"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/cold/rust-rust-r1/summary.json",
+      "sha256": "10077c8274c9cbec266c2c0841fe539bb6ceb4f67d65dcfb0b8a961318e3c9dc"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/cold/rust-rust-r2/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/cold/rust-rust-r2/raw.ndjson.gz",
+      "sha256": "9ac1f99e24bcb14124ea3a4783d78f1487af34dca1ac9b4e617bc67e72311f0e"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/cold/rust-rust-r2/summary.json",
+      "sha256": "8a7215d30fca452b435ce7f370dd0d6c2f3679084cb933eafa0955bbabec03aa"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/cold/rust-rust-r3/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/cold/rust-rust-r3/raw.ndjson.gz",
+      "sha256": "07658560f1edf8edf1427acd6dc330d4aaa24127f542bd34b0694b07e1c8381d"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/cold/rust-rust-r3/summary.json",
+      "sha256": "2d1b12a9159c982e5c81861600b046daa4192cb13adc76eddc241c1d0136856d"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/cold/rust-rust-r4/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/cold/rust-rust-r4/raw.ndjson.gz",
+      "sha256": "26ef3e90a539127dc897580d17850c51beb3fb775856c4a06e9f6c950c4b5865"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/cold/rust-rust-r4/summary.json",
+      "sha256": "3661aa0195f7f3b629f6eda4de68c6fc292aad25a5b0b6baf8a126a40a39e4ec"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/cold/rust-rust-r5/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/cold/rust-rust-r5/raw.ndjson.gz",
+      "sha256": "adf4a97ca850a22bdd0a382c18a0c54df8ac4ecb7fa455e4c165dffe1256e4d4"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/cold/rust-rust-r5/summary.json",
+      "sha256": "82a6ae88e7a183954dd2715c91ce3c7e215779bb9a39de01418bae866026f0f3"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-existing/direct-quic-r1/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-existing/direct-quic-r1/raw.ndjson.gz",
+      "sha256": "51addc1bc710e0da185f6b8a21aa067d946dada161cca0502b1fc8cc1a583e06"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-existing/direct-quic-r1/summary.json",
+      "sha256": "065b78298aba8289863e542f8ea8ca54061cd6a29ae43965bb79f360eeb0d401"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-existing/direct-quic-r2/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-existing/direct-quic-r2/raw.ndjson.gz",
+      "sha256": "f0530558735c9ed3aebdc362494c148cbe3acd814bebdbdfb104a161533fc0c3"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-existing/direct-quic-r2/summary.json",
+      "sha256": "64e933a5c783a48121988514c5e504a54470ebb0d78c70142699f919b3dca19d"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-existing/direct-quic-r3/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-existing/direct-quic-r3/raw.ndjson.gz",
+      "sha256": "615ba9657526b6a859363e231019770b7728a3aabcdf3682e8d7187a1c98a07a"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-existing/direct-quic-r3/summary.json",
+      "sha256": "ca06c3de5ffc54aa0ca30dbf2f9904c741a765449cddf4bfa249ce6e8b21dd81"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-existing/direct-quic-r4/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-existing/direct-quic-r4/raw.ndjson.gz",
+      "sha256": "8f4fef3a332bb7daaafe086a0229227d9357115780a3fd34045f0091fe95b820"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-existing/direct-quic-r4/summary.json",
+      "sha256": "f10e846432d6a652216aaa5949ade5d15d8a14535ad533319666a21e3c3ebee1"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-existing/direct-quic-r5/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-existing/direct-quic-r5/raw.ndjson.gz",
+      "sha256": "e47f2c14beaa2eeb30fa0a8bc97713914c55945024637e756b3c0bb0d8b42703"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-existing/direct-quic-r5/summary.json",
+      "sha256": "4b42494da2196c2a25ccb06da22e4d41d6d69cc5a00ed203de5a055c8c73ae41"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-existing/go-rust-r1/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-existing/go-rust-r1/raw.ndjson.gz",
+      "sha256": "98fcd8c79d3753bfffa8d186bc5e8b31309a1b404e74556c7bc288cba4251c5b"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-existing/go-rust-r1/summary.json",
+      "sha256": "8b82554a36b730da244fd7b4aa5158309d44e2f5db414c286c4cc9130b5a14a0"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-existing/go-rust-r2/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-existing/go-rust-r2/raw.ndjson.gz",
+      "sha256": "a8783b2aee685504027a2fc2b34b34702926e7269e4216661a817e1396eb3176"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-existing/go-rust-r2/summary.json",
+      "sha256": "7ed9f789b044afb6df44f34f0e26cb6ec0c713353f7ee7d26bc0f84502ae2cb9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-existing/go-rust-r3/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-existing/go-rust-r3/raw.ndjson.gz",
+      "sha256": "6374b1c5ddf5f68ae92a0c3f399025420d63fedfc5f04bf96673c53aa0c5b1c0"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-existing/go-rust-r3/summary.json",
+      "sha256": "93c7cff34f2adfbef798c00be2fb7e2ab78559218483a99a2b89386883cc509c"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-existing/go-rust-r4/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-existing/go-rust-r4/raw.ndjson.gz",
+      "sha256": "3533374a17af13214c515dd634f0f98adbe3ad8959151b6a7f1bace9f926306e"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-existing/go-rust-r4/summary.json",
+      "sha256": "401c3b1c8c5ec7cde976776075a6cb8707dcdb346c8c9e1e166afb86724bc4c5"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-existing/go-rust-r5/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-existing/go-rust-r5/raw.ndjson.gz",
+      "sha256": "567011b3087a865dbc5b8409dbef7b2d18e8cecace2371c546bbe093e9594ed7"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-existing/go-rust-r5/summary.json",
+      "sha256": "bdc8f55c35da7f32469c03e7974973df28f1dada81e12466fc231f88fb0a5e9a"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-existing/rust-rust-r1/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-existing/rust-rust-r1/raw.ndjson.gz",
+      "sha256": "e668abb724c9e0832979fcac39ad926547389def0948ab0ba0d1b029d907a033"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-existing/rust-rust-r1/summary.json",
+      "sha256": "5549c2dcad13db92182db2073cb9bcba7fbf80bc66bec5d4726ded0db5aa5723"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-existing/rust-rust-r2/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-existing/rust-rust-r2/raw.ndjson.gz",
+      "sha256": "44f13ccf6455480b38901016deb378014281512de1137cb130de933a02caf3c8"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-existing/rust-rust-r2/summary.json",
+      "sha256": "7101d1e40c5d94bb960fdb7f5fbb6987d438946e3ad0d08b5ae4d26c69268f1e"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-existing/rust-rust-r3/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-existing/rust-rust-r3/raw.ndjson.gz",
+      "sha256": "d351ad3f930a172cc7476ff52f44261b8914d90866817076e1a38e93c539dc20"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-existing/rust-rust-r3/summary.json",
+      "sha256": "b4ec72dc3d5ef5842ad47674ff18c328cb8f9e1d878c8c733cfb7cfe02557f02"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-existing/rust-rust-r4/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-existing/rust-rust-r4/raw.ndjson.gz",
+      "sha256": "31fcae296240ef185553436878d549d31f73c43354890ba9606cc55479b231a6"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-existing/rust-rust-r4/summary.json",
+      "sha256": "8a82fc216c7bfb19b24997b030efc4196ae36bfe74fac3a87c3b075736bc3791"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-existing/rust-rust-r5/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-existing/rust-rust-r5/raw.ndjson.gz",
+      "sha256": "0de0e9d36c13ef6a39bfc95157a898e7c21da635bf65f9d2e1fb4c7ddf447634"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-existing/rust-rust-r5/summary.json",
+      "sha256": "ed87a4e5aea99a23b6623646bd0e48191f22029866bde0368208bb78b9ffd688"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-new/go-rust-r1/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-new/go-rust-r1/raw.ndjson.gz",
+      "sha256": "f8bedfbc11011d3cf0c77d6ee81ffdb4bcf8a0a4247f25d8e56aff903069cc2e"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-new/go-rust-r1/summary.json",
+      "sha256": "27fe6b280a7677d58143c60f86ee5f4bb66680ac8b3127df9042263c0c33d471"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-new/go-rust-r2/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-new/go-rust-r2/raw.ndjson.gz",
+      "sha256": "38466aa47600ecd19056a0e4627c4f4039435b6c6d32891b708611f1bc3d6e15"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-new/go-rust-r2/summary.json",
+      "sha256": "735aa9ed20c9d1dc3e7f10dd38174af427bab7751ab8c40c4a9d45948f4a7dc0"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-new/go-rust-r3/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-new/go-rust-r3/raw.ndjson.gz",
+      "sha256": "15d6bb6632d5e377c445f927612cebbeb46d0a38a6916f31862f9d2e062ec2d4"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-new/go-rust-r3/summary.json",
+      "sha256": "e7057d967c22aa8d8b14b8849e66d7271af9cff36e562f2ca14c57ce91b4f683"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-new/go-rust-r4/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-new/go-rust-r4/raw.ndjson.gz",
+      "sha256": "d23e55ac51a87e0525ee4650a661d947f62f137f4925d1a8dcef72711b4a8310"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-new/go-rust-r4/summary.json",
+      "sha256": "e184cab1604442cfde56620ef3c52d3d67414dea62d2bf630d1e8c9c877a7b01"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-new/go-rust-r5/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-new/go-rust-r5/raw.ndjson.gz",
+      "sha256": "eed834a481084356e60a4ce57d88fe769c170bb2e4861b0608289e1eef138aec"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-new/go-rust-r5/summary.json",
+      "sha256": "e09ccfb604930cffe8c9f28db6b0fc64dfba8a4ccc5ec7451c0e6debe6df6767"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-new/rust-rust-r1/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-new/rust-rust-r1/raw.ndjson.gz",
+      "sha256": "90abb2ed6605fc6a99c2b42010322cb6508710a1eee6beda65d601f0c5c13a53"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-new/rust-rust-r1/summary.json",
+      "sha256": "8b840ca56838b325b4ddfbf421feed5a3234286305f67d5dff1ac21bf10b0c35"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-new/rust-rust-r2/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-new/rust-rust-r2/raw.ndjson.gz",
+      "sha256": "b0e1c64ce4190e3bc338b85cc7a767cf15ff3c333a6fe2c305908c3f19d1dcdc"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-new/rust-rust-r2/summary.json",
+      "sha256": "d50d1129bc787d478bf2e018f0a4ac7f1d79a08d24643fd3ca8e261430a6ba08"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-new/rust-rust-r3/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-new/rust-rust-r3/raw.ndjson.gz",
+      "sha256": "639dafac58e945085a2c081af6edcae70e167cee1f39291d19e29aad0e2b3b52"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-new/rust-rust-r3/summary.json",
+      "sha256": "8eac3df012f27a88482f4513a841840d6ea696b05cac5b7f1beafacc8019ea58"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-new/rust-rust-r4/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-new/rust-rust-r4/raw.ndjson.gz",
+      "sha256": "194ac0d46714868e3592c6045e277f1e4e385541db89a445fc7566cdaf339e57"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-new/rust-rust-r4/summary.json",
+      "sha256": "258beb47c632d6d9c697f784dd34b5ffbee3d01740ed931195613b064f567cba"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-new/rust-rust-r5/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-new/rust-rust-r5/raw.ndjson.gz",
+      "sha256": "02c9f709aa354108e45ee136de1c4114a6241a013a7031a4bb6206290eb29e02"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/headline/warm-new/rust-rust-r5/summary.json",
+      "sha256": "be472b29a2c6a2c817f694532f9f00d7aa8cbd60ff1f8a1945e359a227667c52"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/load/25/direct-quic/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/load/25/direct-quic/summary.json",
+      "sha256": "64700f667820adc61d45b7e902ed0f5aee66d906bd01f05db089acc94db1f211"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/load/25/go-rust/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/load/25/go-rust/go-runtime.json",
+      "sha256": "73fb8e8157b9304e042ca4fae1596d99dca2463fb20b36e120cfa3af84b6ecd2"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/load/25/go-rust/summary.json",
+      "sha256": "af8d67f0485261356cb160a020730239f5230115e93d7e2f1a418721f7c379ac"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/load/25/rust-rust/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/load/25/rust-rust/summary.json",
+      "sha256": "43ac7dcf9a3dfa597a78fe164f648e58f7b3b009d8c197d37db3f79d7e6c5df8"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/load/50/direct-quic/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/load/50/direct-quic/summary.json",
+      "sha256": "426e46af16d502bbc7cf18edc63b2d964768d2a22611f2f88f07e1ea213da60f"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/load/50/go-rust/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/load/50/go-rust/go-runtime.json",
+      "sha256": "a3766cf37246044d2e82db88f5cc3cc1714caa33a06b12015bb5df8c6624a7f4"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/load/50/go-rust/summary.json",
+      "sha256": "69e5ae19f63b7f3f2808c081cfbb9c8519ef3d0e6e98b0b7b2cbc703ff801cc4"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/load/50/rust-rust/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/load/50/rust-rust/summary.json",
+      "sha256": "4f19d3485fc84ad9bb0d142d68e551b9ba92df11bfc44720d1fc649fe99f6a95"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/load/75/direct-quic/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/load/75/direct-quic/summary.json",
+      "sha256": "6691a69daea9bb083d4807bc545a48db8bf24a8f17b89f596563d518d9790d67"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/load/75/go-rust/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/load/75/go-rust/go-runtime.json",
+      "sha256": "59d34808a6a4a8f51e7fbba281f361284a6fcb4b5e0c56699f51ab9ff24c4ff8"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/load/75/go-rust/summary.json",
+      "sha256": "abec6a64c8e19731f63b34020b7fc00e34f3a205018df7b2169029b605c0fe97"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/load/75/rust-rust/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/load/75/rust-rust/summary.json",
+      "sha256": "bcb6f9b497034f6a916f0623920bdfe0bf78d92e5d88a6a6d4f8c793f328610a"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/load/90/direct-quic/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/load/90/direct-quic/summary.json",
+      "sha256": "c3ae1059f7f598376dad2b66a546366c66903ffe7929207a320ae6e310ddefb8"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/load/90/go-rust/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/load/90/go-rust/go-runtime.json",
+      "sha256": "0c8329efb3b5c8ab57597eb9ad88d2b1f1d3e3006f41a02e54c75532fd59ea82"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/load/90/go-rust/summary.json",
+      "sha256": "34c6f2317041456b54a35497a5a5df4d6003674f8c2f4e38bf4630105e54c65a"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/load/90/rust-rust/environment.json",
+      "sha256": "b3ff10050930c0ce4e98d0f65a2d2a4c0f2c5f00640609d177c92bd2f628d6d9"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/load/90/rust-rust/summary.json",
+      "sha256": "a9388e0609c4196fcffef18d6c57563ae915ad5d9d7d6e55a8f9c593a24e73fc"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/manifest.json",
+      "sha256": "25748b760dcf8da89f4175ec0a59d93181998a207d865454eee093351e18a47a"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/reports/latency-and-performance-validation.md",
+      "sha256": "8f53a61ddf5c6c7b81f1fa5a6aba16ed68b4e01d64a190b0c8160cc223251b52"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/scaling/summary.json",
+      "sha256": "7adab4bda2103f69bf145e0780a3e79ddf58d1e463d6f9a01e69b5a155a1f096"
+    },
+    {
+      "path": "evidence/performance/complete-loopback-db55d18-partial/summaries/analysis.json",
+      "sha256": "954ad552d68e8bbebccd35de5e08fc3548548b74cc7dcedd6bd5c1bf1d17ce69"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/accepted-capacities.json",
+      "sha256": "02df662dc4973edf91aecbececbb20671d1570c23128757877eee1c73d0efd87"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/checksums.json",
+      "sha256": "4a77c049d69d4258ca91d64ce315cf6a352885d5c333b96776563044d286b3e5"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/confirm/direct-quic-confirm-4750-r1/environment.json",
+      "sha256": "32a4a18741b65b73418ea319b5a78d260576e34c03677a61df362e0a04e2bd70"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/confirm/direct-quic-confirm-4750-r1/resources.ndjson",
+      "sha256": "90363b45f5373b6a5f6e398ad6f0dcb108fd173697f2509e92db57cc4632321c"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/confirm/direct-quic-confirm-4750-r1/summary.json",
+      "sha256": "bcbeee297347d6ecbb621dfa1b5e93486f77b095cea54936423cdda679fbae9e"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/confirm/direct-quic-confirm-4750-r2/environment.json",
+      "sha256": "32a4a18741b65b73418ea319b5a78d260576e34c03677a61df362e0a04e2bd70"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/confirm/direct-quic-confirm-4750-r2/resources.ndjson",
+      "sha256": "93296cdc43d26d9c1881e727b34cb14481ce80f8c3acc582a180872d2e5a4f3e"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/confirm/direct-quic-confirm-4750-r2/summary.json",
+      "sha256": "bd92b7353c1293f8bf45688d27cf2564af5cf55c7f814830f9d323241e033d60"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/confirm/direct-quic-confirm-4750-r3/environment.json",
+      "sha256": "32a4a18741b65b73418ea319b5a78d260576e34c03677a61df362e0a04e2bd70"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/confirm/direct-quic-confirm-4750-r3/resources.ndjson",
+      "sha256": "654d418474f7ece62776e0acbf69f5437f98c738e38855ca3c32f78a7edd451c"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/confirm/direct-quic-confirm-4750-r3/summary.json",
+      "sha256": "fa28f09d572e30cad591718f69295cd6151f8107245d52ca7b8d5b1cc57f2f8c"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/confirm/go-rust-confirm-400-r1/environment.json",
+      "sha256": "32a4a18741b65b73418ea319b5a78d260576e34c03677a61df362e0a04e2bd70"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/confirm/go-rust-confirm-400-r1/go-runtime.json",
+      "sha256": "48878c792e588c4761467e2f670a470a9739f9b31db2364e7b3daa54c9951f5a"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/confirm/go-rust-confirm-400-r1/resources.ndjson",
+      "sha256": "364716fcdcb22566b3bb76b049843dceaca90c0fbba7969ecca45e8ded28164d"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/confirm/go-rust-confirm-400-r1/summary.json",
+      "sha256": "d28f44df392d15d9817800d83ac71ac6ee32b9d28ac88b7d4c3c79a1247b11b4"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/confirm/go-rust-confirm-400-r2/environment.json",
+      "sha256": "32a4a18741b65b73418ea319b5a78d260576e34c03677a61df362e0a04e2bd70"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/confirm/go-rust-confirm-400-r2/go-runtime.json",
+      "sha256": "ef129af88925d7ed34a6c0e5496b406c762d8bc473e7b1b053f8aabd52120eca"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/confirm/go-rust-confirm-400-r2/resources.ndjson",
+      "sha256": "cfcb674e457f874626010b49cc9e3363b3db3b35f60a62b1adc12c1733a0f62e"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/confirm/go-rust-confirm-400-r2/summary.json",
+      "sha256": "4a90db944098cbaaa36af4bc5deb2802fcc97f202affaecad76f9ca71d942466"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/confirm/go-rust-confirm-400-r3/environment.json",
+      "sha256": "32a4a18741b65b73418ea319b5a78d260576e34c03677a61df362e0a04e2bd70"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/confirm/go-rust-confirm-400-r3/go-runtime.json",
+      "sha256": "d4d6230fbafed0d1df0ca2cf1b5a80036d77c9cb4527080587e44190465992c4"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/confirm/go-rust-confirm-400-r3/resources.ndjson",
+      "sha256": "816e16ebfd4b17932c7ad3c7848fec0a600d3a9b9276b7b2f362a02b7c39b821"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/confirm/go-rust-confirm-400-r3/summary.json",
+      "sha256": "8ccdbbb2c2b58e2075496da99906ee8db13e324107d6223bb3673d9575ef06ea"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/confirm/rust-rust-confirm-1687.5-r1/environment.json",
+      "sha256": "32a4a18741b65b73418ea319b5a78d260576e34c03677a61df362e0a04e2bd70"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/confirm/rust-rust-confirm-1687.5-r1/resources.ndjson",
+      "sha256": "b234128151cb6e55597cb61f0b9d7d9c352f2aa0d50bc965a753382473f08179"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/confirm/rust-rust-confirm-1687.5-r1/summary.json",
+      "sha256": "33dd056ac388aa9bbe8ed1954e61f5ec9b5140839e9e280e22b95a44db554520"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/confirm/rust-rust-confirm-1687.5-r2/environment.json",
+      "sha256": "32a4a18741b65b73418ea319b5a78d260576e34c03677a61df362e0a04e2bd70"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/confirm/rust-rust-confirm-1687.5-r2/resources.ndjson",
+      "sha256": "da7490fd01aa81f003b671b626bd4e3998b6f3c36bb1271b747c650475bfca73"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/confirm/rust-rust-confirm-1687.5-r2/summary.json",
+      "sha256": "9191671c782c627be56a1d99b12fec4b3d41c80c22be33753a946e00cb506e7a"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/confirm/rust-rust-confirm-1687.5-r3/environment.json",
+      "sha256": "32a4a18741b65b73418ea319b5a78d260576e34c03677a61df362e0a04e2bd70"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/confirm/rust-rust-confirm-1687.5-r3/resources.ndjson",
+      "sha256": "b3694cbc70b758c74540948db1412e284757a2295f4e0847daa24160af84f113"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/confirm/rust-rust-confirm-1687.5-r3/summary.json",
+      "sha256": "1a2362cd7b7e1f77739d58670ac696c53f810ff1800f702688764adb3a0c0259"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/direct-quic-discover-3000-r1/environment.json",
+      "sha256": "32a4a18741b65b73418ea319b5a78d260576e34c03677a61df362e0a04e2bd70"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/direct-quic-discover-3000-r1/resources.ndjson",
+      "sha256": "31e6f8810551cfbe1e41d284c8feee203ea1a1a8dd6efb36cebef9ec303df80b"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/direct-quic-discover-3000-r1/summary.json",
+      "sha256": "8073d8a5ae1a3ab99392f8a96ca955e39f35eb436946f2fe0dec1782bbe09d93"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/direct-quic-discover-4000-r1/environment.json",
+      "sha256": "32a4a18741b65b73418ea319b5a78d260576e34c03677a61df362e0a04e2bd70"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/direct-quic-discover-4000-r1/resources.ndjson",
+      "sha256": "182c54c07901120be63fcddae6483b891c1ccac85b0730aa9ee75a40aedc4154"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/direct-quic-discover-4000-r1/summary.json",
+      "sha256": "337e274fa227464905a29600fedac455edebeac81afaed57a6e59a112194ac42"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/direct-quic-discover-4500-r1/environment.json",
+      "sha256": "32a4a18741b65b73418ea319b5a78d260576e34c03677a61df362e0a04e2bd70"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/direct-quic-discover-4500-r1/resources.ndjson",
+      "sha256": "cc6398866452db3ce31a160b04a334346d76a6153b3afa79edcc82602122e42b"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/direct-quic-discover-4500-r1/summary.json",
+      "sha256": "7322ea037793ea02350a2848b6f64d9d9be28cf34d9f95a238b67a11deddeac4"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/direct-quic-discover-4750-r1/environment.json",
+      "sha256": "32a4a18741b65b73418ea319b5a78d260576e34c03677a61df362e0a04e2bd70"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/direct-quic-discover-4750-r1/resources.ndjson",
+      "sha256": "05da82dcd7862087af34ee815b7e801058f9da9c4fa9aafa5827ac0b61e98bbe"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/direct-quic-discover-4750-r1/summary.json",
+      "sha256": "d43850fe87ced57031cef315a6c760243535a695cddf7132b1274db8decac86d"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/direct-quic-discover-4875-r1/environment.json",
+      "sha256": "32a4a18741b65b73418ea319b5a78d260576e34c03677a61df362e0a04e2bd70"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/direct-quic-discover-4875-r1/resources.ndjson",
+      "sha256": "e5506be699c744db1b1ec637e11fd39b5121a46e0e59ea8dc135e8af5065f82e"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/direct-quic-discover-4875-r1/summary.json",
+      "sha256": "f21904fc512170d1c11bffa789290297de098fd8b11a0b367321581e36072a4a"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/direct-quic-discover-5000-r1/environment.json",
+      "sha256": "32a4a18741b65b73418ea319b5a78d260576e34c03677a61df362e0a04e2bd70"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/direct-quic-discover-5000-r1/resources.ndjson",
+      "sha256": "282a975917e4548bb55ac7e0bbfbde9105a0abc5bd4c076c6e1ea442aaf8bd64"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/direct-quic-discover-5000-r1/summary.json",
+      "sha256": "8f2f0fd207b6737ebdf23dc8685713ae9312296dd731489989d07e6a2cffa815"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/go-rust-discover-200-r1/environment.json",
+      "sha256": "32a4a18741b65b73418ea319b5a78d260576e34c03677a61df362e0a04e2bd70"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/go-rust-discover-200-r1/go-runtime.json",
+      "sha256": "beeb9e549ec7c24066d6668914b2ac7f62e629ef557f38ca1eb28fc8ec39ce78"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/go-rust-discover-200-r1/resources.ndjson",
+      "sha256": "1e2ee4e5ae316b53d71a85b942c691b0a78cef2d497e3a294683e6d4672c485b"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/go-rust-discover-200-r1/summary.json",
+      "sha256": "66f90070be0518e0a262f87c7e748a4300b93a7c13e29924c94e9ac0ba26acc5"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/go-rust-discover-300-r1/environment.json",
+      "sha256": "32a4a18741b65b73418ea319b5a78d260576e34c03677a61df362e0a04e2bd70"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/go-rust-discover-300-r1/go-runtime.json",
+      "sha256": "069c5178e270703984d380f1982b653ca2404ca9c3acfbc4e3f2c403a859da64"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/go-rust-discover-300-r1/resources.ndjson",
+      "sha256": "5634c257654e874e744d0a931b17a0d3fb2ebdd80205a8b438e13aaed78a1ead"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/go-rust-discover-300-r1/summary.json",
+      "sha256": "300e439ff42798e3d7848af06b446080a1bec2b0e0cf47989065b62403cb536b"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/go-rust-discover-400-r1/environment.json",
+      "sha256": "32a4a18741b65b73418ea319b5a78d260576e34c03677a61df362e0a04e2bd70"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/go-rust-discover-400-r1/go-runtime.json",
+      "sha256": "976409aa31415ec7435a1fc456aee55aa8b40a144600122e8f0173dabe16a249"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/go-rust-discover-400-r1/resources.ndjson",
+      "sha256": "a49ad1dc91cd542146bda39614bc31b6880f03e451b88072745a02695652526e"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/go-rust-discover-400-r1/summary.json",
+      "sha256": "a67109454368840e161421571e3499600e0086fa76d9c8ecb56443cb86921bb2"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/go-rust-discover-450-r1/environment.json",
+      "sha256": "32a4a18741b65b73418ea319b5a78d260576e34c03677a61df362e0a04e2bd70"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/go-rust-discover-450-r1/go-runtime.json",
+      "sha256": "15fd72d59354f29cb414cbf004649fa3f8caf22cb56013b75bb58bec0698989d"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/go-rust-discover-450-r1/resources.ndjson",
+      "sha256": "21e841ad995c134c6bce235564807c675bb48b10c6503ecc7751aa0b622553ad"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/go-rust-discover-450-r1/summary.json",
+      "sha256": "3d2556336c50a0e8486208b5fec99f942366aa274dec30cfdfe0dfa43565b7b5"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/rust-rust-discover-1000-r1/environment.json",
+      "sha256": "32a4a18741b65b73418ea319b5a78d260576e34c03677a61df362e0a04e2bd70"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/rust-rust-discover-1000-r1/resources.ndjson",
+      "sha256": "5de305a63c5958baac075d9bd00f0aef7a7bfa31b7e5d72a76410782e48353eb"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/rust-rust-discover-1000-r1/summary.json",
+      "sha256": "0acb80b62ce32fb8c8b904b2d13559d5e14a17dd6dddafd1ffdec6cfb41a938f"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/rust-rust-discover-1500-r1/environment.json",
+      "sha256": "32a4a18741b65b73418ea319b5a78d260576e34c03677a61df362e0a04e2bd70"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/rust-rust-discover-1500-r1/resources.ndjson",
+      "sha256": "86c7fe105c0707a9d71add1ce33415ee1bb703618073d6d6209e4a6c05722fd3"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/rust-rust-discover-1500-r1/summary.json",
+      "sha256": "3cc0a933826fa4a63557ef5e6244c3cc851c8b443821ec7b69155367e73141df"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/rust-rust-discover-1625-r1/environment.json",
+      "sha256": "32a4a18741b65b73418ea319b5a78d260576e34c03677a61df362e0a04e2bd70"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/rust-rust-discover-1625-r1/resources.ndjson",
+      "sha256": "17468c171d8eadc86bd8459a0156162c8d0bca513df5ca962db5f64897c413e0"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/rust-rust-discover-1625-r1/summary.json",
+      "sha256": "0d4f97548e55ae074eb7fd6d3b576981426a4dad8675ceaf11431a7c6002261a"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/rust-rust-discover-1687.5-r1/environment.json",
+      "sha256": "32a4a18741b65b73418ea319b5a78d260576e34c03677a61df362e0a04e2bd70"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/rust-rust-discover-1687.5-r1/resources.ndjson",
+      "sha256": "36be24030daad034ef58120bb592a2364bdaaed601dfc44b01c965c8e9f6e4f3"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/rust-rust-discover-1687.5-r1/summary.json",
+      "sha256": "89a5ee74902f7027e73e3c21dffcaf576a35fed1ca44118d653f11e3a90092b3"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/rust-rust-discover-1750-r1/environment.json",
+      "sha256": "32a4a18741b65b73418ea319b5a78d260576e34c03677a61df362e0a04e2bd70"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/rust-rust-discover-1750-r1/resources.ndjson",
+      "sha256": "3e49e2dc1674699fdb96ec9a7a1dd4aa441569a23a3c9aff066e9b1fd7958dec"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/rust-rust-discover-1750-r1/summary.json",
+      "sha256": "bb91d52698be5df4ef691037def864bb878da7abdaddf2322449f79006a15e71"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/rust-rust-discover-2000-r1/environment.json",
+      "sha256": "32a4a18741b65b73418ea319b5a78d260576e34c03677a61df362e0a04e2bd70"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/rust-rust-discover-2000-r1/resources.ndjson",
+      "sha256": "773e5a99c7ce364541bcb9070b8378c3e21e7b7d20acbc740ffad1b07b20d95d"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/discover/rust-rust-discover-2000-r1/summary.json",
+      "sha256": "0025f72ed12005079152aa29128edbaf44a10bf9b343006cae86994a45221420"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/external-checksums.json",
+      "sha256": "1669560967ac81e97613bd65316dd1f0c207ba5e71ed6bfce20d7d2fb8663529"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal/direct-quic-formal-1187.5-25pct-r1/environment.json",
+      "sha256": "077f6d140d65903213cd6d7fad57e8922e00fe1e51e8779c057a5b72c8836d84"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal/direct-quic-formal-1187.5-25pct-r1/resources.ndjson",
+      "sha256": "566886565d072b3265555eda5d1d69698c50e9a9df4babcb59164ad4f8932897"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal/direct-quic-formal-1187.5-25pct-r1/summary.json",
+      "sha256": "4ef2f28518d7e20871466dc0ad32b59299f994b15e2bbb985bb8c62f85653452"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal/direct-quic-formal-2375-50pct-r1/environment.json",
+      "sha256": "077f6d140d65903213cd6d7fad57e8922e00fe1e51e8779c057a5b72c8836d84"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal/direct-quic-formal-2375-50pct-r1/resources.ndjson",
+      "sha256": "29475491dfeb067b0b3deb1b908c34caee35b5b8616d5d7d09fd3d75d09eaec9"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal/direct-quic-formal-2375-50pct-r1/summary.json",
+      "sha256": "8356ef9bdf6a5643439a229edf215820db5e807bbad3fd4e850fe6ffff0ba609"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal/direct-quic-formal-3562.5-75pct-r1/environment.json",
+      "sha256": "077f6d140d65903213cd6d7fad57e8922e00fe1e51e8779c057a5b72c8836d84"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal/direct-quic-formal-3562.5-75pct-r1/resources.ndjson",
+      "sha256": "09d9e2323d7e4a40c4b9a5fbce618480719c7c36f1f3c067b8a5986a19d69a61"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal/direct-quic-formal-3562.5-75pct-r1/summary.json",
+      "sha256": "9af5b7aab8670dc51da39e3b0453f880d84866931487f4cb4d5cb4999f348342"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal/direct-quic-formal-4275-90pct-r1/environment.json",
+      "sha256": "077f6d140d65903213cd6d7fad57e8922e00fe1e51e8779c057a5b72c8836d84"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal/direct-quic-formal-4275-90pct-r1/resources.ndjson",
+      "sha256": "0a729ad99c92963d26b304d4a420acf9b28893c3f4e5626c0775ac7b79bdcd22"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal/direct-quic-formal-4275-90pct-r1/summary.json",
+      "sha256": "5fb50254d3ab6bd5ba6ec8a22c61568a1c6d84990d2fc2ffe63ce2ce8faff88f"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal/go-rust-formal-100-25pct-r1/environment.json",
+      "sha256": "0016e29cb94d147e9a80c70366c5f730bd02ddb5e65d1d5522e44a4a1df70c85"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal/go-rust-formal-100-25pct-r1/go-runtime.json",
+      "sha256": "7848704a5814602168a8d52d67c278d850889faf19890da1b836849b7f3f7cb2"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal/go-rust-formal-100-25pct-r1/resources.ndjson",
+      "sha256": "a053ffcaa87cf348f1ab7f50852870c1427827549d5b94d98e8d1026a81c9cb5"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal/go-rust-formal-100-25pct-r1/summary.json",
+      "sha256": "2256c397a5ef866485acc08d3e222f9a7f9fe15af1ce27659487b1467710b9ad"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal/go-rust-formal-200-50pct-r1/environment.json",
+      "sha256": "0016e29cb94d147e9a80c70366c5f730bd02ddb5e65d1d5522e44a4a1df70c85"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal/go-rust-formal-200-50pct-r1/go-runtime.json",
+      "sha256": "6e2e8bf6512a1f72707857d212748794445d015a613692a21cbdd8b97fca6bff"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal/go-rust-formal-200-50pct-r1/resources.ndjson",
+      "sha256": "49cafd41ea9c5a605fbd320e3149eb89cce35056b8059f4d030be8225e273dfa"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal/go-rust-formal-200-50pct-r1/summary.json",
+      "sha256": "40651de887f3263672f2f7a488ddae9cf8f29457906e4b2f0f24f0e989438148"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal/go-rust-formal-300-75pct-r1/environment.json",
+      "sha256": "0016e29cb94d147e9a80c70366c5f730bd02ddb5e65d1d5522e44a4a1df70c85"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal/go-rust-formal-300-75pct-r1/go-runtime.json",
+      "sha256": "e856df385f3d936fd0e39c332812cd2ff256681bb3c487740748d77aa0303d55"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal/go-rust-formal-300-75pct-r1/resources.ndjson",
+      "sha256": "af3c276720454069f2b6171b52de42ef03d1f5448312f978fb7b7784290f72b9"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal/go-rust-formal-300-75pct-r1/summary.json",
+      "sha256": "b67b51da99156d551debbaa156dabdd98a21b116653783fb1ab37bc8df2c2435"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal/go-rust-formal-360-90pct-r1/environment.json",
+      "sha256": "0016e29cb94d147e9a80c70366c5f730bd02ddb5e65d1d5522e44a4a1df70c85"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal/go-rust-formal-360-90pct-r1/go-runtime.json",
+      "sha256": "cf080ee6384abd6852b3d10b1d935411c0c45275b2366328362abfb4a977a6eb"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal/go-rust-formal-360-90pct-r1/resources.ndjson",
+      "sha256": "cbc5ea2045dac19ecc7803d7b10c9dd99526f32c3f330ad985556623d2986075"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal/go-rust-formal-360-90pct-r1/summary.json",
+      "sha256": "9ceba45c4cad28dadc448d5f1f5c42799a0bf1cd778dc4340b07719624805c0d"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal/rust-rust-formal-1265.62-75pct-r1/environment.json",
+      "sha256": "077f6d140d65903213cd6d7fad57e8922e00fe1e51e8779c057a5b72c8836d84"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal/rust-rust-formal-1265.625-75pct-r1-b59e7fc/environment.json",
+      "sha256": "0016e29cb94d147e9a80c70366c5f730bd02ddb5e65d1d5522e44a4a1df70c85"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal/rust-rust-formal-1265.625-75pct-r1-b59e7fc/resources.ndjson",
+      "sha256": "2b95679b4e69ac8986d2d8ae27b9f9ea8709399c672b45731aad4b27c14799b8"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal/rust-rust-formal-1265.625-75pct-r1-b59e7fc/summary.json",
+      "sha256": "0ce01755c22606ad8077e4857a0b568889545c1cf6551bcf91a1ab9ab80efbe3"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal/rust-rust-formal-1518.75-90pct-r1/environment.json",
+      "sha256": "0016e29cb94d147e9a80c70366c5f730bd02ddb5e65d1d5522e44a4a1df70c85"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal/rust-rust-formal-1518.75-90pct-r1/resources.ndjson",
+      "sha256": "f6878f9b01b8e95c707bca565c487aab6e93945c11856a45b8a0582909b232c0"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal/rust-rust-formal-1518.75-90pct-r1/summary.json",
+      "sha256": "a9f68b3a992c93813e9f8c09cffda835cb4c4be798a9335852e0292b314cf037"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal/rust-rust-formal-421.875-25pct-r1/environment.json",
+      "sha256": "077f6d140d65903213cd6d7fad57e8922e00fe1e51e8779c057a5b72c8836d84"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal/rust-rust-formal-421.875-25pct-r1/resources.ndjson",
+      "sha256": "ded0e36fa3f97398f447eb9336cd18b7b983d518d56e46e4674dcf350ba54eec"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal/rust-rust-formal-421.875-25pct-r1/summary.json",
+      "sha256": "76cc0fe8909b055bfecb5325da7585bbf5056c4f77c00f20b684dc95548b8e13"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal/rust-rust-formal-843.75-50pct-r1/environment.json",
+      "sha256": "077f6d140d65903213cd6d7fad57e8922e00fe1e51e8779c057a5b72c8836d84"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal/rust-rust-formal-843.75-50pct-r1/resources.ndjson",
+      "sha256": "f2e8567b4c928ee557e0e96037dd452cace0ff627111a84273f51b4b37eac455"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal/rust-rust-formal-843.75-50pct-r1/summary.json",
+      "sha256": "e952d0961fd14ddee2a8da393f6f8e755491f4747dedddbd0a95490137bd359b"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal-0.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal-0.stdout.log",
+      "sha256": "4ef2f28518d7e20871466dc0ad32b59299f994b15e2bbb985bb8c62f85653452"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal-1.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal-1.stdout.log",
+      "sha256": "8356ef9bdf6a5643439a229edf215820db5e807bbad3fd4e850fe6ffff0ba609"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal-10-b59e7fc.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal-10-b59e7fc.stdout.log",
+      "sha256": "b67b51da99156d551debbaa156dabdd98a21b116653783fb1ab37bc8df2c2435"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal-11-b59e7fc.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal-11-b59e7fc.stdout.log",
+      "sha256": "9ceba45c4cad28dadc448d5f1f5c42799a0bf1cd778dc4340b07719624805c0d"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal-2.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal-2.stdout.log",
+      "sha256": "9af5b7aab8670dc51da39e3b0453f880d84866931487f4cb4d5cb4999f348342"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal-3.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal-3.stdout.log",
+      "sha256": "5fb50254d3ab6bd5ba6ec8a22c61568a1c6d84990d2fc2ffe63ce2ce8faff88f"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal-4.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal-4.stdout.log",
+      "sha256": "76cc0fe8909b055bfecb5325da7585bbf5056c4f77c00f20b684dc95548b8e13"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal-5.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal-5.stdout.log",
+      "sha256": "e952d0961fd14ddee2a8da393f6f8e755491f4747dedddbd0a95490137bd359b"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal-6.stderr.log",
+      "sha256": "9d83a91799288375030d07070d65eabf68167dee471ff71543a70a27c7daab8c"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal-6.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal-7-b59e7fc.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal-7-b59e7fc.stdout.log",
+      "sha256": "a9f68b3a992c93813e9f8c09cffda835cb4c4be798a9335852e0292b314cf037"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal-8-b59e7fc.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal-8-b59e7fc.stdout.log",
+      "sha256": "2256c397a5ef866485acc08d3e222f9a7f9fe15af1ce27659487b1467710b9ad"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal-9-b59e7fc.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/formal-9-b59e7fc.stdout.log",
+      "sha256": "40651de887f3263672f2f7a488ddae9cf8f29457906e4b2f0f24f0e989438148"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/manifest.json",
+      "sha256": "1c016bc8df3ad8ffe68bba51a828e01c1d8e10400bdeb7798df9644156bfaf12"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/memory/direct-quic-memory-2375-50pct-r1/environment.json",
+      "sha256": "0016e29cb94d147e9a80c70366c5f730bd02ddb5e65d1d5522e44a4a1df70c85"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/memory/direct-quic-memory-2375-50pct-r1/resources.ndjson",
+      "sha256": "29e6bb54c91d8453bee125b88b2b3b489ccae91823aa75636fc26a3733a6c8b1"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/memory/direct-quic-memory-2375-50pct-r1/summary.json",
+      "sha256": "621e542d239ac798cd53518992427eb4feef42622e9206e7d8ce4a4b9340a198"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/memory/direct-quic-memory-3562.5-75pct-r1/environment.json",
+      "sha256": "e77185389b4fa72f94377bed65fac5648f118354ed2957b1aa033131c3ab6045"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/memory/direct-quic-memory-3562.5-75pct-r1/resources.ndjson",
+      "sha256": "1e0c48b262db3bbd35aec3fae6eca493b6c7b381caf3a57f349f62fb79407e90"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/memory/direct-quic-memory-3562.5-75pct-r1/summary.json",
+      "sha256": "d6263d8aa347b5e698d14c18a7c5c623f1469a62ca80a8ecb18c120f3c76ccc3"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/memory/go-rust-memory-200-50pct-r1/environment.json",
+      "sha256": "e77185389b4fa72f94377bed65fac5648f118354ed2957b1aa033131c3ab6045"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/memory/rust-rust-memory-1265.62-75pct-r1/environment.json",
+      "sha256": "e77185389b4fa72f94377bed65fac5648f118354ed2957b1aa033131c3ab6045"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/memory/rust-rust-memory-1265.62-75pct-r1/resources.ndjson",
+      "sha256": "3464560f18e6a3fbb74793088920c5c07092f39685087b8d8df1ba8c5c129946"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/memory/rust-rust-memory-1265.62-75pct-r1/summary.json",
+      "sha256": "4f016268f1ef689b3a440802da636cfbc8e9a71b1ba344ec34f2610a7f933641"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/memory/rust-rust-memory-843.75-50pct-r1/environment.json",
+      "sha256": "e77185389b4fa72f94377bed65fac5648f118354ed2957b1aa033131c3ab6045"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/memory/rust-rust-memory-843.75-50pct-r1/resources.ndjson",
+      "sha256": "fec9a1d474e8ec04222778c6a40a91473d3b6ae088b959a3d3cb9b7fd3c96c25"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/memory/rust-rust-memory-843.75-50pct-r1/summary.json",
+      "sha256": "92a48845b1c53cecccdd101f6a2e6159abde88a724147c6c8e7cacd3168ebfad"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/memory-0.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/memory-0.stdout.log",
+      "sha256": "621e542d239ac798cd53518992427eb4feef42622e9206e7d8ce4a4b9340a198"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/memory-1.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/memory-1.stdout.log",
+      "sha256": "d6263d8aa347b5e698d14c18a7c5c623f1469a62ca80a8ecb18c120f3c76ccc3"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/memory-2.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/memory-2.stdout.log",
+      "sha256": "92a48845b1c53cecccdd101f6a2e6159abde88a724147c6c8e7cacd3168ebfad"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/memory-3.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/memory-3.stdout.log",
+      "sha256": "4f016268f1ef689b3a440802da636cfbc8e9a71b1ba344ec34f2610a7f933641"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/memory-4.stderr.log",
+      "sha256": "0b19f6d6028a24f6f12dfb2016fdad295c9542fe4dfa75c54131a008b4646344"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/memory-4.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/raw/decisions.ndjson",
+      "sha256": "7f0d77685a940a5a80bcc9823f1774361b8f3d573b7392027364c5390193bc97"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/raw/go-rust-640/attempts.ndjson.gz",
+      "sha256": "edf8eccc4d3143658acbc027652b99587f61f00c79eae755bfbbdf3a8cf3f8e0"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/raw/rust-rust-640/attempts.ndjson.gz",
+      "sha256": "bb15f68d030dcfefea1bd604626f66fb84814869ba3c504e93ae46b7202ab3ac"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/reports/latency-and-performance-validation.md",
+      "sha256": "931f6ab3beafcd5236c4ad6c7d40f73445a20ec15cc531a336d8acf1c0627cc8"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/rust75-retry.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/rust75-retry.stdout.log",
+      "sha256": "0ce01755c22606ad8077e4857a0b568889545c1cf6551bcf91a1ab9ab80efbe3"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/summaries/analysis.json",
+      "sha256": "27c0182fb6598f20f8e9a5b9dc5d6b492414507525478d631e5e1e004bbb98b5"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/unsupported/go-rust-640/environment.json",
+      "sha256": "5fb5d4e90885e0734d6765bd3212e14433cd7b4de4bbee51fb3f977dd856e963"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/unsupported/go-rust-640/raw.ndjson.gz",
+      "sha256": "edf8eccc4d3143658acbc027652b99587f61f00c79eae755bfbbdf3a8cf3f8e0"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/unsupported/go-rust-640/summary.json",
+      "sha256": "9fb4678a9a24b8632f932e44b6a23fca5a69d61af6160f1e8a745fe11bdb1f95"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/unsupported/rust-rust-640/environment.json",
+      "sha256": "df3dea29fc72da86617c74a7f15e15092c432a613c9659f80dc824ee2dca4808"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/unsupported/rust-rust-640/raw.ndjson.gz",
+      "sha256": "bb15f68d030dcfefea1bd604626f66fb84814869ba3c504e93ae46b7202ab3ac"
+    },
+    {
+      "path": "evidence/performance/loopback-completion-3188c7c/unsupported/rust-rust-640/summary.json",
+      "sha256": "042e8c12747736661265e3c04da695811885cb676d3af6e2014004a747bcb81b"
+    },
+    {
+      "path": "evidence/performance/memory-completion-6366334/memory/direct-quic-memory-3230-68pct-r1/finalized-cell/environment.json",
+      "sha256": "a3ff3c39042a9787028c5b8fe10a59cb445a22d695ba92c7e9fc52c90c8022a6"
+    },
+    {
+      "path": "evidence/performance/memory-completion-6366334/memory/direct-quic-memory-3230-68pct-r1/finalized-cell/raw.ndjson.gz",
+      "sha256": "9c087f95cc1a5257c356a2f5891333d30aa8ac62a35b24a004198212297bf069"
+    },
+    {
+      "path": "evidence/performance/memory-completion-6366334/memory/direct-quic-memory-3230-68pct-r1/finalized-cell/resources.ndjson",
+      "sha256": "c9d98e7ace726052e391754743e693468101a5e422566b23159d48a683cf8103"
+    },
+    {
+      "path": "evidence/performance/memory-completion-6366334/memory/direct-quic-memory-3230-68pct-r1/finalized-cell/summary.json",
+      "sha256": "0183afc3d289da86100b3afe138573c79256f275d07f80ef3b913054f2b50874"
+    },
+    {
+      "path": "evidence/performance/memory-completion-6366334/memory/direct-quic-memory-3230-68pct-r1/raw.ndjson.gz",
+      "sha256": "702a01b9b4725cbaff95d3e9019503e7eb01d6042c1a12c35dc73b31ac3e12df"
+    },
+    {
+      "path": "evidence/performance/memory-completion-6366334/memory/direct-quic-memory-3230-68pct-r1/resources.ndjson",
+      "sha256": "64ab367abd4f284ffc8eeabaea20c5f7e8d31e4bf0c475abde6ce08f2be0c16c"
+    },
+    {
+      "path": "evidence/performance/memory-completion-6366334/memory/direct-quic-memory-3230-68pct-r1/runtime.ndjson",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/performance/memory-completion-6366334/memory/direct-quic-memory-3230-68pct-r1/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/performance/memory-completion-6366334/memory/direct-quic-memory-3230-68pct-r1/terminal-manifest.json",
+      "sha256": "a1f99bea46024c25ac3ef2b807204bd8fe613d2bbcf932291d23eb6f44351d96"
+    },
+    {
+      "path": "evidence/performance/memory-completion-6366334/memory/go-rust-memory-200-50pct-r1/finalized-cell/environment.json",
+      "sha256": "08a87e4000b3f7f0fa7c35390509256103fcbe7ba08b331e201e2152bf2f7b6c"
+    },
+    {
+      "path": "evidence/performance/memory-completion-6366334/memory/go-rust-memory-200-50pct-r1/raw.ndjson",
+      "sha256": "38376aba4b8e68066531154b6769ad8e5c0885ba6565c36fc44a1389b7a9c8d3"
+    },
+    {
+      "path": "evidence/performance/memory-completion-6366334/memory/go-rust-memory-200-50pct-r1/resources.ndjson",
+      "sha256": "0ec802c60a39ec81ceab06f05a68f8513b99b80322769d10e48e502e0b0e619f"
+    },
+    {
+      "path": "evidence/performance/memory-completion-6366334/memory/go-rust-memory-200-50pct-r1/runtime.ndjson",
+      "sha256": "2478c41a2629a16f84f1cb8f851604c0cafb444094f8b5d2b3d429525f5b1c37"
+    },
+    {
+      "path": "evidence/performance/memory-completion-6366334/memory/go-rust-memory-200-50pct-r1/stderr.log",
+      "sha256": "039a9ac5b18db246c6178c420f7c5f0ec6bc1412b49920d66a81acf91eb8630d"
+    },
+    {
+      "path": "evidence/performance/memory-completion-6366334/memory/go-rust-memory-200-50pct-r1/terminal-manifest.json",
+      "sha256": "fd504eea56836d90325cee5e5818b6f12aa6c6dd2a3b60e74905c28a4c9ce519"
+    },
+    {
+      "path": "evidence/performance/memory-completion-6366334/memory/go-rust-memory-300-75pct-r1/finalized-cell/environment.json",
+      "sha256": "5bd9b097a0d9e9792aa1539c69b0e0b7ae4229078e6392a6ade10d4dc84adab1"
+    },
+    {
+      "path": "evidence/performance/memory-completion-6366334/memory/go-rust-memory-300-75pct-r1/raw.ndjson",
+      "sha256": "ea695edf757d4b87bcc64d3d601735c5b4888e08894038d864cbf86d9bb77181"
+    },
+    {
+      "path": "evidence/performance/memory-completion-6366334/memory/go-rust-memory-300-75pct-r1/resources.ndjson",
+      "sha256": "5d86d410c32d80d39457d456593d1d6541e4c479f5b9c9c16c5184e64c63f1e3"
+    },
+    {
+      "path": "evidence/performance/memory-completion-6366334/memory/go-rust-memory-300-75pct-r1/runtime.ndjson",
+      "sha256": "4fcc9f49930fb29974fccaf8bc747ac2066ead43320b7c6a6d33186e025ad06c"
+    },
+    {
+      "path": "evidence/performance/memory-completion-6366334/memory/go-rust-memory-300-75pct-r1/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/performance/memory-completion-6366334/memory/go-rust-memory-300-75pct-r1/terminal-manifest.json",
+      "sha256": "943750df2736a698b906027db1eb9e9a8388283e9c8b5c9b99c2e45333e97b54"
+    },
+    {
+      "path": "evidence/performance/memory-completion-6366334/memory/rust-rust-memory-1265.62-75pct-r1/finalized-cell/environment.json",
+      "sha256": "cbe1491c8f63c6bad8037c881019c0d87a30af895e94bcf76e43452be063cd16"
+    },
+    {
+      "path": "evidence/performance/memory-completion-6366334/memory/rust-rust-memory-1265.62-75pct-r1/finalized-cell/raw.ndjson.gz",
+      "sha256": "c7c6232972023f5ba4465ef8fda25b4ceb4ec46b625466ee431628197c29df39"
+    },
+    {
+      "path": "evidence/performance/memory-completion-6366334/memory/rust-rust-memory-1265.62-75pct-r1/finalized-cell/resources.ndjson",
+      "sha256": "59e588751336e5f6de64e1d312676338f4b32e22c1b5d86b6990ce34efa11c80"
+    },
+    {
+      "path": "evidence/performance/memory-completion-6366334/memory/rust-rust-memory-1265.62-75pct-r1/finalized-cell/summary.json",
+      "sha256": "9b75ee1aee4695fc0b21fb8f6dfd03c4cc011b6aa6b9be8c5980f352cc1a3a7d"
+    },
+    {
+      "path": "evidence/performance/memory-completion-6366334/memory/rust-rust-memory-1265.62-75pct-r1/raw.ndjson.gz",
+      "sha256": "52bc3878463d1f203667674fe3209d333215716c754e6945d5d0f8650e76274f"
+    },
+    {
+      "path": "evidence/performance/memory-completion-6366334/memory/rust-rust-memory-1265.62-75pct-r1/resources.ndjson",
+      "sha256": "e4f431f73577085fdd35923ec29007b8bce473f75ff2fb2caf748fafe1706f71"
+    },
+    {
+      "path": "evidence/performance/memory-completion-6366334/memory/rust-rust-memory-1265.62-75pct-r1/runtime.ndjson",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/performance/memory-completion-6366334/memory/rust-rust-memory-1265.62-75pct-r1/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/performance/memory-completion-6366334/memory/rust-rust-memory-1265.62-75pct-r1/terminal-manifest.json",
+      "sha256": "0ef32c0ee96302577bbf38813ed7f797d779179fc90e74dadfefa507afb66d67"
+    },
+    {
+      "path": "evidence/performance/memory-completion-6366334/memory/rust-rust-memory-843.75-50pct-r1/finalized-cell/environment.json",
+      "sha256": "945216510473aad75c8a005c65c88f53e5e6a72093b6cce8be056f0406aee486"
+    },
+    {
+      "path": "evidence/performance/memory-completion-6366334/memory/rust-rust-memory-843.75-50pct-r1/finalized-cell/raw.ndjson.gz",
+      "sha256": "c47addb5ca2dba808dff47b550a16390a6143b61c33f2fd3b281a9e9ef143b10"
+    },
+    {
+      "path": "evidence/performance/memory-completion-6366334/memory/rust-rust-memory-843.75-50pct-r1/finalized-cell/resources.ndjson",
+      "sha256": "c34eba3c12a54533791ff227d80e3e7a781920ec5e1ed9a1bd8d7e0ce1ffc67a"
+    },
+    {
+      "path": "evidence/performance/memory-completion-6366334/memory/rust-rust-memory-843.75-50pct-r1/finalized-cell/summary.json",
+      "sha256": "1b1af6dcc3e0d07375e96fa34a98dc651adde12d078c0ab01173c6dc9336c0e8"
+    },
+    {
+      "path": "evidence/performance/memory-completion-6366334/memory/rust-rust-memory-843.75-50pct-r1/raw.ndjson.gz",
+      "sha256": "8d8e9a00e7f9195a3a979b5f60adde33405f1c025e9303a3eafec90d678242e5"
+    },
+    {
+      "path": "evidence/performance/memory-completion-6366334/memory/rust-rust-memory-843.75-50pct-r1/resources.ndjson",
+      "sha256": "8715d7d89caefade545d071dcd214a5f6cbc1ec7fb21ac602f8407ddc71fce58"
+    },
+    {
+      "path": "evidence/performance/memory-completion-6366334/memory/rust-rust-memory-843.75-50pct-r1/runtime.ndjson",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/performance/memory-completion-6366334/memory/rust-rust-memory-843.75-50pct-r1/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/performance/memory-completion-6366334/memory/rust-rust-memory-843.75-50pct-r1/terminal-manifest.json",
+      "sha256": "4bcf406877df6d964b054f95ba77fa06e5c5b1601b9ec07242325f789d4c22b8"
+    },
+    {
+      "path": "evidence/performance/memory-completion-adff461/validation/direct-short/raw.ndjson",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/performance/memory-completion-adff461/validation/direct-short/resources.ndjson",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/performance/memory-completion-adff461/validation/direct-short/runtime.ndjson",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/performance/memory-completion-adff461/validation/direct-short/stderr.log",
+      "sha256": "f8573d9db12675b48534a932c87d6fef85660fb10230ff268803840b0bc51e36"
+    },
+    {
+      "path": "evidence/performance/memory-completion-adff461/validation/direct-short/terminal-manifest.json",
+      "sha256": "78830d515d63bd1b152a93c898fba2c045fb03c281ace37f2148900dfbf8ae1c"
+    },
+    {
+      "path": "evidence/performance/memory-completion-f5396ff/validation/direct-short/raw.ndjson",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/performance/memory-completion-f5396ff/validation/direct-short/resources.ndjson",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/performance/memory-completion-f5396ff/validation/direct-short/runtime.ndjson",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/performance/memory-completion-f5396ff/validation/direct-short/stderr.log",
+      "sha256": "f8573d9db12675b48534a932c87d6fef85660fb10230ff268803840b0bc51e36"
+    },
+    {
+      "path": "evidence/performance/memory-completion-f5396ff/validation/direct-short/terminal-manifest.json",
+      "sha256": "76b9306727840550422ac81f8313e159d23f5603de7162a63b933c77e7790263"
+    },
+    {
+      "path": "evidence/performance/memory-completion-f90bd61/validation/direct-short/finalized-cell/environment.json",
+      "sha256": "cb5819890f617288fc8971357d9e5be0484900295a02053aecc0739e1abb6ec8"
+    },
+    {
+      "path": "evidence/performance/memory-completion-f90bd61/validation/direct-short/finalized-cell/raw.ndjson.gz",
+      "sha256": "b20a8660d14240082f8d7860c67d340f11bb28167848b59ae18203f10ee3934d"
+    },
+    {
+      "path": "evidence/performance/memory-completion-f90bd61/validation/direct-short/finalized-cell/resources.ndjson",
+      "sha256": "3567bdb823d19562af301dec5766a12646bb7cc3f91321941b7dee6aeb3fd374"
+    },
+    {
+      "path": "evidence/performance/memory-completion-f90bd61/validation/direct-short/raw.ndjson",
+      "sha256": "d50552743c55e52bcdd3d78508ed7961f2b8e00759a97b220212488b1aeb0d57"
+    },
+    {
+      "path": "evidence/performance/memory-completion-f90bd61/validation/direct-short/resources.ndjson",
+      "sha256": "72460783138606573f7add3e5c31e4fe642628b1b4734c5e13b23737e8abf4b6"
+    },
+    {
+      "path": "evidence/performance/memory-completion-f90bd61/validation/direct-short/runtime.ndjson",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/performance/memory-completion-f90bd61/validation/direct-short/stderr.log",
+      "sha256": "e7fd5d14584fdf01384721f792c55ba8964f06f2cdc0644aad9d739444bd36b8"
+    },
+    {
+      "path": "evidence/performance/memory-completion-f90bd61/validation/direct-short/terminal-manifest.json",
+      "sha256": "55c8cac49da43a1ece49ec85da0622dd0922b006ddf9bff6802a0a6fb82afb2f"
+    },
+    {
+      "path": "evidence/performance/memory-completion-d8e40c5/validation/direct-short/finalized-cell/environment.json",
+      "sha256": "2e5b44cd6a97906818c5dfd99ec6f07433095977bafca238d056c326cc2ba4b2"
+    },
+    {
+      "path": "evidence/performance/memory-completion-d8e40c5/validation/direct-short/finalized-cell/raw.ndjson.gz",
+      "sha256": "e319f05e10284235d7bf593073c6d99d9fe5d88dd7fb9d69be819f8bf1dbd6bc"
+    },
+    {
+      "path": "evidence/performance/memory-completion-d8e40c5/validation/direct-short/finalized-cell/resources.ndjson",
+      "sha256": "ee26dc9785dff5844e6dd7cdfb0c792ec8a8799e6768076b2a7344cfb7dde028"
+    },
+    {
+      "path": "evidence/performance/memory-completion-d8e40c5/validation/direct-short/finalized-cell/summary.json",
+      "sha256": "5d77a7562708a4c7d3fdadd48c30f5fecc4e764ebdf31084a5305eaca29d579f"
+    },
+    {
+      "path": "evidence/performance/memory-completion-d8e40c5/validation/direct-short/raw.ndjson",
+      "sha256": "b475ed9d2e9e7f51fc486f8d39c75daee58132f7d1349ce2eabf3d1d485d91a2"
+    },
+    {
+      "path": "evidence/performance/memory-completion-d8e40c5/validation/direct-short/resources.ndjson",
+      "sha256": "7a3e872fdb6c64d1f56c5d44a2954d66b97a2d63aaceb57483eda7afb83eb612"
+    },
+    {
+      "path": "evidence/performance/memory-completion-d8e40c5/validation/direct-short/runtime.ndjson",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/performance/memory-completion-d8e40c5/validation/direct-short/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/performance/memory-completion-d8e40c5/validation/direct-short/terminal-manifest.json",
+      "sha256": "317e288d01d3ec1290ab21d30330280f74fff017e1b2b9ca5db970e47ce7baae"
+    },
+    {
+      "path": "evidence/performance/memory-completion-d8e40c5/validation/direct-short/validation-classification.json",
+      "sha256": "7ae2a170cc9c24544d0cd883f27223025be0f94012b36006e9f6ab0494dca381"
+    },
+    {
+      "path": "evidence/performance/memory-completion-9fa77b5/validation/direct-short/finalized-cell/environment.json",
+      "sha256": "3651e62872aaf02afa9096825509e1db2dac999e76a615c1f0c51b23cda948b9"
+    },
+    {
+      "path": "evidence/performance/memory-completion-9fa77b5/validation/direct-short/finalized-cell/raw.ndjson.gz",
+      "sha256": "ca272a7f6329ec5b2c69dee11f86cb2f0ec46c3d59ad508e2fe50df11c27a396"
+    },
+    {
+      "path": "evidence/performance/memory-completion-9fa77b5/validation/direct-short/finalized-cell/resources.ndjson",
+      "sha256": "d2211bc7e141bc2de040bb513a0b2fea6207a78ebef6fa339dd34eae9cb40a88"
+    },
+    {
+      "path": "evidence/performance/memory-completion-9fa77b5/validation/direct-short/finalized-cell/summary.json",
+      "sha256": "a512fdd27b8f9775a04fb52ad4e990e8f72eb02f3a00cd2e5286fdf68c1259c9"
+    },
+    {
+      "path": "evidence/performance/memory-completion-9fa77b5/validation/direct-short/raw.ndjson",
+      "sha256": "b475ed9d2e9e7f51fc486f8d39c75daee58132f7d1349ce2eabf3d1d485d91a2"
+    },
+    {
+      "path": "evidence/performance/memory-completion-9fa77b5/validation/direct-short/resources.ndjson",
+      "sha256": "a19baa063c123d734c1a07bb3af77d2ddebbc7cc53a959388653e306eb1dd240"
+    },
+    {
+      "path": "evidence/performance/memory-completion-9fa77b5/validation/direct-short/runtime.ndjson",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/performance/memory-completion-9fa77b5/validation/direct-short/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/performance/memory-completion-9fa77b5/validation/direct-short/terminal-manifest.json",
+      "sha256": "5be5b8545bd294c69eda33040bd85589fb07d4285908ca4b707995cd722c9a6a"
+    },
+    {
+      "path": "evidence/performance/memory-completion-a6b11de/validation/go-short/finalized-cell/environment.json",
+      "sha256": "ac23faa0ce9eb2132a87865b71fde0b1aaaaa8238207b0b50d60649cf00adc99"
+    },
+    {
+      "path": "evidence/performance/memory-completion-a6b11de/validation/go-short/finalized-cell/go-runtime-series.ndjson",
+      "sha256": "738074f4883a79d69225c4d1c525724fb1588e49b6d7da524f695abac5e40d6b"
+    },
+    {
+      "path": "evidence/performance/memory-completion-a6b11de/validation/go-short/finalized-cell/go-runtime.json",
+      "sha256": "e7fd4fc4b984f0b5d51a354515704ad1f8cfd1844266118e243a9a930b864384"
+    },
+    {
+      "path": "evidence/performance/memory-completion-a6b11de/validation/go-short/finalized-cell/raw.ndjson.gz",
+      "sha256": "d36bc6e467d4ac8cdb7937a8879ccda9b84a3ee3b52f99db44e02890230a96f8"
+    },
+    {
+      "path": "evidence/performance/memory-completion-a6b11de/validation/go-short/finalized-cell/resources.ndjson",
+      "sha256": "175d6dae95895839d8906e34305e47cd9cc771f0d8eaa8e5b5199dad3dcadadb"
+    },
+    {
+      "path": "evidence/performance/memory-completion-a6b11de/validation/go-short/finalized-cell/summary.json",
+      "sha256": "a0c3f0bcf05f94f23725cb299e6341683b2fee4f5db2f75bdbfb39ee3aef3d9e"
+    },
+    {
+      "path": "evidence/performance/memory-completion-a6b11de/validation/go-short/raw.ndjson",
+      "sha256": "b475ed9d2e9e7f51fc486f8d39c75daee58132f7d1349ce2eabf3d1d485d91a2"
+    },
+    {
+      "path": "evidence/performance/memory-completion-a6b11de/validation/go-short/resources.ndjson",
+      "sha256": "e2838d138069939342b4ed536e626963936cfadbb6634d38b9491b397acfd46b"
+    },
+    {
+      "path": "evidence/performance/memory-completion-a6b11de/validation/go-short/runtime.ndjson",
+      "sha256": "a6ab18df44d0844c30761d328d03d9e58465366071c9f3c2f00b66934974f8a4"
+    },
+    {
+      "path": "evidence/performance/memory-completion-a6b11de/validation/go-short/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/performance/memory-completion-a6b11de/validation/go-short/terminal-manifest.json",
+      "sha256": "1ee45f0e0b8f3ebabb0e090f02ce74d96a1b852caf1f6a626821d0a41ebd10f6"
+    }
+  ],
+  "schema": "nbsr-performance-source-bindings-v1"
+}

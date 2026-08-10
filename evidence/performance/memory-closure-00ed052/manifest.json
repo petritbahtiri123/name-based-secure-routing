@@ -1,0 +1,18 @@
+{
+  "analysis": "summaries/analysis.json",
+  "classifications": {
+    "direct-quic": "INCONCLUSIVE",
+    "go-rust": "INCONCLUSIVE",
+    "rust-rust": "INCONCLUSIVE"
+  },
+  "files": [
+    "manifest.json",
+    "references.json",
+    "reports/memory-completion.md",
+    "source-bindings.json",
+    "summaries/analysis.json"
+  ],
+  "outcome": "PARTIAL_BASELINE",
+  "schema": "nbsr-performance-memory-closure-v1",
+  "source_bindings": "source-bindings.json"
+}
