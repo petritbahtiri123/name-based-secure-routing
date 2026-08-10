@@ -1,0 +1,25 @@
+{
+  "authoritative_pass_eligible": false,
+  "authoritative_run": false,
+  "child_return_code": 0,
+  "cleanup_verified": true,
+  "counters": {
+    "completed": 90,
+    "failed": 0,
+    "offered": 90,
+    "persisted": 90,
+    "started": 90,
+    "timed_out": 0
+  },
+  "counters_reconciled": true,
+  "partial_but_durable": false,
+  "runner_error": null,
+  "schema": "nbsr-durable-memory-terminal-v1",
+  "series_counts": {
+    "requests": 90,
+    "resources": 20,
+    "runtime": 0
+  },
+  "terminal_state": "completed",
+  "terminated_process_ids": []
+}
