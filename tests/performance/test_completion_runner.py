@@ -82,6 +82,8 @@ def test_memory_execution_uses_durable_runner_only(monkeypatch, tmp_path: Path) 
     assert options["offered_requests"] == round(200 * 1_860)
     assert options["timeout_seconds"] == 3_660
     assert "--durable-events" in calls[0][1][0]
+    durable_root_index = calls[0][1][0].index("--durable-root") + 1
+    assert Path(calls[0][1][0][durable_root_index]) == tmp_path / "memory" / spec.run_id
 
 
 def test_non_memory_execution_keeps_existing_short_path(monkeypatch, tmp_path: Path) -> None:

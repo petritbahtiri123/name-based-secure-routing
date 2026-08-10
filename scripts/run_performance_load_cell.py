@@ -99,6 +99,7 @@ def main() -> None:
     parser.add_argument("--sampling-cadence-seconds", type=int, default=1)
     parser.add_argument("--durable-events", action="store_true")
     parser.add_argument("--validation-profile", action="store_true")
+    parser.add_argument("--durable-root", type=Path)
     args = parser.parse_args()
     if args.formal:
         FormalRunRequirements().validate_capacity_window(
@@ -117,7 +118,7 @@ def main() -> None:
         raise SystemExit("completion memory sampling cadence is frozen at 1 second")
     if args.offered_rate <= 0:
         raise SystemExit("offered rate must be positive")
-    env_record = environment()
+    env_record = environment(allowed_dirty_root=args.durable_root)
     if env_record["dirty_tree"]:
         raise SystemExit("formal benchmark requires a clean working tree")
     encoded_environment = json.dumps(env_record, sort_keys=True, separators=(",", ":")).encode()

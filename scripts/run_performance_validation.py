@@ -130,7 +130,21 @@ def git_value(*args: str) -> str:
     return command(["git", *args]).stdout.strip()
 
 
-def environment() -> dict[str, Any]:
+def dirty_paths_outside(repository: Path, allowed_root: Path, status: str) -> list[str]:
+    allowed = allowed_root.resolve().relative_to(repository.resolve()).as_posix()
+    paths: list[str] = []
+    for line in status.splitlines():
+        if len(line) < 4:
+            continue
+        path = line[3:].replace("\\", "/")
+        if " -> " in path:
+            path = path.split(" -> ", 1)[1]
+        if path != allowed and not path.startswith(allowed + "/"):
+            paths.append(path)
+    return paths
+
+
+def environment(*, allowed_dirty_root: Path | None = None) -> dict[str, Any]:
     powershell = command(
         [
             "powershell",
@@ -140,10 +154,16 @@ def environment() -> dict[str, Any]:
         ]
     )
     host = json.loads(powershell.stdout)
+    status = command(["git", "status", "--porcelain=v1"]).stdout
+    dirty_paths = (
+        dirty_paths_outside(ROOT, allowed_dirty_root, status)
+        if allowed_dirty_root is not None
+        else [line for line in status.splitlines() if line]
+    )
     return {
         "schema": "nbsr-performance-environment-v1",
         "repository_sha": git_value("rev-parse", "HEAD"),
-        "dirty_tree": bool(git_value("status", "--porcelain=v1")),
+        "dirty_tree": bool(dirty_paths),
         "os": platform.platform(),
         "python": platform.python_version(),
         "rustc": command(["rustc", "--version"]).stdout.strip(),

@@ -11,7 +11,7 @@ import pytest
 
 from scripts.performance.durable_memory import _windows_process_active
 from scripts.run_performance_load_cell import durable_request_event, validate_memory_duration
-from scripts.run_performance_validation import measured_client
+from scripts.run_performance_validation import dirty_paths_outside, measured_client
 
 
 FIXTURE = Path(__file__).parent / "fixtures" / "long_run_child.py"
@@ -33,6 +33,14 @@ def test_short_memory_duration_requires_explicit_durable_validation_profile() ->
             memory=True, durable_events=True, validation_profile=False,
             warmup_seconds=1, steady_seconds=2,
         )
+
+
+def test_clean_tree_gate_excludes_only_the_exact_durable_output_root(tmp_path: Path) -> None:
+    repository = tmp_path / "repo"
+    durable = repository / "evidence" / "new-run"
+    status = "?? evidence/new-run/raw.ndjson\n M scripts/runner.py\n?? unrelated.txt\n"
+
+    assert dirty_paths_outside(repository, durable, status) == ["scripts/runner.py", "unrelated.txt"]
     with pytest.raises(ValueError, match="validation profile requires durable memory events"):
         validate_memory_duration(
             memory=False, durable_events=True, validation_profile=True,

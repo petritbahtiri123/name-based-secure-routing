@@ -83,8 +83,10 @@ def execute_spec(spec: RunSpec, output_root: Path, *, timeout_seconds: float = 3
         raise SystemExit(f"refusing to overwrite completed or partial run: {output}")
     if spec.phase == "memory":
         child_output = output / "finalized-cell"
+        command = command_for(spec, output_root, output_override=child_output)
+        command.extend(["--durable-root", str(output)])
         run_durable_memory_child(
-            command_for(spec, output_root, output_override=child_output),
+            command,
             output=output,
             timeout_seconds=timeout_seconds,
             offered_requests=round(spec.rate * (spec.warmup_seconds + spec.steady_seconds)),
