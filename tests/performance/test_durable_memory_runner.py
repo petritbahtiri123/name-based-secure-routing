@@ -6,7 +6,7 @@ from pathlib import Path
 import sys
 import time
 
-from scripts.performance.durable_memory import run_durable_memory_child
+from scripts.performance.durable_memory import _windows_process_active, run_durable_memory_child
 
 
 FIXTURE = Path(__file__).parent / "fixtures" / "long_run_child.py"
@@ -17,6 +17,8 @@ def documents(path: Path) -> list[dict[str, object]]:
 
 
 def process_exists(pid: int) -> bool:
+    if os.name == "nt":
+        return _windows_process_active(pid)
     try:
         os.kill(pid, 0)
     except OSError:

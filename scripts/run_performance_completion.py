@@ -7,6 +7,8 @@ from pathlib import Path
 import subprocess
 import sys
 
+from scripts.performance.durable_memory import run_durable_memory_child
+
 
 ROOT = Path(__file__).resolve().parents[1]
 PATHS = ("direct-quic", "rust-rust", "go-rust")
@@ -49,8 +51,8 @@ def completion_plan(phase: str, *, accepted_capacities: dict[str, float]) -> lis
     raise ValueError(f"unsupported completion phase {phase}")
 
 
-def command_for(spec: RunSpec, output_root: Path) -> list[str]:
-    output = output_root / spec.phase / spec.run_id
+def command_for(spec: RunSpec, output_root: Path, *, output_override: Path | None = None) -> list[str]:
+    output = output_override if output_override is not None else output_root / spec.phase / spec.run_id
     command = [
         sys.executable, str(ROOT / "scripts/run_performance_load_cell.py"),
         "--path", spec.path, "--offered-rate", str(spec.rate),
@@ -61,8 +63,28 @@ def command_for(spec: RunSpec, output_root: Path) -> list[str]:
     if spec.phase in {"discover", "confirm", "formal"}:
         command.append("--formal")
     if spec.phase == "memory":
-        command.extend(["--memory", "--sampling-cadence-seconds", str(spec.sampling_cadence_seconds)])
+        command.extend([
+            "--memory", "--sampling-cadence-seconds", str(spec.sampling_cadence_seconds),
+            "--durable-events",
+        ])
     return command
+
+
+def execute_spec(spec: RunSpec, output_root: Path, *, timeout_seconds: float = 3_660) -> None:
+    output = output_root / spec.phase / spec.run_id
+    if output.exists():
+        raise SystemExit(f"refusing to overwrite completed or partial run: {output}")
+    if spec.phase == "memory":
+        child_output = output / "finalized-cell"
+        run_durable_memory_child(
+            command_for(spec, output_root, output_override=child_output),
+            output=output,
+            timeout_seconds=timeout_seconds,
+            offered_requests=round(spec.rate * (spec.warmup_seconds + spec.steady_seconds)),
+            cwd=ROOT,
+        )
+        return
+    subprocess.run(command_for(spec, output_root), cwd=ROOT, check=True)
 
 
 def main() -> None:
@@ -79,10 +101,7 @@ def main() -> None:
         print(json.dumps(plan, indent=2))
         return
     spec = specs[args.execute_index]
-    output = args.output / spec.phase / spec.run_id
-    if output.exists():
-        raise SystemExit(f"refusing to overwrite completed or partial run: {output}")
-    subprocess.run(command_for(spec, args.output), cwd=ROOT, check=True)
+    execute_spec(spec, args.output)
 
 
 if __name__ == "__main__":

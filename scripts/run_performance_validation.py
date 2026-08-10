@@ -11,8 +11,9 @@ import platform
 import subprocess
 import sys
 import tempfile
+import threading
 import time
-from typing import Any
+from typing import Any, Callable
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
@@ -50,25 +51,73 @@ def command(argv: list[str], *, cwd: Path = ROOT, timeout: int = 300) -> subproc
 def measured_client(
     argv: list[str], *, cwd: Path, server: subprocess.Popen[str], timeout: int,
     stdout_path: Path | None = None,
+    output_line_sink: Callable[[str], None] | None = None,
+    resource_sink: Callable[[dict[str, Any]], None] | None = None,
+    sampling_interval_seconds: float = 1.0,
 ) -> tuple[str, list[dict[str, Any]]]:
     output_handle = stdout_path.open("w", encoding="utf-8", newline="\n") if stdout_path is not None else None
+    capture_stream = output_line_sink is not None
     client = subprocess.Popen(
-        argv, cwd=cwd, stdout=output_handle if output_handle is not None else subprocess.PIPE,
+        argv, cwd=cwd, stdout=subprocess.PIPE if capture_stream else output_handle if output_handle is not None else subprocess.PIPE,
         stderr=subprocess.PIPE, text=True,
     )
+    streamed_output: list[str] = []
+    stream_error: list[BaseException] = []
+
+    def stream_lines() -> None:
+        try:
+            if client.stdout is None:
+                raise RuntimeError("measured client stdout unavailable")
+            for line in client.stdout:
+                if output_handle is not None:
+                    output_handle.write(line)
+                    output_handle.flush()
+                if output_line_sink is not None:
+                    output_line_sink(line)
+                elif output_handle is None:
+                    streamed_output.append(line)
+        except BaseException as error:
+            stream_error.append(error)
+
+    reader = threading.Thread(target=stream_lines, name="nbsr-measured-client-output", daemon=True) if capture_stream else None
     sampler = ProcessResourceSampler(
         {"source": client.pid, "destination": server.pid},
-        interval_seconds=1.0,
+        interval_seconds=sampling_interval_seconds,
         assigned_logical_processors=os.cpu_count() or 1,
+        record_sink=(lambda record: resource_sink(asdict(record))) if resource_sink is not None else None,
     )
     sampler.start()
+    if reader is not None:
+        reader.start()
+    sampler_stopped = False
     try:
-        stdout, stderr = client.communicate(timeout=timeout)
+        if reader is None:
+            stdout, stderr = client.communicate(timeout=timeout)
+        else:
+            client.wait(timeout=timeout)
+            reader.join(timeout=5)
+            if reader.is_alive():
+                raise RuntimeError("measured client output reader did not stop")
+            if stream_error:
+                raise RuntimeError("measured client output reader failed") from stream_error[0]
+            stdout = "".join(streamed_output)
+            stderr = client.stderr.read() if client.stderr is not None else ""
         resources = [asdict(record) for record in sampler.stop()]
+        sampler_stopped = True
         if client.returncode:
             raise RuntimeError(f"command failed ({client.returncode}): {argv!r}\n{stderr}")
         return stdout or "", resources
     finally:
+        if client.poll() is None:
+            client.kill()
+            client.wait(timeout=5)
+        if not sampler_stopped:
+            try:
+                sampler.stop()
+            except RuntimeError:
+                pass
+        if reader is not None:
+            reader.join(timeout=1)
         if output_handle is not None:
             output_handle.close()
 
@@ -175,6 +224,8 @@ def direct_samples(
     offered_rate: float | None = None,
     resource_records: list[dict[str, Any]] | None = None,
     raw_output: Path | None = None,
+    output_line_sink: Callable[[str], None] | None = None,
+    resource_sink: Callable[[dict[str, Any]], None] | None = None,
 ) -> list[dict[str, Any]]:
     if raw_output is not None and resource_records is None:
         raise ValueError("direct-to-disk load evidence requires resource capture")
@@ -228,6 +279,7 @@ def direct_samples(
         else:
             stdout, observed_resources = measured_client(
                 client_command, cwd=ROOT, server=server, timeout=3600, stdout_path=raw_output,
+                output_line_sink=output_line_sink, resource_sink=resource_sink,
             )
             resource_records.extend(observed_resources)
         server.wait(30)
@@ -248,6 +300,8 @@ def nbsr_samples(
     resource_records: list[dict[str, Any]] | None = None,
     raw_output: Path | None = None,
     go_runtime_series: Path | None = None,
+    output_line_sink: Callable[[str], None] | None = None,
+    resource_sink: Callable[[dict[str, Any]], None] | None = None,
 ) -> list[dict[str, Any]]:
     if raw_output is not None and resource_records is None:
         raise ValueError("direct-to-disk load evidence requires resource capture")
@@ -295,6 +349,7 @@ def nbsr_samples(
             else:
                 stdout, observed_resources = measured_client(
                     client_command, cwd=ROOT, server=server, timeout=3600, stdout_path=raw_output,
+                    output_line_sink=output_line_sink, resource_sink=resource_sink,
                 )
                 resource_records.extend(observed_resources)
             records = [] if raw_output is not None else parse_ndjson(stdout)
@@ -321,6 +376,7 @@ def nbsr_samples(
             else:
                 stdout, observed_resources = measured_client(
                     client_command, cwd=GO_PEER, server=server, timeout=3600, stdout_path=raw_output,
+                    output_line_sink=output_line_sink, resource_sink=resource_sink,
                 )
                 resource_records.extend(observed_resources)
             if raw_output is not None:

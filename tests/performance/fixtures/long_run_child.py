@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -16,7 +17,11 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--mode", choices=("completed", "failed", "timeout"), required=True)
     parser.add_argument("--descendant-pid", type=Path)
+    parser.add_argument("--self-pid", type=Path)
     args = parser.parse_args()
+
+    if args.self_pid is not None:
+        args.self_pid.write_text(str(os.getpid()), encoding="ascii")
 
     descendant: subprocess.Popen[str] | None = None
     if args.descendant_pid is not None:

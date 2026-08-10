@@ -1,6 +1,10 @@
 from __future__ import annotations
 
-from scripts.run_performance_completion import completion_plan
+from pathlib import Path
+import subprocess
+
+import scripts.run_performance_completion as completion
+from scripts.run_performance_completion import RunSpec, completion_plan
 from scripts.run_performance_load_cell import expected_steady_sample_count
 
 
@@ -50,3 +54,46 @@ def test_memory_plan_has_six_identically_timed_non_saturated_runs() -> None:
 
 def test_fractional_rate_steady_count_uses_total_minus_warmup_boundary() -> None:
     assert expected_steady_sample_count(1265.625, warmup_seconds=60, steady_seconds=600) == 759_374
+
+
+def test_memory_execution_uses_durable_runner_only(monkeypatch, tmp_path: Path) -> None:
+    calls: list[tuple[str, object]] = []
+    spec = RunSpec("memory", "go-rust", 200, 60, 1_800, 1, 50)
+    monkeypatch.setattr(
+        completion,
+        "run_durable_memory_child",
+        lambda command, **options: calls.append(("durable", (command, options))) or {},
+    )
+    monkeypatch.setattr(
+        completion.subprocess,
+        "run",
+        lambda *args, **kwargs: calls.append(("short", (args, kwargs))),
+    )
+
+    completion.execute_spec(spec, tmp_path, timeout_seconds=3_660)
+
+    assert [name for name, _ in calls] == ["durable"]
+    _, (_, options) = calls[0]
+    assert options["output"] == tmp_path / "memory" / spec.run_id
+    assert options["offered_requests"] == round(200 * 1_860)
+    assert options["timeout_seconds"] == 3_660
+    assert "--durable-events" in calls[0][1][0]
+
+
+def test_non_memory_execution_keeps_existing_short_path(monkeypatch, tmp_path: Path) -> None:
+    calls: list[str] = []
+    spec = RunSpec("formal", "direct-quic", 100, 60, 600, 1, 25)
+    monkeypatch.setattr(
+        completion,
+        "run_durable_memory_child",
+        lambda *_args, **_kwargs: calls.append("durable"),
+    )
+    monkeypatch.setattr(
+        completion.subprocess,
+        "run",
+        lambda *args, **kwargs: calls.append("short") or subprocess.CompletedProcess(args, 0),
+    )
+
+    completion.execute_spec(spec, tmp_path, timeout_seconds=3_660)
+
+    assert calls == ["short"]

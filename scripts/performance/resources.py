@@ -6,6 +6,7 @@ from dataclasses import dataclass
 import math
 import threading
 import time
+from typing import Callable
 
 
 PROCESS_QUERY_INFORMATION = 0x0400
@@ -184,12 +185,14 @@ class ProcessResourceSampler:
         *,
         interval_seconds: float = 1.0,
         assigned_logical_processors: int,
+        record_sink: Callable[[TimedProcessResourceSample], None] | None = None,
     ) -> None:
         if not processes or interval_seconds <= 0 or assigned_logical_processors < 1:
             raise ValueError("invalid resource sampler configuration")
         self.processes = dict(processes)
         self.interval_seconds = interval_seconds
         self.assigned_logical_processors = assigned_logical_processors
+        self.record_sink = record_sink
         self._stop = threading.Event()
         self._thread: threading.Thread | None = None
         self._records: list[TimedProcessResourceSample] = []
@@ -228,8 +231,7 @@ class ProcessResourceSampler:
                     prior = previous.get(role)
                     cpu_one_core = 0.0 if prior is None else 100.0 * (cpu_total - prior[1]) / (timestamp - prior[0])
                     previous[role] = (timestamp, cpu_total)
-                    self._records.append(
-                        TimedProcessResourceSample(
+                    record = TimedProcessResourceSample(
                             role=role,
                             timestamp_ns=timestamp - origin,
                             pid=pid,
@@ -242,7 +244,9 @@ class ProcessResourceSampler:
                             private_bytes=sample.private_bytes,
                             thread_count=sample.thread_count,
                         )
-                    )
+                    self._records.append(record)
+                    if self.record_sink is not None:
+                        self.record_sink(record)
                 self._stop.wait(self.interval_seconds)
         except ProcessLookupError as error:
             if observed_roles != set(self.processes):

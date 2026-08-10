@@ -10,6 +10,7 @@ from pathlib import Path
 import shutil
 import sys
 import tempfile
+import threading
 from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -28,6 +29,41 @@ from scripts.run_performance_validation import (
 
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def durable_request_event(document: dict[str, Any]) -> dict[str, Any]:
+    event: dict[str, Any] = {
+        "event": "request",
+        "sample_id": int(document["sample_id"]),
+        "started": True,
+        "result": "completed" if document.get("success") is True else "failed",
+    }
+    if event["result"] == "failed" and document.get("error_type") is not None:
+        event["error_type"] = str(document["error_type"])
+    return event
+
+
+def emit_durable_event(document: dict[str, Any]) -> None:
+    print(json.dumps(document, sort_keys=True, separators=(",", ":")), flush=True)
+
+
+def stream_runtime_series(path: Path, stop: threading.Event) -> None:
+    position = 0
+    while not stop.is_set():
+        if path.is_file():
+            with path.open("r", encoding="utf-8") as handle:
+                handle.seek(position)
+                for line in handle:
+                    if line.strip():
+                        emit_durable_event({"event": "runtime", **json.loads(line)})
+                position = handle.tell()
+        stop.wait(0.05)
+    if path.is_file():
+        with path.open("r", encoding="utf-8") as handle:
+            handle.seek(position)
+            for line in handle:
+                if line.strip():
+                    emit_durable_event({"event": "runtime", **json.loads(line)})
 
 
 def expected_steady_sample_count(
@@ -51,6 +87,7 @@ def main() -> None:
     parser.add_argument("--formal", action="store_true")
     parser.add_argument("--memory", action="store_true")
     parser.add_argument("--sampling-cadence-seconds", type=int, default=1)
+    parser.add_argument("--durable-events", action="store_true")
     args = parser.parse_args()
     if args.formal:
         FormalRunRequirements().validate_capacity_window(
@@ -88,18 +125,43 @@ def main() -> None:
         target = Path(os.environ.get("NBSR_PERF_CARGO_TARGET", r"C:\codex-target\nbsr-perf-formal"))
         binaries = build_release(target)
         streamed = temp / "source.ndjson"
+        def request_sink(line: str) -> None:
+            document = json.loads(line)
+            if "sample_id" in document:
+                emit_durable_event(durable_request_event(document))
+
+        def resource_sink(document: dict[str, Any]) -> None:
+            emit_durable_event({"event": "resource", **document})
+
+        output_line_sink = request_sink if args.durable_events else None
+        resource_event_sink = resource_sink if args.durable_events else None
         if args.path == "direct-quic":
             direct_samples(
                 binaries["direct"], authority, sample_count, args.payload_bytes, "warm", temp,
-                args.offered_rate, resources, streamed,
+                args.offered_rate, resources, streamed, output_line_sink, resource_event_sink,
             )
             scenario = "direct-warm"
         else:
             go_runtime_series = temp / "go-runtime-series.ndjson" if args.memory and args.path == "go-rust" else None
-            nbsr_samples(
-                args.path, binaries, authority, sample_count, args.payload_bytes, temp,
-                args.offered_rate, resources, streamed, go_runtime_series,
-            )
+            runtime_stop = threading.Event()
+            runtime_thread = None
+            if args.durable_events and go_runtime_series is not None:
+                runtime_thread = threading.Thread(
+                    target=stream_runtime_series, args=(go_runtime_series, runtime_stop), daemon=True,
+                )
+                runtime_thread.start()
+            try:
+                nbsr_samples(
+                    args.path, binaries, authority, sample_count, args.payload_bytes, temp,
+                    args.offered_rate, resources, streamed, go_runtime_series,
+                    output_line_sink, resource_event_sink,
+                )
+            finally:
+                if runtime_thread is not None:
+                    runtime_stop.set()
+                    runtime_thread.join(timeout=5)
+                    if runtime_thread.is_alive():
+                        raise RuntimeError("Go runtime evidence tailer did not stop")
             scenario = "nbsr-warm-existing-service"
         warmup_ns = args.warmup_seconds * 1_000_000_000
         total_ns = total_seconds * 1_000_000_000
@@ -249,7 +311,8 @@ def main() -> None:
         and max(record["cpu_percent_assigned"] for record in destination) <= 85.0,
     }
     (output / "summary.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
-    print(json.dumps(summary, indent=2))
+    if not args.durable_events:
+        print(json.dumps(summary, indent=2))
 
 
 if __name__ == "__main__":

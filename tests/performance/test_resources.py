@@ -86,6 +86,22 @@ def test_background_sampler_retains_every_authoritative_process_sample() -> None
     assert all(record.cpu_percent_assigned >= 0 for record in records)
 
 
+def test_background_sampler_streams_each_resource_sample_before_shutdown() -> None:
+    streamed = []
+    sampler = ProcessResourceSampler(
+        {"source": os.getpid()}, interval_seconds=0.01,
+        assigned_logical_processors=1, record_sink=streamed.append,
+    )
+    sampler.start()
+    deadline = time.monotonic() + 1
+    while len(streamed) < 3 and time.monotonic() < deadline:
+        time.sleep(0.01)
+    records = sampler.stop()
+
+    assert len(streamed) >= 3
+    assert streamed == records
+
+
 def memory_samples(values: tuple[int, ...], *, warmup_count: int = 2) -> list[MemorySample]:
     return [
         MemorySample(
