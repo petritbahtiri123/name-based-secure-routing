@@ -1,0 +1,120 @@
+{
+  "finite_window_counterexamples": [
+    {
+      "events": 3,
+      "false_accepts": 0,
+      "false_rejects": 1,
+      "maximum_state_entries": 1,
+      "sequence": [
+        0,
+        2,
+        1
+      ],
+      "window_ordinals": 1
+    },
+    {
+      "events": 3,
+      "false_accepts": 0,
+      "false_rejects": 1,
+      "maximum_state_entries": 1,
+      "sequence": [
+        0,
+        5,
+        1
+      ],
+      "window_ordinals": 4
+    },
+    {
+      "events": 3,
+      "false_accepts": 0,
+      "false_rejects": 1,
+      "maximum_state_entries": 1,
+      "sequence": [
+        0,
+        17,
+        1
+      ],
+      "window_ordinals": 16
+    },
+    {
+      "events": 3,
+      "false_accepts": 0,
+      "false_rejects": 1,
+      "maximum_state_entries": 1,
+      "sequence": [
+        0,
+        65,
+        1
+      ],
+      "window_ordinals": 64
+    },
+    {
+      "events": 3,
+      "false_accepts": 0,
+      "false_rejects": 1,
+      "maximum_state_entries": 1,
+      "sequence": [
+        0,
+        1025,
+        1
+      ],
+      "window_ordinals": 1024
+    }
+  ],
+  "generated_events": 800000,
+  "generated_sequences": 10000,
+  "model": "committed STREAM_OPEN QUIC stream ordinals",
+  "oracle": {
+    "false_accepts": 0,
+    "false_rejects": 0,
+    "maximum_state_entries": 64
+  },
+  "seed": 5255491,
+  "sliding_windows": [
+    {
+      "bitmap_bits": 1,
+      "bitmap_payload_bytes": 9,
+      "false_accepts": 0,
+      "false_rejects": 592066,
+      "maximum_state_entries": 1,
+      "window_ordinals": 1
+    },
+    {
+      "bitmap_bits": 4,
+      "bitmap_payload_bytes": 9,
+      "false_accepts": 0,
+      "false_rejects": 592064,
+      "maximum_state_entries": 2,
+      "window_ordinals": 4
+    },
+    {
+      "bitmap_bits": 16,
+      "bitmap_payload_bytes": 10,
+      "false_accepts": 0,
+      "false_rejects": 592055,
+      "maximum_state_entries": 2,
+      "window_ordinals": 16
+    },
+    {
+      "bitmap_bits": 64,
+      "bitmap_payload_bytes": 16,
+      "false_accepts": 0,
+      "false_rejects": 592026,
+      "maximum_state_entries": 2,
+      "window_ordinals": 64
+    },
+    {
+      "bitmap_bits": 1024,
+      "bitmap_payload_bytes": 136,
+      "false_accepts": 0,
+      "false_rejects": 591427,
+      "maximum_state_entries": 4,
+      "window_ordinals": 1024
+    }
+  ],
+  "strict_high_water": {
+    "false_accepts": 0,
+    "false_rejects": 592066,
+    "maximum_state_entries": 1
+  }
+}
