@@ -1,0 +1,7 @@
+{
+  "authoritative": false,
+  "classification": "VALIDATION_ONLY",
+  "reason": "short 1-second warm-up and 8-second steady profile; terminal authority field predates explicit validation-profile binding",
+  "superseded_for_authority_by": "pending post-fe5ac35 validation",
+  "terminal_evidence_retained": true
+}
