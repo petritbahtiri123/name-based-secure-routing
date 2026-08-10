@@ -86,6 +86,14 @@ def expected_steady_sample_count(
     return total - warmup
 
 
+def resource_phase(timestamp_ns: int, *, warmup_ns: int, total_ns: int) -> str:
+    if timestamp_ns < warmup_ns:
+        return "warmup"
+    if timestamp_ns < total_ns:
+        return "steady"
+    return "drain"
+
+
 def streamed_document_kind(document: dict[str, Any]) -> str:
     if document.get("event") == "diagnostic":
         return "diagnostic"
@@ -169,7 +177,7 @@ def main() -> None:
             timestamp_ns = int(document["timestamp_ns"])
             warmup_boundary = args.warmup_seconds * 1_000_000_000
             load_boundary = total_seconds * 1_000_000_000
-            phase = "warmup" if timestamp_ns < warmup_boundary else "steady" if timestamp_ns < load_boundary else "drain"
+            phase = resource_phase(timestamp_ns, warmup_ns=warmup_boundary, total_ns=load_boundary)
             emit_durable_event({"event": "resource", "phase": phase, **document})
 
         output_line_sink = request_sink if args.durable_events else None
@@ -288,7 +296,9 @@ def main() -> None:
     for record in resources:
         request_activity = activity.at(int(record["timestamp_ns"]))
         record.update(asdict(request_activity))
-        record["phase"] = "warmup" if int(record["timestamp_ns"]) < warmup_ns else "steady"
+        record["phase"] = resource_phase(
+            int(record["timestamp_ns"]), warmup_ns=warmup_ns, total_ns=total_ns
+        )
     resource_path = output / "resources.ndjson"
     resource_path.write_text(
         "".join(json.dumps(record, sort_keys=True, separators=(",", ":")) + "\n" for record in resources),
@@ -296,7 +306,7 @@ def main() -> None:
     )
     destination = [
         record for record in resources
-        if record["role"] == "destination" and record["timestamp_ns"] >= warmup_ns
+        if record["role"] == "destination" and warmup_ns <= record["timestamp_ns"] < total_ns
     ]
     if len(destination) < 2:
         raise RuntimeError("insufficient destination steady-state resource samples")

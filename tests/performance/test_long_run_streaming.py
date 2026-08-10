@@ -10,11 +10,17 @@ import time
 import pytest
 
 from scripts.performance.durable_memory import _windows_process_active
-from scripts.run_performance_load_cell import durable_request_event, validate_memory_duration
+from scripts.run_performance_load_cell import durable_request_event, resource_phase, validate_memory_duration
 from scripts.run_performance_validation import dirty_paths_outside, measured_client
 
 
 FIXTURE = Path(__file__).parent / "fixtures" / "long_run_child.py"
+
+
+def test_resource_phase_distinguishes_post_load_drain() -> None:
+    assert resource_phase(29_999_999_999, warmup_ns=30_000_000_000, total_ns=90_000_000_000) == "warmup"
+    assert resource_phase(30_000_000_000, warmup_ns=30_000_000_000, total_ns=90_000_000_000) == "steady"
+    assert resource_phase(90_000_000_000, warmup_ns=30_000_000_000, total_ns=90_000_000_000) == "drain"
 
 
 def test_durable_request_event_preserves_identity_and_terminal_result() -> None:
