@@ -204,6 +204,7 @@ def run_durable_memory_child(
     terminated_process_ids: list[int] = []
     started = completed = failed = 0
     runner_error: str | None = None
+    child_return_code: int | None = None
     process: subprocess.Popen[str] | None = None
     stop = object()
     events: queue.Queue[object] = queue.Queue(maxsize=buffer_capacity)
@@ -258,11 +259,14 @@ def run_durable_memory_child(
                         raise ValueError("request evidence has no terminal result")
             if terminal_state != "timed_out":
                 return_code = process.wait(timeout=5)
+                child_return_code = return_code
                 terminal_state = "completed" if return_code == 0 else "failed"
     except BaseException as error:
         runner_error = f"{type(error).__name__}: {error}"
         if process is not None and process.poll() is None:
             terminated_process_ids, cleanup_verified = _terminate_process_tree(process)
+        if process is not None:
+            child_return_code = process.returncode
         terminal_state = "failed"
     finally:
         close_errors = _close_writers(writers.values())
@@ -273,6 +277,8 @@ def run_durable_memory_child(
             reader.join(timeout=1)
 
     persisted = writers["request"].written
+    if process is not None and child_return_code is None:
+        child_return_code = process.returncode
     timed_out = max(0, offered_requests - started) if terminal_state == "timed_out" else 0
     reconciled = started == completed + failed and persisted == started and started <= offered_requests
     if terminal_state == "completed":
@@ -281,7 +287,10 @@ def run_durable_memory_child(
     manifest: dict[str, Any] = {
         "schema": "nbsr-durable-memory-terminal-v1",
         "terminal_state": terminal_state,
-        "partial_but_durable": terminal_state != "completed",
+        "child_return_code": child_return_code,
+        "partial_but_durable": terminal_state != "completed" and any(
+            writer.written > 0 for writer in writers.values()
+        ),
         "authoritative_pass_eligible": authoritative,
         "cleanup_verified": cleanup_verified,
         "terminated_process_ids": terminated_process_ids,

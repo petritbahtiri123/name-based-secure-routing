@@ -15,7 +15,7 @@ def emit(document: dict[str, object]) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--mode", choices=("completed", "failed", "timeout"), required=True)
+    parser.add_argument("--mode", choices=("completed", "failed", "empty-failed", "timeout"), required=True)
     parser.add_argument("--descendant-pid", type=Path)
     parser.add_argument("--self-pid", type=Path)
     args = parser.parse_args()
@@ -30,6 +30,9 @@ def main() -> None:
             text=True,
         )
         args.descendant_pid.write_text(str(descendant.pid), encoding="ascii")
+
+    if args.mode == "empty-failed":
+        raise SystemExit(9)
 
     for sample_id in range(3):
         emit({

@@ -84,12 +84,25 @@ def test_failure_flushes_all_buffered_series_and_records_failed_terminal_state(t
     assert len(documents(output / "resources.ndjson")) == 3
     assert len(documents(output / "runtime.ndjson")) == 3
     assert result["terminal_state"] == "failed"
+    assert result["child_return_code"] == 7
     assert result["partial_but_durable"] is True
     assert result["authoritative_pass_eligible"] is False
     assert result["counters"] == {
         "offered": 3, "started": 3, "completed": 2, "failed": 1,
         "timed_out": 0, "persisted": 3,
     }
+
+
+def test_failed_run_without_records_is_not_labeled_partial_but_durable(tmp_path: Path) -> None:
+    result = run_durable_memory_child(
+        command("empty-failed"), output=tmp_path / "empty-failed", timeout_seconds=5,
+        offered_requests=3, buffer_capacity=2, flush_records=1, flush_interval_seconds=0.01,
+    )
+
+    assert result["terminal_state"] == "failed"
+    assert result["child_return_code"] == 9
+    assert result["partial_but_durable"] is False
+    assert result["authoritative_pass_eligible"] is False
 
 
 def test_timeout_terminates_and_verifies_descendant_process_cleanup(tmp_path: Path) -> None:
