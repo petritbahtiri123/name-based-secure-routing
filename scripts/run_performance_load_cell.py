@@ -43,6 +43,16 @@ def durable_request_event(document: dict[str, Any]) -> dict[str, Any]:
     return event
 
 
+def validate_memory_duration(
+    *, memory: bool, durable_events: bool, validation_profile: bool,
+    warmup_seconds: int, steady_seconds: int,
+) -> None:
+    if validation_profile and not (memory and durable_events):
+        raise ValueError("validation profile requires durable memory events")
+    if memory and (warmup_seconds < 60 or steady_seconds < 1_800) and not validation_profile:
+        raise ValueError("primary memory evidence requires 60 seconds warm-up and 1800 seconds steady state")
+
+
 def emit_durable_event(document: dict[str, Any]) -> None:
     print(json.dumps(document, sort_keys=True, separators=(",", ":")), flush=True)
 
@@ -88,14 +98,21 @@ def main() -> None:
     parser.add_argument("--memory", action="store_true")
     parser.add_argument("--sampling-cadence-seconds", type=int, default=1)
     parser.add_argument("--durable-events", action="store_true")
+    parser.add_argument("--validation-profile", action="store_true")
     args = parser.parse_args()
     if args.formal:
         FormalRunRequirements().validate_capacity_window(
             warmup_seconds=args.warmup_seconds,
             steady_state_seconds=args.steady_seconds,
         )
-    if args.memory and (args.warmup_seconds < 60 or args.steady_seconds < 1_800):
-        raise SystemExit("primary memory evidence requires 60 seconds warm-up and 1800 seconds steady state")
+    try:
+        validate_memory_duration(
+            memory=args.memory, durable_events=args.durable_events,
+            validation_profile=args.validation_profile,
+            warmup_seconds=args.warmup_seconds, steady_seconds=args.steady_seconds,
+        )
+    except ValueError as error:
+        raise SystemExit(str(error)) from error
     if args.sampling_cadence_seconds != 1:
         raise SystemExit("completion memory sampling cadence is frozen at 1 second")
     if args.offered_rate <= 0:

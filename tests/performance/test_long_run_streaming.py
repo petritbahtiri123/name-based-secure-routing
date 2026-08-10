@@ -10,7 +10,7 @@ import time
 import pytest
 
 from scripts.performance.durable_memory import _windows_process_active
-from scripts.run_performance_load_cell import durable_request_event
+from scripts.run_performance_load_cell import durable_request_event, validate_memory_duration
 from scripts.run_performance_validation import measured_client
 
 
@@ -21,6 +21,23 @@ def test_durable_request_event_preserves_identity_and_terminal_result() -> None:
     assert durable_request_event({"sample_id": 7, "success": True}) == {
         "event": "request", "sample_id": 7, "started": True, "result": "completed",
     }
+
+
+def test_short_memory_duration_requires_explicit_durable_validation_profile() -> None:
+    validate_memory_duration(
+        memory=True, durable_events=True, validation_profile=True,
+        warmup_seconds=1, steady_seconds=2,
+    )
+    with pytest.raises(ValueError, match="primary memory evidence requires"):
+        validate_memory_duration(
+            memory=True, durable_events=True, validation_profile=False,
+            warmup_seconds=1, steady_seconds=2,
+        )
+    with pytest.raises(ValueError, match="validation profile requires durable memory events"):
+        validate_memory_duration(
+            memory=False, durable_events=True, validation_profile=True,
+            warmup_seconds=1, steady_seconds=2,
+        )
     assert durable_request_event({"sample_id": 8, "success": False, "error_type": "timeout"}) == {
         "event": "request", "sample_id": 8, "started": True, "result": "failed",
         "error_type": "timeout",
