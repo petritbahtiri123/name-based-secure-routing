@@ -1,0 +1,33 @@
+Traceback (most recent call last):
+  File "C:\Users\bajra\OneDrive\Documents\NBSR\scripts\run_performance_load_cell.py", line 339, in <module>
+    main()
+    ~~~~^^
+  File "C:\Users\bajra\OneDrive\Documents\NBSR\scripts\run_performance_load_cell.py", line 174, in main
+    nbsr_samples(
+    ~~~~~~~~~~~~^
+        args.path, binaries, authority, sample_count, args.payload_bytes, temp,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        args.offered_rate, resources, streamed, go_runtime_series,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        output_line_sink, resource_event_sink,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\bajra\OneDrive\Documents\NBSR\scripts\run_performance_validation.py", line 397, in nbsr_samples
+    stdout, observed_resources = measured_client(
+                                 ~~~~~~~~~~~~~~~^
+        client_command, cwd=GO_PEER, server=server, timeout=3600, stdout_path=raw_output,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        output_line_sink=output_line_sink, resource_sink=resource_sink,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\bajra\OneDrive\Documents\NBSR\scripts\run_performance_validation.py", line 97, in measured_client
+    client.wait(timeout=timeout)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\bajra\AppData\Local\Programs\Python\Python314\Lib\subprocess.py", line 1279, in wait
+    return self._wait(timeout=timeout)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\bajra\AppData\Local\Programs\Python\Python314\Lib\subprocess.py", line 1608, in _wait
+    raise TimeoutExpired(self.args, timeout)
+subprocess.TimeoutExpired: Command '['C:\\codex-target\\nbsr-perf-formal\\release\\nbsr-go-peer.exe', '--config', 'C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-load-cell-k7tv0t1k\\go-config.json']' timed out after 3600 seconds
