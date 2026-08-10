@@ -7,3 +7,6 @@ evidence/performance/memory-completion-6366334/memory/rust-rust-memory-843.75-50
 evidence/performance/rust-memory-attribution-p1a/** binary
 evidence/performance/rust-memory-attribution-p1a/**/raw.ndjson filter=lfs diff=lfs merge=lfs -text
 evidence/performance/rust-memory-attribution-p1a/**/raw.ndjson.gz filter=lfs diff=lfs merge=lfs -text
+evidence/performance/rust-memory-attribution-p1b/** binary
+evidence/performance/rust-memory-attribution-p1b/**/raw.ndjson filter=lfs diff=lfs merge=lfs -text
+evidence/performance/rust-memory-attribution-p1b/**/raw.ndjson.gz filter=lfs diff=lfs merge=lfs -text

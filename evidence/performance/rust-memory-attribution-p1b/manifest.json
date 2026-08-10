@@ -1,0 +1,24 @@
+{
+  "accepted_capacity_ops_per_second": 1687.5,
+  "accepted_product_sha": "4e25ee026618a502327331f352d90e26d29284e3",
+  "classification": "B",
+  "failed_attempts_retained": [
+    "attribution-preflight-validation-profile",
+    "smoke-attempt1-close-timeout",
+    "smoke-attempt2-phase-rounding",
+    "smoke-attempt3-phase-rounding"
+  ],
+  "generated_on": "Windows-11-10.0.26200-SP0",
+  "git_head_at_generation": "b9571a5ebc071b84c724b95c9c3d08932e906024",
+  "observer_pairs": 5,
+  "p1a_checksums_sha256": "2b34de6d9329e2d6d216f0b336ec0f74ad6f961922741d3314997f019aeca39c",
+  "p1b_base_sha": "275315e3fb6e57ee272264a6b0385813bb60a8f7",
+  "primary_run_ids": [
+    "rust-rust-p1b-50pct-r1",
+    "rust-rust-p1b-75pct-r1",
+    "rust-rust-p1b-75pct-r2",
+    "rust-rust-p1b-75pct-r3"
+  ],
+  "schema": "nbsr-rust-destination-memory-attribution-p1b-manifest-v1",
+  "task_branch": "codex/nbsr-perf-p1b-destination-memory-attribution"
+}

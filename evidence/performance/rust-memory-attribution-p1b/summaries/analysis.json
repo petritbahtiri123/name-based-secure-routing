@@ -1,0 +1,1093 @@
+{
+  "classification": "B",
+  "classification_label": "Destination container/capacity retention attributed",
+  "extension_required": false,
+  "non_claims": [
+    "No optimization or behavior change was implemented.",
+    "Correlation plus synchronized release attributes the application owner but not allocator internals.",
+    "No Quinn leak or allocator defect is claimed."
+  ],
+  "observer_effect": {
+    "additional_protocol_errors": 0,
+    "median_p99_degradation_percent": -2.251335994220516,
+    "median_throughput_degradation_percent": 0.0,
+    "pairs": [
+      {
+        "achieved_rate": 843.75,
+        "diagnostics_enabled": false,
+        "errors": 0,
+        "p99_ns": 585519,
+        "pair": 1
+      },
+      {
+        "achieved_rate": 843.75,
+        "diagnostics_enabled": true,
+        "errors": 0,
+        "p99_ns": 734237,
+        "pair": 1
+      },
+      {
+        "achieved_rate": 843.75,
+        "diagnostics_enabled": true,
+        "errors": 0,
+        "p99_ns": 565607,
+        "pair": 2
+      },
+      {
+        "achieved_rate": 843.75,
+        "diagnostics_enabled": false,
+        "errors": 0,
+        "p99_ns": 605578,
+        "pair": 2
+      },
+      {
+        "achieved_rate": 843.75,
+        "diagnostics_enabled": false,
+        "errors": 0,
+        "p99_ns": 554874,
+        "pair": 3
+      },
+      {
+        "achieved_rate": 843.75,
+        "diagnostics_enabled": true,
+        "errors": 0,
+        "p99_ns": 572337,
+        "pair": 3
+      },
+      {
+        "achieved_rate": 843.75,
+        "diagnostics_enabled": true,
+        "errors": 0,
+        "p99_ns": 550667,
+        "pair": 4
+      },
+      {
+        "achieved_rate": 843.75,
+        "diagnostics_enabled": false,
+        "errors": 0,
+        "p99_ns": 605141,
+        "pair": 4
+      },
+      {
+        "achieved_rate": 843.75,
+        "diagnostics_enabled": false,
+        "errors": 0,
+        "p99_ns": 569511,
+        "pair": 5
+      },
+      {
+        "achieved_rate": 843.75,
+        "diagnostics_enabled": true,
+        "errors": 0,
+        "p99_ns": 592922,
+        "pair": 5
+      }
+    ],
+    "pass": true
+  },
+  "recommended_next_task": "Replay-semantics-preserving used_stream_ids lifetime/capacity policy investigation.",
+  "root_owner": "destination ChannelStreams.used_stream_ids retained HashSet capacity",
+  "runs": [
+    {
+      "classification_input": {
+        "all_instrumented_layers_visible": true,
+        "full_window_working_set_slope": 41123.979673470574,
+        "post_drain_nonbaseline_live": 0,
+        "process_memory_returns_to_baseline_post_drain": true,
+        "replay_capacity_private_bytes_correlation": 0.9992707736042981,
+        "replay_capacity_working_set_correlation": 0.999275450856104,
+        "replay_entries_and_capacity_clear_post_drain": true,
+        "replay_insertions_equal_completed_streams": true,
+        "valid": true
+      },
+      "collections": {
+        "audit_queue": {
+          "end_load_entries": 0,
+          "end_load_retained_capacity": 1024,
+          "high_water_entries": 6,
+          "high_water_retained_capacity": 1024,
+          "initial_entries": 0,
+          "inserts": 1670628,
+          "post_drain_entries": 0,
+          "post_drain_retained_capacity": 0,
+          "removals": 1670628
+        },
+        "channel_registry": {
+          "end_load_entries": 1,
+          "end_load_retained_capacity": 6,
+          "high_water_entries": 1,
+          "high_water_retained_capacity": 6,
+          "initial_entries": 0,
+          "inserts": 1,
+          "post_drain_entries": 0,
+          "post_drain_retained_capacity": 0,
+          "removals": 1
+        },
+        "pending_routes": {
+          "end_load_entries": 0,
+          "end_load_retained_capacity": 3,
+          "high_water_entries": 1,
+          "high_water_retained_capacity": 3,
+          "initial_entries": 0,
+          "inserts": 1,
+          "post_drain_entries": 0,
+          "post_drain_retained_capacity": 0,
+          "removals": 1
+        },
+        "replay_state": {
+          "end_load_entries": 556246,
+          "end_load_retained_capacity": 917504,
+          "high_water_entries": 556875,
+          "high_water_retained_capacity": 917504,
+          "initial_entries": 0,
+          "inserts": 556875,
+          "post_drain_entries": 0,
+          "post_drain_retained_capacity": 0,
+          "removals": 556875
+        },
+        "stream_registry": {
+          "end_load_entries": 0,
+          "end_load_retained_capacity": 6,
+          "high_water_entries": 1,
+          "high_water_retained_capacity": 6,
+          "initial_entries": 0,
+          "inserts": 556875,
+          "post_drain_entries": 0,
+          "post_drain_retained_capacity": 0,
+          "removals": 556875
+        }
+      },
+      "diagnostic_snapshots": 674,
+      "lifecycle": {
+        "application_streams": {
+          "created": 556875,
+          "current_live": 0,
+          "reconciled": true,
+          "terminal_failure_or_cancel": 0,
+          "terminal_success": 556875
+        },
+        "nbsr_tasks": {
+          "created": 0,
+          "current_live": 0,
+          "reconciled": true,
+          "terminal_failure_or_cancel": 0,
+          "terminal_success": 0
+        },
+        "quic_connections": {
+          "created": 1,
+          "current_live": 0,
+          "reconciled": true,
+          "terminal_failure_or_cancel": 0,
+          "terminal_success": 1
+        },
+        "quic_streams": {
+          "created": 556875,
+          "current_live": 0,
+          "reconciled": true,
+          "terminal_failure_or_cancel": 0,
+          "terminal_success": 556875
+        },
+        "service_channels": {
+          "created": 1,
+          "current_live": 0,
+          "reconciled": true,
+          "terminal_failure_or_cancel": 0,
+          "terminal_success": 1
+        },
+        "transport_sessions": {
+          "created": 1,
+          "current_live": 0,
+          "reconciled": true,
+          "terminal_failure_or_cancel": 0,
+          "terminal_success": 1
+        }
+      },
+      "load": {
+        "completed_operations": 506250,
+        "drain_seconds": 20,
+        "errors": 0,
+        "measurement_seconds": 600,
+        "offered_operations": 506250,
+        "p99_ns": 709656,
+        "rate": 843.75,
+        "total_completed_including_warmup": 556875,
+        "total_offered_including_warmup": 556875,
+        "warmup_seconds": 60
+      },
+      "percent": 50,
+      "process": {
+        "backlog": {
+          "delta": 76,
+          "end": 599,
+          "peak": 841,
+          "start": 523
+        },
+        "cpu_percent_assigned_mean": 1.8822389720308836,
+        "post_drain_private_bytes": 2564096,
+        "post_drain_working_set_bytes": 9265152,
+        "private_bytes": {
+          "final_quarter": {
+            "lower_95": 81551.69739123822,
+            "r_squared": 0.5302699060712883,
+            "samples": 149,
+            "slope_bytes_per_second": 96186.51426673857,
+            "upper_95": 110821.33114223891
+          },
+          "overall": {
+            "lower_95": 39505.706963373574,
+            "r_squared": 0.8316978231423011,
+            "samples": 594,
+            "slope_bytes_per_second": 40991.119488227116,
+            "upper_95": 42476.53201308066
+          },
+          "second_half": {
+            "lower_95": 60122.06544060587,
+            "r_squared": 0.7114269606329323,
+            "samples": 297,
+            "slope_bytes_per_second": 64834.13276040282,
+            "upper_95": 69546.20008019978
+          }
+        },
+        "private_bytes_change_per_completed_operation": 51.83007604938272,
+        "private_bytes_per_request": 51.91652668047732,
+        "private_bytes_values": {
+          "end": 30916608,
+          "peak": 30916608,
+          "start": 4677632
+        },
+        "processed_request_delta": 505407,
+        "role": "destination",
+        "samples": 594,
+        "working_set": {
+          "final_quarter": {
+            "lower_95": 81306.31638011787,
+            "r_squared": 0.5294707150730477,
+            "samples": 149,
+            "slope_bytes_per_second": 95924.73399463219,
+            "upper_95": 110543.1516091465
+          },
+          "overall": {
+            "lower_95": 39643.97663202546,
+            "r_squared": 0.8336163229010634,
+            "samples": 594,
+            "slope_bytes_per_second": 41123.979673470574,
+            "upper_95": 42603.98271491569
+          },
+          "second_half": {
+            "lower_95": 60065.645569300585,
+            "r_squared": 0.7120533215267438,
+            "samples": 297,
+            "slope_bytes_per_second": 64765.54851441901,
+            "upper_95": 69465.45145953743
+          }
+        },
+        "working_set_bytes": {
+          "end": 37494784,
+          "peak": 42201088,
+          "start": 11227136
+        },
+        "working_set_bytes_per_request": 51.973257196675156,
+        "working_set_change_per_completed_operation": 51.88671209876543
+      },
+      "replay": {
+        "capacity_growth_events": 11,
+        "capacity_per_total_completed_operation": 1.6475941638608305,
+        "capacity_private_bytes_correlation": 0.9992707736042981,
+        "capacity_working_set_correlation": 0.999275450856104,
+        "end_load_entries": 556246,
+        "end_load_retained_capacity": 917504,
+        "entries_per_total_completed_operation": 1.0,
+        "high_water_entries": 556875,
+        "high_water_retained_capacity": 917504,
+        "initial_entries": 0,
+        "inserts": 556875,
+        "post_drain_entries": 0,
+        "post_drain_retained_capacity": 0,
+        "removals": 556875
+      },
+      "run_id": "rust-rust-p1b-50pct-r1",
+      "terminal": {
+        "authoritative_pass_eligible": true,
+        "authoritative_run": true,
+        "child_return_code": 0,
+        "cleanup_verified": true,
+        "counters": {
+          "completed": 556875,
+          "failed": 0,
+          "offered": 556875,
+          "persisted": 556875,
+          "started": 556875,
+          "timed_out": 0
+        },
+        "counters_reconciled": true,
+        "partial_but_durable": false,
+        "request_evidence": {
+          "path": "raw.ndjson.gz",
+          "uncompressed_bytes": 31630765,
+          "uncompressed_sha256": "6069822074dc9c7b57b69bd666c28379833f5bb06b4bc3b5aae3ab71c158bd5b"
+        },
+        "runner_error": null,
+        "schema": "nbsr-durable-memory-terminal-v1",
+        "series_counts": {
+          "diagnostics": 0,
+          "requests": 556875,
+          "resources": 1348,
+          "runtime": 0
+        },
+        "terminal_state": "completed",
+        "terminated_process_ids": []
+      }
+    },
+    {
+      "classification_input": {
+        "all_instrumented_layers_visible": true,
+        "full_window_working_set_slope": 61537.0584720594,
+        "post_drain_nonbaseline_live": 0,
+        "process_memory_returns_to_baseline_post_drain": true,
+        "replay_capacity_private_bytes_correlation": 0.9984597681403498,
+        "replay_capacity_working_set_correlation": 0.998459574758283,
+        "replay_entries_and_capacity_clear_post_drain": true,
+        "replay_insertions_equal_completed_streams": true,
+        "valid": true
+      },
+      "collections": {
+        "audit_queue": {
+          "end_load_entries": 0,
+          "end_load_retained_capacity": 1024,
+          "high_water_entries": 6,
+          "high_water_retained_capacity": 1024,
+          "initial_entries": 0,
+          "inserts": 3645003,
+          "post_drain_entries": 0,
+          "post_drain_retained_capacity": 0,
+          "removals": 3645003
+        },
+        "channel_registry": {
+          "end_load_entries": 1,
+          "end_load_retained_capacity": 6,
+          "high_water_entries": 1,
+          "high_water_retained_capacity": 6,
+          "initial_entries": 0,
+          "inserts": 1,
+          "post_drain_entries": 0,
+          "post_drain_retained_capacity": 0,
+          "removals": 1
+        },
+        "pending_routes": {
+          "end_load_entries": 0,
+          "end_load_retained_capacity": 3,
+          "high_water_entries": 1,
+          "high_water_retained_capacity": 3,
+          "initial_entries": 0,
+          "inserts": 1,
+          "post_drain_entries": 0,
+          "post_drain_retained_capacity": 0,
+          "removals": 1
+        },
+        "replay_state": {
+          "end_load_entries": 1214422,
+          "end_load_retained_capacity": 1835008,
+          "high_water_entries": 1215000,
+          "high_water_retained_capacity": 1835008,
+          "initial_entries": 0,
+          "inserts": 1215000,
+          "post_drain_entries": 0,
+          "post_drain_retained_capacity": 0,
+          "removals": 1215000
+        },
+        "stream_registry": {
+          "end_load_entries": 0,
+          "end_load_retained_capacity": 6,
+          "high_water_entries": 1,
+          "high_water_retained_capacity": 6,
+          "initial_entries": 0,
+          "inserts": 1215000,
+          "post_drain_entries": 0,
+          "post_drain_retained_capacity": 0,
+          "removals": 1215000
+        }
+      },
+      "diagnostic_snapshots": 971,
+      "lifecycle": {
+        "application_streams": {
+          "created": 1215000,
+          "current_live": 0,
+          "reconciled": true,
+          "terminal_failure_or_cancel": 0,
+          "terminal_success": 1215000
+        },
+        "nbsr_tasks": {
+          "created": 0,
+          "current_live": 0,
+          "reconciled": true,
+          "terminal_failure_or_cancel": 0,
+          "terminal_success": 0
+        },
+        "quic_connections": {
+          "created": 1,
+          "current_live": 0,
+          "reconciled": true,
+          "terminal_failure_or_cancel": 0,
+          "terminal_success": 1
+        },
+        "quic_streams": {
+          "created": 1215000,
+          "current_live": 0,
+          "reconciled": true,
+          "terminal_failure_or_cancel": 0,
+          "terminal_success": 1215000
+        },
+        "service_channels": {
+          "created": 1,
+          "current_live": 0,
+          "reconciled": true,
+          "terminal_failure_or_cancel": 0,
+          "terminal_success": 1
+        },
+        "transport_sessions": {
+          "created": 1,
+          "current_live": 0,
+          "reconciled": true,
+          "terminal_failure_or_cancel": 0,
+          "terminal_success": 1
+        }
+      },
+      "load": {
+        "completed_operations": 1139062,
+        "drain_seconds": 20,
+        "errors": 0,
+        "measurement_seconds": 900,
+        "offered_operations": 1139062,
+        "p99_ns": 559053,
+        "rate": 1265.625,
+        "total_completed_including_warmup": 1215000,
+        "total_offered_including_warmup": 1215000,
+        "warmup_seconds": 60
+      },
+      "percent": 75,
+      "process": {
+        "backlog": {
+          "delta": 480,
+          "end": 1171,
+          "peak": 1264,
+          "start": 691
+        },
+        "cpu_percent_assigned_mean": 2.6938614155547156,
+        "post_drain_private_bytes": 2641920,
+        "post_drain_working_set_bytes": 9269248,
+        "private_bytes": {
+          "final_quarter": {
+            "lower_95": -217.69324172052382,
+            "r_squared": 0.6353062996501225,
+            "samples": 223,
+            "slope_bytes_per_second": -197.92230589579304,
+            "upper_95": -178.15137007106227
+          },
+          "overall": {
+            "lower_95": 60047.10053979663,
+            "r_squared": 0.8753617121409798,
+            "samples": 892,
+            "slope_bytes_per_second": 61573.56728406237,
+            "upper_95": 63100.034028328104
+          },
+          "second_half": {
+            "lower_95": 85963.6662414377,
+            "r_squared": 0.748213870906941,
+            "samples": 446,
+            "slope_bytes_per_second": 90866.7892864875,
+            "upper_95": 95769.9123315373
+          }
+        },
+        "private_bytes_change_per_completed_operation": 45.02478003831222,
+        "private_bytes_per_request": 45.074838481732684,
+        "private_bytes_values": {
+          "end": 58236928,
+          "peak": 58269696,
+          "start": 6950912
+        },
+        "processed_request_delta": 1137797,
+        "role": "destination",
+        "samples": 892,
+        "working_set": {
+          "final_quarter": {
+            "lower_95": -108.8466208602615,
+            "r_squared": 0.6353062996501532,
+            "samples": 223,
+            "slope_bytes_per_second": -98.96115294789652,
+            "upper_95": -89.07568503553155
+          },
+          "overall": {
+            "lower_95": 60014.724760022094,
+            "r_squared": 0.8758231725791432,
+            "samples": 892,
+            "slope_bytes_per_second": 61537.0584720594,
+            "upper_95": 63059.3921840967
+          },
+          "second_half": {
+            "lower_95": 85793.52678548952,
+            "r_squared": 0.7483519587529099,
+            "samples": 446,
+            "slope_bytes_per_second": 90685.04989782549,
+            "upper_95": 95576.57301016146
+          }
+        },
+        "working_set_bytes": {
+          "end": 64454656,
+          "peak": 73895936,
+          "start": 13209600
+        },
+        "working_set_bytes_per_request": 45.03883908992553,
+        "working_set_change_per_completed_operation": 44.9888206260941
+      },
+      "replay": {
+        "capacity_growth_events": 11,
+        "capacity_per_total_completed_operation": 1.5102946502057613,
+        "capacity_private_bytes_correlation": 0.9984597681403498,
+        "capacity_working_set_correlation": 0.998459574758283,
+        "end_load_entries": 1214422,
+        "end_load_retained_capacity": 1835008,
+        "entries_per_total_completed_operation": 1.0,
+        "high_water_entries": 1215000,
+        "high_water_retained_capacity": 1835008,
+        "initial_entries": 0,
+        "inserts": 1215000,
+        "post_drain_entries": 0,
+        "post_drain_retained_capacity": 0,
+        "removals": 1215000
+      },
+      "run_id": "rust-rust-p1b-75pct-r1",
+      "terminal": {
+        "authoritative_pass_eligible": true,
+        "authoritative_run": true,
+        "child_return_code": 0,
+        "cleanup_verified": true,
+        "counters": {
+          "completed": 1215000,
+          "failed": 0,
+          "offered": 1215000,
+          "persisted": 1215000,
+          "started": 1215000,
+          "timed_out": 0
+        },
+        "counters_reconciled": true,
+        "partial_but_durable": false,
+        "request_evidence": {
+          "path": "raw.ndjson.gz",
+          "uncompressed_bytes": 69358890,
+          "uncompressed_sha256": "4dc687f735693934e41ac58e5d9cb7c312cb8ae925b3eff1b6bb31a42995773a"
+        },
+        "runner_error": null,
+        "schema": "nbsr-durable-memory-terminal-v1",
+        "series_counts": {
+          "diagnostics": 0,
+          "requests": 1215000,
+          "resources": 1944,
+          "runtime": 0
+        },
+        "terminal_state": "completed",
+        "terminated_process_ids": []
+      }
+    },
+    {
+      "classification_input": {
+        "all_instrumented_layers_visible": true,
+        "full_window_working_set_slope": 60574.825938122645,
+        "post_drain_nonbaseline_live": 0,
+        "process_memory_returns_to_baseline_post_drain": true,
+        "replay_capacity_private_bytes_correlation": 0.9997161153253679,
+        "replay_capacity_working_set_correlation": 0.9998283501875898,
+        "replay_entries_and_capacity_clear_post_drain": true,
+        "replay_insertions_equal_completed_streams": true,
+        "valid": true
+      },
+      "collections": {
+        "audit_queue": {
+          "end_load_entries": 0,
+          "end_load_retained_capacity": 1024,
+          "high_water_entries": 6,
+          "high_water_retained_capacity": 1024,
+          "initial_entries": 0,
+          "inserts": 3645003,
+          "post_drain_entries": 0,
+          "post_drain_retained_capacity": 0,
+          "removals": 3645003
+        },
+        "channel_registry": {
+          "end_load_entries": 1,
+          "end_load_retained_capacity": 6,
+          "high_water_entries": 1,
+          "high_water_retained_capacity": 6,
+          "initial_entries": 0,
+          "inserts": 1,
+          "post_drain_entries": 0,
+          "post_drain_retained_capacity": 0,
+          "removals": 1
+        },
+        "pending_routes": {
+          "end_load_entries": 0,
+          "end_load_retained_capacity": 3,
+          "high_water_entries": 1,
+          "high_water_retained_capacity": 3,
+          "initial_entries": 0,
+          "inserts": 1,
+          "post_drain_entries": 0,
+          "post_drain_retained_capacity": 0,
+          "removals": 1
+        },
+        "replay_state": {
+          "end_load_entries": 1214668,
+          "end_load_retained_capacity": 1835008,
+          "high_water_entries": 1215000,
+          "high_water_retained_capacity": 1835008,
+          "initial_entries": 0,
+          "inserts": 1215000,
+          "post_drain_entries": 0,
+          "post_drain_retained_capacity": 0,
+          "removals": 1215000
+        },
+        "stream_registry": {
+          "end_load_entries": 0,
+          "end_load_retained_capacity": 6,
+          "high_water_entries": 1,
+          "high_water_retained_capacity": 6,
+          "initial_entries": 0,
+          "inserts": 1215000,
+          "post_drain_entries": 0,
+          "post_drain_retained_capacity": 0,
+          "removals": 1215000
+        }
+      },
+      "diagnostic_snapshots": 971,
+      "lifecycle": {
+        "application_streams": {
+          "created": 1215000,
+          "current_live": 0,
+          "reconciled": true,
+          "terminal_failure_or_cancel": 0,
+          "terminal_success": 1215000
+        },
+        "nbsr_tasks": {
+          "created": 0,
+          "current_live": 0,
+          "reconciled": true,
+          "terminal_failure_or_cancel": 0,
+          "terminal_success": 0
+        },
+        "quic_connections": {
+          "created": 1,
+          "current_live": 0,
+          "reconciled": true,
+          "terminal_failure_or_cancel": 0,
+          "terminal_success": 1
+        },
+        "quic_streams": {
+          "created": 1215000,
+          "current_live": 0,
+          "reconciled": true,
+          "terminal_failure_or_cancel": 0,
+          "terminal_success": 1215000
+        },
+        "service_channels": {
+          "created": 1,
+          "current_live": 0,
+          "reconciled": true,
+          "terminal_failure_or_cancel": 0,
+          "terminal_success": 1
+        },
+        "transport_sessions": {
+          "created": 1,
+          "current_live": 0,
+          "reconciled": true,
+          "terminal_failure_or_cancel": 0,
+          "terminal_success": 1
+        }
+      },
+      "load": {
+        "completed_operations": 1139062,
+        "drain_seconds": 20,
+        "errors": 0,
+        "measurement_seconds": 900,
+        "offered_operations": 1139062,
+        "p99_ns": 499115,
+        "rate": 1265.625,
+        "total_completed_including_warmup": 1215000,
+        "total_offered_including_warmup": 1215000,
+        "warmup_seconds": 60
+      },
+      "percent": 75,
+      "process": {
+        "backlog": {
+          "delta": 1,
+          "end": 708,
+          "peak": 1265,
+          "start": 707
+        },
+        "cpu_percent_assigned_mean": 2.6390598142038675,
+        "post_drain_private_bytes": 2654208,
+        "post_drain_working_set_bytes": 9330688,
+        "private_bytes": {
+          "final_quarter": {
+            "lower_95": 0.0,
+            "r_squared": 1.0,
+            "samples": 223,
+            "slope_bytes_per_second": 0.0,
+            "upper_95": 0.0
+          },
+          "overall": {
+            "lower_95": 58509.896609580624,
+            "r_squared": 0.8678301127368026,
+            "samples": 892,
+            "slope_bytes_per_second": 60049.53822804443,
+            "upper_95": 61589.17984650824
+          },
+          "second_half": {
+            "lower_95": 85936.89018602307,
+            "r_squared": 0.7486062409682714,
+            "samples": 446,
+            "slope_bytes_per_second": 90833.09078587867,
+            "upper_95": 95729.29138573426
+          }
+        },
+        "private_bytes_change_per_completed_operation": 44.16175414507727,
+        "private_bytes_per_request": 44.210853078361076,
+        "private_bytes_values": {
+          "end": 57298944,
+          "peak": 57298944,
+          "start": 6995968
+        },
+        "processed_request_delta": 1137797,
+        "role": "destination",
+        "samples": 892,
+        "working_set": {
+          "final_quarter": {
+            "lower_95": 0.0,
+            "r_squared": 1.0,
+            "samples": 223,
+            "slope_bytes_per_second": 0.0,
+            "upper_95": 0.0
+          },
+          "overall": {
+            "lower_95": 59044.09226031823,
+            "r_squared": 0.8711238139989279,
+            "samples": 892,
+            "slope_bytes_per_second": 60574.825938122645,
+            "upper_95": 62105.55961592706
+          },
+          "second_half": {
+            "lower_95": 85783.14516022555,
+            "r_squared": 0.7485623163559705,
+            "samples": 446,
+            "slope_bytes_per_second": 90671.18909689446,
+            "upper_95": 95559.23303356337
+          }
+        },
+        "working_set_bytes": {
+          "end": 63844352,
+          "peak": 73285632,
+          "start": 13225984
+        },
+        "working_set_bytes_per_request": 44.48804839527613,
+        "working_set_change_per_completed_operation": 44.43864161915681
+      },
+      "replay": {
+        "capacity_growth_events": 11,
+        "capacity_per_total_completed_operation": 1.5102946502057613,
+        "capacity_private_bytes_correlation": 0.9997161153253679,
+        "capacity_working_set_correlation": 0.9998283501875898,
+        "end_load_entries": 1214668,
+        "end_load_retained_capacity": 1835008,
+        "entries_per_total_completed_operation": 1.0,
+        "high_water_entries": 1215000,
+        "high_water_retained_capacity": 1835008,
+        "initial_entries": 0,
+        "inserts": 1215000,
+        "post_drain_entries": 0,
+        "post_drain_retained_capacity": 0,
+        "removals": 1215000
+      },
+      "run_id": "rust-rust-p1b-75pct-r2",
+      "terminal": {
+        "authoritative_pass_eligible": true,
+        "authoritative_run": true,
+        "child_return_code": 0,
+        "cleanup_verified": true,
+        "counters": {
+          "completed": 1215000,
+          "failed": 0,
+          "offered": 1215000,
+          "persisted": 1215000,
+          "started": 1215000,
+          "timed_out": 0
+        },
+        "counters_reconciled": true,
+        "partial_but_durable": false,
+        "request_evidence": {
+          "path": "raw.ndjson.gz",
+          "uncompressed_bytes": 69358890,
+          "uncompressed_sha256": "4dc687f735693934e41ac58e5d9cb7c312cb8ae925b3eff1b6bb31a42995773a"
+        },
+        "runner_error": null,
+        "schema": "nbsr-durable-memory-terminal-v1",
+        "series_counts": {
+          "diagnostics": 0,
+          "requests": 1215000,
+          "resources": 1944,
+          "runtime": 0
+        },
+        "terminal_state": "completed",
+        "terminated_process_ids": []
+      }
+    },
+    {
+      "classification_input": {
+        "all_instrumented_layers_visible": true,
+        "full_window_working_set_slope": 61518.648320763365,
+        "post_drain_nonbaseline_live": 0,
+        "process_memory_returns_to_baseline_post_drain": true,
+        "replay_capacity_private_bytes_correlation": 0.9980993026717683,
+        "replay_capacity_working_set_correlation": 0.9981013698451645,
+        "replay_entries_and_capacity_clear_post_drain": true,
+        "replay_insertions_equal_completed_streams": true,
+        "valid": true
+      },
+      "collections": {
+        "audit_queue": {
+          "end_load_entries": 0,
+          "end_load_retained_capacity": 1024,
+          "high_water_entries": 6,
+          "high_water_retained_capacity": 1024,
+          "initial_entries": 0,
+          "inserts": 3645003,
+          "post_drain_entries": 0,
+          "post_drain_retained_capacity": 0,
+          "removals": 3645003
+        },
+        "channel_registry": {
+          "end_load_entries": 1,
+          "end_load_retained_capacity": 6,
+          "high_water_entries": 1,
+          "high_water_retained_capacity": 6,
+          "initial_entries": 0,
+          "inserts": 1,
+          "post_drain_entries": 0,
+          "post_drain_retained_capacity": 0,
+          "removals": 1
+        },
+        "pending_routes": {
+          "end_load_entries": 0,
+          "end_load_retained_capacity": 3,
+          "high_water_entries": 1,
+          "high_water_retained_capacity": 3,
+          "initial_entries": 0,
+          "inserts": 1,
+          "post_drain_entries": 0,
+          "post_drain_retained_capacity": 0,
+          "removals": 1
+        },
+        "replay_state": {
+          "end_load_entries": 1213754,
+          "end_load_retained_capacity": 1835008,
+          "high_water_entries": 1215000,
+          "high_water_retained_capacity": 1835008,
+          "initial_entries": 0,
+          "inserts": 1215000,
+          "post_drain_entries": 0,
+          "post_drain_retained_capacity": 0,
+          "removals": 1215000
+        },
+        "stream_registry": {
+          "end_load_entries": 0,
+          "end_load_retained_capacity": 6,
+          "high_water_entries": 1,
+          "high_water_retained_capacity": 6,
+          "initial_entries": 0,
+          "inserts": 1215000,
+          "post_drain_entries": 0,
+          "post_drain_retained_capacity": 0,
+          "removals": 1215000
+        }
+      },
+      "diagnostic_snapshots": 970,
+      "lifecycle": {
+        "application_streams": {
+          "created": 1215000,
+          "current_live": 0,
+          "reconciled": true,
+          "terminal_failure_or_cancel": 0,
+          "terminal_success": 1215000
+        },
+        "nbsr_tasks": {
+          "created": 0,
+          "current_live": 0,
+          "reconciled": true,
+          "terminal_failure_or_cancel": 0,
+          "terminal_success": 0
+        },
+        "quic_connections": {
+          "created": 1,
+          "current_live": 0,
+          "reconciled": true,
+          "terminal_failure_or_cancel": 0,
+          "terminal_success": 1
+        },
+        "quic_streams": {
+          "created": 1215000,
+          "current_live": 0,
+          "reconciled": true,
+          "terminal_failure_or_cancel": 0,
+          "terminal_success": 1215000
+        },
+        "service_channels": {
+          "created": 1,
+          "current_live": 0,
+          "reconciled": true,
+          "terminal_failure_or_cancel": 0,
+          "terminal_success": 1
+        },
+        "transport_sessions": {
+          "created": 1,
+          "current_live": 0,
+          "reconciled": true,
+          "terminal_failure_or_cancel": 0,
+          "terminal_success": 1
+        }
+      },
+      "load": {
+        "completed_operations": 1139062,
+        "drain_seconds": 20,
+        "errors": 0,
+        "measurement_seconds": 900,
+        "offered_operations": 1139062,
+        "p99_ns": 531007,
+        "rate": 1265.625,
+        "total_completed_including_warmup": 1215000,
+        "total_offered_including_warmup": 1215000,
+        "warmup_seconds": 60
+      },
+      "percent": 75,
+      "process": {
+        "backlog": {
+          "delta": -209,
+          "end": 492,
+          "peak": 1264,
+          "start": 701
+        },
+        "cpu_percent_assigned_mean": 2.6712451355440723,
+        "post_drain_private_bytes": 2592768,
+        "post_drain_working_set_bytes": 9273344,
+        "private_bytes": {
+          "final_quarter": {
+            "lower_95": 0.0,
+            "r_squared": 1.0,
+            "samples": 223,
+            "slope_bytes_per_second": 0.0,
+            "upper_95": 0.0
+          },
+          "overall": {
+            "lower_95": 59974.46065271888,
+            "r_squared": 0.8751295148645646,
+            "samples": 892,
+            "slope_bytes_per_second": 61500.744020723374,
+            "upper_95": 63027.02738872787
+          },
+          "second_half": {
+            "lower_95": 85955.45164461534,
+            "r_squared": 0.7486046660974367,
+            "samples": 446,
+            "slope_bytes_per_second": 90852.73143028193,
+            "upper_95": 95750.01121594851
+          }
+        },
+        "private_bytes_change_per_completed_operation": 44.967244978763226,
+        "private_bytes_per_request": 45.01723945484124,
+        "private_bytes_values": {
+          "end": 58187776,
+          "peak": 58187776,
+          "start": 6967296
+        },
+        "processed_request_delta": 1137797,
+        "role": "destination",
+        "samples": 892,
+        "working_set": {
+          "final_quarter": {
+            "lower_95": 0.0,
+            "r_squared": 1.0,
+            "samples": 223,
+            "slope_bytes_per_second": 0.0,
+            "upper_95": 0.0
+          },
+          "overall": {
+            "lower_95": 59995.988802351625,
+            "r_squared": 0.8757114989150718,
+            "samples": 892,
+            "slope_bytes_per_second": 61518.648320763365,
+            "upper_95": 63041.307839175104
+          },
+          "second_half": {
+            "lower_95": 85811.09298833236,
+            "r_squared": 0.7485717167254131,
+            "samples": 446,
+            "slope_bytes_per_second": 90700.6003690102,
+            "upper_95": 95590.10774968803
+          }
+        },
+        "working_set_bytes": {
+          "end": 64454656,
+          "peak": 73895936,
+          "start": 13242368
+        },
+        "working_set_bytes_per_request": 45.01003957647981,
+        "working_set_change_per_completed_operation": 44.960053096319605
+      },
+      "replay": {
+        "capacity_growth_events": 11,
+        "capacity_per_total_completed_operation": 1.5102946502057613,
+        "capacity_private_bytes_correlation": 0.9980993026717683,
+        "capacity_working_set_correlation": 0.9981013698451645,
+        "end_load_entries": 1213754,
+        "end_load_retained_capacity": 1835008,
+        "entries_per_total_completed_operation": 1.0,
+        "high_water_entries": 1215000,
+        "high_water_retained_capacity": 1835008,
+        "initial_entries": 0,
+        "inserts": 1215000,
+        "post_drain_entries": 0,
+        "post_drain_retained_capacity": 0,
+        "removals": 1215000
+      },
+      "run_id": "rust-rust-p1b-75pct-r3",
+      "terminal": {
+        "authoritative_pass_eligible": true,
+        "authoritative_run": true,
+        "child_return_code": 0,
+        "cleanup_verified": true,
+        "counters": {
+          "completed": 1215000,
+          "failed": 0,
+          "offered": 1215000,
+          "persisted": 1215000,
+          "started": 1215000,
+          "timed_out": 0
+        },
+        "counters_reconciled": true,
+        "partial_but_durable": false,
+        "request_evidence": {
+          "path": "raw.ndjson.gz",
+          "uncompressed_bytes": 69358890,
+          "uncompressed_sha256": "4dc687f735693934e41ac58e5d9cb7c312cb8ae925b3eff1b6bb31a42995773a"
+        },
+        "runner_error": null,
+        "schema": "nbsr-durable-memory-terminal-v1",
+        "series_counts": {
+          "diagnostics": 0,
+          "requests": 1215000,
+          "resources": 1944,
+          "runtime": 0
+        },
+        "terminal_state": "completed",
+        "terminated_process_ids": []
+      }
+    }
+  ],
+  "schema": "nbsr-rust-destination-memory-attribution-p1b-v1"
+}

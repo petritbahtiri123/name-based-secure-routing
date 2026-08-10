@@ -1,0 +1,72 @@
+{
+  "schema": "nbsr-rust-destination-memory-attribution-p1b-verification-v1",
+  "fresh_commands": [
+    {
+      "command": "cargo test --manifest-path crates/nbsr-transport/Cargo.toml",
+      "result": "PASS",
+      "tests_listed": 142,
+      "failures": 0
+    },
+    {
+      "command": "python -m pytest -q tests/performance/test_rust_destination_memory_attribution.py tests/performance/test_rust_memory_attribution.py tests/performance/test_driver.py tests/performance/test_long_run_streaming.py tests/performance/test_failure_evidence.py tests/protocol/test_wp8_f75_vectors.py tests/federation/test_runtime_documentation.py",
+      "result": "PASS",
+      "passed": 74,
+      "failed": 0
+    },
+    {
+      "command": "cargo fmt --manifest-path crates/nbsr-transport/Cargo.toml --check",
+      "result": "PASS"
+    },
+    {
+      "command": "cargo clippy --manifest-path crates/nbsr-transport/Cargo.toml --all-targets -- -D warnings",
+      "result": "PASS"
+    },
+    {
+      "command": "python -m ruff check .",
+      "result": "PASS"
+    },
+    {
+      "command": "python -m pip check",
+      "result": "PASS"
+    },
+    {
+      "command": "python -m pytest -q",
+      "result": "BASELINE_ENVIRONMENTAL_FAILURES_ONLY",
+      "passed": 1738,
+      "skipped": 1,
+      "failed": 37,
+      "failure_set_matches_accepted_base": true,
+      "new_failures": 0
+    }
+  ],
+  "evidence_checks": {
+    "classification": "B",
+    "primary_terminal_manifests_completed": 4,
+    "primary_protocol_errors": 0,
+    "observer_pairs": 5,
+    "observer_additional_protocol_errors": 0,
+    "diagnostic_forbidden_field_scan": "PASS",
+    "p1a_git_diff": "UNCHANGED",
+    "p1a_historical_checksum_worktree_mismatches": 68,
+    "p1a_historical_checksum_disposition": "Known Windows checkout byte normalization/LFS availability condition; tracked Git diff is empty",
+    "accepted_benchmark_git_diff": "UNCHANGED",
+    "p1b_checksums_independently_verified": true
+  },
+  "git_lfs": {
+    "policy": "P1B raw.ndjson and raw.ndjson.gz follow the existing P1A evidence rules",
+    "existing_rules_rewritten": false,
+    "new_scope": "evidence/performance/rust-memory-attribution-p1b only"
+  },
+  "protected_refs": {
+    "remote_main_pre": "1938154d498b32d81a3564319969430644e8a688",
+    "remote_main_post": "1938154d498b32d81a3564319969430644e8a688",
+    "remote_accepted_pre": "4e25ee026618a502327331f352d90e26d29284e3",
+    "remote_accepted_post": "4e25ee026618a502327331f352d90e26d29284e3"
+  },
+  "network_actions": {
+    "push": false,
+    "pull": false,
+    "merge": false,
+    "rebase": false
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "additional_protocol_errors": 0,
+  "median_p99_degradation_percent": -2.251335994220516,
+  "median_throughput_degradation_percent": 0.0,
+  "pairs": [
+    {
+      "achieved_rate": 843.75,
+      "diagnostics_enabled": false,
+      "errors": 0,
+      "p99_ns": 585519,
+      "pair": 1
+    },
+    {
+      "achieved_rate": 843.75,
+      "diagnostics_enabled": true,
+      "errors": 0,
+      "p99_ns": 734237,
+      "pair": 1
+    },
+    {
+      "achieved_rate": 843.75,
+      "diagnostics_enabled": true,
+      "errors": 0,
+      "p99_ns": 565607,
+      "pair": 2
+    },
+    {
+      "achieved_rate": 843.75,
+      "diagnostics_enabled": false,
+      "errors": 0,
+      "p99_ns": 605578,
+      "pair": 2
+    },
+    {
+      "achieved_rate": 843.75,
+      "diagnostics_enabled": false,
+      "errors": 0,
+      "p99_ns": 554874,
+      "pair": 3
+    },
+    {
+      "achieved_rate": 843.75,
+      "diagnostics_enabled": true,
+      "errors": 0,
+      "p99_ns": 572337,
+      "pair": 3
+    },
+    {
+      "achieved_rate": 843.75,
+      "diagnostics_enabled": true,
+      "errors": 0,
+      "p99_ns": 550667,
+      "pair": 4
+    },
+    {
+      "achieved_rate": 843.75,
+      "diagnostics_enabled": false,
+      "errors": 0,
+      "p99_ns": 605141,
+      "pair": 4
+    },
+    {
+      "achieved_rate": 843.75,
+      "diagnostics_enabled": false,
+      "errors": 0,
+      "p99_ns": 569511,
+      "pair": 5
+    },
+    {
+      "achieved_rate": 843.75,
+      "diagnostics_enabled": true,
+      "errors": 0,
+      "p99_ns": 592922,
+      "pair": 5
+    }
+  ],
+  "pass": true
+}

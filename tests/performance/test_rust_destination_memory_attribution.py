@@ -8,6 +8,7 @@ from scripts.run_rust_destination_memory_attribution import (
     observer_spec,
     summarize_observer,
 )
+from scripts.performance.rust_destination_memory_attribution import classify_destination_runs
 
 
 def test_p1b_plan_uses_short_frozen_control_and_three_attribution_runs() -> None:
@@ -56,3 +57,34 @@ def test_observer_summary_applies_all_three_guardrails() -> None:
     assert summarize_observer(rows)["pass"] is True
     rows[-1]["errors"] = 1
     assert summarize_observer(rows)["pass"] is False
+
+
+def classified_run(
+    *,
+    slope: float = 60_000,
+    post_live: int = 0,
+    capacity_correlation: float = 0.999,
+    replay_exact: bool = True,
+    visible: bool = True,
+) -> dict[str, object]:
+    return {
+        "valid": True,
+        "full_window_working_set_slope": slope,
+        "post_drain_nonbaseline_live": post_live,
+        "replay_capacity_working_set_correlation": capacity_correlation,
+        "replay_capacity_private_bytes_correlation": capacity_correlation,
+        "replay_insertions_equal_completed_streams": replay_exact,
+        "replay_entries_and_capacity_clear_post_drain": True,
+        "process_memory_returns_to_baseline_post_drain": True,
+        "all_instrumented_layers_visible": visible,
+    }
+
+
+def test_destination_classification_distinguishes_a_through_e() -> None:
+    assert classify_destination_runs([classified_run(post_live=1) for _ in range(3)]) == "A"
+    assert classify_destination_runs([classified_run() for _ in range(3)]) == "B"
+    assert classify_destination_runs([
+        classified_run(capacity_correlation=0.1, replay_exact=False) for _ in range(3)
+    ]) == "C"
+    assert classify_destination_runs([classified_run(slope=0) for _ in range(3)]) == "D"
+    assert classify_destination_runs([classified_run(visible=False) for _ in range(3)]) == "E"
