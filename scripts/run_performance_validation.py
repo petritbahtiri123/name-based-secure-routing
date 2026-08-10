@@ -154,7 +154,7 @@ def environment(*, allowed_dirty_root: Path | None = None) -> dict[str, Any]:
         ]
     )
     host = json.loads(powershell.stdout)
-    status = command(["git", "status", "--porcelain=v1"]).stdout
+    status = command(["git", "status", "--porcelain=v1", "--untracked-files=all"]).stdout
     dirty_paths = (
         dirty_paths_outside(ROOT, allowed_dirty_root, status)
         if allowed_dirty_root is not None
