@@ -607,9 +607,6 @@ async fn main() {
         while session.pop_audit_event().is_some() {}
     }
     drop(session);
-    if diagnostic_sampler.is_some() && diagnostic_drain_seconds > 0 {
-        std::thread::sleep(Duration::from_secs(diagnostic_drain_seconds));
-    }
     let digest = Sha256::digest(&payload);
     let digest_hex = digest
         .iter()
@@ -639,6 +636,9 @@ async fn main() {
     .expect("test harness completion acknowledgement");
     connection.close().await.unwrap();
     listener.close().await.unwrap();
+    if diagnostic_sampler.is_some() && diagnostic_drain_seconds > 0 {
+        std::thread::sleep(Duration::from_secs(diagnostic_drain_seconds));
+    }
     if let Some(sampler) = diagnostic_sampler {
         let _ = sampler.stop_and_join();
     }

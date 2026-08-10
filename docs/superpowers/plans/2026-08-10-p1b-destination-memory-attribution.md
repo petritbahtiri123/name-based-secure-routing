@@ -93,4 +93,3 @@
 - [ ] Run the broader repository suite exactly once and compare its failures to the established 37 environmental failures plus corrected P1A test defect.
 - [ ] Inspect `git diff`, `git status`, `git diff --check`, LFS state, and protected remote refs; stage explicit paths only and inspect staged names/stat/check.
 - [ ] Commit locally without push, then re-run protected-ref/status/integrity checks and record the final SHA in the report.
-
