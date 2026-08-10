@@ -7,10 +7,12 @@ from pathlib import Path
 import subprocess
 import sys
 
-from scripts.performance.durable_memory import run_durable_memory_child
-
-
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+
+from scripts.performance.durable_memory import run_durable_memory_child  # noqa: E402
+
+
 PATHS = ("direct-quic", "rust-rust", "go-rust")
 DISCOVERY_RATES = {
     "direct-quic": (3_000, 4_000, 4_500, 5_000),

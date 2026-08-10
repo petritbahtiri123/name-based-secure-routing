@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 import subprocess
+import sys
 
 import scripts.run_performance_completion as completion
 from scripts.run_performance_completion import RunSpec, completion_plan
@@ -97,3 +98,21 @@ def test_non_memory_execution_keeps_existing_short_path(monkeypatch, tmp_path: P
     completion.execute_spec(spec, tmp_path, timeout_seconds=3_660)
 
     assert calls == ["short"]
+
+
+def test_completion_runner_cli_loads_memory_plan_from_repository_root(tmp_path: Path) -> None:
+    capacities = tmp_path / "capacities.json"
+    capacities.write_text(
+        '{"direct-quic":4750,"rust-rust":1687.5,"go-rust":400}\n', encoding="utf-8",
+    )
+    result = subprocess.run(
+        [
+            sys.executable, str(Path("scripts/run_performance_completion.py")),
+            "--phase", "memory", "--accepted-capacities", str(capacities),
+            "--output", str(tmp_path / "evidence"),
+        ],
+        cwd=Path(__file__).parents[2], capture_output=True, text=True, check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert '"run_id": "go-rust-memory-300-75pct-r1"' in result.stdout
