@@ -616,18 +616,9 @@ async fn main() {
         session.release_stream(channel, 4 + 4 * index).unwrap();
         while session.pop_audit_event().is_some() {}
     }
-    drop(session);
     diagnostic_stop.store(true, Ordering::Relaxed);
     if let Some(task) = diagnostic_task {
         task.join().unwrap();
-        println!(
-            "{}",
-            nbsr_transport::diagnostics::global().snapshot().json_line(
-                "destination",
-                diagnostic_origin.elapsed().as_nanos(),
-                "post_drain",
-            )
-        );
     }
     let digest = Sha256::digest(&payload);
     let digest_hex = digest
@@ -656,6 +647,30 @@ async fn main() {
     })
     .await
     .expect("test harness completion acknowledgement");
+    drop(session);
+    if diagnostics_enabled {
+        println!(
+            "{}",
+            nbsr_transport::diagnostics::global().snapshot().json_line(
+                "destination",
+                diagnostic_origin.elapsed().as_nanos(),
+                "drain_start",
+            )
+        );
+        let drain_seconds = env::var("NBSR_P1A_DRAIN_SECONDS")
+            .unwrap_or_else(|_| "0".into())
+            .parse::<u64>()
+            .unwrap();
+        tokio::time::sleep(Duration::from_secs(drain_seconds)).await;
+        println!(
+            "{}",
+            nbsr_transport::diagnostics::global().snapshot().json_line(
+                "destination",
+                diagnostic_origin.elapsed().as_nanos(),
+                "post_drain",
+            )
+        );
+    }
     connection.close().await.unwrap();
     listener.close().await.unwrap();
 }
