@@ -275,20 +275,6 @@ def direct_samples(
         stderr=subprocess.PIPE,
         text=True,
     )
-    server_stream_error: list[BaseException] = []
-    server_stream_thread: threading.Thread | None = None
-    if os.environ.get("NBSR_P1A_RUST_DIAGNOSTICS") == "1" and output_line_sink is not None:
-        def stream_server_diagnostics() -> None:
-            try:
-                if server.stdout is None:
-                    raise RuntimeError("diagnostic server stdout unavailable")
-                for line in server.stdout:
-                    output_line_sink(line)
-            except BaseException as error:
-                server_stream_error.append(error)
-
-        server_stream_thread = threading.Thread(target=stream_server_diagnostics, daemon=True)
-        server_stream_thread.start()
     try:
         endpoint = wait_ready(ready, server)["endpoint"]
         client_command = [
@@ -317,10 +303,6 @@ def direct_samples(
             )
             resource_records.extend(observed_resources)
         server.wait(30)
-        if server_stream_thread is not None:
-            server_stream_thread.join(timeout=5)
-            if server_stream_thread.is_alive() or server_stream_error:
-                raise RuntimeError("destination diagnostic stream did not terminate cleanly")
         if server.returncode:
             raise RuntimeError(server.stderr.read())
         return [] if raw_output is not None else parse_ndjson(stdout)

@@ -3,9 +3,7 @@ use std::env;
 use std::fs;
 use std::net::{Ipv4Addr, SocketAddr};
 use std::path::{Path, PathBuf};
-use std::sync::Arc;
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::time::{Duration, Instant};
+use std::time::Duration;
 
 use nbsr_transport::{
     AdmissionPolicy, AuthorizedServicePolicy, ControlSession, CoreV02Limits, DestinationAdmission,
@@ -467,34 +465,6 @@ async fn main() {
     let result = cli_path("--result");
     let authority = cli_path("--authority-dir");
     let completion_ack = cli_path("--completion-ack");
-    let diagnostics_enabled = env::var_os("NBSR_P1A_RUST_DIAGNOSTICS").is_some();
-    let diagnostic_origin = Instant::now();
-    let diagnostic_stop = Arc::new(AtomicBool::new(false));
-    let diagnostic_task = diagnostics_enabled.then(|| {
-        nbsr_transport::diagnostics::enable_global();
-        println!(
-            "{}",
-            nbsr_transport::diagnostics::global()
-                .snapshot()
-                .json_line("destination", 0, "initial")
-        );
-        let stop = diagnostic_stop.clone();
-        tokio::spawn(async move {
-            while !stop.load(Ordering::Relaxed) {
-                tokio::time::sleep(Duration::from_secs(1)).await;
-                if !stop.load(Ordering::Relaxed) {
-                    println!(
-                        "{}",
-                        nbsr_transport::diagnostics::global().snapshot().json_line(
-                            "destination",
-                            diagnostic_origin.elapsed().as_nanos(),
-                            "load",
-                        )
-                    );
-                }
-            }
-        })
-    });
     let peer_policy = PeerPolicy::new(
         EdgeRole::Destination,
         EdgeRole::Source,
@@ -615,19 +585,6 @@ async fn main() {
             .unwrap();
         session.release_stream(channel, 4 + 4 * index).unwrap();
         while session.pop_audit_event().is_some() {}
-    }
-    drop(session);
-    diagnostic_stop.store(true, Ordering::Relaxed);
-    if let Some(task) = diagnostic_task {
-        task.await.unwrap();
-        println!(
-            "{}",
-            nbsr_transport::diagnostics::global().snapshot().json_line(
-                "destination",
-                diagnostic_origin.elapsed().as_nanos(),
-                "post_drain",
-            )
-        );
     }
     let digest = Sha256::digest(&payload);
     let digest_hex = digest
