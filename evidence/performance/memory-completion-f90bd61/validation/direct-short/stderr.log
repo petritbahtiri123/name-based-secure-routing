@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "C:\Users\bajra\OneDrive\Documents\NBSR\scripts\run_performance_load_cell.py", line 337, in <module>
+    main()
+    ~~~~^^
+  File "C:\Users\bajra\OneDrive\Documents\NBSR\scripts\run_performance_load_cell.py", line 280, in main
+    final_quarter = segment_trend(destination[3 * len(destination) // 4 :])
+  File "C:\Users\bajra\OneDrive\Documents\NBSR\scripts\run_performance_load_cell.py", line 274, in segment_trend
+    series = ResourceSeries(expected_samples=len(segment))
+  File "C:\Users\bajra\OneDrive\Documents\NBSR\scripts\performance\resources.py", line 261, in __init__
+    raise ValueError("at least two resource samples are required")
+ValueError: at least two resource samples are required
