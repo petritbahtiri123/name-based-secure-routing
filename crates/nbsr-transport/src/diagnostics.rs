@@ -1,8 +1,13 @@
 //! Opt-in, aggregate ownership diagnostics for controlled performance runs.
 
 use std::array;
-use std::sync::OnceLock;
+use std::fs::OpenOptions;
+use std::io::{BufWriter, Write};
+use std::path::Path;
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
+use std::sync::{Arc, OnceLock};
+use std::thread::{self, JoinHandle};
+use std::time::{Duration, Instant};
 
 const OWNER_COUNT: usize = 11;
 
@@ -53,6 +58,154 @@ pub struct DiagnosticSnapshot {
     pub replay_state: CollectionSnapshot,
     pub quic_connections: LifecycleSnapshot,
     pub quic_streams: LifecycleSnapshot,
+}
+
+impl DiagnosticSnapshot {
+    #[must_use]
+    pub fn json_line(self, role: &str, timestamp_ns: u128, phase: &str) -> String {
+        let lifecycle = |name: &str, value: LifecycleSnapshot| {
+            format!(
+                "\"{name}_created\":{},\"{name}_completed\":{},\"{name}_failed_or_cancelled\":{},\"{name}_current_live\":{},\"{name}_high_water_live\":{}",
+                value.created,
+                value.completed,
+                value.failed_or_cancelled,
+                value.current_live,
+                value.high_water_live
+            )
+        };
+        let collection = |name: &str, value: CollectionSnapshot| {
+            format!(
+                "\"{name}_inserts\":{},\"{name}_removals\":{},\"{name}_current_entries\":{},\"{name}_high_water_entries\":{},\"{name}_retained_capacity\":{},\"{name}_high_water_retained_capacity\":{}",
+                value.inserts,
+                value.removals,
+                value.current_entries,
+                value.high_water_entries,
+                value.retained_capacity,
+                value.high_water_retained_capacity
+            )
+        };
+        format!(
+            "{{\"event\":\"diagnostic\",\"schema\":\"nbsr-rust-ownership-v1\",\"role\":\"{role}\",\"timestamp_ns\":{timestamp_ns},\"phase\":\"{phase}\",{},{},{},{},{},{},{},{},{},{},{}}}",
+            lifecycle("transport_sessions", self.transport_sessions),
+            lifecycle("service_channels", self.service_channels),
+            lifecycle("application_streams", self.application_streams),
+            lifecycle("nbsr_tasks", self.nbsr_tasks),
+            lifecycle("quic_connections", self.quic_connections),
+            lifecycle("quic_streams", self.quic_streams),
+            collection("pending_routes", self.pending_routes),
+            collection("channel_registry", self.channel_registry),
+            collection("stream_registry", self.stream_registry),
+            collection("audit_queue", self.audit_queue),
+            collection("replay_state", self.replay_state),
+        )
+    }
+}
+
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+pub struct SamplerOutcome {
+    pub output_opened: bool,
+    pub io_failed: bool,
+    pub snapshots_written: u64,
+}
+
+pub struct DestinationDiagnosticSampler {
+    stop: Arc<AtomicBool>,
+    handle: Option<JoinHandle<SamplerOutcome>>,
+    outcome: SamplerOutcome,
+}
+
+impl DestinationDiagnosticSampler {
+    #[must_use]
+    pub fn start(path: &Path, diagnostics: &'static Diagnostics, interval: Duration) -> Self {
+        let file = match OpenOptions::new().create(true).append(true).open(path) {
+            Ok(file) => file,
+            Err(_) => {
+                return Self {
+                    stop: Arc::new(AtomicBool::new(true)),
+                    handle: None,
+                    outcome: SamplerOutcome {
+                        output_opened: false,
+                        io_failed: true,
+                        snapshots_written: 0,
+                    },
+                };
+            }
+        };
+        let stop = Arc::new(AtomicBool::new(false));
+        let thread_stop = Arc::clone(&stop);
+        let handle = thread::Builder::new()
+            .name("nbsr-destination-diagnostics".into())
+            .spawn(move || {
+                let origin = Instant::now();
+                let mut writer = BufWriter::with_capacity(64 * 1024, file);
+                let mut written = 0_u64;
+                let mut io_failed = false;
+                loop {
+                    let phase = if written == 0 { "initial" } else { "sample" };
+                    let line = diagnostics.snapshot().json_line(
+                        "destination",
+                        origin.elapsed().as_nanos(),
+                        phase,
+                    );
+                    if writeln!(writer, "{line}").is_err() {
+                        io_failed = true;
+                        break;
+                    }
+                    written += 1;
+                    if written.is_multiple_of(10) && writer.flush().is_err() {
+                        io_failed = true;
+                        break;
+                    }
+                    if thread_stop.load(Ordering::Relaxed) {
+                        break;
+                    }
+                    thread::park_timeout(interval);
+                }
+                if writer.flush().is_err() {
+                    io_failed = true;
+                }
+                SamplerOutcome {
+                    output_opened: true,
+                    io_failed,
+                    snapshots_written: written,
+                }
+            })
+            .ok();
+        let outcome = SamplerOutcome {
+            output_opened: handle.is_some(),
+            io_failed: handle.is_none(),
+            snapshots_written: 0,
+        };
+        Self {
+            stop,
+            handle,
+            outcome,
+        }
+    }
+
+    #[must_use]
+    pub fn stop_and_join(mut self) -> SamplerOutcome {
+        self.stop_inner();
+        self.outcome
+    }
+
+    fn stop_inner(&mut self) {
+        self.stop.store(true, Ordering::Relaxed);
+        if let Some(handle) = self.handle.take() {
+            handle.thread().unpark();
+            self.outcome = handle.join().unwrap_or(SamplerOutcome {
+                output_opened: true,
+                io_failed: true,
+                snapshots_written: 0,
+            });
+        }
+    }
+}
+
+impl Drop for DestinationDiagnosticSampler {
+    fn drop(&mut self) {
+        self.stop_inner();
+    }
 }
 
 #[derive(Default)]

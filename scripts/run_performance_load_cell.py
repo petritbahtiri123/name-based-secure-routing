@@ -111,6 +111,7 @@ def main() -> None:
     parser.add_argument("--sampling-cadence-seconds", type=int, default=1)
     parser.add_argument("--durable-events", action="store_true")
     parser.add_argument("--rust-diagnostics", action="store_true")
+    parser.add_argument("--destination-diagnostics", action="store_true")
     parser.add_argument("--diagnostic-drain-seconds", type=int, default=0)
     parser.add_argument("--validation-profile", action="store_true")
     parser.add_argument("--durable-root", type=Path)
@@ -191,6 +192,11 @@ def main() -> None:
             if args.rust_diagnostics:
                 os.environ["NBSR_P1A_RUST_DIAGNOSTICS"] = "1"
                 os.environ["NBSR_P1A_DRAIN_SECONDS"] = str(args.diagnostic_drain_seconds)
+            if args.destination_diagnostics:
+                os.environ["NBSR_P1B_DESTINATION_DIAGNOSTICS_FILE"] = str(
+                    output / "destination-diagnostics.ndjson"
+                )
+                os.environ["NBSR_P1B_DRAIN_SECONDS"] = str(args.diagnostic_drain_seconds)
             try:
                 nbsr_samples(
                     args.path, binaries, authority, sample_count, args.payload_bytes, temp,
@@ -200,6 +206,8 @@ def main() -> None:
             finally:
                 os.environ.pop("NBSR_P1A_RUST_DIAGNOSTICS", None)
                 os.environ.pop("NBSR_P1A_DRAIN_SECONDS", None)
+                os.environ.pop("NBSR_P1B_DESTINATION_DIAGNOSTICS_FILE", None)
+                os.environ.pop("NBSR_P1B_DRAIN_SECONDS", None)
                 if runtime_thread is not None:
                     runtime_stop.set()
                     runtime_thread.join(timeout=5)

@@ -20,7 +20,7 @@ from scripts.performance.driver import (
     summarize_open_loop_issues,
     validate_formal_load_result,
 )
-from scripts.run_performance_validation import merge_destination_measurements, normalize
+from scripts.run_performance_validation import merge_destination_measurements, normalize, rust_server_command
 from scripts.run_performance_load_cell import streamed_document_kind
 
 
@@ -28,6 +28,34 @@ def test_streamed_diagnostic_is_not_request_completion_metadata() -> None:
     assert streamed_document_kind({"event": "diagnostic", "phase": "post_drain"}) == "diagnostic"
     assert streamed_document_kind({"sample_id": 7, "success": True}) == "request"
     assert streamed_document_kind({"status": "PASS"}) == "completion"
+
+
+def test_destination_diagnostics_are_absent_by_default_and_bounded_when_enabled(tmp_path: Path) -> None:
+    binaries = {"server": tmp_path / "server.exe"}
+    common = {
+        "binaries": binaries,
+        "ready": tmp_path / "ready.json",
+        "result": tmp_path / "result.json",
+        "authority": tmp_path / "authority",
+        "ack": tmp_path / "ack",
+    }
+
+    disabled = rust_server_command(**common)
+    assert "--destination-diagnostics-file" not in disabled
+    assert "--diagnostic-drain-seconds" not in disabled
+
+    output = tmp_path / "destination.ndjson"
+    enabled = rust_server_command(
+        **common,
+        destination_diagnostics=output,
+        diagnostic_drain_seconds=20,
+    )
+    assert enabled[-4:] == [
+        "--destination-diagnostics-file",
+        str(output),
+        "--diagnostic-drain-seconds",
+        "20",
+    ]
 
 
 def observation(path: str, rate: float, **changes: object) -> CapacityObservation:

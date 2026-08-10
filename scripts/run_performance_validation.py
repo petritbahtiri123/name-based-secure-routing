@@ -229,6 +229,31 @@ def parse_ndjson(text: str) -> list[dict[str, Any]]:
     return [json.loads(line) for line in text.splitlines() if line.strip()]
 
 
+def rust_server_command(
+    *,
+    binaries: dict[str, Path],
+    ready: Path,
+    result: Path,
+    authority: Path,
+    ack: Path,
+    destination_diagnostics: Path | None = None,
+    diagnostic_drain_seconds: int = 0,
+) -> list[str]:
+    command_line = [
+        str(binaries["server"]),
+        "--ready", str(ready),
+        "--result", str(result),
+        "--authority-dir", str(authority),
+        "--completion-ack", str(ack),
+    ]
+    if destination_diagnostics is not None:
+        command_line.extend([
+            "--destination-diagnostics-file", str(destination_diagnostics),
+            "--diagnostic-drain-seconds", str(diagnostic_drain_seconds),
+        ])
+    return command_line
+
+
 def merge_destination_measurements(records: list[dict[str, Any]], result: dict[str, Any]) -> None:
     measurements = result.get("samples")
     if not isinstance(measurements, list) or len(measurements) != len(records):
@@ -332,18 +357,18 @@ def nbsr_samples(
     for stale in (ready, result, ack):
         stale.unlink(missing_ok=True)
     env = {**os.environ, "NBSR_PERF_STREAM_SAMPLES": str(samples)}
+    destination_diagnostics = os.environ.get("NBSR_P1B_DESTINATION_DIAGNOSTICS_FILE")
+    diagnostic_drain_seconds = int(os.environ.get("NBSR_P1B_DRAIN_SECONDS", "0"))
     server = subprocess.Popen(
-        [
-            str(binaries["server"]),
-            "--ready",
-            str(ready),
-            "--result",
-            str(result),
-            "--authority-dir",
-            str(authority),
-            "--completion-ack",
-            str(ack),
-        ],
+        rust_server_command(
+            binaries=binaries,
+            ready=ready,
+            result=result,
+            authority=authority,
+            ack=ack,
+            destination_diagnostics=Path(destination_diagnostics) if destination_diagnostics else None,
+            diagnostic_drain_seconds=diagnostic_drain_seconds,
+        ),
         cwd=ROOT,
         env=env,
         stdout=subprocess.PIPE,
@@ -369,6 +394,11 @@ def nbsr_samples(
                     "--diagnostics", "enabled",
                     "--diagnostic-drain-seconds", os.environ.get("NBSR_P1A_DRAIN_SECONDS", "0"),
                     "--diagnostic-completion-ack", str(ack),
+                ])
+            if destination_diagnostics:
+                client_command.extend([
+                    "--post-load-hold-seconds", str(diagnostic_drain_seconds),
+                    "--post-load-completion-ack", str(ack),
                 ])
             if resource_records is None:
                 stdout = command(client_command, timeout=3600).stdout

@@ -27,6 +27,13 @@ fn cli_path(name: &str) -> PathBuf {
     )
 }
 
+fn optional_cli_value(name: &str) -> Option<String> {
+    let args: Vec<String> = env::args().collect();
+    args.iter()
+        .position(|item| item == name)
+        .and_then(|index| args.get(index + 1).cloned())
+}
+
 fn identity(value: &str) -> EdgeIdentity {
     EdgeIdentity::from_dns_name(value).unwrap()
 }
@@ -465,6 +472,19 @@ async fn main() {
     let result = cli_path("--result");
     let authority = cli_path("--authority-dir");
     let completion_ack = cli_path("--completion-ack");
+    let destination_diagnostics = optional_cli_value("--destination-diagnostics-file");
+    let diagnostic_drain_seconds = optional_cli_value("--diagnostic-drain-seconds")
+        .map_or(0, |value| {
+            value.parse::<u64>().expect("valid diagnostic drain")
+        });
+    let diagnostic_sampler = destination_diagnostics.map(|path| {
+        nbsr_transport::diagnostics::enable_global();
+        nbsr_transport::diagnostics::DestinationDiagnosticSampler::start(
+            Path::new(&path),
+            nbsr_transport::diagnostics::global(),
+            Duration::from_secs(1),
+        )
+    });
     let peer_policy = PeerPolicy::new(
         EdgeRole::Destination,
         EdgeRole::Source,
@@ -586,6 +606,10 @@ async fn main() {
         session.release_stream(channel, 4 + 4 * index).unwrap();
         while session.pop_audit_event().is_some() {}
     }
+    drop(session);
+    if diagnostic_sampler.is_some() && diagnostic_drain_seconds > 0 {
+        std::thread::sleep(Duration::from_secs(diagnostic_drain_seconds));
+    }
     let digest = Sha256::digest(&payload);
     let digest_hex = digest
         .iter()
@@ -615,6 +639,9 @@ async fn main() {
     .expect("test harness completion acknowledgement");
     connection.close().await.unwrap();
     listener.close().await.unwrap();
+    if let Some(sampler) = diagnostic_sampler {
+        let _ = sampler.stop_and_join();
+    }
 }
 
 fn field_uint(t: &mut Vec<u8>, k: u64, v: u64) {

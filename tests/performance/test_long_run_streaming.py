@@ -74,7 +74,7 @@ def test_measured_client_streams_output_lines_and_resources_during_execution(tmp
     )
 
     assert stdout == ""
-    assert len(lines) == 9
+    assert len(lines) == 12
     assert raw_path.read_text(encoding="utf-8").splitlines(keepends=True) == lines
     assert len(resources) >= 3
     assert resources == retained

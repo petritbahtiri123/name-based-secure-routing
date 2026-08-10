@@ -645,6 +645,10 @@ async fn main() {
     let drain_seconds = optional_argument("--diagnostic-drain-seconds")
         .map_or(0, |value| value.parse::<u64>().unwrap());
     let completion_ack = optional_argument("--diagnostic-completion-ack").map(PathBuf::from);
+    let post_load_hold_seconds = optional_argument("--post-load-hold-seconds")
+        .map_or(0, |value| value.parse::<u64>().unwrap());
+    let post_load_completion_ack =
+        optional_argument("--post-load-completion-ack").map(PathBuf::from);
     if diagnostics_enabled {
         nbsr_transport::diagnostics::enable_global();
     }
@@ -826,6 +830,16 @@ async fn main() {
     }
     drop(session);
     connection.close().await.unwrap();
+    if let Some(path) = post_load_completion_ack {
+        fs::write(
+            path,
+            b"destination diagnostics measured transport complete\n",
+        )
+        .unwrap();
+    }
+    if post_load_hold_seconds > 0 {
+        std::thread::sleep(Duration::from_secs(post_load_hold_seconds));
+    }
     if diagnostics_enabled {
         if let Some(path) = completion_ack {
             fs::write(path, b"diagnostic source completed measured transport\n").unwrap();
