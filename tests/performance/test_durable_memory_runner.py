@@ -105,6 +105,18 @@ def test_failed_run_without_records_is_not_labeled_partial_but_durable(tmp_path:
     assert result["authoritative_pass_eligible"] is False
 
 
+def test_completed_validation_profile_cannot_be_authoritative(tmp_path: Path) -> None:
+    result = run_durable_memory_child(
+        command("completed"), output=tmp_path / "validation", timeout_seconds=5,
+        offered_requests=3, authoritative_run=False,
+        buffer_capacity=2, flush_records=1, flush_interval_seconds=0.01,
+    )
+
+    assert result["terminal_state"] == "completed"
+    assert result["authoritative_run"] is False
+    assert result["authoritative_pass_eligible"] is False
+
+
 def test_timeout_terminates_and_verifies_descendant_process_cleanup(tmp_path: Path) -> None:
     descendant_pid_path = tmp_path / "descendant.pid"
     result = run_durable_memory_child(

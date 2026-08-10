@@ -176,6 +176,7 @@ def _close_writers(writers: Iterable[DurableNdjsonWriter]) -> list[BaseException
 
 def run_durable_memory_child(
     command: list[str], *, output: Path, timeout_seconds: float, offered_requests: int,
+    authoritative_run: bool = True,
     buffer_capacity: int = 1024, flush_records: int = 128, flush_interval_seconds: float = 1.0,
     cwd: Path | None = None,
 ) -> dict[str, Any]:
@@ -283,9 +284,13 @@ def run_durable_memory_child(
     reconciled = started == completed + failed and persisted == started and started <= offered_requests
     if terminal_state == "completed":
         reconciled = reconciled and started == offered_requests
-    authoritative = terminal_state == "completed" and reconciled and failed == 0 and cleanup_verified
+    authoritative = (
+        authoritative_run and terminal_state == "completed" and reconciled
+        and failed == 0 and cleanup_verified
+    )
     manifest: dict[str, Any] = {
         "schema": "nbsr-durable-memory-terminal-v1",
+        "authoritative_run": authoritative_run,
         "terminal_state": terminal_state,
         "child_return_code": child_return_code,
         "partial_but_durable": terminal_state != "completed" and any(

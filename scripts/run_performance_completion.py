@@ -90,6 +90,7 @@ def execute_spec(spec: RunSpec, output_root: Path, *, timeout_seconds: float = 3
             output=output,
             timeout_seconds=timeout_seconds,
             offered_requests=round(spec.rate * (spec.warmup_seconds + spec.steady_seconds)),
+            authoritative_run=True,
             cwd=ROOT,
         )
         return
