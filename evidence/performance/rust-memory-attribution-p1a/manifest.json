@@ -1,0 +1,21 @@
+{
+  "accepted_capacity_ops_per_second": 1687.5,
+  "base_sha": "4e25ee026618a502327331f352d90e26d29284e3",
+  "classification": "E",
+  "failed_attempts_retained": [
+    "50pct-drain120-ack-timeout",
+    "50pct-drain20-ack-timeout",
+    "destination-thread-sampler",
+    "destination-tokio-sampler"
+  ],
+  "generated_on": "Windows-11-10.0.26200-SP0",
+  "git_head_at_generation": "59ff6a32490dc5508da636abafdf0debb0227755",
+  "instrumented_run_sha": "c5c7d12aec20977986bbfa298b58a49134192dac",
+  "primary_run_ids": [
+    "rust-rust-p1a-50pct-r1",
+    "rust-rust-p1a-75pct-r1",
+    "rust-rust-p1a-75pct-r2",
+    "rust-rust-p1a-75pct-r3"
+  ],
+  "schema": "nbsr-rust-memory-attribution-p1a-manifest-v1"
+}

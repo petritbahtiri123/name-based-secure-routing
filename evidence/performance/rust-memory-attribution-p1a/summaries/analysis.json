@@ -1,0 +1,1301 @@
+{
+  "blocking_unobserved_layer": "destination-process internal Rust ownership time series and complete destination post-drain process-memory observation",
+  "classification": "E",
+  "classification_label": "Still inconclusive",
+  "non_claim": "Source replay-state correlation does not prove destination allocation ownership.",
+  "observer_effect": {
+    "additional_protocol_errors": 0,
+    "median_p99_degradation_percent": 1.1053392105651927,
+    "median_throughput_degradation_percent": 0.0,
+    "pairs": [
+      {
+        "achieved_rate": 843.7333333333333,
+        "diagnostics_enabled": false,
+        "errors": 0,
+        "p99_ns": 510363,
+        "pair": 1
+      },
+      {
+        "achieved_rate": 843.7333333333333,
+        "diagnostics_enabled": true,
+        "errors": 0,
+        "p99_ns": 521452,
+        "pair": 1
+      },
+      {
+        "achieved_rate": 843.7333333333333,
+        "diagnostics_enabled": true,
+        "errors": 0,
+        "p99_ns": 516452,
+        "pair": 2
+      },
+      {
+        "achieved_rate": 843.7333333333333,
+        "diagnostics_enabled": false,
+        "errors": 0,
+        "p99_ns": 493407,
+        "pair": 2
+      },
+      {
+        "achieved_rate": 843.7333333333333,
+        "diagnostics_enabled": false,
+        "errors": 0,
+        "p99_ns": 566407,
+        "pair": 3
+      },
+      {
+        "achieved_rate": 843.7333333333333,
+        "diagnostics_enabled": true,
+        "errors": 0,
+        "p99_ns": 527404,
+        "pair": 3
+      },
+      {
+        "achieved_rate": 843.7333333333333,
+        "diagnostics_enabled": true,
+        "errors": 0,
+        "p99_ns": 632756,
+        "pair": 4
+      },
+      {
+        "achieved_rate": 843.7333333333333,
+        "diagnostics_enabled": false,
+        "errors": 0,
+        "p99_ns": 677785,
+        "pair": 4
+      },
+      {
+        "achieved_rate": 843.7333333333333,
+        "diagnostics_enabled": false,
+        "errors": 0,
+        "p99_ns": 521107,
+        "pair": 5
+      },
+      {
+        "achieved_rate": 843.7333333333333,
+        "diagnostics_enabled": true,
+        "errors": 0,
+        "p99_ns": 526867,
+        "pair": 5
+      }
+    ],
+    "pass": true
+  },
+  "recommended_next_hypothesis": "Export destination aggregate snapshots through a pre-opened append-only file from a non-Tokio sampler, validate zero protocol errors, then repeat only the three 75% attribution runs.",
+  "repeatability": {
+    "positive_75_percent_final_quarter_slope_runs": 3,
+    "reproduced": true,
+    "required": 2
+  },
+  "runs": [
+    {
+      "destination_owner_series_present": false,
+      "destination_process": {
+        "backlog": null,
+        "post_drain_observation_complete": false,
+        "post_drain_private_bytes": null,
+        "post_drain_working_set_bytes": null,
+        "private_bytes": {
+          "final_quarter": {
+            "lower_95": 0.0,
+            "r_squared": 1.0,
+            "samples": 446,
+            "slope_bytes_per_second": 0.0,
+            "upper_95": 0.0
+          },
+          "overall": {
+            "lower_95": 33507.15681461876,
+            "r_squared": 0.886508359623441,
+            "samples": 1783,
+            "slope_bytes_per_second": 34073.36965702569,
+            "upper_95": 34639.58249943262
+          },
+          "second_half": {
+            "lower_95": 20271.058905412945,
+            "r_squared": 0.36643009031494833,
+            "samples": 892,
+            "slope_bytes_per_second": 22187.86552143884,
+            "upper_95": 24104.67213746473
+          }
+        },
+        "private_bytes_change_per_completed_operation_observational": 34.391566748971194,
+        "private_bytes_per_request": null,
+        "private_bytes_values": {
+          "end": 57135104,
+          "peak": 57135104,
+          "start": 4902912
+        },
+        "processed_request_delta": null,
+        "role": "destination",
+        "samples": 1783,
+        "working_set": {
+          "final_quarter": {
+            "lower_95": 0.0,
+            "r_squared": 1.0,
+            "samples": 446,
+            "slope_bytes_per_second": 0.0,
+            "upper_95": 0.0
+          },
+          "overall": {
+            "lower_95": 33495.165055460915,
+            "r_squared": 0.8866603538398085,
+            "samples": 1783,
+            "slope_bytes_per_second": 34060.7404111992,
+            "upper_95": 34626.315766937485
+          },
+          "second_half": {
+            "lower_95": 20245.516404636623,
+            "r_squared": 0.36643773682463654,
+            "samples": 892,
+            "slope_bytes_per_second": 22159.87324561057,
+            "upper_95": 24074.23008658452
+          }
+        },
+        "working_set_bytes": {
+          "end": 63782912,
+          "peak": 73224192,
+          "start": 11153408
+        },
+        "working_set_bytes_per_request": null,
+        "working_set_change_per_completed_operation_observational": 34.65317135802469
+      },
+      "environment": {
+        "affinity": "inherited; not modified",
+        "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)",
+        "cores": 4,
+        "cpu": "Intel(R) Core(TM) i5-10210U CPU @ 1.60GHz",
+        "dirty_tree": false,
+        "go": "go version go1.26.5 windows/amd64",
+        "logical_processors": 8,
+        "memory_bytes": 16942501888,
+        "os": "Windows-11-10.0.26200-SP0",
+        "power_plan": "Power Scheme GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c  (High performance)",
+        "python": "3.14.6",
+        "repository_sha": "c5c7d12aec20977986bbfa298b58a49134192dac",
+        "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+        "schema": "nbsr-performance-environment-v1",
+        "topology": "windows-loopback"
+      },
+      "load": {
+        "completed_operations": 1518750,
+        "drain_seconds": 20,
+        "errors": 0,
+        "measurement_seconds": 1800,
+        "offered_operations": 1518750,
+        "offered_rate": 843.75,
+        "p99_ns": 518367,
+        "total_completed_operations_including_warmup": 1569375,
+        "total_errors_including_warmup": 0,
+        "total_offered_operations_including_warmup": 1569375,
+        "warmup_seconds": 60
+      },
+      "percent": 50,
+      "run_id": "rust-rust-p1a-50pct-r1",
+      "source_owner_collections": {
+        "audit_queue": {
+          "end_load_entries": 0,
+          "end_load_retained_capacity": 1024,
+          "high_water_entries": 5,
+          "high_water_retained_capacity": 1024,
+          "initial_entries": 3,
+          "inserts": 3138753,
+          "post_drain_entries": 0,
+          "post_drain_retained_capacity": 0,
+          "removals": 3138753
+        },
+        "channel_registry": {
+          "end_load_entries": 1,
+          "end_load_retained_capacity": 6,
+          "high_water_entries": 1,
+          "high_water_retained_capacity": 6,
+          "initial_entries": 1,
+          "inserts": 1,
+          "post_drain_entries": 0,
+          "post_drain_retained_capacity": 0,
+          "removals": 1
+        },
+        "pending_routes": {
+          "end_load_entries": 0,
+          "end_load_retained_capacity": 3,
+          "high_water_entries": 1,
+          "high_water_retained_capacity": 3,
+          "initial_entries": 0,
+          "inserts": 1,
+          "post_drain_entries": 0,
+          "post_drain_retained_capacity": 0,
+          "removals": 1
+        },
+        "replay_state": {
+          "end_load_entries": 1568533,
+          "end_load_retained_capacity": 1835008,
+          "high_water_entries": 1569375,
+          "high_water_retained_capacity": 1835008,
+          "initial_entries": 0,
+          "inserts": 1569375,
+          "post_drain_entries": 0,
+          "post_drain_retained_capacity": 0,
+          "removals": 1569375
+        },
+        "stream_registry": {
+          "end_load_entries": 0,
+          "end_load_retained_capacity": 6,
+          "high_water_entries": 1,
+          "high_water_retained_capacity": 6,
+          "initial_entries": 0,
+          "inserts": 1569375,
+          "post_drain_entries": 0,
+          "post_drain_retained_capacity": 0,
+          "removals": 1569375
+        }
+      },
+      "source_owner_lifecycle": {
+        "application_streams": {
+          "created": 1569375,
+          "current_live": 0,
+          "reconciled": true,
+          "terminal_failure_or_cancel": 0,
+          "terminal_success": 1569375
+        },
+        "nbsr_tasks": {
+          "created": 0,
+          "current_live": 0,
+          "reconciled": true,
+          "terminal_failure_or_cancel": 0,
+          "terminal_success": 0
+        },
+        "quic_connections": {
+          "created": 1,
+          "current_live": 0,
+          "reconciled": true,
+          "terminal_failure_or_cancel": 0,
+          "terminal_success": 1
+        },
+        "quic_streams": {
+          "created": 1569375,
+          "current_live": 0,
+          "reconciled": true,
+          "terminal_failure_or_cancel": 0,
+          "terminal_success": 1569375
+        },
+        "service_channels": {
+          "created": 1,
+          "current_live": 0,
+          "reconciled": true,
+          "terminal_failure_or_cancel": 0,
+          "terminal_success": 1
+        },
+        "transport_sessions": {
+          "created": 1,
+          "current_live": 0,
+          "reconciled": true,
+          "terminal_failure_or_cancel": 0,
+          "terminal_success": 1
+        }
+      },
+      "source_process": {
+        "backlog": null,
+        "post_drain_private_bytes": 1486848,
+        "post_drain_working_set_bytes": 8224768,
+        "private_bytes": {
+          "final_quarter": {
+            "lower_95": 0.0,
+            "r_squared": 1.0,
+            "samples": 446,
+            "slope_bytes_per_second": 0.0,
+            "upper_95": 0.0
+          },
+          "overall": {
+            "lower_95": 33543.06272737028,
+            "r_squared": 0.88648009423725,
+            "samples": 1783,
+            "slope_bytes_per_second": 34109.96328013,
+            "upper_95": 34676.86383288973
+          },
+          "second_half": {
+            "lower_95": 20276.40249965592,
+            "r_squared": 0.3661490922021874,
+            "samples": 892,
+            "slope_bytes_per_second": 22194.98510862467,
+            "upper_95": 24113.56771759342
+          }
+        },
+        "private_bytes_per_request": null,
+        "private_bytes_values": {
+          "end": 57229312,
+          "peak": 57262080,
+          "start": 3276800
+        },
+        "processed_request_delta": null,
+        "role": "source",
+        "samples": 1783,
+        "working_set": {
+          "final_quarter": {
+            "lower_95": 0.0,
+            "r_squared": 1.0,
+            "samples": 446,
+            "slope_bytes_per_second": 0.0,
+            "upper_95": 0.0
+          },
+          "overall": {
+            "lower_95": 33509.787807249755,
+            "r_squared": 0.8866327714797937,
+            "samples": 1783,
+            "slope_bytes_per_second": 34075.6890308165,
+            "upper_95": 34641.59025438325
+          },
+          "second_half": {
+            "lower_95": 20248.18848437125,
+            "r_squared": 0.36629706884186575,
+            "samples": 892,
+            "slope_bytes_per_second": 22163.43303920349,
+            "upper_95": 24078.67759403573
+          }
+        },
+        "working_set_bytes": {
+          "end": 63492096,
+          "peak": 72949760,
+          "start": 9969664
+        },
+        "working_set_bytes_per_request": null
+      },
+      "terminal": {
+        "authoritative_pass_eligible": true,
+        "authoritative_run": true,
+        "child_return_code": 0,
+        "cleanup_verified": true,
+        "counters": {
+          "completed": 1569375,
+          "failed": 0,
+          "offered": 1569375,
+          "persisted": 1569375,
+          "started": 1569375,
+          "timed_out": 0
+        },
+        "counters_reconciled": true,
+        "partial_but_durable": false,
+        "request_evidence": {
+          "path": "raw.ndjson.gz",
+          "uncompressed_bytes": 89912640,
+          "uncompressed_sha256": "4587b472a1d56acb0163ebc16b8b990df2fb923b45971c8543224d7b7190da3c"
+        },
+        "runner_error": null,
+        "schema": "nbsr-durable-memory-terminal-v1",
+        "series_counts": {
+          "diagnostics": 1882,
+          "requests": 1569375,
+          "resources": 3687,
+          "runtime": 0
+        },
+        "terminal_state": "completed",
+        "terminated_process_ids": []
+      }
+    },
+    {
+      "destination_owner_series_present": false,
+      "destination_process": {
+        "backlog": null,
+        "post_drain_observation_complete": false,
+        "post_drain_private_bytes": 111747072,
+        "post_drain_working_set_bytes": 118300672,
+        "private_bytes": {
+          "final_quarter": {
+            "lower_95": 49764.60727837075,
+            "r_squared": 0.24492025810884976,
+            "samples": 446,
+            "slope_bytes_per_second": 59478.91025419638,
+            "upper_95": 69193.21323002201
+          },
+          "overall": {
+            "lower_95": 60132.96173817231,
+            "r_squared": 0.8735077327924413,
+            "samples": 1784,
+            "slope_bytes_per_second": 61214.533594152155,
+            "upper_95": 62296.105450132
+          },
+          "second_half": {
+            "lower_95": 86839.30746246535,
+            "r_squared": 0.7438132088124172,
+            "samples": 892,
+            "slope_bytes_per_second": 90321.88241449193,
+            "upper_95": 93804.45736651852
+          }
+        },
+        "private_bytes_change_per_completed_operation_observational": 46.464954497648066,
+        "private_bytes_per_request": null,
+        "private_bytes_values": {
+          "end": 111747072,
+          "peak": 111747072,
+          "start": 5894144
+        },
+        "processed_request_delta": null,
+        "role": "destination",
+        "samples": 1784,
+        "working_set": {
+          "final_quarter": {
+            "lower_95": 49671.324292544916,
+            "r_squared": 0.24492025810884988,
+            "samples": 446,
+            "slope_bytes_per_second": 59367.41795785127,
+            "upper_95": 69063.51162315762
+          },
+          "overall": {
+            "lower_95": 60063.95695106371,
+            "r_squared": 0.8737288376357404,
+            "samples": 1784,
+            "slope_bytes_per_second": 61143.18704747254,
+            "upper_95": 62222.417143881365
+          },
+          "second_half": {
+            "lower_95": 86687.15870639276,
+            "r_squared": 0.743893364160291,
+            "samples": 892,
+            "slope_bytes_per_second": 90162.87144643534,
+            "upper_95": 93638.58418647792
+          }
+        },
+        "working_set_bytes": {
+          "end": 118296576,
+          "peak": 137175040,
+          "start": 12546048
+        },
+        "working_set_bytes_per_request": null,
+        "working_set_change_per_completed_operation_observational": 46.42000523237541
+      },
+      "environment": {
+        "affinity": "inherited; not modified",
+        "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)",
+        "cores": 4,
+        "cpu": "Intel(R) Core(TM) i5-10210U CPU @ 1.60GHz",
+        "dirty_tree": false,
+        "go": "go version go1.26.5 windows/amd64",
+        "logical_processors": 8,
+        "memory_bytes": 16942501888,
+        "os": "Windows-11-10.0.26200-SP0",
+        "power_plan": "Power Scheme GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c  (High performance)",
+        "python": "3.14.6",
+        "repository_sha": "c5c7d12aec20977986bbfa298b58a49134192dac",
+        "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+        "schema": "nbsr-performance-environment-v1",
+        "topology": "windows-loopback"
+      },
+      "load": {
+        "completed_operations": 2278124,
+        "drain_seconds": 20,
+        "errors": 0,
+        "measurement_seconds": 1800,
+        "offered_operations": 2278124,
+        "offered_rate": 1265.625,
+        "p99_ns": 519804,
+        "total_completed_operations_including_warmup": 2354062,
+        "total_errors_including_warmup": 0,
+        "total_offered_operations_including_warmup": 2354062,
+        "warmup_seconds": 60
+      },
+      "percent": 75,
+      "run_id": "rust-rust-p1a-75pct-r1",
+      "source_owner_collections": {
+        "audit_queue": {
+          "end_load_entries": 0,
+          "end_load_retained_capacity": 1024,
+          "high_water_entries": 5,
+          "high_water_retained_capacity": 1024,
+          "initial_entries": 3,
+          "inserts": 4708127,
+          "post_drain_entries": 0,
+          "post_drain_retained_capacity": 0,
+          "removals": 4708127
+        },
+        "channel_registry": {
+          "end_load_entries": 1,
+          "end_load_retained_capacity": 6,
+          "high_water_entries": 1,
+          "high_water_retained_capacity": 6,
+          "initial_entries": 1,
+          "inserts": 1,
+          "post_drain_entries": 0,
+          "post_drain_retained_capacity": 0,
+          "removals": 1
+        },
+        "pending_routes": {
+          "end_load_entries": 0,
+          "end_load_retained_capacity": 3,
+          "high_water_entries": 1,
+          "high_water_retained_capacity": 3,
+          "initial_entries": 0,
+          "inserts": 1,
+          "post_drain_entries": 0,
+          "post_drain_retained_capacity": 0,
+          "removals": 1
+        },
+        "replay_state": {
+          "end_load_entries": 2354062,
+          "end_load_retained_capacity": 3670016,
+          "high_water_entries": 2354062,
+          "high_water_retained_capacity": 3670016,
+          "initial_entries": 0,
+          "inserts": 2354062,
+          "post_drain_entries": 0,
+          "post_drain_retained_capacity": 0,
+          "removals": 2354062
+        },
+        "stream_registry": {
+          "end_load_entries": 0,
+          "end_load_retained_capacity": 6,
+          "high_water_entries": 1,
+          "high_water_retained_capacity": 6,
+          "initial_entries": 0,
+          "inserts": 2354062,
+          "post_drain_entries": 0,
+          "post_drain_retained_capacity": 0,
+          "removals": 2354062
+        }
+      },
+      "source_owner_lifecycle": {
+        "application_streams": {
+          "created": 2354062,
+          "current_live": 0,
+          "reconciled": true,
+          "terminal_failure_or_cancel": 0,
+          "terminal_success": 2354062
+        },
+        "nbsr_tasks": {
+          "created": 0,
+          "current_live": 0,
+          "reconciled": true,
+          "terminal_failure_or_cancel": 0,
+          "terminal_success": 0
+        },
+        "quic_connections": {
+          "created": 1,
+          "current_live": 0,
+          "reconciled": true,
+          "terminal_failure_or_cancel": 0,
+          "terminal_success": 1
+        },
+        "quic_streams": {
+          "created": 2354062,
+          "current_live": 0,
+          "reconciled": true,
+          "terminal_failure_or_cancel": 0,
+          "terminal_success": 2354062
+        },
+        "service_channels": {
+          "created": 1,
+          "current_live": 0,
+          "reconciled": true,
+          "terminal_failure_or_cancel": 0,
+          "terminal_success": 1
+        },
+        "transport_sessions": {
+          "created": 1,
+          "current_live": 0,
+          "reconciled": true,
+          "terminal_failure_or_cancel": 0,
+          "terminal_success": 1
+        }
+      },
+      "source_process": {
+        "backlog": null,
+        "post_drain_private_bytes": 1482752,
+        "post_drain_working_set_bytes": 8216576,
+        "private_bytes": {
+          "final_quarter": {
+            "lower_95": 49768.338597803784,
+            "r_squared": 0.24492025810885,
+            "samples": 446,
+            "slope_bytes_per_second": 59483.36994605019,
+            "upper_95": 69198.4012942966
+          },
+          "overall": {
+            "lower_95": 59902.562986241486,
+            "r_squared": 0.8722414738965643,
+            "samples": 1784,
+            "slope_bytes_per_second": 60986.267432849345,
+            "upper_95": 62069.9718794572
+          },
+          "second_half": {
+            "lower_95": 86856.27565379784,
+            "r_squared": 0.74388396746527,
+            "samples": 892,
+            "slope_bytes_per_second": 90338.85844641803,
+            "upper_95": 93821.44123903822
+          }
+        },
+        "private_bytes_per_request": null,
+        "private_bytes_values": {
+          "end": 110956544,
+          "peak": 110956544,
+          "start": 5570560
+        },
+        "processed_request_delta": null,
+        "role": "source",
+        "samples": 1784,
+        "working_set": {
+          "final_quarter": {
+            "lower_95": 49671.324292544916,
+            "r_squared": 0.24492025810884988,
+            "samples": 446,
+            "slope_bytes_per_second": 59367.41795785127,
+            "upper_95": 69063.51162315762
+          },
+          "overall": {
+            "lower_95": 59766.429913167696,
+            "r_squared": 0.8721442114205029,
+            "samples": 1784,
+            "slope_bytes_per_second": 60848.15190719721,
+            "upper_95": 61929.87390122672
+          },
+          "second_half": {
+            "lower_95": 86692.38635945591,
+            "r_squared": 0.7439287931175267,
+            "samples": 892,
+            "slope_bytes_per_second": 90167.97254810328,
+            "upper_95": 93643.55873675065
+          }
+        },
+        "working_set_bytes": {
+          "end": 117420032,
+          "peak": 136298496,
+          "start": 12251136
+        },
+        "working_set_bytes_per_request": null
+      },
+      "terminal": {
+        "authoritative_pass_eligible": true,
+        "authoritative_run": true,
+        "child_return_code": 0,
+        "cleanup_verified": true,
+        "counters": {
+          "completed": 2354062,
+          "failed": 0,
+          "offered": 2354062,
+          "persisted": 2354062,
+          "started": 2354062,
+          "timed_out": 0
+        },
+        "counters_reconciled": true,
+        "partial_but_durable": false,
+        "request_evidence": {
+          "path": "raw.ndjson.gz",
+          "uncompressed_bytes": 135424486,
+          "uncompressed_sha256": "070694718d0ac5755df45cbf7f3bd266e099286764e6036acca5239f9615a458"
+        },
+        "runner_error": null,
+        "schema": "nbsr-durable-memory-terminal-v1",
+        "series_counts": {
+          "diagnostics": 1883,
+          "requests": 2354062,
+          "resources": 3691,
+          "runtime": 0
+        },
+        "terminal_state": "completed",
+        "terminated_process_ids": []
+      }
+    },
+    {
+      "destination_owner_series_present": false,
+      "destination_process": {
+        "backlog": null,
+        "post_drain_observation_complete": false,
+        "post_drain_private_bytes": null,
+        "post_drain_working_set_bytes": null,
+        "private_bytes": {
+          "final_quarter": {
+            "lower_95": 49570.09492375247,
+            "r_squared": 0.2444368493806407,
+            "samples": 447,
+            "slope_bytes_per_second": 59248.54465481255,
+            "upper_95": 68926.99438587262
+          },
+          "overall": {
+            "lower_95": 60138.30510626995,
+            "r_squared": 0.8737014973717081,
+            "samples": 1785,
+            "slope_bytes_per_second": 61218.69883674258,
+            "upper_95": 62299.09256721521
+          },
+          "second_half": {
+            "lower_95": 86786.31213692839,
+            "r_squared": 0.7440389968882131,
+            "samples": 893,
+            "slope_bytes_per_second": 90262.58650342874,
+            "upper_95": 93738.86086992909
+          }
+        },
+        "private_bytes_change_per_completed_operation_observational": 46.464954497648066,
+        "private_bytes_per_request": null,
+        "private_bytes_values": {
+          "end": 111747072,
+          "peak": 111747072,
+          "start": 5894144
+        },
+        "processed_request_delta": null,
+        "role": "destination",
+        "samples": 1785,
+        "working_set": {
+          "final_quarter": {
+            "lower_95": 49473.46705840402,
+            "r_squared": 0.2444368493806407,
+            "samples": 447,
+            "slope_bytes_per_second": 59133.05041571934,
+            "upper_95": 68792.63377303466
+          },
+          "overall": {
+            "lower_95": 60068.29783117858,
+            "r_squared": 0.8739202057253723,
+            "samples": 1785,
+            "slope_bytes_per_second": 61146.34498525719,
+            "upper_95": 62224.392139335796
+          },
+          "second_half": {
+            "lower_95": 86626.7830601497,
+            "r_squared": 0.7440777290529641,
+            "samples": 893,
+            "slope_bytes_per_second": 90096.3004208244,
+            "upper_95": 93565.81778149909
+          }
+        },
+        "working_set_bytes": {
+          "end": 118292480,
+          "peak": 137170944,
+          "start": 12541952
+        },
+        "working_set_bytes_per_request": null,
+        "working_set_change_per_completed_operation_observational": 46.42000523237541
+      },
+      "environment": {
+        "affinity": "inherited; not modified",
+        "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)",
+        "cores": 4,
+        "cpu": "Intel(R) Core(TM) i5-10210U CPU @ 1.60GHz",
+        "dirty_tree": false,
+        "go": "go version go1.26.5 windows/amd64",
+        "logical_processors": 8,
+        "memory_bytes": 16942501888,
+        "os": "Windows-11-10.0.26200-SP0",
+        "power_plan": "Power Scheme GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c  (High performance)",
+        "python": "3.14.6",
+        "repository_sha": "c5c7d12aec20977986bbfa298b58a49134192dac",
+        "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+        "schema": "nbsr-performance-environment-v1",
+        "topology": "windows-loopback"
+      },
+      "load": {
+        "completed_operations": 2278124,
+        "drain_seconds": 20,
+        "errors": 0,
+        "measurement_seconds": 1800,
+        "offered_operations": 2278124,
+        "offered_rate": 1265.625,
+        "p99_ns": 453772,
+        "total_completed_operations_including_warmup": 2354062,
+        "total_errors_including_warmup": 0,
+        "total_offered_operations_including_warmup": 2354062,
+        "warmup_seconds": 60
+      },
+      "percent": 75,
+      "run_id": "rust-rust-p1a-75pct-r2",
+      "source_owner_collections": {
+        "audit_queue": {
+          "end_load_entries": 0,
+          "end_load_retained_capacity": 1024,
+          "high_water_entries": 5,
+          "high_water_retained_capacity": 1024,
+          "initial_entries": 3,
+          "inserts": 4708127,
+          "post_drain_entries": 0,
+          "post_drain_retained_capacity": 0,
+          "removals": 4708127
+        },
+        "channel_registry": {
+          "end_load_entries": 1,
+          "end_load_retained_capacity": 6,
+          "high_water_entries": 1,
+          "high_water_retained_capacity": 6,
+          "initial_entries": 1,
+          "inserts": 1,
+          "post_drain_entries": 0,
+          "post_drain_retained_capacity": 0,
+          "removals": 1
+        },
+        "pending_routes": {
+          "end_load_entries": 0,
+          "end_load_retained_capacity": 3,
+          "high_water_entries": 1,
+          "high_water_retained_capacity": 3,
+          "initial_entries": 0,
+          "inserts": 1,
+          "post_drain_entries": 0,
+          "post_drain_retained_capacity": 0,
+          "removals": 1
+        },
+        "replay_state": {
+          "end_load_entries": 2352798,
+          "end_load_retained_capacity": 3670016,
+          "high_water_entries": 2354062,
+          "high_water_retained_capacity": 3670016,
+          "initial_entries": 0,
+          "inserts": 2354062,
+          "post_drain_entries": 0,
+          "post_drain_retained_capacity": 0,
+          "removals": 2354062
+        },
+        "stream_registry": {
+          "end_load_entries": 0,
+          "end_load_retained_capacity": 6,
+          "high_water_entries": 1,
+          "high_water_retained_capacity": 6,
+          "initial_entries": 0,
+          "inserts": 2354062,
+          "post_drain_entries": 0,
+          "post_drain_retained_capacity": 0,
+          "removals": 2354062
+        }
+      },
+      "source_owner_lifecycle": {
+        "application_streams": {
+          "created": 2354062,
+          "current_live": 0,
+          "reconciled": true,
+          "terminal_failure_or_cancel": 0,
+          "terminal_success": 2354062
+        },
+        "nbsr_tasks": {
+          "created": 0,
+          "current_live": 0,
+          "reconciled": true,
+          "terminal_failure_or_cancel": 0,
+          "terminal_success": 0
+        },
+        "quic_connections": {
+          "created": 1,
+          "current_live": 0,
+          "reconciled": true,
+          "terminal_failure_or_cancel": 0,
+          "terminal_success": 1
+        },
+        "quic_streams": {
+          "created": 2354062,
+          "current_live": 0,
+          "reconciled": true,
+          "terminal_failure_or_cancel": 0,
+          "terminal_success": 2354062
+        },
+        "service_channels": {
+          "created": 1,
+          "current_live": 0,
+          "reconciled": true,
+          "terminal_failure_or_cancel": 0,
+          "terminal_success": 1
+        },
+        "transport_sessions": {
+          "created": 1,
+          "current_live": 0,
+          "reconciled": true,
+          "terminal_failure_or_cancel": 0,
+          "terminal_success": 1
+        }
+      },
+      "source_process": {
+        "backlog": null,
+        "post_drain_private_bytes": 1478656,
+        "post_drain_working_set_bytes": 8216576,
+        "private_bytes": {
+          "final_quarter": {
+            "lower_95": 49570.09492375247,
+            "r_squared": 0.2444368493806407,
+            "samples": 447,
+            "slope_bytes_per_second": 59248.54465481255,
+            "upper_95": 68926.99438587262
+          },
+          "overall": {
+            "lower_95": 60136.33309458908,
+            "r_squared": 0.8736951713037462,
+            "samples": 1785,
+            "slope_bytes_per_second": 61216.72292151067,
+            "upper_95": 62297.112748432264
+          },
+          "second_half": {
+            "lower_95": 86786.36502432232,
+            "r_squared": 0.744044526718312,
+            "samples": 893,
+            "slope_bytes_per_second": 90262.58901850261,
+            "upper_95": 93738.81301268289
+          }
+        },
+        "private_bytes_per_request": null,
+        "private_bytes_values": {
+          "end": 111702016,
+          "peak": 111702016,
+          "start": 5849088
+        },
+        "processed_request_delta": null,
+        "role": "source",
+        "samples": 1785,
+        "working_set": {
+          "final_quarter": {
+            "lower_95": 49473.46705840402,
+            "r_squared": 0.2444368493806407,
+            "samples": 447,
+            "slope_bytes_per_second": 59133.05041571934,
+            "upper_95": 68792.63377303466
+          },
+          "overall": {
+            "lower_95": 60068.24394416385,
+            "r_squared": 0.873918900128551,
+            "samples": 1785,
+            "slope_bytes_per_second": 61146.29663278367,
+            "upper_95": 62224.34932140349
+          },
+          "second_half": {
+            "lower_95": 86627.88244941387,
+            "r_squared": 0.7440845134110545,
+            "samples": 893,
+            "slope_bytes_per_second": 90097.37956127634,
+            "upper_95": 93566.8766731388
+          }
+        },
+        "working_set_bytes": {
+          "end": 118009856,
+          "peak": 136888320,
+          "start": 12259328
+        },
+        "working_set_bytes_per_request": null
+      },
+      "terminal": {
+        "authoritative_pass_eligible": true,
+        "authoritative_run": true,
+        "child_return_code": 0,
+        "cleanup_verified": true,
+        "counters": {
+          "completed": 2354062,
+          "failed": 0,
+          "offered": 2354062,
+          "persisted": 2354062,
+          "started": 2354062,
+          "timed_out": 0
+        },
+        "counters_reconciled": true,
+        "partial_but_durable": false,
+        "request_evidence": {
+          "path": "raw.ndjson.gz",
+          "uncompressed_bytes": 135424486,
+          "uncompressed_sha256": "070694718d0ac5755df45cbf7f3bd266e099286764e6036acca5239f9615a458"
+        },
+        "runner_error": null,
+        "schema": "nbsr-durable-memory-terminal-v1",
+        "series_counts": {
+          "diagnostics": 1882,
+          "requests": 2354062,
+          "resources": 3691,
+          "runtime": 0
+        },
+        "terminal_state": "completed",
+        "terminated_process_ids": []
+      }
+    },
+    {
+      "destination_owner_series_present": false,
+      "destination_process": {
+        "backlog": null,
+        "post_drain_observation_complete": false,
+        "post_drain_private_bytes": 111742976,
+        "post_drain_working_set_bytes": 118296576,
+        "private_bytes": {
+          "final_quarter": {
+            "lower_95": 49761.830295446074,
+            "r_squared": 0.24490890671243248,
+            "samples": 446,
+            "slope_bytes_per_second": 59475.9475162879,
+            "upper_95": 69190.06473712972
+          },
+          "overall": {
+            "lower_95": 60136.159587063376,
+            "r_squared": 0.8735298253660144,
+            "samples": 1784,
+            "slope_bytes_per_second": 61217.67887872975,
+            "upper_95": 62299.19817039612
+          },
+          "second_half": {
+            "lower_95": 86845.75338176942,
+            "r_squared": 0.7438787516286034,
+            "samples": 892,
+            "slope_bytes_per_second": 90327.96385050165,
+            "upper_95": 93810.17431923388
+          }
+        },
+        "private_bytes_change_per_completed_operation_observational": 46.46315652703716,
+        "private_bytes_per_request": null,
+        "private_bytes_values": {
+          "end": 111742976,
+          "peak": 111742976,
+          "start": 5894144
+        },
+        "processed_request_delta": null,
+        "role": "destination",
+        "samples": 1784,
+        "working_set": {
+          "final_quarter": {
+            "lower_95": 49668.55251503173,
+            "r_squared": 0.24490890671243248,
+            "samples": 446,
+            "slope_bytes_per_second": 59364.46077354912,
+            "upper_95": 69060.3690320665
+          },
+          "overall": {
+            "lower_95": 60065.346051610206,
+            "r_squared": 0.8737372897803057,
+            "samples": 1784,
+            "slope_bytes_per_second": 61144.55902329199,
+            "upper_95": 62223.77199497378
+          },
+          "second_half": {
+            "lower_95": 86690.78107928409,
+            "r_squared": 0.743923517326837,
+            "samples": 892,
+            "slope_bytes_per_second": 90166.35296672562,
+            "upper_95": 93641.92485416715
+          }
+        },
+        "working_set_bytes": {
+          "end": 118292480,
+          "peak": 137170944,
+          "start": 12546048
+        },
+        "working_set_bytes_per_request": null,
+        "working_set_change_per_completed_operation_observational": 46.41820726176451
+      },
+      "environment": {
+        "affinity": "inherited; not modified",
+        "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)",
+        "cores": 4,
+        "cpu": "Intel(R) Core(TM) i5-10210U CPU @ 1.60GHz",
+        "dirty_tree": false,
+        "go": "go version go1.26.5 windows/amd64",
+        "logical_processors": 8,
+        "memory_bytes": 16942501888,
+        "os": "Windows-11-10.0.26200-SP0",
+        "power_plan": "Power Scheme GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c  (High performance)",
+        "python": "3.14.6",
+        "repository_sha": "c5c7d12aec20977986bbfa298b58a49134192dac",
+        "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+        "schema": "nbsr-performance-environment-v1",
+        "topology": "windows-loopback"
+      },
+      "load": {
+        "completed_operations": 2278124,
+        "drain_seconds": 20,
+        "errors": 0,
+        "measurement_seconds": 1800,
+        "offered_operations": 2278124,
+        "offered_rate": 1265.625,
+        "p99_ns": 445391,
+        "total_completed_operations_including_warmup": 2354062,
+        "total_errors_including_warmup": 0,
+        "total_offered_operations_including_warmup": 2354062,
+        "warmup_seconds": 60
+      },
+      "percent": 75,
+      "run_id": "rust-rust-p1a-75pct-r3",
+      "source_owner_collections": {
+        "audit_queue": {
+          "end_load_entries": 0,
+          "end_load_retained_capacity": 1024,
+          "high_water_entries": 5,
+          "high_water_retained_capacity": 1024,
+          "initial_entries": 3,
+          "inserts": 4708127,
+          "post_drain_entries": 0,
+          "post_drain_retained_capacity": 0,
+          "removals": 4708127
+        },
+        "channel_registry": {
+          "end_load_entries": 1,
+          "end_load_retained_capacity": 6,
+          "high_water_entries": 1,
+          "high_water_retained_capacity": 6,
+          "initial_entries": 1,
+          "inserts": 1,
+          "post_drain_entries": 0,
+          "post_drain_retained_capacity": 0,
+          "removals": 1
+        },
+        "pending_routes": {
+          "end_load_entries": 0,
+          "end_load_retained_capacity": 3,
+          "high_water_entries": 1,
+          "high_water_retained_capacity": 3,
+          "initial_entries": 0,
+          "inserts": 1,
+          "post_drain_entries": 0,
+          "post_drain_retained_capacity": 0,
+          "removals": 1
+        },
+        "replay_state": {
+          "end_load_entries": 2354062,
+          "end_load_retained_capacity": 3670016,
+          "high_water_entries": 2354062,
+          "high_water_retained_capacity": 3670016,
+          "initial_entries": 0,
+          "inserts": 2354062,
+          "post_drain_entries": 0,
+          "post_drain_retained_capacity": 0,
+          "removals": 2354062
+        },
+        "stream_registry": {
+          "end_load_entries": 0,
+          "end_load_retained_capacity": 6,
+          "high_water_entries": 1,
+          "high_water_retained_capacity": 6,
+          "initial_entries": 0,
+          "inserts": 2354062,
+          "post_drain_entries": 0,
+          "post_drain_retained_capacity": 0,
+          "removals": 2354062
+        }
+      },
+      "source_owner_lifecycle": {
+        "application_streams": {
+          "created": 2354062,
+          "current_live": 0,
+          "reconciled": true,
+          "terminal_failure_or_cancel": 0,
+          "terminal_success": 2354062
+        },
+        "nbsr_tasks": {
+          "created": 0,
+          "current_live": 0,
+          "reconciled": true,
+          "terminal_failure_or_cancel": 0,
+          "terminal_success": 0
+        },
+        "quic_connections": {
+          "created": 1,
+          "current_live": 0,
+          "reconciled": true,
+          "terminal_failure_or_cancel": 0,
+          "terminal_success": 1
+        },
+        "quic_streams": {
+          "created": 2354062,
+          "current_live": 0,
+          "reconciled": true,
+          "terminal_failure_or_cancel": 0,
+          "terminal_success": 2354062
+        },
+        "service_channels": {
+          "created": 1,
+          "current_live": 0,
+          "reconciled": true,
+          "terminal_failure_or_cancel": 0,
+          "terminal_success": 1
+        },
+        "transport_sessions": {
+          "created": 1,
+          "current_live": 0,
+          "reconciled": true,
+          "terminal_failure_or_cancel": 0,
+          "terminal_success": 1
+        }
+      },
+      "source_process": {
+        "backlog": null,
+        "post_drain_private_bytes": 1474560,
+        "post_drain_working_set_bytes": 8208384,
+        "private_bytes": {
+          "final_quarter": {
+            "lower_95": 49765.56140666265,
+            "r_squared": 0.24490890671243248,
+            "samples": 446,
+            "slope_bytes_per_second": 59480.406985997455,
+            "upper_95": 69195.25256533225
+          },
+          "overall": {
+            "lower_95": 60132.64485139391,
+            "r_squared": 0.8734976337779843,
+            "samples": 1784,
+            "slope_bytes_per_second": 61214.26132404799,
+            "upper_95": 62295.87779670207
+          },
+          "second_half": {
+            "lower_95": 86849.79971749625,
+            "r_squared": 0.7438612722178366,
+            "samples": 892,
+            "slope_bytes_per_second": 90332.33857958451,
+            "upper_95": 93814.87744167277
+          }
+        },
+        "private_bytes_per_request": null,
+        "private_bytes_values": {
+          "end": 111751168,
+          "peak": 111751168,
+          "start": 5898240
+        },
+        "processed_request_delta": null,
+        "role": "source",
+        "samples": 1784,
+        "working_set": {
+          "final_quarter": {
+            "lower_95": 49668.55251503173,
+            "r_squared": 0.24490890671243248,
+            "samples": 446,
+            "slope_bytes_per_second": 59364.46077354912,
+            "upper_95": 69060.3690320665
+          },
+          "overall": {
+            "lower_95": 60066.987945839486,
+            "r_squared": 0.8737471547017202,
+            "samples": 1784,
+            "slope_bytes_per_second": 61146.18129720318,
+            "upper_95": 62225.37464856687
+          },
+          "second_half": {
+            "lower_95": 86689.54785065875,
+            "r_squared": 0.743914759970101,
+            "samples": 892,
+            "slope_bytes_per_second": 90165.1533837965,
+            "upper_95": 93640.75891693424
+          }
+        },
+        "working_set_bytes": {
+          "end": 118005760,
+          "peak": 136884224,
+          "start": 12251136
+        },
+        "working_set_bytes_per_request": null
+      },
+      "terminal": {
+        "authoritative_pass_eligible": true,
+        "authoritative_run": true,
+        "child_return_code": 0,
+        "cleanup_verified": true,
+        "counters": {
+          "completed": 2354062,
+          "failed": 0,
+          "offered": 2354062,
+          "persisted": 2354062,
+          "started": 2354062,
+          "timed_out": 0
+        },
+        "counters_reconciled": true,
+        "partial_but_durable": false,
+        "request_evidence": {
+          "path": "raw.ndjson.gz",
+          "uncompressed_bytes": 135424486,
+          "uncompressed_sha256": "070694718d0ac5755df45cbf7f3bd266e099286764e6036acca5239f9615a458"
+        },
+        "runner_error": null,
+        "schema": "nbsr-durable-memory-terminal-v1",
+        "series_counts": {
+          "diagnostics": 1883,
+          "requests": 2354062,
+          "resources": 3691,
+          "runtime": 0
+        },
+        "terminal_state": "completed",
+        "terminated_process_ids": []
+      }
+    }
+  ],
+  "schema": "nbsr-rust-memory-attribution-p1a-v1"
+}

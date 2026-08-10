@@ -1,0 +1,31 @@
+{
+  "authoritative_pass_eligible": false,
+  "authoritative_run": true,
+  "child_return_code": 1,
+  "cleanup_verified": true,
+  "counters": {
+    "completed": 29530,
+    "failed": 0,
+    "offered": 29531,
+    "persisted": 29530,
+    "started": 29530,
+    "timed_out": 0
+  },
+  "counters_reconciled": true,
+  "partial_but_durable": true,
+  "request_evidence": {
+    "path": "raw.ndjson",
+    "uncompressed_bytes": 1642570,
+    "uncompressed_sha256": "74c155e642fcf6566f99f1e88411c9010d015a2d180271b0c2640a77d69327b1"
+  },
+  "runner_error": null,
+  "schema": "nbsr-durable-memory-terminal-v1",
+  "series_counts": {
+    "diagnostics": 35,
+    "requests": 29530,
+    "resources": 90,
+    "runtime": 0
+  },
+  "terminal_state": "failed",
+  "terminated_process_ids": []
+}
