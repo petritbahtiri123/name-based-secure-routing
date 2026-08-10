@@ -165,7 +165,11 @@ def main() -> None:
                 emit_durable_event(durable_request_event(document))
 
         def resource_sink(document: dict[str, Any]) -> None:
-            emit_durable_event({"event": "resource", **document})
+            timestamp_ns = int(document["timestamp_ns"])
+            warmup_boundary = args.warmup_seconds * 1_000_000_000
+            load_boundary = total_seconds * 1_000_000_000
+            phase = "warmup" if timestamp_ns < warmup_boundary else "steady" if timestamp_ns < load_boundary else "drain"
+            emit_durable_event({"event": "resource", "phase": phase, **document})
 
         output_line_sink = request_sink if args.durable_events else None
         resource_event_sink = resource_sink if args.durable_events else None
