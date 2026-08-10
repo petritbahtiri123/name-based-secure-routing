@@ -644,6 +644,7 @@ async fn main() {
     let diagnostics_enabled = optional_argument("--diagnostics").is_some();
     let drain_seconds = optional_argument("--diagnostic-drain-seconds")
         .map_or(0, |value| value.parse::<u64>().unwrap());
+    let completion_ack = optional_argument("--diagnostic-completion-ack").map(PathBuf::from);
     if diagnostics_enabled {
         nbsr_transport::diagnostics::enable_global();
     }
@@ -826,6 +827,9 @@ async fn main() {
     drop(session);
     connection.close().await.unwrap();
     if diagnostics_enabled {
+        if let Some(path) = completion_ack {
+            fs::write(path, b"diagnostic source completed measured transport\n").unwrap();
+        }
         emit_diagnostic(diagnostic_origin.elapsed().as_nanos(), "drain_start");
         let drain_deadline = Instant::now() + Duration::from_secs(drain_seconds);
         while Instant::now() < drain_deadline {

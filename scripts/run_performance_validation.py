@@ -368,6 +368,7 @@ def nbsr_samples(
                 client_command.extend([
                     "--diagnostics", "enabled",
                     "--diagnostic-drain-seconds", os.environ.get("NBSR_P1A_DRAIN_SECONDS", "0"),
+                    "--diagnostic-completion-ack", str(ack),
                 ])
             if resource_records is None:
                 stdout = command(client_command, timeout=3600).stdout
