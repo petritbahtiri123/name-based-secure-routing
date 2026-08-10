@@ -1,7 +1,0 @@
-
-running 1 test
-test channel_streams::tests::adversarial_soak_holds_replay_history_at_ten_thousand has been running for over 60 seconds
-test channel_streams::tests::adversarial_soak_holds_replay_history_at_ten_thousand ... ok
-
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 35 filtered out; finished in 600.30s
-
