@@ -479,9 +479,9 @@ async fn main() {
                 .json_line("destination", 0, "initial")
         );
         let stop = diagnostic_stop.clone();
-        tokio::spawn(async move {
+        std::thread::spawn(move || {
             while !stop.load(Ordering::Relaxed) {
-                tokio::time::sleep(Duration::from_secs(1)).await;
+                std::thread::sleep(Duration::from_secs(1));
                 if !stop.load(Ordering::Relaxed) {
                     println!(
                         "{}",
@@ -619,7 +619,7 @@ async fn main() {
     drop(session);
     diagnostic_stop.store(true, Ordering::Relaxed);
     if let Some(task) = diagnostic_task {
-        task.await.unwrap();
+        task.join().unwrap();
         println!(
             "{}",
             nbsr_transport::diagnostics::global().snapshot().json_line(
