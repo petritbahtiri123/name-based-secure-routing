@@ -20,6 +20,8 @@ DISCOVERY_RATES = {
     "go-rust": (200, 300, 400),
 }
 IDLE_P99_NS = {"direct-quic": 170_840, "rust-rust": 404_000, "go-rust": 466_540}
+MEMORY_SAFETY_TIMEOUT_SECONDS = 2_040
+LOAD_CELL_CLIENT_TIMEOUT_SECONDS = 3_600
 
 
 @dataclass(frozen=True)
@@ -77,7 +79,9 @@ def command_for(spec: RunSpec, output_root: Path, *, output_override: Path | Non
     return command
 
 
-def execute_spec(spec: RunSpec, output_root: Path, *, timeout_seconds: float = 3_660) -> None:
+def execute_spec(
+    spec: RunSpec, output_root: Path, *, timeout_seconds: float = MEMORY_SAFETY_TIMEOUT_SECONDS,
+) -> None:
     output = output_root / spec.phase / spec.run_id
     if output.exists():
         raise SystemExit(f"refusing to overwrite completed or partial run: {output}")

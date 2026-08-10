@@ -74,13 +74,14 @@ def test_memory_execution_uses_durable_runner_only(monkeypatch, tmp_path: Path) 
         lambda *args, **kwargs: calls.append(("short", (args, kwargs))),
     )
 
-    completion.execute_spec(spec, tmp_path, timeout_seconds=3_660)
+    completion.execute_spec(spec, tmp_path)
 
     assert [name for name, _ in calls] == ["durable"]
     _, (_, options) = calls[0]
     assert options["output"] == tmp_path / "memory" / spec.run_id
     assert options["offered_requests"] == round(200 * 1_860)
-    assert options["timeout_seconds"] == 3_660
+    assert options["timeout_seconds"] == 2_040
+    assert options["timeout_seconds"] < completion.LOAD_CELL_CLIENT_TIMEOUT_SECONDS
     assert options["authoritative_run"] is True
     assert "--durable-events" in calls[0][1][0]
     durable_root_index = calls[0][1][0].index("--durable-root") + 1
