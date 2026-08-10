@@ -49,7 +49,12 @@ def completion_plan(phase: str, *, accepted_capacities: dict[str, float]) -> lis
     if phase == "formal":
         return [RunSpec(phase, path, accepted_capacities[path] * percent / 100, 60, 600, 1, percent) for path in PATHS for percent in (25, 50, 75, 90)]
     if phase == "memory":
-        return [RunSpec(phase, path, accepted_capacities[path] * percent / 100, 60, 1_800, 1, percent) for path in PATHS for percent in (50, 75)]
+        load_points = {"direct-quic": (50, 68), "rust-rust": (50, 75), "go-rust": (50, 75)}
+        return [
+            RunSpec(phase, path, accepted_capacities[path] * percent / 100, 60, 1_800, 1, percent)
+            for path in PATHS
+            for percent in load_points[path]
+        ]
     raise ValueError(f"unsupported completion phase {phase}")
 
 

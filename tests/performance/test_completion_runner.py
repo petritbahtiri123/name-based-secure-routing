@@ -40,13 +40,16 @@ def test_formal_plan_uses_each_paths_accepted_capacity() -> None:
     ]
 
 
-def test_memory_plan_has_six_identically_timed_non_saturated_runs() -> None:
+def test_memory_plan_uses_stable_direct_upper_load_without_changing_other_paths() -> None:
     accepted = {"direct-quic": 4_000, "rust-rust": 1_500, "go-rust": 300}
     specs = completion_plan("memory", accepted_capacities=accepted)
     assert len(specs) == 6
-    assert {(spec.path, spec.percent) for spec in specs} == {
-        (path, percent) for path in accepted for percent in (50, 75)
-    }
+    assert [(spec.path, spec.percent) for spec in specs] == [
+        ("direct-quic", 50), ("direct-quic", 68),
+        ("rust-rust", 50), ("rust-rust", 75),
+        ("go-rust", 50), ("go-rust", 75),
+    ]
+    assert [spec.rate for spec in specs if spec.path == "direct-quic"] == [2_000, 2_720]
     assert all(spec.warmup_seconds == 60 for spec in specs)
     assert all(spec.steady_seconds == 1_800 for spec in specs)
     assert all(spec.sampling_cadence_seconds == 1 for spec in specs)
