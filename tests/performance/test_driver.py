@@ -21,6 +21,13 @@ from scripts.performance.driver import (
     validate_formal_load_result,
 )
 from scripts.run_performance_validation import merge_destination_measurements, normalize
+from scripts.run_performance_load_cell import streamed_document_kind
+
+
+def test_streamed_diagnostic_is_not_request_completion_metadata() -> None:
+    assert streamed_document_kind({"event": "diagnostic", "phase": "post_drain"}) == "diagnostic"
+    assert streamed_document_kind({"sample_id": 7, "success": True}) == "request"
+    assert streamed_document_kind({"status": "PASS"}) == "completion"
 
 
 def observation(path: str, rate: float, **changes: object) -> CapacityObservation:

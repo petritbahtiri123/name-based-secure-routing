@@ -86,6 +86,16 @@ def expected_steady_sample_count(
     return total - warmup
 
 
+def streamed_document_kind(document: dict[str, Any]) -> str:
+    if document.get("event") == "diagnostic":
+        return "diagnostic"
+    if "sample_id" in document:
+        return "request"
+    if document.get("status") == "PASS":
+        return "completion"
+    raise ValueError("invalid streamed document")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--path", choices=["direct-quic", "rust-rust", "go-rust"], required=True)
@@ -203,9 +213,10 @@ def main() -> None:
         with streamed.open("r", encoding="utf-8") as source, gzip.open(raw_path, "wt", encoding="utf-8", newline="\n") as raw:
             for line in source:
                 document = json.loads(line)
-                if "sample_id" not in document:
-                    if document.get("status") != "PASS":
-                        raise RuntimeError("invalid streamed completion metadata")
+                kind = streamed_document_kind(document)
+                if kind == "diagnostic":
+                    continue
+                if kind == "completion":
                     completion_metadata = document
                     continue
                 record = normalize(
