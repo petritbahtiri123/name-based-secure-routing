@@ -26,8 +26,13 @@ def test_durable_request_event_preserves_identity_and_terminal_result() -> None:
 def test_short_memory_duration_requires_explicit_durable_validation_profile() -> None:
     validate_memory_duration(
         memory=True, durable_events=True, validation_profile=True,
-        warmup_seconds=1, steady_seconds=2,
+        warmup_seconds=1, steady_seconds=8,
     )
+    with pytest.raises(ValueError, match="at least 1 warm-up second and 8 steady seconds"):
+        validate_memory_duration(
+            memory=True, durable_events=True, validation_profile=True,
+            warmup_seconds=1, steady_seconds=2,
+        )
     with pytest.raises(ValueError, match="primary memory evidence requires"):
         validate_memory_duration(
             memory=True, durable_events=True, validation_profile=False,

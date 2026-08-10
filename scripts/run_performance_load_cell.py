@@ -49,6 +49,8 @@ def validate_memory_duration(
 ) -> None:
     if validation_profile and not (memory and durable_events):
         raise ValueError("validation profile requires durable memory events")
+    if validation_profile and (warmup_seconds < 1 or steady_seconds < 8):
+        raise ValueError("validation profile requires at least 1 warm-up second and 8 steady seconds")
     if memory and (warmup_seconds < 60 or steady_seconds < 1_800) and not validation_profile:
         raise ValueError("primary memory evidence requires 60 seconds warm-up and 1800 seconds steady state")
 
