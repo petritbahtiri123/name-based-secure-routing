@@ -129,6 +129,7 @@ mod channel_binding;
 mod channel_lifecycle;
 mod channel_registry;
 mod channel_streams;
+pub use channel_streams::{ReplayHistoryLimit, ReplayHistoryLimitError};
 mod config;
 mod core_v02;
 mod datagram_gate;

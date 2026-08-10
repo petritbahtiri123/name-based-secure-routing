@@ -10,7 +10,7 @@ use crate::channel_binding::ChannelBindingRequest;
 use crate::channel_registry::{
     ChannelBindingInstallError, ChannelLifecycleError, ResumeChannelContext,
 };
-use crate::channel_streams::ChannelStreams;
+use crate::channel_streams::{ChannelStreams, ReplayHistoryLimit};
 use crate::federation::LocalFederationAdmissionAttestations;
 use crate::quinn_adapter::ConnectionBindingCapability;
 use crate::resumption::{ResumeReuseKey, ResumeSessionContext, ResumeSessionScope};
@@ -129,6 +129,22 @@ impl ControlSession {
         trusted_issuers: Vec<RouteGrantIssuer>,
         trust_profile_id: TrustProfileId,
     ) -> Self {
+        Self::new_with_replay_history_limit(
+            connection,
+            admission,
+            trusted_issuers,
+            trust_profile_id,
+            ReplayHistoryLimit::MAX,
+        )
+    }
+
+    pub fn new_with_replay_history_limit(
+        connection: &AuthenticatedConnection,
+        admission: DestinationAdmission,
+        trusted_issuers: Vec<RouteGrantIssuer>,
+        trust_profile_id: TrustProfileId,
+        replay_history_limit: ReplayHistoryLimit,
+    ) -> Self {
         let clock = Arc::new(AnchoredClock {
             unix_anchor: admission.trusted_unix_anchor(),
             started: Instant::now(),
@@ -140,6 +156,7 @@ impl ControlSession {
             trust_profile_id,
             clock,
             None,
+            replay_history_limit,
         )
     }
 
@@ -158,6 +175,7 @@ impl ControlSession {
             trust_profile_id,
             clock,
             None,
+            ReplayHistoryLimit::MAX,
         )
     }
 
@@ -168,6 +186,7 @@ impl ControlSession {
         trust_profile_id: TrustProfileId,
         clock: Arc<dyn SessionClock>,
         session_deadline: Option<DrainDeadline>,
+        replay_history_limit: ReplayHistoryLimit,
     ) -> Self {
         let created_at_monotonic = clock.monotonic_seconds();
         crate::diagnostics::global().created(crate::diagnostics::DiagnosticOwner::TransportSession);
@@ -181,7 +200,7 @@ impl ControlSession {
             state: SessionState::AwaitingClientHello,
             request_ids: HashSet::new(),
             datagrams: HashMap::new(),
-            streams: ChannelStreams::new(),
+            streams: ChannelStreams::new(replay_history_limit),
             session_deadline,
             created_at_monotonic,
             hard_session_deadline: created_at_monotonic.saturating_add(MAX_SESSION_SECONDS),

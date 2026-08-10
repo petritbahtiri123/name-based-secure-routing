@@ -9,9 +9,37 @@ const MAX_STREAMS_PER_CHANNEL: usize = 64;
 const MAX_BUFFERED_PER_STREAM: usize = 1_048_576;
 const MAX_BUFFERED_PER_CHANNEL: usize = 8_388_608;
 
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct ReplayHistoryLimit(u32);
+
+impl ReplayHistoryLimit {
+    pub const MAX: Self = Self(u32::MAX);
+
+    #[must_use]
+    pub const fn get(self) -> usize {
+        self.0 as usize
+    }
+}
+
+impl TryFrom<usize> for ReplayHistoryLimit {
+    type Error = ReplayHistoryLimitError;
+
+    fn try_from(value: usize) -> Result<Self, Self::Error> {
+        let value = u32::try_from(value).map_err(|_| ReplayHistoryLimitError)?;
+        if value == 0 {
+            return Err(ReplayHistoryLimitError);
+        }
+        Ok(Self(value))
+    }
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct ReplayHistoryLimitError;
+
 pub(crate) struct ChannelStreams {
     channels: HashMap<[u8; 16], ChannelStreamState>,
     used_stream_ids: HashSet<u64>,
+    replay_history_limit: ReplayHistoryLimit,
 }
 
 struct ChannelStreamState {
@@ -37,10 +65,11 @@ pub(crate) struct PreparedStreamTransition {
 }
 
 impl ChannelStreams {
-    pub(crate) fn new() -> Self {
+    pub(crate) fn new(replay_history_limit: ReplayHistoryLimit) -> Self {
         Self {
             channels: HashMap::new(),
             used_stream_ids: HashSet::new(),
+            replay_history_limit,
         }
     }
 
@@ -65,6 +94,9 @@ impl ChannelStreams {
         }
         let mut gate = StreamGate::new(channel.clone());
         gate.authorize_open(envelope)?;
+        if self.used_stream_ids.len() >= self.replay_history_limit.get() {
+            return Err(StreamReject::OverCapacity);
+        }
         Ok(PreparedStreamOpen {
             channel_id: channel.channel_id,
             stream_id: request.quic_stream_id,
@@ -313,7 +345,7 @@ impl Drop for ChannelStreams {
 
 #[cfg(test)]
 mod tests {
-    use super::ChannelStreams;
+    use super::{ChannelStreams, ReplayHistoryLimit};
     use crate::{
         ActiveChannel, CoreV02Envelope, CoreV02Limits, StreamReject, decode_control_envelope,
     };
@@ -380,11 +412,104 @@ mod tests {
         Ok(())
     }
 
+    fn bounded(limit: usize) -> ChannelStreams {
+        ChannelStreams::new(ReplayHistoryLimit::try_from(limit).expect("valid test limit"))
+    }
+
+    #[test]
+    fn replay_history_limit_rejects_zero_and_values_above_the_operational_bound() {
+        assert!(ReplayHistoryLimit::try_from(0).is_err());
+        assert!(ReplayHistoryLimit::try_from(usize::MAX).is_err());
+    }
+
+    #[test]
+    fn exact_replay_history_boundary_is_fail_closed_without_mutation() {
+        let active = channel(1);
+        let mut streams = bounded(2);
+        authorize_open(&mut streams, &active, 4).expect("N-1 succeeds");
+        authorize_open(&mut streams, &active, 8).expect("Nth succeeds");
+        assert_eq!(streams.used_stream_ids.len(), 2);
+        assert_eq!(
+            streams.prepare_open(&active, &open(&active, 12)).err(),
+            Some(StreamReject::OverCapacity)
+        );
+        assert_eq!(streams.used_stream_ids.len(), 2);
+    }
+
+    #[test]
+    fn full_history_preserves_duplicate_and_authorization_precedence() {
+        let active = channel(1);
+        let mut streams = bounded(1);
+        authorize_open(&mut streams, &active, 4).expect("exact limit succeeds");
+        assert_eq!(
+            streams.prepare_open(&active, &open(&active, 4)).err(),
+            Some(StreamReject::DuplicateStream)
+        );
+        let wrong_channel = channel(2);
+        assert_eq!(
+            streams
+                .prepare_open(&active, &open(&wrong_channel, 8))
+                .err(),
+            Some(StreamReject::ChannelMismatch)
+        );
+        assert_eq!(streams.used_stream_ids.len(), 1);
+    }
+
+    #[test]
+    fn rejected_and_uncommitted_opens_do_not_consume_shared_session_capacity() {
+        let first = channel(1);
+        let sibling = channel(2);
+        let mut streams = bounded(2);
+        let prepared = streams
+            .prepare_open(&first, &open(&first, 4))
+            .expect("prepared but not committed");
+        assert_eq!(streams.used_stream_ids.len(), 0);
+        drop(prepared);
+        authorize_open(&mut streams, &first, 4).expect("retry remains valid");
+        authorize_open(&mut streams, &sibling, 8).expect("sibling shares remaining budget");
+        streams.revoke_channel(&first.channel_id);
+        assert_eq!(
+            streams.prepare_open(&first, &open(&first, 12)).err(),
+            Some(StreamReject::OverCapacity)
+        );
+        assert_eq!(streams.used_stream_ids.len(), 2);
+    }
+
+    #[test]
+    fn adversarial_unique_attempts_never_grow_history_past_ten_thousand() {
+        let active = channel(1);
+        let mut streams = bounded(10_000);
+        for ordinal in 1..=10_000_u64 {
+            let stream_id = ordinal * 4;
+            let prepared = streams
+                .prepare_open(&active, &open(&active, stream_id))
+                .expect("within limit");
+            streams.commit_open(prepared);
+            streams
+                .release_stream(&active.channel_id, stream_id)
+                .expect("release active slot without erasing replay");
+        }
+        for ordinal in 10_001..=25_000_u64 {
+            let stream_id = ordinal * 4;
+            assert_eq!(
+                streams
+                    .prepare_open(&active, &open(&active, stream_id))
+                    .err(),
+                Some(StreamReject::OverCapacity)
+            );
+        }
+        assert_eq!(streams.used_stream_ids.len(), 10_000);
+        assert_eq!(
+            streams.prepare_open(&active, &open(&active, 4)).err(),
+            Some(StreamReject::DuplicateStream)
+        );
+    }
+
     #[test]
     fn duplicate_stream_ids_fail_across_channels_and_after_release() {
         let first = channel(1);
         let second = channel(2);
-        let mut streams = ChannelStreams::new();
+        let mut streams = ChannelStreams::new(ReplayHistoryLimit::MAX);
         authorize(&mut streams, &first, 4);
         assert_eq!(
             streams.prepare_open(&second, &open(&second, 4)).err(),
@@ -403,7 +528,7 @@ mod tests {
     fn sixty_four_streams_are_allowed_but_the_sixty_fifth_is_scoped() {
         let first = channel(1);
         let sibling = channel(2);
-        let mut streams = ChannelStreams::new();
+        let mut streams = ChannelStreams::new(ReplayHistoryLimit::MAX);
         for stream_id in (4..=256).step_by(4) {
             authorize_open(&mut streams, &first, stream_id).expect("first 64 streams");
         }
@@ -422,7 +547,7 @@ mod tests {
     #[test]
     fn byte_limits_are_exact_and_failed_reservations_do_not_mutate_counts() {
         let active = channel(1);
-        let mut streams = ChannelStreams::new();
+        let mut streams = ChannelStreams::new(ReplayHistoryLimit::MAX);
         for stream_id in (4..=32).step_by(4) {
             authorize(&mut streams, &active, stream_id);
             streams
@@ -458,7 +583,7 @@ mod tests {
     fn releasing_a_stream_frees_all_bytes_without_mutating_a_sibling() {
         let first = channel(1);
         let sibling = channel(2);
-        let mut streams = ChannelStreams::new();
+        let mut streams = ChannelStreams::new(ReplayHistoryLimit::MAX);
         authorize(&mut streams, &first, 4);
         authorize(&mut streams, &sibling, 8);
         streams
@@ -484,7 +609,7 @@ mod tests {
     fn pre_accept_payload_failure_is_scoped_to_only_that_stream() {
         let first = channel(1);
         let sibling = channel(2);
-        let mut streams = ChannelStreams::new();
+        let mut streams = ChannelStreams::new(ReplayHistoryLimit::MAX);
         authorize_open(&mut streams, &first, 4).expect("first open");
         assert_eq!(
             streams
@@ -506,7 +631,7 @@ mod tests {
     fn revoking_one_channel_removes_only_its_stream_and_byte_state() {
         let first = channel(1);
         let sibling = channel(2);
-        let mut streams = ChannelStreams::new();
+        let mut streams = ChannelStreams::new(ReplayHistoryLimit::MAX);
         authorize(&mut streams, &first, 4);
         authorize(&mut streams, &sibling, 8);
         streams
