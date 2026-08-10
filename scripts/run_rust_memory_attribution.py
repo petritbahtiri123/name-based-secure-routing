@@ -21,7 +21,7 @@ class AttributionSpec:
     ordinal: int
     warmup_seconds: int = 60
     steady_seconds: int = 1800
-    drain_seconds: int = 120
+    drain_seconds: int = 20
 
     @property
     def run_id(self) -> str:

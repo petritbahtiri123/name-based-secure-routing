@@ -14,7 +14,7 @@
 - Do not optimize or fix the attributed owner.
 - Do not change protocol, security, resource limits, accepted capacity, or accepted evidence.
 - Diagnostics are aggregate, bounded, opt-in, and disabled by default.
-- Use 60 seconds warm-up, 1,800 seconds measurement, and explicit drain for primary runs.
+- Use 60 seconds warm-up, 1,800 seconds measurement, and a 20-second explicit drain for primary runs.
 - Run one Rust 50% control and three Rust 75% attribution runs serially.
 - Do not push, merge, rebase, or modify `main` or the accepted branch.
 

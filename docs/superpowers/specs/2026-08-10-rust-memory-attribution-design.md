@@ -62,8 +62,9 @@ retained capacity are reported separately.
 The existing accepted Rust capacity remains 1,687.5 operations/second. P1A
 reuses its frozen approximately 50% and 75% Rust workload definitions; it does
 not conduct capacity discovery. Each attribution run has a 60-second warm-up,
-1,800-second measured window, and an explicit post-load drain/observation
-period recorded in its manifest. Process memory, CPU, offered/completed/errors,
+1,800-second measured window, and an explicit 20-second post-load
+drain/observation period recorded in its manifest. Process memory, CPU,
+offered/completed/errors,
 and diagnostics share the same monotonic timeline.
 
 Evidence is written under a new `evidence/performance/rust-memory-attribution-*`
