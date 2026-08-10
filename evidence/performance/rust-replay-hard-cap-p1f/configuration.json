@@ -1,0 +1,16 @@
+{
+  "schema": "nbsr-p1f-configuration-v1",
+  "base_sha": "aa41bd0c46fd9ef8a97532f499ca0edc9ddaa446",
+  "candidate_sha": "865e1da",
+  "setting": "max_committed_streams_per_transport_session",
+  "type": "ReplayHistoryLimit(u32)",
+  "validation": "1..=4294967295",
+  "session_snapshot_immutable": true,
+  "normal_comparison_effective_limit": 4294967295,
+  "adversarial_test_limit": 10000,
+  "payload_bytes": 1024,
+  "offered_rate": 1265.62,
+  "warmup_seconds": 30,
+  "measurement_seconds": 60,
+  "soak_seconds": 600
+}

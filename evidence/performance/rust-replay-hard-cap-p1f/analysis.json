@@ -1,0 +1,46 @@
+{
+  "schema": "nbsr-p1f-analysis-v1",
+  "outcome": "A",
+  "classification": "HARD_BOUNDED",
+  "hard_bound": {
+    "configured_limit": 10000,
+    "successful_commits": 10000,
+    "over_capacity_attempts": 20901003,
+    "max_committed_entries": 10000,
+    "max_hashset_capacity": 14336,
+    "duplicate_rejections": 1,
+    "upstream_attempts_after_limit": 0,
+    "post_close_replay_entries": 0
+  },
+  "paired_performance": {
+    "pairs": 5,
+    "expanded_reason": "three-pair BEFORE p99 CV was materially inflated by one scheduler/backlog excursion",
+    "median_before_throughput_per_second": 1265.6166666666666,
+    "median_after_throughput_per_second": 1265.6166666666666,
+    "median_throughput_regression_percent": 0.0,
+    "median_before_p99_ns": 510789,
+    "median_after_p99_ns": 480032,
+    "median_p99_regression_percent": -6.021468744804902,
+    "median_before_cpu_percent": 2.4987822100864983,
+    "median_after_cpu_percent": 2.4641314118172692,
+    "unexpected_errors": 0
+  },
+  "memory_soak": {
+    "duration_seconds": 601.073,
+    "logical_samples": 601,
+    "process_samples": 560,
+    "entries_min": 10000,
+    "entries_max": 10000,
+    "capacity_min": 14336,
+    "capacity_max": 14336,
+    "working_set_start_bytes": 43544576,
+    "working_set_end_bytes": 51187712,
+    "working_set_max_bytes": 51187712,
+    "working_set_slope_bytes_per_second": 2967.2001414218207,
+    "private_bytes_start": 11956224,
+    "private_bytes_end": 13168640,
+    "private_bytes_max": 13299712,
+    "private_bytes_slope_bytes_per_second": 15.547512835828902,
+    "interpretation": "logical replay entries and HashSet capacity remained exactly flat while more than 20.9 million fresh unique attempts were rejected; private bytes were effectively flat, while working-set growth was small allocator/runtime noise and did not follow attempt count"
+  }
+}
