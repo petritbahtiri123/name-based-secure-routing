@@ -144,6 +144,8 @@ impl ChannelRegistry {
                 policy_hash,
             },
         );
+        crate::diagnostics::global().created(crate::diagnostics::DiagnosticOwner::ServiceChannel);
+        self.observe_diagnostics();
     }
 
     pub(crate) fn channel_state(&self, channel_id: &[u8; 16]) -> Option<ChannelState> {
@@ -181,6 +183,7 @@ impl ChannelRegistry {
                 policy_hash: pending.policy_hash,
             },
         );
+        self.observe_diagnostics();
         Ok(())
     }
 
@@ -534,6 +537,19 @@ impl ChannelRegistry {
         self.active.len()
     }
 
+    fn observe_diagnostics(&self) {
+        crate::diagnostics::global().observe_collection(
+            crate::diagnostics::DiagnosticOwner::PendingRoutes,
+            self.pending.len(),
+            self.pending.capacity(),
+        );
+        crate::diagnostics::global().observe_collection(
+            crate::diagnostics::DiagnosticOwner::ChannelRegistry,
+            self.pending.len() + self.active.len() + self.terminal.len(),
+            self.pending.capacity() + self.active.capacity() + self.terminal.capacity(),
+        );
+    }
+
     pub(crate) fn candidate_len(&self) -> usize {
         self.pending.len()
     }
@@ -550,6 +566,25 @@ impl ChannelRegistry {
             .values()
             .filter(|pending| pending.channel.service_id == service_id)
             .count()
+    }
+}
+
+impl Drop for ChannelRegistry {
+    fn drop(&mut self) {
+        for _ in 0..(self.pending.len() + self.active.len()) {
+            crate::diagnostics::global()
+                .completed(crate::diagnostics::DiagnosticOwner::ServiceChannel);
+        }
+        crate::diagnostics::global().observe_collection(
+            crate::diagnostics::DiagnosticOwner::PendingRoutes,
+            0,
+            0,
+        );
+        crate::diagnostics::global().observe_collection(
+            crate::diagnostics::DiagnosticOwner::ChannelRegistry,
+            0,
+            0,
+        );
     }
 }
 

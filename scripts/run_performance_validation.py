@@ -364,6 +364,11 @@ def nbsr_samples(
                     "--payload-bytes",
                     str(payload),
                 ] + (["--offered-rate", str(offered_rate)] if offered_rate is not None else [])
+            if os.environ.get("NBSR_P1A_RUST_DIAGNOSTICS") == "1":
+                client_command.extend([
+                    "--diagnostics", "enabled",
+                    "--diagnostic-drain-seconds", os.environ.get("NBSR_P1A_DRAIN_SECONDS", "0"),
+                ])
             if resource_records is None:
                 stdout = command(client_command, timeout=3600).stdout
             else:

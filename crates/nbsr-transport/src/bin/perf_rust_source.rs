@@ -32,6 +32,45 @@ fn optional_argument(name: &str) -> Option<String> {
         .map(|index| values[index + 1].clone())
 }
 
+fn emit_diagnostic(timestamp_ns: u128, phase: &str) {
+    let snapshot = nbsr_transport::diagnostics::global().snapshot();
+    let lifecycle = |name: &str, value: nbsr_transport::diagnostics::LifecycleSnapshot| {
+        format!(
+            "\"{name}_created\":{},\"{name}_completed\":{},\"{name}_failed_or_cancelled\":{},\"{name}_current_live\":{},\"{name}_high_water_live\":{}",
+            value.created,
+            value.completed,
+            value.failed_or_cancelled,
+            value.current_live,
+            value.high_water_live
+        )
+    };
+    let collection = |name: &str, value: nbsr_transport::diagnostics::CollectionSnapshot| {
+        format!(
+            "\"{name}_inserts\":{},\"{name}_removals\":{},\"{name}_current_entries\":{},\"{name}_high_water_entries\":{},\"{name}_retained_capacity\":{},\"{name}_high_water_retained_capacity\":{}",
+            value.inserts,
+            value.removals,
+            value.current_entries,
+            value.high_water_entries,
+            value.retained_capacity,
+            value.high_water_retained_capacity
+        )
+    };
+    println!(
+        "{{\"event\":\"diagnostic\",\"schema\":\"nbsr-rust-ownership-v1\",\"timestamp_ns\":{timestamp_ns},\"phase\":\"{phase}\",{},{},{},{},{},{},{},{},{},{},{}}}",
+        lifecycle("transport_sessions", snapshot.transport_sessions),
+        lifecycle("service_channels", snapshot.service_channels),
+        lifecycle("application_streams", snapshot.application_streams),
+        lifecycle("nbsr_tasks", snapshot.nbsr_tasks),
+        lifecycle("quic_connections", snapshot.quic_connections),
+        lifecycle("quic_streams", snapshot.quic_streams),
+        collection("pending_routes", snapshot.pending_routes),
+        collection("channel_registry", snapshot.channel_registry),
+        collection("stream_registry", snapshot.stream_registry),
+        collection("audit_queue", snapshot.audit_queue),
+        collection("replay_state", snapshot.replay_state),
+    );
+}
+
 async fn wait_until(deadline: Instant) {
     loop {
         let now = Instant::now();
@@ -602,6 +641,12 @@ async fn main() {
     let payload_bytes: usize = argument("--payload-bytes").parse().unwrap();
     let offered_rate =
         optional_argument("--offered-rate").map(|value| value.parse::<f64>().unwrap());
+    let diagnostics_enabled = optional_argument("--diagnostics").is_some();
+    let drain_seconds = optional_argument("--diagnostic-drain-seconds")
+        .map_or(0, |value| value.parse::<u64>().unwrap());
+    if diagnostics_enabled {
+        nbsr_transport::diagnostics::enable_global();
+    }
     if let Some(lifecycle_root) = optional_argument("--lifecycle-authority-dir") {
         let connections = argument("--connections").parse::<u64>().unwrap();
         let services = argument("--services").parse::<u64>().unwrap();
@@ -706,6 +751,12 @@ async fn main() {
         Vec::with_capacity(samples as usize)
     };
     let schedule_origin = offered_rate.map(|_| Instant::now());
+    let diagnostic_origin = Instant::now();
+    let mut next_diagnostic = Duration::ZERO;
+    if diagnostics_enabled {
+        emit_diagnostic(0, "initial");
+        next_diagnostic = Duration::from_secs(1);
+    }
     for index in 0..samples {
         let total = Instant::now();
         let (scheduled_ns, started_ns, start_lateness_ns) =
@@ -767,8 +818,22 @@ async fn main() {
             records.push(record);
         }
         while session.pop_audit_event().is_some() {}
+        if diagnostics_enabled && diagnostic_origin.elapsed() >= next_diagnostic {
+            emit_diagnostic(diagnostic_origin.elapsed().as_nanos(), "load");
+            next_diagnostic += Duration::from_secs(1);
+        }
     }
+    drop(session);
     connection.close().await.unwrap();
+    if diagnostics_enabled {
+        emit_diagnostic(diagnostic_origin.elapsed().as_nanos(), "drain_start");
+        let drain_deadline = Instant::now() + Duration::from_secs(drain_seconds);
+        while Instant::now() < drain_deadline {
+            tokio::time::sleep(Duration::from_secs(1)).await;
+            emit_diagnostic(diagnostic_origin.elapsed().as_nanos(), "drain");
+        }
+        emit_diagnostic(diagnostic_origin.elapsed().as_nanos(), "post_drain");
+    }
     for record in records {
         println!("{record}");
     }

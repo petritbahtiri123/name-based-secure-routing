@@ -47,6 +47,7 @@ def test_completed_run_flushes_incremental_request_resource_and_runtime_evidence
     assert (output / "raw.ndjson").exists() is False
     assert len(documents(output / "resources.ndjson")) == 3
     assert len(documents(output / "runtime.ndjson")) == 3
+    assert len(documents(output / "diagnostics.ndjson")) == 3
     assert result["terminal_state"] == "completed"
     assert result["partial_but_durable"] is False
     assert result["authoritative_pass_eligible"] is True
@@ -55,6 +56,7 @@ def test_completed_run_flushes_incremental_request_resource_and_runtime_evidence
         "timed_out": 0, "persisted": 3,
     }
     assert result["request_evidence"]["path"] == "raw.ndjson.gz"
+    assert result["series_counts"]["diagnostics"] == 3
     assert len(result["request_evidence"]["uncompressed_sha256"]) == 64
     assert json.loads((output / "terminal-manifest.json").read_text(encoding="utf-8")) == result
 

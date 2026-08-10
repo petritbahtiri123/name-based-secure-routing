@@ -229,6 +229,10 @@ def run_durable_memory_child(
             output / "runtime.ndjson", capacity=buffer_capacity, flush_records=flush_records,
             flush_interval_seconds=flush_interval_seconds,
         ),
+        "diagnostic": DurableNdjsonWriter(
+            output / "diagnostics.ndjson", capacity=buffer_capacity, flush_records=flush_records,
+            flush_interval_seconds=flush_interval_seconds,
+        ),
     }
     creationflags = subprocess.CREATE_NEW_PROCESS_GROUP if os.name == "nt" else 0
     start_new_session = os.name != "nt"
@@ -353,6 +357,7 @@ def run_durable_memory_child(
             "requests": persisted,
             "resources": writers["resource"].written,
             "runtime": writers["runtime"].written,
+            "diagnostics": writers["diagnostic"].written,
         },
         "runner_error": runner_error,
         "request_evidence": request_evidence,

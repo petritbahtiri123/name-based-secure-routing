@@ -282,6 +282,7 @@ impl TrackedApplicationStreams {
 
 fn application_stream(send: SendStream, receive: RecvStream) -> ApplicationStream {
     let id = VarInt::from(send.id()).into_inner();
+    crate::diagnostics::global().created(crate::diagnostics::DiagnosticOwner::QuicStream);
     ApplicationStream {
         id,
         shared: Arc::new(SharedApplicationStream {
@@ -292,6 +293,12 @@ fn application_stream(send: SendStream, receive: RecvStream) -> ApplicationStrea
             inbound_bytes: HeldChannelBytes::default(),
             outbound_bytes: HeldChannelBytes::default(),
         }),
+    }
+}
+
+impl Drop for ApplicationStream {
+    fn drop(&mut self) {
+        crate::diagnostics::global().completed(crate::diagnostics::DiagnosticOwner::QuicStream);
     }
 }
 
@@ -1038,6 +1045,7 @@ fn authenticate_connection(
         return Err(TransportError::PeerIdentityMismatch);
     }
 
+    crate::diagnostics::global().created(crate::diagnostics::DiagnosticOwner::QuicConnection);
     Ok(AuthenticatedConnection {
         endpoint,
         connection,
@@ -1049,6 +1057,12 @@ fn authenticate_connection(
         close_timeout: policy.handshake_timeout(),
         tracked_streams: Arc::new(TrackedApplicationStreams::new()),
     })
+}
+
+impl Drop for AuthenticatedConnection {
+    fn drop(&mut self) {
+        crate::diagnostics::global().completed(crate::diagnostics::DiagnosticOwner::QuicConnection);
+    }
 }
 
 #[cfg(test)]

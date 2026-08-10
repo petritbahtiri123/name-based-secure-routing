@@ -52,6 +52,12 @@ def main() -> None:
             "timestamp_ns": sample_id * 1_000_000_000,
             "heap_alloc": 1_000 + sample_id,
         })
+        emit({
+            "event": "diagnostic",
+            "timestamp_ns": sample_id * 1_000_000_000,
+            "application_streams_current_live": 0,
+            "replay_state_current_entries": sample_id,
+        })
         time.sleep(0.05)
 
     if args.mode == "failed":

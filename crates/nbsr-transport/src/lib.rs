@@ -132,6 +132,7 @@ mod channel_streams;
 mod config;
 mod core_v02;
 mod datagram_gate;
+pub mod diagnostics;
 mod error;
 mod federation;
 mod quinn_adapter;

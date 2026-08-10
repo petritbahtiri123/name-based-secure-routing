@@ -139,6 +139,11 @@ impl AuditLog {
             outcome,
             reason,
         });
+        crate::diagnostics::global().observe_collection(
+            crate::diagnostics::DiagnosticOwner::AuditQueue,
+            self.events.len(),
+            self.events.capacity(),
+        );
         self.last_sequence = sequence;
         Ok(())
     }
@@ -148,7 +153,23 @@ impl AuditLog {
     }
 
     pub(crate) fn pop(&mut self) -> Option<AuditEvent> {
-        self.events.pop_front()
+        let event = self.events.pop_front();
+        crate::diagnostics::global().observe_collection(
+            crate::diagnostics::DiagnosticOwner::AuditQueue,
+            self.events.len(),
+            self.events.capacity(),
+        );
+        event
+    }
+}
+
+impl Drop for AuditLog {
+    fn drop(&mut self) {
+        crate::diagnostics::global().observe_collection(
+            crate::diagnostics::DiagnosticOwner::AuditQueue,
+            0,
+            0,
+        );
     }
 }
 

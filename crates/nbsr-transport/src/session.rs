@@ -170,6 +170,7 @@ impl ControlSession {
         session_deadline: Option<DrainDeadline>,
     ) -> Self {
         let created_at_monotonic = clock.monotonic_seconds();
+        crate::diagnostics::global().created(crate::diagnostics::DiagnosticOwner::TransportSession);
         Self {
             admission,
             authenticated_peer: connection.authenticated_peer().clone(),
@@ -1384,6 +1385,13 @@ impl ControlSession {
             EdgeRole::Source => self.authenticated_peer.as_str() == destination_edge_id,
             EdgeRole::Destination => self.authenticated_peer.as_str() == source_edge_id,
         }
+    }
+}
+
+impl Drop for ControlSession {
+    fn drop(&mut self) {
+        crate::diagnostics::global()
+            .completed(crate::diagnostics::DiagnosticOwner::TransportSession);
     }
 }
 

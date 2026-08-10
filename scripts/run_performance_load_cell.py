@@ -100,6 +100,8 @@ def main() -> None:
     parser.add_argument("--memory", action="store_true")
     parser.add_argument("--sampling-cadence-seconds", type=int, default=1)
     parser.add_argument("--durable-events", action="store_true")
+    parser.add_argument("--rust-diagnostics", action="store_true")
+    parser.add_argument("--diagnostic-drain-seconds", type=int, default=0)
     parser.add_argument("--validation-profile", action="store_true")
     parser.add_argument("--durable-root", type=Path)
     args = parser.parse_args()
@@ -147,7 +149,9 @@ def main() -> None:
         streamed = temp / "source.ndjson"
         def request_sink(line: str) -> None:
             document = json.loads(line)
-            if "sample_id" in document:
+            if document.get("event") == "diagnostic":
+                emit_durable_event(document)
+            elif "sample_id" in document:
                 emit_durable_event(durable_request_event(document))
 
         def resource_sink(document: dict[str, Any]) -> None:
@@ -170,6 +174,9 @@ def main() -> None:
                     target=stream_runtime_series, args=(go_runtime_series, runtime_stop), daemon=True,
                 )
                 runtime_thread.start()
+            if args.rust_diagnostics:
+                os.environ["NBSR_P1A_RUST_DIAGNOSTICS"] = "1"
+                os.environ["NBSR_P1A_DRAIN_SECONDS"] = str(args.diagnostic_drain_seconds)
             try:
                 nbsr_samples(
                     args.path, binaries, authority, sample_count, args.payload_bytes, temp,
@@ -177,6 +184,8 @@ def main() -> None:
                     output_line_sink, resource_event_sink,
                 )
             finally:
+                os.environ.pop("NBSR_P1A_RUST_DIAGNOSTICS", None)
+                os.environ.pop("NBSR_P1A_DRAIN_SECONDS", None)
                 if runtime_thread is not None:
                     runtime_stop.set()
                     runtime_thread.join(timeout=5)

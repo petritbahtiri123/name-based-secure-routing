@@ -88,6 +88,9 @@ impl ChannelStreams {
                     gate: prepared.gate,
                 },
             );
+        crate::diagnostics::global()
+            .created(crate::diagnostics::DiagnosticOwner::ApplicationStream);
+        self.observe_diagnostics();
     }
 
     pub(crate) fn prepare_accept(
@@ -145,11 +148,27 @@ impl ChannelStreams {
     }
 
     pub(crate) fn revoke_channel(&mut self, channel_id: &[u8; 16]) {
-        self.channels.remove(channel_id);
+        if let Some(channel) = self.channels.remove(channel_id) {
+            for _ in 0..channel.streams.len() {
+                crate::diagnostics::global()
+                    .failed(crate::diagnostics::DiagnosticOwner::ApplicationStream);
+            }
+        }
+        self.observe_diagnostics();
     }
 
     pub(crate) fn revoke_all(&mut self) {
+        let live = self
+            .channels
+            .values()
+            .map(|channel| channel.streams.len())
+            .sum::<usize>();
         self.channels.clear();
+        for _ in 0..live {
+            crate::diagnostics::global()
+                .failed(crate::diagnostics::DiagnosticOwner::ApplicationStream);
+        }
+        self.observe_diagnostics();
     }
 
     pub(crate) fn reserve_bytes(
@@ -230,7 +249,34 @@ impl ChannelStreams {
             .buffered
             .checked_sub(entry.buffered)
             .ok_or(StreamReject::ControlRejected)?;
+        crate::diagnostics::global()
+            .completed(crate::diagnostics::DiagnosticOwner::ApplicationStream);
+        self.observe_diagnostics();
         Ok(())
+    }
+
+    fn observe_diagnostics(&self) {
+        let entries = self
+            .channels
+            .values()
+            .map(|channel| channel.streams.len())
+            .sum::<usize>();
+        let capacity = self.channels.capacity()
+            + self
+                .channels
+                .values()
+                .map(|channel| channel.streams.capacity())
+                .sum::<usize>();
+        crate::diagnostics::global().observe_collection(
+            crate::diagnostics::DiagnosticOwner::StreamRegistry,
+            entries,
+            capacity,
+        );
+        crate::diagnostics::global().observe_collection(
+            crate::diagnostics::DiagnosticOwner::ReplayState,
+            self.used_stream_ids.len(),
+            self.used_stream_ids.capacity(),
+        );
     }
 
     fn entry(&self, channel_id: &[u8; 16], stream_id: u64) -> Result<&StreamEntry, StreamReject> {
@@ -238,6 +284,30 @@ impl ChannelStreams {
             .get(channel_id)
             .and_then(|channel| channel.streams.get(&stream_id))
             .ok_or(StreamReject::ControlRejected)
+    }
+}
+
+impl Drop for ChannelStreams {
+    fn drop(&mut self) {
+        let live = self
+            .channels
+            .values()
+            .map(|channel| channel.streams.len())
+            .sum::<usize>();
+        for _ in 0..live {
+            crate::diagnostics::global()
+                .failed(crate::diagnostics::DiagnosticOwner::ApplicationStream);
+        }
+        crate::diagnostics::global().observe_collection(
+            crate::diagnostics::DiagnosticOwner::StreamRegistry,
+            0,
+            0,
+        );
+        crate::diagnostics::global().observe_collection(
+            crate::diagnostics::DiagnosticOwner::ReplayState,
+            0,
+            0,
+        );
     }
 }
 
