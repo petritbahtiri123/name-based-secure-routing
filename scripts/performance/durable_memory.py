@@ -3,6 +3,8 @@ from __future__ import annotations
 from collections import deque
 import ctypes
 from ctypes import wintypes
+import gzip
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -174,6 +176,36 @@ def _close_writers(writers: Iterable[DurableNdjsonWriter]) -> list[BaseException
     return errors
 
 
+def finalize_completed_request_journal(path: Path) -> dict[str, Any]:
+    compressed = path.with_suffix(path.suffix + ".gz")
+    if compressed.exists():
+        raise FileExistsError(compressed)
+    digest = hashlib.sha256()
+    uncompressed_bytes = 0
+    with path.open("rb") as source, compressed.open("xb") as target:
+        with gzip.GzipFile(filename="", mode="wb", fileobj=target, mtime=0) as archive:
+            while chunk := source.read(1024 * 1024):
+                digest.update(chunk)
+                uncompressed_bytes += len(chunk)
+                archive.write(chunk)
+        target.flush()
+        os.fsync(target.fileno())
+    verified = hashlib.sha256()
+    verified_bytes = 0
+    with gzip.open(compressed, "rb") as archive:
+        while chunk := archive.read(1024 * 1024):
+            verified.update(chunk)
+            verified_bytes += len(chunk)
+    if verified.digest() != digest.digest() or verified_bytes != uncompressed_bytes:
+        raise RuntimeError("completed request journal compression verification failed")
+    path.unlink()
+    return {
+        "path": compressed.name,
+        "uncompressed_bytes": uncompressed_bytes,
+        "uncompressed_sha256": digest.hexdigest(),
+    }
+
+
 def run_durable_memory_child(
     command: list[str], *, output: Path, timeout_seconds: float, offered_requests: int,
     authoritative_run: bool = True,
@@ -288,6 +320,15 @@ def run_durable_memory_child(
         authoritative_run and terminal_state == "completed" and reconciled
         and failed == 0 and cleanup_verified
     )
+    request_evidence = (
+        finalize_completed_request_journal(writers["request"].path)
+        if terminal_state == "completed"
+        else {
+            "path": writers["request"].path.name,
+            "uncompressed_bytes": writers["request"].path.stat().st_size,
+            "uncompressed_sha256": hashlib.sha256(writers["request"].path.read_bytes()).hexdigest(),
+        }
+    )
     manifest: dict[str, Any] = {
         "schema": "nbsr-durable-memory-terminal-v1",
         "authoritative_run": authoritative_run,
@@ -314,6 +355,7 @@ def run_durable_memory_child(
             "runtime": writers["runtime"].written,
         },
         "runner_error": runner_error,
+        "request_evidence": request_evidence,
     }
     manifest_path = output / "terminal-manifest.json"
     with manifest_path.open("w", encoding="utf-8", newline="\n") as handle:

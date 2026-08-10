@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import gzip
 import json
 import os
 from pathlib import Path
@@ -40,7 +41,10 @@ def test_completed_run_flushes_incremental_request_resource_and_runtime_evidence
         buffer_capacity=2, flush_records=1, flush_interval_seconds=0.01,
     )
 
-    assert [item["sample_id"] for item in documents(output / "raw.ndjson")] == [0, 1, 2]
+    with gzip.open(output / "raw.ndjson.gz", "rt", encoding="utf-8") as handle:
+        request_records = [json.loads(line) for line in handle]
+    assert [item["sample_id"] for item in request_records] == [0, 1, 2]
+    assert (output / "raw.ndjson").exists() is False
     assert len(documents(output / "resources.ndjson")) == 3
     assert len(documents(output / "runtime.ndjson")) == 3
     assert result["terminal_state"] == "completed"
@@ -50,6 +54,8 @@ def test_completed_run_flushes_incremental_request_resource_and_runtime_evidence
         "offered": 3, "started": 3, "completed": 3, "failed": 0,
         "timed_out": 0, "persisted": 3,
     }
+    assert result["request_evidence"]["path"] == "raw.ndjson.gz"
+    assert len(result["request_evidence"]["uncompressed_sha256"]) == 64
     assert json.loads((output / "terminal-manifest.json").read_text(encoding="utf-8")) == result
 
 
