@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "outcome": "C",
+  "classification": "DESIGN_BLOCKED",
+  "production_fix_implemented": false,
+  "production_fix_kept": false,
+  "performance_run_eligible": false,
+  "implementation_gates": {
+    "no_replay_weakening": "PASS",
+    "no_authority_resurrection": "PASS",
+    "no_protocol_ambiguity": "FAIL",
+    "fresh_session_establishment": "PASS",
+    "bounded_deterministic_rotation": "FAIL",
+    "fail_closed_failures": "PASS"
+  },
+  "configured_stream_bound": null,
+  "configured_replay_memory_budget_bytes": null,
+  "sizing_example_only": {
+    "budget_bytes": 16777216,
+    "safety_margin_fraction": 0.25,
+    "upper_observed_working_set_bytes_per_entry": 53.19,
+    "calculated_entries": 236565
+  },
+  "performance": {
+    "before_after_cells": 0,
+    "long_session_cells": 0,
+    "measured_effect": null,
+    "reason": "conditional implementation gate failed before production edits"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "adversarial_cases": {
+    "fresh_numeric_stream_reuse": "ACCEPT",
+    "old_channel_or_grant_resurrection": "REJECT_STALE_AUTHORITY",
+    "old_stream_replay": "REJECT_STREAM_REPLAY",
+    "resume_replay": "REJECT_RESUME_REPLAY",
+    "revocation_during_transition": "REJECT_REVOKED"
+  },
+  "all_implementation_gates_pass": false,
+  "decision": "DESIGN_BLOCKED",
+  "hypothesis": "bounded_transport_session_rotation",
+  "implementation_gates": {
+    "bounded_deterministic_rotation": false,
+    "fail_closed_failures": true,
+    "fresh_session_establishment": true,
+    "no_authority_resurrection": true,
+    "no_protocol_ambiguity": false,
+    "no_replay_weakening": true
+  },
+  "schema_version": 1,
+  "setup": {
+    "first_old_stream": "ACCEPT",
+    "threshold": 2
+  }
+}
