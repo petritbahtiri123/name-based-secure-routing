@@ -345,6 +345,8 @@ impl Drop for ChannelStreams {
 
 #[cfg(test)]
 mod tests {
+    use std::time::{Duration, Instant};
+
     use super::{ChannelStreams, ReplayHistoryLimit};
     use crate::{
         ActiveChannel, CoreV02Envelope, CoreV02Limits, StreamReject, decode_control_envelope,
@@ -497,6 +499,57 @@ mod tests {
                     .err(),
                 Some(StreamReject::OverCapacity)
             );
+        }
+        assert_eq!(streams.used_stream_ids.len(), 10_000);
+        assert_eq!(
+            streams.prepare_open(&active, &open(&active, 4)).err(),
+            Some(StreamReject::DuplicateStream)
+        );
+    }
+
+    #[test]
+    #[ignore = "P1F evidence-only ten-minute bounded-memory soak"]
+    fn adversarial_soak_holds_replay_history_at_ten_thousand() {
+        let active = channel(1);
+        let mut streams = bounded(10_000);
+        for ordinal in 1..=10_000_u64 {
+            let stream_id = ordinal * 4;
+            let prepared = streams
+                .prepare_open(&active, &open(&active, stream_id))
+                .expect("within limit");
+            streams.commit_open(prepared);
+            streams
+                .release_stream(&active.channel_id, stream_id)
+                .expect("release active slot");
+        }
+        let started = Instant::now();
+        let duration = Duration::from_secs(
+            std::env::var("NBSR_P1F_SOAK_SECONDS")
+                .ok()
+                .and_then(|value| value.parse().ok())
+                .unwrap_or(600),
+        );
+        let mut attempts = 0_u64;
+        let mut next_report = Duration::ZERO;
+        while started.elapsed() < duration {
+            attempts += 1;
+            let stream_id = 40_000_u64.saturating_add(attempts.saturating_mul(4));
+            assert_eq!(
+                streams
+                    .prepare_open(&active, &open(&active, stream_id))
+                    .err(),
+                Some(StreamReject::OverCapacity)
+            );
+            if started.elapsed() >= next_report {
+                eprintln!(
+                    "P1F_SOAK elapsed_ms={} attempts={} entries={} capacity={}",
+                    started.elapsed().as_millis(),
+                    attempts,
+                    streams.used_stream_ids.len(),
+                    streams.used_stream_ids.capacity()
+                );
+                next_report += Duration::from_secs(1);
+            }
         }
         assert_eq!(streams.used_stream_ids.len(), 10_000);
         assert_eq!(
