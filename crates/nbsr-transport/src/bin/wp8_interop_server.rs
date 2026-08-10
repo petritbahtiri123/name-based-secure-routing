@@ -1,7 +1,6 @@
 use std::collections::{BTreeMap, VecDeque};
 use std::env;
 use std::fs;
-use std::io::Write;
 use std::net::{Ipv4Addr, SocketAddr};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
@@ -479,7 +478,6 @@ async fn main() {
                 .snapshot()
                 .json_line("destination", 0, "initial")
         );
-        std::io::stdout().flush().unwrap();
         let stop = diagnostic_stop.clone();
         std::thread::spawn(move || {
             while !stop.load(Ordering::Relaxed) {
@@ -493,7 +491,6 @@ async fn main() {
                             "load",
                         )
                     );
-                    std::io::stdout().flush().unwrap();
                 }
             }
         })
@@ -660,7 +657,6 @@ async fn main() {
                 "drain_start",
             )
         );
-        std::io::stdout().flush().unwrap();
         let drain_seconds = env::var("NBSR_P1A_DRAIN_SECONDS")
             .unwrap_or_else(|_| "0".into())
             .parse::<u64>()
@@ -674,7 +670,6 @@ async fn main() {
                 "post_drain",
             )
         );
-        std::io::stdout().flush().unwrap();
     }
     connection.close().await.unwrap();
     listener.close().await.unwrap();
