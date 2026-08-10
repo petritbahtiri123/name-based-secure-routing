@@ -74,9 +74,8 @@ def load_command(
         "--memory",
         "--durable-events",
         "--durable-root", str(durable_root),
+        "--validation-profile",
     ]
-    if warmup_seconds < 60 or steady_seconds < 600:
-        command.append("--validation-profile")
     if enabled:
         command.extend([
             "--destination-diagnostics",

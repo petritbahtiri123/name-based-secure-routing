@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 from scripts.run_rust_destination_memory_attribution import (
     attribution_specs,
+    load_command,
     observer_spec,
     summarize_observer,
 )
@@ -26,6 +29,20 @@ def test_p1b_plan_uses_short_frozen_control_and_three_attribution_runs() -> None
 def test_observer_plan_uses_exact_count_short_window() -> None:
     spec = observer_spec()
     assert (spec.warmup_seconds, spec.steady_seconds, spec.drain_seconds) == (32, 60, 5)
+
+
+def test_p1b_short_attribution_windows_use_explicit_validation_profile(tmp_path: Path) -> None:
+    command = load_command(
+        rate=843.75,
+        warmup_seconds=60,
+        steady_seconds=600,
+        drain_seconds=20,
+        run_id="control",
+        finalized=tmp_path / "finalized",
+        durable_root=tmp_path,
+        enabled=True,
+    )
+    assert "--validation-profile" in command
 
 
 def test_observer_summary_applies_all_three_guardrails() -> None:
