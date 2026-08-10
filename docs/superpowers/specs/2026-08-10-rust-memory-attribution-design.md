@@ -94,4 +94,3 @@ The report emits exactly one of A, B, C, D, or E using the definitions in the
 approved task. Correlation alone is not causation. An owner is reproducibly
 implicated only when it appears in at least two of the three 75% runs and agrees
 with post-drain evidence. No identified defect is fixed in P1A.
-

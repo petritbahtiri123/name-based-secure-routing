@@ -134,4 +134,3 @@
 - [ ] Run final Python, Rust, security, formatting, lint, checksum, and `git diff --check` validation.
 - [ ] Inspect explicit staged paths and commit locally; do not push.
 - [ ] Re-read every required final-report field and report exact fresh results.
-
