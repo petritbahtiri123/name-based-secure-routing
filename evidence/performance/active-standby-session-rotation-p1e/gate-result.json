@@ -1,0 +1,25 @@
+{
+  "classification": "CODE_LEVEL_PROTOCOL_BLOCKED",
+  "core_route_grant_acquisition_messages": [],
+  "go_modules": [
+    "interop/nbsr-go-peer/go.mod",
+    "verifiers/federation-go/go.mod"
+  ],
+  "go_route_grant_source": {
+    "kind": "filesystem_fixture",
+    "live_acquisition_api": false,
+    "path_component": "route-open-body.cbor"
+  },
+  "missing_contract": "A production Go client/agent API and live fresh-RouteGrant acquisition contract for TS-B; the repository only supplies offline fixture bytes and Core v0.2 defines no acquisition exchange.",
+  "outcome": "C",
+  "partial_rust_only_fix_authorized": false,
+  "production_go_files": [],
+  "production_implementation_authorized": false,
+  "rust_hard_cap": {
+    "insertion_point": "ChannelStreams.prepare_open",
+    "typed_error": "StreamReject::OverCapacity",
+    "wire_change_required": false
+  },
+  "schema_version": 1,
+  "wire_capable_go_owner": "interop_test_peer_only"
+}

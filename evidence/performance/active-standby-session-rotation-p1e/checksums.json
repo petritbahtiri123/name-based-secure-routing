@@ -1,0 +1,28 @@
+{
+  "algorithm": "sha256",
+  "files": {
+    "analysis.json": {
+      "bytes": 925,
+      "sha256": "fb49c8aeca2c5133637897b1aaf08ba1dcfb8157c6fd261855ce642add85ae63"
+    },
+    "code-level-trace.md": {
+      "bytes": 5313,
+      "sha256": "025bf06be34b840b056cf42b1c424e4fb339fc5871e42f0c79c1de493acaa8ef"
+    },
+    "gate-result.json": {
+      "bytes": 937,
+      "sha256": "6996cee0873b8743b5faf189e6d5c3f4c2c1659be35879f2eb1e598e523ed17a"
+    },
+    "report.md": {
+      "bytes": 9361,
+      "sha256": "ee2a24134e5a0dca5a6e13bc11503142d2b4465e007a201fea5ea4929bf2efcf"
+    }
+  },
+  "prior_evidence_tree_objects": {
+    "p1a": "74caa77ae79cbcb4e0b4a53d95352df3c198aaf1",
+    "p1b": "8b8893dd5347338c8e220b7ede278ba7b15abdbe",
+    "p1c": "5fad03f39f242ce70141f6e2b35e4e7a4795d21b",
+    "p1d": "63446f0dd6190bf116afd662f809c5baa10fee34"
+  },
+  "schema_version": 1
+}

@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "outcome": "C",
+  "classification": "CODE_LEVEL_PROTOCOL_BLOCKED",
+  "production_code_changed": false,
+  "fix_kept": false,
+  "fix_reverted": false,
+  "replay_memory_hard_bounded": false,
+  "performance_validation_eligible": false,
+  "implementation_gate": {
+    "approved_ownership_model": true,
+    "production_go_client_present": false,
+    "existing_fresh_routegrant_acquisition_contract": false,
+    "existing_atomic_new_flow_owner": false,
+    "rust_cap_expressible_without_wire_change": true,
+    "coordinated_fix_expressible": false
+  },
+  "performance": {
+    "smoke_cells": 0,
+    "paired_before_after_cells": 0,
+    "long_session_cells": 0,
+    "measured_impact": null,
+    "reason": "production implementation gate failed before production edits"
+  },
+  "configuration": {
+    "client_rotation_threshold": null,
+    "destination_hard_limit": null,
+    "benchmark_overrides": null
+  }
+}
