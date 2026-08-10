@@ -55,6 +55,47 @@ pub struct DiagnosticSnapshot {
     pub quic_streams: LifecycleSnapshot,
 }
 
+impl DiagnosticSnapshot {
+    #[must_use]
+    pub fn json_line(self, role: &str, timestamp_ns: u128, phase: &str) -> String {
+        let lifecycle = |name: &str, value: LifecycleSnapshot| {
+            format!(
+                "\"{name}_created\":{},\"{name}_completed\":{},\"{name}_failed_or_cancelled\":{},\"{name}_current_live\":{},\"{name}_high_water_live\":{}",
+                value.created,
+                value.completed,
+                value.failed_or_cancelled,
+                value.current_live,
+                value.high_water_live
+            )
+        };
+        let collection = |name: &str, value: CollectionSnapshot| {
+            format!(
+                "\"{name}_inserts\":{},\"{name}_removals\":{},\"{name}_current_entries\":{},\"{name}_high_water_entries\":{},\"{name}_retained_capacity\":{},\"{name}_high_water_retained_capacity\":{}",
+                value.inserts,
+                value.removals,
+                value.current_entries,
+                value.high_water_entries,
+                value.retained_capacity,
+                value.high_water_retained_capacity
+            )
+        };
+        format!(
+            "{{\"event\":\"diagnostic\",\"schema\":\"nbsr-rust-ownership-v1\",\"role\":\"{role}\",\"timestamp_ns\":{timestamp_ns},\"phase\":\"{phase}\",{},{},{},{},{},{},{},{},{},{},{}}}",
+            lifecycle("transport_sessions", self.transport_sessions),
+            lifecycle("service_channels", self.service_channels),
+            lifecycle("application_streams", self.application_streams),
+            lifecycle("nbsr_tasks", self.nbsr_tasks),
+            lifecycle("quic_connections", self.quic_connections),
+            lifecycle("quic_streams", self.quic_streams),
+            collection("pending_routes", self.pending_routes),
+            collection("channel_registry", self.channel_registry),
+            collection("stream_registry", self.stream_registry),
+            collection("audit_queue", self.audit_queue),
+            collection("replay_state", self.replay_state),
+        )
+    }
+}
+
 #[derive(Default)]
 struct LifecycleMetric {
     created: AtomicU64,

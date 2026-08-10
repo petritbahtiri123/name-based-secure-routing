@@ -33,41 +33,11 @@ fn optional_argument(name: &str) -> Option<String> {
 }
 
 fn emit_diagnostic(timestamp_ns: u128, phase: &str) {
-    let snapshot = nbsr_transport::diagnostics::global().snapshot();
-    let lifecycle = |name: &str, value: nbsr_transport::diagnostics::LifecycleSnapshot| {
-        format!(
-            "\"{name}_created\":{},\"{name}_completed\":{},\"{name}_failed_or_cancelled\":{},\"{name}_current_live\":{},\"{name}_high_water_live\":{}",
-            value.created,
-            value.completed,
-            value.failed_or_cancelled,
-            value.current_live,
-            value.high_water_live
-        )
-    };
-    let collection = |name: &str, value: nbsr_transport::diagnostics::CollectionSnapshot| {
-        format!(
-            "\"{name}_inserts\":{},\"{name}_removals\":{},\"{name}_current_entries\":{},\"{name}_high_water_entries\":{},\"{name}_retained_capacity\":{},\"{name}_high_water_retained_capacity\":{}",
-            value.inserts,
-            value.removals,
-            value.current_entries,
-            value.high_water_entries,
-            value.retained_capacity,
-            value.high_water_retained_capacity
-        )
-    };
     println!(
-        "{{\"event\":\"diagnostic\",\"schema\":\"nbsr-rust-ownership-v1\",\"timestamp_ns\":{timestamp_ns},\"phase\":\"{phase}\",{},{},{},{},{},{},{},{},{},{},{}}}",
-        lifecycle("transport_sessions", snapshot.transport_sessions),
-        lifecycle("service_channels", snapshot.service_channels),
-        lifecycle("application_streams", snapshot.application_streams),
-        lifecycle("nbsr_tasks", snapshot.nbsr_tasks),
-        lifecycle("quic_connections", snapshot.quic_connections),
-        lifecycle("quic_streams", snapshot.quic_streams),
-        collection("pending_routes", snapshot.pending_routes),
-        collection("channel_registry", snapshot.channel_registry),
-        collection("stream_registry", snapshot.stream_registry),
-        collection("audit_queue", snapshot.audit_queue),
-        collection("replay_state", snapshot.replay_state),
+        "{}",
+        nbsr_transport::diagnostics::global()
+            .snapshot()
+            .json_line("source", timestamp_ns, phase)
     );
 }
 

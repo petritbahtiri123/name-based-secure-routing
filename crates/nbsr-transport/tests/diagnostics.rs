@@ -42,3 +42,17 @@ fn collection_snapshot_separates_entries_from_retained_capacity() {
     assert_eq!(metric.retained_capacity, 8);
     assert_eq!(metric.high_water_retained_capacity, 8);
 }
+
+#[test]
+fn aggregate_json_identifies_process_role_without_object_labels() {
+    let line = Diagnostics::new(true)
+        .snapshot()
+        .json_line("destination", 17, "load");
+
+    assert!(line.contains("\"role\":\"destination\""));
+    assert!(line.contains("\"timestamp_ns\":17"));
+    assert!(!line.contains("service_id"));
+    assert!(!line.contains("request_id"));
+    assert!(!line.contains("nonce"));
+    assert!(!line.contains("payload"));
+}
