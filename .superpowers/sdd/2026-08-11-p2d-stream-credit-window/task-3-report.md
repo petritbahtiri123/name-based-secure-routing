@@ -164,3 +164,114 @@ notices during the diff check.
   live-platform result, production-readiness claim, or Task 4 acceptance result.
 - The controller-owned untracked normative protocol and implementation-plan
   documents were neither modified nor staged.
+
+## Fix round 1: cancellation ownership and unlocked transport I/O
+
+This section supersedes the initial report where the two conflict.
+
+### Corrected claims
+
+- The original concurrent test used two independent `ControlSession` copies,
+  so it did not prove same-session serialization and its "same slot commits
+  once" wording was overstated. Task 2's state-level race test remains the
+  same-slot proof. The live replacement uses one cloneable shared session and
+  proves that a second, distinct credit reaches ACCEPT while the first stream's
+  peer deliberately withholds its decision.
+- The original revocation test proved that the preface was queued before
+  revocation, not that destination parsing had completed. It is now named
+  `revocation_before_destination_commit_rejects_and_retains_source_replay`.
+  A separate exact phase test encodes and decodes the preface, revokes after
+  parsing, then proves the commit authority recheck rejects it.
+- Pending credited streams are now tracked internally immediately with their
+  session commit so revoke/close can reset a stalled admission. They are still
+  private and are never returned to application code before ACCEPT. This
+  replaces the initial report's statement that only successful streams enter
+  the tracker.
+
+### Literal RED
+
+From `crates/nbsr-transport`, using the same external target directory:
+
+```text
+cargo test --test stream_credit_integration
+```
+
+Result: exit 1 with the expected `E0432` unresolved import for the missing
+`SharedControlSession`; after correcting two test-only `Debug` assumptions,
+there were no fixture, syntax, or environment failures.
+
+```text
+cargo test session_tests::dropping_destination_admission_before_accept_releases_live_but_retains_credit_and_p1f
+```
+
+Result: exit 1 with the expected missing `SharedControlSession`,
+`CreditedAdmissionCleanup`, and `release_credited_stream_terminal` APIs.
+
+### Ownership and lock boundaries
+
+- `SharedControlSession` owns one `ControlSession` behind a private synchronous
+  mutex. Its `inspect` and `update` closures cannot return a borrow, so callers
+  cannot retain `&mut ControlSession` across an await. Ordinary poisoned-state
+  access fails closed. Only the private terminal cleanup path recovers the
+  mutex, and that path can remove only an ordinary live-stream entry.
+- Source lock sections are limited to exact-connection inspection, atomic
+  credit/P1F/live allocation plus internal tracking, and the final live-entry
+  validation. Quinn `open_bi`, preface write, and decision read all run without
+  the session lock.
+- Destination lock sections are limited to exact-connection/context snapshot,
+  atomic credit/P1F/live commit plus internal tracking, and terminal cleanup.
+  Quinn `accept_bi`, bounded preface read, REJECT write, and ACCEPT write all run
+  without the session lock. Decode uses a snapshot, while commit rechecks all
+  live authority after peer-controlled I/O.
+- An armed RAII owner is created in the same uninterrupted poll immediately
+  after either source allocation or destination commit. Future drop, timeout
+  abort, explicit I/O error, peer rejection, expiry, or closing invokes the
+  terminal cleanup. Cleanup is idempotent, releases ordinary live capacity,
+  and deliberately retains the consumed credit and P1F stream ID. Existing
+  revoke/close authority remains terminal and may already have removed the
+  ordinary entry or credit window; P1F history remains untouched.
+- Internal pre-admission stream tracking lets concurrent revoke/close wake and
+  reset stalled Quinn I/O. Application payload APIs remain inaccessible until
+  same-stream ACCEPT, and the exact bounded reader/quarantine behavior is
+  unchanged.
+
+### GREEN evidence
+
+```text
+cargo test --test stream_credit_integration
+cargo test session_tests::
+cargo test --test application_stream
+cargo test stream_credit::lifecycle_tests
+cargo test stream_credit_adapter_tests
+cargo clippy --test stream_credit_integration -- -D warnings
+```
+
+Observed results were respectively 5/5 live credited Quinn tests, 12/12
+session tests, 4/4 unchanged legacy application-stream tests, 7/7 Task 2
+lifecycle tests, 3/3 bounded-reader tests, and strict focused Clippy clean.
+
+The spawned live cancellation test waits for the first source allocation to
+become observable, gives that stream to a peer that withholds its decision,
+observes a real timeout, aborts and awaits the task, and then proves the stream
+permit/live entry is gone. During the stall, a second credit under the same
+shared session completes on stream 8, proving no session-wide head-of-line
+wait; the cancelled stream ID 4 remains a P1F duplicate. Because the credited
+future is spawned, the test also enforces that no non-`Send` synchronous mutex
+guard crosses its Quinn awaits.
+
+Destination cancellation is covered in both the exact ownership unit and live
+Quinn paths. A source transport with a zero receive window deterministically
+blocks the destination's one-byte ACCEPT write after a real destination
+credit/P1F/live commit. The test observes the committed live entry, times out,
+aborts and awaits the actual destination future, and proves the live entry is
+gone while the slot bitmap remains consumed and stream ID 4 remains a
+duplicate; the source admission is reset. Dropping the same RAII owner directly
+at the commit/ACCEPT boundary independently pins its terminal semantics.
+Separate tests prove cleanup still removes the entry after session drain begins
+and after the hard session deadline expires, even though public
+`release_stream` correctly rejects in those states.
+
+Fresh full `cargo test` after this fix round reported exactly 179 passed,
+0 failed, and 1 ignored. The ignored case remains the pre-existing P1F
+evidence-only ten-minute soak. No benchmark, throughput, live-platform, or
+production-readiness claim is added.

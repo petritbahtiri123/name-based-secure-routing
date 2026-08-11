@@ -188,7 +188,7 @@ pub use resumption::{
     ResumeAdmissionReject, ResumeCorrelation, ResumeHandle, ResumePreflight, ResumeReject,
     SameEdgeResumeManager, TrustProfileId,
 };
-pub use session::{ControlSession, MAX_SESSION_SECONDS, SessionReject};
+pub use session::{ControlSession, MAX_SESSION_SECONDS, SessionReject, SharedControlSession};
 pub use stream_credit::{
     MAX_STREAM_CREDIT_PREFACE_BYTES, STREAM_CREDIT_COUNT, STREAM_CREDIT_LOW_WATERMARK,
     STREAM_CREDIT_PROFILE_ID, StreamCreditContext, StreamCreditPreface, StreamCreditProfile,

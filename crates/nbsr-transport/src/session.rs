@@ -1,7 +1,7 @@
 //! Origin-free control-session sequencing and reusable route admission.
 
 use std::collections::{HashMap, HashSet};
-use std::sync::{Arc, OnceLock};
+use std::sync::{Arc, Mutex, OnceLock};
 use std::time::Instant;
 
 use sha2::{Digest, Sha256};
@@ -98,6 +98,46 @@ pub struct ControlSession {
     session_drain_deadline: Option<DrainDeadline>,
     trust_profile_id: TrustProfileId,
     clock: Arc<dyn SessionClock>,
+}
+
+/// Cloneable owner for short, synchronous control-session state transitions.
+///
+/// The closure APIs deliberately prevent a `ControlSession` borrow from
+/// escaping. Credited stream transport I/O can therefore run concurrently
+/// without holding the session lock across an async wait.
+#[derive(Clone)]
+pub struct SharedControlSession {
+    inner: Arc<Mutex<ControlSession>>,
+}
+
+impl SharedControlSession {
+    #[must_use]
+    pub fn new(session: ControlSession) -> Self {
+        Self {
+            inner: Arc::new(Mutex::new(session)),
+        }
+    }
+
+    pub fn inspect<T>(&self, operation: impl FnOnce(&ControlSession) -> T) -> T {
+        let session = self
+            .inner
+            .lock()
+            .expect("shared control session state is poisoned");
+        operation(&session)
+    }
+
+    pub fn update<T>(&self, operation: impl FnOnce(&mut ControlSession) -> T) -> T {
+        let mut session = self
+            .inner
+            .lock()
+            .expect("shared control session state is poisoned");
+        operation(&mut session)
+    }
+
+    pub(crate) fn release_credited_stream_terminal(&self, channel_id: [u8; 16], stream_id: u64) {
+        let mut session = self.inner.lock().unwrap_or_else(|error| error.into_inner());
+        session.release_credited_stream_terminal(channel_id, stream_id);
+    }
 }
 
 enum SessionState {
@@ -1014,6 +1054,18 @@ impl ControlSession {
         self.streams
             .release_stream(&channel_id, stream_id)
             .map_err(SessionReject::Stream)
+    }
+
+    /// Removes only an ordinary live-stream entry during terminal transport
+    /// cleanup. Credit consumption and P1F replay history remain unchanged.
+    /// This intentionally bypasses active-session/channel checks so an aborted
+    /// admission can clean up after expiry, drain, close, or revoke.
+    pub(crate) fn release_credited_stream_terminal(
+        &mut self,
+        channel_id: [u8; 16],
+        stream_id: u64,
+    ) -> bool {
+        self.streams.release_stream(&channel_id, stream_id).is_ok()
     }
 
     pub(crate) fn authorize_application_stream(

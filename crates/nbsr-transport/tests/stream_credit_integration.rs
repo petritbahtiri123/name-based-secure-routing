@@ -1,14 +1,15 @@
 use std::collections::BTreeMap;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use std::path::PathBuf;
+use std::sync::Arc;
 use std::time::Duration;
 
 use nbsr_transport::{
     ActiveChannel, AdmissionPolicy, AuthorizedServicePolicy, ControlSession, CoreV02Envelope,
     CoreV02Limits, DestinationAdmission, EdgeIdentity, EdgeRole, PeerPolicy, RouteGrantIssuer,
-    STREAM_CREDIT_PROFILE_ID, SessionReject, StreamCreditPreface, StreamCreditReject,
-    TransportError, TransportListener, TrustProfileId, build_client_config, build_server_config,
-    connect, decode_control_envelope,
+    STREAM_CREDIT_PROFILE_ID, SessionReject, SharedControlSession, StreamCreditPreface,
+    StreamCreditReject, TransportError, TransportListener, TrustProfileId, build_client_config,
+    build_server_config, connect, decode_control_envelope,
 };
 
 mod support;
@@ -111,7 +112,7 @@ async fn connection_pair() -> (
 
 fn credited_session(
     connection: &nbsr_transport::AuthenticatedConnection,
-) -> (ControlSession, ActiveChannel) {
+) -> (SharedControlSession, ActiveChannel) {
     let mut session = control_session(connection);
     let client_hello = decode_control_envelope(
         &vector("artifacts/valid/envelopes/client-hello.cbor"),
@@ -151,7 +152,7 @@ fn credited_session(
     connection
         .bind_channel(&mut session, channel.channel_id)
         .unwrap();
-    (session, channel)
+    (SharedControlSession::new(session), channel)
 }
 
 async fn prime_control_stream(
@@ -236,13 +237,12 @@ fn argument(target: &mut Vec<u8>, major: u8, value: u64) {
 async fn credited_stream_waits_for_same_stream_accept_then_echoes_without_stream_open() {
     let (listener, source, destination) = connection_pair().await;
     prime_control_stream(&source, &destination).await;
-    let (mut source_session, channel) = credited_session(&source);
-    let (mut destination_session, destination_channel) = credited_session(&destination);
+    let (source_session, channel) = credited_session(&source);
+    let (destination_session, destination_channel) = credited_session(&destination);
     let channel_id = channel.channel_id;
     assert_eq!(channel_id, destination_channel.channel_id);
 
-    let mut opening =
-        Box::pin(source.open_credited_session_stream(&mut source_session, channel_id));
+    let mut opening = Box::pin(source.open_credited_session_stream(&source_session, channel_id));
     assert!(
         tokio::time::timeout(Duration::from_millis(25), &mut opening)
             .await
@@ -250,7 +250,7 @@ async fn credited_stream_waits_for_same_stream_accept_then_echoes_without_stream
     );
 
     let mut accepted = destination
-        .accept_credited_session_stream(&mut destination_session, channel_id)
+        .accept_credited_session_stream(&destination_session, channel_id)
         .await
         .expect("destination admits bounded preface");
     let mut opened = opening.await.expect("source receives same-stream ACCEPT");
@@ -263,19 +263,27 @@ async fn credited_stream_waits_for_same_stream_accept_then_echoes_without_stream
     assert_eq!(at_destination.unwrap(), payload);
     assert_eq!(at_source.unwrap(), payload);
 
-    source_session.release_stream(channel_id, 4).unwrap();
-    destination_session.release_stream(channel_id, 4).unwrap();
+    source_session
+        .update(|session| session.release_stream(channel_id, 4))
+        .unwrap();
+    destination_session
+        .update(|session| session.release_stream(channel_id, 4))
+        .unwrap();
 
     let (second_destination, second_source) = tokio::join!(
-        destination.accept_credited_session_stream(&mut destination_session, channel_id),
-        source.open_credited_session_stream(&mut source_session, channel_id),
+        destination.accept_credited_session_stream(&destination_session, channel_id),
+        source.open_credited_session_stream(&source_session, channel_id),
     );
     let second_destination = second_destination.expect("distinct destination credit");
     let second_source = second_source.expect("distinct source credit");
     assert_eq!(second_destination.id(), 8);
     assert_eq!(second_source.id(), 8);
-    source_session.release_stream(channel_id, 8).unwrap();
-    destination_session.release_stream(channel_id, 8).unwrap();
+    source_session
+        .update(|session| session.release_stream(channel_id, 8))
+        .unwrap();
+    destination_session
+        .update(|session| session.release_stream(channel_id, 8))
+        .unwrap();
     source.close().await.unwrap();
     destination.close().await.unwrap();
     listener.close().await.unwrap();
@@ -285,8 +293,8 @@ async fn credited_stream_waits_for_same_stream_accept_then_echoes_without_stream
 async fn malformed_early_bytes_reject_before_admission_and_do_not_consume_state() {
     let (listener, source, destination) = connection_pair().await;
     prime_control_stream(&source, &destination).await;
-    let (mut source_session, channel) = credited_session(&source);
-    let (mut destination_session, _) = credited_session(&destination);
+    let (source_session, channel) = credited_session(&source);
+    let (destination_session, _) = credited_session(&destination);
     let channel_id = channel.channel_id;
     let hello = decode_control_envelope(
         &vector("artifacts/valid/envelopes/client-hello.cbor"),
@@ -300,7 +308,7 @@ async fn malformed_early_bytes_reject_before_admission_and_do_not_consume_state(
         stream.receive_envelope(CoreV02Limits::default()).await
     };
     let (destination_reject, source_reject) = tokio::join!(
-        destination.accept_credited_session_stream(&mut destination_session, channel_id),
+        destination.accept_credited_session_stream(&destination_session, channel_id),
         malformed_sender,
     );
     assert_eq!(
@@ -310,22 +318,24 @@ async fn malformed_early_bytes_reject_before_admission_and_do_not_consume_state(
     assert_eq!(source_reject, Err(TransportError::ControlStreamFailed));
 
     let (accepted, opened) = tokio::join!(
-        destination.accept_credited_session_stream(&mut destination_session, channel_id),
-        source.open_credited_session_stream(&mut source_session, channel_id),
+        destination.accept_credited_session_stream(&destination_session, channel_id),
+        source.open_credited_session_stream(&source_session, channel_id),
     );
     assert_eq!(accepted.unwrap().id(), 8);
     assert_eq!(opened.unwrap().id(), 8);
     destination_session
-        .authorize_credited_stream(
-            StreamCreditPreface {
-                channel_id,
-                channel_generation: 1,
-                credit_epoch: 1,
-                credit_slot: 1,
-                quic_stream_id: 4,
-            },
-            4,
-        )
+        .update(|session| {
+            session.authorize_credited_stream(
+                StreamCreditPreface {
+                    channel_id,
+                    channel_generation: 1,
+                    credit_epoch: 1,
+                    credit_slot: 1,
+                    quic_stream_id: 4,
+                },
+                4,
+            )
+        })
         .expect("malformed stream ID and the next credit remained unused");
 
     source.close().await.unwrap();
@@ -337,13 +347,13 @@ async fn malformed_early_bytes_reject_before_admission_and_do_not_consume_state(
 async fn wrong_channel_rejects_one_attempt_but_future_credits_remain_valid() {
     let (listener, source, destination) = connection_pair().await;
     prime_control_stream(&source, &destination).await;
-    let (mut source_session, channel) = credited_session(&source);
-    let (mut destination_session, _) = credited_session(&destination);
+    let (source_session, channel) = credited_session(&source);
+    let (destination_session, _) = credited_session(&destination);
     let channel_id = channel.channel_id;
 
     let (destination_reject, source_reject) = tokio::join!(
-        destination.accept_credited_session_stream(&mut destination_session, [0xee; 16]),
-        source.open_credited_session_stream(&mut source_session, channel_id),
+        destination.accept_credited_session_stream(&destination_session, [0xee; 16]),
+        source.open_credited_session_stream(&source_session, channel_id),
     );
     assert_eq!(
         destination_reject.err(),
@@ -355,11 +365,11 @@ async fn wrong_channel_rejects_one_attempt_but_future_credits_remain_valid() {
     );
     assert!(
         source_session
-            .application_stream_permit(channel_id, 4)
+            .inspect(|session| session.application_stream_permit(channel_id, 4))
             .is_err()
     );
     assert_eq!(
-        source_session.authorize_credited_stream(
+        source_session.update(|session| session.authorize_credited_stream(
             StreamCreditPreface {
                 channel_id,
                 channel_generation: 1,
@@ -368,29 +378,31 @@ async fn wrong_channel_rejects_one_attempt_but_future_credits_remain_valid() {
                 quic_stream_id: 4,
             },
             4,
-        ),
+        )),
         Err(SessionReject::StreamCredit(
             StreamCreditReject::DuplicateStream
         ))
     );
 
     let (accepted, opened) = tokio::join!(
-        destination.accept_credited_session_stream(&mut destination_session, channel_id),
-        source.open_credited_session_stream(&mut source_session, channel_id),
+        destination.accept_credited_session_stream(&destination_session, channel_id),
+        source.open_credited_session_stream(&source_session, channel_id),
     );
     assert_eq!(accepted.unwrap().id(), 8);
     assert_eq!(opened.unwrap().id(), 8);
     destination_session
-        .authorize_credited_stream(
-            StreamCreditPreface {
-                channel_id,
-                channel_generation: 1,
-                credit_epoch: 1,
-                credit_slot: 0,
-                quic_stream_id: 12,
-            },
-            12,
-        )
+        .update(|session| {
+            session.authorize_credited_stream(
+                StreamCreditPreface {
+                    channel_id,
+                    channel_generation: 1,
+                    credit_epoch: 1,
+                    credit_slot: 0,
+                    quic_stream_id: 12,
+                },
+                12,
+            )
+        })
         .expect("rejected destination attempt did not consume slot zero");
 
     source.close().await.unwrap();
@@ -399,67 +411,129 @@ async fn wrong_channel_rejects_one_attempt_but_future_credits_remain_valid() {
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-async fn distinct_credits_admit_independently_and_same_slot_commits_once() {
+async fn shared_session_distinct_credit_progresses_while_timed_out_admission_is_aborted() {
     let (listener, source, destination) = connection_pair().await;
     prime_control_stream(&source, &destination).await;
-    let (mut source_one, channel) = credited_session(&source);
+    let source = Arc::new(source);
+    let (source_session, channel) = credited_session(&source);
     let channel_id = channel.channel_id;
-    let (mut source_two, _) = credited_session(&source);
-    let (mut destination_session, _) = credited_session(&destination);
+    let (destination_session, _) = credited_session(&destination);
 
-    let destination_attempts = async {
-        let first = destination
-            .accept_credited_session_stream(&mut destination_session, channel_id)
-            .await;
-        let second = destination
-            .accept_credited_session_stream(&mut destination_session, channel_id)
-            .await;
-        (first, second)
-    };
-    let (destination_results, first_source, second_source) = tokio::join!(
-        destination_attempts,
-        source.open_credited_session_stream(&mut source_one, channel_id),
-        source.open_credited_session_stream(&mut source_two, channel_id),
+    let stalled_source = Arc::clone(&source);
+    let stalled_session = source_session.clone();
+    let mut stalled = tokio::spawn(async move {
+        stalled_source
+            .open_credited_session_stream(&stalled_session, channel_id)
+            .await
+    });
+    tokio::time::timeout(Duration::from_secs(1), async {
+        loop {
+            if source_session
+                .inspect(|session| session.application_stream_permit(channel_id, 4))
+                .is_ok()
+            {
+                break;
+            }
+            tokio::task::yield_now().await;
+        }
+    })
+    .await
+    .expect("first source allocation commits before its peer decision");
+    let stalled_peer = destination
+        .accept_control_stream()
+        .await
+        .expect("peer holds the first credited stream without deciding");
+    assert!(
+        tokio::time::timeout(Duration::from_millis(25), &mut stalled)
+            .await
+            .is_err()
     );
 
-    let successes = [
-        destination_results.0.is_ok(),
-        destination_results.1.is_ok(),
-        first_source.is_ok(),
-        second_source.is_ok(),
-    ];
-    assert_eq!(successes.iter().filter(|success| **success).count(), 2);
-    assert_ne!(first_source.is_ok(), second_source.is_ok());
-    assert_ne!(destination_results.0.is_ok(), destination_results.1.is_ok());
+    let (second_destination, second_source) = tokio::time::timeout(Duration::from_secs(1), async {
+        tokio::join!(
+            destination.accept_credited_session_stream(&destination_session, channel_id),
+            source.open_credited_session_stream(&source_session, channel_id),
+        )
+    })
+    .await
+    .expect("stalled peer does not head-of-line block a distinct credit");
+    assert_eq!(second_destination.unwrap().id(), 8);
+    assert_eq!(second_source.unwrap().id(), 8);
 
-    source.close().await.unwrap();
+    stalled.abort();
+    let cancellation = match stalled.await {
+        Err(error) => error,
+        Ok(_) => panic!("aborted admission unexpectedly completed"),
+    };
+    assert!(cancellation.is_cancelled());
+    assert!(
+        source_session
+            .inspect(|session| session.application_stream_permit(channel_id, 4))
+            .is_err(),
+        "aborting the timed-out future releases its ordinary live entry"
+    );
+    assert!(
+        source_session
+            .inspect(|session| session.application_stream_permit(channel_id, 8))
+            .is_ok(),
+        "the independent admitted stream remains live"
+    );
+    assert_eq!(
+        source_session.update(|session| session.authorize_credited_stream(
+            StreamCreditPreface {
+                channel_id,
+                channel_generation: 1,
+                credit_epoch: 1,
+                credit_slot: 2,
+                quic_stream_id: 4,
+            },
+            4,
+        )),
+        Err(SessionReject::StreamCredit(
+            StreamCreditReject::DuplicateStream
+        )),
+        "cancellation retains the consumed credit and P1F stream ID"
+    );
+    source_session
+        .update(|session| session.release_stream(channel_id, 8))
+        .unwrap();
+    destination_session
+        .update(|session| session.release_stream(channel_id, 8))
+        .unwrap();
+
+    drop(stalled_peer);
+    Arc::try_unwrap(source)
+        .ok()
+        .expect("all source task owners dropped")
+        .close()
+        .await
+        .unwrap();
     destination.close().await.unwrap();
     listener.close().await.unwrap();
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-async fn revocation_after_preface_rejects_and_releases_live_state_but_retains_replay() {
+async fn revocation_before_destination_commit_rejects_and_retains_source_replay() {
     let (listener, source, destination) = connection_pair().await;
     prime_control_stream(&source, &destination).await;
-    let (mut source_session, channel) = credited_session(&source);
+    let (source_session, channel) = credited_session(&source);
     let channel_id = channel.channel_id;
-    let (mut destination_session, _) = credited_session(&destination);
+    let (destination_session, _) = credited_session(&destination);
 
-    let mut opening =
-        Box::pin(source.open_credited_session_stream(&mut source_session, channel_id));
+    let mut opening = Box::pin(source.open_credited_session_stream(&source_session, channel_id));
     assert!(
         tokio::time::timeout(Duration::from_millis(25), &mut opening)
             .await
             .is_err()
     );
     let revoke = route_revoke(&channel);
-    destination
-        .accept_route_revoke(&mut destination_session, channel_id, &revoke)
+    destination_session
+        .update(|session| destination.accept_route_revoke(session, channel_id, &revoke))
         .expect("revoke before credited decision");
 
     assert_eq!(
         destination
-            .accept_credited_session_stream(&mut destination_session, channel_id)
+            .accept_credited_session_stream(&destination_session, channel_id)
             .await
             .err(),
         Some(TransportError::ApplicationStreamRejected)
@@ -470,11 +544,11 @@ async fn revocation_after_preface_rejects_and_releases_live_state_but_retains_re
     );
     assert!(
         source_session
-            .application_stream_permit(channel_id, 4)
+            .inspect(|session| session.application_stream_permit(channel_id, 4))
             .is_err()
     );
     assert_eq!(
-        source_session.authorize_credited_stream(
+        source_session.update(|session| session.authorize_credited_stream(
             StreamCreditPreface {
                 channel_id,
                 channel_generation: 1,
@@ -483,7 +557,7 @@ async fn revocation_after_preface_rejects_and_releases_live_state_but_retains_re
                 quic_stream_id: 4,
             },
             4,
-        ),
+        )),
         Err(SessionReject::StreamCredit(
             StreamCreditReject::DuplicateStream
         ))

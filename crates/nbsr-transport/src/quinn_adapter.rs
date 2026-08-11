@@ -17,8 +17,8 @@ use crate::channel_binding::{EXPORTER_LABEL, EXPORTER_LENGTH, canonical_service_
 use crate::{
     ALPN, ChannelBinding, ClientEndpointConfig, ControlSession, CoreV02Envelope, EdgeIdentity,
     EdgeRole, PeerPolicy, ServerEndpointConfig, ServiceChannelContext, ServiceChannelExporterError,
-    SessionReject, StreamCreditPreface, TransportError, decode_stream_credit_preface,
-    encode_stream_credit_preface,
+    SessionReject, SharedControlSession, StreamCreditPreface, TransportError,
+    decode_stream_credit_preface, encode_stream_credit_preface,
 };
 
 const DATAGRAM_BUFFER_BYTES: usize = 262_144;
@@ -218,6 +218,37 @@ struct TrackedApplicationStreams {
     channel_quotas: Mutex<HashMap<[u8; 16], Weak<ChannelByteQuota>>>,
 }
 
+pub(crate) struct CreditedAdmissionCleanup {
+    session: SharedControlSession,
+    channel_id: [u8; 16],
+    stream_id: u64,
+    armed: bool,
+}
+
+impl CreditedAdmissionCleanup {
+    pub(crate) fn new(session: SharedControlSession, channel_id: [u8; 16], stream_id: u64) -> Self {
+        Self {
+            session,
+            channel_id,
+            stream_id,
+            armed: true,
+        }
+    }
+
+    fn disarm(&mut self) {
+        self.armed = false;
+    }
+}
+
+impl Drop for CreditedAdmissionCleanup {
+    fn drop(&mut self) {
+        if self.armed {
+            self.session
+                .release_credited_stream_terminal(self.channel_id, self.stream_id);
+        }
+    }
+}
+
 impl TrackedApplicationStreams {
     fn new() -> Self {
         Self {
@@ -300,12 +331,6 @@ fn application_stream(send: SendStream, receive: RecvStream) -> ApplicationStrea
     }
 }
 
-fn reset_unadmitted_stream(send: &mut SendStream, receive: &mut RecvStream) {
-    let code = VarInt::from_u32(1);
-    let _ = send.reset(code);
-    let _ = receive.stop(code);
-}
-
 async fn reject_credited_stream(send: &mut SendStream, receive: &mut RecvStream) {
     if send.write_all(&[STREAM_CREDIT_REJECT]).await.is_ok() {
         let _ = send.finish();
@@ -367,14 +392,9 @@ async fn read_bounded_stream_credit_wire<R: AsyncRead + Unpin>(
 
 async fn read_credited_stream_preface(
     receive: &mut RecvStream,
-    session: &ControlSession,
-    channel_id: [u8; 16],
-    actual_stream_id: u64,
+    context: crate::StreamCreditContext,
 ) -> Result<StreamCreditPreface, TransportError> {
     let (wire, encoded_length) = read_bounded_stream_credit_wire(receive).await?;
-    let context = session
-        .credited_stream_context(channel_id, actual_stream_id)
-        .map_err(|_| TransportError::ApplicationStreamRejected)?;
     decode_stream_credit_preface(&wire[..encoded_length], context)
         .map_err(|_| TransportError::ApplicationStreamRejected)
 }
@@ -418,6 +438,69 @@ async fn read_live_payload(
 impl ApplicationStream {
     pub fn id(&self) -> u64 {
         self.id
+    }
+
+    async fn exchange_credited_preface(&self, wire: &[u8]) -> Result<u8, TransportError> {
+        let notified = self.shared.notify.notified();
+        tokio::pin!(notified);
+        let mut inner = self.shared.inner.lock().await;
+        if self.shared.cancelled.load(Ordering::Acquire) {
+            reset_parts(&mut inner);
+            return Err(TransportError::ApplicationStreamRejected);
+        }
+        tokio::select! {
+            _ = &mut notified => {
+                reset_parts(&mut inner);
+                return Err(TransportError::ApplicationStreamRejected);
+            }
+            result = inner.send.write_all(wire) => {
+                result.map_err(|_| TransportError::ApplicationStreamFailed)?;
+            }
+        }
+        let mut response = [0_u8; 1];
+        tokio::select! {
+            _ = &mut notified => {
+                reset_parts(&mut inner);
+                return Err(TransportError::ApplicationStreamRejected);
+            }
+            result = inner.receive.read_exact(&mut response) => {
+                result.map_err(|_| TransportError::ApplicationStreamRejected)?;
+            }
+        }
+        if self.shared.cancelled.load(Ordering::Acquire) {
+            reset_parts(&mut inner);
+            return Err(TransportError::ApplicationStreamRejected);
+        }
+        Ok(response[0])
+    }
+
+    async fn write_credited_accept(&self) -> Result<(), TransportError> {
+        let notified = self.shared.notify.notified();
+        tokio::pin!(notified);
+        let mut inner = self.shared.inner.lock().await;
+        if self.shared.cancelled.load(Ordering::Acquire) {
+            reset_parts(&mut inner);
+            return Err(TransportError::ApplicationStreamRejected);
+        }
+        tokio::select! {
+            _ = &mut notified => {
+                reset_parts(&mut inner);
+                Err(TransportError::ApplicationStreamRejected)
+            }
+            result = inner.send.write_all(&[STREAM_CREDIT_ACCEPT]) => {
+                result.map_err(|_| TransportError::ApplicationStreamFailed)
+            }
+        }
+    }
+
+    async fn write_credited_reject(&self) {
+        let mut inner = self.shared.inner.lock().await;
+        if inner.send.write_all(&[STREAM_CREDIT_REJECT]).await.is_ok() {
+            let _ = inner.send.finish();
+        } else {
+            let _ = inner.send.reset(VarInt::from_u32(1));
+        }
+        let _ = inner.receive.stop(VarInt::from_u32(1));
     }
 
     /// P2A benchmark framing over an already admitted Application Stream.
@@ -987,52 +1070,60 @@ impl AuthenticatedConnection {
 
     pub async fn open_credited_session_stream(
         &self,
-        session: &mut ControlSession,
+        session: &SharedControlSession,
         channel_id: [u8; 16],
     ) -> Result<ApplicationStream, TransportError> {
-        if !session.matches_connection(&self.binding_capability) {
+        if !session.inspect(|session| session.matches_connection(&self.binding_capability)) {
             return Err(TransportError::ApplicationStreamRejected);
         }
-        let (mut send, mut receive) = self
+        let (send, receive) = self
             .connection
             .open_bi()
             .await
             .map_err(|_| TransportError::ApplicationStreamFailed)?;
-        let stream_id = VarInt::from(send.id()).into_inner();
-        let preface = match session.allocate_credited_stream(channel_id, stream_id) {
+        let stream = application_stream(send, receive);
+        let stream_id = stream.id();
+        let preface = match session.update(|session| {
+            let preface = session.allocate_credited_stream(channel_id, stream_id)?;
+            self.tracked_streams.track(channel_id, &stream);
+            Ok::<_, SessionReject>(preface)
+        }) {
             Ok(preface) => preface,
             Err(_) => {
-                reset_unadmitted_stream(&mut send, &mut receive);
+                stream.shared.force_reset();
                 return Err(TransportError::ApplicationStreamRejected);
             }
         };
+        let mut cleanup = CreditedAdmissionCleanup::new(session.clone(), channel_id, stream_id);
         let wire = match encode_stream_credit_preface(&preface) {
             Ok(wire) => wire,
             Err(_) => {
-                let _ = session.release_stream(channel_id, stream_id);
-                reset_unadmitted_stream(&mut send, &mut receive);
+                stream.shared.force_reset();
                 return Err(TransportError::ApplicationStreamRejected);
             }
         };
-        if send.write_all(&wire).await.is_err() {
-            let _ = session.release_stream(channel_id, stream_id);
-            reset_unadmitted_stream(&mut send, &mut receive);
-            return Err(TransportError::ApplicationStreamFailed);
-        }
-        let mut response = [0_u8; 1];
-        if receive.read_exact(&mut response).await.is_err() || response[0] != STREAM_CREDIT_ACCEPT {
-            let _ = session.release_stream(channel_id, stream_id);
-            reset_unadmitted_stream(&mut send, &mut receive);
+        let response = match stream.exchange_credited_preface(&wire).await {
+            Ok(response) => response,
+            Err(error) => {
+                stream.shared.force_reset();
+                return Err(error);
+            }
+        };
+        if response != STREAM_CREDIT_ACCEPT
+            || session
+                .inspect(|session| session.application_stream_permit(channel_id, stream_id))
+                .is_err()
+        {
+            stream.shared.force_reset();
             return Err(TransportError::ApplicationStreamRejected);
         }
-        let stream = application_stream(send, receive);
-        self.tracked_streams.track(channel_id, &stream);
+        cleanup.disarm();
         Ok(stream)
     }
 
     pub async fn accept_credited_session_stream(
         &self,
-        session: &mut ControlSession,
+        session: &SharedControlSession,
         channel_id: [u8; 16],
     ) -> Result<ApplicationStream, TransportError> {
         let (mut send, mut receive) = self
@@ -1041,38 +1132,44 @@ impl AuthenticatedConnection {
             .await
             .map_err(|_| TransportError::ApplicationStreamFailed)?;
         let stream_id = VarInt::from(send.id()).into_inner();
-        if !session.matches_connection(&self.binding_capability) {
+        if !session.inspect(|session| session.matches_connection(&self.binding_capability)) {
             reject_credited_stream(&mut send, &mut receive).await;
             return Err(TransportError::ApplicationStreamRejected);
         }
-        let preface = match read_credited_stream_preface(
-            &mut receive,
-            session,
-            channel_id,
-            stream_id,
-        )
-        .await
+        let context = match session
+            .inspect(|session| session.credited_stream_context(channel_id, stream_id))
         {
+            Ok(context) => context,
+            Err(_) => {
+                reject_credited_stream(&mut send, &mut receive).await;
+                return Err(TransportError::ApplicationStreamRejected);
+            }
+        };
+        let preface = match read_credited_stream_preface(&mut receive, context).await {
             Ok(preface) => preface,
             Err(_) => {
                 reject_credited_stream(&mut send, &mut receive).await;
                 return Err(TransportError::ApplicationStreamRejected);
             }
         };
+        let stream = application_stream(send, receive);
         if session
-            .authorize_credited_stream(preface, stream_id)
+            .update(|session| {
+                session.authorize_credited_stream(preface, stream_id)?;
+                self.tracked_streams.track(channel_id, &stream);
+                Ok::<_, SessionReject>(())
+            })
             .is_err()
         {
-            reject_credited_stream(&mut send, &mut receive).await;
+            stream.write_credited_reject().await;
             return Err(TransportError::ApplicationStreamRejected);
         }
-        if send.write_all(&[STREAM_CREDIT_ACCEPT]).await.is_err() {
-            let _ = session.release_stream(channel_id, stream_id);
-            reset_unadmitted_stream(&mut send, &mut receive);
-            return Err(TransportError::ApplicationStreamFailed);
+        let mut cleanup = CreditedAdmissionCleanup::new(session.clone(), channel_id, stream_id);
+        if let Err(error) = stream.write_credited_accept().await {
+            stream.shared.force_reset();
+            return Err(error);
         }
-        let stream = application_stream(send, receive);
-        self.tracked_streams.track(channel_id, &stream);
+        cleanup.disarm();
         Ok(stream)
     }
 

@@ -5,13 +5,17 @@ use std::sync::Arc;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::Duration;
 
+use quinn::{TransportConfig, VarInt};
+
 use crate::channel_streams::ReplayHistoryLimit;
+use crate::quinn_adapter::CreditedAdmissionCleanup;
 use crate::session::SessionClock;
 use crate::{
     ActiveChannel, AdmissionPolicy, AuthorizedServicePolicy, ControlSession, DestinationAdmission,
     EdgeIdentity, EdgeRole, PeerPolicy, ResumeReject, RouteGrantIssuer, SessionReject,
-    StreamCreditPreface, StreamCreditReject, TransportListener, TrustProfileId,
-    build_client_config, build_server_config, connect, decode_control_envelope,
+    SharedControlSession, StreamCreditPreface, StreamCreditReject, TransportListener,
+    TrustProfileId, build_client_config, build_server_config, connect, decode_control_envelope,
+    decode_stream_credit_preface, encode_stream_credit_preface,
 };
 use ed25519_dalek::SigningKey;
 
@@ -153,6 +157,60 @@ async fn connection_pair() -> (
     (listener, source.unwrap(), destination.unwrap())
 }
 
+async fn zero_source_receive_window_connection_pair() -> (
+    TransportListener,
+    crate::AuthenticatedConnection,
+    crate::AuthenticatedConnection,
+) {
+    let pki = support::TestPki::generate_for("source.edge", "destination.edge");
+    let destination_policy = PeerPolicy::new(
+        EdgeRole::Destination,
+        EdgeRole::Source,
+        identity("source.edge"),
+        Duration::from_secs(2),
+        Duration::from_secs(5),
+    )
+    .unwrap();
+    let source_policy = PeerPolicy::new(
+        EdgeRole::Source,
+        EdgeRole::Destination,
+        identity("destination.edge"),
+        Duration::from_secs(2),
+        Duration::from_secs(5),
+    )
+    .unwrap();
+    let listener = TransportListener::bind(
+        build_server_config(destination_policy, pki.destination_material()).unwrap(),
+        SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), 0),
+    )
+    .unwrap();
+    let remote = listener.local_addr().unwrap();
+    let mut source_config = build_client_config(source_policy, pki.source_material()).unwrap();
+    let mut transport = TransportConfig::default();
+    transport.stream_receive_window(VarInt::from_u32(0));
+    source_config.quinn.transport_config(Arc::new(transport));
+    let (destination, source) = tokio::join!(listener.accept_one(), connect(source_config, remote));
+    (listener, source.unwrap(), destination.unwrap())
+}
+
+async fn prime_control_stream(
+    source: &crate::AuthenticatedConnection,
+    destination: &crate::AuthenticatedConnection,
+) {
+    let hello = decode_control_envelope(
+        &vector("artifacts/valid/envelopes/client-hello.cbor"),
+        crate::CoreV02Limits::default(),
+    )
+    .unwrap();
+    let mut source_control = source.open_control_stream().await.unwrap();
+    source_control.send_envelope(&hello).await.unwrap();
+    let mut destination_control = destination.accept_control_stream().await.unwrap();
+    destination_control
+        .receive_envelope(crate::CoreV02Limits::default())
+        .await
+        .unwrap();
+}
+
 fn session(
     destination: &crate::AuthenticatedConnection,
     clock: Arc<ManualClock>,
@@ -238,6 +296,258 @@ fn credited_session(
         .bind_channel(&mut session, channel.channel_id)
         .unwrap();
     (session, channel)
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn dropping_destination_admission_before_accept_releases_live_but_retains_credit_and_p1f() {
+    let (listener, source, destination) = connection_pair().await;
+    let (mut session, channel) = credited_session(
+        &destination,
+        Arc::new(ManualClock::new()),
+        ReplayHistoryLimit::MAX,
+    );
+    let channel_id = channel.channel_id;
+    session
+        .authorize_credited_stream(
+            StreamCreditPreface {
+                channel_id,
+                channel_generation: 1,
+                credit_epoch: 1,
+                credit_slot: 0,
+                quic_stream_id: 4,
+            },
+            4,
+        )
+        .unwrap();
+    let shared = SharedControlSession::new(session);
+
+    drop(CreditedAdmissionCleanup::new(shared.clone(), channel_id, 4));
+
+    assert!(
+        shared
+            .inspect(|session| session.application_stream_permit(channel_id, 4))
+            .is_err()
+    );
+    assert_eq!(
+        shared.update(|session| session.authorize_credited_stream(
+            StreamCreditPreface {
+                channel_id,
+                channel_generation: 1,
+                credit_epoch: 1,
+                credit_slot: 1,
+                quic_stream_id: 4,
+            },
+            4,
+        )),
+        Err(SessionReject::StreamCredit(
+            StreamCreditReject::DuplicateStream
+        ))
+    );
+    assert_eq!(
+        shared.inspect(|session| session.stream_credit_test_state(channel_id, 1)),
+        (true, true, Some(1), false)
+    );
+
+    source.close().await.unwrap();
+    destination.close().await.unwrap();
+    listener.close().await.unwrap();
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn aborting_destination_future_blocked_before_accept_releases_committed_live_entry() {
+    let (listener, source, destination) = zero_source_receive_window_connection_pair().await;
+    prime_control_stream(&source, &destination).await;
+    let source = Arc::new(source);
+    let destination = Arc::new(destination);
+    let (source_session, channel) = credited_session(
+        &source,
+        Arc::new(ManualClock::new()),
+        ReplayHistoryLimit::MAX,
+    );
+    let source_session = SharedControlSession::new(source_session);
+    let (destination_session, _) = credited_session(
+        &destination,
+        Arc::new(ManualClock::new()),
+        ReplayHistoryLimit::MAX,
+    );
+    let destination_session = SharedControlSession::new(destination_session);
+    let channel_id = channel.channel_id;
+
+    let opening_connection = Arc::clone(&source);
+    let opening_session = source_session.clone();
+    let opening = tokio::spawn(async move {
+        opening_connection
+            .open_credited_session_stream(&opening_session, channel_id)
+            .await
+    });
+    let accepting_connection = Arc::clone(&destination);
+    let accepting_session = destination_session.clone();
+    let mut accepting = tokio::spawn(async move {
+        accepting_connection
+            .accept_credited_session_stream(&accepting_session, channel_id)
+            .await
+    });
+
+    tokio::time::timeout(Duration::from_secs(1), async {
+        loop {
+            if destination_session
+                .inspect(|session| session.application_stream_permit(channel_id, 4))
+                .is_ok()
+            {
+                break;
+            }
+            tokio::task::yield_now().await;
+        }
+    })
+    .await
+    .expect("destination commits before its flow-control-blocked ACCEPT write");
+    assert!(
+        tokio::time::timeout(Duration::from_millis(25), &mut accepting)
+            .await
+            .is_err()
+    );
+
+    accepting.abort();
+    let cancellation = match accepting.await {
+        Err(error) => error,
+        Ok(_) => panic!("aborted destination admission unexpectedly completed"),
+    };
+    assert!(cancellation.is_cancelled());
+    assert!(
+        destination_session
+            .inspect(|session| session.application_stream_permit(channel_id, 4))
+            .is_err()
+    );
+    assert_eq!(
+        destination_session.update(|session| session.authorize_credited_stream(
+            StreamCreditPreface {
+                channel_id,
+                channel_generation: 1,
+                credit_epoch: 1,
+                credit_slot: 1,
+                quic_stream_id: 4,
+            },
+            4,
+        )),
+        Err(SessionReject::StreamCredit(
+            StreamCreditReject::DuplicateStream
+        ))
+    );
+    assert_eq!(
+        destination_session.inspect(|session| session.stream_credit_test_state(channel_id, 1)),
+        (true, true, Some(1), false)
+    );
+
+    let opening_result = tokio::time::timeout(Duration::from_secs(1), opening)
+        .await
+        .expect("destination cancellation resets the source admission")
+        .expect("source admission task did not panic");
+    assert_eq!(
+        opening_result.err(),
+        Some(crate::TransportError::ApplicationStreamRejected)
+    );
+
+    Arc::try_unwrap(source)
+        .ok()
+        .expect("all source task owners dropped")
+        .close()
+        .await
+        .unwrap();
+    Arc::try_unwrap(destination)
+        .ok()
+        .expect("all destination task owners dropped")
+        .close()
+        .await
+        .unwrap();
+    listener.close().await.unwrap();
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn terminal_cleanup_removes_live_entry_after_session_starts_closing() {
+    let (listener, source, destination) = connection_pair().await;
+    let (mut session, channel) = credited_session(
+        &destination,
+        Arc::new(ManualClock::new()),
+        ReplayHistoryLimit::MAX,
+    );
+    let channel_id = channel.channel_id;
+    session.allocate_credited_stream(channel_id, 4).unwrap();
+    session.begin_session_drain(0, NOW, 1).unwrap();
+    assert_eq!(
+        session.release_stream(channel_id, 4),
+        Err(SessionReject::InvalidChannelState)
+    );
+
+    assert!(session.release_credited_stream_terminal(channel_id, 4));
+    assert!(!session.release_credited_stream_terminal(channel_id, 4));
+    assert_eq!(
+        session.stream_credit_test_state(channel_id, 1),
+        (true, true, None, false),
+        "closing hides the no-longer-live binding bitmap but retains its bounded window"
+    );
+
+    source.close().await.unwrap();
+    destination.close().await.unwrap();
+    listener.close().await.unwrap();
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn terminal_cleanup_removes_live_entry_after_session_expires() {
+    let (listener, source, destination) = connection_pair().await;
+    let clock = Arc::new(ManualClock::new());
+    let (mut session, channel) =
+        credited_session(&destination, clock.clone(), ReplayHistoryLimit::MAX);
+    let channel_id = channel.channel_id;
+    session.allocate_credited_stream(channel_id, 4).unwrap();
+    clock.set_monotonic(3_600);
+    assert_eq!(
+        session.release_stream(channel_id, 4),
+        Err(SessionReject::InvalidChannelState)
+    );
+
+    assert!(session.release_credited_stream_terminal(channel_id, 4));
+    assert!(!session.release_credited_stream_terminal(channel_id, 4));
+    assert_eq!(
+        session.stream_credit_test_state(channel_id, 1),
+        (true, true, Some(1), false)
+    );
+
+    source.close().await.unwrap();
+    destination.close().await.unwrap();
+    listener.close().await.unwrap();
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn revocation_after_preface_parse_before_commit_is_rechecked() {
+    let (listener, source, destination) = connection_pair().await;
+    let (mut session, channel) = credited_session(
+        &destination,
+        Arc::new(ManualClock::new()),
+        ReplayHistoryLimit::MAX,
+    );
+    let preface = StreamCreditPreface {
+        channel_id: channel.channel_id,
+        channel_generation: 1,
+        credit_epoch: 1,
+        credit_slot: 0,
+        quic_stream_id: 4,
+    };
+    let context = session
+        .credited_stream_context(channel.channel_id, 4)
+        .unwrap();
+    let wire = encode_stream_credit_preface(&preface).unwrap();
+    let parsed = decode_stream_credit_preface(&wire, context).unwrap();
+
+    session.revoke_channel(channel.channel_id, NOW).unwrap();
+
+    assert_eq!(
+        session.authorize_credited_stream(parsed, 4),
+        Err(SessionReject::InvalidChannelState)
+    );
+
+    source.close().await.unwrap();
+    destination.close().await.unwrap();
+    listener.close().await.unwrap();
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
