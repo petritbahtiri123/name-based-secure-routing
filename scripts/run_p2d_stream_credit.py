@@ -7,12 +7,11 @@ import os
 from pathlib import Path
 import platform
 import shutil
-import statistics
 import subprocess
 import sys
 import tempfile
 import time
-from typing import Any
+from typing import Any, Callable
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
@@ -42,75 +41,132 @@ def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def git(*args: str) -> str:
-    result = subprocess.run(
-        ["git", *args], cwd=ROOT, capture_output=True, text=True, timeout=30
-    )
+KEY_ENTRYPOINTS = (
+    "crates/nbsr-transport/Cargo.lock",
+    "crates/nbsr-transport/Cargo.toml",
+    "crates/nbsr-transport/src/bin/perf_rust_source.rs",
+    "crates/nbsr-transport/src/bin/wp8_interop_server.rs",
+    "docs/protocol/stream-credit-extension.md",
+    "pyproject.toml",
+    "scripts/performance/authorities.py",
+    "scripts/performance/authority.py",
+    "scripts/performance/driver.py",
+    "scripts/performance/p2d_stream_credit.py",
+    "scripts/performance/resources.py",
+    "scripts/run_p2d_stream_credit.py",
+    "scripts/run_performance_validation.py",
+)
+
+
+def git(root: Path, *args: str) -> str:
+    result = subprocess.run(["git", *args], cwd=root, capture_output=True, text=True, timeout=30)
     if result.returncode:
         raise RuntimeError(result.stderr)
     return result.stdout.strip()
 
 
-def git_bytes(*args: str) -> bytes:
-    result = subprocess.run(
-        ["git", *args], cwd=ROOT, capture_output=True, timeout=30
-    )
+def git_bytes(root: Path, *args: str) -> bytes:
+    result = subprocess.run(["git", *args], cwd=root, capture_output=True, timeout=30)
     if result.returncode:
         raise RuntimeError(result.stderr.decode(errors="replace"))
     return result.stdout
 
 
-def source_input_paths() -> tuple[str, ...]:
-    compiled = {
-        path.relative_to(ROOT).as_posix()
-        for path in (TRANSPORT / "src").rglob("*.rs")
-    }
-    inputs = compiled | {
-        "crates/nbsr-transport/Cargo.toml",
-        "crates/nbsr-transport/Cargo.lock",
-        "pyproject.toml",
-        "scripts/performance/authority.py",
-        "scripts/performance/p2d_stream_credit.py",
-        "scripts/run_performance_validation.py",
-        "scripts/run_p2d_stream_credit.py",
-        "docs/protocol/stream-credit-extension.md",
-        "vectors/wp8-f75-route-open/route-open-body.cbor",
-        "vectors/wp8-local-admission/source.cose",
-        "vectors/wp8-local-admission/destination.cose",
-    }
-    return tuple(sorted(inputs))
+def _repository_root(root: Path) -> Path:
+    resolved = root.resolve()
+    observed = Path(git(resolved, "rev-parse", "--show-toplevel")).resolve()
+    if observed != resolved:
+        raise RuntimeError(f"source binding root is not the Git top level: {resolved}")
+    return resolved
 
 
-def source_binding() -> dict[str, Any]:
-    paths = source_input_paths()
-    files = {path: sha256(ROOT / path) for path in paths}
-    digest = hashlib.sha256()
-    for path, value in files.items():
-        digest.update(path.encode())
-        digest.update(b"\0")
-        digest.update(value.encode())
-        digest.update(b"\n")
-    status = git_bytes("status", "--porcelain=v1", "--", *paths)
-    worktree_diff = git_bytes("diff", "--binary", "HEAD", "--", *paths)
-    index_diff = git_bytes("diff", "--binary", "--cached", "HEAD", "--", *paths)
-    bound_input_identity = {
-        "bound_inputs_clean": not status,
-        "status_porcelain_bytes": len(status),
-        "status_porcelain_sha256": hashlib.sha256(status).hexdigest(),
-        "worktree_diff_bytes": len(worktree_diff),
-        "worktree_diff_sha256": hashlib.sha256(worktree_diff).hexdigest(),
-        "index_diff_bytes": len(index_diff),
-        "index_diff_sha256": hashlib.sha256(index_diff).hexdigest(),
-    }
+def _status(root: Path) -> bytes:
+    return git_bytes(root, "status", "--porcelain=v2", "--untracked-files=all")
+
+
+def source_binding(root: Path = ROOT) -> dict[str, Any]:
+    root = _repository_root(root)
+    commit = git(root, "rev-parse", "HEAD")
+    head_tree = git(root, "rev-parse", "HEAD^{tree}")
+    status = _status(root)
+    if status:
+        raise RuntimeError("source binding requires a clean repository before output creation:\n" + status.decode(errors="replace"))
+    index_tree = git(root, "write-tree")
+    if index_tree != head_tree:
+        raise RuntimeError("source binding index tree does not equal the HEAD tree")
+    if commit != git(root, "rev-parse", "HEAD") or head_tree != git(root, "rev-parse", "HEAD^{tree}"):
+        raise RuntimeError("source binding HEAD changed during pre-output capture")
+    if _status(root):
+        raise RuntimeError("source binding repository changed during pre-output capture")
+
+    tracked = tuple(path.decode() for path in git_bytes(root, "ls-tree", "-r", "--name-only", "-z", "HEAD").split(b"\0") if path)
+    missing = sorted(set(KEY_ENTRYPOINTS) - set(tracked))
+    if missing:
+        raise RuntimeError(f"source binding key entrypoints are not tracked: {missing}")
+    key_hashes = {path: sha256(root / path) for path in KEY_ENTRYPOINTS}
+    identity = hashlib.sha256(f"{commit}\0{head_tree}\n".encode()).hexdigest()
     return {
-        "commit": git("rev-parse", "HEAD"),
-        "dirty": not bound_input_identity["bound_inputs_clean"],
-        "repository_dirty": bool(
-            git("status", "--porcelain=v1", "--untracked-files=all")
-        ),
-        "measured_source_sha256": digest.hexdigest(),
-        "bound_input_identity": bound_input_identity,
-        "files": files,
+        "authoritative_identity": "git-commit-and-tree",
+        "git_object_format": git(root, "rev-parse", "--show-object-format"),
+        "commit": commit,
+        "head_tree": head_tree,
+        "index_tree": index_tree,
+        "tree_equal": index_tree == head_tree,
+        "tracked_file_count": len(tracked),
+        "pre_output_status": {
+            "format": "porcelain-v2",
+            "untracked_files": "all",
+            "bytes": 0,
+            "sha256": hashlib.sha256(b"").hexdigest(),
+            "empty": True,
+        },
+        "measured_source_sha256": identity,
+        "key_entrypoints": list(KEY_ENTRYPOINTS),
+        "key_entrypoint_sha256": key_hashes,
+        "files": key_hashes,
+        "dirty": False,
+        "repository_dirty": False,
+    }
+
+
+def audit_runtime_repository(binding: dict[str, Any], output_root: Path, root: Path = ROOT) -> dict[str, Any]:
+    root = _repository_root(root)
+    output = output_root.resolve()
+    try:
+        allowed = output.relative_to(root).as_posix()
+    except ValueError as error:
+        raise RuntimeError("runtime output root must remain inside the repository") from error
+    if not allowed or allowed == ".":
+        raise RuntimeError("runtime output root cannot be the repository root")
+
+    current_commit = git(root, "rev-parse", "HEAD")
+    current_head_tree = git(root, "rev-parse", "HEAD^{tree}")
+    current_index_tree = git(root, "write-tree")
+    if current_commit != binding["commit"] or current_head_tree != binding["head_tree"] or current_index_tree != binding["head_tree"]:
+        raise RuntimeError("repository commit or tracked tree changed during measurement")
+
+    status = _status(root)
+    entries = status.decode(errors="replace").splitlines()
+    allowed_prefix = f"{allowed}/"
+    disallowed = [
+        entry
+        for entry in entries
+        if not (entry.startswith("? ") and (entry[2:] == allowed or entry[2:].replace("\\", "/").startswith(allowed_prefix)))
+    ]
+    if disallowed:
+        raise RuntimeError("repository change occurred outside the exact output root:\n" + "\n".join(disallowed))
+    return {
+        "allowed_untracked_root": allowed,
+        "status_format": "porcelain-v2",
+        "untracked_files": "all",
+        "status_bytes": len(status),
+        "status_sha256": hashlib.sha256(status).hexdigest(),
+        "status_entries": len(entries),
+        "allowed_untracked_entries": len(entries),
+        "disallowed_changes": [],
+        "commit_equal": True,
+        "head_tree_equal": True,
+        "index_tree_equal": True,
     }
 
 
@@ -143,9 +199,7 @@ def build(target: Path) -> tuple[dict[str, Path], dict[str, Any]]:
         "wp8_interop_server",
     ]
     started = time.monotonic()
-    result = subprocess.run(
-        command, cwd=ROOT, env=env, capture_output=True, text=True, timeout=900
-    )
+    result = subprocess.run(command, cwd=ROOT, env=env, capture_output=True, text=True, timeout=900)
     if result.returncode:
         raise RuntimeError(result.stderr)
     suffix = ".exe" if os.name == "nt" else ""
@@ -180,12 +234,7 @@ def process_resources(samples: list[dict[str, Any]]) -> dict[str, Any]:
             all_measured = False
             roles[role] = {"status": "UNAVAILABLE", "sample_count": len(values)}
             continue
-        cpu_ns = (
-            values[-1]["user_cpu_ns"]
-            + values[-1]["kernel_cpu_ns"]
-            - values[0]["user_cpu_ns"]
-            - values[0]["kernel_cpu_ns"]
-        )
+        cpu_ns = values[-1]["user_cpu_ns"] + values[-1]["kernel_cpu_ns"] - values[0]["user_cpu_ns"] - values[0]["kernel_cpu_ns"]
         total_cpu_ns += cpu_ns
         roles[role] = {
             "status": "MEASURED",
@@ -284,8 +333,7 @@ def run_shard(
                 server.wait(timeout=5)
             destination_stderr = server.stderr.read() if server.stderr else ""
             raise RuntimeError(
-                f"P2D {mode} shard {ordinal} client failed: {error}\n"
-                f"destination exit={server.returncode}\n{destination_stderr}"
+                f"P2D {mode} shard {ordinal} client failed: {error}\ndestination exit={server.returncode}\n{destination_stderr}"
             ) from error
         ack.touch()
         server.wait(timeout=30)
@@ -334,10 +382,12 @@ def run_cell(
     environment: dict[str, Any],
     build_binding: dict[str, Any],
     source: dict[str, Any],
+    repository_audit: Callable[[], dict[str, Any]],
     duration_seconds: int | None = None,
     operations: int | None = None,
     smoke_exhaustion: bool = False,
 ) -> dict[str, Any]:
+    repository_audit()
     if (duration_seconds is None) == (operations is None):
         raise ValueError("choose exactly one of duration_seconds or operations")
     shards: list[dict[str, Any]] = []
@@ -348,11 +398,7 @@ def run_cell(
         if duration_seconds is not None
         else remaining_operations is not None and remaining_operations > 0
     ):
-        shard_operations = (
-            SHARD_OPERATIONS
-            if duration_seconds is not None
-            else min(SHARD_OPERATIONS, remaining_operations or 0)
-        )
+        shard_operations = SHARD_OPERATIONS if duration_seconds is not None else min(SHARD_OPERATIONS, remaining_operations or 0)
         shard = run_shard(
             mode=mode,
             operations=shard_operations,
@@ -367,18 +413,11 @@ def run_cell(
         measured_ns += int(shard["source"]["duration_ns"])
         if remaining_operations is not None:
             remaining_operations -= shard_operations
-    latencies = [
-        int(latency)
-        for shard in shards
-        for latency in shard["source"]["latencies_ns"]
-    ]
+    repository_audit()
+    latencies = [int(latency) for shard in shards for latency in shard["source"]["latencies_ns"]]
     completed = sum(int(shard["source"]["completed_operations"]) for shard in shards)
     measured_cpu = all(shard["resources"]["status"] == "MEASURED" for shard in shards)
-    total_cpu_ns = (
-        sum(int(shard["resources"]["process_cpu_ns"]) for shard in shards)
-        if measured_cpu
-        else None
-    )
+    total_cpu_ns = sum(int(shard["resources"]["process_cpu_ns"]) for shard in shards) if measured_cpu else None
     last = shards[-1]["source"]
     periods = []
     for shard in shards:
@@ -389,8 +428,7 @@ def run_cell(
                 "ordinal": shard["ordinal"],
                 "completed_operations": source_shard["completed_operations"],
                 "duration_ns": source_shard["duration_ns"],
-                "operations_per_second": source_shard["completed_operations"]
-                / (source_shard["duration_ns"] / 1e9),
+                "operations_per_second": source_shard["completed_operations"] / (source_shard["duration_ns"] / 1e9),
                 "p99_ns": nearest_rank_percentile(shard_latencies, 99),
                 "refill_count": source_shard["refill_count"],
                 "remaining_credits": source_shard["remaining_credits"],
@@ -405,11 +443,7 @@ def run_cell(
         "profile": "legacy-stream-open" if mode == "before" else "nbsr-stream-credit-1",
         "concurrency": concurrency,
         "payload_bytes": PAYLOAD_BYTES,
-        "payload_correct": all(
-            shard[side]["payload_correct"]
-            for shard in shards
-            for side in ("source", "destination")
-        ),
+        "payload_correct": all(shard[side]["payload_correct"] for shard in shards for side in ("source", "destination")),
         "completed_operations": completed,
         "duration_ns": measured_ns,
         "operations_per_second": completed / (measured_ns / 1e9),
@@ -422,46 +456,25 @@ def run_cell(
             "roles": {
                 role: {
                     "peak_working_set_bytes": max(
-                        shard["resources"]["roles"].get(role, {}).get(
-                            "peak_working_set_bytes", 0
-                        )
-                        for shard in shards
+                        shard["resources"]["roles"].get(role, {}).get("peak_working_set_bytes", 0) for shard in shards
                     ),
-                    "peak_private_bytes": max(
-                        shard["resources"]["roles"].get(role, {}).get(
-                            "peak_private_bytes", 0
-                        )
-                        for shard in shards
-                    ),
+                    "peak_private_bytes": max(shard["resources"]["roles"].get(role, {}).get("peak_private_bytes", 0) for shard in shards),
                 }
                 for role in ("source", "destination")
             },
         },
-        "errors": sum(
-            int(shard[side]["errors"])
-            for shard in shards
-            for side in ("source", "destination")
-        ),
+        "errors": sum(int(shard[side]["errors"]) for shard in shards for side in ("source", "destination")),
         "remaining_credits": last["remaining_credits"],
         "refill_count": sum(int(shard["source"]["refill_count"]) for shard in shards),
         "windows_crossed": sum(int(shard["source"]["windows_crossed"]) for shard in shards),
         "active_epochs": last["active_epochs"],
-        "active_epochs_high_water": max(
-            int(shard["source"]["active_epochs_high_water"]) for shard in shards
-        ),
+        "active_epochs_high_water": max(int(shard["source"]["active_epochs_high_water"]) for shard in shards),
         "replay_entries": max(int(shard["source"]["replay_entries"]) for shard in shards),
         "replay_limit": int(last["replay_limit"]),
         "minimum_remaining_credits": (
-            min(
-                int(shard["source"]["minimum_remaining_credits"])
-                for shard in shards
-            )
-            if mode == "after"
-            else None
+            min(int(shard["source"]["minimum_remaining_credits"]) for shard in shards) if mode == "after" else None
         ),
-        "buffer_exhaustions": sum(
-            int(shard["source"]["buffer_exhaustions"]) for shard in shards
-        ),
+        "buffer_exhaustions": sum(int(shard["source"]["buffer_exhaustions"]) for shard in shards),
         "build": build_binding,
         "environment": environment,
         "source": source,
@@ -546,17 +559,30 @@ def package_inputs(output: Path) -> None:
 
 
 def run_all(args: argparse.Namespace) -> dict[str, Any]:
-    output = args.output
+    output = args.output.resolve()
     if output.exists():
         raise FileExistsError(f"immutable evidence output already exists: {output}")
+    source = source_binding()
     output.mkdir(parents=True)
     package_inputs(output)
-    source = source_binding()
+    source["runtime_audits"] = {"post_output_creation": audit_runtime_repository(source, output)}
     environment = environment_binding()
     binaries, build_binding = build(args.target)
+    source["runtime_audits"]["post_build"] = audit_runtime_repository(source, output)
     write_json(output / "environment.json", environment)
     write_json(output / "build.json", build_binding)
     write_json(output / "source-binding.json", source)
+    write_json(
+        output / "runtime-repository-audit.json",
+        {
+            "schema": "nbsr-p2d-runtime-repository-audit-v1",
+            "status": "IN_PROGRESS",
+            "allowed_untracked_root": output.relative_to(ROOT).as_posix(),
+        },
+    )
+
+    def repository_audit() -> dict[str, Any]:
+        return audit_runtime_repository(source, output)
 
     with tempfile.TemporaryDirectory(prefix="nbsr-p2d-") as temporary_name:
         temporary = Path(temporary_name)
@@ -573,6 +599,7 @@ def run_all(args: argparse.Namespace) -> dict[str, Any]:
             environment=environment,
             build_binding=build_binding,
             source=source,
+            repository_audit=repository_audit,
         )
         smoke_after = run_cell(
             mode="after",
@@ -585,6 +612,7 @@ def run_all(args: argparse.Namespace) -> dict[str, Any]:
             environment=environment,
             build_binding=build_binding,
             source=source,
+            repository_audit=repository_audit,
         )
         write_json(output / "raw/smoke/before-c64.json", smoke_before)
         write_json(output / "raw/smoke/after-c64.json", smoke_after)
@@ -611,11 +639,10 @@ def run_all(args: argparse.Namespace) -> dict[str, Any]:
                     environment=environment,
                     build_binding=build_binding,
                     source=source,
+                    repository_audit=repository_audit,
                 )
                 target.append(value)
-                write_json(
-                    output / f"raw/sweep/{mode}-c{concurrency}.json", value
-                )
+                write_json(output / f"raw/sweep/{mode}-c{concurrency}.json", value)
         selected = select_saturation_concurrency(sweep_after)
 
         before_pairs: list[dict[str, Any]] = []
@@ -648,6 +675,7 @@ def run_all(args: argparse.Namespace) -> dict[str, Any]:
                 environment=environment,
                 build_binding=build_binding,
                 source=source,
+                repository_audit=repository_audit,
             )
             after_cell = run_cell(
                 mode="after",
@@ -659,6 +687,7 @@ def run_all(args: argparse.Namespace) -> dict[str, Any]:
                 environment=environment,
                 build_binding=build_binding,
                 source=source,
+                repository_audit=repository_audit,
             )
             before_pairs.append(before_cell)
             after_pairs.append(after_cell)
@@ -670,8 +699,7 @@ def run_all(args: argparse.Namespace) -> dict[str, Any]:
                 break
         paired = summarize_pairs(before_pairs, after_pairs)
         preliminary_performance = (
-            paired["after_median_operations_per_second"]
-            >= 1.20 * paired["before_median_operations_per_second"]
+            paired["after_median_operations_per_second"] >= 1.20 * paired["before_median_operations_per_second"]
             and paired["after_median_p99_ns"] <= 1.05 * paired["before_median_p99_ns"]
             and paired["errors"] == 0
         )
@@ -692,6 +720,7 @@ def run_all(args: argparse.Namespace) -> dict[str, Any]:
                 environment=environment,
                 build_binding=build_binding,
                 source=source,
+                repository_audit=repository_audit,
             )
             continuity_gate = validate_continuity(continuity_cell)
             write_json(output / "raw/continuity/after.json", continuity_cell)
@@ -706,6 +735,7 @@ def run_all(args: argparse.Namespace) -> dict[str, Any]:
                     environment=environment,
                     build_binding=build_binding,
                     source=source,
+                    repository_audit=repository_audit,
                 )
                 write_json(output / "raw/soak/after.json", soak_cell)
                 soak_gate = (
@@ -720,8 +750,7 @@ def run_all(args: argparse.Namespace) -> dict[str, Any]:
                 else:
                     resource_gate = (
                         "PASS"
-                        if soak_cell["cpu"]["status"] == "MEASURED"
-                        and soak_cell["active_epochs_high_water"] <= 2
+                        if soak_cell["cpu"]["status"] == "MEASURED" and soak_cell["active_epochs_high_water"] <= 2
                         else "INCONCLUSIVE"
                     )
 
@@ -760,11 +789,7 @@ def run_all(args: argparse.Namespace) -> dict[str, Any]:
         "stopping_rule": {
             "pairs_run": len(before_pairs),
             "stopped_after_three": len(before_pairs) == 3,
-            "three_pair_rule_satisfied": (
-                should_stop_after_three(before_pairs, after_pairs)
-                if len(before_pairs) == 3
-                else False
-            ),
+            "three_pair_rule_satisfied": (should_stop_after_three(before_pairs, after_pairs) if len(before_pairs) == 3 else False),
         },
         "mandatory_gates": acceptance["gates"],
         "blocking_gate": acceptance["blocking_gate"],
@@ -782,6 +807,18 @@ def run_all(args: argparse.Namespace) -> dict[str, Any]:
         },
     }
     write_json(output / "analysis.json", analysis)
+    final_repository_audit = audit_runtime_repository(source, output)
+    write_json(
+        output / "runtime-repository-audit.json",
+        {
+            "schema": "nbsr-p2d-runtime-repository-audit-v1",
+            "status": "PASS",
+            "pre_output_status": source["pre_output_status"],
+            "post_output_creation": source["runtime_audits"]["post_output_creation"],
+            "post_build": source["runtime_audits"]["post_build"],
+            "final": final_repository_audit,
+        },
+    )
     return analysis
 
 
@@ -797,9 +834,7 @@ def main() -> None:
     parser.add_argument("--sweep-operations", type=int, default=512)
     parser.add_argument("--pair-seconds", type=int, default=60)
     parser.add_argument("--soak-seconds", type=int, default=300)
-    parser.add_argument(
-        "--security-gate", choices=["PASS", "FAIL", "INCONCLUSIVE"], required=True
-    )
+    parser.add_argument("--security-gate", choices=["PASS", "FAIL", "INCONCLUSIVE"], required=True)
     args = parser.parse_args()
     if not 60 <= args.pair_seconds <= 120:
         parser.error("--pair-seconds must be 60 through 120")

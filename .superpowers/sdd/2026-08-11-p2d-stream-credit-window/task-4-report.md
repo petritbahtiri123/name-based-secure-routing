@@ -472,3 +472,77 @@ cargo test --manifest-path crates/nbsr-transport/Cargo.toml --all-targets --feat
 cargo test --manifest-path crates/nbsr-transport/Cargo.toml
 # 184 passed, 0 failed, 1 existing ignored; 40.995 s
 ```
+
+## Source-binding correction round 2
+
+Attempt 5 remains valid performance evidence but is superseded for final
+source-identity acceptance. Its selected-path binding omitted tracked
+transitive inputs such as `scripts/performance/resources.py`,
+`authorities.py`, and `driver.py`, and it captured repository-wide status only
+after creating the output directory. This new correction changes source
+identity only; prior security findings 1-5 remain closed.
+
+Literal RED command/result:
+
+```powershell
+python -m pytest tests/test_p2d_stream_credit.py -q -k "source_binding or runtime_audit"
+# 4 failed: missing head_tree, source_binding(root) unsupported for both a
+# tracked transitive edit and untracked import shadow, and no runtime audit API.
+```
+
+The minimal GREEN binding:
+
+- captures `HEAD` commit and `HEAD^{tree}` before creating the attempt output;
+- requires exact empty `git status --porcelain=v2 --untracked-files=all`, a
+  clean index, clean tracked worktree, and `git write-tree == HEAD^{tree}`;
+- makes the commit plus complete Git tree object authoritative for every
+  tracked/transitive input, while retaining explicit SHA-256 for key benchmark
+  entrypoints and release binaries;
+- after output creation, permits untracked paths only beneath that exact output
+  root and rejects any tracked/index/HEAD change or other untracked path; and
+- audits at every live cell boundary and records post-output, post-build, and
+  final runtime repository identities.
+
+Focused GREEN:
+
+```powershell
+python -m pytest tests/test_p2d_stream_credit.py -q -k "source_binding or runtime_audit"
+# 4 passed, 11 deselected
+
+python -m pytest tests/test_p2d_stream_credit.py -q
+# 15 passed
+```
+
+Attempt 6 is run only after this source/report/test tree is committed, the full
+Rust/Python/fmt/Clippy matrix passes, and the authoritative pre-output status
+is empty. If this same source-binding failure mode recurs, one correction
+remains.
+
+Pre-freeze verification:
+
+```powershell
+python -m ruff check scripts/run_p2d_stream_credit.py tests/test_p2d_stream_credit.py
+python -m ruff format --check scripts/run_p2d_stream_credit.py tests/test_p2d_stream_credit.py
+# PASS
+
+python -m pytest -q
+# Existing branch-wide result: 1,790 passed, 1 skipped, 37 failed in 323.33 s.
+# Every failure is outside this three-file correction and arises from existing
+# locked Core/F75/federation/dependency/vector authority drift; first failure:
+# modified original core-v0.2 baseline-lock digest. The scoped P2D suite is
+# independently GREEN at 15 passed. This repository-wide failure set is not
+# used to weaken or relabel any P2D mandatory gate.
+
+cargo fmt --manifest-path crates/nbsr-transport/Cargo.toml -- --check
+git diff --check
+# PASS
+
+cargo test --manifest-path crates/nbsr-transport/Cargo.toml --all-targets --features benchmark-harness
+# 176 passed, 0 failed, 1 existing ignored; 42.605 s
+
+cargo test --manifest-path crates/nbsr-transport/Cargo.toml
+# 184 passed, 0 failed, 1 existing ignored; 43.421 s
+
+cargo clippy --manifest-path crates/nbsr-transport/Cargo.toml --all-targets --features benchmark-harness -- -D warnings
+# PASS; 0.441 s
+```

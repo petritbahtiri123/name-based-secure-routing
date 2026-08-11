@@ -7,6 +7,7 @@ import subprocess
 
 import pytest
 
+import scripts.run_p2d_stream_credit as p2d_runner
 from scripts.performance.p2d_stream_credit import (
     CONCURRENCIES,
     OUTCOME_ACCEPTED,
@@ -235,42 +236,118 @@ def test_every_nested_endpoint_must_use_the_exact_p1f_replay_limit() -> None:
         validate_live_cell(measured)
 
 
-def test_source_binding_covers_all_compiled_and_imported_inputs_with_diff_identity() -> None:
-    root = Path(__file__).resolve().parents[1]
-    binding = source_binding()
-    bound = set(binding["files"])
-    compiled = {
-        path.relative_to(root).as_posix()
-        for path in (root / "crates/nbsr-transport/src").rglob("*.rs")
-    }
-    assert compiled <= bound
-    assert {
-        "crates/nbsr-transport/Cargo.toml",
-        "crates/nbsr-transport/Cargo.lock",
-        "scripts/performance/authority.py",
-        "scripts/performance/p2d_stream_credit.py",
-        "scripts/run_performance_validation.py",
-        "scripts/run_p2d_stream_credit.py",
-        "docs/protocol/stream-credit-extension.md",
-    } <= bound
-    assert binding["commit"] == subprocess.run(
+def test_source_binding_uses_the_clean_head_tree_as_the_whole_repository_authority(
+    tmp_path: Path,
+) -> None:
+    root = _committed_transitive_import_repo(tmp_path)
+    binding = source_binding(root)
+    expected_commit = subprocess.run(
         ["git", "rev-parse", "HEAD"],
         cwd=root,
         check=True,
         capture_output=True,
         text=True,
     ).stdout.strip()
-    assert binding["bound_input_identity"]["status_porcelain_sha256"]
-    assert binding["bound_input_identity"]["worktree_diff_sha256"]
-    assert binding["bound_input_identity"]["index_diff_sha256"]
-    bound_status = subprocess.run(
-        ["git", "status", "--porcelain=v1", "--", *sorted(bound)],
+    expected_tree = subprocess.run(
+        ["git", "rev-parse", "HEAD^{tree}"],
         cwd=root,
         check=True,
         capture_output=True,
         text=True,
-    ).stdout
-    assert binding["bound_input_identity"]["bound_inputs_clean"] is (not bound_status)
+    ).stdout.strip()
+    assert binding["commit"] == expected_commit
+    assert binding["head_tree"] == expected_tree
+    assert binding["index_tree"] == expected_tree
+    assert binding["authoritative_identity"] == "git-commit-and-tree"
+    assert binding["pre_output_status"] == {
+        "format": "porcelain-v2",
+        "untracked_files": "all",
+        "bytes": 0,
+        "sha256": hashlib.sha256(b"").hexdigest(),
+        "empty": True,
+    }
+    assert binding["tree_equal"] is True
+    assert {
+        "scripts/performance/p2d_stream_credit.py",
+        "scripts/performance/resources.py",
+        "scripts/performance/authorities.py",
+        "scripts/performance/driver.py",
+        "scripts/run_p2d_stream_credit.py",
+        "scripts/run_performance_validation.py",
+    } <= set(binding["key_entrypoints"])
+
+
+def _git(root: Path, *args: str) -> str:
+    return subprocess.run(
+        ["git", *args],
+        cwd=root,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+
+
+def _committed_transitive_import_repo(tmp_path: Path) -> Path:
+    root = tmp_path / "repo"
+    contents = {
+        "crates/nbsr-transport/Cargo.toml": "[package]\nname='binding-fixture'\nversion='0.0.0'\n",
+        "crates/nbsr-transport/Cargo.lock": "version = 4\n",
+        "crates/nbsr-transport/src/bin/perf_rust_source.rs": "fn main() {}\n",
+        "crates/nbsr-transport/src/bin/wp8_interop_server.rs": "fn main() {}\n",
+        "docs/protocol/stream-credit-extension.md": "# fixture\n",
+        "pyproject.toml": "[project]\nname='binding-fixture'\nversion='0.0.0'\n",
+        "scripts/performance/authority.py": "AUTHORITY = True\n",
+        "scripts/performance/authorities.py": "AUTHORITIES = True\n",
+        "scripts/performance/driver.py": "import authorities\n",
+        "scripts/performance/p2d_stream_credit.py": "LIMIT = 10000\n",
+        "scripts/performance/resources.py": "LIMIT = 10000\n",
+        "scripts/run_p2d_stream_credit.py": "from scripts.performance import resources\n",
+        "scripts/run_performance_validation.py": "READY = True\n",
+    }
+    for relative, value in contents.items():
+        path = root / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(value, encoding="utf-8")
+    _git(root, "init", "--initial-branch=source-binding-test")
+    _git(root, "config", "user.email", "source-binding@example.invalid")
+    _git(root, "config", "user.name", "Source Binding Test")
+    _git(root, "add", ".")
+    _git(root, "commit", "-m", "fixture")
+    return root
+
+
+def test_source_binding_rejects_a_tracked_transitive_import_edit(tmp_path: Path) -> None:
+    root = _committed_transitive_import_repo(tmp_path)
+    source_binding(root)
+    (root / "scripts/performance/resources.py").write_text("LIMIT = 4294967295\n", encoding="utf-8")
+
+    with pytest.raises(RuntimeError, match="clean repository"):
+        source_binding(root)
+
+
+def test_source_binding_rejects_an_untracked_import_shadow(tmp_path: Path) -> None:
+    root = _committed_transitive_import_repo(tmp_path)
+    source_binding(root)
+    (root / "authorities.py").write_text("ALLOW = True\n", encoding="utf-8")
+
+    with pytest.raises(RuntimeError, match="clean repository"):
+        source_binding(root)
+
+
+def test_runtime_audit_allows_only_the_exact_attempt_output_root(tmp_path: Path) -> None:
+    root = _committed_transitive_import_repo(tmp_path)
+    binding = source_binding(root)
+    output = root / "evidence" / "attempt-6"
+    output.mkdir(parents=True)
+    (output / "cell.json").write_text("{}\n", encoding="utf-8")
+
+    audit = p2d_runner.audit_runtime_repository(binding, output, root)
+    assert audit["allowed_untracked_root"] == "evidence/attempt-6"
+    assert audit["disallowed_changes"] == []
+
+    (root / "authorities.py").write_text("ALLOW = True\n", encoding="utf-8")
+    with pytest.raises(RuntimeError, match="outside the exact output root"):
+        p2d_runner.audit_runtime_repository(binding, output, root)
 
 
 def test_saturation_selects_smallest_concurrency_within_two_percent_of_maximum() -> None:
