@@ -546,3 +546,73 @@ cargo test --manifest-path crates/nbsr-transport/Cargo.toml
 cargo clippy --manifest-path crates/nbsr-transport/Cargo.toml --all-targets --features benchmark-harness -- -D warnings
 # PASS; 0.441 s
 ```
+
+## Final source-binding correction
+
+Attempt 6 completed smoke, the complete concurrency sweep, three matched
+60-second pairs, continuity, and the 300-second soak, but exited 1 after 881
+seconds while finalizing its runtime repository audit. The runner had already
+exclusive-created `runtime-repository-audit.json` as `IN_PROGRESS` and then
+incorrectly called the same exclusive-create writer for the final `PASS`
+document. That raised `FileExistsError`. Attempt 6 is preserved additively but
+is non-authoritative; its `analysis.json` Outcome A is not accepted.
+
+Literal finalizer RED:
+
+```powershell
+python -m pytest tests/test_p2d_stream_credit.py -q -k "runtime_audit_finalizer"
+# 6 failed: the finalizer API did not exist.
+```
+
+The tests require the finalizer to replace only the exact canonical known
+`IN_PROGRESS` audit file at the fixed filename inside the exact attempt root.
+They reject a missing target, wrong state, already-finalized target, actual
+file symlink, and escaped attempt root. The success test observes that the old
+audit file remains intact until a fully flushed and fsync'd same-directory
+temporary file reaches `os.replace`, and proves another raw evidence file is
+byte-identical afterward.
+
+Minimal finalizer GREEN:
+
+```powershell
+python -m pytest tests/test_p2d_stream_credit.py -q -k "runtime_audit_finalizer"
+# 6 passed, 15 deselected
+
+python -m pytest tests/test_p2d_stream_credit.py -q
+# 21 passed
+```
+
+Attempt 6's 108,710,706-byte soak JSON was losslessly compressed to a
+15,439,839-byte deterministic gzip (level 9, mtime 0, empty filename header).
+Decompression reproduced SHA-256
+`6b0aca8a55257531f72f8882e30dc97219fc07bf7ba9b9a00f9e7145b4be263f`;
+exact recompression reproduced stored gzip SHA-256
+`47d17db0d22db076c9295347e8fa1b6aee48247129539062e423c98ece4803c0`.
+
+Final correction pre-freeze verification:
+
+```powershell
+python -m pytest tests/test_p2d_stream_credit.py -q
+# 21 passed in 4.12 s
+
+python -m ruff check scripts/run_p2d_stream_credit.py tests/test_p2d_stream_credit.py
+python -m ruff format --check scripts/run_p2d_stream_credit.py tests/test_p2d_stream_credit.py
+cargo fmt --manifest-path crates/nbsr-transport/Cargo.toml -- --check
+git diff --check
+# PASS
+
+cargo test --manifest-path crates/nbsr-transport/Cargo.toml --all-targets --features benchmark-harness --quiet
+# 176 passed, 0 failed, 1 existing ignored
+
+cargo test --manifest-path crates/nbsr-transport/Cargo.toml --quiet
+# 184 passed, 0 failed, 1 existing ignored
+
+cargo clippy --manifest-path crates/nbsr-transport/Cargo.toml --all-targets --features benchmark-harness -- -D warnings
+# PASS
+
+python -m pytest -q
+# 1,796 passed, 1 skipped, 37 failed in 310.53 s. The same pre-existing
+# branch-wide Core/F75/federation/dependency/vector authority failures remain;
+# the six added passing finalizer tests account for the increase from the
+# preceding 1,790-pass run. No P2D mandatory gate is weakened or relabeled.
+```

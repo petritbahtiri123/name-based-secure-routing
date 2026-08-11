@@ -1,0 +1,12 @@
+Command:
+CARGO_TARGET_DIR=C:\codex-target\nbsr-p2d python scripts/run_p2d_stream_credit.py --suite all --output evidence/performance/stream-credit-window-p2d/attempt-6-final-clean-tree --security-gate PASS --pair-seconds 60 --soak-seconds 300
+
+Exit code: 1
+Elapsed wall time: 881 seconds
+
+Terminal exception:
+FileExistsError: [Errno 17] File exists: 'evidence/performance/stream-credit-window-p2d/attempt-6-final-clean-tree/runtime-repository-audit.json'
+
+Failure site:
+scripts/run_p2d_stream_credit.py run_all final runtime-repository-audit.json write
+scripts/run_p2d_stream_credit.py write_json path.open("x")

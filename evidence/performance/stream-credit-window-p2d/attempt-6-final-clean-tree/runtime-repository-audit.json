@@ -1,0 +1,5 @@
+{
+  "schema": "nbsr-p2d-runtime-repository-audit-v1",
+  "status": "IN_PROGRESS",
+  "allowed_untracked_root": "evidence/performance/stream-credit-window-p2d/attempt-6-final-clean-tree"
+}

@@ -350,6 +350,117 @@ def test_runtime_audit_allows_only_the_exact_attempt_output_root(tmp_path: Path)
         p2d_runner.audit_runtime_repository(binding, output, root)
 
 
+def _runtime_audit_documents(root: Path, output: Path) -> tuple[dict, dict]:
+    allowed = output.relative_to(root).as_posix()
+    initial = {
+        "schema": "nbsr-p2d-runtime-repository-audit-v1",
+        "status": "IN_PROGRESS",
+        "allowed_untracked_root": allowed,
+    }
+    final = {
+        "schema": "nbsr-p2d-runtime-repository-audit-v1",
+        "status": "PASS",
+        "allowed_untracked_root": allowed,
+        "final": {"commit_equal": True, "head_tree_equal": True, "index_tree_equal": True},
+    }
+    return initial, final
+
+
+def _write_runtime_audit_fixture(path: Path, value: dict) -> None:
+    with path.open("w", encoding="utf-8", newline="\n") as handle:
+        json.dump(value, handle, indent=2)
+        handle.write("\n")
+
+
+def test_runtime_audit_finalizer_atomically_replaces_only_known_in_progress_file(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    root = tmp_path / "repo"
+    output = root / "evidence" / "attempt-7"
+    output.mkdir(parents=True)
+    target = output / "runtime-repository-audit.json"
+    other = output / "raw-cell.json"
+    initial, final = _runtime_audit_documents(root, output)
+    _write_runtime_audit_fixture(target, initial)
+    other.write_bytes(b"immutable evidence\n")
+    initial_bytes = target.read_bytes()
+    other_bytes = other.read_bytes()
+    real_replace = p2d_runner.os.replace
+    observed_atomic_replace = False
+
+    def observe_replace(source: str | Path, destination: str | Path) -> None:
+        nonlocal observed_atomic_replace
+        assert Path(destination) == target
+        assert target.read_bytes() == initial_bytes
+        assert Path(source).parent == target.parent
+        assert Path(source).read_bytes() != initial_bytes
+        observed_atomic_replace = True
+        real_replace(source, destination)
+
+    monkeypatch.setattr(p2d_runner.os, "replace", observe_replace)
+    p2d_runner.finalize_runtime_repository_audit(output, final, root)
+
+    assert observed_atomic_replace is True
+    assert json.loads(target.read_text(encoding="utf-8")) == final
+    assert other.read_bytes() == other_bytes
+    assert list(output.glob("*.tmp")) == []
+
+
+@pytest.mark.parametrize("state", [None, "WRONG_STATE", "PASS"])
+def test_runtime_audit_finalizer_rejects_missing_wrong_or_already_finalized_target(tmp_path: Path, state: str | None) -> None:
+    root = tmp_path / "repo"
+    output = root / "evidence" / "attempt-7"
+    output.mkdir(parents=True)
+    target = output / "runtime-repository-audit.json"
+    initial, final = _runtime_audit_documents(root, output)
+    if state is not None:
+        initial["status"] = state
+        _write_runtime_audit_fixture(target, initial)
+        original = target.read_bytes()
+
+    with pytest.raises(RuntimeError, match="known IN_PROGRESS"):
+        p2d_runner.finalize_runtime_repository_audit(output, final, root)
+
+    if state is not None:
+        assert target.read_bytes() == original
+
+
+def test_runtime_audit_finalizer_rejects_a_symlink_target(tmp_path: Path) -> None:
+    root = tmp_path / "repo"
+    output = root / "evidence" / "attempt-7"
+    output.mkdir(parents=True)
+    target = output / "runtime-repository-audit.json"
+    shadow = output / "shadow.json"
+    initial, final = _runtime_audit_documents(root, output)
+    _write_runtime_audit_fixture(shadow, initial)
+    try:
+        target.symlink_to(shadow)
+    except OSError as error:
+        pytest.skip(f"file symlinks are unavailable on this host: {error}")
+
+    with pytest.raises(RuntimeError, match="symlink"):
+        p2d_runner.finalize_runtime_repository_audit(output, final, root)
+    assert json.loads(shadow.read_text(encoding="utf-8")) == initial
+
+
+def test_runtime_audit_finalizer_rejects_an_attempt_root_path_escape(tmp_path: Path) -> None:
+    root = tmp_path / "repo"
+    root.mkdir()
+    escaped = tmp_path / "escaped-attempt"
+    escaped.mkdir()
+    target = escaped / "runtime-repository-audit.json"
+    initial = {
+        "schema": "nbsr-p2d-runtime-repository-audit-v1",
+        "status": "IN_PROGRESS",
+        "allowed_untracked_root": "../escaped-attempt",
+    }
+    final = {**initial, "status": "PASS"}
+    _write_runtime_audit_fixture(target, initial)
+    original = target.read_bytes()
+
+    with pytest.raises(RuntimeError, match="inside the repository"):
+        p2d_runner.finalize_runtime_repository_audit(escaped, final, root)
+    assert target.read_bytes() == original
+
+
 def test_saturation_selects_smallest_concurrency_within_two_percent_of_maximum() -> None:
     sweep = [
         cell("after", throughput, 100, concurrency=concurrency)

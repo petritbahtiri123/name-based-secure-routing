@@ -519,6 +519,68 @@ def write_json(path: Path, value: Any) -> None:
         handle.write("\n")
 
 
+def _runtime_repository_audit_in_progress(output_root: Path, root: Path) -> dict[str, Any]:
+    root = root.resolve()
+    if output_root.is_symlink():
+        raise RuntimeError("runtime attempt output root cannot be a symlink")
+    output = output_root.resolve()
+    try:
+        allowed = output.relative_to(root).as_posix()
+    except ValueError as error:
+        raise RuntimeError("runtime attempt output root must remain inside the repository") from error
+    if not allowed or allowed == ".":
+        raise RuntimeError("runtime attempt output root cannot be the repository root")
+    return {
+        "schema": "nbsr-p2d-runtime-repository-audit-v1",
+        "status": "IN_PROGRESS",
+        "allowed_untracked_root": allowed,
+    }
+
+
+def _canonical_json_bytes(value: Any) -> bytes:
+    return (json.dumps(value, indent=2) + "\n").encode()
+
+
+def finalize_runtime_repository_audit(
+    output_root: Path,
+    final_value: dict[str, Any],
+    root: Path = ROOT,
+) -> None:
+    expected = _runtime_repository_audit_in_progress(output_root, root)
+    output = output_root.resolve()
+    target = output / "runtime-repository-audit.json"
+    temporary = output / "runtime-repository-audit.json.tmp"
+    if target.is_symlink():
+        raise RuntimeError("runtime repository audit target cannot be a symlink")
+    if not target.exists() or not target.is_file():
+        raise RuntimeError("runtime repository audit finalizer requires the known IN_PROGRESS file")
+    initial_bytes = target.read_bytes()
+    if initial_bytes != _canonical_json_bytes(expected):
+        raise RuntimeError("runtime repository audit finalizer requires the known IN_PROGRESS file")
+    expected_final_fields = {
+        "schema": expected["schema"],
+        "status": "PASS",
+        "allowed_untracked_root": expected["allowed_untracked_root"],
+    }
+    if any(final_value.get(key) != value for key, value in expected_final_fields.items()):
+        raise RuntimeError("runtime repository audit final value does not match the exact attempt root")
+    if temporary.exists() or temporary.is_symlink():
+        raise RuntimeError("runtime repository audit temporary path already exists")
+
+    try:
+        with temporary.open("x", encoding="utf-8", newline="\n") as handle:
+            json.dump(final_value, handle, indent=2)
+            handle.write("\n")
+            handle.flush()
+            os.fsync(handle.fileno())
+        if target.is_symlink() or target.read_bytes() != initial_bytes:
+            raise RuntimeError("runtime repository audit target changed during finalization")
+        os.replace(temporary, target)
+    finally:
+        if temporary.exists() or temporary.is_symlink():
+            temporary.unlink()
+
+
 def cell_summary(cell: dict[str, Any]) -> dict[str, Any]:
     excluded = {"shards", "periods", "build", "environment", "source"}
     return {key: value for key, value in cell.items() if key not in excluded}
@@ -574,11 +636,7 @@ def run_all(args: argparse.Namespace) -> dict[str, Any]:
     write_json(output / "source-binding.json", source)
     write_json(
         output / "runtime-repository-audit.json",
-        {
-            "schema": "nbsr-p2d-runtime-repository-audit-v1",
-            "status": "IN_PROGRESS",
-            "allowed_untracked_root": output.relative_to(ROOT).as_posix(),
-        },
+        _runtime_repository_audit_in_progress(output, ROOT),
     )
 
     def repository_audit() -> dict[str, Any]:
@@ -808,16 +866,18 @@ def run_all(args: argparse.Namespace) -> dict[str, Any]:
     }
     write_json(output / "analysis.json", analysis)
     final_repository_audit = audit_runtime_repository(source, output)
-    write_json(
-        output / "runtime-repository-audit.json",
+    finalize_runtime_repository_audit(
+        output,
         {
             "schema": "nbsr-p2d-runtime-repository-audit-v1",
             "status": "PASS",
+            "allowed_untracked_root": output.relative_to(ROOT).as_posix(),
             "pre_output_status": source["pre_output_status"],
             "post_output_creation": source["runtime_audits"]["post_output_creation"],
             "post_build": source["runtime_audits"]["post_build"],
             "final": final_repository_audit,
         },
+        ROOT,
     )
     return analysis
 

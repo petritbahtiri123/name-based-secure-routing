@@ -91,6 +91,20 @@
       "decompression_verified": true,
       "deterministic_recompression_verified": true,
       "recompressed_sha256": "721dd7ccac9bad09abdf5054e9b44dd9f7c50f75e91109c87833abfa9326a8a1"
+    },
+    {
+      "source_path": "attempt-6-final-clean-tree/raw/soak/after.json",
+      "compressed_path": "attempt-6-final-clean-tree/raw/soak/after.json.gz",
+      "json_schema": "nbsr-p2d-live-cell-v1",
+      "source_binding": "attempt-6-final-clean-tree/source-binding.json",
+      "measured_source_sha256": "032b130945b5082850e2c69ccf0049902118b9f23c6a7cb878ca3ca0c34d067c",
+      "source_bytes": 108710706,
+      "source_sha256": "6b0aca8a55257531f72f8882e30dc97219fc07bf7ba9b9a00f9e7145b4be263f",
+      "compressed_bytes": 15439839,
+      "compressed_sha256": "47d17db0d22db076c9295347e8fa1b6aee48247129539062e423c98ece4803c0",
+      "decompression_verified": true,
+      "deterministic_recompression_verified": true,
+      "recompressed_sha256": "47d17db0d22db076c9295347e8fa1b6aee48247129539062e423c98ece4803c0"
     }
   ]
 }
