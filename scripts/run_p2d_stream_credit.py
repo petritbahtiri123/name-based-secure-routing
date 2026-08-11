@@ -28,6 +28,7 @@ from scripts.performance.p2d_stream_credit import (
     validate_continuity,
     validate_live_cell,
     validate_matched_pair,
+    validate_replay_limits,
 )
 from scripts.run_performance_validation import measured_client, wait_ready
 
@@ -50,17 +51,38 @@ def git(*args: str) -> str:
     return result.stdout.strip()
 
 
-def source_binding() -> dict[str, Any]:
-    paths = (
-        "crates/nbsr-transport/src/stream_credit.rs",
-        "crates/nbsr-transport/src/session.rs",
-        "crates/nbsr-transport/src/quinn_adapter.rs",
-        "crates/nbsr-transport/src/bin/perf_rust_source.rs",
-        "crates/nbsr-transport/src/bin/wp8_interop_server.rs",
+def git_bytes(*args: str) -> bytes:
+    result = subprocess.run(
+        ["git", *args], cwd=ROOT, capture_output=True, timeout=30
+    )
+    if result.returncode:
+        raise RuntimeError(result.stderr.decode(errors="replace"))
+    return result.stdout
+
+
+def source_input_paths() -> tuple[str, ...]:
+    compiled = {
+        path.relative_to(ROOT).as_posix()
+        for path in (TRANSPORT / "src").rglob("*.rs")
+    }
+    inputs = compiled | {
+        "crates/nbsr-transport/Cargo.toml",
+        "crates/nbsr-transport/Cargo.lock",
+        "pyproject.toml",
+        "scripts/performance/authority.py",
         "scripts/performance/p2d_stream_credit.py",
+        "scripts/run_performance_validation.py",
         "scripts/run_p2d_stream_credit.py",
         "docs/protocol/stream-credit-extension.md",
-    )
+        "vectors/wp8-f75-route-open/route-open-body.cbor",
+        "vectors/wp8-local-admission/source.cose",
+        "vectors/wp8-local-admission/destination.cose",
+    }
+    return tuple(sorted(inputs))
+
+
+def source_binding() -> dict[str, Any]:
+    paths = source_input_paths()
     files = {path: sha256(ROOT / path) for path in paths}
     digest = hashlib.sha256()
     for path, value in files.items():
@@ -68,10 +90,26 @@ def source_binding() -> dict[str, Any]:
         digest.update(b"\0")
         digest.update(value.encode())
         digest.update(b"\n")
+    status = git_bytes("status", "--porcelain=v1", "--", *paths)
+    worktree_diff = git_bytes("diff", "--binary", "HEAD", "--", *paths)
+    index_diff = git_bytes("diff", "--binary", "--cached", "HEAD", "--", *paths)
+    bound_input_identity = {
+        "bound_inputs_clean": not status,
+        "status_porcelain_bytes": len(status),
+        "status_porcelain_sha256": hashlib.sha256(status).hexdigest(),
+        "worktree_diff_bytes": len(worktree_diff),
+        "worktree_diff_sha256": hashlib.sha256(worktree_diff).hexdigest(),
+        "index_diff_bytes": len(index_diff),
+        "index_diff_sha256": hashlib.sha256(index_diff).hexdigest(),
+    }
     return {
         "commit": git("rev-parse", "HEAD"),
-        "dirty": bool(git("status", "--porcelain=v1", "--untracked-files=all")),
+        "dirty": not bound_input_identity["bound_inputs_clean"],
+        "repository_dirty": bool(
+            git("status", "--porcelain=v1", "--untracked-files=all")
+        ),
         "measured_source_sha256": digest.hexdigest(),
+        "bound_input_identity": bound_input_identity,
         "files": files,
     }
 
@@ -677,14 +715,15 @@ def run_all(args: argparse.Namespace) -> dict[str, Any]:
                     and soak_cell["payload_correct"]
                     else "FAIL"
                 )
-                resource_gate = (
-                    "PASS"
-                    if soak_cell["cpu"]["status"] == "MEASURED"
-                    and soak_cell["active_epochs_high_water"] <= 2
-                    and soak_cell["replay_entries"] <= soak_cell["replay_limit"]
-                    and soak_cell["replay_limit"] == 10_000
-                    else "INCONCLUSIVE"
-                )
+                if validate_replay_limits(soak_cell) == "FAIL":
+                    resource_gate = "FAIL"
+                else:
+                    resource_gate = (
+                        "PASS"
+                        if soak_cell["cpu"]["status"] == "MEASURED"
+                        and soak_cell["active_epochs_high_water"] <= 2
+                        else "INCONCLUSIVE"
+                    )
 
     acceptance = evaluate_acceptance(
         paired,

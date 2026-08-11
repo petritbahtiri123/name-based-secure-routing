@@ -49,14 +49,14 @@ struct ChannelStreamState {
 
 struct StreamEntry {
     buffered: usize,
-    credited: bool,
+    credit_epoch: Option<u64>,
     gate: StreamGate,
 }
 
 pub(crate) struct PreparedStreamOpen {
     channel_id: [u8; 16],
     stream_id: u64,
-    credited: bool,
+    credit_epoch: Option<u64>,
     gate: StreamGate,
 }
 
@@ -91,6 +91,24 @@ impl ChannelStreams {
         self.replay_history_limit.get()
     }
 
+    pub(crate) fn preflight_credited_refill(
+        &self,
+        channel_id: &[u8; 16],
+    ) -> Result<(), CreditedStreamReject> {
+        if self
+            .channels
+            .get(channel_id)
+            .map_or(0, |state| state.streams.len())
+            >= MAX_STREAMS_PER_CHANNEL
+        {
+            return Err(CreditedStreamReject::OverCapacity);
+        }
+        if self.used_stream_ids.len() >= self.replay_history_limit.get() {
+            return Err(CreditedStreamReject::ReplayCapacity);
+        }
+        Ok(())
+    }
+
     pub(crate) fn prepare_open(
         &self,
         channel: &ActiveChannel,
@@ -118,7 +136,7 @@ impl ChannelStreams {
         Ok(PreparedStreamOpen {
             channel_id: channel.channel_id,
             stream_id: request.quic_stream_id,
-            credited: false,
+            credit_epoch: None,
             gate,
         })
     }
@@ -148,7 +166,7 @@ impl ChannelStreams {
         Ok(PreparedStreamOpen {
             channel_id: channel.channel_id,
             stream_id,
-            credited: true,
+            credit_epoch: None,
             gate: StreamGate::new(channel.clone()),
         })
     }
@@ -166,13 +184,22 @@ impl ChannelStreams {
                 prepared.stream_id,
                 StreamEntry {
                     buffered: 0,
-                    credited: prepared.credited,
+                    credit_epoch: prepared.credit_epoch,
                     gate: prepared.gate,
                 },
             );
         crate::diagnostics::global()
             .created(crate::diagnostics::DiagnosticOwner::ApplicationStream);
         self.observe_diagnostics();
+    }
+
+    pub(crate) fn commit_credited_open(
+        &mut self,
+        mut prepared: PreparedStreamOpen,
+        credit_epoch: u64,
+    ) {
+        prepared.credit_epoch = Some(credit_epoch);
+        self.commit_open(prepared);
     }
 
     pub(crate) fn prepare_accept(
@@ -222,7 +249,7 @@ impl ChannelStreams {
         stream_id: u64,
     ) -> Result<(), StreamReject> {
         let entry = self.entry(channel_id, stream_id)?;
-        if entry.credited || entry.gate.is_accepted() || entry.gate.is_opened() {
+        if entry.credit_epoch.is_some() || entry.gate.is_accepted() || entry.gate.is_opened() {
             Ok(())
         } else {
             Err(StreamReject::ControlRejected)
@@ -267,7 +294,7 @@ impl ChannelStreams {
             .streams
             .get_mut(&stream_id)
             .ok_or(StreamReject::ControlRejected)?;
-        if !entry.credited && !entry.gate.is_opened() {
+        if entry.credit_epoch.is_none() && !entry.gate.is_opened() {
             return Err(StreamReject::ControlRejected);
         }
         let stream_buffered = entry
@@ -318,7 +345,7 @@ impl ChannelStreams {
         &mut self,
         channel_id: &[u8; 16],
         stream_id: u64,
-    ) -> Result<(), StreamReject> {
+    ) -> Result<Option<u64>, StreamReject> {
         let channel = self
             .channels
             .get_mut(channel_id)
@@ -334,7 +361,7 @@ impl ChannelStreams {
         crate::diagnostics::global()
             .completed(crate::diagnostics::DiagnosticOwner::ApplicationStream);
         self.observe_diagnostics();
-        Ok(())
+        Ok(entry.credit_epoch)
     }
 
     fn observe_diagnostics(&self) {
@@ -540,7 +567,7 @@ mod tests {
             .expect("credited stream prepares");
         assert_eq!(streams.used_stream_ids.len(), 0);
         assert!(streams.channels.is_empty());
-        streams.commit_open(prepared);
+        streams.commit_credited_open(prepared, 1);
         assert_eq!(streams.used_stream_ids.len(), 1);
         streams
             .validate_application_stream(&active.channel_id, 4)
@@ -563,14 +590,14 @@ mod tests {
         let mut streams = ChannelStreams::new(ReplayHistoryLimit::MAX);
         for stream_id in (4..=256).step_by(4) {
             let prepared = streams.prepare_credited(&first, stream_id).unwrap();
-            streams.commit_open(prepared);
+            streams.commit_credited_open(prepared, 1);
         }
         assert_eq!(
             streams.prepare_credited(&first, 260).err(),
             Some(CreditedStreamReject::OverCapacity)
         );
         let sibling_prepared = streams.prepare_credited(&sibling, 264).unwrap();
-        streams.commit_open(sibling_prepared);
+        streams.commit_credited_open(sibling_prepared, 1);
         streams.revoke_channel(&first.channel_id);
         streams
             .validate_application_stream(&sibling.channel_id, 264)

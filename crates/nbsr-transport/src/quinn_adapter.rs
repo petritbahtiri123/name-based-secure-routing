@@ -925,6 +925,7 @@ pub struct AuthenticatedConnection {
     local_role: EdgeRole,
     negotiated_alpn: Vec<u8>,
     close_timeout: std::time::Duration,
+    control_stream_claimed: AtomicBool,
     tracked_streams: Arc<TrackedApplicationStreams>,
 }
 
@@ -1160,6 +1161,7 @@ impl AuthenticatedConnection {
     }
 
     pub async fn open_control_stream(&self) -> Result<ControlStream, TransportError> {
+        self.claim_control_stream()?;
         let (send, receive) = self
             .connection
             .open_bi()
@@ -1169,12 +1171,20 @@ impl AuthenticatedConnection {
     }
 
     pub async fn accept_control_stream(&self) -> Result<ControlStream, TransportError> {
+        self.claim_control_stream()?;
         let (send, receive) = self
             .connection
             .accept_bi()
             .await
             .map_err(|_| TransportError::ControlStreamFailed)?;
         Ok(ControlStream { send, receive })
+    }
+
+    fn claim_control_stream(&self) -> Result<(), TransportError> {
+        self.control_stream_claimed
+            .compare_exchange(false, true, Ordering::AcqRel, Ordering::Acquire)
+            .map(|_| ())
+            .map_err(|_| TransportError::ControlStreamFailed)
     }
 
     async fn open_application_stream(&self) -> Result<ApplicationStream, TransportError> {
@@ -1508,6 +1518,7 @@ fn authenticate_connection(
         local_role: policy.local_role(),
         negotiated_alpn,
         close_timeout: policy.handshake_timeout(),
+        control_stream_claimed: AtomicBool::new(false),
         tracked_streams: Arc::new(TrackedApplicationStreams::new()),
     })
 }

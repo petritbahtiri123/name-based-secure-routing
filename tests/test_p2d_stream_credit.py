@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+from pathlib import Path
+import subprocess
 
 import pytest
 
@@ -19,8 +21,10 @@ from scripts.performance.p2d_stream_credit import (
     validate_continuity,
     validate_live_cell,
     validate_matched_pair,
+    validate_replay_limits,
     verify_closed_inventory,
 )
+from scripts.run_p2d_stream_credit import source_binding
 
 
 def manifest(mode: str, *, concurrency: int = 16, seconds: int = 60) -> dict:
@@ -201,6 +205,72 @@ def test_live_cells_require_observed_payload_timing_cpu_and_bounded_state() -> N
         invalid[field] = wrong
         with pytest.raises(ValueError, match=field):
             validate_live_cell(invalid)
+
+
+def test_every_nested_endpoint_must_use_the_exact_p1f_replay_limit() -> None:
+    measured = cell("after", 120, 105)
+    bad_source = {
+        "schema": "nbsr-p2d-rust-shard-v1",
+        "completed_operations": 8_000,
+        "errors": 0,
+        "replay_entries": 8_000,
+        "replay_limit": 4_294_967_295,
+    }
+    good_destination = {
+        "schema": "nbsr-p2d-rust-server-v1",
+        "completed_operations": 8_000,
+        "errors": 0,
+        "replay_entries": 8_000,
+        "replay_limit": 10_000,
+    }
+    good_source = {**bad_source, "replay_limit": 10_000}
+    measured["shards"] = [
+        {"ordinal": 1, "source": bad_source, "destination": good_destination},
+        {"ordinal": 2, "source": good_source, "destination": good_destination},
+    ]
+    measured["replay_limit"] = 10_000
+
+    assert validate_replay_limits(measured) == "FAIL"
+    with pytest.raises(ValueError, match="replay_limit"):
+        validate_live_cell(measured)
+
+
+def test_source_binding_covers_all_compiled_and_imported_inputs_with_diff_identity() -> None:
+    root = Path(__file__).resolve().parents[1]
+    binding = source_binding()
+    bound = set(binding["files"])
+    compiled = {
+        path.relative_to(root).as_posix()
+        for path in (root / "crates/nbsr-transport/src").rglob("*.rs")
+    }
+    assert compiled <= bound
+    assert {
+        "crates/nbsr-transport/Cargo.toml",
+        "crates/nbsr-transport/Cargo.lock",
+        "scripts/performance/authority.py",
+        "scripts/performance/p2d_stream_credit.py",
+        "scripts/run_performance_validation.py",
+        "scripts/run_p2d_stream_credit.py",
+        "docs/protocol/stream-credit-extension.md",
+    } <= bound
+    assert binding["commit"] == subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        cwd=root,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+    assert binding["bound_input_identity"]["status_porcelain_sha256"]
+    assert binding["bound_input_identity"]["worktree_diff_sha256"]
+    assert binding["bound_input_identity"]["index_diff_sha256"]
+    bound_status = subprocess.run(
+        ["git", "status", "--porcelain=v1", "--", *sorted(bound)],
+        cwd=root,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout
+    assert binding["bound_input_identity"]["bound_inputs_clean"] is (not bound_status)
 
 
 def test_saturation_selects_smallest_concurrency_within_two_percent_of_maximum() -> None:

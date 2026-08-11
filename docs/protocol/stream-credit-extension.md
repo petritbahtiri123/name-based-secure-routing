@@ -38,7 +38,8 @@ The mandatory profile constants are `credit_count = 64` and
 - exact profile selection;
 - session, route, channel, RouteGrant, generation, revocation, and lease binding;
 - current epoch with a 64-bit consumed bitmap;
-- optionally one immediately preceding draining epoch with a 64-bit bitmap; and
+- optionally one immediately preceding draining epoch with a 64-bit bitmap;
+- one bounded assigned-stream count for each recognized epoch; and
 - at most one pending refill request.
 
 Epochs are non-zero unsigned 64-bit integers and advance by exactly one.
@@ -48,6 +49,9 @@ releases its bitmap; older epochs reject without allocation.
 
 Credits are opportunities, not reservations. Granting a window allocates no
 Application Stream, upstream connection, payload buffer, or per-slot object.
+An admitted ordinary stream stores its epoch in its existing stream entry;
+the two epoch counts therefore require no per-credit or per-admission heap
+object.
 
 ## Application Stream preface and response
 
@@ -102,9 +106,13 @@ one may commit.
 After a successful local allocation leaves 16 usable current credits, the
 source records one asynchronous refill request. It continues with remaining
 credits. Repeated allocations at or below the watermark do not create another
-request. Refill control revalidates active state, lease, revocation generation,
-route, quota, and capacity, then grants exactly the next epoch with 64 clear
-bits. It neither creates nor renews a RouteGrant.
+request. A request while an immediately preceding epoch is still draining
+fails before pending state is set. Refill control revalidates active state,
+lease, revocation generation, route and policy, current per-channel ordinary
+stream capacity, and remaining per-session P1F replay-history capacity, then
+grants exactly the next epoch with 64 clear bits. Revalidation reserves no
+stream, replay entry, byte quota, or other resource. It neither creates nor
+renews a RouteGrant.
 
 On activation, the prior current epoch becomes draining and the new epoch
 becomes current. Streams already assigned from either may arrive in any order.
@@ -115,7 +123,11 @@ valid. Exhaustion without an activated refill rejects new attempts.
 ### Ordered refill control frame
 
 Refill request and grant use the authenticated Transport Session's existing
-ordered bidirectional control stream. Each refill message is one
+ordered bidirectional control stream. Exactly one such control stream is
+claimed per authenticated QUIC connection/session by the first open or accept
+API call. Route and channel lifecycle messages and every refill reuse that
+claimed stream. A second open or accept fails closed and cannot become an
+alternate refill or lifecycle authority. Each refill message is one
 shortest-form QUIC variable-length length prefix followed by an exact 30-byte
 extension body. The length prefix is therefore the single byte `0x1e`. The
 body is closed and has this fixed layout:
@@ -142,19 +154,26 @@ source records exactly one pending next epoch and sends REQUEST. It may keep
 allocating the 16 remaining credits and does not block at the low watermark.
 The destination accepts REQUEST only when the named channel is active under
 the same authenticated session, route, RouteGrant digest, channel generation,
-revocation generation, lease, quota, and capacity, its remaining current
-credit count is at most 16, it has no pending refill, and it has no already
-draining epoch. It records and activates exactly the requested current epoch
-plus one, then sends GRANT with the identical channel and epoch. The source
+revocation generation, lease, and policy, with at least one current
+per-channel stream slot and one per-session P1F replay-history entry remaining.
+The check reserves neither resource. Its remaining current credit count is at
+most 16, it has no pending refill, and it has no already draining epoch. It
+records and activates exactly the requested current epoch plus one, then sends
+GRANT with the identical channel and epoch. The source
 activates only an exact GRANT matching its one pending epoch. Wrong-channel,
 stale, skipped, repeated, wrapped, unsolicited, and concurrent refill values
 fail closed. Neither message creates or renews a RouteGrant.
 
 Once all streams assigned from the prior epoch have reached terminal
-admission state, each endpoint may retire that draining epoch. Retirement is
-a local bounded-state transition; the ordered request/grant exchange already
-synchronizes the epoch activation. Until retirement, a further refill request
-cannot activate a third recognized epoch.
+admission state, each endpoint may retire that draining epoch. Each successful
+ordinary stream release, cancellation, or rejection removes its existing live
+stream entry and decrements that entry's epoch count exactly once; repeated
+terminal cleanup cannot decrement it again. Retirement fails closed while the
+draining epoch's count is nonzero, including when newer-epoch streams finish
+before delayed older-epoch streams. Retirement is a local bounded-state
+transition; the ordered request/grant exchange already synchronizes the epoch
+activation. Until retirement, a further refill request is rejected before
+pending state is created and cannot activate a third recognized epoch.
 
 The deterministic control vectors use channel ID
 `404142434445464748494a4b4c4d4e4f` and epoch 2. The exact complete framed

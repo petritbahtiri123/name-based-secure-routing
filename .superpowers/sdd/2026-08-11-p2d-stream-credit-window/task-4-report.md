@@ -272,3 +272,108 @@ This is observed single-host Windows loopback evidence, not a multi-host, WAN,
 adversarial-network, memory-attribution, production-capacity, rollout, or
 production-readiness claim. The thousands-channel table is an explicit static
 estimate and does not substitute for any mandatory observed gate.
+
+## Consolidated security and evidence-integrity correction
+
+Final review identified six new integrity findings after Attempt 4. This is a
+new correction set rather than another correction for an earlier performance
+failure. Literal RED observations were:
+
+```powershell
+cargo test --manifest-path crates/nbsr-transport/Cargo.toml --lib draining_and_current_accept_old_new_reordering_but_never_a_third_epoch -- --nocapture
+# RED: request_refill returned Ok(3) while epoch 1 was draining; expected
+# Err(DrainingEpoch), with pending state remaining None.
+
+cargo test --manifest-path crates/nbsr-transport/Cargo.toml --lib draining_epoch_retirement_waits_for_reordered_old_stream_terminal_cleanup -- --nocapture
+# RED: premature epoch-1 retirement returned Ok(()) while one reordered old
+# stream remained live; expected Err(StreamCredit(InvalidState)).
+
+cargo test --manifest-path crates/nbsr-transport/Cargo.toml --lib refill_grant_revalidates -- --nocapture
+# RED: both full-channel and exhausted-P1F cases returned Ok(()); expected
+# typed OverCapacity/ReplayCapacity without window mutation.
+
+cargo test --manifest-path crates/nbsr-transport/Cargo.toml --test stream_credit_integration ordered_live_refill_follows_exhaustion_and_synchronizes_bounded_epochs -- --exact --nocapture
+# RED: a second control-stream open succeeded; expected ControlStreamFailed.
+
+python -m pytest tests/test_p2d_stream_credit.py -q
+# RED at collection: recursive replay-limit validation and complete source
+# binding APIs did not exist.
+```
+
+The minimum GREEN implementation:
+
+- rejects a refill request before setting pending state whenever a draining
+  epoch exists;
+- keeps two compact assigned-stream counters in the fixed window state and the
+  epoch number in each existing ordinary stream entry, with no per-credit heap
+  object;
+- decrements only after successful ordinary terminal removal and refuses to
+  retire a draining epoch with any assigned stream outstanding;
+- atomically claims exactly one control stream on each authenticated Quinn
+  connection, reusing it for lifecycle and refill frames and rejecting every
+  second open/accept;
+- revalidates live per-channel stream headroom and exact per-session P1F replay
+  headroom before any grant mutation, recording the existing quota-denial audit
+  and reserving no stream, replay ID, byte quota, or RouteGrant;
+- recursively checks every measured source/destination endpoint, making any
+  replay-limit violation a FAIL; and
+- binds every Rust source file, Cargo manifest/lock, imported orchestration and
+  analysis module, relevant runtime vector, Python project manifest, and the
+  normative protocol document, plus exact bound-input status/worktree/index
+  diff identities.
+
+Focused GREEN observations before final formatting and the full suite:
+
+```powershell
+python -m pytest tests/test_p2d_stream_credit.py -q
+# 12 passed
+
+cargo test --manifest-path crates/nbsr-transport/Cargo.toml --lib stream_credit -- --nocapture
+# 11 passed
+
+cargo test --manifest-path crates/nbsr-transport/Cargo.toml --lib refill_grant_revalidates -- --nocapture
+# 2 passed
+
+cargo test --manifest-path crates/nbsr-transport/Cargo.toml --test stream_credit_integration -- --nocapture
+# 6 passed
+```
+
+Attempt 4 is superseded for final-source acceptance. Attempt 5 is run only
+after the corrected source passes focused/full tests, rustfmt, and strict
+all-target Clippy, is committed locally, and has an empty bound-input diff.
+
+Two existing integration tests used a second `open_control_stream()` call as a
+raw application-stream escape hatch. The singleton correctly failed those
+calls. Their original security assertions remain intact without weakening the
+invariant: the pre-accept test now keeps the sole control stream and sends on a
+bound application-stream permit without transmitting `STREAM_ACCEPT` to the
+destination; the drain test opens stream 12 through a bound application permit
+and observes the draining destination reset it. Focused reruns passed.
+
+Fresh pre-Attempt-5 freeze verification:
+
+```powershell
+python -m pytest tests/test_p2d_stream_credit.py -q
+# 12 passed, 0 failed; 3.974 s wrapper duration (1.90 s pytest duration)
+
+cargo test --manifest-path crates/nbsr-transport/Cargo.toml --all-targets --features benchmark-harness
+# 176 passed, 0 failed, 1 existing evidence-only P1F soak ignored; 37.790 s
+
+cargo test --manifest-path crates/nbsr-transport/Cargo.toml
+# 184 passed, 0 failed, 1 existing evidence-only P1F soak ignored; 66.582 s
+
+cargo fmt --manifest-path crates/nbsr-transport/Cargo.toml -- --check
+# PASS
+
+git diff --check
+# PASS (line-ending notices only)
+
+cargo clippy --manifest-path crates/nbsr-transport/Cargo.toml --all-targets --features benchmark-harness -- -D warnings
+# PASS; 3.180 s
+```
+
+The corrected all-target feature count is 176: the prior 173 plus three new
+library regression tests (premature epoch retirement and two grant-headroom
+cases). Default is 184 because it includes 16 doctests and omits the 8
+feature-only binary tests. These are command-shape differences, not missing
+coverage.

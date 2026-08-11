@@ -126,6 +126,8 @@ struct CreditEpoch {
 struct CreditWindowState {
     current: CreditEpoch,
     draining: Option<CreditEpoch>,
+    current_assigned: u8,
+    draining_assigned: u8,
     #[allow(dead_code)] // Used by the pinned refill API before runtime control wiring.
     pending_refill: Option<u64>,
 }
@@ -203,6 +205,8 @@ impl StreamCreditWindows {
                         used: 0,
                     },
                     draining: None,
+                    current_assigned: 0,
+                    draining_assigned: 0,
                     pending_refill: None,
                 },
             },
@@ -222,6 +226,11 @@ impl StreamCreditWindows {
         }
         let slot = available.trailing_zeros() as u8;
         entry.state.current.used |= 1_u64 << slot;
+        entry.state.current_assigned = entry
+            .state
+            .current_assigned
+            .checked_add(1)
+            .ok_or(StreamCreditReject::InvalidState)?;
         Ok(StreamCreditAllocation {
             credit_epoch: entry.state.current.number,
             credit_slot: slot,
@@ -234,6 +243,9 @@ impl StreamCreditWindows {
         binding: &StreamCreditBinding,
     ) -> Result<u64, StreamCreditReject> {
         let entry = self.entry_mut(binding)?;
+        if entry.state.draining.is_some() {
+            return Err(StreamCreditReject::DrainingEpoch);
+        }
         if entry.state.pending_refill.is_some() {
             return Err(StreamCreditReject::RefillPending);
         }
@@ -271,10 +283,12 @@ impl StreamCreditWindows {
             return Err(StreamCreditReject::InvalidState);
         }
         entry.state.draining = Some(entry.state.current);
+        entry.state.draining_assigned = entry.state.current_assigned;
         entry.state.current = CreditEpoch {
             number: epoch,
             used: 0,
         };
+        entry.state.current_assigned = 0;
         entry.state.pending_refill = None;
         Ok(())
     }
@@ -319,12 +333,32 @@ impl StreamCreditWindows {
         prepared: PreparedCreditConsume,
     ) -> Result<(), StreamCreditReject> {
         let entry = self.entry_mut(&prepared.binding)?;
-        let epoch = Self::epoch_mut(&mut entry.state, prepared.credit_epoch)?;
+        let (epoch, assigned) =
+            Self::epoch_with_assigned_mut(&mut entry.state, prepared.credit_epoch)?;
         let bit = 1_u64 << prepared.credit_slot;
         if epoch.used & bit != 0 {
             return Err(StreamCreditReject::DuplicateSlot);
         }
         epoch.used |= bit;
+        *assigned = assigned
+            .checked_add(1)
+            .ok_or(StreamCreditReject::InvalidState)?;
+        Ok(())
+    }
+
+    pub(crate) fn release_assignment(
+        &mut self,
+        channel_id: [u8; 16],
+        epoch: u64,
+    ) -> Result<(), StreamCreditReject> {
+        let entry = self
+            .channels
+            .get_mut(&channel_id)
+            .ok_or(StreamCreditReject::WrongChannel)?;
+        let (_, assigned) = Self::epoch_with_assigned_mut(&mut entry.state, epoch)?;
+        *assigned = assigned
+            .checked_sub(1)
+            .ok_or(StreamCreditReject::InvalidState)?;
         Ok(())
     }
 
@@ -339,9 +373,17 @@ impl StreamCreditWindows {
             .state
             .draining
             .is_some_and(|value| value.number == epoch)
+            && entry.state.draining_assigned == 0
         {
             entry.state.draining = None;
+            entry.state.draining_assigned = 0;
             Ok(())
+        } else if entry
+            .state
+            .draining
+            .is_some_and(|value| value.number == epoch)
+        {
+            Err(StreamCreditReject::InvalidState)
         } else {
             Err(StreamCreditReject::StaleEpoch)
         }
@@ -429,21 +471,24 @@ impl StreamCreditWindows {
         }
     }
 
-    fn epoch_mut(
+    fn epoch_with_assigned_mut(
         state: &mut CreditWindowState,
         number: u64,
-    ) -> Result<&mut CreditEpoch, StreamCreditReject> {
+    ) -> Result<(&mut CreditEpoch, &mut u8), StreamCreditReject> {
         if state.current.number == number {
-            Ok(&mut state.current)
-        } else if let Some(draining) = state
-            .draining
-            .as_mut()
-            .filter(|value| value.number == number)
-        {
-            Ok(draining)
-        } else {
-            Err(StreamCreditReject::StaleEpoch)
+            return Ok((&mut state.current, &mut state.current_assigned));
         }
+        if state
+            .draining
+            .as_ref()
+            .is_some_and(|epoch| epoch.number == number)
+        {
+            return Ok((
+                state.draining.as_mut().expect("draining epoch checked"),
+                &mut state.draining_assigned,
+            ));
+        }
+        Err(StreamCreditReject::StaleEpoch)
     }
 
     #[cfg(test)]
@@ -961,17 +1006,25 @@ mod lifecycle_tests {
         windows.commit_consume(old).unwrap();
         assert_eq!(
             windows.request_refill(&authority),
-            Err(StreamCreditReject::RefillNotDue)
+            Err(StreamCreditReject::DrainingEpoch)
         );
         for _ in 0..48 {
             windows.allocate(&authority).unwrap();
         }
-        assert_eq!(windows.request_refill(&authority), Ok(3));
         assert_eq!(
-            windows.activate_refill(&authority, 3),
+            windows.request_refill(&authority),
             Err(StreamCreditReject::DrainingEpoch)
         );
+        assert_eq!(windows.pending_refill(&authority), None);
+        assert_eq!(
+            windows.retire(&authority, 1),
+            Err(StreamCreditReject::InvalidState)
+        );
+        for _ in 0..49 {
+            windows.release_assignment(authority.channel_id, 1).unwrap();
+        }
         windows.retire(&authority, 1).unwrap();
+        assert_eq!(windows.request_refill(&authority), Ok(3));
         windows.activate_refill(&authority, 3).unwrap();
         assert_eq!(
             windows.prepare_consume(&authority, 1, 1),

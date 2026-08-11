@@ -291,6 +291,16 @@ async fn channel_drain_denies_new_work_but_allows_release_until_the_exact_deadli
     );
 
     let fresh_stream_open = stream_open_envelope_with_sequence(&channel, 12, [0xdd; 16], 100);
+    let fresh_stream_accept = stream_accept_envelope(&channel, 12, [0xdd; 16], 101);
+    source_session
+        .authorize_stream_open(channel.channel_id, &fresh_stream_open)
+        .expect("source third stream open");
+    source_session
+        .confirm_stream_accept(channel.channel_id, &fresh_stream_accept)
+        .expect("source third stream accept");
+    let permit12 = source_session
+        .application_stream_permit(channel.channel_id, 12)
+        .expect("source third stream permit");
     assert_eq!(
         session.authorize_stream_open(channel.channel_id, &fresh_stream_open),
         Err(SessionReject::InvalidChannelState)
@@ -298,9 +308,8 @@ async fn channel_drain_denies_new_work_but_allows_release_until_the_exact_deadli
     let (rejected_after_drain, source_after_drain) = tokio::join!(
         destination.accept_session_stream(&mut session, channel.channel_id),
         async {
-            let mut stream = source.open_control_stream().await?;
-            stream.send_envelope(&fresh_stream_open).await?;
-            stream.receive_envelope(CoreV02Limits::default()).await
+            let mut stream = source.open_session_stream(&permit12).await?;
+            stream.send_and_receive(b"rejected-after-drain").await
         },
     );
     assert!(matches!(
@@ -309,7 +318,7 @@ async fn channel_drain_denies_new_work_but_allows_release_until_the_exact_deadli
     ));
     assert_eq!(
         source_after_drain,
-        Err(nbsr_transport::TransportError::ControlStreamFailed)
+        Err(nbsr_transport::TransportError::ApplicationStreamRejected)
     );
 
     assert_eq!(

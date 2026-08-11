@@ -173,6 +173,37 @@ def validate_continuity(cell: dict) -> str:
     return "PASS" if passed else "FAIL"
 
 
+def _nested_measured_endpoints(value: object):
+    if isinstance(value, dict):
+        for name, nested in value.items():
+            if (
+                name in ("source", "destination")
+                and isinstance(nested, dict)
+                and "completed_operations" in nested
+            ):
+                yield nested
+            yield from _nested_measured_endpoints(nested)
+    elif isinstance(value, list):
+        for nested in value:
+            yield from _nested_measured_endpoints(nested)
+
+
+def validate_replay_limits(cell: dict) -> str:
+    measured = [cell, *_nested_measured_endpoints(cell)]
+    for endpoint in measured:
+        replay_entries = endpoint.get("replay_entries")
+        replay_limit = endpoint.get("replay_limit")
+        if replay_limit != 10_000:
+            return "FAIL"
+        if (
+            not isinstance(replay_entries, int)
+            or replay_entries < 0
+            or replay_entries > replay_limit
+        ):
+            return "FAIL"
+    return "PASS"
+
+
 def validate_live_cell(cell: dict) -> None:
     required = {
         "schema",
@@ -222,6 +253,8 @@ def validate_live_cell(cell: dict) -> None:
         raise ValueError("replay_entries: exceeds exact replay limit")
     if cell["replay_limit"] != 10_000:
         raise ValueError("replay_limit: P2D requires the accepted exact 10000-entry P1F cap")
+    if validate_replay_limits(cell) != "PASS":
+        raise ValueError("replay_limit: nested measured endpoint violates the exact P1F cap")
     if cell["cpu"].get("status") == "MEASURED":
         if not isinstance(cell["cpu"].get("process_cpu_ns"), int):
             raise ValueError("cpu: measured CPU requires process_cpu_ns")

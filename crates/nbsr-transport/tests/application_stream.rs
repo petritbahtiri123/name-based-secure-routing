@@ -318,6 +318,52 @@ async fn payload_before_stream_accept_is_reset_without_delivery() {
         .await
         .expect("receive CLIENT_HELLO");
 
+    let edge_hello = decode_control_envelope(
+        &vector("artifacts/valid/envelopes/edge-hello.cbor"),
+        CoreV02Limits::default(),
+    )
+    .expect("EDGE_HELLO fixture");
+    let route_open = decode_control_envelope(
+        &vector("artifacts/valid/envelopes/route-open.cbor"),
+        CoreV02Limits::default(),
+    )
+    .expect("ROUTE_OPEN fixture");
+    let route_accept = decode_control_envelope(
+        &vector("artifacts/valid/envelopes/route-accept.cbor"),
+        CoreV02Limits::default(),
+    )
+    .expect("ROUTE_ACCEPT fixture");
+    let stream_open = decode_control_envelope(
+        &vector("artifacts/valid/envelopes/stream-open.cbor"),
+        CoreV02Limits::default(),
+    )
+    .expect("STREAM_OPEN fixture");
+    let stream_accept = decode_control_envelope(
+        &vector("artifacts/valid/envelopes/stream-accept.cbor"),
+        CoreV02Limits::default(),
+    )
+    .expect("STREAM_ACCEPT fixture");
+    let channel_id = channel().channel_id;
+    let mut source_session = control_session(&source);
+    source_session.accept_client_hello(&client_hello).unwrap();
+    source_session.confirm_edge_hello(&edge_hello).unwrap();
+    source_session.accept_route_open(&route_open).unwrap();
+    source_session.confirm_route_accept(&route_accept).unwrap();
+    source
+        .bind_channel(&mut source_session, channel_id)
+        .unwrap();
+    source_session
+        .authorize_stream_open(channel_id, &stream_open)
+        .unwrap();
+    // Build a bound local permit without sending STREAM_ACCEPT on the sole
+    // control stream. The destination must still reject application payload.
+    source_session
+        .confirm_stream_accept(channel_id, &stream_accept)
+        .unwrap();
+    let permit = source_session
+        .application_stream_permit(channel_id, 4)
+        .expect("local application stream permit");
+
     let (rejected, source_result) = tokio::join!(
         async {
             destination
@@ -327,18 +373,17 @@ async fn payload_before_stream_accept_is_reset_without_delivery() {
         },
         async {
             let mut stream = source
-                .open_control_stream()
+                .open_session_stream(&permit)
                 .await
                 .expect("open unadmitted stream");
-            stream
-                .send_envelope(&client_hello)
-                .await
-                .expect("send early payload");
-            stream.receive_envelope(CoreV02Limits::default()).await
+            stream.send_and_receive(b"early payload").await
         }
     );
     assert_eq!(rejected, 4);
-    assert_eq!(source_result, Err(TransportError::ControlStreamFailed));
+    assert_eq!(
+        source_result,
+        Err(TransportError::ApplicationStreamRejected)
+    );
 
     source.close().await.expect("source close");
     destination.close().await.expect("destination close");

@@ -857,7 +857,8 @@ impl ControlSession {
         self.stream_credits
             .commit_consume(prepared_credit)
             .map_err(SessionReject::StreamCredit)?;
-        self.streams.commit_open(prepared_stream);
+        self.streams
+            .commit_credited_open(prepared_stream, preface.credit_epoch);
         Ok(())
     }
 
@@ -881,10 +882,12 @@ impl ControlSession {
             Ok(_)
             | Err(StreamCreditReject::RefillNotDue)
             | Err(StreamCreditReject::RefillPending)
+            | Err(StreamCreditReject::DrainingEpoch)
             | Err(StreamCreditReject::EpochExhausted) => {}
             Err(error) => return Err(SessionReject::StreamCredit(error)),
         }
-        self.streams.commit_open(prepared_stream);
+        self.streams
+            .commit_credited_open(prepared_stream, allocation.credit_epoch);
         Ok(StreamCreditPreface {
             channel_id,
             channel_generation: binding.channel_generation,
@@ -920,6 +923,7 @@ impl ControlSession {
         epoch: u64,
     ) -> Result<(), SessionReject> {
         let (_, binding) = self.require_credited_channel_authority(channel_id)?;
+        self.revalidate_credited_refill_capacity(channel_id)?;
         let expected = self
             .stream_credits
             .request_refill(&binding)
@@ -943,6 +947,12 @@ impl ControlSession {
         epoch: u64,
     ) -> Result<(), SessionReject> {
         let (_, binding) = self.require_credited_channel_authority(channel_id)?;
+        if let Err(error) = self.revalidate_credited_refill_capacity(channel_id) {
+            self.stream_credits
+                .cancel_refill(&binding)
+                .map_err(SessionReject::StreamCredit)?;
+            return Err(error);
+        }
         self.stream_credits
             .activate_refill(&binding, epoch)
             .map_err(SessionReject::StreamCredit)
@@ -1012,6 +1022,36 @@ impl ControlSession {
                     .map_err(map_admission_audit)?;
                 Err(SessionReject::StreamCredit(
                     StreamCreditReject::ReplayCapacity,
+                ))
+            }
+        }
+    }
+
+    fn revalidate_credited_refill_capacity(
+        &mut self,
+        channel_id: [u8; 16],
+    ) -> Result<(), SessionReject> {
+        match self.streams.preflight_credited_refill(&channel_id) {
+            Ok(()) => Ok(()),
+            Err(CreditedStreamReject::OverCapacity) => {
+                self.admission
+                    .audit_quota_denial(&channel_id)
+                    .map_err(map_admission_audit)?;
+                Err(SessionReject::StreamCredit(
+                    StreamCreditReject::OverCapacity,
+                ))
+            }
+            Err(CreditedStreamReject::ReplayCapacity) => {
+                self.admission
+                    .audit_quota_denial(&channel_id)
+                    .map_err(map_admission_audit)?;
+                Err(SessionReject::StreamCredit(
+                    StreamCreditReject::ReplayCapacity,
+                ))
+            }
+            Err(CreditedStreamReject::InvalidStream | CreditedStreamReject::DuplicateStream) => {
+                Err(SessionReject::StreamCredit(
+                    StreamCreditReject::InvalidState,
                 ))
             }
         }
@@ -1133,9 +1173,16 @@ impl ControlSession {
     ) -> Result<(), SessionReject> {
         self.require_session_active()?;
         self.require_existing_bound_channel(&channel_id)?;
-        self.streams
+        let credit_epoch = self
+            .streams
             .release_stream(&channel_id, stream_id)
-            .map_err(SessionReject::Stream)
+            .map_err(SessionReject::Stream)?;
+        if let Some(epoch) = credit_epoch {
+            self.stream_credits
+                .release_assignment(channel_id, epoch)
+                .map_err(SessionReject::StreamCredit)?;
+        }
+        Ok(())
     }
 
     /// Removes only an ordinary live-stream entry during terminal transport
@@ -1147,7 +1194,13 @@ impl ControlSession {
         channel_id: [u8; 16],
         stream_id: u64,
     ) -> bool {
-        self.streams.release_stream(&channel_id, stream_id).is_ok()
+        let Ok(credit_epoch) = self.streams.release_stream(&channel_id, stream_id) else {
+            return false;
+        };
+        if let Some(epoch) = credit_epoch {
+            let _ = self.stream_credits.release_assignment(channel_id, epoch);
+        }
+        true
     }
 
     pub(crate) fn authorize_application_stream(

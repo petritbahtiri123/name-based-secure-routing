@@ -816,6 +816,149 @@ async fn low_p1f_cap_rejection_does_not_consume_the_prepared_credit() {
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn draining_epoch_retirement_waits_for_reordered_old_stream_terminal_cleanup() {
+    let (listener, source, destination) = connection_pair().await;
+    let (mut session, channel) = credited_session(
+        &destination,
+        Arc::new(ManualClock::new()),
+        ReplayHistoryLimit::try_from(10_000).unwrap(),
+    );
+    let channel_id = channel.channel_id;
+
+    for slot in 0..48_u8 {
+        let stream_id = 4 + u64::from(slot) * 4;
+        session
+            .authorize_credited_stream(
+                StreamCreditPreface {
+                    channel_id,
+                    channel_generation: 1,
+                    credit_epoch: 1,
+                    credit_slot: slot,
+                    quic_stream_id: stream_id,
+                },
+                stream_id,
+            )
+            .unwrap();
+        if slot != 0 {
+            session.release_stream(channel_id, stream_id).unwrap();
+        }
+    }
+    session.grant_stream_credit_refill(channel_id, 2).unwrap();
+
+    session
+        .authorize_credited_stream(
+            StreamCreditPreface {
+                channel_id,
+                channel_generation: 1,
+                credit_epoch: 2,
+                credit_slot: 0,
+                quic_stream_id: 196,
+            },
+            196,
+        )
+        .unwrap();
+    session.release_stream(channel_id, 196).unwrap();
+    assert_eq!(
+        session.retire_stream_credit_epoch(channel_id, 1),
+        Err(SessionReject::StreamCredit(
+            StreamCreditReject::InvalidState
+        ))
+    );
+
+    session.release_stream(channel_id, 4).unwrap();
+    assert_eq!(
+        session.release_stream(channel_id, 4),
+        Err(SessionReject::Stream(crate::StreamReject::ControlRejected))
+    );
+    session.retire_stream_credit_epoch(channel_id, 1).unwrap();
+
+    source.close().await.unwrap();
+    destination.close().await.unwrap();
+    listener.close().await.unwrap();
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn refill_grant_revalidates_full_channel_without_mutation_and_retries_after_release() {
+    let (listener, source, destination) = connection_pair().await;
+    let (mut session, channel) = credited_session(
+        &destination,
+        Arc::new(ManualClock::new()),
+        ReplayHistoryLimit::try_from(10_000).unwrap(),
+    );
+    let channel_id = channel.channel_id;
+    for slot in 0..64_u8 {
+        let stream_id = 4 + u64::from(slot) * 4;
+        session
+            .authorize_credited_stream(
+                StreamCreditPreface {
+                    channel_id,
+                    channel_generation: 1,
+                    credit_epoch: 1,
+                    credit_slot: slot,
+                    quic_stream_id: stream_id,
+                },
+                stream_id,
+            )
+            .unwrap();
+    }
+    let before = session.stream_credit_snapshot(channel_id).unwrap();
+    assert_eq!(
+        session.grant_stream_credit_refill(channel_id, 2),
+        Err(SessionReject::StreamCredit(
+            StreamCreditReject::OverCapacity
+        ))
+    );
+    assert_eq!(session.stream_credit_snapshot(channel_id).unwrap(), before);
+
+    session.release_stream(channel_id, 4).unwrap();
+    session.grant_stream_credit_refill(channel_id, 2).unwrap();
+
+    source.close().await.unwrap();
+    destination.close().await.unwrap();
+    listener.close().await.unwrap();
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn refill_grant_revalidates_exhausted_p1f_history_without_window_mutation() {
+    let (listener, source, destination) = connection_pair().await;
+    let (mut session, channel) = credited_session(
+        &destination,
+        Arc::new(ManualClock::new()),
+        ReplayHistoryLimit::try_from(64).unwrap(),
+    );
+    let channel_id = channel.channel_id;
+    for slot in 0..64_u8 {
+        let stream_id = 4 + u64::from(slot) * 4;
+        session
+            .authorize_credited_stream(
+                StreamCreditPreface {
+                    channel_id,
+                    channel_generation: 1,
+                    credit_epoch: 1,
+                    credit_slot: slot,
+                    quic_stream_id: stream_id,
+                },
+                stream_id,
+            )
+            .unwrap();
+        session.release_stream(channel_id, stream_id).unwrap();
+    }
+    let before = session.stream_credit_snapshot(channel_id).unwrap();
+    assert_eq!(before.replay_entries, 64);
+    assert_eq!(
+        session.grant_stream_credit_refill(channel_id, 2),
+        Err(SessionReject::StreamCredit(
+            StreamCreditReject::ReplayCapacity
+        ))
+    );
+    assert_eq!(session.stream_credit_snapshot(channel_id).unwrap(), before);
+
+    source.close().await.unwrap();
+    destination.close().await.unwrap();
+    listener.close().await.unwrap();
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn audit_unavailable_resume_rollback_always_clears_credit_authority() {
     let (listener, source, destination) = connection_pair().await;
     let (mut session, channel) = credited_session(
