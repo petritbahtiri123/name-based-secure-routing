@@ -2,7 +2,7 @@
 
 ## Observed state and resource bounds
 
-On the frozen Attempt-7 x86_64 Windows build, compiler layout observations
+On the frozen Attempt-8 x86_64 Windows build, compiler layout observations
 were 16 bytes for one `CreditEpoch`, 64 bytes for `CreditWindowState`, and 136
 bytes for one `CreditWindowEntry`. The exact final-source command and output
 are preserved in `resource-layout-observation.txt`. The regression also
@@ -17,21 +17,21 @@ maximum of two recognized epochs; pending refill is one scalar state and
 cannot queue. Retirement requires the draining epoch's assigned counter to be
 zero.
 
-The authoritative 300.2411631-second live soak completed 5,568,000 operations
-through 87,000 refill windows. Every one of its 696 session shards reported
+The authoritative 300.3870077-second live soak completed 4,832,000 operations
+through 75,500 refill windows. Every one of its 604 session shards reported
 active-epoch high-water 2, exact replay limit 10,000, no more than 8,000 final
-replay entries, and zero errors. Across all 24 aggregate cells, 1,257 shards,
-and 2,514 source/destination shard endpoints, every measured `replay_limit`
+replay entries, and zero errors. Across all 28 aggregate cells, 1,363 shards,
+and 2,726 source/destination shard endpoints, every measured `replay_limit`
 was exactly 10,000.
 
 Observed process state remained bounded across the soak:
 
 | Role | First shard working set | Last shard working set | Maximum | First private bytes | Last private bytes | Maximum |
 |---|---:|---:|---:|---:|---:|---:|
-| source | 10,207,232 | 10,231,808 | 10,326,016 | 3,489,792 | 3,559,424 | 3,657,728 |
-| destination | 10,981,376 | 10,907,648 | 11,071,488 | 4,153,344 | 4,059,136 | 4,325,376 |
+| source | 10,686,464 | 10,715,136 | 10,883,072 | 3,403,776 | 3,584,000 | 3,661,824 |
+| destination | 11,448,320 | 11,464,704 | 11,534,336 | 4,251,648 | 4,165,632 | 4,345,856 |
 
-Both roles stayed at four threads. These are observed per-process peaks from
+Both roles observed no more than four threads. These are observed per-process peaks from
 the Windows sampler, not an attribution of all bytes to credit state.
 
 ## Thousands-channel model (estimate)

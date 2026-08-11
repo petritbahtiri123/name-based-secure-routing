@@ -2,7 +2,7 @@ Authoritative final-source layout command:
 $env:CARGO_TARGET_DIR='C:\codex-target\nbsr-p2d-layout3'; $env:RUSTC_BOOTSTRAP='1'; cargo rustc --manifest-path crates/nbsr-transport/Cargo.toml --lib -- -Zprint-type-sizes
 
 Observed output on the measured x86_64 Windows host from commit
-100b871db011ba514bd45f0354714e1f698ebdd5:
+d5acdd88d44eeda686168f6c080119dc3d712a30:
 print-type-size type: `stream_credit::CreditEpoch`: 16 bytes, alignment: 8 bytes
 print-type-size type: `stream_credit::CreditWindowState`: 64 bytes, alignment: 8 bytes
 print-type-size type: `stream_credit::CreditWindowEntry`: 136 bytes, alignment: 8 bytes
@@ -13,5 +13,5 @@ test observation (56-byte state / 128-byte entry) is historical and is not the
 final layout authority. The final layout still satisfies the committed
 `CreditWindowState <= 64` regression and uses no per-credit heap object.
 
-Authoritative Attempt-7 stream_credit.rs SHA-256:
+Authoritative Attempt-8 stream_credit.rs SHA-256:
 de0be39b995919dd4f3a7ebe9a5f1741c4d704835d375e66e0765d3dbc8f43a8

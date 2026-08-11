@@ -2,15 +2,15 @@
   "schema": "nbsr-p2d-final-analysis-v1",
   "outcome": "Outcome A — ACCEPTED AND RETAINED",
   "authoritative_attempt": {
-    "path": "attempt-7-final-atomic-audit",
-    "analysis": "attempt-7-final-atomic-audit/analysis.json",
-    "source_binding": "attempt-7-final-atomic-audit/source-binding.json",
-    "runtime_repository_audit": "attempt-7-final-atomic-audit/runtime-repository-audit.json",
-    "commit": "100b871db011ba514bd45f0354714e1f698ebdd5",
-    "head_tree": "6d84e897b29e358c716c6c83b2ad6efc2ec445fa",
-    "measured_source_sha256": "921d4276f4aa28d7747c78622bb0a785a3333e3020188a8f45bc1b38483e7cb4",
-    "source_binary_sha256": "4f0cbd64b3fd6111790faaddcc0bff1262c631413e98a3bc2b3e6e31def57c51",
-    "server_binary_sha256": "2d30d6118d6417c775824a85956cae40bc0cd596933449bf44407fa7a6fe9df4"
+    "path": "attempt-8-final-v1-enforcement",
+    "analysis": "attempt-8-final-v1-enforcement/analysis.json",
+    "source_binding": "attempt-8-final-v1-enforcement/source-binding.json",
+    "runtime_repository_audit": "attempt-8-final-v1-enforcement/runtime-repository-audit.json",
+    "commit": "d5acdd88d44eeda686168f6c080119dc3d712a30",
+    "head_tree": "c28559f8a37d4c8e56c3d76cc64541da5ddf7f05",
+    "measured_source_sha256": "1f90e4425467e9cbdeb76e95abb0ec111b1e7552a66192ceee07e0d87dea9969",
+    "source_binary_sha256": "29e8f85d3ef4c357c770549a9c0be5c86183408a7591ca8c3328948fbc75b12d",
+    "server_binary_sha256": "6b5a769c0505cb0902b49fbbad4430c456871747a42a475042b319ca78da6032"
   },
   "superseded_valid_attempts": [
     {
@@ -32,6 +32,11 @@
       "path": "attempt-5-final-security-review",
       "reason": "valid measured evidence used selected-input binding rather than a clean pre-output whole-Git-tree identity",
       "authoritative": false
+    },
+    {
+      "path": "attempt-7-final-atomic-audit",
+      "reason": "valid exact-source evidence predates enforcement that excludes legacy STREAM_OPEN and permit paths after V1 selection",
+      "authoritative": false
     }
   ],
   "rejected_attempts": [
@@ -48,47 +53,55 @@
   ],
   "selected_saturation_concurrency": 64,
   "paired": {
-    "pairs": 3,
+    "pairs": 5,
     "before_operations_per_second": [
-      5295.308972822618,
-      5056.5694559485555,
-      4965.281583348069
+      3459.5797118609535,
+      3955.444521466655,
+      4326.164825778656,
+      4383.944597822781,
+      4282.049872875915
     ],
     "after_operations_per_second": [
-      18882.0864694911,
-      18936.277456588457,
-      18967.233316906946
+      16382.804390074785,
+      15567.43614086345,
+      15547.555736454984,
+      15595.354247938567,
+      14857.541005130093
     ],
     "before_p99_ns": [
-      13943300,
-      13309300,
-      14172900
+      30351000,
+      21791000,
+      16784400,
+      16415100,
+      18698100
     ],
     "after_p99_ns": [
-      3385700,
-      3250800,
-      3226400
+      4923400,
+      5531700,
+      5462300,
+      5294400,
+      5473700
     ],
-    "before_median_operations_per_second": 5056.5694559485555,
-    "after_median_operations_per_second": 18936.277456588457,
-    "throughput_improvement": 2.7448862557028253,
-    "before_throughput_cv": 0.033377316645997746,
-    "after_throughput_cv": 0.0022769096220308397,
-    "before_median_p99_ns": 13943300,
-    "after_median_p99_ns": 3250800,
-    "p99_change": -0.7668557658516993,
+    "before_median_operations_per_second": 4282.049872875915,
+    "after_median_operations_per_second": 15567.43614086345,
+    "throughput_improvement": 2.6355102352901913,
+    "before_throughput_cv": 0.0944351641991152,
+    "after_throughput_cv": 0.03465174270113779,
+    "before_median_p99_ns": 18698100,
+    "after_median_p99_ns": 5462300,
+    "p99_change": -0.7078687139335013,
     "errors": 0
   },
   "stopping_rule": {
-    "pairs_run": 3,
-    "stopped_after_three": true,
-    "both_throughput_cvs_at_most_five_percent": true,
+    "pairs_run": 5,
+    "stopped_after_three": false,
+    "both_throughput_cvs_at_most_five_percent": false,
     "every_pair_on_same_gate_side": true
   },
   "continuity": {
     "operations": 1024,
-    "operations_per_second": 12584.397804612476,
-    "p99_ns": 4851600,
+    "operations_per_second": 16302.824973890007,
+    "p99_ns": 3411200,
     "windows": 16,
     "refills": 16,
     "errors": 0,
@@ -97,40 +110,40 @@
     "replay_limit": 10000
   },
   "soak": {
-    "raw": "attempt-7-final-atomic-audit/raw/soak/after.json.gz",
-    "duration_seconds": 300.2411631,
-    "operations": 5568000,
-    "operations_per_second": 18545.092027056566,
-    "p99_ns": 3860400,
-    "windows": 87000,
-    "refills": 87000,
+    "raw": "attempt-8-final-v1-enforcement/raw/soak/after.json",
+    "duration_seconds": 300.3870077,
+    "operations": 4832000,
+    "operations_per_second": 16085.915422899296,
+    "p99_ns": 5165600,
+    "windows": 75500,
+    "refills": 75500,
     "errors": 0,
     "active_epochs_high_water": 2,
     "replay_entries": 8000,
     "replay_limit": 10000,
-    "periods": 696,
-    "first_period_operations_per_second": 17938.31372675643,
-    "last_period_operations_per_second": 18632.725914232164,
-    "median_period_operations_per_second": 19013.128329620733,
-    "worst_period_operations_per_second": 8109.907082767076,
-    "worst_throughput_period": 241,
-    "first_period_p99_ns": 3421400,
-    "last_period_p99_ns": 3120500,
-    "median_period_p99_ns": 3155050.0,
-    "worst_period_p99_ns": 6886400,
-    "worst_p99_period": 241
+    "periods": 604,
+    "first_period_operations_per_second": 15419.228587558186,
+    "last_period_operations_per_second": 14358.980986196351,
+    "median_period_operations_per_second": 17173.505634220986,
+    "worst_period_operations_per_second": 7936.967776704522,
+    "worst_throughput_period": 486,
+    "first_period_p99_ns": 4266100,
+    "last_period_p99_ns": 4861000,
+    "median_period_p99_ns": 3695500.0,
+    "worst_period_p99_ns": 10814500,
+    "worst_p99_period": 485
   },
   "replay_audit": {
-    "aggregate_cells": 24,
-    "shards": 1257,
-    "source_destination_endpoints": 2514,
+    "aggregate_cells": 28,
+    "shards": 1363,
+    "source_destination_endpoints": 2726,
     "required_replay_limit": 10000,
     "violations": 0
   },
   "repository_identity": {
     "pre_output_status_empty": true,
     "head_tree_equals_index_tree": true,
-    "tracked_file_count": 2069,
+    "tracked_file_count": 2109,
     "runtime_audit_status": "PASS",
     "runtime_disallowed_changes": 0
   },
@@ -152,6 +165,6 @@
     "p1f_session_shard_limit": 8000,
     "performance_corrections_used": 3,
     "performance_corrections_remaining": 0,
-    "security_evidence_fix_rounds": 3
+    "security_evidence_fix_rounds": 4
   }
 }

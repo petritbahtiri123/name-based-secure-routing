@@ -1,0 +1,51 @@
+{
+  "schema": "nbsr-p2d-runtime-repository-audit-v1",
+  "status": "PASS",
+  "allowed_untracked_root": "evidence/performance/stream-credit-window-p2d/attempt-8-final-v1-enforcement",
+  "pre_output_status": {
+    "format": "porcelain-v2",
+    "untracked_files": "all",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "empty": true
+  },
+  "post_output_creation": {
+    "allowed_untracked_root": "evidence/performance/stream-credit-window-p2d/attempt-8-final-v1-enforcement",
+    "status_format": "porcelain-v2",
+    "untracked_files": "all",
+    "status_bytes": 450,
+    "status_sha256": "2ef7ee8c52c8ce7df224db3f1351fc7db7602c9ea14e5c2d0de5d9fb65ca284a",
+    "status_entries": 4,
+    "allowed_untracked_entries": 4,
+    "disallowed_changes": [],
+    "commit_equal": true,
+    "head_tree_equal": true,
+    "index_tree_equal": true
+  },
+  "post_build": {
+    "allowed_untracked_root": "evidence/performance/stream-credit-window-p2d/attempt-8-final-v1-enforcement",
+    "status_format": "porcelain-v2",
+    "untracked_files": "all",
+    "status_bytes": 450,
+    "status_sha256": "2ef7ee8c52c8ce7df224db3f1351fc7db7602c9ea14e5c2d0de5d9fb65ca284a",
+    "status_entries": 4,
+    "allowed_untracked_entries": 4,
+    "disallowed_changes": [],
+    "commit_equal": true,
+    "head_tree_equal": true,
+    "index_tree_equal": true
+  },
+  "final": {
+    "allowed_untracked_root": "evidence/performance/stream-credit-window-p2d/attempt-8-final-v1-enforcement",
+    "status_format": "porcelain-v2",
+    "untracked_files": "all",
+    "status_bytes": 4935,
+    "status_sha256": "fcdac824ca362b19ee11dcdb29686c1b4a867c4f876ad51dce12cd50e294ea4a",
+    "status_entries": 47,
+    "allowed_untracked_entries": 47,
+    "disallowed_changes": [],
+    "commit_equal": true,
+    "head_tree_equal": true,
+    "index_tree_equal": true
+  }
+}
