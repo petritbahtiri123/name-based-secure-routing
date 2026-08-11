@@ -3,19 +3,23 @@
 ## Result
 
 **DONE — Outcome A — ACCEPTED AND RETAINED.** Final authority is
-`evidence/performance/stream-credit-window-p2d/attempt-5-final-security-review/`.
+`evidence/performance/stream-credit-window-p2d/attempt-7-final-atomic-audit/`.
+Attempt 5 is valid historical performance evidence but is superseded for
+final-source acceptance.
 
 At selected concurrency 64, three matched 60-second BEFORE/AFTER pairs
-measured median throughput 4,979.12 -> 18,704.12 operations/second (+275.65%)
-and median p99 14.0123 -> 3.4331 ms (-75.50%). Sample throughput CV was 4.064%
-BEFORE and 0.962% AFTER. Every pair was on the passing side of both fixed
+measured median throughput 5,056.57 -> 18,936.28 operations/second (+274.49%)
+and median p99 13.9433 -> 3.2508 ms (-76.69%). Sample throughput CV was 3.338%
+BEFORE and 0.228% AFTER. Every pair was on the passing side of both fixed
 thresholds and all six cells had zero errors, so the exact three-pair stopping
 rule applied.
 
-The conditional soak ran 300.2110533 seconds, completed 5,576,000 correct 1
-KiB operations at 18,573.60 operations/second, p99 3.5048 ms, with zero errors,
-87,125 ordered refills, active-epoch high-water 2, and replay 8,000/10,000.
-All mandatory gates are PASS.
+The continuity cell completed 1,024 operations at 12,584.40
+operations/second with p99 4.8516 ms, crossed/refilled 16 windows, and had zero
+errors. The conditional soak ran 300.2411631 seconds, completed 5,568,000
+correct 1 KiB operations at 18,545.09 operations/second, p99 3.8604 ms, with
+zero errors, 87,000 ordered refills, active-epoch high-water 2, and replay
+8,000/10,000. All mandatory gates are PASS.
 
 ## Scope and Git boundary
 
@@ -177,7 +181,8 @@ and release binaries:
 All eight then-frozen source/doc/runner hashes and both binary hashes matched
 their attempt-4 bindings, and no mandatory attempt-4 gate failed. A later
 consolidated security/evidence-integrity review required corrected source and
-a new full Attempt 5 ladder, so Attempt 4 is not final authority.
+a new full Attempt 5 ladder. Attempt 5 was later superseded by the whole-tree
+binding/finalization corrections and authoritative Attempt 7.
 
 ## Historical Attempt 4 observed cells (superseded)
 
@@ -339,9 +344,11 @@ cargo test --manifest-path crates/nbsr-transport/Cargo.toml --test stream_credit
 # 6 passed
 ```
 
-Attempt 4 is superseded for final-source acceptance. Attempt 5 is run only
-after the corrected source passes focused/full tests, rustfmt, and strict
-all-target Clippy, is committed locally, and has an empty bound-input diff.
+Attempt 4 was superseded for the then-current corrected-source run. Attempt 5
+was run only after the corrected source passed focused/full tests, rustfmt, and
+strict all-target Clippy, was committed locally, and had an empty bound-input
+diff. Attempt 5 was subsequently superseded by clean whole-tree binding,
+atomic audit finalization, and authoritative Attempt 7.
 
 Two existing integration tests used a second `open_control_stream()` call as a
 raw application-stream escape hatch. The singleton correctly failed those
@@ -379,7 +386,10 @@ cases). Default is 184 because it includes 16 doctests and omits the 8
 feature-only binary tests. These are command-shape differences, not missing
 coverage.
 
-## Attempt 5 — final corrected-source authority
+## Historical Attempt 5 — valid security-correction evidence (superseded)
+
+The values in this section remain exact historical Attempt 5 observations.
+Attempt 7 supersedes Attempt 5 for final-source acceptance.
 
 Frozen fix commit:
 `8cc935e1a08de20eaab1abd814906d1854da9bc8`. Before the timed run, Git status
