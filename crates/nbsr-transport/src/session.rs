@@ -169,6 +169,7 @@ struct PendingRoute {
     grant_digest: [u8; 32],
     request_id: [u8; 16],
     route_id: [u8; 16],
+    stream_credit_required: bool,
 }
 
 impl ControlSession {
@@ -605,6 +606,7 @@ impl ControlSession {
             grant_digest: channel.route_grant_digest,
             request_id,
             route_id: channel.route_id,
+            stream_credit_required: false,
         });
         Ok(channel)
     }
@@ -658,6 +660,7 @@ impl ControlSession {
             grant_digest: channel.route_grant_digest,
             request_id,
             route_id: channel.route_id,
+            stream_credit_required: false,
         });
         Ok(channel)
     }
@@ -695,6 +698,12 @@ impl ControlSession {
         {
             return Err(SessionReject::ControlRejected);
         }
+        if pending.stream_credit_required
+            && self.stream_credit_profiles.get(&pending.channel_id)
+                != Some(&crate::StreamCreditProfile::V1)
+        {
+            return Err(SessionReject::StreamCredit(StreamCreditReject::Downgrade));
+        }
         self.stream_credit_profiles
             .entry(pending.channel_id)
             .or_insert(crate::StreamCreditProfile::Legacy);
@@ -728,13 +737,16 @@ impl ControlSession {
         let SessionState::Established {
             pending: Some(pending),
             ..
-        } = &self.state
+        } = &mut self.state
         else {
             return Err(SessionReject::InvalidChannelState);
         };
         if pending.channel_id != channel_id || self.stream_credit_profiles.contains_key(&channel_id)
         {
             return Err(SessionReject::InvalidChannelState);
+        }
+        if credits_required {
+            pending.stream_credit_required = true;
         }
         let profile =
             crate::StreamCreditProfile::select(credits_required, peer_profile, explicit_legacy)
@@ -774,6 +786,7 @@ impl ControlSession {
         #[cfg(feature = "benchmark-harness")]
         let profile_binding = std::time::Instant::now();
         self.require_session_active()?;
+        self.reject_legacy_stream_path_for_v1(channel_id)?;
         let (request_id, session_id, sequence) = binding(envelope)?;
         let expected_session_id = self.established_session_id()?;
         if session_id != expected_session_id || self.request_ids.contains(&request_id) {
@@ -1116,6 +1129,7 @@ impl ControlSession {
         envelope: &CoreV02Envelope,
     ) -> Result<(), SessionReject> {
         self.require_session_active()?;
+        self.reject_legacy_stream_path_for_v1(channel_id)?;
         let (request_id, session_id, sequence) = binding(envelope)?;
         if request_id == [0; 16] || session_id != self.established_session_id()? {
             return Err(SessionReject::Replay);
@@ -1209,6 +1223,7 @@ impl ControlSession {
         actual_stream_id: u64,
     ) -> Result<(), SessionReject> {
         self.require_session_active()?;
+        self.reject_legacy_stream_path_for_v1(channel_id)?;
         self.require_bound_channel(&channel_id)?;
         let prepared = self
             .streams
@@ -1228,9 +1243,15 @@ impl ControlSession {
     ) -> Result<crate::ApplicationStreamPermit, SessionReject> {
         self.require_session_active()?;
         self.require_bound_channel(&channel_id)?;
-        self.streams
-            .validate_application_stream(&channel_id, stream_id)
-            .map_err(SessionReject::Stream)?;
+        if self.stream_credit_profiles.get(&channel_id) == Some(&crate::StreamCreditProfile::V1) {
+            self.streams
+                .validate_credited_application_stream(&channel_id, stream_id)
+                .map_err(SessionReject::Stream)?;
+        } else {
+            self.streams
+                .validate_application_stream(&channel_id, stream_id)
+                .map_err(SessionReject::Stream)?;
+        }
         Ok(crate::ApplicationStreamPermit::new(
             self.connection_capability.clone(),
             channel_id,
@@ -1804,6 +1825,16 @@ impl ControlSession {
             .bound_udp_channel(channel_id)
             .ok_or(crate::DatagramReject::InvalidState)?;
         Ok(())
+    }
+
+    fn reject_legacy_stream_path_for_v1(&self, channel_id: [u8; 16]) -> Result<(), SessionReject> {
+        if self.stream_credit_profiles.get(&channel_id) == Some(&crate::StreamCreditProfile::V1) {
+            Err(SessionReject::StreamCredit(
+                StreamCreditReject::FallbackForbidden,
+            ))
+        } else {
+            Ok(())
+        }
     }
 
     fn require_bound_channel(&self, channel_id: &[u8; 16]) -> Result<(), SessionReject> {

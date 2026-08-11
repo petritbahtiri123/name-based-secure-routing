@@ -235,7 +235,7 @@ fn trusted_issuer() -> RouteGrantIssuer {
     }
 }
 
-fn credited_session(
+fn pending_session(
     destination: &crate::AuthenticatedConnection,
     clock: Arc<ManualClock>,
     replay_history_limit: ReplayHistoryLimit,
@@ -275,6 +275,15 @@ fn credited_session(
             .unwrap(),
         )
         .unwrap();
+    (session, channel)
+}
+
+fn credited_session(
+    destination: &crate::AuthenticatedConnection,
+    clock: Arc<ManualClock>,
+    replay_history_limit: ReplayHistoryLimit,
+) -> (ControlSession, ActiveChannel) {
+    let (mut session, channel) = pending_session(destination, clock, replay_history_limit);
     session
         .select_stream_credit_profile(
             channel.channel_id,
@@ -296,6 +305,164 @@ fn credited_session(
         .bind_channel(&mut session, channel.channel_id)
         .unwrap();
     (session, channel)
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn v1_rejects_legacy_stream_paths_without_mutation_then_accepts_credited_retry() {
+    let (listener, source, destination) = connection_pair().await;
+    let (mut session, channel) = credited_session(
+        &destination,
+        Arc::new(ManualClock::new()),
+        ReplayHistoryLimit::MAX,
+    );
+    let channel_id = channel.channel_id;
+    let stream_open = decode_control_envelope(
+        &vector("artifacts/valid/envelopes/stream-open.cbor"),
+        crate::CoreV02Limits::default(),
+    )
+    .unwrap();
+    let stream_accept = decode_control_envelope(
+        &vector("artifacts/valid/envelopes/stream-accept.cbor"),
+        crate::CoreV02Limits::default(),
+    )
+    .unwrap();
+    let before_snapshot = session.stream_credit_snapshot(channel_id).unwrap();
+    let before_state = session.stream_credit_test_state(channel_id, 1);
+    let before_audit = session.audit_events().len();
+
+    assert_eq!(
+        session.authorize_stream_open(channel_id, &stream_open),
+        Err(SessionReject::StreamCredit(
+            StreamCreditReject::FallbackForbidden
+        ))
+    );
+    assert_eq!(
+        session.confirm_stream_accept(channel_id, &stream_accept),
+        Err(SessionReject::StreamCredit(
+            StreamCreditReject::FallbackForbidden
+        ))
+    );
+    assert_eq!(
+        session.authorize_application_stream(channel_id, 4),
+        Err(SessionReject::StreamCredit(
+            StreamCreditReject::FallbackForbidden
+        ))
+    );
+    assert_eq!(
+        session.stream_credit_snapshot(channel_id).unwrap(),
+        before_snapshot
+    );
+    assert_eq!(
+        session.stream_credit_test_state(channel_id, 1),
+        before_state
+    );
+    assert_eq!(session.audit_events().len(), before_audit);
+
+    session
+        .authorize_credited_stream(
+            StreamCreditPreface {
+                channel_id,
+                channel_generation: 1,
+                credit_epoch: 1,
+                credit_slot: 0,
+                quic_stream_id: 4,
+            },
+            4,
+        )
+        .expect("legacy rejection leaves credit, P1F replay, and live capacity reusable");
+    session
+        .application_stream_permit(channel_id, 4)
+        .expect("V1 permit accepts a credited live stream");
+
+    source.close().await.unwrap();
+    destination.close().await.unwrap();
+    listener.close().await.unwrap();
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn legacy_fallback_requires_policy_permission_and_preserves_legacy_flow() {
+    let (listener, source, destination) = connection_pair().await;
+    let route_accept = decode_control_envelope(
+        &vector("artifacts/valid/envelopes/route-accept.cbor"),
+        crate::CoreV02Limits::default(),
+    )
+    .unwrap();
+
+    let (mut required, required_channel) = pending_session(
+        &destination,
+        Arc::new(ManualClock::new()),
+        ReplayHistoryLimit::MAX,
+    );
+    assert_eq!(
+        required.select_stream_credit_profile(required_channel.channel_id, true, None, false),
+        Err(SessionReject::StreamCredit(StreamCreditReject::Downgrade))
+    );
+    assert_eq!(
+        required.confirm_route_accept(&route_accept),
+        Err(SessionReject::StreamCredit(StreamCreditReject::Downgrade)),
+        "a failed required-V1 negotiation cannot be confirmed as Legacy"
+    );
+
+    let (mut forbidden_legacy, forbidden_channel) = pending_session(
+        &destination,
+        Arc::new(ManualClock::new()),
+        ReplayHistoryLimit::MAX,
+    );
+    assert_eq!(
+        forbidden_legacy.select_stream_credit_profile(
+            forbidden_channel.channel_id,
+            true,
+            None,
+            true,
+        ),
+        Err(SessionReject::StreamCredit(
+            StreamCreditReject::FallbackForbidden
+        ))
+    );
+    assert_eq!(
+        forbidden_legacy.confirm_route_accept(&route_accept),
+        Err(SessionReject::StreamCredit(StreamCreditReject::Downgrade)),
+        "an explicit Legacy downgrade cannot be confirmed after V1 was required"
+    );
+
+    let (mut explicit_legacy, legacy_channel) = pending_session(
+        &destination,
+        Arc::new(ManualClock::new()),
+        ReplayHistoryLimit::MAX,
+    );
+    assert_eq!(
+        explicit_legacy
+            .select_stream_credit_profile(legacy_channel.channel_id, false, None, true)
+            .unwrap(),
+        crate::StreamCreditProfile::Legacy
+    );
+    explicit_legacy.confirm_route_accept(&route_accept).unwrap();
+    destination
+        .bind_channel(&mut explicit_legacy, legacy_channel.channel_id)
+        .unwrap();
+    let stream_open = decode_control_envelope(
+        &vector("artifacts/valid/envelopes/stream-open.cbor"),
+        crate::CoreV02Limits::default(),
+    )
+    .unwrap();
+    let stream_accept = decode_control_envelope(
+        &vector("artifacts/valid/envelopes/stream-accept.cbor"),
+        crate::CoreV02Limits::default(),
+    )
+    .unwrap();
+    explicit_legacy
+        .authorize_stream_open(legacy_channel.channel_id, &stream_open)
+        .expect("explicit Legacy keeps the Core-v0.2 STREAM_OPEN path");
+    explicit_legacy
+        .confirm_stream_accept(legacy_channel.channel_id, &stream_accept)
+        .expect("explicit Legacy keeps the Core-v0.2 STREAM_ACCEPT path");
+    explicit_legacy
+        .application_stream_permit(legacy_channel.channel_id, 4)
+        .expect("explicit Legacy keeps its application permit path");
+
+    source.close().await.unwrap();
+    destination.close().await.unwrap();
+    listener.close().await.unwrap();
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]

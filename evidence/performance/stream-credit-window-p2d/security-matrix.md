@@ -2,7 +2,8 @@
 
 | Property | Evidence | Result |
 |---|---|---|
-| Explicit profile; no silent fallback or Core numeric change | Normative `design/stream-credit-extension.md`; existing legacy path remains separately selected | PASS |
+| Explicit profile; no silent fallback or Core numeric change | `legacy_fallback_requires_policy_permission_and_preserves_legacy_flow`: omitted/explicit required-V1 downgrade fails while explicitly allowed Legacy keeps the unchanged Core path | PASS |
+| V1 cannot bypass credit through legacy stream entrypoints | `v1_rejects_legacy_stream_paths_without_mutation_then_accepts_credited_retry`; live `live_v1_rejects_legacy_stream_open_then_credited_retry_succeeds`; credited-only permit validation | PASS |
 | Exact session/channel/route/grant/generation/revocation binding | `consume_rejects_invalid_duplicate_and_wrong_authority_without_mutation`; live wrong-channel integration | PASS |
 | No application payload before same-stream ACCEPT | `credited_stream_waits_for_same_stream_accept_then_echoes_without_stream_open` | PASS |
 | Bounded, closed preface parsing | exact vector suite; bounded-reader malformed/oversized/truncated tests; malformed live integration | PASS |

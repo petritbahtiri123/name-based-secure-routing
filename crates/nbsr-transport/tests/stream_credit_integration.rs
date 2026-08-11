@@ -291,6 +291,68 @@ async fn credited_stream_waits_for_same_stream_accept_then_echoes_without_stream
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn live_v1_rejects_legacy_stream_open_then_credited_retry_succeeds() {
+    let (listener, source, destination) = connection_pair().await;
+    let (mut source_control, mut destination_control) =
+        prime_control_stream(&source, &destination).await;
+    let (source_session, channel) = credited_session(&source);
+    let (destination_session, destination_channel) = credited_session(&destination);
+    let channel_id = channel.channel_id;
+    assert_eq!(channel_id, destination_channel.channel_id);
+
+    let stream_open = decode_control_envelope(
+        &vector("artifacts/valid/envelopes/stream-open.cbor"),
+        CoreV02Limits::default(),
+    )
+    .unwrap();
+    let before = destination_session.inspect(|session| {
+        (
+            session.stream_credit_snapshot(channel_id).unwrap(),
+            session.audit_events().len(),
+        )
+    });
+    source_control.send_envelope(&stream_open).await.unwrap();
+    let received = destination_control
+        .receive_envelope(CoreV02Limits::default())
+        .await
+        .unwrap();
+    assert_eq!(
+        destination_session.update(|session| session.authorize_stream_open(channel_id, &received)),
+        Err(SessionReject::StreamCredit(
+            StreamCreditReject::FallbackForbidden
+        ))
+    );
+    assert_eq!(
+        destination_session.inspect(|session| {
+            (
+                session.stream_credit_snapshot(channel_id).unwrap(),
+                session.audit_events().len(),
+            )
+        }),
+        before,
+        "the received legacy control frame cannot consume credit, P1F replay, live capacity, or audit"
+    );
+
+    let (mut accepted, mut opened) = tokio::join!(
+        destination.accept_credited_session_stream(&destination_session, channel_id),
+        source.open_credited_session_stream(&source_session, channel_id),
+    );
+    let accepted = accepted.as_mut().expect("credited destination retry");
+    let opened = opened.as_mut().expect("credited source retry");
+    assert_eq!(accepted.id(), 4);
+    assert_eq!(opened.id(), 4);
+    let payload = b"credited retry after rejected legacy STREAM_OPEN";
+    let (at_destination, at_source) =
+        tokio::join!(accepted.echo_once(), opened.send_and_receive(payload));
+    assert_eq!(at_destination.unwrap(), payload);
+    assert_eq!(at_source.unwrap(), payload);
+
+    source.close().await.unwrap();
+    destination.close().await.unwrap();
+    listener.close().await.unwrap();
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn malformed_early_bytes_reject_before_admission_and_do_not_consume_state() {
     let (listener, source, destination) = connection_pair().await;
     let (source_session, channel) = credited_session(&source);

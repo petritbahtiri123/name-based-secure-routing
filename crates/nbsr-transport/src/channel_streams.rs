@@ -256,6 +256,19 @@ impl ChannelStreams {
         }
     }
 
+    pub(crate) fn validate_credited_application_stream(
+        &self,
+        channel_id: &[u8; 16],
+        stream_id: u64,
+    ) -> Result<(), StreamReject> {
+        let entry = self.entry(channel_id, stream_id)?;
+        if entry.credit_epoch.is_some() {
+            Ok(())
+        } else {
+            Err(StreamReject::ControlRejected)
+        }
+    }
+
     pub(crate) fn revoke_channel(&mut self, channel_id: &[u8; 16]) {
         if let Some(channel) = self.channels.remove(channel_id) {
             for _ in 0..channel.streams.len() {
@@ -581,6 +594,30 @@ mod tests {
             Some(CreditedStreamReject::ReplayCapacity)
         );
         assert_eq!(streams.used_stream_ids.len(), 1);
+    }
+
+    #[test]
+    fn credited_permit_validation_rejects_a_legacy_live_entry() {
+        let active = channel(1);
+        let mut streams = ChannelStreams::new(ReplayHistoryLimit::MAX);
+        authorize(&mut streams, &active, 4);
+        streams
+            .validate_application_stream(&active.channel_id, 4)
+            .expect("Legacy validation remains compatible");
+        assert_eq!(
+            streams
+                .validate_credited_application_stream(&active.channel_id, 4)
+                .err(),
+            Some(StreamReject::ControlRejected)
+        );
+
+        let prepared = streams
+            .prepare_credited(&active, 8)
+            .expect("credited stream prepares");
+        streams.commit_credited_open(prepared, 1);
+        streams
+            .validate_credited_application_stream(&active.channel_id, 8)
+            .expect("credited validation accepts only a credited live entry");
     }
 
     #[test]
