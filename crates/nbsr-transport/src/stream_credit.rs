@@ -1,8 +1,7 @@
-//! Closed, bounded codec for the `nbsr-stream-credit-1` stream preface.
+//! Closed, bounded codec and admission window for the `nbsr-stream-credit-1` profile.
 //!
-//! This module intentionally contains no admission state.  It only selects
-//! the explicitly negotiated profile and validates one preface against the
-//! authenticated channel/session/QUIC identities supplied by the caller.
+//! The codec recognizes only the pinned integer-keyed CBOR map. The admission
+//! state keeps one current and at most one draining fixed-size credit epoch.
 
 use std::collections::HashMap;
 
@@ -423,7 +422,7 @@ impl StreamCreditWindows {
     }
 
     #[cfg(test)]
-    fn used_bitmap(&self, binding: &StreamCreditBinding, epoch: u64) -> Option<u64> {
+    pub(crate) fn used_bitmap(&self, binding: &StreamCreditBinding, epoch: u64) -> Option<u64> {
         self.entry(binding)
             .ok()
             .and_then(|entry| Self::epoch(&entry.state, epoch).ok())

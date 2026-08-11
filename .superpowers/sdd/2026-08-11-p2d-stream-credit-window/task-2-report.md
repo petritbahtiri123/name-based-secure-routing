@@ -84,3 +84,93 @@ Self-review confirmed:
 ## Commit and publication
 
 Task 2 files are committed locally only. No push, pull, merge, rebase, or protected-ref mutation was performed. The commit SHA is recorded after creation in the handoff response.
+
+## Fix round 1: transport identity and commit-time authority
+
+Independent review found two admission-boundary gaps: the session accepted the
+preface's self-asserted QUIC stream ID as the replay key, and it did not recheck
+time-dependent authority after the audit write immediately before committing the
+credit and replay state.
+
+### Literal RED/GREEN evidence
+
+All commands below ran from `crates/nbsr-transport` with
+`CARGO_TARGET_DIR=C:\Users\bajra\.codex\targets\nbsr-p2d-task2`.
+
+Transport-owned stream identity RED:
+
+```text
+cargo test credited_admission_commits_slot_and_replay_together_under_live_authority
+```
+
+Result: exit 1 with 9 `E0061` compile errors because the required
+`actual_stream_id` authority argument did not exist. After adding the argument,
+rejecting a preface/actual-ID mismatch before any admission mutation, and using
+the actual ID for P1F prepare, the same command passed: 1 passed, 0 failed.
+Retrying the exact same slot and stream after the mismatch proves that neither
+credit nor replay state was consumed.
+
+Post-audit expiry RED used the same focused command. Result: exit 1 with 1
+behavioral failure (`left: Ok(())`, `right: Err(StreamCredit(Expired))`). A
+stepping implementation of the existing private `SessionClock` test dependency
+returned exact grant expiry for pre-audit prepare and expiry plus one for the
+post-audit read. After extracting one authority check used both before prepare
+and immediately after audit, before commit, the command passed: 1 passed, 0
+failed. Resetting to exact expiry and retrying the same slot/stream succeeded,
+proving no credit or replay mutation on the post-audit expiry rejection.
+
+### Added regression coverage
+
+```text
+cargo test session_tests::
+```
+
+Result: 7 passed, 0 failed. Dedicated live-session regressions now cover:
+
+- transport-owned actual stream binding and mismatch rollback;
+- exact RouteGrant expiry equality, expiry plus one, and expiry crossed during audit;
+- a full 1,024-entry audit queue with retry of the same credit and replay key;
+- `ReplayHistoryLimit` set to one, with the rejected second stream leaving its credit unused;
+- audit-unavailable resume rollback removing the active channel, profile, and credit window;
+- revocation rejecting further credited admission;
+- legacy/no-profile rejection and exact session expiry.
+
+The test-only low-cap constructor, audit filler, and credit-state observation are
+all `cfg(test)` and do not add a production API or change production authority.
+The stale stream-credit module comment was corrected to describe its bounded
+codec and admission-window responsibilities.
+
+### Fresh final verification
+
+```text
+cargo test
+cargo fmt --check
+cargo clippy --all-targets -- -D warnings
+git diff --check
+```
+
+All commands exited 0. Full suite: 166 passed, 0 failed, 1 ignored. The ignored
+test remains the pre-existing P1F ten-minute evidence-only soak. Formatting,
+strict all-target Clippy, and diff whitespace checks passed without warnings or
+errors (Git emitted only the repository's line-ending conversion notices during
+the diff check).
+
+### Fix-round self-review and concerns
+
+- `authorize_credited_stream` now accepts transport-owned `actual_stream_id` and
+  compares it with the decoded preface before session, credit, stream, replay, or
+  audit mutation.
+- The exact same session/profile/bound-channel/grant-expiry/generation authority
+  helper runs before prepare and after audit. The second call is immediately
+  before the two commits and reads both authoritative clocks again.
+- Credit and P1F replay prepare remain non-mutating; audit-full, replay-full,
+  stream-ID mismatch, and post-audit expiry tests all inspect the bitmap and/or
+  retry the identical authority to prove rollback behavior.
+- `used_stream_ids`, `ReplayHistoryLimit`, Core wire values, legacy STREAM_OPEN,
+  and channel/session cleanup semantics remain unchanged.
+- The controller-owned untracked normative and plan documents were not staged or
+  modified. No push or protected-ref operation was performed.
+
+Remaining non-claim: this task still does not wire credited-preface admission to
+live QUIC stream receive I/O; that future caller must pass the transport-observed
+stream ID through the now-mandatory argument.

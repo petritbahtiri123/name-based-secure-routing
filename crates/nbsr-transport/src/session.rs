@@ -185,6 +185,26 @@ impl ControlSession {
         )
     }
 
+    #[cfg(test)]
+    pub(crate) fn new_with_clock_and_replay_history_limit(
+        connection: &AuthenticatedConnection,
+        admission: DestinationAdmission,
+        trusted_issuers: Vec<RouteGrantIssuer>,
+        trust_profile_id: TrustProfileId,
+        clock: Arc<dyn SessionClock>,
+        replay_history_limit: ReplayHistoryLimit,
+    ) -> Self {
+        Self::new_inner(
+            connection,
+            admission,
+            trusted_issuers,
+            trust_profile_id,
+            clock,
+            None,
+            replay_history_limit,
+        )
+    }
+
     fn new_inner(
         connection: &AuthenticatedConnection,
         admission: DestinationAdmission,
@@ -355,6 +375,55 @@ impl ControlSession {
 
     pub fn pop_audit_event(&mut self) -> Option<AuditEvent> {
         self.admission.pop_audit_event()
+    }
+
+    #[cfg(test)]
+    pub(crate) fn fill_audit_for_test(&mut self, channel_id: [u8; 16]) {
+        while self.audit_events().len() < 1_024 {
+            self.admission
+                .audit_stream_authorized(&channel_id)
+                .expect("test audit capacity");
+        }
+    }
+
+    #[cfg(test)]
+    pub(crate) fn stream_credit_test_state(
+        &self,
+        channel_id: [u8; 16],
+        epoch: u64,
+    ) -> (bool, bool, Option<u64>, bool) {
+        let session_id = self.established_session_id().ok();
+        let binding = session_id.and_then(|session_id| {
+            let channel = self.admission.channel(&channel_id)?;
+            let (channel_generation, revocation_generation) =
+                self.admission.credit_generations(&channel_id)?;
+            Some(StreamCreditBinding {
+                profile: crate::StreamCreditProfile::V1,
+                session_id,
+                route_id: channel.route_id,
+                route_grant_digest: channel.route_grant_digest,
+                channel_id,
+                channel_generation,
+                revocation_generation,
+            })
+        });
+        let bitmap = binding
+            .as_ref()
+            .and_then(|binding| self.stream_credits.used_bitmap(binding, epoch));
+        let pending = matches!(
+            &self.state,
+            SessionState::Established {
+                pending: Some(candidate),
+                ..
+            } if candidate.channel_id == channel_id
+        );
+        (
+            self.stream_credit_profiles.contains_key(&channel_id),
+            session_id
+                .is_some_and(|session_id| self.stream_credits.has_channel(session_id, channel_id)),
+            bitmap,
+            pending,
+        )
     }
 
     pub fn accept_client_hello(&mut self, envelope: &CoreV02Envelope) -> Result<(), SessionReject> {
@@ -726,7 +795,60 @@ impl ControlSession {
     pub fn authorize_credited_stream(
         &mut self,
         preface: StreamCreditPreface,
+        actual_stream_id: u64,
     ) -> Result<(), SessionReject> {
+        let (channel, binding) =
+            self.require_credited_stream_authority(&preface, actual_stream_id)?;
+        let prepared_credit = self
+            .stream_credits
+            .prepare_consume(&binding, preface.credit_epoch, preface.credit_slot)
+            .map_err(SessionReject::StreamCredit)?;
+        let prepared_stream = match self.streams.prepare_credited(&channel, actual_stream_id) {
+            Ok(prepared) => prepared,
+            Err(CreditedStreamReject::InvalidStream) => {
+                return Err(SessionReject::StreamCredit(StreamCreditReject::WrongStream));
+            }
+            Err(CreditedStreamReject::DuplicateStream) => {
+                return Err(SessionReject::StreamCredit(
+                    StreamCreditReject::DuplicateStream,
+                ));
+            }
+            Err(CreditedStreamReject::OverCapacity) => {
+                self.admission
+                    .audit_quota_denial(&preface.channel_id)
+                    .map_err(map_admission_audit)?;
+                return Err(SessionReject::StreamCredit(
+                    StreamCreditReject::OverCapacity,
+                ));
+            }
+            Err(CreditedStreamReject::ReplayCapacity) => {
+                self.admission
+                    .audit_quota_denial(&preface.channel_id)
+                    .map_err(map_admission_audit)?;
+                return Err(SessionReject::StreamCredit(
+                    StreamCreditReject::ReplayCapacity,
+                ));
+            }
+        };
+        self.admission
+            .audit_stream_authorized(&preface.channel_id)
+            .map_err(map_admission_audit)?;
+        self.require_credited_stream_authority(&preface, actual_stream_id)?;
+        self.stream_credits
+            .commit_consume(prepared_credit)
+            .map_err(SessionReject::StreamCredit)?;
+        self.streams.commit_open(prepared_stream);
+        Ok(())
+    }
+
+    fn require_credited_stream_authority(
+        &self,
+        preface: &StreamCreditPreface,
+        actual_stream_id: u64,
+    ) -> Result<(ActiveChannel, StreamCreditBinding), SessionReject> {
+        if preface.quic_stream_id != actual_stream_id {
+            return Err(SessionReject::StreamCredit(StreamCreditReject::WrongStream));
+        }
         self.require_session_active()?;
         let session_id = self.established_session_id()?;
         let channel = self.bound_channel(&preface.channel_id)?.clone();
@@ -763,48 +885,7 @@ impl ControlSession {
                 StreamCreditReject::WrongGeneration,
             ));
         }
-        let prepared_credit = self
-            .stream_credits
-            .prepare_consume(&binding, preface.credit_epoch, preface.credit_slot)
-            .map_err(SessionReject::StreamCredit)?;
-        let prepared_stream = match self
-            .streams
-            .prepare_credited(&channel, preface.quic_stream_id)
-        {
-            Ok(prepared) => prepared,
-            Err(CreditedStreamReject::InvalidStream) => {
-                return Err(SessionReject::StreamCredit(StreamCreditReject::WrongStream));
-            }
-            Err(CreditedStreamReject::DuplicateStream) => {
-                return Err(SessionReject::StreamCredit(
-                    StreamCreditReject::DuplicateStream,
-                ));
-            }
-            Err(CreditedStreamReject::OverCapacity) => {
-                self.admission
-                    .audit_quota_denial(&preface.channel_id)
-                    .map_err(map_admission_audit)?;
-                return Err(SessionReject::StreamCredit(
-                    StreamCreditReject::OverCapacity,
-                ));
-            }
-            Err(CreditedStreamReject::ReplayCapacity) => {
-                self.admission
-                    .audit_quota_denial(&preface.channel_id)
-                    .map_err(map_admission_audit)?;
-                return Err(SessionReject::StreamCredit(
-                    StreamCreditReject::ReplayCapacity,
-                ));
-            }
-        };
-        self.admission
-            .audit_stream_authorized(&preface.channel_id)
-            .map_err(map_admission_audit)?;
-        self.stream_credits
-            .commit_consume(prepared_credit)
-            .map_err(SessionReject::StreamCredit)?;
-        self.streams.commit_open(prepared_stream);
-        Ok(())
+        Ok((channel, binding))
     }
 
     pub fn confirm_stream_accept(

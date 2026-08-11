@@ -5,12 +5,13 @@ use std::sync::Arc;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::Duration;
 
+use crate::channel_streams::ReplayHistoryLimit;
 use crate::session::SessionClock;
 use crate::{
-    AdmissionPolicy, AuthorizedServicePolicy, ControlSession, DestinationAdmission, EdgeIdentity,
-    EdgeRole, PeerPolicy, ResumeReject, RouteGrantIssuer, SessionReject, StreamCreditPreface,
-    StreamCreditReject, TransportListener, TrustProfileId, build_client_config,
-    build_server_config, connect, decode_control_envelope,
+    ActiveChannel, AdmissionPolicy, AuthorizedServicePolicy, ControlSession, DestinationAdmission,
+    EdgeIdentity, EdgeRole, PeerPolicy, ResumeReject, RouteGrantIssuer, SessionReject,
+    StreamCreditPreface, StreamCreditReject, TransportListener, TrustProfileId,
+    build_client_config, build_server_config, connect, decode_control_envelope,
 };
 use ed25519_dalek::SigningKey;
 
@@ -21,6 +22,7 @@ const NOW: u64 = 1_893_456_000;
 
 struct ManualClock {
     unix: AtomicU64,
+    unix_after_next_read: AtomicU64,
     monotonic: AtomicU64,
 }
 
@@ -28,6 +30,7 @@ impl ManualClock {
     fn new() -> Self {
         Self {
             unix: AtomicU64::new(NOW),
+            unix_after_next_read: AtomicU64::new(0),
             monotonic: AtomicU64::new(0),
         }
     }
@@ -39,11 +42,20 @@ impl ManualClock {
     fn set_unix(&self, value: u64) {
         self.unix.store(value, Ordering::SeqCst);
     }
+
+    fn set_unix_after_next_read(&self, value: u64) {
+        self.unix_after_next_read.store(value, Ordering::SeqCst);
+    }
 }
 
 impl SessionClock for ManualClock {
     fn unix_seconds(&self) -> u64 {
-        self.unix.load(Ordering::SeqCst)
+        let current = self.unix.load(Ordering::SeqCst);
+        let next = self.unix_after_next_read.swap(0, Ordering::SeqCst);
+        if next != 0 {
+            self.unix.store(next, Ordering::SeqCst);
+        }
+        current
     }
 
     fn monotonic_seconds(&self) -> u64 {
@@ -165,6 +177,69 @@ fn trusted_issuer() -> RouteGrantIssuer {
     }
 }
 
+fn credited_session(
+    destination: &crate::AuthenticatedConnection,
+    clock: Arc<ManualClock>,
+    replay_history_limit: ReplayHistoryLimit,
+) -> (ControlSession, ActiveChannel) {
+    let mut session = ControlSession::new_with_clock_and_replay_history_limit(
+        destination,
+        admission(),
+        vec![trusted_issuer()],
+        TrustProfileId::new("test-profile").unwrap(),
+        clock,
+        replay_history_limit,
+    );
+    session
+        .accept_client_hello(
+            &decode_control_envelope(
+                &vector("artifacts/valid/envelopes/client-hello.cbor"),
+                crate::CoreV02Limits::default(),
+            )
+            .unwrap(),
+        )
+        .unwrap();
+    session
+        .confirm_edge_hello(
+            &decode_control_envelope(
+                &vector("artifacts/valid/envelopes/edge-hello.cbor"),
+                crate::CoreV02Limits::default(),
+            )
+            .unwrap(),
+        )
+        .unwrap();
+    let channel = session
+        .accept_route_open(
+            &decode_control_envelope(
+                &vector("artifacts/valid/envelopes/route-open.cbor"),
+                crate::CoreV02Limits::default(),
+            )
+            .unwrap(),
+        )
+        .unwrap();
+    session
+        .select_stream_credit_profile(
+            channel.channel_id,
+            true,
+            Some(crate::STREAM_CREDIT_PROFILE_ID),
+            false,
+        )
+        .unwrap();
+    session
+        .confirm_route_accept(
+            &decode_control_envelope(
+                &vector("artifacts/valid/envelopes/route-accept.cbor"),
+                crate::CoreV02Limits::default(),
+            )
+            .unwrap(),
+        )
+        .unwrap();
+    destination
+        .bind_channel(&mut session, channel.channel_id)
+        .unwrap();
+    (session, channel)
+}
+
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn credited_admission_commits_slot_and_replay_together_under_live_authority() {
     let (listener, source, destination) = connection_pair().await;
@@ -235,37 +310,65 @@ async fn credited_admission_commits_slot_and_replay_together_under_live_authorit
         credit_slot: slot,
         quic_stream_id: stream_id,
     };
-    session.authorize_credited_stream(preface(0, 4)).unwrap();
+    assert_eq!(
+        session.authorize_credited_stream(preface(0, 4), 8),
+        Err(SessionReject::StreamCredit(StreamCreditReject::WrongStream))
+    );
+    session
+        .authorize_credited_stream(preface(0, 4), 4)
+        .expect("mismatched actual stream did not consume credit or replay state");
     session
         .application_stream_permit(channel.channel_id, 4)
         .unwrap();
     assert_eq!(
-        session.authorize_credited_stream(preface(1, 4)),
+        session.authorize_credited_stream(preface(1, 4), 4),
         Err(SessionReject::StreamCredit(
             StreamCreditReject::DuplicateStream
         ))
     );
     session
-        .authorize_credited_stream(preface(1, 8))
+        .authorize_credited_stream(preface(1, 8), 8)
         .expect("P1F rejection did not consume slot one");
     assert_eq!(
-        session.authorize_credited_stream(preface(1, 12)),
+        session.authorize_credited_stream(preface(1, 12), 12),
         Err(SessionReject::StreamCredit(
             StreamCreditReject::DuplicateSlot
         ))
     );
     clock.set_unix(u64::MAX);
     assert_eq!(
-        session.authorize_credited_stream(preface(2, 12)),
+        session.authorize_credited_stream(preface(2, 12), 12),
         Err(SessionReject::StreamCredit(StreamCreditReject::Expired))
     );
     clock.set_unix(NOW);
     session
-        .authorize_credited_stream(preface(2, 12))
+        .authorize_credited_stream(preface(2, 12), 12)
         .expect("expiry rejection did not consume slot or replay state");
+    clock.set_unix(NOW + 300);
+    clock.set_unix_after_next_read(NOW + 301);
+    assert_eq!(
+        session.authorize_credited_stream(preface(3, 16), 16),
+        Err(SessionReject::StreamCredit(StreamCreditReject::Expired))
+    );
+    clock.set_unix(NOW + 300);
+    session
+        .authorize_credited_stream(preface(3, 16), 16)
+        .expect("post-audit expiry did not consume credit or replay state");
+    clock.set_unix(NOW + 301);
+    assert_eq!(
+        session.authorize_credited_stream(preface(4, 20), 20),
+        Err(SessionReject::StreamCredit(StreamCreditReject::Expired))
+    );
+    clock.set_unix(NOW);
     clock.set_monotonic(3_600);
     assert_eq!(
-        session.authorize_credited_stream(preface(3, 16)),
+        session.authorize_credited_stream(preface(4, 20), 20),
+        Err(SessionReject::InvalidChannelState)
+    );
+    clock.set_monotonic(0);
+    session.revoke_channel(channel.channel_id, NOW).unwrap();
+    assert_eq!(
+        session.authorize_credited_stream(preface(4, 20), 20),
         Err(SessionReject::InvalidChannelState)
     );
 
@@ -310,16 +413,133 @@ async fn credited_admission_commits_slot_and_replay_together_under_live_authorit
         .bind_channel(&mut legacy, legacy_channel.channel_id)
         .unwrap();
     assert_eq!(
-        legacy.authorize_credited_stream(StreamCreditPreface {
-            channel_id: legacy_channel.channel_id,
-            channel_generation: 1,
-            credit_epoch: 1,
-            credit_slot: 0,
-            quic_stream_id: 4,
-        }),
+        legacy.authorize_credited_stream(
+            StreamCreditPreface {
+                channel_id: legacy_channel.channel_id,
+                channel_generation: 1,
+                credit_epoch: 1,
+                credit_slot: 0,
+                quic_stream_id: 4,
+            },
+            4,
+        ),
         Err(SessionReject::StreamCredit(
             StreamCreditReject::ProfileUnsupported
         ))
+    );
+
+    source.close().await.unwrap();
+    destination.close().await.unwrap();
+    listener.close().await.unwrap();
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn audit_full_rejection_leaves_credit_and_replay_uncommitted() {
+    let (listener, source, destination) = connection_pair().await;
+    let (mut session, channel) = credited_session(
+        &destination,
+        Arc::new(ManualClock::new()),
+        ReplayHistoryLimit::MAX,
+    );
+    let preface = StreamCreditPreface {
+        channel_id: channel.channel_id,
+        channel_generation: 1,
+        credit_epoch: 1,
+        credit_slot: 0,
+        quic_stream_id: 4,
+    };
+
+    session.fill_audit_for_test(channel.channel_id);
+    assert_eq!(
+        session.authorize_credited_stream(preface, 4),
+        Err(SessionReject::AuditUnavailable)
+    );
+    assert_eq!(
+        session.stream_credit_test_state(channel.channel_id, 1),
+        (true, true, Some(0), false)
+    );
+    session.pop_audit_event().expect("one audit slot available");
+    session
+        .authorize_credited_stream(preface, 4)
+        .expect("audit failure did not consume credit or replay state");
+    assert_eq!(
+        session.stream_credit_test_state(channel.channel_id, 1),
+        (true, true, Some(1), false)
+    );
+
+    source.close().await.unwrap();
+    destination.close().await.unwrap();
+    listener.close().await.unwrap();
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn low_p1f_cap_rejection_does_not_consume_the_prepared_credit() {
+    let (listener, source, destination) = connection_pair().await;
+    let (mut session, channel) = credited_session(
+        &destination,
+        Arc::new(ManualClock::new()),
+        ReplayHistoryLimit::try_from(1).unwrap(),
+    );
+    let preface = |slot, stream_id| StreamCreditPreface {
+        channel_id: channel.channel_id,
+        channel_generation: 1,
+        credit_epoch: 1,
+        credit_slot: slot,
+        quic_stream_id: stream_id,
+    };
+
+    session.authorize_credited_stream(preface(0, 4), 4).unwrap();
+    assert_eq!(
+        session.authorize_credited_stream(preface(1, 8), 8),
+        Err(SessionReject::StreamCredit(
+            StreamCreditReject::ReplayCapacity
+        ))
+    );
+    assert_eq!(
+        session.stream_credit_test_state(channel.channel_id, 1),
+        (true, true, Some(1), false)
+    );
+
+    source.close().await.unwrap();
+    destination.close().await.unwrap();
+    listener.close().await.unwrap();
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn audit_unavailable_resume_rollback_always_clears_credit_authority() {
+    let (listener, source, destination) = connection_pair().await;
+    let (mut session, channel) = credited_session(
+        &destination,
+        Arc::new(ManualClock::new()),
+        ReplayHistoryLimit::MAX,
+    );
+    assert_eq!(
+        session.stream_credit_test_state(channel.channel_id, 1),
+        (true, true, Some(0), false)
+    );
+    session.fill_audit_for_test(channel.channel_id);
+
+    assert_eq!(
+        session.rollback_resume_admission(channel.channel_id),
+        Err(ResumeReject::AuditUnavailable)
+    );
+    assert_eq!(session.active_channels(), 0);
+    assert_eq!(
+        session.stream_credit_test_state(channel.channel_id, 1),
+        (false, false, None, false)
+    );
+    assert_eq!(
+        session.authorize_credited_stream(
+            StreamCreditPreface {
+                channel_id: channel.channel_id,
+                channel_generation: 1,
+                credit_epoch: 1,
+                credit_slot: 0,
+                quic_stream_id: 4,
+            },
+            4,
+        ),
+        Err(SessionReject::UnexpectedMessage)
     );
 
     source.close().await.unwrap();
