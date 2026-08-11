@@ -2,22 +2,27 @@
   "schema": "nbsr-p2d-final-analysis-v1",
   "outcome": "Outcome A — ACCEPTED AND RETAINED",
   "authoritative_attempt": {
-    "path": "attempt-4-final",
-    "analysis": "attempt-4-final/analysis.json",
-    "source_binding": "attempt-4-final/source-binding.json",
-    "measured_source_sha256": "9db03d84162a55fcfcc6bae461d97fa4ac0f81db53ac0ab319b43c5e3d2729cf",
-    "source_binary_sha256": "19db8113b87ca4f3af80e069d334b0ee94896494171a46dba495ef4d532fb752",
-    "server_binary_sha256": "7d4a7b8696c56fcf4c7e4e1f2cdc7af13fe6774dab3535cc274d283079e67053"
+    "path": "attempt-5-final-security-review",
+    "analysis": "attempt-5-final-security-review/analysis.json",
+    "source_binding": "attempt-5-final-security-review/source-binding.json",
+    "measured_source_sha256": "e32e8b4c4b2187c2fb1412909fcdc2449b771e2b096c763175ade7e2396c2cb3",
+    "source_binary_sha256": "4f0cbd64b3fd6111790faaddcc0bff1262c631413e98a3bc2b3e6e31def57c51",
+    "server_binary_sha256": "2d30d6118d6417c775824a85956cae40bc0cd596933449bf44407fa7a6fe9df4"
   },
   "superseded_valid_attempts": [
     {
       "path": "attempt-2-bounded-replay",
-      "reason": "valid bounded-replay evidence predates final rustfmt-clean source binding",
+      "reason": "valid bounded-replay evidence predates the rustfmt-clean source binding",
       "authoritative": false
     },
     {
       "path": "attempt-3-rustfmt-clean",
-      "reason": "valid exact-source evidence predates the final benchmark-only Clippy refactor",
+      "reason": "valid exact-source evidence predates the benchmark-only Clippy refactor",
+      "authoritative": false
+    },
+    {
+      "path": "attempt-4-final",
+      "reason": "valid bounded-replay evidence predates the consolidated security and evidence-integrity corrections",
       "authoritative": false
     }
   ],
@@ -31,18 +36,18 @@
   "selected_saturation_concurrency": 64,
   "paired": {
     "pairs": 3,
-    "before_operations_per_second": [5454.679989208115, 5040.756297166877, 5077.883544323328],
-    "after_operations_per_second": [18032.892167687096, 18967.290613873924, 19058.939410272167],
-    "before_p99_ns": [11953600, 13416900, 12899000],
-    "after_p99_ns": [4628400, 3266000, 3138800],
-    "before_median_operations_per_second": 5077.883544323328,
-    "after_median_operations_per_second": 18967.290613873924,
-    "throughput_improvement": 2.735274834153661,
-    "before_throughput_cv": 0.0441167692685921,
-    "after_throughput_cv": 0.030384927913230415,
-    "before_median_p99_ns": 12899000,
-    "after_median_p99_ns": 3266000,
-    "p99_change": -0.7468020776804403,
+    "before_operations_per_second": [5324.058645703895, 4979.123778776535, 4954.3241221154],
+    "after_operations_per_second": [18704.122884309796, 18454.95682340869, 18803.032641823007],
+    "before_p99_ns": [13200700, 14012300, 14268600],
+    "after_p99_ns": [3433100, 3642300, 3294900],
+    "before_median_operations_per_second": 4979.123778776535,
+    "after_median_operations_per_second": 18704.122884309796,
+    "throughput_improvement": 2.7565089191065972,
+    "before_throughput_cv": 0.040638275390451235,
+    "after_throughput_cv": 0.00961516591579608,
+    "before_median_p99_ns": 14012300,
+    "after_median_p99_ns": 3433100,
+    "p99_change": -0.7549938268521228,
     "errors": 0
   },
   "stopping_rule": {
@@ -53,8 +58,8 @@
   },
   "continuity": {
     "operations": 1024,
-    "operations_per_second": 18216.070345340402,
-    "p99_ns": 2881700,
+    "operations_per_second": 18813.74211577433,
+    "p99_ns": 2971100,
     "windows": 16,
     "refills": 16,
     "errors": 0,
@@ -63,22 +68,33 @@
     "replay_limit": 10000
   },
   "soak": {
-    "raw": "attempt-4-final/raw/soak/after.json.gz",
-    "duration_seconds": 300.1691775,
-    "operations": 5704000,
-    "operations_per_second": 19002.617282382365,
-    "p99_ns": 3172900,
-    "windows": 89125,
-    "refills": 89125,
+    "raw": "attempt-5-final-security-review/raw/soak/after.json.gz",
+    "duration_seconds": 300.2110533,
+    "operations": 5576000,
+    "operations_per_second": 18573.599934802933,
+    "p99_ns": 3504800,
+    "windows": 87125,
+    "refills": 87125,
     "errors": 0,
     "active_epochs_high_water": 2,
     "replay_entries": 8000,
-    "replay_limit": 10000
+    "replay_limit": 10000,
+    "periods": 697,
+    "first_period_operations_per_second": 19965.101003445976,
+    "last_period_operations_per_second": 18618.92711690801,
+    "median_period_operations_per_second": 18922.997592048556,
+    "worst_period_operations_per_second": 11548.015856003172,
+    "worst_throughput_period": 190,
+    "first_period_p99_ns": 2974800,
+    "last_period_p99_ns": 3032000,
+    "median_period_p99_ns": 3150000,
+    "worst_period_p99_ns": 5791300,
+    "worst_p99_period": 38
   },
   "replay_audit": {
     "aggregate_cells": 24,
-    "shards": 1270,
-    "source_destination_endpoints": 2540,
+    "shards": 1252,
+    "source_destination_endpoints": 2504,
     "required_replay_limit": 10000,
     "violations": 0
   },
@@ -98,7 +114,8 @@
     "timer": "rust-std-instant-qpc",
     "payload_bytes": 1024,
     "p1f_session_shard_limit": 8000,
-    "corrections_used": 3,
-    "corrections_remaining": 0
+    "performance_corrections_used": 3,
+    "performance_corrections_remaining": 0,
+    "consolidated_security_fix_round": 1
   }
 }

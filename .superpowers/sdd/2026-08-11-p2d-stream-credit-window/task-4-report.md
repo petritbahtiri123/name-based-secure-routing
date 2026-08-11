@@ -3,18 +3,18 @@
 ## Result
 
 **DONE — Outcome A — ACCEPTED AND RETAINED.** Final authority is
-`evidence/performance/stream-credit-window-p2d/attempt-4-final/`.
+`evidence/performance/stream-credit-window-p2d/attempt-5-final-security-review/`.
 
 At selected concurrency 64, three matched 60-second BEFORE/AFTER pairs
-measured median throughput 5,077.88 -> 18,967.29 operations/second (+273.53%)
-and median p99 12.8990 -> 3.2660 ms (-74.68%). Sample throughput CV was 4.412%
-BEFORE and 3.038% AFTER. Every pair was on the passing side of both fixed
+measured median throughput 4,979.12 -> 18,704.12 operations/second (+275.65%)
+and median p99 14.0123 -> 3.4331 ms (-75.50%). Sample throughput CV was 4.064%
+BEFORE and 0.962% AFTER. Every pair was on the passing side of both fixed
 thresholds and all six cells had zero errors, so the exact three-pair stopping
 rule applied.
 
-The conditional soak ran 300.1691775 seconds, completed 5,704,000 correct 1
-KiB operations at 19,002.62 operations/second, p99 3.1729 ms, with zero errors,
-89,125 ordered refills, active-epoch high-water 2, and replay 8,000/10,000.
+The conditional soak ran 300.2110533 seconds, completed 5,576,000 correct 1
+KiB operations at 18,573.60 operations/second, p99 3.5048 ms, with zero errors,
+87,125 ordered refills, active-epoch high-water 2, and replay 8,000/10,000.
 All mandatory gates are PASS.
 
 ## Scope and Git boundary
@@ -164,7 +164,7 @@ benchmark-helper `too_many_arguments` warnings.
 Correction 3/3 mechanically grouped benchmark helper parameters into private
 structs. Focused tests, rustfmt, and strict Clippy passed before source freeze.
 
-### Attempt 4 — final authority
+### Attempt 4 — valid but superseded
 
 Output: `attempt-4-final/`. Runner wall duration: 865 seconds. It is bound to
 exact measured source SHA-256
@@ -174,11 +174,12 @@ and release binaries:
 - source: `19db8113b87ca4f3af80e069d334b0ee94896494171a46dba495ef4d532fb752`
 - server: `7d4a7b8696c56fcf4c7e4e1f2cdc7af13fe6774dab3535cc274d283079e67053`
 
-All eight frozen source/doc/runner hashes and both current binary hashes match
-their attempt-4 bindings. All three permitted evidence-driven corrections are
-consumed; no mandatory attempt-4 gate failed.
+All eight then-frozen source/doc/runner hashes and both binary hashes matched
+their attempt-4 bindings, and no mandatory attempt-4 gate failed. A later
+consolidated security/evidence-integrity review required corrected source and
+a new full Attempt 5 ladder, so Attempt 4 is not final authority.
 
-## Final observed cells
+## Historical Attempt 4 observed cells (superseded)
 
 Smoke at concurrency 64 completed 192 operations in each mode. BEFORE was
 5,276.35 ops/s, p99 12.0796 ms. AFTER was 18,216.15 ops/s, p99 2.6645 ms,
@@ -215,7 +216,7 @@ clearly labeled static thousands-channel estimate are in
 Replay audit: 24 aggregate cells, 1,270 shards, 2,540 source/destination shard
 endpoints, required replay limit 10,000, zero violations.
 
-## Final gates
+## Historical Attempt 4 gates (superseded)
 
 | Gate | Result | Final evidence |
 |---|---|---|
@@ -228,7 +229,7 @@ endpoints, required replay limit 10,000, zero violations.
 | soak | PASS | 300.1691775 s, correct payload, zero errors |
 | resource | PASS | CPU measured; epoch HWM2; exact replay cap; stable process state |
 
-## Compression, inventory, and final verification
+## Historical pre-security compression, inventory, and verification
 
 Five JSON artifacts larger than 100 MiB were losslessly, deterministically
 gzip-compressed with level 9, mtime 0, and empty filename header. The package
@@ -377,3 +378,97 @@ library regression tests (premature epoch retirement and two grant-headroom
 cases). Default is 184 because it includes 16 doctests and omits the 8
 feature-only binary tests. These are command-shape differences, not missing
 coverage.
+
+## Attempt 5 — final corrected-source authority
+
+Frozen fix commit:
+`8cc935e1a08de20eaab1abd814906d1854da9bc8`. Before the timed run, Git status
+was empty. All 35 bound inputs recorded zero-byte status, worktree-diff, and
+index-diff identities with the exact empty SHA-256
+`e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`.
+The complete measured-source SHA-256 is
+`e32e8b4c4b2187c2fb1412909fcdc2449b771e2b096c763175ade7e2396c2cb3`.
+The generic `repository_dirty` field is true only because the immutable output
+directory was created before repository-wide status capture; the separately
+recorded complete bound-input identity is clean.
+
+Command:
+
+```powershell
+$env:CARGO_TARGET_DIR='C:\codex-target\nbsr-p2d'
+python scripts/run_p2d_stream_credit.py --suite all --output evidence/performance/stream-credit-window-p2d/attempt-5-final-security-review --security-gate PASS --pair-seconds 60 --soak-seconds 300
+```
+
+Observed runner wall duration: 886.090 seconds. Exact rebuilt binaries:
+
+- source: `4f0cbd64b3fd6111790faaddcc0bff1262c631413e98a3bc2b3e6e31def57c51`
+- server: `2d30d6118d6417c775824a85956cae40bc0cd596933449bf44407fa7a6fe9df4`
+
+The seven-point sweep selected concurrency 64. Three-pair stopping applied:
+
+1. `5324.058646, 13200700 -> 18704.122884, 3433100`
+2. `4979.123779, 14012300 -> 18454.956823, 3642300`
+3. `4954.324122, 14268600 -> 18803.032642, 3294900`
+
+Median throughput improved 4,979.123779 -> 18,704.122884 operations/second
+(+275.65%); median p99 fell 14.0123 -> 3.4331 ms (-75.50%). Throughput CV was
+4.0638% BEFORE and 0.9615% AFTER. All six cells had zero errors and every pair
+passed both fixed thresholds.
+
+Continuity completed 1,024 operations, crossed/refilled 16 windows, measured
+p99 2.9711 ms, held epoch high-water 2, and had zero errors. The soak ran
+300.2110533 seconds, completed 5,576,000 correct 1 KiB operations at
+18,573.599935 operations/second, aggregate p99 3.5048 ms, zero errors, 87,125
+windows/refills, epoch high-water 2, and replay 8,000/10,000.
+
+The soak contains 697 periods/shards. First/last/median periodic throughput was
+19,965.101003 / 18,618.927117 / 18,922.997592 operations/second. The worst
+periodic throughput was 11,548.015856 at period 190. First/last/median periodic
+p99 was 2.9748 / 3.0320 / 3.1500 ms; worst periodic p99 was 5.7913 ms at period
+38. These extrema are observations alongside, not replacements for, aggregate
+acceptance metrics.
+
+The recursive replay audit covered every nested measured endpoint: 24
+aggregate cells, 1,252 shards, and 2,504 source/destination endpoints. Every
+`replay_limit` was exactly 10,000; violations: zero. The analyzer classifies
+any future measured violation as FAIL, not INCONCLUSIVE.
+
+Attempt 5's sole JSON above 100 MiB was compressed only after the runner
+completed. Exact lossless identity:
+
+- original: 107,929,076 bytes,
+  `dee80e84f7bc84f7a8cba04f220c5821f23f66e2e7e2cf2e213d654daf8c850f`
+- gzip: 15,898,996 bytes,
+  `721dd7ccac9bad09abdf5054e9b44dd9f7c50f75e91109c87833abfa9326a8a1`
+
+All six retained compressed artifacts were decompressed to the exact original
+byte count/SHA-256 and independently recompressed with gzip level 9, mtime 0,
+and empty filename header. Every recompressed byte stream and SHA-256 exactly
+matched the stored gzip.
+
+Final package inventory before regenerating `checksums.sha256`: 201 files,
+516,267,489 bytes; largest file 22,146,271 bytes; zero files exceed 100 MiB.
+The closed checksum file contains exactly 201 entries and is independently
+verified after generation.
+
+Fresh post-Attempt-5 verification against the unchanged frozen source:
+
+```powershell
+python -m pytest tests/test_p2d_stream_credit.py -q
+# 12 passed, 0 failed; 1.423 s wrapper duration (0.76 s pytest duration)
+
+cargo fmt --manifest-path crates/nbsr-transport/Cargo.toml -- --check
+# PASS
+
+git diff --check
+# PASS (line-ending notices only)
+
+cargo clippy --manifest-path crates/nbsr-transport/Cargo.toml --all-targets --features benchmark-harness -- -D warnings
+# PASS; 0.412 s
+
+cargo test --manifest-path crates/nbsr-transport/Cargo.toml --all-targets --features benchmark-harness
+# 176 passed, 0 failed, 1 existing ignored; 41.654 s
+
+cargo test --manifest-path crates/nbsr-transport/Cargo.toml
+# 184 passed, 0 failed, 1 existing ignored; 40.995 s
+```

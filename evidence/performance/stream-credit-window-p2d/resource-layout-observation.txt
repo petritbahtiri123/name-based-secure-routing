@@ -1,13 +1,17 @@
-Command (temporary test-only size print; state definitions unchanged afterward):
-$env:CARGO_TARGET_DIR='C:\codex-target\nbsr-p2d'; cargo test --manifest-path crates/nbsr-transport/Cargo.toml --lib channel_cleanup_and_thousands_of_never_consumed_windows_remain_fixed_size -- --nocapture
+Authoritative final-source layout command:
+$env:CARGO_TARGET_DIR='C:\codex-target\nbsr-p2d-layout2'; $env:RUSTC_BOOTSTRAP='1'; cargo rustc --manifest-path crates/nbsr-transport/Cargo.toml --lib -- -Zprint-type-sizes
 
-Observed output on the measured x86_64 Windows host:
-credit-state-bytes epoch=16 window=56 channel_entry=128
-test stream_credit::lifecycle_tests::channel_cleanup_and_thousands_of_never_consumed_windows_remain_fixed_size ... ok
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 58 filtered out
+Observed output on the measured x86_64 Windows host from commit
+8cc935e1a08de20eaab1abd814906d1854da9bc8:
+print-type-size type: `stream_credit::CreditEpoch`: 16 bytes, alignment: 8 bytes
+print-type-size type: `stream_credit::CreditWindowState`: 64 bytes, alignment: 8 bytes
+print-type-size type: `stream_credit::CreditWindowEntry`: 136 bytes, alignment: 8 bytes
 
-The temporary print was removed before final verification. Rustfmt later
-changed layout-only source bytes without changing these state definitions.
-The authoritative attempt-3 source binding matches the frozen final
-stream_credit.rs SHA-256
-98368289eb6e090e37e992ff79ddb9f452f5bd6c287cdd101ff08498b54605ad.
+The final source includes the two compact assigned-stream counters added by
+the consolidated security review. Therefore the earlier pre-review temporary
+test observation (56-byte state / 128-byte entry) is historical and is not the
+final layout authority. The final layout still satisfies the committed
+`CreditWindowState <= 64` regression and uses no per-credit heap object.
+
+Authoritative Attempt-5 stream_credit.rs SHA-256:
+de0be39b995919dd4f3a7ebe9a5f1741c4d704835d375e66e0765d3dbc8f43a8

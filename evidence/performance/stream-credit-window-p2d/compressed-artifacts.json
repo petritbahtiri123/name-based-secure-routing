@@ -18,7 +18,9 @@
       "source_sha256": "a1ea96627234000efdf3bb0b375b8661e8661b0420a23bb65a47c3b5ef117125",
       "compressed_bytes": 16793600,
       "compressed_sha256": "8e4da343b011311cd96b596adbd8f6234af3ca2739e0c13882d45015eb1419af",
-      "decompression_verified": true
+      "decompression_verified": true,
+      "deterministic_recompression_verified": true,
+      "recompressed_sha256": "8e4da343b011311cd96b596adbd8f6234af3ca2739e0c13882d45015eb1419af"
     },
     {
       "source_path": "attempt-1-rejected-unbounded-replay-harness/raw/soak/after.json",
@@ -30,7 +32,9 @@
       "source_sha256": "3d5446bed2147a15027f48fb745b3ae8c00e43bffcad91675bad645a4cabc4df",
       "compressed_bytes": 16023015,
       "compressed_sha256": "9e1dbb67e59ecc1667c5075aab40839e46b4d34a0002d7de1c94f2c10084d7b2",
-      "decompression_verified": true
+      "decompression_verified": true,
+      "deterministic_recompression_verified": true,
+      "recompressed_sha256": "9e1dbb67e59ecc1667c5075aab40839e46b4d34a0002d7de1c94f2c10084d7b2"
     },
     {
       "source_path": "attempt-2-bounded-replay/raw/soak/after.json",
@@ -42,7 +46,9 @@
       "source_sha256": "a1c115a16da8c59139d11c1e16b092c6b2d97f54d449706b43e6aa42f43df421",
       "compressed_bytes": 15772631,
       "compressed_sha256": "7a78db39392e6f5f6c113d20ac16e7ff6905b830e38fbca411d9efa3e961d108",
-      "decompression_verified": true
+      "decompression_verified": true,
+      "deterministic_recompression_verified": true,
+      "recompressed_sha256": "7a78db39392e6f5f6c113d20ac16e7ff6905b830e38fbca411d9efa3e961d108"
     },
     {
       "source_path": "attempt-3-rustfmt-clean/raw/soak/after.json",
@@ -55,7 +61,8 @@
       "compressed_bytes": 15920449,
       "compressed_sha256": "a0c466b6bb8f12abfadc822f64fb956a72612bb64286f07173175f665e779d5b",
       "decompression_verified": true,
-      "deterministic_recompression_verified": true
+      "deterministic_recompression_verified": true,
+      "recompressed_sha256": "a0c466b6bb8f12abfadc822f64fb956a72612bb64286f07173175f665e779d5b"
     },
     {
       "source_path": "attempt-4-final/raw/soak/after.json",
@@ -68,7 +75,22 @@
       "compressed_bytes": 16211829,
       "compressed_sha256": "13f6d2478d3a9e86b3a6ac55593efec2b722da68eef6399f6a9de3bbda9ee58a",
       "decompression_verified": true,
-      "deterministic_recompression_verified": true
+      "deterministic_recompression_verified": true,
+      "recompressed_sha256": "13f6d2478d3a9e86b3a6ac55593efec2b722da68eef6399f6a9de3bbda9ee58a"
+    },
+    {
+      "source_path": "attempt-5-final-security-review/raw/soak/after.json",
+      "compressed_path": "attempt-5-final-security-review/raw/soak/after.json.gz",
+      "json_schema": "nbsr-p2d-live-cell-v1",
+      "source_binding": "attempt-5-final-security-review/source-binding.json",
+      "measured_source_sha256": "e32e8b4c4b2187c2fb1412909fcdc2449b771e2b096c763175ade7e2396c2cb3",
+      "source_bytes": 107929076,
+      "source_sha256": "dee80e84f7bc84f7a8cba04f220c5821f23f66e2e7e2cf2e213d654daf8c850f",
+      "compressed_bytes": 15898996,
+      "compressed_sha256": "721dd7ccac9bad09abdf5054e9b44dd9f7c50f75e91109c87833abfa9326a8a1",
+      "decompression_verified": true,
+      "deterministic_recompression_verified": true,
+      "recompressed_sha256": "721dd7ccac9bad09abdf5054e9b44dd9f7c50f75e91109c87833abfa9326a8a1"
     }
   ]
 }

@@ -1,0 +1,99 @@
+{
+  "schema": "nbsr-p2d-cell-manifest-v1",
+  "mode": "before",
+  "profile": "legacy-stream-open",
+  "concurrency": 64,
+  "payload_bytes": 1024,
+  "operation": "new-application-stream-admission-and-echo",
+  "transport_session_model": "persistent-per-shard",
+  "service_channel_model": "existing-authorized-per-shard",
+  "application_stream_model": "new-per-operation",
+  "duration_seconds_requested": 60,
+  "max_operations_per_session": 8000,
+  "build": {
+    "profile": "release",
+    "features": [
+      "benchmark-harness"
+    ],
+    "cargo_command": [
+      "cargo",
+      "build",
+      "--release",
+      "--manifest-path",
+      "C:\\Users\\bajra\\.codex\\worktrees\\NBSR\\codex-nbsr-perf-p2d-stream-credit-window\\crates\\nbsr-transport\\Cargo.toml",
+      "--features",
+      "benchmark-harness",
+      "--bin",
+      "perf_rust_source",
+      "--bin",
+      "wp8_interop_server"
+    ],
+    "build_seconds": 16.848873600014485,
+    "binaries": {
+      "source": "4f0cbd64b3fd6111790faaddcc0bff1262c631413e98a3bc2b3e6e31def57c51",
+      "server": "2d30d6118d6417c775824a85956cae40bc0cd596933449bf44407fa7a6fe9df4"
+    }
+  },
+  "environment": {
+    "host": "Petrit",
+    "machine": "AMD64",
+    "processor": "Intel64 Family 6 Model 142 Stepping 12, GenuineIntel",
+    "os": "Windows-11-10.0.26200-SP0",
+    "python": "3.14.6",
+    "logical_processors": 8,
+    "timer": "rust-std-instant-qpc",
+    "loopback_only": true
+  },
+  "source": {
+    "commit": "8cc935e1a08de20eaab1abd814906d1854da9bc8",
+    "dirty": false,
+    "repository_dirty": true,
+    "measured_source_sha256": "e32e8b4c4b2187c2fb1412909fcdc2449b771e2b096c763175ade7e2396c2cb3",
+    "bound_input_identity": {
+      "bound_inputs_clean": true,
+      "status_porcelain_bytes": 0,
+      "status_porcelain_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "worktree_diff_bytes": 0,
+      "worktree_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "index_diff_bytes": 0,
+      "index_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "files": {
+      "crates/nbsr-transport/Cargo.lock": "2e11476d59b365b609a399e46ec3f297b481d0166894ff7d9cf132e642f29a4e",
+      "crates/nbsr-transport/Cargo.toml": "eb46195fd34d00698e42f00cc58579568b9b37c68be1787f10530325c426163a",
+      "crates/nbsr-transport/src/admission.rs": "ec1a17dde8598c85b49e99e787e24dfcf0a03f1c2f5746e29890ac3dc8ad1270",
+      "crates/nbsr-transport/src/audit.rs": "c2c9f747c076864c82da26aacb341a08476abeb5c8c5c3799602aa7af096c5ab",
+      "crates/nbsr-transport/src/bin/perf_direct_peer.rs": "ebc71ead1bdfa43ab698e995e462f4f074ba84f64c49891b348dacd4f529ecfd",
+      "crates/nbsr-transport/src/bin/perf_rust_source.rs": "b3de3608468f9356490a826c70bcdb9ae30f7b38fab7b98465a5f3afddbfc6a7",
+      "crates/nbsr-transport/src/bin/wp8_interop_server.rs": "18c3da5ef6f266ed689c4bb3272dfd13f00d6f2c603c620cc5454359259c97a3",
+      "crates/nbsr-transport/src/channel_binding.rs": "f0e614ec56cf3f542c11aef98d3c8ee3b8f1c070360f8020232ee16c7dd4765a",
+      "crates/nbsr-transport/src/channel_lifecycle.rs": "fecc4d0e42c3301d72ee9f5673394b82b519e47790caa473b247fa3a369dfc73",
+      "crates/nbsr-transport/src/channel_registry.rs": "c44235a46b0e6fb138970a93f4f828ae98c6bc38a4345467719b04f16517703a",
+      "crates/nbsr-transport/src/channel_streams.rs": "e6872395dbdc59147df441b2c2463bcba79cc704e5604f8904c3e9ff36f49ef9",
+      "crates/nbsr-transport/src/config.rs": "b198741739a52ae569cb6a6b190daab0734475dac80662bea9a677343e3a58c3",
+      "crates/nbsr-transport/src/core_v02.rs": "67d8c1f7ba276b035e0ce7f7392dcaa8673e93255e0b584e388524038f7c8102",
+      "crates/nbsr-transport/src/datagram_gate.rs": "ec66943641bf2e419c3955aff4da9f07c069a51cbd7b533ebe7512550a70d6a1",
+      "crates/nbsr-transport/src/diagnostics.rs": "9c9092e33f2e062b9af24cdaba8896a3f48680641b0523b74fc6a0334b552431",
+      "crates/nbsr-transport/src/error.rs": "4df5d848f8a8a20397de9fe0fc878023f943336bc720f6c812f1f7716ec1c97a",
+      "crates/nbsr-transport/src/federation.rs": "74f9f893e014cf173782d94e67d1ee61a5cde09425f83bdf69b455418120c95b",
+      "crates/nbsr-transport/src/lib.rs": "c3dd27a6b11a53e53f1fcb7cce1b0b3f52c4c616c9c70f07d281d435022c6d3e",
+      "crates/nbsr-transport/src/lifecycle_profile.rs": "9176620829f1d40d1c4e30990c006b8059893507e70548e2f9aaa3a398f32daf",
+      "crates/nbsr-transport/src/p2a_benchmark.rs": "2c7515c1581314cc2abaac10884a934b7acd905fb25be52857e87c0f08f95738",
+      "crates/nbsr-transport/src/quinn_adapter.rs": "af932da98d9309b0741b2f20b78831a429e20184898ed48646702210736cbda7",
+      "crates/nbsr-transport/src/resumption.rs": "be8858a08d2acc76c3e222f2055596630292e6069e58549f583dbd6da12b52c6",
+      "crates/nbsr-transport/src/session.rs": "9a00a279bfac515a39f7711ae71be8138042a9c981b982685fb0144b97a6e908",
+      "crates/nbsr-transport/src/session_tests.rs": "91a01569186bb986f8e96467d70d5a2fabe24eac287161a80e80a8895c10b2b8",
+      "crates/nbsr-transport/src/stream_credit.rs": "de0be39b995919dd4f3a7ebe9a5f1741c4d704835d375e66e0765d3dbc8f43a8",
+      "crates/nbsr-transport/src/stream_gate.rs": "791c2cd14b3b017c7344e90776db9eef0cacf467d9576fb83f8e357cf128a582",
+      "docs/protocol/stream-credit-extension.md": "fdd4eebb1be99fa90f5fbd84642a3d355142fef4420e903eea06bfab4bf93e96",
+      "pyproject.toml": "e07a900b0057eea76e1366efc0d950b5708aab0d5ec6a8eeabd0b79d79f61bcb",
+      "scripts/performance/authority.py": "f3d68a08d880819dda4a161a8c0e2b424f68f28373097bf51c2f27d9fb92c804",
+      "scripts/performance/p2d_stream_credit.py": "cec815336f78595daa42e42989b5a0030c8e55b981a7e62edd5927a1ae80819a",
+      "scripts/run_p2d_stream_credit.py": "3fea17db27f4fec674893c932eb494047f3a7bfbbe1fe0b39827420c60080162",
+      "scripts/run_performance_validation.py": "b7b891ce8b6236c5d8fba4685ac623cd752b4e10d70d39e4e14bd3064a94b334",
+      "vectors/wp8-f75-route-open/route-open-body.cbor": "41860a6866986f625eb46f61ecd290d71be397fa9fd8fe6b7673c84550ebe4df",
+      "vectors/wp8-local-admission/destination.cose": "0e22e19d2f790e8a803927f75ec4d69d41063aef6d6539ab98a2a892e97a9379",
+      "vectors/wp8-local-admission/source.cose": "48f67e84395bf1dcc98c92f5f34561193e9c7daaae03a93835bf110a4cd82e68"
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "host": "Petrit",
+  "machine": "AMD64",
+  "processor": "Intel64 Family 6 Model 142 Stepping 12, GenuineIntel",
+  "os": "Windows-11-10.0.26200-SP0",
+  "python": "3.14.6",
+  "logical_processors": 8,
+  "timer": "rust-std-instant-qpc",
+  "loopback_only": true
+}

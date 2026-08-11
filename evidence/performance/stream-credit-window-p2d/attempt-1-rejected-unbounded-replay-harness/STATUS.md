@@ -13,4 +13,5 @@ hashes and byte counts are recorded in the package-level
 
 The evidence-driven correction configured both live benchmark endpoints with
 the existing exact `ReplayHistoryLimit(10000)` and made the validator require
-that exact value. Attempt 2 is the sole authoritative acceptance campaign.
+that exact value. Attempts 2-4 were subsequently superseded. Attempt 5 is the
+sole authoritative final-source acceptance campaign.
