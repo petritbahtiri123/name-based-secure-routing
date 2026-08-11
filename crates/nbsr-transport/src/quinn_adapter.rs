@@ -7,7 +7,7 @@ use bytes::Bytes;
 use quinn::crypto::rustls::HandshakeData;
 use quinn::{Connection, Endpoint, RecvStream, SendStream, VarInt};
 use rustls::pki_types::CertificateDer;
-use tokio::io::AsyncReadExt;
+use tokio::io::{AsyncRead, AsyncReadExt};
 use tokio::sync::{Mutex as AsyncMutex, Notify};
 use tokio::time::timeout;
 use x509_parser::extensions::GeneralName;
@@ -17,7 +17,8 @@ use crate::channel_binding::{EXPORTER_LABEL, EXPORTER_LENGTH, canonical_service_
 use crate::{
     ALPN, ChannelBinding, ClientEndpointConfig, ControlSession, CoreV02Envelope, EdgeIdentity,
     EdgeRole, PeerPolicy, ServerEndpointConfig, ServiceChannelContext, ServiceChannelExporterError,
-    SessionReject, TransportError,
+    SessionReject, StreamCreditPreface, TransportError, decode_stream_credit_preface,
+    encode_stream_credit_preface,
 };
 
 const DATAGRAM_BUFFER_BYTES: usize = 262_144;
@@ -25,6 +26,9 @@ const DATAGRAM_BUFFER_BYTES: usize = 262_144;
 const MAX_LOCAL_ENCODED_DATAGRAM_BYTES: usize = 1_235;
 const MAX_BUFFERED_APPLICATION_BYTES_PER_STREAM: usize = 1_048_576;
 const MAX_BUFFERED_APPLICATION_BYTES_PER_CHANNEL: usize = 8_388_608;
+const STREAM_CREDIT_ACCEPT: u8 = 0;
+const STREAM_CREDIT_REJECT: u8 = 1;
+const MAX_ENCODED_STREAM_CREDIT_PREFACE_BYTES: usize = crate::MAX_STREAM_CREDIT_PREFACE_BYTES + 8;
 
 fn live_exporter_context(
     context: &ServiceChannelContext<'_>,
@@ -294,6 +298,85 @@ fn application_stream(send: SendStream, receive: RecvStream) -> ApplicationStrea
             outbound_bytes: HeldChannelBytes::default(),
         }),
     }
+}
+
+fn reset_unadmitted_stream(send: &mut SendStream, receive: &mut RecvStream) {
+    let code = VarInt::from_u32(1);
+    let _ = send.reset(code);
+    let _ = receive.stop(code);
+}
+
+async fn reject_credited_stream(send: &mut SendStream, receive: &mut RecvStream) {
+    if send.write_all(&[STREAM_CREDIT_REJECT]).await.is_ok() {
+        let _ = send.finish();
+    } else {
+        let _ = send.reset(VarInt::from_u32(1));
+    }
+    let _ = receive.stop(VarInt::from_u32(1));
+}
+
+fn quic_varint_value(prefix: &[u8]) -> Option<u64> {
+    match prefix {
+        [first] => Some(u64::from(first & 0x3f)),
+        [first, second] => Some(u64::from(
+            u16::from_be_bytes([first & 0x3f, *second]) & 0x3fff,
+        )),
+        [first, second, third, fourth] => Some(u64::from(
+            u32::from_be_bytes([first & 0x3f, *second, *third, *fourth]) & 0x3fff_ffff,
+        )),
+        [first, second, third, fourth, fifth, sixth, seventh, eighth] => {
+            Some(u64::from_be_bytes([
+                first & 0x3f,
+                *second,
+                *third,
+                *fourth,
+                *fifth,
+                *sixth,
+                *seventh,
+                *eighth,
+            ]))
+        }
+        _ => None,
+    }
+}
+
+async fn read_bounded_stream_credit_wire<R: AsyncRead + Unpin>(
+    receive: &mut R,
+) -> Result<([u8; MAX_ENCODED_STREAM_CREDIT_PREFACE_BYTES], usize), TransportError> {
+    let mut wire = [0_u8; MAX_ENCODED_STREAM_CREDIT_PREFACE_BYTES];
+    receive
+        .read_exact(&mut wire[..1])
+        .await
+        .map_err(|_| TransportError::ApplicationStreamRejected)?;
+    let prefix_length = 1_usize << (wire[0] >> 6);
+    receive
+        .read_exact(&mut wire[1..prefix_length])
+        .await
+        .map_err(|_| TransportError::ApplicationStreamRejected)?;
+    let body_length: usize = quic_varint_value(&wire[..prefix_length])
+        .and_then(|value| value.try_into().ok())
+        .filter(|length| (1..=crate::MAX_STREAM_CREDIT_PREFACE_BYTES).contains(length))
+        .ok_or(TransportError::ApplicationStreamRejected)?;
+    let encoded_length = prefix_length + body_length;
+    receive
+        .read_exact(&mut wire[prefix_length..encoded_length])
+        .await
+        .map_err(|_| TransportError::ApplicationStreamRejected)?;
+    Ok((wire, encoded_length))
+}
+
+async fn read_credited_stream_preface(
+    receive: &mut RecvStream,
+    session: &ControlSession,
+    channel_id: [u8; 16],
+    actual_stream_id: u64,
+) -> Result<StreamCreditPreface, TransportError> {
+    let (wire, encoded_length) = read_bounded_stream_credit_wire(receive).await?;
+    let context = session
+        .credited_stream_context(channel_id, actual_stream_id)
+        .map_err(|_| TransportError::ApplicationStreamRejected)?;
+    decode_stream_credit_preface(&wire[..encoded_length], context)
+        .map_err(|_| TransportError::ApplicationStreamRejected)
 }
 
 impl Drop for ApplicationStream {
@@ -902,6 +985,97 @@ impl AuthenticatedConnection {
         Ok(application_stream(send, receive))
     }
 
+    pub async fn open_credited_session_stream(
+        &self,
+        session: &mut ControlSession,
+        channel_id: [u8; 16],
+    ) -> Result<ApplicationStream, TransportError> {
+        if !session.matches_connection(&self.binding_capability) {
+            return Err(TransportError::ApplicationStreamRejected);
+        }
+        let (mut send, mut receive) = self
+            .connection
+            .open_bi()
+            .await
+            .map_err(|_| TransportError::ApplicationStreamFailed)?;
+        let stream_id = VarInt::from(send.id()).into_inner();
+        let preface = match session.allocate_credited_stream(channel_id, stream_id) {
+            Ok(preface) => preface,
+            Err(_) => {
+                reset_unadmitted_stream(&mut send, &mut receive);
+                return Err(TransportError::ApplicationStreamRejected);
+            }
+        };
+        let wire = match encode_stream_credit_preface(&preface) {
+            Ok(wire) => wire,
+            Err(_) => {
+                let _ = session.release_stream(channel_id, stream_id);
+                reset_unadmitted_stream(&mut send, &mut receive);
+                return Err(TransportError::ApplicationStreamRejected);
+            }
+        };
+        if send.write_all(&wire).await.is_err() {
+            let _ = session.release_stream(channel_id, stream_id);
+            reset_unadmitted_stream(&mut send, &mut receive);
+            return Err(TransportError::ApplicationStreamFailed);
+        }
+        let mut response = [0_u8; 1];
+        if receive.read_exact(&mut response).await.is_err() || response[0] != STREAM_CREDIT_ACCEPT {
+            let _ = session.release_stream(channel_id, stream_id);
+            reset_unadmitted_stream(&mut send, &mut receive);
+            return Err(TransportError::ApplicationStreamRejected);
+        }
+        let stream = application_stream(send, receive);
+        self.tracked_streams.track(channel_id, &stream);
+        Ok(stream)
+    }
+
+    pub async fn accept_credited_session_stream(
+        &self,
+        session: &mut ControlSession,
+        channel_id: [u8; 16],
+    ) -> Result<ApplicationStream, TransportError> {
+        let (mut send, mut receive) = self
+            .connection
+            .accept_bi()
+            .await
+            .map_err(|_| TransportError::ApplicationStreamFailed)?;
+        let stream_id = VarInt::from(send.id()).into_inner();
+        if !session.matches_connection(&self.binding_capability) {
+            reject_credited_stream(&mut send, &mut receive).await;
+            return Err(TransportError::ApplicationStreamRejected);
+        }
+        let preface = match read_credited_stream_preface(
+            &mut receive,
+            session,
+            channel_id,
+            stream_id,
+        )
+        .await
+        {
+            Ok(preface) => preface,
+            Err(_) => {
+                reject_credited_stream(&mut send, &mut receive).await;
+                return Err(TransportError::ApplicationStreamRejected);
+            }
+        };
+        if session
+            .authorize_credited_stream(preface, stream_id)
+            .is_err()
+        {
+            reject_credited_stream(&mut send, &mut receive).await;
+            return Err(TransportError::ApplicationStreamRejected);
+        }
+        if send.write_all(&[STREAM_CREDIT_ACCEPT]).await.is_err() {
+            let _ = session.release_stream(channel_id, stream_id);
+            reset_unadmitted_stream(&mut send, &mut receive);
+            return Err(TransportError::ApplicationStreamFailed);
+        }
+        let stream = application_stream(send, receive);
+        self.tracked_streams.track(channel_id, &stream);
+        Ok(stream)
+    }
+
     pub async fn open_session_stream(
         &self,
         permit: &ApplicationStreamPermit,
@@ -1126,6 +1300,74 @@ fn authenticate_connection(
 impl Drop for AuthenticatedConnection {
     fn drop(&mut self) {
         crate::diagnostics::global().completed(crate::diagnostics::DiagnosticOwner::QuicConnection);
+    }
+}
+
+#[cfg(test)]
+mod stream_credit_adapter_tests {
+    use tokio::io::{AsyncReadExt, AsyncWriteExt, duplex};
+
+    use super::read_bounded_stream_credit_wire;
+    use crate::{StreamCreditContext, StreamCreditReject, decode_stream_credit_preface};
+
+    async fn read_wire(
+        wire: &[u8],
+    ) -> Result<([u8; super::MAX_ENCODED_STREAM_CREDIT_PREFACE_BYTES], usize), crate::TransportError>
+    {
+        let (mut send, mut receive) = duplex(256);
+        send.write_all(wire).await.unwrap();
+        drop(send);
+        read_bounded_stream_credit_wire(&mut receive).await
+    }
+
+    #[tokio::test]
+    async fn bounded_reader_rejects_zero_oversized_and_truncated_prefices() {
+        assert!(read_wire(&[0x00]).await.is_err());
+        assert!(read_wire(&[0x40, 0x81]).await.is_err());
+        assert!(read_wire(&[0x02, 0xbf]).await.is_err());
+    }
+
+    #[tokio::test]
+    async fn bounded_reader_preserves_unsupported_profile_for_typed_decode_rejection() {
+        let unsupported = [
+            0x1d, 0xa6, 0x00, 0x02, 0x01, 0x50, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
+            0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f, 0x02, 0x01, 0x03, 0x01, 0x04, 0x00,
+            0x05, 0x04,
+        ];
+        let (wire, encoded_length) = read_wire(&unsupported).await.unwrap();
+        assert_eq!(&wire[..encoded_length], &unsupported);
+        assert_eq!(
+            decode_stream_credit_preface(
+                &wire[..encoded_length],
+                StreamCreditContext {
+                    session_id: [0x01; 16],
+                    authenticated_session_id: [0x01; 16],
+                    channel_id: (0x10..0x20).collect::<Vec<_>>().try_into().unwrap(),
+                    channel_generation: 1,
+                    quic_stream_id: 4,
+                },
+            ),
+            Err(StreamCreditReject::ProfileUnsupported)
+        );
+    }
+
+    #[tokio::test]
+    async fn bounded_reader_stops_at_preface_when_payload_is_already_queued() {
+        let valid_preface = [
+            0x1d, 0xa6, 0x00, 0x01, 0x01, 0x50, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
+            0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f, 0x02, 0x01, 0x03, 0x01, 0x04, 0x00,
+            0x05, 0x04,
+        ];
+        let payload = b"payload-before-accept";
+        let (mut send, mut receive) = duplex(256);
+        send.write_all(&valid_preface).await.unwrap();
+        send.write_all(payload).await.unwrap();
+
+        let (wire, encoded_length) = read_bounded_stream_credit_wire(&mut receive).await.unwrap();
+        assert_eq!(&wire[..encoded_length], &valid_preface);
+        let mut still_quarantined = [0_u8; 21];
+        receive.read_exact(&mut still_quarantined).await.unwrap();
+        assert_eq!(&still_quarantined, payload);
     }
 }
 
