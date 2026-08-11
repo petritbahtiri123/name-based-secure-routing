@@ -1,0 +1,37 @@
+{
+  "setup_failures_not_counted_as_repeats": [
+    {
+      "phase": "pre-measurement",
+      "failure": "NBSR multi-stream lazy-open setup deadlock",
+      "disposition": "root-caused; admit all streams before accepting QUIC streams; exact 8-stream regression passed"
+    },
+    {
+      "phase": "pre-measurement",
+      "failure": "Direct handshake used stale ready endpoint on restart",
+      "disposition": "root-caused; exact marker cleanup regression added; two same-directory repeats passed"
+    }
+  ],
+  "selective_reruns": [
+    {
+      "path": "nbsr",
+      "streams": 8,
+      "payload_bytes": 16384,
+      "repeat_count": 5,
+      "final_cv": 0.048784057883685714
+    },
+    {
+      "path": "direct",
+      "streams": 64,
+      "payload_bytes": 16384,
+      "repeat_count": 5,
+      "final_cv": 0.26977849122003655
+    },
+    {
+      "path": "nbsr",
+      "streams": 64,
+      "payload_bytes": 16384,
+      "repeat_count": 5,
+      "final_cv": 0.21178923736968316
+    }
+  ]
+}

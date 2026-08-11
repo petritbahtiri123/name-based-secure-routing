@@ -136,6 +136,8 @@ mod datagram_gate;
 pub mod diagnostics;
 mod error;
 mod federation;
+#[cfg(feature = "benchmark-harness")]
+pub mod p2a_benchmark;
 mod quinn_adapter;
 mod resumption;
 mod session;

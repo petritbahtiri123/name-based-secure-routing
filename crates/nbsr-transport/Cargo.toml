@@ -5,6 +5,9 @@ edition = "2024"
 license = "Apache-2.0"
 publish = false
 
+[features]
+benchmark-harness = []
+
 [dependencies]
 bytes = "=1.12.1"
 ed25519-dalek = { version = "=2.2.0", default-features = false, features = ["std"] }

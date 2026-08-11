@@ -1,0 +1,14 @@
+{
+  "schema": "nbsr-p2a-verification-v1",
+  "fresh_validation_target": "C:/codex-target/nbsr-p2a-final",
+  "commands": [
+    {"command": "cargo test --manifest-path crates/nbsr-transport/Cargo.toml --features benchmark-harness --test p2a_benchmark", "result": "PASS: 4 passed, 0 failed"},
+    {"command": "cargo test --manifest-path crates/nbsr-transport/Cargo.toml channel_streams::tests::exact_replay_history_boundary_is_fail_closed_without_mutation", "result": "PASS: exact P1F boundary regression passed"},
+    {"command": "python -m unittest tests.test_p2a_established -v", "result": "PASS: 7 passed, 0 failed"},
+    {"command": "cargo test --manifest-path crates/nbsr-transport/Cargo.toml", "result": "PASS: affected Rust regression passed; P1F evidence-only ten-minute soak remained intentionally ignored"},
+    {"command": "cargo fmt --manifest-path crates/nbsr-transport/Cargo.toml --check", "result": "PASS"},
+    {"command": "cargo clippy --manifest-path crates/nbsr-transport/Cargo.toml --all-targets --features benchmark-harness -- -D warnings", "result": "PASS"}
+  ],
+  "p1f_soak_disposition": "Not rerun: explicitly ignored evidence-only ten-minute soak; P2A must not stress-test the P1F cap.",
+  "allocation_telemetry": "Unavailable; no invasive allocator profiler was built."
+}

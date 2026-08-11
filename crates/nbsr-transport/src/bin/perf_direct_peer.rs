@@ -5,12 +5,18 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 
+#[cfg(feature = "benchmark-harness")]
+use nbsr_transport::p2a_benchmark::{decode_frame, encode_frame};
 use quinn::crypto::rustls::{QuicClientConfig, QuicServerConfig};
 use quinn::{ClientConfig, Connection, Endpoint, ServerConfig, TransportConfig, VarInt};
 use rustls::client::Resumption;
 use rustls::pki_types::{CertificateDer, PrivateKeyDer, PrivatePkcs8KeyDer};
 use rustls::server::WebPkiClientVerifier;
 use rustls::{RootCertStore, version};
+#[cfg(feature = "benchmark-harness")]
+use tokio::sync::Barrier;
+#[cfg(feature = "benchmark-harness")]
+use tokio::task::JoinSet;
 use x509_parser::extensions::GeneralName;
 use x509_parser::prelude::{FromDer, X509Certificate};
 
@@ -168,6 +174,23 @@ async fn request(connection: &Connection, payload: &[u8]) -> Vec<u8> {
     receive.read_to_end(MAX_PAYLOAD).await.unwrap()
 }
 
+#[cfg(feature = "benchmark-harness")]
+async fn write_frame(send: &mut quinn::SendStream, wire: &[u8]) -> Result<(), ()> {
+    send.write_all(&(wire.len() as u32).to_be_bytes())
+        .await
+        .map_err(|_| ())?;
+    send.write_all(wire).await.map_err(|_| ())
+}
+
+#[cfg(feature = "benchmark-harness")]
+async fn read_frame(receive: &mut quinn::RecvStream) -> Result<Vec<u8>, ()> {
+    let mut length = [0_u8; 4];
+    receive.read_exact(&mut length).await.map_err(|_| ())?;
+    let mut wire = vec![0_u8; u32::from_be_bytes(length) as usize];
+    receive.read_exact(&mut wire).await.map_err(|_| ())?;
+    Ok(wire)
+}
+
 async fn wait_until(deadline: Instant) {
     loop {
         let now = Instant::now();
@@ -195,6 +218,26 @@ async fn server() {
     .unwrap();
     let address = endpoint.local_addr().unwrap();
     fs::write(ready, format!("{{\"alpn\":\"nbsr-quic-1\",\"endpoint\":\"{address}\",\"mode\":\"direct-quic\",\"zero_rtt\":false}}")).unwrap();
+    #[cfg(feature = "benchmark-harness")]
+    if let Some(stream_count) = optional_argument("--p2a-streams") {
+        let stream_count = stream_count.parse::<usize>().unwrap();
+        let connection = accept_connection(&endpoint).await;
+        let mut tasks = JoinSet::new();
+        for _ in 0..stream_count {
+            let (mut send, mut receive) = connection.accept_bi().await.unwrap();
+            tasks.spawn(async move {
+                while let Ok(wire) = read_frame(&mut receive).await {
+                    if write_frame(&mut send, &wire).await.is_err() {
+                        break;
+                    }
+                }
+            });
+        }
+        while tasks.join_next().await.is_some() {}
+        endpoint.close(VarInt::from_u32(0), b"");
+        endpoint.wait_idle().await;
+        return;
+    }
     for _ in 0..connections {
         let connection = accept_connection(&endpoint).await;
         for _ in 0..requests {
@@ -215,6 +258,76 @@ async fn client() {
     let offered_rate =
         optional_argument("--offered-rate").map(|value| value.parse::<f64>().unwrap());
     let connected_marker = optional_argument("--connected-marker").map(PathBuf::from);
+    #[cfg(feature = "benchmark-harness")]
+    if let Some(stream_count) = optional_argument("--p2a-streams") {
+        let stream_count = stream_count.parse::<usize>().unwrap();
+        let warmup = Duration::from_secs_f64(argument("--p2a-warmup-seconds").parse().unwrap());
+        let duration = Duration::from_secs_f64(argument("--p2a-duration-seconds").parse().unwrap());
+        let payload = vec![0x5a; payload_bytes];
+        let (endpoint, connection) = connect(&authority, remote).await;
+        let mut streams = Vec::with_capacity(stream_count);
+        for _ in 0..stream_count {
+            streams.push(connection.open_bi().await.unwrap());
+        }
+        let ready = Arc::new(Barrier::new(stream_count + 1));
+        let measure = Arc::new(Barrier::new(stream_count + 1));
+        let warmup_deadline = Instant::now() + warmup;
+        let mut tasks = JoinSet::new();
+        for (ordinal, (mut send, mut receive)) in streams.into_iter().enumerate() {
+            let ready = Arc::clone(&ready);
+            let measure = Arc::clone(&measure);
+            let payload = payload.clone();
+            tasks.spawn(async move {
+                let mut sequence = (ordinal as u64) << 56;
+                while Instant::now() < warmup_deadline {
+                    let wire = encode_frame(sequence, &payload);
+                    write_frame(&mut send, &wire).await.unwrap();
+                    let response = read_frame(&mut receive).await.unwrap();
+                    decode_frame(&response, sequence, payload.len()).unwrap();
+                    sequence += 1;
+                }
+                ready.wait().await;
+                measure.wait().await;
+                let deadline = Instant::now() + duration;
+                let mut completed = 0_u64;
+                let mut latencies = Vec::new();
+                while Instant::now() < deadline {
+                    let started = Instant::now();
+                    let wire = encode_frame(sequence, &payload);
+                    write_frame(&mut send, &wire).await.unwrap();
+                    let response = read_frame(&mut receive).await.unwrap();
+                    decode_frame(&response, sequence, payload.len()).unwrap();
+                    latencies.push(started.elapsed().as_nanos() as u64);
+                    completed += 1;
+                    sequence += 1;
+                }
+                send.finish().unwrap();
+                (completed, latencies)
+            });
+        }
+        ready.wait().await;
+        let measured_started = Instant::now();
+        measure.wait().await;
+        let mut completed = 0_u64;
+        let mut latencies = Vec::new();
+        while let Some(joined) = tasks.join_next().await {
+            let (count, mut values) = joined.unwrap();
+            completed += count;
+            latencies.append(&mut values);
+        }
+        let measured_ns = measured_started.elapsed().as_nanos();
+        latencies.sort_unstable();
+        let percentile = |p: f64| latencies[((latencies.len() - 1) as f64 * p).round() as usize];
+        println!(
+            "{{\"schema\":\"nbsr-p2a-repeat-v1\",\"path\":\"direct\",\"streams\":{stream_count},\"payload_bytes\":{payload_bytes},\"model\":\"one-outstanding-per-stream\",\"completed_operations\":{completed},\"measured_ns\":{measured_ns},\"p50_latency_ns\":{},\"p95_latency_ns\":{},\"p99_latency_ns\":{},\"errors\":0,\"missing\":0,\"duplicates\":0,\"corrupt\":0,\"wrong_request\":0,\"transport_sessions_created_delta\":0,\"service_channels_created_delta\":0,\"application_streams_created_delta\":0,\"replay_entries_delta\":0}}",
+            percentile(0.50),
+            percentile(0.95),
+            percentile(0.99)
+        );
+        connection.close(VarInt::from_u32(0), b"");
+        endpoint.wait_idle().await;
+        return;
+    }
     assert!(matches!(lifecycle.as_str(), "cold" | "warm"));
     assert!(offered_rate.is_none_or(|rate| rate.is_finite() && rate > 0.0 && lifecycle == "warm"));
     assert!((1..=MAX_PAYLOAD).contains(&payload_bytes));

@@ -337,6 +337,48 @@ impl ApplicationStream {
         self.id
     }
 
+    /// P2A benchmark framing over an already admitted Application Stream.
+    /// This is deliberately unavailable in normal production builds.
+    #[cfg(feature = "benchmark-harness")]
+    pub async fn benchmark_write_frame(&mut self, wire: &[u8]) -> Result<(), TransportError> {
+        let length =
+            u32::try_from(wire.len()).map_err(|_| TransportError::ApplicationPayloadTooLarge)?;
+        let mut inner = self.shared.inner.lock().await;
+        inner
+            .send
+            .write_all(&length.to_be_bytes())
+            .await
+            .map_err(|_| TransportError::ApplicationStreamFailed)?;
+        inner
+            .send
+            .write_all(wire)
+            .await
+            .map_err(|_| TransportError::ApplicationStreamFailed)
+    }
+
+    /// Reads one P2A benchmark frame without closing or replacing the stream.
+    #[cfg(feature = "benchmark-harness")]
+    pub async fn benchmark_read_frame(&mut self) -> Result<Vec<u8>, TransportError> {
+        let mut inner = self.shared.inner.lock().await;
+        let mut length = [0_u8; 4];
+        inner
+            .receive
+            .read_exact(&mut length)
+            .await
+            .map_err(|_| TransportError::ApplicationStreamFailed)?;
+        let length = u32::from_be_bytes(length) as usize;
+        if length > MAX_BUFFERED_APPLICATION_BYTES_PER_STREAM {
+            return Err(TransportError::ApplicationPayloadTooLarge);
+        }
+        let mut wire = vec![0_u8; length];
+        inner
+            .receive
+            .read_exact(&mut wire)
+            .await
+            .map_err(|_| TransportError::ApplicationStreamFailed)?;
+        Ok(wire)
+    }
+
     pub async fn send_payload(&mut self, payload: &[u8]) -> Result<(), TransportError> {
         if payload.len() > MAX_BUFFERED_APPLICATION_BYTES_PER_STREAM {
             return Err(TransportError::ApplicationPayloadTooLarge);

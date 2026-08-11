@@ -1,0 +1,15 @@
+{
+  "schema": "nbsr-p2a-git-boundaries-v1",
+  "branch": "codex/nbsr-perf-p2a-established-data-plane-baseline",
+  "base_sha": "55a5de9f636fe7e4d61cc62ac343591421907bec",
+  "p1f_production_sha": "4382bea9ad527a635259c7066045f63474787016",
+  "accepted_product_sha": "4e25ee026618a502327331f352d90e26d29284e3",
+  "origin_main_before_and_precommit": "1938154d498b32d81a3564319969430644e8a688",
+  "origin_accepted_branch_before_and_precommit": "4e25ee026618a502327331f352d90e26d29284e3",
+  "design_commit": "310801d25b265fe88eb2fc524167e64b92f15e02",
+  "push": false,
+  "pull": false,
+  "merge": false,
+  "rebase": false,
+  "protected_branch_modified": false
+}

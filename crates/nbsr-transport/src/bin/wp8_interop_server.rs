@@ -578,6 +578,53 @@ async fn main() {
     control.send_envelope(&accepted).await.unwrap();
     let channel: [u8; 16] = (0x40..0x50).collect::<Vec<_>>().try_into().unwrap();
     connection.bind_channel(&mut session, channel).unwrap();
+    #[cfg(feature = "benchmark-harness")]
+    if let Ok(stream_count) = env::var("NBSR_P2A_STREAMS") {
+        let stream_count = stream_count.parse::<u64>().unwrap();
+        assert!(matches!(stream_count, 1 | 8 | 64));
+        let mut tasks = tokio::task::JoinSet::new();
+        for index in 0..stream_count {
+            let stream = control
+                .receive_envelope(CoreV02Limits::default())
+                .await
+                .unwrap();
+            session.authorize_stream_open(channel, &stream).unwrap();
+            let accepted = stream_accept(index);
+            session.confirm_stream_accept(channel, &accepted).unwrap();
+            control.send_envelope(&accepted).await.unwrap();
+        }
+        for _ in 0..stream_count {
+            let mut application = connection
+                .accept_session_stream(&mut session, channel)
+                .await
+                .unwrap();
+            tasks.spawn(async move {
+                let mut completed = 0_u64;
+                while let Ok(wire) = application.benchmark_read_frame().await {
+                    if application.benchmark_write_frame(&wire).await.is_err() {
+                        break;
+                    }
+                    completed += 1;
+                }
+                completed
+            });
+        }
+        let mut echoed = 0_u64;
+        while let Some(joined) = tasks.join_next().await {
+            echoed += joined.unwrap();
+        }
+        fs::write(
+            result,
+            format!(
+                "{{\"status\":\"PASS\",\"streams\":{stream_count},\"echoed_frames\":{echoed}}}"
+            ),
+        )
+        .unwrap();
+        drop(session);
+        connection.close().await.unwrap();
+        listener.close().await.unwrap();
+        return;
+    }
     let benchmark_samples = env::var("NBSR_PERF_STREAM_SAMPLES").ok();
     let samples = benchmark_samples
         .as_deref()

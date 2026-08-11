@@ -1,0 +1,10 @@
+{
+  "path": "nbsr",
+  "streams": 8,
+  "payload_bytes": 1024,
+  "model": "one-outstanding-per-stream",
+  "warmup_seconds": 10.0,
+  "measured_seconds": 30.0,
+  "repeat_count": 3,
+  "throughput_cv": 0.0012287550158609779
+}

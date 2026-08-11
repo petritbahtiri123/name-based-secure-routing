@@ -6,6 +6,8 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 
+#[cfg(feature = "benchmark-harness")]
+use nbsr_transport::p2a_benchmark::{decode_frame, encode_frame};
 use nbsr_transport::{
     AdmissionPolicy, AuthorizedServicePolicy, ControlSession, CoreV02Limits, DestinationAdmission,
     EdgeIdentity, EdgeRole, LocalFederationAdmissionAttestations,
@@ -14,6 +16,10 @@ use nbsr_transport::{
 };
 use rustls::RootCertStore;
 use rustls::pki_types::{CertificateDer, PrivateKeyDer, PrivatePkcs8KeyDer};
+#[cfg(feature = "benchmark-harness")]
+use tokio::sync::Barrier;
+#[cfg(feature = "benchmark-harness")]
+use tokio::task::JoinSet;
 
 fn argument(name: &str) -> String {
     let values = env::args().collect::<Vec<_>>();
@@ -749,6 +755,93 @@ async fn main() {
     session.confirm_route_accept(&accepted).unwrap();
     let channel: [u8; 16] = (0x40..0x50).collect::<Vec<_>>().try_into().unwrap();
     connection.bind_channel(&mut session, channel).unwrap();
+    #[cfg(feature = "benchmark-harness")]
+    if let Some(stream_count) = optional_argument("--p2a-streams") {
+        let stream_count = stream_count.parse::<u64>().unwrap();
+        let warmup = Duration::from_secs_f64(argument("--p2a-warmup-seconds").parse().unwrap());
+        let duration = Duration::from_secs_f64(argument("--p2a-duration-seconds").parse().unwrap());
+        assert!(matches!(stream_count, 1 | 8 | 64));
+        nbsr_transport::diagnostics::enable_global();
+        let payload = vec![0x5a; payload_bytes];
+        let mut applications = Vec::with_capacity(stream_count as usize);
+        for index in 0..stream_count {
+            let stream = stream_open(index);
+            session.authorize_stream_open(channel, &stream).unwrap();
+            control.send_envelope(&stream).await.unwrap();
+            let accepted = control
+                .receive_envelope(CoreV02Limits::default())
+                .await
+                .unwrap();
+            session.confirm_stream_accept(channel, &accepted).unwrap();
+            let permit = session
+                .application_stream_permit(channel, 4 + 4 * index)
+                .unwrap();
+            applications.push(connection.open_session_stream(&permit).await.unwrap());
+        }
+        let ready = Arc::new(Barrier::new(stream_count as usize + 1));
+        let measure = Arc::new(Barrier::new(stream_count as usize + 1));
+        let warmup_deadline = Instant::now() + warmup;
+        let mut tasks = JoinSet::new();
+        for (ordinal, mut application) in applications.into_iter().enumerate() {
+            let ready = Arc::clone(&ready);
+            let measure = Arc::clone(&measure);
+            let payload = payload.clone();
+            tasks.spawn(async move {
+                let mut sequence = (ordinal as u64) << 56;
+                while Instant::now() < warmup_deadline {
+                    let wire = encode_frame(sequence, &payload);
+                    application.benchmark_write_frame(&wire).await.unwrap();
+                    let response = application.benchmark_read_frame().await.unwrap();
+                    decode_frame(&response, sequence, payload.len()).unwrap();
+                    sequence += 1;
+                }
+                ready.wait().await;
+                measure.wait().await;
+                let deadline = Instant::now() + duration;
+                let mut latencies = Vec::new();
+                let mut completed = 0_u64;
+                while Instant::now() < deadline {
+                    let started = Instant::now();
+                    let wire = encode_frame(sequence, &payload);
+                    application.benchmark_write_frame(&wire).await.unwrap();
+                    let response = application.benchmark_read_frame().await.unwrap();
+                    decode_frame(&response, sequence, payload.len()).unwrap();
+                    latencies.push(started.elapsed().as_nanos() as u64);
+                    completed += 1;
+                    sequence += 1;
+                }
+                (completed, latencies)
+            });
+        }
+        ready.wait().await;
+        let before = nbsr_transport::diagnostics::global().snapshot();
+        let measured_started = Instant::now();
+        measure.wait().await;
+        let mut completed = 0_u64;
+        let mut latencies = Vec::new();
+        while let Some(result) = tasks.join_next().await {
+            let (count, mut values) = result.unwrap();
+            completed += count;
+            latencies.append(&mut values);
+        }
+        let measured_ns = measured_started.elapsed().as_nanos();
+        let after = nbsr_transport::diagnostics::global().snapshot();
+        latencies.sort_unstable();
+        let percentile = |p: f64| latencies[((latencies.len() - 1) as f64 * p).round() as usize];
+        println!(
+            "{{\"schema\":\"nbsr-p2a-repeat-v1\",\"path\":\"nbsr\",\"streams\":{stream_count},\"payload_bytes\":{payload_bytes},\"model\":\"one-outstanding-per-stream\",\"completed_operations\":{completed},\"measured_ns\":{measured_ns},\"p50_latency_ns\":{},\"p95_latency_ns\":{},\"p99_latency_ns\":{},\"errors\":0,\"missing\":0,\"duplicates\":0,\"corrupt\":0,\"wrong_request\":0,\"transport_sessions_created_delta\":{},\"service_channels_created_delta\":{},\"application_streams_created_delta\":{},\"replay_entries_delta\":{}}}",
+            percentile(0.50),
+            percentile(0.95),
+            percentile(0.99),
+            after.transport_sessions.created - before.transport_sessions.created,
+            after.service_channels.created - before.service_channels.created,
+            after.application_streams.created - before.application_streams.created,
+            after.replay_state.current_entries as i64 - before.replay_state.current_entries as i64
+        );
+        drop(session);
+        connection.close().await.unwrap();
+        return;
+    }
     let payload = vec![0x5a; payload_bytes];
     let mut records = if offered_rate.is_some() {
         Vec::new()

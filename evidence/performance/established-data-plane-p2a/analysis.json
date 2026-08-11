@@ -1,0 +1,808 @@
+{
+  "schema": "nbsr-p2a-analysis-v2",
+  "classification": "ACCEPTED_WITH_UNSTABLE_CELLS",
+  "valid_repeat_count": 60,
+  "invalid_repeat_count": 0,
+  "stable_cell_count": 16,
+  "cell_count": 18,
+  "allocation_telemetry": "unavailable; no invasive allocator profiler built",
+  "cells": [
+    {
+      "path": "direct",
+      "streams": 1,
+      "payload_bytes": 1,
+      "repeat_count": 3,
+      "throughput_cv": 0.03957961859818756,
+      "stable": true,
+      "median_completed_operations": 398165.0,
+      "median_operations_per_second": 13271.690478412302,
+      "median_request_messages_per_second": 13271.690478412302,
+      "median_response_messages_per_second": 13271.690478412302,
+      "median_client_to_server_goodput_bytes_per_second": 13271.690478412302,
+      "median_server_to_client_goodput_bytes_per_second": 13271.690478412302,
+      "median_aggregate_goodput_bytes_per_second": 26543.380956824603,
+      "median_aggregate_application_gbps": 0.00021234704765459684,
+      "median_p50_latency_ns": 80400.0,
+      "median_p95_latency_ns": 94200.0,
+      "median_p99_latency_ns": 124300.0,
+      "median_cpu_ns_per_completed_operation": 101420.37056521718,
+      "peak_working_set_bytes": 13197312,
+      "peak_private_bytes": 6557696,
+      "errors": 0,
+      "timeouts": 0,
+      "lifecycle_and_replay_deltas": {
+        "transport_sessions_created_delta": [
+          0
+        ],
+        "service_channels_created_delta": [
+          0
+        ],
+        "application_streams_created_delta": [
+          0
+        ],
+        "replay_entries_delta": [
+          0
+        ]
+      }
+    },
+    {
+      "path": "nbsr",
+      "streams": 1,
+      "payload_bytes": 1,
+      "repeat_count": 3,
+      "throughput_cv": 0.002139929148060459,
+      "stable": true,
+      "median_completed_operations": 367822.0,
+      "median_operations_per_second": 12260.18354583586,
+      "median_request_messages_per_second": 12260.18354583586,
+      "median_response_messages_per_second": 12260.18354583586,
+      "median_client_to_server_goodput_bytes_per_second": 12260.18354583586,
+      "median_server_to_client_goodput_bytes_per_second": 12260.18354583586,
+      "median_aggregate_goodput_bytes_per_second": 24520.36709167172,
+      "median_aggregate_application_gbps": 0.00019616293673337375,
+      "median_p50_latency_ns": 87700.0,
+      "median_p95_latency_ns": 104800.0,
+      "median_p99_latency_ns": 121700.0,
+      "median_cpu_ns_per_completed_operation": 111941.89515208815,
+      "peak_working_set_bytes": 13524992,
+      "peak_private_bytes": 6701056,
+      "errors": 0,
+      "timeouts": 0,
+      "lifecycle_and_replay_deltas": {
+        "transport_sessions_created_delta": [
+          0
+        ],
+        "service_channels_created_delta": [
+          0
+        ],
+        "application_streams_created_delta": [
+          0
+        ],
+        "replay_entries_delta": [
+          0
+        ]
+      }
+    },
+    {
+      "path": "direct",
+      "streams": 8,
+      "payload_bytes": 1,
+      "repeat_count": 3,
+      "throughput_cv": 0.00272657326004175,
+      "stable": true,
+      "median_completed_operations": 2265312.0,
+      "median_operations_per_second": 75485.32201470254,
+      "median_request_messages_per_second": 75485.32201470254,
+      "median_response_messages_per_second": 75485.32201470254,
+      "median_client_to_server_goodput_bytes_per_second": 75485.32201470254,
+      "median_server_to_client_goodput_bytes_per_second": 75485.32201470254,
+      "median_aggregate_goodput_bytes_per_second": 150970.64402940508,
+      "median_aggregate_application_gbps": 0.0012077651522352407,
+      "median_p50_latency_ns": 108200.0,
+      "median_p95_latency_ns": 125000.0,
+      "median_p99_latency_ns": 149900.0,
+      "median_cpu_ns_per_completed_operation": 17290.410087323417,
+      "peak_working_set_bytes": 27160576,
+      "peak_private_bytes": 35123200,
+      "errors": 0,
+      "timeouts": 0,
+      "lifecycle_and_replay_deltas": {
+        "transport_sessions_created_delta": [
+          0
+        ],
+        "service_channels_created_delta": [
+          0
+        ],
+        "application_streams_created_delta": [
+          0
+        ],
+        "replay_entries_delta": [
+          0
+        ]
+      }
+    },
+    {
+      "path": "nbsr",
+      "streams": 8,
+      "payload_bytes": 1,
+      "repeat_count": 3,
+      "throughput_cv": 0.002095161254365565,
+      "stable": true,
+      "median_completed_operations": 2229768.0,
+      "median_operations_per_second": 74299.5594903898,
+      "median_request_messages_per_second": 74299.5594903898,
+      "median_response_messages_per_second": 74299.5594903898,
+      "median_client_to_server_goodput_bytes_per_second": 74299.5594903898,
+      "median_server_to_client_goodput_bytes_per_second": 74299.5594903898,
+      "median_aggregate_goodput_bytes_per_second": 148599.1189807796,
+      "median_aggregate_application_gbps": 0.0011887929518462367,
+      "median_p50_latency_ns": 110300.0,
+      "median_p95_latency_ns": 124500.0,
+      "median_p99_latency_ns": 149200.0,
+      "median_cpu_ns_per_completed_operation": 17857.79190359266,
+      "peak_working_set_bytes": 27889664,
+      "peak_private_bytes": 36126720,
+      "errors": 0,
+      "timeouts": 0,
+      "lifecycle_and_replay_deltas": {
+        "transport_sessions_created_delta": [
+          0
+        ],
+        "service_channels_created_delta": [
+          0
+        ],
+        "application_streams_created_delta": [
+          0
+        ],
+        "replay_entries_delta": [
+          0
+        ]
+      }
+    },
+    {
+      "path": "direct",
+      "streams": 64,
+      "payload_bytes": 1,
+      "repeat_count": 3,
+      "throughput_cv": 0.002082402405740005,
+      "stable": true,
+      "median_completed_operations": 6173696.0,
+      "median_operations_per_second": 205598.08956600825,
+      "median_request_messages_per_second": 205598.08956600825,
+      "median_response_messages_per_second": 205598.08956600825,
+      "median_client_to_server_goodput_bytes_per_second": 205598.08956600825,
+      "median_server_to_client_goodput_bytes_per_second": 205598.08956600825,
+      "median_aggregate_goodput_bytes_per_second": 411196.1791320165,
+      "median_aggregate_application_gbps": 0.0032895694330561318,
+      "median_p50_latency_ns": 307900.0,
+      "median_p95_latency_ns": 329800.0,
+      "median_p99_latency_ns": 379500.0,
+      "median_cpu_ns_per_completed_operation": 5843.845404762398,
+      "peak_working_set_bytes": 59297792,
+      "peak_private_bytes": 69955584,
+      "errors": 0,
+      "timeouts": 0,
+      "lifecycle_and_replay_deltas": {
+        "transport_sessions_created_delta": [
+          0
+        ],
+        "service_channels_created_delta": [
+          0
+        ],
+        "application_streams_created_delta": [
+          0
+        ],
+        "replay_entries_delta": [
+          0
+        ]
+      }
+    },
+    {
+      "path": "nbsr",
+      "streams": 64,
+      "payload_bytes": 1,
+      "repeat_count": 3,
+      "throughput_cv": 0.0073462835335441155,
+      "stable": true,
+      "median_completed_operations": 5963198.0,
+      "median_operations_per_second": 198511.45123703982,
+      "median_request_messages_per_second": 198511.45123703982,
+      "median_response_messages_per_second": 198511.45123703982,
+      "median_client_to_server_goodput_bytes_per_second": 198511.45123703982,
+      "median_server_to_client_goodput_bytes_per_second": 198511.45123703982,
+      "median_aggregate_goodput_bytes_per_second": 397022.90247407963,
+      "median_aggregate_application_gbps": 0.003176183219792637,
+      "median_p50_latency_ns": 321700.0,
+      "median_p95_latency_ns": 349700.0,
+      "median_p99_latency_ns": 412100.0,
+      "median_cpu_ns_per_completed_operation": 6119.991997339961,
+      "peak_working_set_bytes": 57802752,
+      "peak_private_bytes": 70746112,
+      "errors": 0,
+      "timeouts": 0,
+      "lifecycle_and_replay_deltas": {
+        "transport_sessions_created_delta": [
+          0
+        ],
+        "service_channels_created_delta": [
+          0
+        ],
+        "application_streams_created_delta": [
+          0
+        ],
+        "replay_entries_delta": [
+          0
+        ]
+      }
+    },
+    {
+      "path": "direct",
+      "streams": 1,
+      "payload_bytes": 1024,
+      "repeat_count": 3,
+      "throughput_cv": 0.004018718731302367,
+      "stable": true,
+      "median_completed_operations": 315160.0,
+      "median_operations_per_second": 10505.008098282611,
+      "median_request_messages_per_second": 10505.008098282611,
+      "median_response_messages_per_second": 10505.008098282611,
+      "median_client_to_server_goodput_bytes_per_second": 10757128.292641394,
+      "median_server_to_client_goodput_bytes_per_second": 10757128.292641394,
+      "median_aggregate_goodput_bytes_per_second": 21514256.585282788,
+      "median_aggregate_application_gbps": 0.1721140526822623,
+      "median_p50_latency_ns": 98300.0,
+      "median_p95_latency_ns": 115900.0,
+      "median_p99_latency_ns": 133600.0,
+      "median_cpu_ns_per_completed_operation": 126160.79770712862,
+      "peak_working_set_bytes": 13127680,
+      "peak_private_bytes": 6582272,
+      "errors": 0,
+      "timeouts": 0,
+      "lifecycle_and_replay_deltas": {
+        "transport_sessions_created_delta": [
+          0
+        ],
+        "service_channels_created_delta": [
+          0
+        ],
+        "application_streams_created_delta": [
+          0
+        ],
+        "replay_entries_delta": [
+          0
+        ]
+      }
+    },
+    {
+      "path": "nbsr",
+      "streams": 1,
+      "payload_bytes": 1024,
+      "repeat_count": 3,
+      "throughput_cv": 0.014606525680778413,
+      "stable": true,
+      "median_completed_operations": 317056.0,
+      "median_operations_per_second": 10568.122937892578,
+      "median_request_messages_per_second": 10568.122937892578,
+      "median_response_messages_per_second": 10568.122937892578,
+      "median_client_to_server_goodput_bytes_per_second": 10821757.888402,
+      "median_server_to_client_goodput_bytes_per_second": 10821757.888402,
+      "median_aggregate_goodput_bytes_per_second": 21643515.776804,
+      "median_aggregate_application_gbps": 0.173148126214432,
+      "median_p50_latency_ns": 98400.0,
+      "median_p95_latency_ns": 114000.0,
+      "median_p99_latency_ns": 132800.0,
+      "median_cpu_ns_per_completed_operation": 125557.59591437849,
+      "peak_working_set_bytes": 13590528,
+      "peak_private_bytes": 6774784,
+      "errors": 0,
+      "timeouts": 0,
+      "lifecycle_and_replay_deltas": {
+        "transport_sessions_created_delta": [
+          0
+        ],
+        "service_channels_created_delta": [
+          0
+        ],
+        "application_streams_created_delta": [
+          0
+        ],
+        "replay_entries_delta": [
+          0
+        ]
+      }
+    },
+    {
+      "path": "direct",
+      "streams": 8,
+      "payload_bytes": 1024,
+      "repeat_count": 3,
+      "throughput_cv": 0.0018065024535626867,
+      "stable": true,
+      "median_completed_operations": 950499.0,
+      "median_operations_per_second": 31676.4172424735,
+      "median_request_messages_per_second": 31676.4172424735,
+      "median_response_messages_per_second": 31676.4172424735,
+      "median_client_to_server_goodput_bytes_per_second": 32436651.256292865,
+      "median_server_to_client_goodput_bytes_per_second": 32436651.256292865,
+      "median_aggregate_goodput_bytes_per_second": 64873302.51258573,
+      "median_aggregate_application_gbps": 0.5189864201006859,
+      "median_p50_latency_ns": 248600.0,
+      "median_p95_latency_ns": 281300.0,
+      "median_p99_latency_ns": 313100.0,
+      "median_cpu_ns_per_completed_operation": 38621.39437235994,
+      "peak_working_set_bytes": 16584704,
+      "peak_private_bytes": 11042816,
+      "errors": 0,
+      "timeouts": 0,
+      "lifecycle_and_replay_deltas": {
+        "transport_sessions_created_delta": [
+          0
+        ],
+        "service_channels_created_delta": [
+          0
+        ],
+        "application_streams_created_delta": [
+          0
+        ],
+        "replay_entries_delta": [
+          0
+        ]
+      }
+    },
+    {
+      "path": "nbsr",
+      "streams": 8,
+      "payload_bytes": 1024,
+      "repeat_count": 3,
+      "throughput_cv": 0.0012287550158609779,
+      "stable": true,
+      "median_completed_operations": 940323.0,
+      "median_operations_per_second": 31336.745788042645,
+      "median_request_messages_per_second": 31336.745788042645,
+      "median_response_messages_per_second": 31336.745788042645,
+      "median_client_to_server_goodput_bytes_per_second": 32088827.686955668,
+      "median_server_to_client_goodput_bytes_per_second": 32088827.686955668,
+      "median_aggregate_goodput_bytes_per_second": 64177655.373911336,
+      "median_aggregate_application_gbps": 0.5134212429912907,
+      "median_p50_latency_ns": 251100.0,
+      "median_p95_latency_ns": 284200.0,
+      "median_p99_latency_ns": 321500.0,
+      "median_cpu_ns_per_completed_operation": 39369.879586075134,
+      "peak_working_set_bytes": 16994304,
+      "peak_private_bytes": 11214848,
+      "errors": 0,
+      "timeouts": 0,
+      "lifecycle_and_replay_deltas": {
+        "transport_sessions_created_delta": [
+          0
+        ],
+        "service_channels_created_delta": [
+          0
+        ],
+        "application_streams_created_delta": [
+          0
+        ],
+        "replay_entries_delta": [
+          0
+        ]
+      }
+    },
+    {
+      "path": "direct",
+      "streams": 64,
+      "payload_bytes": 1024,
+      "repeat_count": 3,
+      "throughput_cv": 0.004262926013171959,
+      "stable": true,
+      "median_completed_operations": 1684275.0,
+      "median_operations_per_second": 56117.19694295575,
+      "median_request_messages_per_second": 56117.19694295575,
+      "median_response_messages_per_second": 56117.19694295575,
+      "median_client_to_server_goodput_bytes_per_second": 57464009.66958669,
+      "median_server_to_client_goodput_bytes_per_second": 57464009.66958669,
+      "median_aggregate_goodput_bytes_per_second": 114928019.33917338,
+      "median_aggregate_application_gbps": 0.919424154713387,
+      "median_p50_latency_ns": 1118800.0,
+      "median_p95_latency_ns": 1447300.0,
+      "median_p99_latency_ns": 1544200.0,
+      "median_cpu_ns_per_completed_operation": 26613.75941146722,
+      "peak_working_set_bytes": 27889664,
+      "peak_private_bytes": 21889024,
+      "errors": 0,
+      "timeouts": 0,
+      "lifecycle_and_replay_deltas": {
+        "transport_sessions_created_delta": [
+          0
+        ],
+        "service_channels_created_delta": [
+          0
+        ],
+        "application_streams_created_delta": [
+          0
+        ],
+        "replay_entries_delta": [
+          0
+        ]
+      }
+    },
+    {
+      "path": "nbsr",
+      "streams": 64,
+      "payload_bytes": 1024,
+      "repeat_count": 3,
+      "throughput_cv": 0.005244153224902468,
+      "stable": true,
+      "median_completed_operations": 1661774.0,
+      "median_operations_per_second": 55372.32110880086,
+      "median_request_messages_per_second": 55372.32110880086,
+      "median_response_messages_per_second": 55372.32110880086,
+      "median_client_to_server_goodput_bytes_per_second": 56701256.81541208,
+      "median_server_to_client_goodput_bytes_per_second": 56701256.81541208,
+      "median_aggregate_goodput_bytes_per_second": 113402513.63082416,
+      "median_aggregate_application_gbps": 0.9072201090465933,
+      "median_p50_latency_ns": 1139200.0,
+      "median_p95_latency_ns": 1441600.0,
+      "median_p99_latency_ns": 1574300.0,
+      "median_cpu_ns_per_completed_operation": 27281.872740441107,
+      "peak_working_set_bytes": 28160000,
+      "peak_private_bytes": 21946368,
+      "errors": 0,
+      "timeouts": 0,
+      "lifecycle_and_replay_deltas": {
+        "transport_sessions_created_delta": [
+          0
+        ],
+        "service_channels_created_delta": [
+          0
+        ],
+        "application_streams_created_delta": [
+          0
+        ],
+        "replay_entries_delta": [
+          0
+        ]
+      }
+    },
+    {
+      "path": "direct",
+      "streams": 1,
+      "payload_bytes": 16384,
+      "repeat_count": 3,
+      "throughput_cv": 0.005183646474282975,
+      "stable": true,
+      "median_completed_operations": 73664.0,
+      "median_operations_per_second": 2455.4299416195067,
+      "median_request_messages_per_second": 2455.4299416195067,
+      "median_response_messages_per_second": 2455.4299416195067,
+      "median_client_to_server_goodput_bytes_per_second": 40229764.163494,
+      "median_server_to_client_goodput_bytes_per_second": 40229764.163494,
+      "median_aggregate_goodput_bytes_per_second": 80459528.326988,
+      "median_aggregate_application_gbps": 0.643676226615904,
+      "median_p50_latency_ns": 403600.0,
+      "median_p95_latency_ns": 428100.0,
+      "median_p99_latency_ns": 474700.0,
+      "median_cpu_ns_per_completed_operation": 529218.8178757603,
+      "peak_working_set_bytes": 9756672,
+      "peak_private_bytes": 2904064,
+      "errors": 0,
+      "timeouts": 0,
+      "lifecycle_and_replay_deltas": {
+        "transport_sessions_created_delta": [
+          0
+        ],
+        "service_channels_created_delta": [
+          0
+        ],
+        "application_streams_created_delta": [
+          0
+        ],
+        "replay_entries_delta": [
+          0
+        ]
+      }
+    },
+    {
+      "path": "nbsr",
+      "streams": 1,
+      "payload_bytes": 16384,
+      "repeat_count": 3,
+      "throughput_cv": 0.010080221629084993,
+      "stable": true,
+      "median_completed_operations": 73197.0,
+      "median_operations_per_second": 2439.844582996705,
+      "median_request_messages_per_second": 2439.844582996705,
+      "median_response_messages_per_second": 2439.844582996705,
+      "median_client_to_server_goodput_bytes_per_second": 39974413.647818014,
+      "median_server_to_client_goodput_bytes_per_second": 39974413.647818014,
+      "median_aggregate_goodput_bytes_per_second": 79948827.29563603,
+      "median_aggregate_application_gbps": 0.6395906183650882,
+      "median_p50_latency_ns": 405500.0,
+      "median_p95_latency_ns": 432600.0,
+      "median_p99_latency_ns": 486400.0,
+      "median_cpu_ns_per_completed_operation": 539814.5748656538,
+      "peak_working_set_bytes": 10141696,
+      "peak_private_bytes": 3055616,
+      "errors": 0,
+      "timeouts": 0,
+      "lifecycle_and_replay_deltas": {
+        "transport_sessions_created_delta": [
+          0
+        ],
+        "service_channels_created_delta": [
+          0
+        ],
+        "application_streams_created_delta": [
+          0
+        ],
+        "replay_entries_delta": [
+          0
+        ]
+      }
+    },
+    {
+      "path": "direct",
+      "streams": 8,
+      "payload_bytes": 16384,
+      "repeat_count": 3,
+      "throughput_cv": 0.015565193764917044,
+      "stable": true,
+      "median_completed_operations": 117853.0,
+      "median_operations_per_second": 3928.1194634944686,
+      "median_request_messages_per_second": 3928.1194634944686,
+      "median_response_messages_per_second": 3928.1194634944686,
+      "median_client_to_server_goodput_bytes_per_second": 64358309.289893374,
+      "median_server_to_client_goodput_bytes_per_second": 64358309.289893374,
+      "median_aggregate_goodput_bytes_per_second": 128716618.57978675,
+      "median_aggregate_application_gbps": 1.029732948638294,
+      "median_p50_latency_ns": 1985400.0,
+      "median_p95_latency_ns": 2917000.0,
+      "median_p99_latency_ns": 3324600.0,
+      "median_cpu_ns_per_completed_operation": 370228.6353960837,
+      "peak_working_set_bytes": 9740288,
+      "peak_private_bytes": 3706880,
+      "errors": 0,
+      "timeouts": 0,
+      "lifecycle_and_replay_deltas": {
+        "transport_sessions_created_delta": [
+          0
+        ],
+        "service_channels_created_delta": [
+          0
+        ],
+        "application_streams_created_delta": [
+          0
+        ],
+        "replay_entries_delta": [
+          0
+        ]
+      }
+    },
+    {
+      "path": "nbsr",
+      "streams": 8,
+      "payload_bytes": 16384,
+      "repeat_count": 5,
+      "throughput_cv": 0.048784057883685714,
+      "stable": true,
+      "median_completed_operations": 116864.0,
+      "median_operations_per_second": 3895.0421719872897,
+      "median_request_messages_per_second": 3895.0421719872897,
+      "median_response_messages_per_second": 3895.0421719872897,
+      "median_client_to_server_goodput_bytes_per_second": 63816370.945839755,
+      "median_server_to_client_goodput_bytes_per_second": 63816370.945839755,
+      "median_aggregate_goodput_bytes_per_second": 127632741.89167951,
+      "median_aggregate_application_gbps": 1.021061935133436,
+      "median_p50_latency_ns": 1999100.0,
+      "median_p95_latency_ns": 2946600.0,
+      "median_p99_latency_ns": 3364100.0,
+      "median_cpu_ns_per_completed_operation": 368491.49561118893,
+      "peak_working_set_bytes": 10276864,
+      "peak_private_bytes": 3985408,
+      "errors": 0,
+      "timeouts": 0,
+      "lifecycle_and_replay_deltas": {
+        "transport_sessions_created_delta": [
+          0
+        ],
+        "service_channels_created_delta": [
+          0
+        ],
+        "application_streams_created_delta": [
+          0
+        ],
+        "replay_entries_delta": [
+          0
+        ]
+      }
+    },
+    {
+      "path": "direct",
+      "streams": 64,
+      "payload_bytes": 16384,
+      "repeat_count": 5,
+      "throughput_cv": 0.26977849122003655,
+      "stable": false,
+      "median_completed_operations": 114805.0,
+      "median_operations_per_second": 3825.334911395191,
+      "median_request_messages_per_second": 3825.334911395191,
+      "median_response_messages_per_second": 3825.334911395191,
+      "median_client_to_server_goodput_bytes_per_second": 62674287.18829881,
+      "median_server_to_client_goodput_bytes_per_second": 62674287.18829881,
+      "median_aggregate_goodput_bytes_per_second": 125348574.37659761,
+      "median_aggregate_application_gbps": 1.0027885950127808,
+      "median_p50_latency_ns": 16579200.0,
+      "median_p95_latency_ns": 19247500.0,
+      "median_p99_latency_ns": 22406600.0,
+      "median_cpu_ns_per_completed_operation": 376338.9399859036,
+      "peak_working_set_bytes": 13189120,
+      "peak_private_bytes": 6828032,
+      "errors": 0,
+      "timeouts": 0,
+      "lifecycle_and_replay_deltas": {
+        "transport_sessions_created_delta": [
+          0
+        ],
+        "service_channels_created_delta": [
+          0
+        ],
+        "application_streams_created_delta": [
+          0
+        ],
+        "replay_entries_delta": [
+          0
+        ]
+      }
+    },
+    {
+      "path": "nbsr",
+      "streams": 64,
+      "payload_bytes": 16384,
+      "repeat_count": 5,
+      "throughput_cv": 0.21178923736968316,
+      "stable": false,
+      "median_completed_operations": 114755.0,
+      "median_operations_per_second": 3823.7367675566497,
+      "median_request_messages_per_second": 3823.7367675566497,
+      "median_response_messages_per_second": 3823.7367675566497,
+      "median_client_to_server_goodput_bytes_per_second": 62648103.19964815,
+      "median_server_to_client_goodput_bytes_per_second": 62648103.19964815,
+      "median_aggregate_goodput_bytes_per_second": 125296206.3992963,
+      "median_aggregate_application_gbps": 1.0023696511943705,
+      "median_p50_latency_ns": 16594400.0,
+      "median_p95_latency_ns": 19051900.0,
+      "median_p99_latency_ns": 21819100.0,
+      "median_cpu_ns_per_completed_operation": 371766.30905000865,
+      "peak_working_set_bytes": 13848576,
+      "peak_private_bytes": 7299072,
+      "errors": 0,
+      "timeouts": 0,
+      "lifecycle_and_replay_deltas": {
+        "transport_sessions_created_delta": [
+          0
+        ],
+        "service_channels_created_delta": [
+          0
+        ],
+        "application_streams_created_delta": [
+          0
+        ],
+        "replay_entries_delta": [
+          0
+        ]
+      }
+    }
+  ],
+  "paired_comparisons": [
+    {
+      "streams": 1,
+      "payload_bytes": 1,
+      "nbsr_to_direct_throughput_ratio": 0.9237846200360266,
+      "direct_minus_nbsr_p50_ns": -7300.0,
+      "direct_minus_nbsr_p95_ns": -10600.0,
+      "direct_minus_nbsr_p99_ns": 2600.0
+    },
+    {
+      "streams": 8,
+      "payload_bytes": 1,
+      "nbsr_to_direct_throughput_ratio": 0.9842914822025693,
+      "direct_minus_nbsr_p50_ns": -2100.0,
+      "direct_minus_nbsr_p95_ns": 500.0,
+      "direct_minus_nbsr_p99_ns": 700.0
+    },
+    {
+      "streams": 64,
+      "payload_bytes": 1,
+      "nbsr_to_direct_throughput_ratio": 0.9655315944621498,
+      "direct_minus_nbsr_p50_ns": -13800.0,
+      "direct_minus_nbsr_p95_ns": -19900.0,
+      "direct_minus_nbsr_p99_ns": -32600.0
+    },
+    {
+      "streams": 1,
+      "payload_bytes": 1024,
+      "nbsr_to_direct_throughput_ratio": 1.0060080714854742,
+      "direct_minus_nbsr_p50_ns": -100.0,
+      "direct_minus_nbsr_p95_ns": 1900.0,
+      "direct_minus_nbsr_p99_ns": 800.0
+    },
+    {
+      "streams": 8,
+      "payload_bytes": 1024,
+      "nbsr_to_direct_throughput_ratio": 0.9892768348190778,
+      "direct_minus_nbsr_p50_ns": -2500.0,
+      "direct_minus_nbsr_p95_ns": -2900.0,
+      "direct_minus_nbsr_p99_ns": -8400.0
+    },
+    {
+      "streams": 64,
+      "payload_bytes": 1024,
+      "nbsr_to_direct_throughput_ratio": 0.9867264247907451,
+      "direct_minus_nbsr_p50_ns": -20400.0,
+      "direct_minus_nbsr_p95_ns": 5700.0,
+      "direct_minus_nbsr_p99_ns": -30100.0
+    },
+    {
+      "streams": 1,
+      "payload_bytes": 16384,
+      "nbsr_to_direct_throughput_ratio": 0.9936526966790499,
+      "direct_minus_nbsr_p50_ns": -1900.0,
+      "direct_minus_nbsr_p95_ns": -4500.0,
+      "direct_minus_nbsr_p99_ns": -11700.0
+    },
+    {
+      "streams": 8,
+      "payload_bytes": 16384,
+      "nbsr_to_direct_throughput_ratio": 0.9915793570397797,
+      "direct_minus_nbsr_p50_ns": -13700.0,
+      "direct_minus_nbsr_p95_ns": -29600.0,
+      "direct_minus_nbsr_p99_ns": -39500.0
+    },
+    {
+      "streams": 64,
+      "payload_bytes": 16384,
+      "nbsr_to_direct_throughput_ratio": 0.9995822211974746,
+      "direct_minus_nbsr_p50_ns": -15200.0,
+      "direct_minus_nbsr_p95_ns": 195600.0,
+      "direct_minus_nbsr_p99_ns": 587500.0
+    }
+  ],
+  "scaling": [
+    {
+      "path": "direct",
+      "payload_bytes": 1,
+      "one_to_eight": 5.6876945809945445,
+      "eight_to_sixty_four": 2.7236830164937653
+    },
+    {
+      "path": "direct",
+      "payload_bytes": 1024,
+      "one_to_eight": 3.0153634291488127,
+      "eight_to_sixty_four": 1.771576517426052
+    },
+    {
+      "path": "direct",
+      "payload_bytes": 16384,
+      "one_to_eight": 1.599768495493556,
+      "eight_to_sixty_four": 0.9738336491406399
+    },
+    {
+      "path": "nbsr",
+      "payload_bytes": 1,
+      "one_to_eight": 6.06023223164758,
+      "eight_to_sixty_four": 2.6717715770941557
+    },
+    {
+      "path": "nbsr",
+      "payload_bytes": 1024,
+      "one_to_eight": 2.965213971506997,
+      "eight_to_sixty_four": 1.7670092958385493
+    },
+    {
+      "path": "nbsr",
+      "payload_bytes": 16384,
+      "one_to_eight": 1.5964304444356283,
+      "eight_to_sixty_four": 0.9816932907829701
+    }
+  ],
+  "non_claim": "No root cause is assigned without profile evidence; unstable cells remain lower-confidence observations."
+}

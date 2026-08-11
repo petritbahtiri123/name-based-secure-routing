@@ -1,0 +1,51 @@
+{
+  "schema": "nbsr-p2a-repeat-v1",
+  "path": "direct",
+  "streams": 8,
+  "payload_bytes": 16384,
+  "model": "one-outstanding-per-stream",
+  "completed_operations": 117853,
+  "measured_ns": 30002397100,
+  "p50_latency_ns": 1984900,
+  "p95_latency_ns": 2917000,
+  "p99_latency_ns": 3324100,
+  "errors": 0,
+  "missing": 0,
+  "duplicates": 0,
+  "corrupt": 0,
+  "wrong_request": 0,
+  "transport_sessions_created_delta": 0,
+  "service_channels_created_delta": 0,
+  "application_streams_created_delta": 0,
+  "replay_entries_delta": 0,
+  "repeat": 2,
+  "valid": true,
+  "operations_per_second": 3928.1194634944686,
+  "request_messages_per_second": 3928.1194634944686,
+  "response_messages_per_second": 3928.1194634944686,
+  "payload_bytes_sent": 1930903552,
+  "payload_bytes_received": 1930903552,
+  "client_to_server_goodput_bytes_per_second": 64358309.289893374,
+  "server_to_client_goodput_bytes_per_second": 64358309.289893374,
+  "aggregate_goodput_bytes_per_second": 128716618.57978675,
+  "aggregate_application_gbps": 1.029732948638294,
+  "timeouts": 0,
+  "resources": {
+    "roles": {
+      "source": {
+        "cpu_ns": 28640625000,
+        "peak_working_set_bytes": 9715712,
+        "peak_private_bytes": 3559424
+      },
+      "destination": {
+        "cpu_ns": 14203125000,
+        "peak_working_set_bytes": 8310784,
+        "peak_private_bytes": 1896448
+      }
+    },
+    "total_cpu_ns": 42843750000,
+    "cpu_ns_per_completed_operation": 363535.5060965779
+  },
+  "allocations_per_operation": null,
+  "allocated_bytes_per_operation": null
+}
