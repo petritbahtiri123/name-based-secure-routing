@@ -205,6 +205,14 @@ impl DestinationAdmission {
         self.channels.bound_channel(channel_id)
     }
 
+    pub(crate) fn credit_generations(&self, channel_id: &[u8; 16]) -> Option<(u64, u64)> {
+        self.channels.credit_generations(channel_id)
+    }
+
+    pub(crate) fn credit_grant_is_live(&self, channel_id: &[u8; 16], unix_now: u64) -> bool {
+        self.channels.credit_grant_is_live(channel_id, unix_now)
+    }
+
     pub(crate) fn bound_udp_channel(&self, channel_id: &[u8; 16]) -> Option<&ActiveChannel> {
         self.channels.bound_udp_channel(channel_id)
     }

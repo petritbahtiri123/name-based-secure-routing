@@ -8,8 +8,9 @@ use std::time::Duration;
 use crate::session::SessionClock;
 use crate::{
     AdmissionPolicy, AuthorizedServicePolicy, ControlSession, DestinationAdmission, EdgeIdentity,
-    EdgeRole, PeerPolicy, ResumeReject, SessionReject, TransportListener, TrustProfileId,
-    build_client_config, build_server_config, connect, decode_control_envelope,
+    EdgeRole, PeerPolicy, ResumeReject, RouteGrantIssuer, SessionReject, StreamCreditPreface,
+    StreamCreditReject, TransportListener, TrustProfileId, build_client_config,
+    build_server_config, connect, decode_control_envelope,
 };
 use ed25519_dalek::SigningKey;
 
@@ -34,6 +35,10 @@ impl ManualClock {
     fn set_monotonic(&self, value: u64) {
         self.monotonic.store(value, Ordering::SeqCst);
     }
+
+    fn set_unix(&self, value: u64) {
+        self.unix.store(value, Ordering::SeqCst);
+    }
 }
 
 impl SessionClock for ManualClock {
@@ -56,13 +61,26 @@ fn admission() -> DestinationAdmission {
         source_edge_id: "source.edge".into(),
         destination_operator_id: "destination.operator".into(),
         destination_edge_id: "destination.edge".into(),
-        authorized_services: BTreeMap::from([(
-            "service-a".into(),
-            AuthorizedServicePolicy {
-                accepted_record_sequence: 42,
-                policy_hash: [0xa0; 32],
-            },
-        )]),
+        authorized_services: BTreeMap::from([
+            (
+                "service-a".into(),
+                AuthorizedServicePolicy {
+                    accepted_record_sequence: 42,
+                    policy_hash: [0xa0; 32],
+                },
+            ),
+            (
+                "service.example".into(),
+                AuthorizedServicePolicy {
+                    accepted_record_sequence: 42,
+                    policy_hash: [
+                        0x09, 0xfe, 0x3b, 0x1c, 0x85, 0x49, 0x99, 0x49, 0xda, 0x22, 0x2d, 0xd4,
+                        0xe2, 0xa4, 0x60, 0xf5, 0x94, 0xae, 0xe8, 0x25, 0xf4, 0x44, 0xa7, 0x22,
+                        0x58, 0xd2, 0xf1, 0x79, 0x7b, 0xf1, 0x14, 0x3f,
+                    ],
+                },
+            ),
+        ]),
         now: NOW,
         client_session_public_key: SigningKey::from_bytes(&[
             0x4c, 0xcd, 0x08, 0x9b, 0x28, 0xff, 0x96, 0xda, 0x9d, 0xb6, 0xc3, 0x46, 0xec, 0x11,
@@ -134,6 +152,179 @@ fn session(
         TrustProfileId::new("test-profile").unwrap(),
         clock,
     )
+}
+
+fn trusted_issuer() -> RouteGrantIssuer {
+    RouteGrantIssuer {
+        kid: b"nbsr-test-route-grant-key".to_vec(),
+        public_key: [
+            0xd7, 0x5a, 0x98, 0x01, 0x82, 0xb1, 0x0a, 0xb7, 0xd5, 0x4b, 0xfe, 0xd3, 0xc9, 0x64,
+            0x07, 0x3a, 0x0e, 0xe1, 0x72, 0xf3, 0xda, 0xa6, 0x23, 0x25, 0xaf, 0x02, 0x1a, 0x68,
+            0xf7, 0x07, 0x51, 0x1a,
+        ],
+    }
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn credited_admission_commits_slot_and_replay_together_under_live_authority() {
+    let (listener, source, destination) = connection_pair().await;
+    let clock = Arc::new(ManualClock::new());
+    let mut session = ControlSession::new_with_clock(
+        &destination,
+        admission(),
+        vec![trusted_issuer()],
+        TrustProfileId::new("test-profile").unwrap(),
+        clock.clone(),
+    );
+    session
+        .accept_client_hello(
+            &decode_control_envelope(
+                &vector("artifacts/valid/envelopes/client-hello.cbor"),
+                crate::CoreV02Limits::default(),
+            )
+            .unwrap(),
+        )
+        .unwrap();
+    session
+        .confirm_edge_hello(
+            &decode_control_envelope(
+                &vector("artifacts/valid/envelopes/edge-hello.cbor"),
+                crate::CoreV02Limits::default(),
+            )
+            .unwrap(),
+        )
+        .unwrap();
+    let channel = session
+        .accept_route_open(
+            &decode_control_envelope(
+                &vector("artifacts/valid/envelopes/route-open.cbor"),
+                crate::CoreV02Limits::default(),
+            )
+            .unwrap(),
+        )
+        .unwrap();
+    assert_eq!(
+        session.select_stream_credit_profile(channel.channel_id, true, None, false),
+        Err(SessionReject::StreamCredit(StreamCreditReject::Downgrade))
+    );
+    session
+        .select_stream_credit_profile(
+            channel.channel_id,
+            true,
+            Some(crate::STREAM_CREDIT_PROFILE_ID),
+            false,
+        )
+        .unwrap();
+    session
+        .confirm_route_accept(
+            &decode_control_envelope(
+                &vector("artifacts/valid/envelopes/route-accept.cbor"),
+                crate::CoreV02Limits::default(),
+            )
+            .unwrap(),
+        )
+        .unwrap();
+    destination
+        .bind_channel(&mut session, channel.channel_id)
+        .unwrap();
+
+    let preface = |slot, stream_id| StreamCreditPreface {
+        channel_id: channel.channel_id,
+        channel_generation: 1,
+        credit_epoch: 1,
+        credit_slot: slot,
+        quic_stream_id: stream_id,
+    };
+    session.authorize_credited_stream(preface(0, 4)).unwrap();
+    session
+        .application_stream_permit(channel.channel_id, 4)
+        .unwrap();
+    assert_eq!(
+        session.authorize_credited_stream(preface(1, 4)),
+        Err(SessionReject::StreamCredit(
+            StreamCreditReject::DuplicateStream
+        ))
+    );
+    session
+        .authorize_credited_stream(preface(1, 8))
+        .expect("P1F rejection did not consume slot one");
+    assert_eq!(
+        session.authorize_credited_stream(preface(1, 12)),
+        Err(SessionReject::StreamCredit(
+            StreamCreditReject::DuplicateSlot
+        ))
+    );
+    clock.set_unix(u64::MAX);
+    assert_eq!(
+        session.authorize_credited_stream(preface(2, 12)),
+        Err(SessionReject::StreamCredit(StreamCreditReject::Expired))
+    );
+    clock.set_unix(NOW);
+    session
+        .authorize_credited_stream(preface(2, 12))
+        .expect("expiry rejection did not consume slot or replay state");
+    clock.set_monotonic(3_600);
+    assert_eq!(
+        session.authorize_credited_stream(preface(3, 16)),
+        Err(SessionReject::InvalidChannelState)
+    );
+
+    let mut legacy = ControlSession::new_with_clock(
+        &destination,
+        admission(),
+        vec![trusted_issuer()],
+        TrustProfileId::new("test-profile").unwrap(),
+        Arc::new(ManualClock::new()),
+    );
+    for fixture in ["client-hello.cbor", "edge-hello.cbor"] {
+        let envelope = decode_control_envelope(
+            &vector(&format!("artifacts/valid/envelopes/{fixture}")),
+            crate::CoreV02Limits::default(),
+        )
+        .unwrap();
+        if fixture.starts_with("client") {
+            legacy.accept_client_hello(&envelope).unwrap();
+        } else {
+            legacy.confirm_edge_hello(&envelope).unwrap();
+        }
+    }
+    let legacy_channel = legacy
+        .accept_route_open(
+            &decode_control_envelope(
+                &vector("artifacts/valid/envelopes/route-open.cbor"),
+                crate::CoreV02Limits::default(),
+            )
+            .unwrap(),
+        )
+        .unwrap();
+    legacy
+        .confirm_route_accept(
+            &decode_control_envelope(
+                &vector("artifacts/valid/envelopes/route-accept.cbor"),
+                crate::CoreV02Limits::default(),
+            )
+            .unwrap(),
+        )
+        .unwrap();
+    destination
+        .bind_channel(&mut legacy, legacy_channel.channel_id)
+        .unwrap();
+    assert_eq!(
+        legacy.authorize_credited_stream(StreamCreditPreface {
+            channel_id: legacy_channel.channel_id,
+            channel_generation: 1,
+            credit_epoch: 1,
+            credit_slot: 0,
+            quic_stream_id: 4,
+        }),
+        Err(SessionReject::StreamCredit(
+            StreamCreditReject::ProfileUnsupported
+        ))
+    );
+
+    source.close().await.unwrap();
+    destination.close().await.unwrap();
+    listener.close().await.unwrap();
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]

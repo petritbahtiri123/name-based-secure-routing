@@ -4,6 +4,8 @@
 //! the explicitly negotiated profile and validates one preface against the
 //! authenticated channel/session/QUIC identities supplied by the caller.
 
+use std::collections::HashMap;
+
 pub const STREAM_CREDIT_PROFILE_ID: &str = "nbsr-stream-credit-1";
 pub const STREAM_CREDIT_COUNT: u8 = 64;
 pub const STREAM_CREDIT_LOW_WATERMARK: u8 = 16;
@@ -26,6 +28,21 @@ pub enum StreamCreditReject {
     WrongGeneration,
     WrongSession,
     WrongStream,
+    DuplicateStream,
+    DuplicateSlot,
+    StaleEpoch,
+    Exhausted,
+    RefillNotDue,
+    RefillPending,
+    DrainingEpoch,
+    EpochExhausted,
+    GrantMismatch,
+    Revoked,
+    Expired,
+    OverCapacity,
+    ReplayCapacity,
+    AuditUnavailable,
+    InvalidState,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -48,6 +65,392 @@ pub struct StreamCreditContext {
     pub channel_id: [u8; 16],
     pub channel_generation: u64,
     pub quic_stream_id: u64,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(crate) struct StreamCreditBinding {
+    pub(crate) profile: StreamCreditProfile,
+    pub(crate) session_id: [u8; 16],
+    pub(crate) route_id: [u8; 16],
+    pub(crate) route_grant_digest: [u8; 32],
+    pub(crate) channel_id: [u8; 16],
+    pub(crate) channel_generation: u64,
+    pub(crate) revocation_generation: u64,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[allow(dead_code)] // Sender/refill transport wiring is a later task; Task 2 pins the state API.
+pub(crate) struct StreamCreditAllocation {
+    pub(crate) credit_epoch: u64,
+    pub(crate) credit_slot: u8,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(crate) struct PreparedCreditConsume {
+    binding: StreamCreditBinding,
+    credit_epoch: u64,
+    credit_slot: u8,
+}
+
+#[derive(Clone, Copy)]
+struct CreditEpoch {
+    number: u64,
+    used: u64,
+}
+
+#[derive(Clone, Copy)]
+struct CreditWindowState {
+    current: CreditEpoch,
+    draining: Option<CreditEpoch>,
+    #[allow(dead_code)] // Used by the pinned refill API before runtime control wiring.
+    pending_refill: Option<u64>,
+}
+
+struct CreditWindowEntry {
+    profile: StreamCreditProfile,
+    route_id: [u8; 16],
+    route_grant_digest: [u8; 32],
+    channel_generation: u64,
+    revocation_generation: u64,
+    state: CreditWindowState,
+}
+
+pub(crate) struct StreamCreditWindows {
+    session_id: Option<[u8; 16]>,
+    channels: HashMap<[u8; 16], CreditWindowEntry>,
+}
+
+impl StreamCreditWindows {
+    pub(crate) fn new() -> Self {
+        Self {
+            session_id: None,
+            channels: HashMap::new(),
+        }
+    }
+
+    pub(crate) fn activate(
+        &mut self,
+        binding: StreamCreditBinding,
+    ) -> Result<(), StreamCreditReject> {
+        self.activate_epoch(binding, 1)
+    }
+
+    #[cfg(test)]
+    fn activate_at(
+        &mut self,
+        binding: StreamCreditBinding,
+        epoch: u64,
+    ) -> Result<(), StreamCreditReject> {
+        self.activate_epoch(binding, epoch)
+    }
+
+    fn activate_epoch(
+        &mut self,
+        binding: StreamCreditBinding,
+        epoch: u64,
+    ) -> Result<(), StreamCreditReject> {
+        if binding.profile != StreamCreditProfile::V1 {
+            return Err(StreamCreditReject::ProfileUnsupported);
+        }
+        if binding.channel_generation == 0 || binding.revocation_generation == 0 || epoch == 0 {
+            return Err(StreamCreditReject::InvalidState);
+        }
+        match self.session_id {
+            Some(session_id) if session_id != binding.session_id => {
+                return Err(StreamCreditReject::WrongSession);
+            }
+            None => self.session_id = Some(binding.session_id),
+            Some(_) => {}
+        }
+        if self.channels.contains_key(&binding.channel_id) {
+            return Err(StreamCreditReject::InvalidState);
+        }
+        self.channels.insert(
+            binding.channel_id,
+            CreditWindowEntry {
+                profile: binding.profile,
+                route_id: binding.route_id,
+                route_grant_digest: binding.route_grant_digest,
+                channel_generation: binding.channel_generation,
+                revocation_generation: binding.revocation_generation,
+                state: CreditWindowState {
+                    current: CreditEpoch {
+                        number: epoch,
+                        used: 0,
+                    },
+                    draining: None,
+                    pending_refill: None,
+                },
+            },
+        );
+        Ok(())
+    }
+
+    #[allow(dead_code)] // Sender-side allocation is wired by the runtime task.
+    pub(crate) fn allocate(
+        &mut self,
+        binding: &StreamCreditBinding,
+    ) -> Result<StreamCreditAllocation, StreamCreditReject> {
+        let entry = self.entry_mut(binding)?;
+        let available = !entry.state.current.used;
+        if available == 0 {
+            return Err(StreamCreditReject::Exhausted);
+        }
+        let slot = available.trailing_zeros() as u8;
+        entry.state.current.used |= 1_u64 << slot;
+        Ok(StreamCreditAllocation {
+            credit_epoch: entry.state.current.number,
+            credit_slot: slot,
+        })
+    }
+
+    #[allow(dead_code)] // Refill control transport is wired by the runtime task.
+    pub(crate) fn request_refill(
+        &mut self,
+        binding: &StreamCreditBinding,
+    ) -> Result<u64, StreamCreditReject> {
+        let entry = self.entry_mut(binding)?;
+        if entry.state.pending_refill.is_some() {
+            return Err(StreamCreditReject::RefillPending);
+        }
+        let remaining = STREAM_CREDIT_COUNT - entry.state.current.used.count_ones() as u8;
+        if remaining > STREAM_CREDIT_LOW_WATERMARK {
+            return Err(StreamCreditReject::RefillNotDue);
+        }
+        let next = entry
+            .state
+            .current
+            .number
+            .checked_add(1)
+            .ok_or(StreamCreditReject::EpochExhausted)?;
+        entry.state.pending_refill = Some(next);
+        Ok(next)
+    }
+
+    #[allow(dead_code)] // Refill control transport is wired by the runtime task.
+    pub(crate) fn activate_refill(
+        &mut self,
+        binding: &StreamCreditBinding,
+        epoch: u64,
+    ) -> Result<(), StreamCreditReject> {
+        let entry = self.entry_mut(binding)?;
+        if entry.state.draining.is_some() {
+            return Err(StreamCreditReject::DrainingEpoch);
+        }
+        let expected = entry
+            .state
+            .current
+            .number
+            .checked_add(1)
+            .ok_or(StreamCreditReject::EpochExhausted)?;
+        if entry.state.pending_refill != Some(epoch) || epoch != expected {
+            return Err(StreamCreditReject::InvalidState);
+        }
+        entry.state.draining = Some(entry.state.current);
+        entry.state.current = CreditEpoch {
+            number: epoch,
+            used: 0,
+        };
+        entry.state.pending_refill = None;
+        Ok(())
+    }
+
+    #[allow(dead_code)] // Refill control transport is wired by the runtime task.
+    pub(crate) fn cancel_refill(
+        &mut self,
+        binding: &StreamCreditBinding,
+    ) -> Result<(), StreamCreditReject> {
+        let entry = self.entry_mut(binding)?;
+        entry
+            .state
+            .pending_refill
+            .take()
+            .map(|_| ())
+            .ok_or(StreamCreditReject::InvalidState)
+    }
+
+    pub(crate) fn prepare_consume(
+        &self,
+        binding: &StreamCreditBinding,
+        credit_epoch: u64,
+        credit_slot: u8,
+    ) -> Result<PreparedCreditConsume, StreamCreditReject> {
+        if credit_slot >= STREAM_CREDIT_COUNT {
+            return Err(StreamCreditReject::InvalidSlot);
+        }
+        let entry = self.entry(binding)?;
+        let epoch = Self::epoch(&entry.state, credit_epoch)?;
+        if epoch.used & (1_u64 << credit_slot) != 0 {
+            return Err(StreamCreditReject::DuplicateSlot);
+        }
+        Ok(PreparedCreditConsume {
+            binding: *binding,
+            credit_epoch,
+            credit_slot,
+        })
+    }
+
+    pub(crate) fn commit_consume(
+        &mut self,
+        prepared: PreparedCreditConsume,
+    ) -> Result<(), StreamCreditReject> {
+        let entry = self.entry_mut(&prepared.binding)?;
+        let epoch = Self::epoch_mut(&mut entry.state, prepared.credit_epoch)?;
+        let bit = 1_u64 << prepared.credit_slot;
+        if epoch.used & bit != 0 {
+            return Err(StreamCreditReject::DuplicateSlot);
+        }
+        epoch.used |= bit;
+        Ok(())
+    }
+
+    #[allow(dead_code)] // Epoch retirement control is wired by the runtime task.
+    pub(crate) fn retire(
+        &mut self,
+        binding: &StreamCreditBinding,
+        epoch: u64,
+    ) -> Result<(), StreamCreditReject> {
+        let entry = self.entry_mut(binding)?;
+        if entry
+            .state
+            .draining
+            .is_some_and(|value| value.number == epoch)
+        {
+            entry.state.draining = None;
+            Ok(())
+        } else {
+            Err(StreamCreditReject::StaleEpoch)
+        }
+    }
+
+    pub(crate) fn remove_channel(&mut self, session_id: [u8; 16], channel_id: [u8; 16]) {
+        if self.session_id == Some(session_id) {
+            self.channels.remove(&channel_id);
+        }
+    }
+
+    pub(crate) fn remove_session(&mut self, session_id: [u8; 16]) {
+        if self.session_id == Some(session_id) {
+            self.channels.clear();
+            self.session_id = None;
+        }
+    }
+
+    pub(crate) fn has_channel(&self, session_id: [u8; 16], channel_id: [u8; 16]) -> bool {
+        self.session_id == Some(session_id) && self.channels.contains_key(&channel_id)
+    }
+
+    fn entry(
+        &self,
+        binding: &StreamCreditBinding,
+    ) -> Result<&CreditWindowEntry, StreamCreditReject> {
+        if self.session_id != Some(binding.session_id) {
+            return Err(StreamCreditReject::WrongSession);
+        }
+        let entry = self
+            .channels
+            .get(&binding.channel_id)
+            .ok_or(StreamCreditReject::WrongChannel)?;
+        Self::validate_entry(entry, binding)?;
+        Ok(entry)
+    }
+
+    fn entry_mut(
+        &mut self,
+        binding: &StreamCreditBinding,
+    ) -> Result<&mut CreditWindowEntry, StreamCreditReject> {
+        if self.session_id != Some(binding.session_id) {
+            return Err(StreamCreditReject::WrongSession);
+        }
+        let entry = self
+            .channels
+            .get_mut(&binding.channel_id)
+            .ok_or(StreamCreditReject::WrongChannel)?;
+        Self::validate_entry(entry, binding)?;
+        Ok(entry)
+    }
+
+    fn validate_entry(
+        entry: &CreditWindowEntry,
+        binding: &StreamCreditBinding,
+    ) -> Result<(), StreamCreditReject> {
+        if entry.profile != binding.profile {
+            return Err(StreamCreditReject::ProfileUnsupported);
+        }
+        if entry.route_id != binding.route_id
+            || entry.route_grant_digest != binding.route_grant_digest
+        {
+            return Err(StreamCreditReject::GrantMismatch);
+        }
+        if entry.channel_generation != binding.channel_generation {
+            return Err(StreamCreditReject::WrongGeneration);
+        }
+        if entry.revocation_generation != binding.revocation_generation {
+            return Err(StreamCreditReject::Revoked);
+        }
+        Ok(())
+    }
+
+    fn epoch(state: &CreditWindowState, number: u64) -> Result<&CreditEpoch, StreamCreditReject> {
+        if state.current.number == number {
+            Ok(&state.current)
+        } else if let Some(draining) = state
+            .draining
+            .as_ref()
+            .filter(|value| value.number == number)
+        {
+            Ok(draining)
+        } else {
+            Err(StreamCreditReject::StaleEpoch)
+        }
+    }
+
+    fn epoch_mut(
+        state: &mut CreditWindowState,
+        number: u64,
+    ) -> Result<&mut CreditEpoch, StreamCreditReject> {
+        if state.current.number == number {
+            Ok(&mut state.current)
+        } else if let Some(draining) = state
+            .draining
+            .as_mut()
+            .filter(|value| value.number == number)
+        {
+            Ok(draining)
+        } else {
+            Err(StreamCreditReject::StaleEpoch)
+        }
+    }
+
+    #[cfg(test)]
+    fn used_bitmap(&self, binding: &StreamCreditBinding, epoch: u64) -> Option<u64> {
+        self.entry(binding)
+            .ok()
+            .and_then(|entry| Self::epoch(&entry.state, epoch).ok())
+            .map(|value| value.used)
+    }
+
+    #[cfg(test)]
+    fn pending_refill(&self, binding: &StreamCreditBinding) -> Option<u64> {
+        self.entry(binding)
+            .ok()
+            .and_then(|entry| entry.state.pending_refill)
+    }
+
+    #[cfg(test)]
+    fn recognized_epochs(&self, binding: &StreamCreditBinding) -> Option<(u64, Option<u64>)> {
+        self.entry(binding).ok().map(|entry| {
+            (
+                entry.state.current.number,
+                entry.state.draining.map(|value| value.number),
+            )
+        })
+    }
+
+    #[cfg(test)]
+    fn len(&self) -> usize {
+        self.channels.len()
+    }
 }
 
 impl StreamCreditProfile {
@@ -357,5 +760,271 @@ impl<'a> CborDecoder<'a> {
 
     fn finished(&self) -> bool {
         self.position == self.bytes.len()
+    }
+}
+
+#[cfg(test)]
+mod lifecycle_tests {
+    use std::mem::size_of;
+
+    use super::*;
+
+    fn binding(id: u8) -> StreamCreditBinding {
+        StreamCreditBinding {
+            profile: StreamCreditProfile::V1,
+            session_id: [0x10; 16],
+            route_id: [id.wrapping_add(0x40); 16],
+            route_grant_digest: [id.wrapping_add(0x80); 32],
+            channel_id: [id; 16],
+            channel_generation: 1,
+            revocation_generation: 1,
+        }
+    }
+
+    #[test]
+    fn exact_sixty_four_slots_exhaust_without_wrapping_or_allocation() {
+        let authority = binding(1);
+        let mut windows = StreamCreditWindows::new();
+        windows.activate(authority).expect("fresh channel");
+        for expected_slot in 0..STREAM_CREDIT_COUNT {
+            assert_eq!(
+                windows.allocate(&authority).expect("credit available"),
+                StreamCreditAllocation {
+                    credit_epoch: 1,
+                    credit_slot: expected_slot,
+                }
+            );
+        }
+        assert_eq!(
+            windows.allocate(&authority),
+            Err(StreamCreditReject::Exhausted)
+        );
+        assert_eq!(windows.used_bitmap(&authority, 1), Some(u64::MAX));
+    }
+
+    #[test]
+    fn consume_rejects_invalid_duplicate_and_wrong_authority_without_mutation() {
+        let authority = binding(1);
+        let mut windows = StreamCreditWindows::new();
+        windows.activate(authority).unwrap();
+
+        assert_eq!(
+            windows.prepare_consume(&authority, 1, 64),
+            Err(StreamCreditReject::InvalidSlot)
+        );
+        for (wrong, expected) in [
+            (
+                StreamCreditBinding {
+                    profile: StreamCreditProfile::Legacy,
+                    ..authority
+                },
+                StreamCreditReject::ProfileUnsupported,
+            ),
+            (
+                StreamCreditBinding {
+                    session_id: [9; 16],
+                    ..authority
+                },
+                StreamCreditReject::WrongSession,
+            ),
+            (
+                StreamCreditBinding {
+                    route_id: [9; 16],
+                    ..authority
+                },
+                StreamCreditReject::GrantMismatch,
+            ),
+            (
+                StreamCreditBinding {
+                    route_grant_digest: [9; 32],
+                    ..authority
+                },
+                StreamCreditReject::GrantMismatch,
+            ),
+            (
+                StreamCreditBinding {
+                    channel_id: [9; 16],
+                    ..authority
+                },
+                StreamCreditReject::WrongChannel,
+            ),
+            (
+                StreamCreditBinding {
+                    channel_generation: 2,
+                    ..authority
+                },
+                StreamCreditReject::WrongGeneration,
+            ),
+            (
+                StreamCreditBinding {
+                    revocation_generation: 2,
+                    ..authority
+                },
+                StreamCreditReject::Revoked,
+            ),
+        ] {
+            assert_eq!(windows.prepare_consume(&wrong, 1, 0), Err(expected));
+        }
+        let prepared = windows.prepare_consume(&authority, 1, 0).unwrap();
+        windows.commit_consume(prepared).unwrap();
+        assert_eq!(
+            windows.prepare_consume(&authority, 1, 0),
+            Err(StreamCreditReject::DuplicateSlot)
+        );
+        assert_eq!(windows.used_bitmap(&authority, 1), Some(1));
+    }
+
+    #[test]
+    fn refill_is_single_bounded_and_keeps_current_usable_until_activation() {
+        let authority = binding(1);
+        let mut windows = StreamCreditWindows::new();
+        windows.activate(authority).unwrap();
+        for _ in 0..47 {
+            windows.allocate(&authority).unwrap();
+        }
+        assert_eq!(
+            windows.request_refill(&authority),
+            Err(StreamCreditReject::RefillNotDue)
+        );
+        windows.allocate(&authority).unwrap();
+        assert_eq!(windows.request_refill(&authority), Ok(2));
+        assert_eq!(
+            windows.request_refill(&authority),
+            Err(StreamCreditReject::RefillPending)
+        );
+        assert_eq!(windows.allocate(&authority).unwrap().credit_epoch, 1);
+        windows.cancel_refill(&authority).unwrap();
+        assert_eq!(windows.pending_refill(&authority), None);
+        assert_eq!(windows.request_refill(&authority), Ok(2));
+        assert_eq!(windows.allocate(&authority).unwrap().credit_epoch, 1);
+        windows.activate_refill(&authority, 2).unwrap();
+        assert_eq!(windows.recognized_epochs(&authority), Some((2, Some(1))));
+        assert_eq!(
+            windows.allocate(&authority).unwrap(),
+            StreamCreditAllocation {
+                credit_epoch: 2,
+                credit_slot: 0
+            }
+        );
+    }
+
+    #[test]
+    fn draining_and_current_accept_old_new_reordering_but_never_a_third_epoch() {
+        let authority = binding(1);
+        let mut windows = StreamCreditWindows::new();
+        windows.activate(authority).unwrap();
+        for _ in 0..48 {
+            windows.allocate(&authority).unwrap();
+        }
+        windows.request_refill(&authority).unwrap();
+        windows.activate_refill(&authority, 2).unwrap();
+        let new = windows.prepare_consume(&authority, 2, 63).unwrap();
+        windows.commit_consume(new).unwrap();
+        let old = windows.prepare_consume(&authority, 1, 63).unwrap();
+        windows.commit_consume(old).unwrap();
+        assert_eq!(
+            windows.request_refill(&authority),
+            Err(StreamCreditReject::RefillNotDue)
+        );
+        for _ in 0..48 {
+            windows.allocate(&authority).unwrap();
+        }
+        assert_eq!(windows.request_refill(&authority), Ok(3));
+        assert_eq!(
+            windows.activate_refill(&authority, 3),
+            Err(StreamCreditReject::DrainingEpoch)
+        );
+        windows.retire(&authority, 1).unwrap();
+        windows.activate_refill(&authority, 3).unwrap();
+        assert_eq!(
+            windows.prepare_consume(&authority, 1, 1),
+            Err(StreamCreditReject::StaleEpoch)
+        );
+        assert_eq!(windows.recognized_epochs(&authority), Some((3, Some(2))));
+    }
+
+    #[test]
+    fn same_slot_race_commits_once_and_epoch_never_wraps() {
+        let authority = binding(1);
+        let mut windows = StreamCreditWindows::new();
+        windows.activate_at(authority, u64::MAX).unwrap();
+        let first = windows.prepare_consume(&authority, u64::MAX, 7).unwrap();
+        let second = windows.prepare_consume(&authority, u64::MAX, 7).unwrap();
+        windows.commit_consume(first).unwrap();
+        assert_eq!(
+            windows.commit_consume(second),
+            Err(StreamCreditReject::DuplicateSlot)
+        );
+        for _ in 0..48 {
+            windows.allocate(&authority).unwrap();
+        }
+        assert_eq!(
+            windows.request_refill(&authority),
+            Err(StreamCreditReject::EpochExhausted)
+        );
+    }
+
+    #[test]
+    fn dropped_prepare_models_validation_or_audit_failure_without_consuming_credit() {
+        let authority = binding(1);
+        let mut windows = StreamCreditWindows::new();
+        windows.activate(authority).unwrap();
+        {
+            let _rejected_before_commit = windows.prepare_consume(&authority, 1, 9).unwrap();
+        }
+        assert_eq!(windows.used_bitmap(&authority, 1), Some(0));
+        let retry = windows.prepare_consume(&authority, 1, 9).unwrap();
+        windows.commit_consume(retry).unwrap();
+        assert_eq!(windows.used_bitmap(&authority, 1), Some(1 << 9));
+    }
+
+    #[test]
+    fn channel_cleanup_and_thousands_of_never_consumed_windows_remain_fixed_size() {
+        assert!(size_of::<CreditWindowState>() <= 64);
+        let mut windows = StreamCreditWindows::new();
+        for id in 1..=4_000_u16 {
+            let mut authority = binding((id & 0xff) as u8);
+            authority.channel_id = id.to_be_bytes().repeat(8).try_into().unwrap();
+            windows.activate(authority).unwrap();
+            for invalid in [64, 127, 255] {
+                assert_eq!(
+                    windows.prepare_consume(&authority, 1, invalid),
+                    Err(StreamCreditReject::InvalidSlot)
+                );
+            }
+            assert_eq!(
+                windows.prepare_consume(&authority, 0, 0),
+                Err(StreamCreditReject::StaleEpoch)
+            );
+        }
+        assert_eq!(windows.len(), 4_000);
+        let flood = binding(254);
+        windows.activate(flood).unwrap();
+        for slot in 0..48 {
+            let prepared = windows.prepare_consume(&flood, 1, slot).unwrap();
+            windows.commit_consume(prepared).unwrap();
+        }
+        assert_eq!(windows.request_refill(&flood), Ok(2));
+        for _ in 0..10_000 {
+            assert_eq!(
+                windows.request_refill(&flood),
+                Err(StreamCreditReject::RefillPending)
+            );
+            assert_eq!(
+                windows.prepare_consume(&flood, 1, 0),
+                Err(StreamCreditReject::DuplicateSlot)
+            );
+            assert_eq!(
+                windows.prepare_consume(&flood, 1, 64),
+                Err(StreamCreditReject::InvalidSlot)
+            );
+        }
+        let target = binding(255);
+        windows.activate(target).unwrap();
+        windows.remove_channel(target.session_id, target.channel_id);
+        assert_eq!(
+            windows.prepare_consume(&target, 1, 0),
+            Err(StreamCreditReject::WrongChannel)
+        );
     }
 }

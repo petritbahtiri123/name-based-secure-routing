@@ -39,6 +39,8 @@ pub(crate) struct ChannelRegistry {
 struct ActiveChannelEntry {
     channel: ActiveChannel,
     binding: Option<ChannelBinding>,
+    channel_generation: u64,
+    revocation_generation: u64,
     client_session_key_thumbprint: [u8; 32],
     drain_deadline: Option<DrainDeadline>,
     grant_expires_at: u64,
@@ -176,6 +178,8 @@ impl ChannelRegistry {
             ActiveChannelEntry {
                 channel: pending.channel,
                 binding: None,
+                channel_generation: 1,
+                revocation_generation: 1,
                 client_session_key_thumbprint: pending.client_session_key_thumbprint,
                 drain_deadline: None,
                 grant_expires_at: pending.grant_expires_at,
@@ -199,6 +203,18 @@ impl ChannelRegistry {
             .get(channel_id)
             .filter(|entry| entry.binding.is_some() && entry.drain_deadline.is_none())
             .map(|entry| &entry.channel)
+    }
+
+    pub(crate) fn credit_generations(&self, channel_id: &[u8; 16]) -> Option<(u64, u64)> {
+        self.active
+            .get(channel_id)
+            .map(|entry| (entry.channel_generation, entry.revocation_generation))
+    }
+
+    pub(crate) fn credit_grant_is_live(&self, channel_id: &[u8; 16], unix_now: u64) -> bool {
+        self.active
+            .get(channel_id)
+            .is_some_and(|entry| unix_now <= entry.grant_expires_at)
     }
 
     pub(crate) fn bound_udp_channel(&self, channel_id: &[u8; 16]) -> Option<&ActiveChannel> {
@@ -666,6 +682,19 @@ mod tests {
             registry.preflight_pending(&channel(2, "service-b"), &[0xa1; 16]),
             Err(PendingAdmissionError::Replay)
         );
+    }
+
+    #[test]
+    fn active_channel_owns_nonzero_credit_and_revocation_generations() {
+        let mut registry = ChannelRegistry::new(ChannelLimits::default());
+        let active = channel(1, "service-a");
+        registry.admit_pending(active, [0xa1; 16], 1_000);
+        registry.confirm_active(&[1; 16]).unwrap();
+        assert_eq!(registry.credit_generations(&[1; 16]), Some((1, 1)));
+        assert!(registry.credit_grant_is_live(&[1; 16], 1_000));
+        assert!(!registry.credit_grant_is_live(&[1; 16], 1_001));
+        registry.revoke(&[1; 16], 900).unwrap();
+        assert_eq!(registry.credit_generations(&[1; 16]), None);
     }
 
     #[test]

@@ -10,10 +10,13 @@ use crate::channel_binding::ChannelBindingRequest;
 use crate::channel_registry::{
     ChannelBindingInstallError, ChannelLifecycleError, ResumeChannelContext,
 };
-use crate::channel_streams::{ChannelStreams, ReplayHistoryLimit};
+use crate::channel_streams::{ChannelStreams, CreditedStreamReject, ReplayHistoryLimit};
 use crate::federation::LocalFederationAdmissionAttestations;
 use crate::quinn_adapter::ConnectionBindingCapability;
 use crate::resumption::{ResumeReuseKey, ResumeSessionContext, ResumeSessionScope};
+use crate::stream_credit::{
+    StreamCreditBinding, StreamCreditPreface, StreamCreditReject, StreamCreditWindows,
+};
 use crate::{
     ActiveChannel, AdmissionReject, AuditAction, AuditEvent, AuditIntegrity, AuditOutcome,
     AuditReason, AuthenticatedConnection, ChannelBinding, ChannelState, CoreV02Envelope,
@@ -32,6 +35,7 @@ pub enum SessionReject {
     InvalidChannelState,
     Replay,
     Stream(StreamReject),
+    StreamCredit(StreamCreditReject),
     UnexpectedMessage,
 }
 
@@ -82,6 +86,8 @@ pub struct ControlSession {
     request_ids: HashSet<[u8; 16]>,
     datagrams: HashMap<[u8; 16], crate::DatagramGate>,
     streams: ChannelStreams,
+    stream_credits: StreamCreditWindows,
+    stream_credit_profiles: HashMap<[u8; 16], crate::StreamCreditProfile>,
     session_deadline: Option<DrainDeadline>,
     created_at_monotonic: u64,
     hard_session_deadline: u64,
@@ -201,6 +207,8 @@ impl ControlSession {
             request_ids: HashSet::new(),
             datagrams: HashMap::new(),
             streams: ChannelStreams::new(replay_history_limit),
+            stream_credits: StreamCreditWindows::new(),
+            stream_credit_profiles: HashMap::new(),
             session_deadline,
             created_at_monotonic,
             hard_session_deadline: created_at_monotonic.saturating_add(MAX_SESSION_SECONDS),
@@ -313,6 +321,10 @@ impl ControlSession {
         match self.admission.audit_session_drain_forced() {
             Ok(()) => {
                 self.streams.revoke_all();
+                if let Ok(session_id) = self.established_session_id() {
+                    self.stream_credits.remove_session(session_id);
+                }
+                self.stream_credit_profiles.clear();
                 for gate in self.datagrams.values_mut() {
                     gate.deactivate();
                 }
@@ -571,6 +583,9 @@ impl ControlSession {
         {
             return Err(SessionReject::ControlRejected);
         }
+        self.stream_credit_profiles
+            .entry(pending.channel_id)
+            .or_insert(crate::StreamCreditProfile::Legacy);
         self.admission
             .confirm_channel(&pending.channel_id)
             .map_err(SessionReject::Admission)?;
@@ -587,14 +602,46 @@ impl ControlSession {
         Ok(())
     }
 
+    #[allow(dead_code)] // Authenticated capability plumbing calls this in the runtime task.
+    pub(crate) fn select_stream_credit_profile(
+        &mut self,
+        channel_id: [u8; 16],
+        credits_required: bool,
+        peer_profile: Option<&str>,
+        explicit_legacy: bool,
+    ) -> Result<crate::StreamCreditProfile, SessionReject> {
+        self.require_session_active()?;
+        let SessionState::Established {
+            pending: Some(pending),
+            ..
+        } = &self.state
+        else {
+            return Err(SessionReject::InvalidChannelState);
+        };
+        if pending.channel_id != channel_id || self.stream_credit_profiles.contains_key(&channel_id)
+        {
+            return Err(SessionReject::InvalidChannelState);
+        }
+        let profile =
+            crate::StreamCreditProfile::select(credits_required, peer_profile, explicit_legacy)
+                .map_err(SessionReject::StreamCredit)?;
+        self.stream_credit_profiles.insert(channel_id, profile);
+        Ok(profile)
+    }
+
     pub(crate) fn rollback_resume_admission(
         &mut self,
         channel_id: [u8; 16],
     ) -> Result<(), ResumeReject> {
+        let session_id = self.established_session_id().ok();
         let result = self
             .admission
             .rollback_resume_admission(&channel_id)
             .map_err(|_| ResumeReject::AuditUnavailable);
+        self.stream_credit_profiles.remove(&channel_id);
+        if let Some(session_id) = session_id {
+            self.stream_credits.remove_channel(session_id, channel_id);
+        }
         if let SessionState::Established { pending, .. } = &mut self.state
             && pending
                 .as_ref()
@@ -673,6 +720,90 @@ impl ControlSession {
                 true,
             );
         }
+        Ok(())
+    }
+
+    pub fn authorize_credited_stream(
+        &mut self,
+        preface: StreamCreditPreface,
+    ) -> Result<(), SessionReject> {
+        self.require_session_active()?;
+        let session_id = self.established_session_id()?;
+        let channel = self.bound_channel(&preface.channel_id)?.clone();
+        if self.stream_credit_profiles.get(&preface.channel_id)
+            != Some(&crate::StreamCreditProfile::V1)
+        {
+            return Err(SessionReject::StreamCredit(
+                StreamCreditReject::ProfileUnsupported,
+            ));
+        }
+        if !self
+            .admission
+            .credit_grant_is_live(&preface.channel_id, self.clock.unix_seconds())
+        {
+            return Err(SessionReject::StreamCredit(StreamCreditReject::Expired));
+        }
+        let (channel_generation, revocation_generation) = self
+            .admission
+            .credit_generations(&preface.channel_id)
+            .ok_or(SessionReject::StreamCredit(
+                StreamCreditReject::WrongChannel,
+            ))?;
+        let binding = StreamCreditBinding {
+            profile: crate::StreamCreditProfile::V1,
+            session_id,
+            route_id: channel.route_id,
+            route_grant_digest: channel.route_grant_digest,
+            channel_id: channel.channel_id,
+            channel_generation,
+            revocation_generation,
+        };
+        if preface.channel_generation != channel_generation {
+            return Err(SessionReject::StreamCredit(
+                StreamCreditReject::WrongGeneration,
+            ));
+        }
+        let prepared_credit = self
+            .stream_credits
+            .prepare_consume(&binding, preface.credit_epoch, preface.credit_slot)
+            .map_err(SessionReject::StreamCredit)?;
+        let prepared_stream = match self
+            .streams
+            .prepare_credited(&channel, preface.quic_stream_id)
+        {
+            Ok(prepared) => prepared,
+            Err(CreditedStreamReject::InvalidStream) => {
+                return Err(SessionReject::StreamCredit(StreamCreditReject::WrongStream));
+            }
+            Err(CreditedStreamReject::DuplicateStream) => {
+                return Err(SessionReject::StreamCredit(
+                    StreamCreditReject::DuplicateStream,
+                ));
+            }
+            Err(CreditedStreamReject::OverCapacity) => {
+                self.admission
+                    .audit_quota_denial(&preface.channel_id)
+                    .map_err(map_admission_audit)?;
+                return Err(SessionReject::StreamCredit(
+                    StreamCreditReject::OverCapacity,
+                ));
+            }
+            Err(CreditedStreamReject::ReplayCapacity) => {
+                self.admission
+                    .audit_quota_denial(&preface.channel_id)
+                    .map_err(map_admission_audit)?;
+                return Err(SessionReject::StreamCredit(
+                    StreamCreditReject::ReplayCapacity,
+                ));
+            }
+        };
+        self.admission
+            .audit_stream_authorized(&preface.channel_id)
+            .map_err(map_admission_audit)?;
+        self.stream_credits
+            .commit_consume(prepared_credit)
+            .map_err(SessionReject::StreamCredit)?;
+        self.streams.commit_open(prepared_stream);
         Ok(())
     }
 
@@ -788,6 +919,10 @@ impl ControlSession {
             .revoke_channel(&channel_id, revoked_at)
             .map_err(map_lifecycle)?;
         self.streams.revoke_channel(&channel_id);
+        if let Ok(session_id) = self.established_session_id() {
+            self.stream_credits.remove_channel(session_id, channel_id);
+        }
+        self.stream_credit_profiles.remove(&channel_id);
         if let Some(gate) = self.datagrams.get_mut(&channel_id) {
             gate.deactivate();
         }
@@ -936,6 +1071,10 @@ impl ControlSession {
         match self.admission.finish_channel_drain(&channel_id) {
             Ok(()) => {
                 self.streams.revoke_channel(&channel_id);
+                if let Ok(session_id) = self.established_session_id() {
+                    self.stream_credits.remove_channel(session_id, channel_id);
+                }
+                self.stream_credit_profiles.remove(&channel_id);
                 if let Some(gate) = self.datagrams.get_mut(&channel_id) {
                     gate.deactivate();
                 }
@@ -964,6 +1103,10 @@ impl ControlSession {
             .close_live_channel(&channel_id, closed_at)
             .map_err(map_lifecycle)?;
         self.streams.revoke_channel(&channel_id);
+        if let Ok(session_id) = self.established_session_id() {
+            self.stream_credits.remove_channel(session_id, channel_id);
+        }
+        self.stream_credit_profiles.remove(&channel_id);
         if let Some(gate) = self.datagrams.get_mut(&channel_id) {
             gate.deactivate();
         }
@@ -1231,6 +1374,27 @@ impl ControlSession {
                 ChannelBindingInstallError::UnknownChannel
                 | ChannelBindingInstallError::Mismatch => SessionReject::ChannelBindingFailed,
             })?;
+        let session_id = self.established_session_id()?;
+        if self.stream_credit_profiles.get(&channel_id) == Some(&crate::StreamCreditProfile::V1)
+            && !self.stream_credits.has_channel(session_id, channel_id)
+        {
+            let channel = self.bound_channel(&channel_id)?.clone();
+            let generations = self
+                .admission
+                .credit_generations(&channel_id)
+                .ok_or(SessionReject::InvalidChannelState)?;
+            self.stream_credits
+                .activate(StreamCreditBinding {
+                    profile: crate::StreamCreditProfile::V1,
+                    session_id,
+                    route_id: channel.route_id,
+                    route_grant_digest: channel.route_grant_digest,
+                    channel_id,
+                    channel_generation: generations.0,
+                    revocation_generation: generations.1,
+                })
+                .map_err(SessionReject::StreamCredit)?;
+        }
         if self.admission.bound_udp_channel(&channel_id).is_some() {
             self.datagrams
                 .entry(channel_id)

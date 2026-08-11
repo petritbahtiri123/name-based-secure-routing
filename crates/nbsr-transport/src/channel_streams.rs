@@ -49,12 +49,14 @@ struct ChannelStreamState {
 
 struct StreamEntry {
     buffered: usize,
+    credited: bool,
     gate: StreamGate,
 }
 
 pub(crate) struct PreparedStreamOpen {
     channel_id: [u8; 16],
     stream_id: u64,
+    credited: bool,
     gate: StreamGate,
 }
 
@@ -62,6 +64,14 @@ pub(crate) struct PreparedStreamTransition {
     channel_id: [u8; 16],
     stream_id: u64,
     gate: StreamGate,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(crate) enum CreditedStreamReject {
+    InvalidStream,
+    DuplicateStream,
+    OverCapacity,
+    ReplayCapacity,
 }
 
 impl ChannelStreams {
@@ -100,7 +110,38 @@ impl ChannelStreams {
         Ok(PreparedStreamOpen {
             channel_id: channel.channel_id,
             stream_id: request.quic_stream_id,
+            credited: false,
             gate,
+        })
+    }
+
+    pub(crate) fn prepare_credited(
+        &self,
+        channel: &ActiveChannel,
+        stream_id: u64,
+    ) -> Result<PreparedStreamOpen, CreditedStreamReject> {
+        if stream_id < 4 || !stream_id.is_multiple_of(4) || stream_id > 4_611_686_018_427_387_903 {
+            return Err(CreditedStreamReject::InvalidStream);
+        }
+        if self.used_stream_ids.contains(&stream_id) {
+            return Err(CreditedStreamReject::DuplicateStream);
+        }
+        if self
+            .channels
+            .get(&channel.channel_id)
+            .map_or(0, |state| state.streams.len())
+            >= MAX_STREAMS_PER_CHANNEL
+        {
+            return Err(CreditedStreamReject::OverCapacity);
+        }
+        if self.used_stream_ids.len() >= self.replay_history_limit.get() {
+            return Err(CreditedStreamReject::ReplayCapacity);
+        }
+        Ok(PreparedStreamOpen {
+            channel_id: channel.channel_id,
+            stream_id,
+            credited: true,
+            gate: StreamGate::new(channel.clone()),
         })
     }
 
@@ -117,6 +158,7 @@ impl ChannelStreams {
                 prepared.stream_id,
                 StreamEntry {
                     buffered: 0,
+                    credited: prepared.credited,
                     gate: prepared.gate,
                 },
             );
@@ -172,7 +214,7 @@ impl ChannelStreams {
         stream_id: u64,
     ) -> Result<(), StreamReject> {
         let entry = self.entry(channel_id, stream_id)?;
-        if entry.gate.is_accepted() || entry.gate.is_opened() {
+        if entry.credited || entry.gate.is_accepted() || entry.gate.is_opened() {
             Ok(())
         } else {
             Err(StreamReject::ControlRejected)
@@ -217,7 +259,7 @@ impl ChannelStreams {
             .streams
             .get_mut(&stream_id)
             .ok_or(StreamReject::ControlRejected)?;
-        if !entry.gate.is_opened() {
+        if !entry.credited && !entry.gate.is_opened() {
             return Err(StreamReject::ControlRejected);
         }
         let stream_buffered = entry
@@ -347,7 +389,7 @@ impl Drop for ChannelStreams {
 mod tests {
     use std::time::{Duration, Instant};
 
-    use super::{ChannelStreams, ReplayHistoryLimit};
+    use super::{ChannelStreams, CreditedStreamReject, ReplayHistoryLimit};
     use crate::{
         ActiveChannel, CoreV02Envelope, CoreV02Limits, StreamReject, decode_control_envelope,
     };
@@ -475,6 +517,57 @@ mod tests {
             Some(StreamReject::OverCapacity)
         );
         assert_eq!(streams.used_stream_ids.len(), 2);
+    }
+
+    #[test]
+    fn credited_prepare_is_atomic_with_replay_capacity_and_creates_an_open_gate() {
+        let active = channel(1);
+        let mut streams = bounded(1);
+        assert_eq!(
+            streams.prepare_credited(&active, 0).err(),
+            Some(CreditedStreamReject::InvalidStream)
+        );
+        let prepared = streams
+            .prepare_credited(&active, 4)
+            .expect("credited stream prepares");
+        assert_eq!(streams.used_stream_ids.len(), 0);
+        assert!(streams.channels.is_empty());
+        streams.commit_open(prepared);
+        assert_eq!(streams.used_stream_ids.len(), 1);
+        streams
+            .validate_application_stream(&active.channel_id, 4)
+            .expect("credited gate is ordinary and opened");
+        assert_eq!(
+            streams.prepare_credited(&active, 4).err(),
+            Some(CreditedStreamReject::DuplicateStream)
+        );
+        assert_eq!(
+            streams.prepare_credited(&active, 8).err(),
+            Some(CreditedStreamReject::ReplayCapacity)
+        );
+        assert_eq!(streams.used_stream_ids.len(), 1);
+    }
+
+    #[test]
+    fn credited_capacity_and_sibling_isolation_match_legacy_streams() {
+        let first = channel(1);
+        let sibling = channel(2);
+        let mut streams = ChannelStreams::new(ReplayHistoryLimit::MAX);
+        for stream_id in (4..=256).step_by(4) {
+            let prepared = streams.prepare_credited(&first, stream_id).unwrap();
+            streams.commit_open(prepared);
+        }
+        assert_eq!(
+            streams.prepare_credited(&first, 260).err(),
+            Some(CreditedStreamReject::OverCapacity)
+        );
+        let sibling_prepared = streams.prepare_credited(&sibling, 264).unwrap();
+        streams.commit_open(sibling_prepared);
+        streams.revoke_channel(&first.channel_id);
+        streams
+            .validate_application_stream(&sibling.channel_id, 264)
+            .expect("sibling survives cleanup");
+        assert_eq!(streams.used_stream_ids.len(), 65);
     }
 
     #[test]
