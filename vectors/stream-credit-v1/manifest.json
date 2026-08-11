@@ -1,0 +1,31 @@
+{
+  "schema": "nbsr-stream-credit-v1-vectors-1",
+  "profile": {
+    "id": "nbsr-stream-credit-1",
+    "credit_count": 64,
+    "low_watermark": 16
+  },
+  "authenticated_context": {
+    "session_id_hex": "202122232425262728292a2b2c2d2e2f",
+    "channel_id_hex": "101112131415161718191a1b1c1d1e1f",
+    "channel_generation": 1,
+    "actual_stream_id": 4
+  },
+  "profile_selection": [
+    { "id": "negotiated", "credits_required": true, "peer_profile": "nbsr-stream-credit-1", "explicit_legacy": false, "expected_decision": "accept" },
+    { "id": "unsupported", "credits_required": true, "peer_profile": "nbsr-stream-credit-2", "explicit_legacy": false, "expected_decision": "profile_unsupported" },
+    { "id": "downgrade", "credits_required": true, "peer_profile": null, "explicit_legacy": false, "expected_decision": "downgrade" },
+    { "id": "forbidden-fallback", "credits_required": true, "peer_profile": null, "explicit_legacy": true, "expected_decision": "fallback_forbidden" }
+  ],
+  "cases": [
+    { "id": "valid-slot-0", "preface": "valid/slot-0.cbor", "sha256": "ea0a2fa1c06ce701e54073d59fb7161af31006b35dc46b8182617dd0e9880bfa", "bytes": 30, "expected_decision": "accept", "slot_mutates": true, "stream_replay_mutates": true, "current_bitmap": "0000000000000001" },
+    { "id": "valid-slot-63", "preface": "valid/slot-63.cbor", "sha256": "76a0aba417236828cf39b0e3f186ff93c5df03ca06b0da23eb4ee527b33bb3b3", "bytes": 31, "expected_decision": "accept", "slot_mutates": true, "stream_replay_mutates": true, "current_bitmap": "8000000000000000" },
+    { "id": "invalid-slot-64", "preface": "invalid/slot-64.cbor", "sha256": "3aa7e888be1f9cd155330b3718e52164d74100c93eb75f1cd97e32a463e1a7cd", "bytes": 31, "expected_decision": "invalid_slot", "slot_mutates": false, "stream_replay_mutates": false, "current_bitmap": "0000000000000000" },
+    { "id": "malformed-indefinite", "preface": "invalid/malformed-indefinite.cbor", "sha256": "636407da9d7e69e4f4cc4f4d678c2223c658ce6de4f7f0156975024d469a9c02", "bytes": 2, "expected_decision": "malformed_preface", "slot_mutates": false, "stream_replay_mutates": false, "current_bitmap": "0000000000000000" },
+    { "id": "wrong-channel", "preface": "invalid/wrong-channel.cbor", "sha256": "40e75d125343fe1e2d05ce64a5623ed7a77fa8e44695287827ebc74428d72d21", "bytes": 30, "expected_decision": "wrong_channel", "slot_mutates": false, "stream_replay_mutates": false, "current_bitmap": "0000000000000000" },
+    { "id": "wrong-generation", "preface": "invalid/wrong-generation.cbor", "sha256": "12c69ceff47a2936a1e4681b87028fb84fcc569d9617b8c1e5ed4984246ab280", "bytes": 30, "expected_decision": "wrong_generation", "slot_mutates": false, "stream_replay_mutates": false, "current_bitmap": "0000000000000000" },
+    { "id": "zero-epoch", "preface": "invalid/zero-epoch.cbor", "sha256": "35e3ee4e9d4c0c7dff9fdf926f9f605a88da97d7c82d2b4a1685fdf742bad202", "bytes": 30, "expected_decision": "malformed_preface", "slot_mutates": false, "stream_replay_mutates": false, "current_bitmap": "0000000000000000" },
+    { "id": "wrong-stream", "preface": "invalid/wrong-stream.cbor", "sha256": "1916c436bab4dc3d34d8c3d63e70a8b3e648ea2dca36d691d5e35dc0659368e0", "bytes": 30, "expected_decision": "wrong_stream", "slot_mutates": false, "stream_replay_mutates": false, "current_bitmap": "0000000000000000" },
+    { "id": "wrong-session", "preface": "valid/slot-0.cbor", "sha256": "ea0a2fa1c06ce701e54073d59fb7161af31006b35dc46b8182617dd0e9880bfa", "bytes": 30, "expected_decision": "wrong_session", "slot_mutates": false, "stream_replay_mutates": false, "current_bitmap": "0000000000000000" }
+  ]
+}

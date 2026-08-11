@@ -145,6 +145,7 @@ mod resumption;
 mod session;
 #[cfg(test)]
 mod session_tests;
+mod stream_credit;
 mod stream_gate;
 
 pub use admission::{
@@ -188,6 +189,11 @@ pub use resumption::{
     SameEdgeResumeManager, TrustProfileId,
 };
 pub use session::{ControlSession, MAX_SESSION_SECONDS, SessionReject};
+pub use stream_credit::{
+    MAX_STREAM_CREDIT_PREFACE_BYTES, STREAM_CREDIT_COUNT, STREAM_CREDIT_LOW_WATERMARK,
+    STREAM_CREDIT_PROFILE_ID, StreamCreditContext, StreamCreditPreface, StreamCreditProfile,
+    StreamCreditReject, decode_stream_credit_preface, encode_stream_credit_preface,
+};
 pub use stream_gate::{StreamOpenRequest, StreamReject};
 
 pub const ALPN: &[u8] = b"nbsr-quic-1";
