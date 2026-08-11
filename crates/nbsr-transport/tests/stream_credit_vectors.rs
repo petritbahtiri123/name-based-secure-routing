@@ -5,6 +5,7 @@ use nbsr_transport::{
     StreamCreditContext, StreamCreditPreface, StreamCreditProfile, StreamCreditReject,
     decode_stream_credit_preface, encode_stream_credit_preface,
 };
+use serde_json::{Map, Value};
 use sha2::{Digest, Sha256};
 
 const CHANNEL_ID: [u8; 16] = [
@@ -87,6 +88,11 @@ fn decodes_the_fixed_valid_preface_and_encodes_it_byte_exactly() {
 #[test]
 fn rejects_malformed_prefices_and_out_of_range_slots_before_admission() {
     assert_eq!(
+        vector("invalid/malformed-indefinite.cbor"),
+        vec![0x02, 0xbf, 0xff],
+        "the malformed vector must frame one indefinite CBOR item exactly"
+    );
+    assert_eq!(
         decode_stream_credit_preface(&vector("invalid/malformed-indefinite.cbor"), context()),
         Err(StreamCreditReject::MalformedPreface),
     );
@@ -138,61 +144,193 @@ fn decoder_derives_binding_rejections_from_bytes_and_authenticated_context() {
 }
 
 #[test]
-fn closed_manifest_hashes_all_preface_vectors_without_using_decision_labels() {
+fn closed_manifest_is_self_contained_and_binds_each_case_without_using_decision_labels() {
     let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("../..")
         .join("vectors/stream-credit-v1");
-    let cases = [
+    let manifest: Value =
+        serde_json::from_slice(&fs::read(root.join("manifest.json")).expect("closed manifest"))
+            .expect("manifest is JSON");
+    let top = object(&manifest, "manifest");
+    exact_keys(
+        top,
+        &["schema", "profile", "profile_selection", "cases"],
+        "manifest",
+    );
+    assert_eq!(string(top, "schema"), "nbsr-stream-credit-v1-vectors-1");
+    let profile = object(value(top, "profile"), "profile");
+    exact_keys(profile, &["id", "credit_count", "low_watermark"], "profile");
+    assert_eq!(string(profile, "id"), "nbsr-stream-credit-1");
+    assert_eq!(number(profile, "credit_count"), 64);
+    assert_eq!(number(profile, "low_watermark"), 16);
+
+    let expected_selections = [
         (
-            "valid/slot-0.cbor",
-            30,
-            "ea0a2fa1c06ce701e54073d59fb7161af31006b35dc46b8182617dd0e9880bfa",
+            "negotiated",
+            true,
+            Some("nbsr-stream-credit-1"),
+            false,
+            Ok(StreamCreditProfile::V1),
+            "accept",
         ),
         (
-            "valid/slot-63.cbor",
-            31,
-            "76a0aba417236828cf39b0e3f186ff93c5df03ca06b0da23eb4ee527b33bb3b3",
+            "unsupported",
+            true,
+            Some("nbsr-stream-credit-2"),
+            false,
+            Err(StreamCreditReject::ProfileUnsupported),
+            "profile_unsupported",
         ),
         (
-            "invalid/slot-64.cbor",
-            31,
-            "3aa7e888be1f9cd155330b3718e52164d74100c93eb75f1cd97e32a463e1a7cd",
+            "downgrade",
+            true,
+            None,
+            false,
+            Err(StreamCreditReject::Downgrade),
+            "downgrade",
         ),
         (
-            "invalid/malformed-indefinite.cbor",
-            2,
-            "636407da9d7e69e4f4cc4f4d678c2223c658ce6de4f7f0156975024d469a9c02",
-        ),
-        (
-            "invalid/wrong-channel.cbor",
-            30,
-            "40e75d125343fe1e2d05ce64a5623ed7a77fa8e44695287827ebc74428d72d21",
-        ),
-        (
-            "invalid/wrong-generation.cbor",
-            30,
-            "12c69ceff47a2936a1e4681b87028fb84fcc569d9617b8c1e5ed4984246ab280",
-        ),
-        (
-            "invalid/zero-epoch.cbor",
-            30,
-            "35e3ee4e9d4c0c7dff9fdf926f9f605a88da97d7c82d2b4a1685fdf742bad202",
-        ),
-        (
-            "invalid/wrong-stream.cbor",
-            30,
-            "1916c436bab4dc3d34d8c3d63e70a8b3e648ea2dca36d691d5e35dc0659368e0",
+            "forbidden-fallback",
+            true,
+            None,
+            true,
+            Err(StreamCreditReject::FallbackForbidden),
+            "fallback_forbidden",
         ),
     ];
-    let manifest = fs::read_to_string(root.join("manifest.json")).expect("closed manifest");
-    for (relative, bytes, expected_hash) in cases {
-        let wire = vector(relative);
-        assert_eq!(wire.len(), bytes, "{relative}");
-        assert_eq!(sha256_hex(&wire), expected_hash, "{relative}");
-        assert!(manifest.contains(relative), "manifest omits {relative}");
+    let selections = value(top, "profile_selection")
+        .as_array()
+        .expect("profile_selection array");
+    assert_eq!(selections.len(), expected_selections.len());
+    for (selection, (id, required, peer, legacy, decision, label)) in
+        selections.iter().zip(expected_selections)
+    {
+        let selection = object(selection, id);
+        exact_keys(
+            selection,
+            &[
+                "id",
+                "credits_required",
+                "peer_profile",
+                "explicit_legacy",
+                "expected_decision",
+            ],
+            id,
+        );
+        assert_eq!(string(selection, "id"), id);
+        assert_eq!(boolean(selection, "credits_required"), required);
+        assert_eq!(optional_string(selection, "peer_profile"), peer);
+        assert_eq!(boolean(selection, "explicit_legacy"), legacy);
+        assert_eq!(
+            StreamCreditProfile::select(required, peer, legacy),
+            decision,
+            "{id}"
+        );
+        assert_eq!(string(selection, "expected_decision"), label, "{id}");
+    }
+
+    let expected_cases = [
+        (
+            "valid-slot-0",
+            Ok(StreamCreditPreface {
+                channel_id: CHANNEL_ID,
+                channel_generation: 1,
+                credit_epoch: 1,
+                credit_slot: 0,
+                quic_stream_id: 4,
+            }),
+            "accept",
+        ),
+        (
+            "valid-slot-63",
+            Ok(StreamCreditPreface {
+                channel_id: CHANNEL_ID,
+                channel_generation: 1,
+                credit_epoch: 1,
+                credit_slot: 63,
+                quic_stream_id: 4,
+            }),
+            "accept",
+        ),
+        (
+            "invalid-slot-64",
+            Err(StreamCreditReject::InvalidSlot),
+            "invalid_slot",
+        ),
+        (
+            "malformed-indefinite",
+            Err(StreamCreditReject::MalformedPreface),
+            "malformed_preface",
+        ),
+        (
+            "wrong-channel",
+            Err(StreamCreditReject::WrongChannel),
+            "wrong_channel",
+        ),
+        (
+            "wrong-generation",
+            Err(StreamCreditReject::WrongGeneration),
+            "wrong_generation",
+        ),
+        (
+            "zero-epoch",
+            Err(StreamCreditReject::MalformedPreface),
+            "malformed_preface",
+        ),
+        (
+            "wrong-stream",
+            Err(StreamCreditReject::WrongStream),
+            "wrong_stream",
+        ),
+        (
+            "wrong-session",
+            Err(StreamCreditReject::WrongSession),
+            "wrong_session",
+        ),
+    ];
+    let cases = value(top, "cases").as_array().expect("cases array");
+    assert_eq!(cases.len(), expected_cases.len());
+    let mut manifest_paths = std::collections::BTreeSet::new();
+    for (case, (id, expected, label)) in cases.iter().zip(expected_cases) {
+        let case = object(case, id);
+        exact_keys(
+            case,
+            &[
+                "id",
+                "preface",
+                "preface_hex",
+                "sha256",
+                "bytes",
+                "authenticated_context",
+                "expected_decision",
+                "slot_mutates",
+                "stream_replay_mutates",
+                "current_bitmap",
+            ],
+            id,
+        );
+        assert_eq!(string(case, "id"), id);
+        let relative = string(case, "preface");
         assert!(
-            manifest.contains(expected_hash),
-            "manifest hash differs for {relative}"
+            !relative.contains("..") && !relative.starts_with('/'),
+            "unsafe vector path"
+        );
+        manifest_paths.insert(relative.to_owned());
+        let wire = fs::read(root.join(relative)).expect("manifest vector file");
+        assert_eq!(hex_bytes(string(case, "preface_hex")), wire, "{id}");
+        assert_eq!(number(case, "bytes") as usize, wire.len(), "{id}");
+        assert_eq!(string(case, "sha256"), sha256_hex(&wire), "{id}");
+        assert_eq!(
+            decode_stream_credit_preface(&wire, manifest_context(case)),
+            expected,
+            "{id}"
+        );
+        assert_eq!(string(case, "expected_decision"), label, "{id}");
+        assert_eq!(boolean(case, "slot_mutates"), expected.is_ok(), "{id}");
+        assert_eq!(
+            boolean(case, "stream_replay_mutates"),
+            expected.is_ok(),
+            "{id}"
         );
     }
     let mut discovered = Vec::new();
@@ -207,5 +345,91 @@ fn closed_manifest_hashes_all_preface_vectors_without_using_decision_labels() {
         }
     }
     discovered.sort();
-    assert_eq!(discovered.len(), cases.len(), "manifest must be closed");
+    let discovered: std::collections::BTreeSet<_> = discovered
+        .iter()
+        .map(|path| {
+            path.strip_prefix(&root)
+                .expect("root-relative vector")
+                .to_string_lossy()
+                .replace('\\', "/")
+        })
+        .collect();
+    assert_eq!(discovered, manifest_paths, "manifest must be closed");
+}
+
+fn object<'a>(value: &'a Value, name: &str) -> &'a Map<String, Value> {
+    value.as_object().unwrap_or_else(|| panic!("{name} object"))
+}
+
+fn exact_keys(object: &Map<String, Value>, keys: &[&str], name: &str) {
+    let actual: std::collections::BTreeSet<_> = object.keys().map(String::as_str).collect();
+    let expected: std::collections::BTreeSet<_> = keys.iter().copied().collect();
+    assert_eq!(actual, expected, "{name} keys");
+}
+
+fn value<'a>(object: &'a Map<String, Value>, key: &str) -> &'a Value {
+    object.get(key).unwrap_or_else(|| panic!("{key} field"))
+}
+
+fn string<'a>(object: &'a Map<String, Value>, key: &str) -> &'a str {
+    value(object, key)
+        .as_str()
+        .unwrap_or_else(|| panic!("{key} string"))
+}
+
+fn optional_string<'a>(object: &'a Map<String, Value>, key: &str) -> Option<&'a str> {
+    if value(object, key).is_null() {
+        None
+    } else {
+        Some(string(object, key))
+    }
+}
+
+fn number(object: &Map<String, Value>, key: &str) -> u64 {
+    value(object, key)
+        .as_u64()
+        .unwrap_or_else(|| panic!("{key} unsigned integer"))
+}
+
+fn boolean(object: &Map<String, Value>, key: &str) -> bool {
+    value(object, key)
+        .as_bool()
+        .unwrap_or_else(|| panic!("{key} boolean"))
+}
+
+fn manifest_context(case: &Map<String, Value>) -> StreamCreditContext {
+    let context = object(
+        value(case, "authenticated_context"),
+        "authenticated_context",
+    );
+    exact_keys(
+        context,
+        &[
+            "session_id_hex",
+            "authenticated_session_id_hex",
+            "channel_id_hex",
+            "channel_generation",
+            "actual_stream_id",
+        ],
+        "authenticated_context",
+    );
+    StreamCreditContext {
+        session_id: hex_array(string(context, "session_id_hex")),
+        authenticated_session_id: hex_array(string(context, "authenticated_session_id_hex")),
+        channel_id: hex_array(string(context, "channel_id_hex")),
+        channel_generation: number(context, "channel_generation"),
+        quic_stream_id: number(context, "actual_stream_id"),
+    }
+}
+
+fn hex_array(value: &str) -> [u8; 16] {
+    hex_bytes(value).try_into().expect("16-byte hex identity")
+}
+
+fn hex_bytes(value: &str) -> Vec<u8> {
+    assert_eq!(value.len() % 2, 0, "even hex length");
+    (0..value.len())
+        .step_by(2)
+        .map(|index| u8::from_str_radix(&value[index..index + 2], 16).expect("lowercase hex"))
+        .collect()
 }
