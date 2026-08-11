@@ -288,10 +288,78 @@ fn closed_manifest_is_self_contained_and_binds_each_case_without_using_decision_
             "wrong_session",
         ),
     ];
+    let expected_bindings = [
+        (
+            "valid-slot-0",
+            "valid/slot-0.cbor",
+            "1da600010150101112131415161718191a1b1c1d1e1f0201030104000504",
+            "ea0a2fa1c06ce701e54073d59fb7161af31006b35dc46b8182617dd0e9880bfa",
+            30,
+        ),
+        (
+            "valid-slot-63",
+            "valid/slot-63.cbor",
+            "1ea600010150101112131415161718191a1b1c1d1e1f0201030104183f0504",
+            "76a0aba417236828cf39b0e3f186ff93c5df03ca06b0da23eb4ee527b33bb3b3",
+            31,
+        ),
+        (
+            "invalid-slot-64",
+            "invalid/slot-64.cbor",
+            "1ea600010150101112131415161718191a1b1c1d1e1f020103010418400504",
+            "3aa7e888be1f9cd155330b3718e52164d74100c93eb75f1cd97e32a463e1a7cd",
+            31,
+        ),
+        (
+            "malformed-indefinite",
+            "invalid/malformed-indefinite.cbor",
+            "02bfff",
+            "44d35ef61b0cb3f62d6469e0c8534959c8c258766aef943f354bc8a61174eef4",
+            3,
+        ),
+        (
+            "wrong-channel",
+            "invalid/wrong-channel.cbor",
+            "1da600010150111112131415161718191a1b1c1d1e1f0201030104000504",
+            "40e75d125343fe1e2d05ce64a5623ed7a77fa8e44695287827ebc74428d72d21",
+            30,
+        ),
+        (
+            "wrong-generation",
+            "invalid/wrong-generation.cbor",
+            "1da600010150101112131415161718191a1b1c1d1e1f0202030104000504",
+            "12c69ceff47a2936a1e4681b87028fb84fcc569d9617b8c1e5ed4984246ab280",
+            30,
+        ),
+        (
+            "zero-epoch",
+            "invalid/zero-epoch.cbor",
+            "1da600010150101112131415161718191a1b1c1d1e1f0201030004000504",
+            "35e3ee4e9d4c0c7dff9fdf926f9f605a88da97d7c82d2b4a1685fdf742bad202",
+            30,
+        ),
+        (
+            "wrong-stream",
+            "invalid/wrong-stream.cbor",
+            "1da600010150101112131415161718191a1b1c1d1e1f0201030104000508",
+            "1916c436bab4dc3d34d8c3d63e70a8b3e648ea2dca36d691d5e35dc0659368e0",
+            30,
+        ),
+        (
+            "wrong-session",
+            "valid/slot-0.cbor",
+            "1da600010150101112131415161718191a1b1c1d1e1f0201030104000504",
+            "ea0a2fa1c06ce701e54073d59fb7161af31006b35dc46b8182617dd0e9880bfa",
+            30,
+        ),
+    ];
     let cases = value(top, "cases").as_array().expect("cases array");
     assert_eq!(cases.len(), expected_cases.len());
+    assert_eq!(cases.len(), expected_bindings.len());
     let mut manifest_paths = std::collections::BTreeSet::new();
-    for (case, (id, expected, label)) in cases.iter().zip(expected_cases) {
+    for ((case, (id, expected, label)), (binding_id, path, hex, hash, bytes)) in
+        cases.iter().zip(expected_cases).zip(expected_bindings)
+    {
         let case = object(case, id);
         exact_keys(
             case,
@@ -310,16 +378,21 @@ fn closed_manifest_is_self_contained_and_binds_each_case_without_using_decision_
             id,
         );
         assert_eq!(string(case, "id"), id);
+        assert_eq!(id, binding_id, "literal binding id");
         let relative = string(case, "preface");
         assert!(
             !relative.contains("..") && !relative.starts_with('/'),
             "unsafe vector path"
         );
+        assert_eq!(relative, path, "{id} path");
+        assert_eq!(string(case, "preface_hex"), hex, "{id} hex");
+        assert_eq!(string(case, "sha256"), hash, "{id} hash");
+        assert_eq!(number(case, "bytes") as usize, bytes, "{id} length");
         manifest_paths.insert(relative.to_owned());
         let wire = fs::read(root.join(relative)).expect("manifest vector file");
-        assert_eq!(hex_bytes(string(case, "preface_hex")), wire, "{id}");
-        assert_eq!(number(case, "bytes") as usize, wire.len(), "{id}");
-        assert_eq!(string(case, "sha256"), sha256_hex(&wire), "{id}");
+        assert_eq!(hex_bytes(hex), wire, "{id}");
+        assert_eq!(bytes, wire.len(), "{id}");
+        assert_eq!(hash, sha256_hex(&wire), "{id}");
         assert_eq!(
             decode_stream_credit_preface(&wire, manifest_context(case)),
             expected,
