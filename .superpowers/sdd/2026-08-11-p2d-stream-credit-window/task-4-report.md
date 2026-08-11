@@ -2,23 +2,27 @@
 
 ## Result
 
-**DONE — Outcome A — ACCEPTED AND RETAINED.** Final authority is
-`evidence/performance/stream-credit-window-p2d/attempt-7-final-atomic-audit/`.
-Attempt 5 is valid historical performance evidence but is superseded for
-final-source acceptance.
+**DONE — Outcome A — ACCEPTED AND RETAINED.** The sole final authority is
+`evidence/performance/stream-credit-window-p2d/attempt-8-final-v1-enforcement/`.
+Attempts 5 and 7 remain valid historical performance evidence but are
+superseded for final-source acceptance; Attempt 7 predates the V1 legacy-path
+enforcement correction.
 
-At selected concurrency 64, three matched 60-second BEFORE/AFTER pairs
-measured median throughput 5,056.57 -> 18,936.28 operations/second (+274.49%)
-and median p99 13.9433 -> 3.2508 ms (-76.69%). Sample throughput CV was 3.338%
-BEFORE and 0.228% AFTER. Every pair was on the passing side of both fixed
-thresholds and all six cells had zero errors, so the exact three-pair stopping
-rule applied.
+At selected concurrency 64, five matched 60-second BEFORE/AFTER pairs
+measured median throughput 4,282.05 -> 15,567.44 operations/second (+263.55%)
+and median p99 18.6981 -> 5.4623 ms (-70.79%). Final five-pair sample
+throughput CV was 9.444% BEFORE and 3.465% AFTER. Every pair was on the passing
+side of both fixed thresholds and all ten cells had zero errors. After three
+pairs, BEFORE CV was 11.110% while AFTER CV was 3.010%; because both were not
+at most 5%, the exact stopping rule required the two additional pairs. The
+reported 9.444%/3.465% values are the recomputed CVs over all five final pairs,
+not the three-pair stopping checkpoint.
 
-The continuity cell completed 1,024 operations at 12,584.40
-operations/second with p99 4.8516 ms, crossed/refilled 16 windows, and had zero
-errors. The conditional soak ran 300.2411631 seconds, completed 5,568,000
-correct 1 KiB operations at 18,545.09 operations/second, p99 3.8604 ms, with
-zero errors, 87,000 ordered refills, active-epoch high-water 2, and replay
+The continuity cell completed 1,024 operations at 16,302.82
+operations/second with p99 3.4112 ms, crossed/refilled 16 windows, and had zero
+errors. The conditional soak ran 300.3870077 seconds, completed 4,832,000
+correct 1 KiB operations at 16,085.92 operations/second, p99 5.1656 ms, with
+zero errors, 75,500 ordered refills, active-epoch high-water 2, and replay
 8,000/10,000. All mandatory gates are PASS.
 
 ## Scope and Git boundary
@@ -182,7 +186,8 @@ All eight then-frozen source/doc/runner hashes and both binary hashes matched
 their attempt-4 bindings, and no mandatory attempt-4 gate failed. A later
 consolidated security/evidence-integrity review required corrected source and
 a new full Attempt 5 ladder. Attempt 5 was later superseded by the whole-tree
-binding/finalization corrections and authoritative Attempt 7.
+binding/finalization corrections and then-authoritative Attempt 7; Attempt 8
+now supersedes Attempt 7 after closing the V1 legacy-path enforcement gap.
 
 ## Historical Attempt 4 observed cells (superseded)
 
@@ -348,7 +353,8 @@ Attempt 4 was superseded for the then-current corrected-source run. Attempt 5
 was run only after the corrected source passed focused/full tests, rustfmt, and
 strict all-target Clippy, was committed locally, and had an empty bound-input
 diff. Attempt 5 was subsequently superseded by clean whole-tree binding,
-atomic audit finalization, and authoritative Attempt 7.
+atomic audit finalization, and then-authoritative Attempt 7. Attempt 8 is the
+current authority after the later V1 legacy-path enforcement correction.
 
 Two existing integration tests used a second `open_control_stream()` call as a
 raw application-stream escape hatch. The singleton correctly failed those
@@ -389,7 +395,8 @@ coverage.
 ## Historical Attempt 5 — valid security-correction evidence (superseded)
 
 The values in this section remain exact historical Attempt 5 observations.
-Attempt 7 supersedes Attempt 5 for final-source acceptance.
+Attempt 7 superseded Attempt 5 at that checkpoint; Attempt 8 now supersedes
+both for final-source acceptance.
 
 Frozen fix commit:
 `8cc935e1a08de20eaab1abd814906d1854da9bc8`. Before the timed run, Git status
@@ -627,7 +634,11 @@ python -m pytest -q
 # preceding 1,790-pass run. No P2D mandatory gate is weakened or relabeled.
 ```
 
-## Authoritative Attempt 7
+## Superseded Attempt 7 — valid exact-source evidence
+
+Attempt 7 was authoritative at this historical checkpoint. It is now
+superseded because it predates enforcement that rejects legacy STREAM_OPEN,
+confirm, application authorization, and permit paths after V1 selection.
 
 The final correction/evidence commit before measurement was
 `100b871db011ba514bd45f0354714e1f698ebdd5`. Its clean pre-output identity
@@ -711,3 +722,158 @@ python -m pytest -q
 # 1,796 passed, 1 skipped, same 37 pre-existing authority/vector failures;
 # 390.40 s under parallel validation load.
 ```
+
+## Final whole-branch V1 enforcement correction
+
+Whole-branch review found that a channel which had explicitly negotiated
+`nbsr-stream-credit-1` could still enter the legacy STREAM_OPEN, confirm,
+application-authorization, or permit path. That bypassed the credit admission
+invariant. The minimal fix stores the already-bounded pending route's
+`stream_credit_required` policy bit, rejects a required-but-unselected V1
+route as a downgrade, guards all legacy session entrypoints before audit,
+replay, credit, or live-stream mutation, and validates that a V1 application
+permit names an already credited stream. Extension-absent and explicitly
+Legacy channels retain their previous flow when policy permits Legacy.
+
+Literal RED evidence:
+
+```powershell
+cargo test --manifest-path crates/nbsr-transport/Cargo.toml v1_rejects_legacy_stream_paths_without_mutation_then_accepts_credited_retry -- --nocapture
+# intended failure after a cold build: left Ok(()), right
+# Err(StreamCredit(FallbackForbidden)); 116.2 s
+
+cargo test --manifest-path crates/nbsr-transport/Cargo.toml legacy_fallback_requires_policy_permission_and_preserves_legacy_flow -- --nocapture
+# intended failure: confirm_route_accept returned Ok(()), expected Downgrade;
+# 1.0 s
+
+cargo test --manifest-path crates/nbsr-transport/Cargo.toml --test stream_credit_integration v1_rejects_live_legacy_stream_open_then_accepts_credited_retry -- --nocapture
+# intended failure: live legacy STREAM_OPEN returned Ok(()), expected
+# FallbackForbidden; 1.5 s
+```
+
+A separate compile RED proved that the credited-only permit validator did not
+exist. GREEN tests prove V1 rejection before audit/replay/credit/live mutation,
+credited retry of the same stream succeeds, legacy confirm and application
+authorization fail closed, explicit/absent permitted Legacy remains compatible,
+required omitted selection cannot downgrade, and the live Quinn retry reuses
+the authenticated connection's sole ordered control stream.
+
+The scoped production/security correction commit is
+`d5acdd88d44eeda686168f6c080119dc3d712a30` (`fix(transport): enforce stream
+credit profile`). Pre-Attempt-8 validation against that exact source produced:
+
+```powershell
+python -m pytest tests/test_p2d_stream_credit.py -q
+# 21 passed
+
+cargo test --manifest-path crates/nbsr-transport/Cargo.toml --all-targets --features benchmark-harness --quiet
+# 180 passed, 0 failed, 1 existing ignored
+
+cargo test --manifest-path crates/nbsr-transport/Cargo.toml --quiet
+# 188 passed, 0 failed, 1 existing ignored
+
+cargo fmt --manifest-path crates/nbsr-transport/Cargo.toml -- --check
+python -m ruff check scripts/run_p2d_stream_credit.py tests/test_p2d_stream_credit.py
+python -m ruff format --check scripts/run_p2d_stream_credit.py tests/test_p2d_stream_credit.py
+git diff --check
+# PASS
+
+cargo clippy --manifest-path crates/nbsr-transport/Cargo.toml --all-targets --features benchmark-harness -- -D warnings
+# PASS
+
+python -m pytest -q
+# 1,796 passed, 1 skipped, 37 unchanged pre-existing
+# Core/F75/federation/dependency/vector authority failures; 333.03 s
+```
+
+## Authoritative Attempt 8
+
+Attempt 8 froze commit `d5acdd88d44eeda686168f6c080119dc3d712a30`,
+`HEAD^{tree}`/index tree `c28559f8a37d4c8e56c3d76cc64541da5ddf7f05`,
+2,109 tracked files, and an exactly empty pre-output porcelain-v2 status. The
+measured-source SHA-256 is
+`1f90e4425467e9cbdeb76e95abb0ec111b1e7552a66192ceee07e0d87dea9969`;
+release source/server binary SHA-256 values are respectively
+`29e8f85d3ef4c357c770549a9c0be5c86183408a7591ca8c3328948fbc75b12d`
+and `6b5a769c0505cb0902b49fbbad4430c456871747a42a475042b319ca78da6032`.
+
+Command:
+
+```powershell
+$env:CARGO_TARGET_DIR='C:\codex-target\nbsr-p2d'
+python scripts/run_p2d_stream_credit.py --suite all --output evidence/performance/stream-credit-window-p2d/attempt-8-final-v1-enforcement --security-gate PASS --pair-seconds 60 --soak-seconds 300
+# exit 0; 1176.4 s wall time
+# Outcome A — ACCEPTED AND RETAINED
+```
+
+The exact five BEFORE throughput observations were 3,459.58, 3,955.44,
+4,326.16, 4,383.94, and 4,282.05 operations/second; the five AFTER values were
+16,382.80, 15,567.44, 15,547.56, 15,595.35, and 14,857.54. Median throughput
+improved from 4,282.05 to 15,567.44 operations/second (+263.55%). BEFORE p99
+values were 30.3510, 21.7910, 16.7844, 16.4151, and 18.6981 ms; AFTER p99
+values were 4.9234, 5.5317, 5.4623, 5.2944, and 5.4737 ms. Median p99 fell
+from 18.6981 to 5.4623 ms (-70.79%). All cells had zero errors and all five
+pairs remained on the passing side of both fixed gates.
+
+The final five-pair sample CVs are 9.444% BEFORE and 3.465% AFTER. The runner
+continued beyond three pairs because the checkpoint CVs were 11.110% BEFORE
+and 3.010% AFTER, so the rule requiring both to be at most 5% was not met.
+This reconciles the stopping checkpoint with the final summary: both use
+sample CV, but over three and five observations respectively.
+
+Continuity completed 1,024 operations at 16,302.82 operations/second with p99
+3.4112 ms, crossed/refilled 16 windows, and had zero errors. The
+300.3870077-second soak completed 4,832,000 operations at 16,085.92
+operations/second with aggregate p99 5.1656 ms, 75,500 windows/refills, zero
+errors, active-epoch high-water 2, and replay 8,000/10,000. First/last/median
+periodic throughput was 15,419.23 / 14,358.98 / 17,173.51 operations/second;
+the observed worst was 7,936.97 at one-based period 486. First/last/median p99
+was 4.2661 / 4.8610 / 3.6955 ms; the observed worst was 10.8145 ms at one-based
+period 485. These extrema are observations, not substitutes for aggregate
+acceptance metrics.
+
+Across 28 aggregate raw cells, 1,363 shards, and all 2,726 nested source and
+destination endpoints, every `replay_limit` was exactly 10,000. The final
+atomic runtime audit is PASS with zero disallowed changes and exact commit,
+HEAD tree, and index tree identity throughout. Attempt 7 remains intact but
+is explicitly superseded due to the V1 legacy-path enforcement gap.
+
+Attempt 8's 93,530,652-byte soak JSON is below the exact 100 MiB threshold and
+is stored raw. The eight historical gzip artifacts were independently
+decompressed, hashed, and deterministically recompressed (level 9, mtime 0,
+empty filename header); all eight reproduced their recorded source and gzip
+byte counts and SHA-256 values exactly. The closed package has 330 checksum
+entries, 331 files including `checksums.sha256`, 293 parseable stored JSON
+files, 926,464,299 total bytes, and no stored file above 100 MiB. Its largest
+file is the raw Attempt 8 soak at 93,530,652 bytes.
+
+The scoped evidence commit is
+`f41465b3b67e1cf3d3429e8f8bd8392c1478d175` (`evidence(perf): record
+authoritative P2D attempt 8`). Final fresh verification before that commit:
+
+```powershell
+python -m pytest tests/test_p2d_stream_credit.py -q
+# 21 passed in 4.37 s; command wall 5.515 s
+
+python -m ruff check scripts/run_p2d_stream_credit.py tests/test_p2d_stream_credit.py
+python -m ruff format --check scripts/run_p2d_stream_credit.py tests/test_p2d_stream_credit.py
+cargo fmt --manifest-path crates/nbsr-transport/Cargo.toml -- --check
+git diff --check
+# PASS; combined wall 0.988 s
+
+$env:CARGO_TARGET_DIR='C:\codex-target\nbsr-p2d'
+cargo test --manifest-path crates/nbsr-transport/Cargo.toml --all-targets --features benchmark-harness --quiet
+# 180 passed, 0 failed, 1 existing ignored; 91.743 s
+
+cargo test --manifest-path crates/nbsr-transport/Cargo.toml --quiet
+# 188 passed, 0 failed, 1 existing ignored; 101.895 s
+
+cargo clippy --manifest-path crates/nbsr-transport/Cargo.toml --all-targets --features benchmark-harness -- -D warnings
+# PASS; 6.291 s
+```
+
+The 180-versus-188 count is expected: the all-target feature command includes
+8 feature-only binary tests but does not run 16 doctests; the default command
+runs those 16 doctests and omits the 8 feature-only tests. Both commands share
+the 172 non-doctest, non-feature-only passes and the same one annotated
+evidence-only P1F soak ignore.
