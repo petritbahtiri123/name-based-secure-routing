@@ -2,7 +2,7 @@
 
 ## Observed state and resource bounds
 
-On the frozen Attempt-5 x86_64 Windows build, compiler layout observations
+On the frozen Attempt-7 x86_64 Windows build, compiler layout observations
 were 16 bytes for one `CreditEpoch`, 64 bytes for `CreditWindowState`, and 136
 bytes for one `CreditWindowEntry`. The exact final-source command and output
 are preserved in `resource-layout-observation.txt`. The regression also
@@ -17,19 +17,19 @@ maximum of two recognized epochs; pending refill is one scalar state and
 cannot queue. Retirement requires the draining epoch's assigned counter to be
 zero.
 
-The authoritative 300.2110533-second live soak completed 5,576,000 operations
-through 87,125 refill windows. Every one of its 697 session shards reported
+The authoritative 300.2411631-second live soak completed 5,568,000 operations
+through 87,000 refill windows. Every one of its 696 session shards reported
 active-epoch high-water 2, exact replay limit 10,000, no more than 8,000 final
-replay entries, and zero errors. Across all 24 aggregate cells, 1,252 shards,
-and 2,504 source/destination shard endpoints, every measured `replay_limit`
+replay entries, and zero errors. Across all 24 aggregate cells, 1,257 shards,
+and 2,514 source/destination shard endpoints, every measured `replay_limit`
 was exactly 10,000.
 
 Observed process state remained bounded across the soak:
 
 | Role | First shard working set | Last shard working set | Maximum | First private bytes | Last private bytes | Maximum |
 |---|---:|---:|---:|---:|---:|---:|
-| source | 10,186,752 | 10,235,904 | 10,313,728 | 3,416,064 | 3,436,544 | 3,678,208 |
-| destination | 10,981,376 | 10,960,896 | 11,083,776 | 4,284,416 | 4,173,824 | 4,395,008 |
+| source | 10,207,232 | 10,231,808 | 10,326,016 | 3,489,792 | 3,559,424 | 3,657,728 |
+| destination | 10,981,376 | 10,907,648 | 11,071,488 | 4,153,344 | 4,059,136 | 4,325,376 |
 
 Both roles stayed at four threads. These are observed per-process peaks from
 the Windows sampler, not an attribution of all bytes to credit state.

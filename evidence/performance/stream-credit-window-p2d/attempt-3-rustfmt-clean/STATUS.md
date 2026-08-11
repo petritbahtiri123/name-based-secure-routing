@@ -8,6 +8,7 @@ security, or runtime failure, but fixing them changed benchmark source bytes.
 
 Correction 3 mechanically grouped benchmark helper parameters into private
 structs, then passed focused tests, rustfmt, and strict Clippy. Attempt 4 reran
-the complete required ladder against that source, but a later consolidated
-security/evidence-integrity review required a new corrected source freeze.
-Attempt 5 is the sole authoritative final-source acceptance campaign.
+the complete required ladder against that source, but later security and
+source-binding corrections required new source freezes. Attempts 4-6 are
+superseded or rejected. Attempt 7 is the sole authoritative final-source
+acceptance campaign.

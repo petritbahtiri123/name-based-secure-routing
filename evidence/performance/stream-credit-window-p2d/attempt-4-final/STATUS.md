@@ -8,6 +8,6 @@ control-stream enforcement, refill capacity revalidation, nested replay-limit
 analysis, and complete source/diff binding.
 
 Attempt 4 is preserved unchanged except for its earlier lossless deterministic
-soak compression and this status record. Attempt 5 reran the full required
-ladder against the corrected frozen source and is the sole authoritative
-final-source acceptance campaign.
+soak compression and this status record. Later complete-tree binding and
+atomic-finalization corrections superseded Attempts 5 and 6. Attempt 7 is the
+sole authoritative final-source acceptance campaign.

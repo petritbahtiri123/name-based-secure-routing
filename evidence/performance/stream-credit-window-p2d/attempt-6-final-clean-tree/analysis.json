@@ -712,7 +712,7 @@
     "sweep": "raw/sweep/",
     "pairs": "raw/pairs/",
     "continuity": "raw/continuity/after.json",
-    "soak": "raw/soak/after.json"
+    "soak": "raw/soak/after.json.gz"
   },
   "selected_saturation_concurrency": 32,
   "stopping_rule": {

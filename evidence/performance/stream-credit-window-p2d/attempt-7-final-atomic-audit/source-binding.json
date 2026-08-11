@@ -1,0 +1,92 @@
+{
+  "authoritative_identity": "git-commit-and-tree",
+  "git_object_format": "sha1",
+  "commit": "100b871db011ba514bd45f0354714e1f698ebdd5",
+  "head_tree": "6d84e897b29e358c716c6c83b2ad6efc2ec445fa",
+  "index_tree": "6d84e897b29e358c716c6c83b2ad6efc2ec445fa",
+  "tree_equal": true,
+  "tracked_file_count": 2069,
+  "pre_output_status": {
+    "format": "porcelain-v2",
+    "untracked_files": "all",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "empty": true
+  },
+  "measured_source_sha256": "921d4276f4aa28d7747c78622bb0a785a3333e3020188a8f45bc1b38483e7cb4",
+  "key_entrypoints": [
+    "crates/nbsr-transport/Cargo.lock",
+    "crates/nbsr-transport/Cargo.toml",
+    "crates/nbsr-transport/src/bin/perf_rust_source.rs",
+    "crates/nbsr-transport/src/bin/wp8_interop_server.rs",
+    "docs/protocol/stream-credit-extension.md",
+    "pyproject.toml",
+    "scripts/performance/authorities.py",
+    "scripts/performance/authority.py",
+    "scripts/performance/driver.py",
+    "scripts/performance/p2d_stream_credit.py",
+    "scripts/performance/resources.py",
+    "scripts/run_p2d_stream_credit.py",
+    "scripts/run_performance_validation.py"
+  ],
+  "key_entrypoint_sha256": {
+    "crates/nbsr-transport/Cargo.lock": "2e11476d59b365b609a399e46ec3f297b481d0166894ff7d9cf132e642f29a4e",
+    "crates/nbsr-transport/Cargo.toml": "eb46195fd34d00698e42f00cc58579568b9b37c68be1787f10530325c426163a",
+    "crates/nbsr-transport/src/bin/perf_rust_source.rs": "b3de3608468f9356490a826c70bcdb9ae30f7b38fab7b98465a5f3afddbfc6a7",
+    "crates/nbsr-transport/src/bin/wp8_interop_server.rs": "18c3da5ef6f266ed689c4bb3272dfd13f00d6f2c603c620cc5454359259c97a3",
+    "docs/protocol/stream-credit-extension.md": "fdd4eebb1be99fa90f5fbd84642a3d355142fef4420e903eea06bfab4bf93e96",
+    "pyproject.toml": "e07a900b0057eea76e1366efc0d950b5708aab0d5ec6a8eeabd0b79d79f61bcb",
+    "scripts/performance/authorities.py": "adbe144e80a157ab5ffebe81ea33f96ddb4192f1c3848c89d7013189f7a1c24f",
+    "scripts/performance/authority.py": "f3d68a08d880819dda4a161a8c0e2b424f68f28373097bf51c2f27d9fb92c804",
+    "scripts/performance/driver.py": "bff5b8003ce4e7290116876670d0de15902992337c02798cf28f62869e6045d8",
+    "scripts/performance/p2d_stream_credit.py": "cec815336f78595daa42e42989b5a0030c8e55b981a7e62edd5927a1ae80819a",
+    "scripts/performance/resources.py": "62fe14ab597bdf96d0256d40cb34dacd34d1342fccee3a48db423f5dec000789",
+    "scripts/run_p2d_stream_credit.py": "0d6f24a32ba40b0cc50f5ebdec2317abcab663d6f960eb00587e0a7f18b33f19",
+    "scripts/run_performance_validation.py": "b7b891ce8b6236c5d8fba4685ac623cd752b4e10d70d39e4e14bd3064a94b334"
+  },
+  "files": {
+    "crates/nbsr-transport/Cargo.lock": "2e11476d59b365b609a399e46ec3f297b481d0166894ff7d9cf132e642f29a4e",
+    "crates/nbsr-transport/Cargo.toml": "eb46195fd34d00698e42f00cc58579568b9b37c68be1787f10530325c426163a",
+    "crates/nbsr-transport/src/bin/perf_rust_source.rs": "b3de3608468f9356490a826c70bcdb9ae30f7b38fab7b98465a5f3afddbfc6a7",
+    "crates/nbsr-transport/src/bin/wp8_interop_server.rs": "18c3da5ef6f266ed689c4bb3272dfd13f00d6f2c603c620cc5454359259c97a3",
+    "docs/protocol/stream-credit-extension.md": "fdd4eebb1be99fa90f5fbd84642a3d355142fef4420e903eea06bfab4bf93e96",
+    "pyproject.toml": "e07a900b0057eea76e1366efc0d950b5708aab0d5ec6a8eeabd0b79d79f61bcb",
+    "scripts/performance/authorities.py": "adbe144e80a157ab5ffebe81ea33f96ddb4192f1c3848c89d7013189f7a1c24f",
+    "scripts/performance/authority.py": "f3d68a08d880819dda4a161a8c0e2b424f68f28373097bf51c2f27d9fb92c804",
+    "scripts/performance/driver.py": "bff5b8003ce4e7290116876670d0de15902992337c02798cf28f62869e6045d8",
+    "scripts/performance/p2d_stream_credit.py": "cec815336f78595daa42e42989b5a0030c8e55b981a7e62edd5927a1ae80819a",
+    "scripts/performance/resources.py": "62fe14ab597bdf96d0256d40cb34dacd34d1342fccee3a48db423f5dec000789",
+    "scripts/run_p2d_stream_credit.py": "0d6f24a32ba40b0cc50f5ebdec2317abcab663d6f960eb00587e0a7f18b33f19",
+    "scripts/run_performance_validation.py": "b7b891ce8b6236c5d8fba4685ac623cd752b4e10d70d39e4e14bd3064a94b334"
+  },
+  "dirty": false,
+  "repository_dirty": false,
+  "runtime_audits": {
+    "post_output_creation": {
+      "allowed_untracked_root": "evidence/performance/stream-credit-window-p2d/attempt-7-final-atomic-audit",
+      "status_format": "porcelain-v2",
+      "untracked_files": "all",
+      "status_bytes": 442,
+      "status_sha256": "d2a01669ff71674673318a7cdf58161368a1aba0e456f77572022bb93165f941",
+      "status_entries": 4,
+      "allowed_untracked_entries": 4,
+      "disallowed_changes": [],
+      "commit_equal": true,
+      "head_tree_equal": true,
+      "index_tree_equal": true
+    },
+    "post_build": {
+      "allowed_untracked_root": "evidence/performance/stream-credit-window-p2d/attempt-7-final-atomic-audit",
+      "status_format": "porcelain-v2",
+      "untracked_files": "all",
+      "status_bytes": 442,
+      "status_sha256": "d2a01669ff71674673318a7cdf58161368a1aba0e456f77572022bb93165f941",
+      "status_entries": 4,
+      "allowed_untracked_entries": 4,
+      "disallowed_changes": [],
+      "commit_equal": true,
+      "head_tree_equal": true,
+      "index_tree_equal": true
+    }
+  }
+}

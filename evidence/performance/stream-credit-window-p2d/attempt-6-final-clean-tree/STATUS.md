@@ -18,3 +18,5 @@ The oversized soak JSON is preserved losslessly as
 `raw/soak/after.json.gz`. Its original and compressed identities and exact
 deterministic recompression verification are recorded in the package
 compression manifest. `RUNNER-FAILURE.txt` records the terminal failure.
+Attempt 7 corrects the finalizer and is the sole authoritative final-source
+acceptance campaign.

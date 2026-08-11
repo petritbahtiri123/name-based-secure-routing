@@ -1,0 +1,742 @@
+{
+  "schema": "nbsr-p2d-analysis-v1",
+  "outcome": "Outcome A \u2014 ACCEPTED AND RETAINED",
+  "observed": {
+    "smoke": {
+      "before": {
+        "schema": "nbsr-p2d-live-cell-v1",
+        "mode": "before",
+        "profile": "legacy-stream-open",
+        "concurrency": 64,
+        "payload_bytes": 1024,
+        "payload_correct": true,
+        "completed_operations": 192,
+        "duration_ns": 36825200,
+        "operations_per_second": 5213.820970422428,
+        "p50_ns": 6566900,
+        "p95_ns": 11235200,
+        "p99_ns": 11941200,
+        "cpu": {
+          "status": "MEASURED",
+          "process_cpu_ns": 78125000,
+          "roles": {
+            "source": {
+              "peak_working_set_bytes": 9715712,
+              "peak_private_bytes": 2654208
+            },
+            "destination": {
+              "peak_working_set_bytes": 9768960,
+              "peak_private_bytes": 2134016
+            }
+          }
+        },
+        "errors": 0,
+        "remaining_credits": null,
+        "refill_count": 0,
+        "windows_crossed": 0,
+        "active_epochs": 0,
+        "active_epochs_high_water": 0,
+        "replay_entries": 192,
+        "replay_limit": 10000,
+        "minimum_remaining_credits": null,
+        "buffer_exhaustions": 0
+      },
+      "after": {
+        "schema": "nbsr-p2d-live-cell-v1",
+        "mode": "after",
+        "profile": "nbsr-stream-credit-1",
+        "concurrency": 64,
+        "payload_bytes": 1024,
+        "payload_correct": true,
+        "completed_operations": 192,
+        "duration_ns": 10618100,
+        "operations_per_second": 18082.33111385276,
+        "p50_ns": 1920200,
+        "p95_ns": 2623300,
+        "p99_ns": 2921700,
+        "cpu": {
+          "status": "MEASURED",
+          "process_cpu_ns": 31250000,
+          "roles": {
+            "source": {
+              "peak_working_set_bytes": 9826304,
+              "peak_private_bytes": 1921024
+            },
+            "destination": {
+              "peak_working_set_bytes": 9744384,
+              "peak_private_bytes": 2560000
+            }
+          }
+        },
+        "errors": 0,
+        "remaining_credits": 64,
+        "refill_count": 3,
+        "windows_crossed": 3,
+        "active_epochs": 1,
+        "active_epochs_high_water": 2,
+        "replay_entries": 192,
+        "replay_limit": 10000,
+        "minimum_remaining_credits": 0,
+        "buffer_exhaustions": 3
+      }
+    },
+    "sweep": {
+      "before": [
+        {
+          "schema": "nbsr-p2d-live-cell-v1",
+          "mode": "before",
+          "profile": "legacy-stream-open",
+          "concurrency": 1,
+          "payload_bytes": 1024,
+          "payload_correct": true,
+          "completed_operations": 512,
+          "duration_ns": 138305000,
+          "operations_per_second": 3701.963052673439,
+          "p50_ns": 244800,
+          "p95_ns": 370500,
+          "p99_ns": 463400,
+          "cpu": {
+            "status": "MEASURED",
+            "process_cpu_ns": 171875000,
+            "roles": {
+              "source": {
+                "peak_working_set_bytes": 8454144,
+                "peak_private_bytes": 1650688
+              },
+              "destination": {
+                "peak_working_set_bytes": 8667136,
+                "peak_private_bytes": 1916928
+              }
+            }
+          },
+          "errors": 0,
+          "remaining_credits": null,
+          "refill_count": 0,
+          "windows_crossed": 0,
+          "active_epochs": 0,
+          "active_epochs_high_water": 0,
+          "replay_entries": 512,
+          "replay_limit": 10000,
+          "minimum_remaining_credits": null,
+          "buffer_exhaustions": 0
+        },
+        {
+          "schema": "nbsr-p2d-live-cell-v1",
+          "mode": "before",
+          "profile": "legacy-stream-open",
+          "concurrency": 2,
+          "payload_bytes": 1024,
+          "payload_correct": true,
+          "completed_operations": 512,
+          "duration_ns": 117701800,
+          "operations_per_second": 4349.975956187586,
+          "p50_ns": 333900,
+          "p95_ns": 436600,
+          "p99_ns": 567500,
+          "cpu": {
+            "status": "MEASURED",
+            "process_cpu_ns": 218750000,
+            "roles": {
+              "source": {
+                "peak_working_set_bytes": 8462336,
+                "peak_private_bytes": 1654784
+              },
+              "destination": {
+                "peak_working_set_bytes": 8695808,
+                "peak_private_bytes": 1945600
+              }
+            }
+          },
+          "errors": 0,
+          "remaining_credits": null,
+          "refill_count": 0,
+          "windows_crossed": 0,
+          "active_epochs": 0,
+          "active_epochs_high_water": 0,
+          "replay_entries": 512,
+          "replay_limit": 10000,
+          "minimum_remaining_credits": null,
+          "buffer_exhaustions": 0
+        },
+        {
+          "schema": "nbsr-p2d-live-cell-v1",
+          "mode": "before",
+          "profile": "legacy-stream-open",
+          "concurrency": 4,
+          "payload_bytes": 1024,
+          "payload_correct": true,
+          "completed_operations": 512,
+          "duration_ns": 102173800,
+          "operations_per_second": 5011.069373949094,
+          "p50_ns": 491600,
+          "p95_ns": 795000,
+          "p99_ns": 1070200,
+          "cpu": {
+            "status": "MEASURED",
+            "process_cpu_ns": 125000000,
+            "roles": {
+              "source": {
+                "peak_working_set_bytes": 8478720,
+                "peak_private_bytes": 1671168
+              },
+              "destination": {
+                "peak_working_set_bytes": 8761344,
+                "peak_private_bytes": 2011136
+              }
+            }
+          },
+          "errors": 0,
+          "remaining_credits": null,
+          "refill_count": 0,
+          "windows_crossed": 0,
+          "active_epochs": 0,
+          "active_epochs_high_water": 0,
+          "replay_entries": 512,
+          "replay_limit": 10000,
+          "minimum_remaining_credits": null,
+          "buffer_exhaustions": 0
+        },
+        {
+          "schema": "nbsr-p2d-live-cell-v1",
+          "mode": "before",
+          "profile": "legacy-stream-open",
+          "concurrency": 8,
+          "payload_bytes": 1024,
+          "payload_correct": true,
+          "completed_operations": 512,
+          "duration_ns": 98610700,
+          "operations_per_second": 5192.1343221374555,
+          "p50_ns": 900400,
+          "p95_ns": 1490000,
+          "p99_ns": 1796900,
+          "cpu": {
+            "status": "MEASURED",
+            "process_cpu_ns": 140625000,
+            "roles": {
+              "source": {
+                "peak_working_set_bytes": 8589312,
+                "peak_private_bytes": 1785856
+              },
+              "destination": {
+                "peak_working_set_bytes": 8814592,
+                "peak_private_bytes": 2072576
+              }
+            }
+          },
+          "errors": 0,
+          "remaining_credits": null,
+          "refill_count": 0,
+          "windows_crossed": 0,
+          "active_epochs": 0,
+          "active_epochs_high_water": 0,
+          "replay_entries": 512,
+          "replay_limit": 10000,
+          "minimum_remaining_credits": null,
+          "buffer_exhaustions": 0
+        },
+        {
+          "schema": "nbsr-p2d-live-cell-v1",
+          "mode": "before",
+          "profile": "legacy-stream-open",
+          "concurrency": 16,
+          "payload_bytes": 1024,
+          "payload_correct": true,
+          "completed_operations": 512,
+          "duration_ns": 95807500,
+          "operations_per_second": 5344.049265454166,
+          "p50_ns": 1683200,
+          "p95_ns": 2842600,
+          "p99_ns": 3609700,
+          "cpu": {
+            "status": "MEASURED",
+            "process_cpu_ns": 125000000,
+            "roles": {
+              "source": {
+                "peak_working_set_bytes": 8806400,
+                "peak_private_bytes": 2007040
+              },
+              "destination": {
+                "peak_working_set_bytes": 8998912,
+                "peak_private_bytes": 2183168
+              }
+            }
+          },
+          "errors": 0,
+          "remaining_credits": null,
+          "refill_count": 0,
+          "windows_crossed": 0,
+          "active_epochs": 0,
+          "active_epochs_high_water": 0,
+          "replay_entries": 512,
+          "replay_limit": 10000,
+          "minimum_remaining_credits": null,
+          "buffer_exhaustions": 0
+        },
+        {
+          "schema": "nbsr-p2d-live-cell-v1",
+          "mode": "before",
+          "profile": "legacy-stream-open",
+          "concurrency": 32,
+          "payload_bytes": 1024,
+          "payload_correct": true,
+          "completed_operations": 512,
+          "duration_ns": 94165300,
+          "operations_per_second": 5437.247053851047,
+          "p50_ns": 3162000,
+          "p95_ns": 5466600,
+          "p99_ns": 5891400,
+          "cpu": {
+            "status": "MEASURED",
+            "process_cpu_ns": 109375000,
+            "roles": {
+              "source": {
+                "peak_working_set_bytes": 9105408,
+                "peak_private_bytes": 2260992
+              },
+              "destination": {
+                "peak_working_set_bytes": 9318400,
+                "peak_private_bytes": 2306048
+              }
+            }
+          },
+          "errors": 0,
+          "remaining_credits": null,
+          "refill_count": 0,
+          "windows_crossed": 0,
+          "active_epochs": 0,
+          "active_epochs_high_water": 0,
+          "replay_entries": 512,
+          "replay_limit": 10000,
+          "minimum_remaining_credits": null,
+          "buffer_exhaustions": 0
+        },
+        {
+          "schema": "nbsr-p2d-live-cell-v1",
+          "mode": "before",
+          "profile": "legacy-stream-open",
+          "concurrency": 64,
+          "payload_bytes": 1024,
+          "payload_correct": true,
+          "completed_operations": 512,
+          "duration_ns": 100393600,
+          "operations_per_second": 5099.926688553852,
+          "p50_ns": 6750500,
+          "p95_ns": 11986900,
+          "p99_ns": 13513400,
+          "cpu": {
+            "status": "MEASURED",
+            "process_cpu_ns": 140625000,
+            "roles": {
+              "source": {
+                "peak_working_set_bytes": 9768960,
+                "peak_private_bytes": 2842624
+              },
+              "destination": {
+                "peak_working_set_bytes": 9936896,
+                "peak_private_bytes": 2727936
+              }
+            }
+          },
+          "errors": 0,
+          "remaining_credits": null,
+          "refill_count": 0,
+          "windows_crossed": 0,
+          "active_epochs": 0,
+          "active_epochs_high_water": 0,
+          "replay_entries": 512,
+          "replay_limit": 10000,
+          "minimum_remaining_credits": null,
+          "buffer_exhaustions": 0
+        }
+      ],
+      "after": [
+        {
+          "schema": "nbsr-p2d-live-cell-v1",
+          "mode": "after",
+          "profile": "nbsr-stream-credit-1",
+          "concurrency": 1,
+          "payload_bytes": 1024,
+          "payload_correct": true,
+          "completed_operations": 512,
+          "duration_ns": 102945000,
+          "operations_per_second": 4973.5295546165435,
+          "p50_ns": 176200,
+          "p95_ns": 277300,
+          "p99_ns": 333100,
+          "cpu": {
+            "status": "MEASURED",
+            "process_cpu_ns": 156250000,
+            "roles": {
+              "source": {
+                "peak_working_set_bytes": 8384512,
+                "peak_private_bytes": 1626112
+              },
+              "destination": {
+                "peak_working_set_bytes": 8650752,
+                "peak_private_bytes": 1880064
+              }
+            }
+          },
+          "errors": 0,
+          "remaining_credits": 32,
+          "refill_count": 10,
+          "windows_crossed": 10,
+          "active_epochs": 1,
+          "active_epochs_high_water": 2,
+          "replay_entries": 512,
+          "replay_limit": 10000,
+          "minimum_remaining_credits": 16,
+          "buffer_exhaustions": 0
+        },
+        {
+          "schema": "nbsr-p2d-live-cell-v1",
+          "mode": "after",
+          "profile": "nbsr-stream-credit-1",
+          "concurrency": 2,
+          "payload_bytes": 1024,
+          "payload_correct": true,
+          "completed_operations": 512,
+          "duration_ns": 65925400,
+          "operations_per_second": 7766.354091139379,
+          "p50_ns": 214700,
+          "p95_ns": 347300,
+          "p99_ns": 422800,
+          "cpu": {
+            "status": "MEASURED",
+            "process_cpu_ns": 125000000,
+            "roles": {
+              "source": {
+                "peak_working_set_bytes": 8445952,
+                "peak_private_bytes": 1646592
+              },
+              "destination": {
+                "peak_working_set_bytes": 8650752,
+                "peak_private_bytes": 1908736
+              }
+            }
+          },
+          "errors": 0,
+          "remaining_credits": 32,
+          "refill_count": 10,
+          "windows_crossed": 10,
+          "active_epochs": 1,
+          "active_epochs_high_water": 2,
+          "replay_entries": 512,
+          "replay_limit": 10000,
+          "minimum_remaining_credits": 16,
+          "buffer_exhaustions": 0
+        },
+        {
+          "schema": "nbsr-p2d-live-cell-v1",
+          "mode": "after",
+          "profile": "nbsr-stream-credit-1",
+          "concurrency": 4,
+          "payload_bytes": 1024,
+          "payload_correct": true,
+          "completed_operations": 512,
+          "duration_ns": 49416900,
+          "operations_per_second": 10360.827975854414,
+          "p50_ns": 308700,
+          "p95_ns": 429400,
+          "p99_ns": 527700,
+          "cpu": {
+            "status": "MEASURED",
+            "process_cpu_ns": 78125000,
+            "roles": {
+              "source": {
+                "peak_working_set_bytes": 8445952,
+                "peak_private_bytes": 1708032
+              },
+              "destination": {
+                "peak_working_set_bytes": 8671232,
+                "peak_private_bytes": 1916928
+              }
+            }
+          },
+          "errors": 0,
+          "remaining_credits": 32,
+          "refill_count": 10,
+          "windows_crossed": 10,
+          "active_epochs": 1,
+          "active_epochs_high_water": 2,
+          "replay_entries": 512,
+          "replay_limit": 10000,
+          "minimum_remaining_credits": 16,
+          "buffer_exhaustions": 0
+        },
+        {
+          "schema": "nbsr-p2d-live-cell-v1",
+          "mode": "after",
+          "profile": "nbsr-stream-credit-1",
+          "concurrency": 8,
+          "payload_bytes": 1024,
+          "payload_correct": true,
+          "completed_operations": 512,
+          "duration_ns": 41407400,
+          "operations_per_second": 12364.939600168087,
+          "p50_ns": 471200,
+          "p95_ns": 697700,
+          "p99_ns": 947100,
+          "cpu": {
+            "status": "MEASURED",
+            "process_cpu_ns": 93750000,
+            "roles": {
+              "source": {
+                "peak_working_set_bytes": 8593408,
+                "peak_private_bytes": 1814528
+              },
+              "destination": {
+                "peak_working_set_bytes": 8769536,
+                "peak_private_bytes": 2035712
+              }
+            }
+          },
+          "errors": 0,
+          "remaining_credits": 32,
+          "refill_count": 10,
+          "windows_crossed": 10,
+          "active_epochs": 1,
+          "active_epochs_high_water": 2,
+          "replay_entries": 512,
+          "replay_limit": 10000,
+          "minimum_remaining_credits": 16,
+          "buffer_exhaustions": 0
+        },
+        {
+          "schema": "nbsr-p2d-live-cell-v1",
+          "mode": "after",
+          "profile": "nbsr-stream-credit-1",
+          "concurrency": 16,
+          "payload_bytes": 1024,
+          "payload_correct": true,
+          "completed_operations": 512,
+          "duration_ns": 31713400,
+          "operations_per_second": 16144.595029230544,
+          "p50_ns": 678000,
+          "p95_ns": 939800,
+          "p99_ns": 1132200,
+          "cpu": {
+            "status": "MEASURED",
+            "process_cpu_ns": 78125000,
+            "roles": {
+              "source": {
+                "peak_working_set_bytes": 8728576,
+                "peak_private_bytes": 1986560
+              },
+              "destination": {
+                "peak_working_set_bytes": 8982528,
+                "peak_private_bytes": 2109440
+              }
+            }
+          },
+          "errors": 0,
+          "remaining_credits": 32,
+          "refill_count": 10,
+          "windows_crossed": 10,
+          "active_epochs": 1,
+          "active_epochs_high_water": 2,
+          "replay_entries": 512,
+          "replay_limit": 10000,
+          "minimum_remaining_credits": 16,
+          "buffer_exhaustions": 0
+        },
+        {
+          "schema": "nbsr-p2d-live-cell-v1",
+          "mode": "after",
+          "profile": "nbsr-stream-credit-1",
+          "concurrency": 32,
+          "payload_bytes": 1024,
+          "payload_correct": true,
+          "completed_operations": 512,
+          "duration_ns": 31397700,
+          "operations_per_second": 16306.926940508381,
+          "p50_ns": 1180100,
+          "p95_ns": 1856700,
+          "p99_ns": 2287600,
+          "cpu": {
+            "status": "MEASURED",
+            "process_cpu_ns": 62500000,
+            "roles": {
+              "source": {
+                "peak_working_set_bytes": 9195520,
+                "peak_private_bytes": 2183168
+              },
+              "destination": {
+                "peak_working_set_bytes": 9383936,
+                "peak_private_bytes": 2285568
+              }
+            }
+          },
+          "errors": 0,
+          "remaining_credits": 64,
+          "refill_count": 8,
+          "windows_crossed": 8,
+          "active_epochs": 1,
+          "active_epochs_high_water": 2,
+          "replay_entries": 512,
+          "replay_limit": 10000,
+          "minimum_remaining_credits": 0,
+          "buffer_exhaustions": 0
+        },
+        {
+          "schema": "nbsr-p2d-live-cell-v1",
+          "mode": "after",
+          "profile": "nbsr-stream-credit-1",
+          "concurrency": 64,
+          "payload_bytes": 1024,
+          "payload_correct": true,
+          "completed_operations": 512,
+          "duration_ns": 29952800,
+          "operations_per_second": 17093.56053524211,
+          "p50_ns": 2034000,
+          "p95_ns": 3283500,
+          "p99_ns": 3863600,
+          "cpu": {
+            "status": "MEASURED",
+            "process_cpu_ns": 78125000,
+            "roles": {
+              "source": {
+                "peak_working_set_bytes": 9924608,
+                "peak_private_bytes": 3133440
+              },
+              "destination": {
+                "peak_working_set_bytes": 10043392,
+                "peak_private_bytes": 2711552
+              }
+            }
+          },
+          "errors": 0,
+          "remaining_credits": 64,
+          "refill_count": 8,
+          "windows_crossed": 8,
+          "active_epochs": 1,
+          "active_epochs_high_water": 2,
+          "replay_entries": 512,
+          "replay_limit": 10000,
+          "minimum_remaining_credits": 0,
+          "buffer_exhaustions": 0
+        }
+      ]
+    },
+    "paired": {
+      "pairs": 3,
+      "before_median_operations_per_second": 5056.5694559485555,
+      "after_median_operations_per_second": 18936.277456588457,
+      "throughput_improvement": 2.7448862557028253,
+      "before_throughput_cv": 0.033377316645997746,
+      "after_throughput_cv": 0.0022769096220308397,
+      "before_median_p99_ns": 13943300,
+      "after_median_p99_ns": 3250800,
+      "p99_change": -0.7668557658516993,
+      "errors": 0
+    },
+    "continuity": {
+      "schema": "nbsr-p2d-live-cell-v1",
+      "mode": "after",
+      "profile": "nbsr-stream-credit-1",
+      "concurrency": 64,
+      "payload_bytes": 1024,
+      "payload_correct": true,
+      "completed_operations": 1024,
+      "duration_ns": 81370600,
+      "operations_per_second": 12584.397804612476,
+      "p50_ns": 2810900,
+      "p95_ns": 4259300,
+      "p99_ns": 4851600,
+      "cpu": {
+        "status": "MEASURED",
+        "process_cpu_ns": 156250000,
+        "roles": {
+          "source": {
+            "peak_working_set_bytes": 9973760,
+            "peak_private_bytes": 3002368
+          },
+          "destination": {
+            "peak_working_set_bytes": 10252288,
+            "peak_private_bytes": 3325952
+          }
+        }
+      },
+      "errors": 0,
+      "remaining_credits": 64,
+      "refill_count": 16,
+      "windows_crossed": 16,
+      "active_epochs": 1,
+      "active_epochs_high_water": 2,
+      "replay_entries": 1024,
+      "replay_limit": 10000,
+      "minimum_remaining_credits": 0,
+      "buffer_exhaustions": 0
+    },
+    "soak": {
+      "schema": "nbsr-p2d-live-cell-v1",
+      "mode": "after",
+      "profile": "nbsr-stream-credit-1",
+      "concurrency": 64,
+      "payload_bytes": 1024,
+      "payload_correct": true,
+      "completed_operations": 5568000,
+      "duration_ns": 300241163100,
+      "operations_per_second": 18545.092027056566,
+      "p50_ns": 1980900,
+      "p95_ns": 2842600,
+      "p99_ns": 3860400,
+      "cpu": {
+        "status": "MEASURED",
+        "process_cpu_ns": 440187500000,
+        "roles": {
+          "source": {
+            "peak_working_set_bytes": 10326016,
+            "peak_private_bytes": 3657728
+          },
+          "destination": {
+            "peak_working_set_bytes": 11071488,
+            "peak_private_bytes": 4325376
+          }
+        }
+      },
+      "errors": 0,
+      "remaining_credits": 64,
+      "refill_count": 87000,
+      "windows_crossed": 87000,
+      "active_epochs": 1,
+      "active_epochs_high_water": 2,
+      "replay_entries": 8000,
+      "replay_limit": 10000,
+      "minimum_remaining_credits": 0,
+      "buffer_exhaustions": 0
+    }
+  },
+  "raw_references": {
+    "smoke": "raw/smoke/",
+    "sweep": "raw/sweep/",
+    "pairs": "raw/pairs/",
+    "continuity": "raw/continuity/after.json",
+    "soak": "raw/soak/after.json.gz"
+  },
+  "selected_saturation_concurrency": 64,
+  "stopping_rule": {
+    "pairs_run": 3,
+    "stopped_after_three": true,
+    "three_pair_rule_satisfied": true
+  },
+  "mandatory_gates": {
+    "errors": "PASS",
+    "security": "PASS",
+    "refill": "PASS",
+    "continuity": "PASS",
+    "soak": "PASS",
+    "resource": "PASS",
+    "throughput": "PASS",
+    "p99": "PASS"
+  },
+  "blocking_gate": null,
+  "not_run_reason": null,
+  "measurement_semantics": {
+    "observed": "All raw cells are actual Rust/Quinn loopback measurements.",
+    "estimates": "No estimate is substituted for a mandatory measured gate.",
+    "timer": "rust-std-instant-qpc",
+    "payload_bytes": 1024,
+    "p1f_session_shard_limit": 8000
+  }
+}

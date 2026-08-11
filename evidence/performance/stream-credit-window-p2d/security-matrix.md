@@ -7,7 +7,7 @@
 | No application payload before same-stream ACCEPT | `credited_stream_waits_for_same_stream_accept_then_echoes_without_stream_open` | PASS |
 | Bounded, closed preface parsing | exact vector suite; bounded-reader malformed/oversized/truncated tests; malformed live integration | PASS |
 | Slot and stream replay remain independent and fail closed | exact 64-slot exhaustion, duplicate/race tests, live replay checks | PASS |
-| P1F replay bound preserved | authoritative live paths use exact `ReplayHistoryLimit(10000)`; all nested endpoints in 24 cells / 1,252 shards / 2,504 endpoints audited, with any violation a FAIL | PASS |
+| P1F replay bound preserved | authoritative live paths use exact `ReplayHistoryLimit(10000)`; all nested endpoints in 24 cells / 1,257 shards / 2,514 endpoints audited, with any violation a FAIL | PASS |
 | Revocation dominates unused credit | `revocation_before_destination_commit_rejects_and_retains_source_replay` | PASS |
 | Failure isolation and sibling progress | wrong-channel and timed-out-admission live integrations | PASS |
 | Exactly one ordered authenticated control stream | live integration reuses the original Quinn control stream for refill and proves every second open/accept fails closed | PASS |
@@ -20,7 +20,9 @@
 | Capacity/audit failures do not consume credit | transactional prepare/commit tests and existing channel admission gates | PASS |
 | Live correctness and unexpected errors | smoke, seven-point sweep, six paired cells, continuity, and soak all report correct 1 KiB echo and zero errors | PASS |
 
-Fresh focused verification and the complete clean/diff source binding are
-recorded in the package final report and Task 4 report. The benchmark is
-loopback-only evidence; it is not a multi-host, adversarial-network, or
-production-capacity claim.
+Fresh focused verification and the clean pre-output whole-Git-tree binding are
+recorded in the package final report and Task 4 report. Attempt 7's runtime
+audit finalized PASS after every cell boundary retained the exact commit,
+HEAD/index tree, and output-root-only status. The benchmark is loopback-only
+evidence; it is not a multi-host, adversarial-network, or production-capacity
+claim.

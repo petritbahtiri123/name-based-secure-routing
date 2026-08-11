@@ -2,10 +2,13 @@
   "schema": "nbsr-p2d-final-analysis-v1",
   "outcome": "Outcome A — ACCEPTED AND RETAINED",
   "authoritative_attempt": {
-    "path": "attempt-5-final-security-review",
-    "analysis": "attempt-5-final-security-review/analysis.json",
-    "source_binding": "attempt-5-final-security-review/source-binding.json",
-    "measured_source_sha256": "e32e8b4c4b2187c2fb1412909fcdc2449b771e2b096c763175ade7e2396c2cb3",
+    "path": "attempt-7-final-atomic-audit",
+    "analysis": "attempt-7-final-atomic-audit/analysis.json",
+    "source_binding": "attempt-7-final-atomic-audit/source-binding.json",
+    "runtime_repository_audit": "attempt-7-final-atomic-audit/runtime-repository-audit.json",
+    "commit": "100b871db011ba514bd45f0354714e1f698ebdd5",
+    "head_tree": "6d84e897b29e358c716c6c83b2ad6efc2ec445fa",
+    "measured_source_sha256": "921d4276f4aa28d7747c78622bb0a785a3333e3020188a8f45bc1b38483e7cb4",
     "source_binary_sha256": "4f0cbd64b3fd6111790faaddcc0bff1262c631413e98a3bc2b3e6e31def57c51",
     "server_binary_sha256": "2d30d6118d6417c775824a85956cae40bc0cd596933449bf44407fa7a6fe9df4"
   },
@@ -24,6 +27,11 @@
       "path": "attempt-4-final",
       "reason": "valid bounded-replay evidence predates the consolidated security and evidence-integrity corrections",
       "authoritative": false
+    },
+    {
+      "path": "attempt-5-final-security-review",
+      "reason": "valid measured evidence used selected-input binding rather than a clean pre-output whole-Git-tree identity",
+      "authoritative": false
     }
   ],
   "rejected_attempts": [
@@ -31,23 +39,44 @@
       "path": "attempt-1-rejected-unbounded-replay-harness",
       "reason": "live replay_limit was 4294967295 rather than the required exact 10000",
       "authoritative": false
+    },
+    {
+      "path": "attempt-6-final-clean-tree",
+      "reason": "runner exited 1 because final audit exclusive-create collided with the existing IN_PROGRESS audit file",
+      "authoritative": false
     }
   ],
   "selected_saturation_concurrency": 64,
   "paired": {
     "pairs": 3,
-    "before_operations_per_second": [5324.058645703895, 4979.123778776535, 4954.3241221154],
-    "after_operations_per_second": [18704.122884309796, 18454.95682340869, 18803.032641823007],
-    "before_p99_ns": [13200700, 14012300, 14268600],
-    "after_p99_ns": [3433100, 3642300, 3294900],
-    "before_median_operations_per_second": 4979.123778776535,
-    "after_median_operations_per_second": 18704.122884309796,
-    "throughput_improvement": 2.7565089191065972,
-    "before_throughput_cv": 0.040638275390451235,
-    "after_throughput_cv": 0.00961516591579608,
-    "before_median_p99_ns": 14012300,
-    "after_median_p99_ns": 3433100,
-    "p99_change": -0.7549938268521228,
+    "before_operations_per_second": [
+      5295.308972822618,
+      5056.5694559485555,
+      4965.281583348069
+    ],
+    "after_operations_per_second": [
+      18882.0864694911,
+      18936.277456588457,
+      18967.233316906946
+    ],
+    "before_p99_ns": [
+      13943300,
+      13309300,
+      14172900
+    ],
+    "after_p99_ns": [
+      3385700,
+      3250800,
+      3226400
+    ],
+    "before_median_operations_per_second": 5056.5694559485555,
+    "after_median_operations_per_second": 18936.277456588457,
+    "throughput_improvement": 2.7448862557028253,
+    "before_throughput_cv": 0.033377316645997746,
+    "after_throughput_cv": 0.0022769096220308397,
+    "before_median_p99_ns": 13943300,
+    "after_median_p99_ns": 3250800,
+    "p99_change": -0.7668557658516993,
     "errors": 0
   },
   "stopping_rule": {
@@ -58,8 +87,8 @@
   },
   "continuity": {
     "operations": 1024,
-    "operations_per_second": 18813.74211577433,
-    "p99_ns": 2971100,
+    "operations_per_second": 12584.397804612476,
+    "p99_ns": 4851600,
     "windows": 16,
     "refills": 16,
     "errors": 0,
@@ -68,35 +97,42 @@
     "replay_limit": 10000
   },
   "soak": {
-    "raw": "attempt-5-final-security-review/raw/soak/after.json.gz",
-    "duration_seconds": 300.2110533,
-    "operations": 5576000,
-    "operations_per_second": 18573.599934802933,
-    "p99_ns": 3504800,
-    "windows": 87125,
-    "refills": 87125,
+    "raw": "attempt-7-final-atomic-audit/raw/soak/after.json.gz",
+    "duration_seconds": 300.2411631,
+    "operations": 5568000,
+    "operations_per_second": 18545.092027056566,
+    "p99_ns": 3860400,
+    "windows": 87000,
+    "refills": 87000,
     "errors": 0,
     "active_epochs_high_water": 2,
     "replay_entries": 8000,
     "replay_limit": 10000,
-    "periods": 697,
-    "first_period_operations_per_second": 19965.101003445976,
-    "last_period_operations_per_second": 18618.92711690801,
-    "median_period_operations_per_second": 18922.997592048556,
-    "worst_period_operations_per_second": 11548.015856003172,
-    "worst_throughput_period": 190,
-    "first_period_p99_ns": 2974800,
-    "last_period_p99_ns": 3032000,
-    "median_period_p99_ns": 3150000,
-    "worst_period_p99_ns": 5791300,
-    "worst_p99_period": 38
+    "periods": 696,
+    "first_period_operations_per_second": 17938.31372675643,
+    "last_period_operations_per_second": 18632.725914232164,
+    "median_period_operations_per_second": 19013.128329620733,
+    "worst_period_operations_per_second": 8109.907082767076,
+    "worst_throughput_period": 241,
+    "first_period_p99_ns": 3421400,
+    "last_period_p99_ns": 3120500,
+    "median_period_p99_ns": 3155050.0,
+    "worst_period_p99_ns": 6886400,
+    "worst_p99_period": 241
   },
   "replay_audit": {
     "aggregate_cells": 24,
-    "shards": 1252,
-    "source_destination_endpoints": 2504,
+    "shards": 1257,
+    "source_destination_endpoints": 2514,
     "required_replay_limit": 10000,
     "violations": 0
+  },
+  "repository_identity": {
+    "pre_output_status_empty": true,
+    "head_tree_equals_index_tree": true,
+    "tracked_file_count": 2069,
+    "runtime_audit_status": "PASS",
+    "runtime_disallowed_changes": 0
   },
   "mandatory_gates": {
     "errors": "PASS",
@@ -116,6 +152,6 @@
     "p1f_session_shard_limit": 8000,
     "performance_corrections_used": 3,
     "performance_corrections_remaining": 0,
-    "consolidated_security_fix_round": 1
+    "security_evidence_fix_rounds": 3
   }
 }

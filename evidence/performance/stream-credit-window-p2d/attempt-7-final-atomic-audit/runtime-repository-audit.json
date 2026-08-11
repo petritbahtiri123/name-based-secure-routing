@@ -1,0 +1,51 @@
+{
+  "schema": "nbsr-p2d-runtime-repository-audit-v1",
+  "status": "PASS",
+  "allowed_untracked_root": "evidence/performance/stream-credit-window-p2d/attempt-7-final-atomic-audit",
+  "pre_output_status": {
+    "format": "porcelain-v2",
+    "untracked_files": "all",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "empty": true
+  },
+  "post_output_creation": {
+    "allowed_untracked_root": "evidence/performance/stream-credit-window-p2d/attempt-7-final-atomic-audit",
+    "status_format": "porcelain-v2",
+    "untracked_files": "all",
+    "status_bytes": 442,
+    "status_sha256": "d2a01669ff71674673318a7cdf58161368a1aba0e456f77572022bb93165f941",
+    "status_entries": 4,
+    "allowed_untracked_entries": 4,
+    "disallowed_changes": [],
+    "commit_equal": true,
+    "head_tree_equal": true,
+    "index_tree_equal": true
+  },
+  "post_build": {
+    "allowed_untracked_root": "evidence/performance/stream-credit-window-p2d/attempt-7-final-atomic-audit",
+    "status_format": "porcelain-v2",
+    "untracked_files": "all",
+    "status_bytes": 442,
+    "status_sha256": "d2a01669ff71674673318a7cdf58161368a1aba0e456f77572022bb93165f941",
+    "status_entries": 4,
+    "allowed_untracked_entries": 4,
+    "disallowed_changes": [],
+    "commit_equal": true,
+    "head_tree_equal": true,
+    "index_tree_equal": true
+  },
+  "final": {
+    "allowed_untracked_root": "evidence/performance/stream-credit-window-p2d/attempt-7-final-atomic-audit",
+    "status_format": "porcelain-v2",
+    "untracked_files": "all",
+    "status_bytes": 4005,
+    "status_sha256": "7b865af2e2c8b47369bd17b7e3c6d5c7a408fb97aa3d78d506f47d34ce661b1f",
+    "status_entries": 39,
+    "allowed_untracked_entries": 39,
+    "disallowed_changes": [],
+    "commit_equal": true,
+    "head_tree_equal": true,
+    "index_tree_equal": true
+  }
+}

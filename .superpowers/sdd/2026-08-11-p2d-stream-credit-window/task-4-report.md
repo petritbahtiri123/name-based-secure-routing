@@ -616,3 +616,88 @@ python -m pytest -q
 # the six added passing finalizer tests account for the increase from the
 # preceding 1,790-pass run. No P2D mandatory gate is weakened or relabeled.
 ```
+
+## Authoritative Attempt 7
+
+The final correction/evidence commit before measurement was
+`100b871db011ba514bd45f0354714e1f698ebdd5`. Its clean pre-output identity
+was:
+
+- `HEAD^{tree}` and index tree:
+  `6d84e897b29e358c716c6c83b2ad6efc2ec445fa`;
+- tracked files: 2,069;
+- measured-source SHA-256:
+  `921d4276f4aa28d7747c78622bb0a785a3333e3020188a8f45bc1b38483e7cb4`;
+- pre-output porcelain-v2 status: zero bytes / exact empty SHA-256;
+- release source binary SHA-256:
+  `4f0cbd64b3fd6111790faaddcc0bff1262c631413e98a3bc2b3e6e31def57c51`;
+- release server binary SHA-256:
+  `2d30d6118d6417c775824a85956cae40bc0cd596933449bf44407fa7a6fe9df4`.
+
+Command:
+
+```powershell
+$env:CARGO_TARGET_DIR='C:\codex-target\nbsr-p2d'
+python scripts/run_p2d_stream_credit.py --suite all --output evidence/performance/stream-credit-window-p2d/attempt-7-final-atomic-audit --security-gate PASS --pair-seconds 60 --soak-seconds 300
+# exit 0; 879.4 s wall time
+# Outcome A — ACCEPTED AND RETAINED
+```
+
+All mandatory gates passed. At selected concurrency 64, three matched pairs
+measured median throughput 5,056.57 -> 18,936.28 operations/second (+274.49%)
+and median p99 13.9433 -> 3.2508 ms (-76.69%). Throughput CV was 3.338%
+BEFORE and 0.228% AFTER; errors were zero. Continuity crossed/refilled 16
+windows in 1,024 operations with zero errors.
+
+The 300.2411631-second soak completed 5,568,000 operations at 18,545.09
+operations/second with aggregate p99 3.8604 ms, 87,000 windows/refills, zero
+errors, active-epoch high-water 2, and replay state 8,000/10,000. Its worst
+periodic throughput was 8,109.91 operations/second and worst periodic p99 was
+6.8864 ms, both at period 241. These extrema are observations and do not
+replace the aggregate gates. All 2,514 nested source/destination endpoints in
+1,257 shards across 24 cells reported replay limit exactly 10,000.
+
+`runtime-repository-audit.json` finalized atomically to PASS. Pre-output was
+empty; post-output, post-build, every cell boundary, and the final capture
+retained the exact commit/HEAD/index tree, allowed only the exact Attempt 7
+root, and reported zero disallowed changes.
+
+Attempt 7's 107,774,853-byte soak JSON was losslessly compressed to a
+15,872,609-byte deterministic gzip. Decompression reproduced original
+SHA-256 `29ca69c804fa67923c4ef5c0dae234d162259abba7aa7883a565805d2c809c02`;
+exact recompression reproduced stored gzip SHA-256
+`72de500e21e63ea55901934861db97a5111869e4688ec118ffed00d8017f719c`.
+All eight package gzip artifacts passed the same decompression and exact
+recompression verification.
+
+Final package inventory before the evidence commit: 282 closed checksum
+entries, 283 files including the checksum file, 717,058,062 bytes total, and a
+largest stored artifact of 22,372,470 bytes. All 248 stored `.json` files parse;
+the earlier Attempt 6 inventory counts are superseded by this final
+closed-inventory verification.
+
+Final post-Attempt-7 verification against the unchanged measured source:
+
+```powershell
+python -m pytest tests/test_p2d_stream_credit.py -q
+# 21 passed in 5.00 s
+
+python -m ruff check scripts/run_p2d_stream_credit.py tests/test_p2d_stream_credit.py
+python -m ruff format --check scripts/run_p2d_stream_credit.py tests/test_p2d_stream_credit.py
+cargo fmt --manifest-path crates/nbsr-transport/Cargo.toml -- --check
+git diff --check
+# PASS
+
+cargo test --manifest-path crates/nbsr-transport/Cargo.toml --all-targets --features benchmark-harness --quiet
+# 176 passed, 0 failed, 1 existing ignored
+
+cargo test --manifest-path crates/nbsr-transport/Cargo.toml --quiet
+# 184 passed, 0 failed, 1 existing ignored
+
+cargo clippy --manifest-path crates/nbsr-transport/Cargo.toml --all-targets --features benchmark-harness -- -D warnings
+# PASS; complete concise matrix 100.4 s
+
+python -m pytest -q
+# 1,796 passed, 1 skipped, same 37 pre-existing authority/vector failures;
+# 390.40 s under parallel validation load.
+```

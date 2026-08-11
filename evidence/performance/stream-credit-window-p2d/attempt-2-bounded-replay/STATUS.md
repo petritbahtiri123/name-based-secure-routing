@@ -7,7 +7,7 @@ No semantic change was identified, but the exact measured source binding no
 longer matched the rustfmt-clean final files.
 
 Correction 2 reran the complete required ladder as attempt 3 against the then
-frozen source and rebuilt release binaries. Attempts 3 and 4 were subsequently
-superseded. Attempt 5 is the sole authoritative final-source acceptance
+frozen source and rebuilt release binaries. Later corrections superseded
+Attempts 3-6. Attempt 7 is the sole authoritative final-source acceptance
 campaign. Attempt 2 remains unchanged except for lossless deterministic
 compression of its oversized soak and this status record.
