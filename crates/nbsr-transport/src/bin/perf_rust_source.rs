@@ -7,6 +7,8 @@ use std::sync::Arc;
 use std::time::{Duration, Instant};
 
 #[cfg(feature = "benchmark-harness")]
+use nbsr_transport::StreamCreditRefill;
+#[cfg(feature = "benchmark-harness")]
 use nbsr_transport::p2a_benchmark::{decode_frame, encode_frame};
 use nbsr_transport::{
     AdmissionPolicy, AuthorizedServicePolicy, ControlSession, CoreV02Limits, DestinationAdmission,
@@ -638,6 +640,266 @@ fn client_hello() -> nbsr_transport::CoreV02Envelope {
     )
 }
 
+#[cfg(feature = "benchmark-harness")]
+struct P2dSourceResult<'a> {
+    mode: &'a str,
+    concurrency: usize,
+    payload_bytes: usize,
+    measured_ns: u128,
+    latencies: &'a [u64],
+    payload_correct: bool,
+    remaining_credits: Option<u8>,
+    refill_count: u64,
+    active_epochs: u8,
+    active_epochs_high_water: u8,
+    replay_entries: usize,
+    replay_limit: usize,
+    minimum_remaining_credits: Option<u8>,
+    buffer_exhaustions: u64,
+}
+
+#[cfg(feature = "benchmark-harness")]
+struct P2dSourceRun {
+    channel: [u8; 16],
+    operations: u64,
+    concurrency: usize,
+    payload_bytes: usize,
+    smoke_exhaustion: bool,
+}
+
+#[cfg(feature = "benchmark-harness")]
+fn p2d_emit_result(result: P2dSourceResult<'_>) {
+    let P2dSourceResult {
+        mode,
+        concurrency,
+        payload_bytes,
+        measured_ns,
+        latencies,
+        payload_correct,
+        remaining_credits,
+        refill_count,
+        active_epochs,
+        active_epochs_high_water,
+        replay_entries,
+        replay_limit,
+        minimum_remaining_credits,
+        buffer_exhaustions,
+    } = result;
+    let latency_json = latencies
+        .iter()
+        .map(u64::to_string)
+        .collect::<Vec<_>>()
+        .join(",");
+    let remaining = remaining_credits.map_or_else(|| "null".into(), |value| value.to_string());
+    let minimum =
+        minimum_remaining_credits.map_or_else(|| "null".into(), |value| value.to_string());
+    println!(
+        "{{\"event\":\"p2d_shard\",\"schema\":\"nbsr-p2d-rust-shard-v1\",\"mode\":\"{mode}\",\"concurrency\":{concurrency},\"payload_bytes\":{payload_bytes},\"payload_correct\":{payload_correct},\"completed_operations\":{},\"duration_ns\":{measured_ns},\"errors\":0,\"remaining_credits\":{remaining},\"refill_count\":{refill_count},\"windows_crossed\":{refill_count},\"active_epochs\":{active_epochs},\"active_epochs_high_water\":{active_epochs_high_water},\"replay_entries\":{replay_entries},\"replay_limit\":{replay_limit},\"minimum_remaining_credits\":{minimum},\"buffer_exhaustions\":{buffer_exhaustions},\"latencies_ns\":[{latency_json}]}}",
+        latencies.len()
+    );
+}
+
+#[cfg(feature = "benchmark-harness")]
+async fn run_p2d_before(
+    connection: nbsr_transport::AuthenticatedConnection,
+    mut control: nbsr_transport::ControlStream,
+    mut session: ControlSession,
+    run: P2dSourceRun,
+) {
+    let P2dSourceRun {
+        channel,
+        operations,
+        concurrency,
+        payload_bytes,
+        smoke_exhaustion: _,
+    } = run;
+    let payload = vec![0x5a; payload_bytes];
+    let mut latencies = Vec::with_capacity(operations as usize);
+    let measured = Instant::now();
+    let mut next = 0_u64;
+    while next < operations {
+        let batch = usize::min(concurrency, (operations - next) as usize);
+        let mut tasks = JoinSet::new();
+        for offset in 0..batch {
+            let index = next + offset as u64;
+            let started = Instant::now();
+            let request = stream_open(index);
+            session.authorize_stream_open(channel, &request).unwrap();
+            control.send_envelope(&request).await.unwrap();
+            let accepted = control
+                .receive_envelope(CoreV02Limits::default())
+                .await
+                .unwrap();
+            session.confirm_stream_accept(channel, &accepted).unwrap();
+            let permit = session
+                .application_stream_permit(channel, 4 + 4 * index)
+                .unwrap();
+            let mut application = connection.open_session_stream(&permit).await.unwrap();
+            let expected = payload.clone();
+            tasks.spawn(async move {
+                let stream_id = application.id();
+                let response = application.send_and_receive(&expected).await.unwrap();
+                (
+                    stream_id,
+                    started.elapsed().as_nanos() as u64,
+                    response == expected,
+                )
+            });
+        }
+        while let Some(joined) = tasks.join_next().await {
+            let (stream_id, latency, correct) = joined.unwrap();
+            assert!(correct);
+            latencies.push(latency);
+            session.release_stream(channel, stream_id).unwrap();
+        }
+        while session.pop_audit_event().is_some() {}
+        next += batch as u64;
+    }
+    let measured_ns = measured.elapsed().as_nanos();
+    let diagnostics = nbsr_transport::diagnostics::global().snapshot();
+    p2d_emit_result(P2dSourceResult {
+        mode: "before",
+        concurrency,
+        payload_bytes,
+        measured_ns,
+        latencies: &latencies,
+        payload_correct: true,
+        remaining_credits: None,
+        refill_count: 0,
+        active_epochs: 0,
+        active_epochs_high_water: 0,
+        replay_entries: diagnostics.replay_state.current_entries as usize,
+        replay_limit: 10_000,
+        minimum_remaining_credits: None,
+        buffer_exhaustions: 0,
+    });
+    drop(session);
+    connection.close().await.unwrap();
+}
+
+#[cfg(feature = "benchmark-harness")]
+async fn run_p2d_after(
+    connection: nbsr_transport::AuthenticatedConnection,
+    mut control: nbsr_transport::ControlStream,
+    session: ControlSession,
+    run: P2dSourceRun,
+) {
+    let P2dSourceRun {
+        channel,
+        operations,
+        concurrency,
+        payload_bytes,
+        smoke_exhaustion,
+    } = run;
+    let connection = Arc::new(connection);
+    let session = nbsr_transport::SharedControlSession::new(session);
+    let payload = vec![0x5a; payload_bytes];
+    let mut latencies = Vec::with_capacity(operations as usize);
+    let mut refill_count = 0_u64;
+    let mut active_epochs_high_water = 1_u8;
+    let mut minimum_remaining = 64_u8;
+    let mut buffer_exhaustions = 0_u64;
+    let measured = Instant::now();
+    let mut next = 0_u64;
+    while next < operations {
+        let batch = usize::min(concurrency, (operations - next) as usize);
+        let mut tasks = JoinSet::new();
+        for _ in 0..batch {
+            let task_connection = Arc::clone(&connection);
+            let task_session = session.clone();
+            let expected = payload.clone();
+            let started = Instant::now();
+            tasks.spawn(async move {
+                let mut application = task_connection
+                    .open_credited_session_stream(&task_session, channel)
+                    .await
+                    .unwrap();
+                let stream_id = application.id();
+                let response = application.send_and_receive(&expected).await.unwrap();
+                (
+                    stream_id,
+                    started.elapsed().as_nanos() as u64,
+                    response == expected,
+                )
+            });
+        }
+        while let Some(joined) = tasks.join_next().await {
+            let (stream_id, latency, correct) = joined.unwrap();
+            assert!(correct);
+            latencies.push(latency);
+            session
+                .update(|session| session.release_stream(channel, stream_id))
+                .unwrap();
+        }
+        session.update(|session| while session.pop_audit_event().is_some() {});
+        let snapshot = session
+            .inspect(|session| session.stream_credit_snapshot(channel))
+            .unwrap();
+        minimum_remaining = minimum_remaining.min(snapshot.remaining_credits);
+        if let Some(epoch) = snapshot.pending_refill {
+            if smoke_exhaustion && snapshot.remaining_credits == 0 {
+                assert_eq!(
+                    connection
+                        .open_credited_session_stream(&session, channel)
+                        .await
+                        .err(),
+                    Some(nbsr_transport::TransportError::ApplicationStreamRejected)
+                );
+                buffer_exhaustions += 1;
+            }
+            let refill = StreamCreditRefill {
+                channel_id: channel,
+                epoch,
+            };
+            control
+                .send_stream_credit_refill_request(refill)
+                .await
+                .unwrap();
+            let grant = control.receive_stream_credit_refill_grant().await.unwrap();
+            assert_eq!(grant, refill);
+            session
+                .update(|session| session.confirm_stream_credit_refill(channel, epoch))
+                .unwrap();
+            let activated = session
+                .inspect(|session| session.stream_credit_snapshot(channel))
+                .unwrap();
+            active_epochs_high_water = active_epochs_high_water.max(activated.active_epochs);
+            session
+                .update(|session| session.retire_stream_credit_epoch(channel, epoch - 1))
+                .unwrap();
+            refill_count += 1;
+        }
+        next += batch as u64;
+    }
+    let measured_ns = measured.elapsed().as_nanos();
+    let final_state = session
+        .inspect(|session| session.stream_credit_snapshot(channel))
+        .unwrap();
+    p2d_emit_result(P2dSourceResult {
+        mode: "after",
+        concurrency,
+        payload_bytes,
+        measured_ns,
+        latencies: &latencies,
+        payload_correct: true,
+        remaining_credits: Some(final_state.remaining_credits),
+        refill_count,
+        active_epochs: final_state.active_epochs,
+        active_epochs_high_water,
+        replay_entries: final_state.replay_entries,
+        replay_limit: final_state.replay_limit,
+        minimum_remaining_credits: Some(minimum_remaining),
+        buffer_exhaustions,
+    });
+    drop(session);
+    Arc::try_unwrap(connection)
+        .ok()
+        .expect("P2D source tasks are complete")
+        .close()
+        .await
+        .unwrap();
+}
+
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
     let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..");
@@ -655,6 +917,15 @@ async fn main() {
         .map_or(0, |value| value.parse::<u64>().unwrap());
     let post_load_completion_ack =
         optional_argument("--post-load-completion-ack").map(PathBuf::from);
+    let p2d_mode = optional_argument("--p2d-mode");
+    #[cfg(feature = "benchmark-harness")]
+    let p2d_concurrency =
+        optional_argument("--p2d-concurrency").map(|value| value.parse::<usize>().unwrap());
+    #[cfg(feature = "benchmark-harness")]
+    let p2d_smoke_exhaustion = optional_argument("--p2d-smoke-exhaustion").is_some();
+    if p2d_mode.is_some() {
+        nbsr_transport::diagnostics::enable_global();
+    }
     if diagnostics_enabled {
         nbsr_transport::diagnostics::enable_global();
     }
@@ -719,12 +990,20 @@ async fn main() {
         .receive_envelope(CoreV02Limits::default())
         .await
         .unwrap();
-    let mut session = ControlSession::new(
-        &connection,
-        DestinationAdmission::new_federated(policy(), authorities()).unwrap(),
-        vec![issuer()],
-        TrustProfileId::new("federation-dev-v1").unwrap(),
-    );
+    let admission = DestinationAdmission::new_federated(policy(), authorities()).unwrap();
+    let trusted_issuers = vec![issuer()];
+    let trust_profile = TrustProfileId::new("federation-dev-v1").unwrap();
+    let mut session = if p2d_mode.is_some() {
+        ControlSession::new_with_replay_history_limit(
+            &connection,
+            admission,
+            trusted_issuers,
+            trust_profile,
+            nbsr_transport::ReplayHistoryLimit::try_from(10_000).unwrap(),
+        )
+    } else {
+        ControlSession::new(&connection, admission, trusted_issuers, trust_profile)
+    };
     session.accept_client_hello(&client).unwrap();
     session.confirm_edge_hello(&edge).unwrap();
     let route_body = root
@@ -752,9 +1031,60 @@ async fn main() {
         .receive_envelope(CoreV02Limits::default())
         .await
         .unwrap();
-    session.confirm_route_accept(&accepted).unwrap();
     let channel: [u8; 16] = (0x40..0x50).collect::<Vec<_>>().try_into().unwrap();
+    if p2d_mode.as_deref() == Some("after") {
+        session
+            .select_stream_credit_profile(
+                channel,
+                true,
+                Some(nbsr_transport::STREAM_CREDIT_PROFILE_ID),
+                false,
+            )
+            .unwrap();
+    }
+    session.confirm_route_accept(&accepted).unwrap();
     connection.bind_channel(&mut session, channel).unwrap();
+    #[cfg(feature = "benchmark-harness")]
+    if let Some(mode) = p2d_mode.as_deref() {
+        let concurrency = p2d_concurrency.expect("--p2d-concurrency is required");
+        assert!(matches!(concurrency, 1 | 2 | 4 | 8 | 16 | 32 | 64));
+        assert!((1..=8_000).contains(&samples));
+        assert_eq!(payload_bytes, 1024);
+        match mode {
+            "before" => {
+                run_p2d_before(
+                    connection,
+                    control,
+                    session,
+                    P2dSourceRun {
+                        channel,
+                        operations: samples,
+                        concurrency,
+                        payload_bytes,
+                        smoke_exhaustion: false,
+                    },
+                )
+                .await
+            }
+            "after" => {
+                run_p2d_after(
+                    connection,
+                    control,
+                    session,
+                    P2dSourceRun {
+                        channel,
+                        operations: samples,
+                        concurrency,
+                        payload_bytes,
+                        smoke_exhaustion: p2d_smoke_exhaustion,
+                    },
+                )
+                .await
+            }
+            _ => panic!("--p2d-mode must be before or after"),
+        }
+        return;
+    }
     #[cfg(feature = "benchmark-harness")]
     if let Some(stream_count) = optional_argument("--p2a-streams") {
         let stream_count = stream_count.parse::<u64>().unwrap();

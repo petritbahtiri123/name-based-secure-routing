@@ -1,0 +1,9 @@
+{
+  "schema": "nbsr-stream-credit-refill-v1-vectors",
+  "body_bytes": 30,
+  "framed_bytes": 31,
+  "channel_id_hex": "404142434445464748494a4b4c4d4e4f",
+  "epoch": 2,
+  "request_hex": "1e4e5343520101404142434445464748494a4b4c4d4e4f0000000000000002",
+  "grant_hex": "1e4e5343520102404142434445464748494a4b4c4d4e4f0000000000000002"
+}

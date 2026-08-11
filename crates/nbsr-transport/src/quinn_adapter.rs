@@ -17,7 +17,7 @@ use crate::channel_binding::{EXPORTER_LABEL, EXPORTER_LENGTH, canonical_service_
 use crate::{
     ALPN, ChannelBinding, ClientEndpointConfig, ControlSession, CoreV02Envelope, EdgeIdentity,
     EdgeRole, PeerPolicy, ServerEndpointConfig, ServiceChannelContext, ServiceChannelExporterError,
-    SessionReject, SharedControlSession, StreamCreditPreface, TransportError,
+    SessionReject, SharedControlSession, StreamCreditPreface, StreamCreditRefill, TransportError,
     decode_stream_credit_preface, encode_stream_credit_preface,
 };
 
@@ -29,6 +29,56 @@ const MAX_BUFFERED_APPLICATION_BYTES_PER_CHANNEL: usize = 8_388_608;
 const STREAM_CREDIT_ACCEPT: u8 = 0;
 const STREAM_CREDIT_REJECT: u8 = 1;
 const MAX_ENCODED_STREAM_CREDIT_PREFACE_BYTES: usize = crate::MAX_STREAM_CREDIT_PREFACE_BYTES + 8;
+const STREAM_CREDIT_REFILL_MAGIC: [u8; 4] = *b"NSCR";
+const STREAM_CREDIT_REFILL_VERSION: u8 = 1;
+const STREAM_CREDIT_REFILL_REQUEST: u8 = 1;
+const STREAM_CREDIT_REFILL_GRANT: u8 = 2;
+const STREAM_CREDIT_REFILL_FRAME_BYTES: usize = 30;
+
+fn encode_stream_credit_refill_control(
+    kind: u8,
+    refill: StreamCreditRefill,
+) -> Result<[u8; STREAM_CREDIT_REFILL_FRAME_BYTES], TransportError> {
+    if !matches!(
+        kind,
+        STREAM_CREDIT_REFILL_REQUEST | STREAM_CREDIT_REFILL_GRANT
+    ) || refill.epoch == 0
+    {
+        return Err(TransportError::ControlFrameInvalid);
+    }
+    let mut wire = [0_u8; STREAM_CREDIT_REFILL_FRAME_BYTES];
+    wire[..4].copy_from_slice(&STREAM_CREDIT_REFILL_MAGIC);
+    wire[4] = STREAM_CREDIT_REFILL_VERSION;
+    wire[5] = kind;
+    wire[6..22].copy_from_slice(&refill.channel_id);
+    wire[22..].copy_from_slice(&refill.epoch.to_be_bytes());
+    Ok(wire)
+}
+
+fn decode_stream_credit_refill_control(
+    wire: &[u8],
+    expected_kind: u8,
+) -> Result<StreamCreditRefill, TransportError> {
+    if wire.len() != STREAM_CREDIT_REFILL_FRAME_BYTES
+        || wire[..4] != STREAM_CREDIT_REFILL_MAGIC
+        || wire[4] != STREAM_CREDIT_REFILL_VERSION
+        || wire[5] != expected_kind
+    {
+        return Err(TransportError::ControlFrameInvalid);
+    }
+    let epoch = u64::from_be_bytes(
+        wire[22..]
+            .try_into()
+            .map_err(|_| TransportError::ControlFrameInvalid)?,
+    );
+    if epoch == 0 {
+        return Err(TransportError::ControlFrameInvalid);
+    }
+    let channel_id = wire[6..22]
+        .try_into()
+        .map_err(|_| TransportError::ControlFrameInvalid)?;
+    Ok(StreamCreditRefill { channel_id, epoch })
+}
 
 fn live_exporter_context(
     context: &ServiceChannelContext<'_>,
@@ -740,6 +790,74 @@ impl ControlStream {
             .map_err(|_| TransportError::ControlStreamFailed)?;
         crate::decode_control_envelope(&wire, limits).map_err(TransportError::ControlRejected)
     }
+
+    pub async fn send_stream_credit_refill_request(
+        &mut self,
+        refill: StreamCreditRefill,
+    ) -> Result<(), TransportError> {
+        self.send_stream_credit_refill(STREAM_CREDIT_REFILL_REQUEST, refill)
+            .await
+    }
+
+    pub async fn receive_stream_credit_refill_request(
+        &mut self,
+    ) -> Result<StreamCreditRefill, TransportError> {
+        self.receive_stream_credit_refill(STREAM_CREDIT_REFILL_REQUEST)
+            .await
+    }
+
+    pub async fn send_stream_credit_refill_grant(
+        &mut self,
+        refill: StreamCreditRefill,
+    ) -> Result<(), TransportError> {
+        self.send_stream_credit_refill(STREAM_CREDIT_REFILL_GRANT, refill)
+            .await
+    }
+
+    pub async fn receive_stream_credit_refill_grant(
+        &mut self,
+    ) -> Result<StreamCreditRefill, TransportError> {
+        self.receive_stream_credit_refill(STREAM_CREDIT_REFILL_GRANT)
+            .await
+    }
+
+    async fn send_stream_credit_refill(
+        &mut self,
+        kind: u8,
+        refill: StreamCreditRefill,
+    ) -> Result<(), TransportError> {
+        let wire = encode_stream_credit_refill_control(kind, refill)?;
+        let prefix = encode_frame_length(wire.len())?;
+        self.send
+            .write_all(&prefix)
+            .await
+            .map_err(|_| TransportError::ControlStreamFailed)?;
+        self.send
+            .write_all(&wire)
+            .await
+            .map_err(|_| TransportError::ControlStreamFailed)
+    }
+
+    async fn receive_stream_credit_refill(
+        &mut self,
+        expected_kind: u8,
+    ) -> Result<StreamCreditRefill, TransportError> {
+        let first = self
+            .receive
+            .read_u8()
+            .await
+            .map_err(|_| TransportError::ControlStreamFailed)?;
+        let length = decode_frame_length(first, &mut self.receive).await?;
+        if length != STREAM_CREDIT_REFILL_FRAME_BYTES {
+            return Err(TransportError::ControlFrameInvalid);
+        }
+        let mut wire = [0_u8; STREAM_CREDIT_REFILL_FRAME_BYTES];
+        self.receive
+            .read_exact(&mut wire)
+            .await
+            .map_err(|_| TransportError::ControlStreamFailed)?;
+        decode_stream_credit_refill_control(&wire, expected_kind)
+    }
 }
 
 fn encode_frame_length(length: usize) -> Result<Vec<u8>, TransportError> {
@@ -1404,8 +1522,51 @@ impl Drop for AuthenticatedConnection {
 mod stream_credit_adapter_tests {
     use tokio::io::{AsyncReadExt, AsyncWriteExt, duplex};
 
-    use super::read_bounded_stream_credit_wire;
-    use crate::{StreamCreditContext, StreamCreditReject, decode_stream_credit_preface};
+    use super::{
+        STREAM_CREDIT_REFILL_GRANT, STREAM_CREDIT_REFILL_REQUEST,
+        decode_stream_credit_refill_control, encode_stream_credit_refill_control,
+        read_bounded_stream_credit_wire,
+    };
+    use crate::{
+        StreamCreditContext, StreamCreditRefill, StreamCreditReject, decode_stream_credit_preface,
+    };
+
+    #[test]
+    fn refill_control_vectors_pin_exact_bounded_request_and_grant_bytes() {
+        let refill = StreamCreditRefill {
+            channel_id: (0x40..0x50).collect::<Vec<_>>().try_into().unwrap(),
+            epoch: 2,
+        };
+        let request = [
+            0x4e, 0x53, 0x43, 0x52, 0x01, 0x01, 0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47,
+            0x48, 0x49, 0x4a, 0x4b, 0x4c, 0x4d, 0x4e, 0x4f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+            0x00, 0x02,
+        ];
+        let mut grant = request;
+        grant[5] = 0x02;
+        assert_eq!(
+            encode_stream_credit_refill_control(STREAM_CREDIT_REFILL_REQUEST, refill).unwrap(),
+            request
+        );
+        assert_eq!(
+            encode_stream_credit_refill_control(STREAM_CREDIT_REFILL_GRANT, refill).unwrap(),
+            grant
+        );
+        assert_eq!(
+            decode_stream_credit_refill_control(&request, STREAM_CREDIT_REFILL_REQUEST).unwrap(),
+            refill
+        );
+        assert_eq!(
+            decode_stream_credit_refill_control(&grant, STREAM_CREDIT_REFILL_GRANT).unwrap(),
+            refill
+        );
+        for malformed in [&request[..29], &[0_u8; 30], &grant] {
+            assert_eq!(
+                decode_stream_credit_refill_control(malformed, STREAM_CREDIT_REFILL_REQUEST),
+                Err(crate::TransportError::ControlFrameInvalid)
+            );
+        }
+    }
 
     async fn read_wire(
         wire: &[u8],

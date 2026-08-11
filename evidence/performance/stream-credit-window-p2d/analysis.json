@@ -1,0 +1,104 @@
+{
+  "schema": "nbsr-p2d-final-analysis-v1",
+  "outcome": "Outcome A — ACCEPTED AND RETAINED",
+  "authoritative_attempt": {
+    "path": "attempt-4-final",
+    "analysis": "attempt-4-final/analysis.json",
+    "source_binding": "attempt-4-final/source-binding.json",
+    "measured_source_sha256": "9db03d84162a55fcfcc6bae461d97fa4ac0f81db53ac0ab319b43c5e3d2729cf",
+    "source_binary_sha256": "19db8113b87ca4f3af80e069d334b0ee94896494171a46dba495ef4d532fb752",
+    "server_binary_sha256": "7d4a7b8696c56fcf4c7e4e1f2cdc7af13fe6774dab3535cc274d283079e67053"
+  },
+  "superseded_valid_attempts": [
+    {
+      "path": "attempt-2-bounded-replay",
+      "reason": "valid bounded-replay evidence predates final rustfmt-clean source binding",
+      "authoritative": false
+    },
+    {
+      "path": "attempt-3-rustfmt-clean",
+      "reason": "valid exact-source evidence predates the final benchmark-only Clippy refactor",
+      "authoritative": false
+    }
+  ],
+  "rejected_attempts": [
+    {
+      "path": "attempt-1-rejected-unbounded-replay-harness",
+      "reason": "live replay_limit was 4294967295 rather than the required exact 10000",
+      "authoritative": false
+    }
+  ],
+  "selected_saturation_concurrency": 64,
+  "paired": {
+    "pairs": 3,
+    "before_operations_per_second": [5454.679989208115, 5040.756297166877, 5077.883544323328],
+    "after_operations_per_second": [18032.892167687096, 18967.290613873924, 19058.939410272167],
+    "before_p99_ns": [11953600, 13416900, 12899000],
+    "after_p99_ns": [4628400, 3266000, 3138800],
+    "before_median_operations_per_second": 5077.883544323328,
+    "after_median_operations_per_second": 18967.290613873924,
+    "throughput_improvement": 2.735274834153661,
+    "before_throughput_cv": 0.0441167692685921,
+    "after_throughput_cv": 0.030384927913230415,
+    "before_median_p99_ns": 12899000,
+    "after_median_p99_ns": 3266000,
+    "p99_change": -0.7468020776804403,
+    "errors": 0
+  },
+  "stopping_rule": {
+    "pairs_run": 3,
+    "stopped_after_three": true,
+    "both_throughput_cvs_at_most_five_percent": true,
+    "every_pair_on_same_gate_side": true
+  },
+  "continuity": {
+    "operations": 1024,
+    "operations_per_second": 18216.070345340402,
+    "p99_ns": 2881700,
+    "windows": 16,
+    "refills": 16,
+    "errors": 0,
+    "active_epochs_high_water": 2,
+    "replay_entries": 1024,
+    "replay_limit": 10000
+  },
+  "soak": {
+    "raw": "attempt-4-final/raw/soak/after.json.gz",
+    "duration_seconds": 300.1691775,
+    "operations": 5704000,
+    "operations_per_second": 19002.617282382365,
+    "p99_ns": 3172900,
+    "windows": 89125,
+    "refills": 89125,
+    "errors": 0,
+    "active_epochs_high_water": 2,
+    "replay_entries": 8000,
+    "replay_limit": 10000
+  },
+  "replay_audit": {
+    "aggregate_cells": 24,
+    "shards": 1270,
+    "source_destination_endpoints": 2540,
+    "required_replay_limit": 10000,
+    "violations": 0
+  },
+  "mandatory_gates": {
+    "errors": "PASS",
+    "security": "PASS",
+    "refill": "PASS",
+    "continuity": "PASS",
+    "soak": "PASS",
+    "resource": "PASS",
+    "throughput": "PASS",
+    "p99": "PASS"
+  },
+  "measurement_semantics": {
+    "observed": "Actual Rust/Quinn 1 KiB loopback cells on one Windows host.",
+    "estimates": "Only the thousands-channel logical-storage table is estimated; it is not used for a mandatory gate.",
+    "timer": "rust-std-instant-qpc",
+    "payload_bytes": 1024,
+    "p1f_session_shard_limit": 8000,
+    "corrections_used": 3,
+    "corrections_remaining": 0
+  }
+}

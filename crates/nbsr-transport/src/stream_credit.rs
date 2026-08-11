@@ -67,6 +67,31 @@ pub struct StreamCreditContext {
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct StreamCreditRefill {
+    pub channel_id: [u8; 16],
+    pub epoch: u64,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct StreamCreditSnapshot {
+    pub current_epoch: u64,
+    pub draining_epoch: Option<u64>,
+    pub remaining_credits: u8,
+    pub pending_refill: Option<u64>,
+    pub active_epochs: u8,
+    pub replay_entries: usize,
+    pub replay_limit: usize,
+}
+
+#[derive(Clone, Copy)]
+pub(crate) struct StreamCreditWindowSnapshot {
+    pub(crate) current_epoch: u64,
+    pub(crate) draining_epoch: Option<u64>,
+    pub(crate) remaining_credits: u8,
+    pub(crate) pending_refill: Option<u64>,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(crate) struct StreamCreditBinding {
     pub(crate) profile: StreamCreditProfile,
     pub(crate) session_id: [u8; 16],
@@ -443,6 +468,19 @@ impl StreamCreditWindows {
                 entry.state.current.number,
                 entry.state.draining.map(|value| value.number),
             )
+        })
+    }
+
+    pub(crate) fn snapshot(
+        &self,
+        binding: &StreamCreditBinding,
+    ) -> Result<StreamCreditWindowSnapshot, StreamCreditReject> {
+        let entry = self.entry(binding)?;
+        Ok(StreamCreditWindowSnapshot {
+            current_epoch: entry.state.current.number,
+            draining_epoch: entry.state.draining.map(|value| value.number),
+            remaining_credits: STREAM_CREDIT_COUNT - entry.state.current.used.count_ones() as u8,
+            pending_refill: entry.state.pending_refill,
         })
     }
 

@@ -192,7 +192,8 @@ pub use session::{ControlSession, MAX_SESSION_SECONDS, SessionReject, SharedCont
 pub use stream_credit::{
     MAX_STREAM_CREDIT_PREFACE_BYTES, STREAM_CREDIT_COUNT, STREAM_CREDIT_LOW_WATERMARK,
     STREAM_CREDIT_PROFILE_ID, StreamCreditContext, StreamCreditPreface, StreamCreditProfile,
-    StreamCreditReject, decode_stream_credit_preface, encode_stream_credit_preface,
+    StreamCreditRefill, StreamCreditReject, StreamCreditSnapshot, decode_stream_credit_preface,
+    encode_stream_credit_preface,
 };
 pub use stream_gate::{StreamOpenRequest, StreamReject};
 

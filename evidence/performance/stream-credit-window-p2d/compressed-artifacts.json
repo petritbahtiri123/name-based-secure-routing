@@ -1,0 +1,74 @@
+{
+  "schema": "nbsr-p2d-compressed-artifacts-v1",
+  "compression": {
+    "format": "gzip",
+    "level": 9,
+    "mtime": 0,
+    "filename_header": "",
+    "deterministic": true
+  },
+  "artifacts": [
+    {
+      "source_path": "attempt-1-rejected-unbounded-replay-harness/analysis.json",
+      "compressed_path": "attempt-1-rejected-unbounded-replay-harness/analysis.json.gz",
+      "json_schema": "nbsr-p2d-analysis-v1",
+      "source_binding": "attempt-1-rejected-unbounded-replay-harness/source-binding.json",
+      "measured_source_sha256": "368f733f61d1906654ea1abff6e703ff722e073ac8b4ead5f519cd5221e6aa33",
+      "source_bytes": 131981830,
+      "source_sha256": "a1ea96627234000efdf3bb0b375b8661e8661b0420a23bb65a47c3b5ef117125",
+      "compressed_bytes": 16793600,
+      "compressed_sha256": "8e4da343b011311cd96b596adbd8f6234af3ca2739e0c13882d45015eb1419af",
+      "decompression_verified": true
+    },
+    {
+      "source_path": "attempt-1-rejected-unbounded-replay-harness/raw/soak/after.json",
+      "compressed_path": "attempt-1-rejected-unbounded-replay-harness/raw/soak/after.json.gz",
+      "json_schema": "nbsr-p2d-live-cell-v1",
+      "source_binding": "attempt-1-rejected-unbounded-replay-harness/source-binding.json",
+      "measured_source_sha256": "368f733f61d1906654ea1abff6e703ff722e073ac8b4ead5f519cd5221e6aa33",
+      "source_bytes": 108861481,
+      "source_sha256": "3d5446bed2147a15027f48fb745b3ae8c00e43bffcad91675bad645a4cabc4df",
+      "compressed_bytes": 16023015,
+      "compressed_sha256": "9e1dbb67e59ecc1667c5075aab40839e46b4d34a0002d7de1c94f2c10084d7b2",
+      "decompression_verified": true
+    },
+    {
+      "source_path": "attempt-2-bounded-replay/raw/soak/after.json",
+      "compressed_path": "attempt-2-bounded-replay/raw/soak/after.json.gz",
+      "json_schema": "nbsr-p2d-live-cell-v1",
+      "source_binding": "attempt-2-bounded-replay/source-binding.json",
+      "measured_source_sha256": "284170fd52aa43c07464aba16d40c87bed927cf77e94f5548ae419a7d8899c5e",
+      "source_bytes": 107151239,
+      "source_sha256": "a1c115a16da8c59139d11c1e16b092c6b2d97f54d449706b43e6aa42f43df421",
+      "compressed_bytes": 15772631,
+      "compressed_sha256": "7a78db39392e6f5f6c113d20ac16e7ff6905b830e38fbca411d9efa3e961d108",
+      "decompression_verified": true
+    },
+    {
+      "source_path": "attempt-3-rustfmt-clean/raw/soak/after.json",
+      "compressed_path": "attempt-3-rustfmt-clean/raw/soak/after.json.gz",
+      "json_schema": "nbsr-p2d-live-cell-v1",
+      "source_binding": "attempt-3-rustfmt-clean/source-binding.json",
+      "measured_source_sha256": "382dfe51d950ac6b8bc3ac79632c5b7103a4ae125a936cb8991a7a6715635efb",
+      "source_bytes": 108080345,
+      "source_sha256": "5f4e7e0298fded942809843a4adac9a31f167f6f911838f38933175785c39ceb",
+      "compressed_bytes": 15920449,
+      "compressed_sha256": "a0c466b6bb8f12abfadc822f64fb956a72612bb64286f07173175f665e779d5b",
+      "decompression_verified": true,
+      "deterministic_recompression_verified": true
+    },
+    {
+      "source_path": "attempt-4-final/raw/soak/after.json",
+      "compressed_path": "attempt-4-final/raw/soak/after.json.gz",
+      "json_schema": "nbsr-p2d-live-cell-v1",
+      "source_binding": "attempt-4-final/source-binding.json",
+      "measured_source_sha256": "9db03d84162a55fcfcc6bae461d97fa4ac0f81db53ac0ab319b43c5e3d2729cf",
+      "source_bytes": 110402939,
+      "source_sha256": "d7cb5fd1da6c7d7cc1dfe78adf97764a40956dd5bbc1914537ff8611a238c220",
+      "compressed_bytes": 16211829,
+      "compressed_sha256": "13f6d2478d3a9e86b3a6ac55593efec2b722da68eef6399f6a9de3bbda9ee58a",
+      "decompression_verified": true,
+      "deterministic_recompression_verified": true
+    }
+  ]
+}

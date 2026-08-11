@@ -83,6 +83,14 @@ impl ChannelStreams {
         }
     }
 
+    pub(crate) fn replay_entries(&self) -> usize {
+        self.used_stream_ids.len()
+    }
+
+    pub(crate) fn replay_limit(&self) -> usize {
+        self.replay_history_limit.get()
+    }
+
     pub(crate) fn prepare_open(
         &self,
         channel: &ActiveChannel,

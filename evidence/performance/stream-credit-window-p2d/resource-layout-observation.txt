@@ -1,0 +1,13 @@
+Command (temporary test-only size print; state definitions unchanged afterward):
+$env:CARGO_TARGET_DIR='C:\codex-target\nbsr-p2d'; cargo test --manifest-path crates/nbsr-transport/Cargo.toml --lib channel_cleanup_and_thousands_of_never_consumed_windows_remain_fixed_size -- --nocapture
+
+Observed output on the measured x86_64 Windows host:
+credit-state-bytes epoch=16 window=56 channel_entry=128
+test stream_credit::lifecycle_tests::channel_cleanup_and_thousands_of_never_consumed_windows_remain_fixed_size ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 58 filtered out
+
+The temporary print was removed before final verification. Rustfmt later
+changed layout-only source bytes without changing these state definitions.
+The authoritative attempt-3 source binding matches the frozen final
+stream_credit.rs SHA-256
+98368289eb6e090e37e992ff79ddb9f452f5bd6c287cdd101ff08498b54605ad.

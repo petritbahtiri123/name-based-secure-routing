@@ -1,0 +1,15 @@
+{
+  "commit": "4225a545845e36034066a0e527d7471f92926f1b",
+  "dirty": true,
+  "measured_source_sha256": "382dfe51d950ac6b8bc3ac79632c5b7103a4ae125a936cb8991a7a6715635efb",
+  "files": {
+    "crates/nbsr-transport/src/stream_credit.rs": "98368289eb6e090e37e992ff79ddb9f452f5bd6c287cdd101ff08498b54605ad",
+    "crates/nbsr-transport/src/session.rs": "ab599e267222a57a52f2a54d05acebc16f739b6f53f5baa26fd4dfcfc62a7758",
+    "crates/nbsr-transport/src/quinn_adapter.rs": "d2e5760af061210cd32b4109ae6dbe7ef5fe3ad35539db587acd742887f56e9b",
+    "crates/nbsr-transport/src/bin/perf_rust_source.rs": "d14d8e551c11d683897d9926aadf3e485081c75a45c4ebc8452485966392a4ae",
+    "crates/nbsr-transport/src/bin/wp8_interop_server.rs": "094f4237cc419021a75abbacd76d3b7a03365ad0613c43ca6690599b31b96c9d",
+    "scripts/performance/p2d_stream_credit.py": "64db15f31c035f23a33ba0d5504abd6355581cf169ead34128f632cfe2b49314",
+    "scripts/run_p2d_stream_credit.py": "7fb31ad654765ba03500af99ac306c7b973ffe8ffe256e4459d5401a776d5426",
+    "docs/protocol/stream-credit-extension.md": "9779355b11db82f24bc3a9e7a1a13cb33666ba056829646ef53a7b3e983e4019"
+  }
+}

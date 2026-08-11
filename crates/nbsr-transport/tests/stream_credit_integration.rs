@@ -8,8 +8,8 @@ use nbsr_transport::{
     ActiveChannel, AdmissionPolicy, AuthorizedServicePolicy, ControlSession, CoreV02Envelope,
     CoreV02Limits, DestinationAdmission, EdgeIdentity, EdgeRole, PeerPolicy, RouteGrantIssuer,
     STREAM_CREDIT_PROFILE_ID, SessionReject, SharedControlSession, StreamCreditPreface,
-    StreamCreditReject, TransportError, TransportListener, TrustProfileId, build_client_config,
-    build_server_config, connect, decode_control_envelope,
+    StreamCreditRefill, StreamCreditReject, TransportError, TransportListener, TrustProfileId,
+    build_client_config, build_server_config, connect, decode_control_envelope,
 };
 
 mod support;
@@ -562,6 +562,124 @@ async fn revocation_before_destination_commit_rejects_and_retains_source_replay(
             StreamCreditReject::DuplicateStream
         ))
     );
+
+    source.close().await.unwrap();
+    destination.close().await.unwrap();
+    listener.close().await.unwrap();
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn ordered_live_refill_follows_exhaustion_and_synchronizes_bounded_epochs() {
+    let (listener, source, destination) = connection_pair().await;
+    prime_control_stream(&source, &destination).await;
+    let (source_session, channel) = credited_session(&source);
+    let (destination_session, destination_channel) = credited_session(&destination);
+    let channel_id = channel.channel_id;
+    assert_eq!(channel_id, destination_channel.channel_id);
+
+    for ordinal in 0..64_u64 {
+        let (destination_stream, source_stream) = tokio::join!(
+            destination.accept_credited_session_stream(&destination_session, channel_id),
+            source.open_credited_session_stream(&source_session, channel_id),
+        );
+        let mut destination_stream = destination_stream.expect("destination credit");
+        let mut source_stream =
+            source_stream.expect("source credit remains usable through slot 63");
+        let payload = [ordinal as u8; 1024];
+        let (echoed, response) = tokio::join!(
+            destination_stream.echo_once(),
+            source_stream.send_and_receive(&payload),
+        );
+        assert_eq!(echoed.unwrap(), payload);
+        assert_eq!(response.unwrap(), payload);
+        let stream_id = source_stream.id();
+        source_session
+            .update(|session| session.release_stream(channel_id, stream_id))
+            .unwrap();
+        destination_session
+            .update(|session| session.release_stream(channel_id, stream_id))
+            .unwrap();
+    }
+
+    let (destination_exhausted, source_exhausted) = tokio::join!(
+        destination.accept_credited_session_stream(&destination_session, channel_id),
+        source.open_credited_session_stream(&source_session, channel_id),
+    );
+    assert_eq!(
+        destination_exhausted.err(),
+        Some(TransportError::ApplicationStreamRejected)
+    );
+    assert_eq!(
+        source_exhausted.err(),
+        Some(TransportError::ApplicationStreamRejected)
+    );
+    let before = source_session
+        .inspect(|session| session.stream_credit_snapshot(channel_id))
+        .unwrap();
+    assert_eq!(before.current_epoch, 1);
+    assert_eq!(before.remaining_credits, 0);
+    assert_eq!(before.pending_refill, Some(2));
+    assert_eq!(before.active_epochs, 1);
+    assert_eq!(before.replay_entries, 64);
+
+    let mut source_control = source.open_control_stream().await.unwrap();
+    let request = StreamCreditRefill {
+        channel_id,
+        epoch: before.pending_refill.unwrap(),
+    };
+    source_control
+        .send_stream_credit_refill_request(request)
+        .await
+        .unwrap();
+    let mut destination_control = destination.accept_control_stream().await.unwrap();
+    let received = destination_control
+        .receive_stream_credit_refill_request()
+        .await
+        .unwrap();
+    assert_eq!(received, request);
+    destination_session
+        .update(|session| session.grant_stream_credit_refill(received.channel_id, received.epoch))
+        .unwrap();
+    destination_control
+        .send_stream_credit_refill_grant(received)
+        .await
+        .unwrap();
+    let granted = source_control
+        .receive_stream_credit_refill_grant()
+        .await
+        .unwrap();
+    assert_eq!(granted, request);
+    source_session
+        .update(|session| session.confirm_stream_credit_refill(granted.channel_id, granted.epoch))
+        .unwrap();
+
+    for session in [&source_session, &destination_session] {
+        let activated = session
+            .inspect(|session| session.stream_credit_snapshot(channel_id))
+            .unwrap();
+        assert_eq!(activated.current_epoch, 2);
+        assert_eq!(activated.draining_epoch, Some(1));
+        assert_eq!(activated.remaining_credits, 64);
+        assert_eq!(activated.pending_refill, None);
+        assert_eq!(activated.active_epochs, 2);
+        session
+            .update(|session| session.retire_stream_credit_epoch(channel_id, 1))
+            .unwrap();
+        assert_eq!(
+            session
+                .inspect(|session| session.stream_credit_snapshot(channel_id))
+                .unwrap()
+                .active_epochs,
+            1
+        );
+    }
+
+    let (destination_stream, source_stream) = tokio::join!(
+        destination.accept_credited_session_stream(&destination_session, channel_id),
+        source.open_credited_session_stream(&source_session, channel_id),
+    );
+    assert!(destination_stream.is_ok());
+    assert!(source_stream.is_ok());
 
     source.close().await.unwrap();
     destination.close().await.unwrap();

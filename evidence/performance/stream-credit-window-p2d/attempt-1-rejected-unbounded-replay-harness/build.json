@@ -1,0 +1,24 @@
+{
+  "profile": "release",
+  "features": [
+    "benchmark-harness"
+  ],
+  "cargo_command": [
+    "cargo",
+    "build",
+    "--release",
+    "--manifest-path",
+    "C:\\Users\\bajra\\.codex\\worktrees\\NBSR\\codex-nbsr-perf-p2d-stream-credit-window\\crates\\nbsr-transport\\Cargo.toml",
+    "--features",
+    "benchmark-harness",
+    "--bin",
+    "perf_rust_source",
+    "--bin",
+    "wp8_interop_server"
+  ],
+  "build_seconds": 0.2401602000463754,
+  "binaries": {
+    "source": "5f480c5ef270e73d888e3c272c9a6469f25d3454d43e0c2048ad08e859404cab",
+    "server": "59ca67eb735f7167312a9c0cdd8961ca8687f58512a95847aa95d8562b700a35"
+  }
+}

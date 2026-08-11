@@ -1,0 +1,62 @@
+{
+  "schema": "nbsr-p2d-cell-manifest-v1",
+  "mode": "before",
+  "profile": "legacy-stream-open",
+  "concurrency": 64,
+  "payload_bytes": 1024,
+  "operation": "new-application-stream-admission-and-echo",
+  "transport_session_model": "persistent-per-shard",
+  "service_channel_model": "existing-authorized-per-shard",
+  "application_stream_model": "new-per-operation",
+  "duration_seconds_requested": 60,
+  "max_operations_per_session": 8000,
+  "build": {
+    "profile": "release",
+    "features": [
+      "benchmark-harness"
+    ],
+    "cargo_command": [
+      "cargo",
+      "build",
+      "--release",
+      "--manifest-path",
+      "C:\\Users\\bajra\\.codex\\worktrees\\NBSR\\codex-nbsr-perf-p2d-stream-credit-window\\crates\\nbsr-transport\\Cargo.toml",
+      "--features",
+      "benchmark-harness",
+      "--bin",
+      "perf_rust_source",
+      "--bin",
+      "wp8_interop_server"
+    ],
+    "build_seconds": 0.2251980999717489,
+    "binaries": {
+      "source": "19db8113b87ca4f3af80e069d334b0ee94896494171a46dba495ef4d532fb752",
+      "server": "7d4a7b8696c56fcf4c7e4e1f2cdc7af13fe6774dab3535cc274d283079e67053"
+    }
+  },
+  "environment": {
+    "host": "Petrit",
+    "machine": "AMD64",
+    "processor": "Intel64 Family 6 Model 142 Stepping 12, GenuineIntel",
+    "os": "Windows-11-10.0.26200-SP0",
+    "python": "3.14.6",
+    "logical_processors": 8,
+    "timer": "rust-std-instant-qpc",
+    "loopback_only": true
+  },
+  "source": {
+    "commit": "4225a545845e36034066a0e527d7471f92926f1b",
+    "dirty": true,
+    "measured_source_sha256": "9db03d84162a55fcfcc6bae461d97fa4ac0f81db53ac0ab319b43c5e3d2729cf",
+    "files": {
+      "crates/nbsr-transport/src/stream_credit.rs": "98368289eb6e090e37e992ff79ddb9f452f5bd6c287cdd101ff08498b54605ad",
+      "crates/nbsr-transport/src/session.rs": "ab599e267222a57a52f2a54d05acebc16f739b6f53f5baa26fd4dfcfc62a7758",
+      "crates/nbsr-transport/src/quinn_adapter.rs": "d2e5760af061210cd32b4109ae6dbe7ef5fe3ad35539db587acd742887f56e9b",
+      "crates/nbsr-transport/src/bin/perf_rust_source.rs": "b3de3608468f9356490a826c70bcdb9ae30f7b38fab7b98465a5f3afddbfc6a7",
+      "crates/nbsr-transport/src/bin/wp8_interop_server.rs": "18c3da5ef6f266ed689c4bb3272dfd13f00d6f2c603c620cc5454359259c97a3",
+      "scripts/performance/p2d_stream_credit.py": "64db15f31c035f23a33ba0d5504abd6355581cf169ead34128f632cfe2b49314",
+      "scripts/run_p2d_stream_credit.py": "7fb31ad654765ba03500af99ac306c7b973ffe8ffe256e4459d5401a776d5426",
+      "docs/protocol/stream-credit-extension.md": "9779355b11db82f24bc3a9e7a1a13cb33666ba056829646ef53a7b3e983e4019"
+    }
+  }
+}

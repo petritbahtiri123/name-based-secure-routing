@@ -877,6 +877,13 @@ impl ControlSession {
             .stream_credits
             .allocate(&binding)
             .map_err(SessionReject::StreamCredit)?;
+        match self.stream_credits.request_refill(&binding) {
+            Ok(_)
+            | Err(StreamCreditReject::RefillNotDue)
+            | Err(StreamCreditReject::RefillPending)
+            | Err(StreamCreditReject::EpochExhausted) => {}
+            Err(error) => return Err(SessionReject::StreamCredit(error)),
+        }
         self.streams.commit_open(prepared_stream);
         Ok(StreamCreditPreface {
             channel_id,
@@ -885,6 +892,81 @@ impl ControlSession {
             credit_slot: allocation.credit_slot,
             quic_stream_id: actual_stream_id,
         })
+    }
+
+    pub fn stream_credit_snapshot(
+        &self,
+        channel_id: [u8; 16],
+    ) -> Result<crate::StreamCreditSnapshot, SessionReject> {
+        let (_, binding) = self.require_credited_channel_authority(channel_id)?;
+        let window = self
+            .stream_credits
+            .snapshot(&binding)
+            .map_err(SessionReject::StreamCredit)?;
+        Ok(crate::StreamCreditSnapshot {
+            current_epoch: window.current_epoch,
+            draining_epoch: window.draining_epoch,
+            remaining_credits: window.remaining_credits,
+            pending_refill: window.pending_refill,
+            active_epochs: 1 + u8::from(window.draining_epoch.is_some()),
+            replay_entries: self.streams.replay_entries(),
+            replay_limit: self.streams.replay_limit(),
+        })
+    }
+
+    pub fn grant_stream_credit_refill(
+        &mut self,
+        channel_id: [u8; 16],
+        epoch: u64,
+    ) -> Result<(), SessionReject> {
+        let (_, binding) = self.require_credited_channel_authority(channel_id)?;
+        let expected = self
+            .stream_credits
+            .request_refill(&binding)
+            .map_err(SessionReject::StreamCredit)?;
+        if expected != epoch {
+            self.stream_credits
+                .cancel_refill(&binding)
+                .map_err(SessionReject::StreamCredit)?;
+            return Err(SessionReject::StreamCredit(
+                StreamCreditReject::InvalidState,
+            ));
+        }
+        self.stream_credits
+            .activate_refill(&binding, epoch)
+            .map_err(SessionReject::StreamCredit)
+    }
+
+    pub fn confirm_stream_credit_refill(
+        &mut self,
+        channel_id: [u8; 16],
+        epoch: u64,
+    ) -> Result<(), SessionReject> {
+        let (_, binding) = self.require_credited_channel_authority(channel_id)?;
+        self.stream_credits
+            .activate_refill(&binding, epoch)
+            .map_err(SessionReject::StreamCredit)
+    }
+
+    pub fn cancel_stream_credit_refill(
+        &mut self,
+        channel_id: [u8; 16],
+    ) -> Result<(), SessionReject> {
+        let (_, binding) = self.require_credited_channel_authority(channel_id)?;
+        self.stream_credits
+            .cancel_refill(&binding)
+            .map_err(SessionReject::StreamCredit)
+    }
+
+    pub fn retire_stream_credit_epoch(
+        &mut self,
+        channel_id: [u8; 16],
+        epoch: u64,
+    ) -> Result<(), SessionReject> {
+        let (_, binding) = self.require_credited_channel_authority(channel_id)?;
+        self.stream_credits
+            .retire(&binding, epoch)
+            .map_err(SessionReject::StreamCredit)
     }
 
     pub(crate) fn credited_stream_context(
