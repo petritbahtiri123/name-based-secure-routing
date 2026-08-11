@@ -1,0 +1,31 @@
+{
+  "schema": "nbsr-p2c-closed-loop-cell-v1",
+  "window": 1,
+  "samples": 1000,
+  "completed": 1000,
+  "measured_ns": 382872000,
+  "throughput": 2611.838943563384,
+  "p50_ns": 244300,
+  "p95_ns": 310100,
+  "p99_ns": 425000,
+  "errors": 0,
+  "pending_high_water": 1,
+  "resources": {
+    "roles": {
+      "destination": {
+        "cpu_ns": 0,
+        "cpu_percent_assigned_mean": 0.0,
+        "peak_working_set_bytes": 6549504,
+        "peak_private_bytes": 1236992
+      },
+      "source": {
+        "cpu_ns": 0,
+        "cpu_percent_assigned_mean": 0.0,
+        "peak_working_set_bytes": 2273280,
+        "peak_private_bytes": 364544
+      }
+    },
+    "total_cpu_ns": 0,
+    "cpu_ns_per_completed_operation": 0.0
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "schema": "nbsr-p2c-analysis-v1",
+  "outcome": "B — IMPLEMENTED THEN REVERTED",
+  "base_sha": "e82b7cfa7b3c4dc14bdae605caf1eeded0dacaa7",
+  "candidate": {
+    "shape": "actual silent Quinn stream reservation plus bounded ordered source admissions; sequential destination authorization",
+    "production_change_retained": false,
+    "candidate_window": 2,
+    "corrections": 1
+  },
+  "window_sweep": [
+    {"window": 1, "throughput": 3641.084965036254, "p50_ns": 246200, "p95_ns": 295600, "p99_ns": 390700, "cpu_ns_per_operation": 316406.25, "errors": 0, "pending_high_water": 1},
+    {"window": 2, "throughput": 4522.576219966349, "p50_ns": 360000, "p95_ns": 430000, "p99_ns": 569400, "cpu_ns_per_operation": 164062.5, "errors": 0, "pending_high_water": 2},
+    {"window": 4, "throughput": 5146.207949128705, "p50_ns": 595600, "p95_ns": 737300, "p99_ns": 947500, "cpu_ns_per_operation": 169921.875, "errors": 0, "pending_high_water": 4},
+    {"window": 8, "throughput": 5557.2586237712985, "p50_ns": 1118200, "p95_ns": 1335200, "p99_ns": 1701300, "cpu_ns_per_operation": 173828.125, "errors": 0, "pending_high_water": 8},
+    {"window": 16, "throughput": 5567.89501622589, "p50_ns": 2294400, "p95_ns": 3143300, "p99_ns": 3478700, "cpu_ns_per_operation": 166015.625, "errors": 0, "pending_high_water": 16}
+  ],
+  "paired_gate": {
+    "pairs": 3,
+    "before_window": 1,
+    "after_window": 2,
+    "before_median_throughput": 3658.06042411644,
+    "after_median_throughput": 4522.959247854492,
+    "throughput_improvement": 0.2364364508678003,
+    "before_throughput_cv": 0.011493751110452902,
+    "after_throughput_cv": 0.005583266559240866,
+    "before_median_p99_ns": 394000,
+    "after_median_p99_ns": 558200,
+    "p99_change": 0.41675126903553306,
+    "errors": 0,
+    "throughput_gate": "PASS",
+    "p99_gate": "FAIL",
+    "keep": false
+  },
+  "soak": {"status": "NOT_RUN", "reason": "short acceptance p99 gate failed"},
+  "interpretation": "Admission waits overlapped and aggregate throughput rose, but operations queued behind neighboring admissions and QUIC stream materialization, increasing lifecycle tail latency beyond the fixed limit.",
+  "final_conclusion": "OPTIMIZATION NOT ACCEPTED"
+}
