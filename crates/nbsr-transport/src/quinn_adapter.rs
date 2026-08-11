@@ -909,12 +909,29 @@ impl AuthenticatedConnection {
         if !self.binding_capability.matches(&permit.binding_capability) {
             return Err(TransportError::ApplicationStreamRejected);
         }
-        let stream = self.open_application_stream().await?;
+        #[cfg(feature = "benchmark-harness")]
+        let profile_open = std::time::Instant::now();
+        let opened = self.open_application_stream().await;
+        #[cfg(feature = "benchmark-harness")]
+        crate::lifecycle_profile::global().record_ns(
+            crate::lifecycle_profile::LifecyclePhase::QuinnOpenBi,
+            profile_open.elapsed().as_nanos() as u64,
+            opened.is_ok(),
+        );
+        let stream = opened?;
+        #[cfg(feature = "benchmark-harness")]
+        let profile_setup = std::time::Instant::now();
         if stream.id != permit.stream_id {
             let _ = stream.reject().await;
             return Err(TransportError::ApplicationStreamRejected);
         }
         self.tracked_streams.track(permit.channel_id, &stream);
+        #[cfg(feature = "benchmark-harness")]
+        crate::lifecycle_profile::global().record_ns(
+            crate::lifecycle_profile::LifecyclePhase::SourceApplicationSetup,
+            profile_setup.elapsed().as_nanos() as u64,
+            true,
+        );
         Ok(stream)
     }
 
@@ -923,11 +940,16 @@ impl AuthenticatedConnection {
         session: &mut ControlSession,
         channel_id: [u8; 16],
     ) -> Result<ApplicationStream, TransportError> {
-        let (send, receive) = self
-            .connection
-            .accept_bi()
-            .await
-            .map_err(|_| TransportError::ApplicationStreamFailed)?;
+        #[cfg(feature = "benchmark-harness")]
+        let profile_accept = std::time::Instant::now();
+        let accepted = self.connection.accept_bi().await;
+        #[cfg(feature = "benchmark-harness")]
+        crate::lifecycle_profile::global().record_ns(
+            crate::lifecycle_profile::LifecyclePhase::QuinnAcceptBi,
+            profile_accept.elapsed().as_nanos() as u64,
+            accepted.is_ok(),
+        );
+        let (send, receive) = accepted.map_err(|_| TransportError::ApplicationStreamFailed)?;
         let stream = application_stream(send, receive);
         if session
             .authorize_application_stream(channel_id, stream.id())

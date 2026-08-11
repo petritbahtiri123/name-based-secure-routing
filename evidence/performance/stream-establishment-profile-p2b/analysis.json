@@ -1,0 +1,1539 @@
+{
+  "schema": "nbsr-p2b-analysis-v1",
+  "accepted": true,
+  "classification": "A",
+  "classification_label": "NBSR control/admission path dominated",
+  "observer_effect": {
+    "direct": {
+      "throughput_change_percent": 7.200075720081855e-05,
+      "p99_change_percent": -2.2647750809386857,
+      "additional_errors": 0,
+      "pass": true
+    },
+    "nbsr": {
+      "throughput_change_percent": -0.001974041974717178,
+      "p99_change_percent": -2.7016431011456565,
+      "additional_errors": 0,
+      "pass": true
+    }
+  },
+  "cells": {
+    "50": {
+      "direct": {
+        "throughput_ops_per_second": 2375.004182646255,
+        "mean_lifecycle_ns": 119111.2114619883,
+        "p50_ns": 103716,
+        "p95_ns": 146084,
+        "p99_ns": 199537,
+        "cpu_ns_per_operation": 447770.4678362573,
+        "throughput_cv": 6.453071205773039e-08,
+        "errors": 0,
+        "over_capacity": 0,
+        "phases": [
+          {
+            "role": "destination",
+            "phase": "destination_audit",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "destination_authorize",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "destination_binding_replay_sequence_channel",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "destination_control_read",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "destination_first_exchange",
+            "mean_ns_per_call": 2757.0357894736844,
+            "p50_ns": 2048,
+            "p95_ns": 2048,
+            "p99_ns": 4096,
+            "calls_per_operation": 1.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "destination_prepare_open",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "destination_release_cleanup",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "destination_replay_state_commit",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "destination_response_write",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "quinn_accept_bi",
+            "mean_ns_per_call": 417912.64818713453,
+            "p50_ns": 262144,
+            "p95_ns": 262144,
+            "p99_ns": 262144,
+            "calls_per_operation": 1.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "quinn_open_bi",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "source_admission_confirm",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "source_admission_wait_read",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "source_application_setup",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "source_control_write",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "source_first_exchange",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "source_prepare_authorize",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "source_release_cleanup",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "destination_audit",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "destination_authorize",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "destination_binding_replay_sequence_channel",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "destination_control_read",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "destination_first_exchange",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "destination_prepare_open",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "destination_release_cleanup",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "destination_replay_state_commit",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "destination_response_write",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "quinn_accept_bi",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "quinn_open_bi",
+            "mean_ns_per_call": 406.79836257309944,
+            "p50_ns": 256,
+            "p95_ns": 512,
+            "p99_ns": 512,
+            "calls_per_operation": 1.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "source_admission_confirm",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "source_admission_wait_read",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "source_application_setup",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "source_control_write",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "source_first_exchange",
+            "mean_ns_per_call": 105281.45847953216,
+            "p50_ns": 72400,
+            "p95_ns": 131072,
+            "p99_ns": 131072,
+            "calls_per_operation": 1.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "source_prepare_authorize",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "source_release_cleanup",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          }
+        ]
+      },
+      "nbsr": {
+        "throughput_ops_per_second": 843.7475353196996,
+        "mean_lifecycle_ns": 289816.65604609053,
+        "p50_ns": 267470,
+        "p95_ns": 395870,
+        "p99_ns": 487667,
+        "cpu_ns_per_operation": 1188271.6049382717,
+        "throughput_cv": 4.379170481828469e-06,
+        "errors": 0,
+        "over_capacity": 0,
+        "phases": [
+          {
+            "role": "destination",
+            "phase": "destination_audit",
+            "mean_ns_per_call": 401.6447736625514,
+            "p50_ns": 300,
+            "p95_ns": 300,
+            "p99_ns": 512,
+            "calls_per_operation": 1.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "destination_authorize",
+            "mean_ns_per_call": 9346.347983539095,
+            "p50_ns": 8192,
+            "p95_ns": 8192,
+            "p99_ns": 16384,
+            "calls_per_operation": 1.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "destination_binding_replay_sequence_channel",
+            "mean_ns_per_call": 2375.435720164609,
+            "p50_ns": 2048,
+            "p95_ns": 2048,
+            "p99_ns": 4096,
+            "calls_per_operation": 1.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "destination_control_read",
+            "mean_ns_per_call": 1029258.37563786,
+            "p50_ns": 524288,
+            "p95_ns": 1048576,
+            "p99_ns": 1048576,
+            "calls_per_operation": 1.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "destination_first_exchange",
+            "mean_ns_per_call": 3860.557695473251,
+            "p50_ns": 2700,
+            "p95_ns": 4096,
+            "p99_ns": 8192,
+            "calls_per_operation": 1.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "destination_prepare_open",
+            "mean_ns_per_call": 5578.111604938272,
+            "p50_ns": 4800,
+            "p95_ns": 4800,
+            "p99_ns": 16384,
+            "calls_per_operation": 1.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "destination_release_cleanup",
+            "mean_ns_per_call": 471.7366255144033,
+            "p50_ns": 300,
+            "p95_ns": 512,
+            "p99_ns": 512,
+            "calls_per_operation": 1.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "destination_replay_state_commit",
+            "mean_ns_per_call": 499.9519341563786,
+            "p50_ns": 256,
+            "p95_ns": 512,
+            "p99_ns": 1024,
+            "calls_per_operation": 1.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "destination_response_write",
+            "mean_ns_per_call": 1246.6627160493827,
+            "p50_ns": 1024,
+            "p95_ns": 1024,
+            "p99_ns": 2048,
+            "calls_per_operation": 1.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "quinn_accept_bi",
+            "mean_ns_per_call": 128290.7713580247,
+            "p50_ns": 82100,
+            "p95_ns": 131072,
+            "p99_ns": 131072,
+            "calls_per_operation": 1.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "quinn_open_bi",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "source_admission_confirm",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "source_admission_wait_read",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "source_application_setup",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "source_control_write",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "source_first_exchange",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "source_prepare_authorize",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "source_release_cleanup",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "destination_audit",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "destination_authorize",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "destination_binding_replay_sequence_channel",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "destination_control_read",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "destination_first_exchange",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "destination_prepare_open",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "destination_release_cleanup",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "destination_replay_state_commit",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "destination_response_write",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "quinn_accept_bi",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "quinn_open_bi",
+            "mean_ns_per_call": 729.283950617284,
+            "p50_ns": 512,
+            "p95_ns": 1024,
+            "p99_ns": 1024,
+            "calls_per_operation": 1.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "source_admission_confirm",
+            "mean_ns_per_call": 7461.339917695474,
+            "p50_ns": 6000,
+            "p95_ns": 8192,
+            "p99_ns": 16384,
+            "calls_per_operation": 1.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "source_admission_wait_read",
+            "mean_ns_per_call": 141509.48477366255,
+            "p50_ns": 131072,
+            "p95_ns": 131072,
+            "p99_ns": 262144,
+            "calls_per_operation": 1.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "source_application_setup",
+            "mean_ns_per_call": 634.8602469135802,
+            "p50_ns": 512,
+            "p95_ns": 512,
+            "p99_ns": 1024,
+            "calls_per_operation": 1.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "source_control_write",
+            "mean_ns_per_call": 1268.9389300411522,
+            "p50_ns": 1024,
+            "p95_ns": 1024,
+            "p99_ns": 2048,
+            "calls_per_operation": 1.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "source_first_exchange",
+            "mean_ns_per_call": 123083.34353909465,
+            "p50_ns": 75000,
+            "p95_ns": 131072,
+            "p99_ns": 131072,
+            "calls_per_operation": 1.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "source_prepare_authorize",
+            "mean_ns_per_call": 13054.180740740741,
+            "p50_ns": 11300,
+            "p95_ns": 11300,
+            "p99_ns": 16384,
+            "calls_per_operation": 1.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "source_release_cleanup",
+            "mean_ns_per_call": 754.7509465020576,
+            "p50_ns": 512,
+            "p95_ns": 512,
+            "p99_ns": 1024,
+            "calls_per_operation": 1.0,
+            "failures": 0
+          }
+        ]
+      },
+      "incremental": {
+        "mean_ns": 170705.44458410222,
+        "explained_ns": 182807.9262031622,
+        "explained_percent": 107.08968694498633,
+        "admission_wait_percent_of_incremental": 82.89687837340445
+      }
+    },
+    "90": {
+      "direct": {
+        "throughput_ops_per_second": 4275.003496002859,
+        "mean_lifecycle_ns": 186767.83898635476,
+        "p50_ns": 103227,
+        "p95_ns": 130173,
+        "p99_ns": 181242,
+        "cpu_ns_per_operation": 259462.31319038337,
+        "throughput_cv": 2.0263202975265982e-08,
+        "errors": 0,
+        "over_capacity": 0,
+        "phases": [
+          {
+            "role": "destination",
+            "phase": "destination_audit",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "destination_authorize",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "destination_binding_replay_sequence_channel",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "destination_control_read",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "destination_first_exchange",
+            "mean_ns_per_call": 2684.579337231969,
+            "p50_ns": 2100,
+            "p95_ns": 2100,
+            "p99_ns": 2100,
+            "calls_per_operation": 1.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "destination_prepare_open",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "destination_release_cleanup",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "destination_replay_state_commit",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "destination_response_write",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "quinn_accept_bi",
+            "mean_ns_per_call": 230855.2015594542,
+            "p50_ns": 131072,
+            "p95_ns": 131072,
+            "p99_ns": 262144,
+            "calls_per_operation": 1.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "quinn_open_bi",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "source_admission_confirm",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "source_admission_wait_read",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "source_application_setup",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "source_control_write",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "source_first_exchange",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "source_prepare_authorize",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "source_release_cleanup",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "destination_audit",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "destination_authorize",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "destination_binding_replay_sequence_channel",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "destination_control_read",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "destination_first_exchange",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "destination_prepare_open",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "destination_release_cleanup",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "destination_replay_state_commit",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "destination_response_write",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "quinn_accept_bi",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "quinn_open_bi",
+            "mean_ns_per_call": 393.1511371020143,
+            "p50_ns": 256,
+            "p95_ns": 256,
+            "p99_ns": 512,
+            "calls_per_operation": 1.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "source_admission_confirm",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "source_admission_wait_read",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "source_application_setup",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "source_control_write",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "source_first_exchange",
+            "mean_ns_per_call": 101523.78895386614,
+            "p50_ns": 66500,
+            "p95_ns": 66500,
+            "p99_ns": 131072,
+            "calls_per_operation": 1.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "source_prepare_authorize",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "source_release_cleanup",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          }
+        ]
+      },
+      "nbsr": {
+        "throughput_ops_per_second": 1518.6159171822944,
+        "mean_lifecycle_ns": 256235.745916781,
+        "p50_ns": 243433,
+        "p95_ns": 327947,
+        "p99_ns": 419625,
+        "cpu_ns_per_operation": 683584.8193872885,
+        "throughput_cv": 7.521114924159546e-06,
+        "errors": 0,
+        "over_capacity": 0,
+        "phases": [
+          {
+            "role": "destination",
+            "phase": "destination_audit",
+            "mean_ns_per_call": 362.78555098308186,
+            "p50_ns": 256,
+            "p95_ns": 256,
+            "p99_ns": 512,
+            "calls_per_operation": 1.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "destination_authorize",
+            "mean_ns_per_call": 8652.529675354366,
+            "p50_ns": 7700,
+            "p95_ns": 8192,
+            "p99_ns": 16384,
+            "calls_per_operation": 1.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "destination_binding_replay_sequence_channel",
+            "mean_ns_per_call": 2176.353726566072,
+            "p50_ns": 2048,
+            "p95_ns": 2048,
+            "p99_ns": 2048,
+            "calls_per_operation": 1.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "destination_control_read",
+            "mean_ns_per_call": 521662.30928212166,
+            "p50_ns": 524288,
+            "p95_ns": 524288,
+            "p99_ns": 524288,
+            "calls_per_operation": 1.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "destination_first_exchange",
+            "mean_ns_per_call": 3392.3786008230454,
+            "p50_ns": 2700,
+            "p95_ns": 4096,
+            "p99_ns": 4096,
+            "calls_per_operation": 1.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "destination_prepare_open",
+            "mean_ns_per_call": 5225.726931870142,
+            "p50_ns": 4700,
+            "p95_ns": 4700,
+            "p99_ns": 8192,
+            "calls_per_operation": 1.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "destination_release_cleanup",
+            "mean_ns_per_call": 402.40365797896663,
+            "p50_ns": 300,
+            "p95_ns": 300,
+            "p99_ns": 512,
+            "calls_per_operation": 1.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "destination_replay_state_commit",
+            "mean_ns_per_call": 454.7368998628258,
+            "p50_ns": 256,
+            "p95_ns": 256,
+            "p99_ns": 512,
+            "calls_per_operation": 1.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "destination_response_write",
+            "mean_ns_per_call": 1157.9910379515318,
+            "p50_ns": 1024,
+            "p95_ns": 1024,
+            "p99_ns": 1024,
+            "calls_per_operation": 1.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "quinn_accept_bi",
+            "mean_ns_per_call": 111136.14924554183,
+            "p50_ns": 79800,
+            "p95_ns": 131072,
+            "p99_ns": 131072,
+            "calls_per_operation": 1.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "quinn_open_bi",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "source_admission_confirm",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "source_admission_wait_read",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "source_application_setup",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "source_control_write",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "source_first_exchange",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "source_prepare_authorize",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "destination",
+            "phase": "source_release_cleanup",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "destination_audit",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "destination_authorize",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "destination_binding_replay_sequence_channel",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "destination_control_read",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "destination_first_exchange",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "destination_prepare_open",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "destination_release_cleanup",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "destination_replay_state_commit",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "destination_response_write",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "quinn_accept_bi",
+            "mean_ns_per_call": 0,
+            "p50_ns": 0,
+            "p95_ns": 0,
+            "p99_ns": 0,
+            "calls_per_operation": 0.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "quinn_open_bi",
+            "mean_ns_per_call": 603.490077732053,
+            "p50_ns": 400,
+            "p95_ns": 512,
+            "p99_ns": 1024,
+            "calls_per_operation": 1.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "source_admission_confirm",
+            "mean_ns_per_call": 6489.898491083676,
+            "p50_ns": 5900,
+            "p95_ns": 5900,
+            "p99_ns": 8192,
+            "calls_per_operation": 1.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "source_admission_wait_read",
+            "mean_ns_per_call": 125066.17357110197,
+            "p50_ns": 94000,
+            "p95_ns": 131072,
+            "p99_ns": 131072,
+            "calls_per_operation": 1.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "source_application_setup",
+            "mean_ns_per_call": 518.7493369913122,
+            "p50_ns": 300,
+            "p95_ns": 512,
+            "p99_ns": 1024,
+            "calls_per_operation": 1.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "source_control_write",
+            "mean_ns_per_call": 1117.6395061728394,
+            "p50_ns": 1024,
+            "p95_ns": 1024,
+            "p99_ns": 1024,
+            "calls_per_operation": 1.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "source_first_exchange",
+            "mean_ns_per_call": 108086.04261545496,
+            "p50_ns": 71400,
+            "p95_ns": 131072,
+            "p99_ns": 131072,
+            "calls_per_operation": 1.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "source_prepare_authorize",
+            "mean_ns_per_call": 12155.585550983082,
+            "p50_ns": 11100,
+            "p95_ns": 11100,
+            "p99_ns": 16384,
+            "calls_per_operation": 1.0,
+            "failures": 0
+          },
+          {
+            "role": "source",
+            "phase": "source_release_cleanup",
+            "mean_ns_per_call": 647.0705075445816,
+            "p50_ns": 512,
+            "p95_ns": 512,
+            "p99_ns": 1024,
+            "calls_per_operation": 1.0,
+            "failures": 0
+          }
+        ]
+      },
+      "incremental": {
+        "mean_ns": 69467.90693042622,
+        "explained_ns": 152767.7095660963,
+        "explained_percent": 219.91120262065306,
+        "admission_wait_percent_of_incremental": 180.03446353487914
+      }
+    }
+  },
+  "allocation_profile": {
+    "available": false,
+    "reason": "No safe existing allocation-count/stack profiler was available; WPR was present but xperf/WPA stack analysis and allocator hooks were not."
+  },
+  "cpu_sampling": {
+    "available": false,
+    "reason": "No usable low-overhead Rust stack-sampling analysis tool was installed; process CPU and wall-phase attribution are reported without fabricated CPU-stack percentages."
+  },
+  "recommended_first_optimization_hypothesis": "Remove the per-stream serialized STREAM_OPEN admission round trip from the critical path while preserving authorization, replay, sequencing, audit, and fail-closed semantics."
+}

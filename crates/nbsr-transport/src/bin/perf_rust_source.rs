@@ -871,35 +871,78 @@ async fn main() {
             } else {
                 (0, 0, 0)
             };
+        #[cfg(feature = "benchmark-harness")]
+        let profile_prepare = Instant::now();
         let stream = stream_open(index);
-        session.authorize_stream_open(channel, &stream).unwrap();
+        let prepared = session.authorize_stream_open(channel, &stream);
+        #[cfg(feature = "benchmark-harness")]
+        nbsr_transport::lifecycle_profile::global().record_ns(
+            nbsr_transport::lifecycle_profile::LifecyclePhase::SourcePrepareAuthorize,
+            profile_prepare.elapsed().as_nanos() as u64,
+            prepared.is_ok(),
+        );
+        prepared.unwrap();
         let stream_started = Instant::now();
-        control.send_envelope(&stream).await.unwrap();
-        let stream_accepted = control
-            .receive_envelope(CoreV02Limits::default())
-            .await
-            .unwrap();
-        session
-            .confirm_stream_accept(channel, &stream_accepted)
-            .unwrap();
+        #[cfg(feature = "benchmark-harness")]
+        let profile_write = Instant::now();
+        let sent = control.send_envelope(&stream).await;
+        #[cfg(feature = "benchmark-harness")]
+        nbsr_transport::lifecycle_profile::global().record_ns(
+            nbsr_transport::lifecycle_profile::LifecyclePhase::SourceControlWrite,
+            profile_write.elapsed().as_nanos() as u64,
+            sent.is_ok(),
+        );
+        sent.unwrap();
+        #[cfg(feature = "benchmark-harness")]
+        let profile_wait = Instant::now();
+        let received = control.receive_envelope(CoreV02Limits::default()).await;
+        #[cfg(feature = "benchmark-harness")]
+        nbsr_transport::lifecycle_profile::global().record_ns(
+            nbsr_transport::lifecycle_profile::LifecyclePhase::SourceAdmissionWaitRead,
+            profile_wait.elapsed().as_nanos() as u64,
+            received.is_ok(),
+        );
+        let stream_accepted = received.unwrap();
+        #[cfg(feature = "benchmark-harness")]
+        let profile_confirm = Instant::now();
+        let confirmed = session.confirm_stream_accept(channel, &stream_accepted);
+        #[cfg(feature = "benchmark-harness")]
+        nbsr_transport::lifecycle_profile::global().record_ns(
+            nbsr_transport::lifecycle_profile::LifecyclePhase::SourceAdmissionConfirm,
+            profile_confirm.elapsed().as_nanos() as u64,
+            confirmed.is_ok(),
+        );
+        confirmed.unwrap();
         let stream_ns = stream_started.elapsed().as_nanos();
         let permit = session
             .application_stream_permit(channel, 4 + 4 * index)
             .unwrap();
+        let opened = connection.open_session_stream(&permit).await;
+        let mut application = opened.unwrap();
         let request_started = Instant::now();
-        let response = connection
-            .open_session_stream(&permit)
-            .await
-            .unwrap()
-            .send_and_receive(&payload)
-            .await
-            .unwrap();
+        let response_result = application.send_and_receive(&payload).await;
+        #[cfg(feature = "benchmark-harness")]
+        nbsr_transport::lifecycle_profile::global().record_ns(
+            nbsr_transport::lifecycle_profile::LifecyclePhase::SourceFirstExchange,
+            request_started.elapsed().as_nanos() as u64,
+            response_result.is_ok(),
+        );
+        let response = response_result.unwrap();
         let service_ns = request_started.elapsed().as_nanos();
         let request_ns = schedule_origin.map_or(service_ns, |origin| {
             origin.elapsed().as_nanos() - scheduled_ns
         });
         assert_eq!(response, payload);
-        session.release_stream(channel, 4 + 4 * index).unwrap();
+        #[cfg(feature = "benchmark-harness")]
+        let profile_release = Instant::now();
+        let released = session.release_stream(channel, 4 + 4 * index);
+        #[cfg(feature = "benchmark-harness")]
+        nbsr_transport::lifecycle_profile::global().record_ns(
+            nbsr_transport::lifecycle_profile::LifecyclePhase::SourceReleaseCleanup,
+            profile_release.elapsed().as_nanos() as u64,
+            released.is_ok(),
+        );
+        released.unwrap();
         let record = format!(
             "{{\"sample_id\":{index},\"success\":true,\"transport_handshake_ns\":{},\"stream_open_rtt_ns\":{stream_ns},\"request_latency_ns\":{request_ns},\"service_latency_ns\":{service_ns},\"scheduled_ns\":{scheduled_ns},\"started_ns\":{started_ns},\"completed_ns\":{},\"start_lateness_ns\":{start_lateness_ns},\"ttfab_ns\":{request_ns},\"total_scenario_ns\":{},\"bytes_transmitted\":{payload_bytes},\"bytes_received\":{payload_bytes}}}",
             if index == 0 {
@@ -920,6 +963,15 @@ async fn main() {
             emit_diagnostic(diagnostic_origin.elapsed().as_nanos(), "load");
             next_diagnostic += Duration::from_secs(1);
         }
+    }
+    #[cfg(feature = "benchmark-harness")]
+    if std::env::var_os("NBSR_P2B_PROFILE").is_some() {
+        println!(
+            "{}",
+            nbsr_transport::lifecycle_profile::global()
+                .snapshot()
+                .to_json("source")
+        );
     }
     drop(session);
     connection.close().await.unwrap();

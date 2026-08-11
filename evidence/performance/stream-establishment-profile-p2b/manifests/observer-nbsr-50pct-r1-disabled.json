@@ -1,0 +1,16 @@
+{
+  "schema": "nbsr-p2b-profile-manifest-v1",
+  "path": "nbsr",
+  "load_percent": 50,
+  "offered_rate": 843.75,
+  "repeat": 1,
+  "profile_seconds": 30,
+  "payload_bytes": 1024,
+  "operation": "new-application-stream-lifecycle",
+  "connection_model": "persistent-per-shard",
+  "service_channel_model": "existing-authorized-per-shard",
+  "application_stream_model": "new-per-operation",
+  "max_operations_per_session": 8000,
+  "one_outstanding_operation": true,
+  "instrumentation_enabled": false
+}

@@ -1,0 +1,55 @@
+{
+  "schema": "nbsr-p2b-logical-profile-v1",
+  "path": "direct",
+  "load_percent": 50,
+  "repeat": 1,
+  "instrumentation_enabled": false,
+  "offered_rate": 2375.0,
+  "duration_seconds_requested": 30,
+  "shard_count": 1,
+  "max_operations_per_session": 71250,
+  "completed_operations": 71250,
+  "errors": 0,
+  "over_capacity": 0,
+  "throughput": 2375.0232673112755,
+  "mean_lifecycle_ns": 108431.04561403509,
+  "p50_ns": 103947,
+  "p95_ns": 158300,
+  "p99_ns": 198916,
+  "cpu_ns_per_operation": 440131.5789473684,
+  "phases": [],
+  "shards": [
+    {
+      "samples": 71250,
+      "completed": 71250,
+      "errors": 0,
+      "over_capacity": 0,
+      "duration_ns": 29999706100,
+      "throughput": 2375.0232673112755,
+      "mean_lifecycle_ns": 108431.04561403509,
+      "p50_ns": 103947,
+      "p95_ns": 158300,
+      "p99_ns": 198916,
+      "source_profile": null,
+      "destination_profile": null,
+      "resources": {
+        "roles": {
+          "destination": {
+            "cpu_ns": 4734375000,
+            "cpu_percent_assigned_mean": 1.9514759439733216,
+            "peak_working_set_bytes": 8417280,
+            "peak_private_bytes": 1974272
+          },
+          "source": {
+            "cpu_ns": 26625000000,
+            "cpu_percent_assigned_mean": 10.97383390822859,
+            "peak_working_set_bytes": 8040448,
+            "peak_private_bytes": 1527808
+          }
+        },
+        "total_cpu_ns": 31359375000,
+        "cpu_ns_per_completed_operation": 440131.5789473684
+      }
+    }
+  ]
+}

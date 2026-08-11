@@ -1,0 +1,14 @@
+{
+  "direct": {
+    "throughput_change_percent": 7.200075720081855e-05,
+    "p99_change_percent": -2.2647750809386857,
+    "additional_errors": 0,
+    "pass": true
+  },
+  "nbsr": {
+    "throughput_change_percent": -0.001974041974717178,
+    "p99_change_percent": -2.7016431011456565,
+    "additional_errors": 0,
+    "pass": true
+  }
+}

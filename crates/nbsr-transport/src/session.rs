@@ -610,6 +610,8 @@ impl ControlSession {
         channel_id: [u8; 16],
         envelope: &CoreV02Envelope,
     ) -> Result<(), SessionReject> {
+        #[cfg(feature = "benchmark-harness")]
+        let profile_binding = std::time::Instant::now();
         self.require_session_active()?;
         let (request_id, session_id, sequence) = binding(envelope)?;
         let expected_session_id = self.established_session_id()?;
@@ -618,6 +620,16 @@ impl ControlSession {
         }
         self.preflight_source_control(sequence)?;
         let channel = self.bound_channel(&channel_id)?.clone();
+        #[cfg(feature = "benchmark-harness")]
+        if crate::lifecycle_profile::is_destination_role() {
+            crate::lifecycle_profile::global().record_ns(
+                crate::lifecycle_profile::LifecyclePhase::DestinationBindingReplaySequenceChannel,
+                profile_binding.elapsed().as_nanos() as u64,
+                true,
+            );
+        }
+        #[cfg(feature = "benchmark-harness")]
+        let profile_prepare = std::time::Instant::now();
         let prepared = match self.streams.prepare_open(&channel, envelope) {
             Ok(prepared) => prepared,
             Err(StreamReject::OverCapacity) => {
@@ -628,11 +640,39 @@ impl ControlSession {
             }
             Err(error) => return Err(SessionReject::Stream(error)),
         };
+        #[cfg(feature = "benchmark-harness")]
+        if crate::lifecycle_profile::is_destination_role() {
+            crate::lifecycle_profile::global().record_ns(
+                crate::lifecycle_profile::LifecyclePhase::DestinationPrepareOpen,
+                profile_prepare.elapsed().as_nanos() as u64,
+                true,
+            );
+        }
+        #[cfg(feature = "benchmark-harness")]
+        let profile_audit = std::time::Instant::now();
         self.admission
             .audit_stream_authorized(&channel_id)
             .map_err(map_admission_audit)?;
+        #[cfg(feature = "benchmark-harness")]
+        if crate::lifecycle_profile::is_destination_role() {
+            crate::lifecycle_profile::global().record_ns(
+                crate::lifecycle_profile::LifecyclePhase::DestinationAudit,
+                profile_audit.elapsed().as_nanos() as u64,
+                true,
+            );
+        }
+        #[cfg(feature = "benchmark-harness")]
+        let profile_commit = std::time::Instant::now();
         self.streams.commit_open(prepared);
         self.commit_source_control(request_id, sequence)?;
+        #[cfg(feature = "benchmark-harness")]
+        if crate::lifecycle_profile::is_destination_role() {
+            crate::lifecycle_profile::global().record_ns(
+                crate::lifecycle_profile::LifecyclePhase::DestinationReplayStateCommit,
+                profile_commit.elapsed().as_nanos() as u64,
+                true,
+            );
+        }
         Ok(())
     }
 

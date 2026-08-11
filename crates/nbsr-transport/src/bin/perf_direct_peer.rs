@@ -161,17 +161,52 @@ async fn connect(authority: &Path, remote: SocketAddr) -> (Endpoint, Connection)
 }
 
 async fn echo(connection: &Connection) {
-    let (mut send, mut receive) = connection.accept_bi().await.unwrap();
+    #[cfg(feature = "benchmark-harness")]
+    let profile_accept = Instant::now();
+    let accepted = connection.accept_bi().await;
+    #[cfg(feature = "benchmark-harness")]
+    nbsr_transport::lifecycle_profile::global().record_ns(
+        nbsr_transport::lifecycle_profile::LifecyclePhase::QuinnAcceptBi,
+        profile_accept.elapsed().as_nanos() as u64,
+        accepted.is_ok(),
+    );
+    let (mut send, mut receive) = accepted.unwrap();
+    #[cfg(feature = "benchmark-harness")]
+    let profile_exchange = Instant::now();
     let payload = receive.read_to_end(MAX_PAYLOAD).await.unwrap();
     send.write_all(&payload).await.unwrap();
     send.finish().unwrap();
+    #[cfg(feature = "benchmark-harness")]
+    nbsr_transport::lifecycle_profile::global().record_ns(
+        nbsr_transport::lifecycle_profile::LifecyclePhase::DestinationFirstExchange,
+        profile_exchange.elapsed().as_nanos() as u64,
+        true,
+    );
 }
 
 async fn request(connection: &Connection, payload: &[u8]) -> Vec<u8> {
-    let (mut send, mut receive) = connection.open_bi().await.unwrap();
+    #[cfg(feature = "benchmark-harness")]
+    let profile_open = Instant::now();
+    let opened = connection.open_bi().await;
+    #[cfg(feature = "benchmark-harness")]
+    nbsr_transport::lifecycle_profile::global().record_ns(
+        nbsr_transport::lifecycle_profile::LifecyclePhase::QuinnOpenBi,
+        profile_open.elapsed().as_nanos() as u64,
+        opened.is_ok(),
+    );
+    let (mut send, mut receive) = opened.unwrap();
+    #[cfg(feature = "benchmark-harness")]
+    let profile_exchange = Instant::now();
     send.write_all(payload).await.unwrap();
     send.finish().unwrap();
-    receive.read_to_end(MAX_PAYLOAD).await.unwrap()
+    let response = receive.read_to_end(MAX_PAYLOAD).await.unwrap();
+    #[cfg(feature = "benchmark-harness")]
+    nbsr_transport::lifecycle_profile::global().record_ns(
+        nbsr_transport::lifecycle_profile::LifecyclePhase::SourceFirstExchange,
+        profile_exchange.elapsed().as_nanos() as u64,
+        true,
+    );
+    response
 }
 
 #[cfg(feature = "benchmark-harness")]
@@ -244,6 +279,15 @@ async fn server() {
             echo(&connection).await;
         }
         connection.closed().await;
+    }
+    #[cfg(feature = "benchmark-harness")]
+    if env::var_os("NBSR_P2B_PROFILE").is_some() {
+        println!(
+            "{}",
+            nbsr_transport::lifecycle_profile::global()
+                .snapshot()
+                .to_json("destination")
+        );
     }
     endpoint.close(VarInt::from_u32(0), b"");
     endpoint.wait_idle().await;
@@ -402,6 +446,15 @@ async fn client() {
     }
     for record in records {
         println!("{record}");
+    }
+    #[cfg(feature = "benchmark-harness")]
+    if env::var_os("NBSR_P2B_PROFILE").is_some() {
+        println!(
+            "{}",
+            nbsr_transport::lifecycle_profile::global()
+                .snapshot()
+                .to_json("source")
+        );
     }
 }
 
