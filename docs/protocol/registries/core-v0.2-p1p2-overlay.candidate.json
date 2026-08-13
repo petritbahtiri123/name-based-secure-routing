@@ -1,0 +1,35 @@
+{
+  "format_version": 1,
+  "authority_id": "NBSR-P1F-P2D-CORE-OVERLAY-CANDIDATE",
+  "status": "CANDIDATE_NOT_AUTHORITY",
+  "original_baseline": {
+    "path": "docs/protocol/registries/core-v0.2-baseline-lock.json",
+    "sha256": "21d60dc60ee1bc00bef882b63fabaaea9229768770912ed7c93e6ae4d54453ef"
+  },
+  "parent_overlay": {
+    "path": "docs/protocol/registries/core-v0.2-f75-overlay.json",
+    "sha256": "e095efd18e2d6ca154bfa5c49ae4e41362856e5054349040ca20ddc151c9ab1a"
+  },
+  "replacements": [
+    {
+      "path": "crates/nbsr-transport/src/admission.rs",
+      "length": 33115,
+      "sha256": "161664bf2cb7ba512cb28bea0acd5a394bf6eb82ebd2fbf80b3546ccf157802c"
+    },
+    {
+      "path": "crates/nbsr-transport/src/lib.rs",
+      "length": 6634,
+      "sha256": "c3dd27a6b11a53e53f1fcb7cce1b0b3f52c4c616c9c70f07d281d435022c6d3e"
+    },
+    {
+      "path": "crates/nbsr-transport/src/quinn_adapter.rs",
+      "length": 69112,
+      "sha256": "af932da98d9309b0741b2f20b78831a429e20184898ed48646702210736cbda7"
+    },
+    {
+      "path": "crates/nbsr-transport/src/session.rs",
+      "length": 71569,
+      "sha256": "fb1d44e226cd208ef9a37879f4da7174e4be8c21d0d999071f2b7e2cd56d7248"
+    }
+  ]
+}
