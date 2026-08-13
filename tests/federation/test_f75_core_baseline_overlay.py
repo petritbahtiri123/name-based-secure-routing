@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-import shutil
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -19,18 +19,33 @@ APPROVED = {
     "crates/nbsr-transport/src/lib.rs",
     "crates/nbsr-transport/src/session.rs",
 }
+F75_TREE = "2c766e2ef1d13358ecf9fb7d7c19a4b6e422288a"
+
+
+def _git_blob(tree: str, relative: str) -> bytes:
+    return subprocess.run(
+        ["git", "cat-file", "blob", f"{tree}:{relative}"],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+    ).stdout
+
+
+def _write(destination: Path, relative: str, data: bytes) -> None:
+    target = destination / relative
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_bytes(data)
 
 
 def _copy_authority(destination: Path) -> Path:
-    lock = json.loads(LOCK.read_text(encoding="utf-8"))
-    for authority in (LOCK, OVERLAY):
-        target = destination / authority.relative_to(ROOT)
-        target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(authority, target)
+    lock_relative = LOCK.relative_to(ROOT).as_posix()
+    overlay_relative = OVERLAY.relative_to(ROOT).as_posix()
+    lock_bytes = _git_blob("HEAD", lock_relative)
+    lock = json.loads(lock_bytes)
+    _write(destination, lock_relative, lock_bytes)
+    _write(destination, overlay_relative, _git_blob("HEAD", overlay_relative))
     for relative in lock["artifacts"]:
-        target = destination / relative
-        target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(ROOT / relative, target)
+        _write(destination, relative, _git_blob(F75_TREE, relative))
     return destination / OVERLAY.relative_to(ROOT)
 
 
@@ -44,8 +59,9 @@ def test_original_lock_bytes_and_digest_remain_frozen() -> None:
     assert hashlib.sha256(LOCK.read_bytes()).hexdigest() == "21d60dc60ee1bc00bef882b63fabaaea9229768770912ed7c93e6ae4d54453ef"
 
 
-def test_exact_approved_f75_overlay_passes() -> None:
-    assert assert_f75_core_overlay(ROOT) is None
+def test_exact_approved_f75_overlay_passes(tmp_path: Path) -> None:
+    _copy_authority(tmp_path)
+    assert assert_f75_core_overlay(tmp_path) is None
 
 
 @pytest.mark.parametrize("relative", sorted(APPROVED))

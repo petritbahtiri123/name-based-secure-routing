@@ -44,7 +44,10 @@ def dependency_inspection(root: Path) -> str:
     found = {
         path.relative_to(root).as_posix()
         for path in root.rglob("*")
-        if path.is_file() and path.name in DEPENDENCY_NAMES and ".git" not in path.parts
+        if path.is_file()
+        and path.name in DEPENDENCY_NAMES
+        and ".git" not in path.parts
+        and ".worktrees" not in path.relative_to(root).parts
     }
     expected = ORIGINAL_DEPENDENCY_FILES | TASK10B_DEPENDENCY_FILES
     if found != expected:

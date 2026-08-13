@@ -178,6 +178,18 @@ _F75_REPLACEMENTS = frozenset(
     }
 )
 
+_P1P2_OVERLAY_PATH = "docs/protocol/registries/core-v0.2-p1p2-overlay.json"
+_P1P2_OVERLAY_SHA256 = "7a33b7d6dd87031018563da0e8d2b1857515bc3ae2427094a6967d9e6329d3e4"
+_P1P2_PARENT_OVERLAY_SHA256 = "e095efd18e2d6ca154bfa5c49ae4e41362856e5054349040ca20ddc151c9ab1a"
+_P1P2_REPLACEMENTS = frozenset(
+    {
+        "crates/nbsr-transport/src/admission.rs",
+        "crates/nbsr-transport/src/lib.rs",
+        "crates/nbsr-transport/src/quinn_adapter.rs",
+        "crates/nbsr-transport/src/session.rs",
+    }
+)
+
 
 def _strict_object(pairs: list[tuple[str, object]]) -> dict[str, object]:
     result: dict[str, object] = {}
@@ -289,4 +301,143 @@ def assert_f75_core_overlay(root: Path) -> None:
         expected = approved.get(relative, original_entry)
         if len(data) != expected["length"] or hashlib.sha256(data).hexdigest() != expected["sha256"]:
             label = "overlay replacement" if relative in approved else "baseline artifact"
+            raise CoreBaselineError(f"modified Core v0.2 {label}: {relative}")
+
+
+def assert_p1p2_core_overlay(root: Path) -> None:
+    root = root.resolve()
+    lock_bytes, lock = _read_json_authority(
+        root / "docs/protocol/registries/core-v0.2-baseline-lock.json",
+        "Core v0.2 baseline lock",
+    )
+    if hashlib.sha256(lock_bytes).hexdigest() != FederationProfile.core_v02_baseline_lock_sha256:
+        raise CoreBaselineError("modified original baseline digest")
+    if lock.get("baseline_commit") != FederationProfile.core_baseline_commit:
+        raise CoreBaselineError("modified Core v0.2 baseline commit")
+    artifacts = lock.get("artifacts")
+    scopes = lock.get("scopes")
+    if type(artifacts) is not dict or type(scopes) is not list or len(artifacts) != 110:
+        raise CoreBaselineError("invalid Core v0.2 baseline inventory")
+
+    parent_bytes, parent_overlay = _read_json_authority(
+        root / _F75_OVERLAY_PATH,
+        "F75 overlay authority",
+    )
+    if hashlib.sha256(parent_bytes).hexdigest() != _P1P2_PARENT_OVERLAY_SHA256:
+        raise CoreBaselineError("modified P1/P2 parent F75 overlay digest")
+    if set(parent_overlay) != {"format_version", "authority_id", "reason", "original_baseline", "replacements"}:
+        raise CoreBaselineError("invalid P1/P2 parent F75 overlay authority schema")
+    parent_original = parent_overlay["original_baseline"]
+    parent_replacements = parent_overlay["replacements"]
+    if (
+        parent_overlay["format_version"] != 1
+        or parent_overlay["authority_id"] != "NBSR-WP8-TASK10-F75-CORE-OVERLAY"
+        or parent_overlay["reason"] != _F75_REASON
+        or type(parent_original) is not dict
+        or set(parent_original) != {"path", "sha256"}
+        or parent_original["path"] != "docs/protocol/registries/core-v0.2-baseline-lock.json"
+        or parent_original["sha256"] != FederationProfile.core_v02_baseline_lock_sha256
+        or type(parent_replacements) is not list
+        or len(parent_replacements) != 4
+    ):
+        raise CoreBaselineError("invalid P1/P2 parent F75 authority chain")
+
+    parent_approved: dict[str, dict[str, object]] = {}
+    for entry in parent_replacements:
+        if type(entry) is not dict or set(entry) != {"path", "length", "sha256"}:
+            raise CoreBaselineError("invalid P1/P2 parent F75 replacement schema")
+        relative = entry["path"]
+        _safe_overlay_path(root, relative)
+        if relative in parent_approved:
+            raise CoreBaselineError("duplicate P1/P2 parent F75 replacement path")
+        if relative not in _F75_REPLACEMENTS:
+            raise CoreBaselineError("unauthorized P1/P2 parent F75 replacement path")
+        if (
+            type(entry["length"]) is not int
+            or entry["length"] <= 0
+            or type(entry["sha256"]) is not str
+            or len(entry["sha256"]) != 64
+            or any(character not in "0123456789abcdef" for character in entry["sha256"])
+        ):
+            raise CoreBaselineError("invalid P1/P2 parent F75 replacement digest")
+        parent_approved[relative] = entry
+    if set(parent_approved) != _F75_REPLACEMENTS:
+        raise CoreBaselineError("P1/P2 parent F75 replacement path set is not exact")
+
+    overlay_bytes, overlay = _read_json_authority(
+        root / _P1P2_OVERLAY_PATH,
+        "P1/P2 overlay authority",
+    )
+    if hashlib.sha256(overlay_bytes).hexdigest() != _P1P2_OVERLAY_SHA256:
+        raise CoreBaselineError("modified P1/P2 overlay digest")
+    if set(overlay) != {
+        "format_version",
+        "authority_id",
+        "status",
+        "original_baseline",
+        "parent_overlay",
+        "replacements",
+    }:
+        raise CoreBaselineError("invalid P1/P2 overlay authority schema")
+    original = overlay["original_baseline"]
+    parent = overlay["parent_overlay"]
+    replacements = overlay["replacements"]
+    if (
+        overlay["format_version"] != 1
+        or overlay["authority_id"] != "NBSR-P1F-P2D-CORE-OVERLAY"
+        or overlay["status"] != "ACTIVE_AUTHORITY"
+        or type(original) is not dict
+        or set(original) != {"path", "sha256"}
+        or original["path"] != "docs/protocol/registries/core-v0.2-baseline-lock.json"
+        or original["sha256"] != FederationProfile.core_v02_baseline_lock_sha256
+        or type(parent) is not dict
+        or set(parent) != {"path", "sha256"}
+        or parent["path"] != _F75_OVERLAY_PATH
+        or parent["sha256"] != _P1P2_PARENT_OVERLAY_SHA256
+    ):
+        raise CoreBaselineError("invalid P1/P2 authority chain")
+    if type(replacements) is not list or len(replacements) != 4:
+        raise CoreBaselineError("P1/P2 overlay must contain exactly four replacements")
+
+    approved: dict[str, dict[str, object]] = {}
+    for entry in replacements:
+        if type(entry) is not dict or set(entry) != {"path", "length", "sha256"}:
+            raise CoreBaselineError("invalid P1/P2 overlay replacement schema")
+        relative = entry["path"]
+        _safe_overlay_path(root, relative)
+        if relative in approved:
+            raise CoreBaselineError("duplicate P1/P2 overlay replacement path")
+        if relative not in _P1P2_REPLACEMENTS:
+            raise CoreBaselineError("unauthorized P1/P2 replacement path")
+        if (
+            type(entry["length"]) is not int
+            or entry["length"] <= 0
+            or type(entry["sha256"]) is not str
+            or len(entry["sha256"]) != 64
+            or any(character not in "0123456789abcdef" for character in entry["sha256"])
+        ):
+            raise CoreBaselineError("invalid P1/P2 overlay replacement digest")
+        approved[relative] = entry
+    if set(approved) != _P1P2_REPLACEMENTS:
+        raise CoreBaselineError("P1/P2 replacement path set is not exact")
+
+    expected_paths = set(artifacts)
+    actual_paths = set().union(*(_files_for_scope(root, scope) for scope in scopes))
+    if actual_paths - expected_paths:
+        raise CoreBaselineError(f"unlisted Core v0.2 baseline artifact: {min(actual_paths - expected_paths)}")
+    if expected_paths - actual_paths:
+        raise CoreBaselineError(f"missing Core v0.2 baseline artifact: {min(expected_paths - actual_paths)}")
+    for relative, original_entry in artifacts.items():
+        path = root / relative
+        if path.is_symlink():
+            raise CoreBaselineError(f"Core baseline artifact must not be a symlink: {relative}")
+        data = path.read_bytes()
+        expected = approved.get(relative, parent_approved.get(relative, original_entry))
+        if len(data) != expected["length"] or hashlib.sha256(data).hexdigest() != expected["sha256"]:
+            if relative in approved:
+                label = "P1/P2 overlay replacement"
+            elif relative in parent_approved:
+                label = "parent F75 overlay replacement"
+            else:
+                label = "baseline artifact"
             raise CoreBaselineError(f"modified Core v0.2 {label}: {relative}")

@@ -1,7 +1,7 @@
 {
   "format_version": 1,
-  "authority_id": "NBSR-P1F-P2D-CORE-OVERLAY-CANDIDATE",
-  "status": "CANDIDATE_NOT_AUTHORITY",
+  "authority_id": "NBSR-P1F-P2D-CORE-OVERLAY",
+  "status": "ACTIVE_AUTHORITY",
   "original_baseline": {
     "path": "docs/protocol/registries/core-v0.2-baseline-lock.json",
     "sha256": "21d60dc60ee1bc00bef882b63fabaaea9229768770912ed7c93e6ae4d54453ef"
