@@ -15,6 +15,44 @@ func TestPurposeSeparatedReferencesRejectReuse(t *testing.T) {
 	}
 }
 
+func TestPurposeSeparatedReferencesRejectKeyIDReuseAcrossRoles(t *testing.T) {
+	sharedID := byte32(1)
+	device := keyRef(1, PurposeDeviceACPRequest, 1)
+	ts := keyRef(2, PurposeTSProof, 7)
+	local := localKey()
+	tests := []struct {
+		name   string
+		device DeviceIdentity
+		ts     []TSProofKey
+		local  LocalStateIntegrityKey
+	}{
+		{
+			name:   "device and TS proof",
+			device: deviceIdentity(device),
+			ts:     []TSProofKey{{TSGeneration: 7, Key: KeyRef{ID: sharedID, Purpose: PurposeTSProof, Generation: 7, Thumbprint: ts.Thumbprint}}},
+			local:  local,
+		},
+		{
+			name:   "device and local state",
+			device: deviceIdentity(device),
+			local:  LocalStateIntegrityKey{Key: KeyRef{ID: sharedID, Purpose: PurposeLocalStateIntegrity, Generation: 1, Thumbprint: local.Key.Thumbprint}},
+		},
+		{
+			name:   "TS proof and local state",
+			device: deviceIdentity(keyRef(9, PurposeDeviceACPRequest, 1)),
+			ts:     []TSProofKey{{TSGeneration: 7, Key: ts}},
+			local:  LocalStateIntegrityKey{Key: KeyRef{ID: ts.ID, Purpose: PurposeLocalStateIntegrity, Generation: 1, Thumbprint: local.Key.Thumbprint}},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if _, err := NewMemoryRegistry(tt.device, nil, tt.ts, tt.local); !errors.Is(err, ErrInvalidKeyPurpose) {
+				t.Fatalf("error = %v, want errors.Is(_, %v)", err, ErrInvalidKeyPurpose)
+			}
+		})
+	}
+}
+
 func TestIdentityRejectsMissingDevice(t *testing.T) {
 	if _, err := NewMemoryRegistry(DeviceIdentity{}, nil, nil, localKey()); !errors.Is(err, ErrInvalidIdentity) {
 		t.Fatal(err)
@@ -51,12 +89,12 @@ func TestTSProofRejectsDuplicateAndMismatchedGeneration(t *testing.T) {
 	if _, err := NewMemoryRegistry(device, nil, []TSProofKey{
 		{TSGeneration: 7, Key: keyRef(2, PurposeTSProof, 7)},
 		{TSGeneration: 7, Key: keyRef(3, PurposeTSProof, 7)},
-	}, localKey()); !errors.Is(err, ErrInvalidGeneration) {
+	}, alternateLocalKey()); !errors.Is(err, ErrInvalidGeneration) {
 		t.Fatal(err)
 	}
 	if _, err := NewMemoryRegistry(device, nil, []TSProofKey{
 		{TSGeneration: 7, Key: keyRef(2, PurposeTSProof, 8)},
-	}, localKey()); !errors.Is(err, ErrInvalidGeneration) {
+	}, alternateLocalKey()); !errors.Is(err, ErrInvalidGeneration) {
 		t.Fatal(err)
 	}
 }
@@ -135,4 +173,8 @@ func deviceIdentity(key KeyRef) DeviceIdentity {
 
 func localKey() LocalStateIntegrityKey {
 	return LocalStateIntegrityKey{Key: keyRef(3, PurposeLocalStateIntegrity, 1)}
+}
+
+func alternateLocalKey() LocalStateIntegrityKey {
+	return LocalStateIntegrityKey{Key: keyRef(8, PurposeLocalStateIntegrity, 1)}
 }

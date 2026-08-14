@@ -19,6 +19,9 @@ func NewMemoryRegistry(device DeviceIdentity, workloads []WorkloadPolicyContext,
 	if err := validateKeyRef(local.Key, PurposeLocalStateIntegrity); err != nil {
 		return nil, err
 	}
+	if device.SigningKey.ID == local.Key.ID {
+		return nil, &IdentityError{Code: CodeInvalidKeyPurpose, Resource: "key reference reused across purposes"}
+	}
 	workloadSubjects := make(map[[32]byte]struct{}, len(workloads))
 	for _, workload := range workloads {
 		if err := validateWorkload(workload, now); err != nil {
@@ -36,6 +39,9 @@ func NewMemoryRegistry(device DeviceIdentity, workloads []WorkloadPolicyContext,
 		}
 		if err := validateKeyRef(proof.Key, PurposeTSProof); err != nil {
 			return nil, err
+		}
+		if proof.Key.ID == device.SigningKey.ID || proof.Key.ID == local.Key.ID {
+			return nil, &IdentityError{Code: CodeInvalidKeyPurpose, Resource: "key reference reused across purposes"}
 		}
 		if proof.TSGeneration != proof.Key.Generation {
 			return nil, &IdentityError{Code: CodeInvalidGeneration, Resource: "TS proof generation"}
