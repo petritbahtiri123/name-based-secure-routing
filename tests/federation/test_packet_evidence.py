@@ -15,9 +15,7 @@ CAPTURE_FILTER = f"udp port {CAPTURE_PORT} and host 127.0.0.1"
 
 
 def test_capture_wrapper_uses_only_approved_npcap_loopback_flow() -> None:
-    script = (ROOT / "scripts" / "capture_wp8_live_interop.ps1").read_text(
-        encoding="utf-8"
-    )
+    script = (ROOT / "scripts" / "capture_wp8_live_interop.ps1").read_text(encoding="utf-8")
     assert "PktMon" not in script
     assert "dumpcap.exe" in script
     assert "tshark.exe" in script
@@ -53,9 +51,7 @@ def _enhanced_packets(wire: bytes) -> list[tuple[int, bytes]]:
             interface_id = struct.unpack_from(endian + "I", wire, offset + 8)[0]
             captured = struct.unpack_from(endian + "I", wire, offset + 20)[0]
             assert interface_id < len(link_types)
-            packets.append(
-                (link_types[interface_id], wire[offset + 28 : offset + 28 + captured])
-            )
+            packets.append((link_types[interface_id], wire[offset + 28 : offset + 28 + captured]))
         offset += length
     assert offset == len(wire) and packets
     return packets
@@ -84,33 +80,34 @@ def test_public_packet_capture_is_real_closed_and_privacy_safe() -> None:
     assert wire[:4] == b"\x0a\x0d\x0d\x0a"
     assert len(wire) >= 256
     assert set(manifest) == {
-        "capture", "capture_tool_version", "interface_identifier", "filter", "flow",
-        "packet_count", "dropped_count", "length", "sha256", "privacy",
+        "capture",
+        "capture_tool_version",
+        "interface_identifier",
+        "filter",
+        "flow",
+        "packet_count",
+        "dropped_count",
+        "length",
+        "sha256",
+        "privacy",
         "test_correlation",
     }
     assert manifest["capture"] == "live-federation.pcapng"
     assert manifest["capture_tool_version"].startswith("Dumpcap (Wireshark) ")
     assert manifest["interface_identifier"] == CAPTURE_INTERFACE
     assert manifest["filter"] == CAPTURE_FILTER
-    assert manifest["flow"] == (
-        f"127.0.0.1 UDP/{CAPTURE_PORT} QUIC/TLS nbsr/1 shared-rust-transport"
-    )
+    assert manifest["flow"] == (f"127.0.0.1 UDP/{CAPTURE_PORT} QUIC/TLS nbsr/1 shared-rust-transport")
     assert manifest["dropped_count"] == 0
     assert manifest["length"] == len(wire)
     assert manifest["sha256"] == hashlib.sha256(wire).hexdigest()
     assert manifest["privacy"] == (
-        "public-safe deterministic test identities; no decryption secrets; "
-        "complete packet inventory allowlisted"
+        "public-safe deterministic test identities; no decryption secrets; complete packet inventory allowlisted"
     )
     correlation = manifest["test_correlation"]
-    assert correlation["test"] == (
-        "federated_two_operator_route_transfers_only_after_f75_admission"
-    )
+    assert correlation["test"] == ("federated_two_operator_route_transfers_only_after_f75_admission")
     assert correlation["result"] == "passed"
     assert correlation["test"] in correlation["command"]
-    assert datetime.fromisoformat(correlation["capture_started_utc"]) < datetime.fromisoformat(
-        correlation["capture_stopped_utc"]
-    )
+    assert datetime.fromisoformat(correlation["capture_started_utc"]) < datetime.fromisoformat(correlation["capture_stopped_utc"])
     forbidden = [
         b"PRIVATE KEY",
         b"subscriber",
@@ -143,10 +140,15 @@ def test_task10b_independent_capture_is_closed_and_public_safe() -> None:
     assert manifest["sha256"] == hashlib.sha256(wire).hexdigest()
     assert manifest["test_correlation"]["result"] == "passed"
     assert "test_independent_wire_peer.py" in manifest["test_correlation"]["command"]
-    assert all(marker not in wire for marker in (
-        b"PRIVATE KEY", b"subscriber", b"origin.internal",
-        b"NBSR-WP8-TASK10B-INDEPENDENT-WIRE",
-    ))
+    assert all(
+        marker not in wire
+        for marker in (
+            b"PRIVATE KEY",
+            b"subscriber",
+            b"origin.internal",
+            b"NBSR-WP8-TASK10B-INDEPENDENT-WIRE",
+        )
+    )
     packets = _enhanced_packets(wire)
     assert manifest["packet_count"] == len(packets)
     flows = [_exact_loopback_udp(link_type, packet, port) for link_type, packet in packets]

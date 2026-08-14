@@ -106,17 +106,13 @@ def compare_candidate(sequence: list[int], candidate: ReplayModel) -> dict[str, 
     }
 
 
-def _compare_many(
-    sequences: list[list[int]], factory: Callable[[], ReplayModel]
-) -> dict[str, int]:
+def _compare_many(sequences: list[list[int]], factory: Callable[[], ReplayModel]) -> dict[str, int]:
     totals = {"false_accepts": 0, "false_rejects": 0, "maximum_state_entries": 0}
     for sequence in sequences:
         result = compare_candidate(sequence, factory())
         totals["false_accepts"] += result["false_accepts"]
         totals["false_rejects"] += result["false_rejects"]
-        totals["maximum_state_entries"] = max(
-            totals["maximum_state_entries"], result["maximum_state_entries"]
-        )
+        totals["maximum_state_entries"] = max(totals["maximum_state_entries"], result["maximum_state_entries"])
     return totals
 
 

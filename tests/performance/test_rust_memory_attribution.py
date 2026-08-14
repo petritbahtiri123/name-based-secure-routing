@@ -13,9 +13,7 @@ def test_frozen_attribution_plan_has_one_control_three_repeats_and_explicit_drai
         (75, 1265.625, 2),
         (75, 1265.625, 3),
     ]
-    assert {(item.warmup_seconds, item.steady_seconds, item.drain_seconds) for item in specs} == {
-        (60, 1800, 20)
-    }
+    assert {(item.warmup_seconds, item.steady_seconds, item.drain_seconds) for item in specs} == {(60, 1800, 20)}
 
 
 def test_snapshot_reconciliation_uses_mutually_exclusive_terminals() -> None:

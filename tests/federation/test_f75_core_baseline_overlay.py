@@ -83,7 +83,10 @@ def test_mutation_of_non_overlay_core_file_fails(tmp_path: Path) -> None:
 
 def test_fifth_replacement_path_fails(tmp_path: Path) -> None:
     overlay = _copy_authority(tmp_path)
-    _rewrite_overlay(overlay, lambda value: value["replacements"].append({"path": "crates/nbsr-transport/src/quinn_adapter.rs", "length": 1, "sha256": "0" * 64}))
+    _rewrite_overlay(
+        overlay,
+        lambda value: value["replacements"].append({"path": "crates/nbsr-transport/src/quinn_adapter.rs", "length": 1, "sha256": "0" * 64}),
+    )
     with pytest.raises(CoreBaselineError, match="exactly four"):
         assert_f75_core_overlay(tmp_path)
 
@@ -91,11 +94,13 @@ def test_fifth_replacement_path_fails(tmp_path: Path) -> None:
 @pytest.mark.parametrize("change", ["remove", "replace"])
 def test_original_baseline_digest_reference_is_mandatory(tmp_path: Path, change: str) -> None:
     overlay = _copy_authority(tmp_path)
+
     def mutate(value):
         if change == "remove":
             del value["original_baseline"]["sha256"]
         else:
             value["original_baseline"]["sha256"] = "0" * 64
+
     _rewrite_overlay(overlay, mutate)
     with pytest.raises(CoreBaselineError, match="original baseline"):
         assert_f75_core_overlay(tmp_path)

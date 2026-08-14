@@ -141,9 +141,7 @@ def test_signed_vectors_bind_the_same_payload_and_encode_wrong_kid_in_cose() -> 
     with pytest.raises(ProtocolViolation):
         record = next(iter(records.values()))
         key = Ed25519PublicKey.from_public_bytes(bytes.fromhex(record["signing_public_key"]))
-        verify_sign1(
-            bytes.fromhex(wrong["cose_sign1_hex"]), {bytes.fromhex(record["kid"]): key}, ErrorCode.NBSR_E_RECORD_UNTRUSTED
-        )
+        verify_sign1(bytes.fromhex(wrong["cose_sign1_hex"]), {bytes.fromhex(record["kid"]): key}, ErrorCode.NBSR_E_RECORD_UNTRUSTED)
     wrong_purpose = next(item for item in package["vectors"] if item["case"] == "wrong-key-purpose")
     requirements = {item["requirement_id"]: item for item in package["signer_requirements"]}
     assert records[wrong_purpose["kid_hex"]]["key_purpose"] != requirements["key-identity-root"]["key_purpose"]

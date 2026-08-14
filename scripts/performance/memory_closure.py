@@ -27,10 +27,7 @@ def _trend(records: list[dict[str, Any]], field: str) -> dict[str, Any]:
 
 
 def analyze_resource_records(records: list[dict[str, Any]], *, role: str) -> dict[str, Any]:
-    selected = [
-        record for record in records
-        if record.get("role") == role and record.get("phase", "steady") == "steady"
-    ]
+    selected = [record for record in records if record.get("role") == role and record.get("phase", "steady") == "steady"]
     if len(selected) < 4:
         raise ValueError(f"insufficient {role} resource samples")
     second_half = selected[len(selected) // 2 :]
@@ -85,23 +82,30 @@ def analyze_go_runtime(records: list[dict[str, Any]]) -> dict[str, Any]:
         for previous, current in zip(records, records[1:], strict=False)
     ]
     fields = ("heap_alloc_bytes", "heap_sys_bytes", "heap_idle_bytes", "heap_inuse_bytes", "heap_released_bytes")
-    result = {field: {"start": int(first[field]), "end": int(last[field]), "peak": max(int(item[field]) for item in records)} for field in fields}
-    result.update({
-        "processed_request_delta": int(last["processed_requests"]) - int(first["processed_requests"]),
-        "num_gc_delta": int(last["num_gc"]) - int(first["num_gc"]),
-        "total_alloc_delta_bytes": int(last["total_alloc_bytes"]) - int(first["total_alloc_bytes"]),
-        "mallocs_delta": int(last["mallocs"]) - int(first["mallocs"]),
-        "frees_delta": int(last["frees"]) - int(first["frees"]),
-        "total_gc_pause_delta_ns": int(last["total_gc_pause_ns"]) - int(first["total_gc_pause_ns"]),
-        "recent_observed_interval_pause_ns": pauses[-1],
-        "max_observed_interval_pause_ns": max(pauses),
-        "per_gc_max_pause_ns": None,
-    })
+    result = {
+        field: {"start": int(first[field]), "end": int(last[field]), "peak": max(int(item[field]) for item in records)} for field in fields
+    }
+    result.update(
+        {
+            "processed_request_delta": int(last["processed_requests"]) - int(first["processed_requests"]),
+            "num_gc_delta": int(last["num_gc"]) - int(first["num_gc"]),
+            "total_alloc_delta_bytes": int(last["total_alloc_bytes"]) - int(first["total_alloc_bytes"]),
+            "mallocs_delta": int(last["mallocs"]) - int(first["mallocs"]),
+            "frees_delta": int(last["frees"]) - int(first["frees"]),
+            "total_gc_pause_delta_ns": int(last["total_gc_pause_ns"]) - int(first["total_gc_pause_ns"]),
+            "recent_observed_interval_pause_ns": pauses[-1],
+            "max_observed_interval_pause_ns": max(pauses),
+            "per_gc_max_pause_ns": None,
+        }
+    )
     return result
 
 
 def classify_completion_paths(
-    *, direct_status: str, rust_status: str, go_runs: list[dict[str, Any]],
+    *,
+    direct_status: str,
+    rust_status: str,
+    go_runs: list[dict[str, Any]],
 ) -> dict[str, str]:
     go_eligible = (
         len(go_runs) == 2
@@ -114,11 +118,7 @@ def classify_completion_paths(
         "rust-rust": rust_status,
         "go-rust": go_status,
     }
-    baseline = (
-        "COMPLETE_LOOPBACK_BASELINE"
-        if all(status in {"PASS", "FAIL"} for status in paths.values())
-        else "PARTIAL_BASELINE"
-    )
+    baseline = "COMPLETE_LOOPBACK_BASELINE" if all(status in {"PASS", "FAIL"} for status in paths.values()) else "PARTIAL_BASELINE"
     return {**paths, "baseline": baseline}
 
 
@@ -161,28 +161,42 @@ def _completed_run(root: Path, *, role: str = "destination") -> tuple[dict[str, 
     resources = _json_lines(resource_path)
     analysis = analyze_resource_records(resources, role=role)
     selected = [item for item in resources if item.get("role") == role and item.get("phase") == "steady"]
-    samples = [MemorySample(
-        timestamp_ns=int(item["timestamp_ns"]), working_set_bytes=int(item["working_set_bytes"]),
-        private_bytes=int(item["private_bytes"]), peak_working_set_bytes=int(item["peak_working_set_bytes"]),
-        cpu_percent_assigned=float(item["cpu_percent_assigned"]), processed_requests=int(item["processed_requests"]),
-        active_concurrency=int(item["active_concurrency"]), queue_depth=int(item["queue_depth"]), phase="steady",
-    ) for item in selected]
+    samples = [
+        MemorySample(
+            timestamp_ns=int(item["timestamp_ns"]),
+            working_set_bytes=int(item["working_set_bytes"]),
+            private_bytes=int(item["private_bytes"]),
+            peak_working_set_bytes=int(item["peak_working_set_bytes"]),
+            cpu_percent_assigned=float(item["cpu_percent_assigned"]),
+            processed_requests=int(item["processed_requests"]),
+            active_concurrency=int(item["active_concurrency"]),
+            queue_depth=int(item["queue_depth"]),
+            phase="steady",
+        )
+        for item in selected
+    ]
     window = analyze_memory_window(samples, warmup_end_ns=0, expected_cadence_ns=2_000_000_000)
-    analysis.update({
-        "run_id": summary["run_id"],
-        "terminal_state": "completed",
-        "authoritative_pass_eligible": True,
-        "counts": {
-            "offered": int(summary["offered_requests"]), "completed": int(summary["completed_requests"]),
-            "persisted": int(summary["completed_requests"]), "failed": int(summary["failed_requests"]),
-            "timed_out": int(summary["timeout_requests"]),
-        },
-        "scheduler_lag": {
-            "late_requests": int(summary["late_requests"]), "p95_start_lateness_ns": int(summary["p95_start_lateness_ns"]),
-            "max_start_lateness_ns": int(summary["max_start_lateness_ns"]),
-        },
-        "peak_backlog": int(summary["peak_backlog"]), "success_rate": float(summary["success_rate"]),
-    })
+    analysis.update(
+        {
+            "run_id": summary["run_id"],
+            "terminal_state": "completed",
+            "authoritative_pass_eligible": True,
+            "counts": {
+                "offered": int(summary["offered_requests"]),
+                "completed": int(summary["completed_requests"]),
+                "persisted": int(summary["completed_requests"]),
+                "failed": int(summary["failed_requests"]),
+                "timed_out": int(summary["timeout_requests"]),
+            },
+            "scheduler_lag": {
+                "late_requests": int(summary["late_requests"]),
+                "p95_start_lateness_ns": int(summary["p95_start_lateness_ns"]),
+                "max_start_lateness_ns": int(summary["max_start_lateness_ns"]),
+            },
+            "peak_backlog": int(summary["peak_backlog"]),
+            "success_rate": float(summary["success_rate"]),
+        }
+    )
     return analysis, window
 
 
@@ -200,43 +214,62 @@ def _partial_go_run(root: Path) -> tuple[dict[str, Any], dict[str, Any]]:
     process["private_bytes_per_request"] = (
         (process["private_bytes_values"]["end"] - process["private_bytes_values"]["start"]) / request_delta if request_delta else None
     )
-    process.update({
-        "terminal_state": terminal["terminal_state"],
-        "authoritative_run": terminal["authoritative_run"],
-        "authoritative_pass_eligible": terminal["authoritative_pass_eligible"],
-        "cleanup_verified": terminal["cleanup_verified"],
-        "counts": terminal["counters"],
-        "series_counts": terminal["series_counts"],
-        "scheduler_lag": None,
-        "backlog": None,
-        "go_runtime": runtime,
-    })
+    process.update(
+        {
+            "terminal_state": terminal["terminal_state"],
+            "authoritative_run": terminal["authoritative_run"],
+            "authoritative_pass_eligible": terminal["authoritative_pass_eligible"],
+            "cleanup_verified": terminal["cleanup_verified"],
+            "counts": terminal["counters"],
+            "series_counts": terminal["series_counts"],
+            "scheduler_lag": None,
+            "backlog": None,
+            "go_runtime": runtime,
+        }
+    )
     return process, terminal
 
 
 def _write_report(path: Path, analysis: dict[str, Any]) -> None:
     lines = [
-        "# NBSR loopback memory completion report", "",
-        f"Final classification: **{analysis['classification']['baseline']}**", "",
-        "The frozen memory methodology classifies both stable-load windows as PASS only when bounded, FAIL only when reproducible request-correlated sustained growth satisfies the confidence and fit gates, and otherwise INCONCLUSIVE.", "",
+        "# NBSR loopback memory completion report",
+        "",
+        f"Final classification: **{analysis['classification']['baseline']}**",
+        "",
+        "The frozen memory methodology classifies both stable-load windows as PASS only when bounded, FAIL only when reproducible request-correlated sustained growth satisfies the confidence and fit gates, and otherwise INCONCLUSIVE.",
+        "",
     ]
     for key, run in analysis["runs"].items():
-        lines.extend([
-            f"## {key}", "",
-            f"Terminal state: {run['terminal_state']}; eligible: {run['authoritative_pass_eligible']}; counts: {json.dumps(run['counts'], sort_keys=True)}.", "",
-            f"Working set: {json.dumps(run['working_set_bytes'], sort_keys=True)}.", "",
-            f"Private bytes: {json.dumps(run['private_bytes_values'], sort_keys=True)}.", "",
-            f"Working-set trends: {json.dumps(run['working_set'], sort_keys=True)}.", "",
-            f"Private-byte trends: {json.dumps(run['private_bytes'], sort_keys=True)}.", "",
-            f"Processed-request delta: {run['processed_request_delta']}; bytes/request: working set={run['working_set_bytes_per_request']}, private={run['private_bytes_per_request']}.", "",
-            f"Scheduler lag: {json.dumps(run.get('scheduler_lag'), sort_keys=True)}; backlog: {json.dumps(run.get('backlog'), sort_keys=True)}.", "",
-        ])
+        lines.extend(
+            [
+                f"## {key}",
+                "",
+                f"Terminal state: {run['terminal_state']}; eligible: {run['authoritative_pass_eligible']}; counts: {json.dumps(run['counts'], sort_keys=True)}.",
+                "",
+                f"Working set: {json.dumps(run['working_set_bytes'], sort_keys=True)}.",
+                "",
+                f"Private bytes: {json.dumps(run['private_bytes_values'], sort_keys=True)}.",
+                "",
+                f"Working-set trends: {json.dumps(run['working_set'], sort_keys=True)}.",
+                "",
+                f"Private-byte trends: {json.dumps(run['private_bytes'], sort_keys=True)}.",
+                "",
+                f"Processed-request delta: {run['processed_request_delta']}; bytes/request: working set={run['working_set_bytes_per_request']}, private={run['private_bytes_per_request']}.",
+                "",
+                f"Scheduler lag: {json.dumps(run.get('scheduler_lag'), sort_keys=True)}; backlog: {json.dumps(run.get('backlog'), sort_keys=True)}.",
+                "",
+            ]
+        )
         if run.get("go_runtime") is not None:
             lines.extend([f"Go runtime: {json.dumps(run['go_runtime'], sort_keys=True)}.", ""])
-    lines.extend([
-        "## Candidate future diagnostic work — NOT IMPLEMENTED", "",
-        "Both retained Go loads stopped processing requests around the middle of the offered set while runtime sampling continued. Diagnose this separately before any rerun; this report does not modify or optimize Go/NBSR behavior.", "",
-    ])
+    lines.extend(
+        [
+            "## Candidate future diagnostic work — NOT IMPLEMENTED",
+            "",
+            "Both retained Go loads stopped processing requests around the middle of the offered set while runtime sampling continued. Diagnose this separately before any rerun; this report does not modify or optimize Go/NBSR behavior.",
+            "",
+        ]
+    )
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text("\n".join(lines), encoding="utf-8")
 
@@ -254,12 +287,18 @@ def build_memory_closure(repo: Path, output: Path) -> dict[str, Any]:
     direct = classify_memory_stability("direct-quic", {50: direct_50_window, 75: direct_68_window})
     rust = classify_memory_stability("rust-rust", {50: rust_50_window, 75: rust_75_window})
     classification = classify_completion_paths(
-        direct_status=direct.status, rust_status=rust.status, go_runs=[go_50_terminal, go_75_terminal],
+        direct_status=direct.status,
+        rust_status=rust.status,
+        go_runs=[go_50_terminal, go_75_terminal],
     )
     analysis = {
         "schema": "nbsr-performance-memory-analysis-v1",
         "classification": classification,
-        "classification_reasons": {"direct-quic": direct.reason, "rust-rust": rust.reason, "go-rust": "neither retained long run is authoritative-PASS-eligible"},
+        "classification_reasons": {
+            "direct-quic": direct.reason,
+            "rust-rust": rust.reason,
+            "go-rust": "neither retained long run is authoritative-PASS-eligible",
+        },
         "accepted_capacities": {"direct-quic": 4750, "rust-rust": 1687.5, "go-rust": 400},
         "runs": {"direct-50": direct_50, "direct-68": direct_68, "rust-50": rust_50, "rust-75": rust_75, "go-50": go_50, "go-75": go_75},
     }
@@ -270,21 +309,34 @@ def build_memory_closure(repo: Path, output: Path) -> dict[str, Any]:
         "prior_partial_baseline": "evidence/performance/complete-loopback-db55d18-partial",
         "accepted_capacity_and_previous_memory": "evidence/performance/loopback-completion-3188c7c",
         "new_memory_evidence": "evidence/performance/memory-completion-6366334",
-        "superseded_or_invalid_attempts": [f"evidence/performance/{name}" for name in (
-            "memory-completion-adff461", "memory-completion-f5396ff", "memory-completion-f90bd61",
-            "memory-completion-d8e40c5", "memory-completion-9fa77b5", "memory-completion-a6b11de",
-        )],
+        "superseded_or_invalid_attempts": [
+            f"evidence/performance/{name}"
+            for name in (
+                "memory-completion-adff461",
+                "memory-completion-f5396ff",
+                "memory-completion-f90bd61",
+                "memory-completion-d8e40c5",
+                "memory-completion-9fa77b5",
+                "memory-completion-a6b11de",
+            )
+        ],
     }
     (output / "references.json").write_text(json.dumps(references, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     source_paths = [repo / value for key, value in references.items() if isinstance(value, str)]
     source_paths.extend(repo / value for value in references["superseded_or_invalid_attempts"])
     write_source_bindings(repo, output / "source-bindings.json", source_paths)
     _write_report(output / "reports/memory-completion.md", analysis)
-    files = sorted(path.relative_to(output).as_posix() for path in output.rglob("*") if path.is_file() and path.name not in {"manifest.json", "checksums.json"})
+    files = sorted(
+        path.relative_to(output).as_posix()
+        for path in output.rglob("*")
+        if path.is_file() and path.name not in {"manifest.json", "checksums.json"}
+    )
     manifest = {
-        "schema": "nbsr-performance-memory-closure-v1", "outcome": classification["baseline"],
+        "schema": "nbsr-performance-memory-closure-v1",
+        "outcome": classification["baseline"],
         "classifications": {key: classification[key] for key in ("direct-quic", "rust-rust", "go-rust")},
-        "analysis": "summaries/analysis.json", "source_bindings": "source-bindings.json",
+        "analysis": "summaries/analysis.json",
+        "source_bindings": "source-bindings.json",
         "files": ["manifest.json", *files],
     }
     (output / "manifest.json").write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")

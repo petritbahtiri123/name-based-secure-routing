@@ -37,8 +37,13 @@ def command(mode: str, descendant_pid: Path | None = None) -> list[str]:
 def test_completed_run_flushes_incremental_request_resource_and_runtime_evidence(tmp_path: Path) -> None:
     output = tmp_path / "completed"
     result = run_durable_memory_child(
-        command("completed"), output=output, timeout_seconds=5, offered_requests=3,
-        buffer_capacity=2, flush_records=1, flush_interval_seconds=0.01,
+        command("completed"),
+        output=output,
+        timeout_seconds=5,
+        offered_requests=3,
+        buffer_capacity=2,
+        flush_records=1,
+        flush_interval_seconds=0.01,
     )
 
     with gzip.open(output / "raw.ndjson.gz", "rt", encoding="utf-8") as handle:
@@ -52,8 +57,12 @@ def test_completed_run_flushes_incremental_request_resource_and_runtime_evidence
     assert result["partial_but_durable"] is False
     assert result["authoritative_pass_eligible"] is True
     assert result["counters"] == {
-        "offered": 3, "started": 3, "completed": 3, "failed": 0,
-        "timed_out": 0, "persisted": 3,
+        "offered": 3,
+        "started": 3,
+        "completed": 3,
+        "failed": 0,
+        "timed_out": 0,
+        "persisted": 3,
     }
     assert result["request_evidence"]["path"] == "raw.ndjson.gz"
     assert result["series_counts"]["diagnostics"] == 3
@@ -64,8 +73,13 @@ def test_completed_run_flushes_incremental_request_resource_and_runtime_evidence
 def test_timeout_retains_partial_series_reconciles_counts_and_denies_authority(tmp_path: Path) -> None:
     output = tmp_path / "timeout"
     result = run_durable_memory_child(
-        command("timeout"), output=output, timeout_seconds=0.4, offered_requests=5,
-        buffer_capacity=2, flush_records=1, flush_interval_seconds=0.01,
+        command("timeout"),
+        output=output,
+        timeout_seconds=0.4,
+        offered_requests=5,
+        buffer_capacity=2,
+        flush_records=1,
+        flush_interval_seconds=0.01,
     )
 
     assert len(documents(output / "raw.ndjson")) == 3
@@ -76,16 +90,25 @@ def test_timeout_retains_partial_series_reconciles_counts_and_denies_authority(t
     assert result["authoritative_pass_eligible"] is False
     assert result["cleanup_verified"] is True
     assert result["counters"] == {
-        "offered": 5, "started": 3, "completed": 3, "failed": 0,
-        "timed_out": 2, "persisted": 3,
+        "offered": 5,
+        "started": 3,
+        "completed": 3,
+        "failed": 0,
+        "timed_out": 2,
+        "persisted": 3,
     }
 
 
 def test_failure_flushes_all_buffered_series_and_records_failed_terminal_state(tmp_path: Path) -> None:
     output = tmp_path / "failed"
     result = run_durable_memory_child(
-        command("failed"), output=output, timeout_seconds=5, offered_requests=3,
-        buffer_capacity=8, flush_records=8, flush_interval_seconds=10,
+        command("failed"),
+        output=output,
+        timeout_seconds=5,
+        offered_requests=3,
+        buffer_capacity=8,
+        flush_records=8,
+        flush_interval_seconds=10,
     )
 
     assert len(documents(output / "raw.ndjson")) == 3
@@ -96,15 +119,24 @@ def test_failure_flushes_all_buffered_series_and_records_failed_terminal_state(t
     assert result["partial_but_durable"] is True
     assert result["authoritative_pass_eligible"] is False
     assert result["counters"] == {
-        "offered": 3, "started": 3, "completed": 2, "failed": 1,
-        "timed_out": 0, "persisted": 3,
+        "offered": 3,
+        "started": 3,
+        "completed": 2,
+        "failed": 1,
+        "timed_out": 0,
+        "persisted": 3,
     }
 
 
 def test_failed_run_without_records_is_not_labeled_partial_but_durable(tmp_path: Path) -> None:
     result = run_durable_memory_child(
-        command("empty-failed"), output=tmp_path / "empty-failed", timeout_seconds=5,
-        offered_requests=3, buffer_capacity=2, flush_records=1, flush_interval_seconds=0.01,
+        command("empty-failed"),
+        output=tmp_path / "empty-failed",
+        timeout_seconds=5,
+        offered_requests=3,
+        buffer_capacity=2,
+        flush_records=1,
+        flush_interval_seconds=0.01,
     )
 
     assert result["terminal_state"] == "failed"
@@ -115,9 +147,14 @@ def test_failed_run_without_records_is_not_labeled_partial_but_durable(tmp_path:
 
 def test_completed_validation_profile_cannot_be_authoritative(tmp_path: Path) -> None:
     result = run_durable_memory_child(
-        command("completed"), output=tmp_path / "validation", timeout_seconds=5,
-        offered_requests=3, authoritative_run=False,
-        buffer_capacity=2, flush_records=1, flush_interval_seconds=0.01,
+        command("completed"),
+        output=tmp_path / "validation",
+        timeout_seconds=5,
+        offered_requests=3,
+        authoritative_run=False,
+        buffer_capacity=2,
+        flush_records=1,
+        flush_interval_seconds=0.01,
     )
 
     assert result["terminal_state"] == "completed"
@@ -128,9 +165,13 @@ def test_completed_validation_profile_cannot_be_authoritative(tmp_path: Path) ->
 def test_timeout_terminates_and_verifies_descendant_process_cleanup(tmp_path: Path) -> None:
     descendant_pid_path = tmp_path / "descendant.pid"
     result = run_durable_memory_child(
-        command("timeout", descendant_pid_path), output=tmp_path / "tree-timeout",
-        timeout_seconds=0.4, offered_requests=5, buffer_capacity=2,
-        flush_records=1, flush_interval_seconds=0.01,
+        command("timeout", descendant_pid_path),
+        output=tmp_path / "tree-timeout",
+        timeout_seconds=0.4,
+        offered_requests=5,
+        buffer_capacity=2,
+        flush_records=1,
+        flush_interval_seconds=0.01,
     )
     descendant_pid = int(descendant_pid_path.read_text(encoding="ascii"))
 

@@ -98,10 +98,7 @@ def summarize_open_loop_issues(
         raise ValueError(f"offered request count {expected}, observed {len(issues)}")
     successful = sum(issue.success for issue in issues)
     lateness = sorted(issue.started_ns - issue.scheduled_ns for issue in issues)
-    events = sorted(
-        [(issue.scheduled_ns, 0, 1) for issue in issues]
-        + [(issue.started_ns, 1, -1) for issue in issues]
-    )
+    events = sorted([(issue.scheduled_ns, 0, 1) for issue in issues] + [(issue.started_ns, 1, -1) for issue in issues])
     queued = peak_backlog = 0
     for _, _, delta in events:
         queued += delta
@@ -184,7 +181,9 @@ def choose_sustainable_capacity(
 
 
 def accept_confirmed_capacity(
-    confirmations: list[CapacityConfirmation], *, required_runs: int = 3,
+    confirmations: list[CapacityConfirmation],
+    *,
+    required_runs: int = 3,
 ) -> dict[str, float]:
     if required_runs < 3:
         raise ValueError("capacity acceptance requires at least 3 confirmations")

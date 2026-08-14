@@ -50,8 +50,7 @@ EXPECTED_TRANSCRIPT_HEX = (
     "5820586b97a3d9539c420adcf8cfbc87fdf3c08e258cb512783436499dfba37f0699"
 )
 EXPECTED_SIGNATURE_HEX = (
-    "d14c077add7654643b87fda22f6574ca0ba69b145d1c50717013c433491c31d0"
-    "10cb0eb7b389d85b25dddc0f36a83840aaa30bb4b9e17a9351a17be37a3b520e"
+    "d14c077add7654643b87fda22f6574ca0ba69b145d1c50717013c433491c31d010cb0eb7b389d85b25dddc0f36a83840aaa30bb4b9e17a9351a17be37a3b520e"
 )
 EXPECTED_MUTATIONS = {
     "domain-separator",
@@ -212,9 +211,7 @@ def test_edge_quic_udp_443_does_not_satisfy_service_port_authority() -> None:
 def test_each_f75_transcript_binding_invalidates_the_valid_signature() -> None:
     mutations = build_mutation_vectors()
     assert {mutation["id"] for mutation in mutations} == EXPECTED_MUTATIONS
-    public_hex = (
-        Path("vectors/core-v0.2/keys/test-only-session-ed25519-public.hex").read_text(encoding="ascii").strip()
-    )
+    public_hex = Path("vectors/core-v0.2/keys/test-only-session-ed25519-public.hex").read_text(encoding="ascii").strip()
     public_key = Ed25519PublicKey.from_public_bytes(bytes.fromhex(public_hex))
     signature = bytes.fromhex(EXPECTED_SIGNATURE_HEX)
 

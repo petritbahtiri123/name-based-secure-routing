@@ -49,7 +49,11 @@ def completion_plan(phase: str, *, accepted_capacities: dict[str, float]) -> lis
     if phase == "confirm":
         return [RunSpec(phase, path, accepted_capacities[path], 60, 600, ordinal) for path in PATHS for ordinal in (1, 2, 3)]
     if phase == "formal":
-        return [RunSpec(phase, path, accepted_capacities[path] * percent / 100, 60, 600, 1, percent) for path in PATHS for percent in (25, 50, 75, 90)]
+        return [
+            RunSpec(phase, path, accepted_capacities[path] * percent / 100, 60, 600, 1, percent)
+            for path in PATHS
+            for percent in (25, 50, 75, 90)
+        ]
     if phase == "memory":
         load_points = {"direct-quic": (50, 68), "rust-rust": (50, 75), "go-rust": (50, 75)}
         return [
@@ -63,24 +67,42 @@ def completion_plan(phase: str, *, accepted_capacities: dict[str, float]) -> lis
 def command_for(spec: RunSpec, output_root: Path, *, output_override: Path | None = None) -> list[str]:
     output = output_override if output_override is not None else output_root / spec.phase / spec.run_id
     command = [
-        sys.executable, str(ROOT / "scripts/run_performance_load_cell.py"),
-        "--path", spec.path, "--offered-rate", str(spec.rate),
-        "--warmup-seconds", str(spec.warmup_seconds), "--steady-seconds", str(spec.steady_seconds),
-        "--idle-p99-ns", str(IDLE_P99_NS[spec.path]), "--run-id", spec.run_id,
-        "--output", str(output),
+        sys.executable,
+        str(ROOT / "scripts/run_performance_load_cell.py"),
+        "--path",
+        spec.path,
+        "--offered-rate",
+        str(spec.rate),
+        "--warmup-seconds",
+        str(spec.warmup_seconds),
+        "--steady-seconds",
+        str(spec.steady_seconds),
+        "--idle-p99-ns",
+        str(IDLE_P99_NS[spec.path]),
+        "--run-id",
+        spec.run_id,
+        "--output",
+        str(output),
     ]
     if spec.phase in {"discover", "confirm", "formal"}:
         command.append("--formal")
     if spec.phase == "memory":
-        command.extend([
-            "--memory", "--sampling-cadence-seconds", str(spec.sampling_cadence_seconds),
-            "--durable-events",
-        ])
+        command.extend(
+            [
+                "--memory",
+                "--sampling-cadence-seconds",
+                str(spec.sampling_cadence_seconds),
+                "--durable-events",
+            ]
+        )
     return command
 
 
 def execute_spec(
-    spec: RunSpec, output_root: Path, *, timeout_seconds: float = MEMORY_SAFETY_TIMEOUT_SECONDS,
+    spec: RunSpec,
+    output_root: Path,
+    *,
+    timeout_seconds: float = MEMORY_SAFETY_TIMEOUT_SECONDS,
 ) -> None:
     output = output_root / spec.phase / spec.run_id
     if output.exists():

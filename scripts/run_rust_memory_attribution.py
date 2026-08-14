@@ -41,17 +41,25 @@ def load_command(spec: AttributionSpec, finalized: Path) -> list[str]:
     return [
         sys.executable,
         str(ROOT / "scripts/run_performance_load_cell.py"),
-        "--path", "rust-rust",
-        "--offered-rate", str(spec.rate),
-        "--warmup-seconds", str(spec.warmup_seconds),
-        "--steady-seconds", str(spec.steady_seconds),
-        "--idle-p99-ns", "404000",
-        "--run-id", spec.run_id,
-        "--output", str(finalized),
+        "--path",
+        "rust-rust",
+        "--offered-rate",
+        str(spec.rate),
+        "--warmup-seconds",
+        str(spec.warmup_seconds),
+        "--steady-seconds",
+        str(spec.steady_seconds),
+        "--idle-p99-ns",
+        "404000",
+        "--run-id",
+        spec.run_id,
+        "--output",
+        str(finalized),
         "--memory",
         "--durable-events",
         "--rust-diagnostics",
-        "--diagnostic-drain-seconds", str(spec.drain_seconds),
+        "--diagnostic-drain-seconds",
+        str(spec.drain_seconds),
     ]
 
 
@@ -68,11 +76,25 @@ def execute_spec(spec: AttributionSpec, output: Path) -> dict[str, object]:
 
 def observer_command(*, enabled: bool, run_id: str, finalized: Path) -> list[str]:
     command = [
-        sys.executable, str(ROOT / "scripts/run_performance_load_cell.py"),
-        "--path", "rust-rust", "--offered-rate", "843.75",
-        "--warmup-seconds", "5", "--steady-seconds", "30",
-        "--idle-p99-ns", "404000", "--run-id", run_id,
-        "--output", str(finalized), "--memory", "--durable-events", "--validation-profile",
+        sys.executable,
+        str(ROOT / "scripts/run_performance_load_cell.py"),
+        "--path",
+        "rust-rust",
+        "--offered-rate",
+        "843.75",
+        "--warmup-seconds",
+        "5",
+        "--steady-seconds",
+        "30",
+        "--idle-p99-ns",
+        "404000",
+        "--run-id",
+        run_id,
+        "--output",
+        str(finalized),
+        "--memory",
+        "--durable-events",
+        "--validation-profile",
     ]
     if enabled:
         command.extend(["--rust-diagnostics", "--diagnostic-drain-seconds", "0"])
@@ -89,20 +111,32 @@ def execute_observer(output: Path) -> dict[str, object]:
             run_root = output / "observer" / run_id
             manifest = run_durable_memory_child(
                 observer_command(enabled=enabled, run_id=run_id, finalized=run_root / "finalized-cell"),
-                output=run_root, timeout_seconds=120,
-                offered_requests=round(843.75 * 35), cwd=ROOT,
+                output=run_root,
+                timeout_seconds=120,
+                offered_requests=round(843.75 * 35),
+                cwd=ROOT,
             )
             summary = json.loads((run_root / "finalized-cell/summary.json").read_text(encoding="utf-8"))
-            rows.append({
-                "pair": pair, "diagnostics_enabled": enabled,
-                "achieved_rate": summary["achieved_rate"],
-                "p99_ns": summary["latency_ns"]["p99"],
-                "errors": manifest["counters"]["failed"],
-            })
+            rows.append(
+                {
+                    "pair": pair,
+                    "diagnostics_enabled": enabled,
+                    "achieved_rate": summary["achieved_rate"],
+                    "p99_ns": summary["latency_ns"]["p99"],
+                    "errors": manifest["counters"]["failed"],
+                }
+            )
     enabled_rows = [row for row in rows if row["diagnostics_enabled"]]
     disabled_rows = [row for row in rows if not row["diagnostics_enabled"]]
-    throughput_degradation = 100 * (1 - statistics.median(float(row["achieved_rate"]) for row in enabled_rows) / statistics.median(float(row["achieved_rate"]) for row in disabled_rows))
-    p99_degradation = 100 * (statistics.median(float(row["p99_ns"]) for row in enabled_rows) / statistics.median(float(row["p99_ns"]) for row in disabled_rows) - 1)
+    throughput_degradation = 100 * (
+        1
+        - statistics.median(float(row["achieved_rate"]) for row in enabled_rows)
+        / statistics.median(float(row["achieved_rate"]) for row in disabled_rows)
+    )
+    p99_degradation = 100 * (
+        statistics.median(float(row["p99_ns"]) for row in enabled_rows) / statistics.median(float(row["p99_ns"]) for row in disabled_rows)
+        - 1
+    )
     result = {
         "pairs": rows,
         "median_throughput_degradation_percent": throughput_degradation,

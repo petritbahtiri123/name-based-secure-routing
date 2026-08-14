@@ -26,7 +26,15 @@ def summarize_completion_root(root: Path) -> dict[str, Any]:
     for path in PATHS:
         path_records = [record for record in records if record.get("record_type") == "capacity-confirmation" and record.get("path") == path]
         rates = sorted({float(record["offered_rate"]) for record in path_records}, reverse=True)
-        accepted_rate = next((rate for rate in rates if len([record for record in path_records if float(record["offered_rate"]) == rate]) >= 3 and all(record.get("passed") is True for record in path_records if float(record["offered_rate"]) == rate)), None)
+        accepted_rate = next(
+            (
+                rate
+                for rate in rates
+                if len([record for record in path_records if float(record["offered_rate"]) == rate]) >= 3
+                and all(record.get("passed") is True for record in path_records if float(record["offered_rate"]) == rate)
+            ),
+            None,
+        )
         if accepted_rate is None:
             capacity_ok = False
         else:
@@ -41,7 +49,11 @@ def summarize_completion_root(root: Path) -> dict[str, Any]:
             continue
         for percent, record in by_percent.items():
             expected = float(accepted[path]) * percent / 100
-            if record.get("passed") is not True or float(record.get("accepted_capacity", -1)) != float(accepted[path]) or float(record.get("offered_rate", -1)) != expected:
+            if (
+                record.get("passed") is not True
+                or float(record.get("accepted_capacity", -1)) != float(accepted[path])
+                or float(record.get("offered_rate", -1)) != expected
+            ):
                 formal_ok = False
 
     memory = {record.get("path"): record.get("status") for record in records if record.get("record_type") == "memory-conclusion"}
@@ -52,7 +64,11 @@ def summarize_completion_root(root: Path) -> dict[str, Any]:
     for implementation in ("rust-rust", "go-rust"):
         attempts = [record for record in unsupported if record.get("implementation") == implementation]
         identities = {(record.get("run_id"), record.get("sample_id")) for record in attempts}
-        if not attempts or len(identities) != len(attempts) or any(not record.get("error_type") or not record.get("final_result") for record in attempts):
+        if (
+            not attempts
+            or len(identities) != len(attempts)
+            or any(not record.get("error_type") or not record.get("final_result") for record in attempts)
+        ):
             unsupported_ok = False
 
     criteria = {
@@ -99,8 +115,5 @@ def write_completion_manifest(root: Path, prior_root: Path) -> None:
         },
     }
     (root / "manifest.json").write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    checksums = {
-        name: hashlib.sha256((root / name).read_bytes()).hexdigest()
-        for name in files
-    }
+    checksums = {name: hashlib.sha256((root / name).read_bytes()).hexdigest() for name in files}
     (root / "checksums.json").write_text(json.dumps(checksums, indent=2, sort_keys=True) + "\n", encoding="utf-8")

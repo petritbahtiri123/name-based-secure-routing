@@ -89,8 +89,10 @@ def test_background_sampler_retains_every_authoritative_process_sample() -> None
 def test_background_sampler_streams_each_resource_sample_before_shutdown() -> None:
     streamed = []
     sampler = ProcessResourceSampler(
-        {"source": os.getpid()}, interval_seconds=0.01,
-        assigned_logical_processors=1, record_sink=streamed.append,
+        {"source": os.getpid()},
+        interval_seconds=0.01,
+        assigned_logical_processors=1,
+        record_sink=streamed.append,
     )
     sampler.start()
     deadline = time.monotonic() + 1

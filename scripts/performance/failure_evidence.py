@@ -32,8 +32,13 @@ class UnsupportedAttempt:
 
 
 def unsupported_attempts(
-    *, run_id: str, implementation: str, requested_concurrency: int,
-    configured_limit: int, services: int, admission_phase: str = "pre-admission",
+    *,
+    run_id: str,
+    implementation: str,
+    requested_concurrency: int,
+    configured_limit: int,
+    services: int,
+    admission_phase: str = "pre-admission",
 ) -> list[UnsupportedAttempt]:
     if services < 1 or requested_concurrency < services:
         raise ValueError("invalid unsupported attempt distribution")
@@ -112,7 +117,8 @@ def terminal_failure_record(
 
 
 def reconcile_attempt_records(
-    attempts: list[UnsupportedAttempt], records: list[dict[str, Any]],
+    attempts: list[UnsupportedAttempt],
+    records: list[dict[str, Any]],
 ) -> None:
     expected = {(attempt.run_id, attempt.sample_id) for attempt in attempts}
     observed = {(record.get("run_id"), record.get("sample_id")) for record in records}

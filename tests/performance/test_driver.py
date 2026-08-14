@@ -208,13 +208,23 @@ def test_concurrency_is_distributed_without_silent_clamping() -> None:
 
 def test_normalization_preserves_observed_cardinality_and_concurrency() -> None:
     record = {
-        "success": True, "bytes_transmitted": 1, "bytes_received": 1,
-        "transport_sessions": 1, "service_channels": 20,
-        "application_streams": 20, "request_concurrency": 20,
+        "success": True,
+        "bytes_transmitted": 1,
+        "bytes_received": 1,
+        "transport_sessions": 1,
+        "service_channels": 20,
+        "application_streams": 20,
+        "request_concurrency": 20,
     }
     observed = normalize(
-        record, sample_id=0, path="rust-rust", scenario="nbsr-warm-new-service",
-        payload=1, environment_digest="e", repository_sha="r", run_id="run",
+        record,
+        sample_id=0,
+        path="rust-rust",
+        scenario="nbsr-warm-new-service",
+        payload=1,
+        environment_digest="e",
+        repository_sha="r",
+        run_id="run",
     )
     assert observed["service_channels"] == 20
     assert observed["application_streams"] == 20
@@ -223,17 +233,33 @@ def test_normalization_preserves_observed_cardinality_and_concurrency() -> None:
 
 def test_normalization_preserves_open_loop_schedule_evidence() -> None:
     record = {
-        "success": False, "error_type": "timeout", "error_stage": "application",
-        "bytes_transmitted": 1, "bytes_received": 0,
-        "scheduled_ns": 100, "started_ns": 130, "completed_ns": 180,
-        "start_lateness_ns": 30, "service_latency_ns": 50,
-        "send_lag_ns": 7, "receive_lag_ns": 11, "queue_depth": 3,
+        "success": False,
+        "error_type": "timeout",
+        "error_stage": "application",
+        "bytes_transmitted": 1,
+        "bytes_received": 0,
+        "scheduled_ns": 100,
+        "started_ns": 130,
+        "completed_ns": 180,
+        "start_lateness_ns": 30,
+        "service_latency_ns": 50,
+        "send_lag_ns": 7,
+        "receive_lag_ns": 11,
+        "queue_depth": 3,
         "active_requests": 1,
     }
     observed = normalize(
-        record, sample_id=0, path="direct-quic", scenario="direct-warm",
-        payload=1, environment_digest="e", repository_sha="r", run_id="run",
-        load_level="capacity", offered_load=100.0, achieved_load=90.0,
+        record,
+        sample_id=0,
+        path="direct-quic",
+        scenario="direct-warm",
+        payload=1,
+        environment_digest="e",
+        repository_sha="r",
+        run_id="run",
+        load_level="capacity",
+        offered_load=100.0,
+        achieved_load=90.0,
     )
     assert observed["success"] is False
     assert observed["start_lateness_ns"] == 30
@@ -253,10 +279,7 @@ def test_capacity_discovery_uses_bounded_progressive_counts() -> None:
 
 
 def test_capacity_candidate_requires_three_independent_confirmations() -> None:
-    confirmations = [
-        CapacityConfirmation(f"direct-r{ordinal}", observation("direct-quic", 1_000))
-        for ordinal in (1, 2)
-    ]
+    confirmations = [CapacityConfirmation(f"direct-r{ordinal}", observation("direct-quic", 1_000)) for ordinal in (1, 2)]
     with pytest.raises(ValueError, match="requires at least 3 independent confirmations"):
         accept_confirmed_capacity(confirmations)
 
@@ -273,14 +296,8 @@ def test_failing_confirmation_invalidates_capacity_candidate() -> None:
 
 def test_confirmed_capacities_remain_independent_by_path() -> None:
     confirmations = [
-        *[
-            CapacityConfirmation(f"direct-r{ordinal}", observation("direct-quic", 1_000))
-            for ordinal in (1, 2, 3)
-        ],
-        *[
-            CapacityConfirmation(f"rust-r{ordinal}", observation("rust-rust", 700))
-            for ordinal in (1, 2, 3)
-        ],
+        *[CapacityConfirmation(f"direct-r{ordinal}", observation("direct-quic", 1_000)) for ordinal in (1, 2, 3)],
+        *[CapacityConfirmation(f"rust-r{ordinal}", observation("rust-rust", 700)) for ordinal in (1, 2, 3)],
     ]
     assert accept_confirmed_capacity(confirmations) == {"direct-quic": 1_000, "rust-rust": 700}
 

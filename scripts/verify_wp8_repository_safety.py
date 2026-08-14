@@ -110,11 +110,7 @@ def _privacy_paths(root: Path) -> list[Path]:
             if base.is_file() or base.is_symlink():
                 paths.append(base)
                 continue
-            paths.extend(
-                path
-                for path in base.rglob("*")
-                if "__pycache__" not in path.parts and (path.is_file() or path.is_symlink())
-            )
+            paths.extend(path for path in base.rglob("*") if "__pycache__" not in path.parts and (path.is_file() or path.is_symlink()))
     return paths
 
 

@@ -25,24 +25,36 @@ def test_resource_phase_distinguishes_post_load_drain() -> None:
 
 def test_durable_request_event_preserves_identity_and_terminal_result() -> None:
     assert durable_request_event({"sample_id": 7, "success": True}) == {
-        "event": "request", "sample_id": 7, "started": True, "result": "completed",
+        "event": "request",
+        "sample_id": 7,
+        "started": True,
+        "result": "completed",
     }
 
 
 def test_short_memory_duration_requires_explicit_durable_validation_profile() -> None:
     validate_memory_duration(
-        memory=True, durable_events=True, validation_profile=True,
-        warmup_seconds=1, steady_seconds=8,
+        memory=True,
+        durable_events=True,
+        validation_profile=True,
+        warmup_seconds=1,
+        steady_seconds=8,
     )
     with pytest.raises(ValueError, match="at least 1 warm-up second and 8 steady seconds"):
         validate_memory_duration(
-            memory=True, durable_events=True, validation_profile=True,
-            warmup_seconds=1, steady_seconds=2,
+            memory=True,
+            durable_events=True,
+            validation_profile=True,
+            warmup_seconds=1,
+            steady_seconds=2,
         )
     with pytest.raises(ValueError, match="primary memory evidence requires"):
         validate_memory_duration(
-            memory=True, durable_events=True, validation_profile=False,
-            warmup_seconds=1, steady_seconds=2,
+            memory=True,
+            durable_events=True,
+            validation_profile=False,
+            warmup_seconds=1,
+            steady_seconds=2,
         )
 
 
@@ -54,11 +66,17 @@ def test_clean_tree_gate_excludes_only_the_exact_durable_output_root(tmp_path: P
     assert dirty_paths_outside(repository, durable, status) == ["scripts/runner.py", "unrelated.txt"]
     with pytest.raises(ValueError, match="validation profile requires durable memory events"):
         validate_memory_duration(
-            memory=False, durable_events=True, validation_profile=True,
-            warmup_seconds=1, steady_seconds=2,
+            memory=False,
+            durable_events=True,
+            validation_profile=True,
+            warmup_seconds=1,
+            steady_seconds=2,
         )
     assert durable_request_event({"sample_id": 8, "success": False, "error_type": "timeout"}) == {
-        "event": "request", "sample_id": 8, "started": True, "result": "failed",
+        "event": "request",
+        "sample_id": 8,
+        "started": True,
+        "result": "failed",
         "error_type": "timeout",
     }
 

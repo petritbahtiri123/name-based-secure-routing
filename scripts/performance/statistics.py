@@ -50,7 +50,10 @@ def summarize(samples: Sequence[int]) -> dict[str, int | None]:
 
 
 def bootstrap_run_ci(
-    run_statistics: Sequence[int], *, resamples: int = 10_000, seed: int = 75,
+    run_statistics: Sequence[int],
+    *,
+    resamples: int = 10_000,
+    seed: int = 75,
 ) -> dict[str, int | str]:
     if len(run_statistics) < 5:
         raise ValueError("bootstrap confidence interval requires at least five independent runs")
@@ -58,10 +61,7 @@ def bootstrap_run_ci(
         raise ValueError("bootstrap requires at least 100 resamples")
     values = list(run_statistics)
     generator = random.Random(seed)
-    estimates = sorted(
-        round(sum(generator.choice(values) for _ in values) / len(values))
-        for _ in range(resamples)
-    )
+    estimates = sorted(round(sum(generator.choice(values) for _ in values) / len(values)) for _ in range(resamples))
     return {
         "method": "independent-run-bootstrap-mean-v1",
         "run_count": len(values),

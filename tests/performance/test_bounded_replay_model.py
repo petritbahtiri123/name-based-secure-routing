@@ -123,6 +123,4 @@ def test_reproducible_investigation_reports_candidate_divergence() -> None:
         assert candidate["false_rejects"] > 0
         assert candidate["maximum_state_entries"] <= candidate["window_ordinals"]
         assert candidate["bitmap_bits"] == candidate["window_ordinals"]
-        assert candidate["bitmap_payload_bytes"] == 8 + (
-            candidate["window_ordinals"] + 7
-        ) // 8
+        assert candidate["bitmap_payload_bytes"] == 8 + (candidate["window_ordinals"] + 7) // 8

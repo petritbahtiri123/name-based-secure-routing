@@ -19,25 +19,43 @@ def write_records(root: Path) -> None:
     records: list[dict[str, object]] = []
     for path in PATHS:
         for ordinal in (1, 2, 3):
-            records.append({
-                "record_type": "capacity-confirmation", "path": path, "offered_rate": 100,
-                "run_id": f"{path}-confirm-r{ordinal}", "passed": True,
-            })
+            records.append(
+                {
+                    "record_type": "capacity-confirmation",
+                    "path": path,
+                    "offered_rate": 100,
+                    "run_id": f"{path}-confirm-r{ordinal}",
+                    "passed": True,
+                }
+            )
         for percent in (25, 50, 75, 90):
-            records.append({
-                "record_type": "formal-load", "path": path, "percent": percent,
-                "accepted_capacity": 100, "offered_rate": percent, "passed": True,
-            })
+            records.append(
+                {
+                    "record_type": "formal-load",
+                    "path": path,
+                    "percent": percent,
+                    "accepted_capacity": 100,
+                    "offered_rate": percent,
+                    "passed": True,
+                }
+            )
         records.append({"record_type": "memory-conclusion", "path": path, "status": "PASS"})
     for implementation in ("rust-rust", "go-rust"):
         for sample_id in range(2):
-            records.append({
-                "record_type": "unsupported-attempt", "implementation": implementation,
-                "run_id": f"{implementation}-640", "sample_id": sample_id,
-                "final_result": "failure", "error_type": "typed", "operating_point": "unsupported",
-            })
+            records.append(
+                {
+                    "record_type": "unsupported-attempt",
+                    "implementation": implementation,
+                    "run_id": f"{implementation}-640",
+                    "sample_id": sample_id,
+                    "final_result": "failure",
+                    "error_type": "typed",
+                    "operating_point": "unsupported",
+                }
+            )
     (root / "raw/completion.ndjson").write_text(
-        "".join(json.dumps(record, sort_keys=True) + "\n" for record in records), encoding="utf-8",
+        "".join(json.dumps(record, sort_keys=True) + "\n" for record in records),
+        encoding="utf-8",
     )
 
 
@@ -114,7 +132,10 @@ def test_completion_verifier_runs_as_a_standalone_script(tmp_path: Path) -> None
 
     completed = subprocess.run(
         [sys.executable, "scripts/verify_performance_evidence.py", str(root)],
-        cwd=repo, capture_output=True, text=True, check=False,
+        cwd=repo,
+        capture_output=True,
+        text=True,
+        check=False,
     )
 
     assert completed.returncode == 0, completed.stderr

@@ -22,9 +22,7 @@ class LocalAdmissionAuthority:
     private_key: Ed25519PrivateKey
 
     def __post_init__(self) -> None:
-        if type(self.kid) is not bytes or not 1 <= len(self.kid) <= 64 or not isinstance(
-            self.private_key, Ed25519PrivateKey
-        ):
+        if type(self.kid) is not bytes or not 1 <= len(self.kid) <= 64 or not isinstance(self.private_key, Ed25519PrivateKey):
             raise FederationValidationError("local admission authority is invalid")
 
 
@@ -53,26 +51,45 @@ class LocalAdmissionAttestor:
         source = authorizer.authorize_source(authenticated, source_evidence, protocol=protocol, port=port)
         if source.outcome is not DecisionOutcome.ACCEPT:
             raise FederationValidationError(f"source federation admission failed: {source.reason.name}")
-        source_attestation = self._attest(SOURCE_ADMISSION_PURPOSE, self.source, authenticated, source_evidence, route_grant_digest, protocol, port)
+        source_attestation = self._attest(
+            SOURCE_ADMISSION_PURPOSE, self.source, authenticated, source_evidence, route_grant_digest, protocol, port
+        )
         destination = authorizer.authorize_destination(authenticated, destination_evidence, protocol=protocol, port=port)
         if destination.outcome is not DecisionOutcome.ACCEPT:
             raise FederationValidationError(f"destination federation admission failed: {destination.reason.name}")
-        destination_attestation = self._attest(DESTINATION_ADMISSION_PURPOSE, self.destination, authenticated, destination_evidence, route_grant_digest, protocol, port)
+        destination_attestation = self._attest(
+            DESTINATION_ADMISSION_PURPOSE, self.destination, authenticated, destination_evidence, route_grant_digest, protocol, port
+        )
         return source_attestation, destination_attestation
 
     @staticmethod
-    def _attest(purpose: str, authority: LocalAdmissionAuthority, authenticated: AuthenticatedBilateralContext, evidence: AuthorizationEvidence, route_grant_digest: bytes, protocol: int, port: int) -> bytes:
+    def _attest(
+        purpose: str,
+        authority: LocalAdmissionAuthority,
+        authenticated: AuthenticatedBilateralContext,
+        evidence: AuthorizationEvidence,
+        route_grant_digest: bytes,
+        protocol: int,
+        port: int,
+    ) -> bytes:
         context = authenticated.context
-        payload = encode_deterministic({
-            0: 1, 1: purpose,
-            2: authenticated.source_authority.operator_id,
-            3: authenticated.destination_authority.operator_id,
-            4: evidence.service_id, 5: evidence.canonical_name,
-            6: protocol, 7: port,
-            8: route_grant_digest,
-            9: authenticated.context.digest,
-            10: context._payload[9], 11: context._payload[41],
-            12: context._payload[42], 13: context._payload[43],
-            14: sorted(context.dependencies),
-        })
+        payload = encode_deterministic(
+            {
+                0: 1,
+                1: purpose,
+                2: authenticated.source_authority.operator_id,
+                3: authenticated.destination_authority.operator_id,
+                4: evidence.service_id,
+                5: evidence.canonical_name,
+                6: protocol,
+                7: port,
+                8: route_grant_digest,
+                9: authenticated.context.digest,
+                10: context._payload[9],
+                11: context._payload[41],
+                12: context._payload[42],
+                13: context._payload[43],
+                14: sorted(context.dependencies),
+            }
+        )
         return sign1(payload, authority.kid, authority.private_key)

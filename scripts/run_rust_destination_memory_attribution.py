@@ -63,24 +63,36 @@ def load_command(
     command = [
         sys.executable,
         str(ROOT / "scripts/run_performance_load_cell.py"),
-        "--path", "rust-rust",
-        "--offered-rate", str(rate),
-        "--warmup-seconds", str(warmup_seconds),
-        "--steady-seconds", str(steady_seconds),
-        "--idle-p99-ns", "404000",
-        "--payload-bytes", "1024",
-        "--run-id", run_id,
-        "--output", str(finalized),
+        "--path",
+        "rust-rust",
+        "--offered-rate",
+        str(rate),
+        "--warmup-seconds",
+        str(warmup_seconds),
+        "--steady-seconds",
+        str(steady_seconds),
+        "--idle-p99-ns",
+        "404000",
+        "--payload-bytes",
+        "1024",
+        "--run-id",
+        run_id,
+        "--output",
+        str(finalized),
         "--memory",
         "--durable-events",
-        "--durable-root", str(durable_root),
+        "--durable-root",
+        str(durable_root),
         "--validation-profile",
     ]
     if enabled:
-        command.extend([
-            "--destination-diagnostics",
-            "--diagnostic-drain-seconds", str(drain_seconds),
-        ])
+        command.extend(
+            [
+                "--destination-diagnostics",
+                "--diagnostic-drain-seconds",
+                str(drain_seconds),
+            ]
+        )
     return command
 
 
@@ -113,21 +125,15 @@ def summarize_observer(rows: list[dict[str, object]]) -> dict[str, object]:
         / statistics.median(float(row["achieved_rate"]) for row in disabled)
     )
     p99_degradation = 100 * (
-        statistics.median(float(row["p99_ns"]) for row in enabled)
-        / statistics.median(float(row["p99_ns"]) for row in disabled)
-        - 1
+        statistics.median(float(row["p99_ns"]) for row in enabled) / statistics.median(float(row["p99_ns"]) for row in disabled) - 1
     )
-    additional_errors = sum(int(row["errors"]) for row in enabled) - sum(
-        int(row["errors"]) for row in disabled
-    )
+    additional_errors = sum(int(row["errors"]) for row in enabled) - sum(int(row["errors"]) for row in disabled)
     return {
         "pairs": rows,
         "median_throughput_degradation_percent": throughput_degradation,
         "median_p99_degradation_percent": p99_degradation,
         "additional_protocol_errors": additional_errors,
-        "pass": throughput_degradation <= 3
-        and p99_degradation <= 5
-        and additional_errors == 0,
+        "pass": throughput_degradation <= 3 and p99_degradation <= 5 and additional_errors == 0,
     }
 
 
@@ -156,9 +162,7 @@ def execute_observer(output: Path) -> dict[str, object]:
                 offered_requests=round(spec.rate * (spec.warmup_seconds + spec.steady_seconds)),
                 cwd=ROOT,
             )
-            summary = json.loads(
-                (run_root / "finalized-cell/summary.json").read_text(encoding="utf-8")
-            )
+            summary = json.loads((run_root / "finalized-cell/summary.json").read_text(encoding="utf-8"))
             rows.append(
                 {
                     "pair": pair,
@@ -170,9 +174,7 @@ def execute_observer(output: Path) -> dict[str, object]:
             )
     result = summarize_observer(rows)
     summary_path = output / "observer/summary.json"
-    summary_path.write_text(
-        json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-    )
+    summary_path.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return result
 
 

@@ -46,15 +46,21 @@ class P2BProfileTests(unittest.TestCase):
 
     def test_observer_effect_applies_exact_median_guardrails(self):
         passed = observer_effect(
-            disabled_throughput=[100.0, 100.0, 100.0], enabled_throughput=[97.0, 98.0, 97.0],
-            disabled_p99=[1000, 1000, 1000], enabled_p99=[1050, 1040, 1050],
-            disabled_errors=0, enabled_errors=0,
+            disabled_throughput=[100.0, 100.0, 100.0],
+            enabled_throughput=[97.0, 98.0, 97.0],
+            disabled_p99=[1000, 1000, 1000],
+            enabled_p99=[1050, 1040, 1050],
+            disabled_errors=0,
+            enabled_errors=0,
         )
         self.assertTrue(passed["passed"])
         failed = observer_effect(
-            disabled_throughput=[100.0] * 3, enabled_throughput=[96.0] * 3,
-            disabled_p99=[1000] * 3, enabled_p99=[1000] * 3,
-            disabled_errors=0, enabled_errors=0,
+            disabled_throughput=[100.0] * 3,
+            enabled_throughput=[96.0] * 3,
+            disabled_p99=[1000] * 3,
+            enabled_p99=[1000] * 3,
+            disabled_errors=0,
+            enabled_errors=0,
         )
         self.assertFalse(failed["passed"])
 

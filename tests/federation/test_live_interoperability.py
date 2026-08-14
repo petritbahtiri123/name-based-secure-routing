@@ -115,7 +115,9 @@ def test_valid_cross_operator_federation_authorizes_wp7_route() -> None:
     assert verified.receipt.route_grant_digest == route.route_grant_digest
     assert lab.admitted_grant_count == 1
     source = verify_sign1(verified.source_attestation, {b"local-source": SOURCE_LOCAL_KEY.public_key()}, ErrorCode.NBSR_E_RECORD_UNTRUSTED)
-    destination = verify_sign1(verified.destination_attestation, {b"local-destination": DESTINATION_LOCAL_KEY.public_key()}, ErrorCode.NBSR_E_RECORD_UNTRUSTED)
+    destination = verify_sign1(
+        verified.destination_attestation, {b"local-destination": DESTINATION_LOCAL_KEY.public_key()}, ErrorCode.NBSR_E_RECORD_UNTRUSTED
+    )
     assert decode_deterministic(source.payload)[1] == "nbsr-federation-source-admission"
     assert decode_deterministic(destination.payload)[1] == "nbsr-federation-destination-admission"
 
@@ -126,14 +128,22 @@ def test_local_source_attestation_cannot_satisfy_destination_authority() -> None
     destination_evidence = replace(evidence(), operator_id=DEST, peer_operator_id=SOURCE, endpoint_operator_id=DEST)
     verified = _admission(lab, route).authorize(authenticated, evidence(), destination_evidence, route, now_ms=150)
     with pytest.raises(Exception):
-        verify_sign1(verified.source_attestation, {b"local-destination": DESTINATION_LOCAL_KEY.public_key()}, ErrorCode.NBSR_E_RECORD_UNTRUSTED)
+        verify_sign1(
+            verified.source_attestation, {b"local-destination": DESTINATION_LOCAL_KEY.public_key()}, ErrorCode.NBSR_E_RECORD_UNTRUSTED
+        )
 
 
 def test_checked_local_attestations_are_outputs_of_the_authentic_f75_admission_path() -> None:
     source_wire = Path("vectors/wp8-local-admission/source.cose").read_bytes()
     destination_wire = Path("vectors/wp8-local-admission/destination.cose").read_bytes()
-    source = decode_deterministic(verify_sign1(source_wire, {b"local-source": SOURCE_LOCAL_KEY.public_key()}, ErrorCode.NBSR_E_RECORD_UNTRUSTED).payload)
-    destination = decode_deterministic(verify_sign1(destination_wire, {b"local-destination": DESTINATION_LOCAL_KEY.public_key()}, ErrorCode.NBSR_E_RECORD_UNTRUSTED).payload)
+    source = decode_deterministic(
+        verify_sign1(source_wire, {b"local-source": SOURCE_LOCAL_KEY.public_key()}, ErrorCode.NBSR_E_RECORD_UNTRUSTED).payload
+    )
+    destination = decode_deterministic(
+        verify_sign1(
+            destination_wire, {b"local-destination": DESTINATION_LOCAL_KEY.public_key()}, ErrorCode.NBSR_E_RECORD_UNTRUSTED
+        ).payload
+    )
     assert source[1] == "nbsr-federation-source-admission"
     assert destination[1] == "nbsr-federation-destination-admission"
     source_without_purpose = {**source, 1: None}
@@ -204,14 +214,10 @@ def test_replayed_federation_context_rejects_before_wp7_state() -> None:
     authenticated = authenticated_context(context())
     lab, route = _wp7_lab()
     authorizer = BilateralAuthorizer(accepted_context_digests=frozenset({authenticated.context.digest}))
-    destination_evidence = replace(
-        evidence(), operator_id=DEST, peer_operator_id=SOURCE, endpoint_operator_id=DEST
-    )
+    destination_evidence = replace(evidence(), operator_id=DEST, peer_operator_id=SOURCE, endpoint_operator_id=DEST)
 
     with pytest.raises(FederationValidationError, match="source federation admission failed"):
-        _admission(lab, route, authorizer=authorizer).authorize(
-            authenticated, evidence(), destination_evidence, route, now_ms=150
-        )
+        _admission(lab, route, authorizer=authorizer).authorize(authenticated, evidence(), destination_evidence, route, now_ms=150)
 
     assert lab.admitted_grant_count == 0
 
@@ -278,14 +284,10 @@ def test_trust_bundle_rotation_accepts_new_authenticated_bundle_and_rejects_stal
         endpoint_operator_id=DEST,
     )
     lab, route = _wp7_lab()
-    assert _admission(lab, route).authorize(
-        authenticated, source_evidence, destination_evidence, route, now_ms=150
-    )
+    assert _admission(lab, route).authorize(authenticated, source_evidence, destination_evidence, route, now_ms=150)
 
     stale_lab, stale_route = _wp7_lab()
     stale_source = replace(source_evidence, trust_bundle_digest=b"B" * 32)
     with pytest.raises(FederationValidationError):
-        _admission(stale_lab, stale_route).authorize(
-            authenticated, stale_source, destination_evidence, stale_route, now_ms=150
-        )
+        _admission(stale_lab, stale_route).authorize(authenticated, stale_source, destination_evidence, stale_route, now_ms=150)
     assert stale_lab.admitted_grant_count == 0

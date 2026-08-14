@@ -9,11 +9,17 @@ from wp8_conformance.runner import Command, ROOT, run_commands
 def command_matrix() -> list[Command]:
     python = sys.executable
     return [
-        Command("go-peer-dependency-boundary", (python, "-m", "pytest", "tests/federation/test_independent_peer_dependency_boundary.py", "-q"), count_mode="pytest"),
+        Command(
+            "go-peer-dependency-boundary",
+            (python, "-m", "pytest", "tests/federation/test_independent_peer_dependency_boundary.py", "-q"),
+            count_mode="pytest",
+        ),
         Command("go-peer-unit", ("go", "test", "-json", "./..."), cwd="interop/nbsr-go-peer", count_mode="go-json"),
         Command("go-peer-vet", ("go", "vet", "./..."), cwd="interop/nbsr-go-peer"),
         Command("go-peer-module-lock", ("go", "mod", "verify"), cwd="interop/nbsr-go-peer", manifest_gate=True),
-        Command("independent-wire-live", (python, "-m", "pytest", "tests/federation/test_independent_wire_peer.py", "-q"), count_mode="pytest"),
+        Command(
+            "independent-wire-live", (python, "-m", "pytest", "tests/federation/test_independent_wire_peer.py", "-q"), count_mode="pytest"
+        ),
         Command("git-diff-check", ("git", "diff", "--check")),
     ]
 

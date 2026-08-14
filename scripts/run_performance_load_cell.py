@@ -44,8 +44,12 @@ def durable_request_event(document: dict[str, Any]) -> dict[str, Any]:
 
 
 def validate_memory_duration(
-    *, memory: bool, durable_events: bool, validation_profile: bool,
-    warmup_seconds: int, steady_seconds: int,
+    *,
+    memory: bool,
+    durable_events: bool,
+    validation_profile: bool,
+    warmup_seconds: int,
+    steady_seconds: int,
 ) -> None:
     if validation_profile and not (memory and durable_events):
         raise ValueError("validation profile requires durable memory events")
@@ -78,9 +82,7 @@ def stream_runtime_series(path: Path, stop: threading.Event) -> None:
                     emit_durable_event({"event": "runtime", **json.loads(line)})
 
 
-def expected_steady_sample_count(
-    offered_rate: float, *, warmup_seconds: int, steady_seconds: int
-) -> int:
+def expected_steady_sample_count(offered_rate: float, *, warmup_seconds: int, steady_seconds: int) -> int:
     total = round(offered_rate * (warmup_seconds + steady_seconds))
     warmup = round(offered_rate * warmup_seconds)
     return total - warmup
@@ -131,9 +133,11 @@ def main() -> None:
         )
     try:
         validate_memory_duration(
-            memory=args.memory, durable_events=args.durable_events,
+            memory=args.memory,
+            durable_events=args.durable_events,
             validation_profile=args.validation_profile,
-            warmup_seconds=args.warmup_seconds, steady_seconds=args.steady_seconds,
+            warmup_seconds=args.warmup_seconds,
+            steady_seconds=args.steady_seconds,
         )
     except ValueError as error:
         raise SystemExit(str(error)) from error
@@ -166,6 +170,7 @@ def main() -> None:
         target = Path(os.environ.get("NBSR_PERF_CARGO_TARGET", r"C:\codex-target\nbsr-perf-formal"))
         binaries = build_release(target)
         streamed = temp / "source.ndjson"
+
         def request_sink(line: str) -> None:
             document = json.loads(line)
             if document.get("event") == "diagnostic":
@@ -184,8 +189,17 @@ def main() -> None:
         resource_event_sink = resource_sink if args.durable_events else None
         if args.path == "direct-quic":
             direct_samples(
-                binaries["direct"], authority, sample_count, args.payload_bytes, "warm", temp,
-                args.offered_rate, resources, streamed, output_line_sink, resource_event_sink,
+                binaries["direct"],
+                authority,
+                sample_count,
+                args.payload_bytes,
+                "warm",
+                temp,
+                args.offered_rate,
+                resources,
+                streamed,
+                output_line_sink,
+                resource_event_sink,
             )
             scenario = "direct-warm"
         else:
@@ -194,22 +208,31 @@ def main() -> None:
             runtime_thread = None
             if args.durable_events and go_runtime_series is not None:
                 runtime_thread = threading.Thread(
-                    target=stream_runtime_series, args=(go_runtime_series, runtime_stop), daemon=True,
+                    target=stream_runtime_series,
+                    args=(go_runtime_series, runtime_stop),
+                    daemon=True,
                 )
                 runtime_thread.start()
             if args.rust_diagnostics:
                 os.environ["NBSR_P1A_RUST_DIAGNOSTICS"] = "1"
                 os.environ["NBSR_P1A_DRAIN_SECONDS"] = str(args.diagnostic_drain_seconds)
             if args.destination_diagnostics:
-                os.environ["NBSR_P1B_DESTINATION_DIAGNOSTICS_FILE"] = str(
-                    output / "destination-diagnostics.ndjson"
-                )
+                os.environ["NBSR_P1B_DESTINATION_DIAGNOSTICS_FILE"] = str(output / "destination-diagnostics.ndjson")
                 os.environ["NBSR_P1B_DRAIN_SECONDS"] = str(args.diagnostic_drain_seconds)
             try:
                 nbsr_samples(
-                    args.path, binaries, authority, sample_count, args.payload_bytes, temp,
-                    args.offered_rate, resources, streamed, go_runtime_series,
-                    output_line_sink, resource_event_sink,
+                    args.path,
+                    binaries,
+                    authority,
+                    sample_count,
+                    args.payload_bytes,
+                    temp,
+                    args.offered_rate,
+                    resources,
+                    streamed,
+                    go_runtime_series,
+                    output_line_sink,
+                    resource_event_sink,
                 )
             finally:
                 os.environ.pop("NBSR_P1A_RUST_DIAGNOSTICS", None)
@@ -284,7 +307,8 @@ def main() -> None:
         if completion_metadata is None or "go_runtime" not in completion_metadata:
             raise RuntimeError("Go load stream omitted runtime evidence")
         (output / "go-runtime.json").write_text(
-            json.dumps(completion_metadata["go_runtime"], indent=2) + "\n", encoding="utf-8",
+            json.dumps(completion_metadata["go_runtime"], indent=2) + "\n",
+            encoding="utf-8",
         )
     expected_steady = expected_steady_sample_count(
         args.offered_rate,
@@ -296,24 +320,20 @@ def main() -> None:
     for record in resources:
         request_activity = activity.at(int(record["timestamp_ns"]))
         record.update(asdict(request_activity))
-        record["phase"] = resource_phase(
-            int(record["timestamp_ns"]), warmup_ns=warmup_ns, total_ns=total_ns
-        )
+        record["phase"] = resource_phase(int(record["timestamp_ns"]), warmup_ns=warmup_ns, total_ns=total_ns)
     resource_path = output / "resources.ndjson"
     resource_path.write_text(
         "".join(json.dumps(record, sort_keys=True, separators=(",", ":")) + "\n" for record in resources),
         encoding="utf-8",
     )
-    destination = [
-        record for record in resources
-        if record["role"] == "destination" and warmup_ns <= record["timestamp_ns"] < total_ns
-    ]
+    destination = [record for record in resources if record["role"] == "destination" and warmup_ns <= record["timestamp_ns"] < total_ns]
     if len(destination) < 2:
         raise RuntimeError("insufficient destination steady-state resource samples")
     memory = ResourceSeries(expected_samples=len(destination))
     for record in destination:
         memory.record(timestamp_ns=record["timestamp_ns"], working_set_bytes=record["working_set_bytes"])
     trend = memory.finish()
+
     def segment_trend(segment: list[dict[str, Any]]) -> dict[str, Any]:
         series = ResourceSeries(expected_samples=len(segment))
         for record in segment:

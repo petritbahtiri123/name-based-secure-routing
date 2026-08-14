@@ -527,6 +527,17 @@ fn p2d_write_server_result(result: P2dServerResult<'_>) {
 }
 
 #[cfg(feature = "benchmark-harness")]
+fn p2d_write_server_rejection(path: &Path, mode: &str, reason: &str) {
+    fs::write(
+        path,
+        format!(
+            "{{\"schema\":\"nbsr-p2d-rust-server-v1\",\"mode\":\"{mode}\",\"status\":\"REJECTED\",\"reason\":\"{reason}\",\"payload_exposed\":false}}\n"
+        ),
+    )
+    .unwrap();
+}
+
+#[cfg(feature = "benchmark-harness")]
 async fn wait_for_p2d_completion_ack(path: &Path) {
     tokio::time::timeout(Duration::from_secs(10), async {
         while !path.exists() {
@@ -643,18 +654,34 @@ async fn run_p2d_after(
             tasks.spawn(async move {
                 let mut application = task_connection
                     .accept_credited_session_stream(&task_session, channel)
-                    .await
-                    .unwrap();
+                    .await?;
                 let stream_id = application.id();
-                let payload = application.echo_once().await.unwrap();
-                (
+                let payload = application.echo_once().await?;
+                Ok::<_, nbsr_transport::TransportError>((
                     stream_id,
                     payload.len() == 1024 && payload.iter().all(|byte| *byte == 0x5a),
-                )
+                ))
             });
         }
         while let Some(joined) = tasks.join_next().await {
-            let (stream_id, correct) = joined.unwrap();
+            let outcome = joined.expect("P2D task must not panic on peer input");
+            let (stream_id, correct) = match outcome {
+                Ok(accepted) => accepted,
+                Err(nbsr_transport::TransportError::ApplicationStreamRejected) => {
+                    tasks.abort_all();
+                    while tasks.join_next().await.is_some() {}
+                    p2d_write_server_rejection(result, "after", "APPLICATION_STREAM_REJECTED");
+                    wait_for_p2d_completion_ack(completion_ack).await;
+                    return;
+                }
+                Err(_) => {
+                    tasks.abort_all();
+                    while tasks.join_next().await.is_some() {}
+                    p2d_write_server_rejection(result, "after", "APPLICATION_STREAM_FAILED");
+                    wait_for_p2d_completion_ack(completion_ack).await;
+                    return;
+                }
+            };
             payload_correct &= correct;
             session
                 .update(|session| session.release_stream(channel, stream_id))

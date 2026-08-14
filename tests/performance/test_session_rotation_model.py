@@ -46,9 +46,7 @@ def test_old_channel_or_routegrant_cannot_authorize_new_session() -> None:
 
 def test_request_and_monotonic_replay_are_session_local_and_fail_closed() -> None:
     model, old, fresh = established_pair()
-    rollback = Authority(
-        **{**fresh.__dict__, "request_id": "request-rollback", "monotonic_sequence": 1}
-    )
+    rollback = Authority(**{**fresh.__dict__, "request_id": "request-rollback", "monotonic_sequence": 1})
     assert model.admit_channel(old) == "REJECT_REQUEST_REPLAY"
     assert model.admit_channel(rollback) == "REJECT_SEQUENCE_ROLLBACK"
 

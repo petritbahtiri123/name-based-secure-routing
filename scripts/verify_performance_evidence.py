@@ -24,11 +24,7 @@ def verify_evidence(root: Path) -> tuple[int, int]:
     completion = manifest["schema"] == "nbsr-performance-completion-v1"
     memory_closure = manifest["schema"] == "nbsr-performance-memory-closure-v1"
     excluded = {"checksums.json"} if version_two or external_index or completion or memory_closure else {"checksums.json", "manifest.json"}
-    nested_roots = {
-        path.parent.resolve()
-        for path in root.glob("*/manifest.json")
-        if path.parent.resolve() != root
-    }
+    nested_roots = {path.parent.resolve() for path in root.glob("*/manifest.json") if path.parent.resolve() != root}
     actual = {
         path.relative_to(root).as_posix()
         for path in root.rglob("*")
@@ -58,9 +54,7 @@ def verify_evidence(root: Path) -> tuple[int, int]:
         analysis = json.loads((root / manifest["analysis"]).read_text(encoding="utf-8"))
         if manifest["outcome"] != analysis["classification"]["baseline"]:
             raise ValueError("memory closure classification mismatch")
-        if manifest["classifications"] != {
-            key: analysis["classification"][key] for key in ("direct-quic", "rust-rust", "go-rust")
-        }:
+        if manifest["classifications"] != {key: analysis["classification"][key] for key in ("direct-quic", "rust-rust", "go-rust")}:
             raise ValueError("memory path classification mismatch")
         verify_source_bindings(Path.cwd(), root / manifest["source_bindings"])
         return len(checksums), 0

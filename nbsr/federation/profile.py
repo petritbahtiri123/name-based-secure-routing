@@ -171,10 +171,10 @@ _F75_OVERLAY_PATH = "docs/protocol/registries/core-v0.2-f75-overlay.json"
 _F75_REASON = "Human-approved F75 ROUTE_OPEN body_version = 2 federation-binding extension and admission integration only."
 _F75_REPLACEMENTS = frozenset(
     {
-        "crates/nbsr-" "transport/src/admission.rs",
-        "crates/nbsr-" "transport/src/core_v02.rs",
-        "crates/nbsr-" "transport/src/lib.rs",
-        "crates/nbsr-" "transport/src/session.rs",
+        "crates/nbsr-transport/src/admission.rs",
+        "crates/nbsr-transport/src/core_v02.rs",
+        "crates/nbsr-transport/src/lib.rs",
+        "crates/nbsr-transport/src/session.rs",
     }
 )
 

@@ -55,9 +55,7 @@ def main() -> None:
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=False)
     (output / "environment.json").write_text(json.dumps(env_record, indent=2) + "\n", encoding="utf-8")
-    environment_digest = hashlib.sha256(
-        json.dumps(env_record, sort_keys=True, separators=(",", ":")).encode()
-    ).hexdigest()
+    environment_digest = hashlib.sha256(json.dumps(env_record, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
     run_id = f"{args.path}-{args.scenario}-{args.payload_bytes}-idle-r{args.run_ordinal}"
     with tempfile.TemporaryDirectory(prefix="nbsr-headline-cell-") as temporary:
         temp = Path(temporary)
@@ -67,15 +65,24 @@ def main() -> None:
         binaries = build_release(target)
         if args.path == "direct-quic":
             raw = direct_samples(
-                binaries["direct"], authority, args.samples, args.payload_bytes,
-                "cold" if args.scenario == "direct-cold" else "warm", temp,
+                binaries["direct"],
+                authority,
+                args.samples,
+                args.payload_bytes,
+                "cold" if args.scenario == "direct-cold" else "warm",
+                temp,
             )
         elif args.scenario == "nbsr-warm-existing-service":
             raw = nbsr_samples(args.path, binaries, authority, args.samples, args.payload_bytes, temp)
         else:
             lifecycle = rust_lifecycle_samples if args.path == "rust-rust" else go_lifecycle_samples
             raw = lifecycle(
-                binaries, authority, args.samples, args.payload_bytes, args.scenario, temp,
+                binaries,
+                authority,
+                args.samples,
+                args.payload_bytes,
+                args.scenario,
+                temp,
                 services_per_session=32,
             )
     if len(raw) != args.samples or not all(record.get("success", True) for record in raw):

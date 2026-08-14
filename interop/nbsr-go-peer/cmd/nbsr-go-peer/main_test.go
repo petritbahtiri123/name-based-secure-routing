@@ -115,6 +115,33 @@ func TestOpenLoopOfferedRateMustBePositive(t *testing.T) {
 	}
 }
 
+func TestStreamCreditProfileIsExactAndSingleOperation(t *testing.T) {
+	base := config{ReadinessPath: "ready", F75Package: "f75", LocalAttestationPackage: "local", SafePayload: "Z", BenchmarkSamples: 1, StreamCreditProfile: "nbsr-stream-credit-1"}
+	if err := base.validate(); err != nil {
+		t.Fatalf("approved stream-credit profile rejected: %v", err)
+	}
+	base.StreamCreditProfile = "nbsr-stream-credit-2"
+	if err := base.validate(); err == nil {
+		t.Fatal("unknown stream-credit profile accepted")
+	}
+	base.StreamCreditProfile = "nbsr-stream-credit-1"
+	base.BenchmarkSamples = 2
+	if err := base.validate(); err == nil {
+		t.Fatal("publication interop mode accepted multiple operations")
+	}
+}
+
+func TestCreditMutationsAreNotClassifiedAsRouteMutations(t *testing.T) {
+	for _, mutation := range []string{"malformed_credit_preface", "credit_profile_mismatch", "credit_legacy_downgrade"} {
+		if !isCreditMutation(mutation) {
+			t.Fatalf("credit mutation misclassified: %s", mutation)
+		}
+	}
+	if isCreditMutation("wrong_service") {
+		t.Fatal("route mutation classified as stream-credit mutation")
+	}
+}
+
 func TestLargeSampleCountRequiresStreamingOpenLoopMode(t *testing.T) {
 	cell := config{ReadinessPath: "ready", F75Package: "f75", LocalAttestationPackage: "local", SafePayload: "Z", BenchmarkSamples: 100_001}
 	if err := cell.validate(); err == nil {

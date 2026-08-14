@@ -48,8 +48,12 @@ def run_analysis(path: Path) -> dict[str, Any]:
     lifecycle = {
         owner: reconcile_snapshot(post, owner)
         for owner in (
-            "transport_sessions", "service_channels", "application_streams",
-            "nbsr_tasks", "quic_connections", "quic_streams",
+            "transport_sessions",
+            "service_channels",
+            "application_streams",
+            "nbsr_tasks",
+            "quic_connections",
+            "quic_streams",
         )
     }
     collection_names = ("pending_routes", "channel_registry", "stream_registry", "audit_queue", "replay_state")
@@ -161,10 +165,10 @@ The positive destination-process late-run slope reproduced in all three 75% runs
 ## Observer effect
 
 - Five paired comparisons, 843.75 ops/s, 5-second warm-up, 30-second measured window.
-- Median throughput degradation: `{observer['median_throughput_degradation_percent']:.6f}%` (limit 3%).
-- Median p99 degradation: `{observer['median_p99_degradation_percent']:.6f}%` (limit 5%).
-- Additional protocol errors: `{observer['additional_protocol_errors']}`.
-- Source-only diagnostic build gate: `{'PASS' if observer['pass'] else 'FAIL'}`.
+- Median throughput degradation: `{observer["median_throughput_degradation_percent"]:.6f}%` (limit 3%).
+- Median p99 degradation: `{observer["median_p99_degradation_percent"]:.6f}%` (limit 5%).
+- Additional protocol errors: `{observer["additional_protocol_errors"]}`.
+- Source-only diagnostic build gate: `{"PASS" if observer["pass"] else "FAIL"}`.
 - Destination-emission attempts are retained under `attempts/`; they produced protocol/finalization errors and therefore were rejected rather than used for attribution.
 
 ## Primary run results

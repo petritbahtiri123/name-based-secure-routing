@@ -18,9 +18,7 @@ def evaluate_repository(root: Path) -> dict[str, object]:
     root = root.resolve()
     go_modules = _relative_files(root, "go.mod")
     go_files = [Path(path) for path in _relative_files(root, "*.go")]
-    production_go_files = sorted(
-        path.as_posix() for path in go_files if path.parts[0] not in _NON_PRODUCTION_GO_ROOTS
-    )
+    production_go_files = sorted(path.as_posix() for path in go_files if path.parts[0] not in _NON_PRODUCTION_GO_ROOTS)
 
     peer_main_path = root / "interop/nbsr-go-peer/cmd/nbsr-go-peer/main.go"
     peer_transport_path = root / "interop/nbsr-go-peer/internal/transport/quic.go"
@@ -28,28 +26,18 @@ def evaluate_repository(root: Path) -> dict[str, object]:
     peer_transport = peer_transport_path.read_text(encoding="utf-8")
     wire_capable = "transport.Dial(" in peer_main and "quic.DialAddr" in peer_transport
     fixture_authority = (
-        '"route-open-body.cbor"' in peer_main
-        and "mustRead(filepath.Join(" in peer_main
-        and "VerifyRouteGrant(exactGrant" in peer_main
+        '"route-open-body.cbor"' in peer_main and "mustRead(filepath.Join(" in peer_main and "VerifyRouteGrant(exactGrant" in peer_main
     )
 
     core_path = root / "interop/nbsr-go-peer/internal/core/core.go"
     core_source = core_path.read_text(encoding="utf-8")
     constant_block = core_source.split("const (", 1)[1].split(")", 1)[0]
     message_names = re.findall(r"^\s*([A-Z][A-Za-z]+)\s+MessageType", constant_block, re.MULTILINE)
-    acquisition_messages = sorted(
-        name for name in message_names if "Grant" in name or "Authority" in name
-    )
+    acquisition_messages = sorted(name for name in message_names if "Grant" in name or "Authority" in name)
 
-    channel_streams = (root / "crates/nbsr-transport/src/channel_streams.rs").read_text(
-        encoding="utf-8"
-    )
-    stream_gate = (root / "crates/nbsr-transport/src/stream_gate.rs").read_text(
-        encoding="utf-8"
-    )
-    rust_cap_expressible = (
-        "fn prepare_open" in channel_streams and "OverCapacity" in stream_gate
-    )
+    channel_streams = (root / "crates/nbsr-transport/src/channel_streams.rs").read_text(encoding="utf-8")
+    stream_gate = (root / "crates/nbsr-transport/src/stream_gate.rs").read_text(encoding="utf-8")
+    rust_cap_expressible = "fn prepare_open" in channel_streams and "OverCapacity" in stream_gate
     production_owner_exists = bool(production_go_files)
     live_acquisition_exists = bool(acquisition_messages)
     coordinated_fix_expressible = production_owner_exists and live_acquisition_exists
@@ -73,11 +61,7 @@ def evaluate_repository(root: Path) -> dict[str, object]:
         "partial_rust_only_fix_authorized": False,
         "production_implementation_authorized": coordinated_fix_expressible,
         "outcome": "IMPLEMENT" if coordinated_fix_expressible else "C",
-        "classification": (
-            "IMPLEMENTATION_GATE_PASSED"
-            if coordinated_fix_expressible
-            else "CODE_LEVEL_PROTOCOL_BLOCKED"
-        ),
+        "classification": ("IMPLEMENTATION_GATE_PASSED" if coordinated_fix_expressible else "CODE_LEVEL_PROTOCOL_BLOCKED"),
         "missing_contract": (
             None
             if coordinated_fix_expressible

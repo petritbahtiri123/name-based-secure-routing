@@ -19,14 +19,9 @@ def test_independent_peer_dependency_is_exact_isolated_and_checksum_locked() -> 
     assert "nbsr-transport" not in module
 
     sums = (PEER / "go.sum").read_text(encoding="utf-8")
-    assert (
-        "github.com/quic-go/quic-go v0.61.0 "
-        "h1:ui88A53s8MSVYLC56en0KQ17HARk+9986Dn0SBfKNvA="
-    ) in sums
+    assert ("github.com/quic-go/quic-go v0.61.0 h1:ui88A53s8MSVYLC56en0KQ17HARk+9986Dn0SBfKNvA=") in sums
     lock = json.loads((PEER / "dependency-lock.json").read_text(encoding="utf-8"))
-    assert [entry["path"] for entry in lock["files"]] == [
-        "interop/nbsr-go-peer/go.mod", "interop/nbsr-go-peer/go.sum"
-    ]
+    assert [entry["path"] for entry in lock["files"]] == ["interop/nbsr-go-peer/go.mod", "interop/nbsr-go-peer/go.sum"]
     for entry in lock["files"]:
         wire = (ROOT / entry["path"]).read_bytes()
         assert entry["length"] == len(wire)

@@ -80,17 +80,12 @@ def git(*args: str) -> str:
     return subprocess.check_output(["git", *args], cwd=ROOT, text=True).strip()
 
 
-def correlate_owner_process(
-    diagnostics: list[dict[str, Any]], resources: list[dict[str, Any]], field: str
-) -> float:
+def correlate_owner_process(diagnostics: list[dict[str, Any]], resources: list[dict[str, Any]], field: str) -> float:
     index = 0
     owner_values: list[int] = []
     process_values: list[int] = []
     for resource in resources:
-        while (
-            index + 1 < len(diagnostics)
-            and int(diagnostics[index + 1]["timestamp_ns"]) <= int(resource["timestamp_ns"])
-        ):
+        while index + 1 < len(diagnostics) and int(diagnostics[index + 1]["timestamp_ns"]) <= int(resource["timestamp_ns"]):
             index += 1
         owner_values.append(int(diagnostics[index]["replay_state_retained_capacity"]))
         process_values.append(int(resource[field]))
@@ -103,12 +98,8 @@ def run_analysis(path: Path) -> dict[str, Any]:
     summary = json.loads((finalized / "summary.json").read_text(encoding="utf-8"))
     resources = documents(finalized / "resources.ndjson")
     diagnostics = documents(finalized / "destination-diagnostics.ndjson")
-    steady = [
-        item for item in resources if item["role"] == "destination" and item["phase"] == "steady"
-    ]
-    drain = [
-        item for item in resources if item["role"] == "destination" and item["phase"] == "drain"
-    ]
+    steady = [item for item in resources if item["role"] == "destination" and item["phase"] == "steady"]
+    drain = [item for item in resources if item["role"] == "destination" and item["phase"] == "drain"]
     load_end_ns = int((summary["warmup_seconds"] + summary["steady_state_seconds"]) * 1_000_000_000)
     load_diagnostics = [item for item in diagnostics if int(item["timestamp_ns"]) < load_end_ns]
     initial = diagnostics[0]
@@ -169,10 +160,8 @@ def run_analysis(path: Path) -> dict[str, Any]:
         "replay_capacity_working_set_correlation": correlation_ws,
         "replay_capacity_private_bytes_correlation": correlation_private,
         "replay_insertions_equal_completed_streams": replay["inserts"] == completed_total,
-        "replay_entries_and_capacity_clear_post_drain": replay["post_drain_entries"] == 0
-        and replay["post_drain_retained_capacity"] == 0,
-        "process_memory_returns_to_baseline_post_drain": post_ws <= ws_start
-        and post_private <= private_start,
+        "replay_entries_and_capacity_clear_post_drain": replay["post_drain_entries"] == 0 and replay["post_drain_retained_capacity"] == 0,
+        "process_memory_returns_to_baseline_post_drain": post_ws <= ws_start and post_private <= private_start,
         "all_instrumented_layers_visible": True,
     }
     return {
@@ -197,16 +186,14 @@ def run_analysis(path: Path) -> dict[str, Any]:
             "post_drain_working_set_bytes": post_ws,
             "post_drain_private_bytes": post_private,
             "working_set_change_per_completed_operation": (ws_end - ws_start) / completed_measured,
-            "private_bytes_change_per_completed_operation": (private_end - private_start)
-            / completed_measured,
+            "private_bytes_change_per_completed_operation": (private_end - private_start) / completed_measured,
         },
         "lifecycle": lifecycle,
         "collections": collections,
         "replay": {
             **replay,
             "entries_per_total_completed_operation": replay["high_water_entries"] / completed_total,
-            "capacity_per_total_completed_operation": replay["high_water_retained_capacity"]
-            / completed_total,
+            "capacity_per_total_completed_operation": replay["high_water_retained_capacity"] / completed_total,
             "capacity_growth_events": capacity_growth_events,
             "capacity_working_set_correlation": correlation_ws,
             "capacity_private_bytes_correlation": correlation_private,
@@ -273,10 +260,10 @@ Root ownership is now known at the application boundary: destination `ChannelStr
 
 ## Git boundaries
 
-- Task branch: `{manifest['task_branch']}`
+- Task branch: `{manifest["task_branch"]}`
 - P1B base SHA: `275315e3fb6e57ee272264a6b0385813bb60a8f7`
 - Underlying accepted product SHA: `4e25ee026618a502327331f352d90e26d29284e3`
-- Local SHA at report generation: `{manifest['git_head_at_generation']}` (the final evidence commit SHA is reported in the task response because a commit cannot self-identify its own SHA)
+- Local SHA at report generation: `{manifest["git_head_at_generation"]}` (the final evidence commit SHA is reported in the task response because a commit cannot self-identify its own SHA)
 - Pre/post remote `main`: `1938154d498b32d81a3564319969430644e8a688`
 - Pre/post remote accepted branch: `4e25ee026618a502327331f352d90e26d29284e3`
 - P1A branch/commit: local branch present at required `275315e3fb6e57ee272264a6b0385813bb60a8f7`; history unchanged
@@ -321,7 +308,7 @@ The destination hot path updates only fixed aggregate atomics already introduced
 |---:|---:|---:|---:|---:|---:|---:|---:|---:|
 {chr(10).join(pair_rows)}
 
-Median throughput degradation: `{observer['median_throughput_degradation_percent']:.6f}%` (limit 3%). Median p99 degradation: `{observer['median_p99_degradation_percent']:.6f}%` (limit 5%). Additional protocol errors: `{observer['additional_protocol_errors']}` (required 0). **PASS**.
+Median throughput degradation: `{observer["median_throughput_degradation_percent"]:.6f}%` (limit 3%). Median p99 degradation: `{observer["median_p99_degradation_percent"]:.6f}%` (limit 5%). Additional protocol errors: `{observer["additional_protocol_errors"]}` (required 0). **PASS**.
 
 ## Attribution runs
 
@@ -441,9 +428,7 @@ def main() -> None:
     reports = EVIDENCE / "reports"
     summaries.mkdir(exist_ok=True)
     reports.mkdir(exist_ok=True)
-    (summaries / "analysis.json").write_text(
-        json.dumps(analysis, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-    )
+    (summaries / "analysis.json").write_text(json.dumps(analysis, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     manifest = {
         "schema": "nbsr-rust-destination-memory-attribution-p1b-manifest-v1",
         "classification": classification,
@@ -458,20 +443,14 @@ def main() -> None:
         "generated_on": platform.platform(),
         "p1a_checksums_sha256": digest(P1A / "checksums.json"),
     }
-    (EVIDENCE / "manifest.json").write_text(
-        json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-    )
-    (reports / "rust-destination-memory-attribution.md").write_text(
-        markdown_report(analysis, manifest), encoding="utf-8"
-    )
+    (EVIDENCE / "manifest.json").write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    (reports / "rust-destination-memory-attribution.md").write_text(markdown_report(analysis, manifest), encoding="utf-8")
     checksums = {
         path.relative_to(EVIDENCE).as_posix(): digest(path)
         for path in sorted(EVIDENCE.rglob("*"))
         if path.is_file() and path.name != "checksums.json"
     }
-    (EVIDENCE / "checksums.json").write_text(
-        json.dumps(checksums, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-    )
+    (EVIDENCE / "checksums.json").write_text(json.dumps(checksums, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(json.dumps({"classification": classification, "checksummed_files": len(checksums)}, indent=2))
 
 

@@ -16,29 +16,52 @@ def write_v2_fixture(root: Path) -> None:
     run_id = "direct-run-r1"
     environment_digest = "e" * 64
     record = {
-        "schema": "nbsr-performance-sample-v1", "run_id": run_id, "sample_id": 0,
-        "environment_digest": environment_digest, "success": True,
-        "request_latency_ns": 1, "total_scenario_ns": 2,
+        "schema": "nbsr-performance-sample-v1",
+        "run_id": run_id,
+        "sample_id": 0,
+        "environment_digest": environment_digest,
+        "success": True,
+        "request_latency_ns": 1,
+        "total_scenario_ns": 2,
     }
     with gzip.open(root / "raw/run.ndjson.gz", "wt", encoding="utf-8") as handle:
         handle.write(json.dumps(record) + "\n")
     (root / "summaries/run.json").write_text(
-        json.dumps({"run_id": run_id, "success": 1, "failure": 0}) + "\n", encoding="utf-8",
+        json.dumps({"run_id": run_id, "success": 1, "failure": 0}) + "\n",
+        encoding="utf-8",
     )
     (root / "summaries/confidence.json").write_text(
-        json.dumps({"cells": {"direct": {"p50": {"method": "independent-run-bootstrap-mean-v1", "run_count": 5, "lower": 1, "estimate": 1, "upper": 1}}}}) + "\n",
+        json.dumps(
+            {
+                "cells": {
+                    "direct": {
+                        "p50": {"method": "independent-run-bootstrap-mean-v1", "run_count": 5, "lower": 1, "estimate": 1, "upper": 1}
+                    }
+                }
+            }
+        )
+        + "\n",
         encoding="utf-8",
     )
     files = ["manifest.json", "raw/run.ndjson.gz", "summaries/confidence.json", "summaries/run.json"]
     manifest = {
-        "schema": "nbsr-performance-evidence-manifest-v2", "files": files,
-        "outcome": "PARTIAL_BASELINE", "completion_criteria": {"formal_cells": False},
+        "schema": "nbsr-performance-evidence-manifest-v2",
+        "files": files,
+        "outcome": "PARTIAL_BASELINE",
+        "completion_criteria": {"formal_cells": False},
         "confidence_summary": "summaries/confidence.json",
-        "runs": [{
-            "run_id": run_id, "raw": "raw/run.ndjson.gz", "summary": "summaries/run.json",
-            "environment_digest": environment_digest, "raw_samples": 1, "formal": False,
-            "scenario": "direct-warm", "kind": "headline",
-        }],
+        "runs": [
+            {
+                "run_id": run_id,
+                "raw": "raw/run.ndjson.gz",
+                "summary": "summaries/run.json",
+                "environment_digest": environment_digest,
+                "raw_samples": 1,
+                "formal": False,
+                "scenario": "direct-warm",
+                "kind": "headline",
+            }
+        ],
     }
     (root / "manifest.json").write_text(json.dumps(manifest) + "\n", encoding="utf-8")
     checksums = {name: hashlib.sha256((root / name).read_bytes()).hexdigest() for name in files}

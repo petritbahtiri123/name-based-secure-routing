@@ -34,9 +34,7 @@ def test_formal_plan_uses_each_paths_accepted_capacity() -> None:
     accepted = {"direct-quic": 4_000, "rust-rust": 1_500, "go-rust": 300}
     specs = completion_plan("formal", accepted_capacities=accepted)
     assert [(spec.path, spec.percent, spec.rate) for spec in specs] == [
-        (path, percent, accepted[path] * percent / 100)
-        for path in ("direct-quic", "rust-rust", "go-rust")
-        for percent in (25, 50, 75, 90)
+        (path, percent, accepted[path] * percent / 100) for path in ("direct-quic", "rust-rust", "go-rust") for percent in (25, 50, 75, 90)
     ]
 
 
@@ -45,9 +43,12 @@ def test_memory_plan_uses_stable_direct_upper_load_without_changing_other_paths(
     specs = completion_plan("memory", accepted_capacities=accepted)
     assert len(specs) == 6
     assert [(spec.path, spec.percent) for spec in specs] == [
-        ("direct-quic", 50), ("direct-quic", 68),
-        ("rust-rust", 50), ("rust-rust", 75),
-        ("go-rust", 50), ("go-rust", 75),
+        ("direct-quic", 50),
+        ("direct-quic", 68),
+        ("rust-rust", 50),
+        ("rust-rust", 75),
+        ("go-rust", 50),
+        ("go-rust", 75),
     ]
     assert [spec.rate for spec in specs if spec.path == "direct-quic"] == [2_000, 2_720]
     assert all(spec.warmup_seconds == 60 for spec in specs)
@@ -110,15 +111,24 @@ def test_non_memory_execution_keeps_existing_short_path(monkeypatch, tmp_path: P
 def test_completion_runner_cli_loads_memory_plan_from_repository_root(tmp_path: Path) -> None:
     capacities = tmp_path / "capacities.json"
     capacities.write_text(
-        '{"direct-quic":4750,"rust-rust":1687.5,"go-rust":400}\n', encoding="utf-8",
+        '{"direct-quic":4750,"rust-rust":1687.5,"go-rust":400}\n',
+        encoding="utf-8",
     )
     result = subprocess.run(
         [
-            sys.executable, str(Path("scripts/run_performance_completion.py")),
-            "--phase", "memory", "--accepted-capacities", str(capacities),
-            "--output", str(tmp_path / "evidence"),
+            sys.executable,
+            str(Path("scripts/run_performance_completion.py")),
+            "--phase",
+            "memory",
+            "--accepted-capacities",
+            str(capacities),
+            "--output",
+            str(tmp_path / "evidence"),
         ],
-        cwd=Path(__file__).parents[2], capture_output=True, text=True, check=False,
+        cwd=Path(__file__).parents[2],
+        capture_output=True,
+        text=True,
+        check=False,
     )
 
     assert result.returncode == 0, result.stderr

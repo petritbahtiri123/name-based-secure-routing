@@ -157,9 +157,7 @@ class RequestActivityBuckets:
 
     def finish(self) -> None:
         if self._observed != self.sample_count:
-            raise ValueError(
-                f"expected {self.sample_count} request intervals, observed {self._observed}"
-            )
+            raise ValueError(f"expected {self.sample_count} request intervals, observed {self._observed}")
 
     def at(self, timestamp_ns: int) -> RequestActivity:
         if timestamp_ns < 0:
@@ -232,18 +230,18 @@ class ProcessResourceSampler:
                     cpu_one_core = 0.0 if prior is None else 100.0 * (cpu_total - prior[1]) / (timestamp - prior[0])
                     previous[role] = (timestamp, cpu_total)
                     record = TimedProcessResourceSample(
-                            role=role,
-                            timestamp_ns=timestamp - origin,
-                            pid=pid,
-                            user_cpu_ns=sample.user_cpu_ns,
-                            kernel_cpu_ns=sample.kernel_cpu_ns,
-                            cpu_percent_one_core=cpu_one_core,
-                            cpu_percent_assigned=cpu_one_core / self.assigned_logical_processors,
-                            working_set_bytes=sample.working_set_bytes,
-                            peak_working_set_bytes=sample.peak_working_set_bytes,
-                            private_bytes=sample.private_bytes,
-                            thread_count=sample.thread_count,
-                        )
+                        role=role,
+                        timestamp_ns=timestamp - origin,
+                        pid=pid,
+                        user_cpu_ns=sample.user_cpu_ns,
+                        kernel_cpu_ns=sample.kernel_cpu_ns,
+                        cpu_percent_one_core=cpu_one_core,
+                        cpu_percent_assigned=cpu_one_core / self.assigned_logical_processors,
+                        working_set_bytes=sample.working_set_bytes,
+                        peak_working_set_bytes=sample.peak_working_set_bytes,
+                        private_bytes=sample.private_bytes,
+                        thread_count=sample.thread_count,
+                    )
                     self._records.append(record)
                     if self.record_sink is not None:
                         self.record_sink(record)
@@ -303,7 +301,10 @@ def _trend(samples: list[MemorySample], field: str) -> MemoryTrend:
 
 
 def analyze_memory_window(
-    samples: list[MemorySample], *, warmup_end_ns: int, expected_cadence_ns: int,
+    samples: list[MemorySample],
+    *,
+    warmup_end_ns: int,
+    expected_cadence_ns: int,
 ) -> MemoryWindow:
     if expected_cadence_ns <= 0:
         raise ValueError("memory sample cadence must be positive")
@@ -331,8 +332,7 @@ def analyze_memory_window(
         private_bytes_final_quarter=_trend(final_quarter, "private_bytes"),
         working_set_second_half_range=max(item.working_set_bytes for item in second_half)
         - min(item.working_set_bytes for item in second_half),
-        private_bytes_second_half_range=max(item.private_bytes for item in second_half)
-        - min(item.private_bytes for item in second_half),
+        private_bytes_second_half_range=max(item.private_bytes for item in second_half) - min(item.private_bytes for item in second_half),
         working_set_bytes_end=steady[-1].working_set_bytes,
         private_bytes_end=steady[-1].private_bytes,
         processed_request_delta=request_delta,
@@ -342,10 +342,9 @@ def analyze_memory_window(
 
 
 def _bounded(window: MemoryWindow) -> bool:
-    return (
-        window.working_set_second_half_range <= max(1.0, window.working_set_bytes_end * 0.02)
-        and window.private_bytes_second_half_range <= max(1.0, window.private_bytes_end * 0.02)
-    )
+    return window.working_set_second_half_range <= max(
+        1.0, window.working_set_bytes_end * 0.02
+    ) and window.private_bytes_second_half_range <= max(1.0, window.private_bytes_end * 0.02)
 
 
 def _sustained_growth(window: MemoryWindow) -> bool:

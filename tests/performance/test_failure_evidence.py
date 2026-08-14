@@ -73,10 +73,7 @@ def test_go_network_inactivity_timeout_remains_distinct_from_protocol_failure() 
 
 def test_every_unsupported_attempt_requires_one_terminal_record() -> None:
     attempts = [attempt("rust-rust", sample_id) for sample_id in range(3)]
-    records = [
-        terminal_failure_record(item, error_type="AuditUnavailable", timeout_category=None, detail="audit")
-        for item in attempts
-    ]
+    records = [terminal_failure_record(item, error_type="AuditUnavailable", timeout_category=None, detail="audit") for item in attempts]
     reconcile_attempt_records(attempts, records)
     with pytest.raises(ValueError, match="unsupported attempt terminal mismatch"):
         reconcile_attempt_records(attempts, records[:-1])
@@ -102,8 +99,11 @@ def test_supported_boundary_failure_is_not_mislabeled_as_expected_unsupported() 
 
 def test_640_stream_plan_preserves_every_service_and_request_identity() -> None:
     attempts = unsupported_attempts(
-        run_id="rust-rust-640", implementation="rust-rust", requested_concurrency=640,
-        configured_limit=320, services=20,
+        run_id="rust-rust-640",
+        implementation="rust-rust",
+        requested_concurrency=640,
+        configured_limit=320,
+        services=20,
     )
     assert len(attempts) == 640
     assert attempts[0].service_id == "service-00"
@@ -115,10 +115,12 @@ def test_640_stream_plan_preserves_every_service_and_request_identity() -> None:
 
 def test_observed_batch_errors_map_to_stable_typed_categories() -> None:
     assert classify_unsupported_error("rust-rust", "called Result::unwrap on AuditUnavailable") == (
-        "AuditUnavailable", None,
+        "AuditUnavailable",
+        None,
     )
     assert classify_unsupported_error("go-rust", "timeout: no recent network activity") == (
-        "timeout", "no-recent-network-activity",
+        "timeout",
+        "no-recent-network-activity",
     )
     with pytest.raises(ValueError, match="unrecognized unsupported failure"):
         classify_unsupported_error("go-rust", "unexpected protocol parse failure")

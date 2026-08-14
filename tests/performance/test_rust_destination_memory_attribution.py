@@ -47,12 +47,8 @@ def test_p1b_short_attribution_windows_use_explicit_validation_profile(tmp_path:
 
 
 def test_observer_summary_applies_all_three_guardrails() -> None:
-    rows = [
-        {"pair": pair, "diagnostics_enabled": False, "achieved_rate": 100.0, "p99_ns": 1000, "errors": 0}
-        for pair in range(1, 6)
-    ] + [
-        {"pair": pair, "diagnostics_enabled": True, "achieved_rate": 98.0, "p99_ns": 1040, "errors": 0}
-        for pair in range(1, 6)
+    rows = [{"pair": pair, "diagnostics_enabled": False, "achieved_rate": 100.0, "p99_ns": 1000, "errors": 0} for pair in range(1, 6)] + [
+        {"pair": pair, "diagnostics_enabled": True, "achieved_rate": 98.0, "p99_ns": 1040, "errors": 0} for pair in range(1, 6)
     ]
     assert summarize_observer(rows)["pass"] is True
     rows[-1]["errors"] = 1
@@ -83,8 +79,6 @@ def classified_run(
 def test_destination_classification_distinguishes_a_through_e() -> None:
     assert classify_destination_runs([classified_run(post_live=1) for _ in range(3)]) == "A"
     assert classify_destination_runs([classified_run() for _ in range(3)]) == "B"
-    assert classify_destination_runs([
-        classified_run(capacity_correlation=0.1, replay_exact=False) for _ in range(3)
-    ]) == "C"
+    assert classify_destination_runs([classified_run(capacity_correlation=0.1, replay_exact=False) for _ in range(3)]) == "C"
     assert classify_destination_runs([classified_run(slope=0) for _ in range(3)]) == "D"
     assert classify_destination_runs([classified_run(visible=False) for _ in range(3)]) == "E"

@@ -35,29 +35,37 @@ def main() -> None:
         raise SystemExit(9)
 
     for sample_id in range(3):
-        emit({
-            "event": "request",
-            "sample_id": sample_id,
-            "started": True,
-            "result": "failed" if args.mode == "failed" and sample_id == 2 else "completed",
-        })
-        emit({
-            "event": "resource",
-            "timestamp_ns": sample_id * 1_000_000_000,
-            "working_set_bytes": 10_000 + sample_id,
-            "private_bytes": 8_000 + sample_id,
-        })
-        emit({
-            "event": "runtime",
-            "timestamp_ns": sample_id * 1_000_000_000,
-            "heap_alloc": 1_000 + sample_id,
-        })
-        emit({
-            "event": "diagnostic",
-            "timestamp_ns": sample_id * 1_000_000_000,
-            "application_streams_current_live": 0,
-            "replay_state_current_entries": sample_id,
-        })
+        emit(
+            {
+                "event": "request",
+                "sample_id": sample_id,
+                "started": True,
+                "result": "failed" if args.mode == "failed" and sample_id == 2 else "completed",
+            }
+        )
+        emit(
+            {
+                "event": "resource",
+                "timestamp_ns": sample_id * 1_000_000_000,
+                "working_set_bytes": 10_000 + sample_id,
+                "private_bytes": 8_000 + sample_id,
+            }
+        )
+        emit(
+            {
+                "event": "runtime",
+                "timestamp_ns": sample_id * 1_000_000_000,
+                "heap_alloc": 1_000 + sample_id,
+            }
+        )
+        emit(
+            {
+                "event": "diagnostic",
+                "timestamp_ns": sample_id * 1_000_000_000,
+                "application_streams_current_live": 0,
+                "replay_state_current_entries": sample_id,
+            }
+        )
         time.sleep(0.05)
 
     if args.mode == "failed":

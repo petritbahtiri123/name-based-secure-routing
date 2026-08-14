@@ -104,13 +104,11 @@ def should_stop_after_three(before: list[dict], after: list[dict]) -> bool:
     if summary["before_throughput_cv"] > 0.05 or summary["after_throughput_cv"] > 0.05:
         return False
     throughput_sides = [
-        float(after_cell["operations_per_second"])
-        >= 1.20 * float(before_cell["operations_per_second"])
+        float(after_cell["operations_per_second"]) >= 1.20 * float(before_cell["operations_per_second"])
         for before_cell, after_cell in zip(before, after, strict=True)
     ]
     p99_sides = [
-        int(after_cell["p99_ns"]) <= 1.05 * int(before_cell["p99_ns"])
-        for before_cell, after_cell in zip(before, after, strict=True)
+        int(after_cell["p99_ns"]) <= 1.05 * int(before_cell["p99_ns"]) for before_cell, after_cell in zip(before, after, strict=True)
     ]
     throughput_clear = all(throughput_sides) or not any(throughput_sides)
     p99_clear = all(p99_sides) or not any(p99_sides)
@@ -128,16 +126,9 @@ def evaluate_acceptance(summary: dict, **gates: str) -> dict:
         "errors": "PASS" if summary["errors"] == 0 else "FAIL",
         **{name: gates[name] for name in required},
         "throughput": (
-            "PASS"
-            if summary["after_median_operations_per_second"]
-            >= 1.20 * summary["before_median_operations_per_second"]
-            else "FAIL"
+            "PASS" if summary["after_median_operations_per_second"] >= 1.20 * summary["before_median_operations_per_second"] else "FAIL"
         ),
-        "p99": (
-            "PASS"
-            if summary["after_median_p99_ns"] <= 1.05 * summary["before_median_p99_ns"]
-            else "FAIL"
-        ),
+        "p99": ("PASS" if summary["after_median_p99_ns"] <= 1.05 * summary["before_median_p99_ns"] else "FAIL"),
     }
     precedence = (
         "errors",
@@ -176,11 +167,7 @@ def validate_continuity(cell: dict) -> str:
 def _nested_measured_endpoints(value: object):
     if isinstance(value, dict):
         for name, nested in value.items():
-            if (
-                name in ("source", "destination")
-                and isinstance(nested, dict)
-                and "completed_operations" in nested
-            ):
+            if name in ("source", "destination") and isinstance(nested, dict) and "completed_operations" in nested:
                 yield nested
             yield from _nested_measured_endpoints(nested)
     elif isinstance(value, list):
@@ -195,11 +182,7 @@ def validate_replay_limits(cell: dict) -> str:
         replay_limit = endpoint.get("replay_limit")
         if replay_limit != 10_000:
             return "FAIL"
-        if (
-            not isinstance(replay_entries, int)
-            or replay_entries < 0
-            or replay_entries > replay_limit
-        ):
+        if not isinstance(replay_entries, int) or replay_entries < 0 or replay_entries > replay_limit:
             return "FAIL"
     return "PASS"
 
@@ -268,11 +251,7 @@ def select_saturation_concurrency(cells: list[dict]) -> int:
         raise ValueError("concurrency: sweep is not the exact approved sequence")
     maximum = max(float(cell["operations_per_second"]) for cell in cells)
     threshold = maximum * 0.98
-    return next(
-        concurrency
-        for concurrency in CONCURRENCIES
-        if float(by_concurrency[concurrency]["operations_per_second"]) >= threshold
-    )
+    return next(concurrency for concurrency in CONCURRENCIES if float(by_concurrency[concurrency]["operations_per_second"]) >= threshold)
 
 
 def verify_closed_inventory(root: Path, checksum_file: Path) -> int:

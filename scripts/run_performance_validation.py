@@ -49,7 +49,11 @@ def command(argv: list[str], *, cwd: Path = ROOT, timeout: int = 300) -> subproc
 
 
 def measured_client(
-    argv: list[str], *, cwd: Path, server: subprocess.Popen[str], timeout: int,
+    argv: list[str],
+    *,
+    cwd: Path,
+    server: subprocess.Popen[str],
+    timeout: int,
     stdout_path: Path | None = None,
     output_line_sink: Callable[[str], None] | None = None,
     resource_sink: Callable[[dict[str, Any]], None] | None = None,
@@ -58,8 +62,11 @@ def measured_client(
     output_handle = stdout_path.open("w", encoding="utf-8", newline="\n") if stdout_path is not None else None
     capture_stream = output_line_sink is not None
     client = subprocess.Popen(
-        argv, cwd=cwd, stdout=subprocess.PIPE if capture_stream else output_handle if output_handle is not None else subprocess.PIPE,
-        stderr=subprocess.PIPE, text=True,
+        argv,
+        cwd=cwd,
+        stdout=subprocess.PIPE if capture_stream else output_handle if output_handle is not None else subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
     )
     streamed_output: list[str] = []
     stream_error: list[BaseException] = []
@@ -241,16 +248,24 @@ def rust_server_command(
 ) -> list[str]:
     command_line = [
         str(binaries["server"]),
-        "--ready", str(ready),
-        "--result", str(result),
-        "--authority-dir", str(authority),
-        "--completion-ack", str(ack),
+        "--ready",
+        str(ready),
+        "--result",
+        str(result),
+        "--authority-dir",
+        str(authority),
+        "--completion-ack",
+        str(ack),
     ]
     if destination_diagnostics is not None:
-        command_line.extend([
-            "--destination-diagnostics-file", str(destination_diagnostics),
-            "--diagnostic-drain-seconds", str(diagnostic_drain_seconds),
-        ])
+        command_line.extend(
+            [
+                "--destination-diagnostics-file",
+                str(destination_diagnostics),
+                "--diagnostic-drain-seconds",
+                str(diagnostic_drain_seconds),
+            ]
+        )
     return command_line
 
 
@@ -265,7 +280,12 @@ def merge_destination_measurements(records: list[dict[str, Any]], result: dict[s
 
 
 def direct_samples(
-    binary: Path, authority: Path, samples: int, payload: int, lifecycle: str, temp: Path,
+    binary: Path,
+    authority: Path,
+    samples: int,
+    payload: int,
+    lifecycle: str,
+    temp: Path,
     offered_rate: float | None = None,
     resource_records: list[dict[str, Any]] | None = None,
     raw_output: Path | None = None,
@@ -303,28 +323,33 @@ def direct_samples(
     try:
         endpoint = wait_ready(ready, server)["endpoint"]
         client_command = [
-                str(binary),
-                "--role",
-                "client",
-                "--authority-dir",
-                str(authority),
-                "--endpoint",
-                endpoint,
-                "--samples",
-                str(samples),
-                "--payload-bytes",
-                str(payload),
-                "--lifecycle",
-                lifecycle,
-            ]
+            str(binary),
+            "--role",
+            "client",
+            "--authority-dir",
+            str(authority),
+            "--endpoint",
+            endpoint,
+            "--samples",
+            str(samples),
+            "--payload-bytes",
+            str(payload),
+            "--lifecycle",
+            lifecycle,
+        ]
         if offered_rate is not None:
             client_command.extend(["--offered-rate", str(offered_rate)])
         if resource_records is None:
             stdout = command(client_command, timeout=3600).stdout
         else:
             stdout, observed_resources = measured_client(
-                client_command, cwd=ROOT, server=server, timeout=3600, stdout_path=raw_output,
-                output_line_sink=output_line_sink, resource_sink=resource_sink,
+                client_command,
+                cwd=ROOT,
+                server=server,
+                timeout=3600,
+                stdout_path=raw_output,
+                output_line_sink=output_line_sink,
+                resource_sink=resource_sink,
             )
             resource_records.extend(observed_resources)
         server.wait(30)
@@ -340,7 +365,12 @@ def direct_samples(
 
 
 def nbsr_samples(
-    path: str, binaries: dict[str, Path], authority: Path, samples: int, payload: int, temp: Path,
+    path: str,
+    binaries: dict[str, Path],
+    authority: Path,
+    samples: int,
+    payload: int,
+    temp: Path,
     offered_rate: float | None = None,
     resource_records: list[dict[str, Any]] | None = None,
     raw_output: Path | None = None,
@@ -379,33 +409,47 @@ def nbsr_samples(
         endpoint = wait_ready(ready, server)["endpoint"]
         if path == "rust-rust":
             client_command = [
-                    str(binaries["rust"]),
-                    "--authority-dir",
-                    str(authority),
-                    "--endpoint",
-                    endpoint,
-                    "--samples",
-                    str(samples),
-                    "--payload-bytes",
-                    str(payload),
-                ] + (["--offered-rate", str(offered_rate)] if offered_rate is not None else [])
+                str(binaries["rust"]),
+                "--authority-dir",
+                str(authority),
+                "--endpoint",
+                endpoint,
+                "--samples",
+                str(samples),
+                "--payload-bytes",
+                str(payload),
+            ] + (["--offered-rate", str(offered_rate)] if offered_rate is not None else [])
             if os.environ.get("NBSR_P1A_RUST_DIAGNOSTICS") == "1":
-                client_command.extend([
-                    "--diagnostics", "enabled",
-                    "--diagnostic-drain-seconds", os.environ.get("NBSR_P1A_DRAIN_SECONDS", "0"),
-                    "--diagnostic-completion-ack", str(ack),
-                ])
+                client_command.extend(
+                    [
+                        "--diagnostics",
+                        "enabled",
+                        "--diagnostic-drain-seconds",
+                        os.environ.get("NBSR_P1A_DRAIN_SECONDS", "0"),
+                        "--diagnostic-completion-ack",
+                        str(ack),
+                    ]
+                )
             if destination_diagnostics:
-                client_command.extend([
-                    "--post-load-hold-seconds", str(diagnostic_drain_seconds),
-                    "--post-load-completion-ack", str(ack),
-                ])
+                client_command.extend(
+                    [
+                        "--post-load-hold-seconds",
+                        str(diagnostic_drain_seconds),
+                        "--post-load-completion-ack",
+                        str(ack),
+                    ]
+                )
             if resource_records is None:
                 stdout = command(client_command, timeout=3600).stdout
             else:
                 stdout, observed_resources = measured_client(
-                    client_command, cwd=ROOT, server=server, timeout=3600, stdout_path=raw_output,
-                    output_line_sink=output_line_sink, resource_sink=resource_sink,
+                    client_command,
+                    cwd=ROOT,
+                    server=server,
+                    timeout=3600,
+                    stdout_path=raw_output,
+                    output_line_sink=output_line_sink,
+                    resource_sink=resource_sink,
                 )
                 resource_records.extend(observed_resources)
             records = [] if raw_output is not None else parse_ndjson(stdout)
@@ -431,8 +475,13 @@ def nbsr_samples(
                 stdout = command(client_command, cwd=GO_PEER, timeout=3600).stdout
             else:
                 stdout, observed_resources = measured_client(
-                    client_command, cwd=GO_PEER, server=server, timeout=3600, stdout_path=raw_output,
-                    output_line_sink=output_line_sink, resource_sink=resource_sink,
+                    client_command,
+                    cwd=GO_PEER,
+                    server=server,
+                    timeout=3600,
+                    stdout_path=raw_output,
+                    output_line_sink=output_line_sink,
+                    resource_sink=resource_sink,
                 )
                 resource_records.extend(observed_resources)
             if raw_output is not None:
@@ -472,6 +521,7 @@ def rust_lifecycle_samples(
         raise ValueError("streams per service must be in 1..64")
     if scenario == "nbsr-cold":
         batches = (samples,)
+
         def services_for_batch(_batch: int) -> int:
             return 1
 
@@ -479,6 +529,7 @@ def rust_lifecycle_samples(
             return batch
     elif scenario == "nbsr-warm-new-service":
         batches = lifecycle_batch_plan(samples=samples, services_per_session=services_per_session)
+
         def services_for_batch(batch: int) -> int:
             return batch
 
@@ -508,8 +559,15 @@ def rust_lifecycle_samples(
             server_env["NBSR_PERF_CONCURRENT_STREAMS"] = "1"
         server = subprocess.Popen(
             [
-                str(binaries["server"]), "--ready", str(ready), "--result", str(result),
-                "--authority-dir", str(authority), "--completion-ack", str(ack),
+                str(binaries["server"]),
+                "--ready",
+                str(ready),
+                "--result",
+                str(result),
+                "--authority-dir",
+                str(authority),
+                "--completion-ack",
+                str(ack),
             ],
             cwd=ROOT,
             env=server_env,
@@ -520,12 +578,24 @@ def rust_lifecycle_samples(
         try:
             endpoint = wait_ready(ready, server)["endpoint"]
             client_command = [
-                    str(binaries["rust"]), "--authority-dir", str(authority), "--endpoint", endpoint,
-                    "--samples", "1", "--payload-bytes", str(payload),
-                    "--lifecycle-authority-dir", str(lifecycle_root),
-                    "--connections", str(connections), "--services", str(services),
-                    "--streams-per-service", str(streams_per_service),
-                ]
+                str(binaries["rust"]),
+                "--authority-dir",
+                str(authority),
+                "--endpoint",
+                endpoint,
+                "--samples",
+                "1",
+                "--payload-bytes",
+                str(payload),
+                "--lifecycle-authority-dir",
+                str(lifecycle_root),
+                "--connections",
+                str(connections),
+                "--services",
+                str(services),
+                "--streams-per-service",
+                str(streams_per_service),
+            ]
             if concurrent:
                 client_command.extend(["--concurrent-streams", "true"])
             client = command(
@@ -572,6 +642,7 @@ def go_lifecycle_samples(
         raise ValueError("streams per service must be in 1..64")
     if scenario == "nbsr-cold":
         batches = (samples,)
+
         def services_for_batch(_batch: int) -> int:
             return 1
 
@@ -579,6 +650,7 @@ def go_lifecycle_samples(
             return batch
     elif scenario == "nbsr-warm-new-service":
         batches = lifecycle_batch_plan(samples=samples, services_per_session=services_per_session)
+
         def services_for_batch(batch: int) -> int:
             return batch
 
@@ -608,8 +680,15 @@ def go_lifecycle_samples(
             server_environment["NBSR_PERF_CONCURRENT_STREAMS"] = "1"
         server = subprocess.Popen(
             [
-                str(binaries["server"]), "--ready", str(ready), "--result", str(result),
-                "--authority-dir", str(authority), "--completion-ack", str(ack),
+                str(binaries["server"]),
+                "--ready",
+                str(ready),
+                "--result",
+                str(result),
+                "--authority-dir",
+                str(authority),
+                "--completion-ack",
+                str(ack),
             ],
             cwd=ROOT,
             env=server_environment,
@@ -687,10 +766,32 @@ def session_scaling_samples(
     for stale in (ready, result, completion_ack):
         stale.unlink(missing_ok=True)
     if path == "direct-quic":
-        server_argv = [str(binaries["direct"]), "--role", "server", "--ready", str(ready), "--authority-dir", str(authority), "--connections", str(sessions), "--requests-per-connection", "1"]
+        server_argv = [
+            str(binaries["direct"]),
+            "--role",
+            "server",
+            "--ready",
+            str(ready),
+            "--authority-dir",
+            str(authority),
+            "--connections",
+            str(sessions),
+            "--requests-per-connection",
+            "1",
+        ]
         server_environment = os.environ.copy()
     else:
-        server_argv = [str(binaries["server"]), "--ready", str(ready), "--result", str(result), "--authority-dir", str(authority), "--completion-ack", str(completion_ack)]
+        server_argv = [
+            str(binaries["server"]),
+            "--ready",
+            str(ready),
+            "--result",
+            str(result),
+            "--authority-dir",
+            str(authority),
+            "--completion-ack",
+            str(completion_ack),
+        ]
         server_environment = {
             **os.environ,
             "NBSR_PERF_LIFECYCLE_ROOT": str(lifecycle_root),
@@ -715,25 +816,76 @@ def session_scaling_samples(
         for ordinal in range(sessions):
             if path == "direct-quic":
                 marker = lifecycle_root / f"connection-{ordinal}.connected"
-                argv = [str(binaries["direct"]), "--role", "client", "--authority-dir", str(authority), "--endpoint", endpoint, "--samples", "1", "--payload-bytes", str(payload), "--lifecycle", "warm", "--connected-marker", str(marker)]
+                argv = [
+                    str(binaries["direct"]),
+                    "--role",
+                    "client",
+                    "--authority-dir",
+                    str(authority),
+                    "--endpoint",
+                    endpoint,
+                    "--samples",
+                    "1",
+                    "--payload-bytes",
+                    str(payload),
+                    "--lifecycle",
+                    "warm",
+                    "--connected-marker",
+                    str(marker),
+                ]
                 clients.append(subprocess.Popen(argv, cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True))
             elif path == "rust-rust":
                 argv = [
-                    str(binaries["rust"]), "--authority-dir", str(authority), "--endpoint", endpoint,
-                    "--samples", "1", "--payload-bytes", str(payload), "--lifecycle-authority-dir", str(lifecycle_root),
-                    "--connections", "1", "--services", "1", "--streams-per-service", "1", "--connection-offset", str(ordinal),
+                    str(binaries["rust"]),
+                    "--authority-dir",
+                    str(authority),
+                    "--endpoint",
+                    endpoint,
+                    "--samples",
+                    "1",
+                    "--payload-bytes",
+                    str(payload),
+                    "--lifecycle-authority-dir",
+                    str(lifecycle_root),
+                    "--connections",
+                    "1",
+                    "--services",
+                    "1",
+                    "--streams-per-service",
+                    "1",
+                    "--connection-offset",
+                    str(ordinal),
                 ]
                 clients.append(subprocess.Popen(argv, cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True))
             else:
                 config = temp / f"go-session-{sessions}-{ordinal}.json"
-                config.write_text(json.dumps({
-                    "readiness_path": str(ready), "f75_package": str(ROOT / "vectors/wp8-f75-route-open"),
-                    "local_attestation_package": str(ROOT / "vectors/wp8-local-admission"), "safe_payload": "Z" * payload,
-                    "benchmark_samples": 1, "lifecycle_authority_dir": str(lifecycle_root), "lifecycle_connections": 1,
-                    "lifecycle_services": 1, "lifecycle_streams_per_service": 1,
-                    "lifecycle_connection_offset": ordinal, "lifecycle_report_connections": True,
-                }), encoding="utf-8")
-                clients.append(subprocess.Popen([str(binaries["go"]), "--config", str(config)], cwd=GO_PEER, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True))
+                config.write_text(
+                    json.dumps(
+                        {
+                            "readiness_path": str(ready),
+                            "f75_package": str(ROOT / "vectors/wp8-f75-route-open"),
+                            "local_attestation_package": str(ROOT / "vectors/wp8-local-admission"),
+                            "safe_payload": "Z" * payload,
+                            "benchmark_samples": 1,
+                            "lifecycle_authority_dir": str(lifecycle_root),
+                            "lifecycle_connections": 1,
+                            "lifecycle_services": 1,
+                            "lifecycle_streams_per_service": 1,
+                            "lifecycle_connection_offset": ordinal,
+                            "lifecycle_report_connections": True,
+                        }
+                    ),
+                    encoding="utf-8",
+                )
+                clients.append(
+                    subprocess.Popen(
+                        [str(binaries["go"]), "--config", str(config)],
+                        cwd=GO_PEER,
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
+                        text=True,
+                    )
+                )
         deadline = time.monotonic() + 30
         connected = [lifecycle_root / f"connection-{ordinal}.connected" for ordinal in range(sessions)]
         while not all(marker.exists() for marker in connected) and time.monotonic() < deadline:
@@ -749,7 +901,15 @@ def session_scaling_samples(
             observed = parse_ndjson(stdout) if path in {"direct-quic", "rust-rust"} else json.loads(stdout)["samples"]
             if len(observed) != 1:
                 raise RuntimeError(f"session scaling client {ordinal} sample loss")
-            observed[0].update({"sample_id": ordinal, "transport_sessions": sessions, "service_channels": sessions, "application_streams": sessions, "request_concurrency": sessions})
+            observed[0].update(
+                {
+                    "sample_id": ordinal,
+                    "transport_sessions": sessions,
+                    "service_channels": sessions,
+                    "application_streams": sessions,
+                    "request_concurrency": sessions,
+                }
+            )
             records.append(observed[0])
         server.wait(30)
         if server.returncode:
@@ -818,8 +978,15 @@ def normalize(
         }
     )
     for name in (
-        "scheduled_ns", "started_ns", "completed_ns", "start_lateness_ns", "service_latency_ns",
-        "send_lag_ns", "receive_lag_ns", "queue_depth", "active_requests",
+        "scheduled_ns",
+        "started_ns",
+        "completed_ns",
+        "start_lateness_ns",
+        "service_latency_ns",
+        "send_lag_ns",
+        "receive_lag_ns",
+        "queue_depth",
+        "active_requests",
     ):
         if name in record:
             result[name] = int(record[name])

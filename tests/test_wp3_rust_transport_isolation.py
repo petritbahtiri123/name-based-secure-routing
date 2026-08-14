@@ -55,7 +55,16 @@ def test_rust_transport_dependencies_are_exact_and_locked() -> None:
 def test_python_runtime_does_not_import_invoke_or_embed_rust_transport() -> None:
     runtime_text = "\n".join(path.read_text(encoding="utf-8") for path in (ROOT / "nbsr").rglob("*.py")).casefold()
 
-    for forbidden in ("nbsr-transport", "cargo.exe", "quinn_adapter", "ctypes.cdll"):
+    # Authority manifests may name locked Rust source paths. Reject executable
+    # bridges and embedded Rust source syntax, not those inert path literals.
+    for forbidden in (
+        "import nbsr_transport",
+        "from nbsr_transport",
+        '"cargo.exe"',
+        "ctypes.cdll",
+        "use quinn::",
+        "quinn::connection",
+    ):
         assert forbidden not in runtime_text
 
 

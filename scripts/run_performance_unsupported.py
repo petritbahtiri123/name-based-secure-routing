@@ -56,13 +56,27 @@ def main() -> None:
         try:
             if args.path == "rust-rust":
                 observed = rust_lifecycle_samples(
-                    binaries, authority, 20, 1_024, "nbsr-warm-new-service", temp,
-                    streams_per_service=32, concurrent=True, services_per_session=20,
+                    binaries,
+                    authority,
+                    20,
+                    1_024,
+                    "nbsr-warm-new-service",
+                    temp,
+                    streams_per_service=32,
+                    concurrent=True,
+                    services_per_session=20,
                 )
             else:
                 observed = go_lifecycle_samples(
-                    binaries, authority, 20, 1_024, "nbsr-warm-new-service", temp,
-                    streams_per_service=32, concurrent=True, services_per_session=20,
+                    binaries,
+                    authority,
+                    20,
+                    1_024,
+                    "nbsr-warm-new-service",
+                    temp,
+                    streams_per_service=32,
+                    concurrent=True,
+                    services_per_session=20,
                 )
         except RuntimeError as error:
             detail = str(error)

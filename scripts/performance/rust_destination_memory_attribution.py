@@ -7,9 +7,7 @@ def classify_destination_runs(runs: list[dict[str, Any]]) -> str:
     valid = [run for run in runs if run.get("valid")]
     if len(valid) < 3:
         return "E"
-    growing = [
-        run for run in valid if float(run["full_window_working_set_slope"]) > 1024.0
-    ]
+    growing = [run for run in valid if float(run["full_window_working_set_slope"]) > 1024.0]
     if len(growing) < 2:
         return "D"
     if sum(int(run.get("post_drain_nonbaseline_live", 0)) > 0 for run in growing) >= 2:

@@ -43,7 +43,12 @@ class DurableEvidenceOverflow(RuntimeError):
 
 class DurableNdjsonWriter:
     def __init__(
-        self, path: Path, *, capacity: int, flush_records: int, flush_interval_seconds: float,
+        self,
+        path: Path,
+        *,
+        capacity: int,
+        flush_records: int,
+        flush_interval_seconds: float,
     ) -> None:
         if capacity < 1 or flush_records < 1 or flush_records > capacity:
             raise ValueError("invalid durable evidence buffer bounds")
@@ -136,7 +141,9 @@ def _terminate_process_tree(process: subprocess.Popen[str]) -> tuple[list[int], 
         process_ids = [process.pid, *_descendants(process.pid, table)]
         subprocess.run(
             ["taskkill", "/PID", str(process.pid), "/T", "/F"],
-            capture_output=True, check=False, text=True,
+            capture_output=True,
+            check=False,
+            text=True,
         )
         try:
             process.wait(timeout=10)
@@ -207,9 +214,15 @@ def finalize_completed_request_journal(path: Path) -> dict[str, Any]:
 
 
 def run_durable_memory_child(
-    command: list[str], *, output: Path, timeout_seconds: float, offered_requests: int,
+    command: list[str],
+    *,
+    output: Path,
+    timeout_seconds: float,
+    offered_requests: int,
     authoritative_run: bool = True,
-    buffer_capacity: int = 1024, flush_records: int = 128, flush_interval_seconds: float = 1.0,
+    buffer_capacity: int = 1024,
+    flush_records: int = 128,
+    flush_interval_seconds: float = 1.0,
     cwd: Path | None = None,
 ) -> dict[str, Any]:
     if timeout_seconds <= 0 or offered_requests < 0:
@@ -218,19 +231,27 @@ def run_durable_memory_child(
     stderr_path = output / "stderr.log"
     writers = {
         "request": DurableNdjsonWriter(
-            output / "raw.ndjson", capacity=buffer_capacity, flush_records=flush_records,
+            output / "raw.ndjson",
+            capacity=buffer_capacity,
+            flush_records=flush_records,
             flush_interval_seconds=flush_interval_seconds,
         ),
         "resource": DurableNdjsonWriter(
-            output / "resources.ndjson", capacity=buffer_capacity, flush_records=flush_records,
+            output / "resources.ndjson",
+            capacity=buffer_capacity,
+            flush_records=flush_records,
             flush_interval_seconds=flush_interval_seconds,
         ),
         "runtime": DurableNdjsonWriter(
-            output / "runtime.ndjson", capacity=buffer_capacity, flush_records=flush_records,
+            output / "runtime.ndjson",
+            capacity=buffer_capacity,
+            flush_records=flush_records,
             flush_interval_seconds=flush_interval_seconds,
         ),
         "diagnostic": DurableNdjsonWriter(
-            output / "diagnostics.ndjson", capacity=buffer_capacity, flush_records=flush_records,
+            output / "diagnostics.ndjson",
+            capacity=buffer_capacity,
+            flush_records=flush_records,
             flush_interval_seconds=flush_interval_seconds,
         ),
     }
@@ -249,8 +270,14 @@ def run_durable_memory_child(
     try:
         with stderr_path.open("w", encoding="utf-8", newline="\n") as stderr:
             process = subprocess.Popen(
-                command, cwd=cwd, stdout=subprocess.PIPE, stderr=stderr, text=True,
-                encoding="utf-8", creationflags=creationflags, start_new_session=start_new_session,
+                command,
+                cwd=cwd,
+                stdout=subprocess.PIPE,
+                stderr=stderr,
+                text=True,
+                encoding="utf-8",
+                creationflags=creationflags,
+                start_new_session=start_new_session,
             )
             if process.stdout is None:
                 raise RuntimeError("durable memory child stdout unavailable")
@@ -320,10 +347,7 @@ def run_durable_memory_child(
     reconciled = started == completed + failed and persisted == started and started <= offered_requests
     if terminal_state == "completed":
         reconciled = reconciled and started == offered_requests
-    authoritative = (
-        authoritative_run and terminal_state == "completed" and reconciled
-        and failed == 0 and cleanup_verified
-    )
+    authoritative = authoritative_run and terminal_state == "completed" and reconciled and failed == 0 and cleanup_verified
     request_evidence = (
         finalize_completed_request_journal(writers["request"].path)
         if terminal_state == "completed"
@@ -338,9 +362,7 @@ def run_durable_memory_child(
         "authoritative_run": authoritative_run,
         "terminal_state": terminal_state,
         "child_return_code": child_return_code,
-        "partial_but_durable": terminal_state != "completed" and any(
-            writer.written > 0 for writer in writers.values()
-        ),
+        "partial_but_durable": terminal_state != "completed" and any(writer.written > 0 for writer in writers.values()),
         "authoritative_pass_eligible": authoritative,
         "cleanup_verified": cleanup_verified,
         "terminated_process_ids": terminated_process_ids,

@@ -21,8 +21,7 @@ def shard_plan(rate: float, duration_seconds: int) -> list[int]:
     return shards
 
 
-def profile_manifest(path: str, load_percent: int, repeat: int, duration_seconds: int,
-                     instrumentation_enabled: bool) -> dict:
+def profile_manifest(path: str, load_percent: int, repeat: int, duration_seconds: int, instrumentation_enabled: bool) -> dict:
     return {
         "schema": "nbsr-p2b-profile-manifest-v1",
         "path": path,
@@ -41,13 +40,22 @@ def profile_manifest(path: str, load_percent: int, repeat: int, duration_seconds
     }
 
 
-def observer_effect(*, disabled_throughput: list[float], enabled_throughput: list[float],
-                    disabled_p99: list[float], enabled_p99: list[float],
-                    disabled_errors: int, enabled_errors: int) -> dict:
+def observer_effect(
+    *,
+    disabled_throughput: list[float],
+    enabled_throughput: list[float],
+    disabled_p99: list[float],
+    enabled_p99: list[float],
+    disabled_errors: int,
+    enabled_errors: int,
+) -> dict:
     throughput_loss = 1 - statistics.median(enabled_throughput) / statistics.median(disabled_throughput)
     p99_growth = statistics.median(enabled_p99) / statistics.median(disabled_p99) - 1
     tolerance = 1e-12
-    passed = (throughput_loss <= 0.03 + tolerance and p99_growth <= 0.05 + tolerance
-              and enabled_errors <= disabled_errors)
-    return {"throughput_degradation": throughput_loss, "p99_degradation": p99_growth,
-            "additional_errors": enabled_errors - disabled_errors, "passed": passed}
+    passed = throughput_loss <= 0.03 + tolerance and p99_growth <= 0.05 + tolerance and enabled_errors <= disabled_errors
+    return {
+        "throughput_degradation": throughput_loss,
+        "p99_degradation": p99_growth,
+        "additional_errors": enabled_errors - disabled_errors,
+        "passed": passed,
+    }

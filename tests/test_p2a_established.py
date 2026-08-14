@@ -66,12 +66,30 @@ class P2AEstablishedTests(unittest.TestCase):
 
     def test_resource_summary_excludes_setup_and_warmup_samples(self):
         samples = [
-            {"role": "source", "timestamp_ns": 0, "user_cpu_ns": 0, "kernel_cpu_ns": 0,
-             "peak_working_set_bytes": 999, "private_bytes": 999},
-            {"role": "source", "timestamp_ns": 10_000_000_000, "user_cpu_ns": 100, "kernel_cpu_ns": 50,
-             "peak_working_set_bytes": 100, "private_bytes": 80},
-            {"role": "source", "timestamp_ns": 40_000_000_000, "user_cpu_ns": 400, "kernel_cpu_ns": 200,
-             "peak_working_set_bytes": 120, "private_bytes": 90},
+            {
+                "role": "source",
+                "timestamp_ns": 0,
+                "user_cpu_ns": 0,
+                "kernel_cpu_ns": 0,
+                "peak_working_set_bytes": 999,
+                "private_bytes": 999,
+            },
+            {
+                "role": "source",
+                "timestamp_ns": 10_000_000_000,
+                "user_cpu_ns": 100,
+                "kernel_cpu_ns": 50,
+                "peak_working_set_bytes": 100,
+                "private_bytes": 80,
+            },
+            {
+                "role": "source",
+                "timestamp_ns": 40_000_000_000,
+                "user_cpu_ns": 400,
+                "kernel_cpu_ns": 200,
+                "peak_working_set_bytes": 120,
+                "private_bytes": 90,
+            },
         ]
         result = summarize_resources(samples, completed=10, measured_seconds=30)
         self.assertEqual(result["total_cpu_ns"], 450)

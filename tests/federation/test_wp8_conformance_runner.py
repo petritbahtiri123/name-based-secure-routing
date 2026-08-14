@@ -67,8 +67,6 @@ def test_runner_decodes_utf8_tap_counts_on_windows() -> None:
 
 
 def test_real_matrix_includes_dependency_and_repository_privacy_inspection() -> None:
-    matrix = (Path(__file__).resolve().parents[2] / "scripts" / "verify_wp8_conformance.py").read_text(
-        encoding="utf-8"
-    )
+    matrix = (Path(__file__).resolve().parents[2] / "scripts" / "verify_wp8_conformance.py").read_text(encoding="utf-8")
     assert 'Command("dependency-inspection"' in matrix
     assert 'Command("repository-privacy-secret-scan"' in matrix

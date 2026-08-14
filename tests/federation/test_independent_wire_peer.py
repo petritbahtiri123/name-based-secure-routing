@@ -52,9 +52,7 @@ def _write_test_authority(directory: Path) -> None:
             .not_valid_after(now + __import__("datetime").timedelta(days=1))
             .add_extension(x509.SubjectAlternativeName([x509.DNSName(name)]), critical=False)
             .add_extension(
-                x509.ExtendedKeyUsage(
-                    [ExtendedKeyUsageOID.CLIENT_AUTH, ExtendedKeyUsageOID.SERVER_AUTH]
-                ),
+                x509.ExtendedKeyUsage([ExtendedKeyUsageOID.CLIENT_AUTH, ExtendedKeyUsageOID.SERVER_AUTH]),
                 critical=False,
             )
             .sign(ca_key, hashes.SHA256())
@@ -76,7 +74,11 @@ def _build_go_peer(output: Path) -> Path:
     executable = output / ("nbsr-go-peer.exe" if sys.platform == "win32" else "nbsr-go-peer")
     build = subprocess.run(
         ["go", "build", "-trimpath", "-o", str(executable), "./cmd/nbsr-go-peer"],
-        cwd=PEER, capture_output=True, text=True, timeout=120, check=False,
+        cwd=PEER,
+        capture_output=True,
+        text=True,
+        timeout=120,
+        check=False,
     )
     assert build.returncode == 0, build.stderr
     return executable
@@ -90,11 +92,16 @@ def _expired_source_attestation(case: Path) -> Path:
     cose = decode_deterministic(wire[1:])
     payload = decode_deterministic(cose[2])
     payload[11] = 1_893_455_999
-    (package / "source.cose").write_bytes(sign1(
-        encode_deterministic(payload), b"local-source",
-        Ed25519PrivateKey.from_private_bytes(b"S" * 32),
-    ))
+    (package / "source.cose").write_bytes(
+        sign1(
+            encode_deterministic(payload),
+            b"local-source",
+            Ed25519PrivateKey.from_private_bytes(b"S" * 32),
+        )
+    )
     return package
+
+
 def test_cross_process_go_source_exchanges_frozen_route_and_stream(tmp_path: Path) -> None:
     target = Path(os.environ.get("NBSR_TASK10B_CARGO_TARGET", tmp_path / "cargo-target"))
     build = subprocess.run(
@@ -116,9 +123,7 @@ def test_cross_process_go_source_exchanges_frozen_route_and_stream(tmp_path: Pat
     assert build.returncode == 0, build.stderr
     peer_executable = _build_go_peer(tmp_path)
 
-    server_exe = target / "debug" / (
-        "wp8_interop_server.exe" if sys.platform == "win32" else "wp8_interop_server"
-    )
+    server_exe = target / "debug" / ("wp8_interop_server.exe" if sys.platform == "win32" else "wp8_interop_server")
     ready = tmp_path / "ready.json"
     result = tmp_path / "server-result.json"
     completion_ack = tmp_path / "peer-complete.ack"
@@ -164,9 +169,7 @@ def test_cross_process_go_source_exchanges_frozen_route_and_stream(tmp_path: Pat
                 {
                     "readiness_path": str(ready),
                     "f75_package": str(ROOT / "vectors" / "wp8-f75-route-open"),
-                    "local_attestation_package": str(
-                        ROOT / "vectors" / "wp8-local-admission"
-                    ),
+                    "local_attestation_package": str(ROOT / "vectors" / "wp8-local-admission"),
                     "safe_payload": "NBSR-WP8-TASK10B-INDEPENDENT-WIRE",
                 },
                 sort_keys=True,
@@ -198,9 +201,7 @@ def test_cross_process_go_source_exchanges_frozen_route_and_stream(tmp_path: Pat
         assert observed["core_version"] == 2
         assert observed["route_open_body_version"] == 2
         assert observed["federation_profile"] == "nbsr-federation-dev-v1"
-        assert observed["payload_sha256"] == (
-            "049aa2fdcaa4fa7cbaa5cf20d35d831ecf47722633be6e2bcf02a16233d93112"
-        )
+        assert observed["payload_sha256"] == ("049aa2fdcaa4fa7cbaa5cf20d35d831ecf47722633be6e2bcf02a16233d93112")
         deadline = time.monotonic() + 5
         while server.poll() is None and time.monotonic() < deadline:
             time.sleep(0.01)
@@ -223,10 +224,10 @@ def test_go_peer_is_implementation_independent() -> None:
     forbidden = (
         r"verifiers[/\\]federation-go",
         r"crates[/\\]nbsr-transport",
-        r'os/exec',
+        r"os/exec",
         r'import\s+"C"',
-        r'unsafe',
-        r'expected_(?:result|message|transcript|exporter|accept)',
+        r"unsafe",
+        r"expected_(?:result|message|transcript|exporter|accept)",
     )
     for pattern in forbidden:
         assert re.search(pattern, combined, flags=re.IGNORECASE) is None, pattern
@@ -239,9 +240,7 @@ def test_go_peer_cli_rejects_unknown_configuration_authority(tmp_path: Path) -> 
             {
                 "readiness_path": str(tmp_path / "ready.json"),
                 "f75_package": str(ROOT / "vectors" / "wp8-f75-route-open"),
-                "local_attestation_package": str(
-                    ROOT / "vectors" / "wp8-local-admission"
-                ),
+                "local_attestation_package": str(ROOT / "vectors" / "wp8-local-admission"),
                 "safe_payload": "NBSR-WP8-TASK10B-INDEPENDENT-WIRE",
                 "expected_result": "PASS",
             },
@@ -287,17 +286,39 @@ def test_live_negative_interoperability_matrix_fails_before_payload(tmp_path: Pa
     peer_executable = _build_go_peer(tmp_path)
     server_exe = target / "debug" / ("wp8_interop_server.exe" if sys.platform == "win32" else "wp8_interop_server")
     mutations = (
-        "unsupported_alpn", "wrong_peer_identity", "wrong_ca",
-        "payload_before_admission", "malformed_cbor", "noncanonical_cbor", "over_limit_cbor", "wrong_core_version",
-        "wrong_session", "wrong_request", "wrong_channel", "wrong_transport",
-        "wrong_port", "wrong_route_grant_digest", "wrong_federation_context_digest",
-        "wrong_proof_signature", "wrong_service", "expired_authority", "revoked_authority", "unsupported_federation_version",
-        "unsupported_profile", "downgrade_v1", "transcript_substitution", "replay",
+        "unsupported_alpn",
+        "wrong_peer_identity",
+        "wrong_ca",
+        "payload_before_admission",
+        "malformed_cbor",
+        "noncanonical_cbor",
+        "over_limit_cbor",
+        "wrong_core_version",
+        "wrong_session",
+        "wrong_request",
+        "wrong_channel",
+        "wrong_transport",
+        "wrong_port",
+        "wrong_route_grant_digest",
+        "wrong_federation_context_digest",
+        "wrong_proof_signature",
+        "wrong_service",
+        "expired_authority",
+        "revoked_authority",
+        "unsupported_federation_version",
+        "unsupported_profile",
+        "downgrade_v1",
+        "transcript_substitution",
+        "replay",
         "wrong_stream",
     )
     destination_rejections = set(mutations) - {
-        "unsupported_alpn", "wrong_peer_identity", "wrong_ca",
-        "payload_before_admission", "wrong_port", "expired_authority",
+        "unsupported_alpn",
+        "wrong_peer_identity",
+        "wrong_ca",
+        "payload_before_admission",
+        "wrong_port",
+        "expired_authority",
     }
     evidence = json.loads((ROOT / "evidence/wp8-task10b/independent-wire-result.json").read_text(encoding="utf-8"))
     assert set(evidence["negative_observations"]) == set(mutations)
@@ -309,7 +330,17 @@ def test_live_negative_interoperability_matrix_fails_before_payload(tmp_path: Pa
         authority_dir = case / "authority"
         _write_test_authority(authority_dir)
         server = subprocess.Popen(
-            [str(server_exe), "--ready", str(ready), "--result", str(result), "--authority-dir", str(authority_dir), "--completion-ack", str(ack)],
+            [
+                str(server_exe),
+                "--ready",
+                str(ready),
+                "--result",
+                str(result),
+                "--authority-dir",
+                str(authority_dir),
+                "--completion-ack",
+                str(ack),
+            ],
             cwd=ROOT,
             env={**os.environ, **({"NBSR_TASK10B_REVOKE_DESTINATION_AUTHORITY": "1"} if mutation == "revoked_authority" else {})},
             stdout=subprocess.PIPE,
@@ -322,13 +353,21 @@ def test_live_negative_interoperability_matrix_fails_before_payload(tmp_path: Pa
                 time.sleep(0.01)
             assert ready.exists(), f"{mutation}: server did not become ready"
             config = case / "peer-config.json"
-            local_package = _expired_source_attestation(case) if mutation == "expired_authority" else ROOT / "vectors" / "wp8-local-admission"
-            config.write_text(json.dumps({
-                "readiness_path": str(ready),
-                "f75_package": str(ROOT / "vectors" / "wp8-f75-route-open"),
-                "local_attestation_package": str(local_package),
-                "safe_payload": "NBSR-WP8-TASK10B-INDEPENDENT-WIRE",
-            }, sort_keys=True), encoding="utf-8")
+            local_package = (
+                _expired_source_attestation(case) if mutation == "expired_authority" else ROOT / "vectors" / "wp8-local-admission"
+            )
+            config.write_text(
+                json.dumps(
+                    {
+                        "readiness_path": str(ready),
+                        "f75_package": str(ROOT / "vectors" / "wp8-f75-route-open"),
+                        "local_attestation_package": str(local_package),
+                        "safe_payload": "NBSR-WP8-TASK10B-INDEPENDENT-WIRE",
+                    },
+                    sort_keys=True,
+                ),
+                encoding="utf-8",
+            )
             peer = subprocess.run(
                 [str(peer_executable), "--config", str(config)],
                 cwd=PEER,

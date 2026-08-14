@@ -76,15 +76,35 @@ def _authority_proof_bytes() -> bytes:
     # proof fixture; the route's effective service scope is authenticated by the
     # FederationAuthorizationContext below.
     proof_scope = {
-        1: "service.example", 2: b"V" * 32, 3: None, 4: b"S" * 32,
-        5: b"D" * 32, 6: "eu", 7: [[443, 443]], 8: [6], 9: [1], 10: False, 11: 0,
+        1: "service.example",
+        2: b"V" * 32,
+        3: None,
+        4: b"S" * 32,
+        5: b"D" * 32,
+        6: "eu",
+        7: [[443, 443]],
+        8: [6],
+        9: [1],
+        10: False,
+        11: 0,
     }
-    return encode_deterministic({
-        1: 11, 2: 1, 32: b"proof", 33: b"A" * 32,
-        34: [b"1" * 32, b"2" * 32], 35: service_id, 36: proof_scope,
-        37: b"S" * 32, 38: b"D" * 32, 39: b"B" * 32,
-        40: b"C" * 32, 41: b"R" * 32, 42: 1_893_456_300,
-    })
+    return encode_deterministic(
+        {
+            1: 11,
+            2: 1,
+            32: b"proof",
+            33: b"A" * 32,
+            34: [b"1" * 32, b"2" * 32],
+            35: service_id,
+            36: proof_scope,
+            37: b"S" * 32,
+            38: b"D" * 32,
+            39: b"B" * 32,
+            40: b"C" * 32,
+            41: b"R" * 32,
+            42: 1_893_456_300,
+        }
+    )
 
 
 def _positive_parts() -> tuple[dict[int, object], list[object], bytes]:
@@ -94,9 +114,7 @@ def _positive_parts() -> tuple[dict[int, object], list[object], bytes]:
     claims = decode_deterministic(original_cose[2])
     claims[4] = OperatorId(b"S" * 32).text
     claims[6] = OperatorId(b"D" * 32).text
-    grant_seed = bytes.fromhex(
-        (CORE_V02 / "keys/test-only-route-grant-ed25519-seed.hex").read_text(encoding="ascii").strip()
-    )
+    grant_seed = bytes.fromhex((CORE_V02 / "keys/test-only-route-grant-ed25519-seed.hex").read_text(encoding="ascii").strip())
     route_grant = sign1(
         encode_deterministic(claims),
         b"nbsr-test-route-grant-key",
@@ -157,7 +175,8 @@ def validate_f75_authority_proof(context_wire: bytes, proof_wire: bytes) -> None
     except ProtocolViolation as exc:
         raise F75VectorError("F75 authority proof is malformed") from exc
     if (
-        type(context) is not dict or type(proof) is not dict
+        type(context) is not dict
+        or type(proof) is not dict
         or context.get(35) != proof.get(35)
         or context.get(36) != hashlib.sha256(proof_wire).digest()
     ):
@@ -172,11 +191,7 @@ def validate_f75_route_time(body: dict[int, object], context_wire: bytes, proof_
         opened_at = body[6]
     except (KeyError, TypeError, ProtocolViolation) as exc:
         raise F75VectorError("F75 validity authority is malformed") from exc
-    if not (
-        context[9] <= opened_at <= context[41]
-        and opened_at <= proof[42]
-        and claims[11] <= opened_at <= claims[12]
-    ):
+    if not (context[9] <= opened_at <= context[41] and opened_at <= proof[42] and claims[11] <= opened_at <= claims[12]):
         raise F75VectorError("F75 route establishment is outside authenticated validity")
 
 

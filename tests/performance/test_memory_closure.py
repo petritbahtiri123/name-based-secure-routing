@@ -59,10 +59,15 @@ def test_source_bindings_cover_files_and_detect_mutation(tmp_path: Path) -> None
 def test_resource_analysis_reports_three_windows_and_bytes_per_request() -> None:
     records = [
         {
-            "role": "destination", "phase": "steady", "timestamp_ns": second * 1_000_000_000,
-            "working_set_bytes": 100 + second * 10, "private_bytes": 80 + second * 5,
-            "peak_working_set_bytes": 100 + second * 10, "processed_requests": second * 100,
-            "queue_depth": second, "active_concurrency": 1,
+            "role": "destination",
+            "phase": "steady",
+            "timestamp_ns": second * 1_000_000_000,
+            "working_set_bytes": 100 + second * 10,
+            "private_bytes": 80 + second * 5,
+            "peak_working_set_bytes": 100 + second * 10,
+            "processed_requests": second * 100,
+            "queue_depth": second,
+            "active_concurrency": 1,
         }
         for second in range(8)
     ]
@@ -82,21 +87,42 @@ def test_resource_analysis_reports_three_windows_and_bytes_per_request() -> None
 def test_go_runtime_analysis_uses_cumulative_deltas_without_claiming_per_gc_max() -> None:
     records = [
         {
-            "processed_requests": 100, "heap_alloc_bytes": 20, "heap_sys_bytes": 40,
-            "heap_idle_bytes": 10, "heap_inuse_bytes": 30, "heap_released_bytes": 5,
-            "num_gc": 2, "total_alloc_bytes": 1000, "mallocs": 100, "frees": 50,
+            "processed_requests": 100,
+            "heap_alloc_bytes": 20,
+            "heap_sys_bytes": 40,
+            "heap_idle_bytes": 10,
+            "heap_inuse_bytes": 30,
+            "heap_released_bytes": 5,
+            "num_gc": 2,
+            "total_alloc_bytes": 1000,
+            "mallocs": 100,
+            "frees": 50,
             "total_gc_pause_ns": 7,
         },
         {
-            "processed_requests": 200, "heap_alloc_bytes": 25, "heap_sys_bytes": 45,
-            "heap_idle_bytes": 12, "heap_inuse_bytes": 33, "heap_released_bytes": 6,
-            "num_gc": 4, "total_alloc_bytes": 1600, "mallocs": 180, "frees": 110,
+            "processed_requests": 200,
+            "heap_alloc_bytes": 25,
+            "heap_sys_bytes": 45,
+            "heap_idle_bytes": 12,
+            "heap_inuse_bytes": 33,
+            "heap_released_bytes": 6,
+            "num_gc": 4,
+            "total_alloc_bytes": 1600,
+            "mallocs": 180,
+            "frees": 110,
             "total_gc_pause_ns": 12,
         },
         {
-            "processed_requests": 200, "heap_alloc_bytes": 24, "heap_sys_bytes": 45,
-            "heap_idle_bytes": 13, "heap_inuse_bytes": 32, "heap_released_bytes": 7,
-            "num_gc": 5, "total_alloc_bytes": 1700, "mallocs": 190, "frees": 120,
+            "processed_requests": 200,
+            "heap_alloc_bytes": 24,
+            "heap_sys_bytes": 45,
+            "heap_idle_bytes": 13,
+            "heap_inuse_bytes": 32,
+            "heap_released_bytes": 7,
+            "num_gc": 5,
+            "total_alloc_bytes": 1700,
+            "mallocs": 190,
+            "frees": 120,
             "total_gc_pause_ns": 20,
         },
     ]
@@ -124,7 +150,12 @@ def test_real_retained_evidence_builds_partial_additive_closure(tmp_path: Path) 
         "baseline": "PARTIAL_BASELINE",
     }
     assert set(result["runs"]) == {
-        "direct-50", "direct-68", "rust-50", "rust-75", "go-50", "go-75",
+        "direct-50",
+        "direct-68",
+        "rust-50",
+        "rust-75",
+        "go-50",
+        "go-75",
     }
     assert (output / "manifest.json").is_file()
     assert (output / "checksums.json").is_file()
@@ -137,7 +168,10 @@ def test_real_retained_evidence_builds_partial_additive_closure(tmp_path: Path) 
 
     completed = subprocess.run(
         [sys.executable, "scripts/verify_performance_evidence.py", str(output)],
-        cwd=repo, capture_output=True, text=True, check=False,
+        cwd=repo,
+        capture_output=True,
+        text=True,
+        check=False,
     )
     assert completed.returncode == 0, completed.stderr
     assert "PASS (5 files, 0 raw samples)" in completed.stdout

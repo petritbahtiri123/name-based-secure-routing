@@ -43,10 +43,7 @@ class RotationModel:
     def establish(self, authority: Authority) -> str:
         if authority.session_id in self.sessions:
             return "REJECT_SESSION_REPLAY"
-        if any(
-            old.authority.connection_binding == authority.connection_binding
-            for old in self.sessions.values()
-        ):
+        if any(old.authority.connection_binding == authority.connection_binding for old in self.sessions.values()):
             return "REJECT_STALE_AUTHORITY"
         self.sessions[authority.session_id] = Session(authority=authority)
         return "ACCEPT"
@@ -110,7 +107,6 @@ class RotationModel:
         return len(self.sessions[session_id].replay) >= self.threshold
 
     def select_for_new_stream(self, old_id: str, fresh_id: str) -> str:
-        old = self.sessions[old_id]
         fresh = self.sessions[fresh_id]
         if self.rotation_due(old_id) and fresh.admitted and not fresh.retired:
             return fresh_id
@@ -161,9 +157,7 @@ class RotationModel:
         del self.resume_records[handle]
         return "ACCEPT"
 
-    def production_gates(
-        self, *, application_selector_present: bool, fresh_authority_provider_present: bool
-    ) -> dict[str, bool]:
+    def production_gates(self, *, application_selector_present: bool, fresh_authority_provider_present: bool) -> dict[str, bool]:
         orchestration_defined = application_selector_present and fresh_authority_provider_present
         return {
             "no_replay_weakening": True,
@@ -193,9 +187,7 @@ def canonical_results() -> dict[str, object]:
     resume_replay = model.consume_resume(old.resume_handle, fresh)
     model.revoke(fresh.channel_id)
     revoked = model.open_stream(fresh, 8)
-    gates = model.production_gates(
-        application_selector_present=False, fresh_authority_provider_present=False
-    )
+    gates = model.production_gates(application_selector_present=False, fresh_authority_provider_present=False)
     return {
         "schema_version": 1,
         "hypothesis": "bounded_transport_session_rotation",
