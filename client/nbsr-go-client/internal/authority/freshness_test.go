@@ -3,6 +3,7 @@ package authority
 import (
 	"context"
 	"errors"
+	"runtime"
 	"sync"
 	"testing"
 )
@@ -75,6 +76,45 @@ func TestFreshnessRechecksClockAfterDelayedVerification(t *testing.T) {
 	<-verifier.started
 	clock.Set(200)
 	close(verifier.release)
+	if err := <-result; !errors.Is(err, ErrStaleFreshness) {
+		t.Fatalf("publication error = %v, want ErrStaleFreshness", err)
+	}
+	if m.generation != 7 {
+		t.Fatalf("generation = %d, want 7", m.generation)
+	}
+	if got := observer.count(EventFreshnessAccepted); got != 0 {
+		t.Fatalf("accepted events = %d, want 0", got)
+	}
+	if got := observer.count(EventGenerationAdvanced); got != 0 {
+		t.Fatalf("advanced events = %d, want 0", got)
+	}
+}
+
+func TestFreshnessExpiryLinearizesAfterManagerLockContention(t *testing.T) {
+	m := freshManager(t, checkpoint(7, 100, 200))
+	clock := &task4MutableClock{now: 199}
+	verifier := &task4DelayedCheckpointVerifier{
+		claims:  checkpoint(8, 110, 200),
+		started: make(chan struct{}),
+		release: make(chan struct{}),
+	}
+	observer := &task4Observer{}
+	m.clock = clock
+	m.checkpointVerifier = verifier
+	m.observer = observer
+
+	m.mu.Lock()
+	result := make(chan error, 1)
+	go func() {
+		_, err := m.PublishFreshness(context.Background(), task4Request(), task4ProviderFreshness())
+		result <- err
+	}()
+	<-verifier.started
+	close(verifier.release)
+	runtime.Gosched()
+	clock.Set(200)
+	m.mu.Unlock()
+
 	if err := <-result; !errors.Is(err, ErrStaleFreshness) {
 		t.Fatalf("publication error = %v, want ErrStaleFreshness", err)
 	}

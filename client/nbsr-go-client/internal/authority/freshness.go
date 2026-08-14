@@ -43,20 +43,23 @@ func (m *Manager) PublishFreshness(ctx context.Context, request FreshnessRequest
 		m.notify([]Event{{Kind: EventFreshnessRejected, AuthorityGeneration: claims.Generation, Result: errorCode(err)}})
 		return VerifiedCheckpoint{}, err
 	}
-	if checkpoint.claims.SourceOperator != request.SourceOperator || checkpoint.claims.Profile != request.Profile {
-		m.notify([]Event{{Kind: EventFreshnessRejected, AuthorityGeneration: checkpoint.claims.Generation, Result: CodeBindingMismatch}})
-		return VerifiedCheckpoint{}, ErrBindingMismatch
-	}
+
+	m.mu.Lock()
 	now = m.clock.NowUnix()
 	if !validUnixTime(now) {
+		m.mu.Unlock()
 		return VerifiedCheckpoint{}, ErrInvalidAuthority
 	}
 	if now >= checkpoint.claims.FreshUntil {
+		m.mu.Unlock()
 		m.notify([]Event{{Kind: EventFreshnessRejected, AuthorityGeneration: checkpoint.claims.Generation, Result: CodeStaleFreshness}})
 		return VerifiedCheckpoint{}, ErrStaleFreshness
 	}
-
-	m.mu.Lock()
+	if checkpoint.claims.SourceOperator != request.SourceOperator || checkpoint.claims.Profile != request.Profile {
+		m.mu.Unlock()
+		m.notify([]Event{{Kind: EventFreshnessRejected, AuthorityGeneration: checkpoint.claims.Generation, Result: CodeBindingMismatch}})
+		return VerifiedCheckpoint{}, ErrBindingMismatch
+	}
 	events, publishErr := m.publishCheckpointLocked(checkpoint)
 	m.mu.Unlock()
 	m.notify(events)
