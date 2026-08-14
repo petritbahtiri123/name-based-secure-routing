@@ -7,6 +7,7 @@ import (
 	"errors"
 	"io"
 	"reflect"
+	"sync"
 	"testing"
 
 	"nbsr.local/client/nbsr-go-client/internal/identity"
@@ -348,6 +349,118 @@ func TestFixtureProviderIsFiniteSeparatedAndCopiesResults(t *testing.T) {
 	}
 	if _, err := provider.Freshness(context.Background(), freshness); !errors.Is(err, ErrClosed) {
 		t.Fatalf("closed fixture error = %v, want ErrClosed", err)
+	}
+}
+
+func TestFixtureProviderFreezesTypedGrantAndFreshnessErrors(t *testing.T) {
+	_, request := fixtureManager(t)
+	freshness := FreshnessRequest{SourceOperator: request.Key.SourceOperator, Profile: request.Key.Profile, DeviceID: request.Key.DeviceID, DeviceGeneration: request.Key.DeviceGeneration, DeadlineUnix: request.DeadlineUnix}
+	grantErr := &AuthorityError{Code: CodePolicyDenied, Resource: "grant original"}
+	freshnessErr := &AuthorityError{Code: CodeProviderUnavailable, Resource: "freshness original"}
+	provider, err := NewFixtureProvider(FixtureProviderLimits{MaxEntries: 2, MaxBytes: 1024, MaxCalls: 8}, []FixtureGrant{{Operation: uint8(pendingAcquire), RequestDigest: fixtureGrantRequestDigest(request), Err: grantErr}}, []FixtureFreshness{{RequestDigest: fixtureFreshnessRequestDigest(freshness), Err: freshnessErr}})
+	if err != nil {
+		t.Fatalf("NewFixtureProvider: %v", err)
+	}
+	grantErr.Code, grantErr.Resource = CodeExpired, "grant changed"
+	freshnessErr.Code, freshnessErr.Resource = CodeExpired, "freshness changed"
+
+	firstGrant := fixtureGrantError(t, provider, request)
+	secondGrant := fixtureGrantError(t, provider, request)
+	requireFrozenFixtureError(t, firstGrant, ErrPolicyDenied, "grant original")
+	requireFrozenFixtureError(t, secondGrant, ErrPolicyDenied, "grant original")
+	if firstGrant == secondGrant {
+		t.Fatal("grant errors share a mutable pointer")
+	}
+	firstGrant.(*AuthorityError).Code = CodeExpired
+	requireFrozenFixtureError(t, fixtureGrantError(t, provider, request), ErrPolicyDenied, "grant original")
+
+	firstFreshness := fixtureFreshnessError(t, provider, freshness)
+	secondFreshness := fixtureFreshnessError(t, provider, freshness)
+	requireFrozenFixtureError(t, firstFreshness, ErrProviderUnavailable, "freshness original")
+	requireFrozenFixtureError(t, secondFreshness, ErrProviderUnavailable, "freshness original")
+	if firstFreshness == secondFreshness {
+		t.Fatal("freshness errors share a mutable pointer")
+	}
+	firstFreshness.(*AuthorityError).Code = CodeExpired
+	requireFrozenFixtureError(t, fixtureFreshnessError(t, provider, freshness), ErrProviderUnavailable, "freshness original")
+}
+
+func TestFixtureProviderDoesNotRetainSourceErrorPointers(t *testing.T) {
+	_, request := fixtureManager(t)
+	freshness := FreshnessRequest{SourceOperator: request.Key.SourceOperator, Profile: request.Key.Profile, DeviceID: request.Key.DeviceID, DeviceGeneration: request.Key.DeviceGeneration, DeadlineUnix: request.DeadlineUnix}
+	grantErr := &AuthorityError{Code: CodePolicyDenied}
+	freshnessErr := &AuthorityError{Code: CodeProviderUnavailable}
+	provider, err := NewFixtureProvider(FixtureProviderLimits{MaxEntries: 2, MaxBytes: 1024, MaxCalls: 10_000}, []FixtureGrant{{Operation: uint8(pendingAcquire), RequestDigest: fixtureGrantRequestDigest(request), Err: grantErr}}, []FixtureFreshness{{RequestDigest: fixtureFreshnessRequestDigest(freshness), Err: freshnessErr}})
+	if err != nil {
+		t.Fatalf("NewFixtureProvider: %v", err)
+	}
+	start := make(chan struct{})
+	var workers sync.WaitGroup
+	workers.Add(3)
+	go func() {
+		defer workers.Done()
+		<-start
+		for range 1_000 {
+			_, _ = provider.Acquire(context.Background(), request)
+		}
+	}()
+	go func() {
+		defer workers.Done()
+		<-start
+		for range 1_000 {
+			_, _ = provider.Freshness(context.Background(), freshness)
+		}
+	}()
+	go func() {
+		defer workers.Done()
+		<-start
+		for index := range 1_000 {
+			grantErr.Code = ErrorCode(index%int(CodeAccountingOverflow) + 1)
+			freshnessErr.Code = ErrorCode(index%int(CodeAccountingOverflow) + 1)
+		}
+	}()
+	close(start)
+	workers.Wait()
+}
+
+func TestFixtureProviderRejectsUnsupportedScriptErrors(t *testing.T) {
+	_, request := fixtureManager(t)
+	freshness := FreshnessRequest{SourceOperator: request.Key.SourceOperator, Profile: request.Key.Profile, DeviceID: request.Key.DeviceID, DeviceGeneration: request.Key.DeviceGeneration, DeadlineUnix: request.DeadlineUnix}
+	unsupported := errors.New("mutable custom error")
+	if _, err := NewFixtureProvider(FixtureProviderLimits{MaxEntries: 1, MaxBytes: 1024, MaxCalls: 1}, []FixtureGrant{{Operation: uint8(pendingAcquire), RequestDigest: fixtureGrantRequestDigest(request), Err: unsupported}}, nil); !errors.Is(err, ErrInvalidAuthority) {
+		t.Fatalf("grant unsupported error = %v, want ErrInvalidAuthority", err)
+	}
+	if _, err := NewFixtureCheckpointVerifier([]FixtureFreshness{{RequestDigest: fixtureFreshnessRequestDigest(freshness), Err: unsupported}}); !errors.Is(err, ErrInvalidAuthority) {
+		t.Fatalf("freshness unsupported error = %v, want ErrInvalidAuthority", err)
+	}
+}
+
+func fixtureGrantError(t *testing.T, provider *FixtureProvider, request AcquireRequest) error {
+	t.Helper()
+	_, err := provider.Acquire(context.Background(), request)
+	if err == nil {
+		t.Fatal("Acquire returned nil error")
+	}
+	return err
+}
+
+func fixtureFreshnessError(t *testing.T, provider *FixtureProvider, request FreshnessRequest) error {
+	t.Helper()
+	_, err := provider.Freshness(context.Background(), request)
+	if err == nil {
+		t.Fatal("Freshness returned nil error")
+	}
+	return err
+}
+
+func requireFrozenFixtureError(t *testing.T, got, want error, resource string) {
+	t.Helper()
+	if !errors.Is(got, want) {
+		t.Fatalf("error = %v, want %v", got, want)
+	}
+	typed, ok := got.(*AuthorityError)
+	if !ok || typed.Resource != resource {
+		t.Fatalf("typed error = %#v, want resource %q", got, resource)
 	}
 }
 

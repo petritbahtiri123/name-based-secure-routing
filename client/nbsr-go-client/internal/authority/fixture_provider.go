@@ -40,6 +40,23 @@ type fixtureGrantKey struct {
 	requestDigest [32]byte
 }
 
+type frozenFixtureError struct {
+	code     ErrorCode
+	resource string
+	present  bool
+}
+
+type storedFixtureGrant struct {
+	result ProviderGrant
+	err    frozenFixtureError
+}
+
+type storedFixtureFreshness struct {
+	result ProviderFreshness
+	claims CheckpointClaims
+	err    frozenFixtureError
+}
+
 const (
 	maxFixtureCheckpointEntries = 256
 	maxFixtureCheckpointBytes   = 1 << 20
@@ -51,8 +68,8 @@ type FixtureProvider struct {
 	mu sync.Mutex
 
 	limits FixtureProviderLimits
-	grants map[fixtureGrantKey]FixtureGrant
-	fresh  map[[32]byte]FixtureFreshness
+	grants map[fixtureGrantKey]storedFixtureGrant
+	fresh  map[[32]byte]storedFixtureFreshness
 	calls  uint64
 	closed bool
 }
@@ -66,14 +83,14 @@ func NewFixtureProvider(limits FixtureProviderLimits, grants []FixtureGrant, fre
 	if len(grants)+len(freshness) > limits.MaxEntries {
 		return nil, ErrCacheCapacity
 	}
-	provider := &FixtureProvider{limits: limits, grants: make(map[fixtureGrantKey]FixtureGrant, len(grants)), fresh: make(map[[32]byte]FixtureFreshness, len(freshness))}
+	provider := &FixtureProvider{limits: limits, grants: make(map[fixtureGrantKey]storedFixtureGrant, len(grants)), fresh: make(map[[32]byte]storedFixtureFreshness, len(freshness))}
 	var used uint64
 	for _, fixture := range grants {
 		operation := pendingOperation(fixture.Operation)
 		if (operation != pendingAcquire && operation != pendingRenew) || fixture.RequestDigest == ([32]byte{}) {
 			return nil, ErrInvalidAuthority
 		}
-		copied, bytesUsed, err := copyFixtureGrant(fixture)
+		copied, bytesUsed, err := freezeFixtureGrant(fixture)
 		if err != nil || bytesUsed > limits.MaxBytes-used {
 			if err != nil {
 				return nil, err
@@ -91,7 +108,7 @@ func NewFixtureProvider(limits FixtureProviderLimits, grants []FixtureGrant, fre
 		if fixture.RequestDigest == ([32]byte{}) {
 			return nil, ErrInvalidAuthority
 		}
-		copied, bytesUsed, err := copyFixtureFreshness(fixture)
+		copied, bytesUsed, err := freezeFixtureFreshness(fixture)
 		if err != nil || bytesUsed > limits.MaxBytes-used {
 			if err != nil {
 				return nil, err
@@ -138,14 +155,10 @@ func (provider *FixtureProvider) grant(ctx context.Context, operation pendingOpe
 	if !ok {
 		return ProviderGrant{}, ErrProviderUnavailable
 	}
-	if fixture.Err != nil {
-		return ProviderGrant{}, typedFixtureError(fixture.Err)
-	}
-	result, _, err := copyFixtureGrant(fixture)
-	if err != nil {
+	if err := fixture.err.Error(); err != nil {
 		return ProviderGrant{}, err
 	}
-	return result.Result, nil
+	return copyStoredProviderGrant(fixture.result), nil
 }
 
 func (provider *FixtureProvider) Freshness(ctx context.Context, request FreshnessRequest) (ProviderFreshness, error) {
@@ -171,14 +184,10 @@ func (provider *FixtureProvider) Freshness(ctx context.Context, request Freshnes
 	if !ok {
 		return ProviderFreshness{}, ErrProviderUnavailable
 	}
-	if fixture.Err != nil {
-		return ProviderFreshness{}, typedFixtureError(fixture.Err)
-	}
-	result, _, err := copyFixtureFreshness(fixture)
-	if err != nil {
+	if err := fixture.err.Error(); err != nil {
 		return ProviderFreshness{}, err
 	}
-	return result.Result, nil
+	return copyStoredProviderFreshness(fixture.result), nil
 }
 
 // Close is idempotent and never invokes external code.
@@ -192,7 +201,9 @@ func (provider *FixtureProvider) Close() error {
 	return nil
 }
 
-type fixtureCheckpointVerifier struct{ fixtures map[[32]byte]FixtureFreshness }
+type fixtureCheckpointVerifier struct {
+	fixtures map[[32]byte]storedFixtureFreshness
+}
 
 var _ CheckpointEvidenceVerifier = (*fixtureCheckpointVerifier)(nil)
 
@@ -200,13 +211,13 @@ func NewFixtureCheckpointVerifier(fixtures []FixtureFreshness) (CheckpointEviden
 	if len(fixtures) > maxFixtureCheckpointEntries {
 		return nil, ErrCacheCapacity
 	}
-	verifier := &fixtureCheckpointVerifier{fixtures: make(map[[32]byte]FixtureFreshness, len(fixtures))}
+	verifier := &fixtureCheckpointVerifier{fixtures: make(map[[32]byte]storedFixtureFreshness, len(fixtures))}
 	var used uint64
 	for _, fixture := range fixtures {
 		if fixture.RequestDigest == ([32]byte{}) {
 			return nil, ErrInvalidAuthority
 		}
-		copied, bytesUsed, err := copyFixtureFreshness(fixture)
+		copied, bytesUsed, err := freezeFixtureFreshness(fixture)
 		if err != nil {
 			return nil, err
 		}
@@ -230,13 +241,13 @@ func (verifier *fixtureCheckpointVerifier) VerifyFreshnessEvidence(ctx context.C
 		return CheckpointClaims{}, ErrInvalidAuthority
 	}
 	fixture, ok := verifier.fixtures[fixtureFreshnessRequestDigest(request)]
-	if !ok || !sameProviderFreshness(fixture.Result, freshness) {
+	if !ok || !sameProviderFreshness(fixture.result, freshness) {
 		return CheckpointClaims{}, ErrProviderUnavailable
 	}
-	if fixture.Err != nil {
-		return CheckpointClaims{}, typedFixtureError(fixture.Err)
+	if err := fixture.err.Error(); err != nil {
+		return CheckpointClaims{}, err
 	}
-	claims, err := copyFixtureClaims(fixture.Claims)
+	claims, err := copyFixtureClaims(fixture.claims)
 	if err != nil {
 		return CheckpointClaims{}, err
 	}
@@ -281,30 +292,39 @@ func fixtureFreshnessRequestDigest(request FreshnessRequest) [32]byte {
 	return digest
 }
 
-func copyFixtureGrant(fixture FixtureGrant) (FixtureGrant, uint64, error) {
-	if fixture.Err == nil {
+func freezeFixtureGrant(fixture FixtureGrant) (storedFixtureGrant, uint64, error) {
+	frozen, err := freezeFixtureError(fixture.Err)
+	if err != nil {
+		return storedFixtureGrant{}, 0, err
+	}
+	if !frozen.present {
 		if len(fixture.Result.ExactRouteGrant) == 0 || fixture.Result.Profile == "" || fixture.Result.AuthorityGeneration == 0 || fixture.Result.Checkpoint == (CheckpointDigest{}) {
-			return FixtureGrant{}, 0, ErrInvalidAuthority
+			return storedFixtureGrant{}, 0, ErrInvalidAuthority
 		}
 	}
-	fixture.Result.ExactRouteGrant = append([]byte(nil), fixture.Result.ExactRouteGrant...)
+	result := copyStoredProviderGrant(fixture.Result)
 	const fixed = 32 + 1 + 32 + 8
-	return fixture, uint64(len(fixture.Result.ExactRouteGrant) + len(fixture.Result.Profile) + fixed), nil
+	return storedFixtureGrant{result: result, err: frozen}, uint64(len(result.ExactRouteGrant) + len(result.Profile) + fixed), nil
 }
 
-func copyFixtureFreshness(fixture FixtureFreshness) (FixtureFreshness, uint64, error) {
-	if fixture.Err == nil {
+func freezeFixtureFreshness(fixture FixtureFreshness) (storedFixtureFreshness, uint64, error) {
+	frozen, err := freezeFixtureError(fixture.Err)
+	if err != nil {
+		return storedFixtureFreshness{}, 0, err
+	}
+	if !frozen.present {
 		if fixture.Result.SourceOperator == "" || fixture.Result.Profile == "" || len(fixture.Result.Evidence) == 0 {
-			return FixtureFreshness{}, 0, ErrInvalidAuthority
+			return storedFixtureFreshness{}, 0, ErrInvalidAuthority
 		}
 		if _, err := copyFixtureClaims(fixture.Claims); err != nil {
-			return FixtureFreshness{}, 0, err
+			return storedFixtureFreshness{}, 0, err
 		}
 	}
-	fixture.Result.Evidence = append([]byte(nil), fixture.Result.Evidence...)
-	fixture.Claims.RevokedGrants = append([]RouteGrantDigest(nil), fixture.Claims.RevokedGrants...)
+	result := copyStoredProviderFreshness(fixture.Result)
+	claims := fixture.Claims
+	claims.RevokedGrants = append([]RouteGrantDigest(nil), claims.RevokedGrants...)
 	const fixed = 32 + 32 + 8*3
-	return fixture, uint64(len(fixture.Result.SourceOperator) + len(fixture.Result.Profile) + len(fixture.Result.Evidence) + len(fixture.Claims.SourceOperator) + len(fixture.Claims.Profile) + len(fixture.Claims.RevokedGrants)*32 + fixed), nil
+	return storedFixtureFreshness{result: result, claims: claims, err: frozen}, uint64(len(result.SourceOperator) + len(result.Profile) + len(result.Evidence) + len(claims.SourceOperator) + len(claims.Profile) + len(claims.RevokedGrants)*32 + fixed), nil
 }
 
 func copyFixtureClaims(claims CheckpointClaims) (CheckpointClaims, error) {
@@ -329,9 +349,34 @@ func fixtureContextError(ctx context.Context) error {
 	return nil
 }
 
-func typedFixtureError(err error) error {
-	if typed, ok := err.(*AuthorityError); ok {
-		return typed
+func (frozen frozenFixtureError) Error() error {
+	if !frozen.present {
+		return nil
 	}
-	return ErrProviderUnavailable
+	return &AuthorityError{Code: frozen.code, Resource: frozen.resource}
+}
+
+func freezeFixtureError(err error) (frozenFixtureError, error) {
+	if err == nil {
+		return frozenFixtureError{}, nil
+	}
+	typed, ok := err.(*AuthorityError)
+	if !ok || typed == nil || !validFixtureErrorCode(typed.Code) {
+		return frozenFixtureError{}, ErrInvalidAuthority
+	}
+	return frozenFixtureError{code: typed.Code, resource: typed.Resource, present: true}, nil
+}
+
+func validFixtureErrorCode(code ErrorCode) bool {
+	return code >= CodeUnknownIdentity && code <= CodeAccountingOverflow
+}
+
+func copyStoredProviderGrant(grant ProviderGrant) ProviderGrant {
+	grant.ExactRouteGrant = append([]byte(nil), grant.ExactRouteGrant...)
+	return grant
+}
+
+func copyStoredProviderFreshness(freshness ProviderFreshness) ProviderFreshness {
+	freshness.Evidence = append([]byte(nil), freshness.Evidence...)
+	return freshness
 }
