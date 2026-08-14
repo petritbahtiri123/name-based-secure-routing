@@ -1,13 +1,11 @@
 package authority
 
 import (
-	"context"
 	"reflect"
 	"sync"
 )
 
 type cachedAuthority struct{}
-type pendingCall struct{}
 
 // Manager owns bounded authority bookkeeping. Verification and provider work
 // are added by later tasks.
@@ -28,13 +26,15 @@ type Manager struct {
 	reserved        map[uint64]*cacheEntry
 	cacheBytes      uint64
 	nextReservation uint64
-	pending         map[AuthorityKey]pendingCall
+	pending         map[pendingKey]*pendingCall
+	pendingBytes    uint64
 	requests        map[RequestID]RequestSnapshot
 
 	checkpoint       checkpointState
 	generation       AuthorityGeneration
 	hasCheckpoint    bool
 	freshnessExpired bool
+	closed           bool
 }
 
 func NewManager(limits Limits, clock Clock, provider AuthorityProvider, verifier *Verifier, checkpointVerifier CheckpointEvidenceVerifier, floorStore GenerationFloorStore, observer Observer) (*Manager, error) {
@@ -56,7 +56,7 @@ func NewManager(limits Limits, clock Clock, provider AuthorityProvider, verifier
 		grants:             make(map[RouteGrantDigest]*cacheEntry),
 		tombstones:         make(map[RouteGrantDigest]tombstone),
 		reserved:           make(map[uint64]*cacheEntry),
-		pending:            make(map[AuthorityKey]pendingCall),
+		pending:            make(map[pendingKey]*pendingCall),
 		requests:           make(map[RequestID]RequestSnapshot),
 	}, nil
 }
@@ -87,13 +87,3 @@ func (m *Manager) notify(events []Event) {
 		m.observer.Observe(event)
 	}
 }
-
-func (m *Manager) Acquire(context.Context, AcquireRequest) (Reservation, error) {
-	return Reservation{}, ErrNotReady
-}
-
-func (m *Manager) Renew(context.Context, RenewRequest) (Reservation, error) {
-	return Reservation{}, ErrNotReady
-}
-
-func (m *Manager) Close() error { return ErrNotReady }

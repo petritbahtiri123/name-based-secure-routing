@@ -1,6 +1,7 @@
 package authority
 
 import (
+	"context"
 	cryptorand "crypto/rand"
 	"io"
 )
@@ -23,4 +24,14 @@ func (source cryptoRequestIDSource) NewRequestID() (RequestID, error) {
 		return RequestID{}, &AuthorityError{Code: CodeInvalidAuthority, Resource: "request ID"}
 	}
 	return id, nil
+}
+
+// invokeProvider is deliberately called only after a pending operation has
+// been published and the manager mutex released. Providers are reentrant
+// callbacks and must never observe the manager lock.
+func (m *Manager) invokeProvider(ctx context.Context, operation pendingOperation, acquire AcquireRequest, renew RenewRequest) (ProviderGrant, error) {
+	if operation == pendingRenew {
+		return m.provider.Renew(ctx, renew)
+	}
+	return m.provider.Acquire(ctx, acquire)
 }
