@@ -127,7 +127,11 @@ replace signed RouteGrant verification, and an `AuthorityProvider` result cannot
 reach TS/SC state until Go Core independently verifies it.
 
 An expiring signed checkpoint bounds stale trust. Restart begins with an empty
-grant cache and cannot lower the durable accepted generation floor. Exact
+grant cache, restores no live authority state, and cannot lower the durable
+signed ACP authority-generation floor. Fresh validation with the enrolled
+Source Operator ACP is mandatory before new authority-dependent work. If the
+floor cannot be proven current enough to exclude rollback, the client remains
+fail closed; TPM/secure monotonic hardware is optional defense-in-depth. Exact
 service, policy, identity, operator/profile, TS key/generation, and authority
 generation bindings prevent response substitution and cross-service/TS reuse.
 Per-device/global request, body, idempotency, cache, retry, concurrency, and log

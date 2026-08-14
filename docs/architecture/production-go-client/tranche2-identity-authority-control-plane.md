@@ -1,6 +1,6 @@
 # Tranche 2 identity and Authority Control Plane design
 
-**Status:** Proposed freeze; human decisions 1-2 approved, decision 3 pending
+**Status:** Approved design freeze; all three human decisions resolved
 
 **Baseline:** `codex/nbsr-v3-wp0-wp1` at
 `8189d917e50df67e740fc3f3e8a5195f7cac7219`
@@ -381,7 +381,7 @@ only a bounded hint and cannot override local safety deadlines.
 | Malicious ACP endpoint | Exact TLS identity plus independently signed request/result objects; Go Core re-verifies issuer/purpose/bindings/freshness |
 | Compromised resolver authority confusion | RouteIntent is constrained input; exact ServiceIdentity/name/record/policy binding; resolver cannot issue grants |
 | Replayed/substituted RouteGrant | Exact request/TS/service/policy binding, unique nonce, signature, current checkpoint, one-owner consumption |
-| Stale freshness / restart rollback | Expiring signed checkpoint, durable nondecreasing floor/external anchor, empty ephemeral cache after restart, fail closed |
+| Stale freshness / restart rollback | Durable signed ACP authority-generation floor, mandatory fresh enrolled-ACP validation, no restored live authority, optional TPM defense, fail closed |
 | Downgrade | Exact version/profile pinning; unknown/legacy fields and redirects rejected without mutation |
 | Cross-service or cross-TS use | Complete cache key and verification; distinct TS proof key; SC/channel/credit/final-gate binding |
 | Request amplification/resource exhaustion | Client coalescing and caps; server per-device/global quotas, bounded bodies/idempotency records, cheap validation first |
@@ -416,7 +416,7 @@ bounded; and malformed ACP traffic cannot crash the client.
 | Workload identity requiredness | RESOLVED BY EXISTING PROTOCOL | Optional policy context; deployment profile may require it |
 | Client ACP trust domain | CLIENT IMPLEMENTATION | Approved: authenticate only the enrolled Source Operator ACP; all cross-operator/federation authority remains behind that boundary |
 | Freshness/offline trust behavior | CLIENT IMPLEMENTATION | Approved: no per-stream ACP check; bounded polling, hint-only push, and finite trust ending at the earliest applicable expiry |
-| Durable rollback anchor | HUMAN DECISION REQUIRED | Remote ACP floor recommended; TPM is stronger optional local layer |
+| Restart rollback protection | CLIENT IMPLEMENTATION | Approved: durable signed ACP authority-generation floor plus mandatory fresh enrolled-ACP validation; TPM is optional defense-in-depth |
 
 ## Human protocol/security decisions
 
@@ -448,19 +448,25 @@ applicable authority or freshness expiry. Exact polling intervals, checkpoint
 lifetimes, and resource bounds remain measured profile configuration rather
 than invented protocol constants.
 
-The following decision remains pending:
+**Approved decision 3 — restart rollback protection.** The client MUST retain a
+durable, integrity-protected copy of the latest accepted signed ACP authority-
+generation floor. After every restart it MUST obtain fresh validation from its
+enrolled Source Operator ACP before beginning any new authority-dependent work.
+If the retained floor is corrupt, missing when required, lower than previously
+accepted state, or cannot be shown current enough to exclude rollback, startup
+authority remains fail closed until ACP freshness is re-established.
 
-1. **Rollback anchor.** Recommended: persist a signed ACP checkpoint generation
-   floor and require a fresh ACP checkpoint after restart before new
-   authority-dependent work; use TPM monotonic storage when available as an
-   additional defense. Alternative: require TPM/secure-element monotonic state
-   on every platform. The recommendation works on laptops, servers, and routers
-   but loses offline startup; mandatory hardware gives stronger local rollback
-   resistance but excludes or complicates unsupported devices.
+Live RouteGrants, Transport Sessions, Service Channels, Stream Credits,
+Application Streams, selectors, reservations, and all other live authority
+state MUST NOT be restored from disk. The grant cache starts empty, sessions and
+channels are reconstructed from fresh independently verified authority, and
+the accepted generation MUST never decrease. TPM, secure-element, or other
+hardware monotonic storage MAY strengthen the durable floor when available but
+MUST NOT be a universal deployment requirement.
 
-The remaining decision does not block a coherent design: it is an explicit
-approval input to the protocol profile and implementation plan. It does not
-permit a Core, P1F, or P2D wire change.
+All three human protocol/security decisions are now resolved. Their approval
+does not permit a Core, F75, P1F, or P2D wire change and does not authorize
+runtime implementation or ACP networking in this documentation tranche.
 
 ## Proposed Tranche 2 implementation decomposition
 
@@ -505,6 +511,7 @@ profile are approved.
 Placeholder scan: no unresolved placeholders or invented timing defaults remain.
 Consistency: the proposed ACP carries unchanged signed RouteGrant bytes and does
 not alter Core admission. Scope: runtime, live networking, rotation, resolver,
-and platform adapters are excluded. Ambiguity: all new wire behavior, the
-approved Source Operator ACP and freshness boundaries, and the one pending
-human policy choice are explicitly classified.
+and platform adapters are excluded. Ambiguity: all new wire behavior and the
+three approved Source Operator ACP, freshness, and rollback boundaries are
+explicitly classified; no human protocol/security decision remains pending in
+this design.

@@ -25,6 +25,14 @@ After freshness expiry, new authority-dependent state fails closed; existing
 admitted streams are not silently reauthorized and remain subject to the
 separately defined revocation and close-versus-drain policy.
 
+Approved Tranche 2 decision 3 resolves restart rollback protection. The client
+persists a durable signed ACP authority-generation floor, restores no live
+RouteGrant/session/channel/credit/stream authority, and requires fresh
+validation with its enrolled Source Operator ACP before new authority-dependent
+work after restart. Failure to prove a non-rolled-back floor fails closed until
+freshness is restored. TPM or secure monotonic hardware is optional additional
+defense, not a universal requirement.
+
 | Gap | Why unresolved | Blocking what | Protocol or implementation | Recommended decision |
 |---|---|---|---|---|
 | Authority source direction | Core verifies/uses grants; Go peer loads fixtures; no live acquisition exchange | Production channel creation and TS-B authorization | Decision resolved; contract not frozen | Standard source is the NBSR Authority Control Plane behind `AuthorityProvider`; freeze its API/transport/authentication without changing Core wire |
@@ -47,30 +55,32 @@ separately defined revocation and close-versus-drain policy.
 | OS interception model | Windows/Linux/router require different mechanisms | Transparent production deployment | PLATFORM_INTEGRATION | Proxy-first core validation; TUN for Linux/router; separately approve Windows native adapter |
 | Local application identity | OS attribution strength varies by adapter | Compromised-app containment | PLATFORM_INTEGRATION/SECURITY | Define adapter-specific authenticated peer metadata and policy fallback; Synthetic IP alone is insufficient |
 | Network-change classification | QUIC migration exists but capture/policy compatibility is platform-specific | Wi-Fi/Ethernet/VPN/sleep behavior | CLIENT_IMPLEMENTATION/PLATFORM_INTEGRATION | Event-driven revalidation; preserve only same-edge compatible sessions, otherwise create fresh TS |
-| Durable rollback protection | A local integrity key cannot detect restoration of an older valid snapshot; no external monotonic anchor is selected | Corruption/power-loss/rollback safety | **REQUIRES_PROTOCOL_DECISION**, SECURITY | Choose TPM counter, remote authority freshness, or equivalent anchor; otherwise fail closed where freshness cannot be reconstructed |
+| Durable rollback protection | A local integrity key alone cannot detect restoration of an older valid snapshot | Corruption/power-loss/rollback safety | CLIENT_IMPLEMENTATION/SECURITY | Persist the approved signed ACP generation floor, restore no live authority, require fresh enrolled-ACP validation after restart, and use TPM only as optional defense |
 | Resource defaults | Protocol bounds exist, product hardware/workloads do not | Shipping configuration | OPERATIONS | Measure laptop/server/router profiles before setting defaults or targets |
 | UDP/IP application profiles | Initial verified path is reliable streams/TCP | UDP and transparent IP support | **REQUIRES_PROTOCOL_DECISION** | Keep out of first client; separately approve CONNECT-UDP/QUIC DATAGRAM or CONNECT-IP profile |
 | Cross-edge handover/resume | Current approved behavior is same-edge bounded resume | Mobility/failover across gateways | **REQUIRES_PROTOCOL_DECISION** | Use fresh TS/grant today; approve explicit handover only in a separate protocol tranche |
 
-## Human decisions required before an implementation plan
+## Human-decision status
 
-1. Freeze the approved **NBSR Authority Control Plane** contract behind
-   `AuthorityProvider`: authentication, request/response, idempotency, renewal,
-   cancellation, freshness, revocation feed, and generation semantics.
-2. Approve the production client identity/enrollment and TS proof-key lifecycle.
-3. Approve resolver authority, Synthetic-IP mapping lifetime/invalidation, and
+All three Tranche 2 client identity/authority decisions are resolved: enrolled
+Source Operator ACP trust, bounded polling/offline freshness, and signed ACP
+generation-floor restart protection. A Tranche 2 implementation plan may use
+those approved client contracts, but live enrollment/ACP message schemas and
+networking still require separate protocol approval.
+
+The following decisions belong to later or separately scoped tranches and are
+not silently resolved here:
+
+1. Resolver authority, Synthetic-IP mapping lifetime/invalidation, and
    failover/conflict behavior.
-4. Approve existing-stream behavior for each revocation class: immediate close
-   or explicitly bounded drain.
-5. The first adapter decision is resolved as **user-space proxy with Approach A
+2. Existing-stream behavior for each revocation class: immediate close or
+   explicitly bounded drain.
+3. The first adapter is resolved as **user-space proxy with Approach A
    per-active-service local Synthetic IP mappings**. TUN, Windows-native, and
    Approach B MappingID correlation remain separate platform tranches.
-6. Approve the revocation/selector authority-generation linearization contract
-   and global-per-reuse-key cutover semantics.
-7. Approve or explicitly reject an SC ambiguous-completion reconciliation path;
-   the default is fail closed with no blind retry.
-8. Select a rollback-freshness anchor (TPM, remote authority, or equivalent) or
-   explicitly accept fail-closed startup when freshness cannot be proven.
+4. TS-rotation implementation and global-per-reuse-key cutover integration.
+5. An SC ambiguous-completion reconciliation path; the current default remains
+   fail closed with no blind retry.
 
 The `REQUIRES_PROTOCOL_DECISION` classification includes unresolved control-plane
 or security contracts because it is the required gap category; it does not imply

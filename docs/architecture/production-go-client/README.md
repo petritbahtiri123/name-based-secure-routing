@@ -1,6 +1,6 @@
 # Production Go client design package
 
-**Status:** Ready for human design review; no production implementation exists
+**Status:** Tranche 2 design approved; no production authority implementation exists
 
 **Repository baseline:** `codex/nbsr-v3-wp0-wp1` at
 `8189d917e50df67e740fc3f3e8a5195f7cac7219`
@@ -72,3 +72,8 @@ Human decision 2 is approved: there is no ACP freshness check per Application
 Stream. Local authority is usable only while its grant, signed checkpoint,
 credential/policy validity, and authority generation remain current; after
 freshness expiry, new authority-dependent work fails closed until refresh.
+Human decision 3 is approved: restart retains only a durable signed ACP
+authority-generation floor and requires fresh validation with the enrolled
+Source Operator ACP before new authority-dependent work. No live authority
+state is restored from disk; TPM or secure monotonic hardware is optional
+defense-in-depth rather than a universal requirement.

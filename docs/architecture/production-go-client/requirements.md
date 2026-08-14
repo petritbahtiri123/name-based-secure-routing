@@ -189,14 +189,18 @@ may have multiple classifications where the concern crosses boundaries.
 - **PGC-060 — MUST — CLIENT_IMPLEMENTATION:** Durable state is limited to
   identity/key references, trusted authority/profile configuration, resolver
   and local policy configuration, and integrity/version metadata.
-- **PGC-061 — MUST — SECURITY:** TSs, SCs, credits, QUIC streams, in-flight
-  requests, and live selectors are ephemeral. RouteGrants and synthetic mappings
-  are reconstructed by default rather than persisted.
+- **PGC-061 — MUST — SECURITY:** RouteGrants, TSs, SCs, credits, QUIC/Application
+  Streams, in-flight requests, live selectors, and all other live authority are
+  ephemeral and never restored from disk. Synthetic mappings are reconstructed
+  rather than persisted as live authority.
 - **PGC-062 — MUST — SECURITY:** Corrupt, rolled-back, unsupported, or
   permission-unsafe security state is quarantined and causes fail-closed startup;
   non-security cache corruption may be discarded and rebuilt. Claims of rollback
-  resistance require an approved external/TPM/authority monotonic anchor; local
-  integrity protection alone detects modification, not restored old snapshots.
+  resistance use a durable signed ACP authority-generation floor and mandatory
+  fresh validation with the enrolled Source Operator ACP after restart before
+  new authority-dependent work. Local integrity alone cannot detect restored
+  old snapshots. TPM/secure monotonic hardware is optional additional defense,
+  not a universal requirement.
 - **PGC-063 — MUST — CLIENT_IMPLEMENTATION:** Every queue, map, retry loop,
   goroutine source, log buffer, session generation, and refill request has an
   explicit configured bound and overload behavior.

@@ -203,20 +203,23 @@ not new wire semantics.
 
 Durable: key references/enrollment metadata; trusted authority/profile roots;
 resolver and policy configuration; schema version, monotonic configuration
-generation, and integrity metadata. Atomic replacement and rollback detection
-are required. Local integrity detects modification but cannot detect restoration
-of an older valid snapshot; production rollback resistance therefore requires
-an approved TPM counter, remote authority freshness record, or equivalent
-external monotonic anchor. Without one, startup fails closed when freshness is
-security-relevant and cannot be proven.
+generation, integrity metadata, and the latest accepted signed ACP authority-
+generation floor. Atomic replacement and rollback detection are required.
+Local integrity detects modification but cannot by itself detect restoration of
+an older valid snapshot. After restart the client therefore requires fresh
+validation with its enrolled Source Operator ACP before new authority-dependent
+work. If the retained floor cannot be proven current enough to exclude
+rollback, the client fails closed until freshness is re-established. TPM or
+secure monotonic hardware may add protection but is not universally required.
 
-Ephemeral: TSs, SCs, credits, streams, flow pins, pending refills, retry state,
-and by default RouteGrants and synthetic mappings. Clean shutdown drains within
-policy and deletes ephemeral state. Crash, reboot, or power loss starts with no
-live authority, reacquires/reconstructs mappings and grants, and creates fresh
-sessions. Corrupt security state is quarantined and startup fails closed;
-discardable caches are rebuilt. Upgrade uses versioned migration for durable
-configuration, never serialization of live security state.
+Ephemeral: RouteGrants, TSs, SCs, credits, Application Streams, selectors, flow
+pins, pending refills, retry state, and synthetic mappings. Clean shutdown
+drains within policy and deletes ephemeral state. Crash, reboot, or power loss
+starts with no live authority, reacquires/reconstructs mappings and grants, and
+creates fresh sessions. No live authority object is restored from disk. Corrupt
+security state is quarantined and startup fails closed; discardable caches are
+rebuilt. Upgrade uses versioned migration for durable configuration, never
+serialization of live security state.
 
 ## Resource bounds model
 
