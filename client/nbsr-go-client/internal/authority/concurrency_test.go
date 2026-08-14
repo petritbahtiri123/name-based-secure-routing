@@ -157,7 +157,9 @@ func TestConcurrentConsumeAndQuarantineRespectPublishedOrder(t *testing.T) {
 			consumed <- task11ConsumeLockedBarrier(m, reservation, owner(reservation.key.TSGeneration), snapshot, 99, linearized, release)
 		}()
 		<-linearized
-		go func() { quarantined <- task11QuarantineBlockedAfterStart(m, reservation, RequestID{9}, quarantineStarted) }()
+		go func() {
+			quarantined <- task11QuarantineBlockedAfterStart(m, reservation, RequestID{9}, quarantineStarted)
+		}()
 		<-quarantineStarted
 		select {
 		case err := <-quarantined:
