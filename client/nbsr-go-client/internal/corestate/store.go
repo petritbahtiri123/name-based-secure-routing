@@ -3,8 +3,7 @@ package corestate
 import "sync"
 
 type generationState struct {
-	closed          bool
-	highWaterHandle ServiceHandle
+	next ServiceHandle
 }
 
 type serviceKey struct {
@@ -30,8 +29,9 @@ type Store struct {
 	services    map[serviceKey]ServiceSnapshot
 	streams     map[streamKey]StreamSnapshot
 
-	mappingHighWater MappingID
-	usage            Usage
+	highestGeneration TSGeneration
+	mappingHighWater  MappingID
+	usage             Usage
 }
 
 func NewStore(limits Limits, clock Clock, observer Observer) (*Store, error) {
@@ -54,9 +54,6 @@ func NewStore(limits Limits, clock Clock, observer Observer) (*Store, error) {
 		streams:     make(map[streamKey]StreamSnapshot),
 	}, nil
 }
-
-func (s *Store) OpenGeneration(TSGeneration) error  { return unimplementedTransition() }
-func (s *Store) CloseGeneration(TSGeneration) error { return unimplementedTransition() }
 
 func (s *Store) AddMapping(MappingSpec) (MappingSnapshot, error) {
 	return MappingSnapshot{}, unimplementedTransition()
