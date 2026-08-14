@@ -554,7 +554,7 @@ func (m *Manager) Usage() Usage {
 		return Usage{}
 	}
 	m.mu.RLock()
-	usage := Usage{CacheEntries: m.cacheEntriesLocked(), CacheBytes: m.cacheBytes, PendingCalls: len(m.pending), PendingBytes: m.pendingBytes, RequestRecords: len(m.requests)}
+	usage := Usage{CacheEntries: m.cacheEntriesLocked(), CacheBytes: m.cacheBytes, PendingCalls: len(m.pending), PendingBytes: m.pendingBytes, RequestRecords: len(m.requests), RequestBytes: m.requestBytes}
 	for _, call := range m.pending {
 		usage.PendingWaiters += call.waiters
 	}
@@ -568,7 +568,7 @@ func (m *Manager) ValidateInvariants() error {
 	}
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	if m.cacheEntriesLocked() > m.limits.MaxCacheEntries || m.cacheBytes > m.limits.MaxCacheBytes || len(m.reserved) > len(m.cache) || len(m.grants) != len(m.cache) || len(m.pending) > m.limits.MaxPending || m.pendingBytes > m.limits.MaxPendingBytes {
+	if m.cacheEntriesLocked() > m.limits.MaxCacheEntries || m.cacheBytes > m.limits.MaxCacheBytes || len(m.reserved) > len(m.cache) || len(m.grants) != len(m.cache) || len(m.pending) > m.limits.MaxPending || m.pendingBytes > m.limits.MaxPendingBytes || len(m.requests) > m.limits.MaxRequestRecords || m.requestBytes > m.limits.MaxRequestBytes {
 		return ErrInvalidAuthority
 	}
 	var bytesUsed uint64
@@ -639,6 +639,32 @@ func (m *Manager) ValidateInvariants() error {
 		}
 	}
 	if pendingBytes != m.pendingBytes {
+		return ErrInvalidAuthority
+	}
+	var requestBytes uint64
+	for key, record := range m.requests {
+		if record == nil || record.key != key || !validRequestKey(key) || record.logicalBytes != requestRecordLogicalBytes || record.snapshot.ID != key.id || record.snapshot.AuthorityGeneration == 0 || record.snapshot.ExpiresAt == 0 || record.snapshot.Status < RequestPending || record.snapshot.Status > RequestAmbiguous {
+			return ErrInvalidAuthority
+		}
+		if record.snapshot.Status == RequestPending && (record.snapshot.ResultDigest != ([32]byte{}) || record.reservationID != 0) {
+			return ErrInvalidAuthority
+		}
+		if record.snapshot.Status == RequestComplete && (record.snapshot.ResultDigest == ([32]byte{}) || record.reservationID == 0) {
+			return ErrInvalidAuthority
+		}
+		if record.reservationID != 0 {
+			entry := m.reserved[record.reservationID]
+			if record.snapshot.Status != RequestAmbiguous && (entry == nil || entry.state != cacheReserved || entry.authority.GrantDigest() != record.snapshot.ResultDigest) {
+				return ErrInvalidAuthority
+			}
+		}
+		var overflow bool
+		requestBytes, overflow = addUint64(requestBytes, record.logicalBytes)
+		if overflow {
+			return ErrInvalidAuthority
+		}
+	}
+	if requestBytes != m.requestBytes {
 		return ErrInvalidAuthority
 	}
 	return nil

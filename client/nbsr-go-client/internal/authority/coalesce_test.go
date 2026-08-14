@@ -61,17 +61,16 @@ func TestCoalescingSeparatesOperationAndPreviousGrant(t *testing.T) {
 	go func() { _, err := manager.Acquire(context.Background(), request); acquired <- err }()
 	awaitCoalesce(t, provider.started)
 	go func() { _, err := manager.Renew(context.Background(), renew); renewed <- err }()
-	awaitCoalesce(t, provider.renewStarted)
 	provider.releaseOnce()
 	acquireErr, renewErr := <-acquired, <-renewed
 	if acquireErr != nil {
 		t.Fatalf("Acquire: %v", acquireErr)
 	}
-	if !errors.Is(renewErr, ErrInvalidAuthority) {
-		t.Fatalf("Renew without predecessor error = %v, want ErrInvalidAuthority", renewErr)
+	if !errors.Is(renewErr, ErrRequestConflict) {
+		t.Fatalf("Renew with acquire request ID error = %v, want ErrRequestConflict", renewErr)
 	}
-	if got := provider.calls(); got != 2 {
-		t.Fatalf("provider calls = %d, want 2", got)
+	if got := provider.calls(); got != 1 {
+		t.Fatalf("provider calls = %d, want 1", got)
 	}
 }
 
@@ -536,7 +535,7 @@ func coalesceFixture(t *testing.T) (*coalesceProvider, *Manager, AcquireRequest)
 	grant, verification, resolver := validFrozenGrantCase(t)
 	provider := &coalesceProvider{grant: grant, started: make(chan struct{}), renewStarted: make(chan struct{}), release: make(chan struct{}), contextDone: make(chan struct{})}
 	limits := validLimits()
-	limits.MaxCacheEntries, limits.MaxPending, limits.MaxWaitersPerPending = 8, 8, 8
+	limits.MaxCacheEntries, limits.MaxPending, limits.MaxWaitersPerPending, limits.MaxRequestRecords = 8, 8, 8, 16
 	limits.MaxCacheBytes, limits.MaxPendingBytes, limits.MaxRequestBytes, limits.MaxGrantBytes = 1<<20, 1<<20, 1<<20, 1<<20
 	manager, err := NewManager(limits, task4Clock{now: verification.NowUnix}, provider, mustVerifier(t, resolver), fakeCheckpointVerifier{}, fakeFloorStore{}, noopObserver{})
 	if err != nil {

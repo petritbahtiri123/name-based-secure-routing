@@ -2,10 +2,101 @@ package authority
 
 import (
 	"bytes"
+	"context"
+	"crypto/sha256"
 	"errors"
 	"math"
 	"testing"
 )
+
+func TestAPIDuplicateRequestIDReusesCompletedReservationWithoutProviderWork(t *testing.T) {
+	provider, manager, request := coalesceFixture(t)
+	provider.releaseOnce()
+	first, err := manager.Acquire(context.Background(), request)
+	if err != nil {
+		t.Fatalf("first Acquire: %v", err)
+	}
+	second, err := manager.Acquire(context.Background(), request)
+	if err != nil {
+		t.Fatalf("duplicate Acquire: %v", err)
+	}
+	if second != first {
+		t.Fatalf("duplicate reservation = %#v, want %#v", second, first)
+	}
+	if got := provider.calls(); got != 1 {
+		t.Fatalf("provider calls = %d, want 1", got)
+	}
+	if snapshot, err := manager.RequestRecordSnapshot(request.RequestID); err != nil || snapshot.Status != RequestComplete {
+		t.Fatalf("request snapshot = %#v, %v; want completed", snapshot, err)
+	}
+}
+
+func TestRequestUsageAndInvariantsIncludeRecordBytes(t *testing.T) {
+	m := idempotencyManager(t)
+	mustBeginRequest(t, m, requestID(1), digest(1), 10)
+	if usage := m.Usage(); usage.RequestRecords != 1 || usage.RequestBytes != requestRecordLogicalBytes {
+		t.Fatalf("request Usage = %#v, want one record and %d bytes", usage, requestRecordLogicalBytes)
+	}
+	if err := m.ValidateInvariants(); err != nil {
+		t.Fatalf("valid request record rejected: %v", err)
+	}
+	m.mu.Lock()
+	m.requestBytes++
+	m.mu.Unlock()
+	if err := m.ValidateInvariants(); !errors.Is(err, ErrInvalidAuthority) {
+		t.Fatalf("corrupt request bytes = %v, want ErrInvalidAuthority", err)
+	}
+}
+
+func TestAPIConcurrentDuplicateRequestIDUsesOneRecordAndOneProviderCall(t *testing.T) {
+	provider, manager, request := coalesceFixture(t)
+	const callers = 8
+	results := make(chan error, callers)
+	start := make(chan struct{})
+	for range callers {
+		go func() { <-start; _, err := manager.Acquire(context.Background(), request); results <- err }()
+	}
+	close(start)
+	awaitCoalesce(t, provider.started)
+	awaitWaiters(t, manager, callers)
+	if usage := manager.Usage(); usage.RequestRecords != 1 || usage.RequestBytes != requestRecordLogicalBytes || usage.PendingWaiters != callers {
+		t.Fatalf("concurrent duplicate Usage = %#v", usage)
+	}
+	if err := manager.ValidateInvariants(); err != nil {
+		t.Fatalf("concurrent duplicate invariants: %v", err)
+	}
+	provider.releaseOnce()
+	for range callers {
+		if err := <-results; err != nil {
+			t.Fatalf("duplicate Acquire: %v", err)
+		}
+	}
+	if got := provider.calls(); got != 1 {
+		t.Fatalf("provider calls = %d, want 1", got)
+	}
+}
+
+func TestAPIConflictingRequestIDContextRejectsBeforeProvider(t *testing.T) {
+	provider, manager, request := coalesceFixture(t)
+	owner := make(chan error, 1)
+	go func() { _, err := manager.Acquire(context.Background(), request); owner <- err }()
+	awaitCoalesce(t, provider.started)
+	conflict := request
+	conflict.Intent.Canonical = append([]byte(nil), request.Intent.Canonical...)
+	conflict.Intent.Canonical[0] ^= 0xff
+	conflict.Intent.Digest = sha256.Sum256(conflict.Intent.Canonical)
+	conflict.Key.IntentDigest = conflict.Intent.Digest
+	if _, err := manager.Acquire(context.Background(), conflict); !errors.Is(err, ErrRequestConflict) {
+		t.Fatalf("conflicting Acquire = %v, want ErrRequestConflict", err)
+	}
+	if got := provider.calls(); got != 1 {
+		t.Fatalf("provider calls after conflict = %d, want 1", got)
+	}
+	provider.releaseOnce()
+	if err := <-owner; err != nil {
+		t.Fatalf("owner Acquire: %v", err)
+	}
+}
 
 func TestRequestRecordRejectsConflictingRequestIDReuse(t *testing.T) {
 	m := idempotencyManager(t)
@@ -44,11 +135,11 @@ func TestRequestRecordOperationDiscriminatorPreventsCrossOperationJoin(t *testin
 		t.Fatalf("begin acquire: %v", err)
 	}
 	key.operation = pendingRenew
-	if _, err := m.beginRequest(key, digest(2), 10); err != nil {
-		t.Fatalf("begin renew: %v", err)
+	if _, err := m.beginRequest(key, digest(2), 10); !errors.Is(err, ErrRequestConflict) {
+		t.Fatalf("begin renew = %v, want ErrRequestConflict", err)
 	}
-	if got := m.Usage(); got.RequestRecords != 2 {
-		t.Fatalf("request records = %d, want 2", got.RequestRecords)
+	if got := m.Usage(); got.RequestRecords != 1 {
+		t.Fatalf("request records = %d, want 1", got.RequestRecords)
 	}
 }
 

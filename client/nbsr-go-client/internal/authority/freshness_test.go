@@ -5,6 +5,7 @@ import (
 	"errors"
 	"sync"
 	"testing"
+	"time"
 )
 
 func TestFreshnessExpiresAtExactBoundary(t *testing.T) {
@@ -123,6 +124,55 @@ func TestFreshnessStateCopiesAndCanonicalizesRevocations(t *testing.T) {
 	claims.RevokedGrants[0][0] = 9
 	if got, want := m.checkpoint.revoked, []RouteGrantDigest{{1}, {2}, {3}}; !sameRevocations(got, want) {
 		t.Fatalf("revocations = %v, want %v", got, want)
+	}
+}
+
+func TestFreshnessGenerationAdvanceAtomicallyInvalidatesOlderRequestRecords(t *testing.T) {
+	m := freshManager(t, checkpoint(7, 100, 200))
+	m.mu.Lock()
+	m.limits.MaxRequestRecords = 3
+	m.limits.MaxRequestBytes = requestRecordLogicalBytes * 3
+	m.mu.Unlock()
+	mustBeginRequest(t, m, requestID(1), digest(1), 199) // pending
+	completed := mustBeginRequest(t, m, requestID(2), digest(2), 199)
+	if err := m.finishRequest(completed, digest(3), Reservation{}); err != nil {
+		t.Fatalf("finish completed request: %v", err)
+	}
+	ambiguous := mustBeginRequest(t, m, requestID(3), digest(4), 199)
+	if err := m.markAmbiguous(ambiguous); err != nil {
+		t.Fatalf("mark ambiguous request: %v", err)
+	}
+	m.checkpointVerifier.(*task4CheckpointVerifier).claims = checkpoint(8, 110, 200)
+	if _, err := m.PublishFreshness(context.Background(), task4Request(), task4ProviderFreshness()); err != nil {
+		t.Fatalf("PublishFreshness: %v", err)
+	}
+	m.mu.RLock()
+	remaining := len(m.requests)
+	m.mu.RUnlock()
+	if remaining != 0 {
+		t.Fatalf("older request records after generation advance = %d, want 0", remaining)
+	}
+}
+
+func TestFreshnessGenerationAdvanceWakesPendingAcquire(t *testing.T) {
+	provider, m, request := coalesceFixture(t)
+	result := make(chan error, 1)
+	go func() { _, err := m.Acquire(context.Background(), request); result <- err }()
+	awaitCoalesce(t, provider.started)
+	claims := m.checkpoint.claims
+	claims.Generation++
+	m.checkpointVerifier = &task4CheckpointVerifier{claims: claims}
+	freshness := FreshnessRequest{SourceOperator: claims.SourceOperator, Profile: claims.Profile, DeviceID: request.Key.DeviceID, DeviceGeneration: request.Key.DeviceGeneration, DeadlineUnix: request.DeadlineUnix}
+	if _, err := m.PublishFreshness(context.Background(), freshness, ProviderFreshness{SourceOperator: claims.SourceOperator, Profile: claims.Profile, Evidence: []byte{1}}); err != nil {
+		t.Fatalf("PublishFreshness: %v", err)
+	}
+	select {
+	case err := <-result:
+		if !errors.Is(err, ErrStaleGeneration) {
+			t.Fatalf("pending Acquire after generation advance = %v, want ErrStaleGeneration", err)
+		}
+	case <-time.After(2 * time.Second):
+		t.Fatal("generation advance did not wake pending Acquire")
 	}
 }
 

@@ -34,23 +34,30 @@ func (m *Manager) beginRequest(key requestKey, requestDigest [32]byte, expiresAt
 		return nil, ErrExpired
 	}
 	m.mu.Lock()
+	record, _, err := m.beginRequestLocked(key, requestDigest, expiresAt, now)
+	m.mu.Unlock()
+	return record, err
+}
+
+func (m *Manager) beginRequestLocked(key requestKey, requestDigest [32]byte, expiresAt, now uint64) (*requestRecord, bool, error) {
 	m.expireRequestsLocked(now)
 	m.invalidateRequestGenerationsLocked()
 	if existing := m.requests[key]; existing != nil {
 		if existing.snapshot.RequestDigest != requestDigest {
-			m.mu.Unlock()
-			return nil, ErrRequestConflict
+			return nil, false, ErrRequestConflict
 		}
 		if existing.snapshot.Status == RequestAmbiguous {
-			m.mu.Unlock()
-			return nil, ErrRequestAmbiguous
+			return nil, false, ErrRequestAmbiguous
 		}
-		m.mu.Unlock()
-		return existing, nil
+		return existing, false, nil
+	}
+	for otherKey, other := range m.requests {
+		if otherKey.deviceID == key.deviceID && otherKey.deviceGeneration == key.deviceGeneration && otherKey.id == key.id && (otherKey.operation != key.operation || other.snapshot.RequestDigest != requestDigest) {
+			return nil, false, ErrRequestConflict
+		}
 	}
 	if len(m.requests) >= m.limits.MaxRequestRecords || m.requestBytes > m.limits.MaxRequestBytes || requestRecordLogicalBytes > m.limits.MaxRequestBytes-m.requestBytes {
-		m.mu.Unlock()
-		return nil, ErrCacheCapacity
+		return nil, false, ErrCacheCapacity
 	}
 	record := &requestRecord{
 		key: key,
@@ -65,8 +72,7 @@ func (m *Manager) beginRequest(key requestKey, requestDigest [32]byte, expiresAt
 	}
 	m.requests[key] = record
 	m.requestBytes += record.logicalBytes
-	m.mu.Unlock()
-	return record, nil
+	return record, true, nil
 }
 
 func (m *Manager) finishRequest(record *requestRecord, resultDigest [32]byte, reservation Reservation) error {
@@ -88,17 +94,27 @@ func (m *Manager) finishRequest(record *requestRecord, resultDigest [32]byte, re
 		m.mu.Unlock()
 		return ErrInvalidTransition
 	}
+	if err := m.finishRequestLocked(record, resultDigest, reservation); err != nil {
+		m.mu.Unlock()
+		return err
+	}
+	m.mu.Unlock()
+	return nil
+}
+
+func (m *Manager) finishRequestLocked(record *requestRecord, resultDigest [32]byte, reservation Reservation) error {
+	if record == nil || m.requests[record.key] != record || record.snapshot.Status != RequestPending || resultDigest == ([32]byte{}) {
+		return ErrInvalidAuthority
+	}
 	if reservation != (Reservation{}) {
 		entry := m.reserved[reservation.id]
 		if reservation.id == 0 || entry == nil || entry.reservation != reservation.id || entry.state != cacheReserved || entry.authority.Key() != reservation.key || entry.authority.GrantDigest() != reservation.grant || resultDigest != reservation.grant {
-			m.mu.Unlock()
 			return ErrInvalidAuthority
 		}
 		record.reservationID = reservation.id
 	}
 	record.snapshot.ResultDigest = resultDigest
 	record.snapshot.Status = RequestComplete
-	m.mu.Unlock()
 	return nil
 }
 
@@ -123,21 +139,43 @@ func (m *Manager) markAmbiguous(record *requestRecord) error {
 		m.mu.Unlock()
 		return ErrRequestAmbiguous
 	}
+	events, err := m.markAmbiguousLocked(record)
+	m.mu.Unlock()
+	m.notify(events)
+	return err
+}
+
+func (m *Manager) markAmbiguousLocked(record *requestRecord) ([]Event, error) {
+	if record == nil || m.requests[record.key] != record {
+		return nil, ErrInvalidAuthority
+	}
+	if record.snapshot.Status == RequestAmbiguous {
+		return nil, ErrRequestAmbiguous
+	}
 	var events []Event
 	if record.reservationID != 0 {
 		entry := m.reserved[record.reservationID]
 		if entry == nil || entry.state != cacheReserved || entry.authority.GrantDigest() != record.snapshot.ResultDigest {
-			m.mu.Unlock()
-			return ErrInvalidAuthority
+			return nil, ErrInvalidAuthority
 		}
 		grant := entry.authority.GrantDigest()
 		m.retireEntryLocked(entry, cacheQuarantined)
 		events = append(events, Event{Kind: EventAmbiguousQuarantine, AuthorityGeneration: record.snapshot.AuthorityGeneration, Grant: grant, Request: record.snapshot.ID, Result: CodeRequestAmbiguous})
 	}
 	record.snapshot.Status = RequestAmbiguous
-	m.mu.Unlock()
-	m.notify(events)
-	return nil
+	return events, nil
+}
+
+func (m *Manager) completedReservationLocked(record *requestRecord) (Reservation, error) {
+	if record == nil || m.requests[record.key] != record || record.snapshot.Status != RequestComplete || record.reservationID == 0 {
+		return Reservation{}, ErrRequestAmbiguous
+	}
+	entry := m.reserved[record.reservationID]
+	if entry == nil || entry.state != cacheReserved || entry.authority.GrantDigest() != record.snapshot.ResultDigest {
+		_, _ = m.markAmbiguousLocked(record)
+		return Reservation{}, ErrRequestAmbiguous
+	}
+	return Reservation{id: entry.reservation, key: entry.authority.Key(), grant: entry.authority.GrantDigest()}, nil
 }
 
 func (m *Manager) expireRequests(now uint64) {

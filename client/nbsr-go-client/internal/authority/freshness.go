@@ -116,12 +116,24 @@ func (m *Manager) publishCheckpointLocked(candidate checkpointState) ([]Event, e
 	}
 	m.checkpoint = candidate
 	m.generation = candidate.claims.Generation
+	m.invalidateRequestGenerationsLocked()
+	pendingEvents := make([]Event, 0)
+	for _, call := range m.pending {
+		for _, record := range call.records {
+			if m.requests[record.key] != record {
+				call.abandoned = true
+				call.cancel()
+				pendingEvents = append(pendingEvents, m.finishPendingLocked(call, Reservation{}, ErrStaleGeneration)...)
+				break
+			}
+		}
+	}
 	m.hasCheckpoint = true
 	m.freshnessExpired = false
-	return []Event{
+	return append(pendingEvents, []Event{
 		{Kind: EventFreshnessAccepted, AuthorityGeneration: candidate.claims.Generation},
 		{Kind: EventGenerationAdvanced, AuthorityGeneration: candidate.claims.Generation},
-	}, nil
+	}...), nil
 }
 
 func (m *Manager) requireFreshLocked(now uint64) ([]Event, error) {

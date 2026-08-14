@@ -2,6 +2,7 @@ package authority
 
 import (
 	"context"
+	"errors"
 	"math"
 )
 
@@ -39,6 +40,7 @@ type pendingCall struct {
 	done            chan struct{}
 	providerContext context.Context
 	cancel          context.CancelFunc
+	records         []*requestRecord
 }
 
 func (m *Manager) Acquire(ctx context.Context, request AcquireRequest) (Reservation, error) {
@@ -66,6 +68,9 @@ func (m *Manager) Renew(ctx context.Context, request RenewRequest) (Reservation,
 }
 
 func (m *Manager) startOrJoin(ctx context.Context, key pendingKey, acquire AcquireRequest, renew RenewRequest) (Reservation, error) {
+	if err := ctx.Err(); err != nil {
+		return Reservation{}, err
+	}
 	now := m.clock.NowUnix()
 	if !validUnixTime(now) || now >= acquire.DeadlineUnix {
 		return Reservation{}, ErrExpired
@@ -76,28 +81,48 @@ func (m *Manager) startOrJoin(ctx context.Context, key pendingKey, acquire Acqui
 		return Reservation{}, ErrClosed
 	}
 	events, err := m.requireFreshLocked(now)
-	if err == nil && key.operation == pendingAcquire {
+	if err != nil {
+		m.mu.Unlock()
+		m.notify(events)
+		return Reservation{}, err
+	}
+	requestKey := requestKey{deviceID: acquire.Key.DeviceID, deviceGeneration: acquire.Key.DeviceGeneration, operation: key.operation, id: acquire.RequestID}
+	record, _, err := m.beginRequestLocked(requestKey, acquire.Intent.Digest, acquire.DeadlineUnix, now)
+	if err != nil {
+		m.mu.Unlock()
+		m.notify(events)
+		return Reservation{}, err
+	}
+	if record.snapshot.Status == RequestComplete {
+		reservation, err := m.completedReservationLocked(record)
+		m.mu.Unlock()
+		m.notify(events)
+		return reservation, err
+	}
+	if key.operation == pendingAcquire {
 		if entry := m.cache[key.authority]; entry != nil && entry.state == cacheAvailable {
 			var validationEvents []Event
 			validationEvents, err = m.validateAvailableLocked(entry, now)
 			events = append(events, validationEvents...)
-			if err != nil {
+			if err == nil {
+				var cacheEvents []Event
+				reservation, cacheEvents, reserveErr := m.reserveExistingLocked(entry)
+				events = append(events, cacheEvents...)
+				if reserveErr == nil {
+					err = m.finishRequestLocked(record, reservation.grant, reservation)
+				} else {
+					err = reserveErr
+				}
 				m.mu.Unlock()
 				m.notify(events)
-				return Reservation{}, err
+				return reservation, err
 			}
-			var cacheEvents []Event
-			reservation, cacheEvents, err := m.reserveExistingLocked(entry)
-			events = append(events, cacheEvents...)
 			m.mu.Unlock()
 			m.notify(events)
-			return reservation, err
+			return Reservation{}, err
 		}
 	}
-	if err == nil {
-		err = m.pendingScopeCurrentLocked(key.authority)
-	}
-	if err != nil {
+	if err = m.pendingScopeCurrentLocked(key.authority); err != nil {
 		m.mu.Unlock()
 		m.notify(events)
 		return Reservation{}, err
@@ -109,6 +134,9 @@ func (m *Manager) startOrJoin(ctx context.Context, key pendingKey, acquire Acqui
 			return Reservation{}, ErrWaiterCapacity
 		}
 		existing.waiters++
+		if !callHasRequestRecord(existing, record) {
+			existing.records = append(existing.records, record)
+		}
 		events = append(events, Event{Kind: EventAcquireCoalesced, AuthorityGeneration: key.authority.AuthorityGeneration})
 		m.mu.Unlock()
 		m.notify(events)
@@ -124,7 +152,7 @@ func (m *Manager) startOrJoin(ctx context.Context, key pendingKey, acquire Acqui
 		return Reservation{}, err
 	}
 	providerContext, cancel := context.WithCancel(context.Background())
-	call := &pendingCall{key: key, acquire: acquire, renew: renew, checkpoint: m.checkpoint.claims, logicalBytes: logicalBytes, waiters: 1, done: make(chan struct{}), providerContext: providerContext, cancel: cancel}
+	call := &pendingCall{key: key, acquire: acquire, renew: renew, checkpoint: m.checkpoint.claims, logicalBytes: logicalBytes, waiters: 1, done: make(chan struct{}), providerContext: providerContext, cancel: cancel, records: []*requestRecord{record}}
 	m.pending[key] = call
 	m.pendingBytes += logicalBytes
 	if key.operation == pendingRenew {
@@ -140,14 +168,29 @@ func (m *Manager) startOrJoin(ctx context.Context, key pendingKey, acquire Acqui
 	return m.waitPending(ctx, call)
 }
 
+func callHasRequestRecord(call *pendingCall, record *requestRecord) bool {
+	for _, candidate := range call.records {
+		if candidate == record {
+			return true
+		}
+	}
+	return false
+}
+
 func (m *Manager) waitPending(ctx context.Context, call *pendingCall) (Reservation, error) {
 	select {
 	case <-call.done:
 		return call.result.reservation, call.result.err
 	case <-ctx.Done():
 		cancelProvider := false
+		var events []Event
 		m.mu.Lock()
-		if !call.finished {
+		if call.finished {
+			for _, record := range call.records {
+				ambiguousEvents, _ := m.markAmbiguousLocked(record)
+				events = append(events, ambiguousEvents...)
+			}
+		} else {
 			call.waiters--
 			if call.waiters == 0 {
 				call.abandoned = true
@@ -155,6 +198,7 @@ func (m *Manager) waitPending(ctx context.Context, call *pendingCall) (Reservati
 			}
 		}
 		m.mu.Unlock()
+		m.notify(events)
 		if cancelProvider {
 			call.cancel()
 		}
@@ -253,11 +297,25 @@ func (m *Manager) finishPendingLocked(call *pendingCall, reservation Reservation
 	}
 	call.finished = true
 	call.result = pendingResult{reservation: reservation, err: err}
+	var requestEvents []Event
+	for _, record := range call.records {
+		if err == nil {
+			if finishErr := m.finishRequestLocked(record, reservation.grant, reservation); finishErr != nil {
+				err = finishErr
+				call.result.err = err
+			}
+		} else if errors.Is(err, ErrRequestAmbiguous) {
+			ambiguousEvents, _ := m.markAmbiguousLocked(record)
+			requestEvents = append(requestEvents, ambiguousEvents...)
+		} else {
+			m.removeRequestLocked(record)
+		}
+	}
 	close(call.done)
 	if call.key.operation == pendingRenew {
-		return []Event{{Kind: EventRenewalResult, AuthorityGeneration: call.key.authority.AuthorityGeneration, Request: call.acquire.RequestID, Result: errorCode(err)}}
+		return append(requestEvents, Event{Kind: EventRenewalResult, AuthorityGeneration: call.key.authority.AuthorityGeneration, Request: call.acquire.RequestID, Result: errorCode(err)})
 	}
-	return []Event{{Kind: EventAcquireResult, AuthorityGeneration: call.key.authority.AuthorityGeneration, Request: call.acquire.RequestID, Result: errorCode(err)}}
+	return append(requestEvents, Event{Kind: EventAcquireResult, AuthorityGeneration: call.key.authority.AuthorityGeneration, Request: call.acquire.RequestID, Result: errorCode(err)})
 }
 
 func (m *Manager) pendingScopeCurrentLocked(key AuthorityKey) error {
