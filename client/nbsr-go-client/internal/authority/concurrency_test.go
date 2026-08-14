@@ -6,6 +6,8 @@ import (
 	"os"
 	"strings"
 	"testing"
+
+	"nbsr.local/client/nbsr-go-client/internal/identity"
 )
 
 func TestPackageDocumentationStatesLocalOnlyBaselineBoundaries(t *testing.T) {
@@ -98,103 +100,98 @@ func TestGenerationAdvanceLinearizesBeforeConsume(t *testing.T) {
 }
 
 func TestConcurrentInvalidateAndReserveRespectPublishedOrder(t *testing.T) {
-	for _, tt := range []struct {
-		name  string
-		first func(*Manager, VerifiedAuthority, Reservation) error
-		want  error
-	}{
-		{
-			name: "invalidation before reservation",
-			first: func(m *Manager, authority VerifiedAuthority, _ Reservation) error {
-				if err := m.InvalidateGrant(authority.GrantDigest()); err != nil {
-					return err
-				}
-				_, err := m.reserveVerified(authority)
-				return err
-			},
-			want: ErrInvalidAuthority,
-		},
-		{
-			name: "reservation before invalidation",
-			first: func(m *Manager, authority VerifiedAuthority, _ Reservation) error {
-				reservation, err := m.reserveVerified(authority)
-				if err != nil {
-					return err
-				}
-				return m.InvalidateGrant(reservation.grant)
-			},
-			want: nil,
-		},
-	} {
-		t.Run(tt.name, func(t *testing.T) {
-			m := task11Manager(t)
-			authority := testAuthority(testKey(1), testGrant(1), 200)
-			reservation, err := m.reserveVerified(authority)
-			if err != nil {
-				t.Fatal(err)
-			}
-			if err := m.Release(reservation); err != nil {
-				t.Fatal(err)
-			}
-			if err := tt.first(m, authority, Reservation{}); !errors.Is(err, tt.want) {
-				t.Fatalf("ordered operation = %v, want %v", err, tt.want)
-			}
-			if err := m.ValidateInvariants(); err != nil {
-				t.Fatalf("invariants: %v", err)
-			}
-		})
-	}
+	t.Run("invalidation linearizes before reserve", func(t *testing.T) {
+		m, authority := task11AvailableGrant(t, task11BarrierClock{})
+		clock := &task11BarrierClock{now: 99, entered: make(chan struct{}), release: make(chan struct{})}
+		m.clock = clock
+		reserved := make(chan error, 1)
+		invalidated := make(chan error, 1)
+		go func() { _, err := m.reserveVerified(authority); reserved <- err }()
+		<-clock.entered
+		go func() { invalidated <- m.InvalidateGrant(authority.GrantDigest()) }()
+		if err := <-invalidated; err != nil {
+			t.Fatalf("InvalidateGrant: %v", err)
+		}
+		close(clock.release)
+		if err := <-reserved; !errors.Is(err, ErrInvalidAuthority) {
+			t.Fatalf("reserve after invalidation = %v, want ErrInvalidAuthority", err)
+		}
+		task11RequireInvariants(t, m)
+	})
+
+	t.Run("reserve linearizes before invalidation", func(t *testing.T) {
+		m, authority := task11AvailableGrant(t, task11BarrierClock{})
+		entered := make(chan struct{})
+		release := make(chan struct{})
+		m.observer = task11BlockingEventObserver{kind: EventCacheHit, entered: entered, release: release}
+		reserved := make(chan Reservation, 1)
+		reserveErr := make(chan error, 1)
+		invalidated := make(chan error, 1)
+		go func() { reservation, err := m.reserveVerified(authority); reserved <- reservation; reserveErr <- err }()
+		<-entered
+		go func() { invalidated <- m.InvalidateGrant(authority.GrantDigest()) }()
+		if err := <-invalidated; err != nil {
+			t.Fatalf("InvalidateGrant: %v", err)
+		}
+		close(release)
+		reservation := <-reserved
+		if err := <-reserveErr; err != nil {
+			t.Fatalf("reserve before invalidation: %v", err)
+		}
+		if err := m.ValidateForNewWork(reservation, GenerationSnapshot{generation: 7}, 99); !errors.Is(err, ErrInvalidAuthority) {
+			t.Fatalf("reservation after invalidation = %v, want ErrInvalidAuthority", err)
+		}
+		task11RequireInvariants(t, m)
+	})
 }
 
 func TestConcurrentConsumeAndQuarantineRespectPublishedOrder(t *testing.T) {
-	for _, tt := range []struct {
-		name  string
-		first func(*Manager, Reservation, GenerationSnapshot) error
-		want  error
-	}{
-		{
-			name: "consume before quarantine",
-			first: func(m *Manager, reservation Reservation, snapshot GenerationSnapshot) error {
-				if _, err := m.Consume(reservation, owner(reservation.key.TSGeneration), snapshot, 99); err != nil {
-					return err
-				}
-				return m.Quarantine(reservation, RequestID{9})
-			},
-			want: ErrInvalidTransition,
-		},
-		{
-			name: "quarantine before consume",
-			first: func(m *Manager, reservation Reservation, snapshot GenerationSnapshot) error {
-				if err := m.Quarantine(reservation, RequestID{9}); err != nil {
-					return err
-				}
-				_, err := m.Consume(reservation, owner(reservation.key.TSGeneration), snapshot, 99)
-				return err
-			},
-			want: ErrInvalidTransition,
-		},
-	} {
-		t.Run(tt.name, func(t *testing.T) {
-			m, reservation, snapshot := task11ReservedGrant(t)
-			if err := tt.first(m, reservation, snapshot); !errors.Is(err, tt.want) {
-				t.Fatalf("ordered operation = %v, want %v", err, tt.want)
-			}
-			if err := m.ValidateInvariants(); err != nil {
-				t.Fatalf("invariants: %v", err)
-			}
-		})
-	}
+	t.Run("consume linearizes before quarantine", func(t *testing.T) {
+		m, reservation, snapshot := task11ReservedGrant(t)
+		consumed := make(chan error, 1)
+		quarantined := make(chan error, 1)
+		go func() {
+			_, err := m.Consume(reservation, owner(reservation.key.TSGeneration), snapshot, 99)
+			consumed <- err
+		}()
+		if err := <-consumed; err != nil {
+			t.Fatalf("Consume: %v", err)
+		}
+		go func() { quarantined <- m.Quarantine(reservation, RequestID{9}) }()
+		if err := <-quarantined; !errors.Is(err, ErrInvalidTransition) {
+			t.Fatalf("Quarantine after Consume = %v, want ErrInvalidTransition", err)
+		}
+		task11RequireInvariants(t, m)
+	})
+
+	t.Run("quarantine linearizes before consume", func(t *testing.T) {
+		m, reservation, snapshot := task11ReservedGrant(t)
+		entered := make(chan struct{})
+		release := make(chan struct{})
+		m.observer = task11BlockingEventObserver{kind: EventAmbiguousQuarantine, entered: entered, release: release}
+		quarantined := make(chan error, 1)
+		consumed := make(chan error, 1)
+		go func() { quarantined <- m.Quarantine(reservation, RequestID{9}) }()
+		<-entered
+		go func() {
+			_, err := m.Consume(reservation, owner(reservation.key.TSGeneration), snapshot, 99)
+			consumed <- err
+		}()
+		if err := <-consumed; !errors.Is(err, ErrInvalidTransition) {
+			t.Fatalf("Consume after Quarantine = %v, want ErrInvalidTransition", err)
+		}
+		close(release)
+		if err := <-quarantined; err != nil {
+			t.Fatalf("Quarantine: %v", err)
+		}
+		task11RequireInvariants(t, m)
+	})
 }
 
 func TestConcurrentCancelAndProviderCompletionRespectPublishedOrder(t *testing.T) {
-	t.Run("cancellation before completion quarantines provider result", func(t *testing.T) {
-		provider, m, request := coalesceFixture(t)
-		completed := make(chan struct{}, 1)
-		m.observer = observerFunc(func(event Event) {
-			if event.Kind == EventAcquireResult {
-				completed <- struct{}{}
-			}
-		})
+	t.Run("caller cancellation before remote candidate completion quarantines authority", func(t *testing.T) {
+		provider, m, request := task11RemoteCompletionFixture(t)
+		completed := task11CompletionBarrier(m, EventAcquireResult)
 		ctx, cancel := context.WithCancel(context.Background())
 		result := make(chan error, 1)
 		go func() { _, err := m.Acquire(ctx, request); result <- err }()
@@ -203,28 +200,33 @@ func TestConcurrentCancelAndProviderCompletionRespectPublishedOrder(t *testing.T
 		if err := <-result; !errors.Is(err, context.Canceled) {
 			t.Fatalf("Acquire after cancellation = %v, want context.Canceled", err)
 		}
-		<-provider.contextDone
+		<-provider.canceled
+		provider.Complete()
 		<-completed
-		provider.releaseOnce()
-		if err := m.ValidateInvariants(); err != nil {
-			t.Fatalf("invariants after cancellation: %v", err)
-		}
+		task11AssertAmbiguousRemoteCompletion(t, m, request)
 	})
 
-	t.Run("completion before cancellation preserves completed result", func(t *testing.T) {
-		provider, m, request := coalesceFixture(t)
+	t.Run("remote candidate completion before caller cancellation preserves reservation", func(t *testing.T) {
+		provider, m, request := task11RemoteCompletionFixture(t)
+		completed := task11CompletionBarrier(m, EventAcquireResult)
 		ctx, cancel := context.WithCancel(context.Background())
-		result := make(chan error, 1)
-		go func() { _, err := m.Acquire(ctx, request); result <- err }()
+		result := make(chan acquireResult, 1)
+		go func() {
+			reservation, err := m.Acquire(ctx, request)
+			result <- acquireResult{reservation: reservation, err: err}
+		}()
 		<-provider.started
-		provider.releaseOnce()
-		if err := <-result; err != nil {
-			t.Fatalf("Acquire before cancellation: %v", err)
+		provider.Complete()
+		<-completed
+		got := <-result
+		if got.err != nil || got.reservation.id == 0 {
+			t.Fatalf("Acquire before cancellation = %#v, want live reservation", got)
 		}
 		cancel()
-		if err := m.ValidateInvariants(); err != nil {
-			t.Fatalf("invariants after completion: %v", err)
+		if snapshot, err := m.RequestRecordSnapshot(request.RequestID); err != nil || snapshot.Status != RequestComplete {
+			t.Fatalf("completed request snapshot = %#v, %v; want RequestComplete", snapshot, err)
 		}
+		task11RequireInvariants(t, m)
 	})
 }
 
@@ -348,6 +350,130 @@ func task11Manager(t testing.TB) *Manager {
 	m.generation, m.hasCheckpoint = 7, true
 	m.mu.Unlock()
 	return m
+}
+
+func task11AvailableGrant(t *testing.T, _ Clock) (*Manager, VerifiedAuthority) {
+	t.Helper()
+	m := task11Manager(t)
+	authority := testAuthority(testKey(1), testGrant(1), 200)
+	reservation, err := m.reserveVerified(authority)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := m.Release(reservation); err != nil {
+		t.Fatal(err)
+	}
+	return m, authority
+}
+
+func task11RequireInvariants(t *testing.T, m *Manager) {
+	t.Helper()
+	if err := m.ValidateInvariants(); err != nil {
+		t.Fatalf("invariants: %v", err)
+	}
+}
+
+type task11BarrierClock struct {
+	now     uint64
+	entered chan struct{}
+	release chan struct{}
+}
+
+func (clock task11BarrierClock) NowUnix() uint64 {
+	if clock.entered != nil {
+		close(clock.entered)
+		<-clock.release
+	}
+	if clock.now == 0 {
+		return 99
+	}
+	return clock.now
+}
+
+type task11BlockingEventObserver struct {
+	kind    EventKind
+	entered chan struct{}
+	release chan struct{}
+}
+
+func (observer task11BlockingEventObserver) Observe(event Event) {
+	if event.Kind != observer.kind {
+		return
+	}
+	close(observer.entered)
+	<-observer.release
+}
+
+type task11RemoteCompletionProvider struct {
+	candidate ProviderGrant
+	started   chan struct{}
+	canceled  chan struct{}
+	release   chan struct{}
+}
+
+func (provider *task11RemoteCompletionProvider) Acquire(ctx context.Context, _ AcquireRequest) (ProviderGrant, error) {
+	close(provider.started)
+	select {
+	case <-provider.release:
+		return provider.candidate, nil
+	case <-ctx.Done():
+		close(provider.canceled)
+		<-provider.release
+		return provider.candidate, nil
+	}
+}
+
+func (provider *task11RemoteCompletionProvider) Renew(context.Context, RenewRequest) (ProviderGrant, error) {
+	return ProviderGrant{}, ErrProviderUnavailable
+}
+
+func (provider *task11RemoteCompletionProvider) Freshness(context.Context, FreshnessRequest) (ProviderFreshness, error) {
+	return ProviderFreshness{}, ErrProviderUnavailable
+}
+
+func (provider *task11RemoteCompletionProvider) Close() error { return nil }
+func (provider *task11RemoteCompletionProvider) Complete()    { close(provider.release) }
+
+func task11RemoteCompletionFixture(t *testing.T) (*task11RemoteCompletionProvider, *Manager, AcquireRequest) {
+	t.Helper()
+	grant, verification, resolver := validFrozenGrantCase(t)
+	provider := &task11RemoteCompletionProvider{candidate: grant, started: make(chan struct{}), canceled: make(chan struct{}), release: make(chan struct{})}
+	limits := validLimits()
+	limits.MaxCacheEntries, limits.MaxPending, limits.MaxWaitersPerPending, limits.MaxRequestRecords = 8, 4, 8, 8
+	limits.MaxCacheBytes, limits.MaxPendingBytes, limits.MaxRequestBytes, limits.MaxGrantBytes = 1<<20, 1<<20, 1<<20, 1<<20
+	m, err := NewManager(limits, task4Clock{now: verification.NowUnix}, provider, mustVerifier(t, resolver), fakeCheckpointVerifier{}, fakeFloorStore{}, noopObserver{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	m.checkpoint = checkpointState{claims: verification.Checkpoint}
+	m.generation, m.hasCheckpoint = verification.Checkpoint.Generation, true
+	request := AcquireRequest{Key: verification.Key, Intent: verification.Intent, Device: identity.DeviceIdentity{ID: verification.Key.DeviceID, SourceOperatorID: verification.Key.SourceOperator, CredentialGeneration: verification.Key.DeviceGeneration}, RequestID: RequestID{11}, DeadlineUnix: verification.NowUnix + 1}
+	return provider, m, request
+}
+
+func task11CompletionBarrier(m *Manager, kind EventKind) <-chan struct{} {
+	completed := make(chan struct{})
+	m.observer = observerFunc(func(event Event) {
+		if event.Kind == kind {
+			close(completed)
+		}
+	})
+	return completed
+}
+
+func task11AssertAmbiguousRemoteCompletion(t *testing.T, m *Manager, request AcquireRequest) {
+	t.Helper()
+	if snapshot, err := m.RequestRecordSnapshot(request.RequestID); err != nil || snapshot.Status != RequestAmbiguous {
+		t.Fatalf("ambiguous request snapshot = %#v, %v; want RequestAmbiguous", snapshot, err)
+	}
+	if _, err := m.Acquire(context.Background(), request); !errors.Is(err, ErrRequestAmbiguous) {
+		t.Fatalf("reused ambiguous request = %v, want ErrRequestAmbiguous", err)
+	}
+	usage := m.Usage()
+	if usage.CacheEntries != 0 || usage.PendingCalls != 0 || usage.PendingWaiters != 0 || usage.RequestRecords != 1 {
+		t.Fatalf("remote completion retained usable state: %+v", usage)
+	}
+	task11RequireInvariants(t, m)
 }
 
 type task11BlockingGenerationObserver struct {
