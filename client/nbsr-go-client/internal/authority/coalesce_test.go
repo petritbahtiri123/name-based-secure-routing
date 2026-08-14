@@ -254,6 +254,7 @@ func TestPendingAndWaiterBoundsAreExact(t *testing.T) {
 	}
 	other := request
 	other.Key.TSGeneration++
+	other.RequestID[0]++
 	if _, err := manager.Acquire(context.Background(), other); !errors.Is(err, ErrPendingCapacity) {
 		t.Fatalf("second pending call error = %v, want ErrPendingCapacity", err)
 	}
@@ -462,6 +463,36 @@ func TestCloseWakesPendingWaiters(t *testing.T) {
 	}
 	awaitCoalesce(t, provider.contextDone)
 	provider.releaseOnce()
+}
+
+func TestBothReadyDoneWinsOverCanceledContext(t *testing.T) {
+	for range 128 {
+		ctx, cancel := context.WithCancel(context.Background())
+		call := &pendingCall{done: make(chan struct{}), result: pendingResult{reservation: Reservation{id: 1}}}
+		close(call.done)
+		cancel()
+		got, err := (&Manager{}).waitPending(ctx, call)
+		if err != nil || got.id != 1 {
+			t.Fatalf("both-ready result = %#v, %v; want completed result", got, err)
+		}
+	}
+}
+
+func TestProviderResultAtRequestDeadlineCannotReserveOrComplete(t *testing.T) {
+	provider, manager, request := coalesceFixture(t)
+	clock := &mutableClock{now: request.DeadlineUnix - 1}
+	manager.clock = clock
+	result := make(chan error, 1)
+	go func() { _, err := manager.Acquire(context.Background(), request); result <- err }()
+	awaitCoalesce(t, provider.started)
+	clock.set(request.DeadlineUnix)
+	provider.releaseOnce()
+	if err := <-result; !errors.Is(err, ErrExpired) {
+		t.Fatalf("deadline result = %v, want ErrExpired", err)
+	}
+	if usage := manager.Usage(); usage.CacheEntries != 0 || usage.RequestRecords != 0 {
+		t.Fatalf("deadline result retained authority/request state: %#v", usage)
+	}
 }
 
 type acquireResult struct {

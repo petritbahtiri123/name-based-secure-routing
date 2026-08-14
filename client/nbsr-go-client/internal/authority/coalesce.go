@@ -87,7 +87,7 @@ func (m *Manager) startOrJoin(ctx context.Context, key pendingKey, acquire Acqui
 		return Reservation{}, err
 	}
 	requestKey := requestKey{deviceID: acquire.Key.DeviceID, deviceGeneration: acquire.Key.DeviceGeneration, operation: key.operation, id: acquire.RequestID}
-	record, _, err := m.beginRequestLocked(requestKey, acquire.Intent.Digest, acquire.DeadlineUnix, now)
+	record, _, err := m.beginRequestLocked(requestKey, canonicalRequestDigest(key, acquire, renew), acquire.DeadlineUnix, now)
 	if err != nil {
 		m.mu.Unlock()
 		m.notify(events)
@@ -181,15 +181,19 @@ func (m *Manager) waitPending(ctx context.Context, call *pendingCall) (Reservati
 	select {
 	case <-call.done:
 		return call.result.reservation, call.result.err
+	default:
+	}
+	select {
+	case <-call.done:
+		return call.result.reservation, call.result.err
 	case <-ctx.Done():
 		cancelProvider := false
 		var events []Event
 		m.mu.Lock()
 		if call.finished {
-			for _, record := range call.records {
-				ambiguousEvents, _ := m.markAmbiguousLocked(record)
-				events = append(events, ambiguousEvents...)
-			}
+			result := call.result
+			m.mu.Unlock()
+			return result.reservation, result.err
 		} else {
 			call.waiters--
 			if call.waiters == 0 {
@@ -247,6 +251,8 @@ func (m *Manager) commitPending(call *pendingCall, authority VerifiedAuthority) 
 		now := m.clock.NowUnix()
 		if !validUnixTime(now) {
 			err = ErrInvalidAuthority
+		} else if now >= call.acquire.DeadlineUnix {
+			err = ErrExpired
 		} else {
 			events, err = m.requireFreshLocked(now)
 			if err == nil {

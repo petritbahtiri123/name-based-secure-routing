@@ -2,6 +2,8 @@ package authority
 
 import (
 	"bytes"
+	"crypto/sha256"
+	"encoding/binary"
 	"sort"
 )
 
@@ -24,6 +26,96 @@ type requestRecord struct {
 // The logical charge covers the composite key, two digests, compact state,
 // authority generation, expiry, and the reservation link.
 const requestRecordLogicalBytes uint64 = 32 + 8 + 1 + 16 + 32 + 32 + 1 + 8 + 8 + 8
+
+// canonicalRequestDigest is local-only binding for retry/idempotency state. It
+// is domain-separated and length-prefixes variable values so no two distinct
+// immutable authorization inputs can share an encoding by concatenation.
+func canonicalRequestDigest(key pendingKey, request AcquireRequest, renew RenewRequest) [32]byte {
+	hash := sha256.New()
+	_, _ = hash.Write([]byte("NBSR-GO-CLIENT-IDEMPOTENCY-v1\x00"))
+	writeBytes := func(value []byte) {
+		var length [8]byte
+		binary.BigEndian.PutUint64(length[:], uint64(len(value)))
+		_, _ = hash.Write(length[:])
+		_, _ = hash.Write(value)
+	}
+	writeText := func(value string) { writeBytes([]byte(value)) }
+	writeUint := func(value uint64) {
+		var encoded [8]byte
+		binary.BigEndian.PutUint64(encoded[:], value)
+		_, _ = hash.Write(encoded[:])
+	}
+	writeUint16 := func(value uint16) {
+		var encoded [2]byte
+		binary.BigEndian.PutUint16(encoded[:], value)
+		_, _ = hash.Write(encoded[:])
+	}
+	writeByte := func(value byte) { _, _ = hash.Write([]byte{value}) }
+	writeKey := func(value AuthorityKey) {
+		writeBytes(value.IntentDigest[:])
+		writeBytes(value.ServiceDigest[:])
+		writeText(value.SourceOperator)
+		writeText(value.SourceEdge)
+		writeText(value.TargetOperator)
+		writeBytes(value.TargetEdgeSetDigest[:])
+		writeText(value.Profile)
+		writeText(value.Transport)
+		writeUint16(value.Port)
+		writeBytes(value.DeviceID[:])
+		writeUint(value.DeviceGeneration)
+		writeBytes(value.WorkloadDigest[:])
+		writeUint(value.WorkloadGeneration)
+		writeUint(uint64(value.TSGeneration))
+		writeBytes(value.ProofThumbprint[:])
+		writeBytes(value.PolicyHash[:])
+		writeUint(value.PolicyGeneration)
+		writeUint(uint64(value.AuthorityGeneration))
+	}
+	writeByte(byte(key.operation))
+	writeBytes(key.previous[:])
+	writeKey(key.authority)
+	intent := request.Intent
+	writeBytes(intent.Canonical)
+	writeBytes(intent.Digest[:])
+	writeText(intent.ServiceIdentity)
+	writeText(intent.SourceOperator)
+	writeText(intent.SourceEdge)
+	writeText(intent.TargetOperator)
+	writeUint(uint64(len(intent.TargetEdges)))
+	for _, edge := range intent.TargetEdges {
+		writeText(edge)
+	}
+	writeText(intent.Transport)
+	writeUint16(intent.Port)
+	writeUint(intent.RecordSequence)
+	writeBytes(intent.PolicyHash[:])
+	writeBytes(intent.RouteID[:])
+	writeBytes(intent.LeaseID[:])
+	writeUint(intent.ExpiresAt)
+	device := request.Device
+	writeBytes(device.ID[:])
+	writeText(device.SourceOperatorID)
+	writeUint(device.CredentialGeneration)
+	writeUint(device.CredentialNotBefore)
+	writeUint(device.CredentialExpiresAt)
+	writeBytes(device.SigningKey.ID[:])
+	writeByte(byte(device.SigningKey.Purpose))
+	writeUint(device.SigningKey.Generation)
+	writeBytes(device.SigningKey.Thumbprint[:])
+	if request.Workload == nil {
+		writeByte(0)
+	} else {
+		writeByte(1)
+		writeBytes(request.Workload.SubjectDigest[:])
+		writeUint(request.Workload.PolicyGeneration)
+		writeUint(request.Workload.CredentialExpiresAt)
+		writeUint(request.Workload.PolicyExpiresAt)
+	}
+	writeUint(request.DeadlineUnix)
+	var digest [32]byte
+	copy(digest[:], hash.Sum(nil))
+	return digest
+}
 
 func (m *Manager) beginRequest(key requestKey, requestDigest [32]byte, expiresAt uint64) (*requestRecord, error) {
 	if m == nil || !validRequestKey(key) || expiresAt == 0 || !validUnixTime(expiresAt) {

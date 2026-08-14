@@ -98,6 +98,62 @@ func TestAPIConflictingRequestIDContextRejectsBeforeProvider(t *testing.T) {
 	}
 }
 
+func TestCanonicalRequestDigestBindsCompleteImmutableAuthorizationInput(t *testing.T) {
+	request := validAcquireRequest()
+	key := pendingKey{authority: request.Key, operation: pendingAcquire}
+	base := canonicalRequestDigest(key, request, RenewRequest{})
+	mutations := []struct {
+		name string
+		edit func(*pendingKey, *AcquireRequest, *RenewRequest)
+	}{
+		{"intent digest", func(k *pendingKey, _ *AcquireRequest, _ *RenewRequest) { k.authority.IntentDigest[0]++ }},
+		{"service digest", func(k *pendingKey, _ *AcquireRequest, _ *RenewRequest) { k.authority.ServiceDigest[0]++ }},
+		{"source operator", func(k *pendingKey, _ *AcquireRequest, _ *RenewRequest) { k.authority.SourceOperator += "x" }},
+		{"source edge", func(k *pendingKey, _ *AcquireRequest, _ *RenewRequest) { k.authority.SourceEdge += "x" }},
+		{"target operator", func(k *pendingKey, _ *AcquireRequest, _ *RenewRequest) { k.authority.TargetOperator += "x" }},
+		{"target edges", func(k *pendingKey, _ *AcquireRequest, _ *RenewRequest) { k.authority.TargetEdgeSetDigest[0]++ }},
+		{"profile", func(k *pendingKey, _ *AcquireRequest, _ *RenewRequest) { k.authority.Profile += "x" }},
+		{"transport", func(k *pendingKey, _ *AcquireRequest, _ *RenewRequest) { k.authority.Transport += "x" }},
+		{"port", func(k *pendingKey, _ *AcquireRequest, _ *RenewRequest) { k.authority.Port++ }},
+		{"device ID", func(k *pendingKey, _ *AcquireRequest, _ *RenewRequest) { k.authority.DeviceID[0]++ }},
+		{"device generation", func(k *pendingKey, _ *AcquireRequest, _ *RenewRequest) { k.authority.DeviceGeneration++ }},
+		{"workload digest", func(k *pendingKey, _ *AcquireRequest, _ *RenewRequest) { k.authority.WorkloadDigest[0]++ }},
+		{"workload generation", func(k *pendingKey, _ *AcquireRequest, _ *RenewRequest) { k.authority.WorkloadGeneration++ }},
+		{"TS generation", func(k *pendingKey, _ *AcquireRequest, _ *RenewRequest) { k.authority.TSGeneration++ }},
+		{"proof thumbprint", func(k *pendingKey, _ *AcquireRequest, _ *RenewRequest) { k.authority.ProofThumbprint[0]++ }},
+		{"policy hash", func(k *pendingKey, _ *AcquireRequest, _ *RenewRequest) { k.authority.PolicyHash[0]++ }},
+		{"policy generation", func(k *pendingKey, _ *AcquireRequest, _ *RenewRequest) { k.authority.PolicyGeneration++ }},
+		{"authority generation", func(k *pendingKey, _ *AcquireRequest, _ *RenewRequest) { k.authority.AuthorityGeneration++ }},
+		{"canonical intent", func(_ *pendingKey, r *AcquireRequest, _ *RenewRequest) { r.Intent.Canonical[0]++ }},
+		{"intent route ID", func(_ *pendingKey, r *AcquireRequest, _ *RenewRequest) { r.Intent.RouteID[0]++ }},
+		{"device credential expiry", func(_ *pendingKey, r *AcquireRequest, _ *RenewRequest) { r.Device.CredentialExpiresAt++ }},
+		{"device signing key", func(_ *pendingKey, r *AcquireRequest, _ *RenewRequest) { r.Device.SigningKey.ID[0]++ }},
+		{"deadline", func(_ *pendingKey, r *AcquireRequest, _ *RenewRequest) { r.DeadlineUnix++ }},
+		{"operation", func(k *pendingKey, _ *AcquireRequest, _ *RenewRequest) { k.operation = pendingRenew }},
+		{"renew predecessor", func(k *pendingKey, _ *AcquireRequest, r *RenewRequest) {
+			k.operation = pendingRenew
+			k.previous = testGrant(1)
+			r.PreviousGrant = testGrant(1)
+		}},
+	}
+	for _, mutation := range mutations {
+		t.Run(mutation.name, func(t *testing.T) {
+			candidateKey, candidateRequest, candidateRenew := key, request, RenewRequest{}
+			candidateRequest.Intent.Canonical = append([]byte(nil), request.Intent.Canonical...)
+			mutation.edit(&candidateKey, &candidateRequest, &candidateRenew)
+			got := canonicalRequestDigest(candidateKey, candidateRequest, candidateRenew)
+			if got == base {
+				t.Fatal("complete authorization mutation did not change canonical request digest")
+			}
+			m := idempotencyManager(t)
+			mustBeginRequest(t, m, requestID(1), base, 10)
+			if _, err := m.beginRequestForTest(requestID(1), got, 10); !errors.Is(err, ErrRequestConflict) {
+				t.Fatalf("changed authorization input reuse = %v, want ErrRequestConflict", err)
+			}
+		})
+	}
+}
+
 func TestRequestRecordRejectsConflictingRequestIDReuse(t *testing.T) {
 	m := idempotencyManager(t)
 	id := requestID(1)
