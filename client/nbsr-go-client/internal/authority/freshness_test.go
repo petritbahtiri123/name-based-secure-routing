@@ -3,7 +3,6 @@ package authority
 import (
 	"context"
 	"errors"
-	"runtime"
 	"sync"
 	"testing"
 )
@@ -92,31 +91,17 @@ func TestFreshnessRechecksClockAfterDelayedVerification(t *testing.T) {
 
 func TestFreshnessExpiryLinearizesAfterManagerLockContention(t *testing.T) {
 	m := freshManager(t, checkpoint(7, 100, 200))
-	clock := &task4MutableClock{now: 199}
-	verifier := &task4DelayedCheckpointVerifier{
-		claims:  checkpoint(8, 110, 200),
-		started: make(chan struct{}),
-		release: make(chan struct{}),
-	}
+	clock := &task4PublicationClock{manager: m}
 	observer := &task4Observer{}
 	m.clock = clock
-	m.checkpointVerifier = verifier
+	m.checkpointVerifier.(*task4CheckpointVerifier).claims = checkpoint(8, 110, 200)
 	m.observer = observer
 
-	m.mu.Lock()
-	result := make(chan error, 1)
-	go func() {
-		_, err := m.PublishFreshness(context.Background(), task4Request(), task4ProviderFreshness())
-		result <- err
-	}()
-	<-verifier.started
-	close(verifier.release)
-	runtime.Gosched()
-	clock.Set(200)
-	m.mu.Unlock()
-
-	if err := <-result; !errors.Is(err, ErrStaleFreshness) {
+	if _, err := m.PublishFreshness(context.Background(), task4Request(), task4ProviderFreshness()); !errors.Is(err, ErrStaleFreshness) {
 		t.Fatalf("publication error = %v, want ErrStaleFreshness", err)
+	}
+	if clock.preLockSampled {
+		t.Fatal("final freshness sample occurred before Manager.mu was acquired")
 	}
 	if m.generation != 7 {
 		t.Fatalf("generation = %d, want 7", m.generation)
@@ -182,6 +167,29 @@ func (clock task4Clock) NowUnix() uint64 { return clock.now }
 type task4MutableClock struct {
 	mu  sync.Mutex
 	now uint64
+}
+
+// task4PublicationClock is a deterministic clock-position seam. Its second
+// sample observes the lock directly: the old 027ce282 placement samples before
+// Manager.mu and receives 199, while the current placement receives the exact
+// expiry boundary 200 under Manager.mu.
+type task4PublicationClock struct {
+	manager        *Manager
+	calls          int
+	preLockSampled bool
+}
+
+func (clock *task4PublicationClock) NowUnix() uint64 {
+	clock.calls++
+	if clock.calls == 1 {
+		return 199
+	}
+	if clock.manager.mu.TryLock() {
+		clock.manager.mu.Unlock()
+		clock.preLockSampled = true
+		return 199
+	}
+	return 200
 }
 
 func (clock *task4MutableClock) NowUnix() uint64 {
