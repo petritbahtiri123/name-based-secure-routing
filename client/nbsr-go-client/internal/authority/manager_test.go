@@ -264,6 +264,121 @@ func TestProviderFreshnessCandidateIsBoundedAndCopied(t *testing.T) {
 	}
 }
 
+func TestFixtureAcquireVerifyReserveConsume(t *testing.T) {
+	manager, request := fixtureManager(t)
+	observer := &task4Observer{}
+	manager.observer = observer
+	freshness := FreshnessRequest{
+		SourceOperator:   request.Key.SourceOperator,
+		Profile:          request.Key.Profile,
+		DeviceID:         request.Key.DeviceID,
+		DeviceGeneration: request.Key.DeviceGeneration,
+		DeadlineUnix:     request.DeadlineUnix,
+	}
+	supplied, err := manager.provider.Freshness(context.Background(), freshness)
+	if err != nil {
+		t.Fatalf("fixture Freshness: %v", err)
+	}
+	if _, err := manager.PublishFreshness(context.Background(), freshness, supplied); err != nil {
+		t.Fatalf("PublishFreshness: %v", err)
+	}
+	reservation, err := manager.Acquire(context.Background(), request)
+	if err != nil {
+		t.Fatalf("Acquire: %v", err)
+	}
+	snapshot, err := manager.CaptureGeneration()
+	if err != nil {
+		t.Fatalf("CaptureGeneration: %v", err)
+	}
+	if err := manager.ValidateForNewWork(reservation, snapshot, manager.clock.NowUnix()); err != nil {
+		t.Fatalf("ValidateForNewWork: %v", err)
+	}
+	if _, err := manager.Consume(reservation, owner(request.Key.TSGeneration), snapshot, manager.clock.NowUnix()); err != nil {
+		t.Fatalf("Consume: %v", err)
+	}
+	observer.mu.Lock()
+	events := append([]Event(nil), observer.events...)
+	observer.mu.Unlock()
+	want := []EventKind{EventFreshnessAccepted, EventGenerationAdvanced, EventAcquireRequested, EventCacheHit, EventAcquireResult}
+	if len(events) != len(want) {
+		t.Fatalf("event count = %d, want %d: %#v", len(events), len(want), events)
+	}
+	for index, kind := range want {
+		if events[index].Kind != kind {
+			t.Fatalf("event %d kind = %v, want %v", index, events[index].Kind, kind)
+		}
+	}
+}
+
+func TestFixtureProviderIsFiniteSeparatedAndCopiesResults(t *testing.T) {
+	manager, request := fixtureManager(t)
+	provider := manager.provider.(*FixtureProvider)
+	freshness := FreshnessRequest{SourceOperator: request.Key.SourceOperator, Profile: request.Key.Profile, DeviceID: request.Key.DeviceID, DeviceGeneration: request.Key.DeviceGeneration, DeadlineUnix: request.DeadlineUnix}
+	if _, err := manager.Acquire(context.Background(), request); !errors.Is(err, ErrStaleFreshness) {
+		t.Fatalf("Manager Acquire before freshness = %v, want ErrStaleFreshness", err)
+	}
+	if _, err := provider.Freshness(context.Background(), freshness); err != nil {
+		t.Fatalf("Freshness: %v", err)
+	}
+	grant, err := provider.Acquire(context.Background(), request)
+	if err != nil {
+		t.Fatalf("Acquire fixture: %v", err)
+	}
+	grant.ExactRouteGrant[0] ^= 0xff
+	grantAgain, err := provider.Acquire(context.Background(), request)
+	if err != nil {
+		t.Fatalf("repeat Acquire fixture: %v", err)
+	}
+	if grantAgain.ExactRouteGrant[0] == grant.ExactRouteGrant[0] {
+		t.Fatal("fixture grant bytes were not copied")
+	}
+	if _, err := provider.Renew(context.Background(), RenewRequest{AcquireRequest: request, PreviousGrant: RouteGrantDigest{1}}); !errors.Is(err, ErrProviderUnavailable) {
+		t.Fatalf("Renew used Acquire script = %v, want ErrProviderUnavailable", err)
+	}
+	unknown := request
+	unknown.RequestID[0]++
+	if _, err := provider.Acquire(context.Background(), unknown); !errors.Is(err, ErrProviderUnavailable) {
+		t.Fatalf("unknown fixture error = %v, want ErrProviderUnavailable", err)
+	}
+	if err := provider.Close(); err != nil {
+		t.Fatalf("Close: %v", err)
+	}
+	if err := provider.Close(); err != nil {
+		t.Fatalf("second Close: %v", err)
+	}
+	if _, err := provider.Freshness(context.Background(), freshness); !errors.Is(err, ErrClosed) {
+		t.Fatalf("closed fixture error = %v, want ErrClosed", err)
+	}
+}
+
+func fixtureManager(t *testing.T) (*Manager, AcquireRequest) {
+	t.Helper()
+	grant, verification, resolver := validFrozenGrantCase(t)
+	request := AcquireRequest{Key: verification.Key, Intent: verification.Intent, Device: identity.DeviceIdentity{ID: verification.Key.DeviceID, SourceOperatorID: verification.Key.SourceOperator, CredentialGeneration: verification.Key.DeviceGeneration}, RequestID: RequestID{9}, DeadlineUnix: verification.NowUnix + 1}
+	freshness := FreshnessRequest{SourceOperator: request.Key.SourceOperator, Profile: request.Key.Profile, DeviceID: request.Key.DeviceID, DeviceGeneration: request.Key.DeviceGeneration, DeadlineUnix: request.DeadlineUnix}
+	claims := verification.Checkpoint
+	provider, err := NewFixtureProvider(FixtureProviderLimits{MaxEntries: 4, MaxBytes: 1 << 20, MaxCalls: 8}, []FixtureGrant{{Operation: uint8(pendingAcquire), RequestDigest: fixtureGrantRequestDigest(request), Result: grant}}, []FixtureFreshness{{RequestDigest: fixtureFreshnessRequestDigest(freshness), Result: ProviderFreshness{SourceOperator: freshness.SourceOperator, Profile: freshness.Profile, Evidence: []byte{1}}, Claims: claims}})
+	if err != nil {
+		t.Fatalf("NewFixtureProvider: %v", err)
+	}
+	checkpointVerifier, err := NewFixtureCheckpointVerifier([]FixtureFreshness{{RequestDigest: fixtureFreshnessRequestDigest(freshness), Result: ProviderFreshness{SourceOperator: freshness.SourceOperator, Profile: freshness.Profile, Evidence: []byte{1}}, Claims: claims}})
+	if err != nil {
+		t.Fatalf("NewFixtureCheckpointVerifier: %v", err)
+	}
+	limits := validLimits()
+	limits.MaxCacheEntries, limits.MaxPending, limits.MaxWaitersPerPending, limits.MaxRequestRecords = 8, 8, 8, 16
+	limits.MaxCacheBytes, limits.MaxPendingBytes, limits.MaxRequestBytes, limits.MaxGrantBytes = 1<<20, 1<<20, 1<<20, 1<<20
+	manager, err := NewManager(limits, task4Clock{now: verification.NowUnix}, provider, mustVerifier(t, resolver), checkpointVerifier, fakeFloorStore{}, noopObserver{})
+	if err != nil {
+		t.Fatalf("NewManager: %v", err)
+	}
+	return manager, request
+}
+
+func owner(generation TSGeneration) AdmissionOwner {
+	return AdmissionOwner{TSGeneration: generation, ChannelID: [16]byte{1}}
+}
+
 func validLimits() Limits {
 	return Limits{
 		MaxCacheEntries:            2,
