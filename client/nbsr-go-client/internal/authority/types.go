@@ -204,9 +204,13 @@ type RequestSnapshot struct {
 	ExpiresAt           uint64
 }
 
-// SignedGenerationFloor remains opaque until the floor representation is
-// implemented by its owning task.
-type SignedGenerationFloor struct{}
+type SignedGenerationFloor struct {
+	SourceOperator string
+	Profile        string
+	Generation     AuthorityGeneration
+	Checkpoint     CheckpointDigest
+	SignedEvidence []byte
+}
 
 type GenerationFloorStore interface {
 	Load(context.Context, string, string) (SignedGenerationFloor, error)
