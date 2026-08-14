@@ -13,6 +13,7 @@ It does not modify or replace that immutable plan baseline.
 Task 6 additionally authorizes modifying:
 
 - `client/nbsr-go-client/internal/corestate/handle.go`
+- `client/nbsr-go-client/internal/corestate/handle_test.go`
 
 The only authorized change in that file is to remove the existing public
 `CloseGeneration` method so that its implementation can move to Task 6's
@@ -22,6 +23,11 @@ handle allocator state and methods without semantic change.
 `teardown.go` owns the coordinated `CloseGeneration` implementation required by
 Task 6: generation closure/destruction under the Store lock and one aggregate
 `EventGenerationClosed` callback after unlock.
+
+The only authorized `handle_test.go` change is to replace the superseded Task 2
+expectation that a nonempty generation close is rejected. Its replacement must
+assert the approved Task 6 coordinated-close behavior, allocator deletion, and
+rejection of stale reopen/use; it must not weaken unrelated allocator coverage.
 
 ## Unchanged boundaries
 
