@@ -28,7 +28,8 @@ type Manager struct {
 	nextReservation uint64
 	pending         map[pendingKey]*pendingCall
 	pendingBytes    uint64
-	requests        map[RequestID]RequestSnapshot
+	requests        map[requestKey]*requestRecord
+	requestBytes    uint64
 
 	checkpoint       checkpointState
 	generation       AuthorityGeneration
@@ -57,7 +58,7 @@ func NewManager(limits Limits, clock Clock, provider AuthorityProvider, verifier
 		tombstones:         make(map[RouteGrantDigest]tombstone),
 		reserved:           make(map[uint64]*cacheEntry),
 		pending:            make(map[pendingKey]*pendingCall),
-		requests:           make(map[RequestID]RequestSnapshot),
+		requests:           make(map[requestKey]*requestRecord),
 	}, nil
 }
 
