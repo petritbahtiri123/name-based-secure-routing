@@ -11,43 +11,50 @@ func (s *Store) InsertStream(spec StreamSpec) error {
 	key := streamKey{generation: spec.Generation, handle: spec.Handle, streamID: spec.StreamID}
 	cost := streamCost(spec)
 	s.mu.Lock()
-	owner, ok := s.services[serviceKey{generation: spec.Generation, handle: spec.Handle}]
-	if !ok {
-		s.mu.Unlock()
-		return &StateError{Code: CodeUnknownService, Resource: "service"}
-	}
-	if owner.State != ServiceActive {
-		s.mu.Unlock()
-		return &StateError{Code: CodeServiceClosed, Resource: "service"}
-	}
-	if _, ok := s.streams[key]; ok {
-		s.mu.Unlock()
-		return &StateError{Code: CodeDuplicateStream, Resource: "stream"}
-	}
-	if len(s.streams) >= s.limits.MaxStreams {
-		s.mu.Unlock()
-		return &StateError{Code: CodeCapacityExceeded, Resource: "streams"}
-	}
-	if s.usage.StreamBytes > s.limits.MaxStreamBytes || cost > s.limits.MaxStreamBytes-s.usage.StreamBytes {
-		s.mu.Unlock()
-		return &StateError{Code: CodeByteCapacityExceeded, Resource: "stream bytes"}
-	}
-	if err := s.incrementStreamsLocked(spec.Generation, spec.Handle); err != nil {
-		s.mu.Unlock()
+	err := s.insertStreamLocked(key, spec, cost)
+	s.mu.Unlock()
+	if err != nil {
 		return err
 	}
-	s.streams[key] = StreamSnapshot{
-		StreamSpec:     spec,
-		State:          StreamActive,
-		TerminalReason: TerminalNone,
-		AccountedBytes: cost,
-	}
-	s.usage.Streams++
-	s.usage.StreamBytes += cost
-	s.mu.Unlock()
 
 	s.observer.Observe(Event{Kind: EventStreamInserted, Generation: spec.Generation, Handle: spec.Handle, StreamID: spec.StreamID})
 	return nil
+}
+
+func (s *Store) insertStreamLocked(key streamKey, spec StreamSpec, cost uint64) error {
+	owner, ok := s.services[serviceKey{generation: spec.Generation, handle: spec.Handle}]
+	if !ok {
+		return &StateError{Code: CodeUnknownService, Resource: "service"}
+	}
+	if owner.State != ServiceActive {
+		return &StateError{Code: CodeServiceClosed, Resource: "service"}
+	}
+	if _, ok := s.streams[key]; ok {
+		return &StateError{Code: CodeDuplicateStream, Resource: "stream"}
+	}
+	if len(s.streams) >= s.limits.MaxStreams {
+		return &StateError{Code: CodeCapacityExceeded, Resource: "streams"}
+	}
+	if s.usage.StreamBytes > s.limits.MaxStreamBytes || cost > s.limits.MaxStreamBytes-s.usage.StreamBytes {
+		return &StateError{Code: CodeByteCapacityExceeded, Resource: "stream bytes"}
+	}
+	if err := s.incrementStreamsLocked(spec.Generation, spec.Handle); err != nil {
+		return err
+	}
+	s.streams[key] = StreamSnapshot{StreamSpec: spec, State: StreamActive, TerminalReason: TerminalNone, AccountedBytes: cost}
+	s.usage.Streams++
+	s.usage.StreamBytes += cost
+	return nil
+}
+
+func (s *Store) teardownStreamLocked(key streamKey, entry StreamSnapshot) {
+	delete(s.streams, key)
+	s.usage.Streams--
+	s.usage.StreamBytes -= entry.AccountedBytes
+	ownerKey := serviceKey{generation: key.generation, handle: key.handle}
+	owner := s.services[ownerKey]
+	owner.ActiveStreams--
+	s.services[ownerKey] = owner
 }
 
 func (s *Store) LookupStream(generation TSGeneration, handle ServiceHandle, streamID StreamID) (StreamSnapshot, error) {

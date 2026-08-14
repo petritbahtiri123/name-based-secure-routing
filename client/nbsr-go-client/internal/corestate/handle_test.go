@@ -176,15 +176,27 @@ func TestGenerationCapacityAbove(t *testing.T) {
 	}
 }
 
-func TestGenerationCloseRejectsNonemptyWithoutDeletingAllocator(t *testing.T) {
+func TestGenerationCloseNonemptyDeletesAllocatorAndRejectsStaleUse(t *testing.T) {
 	s := newSmallStore(t)
+	s.limits.MaxServiceBytes = 1024
+	s.limits.MaxServiceIdentityBytes = 64
 	mustOpen(t, s, 7)
-	s.services[serviceKey{generation: 7, handle: 1}] = ServiceSnapshot{}
-	if err := s.CloseGeneration(7); !errors.Is(err, ErrInvalidTransition) {
-		t.Fatalf("nonempty close error = %v, want ErrInvalidTransition", err)
+	mustAddService(t, s, serviceSpec(7, 1))
+	if err := s.CloseGeneration(7); err != nil {
+		t.Fatalf("coordinated close error = %v", err)
 	}
-	if got := allocateHandleForTest(t, s, 7, false); got != 1 {
-		t.Fatalf("allocator was changed after rejected close: got %d, want 1", got)
+	s.mu.Lock()
+	_, allocateErr := s.allocateHandleLocked(7)
+	_, allocatorExists := s.generations[7]
+	s.mu.Unlock()
+	if allocatorExists || !errors.Is(allocateErr, ErrGenerationClosed) {
+		t.Fatalf("allocator state after close: exists=%v error=%v", allocatorExists, allocateErr)
+	}
+	if err := s.OpenGeneration(7); !errors.Is(err, ErrGenerationClosed) {
+		t.Fatalf("stale reopen error = %v, want ErrGenerationClosed", err)
+	}
+	if _, err := s.AddService(serviceSpec(7, 2)); !errors.Is(err, ErrGenerationClosed) {
+		t.Fatalf("stale service insertion error = %v, want ErrGenerationClosed", err)
 	}
 }
 

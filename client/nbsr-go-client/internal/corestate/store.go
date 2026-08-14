@@ -66,7 +66,7 @@ func (s *Store) Usage() Usage {
 func (s *Store) ValidateInvariants() error {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	return nil
+	return s.validateInvariantsLocked()
 }
 
 func unimplementedTransition() error {

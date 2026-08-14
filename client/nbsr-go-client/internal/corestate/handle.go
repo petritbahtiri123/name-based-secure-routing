@@ -16,28 +16,6 @@ func (s *Store) OpenGeneration(generation TSGeneration) error {
 	return nil
 }
 
-func (s *Store) CloseGeneration(generation TSGeneration) error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	if _, ok := s.generations[generation]; !ok {
-		return &StateError{Code: CodeGenerationClosed, Resource: "generation"}
-	}
-	for key := range s.services {
-		if key.generation == generation {
-			return &StateError{Code: CodeInvalidTransition, Resource: "nonempty generation"}
-		}
-	}
-	for key := range s.streams {
-		if key.generation == generation {
-			return &StateError{Code: CodeInvalidTransition, Resource: "nonempty generation"}
-		}
-	}
-
-	delete(s.generations, generation)
-	return nil
-}
-
 func (s *Store) allocateHandleLocked(generation TSGeneration) (ServiceHandle, error) {
 	state, ok := s.generations[generation]
 	if !ok {

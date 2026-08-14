@@ -98,18 +98,11 @@ func (s *Store) CloseService(generation TSGeneration, handle ServiceHandle) erro
 	}
 	key := serviceKey{generation: generation, handle: handle}
 	s.mu.Lock()
-	entry, ok := s.services[key]
-	if !ok {
-		s.mu.Unlock()
-		return &StateError{Code: CodeUnknownService, Resource: "service"}
-	}
-	if entry.State != ServiceActive {
-		s.mu.Unlock()
-		return &StateError{Code: CodeServiceClosed, Resource: "service"}
-	}
-	entry.State = ServiceClosed
-	s.services[key] = entry
+	err := s.closeServiceLocked(key)
 	s.mu.Unlock()
+	if err != nil {
+		return err
+	}
 
 	s.observer.Observe(Event{Kind: EventServiceClosed, Generation: generation, Handle: handle})
 	return nil
@@ -121,23 +114,49 @@ func (s *Store) RemoveService(generation TSGeneration, handle ServiceHandle) err
 	}
 	key := serviceKey{generation: generation, handle: handle}
 	s.mu.Lock()
-	entry, ok := s.services[key]
-	if !ok {
-		s.mu.Unlock()
-		return &StateError{Code: CodeUnknownService, Resource: "service"}
-	}
-	if entry.State != ServiceClosed || entry.ActiveStreams != 0 {
-		s.mu.Unlock()
-		return &StateError{Code: CodeInvalidTransition, Resource: "service removal"}
-	}
-	delete(s.services, key)
-	delete(s.servicesByChannel, channelKey{generation: generation, channelID: entry.ChannelID})
-	s.usage.Services--
-	s.usage.ServiceBytes -= entry.AccountedBytes
+	err := s.removeServiceLocked(key)
 	s.mu.Unlock()
+	if err != nil {
+		return err
+	}
 
 	s.observer.Observe(Event{Kind: EventServiceRemoved, Generation: generation, Handle: handle})
 	return nil
+}
+
+func (s *Store) closeServiceLocked(key serviceKey) error {
+	entry, ok := s.services[key]
+	if !ok {
+		return &StateError{Code: CodeUnknownService, Resource: "service"}
+	}
+	if entry.State != ServiceActive {
+		return &StateError{Code: CodeServiceClosed, Resource: "service"}
+	}
+	entry.State = ServiceClosed
+	s.services[key] = entry
+	return nil
+}
+
+func (s *Store) removeServiceLocked(key serviceKey) error {
+	entry, ok := s.services[key]
+	if !ok {
+		return &StateError{Code: CodeUnknownService, Resource: "service"}
+	}
+	if entry.State != ServiceClosed || entry.ActiveStreams != 0 {
+		return &StateError{Code: CodeInvalidTransition, Resource: "service removal"}
+	}
+	delete(s.services, key)
+	delete(s.servicesByChannel, channelKey{generation: key.generation, channelID: entry.ChannelID})
+	s.usage.Services--
+	s.usage.ServiceBytes -= entry.AccountedBytes
+	return nil
+}
+
+func (s *Store) teardownServiceLocked(key serviceKey, entry ServiceSnapshot) {
+	delete(s.services, key)
+	delete(s.servicesByChannel, channelKey{generation: key.generation, channelID: entry.ChannelID})
+	s.usage.Services--
+	s.usage.ServiceBytes -= entry.AccountedBytes
 }
 
 func (s *Store) incrementStreamsLocked(generation TSGeneration, handle ServiceHandle) error {
