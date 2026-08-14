@@ -270,7 +270,7 @@ plan baseline once:
     git diff-tree --no-commit-id --name-only -r $planCommit
 
 Expected: git show prints the nonempty plan SHA, and diff-tree shows this plan
-as the only path in that commit. Record the SHA in the Task 10 closure review
+as the only path in that commit. Record the SHA in the Task 9 closure review
 and use that exact value for every changed-path and protected-path comparison.
 If the plan commit contains another path, stop before Task 1 and request a clean
 documentation-only plan baseline; do not rewrite history automatically.
