@@ -57,20 +57,6 @@ func NewStore(limits Limits, clock Clock, observer Observer) (*Store, error) {
 	}, nil
 }
 
-func (s *Store) InsertStream(StreamSpec) error { return unimplementedTransition() }
-func (s *Store) LookupStream(TSGeneration, ServiceHandle, StreamID) (StreamSnapshot, error) {
-	return StreamSnapshot{}, unimplementedTransition()
-}
-func (s *Store) CancelStream(TSGeneration, ServiceHandle, StreamID) error {
-	return unimplementedTransition()
-}
-func (s *Store) FinishStream(TSGeneration, ServiceHandle, StreamID, TerminalReason) error {
-	return unimplementedTransition()
-}
-func (s *Store) RemoveStream(TSGeneration, ServiceHandle, StreamID) error {
-	return unimplementedTransition()
-}
-
 func (s *Store) Usage() Usage {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
