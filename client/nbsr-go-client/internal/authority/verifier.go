@@ -88,6 +88,11 @@ func (verifier *Verifier) VerifyRouteGrant(ctx context.Context, candidate Provid
 	if len(candidate.ExactRouteGrant) == 0 || len(candidate.ExactRouteGrant) > defaultCBORLimits().maxInputBytes || candidate.Profile == "" || candidate.AuthorityGeneration == 0 || candidate.Checkpoint == (CheckpointDigest{}) {
 		return VerifiedAuthority{}, ErrInvalidAuthority
 	}
+	// Issuer resolvers are callbacks. Freeze every mutable value used after the
+	// callback before parsing, verifying, or deriving the sealed digest.
+	candidate.ExactRouteGrant = append([]byte(nil), candidate.ExactRouteGrant...)
+	verification.Intent.Canonical = append([]byte(nil), verification.Intent.Canonical...)
+	verification.Intent.TargetEdges = append([]string(nil), verification.Intent.TargetEdges...)
 	if err := verifyContext(verification, candidate); err != nil {
 		return VerifiedAuthority{}, err
 	}
@@ -121,7 +126,7 @@ func (verifier *Verifier) VerifyRouteGrant(ctx context.Context, candidate Provid
 
 func verifyContext(verification VerificationContext, candidate ProviderGrant) error {
 	hasWorkload := verification.Key.WorkloadDigest != ([32]byte{})
-	if verification.NowUnix == 0 || !validUnixTime(verification.NowUnix) || validateAuthorityKey(verification.Key, hasWorkload) != nil || !validTextID(verification.Intent.ServiceIdentity) || !validTextID(verification.Intent.SourceOperator) || !validTextID(verification.Intent.SourceEdge) || !validTextID(verification.Intent.TargetOperator) || !validTextIDs(verification.Intent.TargetEdges) || verification.Intent.Transport == "" || verification.Intent.Port == 0 || verification.Intent.RecordSequence == 0 || verification.Intent.RouteID == ([16]byte{}) || verification.Intent.LeaseID == ([16]byte{}) || verification.Intent.PolicyHash == (PolicyDigest{}) || verification.Intent.ExpiresAt == 0 || !validUnixTime(verification.Intent.ExpiresAt) {
+	if verification.NowUnix == 0 || !validUnixTime(verification.NowUnix) || validateAuthorityKey(verification.Key, hasWorkload) != nil || len(verification.Intent.Canonical) == 0 || !validTextID(verification.Intent.ServiceIdentity) || !validTextID(verification.Intent.SourceOperator) || !validTextID(verification.Intent.SourceEdge) || !validTextID(verification.Intent.TargetOperator) || !validTextIDs(verification.Intent.TargetEdges) || verification.Intent.Transport == "" || verification.Intent.Port == 0 || verification.Intent.RecordSequence == 0 || verification.Intent.RouteID == ([16]byte{}) || verification.Intent.LeaseID == ([16]byte{}) || verification.Intent.PolicyHash == (PolicyDigest{}) || verification.Intent.ExpiresAt == 0 || !validUnixTime(verification.Intent.ExpiresAt) {
 		return ErrInvalidAuthority
 	}
 	if RouteIntentDigest(sha256.Sum256(verification.Intent.Canonical)) != verification.Intent.Digest {

@@ -330,6 +330,34 @@ func TestVerifyRouteGrantPreservesWrongPurposeFromCustomResolver(t *testing.T) {
 	}
 }
 
+func TestVerifyRouteGrantFreezesMutableInputsBeforeResolverCallback(t *testing.T) {
+	candidate, verification, _ := validFrozenGrantCase(t)
+	verifiedWire := append([]byte(nil), candidate.ExactRouteGrant...)
+	resolver := issuerResolverFunc(func(context.Context, []byte, string, string, uint64) (IssuerRecord, error) {
+		candidate.ExactRouteGrant[len(candidate.ExactRouteGrant)-1] ^= 1
+		verification.Intent.Canonical[0] ^= 1
+		verification.Intent.TargetEdges[0] = "attacker.edge"
+		return frozenIssuer(t), nil
+	})
+	got, err := mustVerifier(t, resolver).VerifyRouteGrant(context.Background(), candidate, verification)
+	if err != nil {
+		t.Fatalf("resolver mutation changed verification: %v", err)
+	}
+	if got.GrantDigest() != RouteGrantDigest(sha256.Sum256(verifiedWire)) {
+		t.Fatal("sealed digest does not identify the bytes that were verified")
+	}
+}
+
+func TestVerifyRouteGrantRejectsEmptyCanonicalIntentBeforeHashing(t *testing.T) {
+	candidate, verification, resolver := validFrozenGrantCase(t)
+	verification.Intent.Canonical = nil
+	verification.Intent.Digest = RouteIntentDigest(sha256.Sum256(nil))
+	verification.Key.IntentDigest = verification.Intent.Digest
+	if _, err := mustVerifier(t, resolver).VerifyRouteGrant(context.Background(), candidate, verification); !errors.Is(err, ErrInvalidAuthority) {
+		t.Fatalf("error = %v, want ErrInvalidAuthority", err)
+	}
+}
+
 type issuerResolverFunc func(context.Context, []byte, string, string, uint64) (IssuerRecord, error)
 
 func (function issuerResolverFunc) ResolveRouteGrantIssuer(ctx context.Context, kid []byte, profile, source string, now uint64) (IssuerRecord, error) {
