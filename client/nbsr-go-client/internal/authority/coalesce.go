@@ -76,11 +76,16 @@ func (m *Manager) startOrJoin(ctx context.Context, key pendingKey, acquire Acqui
 		return Reservation{}, ErrClosed
 	}
 	events, err := m.requireFreshLocked(now)
-	if err == nil {
-		err = m.pendingScopeCurrentLocked(key.authority)
-	}
 	if err == nil && key.operation == pendingAcquire {
 		if entry := m.cache[key.authority]; entry != nil && entry.state == cacheAvailable {
+			var validationEvents []Event
+			validationEvents, err = m.validateAvailableLocked(entry, now)
+			events = append(events, validationEvents...)
+			if err != nil {
+				m.mu.Unlock()
+				m.notify(events)
+				return Reservation{}, err
+			}
 			var cacheEvents []Event
 			reservation, cacheEvents, err := m.reserveExistingLocked(entry)
 			events = append(events, cacheEvents...)
@@ -88,6 +93,9 @@ func (m *Manager) startOrJoin(ctx context.Context, key pendingKey, acquire Acqui
 			m.notify(events)
 			return reservation, err
 		}
+	}
+	if err == nil {
+		err = m.pendingScopeCurrentLocked(key.authority)
 	}
 	if err != nil {
 		m.mu.Unlock()
@@ -203,7 +211,11 @@ func (m *Manager) commitPending(call *pendingCall, authority VerifiedAuthority) 
 			if err == nil && (authority.Key() != call.key.authority || authority.Checkpoint() != call.checkpoint.Digest || authority.AuthorityGeneration() != call.checkpoint.Generation) {
 				err = ErrStaleGeneration
 			}
-			if err == nil {
+			if err == nil && call.key.operation == pendingRenew {
+				var reserveEvents []Event
+				reservation, reserveEvents, err = m.replaceRenewedLocked(call.key.previous, authority, now)
+				events = append(events, reserveEvents...)
+			} else if err == nil {
 				var reserveEvents []Event
 				reservation, reserveEvents, err = m.reserveVerifiedLocked(authority, now)
 				events = append(events, reserveEvents...)

@@ -132,6 +132,142 @@ func (m *Manager) reserveExistingLocked(entry *cacheEntry) (Reservation, []Event
 	return Reservation{id: entry.reservation, key: entry.authority.Key(), grant: entry.authority.GrantDigest()}, []Event{{Kind: EventCacheHit, Grant: entry.authority.GrantDigest()}}, nil
 }
 
+// validateAvailableLocked is the pre-reservation barrier for cache hits and
+// renewal predecessors.  It retires an authority as soon as it cannot be used
+// under the current local checkpoint, rather than allowing a stale
+// reservation to escape for a later final check.
+func (m *Manager) validateAvailableLocked(entry *cacheEntry, now uint64) ([]Event, error) {
+	if entry == nil || entry.state != cacheAvailable {
+		return nil, ErrInvalidTransition
+	}
+	if !entry.authority.valid() {
+		m.retireEntryLocked(entry, cacheInvalid)
+		return []Event{invalidationEvent(entry)}, ErrInvalidAuthority
+	}
+	if entry.authority.AuthorityGeneration() != m.generation || entry.authority.Key().AuthorityGeneration != m.generation || entry.authority.Checkpoint() != m.checkpoint.claims.Digest {
+		m.retireEntryLocked(entry, cacheInvalid)
+		return []Event{invalidationEvent(entry)}, ErrStaleGeneration
+	}
+	if now >= entry.authority.ExpiresAt() {
+		m.retireEntryLocked(entry, cacheInvalid)
+		return []Event{invalidationEvent(entry)}, ErrExpired
+	}
+	for _, revoked := range m.checkpoint.revoked {
+		if revoked == entry.authority.GrantDigest() {
+			m.retireEntryLocked(entry, cacheInvalid)
+			return []Event{invalidationEvent(entry)}, ErrRevoked
+		}
+	}
+	return nil, nil
+}
+
+// replaceRenewedLocked atomically turns an eligible, still-unconsumed
+// predecessor into a replay tombstone and reserves the distinct replacement.
+// A renewal never makes the predecessor available again.
+func (m *Manager) replaceRenewedLocked(previous RouteGrantDigest, authority VerifiedAuthority, now uint64) (Reservation, []Event, error) {
+	if previous == (RouteGrantDigest{}) || !authority.valid() || now >= authority.ExpiresAt() || authority.GrantDigest() == previous {
+		return Reservation{}, nil, ErrInvalidAuthority
+	}
+	predecessor := m.grants[previous]
+	if predecessor == nil {
+		if _, terminal := m.tombstones[previous]; terminal {
+			return Reservation{}, nil, ErrInvalidTransition
+		}
+		return Reservation{}, nil, ErrInvalidAuthority
+	}
+	if predecessor.authority.Key() != authority.Key() {
+		return Reservation{}, nil, ErrBindingMismatch
+	}
+	events, err := m.validateAvailableLocked(predecessor, now)
+	if err != nil {
+		return Reservation{}, events, err
+	}
+	if _, terminal := m.tombstones[authority.GrantDigest()]; terminal {
+		return Reservation{}, events, ErrInvalidAuthority
+	}
+	if _, existing := m.grants[authority.GrantDigest()]; existing {
+		return Reservation{}, events, ErrInvalidAuthority
+	}
+	if m.cache[authority.Key()] != predecessor {
+		return Reservation{}, events, ErrInvalidAuthority
+	}
+	if m.nextReservation == math.MaxUint64 {
+		return Reservation{}, events, ErrAccountingOverflow
+	}
+	logicalBytes, err := authorityLogicalBytes(authority)
+	if err != nil {
+		return Reservation{}, events, err
+	}
+	evictions, err := m.planRenewalEvictionsLocked(predecessor, logicalBytes, now)
+	if err != nil {
+		return Reservation{}, append(events, Event{Kind: EventCacheFull, Grant: authority.GrantDigest(), Result: errorCode(err)}), err
+	}
+	for _, eviction := range evictions {
+		if eviction.entry != nil {
+			m.removeAvailableLocked(eviction.entry)
+		} else {
+			m.removeTombstoneLocked(eviction.tombstone)
+		}
+	}
+	m.retireEntryLocked(predecessor, cacheConsumed)
+	replacement := &cacheEntry{authority: authority, state: cacheAvailable, logicalBytes: logicalBytes}
+	m.cache[authority.Key()] = replacement
+	m.grants[authority.GrantDigest()] = replacement
+	m.cacheBytes += logicalBytes
+	reservation, reserveEvents, err := m.reserveExistingLocked(replacement)
+	return reservation, append(events, reserveEvents...), err
+}
+
+func (m *Manager) planRenewalEvictionsLocked(predecessor *cacheEntry, incomingBytes, now uint64) ([]evictionCandidate, error) {
+	if predecessor == nil || m.cacheBytes < predecessor.logicalBytes {
+		return nil, ErrInvalidAuthority
+	}
+	bytesAfter := m.cacheBytes - predecessor.logicalBytes
+	var overflow bool
+	bytesAfter, overflow = addUint64(bytesAfter, tombstoneLogicalBytes)
+	if overflow {
+		return nil, ErrAccountingOverflow
+	}
+	bytesAfter, overflow = addUint64(bytesAfter, incomingBytes)
+	if overflow {
+		return nil, ErrAccountingOverflow
+	}
+	entriesAfter := m.cacheEntriesLocked() + 1 // predecessor becomes a tombstone, plus replacement.
+	candidates := make([]evictionCandidate, 0, m.cacheEntriesLocked())
+	for _, entry := range m.cache {
+		if entry != predecessor && entry.state == cacheAvailable {
+			candidates = append(candidates, evictionCandidate{entry: entry})
+		}
+	}
+	for _, terminal := range m.tombstones {
+		if now >= terminal.expiresAt {
+			terminal := terminal
+			candidates = append(candidates, evictionCandidate{tombstone: &terminal})
+		}
+	}
+	selected := make([]evictionCandidate, 0)
+	for len(candidates) > 0 && (entriesAfter > m.limits.MaxCacheEntries || bytesAfter > m.limits.MaxCacheBytes) {
+		best := 0
+		for index := 1; index < len(candidates); index++ {
+			if evictionBefore(candidates[index], candidates[best]) {
+				best = index
+			}
+		}
+		candidate := candidates[best]
+		candidates = append(candidates[:best], candidates[best+1:]...)
+		if candidate.logicalBytes() > bytesAfter {
+			return nil, ErrAccountingOverflow
+		}
+		bytesAfter -= candidate.logicalBytes()
+		entriesAfter--
+		selected = append(selected, candidate)
+	}
+	if entriesAfter > m.limits.MaxCacheEntries || bytesAfter > m.limits.MaxCacheBytes {
+		return nil, ErrCacheCapacity
+	}
+	return selected, nil
+}
+
 type evictionCandidate struct {
 	entry     *cacheEntry
 	tombstone *tombstone
@@ -418,7 +554,10 @@ func (m *Manager) Usage() Usage {
 		return Usage{}
 	}
 	m.mu.RLock()
-	usage := Usage{CacheEntries: m.cacheEntriesLocked(), CacheBytes: m.cacheBytes, PendingCalls: len(m.pending), RequestRecords: len(m.requests)}
+	usage := Usage{CacheEntries: m.cacheEntriesLocked(), CacheBytes: m.cacheBytes, PendingCalls: len(m.pending), PendingBytes: m.pendingBytes, RequestRecords: len(m.requests)}
+	for _, call := range m.pending {
+		usage.PendingWaiters += call.waiters
+	}
 	m.mu.RUnlock()
 	return usage
 }
@@ -429,7 +568,7 @@ func (m *Manager) ValidateInvariants() error {
 	}
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	if m.cacheEntriesLocked() > m.limits.MaxCacheEntries || m.cacheBytes > m.limits.MaxCacheBytes || len(m.reserved) > len(m.cache) || len(m.grants) != len(m.cache) {
+	if m.cacheEntriesLocked() > m.limits.MaxCacheEntries || m.cacheBytes > m.limits.MaxCacheBytes || len(m.reserved) > len(m.cache) || len(m.grants) != len(m.cache) || len(m.pending) > m.limits.MaxPending || m.pendingBytes > m.limits.MaxPendingBytes {
 		return ErrInvalidAuthority
 	}
 	var bytesUsed uint64
@@ -476,6 +615,31 @@ func (m *Manager) ValidateInvariants() error {
 		if id == 0 || entry == nil || entry.state != cacheReserved || entry.reservation != id || m.cache[entry.authority.Key()] != entry {
 			return ErrInvalidAuthority
 		}
+	}
+	var pendingBytes uint64
+	for key, call := range m.pending {
+		if call == nil || call.key != key || call.finished || call.waiters < 1 || call.waiters > m.limits.MaxWaitersPerPending || call.done == nil || call.providerContext == nil || call.cancel == nil {
+			return ErrInvalidAuthority
+		}
+		logical, err := pendingLogicalBytes(key, call.acquire)
+		if err != nil || logical != call.logicalBytes {
+			return ErrInvalidAuthority
+		}
+		if key.operation == pendingRenew {
+			if call.renew.PreviousGrant != key.previous || call.renew.AcquireRequest.Key != key.authority {
+				return ErrInvalidAuthority
+			}
+		} else if key.operation != pendingAcquire {
+			return ErrInvalidAuthority
+		}
+		var overflow bool
+		pendingBytes, overflow = addUint64(pendingBytes, logical)
+		if overflow {
+			return ErrInvalidAuthority
+		}
+	}
+	if pendingBytes != m.pendingBytes {
+		return ErrInvalidAuthority
 	}
 	return nil
 }

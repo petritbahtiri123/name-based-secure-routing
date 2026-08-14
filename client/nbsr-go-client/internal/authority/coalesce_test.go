@@ -1,8 +1,13 @@
 package authority
 
 import (
+	"bytes"
 	"context"
+	"crypto/ed25519"
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
+	"math"
 	"sync"
 	"testing"
 	"time"
@@ -26,6 +31,7 @@ func TestExactAcquisitionCoalescesOneProviderCall(t *testing.T) {
 	}
 	close(start)
 	awaitCoalesce(t, provider.started)
+	awaitWaiters(t, manager, callers)
 	provider.releaseOnce()
 	var first Reservation
 	for i := 0; i < callers; i++ {
@@ -58,16 +64,137 @@ func TestCoalescingSeparatesOperationAndPreviousGrant(t *testing.T) {
 	awaitCoalesce(t, provider.renewStarted)
 	provider.releaseOnce()
 	acquireErr, renewErr := <-acquired, <-renewed
-	for _, err := range []error{acquireErr, renewErr} {
-		if err != nil && !errors.Is(err, ErrInvalidTransition) {
-			t.Fatalf("operation error = %v, want nil or ErrInvalidTransition", err)
-		}
+	if acquireErr != nil {
+		t.Fatalf("Acquire: %v", acquireErr)
 	}
-	if acquireErr != nil && renewErr != nil {
-		t.Fatalf("both operations failed: Acquire=%v Renew=%v", acquireErr, renewErr)
+	if !errors.Is(renewErr, ErrInvalidAuthority) {
+		t.Fatalf("Renew without predecessor error = %v, want ErrInvalidAuthority", renewErr)
 	}
 	if got := provider.calls(); got != 2 {
 		t.Fatalf("provider calls = %d, want 2", got)
+	}
+}
+
+func TestCacheHitRetiresExpiredRevokedAndStaleAuthorityBeforeReservation(t *testing.T) {
+	for _, tt := range []struct {
+		name    string
+		prepare func(*Manager, *mutableClock, RouteGrantDigest)
+		want    error
+	}{
+		{"expired", func(_ *Manager, clock *mutableClock, _ RouteGrantDigest) { clock.set(1_893_456_001) }, ErrExpired},
+		{"revoked", func(manager *Manager, _ *mutableClock, grant RouteGrantDigest) {
+			manager.checkpoint.revoked = []RouteGrantDigest{grant}
+		}, ErrRevoked},
+		{"stale checkpoint", func(manager *Manager, _ *mutableClock, _ RouteGrantDigest) {
+			manager.checkpoint.claims.Digest = CheckpointDigest{0xee}
+		}, ErrStaleGeneration},
+		{"stale generation", func(manager *Manager, _ *mutableClock, _ RouteGrantDigest) {
+			manager.generation++
+			manager.checkpoint.claims.Generation++
+		}, ErrStaleGeneration},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			provider, manager, request := coalesceFixture(t)
+			request.DeadlineUnix = 1_893_456_100
+			clock := &mutableClock{now: 1_893_456_000}
+			manager.clock = clock
+			grant := testGrant(81)
+			cacheAvailableForCoalesce(t, manager, request, grant, 1_893_456_001)
+			manager.mu.Lock()
+			tt.prepare(manager, clock, grant)
+			manager.mu.Unlock()
+			if _, err := manager.Acquire(context.Background(), request); !errors.Is(err, tt.want) {
+				t.Fatalf("cache-hit Acquire error = %v, want %v", err, tt.want)
+			}
+			manager.mu.RLock()
+			_, cached := manager.cache[request.Key]
+			terminal, tombstoned := manager.tombstones[grant]
+			manager.mu.RUnlock()
+			if cached || !tombstoned || terminal.state != cacheInvalid {
+				t.Fatalf("stale cache entry was not invalidated: cached=%t tombstone=%+v", cached, terminal)
+			}
+			if got := provider.calls(); got != 0 {
+				t.Fatalf("stale cache hit called provider %d times", got)
+			}
+		})
+	}
+}
+
+func TestRenewAtomicallyReplacesEligiblePreviousGrant(t *testing.T) {
+	provider, manager, request := coalesceFixture(t)
+	oldGrant := testGrant(82)
+	cacheAvailableForCoalesce(t, manager, request, oldGrant, 1_893_456_300)
+	provider.grant = renewedProviderGrant(t, provider.grant)
+	provider.releaseOnce()
+	reservation, err := manager.Renew(context.Background(), RenewRequest{AcquireRequest: request, PreviousGrant: oldGrant})
+	if err != nil {
+		t.Fatalf("Renew: %v", err)
+	}
+	newGrant := RouteGrantDigest(sha256.Sum256(provider.grant.ExactRouteGrant))
+	if reservation.grant != newGrant || newGrant == oldGrant {
+		t.Fatalf("renewal reservation grant = %x, want new %x", reservation.grant, newGrant)
+	}
+	manager.mu.RLock()
+	oldTerminal, oldTombstoned := manager.tombstones[oldGrant]
+	entry := manager.grants[newGrant]
+	manager.mu.RUnlock()
+	if !oldTombstoned || oldTerminal.state != cacheConsumed || entry == nil || entry.state != cacheReserved {
+		t.Fatalf("replacement state invalid: old=%+v new=%+v", oldTerminal, entry)
+	}
+	if err := manager.ValidateInvariants(); err != nil {
+		t.Fatalf("replacement invariants: %v", err)
+	}
+}
+
+func TestRenewRejectsMismatchedOrTerminalPreviousGrant(t *testing.T) {
+	t.Run("mismatched", func(t *testing.T) {
+		provider, manager, request := coalesceFixture(t)
+		oldGrant := testGrant(83)
+		cacheAvailableForCoalesce(t, manager, request, oldGrant, 1_893_456_300)
+		provider.grant = renewedProviderGrant(t, provider.grant)
+		provider.releaseOnce()
+		if _, err := manager.Renew(context.Background(), RenewRequest{AcquireRequest: request, PreviousGrant: testGrant(84)}); !errors.Is(err, ErrInvalidAuthority) {
+			t.Fatalf("mismatched previous grant error = %v, want ErrInvalidAuthority", err)
+		}
+		if err := manager.ValidateInvariants(); err != nil {
+			t.Fatalf("mismatch invariants: %v", err)
+		}
+	})
+	t.Run("terminal", func(t *testing.T) {
+		provider, manager, request := coalesceFixture(t)
+		oldGrant := testGrant(85)
+		cacheAvailableForCoalesce(t, manager, request, oldGrant, 1_893_456_300)
+		manager.mu.Lock()
+		manager.retireEntryLocked(manager.grants[oldGrant], cacheQuarantined)
+		manager.mu.Unlock()
+		provider.grant = renewedProviderGrant(t, provider.grant)
+		provider.releaseOnce()
+		if _, err := manager.Renew(context.Background(), RenewRequest{AcquireRequest: request, PreviousGrant: oldGrant}); !errors.Is(err, ErrInvalidTransition) {
+			t.Fatalf("terminal previous grant error = %v, want ErrInvalidTransition", err)
+		}
+	})
+}
+
+func TestRenewReplacementReservationOverflowIsAtomic(t *testing.T) {
+	provider, manager, request := coalesceFixture(t)
+	oldGrant := testGrant(86)
+	cacheAvailableForCoalesce(t, manager, request, oldGrant, 1_893_456_300)
+	provider.grant = renewedProviderGrant(t, provider.grant)
+	newGrant := RouteGrantDigest(sha256.Sum256(provider.grant.ExactRouteGrant))
+	manager.mu.Lock()
+	manager.nextReservation = math.MaxUint64
+	manager.mu.Unlock()
+	provider.releaseOnce()
+	if _, err := manager.Renew(context.Background(), RenewRequest{AcquireRequest: request, PreviousGrant: oldGrant}); !errors.Is(err, ErrAccountingOverflow) {
+		t.Fatalf("overflow renewal error = %v, want ErrAccountingOverflow", err)
+	}
+	manager.mu.RLock()
+	oldEntry := manager.grants[oldGrant]
+	_, oldTombstoned := manager.tombstones[oldGrant]
+	newEntry := manager.grants[newGrant]
+	manager.mu.RUnlock()
+	if oldEntry == nil || oldEntry.state != cacheAvailable || oldTombstoned || newEntry != nil {
+		t.Fatalf("overflow mutated replacement state: old=%+v tombstoned=%t new=%+v", oldEntry, oldTombstoned, newEntry)
 	}
 }
 
@@ -137,6 +264,43 @@ func TestPendingAndWaiterBoundsAreExact(t *testing.T) {
 	}
 	if err := <-join; err != nil {
 		t.Fatalf("joiner: %v", err)
+	}
+}
+
+func TestUsageAndInvariantsAccountForPendingCalls(t *testing.T) {
+	provider, manager, request := coalesceFixture(t)
+	result := make(chan error, 1)
+	go func() { _, err := manager.Acquire(context.Background(), request); result <- err }()
+	awaitCoalesce(t, provider.started)
+	bytes, err := pendingLogicalBytes(pendingKey{authority: request.Key, operation: pendingAcquire}, request)
+	if err != nil {
+		t.Fatalf("pendingLogicalBytes: %v", err)
+	}
+	if usage := manager.Usage(); usage.PendingCalls != 1 || usage.PendingWaiters != 1 || usage.PendingBytes != bytes {
+		t.Fatalf("pending Usage = %+v, want calls=1 waiters=1 bytes=%d", usage, bytes)
+	}
+	if err := manager.ValidateInvariants(); err != nil {
+		t.Fatalf("valid pending state rejected: %v", err)
+	}
+	manager.mu.Lock()
+	manager.pendingBytes++
+	manager.mu.Unlock()
+	if err := manager.ValidateInvariants(); !errors.Is(err, ErrInvalidAuthority) {
+		t.Fatalf("corrupt pending bytes error = %v, want ErrInvalidAuthority", err)
+	}
+	manager.mu.Lock()
+	manager.pendingBytes--
+	manager.pending[pendingKey{authority: request.Key, operation: pendingAcquire}].waiters = 0
+	manager.mu.Unlock()
+	if err := manager.ValidateInvariants(); !errors.Is(err, ErrInvalidAuthority) {
+		t.Fatalf("corrupt waiter count error = %v, want ErrInvalidAuthority", err)
+	}
+	manager.mu.Lock()
+	manager.pending[pendingKey{authority: request.Key, operation: pendingAcquire}].waiters = 1
+	manager.mu.Unlock()
+	provider.releaseOnce()
+	if err := <-result; err != nil {
+		t.Fatalf("Acquire: %v", err)
 	}
 }
 
@@ -405,6 +569,56 @@ func pendingState(manager *Manager) (calls, waiters int, bytes uint64) {
 		waiters += call.waiters
 	}
 	return len(manager.pending), waiters, manager.pendingBytes
+}
+
+func cacheAvailableForCoalesce(t *testing.T, manager *Manager, request AcquireRequest, grant RouteGrantDigest, expiresAt uint64) {
+	t.Helper()
+	manager.mu.RLock()
+	checkpoint := manager.checkpoint.claims.Digest
+	manager.mu.RUnlock()
+	reservation, err := manager.reserveVerified(sealAuthority(request.Key, grant, expiresAt, checkpoint, request.Key.AuthorityGeneration))
+	if err != nil {
+		t.Fatalf("reserve old authority: %v", err)
+	}
+	if err := manager.Release(reservation); err != nil {
+		t.Fatalf("release old authority: %v", err)
+	}
+}
+
+func renewedProviderGrant(t *testing.T, grant ProviderGrant) ProviderGrant {
+	t.Helper()
+	sign1, err := parseRouteGrantSign1(grant.ExactRouteGrant)
+	if err != nil {
+		t.Fatalf("parse frozen grant: %v", err)
+	}
+	decoded, err := decodeCBORExact(sign1.payload, defaultCBORLimits())
+	if err != nil {
+		t.Fatalf("decode frozen payload: %v", err)
+	}
+	fields, ok := decoded.(map[uint64]any)
+	if !ok {
+		t.Fatal("frozen payload is not a field map")
+	}
+	fields[16] = append([]byte{0xff}, make([]byte, 15)...)
+	payload, err := encodeCBOR(fields)
+	if err != nil {
+		t.Fatalf("encode renewed payload: %v", err)
+	}
+	seed, err := hex.DecodeString(string(bytes.TrimSpace(readRepo(t, "vectors", "core-v0.2", "keys", "test-only-route-grant-ed25519-seed.hex"))))
+	if err != nil || len(seed) != ed25519.SeedSize {
+		t.Fatal("invalid test route-grant signing seed")
+	}
+	structure, err := encodeCBOR([]any{"Signature1", sign1.protected, []byte{}, payload})
+	if err != nil {
+		t.Fatalf("encode signature structure: %v", err)
+	}
+	signature := ed25519.Sign(ed25519.NewKeyFromSeed(seed), structure)
+	encoded, err := encodeCBOR([]any{sign1.protected, map[uint64]any{}, payload, signature})
+	if err != nil {
+		t.Fatalf("encode renewed Sign1: %v", err)
+	}
+	grant.ExactRouteGrant = append([]byte{0xd2}, encoded...)
+	return grant
 }
 
 func eventuallyCoalesce(t *testing.T, predicate func() bool) {
