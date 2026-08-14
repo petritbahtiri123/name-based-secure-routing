@@ -47,6 +47,10 @@ func (m *Manager) PublishFreshness(ctx context.Context, request FreshnessRequest
 		m.notify([]Event{{Kind: EventFreshnessRejected, AuthorityGeneration: checkpoint.claims.Generation, Result: CodeBindingMismatch}})
 		return VerifiedCheckpoint{}, ErrBindingMismatch
 	}
+	now = m.clock.NowUnix()
+	if !validUnixTime(now) {
+		return VerifiedCheckpoint{}, ErrInvalidAuthority
+	}
 	if now >= checkpoint.claims.FreshUntil {
 		m.notify([]Event{{Kind: EventFreshnessRejected, AuthorityGeneration: checkpoint.claims.Generation, Result: CodeStaleFreshness}})
 		return VerifiedCheckpoint{}, ErrStaleFreshness

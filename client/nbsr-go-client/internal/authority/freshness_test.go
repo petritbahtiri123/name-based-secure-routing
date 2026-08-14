@@ -54,6 +54,41 @@ func TestFreshnessExpirationEventEmittedOnce(t *testing.T) {
 	}
 }
 
+func TestFreshnessRechecksClockAfterDelayedVerification(t *testing.T) {
+	m := freshManager(t, checkpoint(7, 100, 200))
+	clock := &task4MutableClock{now: 150}
+	verifier := &task4DelayedCheckpointVerifier{
+		claims:  checkpoint(8, 110, 200),
+		started: make(chan struct{}),
+		release: make(chan struct{}),
+	}
+	observer := &task4Observer{}
+	m.clock = clock
+	m.checkpointVerifier = verifier
+	m.observer = observer
+
+	result := make(chan error, 1)
+	go func() {
+		_, err := m.PublishFreshness(context.Background(), task4Request(), task4ProviderFreshness())
+		result <- err
+	}()
+	<-verifier.started
+	clock.Set(200)
+	close(verifier.release)
+	if err := <-result; !errors.Is(err, ErrStaleFreshness) {
+		t.Fatalf("publication error = %v, want ErrStaleFreshness", err)
+	}
+	if m.generation != 7 {
+		t.Fatalf("generation = %d, want 7", m.generation)
+	}
+	if got := observer.count(EventFreshnessAccepted); got != 0 {
+		t.Fatalf("accepted events = %d, want 0", got)
+	}
+	if got := observer.count(EventGenerationAdvanced); got != 0 {
+		t.Fatalf("advanced events = %d, want 0", got)
+	}
+}
+
 func TestFreshnessStateCopiesAndCanonicalizesRevocations(t *testing.T) {
 	claims := checkpoint(7, 100, 200)
 	claims.RevokedGrants = []RouteGrantDigest{{3}, {1}, {3}, {2}}
@@ -104,6 +139,22 @@ type task4Clock struct{ now uint64 }
 
 func (clock task4Clock) NowUnix() uint64 { return clock.now }
 
+type task4MutableClock struct {
+	mu  sync.Mutex
+	now uint64
+}
+
+func (clock *task4MutableClock) NowUnix() uint64 {
+	clock.mu.Lock()
+	defer clock.mu.Unlock()
+	return clock.now
+}
+func (clock *task4MutableClock) Set(now uint64) {
+	clock.mu.Lock()
+	clock.now = now
+	clock.mu.Unlock()
+}
+
 type task4CheckpointVerifier struct {
 	claims CheckpointClaims
 	err    error
@@ -111,6 +162,18 @@ type task4CheckpointVerifier struct {
 
 func (verifier *task4CheckpointVerifier) VerifyFreshnessEvidence(_ context.Context, _ ProviderFreshness, _ FreshnessRequest, _ uint64) (CheckpointClaims, error) {
 	return verifier.claims, verifier.err
+}
+
+type task4DelayedCheckpointVerifier struct {
+	claims  CheckpointClaims
+	started chan struct{}
+	release chan struct{}
+}
+
+func (verifier *task4DelayedCheckpointVerifier) VerifyFreshnessEvidence(_ context.Context, _ ProviderFreshness, _ FreshnessRequest, _ uint64) (CheckpointClaims, error) {
+	close(verifier.started)
+	<-verifier.release
+	return verifier.claims, nil
 }
 
 type task4CountingProvider struct {
