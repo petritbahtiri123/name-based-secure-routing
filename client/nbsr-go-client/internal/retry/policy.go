@@ -57,6 +57,9 @@ func Decide(in Input) (Decision, error) {
 	if in.Class == Terminal {
 		return terminal(ReasonTerminalClass), nil
 	}
+	if in.CircuitOpen {
+		return terminal(ReasonCircuitOpen), nil
+	}
 	if in.Class == ConditionallyRetryable && !in.ConditionChanged {
 		return terminal(ReasonConditionUnchanged), nil
 	}
@@ -65,9 +68,6 @@ func Decide(in Input) (Decision, error) {
 	}
 	if in.NowUnixMilli >= in.DeadlineUnixMilli {
 		return terminal(ReasonDeadline), nil
-	}
-	if in.CircuitOpen {
-		return terminal(ReasonCircuitOpen), nil
 	}
 
 	delay := jitteredBackoff(in.BaseBackoffMillis, in.MaxBackoffMillis, in.Attempt, in.JitterPermille, in.JitterSample)

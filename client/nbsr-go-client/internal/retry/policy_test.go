@@ -66,22 +66,110 @@ func TestApplicationPayloadIsNeverRetried(t *testing.T) {
 	}
 }
 
-func TestBackoffSaturatesForLargeAttemptAndArithmetic(t *testing.T) {
-	in := validInput()
-	in.Attempt = math.MaxUint32 - 1
-	in.MaxAttempts = math.MaxUint32
-	in.NowUnixMilli = 0
-	in.DeadlineUnixMilli = math.MaxUint64
-	in.BaseBackoffMillis = math.MaxUint64
-	in.MaxBackoffMillis = math.MaxUint64
-	in.JitterPermille = 1_000
-	in.JitterSample = 1_000
-	got, err := Decide(in)
-	if err != nil {
-		t.Fatal(err)
+func TestRetryDecisionPrecedence(t *testing.T) {
+	tests := []struct {
+		name string
+		edit func(*Input)
+		want Reason
+	}{
+		{"payload wins over every lower-priority stop", func(in *Input) {
+			in.ApplicationPayloadWritten = true
+			in.Class = Terminal
+			in.CircuitOpen = true
+			in.DeadlineUnixMilli = in.NowUnixMilli
+		}, ReasonPayloadWritten},
+		{"terminal class wins over circuit and lower-priority stops", func(in *Input) {
+			in.Class = Terminal
+			in.CircuitOpen = true
+			in.DeadlineUnixMilli = in.NowUnixMilli
+		}, ReasonTerminalClass},
+		{"circuit wins over condition attempt and deadline", func(in *Input) {
+			in.Class = ConditionallyRetryable
+			in.CircuitOpen = true
+			in.Attempt = in.MaxAttempts
+			in.DeadlineUnixMilli = in.NowUnixMilli
+		}, ReasonCircuitOpen},
+		{"condition wins over attempt and deadline", func(in *Input) {
+			in.Class = ConditionallyRetryable
+			in.Attempt = in.MaxAttempts
+			in.DeadlineUnixMilli = in.NowUnixMilli
+		}, ReasonConditionUnchanged},
+		{"attempt wins over deadline", func(in *Input) {
+			in.Attempt = in.MaxAttempts
+			in.DeadlineUnixMilli = in.NowUnixMilli
+		}, ReasonAttemptsExhausted},
+		{"deadline is last terminal stop", func(in *Input) {
+			in.DeadlineUnixMilli = in.NowUnixMilli
+		}, ReasonDeadline},
 	}
-	if !got.Retry || got.DelayMillis != math.MaxUint64-1 {
-		t.Fatalf("Decide overflow case = %+v", got)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			in := validInput()
+			tt.edit(&in)
+			got, err := Decide(in)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if got != (Decision{TerminalReason: tt.want}) {
+				t.Fatalf("Decide(%+v) = %+v, want terminal reason %d", in, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestBackoffSaturationAndArithmeticBoundaries(t *testing.T) {
+	tests := []struct {
+		name string
+		edit func(*Input)
+		want uint64
+	}{
+		{"low base traverses sixty-three shifts", func(in *Input) {
+			in.Attempt = 64
+			in.MaxAttempts = math.MaxUint32
+			in.NowUnixMilli = 0
+			in.DeadlineUnixMilli = math.MaxUint64
+			in.BaseBackoffMillis = 1
+			in.MaxBackoffMillis = math.MaxUint64
+		}, uint64(1) << 63},
+		{"next shift saturates uint64 without wrapping", func(in *Input) {
+			in.Attempt = 65
+			in.MaxAttempts = math.MaxUint32
+			in.NowUnixMilli = 0
+			in.DeadlineUnixMilli = math.MaxUint64
+			in.BaseBackoffMillis = 1
+			in.MaxBackoffMillis = math.MaxUint64
+		}, math.MaxUint64 - 1},
+		{"configured maximum clamps exponential growth", func(in *Input) {
+			in.Attempt = 20
+			in.MaxAttempts = math.MaxUint32
+			in.BaseBackoffMillis = 1
+			in.MaxBackoffMillis = 1_000
+		}, 1_000},
+		{"jittered backoff wins over shorter retry after", func(in *Input) {
+			in.Attempt = 2
+			in.JitterPermille = 1_000
+			in.JitterSample = 1_000
+			in.RetryAfterMillis = 300
+		}, 400},
+		{"long retry after wins after jitter and is bounded", func(in *Input) {
+			in.Attempt = 2
+			in.JitterPermille = 1_000
+			in.JitterSample = 1_000
+			in.RetryAfterMillis = 10_000
+		}, 1_000},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			in := validInput()
+			tt.edit(&in)
+			got, err := Decide(in)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if !got.Retry || got.DelayMillis != tt.want || got.TerminalReason != ReasonNone {
+				t.Fatalf("Decide(%+v) = %+v, want retry delay %d", in, got, tt.want)
+			}
+		})
 	}
 }
 
