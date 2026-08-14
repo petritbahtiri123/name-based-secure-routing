@@ -25,12 +25,12 @@ type Store struct {
 	observer Observer
 
 	generations map[TSGeneration]generationState
-	mappings    map[MappingID]MappingSnapshot
+	mappings    map[MappingID]mappingEntry
 	services    map[serviceKey]ServiceSnapshot
 	streams     map[streamKey]StreamSnapshot
 
 	highestGeneration TSGeneration
-	mappingHighWater  MappingID
+	highestMappingID  MappingID
 	usage             Usage
 }
 
@@ -49,24 +49,11 @@ func NewStore(limits Limits, clock Clock, observer Observer) (*Store, error) {
 		clock:       clock,
 		observer:    observer,
 		generations: make(map[TSGeneration]generationState),
-		mappings:    make(map[MappingID]MappingSnapshot),
+		mappings:    make(map[MappingID]mappingEntry),
 		services:    make(map[serviceKey]ServiceSnapshot),
 		streams:     make(map[streamKey]StreamSnapshot),
 	}, nil
 }
-
-func (s *Store) AddMapping(MappingSpec) (MappingSnapshot, error) {
-	return MappingSnapshot{}, unimplementedTransition()
-}
-func (s *Store) LookupMapping(MappingID) (MappingSnapshot, error) {
-	return MappingSnapshot{}, unimplementedTransition()
-}
-func (s *Store) AcquireMapping(MappingID) (MappingSnapshot, error) {
-	return MappingSnapshot{}, unimplementedTransition()
-}
-func (s *Store) ReleaseMapping(MappingID) error { return unimplementedTransition() }
-func (s *Store) RemoveMapping(MappingID) error  { return unimplementedTransition() }
-func (s *Store) ExpireMappings() (int, error)   { return 0, unimplementedTransition() }
 
 func (s *Store) AddService(ServiceSpec) (ServiceSnapshot, error) {
 	return ServiceSnapshot{}, unimplementedTransition()
