@@ -132,7 +132,16 @@ type CheckpointEvidenceVerifier interface {
 }
 
 type Verifier struct{ issuers IssuerResolver }
-type verifiedAuthority struct{}
+
+// verifiedAuthority is private so only verifier.go can construct an authority
+// after checking the exact frozen RouteGrant bytes and all caller bindings.
+type verifiedAuthority struct {
+	key                 AuthorityKey
+	grantDigest         RouteGrantDigest
+	expiresAt           uint64
+	checkpoint          CheckpointDigest
+	authorityGeneration AuthorityGeneration
+}
 type verifiedCheckpoint struct{}
 type VerifiedAuthority struct{ seal verifiedAuthority }
 type VerifiedCheckpoint struct{ seal verifiedCheckpoint }
