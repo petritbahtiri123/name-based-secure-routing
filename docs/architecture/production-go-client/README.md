@@ -68,3 +68,7 @@ Human decision 1 is approved: the client authenticates only to its enrolled
 Source Operator ACP. Cross-operator authorization and federation negotiation
 remain operator-layer responsibilities transparent to the client; delivery by
 that ACP never replaces independent RouteGrant/profile verification.
+Human decision 2 is approved: there is no ACP freshness check per Application
+Stream. Local authority is usable only while its grant, signed checkpoint,
+credential/policy validity, and authority generation remain current; after
+freshness expiry, new authority-dependent work fails closed until refresh.

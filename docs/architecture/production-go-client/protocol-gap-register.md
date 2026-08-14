@@ -17,6 +17,14 @@ operator negotiation are not client responsibilities. Go Core nevertheless
 independently verifies the final signed RouteGrant and enrolled-profile
 bindings; authenticated ACP delivery is not authority by itself.
 
+Approved Tranche 2 decision 2 fixes client freshness behavior: checkpoints are
+obtained through bounded polling, push is only a refresh hint, and no ACP check
+occurs per Application Stream. Local authority remains usable only through the
+earliest applicable grant, checkpoint, credential/policy, or generation limit.
+After freshness expiry, new authority-dependent state fails closed; existing
+admitted streams are not silently reauthorized and remain subject to the
+separately defined revocation and close-versus-drain policy.
+
 | Gap | Why unresolved | Blocking what | Protocol or implementation | Recommended decision |
 |---|---|---|---|---|
 | Authority source direction | Core verifies/uses grants; Go peer loads fixtures; no live acquisition exchange | Production channel creation and TS-B authorization | Decision resolved; contract not frozen | Standard source is the NBSR Authority Control Plane behind `AuthorityProvider`; freeze its API/transport/authentication without changing Core wire |

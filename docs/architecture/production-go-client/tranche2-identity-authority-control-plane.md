@@ -1,6 +1,6 @@
 # Tranche 2 identity and Authority Control Plane design
 
-**Status:** Proposed freeze; human decision 1 approved, decisions 2-3 pending
+**Status:** Proposed freeze; human decisions 1-2 approved, decision 3 pending
 
 **Baseline:** `codex/nbsr-v3-wp0-wp1` at
 `8189d917e50df67e740fc3f3e8a5195f7cac7219`
@@ -281,6 +281,12 @@ checkpoint's explicit `fresh_until` and immediately after a valid push hint,
 network recovery, wake, credential/config change, or generation discontinuity.
 Polling coalesces per authority/profile and has bounded jitter/retries.
 
+The client MUST NOT perform an ACP freshness check per Application Stream. It
+MAY use already-valid local authority without a control-plane round trip only
+while the RouteGrant, signed freshness checkpoint, credential/policy validity,
+and captured authority generation are all current. Application Stream creation
+still performs the local final authority-generation and revocation gate.
+
 The client may trust cached unconsumed grants only while all are true:
 
 - grant and enclosing result are unexpired;
@@ -294,14 +300,15 @@ Therefore the maximum disconnected trust is explicit:
 
 `min(grant expiry, checkpoint fresh_until, credential/policy expiry) - now`.
 
-It is never unlimited and can be zero. When freshness cannot be established,
-new grant acquisition, SC creation, TS-B preparation, credit allocation, and
-new Application Streams fail closed once the checkpoint expires. Existing
-streams obey frozen WP4 behavior: verified terminal RouteGrant/channel
-revocation resets them; ordinary inability to refresh alone stops new work and
-does not invent a retroactive revoke before existing authority expires. An
-operator profile MAY require earlier stream termination, but that policy must
-be explicit and cannot extend any authority.
+It is never unlimited and can be zero. Once freshness expires, no new
+authority-dependent work, Service Channel, credit allocation, or Application
+Stream may be created until freshness is re-established. Existing already-
+admitted streams are not silently reauthorized: they follow the separately
+defined revocation and close-versus-drain policy. Verified terminal
+RouteGrant/channel revocation still resets them under frozen WP4 behavior;
+ordinary inability to refresh does not invent a retroactive revoke before
+existing authority expires. An operator profile MAY require earlier stream
+termination, but that policy must be explicit and cannot extend authority.
 
 ## Authority-generation barrier
 
@@ -408,7 +415,7 @@ bounded; and malformed ACP traffic cannot crash the client.
 | ACP endpoint/rate-limit service | CONTROL-PLANE IMPLEMENTATION | Connection reuse, quotas, bounded parser/idempotency storage and observability |
 | Workload identity requiredness | RESOLVED BY EXISTING PROTOCOL | Optional policy context; deployment profile may require it |
 | Client ACP trust domain | CLIENT IMPLEMENTATION | Approved: authenticate only the enrolled Source Operator ACP; all cross-operator/federation authority remains behind that boundary |
-| Maximum freshness/offline window | HUMAN DECISION REQUIRED | Approve profile policy/bounds after measurement; cannot exceed earliest signed expiry |
+| Freshness/offline trust behavior | CLIENT IMPLEMENTATION | Approved: no per-stream ACP check; bounded polling, hint-only push, and finite trust ending at the earliest applicable expiry |
 | Durable rollback anchor | HUMAN DECISION REQUIRED | Remote ACP floor recommended; TPM is stronger optional local layer |
 
 ## Human protocol/security decisions
@@ -427,17 +434,23 @@ not permit the client to accept a grant merely because the enrolled ACP
 transport delivered it, and it does not define or modify federation wire
 semantics.
 
-The following decisions remain pending:
+**Approved decision 2 — freshness and offline trust.** The client MUST NOT
+perform an ACP freshness check per Application Stream. It MAY continue using
+already-valid local authority only while the RouteGrant, signed freshness
+checkpoint, credential/policy validity, and authority generation are all
+valid. Checkpoints come from bounded polling; optional push is only a refresh
+hint. After freshness expiry, the client rejects new authority-dependent work,
+new Service Channels, credit allocation, and new Application Streams until
+freshness is re-established. Existing admitted streams are not silently
+reauthorized and follow the separately approved revocation and close-versus-
+drain policy. Maximum offline trust is finite and ends at the earliest
+applicable authority or freshness expiry. Exact polling intervals, checkpoint
+lifetimes, and resource bounds remain measured profile configuration rather
+than invented protocol constants.
 
-1. **Freshness/offline policy bounds.** Recommended: signed operator/profile
-   bounds with a short checkpoint lifetime measured separately for router and
-   interactive-client availability, always capped by grant/credential expiry.
-   Alternative: zero offline trust (online checkpoint for every new authority
-   lifecycle). Zero offline trust minimizes stale permission but makes ACP
-   outages stop all new service/channel work and increases load; bounded
-   checkpoints preserve lightweight operation while creating an explicit
-   maximum revocation-latency window.
-2. **Rollback anchor.** Recommended: persist a signed ACP checkpoint generation
+The following decision remains pending:
+
+1. **Rollback anchor.** Recommended: persist a signed ACP checkpoint generation
    floor and require a fresh ACP checkpoint after restart before new
    authority-dependent work; use TPM monotonic storage when available as an
    additional defense. Alternative: require TPM/secure-element monotonic state
@@ -445,9 +458,9 @@ The following decisions remain pending:
    but loses offline startup; mandatory hardware gives stronger local rollback
    resistance but excludes or complicates unsupported devices.
 
-The two pending decisions do not block a coherent design: they are explicit
-approval inputs to the protocol profile and implementation plan. None permits
-a Core, P1F, or P2D wire change.
+The remaining decision does not block a coherent design: it is an explicit
+approval input to the protocol profile and implementation plan. It does not
+permit a Core, P1F, or P2D wire change.
 
 ## Proposed Tranche 2 implementation decomposition
 
@@ -493,5 +506,5 @@ Placeholder scan: no unresolved placeholders or invented timing defaults remain.
 Consistency: the proposed ACP carries unchanged signed RouteGrant bytes and does
 not alter Core admission. Scope: runtime, live networking, rotation, resolver,
 and platform adapters are excluded. Ambiguity: all new wire behavior, the
-approved Source Operator ACP boundary, and the two pending human policy choices
-are explicitly classified.
+approved Source Operator ACP and freshness boundaries, and the one pending
+human policy choice are explicitly classified.
