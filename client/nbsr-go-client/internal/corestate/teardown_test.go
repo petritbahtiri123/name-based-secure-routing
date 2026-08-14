@@ -169,6 +169,62 @@ func TestRepeatedLifecycleTeardownNeverResurrectsStaleGeneration(t *testing.T) {
 	}
 }
 
+func TestLargeBoundedPopulation(t *testing.T) {
+	s := teardownStore(t, nil)
+	operations := 0
+	for cycle := 0; cycle < 512; cycle++ {
+		generation := TSGeneration(cycle + 1)
+		channel := byte(cycle%254 + 1)
+		if err := s.OpenGeneration(generation); err != nil {
+			t.Fatal(err)
+		}
+		operations++
+		assertStoreHealthy(t, s)
+
+		owner := mustAddService(t, s, serviceSpec(generation, channel))
+		operations++
+		assertStoreHealthy(t, s)
+
+		stream := StreamSpec{Generation: generation, Handle: owner.Handle, StreamID: 1, LocalFlowID: 1}
+		mustInsertStream(t, s, stream)
+		operations++
+		assertStoreHealthy(t, s)
+
+		if err := s.FinishStream(generation, owner.Handle, stream.StreamID, TerminalCompleted); err != nil {
+			t.Fatal(err)
+		}
+		operations++
+		assertStoreHealthy(t, s)
+
+		if err := s.RemoveStream(generation, owner.Handle, stream.StreamID); err != nil {
+			t.Fatal(err)
+		}
+		operations++
+		assertStoreHealthy(t, s)
+
+		if err := s.CloseService(generation, owner.Handle); err != nil {
+			t.Fatal(err)
+		}
+		operations++
+		assertStoreHealthy(t, s)
+
+		if err := s.RemoveService(generation, owner.Handle); err != nil {
+			t.Fatal(err)
+		}
+		operations++
+		assertStoreHealthy(t, s)
+
+		if err := s.CloseGeneration(generation); err != nil {
+			t.Fatal(err)
+		}
+		operations++
+		assertStoreHealthy(t, s)
+	}
+	if operations != 4096 {
+		t.Fatalf("operations = %d, want 4096", operations)
+	}
+}
+
 func TestGenerationTeardownRejectsStaleUseWithoutPartialState(t *testing.T) {
 	s := teardownStore(t, nil)
 	mustOpen(t, s, 7)
