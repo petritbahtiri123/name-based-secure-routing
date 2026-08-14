@@ -23,6 +23,15 @@ regenerates those results nor converts them into production-client targets.
 The repository-wide [threat model](../../threat-model.md) remains authoritative.
 The client threat model narrows that model; it does not replace it.
 
+## Approved amendment: lightweight tracking and authority source
+
+The approved internal lookup path is `Synthetic Mapping → Service Identity →
+Service Channel → ServiceHandle`. `ServiceHandle` is a bounded, fixed-width,
+session-local implementation identifier, not wire authority. Active streams are
+indexed by `(TS generation, ServiceHandle, QUIC Stream ID)`. The standard
+production authority source is the NBSR Authority Control Plane behind the Go
+Core's narrow `AuthorityProvider` interface.
+
 ## Evidence inventory
 
 | Capability | Exists | Language | Production-ready | Missing |

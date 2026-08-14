@@ -14,8 +14,9 @@ cannot manufacture RouteIntents, RouteGrants, credits, or fallback routes.
 
 ## Data and ownership flow
 
-`resolver input → Mapping Manager → RouteIntent → RouteGrant Manager → TS Pool
-and Selector → SC Manager → Credit Manager → Stream Forwarder`
+`resolver input → Mapping Manager → Service Identity → RouteIntent → RouteGrant
+Manager → TS Pool and Selector → SC Manager/ServiceHandle → Credit Manager →
+Stream Forwarder`
 
 For a captured flow, the Mapping Manager resolves the complete scoped mapping.
 The RouteGrant Manager returns an exact verified grant or a stable failure. The
@@ -29,15 +30,15 @@ binds its real stream ID, waits for ACCEPT, and only then forwards payload.
 | Component | Responsibility and state | Inputs → outputs |
 |---|---|---|
 | Platform Adapter | Capture/resolution integration, local peer identity, bypass containment; bounded pending flows | OS event/flow → scoped flow or failure |
-| Mapping Manager | Atomic Synthetic-IP allocation, lookup, expiry, invalidation, collision state | canonical name/context → mapping + RouteIntent |
+| Mapping Manager | Atomic Synthetic-IP/MappingID allocation, service correlation, expiry, invalidation, collision state | canonical name/context → mapping + Service Identity + RouteIntent |
 | Identity Manager | Purpose-separated key references, signing/TLS operations, enrollment state | identity request → proof/key handle/status |
-| Authority Provider interface | External acquisition boundary; not Core wire | authenticated RouteIntent/TS key context → signed RouteGrant/revocation status |
+| Authority Provider interface | Narrow internal boundary to the standard NBSR Authority Control Plane; never mints locally | authenticated RouteIntent/TS key context → signed RouteGrant/revocation/freshness status |
 | RouteGrant Manager | Coalescing, verification, bounded cache, renewal/invalidation | RouteIntent + identity + TS key → verified exact grant |
 | TS Manager/Pool | Connections, reuse keys, health, lifetime, two-generation rotation | edge/profile/identity/policy → TS handle |
 | Atomic Session Selector | Single linearization point for each new flow | reuse key → pinned active generation |
-| SC Manager | Service-specific admission, index, quotas, drain/revoke/delete | TS + grant + service → channel handle |
+| SC Manager/Service Registry | Service-specific admission, fixed-width session-local ServiceHandle allocation, quotas, drain/revoke/delete | TS + grant + service → authenticated channel + compact handle |
 | Credit Manager | Two-epoch windows, slot allocation, one pending refill | channel → bound credit or backpressure |
-| Stream Forwarder | Actual stream open/ACCEPT/payload forwarding, half-close/cancel | pinned channel + local flow → terminal result |
+| Stream Registry/Forwarder | O(1)-style lookup by TS generation + ServiceHandle + actual stream ID; ACCEPT/payload forwarding, half-close/cancel | pinned handle + local flow → terminal result |
 | Retry Controller | Typed deadlines, budgets, jitter, circuits; no payload retry | operation class/result → retry/stop decision |
 | Policy Manager | Validated local configuration and local-app authorization | app identity + destination → allow/deny/context |
 | Durable State Store | Atomic versioned security config/key references only | signed/admin update → durable snapshot/status |
@@ -55,6 +56,60 @@ generation, channel binding)` atomically; the credit/stream boundary validates
 the same generation again. This is the linearization barrier that prevents a
 selector/revocation race from reviving authority.
 
+## Lightweight mapping, service, and stream registries
+
+Synthetic IP is not Service Identity. The authoritative in-memory path is:
+
+`Synthetic Mapping → Service Identity → authenticated Service Channel →
+ServiceHandle`
+
+`ServiceHandle` is a nonzero fixed-width integer local to one TS generation.
+Use `uint32` initially unless measured channel capacity requires `uint64`.
+Client and server may each choose their own local handle value; it aliases the
+already negotiated channel and is never compared across peers or treated as
+authority. The existing `channel_id`, channel generation, RouteGrant digest,
+service binding, and P2D validation remain unchanged on wire and at admission.
+Allocation is monotonic and a numeric value is never reused within the same TS
+generation, even after its SC is removed. Handle-space exhaustion triggers
+fail-closed TS replacement; a new TS generation starts a fresh handle space.
+
+| Registry | Key | Bounded value | Lifetime/teardown |
+|---|---|---|---|
+| MappingTable | SyntheticMappingID; adapter may additionally index local Synthetic IP/context | Service Identity, expiry, policy context, RouteIntent reference | Expire/invalidate; reject new flows; release only after flow references reach zero |
+| ServiceTable | `(TS generation, ServiceHandle)` with reverse SC/channel-ID index | SC identity, stable service digest, authority generation, credit reference, active-stream count | Remove after revoke/close/drain and active-stream count reaches zero; stale handles fail |
+| StreamTable | `(TS generation, ServiceHandle, QUIC Stream ID)` | local flow reference and compact lifecycle state | Insert after bounded reservation; remove on terminal close/reset/cancel; then decrement service count |
+
+All registries have configured entry and byte caps, preallocation or bounded
+growth policy, O(1)-style hash/array lookup, explicit overload errors, and
+periodic plus event-driven cleanup. Capacity is reserved before attacker-driven
+work or goroutine creation. ServiceTable and StreamTable are never persisted.
+The stable service digest is computed/verified once at SC negotiation and kept
+for integrity/correlation/audit; normal stream routing does not hash the service
+again. Neither that digest nor the RouteGrant digest authorizes a stream by
+equality: current RouteGrant and SC authority must still validate.
+
+The server routes an admitted stream through the existing authenticated
+Service Channel identity and may use its own corresponding local ServiceHandle
+for fast lookup. It never routes by gateway/destination IP alone. The frozen
+P2D stream preface still carries `channel_id` and generation; replacing that
+with ServiceHandle or adding a new hash field would be **REQUIRES SEPARATE
+PROTOCOL APPROVAL**.
+
+## Synthetic-IP correlation strategies
+
+| Approach | Properties | Decision |
+|---|---|---|
+| A — per-active-service local Synthetic IP | Universal IP/TCP correlation, lowest adapter complexity; local mappings still share one gateway/TS | **Initial proxy-first recommendation** |
+| B — shared Synthetic IP plus MappingID/FlowContext | Reduces local address use but requires the adapter to preserve resolver-to-socket context safely | Core-compatible future option after platform proof |
+| C — infer SNI/Host/application metadata | Protocol-specific, encrypted or absent for many workloads, creates parsing/confusion surface | Rejected as generic NBSR mechanism |
+
+One literal Synthetic IP plus identical destination port cannot distinguish
+simultaneous unrelated services from ordinary IP/TCP metadata alone. Therefore
+Approach B requires an OS/platform correlation mechanism delivered to Go Core
+before admission; MappingID is correlation only and does not grant authority.
+Approach A does not mean one public/server address per service: many local
+Synthetic IPs converge on one regional gateway, one TS, and many SCs.
+
 ## Identity model
 
 The device enrollment identity establishes the managed device. A workload/user
@@ -68,10 +123,13 @@ Key rotation builds new authority using the new key generation, atomically
 switches only after validation, and drains old-key state. Loss invokes
 reenrollment; the client does not recover by weakening proof or revocation.
 
-## RouteGrant lifecycle
+## Authority Control Plane and RouteGrant lifecycle
 
-The client requests grants through a local/adjacent Authority Provider interface
-because Core v0.2 contains no acquisition exchange. The request includes the
+The standard production client requests grants from the NBSR Authority Control
+Plane through Go Core's narrow `AuthorityProvider` boundary because Core v0.2
+contains no acquisition exchange. The control plane owns or coordinates client
+authentication, acquisition, renewal, revocation freshness, approved
+authority/profile selection, and replacement-generation freshness. The request includes the
 normalized RouteIntent, client/workload context, desired transport/port,
 destination constraints, policy version, and fresh TS public-key thumbprint.
 The manager independently verifies the returned signed grant before caching it.
@@ -88,9 +146,12 @@ commit boundary. Channel recreation, retry requiring a distinct channel, and
 every TS generation obtain a fresh grant/nonce; remaining validity never makes a
 consumed grant reusable.
 
-The provider transport, authentication, request idempotency, response freshness,
-renewal, and revocation feed are not defined by existing Core wire semantics and
-remain separate protocol/product decisions.
+Go Core independently verifies all returned authority and the provider never
+manufactures authority locally. Provider backend/transport details do not enter
+session, channel, credit, or stream state machines. Exact control-plane
+transport, authentication, request idempotency, response freshness, renewal,
+and revocation-feed contracts remain to be frozen; any new Core/wire message is
+separate protocol work.
 
 ## TS and SC lifecycle
 
@@ -167,6 +228,8 @@ configuration, never serialization of live security state.
 | SCs/streams | Existing protocol caps remain authoritative | lower client/global/per-service limits configurable | concurrency and fairness |
 | Pending flows/requests | Always finite | per-service and global caps; overload rejects/backpressures | queue high-water/wait |
 | Mapping/grant caches | Always finite and expiring | entry/byte limits and LRU only among safely discardable entries | entries/bytes/evictions |
+| ServiceTable | One entry per admitted live/draining SC, bounded by SC caps | fixed-width handle; reverse channel index; no per-stream digest copy | entries/bytes/lookup/cleanup |
+| StreamTable | One compact entry per active/pending admitted flow, bounded by stream/queue caps | key is TS generation + handle + actual stream ID | entries/bytes/allocations/terminal cleanup |
 | Goroutines | Proportional to configured live work, never input packets | worker pools/semaphores; no detached retry goroutine | idle/peak/leak count |
 | Memory/GC | Derived after representative measurements | byte budgets and buffer pools are implementation defaults | RSS/heap/allocs/pauses |
 | Handles | Bound by TS/stream/config limits and OS ceiling | startup rejects inconsistent limits | idle/peak handle count |

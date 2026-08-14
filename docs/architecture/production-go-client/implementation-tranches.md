@@ -7,14 +7,19 @@ approved and is independently testable.
 1. **Platform-independent core skeleton and bounded state models.** Define
    immutable identifiers/handles, typed errors, lifecycle interfaces, limits,
    clock/randomness abstractions, policy inputs, and deterministic state-machine
-   tests. No QUIC or OS interception.
-2. **Identity and local Authority Provider integration.** Implement approved
-   key handles, startup validation, grant acquisition/verification, coalescing,
-   cache, renewal, cancellation, revocation freshness, and recovery tests.
+   tests. Include fixed-width ServiceHandle allocation plus bounded MappingTable,
+   ServiceTable, and StreamTable with capacity, stale-handle, teardown, and
+   allocation tests. No QUIC or OS interception.
+2. **Identity and NBSR Authority Control Plane integration.** Implement the
+   approved `AuthorityProvider` contract, key handles, startup validation, grant
+   acquisition/verification, coalescing, cache, renewal, cancellation,
+   revocation freshness, generation data, and recovery tests. Keep backend
+   transport outside session/stream components.
 3. **Transport Session and Service Channel ownership.** Integrate Go QUIC/TLS
    using verified interop semantics; add reuse keys, pool, selector, independent
-   channel authorization, multi-service isolation, expiry/revocation, and
-   Go↔Rust tests. No rotation yet.
+   channel authorization, local ServiceHandle binding over existing channel IDs,
+   multi-service isolation, expiry/revocation, and Go↔Rust tests. Prove one TS
+   carries many SCs without destination-IP routing. No rotation yet.
 4. **Stream Credits and Application Stream path.** Implement exact P2D client
    ownership, atomic slots/refill, actual stream-ID binding, payload-before-
    ACCEPT quarantine, forwarding, half-close, cancellation, backpressure, and
@@ -24,7 +29,8 @@ approved and is independently testable.
    selection, cross-generation revocation, drain/destruction, sleep/network
    changes, crash/restart, and cap-bound adversarial tests.
 6. **First user-space proxy adapter.** Add scoped resolver/proxy integration,
-   local application attribution, Synthetic-IP mapping/collision containment,
+   local application attribution, Approach A per-active-service local
+   Synthetic-IP mapping/collision containment,
    install/rollback, and end-to-end application tests. State its transparency
    limitations explicitly.
 7. **Observability and resource hardening.** Add redacted bounded-cardinality
@@ -42,5 +48,9 @@ approved and is independently testable.
     upgrade compatibility, privacy/log review, independent security review, and
     hardware-specific benchmark methodology before any production claim.
 
-The earliest detailed implementation plan should cover only tranche 1 after the
-human decisions in the gap register are resolved or explicitly scoped out.
+After human approval of this amendment, the design is ready for a detailed plan
+covering tranche 1 only; no additional protocol, authority-control-plane,
+resolver, revocation, or platform decision is needed for those internal bounded
+state models. The plan must record all later unresolved gaps as explicit
+exclusions and must not plan wire changes, live authority-provider integration,
+or platform interception ahead of their separate approvals.

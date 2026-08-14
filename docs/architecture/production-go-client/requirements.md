@@ -42,6 +42,18 @@ may have multiple classifications where the concern crosses boundaries.
   resolver failover policy before production implementation.
 - **PGC-016 — MAY — PLATFORM_INTEGRATION:** Support proxy, TUN, and native
   interception adapters around the same core; no adapter may broaden authority.
+- **PGC-017 — MUST — CLIENT_IMPLEMENTATION, SECURITY:** Synthetic IP is only the
+  local application-facing correlation entry point. It is never authoritative
+  service identity, authorization, or an origin identifier.
+- **PGC-018 — MUST — PLATFORM_INTEGRATION:** The initial proxy-first adapter uses
+  one local Synthetic IP mapping per simultaneously active service/context when
+  destination IP and port would otherwise be ambiguous. These virtual mappings
+  do not imply one public or gateway IP per service.
+- **PGC-019 — MAY — PLATFORM_INTEGRATION:** A later adapter may reuse one literal
+  Synthetic IP across services only when it supplies Go Core a bounded local
+  `MappingID`/`FlowContext` that preserves resolver-to-flow correlation. That
+  identifier is local state, not authority. SNI, Host, or other application
+  metadata must not be the generic correlation mechanism.
 
 ## Identity and authority
 
@@ -91,8 +103,17 @@ may have multiple classifications where the concern crosses boundaries.
   it; otherwise it fails closed.
 - **PGC-036 — MUST — REQUIRES_PROTOCOL_DECISION:** Existing Core wire contracts
   are sufficient to verify/use a supplied RouteGrant but not to acquire,
-  renew, or receive revocation. Approve a local authority-provider API and its
-  authentication/freshness semantics, or separately approve a new protocol.
+  renew, or receive revocation. The approved production source is the NBSR
+  Authority Control Plane behind a narrow internal `AuthorityProvider`; its
+  authentication, transport, freshness, and failure contract must be frozen
+  separately, and any new NBSR wire message requires separate protocol approval.
+- **PGC-038 — MUST — CLIENT_IMPLEMENTATION, SECURITY:** The Authority Control
+  Plane owns or coordinates client authentication, RouteGrant acquisition and
+  renewal, revocation freshness, authority/profile selection, and generation
+  information for TS replacement. Go Core accepts only independently verified
+  authority; neither the interface nor its implementation may mint authority.
+- **PGC-039 — MUST — CLIENT_IMPLEMENTATION:** Authority-provider transport and
+  backend details remain outside resolver, TS, SC, credit, and stream logic.
 
 ## Transport Sessions and rotation
 
@@ -215,6 +236,37 @@ may have multiple classifications where the concern crosses boundaries.
 - **PGC-082 — MUST — SECURITY:** A compromised local application receives only
   authority implied by its authenticated local identity/policy and destination;
   possession of a Synthetic IP alone is not authority.
+- **PGC-083 — MUST — CLIENT_IMPLEMENTATION:** After resolution, correlate the
+  mapping to the stable NBSR Service Identity. During SC establishment allocate
+  a nonzero, fixed-width, session-local `ServiceHandle` (prefer `uint32` unless
+  measured capacity requires `uint64`) and bind it bijectively to one live SC.
+- **PGC-084 — MUST — CLIENT_IMPLEMENTATION, SECURITY:** `ServiceHandle` is an
+  opaque lookup key, never authorization or a bearer credential. Reuse after
+  teardown must not alias delayed references: handle values are monotonically
+  allocated and never reused within one TS generation. Exhaustion forces safe TS
+  replacement; only destruction of that TS generation resets the handle space.
+- **PGC-085 — MUST — EXISTING_PROTOCOL, CLIENT_IMPLEMENTATION:** Retain the
+  verified service identity, RouteGrant digest, channel ID/generation, and
+  authority generation once in bounded SC state. Normal per-stream lookup uses
+  `(TS generation, ServiceHandle, actual QUIC Stream ID)` and performs no new
+  service hash solely for routing.
+- **PGC-086 — MUST — EXISTING_PROTOCOL:** Preserve the existing authenticated
+  `channel_id` and generation in P2D wire/admission. `ServiceHandle` is a local
+  client/server alias for that accepted SC; replacing or adding a wire field is
+  **REQUIRES SEPARATE PROTOCOL APPROVAL**.
+- **PGC-087 — MUST — CLIENT_IMPLEMENTATION:** Maintain bounded O(1)-style
+  `MappingTable`, `ServiceTable`, and `StreamTable` registries with explicit
+  entry/byte capacities, expiry or terminal cleanup, deterministic teardown,
+  and overload rejection. No registry grows from attacker input without a
+  successful bounded reservation.
+- **PGC-088 — MUST — CLIENT_IMPLEMENTATION:** `MappingTable` contains mapping ID,
+  service identity, expiry, and policy context. `ServiceTable` contains TS
+  generation, handle, SC identity, stable service digest, authority generation,
+  credit reference, and active-stream count. `StreamTable` contains TS
+  generation, handle, actual QUIC stream ID, local-flow reference, and lifecycle.
+- **PGC-089 — MUST — SECURITY:** `ServiceTable` and `StreamTable` are strictly
+  ephemeral and are rebuilt only from fresh verified authority after restart.
+  Teardown removes streams before their service/handle and releases all counts.
 - **PGC-090 — MUST — OPERATIONS:** Future core acceptance includes deterministic
   unit/state-machine tests; Go↔Rust interop; multi-service isolation; expiry,
   revocation, recovery, rotation, SC/credit lifecycle, cancellation, downgrade,
@@ -230,6 +282,14 @@ may have multiple classifications where the concern crosses boundaries.
   Windows, Linux, and router adapter acceptance. Each adapter proves capture,
   bypass blocking, collision/network-change handling, least privilege,
   install/upgrade/rollback, and platform-specific resource behavior.
+- **PGC-094 — SHOULD — CLIENT_IMPLEMENTATION, OPERATIONS:** Structural priority
+  is correctness, bounded state, minimal memory, minimal allocations, O(1)-style
+  lookups, no unnecessary per-stream cryptography, and shared TS reuse across
+  many independently authorized SCs. Further optimization requires measurement.
+- **PGC-095 — MUST — SECURITY:** A stable service or RouteGrant digest is only
+  an integrity, correlation, and audit binding. Digest equality never authorizes
+  routing or admission; current RouteGrant and Service Channel authority must be
+  independently live and valid.
 
 ## Retry matrix
 
