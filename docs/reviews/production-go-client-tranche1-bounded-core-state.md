@@ -86,3 +86,18 @@ Environment emitted by Go: Windows/amd64, Intel Core i5-10210U CPU @ 1.60GHz.
 ## Final closure
 
 All Task 9 acceptance commands and semantic gates are recorded above from fresh local execution. There is no product-test failure or inconclusive gate. No Tasks 1–8 behavior changed during closure, and no Task 10 work was started.
+
+## Final-review correction
+
+After closure, final review identified one nil-safety defect in `StateError.Is`: a typed-nil `*StateError` passed as the `errors.Is` target satisfied the type assertion and was then dereferenced. `TestStateErrorDoesNotPanicForTypedNilTarget` was added RED-first; before the production change it reproducibly panicked at `errors.go:43`. The sole code change adds `t != nil` to the existing match predicate, so a typed-nil target returns false without changing normal sentinel matching.
+
+Fresh local validation from `client/nbsr-go-client` with Go `1.26.5` (and GCC `16.2.0` at `C:\msys64\ucrt64\bin` for the race run) recorded:
+
+| Command | Observed result |
+| --- | --- |
+| `go test ./internal/corestate -run '^TestStateErrorDoesNotPanicForTypedNilTarget$' -count=1` | **PASS**, exit `0`: `ok nbsr.local/client/nbsr-go-client/internal/corestate 0.525s`. |
+| `go test ./... -count=1` | **PASS**, exit `0`: `ok nbsr.local/client/nbsr-go-client/internal/corestate 0.643s`. |
+| `go test -race ./... -count=1` | **PASS**, exit `0`: `ok nbsr.local/client/nbsr-go-client/internal/corestate 1.640s`. |
+| `go vet ./...` | **PASS**, exit `0`, no diagnostics. |
+
+The package now lists 93 top-level tests. This correction changes no prior Tranche 1 choice, protected path, or excluded-surface boundary.

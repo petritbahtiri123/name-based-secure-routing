@@ -91,6 +91,15 @@ func TestStateErrorMatchesEverySentinel(t *testing.T) {
 	}
 }
 
+func TestStateErrorDoesNotPanicForTypedNilTarget(t *testing.T) {
+	actual := &StateError{Code: CodeInvalidHandle}
+	var target *StateError
+
+	if errors.Is(actual, target) {
+		t.Fatal("StateError matched a typed-nil target")
+	}
+}
+
 func TestLogicalCostIsDeterministic(t *testing.T) {
 	mapping, err := mappingCost(MappingSpec{
 		ServiceIdentity: "service",

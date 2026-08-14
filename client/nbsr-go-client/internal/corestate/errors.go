@@ -40,7 +40,7 @@ func (e *StateError) Error() string {
 
 func (e *StateError) Is(target error) bool {
 	t, ok := target.(*StateError)
-	return ok && e != nil && e.Code == t.Code
+	return ok && e != nil && t != nil && e.Code == t.Code
 }
 
 var (
