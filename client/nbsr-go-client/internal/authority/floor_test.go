@@ -71,6 +71,22 @@ func TestFloorRejectsMalformedOversizedAndWrongBinding(t *testing.T) {
 	}
 }
 
+func TestFloorLossAfterPersistenceIsInvalidNotPristine(t *testing.T) {
+	store := NewMemoryGenerationFloorStore(32)
+	if err := store.StoreHigher(context.Background(), testFloor(9)); err != nil {
+		t.Fatal(err)
+	}
+	store.mu.Lock()
+	delete(store.floors, floorKey{sourceOperator: "source-a", profile: "profile-a"})
+	store.mu.Unlock()
+	if _, err := store.Load(context.Background(), "source-a", "profile-a"); !errors.Is(err, ErrFloorInvalid) {
+		t.Fatalf("lost floor error = %v, want ErrFloorInvalid", err)
+	}
+	if err := store.StoreHigher(context.Background(), testFloor(10)); !errors.Is(err, ErrFloorInvalid) {
+		t.Fatalf("lost floor recovery error = %v, want ErrFloorInvalid", err)
+	}
+}
+
 func testCheckpoint(generation AuthorityGeneration) CheckpointDigest {
 	var checkpoint CheckpointDigest
 	checkpoint[0] = byte(generation)

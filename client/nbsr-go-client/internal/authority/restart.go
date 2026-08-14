@@ -134,12 +134,29 @@ func (g *RestartGate) AcceptFresh(ctx context.Context, request FreshnessRequest,
 	}
 
 	g.mu.Lock()
+	publicationNow := g.clock.NowUnix()
 	if g.epoch != epoch || g.state != RestartFreshnessRequired || g.sourceOperator != sourceOperator || g.profile != profile {
 		if g.epoch == epoch {
 			g.accepting = false
 		}
 		g.mu.Unlock()
 		return VerifiedCheckpoint{}, ErrNotReady
+	}
+	if !validUnixTime(publicationNow) {
+		g.accepting = false
+		g.state = RestartFailClosed
+		g.epoch++
+		g.mu.Unlock()
+		return VerifiedCheckpoint{}, ErrInvalidAuthority
+	}
+	if publicationNow >= claims.FreshUntil {
+		// The verified higher floor remains useful rollback protection, but the
+		// evidence has expired before readiness can linearize.
+		g.floor = candidate
+		g.hasFloor = true
+		g.accepting = false
+		g.mu.Unlock()
+		return VerifiedCheckpoint{}, ErrStaleFreshness
 	}
 	g.floor = candidate
 	g.hasFloor = true

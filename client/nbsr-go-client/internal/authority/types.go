@@ -213,7 +213,14 @@ type SignedGenerationFloor struct {
 }
 
 type GenerationFloorStore interface {
+	// Load returns ErrFloorNotFound only for authenticated, pristine storage for
+	// the requested source-operator/profile enrollment. If a floor was ever
+	// stored for that enrollment, deletion, loss, rollback, or any uncertainty
+	// about its presence must return ErrFloorInvalid. Durable adapters are a
+	// later concern, but must preserve this distinction.
 	Load(context.Context, string, string) (SignedGenerationFloor, error)
+	// StoreHigher durably records only a semantic floor that is higher than the
+	// current floor, or byte-identical at the same generation.
 	StoreHigher(context.Context, SignedGenerationFloor) error
 }
 

@@ -87,6 +87,86 @@ func TestRestartAllowsMissingFloorButStillRequiresFreshness(t *testing.T) {
 	}
 }
 
+func TestRestartFailsClosedOnFloorLossAfterPersistence(t *testing.T) {
+	store := NewMemoryGenerationFloorStore(32)
+	if err := store.StoreHigher(context.Background(), testFloor(9)); err != nil {
+		t.Fatal(err)
+	}
+	store.mu.Lock()
+	delete(store.floors, floorKey{sourceOperator: "source-a", profile: "profile-a"})
+	store.mu.Unlock()
+	gate, err := NewRestartGate(store, testCheckpointVerifier{}, testClock{now: 100}, noopObserver{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := gate.Load(context.Background(), "source-a", "profile-a"); !errors.Is(err, ErrFloorInvalid) || gate.State() != RestartFailClosed {
+		t.Fatalf("lost floor load: err=%v state=%v", err, gate.State())
+	}
+	if _, err := gate.AcceptFresh(context.Background(), freshnessRequest(8), freshnessEvidence(8)); !errors.Is(err, ErrNotReady) {
+		t.Fatalf("lost floor accepted rollback: %v", err)
+	}
+}
+
+func TestRestartDoesNotPublishAtFreshnessExpiryAfterDelayedStore(t *testing.T) {
+	store := &raceFloorStore{floor: testFloor(7), storeStarted: make(chan struct{}), releaseStore: make(chan struct{})}
+	clock := &mutableRestartClock{now: 100}
+	observer := &task4Observer{}
+	gate, err := NewRestartGate(store, fixedFreshnessVerifier{freshUntil: 200}, clock, observer)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := gate.Load(context.Background(), "source-a", "profile-a"); err != nil {
+		t.Fatal(err)
+	}
+	result := make(chan error, 1)
+	go func() {
+		_, err := gate.AcceptFresh(context.Background(), freshnessRequest(8), freshnessEvidence(8))
+		result <- err
+	}()
+	<-store.storeStarted
+	clock.Set(200)
+	close(store.releaseStore)
+	if err := <-result; !errors.Is(err, ErrStaleFreshness) {
+		t.Fatalf("publication at freshness boundary = %v, want ErrStaleFreshness", err)
+	}
+	if gate.State() != RestartFreshnessRequired || !errors.Is(gate.RequireReady(), ErrNotReady) {
+		t.Fatalf("expired publication state=%v ready=%v", gate.State(), gate.RequireReady())
+	}
+	if got := observer.count(EventRollbackFloorUpdated); got != 0 {
+		t.Fatalf("floor updated events = %d, want 0", got)
+	}
+}
+
+func TestRestartDoesNotPublishAtFreshnessExpiryAfterDelayedVerifier(t *testing.T) {
+	clock := &mutableRestartClock{now: 100}
+	observer := &task4Observer{}
+	verifier := &delayedFreshnessVerifier{freshUntil: 200, started: make(chan struct{}), release: make(chan struct{})}
+	gate, err := NewRestartGate(&scriptedFloorStore{load: testFloor(7)}, verifier, clock, observer)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := gate.Load(context.Background(), "source-a", "profile-a"); err != nil {
+		t.Fatal(err)
+	}
+	result := make(chan error, 1)
+	go func() {
+		_, err := gate.AcceptFresh(context.Background(), freshnessRequest(8), freshnessEvidence(8))
+		result <- err
+	}()
+	<-verifier.started
+	clock.Set(200)
+	close(verifier.release)
+	if err := <-result; !errors.Is(err, ErrStaleFreshness) {
+		t.Fatalf("verifier-boundary publication = %v, want ErrStaleFreshness", err)
+	}
+	if gate.State() != RestartFreshnessRequired || !errors.Is(gate.RequireReady(), ErrNotReady) {
+		t.Fatalf("expired verifier state=%v ready=%v", gate.State(), gate.RequireReady())
+	}
+	if got := observer.count(EventRollbackFloorUpdated); got != 0 {
+		t.Fatalf("floor updated events = %d, want 0", got)
+	}
+}
+
 func TestRestartDoesNotHoldGateLockDuringVerifierOrStore(t *testing.T) {
 	store := &reentrantFloorStore{load: testFloor(7)}
 	verifier := &reentrantCheckpointVerifier{}
@@ -161,6 +241,22 @@ type testClock struct{ now uint64 }
 
 func (c testClock) NowUnix() uint64 { return c.now }
 
+type mutableRestartClock struct {
+	mu  sync.Mutex
+	now uint64
+}
+
+func (c *mutableRestartClock) NowUnix() uint64 {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	return c.now
+}
+func (c *mutableRestartClock) Set(now uint64) {
+	c.mu.Lock()
+	c.now = now
+	c.mu.Unlock()
+}
+
 type testCheckpointVerifier struct{}
 
 func (testCheckpointVerifier) VerifyFreshnessEvidence(_ context.Context, freshness ProviderFreshness, request FreshnessRequest, now uint64) (CheckpointClaims, error) {
@@ -169,6 +265,31 @@ func (testCheckpointVerifier) VerifyFreshnessEvidence(_ context.Context, freshne
 	}
 	generation := AuthorityGeneration(freshness.Evidence[0])
 	return CheckpointClaims{SourceOperator: request.SourceOperator, Profile: request.Profile, Generation: generation, IssuedAt: now - 1, FreshUntil: now + 100, Digest: testCheckpoint(generation)}, nil
+}
+
+type fixedFreshnessVerifier struct{ freshUntil uint64 }
+
+func (v fixedFreshnessVerifier) VerifyFreshnessEvidence(_ context.Context, freshness ProviderFreshness, request FreshnessRequest, now uint64) (CheckpointClaims, error) {
+	if freshness.SourceOperator != request.SourceOperator || freshness.Profile != request.Profile || len(freshness.Evidence) == 0 {
+		return CheckpointClaims{}, ErrBindingMismatch
+	}
+	generation := AuthorityGeneration(freshness.Evidence[0])
+	return CheckpointClaims{SourceOperator: request.SourceOperator, Profile: request.Profile, Generation: generation, IssuedAt: now - 1, FreshUntil: v.freshUntil, Digest: testCheckpoint(generation)}, nil
+}
+
+type delayedFreshnessVerifier struct {
+	freshUntil       uint64
+	started, release chan struct{}
+}
+
+func (v *delayedFreshnessVerifier) VerifyFreshnessEvidence(_ context.Context, freshness ProviderFreshness, request FreshnessRequest, now uint64) (CheckpointClaims, error) {
+	if freshness.SourceOperator != request.SourceOperator || freshness.Profile != request.Profile || len(freshness.Evidence) == 0 {
+		return CheckpointClaims{}, ErrBindingMismatch
+	}
+	close(v.started)
+	<-v.release
+	generation := AuthorityGeneration(freshness.Evidence[0])
+	return CheckpointClaims{SourceOperator: request.SourceOperator, Profile: request.Profile, Generation: generation, IssuedAt: now - 1, FreshUntil: v.freshUntil, Digest: testCheckpoint(generation)}, nil
 }
 
 func freshnessRequest(generation AuthorityGeneration) FreshnessRequest {

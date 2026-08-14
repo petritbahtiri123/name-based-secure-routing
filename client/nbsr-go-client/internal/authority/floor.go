@@ -48,13 +48,14 @@ type MemoryGenerationFloorStore struct {
 	mu          sync.RWMutex
 	maxEvidence int
 	floors      map[floorKey]SignedGenerationFloor
+	enrolled    map[floorKey]struct{}
 }
 
 func NewMemoryGenerationFloorStore(maxEvidence int) *MemoryGenerationFloorStore {
 	if maxEvidence <= 0 || maxEvidence > maxMemoryFloorEvidenceBytes {
 		maxEvidence = maxMemoryFloorEvidenceBytes
 	}
-	return &MemoryGenerationFloorStore{maxEvidence: maxEvidence, floors: make(map[floorKey]SignedGenerationFloor)}
+	return &MemoryGenerationFloorStore{maxEvidence: maxEvidence, floors: make(map[floorKey]SignedGenerationFloor), enrolled: make(map[floorKey]struct{})}
 }
 
 func (s *MemoryGenerationFloorStore) Load(ctx context.Context, sourceOperator, profile string) (SignedGenerationFloor, error) {
@@ -62,9 +63,14 @@ func (s *MemoryGenerationFloorStore) Load(ctx context.Context, sourceOperator, p
 		return SignedGenerationFloor{}, ErrFloorInvalid
 	}
 	s.mu.RLock()
-	floor, ok := s.floors[floorKey{sourceOperator: sourceOperator, profile: profile}]
+	key := floorKey{sourceOperator: sourceOperator, profile: profile}
+	floor, ok := s.floors[key]
+	_, enrolled := s.enrolled[key]
 	s.mu.RUnlock()
 	if !ok {
+		if enrolled {
+			return SignedGenerationFloor{}, ErrFloorInvalid
+		}
 		return SignedGenerationFloor{}, ErrFloorNotFound
 	}
 	return copySignedGenerationFloor(floor, s.maxEvidence)
@@ -81,6 +87,11 @@ func (s *MemoryGenerationFloorStore) StoreHigher(ctx context.Context, candidate 
 	key := floorKey{sourceOperator: candidate.SourceOperator, profile: candidate.Profile}
 	s.mu.Lock()
 	current, exists := s.floors[key]
+	_, enrolled := s.enrolled[key]
+	if exists != enrolled {
+		s.mu.Unlock()
+		return ErrFloorInvalid
+	}
 	if exists {
 		switch {
 		case candidate.Generation < current.Generation:
@@ -95,6 +106,7 @@ func (s *MemoryGenerationFloorStore) StoreHigher(ctx context.Context, candidate 
 		}
 	}
 	s.floors[key] = candidate
+	s.enrolled[key] = struct{}{}
 	s.mu.Unlock()
 	return nil
 }
