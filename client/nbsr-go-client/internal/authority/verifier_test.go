@@ -12,6 +12,7 @@ import (
 )
 
 const frozenRouteGrantKID = "nbsr-test-route-grant-key"
+const frozenMaxUnixTime uint64 = 253_402_300_799
 
 func TestVerifyRouteGrantSealsFrozenFixture(t *testing.T) {
 	candidate, verification, resolver := validFrozenGrantCase(t)
@@ -137,6 +138,227 @@ func TestRouteGrantTargetEdgeComparisonCannotAliasEmbeddedNUL(t *testing.T) {
 	if sameStrings([]string{"destination\x00edge", "z"}, []string{"destination", "edge\x00z"}) {
 		t.Fatal("embedded NUL aliases distinct target-edge sets")
 	}
+}
+
+func TestVerifyRouteGrantRevalidatesIntentDigests(t *testing.T) {
+	candidate, verification, resolver := validFrozenGrantCase(t)
+	for _, mutation := range []struct {
+		name   string
+		mutate func(*VerificationContext)
+		want   error
+	}{
+		{"canonical digest", func(value *VerificationContext) { value.Intent.Digest[0] ^= 1 }, ErrInvalidAuthority},
+		{"key intent digest", func(value *VerificationContext) { value.Key.IntentDigest[0] ^= 1 }, ErrBindingMismatch},
+	} {
+		t.Run(mutation.name, func(t *testing.T) {
+			changed := verification
+			mutation.mutate(&changed)
+			if _, err := mustVerifier(t, resolver).VerifyRouteGrant(context.Background(), candidate, changed); !errors.Is(err, mutation.want) {
+				t.Fatalf("error = %v, want %v", err, mutation.want)
+			}
+		})
+	}
+}
+
+func TestRouteGrantRejectsNonCanonicalFrozenTextIDs(t *testing.T) {
+	candidate, verification, _ := validFrozenGrantCase(t)
+	sign1, err := parseRouteGrantSign1(candidate.ExactRouteGrant)
+	if err != nil {
+		t.Fatal(err)
+	}
+	decoded, err := decodeCBORExact(sign1.payload, defaultCBORLimits())
+	if err != nil {
+		t.Fatal(err)
+	}
+	fields := decoded.(map[uint64]any)
+	for _, test := range []struct {
+		name  string
+		key   uint64
+		value string
+	}{
+		{"uppercase service", 3, "Service.example"},
+		{"control source operator", 4, "source\x01operator"},
+		{"NUL source edge", 5, "source\x00edge"},
+		{"slash target operator", 6, "destination/operator"},
+		{"repeated separator target edge", 7, "destination..edge"},
+		{"overlength service", 3, string(bytes.Repeat([]byte{'a'}, 65))},
+	} {
+		t.Run("signed/"+test.name, func(t *testing.T) {
+			changed := copyGrantFields(fields)
+			if test.key == 7 {
+				changed[test.key] = []any{test.value}
+			} else {
+				changed[test.key] = test.value
+			}
+			if err := verifyRouteGrantFields(changed, verification); !errors.Is(err, ErrInvalidAuthority) {
+				t.Fatalf("error = %v, want ErrInvalidAuthority", err)
+			}
+		})
+		t.Run("context/"+test.name, func(t *testing.T) {
+			changed := verification
+			changed.Intent.TargetEdges = append([]string(nil), verification.Intent.TargetEdges...)
+			switch test.key {
+			case 3:
+				changed.Intent.ServiceIdentity = test.value
+			case 4:
+				changed.Intent.SourceOperator = test.value
+			case 5:
+				changed.Intent.SourceEdge = test.value
+			case 6:
+				changed.Intent.TargetOperator = test.value
+			case 7:
+				changed.Intent.TargetEdges = []string{test.value}
+			}
+			if err := verifyContext(changed, candidate); !errors.Is(err, ErrInvalidAuthority) {
+				t.Fatalf("error = %v, want ErrInvalidAuthority", err)
+			}
+		})
+	}
+}
+
+func TestRouteGrantRejectsUnixTimeAboveFrozenMaximum(t *testing.T) {
+	candidate, verification, _ := validFrozenGrantCase(t)
+	sign1, err := parseRouteGrantSign1(candidate.ExactRouteGrant)
+	if err != nil {
+		t.Fatal(err)
+	}
+	decoded, err := decodeCBORExact(sign1.payload, defaultCBORLimits())
+	if err != nil {
+		t.Fatal(err)
+	}
+	fields := copyGrantFields(decoded.(map[uint64]any))
+	fields[11] = frozenMaxUnixTime
+	fields[12] = frozenMaxUnixTime + 1
+	verification.Intent.ExpiresAt = frozenMaxUnixTime + 1
+	if err := verifyRouteGrantFields(fields, verification); !errors.Is(err, ErrInvalidAuthority) {
+		t.Fatalf("signed time error = %v, want ErrInvalidAuthority", err)
+	}
+	verification.NowUnix = frozenMaxUnixTime + 1
+	if err := verifyContext(verification, candidate); !errors.Is(err, ErrInvalidAuthority) {
+		t.Fatalf("context time error = %v, want ErrInvalidAuthority", err)
+	}
+}
+
+func TestParseRouteGrantSign1RejectsMalformedCOSEWithTypedErrors(t *testing.T) {
+	goodProtected := []byte{0xa2, 0x01, 0x27, 0x04, 0x41, 'k'}
+	for _, test := range []struct {
+		name string
+		wire []byte
+		want error
+	}{
+		{"wrong kid", testSign1Wire([]byte{0xa2, 0x01, 0x27, 0x04, 0x45, 'w', 'r', 'o', 'n', 'g'}, []byte{0xa0}, testByteString([]byte{1})), nil},
+		{"noncanonical kid", testSign1Wire([]byte{0xa2, 0x01, 0x27, 0x04, 0x58, 0x01, 'k'}, []byte{0xa0}, testByteString([]byte{1})), ErrInvalidAuthority},
+		{"absent kid", testSign1Wire([]byte{0xa1, 0x01, 0x27}, []byte{0xa0}, testByteString([]byte{1})), ErrInvalidAuthority},
+		{"text kid", testSign1Wire([]byte{0xa2, 0x01, 0x27, 0x04, 0x61, 'k'}, []byte{0xa0}, testByteString([]byte{1})), ErrInvalidAuthority},
+		{"empty kid", testSign1Wire([]byte{0xa2, 0x01, 0x27, 0x04, 0x40}, []byte{0xa0}, testByteString([]byte{1})), ErrInvalidAuthority},
+		{"65-byte kid", testSign1Wire(append([]byte{0xa2, 0x01, 0x27, 0x04}, testByteString(bytes.Repeat([]byte{'k'}, 65))...), []byte{0xa0}, testByteString([]byte{1})), ErrInvalidAuthority},
+		{"detached payload", testSign1Wire(goodProtected, []byte{0xa0}, []byte{0xf6}), ErrInvalidAuthority},
+		{"unprotected header", testSign1Wire(goodProtected, []byte{0xa1, 0x01, 0x01}, testByteString([]byte{1})), ErrInvalidAuthority},
+		{"wrong algorithm", testSign1Wire([]byte{0xa2, 0x01, 0x26, 0x04, 0x41, 'k'}, []byte{0xa0}, testByteString([]byte{1})), ErrInvalidAuthority},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			_, err := parseRouteGrantSign1(test.wire)
+			if !errors.Is(err, test.want) {
+				t.Fatalf("error = %v, want %v", err, test.want)
+			}
+		})
+	}
+	valid := readRepo(t, "vectors", "core-v0.2", "artifacts", "valid", "objects", "route-grant-sign1.cose")
+	if _, err := parseRouteGrantSign1(append(valid, 0)); !errors.Is(err, ErrInvalidAuthority) {
+		t.Fatalf("trailing error = %v, want ErrInvalidAuthority", err)
+	}
+	deep := append([]byte{0xd2}, bytes.Repeat([]byte{0x81}, defaultCBORLimits().maxDepth+2)...)
+	deep = append(deep, 0)
+	if _, err := parseRouteGrantSign1(deep); !errors.Is(err, ErrInvalidAuthority) {
+		t.Fatalf("deep error = %v, want ErrInvalidAuthority", err)
+	}
+	oversized := append([]byte{0xd2}, bytes.Repeat([]byte{0}, defaultCBORLimits().maxInputBytes+1)...)
+	if _, err := parseRouteGrantSign1(oversized); !errors.Is(err, ErrInvalidAuthority) {
+		t.Fatalf("oversized error = %v, want ErrInvalidAuthority", err)
+	}
+}
+
+func TestRouteGrantCOSERejectsWrongKIDAndCopiesParserInput(t *testing.T) {
+	candidate, verification, resolver := validFrozenGrantCase(t)
+	sign1, err := parseRouteGrantSign1(candidate.ExactRouteGrant)
+	if err != nil {
+		t.Fatal(err)
+	}
+	originalPayload := append([]byte(nil), sign1.payload...)
+	for index := range candidate.ExactRouteGrant {
+		candidate.ExactRouteGrant[index] ^= 0xff
+	}
+	if !bytes.Equal(sign1.payload, originalPayload) {
+		t.Fatal("parser retained mutable input")
+	}
+	wrong := testSign1Wire([]byte{0xa2, 0x01, 0x27, 0x04, 0x45, 'w', 'r', 'o', 'n', 'g'}, []byte{0xa0}, testByteString(originalPayload))
+	candidate.ExactRouteGrant = wrong
+	if _, err := mustVerifier(t, resolver).VerifyRouteGrant(context.Background(), candidate, verification); !errors.Is(err, ErrUnknownIdentity) {
+		t.Fatalf("wrong KID error = %v, want ErrUnknownIdentity", err)
+	}
+}
+
+func TestRouteGrantFieldMapsRejectExtraAndMissingKeys(t *testing.T) {
+	candidate, verification, _ := validFrozenGrantCase(t)
+	sign1, err := parseRouteGrantSign1(candidate.ExactRouteGrant)
+	if err != nil {
+		t.Fatal(err)
+	}
+	decoded, err := decodeCBORExact(sign1.payload, defaultCBORLimits())
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, mutate := range []func(map[uint64]any){func(fields map[uint64]any) { delete(fields, 16) }, func(fields map[uint64]any) { fields[17] = uint64(1) }} {
+		fields := copyGrantFields(decoded.(map[uint64]any))
+		mutate(fields)
+		if keysZeroThrough(fields, 16) {
+			t.Fatal("test did not alter RouteGrant key set")
+		}
+		if err := verifyRouteGrantFields(fields, verification); !errors.Is(err, ErrInvalidAuthority) {
+			t.Fatalf("error = %v, want ErrInvalidAuthority", err)
+		}
+	}
+}
+
+func TestVerifyRouteGrantPreservesWrongPurposeFromCustomResolver(t *testing.T) {
+	candidate, verification, _ := validFrozenGrantCase(t)
+	record := frozenIssuer(t)
+	record.Purpose++
+	resolver := issuerResolverFunc(func(context.Context, []byte, string, string, uint64) (IssuerRecord, error) { return record, nil })
+	if _, err := mustVerifier(t, resolver).VerifyRouteGrant(context.Background(), candidate, verification); !errors.Is(err, ErrInvalidKeyPurpose) {
+		t.Fatalf("error = %v, want ErrInvalidKeyPurpose", err)
+	}
+}
+
+type issuerResolverFunc func(context.Context, []byte, string, string, uint64) (IssuerRecord, error)
+
+func (function issuerResolverFunc) ResolveRouteGrantIssuer(ctx context.Context, kid []byte, profile, source string, now uint64) (IssuerRecord, error) {
+	return function(ctx, kid, profile, source, now)
+}
+
+func copyGrantFields(fields map[uint64]any) map[uint64]any {
+	copied := make(map[uint64]any, len(fields))
+	for key, value := range fields {
+		copied[key] = value
+	}
+	return copied
+}
+func testSign1Wire(protected, unprotected, payloadItem []byte) []byte {
+	result := []byte{0xd2, 0x84}
+	result = append(result, testByteString(protected)...)
+	result = append(result, unprotected...)
+	result = append(result, payloadItem...)
+	return append(result, testByteString(make([]byte, 64))...)
+}
+func testByteString(value []byte) []byte { return append(testCBORHead(2, len(value)), value...) }
+func testCBORHead(major byte, length int) []byte {
+	if length < 24 {
+		return []byte{major<<5 | byte(length)}
+	}
+	if length <= 255 {
+		return []byte{major<<5 | 24, byte(length)}
+	}
+	return []byte{major<<5 | 25, byte(length >> 8), byte(length)}
 }
 
 func validFrozenGrantCase(t *testing.T) (ProviderGrant, VerificationContext, IssuerResolver) {

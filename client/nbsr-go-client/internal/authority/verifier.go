@@ -10,6 +10,7 @@ const (
 	routeGrantIssuerPurpose uint16 = 1
 	maxRouteGrantLifetime          = uint64(600)
 	maxStaticIssuers               = 64
+	maxUnixTime                    = uint64(253_402_300_799)
 )
 
 // VerificationContext binds a provider candidate to the already validated
@@ -120,8 +121,14 @@ func (verifier *Verifier) VerifyRouteGrant(ctx context.Context, candidate Provid
 
 func verifyContext(verification VerificationContext, candidate ProviderGrant) error {
 	hasWorkload := verification.Key.WorkloadDigest != ([32]byte{})
-	if verification.NowUnix == 0 || validateAuthorityKey(verification.Key, hasWorkload) != nil || verification.Intent.ServiceIdentity == "" || verification.Intent.SourceOperator == "" || verification.Intent.SourceEdge == "" || verification.Intent.TargetOperator == "" || len(verification.Intent.TargetEdges) == 0 || verification.Intent.Transport == "" || verification.Intent.Port == 0 || verification.Intent.RecordSequence == 0 || verification.Intent.RouteID == ([16]byte{}) || verification.Intent.LeaseID == ([16]byte{}) || verification.Intent.PolicyHash == (PolicyDigest{}) || verification.Intent.ExpiresAt == 0 {
+	if verification.NowUnix == 0 || !validUnixTime(verification.NowUnix) || validateAuthorityKey(verification.Key, hasWorkload) != nil || !validTextID(verification.Intent.ServiceIdentity) || !validTextID(verification.Intent.SourceOperator) || !validTextID(verification.Intent.SourceEdge) || !validTextID(verification.Intent.TargetOperator) || !validTextIDs(verification.Intent.TargetEdges) || verification.Intent.Transport == "" || verification.Intent.Port == 0 || verification.Intent.RecordSequence == 0 || verification.Intent.RouteID == ([16]byte{}) || verification.Intent.LeaseID == ([16]byte{}) || verification.Intent.PolicyHash == (PolicyDigest{}) || verification.Intent.ExpiresAt == 0 || !validUnixTime(verification.Intent.ExpiresAt) {
 		return ErrInvalidAuthority
+	}
+	if RouteIntentDigest(sha256.Sum256(verification.Intent.Canonical)) != verification.Intent.Digest {
+		return ErrInvalidAuthority
+	}
+	if verification.Key.IntentDigest != verification.Intent.Digest {
+		return ErrBindingMismatch
 	}
 	if verification.Key.SourceOperator != verification.Intent.SourceOperator || verification.Key.SourceEdge != verification.Intent.SourceEdge || verification.Key.TargetOperator != verification.Intent.TargetOperator || verification.Key.Transport != verification.Intent.Transport || verification.Key.Port != verification.Intent.Port || verification.Key.PolicyHash != verification.Intent.PolicyHash || verification.Key.TargetEdgeSetDigest != targetEdgeSetDigest(verification.Intent.TargetEdges) {
 		return ErrBindingMismatch
@@ -149,8 +156,11 @@ func normalizeIssuerError(err error) error {
 }
 
 func validateResolvedIssuer(issuer IssuerRecord, kid []byte, profile string, verification VerificationContext) error {
-	if len(issuer.KID) < 1 || len(issuer.KID) > 64 || !sameKID(issuer.KID, kid) || !validPublicKey(issuer.PublicKey) || issuer.Purpose != routeGrantIssuerPurpose || issuer.Profile != profile || issuer.Profile != verification.Key.Profile || issuer.SourceOperator != verification.Key.SourceOperator || issuer.Generation != uint64(verification.Key.AuthorityGeneration) || issuer.NotBefore >= issuer.ExpiresAt {
+	if len(issuer.KID) < 1 || len(issuer.KID) > 64 || !sameKID(issuer.KID, kid) || !validPublicKey(issuer.PublicKey) || issuer.Profile != profile || issuer.Profile != verification.Key.Profile || issuer.SourceOperator != verification.Key.SourceOperator || issuer.Generation != uint64(verification.Key.AuthorityGeneration) || issuer.NotBefore >= issuer.ExpiresAt {
 		return ErrUnknownIdentity
+	}
+	if issuer.Purpose != routeGrantIssuerPurpose {
+		return ErrInvalidKeyPurpose
 	}
 	if issuer.Revoked {
 		return ErrRevoked
@@ -162,6 +172,9 @@ func validateResolvedIssuer(issuer IssuerRecord, kid []byte, profile string, ver
 }
 
 func verifyRouteGrantFields(fields map[uint64]any, verification VerificationContext) error {
+	if !keysZeroThrough(fields, 16) {
+		return ErrInvalidAuthority
+	}
 	routeID, routeIDOK := fixed16(fields[1])
 	serviceDigest, serviceDigestOK := fixed32(fields[2])
 	service, serviceOK := fields[3].(string)
@@ -178,11 +191,11 @@ func verifyRouteGrantFields(fields map[uint64]any, verification VerificationCont
 	recordSequence, recordSequenceOK := fields[14].(uint64)
 	policyHash, policyHashOK := fixed32(fields[15])
 	_, nonceOK := fixed16(fields[16])
-	if !routeIDOK || !serviceDigestOK || !serviceOK || !sourceOperatorOK || !sourceEdgeOK || !targetOperatorOK || !edgesOK || !transportsOK || !portsOK || !proofOK || !notBeforeOK || !expiresAtOK || !leaseIDOK || !recordSequenceOK || !policyHashOK || !nonceOK {
+	if !routeIDOK || !serviceDigestOK || !serviceOK || !sourceOperatorOK || !sourceEdgeOK || !targetOperatorOK || !edgesOK || !transportsOK || !portsOK || !proofOK || !notBeforeOK || !expiresAtOK || !leaseIDOK || !recordSequenceOK || !policyHashOK || !nonceOK || !validTextID(service) || !validTextID(sourceOperator) || !validTextID(sourceEdge) || !validTextID(targetOperator) || !validTextIDs(edges) || !validUnixTime(notBefore) || !validUnixTime(expiresAt) {
 		return ErrInvalidAuthority
 	}
 	intent, key := verification.Intent, verification.Key
-	if service == "" || len(service) > 64 || !asciiString(service) || serviceDigest != [32]byte(key.ServiceDigest) || service != intent.ServiceIdentity || sourceOperator != key.SourceOperator || sourceEdge != key.SourceEdge || targetOperator != key.TargetOperator || !sameStrings(edges, intent.TargetEdges) || len(transports) != 1 || transports[0] != "tcp" || transports[0] != key.Transport || transports[0] != intent.Transport || !containsPort(ports, uint64(intent.Port)) || routeID != intent.RouteID || leaseID != intent.LeaseID || recordSequence != intent.RecordSequence || policyHash != [32]byte(key.PolicyHash) || policyHash != [32]byte(intent.PolicyHash) || proof != [32]byte(key.ProofThumbprint) {
+	if serviceDigest != [32]byte(key.ServiceDigest) || service != intent.ServiceIdentity || sourceOperator != key.SourceOperator || sourceEdge != key.SourceEdge || targetOperator != key.TargetOperator || !sameStrings(edges, intent.TargetEdges) || len(transports) != 1 || transports[0] != "tcp" || transports[0] != key.Transport || transports[0] != intent.Transport || !containsPort(ports, uint64(intent.Port)) || routeID != intent.RouteID || leaseID != intent.LeaseID || recordSequence != intent.RecordSequence || policyHash != [32]byte(key.PolicyHash) || policyHash != [32]byte(intent.PolicyHash) || proof != [32]byte(key.ProofThumbprint) {
 		return ErrBindingMismatch
 	}
 	if expiresAt <= notBefore || expiresAt-notBefore > maxRouteGrantLifetime || intent.ExpiresAt != expiresAt || verification.NowUnix < notBefore || verification.NowUnix >= expiresAt {
@@ -239,6 +252,40 @@ func fixed32(value any) ([32]byte, bool) {
 func asciiString(value string) bool {
 	for _, item := range []byte(value) {
 		if item > 0x7f {
+			return false
+		}
+	}
+	return true
+}
+func validUnixTime(value uint64) bool { return value <= maxUnixTime }
+func validTextID(value string) bool {
+	if len(value) == 0 || len(value) > 64 || value[0] < 'a' || value[0] > 'z' {
+		return false
+	}
+	separator := false
+	for index := 1; index < len(value); index++ {
+		item := value[index]
+		if (item >= 'a' && item <= 'z') || (item >= '0' && item <= '9') {
+			separator = false
+			continue
+		}
+		if item == '.' || item == '_' || item == '-' {
+			if separator || index == len(value)-1 {
+				return false
+			}
+			separator = true
+			continue
+		}
+		return false
+	}
+	return !separator
+}
+func validTextIDs(values []string) bool {
+	if len(values) == 0 {
+		return false
+	}
+	for _, value := range values {
+		if !validTextID(value) {
 			return false
 		}
 	}
