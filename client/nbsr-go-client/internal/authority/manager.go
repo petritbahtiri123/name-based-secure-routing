@@ -22,9 +22,13 @@ type Manager struct {
 	floorStore         GenerationFloorStore
 	observer           Observer
 
-	cache    map[AuthorityKey]cachedAuthority
-	pending  map[AuthorityKey]pendingCall
-	requests map[RequestID]RequestSnapshot
+	cache           map[AuthorityKey]*cacheEntry
+	grants          map[RouteGrantDigest]*cacheEntry
+	reserved        map[uint64]*cacheEntry
+	cacheBytes      uint64
+	nextReservation uint64
+	pending         map[AuthorityKey]pendingCall
+	requests        map[RequestID]RequestSnapshot
 
 	checkpoint       checkpointState
 	generation       AuthorityGeneration
@@ -47,7 +51,9 @@ func NewManager(limits Limits, clock Clock, provider AuthorityProvider, verifier
 		checkpointVerifier: checkpointVerifier,
 		floorStore:         floorStore,
 		observer:           observer,
-		cache:              make(map[AuthorityKey]cachedAuthority),
+		cache:              make(map[AuthorityKey]*cacheEntry),
+		grants:             make(map[RouteGrantDigest]*cacheEntry),
+		reserved:           make(map[uint64]*cacheEntry),
 		pending:            make(map[AuthorityKey]pendingCall),
 		requests:           make(map[RequestID]RequestSnapshot),
 	}, nil
@@ -87,25 +93,5 @@ func (m *Manager) Acquire(context.Context, AcquireRequest) (Reservation, error) 
 func (m *Manager) Renew(context.Context, RenewRequest) (Reservation, error) {
 	return Reservation{}, ErrNotReady
 }
-
-func (m *Manager) ValidateForNewWork(Reservation, GenerationSnapshot, uint64) error {
-	return ErrNotReady
-}
-
-func (m *Manager) Consume(Reservation, AdmissionOwner, GenerationSnapshot, uint64) (AuthorityHandle, error) {
-	return AuthorityHandle{}, ErrNotReady
-}
-
-func (m *Manager) Release(Reservation) error { return ErrNotReady }
-
-func (m *Manager) Quarantine(Reservation, RequestID) error { return ErrNotReady }
-
-func (m *Manager) InvalidateGrant(RouteGrantDigest) error { return ErrNotReady }
-
-func (m *Manager) InvalidateOlderThan(AuthorityGeneration) (int, error) { return 0, ErrNotReady }
-
-func (m *Manager) Usage() Usage { return Usage{} }
-
-func (m *Manager) ValidateInvariants() error { return ErrNotReady }
 
 func (m *Manager) Close() error { return ErrNotReady }
