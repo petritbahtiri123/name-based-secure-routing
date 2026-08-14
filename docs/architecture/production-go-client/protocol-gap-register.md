@@ -10,6 +10,13 @@ generation ordering, and rollback are consolidated in
 wire contracts remain approval-gated; its client-only boundaries may be planned
 only after human approval of that design.
 
+Approved Tranche 2 decision 1 fixes the client-facing trust boundary: the
+client authenticates only to its enrolled Source Operator ACP. Destination
+operator selection, federation trust, cross-operator issuer validation, and
+operator negotiation are not client responsibilities. Go Core nevertheless
+independently verifies the final signed RouteGrant and enrolled-profile
+bindings; authenticated ACP delivery is not authority by itself.
+
 | Gap | Why unresolved | Blocking what | Protocol or implementation | Recommended decision |
 |---|---|---|---|---|
 | Authority source direction | Core verifies/uses grants; Go peer loads fixtures; no live acquisition exchange | Production channel creation and TS-B authorization | Decision resolved; contract not frozen | Standard source is the NBSR Authority Control Plane behind `AuthorityProvider`; freeze its API/transport/authentication without changing Core wire |

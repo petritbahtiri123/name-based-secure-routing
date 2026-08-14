@@ -1,6 +1,6 @@
 # Tranche 2 identity and Authority Control Plane design
 
-**Status:** Proposed freeze; ready for human protocol/security approval
+**Status:** Proposed freeze; human decision 1 approved, decisions 2-3 pending
 
 **Baseline:** `codex/nbsr-v3-wp0-wp1` at
 `8189d917e50df67e740fc3f3e8a5195f7cac7219`
@@ -407,20 +407,29 @@ bounded; and malformed ACP traffic cannot crash the client.
 | Authority generation barrier | CLIENT IMPLEMENTATION | Ordered provider update, invalidation fan-out, selector and final-gate recheck |
 | ACP endpoint/rate-limit service | CONTROL-PLANE IMPLEMENTATION | Connection reuse, quotas, bounded parser/idempotency storage and observability |
 | Workload identity requiredness | RESOLVED BY EXISTING PROTOCOL | Optional policy context; deployment profile may require it |
-| Production issuer/profile governance | HUMAN DECISION REQUIRED | Approve who operates the initial production ACP/issuer trust domain |
+| Client ACP trust domain | CLIENT IMPLEMENTATION | Approved: authenticate only the enrolled Source Operator ACP; all cross-operator/federation authority remains behind that boundary |
 | Maximum freshness/offline window | HUMAN DECISION REQUIRED | Approve profile policy/bounds after measurement; cannot exceed earliest signed expiry |
 | Durable rollback anchor | HUMAN DECISION REQUIRED | Remote ACP floor recommended; TPM is stronger optional local layer |
 
 ## Human protocol/security decisions
 
-1. **Initial authority trust domain.** Recommended: one configured source
-   operator ACP/issuer domain per enrollment, with federation-authorized issuers
-   admitted only by an approved production profile. Alternative: require
-   federation threshold authority from day one. The recommendation minimizes
-   key/continuity ambiguity while preserving exact signature verification; the
-   alternative reduces unilateral authority but substantially increases
-   governance, availability, and implementation complexity.
-2. **Freshness/offline policy bounds.** Recommended: signed operator/profile
+**Approved decision 1 — client ACP trust boundary.** The client MUST trust and
+authenticate only to its enrolled Source Operator ACP. It MUST NOT discover,
+select, negotiate with, or directly trust a destination-operator or federation
+ACP. Cross-operator route authorization, federation trust, issuer validation,
+and operator-to-operator negotiation are responsibilities of the NBSR
+operator/federation layer and remain transparent to the client. The Source
+Operator ACP returns only the final authority material required by the client.
+Go Core still independently verifies the applicable signed RouteGrant, exact
+issuer trust supplied by the enrolled profile, and every service, operator,
+policy, TS-key, validity, revocation, and profile binding. This approval does
+not permit the client to accept a grant merely because the enrolled ACP
+transport delivered it, and it does not define or modify federation wire
+semantics.
+
+The following decisions remain pending:
+
+1. **Freshness/offline policy bounds.** Recommended: signed operator/profile
    bounds with a short checkpoint lifetime measured separately for router and
    interactive-client availability, always capped by grant/credential expiry.
    Alternative: zero offline trust (online checkpoint for every new authority
@@ -428,7 +437,7 @@ bounded; and malformed ACP traffic cannot crash the client.
    outages stop all new service/channel work and increases load; bounded
    checkpoints preserve lightweight operation while creating an explicit
    maximum revocation-latency window.
-3. **Rollback anchor.** Recommended: persist a signed ACP checkpoint generation
+2. **Rollback anchor.** Recommended: persist a signed ACP checkpoint generation
    floor and require a fresh ACP checkpoint after restart before new
    authority-dependent work; use TPM monotonic storage when available as an
    additional defense. Alternative: require TPM/secure-element monotonic state
@@ -436,9 +445,9 @@ bounded; and malformed ACP traffic cannot crash the client.
    but loses offline startup; mandatory hardware gives stronger local rollback
    resistance but excludes or complicates unsupported devices.
 
-These decisions do not block a coherent design: they are explicit approval
-inputs to the protocol profile and implementation plan. None permits a Core,
-P1F, or P2D wire change.
+The two pending decisions do not block a coherent design: they are explicit
+approval inputs to the protocol profile and implementation plan. None permits
+a Core, P1F, or P2D wire change.
 
 ## Proposed Tranche 2 implementation decomposition
 
@@ -483,5 +492,6 @@ profile are approved.
 Placeholder scan: no unresolved placeholders or invented timing defaults remain.
 Consistency: the proposed ACP carries unchanged signed RouteGrant bytes and does
 not alter Core admission. Scope: runtime, live networking, rotation, resolver,
-and platform adapters are excluded. Ambiguity: all new wire behavior and three
-human policy choices are explicitly classified.
+and platform adapters are excluded. Ambiguity: all new wire behavior, the
+approved Source Operator ACP boundary, and the two pending human policy choices
+are explicitly classified.

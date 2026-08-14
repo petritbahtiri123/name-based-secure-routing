@@ -64,3 +64,7 @@ and authority-generation barrier. It recommends HTTP request/response over TLS
 1.3 as the standard ACP transport while retaining deterministic CBOR and COSE
 Sign1/Ed25519 authority. Enrollment and ACP message schemas remain
 **REQUIRES SEPARATE PROTOCOL APPROVAL**; no Core/P1F/P2D change is authorized.
+Human decision 1 is approved: the client authenticates only to its enrolled
+Source Operator ACP. Cross-operator authorization and federation negotiation
+remain operator-layer responsibilities transparent to the client; delivery by
+that ACP never replaces independent RouteGrant/profile verification.
