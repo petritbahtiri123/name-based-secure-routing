@@ -7,11 +7,6 @@ import (
 	"sort"
 )
 
-type checkpointState struct {
-	claims  CheckpointClaims
-	revoked []RouteGrantDigest
-}
-
 // PublishFreshness verifies supplied checkpoint evidence and atomically makes
 // the resulting checkpoint current. It deliberately never calls the provider:
 // callers that need remote evidence must obtain it before this method.
@@ -50,14 +45,14 @@ func (m *Manager) PublishFreshness(ctx context.Context, request FreshnessRequest
 		m.mu.Unlock()
 		return VerifiedCheckpoint{}, ErrInvalidAuthority
 	}
-	if now >= checkpoint.claims.FreshUntil {
+	if now >= checkpoint.FreshUntil() {
 		m.mu.Unlock()
-		m.notify([]Event{{Kind: EventFreshnessRejected, AuthorityGeneration: checkpoint.claims.Generation, Result: CodeStaleFreshness}})
+		m.notify([]Event{{Kind: EventFreshnessRejected, AuthorityGeneration: checkpoint.Generation(), Result: CodeStaleFreshness}})
 		return VerifiedCheckpoint{}, ErrStaleFreshness
 	}
-	if checkpoint.claims.SourceOperator != request.SourceOperator || checkpoint.claims.Profile != request.Profile {
+	if checkpoint.sourceOperator() != request.SourceOperator || checkpoint.profile() != request.Profile {
 		m.mu.Unlock()
-		m.notify([]Event{{Kind: EventFreshnessRejected, AuthorityGeneration: checkpoint.claims.Generation, Result: CodeBindingMismatch}})
+		m.notify([]Event{{Kind: EventFreshnessRejected, AuthorityGeneration: checkpoint.Generation(), Result: CodeBindingMismatch}})
 		return VerifiedCheckpoint{}, ErrBindingMismatch
 	}
 	events, publishErr := m.publishCheckpointLocked(checkpoint)
@@ -66,7 +61,7 @@ func (m *Manager) PublishFreshness(ctx context.Context, request FreshnessRequest
 	if publishErr != nil {
 		return VerifiedCheckpoint{}, publishErr
 	}
-	return VerifiedCheckpoint{seal: verifiedCheckpoint{}}, nil
+	return checkpoint, nil
 }
 
 func validateFreshnessRequest(request FreshnessRequest) error {
@@ -76,46 +71,56 @@ func validateFreshnessRequest(request FreshnessRequest) error {
 	return nil
 }
 
-func sealCheckpoint(claims CheckpointClaims, limits Limits) (checkpointState, error) {
+// sealCheckpoint is the sole constructor for usable checkpoint authority. It
+// is deliberately private and is called only after CheckpointEvidenceVerifier
+// returns successfully.
+func sealCheckpoint(claims CheckpointClaims, limits Limits) (VerifiedCheckpoint, error) {
 	if !validTextID(claims.SourceOperator) || !validTextID(claims.Profile) || claims.Generation == 0 || claims.IssuedAt >= claims.FreshUntil || !validUnixTime(claims.IssuedAt) || !validUnixTime(claims.FreshUntil) || claims.Digest == (CheckpointDigest{}) {
-		return checkpointState{}, ErrInvalidAuthority
+		return VerifiedCheckpoint{}, ErrInvalidAuthority
 	}
 	if claims.Generation == ^AuthorityGeneration(0) {
-		return checkpointState{}, ErrGenerationRollback
+		return VerifiedCheckpoint{}, ErrGenerationRollback
 	}
 	revoked := append([]RouteGrantDigest(nil), claims.RevokedGrants...)
 	sort.Slice(revoked, func(left, right int) bool { return bytes.Compare(revoked[left][:], revoked[right][:]) < 0 })
 	unique := revoked[:0]
 	for _, digest := range revoked {
 		if digest == (RouteGrantDigest{}) {
-			return checkpointState{}, ErrInvalidAuthority
+			return VerifiedCheckpoint{}, ErrInvalidAuthority
 		}
 		if len(unique) == 0 || unique[len(unique)-1] != digest {
 			unique = append(unique, digest)
 		}
 	}
 	if len(unique) > limits.MaxCacheEntries {
-		return checkpointState{}, ErrCacheCapacity
+		return VerifiedCheckpoint{}, ErrCacheCapacity
 	}
-	claims.RevokedGrants = append([]RouteGrantDigest(nil), unique...)
-	return checkpointState{claims: claims, revoked: append([]RouteGrantDigest(nil), unique...)}, nil
+	return VerifiedCheckpoint{seal: verifiedCheckpoint{
+		sourceOperator: claims.SourceOperator,
+		profile:        claims.Profile,
+		generation:     claims.Generation,
+		issuedAt:       claims.IssuedAt,
+		freshUntil:     claims.FreshUntil,
+		digest:         claims.Digest,
+		revoked:        append([]RouteGrantDigest(nil), unique...),
+	}}, nil
 }
 
-func (m *Manager) publishCheckpointLocked(candidate checkpointState) ([]Event, error) {
+func (m *Manager) publishCheckpointLocked(candidate VerifiedCheckpoint) ([]Event, error) {
 	if m.hasCheckpoint {
-		current := m.checkpoint.claims
-		if current.SourceOperator != candidate.claims.SourceOperator || current.Profile != candidate.claims.Profile {
-			return []Event{{Kind: EventFreshnessRejected, AuthorityGeneration: candidate.claims.Generation, Result: CodeBindingMismatch}}, ErrBindingMismatch
+		current := m.checkpoint
+		if current.sourceOperator() != candidate.sourceOperator() || current.profile() != candidate.profile() {
+			return []Event{{Kind: EventFreshnessRejected, AuthorityGeneration: candidate.Generation(), Result: CodeBindingMismatch}}, ErrBindingMismatch
 		}
-		if candidate.claims.Generation < m.generation || (candidate.claims.Generation == m.generation && candidate.claims.Digest != current.Digest) {
-			return []Event{{Kind: EventFreshnessRejected, AuthorityGeneration: candidate.claims.Generation, Result: CodeGenerationRollback}}, ErrGenerationRollback
+		if candidate.Generation() < m.generation || (candidate.Generation() == m.generation && candidate.Digest() != current.Digest()) {
+			return []Event{{Kind: EventFreshnessRejected, AuthorityGeneration: candidate.Generation(), Result: CodeGenerationRollback}}, ErrGenerationRollback
 		}
-		if candidate.claims.Generation == m.generation {
+		if candidate.Generation() == m.generation {
 			return nil, nil
 		}
 	}
 	m.checkpoint = candidate
-	m.generation = candidate.claims.Generation
+	m.generation = candidate.Generation()
 	m.invalidateRequestGenerationsLocked()
 	pendingEvents := make([]Event, 0)
 	for _, call := range m.pending {
@@ -131,13 +136,13 @@ func (m *Manager) publishCheckpointLocked(candidate checkpointState) ([]Event, e
 	m.hasCheckpoint = true
 	m.freshnessExpired = false
 	return append(pendingEvents, []Event{
-		{Kind: EventFreshnessAccepted, AuthorityGeneration: candidate.claims.Generation},
-		{Kind: EventGenerationAdvanced, AuthorityGeneration: candidate.claims.Generation},
+		{Kind: EventFreshnessAccepted, AuthorityGeneration: candidate.Generation()},
+		{Kind: EventGenerationAdvanced, AuthorityGeneration: candidate.Generation()},
 	}...), nil
 }
 
 func (m *Manager) requireFreshLocked(now uint64) ([]Event, error) {
-	if !m.hasCheckpoint || now >= m.checkpoint.claims.FreshUntil {
+	if !m.hasCheckpoint || now >= m.checkpoint.FreshUntil() {
 		if m.hasCheckpoint && !m.freshnessExpired {
 			m.freshnessExpired = true
 			return []Event{{Kind: EventFreshnessExpired, AuthorityGeneration: m.generation, Result: CodeStaleFreshness}}, ErrStaleFreshness

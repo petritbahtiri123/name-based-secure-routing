@@ -20,7 +20,7 @@ const (
 type VerificationContext struct {
 	Key        AuthorityKey
 	Intent     RouteIntent
-	Checkpoint CheckpointClaims
+	Checkpoint VerifiedCheckpoint
 	NowUnix    uint64
 }
 
@@ -143,7 +143,7 @@ func verifyContext(verification VerificationContext, candidate ProviderGrant) er
 		return ErrBindingMismatch
 	}
 	checkpoint := verification.Checkpoint
-	if checkpoint.SourceOperator != verification.Key.SourceOperator || checkpoint.Profile != verification.Key.Profile || checkpoint.Generation != verification.Key.AuthorityGeneration || checkpoint.Digest == (CheckpointDigest{}) || checkpoint.IssuedAt >= checkpoint.FreshUntil || verification.NowUnix >= checkpoint.FreshUntil || candidate.Checkpoint != checkpoint.Digest {
+	if !checkpoint.valid() || checkpoint.sourceOperator() != verification.Key.SourceOperator || checkpoint.profile() != verification.Key.Profile || checkpoint.Generation() != verification.Key.AuthorityGeneration || verification.NowUnix >= checkpoint.FreshUntil() || candidate.Checkpoint != checkpoint.Digest() {
 		return ErrStaleFreshness
 	}
 	if candidate.Profile != verification.Key.Profile {

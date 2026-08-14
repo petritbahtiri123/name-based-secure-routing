@@ -365,7 +365,7 @@ func task11Manager(t testing.TB) *Manager {
 		t.Fatal(err)
 	}
 	m.mu.Lock()
-	m.checkpoint = checkpointState{claims: CheckpointClaims{SourceOperator: "source-operator", Profile: "profile", Generation: 7, FreshUntil: 300, Digest: nonZeroCheckpoint()}}
+	m.checkpoint = mustSealCheckpointForTest(t, CheckpointClaims{SourceOperator: "source-operator", Profile: "profile", Generation: 7, IssuedAt: 1, FreshUntil: 300, Digest: nonZeroCheckpoint()})
 	m.generation, m.hasCheckpoint = 7, true
 	m.mu.Unlock()
 	return m
@@ -525,8 +525,8 @@ func task11RemoteCompletionFixture(t *testing.T) (*task11RemoteCompletionProvide
 	if err != nil {
 		t.Fatal(err)
 	}
-	m.checkpoint = checkpointState{claims: verification.Checkpoint}
-	m.generation, m.hasCheckpoint = verification.Checkpoint.Generation, true
+	m.checkpoint = verification.Checkpoint
+	m.generation, m.hasCheckpoint = verification.Checkpoint.Generation(), true
 	request := AcquireRequest{Key: verification.Key, Intent: verification.Intent, Device: identity.DeviceIdentity{ID: verification.Key.DeviceID, SourceOperatorID: verification.Key.SourceOperator, CredentialGeneration: verification.Key.DeviceGeneration}, RequestID: RequestID{11}, DeadlineUnix: verification.NowUnix + 1}
 	return provider, m, request
 }

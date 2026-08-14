@@ -82,14 +82,20 @@ func TestCacheHitRetiresExpiredRevokedAndStaleAuthorityBeforeReservation(t *test
 	}{
 		{"expired", func(_ *Manager, clock *mutableClock, _ RouteGrantDigest) { clock.set(1_893_456_001) }, ErrExpired},
 		{"revoked", func(manager *Manager, _ *mutableClock, grant RouteGrantDigest) {
-			manager.checkpoint.revoked = []RouteGrantDigest{grant}
+			claims := rawClaimsFromVerifiedForTest(manager.checkpoint)
+			claims.RevokedGrants = []RouteGrantDigest{grant}
+			manager.checkpoint = mustSealCheckpointForTest(t, claims)
 		}, ErrRevoked},
 		{"stale checkpoint", func(manager *Manager, _ *mutableClock, _ RouteGrantDigest) {
-			manager.checkpoint.claims.Digest = CheckpointDigest{0xee}
+			claims := rawClaimsFromVerifiedForTest(manager.checkpoint)
+			claims.Digest = CheckpointDigest{0xee}
+			manager.checkpoint = mustSealCheckpointForTest(t, claims)
 		}, ErrStaleGeneration},
 		{"stale generation", func(manager *Manager, _ *mutableClock, _ RouteGrantDigest) {
 			manager.generation++
-			manager.checkpoint.claims.Generation++
+			claims := rawClaimsFromVerifiedForTest(manager.checkpoint)
+			claims.Generation++
+			manager.checkpoint = mustSealCheckpointForTest(t, claims)
 		}, ErrStaleGeneration},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
@@ -405,7 +411,9 @@ func TestGenerationChangeDuringProviderCallCannotCommit(t *testing.T) {
 	awaitCoalesce(t, provider.started)
 	manager.mu.Lock()
 	manager.generation++
-	manager.checkpoint.claims.Generation++
+	claims := rawClaimsFromVerifiedForTest(manager.checkpoint)
+	claims.Generation++
+	manager.checkpoint = mustSealCheckpointForTest(t, claims)
 	manager.mu.Unlock()
 	provider.releaseOnce()
 	if err := <-result; !errors.Is(err, ErrStaleGeneration) {
@@ -572,8 +580,8 @@ func coalesceFixture(t *testing.T) (*coalesceProvider, *Manager, AcquireRequest)
 	if err != nil {
 		t.Fatalf("NewManager: %v", err)
 	}
-	manager.checkpoint = checkpointState{claims: verification.Checkpoint}
-	manager.generation, manager.hasCheckpoint = verification.Checkpoint.Generation, true
+	manager.checkpoint = verification.Checkpoint
+	manager.generation, manager.hasCheckpoint = verification.Checkpoint.Generation(), true
 	request := AcquireRequest{Key: verification.Key, Intent: verification.Intent, Device: identity.DeviceIdentity{ID: verification.Key.DeviceID, SourceOperatorID: verification.Key.SourceOperator, CredentialGeneration: verification.Key.DeviceGeneration}, RequestID: RequestID{1}, DeadlineUnix: verification.NowUnix + 1}
 	return provider, manager, request
 }
@@ -604,7 +612,7 @@ func pendingState(manager *Manager) (calls, waiters int, bytes uint64) {
 func cacheAvailableForCoalesce(t *testing.T, manager *Manager, request AcquireRequest, grant RouteGrantDigest, expiresAt uint64) {
 	t.Helper()
 	manager.mu.RLock()
-	checkpoint := manager.checkpoint.claims.Digest
+	checkpoint := manager.checkpoint.Digest()
 	manager.mu.RUnlock()
 	reservation, err := manager.reserveVerified(sealAuthority(request.Key, grant, expiresAt, checkpoint, request.Key.AuthorityGeneration))
 	if err != nil {

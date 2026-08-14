@@ -102,6 +102,10 @@ func (g *RestartGate) AcceptFresh(ctx context.Context, request FreshnessRequest,
 	if err := validateRestartClaims(claims, request, now); err != nil {
 		return VerifiedCheckpoint{}, err
 	}
+	checkpoint, err := sealCheckpoint(claims, Limits{MaxCacheEntries: maxRestartEvidenceBytes})
+	if err != nil {
+		return VerifiedCheckpoint{}, err
+	}
 
 	g.mu.Lock()
 	epoch := g.epoch
@@ -118,7 +122,7 @@ func (g *RestartGate) AcceptFresh(ctx context.Context, request FreshnessRequest,
 		g.mu.Unlock()
 		return VerifiedCheckpoint{}, ErrBindingMismatch
 	}
-	if hasFloor && claims.Generation < floor.Generation {
+	if hasFloor && checkpoint.Generation() < floor.Generation {
 		g.epoch++
 		g.accepting = false
 		g.state = RestartFailClosed
@@ -127,7 +131,7 @@ func (g *RestartGate) AcceptFresh(ctx context.Context, request FreshnessRequest,
 	}
 	g.accepting = true
 	g.mu.Unlock()
-	candidate := SignedGenerationFloor{SourceOperator: sourceOperator, Profile: profile, Generation: claims.Generation, Checkpoint: claims.Digest, SignedEvidence: freshness.Evidence}
+	candidate := SignedGenerationFloor{SourceOperator: sourceOperator, Profile: profile, Generation: checkpoint.Generation(), Checkpoint: checkpoint.Digest(), SignedEvidence: freshness.Evidence}
 	if err := g.store.StoreHigher(ctx, candidate); err != nil {
 		g.failClosedIfEpoch(epoch)
 		return VerifiedCheckpoint{}, err
@@ -149,7 +153,7 @@ func (g *RestartGate) AcceptFresh(ctx context.Context, request FreshnessRequest,
 		g.mu.Unlock()
 		return VerifiedCheckpoint{}, ErrInvalidAuthority
 	}
-	if publicationNow >= claims.FreshUntil {
+	if publicationNow >= checkpoint.FreshUntil() {
 		// The verified higher floor remains useful rollback protection, but the
 		// evidence has expired before readiness can linearize.
 		g.floor = candidate
@@ -163,8 +167,8 @@ func (g *RestartGate) AcceptFresh(ctx context.Context, request FreshnessRequest,
 	g.accepting = false
 	g.state = RestartReady
 	g.mu.Unlock()
-	g.observer.Observe(Event{Kind: EventRollbackFloorUpdated, AuthorityGeneration: claims.Generation})
-	return VerifiedCheckpoint{seal: verifiedCheckpoint{}}, nil
+	g.observer.Observe(Event{Kind: EventRollbackFloorUpdated, AuthorityGeneration: checkpoint.Generation()})
+	return checkpoint, nil
 }
 
 func (g *RestartGate) State() RestartState {

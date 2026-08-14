@@ -122,7 +122,7 @@ func TestFreshnessStateCopiesAndCanonicalizesRevocations(t *testing.T) {
 	limits.MaxCacheEntries = 3
 	m := freshManagerWithLimits(t, limits, claims)
 	claims.RevokedGrants[0][0] = 9
-	if got, want := m.checkpoint.revoked, []RouteGrantDigest{{1}, {2}, {3}}; !sameRevocations(got, want) {
+	if got, want := m.checkpoint.revokedDigests(), []RouteGrantDigest{{1}, {2}, {3}}; !sameRevocations(got, want) {
 		t.Fatalf("revocations = %v, want %v", got, want)
 	}
 }
@@ -159,7 +159,7 @@ func TestFreshnessGenerationAdvanceWakesPendingAcquire(t *testing.T) {
 	result := make(chan error, 1)
 	go func() { _, err := m.Acquire(context.Background(), request); result <- err }()
 	awaitCoalesce(t, provider.started)
-	claims := m.checkpoint.claims
+	claims := rawClaimsFromVerifiedForTest(m.checkpoint)
 	claims.Generation++
 	m.checkpointVerifier = &task4CheckpointVerifier{claims: claims}
 	freshness := FreshnessRequest{SourceOperator: claims.SourceOperator, Profile: claims.Profile, DeviceID: request.Key.DeviceID, DeviceGeneration: request.Key.DeviceGeneration, DeadlineUnix: request.DeadlineUnix}

@@ -48,7 +48,9 @@ func TestTerminalGrantPermitsDistinctFreshReplacement(t *testing.T) {
 		}},
 		{"revoked", func(t *testing.T, m *Manager, r Reservation, snapshot GenerationSnapshot) {
 			m.mu.Lock()
-			m.checkpoint.revoked = []RouteGrantDigest{r.grant}
+			claims := rawClaimsFromVerifiedForTest(m.checkpoint)
+			claims.RevokedGrants = []RouteGrantDigest{r.grant}
+			m.checkpoint = mustSealCheckpointForTest(t, claims)
 			m.mu.Unlock()
 			if _, err := m.Consume(r, AdmissionOwner{TSGeneration: r.key.TSGeneration, ChannelID: id16(1)}, snapshot, 99); !errors.Is(err, ErrRevoked) {
 				t.Fatalf("revocation = %v, want ErrRevoked", err)
@@ -433,7 +435,9 @@ func TestFinalCheckRejectsExpiryRevocationAndGeneration(t *testing.T) {
 	t.Run("checkpoint revocation", func(t *testing.T) {
 		m, reservation, snapshot := reservedGrant(t)
 		m.mu.Lock()
-		m.checkpoint.revoked = []RouteGrantDigest{reservation.grant}
+		claims := rawClaimsFromVerifiedForTest(m.checkpoint)
+		claims.RevokedGrants = []RouteGrantDigest{reservation.grant}
+		m.checkpoint = mustSealCheckpointForTest(t, claims)
 		m.mu.Unlock()
 		if _, err := m.Consume(reservation, AdmissionOwner{TSGeneration: reservation.key.TSGeneration, ChannelID: id16(1)}, snapshot, 99); !errors.Is(err, ErrRevoked) {
 			t.Fatalf("revoked consume = %v, want ErrRevoked", err)
@@ -443,7 +447,9 @@ func TestFinalCheckRejectsExpiryRevocationAndGeneration(t *testing.T) {
 		m, reservation, snapshot := reservedGrant(t)
 		m.mu.Lock()
 		m.generation++
-		m.checkpoint.claims.Generation++
+		claims := rawClaimsFromVerifiedForTest(m.checkpoint)
+		claims.Generation++
+		m.checkpoint = mustSealCheckpointForTest(t, claims)
 		m.mu.Unlock()
 		if err := m.ValidateForNewWork(reservation, snapshot, 99); !errors.Is(err, ErrStaleGeneration) {
 			t.Fatalf("generation advance = %v, want ErrStaleGeneration", err)
@@ -546,7 +552,7 @@ func testManagerWithClock(t *testing.T, clock Clock, entries int, bytes uint64) 
 		t.Fatal(err)
 	}
 	m.mu.Lock()
-	m.checkpoint = checkpointState{claims: CheckpointClaims{SourceOperator: "source-operator", Profile: "profile", Generation: 7, FreshUntil: 300, Digest: nonZeroCheckpoint()}}
+	m.checkpoint = mustSealCheckpointForTest(t, CheckpointClaims{SourceOperator: "source-operator", Profile: "profile", Generation: 7, IssuedAt: 1, FreshUntil: 300, Digest: nonZeroCheckpoint()})
 	m.generation = 7
 	m.hasCheckpoint = true
 	m.mu.Unlock()

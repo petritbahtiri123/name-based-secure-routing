@@ -31,7 +31,7 @@ type pendingCall struct {
 	key             pendingKey
 	acquire         AcquireRequest
 	renew           RenewRequest
-	checkpoint      CheckpointClaims
+	checkpoint      VerifiedCheckpoint
 	logicalBytes    uint64
 	waiters         int
 	abandoned       bool
@@ -152,7 +152,7 @@ func (m *Manager) startOrJoin(ctx context.Context, key pendingKey, acquire Acqui
 		return Reservation{}, err
 	}
 	providerContext, cancel := context.WithCancel(context.Background())
-	call := &pendingCall{key: key, acquire: acquire, renew: renew, checkpoint: m.checkpoint.claims, logicalBytes: logicalBytes, waiters: 1, done: make(chan struct{}), providerContext: providerContext, cancel: cancel, records: []*requestRecord{record}}
+	call := &pendingCall{key: key, acquire: acquire, renew: renew, checkpoint: m.checkpoint, logicalBytes: logicalBytes, waiters: 1, done: make(chan struct{}), providerContext: providerContext, cancel: cancel, records: []*requestRecord{record}}
 	m.pending[key] = call
 	m.pendingBytes += logicalBytes
 	if key.operation == pendingRenew {
@@ -258,7 +258,7 @@ func (m *Manager) commitPending(call *pendingCall, authority VerifiedAuthority) 
 			if err == nil {
 				err = m.pendingScopeCurrentLocked(call.key.authority)
 			}
-			if err == nil && (authority.Key() != call.key.authority || authority.Checkpoint() != call.checkpoint.Digest || authority.AuthorityGeneration() != call.checkpoint.Generation) {
+			if err == nil && (authority.Key() != call.key.authority || authority.Checkpoint() != call.checkpoint.Digest() || authority.AuthorityGeneration() != call.checkpoint.Generation()) {
 				err = ErrStaleGeneration
 			}
 			if err == nil && call.key.operation == pendingRenew {
@@ -325,7 +325,7 @@ func (m *Manager) finishPendingLocked(call *pendingCall, reservation Reservation
 }
 
 func (m *Manager) pendingScopeCurrentLocked(key AuthorityKey) error {
-	if !m.hasCheckpoint || key.AuthorityGeneration != m.generation || m.checkpoint.claims.SourceOperator != key.SourceOperator || m.checkpoint.claims.Profile != key.Profile || m.checkpoint.claims.Generation != key.AuthorityGeneration {
+	if !m.hasCheckpoint || key.AuthorityGeneration != m.generation || m.checkpoint.sourceOperator() != key.SourceOperator || m.checkpoint.profile() != key.Profile || m.checkpoint.Generation() != key.AuthorityGeneration {
 		return ErrStaleGeneration
 	}
 	return nil

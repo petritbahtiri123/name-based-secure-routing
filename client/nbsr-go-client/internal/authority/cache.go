@@ -144,7 +144,7 @@ func (m *Manager) validateAvailableLocked(entry *cacheEntry, now uint64) ([]Even
 		m.retireEntryLocked(entry, cacheInvalid)
 		return []Event{invalidationEvent(entry)}, ErrInvalidAuthority
 	}
-	if entry.authority.AuthorityGeneration() != m.generation || entry.authority.Key().AuthorityGeneration != m.generation || entry.authority.Checkpoint() != m.checkpoint.claims.Digest {
+	if entry.authority.AuthorityGeneration() != m.generation || entry.authority.Key().AuthorityGeneration != m.generation || entry.authority.Checkpoint() != m.checkpoint.Digest() {
 		m.retireEntryLocked(entry, cacheInvalid)
 		return []Event{invalidationEvent(entry)}, ErrStaleGeneration
 	}
@@ -152,11 +152,9 @@ func (m *Manager) validateAvailableLocked(entry *cacheEntry, now uint64) ([]Even
 		m.retireEntryLocked(entry, cacheInvalid)
 		return []Event{invalidationEvent(entry)}, ErrExpired
 	}
-	for _, revoked := range m.checkpoint.revoked {
-		if revoked == entry.authority.GrantDigest() {
-			m.retireEntryLocked(entry, cacheInvalid)
-			return []Event{invalidationEvent(entry)}, ErrRevoked
-		}
+	if m.checkpoint.hasRevoked(entry.authority.GrantDigest()) {
+		m.retireEntryLocked(entry, cacheInvalid)
+		return []Event{invalidationEvent(entry)}, ErrRevoked
 	}
 	return nil, nil
 }
@@ -418,7 +416,7 @@ func (m *Manager) validateReservedLocked(reservation Reservation, snapshot Gener
 	if err != nil {
 		return events, err
 	}
-	if snapshot.generation == 0 || snapshot.generation != m.generation || entry.authority.AuthorityGeneration() != m.generation || reservation.key.AuthorityGeneration != m.generation || entry.authority.Checkpoint() != m.checkpoint.claims.Digest {
+	if snapshot.generation == 0 || snapshot.generation != m.generation || entry.authority.AuthorityGeneration() != m.generation || reservation.key.AuthorityGeneration != m.generation || entry.authority.Checkpoint() != m.checkpoint.Digest() {
 		m.retireEntryLocked(entry, cacheInvalid)
 		return append(events, invalidationEvent(entry)), ErrStaleGeneration
 	}
@@ -430,11 +428,9 @@ func (m *Manager) validateReservedLocked(reservation Reservation, snapshot Gener
 		m.retireEntryLocked(entry, cacheInvalid)
 		return append(events, invalidationEvent(entry)), ErrExpired
 	}
-	for _, revoked := range m.checkpoint.revoked {
-		if revoked == entry.authority.GrantDigest() {
-			m.retireEntryLocked(entry, cacheInvalid)
-			return append(events, invalidationEvent(entry)), ErrRevoked
-		}
+	if m.checkpoint.hasRevoked(entry.authority.GrantDigest()) {
+		m.retireEntryLocked(entry, cacheInvalid)
+		return append(events, invalidationEvent(entry)), ErrRevoked
 	}
 	return events, nil
 }
@@ -460,6 +456,7 @@ func (m *Manager) Release(reservation Reservation) error {
 		return ErrInvalidAuthority
 	}
 	entry.state = cacheAvailable
+	m.terminalizeReservationRecordsLocked(entry.reservation, entry.authority.GrantDigest())
 	entry.reservation = 0
 	delete(m.reserved, reservation.id)
 	m.mu.Unlock()
@@ -529,6 +526,7 @@ func (m *Manager) InvalidateOlderThan(generation AuthorityGeneration) (int, erro
 
 func (m *Manager) retireEntryLocked(entry *cacheEntry, state cacheLifecycle) {
 	if entry.reservation != 0 {
+		m.terminalizeReservationRecordsLocked(entry.reservation, entry.authority.GrantDigest())
 		delete(m.reserved, entry.reservation)
 	}
 	delete(m.cache, entry.authority.Key())
@@ -646,15 +644,23 @@ func (m *Manager) ValidateInvariants() error {
 		if record == nil || record.key != key || !validRequestKey(key) || record.logicalBytes != requestRecordLogicalBytes || record.snapshot.ID != key.id || record.snapshot.AuthorityGeneration == 0 || record.snapshot.ExpiresAt == 0 || record.snapshot.Status < RequestPending || record.snapshot.Status > RequestAmbiguous {
 			return ErrInvalidAuthority
 		}
-		if record.snapshot.Status == RequestPending && (record.snapshot.ResultDigest != ([32]byte{}) || record.reservationID != 0) {
+		if record.snapshot.Status == RequestPending && (record.snapshot.ResultDigest != ([32]byte{}) || record.reservationID != 0 || record.link != requestLinkNone) {
 			return ErrInvalidAuthority
 		}
-		if record.snapshot.Status == RequestComplete && (record.snapshot.ResultDigest == ([32]byte{}) || record.reservationID == 0) {
+		if record.snapshot.Status == RequestComplete && (record.snapshot.ResultDigest == ([32]byte{}) || record.link < requestLinkReserved || record.link > requestLinkTerminal) {
 			return ErrInvalidAuthority
 		}
-		if record.reservationID != 0 {
+		if record.snapshot.Status == RequestComplete && record.link == requestLinkReserved {
+			if record.reservationID == 0 {
+				return ErrInvalidAuthority
+			}
 			entry := m.reserved[record.reservationID]
-			if record.snapshot.Status != RequestAmbiguous && (entry == nil || entry.state != cacheReserved || entry.authority.GrantDigest() != record.snapshot.ResultDigest) {
+			if entry == nil || entry.state != cacheReserved || entry.authority.GrantDigest() != record.snapshot.ResultDigest {
+				return ErrInvalidAuthority
+			}
+		}
+		if (record.snapshot.Status == RequestComplete && record.link == requestLinkTerminal) || record.snapshot.Status == RequestAmbiguous {
+			if record.reservationID != 0 || record.link != requestLinkTerminal {
 				return ErrInvalidAuthority
 			}
 		}

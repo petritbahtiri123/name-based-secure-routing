@@ -7,8 +7,9 @@ import (
 
 type cachedAuthority struct{}
 
-// Manager owns bounded authority bookkeeping. Verification and provider work
-// are added by later tasks.
+// Manager owns bounded, transport-neutral authority bookkeeping. Provider
+// candidates cross into usable local state only through Verifier and a sealed
+// VerifiedCheckpoint; provider calls never run while Manager.mu is held.
 type Manager struct {
 	mu sync.RWMutex
 
@@ -31,7 +32,7 @@ type Manager struct {
 	requests        map[requestKey]*requestRecord
 	requestBytes    uint64
 
-	checkpoint       checkpointState
+	checkpoint       VerifiedCheckpoint
 	generation       AuthorityGeneration
 	hasCheckpoint    bool
 	freshnessExpired bool

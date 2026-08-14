@@ -469,7 +469,7 @@ func fixtureManager(t *testing.T) (*Manager, AcquireRequest) {
 	grant, verification, resolver := validFrozenGrantCase(t)
 	request := AcquireRequest{Key: verification.Key, Intent: verification.Intent, Device: identity.DeviceIdentity{ID: verification.Key.DeviceID, SourceOperatorID: verification.Key.SourceOperator, CredentialGeneration: verification.Key.DeviceGeneration}, RequestID: RequestID{9}, DeadlineUnix: verification.NowUnix + 1}
 	freshness := FreshnessRequest{SourceOperator: request.Key.SourceOperator, Profile: request.Key.Profile, DeviceID: request.Key.DeviceID, DeviceGeneration: request.Key.DeviceGeneration, DeadlineUnix: request.DeadlineUnix}
-	claims := verification.Checkpoint
+	claims := rawClaimsFromVerifiedForTest(verification.Checkpoint)
 	provider, err := NewFixtureProvider(FixtureProviderLimits{MaxEntries: 4, MaxBytes: 1 << 20, MaxCalls: 8}, []FixtureGrant{{Operation: uint8(pendingAcquire), RequestDigest: fixtureGrantRequestDigest(request), Result: grant}}, []FixtureFreshness{{RequestDigest: fixtureFreshnessRequestDigest(freshness), Result: ProviderFreshness{SourceOperator: freshness.SourceOperator, Profile: freshness.Profile, Evidence: []byte{1}}, Claims: claims}})
 	if err != nil {
 		t.Fatalf("NewFixtureProvider: %v", err)

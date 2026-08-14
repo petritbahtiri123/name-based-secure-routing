@@ -142,9 +142,48 @@ type verifiedAuthority struct {
 	checkpoint          CheckpointDigest
 	authorityGeneration AuthorityGeneration
 }
-type verifiedCheckpoint struct{}
+
+// verifiedCheckpoint is the sealed result of independently verified ACP
+// freshness evidence. Its fields intentionally remain private: raw
+// CheckpointClaims are provider/verifier candidates, never local authority.
+type verifiedCheckpoint struct {
+	sourceOperator string
+	profile        string
+	generation     AuthorityGeneration
+	issuedAt       uint64
+	freshUntil     uint64
+	digest         CheckpointDigest
+	revoked        []RouteGrantDigest
+}
 type VerifiedAuthority struct{ seal verifiedAuthority }
 type VerifiedCheckpoint struct{ seal verifiedCheckpoint }
+
+// Generation, FreshUntil, and Digest are the only public checkpoint facts
+// needed by later authority consumers. They return values, never mutable
+// backing storage.
+func (checkpoint VerifiedCheckpoint) Generation() AuthorityGeneration {
+	return checkpoint.seal.generation
+}
+func (checkpoint VerifiedCheckpoint) FreshUntil() uint64       { return checkpoint.seal.freshUntil }
+func (checkpoint VerifiedCheckpoint) Digest() CheckpointDigest { return checkpoint.seal.digest }
+
+func (checkpoint VerifiedCheckpoint) sourceOperator() string { return checkpoint.seal.sourceOperator }
+func (checkpoint VerifiedCheckpoint) profile() string        { return checkpoint.seal.profile }
+func (checkpoint VerifiedCheckpoint) issuedAt() uint64       { return checkpoint.seal.issuedAt }
+func (checkpoint VerifiedCheckpoint) revokedDigests() []RouteGrantDigest {
+	return append([]RouteGrantDigest(nil), checkpoint.seal.revoked...)
+}
+func (checkpoint VerifiedCheckpoint) hasRevoked(grant RouteGrantDigest) bool {
+	for _, revoked := range checkpoint.seal.revoked {
+		if revoked == grant {
+			return true
+		}
+	}
+	return false
+}
+func (checkpoint VerifiedCheckpoint) valid() bool {
+	return validTextID(checkpoint.seal.sourceOperator) && validTextID(checkpoint.seal.profile) && checkpoint.seal.generation != 0 && checkpoint.seal.generation != ^AuthorityGeneration(0) && checkpoint.seal.issuedAt < checkpoint.seal.freshUntil && validUnixTime(checkpoint.seal.issuedAt) && validUnixTime(checkpoint.seal.freshUntil) && checkpoint.seal.digest != (CheckpointDigest{})
+}
 
 type Limits struct {
 	MaxCacheEntries, MaxPending, MaxWaitersPerPending, MaxRequestRecords int

@@ -91,7 +91,7 @@ func TestVerifyRouteGrantRejectsEveryBoundField(t *testing.T) {
 		{"proof thumbprint", func(value *VerificationContext) { value.Key.ProofThumbprint[0] ^= 1 }},
 		{"zero TS generation", func(value *VerificationContext) { value.Key.TSGeneration = 0 }},
 		{"stale authority generation", func(value *VerificationContext) { value.Key.AuthorityGeneration++ }},
-		{"wrong checkpoint relation", func(value *VerificationContext) { value.Checkpoint.Digest[0] ^= 1 }},
+		{"wrong checkpoint relation", func(value *VerificationContext) { value.Checkpoint = VerifiedCheckpoint{} }},
 		{"grant expiry end exclusive", func(value *VerificationContext) { value.NowUnix = value.Intent.ExpiresAt }},
 	} {
 		t.Run(mutation.name, func(t *testing.T) {
@@ -448,8 +448,9 @@ func validFrozenGrantCase(t *testing.T) (ProviderGrant, VerificationContext, Iss
 		TSGeneration: 2, ProofThumbprint: ProofKeyThumbprint(mustHex32(t, "39f713d0a644253f04529421b9f51b9b08979d08295959c4f3990ee617f5139f")),
 		PolicyHash: intent.PolicyHash, PolicyGeneration: 3, AuthorityGeneration: 7,
 	}
-	checkpoint := CheckpointClaims{SourceOperator: key.SourceOperator, Profile: key.Profile, Generation: key.AuthorityGeneration, IssuedAt: 1_893_456_000, FreshUntil: intent.ExpiresAt, Digest: CheckpointDigest{0xa5}}
-	return ProviderGrant{ExactRouteGrant: readRepo(t, "vectors", "core-v0.2", "artifacts", "valid", "objects", "route-grant-sign1.cose"), Profile: key.Profile, AuthorityGeneration: key.AuthorityGeneration, Checkpoint: checkpoint.Digest}, VerificationContext{Key: key, Intent: intent, Checkpoint: checkpoint, NowUnix: 1_893_456_000}, resolver
+	claims := CheckpointClaims{SourceOperator: key.SourceOperator, Profile: key.Profile, Generation: key.AuthorityGeneration, IssuedAt: 1_893_456_000, FreshUntil: intent.ExpiresAt, Digest: CheckpointDigest{0xa5}}
+	checkpoint := mustSealCheckpointForTest(t, claims)
+	return ProviderGrant{ExactRouteGrant: readRepo(t, "vectors", "core-v0.2", "artifacts", "valid", "objects", "route-grant-sign1.cose"), Profile: key.Profile, AuthorityGeneration: key.AuthorityGeneration, Checkpoint: checkpoint.Digest()}, VerificationContext{Key: key, Intent: intent, Checkpoint: checkpoint, NowUnix: 1_893_456_000}, resolver
 }
 
 func frozenIssuer(t *testing.T) IssuerRecord {

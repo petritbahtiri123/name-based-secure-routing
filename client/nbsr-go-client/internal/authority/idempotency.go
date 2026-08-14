@@ -20,12 +20,25 @@ type requestRecord struct {
 	key           requestKey
 	snapshot      RequestSnapshot
 	reservationID uint64
+	link          requestResultLink
 	logicalBytes  uint64
 }
 
+// requestResultLink is private state that distinguishes a still-reserved
+// result from a terminal result. A completed request never points at a
+// reservation after that reservation has been consumed, released,
+// quarantined, or invalidated.
+type requestResultLink uint8
+
+const (
+	requestLinkNone requestResultLink = iota
+	requestLinkReserved
+	requestLinkTerminal
+)
+
 // The logical charge covers the composite key, two digests, compact state,
 // authority generation, expiry, and the reservation link.
-const requestRecordLogicalBytes uint64 = 32 + 8 + 1 + 16 + 32 + 32 + 1 + 8 + 8 + 8
+const requestRecordLogicalBytes uint64 = 32 + 8 + 1 + 16 + 32 + 32 + 1 + 1 + 8 + 8 + 8
 
 // canonicalRequestDigest is local-only binding for retry/idempotency state. It
 // is domain-separated and length-prefixes variable values so no two distinct
@@ -204,6 +217,9 @@ func (m *Manager) finishRequestLocked(record *requestRecord, resultDigest [32]by
 			return ErrInvalidAuthority
 		}
 		record.reservationID = reservation.id
+		record.link = requestLinkReserved
+	} else {
+		record.link = requestLinkTerminal
 	}
 	record.snapshot.ResultDigest = resultDigest
 	record.snapshot.Status = RequestComplete
@@ -254,18 +270,27 @@ func (m *Manager) markAmbiguousLocked(record *requestRecord) ([]Event, error) {
 		m.retireEntryLocked(entry, cacheQuarantined)
 		events = append(events, Event{Kind: EventAmbiguousQuarantine, AuthorityGeneration: record.snapshot.AuthorityGeneration, Grant: grant, Request: record.snapshot.ID, Result: CodeRequestAmbiguous})
 	}
+	record.reservationID = 0
+	record.link = requestLinkTerminal
 	record.snapshot.Status = RequestAmbiguous
 	return events, nil
 }
 
 func (m *Manager) completedReservationLocked(record *requestRecord) (Reservation, error) {
-	if record == nil || m.requests[record.key] != record || record.snapshot.Status != RequestComplete || record.reservationID == 0 {
-		return Reservation{}, ErrRequestAmbiguous
+	if record == nil || m.requests[record.key] != record || record.snapshot.Status != RequestComplete {
+		return Reservation{}, ErrInvalidAuthority
+	}
+	if record.link == requestLinkTerminal {
+		return Reservation{}, ErrInvalidTransition
+	}
+	if record.link != requestLinkReserved || record.reservationID == 0 {
+		return Reservation{}, ErrInvalidAuthority
 	}
 	entry := m.reserved[record.reservationID]
 	if entry == nil || entry.state != cacheReserved || entry.authority.GrantDigest() != record.snapshot.ResultDigest {
-		_, _ = m.markAmbiguousLocked(record)
-		return Reservation{}, ErrRequestAmbiguous
+		record.reservationID = 0
+		record.link = requestLinkTerminal
+		return Reservation{}, ErrInvalidTransition
 	}
 	return Reservation{id: entry.reservation, key: entry.authority.Key(), grant: entry.authority.GrantDigest()}, nil
 }
@@ -361,6 +386,21 @@ func (m *Manager) removeRequestLocked(record *requestRecord) {
 	}
 	delete(m.requests, record.key)
 	m.requestBytes -= record.logicalBytes
+}
+
+// terminalizeReservationRecordsLocked preserves bounded duplicate-request
+// replay protection while severing every completed record from an authority
+// reservation that is no longer live. Callers hold m.mu.
+func (m *Manager) terminalizeReservationRecordsLocked(reservationID uint64, grant RouteGrantDigest) {
+	if reservationID == 0 || grant == (RouteGrantDigest{}) {
+		return
+	}
+	for _, record := range m.requests {
+		if record.snapshot.Status == RequestComplete && record.link == requestLinkReserved && record.reservationID == reservationID && record.snapshot.ResultDigest == grant {
+			record.reservationID = 0
+			record.link = requestLinkTerminal
+		}
+	}
 }
 
 func validRequestKey(key requestKey) bool {

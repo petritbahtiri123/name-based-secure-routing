@@ -256,8 +256,8 @@ func task11FuzzManager(t *testing.T) (*task11FuzzProvider, *Manager, *task11Fuzz
 	if err != nil {
 		t.Fatal(err)
 	}
-	m.checkpoint = checkpointState{claims: verification.Checkpoint}
-	m.generation, m.hasCheckpoint = verification.Checkpoint.Generation, true
+	m.checkpoint = verification.Checkpoint
+	m.generation, m.hasCheckpoint = verification.Checkpoint.Generation(), true
 	request := AcquireRequest{Key: verification.Key, Intent: verification.Intent, Device: identity.DeviceIdentity{ID: verification.Key.DeviceID, SourceOperatorID: verification.Key.SourceOperator, CredentialGeneration: verification.Key.DeviceGeneration}, RequestID: RequestID{1}, DeadlineUnix: verification.NowUnix + 1}
 	return provider, m, observer, request
 }
