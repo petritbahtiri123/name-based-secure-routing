@@ -148,16 +148,26 @@ func TestConcurrentInvalidateAndReserveRespectPublishedOrder(t *testing.T) {
 func TestConcurrentConsumeAndQuarantineRespectPublishedOrder(t *testing.T) {
 	t.Run("consume linearizes before quarantine", func(t *testing.T) {
 		m, reservation, snapshot := task11ReservedGrant(t)
+		linearized := make(chan struct{})
+		release := make(chan struct{})
+		quarantineStarted := make(chan struct{})
 		consumed := make(chan error, 1)
 		quarantined := make(chan error, 1)
 		go func() {
-			_, err := m.Consume(reservation, owner(reservation.key.TSGeneration), snapshot, 99)
-			consumed <- err
+			consumed <- task11ConsumeLockedBarrier(m, reservation, owner(reservation.key.TSGeneration), snapshot, 99, linearized, release)
 		}()
+		<-linearized
+		go func() { quarantined <- task11QuarantineBlockedAfterStart(m, reservation, RequestID{9}, quarantineStarted) }()
+		<-quarantineStarted
+		select {
+		case err := <-quarantined:
+			t.Fatalf("Quarantine completed while Consume held Manager.mu: %v", err)
+		default:
+		}
+		close(release)
 		if err := <-consumed; err != nil {
 			t.Fatalf("Consume: %v", err)
 		}
-		go func() { quarantined <- m.Quarantine(reservation, RequestID{9}) }()
 		if err := <-quarantined; !errors.Is(err, ErrInvalidTransition) {
 			t.Fatalf("Quarantine after Consume = %v, want ErrInvalidTransition", err)
 		}
@@ -166,21 +176,28 @@ func TestConcurrentConsumeAndQuarantineRespectPublishedOrder(t *testing.T) {
 
 	t.Run("quarantine linearizes before consume", func(t *testing.T) {
 		m, reservation, snapshot := task11ReservedGrant(t)
-		entered := make(chan struct{})
+		linearized := make(chan struct{})
 		release := make(chan struct{})
-		m.observer = task11BlockingEventObserver{kind: EventAmbiguousQuarantine, entered: entered, release: release}
+		consumeStarted := make(chan struct{})
 		quarantined := make(chan error, 1)
 		consumed := make(chan error, 1)
-		go func() { quarantined <- m.Quarantine(reservation, RequestID{9}) }()
-		<-entered
 		go func() {
-			_, err := m.Consume(reservation, owner(reservation.key.TSGeneration), snapshot, 99)
-			consumed <- err
+			quarantined <- task11QuarantineLockedBarrier(m, reservation, RequestID{9}, linearized, release)
 		}()
+		<-linearized
+		go func() {
+			consumed <- task11ConsumeBlockedAfterStart(m, reservation, owner(reservation.key.TSGeneration), snapshot, 99, consumeStarted)
+		}()
+		<-consumeStarted
+		select {
+		case err := <-consumed:
+			t.Fatalf("Consume completed while Quarantine held Manager.mu: %v", err)
+		default:
+		}
+		close(release)
 		if err := <-consumed; !errors.Is(err, ErrInvalidTransition) {
 			t.Fatalf("Consume after Quarantine = %v, want ErrInvalidTransition", err)
 		}
-		close(release)
 		if err := <-quarantined; err != nil {
 			t.Fatalf("Quarantine: %v", err)
 		}
@@ -371,6 +388,67 @@ func task11RequireInvariants(t *testing.T, m *Manager) {
 	if err := m.ValidateInvariants(); err != nil {
 		t.Fatalf("invariants: %v", err)
 	}
+}
+
+// task11ConsumeLockedBarrier is a same-package test seam for Consume's locked
+// transition. It holds Manager.mu only after the real validation and terminal
+// state change have linearized, so a competing public Quarantine call is
+// deterministically blocked at the same mutex.
+func task11ConsumeLockedBarrier(m *Manager, reservation Reservation, owner AdmissionOwner, snapshot GenerationSnapshot, now uint64, linearized chan<- struct{}, release <-chan struct{}) error {
+	m.mu.Lock()
+	events, err := m.validateReservedLocked(reservation, snapshot, now)
+	if err == nil {
+		entry := m.reserved[reservation.id]
+		if owner.TSGeneration != reservation.key.TSGeneration {
+			err = ErrBindingMismatch
+		} else if owner.ChannelID == ([16]byte{}) {
+			err = ErrInvalidAuthority
+		} else {
+			m.retireEntryLocked(entry, cacheConsumed)
+		}
+	}
+	close(linearized)
+	<-release
+	m.mu.Unlock()
+	m.notify(events)
+	return err
+}
+
+// task11QuarantineLockedBarrier is the matching same-package seam for the
+// quarantine transition. It does not alter production behavior or APIs.
+func task11QuarantineLockedBarrier(m *Manager, reservation Reservation, request RequestID, linearized chan<- struct{}, release <-chan struct{}) error {
+	m.mu.Lock()
+	entry, found := m.reserved[reservation.id]
+	var err error
+	if !found {
+		if _, terminal := m.tombstones[reservation.grant]; terminal {
+			err = ErrInvalidTransition
+		} else {
+			err = ErrInvalidAuthority
+		}
+	} else if reservation.id == 0 || entry.reservation != reservation.id || entry.authority.Key() != reservation.key || entry.authority.GrantDigest() != reservation.grant || entry.state != cacheReserved {
+		err = ErrInvalidAuthority
+	} else {
+		m.retireEntryLocked(entry, cacheQuarantined)
+	}
+	close(linearized)
+	<-release
+	m.mu.Unlock()
+	if err == nil {
+		m.notify([]Event{{Kind: EventAmbiguousQuarantine, Grant: reservation.grant, Request: request, Result: CodeRequestAmbiguous}})
+	}
+	return err
+}
+
+func task11QuarantineBlockedAfterStart(m *Manager, reservation Reservation, request RequestID, started chan<- struct{}) error {
+	close(started)
+	return m.Quarantine(reservation, request)
+}
+
+func task11ConsumeBlockedAfterStart(m *Manager, reservation Reservation, owner AdmissionOwner, snapshot GenerationSnapshot, now uint64, started chan<- struct{}) error {
+	close(started)
+	_, err := m.Consume(reservation, owner, snapshot, now)
+	return err
 }
 
 type task11BarrierClock struct {

@@ -12,12 +12,16 @@ import (
 func FuzzAuthorityLifecycle(f *testing.F) {
 	f.Add([]byte{0, 1, 2, 3, 4, 5, 6, 7})
 	f.Add([]byte{7, 6, 5, 4, 3, 2, 1, 0})
+	f.Add([]byte{0xf0, 0xf1, 0xf2})
 	f.Fuzz(func(t *testing.T, ops []byte) {
 		if len(ops) > 256 {
 			ops = ops[:256]
 		}
 		provider, m, observer, request := task11FuzzManager(t)
 		for index, op := range ops {
+			if task11FuzzBoundaryOperation(t, op) {
+				continue
+			}
 			request.RequestID = task11FuzzRequestID(index, op)
 			var err error
 			switch op & 7 {
@@ -55,6 +59,133 @@ func FuzzAuthorityLifecycle(f *testing.F) {
 func task11TypedAuthorityError(err error) bool {
 	var typed *AuthorityError
 	return errors.As(err, &typed) && typed != nil
+}
+
+func task11FuzzBoundaryOperation(t *testing.T, op byte) bool {
+	switch op {
+	case 0xf0:
+		task11FuzzPendingAndWaiterBoundary(t)
+	case 0xf1:
+		task11FuzzCacheBoundary(t)
+	case 0xf2:
+		task11FuzzRenewBoundary(t)
+	default:
+		return false
+	}
+	return true
+}
+
+func task11FuzzPendingAndWaiterBoundary(t *testing.T) {
+	provider := &task11BoundaryProvider{started: make(chan struct{}, 4), release: make(chan struct{})}
+	m := task11Manager(t)
+	observer := &task11BoundaryObserver{events: make(chan Event, 16)}
+	m.provider = provider
+	m.observer = observer
+	requests := make([]AcquireRequest, 5)
+	for index := range requests {
+		request := validAcquireRequest()
+		request.Key.AuthorityGeneration = 7
+		request.Key.TSGeneration = TSGeneration(index + 1)
+		request.RequestID = RequestID{byte(index + 1)}
+		request.DeadlineUnix = 200
+		requests[index] = request
+	}
+	results := make(chan error, 8)
+	for index := 0; index < 4; index++ {
+		request := requests[index]
+		go func() { _, err := m.Acquire(context.Background(), request); results <- err }()
+	}
+	for range 4 {
+		<-provider.started
+	}
+	for range 4 {
+		if event := <-observer.events; event.Kind != EventAcquireRequested {
+			t.Fatalf("initial pending event = %v, want EventAcquireRequested", event.Kind)
+		}
+	}
+	for index := 0; index < 4; index++ {
+		request := requests[index]
+		request.RequestID[1] = 1
+		go func() { _, err := m.Acquire(context.Background(), request); results <- err }()
+		if event := <-observer.events; event.Kind != EventAcquireCoalesced {
+			t.Fatalf("coalesced pending event = %v, want EventAcquireCoalesced", event.Kind)
+		}
+	}
+	if usage := m.Usage(); usage.PendingCalls != 4 || usage.PendingWaiters != 8 || usage.RequestRecords != 8 {
+		t.Fatalf("exact pending boundary usage = %+v, want 4 calls/8 waiters/8 records", usage)
+	}
+	ninth := requests[4]
+	ninth.RequestID[2] = 1
+	if _, err := m.Acquire(context.Background(), ninth); !errors.Is(err, ErrCacheCapacity) {
+		t.Fatalf("ninth retained request = %v, want ErrCacheCapacity", err)
+	}
+	close(provider.release)
+	for range 8 {
+		if err := <-results; !errors.Is(err, ErrProviderUnavailable) {
+			t.Fatalf("bounded pending result = %v, want ErrProviderUnavailable", err)
+		}
+	}
+	task11RequireInvariants(t, m)
+	if usage := m.Usage(); usage.PendingCalls != 0 || usage.PendingWaiters != 0 || usage.RequestRecords != 0 {
+		t.Fatalf("pending boundary cleanup = %+v", usage)
+	}
+}
+
+func task11FuzzCacheBoundary(t *testing.T) {
+	m := task11Manager(t)
+	for index := 0; index < 8; index++ {
+		key := testKey(byte(index + 1))
+		_, err := m.reserveVerified(testAuthority(key, testGrant(byte(index+1)), 200))
+		if err != nil {
+			t.Fatalf("cache entry %d: %v", index, err)
+		}
+	}
+	if usage := m.Usage(); usage.CacheEntries != 8 {
+		t.Fatalf("exact cache boundary usage = %+v, want 8 entries", usage)
+	}
+	if _, err := m.reserveVerified(testAuthority(testKey(9), testGrant(9), 200)); !errors.Is(err, ErrCacheCapacity) {
+		t.Fatalf("ninth cache entry = %v, want ErrCacheCapacity", err)
+	}
+	task11RequireInvariants(t, m)
+}
+
+func task11FuzzRenewBoundary(t *testing.T) {
+	provider, m, request := coalesceFixture(t)
+	previous := testGrant(80)
+	cacheAvailableForCoalesce(t, m, request, previous, request.DeadlineUnix+100)
+	provider.releaseOnce()
+	reservation, err := m.Renew(context.Background(), RenewRequest{AcquireRequest: request, PreviousGrant: previous})
+	if err != nil || reservation.id == 0 {
+		t.Fatalf("valid matching renew = %#v, %v", reservation, err)
+	}
+	task11RequireInvariants(t, m)
+}
+
+type task11BoundaryProvider struct {
+	started chan struct{}
+	release chan struct{}
+}
+
+func (provider *task11BoundaryProvider) Acquire(context.Context, AcquireRequest) (ProviderGrant, error) {
+	provider.started <- struct{}{}
+	<-provider.release
+	return ProviderGrant{}, ErrProviderUnavailable
+}
+
+func (provider *task11BoundaryProvider) Renew(context.Context, RenewRequest) (ProviderGrant, error) {
+	return ProviderGrant{}, ErrProviderUnavailable
+}
+
+func (provider *task11BoundaryProvider) Freshness(context.Context, FreshnessRequest) (ProviderFreshness, error) {
+	return ProviderFreshness{}, ErrProviderUnavailable
+}
+
+func (provider *task11BoundaryProvider) Close() error { return nil }
+
+type task11BoundaryObserver struct{ events chan Event }
+
+func (observer *task11BoundaryObserver) Observe(event Event) {
+	observer.events <- event
 }
 
 type task11FuzzProvider struct {
