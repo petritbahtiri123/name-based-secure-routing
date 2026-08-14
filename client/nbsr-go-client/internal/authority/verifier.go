@@ -7,10 +7,11 @@ import (
 )
 
 const (
-	routeGrantIssuerPurpose uint16 = 1
-	maxRouteGrantLifetime          = uint64(600)
-	maxStaticIssuers               = 64
-	maxUnixTime                    = uint64(253_402_300_799)
+	routeGrantIssuerPurpose  uint16 = 1
+	maxRouteGrantLifetime           = uint64(600)
+	maxStaticIssuers                = 64
+	maxUnixTime                     = uint64(253_402_300_799)
+	maxRouteGrantTargetEdges        = 16
 )
 
 // VerificationContext binds a provider candidate to the already validated
@@ -86,6 +87,9 @@ func (verifier *Verifier) VerifyRouteGrant(ctx context.Context, candidate Provid
 		return VerifiedAuthority{}, ErrInvalidAuthority
 	}
 	if len(candidate.ExactRouteGrant) == 0 || len(candidate.ExactRouteGrant) > defaultCBORLimits().maxInputBytes || candidate.Profile == "" || candidate.AuthorityGeneration == 0 || candidate.Checkpoint == (CheckpointDigest{}) {
+		return VerifiedAuthority{}, ErrInvalidAuthority
+	}
+	if len(verification.Intent.Canonical) == 0 || len(verification.Intent.Canonical) > defaultCBORLimits().maxInputBytes || len(verification.Intent.TargetEdges) == 0 || len(verification.Intent.TargetEdges) > maxRouteGrantTargetEdges {
 		return VerifiedAuthority{}, ErrInvalidAuthority
 	}
 	// Issuer resolvers are callbacks. Freeze every mutable value used after the
@@ -186,7 +190,7 @@ func verifyRouteGrantFields(fields map[uint64]any, verification VerificationCont
 	sourceOperator, sourceOperatorOK := fields[4].(string)
 	sourceEdge, sourceEdgeOK := fields[5].(string)
 	targetOperator, targetOperatorOK := fields[6].(string)
-	edges, edgesOK := sortedStrings(fields[7], 1, 16)
+	edges, edgesOK := sortedStrings(fields[7], 1, maxRouteGrantTargetEdges)
 	transports, transportsOK := sortedStrings(fields[8], 1, 1)
 	ports, portsOK := sortedPorts(fields[9], 1, 32)
 	proof, proofOK := fixed32(fields[10])
@@ -286,7 +290,7 @@ func validTextID(value string) bool {
 	return !separator
 }
 func validTextIDs(values []string) bool {
-	if len(values) == 0 {
+	if len(values) == 0 || len(values) > maxRouteGrantTargetEdges {
 		return false
 	}
 	for _, value := range values {

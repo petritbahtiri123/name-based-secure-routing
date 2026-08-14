@@ -358,6 +358,44 @@ func TestVerifyRouteGrantRejectsEmptyCanonicalIntentBeforeHashing(t *testing.T) 
 	}
 }
 
+func TestVerifyRouteGrantRejectsOversizedContextSnapshotsBeforeCopying(t *testing.T) {
+	candidate, verification, resolver := validFrozenGrantCase(t)
+	for _, test := range []struct {
+		name   string
+		mutate func(*VerificationContext)
+	}{
+		{"canonical bytes", func(value *VerificationContext) {
+			value.Intent.Canonical = bytes.Repeat([]byte{'c'}, defaultCBORLimits().maxInputBytes+1)
+			value.Intent.Digest = RouteIntentDigest(sha256.Sum256(value.Intent.Canonical))
+			value.Key.IntentDigest = value.Intent.Digest
+		}},
+		{"target edge count", func(value *VerificationContext) {
+			value.Intent.TargetEdges = make([]string, 17)
+			for index := range value.Intent.TargetEdges {
+				value.Intent.TargetEdges[index] = "edge" + string(rune('a'+index))
+			}
+			value.Key.TargetEdgeSetDigest = targetEdgeSetDigest(value.Intent.TargetEdges)
+		}},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			changed := verification
+			test.mutate(&changed)
+			if _, err := mustVerifier(t, resolver).VerifyRouteGrant(context.Background(), candidate, changed); !errors.Is(err, ErrInvalidAuthority) {
+				t.Fatalf("error = %v, want ErrInvalidAuthority", err)
+			}
+		})
+	}
+}
+
+func TestRouteGrantRejectsOverlengthTargetEdgeID(t *testing.T) {
+	candidate, verification, _ := validFrozenGrantCase(t)
+	changed := verification
+	changed.Intent.TargetEdges = []string{string(bytes.Repeat([]byte{'a'}, 65))}
+	if err := verifyContext(changed, candidate); !errors.Is(err, ErrInvalidAuthority) {
+		t.Fatalf("context error = %v, want ErrInvalidAuthority", err)
+	}
+}
+
 type issuerResolverFunc func(context.Context, []byte, string, string, uint64) (IssuerRecord, error)
 
 func (function issuerResolverFunc) ResolveRouteGrantIssuer(ctx context.Context, kid []byte, profile, source string, now uint64) (IssuerRecord, error) {
