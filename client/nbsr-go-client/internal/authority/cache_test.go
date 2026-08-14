@@ -4,6 +4,7 @@ import (
 	"errors"
 	"math"
 	"reflect"
+	"sync"
 	"testing"
 )
 
@@ -17,6 +18,173 @@ func TestConsumedGrantNeverReturnsAvailable(t *testing.T) {
 	}
 	if _, err := m.reserveVerified(testAuthority(r.key, r.grant, 200)); !errors.Is(err, ErrInvalidAuthority) {
 		t.Fatalf("reserve consumed grant = %v, want ErrInvalidAuthority", err)
+	}
+}
+
+func TestTerminalGrantPermitsDistinctFreshReplacement(t *testing.T) {
+	tests := []struct {
+		name     string
+		terminal func(*testing.T, *Manager, Reservation, GenerationSnapshot)
+	}{
+		{"consumed", func(t *testing.T, m *Manager, r Reservation, snapshot GenerationSnapshot) {
+			if _, err := m.Consume(r, AdmissionOwner{TSGeneration: r.key.TSGeneration, ChannelID: id16(1)}, snapshot, 99); err != nil {
+				t.Fatal(err)
+			}
+		}},
+		{"quarantined", func(t *testing.T, m *Manager, r Reservation, _ GenerationSnapshot) {
+			if err := m.Quarantine(r, RequestID{8}); err != nil {
+				t.Fatal(err)
+			}
+		}},
+		{"invalidated", func(t *testing.T, m *Manager, r Reservation, _ GenerationSnapshot) {
+			if err := m.InvalidateGrant(r.grant); err != nil {
+				t.Fatal(err)
+			}
+		}},
+		{"expired", func(t *testing.T, m *Manager, r Reservation, snapshot GenerationSnapshot) {
+			if err := m.ValidateForNewWork(r, snapshot, 200); !errors.Is(err, ErrExpired) {
+				t.Fatalf("expiry = %v, want ErrExpired", err)
+			}
+		}},
+		{"revoked", func(t *testing.T, m *Manager, r Reservation, snapshot GenerationSnapshot) {
+			m.mu.Lock()
+			m.checkpoint.revoked = []RouteGrantDigest{r.grant}
+			m.mu.Unlock()
+			if _, err := m.Consume(r, AdmissionOwner{TSGeneration: r.key.TSGeneration, ChannelID: id16(1)}, snapshot, 99); !errors.Is(err, ErrRevoked) {
+				t.Fatalf("revocation = %v, want ErrRevoked", err)
+			}
+		}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			m, old, snapshot := reservedGrant(t)
+			tt.terminal(t, m, old, snapshot)
+			fresh := testAuthority(old.key, testGrant(2), 250)
+			if _, err := m.reserveVerified(fresh); err != nil {
+				t.Fatalf("fresh distinct grant = %v", err)
+			}
+			if _, err := m.reserveVerified(testAuthority(old.key, old.grant, 200)); !errors.Is(err, ErrInvalidAuthority) {
+				t.Fatalf("old terminal digest reused: %v", err)
+			}
+			logical, err := authorityLogicalBytes(fresh)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if usage := m.Usage(); usage.CacheEntries != 2 || usage.CacheBytes != logical+tombstoneLogicalBytes {
+				t.Fatalf("replacement usage = %+v, want two entries and %d bytes", usage, logical+tombstoneLogicalBytes)
+			}
+			if err := m.ValidateInvariants(); err != nil {
+				t.Fatalf("replacement invariants = %v", err)
+			}
+		})
+	}
+}
+
+func TestTerminalReplacementHonorsExactBoundedAccounting(t *testing.T) {
+	key := testKey(1)
+	logical := testLogicalBytes(key)
+	for _, tt := range []struct {
+		name    string
+		entries int
+		bytes   uint64
+		wantErr error
+	}{
+		{"entry cap", 1, 1 << 20, ErrCacheCapacity},
+		{"byte cap below", 2, logical + tombstoneLogicalBytes - 1, ErrCacheCapacity},
+		{"byte cap exact", 2, logical + tombstoneLogicalBytes, nil},
+		{"byte cap above", 2, logical + tombstoneLogicalBytes + 1, nil},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			m := testManager(t, 99, tt.entries, tt.bytes)
+			old, err := m.reserveVerified(testAuthority(key, testGrant(1), 200))
+			if err != nil {
+				t.Fatal(err)
+			}
+			if _, err := m.Consume(old, AdmissionOwner{TSGeneration: old.key.TSGeneration, ChannelID: id16(1)}, GenerationSnapshot{generation: old.key.AuthorityGeneration}, 99); err != nil {
+				t.Fatal(err)
+			}
+			before := m.Usage()
+			_, err = m.reserveVerified(testAuthority(key, testGrant(2), 250))
+			if !errors.Is(err, tt.wantErr) {
+				t.Fatalf("replacement error = %v, want %v", err, tt.wantErr)
+			}
+			if tt.wantErr != nil && m.Usage() != before {
+				t.Fatalf("failed replacement changed usage: got %+v, want %+v", m.Usage(), before)
+			}
+			if err := m.ValidateInvariants(); err != nil {
+				t.Fatalf("bounded replacement invariants = %v", err)
+			}
+		})
+	}
+}
+
+func TestExpiredTerminalTombstoneEvictsBeforeFreshInsertion(t *testing.T) {
+	clock := &mutableClock{now: 99}
+	m := testManagerWithClock(t, clock, 1, 1<<20)
+	old, err := m.reserveVerified(testAuthority(testKey(1), testGrant(1), 100))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := m.Consume(old, AdmissionOwner{TSGeneration: old.key.TSGeneration, ChannelID: id16(1)}, GenerationSnapshot{generation: old.key.AuthorityGeneration}, 99); err != nil {
+		t.Fatal(err)
+	}
+	clock.set(100)
+	if _, err := m.reserveVerified(testAuthority(testKey(2), testGrant(2), 200)); err != nil {
+		t.Fatalf("fresh insertion after tombstone horizon = %v", err)
+	}
+	m.mu.RLock()
+	_, retained := m.tombstones[old.grant]
+	m.mu.RUnlock()
+	if retained {
+		t.Fatal("expired terminal tombstone was retained despite capacity pressure")
+	}
+	if _, err := m.reserveVerified(testAuthority(old.key, old.grant, 100)); !errors.Is(err, ErrExpired) {
+		t.Fatalf("expired old grant reinserted: %v", err)
+	}
+}
+
+func TestConcurrentReserveConsumeInvalidateLeavesBoundedReplayState(t *testing.T) {
+	for iteration := 0; iteration < 50; iteration++ {
+		m, old, snapshot := reservedGrant(t)
+		fresh := testAuthority(old.key, testGrant(2), 250)
+		start := make(chan struct{})
+		var group sync.WaitGroup
+		errs := make(chan error, 3)
+		group.Add(3)
+		go func() {
+			defer group.Done()
+			<-start
+			_, err := m.Consume(old, AdmissionOwner{TSGeneration: old.key.TSGeneration, ChannelID: id16(1)}, snapshot, 99)
+			errs <- err
+		}()
+		go func() {
+			defer group.Done()
+			<-start
+			errs <- m.InvalidateGrant(old.grant)
+		}()
+		go func() {
+			defer group.Done()
+			<-start
+			_, err := m.reserveVerified(fresh)
+			errs <- err
+		}()
+		close(start)
+		group.Wait()
+		close(errs)
+		for err := range errs {
+			if err != nil && !errors.Is(err, ErrInvalidAuthority) && !errors.Is(err, ErrInvalidTransition) {
+				t.Fatalf("iteration %d contention error = %v", iteration, err)
+			}
+		}
+		if _, err := m.reserveVerified(fresh); err != nil && !errors.Is(err, ErrInvalidTransition) {
+			t.Fatalf("iteration %d fresh retry = %v", iteration, err)
+		}
+		if _, err := m.reserveVerified(testAuthority(old.key, old.grant, 200)); !errors.Is(err, ErrInvalidAuthority) {
+			t.Fatalf("iteration %d old digest reused: %v", iteration, err)
+		}
+		if err := m.ValidateInvariants(); err != nil {
+			t.Fatalf("iteration %d invariants = %v", iteration, err)
+		}
 	}
 }
 
@@ -365,10 +533,15 @@ func reservedGrant(t *testing.T) (*Manager, Reservation, GenerationSnapshot) {
 
 func testManager(t *testing.T, now uint64, entries int, bytes uint64) *Manager {
 	t.Helper()
+	return testManagerWithClock(t, fakeClock{}, entries, bytes)
+}
+
+func testManagerWithClock(t *testing.T, clock Clock, entries int, bytes uint64) *Manager {
+	t.Helper()
 	limits := validLimits()
 	limits.MaxCacheEntries = entries
 	limits.MaxCacheBytes = bytes
-	m, err := NewManager(limits, fakeClock{}, fakeProvider{}, &Verifier{}, fakeCheckpointVerifier{}, fakeFloorStore{}, noopObserver{})
+	m, err := NewManager(limits, clock, fakeProvider{}, &Verifier{}, fakeCheckpointVerifier{}, fakeFloorStore{}, noopObserver{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -377,8 +550,24 @@ func testManager(t *testing.T, now uint64, entries int, bytes uint64) *Manager {
 	m.generation = 7
 	m.hasCheckpoint = true
 	m.mu.Unlock()
-	_ = now
 	return m
+}
+
+type mutableClock struct {
+	mu  sync.Mutex
+	now uint64
+}
+
+func (c *mutableClock) NowUnix() uint64 {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	return c.now
+}
+
+func (c *mutableClock) set(now uint64) {
+	c.mu.Lock()
+	c.now = now
+	c.mu.Unlock()
 }
 
 func testKey(seed byte) AuthorityKey {

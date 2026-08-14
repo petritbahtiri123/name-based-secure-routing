@@ -22,6 +22,18 @@ type cacheEntry struct {
 	logicalBytes uint64
 }
 
+// A tombstone retains only the replay-relevant digest, terminal reason, and
+// end-exclusive authority expiry. It is charged to the same cache limits as a
+// live entry and may be evicted only after that expiry.
+type tombstone struct {
+	grant        RouteGrantDigest
+	expiresAt    uint64
+	state        cacheLifecycle
+	logicalBytes uint64
+}
+
+const tombstoneLogicalBytes uint64 = 40 // grant digest plus end-exclusive expiry.
+
 // authorityLogicalBytes is a representation-independent bound: all fixed-size
 // key and sealed-authority fields plus the five variable key strings. It does
 // not depend on Go's allocator or map implementation.
@@ -48,15 +60,22 @@ func (m *Manager) reserveVerified(authority VerifiedAuthority) (Reservation, err
 	if m == nil || !authority.valid() {
 		return Reservation{}, ErrInvalidAuthority
 	}
+	now := m.clock.NowUnix()
+	if !validUnixTime(now) || now >= authority.ExpiresAt() {
+		return Reservation{}, ErrExpired
+	}
 	m.mu.Lock()
-	reservation, events, err := m.reserveVerifiedLocked(authority)
+	reservation, events, err := m.reserveVerifiedLocked(authority, now)
 	m.mu.Unlock()
 	m.notify(events)
 	return reservation, err
 }
 
-func (m *Manager) reserveVerifiedLocked(authority VerifiedAuthority) (Reservation, []Event, error) {
+func (m *Manager) reserveVerifiedLocked(authority VerifiedAuthority, now uint64) (Reservation, []Event, error) {
 	key, grant := authority.Key(), authority.GrantDigest()
+	if _, found := m.tombstones[grant]; found {
+		return Reservation{}, nil, ErrInvalidAuthority
+	}
 	if entry, found := m.grants[grant]; found {
 		if entry.authority.Key() != key {
 			return Reservation{}, nil, ErrInvalidAuthority
@@ -78,12 +97,16 @@ func (m *Manager) reserveVerifiedLocked(authority VerifiedAuthority) (Reservatio
 	if _, overflow := addUint64(m.cacheBytes, logicalBytes); overflow {
 		return Reservation{}, nil, ErrAccountingOverflow
 	}
-	evictions, err := m.planEvictionsLocked(logicalBytes)
+	evictions, err := m.planEvictionsLocked(logicalBytes, now)
 	if err != nil {
 		return Reservation{}, []Event{{Kind: EventCacheFull, Grant: grant, Result: errorCode(err)}}, err
 	}
-	for _, entry := range evictions {
-		m.removeAvailableLocked(entry)
+	for _, eviction := range evictions {
+		if eviction.entry != nil {
+			m.removeAvailableLocked(eviction.entry)
+		} else {
+			m.removeTombstoneLocked(eviction.tombstone)
+		}
 	}
 	entry := &cacheEntry{authority: authority, state: cacheAvailable, logicalBytes: logicalBytes}
 	m.cache[key] = entry
@@ -109,62 +132,51 @@ func (m *Manager) reserveExistingLocked(entry *cacheEntry) (Reservation, []Event
 	return Reservation{id: entry.reservation, key: entry.authority.Key(), grant: entry.authority.GrantDigest()}, []Event{{Kind: EventCacheHit, Grant: entry.authority.GrantDigest()}}, nil
 }
 
-func (m *Manager) planEvictionsLocked(incomingBytes uint64) ([]*cacheEntry, error) {
+type evictionCandidate struct {
+	entry     *cacheEntry
+	tombstone *tombstone
+}
+
+func (m *Manager) planEvictionsLocked(incomingBytes, now uint64) ([]evictionCandidate, error) {
 	bytesAfter, overflow := addUint64(m.cacheBytes, incomingBytes)
 	if overflow {
 		return nil, ErrAccountingOverflow
 	}
-	entriesAfter := len(m.cache) + 1
+	entriesAfter := m.cacheEntriesLocked() + 1
 	if entriesAfter <= m.limits.MaxCacheEntries && bytesAfter <= m.limits.MaxCacheBytes {
 		return nil, nil
 	}
-	candidates := make([]*cacheEntry, 0, len(m.cache))
+	candidates := make([]evictionCandidate, 0, m.cacheEntriesLocked())
 	for _, entry := range m.cache {
 		if entry.state == cacheAvailable {
-			candidates = append(candidates, entry)
+			candidates = append(candidates, evictionCandidate{entry: entry})
 		}
 	}
+	for _, terminal := range m.tombstones {
+		if now >= terminal.expiresAt {
+			terminal := terminal
+			candidates = append(candidates, evictionCandidate{tombstone: &terminal})
+		}
+	}
+	selected := make([]evictionCandidate, 0)
 	for len(candidates) > 0 && (entriesAfter > m.limits.MaxCacheEntries || bytesAfter > m.limits.MaxCacheBytes) {
 		best := 0
 		for index := 1; index < len(candidates); index++ {
-			if evictsBefore(candidates[index], candidates[best]) {
+			if evictionBefore(candidates[index], candidates[best]) {
 				best = index
 			}
 		}
-		entry := candidates[best]
+		candidate := candidates[best]
 		candidates = append(candidates[:best], candidates[best+1:]...)
-		if entry.logicalBytes > bytesAfter {
+		if candidate.logicalBytes() > bytesAfter {
 			return nil, ErrAccountingOverflow
 		}
-		bytesAfter -= entry.logicalBytes
+		bytesAfter -= candidate.logicalBytes()
 		entriesAfter--
+		selected = append(selected, candidate)
 	}
 	if entriesAfter > m.limits.MaxCacheEntries || bytesAfter > m.limits.MaxCacheBytes {
 		return nil, ErrCacheCapacity
-	}
-	// Recompute the deterministic prefix instead of retaining a separate plan
-	// while selecting candidates above; no mutation has happened yet.
-	neededEntries := len(m.cache) + 1
-	neededBytes, _ := addUint64(m.cacheBytes, incomingBytes)
-	selected := make([]*cacheEntry, 0)
-	all := make([]*cacheEntry, 0, len(m.cache))
-	for _, entry := range m.cache {
-		if entry.state == cacheAvailable {
-			all = append(all, entry)
-		}
-	}
-	for neededEntries > m.limits.MaxCacheEntries || neededBytes > m.limits.MaxCacheBytes {
-		best := 0
-		for index := 1; index < len(all); index++ {
-			if evictsBefore(all[index], all[best]) {
-				best = index
-			}
-		}
-		entry := all[best]
-		all = append(all[:best], all[best+1:]...)
-		selected = append(selected, entry)
-		neededEntries--
-		neededBytes -= entry.logicalBytes
 	}
 	return selected, nil
 }
@@ -177,11 +189,47 @@ func evictsBefore(left, right *cacheEntry) bool {
 	return bytes.Compare(leftGrant[:], rightGrant[:]) < 0
 }
 
+func (candidate evictionCandidate) logicalBytes() uint64 {
+	if candidate.entry != nil {
+		return candidate.entry.logicalBytes
+	}
+	return candidate.tombstone.logicalBytes
+}
+
+func (candidate evictionCandidate) expiresAt() uint64 {
+	if candidate.entry != nil {
+		return candidate.entry.authority.ExpiresAt()
+	}
+	return candidate.tombstone.expiresAt
+}
+
+func (candidate evictionCandidate) grant() RouteGrantDigest {
+	if candidate.entry != nil {
+		return candidate.entry.authority.GrantDigest()
+	}
+	return candidate.tombstone.grant
+}
+
+func evictionBefore(left, right evictionCandidate) bool {
+	if left.expiresAt() != right.expiresAt() {
+		return left.expiresAt() < right.expiresAt()
+	}
+	leftGrant, rightGrant := left.grant(), right.grant()
+	return bytes.Compare(leftGrant[:], rightGrant[:]) < 0
+}
+
 func (m *Manager) removeAvailableLocked(entry *cacheEntry) {
 	delete(m.cache, entry.authority.Key())
 	delete(m.grants, entry.authority.GrantDigest())
 	m.cacheBytes -= entry.logicalBytes
 }
+
+func (m *Manager) removeTombstoneLocked(terminal *tombstone) {
+	delete(m.tombstones, terminal.grant)
+	m.cacheBytes -= terminal.logicalBytes
+}
+
+func (m *Manager) cacheEntriesLocked() int { return len(m.cache) + len(m.tombstones) }
 
 func (m *Manager) ValidateForNewWork(reservation Reservation, snapshot GenerationSnapshot, now uint64) error {
 	if m == nil || !validUnixTime(now) {
@@ -207,10 +255,8 @@ func (m *Manager) Consume(reservation Reservation, owner AdmissionOwner, snapsho
 		} else if owner.ChannelID == ([16]byte{}) {
 			err = ErrInvalidAuthority
 		} else {
-			entry.state = cacheConsumed
-			entry.reservation = 0
-			delete(m.reserved, reservation.id)
 			handle := AuthorityHandle{key: entry.authority.Key(), grant: entry.authority.GrantDigest(), generation: entry.authority.AuthorityGeneration(), expiresAt: entry.authority.ExpiresAt(), checkpoint: entry.authority.Checkpoint()}
+			m.retireEntryLocked(entry, cacheConsumed)
 			m.mu.Unlock()
 			m.notify(events)
 			return handle, nil
@@ -224,11 +270,8 @@ func (m *Manager) Consume(reservation Reservation, owner AdmissionOwner, snapsho
 func (m *Manager) validateReservedLocked(reservation Reservation, snapshot GenerationSnapshot, now uint64) ([]Event, error) {
 	entry, found := m.reserved[reservation.id]
 	if !found {
-		if cached := m.cache[reservation.key]; cached != nil && cached.authority.GrantDigest() == reservation.grant {
-			if cached.state == cacheInvalid {
-				return nil, ErrInvalidAuthority
-			}
-			return nil, ErrInvalidTransition
+		if terminal, found := m.tombstones[reservation.grant]; found {
+			return nil, terminalReservationError(terminal)
 		}
 		return nil, ErrInvalidAuthority
 	}
@@ -240,20 +283,20 @@ func (m *Manager) validateReservedLocked(reservation Reservation, snapshot Gener
 		return events, err
 	}
 	if snapshot.generation == 0 || snapshot.generation != m.generation || entry.authority.AuthorityGeneration() != m.generation || reservation.key.AuthorityGeneration != m.generation || entry.authority.Checkpoint() != m.checkpoint.claims.Digest {
-		m.invalidateEntryLocked(entry)
+		m.retireEntryLocked(entry, cacheInvalid)
 		return append(events, invalidationEvent(entry)), ErrStaleGeneration
 	}
 	if !entry.authority.valid() {
-		m.invalidateEntryLocked(entry)
+		m.retireEntryLocked(entry, cacheInvalid)
 		return append(events, invalidationEvent(entry)), ErrInvalidAuthority
 	}
 	if now >= entry.authority.ExpiresAt() {
-		m.invalidateEntryLocked(entry)
+		m.retireEntryLocked(entry, cacheInvalid)
 		return append(events, invalidationEvent(entry)), ErrExpired
 	}
 	for _, revoked := range m.checkpoint.revoked {
 		if revoked == entry.authority.GrantDigest() {
-			m.invalidateEntryLocked(entry)
+			m.retireEntryLocked(entry, cacheInvalid)
 			return append(events, invalidationEvent(entry)), ErrRevoked
 		}
 	}
@@ -267,12 +310,11 @@ func (m *Manager) Release(reservation Reservation) error {
 	m.mu.Lock()
 	entry, found := m.reserved[reservation.id]
 	if !found {
-		terminal := false
-		if cached := m.cache[reservation.key]; cached != nil && cached.authority.GrantDigest() == reservation.grant {
-			terminal = true
-		}
+		_, terminal := m.tombstones[reservation.grant]
+		cached := m.cache[reservation.key]
+		released := cached != nil && cached.authority.GrantDigest() == reservation.grant
 		m.mu.Unlock()
-		if terminal {
+		if terminal || released {
 			return ErrInvalidTransition
 		}
 		return ErrInvalidAuthority
@@ -295,12 +337,11 @@ func (m *Manager) Quarantine(reservation Reservation, request RequestID) error {
 	m.mu.Lock()
 	entry, found := m.reserved[reservation.id]
 	if !found {
-		terminal := false
-		if cached := m.cache[reservation.key]; cached != nil && cached.authority.GrantDigest() == reservation.grant {
-			terminal = true
-		}
+		_, terminal := m.tombstones[reservation.grant]
+		cached := m.cache[reservation.key]
+		released := cached != nil && cached.authority.GrantDigest() == reservation.grant
 		m.mu.Unlock()
-		if terminal {
+		if terminal || released {
 			return ErrInvalidTransition
 		}
 		return ErrInvalidAuthority
@@ -309,9 +350,7 @@ func (m *Manager) Quarantine(reservation Reservation, request RequestID) error {
 		m.mu.Unlock()
 		return ErrInvalidAuthority
 	}
-	entry.state = cacheQuarantined
-	entry.reservation = 0
-	delete(m.reserved, reservation.id)
+	m.retireEntryLocked(entry, cacheQuarantined)
 	m.mu.Unlock()
 	m.notify([]Event{{Kind: EventAmbiguousQuarantine, Grant: reservation.grant, Request: request, Result: CodeRequestAmbiguous}})
 	return nil
@@ -324,8 +363,8 @@ func (m *Manager) InvalidateGrant(grant RouteGrantDigest) error {
 	m.mu.Lock()
 	entry := m.grants[grant]
 	var events []Event
-	if entry != nil && (entry.state == cacheAvailable || entry.state == cacheReserved) {
-		m.invalidateEntryLocked(entry)
+	if entry != nil {
+		m.retireEntryLocked(entry, cacheInvalid)
 		events = []Event{invalidationEvent(entry)}
 	}
 	m.mu.Unlock()
@@ -341,8 +380,8 @@ func (m *Manager) InvalidateOlderThan(generation AuthorityGeneration) (int, erro
 	count := 0
 	events := make([]Event, 0)
 	for _, entry := range m.cache {
-		if entry.authority.AuthorityGeneration() < generation && (entry.state == cacheAvailable || entry.state == cacheReserved) {
-			m.invalidateEntryLocked(entry)
+		if entry.authority.AuthorityGeneration() < generation {
+			m.retireEntryLocked(entry, cacheInvalid)
 			count++
 			events = append(events, invalidationEvent(entry))
 		}
@@ -352,12 +391,22 @@ func (m *Manager) InvalidateOlderThan(generation AuthorityGeneration) (int, erro
 	return count, nil
 }
 
-func (m *Manager) invalidateEntryLocked(entry *cacheEntry) {
+func (m *Manager) retireEntryLocked(entry *cacheEntry, state cacheLifecycle) {
 	if entry.reservation != 0 {
 		delete(m.reserved, entry.reservation)
-		entry.reservation = 0
 	}
-	entry.state = cacheInvalid
+	delete(m.cache, entry.authority.Key())
+	delete(m.grants, entry.authority.GrantDigest())
+	m.cacheBytes -= entry.logicalBytes
+	m.tombstones[entry.authority.GrantDigest()] = tombstone{grant: entry.authority.GrantDigest(), expiresAt: entry.authority.ExpiresAt(), state: state, logicalBytes: tombstoneLogicalBytes}
+	m.cacheBytes += tombstoneLogicalBytes
+}
+
+func terminalReservationError(terminal tombstone) error {
+	if terminal.state == cacheInvalid {
+		return ErrInvalidAuthority
+	}
+	return ErrInvalidTransition
 }
 
 func invalidationEvent(entry *cacheEntry) Event {
@@ -369,7 +418,7 @@ func (m *Manager) Usage() Usage {
 		return Usage{}
 	}
 	m.mu.RLock()
-	usage := Usage{CacheEntries: len(m.cache), CacheBytes: m.cacheBytes, PendingCalls: len(m.pending), RequestRecords: len(m.requests)}
+	usage := Usage{CacheEntries: m.cacheEntriesLocked(), CacheBytes: m.cacheBytes, PendingCalls: len(m.pending), RequestRecords: len(m.requests)}
 	m.mu.RUnlock()
 	return usage
 }
@@ -380,7 +429,7 @@ func (m *Manager) ValidateInvariants() error {
 	}
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	if len(m.cache) > m.limits.MaxCacheEntries || m.cacheBytes > m.limits.MaxCacheBytes || len(m.reserved) > len(m.cache) || len(m.grants) != len(m.cache) {
+	if m.cacheEntriesLocked() > m.limits.MaxCacheEntries || m.cacheBytes > m.limits.MaxCacheBytes || len(m.reserved) > len(m.cache) || len(m.grants) != len(m.cache) {
 		return ErrInvalidAuthority
 	}
 	var bytesUsed uint64
@@ -406,11 +455,17 @@ func (m *Manager) ValidateInvariants() error {
 			if entry.reservation == 0 || m.reserved[entry.reservation] != entry {
 				return ErrInvalidAuthority
 			}
-		case cacheConsumed, cacheQuarantined, cacheInvalid:
-			if entry.reservation != 0 {
-				return ErrInvalidAuthority
-			}
 		default:
+			return ErrInvalidAuthority
+		}
+	}
+	for grant, terminal := range m.tombstones {
+		if grant == (RouteGrantDigest{}) || terminal.grant != grant || terminal.expiresAt == 0 || terminal.logicalBytes != tombstoneLogicalBytes || (terminal.state != cacheConsumed && terminal.state != cacheQuarantined && terminal.state != cacheInvalid) || m.grants[grant] != nil {
+			return ErrInvalidAuthority
+		}
+		var overflow bool
+		bytesUsed, overflow = addUint64(bytesUsed, terminal.logicalBytes)
+		if overflow {
 			return ErrInvalidAuthority
 		}
 	}

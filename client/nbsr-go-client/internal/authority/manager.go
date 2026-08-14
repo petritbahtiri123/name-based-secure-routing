@@ -24,6 +24,7 @@ type Manager struct {
 
 	cache           map[AuthorityKey]*cacheEntry
 	grants          map[RouteGrantDigest]*cacheEntry
+	tombstones      map[RouteGrantDigest]tombstone
 	reserved        map[uint64]*cacheEntry
 	cacheBytes      uint64
 	nextReservation uint64
@@ -53,6 +54,7 @@ func NewManager(limits Limits, clock Clock, provider AuthorityProvider, verifier
 		observer:           observer,
 		cache:              make(map[AuthorityKey]*cacheEntry),
 		grants:             make(map[RouteGrantDigest]*cacheEntry),
+		tombstones:         make(map[RouteGrantDigest]tombstone),
 		reserved:           make(map[uint64]*cacheEntry),
 		pending:            make(map[AuthorityKey]pendingCall),
 		requests:           make(map[RequestID]RequestSnapshot),
