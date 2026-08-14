@@ -25,6 +25,11 @@ type Manager struct {
 	cache    map[AuthorityKey]cachedAuthority
 	pending  map[AuthorityKey]pendingCall
 	requests map[RequestID]RequestSnapshot
+
+	checkpoint       checkpointState
+	generation       AuthorityGeneration
+	hasCheckpoint    bool
+	freshnessExpired bool
 }
 
 func NewManager(limits Limits, clock Clock, provider AuthorityProvider, verifier *Verifier, checkpointVerifier CheckpointEvidenceVerifier, floorStore GenerationFloorStore, observer Observer) (*Manager, error) {
@@ -81,14 +86,6 @@ func (m *Manager) Acquire(context.Context, AcquireRequest) (Reservation, error) 
 
 func (m *Manager) Renew(context.Context, RenewRequest) (Reservation, error) {
 	return Reservation{}, ErrNotReady
-}
-
-func (m *Manager) PublishFreshness(context.Context, FreshnessRequest, ProviderFreshness) (VerifiedCheckpoint, error) {
-	return VerifiedCheckpoint{}, ErrNotReady
-}
-
-func (m *Manager) CaptureGeneration() (GenerationSnapshot, error) {
-	return GenerationSnapshot{}, ErrNotReady
 }
 
 func (m *Manager) ValidateForNewWork(Reservation, GenerationSnapshot, uint64) error {
