@@ -2,6 +2,7 @@ package authority
 
 import (
 	"context"
+	"reflect"
 	"sync"
 )
 
@@ -30,7 +31,7 @@ func NewManager(limits Limits, clock Clock, provider AuthorityProvider, verifier
 	if err := limits.Validate(); err != nil {
 		return nil, err
 	}
-	if clock == nil || provider == nil || verifier == nil || checkpointVerifier == nil || floorStore == nil || observer == nil {
+	if isNilDependency(clock) || isNilDependency(provider) || verifier == nil || isNilDependency(checkpointVerifier) || isNilDependency(floorStore) || isNilDependency(observer) {
 		return nil, &AuthorityError{Code: CodeInvalidAuthority, Resource: "manager dependency"}
 	}
 	return &Manager{
@@ -45,6 +46,19 @@ func NewManager(limits Limits, clock Clock, provider AuthorityProvider, verifier
 		pending:            make(map[AuthorityKey]pendingCall),
 		requests:           make(map[RequestID]RequestSnapshot),
 	}, nil
+}
+
+func isNilDependency(dependency any) bool {
+	if dependency == nil {
+		return true
+	}
+	value := reflect.ValueOf(dependency)
+	switch value.Kind() {
+	case reflect.Chan, reflect.Func, reflect.Interface, reflect.Map, reflect.Pointer, reflect.Slice:
+		return value.IsNil()
+	default:
+		return false
+	}
 }
 
 func (m *Manager) mutate(change func() ([]Event, error)) error {

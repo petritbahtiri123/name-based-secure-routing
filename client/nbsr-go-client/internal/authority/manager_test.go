@@ -188,7 +188,7 @@ func TestAuthorityConstructorRejectsNilDependencies(t *testing.T) {
 	checkpointVerifier := fakeCheckpointVerifier{}
 	floorStore := fakeFloorStore{}
 	observer := noopObserver{}
-	cases := []struct {
+	type dependencyCase struct {
 		name       string
 		clock      Clock
 		provider   AuthorityProvider
@@ -196,7 +196,8 @@ func TestAuthorityConstructorRejectsNilDependencies(t *testing.T) {
 		checkpoint CheckpointEvidenceVerifier
 		store      GenerationFloorStore
 		observer   Observer
-	}{
+	}
+	cases := []dependencyCase{
 		{"clock", nil, provider, verifier, checkpointVerifier, floorStore, observer},
 		{"provider", clock, nil, verifier, checkpointVerifier, floorStore, observer},
 		{"verifier", clock, provider, nil, checkpointVerifier, floorStore, observer},
@@ -204,6 +205,18 @@ func TestAuthorityConstructorRejectsNilDependencies(t *testing.T) {
 		{"floor store", clock, provider, verifier, checkpointVerifier, nil, observer},
 		{"observer", clock, provider, verifier, checkpointVerifier, floorStore, nil},
 	}
+	var typedNilClock *fakeClock
+	var typedNilProvider *fakeProvider
+	var typedNilCheckpointVerifier *fakeCheckpointVerifier
+	var typedNilFloorStore *fakeFloorStore
+	var typedNilObserver *noopObserver
+	cases = append(cases,
+		dependencyCase{"typed nil clock", typedNilClock, provider, verifier, checkpointVerifier, floorStore, observer},
+		dependencyCase{"typed nil provider", clock, typedNilProvider, verifier, checkpointVerifier, floorStore, observer},
+		dependencyCase{"typed nil checkpoint verifier", clock, provider, verifier, typedNilCheckpointVerifier, floorStore, observer},
+		dependencyCase{"typed nil floor store", clock, provider, verifier, checkpointVerifier, typedNilFloorStore, observer},
+		dependencyCase{"typed nil observer", clock, provider, verifier, checkpointVerifier, floorStore, typedNilObserver},
+	)
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			_, err := NewManager(validLimits(), tt.clock, tt.provider, tt.verifier, tt.checkpoint, tt.store, tt.observer)
@@ -232,6 +245,22 @@ func TestObserverRunsAfterMutationUnlock(t *testing.T) {
 		return []Event{{Kind: EventAcquireRequested}}, nil
 	}); err != nil {
 		t.Fatalf("mutate: %v", err)
+	}
+}
+
+func TestProviderFreshnessCandidateIsBoundedAndCopied(t *testing.T) {
+	freshness := ProviderFreshness{SourceOperator: "source-operator", Profile: "profile", Evidence: []byte{1, 2, 3}}
+	copy, err := copyProviderFreshness(freshness, validLimits())
+	if err != nil {
+		t.Fatalf("copyProviderFreshness: %v", err)
+	}
+	freshness.Evidence[0] = 9
+	if copy.Evidence[0] != 1 {
+		t.Fatal("provider freshness evidence was not copied")
+	}
+	freshness.Evidence = bytes.Repeat([]byte{1}, validLimits().MaxCheckpointEvidenceBytes+1)
+	if _, err := copyProviderFreshness(freshness, validLimits()); !errors.Is(err, ErrInvalidAuthority) {
+		t.Fatalf("oversized provider freshness error = %v, want ErrInvalidAuthority", err)
 	}
 }
 
