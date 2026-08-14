@@ -10,11 +10,13 @@ approved and is independently testable.
    tests. Include fixed-width ServiceHandle allocation plus bounded MappingTable,
    ServiceTable, and StreamTable with capacity, stale-handle, teardown, and
    allocation tests. No QUIC or OS interception.
-2. **Identity and NBSR Authority Control Plane integration.** Implement the
-   approved `AuthorityProvider` contract, key handles, startup validation, grant
-   acquisition/verification, coalescing, cache, renewal, cancellation,
-   revocation freshness, generation data, and recovery tests. Keep backend
-   transport outside session/stream components.
+2. **Identity and NBSR Authority Control Plane integration.** After approval of
+   [the Tranche 2 design](tranche2-identity-authority-control-plane.md) and its
+   separately gated ACP wire profile, implement identity/key references, the
+   transport-neutral `AuthorityProvider`, independent grant verification,
+   bounded coalescing/cache/idempotency, renewal, freshness, generation barrier,
+   recovery, and deterministic tests. Keep HTTP/TLS and all backend mechanics
+   outside session/stream components.
 3. **Transport Session and Service Channel ownership.** Integrate Go QUIC/TLS
    using verified interop semantics; add reuse keys, pool, selector, independent
    channel authorization, local ServiceHandle binding over existing channel IDs,

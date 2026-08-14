@@ -3,6 +3,13 @@
 No gap in this register authorizes a wire change. Every wire-affecting proposal
 is **REQUIRES SEPARATE PROTOCOL APPROVAL**.
 
+The proposed resolutions for identity, enrollment, ACP transport,
+authentication, acquisition, idempotency, renewal, freshness, revocation,
+generation ordering, and rollback are consolidated in
+[the Tranche 2 design](tranche2-identity-authority-control-plane.md). Its new
+wire contracts remain approval-gated; its client-only boundaries may be planned
+only after human approval of that design.
+
 | Gap | Why unresolved | Blocking what | Protocol or implementation | Recommended decision |
 |---|---|---|---|---|
 | Authority source direction | Core verifies/uses grants; Go peer loads fixtures; no live acquisition exchange | Production channel creation and TS-B authorization | Decision resolved; contract not frozen | Standard source is the NBSR Authority Control Plane behind `AuthorityProvider`; freeze its API/transport/authentication without changing Core wire |

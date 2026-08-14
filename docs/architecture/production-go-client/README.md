@@ -3,7 +3,7 @@
 **Status:** Ready for human design review; no production implementation exists
 
 **Repository baseline:** `codex/nbsr-v3-wp0-wp1` at
-`61be7e8280d4a74da0d81c54c01b350af7343e24`
+`8189d917e50df67e740fc3f3e8a5195f7cac7219`
 
 This package defines the future production NBSR Go client without changing
 Core, F75, P1F, P2D, federation, or transport wire semantics.
@@ -19,6 +19,7 @@ regenerates those results nor converts them into production-client targets.
 - [Client subsystem threat model](threat-model.md)
 - [Protocol gap register](protocol-gap-register.md)
 - [Future implementation tranches](implementation-tranches.md)
+- [Tranche 2 identity and Authority Control Plane design](tranche2-identity-authority-control-plane.md)
 
 The repository-wide [threat model](../../threat-model.md) remains authoritative.
 The client threat model narrows that model; it does not replace it.
@@ -53,3 +54,13 @@ Core's narrow `AuthorityProvider` interface.
 
 Production readiness is explicitly not inferred from file names or successful
 lab interoperability.
+
+## Tranche 2 proposed freeze
+
+The Tranche 2 design freezes the purpose-separated client identity hierarchy,
+transport-neutral `AuthorityProvider`, independently verified RouteGrant
+lifecycle, bounded cache/idempotency/retry behavior, hybrid freshness model,
+and authority-generation barrier. It recommends HTTP request/response over TLS
+1.3 as the standard ACP transport while retaining deterministic CBOR and COSE
+Sign1/Ed25519 authority. Enrollment and ACP message schemas remain
+**REQUIRES SEPARATE PROTOCOL APPROVAL**; no Core/P1F/P2D change is authorized.

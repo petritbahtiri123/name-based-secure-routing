@@ -116,3 +116,20 @@ Residual production gates include managed enrollment/PKI, authenticated grant
 acquisition and revocation freshness, OS-specific least-privilege containment,
 independent review, supply-chain assurance, and multi-host failure evidence.
 Successful lab interop does not reduce those gates.
+
+## Tranche 2 Authority Control Plane amendment
+
+The detailed ACP threat analysis and mitigations are normative design input in
+[the Tranche 2 design](tranche2-identity-authority-control-plane.md). In
+particular, DeviceIdentity, TS proof, ACP request, RouteGrant issuer, freshness,
+and local-state keys have separate purposes. ACP TLS authentication cannot
+replace signed RouteGrant verification, and an `AuthorityProvider` result cannot
+reach TS/SC state until Go Core independently verifies it.
+
+An expiring signed checkpoint bounds stale trust. Restart begins with an empty
+grant cache and cannot lower the durable accepted generation floor. Exact
+service, policy, identity, operator/profile, TS key/generation, and authority
+generation bindings prevent response substitution and cross-service/TS reuse.
+Per-device/global request, body, idempotency, cache, retry, concurrency, and log
+bounds contain amplification and malformed traffic. A compromised device
+remains a residual endpoint compromise and requires revocation plus reenrollment.
