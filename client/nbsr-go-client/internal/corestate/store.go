@@ -24,10 +24,11 @@ type Store struct {
 	clock    Clock
 	observer Observer
 
-	generations map[TSGeneration]generationState
-	mappings    map[MappingID]mappingEntry
-	services    map[serviceKey]ServiceSnapshot
-	streams     map[streamKey]StreamSnapshot
+	generations       map[TSGeneration]generationState
+	mappings          map[MappingID]mappingEntry
+	services          map[serviceKey]ServiceSnapshot
+	servicesByChannel map[channelKey]serviceKey
+	streams           map[streamKey]StreamSnapshot
 
 	highestGeneration TSGeneration
 	highestMappingID  MappingID
@@ -45,24 +46,16 @@ func NewStore(limits Limits, clock Clock, observer Observer) (*Store, error) {
 		observer = noopObserver{}
 	}
 	return &Store{
-		limits:      limits,
-		clock:       clock,
-		observer:    observer,
-		generations: make(map[TSGeneration]generationState),
-		mappings:    make(map[MappingID]mappingEntry),
-		services:    make(map[serviceKey]ServiceSnapshot),
-		streams:     make(map[streamKey]StreamSnapshot),
+		limits:            limits,
+		clock:             clock,
+		observer:          observer,
+		generations:       make(map[TSGeneration]generationState),
+		mappings:          make(map[MappingID]mappingEntry),
+		services:          make(map[serviceKey]ServiceSnapshot),
+		servicesByChannel: make(map[channelKey]serviceKey),
+		streams:           make(map[streamKey]StreamSnapshot),
 	}, nil
 }
-
-func (s *Store) AddService(ServiceSpec) (ServiceSnapshot, error) {
-	return ServiceSnapshot{}, unimplementedTransition()
-}
-func (s *Store) LookupService(TSGeneration, ServiceHandle) (ServiceSnapshot, error) {
-	return ServiceSnapshot{}, unimplementedTransition()
-}
-func (s *Store) CloseService(TSGeneration, ServiceHandle) error  { return unimplementedTransition() }
-func (s *Store) RemoveService(TSGeneration, ServiceHandle) error { return unimplementedTransition() }
 
 func (s *Store) InsertStream(StreamSpec) error { return unimplementedTransition() }
 func (s *Store) LookupStream(TSGeneration, ServiceHandle, StreamID) (StreamSnapshot, error) {
