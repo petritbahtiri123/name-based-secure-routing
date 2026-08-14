@@ -1,10 +1,15 @@
 # P1F/P2D live Go-to-Rust publication verification
 
-Date: 2026-08-14  
-Branch: `codex/nbsr-v3-wp0-wp1`  
-Source commit: `11565de27a6dd642cd7c9f0b4de81655eec3c5e1`  
-Source tree: `ce98f30e3b2970386a85ed6a784b589fa404cf25`  
-Frozen `main`: `1938154d498b32d81a3564319969430644e8a688`  
+Date: 2026-08-14
+
+Branch: `codex/nbsr-v3-wp0-wp1`
+
+Source commit: `11565de27a6dd642cd7c9f0b4de81655eec3c5e1`
+
+Source tree: `ce98f30e3b2970386a85ed6a784b589fa404cf25`
+
+Frozen `main`: `1938154d498b32d81a3564319969430644e8a688`
+
 P1F/P2D authority: `7a33b7d6dd87031018563da0e8d2b1857515bc3ae2427094a6967d9e6329d3e4`
 
 ## Outcome
