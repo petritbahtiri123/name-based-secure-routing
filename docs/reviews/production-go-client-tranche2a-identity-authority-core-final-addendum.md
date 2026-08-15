@@ -136,3 +136,14 @@ capacity, or production readiness.
 Those Tranche 2B and later gaps remain excluded and require separate protocol
 approval and fresh evidence. The clean matrix here closes only the corrected
 Tranche 2A identity/authority/retry boundary at the named implementation SHA.
+
+## Final lineage clarification
+
+This clarification supersedes the earlier handoff's statement that
+`3451b61500f38b14ee44fa440875e11594df1f86` is the externally reported final
+packaging commit. That commit remains the historical pre-fix handoff;
+`f4e4b60f0caf76658a3ad64a2347c739d2562353` is the corrected implementation;
+and `e097027335465db56d22c8a7b45600f44a35cded` is the post-fix acceptance
+evidence. The commit containing this clarification is the final local
+documentation-packaging commit and is reported externally as the final
+local/published SHA. Its SHA is not embedded here, avoiding self-reference.
