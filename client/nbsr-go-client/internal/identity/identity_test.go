@@ -15,6 +15,15 @@ func TestPurposeSeparatedReferencesRejectReuse(t *testing.T) {
 	}
 }
 
+func TestClientPurposesRemainDisjointFromACPResultSigning(t *testing.T) {
+	const acpResultSigning = Purpose(15)
+	for _, purpose := range []Purpose{PurposeDeviceACPRequest, PurposeTSProof, PurposeLocalStateIntegrity} {
+		if purpose == acpResultSigning {
+			t.Fatalf("client purpose %d must remain distinct from ACP result signing purpose %d", purpose, acpResultSigning)
+		}
+	}
+}
+
 func TestPurposeSeparatedReferencesRejectKeyIDReuseAcrossRoles(t *testing.T) {
 	sharedID := byte32(1)
 	device := keyRef(1, PurposeDeviceACPRequest, 1)

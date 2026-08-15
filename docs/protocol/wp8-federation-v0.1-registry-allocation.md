@@ -184,8 +184,9 @@ Reserved: `32..255`.
 | 12 | `REVOCATION` | approved Development Profile |
 | 13 | `GOVERNANCE` | approved Development Profile |
 | 14 | `FEDERATION_TRANSPORT` | approved Development Profile |
+| 15 | `ACP_RESULT_SIGNING` | approved Development Profile |
 
-Reserved: `15..255`.
+Reserved: `16..255`.
 
 ## Key Lifecycles
 

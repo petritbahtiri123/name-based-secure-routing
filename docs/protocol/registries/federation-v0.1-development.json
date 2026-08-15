@@ -660,6 +660,11 @@
         "name": "FEDERATION_TRANSPORT",
         "value": 14,
         "status": "approved-development-profile"
+      },
+      {
+        "name": "ACP_RESULT_SIGNING",
+        "value": 15,
+        "status": "approved-development-profile"
       }
     ],
     "key_lifecycles": [
@@ -965,7 +970,7 @@
     ],
     "key_purposes": [
       [
-        15,
+        16,
         255
       ]
     ],
