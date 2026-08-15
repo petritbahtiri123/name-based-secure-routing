@@ -2,8 +2,9 @@
 
 ## Authority and lineage
 
-This append-only addendum supersedes only the implementation-SHA reference in
-the earlier closure packaging. It does not rewrite the prior evidence records.
+This append-only addendum supersedes the implementation-SHA reference and the
+final evidence-lineage statement in the earlier closure packaging. It does not
+rewrite the prior evidence records.
 
 | Record | Commit |
 | --- | --- |
