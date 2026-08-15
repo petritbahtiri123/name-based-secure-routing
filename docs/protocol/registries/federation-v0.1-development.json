@@ -665,6 +665,11 @@
         "name": "ACP_RESULT_SIGNING",
         "value": 15,
         "status": "approved-development-profile"
+      },
+      {
+        "name": "ENROLLMENT_RESULT_SIGNING",
+        "value": 16,
+        "status": "approved-development-profile"
       }
     ],
     "key_lifecycles": [
@@ -970,7 +975,7 @@
     ],
     "key_purposes": [
       [
-        16,
+        17,
         255
       ]
     ],

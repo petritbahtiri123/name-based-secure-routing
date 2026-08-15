@@ -15,11 +15,15 @@ func TestPurposeSeparatedReferencesRejectReuse(t *testing.T) {
 	}
 }
 
-func TestClientPurposesRemainDisjointFromACPResultSigning(t *testing.T) {
+func TestClientPurposesRemainDisjointFromFederationResultPurposes(t *testing.T) {
 	const acpResultSigning = Purpose(15)
+	const enrollmentResultSigning = Purpose(16)
 	for _, purpose := range []Purpose{PurposeDeviceACPRequest, PurposeTSProof, PurposeLocalStateIntegrity} {
 		if purpose == acpResultSigning {
 			t.Fatalf("client purpose %d must remain distinct from ACP result signing purpose %d", purpose, acpResultSigning)
+		}
+		if purpose == enrollmentResultSigning {
+			t.Fatalf("client purpose %d must remain distinct from enrollment result signing purpose %d", purpose, enrollmentResultSigning)
 		}
 	}
 }

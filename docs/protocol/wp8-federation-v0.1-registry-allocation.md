@@ -185,8 +185,9 @@ Reserved: `32..255`.
 | 13 | `GOVERNANCE` | approved Development Profile |
 | 14 | `FEDERATION_TRANSPORT` | approved Development Profile |
 | 15 | `ACP_RESULT_SIGNING` | approved Development Profile |
+| 16 | `ENROLLMENT_RESULT_SIGNING` | approved Development Profile |
 
-Reserved: `16..255`.
+Reserved: `17..255`.
 
 ## Key Lifecycles
 

@@ -183,6 +183,7 @@ EXPECTED_REGISTRIES = {
         ("GOVERNANCE", 13),
         ("FEDERATION_TRANSPORT", 14),
         ("ACP_RESULT_SIGNING", 15),
+        ("ENROLLMENT_RESULT_SIGNING", 16),
     ),
     KeyLifecycle: (("NEXT", 1), ("ACTIVE", 2), ("RETIRING", 3), ("RETIRED", 4), ("REVOKED", 5)),
     OperatorLifecycle: (
@@ -251,9 +252,11 @@ def test_threshold_evidence_capability_is_new_and_collision_free() -> None:
     assert len({item.value for item in CapabilityId}) == len(CapabilityId)
 
 
-def test_key_purpose_includes_acp_result_signing_only_once() -> None:
+def test_key_purpose_includes_frozen_result_signing_values_and_is_unique() -> None:
     assert KeyPurpose.ACP_RESULT_SIGNING == 15
+    assert KeyPurpose.ENROLLMENT_RESULT_SIGNING == 16
     assert tuple(item.value for item in KeyPurpose) == tuple(dict.fromkeys(item.value for item in KeyPurpose))
+    assert len({item.value for item in KeyPurpose}) == len(KeyPurpose)
 
 
 def test_federation_message_namespace_is_disjoint_from_frozen_core() -> None:
@@ -294,7 +297,7 @@ def test_machine_registry_is_ratified_without_claiming_wire_freeze() -> None:
 
 
 def test_canonical_registry_metadata_is_complete_and_source_pinned() -> None:
-    assert REGISTRY_SOURCE_SHA256 == "ed48559f233e8e78e90cf99c178f08a4e5f5b3892e37b3dc0d191ebd8b89e70c"
+    assert REGISTRY_SOURCE_SHA256 == "ed880f236a2b4b5e11e281e58c540534e1cd27f7c752d3990291cf1be55c80d0"
     assert len(MESSAGE_SEMANTICS) == 58
     assert len(SIGNER_AUTHORITY_MATRIX) == 18
     assert set(RESERVED_RANGES) == {
