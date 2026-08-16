@@ -28,6 +28,9 @@ const (
 	CodeClosed
 	CodeNotReady
 	CodeAccountingOverflow
+	CodeStoragePathRejected
+	CodeStorageBusy
+	CodeStorageUnsupported
 )
 
 type AuthorityError struct {
@@ -74,4 +77,7 @@ var (
 	ErrClosed              = &AuthorityError{Code: CodeClosed}
 	ErrNotReady            = &AuthorityError{Code: CodeNotReady}
 	ErrAccountingOverflow  = &AuthorityError{Code: CodeAccountingOverflow}
+	ErrStoragePathRejected = &AuthorityError{Code: CodeStoragePathRejected}
+	ErrStorageBusy         = &AuthorityError{Code: CodeStorageBusy}
+	ErrStorageUnsupported  = &AuthorityError{Code: CodeStorageUnsupported}
 )
