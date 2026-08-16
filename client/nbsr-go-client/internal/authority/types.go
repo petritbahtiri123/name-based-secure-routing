@@ -117,6 +117,10 @@ type IssuerResolver interface {
 	ResolveRouteGrantIssuer(context.Context, []byte, string, string, uint64) (IssuerRecord, error)
 }
 
+type EnrollmentResultIssuerResolver interface {
+	ResolveEnrollmentResultIssuer(context.Context, []byte, string, string, uint64) (IssuerRecord, error)
+}
+
 type CheckpointClaims struct {
 	SourceOperator string
 	Profile        string

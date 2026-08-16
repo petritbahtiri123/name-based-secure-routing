@@ -49,6 +49,19 @@ func NewStaticIssuerResolver(records []IssuerRecord) (*StaticIssuerResolver, err
 }
 
 func (resolver *StaticIssuerResolver) ResolveRouteGrantIssuer(_ context.Context, kid []byte, profile, sourceOperator string, now uint64) (IssuerRecord, error) {
+	expectedPurpose := uint16(routeGrantIssuerPurpose)
+	return resolver.resolveIssuerByPurpose(kid, profile, sourceOperator, now, expectedPurpose)
+}
+
+func (resolver *StaticIssuerResolver) ResolveEnrollmentResultIssuer(_ context.Context, kid []byte, profile, sourceOperator string, now uint64) (IssuerRecord, error) {
+	expectedPurpose, err := EnrollmentResultSigningPurpose()
+	if err != nil {
+		return IssuerRecord{}, err
+	}
+	return resolver.resolveIssuerByPurpose(kid, profile, sourceOperator, now, expectedPurpose)
+}
+
+func (resolver *StaticIssuerResolver) resolveIssuerByPurpose(kid []byte, profile, sourceOperator string, now uint64, expectedPurpose uint16) (IssuerRecord, error) {
 	if resolver == nil || len(kid) < 1 || len(kid) > 64 || profile == "" || sourceOperator == "" || now == 0 {
 		return IssuerRecord{}, ErrUnknownIdentity
 	}
@@ -56,7 +69,7 @@ func (resolver *StaticIssuerResolver) ResolveRouteGrantIssuer(_ context.Context,
 		if !sameKID(record.KID, kid) || record.Profile != profile || record.SourceOperator != sourceOperator {
 			continue
 		}
-		if record.Purpose != routeGrantIssuerPurpose {
+		if record.Purpose != expectedPurpose {
 			return IssuerRecord{}, ErrInvalidKeyPurpose
 		}
 		if record.Revoked {

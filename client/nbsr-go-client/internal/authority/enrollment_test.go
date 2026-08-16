@@ -2,6 +2,9 @@ package authority
 
 import (
 	"bytes"
+	"context"
+	"crypto/ed25519"
+	"crypto/sha256"
 	"encoding/hex"
 	"errors"
 	"testing"
@@ -9,352 +12,386 @@ import (
 	"nbsr.local/client/nbsr-go-client/internal/identity"
 )
 
-func TestEnrollmentRequestRoundTripIsDeterministic(t *testing.T) {
+func TestTask2EnrollmentRequestSignAndVerify(t *testing.T) {
 	request := validEnrollmentRequestPayload()
+	signer, public, keyID := mustEnrollmentSigner(t, identity.PurposeDeviceACPRequest, 0x11, 1)
+	request.DeviceSigningKey = EnrollmentDeviceSigningKey{
+		PublicKey:  public,
+		KeyID:      keyID,
+		Purpose:    identity.PurposeDeviceACPRequest,
+		Generation: 1,
+		Thumbprint: sha256.Sum256(public[:]),
+	}
+
 	requestPayload, err := EncodeEnrollmentRequestPayload(request)
 	if err != nil {
 		t.Fatal(err)
 	}
-	parsed, canonical, err := ParseEnrollmentRequest(enrollmentSign1(requestPayload))
+
+	wire, err := SignEnrollmentRequest(context.Background(), request, signer)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !bytes.Equal(requestPayload, canonical) {
-		t.Fatalf("nondeterministic encoding: %x != %x", requestPayload, canonical)
+	parsed, canonical, err := ParseVerifiedEnrollmentRequest(wire, request.DeadlineUnix)
+	if err != nil {
+		t.Fatal(err)
 	}
 	if parsed != request {
-		t.Fatalf("parsed request mismatch")
+		t.Fatal("verified request mismatch")
+	}
+	if !bytes.Equal(canonical, requestPayload) {
+		t.Fatal("canonical request payload changed")
+	}
+
+	sign1, err := parseRouteGrantSign1(wire)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(sign1.kid, keyID[:]) {
+		t.Fatal("request KID mismatch")
+	}
+	sigStructure, err := encodeEnrollmentRequestSigStructure(sign1.protected, sign1.payload)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !ed25519.Verify(ed25519.PublicKey(public[:]), appendEnrollmentRequestSignaturePayload(sigStructure), sign1.signature) {
+		t.Fatal("request signature does not verify")
+	}
+
+	reencoded, err := EncodeEnrollmentRequestPayload(parsed)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(canonical, reencoded) {
+		t.Fatal("request payload is not byte-stable")
 	}
 }
 
-func TestEnrollmentResultRoundTripIsDeterministicAndStatusAware(t *testing.T) {
-	requestPayload, err := EncodeEnrollmentRequestPayload(validEnrollmentRequestPayload())
+func TestTask2EnrollmentRequestVerificationRejectsBadRequest(t *testing.T) {
+	request := validEnrollmentRequestPayload()
+	signer, public, keyID := mustEnrollmentSigner(t, identity.PurposeDeviceACPRequest, 0x12, 1)
+	request.DeviceSigningKey = EnrollmentDeviceSigningKey{
+		PublicKey:  public,
+		KeyID:      keyID,
+		Purpose:    identity.PurposeDeviceACPRequest,
+		Generation: 1,
+		Thumbprint: sha256.Sum256(public[:]),
+	}
+
+	wire, err := SignEnrollmentRequest(context.Background(), request, signer)
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, status := range []EnrollmentStatus{
-		EnrollmentStatusAccepted,
-		EnrollmentStatusRejected,
-		EnrollmentStatusInvalid,
-		EnrollmentStatusRequestConflict,
-		EnrollmentStatusExpired,
-	} {
-		t.Run(string(status), func(t *testing.T) {
-			resultPayload := validEnrollmentResultPayload(status, requestPayload)
-			resultWirePayload, err := EncodeEnrollmentResultPayload(resultPayload)
-			if err != nil {
-				t.Fatal(err)
-			}
-			purpose, err := EnrollmentResultSigningPurpose()
-			if err != nil {
-				t.Fatal(err)
-			}
-			parsed, canonical, err := ParseEnrollmentResult(enrollmentResultSign1(resultWirePayload), purpose)
-			if err != nil {
-				t.Fatal(err)
-			}
-			if !bytes.Equal(resultWirePayload, canonical) {
-				t.Fatalf("nondeterministic encoding: %x != %x", resultWirePayload, canonical)
-			}
-			if parsed.Status != status {
-				t.Fatalf("status mismatch: got %q", parsed.Status)
-			}
-			if status == EnrollmentStatusAccepted {
-				if parsed.DeviceIdentity == nil {
-					t.Fatal("accepted result missing device identity")
-				}
-			} else if parsed.DeviceIdentity != nil {
-				t.Fatal("non-success result includes device identity")
-			}
-		})
-	}
-}
 
-func TestEnrollmentResultPurposeBindingRejectsWrongPurpose(t *testing.T) {
-	requestPayload, err := EncodeEnrollmentRequestPayload(validEnrollmentRequestPayload())
-	if err != nil {
-		t.Fatal(err)
+	if _, _, err := ParseVerifiedEnrollmentRequest(wire, request.DeadlineUnix+1); !errors.Is(err, ErrExpired) {
+		t.Fatalf("expired request accepted: %v", err)
 	}
-	resultPayload := validEnrollmentResultPayload(EnrollmentStatusAccepted, requestPayload)
-	resultWirePayload, err := EncodeEnrollmentResultPayload(resultPayload)
-	if err != nil {
-		t.Fatal(err)
+	if _, _, err := ParseVerifiedEnrollmentRequest(wire, request.DeadlineUnix-31); !errors.Is(err, ErrInvalidAuthority) {
+		t.Fatalf("deadline underflow accepted: %v", err)
 	}
-	resultWire := enrollmentResultSign1(resultWirePayload)
-	purpose, err := EnrollmentResultSigningPurpose()
-	if err != nil {
-		t.Fatal(err)
-	}
-	if _, _, err := ParseEnrollmentResult(resultWire, purpose); err != nil {
-		t.Fatalf("resolved purpose 16 should parse: %v", err)
-	}
-	if _, _, err := ParseEnrollmentResult(resultWire, 15); !errors.Is(err, ErrInvalidKeyPurpose) {
-		t.Fatalf("ACP result purpose accepted unexpectedly: %v", err)
-	}
-	if _, _, err := ParseEnrollmentResult(resultWire, 77); !errors.Is(err, ErrInvalidKeyPurpose) {
-		t.Fatalf("unrelated purpose accepted unexpectedly: %v", err)
-	}
-}
-
-func TestEnrollmentResultSigningPurposeIs16FromRegistry(t *testing.T) {
-	purpose, err := EnrollmentResultSigningPurpose()
-	if err != nil {
-		t.Fatal(err)
-	}
-	if purpose != 16 {
-		t.Fatalf("unexpected purpose value: got %d want 16", purpose)
-	}
-	if acp, err := resolveFederationKeyPurpose("ACP_RESULT_SIGNING"); err != nil || acp != 15 {
-		t.Fatalf("unexpected ACP_RESULT_SIGNING purpose resolution: got %d err %v", acp, err)
-	}
-}
-
-func TestEnrollmentResultBindingRequiresExactRequest(t *testing.T) {
-	requestPayload, err := EncodeEnrollmentRequestPayload(validEnrollmentRequestPayload())
-	if err != nil {
-		t.Fatal(err)
-	}
-	requestIDWire := validEnrollmentRequestPayload().RequestID
-
-	parsedRequest, canonicalRequest, err := ParseEnrollmentRequest(enrollmentSign1(requestPayload))
-	if err != nil {
-		t.Fatal(err)
-	}
-	resultPayload := validEnrollmentResultPayload(EnrollmentStatusAccepted, requestPayload)
-	resultWirePayload, err := EncodeEnrollmentResultPayload(resultPayload)
-	if err != nil {
-		t.Fatal(err)
-	}
-	purpose, err := EnrollmentResultSigningPurpose()
-	if err != nil {
-		t.Fatal(err)
-	}
-	parsedResult, _, err := ParseEnrollmentResult(enrollmentResultSign1(resultWirePayload), purpose)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if err := ValidateEnrollmentResultBinding(parsedResult, parsedRequest, canonicalRequest); err != nil {
-		t.Fatal(err)
-	}
-
-	mismatchedRequestID := parsedRequest
-	mismatchedRequestID.RequestID = requestIDWire
-	mismatchedRequestID.RequestID[0] ^= 0xff
-	if err := ValidateEnrollmentResultBinding(parsedResult, mismatchedRequestID, canonicalRequest); !errors.Is(err, ErrBindingMismatch) {
-		t.Fatalf("expected request-id mismatch failure, got %v", err)
-	}
-
-	mutatedPayload := append([]byte(nil), canonicalRequest...)
-	mutatedPayload[0] ^= 0xff
-	if err := ValidateEnrollmentResultBinding(parsedResult, parsedRequest, mutatedPayload); !errors.Is(err, ErrBindingMismatch) {
-		t.Fatalf("expected digest mismatch failure, got %v", err)
-	}
-}
-
-func TestEnrollmentRequestRejectsMalformedPayloads(t *testing.T) {
-	requestPayload, err := EncodeEnrollmentRequestPayload(validEnrollmentRequestPayload())
-	if err != nil {
-		t.Fatal(err)
-	}
-	rawMap := decodeEnrollmentMap(t, requestPayload)
-
-	cases := []struct {
-		name   string
-		mutate func(map[uint64]any) bool
-	}{
-		{"missing required field", func(fields map[uint64]any) bool {
-			delete(fields, 4)
-			return true
-		}},
-		{"extra field", func(fields map[uint64]any) bool {
-			fields[6] = uint64(7)
-			return true
-		}},
-		{"wrong protocol version", func(fields map[uint64]any) bool {
-			fields[0] = uint64(2)
-			return true
-		}},
-		{"wrong request-id type", func(fields map[uint64]any) bool {
-			fields[1] = uint64(1)
-			return true
-		}},
-		{"bad source operator", func(fields map[uint64]any) bool {
-			fields[3] = "bad_source//op"
-			return true
-		}},
-		{"deadline overflow", func(fields map[uint64]any) bool {
-			fields[2] = maxUnixTime + 1
-			return true
-		}},
-		{"malformed key purpose", func(fields map[uint64]any) bool {
-			device := cloneEnrollmentMap(rawMap[5].(map[uint64]any))
-			device[2] = uint64(identity.PurposeTSProof)
-			fields[5] = device
-			return true
-		}},
-		{"malformed key public key", func(fields map[uint64]any) bool {
-			device := cloneEnrollmentMap(rawMap[5].(map[uint64]any))
-			device[0] = []byte{1, 2, 3}
-			fields[5] = device
-			return true
-		}},
-	}
-
-	for _, testCase := range cases {
-		t.Run(testCase.name, func(t *testing.T) {
-			fields := cloneEnrollmentMap(rawMap)
-			if !testCase.mutate(fields) {
-				t.Fatal("mutation no-op")
-			}
-			payload := encodeCBORValueForTest(t, fields)
-			if _, _, err := ParseEnrollmentRequest(enrollmentSign1(payload)); !errors.Is(err, ErrInvalidAuthority) {
-				t.Fatalf("malformed request accepted: %v", err)
-			}
-		})
-	}
-
-	invalid := append([]byte{0xd2}, readRepo(t, "vectors", "core-v0.2", "artifacts", "invalid", "structural", "cbor-duplicate-map-key.bin")...)
-	if _, _, err := ParseEnrollmentRequest(invalid); !errors.Is(err, ErrInvalidAuthority) {
-		t.Fatal("duplicate-map-key request accepted")
-	}
-	invalid = append([]byte{0xd2}, readRepo(t, "vectors", "core-v0.2", "artifacts", "invalid", "structural", "cbor-nonpreferred-integer.bin")...)
-	if _, _, err := ParseEnrollmentRequest(invalid); !errors.Is(err, ErrInvalidAuthority) {
-		t.Fatal("noncanonical request accepted")
-	}
-
-	oversized := make([]byte, maxEnrollmentRequestBodySize+1)
-	if _, _, err := ParseEnrollmentRequest(oversized); !errors.Is(err, ErrInvalidAuthority) {
-		t.Fatal("oversized request accepted")
-	}
-	requestWire := enrollmentSign1(requestPayload)
-	if _, _, err := ParseEnrollmentRequest(requestWire[:len(requestWire)-1]); !errors.Is(err, ErrInvalidAuthority) {
+	if _, _, err := ParseVerifiedEnrollmentRequest(wire[:len(wire)-1], request.DeadlineUnix); !errors.Is(err, ErrInvalidAuthority) {
 		t.Fatal("truncated request accepted")
 	}
+
+	sign1, err := parseRouteGrantSign1(wire)
+	if err != nil {
+		t.Fatal(err)
+	}
+	tamperedPayload := append([]byte(nil), sign1.payload...)
+	tamperedPayload[0] ^= 0x01
+	tamperedEnvelope := mustBuildSign1Envelope(t, sign1.protected, tamperedPayload, sign1.signature)
+	if _, _, err := ParseVerifiedEnrollmentRequest(tamperedEnvelope, request.DeadlineUnix); !errors.Is(err, ErrInvalidAuthority) {
+		t.Fatal("tampered request payload accepted")
+	}
+
+	header, err := decodeCBORExact(sign1.protected, defaultCBORLimits())
+	if err != nil {
+		t.Fatal(err)
+	}
+	protected := header.(map[uint64]any)
+	protected[1] = int64(-7)
+	malformedHeader, err := encodeCBOR(protected)
+	if err != nil {
+		t.Fatal(err)
+	}
+	malformedAlg := mustBuildSign1Envelope(t, malformedHeader, sign1.payload, sign1.signature)
+	if _, _, err := ParseVerifiedEnrollmentRequest(malformedAlg, request.DeadlineUnix); !errors.Is(err, ErrInvalidAuthority) {
+		t.Fatal("wrong algorithm accepted")
+	}
+
+	invalidPurposeSigner, _, _ := mustEnrollmentSigner(t, identity.PurposeTSProof, 0x13, 1)
+	if _, err := SignEnrollmentRequest(context.Background(), request, invalidPurposeSigner); !errors.Is(err, ErrInvalidKeyPurpose) {
+		t.Fatalf("wrong request purpose accepted: %v", err)
+	}
+
+	_, otherPublic, otherKeyID := mustEnrollmentSigner(t, identity.PurposeDeviceACPRequest, 0x14, 1)
+	request.DeviceSigningKey = EnrollmentDeviceSigningKey{
+		PublicKey:  otherPublic,
+		KeyID:      otherKeyID,
+		Purpose:    identity.PurposeDeviceACPRequest,
+		Generation: 1,
+		Thumbprint: sha256.Sum256(otherPublic[:]),
+	}
+	if _, err := SignEnrollmentRequest(context.Background(), request, signer); !errors.Is(err, ErrBindingMismatch) {
+		t.Fatal("request signer/public-key mismatch accepted")
+	}
 }
 
-func TestEnrollmentResultRejectsMalformedPayloads(t *testing.T) {
-	requestPayload, err := EncodeEnrollmentRequestPayload(validEnrollmentRequestPayload())
-	if err != nil {
-		t.Fatal(err)
+func TestTask2EnrollmentResultVerificationAndBinding(t *testing.T) {
+	request := validEnrollmentRequestPayload()
+	reqSigner, reqPublic, reqKeyID := mustEnrollmentSigner(t, identity.PurposeDeviceACPRequest, 0x21, 1)
+	request.DeviceSigningKey = EnrollmentDeviceSigningKey{
+		PublicKey:  reqPublic,
+		KeyID:      reqKeyID,
+		Purpose:    identity.PurposeDeviceACPRequest,
+		Generation: 1,
+		Thumbprint: sha256.Sum256(reqPublic[:]),
 	}
-	resultPayload := validEnrollmentResultPayload(EnrollmentStatusAccepted, requestPayload)
-	encoded, err := EncodeEnrollmentResultPayload(resultPayload)
-	if err != nil {
-		t.Fatal(err)
-	}
-	purpose, err := EnrollmentResultSigningPurpose()
-	if err != nil {
-		t.Fatal(err)
-	}
-	rawMap := decodeEnrollmentMap(t, encoded)
 
-	for _, testCase := range []struct {
-		name   string
-		mutate func(map[uint64]any) bool
-	}{
-		{"missing required status", func(fields map[uint64]any) bool {
-			delete(fields, 3)
-			return true
-		}},
-		{"extra trailing field", func(fields map[uint64]any) bool {
-			fields[5] = uint64(9)
-			return true
-		}},
-		{"unknown status", func(fields map[uint64]any) bool {
-			fields[3] = "ENROLLMENT_UNKNOWN"
-			return true
-		}},
-		{"accepted without identity", func(fields map[uint64]any) bool {
-			delete(fields, 4)
-			return true
-		}},
-		{"invalid status identity combination", func(fields map[uint64]any) bool {
-			fields[3] = string(EnrollmentStatusRejected)
-			return true
-		}},
-		{"invalid identity expiry ordering", func(fields map[uint64]any) bool {
-			id := fields[4].(map[uint64]any)
-			id[4] = uint64(1)
-			id[3] = uint64(2)
-			fields[4] = id
-			fields[3] = string(EnrollmentStatusAccepted)
-			return true
-		}},
-		{"invalid request digest length", func(fields map[uint64]any) bool {
-			fields[2] = []byte{1, 2, 3}
-			return true
-		}},
-	} {
-		t.Run(testCase.name, func(t *testing.T) {
-			fields := cloneEnrollmentMap(rawMap)
-			if !testCase.mutate(fields) {
-				t.Fatal("mutation no-op")
-			}
-			payload := encodeCBORValueForTest(t, fields)
-			if _, _, err := ParseEnrollmentResult(enrollmentResultSign1(payload), purpose); !errors.Is(err, ErrInvalidAuthority) {
-				t.Fatalf("malformed result accepted: %v", err)
-			}
-		})
+	requestPayload, err := EncodeEnrollmentRequestPayload(request)
+	if err != nil {
+		t.Fatal(err)
+	}
+	requestWire, err := SignEnrollmentRequest(context.Background(), request, reqSigner)
+	if err != nil {
+		t.Fatal(err)
+	}
+	parsedRequest, canonicalRequest, err := ParseVerifiedEnrollmentRequest(requestWire, request.DeadlineUnix)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	resultPurpose, err := EnrollmentResultSigningPurpose()
+	if err != nil {
+		t.Fatal(err)
+	}
+	resultPrivate, resultPublic, resultKid := mustRawResultSigner(t, 0x30)
+	resolver := mustEnrollmentResultResolver(t, request, resultPurpose, resultPublic, resultKid)
+
+	resultPayload := validEnrollmentResultPayload(EnrollmentStatusAccepted, requestPayload)
+	resultWire, err := signEnrollmentResultPayload(resultPayload, resultPrivate, resultKid)
+	if err != nil {
+		t.Fatal(err)
+	}
+	verified, canonicalResult, err := ParseVerifiedEnrollmentResult(context.Background(), resultWire, parsedRequest, canonicalRequest, resolver, request.DeadlineUnix)
+	if err != nil {
+		t.Fatal(err)
+	}
+	reencodedResult, err := EncodeEnrollmentResultPayload(verified)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(canonicalResult, reencodedResult) {
+		t.Fatal("result payload is not byte-stable")
+	}
+	if verified.RequestDigest != EnrollmentRequestDigest(requestPayload) {
+		t.Fatal("result request digest mismatch")
+	}
+	if verified.DeviceIdentity == nil {
+		t.Fatal("accepted result missing device identity")
+	}
+
+	coSEDigest := sha256.Sum256(resultWire)
+	wrongDigestPayload := validEnrollmentResultPayload(EnrollmentStatusAccepted, requestPayload)
+	wrongDigestPayload.RequestDigest = coSEDigest
+	wrongDigestWire, err := signEnrollmentResultPayload(wrongDigestPayload, resultPrivate, resultKid)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, _, err := ParseVerifiedEnrollmentResult(context.Background(), wrongDigestWire, parsedRequest, canonicalRequest, resolver, request.DeadlineUnix); !errors.Is(err, ErrBindingMismatch) {
+		t.Fatalf("result digest over COSE envelope accepted: %v", err)
+	}
+
+	mismatchRequest := parsedRequest
+	mismatchRequest.RequestID[0] ^= 0x10
+	if _, _, err := ParseVerifiedEnrollmentResult(context.Background(), resultWire, mismatchRequest, canonicalRequest, resolver, request.DeadlineUnix); !errors.Is(err, ErrBindingMismatch) {
+		t.Fatalf("request-id mismatch accepted: %v", err)
+	}
+}
+
+func TestTask2EnrollmentResultRejectsTrustFailuresAndMalformed(t *testing.T) {
+	request := validEnrollmentRequestPayload()
+	reqSigner, reqPublic, reqKeyID := mustEnrollmentSigner(t, identity.PurposeDeviceACPRequest, 0x22, 1)
+	request.DeviceSigningKey = EnrollmentDeviceSigningKey{
+		PublicKey:  reqPublic,
+		KeyID:      reqKeyID,
+		Purpose:    identity.PurposeDeviceACPRequest,
+		Generation: 1,
+		Thumbprint: sha256.Sum256(reqPublic[:]),
+	}
+
+	requestPayload, err := EncodeEnrollmentRequestPayload(request)
+	if err != nil {
+		t.Fatal(err)
+	}
+	requestWire, err := SignEnrollmentRequest(context.Background(), request, reqSigner)
+	if err != nil {
+		t.Fatal(err)
+	}
+	parsedRequest, canonicalRequest, err := ParseVerifiedEnrollmentRequest(requestWire, request.DeadlineUnix)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	resultPurpose, err := EnrollmentResultSigningPurpose()
+	if err != nil {
+		t.Fatal(err)
+	}
+	resultPrivate, resultPublic, resultKid := mustRawResultSigner(t, 0x31)
+	validResolver := mustEnrollmentResultResolver(t, request, resultPurpose, resultPublic, resultKid)
+
+	resultPayload := validEnrollmentResultPayload(EnrollmentStatusAccepted, requestPayload)
+	resultWire, err := signEnrollmentResultPayload(resultPayload, resultPrivate, resultKid)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	wrongPurposeResolver := mustEnrollmentResultResolver(t, request, 15, resultPublic, resultKid)
+	if _, _, err := ParseVerifiedEnrollmentResult(context.Background(), resultWire, parsedRequest, canonicalRequest, wrongPurposeResolver, request.DeadlineUnix); !errors.Is(err, ErrInvalidKeyPurpose) {
+		t.Fatalf("ACP_RESULT_SIGNING purpose unexpectedly accepted: %v", err)
+	}
+
+	otherKid := []byte("other-kid-16bytes----")
+	unknownKidResolver := mustEnrollmentResultResolver(t, request, resultPurpose, resultPublic, otherKid)
+	if _, _, err := ParseVerifiedEnrollmentResult(context.Background(), resultWire, parsedRequest, canonicalRequest, unknownKidResolver, request.DeadlineUnix); !errors.Is(err, ErrUnknownIdentity) {
+		t.Fatalf("unknown KID unexpectedly accepted: %v", err)
+	}
+
+	otherOperator := request
+	otherOperator.SourceOperator = "other.operator"
+	wrongOperatorResolver := mustEnrollmentResultResolver(t, otherOperator, resultPurpose, resultPublic, resultKid)
+	if _, _, err := ParseVerifiedEnrollmentResult(context.Background(), resultWire, parsedRequest, canonicalRequest, wrongOperatorResolver, request.DeadlineUnix); !errors.Is(err, ErrUnknownIdentity) {
+		t.Fatalf("wrong source-operator accepted: %v", err)
+	}
+
+	wrongResultSigner, _, _ := mustRawResultSigner(t, 0x32)
+	wrongSignedWire, err := signEnrollmentResultPayload(resultPayload, wrongResultSigner, resultKid)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, _, err := ParseVerifiedEnrollmentResult(context.Background(), wrongSignedWire, parsedRequest, canonicalRequest, validResolver, request.DeadlineUnix); !errors.Is(err, ErrSignatureFailure) {
+		t.Fatalf("wrong signing key expected signature failure: %v", err)
 	}
 
 	invalid := append([]byte{0xd2}, readRepo(t, "vectors", "core-v0.2", "artifacts", "invalid", "structural", "cbor-duplicate-map-key.bin")...)
-	if _, _, err := ParseEnrollmentResult(invalid, purpose); !errors.Is(err, ErrInvalidAuthority) {
-		t.Fatal("duplicate-map-key result accepted")
+	if _, _, err := ParseEnrollmentResult(invalid, resultPurpose); !errors.Is(err, ErrInvalidAuthority) {
+		t.Fatal("malformed result map accepted")
 	}
-	invalid = append([]byte{0xd2}, readRepo(t, "vectors", "core-v0.2", "artifacts", "invalid", "structural", "cbor-nonpreferred-integer.bin")...)
-	if _, _, err := ParseEnrollmentResult(invalid, purpose); !errors.Is(err, ErrInvalidAuthority) {
-		t.Fatal("noncanonical result accepted")
-	}
-
-	oversized := make([]byte, maxEnrollmentResultBodySize+1)
-	if _, _, err := ParseEnrollmentResult(oversized, purpose); !errors.Is(err, ErrInvalidAuthority) {
+	oversized := append([]byte{0xd2}, bytes.Repeat([]byte{0x00}, maxEnrollmentResultBodySize+1)...)
+	if _, _, err := ParseEnrollmentResult(oversized, resultPurpose); !errors.Is(err, ErrInvalidAuthority) {
 		t.Fatal("oversized result accepted")
 	}
-	truncated := enrollmentResultSign1(encoded)
-	if _, _, err := ParseEnrollmentResult(truncated[:len(truncated)-1], purpose); !errors.Is(err, ErrInvalidAuthority) {
-		t.Fatal("truncated result accepted")
+	if _, _, err := ParseVerifiedEnrollmentResult(context.Background(), testSign1Wire([]byte{0xa2, 0x01, 0x26, 0x04, 0x45, 'x'}, []byte{0xa0}, testByteString([]byte{1})), parsedRequest, canonicalRequest, validResolver, request.DeadlineUnix); !errors.Is(err, ErrInvalidAuthority) {
+		t.Fatalf("wrong result algorithm unexpectedly accepted: %v", err)
+	}
+	if _, _, err := ParseVerifiedEnrollmentResult(context.Background(), testSign1Wire([]byte{0xa2, 0x01, 0x27, 0x04, 0x45, 'r', 'e', 'q', 'u', 'l'}, []byte{}, testByteString([]byte{1})), parsedRequest, canonicalRequest, validResolver, request.DeadlineUnix); !errors.Is(err, ErrInvalidAuthority) {
+		t.Fatalf("detached payload unexpectedly accepted: %v", err)
 	}
 }
 
-func decodeEnrollmentMap(t *testing.T, payload []byte) map[uint64]any {
+func mustBuildSign1Envelope(t *testing.T, protected, payload, signature []byte) []byte {
 	t.Helper()
-	raw, err := decodeCBORExact(payload, defaultCBORLimits())
+	wire, err := buildSign1Envelope(protected, payload, signature)
 	if err != nil {
 		t.Fatal(err)
 	}
-	fields, ok := raw.(map[uint64]any)
-	if !ok {
-		t.Fatalf("expected map got %T", raw)
-	}
-	return fields
+	return wire
 }
 
-func cloneEnrollmentMap(source map[uint64]any) map[uint64]any {
-	cloned := make(map[uint64]any, len(source))
-	for key, value := range source {
-		if nested, ok := value.(map[uint64]any); ok {
-			cloned[key] = cloneEnrollmentMap(nested)
-		} else {
-			cloned[key] = value
-		}
+func signEnrollmentResultPayload(result EnrollmentResultPayload, signer ed25519.PrivateKey, kid []byte) ([]byte, error) {
+	payload, err := EncodeEnrollmentResultPayload(result)
+	if err != nil {
+		return nil, err
 	}
-	return cloned
+	protected := mustEncodeCBOR(map[uint64]any{1: int64(-8), 4: kid})
+	structure, err := encodeCBOR([]any{"Signature1", protected, []byte{}, payload})
+	if err != nil {
+		return nil, err
+	}
+	signature := ed25519.Sign(signer, structure)
+	return buildSign1Envelope(protected, payload, signature)
 }
 
-func encodeCBORValueForTest(t *testing.T, value any) []byte {
+func mustEnrollmentSigner(t *testing.T, purpose identity.Purpose, seedByte byte, generation uint64) (identity.Signer, [32]byte, [32]byte) {
 	t.Helper()
-	encoded, err := encodeCBOR(value)
+	seed := bytes32ForSeed(seedByte)
+	private := ed25519.NewKeyFromSeed(seed[:])
+	public := private.Public().(ed25519.PublicKey)
+	var public32 [32]byte
+	copy(public32[:], public)
+	keyID := bytes32ForSeed(seedByte + 1)
+	signer, err := identity.NewMemorySigner(identity.KeyRef{
+		ID:         keyID,
+		Purpose:    purpose,
+		Generation: generation,
+		Thumbprint: sha256.Sum256(public),
+	}, private)
 	if err != nil {
 		t.Fatal(err)
 	}
-	return encoded
+	return signer, public32, keyID
+}
+
+func mustRawResultSigner(t *testing.T, seedByte byte) (ed25519.PrivateKey, [32]byte, []byte) {
+	t.Helper()
+	seed := bytes32ForSeed(seedByte)
+	private := ed25519.NewKeyFromSeed(seed[:])
+	public := private.Public().(ed25519.PublicKey)
+	var public32 [32]byte
+	copy(public32[:], public)
+	return private, public32, []byte{seedByte, seedByte, seedByte, seedByte}
+}
+
+func mustEnrollmentResultResolver(t *testing.T, request EnrollmentRequestPayload, purpose uint16, public [32]byte, kid []byte) EnrollmentResultIssuerResolver {
+	t.Helper()
+	record := IssuerRecord{
+		KID:            append([]byte(nil), kid...),
+		PublicKey:      public,
+		Purpose:        purpose,
+		Profile:        request.Profile,
+		SourceOperator: request.SourceOperator,
+		Generation:     3,
+		NotBefore:      request.DeadlineUnix - 1,
+		ExpiresAt:      request.DeadlineUnix + 10,
+	}
+	resolver, err := NewStaticIssuerResolver([]IssuerRecord{record})
+	if err != nil {
+		t.Fatal(err)
+	}
+	return resolver
+}
+
+func bytes32ForSeed(seedByte byte) [32]byte {
+	var seed [32]byte
+	for i := range seed {
+		seed[i] = seedByte
+	}
+	return seed
+}
+
+func mustEncodeCBOR(value any) []byte {
+	raw, err := encodeCBOR(value)
+	if err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+func mustHex32Literal(value string) [32]byte {
+	raw, err := hex.DecodeString(value)
+	if err != nil || len(raw) != 32 {
+		panic("invalid hex literal")
+	}
+	var out [32]byte
+	copy(out[:], raw)
+	return out
 }
 
 func validEnrollmentRequestPayload() EnrollmentRequestPayload {
 	return EnrollmentRequestPayload{
 		ProtocolVersion: 1,
 		RequestID:       RequestID{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16},
-		DeadlineUnix:    1_893_456_001,
+		DeadlineUnix:    1_893_456_000,
 		SourceOperator:  "source.operator",
 		Profile:         "nbsr-federation-dev-v1",
 		DeviceSigningKey: EnrollmentDeviceSigningKey{
@@ -368,14 +405,14 @@ func validEnrollmentRequestPayload() EnrollmentRequestPayload {
 }
 
 func validEnrollmentResultPayload(status EnrollmentStatus, requestPayload []byte) EnrollmentResultPayload {
-	result := EnrollmentResultPayload{
+	payload := EnrollmentResultPayload{
 		ProtocolVersion: 1,
 		RequestID:       validEnrollmentRequestPayload().RequestID,
 		RequestDigest:   EnrollmentRequestDigest(requestPayload),
 		Status:          status,
 	}
 	if status == EnrollmentStatusAccepted {
-		result.DeviceIdentity = &identity.DeviceIdentity{
+		payload.DeviceIdentity = &identity.DeviceIdentity{
 			ID:                   mustHex32Literal("3333333333333333333333333333333333333333333333333333333333333333"),
 			SourceOperatorID:     "source.operator",
 			CredentialGeneration: 1,
@@ -389,33 +426,5 @@ func validEnrollmentResultPayload(status EnrollmentStatus, requestPayload []byte
 			},
 		}
 	}
-	return result
-}
-
-func enrollmentSign1(payload []byte) []byte {
-	return testSign1Wire(enrollmentProtectedHeader(), []byte{0xa0}, testByteString(payload))
-}
-
-func enrollmentResultSign1(payload []byte) []byte {
-	return testSign1Wire(enrollmentProtectedHeader(), []byte{0xa0}, testByteString(payload))
-}
-
-func enrollmentProtectedHeader() []byte {
-	return mustEncodeCBOR(map[uint64]any{1: int64(-8), 4: []byte("enroll-kid")})
-}
-func mustHex32Literal(value string) (result [32]byte) {
-	raw, err := hex.DecodeString(value)
-	if err != nil || len(raw) != len(result) {
-		panic("invalid hex literal")
-	}
-	copy(result[:], raw)
-	return result
-}
-
-func mustEncodeCBOR(value any) []byte {
-	encoded, err := encodeCBOR(value)
-	if err != nil {
-		panic(err)
-	}
-	return encoded
+	return payload
 }
