@@ -1,7 +1,11 @@
 package authority
 
 import (
+	"bytes"
 	"context"
+	"crypto/ed25519"
+	"crypto/rand"
+	"crypto/sha256"
 	"errors"
 	"io"
 	"io/fs"
@@ -12,7 +16,28 @@ import (
 	"nbsr.local/client/nbsr-go-client/internal/identity"
 )
 
-const maxEnrollmentStateBytes = 1 << 20
+const (
+	enrollmentStateEnvelopeVersion           = 1
+	enrollmentStateTypeEnrollment            = 1
+	enrollmentStateIntegrityAlgorithmEd25519 = 1
+	maxEnrollmentStateBytes                  = 1 << 20
+
+	enrollmentStateEnvelopeFieldVersion   = uint64(0)
+	enrollmentStateEnvelopeFieldType      = uint64(1)
+	enrollmentStateEnvelopeFieldPayload   = uint64(2)
+	enrollmentStateEnvelopeFieldIntegrity = uint64(3)
+	enrollmentStateEnvelopeFieldSignature = uint64(4)
+
+	enrollmentStateIntegrityFieldID         = uint64(0)
+	enrollmentStateIntegrityFieldPurpose    = uint64(1)
+	enrollmentStateIntegrityFieldGeneration = uint64(2)
+	enrollmentStateIntegrityFieldThumbprint = uint64(3)
+	enrollmentStateIntegrityFieldPublicKey  = uint64(4)
+	enrollmentStateIntegrityFieldAlgorithm  = uint64(5)
+	enrollmentStateIntegrityFieldPrivateKey = uint64(6)
+)
+
+const enrollmentStateIntegritySigningDomain = "NBSR-GO-CLIENT-KEY-PURPOSE-v1\x00"
 
 type EnrollmentState struct {
 	Identity identity.DeviceIdentity
@@ -193,12 +218,9 @@ func (store *FileEnrollmentStateStore) Load(_ context.Context) (identity.DeviceI
 		}
 		return identity.DeviceIdentity{}, false, ErrInvalidAuthority
 	}
-	if len(data) == 0 || len(data) > maxEnrollmentStateBytes {
-		return identity.DeviceIdentity{}, false, ErrInvalidAuthority
-	}
-	device, err := parseStoredEnrollmentDeviceIdentity(data)
+	device, err := parseStoredEnrollmentState(data, store.integrityKeyPath())
 	if err != nil {
-		return identity.DeviceIdentity{}, false, ErrInvalidAuthority
+		return identity.DeviceIdentity{}, false, err
 	}
 	return copyDeviceIdentity(device), true, nil
 }
@@ -210,7 +232,7 @@ func (store *FileEnrollmentStateStore) Store(_ context.Context, device identity.
 	if !validateEnrollmentResultIdentity(device) {
 		return ErrInvalidAuthority
 	}
-	payload, err := encodeStoredEnrollmentDeviceIdentity(device)
+	payload, err := store.buildEnrollmentStateEnvelope(device)
 	if err != nil {
 		return ErrInvalidAuthority
 	}
@@ -238,56 +260,333 @@ func (store *FileEnrollmentStateStore) loadLocked() (identity.DeviceIdentity, bo
 		}
 		return identity.DeviceIdentity{}, false, ErrInvalidAuthority
 	}
-	if len(data) == 0 || len(data) > maxEnrollmentStateBytes {
-		return identity.DeviceIdentity{}, false, ErrInvalidAuthority
-	}
-	device, err := parseStoredEnrollmentDeviceIdentity(data)
+	device, err := parseStoredEnrollmentState(data, store.integrityKeyPath())
 	if err != nil {
-		return identity.DeviceIdentity{}, false, ErrInvalidAuthority
+		return identity.DeviceIdentity{}, false, err
 	}
 	return device, true, nil
+}
+
+func (store *FileEnrollmentStateStore) integrityKeyPath() string {
+	return filepath.Join(filepath.Dir(store.path), enrollmentStateIntegrityKeyName)
+}
+
+func (store *FileEnrollmentStateStore) buildEnrollmentStateEnvelope(device identity.DeviceIdentity) ([]byte, error) {
+	payload, err := encodeStoredEnrollmentDeviceIdentity(device)
+	if err != nil {
+		return nil, err
+	}
+	material, err := loadOrCreateEnrollmentStateIntegrityMaterial(store.integrityKeyPath())
+	if err != nil {
+		return nil, err
+	}
+	integrityMeta, err := material.encodedIntegrityMetadata()
+	if err != nil {
+		return nil, err
+	}
+	unsigned, err := encodeCBOR(map[uint64]any{
+		enrollmentStateEnvelopeFieldVersion:   uint64(enrollmentStateEnvelopeVersion),
+		enrollmentStateEnvelopeFieldType:      uint64(enrollmentStateTypeEnrollment),
+		enrollmentStateEnvelopeFieldPayload:   payload,
+		enrollmentStateEnvelopeFieldIntegrity: integrityMeta,
+	})
+	if err != nil {
+		return nil, err
+	}
+	signature := material.signEnrollmentStateIntegrity(unsigned)
+	return encodeCBOR(map[uint64]any{
+		enrollmentStateEnvelopeFieldVersion:   uint64(enrollmentStateEnvelopeVersion),
+		enrollmentStateEnvelopeFieldType:      uint64(enrollmentStateTypeEnrollment),
+		enrollmentStateEnvelopeFieldPayload:   payload,
+		enrollmentStateEnvelopeFieldIntegrity: integrityMeta,
+		enrollmentStateEnvelopeFieldSignature: signature,
+	})
 }
 
 var atomicWriteEnrollmentState = func(path string, payload []byte) error {
 	return writeEnrollmentStateAtomically(path, payload)
 }
 
-func writeEnrollmentStateAtomically(path string, payload []byte) error {
+func parseStoredEnrollmentState(raw []byte, integrityKeyPath string) (identity.DeviceIdentity, error) {
+	if len(raw) == 0 || len(raw) > maxEnrollmentStateBytes {
+		return identity.DeviceIdentity{}, ErrInvalidAuthority
+	}
+	envelopeRaw, err := decodeCBORExact(raw, defaultCBORLimits())
+	if err != nil {
+		return identity.DeviceIdentity{}, ErrInvalidAuthority
+	}
+	fields, ok := envelopeRaw.(map[uint64]any)
+	if !ok {
+		return identity.DeviceIdentity{}, ErrInvalidAuthority
+	}
+	if len(fields) != 5 {
+		return identity.DeviceIdentity{}, ErrInvalidAuthority
+	}
+	version, ok := fields[enrollmentStateEnvelopeFieldVersion].(uint64)
+	if !ok || version != enrollmentStateEnvelopeVersion {
+		return identity.DeviceIdentity{}, ErrInvalidAuthority
+	}
+	stateType, ok := fields[enrollmentStateEnvelopeFieldType].(uint64)
+	if !ok || stateType != enrollmentStateTypeEnrollment {
+		return identity.DeviceIdentity{}, ErrInvalidAuthority
+	}
+	payload, ok := fields[enrollmentStateEnvelopeFieldPayload].([]byte)
+	if !ok || len(payload) == 0 {
+		return identity.DeviceIdentity{}, ErrInvalidAuthority
+	}
+	integrityRaw, ok := fields[enrollmentStateEnvelopeFieldIntegrity].(map[uint64]any)
+	if !ok {
+		return identity.DeviceIdentity{}, ErrInvalidAuthority
+	}
+	signature, ok := fields[enrollmentStateEnvelopeFieldSignature].([]byte)
+	if !ok || len(signature) != ed25519.SignatureSize {
+		return identity.DeviceIdentity{}, ErrInvalidAuthority
+	}
+
+	unsigned, err := encodeCBOR(map[uint64]any{
+		enrollmentStateEnvelopeFieldVersion:   version,
+		enrollmentStateEnvelopeFieldType:      stateType,
+		enrollmentStateEnvelopeFieldPayload:   payload,
+		enrollmentStateEnvelopeFieldIntegrity: integrityRaw,
+	})
+	if err != nil {
+		return identity.DeviceIdentity{}, ErrInvalidAuthority
+	}
+	ref, publicKey, err := parseEnrollmentStateIntegrityMetadata(integrityRaw)
+	if err != nil {
+		return identity.DeviceIdentity{}, ErrInvalidAuthority
+	}
+	material, err := loadEnrollmentStateIntegrityMaterial(integrityKeyPath)
+	if err != nil {
+		return identity.DeviceIdentity{}, ErrInvalidAuthority
+	}
+	if material.keyRef != ref || !bytes.Equal(material.public, publicKey) {
+		return identity.DeviceIdentity{}, ErrInvalidAuthority
+	}
+
+	if !ed25519.Verify(material.public, appendEnrollmentStateIntegrityMessage(unsigned), signature) {
+		return identity.DeviceIdentity{}, ErrSignatureFailure
+	}
+
+	device, err := parseStoredEnrollmentDeviceIdentity(payload)
+	if err != nil {
+		return identity.DeviceIdentity{}, ErrInvalidAuthority
+	}
+	return device, nil
+}
+
+type enrollmentStateIntegrityMaterial struct {
+	keyRef  identity.KeyRef
+	private ed25519.PrivateKey
+	public  ed25519.PublicKey
+}
+
+func loadOrCreateEnrollmentStateIntegrityMaterial(path string) (enrollmentStateIntegrityMaterial, error) {
+	_, err := os.ReadFile(path)
+	if err == nil {
+		return loadEnrollmentStateIntegrityMaterial(path)
+	}
+	if !errors.Is(err, fs.ErrNotExist) {
+		return enrollmentStateIntegrityMaterial{}, ErrStoragePathRejected
+	}
+	material, err := newEnrollmentStateIntegrityMaterial()
+	if err != nil {
+		return enrollmentStateIntegrityMaterial{}, err
+	}
+	encoded, err := material.encode()
+	if err != nil {
+		return enrollmentStateIntegrityMaterial{}, err
+	}
+	protected, err := protectEnrollmentStateIntegrityBlob(encoded)
+	if err != nil {
+		return enrollmentStateIntegrityMaterial{}, err
+	}
+	if err := writeEnrollmentStateIntegrityBlob(path, protected); err != nil {
+		return enrollmentStateIntegrityMaterial{}, err
+	}
+	return material, nil
+}
+
+func loadEnrollmentStateIntegrityMaterial(path string) (enrollmentStateIntegrityMaterial, error) {
+	protected, err := os.ReadFile(path)
+	if err != nil {
+		return enrollmentStateIntegrityMaterial{}, ErrStoragePathRejected
+	}
+	decoded, err := unprotectEnrollmentStateIntegrityBlob(protected)
+	if err != nil {
+		return enrollmentStateIntegrityMaterial{}, ErrStoragePathRejected
+	}
+	return parseEnrollmentStateIntegrityMaterial(decoded)
+}
+
+func parseEnrollmentStateIntegrityMetadata(raw map[uint64]any) (identity.KeyRef, []byte, error) {
+	if len(raw) != 6 {
+		return identity.KeyRef{}, nil, ErrInvalidAuthority
+	}
+	keyID, ok := raw[enrollmentStateIntegrityFieldID].([]byte)
+	if !ok || len(keyID) != 32 {
+		return identity.KeyRef{}, nil, ErrInvalidAuthority
+	}
+	purpose, ok := raw[enrollmentStateIntegrityFieldPurpose].(uint64)
+	if !ok || purpose != uint64(identity.PurposeLocalStateIntegrity) {
+		return identity.KeyRef{}, nil, ErrInvalidAuthority
+	}
+	generation, ok := raw[enrollmentStateIntegrityFieldGeneration].(uint64)
+	if !ok || generation == 0 {
+		return identity.KeyRef{}, nil, ErrInvalidAuthority
+	}
+	thumbprint, ok := raw[enrollmentStateIntegrityFieldThumbprint].([]byte)
+	if !ok || len(thumbprint) != 32 {
+		return identity.KeyRef{}, nil, ErrInvalidAuthority
+	}
+	public, ok := raw[enrollmentStateIntegrityFieldPublicKey].([]byte)
+	if !ok || len(public) != ed25519.PublicKeySize {
+		return identity.KeyRef{}, nil, ErrInvalidAuthority
+	}
+	algorithm, ok := raw[enrollmentStateIntegrityFieldAlgorithm].(uint64)
+	if !ok || algorithm != enrollmentStateIntegrityAlgorithmEd25519 {
+		return identity.KeyRef{}, nil, ErrInvalidAuthority
+	}
+	var keyRef identity.KeyRef
+	copy(keyRef.ID[:], keyID)
+	keyRef.Purpose = identity.Purpose(purpose)
+	keyRef.Generation = generation
+	copy(keyRef.Thumbprint[:], thumbprint)
+	if keyRef == (identity.KeyRef{}) {
+		return identity.KeyRef{}, nil, ErrInvalidAuthority
+	}
+	return keyRef, append([]byte(nil), public...), nil
+}
+
+func (material enrollmentStateIntegrityMaterial) encodedIntegrityMetadata() (map[uint64]any, error) {
+	return map[uint64]any{
+		enrollmentStateIntegrityFieldID:         material.keyRef.ID[:],
+		enrollmentStateIntegrityFieldPurpose:    uint64(material.keyRef.Purpose),
+		enrollmentStateIntegrityFieldGeneration: material.keyRef.Generation,
+		enrollmentStateIntegrityFieldThumbprint: material.keyRef.Thumbprint[:],
+		enrollmentStateIntegrityFieldPublicKey:  []byte(material.public),
+		enrollmentStateIntegrityFieldAlgorithm:  uint64(enrollmentStateIntegrityAlgorithmEd25519),
+	}, nil
+}
+
+func (material enrollmentStateIntegrityMaterial) encode() ([]byte, error) {
+	return encodeCBOR(map[uint64]any{
+		enrollmentStateIntegrityFieldID:         material.keyRef.ID[:],
+		enrollmentStateIntegrityFieldPurpose:    uint64(material.keyRef.Purpose),
+		enrollmentStateIntegrityFieldGeneration: material.keyRef.Generation,
+		enrollmentStateIntegrityFieldThumbprint: material.keyRef.Thumbprint[:],
+		enrollmentStateIntegrityFieldPublicKey:  []byte(material.public),
+		enrollmentStateIntegrityFieldPrivateKey: []byte(material.private),
+	})
+}
+
+func parseEnrollmentStateIntegrityMaterial(raw []byte) (enrollmentStateIntegrityMaterial, error) {
+	decoded, err := decodeCBORExact(raw, defaultCBORLimits())
+	if err != nil {
+		return enrollmentStateIntegrityMaterial{}, err
+	}
+	fields, ok := decoded.(map[uint64]any)
+	if !ok {
+		return enrollmentStateIntegrityMaterial{}, ErrInvalidAuthority
+	}
+	if len(fields) != 6 {
+		return enrollmentStateIntegrityMaterial{}, ErrInvalidAuthority
+	}
+	keyID, ok := fields[enrollmentStateIntegrityFieldID].([]byte)
+	if !ok || len(keyID) != 32 {
+		return enrollmentStateIntegrityMaterial{}, ErrInvalidAuthority
+	}
+	purposeValue, ok := fields[enrollmentStateIntegrityFieldPurpose].(uint64)
+	if !ok || purposeValue != uint64(identity.PurposeLocalStateIntegrity) {
+		return enrollmentStateIntegrityMaterial{}, ErrInvalidAuthority
+	}
+	generation, ok := fields[enrollmentStateIntegrityFieldGeneration].(uint64)
+	if !ok || generation == 0 {
+		return enrollmentStateIntegrityMaterial{}, ErrInvalidAuthority
+	}
+	thumbprint, ok := fields[enrollmentStateIntegrityFieldThumbprint].([]byte)
+	if !ok || len(thumbprint) != 32 {
+		return enrollmentStateIntegrityMaterial{}, ErrInvalidAuthority
+	}
+	public, ok := fields[enrollmentStateIntegrityFieldPublicKey].([]byte)
+	if !ok || len(public) != ed25519.PublicKeySize {
+		return enrollmentStateIntegrityMaterial{}, ErrInvalidAuthority
+	}
+	private, ok := fields[enrollmentStateIntegrityFieldPrivateKey].([]byte)
+	if !ok || len(private) != ed25519.PrivateKeySize {
+		return enrollmentStateIntegrityMaterial{}, ErrInvalidAuthority
+	}
+	var keyRef identity.KeyRef
+	copy(keyRef.ID[:], keyID)
+	keyRef.Purpose = identity.Purpose(purposeValue)
+	keyRef.Generation = generation
+	copy(keyRef.Thumbprint[:], thumbprint)
+	if keyRef == (identity.KeyRef{}) {
+		return enrollmentStateIntegrityMaterial{}, ErrInvalidAuthority
+	}
+	privateCopy := append(ed25519.PrivateKey(nil), private...)
+	publicFromPrivate := ed25519.PrivateKey(privateCopy).Public().(ed25519.PublicKey)
+	if !bytes.Equal(publicFromPrivate, public) {
+		return enrollmentStateIntegrityMaterial{}, ErrInvalidAuthority
+	}
+	if sha256.Sum256(publicFromPrivate) != keyRef.Thumbprint {
+		return enrollmentStateIntegrityMaterial{}, ErrInvalidAuthority
+	}
+	return enrollmentStateIntegrityMaterial{
+		keyRef:  keyRef,
+		private: privateCopy,
+		public:  publicFromPrivate,
+	}, nil
+}
+
+func newEnrollmentStateIntegrityMaterial() (enrollmentStateIntegrityMaterial, error) {
+	public, private, err := ed25519.GenerateKey(rand.Reader)
+	if err != nil {
+		return enrollmentStateIntegrityMaterial{}, err
+	}
+	var id [32]byte
+	if _, err := io.ReadFull(rand.Reader, id[:]); err != nil {
+		return enrollmentStateIntegrityMaterial{}, err
+	}
+	for isZero32(id) {
+		if _, err := io.ReadFull(rand.Reader, id[:]); err != nil {
+			return enrollmentStateIntegrityMaterial{}, err
+		}
+	}
+	return enrollmentStateIntegrityMaterial{
+		keyRef: identity.KeyRef{
+			ID:         id,
+			Purpose:    identity.PurposeLocalStateIntegrity,
+			Generation: 1,
+			Thumbprint: sha256.Sum256(public),
+		},
+		private: private,
+		public:  append(ed25519.PublicKey(nil), public...),
+	}, nil
+}
+
+func appendEnrollmentStateIntegrityMessage(payload []byte) []byte {
+	message := make([]byte, 0, len(enrollmentStateIntegritySigningDomain)+1+len(payload))
+	message = append(message, enrollmentStateIntegritySigningDomain...)
+	message = append(message, byte(identity.PurposeLocalStateIntegrity))
+	return append(message, payload...)
+}
+
+func (material enrollmentStateIntegrityMaterial) signEnrollmentStateIntegrity(payload []byte) []byte {
+	return ed25519.Sign(material.private, appendEnrollmentStateIntegrityMessage(payload))
+}
+
+func writeEnrollmentStateIntegrityBlob(path string, blob []byte) error {
 	if path == "" {
 		return ErrInvalidAuthority
 	}
-	if len(payload) == 0 || len(payload) > maxEnrollmentStateBytes {
+	if len(blob) > maxEnrollmentStateBytes {
 		return ErrInvalidAuthority
 	}
-	parent := filepath.Dir(path)
-	if err := os.MkdirAll(parent, 0o700); err != nil {
+	if err := os.MkdirAll(filepath.Dir(path), 0o700); err != nil {
 		return err
 	}
-	file, err := os.CreateTemp(parent, "nbsr-enrollment-state-*")
-	if err != nil {
-		return err
-	}
-	tempPath := file.Name()
-	defer os.Remove(tempPath)
-	if n, err := file.Write(payload); err != nil {
-		_ = file.Close()
-		return err
-	} else if n != len(payload) {
-		_ = file.Close()
-		return io.ErrShortWrite
-	}
-	if err := file.Sync(); err != nil {
-		_ = file.Close()
-		return err
-	}
-	if err := file.Close(); err != nil {
-		return err
-	}
-	if err := os.Rename(tempPath, path); err != nil {
-		return err
-	}
-	_ = os.Remove(tempPath)
-	return nil
+	return writeEnrollmentStateIntegrityBlobAtomically(path, blob)
 }
 
 func encodeStoredEnrollmentDeviceIdentity(device identity.DeviceIdentity) ([]byte, error) {
@@ -316,4 +615,8 @@ func parseStoredEnrollmentDeviceIdentity(payload []byte) (identity.DeviceIdentit
 		return identity.DeviceIdentity{}, ErrInvalidAuthority
 	}
 	return parseEnrollmentDeviceIdentity(fields)
+}
+
+func isZero32(value [32]byte) bool {
+	return value == [32]byte{}
 }

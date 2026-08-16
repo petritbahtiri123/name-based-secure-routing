@@ -253,6 +253,208 @@ func TestLoadEnrollmentStateRejectsMalformedPersistedState(t *testing.T) {
 	}
 }
 
+func TestLoadEnrollmentStateRejectsTamperedStateSignature(t *testing.T) {
+	ctx := context.Background()
+	storePath := filepath.Join(t.TempDir(), "enrollment-state")
+	store := NewFileEnrollmentStateStore(storePath)
+
+	request := validEnrollmentRequestPayload()
+	requestPayload, err := EncodeEnrollmentRequestPayload(request)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result := validEnrollmentResultPayloadBoundToRequest(request, requestPayload, EnrollmentStatusAccepted)
+	now := result.DeviceIdentity.CredentialNotBefore + 10
+
+	if _, err := ApplyVerifiedEnrollmentResult(ctx, request, result, store, now); err != nil {
+		t.Fatalf("ApplyVerifiedEnrollmentResult: %v", err)
+	}
+
+	state, err := os.ReadFile(storePath)
+	if err != nil {
+		t.Fatalf("ReadFile(%s): %v", storePath, err)
+	}
+	decoded, err := decodeCBORExact(state, defaultCBORLimits())
+	if err != nil {
+		t.Fatalf("decode envelope: %v", err)
+	}
+	envelope, ok := decoded.(map[uint64]any)
+	if !ok {
+		t.Fatalf("decode envelope type %T", decoded)
+	}
+	signature, ok := envelope[enrollmentStateEnvelopeFieldSignature].([]byte)
+	if !ok || len(signature) == 0 {
+		t.Fatalf("missing signature field: %v", signature)
+	}
+	tamperedSignature := append([]byte(nil), signature...)
+	tamperedSignature[0] ^= 0x55
+	envelope[enrollmentStateEnvelopeFieldSignature] = tamperedSignature
+	tampered, err := encodeCBOR(envelope)
+	if err != nil {
+		t.Fatalf("encodeCBOR tampered envelope: %v", err)
+	}
+	if err := os.WriteFile(storePath, tampered, 0o600); err != nil {
+		t.Fatalf("WriteFile(%s): %v", storePath, err)
+	}
+	if _, err := LoadEnrollmentState(ctx, store, now); !errors.Is(err, ErrSignatureFailure) {
+		t.Fatalf("load after signature tamper error = %v, want %v", err, ErrSignatureFailure)
+	}
+}
+
+func TestLoadEnrollmentStateRejectsUnsignedEnvelopeState(t *testing.T) {
+	ctx := context.Background()
+	storePath := filepath.Join(t.TempDir(), "enrollment-state")
+	store := NewFileEnrollmentStateStore(storePath)
+
+	request := validEnrollmentRequestPayload()
+	requestPayload, err := EncodeEnrollmentRequestPayload(request)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result := validEnrollmentResultPayloadBoundToRequest(request, requestPayload, EnrollmentStatusAccepted)
+	now := result.DeviceIdentity.CredentialNotBefore + 10
+
+	if _, err := ApplyVerifiedEnrollmentResult(ctx, request, result, store, now); err != nil {
+		t.Fatalf("ApplyVerifiedEnrollmentResult: %v", err)
+	}
+	state, err := os.ReadFile(storePath)
+	if err != nil {
+		t.Fatalf("ReadFile(%s): %v", storePath, err)
+	}
+	decoded, err := decodeCBORExact(state, defaultCBORLimits())
+	if err != nil {
+		t.Fatalf("decode envelope: %v", err)
+	}
+	envelope, ok := decoded.(map[uint64]any)
+	if !ok {
+		t.Fatalf("decode envelope type %T", decoded)
+	}
+	delete(envelope, enrollmentStateEnvelopeFieldSignature)
+	unsigned, err := encodeCBOR(envelope)
+	if err != nil {
+		t.Fatalf("encodeCBOR unsigned envelope: %v", err)
+	}
+	if err := os.WriteFile(storePath, unsigned, 0o600); err != nil {
+		t.Fatalf("WriteFile(%s): %v", storePath, err)
+	}
+	if _, err := LoadEnrollmentState(ctx, store, now); !errors.Is(err, ErrInvalidAuthority) {
+		t.Fatalf("load unsigned envelope error = %v, want %v", err, ErrInvalidAuthority)
+	}
+}
+
+func TestLoadEnrollmentStateRejectsOversizedStateBlob(t *testing.T) {
+	ctx := context.Background()
+	storePath := filepath.Join(t.TempDir(), "enrollment-state")
+	store := NewFileEnrollmentStateStore(storePath)
+	oversized := make([]byte, maxEnrollmentStateBytes+1)
+	for i := range oversized {
+		oversized[i] = byte(i)
+	}
+	if err := os.WriteFile(storePath, oversized, 0o600); err != nil {
+		t.Fatalf("WriteFile(%s): %v", storePath, err)
+	}
+	if _, err := LoadEnrollmentState(ctx, store, uint64(time.Now().Unix())); !errors.Is(err, ErrInvalidAuthority) {
+		t.Fatalf("oversized load error = %v, want %v", err, ErrInvalidAuthority)
+	}
+}
+
+func TestLoadEnrollmentStateRejectsCorruptedIntegrityKeyBlob(t *testing.T) {
+	ctx := context.Background()
+	storePath := filepath.Join(t.TempDir(), "enrollment-state")
+	store := NewFileEnrollmentStateStore(storePath)
+
+	request := validEnrollmentRequestPayload()
+	requestPayload, err := EncodeEnrollmentRequestPayload(request)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result := validEnrollmentResultPayloadBoundToRequest(request, requestPayload, EnrollmentStatusAccepted)
+	now := result.DeviceIdentity.CredentialNotBefore + 10
+	if _, err := ApplyVerifiedEnrollmentResult(ctx, request, result, store, now); err != nil {
+		t.Fatalf("ApplyVerifiedEnrollmentResult: %v", err)
+	}
+
+	keyPath := filepath.Join(filepath.Dir(storePath), enrollmentStateIntegrityKeyName)
+	keyBlob, err := os.ReadFile(keyPath)
+	if err != nil {
+		t.Fatalf("ReadFile(%s): %v", keyPath, err)
+	}
+	if len(keyBlob) == 0 {
+		t.Fatal("empty integrity key blob")
+	}
+	keyBlob[len(keyBlob)-1] ^= 0x5a
+	if err := os.WriteFile(keyPath, keyBlob, 0o600); err != nil {
+		t.Fatalf("WriteFile(%s): %v", keyPath, err)
+	}
+	err = nil
+	if _, err = LoadEnrollmentState(ctx, store, now); !errors.Is(err, ErrInvalidAuthority) && !errors.Is(err, ErrStoragePathRejected) {
+		t.Fatalf("corrupted integrity key load error = %v, want %v or %v", err, ErrInvalidAuthority, ErrStoragePathRejected)
+	}
+}
+
+func TestApplyVerifiedEnrollmentResultRejectsDuplicateIdentityStoreAttempts(t *testing.T) {
+	ctx := context.Background()
+	request := validEnrollmentRequestPayload()
+	requestPayload, err := EncodeEnrollmentRequestPayload(request)
+	if err != nil {
+		t.Fatal(err)
+	}
+	store := NewFileEnrollmentStateStore(filepath.Join(t.TempDir(), "enrollment-state"))
+
+	result := validEnrollmentResultPayloadBoundToRequest(request, requestPayload, EnrollmentStatusAccepted)
+	now := result.DeviceIdentity.CredentialNotBefore + 10
+	if _, err := ApplyVerifiedEnrollmentResult(ctx, request, result, store, now); err != nil {
+		t.Fatalf("initial persist: %v", err)
+	}
+	duplicate := validEnrollmentResultPayloadBoundToRequest(request, requestPayload, EnrollmentStatusAccepted)
+	if _, err := ApplyVerifiedEnrollmentResult(ctx, request, duplicate, store, now); !errors.Is(err, ErrTerminalEnrollment) {
+		t.Fatalf("duplicate identity write error = %v, want %v", err, ErrTerminalEnrollment)
+	}
+}
+
+func TestApplyVerifiedEnrollmentResultSimulatedCrashDuringWriteKeepsStoreUnmodified(t *testing.T) {
+	ctx := context.Background()
+	request := validEnrollmentRequestPayload()
+	requestPayload, err := EncodeEnrollmentRequestPayload(request)
+	if err != nil {
+		t.Fatal(err)
+	}
+	storePath := filepath.Join(t.TempDir(), "enrollment-state")
+	store := NewFileEnrollmentStateStore(storePath)
+	result := validEnrollmentResultPayloadBoundToRequest(request, requestPayload, EnrollmentStatusAccepted)
+	now := result.DeviceIdentity.CredentialNotBefore + 10
+	payload, err := store.buildEnrollmentStateEnvelope(*result.DeviceIdentity)
+	if err != nil {
+		t.Fatalf("buildEnrollmentStateEnvelope: %v", err)
+	}
+
+	crashPath := filepath.Join(filepath.Dir(storePath), "nbsr-enrollment-state-orphan")
+	crashErr := errors.New("simulated write crash")
+	store.write = func(string, []byte) error {
+		if err := os.WriteFile(crashPath, payload, 0o600); err != nil {
+			return err
+		}
+		return crashErr
+	}
+	if _, err := ApplyVerifiedEnrollmentResult(ctx, request, result, store, now); !errors.Is(err, crashErr) {
+		t.Fatalf("write crash error = %v, want %v", err, crashErr)
+	}
+	if _, has, err := store.Load(ctx); err != nil {
+		t.Fatalf("Store.Load after crash: %v", err)
+	} else if has {
+		t.Fatal("identity persisted after crash")
+	}
+	store.write = nil
+	if _, err := ApplyVerifiedEnrollmentResult(ctx, request, result, store, now); err != nil {
+		t.Fatalf("recovered write: %v", err)
+	}
+	if _, has, err := store.Load(ctx); err != nil {
+		t.Fatalf("Store.Load after recovery: %v", err)
+	} else if !has {
+		t.Fatal("identity not persisted after recovery")
+	}
+}
+
 func TestLoadEnrollmentStateReturnsErrUnknownWhenStateAbsent(t *testing.T) {
 	ctx := context.Background()
 	store := NewMemoryEnrollmentStateStore()

@@ -3,9 +3,10 @@ package authority
 import "time"
 
 const (
-	enrollmentStateDirectorySuffix = `NBSR\GoClient\Enrollment`
-	enrollmentStateFileName        = "enrollment-state.bin"
-	enrollmentStateLockFileName    = "enrollment-state.lock"
+	enrollmentStateDirectorySuffix  = `NBSR\GoClient\Enrollment`
+	enrollmentStateFileName         = "enrollment-state.bin"
+	enrollmentStateLockFileName     = "enrollment-state.lock"
+	enrollmentStateIntegrityKeyName = "enrollment-state.integrity-key"
 
 	enrollmentStateLockAcquireTimeout = 2 * time.Second
 	enrollmentStateLockRetryDelay     = 25 * time.Millisecond
