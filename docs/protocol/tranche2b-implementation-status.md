@@ -74,6 +74,15 @@
 - Dedicated-service-account DPAPI restart stability remains an external acceptance blocker because no NBSR service identity/service profile is provisioned on this host. Same-token subprocess restart evidence is not represented as service-account evidence.
 - 3R-C remains NOT STARTED.
 
+### Approved Windows service gate profile
+
+- Service: `NBSRClient` as an own-process SCM service.
+- Identity: Windows Virtual Service Account `NT SERVICE\NBSRClient` with no password.
+- Profile/key model: user-scoped DPAPI under that virtual service identity; no machine-scope, plaintext, or alternate-keystore fallback.
+- Provisioning boundary: the installer owns service creation and the trusted ProgramData directory/ACL.
+- Test-only harness: `cd3a33bd41eaf1eec4022f47d711e35ec8b4a0a8`.
+- Status: SCM STORE → stop → LOAD → stop → LOAD evidence is not yet executed because the current preparation process is not elevated. Enrollment storage remains BLOCKED; 3R-C remains NOT STARTED.
+
 ## NEXT_TASK (from current available plan artifacts)
 
 `Tranche 2B transport + enrollment control-plane runtime` (HTTP/TLS provider/enrollment wire integration and runtime orchestration), which is not yet implemented in this branch.

@@ -48,3 +48,12 @@ NEXT_TASK = Tranche 2B transport + enrollment control-plane runtime (HTTP/TLS pr
 - Remote working branch intentionally remains `891ea07218977630aa80a073b1625db4cfcd515b`; audit commits were not pushed.
 - Acceptance blocker: this host has no provisioned dedicated NBSR Windows service identity/service profile. DPAPI same-token subprocess restart behavior is covered, but the required SCM stop/start proof under the selected service identity must be executed as an external deployment gate. No fallback keystore or machine-scope DPAPI was introduced.
 - Task 3R-C remains NOT STARTED.
+
+## Windows service identity decision and gate harness
+
+- Approved production service: `NBSRClient`, own-process SCM service.
+- Approved account model: Windows Virtual Service Account `NT SERVICE\NBSRClient`, with no password.
+- Installer provisioning owns service creation plus `%ProgramData%\NBSR\GoClient\Enrollment` creation and its SYSTEM/service-identity ACL; enrollment runtime does not provision or weaken the boundary.
+- DPAPI remains user-scoped under the virtual service account; machine-scope, plaintext, and alternate-keystore fallbacks remain forbidden.
+- Test-only SCM gate harness commit: `cd3a33bd41eaf1eec4022f47d711e35ec8b4a0a8`.
+- Gate execution remains BLOCKED pending an elevated PowerShell session. No SCM, ProgramData, network, firewall, adapter, route, proxy, DNS, or unrelated-service mutation was attempted in the non-elevated preparation session.
