@@ -138,7 +138,7 @@ try {
     } finally { Pop-Location }
 
     $binaryPath = ('"{0}" --evidence "{1}"' -f $serviceExecutable, $evidenceRoot)
-    & sc.exe create $serviceName "binPath= $binaryPath" 'type= own' 'start= demand' "obj= $serviceAccount" | Out-Null
+    & sc.exe create $serviceName 'binPath=' $binaryPath 'type=' 'own' 'start=' 'demand' 'obj=' $serviceAccount | Out-Null
     Assert-ExitCode 'create NBSRClient service'
     $serviceCreated = $true
     $script:serviceSid = ([Security.Principal.NTAccount]$serviceAccount).Translate([Security.Principal.SecurityIdentifier])
