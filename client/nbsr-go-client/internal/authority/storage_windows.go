@@ -16,8 +16,20 @@ import (
 )
 
 const (
+	fileDeleteChild       = uint32(0x00000040)
+	fileAllAccess         = uint32(0x001F01FF)
+	requiredServiceAccess = uint32(
+		windows.FILE_GENERIC_READ |
+			windows.FILE_GENERIC_WRITE |
+			windows.FILE_GENERIC_EXECUTE |
+			windows.DELETE,
+	)
+	requiredSystemAccess = requiredServiceAccess | windows.WRITE_DAC | windows.WRITE_OWNER
+
 	broadDirectoryWriteMask = uint32(
 		windows.FILE_GENERIC_WRITE |
+			windows.GENERIC_WRITE |
+			fileDeleteChild |
 			windows.DELETE |
 			windows.WRITE_DAC |
 			windows.WRITE_OWNER |
@@ -72,7 +84,7 @@ func AcquireEnrollmentStateLock(paths EnrollmentStatePaths) (*EnrollmentStateLoc
 	handle, err := windows.CreateFile(
 		lockPathW,
 		windows.GENERIC_READ|windows.GENERIC_WRITE,
-		windows.FILE_SHARE_READ|windows.FILE_SHARE_WRITE|windows.FILE_SHARE_DELETE,
+		windows.FILE_SHARE_READ|windows.FILE_SHARE_WRITE,
 		nil,
 		windows.OPEN_ALWAYS,
 		windows.FILE_ATTRIBUTE_NORMAL|windows.FILE_FLAG_OPEN_REPARSE_POINT,
@@ -84,6 +96,14 @@ func AcquireEnrollmentStateLock(paths EnrollmentStatePaths) (*EnrollmentStateLoc
 		}
 		return nil, withAuthorityError(err, ErrStoragePathRejected, paths.LockPath)
 	}
+	if err := validateRegularNonReparseHandle(handle, paths.LockPath); err != nil {
+		_ = windows.Close(handle)
+		return nil, err
+	}
+	if err := validateOwnershipAndACL(paths.LockPath); err != nil {
+		_ = windows.Close(handle)
+		return nil, err
+	}
 	if err := lockHandle(handle); err != nil {
 		_ = windows.Close(handle)
 		return nil, err
@@ -91,9 +111,12 @@ func AcquireEnrollmentStateLock(paths EnrollmentStatePaths) (*EnrollmentStateLoc
 	return &EnrollmentStateLock{
 		Path: paths.LockPath,
 		closeFn: func() error {
-			defer windows.Close(handle)
 			ov := windows.Overlapped{}
 			if err := windows.UnlockFileEx(handle, 0, 1, 0, &ov); err != nil {
+				_ = windows.Close(handle)
+				return withAuthorityError(err, ErrStoragePathRejected, paths.LockPath)
+			}
+			if err := windows.Close(handle); err != nil {
 				return withAuthorityError(err, ErrStoragePathRejected, paths.LockPath)
 			}
 			return nil
@@ -116,6 +139,7 @@ func resolveEnrollmentStatePaths(root string, requireProductionPath bool) (Enrol
 		return EnrollmentStatePaths{}, withAuthorityError(nil, ErrStoragePathRejected, "network path")
 	}
 
+	trustedDirectories := []string{root}
 	if requireProductionPath {
 		programData, err := windows.KnownFolderPath(windows.FOLDERID_ProgramData, 0)
 		if err != nil {
@@ -124,6 +148,11 @@ func resolveEnrollmentStatePaths(root string, requireProductionPath bool) (Enrol
 		expected := filepath.Clean(filepath.Join(programData, enrollmentStateDirectorySuffix))
 		if !strings.EqualFold(root, expected) {
 			return EnrollmentStatePaths{}, withAuthorityError(nil, ErrStoragePathRejected, "unexpected production root")
+		}
+		trustedDirectories = []string{
+			filepath.Join(programData, "NBSR"),
+			filepath.Join(programData, "NBSR", "GoClient"),
+			root,
 		}
 	}
 
@@ -136,18 +165,35 @@ func resolveEnrollmentStatePaths(root string, requireProductionPath bool) (Enrol
 	if err := validateNoReparseFinalPath(root, filepath.Join(root, enrollmentStateLockFileName)); err != nil {
 		return EnrollmentStatePaths{}, err
 	}
-	if err := validateOwnershipAndACL(root); err != nil {
+	if err := validateNoReparseFinalPath(root, filepath.Join(root, enrollmentStateIntegrityKeyName)); err != nil {
 		return EnrollmentStatePaths{}, err
 	}
-
+	for _, directory := range trustedDirectories {
+		if err := validateOwnershipAndACL(directory); err != nil {
+			return EnrollmentStatePaths{}, err
+		}
+	}
+	for _, sensitivePath := range []string{
+		filepath.Join(root, enrollmentStateFileName),
+		filepath.Join(root, enrollmentStateLockFileName),
+		filepath.Join(root, enrollmentStateIntegrityKeyName),
+	} {
+		if err := validateSecurityIfPresent(sensitivePath); err != nil {
+			return EnrollmentStatePaths{}, err
+		}
+	}
 	return EnrollmentStatePaths{
-		Root:      root,
-		StatePath: filepath.Join(root, enrollmentStateFileName),
-		LockPath:  filepath.Join(root, enrollmentStateLockFileName),
+		Root:       root,
+		StatePath:  filepath.Join(root, enrollmentStateFileName),
+		LockPath:   filepath.Join(root, enrollmentStateLockFileName),
+		sealedRoot: root,
 	}, nil
 }
 
 func validateEnrollmentStatePaths(paths EnrollmentStatePaths) error {
+	if paths.sealedRoot == "" || !strings.EqualFold(filepath.Clean(paths.Root), filepath.Clean(paths.sealedRoot)) {
+		return withAuthorityError(nil, ErrStoragePathRejected, "unsealed enrollment paths")
+	}
 	resolved, err := resolveEnrollmentStatePaths(paths.Root, false)
 	if err != nil {
 		return err
@@ -229,6 +275,16 @@ func validateNoReparseFinalPath(_ string, candidate string) error {
 	return nil
 }
 
+func validateSecurityIfPresent(path string) error {
+	if err := validateOwnershipAndACL(path); err != nil {
+		if errors.Is(err, windows.ERROR_FILE_NOT_FOUND) || errors.Is(err, windows.ERROR_PATH_NOT_FOUND) {
+			return nil
+		}
+		return err
+	}
+	return nil
+}
+
 func validateOwnershipAndACL(root string) error {
 	sd, err := windows.GetNamedSecurityInfo(root, windows.SE_FILE_OBJECT, windows.OWNER_SECURITY_INFORMATION|windows.DACL_SECURITY_INFORMATION)
 	if err != nil {
@@ -263,6 +319,17 @@ func validateOwnershipAndACL(root string) error {
 	if err != nil {
 		return withAuthorityError(err, ErrStoragePathRejected, "broad principal SID set")
 	}
+	administratorsSID, err := windows.CreateWellKnownSid(windows.WinBuiltinAdministratorsSid)
+	if err != nil {
+		return withAuthorityError(err, ErrStoragePathRejected, "administrators SID")
+	}
+	approvedWriters := map[string]struct{}{
+		processSid:                 {},
+		systemSid:                  {},
+		administratorsSID.String(): {},
+	}
+	var processAllowed, processDenied uint32
+	var systemAllowed, systemDenied uint32
 	for i := uint16(0); i < dacl.AceCount; i++ {
 		var ace *windows.ACCESS_ALLOWED_ACE
 		if err := windows.GetAce(dacl, uint32(i), &ace); err != nil {
@@ -271,21 +338,73 @@ func validateOwnershipAndACL(root string) error {
 		if ace == nil {
 			continue
 		}
-		if ace.Header.AceType != windows.ACCESS_ALLOWED_ACE_TYPE {
-			continue
+		if ace.Header.AceType != windows.ACCESS_ALLOWED_ACE_TYPE && ace.Header.AceType != windows.ACCESS_DENIED_ACE_TYPE {
+			return withAuthorityError(nil, ErrStoragePathRejected, "unsupported ACL entry")
 		}
 		entrySID := (*windows.SID)(unsafe.Pointer(&ace.SidStart))
 		if entrySID == nil {
 			continue
 		}
-		if _, ok := broadSids[entrySID.String()]; !ok {
+		entrySIDString := entrySID.String()
+		mask := expandFileGenericRights(uint32(ace.Mask))
+		if ace.Header.AceType == windows.ACCESS_DENIED_ACE_TYPE {
+			if entrySIDString == processSid {
+				processDenied |= mask
+			}
+			if entrySIDString == systemSid {
+				systemDenied |= mask
+			}
 			continue
 		}
-		if uint32(ace.Mask)&broadDirectoryWriteMask != 0 {
+		if _, ok := broadSids[entrySIDString]; ok && mask&broadDirectoryWriteMask != 0 {
 			return withAuthorityError(nil, ErrStoragePathRejected, "broad write ACE")
 		}
+		if _, approved := approvedWriters[entrySIDString]; !approved && mask&broadDirectoryWriteMask != 0 {
+			return withAuthorityError(nil, ErrStoragePathRejected, "unapproved write ACE")
+		}
+		inheritOnly := ace.Header.AceFlags&windows.INHERIT_ONLY_ACE != 0
+		if entrySIDString == processSid && !inheritOnly {
+			processAllowed |= mask
+		}
+		if entrySIDString == systemSid && !inheritOnly {
+			systemAllowed |= mask
+		}
+	}
+	if processAllowed&^processDenied&requiredServiceAccess != requiredServiceAccess {
+		return withAuthorityError(nil, ErrStoragePathRejected, "service identity lacks required access")
+	}
+	if systemAllowed&^systemDenied&requiredSystemAccess != requiredSystemAccess {
+		return withAuthorityError(nil, ErrStoragePathRejected, "SYSTEM lacks required access")
 	}
 
+	return nil
+}
+
+func expandFileGenericRights(mask uint32) uint32 {
+	if mask&windows.GENERIC_ALL != 0 {
+		mask |= fileAllAccess
+	}
+	if mask&windows.GENERIC_READ != 0 {
+		mask |= windows.FILE_GENERIC_READ
+	}
+	if mask&windows.GENERIC_WRITE != 0 {
+		mask |= windows.FILE_GENERIC_WRITE
+	}
+	if mask&windows.GENERIC_EXECUTE != 0 {
+		mask |= windows.FILE_GENERIC_EXECUTE
+	}
+	return mask
+}
+
+func validateRegularNonReparseHandle(handle windows.Handle, path string) error {
+	var info windows.ByHandleFileInformation
+	if err := windows.GetFileInformationByHandle(handle, &info); err != nil {
+		return withAuthorityError(err, ErrStoragePathRejected, path)
+	}
+	if info.FileAttributes&windows.FILE_ATTRIBUTE_REPARSE_POINT != 0 ||
+		info.FileAttributes&windows.FILE_ATTRIBUTE_DIRECTORY != 0 {
+		return withAuthorityError(nil, ErrStoragePathRejected, path)
+	}
 	return nil
 }
 

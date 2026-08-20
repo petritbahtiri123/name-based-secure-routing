@@ -6,10 +6,7 @@ import (
 	"crypto/ed25519"
 	"crypto/rand"
 	"crypto/sha256"
-	"errors"
 	"io"
-	"io/fs"
-	"os"
 	"path/filepath"
 	"sync"
 
@@ -198,67 +195,88 @@ func validateEnrollmentResultIdentity(device identity.DeviceIdentity) bool {
 type FileEnrollmentStateStore struct {
 	mu sync.Mutex
 
-	path string
+	paths EnrollmentStatePaths
 
 	write func(path string, payload []byte) error
 }
 
-func NewFileEnrollmentStateStore(path string) *FileEnrollmentStateStore {
-	return &FileEnrollmentStateStore{path: path, write: atomicWriteEnrollmentState}
+func NewFileEnrollmentStateStore() (*FileEnrollmentStateStore, error) {
+	paths, err := ResolveEnrollmentStatePaths()
+	if err != nil {
+		return nil, err
+	}
+	return newFileEnrollmentStateStore(paths)
 }
 
-func (store *FileEnrollmentStateStore) Load(_ context.Context) (identity.DeviceIdentity, bool, error) {
-	if store == nil || store.path == "" {
-		return identity.DeviceIdentity{}, false, ErrInvalidAuthority
-	}
-	data, err := os.ReadFile(store.path)
+func newFileEnrollmentStateStoreForTest(root string) (*FileEnrollmentStateStore, error) {
+	paths, err := ResolveEnrollmentStatePathsForTest(root)
 	if err != nil {
-		if errors.Is(err, fs.ErrNotExist) {
-			return identity.DeviceIdentity{}, false, nil
-		}
-		return identity.DeviceIdentity{}, false, ErrInvalidAuthority
+		return nil, err
 	}
-	device, err := parseStoredEnrollmentState(data, store.integrityKeyPath())
-	if err != nil {
-		return identity.DeviceIdentity{}, false, err
-	}
-	return copyDeviceIdentity(device), true, nil
+	return newFileEnrollmentStateStore(paths)
 }
 
-func (store *FileEnrollmentStateStore) Store(_ context.Context, device identity.DeviceIdentity) error {
-	if store == nil || store.path == "" {
+func newFileEnrollmentStateStore(paths EnrollmentStatePaths) (*FileEnrollmentStateStore, error) {
+	if err := validateEnrollmentStatePaths(paths); err != nil {
+		return nil, err
+	}
+	return &FileEnrollmentStateStore{paths: paths, write: atomicWriteEnrollmentState}, nil
+}
+
+func (store *FileEnrollmentStateStore) Load(ctx context.Context) (identity.DeviceIdentity, bool, error) {
+	if store == nil || isNilDependency(ctx) {
+		return identity.DeviceIdentity{}, false, ErrInvalidAuthority
+	}
+	store.mu.Lock()
+	defer store.mu.Unlock()
+	return store.withLock(func() (identity.DeviceIdentity, bool, error) {
+		return store.loadLocked()
+	})
+}
+
+func (store *FileEnrollmentStateStore) Store(ctx context.Context, device identity.DeviceIdentity) error {
+	if store == nil || isNilDependency(ctx) {
 		return ErrInvalidAuthority
 	}
 	if !validateEnrollmentResultIdentity(device) {
 		return ErrInvalidAuthority
 	}
-	payload, err := store.buildEnrollmentStateEnvelope(device)
-	if err != nil {
-		return ErrInvalidAuthority
-	}
 	store.mu.Lock()
 	defer store.mu.Unlock()
-	_, present, err := store.loadLocked()
-	if err != nil {
-		return err
-	}
-	if present {
-		return ErrTerminalEnrollment
-	}
-	write := store.write
-	if write == nil {
-		write = atomicWriteEnrollmentState
-	}
-	return write(store.path, payload)
+	_, _, err := store.withLock(func() (identity.DeviceIdentity, bool, error) {
+		_, present, err := store.loadLocked()
+		if err != nil {
+			return identity.DeviceIdentity{}, false, err
+		}
+		if present {
+			return identity.DeviceIdentity{}, false, ErrTerminalEnrollment
+		}
+		if err := cleanupEnrollmentStateTemps(store.paths.Root); err != nil {
+			return identity.DeviceIdentity{}, false, err
+		}
+		payload, err := store.buildEnrollmentStateEnvelope(device)
+		if err != nil {
+			return identity.DeviceIdentity{}, false, err
+		}
+		write := store.write
+		if write == nil {
+			write = atomicWriteEnrollmentState
+		}
+		if err := write(store.paths.StatePath, payload); err != nil {
+			return identity.DeviceIdentity{}, false, err
+		}
+		return identity.DeviceIdentity{}, false, nil
+	})
+	return err
 }
 
 func (store *FileEnrollmentStateStore) loadLocked() (identity.DeviceIdentity, bool, error) {
-	data, err := os.ReadFile(store.path)
+	data, found, err := readEnrollmentStateBlob(store.paths.StatePath)
 	if err != nil {
-		if errors.Is(err, fs.ErrNotExist) {
-			return identity.DeviceIdentity{}, false, nil
-		}
-		return identity.DeviceIdentity{}, false, ErrInvalidAuthority
+		return identity.DeviceIdentity{}, false, err
+	}
+	if !found {
+		return identity.DeviceIdentity{}, false, nil
 	}
 	device, err := parseStoredEnrollmentState(data, store.integrityKeyPath())
 	if err != nil {
@@ -268,7 +286,26 @@ func (store *FileEnrollmentStateStore) loadLocked() (identity.DeviceIdentity, bo
 }
 
 func (store *FileEnrollmentStateStore) integrityKeyPath() string {
-	return filepath.Join(filepath.Dir(store.path), enrollmentStateIntegrityKeyName)
+	return filepath.Join(store.paths.Root, enrollmentStateIntegrityKeyName)
+}
+
+func (store *FileEnrollmentStateStore) withLock(operation func() (identity.DeviceIdentity, bool, error)) (device identity.DeviceIdentity, found bool, err error) {
+	if err := validateEnrollmentStatePaths(store.paths); err != nil {
+		return identity.DeviceIdentity{}, false, err
+	}
+	lock, err := AcquireEnrollmentStateLock(store.paths)
+	if err != nil {
+		return identity.DeviceIdentity{}, false, err
+	}
+	defer func() {
+		if closeErr := lock.Close(); err == nil && closeErr != nil {
+			err = closeErr
+		}
+	}()
+	if err := validateEnrollmentStatePaths(store.paths); err != nil {
+		return identity.DeviceIdentity{}, false, err
+	}
+	return operation()
 }
 
 func (store *FileEnrollmentStateStore) buildEnrollmentStateEnvelope(device identity.DeviceIdentity) ([]byte, error) {
@@ -382,12 +419,12 @@ type enrollmentStateIntegrityMaterial struct {
 }
 
 func loadOrCreateEnrollmentStateIntegrityMaterial(path string) (enrollmentStateIntegrityMaterial, error) {
-	_, err := os.ReadFile(path)
-	if err == nil {
-		return loadEnrollmentStateIntegrityMaterial(path)
+	_, found, err := readEnrollmentStateBlob(path)
+	if err != nil {
+		return enrollmentStateIntegrityMaterial{}, err
 	}
-	if !errors.Is(err, fs.ErrNotExist) {
-		return enrollmentStateIntegrityMaterial{}, ErrStoragePathRejected
+	if found {
+		return loadEnrollmentStateIntegrityMaterial(path)
 	}
 	material, err := newEnrollmentStateIntegrityMaterial()
 	if err != nil {
@@ -408,8 +445,11 @@ func loadOrCreateEnrollmentStateIntegrityMaterial(path string) (enrollmentStateI
 }
 
 func loadEnrollmentStateIntegrityMaterial(path string) (enrollmentStateIntegrityMaterial, error) {
-	protected, err := os.ReadFile(path)
+	protected, found, err := readEnrollmentStateBlob(path)
 	if err != nil {
+		return enrollmentStateIntegrityMaterial{}, ErrStoragePathRejected
+	}
+	if !found {
 		return enrollmentStateIntegrityMaterial{}, ErrStoragePathRejected
 	}
 	decoded, err := unprotectEnrollmentStateIntegrityBlob(protected)
@@ -582,9 +622,6 @@ func writeEnrollmentStateIntegrityBlob(path string, blob []byte) error {
 	}
 	if len(blob) > maxEnrollmentStateBytes {
 		return ErrInvalidAuthority
-	}
-	if err := os.MkdirAll(filepath.Dir(path), 0o700); err != nil {
-		return err
 	}
 	return writeEnrollmentStateIntegrityBlobAtomically(path, blob)
 }

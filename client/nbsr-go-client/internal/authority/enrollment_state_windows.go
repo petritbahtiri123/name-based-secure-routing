@@ -5,6 +5,7 @@ package authority
 
 import (
 	"errors"
+	"io"
 	"os"
 	"path/filepath"
 	"unsafe"
@@ -12,7 +13,14 @@ import (
 	"golang.org/x/sys/windows"
 )
 
-const moveFileFailIfExists uint32 = 0x00000001
+type enrollmentStateWriteStage string
+
+const (
+	enrollmentStateWriteAfterClose enrollmentStateWriteStage = "after-close-before-move"
+	enrollmentStateWriteAfterMove  enrollmentStateWriteStage = "after-move-before-validation"
+)
+
+var enrollmentStateWriteStageHook = func(string, enrollmentStateWriteStage) {}
 
 var enrollmentStateInvalidPathError = errors.New("invalid enrollment state path")
 
@@ -84,18 +92,22 @@ func writeBoundedBlobAtomically(path string, payload []byte) error {
 		return ErrInvalidAuthority
 	}
 	parent := filepath.Dir(path)
-	if err := os.MkdirAll(parent, 0o700); err != nil {
+	if err := validateOwnershipAndACL(parent); err != nil {
 		return err
 	}
 
-	temp, err := os.CreateTemp(parent, "nbsr-enrollment-state-")
+	tempPath := path + ".tmp"
+	temp, err := os.OpenFile(tempPath, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o600)
 	if err != nil {
 		return err
 	}
-	tempPath := temp.Name()
 	defer func() {
 		_ = os.Remove(tempPath)
 	}()
+	if err := applyDirectorySecurityToPath(tempPath, parent); err != nil {
+		_ = temp.Close()
+		return err
+	}
 	if _, err := temp.Write(payload); err != nil || len(payload) == 0 {
 		_ = temp.Close()
 		if err != nil {
@@ -114,16 +126,83 @@ func writeBoundedBlobAtomically(path string, payload []byte) error {
 	if err := temp.Close(); err != nil {
 		return err
 	}
-	if err := applyDirectorySecurityToPath(tempPath, parent); err != nil {
-		return err
-	}
-	moveFlags := windows.MOVEFILE_WRITE_THROUGH | moveFileFailIfExists
+	enrollmentStateWriteStageHook(path, enrollmentStateWriteAfterClose)
+	moveFlags := uint32(windows.MOVEFILE_WRITE_THROUGH)
 	if err := windows.MoveFileEx(
 		fileNameWide(tempPath),
 		fileNameWide(path),
 		moveFlags,
 	); err != nil {
 		return err
+	}
+	enrollmentStateWriteStageHook(path, enrollmentStateWriteAfterMove)
+	return validateOwnershipAndACL(path)
+}
+
+func readEnrollmentStateBlob(path string) ([]byte, bool, error) {
+	pathPtr, err := pathW(path)
+	if err != nil {
+		return nil, false, withAuthorityError(err, ErrStoragePathRejected, path)
+	}
+	handle, err := windows.CreateFile(
+		pathPtr,
+		windows.GENERIC_READ,
+		windows.FILE_SHARE_READ,
+		nil,
+		windows.OPEN_EXISTING,
+		windows.FILE_ATTRIBUTE_NORMAL|windows.FILE_FLAG_OPEN_REPARSE_POINT,
+		0,
+	)
+	if err != nil {
+		if errors.Is(err, windows.ERROR_FILE_NOT_FOUND) || errors.Is(err, windows.ERROR_PATH_NOT_FOUND) {
+			return nil, false, nil
+		}
+		return nil, false, withAuthorityError(err, ErrStoragePathRejected, path)
+	}
+	file := os.NewFile(uintptr(handle), path)
+	if file == nil {
+		_ = windows.Close(handle)
+		return nil, false, ErrStoragePathRejected
+	}
+	defer file.Close()
+	if err := validateRegularNonReparseHandle(handle, path); err != nil {
+		return nil, false, err
+	}
+	if err := validateOwnershipAndACL(path); err != nil {
+		return nil, false, err
+	}
+	var info windows.ByHandleFileInformation
+	if err := windows.GetFileInformationByHandle(handle, &info); err != nil {
+		return nil, false, withAuthorityError(err, ErrStoragePathRejected, path)
+	}
+	size := uint64(info.FileSizeHigh)<<32 | uint64(info.FileSizeLow)
+	if size == 0 || size > maxEnrollmentStateBytes {
+		return nil, false, ErrInvalidAuthority
+	}
+	raw, err := io.ReadAll(io.LimitReader(file, maxEnrollmentStateBytes+1))
+	if err != nil {
+		return nil, false, withAuthorityError(err, ErrStoragePathRejected, path)
+	}
+	if len(raw) == 0 || len(raw) > maxEnrollmentStateBytes {
+		return nil, false, ErrInvalidAuthority
+	}
+	return raw, true, nil
+}
+
+func cleanupEnrollmentStateTemps(root string) error {
+	for _, candidate := range []string{
+		filepath.Join(root, enrollmentStateFileName) + ".tmp",
+		filepath.Join(root, enrollmentStateIntegrityKeyName) + ".tmp",
+	} {
+		if validationErr := validateNoReparseFinalPath(root, candidate); validationErr != nil {
+			return validationErr
+		}
+		if securityErr := validateSecurityIfPresent(candidate); securityErr != nil {
+			return securityErr
+		}
+		if removeErr := os.Remove(candidate); removeErr != nil && !errors.Is(removeErr, os.ErrNotExist) {
+			return withAuthorityError(removeErr, ErrStoragePathRejected, candidate)
+		}
 	}
 	return nil
 }

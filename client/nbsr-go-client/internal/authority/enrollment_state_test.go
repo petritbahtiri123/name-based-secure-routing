@@ -48,8 +48,7 @@ func TestApplyVerifiedEnrollmentResultAcceptsExactIdentityAndPersistsNotReady(t 
 
 func TestLoadEnrollmentStateReturnsStoredIdentityAsNotReady(t *testing.T) {
 	ctx := context.Background()
-	storePath := filepath.Join(t.TempDir(), "enrollment-state")
-	store := NewFileEnrollmentStateStore(storePath)
+	store, storePath := newTestFileEnrollmentStateStore(t)
 
 	request := validEnrollmentRequestPayload()
 	requestPayload, err := EncodeEnrollmentRequestPayload(request)
@@ -194,7 +193,7 @@ func TestApplyVerifiedEnrollmentResultRejectsInvalidLifetimeAndExistingIdentity(
 	if err != nil {
 		t.Fatal(err)
 	}
-	store := NewFileEnrollmentStateStore(filepath.Join(t.TempDir(), "enrollment-state"))
+	store, _ := newTestFileEnrollmentStateStore(t)
 
 	expired := validEnrollmentResultPayloadBoundToRequest(request, requestPayload, EnrollmentStatusAccepted)
 	if _, err := ApplyVerifiedEnrollmentResult(ctx, request, expired, store, expired.DeviceIdentity.CredentialExpiresAt+1); !errors.Is(err, ErrExpired) {
@@ -222,7 +221,7 @@ func TestApplyVerifiedEnrollmentResultSimulatedWriteFailureLeavesNoPersistedIden
 	if err != nil {
 		t.Fatal(err)
 	}
-	store := NewFileEnrollmentStateStore(filepath.Join(t.TempDir(), "enrollment-state"))
+	store, _ := newTestFileEnrollmentStateStore(t)
 	previous := store.write
 	simulate := errors.New("simulated failure")
 	store.write = func(string, []byte) error { return simulate }
@@ -243,8 +242,7 @@ func TestApplyVerifiedEnrollmentResultSimulatedWriteFailureLeavesNoPersistedIden
 
 func TestLoadEnrollmentStateRejectsMalformedPersistedState(t *testing.T) {
 	ctx := context.Background()
-	storePath := filepath.Join(t.TempDir(), "enrollment-state")
-	store := NewFileEnrollmentStateStore(storePath)
+	store, storePath := newTestFileEnrollmentStateStore(t)
 	if err := os.WriteFile(storePath, []byte{0x00, 0x01, 0x02}, 0o600); err != nil {
 		t.Fatal(err)
 	}
@@ -255,8 +253,7 @@ func TestLoadEnrollmentStateRejectsMalformedPersistedState(t *testing.T) {
 
 func TestLoadEnrollmentStateRejectsTamperedStateSignature(t *testing.T) {
 	ctx := context.Background()
-	storePath := filepath.Join(t.TempDir(), "enrollment-state")
-	store := NewFileEnrollmentStateStore(storePath)
+	store, storePath := newTestFileEnrollmentStateStore(t)
 
 	request := validEnrollmentRequestPayload()
 	requestPayload, err := EncodeEnrollmentRequestPayload(request)
@@ -303,8 +300,7 @@ func TestLoadEnrollmentStateRejectsTamperedStateSignature(t *testing.T) {
 
 func TestLoadEnrollmentStateRejectsUnsignedEnvelopeState(t *testing.T) {
 	ctx := context.Background()
-	storePath := filepath.Join(t.TempDir(), "enrollment-state")
-	store := NewFileEnrollmentStateStore(storePath)
+	store, storePath := newTestFileEnrollmentStateStore(t)
 
 	request := validEnrollmentRequestPayload()
 	requestPayload, err := EncodeEnrollmentRequestPayload(request)
@@ -344,8 +340,7 @@ func TestLoadEnrollmentStateRejectsUnsignedEnvelopeState(t *testing.T) {
 
 func TestLoadEnrollmentStateRejectsOversizedStateBlob(t *testing.T) {
 	ctx := context.Background()
-	storePath := filepath.Join(t.TempDir(), "enrollment-state")
-	store := NewFileEnrollmentStateStore(storePath)
+	store, storePath := newTestFileEnrollmentStateStore(t)
 	oversized := make([]byte, maxEnrollmentStateBytes+1)
 	for i := range oversized {
 		oversized[i] = byte(i)
@@ -360,8 +355,7 @@ func TestLoadEnrollmentStateRejectsOversizedStateBlob(t *testing.T) {
 
 func TestLoadEnrollmentStateRejectsCorruptedIntegrityKeyBlob(t *testing.T) {
 	ctx := context.Background()
-	storePath := filepath.Join(t.TempDir(), "enrollment-state")
-	store := NewFileEnrollmentStateStore(storePath)
+	store, storePath := newTestFileEnrollmentStateStore(t)
 
 	request := validEnrollmentRequestPayload()
 	requestPayload, err := EncodeEnrollmentRequestPayload(request)
@@ -392,6 +386,162 @@ func TestLoadEnrollmentStateRejectsCorruptedIntegrityKeyBlob(t *testing.T) {
 	}
 }
 
+func TestLoadEnrollmentStateRejectsKeyStateMismatchAndMissingKey(t *testing.T) {
+	ctx := context.Background()
+	first, firstPath := newTestFileEnrollmentStateStore(t)
+	second, secondPath := newTestFileEnrollmentStateStore(t)
+	request := validEnrollmentRequestPayload()
+	requestPayload, err := EncodeEnrollmentRequestPayload(request)
+	if err != nil {
+		t.Fatalf("EncodeEnrollmentRequestPayload: %v", err)
+	}
+	result := validEnrollmentResultPayloadBoundToRequest(request, requestPayload, EnrollmentStatusAccepted)
+	for _, store := range []*FileEnrollmentStateStore{first, second} {
+		if err := store.Store(ctx, *result.DeviceIdentity); err != nil {
+			t.Fatalf("Store: %v", err)
+		}
+	}
+	firstState, err := os.ReadFile(firstPath)
+	if err != nil {
+		t.Fatalf("ReadFile(first state): %v", err)
+	}
+	if err := os.WriteFile(secondPath, firstState, 0o600); err != nil {
+		t.Fatalf("WriteFile(mismatched state): %v", err)
+	}
+	if _, _, err := second.Load(ctx); !errors.Is(err, ErrInvalidAuthority) {
+		t.Fatalf("mismatched key/state Load error = %v, want %v", err, ErrInvalidAuthority)
+	}
+	if err := os.Remove(filepath.Join(filepath.Dir(firstPath), enrollmentStateIntegrityKeyName)); err != nil {
+		t.Fatalf("Remove(first key): %v", err)
+	}
+	if _, _, err := first.Load(ctx); !errors.Is(err, ErrInvalidAuthority) {
+		t.Fatalf("state without key Load error = %v, want %v", err, ErrInvalidAuthority)
+	}
+}
+
+func TestLoadEnrollmentStateRejectsAuthenticatedSemanticInvalidity(t *testing.T) {
+	ctx := context.Background()
+	store, storePath := newTestFileEnrollmentStateStore(t)
+	request := validEnrollmentRequestPayload()
+	requestPayload, err := EncodeEnrollmentRequestPayload(request)
+	if err != nil {
+		t.Fatalf("EncodeEnrollmentRequestPayload: %v", err)
+	}
+	result := validEnrollmentResultPayloadBoundToRequest(request, requestPayload, EnrollmentStatusAccepted)
+	if err := store.Store(ctx, *result.DeviceIdentity); err != nil {
+		t.Fatalf("Store: %v", err)
+	}
+	invalid := *result.DeviceIdentity
+	invalid.SourceOperatorID = ""
+	payload, err := encodeStoredEnrollmentDeviceIdentity(invalid)
+	if err != nil {
+		t.Fatalf("encodeStoredEnrollmentDeviceIdentity: %v", err)
+	}
+	material, err := loadEnrollmentStateIntegrityMaterial(store.integrityKeyPath())
+	if err != nil {
+		t.Fatalf("loadEnrollmentStateIntegrityMaterial: %v", err)
+	}
+	metadata, err := material.encodedIntegrityMetadata()
+	if err != nil {
+		t.Fatalf("encodedIntegrityMetadata: %v", err)
+	}
+	unsigned, err := encodeCBOR(map[uint64]any{
+		enrollmentStateEnvelopeFieldVersion:   uint64(enrollmentStateEnvelopeVersion),
+		enrollmentStateEnvelopeFieldType:      uint64(enrollmentStateTypeEnrollment),
+		enrollmentStateEnvelopeFieldPayload:   payload,
+		enrollmentStateEnvelopeFieldIntegrity: metadata,
+	})
+	if err != nil {
+		t.Fatalf("encode unsigned: %v", err)
+	}
+	wire, err := encodeCBOR(map[uint64]any{
+		enrollmentStateEnvelopeFieldVersion:   uint64(enrollmentStateEnvelopeVersion),
+		enrollmentStateEnvelopeFieldType:      uint64(enrollmentStateTypeEnrollment),
+		enrollmentStateEnvelopeFieldPayload:   payload,
+		enrollmentStateEnvelopeFieldIntegrity: metadata,
+		enrollmentStateEnvelopeFieldSignature: material.signEnrollmentStateIntegrity(unsigned),
+	})
+	if err != nil {
+		t.Fatalf("encode envelope: %v", err)
+	}
+	if err := os.WriteFile(storePath, wire, 0o600); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
+	if _, _, err := store.Load(ctx); !errors.Is(err, ErrInvalidAuthority) {
+		t.Fatalf("authenticated semantic-invalid Load error = %v, want %v", err, ErrInvalidAuthority)
+	}
+}
+
+func TestLoadEnrollmentStateRejectsIntegrityMetadataAndEnvelopeTampering(t *testing.T) {
+	tests := []struct {
+		name   string
+		mutate func(map[uint64]any)
+	}{
+		{name: "payload", mutate: func(envelope map[uint64]any) {
+			payload := append([]byte(nil), envelope[enrollmentStateEnvelopeFieldPayload].([]byte)...)
+			payload[0] ^= 0x01
+			envelope[enrollmentStateEnvelopeFieldPayload] = payload
+		}},
+		{name: "key id", mutate: mutateEnrollmentIntegrityBytes(enrollmentStateIntegrityFieldID)},
+		{name: "purpose", mutate: func(envelope map[uint64]any) {
+			envelope[enrollmentStateEnvelopeFieldIntegrity].(map[uint64]any)[enrollmentStateIntegrityFieldPurpose] = uint64(identity.PurposeTSProof)
+		}},
+		{name: "generation", mutate: func(envelope map[uint64]any) {
+			envelope[enrollmentStateEnvelopeFieldIntegrity].(map[uint64]any)[enrollmentStateIntegrityFieldGeneration] = uint64(2)
+		}},
+		{name: "thumbprint", mutate: mutateEnrollmentIntegrityBytes(enrollmentStateIntegrityFieldThumbprint)},
+		{name: "public key", mutate: mutateEnrollmentIntegrityBytes(enrollmentStateIntegrityFieldPublicKey)},
+		{name: "algorithm", mutate: func(envelope map[uint64]any) {
+			envelope[enrollmentStateEnvelopeFieldIntegrity].(map[uint64]any)[enrollmentStateIntegrityFieldAlgorithm] = uint64(99)
+		}},
+		{name: "unknown field", mutate: func(envelope map[uint64]any) {
+			envelope[99] = uint64(1)
+		}},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			store, storePath := newTestFileEnrollmentStateStore(t)
+			request := validEnrollmentRequestPayload()
+			requestPayload, err := EncodeEnrollmentRequestPayload(request)
+			if err != nil {
+				t.Fatalf("EncodeEnrollmentRequestPayload: %v", err)
+			}
+			result := validEnrollmentResultPayloadBoundToRequest(request, requestPayload, EnrollmentStatusAccepted)
+			if err := store.Store(context.Background(), *result.DeviceIdentity); err != nil {
+				t.Fatalf("Store: %v", err)
+			}
+			wire, err := os.ReadFile(storePath)
+			if err != nil {
+				t.Fatalf("ReadFile: %v", err)
+			}
+			decoded, err := decodeCBORExact(wire, defaultCBORLimits())
+			if err != nil {
+				t.Fatalf("decodeCBORExact: %v", err)
+			}
+			envelope := decoded.(map[uint64]any)
+			tc.mutate(envelope)
+			tampered, err := encodeCBOR(envelope)
+			if err != nil {
+				t.Fatalf("encodeCBOR: %v", err)
+			}
+			if err := os.WriteFile(storePath, tampered, 0o600); err != nil {
+				t.Fatalf("WriteFile: %v", err)
+			}
+			if _, _, err := store.Load(context.Background()); err == nil {
+				t.Fatal("tampered enrollment state was accepted")
+			}
+		})
+	}
+}
+
+func FuzzParseStoredEnrollmentStateNeverPanics(f *testing.F) {
+	f.Add([]byte{0xa0})
+	f.Add([]byte{0xa5, 0x00, 0x01, 0x01, 0x01, 0x02, 0x40, 0x03, 0xa0, 0x04, 0x40})
+	f.Fuzz(func(t *testing.T, raw []byte) {
+		_, _ = parseStoredEnrollmentState(raw, "missing-integrity-key")
+	})
+}
+
 func TestApplyVerifiedEnrollmentResultRejectsDuplicateIdentityStoreAttempts(t *testing.T) {
 	ctx := context.Background()
 	request := validEnrollmentRequestPayload()
@@ -399,7 +549,7 @@ func TestApplyVerifiedEnrollmentResultRejectsDuplicateIdentityStoreAttempts(t *t
 	if err != nil {
 		t.Fatal(err)
 	}
-	store := NewFileEnrollmentStateStore(filepath.Join(t.TempDir(), "enrollment-state"))
+	store, _ := newTestFileEnrollmentStateStore(t)
 
 	result := validEnrollmentResultPayloadBoundToRequest(request, requestPayload, EnrollmentStatusAccepted)
 	now := result.DeviceIdentity.CredentialNotBefore + 10
@@ -419,19 +569,13 @@ func TestApplyVerifiedEnrollmentResultSimulatedCrashDuringWriteKeepsStoreUnmodif
 	if err != nil {
 		t.Fatal(err)
 	}
-	storePath := filepath.Join(t.TempDir(), "enrollment-state")
-	store := NewFileEnrollmentStateStore(storePath)
+	store, storePath := newTestFileEnrollmentStateStore(t)
 	result := validEnrollmentResultPayloadBoundToRequest(request, requestPayload, EnrollmentStatusAccepted)
 	now := result.DeviceIdentity.CredentialNotBefore + 10
-	payload, err := store.buildEnrollmentStateEnvelope(*result.DeviceIdentity)
-	if err != nil {
-		t.Fatalf("buildEnrollmentStateEnvelope: %v", err)
-	}
-
-	crashPath := filepath.Join(filepath.Dir(storePath), "nbsr-enrollment-state-orphan")
+	crashPath := storePath + ".tmp"
 	crashErr := errors.New("simulated write crash")
 	store.write = func(string, []byte) error {
-		if err := os.WriteFile(crashPath, payload, 0o600); err != nil {
+		if err := os.WriteFile(crashPath, []byte("partial"), 0o600); err != nil {
 			return err
 		}
 		return crashErr
@@ -455,6 +599,28 @@ func TestApplyVerifiedEnrollmentResultSimulatedCrashDuringWriteKeepsStoreUnmodif
 	}
 }
 
+func TestFileEnrollmentStateStoreRemovesPriorCrashOrphan(t *testing.T) {
+	ctx := context.Background()
+	store, storePath := newTestFileEnrollmentStateStore(t)
+	orphanPath := storePath + ".tmp"
+	if err := os.WriteFile(orphanPath, []byte("orphan"), 0o600); err != nil {
+		t.Fatalf("WriteFile(orphan): %v", err)
+	}
+
+	request := validEnrollmentRequestPayload()
+	requestPayload, err := EncodeEnrollmentRequestPayload(request)
+	if err != nil {
+		t.Fatalf("EncodeEnrollmentRequestPayload: %v", err)
+	}
+	result := validEnrollmentResultPayloadBoundToRequest(request, requestPayload, EnrollmentStatusAccepted)
+	if _, err := ApplyVerifiedEnrollmentResult(ctx, request, result, store, result.DeviceIdentity.CredentialNotBefore+1); err != nil {
+		t.Fatalf("ApplyVerifiedEnrollmentResult: %v", err)
+	}
+	if _, err := os.Stat(orphanPath); !errors.Is(err, os.ErrNotExist) {
+		t.Fatalf("prior crash orphan remains: %v", err)
+	}
+}
+
 func TestLoadEnrollmentStateReturnsErrUnknownWhenStateAbsent(t *testing.T) {
 	ctx := context.Background()
 	store := NewMemoryEnrollmentStateStore()
@@ -470,6 +636,25 @@ func sameDeviceIdentity(left, right identity.DeviceIdentity) bool {
 		left.CredentialNotBefore == right.CredentialNotBefore &&
 		left.CredentialExpiresAt == right.CredentialExpiresAt &&
 		left.SigningKey == right.SigningKey
+}
+
+func mutateEnrollmentIntegrityBytes(field uint64) func(map[uint64]any) {
+	return func(envelope map[uint64]any) {
+		metadata := envelope[enrollmentStateEnvelopeFieldIntegrity].(map[uint64]any)
+		value := append([]byte(nil), metadata[field].([]byte)...)
+		value[0] ^= 0x01
+		metadata[field] = value
+	}
+}
+
+func newTestFileEnrollmentStateStore(t *testing.T) (*FileEnrollmentStateStore, string) {
+	t.Helper()
+	root := trustedEnrollmentTestRoot(t)
+	store, err := newFileEnrollmentStateStoreForTest(root)
+	if err != nil {
+		t.Fatalf("newFileEnrollmentStateStoreForTest: %v", err)
+	}
+	return store, filepath.Join(root, enrollmentStateFileName)
 }
 
 func validEnrollmentResultPayloadBoundToRequest(request EnrollmentRequestPayload, requestPayload []byte, status EnrollmentStatus) EnrollmentResultPayload {

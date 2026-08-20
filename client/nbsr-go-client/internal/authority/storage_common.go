@@ -1,6 +1,9 @@
 package authority
 
-import "time"
+import (
+	"sync"
+	"time"
+)
 
 const (
 	enrollmentStateDirectorySuffix  = `NBSR\GoClient\Enrollment`
@@ -13,19 +16,25 @@ const (
 )
 
 type EnrollmentStatePaths struct {
-	Root      string
-	StatePath string
-	LockPath  string
+	Root       string
+	StatePath  string
+	LockPath   string
+	sealedRoot string
 }
 
 type EnrollmentStateLock struct {
-	closeFn func() error
-	Path    string
+	closeFn   func() error
+	closeOnce sync.Once
+	closeErr  error
+	Path      string
 }
 
 func (lock *EnrollmentStateLock) Close() error {
 	if lock == nil || lock.closeFn == nil {
 		return nil
 	}
-	return lock.closeFn()
+	lock.closeOnce.Do(func() {
+		lock.closeErr = lock.closeFn()
+	})
+	return lock.closeErr
 }

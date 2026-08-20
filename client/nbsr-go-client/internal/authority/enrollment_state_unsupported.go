@@ -18,3 +18,11 @@ func protectEnrollmentStateIntegrityBlob(raw []byte) ([]byte, error) {
 func unprotectEnrollmentStateIntegrityBlob(raw []byte) ([]byte, error) {
 	return nil, ErrStorageUnsupported
 }
+
+func readEnrollmentStateBlob(string) ([]byte, bool, error) {
+	return nil, false, ErrStorageUnsupported
+}
+
+func cleanupEnrollmentStateTemps(string) error {
+	return ErrStorageUnsupported
+}

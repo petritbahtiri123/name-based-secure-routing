@@ -5,6 +5,7 @@ package authority
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -21,8 +22,12 @@ const (
 	storageLockRootEnv        = "NBSR_STORAGE_LOCK_ROOT"
 	storageLockHoldMSEnv      = "NBSR_STORAGE_LOCK_HOLD_MS"
 	storageLockEnteredFileEnv = "NBSR_STORAGE_LOCK_ENTERED"
+	storageStoreHelperEnv     = "NBSR_STORAGE_STORE_HELPER"
+	storageStoreCrashStageEnv = "NBSR_STORAGE_STORE_CRASH_STAGE"
 	lockBusyExitCode          = 3
 	lockErrorExitCode         = 4
+	storeTerminalExitCode     = 5
+	storeCrashExitCode        = 6
 )
 
 func TestEnrollmentStatePathResolutionCanonicalNames(t *testing.T) {
@@ -64,7 +69,7 @@ func TestEnrollmentStatePathResolutionRejectsReparseParent(t *testing.T) {
 
 	err := makeDirectoryJunction(t, junction, filepath.Join(target, "target"))
 	if err != nil {
-		t.Skipf("cannot create test junction: %v", err)
+		t.Fatalf("cannot create test junction: %v", err)
 	}
 	_, err = ResolveEnrollmentStatePathsForTest(filepath.Join(junction, enrollmentStateDirectorySuffix))
 	if !errors.Is(err, ErrStoragePathRejected) {
@@ -84,7 +89,7 @@ func TestEnrollmentStatePathResolutionRejectsReparseLockTarget(t *testing.T) {
 		t.Fatalf("WriteFile(real lock target): %v", err)
 	}
 	if err := makeFileSymlink(t, paths.LockPath, realLockTarget); err != nil {
-		t.Skipf("cannot create test file symlink: %v", err)
+		t.Fatalf("cannot create test file symlink: %v", err)
 	}
 	_, err = ResolveEnrollmentStatePathsForTest(root)
 	if !errors.Is(err, ErrStoragePathRejected) {
@@ -104,14 +109,113 @@ func TestEnrollmentStatePathResolutionRejectsNonDirectoryComponent(t *testing.T)
 	}
 }
 
+func TestFileEnrollmentStateStoreDoesNotProvisionMissingRoot(t *testing.T) {
+	root := filepath.Join(t.TempDir(), enrollmentStateDirectorySuffix)
+	if _, err := newFileEnrollmentStateStoreForTest(root); !errors.Is(err, ErrStoragePathRejected) {
+		t.Fatalf("newFileEnrollmentStateStoreForTest missing root error = %v, want %v", err, ErrStoragePathRejected)
+	}
+	if _, err := os.Stat(root); !errors.Is(err, os.ErrNotExist) {
+		t.Fatalf("missing trusted root was created at runtime: %v", err)
+	}
+}
+
 func TestEnrollmentStatePathResolutionRejectsBroadWritableACL(t *testing.T) {
 	root := tempEnrollmentRoot(t)
 	if err := grantEveryoneFullAccess(t, root); err != nil {
-		t.Skipf("cannot modify ACL for test fixture: %v", err)
+		t.Fatalf("cannot modify ACL for test fixture: %v", err)
 	}
 	_, err := ResolveEnrollmentStatePathsForTest(root)
 	if !errors.Is(err, ErrStoragePathRejected) {
 		t.Fatalf("errors.Is(%v, ErrStoragePathRejected) = false", err)
+	}
+}
+
+func TestEnrollmentStatePathResolutionRejectsUnapprovedWriterSID(t *testing.T) {
+	root := tempEnrollmentRoot(t)
+	if err := grantSIDFullAccess(t, root, "S-1-5-19", true); err != nil {
+		t.Fatalf("cannot add Local Service ACL fixture: %v", err)
+	}
+	_, err := ResolveEnrollmentStatePathsForTest(root)
+	if !errors.Is(err, ErrStoragePathRejected) {
+		t.Fatalf("errors.Is(%v, ErrStoragePathRejected) = false", err)
+	}
+}
+
+func TestEnrollmentStatePathResolutionRejectsBroadGenericWriteACL(t *testing.T) {
+	root := tempEnrollmentRoot(t)
+	if err := grantEveryoneGenericWrite(t, root); err != nil {
+		t.Fatalf("cannot modify ACL for test fixture: %v", err)
+	}
+	_, err := ResolveEnrollmentStatePathsForTest(root)
+	if !errors.Is(err, ErrStoragePathRejected) {
+		t.Fatalf("errors.Is(%v, ErrStoragePathRejected) = false", err)
+	}
+}
+
+func TestEnrollmentStatePathResolutionRejectsBroadWritableLockACL(t *testing.T) {
+	root := tempEnrollmentRoot(t)
+	paths, err := ResolveEnrollmentStatePathsForTest(root)
+	if err != nil {
+		t.Fatalf("ResolveEnrollmentStatePathsForTest: %v", err)
+	}
+	if err := os.WriteFile(paths.LockPath, nil, 0o600); err != nil {
+		t.Fatalf("WriteFile(lock): %v", err)
+	}
+	if err := grantEveryoneFileFullAccess(t, paths.LockPath); err != nil {
+		t.Fatalf("cannot modify lock ACL for test fixture: %v", err)
+	}
+	_, err = ResolveEnrollmentStatePathsForTest(root)
+	if !errors.Is(err, ErrStoragePathRejected) {
+		t.Fatalf("errors.Is(%v, ErrStoragePathRejected) = false", err)
+	}
+}
+
+func TestFileEnrollmentStateStoreRejectsBroadWritableStateAndKeyACLs(t *testing.T) {
+	for _, target := range []string{"state", "key"} {
+		t.Run(target, func(t *testing.T) {
+			store, statePath := newTestFileEnrollmentStateStore(t)
+			request := validEnrollmentRequestPayload()
+			requestPayload, err := EncodeEnrollmentRequestPayload(request)
+			if err != nil {
+				t.Fatalf("EncodeEnrollmentRequestPayload: %v", err)
+			}
+			result := validEnrollmentResultPayloadBoundToRequest(request, requestPayload, EnrollmentStatusAccepted)
+			if err := store.Store(context.Background(), *result.DeviceIdentity); err != nil {
+				t.Fatalf("Store: %v", err)
+			}
+			path := statePath
+			if target == "key" {
+				path = filepath.Join(filepath.Dir(statePath), enrollmentStateIntegrityKeyName)
+			}
+			if err := grantEveryoneFileFullAccess(t, path); err != nil {
+				t.Fatalf("cannot modify %s ACL: %v", target, err)
+			}
+			if _, _, err := store.Load(context.Background()); !errors.Is(err, ErrStoragePathRejected) {
+				t.Fatalf("Load with broad %s ACL error = %v, want %v", target, err, ErrStoragePathRejected)
+			}
+		})
+	}
+}
+
+func TestWindowsAtomicEnrollmentInstallNeverReplacesExistingState(t *testing.T) {
+	root := tempEnrollmentRoot(t)
+	paths, err := ResolveEnrollmentStatePathsForTest(root)
+	if err != nil {
+		t.Fatalf("ResolveEnrollmentStatePathsForTest: %v", err)
+	}
+	original := []byte("original")
+	if err := os.WriteFile(paths.StatePath, original, 0o600); err != nil {
+		t.Fatalf("WriteFile(original): %v", err)
+	}
+	if err := writeEnrollmentStateAtomically(paths.StatePath, []byte("replacement")); err == nil {
+		t.Fatal("atomic installation replaced an existing create-once state")
+	}
+	got, err := os.ReadFile(paths.StatePath)
+	if err != nil {
+		t.Fatalf("ReadFile(original): %v", err)
+	}
+	if !bytes.Equal(got, original) {
+		t.Fatalf("existing state changed: got=%q want=%q", got, original)
 	}
 }
 
@@ -123,6 +227,19 @@ func TestEnrollmentStatePathResolutionRejectsWrongOwnerContext(t *testing.T) {
 		return "S-1-5-21-0-0-0-0", nil
 	}
 	_, err := ResolveEnrollmentStatePathsForTest(root)
+	if !errors.Is(err, ErrStoragePathRejected) {
+		t.Fatalf("errors.Is(%v, ErrStoragePathRejected) = false", err)
+	}
+}
+
+func TestEnrollmentStatePathResolutionRejectsMissingSystemAccess(t *testing.T) {
+	root := tempEnrollmentRoot(t)
+	cmd := exec.Command("icacls", root, "/remove:g", "*S-1-5-18")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("cannot create missing-SYSTEM ACL fixture: %v: %s", err, strings.TrimSpace(string(output)))
+	}
+	_, err = ResolveEnrollmentStatePathsForTest(root)
 	if !errors.Is(err, ErrStoragePathRejected) {
 		t.Fatalf("errors.Is(%v, ErrStoragePathRejected) = false", err)
 	}
@@ -142,6 +259,18 @@ func TestEnrollmentStatePathResolutionRejectsArbitraryFinalPath(t *testing.T) {
 	}
 }
 
+func TestEnrollmentStateLockRejectsCallerConstructedPaths(t *testing.T) {
+	root := tempEnrollmentRoot(t)
+	paths := EnrollmentStatePaths{
+		Root:      root,
+		StatePath: filepath.Join(root, enrollmentStateFileName),
+		LockPath:  filepath.Join(root, enrollmentStateLockFileName),
+	}
+	if _, err := AcquireEnrollmentStateLock(paths); !errors.Is(err, ErrStoragePathRejected) {
+		t.Fatalf("AcquireEnrollmentStateLock with caller paths error = %v, want %v", err, ErrStoragePathRejected)
+	}
+}
+
 func TestEnrollmentStateLockIsAcquiredBySingleProcess(t *testing.T) {
 	root := tempEnrollmentRoot(t)
 	paths, err := ResolveEnrollmentStatePathsForTest(root)
@@ -154,6 +283,236 @@ func TestEnrollmentStateLockIsAcquiredBySingleProcess(t *testing.T) {
 	}
 	if err := lock.Close(); err != nil {
 		t.Fatalf("lock.Close: %v", err)
+	}
+}
+
+func TestEnrollmentStateLockPreventsLockPathReplacement(t *testing.T) {
+	root := tempEnrollmentRoot(t)
+	paths, err := ResolveEnrollmentStatePathsForTest(root)
+	if err != nil {
+		t.Fatalf("ResolveEnrollmentStatePathsForTest: %v", err)
+	}
+	lock, err := AcquireEnrollmentStateLock(paths)
+	if err != nil {
+		t.Fatalf("AcquireEnrollmentStateLock: %v", err)
+	}
+	defer func() { _ = lock.Close() }()
+	if err := os.Remove(paths.LockPath); err == nil {
+		t.Fatal("locked pathname was removable, allowing a replacement lock inode")
+	}
+}
+
+func TestEnrollmentStateLockCloseIsIdempotent(t *testing.T) {
+	root := tempEnrollmentRoot(t)
+	paths, err := ResolveEnrollmentStatePathsForTest(root)
+	if err != nil {
+		t.Fatalf("ResolveEnrollmentStatePathsForTest: %v", err)
+	}
+	lock, err := AcquireEnrollmentStateLock(paths)
+	if err != nil {
+		t.Fatalf("AcquireEnrollmentStateLock: %v", err)
+	}
+	if err := lock.Close(); err != nil {
+		t.Fatalf("first Close: %v", err)
+	}
+	if err := lock.Close(); err != nil {
+		t.Fatalf("second Close: %v", err)
+	}
+}
+
+func TestEnrollmentStateLockConcurrentCloseIsSafe(t *testing.T) {
+	root := tempEnrollmentRoot(t)
+	paths, err := ResolveEnrollmentStatePathsForTest(root)
+	if err != nil {
+		t.Fatalf("ResolveEnrollmentStatePathsForTest: %v", err)
+	}
+	lock, err := AcquireEnrollmentStateLock(paths)
+	if err != nil {
+		t.Fatalf("AcquireEnrollmentStateLock: %v", err)
+	}
+	errorsSeen := make(chan error, 8)
+	for i := 0; i < cap(errorsSeen); i++ {
+		go func() { errorsSeen <- lock.Close() }()
+	}
+	for i := 0; i < cap(errorsSeen); i++ {
+		if err := <-errorsSeen; err != nil {
+			t.Fatalf("concurrent Close: %v", err)
+		}
+	}
+}
+
+func TestFileEnrollmentStateStoreFailsBusyWhileCrossProcessLockIsHeld(t *testing.T) {
+	root := tempEnrollmentRoot(t)
+	paths, err := ResolveEnrollmentStatePathsForTest(root)
+	if err != nil {
+		t.Fatalf("ResolveEnrollmentStatePathsForTest: %v", err)
+	}
+	lock, err := AcquireEnrollmentStateLock(paths)
+	if err != nil {
+		t.Fatalf("AcquireEnrollmentStateLock: %v", err)
+	}
+	defer func() {
+		if err := lock.Close(); err != nil {
+			t.Errorf("lock.Close: %v", err)
+		}
+	}()
+
+	store, err := newFileEnrollmentStateStoreForTest(root)
+	if err != nil {
+		t.Fatalf("newFileEnrollmentStateStoreForTest: %v", err)
+	}
+	request := validEnrollmentRequestPayload()
+	requestPayload, err := EncodeEnrollmentRequestPayload(request)
+	if err != nil {
+		t.Fatalf("EncodeEnrollmentRequestPayload: %v", err)
+	}
+	result := validEnrollmentResultPayloadBoundToRequest(request, requestPayload, EnrollmentStatusAccepted)
+	if err := store.Store(context.Background(), *result.DeviceIdentity); !errors.Is(err, ErrStorageBusy) {
+		t.Fatalf("Store while OS lock held error = %v, want %v", err, ErrStorageBusy)
+	}
+	for _, path := range []string{paths.StatePath, filepath.Join(paths.Root, enrollmentStateIntegrityKeyName)} {
+		if _, err := os.Stat(path); !errors.Is(err, os.ErrNotExist) {
+			t.Fatalf("storage side effect while lock unavailable at %s: %v", path, err)
+		}
+	}
+}
+
+func TestFileEnrollmentStateStoreRealSubprocessBusyThenStoresAfterRelease(t *testing.T) {
+	root := tempEnrollmentRoot(t)
+	paths, err := ResolveEnrollmentStatePathsForTest(root)
+	if err != nil {
+		t.Fatalf("ResolveEnrollmentStatePathsForTest: %v", err)
+	}
+	lock, err := AcquireEnrollmentStateLock(paths)
+	if err != nil {
+		t.Fatalf("AcquireEnrollmentStateLock: %v", err)
+	}
+
+	blocked := startStateStoreHelper(t, root)
+	exitCode, stdout, stderr, err := runStorageLockHelper(t, blocked)
+	if err == nil || exitCode != lockBusyExitCode || !strings.Contains(stdout+stderr, "BUSY") {
+		t.Fatalf("store helper contention: err=%v code=%d stdout=%q stderr=%q", err, exitCode, stdout, stderr)
+	}
+	if _, err := os.Stat(paths.StatePath); !errors.Is(err, os.ErrNotExist) {
+		t.Fatalf("state exists after busy subprocess: %v", err)
+	}
+	if err := lock.Close(); err != nil {
+		t.Fatalf("lock.Close: %v", err)
+	}
+
+	after := startStateStoreHelper(t, root)
+	code, stdout, stderr, err := runStorageLockHelper(t, after)
+	if err != nil || code != 0 || !strings.Contains(stdout+stderr, "STORED") {
+		t.Fatalf("store helper after release: err=%v code=%d stdout=%q stderr=%q", err, code, stdout, stderr)
+	}
+	restarted, err := newFileEnrollmentStateStoreForTest(root)
+	if err != nil {
+		t.Fatalf("newFileEnrollmentStateStoreForTest(restart): %v", err)
+	}
+	if _, found, err := restarted.Load(context.Background()); err != nil || !found {
+		t.Fatalf("restart Load: found=%v err=%v", found, err)
+	}
+}
+
+func TestFileEnrollmentStateStoreTwoRealProcessFirstWritersHaveOneWinner(t *testing.T) {
+	root := tempEnrollmentRoot(t)
+	first := startStateStoreHelper(t, root)
+	second := startStateStoreHelper(t, root)
+	type helperResult struct {
+		code           int
+		stdout, stderr string
+		err            error
+	}
+	resultsChannel := make(chan helperResult, 2)
+	for _, command := range []*exec.Cmd{first, second} {
+		command := command
+		go func() {
+			code, stdout, stderr, err := runStorageLockHelper(t, command)
+			resultsChannel <- helperResult{code: code, stdout: stdout, stderr: stderr, err: err}
+		}()
+	}
+	firstResult := <-resultsChannel
+	secondResult := <-resultsChannel
+	results := []struct {
+		code   int
+		output string
+		err    error
+	}{
+		{firstResult.code, firstResult.stdout + firstResult.stderr, firstResult.err},
+		{secondResult.code, secondResult.stdout + secondResult.stderr, secondResult.err},
+	}
+	winners := 0
+	terminals := 0
+	for _, result := range results {
+		if result.err == nil && result.code == 0 && strings.Contains(result.output, "STORED") {
+			winners++
+		}
+		if result.code == storeTerminalExitCode && strings.Contains(result.output, "TERMINAL") {
+			terminals++
+		}
+	}
+	if winners != 1 || terminals != 1 {
+		t.Fatalf("writer results: first=(%d,%q,%v) second=(%d,%q,%v)", firstResult.code, firstResult.stdout+firstResult.stderr, firstResult.err, secondResult.code, secondResult.stdout+secondResult.stderr, secondResult.err)
+	}
+}
+
+func TestFileEnrollmentStateStoreRealProcessCrashBoundaries(t *testing.T) {
+	for _, test := range []struct {
+		name          string
+		stage         enrollmentStateWriteStage
+		wantInstalled bool
+	}{
+		{name: "after flushed close before move", stage: enrollmentStateWriteAfterClose},
+		{name: "after move before validation", stage: enrollmentStateWriteAfterMove, wantInstalled: true},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			root := tempEnrollmentRoot(t)
+			paths, err := ResolveEnrollmentStatePathsForTest(root)
+			if err != nil {
+				t.Fatalf("ResolveEnrollmentStatePathsForTest: %v", err)
+			}
+			crasher := startStateStoreHelper(t, root)
+			crasher.Env = append(crasher.Env, storageStoreCrashStageEnv+"="+string(test.stage))
+			code, stdout, stderr, err := runStorageLockHelper(t, crasher)
+			if err == nil || code != storeCrashExitCode {
+				t.Fatalf("crash helper: err=%v code=%d stdout=%q stderr=%q", err, code, stdout, stderr)
+			}
+
+			_, stateErr := os.Stat(paths.StatePath)
+			if test.wantInstalled && stateErr != nil {
+				t.Fatalf("installed state after post-move crash: %v", stateErr)
+			}
+			if !test.wantInstalled && !errors.Is(stateErr, os.ErrNotExist) {
+				t.Fatalf("state after pre-move crash: %v, want absent", stateErr)
+			}
+			if test.wantInstalled {
+				store, err := newFileEnrollmentStateStoreForTest(root)
+				if err != nil {
+					t.Fatalf("newFileEnrollmentStateStoreForTest: %v", err)
+				}
+				if _, found, err := store.Load(context.Background()); err != nil || !found {
+					t.Fatalf("Load installed state after crash: found=%v err=%v", found, err)
+				}
+				duplicate := startStateStoreHelper(t, root)
+				code, stdout, stderr, err = runStorageLockHelper(t, duplicate)
+				if err == nil || code != storeTerminalExitCode || !strings.Contains(stdout+stderr, "TERMINAL") {
+					t.Fatalf("duplicate after post-move crash: err=%v code=%d stdout=%q stderr=%q", err, code, stdout, stderr)
+				}
+				return
+			}
+
+			if _, err := os.Stat(paths.StatePath + ".tmp"); err != nil {
+				t.Fatalf("flushed orphan after pre-move crash: %v", err)
+			}
+			recovery := startStateStoreHelper(t, root)
+			code, stdout, stderr, err = runStorageLockHelper(t, recovery)
+			if err != nil || code != 0 || !strings.Contains(stdout+stderr, "STORED") {
+				t.Fatalf("recovery after pre-move crash: err=%v code=%d stdout=%q stderr=%q", err, code, stdout, stderr)
+			}
+			if _, err := os.Stat(paths.StatePath + ".tmp"); !errors.Is(err, os.ErrNotExist) {
+				t.Fatalf("orphan after recovery: %v", err)
+			}
+		})
 	}
 }
 
@@ -258,6 +617,43 @@ func TestStorageLockHelper(t *testing.T) {
 	}
 }
 
+func TestStorageStoreHelper(t *testing.T) {
+	if os.Getenv(storageStoreHelperEnv) != "1" {
+		return
+	}
+	root := os.Getenv(storageLockRootEnv)
+	store, err := newFileEnrollmentStateStoreForTest(root)
+	if err != nil {
+		os.Exit(lockErrorExitCode)
+	}
+	if crashStage := os.Getenv(storageStoreCrashStageEnv); crashStage != "" {
+		enrollmentStateWriteStageHook = func(path string, stage enrollmentStateWriteStage) {
+			if filepath.Base(path) == enrollmentStateFileName && string(stage) == crashStage {
+				os.Exit(storeCrashExitCode)
+			}
+		}
+	}
+	request := validEnrollmentRequestPayload()
+	requestPayload, err := EncodeEnrollmentRequestPayload(request)
+	if err != nil {
+		os.Exit(lockErrorExitCode)
+	}
+	result := validEnrollmentResultPayloadBoundToRequest(request, requestPayload, EnrollmentStatusAccepted)
+	err = store.Store(context.Background(), *result.DeviceIdentity)
+	if errors.Is(err, ErrStorageBusy) {
+		fmt.Println("BUSY")
+		os.Exit(lockBusyExitCode)
+	}
+	if err != nil {
+		if errors.Is(err, ErrTerminalEnrollment) {
+			fmt.Println("TERMINAL")
+			os.Exit(storeTerminalExitCode)
+		}
+		os.Exit(lockErrorExitCode)
+	}
+	fmt.Println("STORED")
+}
+
 func tempDir(t *testing.T) string {
 	t.Helper()
 	return t.TempDir()
@@ -265,11 +661,7 @@ func tempDir(t *testing.T) string {
 
 func tempEnrollmentRoot(t *testing.T) string {
 	t.Helper()
-	root := filepath.Join(tempDir(t), enrollmentStateDirectorySuffix)
-	if err := os.MkdirAll(root, 0o700); err != nil {
-		t.Fatalf("MkdirAll(%s): %v", root, err)
-	}
-	return root
+	return trustedEnrollmentTestRoot(t)
 }
 
 func reifyDir(t *testing.T, path string) string {
@@ -282,7 +674,7 @@ func reifyDir(t *testing.T, path string) string {
 
 func makeDirectoryJunction(t *testing.T, link, target string) error {
 	t.Helper()
-	cmd := exec.Command("cmd", "/C", fmt.Sprintf("mklink /J %q %q", link, target))
+	cmd := exec.Command("cmd", "/C", "mklink", "/J", link, target)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("%w: %s", err, strings.TrimSpace(string(output)))
@@ -292,7 +684,7 @@ func makeDirectoryJunction(t *testing.T, link, target string) error {
 
 func makeFileSymlink(t *testing.T, link, target string) error {
 	t.Helper()
-	cmd := exec.Command("cmd", "/C", fmt.Sprintf("mklink %q %q", link, target))
+	cmd := exec.Command("cmd", "/C", "mklink", link, target)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("%w: %s", err, strings.TrimSpace(string(output)))
@@ -303,6 +695,26 @@ func makeFileSymlink(t *testing.T, link, target string) error {
 func grantEveryoneFullAccess(t *testing.T, path string) error {
 	t.Helper()
 	cmd := exec.Command("icacls", path, "/grant", "*S-1-1-0:(OI)(CI)F")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("%w: %s", err, strings.TrimSpace(string(output)))
+	}
+	return nil
+}
+
+func grantEveryoneFileFullAccess(t *testing.T, path string) error {
+	t.Helper()
+	cmd := exec.Command("icacls", path, "/grant", "*S-1-1-0:F")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("%w: %s", err, strings.TrimSpace(string(output)))
+	}
+	return nil
+}
+
+func grantEveryoneGenericWrite(t *testing.T, path string) error {
+	t.Helper()
+	cmd := exec.Command("icacls", path, "/grant", "*S-1-1-0:(GW)")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("%w: %s", err, strings.TrimSpace(string(output)))
@@ -326,6 +738,17 @@ func startStorageLockHelper(t *testing.T, root string, hold time.Duration, enter
 	if enteredPath != "" {
 		cmd.Env = append(cmd.Env, storageLockEnteredFileEnv+"="+enteredPath)
 	}
+	return cmd
+}
+
+func startStateStoreHelper(t *testing.T, root string) *exec.Cmd {
+	t.Helper()
+	exe, err := os.Executable()
+	if err != nil {
+		t.Fatalf("os.Executable: %v", err)
+	}
+	cmd := exec.Command(exe, "-test.run=^TestStorageStoreHelper$", "-test.v=false")
+	cmd.Env = append(os.Environ(), storageStoreHelperEnv+"=1", storageLockRootEnv+"="+root)
 	return cmd
 }
 

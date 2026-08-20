@@ -14,3 +14,7 @@ func ResolveEnrollmentStatePathsForTest(root string) (EnrollmentStatePaths, erro
 func AcquireEnrollmentStateLock(_ EnrollmentStatePaths) (*EnrollmentStateLock, error) {
 	return nil, ErrStorageUnsupported
 }
+
+func validateEnrollmentStatePaths(EnrollmentStatePaths) error {
+	return ErrStorageUnsupported
+}
