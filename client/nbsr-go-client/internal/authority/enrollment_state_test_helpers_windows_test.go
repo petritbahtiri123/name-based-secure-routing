@@ -32,6 +32,10 @@ func trustedEnrollmentTestRoot(t *testing.T) string {
 	if output, err := cmd.CombinedOutput(); err != nil {
 		t.Fatalf("provision trusted test ACL: %v: %s", err, strings.TrimSpace(string(output)))
 	}
+	ownerCmd := exec.Command("icacls", root, "/setowner", "*"+processSID)
+	if output, err := ownerCmd.CombinedOutput(); err != nil {
+		t.Fatalf("provision trusted test owner: %v: %s", err, strings.TrimSpace(string(output)))
+	}
 	return root
 }
 
