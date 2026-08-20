@@ -216,6 +216,14 @@ func (m *Manager) runPending(call *pendingCall) {
 		m.finishPending(call, Reservation{}, providerError(call, err))
 		return
 	}
+	// The frozen ACP result carries the independently signed RouteGrant bytes
+	// but deliberately does not duplicate the client's current checkpoint.
+	// Bind an omitted transport field to the sealed checkpoint captured when
+	// this pending call began; explicit non-zero provider values still undergo
+	// the existing mismatch check in VerifyRouteGrant.
+	if candidate.Checkpoint == (CheckpointDigest{}) {
+		candidate.Checkpoint = call.checkpoint.Digest()
+	}
 	candidate, err = copyProviderGrant(candidate, m.limits)
 	if err != nil {
 		m.finishPending(call, Reservation{}, err)

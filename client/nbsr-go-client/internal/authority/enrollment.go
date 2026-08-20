@@ -222,7 +222,7 @@ func ParseEnrollmentResult(wire []byte, resolvedPurpose uint16) (EnrollmentResul
 }
 
 func ParseVerifiedEnrollmentResult(ctx context.Context, wire []byte, request EnrollmentRequestPayload, requestPayload []byte, issuers EnrollmentResultIssuerResolver, now uint64) (EnrollmentResultPayload, []byte, error) {
-	if isNilDependency(issuers) || now == 0 {
+	if ctx == nil || isNilDependency(issuers) || now == 0 {
 		return EnrollmentResultPayload{}, nil, ErrInvalidAuthority
 	}
 	if err := validateEnrollmentRequestPayload(request); err != nil {
@@ -249,6 +249,9 @@ func ParseVerifiedEnrollmentResult(ctx context.Context, wire []byte, request Enr
 	if err != nil {
 		return EnrollmentResultPayload{}, nil, normalizeIssuerError(err)
 	}
+	if err := validateEnrollmentResultIssuer(issuer, sign1.kid, request, now, purpose); err != nil {
+		return EnrollmentResultPayload{}, nil, err
+	}
 	if err := sign1.verify(issuer.PublicKey); err != nil {
 		return EnrollmentResultPayload{}, nil, err
 	}
@@ -256,6 +259,23 @@ func ParseVerifiedEnrollmentResult(ctx context.Context, wire []byte, request Enr
 		return EnrollmentResultPayload{}, nil, err
 	}
 	return result, canonical, nil
+}
+
+func validateEnrollmentResultIssuer(issuer IssuerRecord, kid []byte, request EnrollmentRequestPayload, now uint64, purpose uint16) error {
+	if len(issuer.KID) < 1 || len(issuer.KID) > 64 || !sameKID(issuer.KID, kid) || !validPublicKey(issuer.PublicKey) ||
+		issuer.Profile != request.Profile || issuer.SourceOperator != request.SourceOperator || issuer.Generation == 0 || issuer.NotBefore >= issuer.ExpiresAt {
+		return ErrUnknownIdentity
+	}
+	if issuer.Purpose != purpose {
+		return ErrInvalidKeyPurpose
+	}
+	if issuer.Revoked {
+		return ErrRevoked
+	}
+	if now < issuer.NotBefore || now >= issuer.ExpiresAt {
+		return ErrExpired
+	}
+	return nil
 }
 
 func validateEnrollmentRequestDeadline(deadlineUnix, now uint64) error {

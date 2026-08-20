@@ -14,7 +14,7 @@
 | --- | --- | --- | --- |
 | 3R-A | Windows trusted enrollment storage root/path/ACL/reparse protection + fixed-path lock target + real cross-process exclusive LockFileEx lock acquisition | `10be800200b68f568d3c373d0f9d69a501553092` | COMPLETE |
 | 3R-B | Windows secure enrollment-state persistence + DPAPI-backed integrity key material + bounded state installation + envelope verification, load, and corruption handling | `420b2685a4f11157bedf87ce5bb80908496666fe` | COMPLETE |
-| 3R-C | transport/enrollment ACP runtime implementation | Task 1: this commit | IN PROGRESS — Task 1 complete; Tasks 2–4 not started |
+| 3R-C | transport/enrollment ACP runtime implementation | Tasks 1–2: see task commits below | IN PROGRESS — Tasks 1–2 complete; Tasks 3–4 not started |
 
 ## 3R-C Task 1 — frozen ACP wire codec
 
@@ -27,6 +27,18 @@
 - Frozen protocol SHA-256: ACP `e795abf0a078c2dfe9bdf56d705fde67a1355bd28eb1cd35b5dc6efb0a5dad24`; Enrollment `9d73983828f48b51a2b2e31c4637f1fe6f00b1505071faeef0be43d0e9504cd0`.
 - Remote SHA: must equal this Task 1 commit after the authorized normal push; exact SHA is recorded in the task report.
 - Next task: 3R-C Task 2 — Go HTTP/2 ACP and Enrollment clients. Tranche 3 has not started.
+
+## 3R-C Task 2 — Go HTTP/2 ACP and Enrollment clients
+
+- Status: COMPLETE.
+- Starting SHA: `722355a080d8597f9164e749366882d1ad23c3f2`.
+- Final commit: this Task 2 commit (`feat(go-client): add HTTP2 ACP and enrollment clients`); exact SHA is recorded by Git history and the task report because a commit cannot contain its own SHA.
+- Files changed: reusable bounded TLS 1.3/HTTP/2 authority and initial-enrollment clients/tests; narrow manager checkpoint binding for the non-duplicating ACP result wire; independent enrollment issuer-record validation; this recovery status.
+- Focused verification: HTTP provider/enrollment focused tests PASS; complete authority package PASS; focused authority race PASS; authority `go vet` PASS.
+- Reviewer verdict: pending controller review; implementation agent self-review findings were regression-tested and closed.
+- Frozen protocol SHA-256: ACP `e795abf0a078c2dfe9bdf56d705fde67a1355bd28eb1cd35b5dc6efb0a5dad24`; Enrollment `9d73983828f48b51a2b2e31c4637f1fe6f00b1505071faeef0be43d0e9504cd0`.
+- Remote SHA: must equal this Task 2 commit after the authorized normal push; exact SHA is recorded in the task report.
+- Next task: 3R-C Task 3 — minimal Source Operator HTTP/2 runtime. Tranche 3 has not started.
 
 ## 3R-A completion evidence
 
