@@ -1,3 +1,5 @@
+**Tranche 2B ACP wire profile:** `FROZEN — APPROVED FOR IMPLEMENTATION`. The single authoritative source is [`tranche2b-acp-wire-semantics.md`](tranche2b-acp-wire-semantics.md), Git blob OID `03cbbbce072280fa7caedf369c9218bfe4851250`, SHA-256 `cbff45859712153f8b58116304ffb6ae63f9d52c81bf84e1003d18fedf6e182a`. It preserves approved Decisions #1-#7, uses operator/federation `ACP_RESULT_SIGNING = 15` only for the outer result envelope, and has no remaining human decisions or protocol gaps. The formerly recorded `fb5dfe3c...` object was the stale pre-decision draft. ACP runtime work remains not started.
+
 # NBSR implementation status
 
 **WP8 Task 10B (evidence complete; ready for human approval):** F75 ROUTE_OPEN v2, the sealed Rust

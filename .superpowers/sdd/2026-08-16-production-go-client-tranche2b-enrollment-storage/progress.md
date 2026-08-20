@@ -25,8 +25,8 @@ Evidence run for repaired ledger:
 - `git diff --check`
 - local and remote branch SHA equality checked for recovery precondition and post-commit
 
-Tranche 2B protocol freeze hash checks (unchanged):
-- ACP Git blob OID: `fb5dfe3c31cb5e42f799b19061c73c3b9708eebd`; SHA-256: `0b84be9caaa2e9b15c58fb789e7da9046fa5d64b82b6d72e7566fe327a9be42f`.
+Tranche 2B authoritative protocol hash records:
+- ACP final authority `docs/protocol/tranche2b-acp-wire-semantics.md`: Git blob OID `03cbbbce072280fa7caedf369c9218bfe4851250`; SHA-256 `cbff45859712153f8b58116304ffb6ae63f9d52c81bf84e1003d18fedf6e182a`. The superseded OID `fb5dfe3c31cb5e42f799b19061c73c3b9708eebd` and SHA-256 `0b84be9caaa2e9b15c58fb789e7da9046fa5d64b82b6d72e7566fe327a9be42f` were stale because they identified the old pre-decision draft rather than the reviewed approved contract.
 - Enrollment Git blob OID: `4ea066e125d54832d96b498fc39a8b8f2d6346ac`; SHA-256: `9d73983828f48b51a2b2e31c4637f1fe6f00b1505071faeef0be43d0e9504cd0`.
 
 Current working branch: `codex/nbsr-v3-wp0-wp1`.
