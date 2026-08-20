@@ -46,7 +46,7 @@ NEXT_TASK = Tranche 2B transport + enrollment control-plane runtime (HTTP/TLS pr
 - Formal Codex Security diff scan `09bc15e3-94f1-41d2-bc13-52b8b18fd365`: five original findings (four High, one Medium), all remediated by `aa734d755453ca2a7f18623e68102e4c0e4cd805`.
 - Frozen protocol sources remained byte-identical at the Git blob OIDs and SHA-256 values above.
 - Remote working branch intentionally remains `891ea07218977630aa80a073b1625db4cfcd515b`; audit commits were not pushed.
-- Acceptance blocker: this host has no provisioned dedicated NBSR Windows service identity/service profile. DPAPI same-token subprocess restart behavior is covered, but the required SCM stop/start proof under the selected service identity must be executed as an external deployment gate. No fallback keystore or machine-scope DPAPI was introduced.
+- The former service-identity acceptance blocker was closed by the elevated SCM gate recorded below. No fallback keystore or machine-scope DPAPI was introduced.
 - Task 3R-C remains NOT STARTED.
 
 ## Windows service identity decision and gate harness
@@ -56,4 +56,12 @@ NEXT_TASK = Tranche 2B transport + enrollment control-plane runtime (HTTP/TLS pr
 - Installer provisioning owns service creation plus `%ProgramData%\NBSR\GoClient\Enrollment` creation and its SYSTEM/service-identity ACL; enrollment runtime does not provision or weaken the boundary.
 - DPAPI remains user-scoped under the virtual service account; machine-scope, plaintext, and alternate-keystore fallbacks remain forbidden.
 - Test-only SCM gate harness commit: `cd3a33bd41eaf1eec4022f47d711e35ec8b4a0a8`.
-- Gate execution remains BLOCKED pending an elevated PowerShell session. No SCM, ProgramData, network, firewall, adapter, route, proxy, DNS, or unrelated-service mutation was attempted in the non-elevated preparation session.
+- Elevated SCM gate: COMPLETE at local HEAD `ebc06891234a184c709e7ccafac451c14754db50`.
+- Real service evidence: own-process `NBSRClient` ran as `NT SERVICE\NBSRClient`, SID `S-1-5-80-791066319-2577492049-1163703186-265042808-2809310517`, with profile `C:\WINDOWS\ServiceProfiles\NBSRClient`.
+- Restart sequence: STORE PID 13516, LOAD PID 6720, LOAD PID 18108; all three operations succeeded, recovered the exact identity, and returned `Ready=false`.
+- User-scoped DPAPI evidence: protected integrity-key SHA-256 remained `6116AA561CA6435F156763D3A3CE4328BF4E49795184D55045B0C942D148F59B`; authenticated-state SHA-256 remained `0BF2BCC8F87052205E616B1E231873CEE0549BD8A79362C0E5F5D239AE5E8B4A` across both fresh-process loads.
+- Fresh elevated regressions: authority and identity suites passed normally and with `-race` (12.104s, 0.549s, 17.045s, 1.714s respectively).
+- Host safety: `NETWORK_CONFIGURATION_CHANGED=NO`; cleanup removed the temporary service and exact test-owned `C:\ProgramData\NBSR` tree. No reboot/logoff was performed.
+- Corrective commits discovered by the real gate: `aefa5e9` (SCM argument tokenization), `1036386` (preserve service ownership), `994f866` (deterministic elevated fixture owner), and `ebc0689` (validate Windows `TokenOwner`).
+- Residual evidence gap: the optional negative different-identity DPAPI test was not executed. It does not invalidate the positive dedicated-service restart-stability proof; cross-identity access remains denied by the trusted-root ACL design and no broader claim is added.
+- Task 3R-C remains NOT STARTED.

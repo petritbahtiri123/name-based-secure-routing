@@ -71,7 +71,7 @@
 - Repair commit: `aa734d755453ca2a7f18623e68102e4c0e4cd805`.
 - Fresh tests passed: complete authority/identity; both race suites; real subprocess contention, writer race, abnormal lock teardown, and crashes before/after installation; required reparse/ACL fixtures with zero skips; parser fuzz; vet; Linux compile-only; formatting and whitespace checks.
 - Independent spec, security, and Windows/storage scoped re-reviews found no remaining Critical, Important, or Minor code issue.
-- Dedicated-service-account DPAPI restart stability remains an external acceptance blocker because no NBSR service identity/service profile is provisioned on this host. Same-token subprocess restart evidence is not represented as service-account evidence.
+- Dedicated-service-account DPAPI restart stability is verified by the elevated SCM gate at local HEAD `ebc06891234a184c709e7ccafac451c14754db50`: STORE plus two fresh-process LOAD operations succeeded under `NT SERVICE\NBSRClient`, used three distinct PIDs, recovered the exact identity with `Ready=false`, and retained stable protected-key and authenticated-state hashes.
 - 3R-C remains NOT STARTED.
 
 ### Approved Windows service gate profile
@@ -81,7 +81,7 @@
 - Profile/key model: user-scoped DPAPI under that virtual service identity; no machine-scope, plaintext, or alternate-keystore fallback.
 - Provisioning boundary: the installer owns service creation and the trusted ProgramData directory/ACL.
 - Test-only harness: `cd3a33bd41eaf1eec4022f47d711e35ec8b4a0a8`.
-- Status: SCM STORE → stop → LOAD → stop → LOAD evidence is not yet executed because the current preparation process is not elevated. Enrollment storage remains BLOCKED; 3R-C remains NOT STARTED.
+- Status: COMPLETE. Elevated SCM STORE → stop → LOAD → stop → LOAD ran successfully under SID `S-1-5-80-791066319-2577492049-1163703186-265042808-2809310517` with service profile `C:\WINDOWS\ServiceProfiles\NBSRClient`. Authority and identity suites passed normally and with `-race`; `NETWORK_CONFIGURATION_CHANGED=NO`; exact test service/tree cleanup succeeded. The different-identity negative test was not executed and is retained as a bounded residual evidence gap. 3R-C remains NOT STARTED.
 
 ## NEXT_TASK (from current available plan artifacts)
 
