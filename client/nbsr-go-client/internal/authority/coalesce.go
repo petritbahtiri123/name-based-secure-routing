@@ -396,6 +396,10 @@ func providerError(call *pendingCall, err error) error {
 	if call.providerContext.Err() != nil {
 		return ErrRequestAmbiguous
 	}
+	var semantic *VerifiedACPSemanticError
+	if errors.As(err, &semantic) {
+		return semantic
+	}
 	if typed, ok := err.(*AuthorityError); ok {
 		return typed
 	}

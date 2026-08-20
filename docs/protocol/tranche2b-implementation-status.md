@@ -18,7 +18,7 @@
 
 ## 3R-C Task 1 — frozen ACP wire codec
 
-- Status: COMPLETE.
+- Status: FIX ROUND 1 COMPLETE; pending controller scoped re-review.
 - Starting SHA: `1dad39dda6083202bf210c86ce192eb48dbea089`.
 - Final commit: this Task 1 commit (`feat(go-client): implement frozen ACP wire codec`); exact SHA is recorded by Git history and the task report because a commit cannot contain its own SHA.
 - Files changed: ACP wire codec/tests, static ACP-result issuer resolver, authority package comment, this recovery status, and the 3R-C plan.
@@ -36,6 +36,7 @@
 - Files changed: reusable bounded TLS 1.3/HTTP/2 authority and initial-enrollment clients/tests; narrow manager checkpoint binding for the non-duplicating ACP result wire; independent enrollment issuer-record validation; this recovery status.
 - Focused verification: HTTP provider/enrollment focused tests PASS; complete authority package PASS; focused authority race PASS; authority `go vet` PASS.
 - Reviewer verdict: pending controller review; implementation agent self-review findings were regression-tested and closed.
+- Fix round 1: this follow-up commit closes independent review findings I1–I3 with literal RED/GREEN coverage for deadline-bound admission/no post-deadline send, total body-attempt governance across HTTP/2 retry hooks, and exact typed provenance for every verified non-success ACP status. Focused/full authority, focused race, vet, frozen-hash, and publication evidence is recorded in the Task 2 report.
 - Frozen protocol SHA-256: ACP `e795abf0a078c2dfe9bdf56d705fde67a1355bd28eb1cd35b5dc6efb0a5dad24`; Enrollment `9d73983828f48b51a2b2e31c4637f1fe6f00b1505071faeef0be43d0e9504cd0`.
 - Remote SHA: must equal this Task 2 commit after the authorized normal push; exact SHA is recorded in the task report.
 - Next task: 3R-C Task 3 — minimal Source Operator HTTP/2 runtime. Tranche 3 has not started.

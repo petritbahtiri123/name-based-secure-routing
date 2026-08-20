@@ -123,6 +123,71 @@ func TestHTTPProviderDoesNotRetryAfterSignedDeadline(t *testing.T) {
 	}
 }
 
+func TestHTTPProviderSemaphoreAdmissionExpiresBeforeAnyNetworkSend(t *testing.T) {
+	fixture := newHTTPACPFixture(t)
+	now := uint64(time.Now().Unix())
+	request := cloneACPRequest(fixture.request)
+	request.DeadlineUnix = now + 1
+	request.Device.CredentialNotBefore = now - 10
+	request.Device.CredentialExpiresAt = now + 100
+	request.Intent.ExpiresAt = now + 100
+	var calls atomic.Int32
+	server := newHTTP2TLSServer(t, func(http.ResponseWriter, *http.Request) { calls.Add(1) })
+	server.StartTLS()
+	defer server.Close()
+	config := testHTTPProviderConfig(t, server, fixture, HTTPProviderOptions{MaxAttempts: 1, MaxConcurrent: 1})
+	config.NowUnix = func() uint64 { return uint64(time.Now().Unix()) }
+	provider, err := NewHTTPProvider(config)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer provider.Close()
+	provider.http.semaphore <- struct{}{}
+	result := make(chan error, 1)
+	started := time.Now()
+	go func() {
+		_, err := provider.Acquire(context.Background(), request)
+		result <- err
+	}()
+	select {
+	case err := <-result:
+		if !errors.Is(err, ErrExpired) {
+			t.Fatalf("queued deadline error=%v, want ErrExpired", err)
+		}
+		if elapsed := time.Since(started); elapsed > 1500*time.Millisecond {
+			t.Fatalf("queued request exceeded signed deadline: %v", elapsed)
+		}
+	case <-time.After(1500 * time.Millisecond):
+		<-provider.http.semaphore
+		select {
+		case <-result:
+		case <-time.After(time.Second):
+		}
+		t.Fatal("queued request remained live beyond signed deadline")
+	}
+	<-provider.http.semaphore
+	if calls.Load() != 0 {
+		t.Fatalf("expired queued request reached server %d times", calls.Load())
+	}
+}
+
+func TestHTTPProviderMaxAttemptsIncludesHTTP2RetryableStreamReplay(t *testing.T) {
+	fixture := newHTTPACPFixture(t)
+	server := newHTTP2TLSServer(t, func(http.ResponseWriter, *http.Request) {})
+	server.StartTLS()
+	defer server.Close()
+	provider := newTestHTTPProvider(t, server, fixture, HTTPProviderOptions{MaxAttempts: 1})
+	defer provider.Close()
+	probe := &retryableHTTP2ReplayProbeTransport{response: fixture.successWire}
+	provider.http.client.Transport = probe
+	if _, err := provider.Acquire(context.Background(), fixture.request); err != nil {
+		t.Fatal(err)
+	}
+	if probe.bodyAttempts.Load() != 1 {
+		t.Fatalf("MaxAttempts=1 allowed %d body-bearing HTTP/2 attempts", probe.bodyAttempts.Load())
+	}
+}
+
 func TestHTTPProviderCallerTimeoutAfterSendIsAmbiguous(t *testing.T) {
 	fixture := newHTTPACPFixture(t)
 	server := newHTTP2TLSServer(t, func(_ http.ResponseWriter, request *http.Request) { <-request.Context().Done() })
@@ -352,6 +417,72 @@ func TestHTTPProviderRejectsMalformedAndMisbindingResults(t *testing.T) {
 	})
 }
 
+func TestHTTPProviderPreservesEveryVerifiedSemanticStatusWithoutRetry(t *testing.T) {
+	if (&VerifiedACPSemanticError{}).Verified() {
+		t.Fatal("zero-value semantic error claimed verified provenance")
+	}
+	fixture := newHTTPACPFixture(t)
+	tests := []struct {
+		status        ACPResultStatus
+		compatibility error
+	}{
+		{ACPResultStatusInvalidRequest, ErrInvalidAuthority},
+		{ACPResultStatusUnsupportedVersion, ErrInvalidAuthority},
+		{ACPResultStatusUnsupportedProfile, ErrInvalidAuthority},
+		{ACPResultStatusRequestIDConflict, ErrRequestConflict},
+		{ACPResultStatusRequestExpired, ErrExpired},
+		{ACPResultStatusResourceExhausted, ErrPendingCapacity},
+		{ACPResultStatusStaleGeneration, ErrStaleGeneration},
+		{ACPResultStatusStaleFreshness, ErrStaleFreshness},
+		{ACPResultStatusPolicyDenied, ErrPolicyDenied},
+		{ACPResultStatusRevoked, ErrRevoked},
+		{ACPResultStatusBindingError, ErrBindingMismatch},
+		{ACPResultStatusSignatureError, ErrSignatureFailure},
+		{ACPResultStatusInternalError, ErrProviderUnavailable},
+	}
+	for _, test := range tests {
+		t.Run(string(test.status), func(t *testing.T) {
+			var calls atomic.Int32
+			wire := mustSignACPResult(t, validACPResult(fixture.signed, test.status), fixture.resultPrivate, fixture.resultKID)
+			server := newHTTP2TLSServer(t, func(writer http.ResponseWriter, _ *http.Request) {
+				calls.Add(1)
+				_, _ = writer.Write(wire)
+			})
+			server.StartTLS()
+			defer server.Close()
+			provider := newTestHTTPProvider(t, server, fixture, HTTPProviderOptions{MaxAttempts: 3})
+			defer provider.Close()
+			_, err := provider.Acquire(context.Background(), fixture.request)
+			var semantic *VerifiedACPSemanticError
+			if !errors.As(err, &semantic) {
+				t.Fatalf("error=%T %v, want verified ACP semantic provenance", err, err)
+			}
+			if semantic.Status() != test.status || !semantic.Verified() {
+				t.Fatalf("semantic status=%q verified=%v, want %q true", semantic.Status(), semantic.Verified(), test.status)
+			}
+			if err == test.compatibility || !errors.Is(err, test.compatibility) {
+				t.Fatalf("semantic error lost distinct provenance or compatibility: %T %v", err, err)
+			}
+			if calls.Load() != 1 {
+				t.Fatalf("signed status retried %d times", calls.Load())
+			}
+		})
+	}
+
+	t.Run("unsigned transport error is not semantic", func(t *testing.T) {
+		server := newHTTP2TLSServer(t, func(http.ResponseWriter, *http.Request) { panic(http.ErrAbortHandler) })
+		server.StartTLS()
+		defer server.Close()
+		provider := newTestHTTPProvider(t, server, fixture, HTTPProviderOptions{MaxAttempts: 1})
+		defer provider.Close()
+		_, err := provider.Acquire(context.Background(), fixture.request)
+		var semantic *VerifiedACPSemanticError
+		if errors.As(err, &semantic) {
+			t.Fatalf("unsigned transport error gained semantic provenance: %#v", semantic)
+		}
+	})
+}
+
 func TestHTTPProviderBoundsConcurrentCalls(t *testing.T) {
 	fixture := newHTTPACPFixture(t)
 	entered := make(chan struct{}, 2)
@@ -479,3 +610,40 @@ func newTestHTTPProvider(t *testing.T, server *httptest.Server, fixture httpACPF
 type fixedRequestIDSource struct{ value RequestID }
 
 func (source fixedRequestIDSource) NewRequestID() (RequestID, error) { return source.value, nil }
+
+// retryableHTTP2ReplayProbeTransport models the standard HTTP/2 transport's
+// body replay hook after a retryable REFUSED_STREAM/qualifying GOAWAY. If
+// GetBody is exposed, the hidden replay consumes a second body attempt before
+// the explicit controller sees a response.
+type retryableHTTP2ReplayProbeTransport struct {
+	response     []byte
+	bodyAttempts atomic.Int32
+}
+
+func (transport *retryableHTTP2ReplayProbeTransport) RoundTrip(request *http.Request) (*http.Response, error) {
+	if _, err := io.ReadAll(request.Body); err != nil {
+		return nil, err
+	}
+	transport.bodyAttempts.Add(1)
+	if request.GetBody != nil {
+		replayed, err := request.GetBody()
+		if err != nil {
+			return nil, err
+		}
+		if _, err := io.ReadAll(replayed); err != nil {
+			_ = replayed.Close()
+			return nil, err
+		}
+		_ = replayed.Close()
+		transport.bodyAttempts.Add(1)
+	}
+	return &http.Response{
+		StatusCode: http.StatusOK,
+		ProtoMajor: 2,
+		ProtoMinor: 0,
+		TLS:        &tls.ConnectionState{Version: tls.VersionTLS13, NegotiatedProtocol: "h2"},
+		Body:       io.NopCloser(bytes.NewReader(transport.response)),
+		Header:     make(http.Header),
+		Request:    request,
+	}, nil
+}

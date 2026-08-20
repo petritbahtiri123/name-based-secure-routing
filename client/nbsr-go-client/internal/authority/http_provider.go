@@ -157,27 +157,69 @@ func (provider *HTTPProvider) invoke(ctx context.Context, signed SignedACPReques
 	return ParseVerifiedACPResult(ctx, wire, signed, provider.issuers, provider.nowUnix())
 }
 
+// VerifiedACPSemanticError is emitted only after the outer ACP result has
+// passed canonical parsing, issuer/purpose/signature validation, and exact
+// request binding. Its concrete type preserves signed semantic provenance;
+// Unwrap retains compatibility with existing local policy categories.
+type VerifiedACPSemanticError struct {
+	status ACPResultStatus
+	cause  error
+}
+
+func (semantic *VerifiedACPSemanticError) Error() string {
+	if semantic == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("verified ACP semantic result: %s", semantic.status)
+}
+
+func (semantic *VerifiedACPSemanticError) Unwrap() error {
+	if semantic == nil {
+		return nil
+	}
+	return semantic.cause
+}
+
+func (semantic *VerifiedACPSemanticError) Status() ACPResultStatus {
+	if semantic == nil {
+		return ""
+	}
+	return semantic.status
+}
+
+func (semantic *VerifiedACPSemanticError) Verified() bool {
+	return semantic != nil && semantic.cause != nil && semantic.status != ACPResultStatusSuccess && validACPResultStatus(semantic.status)
+}
+
 func acpSemanticError(status ACPResultStatus) error {
+	var cause error
 	switch status {
 	case ACPResultStatusPolicyDenied:
-		return ErrPolicyDenied
+		cause = ErrPolicyDenied
 	case ACPResultStatusRevoked:
-		return ErrRevoked
+		cause = ErrRevoked
 	case ACPResultStatusStaleFreshness:
-		return ErrStaleFreshness
+		cause = ErrStaleFreshness
 	case ACPResultStatusStaleGeneration:
-		return ErrStaleGeneration
+		cause = ErrStaleGeneration
 	case ACPResultStatusRequestIDConflict:
-		return ErrRequestConflict
+		cause = ErrRequestConflict
 	case ACPResultStatusRequestExpired:
-		return ErrExpired
+		cause = ErrExpired
 	case ACPResultStatusResourceExhausted:
-		return ErrPendingCapacity
+		cause = ErrPendingCapacity
 	case ACPResultStatusInternalError:
-		return ErrProviderUnavailable
+		cause = ErrProviderUnavailable
+	case ACPResultStatusBindingError:
+		cause = ErrBindingMismatch
+	case ACPResultStatusSignatureError:
+		cause = ErrSignatureFailure
+	case ACPResultStatusInvalidRequest, ACPResultStatusUnsupportedVersion, ACPResultStatusUnsupportedProfile:
+		cause = ErrInvalidAuthority
 	default:
 		return ErrInvalidAuthority
 	}
+	return &VerifiedACPSemanticError{status: status, cause: cause}
 }
 
 type boundedHTTP2Client struct {
@@ -267,17 +309,40 @@ func (client *boundedHTTP2Client) Post(ctx context.Context, path string, body []
 	if now == 0 || deadlineUnix <= now || deadlineUnix-now > 30 {
 		return nil, ErrExpired
 	}
+	admissionContext, cancelAdmission := context.WithTimeout(ctx, time.Duration(deadlineUnix-now)*time.Second)
 	select {
 	case client.semaphore <- struct{}{}:
 		defer func() { <-client.semaphore }()
-	case <-ctx.Done():
-		return nil, ctx.Err()
+		cancelAdmission()
+	case <-admissionContext.Done():
+		cancelAdmission()
+		if ctx.Err() != nil {
+			return nil, ctx.Err()
+		}
+		return nil, ErrExpired
+	}
+	now = nowUnix()
+	if now == 0 {
+		return nil, ErrInvalidAuthority
+	}
+	if deadlineUnix <= now {
+		return nil, ErrExpired
 	}
 	callContext, cancelCall := context.WithTimeout(ctx, time.Duration(deadlineUnix-now)*time.Second)
 	defer cancelCall()
 	var lastErr error
 	for attempt := 0; attempt < client.maxAttempts; attempt++ {
-		if attempt > 0 && deadlineUnix <= nowUnix() {
+		now = nowUnix()
+		if now == 0 {
+			if lastErr == nil {
+				return nil, ErrInvalidAuthority
+			}
+			break
+		}
+		if deadlineUnix <= now {
+			if lastErr == nil {
+				return nil, ErrExpired
+			}
 			break
 		}
 		if client.closed.Load() {
@@ -319,6 +384,11 @@ func (client *boundedHTTP2Client) doPost(ctx context.Context, path string, body 
 	if err != nil {
 		return nil, &permanentTransportError{err}
 	}
+	// NewRequest installs GetBody for bytes.Reader. The HTTP/2 transport uses
+	// that hook to replay body-bearing requests internally for REFUSED_STREAM
+	// and qualifying GOAWAY paths, bypassing maxAttempts. Only the explicit
+	// outer retry controller may replay these exact signed bytes.
+	request.GetBody = nil
 	request.Header.Set("Content-Type", "application/cose")
 	request.Header.Set("Accept", "application/cose")
 	response, err := client.client.Do(request)
