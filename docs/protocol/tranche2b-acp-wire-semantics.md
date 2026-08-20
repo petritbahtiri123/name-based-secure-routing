@@ -66,7 +66,7 @@ The HTTP request body MUST be the full COSE Sign1 byte string over that exact ca
 `request_digest` is `SHA-256` over the exact canonical `ACPRequestPayload` bytes (not over the COSE wrapper).
 
 ACP request/response map keys are fixed unsigned integers. Integer-key
-assignment is documented in this draft’s ACP schemas; no textual map keys are
+assignment is documented in the final ACP schemas; no textual map keys are
 allowed in release-grade wire objects.
 Integer keys are scoped to each specific ACP schema map; reusing small integer
 values in one map does not imply global semantic reuse across other maps.
@@ -74,6 +74,9 @@ values in one map does not imply global semantic reuse across other maps.
 ### 3.2 Request authentication boundary (Decision #5)
 
 - Request identity is authenticated by application-layer DeviceIdentity purpose `PurposeDeviceACPRequest`.
+- TLS 1.3 transport is mandatory and server-authenticated.
+- mTLS MAY be deployment hardening only; it never replaces application-layer `PurposeDeviceACPRequest` authentication.
+- TS proof remains separate from DeviceIdentity ACP request authentication and retains its independent purpose and semantics.
 - DeviceIdentity key proves request possession by signing the exact canonical `ACPRequestPayload` bytes with COSE Sign1.
 - COSE Sign1 protected header requirements:
   - `alg = -8` (Ed25519 signature)

@@ -54,8 +54,8 @@
 
 
 - `docs/protocol/tranche2b-acp-wire-semantics.md`:
-  - Git blob OID `03cbbbce072280fa7caedf369c9218bfe4851250`
-  - SHA-256 `cbff45859712153f8b58116304ffb6ae63f9d52c81bf84e1003d18fedf6e182a`
+  - Git blob OID `2c49f29017e1b7618a7af563332274c28afeef45`
+  - SHA-256 `e795abf0a078c2dfe9bdf56d705fde67a1355bd28eb1cd35b5dc6efb0a5dad24`
   - Reconciliation note: the prior OID `fb5dfe3c31cb5e42f799b19061c73c3b9708eebd` and SHA-256 `0b84be9caaa2e9b15c58fb789e7da9046fa5d64b82b6d72e7566fe327a9be42f` identified the old pre-decision draft, not the later approved freeze; that evidence was stale and is superseded by this single final authority.
 
 - `docs/protocol/tranche2b-enrollment-wire-semantics.md`:
