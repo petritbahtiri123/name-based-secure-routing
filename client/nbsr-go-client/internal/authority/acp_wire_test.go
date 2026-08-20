@@ -64,6 +64,16 @@ func TestSignACPRequestsUseFrozenSchemasAndPurpose(t *testing.T) {
 			if signed.Operation() != test.operation || signed.RequestID() != test.requestID {
 				t.Fatal("signed request metadata mismatch")
 			}
+			body := signed.Body()
+			body[0] ^= 0xff
+			if bytes.Equal(body, signed.Body()) {
+				t.Fatal("signed request leaked mutable body backing storage")
+			}
+			payloadCopy := signed.Payload()
+			payloadCopy[0] ^= 0xff
+			if bytes.Equal(payloadCopy, signed.Payload()) {
+				t.Fatal("signed request leaked mutable payload backing storage")
+			}
 			if signed.Digest() != sha256.Sum256(signed.Payload()) {
 				t.Fatal("request digest is not SHA-256 over exact payload")
 			}
@@ -172,6 +182,35 @@ func TestSignACPRequestRejectsSecurityAndBindingFailures(t *testing.T) {
 	}
 }
 
+func TestSignACPGrantRequestsRejectZeroCredentialNotBefore(t *testing.T) {
+	signer, _, _ := mustEnrollmentSigner(t, identity.PurposeDeviceACPRequest, 0x62, 4)
+	base := validACPRequest(signer.KeyRef())
+	base.Device.CredentialNotBefore = 0
+
+	for _, test := range []struct {
+		name string
+		sign func() error
+	}{
+		{"acquire", func() error {
+			_, err := SignACPAcquireRequest(context.Background(), base, signer, acpTestNow)
+			return err
+		}},
+		{"renew", func() error {
+			_, err := SignACPRenewRequest(context.Background(), RenewRequest{
+				AcquireRequest: base,
+				PreviousGrant:  RouteGrantDigest(bytes32ForSeed(0x63)),
+			}, signer, acpTestNow)
+			return err
+		}},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			if err := test.sign(); !errors.Is(err, ErrInvalidAuthority) {
+				t.Fatalf("zero credential_not_before got %v, want ErrInvalidAuthority", err)
+			}
+		})
+	}
+}
+
 func TestParseVerifiedACPResultBindsOuterEnvelope(t *testing.T) {
 	requestSigner, _, _ := mustEnrollmentSigner(t, identity.PurposeDeviceACPRequest, 0x71, 4)
 	request, err := SignACPAcquireRequest(context.Background(), validACPRequest(requestSigner.KeyRef()), requestSigner, acpTestNow)
@@ -201,6 +240,43 @@ func TestParseVerifiedACPResultBindsOuterEnvelope(t *testing.T) {
 	artifact[0] ^= 0xff
 	if bytes.Equal(artifact, verified.Artifact()) {
 		t.Fatal("verified result leaked mutable artifact backing storage")
+	}
+}
+
+func TestParseVerifiedACPResultRejectsExpiredRequestBeforeIssuerResolution(t *testing.T) {
+	requestSigner, _, _ := mustEnrollmentSigner(t, identity.PurposeDeviceACPRequest, 0x73, 4)
+	request, err := SignACPAcquireRequest(context.Background(), validACPRequest(requestSigner.KeyRef()), requestSigner, acpTestNow)
+	if err != nil {
+		t.Fatal(err)
+	}
+	private, public, kid := mustRawResultSigner(t, 0x74)
+	wire := mustSignACPResult(t, validACPResult(request, ACPResultStatusSuccess), private, kid)
+	issuer := IssuerRecord{
+		KID: kid, PublicKey: public, Purpose: acpResultSigningPurpose,
+		Profile: request.Profile(), SourceOperator: request.SourceOperator(), Generation: 1,
+		NotBefore: acpTestNow - 1, ExpiresAt: request.DeadlineUnix() + 100,
+	}
+
+	for _, test := range []struct {
+		name string
+		now  uint64
+	}{
+		{"at deadline", request.DeadlineUnix()},
+		{"after deadline", request.DeadlineUnix() + 1},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			calls := 0
+			resolver := acpResultIssuerResolverFunc(func(context.Context, []byte, string, string, uint64) (IssuerRecord, error) {
+				calls++
+				return issuer, nil
+			})
+			if _, err := ParseVerifiedACPResult(context.Background(), wire, request, resolver, test.now); !errors.Is(err, ErrExpired) {
+				t.Fatalf("got %v, want ErrExpired", err)
+			}
+			if calls != 0 {
+				t.Fatalf("issuer resolver called %d times after request deadline", calls)
+			}
+		})
 	}
 }
 
@@ -518,23 +594,25 @@ func FuzzParseVerifiedACPResult(f *testing.F) {
 	if err != nil {
 		f.Fatal(err)
 	}
-	payload, err := EncodeACPResultPayload(validACPResult(request, ACPResultStatusSuccess))
-	if err != nil {
-		f.Fatal(err)
-	}
 	protected, err := encodeCBOR(map[uint64]any{1: int64(-8), 4: kid})
 	if err != nil {
 		f.Fatal(err)
 	}
-	structure, err := encodeCBOR([]any{"Signature1", protected, []byte{}, payload})
-	if err != nil {
-		f.Fatal(err)
+	for _, status := range []ACPResultStatus{ACPResultStatusSuccess, ACPResultStatusPolicyDenied} {
+		payload, err := EncodeACPResultPayload(validACPResult(request, status))
+		if err != nil {
+			f.Fatal(err)
+		}
+		structure, err := encodeCBOR([]any{"Signature1", protected, []byte{}, payload})
+		if err != nil {
+			f.Fatal(err)
+		}
+		validWire, err := buildSign1Envelope(protected, payload, ed25519.Sign(resultPrivate, structure))
+		if err != nil {
+			f.Fatal(err)
+		}
+		f.Add(validWire)
 	}
-	validWire, err := buildSign1Envelope(protected, payload, ed25519.Sign(resultPrivate, structure))
-	if err != nil {
-		f.Fatal(err)
-	}
-	f.Add(validWire)
 	f.Add([]byte{0xd2, 0xff})
 	f.Add([]byte{})
 
@@ -546,7 +624,10 @@ func FuzzParseVerifiedACPResult(f *testing.F) {
 		if err != nil {
 			return
 		}
-		if !validACPResultStatus(result.Status()) || result.AuthorityGeneration() == 0 || len(result.Artifact()) == 0 {
+		artifact := result.Artifact()
+		if !validACPResultStatus(result.Status()) || result.AuthorityGeneration() == 0 ||
+			(result.Status() == ACPResultStatusSuccess && len(artifact) == 0) ||
+			(result.Status() != ACPResultStatusSuccess && len(artifact) != 0) {
 			t.Fatal("parser accepted an invalid verified result")
 		}
 	})
@@ -725,4 +806,10 @@ type shortSignatureSigner struct{ identity.Signer }
 
 func (shortSignatureSigner) SignPurposeBound(context.Context, identity.Purpose, []byte) ([]byte, error) {
 	return []byte{1}, nil
+}
+
+type acpResultIssuerResolverFunc func(context.Context, []byte, string, string, uint64) (IssuerRecord, error)
+
+func (function acpResultIssuerResolverFunc) ResolveACPResultIssuer(ctx context.Context, kid []byte, profile, source string, now uint64) (IssuerRecord, error) {
+	return function(ctx, kid, profile, source, now)
 }

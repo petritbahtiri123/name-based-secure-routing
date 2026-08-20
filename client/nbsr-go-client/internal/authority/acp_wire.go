@@ -248,6 +248,9 @@ func validateACPGrantRequest(request AcquireRequest, signer identity.Signer, now
 			return AcquireRequest{}, ErrInvalidAuthority
 		}
 	}
+	if validated.Device.CredentialNotBefore == 0 {
+		return AcquireRequest{}, ErrInvalidAuthority
+	}
 	if !validUnixTime(validated.Intent.ExpiresAt) || validated.Intent.ExpiresAt <= now ||
 		!validUnixTime(validated.Device.CredentialNotBefore) || !validUnixTime(validated.Device.CredentialExpiresAt) ||
 		validated.Device.CredentialNotBefore >= validated.Device.CredentialExpiresAt || now < validated.Device.CredentialNotBefore || now >= validated.Device.CredentialExpiresAt {
@@ -342,6 +345,9 @@ func EncodeACPResultPayload(result ACPResultPayload) ([]byte, error) {
 func ParseVerifiedACPResult(ctx context.Context, wire []byte, request SignedACPRequest, issuers ACPResultIssuerResolver, now uint64) (VerifiedACPResult, error) {
 	if ctx == nil || isNilDependency(issuers) || !request.valid() || now == 0 || !validUnixTime(now) {
 		return VerifiedACPResult{}, ErrInvalidAuthority
+	}
+	if err := validateACPDeadline(request.deadlineUnix, now); err != nil {
+		return VerifiedACPResult{}, err
 	}
 	maximum := acpResultBodyLimit(request.operation)
 	if len(wire) == 0 || len(wire) > maximum {
