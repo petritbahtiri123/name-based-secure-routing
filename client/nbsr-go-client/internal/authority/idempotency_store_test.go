@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 )
 
 func TestFileIdempotencyStoreReplaysExactTerminalBytesAndRejectsConflict(t *testing.T) {
@@ -194,6 +195,86 @@ func TestFileIdempotencyStoreNilReceiverFailsClosed(t *testing.T) {
 	}
 }
 
+func TestFileIdempotencyStoreSweepsExpiredRecordsWhileIdleAndOnOpen(t *testing.T) {
+	for _, test := range []struct {
+		name      string
+		closeIdle bool
+	}{
+		{name: "scheduled idle sweep"},
+		{name: "open sweep", closeIdle: true},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+			path := filepath.Join(t.TempDir(), "acp-idempotency.cbor")
+			config := testFileIdempotencyStoreConfig(path, 8, 2<<20)
+			config.CleanupGraceSeconds = 1
+			config.NowUnix = func() uint64 { return uint64(time.Now().Unix()) }
+			store, err := NewFileIdempotencyStore(config)
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer store.Close()
+			now := uint64(time.Now().Unix())
+			request := testIdempotencyRequest(now, now+1, 128*1024)
+			if claim, err := store.Begin(context.Background(), request); err != nil || claim.Status != IdempotencyOwner {
+				t.Fatalf("begin = (%v, %v)", claim.Status, err)
+			}
+			if err := store.Complete(context.Background(), request.Key, request.Digest, []byte("signed-terminal")); err != nil {
+				t.Fatal(err)
+			}
+			if test.closeIdle {
+				if err := store.Close(); err != nil {
+					t.Fatal(err)
+				}
+			}
+
+			waitUntilUnix(t, request.DeadlineUnix+config.CleanupGraceSeconds)
+			if !test.closeIdle {
+				waitForIdempotencyRecordCount(t, store, 0)
+				if err := store.Close(); err != nil {
+					t.Fatal(err)
+				}
+			}
+			reopened, err := NewFileIdempotencyStore(config)
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer reopened.Close()
+			reopened.mu.Lock()
+			got := len(reopened.records)
+			reopened.mu.Unlock()
+			if got != 0 {
+				t.Fatalf("restart retained %d expired records, want zero", got)
+			}
+		})
+	}
+}
+
+func waitUntilUnix(t *testing.T, want uint64) {
+	t.Helper()
+	for uint64(time.Now().Unix()) < want {
+		time.Sleep(10 * time.Millisecond)
+	}
+}
+
+func waitForIdempotencyRecordCount(t *testing.T, store *FileIdempotencyStore, want int) {
+	t.Helper()
+	deadline := time.Now().Add(1500 * time.Millisecond)
+	for time.Now().Before(deadline) {
+		store.mu.Lock()
+		got := len(store.records)
+		store.mu.Unlock()
+		if got == want {
+			return
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
+	store.mu.Lock()
+	got := len(store.records)
+	store.mu.Unlock()
+	t.Fatalf("idle record count = %d, want %d", got, want)
+}
+
 func testIdempotencyRequest(now, deadline uint64, maximum uint64) IdempotencyRequest {
 	return IdempotencyRequest{
 		Key: IdempotencyKey{
@@ -219,5 +300,6 @@ func testFileIdempotencyStoreConfig(path string, entries int, maximum uint64) Fi
 	return FileIdempotencyStoreConfig{
 		Path: path, DeploymentMode: IdempotencyDeploymentSingleNode, ReplicaCount: 1,
 		MaxEntries: entries, MaxBytes: maximum, CleanupGraceSeconds: 60,
+		NowUnix: func() uint64 { return 10 },
 	}
 }

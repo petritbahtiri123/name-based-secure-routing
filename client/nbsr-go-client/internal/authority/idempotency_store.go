@@ -11,6 +11,7 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"time"
 )
 
 const (
@@ -18,6 +19,7 @@ const (
 	maxIdempotencyCleanupGrace    = uint64(60)
 	idempotencyStoreVersion       = uint64(1)
 	idempotencyRecordOverhead     = uint64(64)
+	idempotencySweepInterval      = 100 * time.Millisecond
 )
 
 type IdempotencyStoreScope uint8
@@ -80,6 +82,7 @@ type FileIdempotencyStoreConfig struct {
 	MaxEntries          int
 	MaxBytes            uint64
 	CleanupGraceSeconds uint64
+	NowUnix             func() uint64
 }
 
 type idempotencyRecordState uint64
@@ -109,6 +112,10 @@ type FileIdempotencyStore struct {
 	cleanupGraceSeconds uint64
 	records             map[string]idempotencyRecord
 	lock                *idempotencyFileLock
+	nowUnix             func() uint64
+	stopSweep           chan struct{}
+	sweepStopped        chan struct{}
+	backgroundErr       error
 	closed              bool
 }
 
@@ -128,6 +135,11 @@ func NewFileIdempotencyStore(config FileIdempotencyStoreConfig) (*FileIdempotenc
 	store := &FileIdempotencyStore{
 		path: path, maxEntries: config.MaxEntries, maxBytes: config.MaxBytes,
 		cleanupGraceSeconds: config.CleanupGraceSeconds, records: make(map[string]idempotencyRecord), lock: lock,
+		stopSweep: make(chan struct{}), sweepStopped: make(chan struct{}),
+	}
+	store.nowUnix = config.NowUnix
+	if store.nowUnix == nil {
+		store.nowUnix = func() uint64 { return uint64(time.Now().Unix()) }
 	}
 	records, err := store.load()
 	if err != nil {
@@ -135,6 +147,11 @@ func NewFileIdempotencyStore(config FileIdempotencyStoreConfig) (*FileIdempotenc
 		return nil, err
 	}
 	store.records = records
+	if err := store.sweepAtOpen(); err != nil {
+		_ = lock.Close()
+		return nil, err
+	}
+	go store.sweepLoop()
 	return store, nil
 }
 
@@ -156,17 +173,35 @@ func (store *FileIdempotencyStore) Begin(ctx context.Context, request Idempotenc
 		return IdempotencyClaim{}, err
 	}
 	keyBytes, err := encodeIdempotencyKey(request.Key)
-	if err != nil || request.Digest == ([32]byte{}) || request.NowUnix == 0 || request.DeadlineUnix <= request.NowUnix ||
-		request.DeadlineUnix-request.NowUnix > maxIdempotencyDeadlineHorizon || request.MaxTerminalBytes == 0 {
+	if err != nil || request.Digest == ([32]byte{}) || request.NowUnix == 0 || request.DeadlineUnix == 0 ||
+		request.MaxTerminalBytes == 0 {
 		return IdempotencyClaim{}, ErrInvalidAuthority
 	}
+	if request.DeadlineUnix > request.NowUnix && request.DeadlineUnix-request.NowUnix > maxIdempotencyDeadlineHorizon {
+		return IdempotencyClaim{}, ErrInvalidAuthority
+	}
+	expires := request.DeadlineUnix + store.cleanupGraceSeconds
+	pastRetention := request.DeadlineUnix <= request.NowUnix &&
+		(expires < request.DeadlineUnix || request.NowUnix >= expires)
 
 	store.mu.Lock()
 	defer store.mu.Unlock()
 	if store.closed {
 		return IdempotencyClaim{}, ErrClosed
 	}
+	if store.backgroundErr != nil {
+		return IdempotencyClaim{}, store.backgroundErr
+	}
 	candidate, cleaned := store.withoutExpired(request.NowUnix)
+	if pastRetention {
+		if cleaned {
+			if err := store.persist(candidate); err != nil {
+				return IdempotencyClaim{}, err
+			}
+			store.records = candidate
+		}
+		return IdempotencyClaim{}, ErrExpired
+	}
 	recordID := string(keyBytes)
 	if record, ok := candidate[recordID]; ok {
 		if cleaned {
@@ -225,6 +260,9 @@ func (store *FileIdempotencyStore) Complete(ctx context.Context, key Idempotency
 	if store.closed {
 		return ErrClosed
 	}
+	if store.backgroundErr != nil {
+		return store.backgroundErr
+	}
 	recordID := string(keyBytes)
 	record, ok := store.records[recordID]
 	if !ok || record.digest != digest {
@@ -263,13 +301,86 @@ func (store *FileIdempotencyStore) Close() error {
 		return nil
 	}
 	store.closed = true
+	close(store.stopSweep)
 	lock := store.lock
 	store.lock = nil
 	store.mu.Unlock()
+	<-store.sweepStopped
+	store.mu.Lock()
+	backgroundErr := store.backgroundErr
+	store.mu.Unlock()
 	if lock == nil {
+		return backgroundErr
+	}
+	return errors.Join(backgroundErr, lock.Close())
+}
+
+// Sweep durably removes records whose deadline plus configured cleanup grace
+// has elapsed according to the store's trusted clock. It does not admit a new
+// request and is safe to call while the store is otherwise idle.
+func (store *FileIdempotencyStore) Sweep(ctx context.Context) error {
+	if store == nil {
+		return ErrClosed
+	}
+	if ctx == nil {
+		return ErrInvalidAuthority
+	}
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	now := store.nowUnix()
+	if now == 0 {
+		return ErrInvalidAuthority
+	}
+	store.mu.Lock()
+	defer store.mu.Unlock()
+	if store.closed {
+		return ErrClosed
+	}
+	if store.backgroundErr != nil {
+		return store.backgroundErr
+	}
+	return store.sweepLocked(now)
+}
+
+func (store *FileIdempotencyStore) sweepAtOpen() error {
+	now := store.nowUnix()
+	if now == 0 {
+		return ErrInvalidAuthority
+	}
+	return store.sweepLocked(now)
+}
+
+func (store *FileIdempotencyStore) sweepLocked(now uint64) error {
+	candidate, cleaned := store.withoutExpired(now)
+	if !cleaned {
 		return nil
 	}
-	return lock.Close()
+	if err := store.persist(candidate); err != nil {
+		return err
+	}
+	store.records = candidate
+	return nil
+}
+
+func (store *FileIdempotencyStore) sweepLoop() {
+	defer close(store.sweepStopped)
+	ticker := time.NewTicker(idempotencySweepInterval)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-ticker.C:
+			if err := store.Sweep(context.Background()); err != nil && !errors.Is(err, ErrClosed) {
+				store.mu.Lock()
+				if store.backgroundErr == nil {
+					store.backgroundErr = err
+				}
+				store.mu.Unlock()
+			}
+		case <-store.stopSweep:
+			return
+		}
+	}
 }
 
 func (store *FileIdempotencyStore) withoutExpired(now uint64) (map[string]idempotencyRecord, bool) {

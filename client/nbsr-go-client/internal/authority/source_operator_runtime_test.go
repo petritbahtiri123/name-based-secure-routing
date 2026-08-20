@@ -253,6 +253,287 @@ func TestSourceOperatorRuntimeSignsExpiryWhenEvaluationCompletesAtDeadline(t *te
 	}
 }
 
+func TestSourceOperatorRuntimeRefreshesDeadlineAfterDurableAdmissionBeforeDecision(t *testing.T) {
+	t.Run("authority", func(t *testing.T) {
+		fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), nil)
+		delayed := newDelayingIdempotencyStore(fixture.store)
+		runtime := newRuntimeWithStore(t, fixture, delayed)
+		response := make(chan *httptest.ResponseRecorder, 1)
+		go func() { response <- performRuntimeRequest(runtime, "/acp/authority", fixture.signed.Body(), nil) }()
+		<-delayed.started
+		fixture.now.Store(fixture.signed.DeadlineUnix())
+		close(delayed.release)
+		result := parseAndVerifyRuntimeACPResult(t, (<-response).Body.Bytes(), fixture.acpSigner.public)
+		if result.Status != ACPResultStatusRequestExpired || fixture.authority.callCount() != 0 {
+			t.Fatalf("post-admission authority result = %q, decisions=%d", result.Status, fixture.authority.callCount())
+		}
+	})
+
+	t.Run("enrollment", func(t *testing.T) {
+		fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), nil)
+		request := fixture.enrollmentRequest()
+		wire, err := SignEnrollmentRequest(context.Background(), request, fixture.requestSigner)
+		if err != nil {
+			t.Fatal(err)
+		}
+		delayed := newDelayingIdempotencyStore(fixture.store)
+		runtime := newRuntimeWithStore(t, fixture, delayed)
+		response := make(chan *httptest.ResponseRecorder, 1)
+		go func() { response <- performRuntimeRequest(runtime, "/acp/enroll", wire, nil) }()
+		<-delayed.started
+		fixture.now.Store(request.DeadlineUnix)
+		close(delayed.release)
+		result := parseAndVerifyRuntimeEnrollmentResult(t, (<-response).Body.Bytes(), fixture.enrollmentSigner.public)
+		if result.Status != EnrollmentStatusExpired || fixture.enrollment.calls.Load() != 0 {
+			t.Fatalf("post-admission enrollment result = %q, decisions=%d", result.Status, fixture.enrollment.calls.Load())
+		}
+	})
+}
+
+func TestSourceOperatorRuntimeUsesFreshRemainingDecisionContext(t *testing.T) {
+	t.Run("authority", func(t *testing.T) {
+		remaining := make(chan time.Duration, 1)
+		fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), func(ctx context.Context, request VerifiedACPRequest) (ACPDecision, error) {
+			deadline, ok := ctx.Deadline()
+			if !ok {
+				remaining <- 0
+			} else {
+				remaining <- time.Until(deadline)
+			}
+			return ACPDecision{Status: ACPResultStatusPolicyDenied, AuthorityGeneration: request.AuthorityGeneration()}, nil
+		})
+		delayed := newDelayingIdempotencyStore(fixture.store)
+		runtime := newRuntimeWithStore(t, fixture, delayed)
+		response := make(chan *httptest.ResponseRecorder, 1)
+		go func() { response <- performRuntimeRequest(runtime, "/acp/authority", fixture.signed.Body(), nil) }()
+		<-delayed.started
+		fixture.now.Store(fixture.signed.DeadlineUnix() - 1)
+		close(delayed.release)
+		result := parseAndVerifyRuntimeACPResult(t, (<-response).Body.Bytes(), fixture.acpSigner.public)
+		got := <-remaining
+		if result.Status != ACPResultStatusPolicyDenied || got <= 0 || got > 1500*time.Millisecond {
+			t.Fatalf("authority result/context = %q/%v, want policy deny with about one second remaining", result.Status, got)
+		}
+	})
+
+	t.Run("enrollment", func(t *testing.T) {
+		fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), nil)
+		request := fixture.enrollmentRequest()
+		wire, err := SignEnrollmentRequest(context.Background(), request, fixture.requestSigner)
+		if err != nil {
+			t.Fatal(err)
+		}
+		remaining := make(chan time.Duration, 1)
+		fixture.enrollment.decide = func(ctx context.Context, _ BootstrapAuthorization, _ VerifiedEnrollmentRequest) (EnrollmentDecision, error) {
+			deadline, ok := ctx.Deadline()
+			if !ok {
+				remaining <- 0
+			} else {
+				remaining <- time.Until(deadline)
+			}
+			return EnrollmentDecision{Status: EnrollmentStatusRejected}, nil
+		}
+		delayed := newDelayingIdempotencyStore(fixture.store)
+		runtime := newRuntimeWithStore(t, fixture, delayed)
+		response := make(chan *httptest.ResponseRecorder, 1)
+		go func() { response <- performRuntimeRequest(runtime, "/acp/enroll", wire, nil) }()
+		<-delayed.started
+		fixture.now.Store(request.DeadlineUnix - 1)
+		close(delayed.release)
+		result := parseAndVerifyRuntimeEnrollmentResult(t, (<-response).Body.Bytes(), fixture.enrollmentSigner.public)
+		got := <-remaining
+		if result.Status != EnrollmentStatusRejected || got <= 0 || got > 1500*time.Millisecond {
+			t.Fatalf("enrollment result/context = %q/%v, want rejection with about one second remaining", result.Status, got)
+		}
+	})
+}
+
+func TestSourceOperatorRuntimePreservesInfrastructureErrorAtCompletionDeadline(t *testing.T) {
+	t.Run("authority", func(t *testing.T) {
+		var fixture *sourceOperatorRuntimeFixture
+		fixture = newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), func(context.Context, VerifiedACPRequest) (ACPDecision, error) {
+			fixture.now.Store(fixture.signed.DeadlineUnix())
+			return ACPDecision{}, errors.New("authority storage unavailable")
+		})
+		for attempt := 0; attempt < 2; attempt++ {
+			response := performRuntimeRequest(fixture.runtime, "/acp/authority", fixture.signed.Body(), nil)
+			if response.Code != http.StatusServiceUnavailable || response.Header().Get("Content-Type") == "application/cose" {
+				t.Fatalf("authority attempt %d = %d %q", attempt, response.Code, response.Header().Get("Content-Type"))
+			}
+		}
+		if fixture.authority.callCount() != 1 || fixture.acpSigner.callCount() != 0 {
+			t.Fatalf("authority decisions/signatures = %d/%d, want 1/0", fixture.authority.callCount(), fixture.acpSigner.callCount())
+		}
+	})
+
+	t.Run("enrollment", func(t *testing.T) {
+		fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), nil)
+		request := fixture.enrollmentRequest()
+		wire, err := SignEnrollmentRequest(context.Background(), request, fixture.requestSigner)
+		if err != nil {
+			t.Fatal(err)
+		}
+		fixture.enrollment.decide = func(context.Context, BootstrapAuthorization, VerifiedEnrollmentRequest) (EnrollmentDecision, error) {
+			fixture.now.Store(request.DeadlineUnix)
+			return EnrollmentDecision{}, errors.New("enrollment storage unavailable")
+		}
+		for attempt := 0; attempt < 2; attempt++ {
+			response := performRuntimeRequest(fixture.runtime, "/acp/enroll", wire, nil)
+			if response.Code != http.StatusServiceUnavailable || response.Header().Get("Content-Type") == "application/cose" {
+				t.Fatalf("enrollment attempt %d = %d %q", attempt, response.Code, response.Header().Get("Content-Type"))
+			}
+		}
+		if fixture.enrollment.calls.Load() != 1 || fixture.enrollmentSigner.callCount() != 0 {
+			t.Fatalf("enrollment decisions/signatures = %d/%d, want 1/0", fixture.enrollment.calls.Load(), fixture.enrollmentSigner.callCount())
+		}
+	})
+}
+
+func TestSourceOperatorRuntimeKeepsCompletionClockFailureUnsigned(t *testing.T) {
+	t.Run("authority", func(t *testing.T) {
+		var fixture *sourceOperatorRuntimeFixture
+		fixture = newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), func(_ context.Context, request VerifiedACPRequest) (ACPDecision, error) {
+			fixture.now.Store(0)
+			return testSuccessACPDecision(request), nil
+		})
+		response := performRuntimeRequest(fixture.runtime, "/acp/authority", fixture.signed.Body(), nil)
+		if response.Code != http.StatusServiceUnavailable || response.Header().Get("Content-Type") == "application/cose" {
+			t.Fatalf("authority completion-clock failure = %d %q", response.Code, response.Header().Get("Content-Type"))
+		}
+		if fixture.authority.callCount() != 1 || fixture.acpSigner.callCount() != 0 {
+			t.Fatalf("authority decisions/signatures = %d/%d, want 1/0", fixture.authority.callCount(), fixture.acpSigner.callCount())
+		}
+	})
+
+	t.Run("enrollment", func(t *testing.T) {
+		fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), nil)
+		request := fixture.enrollmentRequest()
+		wire, err := SignEnrollmentRequest(context.Background(), request, fixture.requestSigner)
+		if err != nil {
+			t.Fatal(err)
+		}
+		fixture.enrollment.decide = func(context.Context, BootstrapAuthorization, VerifiedEnrollmentRequest) (EnrollmentDecision, error) {
+			fixture.now.Store(0)
+			return EnrollmentDecision{Status: EnrollmentStatusRejected}, nil
+		}
+		response := performRuntimeRequest(fixture.runtime, "/acp/enroll", wire, nil)
+		if response.Code != http.StatusServiceUnavailable || response.Header().Get("Content-Type") == "application/cose" {
+			t.Fatalf("enrollment completion-clock failure = %d %q", response.Code, response.Header().Get("Content-Type"))
+		}
+		if fixture.enrollment.calls.Load() != 1 || fixture.enrollmentSigner.callCount() != 0 {
+			t.Fatalf("enrollment decisions/signatures = %d/%d, want 1/0", fixture.enrollment.calls.Load(), fixture.enrollmentSigner.callCount())
+		}
+	})
+}
+
+func TestSourceOperatorRuntimeDoesNotReturnTerminalWhenDurableCompletionFails(t *testing.T) {
+	t.Run("authority", func(t *testing.T) {
+		fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), nil)
+		runtime := newRuntimeWithStore(t, fixture, &failingCompleteIdempotencyStore{inner: fixture.store})
+		for attempt := 0; attempt < 2; attempt++ {
+			response := performRuntimeRequest(runtime, "/acp/authority", fixture.signed.Body(), nil)
+			if response.Code != http.StatusServiceUnavailable || response.Header().Get("Content-Type") == "application/cose" {
+				t.Fatalf("authority attempt %d = %d %q", attempt, response.Code, response.Header().Get("Content-Type"))
+			}
+		}
+		if fixture.authority.callCount() != 1 || fixture.acpSigner.callCount() != 1 {
+			t.Fatalf("authority decisions/signatures = %d/%d, want 1/1", fixture.authority.callCount(), fixture.acpSigner.callCount())
+		}
+	})
+
+	t.Run("enrollment", func(t *testing.T) {
+		fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), nil)
+		request := fixture.enrollmentRequest()
+		wire, err := SignEnrollmentRequest(context.Background(), request, fixture.requestSigner)
+		if err != nil {
+			t.Fatal(err)
+		}
+		runtime := newRuntimeWithStore(t, fixture, &failingCompleteIdempotencyStore{inner: fixture.store})
+		for attempt := 0; attempt < 2; attempt++ {
+			response := performRuntimeRequest(runtime, "/acp/enroll", wire, nil)
+			if response.Code != http.StatusServiceUnavailable || response.Header().Get("Content-Type") == "application/cose" {
+				t.Fatalf("enrollment attempt %d = %d %q", attempt, response.Code, response.Header().Get("Content-Type"))
+			}
+		}
+		if fixture.enrollment.calls.Load() != 1 || fixture.enrollmentSigner.callCount() != 1 {
+			t.Fatalf("enrollment decisions/signatures = %d/%d, want 1/1", fixture.enrollment.calls.Load(), fixture.enrollmentSigner.callCount())
+		}
+	})
+}
+
+func TestSourceOperatorRuntimeDurablyReplaysExpiredAuthorityAndConflicts(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "idempotency.cbor")
+	fixture := newSourceOperatorRuntimeFixture(t, path, nil)
+	conflictingRequest := cloneACPRequest(fixture.request)
+	conflictingRequest.DeadlineUnix--
+	conflicting, err := SignACPAcquireRequest(context.Background(), conflictingRequest, fixture.requestSigner, fixture.now.Load())
+	if err != nil {
+		t.Fatal(err)
+	}
+	fixture.now.Store(fixture.signed.DeadlineUnix())
+	first := performRuntimeRequest(fixture.runtime, "/acp/authority", fixture.signed.Body(), nil)
+	second := performRuntimeRequest(fixture.runtime, "/acp/authority", fixture.signed.Body(), nil)
+	if result := parseAndVerifyRuntimeACPResult(t, first.Body.Bytes(), fixture.acpSigner.public); result.Status != ACPResultStatusRequestExpired {
+		t.Fatalf("first expired status = %q", result.Status)
+	}
+	if !bytes.Equal(first.Body.Bytes(), second.Body.Bytes()) || fixture.acpSigner.callCount() != 1 || fixture.authority.callCount() != 0 {
+		t.Fatalf("expired replay/sign/decision = equal %v, signatures %d, decisions %d", bytes.Equal(first.Body.Bytes(), second.Body.Bytes()), fixture.acpSigner.callCount(), fixture.authority.callCount())
+	}
+	exact := append([]byte(nil), first.Body.Bytes()...)
+	if err := fixture.runtime.Close(); err != nil {
+		t.Fatal(err)
+	}
+	restarted := fixture.reopen(t, path)
+	replay := performRuntimeRequest(restarted, "/acp/authority", fixture.signed.Body(), nil)
+	if !bytes.Equal(replay.Body.Bytes(), exact) || fixture.acpSigner.callCount() != 1 {
+		t.Fatalf("expired restart replay/signatures = %x/%d, want exact bytes/1", replay.Body.Bytes(), fixture.acpSigner.callCount())
+	}
+	conflictResponse := performRuntimeRequest(restarted, "/acp/authority", conflicting.Body(), nil)
+	conflict := parseAndVerifyRuntimeACPResult(t, conflictResponse.Body.Bytes(), fixture.acpSigner.public)
+	if conflict.Status != ACPResultStatusRequestIDConflict || fixture.acpSigner.callCount() != 2 || fixture.authority.callCount() != 0 {
+		t.Fatalf("expired conflict/sign/decision = %q/%d/%d", conflict.Status, fixture.acpSigner.callCount(), fixture.authority.callCount())
+	}
+}
+
+func TestSourceOperatorRuntimeDurablyReplaysExpiredEnrollmentAndConflicts(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "idempotency.cbor")
+	fixture := newSourceOperatorRuntimeFixture(t, path, nil)
+	request := fixture.enrollmentRequest()
+	wire, err := SignEnrollmentRequest(context.Background(), request, fixture.requestSigner)
+	if err != nil {
+		t.Fatal(err)
+	}
+	conflictingRequest := request
+	conflictingRequest.DeadlineUnix--
+	conflicting, err := SignEnrollmentRequest(context.Background(), conflictingRequest, fixture.requestSigner)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fixture.now.Store(request.DeadlineUnix)
+	first := performRuntimeRequest(fixture.runtime, "/acp/enroll", wire, nil)
+	second := performRuntimeRequest(fixture.runtime, "/acp/enroll", wire, nil)
+	if result := parseAndVerifyRuntimeEnrollmentResult(t, first.Body.Bytes(), fixture.enrollmentSigner.public); result.Status != EnrollmentStatusExpired {
+		t.Fatalf("first expired status = %q", result.Status)
+	}
+	if !bytes.Equal(first.Body.Bytes(), second.Body.Bytes()) || fixture.enrollmentSigner.callCount() != 1 || fixture.enrollment.calls.Load() != 0 {
+		t.Fatalf("expired replay/sign/decision = equal %v, signatures %d, decisions %d", bytes.Equal(first.Body.Bytes(), second.Body.Bytes()), fixture.enrollmentSigner.callCount(), fixture.enrollment.calls.Load())
+	}
+	exact := append([]byte(nil), first.Body.Bytes()...)
+	if err := fixture.runtime.Close(); err != nil {
+		t.Fatal(err)
+	}
+	restarted := fixture.reopen(t, path)
+	replay := performRuntimeRequest(restarted, "/acp/enroll", wire, nil)
+	if !bytes.Equal(replay.Body.Bytes(), exact) || fixture.enrollmentSigner.callCount() != 1 {
+		t.Fatalf("expired restart replay/signatures = %x/%d, want exact bytes/1", replay.Body.Bytes(), fixture.enrollmentSigner.callCount())
+	}
+	conflictResponse := performRuntimeRequest(restarted, "/acp/enroll", conflicting, nil)
+	conflict := parseAndVerifyRuntimeEnrollmentResult(t, conflictResponse.Body.Bytes(), fixture.enrollmentSigner.public)
+	if conflict.Status != EnrollmentStatusRequestConflict || fixture.enrollmentSigner.callCount() != 2 || fixture.enrollment.calls.Load() != 0 {
+		t.Fatalf("expired conflict/sign/decision = %q/%d/%d", conflict.Status, fixture.enrollmentSigner.callCount(), fixture.enrollment.calls.Load())
+	}
+}
+
 func TestSourceOperatorRuntimeReturnsSignedPolicyStalenessAndExpiryDecisions(t *testing.T) {
 	statuses := map[ACPOperation]ACPResultStatus{
 		ACPOperationAcquire: ACPResultStatusPolicyDenied, ACPOperationRenew: ACPResultStatusStaleGeneration,
@@ -558,15 +839,206 @@ func TestSourceOperatorRuntimeBoundsSixteenConcurrentOperationsPerDeviceProfile(
 		t.Fatal(err)
 	}
 	overflow := performRuntimeRequest(fixture.runtime, "/acp/authority", seventeenth.Body(), nil)
-	result := parseAndVerifyRuntimeACPResult(t, overflow.Body.Bytes(), fixture.acpSigner.public)
-	if result.Status != ACPResultStatusResourceExhausted || fixture.authority.callCount() != 16 {
-		t.Fatalf("17th result = %q, decisions=%d", result.Status, fixture.authority.callCount())
+	if overflow.Code != http.StatusTooManyRequests || overflow.Header().Get("Content-Type") == "application/cose" || fixture.authority.callCount() != 16 {
+		t.Fatalf("17th admission = %d %q, decisions=%d", overflow.Code, overflow.Header().Get("Content-Type"), fixture.authority.callCount())
 	}
 	close(release)
 	for index := 0; index < 16; index++ {
 		if response := <-responses; response.Code != http.StatusOK {
 			t.Fatalf("admitted response status = %d", response.Code)
 		}
+	}
+}
+
+func TestSourceOperatorRuntimeCapsAuthenticatedInvalidAndConflictWork(t *testing.T) {
+	t.Run("signed invalid generation lookup", func(t *testing.T) {
+		fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), nil)
+		fixture.authority.generationStarted = make(chan struct{}, 17)
+		fixture.authority.generationRelease = make(chan struct{})
+		responses := make(chan *httptest.ResponseRecorder, 16)
+		for index := 0; index < 16; index++ {
+			body := signedWrongVersionRequest(t, fixture, byte(index+1))
+			go func() { responses <- performRuntimeRequest(fixture.runtime, "/acp/authority", body, nil) }()
+		}
+		for index := 0; index < 16; index++ {
+			<-fixture.authority.generationStarted
+		}
+		overflowDone := make(chan *httptest.ResponseRecorder, 1)
+		overflowBody := signedWrongVersionRequest(t, fixture, 17)
+		go func() { overflowDone <- performRuntimeRequest(fixture.runtime, "/acp/authority", overflowBody, nil) }()
+		overflow, timely := responseWithin(overflowDone, 150*time.Millisecond)
+		close(fixture.authority.generationRelease)
+		for index := 0; index < 16; index++ {
+			response := <-responses
+			if result := parseAndVerifyRuntimeACPResult(t, response.Body.Bytes(), fixture.acpSigner.public); result.Status != ACPResultStatusUnsupportedVersion {
+				t.Fatalf("invalid result = %q", result.Status)
+			}
+		}
+		if !timely {
+			<-overflowDone
+			t.Fatal("17th authenticated invalid request reached the blocked generation dependency")
+		}
+		if overflow.Code != http.StatusTooManyRequests || overflow.Header().Get("Content-Type") == "application/cose" {
+			t.Fatalf("17th invalid admission = %d %q", overflow.Code, overflow.Header().Get("Content-Type"))
+		}
+	})
+
+	t.Run("request id conflict signing", func(t *testing.T) {
+		fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), nil)
+		first := performRuntimeRequest(fixture.runtime, "/acp/authority", fixture.signed.Body(), nil)
+		if first.Code != http.StatusOK {
+			t.Fatalf("initial status = %d", first.Code)
+		}
+		fixture.authority.generationStarted = make(chan struct{}, 17)
+		fixture.authority.generationRelease = make(chan struct{})
+		responses := make(chan *httptest.ResponseRecorder, 16)
+		for index := 0; index < 16; index++ {
+			body := signedConflictingAuthorityRequest(t, fixture, index+1)
+			go func() { responses <- performRuntimeRequest(fixture.runtime, "/acp/authority", body, nil) }()
+		}
+		for index := 0; index < 16; index++ {
+			<-fixture.authority.generationStarted
+		}
+		overflowDone := make(chan *httptest.ResponseRecorder, 1)
+		overflowBody := signedConflictingAuthorityRequest(t, fixture, 17)
+		go func() { overflowDone <- performRuntimeRequest(fixture.runtime, "/acp/authority", overflowBody, nil) }()
+		overflow, timely := responseWithin(overflowDone, 150*time.Millisecond)
+		close(fixture.authority.generationRelease)
+		for index := 0; index < 16; index++ {
+			response := <-responses
+			if result := parseAndVerifyRuntimeACPResult(t, response.Body.Bytes(), fixture.acpSigner.public); result.Status != ACPResultStatusRequestIDConflict {
+				t.Fatalf("conflict result = %q", result.Status)
+			}
+		}
+		if !timely {
+			<-overflowDone
+			t.Fatal("17th conflict reached the blocked result-generation dependency")
+		}
+		if overflow.Code != http.StatusTooManyRequests || overflow.Header().Get("Content-Type") == "application/cose" {
+			t.Fatalf("17th conflict admission = %d %q", overflow.Code, overflow.Header().Get("Content-Type"))
+		}
+	})
+
+	t.Run("result signer", func(t *testing.T) {
+		fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), nil)
+		fixture.acpSigner.started = make(chan struct{}, 17)
+		fixture.acpSigner.release = make(chan struct{})
+		responses := make(chan *httptest.ResponseRecorder, 16)
+		for index := 0; index < 16; index++ {
+			body := signedWrongVersionRequest(t, fixture, byte(index+1))
+			go func() { responses <- performRuntimeRequest(fixture.runtime, "/acp/authority", body, nil) }()
+		}
+		for index := 0; index < 16; index++ {
+			<-fixture.acpSigner.started
+		}
+		overflowDone := make(chan *httptest.ResponseRecorder, 1)
+		overflowBody := signedWrongVersionRequest(t, fixture, 17)
+		go func() { overflowDone <- performRuntimeRequest(fixture.runtime, "/acp/authority", overflowBody, nil) }()
+		overflow, timely := responseWithin(overflowDone, 150*time.Millisecond)
+		close(fixture.acpSigner.release)
+		for index := 0; index < 16; index++ {
+			response := <-responses
+			if response.Code != http.StatusOK {
+				t.Fatalf("signed invalid response = %d", response.Code)
+			}
+		}
+		if !timely {
+			<-overflowDone
+			t.Fatal("17th invalid request reached the blocked result signer")
+		}
+		if overflow.Code != http.StatusTooManyRequests || overflow.Header().Get("Content-Type") == "application/cose" {
+			t.Fatalf("17th signer admission = %d %q", overflow.Code, overflow.Header().Get("Content-Type"))
+		}
+	})
+}
+
+func TestSourceOperatorRuntimeConflictSigningDoesNotShadowExactReplay(t *testing.T) {
+	fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), nil)
+	first := performRuntimeRequest(fixture.runtime, "/acp/authority", fixture.signed.Body(), nil)
+	if first.Code != http.StatusOK {
+		t.Fatalf("initial status = %d", first.Code)
+	}
+	exact := append([]byte(nil), first.Body.Bytes()...)
+
+	fixture.authority.generationStarted = make(chan struct{}, 2)
+	fixture.authority.generationRelease = make(chan struct{})
+	conflictDone := make(chan *httptest.ResponseRecorder, 1)
+	conflictBody := signedConflictingAuthorityRequest(t, fixture, 1)
+	go func() { conflictDone <- performRuntimeRequest(fixture.runtime, "/acp/authority", conflictBody, nil) }()
+	<-fixture.authority.generationStarted
+
+	replayDone := make(chan *httptest.ResponseRecorder, 1)
+	go func() {
+		replayDone <- performRuntimeRequest(fixture.runtime, "/acp/authority", fixture.signed.Body(), nil)
+	}()
+	replay, timely := responseWithin(replayDone, 150*time.Millisecond)
+	close(fixture.authority.generationRelease)
+	conflict := <-conflictDone
+	if !timely {
+		replay = <-replayDone
+		t.Fatal("exact durable replay was shadowed by concurrent conflict signing")
+	}
+	if replay.Code != http.StatusOK || !bytes.Equal(replay.Body.Bytes(), exact) {
+		t.Fatalf("exact replay = %d %x, want original terminal", replay.Code, replay.Body.Bytes())
+	}
+	if result := parseAndVerifyRuntimeACPResult(t, conflict.Body.Bytes(), fixture.acpSigner.public); result.Status != ACPResultStatusRequestIDConflict {
+		t.Fatalf("conflict status = %q", result.Status)
+	}
+	if got := len(fixture.authority.generationStarted); got != 0 {
+		t.Fatalf("exact replay triggered %d extra generation lookups", got)
+	}
+}
+
+func TestSourceOperatorRuntimeBoundsConcurrentEnrollmentRequests(t *testing.T) {
+	started := make(chan struct{}, 17)
+	release := make(chan struct{})
+	fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), nil)
+	fixture.enrollment.decide = func(ctx context.Context, _ BootstrapAuthorization, _ VerifiedEnrollmentRequest) (EnrollmentDecision, error) {
+		started <- struct{}{}
+		select {
+		case <-release:
+			return EnrollmentDecision{Status: EnrollmentStatusRejected}, nil
+		case <-ctx.Done():
+			return EnrollmentDecision{}, ctx.Err()
+		}
+	}
+	responses := make(chan *httptest.ResponseRecorder, 16)
+	for index := 0; index < 16; index++ {
+		request := fixture.enrollmentRequest()
+		request.RequestID[0] = byte(index + 1)
+		request.RequestID[1] = 0xed
+		wire, err := SignEnrollmentRequest(context.Background(), request, fixture.requestSigner)
+		if err != nil {
+			t.Fatal(err)
+		}
+		go func() { responses <- performRuntimeRequest(fixture.runtime, "/acp/enroll", wire, nil) }()
+	}
+	for index := 0; index < 16; index++ {
+		<-started
+	}
+	overflowRequest := fixture.enrollmentRequest()
+	overflowRequest.RequestID[0] = 17
+	overflowRequest.RequestID[1] = 0xed
+	overflowWire, err := SignEnrollmentRequest(context.Background(), overflowRequest, fixture.requestSigner)
+	if err != nil {
+		t.Fatal(err)
+	}
+	overflowDone := make(chan *httptest.ResponseRecorder, 1)
+	go func() { overflowDone <- performRuntimeRequest(fixture.runtime, "/acp/enroll", overflowWire, nil) }()
+	overflow, timely := responseWithin(overflowDone, 150*time.Millisecond)
+	close(release)
+	for index := 0; index < 16; index++ {
+		response := <-responses
+		if result := parseAndVerifyRuntimeEnrollmentResult(t, response.Body.Bytes(), fixture.enrollmentSigner.public); result.Status != EnrollmentStatusRejected {
+			t.Fatalf("enrollment result = %q", result.Status)
+		}
+	}
+	if !timely {
+		<-overflowDone
+		t.Fatal("17th enrollment request reached the blocked decision service")
+	}
+	if overflow.Code != http.StatusTooManyRequests || overflow.Header().Get("Content-Type") == "application/cose" || fixture.enrollment.calls.Load() != 16 {
+		t.Fatalf("17th enrollment admission = %d %q, decisions=%d", overflow.Code, overflow.Header().Get("Content-Type"), fixture.enrollment.calls.Load())
 	}
 }
 
@@ -598,6 +1070,34 @@ func TestSourceOperatorRuntimeKeepsInfrastructureAndTransportErrorsUnsignedAndFe
 	}
 }
 
+func TestSourceOperatorRuntimeTimesOutSlowRequestBodies(t *testing.T) {
+	for _, path := range []string{"/acp/authority", "/acp/enroll"} {
+		t.Run(path, func(t *testing.T) {
+			fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), nil)
+			body := newCloseAwareBlockingBody(250 * time.Millisecond)
+			request := httptest.NewRequest(http.MethodPost, "https://source.operator"+path, nil)
+			request.Proto = "HTTP/2.0"
+			request.ProtoMajor = 2
+			request.TLS = &tls.ConnectionState{Version: tls.VersionTLS13, NegotiatedProtocol: "h2"}
+			request.Header.Set("Content-Type", "application/cose")
+			request.Body = body
+			ctx, cancel := context.WithTimeout(request.Context(), 25*time.Millisecond)
+			defer cancel()
+			request = request.WithContext(ctx)
+			response := httptest.NewRecorder()
+			started := time.Now()
+			fixture.runtime.ServeHTTP(response, request)
+			elapsed := time.Since(started)
+			if response.Code != http.StatusRequestTimeout || response.Header().Get("Content-Type") == "application/cose" || elapsed > 150*time.Millisecond {
+				t.Fatalf("slow-body result = %d %q after %v", response.Code, response.Header().Get("Content-Type"), elapsed)
+			}
+			if !body.wasClosed() {
+				t.Fatal("slow request body was not closed at its context deadline")
+			}
+		})
+	}
+}
+
 func TestSourceOperatorRuntimePinsServerTLSAndRefusesExtraEndpointsOrReplicaMisconfiguration(t *testing.T) {
 	fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), nil)
 	server, err := NewSourceOperatorHTTPServer("127.0.0.1:0", fixture.runtime, &tls.Config{Certificates: []tls.Certificate{{}}})
@@ -607,6 +1107,9 @@ func TestSourceOperatorRuntimePinsServerTLSAndRefusesExtraEndpointsOrReplicaMisc
 	if server.TLSConfig.MinVersion != tls.VersionTLS13 || server.TLSConfig.MaxVersion != tls.VersionTLS13 ||
 		len(server.TLSConfig.NextProtos) != 1 || server.TLSConfig.NextProtos[0] != "h2" {
 		t.Fatalf("server TLS profile = min %x max %x ALPN %v", server.TLSConfig.MinVersion, server.TLSConfig.MaxVersion, server.TLSConfig.NextProtos)
+	}
+	if server.ReadTimeout <= 0 || server.WriteTimeout <= 0 {
+		t.Fatalf("server whole-request timeouts = read %v write %v", server.ReadTimeout, server.WriteTimeout)
 	}
 
 	for _, path := range []string{"/", "/health", "/acp/authority/", "/acp/enroll/"} {
@@ -625,6 +1128,24 @@ func TestSourceOperatorRuntimePinsServerTLSAndRefusesExtraEndpointsOrReplicaMisc
 	query := performRuntimeRequest(fixture.runtime, "/acp/authority?profile=x", fixture.signed.Body(), nil)
 	if query.Code != http.StatusBadRequest {
 		t.Fatalf("security query response = %d", query.Code)
+	}
+	for _, alias := range []struct {
+		path string
+		raw  string
+	}{
+		{path: "/acp/authority", raw: "/acp/%61uthority"},
+		{path: "/acp/enroll", raw: "/acp/%65nroll"},
+	} {
+		beforeBootstrap := fixture.bootstrap.calls.Load()
+		response := performRuntimeRequest(fixture.runtime, alias.path, fixture.signed.Body(), func(request *http.Request) {
+			request.URL.RawPath = alias.raw
+		})
+		if response.Code != http.StatusBadRequest || response.Header().Get("Content-Type") == "application/cose" {
+			t.Fatalf("encoded alias %q = %d %q", alias.raw, response.Code, response.Header().Get("Content-Type"))
+		}
+		if fixture.bootstrap.calls.Load() != beforeBootstrap {
+			t.Fatalf("encoded enrollment alias reached bootstrap: before %d after %d", beforeBootstrap, fixture.bootstrap.calls.Load())
+		}
 	}
 
 	store := newTestFileIdempotencyStore(t, filepath.Join(t.TempDir(), "multi.cbor"), 8, 2<<20)
@@ -760,6 +1281,8 @@ type recordingOperatorSigner struct {
 	public  [32]byte
 	calls   []uint16
 	err     error
+	started chan struct{}
+	release chan struct{}
 }
 
 func newRecordingOperatorSigner(t *testing.T, purpose uint16, seedByte byte) *recordingOperatorSigner {
@@ -775,11 +1298,24 @@ func (signer *recordingOperatorSigner) Sign(ctx context.Context, message []byte)
 		return nil, err
 	}
 	signer.mu.Lock()
-	defer signer.mu.Unlock()
-	if signer.err != nil {
-		return nil, signer.err
+	signErr := signer.err
+	started, release := signer.started, signer.release
+	if signErr != nil {
+		signer.mu.Unlock()
+		return nil, signErr
 	}
 	signer.calls = append(signer.calls, signer.purpose)
+	signer.mu.Unlock()
+	if started != nil {
+		started <- struct{}{}
+	}
+	if release != nil {
+		select {
+		case <-release:
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		}
+	}
 	return ed25519.Sign(signer.private, message), nil
 }
 func (signer *recordingOperatorSigner) purposes() []uint16 {
@@ -802,14 +1338,31 @@ func (signer *recordingOperatorSigner) onlyPurpose(purpose uint16) bool {
 func (signer *recordingOperatorSigner) callCount() int { return len(signer.purposes()) }
 
 type testAuthorityService struct {
-	mu         sync.Mutex
-	generation AuthorityGeneration
-	decide     func(context.Context, VerifiedACPRequest) (ACPDecision, error)
-	calls      []ACPOperation
+	mu                sync.Mutex
+	generation        AuthorityGeneration
+	generationErr     error
+	generationStarted chan struct{}
+	generationRelease chan struct{}
+	decide            func(context.Context, VerifiedACPRequest) (ACPDecision, error)
+	calls             []ACPOperation
 }
 
-func (service *testAuthorityService) CurrentAuthorityGeneration(context.Context, string, string) (AuthorityGeneration, error) {
-	return service.generation, nil
+func (service *testAuthorityService) CurrentAuthorityGeneration(ctx context.Context, _, _ string) (AuthorityGeneration, error) {
+	service.mu.Lock()
+	generation, generationErr := service.generation, service.generationErr
+	started, release := service.generationStarted, service.generationRelease
+	service.mu.Unlock()
+	if started != nil {
+		started <- struct{}{}
+	}
+	if release != nil {
+		select {
+		case <-release:
+		case <-ctx.Done():
+			return 0, ctx.Err()
+		}
+	}
+	return generation, generationErr
 }
 func (service *testAuthorityService) DecideAuthority(ctx context.Context, request VerifiedACPRequest) (ACPDecision, error) {
 	service.mu.Lock()
@@ -1018,6 +1571,117 @@ func runtimeEnrollmentResultResolver(request EnrollmentRequestPayload, purpose u
 		}, nil
 	})
 }
+
+type delayingIdempotencyStore struct {
+	inner   TransactionalIdempotencyStore
+	started chan struct{}
+	release chan struct{}
+	once    sync.Once
+}
+
+func newDelayingIdempotencyStore(inner TransactionalIdempotencyStore) *delayingIdempotencyStore {
+	return &delayingIdempotencyStore{inner: inner, started: make(chan struct{}), release: make(chan struct{})}
+}
+
+func (store *delayingIdempotencyStore) Scope() IdempotencyStoreScope { return store.inner.Scope() }
+func (store *delayingIdempotencyStore) Begin(ctx context.Context, request IdempotencyRequest) (IdempotencyClaim, error) {
+	store.once.Do(func() { close(store.started) })
+	select {
+	case <-store.release:
+		return store.inner.Begin(ctx, request)
+	case <-ctx.Done():
+		return IdempotencyClaim{}, ctx.Err()
+	}
+}
+func (store *delayingIdempotencyStore) Complete(ctx context.Context, key IdempotencyKey, digest [32]byte, terminal []byte) error {
+	return store.inner.Complete(ctx, key, digest, terminal)
+}
+func (store *delayingIdempotencyStore) Close() error { return store.inner.Close() }
+
+type failingCompleteIdempotencyStore struct {
+	inner TransactionalIdempotencyStore
+}
+
+func (store *failingCompleteIdempotencyStore) Scope() IdempotencyStoreScope {
+	return store.inner.Scope()
+}
+func (store *failingCompleteIdempotencyStore) Begin(ctx context.Context, request IdempotencyRequest) (IdempotencyClaim, error) {
+	return store.inner.Begin(ctx, request)
+}
+func (*failingCompleteIdempotencyStore) Complete(context.Context, IdempotencyKey, [32]byte, []byte) error {
+	return errors.New("durable completion unavailable")
+}
+func (store *failingCompleteIdempotencyStore) Close() error { return store.inner.Close() }
+
+func newRuntimeWithStore(t *testing.T, fixture *sourceOperatorRuntimeFixture, store TransactionalIdempotencyStore) *SourceOperatorRuntime {
+	t.Helper()
+	runtime, err := NewSourceOperatorRuntime(fixture.config(store))
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = runtime.Close() })
+	return runtime
+}
+
+func signedWrongVersionRequest(t *testing.T, fixture *sourceOperatorRuntimeFixture, marker byte) []byte {
+	t.Helper()
+	fields := mustDecodeMap(t, fixture.signed.Payload())
+	fields[0] = uint64(2)
+	requestID := append([]byte(nil), fields[2].([]byte)...)
+	requestID[0], requestID[1] = marker, 0xdc
+	fields[2] = requestID
+	return mustSignRawACPRequest(t, fields, fixture.requestSigner)
+}
+
+func signedConflictingAuthorityRequest(t *testing.T, fixture *sourceOperatorRuntimeFixture, offset int) []byte {
+	t.Helper()
+	request := cloneACPRequest(fixture.request)
+	request.DeadlineUnix -= uint64(offset)
+	signed, err := SignACPAcquireRequest(context.Background(), request, fixture.requestSigner, fixture.now.Load())
+	if err != nil {
+		t.Fatal(err)
+	}
+	return signed.Body()
+}
+
+func responseWithin(channel <-chan *httptest.ResponseRecorder, timeout time.Duration) (*httptest.ResponseRecorder, bool) {
+	select {
+	case response := <-channel:
+		return response, true
+	case <-time.After(timeout):
+		return nil, false
+	}
+}
+
+type closeAwareBlockingBody struct {
+	closed   chan struct{}
+	closeOne sync.Once
+	flag     atomic.Bool
+	fallback time.Duration
+}
+
+func newCloseAwareBlockingBody(fallback time.Duration) *closeAwareBlockingBody {
+	return &closeAwareBlockingBody{closed: make(chan struct{}), fallback: fallback}
+}
+
+func (body *closeAwareBlockingBody) Read([]byte) (int, error) {
+	select {
+	case <-body.closed:
+		return 0, errors.New("body closed")
+	case <-time.After(body.fallback):
+		return 0, errors.New("slow body fallback")
+	}
+}
+
+func (body *closeAwareBlockingBody) Close() error {
+	body.closeOne.Do(func() {
+		body.flag.Store(true)
+		close(body.closed)
+	})
+	return nil
+}
+
+func (body *closeAwareBlockingBody) wasClosed() bool { return body.flag.Load() }
 
 type failingReader struct{}
 
