@@ -14,7 +14,7 @@
 | --- | --- | --- | --- |
 | 3R-A | Windows trusted enrollment storage root/path/ACL/reparse protection + fixed-path lock target + real cross-process exclusive LockFileEx lock acquisition | `10be800200b68f568d3c373d0f9d69a501553092` | COMPLETE |
 | 3R-B | Windows secure enrollment-state persistence + DPAPI-backed integrity key material + bounded state installation + envelope verification, load, and corruption handling | `420b2685a4f11157bedf87ce5bb80908496666fe` | COMPLETE |
-| 3R-C | transport/enrollment ACP runtime implementation | Tasks 1–2: see task commits below | IN PROGRESS — Tasks 1–2 complete; Tasks 3–4 not started |
+| 3R-C | transport/enrollment ACP runtime implementation | Tasks 1–3: see task commits below | IN PROGRESS — Tasks 1–3 complete; Task 4 not started |
 
 ## 3R-C Task 1 — frozen ACP wire codec
 
@@ -40,6 +40,18 @@
 - Frozen protocol SHA-256: ACP `e795abf0a078c2dfe9bdf56d705fde67a1355bd28eb1cd35b5dc6efb0a5dad24`; Enrollment `9d73983828f48b51a2b2e31c4637f1fe6f00b1505071faeef0be43d0e9504cd0`.
 - Remote SHA: must equal this Task 2 commit after the authorized normal push; exact SHA is recorded in the task report.
 - Next task: 3R-C Task 3 — minimal Source Operator HTTP/2 runtime. Tranche 3 has not started.
+
+## 3R-C Task 3 — minimal Source Operator HTTP/2 runtime
+
+- Status: IMPLEMENTATION COMPLETE; pending controller independent review.
+- Starting SHA: `7018deb0170ad200562233419ce66f8086042905`.
+- Final commit: this Task 3 commit (`feat(acp): add source operator control-plane runtime`); exact SHA is recorded by Git history and the task report because a commit cannot contain its own SHA.
+- Files changed: strict authenticated ACP request decoding; two-endpoint TLS 1.3/HTTP/2 Source Operator runtime and tests; narrow transactional idempotency contract; bounded, restart-safe, explicitly single-node file backend with Windows/Unix locking and atomic persistence; authority package/error updates; recovery evidence.
+- Focused verification: file-store/runtime tests PASS; complete authority package PASS; complete authority race PASS; authority `go vet` PASS; Linux/amd64 compile-only PASS with `CGO_ENABLED=0`.
+- Reviewer verdict: pending controller independent review; implementation-agent self-review findings were reproduced RED, fixed, and returned GREEN.
+- Frozen protocol SHA-256: ACP `e795abf0a078c2dfe9bdf56d705fde67a1355bd28eb1cd35b5dc6efb0a5dad24`; Enrollment `9d73983828f48b51a2b2e31c4637f1fe6f00b1505071faeef0be43d0e9504cd0`.
+- Remote SHA: must equal this Task 3 commit after the authorized normal push; exact SHA is recorded by the task handoff and Git refs.
+- Next task: 3R-C Task 4 — startup orchestration and real interoperability closure. Task 4 and Tranche 3 have not started.
 
 ## 3R-A completion evidence
 
