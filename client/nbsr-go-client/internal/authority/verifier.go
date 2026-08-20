@@ -61,6 +61,14 @@ func (resolver *StaticIssuerResolver) ResolveEnrollmentResultIssuer(_ context.Co
 	return resolver.resolveIssuerByPurpose(kid, profile, sourceOperator, now, expectedPurpose)
 }
 
+func (resolver *StaticIssuerResolver) ResolveACPResultIssuer(_ context.Context, kid []byte, profile, sourceOperator string, now uint64) (IssuerRecord, error) {
+	expectedPurpose, err := ACPResultSigningPurpose()
+	if err != nil {
+		return IssuerRecord{}, err
+	}
+	return resolver.resolveIssuerByPurpose(kid, profile, sourceOperator, now, expectedPurpose)
+}
+
 func (resolver *StaticIssuerResolver) resolveIssuerByPurpose(kid []byte, profile, sourceOperator string, now uint64, expectedPurpose uint16) (IssuerRecord, error) {
 	if resolver == nil || len(kid) < 1 || len(kid) > 64 || profile == "" || sourceOperator == "" || now == 0 {
 		return IssuerRecord{}, ErrUnknownIdentity
