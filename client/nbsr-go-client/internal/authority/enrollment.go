@@ -147,7 +147,10 @@ func SignEnrollmentRequest(ctx context.Context, request EnrollmentRequestPayload
 		len(ref.ID) == 0 {
 		return nil, ErrBindingMismatch
 	}
-	protected := mustEncodeCBOR(map[uint64]any{1: int64(-8), 4: ref.ID[:]})
+	protected, err := encodeCBOR(map[uint64]any{1: int64(-8), 4: ref.ID[:]})
+	if err != nil {
+		return nil, err
+	}
 	sigStructure, err := encodeEnrollmentRequestSigStructure(protected, requestPayload)
 	if err != nil {
 		return nil, err
