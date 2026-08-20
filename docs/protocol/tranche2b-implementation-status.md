@@ -1,7 +1,8 @@
 # Tranche 2B implementation status (recovered ledger)
 
 - Starting verified frozen baseline: `1938154d498b32d81a3564319969430644e8a688` (`main`).
-- Current local and remote working-branch SHA: `8d9b2a4a22248353a278810e560b5a39fbe4ce8f`.
+- Audit starting local and remote working-branch SHA: `891ea07218977630aa80a073b1625db4cfcd515b`.
+- Current local audit repair commit: `aa734d755453ca2a7f18623e68102e4c0e4cd805`; remote remains unchanged because this audit forbids push.
 - No dedicated Tranche 2B plan file was found in-repo; this status is reconstructed from
   - protocol freezes (`docs/protocol/status.md`, `docs/protocol/tranche2b-...`)
   - authoritative commit history from the tranche baseline
@@ -52,14 +53,26 @@
 ## Frozen-spec hash verification (pre/post 3R-B)
 
 - `docs/protocol/tranche2b-acp-wire-semantics-draft.md`:
-  - pre/post SHA256 `fb5dfe3c31cb5e42f799b19061c73c3b9708eebd`
+  - Git blob OID `fb5dfe3c31cb5e42f799b19061c73c3b9708eebd`
+  - SHA-256 `0b84be9caaa2e9b15c58fb789e7da9046fa5d64b82b6d72e7566fe327a9be42f`
 - `docs/protocol/tranche2b-enrollment-wire-semantics.md`:
-  - pre/post SHA256 `4ea066e125d54832d96b498fc39a8b8f2d6346ac`
+  - Git blob OID `4ea066e125d54832d96b498fc39a8b8f2d6346ac`
+  - SHA-256 `9d73983828f48b51a2b2e31c4637f1fe6f00b1505071faeef0be43d0e9504cd0`
 
 ## Protected refs and lineage
 
 - Main/reference anchor (`main` and `origin/main`): `1938154d498b32d81a3564319969430644e8a688`.
-- Working branch (`codex/nbsr-v3-wp0-wp1`) and remote branch are both at `8d9b2a4a22248353a278810e560b5a39fbe4ce8f`.
+- Local working branch contains audit repair commit `aa734d755453ca2a7f18623e68102e4c0e4cd805`; remote working branch intentionally remains `891ea07218977630aa80a073b1625db4cfcd515b`.
+
+## Spark 5.3 audit status
+
+- Formal diff scan: `09bc15e3-94f1-41d2-bc13-52b8b18fd365`.
+- Original validated findings: four High and one Medium across path/lock integration, no-overwrite installation, lock lifecycle, bounded storage, and ACL enforcement.
+- Repair commit: `aa734d755453ca2a7f18623e68102e4c0e4cd805`.
+- Fresh tests passed: complete authority/identity; both race suites; real subprocess contention, writer race, abnormal lock teardown, and crashes before/after installation; required reparse/ACL fixtures with zero skips; parser fuzz; vet; Linux compile-only; formatting and whitespace checks.
+- Independent spec, security, and Windows/storage scoped re-reviews found no remaining Critical, Important, or Minor code issue.
+- Dedicated-service-account DPAPI restart stability remains an external acceptance blocker because no NBSR service identity/service profile is provisioned on this host. Same-token subprocess restart evidence is not represented as service-account evidence.
+- 3R-C remains NOT STARTED.
 
 ## NEXT_TASK (from current available plan artifacts)
 
