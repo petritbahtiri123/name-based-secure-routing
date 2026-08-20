@@ -1,7 +1,7 @@
 # Tranche 2B implementation status (recovered ledger)
 
 - Starting verified frozen baseline: `1938154d498b32d81a3564319969430644e8a688` (`main`).
-- Current local and remote working-branch SHA: `37d39ade8c4a0beabcec4297bbf25270c4517061`.
+- Current local and remote working-branch SHA: `8d9b2a4a22248353a278810e560b5a39fbe4ce8f`.
 - No dedicated Tranche 2B plan file was found in-repo; this status is reconstructed from
   - protocol freezes (`docs/protocol/status.md`, `docs/protocol/tranche2b-...`)
   - authoritative commit history from the tranche baseline
@@ -59,7 +59,7 @@
 ## Protected refs and lineage
 
 - Main/reference anchor (`main` and `origin/main`): `1938154d498b32d81a3564319969430644e8a688`.
-- Working branch (`codex/nbsr-v3-wp0-wp1`) and remote branch are both at `37d39ade8c4a0beabcec4297bbf25270c4517061`.
+- Working branch (`codex/nbsr-v3-wp0-wp1`) and remote branch are both at `8d9b2a4a22248353a278810e560b5a39fbe4ce8f`.
 
 ## NEXT_TASK (from current available plan artifacts)
 

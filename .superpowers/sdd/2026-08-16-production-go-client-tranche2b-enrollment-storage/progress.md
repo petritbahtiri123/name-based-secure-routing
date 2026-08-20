@@ -29,4 +29,8 @@ Tranche 2B protocol freeze hash checks (unchanged):
 - `fb5dfe3c31cb5e42f799b19061c73c3b9708eebd` (`docs/protocol/tranche2b-acp-wire-semantics-draft.md`)
 - `4ea066e125d54832d96b498fc39a8b8f2d6346ac` (`docs/protocol/tranche2b-enrollment-wire-semantics.md`)
 
+Current working branch: `codex/nbsr-v3-wp0-wp1`.
+Verified local and remote branch SHA at recovery: `8d9b2a4a22248353a278810e560b5a39fbe4ce8f`.
+Working-branch history from frozen anchor: `420b2685a4f11157bedf87ce5bb80908496666fe` (3R-B tip) plus this progress repair chain.
+
 NEXT_TASK = Tranche 2B transport + enrollment control-plane runtime (HTTP/TLS provider/enrollment wire implementation).
