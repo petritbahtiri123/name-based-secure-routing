@@ -208,11 +208,7 @@ func cleanupEnrollmentStateTemps(root string) error {
 }
 
 func applyDirectorySecurityToPath(filePath, source string) error {
-	sd, err := windows.GetNamedSecurityInfo(source, windows.SE_FILE_OBJECT, windows.OWNER_SECURITY_INFORMATION|windows.DACL_SECURITY_INFORMATION)
-	if err != nil {
-		return err
-	}
-	owner, _, err := sd.Owner()
+	sd, err := windows.GetNamedSecurityInfo(source, windows.SE_FILE_OBJECT, windows.DACL_SECURITY_INFORMATION)
 	if err != nil {
 		return err
 	}
@@ -223,8 +219,8 @@ func applyDirectorySecurityToPath(filePath, source string) error {
 	return windows.SetNamedSecurityInfo(
 		filePath,
 		windows.SE_FILE_OBJECT,
-		windows.OWNER_SECURITY_INFORMATION|windows.DACL_SECURITY_INFORMATION,
-		owner,
+		windows.DACL_SECURITY_INFORMATION,
+		nil,
 		nil,
 		dacl,
 		nil,
