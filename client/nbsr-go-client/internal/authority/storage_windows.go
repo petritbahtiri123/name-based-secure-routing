@@ -51,14 +51,21 @@ var (
 )
 
 var getCurrentProcessSID = func() (string, error) {
-	user, err := windows.GetCurrentProcessToken().GetTokenUser()
-	if err != nil {
+	token := windows.GetCurrentProcessToken()
+	var size uint32
+	err := windows.GetTokenInformation(token, windows.TokenOwner, nil, 0, &size)
+	if err != windows.ERROR_INSUFFICIENT_BUFFER {
 		return "", err
 	}
-	if user == nil || user.User.Sid == nil {
-		return "", fmt.Errorf("missing token user SID")
+	buffer := make([]byte, size)
+	if err := windows.GetTokenInformation(token, windows.TokenOwner, &buffer[0], size, &size); err != nil {
+		return "", err
 	}
-	return user.User.Sid.String(), nil
+	owner := *(**windows.SID)(unsafe.Pointer(&buffer[0]))
+	if owner == nil {
+		return "", fmt.Errorf("missing token owner SID")
+	}
+	return owner.String(), nil
 }
 
 func ResolveEnrollmentStatePaths() (EnrollmentStatePaths, error) {
