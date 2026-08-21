@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"path/filepath"
+	"runtime"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -838,7 +839,11 @@ func TestSourceOperatorRuntimeReturnsSignedResourceExhaustedAtSixteenOperationCa
 	if err != nil {
 		t.Fatal(err)
 	}
-	overflow := performRuntimeRequest(fixture.runtime, "/acp/authority", seventeenth.Body(), nil)
+	overflowDone := make(chan *httptest.ResponseRecorder, 1)
+	go func() {
+		overflowDone <- performRuntimeRequest(fixture.runtime, "/acp/authority", seventeenth.Body(), nil)
+	}()
+	time.Sleep(50 * time.Millisecond)
 	decisionsBeforeRelease := fixture.authority.callCount()
 	signaturesBeforeRelease := fixture.acpSigner.callCount()
 	close(release)
@@ -847,6 +852,7 @@ func TestSourceOperatorRuntimeReturnsSignedResourceExhaustedAtSixteenOperationCa
 			t.Fatalf("admitted response status = %d", response.Code)
 		}
 	}
+	overflow := <-overflowDone
 	verified, err := ParseVerifiedACPResult(
 		context.Background(), overflow.Body.Bytes(), seventeenth,
 		mustACPResultResolver(t, seventeenth, 15, fixture.acpSigner.public, fixture.acpSigner.kid),
@@ -858,7 +864,7 @@ func TestSourceOperatorRuntimeReturnsSignedResourceExhaustedAtSixteenOperationCa
 	if overflow.Code != http.StatusOK || overflow.Header().Get("Content-Type") != "application/cose" ||
 		verified.Status() != ACPResultStatusResourceExhausted ||
 		verified.AuthorityGeneration() != seventeenth.AuthorityGeneration() ||
-		decisionsBeforeRelease != 16 || signaturesBeforeRelease != 1 || fixture.authority.callCount() != 16 ||
+		decisionsBeforeRelease != 16 || signaturesBeforeRelease != 0 || fixture.authority.callCount() != 16 ||
 		!fixture.acpSigner.onlyPurpose(15) {
 		t.Fatalf(
 			"17th terminal = HTTP %d %q status=%q generation=%d decisions=%d/%d signatures-before=%d purposes=%v",
@@ -891,6 +897,286 @@ func TestSourceOperatorRuntimeReturnsSignedResourceExhaustedAtSixteenOperationCa
 	}
 }
 
+func TestSourceOperatorRuntimeNeverCreatesSeventeenthAuthenticatedLifecycleOrUnsignedOverload(t *testing.T) {
+	fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), nil)
+	fixture.acpSigner.started = make(chan struct{}, 20)
+	fixture.acpSigner.release = make(chan struct{})
+	var releaseOnce sync.Once
+	releaseSigner := func() { releaseOnce.Do(func() { close(fixture.acpSigner.release) }) }
+	defer releaseSigner()
+
+	responses := make(chan *httptest.ResponseRecorder, 16)
+	for index := 0; index < 16; index++ {
+		body := signedWrongVersionRequest(t, fixture, byte(index+1))
+		go func() { responses <- performRuntimeRequest(fixture.runtime, "/acp/authority", body, nil) }()
+	}
+	for index := 0; index < 16; index++ {
+		<-fixture.acpSigner.started
+	}
+
+	overloadRequests := []SignedACPRequest{
+		signedAuthorityRequestWithMarker(t, fixture, 17, 0xd1),
+		signedAuthorityRequestWithMarker(t, fixture, 18, 0xd1),
+	}
+	type overloadOutcome struct {
+		request  SignedACPRequest
+		response *httptest.ResponseRecorder
+	}
+	overloadResponses := make(chan overloadOutcome, len(overloadRequests))
+	for _, signed := range overloadRequests {
+		signed := signed
+		go func() {
+			overloadResponses <- overloadOutcome{
+				request: signed, response: performRuntimeRequest(fixture.runtime, "/acp/authority", signed.Body(), nil),
+			}
+		}()
+	}
+
+	time.Sleep(50 * time.Millisecond)
+	fixture.runtime.mu.Lock()
+	authenticated := 0
+	for _, count := range fixture.runtime.active {
+		authenticated += count
+	}
+	fixture.runtime.mu.Unlock()
+	if authenticated > maxSourceOperatorConcurrentPerActor {
+		t.Fatalf("maximum authenticated lifecycles = %d, want <= %d", authenticated, maxSourceOperatorConcurrentPerActor)
+	}
+	if got := len(fixture.acpSigner.started); got != 0 {
+		t.Fatalf("%d overload requests entered authenticated result signing before capacity was released", got)
+	}
+
+	releaseSigner()
+	for index := 0; index < 16; index++ {
+		if response := <-responses; response.Code != http.StatusOK {
+			t.Fatalf("admitted response %d = HTTP %d", index, response.Code)
+		}
+	}
+	for index := range overloadRequests {
+		outcome := <-overloadResponses
+		response, signed := outcome.response, outcome.request
+		if response.Code == http.StatusTooManyRequests || response.Header().Get("Content-Type") != "application/cose" {
+			t.Fatalf("overload response %d = HTTP %d %q", index, response.Code, response.Header().Get("Content-Type"))
+		}
+		verified, err := ParseVerifiedACPResult(
+			context.Background(), response.Body.Bytes(), signed,
+			mustACPResultResolver(t, signed, 15, fixture.acpSigner.public, fixture.acpSigner.kid), fixture.now.Load(),
+		)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if verified.Status() != ACPResultStatusResourceExhausted || verified.Artifact() != nil {
+			t.Fatalf("overload response %d status=%q artifact=%x", index, verified.Status(), verified.Artifact())
+		}
+	}
+	if !fixture.acpSigner.onlyPurpose(15) {
+		t.Fatalf("result signer purposes = %v", fixture.acpSigner.purposes())
+	}
+}
+
+func TestSourceOperatorRuntimeCapacityWaitHonorsCancellationWithoutLeakingState(t *testing.T) {
+	started := make(chan struct{}, 16)
+	release := make(chan struct{})
+	fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), func(ctx context.Context, request VerifiedACPRequest) (ACPDecision, error) {
+		started <- struct{}{}
+		select {
+		case <-release:
+			return testSuccessACPDecision(request), nil
+		case <-ctx.Done():
+			return ACPDecision{}, ctx.Err()
+		}
+	})
+	responses := make(chan *httptest.ResponseRecorder, 16)
+	for index := 0; index < 16; index++ {
+		signed := signedAuthorityRequestWithMarker(t, fixture, byte(index+1), 0xd2)
+		go func() { responses <- performRuntimeRequest(fixture.runtime, "/acp/authority", signed.Body(), nil) }()
+	}
+	for index := 0; index < 16; index++ {
+		<-started
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	waiting := signedAuthorityRequestWithMarker(t, fixture, 17, 0xd2)
+	waitingDone := make(chan *httptest.ResponseRecorder, 1)
+	go func() {
+		waitingDone <- performRuntimeRequest(fixture.runtime, "/acp/authority", waiting.Body(), func(request *http.Request) {
+			*request = *request.WithContext(ctx)
+		})
+	}()
+	deadline := time.Now().Add(time.Second)
+	for {
+		fixture.runtime.mu.Lock()
+		queued := fixture.runtime.waiting[sourceOperatorActorScope{
+			namespace: "authority", deviceID: fixture.request.Device.ID,
+			generation: fixture.request.Device.CredentialGeneration, profile: fixture.runtime.profile,
+		}]
+		fixture.runtime.mu.Unlock()
+		if queued == 1 {
+			break
+		}
+		if time.Now().After(deadline) {
+			t.Fatal("capacity waiter was not registered")
+		}
+		runtime.Gosched()
+	}
+	cancel()
+	if response := <-waitingDone; response.Code != http.StatusRequestTimeout {
+		t.Fatalf("canceled capacity waiter = HTTP %d", response.Code)
+	}
+	fixture.runtime.mu.Lock()
+	queued := len(fixture.runtime.waiting) + len(fixture.runtime.waitingExact)
+	active := fixture.runtime.active[sourceOperatorActorScope{
+		namespace: "authority", deviceID: fixture.request.Device.ID,
+		generation: fixture.request.Device.CredentialGeneration, profile: fixture.runtime.profile,
+	}]
+	fixture.runtime.mu.Unlock()
+	if queued != 0 || active != 16 {
+		t.Fatalf("post-cancel lifecycle state waiting=%d active=%d", queued, active)
+	}
+	close(release)
+	for index := 0; index < 16; index++ {
+		<-responses
+	}
+	fixture.runtime.mu.Lock()
+	defer fixture.runtime.mu.Unlock()
+	if len(fixture.runtime.waiting) != 0 || len(fixture.runtime.waitingExact) != 0 || len(fixture.runtime.active) != 0 {
+		t.Fatalf("final lifecycle state waiting=%v exact=%v active=%v", fixture.runtime.waiting, fixture.runtime.waitingExact, fixture.runtime.active)
+	}
+}
+
+func TestSourceOperatorRuntimeCapacityQueuePreservesFourDuplicateWaitersAndExactReplay(t *testing.T) {
+	fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), nil)
+	fixture.acpSigner.started = make(chan struct{}, 20)
+	fixture.acpSigner.release = make(chan struct{})
+	var releaseOnce sync.Once
+	releaseSigner := func() { releaseOnce.Do(func() { close(fixture.acpSigner.release) }) }
+	defer releaseSigner()
+	responses := make(chan *httptest.ResponseRecorder, 16)
+	for index := 0; index < 16; index++ {
+		body := signedWrongVersionRequest(t, fixture, byte(index+1))
+		go func() { responses <- performRuntimeRequest(fixture.runtime, "/acp/authority", body, nil) }()
+	}
+	for index := 0; index < 16; index++ {
+		<-fixture.acpSigner.started
+	}
+
+	overload := signedAuthorityRequestWithMarker(t, fixture, 17, 0xd3)
+	duplicates := make(chan *httptest.ResponseRecorder, maxSourceOperatorDuplicateWaiters+1)
+	for index := 0; index < maxSourceOperatorDuplicateWaiters+1; index++ {
+		go func() {
+			duplicates <- performRuntimeRequest(fixture.runtime, "/acp/authority", overload.Body(), nil)
+		}()
+	}
+	pendingKey := sourceOperatorPendingKey{key: IdempotencyKey{
+		Namespace: "authority", SourceOperator: overload.SourceOperator(), Profile: overload.Profile(),
+		ActorID: fixture.request.Device.ID, ActorGeneration: fixture.request.Device.CredentialGeneration,
+		Operation: string(overload.Operation()), RequestID: overload.RequestID(),
+	}, digest: overload.Digest()}
+	deadline := time.Now().Add(time.Second)
+	for {
+		fixture.runtime.mu.Lock()
+		queued := fixture.runtime.waitingExact[pendingKey]
+		fixture.runtime.mu.Unlock()
+		if queued == maxSourceOperatorDuplicateWaiters+1 {
+			break
+		}
+		if time.Now().After(deadline) {
+			t.Fatalf("exact capacity queue = %d, want %d", queued, maxSourceOperatorDuplicateWaiters+1)
+		}
+		runtime.Gosched()
+	}
+	sixth := performRuntimeRequest(fixture.runtime, "/acp/authority", overload.Body(), nil)
+	if sixth.Code != http.StatusServiceUnavailable || sixth.Header().Get("Content-Type") == "application/cose" {
+		t.Fatalf("sixth pre-auth capacity request = HTTP %d %q", sixth.Code, sixth.Header().Get("Content-Type"))
+	}
+
+	releaseSigner()
+	for index := 0; index < 16; index++ {
+		<-responses
+	}
+	var exact []byte
+	for index := 0; index < maxSourceOperatorDuplicateWaiters+1; index++ {
+		response := <-duplicates
+		if response.Code != http.StatusOK || response.Header().Get("Content-Type") != "application/cose" {
+			t.Fatalf("capacity duplicate %d = HTTP %d %q", index, response.Code, response.Header().Get("Content-Type"))
+		}
+		if exact == nil {
+			exact = append([]byte(nil), response.Body.Bytes()...)
+		} else if !bytes.Equal(exact, response.Body.Bytes()) {
+			t.Fatalf("capacity duplicate %d did not receive exact terminal bytes", index)
+		}
+	}
+	result := parseAndVerifyRuntimeACPResult(t, exact, fixture.acpSigner.public)
+	if result.Status != ACPResultStatusResourceExhausted || fixture.authority.callCount() != 0 ||
+		fixture.acpSigner.callCount() != 17 {
+		t.Fatalf("capacity duplicate status=%q decisions=%d signatures=%d", result.Status, fixture.authority.callCount(), fixture.acpSigner.callCount())
+	}
+}
+
+func TestSourceOperatorRuntimeRetainsExactReservationUntilPendingHandoff(t *testing.T) {
+	fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), nil)
+	scope := sourceOperatorActorScope{
+		namespace: "authority", deviceID: fixture.request.Device.ID,
+		generation: fixture.request.Device.CredentialGeneration, profile: fixture.runtime.profile,
+	}
+	pendingKey := sourceOperatorPendingKey{key: IdempotencyKey{
+		Namespace: "authority", SourceOperator: fixture.signed.SourceOperator(), Profile: fixture.signed.Profile(),
+		ActorID: fixture.request.Device.ID, ActorGeneration: fixture.request.Device.CredentialGeneration,
+		Operation: string(fixture.signed.Operation()), RequestID: fixture.signed.RequestID(),
+	}, digest: fixture.signed.Digest()}
+	fixture.runtime.mu.Lock()
+	fixture.runtime.active[scope] = maxSourceOperatorConcurrentPerActor
+	fixture.runtime.waiting[scope] = maxSourceOperatorDuplicateWaiters
+	fixture.runtime.waitingExact[pendingKey] = maxSourceOperatorDuplicateWaiters
+	fixture.runtime.mu.Unlock()
+
+	type acquisition struct {
+		waited bool
+		err    error
+	}
+	acquired := make(chan acquisition, 1)
+	go func() {
+		waited, err := fixture.runtime.acquireAuthorityLifecycle(
+			context.Background(), scope, pendingKey, fixture.now.Load()+30, fixture.now.Load(),
+		)
+		acquired <- acquisition{waited: waited, err: err}
+	}()
+	deadline := time.Now().Add(time.Second)
+	for {
+		fixture.runtime.mu.Lock()
+		queued := fixture.runtime.waitingExact[pendingKey]
+		fixture.runtime.mu.Unlock()
+		if queued == maxSourceOperatorDuplicateWaiters+1 {
+			break
+		}
+		if time.Now().After(deadline) {
+			t.Fatalf("handoff queue = %d, want %d", queued, maxSourceOperatorDuplicateWaiters+1)
+		}
+		runtime.Gosched()
+	}
+	fixture.runtime.releaseAuthorityLifecycle(scope)
+	result := <-acquired
+	if result.err != nil || !result.waited {
+		t.Fatalf("handoff acquisition waited=%v err=%v", result.waited, result.err)
+	}
+	fixture.runtime.mu.Lock()
+	reserved := fixture.runtime.waitingExact[pendingKey]
+	active := fixture.runtime.active[scope]
+	fixture.runtime.mu.Unlock()
+	if reserved != maxSourceOperatorDuplicateWaiters+1 || active != maxSourceOperatorConcurrentPerActor {
+		t.Fatalf("handoff state exact=%d active=%d", reserved, active)
+	}
+
+	_, err := fixture.runtime.acquireAuthorityLifecycle(
+		context.Background(), scope, pendingKey, fixture.now.Load()+30, fixture.now.Load(),
+	)
+	if !errors.Is(err, ErrPendingCapacity) {
+		t.Fatalf("sixth exact request error = %v, want pending capacity", err)
+	}
+	fixture.runtime.releaseCapacityReservation(scope, pendingKey)
+	fixture.runtime.releaseAuthorityLifecycle(scope)
+}
+
 func TestSourceOperatorRuntimeExpiresOverloadThatFinishesAtTheRequestDeadline(t *testing.T) {
 	started := make(chan struct{}, 16)
 	release := make(chan struct{})
@@ -916,13 +1202,18 @@ func TestSourceOperatorRuntimeExpiresOverloadThatFinishesAtTheRequestDeadline(t 
 		<-started
 	}
 	overflowRequest := signedAuthorityRequestWithMarker(t, fixture, 17, 0xcd)
-	overflow := performRuntimeRequest(fixture.runtime, "/acp/authority", overflowRequest.Body(), nil)
+	overflowDone := make(chan *httptest.ResponseRecorder, 1)
+	go func() {
+		overflowDone <- performRuntimeRequest(fixture.runtime, "/acp/authority", overflowRequest.Body(), nil)
+	}()
+	time.Sleep(50 * time.Millisecond)
 	close(release)
 	for index := 0; index < 16; index++ {
 		if response := <-responses; response.Code != http.StatusOK {
 			t.Fatalf("deadline admitted response = %d", response.Code)
 		}
 	}
+	overflow := <-overflowDone
 	result := parseAndVerifyRuntimeACPResult(t, overflow.Body.Bytes(), fixture.acpSigner.public)
 	if overflow.Code != http.StatusOK || result.Status != ACPResultStatusRequestExpired ||
 		fixture.authority.callCount() != 16 || !fixture.acpSigner.onlyPurpose(15) {
@@ -962,13 +1253,18 @@ func TestSourceOperatorRuntimeReturnsSignedResourceExhaustedForZeroCursorFreshne
 		t, fixture,
 		RequestID{17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2},
 	)
-	overflow := performRuntimeRequest(fixture.runtime, "/acp/authority", freshness.Body(), nil)
+	overflowDone := make(chan *httptest.ResponseRecorder, 1)
+	go func() {
+		overflowDone <- performRuntimeRequest(fixture.runtime, "/acp/authority", freshness.Body(), nil)
+	}()
+	time.Sleep(50 * time.Millisecond)
 	close(release)
 	for index := 0; index < 16; index++ {
 		if response := <-responses; response.Code != http.StatusOK {
 			t.Fatalf("freshness admitted response = %d", response.Code)
 		}
 	}
+	overflow := <-overflowDone
 	verified, err := ParseVerifiedACPResult(
 		context.Background(), overflow.Body.Bytes(), freshness,
 		mustACPResultResolver(t, freshness, 15, fixture.acpSigner.public, fixture.acpSigner.kid),
@@ -986,201 +1282,6 @@ func TestSourceOperatorRuntimeReturnsSignedResourceExhaustedForZeroCursorFreshne
 			verified.AuthorityGeneration(), fixture.authority.callCount(),
 		)
 	}
-}
-
-func TestSourceOperatorRuntimeCapsAuthenticatedInvalidAndConflictWork(t *testing.T) {
-	t.Run("signed invalid generation lookup", func(t *testing.T) {
-		fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), nil)
-		fixture.authority.generationStarted = make(chan struct{}, 17)
-		fixture.authority.generationRelease = make(chan struct{})
-		responses := make(chan *httptest.ResponseRecorder, 16)
-		for index := 0; index < 16; index++ {
-			body := signedWrongVersionRequest(t, fixture, byte(index+1))
-			go func() { responses <- performRuntimeRequest(fixture.runtime, "/acp/authority", body, nil) }()
-		}
-		for index := 0; index < 16; index++ {
-			<-fixture.authority.generationStarted
-		}
-		overflowDone := make(chan *httptest.ResponseRecorder, 1)
-		overflowRequest := signedZeroCursorFreshnessRequest(
-			t, fixture, RequestID{17, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15},
-		)
-		go func() {
-			overflowDone <- performRuntimeRequest(fixture.runtime, "/acp/authority", overflowRequest.Body(), nil)
-		}()
-		select {
-		case <-fixture.authority.generationStarted:
-		case <-time.After(time.Second):
-			t.Fatal("bounded overload terminal never reached the generation dependency")
-		}
-		distinctRequest := signedAuthorityRequestWithMarker(t, fixture, 18, 0xca)
-		distinctDone := make(chan *httptest.ResponseRecorder, 1)
-		go func() {
-			distinctDone <- performRuntimeRequest(fixture.runtime, "/acp/authority", distinctRequest.Body(), nil)
-		}()
-		distinct, timely := responseWithin(distinctDone, 150*time.Millisecond)
-		signaturesBeforeRelease := fixture.acpSigner.callCount()
-		close(fixture.authority.generationRelease)
-		overflow := <-overflowDone
-		for index := 0; index < 16; index++ {
-			response := <-responses
-			if result := parseAndVerifyRuntimeACPResult(t, response.Body.Bytes(), fixture.acpSigner.public); result.Status != ACPResultStatusUnsupportedVersion {
-				t.Fatalf("invalid result = %q", result.Status)
-			}
-		}
-		if !timely {
-			t.Fatal("second distinct overload request bypassed the blocked generation bound")
-		}
-		verified, err := ParseVerifiedACPResult(
-			context.Background(), overflow.Body.Bytes(), overflowRequest,
-			mustACPResultResolver(t, overflowRequest, 15, fixture.acpSigner.public, fixture.acpSigner.kid),
-			fixture.now.Load(),
-		)
-		if err != nil {
-			t.Fatal(err)
-		}
-		if overflow.Code != http.StatusOK || overflow.Header().Get("Content-Type") != "application/cose" ||
-			verified.Status() != ACPResultStatusResourceExhausted || signaturesBeforeRelease != 0 ||
-			distinct.Code != http.StatusTooManyRequests || distinct.Header().Get("Content-Type") == "application/cose" ||
-			fixture.authority.callCount() != 0 || len(fixture.authority.generationStarted) != 0 {
-			t.Fatalf(
-				"17th generation-blocked terminal = HTTP %d %q status=%q signatures-before=%d distinct=%d decisions=%d queued-generation=%d",
-				overflow.Code, overflow.Header().Get("Content-Type"), verified.Status(), signaturesBeforeRelease,
-				distinct.Code, fixture.authority.callCount(), len(fixture.authority.generationStarted),
-			)
-		}
-	})
-
-	t.Run("request id conflict signing", func(t *testing.T) {
-		fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), nil)
-		first := performRuntimeRequest(fixture.runtime, "/acp/authority", fixture.signed.Body(), nil)
-		if first.Code != http.StatusOK {
-			t.Fatalf("initial status = %d", first.Code)
-		}
-		fixture.authority.generationStarted = make(chan struct{}, 17)
-		fixture.authority.generationRelease = make(chan struct{})
-		responses := make(chan *httptest.ResponseRecorder, 16)
-		for index := 0; index < 16; index++ {
-			body := signedConflictingAuthorityRequest(t, fixture, index+1)
-			go func() { responses <- performRuntimeRequest(fixture.runtime, "/acp/authority", body, nil) }()
-		}
-		for index := 0; index < 16; index++ {
-			<-fixture.authority.generationStarted
-		}
-		overflowDone := make(chan *httptest.ResponseRecorder, 1)
-		overflowBody := signedConflictingAuthorityRequest(t, fixture, 17)
-		go func() { overflowDone <- performRuntimeRequest(fixture.runtime, "/acp/authority", overflowBody, nil) }()
-		overflow, timely := responseWithin(overflowDone, 150*time.Millisecond)
-		close(fixture.authority.generationRelease)
-		for index := 0; index < 16; index++ {
-			response := <-responses
-			if result := parseAndVerifyRuntimeACPResult(t, response.Body.Bytes(), fixture.acpSigner.public); result.Status != ACPResultStatusRequestIDConflict {
-				t.Fatalf("conflict result = %q", result.Status)
-			}
-		}
-		if !timely {
-			<-overflowDone
-			t.Fatal("17th conflict reached the blocked result-generation dependency")
-		}
-		result := parseAndVerifyRuntimeACPResult(t, overflow.Body.Bytes(), fixture.acpSigner.public)
-		if overflow.Code != http.StatusOK || overflow.Header().Get("Content-Type") != "application/cose" ||
-			result.Status != ACPResultStatusRequestIDConflict || fixture.authority.callCount() != 1 ||
-			len(fixture.authority.generationStarted) != 0 {
-			t.Fatalf(
-				"17th conflict terminal = HTTP %d %q status=%q decisions=%d queued-generation=%d",
-				overflow.Code, overflow.Header().Get("Content-Type"), result.Status,
-				fixture.authority.callCount(), len(fixture.authority.generationStarted),
-			)
-		}
-	})
-
-	t.Run("result signer", func(t *testing.T) {
-		fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), nil)
-		fixture.acpSigner.started = make(chan struct{}, 17)
-		fixture.acpSigner.release = make(chan struct{})
-		var releaseOnce sync.Once
-		releaseSigner := func() { releaseOnce.Do(func() { close(fixture.acpSigner.release) }) }
-		defer releaseSigner()
-		responses := make(chan *httptest.ResponseRecorder, 16)
-		for index := 0; index < 16; index++ {
-			body := signedWrongVersionRequest(t, fixture, byte(index+1))
-			go func() { responses <- performRuntimeRequest(fixture.runtime, "/acp/authority", body, nil) }()
-		}
-		for index := 0; index < 16; index++ {
-			<-fixture.acpSigner.started
-		}
-		overflowDone := make(chan *httptest.ResponseRecorder, 1)
-		overflowRequest := signedAuthorityRequestWithMarker(t, fixture, 17, 0xcb)
-		go func() {
-			overflowDone <- performRuntimeRequest(fixture.runtime, "/acp/authority", overflowRequest.Body(), nil)
-		}()
-		select {
-		case <-fixture.acpSigner.started:
-		case <-time.After(time.Second):
-			t.Fatal("bounded overload terminal never reached the result signer")
-		}
-
-		duplicateResponses := make(chan *httptest.ResponseRecorder, 4)
-		for index := 0; index < 4; index++ {
-			go func() {
-				duplicateResponses <- performRuntimeRequest(fixture.runtime, "/acp/authority", overflowRequest.Body(), nil)
-			}()
-		}
-		waitForRuntimeWaiters(t, fixture.runtime, 4)
-		fifthDone := make(chan *httptest.ResponseRecorder, 1)
-		go func() {
-			fifthDone <- performRuntimeRequest(fixture.runtime, "/acp/authority", overflowRequest.Body(), nil)
-		}()
-		fifth, fifthTimely := responseWithin(fifthDone, 150*time.Millisecond)
-		if !fifthTimely {
-			t.Fatal("fifth overload duplicate bypassed the four-waiter limit")
-		}
-
-		distinctRequest := signedAuthorityRequestWithMarker(t, fixture, 18, 0xcb)
-		distinctDone := make(chan *httptest.ResponseRecorder, 1)
-		go func() {
-			distinctDone <- performRuntimeRequest(fixture.runtime, "/acp/authority", distinctRequest.Body(), nil)
-		}()
-		distinct, distinctTimely := responseWithin(distinctDone, 150*time.Millisecond)
-		if !distinctTimely {
-			t.Fatal("second distinct overload request bypassed the overload lane bound")
-		}
-
-		releaseSigner()
-		overflow := <-overflowDone
-		for index := 0; index < 16; index++ {
-			response := <-responses
-			if response.Code != http.StatusOK {
-				t.Fatalf("signed invalid response = %d", response.Code)
-			}
-		}
-		verified, err := ParseVerifiedACPResult(
-			context.Background(), overflow.Body.Bytes(), overflowRequest,
-			mustACPResultResolver(t, overflowRequest, 15, fixture.acpSigner.public, fixture.acpSigner.kid),
-			fixture.now.Load(),
-		)
-		if err != nil {
-			t.Fatal(err)
-		}
-		for index := 0; index < 4; index++ {
-			duplicate := <-duplicateResponses
-			if duplicate.Code != http.StatusOK || !bytes.Equal(duplicate.Body.Bytes(), overflow.Body.Bytes()) {
-				t.Fatalf("overload duplicate %d = HTTP %d exact=%v", index, duplicate.Code, bytes.Equal(duplicate.Body.Bytes(), overflow.Body.Bytes()))
-			}
-		}
-		if overflow.Code != http.StatusOK || overflow.Header().Get("Content-Type") != "application/cose" ||
-			verified.Status() != ACPResultStatusResourceExhausted ||
-			fifth.Code != http.StatusTooManyRequests || fifth.Header().Get("Content-Type") == "application/cose" ||
-			distinct.Code != http.StatusTooManyRequests || distinct.Header().Get("Content-Type") == "application/cose" ||
-			fixture.acpSigner.callCount() != 17 || fixture.authority.callCount() != 0 ||
-			len(fixture.acpSigner.started) != 0 || !fixture.acpSigner.onlyPurpose(15) {
-			t.Fatalf(
-				"signer-bound overload = HTTP %d status=%q fifth=%d distinct=%d signatures=%d decisions=%d queued-signers=%d purposes=%v",
-				overflow.Code, verified.Status(), fifth.Code, distinct.Code, fixture.acpSigner.callCount(),
-				fixture.authority.callCount(), len(fixture.acpSigner.started), fixture.acpSigner.purposes(),
-			)
-		}
-	})
 }
 
 func TestSourceOperatorRuntimeConflictSigningDoesNotShadowExactReplay(t *testing.T) {
@@ -1217,65 +1318,6 @@ func TestSourceOperatorRuntimeConflictSigningDoesNotShadowExactReplay(t *testing
 	}
 	if got := len(fixture.authority.generationStarted); got != 0 {
 		t.Fatalf("exact replay triggered %d extra generation lookups", got)
-	}
-}
-
-func TestSourceOperatorRuntimeBoundsOverloadWhileDurableCompletionIsBlocked(t *testing.T) {
-	fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), nil)
-	store := newBlockingCompleteIdempotencyStore(fixture.store)
-	runtime := newRuntimeWithStore(t, fixture, store)
-	var releaseOnce sync.Once
-	releaseStore := func() { releaseOnce.Do(func() { close(store.release) }) }
-	defer releaseStore()
-
-	responses := make(chan *httptest.ResponseRecorder, 16)
-	for index := 0; index < 16; index++ {
-		signed := signedAuthorityRequestWithMarker(t, fixture, byte(index+1), 0xcc)
-		go func() { responses <- performRuntimeRequest(runtime, "/acp/authority", signed.Body(), nil) }()
-	}
-	for index := 0; index < 16; index++ {
-		<-store.started
-	}
-
-	overflowRequest := signedAuthorityRequestWithMarker(t, fixture, 17, 0xcc)
-	overflowDone := make(chan *httptest.ResponseRecorder, 1)
-	go func() { overflowDone <- performRuntimeRequest(runtime, "/acp/authority", overflowRequest.Body(), nil) }()
-	select {
-	case <-store.started:
-	case <-time.After(time.Second):
-		t.Fatal("bounded overload terminal never reached durable completion")
-	}
-
-	distinctRequest := signedAuthorityRequestWithMarker(t, fixture, 18, 0xcc)
-	distinctDone := make(chan *httptest.ResponseRecorder, 1)
-	go func() { distinctDone <- performRuntimeRequest(runtime, "/acp/authority", distinctRequest.Body(), nil) }()
-	distinct, timely := responseWithin(distinctDone, 150*time.Millisecond)
-	if !timely {
-		t.Fatal("second distinct overload request bypassed the blocked persistence bound")
-	}
-
-	releaseStore()
-	overflow := <-overflowDone
-	for index := 0; index < 16; index++ {
-		if response := <-responses; response.Code != http.StatusOK {
-			t.Fatalf("persisted admitted response = %d", response.Code)
-		}
-	}
-	verified, err := ParseVerifiedACPResult(
-		context.Background(), overflow.Body.Bytes(), overflowRequest,
-		mustACPResultResolver(t, overflowRequest, 15, fixture.acpSigner.public, fixture.acpSigner.kid),
-		fixture.now.Load(),
-	)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if overflow.Code != http.StatusOK || verified.Status() != ACPResultStatusResourceExhausted ||
-		distinct.Code != http.StatusTooManyRequests || distinct.Header().Get("Content-Type") == "application/cose" ||
-		fixture.authority.callCount() != 16 || fixture.acpSigner.callCount() != 17 || len(store.started) != 0 {
-		t.Fatalf(
-			"persistence-bound overload = HTTP %d status=%q distinct=%d decisions=%d signatures=%d queued-completions=%d",
-			overflow.Code, verified.Status(), distinct.Code, fixture.authority.callCount(), fixture.acpSigner.callCount(), len(store.started),
-		)
 	}
 }
 

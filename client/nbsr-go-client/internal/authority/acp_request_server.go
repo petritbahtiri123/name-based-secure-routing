@@ -47,6 +47,8 @@ type authenticatedACPEnvelope struct {
 	payload         []byte
 	digest          [32]byte
 	key             DeviceACPRequestKey
+	protected       []byte
+	signature       []byte
 }
 
 type VerifiedACPRequest struct {
@@ -96,7 +98,7 @@ func (request VerifiedACPRequest) Freshness() (FreshnessRequest, bool) {
 	return *request.freshness, true
 }
 
-func authenticateACPEnvelope(ctx context.Context, wire []byte, resolver ACPRequestKeyResolver, now uint64) (authenticatedACPEnvelope, error) {
+func inspectACPEnvelope(ctx context.Context, wire []byte, resolver ACPRequestKeyResolver, now uint64) (authenticatedACPEnvelope, error) {
 	if ctx == nil || isNilDependency(resolver) || now == 0 || len(wire) == 0 || len(wire) > maxACPAcquireRequestBodySize {
 		return authenticatedACPEnvelope{}, errACPRequestMalformed
 	}
@@ -140,15 +142,20 @@ func authenticateACPEnvelope(ctx context.Context, wire []byte, resolver ACPReque
 	if err != nil || !validDeviceACPRequestKey(key, sign1.kid, now) {
 		return authenticatedACPEnvelope{}, errACPRequestUnauthorized
 	}
-	structure, err := encodeCBOR([]any{"Signature1", sign1.protected, []byte{}, sign1.payload})
-	if err != nil || !ed25519.Verify(ed25519.PublicKey(key.PublicKey[:]), appendEnrollmentRequestSignaturePayload(structure), sign1.signature) {
-		return authenticatedACPEnvelope{}, errACPRequestUnauthorized
-	}
 	return authenticatedACPEnvelope{
 		protocolVersion: version, operation: operation, requestID: requestID, deadlineUnix: deadline,
 		sourceOperator: sourceOperator, profile: profile, operationFields: operationFields,
 		payload: append([]byte(nil), sign1.payload...), digest: ACPRequestDigest(sign1.payload), key: key,
+		protected: append([]byte(nil), sign1.protected...), signature: append([]byte(nil), sign1.signature...),
 	}, nil
+}
+
+func authenticateInspectedACPEnvelope(envelope authenticatedACPEnvelope) error {
+	structure, err := encodeCBOR([]any{"Signature1", envelope.protected, []byte{}, envelope.payload})
+	if err != nil || !ed25519.Verify(ed25519.PublicKey(envelope.key.PublicKey[:]), appendEnrollmentRequestSignaturePayload(structure), envelope.signature) {
+		return errACPRequestUnauthorized
+	}
+	return nil
 }
 
 func validDeviceACPRequestKey(key DeviceACPRequestKey, kid []byte, now uint64) bool {

@@ -21,8 +21,7 @@ import (
 const (
 	maxSourceOperatorConcurrentPerActor  = 16
 	maxSourceOperatorConcurrentEnroll    = 16
-	maxSourceOperatorOverloadPerActor    = 1
-	maxSourceOperatorConcurrentOverload  = 16
+	maxSourceOperatorCapacityWaiters     = 16
 	maxSourceOperatorDuplicateWaiters    = 4
 	defaultSourceOperatorHeaderTimeout   = 5 * time.Second
 	defaultSourceOperatorBodyTimeout     = 5 * time.Second
@@ -133,12 +132,13 @@ type SourceOperatorRuntime struct {
 	idempotency            TransactionalIdempotencyStore
 	nowUnix                func() uint64
 
-	mu             sync.Mutex
-	pending        map[sourceOperatorPendingKey]*sourceOperatorPending
-	active         map[sourceOperatorActorScope]int
-	overload       map[sourceOperatorActorScope]int
-	overloadActive int
-	closed         atomic.Bool
+	mu           sync.Mutex
+	pending      map[sourceOperatorPendingKey]*sourceOperatorPending
+	active       map[sourceOperatorActorScope]int
+	waiting      map[sourceOperatorActorScope]int
+	waitingExact map[sourceOperatorPendingKey]int
+	capacityWake chan struct{}
+	closed       atomic.Bool
 }
 
 func NewSourceOperatorRuntime(config SourceOperatorRuntimeConfig) (*SourceOperatorRuntime, error) {
@@ -170,9 +170,10 @@ func NewSourceOperatorRuntime(config SourceOperatorRuntimeConfig) (*SourceOperat
 		authority: config.Authority, bootstrap: config.Bootstrap, enrollment: config.Enrollment,
 		acpResultSigner: config.ACPResultSigner, enrollmentResultSigner: config.EnrollmentResultSigner,
 		idempotency: config.Idempotency, nowUnix: nowUnix,
-		pending:  make(map[sourceOperatorPendingKey]*sourceOperatorPending),
-		active:   make(map[sourceOperatorActorScope]int),
-		overload: make(map[sourceOperatorActorScope]int),
+		pending: make(map[sourceOperatorPendingKey]*sourceOperatorPending),
+		active:  make(map[sourceOperatorActorScope]int),
+		waiting: make(map[sourceOperatorActorScope]int), waitingExact: make(map[sourceOperatorPendingKey]int),
+		capacityWake: make(chan struct{}),
 	}, nil
 }
 
@@ -257,7 +258,7 @@ func (runtime *SourceOperatorRuntime) handleAuthority(response http.ResponseWrit
 		writeUnsignedHTTPError(response, http.StatusServiceUnavailable)
 		return
 	}
-	envelope, err := authenticateACPEnvelope(request.Context(), wire, runtime.requestKeys, now)
+	envelope, err := inspectACPEnvelope(request.Context(), wire, runtime.requestKeys, now)
 	if err != nil {
 		switch {
 		case errors.Is(err, errACPRequestBodyTooLarge):
@@ -269,6 +270,32 @@ func (runtime *SourceOperatorRuntime) handleAuthority(response http.ResponseWrit
 		}
 		return
 	}
+	scope := sourceOperatorActorScope{
+		namespace: "authority", deviceID: envelope.key.DeviceID,
+		generation: envelope.key.CredentialGeneration, profile: runtime.profile,
+	}
+	pendingKey := sourceOperatorPendingKey{key: IdempotencyKey{
+		Namespace: "authority", SourceOperator: envelope.sourceOperator, Profile: envelope.profile,
+		ActorID: envelope.key.DeviceID, ActorGeneration: envelope.key.CredentialGeneration,
+		Operation: string(envelope.operation), RequestID: envelope.requestID,
+	}, digest: envelope.digest}
+	waited, err := runtime.acquireAuthorityLifecycle(request.Context(), scope, pendingKey, envelope.deadlineUnix, now)
+	if err != nil {
+		if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
+			writeUnsignedHTTPError(response, http.StatusRequestTimeout)
+		} else {
+			writeUnsignedHTTPError(response, http.StatusServiceUnavailable)
+		}
+		return
+	}
+	defer runtime.releaseAuthorityLifecycle(scope)
+	if err := authenticateInspectedACPEnvelope(envelope); err != nil {
+		if waited {
+			runtime.releaseCapacityReservation(scope, pendingKey)
+		}
+		writeUnsignedHTTPError(response, http.StatusUnauthorized)
+		return
+	}
 	requestState := IdempotencyRequest{
 		Key: IdempotencyKey{
 			Namespace: "authority", SourceOperator: envelope.sourceOperator, Profile: envelope.profile,
@@ -278,13 +305,9 @@ func (runtime *SourceOperatorRuntime) handleAuthority(response http.ResponseWrit
 		Digest: envelope.digest, DeadlineUnix: envelope.deadlineUnix, NowUnix: now,
 		MaxTerminalBytes: uint64(acpResultBodyLimit(envelope.operation)),
 	}
-	scope := sourceOperatorActorScope{
-		namespace: "authority", deviceID: envelope.key.DeviceID,
-		generation: envelope.key.CredentialGeneration, profile: runtime.profile,
-	}
 	overloadGeneration := requestBoundACPResultGeneration(envelope)
 	claim, pending, admission, err := runtime.beginIdempotent(
-		request.Context(), requestState, scope, maxSourceOperatorConcurrentPerActor, true,
+		request.Context(), requestState, scope, maxSourceOperatorConcurrentPerActor, true, waited,
 	)
 	if admission != sourceOperatorAdmissionNone {
 		defer runtime.releaseAdmission(scope, admission)
@@ -293,7 +316,16 @@ func (runtime *SourceOperatorRuntime) handleAuthority(response http.ResponseWrit
 		runtime.writeIdempotencyAdmissionError(response, err)
 		return
 	}
-	if admission == sourceOperatorAdmissionOverload {
+	if waited {
+		if claim.Status == IdempotencyPending {
+			terminal, waitErr := runtime.waitForPending(request.Context(), requestState, pending)
+			if waitErr != nil {
+				runtime.writeIdempotencyAdmissionError(response, waitErr)
+				return
+			}
+			writeSignedHTTPResult(response, terminal)
+			return
+		}
 		runtime.writeAuthorityOverload(response, envelope, requestState, claim, pending, overloadGeneration)
 		return
 	}
@@ -388,6 +420,112 @@ func (runtime *SourceOperatorRuntime) handleAuthority(response http.ResponseWrit
 		return
 	}
 	writeSignedHTTPResult(response, terminal)
+}
+
+func (runtime *SourceOperatorRuntime) acquireAuthorityLifecycle(
+	ctx context.Context, scope sourceOperatorActorScope, pendingKey sourceOperatorPendingKey, deadlineUnix, now uint64,
+) (bool, error) {
+	if ctx == nil || deadlineUnix == 0 || now == 0 {
+		return false, context.DeadlineExceeded
+	}
+	waitDuration := time.Nanosecond
+	if deadlineUnix > now {
+		waitDuration = time.Duration(deadlineUnix-now) * time.Second
+	}
+	if waitDuration > time.Duration(maxACPRequestDeadlineWindow)*time.Second {
+		waitDuration = time.Duration(maxACPRequestDeadlineWindow) * time.Second
+	}
+	waitContext, cancel := context.WithTimeout(ctx, waitDuration)
+	defer cancel()
+	waited := false
+	queued := false
+	defer func() {
+		if !queued {
+			return
+		}
+		runtime.mu.Lock()
+		if runtime.waiting[scope] <= 1 {
+			delete(runtime.waiting, scope)
+		} else {
+			runtime.waiting[scope]--
+		}
+		if runtime.waitingExact[pendingKey] <= 1 {
+			delete(runtime.waitingExact, pendingKey)
+		} else {
+			runtime.waitingExact[pendingKey]--
+		}
+		runtime.mu.Unlock()
+	}()
+	for {
+		runtime.mu.Lock()
+		if runtime.closed.Load() {
+			runtime.mu.Unlock()
+			return waited, ErrClosed
+		}
+		if runtime.active[scope] < maxSourceOperatorConcurrentPerActor {
+			runtime.active[scope]++
+			if queued {
+				// The exact reservation remains counted until beginIdempotent
+				// atomically converts it into an owner or duplicate waiter.
+				queued = false
+			}
+			runtime.mu.Unlock()
+			return waited, nil
+		}
+		if !queued {
+			if runtime.waiting[scope] >= maxSourceOperatorCapacityWaiters ||
+				runtime.waitingExact[pendingKey] >= maxSourceOperatorDuplicateWaiters+1 {
+				runtime.mu.Unlock()
+				return true, ErrPendingCapacity
+			}
+			runtime.waiting[scope]++
+			runtime.waitingExact[pendingKey]++
+			queued = true
+			waited = true
+		}
+		wake := runtime.capacityWake
+		runtime.mu.Unlock()
+		select {
+		case <-wake:
+		case <-waitContext.Done():
+			return waited, waitContext.Err()
+		}
+	}
+}
+
+func (runtime *SourceOperatorRuntime) releaseCapacityReservation(
+	scope sourceOperatorActorScope, pendingKey sourceOperatorPendingKey,
+) {
+	runtime.mu.Lock()
+	runtime.releaseCapacityReservationLocked(scope, pendingKey)
+	runtime.mu.Unlock()
+}
+
+func (runtime *SourceOperatorRuntime) releaseCapacityReservationLocked(
+	scope sourceOperatorActorScope, pendingKey sourceOperatorPendingKey,
+) {
+	if runtime.waiting[scope] <= 1 {
+		delete(runtime.waiting, scope)
+	} else {
+		runtime.waiting[scope]--
+	}
+	if runtime.waitingExact[pendingKey] <= 1 {
+		delete(runtime.waitingExact, pendingKey)
+	} else {
+		runtime.waitingExact[pendingKey]--
+	}
+}
+
+func (runtime *SourceOperatorRuntime) releaseAuthorityLifecycle(scope sourceOperatorActorScope) {
+	runtime.mu.Lock()
+	if runtime.active[scope] <= 1 {
+		delete(runtime.active, scope)
+	} else {
+		runtime.active[scope]--
+	}
+	close(runtime.capacityWake)
+	runtime.capacityWake = make(chan struct{})
+	runtime.mu.Unlock()
 }
 
 func (runtime *SourceOperatorRuntime) signAuthorityStatus(ctx context.Context, envelope authenticatedACPEnvelope, status ACPResultStatus) ([]byte, error) {
@@ -575,7 +713,7 @@ func (runtime *SourceOperatorRuntime) handleEnrollment(response http.ResponseWri
 		namespace: "enrollment", profile: runtime.profile,
 	}
 	claim, pending, admission, err := runtime.beginIdempotent(
-		request.Context(), requestState, scope, maxSourceOperatorConcurrentEnroll, false,
+		request.Context(), requestState, scope, maxSourceOperatorConcurrentEnroll, false, false,
 	)
 	if admission != sourceOperatorAdmissionNone {
 		defer runtime.releaseAdmission(scope, admission)
@@ -758,42 +896,51 @@ func (runtime *SourceOperatorRuntime) beginIdempotent(
 	request IdempotencyRequest,
 	scope sourceOperatorActorScope,
 	limit int,
-	allowOverload bool,
+	externallyAdmitted bool,
+	capacityReservation bool,
 ) (IdempotencyClaim, *sourceOperatorPending, sourceOperatorAdmission, error) {
 	pendingKey := sourceOperatorPendingKey{key: request.Key, digest: request.Digest}
 	runtime.mu.Lock()
 	if runtime.closed.Load() {
+		if capacityReservation {
+			runtime.releaseCapacityReservationLocked(scope, pendingKey)
+		}
 		runtime.mu.Unlock()
 		return IdempotencyClaim{}, nil, sourceOperatorAdmissionNone, ErrClosed
 	}
 	if pending, ok := runtime.pending[pendingKey]; ok {
 		if pending.waiters >= maxSourceOperatorDuplicateWaiters {
+			if capacityReservation {
+				runtime.releaseCapacityReservationLocked(scope, pendingKey)
+			}
 			runtime.mu.Unlock()
 			return IdempotencyClaim{}, nil, sourceOperatorAdmissionNone, ErrWaiterCapacity
 		}
 		pending.waiters++
+		if capacityReservation {
+			runtime.releaseCapacityReservationLocked(scope, pendingKey)
+		}
 		runtime.mu.Unlock()
 		return IdempotencyClaim{Status: IdempotencyPending}, pending, sourceOperatorAdmissionNone, nil
 	}
-	if limit <= 0 {
+	admission := sourceOperatorAdmissionNone
+	if !externallyAdmitted && limit <= 0 {
 		runtime.mu.Unlock()
 		return IdempotencyClaim{}, nil, sourceOperatorAdmissionNone, ErrPendingCapacity
 	}
-	admission := sourceOperatorAdmissionPrimary
-	if runtime.active[scope] >= limit {
-		if !allowOverload || runtime.overload[scope] >= maxSourceOperatorOverloadPerActor ||
-			runtime.overloadActive >= maxSourceOperatorConcurrentOverload {
+	if !externallyAdmitted {
+		if runtime.active[scope] >= limit {
 			runtime.mu.Unlock()
 			return IdempotencyClaim{}, nil, sourceOperatorAdmissionNone, ErrPendingCapacity
 		}
-		runtime.overload[scope]++
-		runtime.overloadActive++
-		admission = sourceOperatorAdmissionOverload
-	} else {
 		runtime.active[scope]++
+		admission = sourceOperatorAdmissionPrimary
 	}
 	pending := &sourceOperatorPending{done: make(chan struct{})}
 	runtime.pending[pendingKey] = pending
+	if capacityReservation {
+		runtime.releaseCapacityReservationLocked(scope, pendingKey)
+	}
 	runtime.mu.Unlock()
 
 	claim, err := runtime.idempotency.Begin(ctx, request)
@@ -872,11 +1019,6 @@ func (runtime *SourceOperatorRuntime) releaseAdmission(scope sourceOperatorActor
 	switch admission {
 	case sourceOperatorAdmissionPrimary:
 		counts = runtime.active
-	case sourceOperatorAdmissionOverload:
-		counts = runtime.overload
-		if runtime.overloadActive > 0 {
-			runtime.overloadActive--
-		}
 	default:
 		return
 	}
