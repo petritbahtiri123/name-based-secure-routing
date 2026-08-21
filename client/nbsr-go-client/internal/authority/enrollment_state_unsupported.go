@@ -7,6 +7,10 @@ func writeEnrollmentStateAtomically(path string, payload []byte) error {
 	return ErrStorageUnsupported
 }
 
+func replaceEnrollmentStateAtomically(path string, payload []byte) error {
+	return ErrStorageUnsupported
+}
+
 func writeEnrollmentStateIntegrityBlobAtomically(path string, blob []byte) error {
 	return ErrStorageUnsupported
 }

@@ -2,8 +2,8 @@
 
 - Starting verified frozen baseline: `1938154d498b32d81a3564319969430644e8a688` (`main`).
 - Audit starting local and remote working-branch SHA: `891ea07218977630aa80a073b1625db4cfcd515b`.
-- Current local audit repair commit: `aa734d755453ca2a7f18623e68102e4c0e4cd805`; remote remains unchanged because this audit forbids push.
-- No dedicated Tranche 2B plan file was found in-repo; this status is reconstructed from
+- Final 3R-C implementation commit: `981564d3fac1a4fade3c0894569b23817057a464`.
+- The approved 3R-C plan is `docs/superpowers/plans/2026-08-20-production-go-client-tranche2b-3rc.md`; this ledger also retains earlier recovered evidence from
   - protocol freezes (`docs/protocol/status.md`, `docs/protocol/tranche2b-...`)
   - authoritative commit history from the tranche baseline
   - implementation evidence in `client/nbsr-go-client/internal/authority`.
@@ -14,7 +14,7 @@
 | --- | --- | --- | --- |
 | 3R-A | Windows trusted enrollment storage root/path/ACL/reparse protection + fixed-path lock target + real cross-process exclusive LockFileEx lock acquisition | `10be800200b68f568d3c373d0f9d69a501553092` | COMPLETE |
 | 3R-B | Windows secure enrollment-state persistence + DPAPI-backed integrity key material + bounded state installation + envelope verification, load, and corruption handling | `420b2685a4f11157bedf87ce5bb80908496666fe` | COMPLETE |
-| 3R-C | transport/enrollment ACP runtime implementation | Tasks 1–3: see task commits below | IN PROGRESS — Tasks 1–3 complete; Task 4 not started |
+| 3R-C | transport/enrollment ACP runtime implementation | Task 3 repair `3ecedee71f7bdab1707ef6d7fd98d447fdca821c`; Task 4 `981564d3fac1a4fade3c0894569b23817057a464` | COMPLETE — final acceptance and independent review clean |
 
 ## 3R-C Task 1 — frozen ACP wire codec
 
@@ -43,15 +43,37 @@
 
 ## 3R-C Task 3 — minimal Source Operator HTTP/2 runtime
 
-- Status: IMPLEMENTATION COMPLETE; pending controller independent review.
+- Status: COMPLETE, including blocker repair and independent re-review.
 - Starting SHA: `7018deb0170ad200562233419ce66f8086042905`.
 - Final commit: this Task 3 commit (`feat(acp): add source operator control-plane runtime`); exact SHA is recorded by Git history and the task report because a commit cannot contain its own SHA.
 - Files changed: strict authenticated ACP request decoding; two-endpoint TLS 1.3/HTTP/2 Source Operator runtime and tests; narrow transactional idempotency contract; bounded, restart-safe, explicitly single-node file backend with Windows/Unix locking and atomic persistence; authority package/error updates; recovery evidence.
 - Focused verification: file-store/runtime tests PASS; complete authority package PASS; complete authority race PASS; authority `go vet` PASS; Linux/amd64 compile-only PASS with `CGO_ENABLED=0`.
-- Reviewer verdict: pending controller independent review; implementation-agent self-review findings were reproduced RED, fixed, and returned GREEN.
+- Blocker repair: `3ecedee71f7bdab1707ef6d7fd98d447fdca821c` establishes one authoritative exact-cap reservation model. The maximum observed authenticated lifecycle count is 16; distinct overload remains a signed `resource_exhausted` ACP result; no unsigned HTTP 429 semantic escape remains.
+- Reviewer verdict: CLEAN after one scoped TOCTOU regression/fix/re-review wave; no Critical or Important finding remained.
 - Frozen protocol SHA-256: ACP `e795abf0a078c2dfe9bdf56d705fde67a1355bd28eb1cd35b5dc6efb0a5dad24`; Enrollment `9d73983828f48b51a2b2e31c4637f1fe6f00b1505071faeef0be43d0e9504cd0`.
 - Remote SHA: must equal this Task 3 commit after the authorized normal push; exact SHA is recorded by the task handoff and Git refs.
-- Next task: 3R-C Task 4 — startup orchestration and real interoperability closure. Task 4 and Tranche 3 have not started.
+- Next task: completed as recorded below. Tranche 3 has not started.
+
+## 3R-C Task 4 — startup orchestration and real interoperability
+
+- Status: COMPLETE.
+- Commit: `981564d3fac1a4fade3c0894569b23817057a464` (`feat(go-client): orchestrate tranche2b authority readiness`).
+- Lifecycle evidence: real TLS 1.3/HTTP/2 bootstrap ENROLL, verified EnrollmentResult, authenticated one-shot persistence, Freshness-before-Ready, Acquire, Renew, freshness refresh, restart, authenticated identity reload, fresh validation, and final Ready.
+- Initial enrollment uses an authenticated durable pending envelope and a store-owned transaction across reservation, network result validation, and identity replacement. Concurrent runtimes have one outbound winner; ambiguous error or crash remains fail-closed.
+- Restart begins `Ready=false` and restores no RouteGrants, authority cache, Transport Sessions, Service Channels, Stream Credits, or Application Streams.
+- Independent review: CLEAN after sequential and concurrent reenrollment regressions; no Critical or Important finding remained.
+
+## 3R-C final acceptance
+
+- `go test ./... -count=1`: PASS.
+- `go test -race ./... -count=1` with process-local UCRT PATH: PASS.
+- `go vet ./...`: PASS.
+- Relevant Python federation, protocol, registry, control-plane, and integration selection: `1006 passed`.
+- Ruff on changed Python: PASS.
+- Bounded fuzz: ACP parser 25,705 executions; enrollment-state parser 36,037 executions; PASS.
+- Frozen SHA-256: ACP `e795abf0a078c2dfe9bdf56d705fde67a1355bd28eb1cd35b5dc6efb0a5dad24`; Enrollment `9d73983828f48b51a2b2e31c4637f1fe6f00b1505071faeef0be43d0e9504cd0`.
+- Downstream closure hygiene recognizes the approved Tranche 2B Go module and advances only the federation vector authority lock/manifest to the already-approved additive ACP/enrollment registry bytes; neither frozen 3R-C specification changed.
+- Tranche 3 has not started.
 
 ## 3R-A completion evidence
 
@@ -112,7 +134,7 @@
 - Fresh tests passed: complete authority/identity; both race suites; real subprocess contention, writer race, abnormal lock teardown, and crashes before/after installation; required reparse/ACL fixtures with zero skips; parser fuzz; vet; Linux compile-only; formatting and whitespace checks.
 - Independent spec, security, and Windows/storage scoped re-reviews found no remaining Critical, Important, or Minor code issue.
 - Dedicated-service-account DPAPI restart stability is verified by the elevated SCM gate at local HEAD `ebc06891234a184c709e7ccafac451c14754db50`: STORE plus two fresh-process LOAD operations succeeded under `NT SERVICE\NBSRClient`, used three distinct PIDs, recovered the exact identity with `Ready=false`, and retained stable protected-key and authenticated-state hashes.
-- 3R-C remains NOT STARTED.
+- This historical Spark 5.3 audit predated 3R-C; the current 3R-C state is COMPLETE as recorded above.
 
 ### Approved Windows service gate profile
 
@@ -121,8 +143,8 @@
 - Profile/key model: user-scoped DPAPI under that virtual service identity; no machine-scope, plaintext, or alternate-keystore fallback.
 - Provisioning boundary: the installer owns service creation and the trusted ProgramData directory/ACL.
 - Test-only harness: `cd3a33bd41eaf1eec4022f47d711e35ec8b4a0a8`.
-- Status: COMPLETE. Elevated SCM STORE → stop → LOAD → stop → LOAD ran successfully under SID `S-1-5-80-791066319-2577492049-1163703186-265042808-2809310517` with service profile `C:\WINDOWS\ServiceProfiles\NBSRClient`. Authority and identity suites passed normally and with `-race`; `NETWORK_CONFIGURATION_CHANGED=NO`; exact test service/tree cleanup succeeded. The different-identity negative test was not executed and is retained as a bounded residual evidence gap. 3R-C remains NOT STARTED.
+- Status: COMPLETE. Elevated SCM STORE → stop → LOAD → stop → LOAD ran successfully under SID `S-1-5-80-791066319-2577492049-1163703186-265042808-2809310517` with service profile `C:\WINDOWS\ServiceProfiles\NBSRClient`. Authority and identity suites passed normally and with `-race`; `NETWORK_CONFIGURATION_CHANGED=NO`; exact test service/tree cleanup succeeded. The different-identity negative test was not executed and is retained as a bounded residual evidence gap. This evidence predates the now-complete 3R-C work.
 
-## NEXT_TASK (from current available plan artifacts)
+## Next boundary
 
-`Tranche 2B transport + enrollment control-plane runtime` (HTTP/TLS provider/enrollment wire integration and runtime orchestration), which is not yet implemented in this branch.
+3R-C is closed. Tranche 3 has not started and requires a separately approved scope.

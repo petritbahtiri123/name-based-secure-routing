@@ -235,7 +235,8 @@ type FileEnrollmentStateStore struct {
 
 	paths EnrollmentStatePaths
 
-	write func(path string, payload []byte) error
+	write   func(path string, payload []byte) error
+	replace func(path string, payload []byte) error
 }
 
 func NewFileEnrollmentStateStore() (*FileEnrollmentStateStore, error) {
@@ -258,7 +259,7 @@ func newFileEnrollmentStateStore(paths EnrollmentStatePaths) (*FileEnrollmentSta
 	if err := validateEnrollmentStatePaths(paths); err != nil {
 		return nil, err
 	}
-	return &FileEnrollmentStateStore{paths: paths, write: atomicWriteEnrollmentState}, nil
+	return &FileEnrollmentStateStore{paths: paths, write: atomicWriteEnrollmentState, replace: replaceEnrollmentStateAtomically}, nil
 }
 
 func (store *FileEnrollmentStateStore) Load(ctx context.Context) (identity.DeviceIdentity, bool, error) {
@@ -345,7 +346,7 @@ func (store *FileEnrollmentStateStore) Initialize(ctx context.Context, digest [3
 		if err != nil {
 			return identity.DeviceIdentity{}, false, err
 		}
-		if err := store.writeEnvelope(envelope); err != nil {
+		if err := store.replaceEnvelope(envelope); err != nil {
 			return identity.DeviceIdentity{}, false, err
 		}
 		initialized = copyDeviceIdentity(device)
@@ -434,6 +435,14 @@ func (store *FileEnrollmentStateStore) writeEnvelope(payload []byte) error {
 		write = atomicWriteEnrollmentState
 	}
 	return write(store.paths.StatePath, payload)
+}
+
+func (store *FileEnrollmentStateStore) replaceEnvelope(payload []byte) error {
+	replace := store.replace
+	if replace == nil {
+		replace = replaceEnrollmentStateAtomically
+	}
+	return replace(store.paths.StatePath, payload)
 }
 
 var atomicWriteEnrollmentState = func(path string, payload []byte) error {

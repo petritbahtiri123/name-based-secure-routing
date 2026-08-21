@@ -45,8 +45,8 @@ AUTHORITY_LOCKS = (
     ("docs/protocol/registries/core-v0.2-baseline-lock.json", 21103, "21d60dc60ee1bc00bef882b63fabaaea9229768770912ed7c93e6ae4d54453ef"),
     (
         "docs/protocol/registries/federation-v0.1-development.json",
-        78624,
-        "29311cb8e952e328eef7c69fb4776a85504ff4af5edf7c55faad53194d60dc7e",
+        78881,
+        "ed880f236a2b4b5e11e281e58c540534e1cd27f7c752d3990291cf1be55c80d0",
     ),
     (
         "docs/protocol/registries/federation-v0.1-schema-proposal.json",

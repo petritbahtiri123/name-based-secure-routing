@@ -25,11 +25,15 @@ var enrollmentStateWriteStageHook = func(string, enrollmentStateWriteStage) {}
 var enrollmentStateInvalidPathError = errors.New("invalid enrollment state path")
 
 func writeEnrollmentStateAtomically(path string, payload []byte) error {
-	return writeBoundedBlobAtomically(path, payload)
+	return writeBoundedBlobAtomically(path, payload, false)
+}
+
+func replaceEnrollmentStateAtomically(path string, payload []byte) error {
+	return writeBoundedBlobAtomically(path, payload, true)
 }
 
 func writeEnrollmentStateIntegrityBlobAtomically(path string, blob []byte) error {
-	return writeBoundedBlobAtomically(path, blob)
+	return writeBoundedBlobAtomically(path, blob, false)
 }
 
 func protectEnrollmentStateIntegrityBlob(raw []byte) ([]byte, error) {
@@ -87,7 +91,7 @@ func unprotectEnrollmentStateIntegrityBlob(raw []byte) ([]byte, error) {
 	return copyDataBlob(outBlob)
 }
 
-func writeBoundedBlobAtomically(path string, payload []byte) error {
+func writeBoundedBlobAtomically(path string, payload []byte, replace bool) error {
 	if path == "" || len(payload) == 0 || len(payload) > maxEnrollmentStateBytes {
 		return ErrInvalidAuthority
 	}
@@ -128,6 +132,9 @@ func writeBoundedBlobAtomically(path string, payload []byte) error {
 	}
 	enrollmentStateWriteStageHook(path, enrollmentStateWriteAfterClose)
 	moveFlags := uint32(windows.MOVEFILE_WRITE_THROUGH)
+	if replace {
+		moveFlags |= windows.MOVEFILE_REPLACE_EXISTING
+	}
 	if err := windows.MoveFileEx(
 		fileNameWide(tempPath),
 		fileNameWide(path),

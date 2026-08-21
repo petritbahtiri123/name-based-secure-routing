@@ -3,6 +3,7 @@ package authority
 import (
 	"context"
 	"errors"
+	"os"
 	"path/filepath"
 	"sync"
 	"sync/atomic"
@@ -111,8 +112,9 @@ func TestClientRuntimeRealHTTP2EnrollmentFreshnessAcquireRenewAndRestart(t *test
 			RequestIDs:    requestIDs, Options: HTTPProviderOptions{MaxAttempts: 1}, NowUnix: func() uint64 { return fixture.now.Load() },
 		})
 	}
-	store := NewMemoryEnrollmentStateStore()
-	gate, _ := NewRestartGate(NewMemoryGenerationFloorStore(1024), runtimeCheckpointVerifier{}, testClock{now: fixture.now.Load()}, noopObserver{})
+	store, _ := newTestFileEnrollmentStateStore(t)
+	floorStore := NewMemoryGenerationFloorStore(1024)
+	gate, _ := NewRestartGate(floorStore, runtimeCheckpointVerifier{}, testClock{now: fixture.now.Load()}, noopObserver{})
 	client, err := NewClientRuntime(ClientRuntimeConfig{
 		SourceOperator: fixture.request.Key.SourceOperator, Profile: fixture.request.Key.Profile,
 		EnrollmentStore: store, Enrollment: enrollment, ProviderFactory: providerFactory,
@@ -140,10 +142,29 @@ func TestClientRuntimeRealHTTP2EnrollmentFreshnessAcquireRenewAndRestart(t *test
 	if err := client.Refresh(context.Background(), freshness); err != nil {
 		t.Fatal(err)
 	}
-	if err := client.Restart(context.Background(), freshness); err != nil {
+	if err := client.Close(); err != nil {
 		t.Fatal(err)
 	}
-	if !client.Ready() {
+	reopenedStore, err := newFileEnrollmentStateStoreForTest(store.paths.Root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	restartGate, _ := NewRestartGate(floorStore, runtimeCheckpointVerifier{}, testClock{now: fixture.now.Load()}, noopObserver{})
+	restarted, err := NewClientRuntime(ClientRuntimeConfig{
+		SourceOperator: fixture.request.Key.SourceOperator, Profile: fixture.request.Key.Profile,
+		EnrollmentStore: reopenedStore, ProviderFactory: providerFactory,
+		RestartGate: restartGate, NowUnix: func() uint64 { return fixture.now.Load() },
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if restarted.Ready() {
+		t.Fatal("fresh runtime was ready before persisted identity freshness")
+	}
+	if err := restarted.StartPersisted(context.Background(), freshness); err != nil {
+		t.Fatal(err)
+	}
+	if !restarted.Ready() {
 		t.Fatal("restart freshness did not restore readiness")
 	}
 	operations := fixture.authority.operations()
@@ -155,6 +176,94 @@ func TestClientRuntimeRealHTTP2EnrollmentFreshnessAcquireRenewAndRestart(t *test
 		if operations[index] != want[index] {
 			t.Fatalf("real operations=%v", operations)
 		}
+	}
+}
+
+func TestFileInitialEnrollmentAmbiguousFailureLeavesTerminalPending(t *testing.T) {
+	store, statePath := newTestFileEnrollmentStateStore(t)
+	digest := [32]byte{1}
+	ambiguous := errors.New("ambiguous enrollment transport failure")
+	if _, err := store.Initialize(context.Background(), digest, func() (identity.DeviceIdentity, error) {
+		return identity.DeviceIdentity{}, ambiguous
+	}); !errors.Is(err, ambiguous) {
+		t.Fatalf("ambiguous error=%v", err)
+	}
+	if info, err := os.Stat(statePath); err != nil || info.Size() == 0 {
+		t.Fatalf("pending reservation missing: info=%v err=%v", info, err)
+	}
+	reopened, err := newFileEnrollmentStateStoreForTest(store.paths.Root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	called := false
+	if _, err := reopened.Initialize(context.Background(), digest, func() (identity.DeviceIdentity, error) {
+		called = true
+		return runtimeTestIdentity(), nil
+	}); !errors.Is(err, ErrTerminalEnrollment) {
+		t.Fatalf("retry after ambiguous failure=%v", err)
+	}
+	if called {
+		t.Fatal("retry performed outbound enrollment after durable pending reservation")
+	}
+}
+
+func TestFileInitialEnrollmentFinalReplacementFailureRetainsPending(t *testing.T) {
+	store, _ := newTestFileEnrollmentStateStore(t)
+	digest := [32]byte{2}
+	finalWriteFailure := errors.New("simulated final replacement failure")
+	store.replace = func(string, []byte) error { return finalWriteFailure }
+	if _, err := store.Initialize(context.Background(), digest, func() (identity.DeviceIdentity, error) {
+		return runtimeTestIdentity(), nil
+	}); !errors.Is(err, finalWriteFailure) {
+		t.Fatalf("final replacement error=%v", err)
+	}
+	reopened, err := newFileEnrollmentStateStoreForTest(store.paths.Root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	called := false
+	if _, err := reopened.Initialize(context.Background(), digest, func() (identity.DeviceIdentity, error) {
+		called = true
+		return runtimeTestIdentity(), nil
+	}); !errors.Is(err, ErrTerminalEnrollment) {
+		t.Fatalf("retry after final replacement failure=%v", err)
+	}
+	if called {
+		t.Fatal("retry performed outbound enrollment after failed final replacement")
+	}
+}
+
+func TestClientRuntimeShutdownFailsClosed(t *testing.T) {
+	device := runtimeTestIdentity()
+	store := NewMemoryEnrollmentStateStore()
+	if err := store.Store(context.Background(), device); err != nil {
+		t.Fatal(err)
+	}
+	gate, _ := NewRestartGate(NewMemoryGenerationFloorStore(1024), runtimeCheckpointVerifier{}, testClock{now: 100}, noopObserver{})
+	runtime, err := NewClientRuntime(ClientRuntimeConfig{
+		SourceOperator: "source.operator", Profile: "profile", EnrollmentStore: store,
+		ProviderFactory: func(identity.DeviceIdentity) (AuthorityProvider, error) {
+			return &runtimeRecordingProvider{freshness: ProviderFreshness{SourceOperator: "source.operator", Profile: "profile", Evidence: []byte("fresh")}}, nil
+		}, RestartGate: gate, NowUnix: func() uint64 { return 100 },
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := runtime.StartPersisted(context.Background(), runtimeFreshnessRequest(device, 100)); err != nil {
+		t.Fatal(err)
+	}
+	if err := runtime.Close(); err != nil {
+		t.Fatal(err)
+	}
+	if runtime.Ready() {
+		t.Fatal("closed runtime remained ready")
+	}
+	request := AcquireRequest{Device: device, Key: AuthorityKey{DeviceID: device.ID, DeviceGeneration: device.CredentialGeneration}}
+	if _, err := runtime.Acquire(context.Background(), request); !errors.Is(err, ErrNotReady) {
+		t.Fatalf("acquire after close=%v", err)
+	}
+	if err := runtime.Restart(context.Background(), runtimeFreshnessRequest(device, 100)); !errors.Is(err, ErrClosed) {
+		t.Fatalf("restart after close=%v", err)
 	}
 }
 
