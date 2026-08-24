@@ -22,6 +22,10 @@ approved and is independently testable.
    channel authorization, local ServiceHandle binding over existing channel IDs,
    multi-service isolation, expiry/revocation, and Go↔Rust tests. Prove one TS
    carries many SCs without destination-IP routing. No rotation yet.
+   **Implementation status (2026-08-24):** the production Go ownership layer,
+   sealed-authority admission material, bounded TS/SC lifecycle, commit barrier,
+   and deterministic teardown are implemented; see
+   [`tranche3-implementation-status.md`](../../protocol/tranche3-implementation-status.md).
 4. **Stream Credits and Application Stream path.** Implement exact P2D client
    ownership, atomic slots/refill, actual stream-ID binding, payload-before-
    ACCEPT quarantine, forwarding, half-close, cancellation, backpressure, and
