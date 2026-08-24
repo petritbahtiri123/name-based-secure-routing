@@ -46,6 +46,7 @@ type pendingRotation struct {
 	trigger RotationTrigger
 	result  RotationResult
 	err     error
+	cancel  context.CancelFunc
 }
 
 func (manager *Manager) CurrentTransportSession(key ReuseKey) (TransportSessionSnapshot, error) {
@@ -136,7 +137,8 @@ func (manager *Manager) RotateTransportSession(ctx context.Context, request Rota
 		manager.mu.Unlock()
 		return RotationResult{}, ErrSessionCapacity
 	}
-	pending := &pendingRotation{done: make(chan struct{}), request: request, trigger: request.Trigger}
+	rotationCtx, cancelRotation := context.WithCancel(ctx)
+	pending := &pendingRotation{done: make(chan struct{}), request: request, trigger: request.Trigger, cancel: cancelRotation}
 	manager.pendingRotations[request.Replacement.ReuseKey] = pending
 	manager.effectiveTriggers[request.Replacement.ReuseKey] = request.Trigger
 	manager.pendingSessions++
@@ -145,7 +147,7 @@ func (manager *Manager) RotateTransportSession(ctx context.Context, request Rota
 	}
 	manager.mu.Unlock()
 
-	transport, connectErr := manager.connector.Connect(ctx, TransportSessionAttempt{Generation: request.Replacement.Generation, ReuseKey: request.Replacement.ReuseKey, ProofKey: proof.Key, AuthorityGeneration: authorityGeneration})
+	transport, connectErr := manager.connector.Connect(rotationCtx, TransportSessionAttempt{Generation: request.Replacement.Generation, ReuseKey: request.Replacement.ReuseKey, ProofKey: proof.Key, AuthorityGeneration: authorityGeneration})
 	if connectErr == nil && transport == nil {
 		connectErr = ErrTransport
 	}
@@ -183,6 +185,7 @@ func (manager *Manager) RotateTransportSession(ctx context.Context, request Rota
 		manager.markNoNewWorkLocked(request.CurrentGeneration)
 	}
 	delete(manager.pendingRotations, request.Replacement.ReuseKey)
+	pending.cancel()
 	pending.result, pending.err = result, sessionAuthorityError(connectErr)
 	close(pending.done)
 	closeDrained := connectErr == nil && current != nil && len(current.channels) == 0

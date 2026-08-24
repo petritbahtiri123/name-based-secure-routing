@@ -261,6 +261,9 @@ func (manager *Manager) CloseTransportSession(generation corestate.TSGeneration)
 		manager.mu.Unlock()
 		return nil
 	}
+	if pending := manager.pendingRotations[entry.snapshot.ReuseKey]; pending != nil {
+		pending.cancel()
+	}
 	delete(manager.sessions, generation)
 	manager.sessionBytes -= entry.accountedBytes
 	group := manager.byReuse[entry.snapshot.ReuseKey]

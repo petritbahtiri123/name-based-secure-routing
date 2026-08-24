@@ -375,7 +375,7 @@ func (c *testConnector) Connect(ctx context.Context, _ TransportSessionAttempt) 
 	fail, started, block, hook := c.fail, c.started, c.block, c.beforeReturn
 	c.beforeReturn = nil
 	c.mu.Unlock()
-	if started != nil {
+	if started != nil && block != nil {
 		select {
 		case started <- struct{}{}:
 		default:

@@ -264,4 +264,50 @@ func TestRotationFinalBarrierRejectsAuthorityChangeAndClosesB(t *testing.T) {
 	}
 }
 
+func TestTransportTeardownCancelsPendingReplacement(t *testing.T) {
+	fixture := newFixture(t)
+	fixture.createTS(t, 1)
+	fixture.connector.block = make(chan struct{})
+	done := make(chan error, 1)
+	go func() {
+		_, err := fixture.manager.RotateTransportSession(context.Background(), RotationRequest{CurrentGeneration: 1, Replacement: fixture.sessionSpec(2), Trigger: RotationExplicit})
+		done <- err
+	}()
+	<-fixture.connector.started
+	if err := fixture.manager.CloseTransportSession(1); err != nil {
+		t.Fatal(err)
+	}
+	select {
+	case err := <-done:
+		if !errors.Is(err, context.Canceled) && !errors.Is(err, ErrGenerationNotCurrent) {
+			t.Fatalf("teardown result = %v", err)
+		}
+	case <-time.After(time.Second):
+		t.Fatal("teardown did not cancel pending replacement")
+	}
+	if usage := fixture.manager.Usage(); usage.PendingRotations != 0 || usage.PendingSessions != 0 {
+		t.Fatalf("pending replacement leaked = %+v", usage)
+	}
+}
+
+func TestColdStartRestoresNoLiveGenerationOwnership(t *testing.T) {
+	fixture := newFixture(t)
+	fixture.createTS(t, 1)
+	fixture.createSC(t, fixture.channelRequest(1, 1))
+
+	restarted, err := newManager(fixture.manager.limits, fixture.clock, fixture.gate, fixture.registry, &testConnector{started: make(chan struct{}, 1)}, &testOpener{started: make(chan struct{}, 1)})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if usage := restarted.Usage(); usage.Sessions != 0 || usage.Channels != 0 || usage.ApplicationStreams != 0 || usage.PendingRotations != 0 {
+		t.Fatalf("cold start resurrected live ownership = %+v", usage)
+	}
+	if _, err := restarted.CurrentTransportSession(fixture.sessionSpec(1).ReuseKey); !errors.Is(err, ErrGenerationNotCurrent) {
+		t.Fatalf("cold start current = %v", err)
+	}
+	if _, err := restarted.CreateTransportSession(context.Background(), fixture.sessionSpec(2)); err != nil {
+		t.Fatalf("fresh post-restart generation = %v", err)
+	}
+}
+
 var _ = sync.Mutex{}
