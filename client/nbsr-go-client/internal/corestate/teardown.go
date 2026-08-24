@@ -60,7 +60,13 @@ func (s *Store) validateInvariantsLocked() error {
 		if id == 0 || id != entry.snapshot.ID || id > s.highestMappingID {
 			return invariantError("mapping identity")
 		}
-		if entry.snapshot.ServiceIdentity == "" || entry.snapshot.ExpiresAtUnix == 0 || len(entry.snapshot.ServiceIdentity) > s.limits.MaxServiceIdentityBytes || len(entry.snapshot.PolicyContext) > s.limits.MaxPolicyContextBytes {
+		targetEdgeBytes := 0
+		for _, edge := range entry.snapshot.RouteIntent.TargetEdges {
+			targetEdgeBytes += len(edge)
+		}
+		if !validMappingSpec(entry.snapshot.MappingSpec) || len(entry.snapshot.ServiceIdentity) > s.limits.MaxServiceIdentityBytes ||
+			len(entry.snapshot.PolicyContext) > s.limits.MaxPolicyContextBytes || len(entry.snapshot.CanonicalName) > s.limits.MaxCanonicalNameBytes ||
+			len(entry.snapshot.RouteIntent.Canonical) > s.limits.MaxRouteIntentBytes || targetEdgeBytes > s.limits.MaxTargetEdgeBytes {
 			return invariantError("mapping specification")
 		}
 		cost, err := mappingCost(entry.snapshot.MappingSpec)

@@ -227,13 +227,14 @@ readiness, global federation, or independent interoperability.
 
 | Capability | Status | Evidence or gap |
 |---|---|---|
-| V3.6 universal synthetic resolver architecture | Normative | Every successful upgraded-network resolution returns a Synthetic IP; current code is not yet that universal resolver |
+| V3.6 universal synthetic resolver architecture | Partial | Production Go Tranche 6 provides canonical resolution state, one configured shared local Synthetic IP, and exact explicit-proxy flow correlation; transparent DNS/platform interception remains unimplemented |
 | DNS-compatible legacy reachability through NBSR | Partial | A loopback DNS adapter and bounded DNS-backed OriginSet conversion exist; the approved WP2A plan adds the signed, synthetic-only Name Node core |
 | NBSR name request without origin IP in client state | Implemented | Name-route responses and synthetic mappings omit the origin address |
 | Signed NBSR Service Record | Implemented | WP2A adds a bounded owner-bound local registry; no federation or production trust distribution |
 | WP2A Name Node core | Implemented | Signed registry, bounded resolution state, synthetic-only core, privacy-safe observability, and loopback UDP/TCP DNS are verified at lab scope |
 | Real recursive DNS, production DNSSEC, and Web PKI validation | Planned | WP2A accepts only injected normalized discovery data and makes no production resolver or certificate-validation claim |
-| Resolution Context ID | Partial | Local adapter/session correlation exists, but subscriber/CPE/DoH/DoT context contracts are not defined |
+| Resolution Context ID | Partial | Production Go has bounded local-only MappingID/FlowContext correlation for SOCKS5-domain and HTTP CONNECT; subscriber/CPE/DoH/DoT and transparent-platform context contracts are not defined |
+| Shared Synthetic IP secure-routing prefix | Implemented | Production Go Tranche 6 pins canonical-name SHA-256 through immutable mapping and authority inputs, supports simultaneous same-port services via single-use local flow correlation, and reuses existing verified TS/SC/credit/stream ownership; explicit-proxy scope only |
 | Synthetic-handle allocation | Implemented | Bounded IPv4/IPv6 prototype pools, expiry, collision controls, and ownership journaling exist |
 | Shared source-edge address mode | Planned | Requires a trustworthy name signal and is not the primary WP2 path |
 | Native `connect(name)` API | Planned | Later compatibility optimization; not required for the first no-agent lab |

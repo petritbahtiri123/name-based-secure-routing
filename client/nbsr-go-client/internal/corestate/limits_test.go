@@ -14,7 +14,12 @@ type fakeClock struct {
 func (c fakeClock) NowUnix() uint64 { return c.now }
 
 func validLimits() Limits {
-	return Limits{1, 1, 1, 1, 1, 1, 1, 1, 1}
+	return Limits{
+		MaxGenerations: 1, MaxMappings: 1, MaxServices: 1, MaxStreams: 1,
+		MaxMappingBytes: 1, MaxServiceBytes: 1, MaxStreamBytes: 1,
+		MaxServiceIdentityBytes: 1, MaxPolicyContextBytes: 1,
+		MaxCanonicalNameBytes: 253, MaxRouteIntentBytes: 4096, MaxTargetEdgeBytes: 1024,
+	}
 }
 
 func TestServiceHandleIsUint32AndZeroInvalid(t *testing.T) {
@@ -101,15 +106,12 @@ func TestStateErrorDoesNotPanicForTypedNilTarget(t *testing.T) {
 }
 
 func TestLogicalCostIsDeterministic(t *testing.T) {
-	mapping, err := mappingCost(MappingSpec{
-		ServiceIdentity: "service",
-		PolicyContext:   PolicyContext("policy"),
-	})
+	mapping, err := mappingCost(mappingSpec(1))
 	if err != nil {
 		t.Fatal(err)
 	}
-	if mapping != 38 {
-		t.Fatalf("mapping cost = %d, want 38", mapping)
+	if mapping != 254 {
+		t.Fatalf("mapping cost = %d, want 254", mapping)
 	}
 
 	service, err := serviceCost(ServiceSpec{ServiceIdentity: "service"})

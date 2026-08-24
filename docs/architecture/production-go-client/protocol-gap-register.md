@@ -48,8 +48,8 @@ defense, not a universal requirement.
 | SC readiness at cutover | No production policy for eager vs lazy recreation | Per-service availability during rotation | CLIENT_IMPLEMENTATION | Permit lazy recreation only if selection waits for that service's SC/credit readiness; never select unusable generation |
 | Ambiguous SC admission completion | Destination may commit while the response is lost; blind retry conflicts with single-use grant semantics | Safe SC recovery/retry | **REQUIRES_PROTOCOL_DECISION** | Treat as non-retryable unless existing semantics prove deterministic reconciliation; otherwise approve a separate recovery contract |
 | Existing-stream revoke policy | Architecture allows immediate revoke or approved bounded drain | Exact user-visible termination | **REQUIRES_PROTOCOL_DECISION** | Approve per-revocation-class immediate-close versus bounded-drain rule; rotation must obey it |
-| Synthetic mapping TTL/invalidation | Prototype profile leaves production allocation and recovery open | Correct routing/cache/restart | **REQUIRES_PROTOCOL_DECISION** | Freeze resolver authority, mapping scope, TTL, collision, invalidation, and restart semantics |
-| Literal shared Synthetic IP correlation | Identical IP/port flows do not encode original service | Approach B and some transparent adapters | PLATFORM_INTEGRATION | Initial Approach A uses per-active-service local mappings; Approach B requires proven adapter-supplied MappingID/FlowContext |
+| Synthetic mapping TTL/invalidation | Tranche 6 now enforces earliest-authority expiry, immutable replacement, active-reference retention, and empty restart | Transparent/platform resolver ownership beyond the explicit proxy | CLIENT_IMPLEMENTATION complete for explicit-proxy scope | Reuse the bounded ephemeral Tranche 6 mapping contract; separately approve platform resolver ownership |
+| Literal shared Synthetic IP correlation | Identical IP/port flows do not encode original service | Transparent adapters | CLIENT_IMPLEMENTATION complete for explicit proxy; PLATFORM_INTEGRATION remains | The explicit SOCKS5-domain/HTTP CONNECT adapter supplies a local single-use MappingID/FlowContext; native transparent correlation remains a separate platform tranche |
 | ServiceHandle wire representation | Existing P2D authenticates with channel ID/generation; a compact handle is not currently a wire identifier | Only a proposal to transmit/replace identifiers | No gap for local lookup; wire change gated | Use local client/server aliases over existing SC state; any transmitted handle/new field is **REQUIRES SEPARATE PROTOCOL APPROVAL** |
 | Resolver failover | Multiple replies may conflict or be stale | Availability without poisoning | **REQUIRES_PROTOCOL_DECISION** | Define approved resolver set, authenticated precedence, conflict/freshness failure rule |
 | OS interception model | Windows/Linux/router require different mechanisms | Transparent production deployment | PLATFORM_INTEGRATION | Proxy-first core validation; TUN for Linux/router; separately approve Windows native adapter |
@@ -71,13 +71,14 @@ networking still require separate protocol approval.
 The following decisions belong to later or separately scoped tranches and are
 not silently resolved here:
 
-1. Resolver authority, Synthetic-IP mapping lifetime/invalidation, and
-   failover/conflict behavior.
+1. Resolver authority failover/conflict behavior and transparent platform DNS
+   ownership beyond the bounded explicit-proxy Tranche 6 implementation.
 2. Existing-stream behavior for each revocation class: immediate close or
    explicitly bounded drain.
-3. The first adapter is resolved as **user-space proxy with Approach A
-   per-active-service local Synthetic IP mappings**. TUN, Windows-native, and
-   Approach B MappingID correlation remain separate platform tranches.
+3. The first adapter is the approved **explicit user-space SOCKS5-domain/HTTP
+   CONNECT proxy with one shared Synthetic IP and local MappingID/FlowContext
+   correlation**. TUN and Windows-native transparent adapters remain separate
+   platform tranches.
 4. TS-rotation implementation and global-per-reuse-key cutover integration.
 5. An SC ambiguous-completion reconciliation path; the current default remains
    fail closed with no blind retry.

@@ -1,6 +1,7 @@
 package corestate
 
 import (
+	"crypto/sha256"
 	"errors"
 	"math"
 	"strings"
@@ -28,10 +29,19 @@ func (c *mutableClock) set(now uint64) {
 }
 
 func mappingSpec(n int) MappingSpec {
+	name := "service-" + string(rune('a'+n-1)) + ".example"
+	canonical := []byte("route-intent-" + string(rune('a'+n-1)))
 	return MappingSpec{
+		CanonicalName:   name,
 		ServiceIdentity: "service-" + string(rune('a'+n-1)),
-		ExpiresAtUnix:   100,
-		PolicyContext:   PolicyContext("policy"),
+		ServiceDigest:   ServiceDigest(sha256.Sum256([]byte(name))),
+		RouteIntent: RouteIntentSnapshot{
+			Canonical: canonical, Digest: sha256.Sum256(canonical), SourceOperator: "source", SourceEdge: "source-edge",
+			TargetOperator: "target", TargetEdges: []string{"target-edge"}, Transport: "tcp", Port: 443,
+			RecordSequence: 1, PolicyHash: [32]byte{1}, RouteID: [16]byte{1}, LeaseID: [16]byte{2}, ExpiresAt: 100,
+		},
+		ExpiresAtUnix: 100,
+		PolicyContext: PolicyContext("policy"),
 	}
 }
 
@@ -41,6 +51,9 @@ func mappingLimits(maxMappings int, maxBytes uint64) Limits {
 	l.MaxMappingBytes = maxBytes
 	l.MaxServiceIdentityBytes = 64
 	l.MaxPolicyContextBytes = 64
+	l.MaxCanonicalNameBytes = 253
+	l.MaxRouteIntentBytes = 4096
+	l.MaxTargetEdgeBytes = 1024
 	return l
 }
 
@@ -147,6 +160,43 @@ func TestMappingValidatesRequiredAndBoundedFields(t *testing.T) {
 	}
 }
 
+func TestMappingRejectsResolutionProvenanceMismatch(t *testing.T) {
+	s := mappingStore(t, 8, 8192)
+	tests := []struct {
+		name   string
+		mutate func(*MappingSpec)
+	}{
+		{"digest", func(spec *MappingSpec) { spec.ServiceDigest[0]++ }},
+		{"intent expiry", func(spec *MappingSpec) { spec.ExpiresAtUnix = spec.RouteIntent.ExpiresAt + 1 }},
+		{"intent digest", func(spec *MappingSpec) { spec.RouteIntent.Digest[0]++ }},
+		{"empty canonical name", func(spec *MappingSpec) { spec.CanonicalName = "" }},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			spec := mappingSpec(1)
+			test.mutate(&spec)
+			if _, err := s.AddMapping(spec); err == nil {
+				t.Fatal("mapping with invalid resolution provenance accepted")
+			}
+		})
+	}
+}
+
+func TestMappingOwnsRouteIntentSlices(t *testing.T) {
+	s := mappingStore(t, 1, 8192)
+	spec := mappingSpec(1)
+	added := mustAddMapping(t, s, spec)
+	spec.RouteIntent.Canonical[0] ^= 0xff
+	spec.RouteIntent.TargetEdges[0] = "changed"
+	got, err := s.LookupMapping(added.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(got.RouteIntent.Canonical) != "route-intent-a" || got.RouteIntent.TargetEdges[0] != "target-edge" {
+		t.Fatal("mapping aliases caller-owned route intent")
+	}
+}
+
 func TestMappingConflictDoesNotReplaceIdentity(t *testing.T) {
 	s := mappingStore(t, 2, 1024)
 	added := mustAddMapping(t, s, mappingSpec(1))
@@ -209,6 +259,25 @@ func TestMappingAcquireReleaseCountsExactly(t *testing.T) {
 	}
 	if err := s.ReleaseMapping(added.ID); !errors.Is(err, ErrInvalidTransition) {
 		t.Fatalf("underflow error = %v, want ErrInvalidTransition", err)
+	}
+}
+
+func TestExpiredMappingIsRemovedOnFinalRelease(t *testing.T) {
+	clock := newFakeClock(10)
+	s := mappingStoreAt(t, clock, 1, 4096)
+	spec := mappingSpec(1)
+	spec.ExpiresAtUnix = 20
+	spec.RouteIntent.ExpiresAt = 20
+	added := mustAddMapping(t, s, spec)
+	if _, err := s.AcquireMapping(added.ID); err != nil {
+		t.Fatal(err)
+	}
+	clock.set(20)
+	if err := s.ReleaseMapping(added.ID); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.LookupMapping(added.ID); !errors.Is(err, ErrUnknownMapping) {
+		t.Fatalf("final release left expired mapping: %v", err)
 	}
 }
 
@@ -409,8 +478,11 @@ func TestMappingExpiryIsSynchronousAndReferenceSafe(t *testing.T) {
 	if err := s.ReleaseMapping(second.ID); err != nil {
 		t.Fatal(err)
 	}
-	if removed, err := s.ExpireMappings(); err != nil || removed != 1 {
-		t.Fatalf("second ExpireMappings = (%d, %v), want (1, nil)", removed, err)
+	if _, err := s.LookupMapping(second.ID); !errors.Is(err, ErrUnknownMapping) {
+		t.Fatalf("final release retained expired referenced mapping: %v", err)
+	}
+	if removed, err := s.ExpireMappings(); err != nil || removed != 0 {
+		t.Fatalf("second ExpireMappings = (%d, %v), want (0, nil)", removed, err)
 	}
 }
 
@@ -434,7 +506,10 @@ func TestMappingCopiesOwnedStringsAndReturnedSnapshots(t *testing.T) {
 	s := mappingStore(t, 1, 1024)
 	identityBytes := []byte("service-a")
 	policyBytes := []byte("policy")
-	added := mustAddMapping(t, s, MappingSpec{ServiceIdentity: string(identityBytes), ExpiresAtUnix: 100, PolicyContext: PolicyContext(string(policyBytes))})
+	spec := mappingSpec(1)
+	spec.ServiceIdentity = string(identityBytes)
+	spec.PolicyContext = PolicyContext(string(policyBytes))
+	added := mustAddMapping(t, s, spec)
 	identityBytes[0] = 'X'
 	policyBytes[0] = 'X'
 	added.ServiceIdentity = "changed"

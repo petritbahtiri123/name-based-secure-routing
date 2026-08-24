@@ -366,6 +366,11 @@ func targetEdgeSetDigest(edges []string) [32]byte {
 	return digest
 }
 
+// TargetEdgeSetDigest returns the frozen length-delimited digest used by an
+// AuthorityKey. Callers still require normal Acquire validation; this helper
+// only prevents independent implementations of the binding algorithm.
+func TargetEdgeSetDigest(edges []string) [32]byte { return targetEdgeSetDigest(edges) }
+
 func copyProviderGrant(grant ProviderGrant, limits Limits) (ProviderGrant, error) {
 	if len(grant.ExactRouteGrant) == 0 || len(grant.ExactRouteGrant) > limits.MaxGrantBytes || grant.Profile == "" ||
 		grant.AuthorityGeneration == 0 || grant.Checkpoint == (CheckpointDigest{}) {

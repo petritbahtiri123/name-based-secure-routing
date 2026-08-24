@@ -39,9 +39,28 @@ const (
 )
 
 type MappingSpec struct {
+	CanonicalName   string
 	ServiceIdentity string
+	ServiceDigest   ServiceDigest
+	RouteIntent     RouteIntentSnapshot
 	ExpiresAtUnix   uint64
 	PolicyContext   PolicyContext
+}
+
+type RouteIntentSnapshot struct {
+	Canonical      []byte
+	Digest         [32]byte
+	SourceOperator string
+	SourceEdge     string
+	TargetOperator string
+	TargetEdges    []string
+	Transport      string
+	Port           uint16
+	RecordSequence uint64
+	PolicyHash     [32]byte
+	RouteID        [16]byte
+	LeaseID        [16]byte
+	ExpiresAt      uint64
 }
 
 type MappingSnapshot struct {

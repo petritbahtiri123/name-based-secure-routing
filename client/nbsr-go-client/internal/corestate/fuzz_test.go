@@ -180,11 +180,11 @@ func runRemoveOperation(t *testing.T, s *Store, arg byte) error {
 }
 
 func fuzzMappingSpec(arg byte) MappingSpec {
-	return MappingSpec{
-		ServiceIdentity: "fuzz-mapping-" + string(rune('a'+arg)),
-		ExpiresAtUnix:   10,
-		PolicyContext:   PolicyContext("fuzz-policy"),
-	}
+	spec := mappingSpec(int(arg%20) + 1)
+	spec.ExpiresAtUnix = 10
+	spec.RouteIntent.ExpiresAt = 10
+	spec.PolicyContext = PolicyContext("fuzz-policy")
+	return spec
 }
 
 func fuzzServiceSpec(arg byte) ServiceSpec {

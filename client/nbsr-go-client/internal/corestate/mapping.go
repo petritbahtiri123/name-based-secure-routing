@@ -1,7 +1,9 @@
 package corestate
 
 import (
+	"crypto/sha256"
 	"math"
+	"reflect"
 	"strings"
 )
 
@@ -12,11 +14,16 @@ type mappingEntry struct {
 func (s *Store) AddMapping(spec MappingSpec) (MappingSnapshot, error) {
 	s.mu.Lock()
 
-	if spec.ServiceIdentity == "" || spec.ExpiresAtUnix == 0 {
+	if !validMappingSpec(spec) {
 		s.mu.Unlock()
 		return MappingSnapshot{}, &StateError{Code: CodeInvalidTransition, Resource: "mapping specification"}
 	}
-	if len(spec.ServiceIdentity) > s.limits.MaxServiceIdentityBytes || len(spec.PolicyContext) > s.limits.MaxPolicyContextBytes {
+	targetEdgeBytes := 0
+	for _, edge := range spec.RouteIntent.TargetEdges {
+		targetEdgeBytes += len(edge)
+	}
+	if len(spec.ServiceIdentity) > s.limits.MaxServiceIdentityBytes || len(spec.PolicyContext) > s.limits.MaxPolicyContextBytes ||
+		len(spec.CanonicalName) > s.limits.MaxCanonicalNameBytes || len(spec.RouteIntent.Canonical) > s.limits.MaxRouteIntentBytes || targetEdgeBytes > s.limits.MaxTargetEdgeBytes {
 		s.mu.Unlock()
 		return MappingSnapshot{}, &StateError{Code: CodeByteCapacityExceeded, Resource: "mapping fields"}
 	}
@@ -40,7 +47,10 @@ func (s *Store) AddMapping(spec MappingSpec) (MappingSnapshot, error) {
 
 	id := s.highestMappingID + 1
 	owned := MappingSpec{
+		CanonicalName:   strings.Clone(spec.CanonicalName),
 		ServiceIdentity: strings.Clone(spec.ServiceIdentity),
+		ServiceDigest:   spec.ServiceDigest,
+		RouteIntent:     copyRouteIntentSnapshot(spec.RouteIntent),
 		ExpiresAtUnix:   spec.ExpiresAtUnix,
 		PolicyContext:   PolicyContext(strings.Clone(string(spec.PolicyContext))),
 	}
@@ -58,7 +68,7 @@ func (s *Store) AddMapping(spec MappingSpec) (MappingSnapshot, error) {
 
 func (s *Store) insertMappingWithIDLocked(id MappingID, spec MappingSpec, cost uint64) error {
 	if current, ok := s.mappings[id]; ok {
-		if current.snapshot.MappingSpec != spec {
+		if !reflect.DeepEqual(current.snapshot.MappingSpec, spec) {
 			return &StateError{Code: CodeMappingConflict, Resource: "mapping ID"}
 		}
 		return nil
@@ -108,17 +118,26 @@ func (s *Store) AcquireMapping(id MappingID) (MappingSnapshot, error) {
 
 func (s *Store) ReleaseMapping(id MappingID) error {
 	s.mu.Lock()
-	defer s.mu.Unlock()
-
 	entry, ok := s.mappings[id]
 	if !ok {
+		s.mu.Unlock()
 		return &StateError{Code: CodeUnknownMapping, Resource: "mapping"}
 	}
 	if entry.snapshot.ActiveReferences == 0 {
+		s.mu.Unlock()
 		return &StateError{Code: CodeInvalidTransition, Resource: "mapping reference underflow"}
 	}
 	entry.snapshot.ActiveReferences--
-	s.mappings[id] = entry
+	removed := entry.snapshot.ActiveReferences == 0 && s.clock.NowUnix() >= entry.snapshot.ExpiresAtUnix
+	if removed {
+		s.removeMappingLocked(id, entry)
+	} else {
+		s.mappings[id] = entry
+	}
+	s.mu.Unlock()
+	if removed {
+		s.observer.Observe(Event{Kind: EventMappingRemoved, MappingID: id})
+	}
 	return nil
 }
 
@@ -185,7 +204,39 @@ func (s *Store) removeMappingLocked(id MappingID, entry mappingEntry) {
 }
 
 func copyMappingSnapshot(snapshot MappingSnapshot) MappingSnapshot {
+	snapshot.CanonicalName = strings.Clone(snapshot.CanonicalName)
 	snapshot.ServiceIdentity = strings.Clone(snapshot.ServiceIdentity)
 	snapshot.PolicyContext = PolicyContext(strings.Clone(string(snapshot.PolicyContext)))
+	snapshot.RouteIntent = copyRouteIntentSnapshot(snapshot.RouteIntent)
 	return snapshot
+}
+
+func validMappingSpec(spec MappingSpec) bool {
+	intent := spec.RouteIntent
+	if spec.CanonicalName == "" || spec.ServiceIdentity == "" || spec.ServiceDigest == (ServiceDigest{}) || spec.ExpiresAtUnix == 0 ||
+		ServiceDigest(sha256.Sum256([]byte(spec.CanonicalName))) != spec.ServiceDigest || len(intent.Canonical) == 0 ||
+		sha256.Sum256(intent.Canonical) != intent.Digest || intent.SourceOperator == "" || intent.SourceEdge == "" || intent.TargetOperator == "" ||
+		len(intent.TargetEdges) == 0 || intent.Transport == "" || intent.Port == 0 || intent.RecordSequence == 0 || intent.PolicyHash == ([32]byte{}) ||
+		intent.RouteID == ([16]byte{}) || intent.LeaseID == ([16]byte{}) || intent.ExpiresAt == 0 || spec.ExpiresAtUnix > intent.ExpiresAt {
+		return false
+	}
+	for _, edge := range intent.TargetEdges {
+		if edge == "" {
+			return false
+		}
+	}
+	return true
+}
+
+func copyRouteIntentSnapshot(intent RouteIntentSnapshot) RouteIntentSnapshot {
+	intent.Canonical = append([]byte(nil), intent.Canonical...)
+	intent.SourceOperator = strings.Clone(intent.SourceOperator)
+	intent.SourceEdge = strings.Clone(intent.SourceEdge)
+	intent.TargetOperator = strings.Clone(intent.TargetOperator)
+	intent.Transport = strings.Clone(intent.Transport)
+	intent.TargetEdges = append([]string(nil), intent.TargetEdges...)
+	for index := range intent.TargetEdges {
+		intent.TargetEdges[index] = strings.Clone(intent.TargetEdges[index])
+	}
+	return intent
 }

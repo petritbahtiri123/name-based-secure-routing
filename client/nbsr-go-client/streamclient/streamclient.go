@@ -27,9 +27,11 @@ type OpenFunc func(context.Context) (Wire, uint64, error)
 type RefillFunc func(context.Context, uint64) error
 
 type OwnedChannel struct {
-	manager    *session.Manager
-	generation corestate.TSGeneration
-	handle     corestate.ServiceHandle
+	manager         *session.Manager
+	generation      corestate.TSGeneration
+	handle          corestate.ServiceHandle
+	serviceIdentity string
+	serviceDigest   corestate.ServiceDigest
 }
 type OwnedChannelConfig struct {
 	Now, ExpiresAt, TSGeneration, ChannelGeneration, AuthorityGeneration     uint64
@@ -162,7 +164,7 @@ func NewOwnedChannel(ctx context.Context, c OwnedChannelConfig) (*OwnedChannel, 
 		_ = manager.CloseTransportSession(generation)
 		return nil, err
 	}
-	return &OwnedChannel{manager: manager, generation: generation, handle: snapshot.Handle}, nil
+	return &OwnedChannel{manager: manager, generation: generation, handle: snapshot.Handle, serviceIdentity: snapshot.ServiceIdentity, serviceDigest: snapshot.ServiceDigest}, nil
 }
 func filled(v byte) (out [32]byte) {
 	for i := range out {

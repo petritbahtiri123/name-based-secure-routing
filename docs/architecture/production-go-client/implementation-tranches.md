@@ -38,11 +38,15 @@ approved and is independently testable.
    machine, proactive triggers, fresh TS-B grants/channels/credits, atomic
    selection, cross-generation revocation, drain/destruction, sleep/network
    changes, crash/restart, and cap-bound adversarial tests.
-6. **First user-space proxy adapter.** Add scoped resolver/proxy integration,
-   local application attribution, Approach A per-active-service local
-   Synthetic-IP mapping/collision containment,
-   install/rollback, and end-to-end application tests. State its transparency
-   limitations explicitly.
+6. **Resolution to one shared Synthetic IP and secure routing.** Add canonical
+   resolution provenance, immutable bounded mappings, and an explicit local
+   SOCKS5-domain/HTTP CONNECT adapter that supplies per-flow local correlation
+   before authority selection. Reuse the existing authority, TS, SC, credit,
+   and Application Stream stack without wire changes. This explicit-proxy
+   tranche makes no transparent-interception or install/rollback claim.
+   **Implementation status (2026-08-24):** the production Go bounded resolution,
+   mapping, correlation, and secure-routing integration is implemented; see
+   [`tranche6-implementation-status.md`](../../protocol/tranche6-implementation-status.md).
 7. **Observability and resource hardening.** Add redacted bounded-cardinality
    metrics/logs, health, overload behavior, idle/soak/GC/goroutine/handle
    measurement, fault injection, and measured defaults for named hardware.
