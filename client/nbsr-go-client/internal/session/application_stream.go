@@ -151,8 +151,8 @@ func (manager *Manager) OpenApplicationStream(ctx context.Context, generation co
 			return ErrStreamCapacity
 		}
 		record := channel.pending[pendingID]
-		if record.stop != nil {
-			record.stop()
+		if admissionCtx.Err() != nil || (record.stop != nil && !record.stop()) {
+			return ErrStreamClosed
 		}
 		record.cancel()
 		delete(channel.pending, pendingID)

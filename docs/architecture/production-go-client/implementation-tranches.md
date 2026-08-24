@@ -30,6 +30,10 @@ approved and is independently testable.
    ownership, atomic slots/refill, actual stream-ID binding, payload-before-
    ACCEPT quarantine, forwarding, half-close, cancellation, backpressure, and
    retry boundaries. Preserve all accepted vectors and wire behavior.
+   **Implementation status (2026-08-24):** bounded credit and Application
+   Stream ownership, payload gating, final commit barrier, recursive teardown,
+   and real Go-to-Rust admission/refill interoperability are implemented; see
+   [`tranche4-implementation-status.md`](../../protocol/tranche4-implementation-status.md).
 5. **Rotation and crash/network recovery.** Add the two-generation state
    machine, proactive triggers, fresh TS-B grants/channels/credits, atomic
    selection, cross-generation revocation, drain/destruction, sleep/network

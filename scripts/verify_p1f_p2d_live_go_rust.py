@@ -122,13 +122,15 @@ def main() -> int:
     if run_root.exists():
         raise SystemExit(f"refusing to overwrite prior live evidence: {run_root}")
     run_root.mkdir(parents=True)
-    cases = [run_case(run_root, rust, go, "approved"), run_case(run_root, rust, go, "multiple-refill", operations=80)]
+    cases = [run_case(run_root, rust, go, "approved"), run_case(run_root, rust, go, "multiple-refill", operations=128)]
     for name, mutation in (
         ("malformed-preface", "malformed_credit_preface"),
         ("profile-mismatch", "credit_profile_mismatch"),
         ("legacy-downgrade", "credit_legacy_downgrade"),
     ):
         cases.append(run_case(run_root, rust, go, name, mutation))
+    cases.append(run_case(run_root, rust, go, "wrong-channel-credit", "credit_wrong_channel"))
+    cases.append(run_case(run_root, rust, go, "replayed-credit", "credit_replay", operations=2))
     evidence = {
         "schema": "nbsr-p1f-p2d-live-go-rust-closure-1",
         "authority_sha256": AUTHORITY_SHA256,

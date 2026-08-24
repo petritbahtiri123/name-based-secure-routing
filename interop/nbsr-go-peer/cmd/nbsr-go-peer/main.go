@@ -51,10 +51,52 @@ type config struct {
 }
 
 func isCreditMutation(value string) bool {
-	return value == "malformed_credit_preface" || value == "credit_profile_mismatch" || value == "credit_legacy_downgrade"
+	return value == "malformed_credit_preface" || value == "credit_profile_mismatch" || value == "credit_legacy_downgrade" || value == "credit_wrong_channel" || value == "credit_replay"
 }
 
 func runMutatedCreditCase(ctx context.Context, peer *transport.Peer, configuration config, channelID [16]byte, mutation string) (result, error) {
+	if mutation == "credit_replay" {
+		first, err := peer.OpenApplication(ctx)
+		if err != nil {
+			return result{}, err
+		}
+		preface, err := streamcredit.EncodePreface(channelID, 1, 1, 0, uint64(first.StreamID()))
+		if err != nil {
+			return result{}, err
+		}
+		if _, err = first.Write(preface); err != nil {
+			return result{}, err
+		}
+		decision := []byte{0xff}
+		if _, err = io.ReadFull(first, decision); err != nil || decision[0] != 0 {
+			return result{}, errors.New("initial replay setup admission rejected")
+		}
+		if _, err = first.Write([]byte(configuration.SafePayload)); err != nil {
+			return result{}, err
+		}
+		if err = first.Close(); err != nil {
+			return result{}, err
+		}
+		echo := make([]byte, len(configuration.SafePayload))
+		if _, err = io.ReadFull(first, echo); err != nil {
+			return result{}, err
+		}
+		second, err := peer.OpenApplication(ctx)
+		if err != nil {
+			return result{}, err
+		}
+		replayed, err := streamcredit.EncodePreface(channelID, 1, 1, 0, uint64(second.StreamID()))
+		if err != nil {
+			return result{}, err
+		}
+		if _, err = second.Write(replayed); err != nil {
+			return result{}, err
+		}
+		if _, err = io.ReadFull(second, decision); err != nil {
+			return result{}, fmt.Errorf("replayed credit rejected: %w", err)
+		}
+		return result{}, errors.New("replayed credit unexpectedly answered")
+	}
 	application, err := peer.OpenApplication(ctx)
 	if err != nil {
 		return result{}, err
@@ -71,6 +113,13 @@ func runMutatedCreditCase(ctx context.Context, peer *transport.Peer, configurati
 		preface[3] = 0x02
 	case "credit_legacy_downgrade":
 		preface = []byte(configuration.SafePayload)
+	case "credit_wrong_channel":
+		wrongChannel := channelID
+		wrongChannel[0] ^= 1
+		preface, err = streamcredit.EncodePreface(wrongChannel, 1, 1, 0, streamID)
+		if err != nil {
+			return result{}, err
+		}
 	default:
 		return result{}, errors.New("unsupported credit mutation")
 	}
@@ -333,7 +382,7 @@ func loadPublicKey(path string) (ed25519.PublicKey, error) {
 
 func run(ctx context.Context, configuration config) (result, error) {
 	mutation := os.Getenv("NBSR_INTEROP_TEST_MUTATION")
-	allowedMutations := map[string]bool{"": true, "unsupported_alpn": true, "wrong_peer_identity": true, "wrong_ca": true, "payload_before_admission": true, "malformed_cbor": true, "noncanonical_cbor": true, "over_limit_cbor": true, "wrong_core_version": true, "wrong_session": true, "wrong_request": true, "wrong_channel": true, "wrong_transport": true, "wrong_port": true, "wrong_route_grant_digest": true, "wrong_federation_context_digest": true, "wrong_proof_signature": true, "wrong_service": true, "expired_authority": true, "revoked_authority": true, "unsupported_federation_version": true, "unsupported_profile": true, "downgrade_v1": true, "transcript_substitution": true, "replay": true, "wrong_stream": true, "malformed_credit_preface": true, "credit_profile_mismatch": true, "credit_legacy_downgrade": true}
+	allowedMutations := map[string]bool{"": true, "unsupported_alpn": true, "wrong_peer_identity": true, "wrong_ca": true, "payload_before_admission": true, "malformed_cbor": true, "noncanonical_cbor": true, "over_limit_cbor": true, "wrong_core_version": true, "wrong_session": true, "wrong_request": true, "wrong_channel": true, "wrong_transport": true, "wrong_port": true, "wrong_route_grant_digest": true, "wrong_federation_context_digest": true, "wrong_proof_signature": true, "wrong_service": true, "expired_authority": true, "revoked_authority": true, "unsupported_federation_version": true, "unsupported_profile": true, "downgrade_v1": true, "transcript_substitution": true, "replay": true, "wrong_stream": true, "malformed_credit_preface": true, "credit_profile_mismatch": true, "credit_legacy_downgrade": true, "credit_wrong_channel": true, "credit_replay": true}
 	if !allowedMutations[mutation] {
 		return result{}, errors.New("unsupported test mutation")
 	}
@@ -586,7 +635,9 @@ func run(ctx context.Context, configuration config) (result, error) {
 				}
 				return wire, uint64(wire.StreamID()), nil
 			},
-			Refill: func(_ context.Context, epoch uint64) error { return peer.RefillStreamCredits(channelID, epoch) },
+			Refill: func(refillContext context.Context, epoch uint64) error {
+				return peer.RefillStreamCredits(refillContext, channelID, epoch)
+			},
 		})
 		if ownerErr != nil {
 			return result{}, fmt.Errorf("production stream owner: %w", ownerErr)

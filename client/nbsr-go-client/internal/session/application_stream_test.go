@@ -249,8 +249,34 @@ func TestApplicationStreamRefillIsAmortizedAtWatermark(t *testing.T) {
 		t.Fatalf("refill calls = %d, want 1", wireChannel.refillCalls)
 	}
 	snapshot, err := fixture.manager.CreditSnapshot(ts.Generation, sc.Handle)
-	if err != nil || snapshot.CurrentEpoch != 2 || snapshot.DrainingEpoch != 1 || snapshot.Available != 64 {
+	if err != nil || snapshot.CurrentEpoch != 2 || snapshot.DrainingEpoch != 0 || snapshot.Available != 64 {
 		t.Fatalf("refill snapshot = %+v, %v", snapshot, err)
+	}
+}
+
+func TestApplicationStreamSequentialRefillsRetireInactiveEpochs(t *testing.T) {
+	fixture := newFixture(t)
+	fixture.manager.limits.MaxStreams = 128
+	fixture.manager.limits.MaxStateBytes = 32 * 1024
+	ts := fixture.createTS(t, 1)
+	sc := fixture.createSC(t, fixture.channelRequest(ts.Generation, 1))
+	wireChannel := fixture.opener.channels[0]
+	for index := uint64(1); index <= 128; index++ {
+		wireChannel.next = &testApplicationWire{id: corestate.StreamID(index * 4), read: []byte{0}}
+		stream, err := fixture.manager.OpenApplicationStream(context.Background(), ts.Generation, sc.Handle)
+		if err != nil {
+			t.Fatalf("stream %d: %v", index, err)
+		}
+		if err := stream.Close(); err != nil {
+			t.Fatalf("close %d: %v", index, err)
+		}
+	}
+	if wireChannel.refillCalls != 2 {
+		t.Fatalf("refills = %d, want 2", wireChannel.refillCalls)
+	}
+	snapshot, err := fixture.manager.CreditSnapshot(ts.Generation, sc.Handle)
+	if err != nil || snapshot.CurrentEpoch != 3 || snapshot.DrainingEpoch != 0 || snapshot.Available != 32 {
+		t.Fatalf("snapshot = %+v, %v", snapshot, err)
 	}
 }
 

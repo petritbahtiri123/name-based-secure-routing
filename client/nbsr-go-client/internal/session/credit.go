@@ -168,7 +168,9 @@ func (manager *Manager) CompleteCreditRefill(generation corestate.TSGeneration, 
 		return ErrCreditStaleEpoch
 	}
 	draining := window.current
-	window.draining = &draining
+	if draining.active != 0 {
+		window.draining = &draining
+	}
 	window.current = creditEpoch{number: epoch}
 	window.pendingRefill = 0
 	return nil

@@ -2,8 +2,20 @@ package transport
 
 import (
 	"bytes"
+	"context"
+	"errors"
 	"testing"
 )
+
+func TestRefillStreamCreditsHonorsCancellationWhileWaitingForControlLock(t *testing.T) {
+	peer := &Peer{controlLock: make(chan struct{}, 1)}
+	peer.controlLock <- struct{}{}
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	if err := peer.RefillStreamCredits(ctx, [16]byte{1}, 2); !errors.Is(err, context.Canceled) {
+		t.Fatalf("refill cancellation = %v", err)
+	}
+}
 
 func TestStreamCreditRefillFramesMatchAcceptedP2DVectors(t *testing.T) {
 	channel := [16]byte{0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4a, 0x4b, 0x4c, 0x4d, 0x4e, 0x4f}

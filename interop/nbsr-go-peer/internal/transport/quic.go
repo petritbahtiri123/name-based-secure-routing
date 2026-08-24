@@ -10,7 +10,7 @@ import (
 	"errors"
 	"io"
 	"os"
-	"sync"
+	"time"
 
 	quic "github.com/quic-go/quic-go"
 	"nbsr.local/interop/nbsr-go-peer/internal/core"
@@ -49,10 +49,10 @@ func LoadReadiness(path string) (Readiness, error) {
 }
 
 type Peer struct {
-	connection *quic.Conn
-	control    *quic.Stream
-	tlsState   tls.ConnectionState
-	controlMu  sync.Mutex
+	connection  *quic.Conn
+	control     *quic.Stream
+	tlsState    tls.ConnectionState
+	controlLock chan struct{}
 }
 
 func Dial(ctx context.Context, ready Readiness) (*Peer, error) {
@@ -101,7 +101,7 @@ func Dial(ctx context.Context, ready Readiness) (*Peer, error) {
 		connection.CloseWithError(1, "control stream mismatch")
 		return nil, errors.New("first control stream is not stream 0")
 	}
-	return &Peer{connection: connection, control: control, tlsState: state.TLS}, nil
+	return &Peer{connection: connection, control: control, tlsState: state.TLS, controlLock: make(chan struct{}, 1)}, nil
 }
 
 func (peer *Peer) SendEnvelope(envelope core.Envelope) error {
@@ -204,22 +204,37 @@ func decodeStreamCreditRefill(wire []byte, kind byte) ([16]byte, uint64, error) 
 	return channel, epoch, nil
 }
 
-func (peer *Peer) RefillStreamCredits(channel [16]byte, epoch uint64) error {
+func (peer *Peer) RefillStreamCredits(ctx context.Context, channel [16]byte, epoch uint64) error {
+	if ctx == nil {
+		return errors.New("nil refill context")
+	}
 	request, err := encodeStreamCreditRefill(1, channel, epoch)
 	if err != nil {
 		return err
 	}
-	peer.controlMu.Lock()
-	defer peer.controlMu.Unlock()
+	select {
+	case peer.controlLock <- struct{}{}:
+	case <-ctx.Done():
+		return ctx.Err()
+	}
+	defer func() { <-peer.controlLock }()
+	if deadline, ok := ctx.Deadline(); ok {
+		_ = peer.control.SetDeadline(deadline)
+	}
+	stop := context.AfterFunc(ctx, func() { _ = peer.control.SetDeadline(time.Now()) })
+	defer func() { stop(); _ = peer.control.SetDeadline(time.Time{}) }()
 	if _, err := peer.control.Write(request); err != nil {
+		peer.connection.CloseWithError(1, "ambiguous stream-credit refill")
 		return err
 	}
 	grant := make([]byte, 31)
 	if _, err := io.ReadFull(peer.control, grant); err != nil {
+		peer.connection.CloseWithError(1, "ambiguous stream-credit refill")
 		return err
 	}
 	gotChannel, gotEpoch, err := decodeStreamCreditRefill(grant, 2)
 	if err != nil || gotChannel != channel || gotEpoch != epoch {
+		peer.connection.CloseWithError(1, "invalid stream-credit refill grant")
 		return errors.New("stream credit refill grant mismatch")
 	}
 	return nil
