@@ -2,8 +2,7 @@
 
 ## Outcome
 
-Implementation and local verification pass. Final tranche outcome is BLOCKED
-only on missing real two-generation Go→Rust rotation evidence.
+TRANCHE 5 COMPLETE AND VERIFIED.
 
 ## Reviewed boundary
 
@@ -39,20 +38,47 @@ in the reviewed local boundary.
 - Python P2D: 21 passed.
 - Existing real Go→Rust P1F/P2D live verifier: 7 cases PASS; artifact at
   `C:\NBSR-build\tranche5-final\live-run\live-result.json`.
+- Real Go→Rust A→B rotation verifier: PASS; artifact at
+  `C:\NBSR-build\tranche5-closure-b124939\rotation-run\rotation-evidence.json`.
 
 The first live-verifier invocation was INCONCLUSIVE because the verifier
 expects prebuilt binaries and launch failed with `WinError 2`. Exact-source
 Rust and Go binaries were then built in the required external layout; the fresh
 rerun passed all seven cases.
 
+## Final connector/evidence review
+
+The focused review of the new connector and lifecycle evidence found four
+Important issues: post-commit SC failure handling, retained connector state,
+unsynchronized handle access, and assertion-only pinning/replay evidence. The
+fix preserved the committed TS handoff, made SC creation generation-local and
+lazy, synchronized handles, purged exact connector ownership, and moved the A
+payload exchange after B activation. The scoped re-review found one remaining
+Important deadline-cleanup race; the final fix makes transport teardown purge
+the cached handle under the connector/handle lock order and adds a deadline
+regression. No Critical/Important finding remains after that scoped fix.
+
+## Real lifecycle evidence
+
+A used `[::]:65206->127.0.0.1:65204`; B used the distinct real QUIC transport
+`[::]:65208->127.0.0.1:65205`. The manager observed
+`1:DRAINING -> 2:CURRENT`, never more than two generations, and rejected C
+while A drained. New SC/credit/stream work resolved only to B and every
+new-work probe against A was rejected. An A stream admitted before rotation
+performed its single payload exchange after B became current, remained pinned
+to its original StreamID/connection, and was then closed. A teardown removed
+all generation-local state and identity; B remained current and completed a
+final payload exchange.
+
+Rust A recorded one correct operation; Rust B recorded two correct operations,
+with zero errors. Those exact counts plus post-handoff A I/O demonstrate that
+no A application payload was replayed on B. The artifact binds source commit
+`b124939de0dc43b1605959421535070b718e8553`, source tree, binaries, readiness,
+peer state, and Rust results.
+
 ## Residual limitation
 
-The live harness has only a single pre-established Transport Session adapter.
-It cannot exercise production-manager A→B rotation without a concrete
-multi-generation Go QUIC connector/opener. Unit/race evidence proves the local
-state machine, and real-process evidence proves unchanged wire behavior, but
-those two facts are not represented as end-to-end real rotation proof.
-
-No protocol decision is required and no wire semantics were invented. Closure
-must remain blocked until that concrete transport adapter and real lifecycle
-case exist.
+Replay-cap replacement was not forced through the real harness because that
+would require an impractical cap-sized campaign. Existing focused Go/P1F proof
+remains authoritative. No wire semantics were changed, and no Synthetic IP,
+resolver, DNS, or proxy work was started.

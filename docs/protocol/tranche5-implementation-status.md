@@ -1,6 +1,6 @@
 # Production Go client Tranche 5 implementation status
 
-Status: IMPLEMENTED AND LOCALLY VERIFIED; REAL ROTATION INTEROP CLOSURE BLOCKED.
+Status: TRANCHE 5 COMPLETE AND VERIFIED.
 
 ## Generation rotation
 
@@ -58,7 +58,7 @@ new generation-specific proof; no prior live object is restored.
 
 ## Verification
 
-Fresh results on the working branch:
+Fresh results on tested source commit `b124939de0dc43b1605959421535070b718e8553`:
 
 - production Go client `go test ./... -count=1`: PASS;
 - UCRT `go test -race ./... -count=1`: PASS;
@@ -69,19 +69,31 @@ Fresh results on the working branch:
 - Rust Application Stream tests: 4 passed;
 - Rust Stream Credit integration: 7 passed;
 - Rust Stream Credit vectors: 5 passed;
-- real Go→Rust accepted P1F/P2D regression: 7 cases PASS.
+- real Go→Rust two-generation rotation:
+  `python scripts/verify_tranche5_rotation.py --build-root
+  C:\NBSR-build\tranche5-closure-b124939`: PASS;
+- A was `[::]:65206->127.0.0.1:65204`; B was the distinct QUIC v1/TLS
+  1.3/`nbsr-quic-1` connection `[::]:65208->127.0.0.1:65205`;
+- the observed handoff was `1:DRAINING -> 2:CURRENT`, with a maximum of two
+  committed generations and C rejected while A occupied the draining slot;
+- an A stream admitted before rotation completed its sole 1024-byte echo only
+  after B became current. Rust A recorded exactly one operation and Rust B
+  exactly two, all payload-correct with zero errors, proving no implicit replay;
+- all attempted new SC, credit, refill, and Application Stream work on A was
+  rejected; new and final usability work completed on B;
+- closing A removed its transport identity, cached handle, SC/credit/stream and
+  pending ownership. B remained current and usable.
 
-## Closure blocker and nonclaims
+The machine-readable artifact is
+`C:\NBSR-build\tranche5-closure-b124939\rotation-run\rotation-evidence.json`.
+It binds the tested source commit and tree plus Go/Rust binary SHA-256 values,
+readiness data, peer evidence, and both Rust results.
 
-The existing real Go peer constructs one `streamclient.OwnedChannel` around one
-already-established QUIC connection. It has no concrete production adapter that
-can establish a second QUIC TS and feed both generations through the same
-`session.Manager`. The current real-process run therefore proves unchanged
-P1F/P2D interoperability, not a real A→B rotation lifecycle.
+## Residual limitations and nonclaims
 
-Adding that adapter requires additional production transport integration, but
-no new protocol message or wire rule. Until a real two-generation Go→Rust run
-proves A use, B activation, B-only new work, A drain/failure, and A teardown,
-Tranche 5 cannot honestly be marked complete. Synthetic IP, DNS interception,
-resolver/proxy integration, application retry, migration, and automatic
-payload replay remain unimplemented.
+The real closure case exercises explicit production rotation and deterministic
+A drain/teardown. Replay-cap replacement remains proven by focused P1F and Go
+manager regressions rather than an impractically large real interop campaign.
+No protocol message, field, or constant was added. Synthetic IP, DNS
+interception, resolver/proxy integration, application retry, migration, and
+automatic payload replay remain unimplemented.
