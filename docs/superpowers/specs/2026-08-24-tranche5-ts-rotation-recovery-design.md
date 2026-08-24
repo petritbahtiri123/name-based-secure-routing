@@ -37,6 +37,18 @@ retry counts, timers, and drain tracking are bounded by configured limits.
 Network operations and waiting never occur while the manager ownership lock is
 held.
 
+Coalesced trigger semantics are monotonic: the effective trigger may only
+become more restrictive. A later revocation, transport failure, replay-cap
+exhaustion, or other stronger no-new-work condition permanently escalates the
+pending attempt. An earlier benign explicit-rotation request cannot mask or
+downgrade that condition when replacement fails or commits.
+
+If current B fails while A is already draining, A is never promoted back to
+current. The two committed slots remain occupied until A is removed, so no C
+may be committed during that interval. Recovery fails closed with no current
+generation. Once A's draining slot is released, a fresh generation may be
+established only from current valid authority.
+
 ## Triggers and recovery
 
 The production coordinator accepts only repository-backed local triggers:
@@ -79,6 +91,14 @@ immediate closure, teardown atomically removes A and all generation-local
 handles, credits, pending state, and stream ownership before closing network
 resources outside the lock. Deadline-based draining is bounded and repeated
 teardown is safe.
+
+Every draining generation has a finite drain deadline owned by the local
+runtime. The duration is bounded runtime configuration unless an existing
+repository requirement supplies it; Tranche 5 defines no protocol constant.
+Deadline expiry deterministically fails or closes every remaining
+generation-local descendant and removes the draining generation. A draining
+generation cannot remain indefinitely, and the deadline adds no wire
+semantics.
 
 ## Restart lifecycle
 
