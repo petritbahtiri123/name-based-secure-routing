@@ -56,6 +56,7 @@ type transportEntry struct {
 type channelEntry struct {
 	snapshot       ServiceChannelSnapshot
 	wire           WireChannel
+	credits        creditWindow
 	accountedBytes uint64
 }
 type pendingChannel struct {
@@ -336,7 +337,7 @@ func (manager *Manager) CreateServiceChannel(ctx context.Context, request Servic
 			}
 			snapshot = ServiceChannelSnapshot{Generation: request.Generation, Handle: handle, ChannelID: request.ChannelID, ChannelGeneration: wire.ChannelGeneration(), ServiceIdentity: request.ServiceIdentity, ServiceDigest: request.ServiceDigest, RouteGrantDigest: request.RouteGrantDigest, AuthorityGeneration: request.AuthorityGeneration}
 			cost := serviceChannelCost(request)
-			entry.channels[handle] = &channelEntry{snapshot: snapshot, wire: wire, accountedBytes: cost}
+			entry.channels[handle] = &channelEntry{snapshot: snapshot, wire: wire, credits: newCreditWindow(), accountedBytes: cost}
 			entry.byWire[request.ChannelID] = handle
 			manager.channelBytes += cost
 		}

@@ -20,6 +20,15 @@ const (
 	CodeDuplicateChannel
 	CodeChannelClosed
 	CodeTransport
+	CodeCreditClosed
+	CodeCreditBinding
+	CodeCreditConsumed
+	CodeCreditExhausted
+	CodeCreditMalformed
+	CodeCreditStaleEpoch
+	CodeEpochCapacity
+	CodeRefillPending
+	CodeRefillNotDue
 )
 
 type Error struct {
@@ -57,4 +66,13 @@ var (
 	ErrDuplicateChannel     = &Error{Code: CodeDuplicateChannel}
 	ErrChannelClosed        = &Error{Code: CodeChannelClosed}
 	ErrTransport            = &Error{Code: CodeTransport}
+	ErrCreditClosed         = &Error{Code: CodeCreditClosed}
+	ErrCreditBinding        = &Error{Code: CodeCreditBinding}
+	ErrCreditConsumed       = &Error{Code: CodeCreditConsumed}
+	ErrCreditExhausted      = &Error{Code: CodeCreditExhausted}
+	ErrCreditMalformed      = &Error{Code: CodeCreditMalformed}
+	ErrCreditStaleEpoch     = &Error{Code: CodeCreditStaleEpoch}
+	ErrEpochCapacity        = &Error{Code: CodeEpochCapacity}
+	ErrRefillPending        = &Error{Code: CodeRefillPending}
+	ErrRefillNotDue         = &Error{Code: CodeRefillNotDue}
 )
