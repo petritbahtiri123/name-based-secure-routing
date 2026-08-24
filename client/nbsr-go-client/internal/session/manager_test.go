@@ -367,6 +367,7 @@ func (t *testTransport) Close() error { t.closed = true; return nil }
 type testOpener struct {
 	mu           sync.Mutex
 	calls        int
+	channels     []*testWireChannel
 	started      chan struct{}
 	block        chan struct{}
 	beforeReturn func()
@@ -388,18 +389,43 @@ func (o *testOpener) Open(_ context.Context, _ Transport, request ServiceChannel
 	if hook != nil {
 		hook()
 	}
-	return &testWireChannel{id: request.ChannelID, generation: 1}, nil
+	channel := &testWireChannel{id: request.ChannelID, generation: 1}
+	o.mu.Lock()
+	o.channels = append(o.channels, channel)
+	o.mu.Unlock()
+	return channel, nil
 }
 
 type testWireChannel struct {
-	id         corestate.ChannelID
-	generation uint64
-	closed     bool
+	id          corestate.ChannelID
+	generation  uint64
+	closed      bool
+	next        *testApplicationWire
+	profile     string
+	openCalls   int
+	refillCalls int
 }
 
 func (c *testWireChannel) ChannelID() corestate.ChannelID { return c.id }
 func (c *testWireChannel) ChannelGeneration() uint64      { return c.generation }
 func (c *testWireChannel) Close() error                   { c.closed = true; return nil }
+func (c *testWireChannel) StreamCreditProfile() string {
+	if c.profile != "" {
+		return c.profile
+	}
+	return StreamCreditProfileID
+}
+func (c *testWireChannel) OpenApplicationStream(context.Context) (WireApplicationStream, error) {
+	c.openCalls++
+	if c.next == nil {
+		return nil, ErrTransport
+	}
+	return c.next, nil
+}
+func (c *testWireChannel) RefillStreamCredits(context.Context, uint64) error {
+	c.refillCalls++
+	return nil
+}
 
 type fixture struct {
 	t         *testing.T
@@ -428,7 +454,7 @@ func newFixture(t *testing.T) *fixture {
 	connector := &testConnector{}
 	opener := &testOpener{started: make(chan struct{}, 8)}
 	clock := &testClock{now}
-	manager, err := newManager(Limits{MaxReuseKeys: 2, MaxSessions: 4, MaxChannels: 4, MaxPendingSessions: 2, MaxPendingChannels: 2, MaxWaitersPerChannel: 2, MaxReuseKeyBytes: 256, MaxServiceIdentityBytes: 128, MaxStateBytes: 4096}, clock, gate, registry, connector, opener)
+	manager, err := newManager(Limits{MaxReuseKeys: 2, MaxSessions: 4, MaxChannels: 4, MaxPendingSessions: 2, MaxPendingChannels: 2, MaxWaitersPerChannel: 2, MaxStreams: 8, MaxPendingAdmissions: 4, MaxReuseKeyBytes: 256, MaxServiceIdentityBytes: 128, MaxStateBytes: 4096}, clock, gate, registry, connector, opener)
 	if err != nil {
 		t.Fatal(err)
 	}

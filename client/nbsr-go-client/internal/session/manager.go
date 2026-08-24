@@ -57,6 +57,7 @@ type channelEntry struct {
 	snapshot       ServiceChannelSnapshot
 	wire           WireChannel
 	credits        creditWindow
+	streams        map[corestate.StreamID]*ApplicationStream
 	accountedBytes uint64
 }
 type pendingChannel struct {
@@ -82,9 +83,11 @@ type Manager struct {
 	sessions                   map[corestate.TSGeneration]*transportEntry
 	byReuse                    map[ReuseKey]map[corestate.TSGeneration]*transportEntry
 	pendingSessions            int
+	pendingAdmissions          int
 	pendingChannels            map[channelKey]*pendingChannel
 	highestGeneration          corestate.TSGeneration
 	sessionBytes, channelBytes uint64
+	streamBytes                uint64
 }
 
 func NewManager(limits Limits, clock Clock, manager *authority.Manager, registry identity.Registry, connector Connector, opener ChannelOpener) (*Manager, error) {
@@ -237,13 +240,23 @@ func (manager *Manager) CloseTransportSession(generation corestate.TSGeneration)
 		delete(manager.byReuse, entry.snapshot.ReuseKey)
 	}
 	wires := make([]WireChannel, 0, len(entry.channels))
+	streams := make([]WireApplicationStream, 0)
 	for _, channel := range entry.channels {
 		wires = append(wires, channel.wire)
+		for _, stream := range channel.streams {
+			stream.state.Store(uint32(ApplicationStreamClosed))
+			streams = append(streams, stream.wire)
+			manager.streamBytes -= applicationStreamCost
+		}
+		channel.streams = nil
 		manager.channelBytes -= channel.accountedBytes
 	}
 	entry.channels = nil
 	entry.byWire = nil
 	manager.mu.Unlock()
+	for _, stream := range streams {
+		_ = stream.Close()
+	}
 	for _, wire := range wires {
 		_ = wire.Close()
 	}
@@ -337,7 +350,7 @@ func (manager *Manager) CreateServiceChannel(ctx context.Context, request Servic
 			}
 			snapshot = ServiceChannelSnapshot{Generation: request.Generation, Handle: handle, ChannelID: request.ChannelID, ChannelGeneration: wire.ChannelGeneration(), ServiceIdentity: request.ServiceIdentity, ServiceDigest: request.ServiceDigest, RouteGrantDigest: request.RouteGrantDigest, AuthorityGeneration: request.AuthorityGeneration}
 			cost := serviceChannelCost(request)
-			entry.channels[handle] = &channelEntry{snapshot: snapshot, wire: wire, credits: newCreditWindow(), accountedBytes: cost}
+			entry.channels[handle] = &channelEntry{snapshot: snapshot, wire: wire, credits: newCreditWindow(), streams: make(map[corestate.StreamID]*ApplicationStream), accountedBytes: cost}
 			entry.byWire[request.ChannelID] = handle
 			manager.channelBytes += cost
 		}
@@ -401,7 +414,17 @@ func (manager *Manager) CloseServiceChannel(generation corestate.TSGeneration, h
 	delete(entry.channels, handle)
 	delete(entry.byWire, channel.snapshot.ChannelID)
 	manager.channelBytes -= channel.accountedBytes
+	streams := make([]WireApplicationStream, 0, len(channel.streams))
+	for _, stream := range channel.streams {
+		stream.state.Store(uint32(ApplicationStreamClosed))
+		streams = append(streams, stream.wire)
+		manager.streamBytes -= applicationStreamCost
+	}
+	channel.streams = nil
 	manager.mu.Unlock()
+	for _, stream := range streams {
+		_ = stream.Close()
+	}
 	return channel.wire.Close()
 }
 func (manager *Manager) ServiceChannel(generation corestate.TSGeneration, handle corestate.ServiceHandle) (ServiceChannelSnapshot, error) {
@@ -436,7 +459,17 @@ func (manager *Manager) Usage() Usage {
 	for _, p := range manager.pendingChannels {
 		waiters += p.waiters
 	}
-	return Usage{ReuseKeys: len(manager.byReuse), Sessions: len(manager.sessions), Channels: manager.channelCountLocked(), PendingSessions: manager.pendingSessions, PendingChannels: len(manager.pendingChannels), ChannelWaiters: waiters, SessionBytes: manager.sessionBytes, ChannelBytes: manager.channelBytes, StateBytes: manager.sessionBytes + manager.channelBytes}
+	return Usage{ReuseKeys: len(manager.byReuse), Sessions: len(manager.sessions), Channels: manager.channelCountLocked(), PendingSessions: manager.pendingSessions, PendingChannels: len(manager.pendingChannels), ChannelWaiters: waiters, ApplicationStreams: manager.streamCountLocked(), PendingAdmissions: manager.pendingAdmissions, SessionBytes: manager.sessionBytes, ChannelBytes: manager.channelBytes, StreamBytes: manager.streamBytes, StateBytes: manager.sessionBytes + manager.channelBytes + manager.streamBytes}
+}
+
+func (manager *Manager) streamCountLocked() int {
+	count := 0
+	for _, entry := range manager.sessions {
+		for _, channel := range entry.channels {
+			count += len(channel.streams)
+		}
+	}
+	return count
 }
 func (manager *Manager) channelCountLocked() int {
 	count := 0

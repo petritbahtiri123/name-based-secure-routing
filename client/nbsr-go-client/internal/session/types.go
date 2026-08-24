@@ -29,13 +29,14 @@ type Clock interface{ NowUnix() uint64 }
 type Limits struct {
 	MaxReuseKeys, MaxSessions, MaxChannels                       int
 	MaxPendingSessions, MaxPendingChannels, MaxWaitersPerChannel int
+	MaxStreams, MaxPendingAdmissions                             int
 	MaxReuseKeyBytes, MaxServiceIdentityBytes                    int
 	MaxStateBytes                                                uint64
 }
 
 func (limits Limits) validate() error {
 	if limits.MaxReuseKeys <= 0 || limits.MaxSessions <= 0 || limits.MaxChannels <= 0 ||
-		limits.MaxPendingSessions <= 0 || limits.MaxPendingChannels <= 0 || limits.MaxWaitersPerChannel <= 0 ||
+		limits.MaxPendingSessions <= 0 || limits.MaxPendingChannels <= 0 || limits.MaxWaitersPerChannel <= 0 || limits.MaxStreams <= 0 || limits.MaxPendingAdmissions <= 0 ||
 		limits.MaxReuseKeyBytes <= 0 || limits.MaxServiceIdentityBytes <= 0 || limits.MaxStateBytes == 0 {
 		return ErrInvalidLimits
 	}
@@ -112,5 +113,6 @@ type ServiceChannelSnapshot struct {
 
 type Usage struct {
 	ReuseKeys, Sessions, Channels, PendingSessions, PendingChannels, ChannelWaiters int
-	SessionBytes, ChannelBytes, StateBytes                                          uint64
+	ApplicationStreams, PendingAdmissions                                           int
+	SessionBytes, ChannelBytes, StreamBytes, StateBytes                             uint64
 }

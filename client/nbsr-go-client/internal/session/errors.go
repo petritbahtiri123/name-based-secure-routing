@@ -29,6 +29,12 @@ const (
 	CodeEpochCapacity
 	CodeRefillPending
 	CodeRefillNotDue
+	CodeStreamClosed
+	CodeStreamNotAccepted
+	CodeStreamCapacity
+	CodeDuplicateStream
+	CodeAdmissionRejected
+	CodeProfileUnsupported
 )
 
 type Error struct {
@@ -75,4 +81,10 @@ var (
 	ErrEpochCapacity        = &Error{Code: CodeEpochCapacity}
 	ErrRefillPending        = &Error{Code: CodeRefillPending}
 	ErrRefillNotDue         = &Error{Code: CodeRefillNotDue}
+	ErrStreamClosed         = &Error{Code: CodeStreamClosed}
+	ErrStreamNotAccepted    = &Error{Code: CodeStreamNotAccepted}
+	ErrStreamCapacity       = &Error{Code: CodeStreamCapacity}
+	ErrDuplicateStream      = &Error{Code: CodeDuplicateStream}
+	ErrAdmissionRejected    = &Error{Code: CodeAdmissionRejected}
+	ErrProfileUnsupported   = &Error{Code: CodeProfileUnsupported}
 )
