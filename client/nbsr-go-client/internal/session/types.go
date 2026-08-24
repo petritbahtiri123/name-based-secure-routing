@@ -2,6 +2,7 @@ package session
 
 import (
 	"context"
+	"time"
 
 	"nbsr.local/client/nbsr-go-client/internal/authority"
 	"nbsr.local/client/nbsr-go-client/internal/corestate"
@@ -32,12 +33,15 @@ type Limits struct {
 	MaxStreams, MaxPendingAdmissions                             int
 	MaxReuseKeyBytes, MaxServiceIdentityBytes                    int
 	MaxStateBytes                                                uint64
+	MaxRotationWaiters, MaxRecoveryAttempts                      int
+	DrainTimeout, RecoveryBackoff                                time.Duration
 }
 
 func (limits Limits) validate() error {
 	if limits.MaxReuseKeys <= 0 || limits.MaxSessions <= 0 || limits.MaxChannels <= 0 ||
 		limits.MaxPendingSessions <= 0 || limits.MaxPendingChannels <= 0 || limits.MaxWaitersPerChannel <= 0 || limits.MaxStreams <= 0 || limits.MaxPendingAdmissions <= 0 ||
-		limits.MaxReuseKeyBytes <= 0 || limits.MaxServiceIdentityBytes <= 0 || limits.MaxStateBytes == 0 {
+		limits.MaxReuseKeyBytes <= 0 || limits.MaxServiceIdentityBytes <= 0 || limits.MaxStateBytes == 0 ||
+		limits.MaxRotationWaiters <= 0 || limits.MaxRecoveryAttempts <= 0 || limits.DrainTimeout <= 0 || limits.RecoveryBackoff < 0 {
 		return ErrInvalidLimits
 	}
 	return nil
@@ -115,4 +119,5 @@ type Usage struct {
 	ReuseKeys, Sessions, Channels, PendingSessions, PendingChannels, ChannelWaiters int
 	ApplicationStreams, PendingAdmissions                                           int
 	SessionBytes, ChannelBytes, StreamBytes, StateBytes                             uint64
+	PendingRotations, RotationWaiters                                               int
 }

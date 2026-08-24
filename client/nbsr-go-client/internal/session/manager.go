@@ -5,6 +5,7 @@ import (
 	"errors"
 	"math"
 	"sync"
+	"time"
 
 	"nbsr.local/client/nbsr-go-client/internal/authority"
 	"nbsr.local/client/nbsr-go-client/internal/corestate"
@@ -102,6 +103,9 @@ type Manager struct {
 	highestGeneration          corestate.TSGeneration
 	sessionBytes, channelBytes uint64
 	streamBytes                uint64
+	pendingRotations           map[ReuseKey]*pendingRotation
+	effectiveTriggers          map[ReuseKey]RotationTrigger
+	drainTimers                map[corestate.TSGeneration]*time.Timer
 }
 
 func NewManager(limits Limits, clock Clock, manager *authority.Manager, registry identity.Registry, connector Connector, opener ChannelOpener) (*Manager, error) {
@@ -118,7 +122,7 @@ func newManager(limits Limits, clock Clock, gate AuthorityBarrier, registry iden
 	if clock == nil || gate == nil || registry == nil || connector == nil || opener == nil {
 		return nil, ErrInvalidSession
 	}
-	return &Manager{limits: limits, clock: clock, authority: gate, registry: registry, connector: connector, opener: opener, sessions: make(map[corestate.TSGeneration]*transportEntry), byReuse: make(map[ReuseKey]map[corestate.TSGeneration]*transportEntry), pendingChannels: make(map[channelKey]*pendingChannel)}, nil
+	return &Manager{limits: limits, clock: clock, authority: gate, registry: registry, connector: connector, opener: opener, sessions: make(map[corestate.TSGeneration]*transportEntry), byReuse: make(map[ReuseKey]map[corestate.TSGeneration]*transportEntry), pendingChannels: make(map[channelKey]*pendingChannel), pendingRotations: make(map[ReuseKey]*pendingRotation), effectiveTriggers: make(map[ReuseKey]RotationTrigger), drainTimers: make(map[corestate.TSGeneration]*time.Timer)}, nil
 }
 
 // NewManagerWithBarrier wires an already-verified authority boundary into the
@@ -242,11 +246,16 @@ func (manager *Manager) MarkDraining(generation corestate.TSGeneration) error {
 		return ErrGenerationClosed
 	}
 	entry.snapshot.State = TransportDraining
+	manager.startDrainTimerLocked(generation)
 	return nil
 }
 
 func (manager *Manager) CloseTransportSession(generation corestate.TSGeneration) error {
 	manager.mu.Lock()
+	if timer := manager.drainTimers[generation]; timer != nil {
+		timer.Stop()
+		delete(manager.drainTimers, generation)
+	}
 	entry := manager.sessions[generation]
 	if entry == nil {
 		manager.mu.Unlock()
@@ -502,7 +511,11 @@ func (manager *Manager) Usage() Usage {
 	for _, p := range manager.pendingChannels {
 		waiters += p.waiters
 	}
-	return Usage{ReuseKeys: len(manager.byReuse), Sessions: len(manager.sessions), Channels: manager.channelCountLocked(), PendingSessions: manager.pendingSessions, PendingChannels: len(manager.pendingChannels), ChannelWaiters: waiters, ApplicationStreams: manager.streamCountLocked(), PendingAdmissions: manager.pendingAdmissions, SessionBytes: manager.sessionBytes, ChannelBytes: manager.channelBytes, StreamBytes: manager.streamBytes, StateBytes: manager.sessionBytes + manager.channelBytes + manager.streamBytes}
+	rotationWaiters := 0
+	for _, pending := range manager.pendingRotations {
+		rotationWaiters += pending.waiters
+	}
+	return Usage{ReuseKeys: len(manager.byReuse), Sessions: len(manager.sessions), Channels: manager.channelCountLocked(), PendingSessions: manager.pendingSessions, PendingChannels: len(manager.pendingChannels), ChannelWaiters: waiters, ApplicationStreams: manager.streamCountLocked(), PendingAdmissions: manager.pendingAdmissions, SessionBytes: manager.sessionBytes, ChannelBytes: manager.channelBytes, StreamBytes: manager.streamBytes, StateBytes: manager.sessionBytes + manager.channelBytes + manager.streamBytes, PendingRotations: len(manager.pendingRotations), RotationWaiters: rotationWaiters}
 }
 
 func (manager *Manager) streamCountLocked() int {

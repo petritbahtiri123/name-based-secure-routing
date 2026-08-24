@@ -6,6 +6,7 @@ import (
 	"runtime"
 	"sync"
 	"testing"
+	"time"
 
 	"nbsr.local/client/nbsr-go-client/internal/authority"
 	"nbsr.local/client/nbsr-go-client/internal/corestate"
@@ -358,17 +359,55 @@ func (g *testGate) current() authority.AuthorityGeneration {
 }
 func (g *testGate) invalidate() { g.mu.Lock(); g.valid = false; g.generation++; g.mu.Unlock() }
 
-type testConnector struct{ transports []*testTransport }
+type testConnector struct {
+	mu           sync.Mutex
+	transports   []*testTransport
+	calls        int
+	fail         error
+	started      chan struct{}
+	block        chan struct{}
+	beforeReturn func()
+}
 
-func (c *testConnector) Connect(_ context.Context, _ TransportSessionAttempt) (Transport, error) {
+func (c *testConnector) Connect(ctx context.Context, _ TransportSessionAttempt) (Transport, error) {
+	c.mu.Lock()
+	c.calls++
+	fail, started, block, hook := c.fail, c.started, c.block, c.beforeReturn
+	c.beforeReturn = nil
+	c.mu.Unlock()
+	if started != nil {
+		select {
+		case started <- struct{}{}:
+		default:
+		}
+	}
+	if block != nil {
+		select {
+		case <-block:
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		}
+	}
+	if hook != nil {
+		hook()
+	}
+	if fail != nil {
+		return nil, fail
+	}
 	t := &testTransport{}
+	c.mu.Lock()
 	c.transports = append(c.transports, t)
+	c.mu.Unlock()
 	return t, nil
 }
 
-type testTransport struct{ closed bool }
+type testTransport struct {
+	mu     sync.Mutex
+	closed bool
+}
 
-func (t *testTransport) Close() error { t.closed = true; return nil }
+func (t *testTransport) Close() error   { t.mu.Lock(); t.closed = true; t.mu.Unlock(); return nil }
+func (t *testTransport) isClosed() bool { t.mu.Lock(); defer t.mu.Unlock(); return t.closed }
 
 type testOpener struct {
 	mu           sync.Mutex
@@ -461,10 +500,10 @@ func newFixture(t *testing.T) *fixture {
 		t.Fatal(err)
 	}
 	gate := &testGate{generation: 7, valid: true}
-	connector := &testConnector{}
+	connector := &testConnector{started: make(chan struct{}, 8)}
 	opener := &testOpener{started: make(chan struct{}, 8)}
 	clock := &testClock{now}
-	manager, err := newManager(Limits{MaxReuseKeys: 2, MaxSessions: 4, MaxChannels: 4, MaxPendingSessions: 2, MaxPendingChannels: 2, MaxWaitersPerChannel: 2, MaxStreams: 8, MaxPendingAdmissions: 4, MaxReuseKeyBytes: 256, MaxServiceIdentityBytes: 128, MaxStateBytes: 4096}, clock, gate, registry, connector, opener)
+	manager, err := newManager(Limits{MaxReuseKeys: 2, MaxSessions: 4, MaxChannels: 4, MaxPendingSessions: 2, MaxPendingChannels: 2, MaxWaitersPerChannel: 2, MaxStreams: 8, MaxPendingAdmissions: 4, MaxReuseKeyBytes: 256, MaxServiceIdentityBytes: 128, MaxStateBytes: 4096, MaxRotationWaiters: 2, MaxRecoveryAttempts: 2, DrainTimeout: time.Second, RecoveryBackoff: time.Millisecond}, clock, gate, registry, connector, opener)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -35,6 +35,8 @@ const (
 	CodeDuplicateStream
 	CodeAdmissionRejected
 	CodeProfileUnsupported
+	CodeRotationConflict
+	CodeRecoveryExhausted
 )
 
 type Error struct {
@@ -87,4 +89,6 @@ var (
 	ErrDuplicateStream      = &Error{Code: CodeDuplicateStream}
 	ErrAdmissionRejected    = &Error{Code: CodeAdmissionRejected}
 	ErrProfileUnsupported   = &Error{Code: CodeProfileUnsupported}
+	ErrRotationConflict     = &Error{Code: CodeRotationConflict}
+	ErrRecoveryExhausted    = &Error{Code: CodeRecoveryExhausted}
 )

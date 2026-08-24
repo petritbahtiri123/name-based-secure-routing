@@ -114,6 +114,9 @@ func (manager *Manager) ReserveSpecificStreamCredit(reservation CreditReservatio
 	if entry == nil {
 		return CreditReservation{}, ErrCreditBinding
 	}
+	if entry.snapshot.State != TransportCurrent {
+		return CreditReservation{}, ErrCreditClosed
+	}
 	channel := entry.channels[reservation.Handle]
 	if channel == nil || !creditBindingMatches(entry, channel, reservation) {
 		return CreditReservation{}, ErrCreditBinding

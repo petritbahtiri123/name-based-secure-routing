@@ -7,6 +7,7 @@ import (
 	"errors"
 	"io"
 	"sync"
+	"time"
 
 	"nbsr.local/client/nbsr-go-client/internal/authority"
 	"nbsr.local/client/nbsr-go-client/internal/corestate"
@@ -146,7 +147,7 @@ func NewOwnedChannel(ctx context.Context, c OwnedChannelConfig) (*OwnedChannel, 
 	}
 	gate := &fixedGate{generation: authority.AuthorityGeneration(c.AuthorityGeneration), expires: c.ExpiresAt, grant: corestate.RouteGrantDigest(c.RouteGrantDigest), valid: true}
 	wireChannel := &ownedWireChannel{id: corestate.ChannelID(c.ChannelID), generation: c.ChannelGeneration, profile: c.Profile, open: c.Open, refill: c.Refill}
-	limits := session.Limits{MaxReuseKeys: 1, MaxSessions: 1, MaxChannels: 1, MaxPendingSessions: 1, MaxPendingChannels: 1, MaxWaitersPerChannel: 1, MaxStreams: 64, MaxPendingAdmissions: 16, MaxReuseKeyBytes: 512, MaxServiceIdentityBytes: 256, MaxStateBytes: 64 * 1024}
+	limits := session.Limits{MaxReuseKeys: 1, MaxSessions: 2, MaxChannels: 2, MaxPendingSessions: 1, MaxPendingChannels: 1, MaxWaitersPerChannel: 1, MaxStreams: 64, MaxPendingAdmissions: 16, MaxReuseKeyBytes: 512, MaxServiceIdentityBytes: 256, MaxStateBytes: 64 * 1024, MaxRotationWaiters: 1, MaxRecoveryAttempts: 2, DrainTimeout: 30 * time.Second, RecoveryBackoff: 100 * time.Millisecond}
 	manager, err := session.NewManagerWithBarrier(limits, fixedClock{c.Now}, gate, registry, ownedConnector{}, ownedOpener{wireChannel})
 	if err != nil {
 		return nil, err
