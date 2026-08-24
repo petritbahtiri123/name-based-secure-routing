@@ -48,9 +48,20 @@ type RotationClientConfig struct {
 	Generations                                                  []GenerationConfig
 }
 
-type liveTransport struct{ session GenerationSession }
+type liveTransport struct {
+	session    GenerationSession
+	connector  *rotationConnector
+	generation corestate.TSGeneration
+}
 
-func (transport *liveTransport) Close() error { return transport.session.Close() }
+func (transport *liveTransport) Close() error {
+	transport.connector.mu.Lock()
+	if transport.connector.sessions[transport.generation] == transport.session {
+		delete(transport.connector.sessions, transport.generation)
+	}
+	transport.connector.mu.Unlock()
+	return transport.session.Close()
+}
 
 type rotationConnector struct {
 	mu       sync.Mutex
@@ -80,7 +91,7 @@ func (connector *rotationConnector) Connect(ctx context.Context, attempt session
 	}
 	connector.sessions[attempt.Generation] = live
 	connector.mu.Unlock()
-	return &liveTransport{session: live}, nil
+	return &liveTransport{session: live, connector: connector, generation: attempt.Generation}, nil
 }
 
 type rotationOpener struct{ connector *rotationConnector }
@@ -103,6 +114,7 @@ func (opener rotationOpener) Open(_ context.Context, transport session.Transport
 }
 
 type RotationClient struct {
+	mu        sync.RWMutex
 	manager   *session.Manager
 	gate      *fixedGate
 	connector *rotationConnector
@@ -163,7 +175,9 @@ func (client *RotationClient) openChannel(ctx context.Context, generation corest
 	config := client.configs[generation]
 	snapshot, err := client.manager.CreateServiceChannel(ctx, session.ServiceChannelRequest{Generation: generation, ChannelID: corestate.ChannelID(config.ChannelID), ServiceIdentity: client.common.ServiceIdentity, ServiceDigest: corestate.ServiceDigest(client.common.ServiceDigest), RouteGrantDigest: corestate.RouteGrantDigest(client.common.RouteGrantDigest), AuthorityGeneration: corestate.AuthorityGeneration(client.common.AuthorityGeneration), ProofThumbprint: authority.ProofKeyThumbprint(config.ProofThumbprint)})
 	if err == nil {
+		client.mu.Lock()
 		client.handles[generation] = snapshot.Handle
+		client.mu.Unlock()
 	}
 	return err
 }
@@ -180,18 +194,30 @@ func (client *RotationClient) Rotate(ctx context.Context, generation uint64, tri
 	if err != nil {
 		return result, err
 	}
-	if err = client.openChannel(ctx, result.Current.Generation); err != nil {
-		_ = client.manager.CloseTransportSession(result.Current.Generation)
-		return session.RotationResult{}, err
-	}
 	return result, nil
 }
 func (client *RotationClient) Open(ctx context.Context, generation uint64) (*session.ApplicationStream, error) {
 	g := corestate.TSGeneration(generation)
-	return client.manager.OpenApplicationStream(ctx, g, client.handles[g])
+	client.mu.RLock()
+	handle, ok := client.handles[g]
+	client.mu.RUnlock()
+	if !ok {
+		if err := client.openChannel(ctx, g); err != nil {
+			return nil, err
+		}
+		client.mu.RLock()
+		handle = client.handles[g]
+		client.mu.RUnlock()
+	}
+	return client.manager.OpenApplicationStream(ctx, g, handle)
 }
 func (client *RotationClient) CloseGeneration(generation uint64) error {
-	return client.manager.CloseTransportSession(corestate.TSGeneration(generation))
+	g := corestate.TSGeneration(generation)
+	err := client.manager.CloseTransportSession(g)
+	client.mu.Lock()
+	delete(client.handles, g)
+	client.mu.Unlock()
+	return err
 }
 func (client *RotationClient) Current() (session.TransportSessionSnapshot, error) {
 	return client.manager.CurrentTransportSession(client.reuse)
@@ -211,10 +237,13 @@ type DrainingRejections struct{ ServiceChannel, Credit, Refill, ApplicationStrea
 func (client *RotationClient) ProbeDraining(ctx context.Context, generation uint64) DrainingRejections {
 	g := corestate.TSGeneration(generation)
 	config := client.configs[g]
+	client.mu.RLock()
+	handle := client.handles[g]
+	client.mu.RUnlock()
 	_, scErr := client.manager.CreateServiceChannel(ctx, session.ServiceChannelRequest{Generation: g, ChannelID: corestate.ChannelID(config.ChannelID), ServiceIdentity: client.common.ServiceIdentity, ServiceDigest: corestate.ServiceDigest(client.common.ServiceDigest), RouteGrantDigest: corestate.RouteGrantDigest(client.common.RouteGrantDigest), AuthorityGeneration: corestate.AuthorityGeneration(client.common.AuthorityGeneration), ProofThumbprint: authority.ProofKeyThumbprint(config.ProofThumbprint)})
-	_, creditErr := client.manager.ReserveStreamCredit(g, client.handles[g])
-	_, refillErr := client.manager.BeginCreditRefill(g, client.handles[g])
-	_, streamErr := client.manager.OpenApplicationStream(ctx, g, client.handles[g])
+	_, creditErr := client.manager.ReserveStreamCredit(g, handle)
+	_, refillErr := client.manager.BeginCreditRefill(g, handle)
+	_, streamErr := client.manager.OpenApplicationStream(ctx, g, handle)
 	return DrainingRejections{ServiceChannel: errors.Is(scErr, session.ErrGenerationNotCurrent), Credit: errors.Is(creditErr, session.ErrCreditClosed), Refill: errors.Is(refillErr, session.ErrCreditClosed), ApplicationStream: errors.Is(streamErr, session.ErrStreamClosed)}
 }
 func (client *RotationClient) Usage() session.Usage { return client.manager.Usage() }

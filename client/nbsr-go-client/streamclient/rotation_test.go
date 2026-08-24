@@ -59,6 +59,9 @@ func TestRotationClientUsesDistinctGenerationSessionsAndDrainsA(t *testing.T) {
 	if !a.closed {
 		t.Fatal("A transport open")
 	}
+	if identity := client.TransportIdentity(1); identity != "" {
+		t.Fatalf("closed A retained identity %q", identity)
+	}
 	if current, err := client.Current(); err != nil || current.Generation != 2 {
 		t.Fatalf("current=%+v %v", current, err)
 	}

@@ -215,9 +215,6 @@ func runRotationInterop(ctx context.Context, configuration config) (result, erro
 	if err != nil {
 		return result{}, err
 	}
-	if err = exchangeRotationPayload(streamA, configuration.SafePayload); err != nil {
-		return result{}, err
-	}
 	aID := client.TransportIdentity(1)
 	handoff, err := client.Rotate(ctx, 2, streamclient.RotationExplicit)
 	if err != nil {
@@ -234,7 +231,12 @@ func runRotationInterop(ctx context.Context, configuration config) (result, erro
 	_, thirdErr := client.Rotate(ctx, 3, streamclient.RotationExplicit)
 	thirdRejected := errors.Is(thirdErr, streamclient.ErrGenerationCapacity)
 	maximumGenerations := client.Usage().Sessions
+	// The stream was admitted on A before handoff; exercising it only after B is
+	// current proves that the existing descendant remains usable and pinned to A.
 	aPinned := streamA.State() == streamclient.ApplicationStreamAccepted
+	if err = exchangeRotationPayload(streamA, configuration.SafePayload); err != nil {
+		return result{}, err
+	}
 	streamB, err := client.Open(ctx, 2)
 	if err != nil {
 		return result{}, err
