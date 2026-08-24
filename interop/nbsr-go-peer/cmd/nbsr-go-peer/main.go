@@ -573,25 +573,36 @@ func run(ctx context.Context, configuration config) (result, error) {
 		if mutation != "" {
 			return runMutatedCreditCase(ctx, peer, configuration, channelID, mutation)
 		}
-		var digest [32]byte
-		for index := 0; index < configuration.BenchmarkSamples; index++ {
-			epoch := uint64(index/48 + 1)
-			slot := uint8(index % 48)
-			application, admissionErr := streamclient.Admit(ctx, configuration.StreamCreditProfile, func(ctx context.Context) (streamclient.Wire, uint64, error) {
+		serviceDigest := sha256.Sum256([]byte(grant.ServiceID))
+		owner, ownerErr := streamclient.NewOwnedChannel(ctx, streamclient.OwnedChannelConfig{
+			Now: 1_893_456_000, ExpiresAt: 1_893_457_000, TSGeneration: 1, ChannelGeneration: 1, AuthorityGeneration: 1,
+			ChannelID: channelID, DeviceID: repeated32('C'), PolicyDigest: grant.PolicyHash, ServiceDigest: serviceDigest,
+			RouteGrantDigest: grant.Digest, ProofThumbprint: repeated32('P'), SourceOperator: "source.edge",
+			Gateway: "destination.edge", ServiceIdentity: grant.ServiceID, Profile: configuration.StreamCreditProfile, Transport: "quic",
+			Open: func(ctx context.Context) (streamclient.Wire, uint64, error) {
 				wire, openErr := peer.OpenApplication(ctx)
 				if openErr != nil {
 					return nil, 0, openErr
 				}
 				return wire, uint64(wire.StreamID()), nil
-			}, channelID, 1, epoch, slot)
+			},
+			Refill: func(_ context.Context, epoch uint64) error { return peer.RefillStreamCredits(channelID, epoch) },
+		})
+		if ownerErr != nil {
+			return result{}, fmt.Errorf("production stream owner: %w", ownerErr)
+		}
+		defer owner.Close()
+		var digest [32]byte
+		for index := 0; index < configuration.BenchmarkSamples; index++ {
+			application, admissionErr := owner.Open(ctx)
 			if admissionErr != nil {
 				return result{}, fmt.Errorf("stream-credit admission rejected: %w", admissionErr)
 			}
 			if _, err := application.Write([]byte(configuration.SafePayload)); err != nil {
 				return result{}, fmt.Errorf("credited application write: %w", err)
 			}
-			if err := application.Close(); err != nil {
-				return result{}, fmt.Errorf("credited application finish: %w", err)
+			if err := application.FinishWrite(); err != nil {
+				return result{}, fmt.Errorf("credited application finish-write: %w", err)
 			}
 			echo := make([]byte, len(configuration.SafePayload))
 			if _, err := io.ReadFull(application, echo); err != nil {
@@ -600,12 +611,10 @@ func run(ctx context.Context, configuration config) (result, error) {
 			if !bytes.Equal(echo, []byte(configuration.SafePayload)) {
 				return result{}, errors.New("credited application payload echo mismatch")
 			}
-			digest = sha256.Sum256(echo)
-			if (index+1)%48 == 0 && index+1 < configuration.BenchmarkSamples {
-				if err := peer.RefillStreamCredits(channelID, epoch+1); err != nil {
-					return result{}, fmt.Errorf("stream-credit refill: %w", err)
-				}
+			if err := application.Close(); err != nil {
+				return result{}, fmt.Errorf("credited application finish: %w", err)
 			}
+			digest = sha256.Sum256(echo)
 		}
 		return result{Status: "PASS", Messages: []string{"CLIENT_HELLO", "EDGE_HELLO", "ROUTE_OPEN", "ROUTE_ACCEPT", "STREAM_CREDIT_PREFACE", "STREAM_CREDIT_ACCEPT"}, CoreVersion: 2, RouteOpenBodyVersion: 2, FederationProfile: streamcredit.ProfileID, PayloadSHA256: hex.EncodeToString(digest[:]), BenchmarkSamples: configuration.BenchmarkSamples}, nil
 	}

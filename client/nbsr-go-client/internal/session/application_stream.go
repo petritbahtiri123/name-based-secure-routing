@@ -3,8 +3,11 @@ package session
 import (
 	"context"
 	"io"
+	"math/bits"
 	"sync/atomic"
+	"time"
 
+	"nbsr.local/client/nbsr-go-client/internal/authority"
 	"nbsr.local/client/nbsr-go-client/internal/corestate"
 )
 
@@ -42,6 +45,12 @@ type ApplicationStream struct {
 	state      atomic.Uint32
 }
 
+type pendingAdmission struct {
+	cancel context.CancelFunc
+	wire   WireApplicationStream
+	stop   func() bool
+}
+
 func newApplicationStream(manager *Manager, credit CreditReservation, wire WireApplicationStream) *ApplicationStream {
 	stream := &ApplicationStream{manager: manager, generation: credit.Generation, handle: credit.Handle, id: wire.StreamID(), credit: credit, wire: wire}
 	stream.state.Store(uint32(ApplicationStreamPendingAdmission))
@@ -62,6 +71,27 @@ func (stream *ApplicationStream) Write(payload []byte) (int, error) {
 	}
 	return stream.wire.Write(payload)
 }
+
+func (stream *ApplicationStream) Read(payload []byte) (int, error) {
+	state := stream.State()
+	if state != ApplicationStreamAccepted {
+		err := ErrStreamNotAccepted
+		if state == ApplicationStreamClosed || state == ApplicationStreamFailed {
+			err = ErrStreamClosed
+		}
+		return 0, err
+	}
+	return stream.wire.Read(payload)
+}
+
+// FinishWrite sends the QUIC write-side FIN while retaining accepted stream
+// ownership so a response can still be read before Close removes ownership.
+func (stream *ApplicationStream) FinishWrite() error {
+	if stream.State() != ApplicationStreamAccepted {
+		return ErrStreamClosed
+	}
+	return stream.wire.Close()
+}
 func (stream *ApplicationStream) Close() error {
 	if stream.manager == nil {
 		previous := ApplicationStreamState(stream.state.Swap(uint32(ApplicationStreamClosed)))
@@ -77,107 +107,153 @@ func (manager *Manager) OpenApplicationStream(ctx context.Context, generation co
 	if ctx == nil || handle == corestate.InvalidServiceHandle {
 		return nil, ErrStreamClosed
 	}
-	credit, err := manager.ReserveStreamCredit(generation, handle)
+	credit, channel, opener, pendingID, admissionCtx, err := manager.reserveApplicationAdmission(ctx, generation, handle)
 	if err != nil {
 		return nil, err
 	}
-	pendingRegistered := false
 	var wire WireApplicationStream
 	defer func() {
 		if resultErr == nil {
 			return
 		}
-		manager.mu.Lock()
-		if pendingRegistered {
-			manager.pendingAdmissions--
-		}
-		currentEntry := manager.sessions[generation]
-		if currentEntry != nil {
-			currentChannel := currentEntry.channels[handle]
-			if currentChannel != nil && creditBindingMatches(currentEntry, currentChannel, credit) {
-				_ = releaseCreditAssignment(&currentChannel.credits, credit.Epoch)
-			}
-		}
-		manager.mu.Unlock()
-		if wire != nil {
-			_ = wire.Close()
-		}
+		manager.abortApplicationAdmission(generation, handle, channel, pendingID, credit)
 	}()
-	manager.mu.Lock()
-	entry := manager.sessions[generation]
-	if entry == nil || entry.snapshot.State != TransportCurrent || entry.channels[handle] == nil || !creditBindingMatches(entry, entry.channels[handle], credit) {
-		manager.mu.Unlock()
-		return nil, ErrCreditBinding
-	}
-	channel := entry.channels[handle]
-	opener, ok := channel.wire.(ApplicationStreamOpener)
-	if !ok || opener.StreamCreditProfile() != StreamCreditProfileID {
-		manager.mu.Unlock()
-		return nil, ErrProfileUnsupported
-	}
-	if manager.pendingAdmissions >= manager.limits.MaxPendingAdmissions || manager.streamCountLocked()+manager.pendingAdmissions >= manager.limits.MaxStreams {
-		manager.mu.Unlock()
-		return nil, ErrStreamCapacity
-	}
-	manager.pendingAdmissions++
-	pendingRegistered = true
-	authorityGeneration := entry.snapshot.AuthorityGeneration
-	manager.mu.Unlock()
-	if refillEpoch, refillErr := manager.BeginCreditRefill(generation, handle); refillErr == nil {
-		if refillErr = opener.RefillStreamCredits(ctx, refillEpoch); refillErr == nil {
-			if completeErr := manager.CompleteCreditRefill(generation, handle, refillEpoch); completeErr != nil {
-				_ = manager.CancelCreditRefill(generation, handle)
-			}
-		} else {
-			_ = manager.CancelCreditRefill(generation, handle)
+	wire, err = OpenAdmittedWireApplication(admissionCtx, opener, credit, func(opened WireApplicationStream) error {
+		manager.mu.Lock()
+		defer manager.mu.Unlock()
+		entry := manager.sessions[generation]
+		if entry == nil || entry.channels[handle] != channel || channel.pending[pendingID] == nil {
+			return ErrStreamClosed
 		}
-	}
-
-	wire, err = OpenAdmittedWireApplication(ctx, opener, credit)
+		record := channel.pending[pendingID]
+		record.wire = opened
+		record.stop = context.AfterFunc(admissionCtx, func() { _ = opened.Close() })
+		return nil
+	})
 	if err != nil {
 		return nil, err
 	}
 	stream := newApplicationStream(manager, credit, wire)
+	token := channel.authority
+	owner := authority.AdmissionOwner{TSGeneration: authority.TSGeneration(generation), ChannelID: [16]byte(credit.ChannelID)}
+	err = manager.authority.CommitApplication(token, owner, manager.clock.NowUnix(), func() error {
+		manager.mu.Lock()
+		defer manager.mu.Unlock()
+		entry := manager.sessions[generation]
+		if entry == nil || entry.snapshot.State != TransportCurrent || entry.channels[handle] != channel || channel.authority != token || !creditBindingMatches(entry, channel, credit) || channel.credits.epoch(credit.Epoch) == nil || channel.pending[pendingID] == nil {
+			return ErrCreditBinding
+		}
+		if _, exists := channel.streams[stream.id]; exists {
+			return ErrDuplicateStream
+		}
+		used := manager.sessionBytes + manager.channelBytes + manager.streamBytes
+		if used > manager.limits.MaxStateBytes || applicationStreamCost > manager.limits.MaxStateBytes-used {
+			return ErrStreamCapacity
+		}
+		record := channel.pending[pendingID]
+		if record.stop != nil {
+			record.stop()
+		}
+		record.cancel()
+		delete(channel.pending, pendingID)
+		manager.pendingAdmissions--
+		channel.streams[stream.id] = stream
+		manager.streamBytes += applicationStreamCost
+		stream.state.Store(uint32(ApplicationStreamAccepted))
+		return nil
+	})
+	if err != nil {
+		return nil, authorityError(err)
+	}
+	return stream, nil
+}
+
+func (manager *Manager) reserveApplicationAdmission(ctx context.Context, generation corestate.TSGeneration, handle corestate.ServiceHandle) (CreditReservation, *channelEntry, ApplicationStreamOpener, uint64, context.Context, error) {
+	manager.mu.Lock()
+	entry := manager.sessions[generation]
+	if entry == nil || entry.snapshot.State != TransportCurrent || entry.channels[handle] == nil {
+		manager.mu.Unlock()
+		return CreditReservation{}, nil, nil, 0, nil, ErrStreamClosed
+	}
+	channel := entry.channels[handle]
+	opener, ok := channel.wire.(ApplicationStreamOpener)
+	authorityGeneration := entry.snapshot.AuthorityGeneration
+	manager.mu.Unlock()
+	if !ok || opener.StreamCreditProfile() != StreamCreditProfileID {
+		return CreditReservation{}, nil, nil, 0, nil, ErrProfileUnsupported
+	}
 	if err := manager.authority.Validate(authorityGeneration); err != nil {
-		return nil, ErrAuthorityStale
+		_ = manager.CloseServiceChannel(generation, handle)
+		return CreditReservation{}, nil, nil, 0, nil, ErrAuthorityStale
 	}
 	manager.mu.Lock()
-	currentEntry := manager.sessions[generation]
-	if currentEntry == nil || currentEntry != entry || currentEntry.snapshot.State != TransportCurrent || currentEntry.snapshot.AuthorityGeneration != authorityGeneration || currentEntry.channels[handle] != channel || !creditBindingMatches(currentEntry, channel, credit) || channel.credits.epoch(credit.Epoch) == nil {
-		manager.mu.Unlock()
-		return nil, ErrCreditBinding
+	defer manager.mu.Unlock()
+	entry = manager.sessions[generation]
+	if entry == nil || entry.snapshot.State != TransportCurrent || entry.snapshot.AuthorityGeneration != authorityGeneration || entry.channels[handle] != channel {
+		return CreditReservation{}, nil, nil, 0, nil, ErrStreamClosed
 	}
-	if _, exists := channel.streams[stream.id]; exists {
-		manager.mu.Unlock()
-		return nil, ErrDuplicateStream
+	if manager.pendingAdmissions >= manager.limits.MaxPendingAdmissions || manager.streamCountLocked()+manager.pendingAdmissions >= manager.limits.MaxStreams || manager.nextPendingAdmission == ^uint64(0) {
+		return CreditReservation{}, nil, nil, 0, nil, ErrStreamCapacity
 	}
-	used := manager.sessionBytes + manager.channelBytes + manager.streamBytes
-	if used > manager.limits.MaxStateBytes || applicationStreamCost > manager.limits.MaxStateBytes-used {
-		manager.mu.Unlock()
-		return nil, ErrStreamCapacity
+	available := ^channel.credits.current.used
+	if available == 0 {
+		return CreditReservation{}, nil, nil, 0, nil, ErrCreditExhausted
 	}
-	manager.pendingAdmissions--
-	pendingRegistered = false
-	channel.streams[stream.id] = stream
-	manager.streamBytes += applicationStreamCost
-	stream.state.Store(uint32(ApplicationStreamAccepted))
+	slot := uint8(bits.TrailingZeros64(available))
+	channel.credits.current.used |= uint64(1) << slot
+	channel.credits.current.active++
+	credit := reservationFor(entry, channel, handle, channel.credits.current.number, slot)
+	manager.nextPendingAdmission++
+	pendingID := manager.nextPendingAdmission
+	admissionCtx, cancel := context.WithCancel(ctx)
+	channel.pending[pendingID] = &pendingAdmission{cancel: cancel}
+	manager.pendingAdmissions++
+	return credit, channel, opener, pendingID, admissionCtx, nil
+}
+
+func (manager *Manager) abortApplicationAdmission(generation corestate.TSGeneration, handle corestate.ServiceHandle, channel *channelEntry, pendingID uint64, credit CreditReservation) {
+	var wire WireApplicationStream
+	manager.mu.Lock()
+	entry := manager.sessions[generation]
+	if entry != nil && entry.channels[handle] == channel {
+		if record := channel.pending[pendingID]; record != nil {
+			if record.stop != nil {
+				record.stop()
+			}
+			record.cancel()
+			wire = record.wire
+			delete(channel.pending, pendingID)
+			manager.pendingAdmissions--
+			_ = releaseCreditAssignment(&channel.credits, credit.Epoch)
+		}
+	}
 	manager.mu.Unlock()
-	return stream, nil
+	if wire != nil {
+		_ = wire.Close()
+	}
 }
 
 // OpenAdmittedWireApplication performs the accepted P2D same-stream exchange.
 // It never returns the wire stream before the exact ACCEPT byte has arrived.
-func OpenAdmittedWireApplication(ctx context.Context, opener ApplicationStreamOpener, credit CreditReservation) (WireApplicationStream, error) {
+func OpenAdmittedWireApplication(ctx context.Context, opener ApplicationStreamOpener, credit CreditReservation, onOpen func(WireApplicationStream) error) (WireApplicationStream, error) {
 	if ctx == nil || opener == nil || opener.StreamCreditProfile() != StreamCreditProfileID {
 		return nil, ErrProfileUnsupported
 	}
 	wire, err := opener.OpenApplicationStream(ctx)
 	if err != nil || wire == nil {
+		if wire != nil {
+			_ = wire.Close()
+		}
 		return nil, ErrTransport
 	}
 	fail := func(err error) (WireApplicationStream, error) {
 		_ = wire.Close()
 		return nil, err
+	}
+	if onOpen != nil {
+		if err := onOpen(wire); err != nil {
+			return fail(err)
+		}
 	}
 	preface, err := encodeStreamCreditPreface(credit.ChannelID, credit.ChannelGeneration, credit.Epoch, credit.Slot, wire.StreamID())
 	if err != nil {
@@ -216,10 +292,26 @@ func (manager *Manager) closeApplicationStream(stream *ApplicationStream) error 
 		return nil
 	}
 	channel := entry.channels[stream.handle]
+	opener, _ := channel.wire.(ApplicationStreamOpener)
 	delete(channel.streams, stream.id)
 	manager.streamBytes -= applicationStreamCost
 	_ = releaseCreditAssignment(&channel.credits, stream.credit.Epoch)
 	stream.state.Store(uint32(ApplicationStreamClosed))
 	manager.mu.Unlock()
-	return stream.wire.Close()
+	closeErr := stream.wire.Close()
+	if opener != nil {
+		if refillEpoch, refillErr := manager.BeginCreditRefill(stream.generation, stream.handle); refillErr == nil {
+			refillContext, cancelRefill := context.WithTimeout(context.Background(), 5*time.Second)
+			refillErr = opener.RefillStreamCredits(refillContext, refillEpoch)
+			cancelRefill()
+			if refillErr == nil {
+				if completeErr := manager.CompleteCreditRefill(stream.generation, stream.handle, refillEpoch); completeErr != nil {
+					_ = manager.CancelCreditRefill(stream.generation, stream.handle)
+				}
+			} else {
+				_ = manager.CancelCreditRefill(stream.generation, stream.handle)
+			}
+		}
+	}
+	return closeErr
 }

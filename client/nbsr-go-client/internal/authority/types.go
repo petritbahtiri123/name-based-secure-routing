@@ -221,6 +221,7 @@ type AuthorityHandle struct {
 	generation AuthorityGeneration
 	expiresAt  uint64
 	checkpoint CheckpointDigest
+	owner      AdmissionOwner
 }
 type AdmissionOwner struct {
 	TSGeneration TSGeneration

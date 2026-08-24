@@ -11,12 +11,20 @@ import (
 	"nbsr.local/client/nbsr-go-client/internal/identity"
 )
 
-type authorityBarrier interface {
+type AuthorityBarrier interface {
 	Capture() (authority.AuthorityGeneration, error)
 	Validate(authority.AuthorityGeneration) error
 	ValidateSession(ReuseKey, authority.AuthorityGeneration) error
 	Preflight(ServiceChannelRequest, authority.AuthorityGeneration, uint64) ([]byte, error)
-	Commit(ServiceChannelRequest, authority.AuthorityGeneration, uint64) error
+	Commit(ServiceChannelRequest, authority.AuthorityGeneration, uint64) (AuthorityToken, error)
+	CommitApplication(AuthorityToken, authority.AdmissionOwner, uint64, func() error) error
+}
+
+type AuthorityToken struct {
+	handle     authority.AuthorityHandle
+	Generation authority.AuthorityGeneration
+	Grant      corestate.RouteGrantDigest
+	Revision   uint64
 }
 
 type managerAuthority struct{ manager *authority.Manager }
@@ -40,9 +48,12 @@ func (gate managerAuthority) Preflight(request ServiceChannelRequest, generation
 	}
 	return gate.manager.AdmissionMaterialForGeneration(request.Reservation, generation, request.ServiceIdentity, authority.ServiceDigest(request.ServiceDigest), request.ProofThumbprint, authority.RouteGrantDigest(request.RouteGrantDigest), now)
 }
-func (gate managerAuthority) Commit(request ServiceChannelRequest, generation authority.AuthorityGeneration, now uint64) error {
-	_, err := gate.manager.ConsumeForGeneration(request.Reservation, authority.AdmissionOwner{TSGeneration: authority.TSGeneration(request.Generation), ChannelID: [16]byte(request.ChannelID)}, generation, now)
-	return err
+func (gate managerAuthority) Commit(request ServiceChannelRequest, generation authority.AuthorityGeneration, now uint64) (AuthorityToken, error) {
+	handle, err := gate.manager.ConsumeForGeneration(request.Reservation, authority.AdmissionOwner{TSGeneration: authority.TSGeneration(request.Generation), ChannelID: [16]byte(request.ChannelID)}, generation, now)
+	return AuthorityToken{handle: handle, Generation: generation, Grant: request.RouteGrantDigest, Revision: 1}, err
+}
+func (gate managerAuthority) CommitApplication(token AuthorityToken, owner authority.AdmissionOwner, now uint64, commit func() error) error {
+	return gate.manager.ValidateHandleAndCommit(token.handle, owner, now, commit)
 }
 
 type transportEntry struct {
@@ -57,7 +68,9 @@ type channelEntry struct {
 	snapshot       ServiceChannelSnapshot
 	wire           WireChannel
 	credits        creditWindow
+	authority      AuthorityToken
 	streams        map[corestate.StreamID]*ApplicationStream
+	pending        map[uint64]*pendingAdmission
 	accountedBytes uint64
 }
 type pendingChannel struct {
@@ -76,7 +89,7 @@ type Manager struct {
 	mu                         sync.Mutex
 	limits                     Limits
 	clock                      Clock
-	authority                  authorityBarrier
+	authority                  AuthorityBarrier
 	registry                   identity.Registry
 	connector                  Connector
 	opener                     ChannelOpener
@@ -84,6 +97,7 @@ type Manager struct {
 	byReuse                    map[ReuseKey]map[corestate.TSGeneration]*transportEntry
 	pendingSessions            int
 	pendingAdmissions          int
+	nextPendingAdmission       uint64
 	pendingChannels            map[channelKey]*pendingChannel
 	highestGeneration          corestate.TSGeneration
 	sessionBytes, channelBytes uint64
@@ -97,7 +111,7 @@ func NewManager(limits Limits, clock Clock, manager *authority.Manager, registry
 	return newManager(limits, clock, managerAuthority{manager}, registry, connector, opener)
 }
 
-func newManager(limits Limits, clock Clock, gate authorityBarrier, registry identity.Registry, connector Connector, opener ChannelOpener) (*Manager, error) {
+func newManager(limits Limits, clock Clock, gate AuthorityBarrier, registry identity.Registry, connector Connector, opener ChannelOpener) (*Manager, error) {
 	if err := limits.validate(); err != nil {
 		return nil, err
 	}
@@ -105,6 +119,12 @@ func newManager(limits Limits, clock Clock, gate authorityBarrier, registry iden
 		return nil, ErrInvalidSession
 	}
 	return &Manager{limits: limits, clock: clock, authority: gate, registry: registry, connector: connector, opener: opener, sessions: make(map[corestate.TSGeneration]*transportEntry), byReuse: make(map[ReuseKey]map[corestate.TSGeneration]*transportEntry), pendingChannels: make(map[channelKey]*pendingChannel)}, nil
+}
+
+// NewManagerWithBarrier wires an already-verified authority boundary into the
+// production ownership manager. It is intended for concrete transport adapters.
+func NewManagerWithBarrier(limits Limits, clock Clock, gate AuthorityBarrier, registry identity.Registry, connector Connector, opener ChannelOpener) (*Manager, error) {
+	return newManager(limits, clock, gate, registry, connector, opener)
 }
 
 func (manager *Manager) CreateTransportSession(ctx context.Context, spec TransportSessionSpec) (TransportSessionSnapshot, error) {
@@ -243,6 +263,17 @@ func (manager *Manager) CloseTransportSession(generation corestate.TSGeneration)
 	streams := make([]WireApplicationStream, 0)
 	for _, channel := range entry.channels {
 		wires = append(wires, channel.wire)
+		for _, pending := range channel.pending {
+			if pending.stop != nil {
+				pending.stop()
+			}
+			pending.cancel()
+			if pending.wire != nil {
+				streams = append(streams, pending.wire)
+			}
+			manager.pendingAdmissions--
+		}
+		channel.pending = nil
 		for _, stream := range channel.streams {
 			stream.state.Store(uint32(ApplicationStreamClosed))
 			streams = append(streams, stream.wire)
@@ -329,8 +360,9 @@ func (manager *Manager) CreateServiceChannel(ctx context.Context, request Servic
 		err = manager.validateChannelRequestLocked(entry, request, 1)
 	}
 	manager.mu.Unlock()
+	var committedAuthority AuthorityToken
 	if err == nil {
-		err = manager.authority.Commit(request, authorityGeneration, manager.clock.NowUnix())
+		committedAuthority, err = manager.authority.Commit(request, authorityGeneration, manager.clock.NowUnix())
 	}
 	manager.mu.Lock()
 	entry = manager.sessions[request.Generation]
@@ -350,7 +382,7 @@ func (manager *Manager) CreateServiceChannel(ctx context.Context, request Servic
 			}
 			snapshot = ServiceChannelSnapshot{Generation: request.Generation, Handle: handle, ChannelID: request.ChannelID, ChannelGeneration: wire.ChannelGeneration(), ServiceIdentity: request.ServiceIdentity, ServiceDigest: request.ServiceDigest, RouteGrantDigest: request.RouteGrantDigest, AuthorityGeneration: request.AuthorityGeneration}
 			cost := serviceChannelCost(request)
-			entry.channels[handle] = &channelEntry{snapshot: snapshot, wire: wire, credits: newCreditWindow(), streams: make(map[corestate.StreamID]*ApplicationStream), accountedBytes: cost}
+			entry.channels[handle] = &channelEntry{snapshot: snapshot, wire: wire, credits: newCreditWindow(), authority: committedAuthority, streams: make(map[corestate.StreamID]*ApplicationStream), pending: make(map[uint64]*pendingAdmission), accountedBytes: cost}
 			entry.byWire[request.ChannelID] = handle
 			manager.channelBytes += cost
 		}
@@ -415,6 +447,17 @@ func (manager *Manager) CloseServiceChannel(generation corestate.TSGeneration, h
 	delete(entry.byWire, channel.snapshot.ChannelID)
 	manager.channelBytes -= channel.accountedBytes
 	streams := make([]WireApplicationStream, 0, len(channel.streams))
+	for _, pending := range channel.pending {
+		if pending.stop != nil {
+			pending.stop()
+		}
+		pending.cancel()
+		if pending.wire != nil {
+			streams = append(streams, pending.wire)
+		}
+		manager.pendingAdmissions--
+	}
+	channel.pending = nil
 	for _, stream := range channel.streams {
 		stream.state.Store(uint32(ApplicationStreamClosed))
 		streams = append(streams, stream.wire)
@@ -482,7 +525,8 @@ func transportSessionCost(spec TransportSessionSpec) uint64 {
 	return 96 + uint64(len(spec.ReuseKey.SourceOperator)+len(spec.ReuseKey.Gateway)+len(spec.ReuseKey.Profile)+len(spec.ReuseKey.Transport))
 }
 func serviceChannelCost(request ServiceChannelRequest) uint64 {
-	return 140 + uint64(len(request.ServiceIdentity))
+	const fixedCreditAndOwnershipBytes = 96
+	return 140 + fixedCreditAndOwnershipBytes + uint64(len(request.ServiceIdentity))
 }
 func authorityError(err error) error {
 	if err == nil {

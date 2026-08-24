@@ -398,7 +398,7 @@ func (m *Manager) Consume(reservation Reservation, owner AdmissionOwner, snapsho
 		} else if owner.ChannelID == ([16]byte{}) {
 			err = ErrInvalidAuthority
 		} else {
-			handle := AuthorityHandle{key: entry.authority.Key(), grant: entry.authority.GrantDigest(), generation: entry.authority.AuthorityGeneration(), expiresAt: entry.authority.ExpiresAt(), checkpoint: entry.authority.Checkpoint()}
+			handle := AuthorityHandle{key: entry.authority.Key(), grant: entry.authority.GrantDigest(), generation: entry.authority.AuthorityGeneration(), expiresAt: entry.authority.ExpiresAt(), checkpoint: entry.authority.Checkpoint(), owner: owner}
 			m.retireEntryLocked(entry, cacheConsumed)
 			m.mu.Unlock()
 			m.notify(events)
@@ -408,6 +408,35 @@ func (m *Manager) Consume(reservation Reservation, owner AdmissionOwner, snapsho
 	m.mu.Unlock()
 	m.notify(events)
 	return AuthorityHandle{}, err
+}
+
+// ValidateHandleAndCommit is the local grant-specific final barrier. It holds
+// only the authority state lock while the caller atomically publishes local
+// ownership; it performs no provider, verifier, observer, or network work.
+func (m *Manager) ValidateHandleAndCommit(handle AuthorityHandle, owner AdmissionOwner, now uint64, commit func() error) error {
+	if m == nil || !validUnixTime(now) || commit == nil || owner.TSGeneration == 0 || owner.ChannelID == ([16]byte{}) {
+		return ErrInvalidAuthority
+	}
+	m.mu.Lock()
+	events, err := m.requireFreshLocked(now)
+	if err == nil && (handle.generation == 0 || handle.generation != m.generation || handle.key.AuthorityGeneration != m.generation || handle.checkpoint != m.checkpoint.Digest()) {
+		err = ErrStaleGeneration
+	}
+	if err == nil && (handle.grant == (RouteGrantDigest{}) || handle.owner != owner || handle.key.TSGeneration != owner.TSGeneration) {
+		err = ErrBindingMismatch
+	}
+	if err == nil && now >= handle.expiresAt {
+		err = ErrExpired
+	}
+	if err == nil && m.checkpoint.hasRevoked(handle.grant) {
+		err = ErrRevoked
+	}
+	if err == nil {
+		err = commit()
+	}
+	m.mu.Unlock()
+	m.notify(events)
+	return err
 }
 
 func (m *Manager) validateReservedLocked(reservation Reservation, snapshot GenerationSnapshot, now uint64) ([]Event, error) {

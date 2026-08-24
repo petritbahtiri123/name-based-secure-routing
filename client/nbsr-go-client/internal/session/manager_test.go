@@ -341,9 +341,15 @@ func (g *testGate) Preflight(request ServiceChannelRequest, generation authority
 	}
 	return []byte{request.RouteGrantDigest[0]}, nil
 }
-func (g *testGate) Commit(request ServiceChannelRequest, generation authority.AuthorityGeneration, now uint64) error {
+func (g *testGate) Commit(request ServiceChannelRequest, generation authority.AuthorityGeneration, now uint64) (AuthorityToken, error) {
 	_, err := g.Preflight(request, generation, now)
-	return err
+	return AuthorityToken{Generation: generation, Grant: request.RouteGrantDigest, Revision: 1}, err
+}
+func (g *testGate) CommitApplication(token AuthorityToken, owner authority.AdmissionOwner, _ uint64, commit func() error) error {
+	if !g.valid || token.Generation != g.current() || token.Grant == (corestate.RouteGrantDigest{}) || owner.TSGeneration == 0 || owner.ChannelID == ([16]byte{}) {
+		return authority.ErrStaleGeneration
+	}
+	return commit()
 }
 func (g *testGate) current() authority.AuthorityGeneration {
 	g.mu.Lock()
@@ -404,12 +410,16 @@ type testWireChannel struct {
 	profile     string
 	openCalls   int
 	refillCalls int
+	profileHook func()
 }
 
 func (c *testWireChannel) ChannelID() corestate.ChannelID { return c.id }
 func (c *testWireChannel) ChannelGeneration() uint64      { return c.generation }
 func (c *testWireChannel) Close() error                   { c.closed = true; return nil }
 func (c *testWireChannel) StreamCreditProfile() string {
+	if c.profileHook != nil {
+		c.profileHook()
+	}
 	if c.profile != "" {
 		return c.profile
 	}

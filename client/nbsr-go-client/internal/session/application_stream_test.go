@@ -7,6 +7,7 @@ import (
 	"io"
 	"sync"
 	"testing"
+	"time"
 
 	"nbsr.local/client/nbsr-go-client/internal/corestate"
 )
@@ -147,6 +148,84 @@ func TestApplicationStreamRejectsWrongProfileBeforeOpeningWire(t *testing.T) {
 	if wireChannel.openCalls != 0 {
 		t.Fatalf("wire opened under wrong profile: %d", wireChannel.openCalls)
 	}
+	snapshot, err := fixture.manager.CreditSnapshot(ts.Generation, sc.Handle)
+	if err != nil || snapshot.Available != StreamCreditCount {
+		t.Fatalf("wrong profile consumed credit: %+v, %v", snapshot, err)
+	}
+}
+
+func TestApplicationStreamCapacityFailureDoesNotConsumeCredit(t *testing.T) {
+	fixture := newFixture(t)
+	fixture.manager.limits.MaxStreams = 1
+	ts := fixture.createTS(t, 1)
+	sc := fixture.createSC(t, fixture.channelRequest(ts.Generation, 1))
+	wireChannel := fixture.opener.channels[0]
+	wireChannel.next = &testApplicationWire{id: 4, read: []byte{0}}
+	if _, err := fixture.manager.OpenApplicationStream(context.Background(), ts.Generation, sc.Handle); err != nil {
+		t.Fatal(err)
+	}
+	wireChannel.next = &testApplicationWire{id: 8, read: []byte{0}}
+	if _, err := fixture.manager.OpenApplicationStream(context.Background(), ts.Generation, sc.Handle); !errors.Is(err, ErrStreamCapacity) {
+		t.Fatalf("capacity = %v", err)
+	}
+	snapshot, err := fixture.manager.CreditSnapshot(ts.Generation, sc.Handle)
+	if err != nil || snapshot.Available != 63 {
+		t.Fatalf("capacity consumed credit: %+v, %v", snapshot, err)
+	}
+}
+
+func TestApplicationStreamProfileCallbackRunsOutsideOwnershipLock(t *testing.T) {
+	fixture := newFixture(t)
+	ts := fixture.createTS(t, 1)
+	sc := fixture.createSC(t, fixture.channelRequest(ts.Generation, 1))
+	wireChannel := fixture.opener.channels[0]
+	wireChannel.profileHook = func() { _ = fixture.manager.Usage() }
+	wireChannel.next = &testApplicationWire{id: 4, read: []byte{0}}
+	done := make(chan error, 1)
+	go func() {
+		_, err := fixture.manager.OpenApplicationStream(context.Background(), ts.Generation, sc.Handle)
+		done <- err
+	}()
+	select {
+	case err := <-done:
+		if err != nil {
+			t.Fatal(err)
+		}
+	case <-time.After(time.Second):
+		t.Fatal("profile callback ran under ownership lock")
+	}
+}
+
+func TestApplicationStreamBlockedAdmissionIsCanceledByTeardown(t *testing.T) {
+	fixture := newFixture(t)
+	ts := fixture.createTS(t, 1)
+	sc := fixture.createSC(t, fixture.channelRequest(ts.Generation, 1))
+	wire := &testApplicationWire{id: 4, readStarted: make(chan struct{}), closeSignal: make(chan struct{})}
+	fixture.opener.channels[0].next = wire
+	done := make(chan error, 1)
+	go func() {
+		_, err := fixture.manager.OpenApplicationStream(context.Background(), ts.Generation, sc.Handle)
+		done <- err
+	}()
+	select {
+	case <-wire.readStarted:
+	case <-time.After(time.Second):
+		t.Fatal("admission read did not start")
+	}
+	if err := fixture.manager.CloseServiceChannel(ts.Generation, sc.Handle); err != nil {
+		t.Fatal(err)
+	}
+	select {
+	case err := <-done:
+		if err == nil {
+			t.Fatal("blocked admission survived teardown")
+		}
+	case <-time.After(time.Second):
+		t.Fatal("teardown did not cancel blocked admission")
+	}
+	if fixture.manager.Usage().PendingAdmissions != 0 {
+		t.Fatalf("pending admission leaked: %+v", fixture.manager.Usage())
+	}
 }
 
 func TestApplicationStreamRefillIsAmortizedAtWatermark(t *testing.T) {
@@ -158,8 +237,12 @@ func TestApplicationStreamRefillIsAmortizedAtWatermark(t *testing.T) {
 	wireChannel := fixture.opener.channels[0]
 	for index := uint64(1); index <= 48; index++ {
 		wireChannel.next = &testApplicationWire{id: corestate.StreamID(index * 4), read: []byte{0}}
-		if _, err := fixture.manager.OpenApplicationStream(context.Background(), ts.Generation, sc.Handle); err != nil {
+		stream, err := fixture.manager.OpenApplicationStream(context.Background(), ts.Generation, sc.Handle)
+		if err != nil {
 			t.Fatalf("stream %d: %v", index, err)
+		}
+		if err := stream.Close(); err != nil {
+			t.Fatalf("close stream %d: %v", index, err)
 		}
 	}
 	if wireChannel.refillCalls != 1 {
@@ -208,12 +291,15 @@ func TestApplicationStreamDuplicateIDCloseAndSiblingIsolation(t *testing.T) {
 }
 
 type testApplicationWire struct {
-	mu         sync.Mutex
-	id         corestate.StreamID
-	read       []byte
-	writes     [][]byte
-	closed     bool
-	beforeRead func()
+	mu          sync.Mutex
+	id          corestate.StreamID
+	read        []byte
+	writes      [][]byte
+	closed      bool
+	beforeRead  func()
+	readStarted chan struct{}
+	closeSignal chan struct{}
+	closeOnce   sync.Once
 }
 
 func (wire *testApplicationWire) StreamID() corestate.StreamID { return wire.id }
@@ -225,6 +311,11 @@ func (wire *testApplicationWire) Write(value []byte) (int, error) {
 	return len(value), nil
 }
 func (wire *testApplicationWire) Read(value []byte) (int, error) {
+	if wire.readStarted != nil {
+		wire.closeOnce.Do(func() { close(wire.readStarted) })
+		<-wire.closeSignal
+		return 0, io.ErrClosedPipe
+	}
 	wire.mu.Lock()
 	hook := wire.beforeRead
 	wire.beforeRead = nil
@@ -245,5 +336,12 @@ func (wire *testApplicationWire) Close() error {
 	wire.mu.Lock()
 	wire.closed = true
 	wire.mu.Unlock()
+	if wire.closeSignal != nil {
+		select {
+		case <-wire.closeSignal:
+		default:
+			close(wire.closeSignal)
+		}
+	}
 	return nil
 }
