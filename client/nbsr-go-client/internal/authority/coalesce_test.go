@@ -614,7 +614,7 @@ func cacheAvailableForCoalesce(t *testing.T, manager *Manager, request AcquireRe
 	manager.mu.RLock()
 	checkpoint := manager.checkpoint.Digest()
 	manager.mu.RUnlock()
-	reservation, err := manager.reserveVerified(sealAuthority(request.Key, grant, expiresAt, checkpoint, request.Key.AuthorityGeneration))
+	reservation, err := manager.reserveVerified(sealAuthority(request.Key, request.Intent.ServiceIdentity, []byte{byte(grant[0])}, grant, expiresAt, checkpoint, request.Key.AuthorityGeneration))
 	if err != nil {
 		t.Fatalf("reserve old authority: %v", err)
 	}

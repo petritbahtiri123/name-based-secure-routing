@@ -141,6 +141,8 @@ type Verifier struct{ issuers IssuerResolver }
 // after checking the exact frozen RouteGrant bytes and all caller bindings.
 type verifiedAuthority struct {
 	key                 AuthorityKey
+	serviceIdentity     string
+	exactRouteGrant     []byte
 	grantDigest         RouteGrantDigest
 	expiresAt           uint64
 	checkpoint          CheckpointDigest
@@ -223,6 +225,12 @@ type AuthorityHandle struct {
 type AdmissionOwner struct {
 	TSGeneration TSGeneration
 	ChannelID    [16]byte
+}
+
+func (snapshot GenerationSnapshot) Generation() AuthorityGeneration { return snapshot.generation }
+func (reservation Reservation) TSGeneration() TSGeneration          { return reservation.key.TSGeneration }
+func (reservation Reservation) AuthorityGeneration() AuthorityGeneration {
+	return reservation.key.AuthorityGeneration
 }
 
 type Usage struct {

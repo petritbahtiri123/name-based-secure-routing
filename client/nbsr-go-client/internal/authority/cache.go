@@ -35,8 +35,9 @@ type tombstone struct {
 const tombstoneLogicalBytes uint64 = 40 // grant digest plus end-exclusive expiry.
 
 // authorityLogicalBytes is a representation-independent bound: all fixed-size
-// key and sealed-authority fields plus the five variable key strings. It does
-// not depend on Go's allocator or map implementation.
+// key and sealed-authority fields plus variable binding strings and the exact
+// verified RouteGrant bytes required by ROUTE_OPEN. It does not depend on Go's
+// allocator or map implementation.
 func authorityLogicalBytes(authority VerifiedAuthority) (uint64, error) {
 	key := authority.Key()
 	variable := uint64(len(key.SourceOperator))
@@ -46,6 +47,14 @@ func authorityLogicalBytes(authority VerifiedAuthority) (uint64, error) {
 		}
 		variable += uint64(len(value))
 	}
+	if uint64(len(authority.seal.serviceIdentity)) > math.MaxUint64-variable {
+		return 0, ErrAccountingOverflow
+	}
+	variable += uint64(len(authority.seal.serviceIdentity))
+	if uint64(len(authority.seal.exactRouteGrant)) > math.MaxUint64-variable {
+		return 0, ErrAccountingOverflow
+	}
+	variable += uint64(len(authority.seal.exactRouteGrant))
 	const fixed = uint64(346) // 9 digests, five uint64s, and one uint16.
 	if variable > math.MaxUint64-fixed {
 		return 0, ErrAccountingOverflow

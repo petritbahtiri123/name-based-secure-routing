@@ -146,7 +146,7 @@ func (verifier *Verifier) VerifyRouteGrant(ctx context.Context, candidate Provid
 	if err := verifyRouteGrantFields(fields, verification); err != nil {
 		return VerifiedAuthority{}, err
 	}
-	return sealAuthority(verification.Key, RouteGrantDigest(sha256.Sum256(candidate.ExactRouteGrant)), verification.Intent.ExpiresAt, candidate.Checkpoint, candidate.AuthorityGeneration), nil
+	return sealAuthority(verification.Key, verification.Intent.ServiceIdentity, candidate.ExactRouteGrant, RouteGrantDigest(sha256.Sum256(candidate.ExactRouteGrant)), verification.Intent.ExpiresAt, candidate.Checkpoint, candidate.AuthorityGeneration), nil
 }
 
 func verifyContext(verification VerificationContext, candidate ProviderGrant) error {
@@ -234,13 +234,13 @@ func verifyRouteGrantFields(fields map[uint64]any, verification VerificationCont
 	return nil
 }
 
-func sealAuthority(key AuthorityKey, digest RouteGrantDigest, expiresAt uint64, checkpoint CheckpointDigest, generation AuthorityGeneration) VerifiedAuthority {
-	return VerifiedAuthority{seal: verifiedAuthority{key: key, grantDigest: digest, expiresAt: expiresAt, checkpoint: checkpoint, authorityGeneration: generation}}
+func sealAuthority(key AuthorityKey, serviceIdentity string, exactRouteGrant []byte, digest RouteGrantDigest, expiresAt uint64, checkpoint CheckpointDigest, generation AuthorityGeneration) VerifiedAuthority {
+	return VerifiedAuthority{seal: verifiedAuthority{key: key, serviceIdentity: serviceIdentity, exactRouteGrant: append([]byte(nil), exactRouteGrant...), grantDigest: digest, expiresAt: expiresAt, checkpoint: checkpoint, authorityGeneration: generation}}
 }
 
 func (authority VerifiedAuthority) valid() bool {
 	hasWorkload := authority.seal.key.WorkloadDigest != ([32]byte{})
-	return validateAuthorityKey(authority.seal.key, hasWorkload) == nil && authority.seal.grantDigest != (RouteGrantDigest{}) && authority.seal.expiresAt != 0 && authority.seal.checkpoint != (CheckpointDigest{}) && authority.seal.authorityGeneration == authority.seal.key.AuthorityGeneration
+	return validateAuthorityKey(authority.seal.key, hasWorkload) == nil && validTextID(authority.seal.serviceIdentity) && len(authority.seal.exactRouteGrant) != 0 && authority.seal.grantDigest != (RouteGrantDigest{}) && authority.seal.expiresAt != 0 && authority.seal.checkpoint != (CheckpointDigest{}) && authority.seal.authorityGeneration == authority.seal.key.AuthorityGeneration
 }
 func (authority VerifiedAuthority) Key() AuthorityKey             { return authority.seal.key }
 func (authority VerifiedAuthority) GrantDigest() RouteGrantDigest { return authority.seal.grantDigest }

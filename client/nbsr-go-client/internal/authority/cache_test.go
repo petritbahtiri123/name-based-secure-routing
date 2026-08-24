@@ -589,14 +589,22 @@ func testKey(seed byte) AuthorityKey {
 }
 
 func testAuthority(key AuthorityKey, grant RouteGrantDigest, expiresAt uint64) VerifiedAuthority {
-	return sealAuthority(key, grant, expiresAt, nonZeroCheckpoint(), key.AuthorityGeneration)
+	return sealAuthority(key, validAcquireRequest().Intent.ServiceIdentity, []byte{byte(grant[0])}, grant, expiresAt, nonZeroCheckpoint(), key.AuthorityGeneration)
 }
 
 func testGrant(seed byte) RouteGrantDigest { return RouteGrantDigest(nonZero32(seed)) }
 func id16(value byte) [16]byte             { return [16]byte{value} }
 
+func TestValidateAdmissionBindingRejectsServiceIdentitySubstitution(t *testing.T) {
+	m, reservation, _ := reservedGrant(t)
+	_, err := m.AdmissionMaterialForGeneration(reservation, reservation.key.AuthorityGeneration, "other.example", reservation.key.ServiceDigest, reservation.key.ProofThumbprint, reservation.grant, 99)
+	if !errors.Is(err, ErrBindingMismatch) {
+		t.Fatalf("ValidateAdmissionForGeneration = %v, want ErrBindingMismatch", err)
+	}
+}
+
 // This must stay independent of cache.go so a changed accounting formula is
 // caught at its observable capacity boundary.
 func testLogicalBytes(key AuthorityKey) uint64 {
-	return 346 + uint64(len(key.SourceOperator)+len(key.SourceEdge)+len(key.TargetOperator)+len(key.Profile)+len(key.Transport))
+	return 347 + uint64(len(key.SourceOperator)+len(key.SourceEdge)+len(key.TargetOperator)+len(key.Profile)+len(key.Transport)+len(validAcquireRequest().Intent.ServiceIdentity))
 }
