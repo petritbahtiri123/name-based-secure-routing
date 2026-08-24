@@ -8,6 +8,7 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"time"
@@ -170,6 +171,9 @@ func (peer *Peer) ExportKeyingMaterial(contextBytes []byte) ([]byte, error) {
 }
 func (peer *Peer) OpenApplication(ctx context.Context) (*quic.Stream, error) {
 	return peer.connection.OpenStreamSync(ctx)
+}
+func (peer *Peer) Identity() string {
+	return fmt.Sprintf("%s->%s", peer.connection.LocalAddr(), peer.connection.RemoteAddr())
 }
 
 func encodeStreamCreditRefill(kind byte, channel [16]byte, epoch uint64) ([]byte, error) {

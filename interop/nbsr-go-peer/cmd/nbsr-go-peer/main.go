@@ -32,22 +32,23 @@ import (
 const maxBenchmarkPayload = 1 << 20
 
 type config struct {
-	ReadinessPath              string  `json:"readiness_path"`
-	F75Package                 string  `json:"f75_package"`
-	LocalAttestationPackage    string  `json:"local_attestation_package"`
-	SafePayload                string  `json:"safe_payload"`
-	BenchmarkSamples           int     `json:"benchmark_samples,omitempty"`
-	OfferedRate                float64 `json:"offered_rate,omitempty"`
-	RuntimeSeriesPath          string  `json:"runtime_series_path,omitempty"`
-	RuntimeSamplingCadenceMS   int     `json:"runtime_sampling_cadence_ms,omitempty"`
-	LifecycleAuthorityDir      string  `json:"lifecycle_authority_dir,omitempty"`
-	LifecycleConnections       int     `json:"lifecycle_connections,omitempty"`
-	LifecycleServices          int     `json:"lifecycle_services,omitempty"`
-	LifecycleStreamsPerService int     `json:"lifecycle_streams_per_service,omitempty"`
-	LifecycleConcurrent        bool    `json:"lifecycle_concurrent,omitempty"`
-	LifecycleConnectionOffset  int     `json:"lifecycle_connection_offset,omitempty"`
-	LifecycleReportConnections bool    `json:"lifecycle_report_connections,omitempty"`
-	StreamCreditProfile        string  `json:"stream_credit_profile,omitempty"`
+	ReadinessPath              string   `json:"readiness_path"`
+	F75Package                 string   `json:"f75_package"`
+	LocalAttestationPackage    string   `json:"local_attestation_package"`
+	SafePayload                string   `json:"safe_payload"`
+	BenchmarkSamples           int      `json:"benchmark_samples,omitempty"`
+	OfferedRate                float64  `json:"offered_rate,omitempty"`
+	RuntimeSeriesPath          string   `json:"runtime_series_path,omitempty"`
+	RuntimeSamplingCadenceMS   int      `json:"runtime_sampling_cadence_ms,omitempty"`
+	LifecycleAuthorityDir      string   `json:"lifecycle_authority_dir,omitempty"`
+	LifecycleConnections       int      `json:"lifecycle_connections,omitempty"`
+	LifecycleServices          int      `json:"lifecycle_services,omitempty"`
+	LifecycleStreamsPerService int      `json:"lifecycle_streams_per_service,omitempty"`
+	LifecycleConcurrent        bool     `json:"lifecycle_concurrent,omitempty"`
+	LifecycleConnectionOffset  int      `json:"lifecycle_connection_offset,omitempty"`
+	LifecycleReportConnections bool     `json:"lifecycle_report_connections,omitempty"`
+	StreamCreditProfile        string   `json:"stream_credit_profile,omitempty"`
+	RotationReadinessPaths     []string `json:"rotation_readiness_paths,omitempty"`
 }
 
 func isCreditMutation(value string) bool {
@@ -150,6 +151,9 @@ func (value config) validate() error {
 		if value.BenchmarkSamples < 1 || value.BenchmarkSamples > 128 || value.OfferedRate != 0 || value.LifecycleAuthorityDir != "" {
 			return errors.New("stream-credit interop mode requires 1 to 128 bounded operations")
 		}
+		if len(value.RotationReadinessPaths) != 0 && len(value.RotationReadinessPaths) != 2 {
+			return errors.New("rotation interop requires two readiness paths")
+		}
 	}
 	if value.BenchmarkSamples > 100_000 && value.OfferedRate == 0 {
 		return errors.New("large benchmark sample count requires streaming open-loop mode")
@@ -176,15 +180,16 @@ func (value config) validate() error {
 }
 
 type result struct {
-	Status               string          `json:"status"`
-	Messages             []string        `json:"messages"`
-	CoreVersion          uint64          `json:"core_version"`
-	RouteOpenBodyVersion uint64          `json:"route_open_body_version"`
-	FederationProfile    string          `json:"federation_profile"`
-	PayloadSHA256        string          `json:"payload_sha256"`
-	BenchmarkSamples     int             `json:"benchmark_samples,omitempty"`
-	Samples              []sample        `json:"samples,omitempty"`
-	GoRuntime            *goRuntimeStats `json:"go_runtime,omitempty"`
+	Status               string            `json:"status"`
+	Messages             []string          `json:"messages"`
+	CoreVersion          uint64            `json:"core_version"`
+	RouteOpenBodyVersion uint64            `json:"route_open_body_version"`
+	FederationProfile    string            `json:"federation_profile"`
+	PayloadSHA256        string            `json:"payload_sha256"`
+	BenchmarkSamples     int               `json:"benchmark_samples,omitempty"`
+	Samples              []sample          `json:"samples,omitempty"`
+	GoRuntime            *goRuntimeStats   `json:"go_runtime,omitempty"`
+	Rotation             *rotationEvidence `json:"rotation,omitempty"`
 }
 
 type goRuntimeStats struct {
@@ -381,6 +386,9 @@ func loadPublicKey(path string) (ed25519.PublicKey, error) {
 }
 
 func run(ctx context.Context, configuration config) (result, error) {
+	if len(configuration.RotationReadinessPaths) == 2 {
+		return runRotationInterop(ctx, configuration)
+	}
 	mutation := os.Getenv("NBSR_INTEROP_TEST_MUTATION")
 	allowedMutations := map[string]bool{"": true, "unsupported_alpn": true, "wrong_peer_identity": true, "wrong_ca": true, "payload_before_admission": true, "malformed_cbor": true, "noncanonical_cbor": true, "over_limit_cbor": true, "wrong_core_version": true, "wrong_session": true, "wrong_request": true, "wrong_channel": true, "wrong_transport": true, "wrong_port": true, "wrong_route_grant_digest": true, "wrong_federation_context_digest": true, "wrong_proof_signature": true, "wrong_service": true, "expired_authority": true, "revoked_authority": true, "unsupported_federation_version": true, "unsupported_profile": true, "downgrade_v1": true, "transcript_substitution": true, "replay": true, "wrong_stream": true, "malformed_credit_preface": true, "credit_profile_mismatch": true, "credit_legacy_downgrade": true, "credit_wrong_channel": true, "credit_replay": true}
 	if !allowedMutations[mutation] {
