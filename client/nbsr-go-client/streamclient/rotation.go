@@ -58,6 +58,9 @@ func (transport *liveTransport) Close() error {
 	transport.connector.mu.Lock()
 	if transport.connector.sessions[transport.generation] == transport.session {
 		delete(transport.connector.sessions, transport.generation)
+		if transport.connector.onClose != nil {
+			transport.connector.onClose(transport.generation)
+		}
 	}
 	transport.connector.mu.Unlock()
 	return transport.session.Close()
@@ -67,6 +70,7 @@ type rotationConnector struct {
 	mu       sync.Mutex
 	configs  map[corestate.TSGeneration]GenerationConfig
 	sessions map[corestate.TSGeneration]GenerationSession
+	onClose  func(corestate.TSGeneration)
 }
 
 func (connector *rotationConnector) Connect(ctx context.Context, attempt session.TransportSessionAttempt) (session.Transport, error) {
@@ -156,6 +160,11 @@ func NewRotationClient(ctx context.Context, config RotationClientConfig) (*Rotat
 	}
 	reuse := session.ReuseKey{SourceOperator: config.SourceOperator, Gateway: config.Gateway, Profile: config.Profile, Transport: config.Transport, DeviceID: config.DeviceID, DeviceGeneration: 1, PolicyDigest: config.PolicyDigest, PolicyGeneration: 1}
 	client := &RotationClient{manager: manager, gate: gate, connector: connector, reuse: reuse, configs: configs, handles: make(map[corestate.TSGeneration]corestate.ServiceHandle), common: config}
+	connector.onClose = func(generation corestate.TSGeneration) {
+		client.mu.Lock()
+		delete(client.handles, generation)
+		client.mu.Unlock()
+	}
 	first := config.Generations[0]
 	if _, err = manager.CreateTransportSession(ctx, client.spec(first)); err != nil {
 		return nil, err
@@ -175,9 +184,15 @@ func (client *RotationClient) openChannel(ctx context.Context, generation corest
 	config := client.configs[generation]
 	snapshot, err := client.manager.CreateServiceChannel(ctx, session.ServiceChannelRequest{Generation: generation, ChannelID: corestate.ChannelID(config.ChannelID), ServiceIdentity: client.common.ServiceIdentity, ServiceDigest: corestate.ServiceDigest(client.common.ServiceDigest), RouteGrantDigest: corestate.RouteGrantDigest(client.common.RouteGrantDigest), AuthorityGeneration: corestate.AuthorityGeneration(client.common.AuthorityGeneration), ProofThumbprint: authority.ProofKeyThumbprint(config.ProofThumbprint)})
 	if err == nil {
-		client.mu.Lock()
-		client.handles[generation] = snapshot.Handle
-		client.mu.Unlock()
+		client.connector.mu.Lock()
+		if client.connector.sessions[generation] == nil {
+			err = session.ErrGenerationClosed
+		} else {
+			client.mu.Lock()
+			client.handles[generation] = snapshot.Handle
+			client.mu.Unlock()
+		}
+		client.connector.mu.Unlock()
 	}
 	return err
 }
@@ -213,11 +228,7 @@ func (client *RotationClient) Open(ctx context.Context, generation uint64) (*ses
 }
 func (client *RotationClient) CloseGeneration(generation uint64) error {
 	g := corestate.TSGeneration(generation)
-	err := client.manager.CloseTransportSession(g)
-	client.mu.Lock()
-	delete(client.handles, g)
-	client.mu.Unlock()
-	return err
+	return client.manager.CloseTransportSession(g)
 }
 func (client *RotationClient) Current() (session.TransportSessionSnapshot, error) {
 	return client.manager.CurrentTransportSession(client.reuse)

@@ -73,6 +73,30 @@ func TestRotationClientUsesDistinctGenerationSessionsAndDrainsA(t *testing.T) {
 	}
 }
 
+func TestRotationClientDrainDeadlineRemovesCachedGenerationState(t *testing.T) {
+	a := &fakeGenerationSession{id: "real-a"}
+	b := &fakeGenerationSession{id: "real-b"}
+	config := rotationFixture(a, b)
+	config.DrainTimeout = 20 * time.Millisecond
+	client, err := NewRotationClient(context.Background(), config)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = client.Rotate(context.Background(), 2, session.RotationExplicit); err != nil {
+		t.Fatal(err)
+	}
+	deadline := time.Now().Add(time.Second)
+	for client.TransportIdentity(1) != "" && time.Now().Before(deadline) {
+		time.Sleep(time.Millisecond)
+	}
+	client.mu.RLock()
+	_, retained := client.handles[1]
+	client.mu.RUnlock()
+	if retained || client.TransportIdentity(1) != "" {
+		t.Fatal("deadline teardown retained A generation-local state")
+	}
+}
+
 type fakeGenerationSession struct {
 	id       string
 	closed   bool
