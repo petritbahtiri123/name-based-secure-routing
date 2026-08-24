@@ -133,7 +133,8 @@ func (manager *Manager) RotateTransportSession(ctx context.Context, request Rota
 		return RotationResult{}, ErrSessionCapacity
 	}
 	cost := transportSessionCost(request.Replacement)
-	if manager.sessionBytes+manager.channelBytes > manager.limits.MaxStateBytes || cost > manager.limits.MaxStateBytes-manager.sessionBytes-manager.channelBytes {
+	used := manager.sessionBytes + manager.channelBytes + manager.streamBytes
+	if used > manager.limits.MaxStateBytes || cost > manager.limits.MaxStateBytes-used {
 		manager.mu.Unlock()
 		return RotationResult{}, ErrSessionCapacity
 	}
@@ -163,8 +164,13 @@ func (manager *Manager) RotateTransportSession(ctx context.Context, request Rota
 	effective := pending.trigger
 	current = manager.sessions[request.CurrentGeneration]
 	if connectErr == nil {
+		used = manager.sessionBytes + manager.channelBytes + manager.streamBytes
 		if current == nil || current.snapshot.ReuseKey != request.Replacement.ReuseKey || (current.snapshot.State != TransportCurrent && !effective.prohibitsNewWork()) || len(manager.byReuse[request.Replacement.ReuseKey]) >= 2 {
 			connectErr = ErrGenerationNotCurrent
+		} else if request.Replacement.Generation <= manager.highestGeneration || manager.sessions[request.Replacement.Generation] != nil {
+			connectErr = ErrGenerationClosed
+		} else if used > manager.limits.MaxStateBytes || cost > manager.limits.MaxStateBytes-used {
+			connectErr = ErrSessionCapacity
 		}
 	}
 	var result RotationResult
@@ -172,6 +178,7 @@ func (manager *Manager) RotateTransportSession(ctx context.Context, request Rota
 		previous := current.snapshot
 		current.snapshot.State = TransportDraining
 		manager.invalidateUnusedCreditsLocked(current)
+		manager.cancelPendingChannelsLocked(current.snapshot.Generation, ErrGenerationNotCurrent)
 		manager.startDrainTimerLocked(current.snapshot.Generation)
 		snapshot := TransportSessionSnapshot{Generation: request.Replacement.Generation, ReuseKey: request.Replacement.ReuseKey, State: TransportCurrent, ProofThumbprint: proof.Key.Thumbprint, AuthorityGeneration: authorityGeneration}
 		entry := &transportEntry{snapshot: snapshot, transport: transport, nextHandle: 1, channels: make(map[corestate.ServiceHandle]*channelEntry), byWire: make(map[corestate.ChannelID]corestate.ServiceHandle), accountedBytes: cost}
@@ -233,6 +240,9 @@ func (manager *Manager) FailTransportSession(generation corestate.TSGeneration, 
 	if trigger > manager.effectiveTriggers[entry.snapshot.ReuseKey] {
 		manager.effectiveTriggers[entry.snapshot.ReuseKey] = trigger
 	}
+	if pending := manager.pendingRotations[entry.snapshot.ReuseKey]; pending != nil && trigger > pending.trigger {
+		pending.trigger = trigger
+	}
 	manager.markNoNewWorkLocked(generation)
 	return nil
 }
@@ -244,6 +254,7 @@ func (manager *Manager) markNoNewWorkLocked(generation corestate.TSGeneration) {
 	}
 	entry.snapshot.State = TransportDraining
 	manager.invalidateUnusedCreditsLocked(entry)
+	manager.cancelPendingChannelsLocked(generation, ErrGenerationNotCurrent)
 	manager.startDrainTimerLocked(generation)
 }
 

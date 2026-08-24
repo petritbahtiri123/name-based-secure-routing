@@ -3,7 +3,6 @@ package session
 import (
 	"context"
 	"errors"
-	"sync"
 	"testing"
 	"time"
 )
@@ -310,4 +309,150 @@ func TestColdStartRestoresNoLiveGenerationOwnership(t *testing.T) {
 	}
 }
 
-var _ = sync.Mutex{}
+func TestConcurrentCrossReuseRotationsCannotCommitSameGeneration(t *testing.T) {
+	fixture := newFixture(t)
+	a := fixture.createTS(t, 1)
+	second := fixture.sessionSpec(2)
+	second.ReuseKey.Gateway = "gateway-b"
+	b, err := fixture.manager.CreateTransportSession(context.Background(), second)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fixture.connector.block = make(chan struct{})
+	results := make(chan error, 2)
+	for _, request := range []RotationRequest{
+		{CurrentGeneration: a.Generation, Replacement: fixture.sessionSpec(3), Trigger: RotationExplicit},
+		{CurrentGeneration: b.Generation, Replacement: func() TransportSessionSpec {
+			value := fixture.sessionSpec(3)
+			value.ReuseKey = second.ReuseKey
+			return value
+		}(), Trigger: RotationExplicit},
+	} {
+		go func(request RotationRequest) {
+			_, err := fixture.manager.RotateTransportSession(context.Background(), request)
+			results <- err
+		}(request)
+	}
+	<-fixture.connector.started
+	<-fixture.connector.started
+	close(fixture.connector.block)
+	first, secondErr := <-results, <-results
+	if (first == nil) == (secondErr == nil) {
+		t.Fatalf("same-generation results = %v / %v", first, secondErr)
+	}
+	rejected := first
+	if rejected == nil {
+		rejected = secondErr
+	}
+	if !errors.Is(rejected, ErrGenerationClosed) {
+		t.Fatalf("collision rejection = %v", rejected)
+	}
+	if usage := fixture.manager.Usage(); usage.Sessions != 2 {
+		t.Fatalf("collision corrupted ownership = %+v", usage)
+	}
+}
+
+func TestRotationFinalBarrierRechecksTotalStateBytes(t *testing.T) {
+	fixture := newFixture(t)
+	a := fixture.createTS(t, 1)
+	sc := fixture.createSC(t, fixture.channelRequest(1, 1))
+	cost := transportSessionCost(fixture.sessionSpec(2))
+	fixture.manager.limits.MaxStateBytes = fixture.manager.Usage().StateBytes + cost + applicationStreamCost - 1
+	fixture.connector.block = make(chan struct{})
+	done := make(chan error, 1)
+	go func() {
+		_, err := fixture.manager.RotateTransportSession(context.Background(), RotationRequest{CurrentGeneration: 1, Replacement: fixture.sessionSpec(2), Trigger: RotationExplicit})
+		done <- err
+	}()
+	<-fixture.connector.started
+	wire := &testApplicationWire{id: 4, read: []byte{0}}
+	fixture.opener.channels[0].next = wire
+	if _, err := fixture.manager.OpenApplicationStream(context.Background(), 1, sc.Handle); err != nil {
+		t.Fatal(err)
+	}
+	close(fixture.connector.block)
+	if err := <-done; !errors.Is(err, ErrSessionCapacity) {
+		t.Fatalf("final state barrier = %v", err)
+	}
+	if current, err := fixture.manager.CurrentTransportSession(a.ReuseKey); err != nil || current.Generation != 1 {
+		t.Fatalf("A not retained after capacity failure = %+v, %v", current, err)
+	}
+}
+
+func TestRotationCancelsPendingServiceChannelOnA(t *testing.T) {
+	fixture := newFixture(t)
+	fixture.createTS(t, 1)
+	fixture.opener.block = make(chan struct{})
+	done := make(chan error, 1)
+	go func() {
+		_, err := fixture.manager.CreateServiceChannel(context.Background(), fixture.channelRequest(1, 1))
+		done <- err
+	}()
+	<-fixture.opener.started
+	if _, err := fixture.manager.RotateTransportSession(context.Background(), RotationRequest{CurrentGeneration: 1, Replacement: fixture.sessionSpec(2), Trigger: RotationTransportFailure}); err != nil {
+		t.Fatal(err)
+	}
+	select {
+	case err := <-done:
+		if !errors.Is(err, ErrGenerationNotCurrent) && !errors.Is(err, context.Canceled) {
+			t.Fatalf("pending SC result = %v", err)
+		}
+	case <-time.After(time.Second):
+		t.Fatal("pending SC survived handoff")
+	}
+	if usage := fixture.manager.Usage(); usage.PendingChannels != 0 || usage.ChannelWaiters != 0 {
+		t.Fatalf("pending SC leaked = %+v", usage)
+	}
+}
+
+func TestFailTransportEscalatesPendingRotation(t *testing.T) {
+	fixture := newFixture(t)
+	fixture.createTS(t, 1)
+	fixture.connector.block = make(chan struct{})
+	done := make(chan struct {
+		result RotationResult
+		err    error
+	}, 1)
+	go func() {
+		result, err := fixture.manager.RotateTransportSession(context.Background(), RotationRequest{CurrentGeneration: 1, Replacement: fixture.sessionSpec(2), Trigger: RotationExplicit})
+		done <- struct {
+			result RotationResult
+			err    error
+		}{result, err}
+	}()
+	<-fixture.connector.started
+	if err := fixture.manager.FailTransportSession(1, RotationRevocation); err != nil {
+		t.Fatal(err)
+	}
+	close(fixture.connector.block)
+	got := <-done
+	if got.err != nil {
+		t.Fatal(got.err)
+	}
+	if got.result.Trigger != RotationRevocation {
+		t.Fatalf("committed trigger = %v", got.result.Trigger)
+	}
+}
+
+func TestRotationDuringChannelAuthorityCommitResolvesOnce(t *testing.T) {
+	fixture := newFixture(t)
+	fixture.createTS(t, 1)
+	fixture.gate.commitStarted = make(chan struct{}, 1)
+	fixture.gate.commitBlock = make(chan struct{})
+	done := make(chan error, 1)
+	go func() {
+		_, err := fixture.manager.CreateServiceChannel(context.Background(), fixture.channelRequest(1, 1))
+		done <- err
+	}()
+	<-fixture.gate.commitStarted
+	if _, err := fixture.manager.RotateTransportSession(context.Background(), RotationRequest{CurrentGeneration: 1, Replacement: fixture.sessionSpec(2), Trigger: RotationTransportFailure}); err != nil {
+		t.Fatal(err)
+	}
+	close(fixture.gate.commitBlock)
+	if err := <-done; !errors.Is(err, ErrGenerationNotCurrent) {
+		t.Fatalf("commit race result = %v", err)
+	}
+	if usage := fixture.manager.Usage(); usage.PendingChannels != 0 || usage.Channels != 0 {
+		t.Fatalf("commit race leaked ownership = %+v", usage)
+	}
+}

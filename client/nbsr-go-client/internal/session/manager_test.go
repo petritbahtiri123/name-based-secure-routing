@@ -310,9 +310,11 @@ func (registry proofOverrideRegistry) TSProof(uint64) (identity.TSProofKey, erro
 }
 
 type testGate struct {
-	mu         sync.Mutex
-	generation authority.AuthorityGeneration
-	valid      bool
+	mu            sync.Mutex
+	generation    authority.AuthorityGeneration
+	valid         bool
+	commitStarted chan struct{}
+	commitBlock   chan struct{}
 }
 
 func (g *testGate) Capture() (authority.AuthorityGeneration, error) {
@@ -343,6 +345,18 @@ func (g *testGate) Preflight(request ServiceChannelRequest, generation authority
 	return []byte{request.RouteGrantDigest[0]}, nil
 }
 func (g *testGate) Commit(request ServiceChannelRequest, generation authority.AuthorityGeneration, now uint64) (AuthorityToken, error) {
+	g.mu.Lock()
+	started, block := g.commitStarted, g.commitBlock
+	g.mu.Unlock()
+	if started != nil {
+		select {
+		case started <- struct{}{}:
+		default:
+		}
+	}
+	if block != nil {
+		<-block
+	}
 	_, err := g.Preflight(request, generation, now)
 	return AuthorityToken{Generation: generation, Grant: request.RouteGrantDigest, Revision: 1}, err
 }
@@ -418,7 +432,7 @@ type testOpener struct {
 	beforeReturn func()
 }
 
-func (o *testOpener) Open(_ context.Context, _ Transport, request ServiceChannelAttempt) (WireChannel, error) {
+func (o *testOpener) Open(ctx context.Context, _ Transport, request ServiceChannelAttempt) (WireChannel, error) {
 	o.mu.Lock()
 	o.calls++
 	started, block, hook := o.started, o.block, o.beforeReturn
@@ -429,7 +443,11 @@ func (o *testOpener) Open(_ context.Context, _ Transport, request ServiceChannel
 	default:
 	}
 	if block != nil {
-		<-block
+		select {
+		case <-block:
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		}
 	}
 	if hook != nil {
 		hook()

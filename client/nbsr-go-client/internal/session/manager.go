@@ -80,6 +80,7 @@ type pendingChannel struct {
 	request ServiceChannelRequest
 	result  ServiceChannelSnapshot
 	err     error
+	cancel  context.CancelFunc
 }
 type channelKey struct {
 	generation corestate.TSGeneration
@@ -264,6 +265,7 @@ func (manager *Manager) CloseTransportSession(generation corestate.TSGeneration)
 	if pending := manager.pendingRotations[entry.snapshot.ReuseKey]; pending != nil {
 		pending.cancel()
 	}
+	manager.cancelPendingChannelsLocked(generation, ErrGenerationClosed)
 	delete(manager.sessions, generation)
 	manager.sessionBytes -= entry.accountedBytes
 	group := manager.byReuse[entry.snapshot.ReuseKey]
@@ -345,7 +347,8 @@ func (manager *Manager) CreateServiceChannel(ctx context.Context, request Servic
 		manager.mu.Unlock()
 		return ServiceChannelSnapshot{}, ErrPendingCapacity
 	}
-	pending := &pendingChannel{done: make(chan struct{}), request: request}
+	operationCtx, cancelOperation := context.WithCancel(ctx)
+	pending := &pendingChannel{done: make(chan struct{}), request: request, cancel: cancelOperation}
 	manager.pendingChannels[key] = pending
 	transport := entry.transport
 	authorityGeneration := entry.snapshot.AuthorityGeneration
@@ -355,7 +358,7 @@ func (manager *Manager) CreateServiceChannel(ctx context.Context, request Servic
 	material, err := manager.authority.Preflight(request, authorityGeneration, now)
 	var wire WireChannel
 	if err == nil {
-		wire, err = manager.opener.Open(ctx, transport, ServiceChannelAttempt{Generation: request.Generation, ChannelID: request.ChannelID, ServiceIdentity: request.ServiceIdentity, ServiceDigest: request.ServiceDigest, RouteGrant: request.RouteGrantDigest, ExactRouteGrant: material, ProofThumbprint: request.ProofThumbprint})
+		wire, err = manager.opener.Open(operationCtx, transport, ServiceChannelAttempt{Generation: request.Generation, ChannelID: request.ChannelID, ServiceIdentity: request.ServiceIdentity, ServiceDigest: request.ServiceDigest, RouteGrant: request.RouteGrantDigest, ExactRouteGrant: material, ProofThumbprint: request.ProofThumbprint})
 	}
 	if err == nil && wire == nil {
 		err = ErrTransport
@@ -367,6 +370,17 @@ func (manager *Manager) CreateServiceChannel(ctx context.Context, request Servic
 		err = manager.authority.Validate(authorityGeneration)
 	}
 	manager.mu.Lock()
+	if manager.pendingChannels[key] != pending {
+		pendingErr := pending.err
+		if pendingErr == nil {
+			pendingErr = ErrGenerationNotCurrent
+		}
+		manager.mu.Unlock()
+		if wire != nil {
+			_ = wire.Close()
+		}
+		return ServiceChannelSnapshot{}, pendingErr
+	}
 	entry = manager.sessions[request.Generation]
 	if err == nil {
 		err = manager.validateChannelRequestLocked(entry, request, 1)
@@ -377,6 +391,17 @@ func (manager *Manager) CreateServiceChannel(ctx context.Context, request Servic
 		committedAuthority, err = manager.authority.Commit(request, authorityGeneration, manager.clock.NowUnix())
 	}
 	manager.mu.Lock()
+	if manager.pendingChannels[key] != pending {
+		pendingErr := pending.err
+		if pendingErr == nil {
+			pendingErr = ErrGenerationNotCurrent
+		}
+		manager.mu.Unlock()
+		if wire != nil {
+			_ = wire.Close()
+		}
+		return ServiceChannelSnapshot{}, pendingErr
+	}
 	entry = manager.sessions[request.Generation]
 	if err == nil {
 		err = manager.validateChannelRequestLocked(entry, request, 1)
@@ -400,6 +425,7 @@ func (manager *Manager) CreateServiceChannel(ctx context.Context, request Servic
 		}
 	}
 	delete(manager.pendingChannels, key)
+	pending.cancel()
 	pending.result = snapshot
 	pending.err = authorityError(err)
 	close(pending.done)
@@ -408,6 +434,18 @@ func (manager *Manager) CreateServiceChannel(ctx context.Context, request Servic
 		_ = wire.Close()
 	}
 	return snapshot, authorityError(err)
+}
+
+func (manager *Manager) cancelPendingChannelsLocked(generation corestate.TSGeneration, err error) {
+	for key, pending := range manager.pendingChannels {
+		if key.generation != generation {
+			continue
+		}
+		delete(manager.pendingChannels, key)
+		pending.cancel()
+		pending.err = err
+		close(pending.done)
+	}
 }
 
 func (manager *Manager) validateChannelRequestLocked(entry *transportEntry, request ServiceChannelRequest, excludePending int) error {
