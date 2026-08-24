@@ -10,6 +10,7 @@ import (
 	"errors"
 	"io"
 	"os"
+	"sync"
 
 	quic "github.com/quic-go/quic-go"
 	"nbsr.local/interop/nbsr-go-peer/internal/core"
@@ -51,6 +52,7 @@ type Peer struct {
 	connection *quic.Conn
 	control    *quic.Stream
 	tlsState   tls.ConnectionState
+	controlMu  sync.Mutex
 }
 
 func Dial(ctx context.Context, ready Readiness) (*Peer, error) {
@@ -168,5 +170,58 @@ func (peer *Peer) ExportKeyingMaterial(contextBytes []byte) ([]byte, error) {
 }
 func (peer *Peer) OpenApplication(ctx context.Context) (*quic.Stream, error) {
 	return peer.connection.OpenStreamSync(ctx)
+}
+
+func encodeStreamCreditRefill(kind byte, channel [16]byte, epoch uint64) ([]byte, error) {
+	if (kind != 1 && kind != 2) || epoch == 0 {
+		return nil, errors.New("invalid stream credit refill")
+	}
+	wire := make([]byte, 31)
+	wire[0] = 30
+	copy(wire[1:5], "NSCR")
+	wire[5] = 1
+	wire[6] = kind
+	copy(wire[7:23], channel[:])
+	for index := 0; index < 8; index++ {
+		wire[30-index] = byte(epoch >> (8 * index))
+	}
+	return wire, nil
+}
+
+func decodeStreamCreditRefill(wire []byte, kind byte) ([16]byte, uint64, error) {
+	var channel [16]byte
+	if len(wire) != 31 || wire[0] != 30 || string(wire[1:5]) != "NSCR" || wire[5] != 1 || wire[6] != kind {
+		return channel, 0, errors.New("invalid stream credit refill")
+	}
+	copy(channel[:], wire[7:23])
+	var epoch uint64
+	for _, value := range wire[23:31] {
+		epoch = epoch<<8 | uint64(value)
+	}
+	if epoch == 0 {
+		return channel, 0, errors.New("invalid stream credit refill")
+	}
+	return channel, epoch, nil
+}
+
+func (peer *Peer) RefillStreamCredits(channel [16]byte, epoch uint64) error {
+	request, err := encodeStreamCreditRefill(1, channel, epoch)
+	if err != nil {
+		return err
+	}
+	peer.controlMu.Lock()
+	defer peer.controlMu.Unlock()
+	if _, err := peer.control.Write(request); err != nil {
+		return err
+	}
+	grant := make([]byte, 31)
+	if _, err := io.ReadFull(peer.control, grant); err != nil {
+		return err
+	}
+	gotChannel, gotEpoch, err := decodeStreamCreditRefill(grant, 2)
+	if err != nil || gotChannel != channel || gotEpoch != epoch {
+		return errors.New("stream credit refill grant mismatch")
+	}
+	return nil
 }
 func (peer *Peer) Close() error { peer.connection.CloseWithError(0, "done"); return nil }

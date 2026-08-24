@@ -81,6 +81,28 @@ func (manager *Manager) OpenApplicationStream(ctx context.Context, generation co
 	if err != nil {
 		return nil, err
 	}
+	pendingRegistered := false
+	var wire WireApplicationStream
+	defer func() {
+		if resultErr == nil {
+			return
+		}
+		manager.mu.Lock()
+		if pendingRegistered {
+			manager.pendingAdmissions--
+		}
+		currentEntry := manager.sessions[generation]
+		if currentEntry != nil {
+			currentChannel := currentEntry.channels[handle]
+			if currentChannel != nil && creditBindingMatches(currentEntry, currentChannel, credit) {
+				_ = releaseCreditAssignment(&currentChannel.credits, credit.Epoch)
+			}
+		}
+		manager.mu.Unlock()
+		if wire != nil {
+			_ = wire.Close()
+		}
+	}()
 	manager.mu.Lock()
 	entry := manager.sessions[generation]
 	if entry == nil || entry.snapshot.State != TransportCurrent || entry.channels[handle] == nil || !creditBindingMatches(entry, entry.channels[handle], credit) {
@@ -98,6 +120,7 @@ func (manager *Manager) OpenApplicationStream(ctx context.Context, generation co
 		return nil, ErrStreamCapacity
 	}
 	manager.pendingAdmissions++
+	pendingRegistered = true
 	authorityGeneration := entry.snapshot.AuthorityGeneration
 	manager.mu.Unlock()
 	if refillEpoch, refillErr := manager.BeginCreditRefill(generation, handle); refillErr == nil {
@@ -110,40 +133,11 @@ func (manager *Manager) OpenApplicationStream(ctx context.Context, generation co
 		}
 	}
 
-	committed := false
-	var wire WireApplicationStream
-	defer func() {
-		if committed {
-			return
-		}
-		manager.mu.Lock()
-		manager.pendingAdmissions--
-		currentEntry := manager.sessions[generation]
-		if currentEntry != nil && currentEntry.channels[handle] == channel {
-			_ = releaseCreditAssignment(&channel.credits, credit.Epoch)
-		}
-		manager.mu.Unlock()
-		if wire != nil {
-			_ = wire.Close()
-		}
-	}()
-
-	wire, err = opener.OpenApplicationStream(ctx)
-	if err != nil || wire == nil {
-		return nil, ErrTransport
-	}
-	stream := newApplicationStream(manager, credit, wire)
-	preface, err := encodeStreamCreditPreface(credit.ChannelID, credit.ChannelGeneration, credit.Epoch, credit.Slot, stream.id)
+	wire, err = OpenAdmittedWireApplication(ctx, opener, credit)
 	if err != nil {
 		return nil, err
 	}
-	if err := writeAll(wire, preface); err != nil {
-		return nil, ErrAdmissionRejected
-	}
-	decision := []byte{0xff}
-	if _, err := io.ReadFull(wire, decision); err != nil || decision[0] != 0 {
-		return nil, ErrAdmissionRejected
-	}
+	stream := newApplicationStream(manager, credit, wire)
 	if err := manager.authority.Validate(authorityGeneration); err != nil {
 		return nil, ErrAuthorityStale
 	}
@@ -163,12 +157,40 @@ func (manager *Manager) OpenApplicationStream(ctx context.Context, generation co
 		return nil, ErrStreamCapacity
 	}
 	manager.pendingAdmissions--
+	pendingRegistered = false
 	channel.streams[stream.id] = stream
 	manager.streamBytes += applicationStreamCost
 	stream.state.Store(uint32(ApplicationStreamAccepted))
-	committed = true
 	manager.mu.Unlock()
 	return stream, nil
+}
+
+// OpenAdmittedWireApplication performs the accepted P2D same-stream exchange.
+// It never returns the wire stream before the exact ACCEPT byte has arrived.
+func OpenAdmittedWireApplication(ctx context.Context, opener ApplicationStreamOpener, credit CreditReservation) (WireApplicationStream, error) {
+	if ctx == nil || opener == nil || opener.StreamCreditProfile() != StreamCreditProfileID {
+		return nil, ErrProfileUnsupported
+	}
+	wire, err := opener.OpenApplicationStream(ctx)
+	if err != nil || wire == nil {
+		return nil, ErrTransport
+	}
+	fail := func(err error) (WireApplicationStream, error) {
+		_ = wire.Close()
+		return nil, err
+	}
+	preface, err := encodeStreamCreditPreface(credit.ChannelID, credit.ChannelGeneration, credit.Epoch, credit.Slot, wire.StreamID())
+	if err != nil {
+		return fail(err)
+	}
+	if err := writeAll(wire, preface); err != nil {
+		return fail(ErrAdmissionRejected)
+	}
+	decision := []byte{0xff}
+	if _, err := io.ReadFull(wire, decision); err != nil || decision[0] != 0 {
+		return fail(ErrAdmissionRejected)
+	}
+	return wire, nil
 }
 
 func writeAll(writer io.Writer, value []byte) error {

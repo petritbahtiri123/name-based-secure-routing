@@ -32,7 +32,7 @@ def wait_ready(path: Path, process: subprocess.Popen[str]) -> dict[str, object]:
     raise RuntimeError(f"Rust server did not become ready; exit={process.poll()}")
 
 
-def run_case(root: Path, rust: Path, go: Path, name: str, mutation: str = "") -> dict[str, object]:
+def run_case(root: Path, rust: Path, go: Path, name: str, mutation: str = "", operations: int = 1) -> dict[str, object]:
     case = root / name
     case.mkdir(parents=True, exist_ok=False)
     authority = case / "authority"
@@ -41,7 +41,7 @@ def run_case(root: Path, rust: Path, go: Path, name: str, mutation: str = "") ->
     server = subprocess.Popen(
         [str(rust), "--ready", str(ready), "--result", str(result), "--authority-dir", str(authority), "--completion-ack", str(ack)],
         cwd=ROOT,
-        env={**os.environ, "NBSR_P2D_MODE": "after", "NBSR_P2D_OPERATIONS": "1", "NBSR_P2D_CONCURRENCY": "1"},
+        env={**os.environ, "NBSR_P2D_MODE": "after", "NBSR_P2D_OPERATIONS": str(operations), "NBSR_P2D_CONCURRENCY": "1"},
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
@@ -55,7 +55,7 @@ def run_case(root: Path, rust: Path, go: Path, name: str, mutation: str = "") ->
                 "f75_package": str(ROOT / "vectors/wp8-f75-route-open"),
                 "local_attestation_package": str(ROOT / "vectors/wp8-local-admission"),
                 "safe_payload": "Z" * 1024,
-                "benchmark_samples": 1,
+                "benchmark_samples": operations,
                 "stream_credit_profile": "nbsr-stream-credit-1",
             },
             sort_keys=True,
@@ -122,7 +122,7 @@ def main() -> int:
     if run_root.exists():
         raise SystemExit(f"refusing to overwrite prior live evidence: {run_root}")
     run_root.mkdir(parents=True)
-    cases = [run_case(run_root, rust, go, "approved")]
+    cases = [run_case(run_root, rust, go, "approved"), run_case(run_root, rust, go, "multiple-refill", operations=80)]
     for name, mutation in (
         ("malformed-preface", "malformed_credit_preface"),
         ("profile-mismatch", "credit_profile_mismatch"),

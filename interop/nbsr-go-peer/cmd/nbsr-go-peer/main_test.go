@@ -115,7 +115,7 @@ func TestOpenLoopOfferedRateMustBePositive(t *testing.T) {
 	}
 }
 
-func TestStreamCreditProfileIsExactAndSingleOperation(t *testing.T) {
+func TestStreamCreditProfileIsExactAndOperationsAreBounded(t *testing.T) {
 	base := config{ReadinessPath: "ready", F75Package: "f75", LocalAttestationPackage: "local", SafePayload: "Z", BenchmarkSamples: 1, StreamCreditProfile: "nbsr-stream-credit-1"}
 	if err := base.validate(); err != nil {
 		t.Fatalf("approved stream-credit profile rejected: %v", err)
@@ -125,9 +125,13 @@ func TestStreamCreditProfileIsExactAndSingleOperation(t *testing.T) {
 		t.Fatal("unknown stream-credit profile accepted")
 	}
 	base.StreamCreditProfile = "nbsr-stream-credit-1"
-	base.BenchmarkSamples = 2
+	base.BenchmarkSamples = 80
+	if err := base.validate(); err != nil {
+		t.Fatalf("bounded refill interop rejected: %v", err)
+	}
+	base.BenchmarkSamples = 129
 	if err := base.validate(); err == nil {
-		t.Fatal("publication interop mode accepted multiple operations")
+		t.Fatal("stream-credit interop accepted more than two bounded windows")
 	}
 }
 

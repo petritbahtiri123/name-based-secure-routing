@@ -19,6 +19,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"nbsr.local/client/nbsr-go-client/streamclient"
 	"nbsr.local/interop/nbsr-go-peer/internal/authority"
 	"nbsr.local/interop/nbsr-go-peer/internal/cbor"
 	"nbsr.local/interop/nbsr-go-peer/internal/core"
@@ -53,6 +54,39 @@ func isCreditMutation(value string) bool {
 	return value == "malformed_credit_preface" || value == "credit_profile_mismatch" || value == "credit_legacy_downgrade"
 }
 
+func runMutatedCreditCase(ctx context.Context, peer *transport.Peer, configuration config, channelID [16]byte, mutation string) (result, error) {
+	application, err := peer.OpenApplication(ctx)
+	if err != nil {
+		return result{}, err
+	}
+	streamID := uint64(application.StreamID())
+	preface, err := streamcredit.EncodePreface(channelID, 1, 1, 0, streamID)
+	if err != nil {
+		return result{}, err
+	}
+	switch mutation {
+	case "malformed_credit_preface":
+		preface = []byte{0x02, 0xbf, 0xff}
+	case "credit_profile_mismatch":
+		preface[3] = 0x02
+	case "credit_legacy_downgrade":
+		preface = []byte(configuration.SafePayload)
+	default:
+		return result{}, errors.New("unsupported credit mutation")
+	}
+	if _, err := application.Write(preface); err != nil {
+		return result{}, fmt.Errorf("stream-credit preface write: %w", err)
+	}
+	decision := []byte{0xff}
+	if _, err := io.ReadFull(application, decision); err != nil {
+		return result{}, fmt.Errorf("stream-credit admission rejected: %w", err)
+	}
+	if decision[0] == 0 {
+		return result{}, errors.New("invalid stream-credit case unexpectedly accepted")
+	}
+	return result{}, errors.New("stream-credit admission rejected")
+}
+
 func (value config) validate() error {
 	if value.ReadinessPath == "" || value.F75Package == "" || value.LocalAttestationPackage == "" || value.SafePayload == "" || len(value.SafePayload) > maxBenchmarkPayload {
 		return errors.New("configuration fields are missing or out of bounds")
@@ -64,8 +98,8 @@ func (value config) validate() error {
 		if value.StreamCreditProfile != streamcredit.ProfileID {
 			return errors.New("unsupported stream-credit profile")
 		}
-		if value.BenchmarkSamples != 1 || value.OfferedRate != 0 || value.LifecycleAuthorityDir != "" {
-			return errors.New("stream-credit publication mode requires one bounded operation")
+		if value.BenchmarkSamples < 1 || value.BenchmarkSamples > 128 || value.OfferedRate != 0 || value.LifecycleAuthorityDir != "" {
+			return errors.New("stream-credit interop mode requires 1 to 128 bounded operations")
 		}
 	}
 	if value.BenchmarkSamples > 100_000 && value.OfferedRate == 0 {
@@ -536,51 +570,44 @@ func run(ctx context.Context, configuration config) (result, error) {
 		return result{}, errors.New("live WP4 exporter failed")
 	}
 	if configuration.StreamCreditProfile != "" {
-		application, openErr := peer.OpenApplication(ctx)
-		if openErr != nil {
-			return result{}, openErr
-		}
-		streamID := uint64(application.StreamID())
-		preface, prefaceErr := streamcredit.EncodePreface(channelID, 1, 1, 0, streamID)
-		if prefaceErr != nil {
-			return result{}, prefaceErr
-		}
-		switch mutation {
-		case "malformed_credit_preface":
-			preface = []byte{0x02, 0xbf, 0xff}
-		case "credit_profile_mismatch":
-			preface[3] = 0x02
-		case "credit_legacy_downgrade":
-			preface = []byte(configuration.SafePayload)
-		}
-		if _, err := application.Write(preface); err != nil {
-			return result{}, fmt.Errorf("stream-credit preface write: %w", err)
-		}
-		decision := []byte{0xff}
-		if _, err := io.ReadFull(application, decision); err != nil {
-			return result{}, fmt.Errorf("stream-credit admission rejected: %w", err)
-		}
-		if decision[0] != 0 {
-			return result{}, errors.New("stream-credit admission rejected")
-		}
 		if mutation != "" {
-			return result{}, errors.New("invalid stream-credit case unexpectedly accepted")
+			return runMutatedCreditCase(ctx, peer, configuration, channelID, mutation)
 		}
-		if _, err := application.Write([]byte(configuration.SafePayload)); err != nil {
-			return result{}, fmt.Errorf("credited application write: %w", err)
+		var digest [32]byte
+		for index := 0; index < configuration.BenchmarkSamples; index++ {
+			epoch := uint64(index/48 + 1)
+			slot := uint8(index % 48)
+			application, admissionErr := streamclient.Admit(ctx, configuration.StreamCreditProfile, func(ctx context.Context) (streamclient.Wire, uint64, error) {
+				wire, openErr := peer.OpenApplication(ctx)
+				if openErr != nil {
+					return nil, 0, openErr
+				}
+				return wire, uint64(wire.StreamID()), nil
+			}, channelID, 1, epoch, slot)
+			if admissionErr != nil {
+				return result{}, fmt.Errorf("stream-credit admission rejected: %w", admissionErr)
+			}
+			if _, err := application.Write([]byte(configuration.SafePayload)); err != nil {
+				return result{}, fmt.Errorf("credited application write: %w", err)
+			}
+			if err := application.Close(); err != nil {
+				return result{}, fmt.Errorf("credited application finish: %w", err)
+			}
+			echo := make([]byte, len(configuration.SafePayload))
+			if _, err := io.ReadFull(application, echo); err != nil {
+				return result{}, fmt.Errorf("credited application echo: %w", err)
+			}
+			if !bytes.Equal(echo, []byte(configuration.SafePayload)) {
+				return result{}, errors.New("credited application payload echo mismatch")
+			}
+			digest = sha256.Sum256(echo)
+			if (index+1)%48 == 0 && index+1 < configuration.BenchmarkSamples {
+				if err := peer.RefillStreamCredits(channelID, epoch+1); err != nil {
+					return result{}, fmt.Errorf("stream-credit refill: %w", err)
+				}
+			}
 		}
-		if err := application.Close(); err != nil {
-			return result{}, fmt.Errorf("credited application finish: %w", err)
-		}
-		echo := make([]byte, len(configuration.SafePayload))
-		if _, err := io.ReadFull(application, echo); err != nil {
-			return result{}, fmt.Errorf("credited application echo: %w", err)
-		}
-		if !bytes.Equal(echo, []byte(configuration.SafePayload)) {
-			return result{}, errors.New("credited application payload echo mismatch")
-		}
-		digest := sha256.Sum256(echo)
-		return result{Status: "PASS", Messages: []string{"CLIENT_HELLO", "EDGE_HELLO", "ROUTE_OPEN", "ROUTE_ACCEPT", "STREAM_CREDIT_PREFACE", "STREAM_CREDIT_ACCEPT"}, CoreVersion: 2, RouteOpenBodyVersion: 2, FederationProfile: streamcredit.ProfileID, PayloadSHA256: hex.EncodeToString(digest[:]), BenchmarkSamples: 1}, nil
+		return result{Status: "PASS", Messages: []string{"CLIENT_HELLO", "EDGE_HELLO", "ROUTE_OPEN", "ROUTE_ACCEPT", "STREAM_CREDIT_PREFACE", "STREAM_CREDIT_ACCEPT"}, CoreVersion: 2, RouteOpenBodyVersion: 2, FederationProfile: streamcredit.ProfileID, PayloadSHA256: hex.EncodeToString(digest[:]), BenchmarkSamples: configuration.BenchmarkSamples}, nil
 	}
 
 	samples := configuration.BenchmarkSamples
