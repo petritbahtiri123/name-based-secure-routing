@@ -9,11 +9,7 @@ type Observer interface {
 }
 
 type Event struct {
-	Kind       EventKind
-	Generation TSGeneration
-	Handle     ServiceHandle
-	MappingID  MappingID
-	StreamID   StreamID
+	Kind EventKind
 }
 
 type EventKind uint8

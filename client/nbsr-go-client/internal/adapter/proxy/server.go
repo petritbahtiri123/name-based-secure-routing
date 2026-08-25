@@ -56,3 +56,7 @@ func (correlator *Correlator) Bind(target Target) (resolution.FlowContext, error
 	}
 	return context, nil
 }
+
+func (correlator *Correlator) release(id corestate.LocalFlowID) {
+	_ = correlator.flows.Remove(id)
+}

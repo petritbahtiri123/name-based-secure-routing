@@ -108,7 +108,7 @@ func (m *Manager) reserveVerifiedLocked(authority VerifiedAuthority, now uint64)
 	}
 	evictions, err := m.planEvictionsLocked(logicalBytes, now)
 	if err != nil {
-		return Reservation{}, []Event{{Kind: EventCacheFull, Grant: grant, Result: errorCode(err)}}, err
+		return Reservation{}, []Event{{Kind: EventCacheFull, Result: errorCode(err)}}, err
 	}
 	for _, eviction := range evictions {
 		if eviction.entry != nil {
@@ -127,9 +127,9 @@ func (m *Manager) reserveVerifiedLocked(authority VerifiedAuthority, now uint64)
 func (m *Manager) reserveExistingLocked(entry *cacheEntry) (Reservation, []Event, error) {
 	if entry.state != cacheAvailable {
 		if entry.state == cacheReserved {
-			return Reservation{}, []Event{{Kind: EventCacheHit, Grant: entry.authority.GrantDigest(), Result: CodeInvalidTransition}}, ErrInvalidTransition
+			return Reservation{}, []Event{{Kind: EventCacheHit, Result: CodeInvalidTransition}}, ErrInvalidTransition
 		}
-		return Reservation{}, []Event{{Kind: EventCacheHit, Grant: entry.authority.GrantDigest(), Result: CodeInvalidAuthority}}, ErrInvalidAuthority
+		return Reservation{}, []Event{{Kind: EventCacheHit, Result: CodeInvalidAuthority}}, ErrInvalidAuthority
 	}
 	if m.nextReservation == math.MaxUint64 {
 		return Reservation{}, nil, ErrAccountingOverflow
@@ -138,7 +138,7 @@ func (m *Manager) reserveExistingLocked(entry *cacheEntry) (Reservation, []Event
 	entry.state = cacheReserved
 	entry.reservation = m.nextReservation
 	m.reserved[entry.reservation] = entry
-	return Reservation{id: entry.reservation, key: entry.authority.Key(), grant: entry.authority.GrantDigest()}, []Event{{Kind: EventCacheHit, Grant: entry.authority.GrantDigest()}}, nil
+	return Reservation{id: entry.reservation, key: entry.authority.Key(), grant: entry.authority.GrantDigest()}, []Event{{Kind: EventCacheHit}}, nil
 }
 
 // validateAvailableLocked is the pre-reservation barrier for cache hits and
@@ -207,7 +207,7 @@ func (m *Manager) replaceRenewedLocked(previous RouteGrantDigest, authority Veri
 	}
 	evictions, err := m.planRenewalEvictionsLocked(predecessor, logicalBytes, now)
 	if err != nil {
-		return Reservation{}, append(events, Event{Kind: EventCacheFull, Grant: authority.GrantDigest(), Result: errorCode(err)}), err
+		return Reservation{}, append(events, Event{Kind: EventCacheFull, Result: errorCode(err)}), err
 	}
 	for _, eviction := range evictions {
 		if eviction.entry != nil {
@@ -523,7 +523,7 @@ func (m *Manager) Quarantine(reservation Reservation, request RequestID) error {
 	}
 	m.retireEntryLocked(entry, cacheQuarantined)
 	m.mu.Unlock()
-	m.notify([]Event{{Kind: EventAmbiguousQuarantine, Grant: reservation.grant, Request: request, Result: CodeRequestAmbiguous}})
+	m.notify([]Event{{Kind: EventAmbiguousQuarantine, Result: CodeRequestAmbiguous}})
 	return nil
 }
 
@@ -582,7 +582,7 @@ func terminalReservationError(terminal tombstone) error {
 }
 
 func invalidationEvent(entry *cacheEntry) Event {
-	return Event{Kind: EventAuthorityInvalidated, AuthorityGeneration: entry.authority.AuthorityGeneration(), Grant: entry.authority.GrantDigest(), Result: CodeInvalidAuthority}
+	return Event{Kind: EventAuthorityInvalidated, Result: CodeInvalidAuthority}
 }
 
 func (m *Manager) Usage() Usage {

@@ -3,11 +3,8 @@ package authority
 type Observer interface{ Observe(Event) }
 
 type Event struct {
-	Kind                EventKind
-	AuthorityGeneration AuthorityGeneration
-	Grant               RouteGrantDigest
-	Request             RequestID
-	Result              ErrorCode
+	Kind   EventKind
+	Result ErrorCode
 }
 
 type EventKind uint8

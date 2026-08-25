@@ -62,7 +62,7 @@ func (s *Store) AddMapping(spec MappingSpec) (MappingSnapshot, error) {
 	snapshot := copyMappingSnapshot(s.mappings[id].snapshot)
 	s.mu.Unlock()
 
-	s.observer.Observe(Event{Kind: EventMappingInserted, MappingID: id})
+	s.observer.Observe(Event{Kind: EventMappingInserted})
 	return snapshot, nil
 }
 
@@ -136,7 +136,7 @@ func (s *Store) ReleaseMapping(id MappingID) error {
 	}
 	s.mu.Unlock()
 	if removed {
-		s.observer.Observe(Event{Kind: EventMappingRemoved, MappingID: id})
+		s.observer.Observe(Event{Kind: EventMappingRemoved})
 	}
 	return nil
 }
@@ -155,7 +155,7 @@ func (s *Store) RemoveMapping(id MappingID) error {
 	s.removeMappingLocked(id, entry)
 	s.mu.Unlock()
 
-	s.observer.Observe(Event{Kind: EventMappingRemoved, MappingID: id})
+	s.observer.Observe(Event{Kind: EventMappingRemoved})
 	return nil
 }
 
@@ -178,14 +178,14 @@ func (s *Store) ExpireMappings() (int, error) {
 	s.mu.Unlock()
 
 	var firstObserverPanic any
-	for _, id := range removedIDs {
+	for range removedIDs {
 		func() {
 			defer func() {
 				if recovered := recover(); recovered != nil && firstObserverPanic == nil {
 					firstObserverPanic = recovered
 				}
 			}()
-			s.observer.Observe(Event{Kind: EventMappingRemoved, MappingID: id})
+			s.observer.Observe(Event{Kind: EventMappingRemoved})
 		}()
 	}
 	if firstObserverPanic != nil {

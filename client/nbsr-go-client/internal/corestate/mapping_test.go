@@ -378,7 +378,7 @@ func TestMappingObserverRunsAfterUnlockForInsertAndRemoveOnly(t *testing.T) {
 	if err := s.RemoveMapping(added.ID); err != nil {
 		t.Fatal(err)
 	}
-	if len(observer.events) != 2 || observer.events[0] != (Event{Kind: EventMappingInserted, MappingID: added.ID}) || observer.events[1] != (Event{Kind: EventMappingRemoved, MappingID: added.ID}) {
+	if len(observer.events) != 2 || observer.events[0] != (Event{Kind: EventMappingInserted}) || observer.events[1] != (Event{Kind: EventMappingRemoved}) {
 		t.Fatalf("events = %#v, want insert then remove", observer.events)
 	}
 }
@@ -428,8 +428,8 @@ func TestMappingExpiryDispatchesEveryCommittedRemovalBeforeRepanicking(t *testin
 	if err != nil {
 		t.Fatal(err)
 	}
-	first := mustAddMapping(t, s, mappingSpec(1))
-	second := mustAddMapping(t, s, mappingSpec(2))
+	mustAddMapping(t, s, mappingSpec(1))
+	mustAddMapping(t, s, mappingSpec(2))
 	observer.events = nil
 	observer.panicOnFirst = true
 	clock.set(100)
@@ -445,15 +445,10 @@ func TestMappingExpiryDispatchesEveryCommittedRemovalBeforeRepanicking(t *testin
 	if len(observer.events) != 2 {
 		t.Fatalf("removal events = %d, want 2", len(observer.events))
 	}
-	seen := map[MappingID]bool{}
 	for _, event := range observer.events {
 		if event.Kind != EventMappingRemoved {
 			t.Fatalf("event kind = %d, want EventMappingRemoved", event.Kind)
 		}
-		seen[event.MappingID] = true
-	}
-	if !seen[first.ID] || !seen[second.ID] {
-		t.Fatalf("events = %#v, want removals for %d and %d", observer.events, first.ID, second.ID)
 	}
 	if got := s.Usage(); got.Mappings != 0 || got.MappingBytes != 0 {
 		t.Fatalf("usage after observer panic = %+v, want zero mappings", got)

@@ -50,6 +50,11 @@ approved and is independently testable.
 7. **Observability and resource hardening.** Add redacted bounded-cardinality
    metrics/logs, health, overload behavior, idle/soak/GC/goroutine/handle
    measurement, fault injection, and measured defaults for named hardware.
+   **Implementation status (2026-08-25):** bounded identifier-free aggregate
+   observability, usage/health snapshots, early-disconnect correlation cleanup,
+   and current-machine race/churn evidence are implemented; see
+   [`tranche7-implementation-status.md`](../../protocol/tranche7-implementation-status.md).
+   Shipping defaults and production sizing remain unestablished.
 8. **Linux/router TUN adapter.** After separate platform approval, prove route
    ownership, DNS/capture, MTU, bypass blocking, privilege containment,
    upgrade/rollback, and embedded resource behavior without changing the core.

@@ -266,9 +266,8 @@ func (m *Manager) markAmbiguousLocked(record *requestRecord) ([]Event, error) {
 		if entry == nil || entry.state != cacheReserved || entry.authority.GrantDigest() != record.snapshot.ResultDigest {
 			return nil, ErrInvalidAuthority
 		}
-		grant := entry.authority.GrantDigest()
 		m.retireEntryLocked(entry, cacheQuarantined)
-		events = append(events, Event{Kind: EventAmbiguousQuarantine, AuthorityGeneration: record.snapshot.AuthorityGeneration, Grant: grant, Request: record.snapshot.ID, Result: CodeRequestAmbiguous})
+		events = append(events, Event{Kind: EventAmbiguousQuarantine, Result: CodeRequestAmbiguous})
 	}
 	record.reservationID = 0
 	record.link = requestLinkTerminal

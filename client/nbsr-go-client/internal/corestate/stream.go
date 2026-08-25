@@ -17,7 +17,7 @@ func (s *Store) InsertStream(spec StreamSpec) error {
 		return err
 	}
 
-	s.observer.Observe(Event{Kind: EventStreamInserted, Generation: spec.Generation, Handle: spec.Handle, StreamID: spec.StreamID})
+	s.observer.Observe(Event{Kind: EventStreamInserted})
 	return nil
 }
 
@@ -104,7 +104,7 @@ func (s *Store) terminalStream(generation TSGeneration, handle ServiceHandle, st
 	s.streams[key] = entry
 	s.mu.Unlock()
 
-	s.observer.Observe(Event{Kind: EventStreamTerminal, Generation: generation, Handle: handle, StreamID: streamID})
+	s.observer.Observe(Event{Kind: EventStreamTerminal})
 	return nil
 }
 
@@ -132,6 +132,6 @@ func (s *Store) RemoveStream(generation TSGeneration, handle ServiceHandle, stre
 	s.usage.StreamBytes -= entry.AccountedBytes
 	s.mu.Unlock()
 
-	s.observer.Observe(Event{Kind: EventStreamRemoved, Generation: generation, Handle: handle, StreamID: streamID})
+	s.observer.Observe(Event{Kind: EventStreamRemoved})
 	return nil
 }

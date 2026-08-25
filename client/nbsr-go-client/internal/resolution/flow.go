@@ -26,6 +26,12 @@ type FlowLimits struct {
 	MaxBytes   uint64
 }
 
+// FlowUsage reports aggregate bounded FlowStore usage without identifiers.
+type FlowUsage struct {
+	Entries, MaxEntries int
+	Bytes, MaxBytes     uint64
+}
+
 type FlowStore struct {
 	mu     sync.Mutex
 	limits FlowLimits
@@ -81,6 +87,13 @@ func (store *FlowStore) Remove(id corestate.LocalFlowID) error {
 	}
 	delete(store.flows, id)
 	return nil
+}
+
+func (store *FlowStore) Usage() FlowUsage {
+	store.mu.Lock()
+	defer store.mu.Unlock()
+	entries := len(store.flows)
+	return FlowUsage{Entries: entries, Bytes: uint64(entries) * flowContextBytes, MaxEntries: store.limits.MaxEntries, MaxBytes: store.limits.MaxBytes}
 }
 
 func (store *FlowStore) Close() error {

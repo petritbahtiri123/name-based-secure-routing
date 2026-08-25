@@ -437,7 +437,7 @@ func task11QuarantineLockedBarrier(m *Manager, reservation Reservation, request 
 	<-release
 	m.mu.Unlock()
 	if err == nil {
-		m.notify([]Event{{Kind: EventAmbiguousQuarantine, Grant: reservation.grant, Request: request, Result: CodeRequestAmbiguous}})
+		m.notify([]Event{{Kind: EventAmbiguousQuarantine, Result: CodeRequestAmbiguous}})
 	}
 	return err
 }

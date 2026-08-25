@@ -75,7 +75,7 @@ func (s *Store) AddService(spec ServiceSpec) (ServiceSnapshot, error) {
 	result := copyServiceSnapshot(snapshot)
 	s.mu.Unlock()
 
-	s.observer.Observe(Event{Kind: EventServiceInserted, Generation: spec.Generation, Handle: handle})
+	s.observer.Observe(Event{Kind: EventServiceInserted})
 	return result, nil
 }
 
@@ -104,7 +104,7 @@ func (s *Store) CloseService(generation TSGeneration, handle ServiceHandle) erro
 		return err
 	}
 
-	s.observer.Observe(Event{Kind: EventServiceClosed, Generation: generation, Handle: handle})
+	s.observer.Observe(Event{Kind: EventServiceClosed})
 	return nil
 }
 
@@ -120,7 +120,7 @@ func (s *Store) RemoveService(generation TSGeneration, handle ServiceHandle) err
 		return err
 	}
 
-	s.observer.Observe(Event{Kind: EventServiceRemoved, Generation: generation, Handle: handle})
+	s.observer.Observe(Event{Kind: EventServiceRemoved})
 	return nil
 }
 

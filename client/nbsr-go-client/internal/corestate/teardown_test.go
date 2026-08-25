@@ -88,7 +88,7 @@ func TestGenerationTeardownEmitsOneAggregateEventAfterCommit(t *testing.T) {
 	if err := s.CloseGeneration(7); err != nil {
 		t.Fatal(err)
 	}
-	want := []Event{{Kind: EventGenerationClosed, Generation: 7}}
+	want := []Event{{Kind: EventGenerationClosed}}
 	if len(o.events) != 1 || o.events[0] != want[0] {
 		t.Fatalf("events = %#v, want %#v", o.events, want)
 	}

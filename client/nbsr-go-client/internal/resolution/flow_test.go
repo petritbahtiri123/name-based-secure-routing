@@ -8,6 +8,25 @@ import (
 	"nbsr.local/client/nbsr-go-client/internal/corestate"
 )
 
+func TestFlowUsageTracksCapacityAndCleanupWithoutIdentifiers(t *testing.T) {
+	store, err := NewFlowStore(FlowLimits{MaxEntries: 2, MaxBytes: 32})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := store.Bind(FlowContext{MappingID: 1, LocalFlowID: 1}); err != nil {
+		t.Fatal(err)
+	}
+	if got := store.Usage(); got != (FlowUsage{Entries: 1, Bytes: 16, MaxEntries: 2, MaxBytes: 32}) {
+		t.Fatalf("usage = %+v", got)
+	}
+	if _, err := store.Consume(1); err != nil {
+		t.Fatal(err)
+	}
+	if got := store.Usage(); got.Entries != 0 || got.Bytes != 0 {
+		t.Fatalf("usage after consume = %+v", got)
+	}
+}
+
 func TestFlowStoreConsumesContextOnce(t *testing.T) {
 	store, err := NewFlowStore(FlowLimits{MaxEntries: 2, MaxBytes: 64})
 	if err != nil {

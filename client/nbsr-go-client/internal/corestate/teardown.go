@@ -38,7 +38,7 @@ func (s *Store) CloseGeneration(generation TSGeneration) error {
 	}
 	s.mu.Unlock()
 
-	s.observer.Observe(Event{Kind: EventGenerationClosed, Generation: generation})
+	s.observer.Observe(Event{Kind: EventGenerationClosed})
 	return nil
 }
 

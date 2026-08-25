@@ -167,7 +167,7 @@ func (g *RestartGate) AcceptFresh(ctx context.Context, request FreshnessRequest,
 	g.accepting = false
 	g.state = RestartReady
 	g.mu.Unlock()
-	g.observer.Observe(Event{Kind: EventRollbackFloorUpdated, AuthorityGeneration: checkpoint.Generation()})
+	g.observer.Observe(Event{Kind: EventRollbackFloorUpdated})
 	return checkpoint, nil
 }
 

@@ -393,9 +393,9 @@ func TestServiceObserverRunsAfterUnlockForEveryMutation(t *testing.T) {
 	added := mustAddService(t, s, serviceSpec(1, 1))
 	mustCloseAndRemoveService(t, s, added)
 	want := []Event{
-		{Kind: EventServiceInserted, Generation: 1, Handle: added.Handle},
-		{Kind: EventServiceClosed, Generation: 1, Handle: added.Handle},
-		{Kind: EventServiceRemoved, Generation: 1, Handle: added.Handle},
+		{Kind: EventServiceInserted},
+		{Kind: EventServiceClosed},
+		{Kind: EventServiceRemoved},
 	}
 	if len(observer.events) != len(want) {
 		t.Fatalf("events = %#v, want %#v", observer.events, want)

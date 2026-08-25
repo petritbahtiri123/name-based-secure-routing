@@ -27,6 +27,11 @@ type Server struct {
 	active     chan struct{}
 }
 
+// ServerUsage reports aggregate proxy connection use without peer details.
+type ServerUsage struct {
+	ActiveConnections, MaxConnections int
+}
+
 func NewServer(listener net.Listener, correlator *Correlator, limits ServerLimits) (*Server, error) {
 	if listener == nil || correlator == nil || limits.MaxConnections <= 0 || limits.MaxRequestBytes <= 0 || limits.HandshakeTimeout <= 0 {
 		return nil, ErrInvalidServerLimits
@@ -82,7 +87,10 @@ func (server *Server) Accept(ctx context.Context) (adapter.CapturedFlow, error) 
 	}
 	return adapter.CapturedFlow{
 		Context: flowContext, Transport: "tcp", Port: target.Port,
-		Downstream: &trackedConnection{Conn: downstream, release: release},
+		Downstream: &trackedConnection{Conn: downstream, release: func() {
+			server.correlator.release(flowContext.LocalFlowID)
+			release()
+		}},
 	}, nil
 }
 
@@ -147,6 +155,10 @@ func contains(values []byte, wanted byte) bool {
 }
 
 func (server *Server) Close() error { return server.listener.Close() }
+
+func (server *Server) Usage() ServerUsage {
+	return ServerUsage{ActiveConnections: len(server.active), MaxConnections: cap(server.active)}
+}
 
 type trackedConnection struct {
 	net.Conn

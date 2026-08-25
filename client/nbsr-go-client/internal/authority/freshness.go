@@ -35,7 +35,7 @@ func (m *Manager) PublishFreshness(ctx context.Context, request FreshnessRequest
 	}
 	checkpoint, err := sealCheckpoint(claims, m.limits)
 	if err != nil {
-		m.notify([]Event{{Kind: EventFreshnessRejected, AuthorityGeneration: claims.Generation, Result: errorCode(err)}})
+		m.notify([]Event{{Kind: EventFreshnessRejected, Result: errorCode(err)}})
 		return VerifiedCheckpoint{}, err
 	}
 
@@ -47,12 +47,12 @@ func (m *Manager) PublishFreshness(ctx context.Context, request FreshnessRequest
 	}
 	if now >= checkpoint.FreshUntil() {
 		m.mu.Unlock()
-		m.notify([]Event{{Kind: EventFreshnessRejected, AuthorityGeneration: checkpoint.Generation(), Result: CodeStaleFreshness}})
+		m.notify([]Event{{Kind: EventFreshnessRejected, Result: CodeStaleFreshness}})
 		return VerifiedCheckpoint{}, ErrStaleFreshness
 	}
 	if checkpoint.sourceOperator() != request.SourceOperator || checkpoint.profile() != request.Profile {
 		m.mu.Unlock()
-		m.notify([]Event{{Kind: EventFreshnessRejected, AuthorityGeneration: checkpoint.Generation(), Result: CodeBindingMismatch}})
+		m.notify([]Event{{Kind: EventFreshnessRejected, Result: CodeBindingMismatch}})
 		return VerifiedCheckpoint{}, ErrBindingMismatch
 	}
 	events, publishErr := m.publishCheckpointLocked(checkpoint)
@@ -110,10 +110,10 @@ func (m *Manager) publishCheckpointLocked(candidate VerifiedCheckpoint) ([]Event
 	if m.hasCheckpoint {
 		current := m.checkpoint
 		if current.sourceOperator() != candidate.sourceOperator() || current.profile() != candidate.profile() {
-			return []Event{{Kind: EventFreshnessRejected, AuthorityGeneration: candidate.Generation(), Result: CodeBindingMismatch}}, ErrBindingMismatch
+			return []Event{{Kind: EventFreshnessRejected, Result: CodeBindingMismatch}}, ErrBindingMismatch
 		}
 		if candidate.Generation() < m.generation || (candidate.Generation() == m.generation && candidate.Digest() != current.Digest()) {
-			return []Event{{Kind: EventFreshnessRejected, AuthorityGeneration: candidate.Generation(), Result: CodeGenerationRollback}}, ErrGenerationRollback
+			return []Event{{Kind: EventFreshnessRejected, Result: CodeGenerationRollback}}, ErrGenerationRollback
 		}
 		if candidate.Generation() == m.generation {
 			return nil, nil
@@ -136,8 +136,8 @@ func (m *Manager) publishCheckpointLocked(candidate VerifiedCheckpoint) ([]Event
 	m.hasCheckpoint = true
 	m.freshnessExpired = false
 	return append(pendingEvents, []Event{
-		{Kind: EventFreshnessAccepted, AuthorityGeneration: candidate.Generation()},
-		{Kind: EventGenerationAdvanced, AuthorityGeneration: candidate.Generation()},
+		{Kind: EventFreshnessAccepted},
+		{Kind: EventGenerationAdvanced},
 	}...), nil
 }
 
@@ -145,7 +145,7 @@ func (m *Manager) requireFreshLocked(now uint64) ([]Event, error) {
 	if !m.hasCheckpoint || now >= m.checkpoint.FreshUntil() {
 		if m.hasCheckpoint && !m.freshnessExpired {
 			m.freshnessExpired = true
-			return []Event{{Kind: EventFreshnessExpired, AuthorityGeneration: m.generation, Result: CodeStaleFreshness}}, ErrStaleFreshness
+			return []Event{{Kind: EventFreshnessExpired, Result: CodeStaleFreshness}}, ErrStaleFreshness
 		}
 		return nil, ErrStaleFreshness
 	}

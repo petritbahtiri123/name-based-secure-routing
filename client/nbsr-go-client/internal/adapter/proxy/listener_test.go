@@ -3,11 +3,13 @@ package proxy
 import (
 	"bufio"
 	"context"
+	"errors"
 	"io"
 	"net"
 	"testing"
 	"time"
 
+	"nbsr.local/client/nbsr-go-client/internal/adapter"
 	"nbsr.local/client/nbsr-go-client/internal/resolution"
 )
 
@@ -93,6 +95,39 @@ func TestServerAcceptsHTTPConnectAndReturnsCapturedFlow(t *testing.T) {
 		}
 	case <-time.After(time.Second):
 		t.Fatal("server did not return captured flow")
+	}
+}
+
+func TestCapturedConnectionCloseReleasesUnconsumedFlowContext(t *testing.T) {
+	serverSide, clientSide := net.Pipe()
+	defer clientSide.Close()
+	flows, _ := resolution.NewFlowStore(resolution.FlowLimits{MaxEntries: 1, MaxBytes: 16})
+	correlator, _ := NewCorrelator(staticResolver{"api.example": 7}, flows)
+	server, _ := NewServer(&oneListener{connection: serverSide}, correlator, ServerLimits{MaxConnections: 1, MaxRequestBytes: 1024, HandshakeTimeout: time.Second})
+	result := make(chan adapter.CapturedFlow, 1)
+	go func() {
+		captured, _ := server.Accept(context.Background())
+		result <- captured
+	}()
+	if _, err := clientSide.Write([]byte("CONNECT api.example:443 HTTP/1.1\r\n\r\n")); err != nil {
+		t.Fatal(err)
+	}
+	response := make([]byte, len("HTTP/1.1 200 Connection Established\r\n\r\n"))
+	if _, err := io.ReadFull(clientSide, response); err != nil {
+		t.Fatal(err)
+	}
+	captured := <-result
+	if got := server.Usage(); got != (ServerUsage{ActiveConnections: 1, MaxConnections: 1}) {
+		t.Fatalf("active usage = %+v", got)
+	}
+	if err := captured.Downstream.Close(); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := flows.Consume(captured.Context.LocalFlowID); !errors.Is(err, resolution.ErrUnknownFlow) {
+		t.Fatalf("flow after disconnect = %v, want ErrUnknownFlow", err)
+	}
+	if got := server.Usage(); got.ActiveConnections != 0 {
+		t.Fatalf("usage after disconnect = %+v", got)
 	}
 }
 

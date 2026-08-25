@@ -137,7 +137,7 @@ func (m *Manager) startOrJoin(ctx context.Context, key pendingKey, acquire Acqui
 		if !callHasRequestRecord(existing, record) {
 			existing.records = append(existing.records, record)
 		}
-		events = append(events, Event{Kind: EventAcquireCoalesced, AuthorityGeneration: key.authority.AuthorityGeneration})
+		events = append(events, Event{Kind: EventAcquireCoalesced})
 		m.mu.Unlock()
 		m.notify(events)
 		return m.waitPending(ctx, existing)
@@ -156,9 +156,9 @@ func (m *Manager) startOrJoin(ctx context.Context, key pendingKey, acquire Acqui
 	m.pending[key] = call
 	m.pendingBytes += logicalBytes
 	if key.operation == pendingRenew {
-		events = append(events, Event{Kind: EventRenewalRequested, AuthorityGeneration: key.authority.AuthorityGeneration, Request: acquire.RequestID})
+		events = append(events, Event{Kind: EventRenewalRequested})
 	} else {
-		events = append(events, Event{Kind: EventAcquireRequested, AuthorityGeneration: key.authority.AuthorityGeneration, Request: acquire.RequestID})
+		events = append(events, Event{Kind: EventAcquireRequested})
 	}
 	m.mu.Unlock()
 	m.notify(events)
@@ -327,9 +327,9 @@ func (m *Manager) finishPendingLocked(call *pendingCall, reservation Reservation
 	}
 	close(call.done)
 	if call.key.operation == pendingRenew {
-		return append(requestEvents, Event{Kind: EventRenewalResult, AuthorityGeneration: call.key.authority.AuthorityGeneration, Request: call.acquire.RequestID, Result: errorCode(err)})
+		return append(requestEvents, Event{Kind: EventRenewalResult, Result: errorCode(err)})
 	}
-	return append(requestEvents, Event{Kind: EventAcquireResult, AuthorityGeneration: call.key.authority.AuthorityGeneration, Request: call.acquire.RequestID, Result: errorCode(err)})
+	return append(requestEvents, Event{Kind: EventAcquireResult, Result: errorCode(err)})
 }
 
 func (m *Manager) pendingScopeCurrentLocked(key AuthorityKey) error {

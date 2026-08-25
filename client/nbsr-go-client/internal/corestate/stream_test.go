@@ -252,9 +252,9 @@ func TestStreamObserverRunsAfterUnlockForEveryMutation(t *testing.T) {
 		t.Fatal(err)
 	}
 	want := []Event{
-		{Kind: EventStreamInserted, Generation: 1, Handle: service.Handle, StreamID: 4},
-		{Kind: EventStreamTerminal, Generation: 1, Handle: service.Handle, StreamID: 4},
-		{Kind: EventStreamRemoved, Generation: 1, Handle: service.Handle, StreamID: 4},
+		{Kind: EventStreamInserted},
+		{Kind: EventStreamTerminal},
+		{Kind: EventStreamRemoved},
 	}
 	if len(observer.events) != len(want) {
 		t.Fatalf("events = %#v, want %#v", observer.events, want)
