@@ -86,6 +86,16 @@ func (m *Manager) startOrJoin(ctx context.Context, key pendingKey, acquire Acqui
 		m.notify(events)
 		return Reservation{}, err
 	}
+	if entry := m.cache[key.authority]; entry != nil && entry.authority.seal.serviceIdentity != acquire.Intent.ServiceIdentity {
+		m.mu.Unlock()
+		m.notify(events)
+		return Reservation{}, ErrBindingMismatch
+	}
+	if existing := m.pending[key]; existing != nil && existing.acquire.Intent.ServiceIdentity != acquire.Intent.ServiceIdentity {
+		m.mu.Unlock()
+		m.notify(events)
+		return Reservation{}, ErrBindingMismatch
+	}
 	requestKey := requestKey{deviceID: acquire.Key.DeviceID, deviceGeneration: acquire.Key.DeviceGeneration, operation: key.operation, id: acquire.RequestID}
 	record, _, err := m.beginRequestLocked(requestKey, canonicalRequestDigest(key, acquire, renew), acquire.DeadlineUnix, now)
 	if err != nil {

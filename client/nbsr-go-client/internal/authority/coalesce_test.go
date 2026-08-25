@@ -53,6 +53,98 @@ func TestExactAcquisitionCoalescesOneProviderCall(t *testing.T) {
 	}
 }
 
+func TestAcquisitionNeverSharesAuthorityAcrossServiceIdentity(t *testing.T) {
+	t.Run("cache hit", func(t *testing.T) {
+		provider, manager, request := coalesceFixture(t)
+		cacheAvailableForCoalesce(t, manager, request, testGrant(90), 1_893_456_300)
+		serviceA := request
+		serviceB := request
+		serviceB.Intent.ServiceIdentity = "other.service"
+		serviceB.RequestID[0]++
+		if _, err := manager.Acquire(context.Background(), serviceB); !errors.Is(err, ErrBindingMismatch) {
+			t.Fatalf("cache mismatch = %v, want ErrBindingMismatch", err)
+		}
+		serviceA.RequestID[0] += 2
+		reservation, err := manager.Acquire(context.Background(), serviceA)
+		if err != nil {
+			t.Fatalf("A after rejected B: %v", err)
+		}
+		if reservation.key != serviceA.Key {
+			t.Fatal("A cache reuse returned wrong key")
+		}
+		if provider.calls() != 0 {
+			t.Fatal("cache reuse or service mismatch reached provider")
+		}
+	})
+	t.Run("pending call", func(t *testing.T) {
+		provider, manager, request := coalesceFixture(t)
+		first := make(chan error, 1)
+		go func() { _, err := manager.Acquire(context.Background(), request); first <- err }()
+		awaitCoalesce(t, provider.started)
+		request.Intent.ServiceIdentity = "other.service"
+		request.RequestID[0]++
+		if _, err := manager.Acquire(context.Background(), request); !errors.Is(err, ErrBindingMismatch) {
+			t.Fatalf("pending mismatch = %v, want ErrBindingMismatch", err)
+		}
+		provider.releaseOnce()
+		if err := <-first; err != nil {
+			t.Fatalf("original acquisition: %v", err)
+		}
+		if provider.calls() != 1 {
+			t.Fatalf("provider calls = %d, want 1", provider.calls())
+		}
+	})
+}
+
+func TestFailedServiceIdentityLookupDoesNotPoisonOtherIdentity(t *testing.T) {
+	provider, manager, serviceA := coalesceFixture(t)
+	provider.err = ErrPolicyDenied
+	provider.releaseOnce()
+	if _, err := manager.Acquire(context.Background(), serviceA); !errors.Is(err, ErrPolicyDenied) {
+		t.Fatalf("failed A = %v, want ErrPolicyDenied", err)
+	}
+	serviceB := serviceA
+	serviceB.Intent.ServiceIdentity = "other.service"
+	serviceB.RequestID[0]++
+	provider.mu.Lock()
+	provider.err = nil
+	provider.grant = providerGrantForServiceIdentity(t, serviceB, manager.checkpoint.Digest())
+	provider.mu.Unlock()
+	if _, err := manager.Acquire(context.Background(), serviceB); err != nil {
+		t.Fatalf("fresh B after failed A: %v", err)
+	}
+	if provider.calls() != 2 {
+		t.Fatalf("provider calls = %d, want 2", provider.calls())
+	}
+}
+
+func TestCanceledServiceIdentityDoesNotCorruptOtherIdentity(t *testing.T) {
+	provider, manager, serviceA := coalesceFixture(t)
+	ctx, cancel := context.WithCancel(context.Background())
+	result := make(chan error, 1)
+	go func() { _, err := manager.Acquire(ctx, serviceA); result <- err }()
+	awaitCoalesce(t, provider.started)
+	cancel()
+	if err := <-result; !errors.Is(err, context.Canceled) {
+		t.Fatalf("canceled A = %v", err)
+	}
+	awaitCoalesce(t, provider.contextDone)
+	eventuallyCoalesce(t, func() bool { calls, waiters, _ := pendingState(manager); return calls == 0 && waiters == 0 })
+	serviceB := serviceA
+	serviceB.Intent.ServiceIdentity = "other.service"
+	serviceB.RequestID[0]++
+	provider.mu.Lock()
+	provider.grant = providerGrantForServiceIdentity(t, serviceB, manager.checkpoint.Digest())
+	provider.mu.Unlock()
+	provider.releaseOnce()
+	if _, err := manager.Acquire(context.Background(), serviceB); err != nil {
+		t.Fatalf("B after canceled A: %v", err)
+	}
+	if provider.calls() != 2 {
+		t.Fatalf("provider calls = %d, want 2", provider.calls())
+	}
+}
+
 func TestCoalescingSeparatesOperationAndPreviousGrant(t *testing.T) {
 	provider, manager, request := coalesceFixture(t)
 	renew := RenewRequest{AcquireRequest: request, PreviousGrant: testGrant(99)}
@@ -621,6 +713,22 @@ func cacheAvailableForCoalesce(t *testing.T, manager *Manager, request AcquireRe
 	if err := manager.Release(reservation); err != nil {
 		t.Fatalf("release old authority: %v", err)
 	}
+}
+
+func providerGrantForServiceIdentity(t *testing.T, request AcquireRequest, checkpoint CheckpointDigest) ProviderGrant {
+	t.Helper()
+	seed, err := hex.DecodeString(string(bytes.TrimSpace(readRepo(t, "vectors", "core-v0.2", "keys", "test-only-route-grant-ed25519-seed.hex"))))
+	if err != nil || len(seed) != ed25519.SeedSize {
+		t.Fatal("invalid frozen signing seed")
+	}
+	wire, err := SignDemoRouteGrant(context.Background(), DemoRouteGrantInput{
+		Key: request.Key, Intent: request.Intent, NotBefore: 1_893_455_999,
+		Nonce: [16]byte{0x91}, KID: []byte(frozenRouteGrantKID),
+	}, ed25519.NewKeyFromSeed(seed))
+	if err != nil {
+		t.Fatalf("sign service-bound grant: %v", err)
+	}
+	return ProviderGrant{ExactRouteGrant: wire, Profile: request.Key.Profile, AuthorityGeneration: request.Key.AuthorityGeneration, Checkpoint: checkpoint}
 }
 
 func renewedProviderGrant(t *testing.T, grant ProviderGrant) ProviderGrant {
