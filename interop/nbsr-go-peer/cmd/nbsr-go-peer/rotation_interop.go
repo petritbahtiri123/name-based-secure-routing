@@ -17,11 +17,11 @@ import (
 	"nbsr.local/interop/nbsr-go-peer/internal/cbor"
 	"nbsr.local/interop/nbsr-go-peer/internal/core"
 	"nbsr.local/interop/nbsr-go-peer/internal/state"
-	"nbsr.local/interop/nbsr-go-peer/internal/transport"
+	"nbsr.local/interop/nbsr-go-peer/wirepeer"
 )
 
 type realGeneration struct {
-	peer    *transport.Peer
+	peer    *wirepeer.Client
 	channel [16]byte
 }
 
@@ -54,11 +54,11 @@ type rotationEvidence struct {
 }
 
 func establishRotationGeneration(ctx context.Context, configuration config, readiness string) (*realGeneration, error) {
-	ready, err := transport.LoadReadiness(readiness)
+	ready, err := wirepeer.LoadReadiness(readiness)
 	if err != nil {
 		return nil, err
 	}
-	peer, err := transport.Dial(ctx, ready)
+	peer, err := wirepeer.Dial(ctx, ready)
 	if err != nil {
 		return nil, err
 	}

@@ -1,0 +1,7 @@
+{
+  "classification": "DEMO FIXTURE — NOT PRODUCTION AUTHORITY",
+  "presentation_name": "service-a.nbsr.test",
+  "service_identity": "nbsr-demo-service-a-v1",
+  "transport": "tcp",
+  "port": 8080
+}

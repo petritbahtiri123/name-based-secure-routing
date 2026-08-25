@@ -26,7 +26,7 @@ import (
 	"nbsr.local/interop/nbsr-go-peer/internal/perfclock"
 	"nbsr.local/interop/nbsr-go-peer/internal/state"
 	"nbsr.local/interop/nbsr-go-peer/internal/streamcredit"
-	"nbsr.local/interop/nbsr-go-peer/internal/transport"
+	"nbsr.local/interop/nbsr-go-peer/wirepeer"
 )
 
 const maxBenchmarkPayload = 1 << 20
@@ -55,7 +55,7 @@ func isCreditMutation(value string) bool {
 	return value == "malformed_credit_preface" || value == "credit_profile_mismatch" || value == "credit_legacy_downgrade" || value == "credit_wrong_channel" || value == "credit_replay"
 }
 
-func runMutatedCreditCase(ctx context.Context, peer *transport.Peer, configuration config, channelID [16]byte, mutation string) (result, error) {
+func runMutatedCreditCase(ctx context.Context, peer *wirepeer.Client, configuration config, channelID [16]byte, mutation string) (result, error) {
 	if mutation == "credit_replay" {
 		first, err := peer.OpenApplication(ctx)
 		if err != nil {
@@ -394,7 +394,7 @@ func run(ctx context.Context, configuration config) (result, error) {
 	if !allowedMutations[mutation] {
 		return result{}, errors.New("unsupported test mutation")
 	}
-	ready, err := transport.LoadReadiness(configuration.ReadinessPath)
+	ready, err := wirepeer.LoadReadiness(configuration.ReadinessPath)
 	if err != nil {
 		return result{}, err
 	}
@@ -407,7 +407,7 @@ func run(ctx context.Context, configuration config) (result, error) {
 	if mutation == "wrong_ca" {
 		ready.CADER = ready.ClientCertDER
 	}
-	peer, err := transport.Dial(ctx, ready)
+	peer, err := wirepeer.Dial(ctx, ready)
 	if err != nil {
 		return result{}, err
 	}
@@ -796,7 +796,7 @@ func run(ctx context.Context, configuration config) (result, error) {
 }
 
 func runLifecycle(ctx context.Context, configuration config) (result, error) {
-	ready, err := transport.LoadReadiness(configuration.ReadinessPath)
+	ready, err := wirepeer.LoadReadiness(configuration.ReadinessPath)
 	if err != nil {
 		return result{}, err
 	}
@@ -819,7 +819,7 @@ func runLifecycle(ctx context.Context, configuration config) (result, error) {
 	for connectionOrdinal := 0; connectionOrdinal < configuration.LifecycleConnections; connectionOrdinal++ {
 		coldStarted := perfclock.Now()
 		handshakeStarted := perfclock.Now()
-		peer, dialErr := transport.Dial(ctx, ready)
+		peer, dialErr := wirepeer.Dial(ctx, ready)
 		if dialErr != nil {
 			return result{}, dialErr
 		}

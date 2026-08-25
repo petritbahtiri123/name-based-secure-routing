@@ -1,0 +1,43 @@
+{
+  "schema": "nbsr-demo-config-v1",
+  "production_semantic": {
+    "alpn": "nbsr-quic-1",
+    "quic_version": "v1",
+    "tls_version": "1.3",
+    "stream_credit_profile": "nbsr-stream-credit-1"
+  },
+  "client": {
+    "service_fixture": "testdata/service-a.json",
+    "shared_synthetic_ip": "127.0.0.2",
+    "proxy_endpoint": "127.0.0.1:18080",
+    "acp_endpoint": "https://127.0.0.1:18443",
+    "destination_readiness": "test-results/nbsr-demo/runtime/destination-ready.json",
+    "application_transport": "tcp",
+    "service_port": 8080
+  },
+  "acp_fixture": {
+    "classification": "DEMO FIXTURE — NOT PRODUCTION AUTHORITY",
+    "public_fixture": "test-results/nbsr-demo/runtime/acp-public.json"
+  },
+  "destination": {
+    "authority_fixture": "test-results/nbsr-demo/runtime/destination-authority",
+    "rust_artifact": {
+      "path": "C:\\NBSR-build\\tranche5-closure-b124939\\cargo-target\\release\\wp8_interop_server.exe",
+      "sha256": "b20b52e4d4ac0c3d0f7b6ca6e04e7cd80c5099e6ed185da7b04071f3fc97a888"
+    }
+  },
+  "evidence": {
+    "directory": "test-results/nbsr-demo/evidence"
+  },
+  "secrets": {
+    "directory": "test-results/nbsr-demo/runtime/secrets"
+  },
+  "timeouts": {
+    "handshake_seconds": 5,
+    "operation_seconds": 15
+  },
+  "limits": {
+    "max_proxy_connections": 16,
+    "max_request_bytes": 4096
+  }
+}
