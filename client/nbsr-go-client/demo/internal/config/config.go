@@ -4,9 +4,11 @@
 package config
 
 import (
+	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net"
 	"net/netip"
@@ -114,6 +116,61 @@ func Load(path string) (Config, error) {
 	return value, nil
 }
 
+// LoadForRun validates Task 5's per-run demo paths and freshly built Rust
+// artifact. It is a demo orchestration boundary, not production enrollment.
+func LoadForRun(path, runtimeRoot, buildRoot string) (Config, error) {
+	var value Config
+	if err := decodeOne(path, &value); err != nil {
+		return Config{}, err
+	}
+	if err := value.validateSemantics(true); err != nil {
+		return Config{}, err
+	}
+	runID, err := validateRuntimeRoot(runtimeRoot)
+	if err != nil {
+		return Config{}, err
+	}
+	if err := validateBuildRoot(buildRoot, runID); err != nil {
+		return Config{}, err
+	}
+	for _, candidate := range []string{value.Client.DestinationReadiness, value.ACPFixture.PublicFixture, value.Destination.AuthorityFixture, value.Evidence.Directory, value.Secrets.Directory} {
+		if err := containedPath(runtimeRoot, candidate); err != nil {
+			return Config{}, errors.New("runtime artifact escapes the selected run")
+		}
+	}
+	if err := containedPath(buildRoot, value.Destination.RustArtifact.Path); err != nil {
+		return Config{}, errors.New("Rust artifact escapes the selected build")
+	}
+	file, err := os.Open(filepath.Clean(value.Destination.RustArtifact.Path))
+	if err != nil {
+		return Config{}, err
+	}
+	hasher := sha256.New()
+	_, hashErr := io.Copy(hasher, file)
+	closeErr := file.Close()
+	if hashErr != nil || closeErr != nil || fmt.Sprintf("%x", hasher.Sum(nil)) != strings.ToLower(value.Destination.RustArtifact.SHA256) {
+		return Config{}, errors.New("Rust artifact hash mismatch")
+	}
+	return value, nil
+}
+
+func ValidateTask5RuntimeRoot(root string) error {
+	_, err := validateRuntimeRoot(root)
+	return err
+}
+
+func ValidateTask5Roots(runtimeRoot, buildRoot string) error {
+	runID, err := validateRuntimeRoot(runtimeRoot)
+	if err != nil {
+		return err
+	}
+	return validateBuildRoot(buildRoot, runID)
+}
+
+func ValidateTask5ContainedPath(root, candidate string) error {
+	return containedPath(root, candidate)
+}
+
 func LoadServiceFixture(path string) (ServiceFixture, error) {
 	var value ServiceFixture
 	if err := decodeOne(path, &value); err != nil {
@@ -130,6 +187,16 @@ func LoadServiceFixture(path string) (ServiceFixture, error) {
 }
 
 func (value Config) Validate() error {
+	if err := value.validateSemantics(false); err != nil {
+		return err
+	}
+	if filepath.Clean(value.Destination.RustArtifact.Path) != filepath.Clean(ValidatedRustArtifactPath) || strings.ToLower(value.Destination.RustArtifact.SHA256) != ValidatedRustSHA256 {
+		return errors.New("unvalidated Rust artifact")
+	}
+	return nil
+}
+
+func (value Config) validateSemantics(allowEphemeralProxy bool) error {
 	if value.Schema != Schema || value.Production != (ProductionSemantic{
 		ALPN: wirepeer.ALPN, QUICVersion: wirepeer.QUICVersion, TLSVersion: wirepeer.TLSVersion,
 		StreamCreditProfile: wirepeer.StreamCreditProfile,
@@ -142,16 +209,13 @@ func (value Config) Validate() error {
 	if value.Client.SharedSyntheticIP != SharedSyntheticIP || netip.MustParseAddr(SharedSyntheticIP) != netip.MustParseAddr(value.Client.SharedSyntheticIP) {
 		return errors.New("invalid shared Synthetic IP")
 	}
-	if !loopbackTCP(value.Client.ProxyEndpoint) || !loopbackHTTPS(value.Client.ACPEndpoint) {
+	if !loopbackTCPWithZero(value.Client.ProxyEndpoint, allowEphemeralProxy) || !loopbackHTTPS(value.Client.ACPEndpoint) {
 		return errors.New("demo client endpoints must be loopback TCP and HTTPS")
 	}
 	if !safeRelative(value.Client.ServiceFixture) || !safeRuntimePath(value.Client.DestinationReadiness) ||
 		value.ACPFixture.Classification != DemoFixtureClassification || !safeRuntimePath(value.ACPFixture.PublicFixture) ||
 		!safeRuntimePath(value.Destination.AuthorityFixture) || !safeRuntimePath(value.Evidence.Directory) || !safeRuntimePath(value.Secrets.Directory) {
 		return errors.New("invalid demo fixture or runtime path")
-	}
-	if filepath.Clean(value.Destination.RustArtifact.Path) != filepath.Clean(ValidatedRustArtifactPath) || strings.ToLower(value.Destination.RustArtifact.SHA256) != ValidatedRustSHA256 {
-		return errors.New("unvalidated Rust artifact")
 	}
 	if _, err := hex.DecodeString(value.Destination.RustArtifact.SHA256); err != nil || len(value.Destination.RustArtifact.SHA256) != 64 {
 		return errors.New("invalid Rust artifact digest")
@@ -160,6 +224,72 @@ func (value Config) Validate() error {
 		return errors.New("demo bounds or timeouts drift")
 	}
 	return nil
+}
+
+func validateRuntimeRoot(root string) (string, error) {
+	if filepath.IsAbs(root) {
+		return "", errors.New("runtime root must be repository-relative")
+	}
+	clean := filepath.ToSlash(filepath.Clean(root))
+	const prefix = "test-results/nbsr-demo/runtime/"
+	if !strings.HasPrefix(clean, prefix) {
+		return "", errors.New("runtime root is outside the demo hierarchy")
+	}
+	runID := strings.TrimPrefix(clean, prefix)
+	if strings.Contains(runID, "/") || !validRunID(runID) {
+		return "", errors.New("invalid demo run ID")
+	}
+	return runID, nil
+}
+
+func validateBuildRoot(root, runID string) error {
+	if !filepath.IsAbs(root) {
+		return errors.New("build root must be absolute")
+	}
+	clean := filepath.Clean(root)
+	parent := filepath.Clean(`C:\NBSR-build\nbsr-demo`)
+	relative, err := filepath.Rel(parent, clean)
+	if err != nil || relative != runID || !validRunID(runID) {
+		return errors.New("build root is outside the approved hierarchy")
+	}
+	return nil
+}
+
+func containedPath(base, candidate string) error {
+	baseAbsolute, err := filepath.Abs(filepath.Clean(base))
+	if err != nil {
+		return err
+	}
+	candidateAbsolute, err := filepath.Abs(filepath.Clean(candidate))
+	if err != nil {
+		return err
+	}
+	relative, err := filepath.Rel(baseAbsolute, candidateAbsolute)
+	if err != nil || relative == "." || relative == ".." || strings.HasPrefix(relative, ".."+string(filepath.Separator)) {
+		return errors.New("path is not a run descendant")
+	}
+	baseResolved, baseErr := filepath.EvalSymlinks(baseAbsolute)
+	parentResolved, parentErr := filepath.EvalSymlinks(filepath.Dir(candidateAbsolute))
+	if baseErr != nil || parentErr != nil {
+		return errors.New("path containment cannot be resolved")
+	}
+	resolvedRelative, relErr := filepath.Rel(baseResolved, parentResolved)
+	if relErr != nil || resolvedRelative == ".." || strings.HasPrefix(resolvedRelative, ".."+string(filepath.Separator)) {
+		return errors.New("path resolves outside the selected run")
+	}
+	return nil
+}
+
+func validRunID(value string) bool {
+	if len(value) < 1 || len(value) > 64 || value[0] == '-' || value[len(value)-1] == '-' {
+		return false
+	}
+	for _, character := range value {
+		if (character < 'a' || character > 'z') && (character < '0' || character > '9') && character != '-' {
+			return false
+		}
+	}
+	return true
 }
 
 func decodeOne(path string, value any) error {
@@ -180,10 +310,14 @@ func decodeOne(path string, value any) error {
 }
 
 func loopbackTCP(endpoint string) bool {
+	return loopbackTCPWithZero(endpoint, false)
+}
+
+func loopbackTCPWithZero(endpoint string, allowZero bool) bool {
 	host, port, err := net.SplitHostPort(endpoint)
 	address, parseErr := netip.ParseAddr(host)
 	portNumber, portErr := strconv.ParseUint(port, 10, 16)
-	return err == nil && parseErr == nil && portErr == nil && address.IsLoopback() && portNumber != 0
+	return err == nil && parseErr == nil && portErr == nil && address.IsLoopback() && (allowZero || portNumber != 0)
 }
 
 func loopbackHTTPS(endpoint string) bool {

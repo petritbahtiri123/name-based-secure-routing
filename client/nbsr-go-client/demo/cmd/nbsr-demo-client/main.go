@@ -15,7 +15,7 @@ import (
 	"nbsr.local/interop/nbsr-go-peer/wirepeer"
 )
 
-type commandOptions struct{ config, bootstrap, ready string }
+type commandOptions struct{ config, bootstrap, ready, runtimeRoot, buildRoot string }
 
 func main() {
 	options, err := parseArgs(os.Args[1:])
@@ -30,7 +30,13 @@ func main() {
 }
 
 func run(ctx context.Context, options commandOptions) error {
-	configuration, err := democonfig.Load(options.config)
+	var configuration democonfig.Config
+	var err error
+	if options.runtimeRoot == "" {
+		configuration, err = democonfig.Load(options.config)
+	} else {
+		configuration, err = democonfig.LoadForRun(options.config, options.runtimeRoot, options.buildRoot)
+	}
 	if err != nil {
 		return err
 	}
@@ -59,7 +65,7 @@ func run(ctx context.Context, options commandOptions) error {
 }
 
 func parseArgs(args []string) (commandOptions, error) {
-	if len(args) != 6 {
+	if len(args) != 6 && len(args) != 10 {
 		return commandOptions{}, errors.New("config, bootstrap and readiness are required")
 	}
 	var options commandOptions
@@ -71,12 +77,27 @@ func parseArgs(args []string) (commandOptions, error) {
 			options.bootstrap = args[index+1]
 		case "--ready":
 			options.ready = args[index+1]
+		case "--runtime-root":
+			options.runtimeRoot = args[index+1]
+		case "--build-root":
+			options.buildRoot = args[index+1]
 		default:
 			return commandOptions{}, errors.New("unknown argument")
 		}
 	}
-	if options.config != "config.example.json" || !safeRuntimePath(options.bootstrap, "test-results/nbsr-demo/runtime/client-bootstrap") || !safeRuntimePath(options.ready, "test-results/nbsr-demo/runtime/client-ready.json") {
-		return commandOptions{}, errors.New("invalid standalone client path")
+	if len(args) == 6 {
+		if options.config != "config.example.json" || !safeRuntimePath(options.bootstrap, "test-results/nbsr-demo/runtime/client-bootstrap") || !safeRuntimePath(options.ready, "test-results/nbsr-demo/runtime/client-ready.json") {
+			return commandOptions{}, errors.New("invalid standalone client path")
+		}
+		return options, nil
+	}
+	if options.runtimeRoot == "" || options.buildRoot == "" || democonfig.ValidateTask5Roots(options.runtimeRoot, options.buildRoot) != nil {
+		return commandOptions{}, errors.New("invalid Task 5 roots")
+	}
+	for _, candidate := range []string{options.config, options.bootstrap, options.ready} {
+		if democonfig.ValidateTask5ContainedPath(options.runtimeRoot, candidate) != nil {
+			return commandOptions{}, errors.New("invalid standalone client run path")
+		}
 	}
 	return options, nil
 }

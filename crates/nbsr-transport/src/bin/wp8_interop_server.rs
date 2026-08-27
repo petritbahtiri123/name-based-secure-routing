@@ -2659,6 +2659,7 @@ async fn main() {
         .map(|path| load_runtime_admission_config(&path))
         .transpose()
         .expect("valid public runtime admission configuration");
+    let demo_start_gate = optional_cli_path_strict("--demo-start-gate");
     let destination_diagnostics = optional_cli_value("--destination-diagnostics-file");
     let diagnostic_drain_seconds = optional_cli_value("--diagnostic-drain-seconds")
         .map_or(0, |value| {
@@ -2755,6 +2756,11 @@ async fn main() {
         return;
     }
     if let Some(map) = demo_backend_map.as_ref() {
+        if let Some(start_gate) = demo_start_gate.as_ref() {
+            while !start_gate.exists() {
+                tokio::time::sleep(Duration::from_millis(10)).await;
+            }
+        }
         let response = run_demo_backend_server_operation_with_admission(
             &listener,
             map,

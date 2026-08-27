@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"syscall"
 
+	democonfig "nbsr.local/client/nbsr-go-client/demo/internal/config"
 	"nbsr.local/client/nbsr-go-client/demo/internal/fixture"
 )
 
@@ -116,14 +117,27 @@ func parseArgs(args []string) (commandOptions, error) {
 		return commandOptions{}, errors.New("ACP must bind to loopback")
 	}
 	clean := filepath.ToSlash(filepath.Clean(options.runtime))
-	if clean != "test-results/nbsr-demo/runtime" {
-		return commandOptions{}, errors.New("invalid demo runtime directory")
+	legacy := clean == "test-results/nbsr-demo/runtime"
+	if !legacy {
+		if err := democonfig.ValidateTask5RuntimeRoot(options.runtime); err != nil {
+			return commandOptions{}, errors.New("invalid demo runtime directory")
+		}
 	}
-	if options.bootstrap != "" && filepath.ToSlash(filepath.Clean(options.bootstrap)) != "test-results/nbsr-demo/runtime/client-bootstrap" {
-		return commandOptions{}, errors.New("invalid demo client bootstrap directory")
+	if options.bootstrap != "" {
+		if legacy && filepath.ToSlash(filepath.Clean(options.bootstrap)) != "test-results/nbsr-demo/runtime/client-bootstrap" {
+			return commandOptions{}, errors.New("invalid demo client bootstrap directory")
+		}
+		if !legacy && democonfig.ValidateTask5ContainedPath(options.runtime, options.bootstrap) != nil {
+			return commandOptions{}, errors.New("invalid demo client bootstrap directory")
+		}
 	}
-	if options.admission != "" && filepath.ToSlash(filepath.Clean(options.admission)) != "test-results/nbsr-demo/runtime/runtime-admission.conf" {
-		return commandOptions{}, errors.New("invalid runtime admission path")
+	if options.admission != "" {
+		if legacy && filepath.ToSlash(filepath.Clean(options.admission)) != "test-results/nbsr-demo/runtime/runtime-admission.conf" {
+			return commandOptions{}, errors.New("invalid runtime admission path")
+		}
+		if !legacy && democonfig.ValidateTask5ContainedPath(options.runtime, options.admission) != nil {
+			return commandOptions{}, errors.New("invalid runtime admission path")
+		}
 	}
 	if options.admission != "" && options.bootstrap == "" {
 		return commandOptions{}, errors.New("runtime admission requires standalone bootstrap")

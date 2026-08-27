@@ -58,3 +58,27 @@ func TestAuthorityCommandAcceptsOnlyBoundedClientBootstrapRuntimePath(t *testing
 		t.Fatal("bootstrap path traversal accepted")
 	}
 }
+
+func TestAuthorityCommandBindsArtifactsToOneUniqueRun(t *testing.T) {
+	root := filepath.FromSlash("test-results/nbsr-demo/runtime/authority-run")
+	if err := os.MkdirAll(filepath.Join(root, "client", "bootstrap"), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.MkdirAll(filepath.Join(root, "destination"), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = os.RemoveAll(root) })
+	valid := []string{"--listen", "127.0.0.1:0", "--runtime", filepath.ToSlash(root), "--client-bootstrap", filepath.ToSlash(filepath.Join(root, "client", "bootstrap")), "--runtime-admission", filepath.ToSlash(filepath.Join(root, "destination", "runtime-admission.conf"))}
+	if err := validateArgs(valid); err != nil {
+		t.Fatal(err)
+	}
+	for _, invalid := range [][]string{
+		{"--listen", "127.0.0.1:0", "--runtime", filepath.ToSlash(root), "--client-bootstrap", "test-results/nbsr-demo/runtime/run-b/client/bootstrap"},
+		{"--listen", "127.0.0.1:0", "--runtime", `C:\temp\run-a`},
+		{"--listen", "127.0.0.1:0", "--runtime", filepath.ToSlash(root), "--client-bootstrap", filepath.ToSlash(filepath.Join(root, "..", "run-b", "client"))},
+	} {
+		if err := validateArgs(invalid); err == nil {
+			t.Fatalf("unsafe run paths accepted: %v", invalid)
+		}
+	}
+}

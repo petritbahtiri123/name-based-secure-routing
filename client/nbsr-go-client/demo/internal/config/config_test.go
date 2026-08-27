@@ -1,6 +1,8 @@
 package config
 
 import (
+	"crypto/sha256"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -24,6 +26,64 @@ func TestConfigRejectsOriginInClientSectionAndNonSharedSyntheticIP(t *testing.T)
 	if _, err := loadJSON(t, withOrigin); err == nil {
 		t.Fatal("origin endpoint was representable in client configuration")
 	}
+}
+
+func TestRunConfigBindsUniqueRuntimeAndFreshArtifact(t *testing.T) {
+	runID := "test-" + strings.ToLower(strings.ReplaceAll(t.Name(), "/", "-"))
+	runtimeRoot := filepath.FromSlash("test-results/nbsr-demo/runtime/" + runID)
+	for _, directory := range []string{"readiness", "authority", "destination", "evidence", "client/private"} {
+		if err := os.MkdirAll(filepath.Join(runtimeRoot, directory), 0o700); err != nil {
+			t.Fatal(err)
+		}
+	}
+	t.Cleanup(func() { _ = os.RemoveAll(runtimeRoot) })
+	buildRoot := filepath.Join(`C:\NBSR-build\nbsr-demo`, runID)
+	if err := os.MkdirAll(buildRoot, 0o700); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() {
+		if err := validateBuildRoot(buildRoot, runID); err != nil {
+			t.Errorf("unsafe build cleanup target: %v", err)
+			return
+		}
+		_ = os.RemoveAll(buildRoot)
+	})
+	binary := filepath.Join(buildRoot, "wp8_interop_server.exe")
+	content := []byte("current-task-5-rust")
+	if err := os.WriteFile(binary, content, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	hash := fmt.Sprintf("%x", sha256.Sum256(content))
+	value := runConfigJSON(runtimeRoot, binary, hash)
+	runtimeJSON := filepath.ToSlash(runtimeRoot)
+	historicalJSON := strings.ReplaceAll(ValidatedRustArtifactPath, `\`, `\\`)
+	path := filepath.Join(t.TempDir(), "config.json")
+	if err := os.WriteFile(path, []byte(value), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := LoadForRun(path, runtimeRoot, buildRoot); err != nil {
+		t.Fatal(err)
+	}
+	for name, mutation := range map[string]string{
+		"other run runtime": strings.Replace(value, runtimeJSON, "test-results/nbsr-demo/runtime/other-run", 1),
+		"wrong hash":        strings.Replace(value, hash, strings.Repeat("0", 64), 1),
+		"historical binary": strings.Replace(value, strings.ReplaceAll(binary, `\`, `\\`), historicalJSON, 1),
+	} {
+		t.Run(name, func(t *testing.T) {
+			if err := os.WriteFile(path, []byte(mutation), 0o600); err != nil {
+				t.Fatal(err)
+			}
+			if _, err := LoadForRun(path, runtimeRoot, buildRoot); err == nil {
+				t.Fatal("unsafe per-run configuration accepted")
+			}
+		})
+	}
+}
+
+func runConfigJSON(runtimeRoot, binary, hash string) string {
+	root := filepath.ToSlash(runtimeRoot)
+	escape := func(value string) string { return strings.ReplaceAll(value, `\`, `\\`) }
+	return fmt.Sprintf(`{"schema":"nbsr-demo-config-v1","production_semantic":{"alpn":"nbsr-quic-1","quic_version":"v1","tls_version":"1.3","stream_credit_profile":"nbsr-stream-credit-1"},"client":{"service_fixture":"testdata/service-a.json","shared_synthetic_ip":"127.0.0.2","proxy_endpoint":"127.0.0.1:18080","acp_endpoint":"https://127.0.0.1:18443","destination_readiness":"%s/readiness/destination.json","application_transport":"tcp","service_port":8080},"acp_fixture":{"classification":"DEMO FIXTURE — NOT PRODUCTION AUTHORITY","public_fixture":"%s/authority/acp-public.json"},"destination":{"authority_fixture":"%s/destination/authority","rust_artifact":{"path":"%s","sha256":"%s"}},"evidence":{"directory":"%s/evidence"},"secrets":{"directory":"%s/client/private"},"timeouts":{"handshake_seconds":5,"operation_seconds":15},"limits":{"max_proxy_connections":16,"max_request_bytes":4096}}`, root, root, root, escape(binary), hash, root, root)
 }
 
 func TestConfigPinsValidatedProfilesArtifactAndBounds(t *testing.T) {
