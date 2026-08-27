@@ -2,6 +2,8 @@ package client
 
 import (
 	"context"
+	"crypto/ed25519"
+	"crypto/sha256"
 	"crypto/tls"
 	"errors"
 	"runtime"
@@ -10,6 +12,8 @@ import (
 
 	"nbsr.local/client/nbsr-go-client/demo/internal/fixture"
 	"nbsr.local/client/nbsr-go-client/internal/authority"
+	"nbsr.local/client/nbsr-go-client/internal/corestate"
+	"nbsr.local/client/nbsr-go-client/internal/session"
 )
 
 func TestAcquireRouteUsesProductionHTTP2AndReturnsUsableReservation(t *testing.T) {
@@ -30,6 +34,47 @@ func TestAcquireRouteUsesProductionHTTP2AndReturnsUsableReservation(t *testing.T
 	}
 	if err := client.Manager().ValidateForNewWork(reservation, snapshot, server.NowUnix()); err != nil {
 		t.Fatalf("reservation unusable: %v", err)
+	}
+}
+
+func TestRuntimeRouteBindingUsesActualProofThroughHTTPManagerAndVerifier(t *testing.T) {
+	defaults, err := fixture.Start(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	request := defaults.AcquireRequest()
+	defaults.Close()
+	seed := make([]byte, ed25519.SeedSize)
+	for index := range seed {
+		seed[index] = 0x44
+	}
+	public := ed25519.NewKeyFromSeed(seed).Public().(ed25519.PublicKey)
+	thumbprint := sha256.Sum256(public)
+	request.Key.TSGeneration, request.Key.ProofThumbprint = 5, thumbprint
+	view := session.DestinationRouteView{ServiceIdentity: request.Intent.ServiceIdentity, ServiceDigest: corestate.ServiceDigest(request.Key.ServiceDigest), Intent: request.Intent, ProofThumbprint: thumbprint}
+	copy(view.ProofPublicKey[:], public)
+	server, err := fixture.Start(t.TempDir(), fixture.WithRouteInputs(request, view))
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(server.Close)
+	client, err := NewAuthorityClient(server)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = client.Close() })
+	reservation, err := client.AcquireRoute(context.Background(), server.AcquireRequest())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if reservation.TSGeneration() != 5 {
+		t.Fatalf("reservation generation = %d", reservation.TSGeneration())
+	}
+	tampered := server.AcquireRequest()
+	tampered.RequestID = authority.RequestID{9}
+	tampered.Key.ProofThumbprint[0] ^= 1
+	if _, err := client.AcquireRoute(context.Background(), tampered); !errors.Is(err, authority.ErrPolicyDenied) {
+		t.Fatalf("tampered proof error = %v", err)
 	}
 }
 

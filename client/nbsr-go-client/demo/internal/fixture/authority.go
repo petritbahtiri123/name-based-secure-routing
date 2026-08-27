@@ -12,6 +12,7 @@ import (
 	"crypto/x509/pkix"
 	"encoding/pem"
 	"errors"
+	"fmt"
 	"io"
 	"log"
 	"math/big"
@@ -25,6 +26,7 @@ import (
 	"nbsr.local/client/nbsr-go-client/internal/authority"
 	"nbsr.local/client/nbsr-go-client/internal/identity"
 	"nbsr.local/client/nbsr-go-client/internal/resolution"
+	"nbsr.local/client/nbsr-go-client/internal/session"
 )
 
 const Classification = "DEMO FIXTURE — NOT PRODUCTION AUTHORITY"
@@ -46,12 +48,17 @@ const (
 
 type Option func(*options)
 type options struct {
-	mutation Mutation
-	block    bool
+	mutation     Mutation
+	block        bool
+	routeRequest *authority.AcquireRequest
+	runtimeView  *session.DestinationRouteView
 }
 
 func WithMutation(value Mutation) Option { return func(o *options) { o.mutation = value } }
 func WithDecisionBlock() Option          { return func(o *options) { o.block = true } }
+func WithRouteInputs(request authority.AcquireRequest, view session.DestinationRouteView) Option {
+	return func(o *options) { o.routeRequest = &request; o.runtimeView = &view }
+}
 
 type Authority struct {
 	request    authority.AcquireRequest
@@ -101,6 +108,8 @@ type Server struct {
 	http         *http.Server
 	listener     net.Listener
 	store        *authority.FileIdempotencyStore
+	runtimeView  *session.DestinationRouteView
+	routeIssuer  authority.IssuerRecord
 	mu           sync.Mutex
 	lastTLS      tls.ConnectionState
 	closeOnce    sync.Once
@@ -127,6 +136,21 @@ func StartAt(runtimeDir, listenAddress string, opts ...Option) (*Server, error) 
 	request, deviceSigner, deviceRecord, err := makeRequest()
 	if err != nil {
 		return nil, err
+	}
+	if cfg.routeRequest != nil {
+		input := *cfg.routeRequest
+		request.Intent = input.Intent
+		request.Key.IntentDigest = input.Key.IntentDigest
+		request.Key.ServiceDigest = input.Key.ServiceDigest
+		request.Key.SourceOperator = input.Key.SourceOperator
+		request.Key.SourceEdge = input.Key.SourceEdge
+		request.Key.TargetOperator = input.Key.TargetOperator
+		request.Key.TargetEdgeSetDigest = input.Key.TargetEdgeSetDigest
+		request.Key.Transport = input.Key.Transport
+		request.Key.Port = input.Key.Port
+		request.Key.TSGeneration = input.Key.TSGeneration
+		request.Key.ProofThumbprint = input.Key.ProofThumbprint
+		request.Key.PolicyHash = input.Key.PolicyHash
 	}
 	routePublic, routePrivate, err := ed25519.GenerateKey(rand.Reader)
 	if err != nil {
@@ -173,10 +197,9 @@ func StartAt(runtimeDir, listenAddress string, opts ...Option) (*Server, error) 
 	acpSigner := &operatorSigner{kid: []byte("nbsr-demo-acp-result-v1"), purpose: 15, private: acpPrivate}
 	var acpKey [32]byte
 	copy(acpKey[:], acpPublic)
-	issuers, err := authority.NewStaticIssuerResolver([]authority.IssuerRecord{
-		{KID: routeKID, PublicKey: routeKey, Purpose: issuerPurpose, Profile: request.Key.Profile, SourceOperator: request.Key.SourceOperator, Generation: uint64(grantInput.Key.AuthorityGeneration), NotBefore: fixedNow - 10, ExpiresAt: fixedNow + 600},
-		{KID: acpSigner.kid, PublicKey: acpKey, Purpose: 15, Profile: request.Key.Profile, SourceOperator: request.Key.SourceOperator, Generation: uint64(request.Key.AuthorityGeneration), NotBefore: fixedNow - 10, ExpiresAt: fixedNow + 600},
-	})
+	routeIssuer := authority.IssuerRecord{KID: append([]byte(nil), routeKID...), PublicKey: routeKey, Purpose: issuerPurpose, Profile: request.Key.Profile, SourceOperator: request.Key.SourceOperator, Generation: uint64(grantInput.Key.AuthorityGeneration), NotBefore: fixedNow - 10, ExpiresAt: fixedNow + 600}
+	acpIssuer := authority.IssuerRecord{KID: append([]byte(nil), acpSigner.kid...), PublicKey: acpKey, Purpose: 15, Profile: request.Key.Profile, SourceOperator: request.Key.SourceOperator, Generation: uint64(request.Key.AuthorityGeneration), NotBefore: fixedNow - 10, ExpiresAt: fixedNow + 600}
+	issuers, err := authority.NewStaticIssuerResolver([]authority.IssuerRecord{routeIssuer, acpIssuer})
 	if err != nil {
 		return nil, err
 	}
@@ -201,7 +224,12 @@ func StartAt(runtimeDir, listenAddress string, opts ...Option) (*Server, error) 
 	if err != nil {
 		return nil, err
 	}
-	s := &Server{authority: authz, endpoint: "https://" + listener.Addr().String(), clientTLS: &tls.Config{RootCAs: roots, ServerName: "nbsr-demo-acp", MinVersion: tls.VersionTLS13, MaxVersion: tls.VersionTLS13, NextProtos: []string{"h2"}}, deviceSigner: deviceSigner, issuers: issuers, checkpoint: authority.CheckpointClaims{SourceOperator: request.Key.SourceOperator, Profile: request.Key.Profile, Generation: request.Key.AuthorityGeneration, IssuedAt: fixedNow - 1, FreshUntil: fixedNow + 300, Digest: authority.CheckpointDigest{7}}, runtime: runtime, listener: listener, store: store, release: release}
+	var runtimeView *session.DestinationRouteView
+	if cfg.runtimeView != nil {
+		view := *cfg.runtimeView
+		runtimeView = &view
+	}
+	s := &Server{authority: authz, endpoint: "https://" + listener.Addr().String(), clientTLS: &tls.Config{RootCAs: roots, ServerName: "nbsr-demo-acp", MinVersion: tls.VersionTLS13, MaxVersion: tls.VersionTLS13, NextProtos: []string{"h2"}}, deviceSigner: deviceSigner, issuers: issuers, checkpoint: authority.CheckpointClaims{SourceOperator: request.Key.SourceOperator, Profile: request.Key.Profile, Generation: request.Key.AuthorityGeneration, IssuedAt: fixedNow - 1, FreshUntil: fixedNow + 300, Digest: authority.CheckpointDigest{7}}, runtime: runtime, listener: listener, store: store, runtimeView: runtimeView, routeIssuer: routeIssuer, release: release}
 	httpServer, err := authority.NewSourceOperatorHTTPServer(listener.Addr().String(), runtime, &tls.Config{Certificates: []tls.Certificate{cert}})
 	if err != nil {
 		return nil, err
@@ -244,6 +272,20 @@ func (s *Server) Issuers() *authority.StaticIssuerResolver     { return s.issuer
 func (s *Server) CheckpointClaims() authority.CheckpointClaims { return s.checkpoint }
 func (s *Server) NowUnix() uint64                              { return fixedNow }
 func (s *Server) LastTLS() tls.ConnectionState                 { s.mu.Lock(); defer s.mu.Unlock(); return s.lastTLS }
+
+func (s *Server) PublicRuntimeAdmissionConfig(edgeNonce [32]byte) ([]byte, error) {
+	if s == nil || s.runtimeView == nil || edgeNonce == ([32]byte{}) || len(s.runtimeView.Intent.TargetEdges) != 1 {
+		return nil, errors.New("runtime admission configuration unavailable")
+	}
+	view := *s.runtimeView
+	return []byte(fmt.Sprintf(
+		"NBSR-RUNTIME-ADMISSION-v1\nsource_operator=%s\nsource_edge=%s\ndestination_operator=%s\ndestination_edge=%s\nservice_identity=%s\nservice_digest=%x\ntransport=%s\nport=%d\nrecord_sequence=%d\npolicy_hash=%x\nnow=%d\nproof_thumbprint=%x\nproof_public_key=%x\nedge_nonce=%x\nissuer_kid=%s\nissuer_public_key=%x\n",
+		view.Intent.SourceOperator, view.Intent.SourceEdge, view.Intent.TargetOperator, view.Intent.TargetEdges[0],
+		view.ServiceIdentity, view.ServiceDigest, view.Intent.Transport, view.Intent.Port,
+		view.Intent.RecordSequence, view.Intent.PolicyHash, fixedNow,
+		view.ProofThumbprint, view.ProofPublicKey, edgeNonce, s.routeIssuer.KID, s.routeIssuer.PublicKey,
+	)), nil
+}
 
 func makeRequest() (authority.AcquireRequest, identity.Signer, authority.DeviceACPRequestKey, error) {
 	public, private, err := ed25519.GenerateKey(rand.Reader)

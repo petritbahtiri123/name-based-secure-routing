@@ -25,7 +25,11 @@ type recordedRoutes struct {
 	routes []resolution.RouteContext
 }
 
-func (opener *recordedRoutes) OpenVerifiedRoute(_ context.Context, route resolution.RouteContext) (io.ReadWriteCloser, error) {
+func (opener *recordedRoutes) OpenVerifiedRoute(_ context.Context, mapped *resolution.MappedRoute) (io.ReadWriteCloser, error) {
+	route, err := mapped.Context()
+	if err != nil {
+		return nil, err
+	}
 	opener.mu.Lock()
 	opener.routes = append(opener.routes, route)
 	opener.mu.Unlock()

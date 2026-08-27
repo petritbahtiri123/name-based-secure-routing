@@ -7,8 +7,6 @@ import (
 	"io"
 	"testing"
 
-	"nbsr.local/client/nbsr-go-client/internal/authority"
-	"nbsr.local/client/nbsr-go-client/internal/corestate"
 	"nbsr.local/client/nbsr-go-client/internal/resolution"
 )
 
@@ -32,7 +30,7 @@ func mappedConfig(wire Wire) OwnedChannelConfig {
 	}
 }
 
-func TestMappedRouteOpenerRequiresMappingServiceBinding(t *testing.T) {
+func TestMappedRouteOpenerRejectsCallerConstructedEmptyCapability(t *testing.T) {
 	wire := newMappedWire()
 	config := mappedConfig(wire)
 	channel, err := NewOwnedChannel(context.Background(), config)
@@ -43,24 +41,7 @@ func TestMappedRouteOpenerRequiresMappingServiceBinding(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	context := resolution.RouteContext{
-		MappingID: 1, ServiceIdentity: config.ServiceIdentity, ServiceDigest: corestate.ServiceDigest(config.ServiceDigest),
-		Intent: authority.RouteIntent{ServiceIdentity: config.ServiceIdentity, Transport: "tcp", Port: 443},
-	}
-	stream, err := opener.OpenVerifiedRoute(context2(), context)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if _, err := stream.Write([]byte("payload")); err != nil {
-		t.Fatal(err)
-	}
-	if !bytes.Contains(wire.writes.Bytes(), []byte("payload")) {
-		t.Fatal("payload did not use existing Application Stream")
-	}
-	_ = stream.Close()
-	bad := context
-	bad.ServiceDigest[0]++
-	if _, err := opener.OpenVerifiedRoute(context2(), bad); !errors.Is(err, resolution.ErrRouteBinding) {
+	if _, err := opener.OpenVerifiedRoute(context2(), &resolution.MappedRoute{}); !errors.Is(err, resolution.ErrRouteBinding) {
 		t.Fatalf("mismatch error = %v", err)
 	}
 }

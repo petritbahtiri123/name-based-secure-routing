@@ -7,12 +7,14 @@ import (
 	"io"
 	"net"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"nbsr.local/client/nbsr-go-client/internal/adapter"
 )
 
 var ErrInvalidServerLimits = errors.New("invalid proxy server limits")
+var ErrConnectionCapacity = errors.New("proxy connection capacity exhausted")
 
 type ServerLimits struct {
 	MaxConnections   int
@@ -25,11 +27,13 @@ type Server struct {
 	correlator *Correlator
 	limits     ServerLimits
 	active     chan struct{}
+	rejected   atomic.Uint64
 }
 
 // ServerUsage reports aggregate proxy connection use without peer details.
 type ServerUsage struct {
 	ActiveConnections, MaxConnections int
+	RejectedConnections               uint64
 }
 
 func NewServer(listener net.Listener, correlator *Correlator, limits ServerLimits) (*Server, error) {
@@ -46,18 +50,22 @@ func (server *Server) Accept(ctx context.Context) (adapter.CapturedFlow, error) 
 	if err := ctx.Err(); err != nil {
 		return adapter.CapturedFlow{}, err
 	}
+	connection, err := server.listener.Accept()
+	if err != nil {
+		return adapter.CapturedFlow{}, err
+	}
 	select {
 	case server.active <- struct{}{}:
 	case <-ctx.Done():
+		_ = connection.Close()
 		return adapter.CapturedFlow{}, ctx.Err()
+	default:
+		_ = connection.Close()
+		for current := server.rejected.Load(); current != ^uint64(0) && !server.rejected.CompareAndSwap(current, current+1); current = server.rejected.Load() {
+		}
+		return adapter.CapturedFlow{}, ErrConnectionCapacity
 	}
 	release := func() { <-server.active }
-
-	connection, err := server.listener.Accept()
-	if err != nil {
-		release()
-		return adapter.CapturedFlow{}, err
-	}
 	if err := connection.SetDeadline(time.Now().Add(server.limits.HandshakeTimeout)); err != nil {
 		_ = connection.Close()
 		release()
@@ -157,7 +165,7 @@ func contains(values []byte, wanted byte) bool {
 func (server *Server) Close() error { return server.listener.Close() }
 
 func (server *Server) Usage() ServerUsage {
-	return ServerUsage{ActiveConnections: len(server.active), MaxConnections: cap(server.active)}
+	return ServerUsage{ActiveConnections: len(server.active), MaxConnections: cap(server.active), RejectedConnections: server.rejected.Load()}
 }
 
 type trackedConnection struct {
@@ -171,8 +179,24 @@ type bufferedConnection struct {
 	reader io.Reader
 }
 
+type closeWriter interface{ CloseWrite() error }
+
 func (connection *bufferedConnection) Read(buffer []byte) (int, error) {
 	return connection.reader.Read(buffer)
+}
+
+func (connection *bufferedConnection) CloseWrite() error {
+	if writer, ok := connection.Conn.(closeWriter); ok {
+		return writer.CloseWrite()
+	}
+	return net.ErrClosed
+}
+
+func (connection *trackedConnection) CloseWrite() error {
+	if writer, ok := connection.Conn.(closeWriter); ok {
+		return writer.CloseWrite()
+	}
+	return net.ErrClosed
 }
 
 func (connection *trackedConnection) Close() error {

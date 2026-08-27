@@ -24,14 +24,55 @@ type flowConsumer interface {
 
 type RouteContext struct {
 	MappingID       corestate.MappingID
+	CanonicalName   string
 	ServiceIdentity string
 	ServiceDigest   corestate.ServiceDigest
 	Intent          authority.RouteIntent
 	PolicyContext   corestate.PolicyContext
 }
 
+// MappedRoute is a capability for one Mapping reference acquired by Router.
+// Its fields are intentionally private: RouteContext is informational and is
+// not evidence that a live Mapping exists.
+type MappedRoute struct {
+	mu     sync.RWMutex
+	route  *RouteContext
+	active bool
+}
+
+func (route *MappedRoute) Context() (RouteContext, error) {
+	if route == nil {
+		return RouteContext{}, ErrRouteBinding
+	}
+	route.mu.RLock()
+	defer route.mu.RUnlock()
+	if !route.active || route.route == nil {
+		return RouteContext{}, ErrRouteBinding
+	}
+	return cloneRouteContext(*route.route), nil
+}
+
+func (route *MappedRoute) invalidate() {
+	if route == nil {
+		return
+	}
+	route.mu.Lock()
+	route.active = false
+	route.mu.Unlock()
+}
+
+// BuildAcquireRequest binds only Mapping-owned identity and policy fields.
+// Session-owned proof fields are bound by the session route plan.
+func (route *MappedRoute) BuildAcquireRequest(template authority.AcquireRequest) (authority.AcquireRequest, error) {
+	context, err := route.Context()
+	if err != nil {
+		return authority.AcquireRequest{}, err
+	}
+	return buildAcquireRequest(context, template)
+}
+
 type SecureRouteOpener interface {
-	OpenVerifiedRoute(context.Context, RouteContext) (io.ReadWriteCloser, error)
+	OpenVerifiedRoute(context.Context, *MappedRoute) (io.ReadWriteCloser, error)
 }
 
 type Router struct {
@@ -59,20 +100,25 @@ func (router *Router) OpenFlow(ctx context.Context, flow corestate.LocalFlowID) 
 	if err != nil {
 		return nil, err
 	}
-	route, err := routeContext(mapping)
+	routeContext, err := routeContext(mapping)
 	if err != nil {
 		_ = router.mappings.ReleaseMapping(mappingID)
 		return nil, err
 	}
+	route := &MappedRoute{route: &routeContext, active: true}
 	downstream, err := router.opener.OpenVerifiedRoute(ctx, route)
 	if err != nil || downstream == nil {
+		route.invalidate()
 		_ = router.mappings.ReleaseMapping(mappingID)
 		if err == nil {
 			err = ErrRouteBinding
 		}
 		return nil, err
 	}
-	return &RoutedStream{ReadWriteCloser: downstream, release: func() error { return router.mappings.ReleaseMapping(mappingID) }}, nil
+	return &RoutedStream{ReadWriteCloser: downstream, release: func() error {
+		route.invalidate()
+		return router.mappings.ReleaseMapping(mappingID)
+	}}, nil
 }
 
 func routeContext(mapping corestate.MappingSnapshot) (RouteContext, error) {
@@ -83,7 +129,7 @@ func routeContext(mapping corestate.MappingSnapshot) (RouteContext, error) {
 		return RouteContext{}, ErrRouteBinding
 	}
 	return RouteContext{
-		MappingID: mapping.ID, ServiceIdentity: mapping.ServiceIdentity, ServiceDigest: mapping.ServiceDigest, PolicyContext: mapping.PolicyContext,
+		MappingID: mapping.ID, CanonicalName: mapping.CanonicalName, ServiceIdentity: mapping.ServiceIdentity, ServiceDigest: mapping.ServiceDigest, PolicyContext: mapping.PolicyContext,
 		Intent: authority.RouteIntent{
 			Canonical: append([]byte(nil), intent.Canonical...), Digest: authority.RouteIntentDigest(intent.Digest), ServiceIdentity: mapping.ServiceIdentity,
 			SourceOperator: intent.SourceOperator, SourceEdge: intent.SourceEdge, TargetOperator: intent.TargetOperator,
@@ -94,7 +140,7 @@ func routeContext(mapping corestate.MappingSnapshot) (RouteContext, error) {
 	}, nil
 }
 
-func BuildAcquireRequest(route RouteContext, template authority.AcquireRequest) (authority.AcquireRequest, error) {
+func buildAcquireRequest(route RouteContext, template authority.AcquireRequest) (authority.AcquireRequest, error) {
 	if route.MappingID == 0 || route.ServiceIdentity == "" || route.ServiceDigest == (corestate.ServiceDigest{}) || !validRouteIntent(route.Intent) {
 		return authority.AcquireRequest{}, ErrRouteBinding
 	}
@@ -123,6 +169,13 @@ type RoutedStream struct {
 	once    sync.Once
 	release func() error
 	err     error
+}
+
+func (stream *RoutedStream) CloseWrite() error {
+	if writer, ok := stream.ReadWriteCloser.(interface{ CloseWrite() error }); ok {
+		return writer.CloseWrite()
+	}
+	return ErrRouteBinding
 }
 
 func (stream *RoutedStream) Close() error {

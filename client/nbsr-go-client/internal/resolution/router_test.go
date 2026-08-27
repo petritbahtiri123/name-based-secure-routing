@@ -16,12 +16,18 @@ type routeClock uint64
 func (clock routeClock) NowUnix() uint64 { return uint64(clock) }
 
 type routeOpener struct {
-	got RouteContext
-	err error
+	got  RouteContext
+	last *MappedRoute
+	err  error
 }
 
-func (opener *routeOpener) OpenVerifiedRoute(_ context.Context, route RouteContext) (io.ReadWriteCloser, error) {
+func (opener *routeOpener) OpenVerifiedRoute(_ context.Context, mapped *MappedRoute) (io.ReadWriteCloser, error) {
+	route, err := mapped.Context()
+	if err != nil {
+		return nil, err
+	}
 	opener.got = route
+	opener.last = mapped
 	if opener.err != nil {
 		return nil, opener.err
 	}
@@ -110,7 +116,8 @@ func TestBuildAcquireRequestPinsEveryMappingOwnedAuthorityField(t *testing.T) {
 			ProofThumbprint: authority.ProofKeyThumbprint{1}, PolicyGeneration: 1, AuthorityGeneration: 1},
 		RequestID: authority.RequestID{1}, DeadlineUnix: 150,
 	}
-	request, err := BuildAcquireRequest(route, template)
+	mapped := &MappedRoute{route: &route, active: true}
+	request, err := mapped.BuildAcquireRequest(template)
 	if err != nil {
 		t.Fatal(err)
 	}

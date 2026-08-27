@@ -15,6 +15,22 @@ import (
 
 type oneListener struct{ connection net.Conn }
 
+type halfCloseNetConn struct {
+	net.Conn
+	closeWriteCalls int
+	closeCalls      int
+	closeWriteErr   error
+}
+
+func (connection *halfCloseNetConn) CloseWrite() error {
+	connection.closeWriteCalls++
+	return connection.closeWriteErr
+}
+func (connection *halfCloseNetConn) Close() error {
+	connection.closeCalls++
+	return nil
+}
+
 func (listener *oneListener) Accept() (net.Conn, error) {
 	connection := listener.connection
 	listener.connection = nil
@@ -57,6 +73,43 @@ func TestServerPreservesPayloadBufferedWithHTTPConnect(t *testing.T) {
 	case <-time.After(time.Second):
 		t.Fatal("buffered application payload was lost")
 	}
+}
+
+func TestProxyConnectionWrappersPreserveHalfCloseCapability(t *testing.T) {
+	wantErr := errors.New("half close failed")
+	base := &halfCloseNetConn{closeWriteErr: wantErr}
+	buffered := &bufferedConnection{Conn: base, reader: base}
+	tracked := &trackedConnection{Conn: buffered, release: func() {}}
+	if err := buffered.CloseWrite(); !errors.Is(err, wantErr) {
+		t.Fatalf("buffered CloseWrite error = %v", err)
+	}
+	if err := tracked.CloseWrite(); !errors.Is(err, wantErr) {
+		t.Fatalf("tracked CloseWrite error = %v", err)
+	}
+	if base.closeWriteCalls != 2 || base.closeCalls != 0 {
+		t.Fatalf("underlying calls: CloseWrite=%d Close=%d", base.closeWriteCalls, base.closeCalls)
+	}
+}
+
+func TestPendingAcceptDoesNotCountAsActiveConnection(t *testing.T) {
+	listener, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	flows, _ := resolution.NewFlowStore(resolution.FlowLimits{MaxEntries: 1, MaxBytes: 16})
+	correlator, _ := NewCorrelator(staticResolver{"api.example": 7}, flows)
+	server, _ := NewServer(listener, correlator, ServerLimits{MaxConnections: 1, MaxRequestBytes: 1024, HandshakeTimeout: time.Second})
+	done := make(chan error, 1)
+	go func() {
+		_, acceptErr := server.Accept(context.Background())
+		done <- acceptErr
+	}()
+	time.Sleep(25 * time.Millisecond)
+	if got := server.Usage().ActiveConnections; got != 0 {
+		t.Fatalf("pending accept counted as active: %d", got)
+	}
+	_ = server.Close()
+	<-done
 }
 func (*oneListener) Close() error   { return nil }
 func (*oneListener) Addr() net.Addr { return &net.TCPAddr{} }

@@ -21,8 +21,9 @@ func NewMappedRouteOpener(channel *OwnedChannel) (*MappedRouteOpener, error) {
 	return &MappedRouteOpener{channel: channel, serviceIdentity: channel.serviceIdentity, serviceDigest: channel.serviceDigest}, nil
 }
 
-func (opener *MappedRouteOpener) OpenVerifiedRoute(ctx context.Context, route resolution.RouteContext) (io.ReadWriteCloser, error) {
-	if ctx == nil || route.MappingID == 0 || route.ServiceIdentity != opener.serviceIdentity || route.ServiceDigest != opener.serviceDigest ||
+func (opener *MappedRouteOpener) OpenVerifiedRoute(ctx context.Context, mapped *resolution.MappedRoute) (io.ReadWriteCloser, error) {
+	route, err := mapped.Context()
+	if err != nil || ctx == nil || route.MappingID == 0 || route.ServiceIdentity != opener.serviceIdentity || route.ServiceDigest != opener.serviceDigest ||
 		route.Intent.ServiceIdentity != opener.serviceIdentity || route.Intent.Transport == "" || route.Intent.Port == 0 {
 		return nil, resolution.ErrRouteBinding
 	}

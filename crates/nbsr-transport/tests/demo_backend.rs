@@ -23,13 +23,268 @@ mod support;
 
 use interop_server::run_verified_executable_for_test;
 use interop_server::{
-    DemoBackendError, DemoBackendThreadFailure, authorities, edge_hello,
-    ensure_demo_backend_binding, issuer, load_demo_backend_map, open_verified_executable_for_test,
-    policy, relay_demo_backend, relay_demo_backend_with_timeout, route_accept, run_demo_backend,
-    run_demo_backend_connector, run_demo_backend_server_operation_with_timeout,
-    run_demo_backend_with_thread_failure, run_demo_backend_with_timeout,
-    verified_executable_spawn_path_for_test, verify_executable_with_limit_for_test,
+    DemoBackendError, DemoBackendThreadFailure, accept_configured_route, authorities, edge_hello,
+    ensure_demo_backend_binding, ensure_runtime_admission_binding,
+    ensure_runtime_route_grant_binding, issuer, load_demo_backend_map,
+    load_runtime_admission_config, open_verified_executable_for_test, policy, relay_demo_backend,
+    relay_demo_backend_with_timeout, route_accept, run_demo_backend, run_demo_backend_connector,
+    run_demo_backend_server_operation_with_timeout, run_demo_backend_with_thread_failure,
+    run_demo_backend_with_timeout, verified_executable_spawn_path_for_test,
+    verify_executable_with_limit_for_test,
 };
+
+fn runtime_admission_text() -> String {
+    let proof_public = [0x31_u8; 32];
+    let proof_thumbprint = Sha256::digest(proof_public);
+    format!(
+        "NBSR-RUNTIME-ADMISSION-v1\nsource_operator=source.operator\nsource_edge=source.edge\ndestination_operator=destination.operator\ndestination_edge=destination.edge\nservice_identity=nbsr-demo-service-a-v1\nservice_digest={}\ntransport=tcp\nport=8080\nrecord_sequence=1\npolicy_hash={}\nnow=1893456000\nproof_thumbprint={}\nproof_public_key={}\nedge_nonce={}\nissuer_kid=nbsr-demo-route-grant-v1\nissuer_public_key={}\n",
+        "07ed4ff0a2365cc91649cf8a9405d2f1cd1261fcb201a922acdbf4f4bcf213b5",
+        hex32(Sha256::digest(b"demo-policy-v1").into()),
+        hex32(proof_thumbprint.into()),
+        hex32(proof_public),
+        hex32([0x80; 32]),
+        hex32([0x41; 32]),
+    )
+}
+
+fn hex32(value: [u8; 32]) -> String {
+    value.iter().map(|byte| format!("{byte:02x}")).collect()
+}
+
+#[test]
+fn runtime_admission_config_is_strict_public_policy_and_issuer_trust() {
+    let root = TestRoot::new();
+    let path = root.join("admission.conf");
+    fs::write(&path, runtime_admission_text()).unwrap();
+    let loaded = load_runtime_admission_config(&path).expect("strict runtime admission config");
+    assert_eq!(loaded.policy.authorized_services.len(), 1);
+    assert_eq!(loaded.service_identity, "nbsr-demo-service-a-v1");
+    assert_eq!(loaded.transport, "tcp");
+    assert_eq!(loaded.port, 8080);
+    assert_eq!(loaded.trusted_issuer.kid, b"nbsr-demo-route-grant-v1");
+    assert_eq!(loaded.policy.client_session_public_key, [0x31; 32]);
+}
+
+#[test]
+fn runtime_admission_config_rejects_malformed_unknown_duplicate_private_and_oversized_inputs() {
+    let root = TestRoot::new();
+    let cases = [
+        ("unknown", runtime_admission_text() + "unknown=value\n"),
+        ("duplicate", runtime_admission_text() + "port=8080\n"),
+        ("private", runtime_admission_text() + "private_key=00\n"),
+        (
+            "backend",
+            runtime_admission_text() + "executable=C:\\backend.exe\n",
+        ),
+        (
+            "bad hash",
+            runtime_admission_text().replace("service_digest=07", "service_digest=zz"),
+        ),
+        (
+            "bad kid",
+            runtime_admission_text().replace("issuer_kid=nbsr", "issuer_kid=../nbsr"),
+        ),
+        (
+            "path-like identity",
+            runtime_admission_text().replace(
+                "service_identity=nbsr-demo-service-a-v1",
+                "service_identity=..",
+            ),
+        ),
+        (
+            "proof mismatch",
+            runtime_admission_text().replace("proof_thumbprint=", "proof_thumbprint=00"),
+        ),
+        ("oversized", "x".repeat(16_385)),
+    ];
+    for (name, contents) in cases {
+        let file_name = format!("{name}.conf");
+        let path = root.join(&file_name);
+        fs::write(&path, contents).unwrap();
+        assert!(
+            load_runtime_admission_config(&path).is_err(),
+            "accepted {name}"
+        );
+    }
+}
+
+#[test]
+fn historical_admission_defaults_are_unchanged_without_runtime_config() {
+    assert!(policy().authorized_services.contains_key("service.example"));
+    assert_eq!(issuer().kid, b"nbsr-test-route-grant-key");
+}
+
+#[tokio::test]
+async fn runtime_admission_does_not_reuse_historical_federation_attestations() {
+    let ConnectorSetup {
+        mut destination_session,
+        route,
+        source,
+        destination,
+        listener,
+        ..
+    } = connector_setup().await;
+    let root = TestRoot::new();
+    let path = root.join("runtime.conf");
+    fs::write(&path, historical_runtime_admission_text(&issuer())).unwrap();
+    let config = load_runtime_admission_config(&path).unwrap();
+    assert!(
+        accept_configured_route(
+            &mut destination_session,
+            &route,
+            &federation_attestations(),
+            Some(&config),
+        )
+        .is_err(),
+        "runtime admission must require the non-federated runtime RouteOpen path"
+    );
+    source.close().await.unwrap();
+    destination.close().await.unwrap();
+    listener.close().await.unwrap();
+}
+
+fn historical_runtime_admission_text(trusted: &RouteGrantIssuer) -> String {
+    let admission = policy();
+    let service = admission
+        .authorized_services
+        .get("service.example")
+        .unwrap();
+    let service_digest = federated_route_open()
+        .validated_route_grant_service_digest(&[issuer()])
+        .unwrap();
+    let proof_thumbprint: [u8; 32] = Sha256::digest(admission.client_session_public_key).into();
+    format!(
+        "NBSR-RUNTIME-ADMISSION-v1\nsource_operator={}\nsource_edge={}\ndestination_operator={}\ndestination_edge={}\nservice_identity=service.example\nservice_digest={}\ntransport=tcp\nport=8443\nrecord_sequence={}\npolicy_hash={}\nnow={}\nproof_thumbprint={}\nproof_public_key={}\nedge_nonce={}\nissuer_kid={}\nissuer_public_key={}\n",
+        admission.source_operator_id,
+        admission.source_edge_id,
+        admission.destination_operator_id,
+        admission.destination_edge_id,
+        hex32(service_digest),
+        service.accepted_record_sequence,
+        hex32(service.policy_hash),
+        admission.now,
+        hex32(proof_thumbprint),
+        hex32(admission.client_session_public_key),
+        hex32(admission.edge_nonce),
+        String::from_utf8(trusted.kid.clone()).unwrap(),
+        hex32(trusted.public_key),
+    )
+}
+
+#[test]
+fn runtime_issuer_trust_is_local_and_rejects_kid_or_public_key_disagreement() {
+    let root = TestRoot::new();
+    let route = federated_route_open();
+    let attestations = federation_attestations();
+    for (name, trusted, accepted) in [
+        ("exact", issuer(), true),
+        (
+            "kid",
+            RouteGrantIssuer {
+                kid: b"other-route-grant-key".to_vec(),
+                ..issuer()
+            },
+            false,
+        ),
+        (
+            "public",
+            RouteGrantIssuer {
+                public_key: [0x42; 32],
+                ..issuer()
+            },
+            false,
+        ),
+    ] {
+        let file_name = format!("issuer-{name}.conf");
+        let path = root.join(&file_name);
+        fs::write(&path, historical_runtime_admission_text(&trusted)).unwrap();
+        let config = load_runtime_admission_config(&path).unwrap();
+        let mut admission =
+            DestinationAdmission::new_federated(config.policy.clone(), authorities()).unwrap();
+        let result = admission.admit_federated_route_open(
+            &route,
+            &[config.trusted_issuer],
+            config.policy.now,
+            &attestations,
+        );
+        assert_eq!(result.is_ok(), accepted, "issuer case {name}: {result:?}");
+    }
+}
+
+#[test]
+fn runtime_service_digest_must_match_the_locally_trusted_signed_grant() {
+    let root = TestRoot::new();
+    let path = root.join("digest.conf");
+    fs::write(&path, historical_runtime_admission_text(&issuer())).unwrap();
+    let config = load_runtime_admission_config(&path).unwrap();
+    let route = federated_route_open();
+    assert_eq!(ensure_runtime_route_grant_binding(&config, &route), Ok(()));
+    let mut wrong = config;
+    wrong.service_digest[0] ^= 1;
+    assert_eq!(
+        ensure_runtime_route_grant_binding(&wrong, &route),
+        Err(DemoBackendError::ServiceMismatch)
+    );
+}
+
+#[test]
+fn runtime_proof_public_identity_is_locally_pinned() {
+    let root = TestRoot::new();
+    let path = root.join("proof.conf");
+    fs::write(&path, historical_runtime_admission_text(&issuer())).unwrap();
+    let mut config = load_runtime_admission_config(&path).unwrap();
+    let wrong_public = [0x42; 32];
+    config.policy.client_session_public_key = wrong_public;
+    config.proof_thumbprint = Sha256::digest(wrong_public).into();
+    let mut admission =
+        DestinationAdmission::new_federated(config.policy.clone(), authorities()).unwrap();
+    assert!(
+        admission
+            .admit_federated_route_open(
+                &federated_route_open(),
+                &[config.trusted_issuer],
+                config.policy.now,
+                &federation_attestations(),
+            )
+            .is_err()
+    );
+}
+
+#[test]
+fn runtime_admission_binding_rejects_service_transport_and_port_disagreement() {
+    let root = TestRoot::new();
+    let path = root.join("admission.conf");
+    fs::write(&path, runtime_admission_text()).unwrap();
+    let config = load_runtime_admission_config(&path).unwrap();
+    let accepted = ActiveChannel {
+        channel_id: [1; 16],
+        route_id: [2; 16],
+        service_id: config.service_identity.clone(),
+        route_grant_digest: [3; 32],
+        transport: config.transport.clone(),
+        port: config.port,
+    };
+    assert_eq!(ensure_runtime_admission_binding(&config, &accepted), Ok(()));
+    for candidate in [
+        ActiveChannel {
+            service_id: "other".into(),
+            ..accepted.clone()
+        },
+        ActiveChannel {
+            transport: "udp".into(),
+            ..accepted.clone()
+        },
+        ActiveChannel {
+            port: 8443,
+            ..accepted.clone()
+        },
+    ] {
+        assert_eq!(
+            ensure_runtime_admission_binding(&config, &candidate),
+            Err(DemoBackendError::ServiceMismatch)
+        );
+    }
+}
 
 const REQUEST: &[u8] =
     b"GET / HTTP/1.1\r\nHost: service-a.nbsr.test:8080\r\nUser-Agent: rust-test\r\n\r\n";

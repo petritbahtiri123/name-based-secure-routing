@@ -377,15 +377,17 @@ type testConnector struct {
 	mu           sync.Mutex
 	transports   []*testTransport
 	calls        int
+	attempts     []TransportSessionAttempt
 	fail         error
 	started      chan struct{}
 	block        chan struct{}
 	beforeReturn func()
 }
 
-func (c *testConnector) Connect(ctx context.Context, _ TransportSessionAttempt) (Transport, error) {
+func (c *testConnector) Connect(ctx context.Context, attempt TransportSessionAttempt) (Transport, error) {
 	c.mu.Lock()
 	c.calls++
+	c.attempts = append(c.attempts, attempt)
 	fail, started, block, hook := c.fail, c.started, c.block, c.beforeReturn
 	c.beforeReturn = nil
 	c.mu.Unlock()

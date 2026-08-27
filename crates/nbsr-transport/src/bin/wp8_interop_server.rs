@@ -17,7 +17,7 @@ use nbsr_transport::StreamCreditRefill;
 use nbsr_transport::{
     AdmissionPolicy, AuthorizedServicePolicy, ControlSession, CoreV02Limits, DestinationAdmission,
     EdgeIdentity, EdgeRole, LocalFederationAdmissionAttestations,
-    LocalFederationAdmissionAuthorities, PeerPolicy, RouteGrantIssuer, TlsMaterial,
+    LocalFederationAdmissionAuthorities, PeerPolicy, RouteGrantIssuer, SessionReject, TlsMaterial,
     TransportListener, TrustProfileId, build_server_config, decode_control_envelope,
 };
 use rustls::RootCertStore;
@@ -65,6 +65,8 @@ fn optional_cli_path_strict(name: &str) -> Option<PathBuf> {
 
 const DEMO_BACKEND_MAP_SCHEMA: &str = "NBSR-DEMO-BACKEND-MAP-v1";
 const DEMO_BACKEND_MAX_MAP_BYTES: u64 = 4 * 1024;
+const RUNTIME_ADMISSION_SCHEMA: &str = "NBSR-RUNTIME-ADMISSION-v1";
+const RUNTIME_ADMISSION_MAX_BYTES: u64 = 16 * 1024;
 const DEMO_BACKEND_MAX_EXECUTABLE_BYTES: u64 = 256 * 1024 * 1024;
 const DEMO_BACKEND_MAX_REQUEST_BYTES: usize = 4 * 1024;
 const DEMO_BACKEND_MAX_RESPONSE_BYTES: usize = 4 * 1024;
@@ -77,6 +79,36 @@ pub(crate) struct DemoBackendMap {
     service_id: String,
     executable: PathBuf,
     executable_sha256: [u8; 32],
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub(crate) struct RuntimeAdmissionConfig {
+    pub(crate) policy: AdmissionPolicy,
+    pub(crate) service_identity: String,
+    pub(crate) service_digest: [u8; 32],
+    pub(crate) transport: String,
+    pub(crate) port: u16,
+    pub(crate) proof_thumbprint: [u8; 32],
+    pub(crate) trusted_issuer: RouteGrantIssuer,
+}
+
+#[derive(Clone, Copy)]
+struct DemoBackendRouteConfig<'a> {
+    backend: &'a DemoBackendMap,
+    admission: Option<&'a RuntimeAdmissionConfig>,
+}
+
+pub(crate) fn accept_configured_route(
+    session: &mut ControlSession,
+    route: &nbsr_transport::CoreV02Envelope,
+    attestations: &LocalFederationAdmissionAttestations,
+    runtime_admission: Option<&RuntimeAdmissionConfig>,
+) -> Result<nbsr_transport::ActiveChannel, SessionReject> {
+    if runtime_admission.is_some() {
+        session.accept_route_open(route)
+    } else {
+        session.accept_federated_route_open(route, attestations)
+    }
 }
 
 #[derive(Debug)]
@@ -681,6 +713,129 @@ pub(crate) fn load_demo_backend_map(path: &Path) -> Result<DemoBackendMap, DemoB
         executable,
         executable_sha256,
     })
+}
+
+pub(crate) fn load_runtime_admission_config(
+    path: &Path,
+) -> Result<RuntimeAdmissionConfig, DemoBackendError> {
+    let contents = String::from_utf8(read_file_bounded(
+        path,
+        RUNTIME_ADMISSION_MAX_BYTES,
+        DemoBackendError::InvalidMap,
+    )?)
+    .map_err(|_| DemoBackendError::InvalidMap)?;
+    let lines = contents.lines().collect::<Vec<_>>();
+    if lines.len() != 17 || lines[0] != RUNTIME_ADMISSION_SCHEMA {
+        return Err(DemoBackendError::InvalidMap);
+    }
+    let source_operator = runtime_identifier(exact_map_value(lines[1], "source_operator=")?)?;
+    let source_edge = runtime_identifier(exact_map_value(lines[2], "source_edge=")?)?;
+    let destination_operator =
+        runtime_identifier(exact_map_value(lines[3], "destination_operator=")?)?;
+    let destination_edge = runtime_identifier(exact_map_value(lines[4], "destination_edge=")?)?;
+    let service_identity = runtime_identifier(exact_map_value(lines[5], "service_identity=")?)?;
+    let service_digest = decode_sha256(exact_map_value(lines[6], "service_digest=")?)?;
+    let transport = exact_map_value(lines[7], "transport=")?;
+    if !matches!(transport, "tcp" | "udp") {
+        return Err(DemoBackendError::InvalidMap);
+    }
+    let port = strict_positive_u64(exact_map_value(lines[8], "port=")?)?
+        .try_into()
+        .map_err(|_| DemoBackendError::InvalidMap)?;
+    let record_sequence = strict_positive_u64(exact_map_value(lines[9], "record_sequence=")?)?;
+    let policy_hash = decode_sha256(exact_map_value(lines[10], "policy_hash=")?)?;
+    let now = strict_positive_u64(exact_map_value(lines[11], "now=")?)?;
+    let proof_thumbprint = decode_sha256(exact_map_value(lines[12], "proof_thumbprint=")?)?;
+    let proof_public_key = decode_sha256(exact_map_value(lines[13], "proof_public_key=")?)?;
+    if <[u8; 32]>::from(Sha256::digest(proof_public_key)) != proof_thumbprint {
+        return Err(DemoBackendError::InvalidMap);
+    }
+    let edge_nonce = decode_sha256(exact_map_value(lines[14], "edge_nonce=")?)?;
+    let issuer_kid = runtime_identifier(exact_map_value(lines[15], "issuer_kid=")?)?;
+    let issuer_public_key = decode_sha256(exact_map_value(lines[16], "issuer_public_key=")?)?;
+    let policy = AdmissionPolicy {
+        source_operator_id: source_operator,
+        source_edge_id: source_edge,
+        destination_operator_id: destination_operator,
+        destination_edge_id: destination_edge,
+        authorized_services: BTreeMap::from([(
+            service_identity.clone(),
+            AuthorizedServicePolicy {
+                accepted_record_sequence: record_sequence,
+                policy_hash,
+            },
+        )]),
+        now,
+        client_session_public_key: proof_public_key,
+        edge_nonce,
+    };
+    Ok(RuntimeAdmissionConfig {
+        policy,
+        service_identity,
+        service_digest,
+        transport: transport.to_owned(),
+        port,
+        proof_thumbprint,
+        trusted_issuer: RouteGrantIssuer {
+            kid: issuer_kid.into_bytes(),
+            public_key: issuer_public_key,
+        },
+    })
+}
+
+pub(crate) fn ensure_runtime_admission_binding(
+    config: &RuntimeAdmissionConfig,
+    admitted: &nbsr_transport::ActiveChannel,
+) -> Result<(), DemoBackendError> {
+    if admitted.service_id != config.service_identity
+        || admitted.transport != config.transport
+        || admitted.port != config.port
+    {
+        return Err(DemoBackendError::ServiceMismatch);
+    }
+    Ok(())
+}
+
+pub(crate) fn ensure_runtime_route_grant_binding(
+    config: &RuntimeAdmissionConfig,
+    route: &nbsr_transport::CoreV02Envelope,
+) -> Result<(), DemoBackendError> {
+    let digest = route
+        .validated_route_grant_service_digest(std::slice::from_ref(&config.trusted_issuer))
+        .map_err(|_| DemoBackendError::StreamFailed)?;
+    if digest != config.service_digest {
+        return Err(DemoBackendError::ServiceMismatch);
+    }
+    Ok(())
+}
+
+fn runtime_identifier(value: &str) -> Result<String, DemoBackendError> {
+    if value.is_empty()
+        || value.len() > 255
+        || matches!(value.as_bytes().first(), Some(b'.' | b'-' | b'_'))
+        || matches!(value.as_bytes().last(), Some(b'.' | b'-' | b'_'))
+        || value.contains("..")
+        || !value.bytes().all(|byte| {
+            byte.is_ascii_lowercase() || byte.is_ascii_digit() || b".-_".contains(&byte)
+        })
+    {
+        return Err(DemoBackendError::InvalidMap);
+    }
+    Ok(value.to_owned())
+}
+
+fn strict_positive_u64(value: &str) -> Result<u64, DemoBackendError> {
+    if value.is_empty()
+        || (value.len() > 1 && value.starts_with('0'))
+        || !value.bytes().all(|byte| byte.is_ascii_digit())
+    {
+        return Err(DemoBackendError::InvalidMap);
+    }
+    value
+        .parse::<u64>()
+        .ok()
+        .filter(|value| *value != 0)
+        .ok_or(DemoBackendError::InvalidMap)
 }
 
 fn exact_map_value<'a>(line: &'a str, prefix: &str) -> Result<&'a str, DemoBackendError> {
@@ -1575,7 +1730,10 @@ pub(crate) async fn run_demo_backend_connector(
         session,
         route,
         attestations,
-        map,
+        DemoBackendRouteConfig {
+            backend: map,
+            admission: None,
+        },
         deadline,
     )
     .await
@@ -1587,14 +1745,19 @@ async fn run_demo_backend_connector_until(
     mut session: ControlSession,
     route: &nbsr_transport::CoreV02Envelope,
     attestations: &LocalFederationAdmissionAttestations,
-    map: &DemoBackendMap,
+    config: DemoBackendRouteConfig<'_>,
     deadline: std::time::Instant,
 ) -> Result<Vec<u8>, DemoBackendError> {
     worker_checkpoint(Some(deadline), None)?;
-    let admitted = session
-        .accept_federated_route_open(route, attestations)
+    if let Some(admission) = config.admission {
+        ensure_runtime_route_grant_binding(admission, route)?;
+    }
+    let admitted = accept_configured_route(&mut session, route, attestations, config.admission)
         .map_err(|_| DemoBackendError::StreamFailed)?;
-    ensure_demo_backend_binding(map, &admitted)?;
+    if let Some(admission) = config.admission {
+        ensure_runtime_admission_binding(admission, &admitted)?;
+    }
+    ensure_demo_backend_binding(config.backend, &admitted)?;
     let accepted = route_accept();
     session
         .select_stream_credit_profile(
@@ -1626,7 +1789,8 @@ async fn run_demo_backend_connector_until(
     .map_err(|_| DemoBackendError::TimedOut)?
     .map_err(|_| DemoBackendError::StreamFailed)?;
     let stream_id = application.id();
-    let response = relay_demo_backend_until(&mut application, map, &admitted, deadline).await;
+    let response =
+        relay_demo_backend_until(&mut application, config.backend, &admitted, deadline).await;
     let released = session
         .update(|session| session.release_stream(admitted.channel_id, stream_id))
         .map_err(|_| DemoBackendError::StreamFailed);
@@ -1638,6 +1802,15 @@ async fn run_demo_backend_connector_until(
 pub(crate) async fn run_demo_backend_server_operation_with_timeout(
     listener: &nbsr_transport::TransportListener,
     map: &DemoBackendMap,
+    timeout: Duration,
+) -> Result<Vec<u8>, DemoBackendError> {
+    run_demo_backend_server_operation_with_admission(listener, map, None, timeout).await
+}
+
+pub(crate) async fn run_demo_backend_server_operation_with_admission(
+    listener: &nbsr_transport::TransportListener,
+    map: &DemoBackendMap,
+    runtime_admission: Option<&RuntimeAdmissionConfig>,
     timeout: Duration,
 ) -> Result<Vec<u8>, DemoBackendError> {
     if timeout.is_zero() {
@@ -1655,9 +1828,14 @@ pub(crate) async fn run_demo_backend_server_operation_with_timeout(
                 .await
                 .map_err(|_| DemoBackendError::TimedOut)?
                 .map_err(|_| DemoBackendError::StreamFailed)?;
-        let admission = DestinationAdmission::new_federated(policy(), authorities())
+        let admission_policy = runtime_admission
+            .map(|config| config.policy.clone())
+            .unwrap_or_else(policy);
+        let admission = DestinationAdmission::new_federated(admission_policy, authorities())
             .map_err(|_| DemoBackendError::StreamFailed)?;
-        let trusted_issuers = vec![issuer()];
+        let trusted_issuers = runtime_admission
+            .map(|config| vec![config.trusted_issuer.clone()])
+            .unwrap_or_else(|| vec![issuer()]);
         let trust_profile =
             TrustProfileId::new("federation-dev-v1").map_err(|_| DemoBackendError::StreamFailed)?;
         let mut session =
@@ -1703,7 +1881,10 @@ pub(crate) async fn run_demo_backend_server_operation_with_timeout(
             session,
             &route,
             &attestations,
-            map,
+            DemoBackendRouteConfig {
+                backend: map,
+                admission: runtime_admission,
+            },
             deadline,
         )
         .await
@@ -2459,6 +2640,10 @@ async fn main() {
         .map(|path| load_demo_backend_map(&path))
         .transpose()
         .expect("valid pinned demo backend map");
+    let runtime_admission = optional_cli_path_strict("--runtime-admission")
+        .map(|path| load_runtime_admission_config(&path))
+        .transpose()
+        .expect("valid public runtime admission configuration");
     let destination_diagnostics = optional_cli_value("--destination-diagnostics-file");
     let diagnostic_drain_seconds = optional_cli_value("--diagnostic-drain-seconds")
         .map_or(0, |value| {
@@ -2555,9 +2740,10 @@ async fn main() {
         return;
     }
     if let Some(map) = demo_backend_map.as_ref() {
-        let response = run_demo_backend_server_operation_with_timeout(
+        let response = run_demo_backend_server_operation_with_admission(
             &listener,
             map,
+            runtime_admission.as_ref(),
             DEMO_BACKEND_OPERATION_TIMEOUT,
         )
         .await
@@ -2587,8 +2773,15 @@ async fn main() {
     }
     let connection = listener.accept_one().await.unwrap();
     let mut control = connection.accept_control_stream().await.unwrap();
-    let admission = DestinationAdmission::new_federated(policy(), authorities()).unwrap();
-    let trusted_issuers = vec![issuer()];
+    let admission_policy = runtime_admission
+        .as_ref()
+        .map(|config| config.policy.clone())
+        .unwrap_or_else(policy);
+    let admission = DestinationAdmission::new_federated(admission_policy, authorities()).unwrap();
+    let trusted_issuers = runtime_admission
+        .as_ref()
+        .map(|config| vec![config.trusted_issuer.clone()])
+        .unwrap_or_else(|| vec![issuer()]);
     let trust_profile = TrustProfileId::new("federation-dev-v1").unwrap();
     let mut session = if p2d_mode.is_some() {
         ControlSession::new_with_replay_history_limit(
@@ -2618,9 +2811,27 @@ async fn main() {
         source: fs::read(root.join("vectors/wp8-local-admission/source.cose")).unwrap(),
         destination: fs::read(root.join("vectors/wp8-local-admission/destination.cose")).unwrap(),
     };
-    let admitted_channel = session
-        .accept_federated_route_open(&route, &attestations)
-        .unwrap();
+    if runtime_admission
+        .as_ref()
+        .is_some_and(|config| ensure_runtime_route_grant_binding(config, &route).is_err())
+    {
+        return;
+    }
+    let admitted_channel = accept_configured_route(
+        &mut session,
+        &route,
+        &attestations,
+        runtime_admission.as_ref(),
+    );
+    let Ok(admitted_channel) = admitted_channel else {
+        return;
+    };
+    if runtime_admission
+        .as_ref()
+        .is_some_and(|config| ensure_runtime_admission_binding(config, &admitted_channel).is_err())
+    {
+        return;
+    }
     let channel: [u8; 16] = (0x40..0x50).collect::<Vec<_>>().try_into().unwrap();
     assert_eq!(admitted_channel.channel_id, channel);
     let accepted = route_accept();
