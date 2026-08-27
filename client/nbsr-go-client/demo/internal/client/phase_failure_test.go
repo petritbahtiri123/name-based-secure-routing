@@ -16,6 +16,7 @@ import (
 	"nbsr.local/client/nbsr-go-client/demo/internal/fixture"
 	"nbsr.local/client/nbsr-go-client/internal/corestate"
 	"nbsr.local/client/nbsr-go-client/internal/identity"
+	"nbsr.local/client/nbsr-go-client/internal/resolution"
 	"nbsr.local/client/nbsr-go-client/internal/session"
 )
 
@@ -92,7 +93,18 @@ func TestAssembledForwardingDisconnectCreatesOneStreamAndCleansExactlyOnce(t *te
 	channel := newPhaseChannelOpener(phaseChannelAccept)
 	h := newPhaseHarness(t, connector, channel)
 	connection := h.openProxyFlow(t, []byte("payload-after-accept"))
-	waitForCondition(t, time.Second, func() bool { return channel.applicationWrites.Load() >= 2 }, "accepted payload forwarding")
+	if err := <-h.routeDone; err != nil {
+		t.Fatalf("secure route did not reach forwarding: %v", err)
+	}
+	<-channel.applicationAdmitted
+	select {
+	case <-channel.payloadReached:
+	case <-channel.streamClosed:
+		t.Fatalf("application stream closed before payload forwarding (writes=%d payload=%d)", channel.applicationWrites.Load(), channel.payloadWrites.Load())
+	}
+	if channel.applicationWrites.Load() < 2 || channel.payloadWrites.Load() == 0 {
+		t.Fatalf("forwarding barrier reached with writes=%d payload=%d", channel.applicationWrites.Load(), channel.payloadWrites.Load())
+	}
 	_ = connection.Close()
 	h.waitFlowClean(t)
 	h.cancel()
@@ -109,6 +121,7 @@ type phaseHarness struct {
 	sessions  *session.Manager
 	cancel    context.CancelFunc
 	done      chan error
+	routeDone chan error
 }
 
 func newPhaseHarness(t *testing.T, connector *phaseConnector, channel *phaseChannelOpener, options ...fixture.Option) *phaseHarness {
@@ -158,7 +171,8 @@ func newPhaseHarness(t *testing.T, connector *phaseConnector, channel *phaseChan
 	if err != nil {
 		t.Fatal(err)
 	}
-	runtime, err := NewRuntime(RuntimeConfig{ListenAddress: "127.0.0.1:0", SharedSyntheticIP: netip.MustParseAddr("127.0.0.2"), NowUnix: server.NowUnix(), MaxConnections: 2, MaxRequestBytes: 4096}, demoResolutionInput(), opener)
+	routeDone := make(chan error, 1)
+	runtime, err := NewRuntime(RuntimeConfig{ListenAddress: "127.0.0.1:0", SharedSyntheticIP: netip.MustParseAddr("127.0.0.2"), NowUnix: server.NowUnix(), MaxConnections: 2, MaxRequestBytes: 4096}, demoResolutionInput(), &phaseRouteOpener{SecureRouteOpener: opener, done: routeDone})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -166,7 +180,18 @@ func newPhaseHarness(t *testing.T, connector *phaseConnector, channel *phaseChan
 	done := make(chan error, 1)
 	go func() { done <- runtime.Serve(ctx) }()
 	waitForCondition(t, time.Second, runtime.serving, "phase proxy")
-	return &phaseHarness{runtime: runtime, opener: opener, authority: authorityClient, sessions: sessions, cancel: cancel, done: done}
+	return &phaseHarness{runtime: runtime, opener: opener, authority: authorityClient, sessions: sessions, cancel: cancel, done: done, routeDone: routeDone}
+}
+
+type phaseRouteOpener struct {
+	*SecureRouteOpener
+	done chan<- error
+}
+
+func (opener *phaseRouteOpener) OpenVerifiedRoute(ctx context.Context, mapped *resolution.MappedRoute) (io.ReadWriteCloser, error) {
+	stream, err := opener.SecureRouteOpener.OpenVerifiedRoute(ctx, mapped)
+	opener.done <- err
+	return stream, err
 }
 
 func (h *phaseHarness) openProxyFlow(t *testing.T, payload []byte) net.Conn {
@@ -184,6 +209,7 @@ func (h *phaseHarness) openProxyFlow(t *testing.T, payload []byte) net.Conn {
 	}
 	return connection
 }
+
 func (h *phaseHarness) waitFlowClean(t *testing.T) {
 	t.Helper()
 	waitForCondition(t, 2*time.Second, func() bool {
@@ -248,12 +274,13 @@ type phaseChannelOpener struct {
 	mode                                                                    phaseChannelMode
 	started                                                                 chan struct{}
 	prefaceReached, allowReject, rejectionObserved                          chan struct{}
+	applicationAdmitted, payloadReached, streamClosed                       chan struct{}
 	controlWrite                                                            []byte
 	calls, applicationOpens, applicationWrites, payloadWrites, streamCloses atomic.Int32
 }
 
 func newPhaseChannelOpener(mode phaseChannelMode) *phaseChannelOpener {
-	opener := &phaseChannelOpener{mode: mode, started: make(chan struct{}, 1)}
+	opener := &phaseChannelOpener{mode: mode, started: make(chan struct{}, 1), applicationAdmitted: make(chan struct{}), payloadReached: make(chan struct{}), streamClosed: make(chan struct{})}
 	if mode == phaseChannelReject {
 		opener.prefaceReached = make(chan struct{})
 		opener.allowReject = make(chan struct{})
@@ -284,15 +311,15 @@ func (*phaseWireChannel) ChannelGeneration() uint64                         { re
 func (*phaseWireChannel) Close() error                                      { return nil }
 func (*phaseWireChannel) StreamCreditProfile() string                       { return session.StreamCreditProfileID }
 func (*phaseWireChannel) RefillStreamCredits(context.Context, uint64) error { return nil }
-func (channel *phaseWireChannel) OpenApplicationStream(ctx context.Context) (session.WireApplicationStream, error) {
+func (channel *phaseWireChannel) OpenApplicationStream(context.Context) (session.WireApplicationStream, error) {
 	channel.owner.applicationOpens.Add(1)
-	return &phaseWireStream{owner: channel.owner, accept: channel.owner.mode == phaseChannelAccept, ctx: ctx, id: 4, closed: make(chan struct{})}, nil
+	close(channel.owner.applicationAdmitted)
+	return &phaseWireStream{owner: channel.owner, accept: channel.owner.mode == phaseChannelAccept, id: 4, closed: make(chan struct{})}, nil
 }
 
 type phaseWireStream struct {
 	owner    *phaseChannelOpener
 	accept   bool
-	ctx      context.Context
 	id       corestate.StreamID
 	decision bool
 	once     sync.Once
@@ -308,9 +335,15 @@ func (stream *phaseWireStream) Write(payload []byte) (int, error) {
 		}
 	} else {
 		stream.owner.payloadWrites.Add(1)
+		select {
+		case <-stream.owner.payloadReached:
+		default:
+			close(stream.owner.payloadReached)
+		}
 	}
 	return len(payload), nil
 }
+
 func (stream *phaseWireStream) Read(payload []byte) (int, error) {
 	if !stream.decision {
 		stream.decision = true
@@ -323,14 +356,14 @@ func (stream *phaseWireStream) Read(payload []byte) (int, error) {
 		}
 		return 1, nil
 	}
-	select {
-	case <-stream.ctx.Done():
-		return 0, stream.ctx.Err()
-	case <-stream.closed:
-		return 0, io.EOF
-	}
+	<-stream.closed
+	return 0, io.EOF
 }
 func (stream *phaseWireStream) Close() error {
-	stream.once.Do(func() { stream.owner.streamCloses.Add(1); close(stream.closed) })
+	stream.once.Do(func() {
+		stream.owner.streamCloses.Add(1)
+		close(stream.closed)
+		close(stream.owner.streamClosed)
+	})
 	return nil
 }
