@@ -639,6 +639,17 @@ impl ApplicationStream {
         Ok(())
     }
 
+    /// Waits until the peer acknowledges every byte queued before the
+    /// send-side FIN. Callers that close the whole QUIC connection immediately
+    /// after a final response use this to avoid discarding that response.
+    pub async fn wait_for_send_ack(&self) -> Result<(), TransportError> {
+        let inner = self.shared.inner.lock().await;
+        match inner.send.stopped().await {
+            Ok(None) => Ok(()),
+            Ok(Some(_)) | Err(_) => Err(TransportError::ApplicationStreamFailed),
+        }
+    }
+
     pub async fn receive_payload(&mut self) -> Result<Vec<u8>, TransportError> {
         let notified = self.shared.notify.notified();
         tokio::pin!(notified);

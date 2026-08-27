@@ -8,6 +8,14 @@ import (
 	"testing"
 )
 
+func TestReservationExposesOnlyPublicBindingsForServiceChannelComposition(t *testing.T) {
+	_, reservation, _ := reservedGrant(t)
+	if reservation.RouteGrantDigest() != reservation.grant || reservation.ServiceDigest() != reservation.key.ServiceDigest ||
+		reservation.ProofThumbprint() != reservation.key.ProofThumbprint {
+		t.Fatal("reservation public binding accessors lost verified authority identity")
+	}
+}
+
 func TestConsumedGrantNeverReturnsAvailable(t *testing.T) {
 	m, r, snapshot := reservedGrant(t)
 	if _, err := m.Consume(r, AdmissionOwner{TSGeneration: r.key.TSGeneration, ChannelID: id16(1)}, snapshot, 99); err != nil {

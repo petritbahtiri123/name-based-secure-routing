@@ -1710,6 +1710,10 @@ async fn relay_demo_backend_until(
         .await
         .map_err(|_| DemoBackendError::TimedOut)?
         .map_err(|_| DemoBackendError::StreamFailed)?;
+    tokio::time::timeout_at(tokio_deadline, application.wait_for_send_ack())
+        .await
+        .map_err(|_| DemoBackendError::TimedOut)?
+        .map_err(|_| DemoBackendError::StreamFailed)?;
     application.release_buffered_payloads();
     Ok(response)
 }
@@ -1758,7 +1762,7 @@ async fn run_demo_backend_connector_until(
         ensure_runtime_admission_binding(admission, &admitted)?;
     }
     ensure_demo_backend_binding(config.backend, &admitted)?;
-    let accepted = route_accept();
+    let accepted = route_accept_for_admitted(&admitted);
     session
         .select_stream_credit_profile(
             admitted.channel_id,
@@ -1831,6 +1835,7 @@ pub(crate) async fn run_demo_backend_server_operation_with_admission(
         let admission_policy = runtime_admission
             .map(|config| config.policy.clone())
             .unwrap_or_else(policy);
+        let edge = edge_hello_for_policy(&admission_policy);
         let admission = DestinationAdmission::new_federated(admission_policy, authorities())
             .map_err(|_| DemoBackendError::StreamFailed)?;
         let trusted_issuers = runtime_admission
@@ -1851,7 +1856,6 @@ pub(crate) async fn run_demo_backend_server_operation_with_admission(
             .accept_client_hello(&client)
             .map_err(|_| DemoBackendError::StreamFailed)?;
         worker_checkpoint(Some(deadline), None)?;
-        let edge = edge_hello();
         session
             .confirm_edge_hello(&edge)
             .map_err(|_| DemoBackendError::StreamFailed)?;
@@ -2027,23 +2031,25 @@ fn envelope(
 }
 
 pub(crate) fn edge_hello() -> nbsr_transport::CoreV02Envelope {
+    edge_hello_for_policy(&policy())
+}
+
+pub(crate) fn edge_hello_for_policy(
+    admission: &AdmissionPolicy,
+) -> nbsr_transport::CoreV02Envelope {
     let mut body = Vec::new();
     map(&mut body, 7);
     field_uint(&mut body, 0, 1);
-    field_text(&mut body, 1, "source.edge");
-    field_text(&mut body, 2, "destination.edge");
+    field_text(&mut body, 1, &admission.source_edge_id);
+    field_text(&mut body, 2, &admission.destination_edge_id);
     field_bytes(&mut body, 3, &(0x60..0x80).collect::<Vec<_>>());
-    field_bytes(&mut body, 4, &(0x80..0xa0).collect::<Vec<_>>());
+    field_bytes(&mut body, 4, &admission.edge_nonce);
     field_bytes(
         &mut body,
         5,
-        &[
-            0x39, 0xf7, 0x13, 0xd0, 0xa6, 0x44, 0x25, 0x3f, 0x04, 0x52, 0x94, 0x21, 0xb9, 0xf5,
-            0x1b, 0x9b, 0x08, 0x97, 0x9d, 0x08, 0x29, 0x59, 0x59, 0xc4, 0xf3, 0x99, 0x0e, 0xe6,
-            0x17, 0xf5, 0x13, 0x9f,
-        ],
+        &<[u8; 32]>::from(Sha256::digest(admission.client_session_public_key)),
     );
-    field_uint(&mut body, 6, 1_893_456_000);
+    field_uint(&mut body, 6, admission.now);
     envelope(
         2,
         (0x00..0x10).collect::<Vec<_>>().try_into().unwrap(),
@@ -2053,20 +2059,29 @@ pub(crate) fn edge_hello() -> nbsr_transport::CoreV02Envelope {
 }
 
 pub(crate) fn route_accept() -> nbsr_transport::CoreV02Envelope {
-    let mut body = Vec::new();
-    map(&mut body, 5);
-    field_uint(&mut body, 0, 1);
-    field_bytes(&mut body, 1, &(0x40..0x50).collect::<Vec<_>>());
-    field_bytes(&mut body, 2, &(0x20..0x30).collect::<Vec<_>>());
-    field_bytes(
-        &mut body,
-        3,
-        &[
+    route_accept_for_admitted(&nbsr_transport::ActiveChannel {
+        channel_id: (0x40..0x50).collect::<Vec<_>>().try_into().unwrap(),
+        route_id: (0x20..0x30).collect::<Vec<_>>().try_into().unwrap(),
+        service_id: "service.example".into(),
+        route_grant_digest: [
             0xf6, 0x09, 0x00, 0x54, 0xa8, 0x32, 0xc5, 0x59, 0xb2, 0x8b, 0xba, 0x38, 0x6f, 0x78,
             0x61, 0x65, 0x57, 0xce, 0x13, 0xaf, 0x39, 0xe1, 0xa9, 0x5d, 0x3d, 0xff, 0x9e, 0x1f,
             0x7b, 0xa9, 0x68, 0x60,
         ],
-    );
+        transport: "tcp".into(),
+        port: 8443,
+    })
+}
+
+pub(crate) fn route_accept_for_admitted(
+    admitted: &nbsr_transport::ActiveChannel,
+) -> nbsr_transport::CoreV02Envelope {
+    let mut body = Vec::new();
+    map(&mut body, 5);
+    field_uint(&mut body, 0, 1);
+    field_bytes(&mut body, 1, &admitted.channel_id);
+    field_bytes(&mut body, 2, &admitted.route_id);
+    field_bytes(&mut body, 3, &admitted.route_grant_digest);
     field_uint(&mut body, 4, 1_893_456_000);
     envelope(
         4,
@@ -2777,6 +2792,7 @@ async fn main() {
         .as_ref()
         .map(|config| config.policy.clone())
         .unwrap_or_else(policy);
+    let edge = edge_hello_for_policy(&admission_policy);
     let admission = DestinationAdmission::new_federated(admission_policy, authorities()).unwrap();
     let trusted_issuers = runtime_admission
         .as_ref()
@@ -2799,7 +2815,6 @@ async fn main() {
         .await
         .unwrap();
     session.accept_client_hello(&client).unwrap();
-    let edge = edge_hello();
     session.confirm_edge_hello(&edge).unwrap();
     control.send_envelope(&edge).await.unwrap();
     let route = control

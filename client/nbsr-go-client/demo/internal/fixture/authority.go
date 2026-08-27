@@ -23,7 +23,9 @@ import (
 	"sync"
 	"time"
 
+	"nbsr.local/client/nbsr-go-client/demo/internal/bootstrap"
 	"nbsr.local/client/nbsr-go-client/internal/authority"
+	"nbsr.local/client/nbsr-go-client/internal/corestate"
 	"nbsr.local/client/nbsr-go-client/internal/identity"
 	"nbsr.local/client/nbsr-go-client/internal/resolution"
 	"nbsr.local/client/nbsr-go-client/internal/session"
@@ -98,26 +100,55 @@ func (a *Authority) DecideAuthority(ctx context.Context, request authority.Verif
 }
 
 type Server struct {
-	authority    *Authority
-	endpoint     string
-	clientTLS    *tls.Config
-	deviceSigner identity.Signer
-	issuers      *authority.StaticIssuerResolver
-	checkpoint   authority.CheckpointClaims
-	runtime      *authority.SourceOperatorRuntime
-	http         *http.Server
-	listener     net.Listener
-	store        *authority.FileIdempotencyStore
-	runtimeView  *session.DestinationRouteView
-	routeIssuer  authority.IssuerRecord
-	mu           sync.Mutex
-	lastTLS      tls.ConnectionState
-	closeOnce    sync.Once
-	release      chan struct{}
+	authority     *Authority
+	endpoint      string
+	clientTLS     *tls.Config
+	deviceSigner  identity.Signer
+	issuers       *authority.StaticIssuerResolver
+	checkpoint    authority.CheckpointClaims
+	runtime       *authority.SourceOperatorRuntime
+	http          *http.Server
+	listener      net.Listener
+	store         *authority.FileIdempotencyStore
+	runtimeView   *session.DestinationRouteView
+	routeIssuer   authority.IssuerRecord
+	issuerRecords []authority.IssuerRecord
+	devicePrivate ed25519.PrivateKey
+	caPEM         []byte
+	mu            sync.Mutex
+	lastTLS       tls.ConnectionState
+	closeOnce     sync.Once
+	release       chan struct{}
 }
 
 func Start(runtimeDir string, opts ...Option) (*Server, error) {
 	return StartAt(runtimeDir, "127.0.0.1:0", opts...)
+}
+
+// StartStandaloneAt creates local demo enrolled-client artifacts alongside an
+// external ACP process. The artifacts are filesystem bootstrap state, never an
+// ACP response and never production enrollment.
+func StartStandaloneAt(runtimeDir, listenAddress, bootstrapRoot string) (*Server, error) {
+	request, _, _, _, err := makeRequest()
+	if err != nil {
+		return nil, err
+	}
+	public, private, err := ed25519.GenerateKey(rand.Reader)
+	if err != nil {
+		return nil, err
+	}
+	request.Key.ProofThumbprint = authority.ProofKeyThumbprint(sha256.Sum256(public))
+	view := session.DestinationRouteView{ServiceIdentity: request.Intent.ServiceIdentity, ServiceDigest: corestate.ServiceDigest(request.Key.ServiceDigest), Intent: request.Intent, ProofThumbprint: request.Key.ProofThumbprint}
+	copy(view.ProofPublicKey[:], public)
+	server, err := StartAt(runtimeDir, listenAddress, WithRouteInputs(request, view))
+	if err != nil {
+		return nil, err
+	}
+	if err := server.ExportClientBootstrap(bootstrapRoot, private); err != nil {
+		server.Close()
+		return nil, err
+	}
+	return server, nil
 }
 
 func StartAt(runtimeDir, listenAddress string, opts ...Option) (*Server, error) {
@@ -133,7 +164,7 @@ func StartAt(runtimeDir, listenAddress string, opts ...Option) (*Server, error) 
 	if err := os.MkdirAll(runtimeDir, 0o700); err != nil {
 		return nil, err
 	}
-	request, deviceSigner, deviceRecord, err := makeRequest()
+	request, deviceSigner, devicePrivate, deviceRecord, err := makeRequest()
 	if err != nil {
 		return nil, err
 	}
@@ -214,7 +245,7 @@ func StartAt(runtimeDir, listenAddress string, opts ...Option) (*Server, error) 
 		_ = store.Close()
 		return nil, err
 	}
-	cert, roots, err := generateTLS(runtimeDir)
+	cert, roots, caPEM, err := generateTLS(runtimeDir)
 	if err != nil {
 		_ = runtime.Close()
 		_ = store.Close()
@@ -229,7 +260,7 @@ func StartAt(runtimeDir, listenAddress string, opts ...Option) (*Server, error) 
 		view := *cfg.runtimeView
 		runtimeView = &view
 	}
-	s := &Server{authority: authz, endpoint: "https://" + listener.Addr().String(), clientTLS: &tls.Config{RootCAs: roots, ServerName: "nbsr-demo-acp", MinVersion: tls.VersionTLS13, MaxVersion: tls.VersionTLS13, NextProtos: []string{"h2"}}, deviceSigner: deviceSigner, issuers: issuers, checkpoint: authority.CheckpointClaims{SourceOperator: request.Key.SourceOperator, Profile: request.Key.Profile, Generation: request.Key.AuthorityGeneration, IssuedAt: fixedNow - 1, FreshUntil: fixedNow + 300, Digest: authority.CheckpointDigest{7}}, runtime: runtime, listener: listener, store: store, runtimeView: runtimeView, routeIssuer: routeIssuer, release: release}
+	s := &Server{authority: authz, endpoint: "https://" + listener.Addr().String(), clientTLS: &tls.Config{RootCAs: roots, ServerName: "nbsr-demo-acp", MinVersion: tls.VersionTLS13, MaxVersion: tls.VersionTLS13, NextProtos: []string{"h2"}}, deviceSigner: deviceSigner, devicePrivate: devicePrivate, issuers: issuers, issuerRecords: []authority.IssuerRecord{routeIssuer, acpIssuer}, checkpoint: authority.CheckpointClaims{SourceOperator: request.Key.SourceOperator, Profile: request.Key.Profile, Generation: request.Key.AuthorityGeneration, IssuedAt: fixedNow - 1, FreshUntil: fixedNow + 300, Digest: authority.CheckpointDigest{7}}, runtime: runtime, listener: listener, store: store, runtimeView: runtimeView, routeIssuer: routeIssuer, caPEM: caPEM, release: release}
 	httpServer, err := authority.NewSourceOperatorHTTPServer(listener.Addr().String(), runtime, &tls.Config{Certificates: []tls.Certificate{cert}})
 	if err != nil {
 		return nil, err
@@ -272,6 +303,18 @@ func (s *Server) Issuers() *authority.StaticIssuerResolver     { return s.issuer
 func (s *Server) CheckpointClaims() authority.CheckpointClaims { return s.checkpoint }
 func (s *Server) NowUnix() uint64                              { return fixedNow }
 func (s *Server) LastTLS() tls.ConnectionState                 { s.mu.Lock(); defer s.mu.Unlock(); return s.lastTLS }
+func (s *Server) RouteIssuerTrust() ([]byte, [32]byte) {
+	if s == nil {
+		return nil, [32]byte{}
+	}
+	return append([]byte(nil), s.routeIssuer.KID...), s.routeIssuer.PublicKey
+}
+func (s *Server) ExportClientBootstrap(root string, tsPrivate ed25519.PrivateKey) error {
+	if s == nil || len(tsPrivate) != ed25519.PrivateKeySize {
+		return errors.New("invalid demo client bootstrap")
+	}
+	return bootstrap.Write(root, bootstrap.PublicArtifact{Schema: "nbsr-demo-client-bootstrap-v1", Classification: bootstrap.Classification, Endpoint: s.endpoint, ServerName: "nbsr-demo-acp", CAFile: "acp-ca.pem", SecretFile: "client-secret.json", NowUnix: fixedNow, AcquireTemplate: s.AcquireRequest(), Issuers: append([]authority.IssuerRecord(nil), s.issuerRecords...), Checkpoint: s.checkpoint, RouteIssuerKID: append([]byte(nil), s.routeIssuer.KID...), RouteIssuerPublic: s.routeIssuer.PublicKey}, bootstrap.SecretArtifact{Schema: "nbsr-demo-client-secret-v1", Classification: bootstrap.Classification, DeviceKeyRef: s.deviceSigner.KeyRef(), DevicePrivate: append([]byte(nil), s.devicePrivate...), TSProofPrivate: append([]byte(nil), tsPrivate...)}, append([]byte(nil), s.caPEM...))
+}
 
 func (s *Server) PublicRuntimeAdmissionConfig(edgeNonce [32]byte) ([]byte, error) {
 	if s == nil || s.runtimeView == nil || edgeNonce == ([32]byte{}) || len(s.runtimeView.Intent.TargetEdges) != 1 {
@@ -287,10 +330,10 @@ func (s *Server) PublicRuntimeAdmissionConfig(edgeNonce [32]byte) ([]byte, error
 	)), nil
 }
 
-func makeRequest() (authority.AcquireRequest, identity.Signer, authority.DeviceACPRequestKey, error) {
+func makeRequest() (authority.AcquireRequest, identity.Signer, ed25519.PrivateKey, authority.DeviceACPRequestKey, error) {
 	public, private, err := ed25519.GenerateKey(rand.Reader)
 	if err != nil {
-		return authority.AcquireRequest{}, nil, authority.DeviceACPRequestKey{}, err
+		return authority.AcquireRequest{}, nil, nil, authority.DeviceACPRequestKey{}, err
 	}
 	thumb := sha256.Sum256(public)
 	id := sha256.Sum256([]byte("nbsr-demo-device-v1"))
@@ -298,13 +341,13 @@ func makeRequest() (authority.AcquireRequest, identity.Signer, authority.DeviceA
 	ref := identity.KeyRef{ID: keyID, Purpose: identity.PurposeDeviceACPRequest, Generation: 1, Thumbprint: thumb}
 	signer, err := identity.NewMemorySigner(ref, private)
 	if err != nil {
-		return authority.AcquireRequest{}, nil, authority.DeviceACPRequestKey{}, err
+		return authority.AcquireRequest{}, nil, nil, authority.DeviceACPRequestKey{}, err
 	}
 	canonical := []byte("demo route intent for service-a.nbsr.test")
 	intent := authority.RouteIntent{Canonical: canonical, Digest: authority.RouteIntentDigest(sha256.Sum256(canonical)), ServiceIdentity: "nbsr-demo-service-a-v1", SourceOperator: "source.operator", SourceEdge: "source.edge", TargetOperator: "destination.operator", TargetEdges: []string{"destination.edge"}, Transport: "tcp", Port: 8080, RecordSequence: 1, PolicyHash: authority.PolicyDigest(sha256.Sum256([]byte("demo-policy-v1"))), RouteID: [16]byte{1}, LeaseID: [16]byte{2}, ExpiresAt: fixedNow + 300}
 	name, err := resolution.CanonicalizePresentationName("service-a.nbsr.test")
 	if err != nil {
-		return authority.AcquireRequest{}, nil, authority.DeviceACPRequestKey{}, err
+		return authority.AcquireRequest{}, nil, nil, authority.DeviceACPRequestKey{}, err
 	}
 	serviceDigest := authority.ServiceDigest(resolution.DigestCanonicalName(name))
 	key := authority.AuthorityKey{IntentDigest: intent.Digest, ServiceDigest: serviceDigest, SourceOperator: intent.SourceOperator, SourceEdge: intent.SourceEdge, TargetOperator: intent.TargetOperator, TargetEdgeSetDigest: authority.TargetEdgeSetDigest(intent.TargetEdges), Profile: "nbsr-federation-dev-v1", Transport: "tcp", Port: 8080, DeviceID: id, DeviceGeneration: 1, TSGeneration: 2, ProofThumbprint: authority.ProofKeyThumbprint(sha256.Sum256([]byte("demo-proof-v1"))), PolicyHash: intent.PolicyHash, PolicyGeneration: 1, AuthorityGeneration: 7}
@@ -313,7 +356,7 @@ func makeRequest() (authority.AcquireRequest, identity.Signer, authority.DeviceA
 	var pub [32]byte
 	copy(pub[:], public)
 	record := authority.DeviceACPRequestKey{KID: keyID, PublicKey: pub, Purpose: identity.PurposeDeviceACPRequest, KeyGeneration: 1, DeviceID: id, CredentialGeneration: 1, CredentialNotBefore: device.CredentialNotBefore, CredentialExpiresAt: device.CredentialExpiresAt, SourceOperator: key.SourceOperator, Thumbprint: thumb, NotBefore: fixedNow - 10, ExpiresAt: fixedNow + 600}
-	return request, signer, record, nil
+	return request, signer, append(ed25519.PrivateKey(nil), private...), record, nil
 }
 
 type staticDeviceResolver struct{ record authority.DeviceACPRequestKey }
@@ -355,34 +398,34 @@ func sameIntent(a, b authority.RouteIntent) bool {
 	return a.Digest == b.Digest && a.ServiceIdentity == b.ServiceIdentity && a.SourceOperator == b.SourceOperator && a.SourceEdge == b.SourceEdge && a.TargetOperator == b.TargetOperator && a.Transport == b.Transport && a.Port == b.Port && a.RecordSequence == b.RecordSequence && a.PolicyHash == b.PolicyHash && a.RouteID == b.RouteID && a.LeaseID == b.LeaseID && a.ExpiresAt == b.ExpiresAt && len(a.TargetEdges) == len(b.TargetEdges) && len(a.TargetEdges) == 1 && a.TargetEdges[0] == b.TargetEdges[0]
 }
 
-func generateTLS(dir string) (tls.Certificate, *x509.CertPool, error) {
+func generateTLS(dir string) (tls.Certificate, *x509.CertPool, []byte, error) {
 	key, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
-		return tls.Certificate{}, nil, err
+		return tls.Certificate{}, nil, nil, err
 	}
 	serial, _ := rand.Int(rand.Reader, new(big.Int).Lsh(big.NewInt(1), 120))
 	now := time.Now()
 	template := x509.Certificate{SerialNumber: serial, Subject: pkix.Name{CommonName: "nbsr-demo-acp"}, DNSNames: []string{"nbsr-demo-acp"}, NotBefore: now.Add(-time.Minute), NotAfter: now.Add(time.Hour), KeyUsage: x509.KeyUsageDigitalSignature | x509.KeyUsageKeyEncipherment, ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth}, BasicConstraintsValid: true}
 	der, err := x509.CreateCertificate(rand.Reader, &template, &template, &key.PublicKey, key)
 	if err != nil {
-		return tls.Certificate{}, nil, err
+		return tls.Certificate{}, nil, nil, err
 	}
 	certPEM := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: der})
 	keyPEM := pem.EncodeToMemory(&pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(key)})
 	certPath, keyPath := filepath.Join(dir, "acp-cert.pem"), filepath.Join(dir, "acp-key.pem")
 	if err = os.WriteFile(certPath, certPEM, 0o644); err != nil {
-		return tls.Certificate{}, nil, err
+		return tls.Certificate{}, nil, nil, err
 	}
 	if err = os.WriteFile(keyPath, keyPEM, 0o600); err != nil {
-		return tls.Certificate{}, nil, err
+		return tls.Certificate{}, nil, nil, err
 	}
 	pair, err := tls.X509KeyPair(certPEM, keyPEM)
 	if err != nil {
-		return tls.Certificate{}, nil, err
+		return tls.Certificate{}, nil, nil, err
 	}
 	roots := x509.NewCertPool()
 	if !roots.AppendCertsFromPEM(certPEM) {
-		return tls.Certificate{}, nil, errors.New("failed to trust demo certificate")
+		return tls.Certificate{}, nil, nil, errors.New("failed to trust demo certificate")
 	}
-	return pair, roots, nil
+	return pair, roots, certPEM, nil
 }

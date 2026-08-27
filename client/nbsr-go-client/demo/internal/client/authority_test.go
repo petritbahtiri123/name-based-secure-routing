@@ -78,6 +78,22 @@ func TestRuntimeRouteBindingUsesActualProofThroughHTTPManagerAndVerifier(t *test
 	}
 }
 
+func TestAuthorityClientCanUseProcessBootstrapWithoutFixtureServerReference(t *testing.T) {
+	server, err := fixture.Start(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer server.Close()
+	client, err := NewAuthorityClientFromConfig(AuthorityClientConfig{Endpoint: server.Endpoint(), TLSConfig: server.ClientTLSConfig(), SourceOperator: server.AcquireRequest().Key.SourceOperator, Profile: server.AcquireRequest().Key.Profile, DeviceID: server.AcquireRequest().Key.DeviceID, DeviceGeneration: server.AcquireRequest().Key.DeviceGeneration, DeviceSigner: server.DeviceSigner(), Issuers: server.Issuers(), Checkpoint: server.CheckpointClaims(), NowUnix: server.NowUnix()})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer client.Close()
+	if _, err := client.AcquireRoute(context.Background(), server.AcquireRequest()); err != nil {
+		t.Fatal(err)
+	}
+}
+
 func TestAcquireRouteFailsClosedForAuthorityMutations(t *testing.T) {
 	for _, tc := range []struct {
 		name string

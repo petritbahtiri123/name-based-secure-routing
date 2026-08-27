@@ -233,6 +233,11 @@ func (reservation Reservation) TSGeneration() TSGeneration          { return res
 func (reservation Reservation) AuthorityGeneration() AuthorityGeneration {
 	return reservation.key.AuthorityGeneration
 }
+func (reservation Reservation) RouteGrantDigest() RouteGrantDigest { return reservation.grant }
+func (reservation Reservation) ServiceDigest() ServiceDigest       { return reservation.key.ServiceDigest }
+func (reservation Reservation) ProofThumbprint() ProofKeyThumbprint {
+	return reservation.key.ProofThumbprint
+}
 
 type Usage struct {
 	CacheEntries, PendingCalls, PendingWaiters, RequestRecords int

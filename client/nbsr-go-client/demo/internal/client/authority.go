@@ -8,6 +8,7 @@ import (
 
 	"nbsr.local/client/nbsr-go-client/demo/internal/fixture"
 	"nbsr.local/client/nbsr-go-client/internal/authority"
+	"nbsr.local/client/nbsr-go-client/internal/identity"
 )
 
 type Option func(*options)
@@ -21,6 +22,18 @@ type AuthorityClient struct {
 	now      uint64
 }
 
+type AuthorityClientConfig struct {
+	Endpoint                string
+	TLSConfig               *tls.Config
+	SourceOperator, Profile string
+	DeviceID                [32]byte
+	DeviceGeneration        uint64
+	DeviceSigner            identity.Signer
+	Issuers                 *authority.StaticIssuerResolver
+	Checkpoint              authority.CheckpointClaims
+	NowUnix                 uint64
+}
+
 func NewAuthorityClient(server *fixture.Server, opts ...Option) (*AuthorityClient, error) {
 	var cfg options
 	for _, apply := range opts {
@@ -30,22 +43,30 @@ func NewAuthorityClient(server *fixture.Server, opts ...Option) (*AuthorityClien
 	if cfg.tls != nil {
 		tlsConfig = cfg.tls.Clone()
 	}
+	request := server.AcquireRequest()
+	return NewAuthorityClientFromConfig(AuthorityClientConfig{Endpoint: server.Endpoint(), TLSConfig: tlsConfig, SourceOperator: request.Key.SourceOperator, Profile: request.Key.Profile, DeviceID: request.Key.DeviceID, DeviceGeneration: request.Key.DeviceGeneration, DeviceSigner: server.DeviceSigner(), Issuers: server.Issuers(), Checkpoint: server.CheckpointClaims(), NowUnix: server.NowUnix()})
+}
+
+func NewAuthorityClientFromConfig(config AuthorityClientConfig) (*AuthorityClient, error) {
+	if config.Endpoint == "" || config.TLSConfig == nil || config.DeviceSigner == nil || config.Issuers == nil || config.NowUnix == 0 {
+		return nil, authority.ErrInvalidAuthority
+	}
 	requestIDs := &requestIDs{}
-	provider, err := authority.NewHTTPProvider(authority.HTTPProviderConfig{Endpoint: server.Endpoint(), TLSConfig: tlsConfig, SourceOperator: server.AcquireRequest().Key.SourceOperator, Profile: server.AcquireRequest().Key.Profile, Signer: server.DeviceSigner(), ResultIssuers: server.Issuers(), RequestIDs: requestIDs, Options: authority.HTTPProviderOptions{MaxAttempts: 1, MaxConcurrent: 4, AttemptTimeout: 2 * time.Second}, NowUnix: server.NowUnix})
+	provider, err := authority.NewHTTPProvider(authority.HTTPProviderConfig{Endpoint: config.Endpoint, TLSConfig: config.TLSConfig.Clone(), SourceOperator: config.SourceOperator, Profile: config.Profile, Signer: config.DeviceSigner, ResultIssuers: config.Issuers, RequestIDs: requestIDs, Options: authority.HTTPProviderOptions{MaxAttempts: 1, MaxConcurrent: 4, AttemptTimeout: 2 * time.Second}, NowUnix: func() uint64 { return config.NowUnix }})
 	if err != nil {
 		return nil, err
 	}
-	verifier, err := authority.NewVerifier(server.Issuers())
-	if err != nil {
-		_ = provider.Close()
-		return nil, err
-	}
-	manager, err := authority.NewManager(authority.Limits{MaxCacheEntries: 8, MaxPending: 4, MaxWaitersPerPending: 4, MaxRequestRecords: 64, MaxCacheBytes: 1 << 20, MaxPendingBytes: 1 << 20, MaxRequestBytes: 1 << 20, MaxGrantBytes: 128 << 10, MaxCheckpointEvidenceBytes: 1024, MaxServiceIdentityBytes: 128}, fixedClock{server.NowUnix()}, provider, verifier, checkpointVerifier{claims: server.CheckpointClaims()}, authority.NewMemoryGenerationFloorStore(1024), discardObserver{})
+	verifier, err := authority.NewVerifier(config.Issuers)
 	if err != nil {
 		_ = provider.Close()
 		return nil, err
 	}
-	freshness := authority.FreshnessRequest{SourceOperator: server.AcquireRequest().Key.SourceOperator, Profile: server.AcquireRequest().Key.Profile, DeviceID: server.AcquireRequest().Key.DeviceID, DeviceGeneration: server.AcquireRequest().Key.DeviceGeneration, DeadlineUnix: server.NowUnix() + 30}
+	manager, err := authority.NewManager(authority.Limits{MaxCacheEntries: 8, MaxPending: 4, MaxWaitersPerPending: 4, MaxRequestRecords: 64, MaxCacheBytes: 1 << 20, MaxPendingBytes: 1 << 20, MaxRequestBytes: 1 << 20, MaxGrantBytes: 128 << 10, MaxCheckpointEvidenceBytes: 1024, MaxServiceIdentityBytes: 128}, fixedClock{config.NowUnix}, provider, verifier, checkpointVerifier{claims: config.Checkpoint}, authority.NewMemoryGenerationFloorStore(1024), discardObserver{})
+	if err != nil {
+		_ = provider.Close()
+		return nil, err
+	}
+	freshness := authority.FreshnessRequest{SourceOperator: config.SourceOperator, Profile: config.Profile, DeviceID: config.DeviceID, DeviceGeneration: config.DeviceGeneration, DeadlineUnix: config.NowUnix + 30}
 	supplied, err := provider.Freshness(context.Background(), freshness)
 	if err != nil {
 		_ = manager.Close()
@@ -55,7 +76,7 @@ func NewAuthorityClient(server *fixture.Server, opts ...Option) (*AuthorityClien
 		_ = manager.Close()
 		return nil, err
 	}
-	return &AuthorityClient{manager: manager, provider: provider, now: server.NowUnix()}, nil
+	return &AuthorityClient{manager: manager, provider: provider, now: config.NowUnix}, nil
 }
 
 func (c *AuthorityClient) AcquireRoute(ctx context.Context, request authority.AcquireRequest) (authority.Reservation, error) {

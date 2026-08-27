@@ -1,6 +1,7 @@
 package fixture
 
 import (
+	"bytes"
 	"context"
 	"crypto/ed25519"
 	"crypto/sha256"
@@ -12,6 +13,23 @@ import (
 	"nbsr.local/client/nbsr-go-client/internal/corestate"
 	"nbsr.local/client/nbsr-go-client/internal/session"
 )
+
+func TestRouteIssuerTrustIsPublicOnlyAndDefensivelyCopied(t *testing.T) {
+	server, err := Start(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(server.Close)
+	kid, public := server.RouteIssuerTrust()
+	if len(kid) == 0 || public == ([32]byte{}) {
+		t.Fatal("missing public RouteGrant issuer trust")
+	}
+	kid[0] ^= 1
+	again, _ := server.RouteIssuerTrust()
+	if bytes.Equal(kid, again) {
+		t.Fatal("caller mutated fixture issuer KID")
+	}
+}
 
 func TestAuthorityFixtureSignsOnlyExactCatalogRequest(t *testing.T) {
 	server, err := Start(t.TempDir())
@@ -26,7 +44,7 @@ func TestAuthorityFixtureSignsOnlyExactCatalogRequest(t *testing.T) {
 }
 
 func TestAuthorityFixtureAcceptsMappingOwnedRuntimeRouteAndActualProof(t *testing.T) {
-	request, _, _, err := makeRequest()
+	request, _, _, _, err := makeRequest()
 	if err != nil {
 		t.Fatal(err)
 	}

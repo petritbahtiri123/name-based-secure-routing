@@ -14,51 +14,119 @@ import (
 )
 
 func main() {
-	listen, runtime, err := parseArgs(os.Args[1:])
+	options, err := parseArgs(os.Args[1:])
 	if err != nil {
 		os.Exit(2)
 	}
-	server, err := fixture.StartAt(runtime, listen)
-	if err != nil {
+	if err := run(options); err != nil {
 		os.Exit(1)
+	}
+}
+
+func run(options commandOptions) error {
+	server, err := start(options)
+	if err != nil {
+		return err
 	}
 	defer server.Close()
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 	<-ctx.Done()
+	return nil
+}
+
+func start(options commandOptions) (*fixture.Server, error) {
+	runtimeRoot, err := filepath.Abs(options.runtime)
+	if err != nil {
+		return nil, err
+	}
+	bootstrapRoot := ""
+	if options.bootstrap != "" {
+		bootstrapRoot, err = filepath.Abs(options.bootstrap)
+		if err != nil {
+			return nil, err
+		}
+	}
+	admissionPath := ""
+	if options.admission != "" {
+		admissionPath, err = filepath.Abs(options.admission)
+		if err != nil {
+			return nil, err
+		}
+	}
+	var server *fixture.Server
+	if options.bootstrap == "" {
+		server, err = fixture.StartAt(runtimeRoot, options.listen)
+	} else {
+		server, err = fixture.StartStandaloneAt(runtimeRoot, options.listen, bootstrapRoot)
+	}
+	if err != nil {
+		return nil, err
+	}
+	if options.admission != "" {
+		var nonce [32]byte
+		for index := range nonce {
+			nonce[index] = 0x80 + byte(index)
+		}
+		raw, exportErr := server.PublicRuntimeAdmissionConfig(nonce)
+		if exportErr != nil {
+			server.Close()
+			return nil, exportErr
+		}
+		if err := os.WriteFile(admissionPath, raw, 0o600); err != nil {
+			server.Close()
+			return nil, err
+		}
+	}
+	return server, nil
 }
 
 func validateArgs(args []string) error {
-	_, _, err := parseArgs(args)
+	_, err := parseArgs(args)
 	return err
 }
 
-func parseArgs(args []string) (string, string, error) {
-	var listen, runtime string
+type commandOptions struct{ listen, runtime, bootstrap, admission string }
+
+func parseArgs(args []string) (commandOptions, error) {
+	var options commandOptions
 	for index := 0; index < len(args); index += 2 {
 		if index+1 >= len(args) {
-			return "", "", errors.New("missing argument value")
+			return commandOptions{}, errors.New("missing argument value")
 		}
 		switch args[index] {
 		case "--listen":
-			listen = args[index+1]
+			options.listen = args[index+1]
 		case "--runtime":
-			runtime = args[index+1]
+			options.runtime = args[index+1]
+		case "--client-bootstrap":
+			options.bootstrap = args[index+1]
+		case "--runtime-admission":
+			options.admission = args[index+1]
 		default:
-			return "", "", errors.New("unknown argument")
+			return commandOptions{}, errors.New("unknown argument")
 		}
 	}
-	host, port, err := net.SplitHostPort(listen)
+	host, port, err := net.SplitHostPort(options.listen)
 	if err != nil || port == "" {
-		return "", "", errors.New("invalid listen address")
+		return commandOptions{}, errors.New("invalid listen address")
 	}
 	address, err := netip.ParseAddr(host)
 	if err != nil || !address.IsLoopback() {
-		return "", "", errors.New("ACP must bind to loopback")
+		return commandOptions{}, errors.New("ACP must bind to loopback")
 	}
-	clean := filepath.ToSlash(filepath.Clean(runtime))
+	clean := filepath.ToSlash(filepath.Clean(options.runtime))
 	if clean != "test-results/nbsr-demo/runtime" {
-		return "", "", errors.New("invalid demo runtime directory")
+		return commandOptions{}, errors.New("invalid demo runtime directory")
 	}
-	return listen, runtime, nil
+	if options.bootstrap != "" && filepath.ToSlash(filepath.Clean(options.bootstrap)) != "test-results/nbsr-demo/runtime/client-bootstrap" {
+		return commandOptions{}, errors.New("invalid demo client bootstrap directory")
+	}
+	if options.admission != "" && filepath.ToSlash(filepath.Clean(options.admission)) != "test-results/nbsr-demo/runtime/runtime-admission.conf" {
+		return commandOptions{}, errors.New("invalid runtime admission path")
+	}
+	if options.admission != "" && options.bootstrap == "" {
+		return commandOptions{}, errors.New("runtime admission requires standalone bootstrap")
+	}
+	return options, nil
 }
