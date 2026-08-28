@@ -2,6 +2,19 @@
 
 # NBSR implementation status
 
+**NBSR END-TO-END DEMO COMPLETE (scoped local demo):** the Windows loopback,
+explicit HTTP CONNECT proxy path for `service-a.nbsr.test:8080` is implemented
+and backed by the Task 7 allowlisted evidence package. The demonstrated route
+uses canonical name correlation, immutable Mapping/FlowContext state, verified
+ACP authority, a real QUIC v1 Transport Session, independently authorized
+Service Channel, Stream Credit, Application Stream, Rust destination admission,
+and one destination-private backend response. The mandatory fail-closed matrix,
+zero fallback/replay, cleanup, privacy, and Tranche 6 shared-IP/same-port
+isolation regression pass. This status is limited to the local explicit-proxy
+demo described in [`nbsr-end-to-end-demo.md`](../demo/nbsr-end-to-end-demo.md);
+it is not NBSR production completion, transparent routing, a production
+resolver/enrollment/federation deployment, or a performance/scalability claim.
+
 **WP8 Task 10B (evidence complete; ready for human approval):** F75 ROUTE_OPEN v2, the sealed Rust
 Federation authorization boundary, and a live same-Rust two-operator Quinn
 route/channel/application-stream path are implemented. Python/Node/Go semantic
