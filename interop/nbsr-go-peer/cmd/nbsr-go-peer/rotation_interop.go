@@ -12,11 +12,11 @@ import (
 	"path/filepath"
 	"time"
 
-	"nbsr.local/client/nbsr-go-client/streamclient"
 	"nbsr.local/interop/nbsr-go-peer/internal/authority"
 	"nbsr.local/interop/nbsr-go-peer/internal/cbor"
 	"nbsr.local/interop/nbsr-go-peer/internal/core"
 	"nbsr.local/interop/nbsr-go-peer/internal/state"
+	streamclient "nbsr.local/interop/nbsr-go-peer/internal/streamowner"
 	"nbsr.local/interop/nbsr-go-peer/wirepeer"
 )
 

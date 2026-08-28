@@ -29,8 +29,8 @@ use interop_server::{
     load_runtime_admission_config, open_verified_executable_for_test, policy, relay_demo_backend,
     relay_demo_backend_with_timeout, route_accept, run_demo_backend, run_demo_backend_connector,
     run_demo_backend_server_operation_with_timeout, run_demo_backend_with_thread_failure,
-    run_demo_backend_with_timeout, verified_executable_spawn_path_for_test,
-    verify_executable_with_limit_for_test,
+    run_demo_backend_with_timeout, runtime_route_grant_service_digest,
+    verified_executable_spawn_path_for_test, verify_executable_with_limit_for_test,
 };
 
 fn runtime_admission_text() -> String {
@@ -149,9 +149,8 @@ fn historical_runtime_admission_text(trusted: &RouteGrantIssuer) -> String {
         .authorized_services
         .get("service.example")
         .unwrap();
-    let service_digest = federated_route_open()
-        .validated_route_grant_service_digest(&[issuer()])
-        .unwrap();
+    let service_digest =
+        runtime_route_grant_service_digest(&federated_route_open(), &issuer()).unwrap();
     let proof_thumbprint: [u8; 32] = Sha256::digest(admission.client_session_public_key).into();
     format!(
         "NBSR-RUNTIME-ADMISSION-v1\nsource_operator={}\nsource_edge={}\ndestination_operator={}\ndestination_edge={}\nservice_identity=service.example\nservice_digest={}\ntransport=tcp\nport=8443\nrecord_sequence={}\npolicy_hash={}\nnow={}\nproof_thumbprint={}\nproof_public_key={}\nedge_nonce={}\nissuer_kid={}\nissuer_public_key={}\n",

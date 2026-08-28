@@ -115,7 +115,6 @@ pub(crate) struct ValidatedRouteOpen {
     pub proof_signature: [u8; 64],
     pub grant_wire: Vec<u8>,
     pub grant: RouteGrantClaims,
-    pub service_digest: [u8; 32],
     pub federation_binding: Option<FederationBinding>,
 }
 
@@ -281,13 +280,6 @@ fn encode_major_argument(target: &mut Vec<u8>, major: u8, value: u64) -> Result<
 }
 
 impl CoreV02Envelope {
-    pub fn validated_route_grant_service_digest(
-        &self,
-        trusted_issuers: &[RouteGrantIssuer],
-    ) -> Result<[u8; 32], CoreV02Reject> {
-        Ok(self.validated_route_open(trusted_issuers)?.service_digest)
-    }
-
     pub fn federation_binding(&self) -> Result<FederationBinding, CoreV02Reject> {
         if self.message_type != CoreV02MessageType::RouteOpen {
             return Err(CoreV02Reject::ProfileUnsupported);
@@ -386,7 +378,7 @@ impl CoreV02Envelope {
         let body_version = uint(required(body, 0)?)?;
         let grant_wire = bytes(required(body, 2)?)?.to_vec();
         let validated = validate_route_grant_sign1(&grant_wire, trusted_issuers)?;
-        let (grant, service_digest) = decode_route_grant_claims(&validated.payload)?;
+        let grant = decode_route_grant_claims(&validated.payload)?;
         Ok(ValidatedRouteOpen {
             body_version,
             request_id: fixed_bytes(required(envelope, 2)?)?,
@@ -401,7 +393,6 @@ impl CoreV02Envelope {
             proof_signature: fixed_bytes(required(body, 7)?)?,
             grant_wire,
             grant,
-            service_digest,
             federation_binding: if body_version == 2 {
                 Some(decode_federation_binding(required(body, 8)?)?)
             } else {
@@ -499,9 +490,7 @@ fn decode_stored_envelope(wire: &[u8]) -> Result<Node, CoreV02Reject> {
     Ok(root)
 }
 
-fn decode_route_grant_claims(
-    payload: &[u8],
-) -> Result<(RouteGrantClaims, [u8; 32]), CoreV02Reject> {
+fn decode_route_grant_claims(payload: &[u8]) -> Result<RouteGrantClaims, CoreV02Reject> {
     let mut decoder = Decoder::new(payload, CoreV02Limits::default());
     let root = decoder.node(0)?;
     if decoder.position != payload.len() {
@@ -510,30 +499,27 @@ fn decode_route_grant_claims(
     let fields = map(&root)?;
     exact_keys(fields, 16)?;
     exact_uint(fields, 0, 1)?;
-    let service_digest = fixed_bytes(required(fields, 2)?)?;
+    bytes_exact(required(fields, 2)?, 32)?;
     bytes_exact(required(fields, 13)?, 16)?;
     let allowed_transports = transport_array(required(fields, 8)?)?;
     let destination_edge_ids = text_array(required(fields, 7)?)?;
     let allowed_ports = port_array(required(fields, 9)?)?;
-    Ok((
-        RouteGrantClaims {
-            route_id: fixed_bytes(required(fields, 1)?)?,
-            service_id: text(required(fields, 3)?)?.to_owned(),
-            source_operator_id: text(required(fields, 4)?)?.to_owned(),
-            source_edge_id: text(required(fields, 5)?)?.to_owned(),
-            destination_operator_id: text(required(fields, 6)?)?.to_owned(),
-            destination_edge_ids,
-            allowed_transports,
-            allowed_ports,
-            client_session_key_thumbprint: fixed_bytes(required(fields, 10)?)?,
-            not_before: uint(required(fields, 11)?)?,
-            expires_at: uint(required(fields, 12)?)?,
-            record_sequence: uint(required(fields, 14)?)?,
-            policy_hash: fixed_bytes(required(fields, 15)?)?,
-            unique_nonce: fixed_bytes(required(fields, 16)?)?,
-        },
-        service_digest,
-    ))
+    Ok(RouteGrantClaims {
+        route_id: fixed_bytes(required(fields, 1)?)?,
+        service_id: text(required(fields, 3)?)?.to_owned(),
+        source_operator_id: text(required(fields, 4)?)?.to_owned(),
+        source_edge_id: text(required(fields, 5)?)?.to_owned(),
+        destination_operator_id: text(required(fields, 6)?)?.to_owned(),
+        destination_edge_ids,
+        allowed_transports,
+        allowed_ports,
+        client_session_key_thumbprint: fixed_bytes(required(fields, 10)?)?,
+        not_before: uint(required(fields, 11)?)?,
+        expires_at: uint(required(fields, 12)?)?,
+        record_sequence: uint(required(fields, 14)?)?,
+        policy_hash: fixed_bytes(required(fields, 15)?)?,
+        unique_nonce: fixed_bytes(required(fields, 16)?)?,
+    })
 }
 
 fn fixed_bytes<const N: usize>(node: &Node) -> Result<[u8; N], CoreV02Reject> {

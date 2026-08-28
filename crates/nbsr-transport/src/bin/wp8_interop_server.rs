@@ -19,6 +19,7 @@ use nbsr_transport::{
     EdgeIdentity, EdgeRole, LocalFederationAdmissionAttestations,
     LocalFederationAdmissionAuthorities, PeerPolicy, RouteGrantIssuer, SessionReject, TlsMaterial,
     TransportListener, TrustProfileId, build_server_config, decode_control_envelope,
+    validate_route_grant_sign1,
 };
 use rustls::RootCertStore;
 use rustls::pki_types::{CertificateDer, PrivateKeyDer, PrivatePkcs8KeyDer};
@@ -800,13 +801,183 @@ pub(crate) fn ensure_runtime_route_grant_binding(
     config: &RuntimeAdmissionConfig,
     route: &nbsr_transport::CoreV02Envelope,
 ) -> Result<(), DemoBackendError> {
-    let digest = route
-        .validated_route_grant_service_digest(std::slice::from_ref(&config.trusted_issuer))
-        .map_err(|_| DemoBackendError::StreamFailed)?;
+    let digest = runtime_route_grant_service_digest(route, &config.trusted_issuer)?;
     if digest != config.service_digest {
         return Err(DemoBackendError::ServiceMismatch);
     }
     Ok(())
+}
+
+pub(crate) fn runtime_route_grant_service_digest(
+    route: &nbsr_transport::CoreV02Envelope,
+    trusted_issuer: &RouteGrantIssuer,
+) -> Result<[u8; 32], DemoBackendError> {
+    let route_wire = route.encode();
+    let grant_wire = canonical_map_bytes_at_path(&route_wire, &[5, 2])?;
+    let validated = validate_route_grant_sign1(&grant_wire, std::slice::from_ref(trusted_issuer))
+        .map_err(|_| DemoBackendError::StreamFailed)?;
+    let digest: [u8; 32] = canonical_map_bytes_at_path(&validated.payload, &[2])?
+        .try_into()
+        .map_err(|_| DemoBackendError::StreamFailed)?;
+    Ok(digest)
+}
+
+fn canonical_map_bytes_at_path(wire: &[u8], path: &[u64]) -> Result<Vec<u8>, DemoBackendError> {
+    if wire.is_empty() || wire.len() > 32_768 || path.is_empty() {
+        return Err(DemoBackendError::StreamFailed);
+    }
+    let mut cursor = CanonicalCborCursor { wire, position: 0 };
+    let result = cursor.map_bytes_at_path(path, 0)?;
+    if cursor.position != wire.len() {
+        return Err(DemoBackendError::StreamFailed);
+    }
+    result.ok_or(DemoBackendError::StreamFailed)
+}
+
+struct CanonicalCborCursor<'a> {
+    wire: &'a [u8],
+    position: usize,
+}
+
+impl CanonicalCborCursor<'_> {
+    fn map_bytes_at_path(
+        &mut self,
+        path: &[u64],
+        depth: usize,
+    ) -> Result<Option<Vec<u8>>, DemoBackendError> {
+        if depth > 16 {
+            return Err(DemoBackendError::StreamFailed);
+        }
+        let (major, length) = self.head()?;
+        if major != 5 || length > 64 {
+            return Err(DemoBackendError::StreamFailed);
+        }
+        let mut previous = None;
+        let mut found = None;
+        for _ in 0..length {
+            let (key_major, key) = self.head()?;
+            if key_major != 0 || previous.is_some_and(|value| key <= value) {
+                return Err(DemoBackendError::StreamFailed);
+            }
+            previous = Some(key);
+            if key == path[0] {
+                if found.is_some() {
+                    return Err(DemoBackendError::StreamFailed);
+                }
+                found = if path.len() == 1 {
+                    Some(self.bytes()?)
+                } else {
+                    self.map_bytes_at_path(&path[1..], depth + 1)?
+                };
+            } else {
+                self.skip(depth + 1)?;
+            }
+        }
+        Ok(found)
+    }
+
+    fn bytes(&mut self) -> Result<Vec<u8>, DemoBackendError> {
+        let (major, length) = self.head()?;
+        if major != 2 {
+            return Err(DemoBackendError::StreamFailed);
+        }
+        let length: usize = length
+            .try_into()
+            .map_err(|_| DemoBackendError::StreamFailed)?;
+        let end = self
+            .position
+            .checked_add(length)
+            .filter(|end| *end <= self.wire.len())
+            .ok_or(DemoBackendError::StreamFailed)?;
+        let value = self.wire[self.position..end].to_vec();
+        self.position = end;
+        Ok(value)
+    }
+
+    fn skip(&mut self, depth: usize) -> Result<(), DemoBackendError> {
+        if depth > 16 {
+            return Err(DemoBackendError::StreamFailed);
+        }
+        let (major, argument) = self.head()?;
+        match major {
+            0 | 1 => Ok(()),
+            2 | 3 => {
+                let length: usize = argument
+                    .try_into()
+                    .map_err(|_| DemoBackendError::StreamFailed)?;
+                self.position = self
+                    .position
+                    .checked_add(length)
+                    .filter(|end| *end <= self.wire.len())
+                    .ok_or(DemoBackendError::StreamFailed)?;
+                Ok(())
+            }
+            4 => {
+                if argument > 64 {
+                    return Err(DemoBackendError::StreamFailed);
+                }
+                for _ in 0..argument {
+                    self.skip(depth + 1)?;
+                }
+                Ok(())
+            }
+            5 => {
+                if argument > 64 {
+                    return Err(DemoBackendError::StreamFailed);
+                }
+                let mut previous = None;
+                for _ in 0..argument {
+                    let (key_major, key) = self.head()?;
+                    if key_major != 0 || previous.is_some_and(|value| key <= value) {
+                        return Err(DemoBackendError::StreamFailed);
+                    }
+                    previous = Some(key);
+                    self.skip(depth + 1)?;
+                }
+                Ok(())
+            }
+            7 if matches!(argument, 20..=22) => Ok(()),
+            _ => Err(DemoBackendError::StreamFailed),
+        }
+    }
+
+    fn head(&mut self) -> Result<(u8, u64), DemoBackendError> {
+        let initial = *self
+            .wire
+            .get(self.position)
+            .ok_or(DemoBackendError::StreamFailed)?;
+        self.position += 1;
+        let additional = initial & 0x1f;
+        let argument = match additional {
+            0..=23 => u64::from(additional),
+            24 => u64::from(self.take::<1>()?[0]),
+            25 => u64::from(u16::from_be_bytes(self.take::<2>()?)),
+            26 => u64::from(u32::from_be_bytes(self.take::<4>()?)),
+            27 => u64::from_be_bytes(self.take::<8>()?),
+            _ => return Err(DemoBackendError::StreamFailed),
+        };
+        if (additional == 24 && argument < 24)
+            || (additional == 25 && argument <= u64::from(u8::MAX))
+            || (additional == 26 && argument <= u64::from(u16::MAX))
+            || (additional == 27 && argument <= u64::from(u32::MAX))
+        {
+            return Err(DemoBackendError::StreamFailed);
+        }
+        Ok((initial >> 5, argument))
+    }
+
+    fn take<const N: usize>(&mut self) -> Result<[u8; N], DemoBackendError> {
+        let end = self
+            .position
+            .checked_add(N)
+            .filter(|end| *end <= self.wire.len())
+            .ok_or(DemoBackendError::StreamFailed)?;
+        let value = self.wire[self.position..end]
+            .try_into()
+            .map_err(|_| DemoBackendError::StreamFailed)?;
+        self.position = end;
+        Ok(value)
+    }
 }
 
 fn runtime_identifier(value: &str) -> Result<String, DemoBackendError> {
@@ -2843,10 +3014,8 @@ async fn main() {
         &route,
         &attestations,
         runtime_admission.as_ref(),
-    );
-    let Ok(admitted_channel) = admitted_channel else {
-        return;
-    };
+    )
+    .expect("route admission rejected");
     if runtime_admission
         .as_ref()
         .is_some_and(|config| ensure_runtime_admission_binding(config, &admitted_channel).is_err())

@@ -24,7 +24,7 @@ def evaluate_repository(root: Path) -> dict[str, object]:
     peer_transport_path = root / "interop/nbsr-go-peer/internal/transport/quic.go"
     peer_main = peer_main_path.read_text(encoding="utf-8")
     peer_transport = peer_transport_path.read_text(encoding="utf-8")
-    wire_capable = "transport.Dial(" in peer_main and "quic.DialAddr" in peer_transport
+    wire_capable = ("transport.Dial(" in peer_main or "wirepeer.Dial(" in peer_main) and "quic.DialAddr" in peer_transport
     fixture_authority = (
         '"route-open-body.cbor"' in peer_main and "mustRead(filepath.Join(" in peer_main and "VerifyRouteGrant(exactGrant" in peer_main
     )

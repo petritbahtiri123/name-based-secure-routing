@@ -174,6 +174,85 @@ async fn prime_control_stream(
     (source_control, destination_control)
 }
 
+async fn credited_stream_pair() -> (
+    TransportListener,
+    nbsr_transport::AuthenticatedConnection,
+    nbsr_transport::AuthenticatedConnection,
+    nbsr_transport::ApplicationStream,
+    nbsr_transport::ApplicationStream,
+) {
+    let (listener, source, destination) = connection_pair().await;
+    let _controls = prime_control_stream(&source, &destination).await;
+    let (source_session, source_channel) = credited_session(&source);
+    let (destination_session, destination_channel) = credited_session(&destination);
+    assert_eq!(source_channel.channel_id, destination_channel.channel_id);
+    let (destination_stream, source_stream) = tokio::join!(
+        destination
+            .accept_credited_session_stream(&destination_session, destination_channel.channel_id,),
+        source.open_credited_session_stream(&source_session, source_channel.channel_id),
+    );
+    (
+        listener,
+        source,
+        destination,
+        source_stream.expect("source credited stream"),
+        destination_stream.expect("destination credited stream"),
+    )
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn send_ack_waits_for_finish_then_reports_transport_acknowledgment() {
+    let (listener, source, destination, mut sending, mut receiving) = credited_stream_pair().await;
+    assert!(
+        tokio::time::timeout(Duration::from_millis(25), sending.wait_for_send_ack())
+            .await
+            .is_err(),
+        "ACK wait must not report success before the send-side FIN"
+    );
+    let payload = b"acknowledged demo response";
+    let (sent, received) = tokio::join!(sending.send_payload(payload), receiving.receive_payload());
+    sent.unwrap();
+    assert_eq!(received.unwrap(), payload);
+    tokio::time::timeout(Duration::from_secs(2), sending.wait_for_send_ack())
+        .await
+        .expect("ACK wait is bounded")
+        .expect("peer acknowledged the finished send stream");
+    source.close().await.unwrap();
+    destination.close().await.unwrap();
+    listener.close().await.unwrap();
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn send_ack_wait_is_cancellation_safe() {
+    let (listener, source, destination, mut sending, mut receiving) = credited_stream_pair().await;
+    assert!(
+        tokio::time::timeout(Duration::from_millis(25), sending.wait_for_send_ack())
+            .await
+            .is_err(),
+        "caller timeout must cancel a still-pending ACK wait"
+    );
+    let (sent, received) = tokio::join!(
+        sending.send_payload(b"response after cancelled wait"),
+        receiving.receive_payload(),
+    );
+    sent.unwrap();
+    assert_eq!(received.unwrap(), b"response after cancelled wait");
+    sending.wait_for_send_ack().await.unwrap();
+    source.close().await.unwrap();
+    destination.close().await.unwrap();
+    listener.close().await.unwrap();
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn send_ack_fails_closed_when_peer_closes_before_acknowledgment() {
+    let (listener, source, destination, sending, _receiving) = credited_stream_pair().await;
+    let (closed, ack) = tokio::join!(destination.close(), sending.wait_for_send_ack());
+    closed.unwrap();
+    assert_eq!(ack, Err(TransportError::ApplicationStreamFailed));
+    source.close().await.unwrap();
+    listener.close().await.unwrap();
+}
+
 fn route_revoke(channel: &ActiveChannel) -> CoreV02Envelope {
     let mut body = Vec::new();
     map(&mut body, 5);

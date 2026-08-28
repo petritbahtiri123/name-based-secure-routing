@@ -1,0 +1,21 @@
+{
+  "format_version": 1,
+  "authority_id": "NBSR-DEMO-ACK-CORE-OVERLAY",
+  "status": "ACTIVE_AUTHORITY",
+  "reason": "Human-approved ApplicationStream send-acknowledgment observation required by the accepted secure-route demo; no wire, admission, trust, or cryptographic semantics change.",
+  "original_baseline": {
+    "path": "docs/protocol/registries/core-v0.2-baseline-lock.json",
+    "sha256": "21d60dc60ee1bc00bef882b63fabaaea9229768770912ed7c93e6ae4d54453ef"
+  },
+  "parent_overlay": {
+    "path": "docs/protocol/registries/core-v0.2-p1p2-overlay.json",
+    "sha256": "7a33b7d6dd87031018563da0e8d2b1857515bc3ae2427094a6967d9e6329d3e4"
+  },
+  "replacements": [
+    {
+      "path": "crates/nbsr-transport/src/quinn_adapter.rs",
+      "length": 69638,
+      "sha256": "d0adae2f00ecab195ebd156a2b5811929e65687059245c931e11874f7e7f2acc"
+    }
+  ]
+}

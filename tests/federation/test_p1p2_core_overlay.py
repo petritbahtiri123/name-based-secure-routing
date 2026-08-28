@@ -20,11 +20,12 @@ APPROVED = {
     "crates/nbsr-transport/src/quinn_adapter.rs",
     "crates/nbsr-transport/src/session.rs",
 }
+P1P2_AUTHORITY_COMMIT = "aa48b24f277a7c388e6916c45c983ee2c15fc730"
 
 
-def _git_blob(relative: str) -> bytes:
+def _git_blob(relative: str, revision: str = "HEAD") -> bytes:
     return subprocess.run(
-        ["git", "cat-file", "blob", f"HEAD:{relative}"],
+        ["git", "cat-file", "blob", f"{revision}:{relative}"],
         cwd=ROOT,
         check=True,
         capture_output=True,
@@ -44,7 +45,7 @@ def _copy_canonical_authority(destination: Path) -> Path:
     _write(destination, F75, _git_blob(F75))
     shutil.copyfile(ROOT / P1P2, destination / P1P2)
     for relative in lock["artifacts"]:
-        _write(destination, relative, _git_blob(relative))
+        _write(destination, relative, _git_blob(relative, P1P2_AUTHORITY_COMMIT))
     return destination / P1P2
 
 

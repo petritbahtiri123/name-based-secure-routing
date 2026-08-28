@@ -6,13 +6,17 @@ from scripts.performance.p1e_implementation_gate import evaluate_repository
 ROOT = Path(__file__).resolve().parents[2]
 
 
-def test_repository_has_no_production_go_client_agent_owner() -> None:
+def test_repository_inventory_separates_production_demo_and_independent_peer() -> None:
     result = evaluate_repository(ROOT)
     assert result["go_modules"] == [
+        "client/nbsr-go-client/demo/go.mod",
+        "client/nbsr-go-client/go.mod",
         "interop/nbsr-go-peer/go.mod",
         "verifiers/federation-go/go.mod",
     ]
-    assert result["production_go_files"] == []
+    assert "client/nbsr-go-client/streamclient/streamclient.go" in result["production_go_files"]
+    assert "client/nbsr-go-client/demo/cmd/nbsr-demo-client/main.go" in result["production_go_files"]
+    assert not any(path.startswith("interop/") for path in result["production_go_files"])
     assert result["wire_capable_go_owner"] == "interop_test_peer_only"
 
 

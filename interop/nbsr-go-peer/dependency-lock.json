@@ -4,13 +4,13 @@
   "files": [
     {
       "path": "interop/nbsr-go-peer/go.mod",
-      "length": 225,
-      "sha256": "eafe587294715efa781ee8a50c37000165a40a895cdc30b4e4b0a4c55ebb1a24"
+      "length": 224,
+      "sha256": "a213be88bea938c0a6954762f7d86cd36583be721ee67f6dd3a8fa2fca33fd7f"
     },
     {
       "path": "interop/nbsr-go-peer/go.sum",
-      "length": 1653,
-      "sha256": "fca2b6dd336aa516d4ed5b1085bdc0a66bd7875c1e09df721166053592eaa90f"
+      "length": 1652,
+      "sha256": "ae98d0b5699ee49aac22fae53a0eb50a7184dbc64c84b1ff46e3e015390cc6cb"
     }
   ]
 }

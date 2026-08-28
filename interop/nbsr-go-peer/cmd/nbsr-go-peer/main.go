@@ -19,13 +19,13 @@ import (
 	"sync/atomic"
 	"time"
 
-	"nbsr.local/client/nbsr-go-client/streamclient"
 	"nbsr.local/interop/nbsr-go-peer/internal/authority"
 	"nbsr.local/interop/nbsr-go-peer/internal/cbor"
 	"nbsr.local/interop/nbsr-go-peer/internal/core"
 	"nbsr.local/interop/nbsr-go-peer/internal/perfclock"
 	"nbsr.local/interop/nbsr-go-peer/internal/state"
 	"nbsr.local/interop/nbsr-go-peer/internal/streamcredit"
+	streamclient "nbsr.local/interop/nbsr-go-peer/internal/streamowner"
 	"nbsr.local/interop/nbsr-go-peer/wirepeer"
 )
 
