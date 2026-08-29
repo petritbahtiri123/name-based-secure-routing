@@ -1,0 +1,112 @@
+{
+  "schema": "nbsr-b1-wire-overhead-analysis-v1",
+  "classification": "INCONCLUSIVE",
+  "measurement": "UDP payload bytes and UDP datagrams forwarded by an isolated single-flow relay",
+  "application_bytes_definition": "aggregate request plus response payload bytes",
+  "physical_l2_bytes": "not measured",
+  "retransmissions": "not measurable with the available non-privileged instrumentation",
+  "cells": [
+    {
+      "payload_bytes": 1024,
+      "streams": 64,
+      "operations_per_stream": 10000,
+      "completed_operations": 640000,
+      "valid_pairs": 5,
+      "invalid_pairs": 0,
+      "stability": "difference-within-pair-dispersion",
+      "pair_incremental_bytes": [
+        175285,
+        119974,
+        11925,
+        -36351,
+        26903
+      ],
+      "pair_incremental_overhead_percent": [
+        0.012486307072657913,
+        0.00854625583861594,
+        0.0008494471196231182,
+        -0.0025895096224734324,
+        0.0019164649808046936
+      ],
+      "median_direct_measured_udp_payload_bytes": 1403817790,
+      "median_nbsr_measured_udp_payload_bytes": 1403866235,
+      "median_direct_packets": 1253662,
+      "median_nbsr_packets": 1253978,
+      "median_direct_derived_ipv4_udp_bytes": 1438920326,
+      "median_nbsr_derived_ipv4_udp_bytes": 1438977619,
+      "median_direct_setup_udp_payload_bytes": 6752,
+      "median_nbsr_setup_udp_payload_bytes": 37822,
+      "median_setup_incremental_bytes": 31070,
+      "median_setup_incremental_overhead_percent": 460.15995260663504,
+      "median_direct_setup_packets": 9,
+      "median_nbsr_setup_packets": 223,
+      "median_incremental_bytes": 26903,
+      "median_incremental_overhead_percent": 0.0019164168022119167,
+      "representative_pair": {
+        "repeat": 5,
+        "direct_measured_udp_payload_bytes": 1403782499,
+        "nbsr_measured_udp_payload_bytes": 1403809402,
+        "incremental_bytes": 26903,
+        "incremental_overhead_percent": 0.0019164649808046936
+      },
+      "direct_bytes_per_application_byte": 1.0710279769897462,
+      "nbsr_bytes_per_application_byte": 1.0710649375915526,
+      "direct_packets_per_operation": 1.958846875,
+      "nbsr_packets_per_operation": 1.959340625,
+      "packet_count_delta": 316
+    },
+    {
+      "payload_bytes": 16384,
+      "streams": 8,
+      "operations_per_stream": 10000,
+      "completed_operations": 80000,
+      "valid_pairs": 5,
+      "invalid_pairs": 0,
+      "stability": "difference-within-pair-dispersion",
+      "pair_incremental_bytes": [
+        -1464106,
+        844584,
+        -3341969,
+        -814757,
+        1072312
+      ],
+      "pair_incremental_overhead_percent": [
+        -0.05404993991899972,
+        0.031156364389490942,
+        -0.12337387615923615,
+        -0.03004485494021725,
+        0.03957220385166353
+      ],
+      "median_direct_measured_udp_payload_bytes": 2709760629,
+      "median_nbsr_measured_udp_payload_bytes": 2710832941,
+      "median_direct_packets": 2516349,
+      "median_nbsr_packets": 2548190,
+      "median_direct_derived_ipv4_udp_bytes": 2780218401,
+      "median_nbsr_derived_ipv4_udp_bytes": 2782182261,
+      "median_direct_setup_udp_payload_bytes": 6721,
+      "median_nbsr_setup_udp_payload_bytes": 19693,
+      "median_setup_incremental_bytes": 12972,
+      "median_setup_incremental_overhead_percent": 193.006993006993,
+      "median_direct_setup_packets": 8,
+      "median_nbsr_setup_packets": 54,
+      "median_incremental_bytes": -814757,
+      "median_incremental_overhead_percent": -0.030067489773097592,
+      "representative_pair": {
+        "repeat": 4,
+        "direct_measured_udp_payload_bytes": 2711802076,
+        "nbsr_measured_udp_payload_bytes": 2710987319,
+        "incremental_bytes": -814757,
+        "incremental_overhead_percent": -0.03004485494021725
+      },
+      "direct_bytes_per_application_byte": 1.033691646194458,
+      "nbsr_bytes_per_application_byte": 1.0341007007598877,
+      "direct_packets_per_operation": 31.4543625,
+      "nbsr_packets_per_operation": 31.852375,
+      "packet_count_delta": 31841
+    }
+  ],
+  "invalid_pairs": [],
+  "environment_path": "environment.json",
+  "valid_repeats": 20,
+  "invalid_repeats": 0
+}

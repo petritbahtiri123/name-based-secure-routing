@@ -58,6 +58,7 @@ def measured_client(
     output_line_sink: Callable[[str], None] | None = None,
     resource_sink: Callable[[dict[str, Any]], None] | None = None,
     sampling_interval_seconds: float = 1.0,
+    client_started: Callable[[int], None] | None = None,
 ) -> tuple[str, list[dict[str, Any]]]:
     output_handle = stdout_path.open("w", encoding="utf-8", newline="\n") if stdout_path is not None else None
     capture_stream = output_line_sink is not None
@@ -68,6 +69,8 @@ def measured_client(
         stderr=subprocess.PIPE,
         text=True,
     )
+    if client_started is not None:
+        client_started(client.pid)
     streamed_output: list[str] = []
     stream_error: list[BaseException] = []
 

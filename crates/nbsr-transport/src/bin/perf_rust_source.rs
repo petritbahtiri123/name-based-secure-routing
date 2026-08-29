@@ -23,6 +23,9 @@ use tokio::sync::Barrier;
 #[cfg(feature = "benchmark-harness")]
 use tokio::task::JoinSet;
 
+#[cfg(feature = "benchmark-harness")]
+mod b1_support;
+
 fn argument(name: &str) -> String {
     let values = env::args().collect::<Vec<_>>();
     let index = values
@@ -1089,7 +1092,13 @@ async fn main() {
     if let Some(stream_count) = optional_argument("--p2a-streams") {
         let stream_count = stream_count.parse::<u64>().unwrap();
         let warmup = Duration::from_secs_f64(argument("--p2a-warmup-seconds").parse().unwrap());
-        let duration = Duration::from_secs_f64(argument("--p2a-duration-seconds").parse().unwrap());
+        let measurement = b1_support::measurement_mode(
+            optional_argument("--p2a-duration-seconds").map(|value| value.parse().unwrap()),
+            optional_argument("--p2a-operations-per-stream").map(|value| value.parse().unwrap()),
+        )
+        .unwrap();
+        let counter_control = optional_argument("--p2a-counter-control")
+            .map(|value| value.parse::<SocketAddr>().unwrap());
         assert!(matches!(stream_count, 1 | 8 | 64));
         nbsr_transport::diagnostics::enable_global();
         let payload = vec![0x5a; payload_bytes];
@@ -1108,6 +1117,7 @@ async fn main() {
                 .unwrap();
             applications.push(connection.open_session_stream(&permit).await.unwrap());
         }
+        b1_support::counter_phase(counter_control, "setup-complete").unwrap();
         let ready = Arc::new(Barrier::new(stream_count as usize + 1));
         let measure = Arc::new(Barrier::new(stream_count as usize + 1));
         let warmup_deadline = Instant::now() + warmup;
@@ -1127,10 +1137,23 @@ async fn main() {
                 }
                 ready.wait().await;
                 measure.wait().await;
-                let deadline = Instant::now() + duration;
+                let deadline = match measurement {
+                    b1_support::MeasurementMode::Duration(seconds) => {
+                        Some(Instant::now() + Duration::from_secs_f64(seconds))
+                    }
+                    b1_support::MeasurementMode::OperationsPerStream(_) => None,
+                };
+                let operation_limit = match measurement {
+                    b1_support::MeasurementMode::OperationsPerStream(operations) => {
+                        Some(operations)
+                    }
+                    b1_support::MeasurementMode::Duration(_) => None,
+                };
                 let mut latencies = Vec::new();
                 let mut completed = 0_u64;
-                while Instant::now() < deadline {
+                while deadline.is_some_and(|value| Instant::now() < value)
+                    || operation_limit.is_some_and(|value| completed < value)
+                {
                     let started = Instant::now();
                     let wire = encode_frame(sequence, &payload);
                     application.benchmark_write_frame(&wire).await.unwrap();
@@ -1140,21 +1163,27 @@ async fn main() {
                     completed += 1;
                     sequence += 1;
                 }
-                (completed, latencies)
+                (completed, latencies, application)
             });
         }
         ready.wait().await;
+        b1_support::counter_phase(counter_control, "measurement-start").unwrap();
         let before = nbsr_transport::diagnostics::global().snapshot();
         let measured_started = Instant::now();
         measure.wait().await;
         let mut completed = 0_u64;
         let mut latencies = Vec::new();
+        let mut established_streams = Vec::with_capacity(stream_count as usize);
         while let Some(result) = tasks.join_next().await {
-            let (count, mut values) = result.unwrap();
+            let (count, mut values, application) = result.unwrap();
             completed += count;
             latencies.append(&mut values);
+            established_streams.push(application);
         }
         let measured_ns = measured_started.elapsed().as_nanos();
+        tokio::time::sleep(Duration::from_millis(100)).await;
+        b1_support::counter_phase(counter_control, "measurement-stop").unwrap();
+        drop(established_streams);
         let after = nbsr_transport::diagnostics::global().snapshot();
         latencies.sort_unstable();
         let percentile = |p: f64| latencies[((latencies.len() - 1) as f64 * p).round() as usize];

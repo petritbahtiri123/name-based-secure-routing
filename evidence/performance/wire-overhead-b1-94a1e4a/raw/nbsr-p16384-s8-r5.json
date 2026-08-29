@@ -1,0 +1,102 @@
+{
+  "schema": "nbsr-b1-wire-overhead-repeat-v1",
+  "path": "nbsr",
+  "streams": 8,
+  "payload_bytes": 16384,
+  "model": "one-outstanding-per-stream",
+  "completed_operations": 80000,
+  "measured_ns": 75773386800,
+  "p50_latency_ns": 6903700,
+  "p95_latency_ns": 11603800,
+  "p99_latency_ns": 17387500,
+  "errors": 0,
+  "missing": 0,
+  "duplicates": 0,
+  "corrupt": 0,
+  "wrong_request": 0,
+  "transport_sessions_created_delta": 0,
+  "service_channels_created_delta": 0,
+  "application_streams_created_delta": 0,
+  "replay_entries_delta": 0,
+  "repeat": 5,
+  "operations_per_stream": 10000,
+  "expected_operations": 80000,
+  "warmup_seconds": 3.0,
+  "benchmark_build": "cargo release with benchmark-harness feature",
+  "phase_semantics": "setup then excluded warmup then established fixed operations without teardown",
+  "timeouts": 0,
+  "application_bytes": 2621440000,
+  "application_bytes_definition": "aggregate request plus response payload bytes",
+  "capture_method": "isolated-udp-relay",
+  "measured_unit": "UDP payload bytes and UDP datagrams",
+  "client_ownership": "OS UDP endpoint ownership must match the authorized benchmark client PID",
+  "setup": {
+    "client_to_server": {
+      "bytes": 10822,
+      "packets": 25
+    },
+    "server_to_client": {
+      "bytes": 8840,
+      "packets": 28
+    }
+  },
+  "established": {
+    "client_to_server": {
+      "bytes": 1354324166,
+      "packets": 1240200
+    },
+    "server_to_client": {
+      "bytes": 1356508775,
+      "packets": 1307990
+    }
+  },
+  "rejected_datagrams": 0,
+  "server_endpoint": "127.0.0.1:52273",
+  "relay_endpoint": "127.0.0.1:52274",
+  "resources": {
+    "roles": {
+      "source": {
+        "cpu_ns": 47421875000,
+        "peak_working_set_bytes": 9981952,
+        "peak_private_bytes": 3796992
+      },
+      "destination": {
+        "cpu_ns": 35812500000,
+        "peak_working_set_bytes": 8695808,
+        "peak_private_bytes": 2101248
+      }
+    },
+    "total_cpu_ns": 83234375000,
+    "cpu_ns_per_completed_operation": 1040429.6875
+  },
+  "client_command": [
+    "C:\\NBSR-build\\b1-wire-overhead\\cargo-target\\release\\perf_rust_source.exe",
+    "--samples",
+    "1",
+    "--authority-dir",
+    "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-b1-j9uwwlhp\\authority",
+    "--endpoint",
+    "127.0.0.1:52274",
+    "--payload-bytes",
+    "16384",
+    "--p2a-streams",
+    "8",
+    "--p2a-warmup-seconds",
+    "3.0",
+    "--p2a-operations-per-stream",
+    "10000",
+    "--p2a-counter-control",
+    "127.0.0.1:50631"
+  ],
+  "server_command": [
+    "C:\\NBSR-build\\b1-wire-overhead\\cargo-target\\release\\wp8_interop_server.exe",
+    "--ready",
+    "evidence\\performance\\wire-overhead-b1-94a1e4a\\raw\\nbsr-p16384-s8-r5.ready.json",
+    "--result",
+    "evidence\\performance\\wire-overhead-b1-94a1e4a\\raw\\nbsr-p16384-s8-r5.result.json",
+    "--authority-dir",
+    "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-b1-j9uwwlhp\\authority",
+    "--completion-ack",
+    "evidence\\performance\\wire-overhead-b1-94a1e4a\\raw\\nbsr-p16384-s8-r5.ack"
+  ]
+}

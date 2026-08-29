@@ -1,0 +1,36 @@
+{
+  "schema": "nbsr-performance-environment-v1",
+  "repository_sha": "94a1e4a2da528534ce9e2c62bc9d7a6335bd81ab",
+  "dirty_tree": true,
+  "os": "Windows-11-10.0.26200-SP0",
+  "python": "3.14.6",
+  "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+  "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)",
+  "go": "go version go1.26.5 windows/amd64",
+  "cpu": "Intel(R) Core(TM) i5-10210U CPU @ 1.60GHz",
+  "cores": 4,
+  "logical_processors": 8,
+  "memory_bytes": 16942501888,
+  "power_plan": "Power Scheme GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c  (High performance)",
+  "affinity": "inherited; not modified",
+  "topology": "windows-loopback",
+  "branch": "codex/nbsr-v3-wp0-wp1",
+  "capture_method": "isolated single-flow UDP relay",
+  "directly_measured": [
+    "UDP payload bytes",
+    "UDP datagrams"
+  ],
+  "derived": [
+    "IPv4 plus UDP bytes using 28 bytes per datagram"
+  ],
+  "unavailable": [
+    "physical L2 bytes",
+    "retransmissions"
+  ],
+  "benchmark_build": "cargo release with benchmark-harness feature",
+  "binary_sha256": {
+    "direct": "9a6c3b0f6716333ba68be0480410a22c734c719a39c3c543c9a7722fbd2d72a7",
+    "nbsr": "0d2c3ca632095437ffd1f48901f1cd341f97cfb86f3299a1b6991dc4ac34d00d",
+    "server": "cdb8c8295d257e38522a2a8b8b4baf1488b42cdebab9e3d7622bae141a03de15"
+  }
+}
