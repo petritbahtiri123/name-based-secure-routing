@@ -1,0 +1,36 @@
+{
+  "schema": "nbsr-performance-environment-v1",
+  "repository_sha": "e8d61c7bd6a5fd0467381163f5a1bbac20b8d2bb",
+  "dirty_tree": true,
+  "os": "Windows-11-10.0.26200-SP0",
+  "python": "3.14.6",
+  "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+  "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)",
+  "go": "go version go1.26.5 windows/amd64",
+  "cpu": "Intel(R) Core(TM) i5-10210U CPU @ 1.60GHz",
+  "cores": 4,
+  "logical_processors": 8,
+  "memory_bytes": 16942501888,
+  "power_plan": "Power Scheme GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c  (High performance)",
+  "affinity": "inherited; not modified",
+  "topology": "windows-loopback",
+  "branch": "codex/nbsr-v3-wp0-wp1",
+  "benchmark_build": "cargo release with benchmark-harness feature",
+  "capture_capability_path": "capture-capability.json",
+  "binary_sha256": {
+    "direct": "d8466b3468d6f3cdaf4c8caeb099c51febba8e9214f7f208b9c047d8968e7ab1",
+    "nbsr": "7f64cd1f711cc9ef755885cc5736204b61a0aad6fd8152d735a48d0819604c2d",
+    "server": "080c5f1408f19b3380c23f764466fd1c96ce778384f957434797cea4844aff88"
+  },
+  "source_identity": {
+    "base_git_sha": "e8d61c7bd6a5fd0467381163f5a1bbac20b8d2bb",
+    "files_sha256": {
+      "crates/nbsr-transport/src/bin/b4_support/mod.rs": "9cdb3bac6f410bb687e6a65a4966a034cbc5dd1a6aa8f6c0ada522d230c4d8e0",
+      "crates/nbsr-transport/src/bin/perf_rust_source.rs": "3abb0ce091275699cd212c824047a429e444e1bf79cac8c75a1e9a1bd69ac12d",
+      "crates/nbsr-transport/src/bin/wp8_interop_server.rs": "02a5438bdaa7d67430e95ed3c4973d91ec1318b209edb190f4a20bc389d85945",
+      "scripts/performance/mixed_workload.py": "137b10e48cfad405cc3c3483286606b6e02f202543af1b60246680bfd47ae4e1",
+      "scripts/run_b4_mixed_workload.py": "1e3bc61e6bfe817c9b1143432993fb17bc2af97dafed26c82afa1121c7294702",
+      "tests/performance/test_mixed_workload.py": "731c2a90dd77525ccf1fa9ad3fad84cad23e4226810a7f2c92704a794fded545"
+    }
+  }
+}

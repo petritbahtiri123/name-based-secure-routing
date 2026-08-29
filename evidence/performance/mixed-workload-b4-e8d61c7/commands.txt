@@ -1,0 +1,2 @@
+scripts/run_b4_mixed_workload.py --output 'evidence\performance\mixed-workload-b4-e8d61c7' --repeats 3 --admission-rates 0,25,50,100,400,800 --duration-seconds 10
+scripts/run_b4_mixed_workload.py --output evidence/performance/mixed-workload-b4-e8d61c7 --analyze-existing

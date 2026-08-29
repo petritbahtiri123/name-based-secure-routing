@@ -19,7 +19,7 @@
 - Use release builds for authoritative measurements.
 - Preserve historical evidence; classify code-baseline-dependent measurements rather than rewriting them.
 - Store raw evidence and generate summaries automatically.
-- Execute B1 only in the current authorization; do not begin B4 without approval.
+- Execute only the currently approved task; B4 is approved, and B5 must not begin without approval.
 
 ## Post-repair audit snapshot
 
@@ -28,7 +28,7 @@
 | B1 exact wire overhead | MISSING | P2A has equivalent established Direct/NBSR traffic and application counters; earlier 6.45–8.59% figures are framing models | No measured isolated bytes/packets or setup/data-plane separation at current SHA |
 | B2 CPU efficiency | PARTIAL | P2A contains process CPU and established goodput | Existing raw data predates `94a1e4a`; derived CPU normalization remains useful historically but authoritative current-binary values require rerun |
 | B3 memory/session closure | INCONCLUSIVE | Direct and Rust-to-Rust stable windows exist; Go-to-Rust runs retained partial evidence | Go path lacks authoritative closure; all current-binary lifecycle conclusions require a scoped rerun |
-| B4 mixed workload | MISSING | Lifecycle and established-data-plane harnesses exist separately | No concurrent established traffic plus route/session admission campaign |
+| B4 mixed workload | PARTIAL | Current-SHA same-runtime evidence combines established forwarding with application-stream admissions on one route | New transport connections/routes and multi-client admission remain unvalidated |
 | B5 sustained capacity | PARTIAL | P2D includes a valid five-minute soak and resource observations | No current-SHA 30/60-minute authoritative multi-path soak and cleanup classification |
 | Security campaign | PARTIAL | Extensive protocol, replay, admission, revocation, federation, and fail-closed tests exist | No single reproducible attack/result matrix at current SHA |
 | ISP-style federation PoC | PARTIAL | Secure-route demo and federation interoperability are accepted | Existing localhost/process isolation does not prove independent ISP/network-domain isolation |
@@ -111,13 +111,13 @@ Historical performance evidence remains valid for its recorded commit, host, and
 
 **Identified gap:** No combined configurable workload or saturation evidence.
 
-**Files expected to change:** A bounded mixed-workload runner, tests, benchmark-only orchestration where required, and `evidence/performance/mixed-workload-b4/**`.
+**Files expected to change:** `scripts/performance/mixed_workload.py`, `scripts/run_b4_mixed_workload.py`, `tests/performance/test_mixed_workload.py`, benchmark-only P2A branches in `perf_rust_source.rs` and `wp8_interop_server.rs`, `crates/nbsr-transport/src/bin/b4_support/mod.rs`, and `evidence/performance/mixed-workload-b4-e8d61c7/**`.
 
-**Implementation steps:** RED tests for simultaneous traffic/admission and metrics; minimal composition of existing paths; short validation; load sweep; analysis/report; atomic commit.
+**Implementation steps:** RED analysis/configuration tests; schedule new application-stream admissions on the same authenticated route/runtime while established streams forward; short release validation; 0/25/50/100/400/800 admissions-per-second sweep; preserve fail-closed saturation; automatic analysis/report; atomic commit.
 
 **Tests:** Focused workload tests, affected Rust/Go tests, failure/backpressure cases, formatter/lint/safety checks.
 
-**Evidence to capture:** Goodput, admissions/s, successes/failures, latency percentiles, CPU/RSS, errors/timeouts, queue signals, saturation point.
+**Evidence to capture:** Goodput, offered/achieved admissions/s, successes/failures, established and admission latency percentiles, CPU/RSS/private bytes/threads, errors/timeouts, scheduling-lateness backpressure, saturation point, and installed packet-capture capability.
 
 **Acceptance criteria:** Demonstrate whether established traffic remains stable during admissions and preserve the first failure/saturation point.
 
@@ -125,7 +125,7 @@ Historical performance evidence remains valid for its recorded commit, host, and
 
 **Dependencies:** Completed B1 and renewed user approval.
 
-**Final status:** MISSING
+**Final status:** PARTIAL — the measured same-runtime campaign passes its declared stability limits in all three repeats from 0 through 800 offered application-stream admissions/s. At 800/s, 8,000/8,000 admissions completed; median established goodput was 0.360 Gbit/s (0.965089 of baseline) and median p99 was 1.016646 of baseline, with zero failures or timeouts. No saturation point was observed in the bounded sweep. Two discarded pre-authoritative runs exposed missing benchmark audit consumers; both were fixed by mirroring the established audit-drain lifecycle, and the invalid evidence was preserved outside the repository. This evidence covers new application-stream admissions on one established authorized route; concurrent new transport connections/routes and multi-client admission remain unvalidated.
 
 ### Task 3: B5 sustained capacity / soak
 

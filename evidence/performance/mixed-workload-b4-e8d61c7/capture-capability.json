@@ -1,0 +1,22 @@
+{
+  "available": true,
+  "dumpcap": "C:\\Program Files\\Wireshark\\dumpcap.exe",
+  "dumpcap_version": "Dumpcap (Wireshark) 4.6.7 (v4.6.7-0-gb439fb7b47a9).",
+  "tshark": "C:\\Program Files\\Wireshark\\tshark.exe",
+  "tshark_version": "TShark (Wireshark) 4.6.7 (v4.6.7-0-gb439fb7b47a9).",
+  "interface": "\\Device\\NPF_Loopback",
+  "interfaces": [
+    "1. \\Device\\NPF_{8D4DE745-395F-4FA7-AF57-F0B1AD2ED22E} (Local Area Connection* 9)",
+    "2. \\Device\\NPF_{ACF0A0B9-27B1-4F0A-A30E-9E7D05B6DB4E} (Local Area Connection* 8)",
+    "3. \\Device\\NPF_{3B311615-4FF4-4EDE-8C3B-EB15B1EAF398} (Local Area Connection* 7)",
+    "4. \\Device\\NPF_{E4A0C94C-600F-4CFC-AB76-E11B0D9DF6EF} (Bluetooth Network Connection)",
+    "5. \\Device\\NPF_{8BDE79C9-2341-4A2D-BAAF-68471C16D447} (Wi-Fi)",
+    "6. \\Device\\NPF_{4E093C79-3EC4-4862-B871-0882E80798CE} (Local Area Connection* 10)",
+    "7. \\Device\\NPF_{BC287712-6651-499B-BC6A-7CFEE649FC92} (Local Area Connection* 1)",
+    "8. \\Device\\NPF_{D6EC1BEF-DDF6-41FD-A7C5-ADC32E8045CC} (vEthernet (Default Switch))",
+    "9. \\Device\\NPF_Loopback (Adapter for loopback traffic capture)",
+    "10. \\Device\\NPF_{D0CED5EF-117F-4BDD-9F0D-BA2D468A81A2} (Ethernet)"
+  ],
+  "b4_use": "capability verified but not enabled for headline runs; encrypted packet capture adds observer overhead while benchmark-native counters provide the required B4 metrics",
+  "b1_follow_up": "suitable for a separately approved targeted packet-level rerun with fixed-port BPF isolation and dump-drop validation"
+}

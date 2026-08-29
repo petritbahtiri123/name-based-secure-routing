@@ -3085,6 +3085,11 @@ async fn main() {
     #[cfg(feature = "benchmark-harness")]
     if let Ok(stream_count) = env::var("NBSR_P2A_STREAMS") {
         let stream_count = stream_count.parse::<u64>().unwrap();
+        let mixed_admissions = env::var("NBSR_B4_ADMISSIONS")
+            .ok()
+            .map(|value| value.parse::<u64>().unwrap())
+            .unwrap_or(0);
+        assert!(mixed_admissions <= 8_000);
         assert!(matches!(stream_count, 1 | 8 | 64));
         let mut tasks = tokio::task::JoinSet::new();
         for index in 0..stream_count {
@@ -3113,6 +3118,47 @@ async fn main() {
                 completed
             });
         }
+        let mut admitted = 0_u64;
+        let mut rejected_admissions = 0_u64;
+        let mut admission_rejection = None;
+        for admission_ordinal in 0..mixed_admissions {
+            let index = stream_count + admission_ordinal;
+            let stream = control
+                .receive_envelope(CoreV02Limits::default())
+                .await
+                .unwrap();
+            if let Err(error) = session.authorize_stream_open(channel, &stream) {
+                rejected_admissions += 1;
+                admission_rejection = Some(format!("{error:?}"));
+                break;
+            }
+            let accepted = stream_accept(index);
+            if let Err(error) = session.confirm_stream_accept(channel, &accepted) {
+                rejected_admissions += 1;
+                admission_rejection = Some(format!("{error:?}"));
+                break;
+            }
+            control.send_envelope(&accepted).await.unwrap();
+            let mut application = match connection
+                .accept_session_stream(&mut session, channel)
+                .await
+            {
+                Ok(application) => application,
+                Err(error) => {
+                    rejected_admissions += 1;
+                    admission_rejection = Some(format!("{error:?}"));
+                    break;
+                }
+            };
+            if let Err(error) = application.echo_once().await {
+                rejected_admissions += 1;
+                admission_rejection = Some(format!("{error:?}"));
+                break;
+            }
+            session.release_stream(channel, 4 + 4 * index).unwrap();
+            while session.pop_audit_event().is_some() {}
+            admitted += 1;
+        }
         let mut echoed = 0_u64;
         while let Some(joined) = tasks.join_next().await {
             echoed += joined.unwrap();
@@ -3120,7 +3166,9 @@ async fn main() {
         fs::write(
             result,
             format!(
-                "{{\"status\":\"PASS\",\"streams\":{stream_count},\"echoed_frames\":{echoed}}}"
+                "{{\"status\":\"{}\",\"streams\":{stream_count},\"echoed_frames\":{echoed},\"mixed_admissions\":{admitted},\"rejected_admissions\":{rejected_admissions},\"admission_rejection\":{}}}",
+                if rejected_admissions == 0 { "PASS" } else { "SATURATED" },
+                admission_rejection.map_or_else(|| "null".into(), |value| format!("\"{value}\""))
             ),
         )
         .unwrap();

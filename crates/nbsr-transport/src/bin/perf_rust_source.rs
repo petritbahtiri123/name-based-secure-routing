@@ -25,6 +25,8 @@ use tokio::task::JoinSet;
 
 #[cfg(feature = "benchmark-harness")]
 mod b1_support;
+#[cfg(feature = "benchmark-harness")]
+mod b4_support;
 
 fn argument(name: &str) -> String {
     let values = env::args().collect::<Vec<_>>();
@@ -1092,9 +1094,16 @@ async fn main() {
     if let Some(stream_count) = optional_argument("--p2a-streams") {
         let stream_count = stream_count.parse::<u64>().unwrap();
         let warmup = Duration::from_secs_f64(argument("--p2a-warmup-seconds").parse().unwrap());
+        let duration_seconds =
+            optional_argument("--p2a-duration-seconds").map(|value| value.parse().unwrap());
         let measurement = b1_support::measurement_mode(
-            optional_argument("--p2a-duration-seconds").map(|value| value.parse().unwrap()),
+            duration_seconds,
             optional_argument("--p2a-operations-per-stream").map(|value| value.parse().unwrap()),
+        )
+        .unwrap();
+        let mixed = b4_support::mixed_admission_config(
+            optional_argument("--b4-admission-rate").map(|value| value.parse().unwrap()),
+            duration_seconds,
         )
         .unwrap();
         let counter_control = optional_argument("--p2a-counter-control")
@@ -1171,6 +1180,71 @@ async fn main() {
         let before = nbsr_transport::diagnostics::global().snapshot();
         let measured_started = Instant::now();
         measure.wait().await;
+        let mut admission_latencies = Vec::with_capacity(mixed.scheduled as usize);
+        let mut admission_lateness = Vec::with_capacity(mixed.scheduled as usize);
+        let mut successful_admissions = 0_u64;
+        let mut failed_admissions = 0_u64;
+        let mut admission_timeouts = 0_u64;
+        for admission_ordinal in 0..mixed.scheduled {
+            let scheduled = measured_started
+                + Duration::from_secs_f64(admission_ordinal as f64 / mixed.rate_per_second);
+            tokio::time::sleep_until(scheduled.into()).await;
+            admission_lateness.push(
+                Instant::now()
+                    .saturating_duration_since(scheduled)
+                    .as_nanos() as u64,
+            );
+            let started = Instant::now();
+            let index = stream_count + admission_ordinal;
+            let admitted = tokio::time::timeout(Duration::from_secs(5), async {
+                let stream = stream_open(index);
+                session
+                    .authorize_stream_open(channel, &stream)
+                    .map_err(|_| ())?;
+                control.send_envelope(&stream).await.map_err(|_| ())?;
+                let accepted = control
+                    .receive_envelope(CoreV02Limits::default())
+                    .await
+                    .map_err(|_| ())?;
+                session
+                    .confirm_stream_accept(channel, &accepted)
+                    .map_err(|_| ())?;
+                let permit = session
+                    .application_stream_permit(channel, 4 + 4 * index)
+                    .map_err(|_| ())?;
+                let mut application = connection
+                    .open_session_stream(&permit)
+                    .await
+                    .map_err(|_| ())?;
+                let response = application
+                    .send_and_receive(&payload)
+                    .await
+                    .map_err(|_| ())?;
+                if response != payload {
+                    return Err(());
+                }
+                session
+                    .release_stream(channel, 4 + 4 * index)
+                    .map_err(|_| ())?;
+                while session.pop_audit_event().is_some() {}
+                Ok::<(), ()>(())
+            })
+            .await;
+            match admitted {
+                Ok(Ok(())) => {
+                    successful_admissions += 1;
+                    admission_latencies.push(started.elapsed().as_nanos() as u64);
+                }
+                Ok(Err(())) => {
+                    failed_admissions += 1;
+                    break;
+                }
+                Err(_) => {
+                    admission_timeouts += 1;
+                    break;
+                }
+            }
+        }
         let mut completed = 0_u64;
         let mut latencies = Vec::new();
         let mut established_streams = Vec::with_capacity(stream_count as usize);
@@ -1186,12 +1260,28 @@ async fn main() {
         drop(established_streams);
         let after = nbsr_transport::diagnostics::global().snapshot();
         latencies.sort_unstable();
+        admission_latencies.sort_unstable();
+        admission_lateness.sort_unstable();
         let percentile = |p: f64| latencies[((latencies.len() - 1) as f64 * p).round() as usize];
+        let admission_percentile = |p: f64| {
+            b4_support::percentile(&admission_latencies, p)
+                .map_or_else(|| "null".into(), |value| value.to_string())
+        };
+        let max_admission_lateness = admission_lateness.last().copied().unwrap_or(0);
         println!(
-            "{{\"schema\":\"nbsr-p2a-repeat-v1\",\"path\":\"nbsr\",\"streams\":{stream_count},\"payload_bytes\":{payload_bytes},\"model\":\"one-outstanding-per-stream\",\"completed_operations\":{completed},\"measured_ns\":{measured_ns},\"p50_latency_ns\":{},\"p95_latency_ns\":{},\"p99_latency_ns\":{},\"errors\":0,\"missing\":0,\"duplicates\":0,\"corrupt\":0,\"wrong_request\":0,\"transport_sessions_created_delta\":{},\"service_channels_created_delta\":{},\"application_streams_created_delta\":{},\"replay_entries_delta\":{}}}",
+            "{{\"schema\":\"nbsr-p2a-repeat-v1\",\"path\":\"nbsr\",\"streams\":{stream_count},\"payload_bytes\":{payload_bytes},\"model\":\"one-outstanding-per-stream\",\"completed_operations\":{completed},\"measured_ns\":{measured_ns},\"p50_latency_ns\":{},\"p95_latency_ns\":{},\"p99_latency_ns\":{},\"scheduled_admissions\":{},\"successful_admissions\":{},\"failed_admissions\":{},\"admission_timeouts\":{},\"admission_p50_latency_ns\":{},\"admission_p95_latency_ns\":{},\"admission_p99_latency_ns\":{},\"max_admission_start_lateness_ns\":{},\"errors\":{},\"missing\":0,\"duplicates\":0,\"corrupt\":0,\"wrong_request\":0,\"transport_sessions_created_delta\":{},\"service_channels_created_delta\":{},\"application_streams_created_delta\":{},\"replay_entries_delta\":{}}}",
             percentile(0.50),
             percentile(0.95),
             percentile(0.99),
+            mixed.scheduled,
+            successful_admissions,
+            failed_admissions,
+            admission_timeouts,
+            admission_percentile(0.50),
+            admission_percentile(0.95),
+            admission_percentile(0.99),
+            max_admission_lateness,
+            failed_admissions,
             after.transport_sessions.created - before.transport_sessions.created,
             after.service_channels.created - before.service_channels.created,
             after.application_streams.created - before.application_streams.created,
