@@ -4,6 +4,8 @@ use std::fs;
 use std::net::SocketAddr;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
+#[cfg(feature = "benchmark-harness")]
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::{Duration, Instant};
 
 #[cfg(feature = "benchmark-harness")]
@@ -19,7 +21,7 @@ use nbsr_transport::{
 use rustls::RootCertStore;
 use rustls::pki_types::{CertificateDer, PrivateKeyDer, PrivatePkcs8KeyDer};
 #[cfg(feature = "benchmark-harness")]
-use tokio::sync::Barrier;
+use tokio::sync::{Barrier, Notify};
 #[cfg(feature = "benchmark-harness")]
 use tokio::task::JoinSet;
 
@@ -27,6 +29,8 @@ use tokio::task::JoinSet;
 mod b1_support;
 #[cfg(feature = "benchmark-harness")]
 mod b4_support;
+#[cfg(feature = "benchmark-harness")]
+mod b5_support;
 
 fn argument(name: &str) -> String {
     let values = env::args().collect::<Vec<_>>();
@@ -1106,6 +1110,17 @@ async fn main() {
             duration_seconds,
         )
         .unwrap();
+        let progress_interval =
+            optional_argument("--p2a-progress-seconds").map(|value| value.parse::<f64>().unwrap());
+        if let Some(seconds) = progress_interval {
+            assert!(seconds.is_finite() && (1.0..=60.0).contains(&seconds));
+            assert!(duration_seconds.is_some());
+        }
+        let cooldown_seconds = optional_argument("--p2a-cooldown-seconds")
+            .map_or(0.0, |value| value.parse::<f64>().unwrap());
+        assert!(cooldown_seconds.is_finite() && (0.0..=300.0).contains(&cooldown_seconds));
+        let soak_telemetry =
+            progress_interval.map(|_| Arc::new(b5_support::SoakTelemetry::new(64).unwrap()));
         let counter_control = optional_argument("--p2a-counter-control")
             .map(|value| value.parse::<SocketAddr>().unwrap());
         assert!(matches!(stream_count, 1 | 8 | 64));
@@ -1135,6 +1150,7 @@ async fn main() {
             let ready = Arc::clone(&ready);
             let measure = Arc::clone(&measure);
             let payload = payload.clone();
+            let soak_telemetry = soak_telemetry.clone();
             tasks.spawn(async move {
                 let mut sequence = (ordinal as u64) << 56;
                 while Instant::now() < warmup_deadline {
@@ -1168,8 +1184,16 @@ async fn main() {
                     application.benchmark_write_frame(&wire).await.unwrap();
                     let response = application.benchmark_read_frame().await.unwrap();
                     decode_frame(&response, sequence, payload.len()).unwrap();
-                    latencies.push(started.elapsed().as_nanos() as u64);
+                    let latency = started.elapsed().as_nanos() as u64;
                     completed += 1;
+                    if let Some(telemetry) = &soak_telemetry {
+                        telemetry.record(latency);
+                        if completed.is_multiple_of(64) {
+                            b5_support::record_bounded_tail(&mut latencies, latency, 64);
+                        }
+                    } else {
+                        latencies.push(latency);
+                    }
                     sequence += 1;
                 }
                 (completed, latencies, application)
@@ -1180,6 +1204,58 @@ async fn main() {
         let before = nbsr_transport::diagnostics::global().snapshot();
         let measured_started = Instant::now();
         measure.wait().await;
+        let progress_stop = Arc::new(AtomicBool::new(false));
+        let progress_notify = Arc::new(Notify::new());
+        let progress_task = if let (Some(seconds), Some(telemetry)) =
+            (progress_interval, soak_telemetry.clone())
+        {
+            let stop = Arc::clone(&progress_stop);
+            let notify = Arc::clone(&progress_notify);
+            Some(tokio::spawn(async move {
+                let interval = Duration::from_secs_f64(seconds);
+                let mut prior = measured_started;
+                let mut window_index = 0_u64;
+                let mut completed_total = 0_u64;
+                loop {
+                    tokio::select! {
+                        () = tokio::time::sleep(interval) => {}
+                        () = notify.notified() => {}
+                    }
+                    let now = Instant::now();
+                    let interval_ns = now.duration_since(prior).as_nanos() as u64;
+                    let elapsed_ns = now.duration_since(measured_started).as_nanos() as u64;
+                    let window = telemetry.take_window(interval_ns);
+                    if window.completed_operations > 0 {
+                        window_index += 1;
+                        completed_total += window.completed_operations;
+                        let option = |value: Option<u64>| {
+                            value.map_or_else(|| "null".into(), |number| number.to_string())
+                        };
+                        let goodput =
+                            2.0 * window.completed_operations as f64 * payload_bytes as f64
+                                / (interval_ns as f64 / 1e9);
+                        let operations_per_second =
+                            window.completed_operations as f64 / (interval_ns as f64 / 1e9);
+                        println!(
+                            "{{\"event\":\"p2a_progress\",\"schema\":\"nbsr-b5-progress-v1\",\"window_index\":{window_index},\"elapsed_ns\":{elapsed_ns},\"interval_ns\":{interval_ns},\"completed_operations\":{},\"completed_total\":{completed_total},\"operations_per_second\":{operations_per_second},\"request_messages_per_second\":{operations_per_second},\"response_messages_per_second\":{operations_per_second},\"goodput_bytes_per_second\":{goodput},\"p50_latency_ns\":{},\"p95_latency_ns\":{},\"p99_latency_ns\":{},\"latency_sample_count\":{},\"latency_sample_stride\":{},\"errors\":0,\"timeouts\":0}}",
+                            window.completed_operations,
+                            option(window.p50_latency_ns),
+                            option(window.p95_latency_ns),
+                            option(window.p99_latency_ns),
+                            window.sample_count,
+                            window.latency_sample_stride,
+                        );
+                        emit_diagnostic(elapsed_ns.into(), "steady");
+                    }
+                    prior = now;
+                    if stop.load(Ordering::Relaxed) {
+                        break;
+                    }
+                }
+            }))
+        } else {
+            None
+        };
         let mut admission_latencies = Vec::with_capacity(mixed.scheduled as usize);
         let mut admission_lateness = Vec::with_capacity(mixed.scheduled as usize);
         let mut successful_admissions = 0_u64;
@@ -1254,6 +1330,11 @@ async fn main() {
             latencies.append(&mut values);
             established_streams.push(application);
         }
+        progress_stop.store(true, Ordering::Relaxed);
+        progress_notify.notify_one();
+        if let Some(task) = progress_task {
+            task.await.unwrap();
+        }
         let measured_ns = measured_started.elapsed().as_nanos();
         tokio::time::sleep(Duration::from_millis(100)).await;
         b1_support::counter_phase(counter_control, "measurement-stop").unwrap();
@@ -1268,11 +1349,13 @@ async fn main() {
                 .map_or_else(|| "null".into(), |value| value.to_string())
         };
         let max_admission_lateness = admission_lateness.last().copied().unwrap_or(0);
-        println!(
-            "{{\"schema\":\"nbsr-p2a-repeat-v1\",\"path\":\"nbsr\",\"streams\":{stream_count},\"payload_bytes\":{payload_bytes},\"model\":\"one-outstanding-per-stream\",\"completed_operations\":{completed},\"measured_ns\":{measured_ns},\"p50_latency_ns\":{},\"p95_latency_ns\":{},\"p99_latency_ns\":{},\"scheduled_admissions\":{},\"successful_admissions\":{},\"failed_admissions\":{},\"admission_timeouts\":{},\"admission_p50_latency_ns\":{},\"admission_p95_latency_ns\":{},\"admission_p99_latency_ns\":{},\"max_admission_start_lateness_ns\":{},\"errors\":{},\"missing\":0,\"duplicates\":0,\"corrupt\":0,\"wrong_request\":0,\"transport_sessions_created_delta\":{},\"service_channels_created_delta\":{},\"application_streams_created_delta\":{},\"replay_entries_delta\":{}}}",
+        let latency_stride = if progress_interval.is_some() { 64 } else { 1 };
+        let final_record = format!(
+            "{{\"schema\":\"nbsr-p2a-repeat-v1\",\"path\":\"nbsr\",\"streams\":{stream_count},\"payload_bytes\":{payload_bytes},\"model\":\"one-outstanding-per-stream\",\"completed_operations\":{completed},\"measured_ns\":{measured_ns},\"p50_latency_ns\":{},\"p95_latency_ns\":{},\"p99_latency_ns\":{},\"latency_sample_count\":{},\"latency_sample_stride\":{latency_stride},\"scheduled_admissions\":{},\"successful_admissions\":{},\"failed_admissions\":{},\"admission_timeouts\":{},\"admission_p50_latency_ns\":{},\"admission_p95_latency_ns\":{},\"admission_p99_latency_ns\":{},\"max_admission_start_lateness_ns\":{},\"errors\":{},\"missing\":0,\"duplicates\":0,\"corrupt\":0,\"wrong_request\":0,\"transport_sessions_created_delta\":{},\"service_channels_created_delta\":{},\"application_streams_created_delta\":{},\"replay_entries_delta\":{}}}",
             percentile(0.50),
             percentile(0.95),
             percentile(0.99),
+            latencies.len(),
             mixed.scheduled,
             successful_admissions,
             failed_admissions,
@@ -1289,6 +1372,16 @@ async fn main() {
         );
         drop(session);
         connection.close().await.unwrap();
+        if cooldown_seconds > 0.0 {
+            emit_diagnostic(measured_started.elapsed().as_nanos(), "cooldown_start");
+            let cooldown_deadline = Instant::now() + Duration::from_secs_f64(cooldown_seconds);
+            while Instant::now() < cooldown_deadline {
+                tokio::time::sleep(Duration::from_secs(1)).await;
+                emit_diagnostic(measured_started.elapsed().as_nanos(), "cooldown");
+            }
+            emit_diagnostic(measured_started.elapsed().as_nanos(), "post_cooldown");
+        }
+        println!("{final_record}");
         return;
     }
     let payload = vec![0x5a; payload_bytes];

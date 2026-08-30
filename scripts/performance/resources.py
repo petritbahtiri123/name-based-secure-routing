@@ -62,6 +62,7 @@ class ProcessResourceSample:
     peak_working_set_bytes: int
     private_bytes: int
     thread_count: int
+    handle_count: int
 
 
 @dataclass(frozen=True)
@@ -86,6 +87,7 @@ class TimedProcessResourceSample:
     peak_working_set_bytes: int
     private_bytes: int
     thread_count: int
+    handle_count: int
 
 
 @dataclass(frozen=True)
@@ -241,6 +243,7 @@ class ProcessResourceSampler:
                         peak_working_set_bytes=sample.peak_working_set_bytes,
                         private_bytes=sample.private_bytes,
                         thread_count=sample.thread_count,
+                        handle_count=sample.handle_count,
                     )
                     self._records.append(record)
                     if self.record_sink is not None:
@@ -397,6 +400,7 @@ def sample_windows_process(pid: int) -> ProcessResourceSample:
     created, exited, kernel, user = FILETIME(), FILETIME(), FILETIME(), FILETIME()
     memory = PROCESS_MEMORY_COUNTERS_EX()
     memory.cb = ctypes.sizeof(memory)
+    handle_count = wintypes.DWORD()
     try:
         if not kernel32.GetProcessTimes(
             handle,
@@ -408,6 +412,8 @@ def sample_windows_process(pid: int) -> ProcessResourceSample:
             raise ctypes.WinError(ctypes.get_last_error())
         if not psapi.GetProcessMemoryInfo(handle, ctypes.byref(memory), memory.cb):
             raise ctypes.WinError(ctypes.get_last_error())
+        if not kernel32.GetProcessHandleCount(handle, ctypes.byref(handle_count)):
+            raise ctypes.WinError(ctypes.get_last_error())
     finally:
         kernel32.CloseHandle(handle)
     return ProcessResourceSample(
@@ -418,4 +424,5 @@ def sample_windows_process(pid: int) -> ProcessResourceSample:
         peak_working_set_bytes=int(memory.PeakWorkingSetSize),
         private_bytes=int(memory.PrivateUsage),
         thread_count=_thread_count(pid),
+        handle_count=int(handle_count.value),
     )

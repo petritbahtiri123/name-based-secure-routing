@@ -53,6 +53,7 @@ def test_windows_resource_sample_reports_current_process() -> None:
     assert sample.working_set_bytes > 0
     assert sample.private_bytes > 0
     assert sample.thread_count >= 1
+    assert sample.handle_count >= 1
 
 
 def test_resource_samples_cannot_silently_disappear() -> None:

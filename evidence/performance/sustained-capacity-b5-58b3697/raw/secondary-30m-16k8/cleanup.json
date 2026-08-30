@@ -1,0 +1,22 @@
+{
+  "source": {
+    "transport_sessions_current_live": 0,
+    "service_channels_current_live": 0,
+    "application_streams_current_live": 0,
+    "nbsr_tasks_current_live": 0,
+    "quic_connections_current_live": 0,
+    "quic_streams_current_live": 0,
+    "audit_queue_current_entries": 0,
+    "replay_state_current_entries": 0
+  },
+  "destination": {
+    "transport_sessions_current_live": 0,
+    "service_channels_current_live": 0,
+    "application_streams_current_live": 0,
+    "nbsr_tasks_current_live": 0,
+    "quic_connections_current_live": 0,
+    "quic_streams_current_live": 0,
+    "audit_queue_current_entries": 0,
+    "replay_state_current_entries": 0
+  }
+}

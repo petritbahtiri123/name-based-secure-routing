@@ -3174,6 +3174,9 @@ async fn main() {
         .unwrap();
         drop(session);
         connection.close().await.unwrap();
+        if diagnostic_sampler.is_some() && diagnostic_drain_seconds > 0 {
+            std::thread::sleep(Duration::from_secs(diagnostic_drain_seconds));
+        }
         listener.close().await.unwrap();
         return;
     }

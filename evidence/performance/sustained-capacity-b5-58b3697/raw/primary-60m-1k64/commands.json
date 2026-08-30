@@ -1,0 +1,38 @@
+{
+  "client": [
+    "C:\\NBSR-build\\b5-soak\\cargo-target\\release\\perf_rust_source.exe",
+    "--authority-dir",
+    "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-b5-gz09sr8f\\authority",
+    "--endpoint",
+    "127.0.0.1:56367",
+    "--samples",
+    "1",
+    "--payload-bytes",
+    "1024",
+    "--p2a-streams",
+    "64",
+    "--p2a-warmup-seconds",
+    "10",
+    "--p2a-duration-seconds",
+    "3600",
+    "--p2a-progress-seconds",
+    "5",
+    "--p2a-cooldown-seconds",
+    "30"
+  ],
+  "destination": [
+    "C:\\NBSR-build\\b5-soak\\cargo-target\\release\\wp8_interop_server.exe",
+    "--ready",
+    "evidence\\performance\\sustained-capacity-b5-58b3697\\raw\\primary-60m-1k64\\destination-ready.json",
+    "--result",
+    "evidence\\performance\\sustained-capacity-b5-58b3697\\raw\\primary-60m-1k64\\destination-result.json",
+    "--authority-dir",
+    "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-b5-gz09sr8f\\authority",
+    "--completion-ack",
+    "evidence\\performance\\sustained-capacity-b5-58b3697\\raw\\primary-60m-1k64\\destination-completion.ack",
+    "--destination-diagnostics-file",
+    "evidence\\performance\\sustained-capacity-b5-58b3697\\raw\\primary-60m-1k64\\destination-diagnostics.ndjson",
+    "--diagnostic-drain-seconds",
+    "30"
+  ]
+}

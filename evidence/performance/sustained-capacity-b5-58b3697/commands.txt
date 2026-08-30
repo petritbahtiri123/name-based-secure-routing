@@ -1,0 +1,1 @@
+scripts/run_b5_sustained_capacity.py --output 'evidence\performance\sustained-capacity-b5-58b3697' --run primary-60m-1k64:3600:1024:64 --run secondary-30m-16k8:1800:16384:8 --warmup-seconds 10 --cooldown-seconds 30 --sample-seconds 5

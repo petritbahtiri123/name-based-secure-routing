@@ -28,8 +28,8 @@
 | B1 exact wire overhead | MISSING | P2A has equivalent established Direct/NBSR traffic and application counters; earlier 6.45–8.59% figures are framing models | No measured isolated bytes/packets or setup/data-plane separation at current SHA |
 | B2 CPU efficiency | PARTIAL | P2A contains process CPU and established goodput | Existing raw data predates `94a1e4a`; derived CPU normalization remains useful historically but authoritative current-binary values require rerun |
 | B3 memory/session closure | INCONCLUSIVE | Direct and Rust-to-Rust stable windows exist; Go-to-Rust runs retained partial evidence | Go path lacks authoritative closure; all current-binary lifecycle conclusions require a scoped rerun |
-| B4 mixed workload | PARTIAL | Current-SHA same-runtime evidence combines established forwarding with application-stream admissions on one route | New transport connections/routes and multi-client admission remain unvalidated |
-| B5 sustained capacity | PARTIAL | P2D includes a valid five-minute soak and resource observations | No current-SHA 30/60-minute authoritative multi-path soak and cleanup classification |
+| B4 mixed workload | Evidence PASS / scope PARTIAL | Current-SHA same-runtime evidence combines established forwarding with application-stream admissions on one established authorized route | B4b separately tracks new connections, new routes, multiple clients, and saturation beyond 800 admissions/s; it does not block B5 |
+| B5 sustained capacity | PASS | Current-baseline 60-minute 1 KiB/64-stream and 30-minute 16 KiB/8-stream established-path soaks both classify PASS / STABLE | This closes bounded Windows loopback sustained behavior; server-class, WAN, and multi-client capacity remain external validation |
 | Security campaign | PARTIAL | Extensive protocol, replay, admission, revocation, federation, and fail-closed tests exist | No single reproducible attack/result matrix at current SHA |
 | ISP-style federation PoC | PARTIAL | Secure-route demo and federation interoperability are accepted | Existing localhost/process isolation does not prove independent ISP/network-domain isolation |
 | Final evidence freeze | BLOCKED | Historical reports and status documents exist | Depends on classification of B1–B5, security, and ISP federation work |
@@ -125,19 +125,21 @@ Historical performance evidence remains valid for its recorded commit, host, and
 
 **Dependencies:** Completed B1 and renewed user approval.
 
-**Final status:** PARTIAL — the measured same-runtime campaign passes its declared stability limits in all three repeats from 0 through 800 offered application-stream admissions/s. At 800/s, 8,000/8,000 admissions completed; median established goodput was 0.360 Gbit/s (0.965089 of baseline) and median p99 was 1.016646 of baseline, with zero failures or timeouts. No saturation point was observed in the bounded sweep. Two discarded pre-authoritative runs exposed missing benchmark audit consumers; both were fixed by mirroring the established audit-drain lifecycle, and the invalid evidence was preserved outside the repository. This evidence covers new application-stream admissions on one established authorized route; concurrent new transport connections/routes and multi-client admission remain unvalidated.
+**Final status:** Evidence PASS / scope PARTIAL — the measured same-runtime campaign passes its declared stability limits in all three repeats from 0 through 800 offered application-stream admissions/s. At 800/s, 8,000/8,000 admissions completed; median established goodput was 0.360 Gbit/s (0.965089 of baseline) and median p99 was 1.016646 of baseline, with zero failures or timeouts. No saturation point was observed in the bounded sweep. Two discarded pre-authoritative runs exposed missing benchmark audit consumers; both were fixed by mirroring the established audit-drain lifecycle, and the invalid evidence was preserved outside the repository. This evidence covers new application-stream admissions on one established authorized route.
+
+**B4b future follow-up (non-blocking for B5):** Close mixed load with multiple concurrent clients plus new transport connections and new route admissions, and probe saturation beyond the bounded 800 admissions/s B4 harness ceiling. Status: MISSING / NOT YET VALIDATED.
 
 ### Task 3: B5 sustained capacity / soak
 
 **Objective:** Establish 10/30/60-minute stability and cleanup behavior.
 
-**Current evidence:** Five-minute P2D soak and older memory/resource series.
+**Current evidence:** Historical P2D evidence remains useful for admission/credit/replay continuity (300.387 seconds, 4,832,000 operations, zero errors), P1F remains useful for the exact replay hard-cap result (601.073 seconds and exactly 10,000 committed IDs), and P2A identifies the persistent established-stream workload and stable cells. Those executable-dependent measurements predate the current repaired branch and cannot close B5.
 
-**Identified gap:** No current-SHA authoritative long run across required paths.
+**Identified gap:** No current-SHA authoritative 30/60-minute persistent established-stream run with periodic application/resource/ownership telemetry and post-load cooldown/cleanup classification.
 
-**Files expected to change:** Existing durable runner extensions only if necessary; raw time-series evidence and reports.
+**Files expected to change:** Benchmark-only bounded progress support in `perf_rust_source.rs` and `b5_support/mod.rs`; destination diagnostic cooldown in `wp8_interop_server.rs`; Windows handle sampling in `scripts/performance/resources.py`; `scripts/performance/sustained_capacity.py`; `scripts/run_b5_sustained_capacity.py`; focused tests; and `evidence/performance/sustained-capacity-b5-58b3697/**`.
 
-**Implementation steps:** Audit/reuse harness; RED validation for cleanup and bounded sampling; 10-minute validation; 30/60-minute runs; classify growth; atomic commit.
+**Implementation steps:** Audit/reuse P2A and resource/diagnostic infrastructure; RED validation for strict cadence/accounting/cleanup and bounded latency sampling; 60-second shape gates; 10-minute validation; preserve and diagnose the detected unbounded benchmark-sample retention; add a bounded-tail regression; rerun 10-minute validation; run one 60-minute primary 1 KiB/64-stream soak plus one 30-minute secondary 16 KiB/8-stream soak; classify evidence and system behavior independently; atomic commit.
 
 **Tests:** Durable-runner tests, descendant cleanup, affected integration tests, format/lint/safety checks.
 
@@ -149,7 +151,7 @@ Historical performance evidence remains valid for its recorded commit, host, and
 
 **Dependencies:** B4 stable workload selection.
 
-**Final status:** PARTIAL
+**Final status:** PASS — the authoritative release-build campaign at base SHA `58b369752dd86811f10c1f52551879a1a861403f` produced 720/720 valid five-second windows over 60 minutes at 1 KiB/64 streams and 360/360 over 30 minutes at 16 KiB/8 streams. The primary completed 156,167,149 operations at 0.734 median Gbit/s with -3.168% early-to-late goodput drift; the secondary completed 5,678,257 operations at 0.853 median Gbit/s with +1.599% drift. Both had zero errors/timeouts, cleanup PASS, and no classified continuous RSS/private-byte growth. Evidence status and system result are independently recorded as PASS / STABLE. One attempted authoritative rerun was preserved outside the repository and rejected as INVALID after Windows Event Log proved a button/lid sleep interrupted the load and caused a post-resume QUIC `CloseTimeout`; the clean replacement run used a process-lifetime Windows execution-state request. The measured scope is release-build Rust-to-Rust persistent established forwarding on this Windows loopback host; it does not establish WAN, multi-client, or server-class capacity.
 
 ### Task 4: B3 memory/session closure
 

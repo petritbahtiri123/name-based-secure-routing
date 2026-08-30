@@ -1,0 +1,27 @@
+{
+  "source_identity": {
+    "base_git_sha": "58b369752dd86811f10c1f52551879a1a861403f",
+    "files_sha256": {
+      "crates/nbsr-transport/src/bin/b5_support/mod.rs": "379ceb7bea6d6c11b091cc0c9a1cdd87c92ef16f2d49b9ffa0ef2f1eed648c99",
+      "crates/nbsr-transport/src/bin/perf_rust_source.rs": "e9552173300bf6ab0abf96fea5b3603dbfa7430770edbf5165455666326761de",
+      "crates/nbsr-transport/src/bin/wp8_interop_server.rs": "046d507060548809248197e9747d76ba06c17fecb79d6421f16eab55ce6bf078",
+      "scripts/performance/sustained_capacity.py": "0023ca403af6c3b3120f907007498b2ecf052aa33def434d4bf6915063b7ddeb",
+      "scripts/run_b5_sustained_capacity.py": "7a6cce2971a21172cbefd813b503a4997f6ff34c99883fd32121606352d2bd39",
+      "tests/performance/test_sustained_capacity.py": "8fc5dc23a7456e1bcac3bcc3c22df8ecdd053a7a424c5a654c1affe0a8572522"
+    }
+  },
+  "branch": "codex/nbsr-v3-wp0-wp1",
+  "timestamp_utc": "2026-08-30T09:38:46Z",
+  "os": "Windows-11-10.0.26200-SP0",
+  "cpu": "Intel64 Family 6 Model 142 Stepping 12, GenuineIntel",
+  "logical_processors": 8,
+  "python": "3.14.6",
+  "binary_sha256": {
+    "direct": "c41ceded4b7ea2f7c5e49edd071ae8d6770937bc93433fcae729b0c0e9d38bbf",
+    "nbsr": "bacfcfd5d224443f81e1a8a6f82d6a5ad18de4f523e805e06a130924e45d8842",
+    "server": "41c994afc4295ed0eeab223c219dbd3663eb2059daaba9da015c1c924db62c75"
+  },
+  "build": "cargo release with benchmark-harness feature",
+  "topology": "Windows loopback",
+  "packet_capture": "not enabled; optional installed Dumpcap/Npcap capture excluded from authoritative run to avoid observer overhead"
+}
