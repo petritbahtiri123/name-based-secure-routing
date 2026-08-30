@@ -1,0 +1,33 @@
+{
+  "affinity": "inherited; not modified",
+  "base_git_sha": "d45fc06fe9df7105f9517a8493d9135437dfdf4d",
+  "binary_sha256": {
+    "direct": "1e1e2f7dc571d3b29bfed6483bac5a146979d3cf1b2055decc9ae3f0c915ad38",
+    "nbsr": "ebae97d7746b8c3d9cce9dcd0aeafda05ac28520647381f496952a0fae004645",
+    "server": "580e1c90440d4bc2fc72c42c5d7a9c918194543e7230a1076344584ee08ae263"
+  },
+  "branch": "codex/nbsr-v3-wp0-wp1",
+  "build": "release",
+  "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)",
+  "cores": 4,
+  "cpu": "Intel(R) Core(TM) i5-10210U CPU @ 1.60GHz",
+  "dirty_tree": true,
+  "go": "go version go1.26.5 windows/amd64",
+  "logical_processors": 8,
+  "memory_bytes": 16942501888,
+  "os": "Windows-11-10.0.26200-SP0",
+  "power_plan": "Power Scheme GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c  (High performance)",
+  "python": "3.14.6",
+  "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+  "schema": "nbsr-b4b-environment-v1",
+  "source_sha256": {
+    "crates/nbsr-transport/src/bin/perf_rust_source.rs": "1cbee2b371838b45815b4c16504ffb8bdef6a7861782f6a836b595610e30af6d",
+    "crates/nbsr-transport/src/bin/wp8_interop_server.rs": "771580152c45028cb24a876dcbf33cdb44fdc6c9b9a99863f42bb9fa99a6406b",
+    "scripts/performance/mixed_connections.py": "ab990abbb15017eac8001e1b2c9a8a17246cb4b27513d5771f0b14e79975fb13",
+    "scripts/run_b4b_mixed_connections.py": "7d3b022dd04261afbd95e1ebfb7acf5b28c064959a18fa4bcce06c354e4b410b",
+    "scripts/run_p2a_established.py": "4efab8cb08931c72438184e2edb889826c54e310d398cc5270c6c158a0c6a610",
+    "tests/performance/test_mixed_connections.py": "61b7a192bd5326099029545c8feabbaca32819a4763308fed6af017f09b2dc9c"
+  },
+  "timestamp_utc": "2026-08-30T14:18:43Z",
+  "topology": "Windows loopback, separate established and admission destination runtimes"
+}

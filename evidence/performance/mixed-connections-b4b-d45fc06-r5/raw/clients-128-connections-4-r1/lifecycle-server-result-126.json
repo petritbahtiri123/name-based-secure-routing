@@ -1,0 +1,1 @@
+{"connections":4,"services_per_connection":1,"streams_per_service":1,"samples":[{"destination_admission_ns":664200,"application_processing_ns":12000},{"destination_admission_ns":691200,"application_processing_ns":14600},{"destination_admission_ns":702700,"application_processing_ns":15400},{"destination_admission_ns":638900,"application_processing_ns":13000}],"status":"PASS"}

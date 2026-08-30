@@ -1,0 +1,1 @@
+scripts/run_b4b_mixed_connections.py --output evidence/performance/mixed-connections-b4b-d45fc06-r4 --repeats 3 --duration-seconds 30 --warmup-seconds 5 --connections-per-client 4

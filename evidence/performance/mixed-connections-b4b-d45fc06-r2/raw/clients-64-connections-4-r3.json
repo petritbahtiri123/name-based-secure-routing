@@ -1,0 +1,20 @@
+{
+  "clients": 64,
+  "connections_per_client": 4,
+  "errors": 1,
+  "failure": "RuntimeError: lifecycle server 0 failed: \nthread 'main' (13044) panicked at src\\bin\\wp8_interop_server.rs:2341:41:\ncalled `Result::unwrap()` on an `Err` value: HandshakeTimeout\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+  "planned_clients": [
+    0,
+    1,
+    2,
+    4,
+    8,
+    16,
+    32,
+    64
+  ],
+  "repeat": 3,
+  "scheduled_admissions": 256,
+  "schema": "nbsr-b4b-mixed-connections-repeat-v1",
+  "timeouts": 0
+}
