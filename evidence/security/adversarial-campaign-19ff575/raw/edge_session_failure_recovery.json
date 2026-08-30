@@ -1,0 +1,22 @@
+{
+  "actual": "Failure tests kept the old generation non-current, performed no payload replay, bounded recovery attempts, and returned pending ownership to zero.",
+  "attack": "Fail a replacement/current transport during rotation and recovery.",
+  "cleanup": "CLEAN",
+  "command": [
+    "go",
+    "test",
+    "./internal/session",
+    "-run",
+    "Test(FailedCurrentBDoesNotPromoteDrainingAOrCreateC|RotationDoesNotReplayApplicationPayload|RecoveryAttemptsAndCancellationAreBounded)$",
+    "-count=1"
+  ],
+  "duration_seconds": 2.9591435000038473,
+  "exit_code": 0,
+  "expected": "Never restore a draining generation, never replay payload, bound retries, and clean pending ownership.",
+  "protected_service_reachable": false,
+  "reason_code": "session.ErrTransport/session.ErrRecoveryExhausted",
+  "scenario": "edge_session_failure_recovery",
+  "status": "PASS",
+  "stderr_log": "raw/edge_session_failure_recovery.stderr.log",
+  "stdout_log": "raw/edge_session_failure_recovery.stdout.log"
+}

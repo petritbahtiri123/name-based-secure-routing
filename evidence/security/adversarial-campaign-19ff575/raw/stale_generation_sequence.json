@@ -1,0 +1,22 @@
+{
+  "actual": "Stale generation returned authority.ErrStaleGeneration with no transport, stream, payload, cache, or pending entry.",
+  "attack": "Present authority from a stale generation.",
+  "cleanup": "CLEAN",
+  "command": [
+    "go",
+    "test",
+    "./internal/client",
+    "-run",
+    "^TestTask6AuthorityDeniedBeforeTransportOrApplication$",
+    "-count=1"
+  ],
+  "duration_seconds": 4.7237851999962,
+  "exit_code": 0,
+  "expected": "Reject before transport/application creation and retain no authority state.",
+  "protected_service_reachable": false,
+  "reason_code": "authority.ErrStaleGeneration",
+  "scenario": "stale_generation_sequence",
+  "status": "PASS",
+  "stderr_log": "raw/stale_generation_sequence.stderr.log",
+  "stdout_log": "raw/stale_generation_sequence.stdout.log"
+}

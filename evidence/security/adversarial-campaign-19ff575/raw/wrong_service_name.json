@@ -1,0 +1,22 @@
+{
+  "actual": "Service-identity substitution returned authority.ErrBindingMismatch and Usage retained zero cache/pending entries.",
+  "attack": "Substitute the authorized service identity/name.",
+  "cleanup": "CLEAN",
+  "command": [
+    "go",
+    "test",
+    "./internal/client",
+    "-run",
+    "^TestAcquireRouteFailsClosedForAuthorityMutations$/^service_identity$",
+    "-count=1"
+  ],
+  "duration_seconds": 4.90024230000563,
+  "exit_code": 0,
+  "expected": "Reject the binding and retain no cached or pending authority.",
+  "protected_service_reachable": false,
+  "reason_code": "authority.ErrBindingMismatch",
+  "scenario": "wrong_service_name",
+  "status": "PASS",
+  "stderr_log": "raw/wrong_service_name.stderr.log",
+  "stdout_log": "raw/wrong_service_name.stdout.log"
+}

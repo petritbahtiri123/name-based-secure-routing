@@ -1,0 +1,22 @@
+{
+  "actual": "Adjacent current-SHA tests prove unknown routes and backend/transport failures have no fallback, but no network-isolated current-SHA origin scan was executed.",
+  "attack": "Attempt to bypass name routing and reach the private origin directly.",
+  "cleanup": "NOT_APPLICABLE",
+  "command": [
+    "go",
+    "test",
+    "./internal/client",
+    "-run",
+    "Test(Task6UnknownServiceDeniedBeforeSecureRoute|StandaloneBackendFailureHasNoFallback|StandaloneTransportFailureHasNoFallback)$",
+    "-count=1"
+  ],
+  "duration_seconds": 4.668429299999843,
+  "exit_code": 0,
+  "expected": "The private origin must be unreachable from the client network.",
+  "protected_service_reachable": null,
+  "reason_code": "NOT_CURRENT_SHA_NETWORK_ISOLATION",
+  "scenario": "direct_origin_scan",
+  "status": "INCONCLUSIVE",
+  "stderr_log": "raw/direct_origin_scan.stderr.log",
+  "stdout_log": "raw/direct_origin_scan.stdout.log"
+}

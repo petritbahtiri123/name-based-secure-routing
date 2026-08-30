@@ -1,0 +1,21 @@
+{
+  "actual": "The closed Core v0.1 vector suite rejected wrong-port and wrong-transport RouteGrants with their declared errors.",
+  "attack": "Present RouteGrant vectors bound to the wrong port or transport.",
+  "cleanup": "CLEAN",
+  "command": [
+    "python",
+    "-m",
+    "pytest",
+    "tests/protocol/test_vectors.py::test_every_vector_produces_its_declared_result",
+    "-q"
+  ],
+  "duration_seconds": 2.2345895000034943,
+  "exit_code": 0,
+  "expected": "Reject each vector with the declared fail-closed protocol error.",
+  "protected_service_reachable": false,
+  "reason_code": "NBSR_E_GRANT_INVALID/NBSR_E_ROUTE_DENIED",
+  "scenario": "wrong_port_transport",
+  "status": "PASS",
+  "stderr_log": "raw/wrong_port_transport.stderr.log",
+  "stdout_log": "raw/wrong_port_transport.stdout.log"
+}

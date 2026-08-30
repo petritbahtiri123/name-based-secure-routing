@@ -1,0 +1,307 @@
+{
+  "branch": "codex/nbsr-v3-wp0-wp1",
+  "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)",
+  "command": [
+    "scripts/security/adversarial_campaign.py",
+    "--output",
+    "evidence/security/adversarial-campaign-19ff575"
+  ],
+  "cpu": "Intel(R) Core(TM) i5-10210U CPU @ 1.60GHz",
+  "git_sha": "19ff57504a760f35ab1579d93cc9cd7cb874deb8",
+  "go": "go version go1.26.5 windows/amd64",
+  "logical_processors": 8,
+  "memory_bytes": 16942501888,
+  "physical_cores": 4,
+  "platform": "Windows-11-10.0.26200",
+  "python": "3.14.6",
+  "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+  "scenario_manifest": [
+    {
+      "attack": "Replay an already admitted route request/grant nonce.",
+      "cleanup_on_pass": "CLEAN",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--release",
+        "--manifest-path",
+        "crates/nbsr-transport/Cargo.toml",
+        "--test",
+        "admission",
+        "invalid_or_replayed_requests_leave_no_channel_state",
+        "--",
+        "--exact"
+      ],
+      "cwd": "root",
+      "expected": "Reject as replay and retain zero active channel state.",
+      "id": "replayed_grant_ticket",
+      "observed_on_pass": "The first request was admitted; the replay returned AdmissionReject::Replay and active_channels returned to zero.",
+      "pass_classification": "PASS",
+      "reason_code": "AdmissionReject::Replay"
+    },
+    {
+      "attack": "Flip one byte in a signed RouteGrant artifact.",
+      "cleanup_on_pass": "CLEAN",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--release",
+        "--manifest-path",
+        "crates/nbsr-transport/Cargo.toml",
+        "--test",
+        "core_v02_vectors",
+        "route_grant_sign1_is_validated_only_in_the_supplied_trust_context",
+        "--",
+        "--exact"
+      ],
+      "cwd": "root",
+      "expected": "Reject signature validation before route admission.",
+      "id": "tampered_grant_ticket",
+      "observed_on_pass": "Tampered COSE_Sign1 RouteGrant validation returned CoreV02Reject::GrantInvalid.",
+      "pass_classification": "PASS",
+      "reason_code": "CoreV02Reject::GrantInvalid"
+    },
+    {
+      "attack": "Substitute the authorized service identity/name.",
+      "cleanup_on_pass": "CLEAN",
+      "command": [
+        "go",
+        "test",
+        "./internal/client",
+        "-run",
+        "^TestAcquireRouteFailsClosedForAuthorityMutations$/^service_identity$",
+        "-count=1"
+      ],
+      "cwd": "demo",
+      "expected": "Reject the binding and retain no cached or pending authority.",
+      "id": "wrong_service_name",
+      "observed_on_pass": "Service-identity substitution returned authority.ErrBindingMismatch and Usage retained zero cache/pending entries.",
+      "pass_classification": "PASS",
+      "reason_code": "authority.ErrBindingMismatch"
+    },
+    {
+      "attack": "Present RouteGrant vectors bound to the wrong port or transport.",
+      "cleanup_on_pass": "CLEAN",
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "tests/protocol/test_vectors.py::test_every_vector_produces_its_declared_result",
+        "-q"
+      ],
+      "cwd": "root",
+      "expected": "Reject each vector with the declared fail-closed protocol error.",
+      "id": "wrong_port_transport",
+      "observed_on_pass": "The closed Core v0.1 vector suite rejected wrong-port and wrong-transport RouteGrants with their declared errors.",
+      "pass_classification": "PASS",
+      "reason_code": "NBSR_E_GRANT_INVALID/NBSR_E_ROUTE_DENIED"
+    },
+    {
+      "attack": "Substitute the transport-session proof-of-possession key reference.",
+      "cleanup_on_pass": "CLEAN",
+      "command": [
+        "go",
+        "test",
+        "./internal/client",
+        "-run",
+        "^TestWireConnectorRejectsProofBWithoutDialing$",
+        "-count=1"
+      ],
+      "cwd": "demo",
+      "expected": "Reject before dialing any transport.",
+      "id": "wrong_pop_key",
+      "observed_on_pass": "Proof-key substitution returned session.ErrProofBinding before wire dial.",
+      "pass_classification": "PASS",
+      "reason_code": "session.ErrProofBinding"
+    },
+    {
+      "attack": "Present an expired RouteGrant.",
+      "cleanup_on_pass": "CLEAN",
+      "command": [
+        "go",
+        "test",
+        "./internal/client",
+        "-run",
+        "^TestAcquireRouteFailsClosedForAuthorityMutations$/^expired$",
+        "-count=1"
+      ],
+      "cwd": "demo",
+      "expected": "Reject as expired and retain no cached or pending authority.",
+      "id": "expired_grant",
+      "observed_on_pass": "Expired authority returned authority.ErrExpired and retained zero cache/pending entries.",
+      "pass_classification": "PASS",
+      "reason_code": "authority.ErrExpired"
+    },
+    {
+      "attack": "Consume a grant after its digest appears in the verified revocation checkpoint.",
+      "cleanup_on_pass": "CLEAN",
+      "command": [
+        "go",
+        "test",
+        "./internal/authority",
+        "-run",
+        "^TestFinalCheckRejectsExpiryRevocationAndGeneration$/^checkpoint_revocation$",
+        "-count=1"
+      ],
+      "cwd": "go",
+      "expected": "Reject as revoked without authorizing new work.",
+      "id": "revoked_credential_grant",
+      "observed_on_pass": "Final authority validation returned authority.ErrRevoked for the checkpoint-revoked grant.",
+      "pass_classification": "PASS",
+      "reason_code": "authority.ErrRevoked"
+    },
+    {
+      "attack": "Present authority from a stale generation.",
+      "cleanup_on_pass": "CLEAN",
+      "command": [
+        "go",
+        "test",
+        "./internal/client",
+        "-run",
+        "^TestTask6AuthorityDeniedBeforeTransportOrApplication$",
+        "-count=1"
+      ],
+      "cwd": "demo",
+      "expected": "Reject before transport/application creation and retain no authority state.",
+      "id": "stale_generation_sequence",
+      "observed_on_pass": "Stale generation returned authority.ErrStaleGeneration with no transport, stream, payload, cache, or pending entry.",
+      "pass_classification": "PASS",
+      "reason_code": "authority.ErrStaleGeneration"
+    },
+    {
+      "attack": "Send a legacy v1 STREAM_OPEN on a negotiated credited-stream session.",
+      "cleanup_on_pass": "CLEAN",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--release",
+        "--manifest-path",
+        "crates/nbsr-transport/Cargo.toml",
+        "--test",
+        "stream_credit_integration",
+        "live_v1_rejects_legacy_stream_open_then_credited_retry_succeeds",
+        "--",
+        "--exact"
+      ],
+      "cwd": "root",
+      "expected": "Reject the legacy path without consuming credit/replay/live capacity; allow only a valid credited retry.",
+      "id": "downgrade_attempt",
+      "observed_on_pass": "The negotiated v1 credited mode rejected legacy STREAM_OPEN without state mutation and accepted only the credited retry.",
+      "pass_classification": "PASS",
+      "reason_code": "ApplicationStreamRejected::ProfileUnsupported"
+    },
+    {
+      "attack": "Authenticate with a client certificate issued by an unknown CA.",
+      "cleanup_on_pass": "CLEAN",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--release",
+        "--manifest-path",
+        "crates/nbsr-transport/Cargo.toml",
+        "--test",
+        "handshake",
+        "client_certificate_from_unknown_ca_is_rejected",
+        "--",
+        "--exact"
+      ],
+      "cwd": "root",
+      "expected": "Reject the handshake before allocating an authenticated connection.",
+      "id": "unauthorized_source",
+      "observed_on_pass": "The destination rejected the unknown-CA client certificate; no authenticated source connection was exposed.",
+      "pass_classification": "PASS",
+      "reason_code": "TLS_UNTRUSTED_CLIENT_CERTIFICATE"
+    },
+    {
+      "attack": "Attempt to bypass name routing and reach the private origin directly.",
+      "cleanup_on_pass": "NOT_APPLICABLE",
+      "command": [
+        "go",
+        "test",
+        "./internal/client",
+        "-run",
+        "Test(Task6UnknownServiceDeniedBeforeSecureRoute|StandaloneBackendFailureHasNoFallback|StandaloneTransportFailureHasNoFallback)$",
+        "-count=1"
+      ],
+      "cwd": "demo",
+      "expected": "The private origin must be unreachable from the client network.",
+      "id": "direct_origin_scan",
+      "observed_on_pass": "Adjacent current-SHA tests prove unknown routes and backend/transport failures have no fallback, but no network-isolated current-SHA origin scan was executed.",
+      "pass_classification": "INCONCLUSIVE",
+      "reason_code": "NOT_CURRENT_SHA_NETWORK_ISOLATION"
+    },
+    {
+      "attack": "Send malformed early stream-credit/control bytes.",
+      "cleanup_on_pass": "CLEAN",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--release",
+        "--manifest-path",
+        "crates/nbsr-transport/Cargo.toml",
+        "--test",
+        "stream_credit_integration",
+        "malformed_early_bytes_reject_before_admission_and_do_not_consume_state",
+        "--",
+        "--exact"
+      ],
+      "cwd": "root",
+      "expected": "Reject before admission without consuming credit, replay history, live capacity, or audit state.",
+      "id": "malformed_control_wire",
+      "observed_on_pass": "Malformed early bytes were rejected before admission; the same credit remained usable and ownership returned cleanly.",
+      "pass_classification": "PASS",
+      "reason_code": "ApplicationStreamRejected::MalformedPreface"
+    },
+    {
+      "attack": "Present a validly signed certificate whose source identity does not match policy.",
+      "cleanup_on_pass": "CLEAN",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--release",
+        "--manifest-path",
+        "crates/nbsr-transport/Cargo.toml",
+        "--test",
+        "handshake",
+        "source_identity_mismatch_is_rejected",
+        "--",
+        "--exact"
+      ],
+      "cwd": "root",
+      "expected": "Reject the handshake before exposing an authenticated connection.",
+      "id": "forged_identity_source_binding",
+      "observed_on_pass": "The destination rejected the mismatched source identity before authenticated connection allocation.",
+      "pass_classification": "PASS",
+      "reason_code": "TLS_SOURCE_IDENTITY_MISMATCH"
+    },
+    {
+      "attack": "Fail a replacement/current transport during rotation and recovery.",
+      "cleanup_on_pass": "CLEAN",
+      "command": [
+        "go",
+        "test",
+        "./internal/session",
+        "-run",
+        "Test(FailedCurrentBDoesNotPromoteDrainingAOrCreateC|RotationDoesNotReplayApplicationPayload|RecoveryAttemptsAndCancellationAreBounded)$",
+        "-count=1"
+      ],
+      "cwd": "go",
+      "expected": "Never restore a draining generation, never replay payload, bound retries, and clean pending ownership.",
+      "id": "edge_session_failure_recovery",
+      "observed_on_pass": "Failure tests kept the old generation non-current, performed no payload replay, bounded recovery attempts, and returned pending ownership to zero.",
+      "pass_classification": "PASS",
+      "reason_code": "session.ErrTransport/session.ErrRecoveryExhausted"
+    }
+  ],
+  "schema": "nbsr-security-adversarial-environment-v1",
+  "source_sha256": {
+    "scripts/security/adversarial_campaign.py": "c5e8f73613adef157c22891533095db55ec2cd9b3c9a508454835668a60b3ed1",
+    "tests/security/test_adversarial_campaign.py": "1c74e7f0aa38025951653c2a2af798625adede641daad9751312f7b4d2ff421a"
+  },
+  "timestamp_utc": "2026-08-30T15:46:36Z"
+}

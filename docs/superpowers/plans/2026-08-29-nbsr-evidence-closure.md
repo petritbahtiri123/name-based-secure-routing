@@ -209,13 +209,13 @@ Historical performance evidence remains valid for its recorded commit, host, and
 
 **Identified gap:** No current-SHA machine-readable attack/expected/observed/result matrix.
 
-**Files expected to change:** Campaign runner/tests and additive security evidence/report.
+**Files expected to change:** `scripts/security/adversarial_campaign.py`, `tests/security/test_adversarial_campaign.py`, additive `evidence/security/adversarial-campaign-19ff575/**`, and this status entry.
 
-**Implementation steps:** Requirement mapping; reuse tests; RED manifest validation; add only missing scenarios; run; report; atomic commit.
+**Implementation steps:** Define a closed scenario manifest mapping each approved attack to an exact existing Rust/Go/Python fail-closed regression and its asserted rejection code; add RED schema, command, cleanup, and evidence-integrity tests; implement a runner that executes each exact test independently and captures immutable stdout/stderr plus host/source metadata; preserve failures; derive JSON and Markdown without interpreting a failed test as security success; run the current-SHA campaign; verify checksums; commit once.
 
-**Tests:** Every supported negative scenario plus campaign schema/reproduction checks.
+**Tests:** Manifest coverage for replay, tamper, service/name, port/transport, PoP, expiry, revocation, stale generation, downgrade, unauthorized source, direct-origin applicability, malformed wire, forged identity, and failure/recovery; every executable scenario must exit zero, its underlying test must assert the named fail-closed reason and zero protected reachability/state; runner self-tests, affected suites, format/lint/vet/safety checks.
 
-**Evidence to capture:** Exact commands, attack, expected/observed behavior, logs, PASS/FAIL/INCONCLUSIVE.
+**Evidence to capture:** Git/host/toolchain metadata, exact command, attack, expected behavior, observed test assertion, reason/code, protected-service reachability, cleanup/resource result, duration, raw stdout/stderr, PASS/FAIL/INCONCLUSIVE, and SHA-256 checksums.
 
 **Acceptance criteria:** All security-negative supported cases fail closed; gaps remain explicit.
 
@@ -223,7 +223,7 @@ Historical performance evidence remains valid for its recorded commit, host, and
 
 **Dependencies:** Stable current baseline.
 
-**Final status:** PARTIAL
+**Final status:** Evidence PARTIAL / fail-closed regressions PASS. The current-SHA campaign executed 13 adversarial scenarios covering replay, tamper, service/name binding, port/transport binding, PoP substitution, expiry, revocation, stale generation, downgrade, unauthorized source, malformed wire, forged identity, and edge/session failure recovery. All 13 returned their asserted rejection/result, reported protected-service reachability `false`, and reported CLEAN ownership/state. No security defect was observed. Direct-origin scanning remains INCONCLUSIVE because the security campaign did not create a current-SHA network-isolated private-origin topology; adjacent unknown-route and no-fallback regressions passed but are not equivalent evidence. Raw evidence: `evidence/security/adversarial-campaign-19ff575/`.
 
 ### Task 7: ISP-style federation PoC
 

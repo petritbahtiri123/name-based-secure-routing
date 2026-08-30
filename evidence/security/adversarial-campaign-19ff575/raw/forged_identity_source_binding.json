@@ -1,0 +1,27 @@
+{
+  "actual": "The destination rejected the mismatched source identity before authenticated connection allocation.",
+  "attack": "Present a validly signed certificate whose source identity does not match policy.",
+  "cleanup": "CLEAN",
+  "command": [
+    "cargo",
+    "test",
+    "--locked",
+    "--release",
+    "--manifest-path",
+    "crates/nbsr-transport/Cargo.toml",
+    "--test",
+    "handshake",
+    "source_identity_mismatch_is_rejected",
+    "--",
+    "--exact"
+  ],
+  "duration_seconds": 0.44329039999865927,
+  "exit_code": 0,
+  "expected": "Reject the handshake before exposing an authenticated connection.",
+  "protected_service_reachable": false,
+  "reason_code": "TLS_SOURCE_IDENTITY_MISMATCH",
+  "scenario": "forged_identity_source_binding",
+  "status": "PASS",
+  "stderr_log": "raw/forged_identity_source_binding.stderr.log",
+  "stdout_log": "raw/forged_identity_source_binding.stdout.log"
+}

@@ -1,0 +1,27 @@
+{
+  "actual": "The first request was admitted; the replay returned AdmissionReject::Replay and active_channels returned to zero.",
+  "attack": "Replay an already admitted route request/grant nonce.",
+  "cleanup": "CLEAN",
+  "command": [
+    "cargo",
+    "test",
+    "--locked",
+    "--release",
+    "--manifest-path",
+    "crates/nbsr-transport/Cargo.toml",
+    "--test",
+    "admission",
+    "invalid_or_replayed_requests_leave_no_channel_state",
+    "--",
+    "--exact"
+  ],
+  "duration_seconds": 0.4100317999982508,
+  "exit_code": 0,
+  "expected": "Reject as replay and retain zero active channel state.",
+  "protected_service_reachable": false,
+  "reason_code": "AdmissionReject::Replay",
+  "scenario": "replayed_grant_ticket",
+  "status": "PASS",
+  "stderr_log": "raw/replayed_grant_ticket.stderr.log",
+  "stdout_log": "raw/replayed_grant_ticket.stdout.log"
+}

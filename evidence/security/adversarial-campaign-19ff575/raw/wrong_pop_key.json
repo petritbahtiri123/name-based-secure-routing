@@ -1,0 +1,22 @@
+{
+  "actual": "Proof-key substitution returned session.ErrProofBinding before wire dial.",
+  "attack": "Substitute the transport-session proof-of-possession key reference.",
+  "cleanup": "CLEAN",
+  "command": [
+    "go",
+    "test",
+    "./internal/client",
+    "-run",
+    "^TestWireConnectorRejectsProofBWithoutDialing$",
+    "-count=1"
+  ],
+  "duration_seconds": 4.660437400001683,
+  "exit_code": 0,
+  "expected": "Reject before dialing any transport.",
+  "protected_service_reachable": false,
+  "reason_code": "session.ErrProofBinding",
+  "scenario": "wrong_pop_key",
+  "status": "PASS",
+  "stderr_log": "raw/wrong_pop_key.stderr.log",
+  "stdout_log": "raw/wrong_pop_key.stdout.log"
+}

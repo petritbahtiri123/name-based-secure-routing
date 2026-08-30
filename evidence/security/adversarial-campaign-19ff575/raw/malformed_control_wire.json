@@ -1,0 +1,27 @@
+{
+  "actual": "Malformed early bytes were rejected before admission; the same credit remained usable and ownership returned cleanly.",
+  "attack": "Send malformed early stream-credit/control bytes.",
+  "cleanup": "CLEAN",
+  "command": [
+    "cargo",
+    "test",
+    "--locked",
+    "--release",
+    "--manifest-path",
+    "crates/nbsr-transport/Cargo.toml",
+    "--test",
+    "stream_credit_integration",
+    "malformed_early_bytes_reject_before_admission_and_do_not_consume_state",
+    "--",
+    "--exact"
+  ],
+  "duration_seconds": 0.46001239999895915,
+  "exit_code": 0,
+  "expected": "Reject before admission without consuming credit, replay history, live capacity, or audit state.",
+  "protected_service_reachable": false,
+  "reason_code": "ApplicationStreamRejected::MalformedPreface",
+  "scenario": "malformed_control_wire",
+  "status": "PASS",
+  "stderr_log": "raw/malformed_control_wire.stderr.log",
+  "stdout_log": "raw/malformed_control_wire.stdout.log"
+}

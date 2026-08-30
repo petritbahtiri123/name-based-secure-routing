@@ -1,0 +1,27 @@
+{
+  "actual": "Tampered COSE_Sign1 RouteGrant validation returned CoreV02Reject::GrantInvalid.",
+  "attack": "Flip one byte in a signed RouteGrant artifact.",
+  "cleanup": "CLEAN",
+  "command": [
+    "cargo",
+    "test",
+    "--locked",
+    "--release",
+    "--manifest-path",
+    "crates/nbsr-transport/Cargo.toml",
+    "--test",
+    "core_v02_vectors",
+    "route_grant_sign1_is_validated_only_in_the_supplied_trust_context",
+    "--",
+    "--exact"
+  ],
+  "duration_seconds": 0.3637971000134712,
+  "exit_code": 0,
+  "expected": "Reject signature validation before route admission.",
+  "protected_service_reachable": false,
+  "reason_code": "CoreV02Reject::GrantInvalid",
+  "scenario": "tampered_grant_ticket",
+  "status": "PASS",
+  "stderr_log": "raw/tampered_grant_ticket.stderr.log",
+  "stdout_log": "raw/tampered_grant_ticket.stdout.log"
+}

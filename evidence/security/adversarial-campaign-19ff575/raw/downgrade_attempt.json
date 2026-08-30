@@ -1,0 +1,27 @@
+{
+  "actual": "The negotiated v1 credited mode rejected legacy STREAM_OPEN without state mutation and accepted only the credited retry.",
+  "attack": "Send a legacy v1 STREAM_OPEN on a negotiated credited-stream session.",
+  "cleanup": "CLEAN",
+  "command": [
+    "cargo",
+    "test",
+    "--locked",
+    "--release",
+    "--manifest-path",
+    "crates/nbsr-transport/Cargo.toml",
+    "--test",
+    "stream_credit_integration",
+    "live_v1_rejects_legacy_stream_open_then_credited_retry_succeeds",
+    "--",
+    "--exact"
+  ],
+  "duration_seconds": 0.48137449999921955,
+  "exit_code": 0,
+  "expected": "Reject the legacy path without consuming credit/replay/live capacity; allow only a valid credited retry.",
+  "protected_service_reachable": false,
+  "reason_code": "ApplicationStreamRejected::ProfileUnsupported",
+  "scenario": "downgrade_attempt",
+  "status": "PASS",
+  "stderr_log": "raw/downgrade_attempt.stderr.log",
+  "stdout_log": "raw/downgrade_attempt.stdout.log"
+}

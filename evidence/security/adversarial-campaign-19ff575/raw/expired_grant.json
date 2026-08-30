@@ -1,0 +1,22 @@
+{
+  "actual": "Expired authority returned authority.ErrExpired and retained zero cache/pending entries.",
+  "attack": "Present an expired RouteGrant.",
+  "cleanup": "CLEAN",
+  "command": [
+    "go",
+    "test",
+    "./internal/client",
+    "-run",
+    "^TestAcquireRouteFailsClosedForAuthorityMutations$/^expired$",
+    "-count=1"
+  ],
+  "duration_seconds": 4.691615099989576,
+  "exit_code": 0,
+  "expected": "Reject as expired and retain no cached or pending authority.",
+  "protected_service_reachable": false,
+  "reason_code": "authority.ErrExpired",
+  "scenario": "expired_grant",
+  "status": "PASS",
+  "stderr_log": "raw/expired_grant.stderr.log",
+  "stdout_log": "raw/expired_grant.stdout.log"
+}

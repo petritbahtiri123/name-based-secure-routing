@@ -1,0 +1,27 @@
+{
+  "actual": "The destination rejected the unknown-CA client certificate; no authenticated source connection was exposed.",
+  "attack": "Authenticate with a client certificate issued by an unknown CA.",
+  "cleanup": "CLEAN",
+  "command": [
+    "cargo",
+    "test",
+    "--locked",
+    "--release",
+    "--manifest-path",
+    "crates/nbsr-transport/Cargo.toml",
+    "--test",
+    "handshake",
+    "client_certificate_from_unknown_ca_is_rejected",
+    "--",
+    "--exact"
+  ],
+  "duration_seconds": 0.45608369998808485,
+  "exit_code": 0,
+  "expected": "Reject the handshake before allocating an authenticated connection.",
+  "protected_service_reachable": false,
+  "reason_code": "TLS_UNTRUSTED_CLIENT_CERTIFICATE",
+  "scenario": "unauthorized_source",
+  "status": "PASS",
+  "stderr_log": "raw/unauthorized_source.stderr.log",
+  "stdout_log": "raw/unauthorized_source.stdout.log"
+}
