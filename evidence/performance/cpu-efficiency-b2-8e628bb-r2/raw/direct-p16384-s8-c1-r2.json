@@ -1,0 +1,76 @@
+{
+  "affinity": {
+    "client": {
+      "observed_mask": 1,
+      "requested_mask": 1,
+      "requested_processors": 1,
+      "system_mask": 255,
+      "verified": true
+    },
+    "requested_processors": 1,
+    "server": {
+      "observed_mask": 1,
+      "requested_mask": 1,
+      "requested_processors": 1,
+      "system_mask": 255,
+      "verified": true
+    },
+    "verified": true
+  },
+  "aggregate_application_gbps": 0.5094789925076816,
+  "aggregate_goodput_bytes_per_second": 63684874.06346019,
+  "allocated_bytes_per_operation": null,
+  "allocations_per_operation": null,
+  "application_streams_created_delta": 0,
+  "client_to_server_goodput_bytes_per_second": 31842437.031730097,
+  "completed_operations": 29156,
+  "corrupt": 0,
+  "cpu_ns_per_operation": 462490.56797914667,
+  "duplicates": 0,
+  "effective_cores": 0.8988541741116373,
+  "effective_cores_by_role": {
+    "destination": 0.3103806997511795,
+    "source": 0.5884734743604578
+  },
+  "errors": 0,
+  "gbit_per_second_per_effective_core": 0.5668093970984937,
+  "measured_ns": 15001738200,
+  "missing": 0,
+  "model": "one-outstanding-per-stream",
+  "operations_per_second": 1943.5081196124327,
+  "p50_latency_ns": 3808800,
+  "p95_latency_ns": 5925100,
+  "p99_latency_ns": 7622700,
+  "path": "direct",
+  "payload_bytes": 16384,
+  "payload_bytes_received": 477691904,
+  "payload_bytes_sent": 477691904,
+  "repeat": 2,
+  "replay_entries_delta": 0,
+  "request_messages_per_second": 1943.5081196124327,
+  "resources": {
+    "cpu_ns_per_completed_operation": 462490.56797914667,
+    "roles": {
+      "destination": {
+        "cpu_ns": 4656250000,
+        "peak_private_bytes": 1830912,
+        "peak_working_set_bytes": 8253440
+      },
+      "source": {
+        "cpu_ns": 8828125000,
+        "peak_private_bytes": 2678784,
+        "peak_working_set_bytes": 8998912
+      }
+    },
+    "total_cpu_ns": 13484375000
+  },
+  "response_messages_per_second": 1943.5081196124327,
+  "schema": "nbsr-p2a-repeat-v1",
+  "server_to_client_goodput_bytes_per_second": 31842437.031730097,
+  "service_channels_created_delta": 0,
+  "streams": 8,
+  "timeouts": 0,
+  "transport_sessions_created_delta": 0,
+  "valid": true,
+  "wrong_request": 0
+}

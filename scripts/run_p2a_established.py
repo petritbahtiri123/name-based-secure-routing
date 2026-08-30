@@ -14,6 +14,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from scripts.performance.authority import write_loopback_authority
 from scripts.performance.p2a_established import build_matrix, coefficient_of_variation, validate_repeat
+from scripts.performance.windows_affinity import set_and_verify_affinity
 from scripts.run_performance_validation import measured_client, wait_ready
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -95,7 +96,16 @@ def clear_cell_artifacts(raw_dir: Path, path: str, streams: int, payload_bytes: 
         artifact.unlink()
 
 
-def run_repeat(cell: dict, repeat: int, binaries: dict[str, Path], authority: Path, warmup: float, duration: float, raw_dir: Path) -> dict:
+def run_repeat(
+    cell: dict,
+    repeat: int,
+    binaries: dict[str, Path],
+    authority: Path,
+    warmup: float,
+    duration: float,
+    raw_dir: Path,
+    affinity_processors: int | None = None,
+) -> dict:
     ready = raw_dir / f"{cell['path']}-s{cell['streams']}-p{cell['payload_bytes']}-r{repeat}.ready.json"
     result = ready.with_suffix(".result.json")
     ack = ready.with_suffix(".ack")
@@ -132,6 +142,10 @@ def run_repeat(cell: dict, repeat: int, binaries: dict[str, Path], authority: Pa
         server_env = {**os.environ, "NBSR_P2A_STREAMS": str(cell["streams"])}
     server = subprocess.Popen(server_argv, cwd=ROOT, env=server_env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     try:
+        affinity = {"requested_processors": None, "verified": False}
+        if affinity_processors is not None:
+            server_affinity = set_and_verify_affinity(server.pid, affinity_processors)
+            affinity = {"requested_processors": affinity_processors, "server": server_affinity, "verified": False}
         endpoint = wait_ready(ready, server)["endpoint"]
         common = [
             "--authority-dir",
@@ -152,7 +166,19 @@ def run_repeat(cell: dict, repeat: int, binaries: dict[str, Path], authority: Pa
             if cell["path"] == "direct"
             else [str(binaries["nbsr"]), "--samples", "1", *common]
         )
-        stdout, resources = measured_client(client_argv, cwd=ROOT, server=server, timeout=int(warmup + duration + 60))
+        client_affinity: dict = {}
+        stdout, resources = measured_client(
+            client_argv,
+            cwd=ROOT,
+            server=server,
+            timeout=int(warmup + duration + 60),
+            client_started=(lambda pid: client_affinity.update(set_and_verify_affinity(pid, affinity_processors)))
+            if affinity_processors is not None
+            else None,
+        )
+        if affinity_processors is not None:
+            affinity["client"] = client_affinity
+            affinity["verified"] = bool(server_affinity["verified"] and client_affinity.get("verified"))
         record = json.loads(stdout.strip().splitlines()[-1])
         server.wait(timeout=30)
         if server.returncode:
@@ -175,6 +201,7 @@ def run_repeat(cell: dict, repeat: int, binaries: dict[str, Path], authority: Pa
                 "aggregate_application_gbps": 16 * completed * payload / seconds / 1e9,
                 "timeouts": 0,
                 "resources": summarize_resources(resources, completed, seconds),
+                "affinity": affinity,
                 "allocations_per_operation": None,
                 "allocated_bytes_per_operation": None,
             }

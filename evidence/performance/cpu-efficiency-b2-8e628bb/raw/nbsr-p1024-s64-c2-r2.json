@@ -1,0 +1,86 @@
+{
+  "admission_p50_latency_ns": null,
+  "admission_p95_latency_ns": null,
+  "admission_p99_latency_ns": null,
+  "admission_timeouts": 0,
+  "affinity": {
+    "client": {
+      "observed_mask": 3,
+      "requested_mask": 3,
+      "requested_processors": 2,
+      "system_mask": 255,
+      "verified": true
+    },
+    "requested_processors": 2,
+    "server": {
+      "observed_mask": 3,
+      "requested_mask": 3,
+      "requested_processors": 2,
+      "system_mask": 255,
+      "verified": true
+    },
+    "verified": true
+  },
+  "aggregate_application_gbps": 0.48308703402924424,
+  "aggregate_goodput_bytes_per_second": 60385879.25365553,
+  "allocated_bytes_per_operation": null,
+  "allocations_per_operation": null,
+  "application_streams_created_delta": 0,
+  "client_to_server_goodput_bytes_per_second": 30192939.626827765,
+  "completed_operations": 442397,
+  "corrupt": 0,
+  "cpu_ns_per_operation": 49764.4084385744,
+  "duplicates": 0,
+  "effective_cores": 1.4673181440924563,
+  "effective_cores_by_role": {
+    "destination": 0.5873438135331053,
+    "source": 0.879974330559351
+  },
+  "errors": 0,
+  "failed_admissions": 0,
+  "gbit_per_second_per_effective_core": 0.3292312822370475,
+  "latency_sample_count": 442397,
+  "latency_sample_stride": 1,
+  "max_admission_start_lateness_ns": 0,
+  "measured_ns": 15003988800,
+  "missing": 0,
+  "model": "one-outstanding-per-stream",
+  "operations_per_second": 29485.292604323993,
+  "p50_latency_ns": 2024400,
+  "p95_latency_ns": 3460200,
+  "p99_latency_ns": 4685000,
+  "path": "nbsr",
+  "payload_bytes": 1024,
+  "payload_bytes_received": 453014528,
+  "payload_bytes_sent": 453014528,
+  "repeat": 2,
+  "replay_entries_delta": 0,
+  "request_messages_per_second": 29485.29260432399,
+  "resources": {
+    "cpu_ns_per_completed_operation": 49764.4084385744,
+    "roles": {
+      "destination": {
+        "cpu_ns": 8812500000,
+        "peak_private_bytes": 2207744,
+        "peak_working_set_bytes": 8941568
+      },
+      "source": {
+        "cpu_ns": 13203125000,
+        "peak_private_bytes": 6967296,
+        "peak_working_set_bytes": 13185024
+      }
+    },
+    "total_cpu_ns": 22015625000
+  },
+  "response_messages_per_second": 29485.29260432399,
+  "scheduled_admissions": 0,
+  "schema": "nbsr-p2a-repeat-v1",
+  "server_to_client_goodput_bytes_per_second": 30192939.626827765,
+  "service_channels_created_delta": 0,
+  "streams": 64,
+  "successful_admissions": 0,
+  "timeouts": 0,
+  "transport_sessions_created_delta": 0,
+  "valid": true,
+  "wrong_request": 0
+}

@@ -181,13 +181,13 @@ Historical performance evidence remains valid for its recorded commit, host, and
 
 **Objective:** Produce reproducible measured and derived CPU-normalized efficiency.
 
-**Current evidence:** P2A process CPU and goodput at multiple payload/concurrency cells.
+**Current evidence:** Historical P2A process CPU and goodput plus current-SHA B5 combined-peer CPU telemetry. The B2 rerun now adds verified per-process Windows affinity and current release binaries.
 
-**Identified gap:** Current-binary rerun and explicit derivation ledger are missing; no physical affinity/server hardware proof.
+**Identified gap:** Server-class, WAN, physical-core pinning, and CPU-profile attribution remain external validation items. Windows affinity is verified as logical-processor masks, not physical-core placement.
 
-**Files expected to change:** Analyzer/tests and additive CPU evidence/report.
+**Files expected to change:** P2A runner affinity hook, bounded Windows affinity helper, CPU analyzer/tests/runner, additive raw evidence/report, and this status entry.
 
-**Implementation steps:** Preserve historical data; RED derivation tests; current release rerun if feasible; calculate Gbit/s/core, ops/CPU-second, ns/op, and Direct/NBSR delta; atomic commit.
+**Implementation steps:** Preserved historical data; added literal RED derivation/classification tests; verified `SetProcessAffinityMask` with `GetProcessAffinityMask` for both peers; ran 36 current release measurements at 1/2/4 logical processors; derived goodput, ops/s, CPU ns/op, effective cores, Gbit/s/effective core, latency, memory, and matched Direct/NBSR deltas; preserve one atomic commit.
 
 **Tests:** Analyzer math/metadata validation and affected benchmark self-tests.
 
@@ -199,7 +199,7 @@ Historical performance evidence remains valid for its recorded commit, host, and
 
 **Dependencies:** Stable B1/B4/B5 cells.
 
-**Final status:** PARTIAL
+**Final status:** PASS / SOFTWARE-LIMITED on this Windows loopback host for the two tested workloads. All 36 final repeats were valid with zero errors/timeouts and verified affinity. NBSR medians were 0.412/0.493/0.549 Gbit/s at 1/2/4 logical processors for 1 KiB/64 and 0.489/0.608/0.686 Gbit/s for 16 KiB/8. The 2-to-4 gains were only 11.3% and 12.9%, while the busiest peer remained below one effective core, so the observed plateau did not correlate with CPU/core saturation. Without a CPU profile, the exact software/harness bottleneck is not attributed. Final raw evidence: `evidence/performance/cpu-efficiency-b2-8e628bb-r2/`; the preceding valid pre-format run remains preserved at `evidence/performance/cpu-efficiency-b2-8e628bb/`.
 
 ### Task 6: Security/adversarial campaign
 

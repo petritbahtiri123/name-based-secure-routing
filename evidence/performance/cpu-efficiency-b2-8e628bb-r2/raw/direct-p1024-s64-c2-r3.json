@@ -1,0 +1,76 @@
+{
+  "affinity": {
+    "client": {
+      "observed_mask": 3,
+      "requested_mask": 3,
+      "requested_processors": 2,
+      "system_mask": 255,
+      "verified": true
+    },
+    "requested_processors": 2,
+    "server": {
+      "observed_mask": 3,
+      "requested_mask": 3,
+      "requested_processors": 2,
+      "system_mask": 255,
+      "verified": true
+    },
+    "verified": true
+  },
+  "aggregate_application_gbps": 0.4951262835435997,
+  "aggregate_goodput_bytes_per_second": 61890785.442949966,
+  "allocated_bytes_per_operation": null,
+  "allocations_per_operation": null,
+  "application_streams_created_delta": 0,
+  "client_to_server_goodput_bytes_per_second": 30945392.721474983,
+  "completed_operations": 453444,
+  "corrupt": 0,
+  "cpu_ns_per_operation": 47793.939273647906,
+  "duplicates": 0,
+  "effective_cores": 1.4443381059857043,
+  "effective_cores_by_role": {
+    "destination": 0.5519100188698077,
+    "source": 0.8924280871158966
+  },
+  "errors": 0,
+  "gbit_per_second_per_effective_core": 0.34280497169718815,
+  "measured_ns": 15004710400,
+  "missing": 0,
+  "model": "one-outstanding-per-stream",
+  "operations_per_second": 30220.110079565413,
+  "p50_latency_ns": 1994100,
+  "p95_latency_ns": 3158800,
+  "p99_latency_ns": 4511300,
+  "path": "direct",
+  "payload_bytes": 1024,
+  "payload_bytes_received": 464326656,
+  "payload_bytes_sent": 464326656,
+  "repeat": 3,
+  "replay_entries_delta": 0,
+  "request_messages_per_second": 30220.110079565413,
+  "resources": {
+    "cpu_ns_per_completed_operation": 47793.939273647906,
+    "roles": {
+      "destination": {
+        "cpu_ns": 8281250000,
+        "peak_private_bytes": 1900544,
+        "peak_working_set_bytes": 8306688
+      },
+      "source": {
+        "cpu_ns": 13390625000,
+        "peak_private_bytes": 7168000,
+        "peak_working_set_bytes": 13168640
+      }
+    },
+    "total_cpu_ns": 21671875000
+  },
+  "response_messages_per_second": 30220.110079565413,
+  "schema": "nbsr-p2a-repeat-v1",
+  "server_to_client_goodput_bytes_per_second": 30945392.721474983,
+  "service_channels_created_delta": 0,
+  "streams": 64,
+  "timeouts": 0,
+  "transport_sessions_created_delta": 0,
+  "valid": true,
+  "wrong_request": 0
+}

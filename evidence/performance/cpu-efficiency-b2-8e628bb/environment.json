@@ -1,0 +1,31 @@
+{
+  "affinity": "SetProcessAffinityMask followed by GetProcessAffinityMask for both source and destination",
+  "base_git_sha": "8e628bb440efda33ab35b62c635f9b31f734bc34",
+  "binary_sha256": {
+    "direct": "28f8360002d399b7a934905a4d9d1c20dc42985e9b72a8447aa5bcad25a2cf00",
+    "nbsr": "2d01ff80ff5b58560e0bc3aadc7aaddcba46b6bce4a294d22c855011050e84ac",
+    "server": "feaeacf79097067c4e8491011b7eb7bdea7a279a76633605e074a0c8032289b7"
+  },
+  "build": "release",
+  "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)",
+  "cores": 4,
+  "cpu": "Intel(R) Core(TM) i5-10210U CPU @ 1.60GHz",
+  "dirty_tree": true,
+  "go": "go version go1.26.5 windows/amd64",
+  "logical_processors": 8,
+  "memory_bytes": 16942501888,
+  "os": "Windows-11-10.0.26200-SP0",
+  "power_plan": "Power Scheme GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c  (High performance)",
+  "python": "3.14.6",
+  "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+  "schema": "nbsr-b2-cpu-environment-v1",
+  "source_sha256": {
+    "scripts/performance/cpu_efficiency.py": "e2cef9dde143596f4b26f12098b8321b12e9ea513ebc73882a45472487698762",
+    "scripts/performance/windows_affinity.py": "ad1873c0950ce14f507af08130ad890a0673486c8db95d23b52ee766454efbbb",
+    "scripts/run_b2_cpu_efficiency.py": "c4e24bc9096318570af4986e1e4352f02c47e0c0bb21c3f5305c2a8649428a42",
+    "scripts/run_p2a_established.py": "e6c788c1ec4b417d43195f17677a73ad46473b93c5a985feb9ac6a650b0071fe",
+    "tests/performance/test_cpu_efficiency.py": "f44bad7d9747da61119237cf93310c4f8394a48bde6bea322f803bada955ae0c"
+  },
+  "timestamp_utc": "2026-08-30T12:55:21Z",
+  "topology": "windows-loopback"
+}
