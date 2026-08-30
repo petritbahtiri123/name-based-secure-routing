@@ -157,25 +157,25 @@ Historical performance evidence remains valid for its recorded commit, host, and
 
 **Objective:** Resolve Direct, Go-to-Rust, and Rust-to-Rust memory/session classifications.
 
-**Current evidence:** Direct/Rust bounded windows and incomplete Go evidence.
+**Current evidence:** Historical P1B/closure evidence supplies reusable sampling and slope methodology but predates the current executable baseline; its Go runs were explicitly not authoritative-PASS-eligible. Current B5 evidence proves a Rust-to-Rust established-load plateau and zero post-cooldown ownership counters, but does not measure memory versus active connection/session/channel/stream counts or repeated lifecycle staircases.
 
-**Identified gap:** Go lifecycle closure is inconclusive and all executable-dependent conclusions predate the repaired baseline.
+**Identified gap:** No current-SHA release evidence held real authorized resources open at increasing counts on both Rust-to-Rust and independent Go-to-Rust paths. The completed campaign closes connection/channel/stream scaling and cleanup, but same-process repeated-session staircase evidence remains unavailable because the existing lifecycle server serializes admitted sessions and its bounded acknowledgement window does not support an observation hold across multiple sequential sessions.
 
-**Files expected to change:** Existing memory closure scripts/tests where necessary and additive evidence only.
+**Files expected to change:** Benchmark-only lifecycle hold/release support in the Rust source and independent Go peer; Go runtime/goroutine sampling extension; a B3 analyzer/runner and focused tests; additive `evidence/performance/memory-session-closure-b3-d076e26/**`; and this plan.
 
-**Implementation steps:** Reuse accepted methodology; short validation; authoritative runs; distinguish allocator retention from leaks; regression-first fix only if a real leak is proven; atomic commit.
+**Implementation steps:** Added RED tests for a bounded active/release gate and strict lifecycle analysis; implemented the minimum benchmark-only marker gate at the existing concurrent-stream synchronization point; ran short real-path validation; captured connection, channel, and stream scaling at 1/2/4/8 and five process-isolated 8-stream open/active/close/cooldown cycles for Rust-to-Rust and Go-to-Rust; classified paths independently.
 
-**Tests:** Memory analyzer, durable runner, lifecycle cleanup, relevant transport tests.
+**Tests:** B3 analyzer/runner, memory/resource suite, independent Go peer tests/race/vet, affected Rust benchmark/integration tests, fmt/clippy, dependency/privacy checks.
 
-**Evidence to capture:** Baseline/active/cooldown memory, slopes/confidence, handles/tasks/threads/connections, cleanup residuals.
+**Evidence to capture:** Per-process idle/active/cooldown working set/private bytes, CPU, handles, threads/goroutines; exact active connection/session/channel/stream counts; NBSR ownership diagnostics; scaling slope/dispersion; five-cycle cooldown staircase; commands/environment/source and binary hashes/checksums.
 
 **Acceptance criteria:** PASS/FAIL/INCONCLUSIVE per path with reproducible raw evidence.
 
 **Rollback/revert approach:** Revert isolated code fix if any; never delete evidence.
 
-**Dependencies:** B5 runner and stable-load cells.
+**Dependencies:** Accepted B5 commit `d076e26d7c95f8f559bc4ee02e677eb3291ea927`; existing lifecycle clients/server and Windows resource sampler.
 
-**Final status:** INCONCLUSIVE
+**Final status:** PARTIAL / CLEAN for both Rust-to-Rust and Go-to-Rust. All authoritative cells ended with the eight destination ownership counters at zero; connection private-memory slopes were approximately 230,961 bytes/connection and 222,466 bytes/connection respectively. Channel and stream deltas were below sampler resolution/noise at 1–8 resources, so near-zero or negative fitted slopes are not interpreted as memory savings. Five process-isolated cycles showed no material upward cooldown trend, but do not prove a same-process allocator plateau or multi-session staircase. Raw evidence: `evidence/performance/memory-session-closure-b3-d076e26/`.
 
 ### Task 5: B2 CPU efficiency
 

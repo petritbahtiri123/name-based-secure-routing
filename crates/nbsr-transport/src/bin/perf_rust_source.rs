@@ -27,6 +27,7 @@ use tokio::task::JoinSet;
 
 #[cfg(feature = "benchmark-harness")]
 mod b1_support;
+mod b3_support;
 #[cfg(feature = "benchmark-harness")]
 mod b4_support;
 #[cfg(feature = "benchmark-harness")]
@@ -348,11 +349,20 @@ async fn run_lifecycle(
     concurrent: bool,
     connection_offset: u64,
     report_connections: bool,
+    hold_for_release: bool,
     payload_bytes: usize,
 ) {
     let payload = vec![0x5a; payload_bytes];
     let mut sample_id = 0_u64;
     for connection_ordinal in 0..connections {
+        if hold_for_release {
+            let ordinal = connection_offset + connection_ordinal;
+            b3_support::wait_for_lifecycle_start(
+                &root.join(format!("connection-{ordinal}.start")),
+                Duration::from_secs(120),
+            )
+            .unwrap();
+        }
         let total_cold = Instant::now();
         let handshake = Instant::now();
         let connection = connect(
@@ -550,6 +560,15 @@ async fn run_lifecycle(
             }
         }
         if concurrent {
+            if hold_for_release {
+                let ordinal = connection_offset + connection_ordinal;
+                b3_support::wait_for_lifecycle_release(
+                    &root.join(format!("connection-{ordinal}.active")),
+                    &root.join(format!("connection-{ordinal}.release")),
+                    Duration::from_secs(120),
+                )
+                .unwrap();
+            }
             concurrent_barrier.wait().await;
             let mut request_latencies = vec![0_u128; (services * streams_per_service) as usize];
             while let Some(joined) = concurrent_tasks.join_next().await {
@@ -618,7 +637,13 @@ async fn run_lifecycle(
             b"complete\n",
         )
         .unwrap();
-        connection.close().await.unwrap();
+        drop(session);
+        drop(control);
+        if hold_for_release {
+            drop(connection);
+        } else {
+            connection.close().await.unwrap();
+        }
     }
 }
 
@@ -946,6 +971,7 @@ async fn main() {
             .parse::<u64>()
             .unwrap();
         let concurrent = optional_argument("--concurrent-streams").is_some();
+        let hold_for_release = optional_argument("--hold-for-release").is_some();
         let connection_offset_argument = optional_argument("--connection-offset");
         let connection_offset = connection_offset_argument
             .clone()
@@ -954,6 +980,7 @@ async fn main() {
             .unwrap();
         assert!((1..=32).contains(&services));
         assert!((1..=64).contains(&streams_per_service));
+        assert!(!hold_for_release || concurrent);
         run_lifecycle(
             &authority,
             endpoint,
@@ -964,6 +991,7 @@ async fn main() {
             concurrent,
             connection_offset,
             connection_offset_argument.is_some(),
+            hold_for_release,
             payload_bytes,
         )
         .await;

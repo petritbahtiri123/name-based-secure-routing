@@ -1,0 +1,687 @@
+{
+  "active_count": 8,
+  "channels": 1,
+  "cleanup": {
+    "all_zero": true,
+    "counters": {
+      "application_streams_current_live": 0,
+      "audit_queue_current_entries": 0,
+      "nbsr_tasks_current_live": 0,
+      "quic_connections_current_live": 0,
+      "quic_streams_current_live": 0,
+      "replay_state_current_entries": 0,
+      "service_channels_current_live": 0,
+      "transport_sessions_current_live": 0
+    },
+    "destination_exited": true,
+    "source_processes_exited": true
+  },
+  "client_results": [
+    {
+      "benchmark_samples": 1,
+      "core_version": 2,
+      "federation_profile": "nbsr-federation-dev-v1",
+      "messages": [
+        "CLIENT_HELLO",
+        "EDGE_HELLO",
+        "ROUTE_OPEN",
+        "ROUTE_ACCEPT",
+        "STREAM_OPEN",
+        "STREAM_ACCEPT"
+      ],
+      "payload_sha256": "",
+      "route_open_body_version": 2,
+      "samples": [
+        {
+          "application_processing_ns": null,
+          "bytes_received": 1024,
+          "bytes_transmitted": 1024,
+          "channel_binding_ns": 37500,
+          "completed_ns": 0,
+          "destination_admission_ns": null,
+          "hello_rtt_ns": 2339780400,
+          "request_latency_ns": 458500,
+          "route_open_rtt_ns": 2062400,
+          "sample_id": 0,
+          "scheduled_ns": 0,
+          "service_latency_ns": 0,
+          "source_admission_ns": 214800,
+          "start_lateness_ns": 0,
+          "started_ns": 0,
+          "stream_open_rtt_ns": 626500,
+          "success": true,
+          "total_scenario_ns": 2395759300,
+          "transport_handshake_ns": 39525700,
+          "ttfab_ns": 2395759300
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "benchmark_samples": 1,
+      "core_version": 2,
+      "federation_profile": "nbsr-federation-dev-v1",
+      "messages": [
+        "CLIENT_HELLO",
+        "EDGE_HELLO",
+        "ROUTE_OPEN",
+        "ROUTE_ACCEPT",
+        "STREAM_OPEN",
+        "STREAM_ACCEPT"
+      ],
+      "payload_sha256": "",
+      "route_open_body_version": 2,
+      "samples": [
+        {
+          "application_processing_ns": null,
+          "bytes_received": 1024,
+          "bytes_transmitted": 1024,
+          "channel_binding_ns": 40100,
+          "completed_ns": 0,
+          "destination_admission_ns": null,
+          "hello_rtt_ns": 2286274500,
+          "request_latency_ns": 468300,
+          "route_open_rtt_ns": 2033300,
+          "sample_id": 0,
+          "scheduled_ns": 0,
+          "service_latency_ns": 0,
+          "source_admission_ns": 336500,
+          "start_lateness_ns": 0,
+          "started_ns": 0,
+          "stream_open_rtt_ns": 779600,
+          "success": true,
+          "total_scenario_ns": 2339339900,
+          "transport_handshake_ns": 35862900,
+          "ttfab_ns": 2339339900
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "benchmark_samples": 1,
+      "core_version": 2,
+      "federation_profile": "nbsr-federation-dev-v1",
+      "messages": [
+        "CLIENT_HELLO",
+        "EDGE_HELLO",
+        "ROUTE_OPEN",
+        "ROUTE_ACCEPT",
+        "STREAM_OPEN",
+        "STREAM_ACCEPT"
+      ],
+      "payload_sha256": "",
+      "route_open_body_version": 2,
+      "samples": [
+        {
+          "application_processing_ns": null,
+          "bytes_received": 1024,
+          "bytes_transmitted": 1024,
+          "channel_binding_ns": 30000,
+          "completed_ns": 0,
+          "destination_admission_ns": null,
+          "hello_rtt_ns": 2240270900,
+          "request_latency_ns": 328000,
+          "route_open_rtt_ns": 1456600,
+          "sample_id": 0,
+          "scheduled_ns": 0,
+          "service_latency_ns": 0,
+          "source_admission_ns": 200900,
+          "start_lateness_ns": 0,
+          "started_ns": 0,
+          "stream_open_rtt_ns": 502800,
+          "success": true,
+          "total_scenario_ns": 2287815700,
+          "transport_handshake_ns": 30710100,
+          "ttfab_ns": 2287815700
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "benchmark_samples": 1,
+      "core_version": 2,
+      "federation_profile": "nbsr-federation-dev-v1",
+      "messages": [
+        "CLIENT_HELLO",
+        "EDGE_HELLO",
+        "ROUTE_OPEN",
+        "ROUTE_ACCEPT",
+        "STREAM_OPEN",
+        "STREAM_ACCEPT"
+      ],
+      "payload_sha256": "",
+      "route_open_body_version": 2,
+      "samples": [
+        {
+          "application_processing_ns": null,
+          "bytes_received": 1024,
+          "bytes_transmitted": 1024,
+          "channel_binding_ns": 35800,
+          "completed_ns": 0,
+          "destination_admission_ns": null,
+          "hello_rtt_ns": 2269003200,
+          "request_latency_ns": 1068900,
+          "route_open_rtt_ns": 1554200,
+          "sample_id": 0,
+          "scheduled_ns": 0,
+          "service_latency_ns": 0,
+          "source_admission_ns": 195700,
+          "start_lateness_ns": 0,
+          "started_ns": 0,
+          "stream_open_rtt_ns": 664700,
+          "success": true,
+          "total_scenario_ns": 2318439100,
+          "transport_handshake_ns": 32529300,
+          "ttfab_ns": 2318439100
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "benchmark_samples": 1,
+      "core_version": 2,
+      "federation_profile": "nbsr-federation-dev-v1",
+      "messages": [
+        "CLIENT_HELLO",
+        "EDGE_HELLO",
+        "ROUTE_OPEN",
+        "ROUTE_ACCEPT",
+        "STREAM_OPEN",
+        "STREAM_ACCEPT"
+      ],
+      "payload_sha256": "",
+      "route_open_body_version": 2,
+      "samples": [
+        {
+          "application_processing_ns": null,
+          "bytes_received": 1024,
+          "bytes_transmitted": 1024,
+          "channel_binding_ns": 39500,
+          "completed_ns": 0,
+          "destination_admission_ns": null,
+          "hello_rtt_ns": 2381433700,
+          "request_latency_ns": 329300,
+          "route_open_rtt_ns": 1258900,
+          "sample_id": 0,
+          "scheduled_ns": 0,
+          "service_latency_ns": 0,
+          "source_admission_ns": 190300,
+          "start_lateness_ns": 0,
+          "started_ns": 0,
+          "stream_open_rtt_ns": 486800,
+          "success": true,
+          "total_scenario_ns": 2442790500,
+          "transport_handshake_ns": 46653900,
+          "ttfab_ns": 2442790500
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "benchmark_samples": 1,
+      "core_version": 2,
+      "federation_profile": "nbsr-federation-dev-v1",
+      "messages": [
+        "CLIENT_HELLO",
+        "EDGE_HELLO",
+        "ROUTE_OPEN",
+        "ROUTE_ACCEPT",
+        "STREAM_OPEN",
+        "STREAM_ACCEPT"
+      ],
+      "payload_sha256": "",
+      "route_open_body_version": 2,
+      "samples": [
+        {
+          "application_processing_ns": null,
+          "bytes_received": 1024,
+          "bytes_transmitted": 1024,
+          "channel_binding_ns": 36400,
+          "completed_ns": 0,
+          "destination_admission_ns": null,
+          "hello_rtt_ns": 2357235000,
+          "request_latency_ns": 383000,
+          "route_open_rtt_ns": 2066600,
+          "sample_id": 0,
+          "scheduled_ns": 0,
+          "service_latency_ns": 0,
+          "source_admission_ns": 370900,
+          "start_lateness_ns": 0,
+          "started_ns": 0,
+          "stream_open_rtt_ns": 632600,
+          "success": true,
+          "total_scenario_ns": 2415341900,
+          "transport_handshake_ns": 41217600,
+          "ttfab_ns": 2415341900
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "benchmark_samples": 1,
+      "core_version": 2,
+      "federation_profile": "nbsr-federation-dev-v1",
+      "messages": [
+        "CLIENT_HELLO",
+        "EDGE_HELLO",
+        "ROUTE_OPEN",
+        "ROUTE_ACCEPT",
+        "STREAM_OPEN",
+        "STREAM_ACCEPT"
+      ],
+      "payload_sha256": "",
+      "route_open_body_version": 2,
+      "samples": [
+        {
+          "application_processing_ns": null,
+          "bytes_received": 1024,
+          "bytes_transmitted": 1024,
+          "channel_binding_ns": 27000,
+          "completed_ns": 0,
+          "destination_admission_ns": null,
+          "hello_rtt_ns": 2311703000,
+          "request_latency_ns": 707600,
+          "route_open_rtt_ns": 1968100,
+          "sample_id": 0,
+          "scheduled_ns": 0,
+          "service_latency_ns": 0,
+          "source_admission_ns": 308600,
+          "start_lateness_ns": 0,
+          "started_ns": 0,
+          "stream_open_rtt_ns": 651900,
+          "success": true,
+          "total_scenario_ns": 2366900300,
+          "transport_handshake_ns": 37958800,
+          "ttfab_ns": 2366900300
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "benchmark_samples": 1,
+      "core_version": 2,
+      "federation_profile": "nbsr-federation-dev-v1",
+      "messages": [
+        "CLIENT_HELLO",
+        "EDGE_HELLO",
+        "ROUTE_OPEN",
+        "ROUTE_ACCEPT",
+        "STREAM_OPEN",
+        "STREAM_ACCEPT"
+      ],
+      "payload_sha256": "",
+      "route_open_body_version": 2,
+      "samples": [
+        {
+          "application_processing_ns": null,
+          "bytes_received": 1024,
+          "bytes_transmitted": 1024,
+          "channel_binding_ns": 51900,
+          "completed_ns": 0,
+          "destination_admission_ns": null,
+          "hello_rtt_ns": 20661100,
+          "request_latency_ns": 441200,
+          "route_open_rtt_ns": 6962900,
+          "sample_id": 0,
+          "scheduled_ns": 0,
+          "service_latency_ns": 0,
+          "source_admission_ns": 219400,
+          "start_lateness_ns": 0,
+          "started_ns": 0,
+          "stream_open_rtt_ns": 737200,
+          "success": true,
+          "total_scenario_ns": 2261255300,
+          "transport_handshake_ns": 28274700,
+          "ttfab_ns": 2261255300
+        }
+      ],
+      "status": "PASS"
+    }
+  ],
+  "commands": {
+    "clients": [
+      [
+        "C:\\NBSR-build\\b3-memory\\cargo-target\\release\\nbsr-go-peer.exe",
+        "--config",
+        "<temporary>\\lifecycle\\go-0.json"
+      ],
+      [
+        "C:\\NBSR-build\\b3-memory\\cargo-target\\release\\nbsr-go-peer.exe",
+        "--config",
+        "<temporary>\\lifecycle\\go-1.json"
+      ],
+      [
+        "C:\\NBSR-build\\b3-memory\\cargo-target\\release\\nbsr-go-peer.exe",
+        "--config",
+        "<temporary>\\lifecycle\\go-2.json"
+      ],
+      [
+        "C:\\NBSR-build\\b3-memory\\cargo-target\\release\\nbsr-go-peer.exe",
+        "--config",
+        "<temporary>\\lifecycle\\go-3.json"
+      ],
+      [
+        "C:\\NBSR-build\\b3-memory\\cargo-target\\release\\nbsr-go-peer.exe",
+        "--config",
+        "<temporary>\\lifecycle\\go-4.json"
+      ],
+      [
+        "C:\\NBSR-build\\b3-memory\\cargo-target\\release\\nbsr-go-peer.exe",
+        "--config",
+        "<temporary>\\lifecycle\\go-5.json"
+      ],
+      [
+        "C:\\NBSR-build\\b3-memory\\cargo-target\\release\\nbsr-go-peer.exe",
+        "--config",
+        "<temporary>\\lifecycle\\go-6.json"
+      ],
+      [
+        "C:\\NBSR-build\\b3-memory\\cargo-target\\release\\nbsr-go-peer.exe",
+        "--config",
+        "<temporary>\\lifecycle\\go-7.json"
+      ]
+    ],
+    "server": [
+      "C:\\NBSR-build\\b3-memory\\cargo-target\\release\\wp8_interop_server.exe",
+      "--ready",
+      "<temporary>\\ready.json",
+      "--result",
+      "<repo>\\evidence\\performance\\memory-session-closure-b3-d076e26\\raw\\go-rust\\connections-8\\server-result.json",
+      "--authority-dir",
+      "<temporary>\\authority",
+      "--completion-ack",
+      "<temporary>\\completion.ack",
+      "--destination-diagnostics-file",
+      "<repo>\\evidence\\performance\\memory-session-closure-b3-d076e26\\raw\\go-rust\\connections-8\\destination-diagnostics.ndjson",
+      "--diagnostic-drain-seconds",
+      "2"
+    ]
+  },
+  "cycles": 1,
+  "kind": "connections",
+  "name": "connections-8",
+  "samples": [
+    {
+      "cycle": 0,
+      "handle_count": 82,
+      "kernel_cpu_ns": 0,
+      "peak_working_set_bytes": 6737920,
+      "phase": "idle",
+      "pid": 4540,
+      "private_bytes": 1445888,
+      "role": "destination",
+      "thread_count": 5,
+      "timestamp_ns": 119057678458600,
+      "user_cpu_ns": 0,
+      "working_set_bytes": 6737920
+    },
+    {
+      "cycle": 0,
+      "handle_count": 796,
+      "kernel_cpu_ns": 62500000,
+      "peak_working_set_bytes": 63459328,
+      "phase": "idle",
+      "private_bytes": 374452224,
+      "process_count": 8,
+      "role": "source",
+      "thread_count": 51,
+      "timestamp_ns": 119057678458600,
+      "user_cpu_ns": 46875000,
+      "working_set_bytes": 63459328
+    },
+    {
+      "cycle": 0,
+      "handle_count": 82,
+      "kernel_cpu_ns": 0,
+      "peak_working_set_bytes": 6737920,
+      "phase": "idle",
+      "pid": 4540,
+      "private_bytes": 1445888,
+      "role": "destination",
+      "thread_count": 5,
+      "timestamp_ns": 119058261166100,
+      "user_cpu_ns": 0,
+      "working_set_bytes": 6737920
+    },
+    {
+      "cycle": 0,
+      "handle_count": 796,
+      "kernel_cpu_ns": 171875000,
+      "peak_working_set_bytes": 63537152,
+      "phase": "idle",
+      "private_bytes": 374509568,
+      "process_count": 8,
+      "role": "source",
+      "thread_count": 51,
+      "timestamp_ns": 119058261166100,
+      "user_cpu_ns": 78125000,
+      "working_set_bytes": 63537152
+    },
+    {
+      "cycle": 0,
+      "handle_count": 82,
+      "kernel_cpu_ns": 0,
+      "peak_working_set_bytes": 6742016,
+      "phase": "idle",
+      "pid": 4540,
+      "private_bytes": 1445888,
+      "role": "destination",
+      "thread_count": 5,
+      "timestamp_ns": 119058818141600,
+      "user_cpu_ns": 0,
+      "working_set_bytes": 6742016
+    },
+    {
+      "cycle": 0,
+      "handle_count": 796,
+      "kernel_cpu_ns": 296875000,
+      "peak_working_set_bytes": 68161536,
+      "phase": "idle",
+      "private_bytes": 377344000,
+      "process_count": 8,
+      "role": "source",
+      "thread_count": 51,
+      "timestamp_ns": 119058818141600,
+      "user_cpu_ns": 78125000,
+      "working_set_bytes": 68161536
+    },
+    {
+      "cycle": 0,
+      "handle_count": 82,
+      "kernel_cpu_ns": 0,
+      "peak_working_set_bytes": 6742016,
+      "phase": "idle",
+      "pid": 4540,
+      "private_bytes": 1445888,
+      "role": "destination",
+      "thread_count": 5,
+      "timestamp_ns": 119059364502800,
+      "user_cpu_ns": 0,
+      "working_set_bytes": 6742016
+    },
+    {
+      "cycle": 0,
+      "handle_count": 796,
+      "kernel_cpu_ns": 312500000,
+      "peak_working_set_bytes": 68452352,
+      "phase": "idle",
+      "private_bytes": 377810944,
+      "process_count": 8,
+      "role": "source",
+      "thread_count": 51,
+      "timestamp_ns": 119059364502800,
+      "user_cpu_ns": 125000000,
+      "working_set_bytes": 68452352
+    },
+    {
+      "cycle": 0,
+      "handle_count": 83,
+      "kernel_cpu_ns": 0,
+      "peak_working_set_bytes": 9895936,
+      "phase": "active",
+      "pid": 4540,
+      "private_bytes": 3403776,
+      "role": "destination",
+      "thread_count": 5,
+      "timestamp_ns": 119059979652400,
+      "user_cpu_ns": 0,
+      "working_set_bytes": 9895936
+    },
+    {
+      "cycle": 0,
+      "handle_count": 931,
+      "kernel_cpu_ns": 546875000,
+      "peak_working_set_bytes": 86646784,
+      "phase": "active",
+      "private_bytes": 385916928,
+      "process_count": 8,
+      "role": "source",
+      "thread_count": 60,
+      "timestamp_ns": 119059979652400,
+      "user_cpu_ns": 234375000,
+      "working_set_bytes": 86646784
+    },
+    {
+      "cycle": 0,
+      "handle_count": 83,
+      "kernel_cpu_ns": 0,
+      "peak_working_set_bytes": 10002432,
+      "phase": "active",
+      "pid": 4540,
+      "private_bytes": 3403776,
+      "role": "destination",
+      "thread_count": 5,
+      "timestamp_ns": 119060529667500,
+      "user_cpu_ns": 0,
+      "working_set_bytes": 10002432
+    },
+    {
+      "cycle": 0,
+      "handle_count": 933,
+      "kernel_cpu_ns": 546875000,
+      "peak_working_set_bytes": 86818816,
+      "phase": "active",
+      "private_bytes": 386019328,
+      "process_count": 8,
+      "role": "source",
+      "thread_count": 60,
+      "timestamp_ns": 119060529667500,
+      "user_cpu_ns": 234375000,
+      "working_set_bytes": 86818816
+    },
+    {
+      "cycle": 0,
+      "handle_count": 83,
+      "kernel_cpu_ns": 0,
+      "peak_working_set_bytes": 10002432,
+      "phase": "active",
+      "pid": 4540,
+      "private_bytes": 3403776,
+      "role": "destination",
+      "thread_count": 5,
+      "timestamp_ns": 119061075129800,
+      "user_cpu_ns": 0,
+      "working_set_bytes": 10002432
+    },
+    {
+      "cycle": 0,
+      "handle_count": 933,
+      "kernel_cpu_ns": 546875000,
+      "peak_working_set_bytes": 87760896,
+      "phase": "active",
+      "private_bytes": 386297856,
+      "process_count": 8,
+      "role": "source",
+      "thread_count": 60,
+      "timestamp_ns": 119061075129800,
+      "user_cpu_ns": 234375000,
+      "working_set_bytes": 87760896
+    },
+    {
+      "cycle": 0,
+      "handle_count": 83,
+      "kernel_cpu_ns": 0,
+      "peak_working_set_bytes": 10006528,
+      "phase": "active",
+      "pid": 4540,
+      "private_bytes": 3403776,
+      "role": "destination",
+      "thread_count": 5,
+      "timestamp_ns": 119061628832600,
+      "user_cpu_ns": 0,
+      "working_set_bytes": 10006528
+    },
+    {
+      "cycle": 0,
+      "handle_count": 933,
+      "kernel_cpu_ns": 593750000,
+      "peak_working_set_bytes": 87781376,
+      "phase": "active",
+      "private_bytes": 386314240,
+      "process_count": 8,
+      "role": "source",
+      "thread_count": 60,
+      "timestamp_ns": 119061628832600,
+      "user_cpu_ns": 250000000,
+      "working_set_bytes": 87781376
+    },
+    {
+      "cycle": 0,
+      "handle_count": 83,
+      "kernel_cpu_ns": 31250000,
+      "peak_working_set_bytes": 10108928,
+      "phase": "cooldown",
+      "pid": 4540,
+      "private_bytes": 3239936,
+      "role": "destination",
+      "thread_count": 5,
+      "timestamp_ns": 119062373991200,
+      "user_cpu_ns": 31250000,
+      "working_set_bytes": 9895936
+    },
+    {
+      "cycle": 0,
+      "handle_count": 84,
+      "kernel_cpu_ns": 31250000,
+      "peak_working_set_bytes": 10108928,
+      "phase": "cooldown",
+      "pid": 4540,
+      "private_bytes": 3239936,
+      "role": "destination",
+      "thread_count": 5,
+      "timestamp_ns": 119062879909100,
+      "user_cpu_ns": 31250000,
+      "working_set_bytes": 9908224
+    },
+    {
+      "cycle": 0,
+      "handle_count": 84,
+      "kernel_cpu_ns": 31250000,
+      "peak_working_set_bytes": 10108928,
+      "phase": "cooldown",
+      "pid": 4540,
+      "private_bytes": 3239936,
+      "role": "destination",
+      "thread_count": 5,
+      "timestamp_ns": 119063384857000,
+      "user_cpu_ns": 31250000,
+      "working_set_bytes": 9908224
+    },
+    {
+      "cycle": 0,
+      "handle_count": 84,
+      "kernel_cpu_ns": 31250000,
+      "peak_working_set_bytes": 10108928,
+      "phase": "cooldown",
+      "pid": 4540,
+      "private_bytes": 3239936,
+      "role": "destination",
+      "thread_count": 5,
+      "timestamp_ns": 119063890147000,
+      "user_cpu_ns": 31250000,
+      "working_set_bytes": 9912320
+    }
+  ],
+  "sessions": 8,
+  "streams": 1
+}

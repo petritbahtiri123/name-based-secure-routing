@@ -2498,7 +2498,9 @@ async fn run_lifecycle(
         .await
         .expect("lifecycle client completion acknowledgement");
         if !concurrent_sessions {
-            connection.close().await.unwrap();
+            drop(session);
+            drop(control);
+            drop(connection);
         }
     }
     measurements
@@ -2923,7 +2925,10 @@ async fn main() {
             .collect::<Vec<_>>()
             .join(",");
         fs::write(result, format!("{{\"connections\":{connections},\"services_per_connection\":{services},\"streams_per_service\":{streams_per_service},\"samples\":[{samples}],\"status\":\"PASS\"}}")).unwrap();
-        listener.close().await.unwrap();
+        if diagnostic_sampler.is_some() && diagnostic_drain_seconds > 0 {
+            std::thread::sleep(Duration::from_secs(diagnostic_drain_seconds));
+        }
+        drop(listener);
         return;
     }
     if let Some(map) = demo_backend_map.as_ref() {

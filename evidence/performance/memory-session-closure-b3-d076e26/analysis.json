@@ -1,0 +1,121 @@
+{
+  "paths": {
+    "go-rust": {
+      "cleanup_all_zero": true,
+      "cycles": {
+        "cooldown_private_slope_bytes_per_cycle": 12697.6,
+        "count": 5,
+        "mode": "process-isolated"
+      },
+      "evidence": "PARTIAL",
+      "lifecycle": "CLEAN",
+      "path": "go-rust",
+      "scaling": {
+        "channels": {
+          "counts": [
+            1,
+            2,
+            4,
+            8
+          ],
+          "incremental_private_bytes": [
+            389120.0,
+            401408.0,
+            389120.0,
+            405504.0
+          ],
+          "private_bytes_per_resource": 1674.017391304348
+        },
+        "connections": {
+          "counts": [
+            1,
+            2,
+            4,
+            8
+          ],
+          "incremental_private_bytes": [
+            405504.0,
+            622592.0,
+            1118208.0,
+            1957888.0
+          ],
+          "private_bytes_per_resource": 222466.22608695654
+        },
+        "streams": {
+          "counts": [
+            1,
+            2,
+            4,
+            8
+          ],
+          "incremental_private_bytes": [
+            391168.0,
+            413696.0,
+            430080.0,
+            389120.0
+          ],
+          "private_bytes_per_resource": -1335.6521739130435
+        }
+      }
+    },
+    "rust-rust": {
+      "cleanup_all_zero": true,
+      "cycles": {
+        "cooldown_private_slope_bytes_per_cycle": -25395.2,
+        "count": 5,
+        "mode": "process-isolated"
+      },
+      "evidence": "PARTIAL",
+      "lifecycle": "CLEAN",
+      "path": "rust-rust",
+      "scaling": {
+        "channels": {
+          "counts": [
+            1,
+            2,
+            4,
+            8
+          ],
+          "incremental_private_bytes": [
+            385024.0,
+            358400.0,
+            405504.0,
+            421888.0
+          ],
+          "private_bytes_per_resource": 7248.139130434783
+        },
+        "connections": {
+          "counts": [
+            1,
+            2,
+            4,
+            8
+          ],
+          "incremental_private_bytes": [
+            380928.0,
+            620544.0,
+            1114112.0,
+            1998848.0
+          ],
+          "private_bytes_per_resource": 230960.97391304348
+        },
+        "streams": {
+          "counts": [
+            1,
+            2,
+            4,
+            8
+          ],
+          "incremental_private_bytes": [
+            389120.0,
+            411648.0,
+            397312.0,
+            385024.0
+          ],
+          "private_bytes_per_resource": -1905.5304347826086
+        }
+      }
+    }
+  },
+  "schema": "nbsr-b3-memory-session-analysis-v1"
+}

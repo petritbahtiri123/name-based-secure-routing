@@ -47,6 +47,7 @@ type config struct {
 	LifecycleConcurrent        bool     `json:"lifecycle_concurrent,omitempty"`
 	LifecycleConnectionOffset  int      `json:"lifecycle_connection_offset,omitempty"`
 	LifecycleReportConnections bool     `json:"lifecycle_report_connections,omitempty"`
+	LifecycleHoldForRelease    bool     `json:"lifecycle_hold_for_release,omitempty"`
 	StreamCreditProfile        string   `json:"stream_credit_profile,omitempty"`
 	RotationReadinessPaths     []string `json:"rotation_readiness_paths,omitempty"`
 }
@@ -164,7 +165,7 @@ func (value config) validate() error {
 	if (value.RuntimeSeriesPath == "") != (value.RuntimeSamplingCadenceMS == 0) {
 		return errors.New("incomplete runtime sampling configuration")
 	}
-	if value.RuntimeSeriesPath != "" && (value.OfferedRate <= 0 || value.RuntimeSamplingCadenceMS != 1000) {
+	if value.RuntimeSeriesPath != "" && ((value.OfferedRate <= 0 && value.LifecycleAuthorityDir == "") || value.RuntimeSamplingCadenceMS != 1000) {
 		return errors.New("runtime sampling requires open-loop load and a 1000 ms cadence")
 	}
 	if value.LifecycleAuthorityDir == "" {
@@ -175,6 +176,9 @@ func (value config) validate() error {
 	}
 	if value.LifecycleConnections < 1 || value.LifecycleServices < 1 || value.LifecycleServices > 32 || value.LifecycleStreamsPerService < 1 || value.LifecycleStreamsPerService > 64 {
 		return errors.New("lifecycle configuration is out of bounds")
+	}
+	if value.LifecycleHoldForRelease && (!value.LifecycleConcurrent || value.RuntimeSeriesPath == "") {
+		return errors.New("lifecycle hold requires concurrent mode and runtime sampling")
 	}
 	return nil
 }
@@ -219,6 +223,7 @@ type goRuntimeSample struct {
 	Mallocs           uint64 `json:"mallocs"`
 	Frees             uint64 `json:"frees"`
 	TotalGCPauseNS    uint64 `json:"total_gc_pause_ns"`
+	Goroutines        int    `json:"goroutines"`
 }
 
 func startRuntimeSampler(path string, cadence time.Duration, processed *atomic.Uint64) (func() error, error) {
@@ -247,7 +252,7 @@ func startRuntimeSampler(path string, cadence time.Duration, processed *atomic.U
 					HeapAllocBytes: stats.HeapAlloc, HeapSysBytes: stats.HeapSys,
 					HeapIdleBytes: stats.HeapIdle, HeapInuseBytes: stats.HeapInuse, HeapReleasedBytes: stats.HeapReleased,
 					NumGC: stats.NumGC, TotalAllocBytes: stats.TotalAlloc, Mallocs: stats.Mallocs, Frees: stats.Frees,
-					TotalGCPauseNS: stats.PauseTotalNs,
+					TotalGCPauseNS: stats.PauseTotalNs, Goroutines: runtime.NumGoroutine(),
 				}
 				if err := encoder.Encode(sample); err != nil {
 					_ = file.Close()
@@ -796,6 +801,16 @@ func run(ctx context.Context, configuration config) (result, error) {
 }
 
 func runLifecycle(ctx context.Context, configuration config) (result, error) {
+	var processed atomic.Uint64
+	stopRuntimeSampler := func() error { return nil }
+	var err error
+	if configuration.RuntimeSeriesPath != "" {
+		stopRuntimeSampler, err = startRuntimeSampler(configuration.RuntimeSeriesPath, time.Duration(configuration.RuntimeSamplingCadenceMS)*time.Millisecond, &processed)
+		if err != nil {
+			return result{}, err
+		}
+		defer func() { _ = stopRuntimeSampler() }()
+	}
 	ready, err := wirepeer.LoadReadiness(configuration.ReadinessPath)
 	if err != nil {
 		return result{}, err
@@ -817,6 +832,22 @@ func runLifecycle(ctx context.Context, configuration config) (result, error) {
 	clientBody := map[uint64]any{0: uint64(1), 1: "nbsr12df4x56n2df4x56n2df4x56n2df4x56n2df4x56n2df4x56n2dfsk5743r", 2: "source.edge", 3: "nbsr1g3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zqel9ufg", 4: "destination.edge", 5: clientNonce[:], 6: []byte(sessionPublic), 7: uint64(1_893_456_000)}
 	observed := make([]sample, 0, configuration.LifecycleConnections*configuration.LifecycleServices)
 	for connectionOrdinal := 0; connectionOrdinal < configuration.LifecycleConnections; connectionOrdinal++ {
+		if configuration.LifecycleHoldForRelease {
+			ordinal := configuration.LifecycleConnectionOffset + connectionOrdinal
+			start := filepath.Join(configuration.LifecycleAuthorityDir, fmt.Sprintf("connection-%d.start", ordinal))
+			for {
+				if _, err := os.Stat(start); err == nil {
+					break
+				} else if !os.IsNotExist(err) {
+					return result{}, err
+				}
+				select {
+				case <-ctx.Done():
+					return result{}, ctx.Err()
+				case <-time.After(10 * time.Millisecond):
+				}
+			}
+		}
 		coldStarted := perfclock.Now()
 		handshakeStarted := perfclock.Now()
 		peer, dialErr := wirepeer.Dial(ctx, ready)
@@ -1048,6 +1079,26 @@ func runLifecycle(ctx context.Context, configuration config) (result, error) {
 			}
 		}
 		if configuration.LifecycleConcurrent {
+			if configuration.LifecycleHoldForRelease {
+				ordinal := configuration.LifecycleConnectionOffset + connectionOrdinal
+				active := filepath.Join(configuration.LifecycleAuthorityDir, fmt.Sprintf("connection-%d.active", ordinal))
+				release := filepath.Join(configuration.LifecycleAuthorityDir, fmt.Sprintf("connection-%d.release", ordinal))
+				if err := os.WriteFile(active, []byte("active\n"), 0o600); err != nil {
+					return result{}, err
+				}
+				for {
+					if _, err := os.Stat(release); err == nil {
+						break
+					} else if !os.IsNotExist(err) {
+						return result{}, err
+					}
+					select {
+					case <-ctx.Done():
+						return result{}, ctx.Err()
+					case <-time.After(10 * time.Millisecond):
+					}
+				}
+			}
 			close(concurrentStart)
 			requestLatencies := make([]int64, configuration.LifecycleServices*configuration.LifecycleStreamsPerService)
 			for range concurrentMetrics {
@@ -1070,6 +1121,7 @@ func runLifecycle(ctx context.Context, configuration config) (result, error) {
 					entry.TransportHandshakeNS, entry.HelloRTTNS = measured(handshakeNS), measured(helloNS)
 				}
 				observed = append(observed, entry)
+				processed.Add(1)
 			}
 		}
 		if err := os.WriteFile(filepath.Join(configuration.LifecycleAuthorityDir, fmt.Sprintf("connection-%d.ack", configuration.LifecycleConnectionOffset+connectionOrdinal)), []byte("complete\n"), 0o600); err != nil {
@@ -1078,6 +1130,9 @@ func runLifecycle(ctx context.Context, configuration config) (result, error) {
 		if err := peer.Close(); err != nil {
 			return result{}, err
 		}
+	}
+	if err := stopRuntimeSampler(); err != nil {
+		return result{}, err
 	}
 	return result{Status: "PASS", Messages: []string{"CLIENT_HELLO", "EDGE_HELLO", "ROUTE_OPEN", "ROUTE_ACCEPT", "STREAM_OPEN", "STREAM_ACCEPT"}, CoreVersion: 2, RouteOpenBodyVersion: 2, FederationProfile: "nbsr-federation-dev-v1", BenchmarkSamples: len(observed), Samples: observed}, nil
 }

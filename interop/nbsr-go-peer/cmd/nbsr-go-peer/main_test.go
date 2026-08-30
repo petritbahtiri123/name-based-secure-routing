@@ -42,6 +42,17 @@ func TestLifecycleConfigurationRequiresBoundedIndependentServices(t *testing.T) 
 	}
 }
 
+func TestLifecycleHoldRequiresConcurrentModeAndRuntimeSeries(t *testing.T) {
+	cell := config{ReadinessPath: "ready", F75Package: "f75", LocalAttestationPackage: "local", SafePayload: "Z", LifecycleAuthorityDir: "authority", LifecycleConnections: 1, LifecycleServices: 1, LifecycleStreamsPerService: 1, LifecycleConcurrent: true, LifecycleHoldForRelease: true, RuntimeSeriesPath: "runtime.ndjson", RuntimeSamplingCadenceMS: 1000}
+	if err := cell.validate(); err != nil {
+		t.Fatalf("bounded lifecycle hold rejected: %v", err)
+	}
+	cell.LifecycleConcurrent = false
+	if err := cell.validate(); err == nil {
+		t.Fatal("lifecycle hold without concurrent open resources accepted")
+	}
+}
+
 func TestRuntimeSamplerPreservesCadenceAndProcessedRequestCount(t *testing.T) {
 	path := t.TempDir() + "/runtime.ndjson"
 	var processed atomic.Uint64
@@ -66,7 +77,7 @@ func TestRuntimeSamplerPreservesCadenceAndProcessedRequestCount(t *testing.T) {
 		if err := json.Unmarshal(scanner.Bytes(), &sample); err != nil {
 			t.Fatal(err)
 		}
-		if sample.ProcessedRequests != 17 || sample.HeapSysBytes == 0 || sample.ObservedAtNS <= 0 {
+		if sample.ProcessedRequests != 17 || sample.HeapSysBytes == 0 || sample.ObservedAtNS <= 0 || sample.Goroutines < 2 {
 			t.Fatalf("incomplete runtime sample: %+v", sample)
 		}
 		count++

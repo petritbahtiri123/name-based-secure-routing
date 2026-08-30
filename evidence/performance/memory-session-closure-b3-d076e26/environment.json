@@ -1,0 +1,26 @@
+{
+  "base_git_sha": "d076e26d7c95f8f559bc4ee02e677eb3291ea927",
+  "binary_sha256": {
+    "direct": "63faa6ab03e27a7cc8f62d4bfb46bd27a23f9c701c19fe6a219a6802ab610875",
+    "go": "57d1ad6df5a0a24929f2bf6181ed91c2313b795a1c0d6fddd1a50ee9fcdef777",
+    "rust": "54982efd964af2ea768e43e5145a9d5b6dd81d2c344fbb31e49ccddc017a4064",
+    "server": "d795cc1371f96251349a39947bf3ff489a7190437ab7a68a941e15d5a7d10e98"
+  },
+  "branch": "codex/nbsr-v3-wp0-wp1",
+  "build": "release",
+  "cpu": "Intel64 Family 6 Model 142 Stepping 12, GenuineIntel",
+  "logical_processors": 8,
+  "os": "Windows-11-10.0.26200-SP0",
+  "python": "3.14.6",
+  "source_sha256": {
+    "crates/nbsr-transport/src/bin/b3_support/mod.rs": "ddd15bf9810e79ff566ec92419818dc2dabb1f79de2fd478f94feb74f72bf7ab",
+    "crates/nbsr-transport/src/bin/perf_rust_source.rs": "1cbee2b371838b45815b4c16504ffb8bdef6a7861782f6a836b595610e30af6d",
+    "crates/nbsr-transport/src/bin/wp8_interop_server.rs": "771580152c45028cb24a876dcbf33cdb44fdc6c9b9a99863f42bb9fa99a6406b",
+    "interop/nbsr-go-peer/cmd/nbsr-go-peer/main.go": "539ceb61af3ea33f221887bb935b8f4994fd6184a3bab40f5d2cf321c9103263",
+    "scripts/performance/session_lifecycle_closure.py": "5f28072bda2f850805835e9a3ec49fba2fbdb83c69ebd7403464ae0f3e5591c1",
+    "scripts/run_b3_session_lifecycle.py": "726f3073a91268fc10261cdc6664baeb620b457ff621477707457ca526d9250a",
+    "tests/performance/test_session_lifecycle_closure.py": "f5470938067eb715c202a364d81de4e1c97ef0823897d362b6c5ebb840f7fbe3"
+  },
+  "timestamp_utc": "2026-08-30T12:30:02Z",
+  "topology": "Windows loopback"
+}
