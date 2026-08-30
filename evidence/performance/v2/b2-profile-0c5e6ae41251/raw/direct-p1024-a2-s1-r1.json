@@ -1,0 +1,75 @@
+{
+  "schema": "nbsr-p2a-repeat-v1",
+  "path": "direct",
+  "streams": 1,
+  "payload_bytes": 1024,
+  "model": "one-outstanding-per-stream",
+  "completed_operations": 92266,
+  "measured_ns": 10000261600,
+  "p50_latency_ns": 108400,
+  "p95_latency_ns": 159300,
+  "p99_latency_ns": 213800,
+  "errors": 0,
+  "missing": 0,
+  "duplicates": 0,
+  "corrupt": 0,
+  "wrong_request": 0,
+  "transport_sessions_created_delta": 0,
+  "service_channels_created_delta": 0,
+  "application_streams_created_delta": 0,
+  "replay_entries_delta": 0,
+  "repeat": 1,
+  "valid": true,
+  "operations_per_second": 9226.358638458018,
+  "request_messages_per_second": 9226.358638458018,
+  "response_messages_per_second": 9226.358638458018,
+  "payload_bytes_sent": 94480384,
+  "payload_bytes_received": 94480384,
+  "client_to_server_goodput_bytes_per_second": 9447791.24578101,
+  "server_to_client_goodput_bytes_per_second": 9447791.24578101,
+  "aggregate_goodput_bytes_per_second": 18895582.49156202,
+  "aggregate_application_gbps": 0.15116465993249617,
+  "timeouts": 0,
+  "resources": {
+    "roles": {
+      "source": {
+        "cpu_ns": 5593750000,
+        "peak_working_set_bytes": 10231808,
+        "peak_private_bytes": 3514368
+      },
+      "destination": {
+        "cpu_ns": 4671875000,
+        "peak_working_set_bytes": 8314880,
+        "peak_private_bytes": 1531904
+      }
+    },
+    "total_cpu_ns": 10265625000,
+    "cpu_ns_per_completed_operation": 111261.19047102942
+  },
+  "affinity": {
+    "requested_processors": 2,
+    "server": {
+      "requested_processors": 2,
+      "requested_mask": 5,
+      "observed_mask": 5,
+      "system_mask": 255,
+      "verified": true
+    },
+    "verified": true,
+    "client": {
+      "requested_processors": 2,
+      "requested_mask": 5,
+      "observed_mask": 5,
+      "system_mask": 255,
+      "verified": true
+    }
+  },
+  "allocations_per_operation": null,
+  "allocated_bytes_per_operation": null,
+  "affinity_selection": {
+    "scope": "physical-core-selected-logical-processors",
+    "mask": 5,
+    "mask_hex": "0x5"
+  },
+  "affinity_verified": true
+}

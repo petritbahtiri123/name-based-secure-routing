@@ -1,0 +1,85 @@
+{
+  "schema": "nbsr-p2a-repeat-v1",
+  "path": "nbsr",
+  "streams": 8,
+  "payload_bytes": 16384,
+  "model": "one-outstanding-per-stream",
+  "completed_operations": 39666,
+  "measured_ns": 10001839500,
+  "p50_latency_ns": 1919700,
+  "p95_latency_ns": 2845100,
+  "p99_latency_ns": 3309100,
+  "latency_sample_count": 39666,
+  "latency_sample_stride": 1,
+  "scheduled_admissions": 0,
+  "successful_admissions": 0,
+  "failed_admissions": 0,
+  "admission_timeouts": 0,
+  "admission_p50_latency_ns": null,
+  "admission_p95_latency_ns": null,
+  "admission_p99_latency_ns": null,
+  "max_admission_start_lateness_ns": 0,
+  "errors": 0,
+  "missing": 0,
+  "duplicates": 0,
+  "corrupt": 0,
+  "wrong_request": 0,
+  "transport_sessions_created_delta": 0,
+  "service_channels_created_delta": 0,
+  "application_streams_created_delta": 0,
+  "replay_entries_delta": 0,
+  "repeat": 2,
+  "valid": true,
+  "operations_per_second": 3965.8704781255483,
+  "request_messages_per_second": 3965.8704781255483,
+  "response_messages_per_second": 3965.8704781255483,
+  "payload_bytes_sent": 649887744,
+  "payload_bytes_received": 649887744,
+  "client_to_server_goodput_bytes_per_second": 64976821.91360898,
+  "server_to_client_goodput_bytes_per_second": 64976821.91360898,
+  "aggregate_goodput_bytes_per_second": 129953643.82721797,
+  "aggregate_application_gbps": 1.0396291506177437,
+  "timeouts": 0,
+  "resources": {
+    "roles": {
+      "source": {
+        "cpu_ns": 8375000000,
+        "peak_working_set_bytes": 10276864,
+        "peak_private_bytes": 3117056
+      },
+      "destination": {
+        "cpu_ns": 4187500000,
+        "peak_working_set_bytes": 9478144,
+        "peak_private_bytes": 2162688
+      }
+    },
+    "total_cpu_ns": 12562500000,
+    "cpu_ns_per_completed_operation": 316707.00347905006
+  },
+  "affinity": {
+    "requested_processors": 2,
+    "server": {
+      "requested_processors": 2,
+      "requested_mask": 5,
+      "observed_mask": 5,
+      "system_mask": 255,
+      "verified": true
+    },
+    "verified": true,
+    "client": {
+      "requested_processors": 2,
+      "requested_mask": 5,
+      "observed_mask": 5,
+      "system_mask": 255,
+      "verified": true
+    }
+  },
+  "allocations_per_operation": null,
+  "allocated_bytes_per_operation": null,
+  "affinity_selection": {
+    "scope": "physical-core-selected-logical-processors",
+    "mask": 5,
+    "mask_hex": "0x5"
+  },
+  "affinity_verified": true
+}

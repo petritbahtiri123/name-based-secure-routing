@@ -1,0 +1,75 @@
+{
+  "schema": "nbsr-p2a-repeat-v1",
+  "path": "direct",
+  "streams": 128,
+  "payload_bytes": 1024,
+  "model": "one-outstanding-per-stream",
+  "completed_operations": 404407,
+  "measured_ns": 10006553200,
+  "p50_latency_ns": 2888500,
+  "p95_latency_ns": 5096100,
+  "p99_latency_ns": 6427000,
+  "errors": 0,
+  "missing": 0,
+  "duplicates": 0,
+  "corrupt": 0,
+  "wrong_request": 0,
+  "transport_sessions_created_delta": 0,
+  "service_channels_created_delta": 0,
+  "application_streams_created_delta": 0,
+  "replay_entries_delta": 0,
+  "repeat": 5,
+  "valid": true,
+  "operations_per_second": 40414.21575613069,
+  "request_messages_per_second": 40414.21575613069,
+  "response_messages_per_second": 40414.21575613069,
+  "payload_bytes_sent": 414112768,
+  "payload_bytes_received": 414112768,
+  "client_to_server_goodput_bytes_per_second": 41384156.934277825,
+  "server_to_client_goodput_bytes_per_second": 41384156.934277825,
+  "aggregate_goodput_bytes_per_second": 82768313.86855565,
+  "aggregate_application_gbps": 0.6621465109484452,
+  "timeouts": 0,
+  "resources": {
+    "roles": {
+      "source": {
+        "cpu_ns": 8281250000,
+        "peak_working_set_bytes": 13803520,
+        "peak_private_bytes": 7856128
+      },
+      "destination": {
+        "cpu_ns": 5031250000,
+        "peak_working_set_bytes": 9043968,
+        "peak_private_bytes": 2158592
+      }
+    },
+    "total_cpu_ns": 13312500000,
+    "cpu_ns_per_completed_operation": 32918.56965878434
+  },
+  "affinity": {
+    "requested_processors": 2,
+    "server": {
+      "requested_processors": 2,
+      "requested_mask": 5,
+      "observed_mask": 5,
+      "system_mask": 255,
+      "verified": true
+    },
+    "verified": true,
+    "client": {
+      "requested_processors": 2,
+      "requested_mask": 5,
+      "observed_mask": 5,
+      "system_mask": 255,
+      "verified": true
+    }
+  },
+  "allocations_per_operation": null,
+  "allocated_bytes_per_operation": null,
+  "affinity_selection": {
+    "scope": "physical-core-selected-logical-processors",
+    "mask": 5,
+    "mask_hex": "0x5"
+  },
+  "affinity_verified": true
+}
