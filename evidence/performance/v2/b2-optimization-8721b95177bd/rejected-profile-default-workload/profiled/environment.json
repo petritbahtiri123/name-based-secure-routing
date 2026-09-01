@@ -1,0 +1,69 @@
+{
+  "schema": "nbsr-b2-v2-environment-v1",
+  "git_sha": "8721b95177bd9bef15beb2f8acf82b066581ec9d",
+  "branch": "codex/nbsr-v3-wp0-wp1",
+  "timestamp_utc": "2026-09-01T19:36:12Z",
+  "os": "Windows-11-10.0.26200-SP0",
+  "processor_topology": {
+    "verified": true,
+    "scope": "physical-core-selected-logical-processors",
+    "physical_cores": 4,
+    "logical_processors": 8,
+    "cores": [
+      {
+        "core_index": 0,
+        "smt": true,
+        "efficiency_class": 0,
+        "logical_mask": 3
+      },
+      {
+        "core_index": 1,
+        "smt": true,
+        "efficiency_class": 0,
+        "logical_mask": 12
+      },
+      {
+        "core_index": 2,
+        "smt": true,
+        "efficiency_class": 0,
+        "logical_mask": 48
+      },
+      {
+        "core_index": 3,
+        "smt": true,
+        "efficiency_class": 0,
+        "logical_mask": 192
+      }
+    ],
+    "affinity_masks": {
+      "1": {
+        "decimal": 1,
+        "hex": "0x1"
+      },
+      "2": {
+        "decimal": 5,
+        "hex": "0x5"
+      },
+      "4": {
+        "decimal": 85,
+        "hex": "0x55"
+      }
+    }
+  },
+  "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+  "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)",
+  "binaries": {
+    "direct": {
+      "path": "C:\\NBSR-build\\b2-v2-profile\\release\\perf_direct_peer.exe",
+      "sha256": "82c50ff8f8cdf343fa4e8d993c85fd98dbae92e028e3af63305dfb8e4bc7979b"
+    },
+    "nbsr": {
+      "path": "C:\\NBSR-build\\b2-v2-profile\\release\\perf_rust_source.exe",
+      "sha256": "3fb8a665cdc913ad8a8e829e9cd0dfe3b986594075a1e05308b4c069f920c15a"
+    },
+    "server": {
+      "path": "C:\\NBSR-build\\b2-v2-profile\\release\\wp8_interop_server.exe",
+      "sha256": "78c583fac5726ef0c680907b6c31fe2ecbc5fa5ed50533a61fe5612e95c8f54e"
+    }
+  }
+}

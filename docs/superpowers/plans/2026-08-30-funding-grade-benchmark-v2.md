@@ -113,12 +113,14 @@ Each stage writes `evidence/performance/v2/{stage}-{start_sha_12}/`, where both 
 
 **Stop condition:** stop after two independently reasonable candidates fail the gate, or immediately if a fix would affect frozen/public/security semantics; report SOFTWARE/HARNESS-LIMITED with the named owner.
 
-- [ ] **Step 1: Convert the Task 1 cause into a literal RED test** whose failure is the measured serialization/copy/wakeup/queue symptom, not a lower assertion threshold.
-- [ ] **Step 2: Implement the smallest candidate** without protocol/security changes.
-- [ ] **Step 3: Run focused correctness GREEN**, then five paired release measurements and the same profiler.
-- [ ] **Step 4: Keep or revert based only on the gate**; preserve rejected evidence.
-- [ ] **Step 5: Run affected Rust/Go/Python, fmt, Clippy/vet, safety, and diff checks.**
-- [ ] **Step 6: Commit accepted optimization separately:** `perf(runtime): reduce measured {named-hotspot}`, replacing the brace token with the profiler's exact owner; if none passes, commit evidence/docs only.
+- [x] **Step 1: Convert the Task 1 cause into a literal RED test** whose failure is the measured serialization/copy/wakeup/queue symptom, not a lower assertion threshold.
+- [x] **Step 2: Implement the smallest candidate** without protocol/security changes.
+- [x] **Step 3: Run focused correctness GREEN**, then five paired release measurements and the same profiler.
+- [x] **Step 4: Keep or revert based only on the gate**; preserve rejected evidence.
+- [x] **Step 5: Run affected Rust/Go/Python, fmt, Clippy/vet, safety, and diff checks.**
+- [x] **Step 6: Commit accepted optimization separately:** harness-only SHA interference removal and evidence; no production optimization was made.
+
+**Final status:** PASS / HARNESS-LIMITED. The full-SHA benchmark hotspot was removed symmetrically. The next measured harness boundary is the single-thread Tokio runtime used by each benchmark process. See `evidence/performance/v2/b2-optimization-8721b95177bd/`.
 
 ### Task 3: Max-throughput and saturation sweep
 

@@ -156,6 +156,8 @@ def run_repeat(
             str(cell["payload_bytes"]),
             "--p2a-streams",
             str(cell["streams"]),
+            "--p2a-outstanding-per-stream",
+            str(cell.get("outstanding_per_stream", 1)),
             "--p2a-warmup-seconds",
             str(warmup),
             "--p2a-duration-seconds",

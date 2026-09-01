@@ -1,0 +1,78 @@
+{
+  "schema": "nbsr-p2a-repeat-v2",
+  "path": "direct",
+  "streams": 1,
+  "payload_bytes": 1024,
+  "model": "bounded-outstanding-per-stream",
+  "outstanding_per_stream": 2,
+  "configured_total_outstanding": 2,
+  "max_outstanding_per_stream_observed": 2,
+  "completed_operations": 39892,
+  "measured_ns": 2000231600,
+  "p50_latency_ns": 93400,
+  "p95_latency_ns": 140800,
+  "p99_latency_ns": 178800,
+  "errors": 0,
+  "missing": 0,
+  "duplicates": 0,
+  "corrupt": 0,
+  "wrong_request": 0,
+  "transport_sessions_created_delta": 0,
+  "service_channels_created_delta": 0,
+  "application_streams_created_delta": 0,
+  "replay_entries_delta": 0,
+  "repeat": 1,
+  "valid": true,
+  "operations_per_second": 19943.69052063771,
+  "request_messages_per_second": 19943.69052063771,
+  "response_messages_per_second": 19943.69052063771,
+  "payload_bytes_sent": 40849408,
+  "payload_bytes_received": 40849408,
+  "client_to_server_goodput_bytes_per_second": 20422339.093133014,
+  "server_to_client_goodput_bytes_per_second": 20422339.093133014,
+  "aggregate_goodput_bytes_per_second": 40844678.18626603,
+  "aggregate_application_gbps": 0.3267574254901282,
+  "timeouts": 0,
+  "resources": {
+    "roles": {
+      "source": {
+        "cpu_ns": 734375000,
+        "peak_working_set_bytes": 9150464,
+        "peak_private_bytes": 2027520
+      },
+      "destination": {
+        "cpu_ns": 812500000,
+        "peak_working_set_bytes": 7958528,
+        "peak_private_bytes": 1572864
+      }
+    },
+    "total_cpu_ns": 1546875000,
+    "cpu_ns_per_completed_operation": 38776.57174370801
+  },
+  "affinity": {
+    "requested_processors": 4,
+    "server": {
+      "requested_processors": 4,
+      "requested_mask": 85,
+      "observed_mask": 85,
+      "system_mask": 255,
+      "verified": true
+    },
+    "verified": true,
+    "client": {
+      "requested_processors": 4,
+      "requested_mask": 85,
+      "observed_mask": 85,
+      "system_mask": 255,
+      "verified": true
+    }
+  },
+  "allocations_per_operation": null,
+  "allocated_bytes_per_operation": null,
+  "affinity_selection": {
+    "scope": "physical-core-selected-logical-processors",
+    "mask": 85,
+    "mask_hex": "0x55"
+  },
+  "affinity_verified": true
+}

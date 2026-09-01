@@ -3095,7 +3095,7 @@ async fn main() {
             .map(|value| value.parse::<u64>().unwrap())
             .unwrap_or(0);
         assert!(mixed_admissions <= 8_000);
-        assert!(matches!(stream_count, 1 | 8 | 64));
+        assert!((1..=64).contains(&stream_count));
         let mut tasks = tokio::task::JoinSet::new();
         for index in 0..stream_count {
             let stream = control

@@ -7,6 +7,7 @@
 *.mjs text eol=lf
 *.mod text eol=lf
 *.sum text eol=lf
+*.sha256 text eol=lf
 docs/protocol/history/NBSR-WP8-F1-F119-approved-source.txt -text whitespace=cr-at-eol
 docs/protocol/registries/federation-v0.1-development.json text eol=lf
 evidence/performance/memory-completion-6366334/memory/direct-quic-memory-3230-68pct-r1/finalized-cell/raw.ndjson.gz filter=lfs diff=lfs merge=lfs -text
@@ -19,3 +20,7 @@ evidence/performance/rust-memory-attribution-p1b/** binary
 evidence/performance/rust-memory-attribution-p1b/**/raw.ndjson filter=lfs diff=lfs merge=lfs -text
 evidence/performance/rust-memory-attribution-p1b/**/raw.ndjson.gz filter=lfs diff=lfs merge=lfs -text
 evidence/security/adversarial-campaign-19ff575/raw/*.log -text whitespace=-blank-at-eof
+evidence/performance/v2/b2-optimization-8721b95177bd/historical-task1b/** -text whitespace=cr-at-eol,-blank-at-eof
+evidence/performance/v2/b2-optimization-8721b95177bd/post-optimization-profile/** -text whitespace=cr-at-eol,-blank-at-eof
+evidence/performance/v2/b2-optimization-8721b95177bd/rejected-profile-default-workload/** -text whitespace=cr-at-eol,-blank-at-eof
+evidence/performance/v2/b2-optimization-8721b95177bd/**/*.etl filter=lfs diff=lfs merge=lfs -text

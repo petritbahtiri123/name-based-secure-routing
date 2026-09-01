@@ -1,0 +1,29 @@
+{
+  "schema": "nbsr-b2-v2-manifest-v1",
+  "model": "one-outstanding-per-stream",
+  "payload_bytes": [
+    16384
+  ],
+  "paths": [
+    "direct",
+    "nbsr"
+  ],
+  "streams": [
+    8
+  ],
+  "affinity_counts": [
+    4
+  ],
+  "warmup_seconds": 3.0,
+  "duration_seconds": 10.0,
+  "nbsr_supported_streams": [
+    1,
+    8,
+    64
+  ],
+  "unsupported_nbsr_streams": [],
+  "minimum_repeats": 1,
+  "maximum_repeats": 1,
+  "records": 2,
+  "elapsed_seconds": 26.718141078948975
+}

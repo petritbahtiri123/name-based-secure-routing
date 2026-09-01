@@ -24,7 +24,7 @@ import scripts.run_p2a_established as p2a
 ROOT = Path(__file__).resolve().parents[1]
 STREAMS = (1, 2, 4, 8, 16, 32, 64, 128, 256)
 AFFINITY_COUNTS = (1, 2, 4)
-NBSR_SUPPORTED_STREAMS = (1, 8, 64)
+NBSR_MAX_STREAMS = 64
 
 
 def benchmark_cells(
@@ -33,15 +33,25 @@ def benchmark_cells(
     paths: tuple[str, ...],
     affinities: tuple[int, ...],
     streams: tuple[int, ...],
+    outstanding_per_stream: tuple[int, ...],
 ) -> list[dict]:
     cells = []
     for payload in payloads:
         for path in paths:
             for affinity in affinities:
                 for stream_count in streams:
-                    if path == "nbsr" and stream_count not in NBSR_SUPPORTED_STREAMS:
+                    if path == "nbsr" and not 1 <= stream_count <= NBSR_MAX_STREAMS:
                         continue
-                    cells.append({"path": path, "streams": stream_count, "payload_bytes": payload, "affinity": affinity})
+                    for outstanding in outstanding_per_stream:
+                        cells.append(
+                            {
+                                "path": path,
+                                "streams": stream_count,
+                                "payload_bytes": payload,
+                                "affinity": affinity,
+                                "outstanding_per_stream": outstanding,
+                            }
+                        )
     return cells
 
 
@@ -226,6 +236,7 @@ def run_matrix(
     payloads: tuple[int, ...] = (1024, 16384),
     paths: tuple[str, ...] = ("direct", "nbsr"),
     affinities: tuple[int, ...] = AFFINITY_COUNTS,
+    outstanding_per_stream: tuple[int, ...] = (1,),
     max_repeats: int = 5,
 ) -> None:
     if max_repeats < repeats:
@@ -236,6 +247,9 @@ def run_matrix(
     invalid_affinities = sorted(set(affinities) - set(AFFINITY_COUNTS))
     if invalid_affinities:
         raise ValueError(f"unsupported affinity counts: {invalid_affinities}")
+    invalid_outstanding = sorted(value for value in set(outstanding_per_stream) if not 1 <= value <= 64)
+    if invalid_outstanding:
+        raise ValueError(f"unsupported outstanding-per-stream values: {invalid_outstanding}")
     topology = windows_processor_topology()
     if not topology["verified"]:
         raise RuntimeError("physical-core topology could not be verified")
@@ -259,16 +273,28 @@ def run_matrix(
         with tempfile.TemporaryDirectory(prefix="nbsr-b2-v2-") as temp_name:
             authority = Path(temp_name) / "authority"
             write_loopback_authority(authority)
-            for selected in benchmark_cells(payloads=payloads, paths=paths, affinities=affinities, streams=streams):
+            for selected in benchmark_cells(
+                payloads=payloads,
+                paths=paths,
+                affinities=affinities,
+                streams=streams,
+                outstanding_per_stream=outstanding_per_stream,
+            ):
                 payload = selected["payload_bytes"]
                 path = selected["path"]
                 affinity = selected["affinity"]
                 stream_count = selected["streams"]
+                outstanding = selected["outstanding_per_stream"]
                 active_mask = masks[affinity]
-                cell = {"path": path, "streams": stream_count, "payload_bytes": payload}
+                cell = {
+                    "path": path,
+                    "streams": stream_count,
+                    "payload_bytes": payload,
+                    "outstanding_per_stream": outstanding,
+                }
                 cell_records = []
                 for repeat in range(1, repeats + 1):
-                    name = f"{path}-p{payload}-a{affinity}-s{stream_count}-r{repeat}.json"
+                    name = f"{path}-p{payload}-a{affinity}-s{stream_count}-o{outstanding}-r{repeat}.json"
                     existing = raw / name
                     if existing.exists():
                         record = json.loads(existing.read_text(encoding="utf-8"))
@@ -284,7 +310,7 @@ def run_matrix(
                 cv = coefficient_of_variation([r["operations_per_second"] for r in cell_records])
                 if cv > 0.05:
                     for repeat in range(repeats + 1, max_repeats + 1):
-                        name = f"{path}-p{payload}-a{affinity}-s{stream_count}-r{repeat}.json"
+                        name = f"{path}-p{payload}-a{affinity}-s{stream_count}-o{outstanding}-r{repeat}.json"
                         existing = raw / name
                         if existing.exists():
                             record = json.loads(existing.read_text(encoding="utf-8"))
@@ -311,10 +337,11 @@ def run_matrix(
         "binaries": {name: {"path": str(path), "sha256": _sha256(path)} for name, path in binaries.items()},
     }
     (output / "environment.json").write_text(json.dumps(environment, indent=2) + "\n", encoding="utf-8", newline="\n")
-    manifest = {"schema": "nbsr-b2-v2-manifest-v1", "model": "one-outstanding-per-stream", "payload_bytes": list(payloads),
+    manifest = {"schema": "nbsr-b2-v2-manifest-v2", "model": "bounded-outstanding-per-stream", "payload_bytes": list(payloads),
                 "paths": list(paths), "streams": list(streams), "affinity_counts": list(affinities), "warmup_seconds": warmup, "duration_seconds": duration,
-                "nbsr_supported_streams": list(NBSR_SUPPORTED_STREAMS),
-                "unsupported_nbsr_streams": [v for v in streams if v not in NBSR_SUPPORTED_STREAMS],
+                "outstanding_per_stream": list(outstanding_per_stream), "nbsr_stream_range": [1, NBSR_MAX_STREAMS],
+                "unsupported_nbsr_streams": [v for v in streams if not 1 <= v <= NBSR_MAX_STREAMS],
+                "integrity_validation": {"historical_full_sha_outside_timed_interval": True, "timed_full_validation_stride": 1024, "timed_bounded_probes": 8},
                 "minimum_repeats": repeats, "maximum_repeats": max_repeats, "records": len(records), "elapsed_seconds": time.time() - started}
     (output / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8", newline="\n")
     _write_checksums(output)
@@ -332,6 +359,7 @@ def main() -> None:
     parser.add_argument("--payloads", default="1024,16384")
     parser.add_argument("--paths", default="direct,nbsr")
     parser.add_argument("--affinities", default="1,2,4")
+    parser.add_argument("--p2a-outstanding-per-stream", default="1")
     parser.add_argument("--max-repeats", type=int, default=5)
     args = parser.parse_args()
     if args.topology:
@@ -351,6 +379,7 @@ def main() -> None:
             payloads=tuple(int(v) for v in args.payloads.split(",")),
             paths=tuple(args.paths.split(",")),
             affinities=tuple(int(v) for v in args.affinities.split(",")),
+            outstanding_per_stream=tuple(int(v) for v in args.p2a_outstanding_per_stream.split(",")),
             max_repeats=args.max_repeats,
         )
 

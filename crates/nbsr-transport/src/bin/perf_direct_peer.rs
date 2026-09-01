@@ -6,7 +6,9 @@ use std::sync::Arc;
 use std::time::{Duration, Instant};
 
 #[cfg(feature = "benchmark-harness")]
-use nbsr_transport::p2a_benchmark::{decode_frame, encode_frame};
+use nbsr_transport::p2a_benchmark::{
+    OutstandingTracker, decode_frame, decode_measured_frame, encode_frame, encode_measured_frame,
+};
 use quinn::crypto::rustls::{QuicClientConfig, QuicServerConfig};
 use quinn::{ClientConfig, Connection, Endpoint, ServerConfig, TransportConfig, VarInt};
 use rustls::client::Resumption;
@@ -308,6 +310,10 @@ async fn client() {
     #[cfg(feature = "benchmark-harness")]
     if let Some(stream_count) = optional_argument("--p2a-streams") {
         let stream_count = stream_count.parse::<usize>().unwrap();
+        assert!((1..=64).contains(&stream_count));
+        let outstanding_per_stream = optional_argument("--p2a-outstanding-per-stream")
+            .map_or(1, |value| value.parse::<usize>().unwrap());
+        assert!((1..=64).contains(&outstanding_per_stream));
         let warmup = Duration::from_secs_f64(argument("--p2a-warmup-seconds").parse().unwrap());
         let measurement = b1_support::measurement_mode(
             optional_argument("--p2a-duration-seconds").map(|value| value.parse().unwrap()),
@@ -333,12 +339,25 @@ async fn client() {
             let payload = payload.clone();
             tasks.spawn(async move {
                 let mut sequence = (ordinal as u64) << 56;
-                while Instant::now() < warmup_deadline {
-                    let wire = encode_frame(sequence, &payload);
-                    write_frame(&mut send, &wire).await.unwrap();
-                    let response = read_frame(&mut receive).await.unwrap();
-                    decode_frame(&response, sequence, payload.len()).unwrap();
-                    sequence += 1;
+                let preflight = encode_frame(sequence, &payload);
+                write_frame(&mut send, &preflight).await.unwrap();
+                let response = read_frame(&mut receive).await.unwrap();
+                decode_frame(&response, sequence, payload.len()).unwrap();
+                sequence += 1;
+                let mut warmup_tracker = OutstandingTracker::new(outstanding_per_stream).unwrap();
+                while Instant::now() < warmup_deadline || warmup_tracker.in_flight() > 0 {
+                    while Instant::now() < warmup_deadline && warmup_tracker.can_issue() {
+                        let started = Instant::now();
+                        let wire = encode_measured_frame(sequence, &payload);
+                        write_frame(&mut send, &wire).await.unwrap();
+                        warmup_tracker.issue(sequence, started).unwrap();
+                        sequence += 1;
+                    }
+                    if let Some(expected) = warmup_tracker.next_sequence() {
+                        let response = read_frame(&mut receive).await.unwrap();
+                        decode_measured_frame(&response, expected, &payload).unwrap();
+                        warmup_tracker.complete(expected).unwrap();
+                    }
                 }
                 ready.wait().await;
                 measure.wait().await;
@@ -354,21 +373,35 @@ async fn client() {
                     }
                     b1_support::MeasurementMode::Duration(_) => None,
                 };
-                let mut completed = 0_u64;
+                let mut tracker = OutstandingTracker::new(outstanding_per_stream).unwrap();
                 let mut latencies = Vec::new();
-                while deadline.is_some_and(|value| Instant::now() < value)
-                    || operation_limit.is_some_and(|value| completed < value)
-                {
-                    let started = Instant::now();
-                    let wire = encode_frame(sequence, &payload);
-                    write_frame(&mut send, &wire).await.unwrap();
+                loop {
+                    while tracker.can_issue()
+                        && (deadline.is_some_and(|value| Instant::now() < value)
+                            || operation_limit.is_some_and(|value| tracker.sent() < value))
+                    {
+                        let started = Instant::now();
+                        let wire = encode_measured_frame(sequence, &payload);
+                        write_frame(&mut send, &wire).await.unwrap();
+                        tracker.issue(sequence, started).unwrap();
+                        sequence += 1;
+                    }
+                    let Some(expected) = tracker.next_sequence() else {
+                        break;
+                    };
                     let response = read_frame(&mut receive).await.unwrap();
-                    decode_frame(&response, sequence, payload.len()).unwrap();
+                    decode_measured_frame(&response, expected, &payload).unwrap();
+                    let started = tracker.complete(expected).unwrap();
                     latencies.push(started.elapsed().as_nanos() as u64);
-                    completed += 1;
-                    sequence += 1;
                 }
-                (completed, latencies, send, receive)
+                (
+                    tracker.completed(),
+                    latencies,
+                    tracker.max_in_flight(),
+                    sequence,
+                    send,
+                    receive,
+                )
             });
         }
         ready.wait().await;
@@ -377,21 +410,30 @@ async fn client() {
         measure.wait().await;
         let mut completed = 0_u64;
         let mut latencies = Vec::new();
+        let mut max_outstanding_observed = 0_usize;
         let mut established_streams = Vec::with_capacity(stream_count);
         while let Some(joined) = tasks.join_next().await {
-            let (count, mut values, send, receive) = joined.unwrap();
+            let (count, mut values, max_outstanding, sequence, send, receive) = joined.unwrap();
             completed += count;
             latencies.append(&mut values);
-            established_streams.push((send, receive));
+            max_outstanding_observed = max_outstanding_observed.max(max_outstanding);
+            established_streams.push((sequence, send, receive));
         }
         let measured_ns = measured_started.elapsed().as_nanos();
+        for (sequence, send, receive) in &mut established_streams {
+            let postflight = encode_frame(*sequence, &payload);
+            write_frame(send, &postflight).await.unwrap();
+            let response = read_frame(receive).await.unwrap();
+            decode_frame(&response, *sequence, payload.len()).unwrap();
+        }
         tokio::time::sleep(Duration::from_millis(100)).await;
         b1_support::counter_phase(counter_control, "measurement-stop").unwrap();
         drop(established_streams);
         latencies.sort_unstable();
         let percentile = |p: f64| latencies[((latencies.len() - 1) as f64 * p).round() as usize];
         println!(
-            "{{\"schema\":\"nbsr-p2a-repeat-v1\",\"path\":\"direct\",\"streams\":{stream_count},\"payload_bytes\":{payload_bytes},\"model\":\"one-outstanding-per-stream\",\"completed_operations\":{completed},\"measured_ns\":{measured_ns},\"p50_latency_ns\":{},\"p95_latency_ns\":{},\"p99_latency_ns\":{},\"errors\":0,\"missing\":0,\"duplicates\":0,\"corrupt\":0,\"wrong_request\":0,\"transport_sessions_created_delta\":0,\"service_channels_created_delta\":0,\"application_streams_created_delta\":0,\"replay_entries_delta\":0}}",
+            "{{\"schema\":\"nbsr-p2a-repeat-v2\",\"path\":\"direct\",\"streams\":{stream_count},\"payload_bytes\":{payload_bytes},\"model\":\"bounded-outstanding-per-stream\",\"outstanding_per_stream\":{outstanding_per_stream},\"configured_total_outstanding\":{},\"max_outstanding_per_stream_observed\":{max_outstanding_observed},\"completed_operations\":{completed},\"measured_ns\":{measured_ns},\"p50_latency_ns\":{},\"p95_latency_ns\":{},\"p99_latency_ns\":{},\"errors\":0,\"missing\":0,\"duplicates\":0,\"corrupt\":0,\"wrong_request\":0,\"transport_sessions_created_delta\":0,\"service_channels_created_delta\":0,\"application_streams_created_delta\":0,\"replay_entries_delta\":0}}",
+            stream_count * outstanding_per_stream,
             percentile(0.50),
             percentile(0.95),
             percentile(0.99)

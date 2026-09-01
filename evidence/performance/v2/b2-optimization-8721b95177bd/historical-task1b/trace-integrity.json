@@ -1,0 +1,12 @@
+{
+  "schema": "nbsr-b2-v2-wpr-trace-integrity-v1",
+  "trace_bytes": 32505856,
+  "lost_events": 0,
+  "zero_lost_events": true,
+  "rust_symbols_readable": true,
+  "symbol_checks": {
+    "perf_direct_peer": true,
+    "perf_rust_source": true,
+    "wp8_interop_server": true
+  }
+}

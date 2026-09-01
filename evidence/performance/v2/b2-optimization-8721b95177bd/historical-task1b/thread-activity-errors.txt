@@ -1,0 +1,1 @@
+error: idlehistogram: Context switch information is not available.

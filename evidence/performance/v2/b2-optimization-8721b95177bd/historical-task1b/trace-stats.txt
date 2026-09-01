@@ -1,0 +1,25 @@
+Number of Processors : 8
+CPU Speed            : 2112 MHz
+OS Version           : 10.00.00.00
+OS Build Number      : 26200
+Clock type           : PerfCounter
+Boot time            : 2026/08/29:03:27:56.5000000
+Native Pointer Size  : 8 (64bit)
+Start time (UTC)     : 2026/09/01:18:41:37.0557007
+End time (UTC)       : 2026/09/01:18:42:05.2073178  (+         0:00:00:28.1516171)
+Total # Lost Buffers : 0
+Total # Lost Events  : 0
+
+Number of Traces     : 1
+
+Trace name: C:\NBSR-build\b2-v2-wpr-manual-20260901-204109\b2-v2-cpu.etl
+    Log file mode        : Sequential Relogged
+    Pointer size         : 8 (64bit)
+    Start time (UTC)     : 2026/09/01:18:41:37.0557007
+    End time (UTC)       : 2026/09/01:18:42:05.2073178  (+         0:00:00:28.1516171)
+    Start time (Local)   : 2026/09/01:20:41:37.0557007
+    End time (Local)     : 2026/09/01:20:42:05.2073178
+    # Lost Buffers       : 0
+    # Lost Events        : 0
+
+

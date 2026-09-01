@@ -17,10 +17,34 @@ def test_diagnostic_matrix_can_select_one_matched_direct_nbsr_workload() -> None
         paths=("direct", "nbsr"),
         affinities=(4,),
         streams=(8,),
+        outstanding_per_stream=(1,),
     ) == [
-        {"path": "direct", "streams": 8, "payload_bytes": 16384, "affinity": 4},
-        {"path": "nbsr", "streams": 8, "payload_bytes": 16384, "affinity": 4},
+        {"path": "direct", "streams": 8, "payload_bytes": 16384, "affinity": 4, "outstanding_per_stream": 1},
+        {"path": "nbsr", "streams": 8, "payload_bytes": 16384, "affinity": 4, "outstanding_per_stream": 1},
     ]
+
+
+def test_benchmark_only_stream_and_outstanding_bounds_are_explicit() -> None:
+    root = profile.ROOT
+    source = (root / "crates/nbsr-transport/src/bin/perf_rust_source.rs").read_text(encoding="utf-8")
+    destination = (root / "crates/nbsr-transport/src/bin/wp8_interop_server.rs").read_text(encoding="utf-8")
+    direct = (root / "crates/nbsr-transport/src/bin/perf_direct_peer.rs").read_text(encoding="utf-8")
+    for text in (source, destination, direct):
+        assert "(1..=64).contains(&stream_count)" in text
+    for text in (source, direct):
+        assert '"--p2a-outstanding-per-stream"' in text
+
+
+def test_full_postflight_validation_is_outside_measured_interval() -> None:
+    root = profile.ROOT
+    for relative in (
+        "crates/nbsr-transport/src/bin/perf_rust_source.rs",
+        "crates/nbsr-transport/src/bin/perf_direct_peer.rs",
+    ):
+        text = (root / relative).read_text(encoding="utf-8")
+        measured = text.index("let measured_ns = measured_started.elapsed().as_nanos();")
+        postflight = text.index("let postflight = encode_frame")
+        assert measured < postflight
 
 
 def test_prefers_one_logical_processor_per_physical_core() -> None:

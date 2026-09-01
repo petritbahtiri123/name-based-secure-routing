@@ -27,10 +27,12 @@ def test_wpr_capture_script_is_fail_closed_and_preserves_matched_workloads() -> 
     assert '[string]$Paths = "direct,nbsr"' in source
     assert '[string]$Affinities = "4"' in source
     assert '[int]$MaxRepeats = 1' in source
+    assert '[string]$OutstandingPerStream = "1"' in source
     assert '"--payloads", $Payloads' in source
     assert '"--paths", $Paths' in source
     assert '"--affinities", $Affinities' in source
     assert '"--max-repeats", $MaxRepeats' in source
+    assert '"--p2a-outstanding-per-stream", $OutstandingPerStream' in source
     assert "trace-integrity.json" in source
     assert "Total # Lost Events" in source
     assert "cpu-profile-detail.txt" in source

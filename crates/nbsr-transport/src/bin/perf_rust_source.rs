@@ -11,7 +11,9 @@ use std::time::{Duration, Instant};
 #[cfg(feature = "benchmark-harness")]
 use nbsr_transport::StreamCreditRefill;
 #[cfg(feature = "benchmark-harness")]
-use nbsr_transport::p2a_benchmark::{decode_frame, encode_frame};
+use nbsr_transport::p2a_benchmark::{
+    OutstandingTracker, decode_frame, decode_measured_frame, encode_frame, encode_measured_frame,
+};
 use nbsr_transport::{
     AdmissionPolicy, AuthorizedServicePolicy, ControlSession, CoreV02Limits, DestinationAdmission,
     EdgeIdentity, EdgeRole, LocalFederationAdmissionAttestations,
@@ -1125,6 +1127,10 @@ async fn main() {
     #[cfg(feature = "benchmark-harness")]
     if let Some(stream_count) = optional_argument("--p2a-streams") {
         let stream_count = stream_count.parse::<u64>().unwrap();
+        assert!((1..=64).contains(&stream_count));
+        let outstanding_per_stream = optional_argument("--p2a-outstanding-per-stream")
+            .map_or(1, |value| value.parse::<usize>().unwrap());
+        assert!((1..=64).contains(&outstanding_per_stream));
         let warmup = Duration::from_secs_f64(argument("--p2a-warmup-seconds").parse().unwrap());
         let duration_seconds =
             optional_argument("--p2a-duration-seconds").map(|value| value.parse().unwrap());
@@ -1151,7 +1157,6 @@ async fn main() {
             progress_interval.map(|_| Arc::new(b5_support::SoakTelemetry::new(64).unwrap()));
         let counter_control = optional_argument("--p2a-counter-control")
             .map(|value| value.parse::<SocketAddr>().unwrap());
-        assert!(matches!(stream_count, 1 | 8 | 64));
         nbsr_transport::diagnostics::enable_global();
         let payload = vec![0x5a; payload_bytes];
         let mut applications = Vec::with_capacity(stream_count as usize);
@@ -1181,12 +1186,25 @@ async fn main() {
             let soak_telemetry = soak_telemetry.clone();
             tasks.spawn(async move {
                 let mut sequence = (ordinal as u64) << 56;
-                while Instant::now() < warmup_deadline {
-                    let wire = encode_frame(sequence, &payload);
-                    application.benchmark_write_frame(&wire).await.unwrap();
-                    let response = application.benchmark_read_frame().await.unwrap();
-                    decode_frame(&response, sequence, payload.len()).unwrap();
-                    sequence += 1;
+                let preflight = encode_frame(sequence, &payload);
+                application.benchmark_write_frame(&preflight).await.unwrap();
+                let response = application.benchmark_read_frame().await.unwrap();
+                decode_frame(&response, sequence, payload.len()).unwrap();
+                sequence += 1;
+                let mut warmup_tracker = OutstandingTracker::new(outstanding_per_stream).unwrap();
+                while Instant::now() < warmup_deadline || warmup_tracker.in_flight() > 0 {
+                    while Instant::now() < warmup_deadline && warmup_tracker.can_issue() {
+                        let started = Instant::now();
+                        let wire = encode_measured_frame(sequence, &payload);
+                        application.benchmark_write_frame(&wire).await.unwrap();
+                        warmup_tracker.issue(sequence, started).unwrap();
+                        sequence += 1;
+                    }
+                    if let Some(expected) = warmup_tracker.next_sequence() {
+                        let response = application.benchmark_read_frame().await.unwrap();
+                        decode_measured_frame(&response, expected, &payload).unwrap();
+                        warmup_tracker.complete(expected).unwrap();
+                    }
                 }
                 ready.wait().await;
                 measure.wait().await;
@@ -1203,17 +1221,26 @@ async fn main() {
                     b1_support::MeasurementMode::Duration(_) => None,
                 };
                 let mut latencies = Vec::new();
-                let mut completed = 0_u64;
-                while deadline.is_some_and(|value| Instant::now() < value)
-                    || operation_limit.is_some_and(|value| completed < value)
-                {
-                    let started = Instant::now();
-                    let wire = encode_frame(sequence, &payload);
-                    application.benchmark_write_frame(&wire).await.unwrap();
+                let mut tracker = OutstandingTracker::new(outstanding_per_stream).unwrap();
+                loop {
+                    while tracker.can_issue()
+                        && (deadline.is_some_and(|value| Instant::now() < value)
+                            || operation_limit.is_some_and(|value| tracker.sent() < value))
+                    {
+                        let started = Instant::now();
+                        let wire = encode_measured_frame(sequence, &payload);
+                        application.benchmark_write_frame(&wire).await.unwrap();
+                        tracker.issue(sequence, started).unwrap();
+                        sequence += 1;
+                    }
+                    let Some(expected) = tracker.next_sequence() else {
+                        break;
+                    };
                     let response = application.benchmark_read_frame().await.unwrap();
-                    decode_frame(&response, sequence, payload.len()).unwrap();
+                    decode_measured_frame(&response, expected, &payload).unwrap();
+                    let started = tracker.complete(expected).unwrap();
                     let latency = started.elapsed().as_nanos() as u64;
-                    completed += 1;
+                    let completed = tracker.completed();
                     if let Some(telemetry) = &soak_telemetry {
                         telemetry.record(latency);
                         if completed.is_multiple_of(64) {
@@ -1222,9 +1249,14 @@ async fn main() {
                     } else {
                         latencies.push(latency);
                     }
-                    sequence += 1;
                 }
-                (completed, latencies, application)
+                (
+                    tracker.completed(),
+                    latencies,
+                    tracker.max_in_flight(),
+                    sequence,
+                    application,
+                )
             });
         }
         ready.wait().await;
@@ -1351,12 +1383,14 @@ async fn main() {
         }
         let mut completed = 0_u64;
         let mut latencies = Vec::new();
+        let mut max_outstanding_observed = 0_usize;
         let mut established_streams = Vec::with_capacity(stream_count as usize);
         while let Some(result) = tasks.join_next().await {
-            let (count, mut values, application) = result.unwrap();
+            let (count, mut values, max_outstanding, sequence, application) = result.unwrap();
             completed += count;
             latencies.append(&mut values);
-            established_streams.push(application);
+            max_outstanding_observed = max_outstanding_observed.max(max_outstanding);
+            established_streams.push((sequence, application));
         }
         progress_stop.store(true, Ordering::Relaxed);
         progress_notify.notify_one();
@@ -1364,6 +1398,15 @@ async fn main() {
             task.await.unwrap();
         }
         let measured_ns = measured_started.elapsed().as_nanos();
+        for (sequence, application) in &mut established_streams {
+            let postflight = encode_frame(*sequence, &payload);
+            application
+                .benchmark_write_frame(&postflight)
+                .await
+                .unwrap();
+            let response = application.benchmark_read_frame().await.unwrap();
+            decode_frame(&response, *sequence, payload.len()).unwrap();
+        }
         tokio::time::sleep(Duration::from_millis(100)).await;
         b1_support::counter_phase(counter_control, "measurement-stop").unwrap();
         drop(established_streams);
@@ -1379,7 +1422,8 @@ async fn main() {
         let max_admission_lateness = admission_lateness.last().copied().unwrap_or(0);
         let latency_stride = if progress_interval.is_some() { 64 } else { 1 };
         let final_record = format!(
-            "{{\"schema\":\"nbsr-p2a-repeat-v1\",\"path\":\"nbsr\",\"streams\":{stream_count},\"payload_bytes\":{payload_bytes},\"model\":\"one-outstanding-per-stream\",\"completed_operations\":{completed},\"measured_ns\":{measured_ns},\"p50_latency_ns\":{},\"p95_latency_ns\":{},\"p99_latency_ns\":{},\"latency_sample_count\":{},\"latency_sample_stride\":{latency_stride},\"scheduled_admissions\":{},\"successful_admissions\":{},\"failed_admissions\":{},\"admission_timeouts\":{},\"admission_p50_latency_ns\":{},\"admission_p95_latency_ns\":{},\"admission_p99_latency_ns\":{},\"max_admission_start_lateness_ns\":{},\"errors\":{},\"missing\":0,\"duplicates\":0,\"corrupt\":0,\"wrong_request\":0,\"transport_sessions_created_delta\":{},\"service_channels_created_delta\":{},\"application_streams_created_delta\":{},\"replay_entries_delta\":{}}}",
+            "{{\"schema\":\"nbsr-p2a-repeat-v2\",\"path\":\"nbsr\",\"streams\":{stream_count},\"payload_bytes\":{payload_bytes},\"model\":\"bounded-outstanding-per-stream\",\"outstanding_per_stream\":{outstanding_per_stream},\"configured_total_outstanding\":{},\"max_outstanding_per_stream_observed\":{max_outstanding_observed},\"completed_operations\":{completed},\"measured_ns\":{measured_ns},\"p50_latency_ns\":{},\"p95_latency_ns\":{},\"p99_latency_ns\":{},\"latency_sample_count\":{},\"latency_sample_stride\":{latency_stride},\"scheduled_admissions\":{},\"successful_admissions\":{},\"failed_admissions\":{},\"admission_timeouts\":{},\"admission_p50_latency_ns\":{},\"admission_p95_latency_ns\":{},\"admission_p99_latency_ns\":{},\"max_admission_start_lateness_ns\":{},\"errors\":{},\"missing\":0,\"duplicates\":0,\"corrupt\":0,\"wrong_request\":0,\"transport_sessions_created_delta\":{},\"service_channels_created_delta\":{},\"application_streams_created_delta\":{},\"replay_entries_delta\":{}}}",
+            stream_count as usize * outstanding_per_stream,
             percentile(0.50),
             percentile(0.95),
             percentile(0.99),

@@ -1,0 +1,134 @@
+{
+  "schema": "nbsr-b2-v2-wpr-capture-v1",
+  "timestamp_utc": "2026-09-01T18:42:11.2430381Z",
+  "git": {
+    "branch": "codex/nbsr-v3-wp0-wp1",
+    "sha": "3006ffd44f45205909d55e9473c688fc09e049f4"
+  },
+  "workload": {
+    "warmup_seconds": 3.0,
+    "duration_seconds": 10.0,
+    "repeats": 1,
+    "maximum_repeats": 1,
+    "streams": "8",
+    "payloads": "16384",
+    "paths": "direct,nbsr",
+    "affinities": "4"
+  },
+  "capture_mode": "xperf-sampled-cpu-only",
+  "blocked_time": "not-captured",
+  "xperf_start_arguments": [
+    "-on",
+    "PROC_THREAD+LOADER+PROFILE",
+    "-stackwalk",
+    "Profile",
+    "-BufferSize",
+    "1024",
+    "-MinBuffers",
+    "128",
+    "-MaxBuffers",
+    "256",
+    "-f",
+    "C:\\NBSR-build\\b2-v2-wpr-manual-20260901-204109\\b2-v2-cpu-raw.etl"
+  ],
+  "tools": {
+    "python": "C:\\Users\\bajra\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+    "wpr": "C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance Toolkit\\wpr.exe",
+    "wpa": "C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance Toolkit\\wpa.exe",
+    "wpaexporter": "C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance Toolkit\\wpaexporter.exe",
+    "xperf": "C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance Toolkit\\xperf.exe"
+  },
+  "trace": "C:\\NBSR-build\\b2-v2-wpr-manual-20260901-204109\\b2-v2-cpu.etl",
+  "control": {
+    "label": "control",
+    "command": [
+      "C:\\Users\\bajra\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+      "C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\scripts\\profile_b2_v2.py",
+      "--warmup-seconds",
+      "3",
+      "--duration-seconds",
+      "10",
+      "--repeats",
+      "1",
+      "--streams",
+      "8",
+      "--payloads",
+      "16384",
+      "--paths",
+      "direct,nbsr",
+      "--affinities",
+      "4",
+      "--max-repeats",
+      "1",
+      "--output",
+      "C:\\NBSR-build\\b2-v2-wpr-manual-20260901-204109\\control"
+    ],
+    "started_utc": "2026-09-01T18:41:09.1717294Z",
+    "ended_utc": "2026-09-01T18:41:36.6373257Z",
+    "elapsed_seconds": 27.4655963,
+    "output": "C:\\NBSR-build\\b2-v2-wpr-manual-20260901-204109\\control",
+    "log": "C:\\NBSR-build\\b2-v2-wpr-manual-20260901-204109\\control.log"
+  },
+  "profiled": {
+    "label": "profiled",
+    "command": [
+      "C:\\Users\\bajra\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+      "C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\scripts\\profile_b2_v2.py",
+      "--warmup-seconds",
+      "3",
+      "--duration-seconds",
+      "10",
+      "--repeats",
+      "1",
+      "--streams",
+      "8",
+      "--payloads",
+      "16384",
+      "--paths",
+      "direct,nbsr",
+      "--affinities",
+      "4",
+      "--max-repeats",
+      "1",
+      "--output",
+      "C:\\NBSR-build\\b2-v2-wpr-manual-20260901-204109\\profiled"
+    ],
+    "started_utc": "2026-09-01T18:41:37.1462946Z",
+    "ended_utc": "2026-09-01T18:42:04.4947941Z",
+    "elapsed_seconds": 27.3484995,
+    "output": "C:\\NBSR-build\\b2-v2-wpr-manual-20260901-204109\\profiled",
+    "log": "C:\\NBSR-build\\b2-v2-wpr-manual-20260901-204109\\profiled.log"
+  },
+  "symbols": [
+    {
+      "path": "C:\\NBSR-build\\b2-v2-profile\\release\\perf_direct_peer.exe",
+      "bytes": 3172352,
+      "sha256": "f9d8918166ee81724385037c610dc3e6b89931d24f14d9c3701ac60dfa3ab5aa"
+    },
+    {
+      "path": "C:\\NBSR-build\\b2-v2-profile\\release\\perf_direct_peer.pdb",
+      "bytes": 2863104,
+      "sha256": "2d412c0648caf4e6973e1f28a2f5f9c4ee634d69041071f7bc491214f496a8a3"
+    },
+    {
+      "path": "C:\\NBSR-build\\b2-v2-profile\\release\\perf_rust_source.exe",
+      "bytes": 3515392,
+      "sha256": "9a4e3a5f6113a90f30dc8ee2226645370cd897fa44b15aad2a7d8c07b454d0d7"
+    },
+    {
+      "path": "C:\\NBSR-build\\b2-v2-profile\\release\\perf_rust_source.pdb",
+      "bytes": 3002368,
+      "sha256": "0b0065d371b3e5d00ff3100901f0178163e56092cdf2f767c1e92ca710e00f72"
+    },
+    {
+      "path": "C:\\NBSR-build\\b2-v2-profile\\release\\wp8_interop_server.exe",
+      "bytes": 3653120,
+      "sha256": "2bc9ccd178c8ef91007afc59ea755a381e6ad6e8f0af33e06aa0c921be8a8cc1"
+    },
+    {
+      "path": "C:\\NBSR-build\\b2-v2-profile\\release\\wp8_interop_server.pdb",
+      "bytes": 3059712,
+      "sha256": "1d859c436be9b4e5c1b9a0a2f708f84be4ee87ec80236b192449a4fc51c7fe98"
+    }
+  ]
+}

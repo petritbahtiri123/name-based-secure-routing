@@ -1,0 +1,36 @@
+{
+  "schema": "nbsr-b2-v2-manifest-v2",
+  "model": "bounded-outstanding-per-stream",
+  "payload_bytes": [
+    16384
+  ],
+  "paths": [
+    "direct",
+    "nbsr"
+  ],
+  "streams": [
+    1
+  ],
+  "affinity_counts": [
+    4
+  ],
+  "warmup_seconds": 3.0,
+  "duration_seconds": 10.0,
+  "outstanding_per_stream": [
+    4
+  ],
+  "nbsr_stream_range": [
+    1,
+    64
+  ],
+  "unsupported_nbsr_streams": [],
+  "integrity_validation": {
+    "historical_full_sha_outside_timed_interval": true,
+    "timed_full_validation_stride": 1024,
+    "timed_bounded_probes": 8
+  },
+  "minimum_repeats": 5,
+  "maximum_repeats": 5,
+  "records": 10,
+  "elapsed_seconds": 132.7919638156891
+}

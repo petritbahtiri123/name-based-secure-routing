@@ -1,0 +1,23 @@
+{
+  "schema": "nbsr-b2-v2-wpr-overhead-v1",
+  "matched_cells": 2,
+  "median_throughput_overhead_fraction": 0.07259710167405364,
+  "maximum_throughput_overhead_fraction": 0.0823172171930393,
+  "all_cells_within_five_percent": false,
+  "cells": [
+    {
+      "cell": "direct-p16384-a4-s1-o4-r1.json",
+      "control_operations_per_second": 10153.143607730297,
+      "profiled_operations_per_second": 9416.054808928633,
+      "throughput_overhead_fraction": 0.07259710167405364,
+      "within_five_percent": false
+    },
+    {
+      "cell": "nbsr-p16384-a4-s1-o4-r1.json",
+      "control_operations_per_second": 9999.276537873242,
+      "profiled_operations_per_second": 9176.163919331868,
+      "throughput_overhead_fraction": 0.0823172171930393,
+      "within_five_percent": false
+    }
+  ]
+}

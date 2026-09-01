@@ -8,6 +8,7 @@ param(
     [string]$Payloads = "16384",
     [string]$Paths = "direct,nbsr",
     [string]$Affinities = "4",
+    [string]$OutstandingPerStream = "1",
     [int]$MaxRepeats = 1
 )
 
@@ -69,6 +70,7 @@ $BenchmarkArguments = @(
     "--payloads", $Payloads,
     "--paths", $Paths,
     "--affinities", $Affinities,
+    "--p2a-outstanding-per-stream", $OutstandingPerStream,
     "--max-repeats", $MaxRepeats.ToString([Globalization.CultureInfo]::InvariantCulture)
 )
 
@@ -239,6 +241,7 @@ $symbols = Get-ChildItem -LiteralPath "C:\NBSR-build\b2-v2-profile\release" -Fil
         payloads = $Payloads
         paths = $Paths
         affinities = $Affinities
+        outstanding_per_stream = $OutstandingPerStream
     }
     capture_mode = "xperf-sampled-cpu-only"
     blocked_time = "not-captured"
