@@ -1,0 +1,69 @@
+{
+  "schema": "nbsr-b2-v2-runtime-scaling-environment-v1",
+  "git_sha": "2d71f075b491eac6d36f60cc7c1d3ca18cf70f2c",
+  "branch": "codex/nbsr-v3-wp0-wp1",
+  "timestamp_utc": "2026-09-01T20:19:24Z",
+  "os": "Windows-11-10.0.26200-SP0",
+  "processor_topology": {
+    "verified": true,
+    "scope": "physical-core-selected-logical-processors",
+    "physical_cores": 4,
+    "logical_processors": 8,
+    "cores": [
+      {
+        "core_index": 0,
+        "smt": true,
+        "efficiency_class": 0,
+        "logical_mask": 3
+      },
+      {
+        "core_index": 1,
+        "smt": true,
+        "efficiency_class": 0,
+        "logical_mask": 12
+      },
+      {
+        "core_index": 2,
+        "smt": true,
+        "efficiency_class": 0,
+        "logical_mask": 48
+      },
+      {
+        "core_index": 3,
+        "smt": true,
+        "efficiency_class": 0,
+        "logical_mask": 192
+      }
+    ],
+    "affinity_masks": {
+      "1": {
+        "decimal": 1,
+        "hex": "0x1"
+      },
+      "2": {
+        "decimal": 5,
+        "hex": "0x5"
+      },
+      "4": {
+        "decimal": 85,
+        "hex": "0x55"
+      }
+    }
+  },
+  "affinity_mask": "0x55",
+  "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)",
+  "binaries": {
+    "direct": {
+      "path": "C:\\NBSR-build\\b2-v2-profile\\release\\perf_direct_peer.exe",
+      "sha256": "6c243d0992b8ed53a8f905e3ce93c8099c49a5795d07833e883a9cfd32c44c69"
+    },
+    "nbsr": {
+      "path": "C:\\NBSR-build\\b2-v2-profile\\release\\perf_rust_source.exe",
+      "sha256": "7e2702ff80394e714acfbd16d4e5466d0b01347108039ed1c06e079ef84c1943"
+    },
+    "server": {
+      "path": "C:\\NBSR-build\\b2-v2-profile\\release\\wp8_interop_server.exe",
+      "sha256": "e399971f71ebc291dafb2cba6914e3b97209b60e274344e265f493283651c561"
+    }
+  }
+}

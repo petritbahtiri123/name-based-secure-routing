@@ -61,7 +61,7 @@ def build(target: Path) -> dict[str, Path]:
     }
 
 
-def summarize_resources(samples: list[dict], completed: int, measured_seconds: float) -> dict:
+def summarize_resources(samples: list[dict], completed: int, measured_seconds: float, runtime_workers: int = 1) -> dict:
     cutoff = max(sample["timestamp_ns"] for sample in samples) - int(measured_seconds * 1e9)
     samples = [sample for sample in samples if sample["timestamp_ns"] >= cutoff]
     by_role: dict[str, list[dict]] = {}
@@ -79,10 +79,13 @@ def summarize_resources(samples: list[dict], completed: int, measured_seconds: f
         total_cpu += cpu
         roles[role] = {
             "cpu_ns": cpu,
+            "effective_cores": cpu / (measured_seconds * 1e9),
+            "effective_cores_per_runtime_worker": cpu / (measured_seconds * 1e9) / runtime_workers,
+            "peak_thread_count": max(v["thread_count"] for v in values),
             "peak_working_set_bytes": max(v["peak_working_set_bytes"] for v in values),
             "peak_private_bytes": max(v["private_bytes"] for v in values),
         }
-    return {"roles": roles, "total_cpu_ns": total_cpu, "cpu_ns_per_completed_operation": total_cpu / completed if completed else None}
+    return {"runtime_workers": runtime_workers, "roles": roles, "total_cpu_ns": total_cpu, "cpu_ns_per_completed_operation": total_cpu / completed if completed else None}
 
 
 def clear_run_markers(*paths: Path) -> None:
@@ -106,6 +109,9 @@ def run_repeat(
     raw_dir: Path,
     affinity_processors: int | None = None,
 ) -> dict:
+    runtime_workers = int(cell.get("runtime_workers", 1))
+    if runtime_workers not in (1, 2, 4):
+        raise ValueError("runtime_workers must be 1, 2, or 4")
     ready = raw_dir / f"{cell['path']}-s{cell['streams']}-p{cell['payload_bytes']}-r{repeat}.ready.json"
     result = ready.with_suffix(".result.json")
     ack = ready.with_suffix(".ack")
@@ -125,6 +131,8 @@ def run_repeat(
             "1",
             "--p2a-streams",
             str(cell["streams"]),
+            "--p2a-runtime-workers",
+            str(runtime_workers),
         ]
         server_env = os.environ.copy()
     else:
@@ -138,6 +146,8 @@ def run_repeat(
             str(authority),
             "--completion-ack",
             str(ack),
+            "--p2a-runtime-workers",
+            str(runtime_workers),
         ]
         server_env = {**os.environ, "NBSR_P2A_STREAMS": str(cell["streams"])}
     server = subprocess.Popen(server_argv, cwd=ROOT, env=server_env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
@@ -156,6 +166,8 @@ def run_repeat(
             str(cell["payload_bytes"]),
             "--p2a-streams",
             str(cell["streams"]),
+            "--p2a-runtime-workers",
+            str(runtime_workers),
             "--p2a-outstanding-per-stream",
             str(cell.get("outstanding_per_stream", 1)),
             "--p2a-warmup-seconds",
@@ -202,7 +214,8 @@ def run_repeat(
                 "aggregate_goodput_bytes_per_second": 2 * completed * payload / seconds,
                 "aggregate_application_gbps": 16 * completed * payload / seconds / 1e9,
                 "timeouts": 0,
-                "resources": summarize_resources(resources, completed, seconds),
+                "runtime_workers": runtime_workers,
+                "resources": summarize_resources(resources, completed, seconds, runtime_workers),
                 "affinity": affinity,
                 "allocations_per_operation": None,
                 "allocated_bytes_per_operation": None,

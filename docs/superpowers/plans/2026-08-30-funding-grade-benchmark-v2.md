@@ -122,6 +122,8 @@ Each stage writes `evidence/performance/v2/{stage}-{start_sha_12}/`, where both 
 
 **Final status:** PASS / HARNESS-LIMITED. The full-SHA benchmark hotspot was removed symmetrically. The next measured harness boundary is the single-thread Tokio runtime used by each benchmark process. See `evidence/performance/v2/b2-optimization-8721b95177bd/`.
 
+**Task 2b follow-up status:** PASS / HARNESS-LIMITED. Configurable 1/2/4-worker benchmark runtimes showed that extra workers reduce throughput while increasing CPU and thread count in both Direct and NBSR. No production runtime change was made, and no higher stable ceiling replaced Task 2. See `evidence/performance/v2/b2-runtime-scaling-2d71f075b491/`.
+
 ### Task 3: Max-throughput and saturation sweep
 
 **Current result:** B2 peak observations are 0.549 Gbit/s for 1 KiB/64 and 0.686 Gbit/s for 16 KiB/8 NBSR at verified 4-core affinity, but they do not establish a true stable maximum or hardware ceiling.

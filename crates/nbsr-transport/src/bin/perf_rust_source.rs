@@ -12,7 +12,8 @@ use std::time::{Duration, Instant};
 use nbsr_transport::StreamCreditRefill;
 #[cfg(feature = "benchmark-harness")]
 use nbsr_transport::p2a_benchmark::{
-    OutstandingTracker, decode_frame, decode_measured_frame, encode_frame, encode_measured_frame,
+    OutstandingTracker, build_benchmark_runtime, decode_frame, decode_measured_frame, encode_frame,
+    encode_measured_frame, parse_runtime_workers,
 };
 use nbsr_transport::{
     AdmissionPolicy, AuthorizedServicePolicy, ControlSession, CoreV02Limits, DestinationAdmission,
@@ -936,8 +937,7 @@ async fn run_p2d_after(
         .unwrap();
 }
 
-#[tokio::main(flavor = "current_thread")]
-async fn main() {
+async fn run() {
     let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..");
     let authority = PathBuf::from(argument("--authority-dir"));
     let endpoint: SocketAddr = argument("--endpoint").parse().unwrap();
@@ -1614,6 +1614,20 @@ async fn main() {
     for record in records {
         println!("{record}");
     }
+}
+
+#[cfg(feature = "benchmark-harness")]
+fn main() {
+    let workers = parse_runtime_workers(env::args()).expect("valid --p2a-runtime-workers");
+    build_benchmark_runtime(workers)
+        .expect("benchmark Tokio runtime")
+        .block_on(run());
+}
+
+#[cfg(not(feature = "benchmark-harness"))]
+#[tokio::main(flavor = "current_thread")]
+async fn main() {
+    run().await;
 }
 
 trait ReadBytes {

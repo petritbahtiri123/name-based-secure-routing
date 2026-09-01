@@ -2814,8 +2814,7 @@ async fn run_p2d_after(
         .unwrap();
 }
 
-#[tokio::main(flavor = "current_thread")]
-async fn main() {
+async fn run() {
     #[cfg(feature = "benchmark-harness")]
     if env::var_os("NBSR_P2B_PROFILE").is_some() {
         nbsr_transport::lifecycle_profile::set_destination_role();
@@ -3298,6 +3297,21 @@ async fn main() {
     if let Some(sampler) = diagnostic_sampler {
         let _ = sampler.stop_and_join();
     }
+}
+
+#[cfg(feature = "benchmark-harness")]
+fn main() {
+    let workers = nbsr_transport::p2a_benchmark::parse_runtime_workers(env::args())
+        .expect("valid --p2a-runtime-workers");
+    nbsr_transport::p2a_benchmark::build_benchmark_runtime(workers)
+        .expect("benchmark Tokio runtime")
+        .block_on(run());
+}
+
+#[cfg(not(feature = "benchmark-harness"))]
+#[tokio::main(flavor = "current_thread")]
+async fn main() {
+    run().await;
 }
 
 fn field_uint(t: &mut Vec<u8>, k: u64, v: u64) {

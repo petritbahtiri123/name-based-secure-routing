@@ -1,0 +1,37 @@
+{
+  "schema": "nbsr-b2-v2-runtime-scaling-manifest-v1",
+  "command": [
+    "C:\\Users\\bajra\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+    "scripts/run_b2_v2_runtime_scaling.py",
+    "--output",
+    "evidence\\performance\\v2\\b2-runtime-scaling-2d71f075b491",
+    "--warmup-seconds",
+    "3",
+    "--duration-seconds",
+    "10",
+    "--repeats",
+    "5"
+  ],
+  "runtime_workers": [
+    1,
+    2,
+    4
+  ],
+  "workloads": [
+    {
+      "payload_bytes": 1024,
+      "streams": 64,
+      "outstanding_per_stream": 1
+    },
+    {
+      "payload_bytes": 16384,
+      "streams": 1,
+      "outstanding_per_stream": 4
+    }
+  ],
+  "warmup_seconds": 3.0,
+  "duration_seconds": 10.0,
+  "repeats": 5,
+  "records": 60,
+  "elapsed_seconds": 0.325056791305542
+}

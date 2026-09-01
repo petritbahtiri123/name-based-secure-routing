@@ -26,6 +26,48 @@ pub enum OutstandingError {
     OutOfOrder,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RuntimeWorkerError {
+    MissingValue,
+    InvalidValue,
+}
+
+pub fn parse_runtime_workers<I, S>(arguments: I) -> Result<usize, RuntimeWorkerError>
+where
+    I: IntoIterator<Item = S>,
+    S: AsRef<str>,
+{
+    let mut arguments = arguments.into_iter();
+    while let Some(argument) = arguments.next() {
+        if argument.as_ref() == "--p2a-runtime-workers" {
+            let value = arguments.next().ok_or(RuntimeWorkerError::MissingValue)?;
+            return match value.as_ref().parse::<usize>() {
+                Ok(workers @ (1 | 2 | 4)) => Ok(workers),
+                _ => Err(RuntimeWorkerError::InvalidValue),
+            };
+        }
+    }
+    Ok(1)
+}
+
+pub fn build_benchmark_runtime(
+    workers: usize,
+) -> Result<tokio::runtime::Runtime, RuntimeWorkerError> {
+    let mut builder = if workers == 1 {
+        tokio::runtime::Builder::new_current_thread()
+    } else if matches!(workers, 2 | 4) {
+        let mut builder = tokio::runtime::Builder::new_multi_thread();
+        builder.worker_threads(workers);
+        builder
+    } else {
+        return Err(RuntimeWorkerError::InvalidValue);
+    };
+    builder
+        .enable_all()
+        .build()
+        .map_err(|_| RuntimeWorkerError::InvalidValue)
+}
+
 #[derive(Debug)]
 pub struct OutstandingTracker {
     limit: usize,

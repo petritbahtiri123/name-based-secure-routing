@@ -82,3 +82,15 @@ $env:CARGO_TARGET_DIR = 'C:\NBSR-build\b2-v2-profile'
 python scripts/profile_b2_v2.py --output <output> --warmup-seconds 3 --duration-seconds 10 --repeats 5 --max-repeats 5 --streams 1,2,4,8,16,32,64 --payloads 1024,16384 --paths direct,nbsr --affinities 4 --p2a-outstanding-per-stream 1,2,4,8
 python scripts/analyze_b2_v2_optimization.py --evidence-root evidence\performance\v2\b2-optimization-8721b95177bd --historical-root evidence\performance\v2\b2-optimization-8721b95177bd\historical-task1b\control --historical-root evidence\performance\v2\b2-profile-0c5e6ae41251
 ```
+
+## Task 2b benchmark runtime scaling
+
+Task 2b enables Tokio `rt-multi-thread` only through the `benchmark-harness` Cargo feature. Normal builds retain the existing `current_thread` entrypoint. Benchmark builds accept `--p2a-runtime-workers 1|2|4`, defaulting to one. The runner passes the same value to both source and destination processes for Direct and NBSR and retains affinity mask `0x55`, payloads, stream counts, outstanding depth, timing boundaries, and accounting.
+
+The authoritative matrix used the Task-2 stable workload shapes (1 KiB/64 streams/one outstanding and 16 KiB/one stream/four outstanding), five 10-second repeats after a 3-second warmup, Direct and NBSR, and 1/2/4 workers. All 60 records were valid with verified affinity and zero errors or timeouts.
+
+Increasing workers did not improve throughput. For 1 KiB NBSR, the median changed from 1.797 Gbit/s at one worker to 0.750 at two and 0.809 at four while combined effective CPU rose from 1.789 to 2.416 and 2.616 cores. For 16 KiB NBSR, it changed from 2.248 Gbit/s to 1.652 and 1.340 while combined effective CPU was 1.773, 2.326, and 2.240 cores. Direct showed the same direction. Process peak thread counts progressed from 4 to 6 to 8 for each source/destination role.
+
+This is **Evidence PASS / HARNESS-LIMITED: multi-thread runtime overhead** under acceptance path B. The reproducible boundary is benchmark-runtime scheduling/synchronization overhead: adding runtime workers creates threads and consumes more CPU while completing less equivalent work. It is not evidence of a production NBSR runtime defect. Some five-repeat cells remained above 5% CV, including the degraded 16 KiB/four-worker NBSR cell; they are preserved and are not used to claim a stable peak.
+
+Task 2b established no higher stable ceiling. The accepted Task-2 ceilings remain 1.997 Gbit/s for 1 KiB NBSR and 2.290 Gbit/s for 16 KiB NBSR on this host. Raw results and derived matched-worker deltas are under `evidence/performance/v2/b2-runtime-scaling-2d71f075b491/`.

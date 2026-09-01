@@ -4,7 +4,7 @@ use std::time::Instant;
 
 use nbsr_transport::p2a_benchmark::{
     FrameError, OutstandingTracker, decode_frame, decode_measured_frame, encode_frame,
-    encode_measured_frame,
+    encode_measured_frame, parse_runtime_workers,
 };
 
 #[test]
@@ -76,4 +76,18 @@ fn outstanding_tracker_enforces_bound_fifo_and_conservation() {
     assert_eq!(tracker.completed(), 3);
     assert_eq!(tracker.in_flight(), 0);
     assert_eq!(tracker.max_in_flight(), 2);
+}
+
+#[test]
+fn runtime_workers_default_to_one_and_accept_only_scaling_cells() {
+    assert_eq!(parse_runtime_workers(["bench"]), Ok(1));
+    assert_eq!(
+        parse_runtime_workers(["bench", "--p2a-runtime-workers", "2"]),
+        Ok(2)
+    );
+    assert_eq!(
+        parse_runtime_workers(["bench", "--p2a-runtime-workers", "4"]),
+        Ok(4)
+    );
+    assert!(parse_runtime_workers(["bench", "--p2a-runtime-workers", "3"]).is_err());
 }

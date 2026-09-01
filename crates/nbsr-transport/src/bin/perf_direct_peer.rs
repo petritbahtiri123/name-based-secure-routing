@@ -7,7 +7,8 @@ use std::time::{Duration, Instant};
 
 #[cfg(feature = "benchmark-harness")]
 use nbsr_transport::p2a_benchmark::{
-    OutstandingTracker, decode_frame, decode_measured_frame, encode_frame, encode_measured_frame,
+    OutstandingTracker, build_benchmark_runtime, decode_frame, decode_measured_frame, encode_frame,
+    encode_measured_frame, parse_runtime_workers,
 };
 use quinn::crypto::rustls::{QuicClientConfig, QuicServerConfig};
 use quinn::{ClientConfig, Connection, Endpoint, ServerConfig, TransportConfig, VarInt};
@@ -528,11 +529,24 @@ async fn client() {
     }
 }
 
-#[tokio::main(flavor = "current_thread")]
-async fn main() {
+async fn run() {
     match argument("--role").as_str() {
         "server" => server().await,
         "client" => client().await,
         other => panic!("unsupported role {other}"),
     }
+}
+
+#[cfg(feature = "benchmark-harness")]
+fn main() {
+    let workers = parse_runtime_workers(env::args()).expect("valid --p2a-runtime-workers");
+    build_benchmark_runtime(workers)
+        .expect("benchmark Tokio runtime")
+        .block_on(run());
+}
+
+#[cfg(not(feature = "benchmark-harness"))]
+#[tokio::main(flavor = "current_thread")]
+async fn main() {
+    run().await;
 }
