@@ -1,12 +1,26 @@
 from __future__ import annotations
 
 import pytest
+import scripts.profile_b2_v2 as profile
 
 from scripts.profile_b2_v2 import (
     classify_attribution,
     preferred_physical_masks,
     validate_profile_pair,
 )
+
+
+def test_diagnostic_matrix_can_select_one_matched_direct_nbsr_workload() -> None:
+    assert hasattr(profile, "benchmark_cells"), "diagnostic matrix selection is not implemented"
+    assert profile.benchmark_cells(
+        payloads=(16384,),
+        paths=("direct", "nbsr"),
+        affinities=(4,),
+        streams=(8,),
+    ) == [
+        {"path": "direct", "streams": 8, "payload_bytes": 16384, "affinity": 4},
+        {"path": "nbsr", "streams": 8, "payload_bytes": 16384, "affinity": 4},
+    ]
 
 
 def test_prefers_one_logical_processor_per_physical_core() -> None:

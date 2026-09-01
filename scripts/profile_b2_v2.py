@@ -27,6 +27,24 @@ AFFINITY_COUNTS = (1, 2, 4)
 NBSR_SUPPORTED_STREAMS = (1, 8, 64)
 
 
+def benchmark_cells(
+    *,
+    payloads: tuple[int, ...],
+    paths: tuple[str, ...],
+    affinities: tuple[int, ...],
+    streams: tuple[int, ...],
+) -> list[dict]:
+    cells = []
+    for payload in payloads:
+        for path in paths:
+            for affinity in affinities:
+                for stream_count in streams:
+                    if path == "nbsr" and stream_count not in NBSR_SUPPORTED_STREAMS:
+                        continue
+                    cells.append({"path": path, "streams": stream_count, "payload_bytes": payload, "affinity": affinity})
+    return cells
+
+
 def preferred_physical_masks(cores: list[dict], counts: tuple[int, ...] = AFFINITY_COUNTS) -> dict[int, int]:
     selected = []
     for core in cores:
@@ -198,7 +216,26 @@ def analyze_output(output: Path) -> None:
     _write_checksums(output)
 
 
-def run_matrix(output: Path, warmup: float, duration: float, repeats: int, streams: tuple[int, ...]) -> None:
+def run_matrix(
+    output: Path,
+    warmup: float,
+    duration: float,
+    repeats: int,
+    streams: tuple[int, ...],
+    *,
+    payloads: tuple[int, ...] = (1024, 16384),
+    paths: tuple[str, ...] = ("direct", "nbsr"),
+    affinities: tuple[int, ...] = AFFINITY_COUNTS,
+    max_repeats: int = 5,
+) -> None:
+    if max_repeats < repeats:
+        raise ValueError("max_repeats must be greater than or equal to repeats")
+    invalid_paths = sorted(set(paths) - {"direct", "nbsr"})
+    if invalid_paths:
+        raise ValueError(f"unsupported benchmark paths: {invalid_paths}")
+    invalid_affinities = sorted(set(affinities) - set(AFFINITY_COUNTS))
+    if invalid_affinities:
+        raise ValueError(f"unsupported affinity counts: {invalid_affinities}")
     topology = windows_processor_topology()
     if not topology["verified"]:
         raise RuntimeError("physical-core topology could not be verified")
@@ -222,49 +259,48 @@ def run_matrix(output: Path, warmup: float, duration: float, repeats: int, strea
         with tempfile.TemporaryDirectory(prefix="nbsr-b2-v2-") as temp_name:
             authority = Path(temp_name) / "authority"
             write_loopback_authority(authority)
-            for payload in (1024, 16384):
-                for path in ("direct", "nbsr"):
-                    for affinity in AFFINITY_COUNTS:
-                        active_mask = masks[affinity]
-                        for stream_count in streams:
-                            if path == "nbsr" and stream_count not in NBSR_SUPPORTED_STREAMS:
-                                continue
-                            cell = {"path": path, "streams": stream_count, "payload_bytes": payload}
-                            cell_records = []
-                            for repeat in range(1, repeats + 1):
-                                name = f"{path}-p{payload}-a{affinity}-s{stream_count}-r{repeat}.json"
-                                existing = raw / name
-                                if existing.exists():
-                                    record = json.loads(existing.read_text(encoding="utf-8"))
-                                    records.append(record)
-                                    cell_records.append(record)
-                                    continue
-                                record = p2a.run_repeat(cell, repeat, binaries, authority, warmup, duration, raw, affinity)
-                                record["affinity_selection"] = {"scope": topology["scope"], "mask": active_mask, "mask_hex": hex(active_mask)}
-                                record["affinity_verified"] = bool(record["affinity"]["verified"])
-                                (raw / name).write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8", newline="\n")
-                                records.append(record)
-                                cell_records.append(record)
-                            cv = coefficient_of_variation([r["operations_per_second"] for r in cell_records])
-                            if cv > 0.05:
-                                for repeat in range(repeats + 1, 6):
-                                    name = f"{path}-p{payload}-a{affinity}-s{stream_count}-r{repeat}.json"
-                                    existing = raw / name
-                                    if existing.exists():
-                                        record = json.loads(existing.read_text(encoding="utf-8"))
-                                        records.append(record)
-                                        cell_records.append(record)
-                                        if coefficient_of_variation([r["operations_per_second"] for r in cell_records]) <= 0.05:
-                                            break
-                                        continue
-                                    record = p2a.run_repeat(cell, repeat, binaries, authority, warmup, duration, raw, affinity)
-                                    record["affinity_selection"] = {"scope": topology["scope"], "mask": active_mask, "mask_hex": hex(active_mask)}
-                                    record["affinity_verified"] = bool(record["affinity"]["verified"])
-                                    (raw / name).write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8", newline="\n")
-                                    records.append(record)
-                                    cell_records.append(record)
-                                    if coefficient_of_variation([r["operations_per_second"] for r in cell_records]) <= 0.05:
-                                        break
+            for selected in benchmark_cells(payloads=payloads, paths=paths, affinities=affinities, streams=streams):
+                payload = selected["payload_bytes"]
+                path = selected["path"]
+                affinity = selected["affinity"]
+                stream_count = selected["streams"]
+                active_mask = masks[affinity]
+                cell = {"path": path, "streams": stream_count, "payload_bytes": payload}
+                cell_records = []
+                for repeat in range(1, repeats + 1):
+                    name = f"{path}-p{payload}-a{affinity}-s{stream_count}-r{repeat}.json"
+                    existing = raw / name
+                    if existing.exists():
+                        record = json.loads(existing.read_text(encoding="utf-8"))
+                        records.append(record)
+                        cell_records.append(record)
+                        continue
+                    record = p2a.run_repeat(cell, repeat, binaries, authority, warmup, duration, raw, affinity)
+                    record["affinity_selection"] = {"scope": topology["scope"], "mask": active_mask, "mask_hex": hex(active_mask)}
+                    record["affinity_verified"] = bool(record["affinity"]["verified"])
+                    (raw / name).write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8", newline="\n")
+                    records.append(record)
+                    cell_records.append(record)
+                cv = coefficient_of_variation([r["operations_per_second"] for r in cell_records])
+                if cv > 0.05:
+                    for repeat in range(repeats + 1, max_repeats + 1):
+                        name = f"{path}-p{payload}-a{affinity}-s{stream_count}-r{repeat}.json"
+                        existing = raw / name
+                        if existing.exists():
+                            record = json.loads(existing.read_text(encoding="utf-8"))
+                            records.append(record)
+                            cell_records.append(record)
+                            if coefficient_of_variation([r["operations_per_second"] for r in cell_records]) <= 0.05:
+                                break
+                            continue
+                        record = p2a.run_repeat(cell, repeat, binaries, authority, warmup, duration, raw, affinity)
+                        record["affinity_selection"] = {"scope": topology["scope"], "mask": active_mask, "mask_hex": hex(active_mask)}
+                        record["affinity_verified"] = bool(record["affinity"]["verified"])
+                        (raw / name).write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8", newline="\n")
+                        records.append(record)
+                        cell_records.append(record)
+                        if coefficient_of_variation([r["operations_per_second"] for r in cell_records]) <= 0.05:
+                            break
     finally:
         p2a.set_and_verify_affinity = original_affinity
     environment = {
@@ -275,11 +311,11 @@ def run_matrix(output: Path, warmup: float, duration: float, repeats: int, strea
         "binaries": {name: {"path": str(path), "sha256": _sha256(path)} for name, path in binaries.items()},
     }
     (output / "environment.json").write_text(json.dumps(environment, indent=2) + "\n", encoding="utf-8", newline="\n")
-    manifest = {"schema": "nbsr-b2-v2-manifest-v1", "model": "one-outstanding-per-stream", "payload_bytes": [1024, 16384],
-                "streams": list(streams), "affinity_counts": list(AFFINITY_COUNTS), "warmup_seconds": warmup, "duration_seconds": duration,
+    manifest = {"schema": "nbsr-b2-v2-manifest-v1", "model": "one-outstanding-per-stream", "payload_bytes": list(payloads),
+                "paths": list(paths), "streams": list(streams), "affinity_counts": list(affinities), "warmup_seconds": warmup, "duration_seconds": duration,
                 "nbsr_supported_streams": list(NBSR_SUPPORTED_STREAMS),
                 "unsupported_nbsr_streams": [v for v in streams if v not in NBSR_SUPPORTED_STREAMS],
-                "minimum_repeats": repeats, "records": len(records), "elapsed_seconds": time.time() - started}
+                "minimum_repeats": repeats, "maximum_repeats": max_repeats, "records": len(records), "elapsed_seconds": time.time() - started}
     (output / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8", newline="\n")
     _write_checksums(output)
 
@@ -293,6 +329,10 @@ def main() -> None:
     parser.add_argument("--duration-seconds", type=float, default=15)
     parser.add_argument("--repeats", type=int, default=3)
     parser.add_argument("--streams", default=",".join(map(str, STREAMS)))
+    parser.add_argument("--payloads", default="1024,16384")
+    parser.add_argument("--paths", default="direct,nbsr")
+    parser.add_argument("--affinities", default="1,2,4")
+    parser.add_argument("--max-repeats", type=int, default=5)
     args = parser.parse_args()
     if args.topology:
         print(json.dumps(windows_processor_topology(), indent=2))
@@ -302,7 +342,17 @@ def main() -> None:
     if args.analyze:
         analyze_output(args.output)
     else:
-        run_matrix(args.output, args.warmup_seconds, args.duration_seconds, args.repeats, tuple(int(v) for v in args.streams.split(",")))
+        run_matrix(
+            args.output,
+            args.warmup_seconds,
+            args.duration_seconds,
+            args.repeats,
+            tuple(int(v) for v in args.streams.split(",")),
+            payloads=tuple(int(v) for v in args.payloads.split(",")),
+            paths=tuple(args.paths.split(",")),
+            affinities=tuple(int(v) for v in args.affinities.split(",")),
+            max_repeats=args.max_repeats,
+        )
 
 
 if __name__ == "__main__":
