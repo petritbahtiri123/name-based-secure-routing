@@ -1,0 +1,1350 @@
+  Time (us),     Process Name ( PID)
+       8946,     services.exe (1048)
+  344672885,             Idle (   0)
+    3102897,           System (   4)
+       1382,         Registry ( 180)
+       4165,        csrss.exe ( 916)
+        180,      wininit.exe ( 996)
+     147599,        csrss.exe (1004)
+        490,     winlogon.exe ( 676)
+      55553,        lsass.exe (1076)
+      42932,      svchost.exe (1220)
+      13860,     WUDFHost.exe (1280)
+      52099,      svchost.exe (1388)
+        164,      svchost.exe (1860)
+       2782,      svchost.exe (1784)
+    1756099,          dwm.exe (1548)
+        507,      svchost.exe (1808)
+        242,      svchost.exe (2020)
+        155,      svchost.exe (1792)
+        166,      svchost.exe ( 988)
+       1358,      svchost.exe (1044)
+        949,      svchost.exe (2104)
+       3926,      svchost.exe (1432)
+      90645,     WUDFHost.exe (1492)
+        678,      svchost.exe (1832)
+        306,      svchost.exe (3172)
+        802,      svchost.exe (3220)
+        123,      svchost.exe (3268)
+        327,      svchost.exe (3500)
+        191,      svchost.exe (2836)
+      50170,      svchost.exe (3508)
+       7287,      svchost.exe (3640)
+      63764,      svchost.exe (3412)
+      32515,      svchost.exe (3752)
+        641,      svchost.exe (2276)
+        301,      svchost.exe (3060)
+        150,      svchost.exe (3800)
+        114,      svchost.exe (3828)
+        485,      svchost.exe (3928)
+       2049,      svchost.exe (3584)
+      14794,      svchost.exe (2284)
+       1633,      svchost.exe (3772)
+       3628,   ETDService.exe (2956)
+       5350,         vmms.exe (2684)
+        535,      svchost.exe (2936)
+        245,      svchost.exe (3020)
+      40229,      svchost.exe (2580)
+        194,      svchost.exe (2136)
+        492,      svchost.exe (3068)
+     229232,      svchost.exe (2616)
+       1121,      svchost.exe (2460)
+       3034,      svchost.exe (2876)
+       4319,      svchost.exe (4668)
+       1550,   wslservice.exe (4832)
+      94394,      svchost.exe (6752)
+        388,      DAX3API.exe (4204)
+        151,      svchost.exe (6664)
+        419,      svchost.exe (4052)
+        338,      svchost.exe (4080)
+       1046,       NgcIso.exe (4116)
+        889, IntelAudioService.exe (4312)
+        182,      svchost.exe (4152)
+        677,   EasyResume.exe (4356)
+      14813,   CxAudioSvc.exe (4164)
+        131,      svchost.exe (4376)
+       3306, OneApp.IGCC.WinService.exe (4244)
+      81796,      svchost.exe (4212)
+        115,      svchost.exe (4004)
+       3726,      svchost.exe (4176)
+        152,      svchost.exe (4520)
+        606,      DAX3API.exe (7912)
+        195, SecurityHealthService.exe (8040)
+       2801,      svchost.exe (8012)
+      29091,      svchost.exe (5932)
+        292,      svchost.exe (1508)
+      70220,      svchost.exe (2056)
+        168,      svchost.exe (7708)
+        557,      svchost.exe ( 708)
+       1103,    taskhostw.exe (6864)
+        200,      svchost.exe (6812)
+      25721,     PowerMgr.exe (1580)
+        596,      svchost.exe (2996)
+        419,      svchost.exe (4856)
+       1560,      svchost.exe (5432)
+     854283,     explorer.exe ( 904)
+        157,      svchost.exe (1728)
+        240,      svchost.exe (3648)
+        141,      svchost.exe (7484)
+        755,      svchost.exe (7828)
+      13770,      svchost.exe (2844)
+       5489,       sihost.exe (5212)
+     217127,      ETDCtrl.exe (7352)
+      46331,      svchost.exe (6632)
+       1512,      svchost.exe (5012)
+        735,      svchost.exe (7004)
+        172,      svchost.exe (4268)
+   10872490, perf_direct_peer.exe (25880)
+   11942300, wp8_interop_server.exe (31564)
+    9435601, perf_direct_peer.exe (6380)
+    9919370, wp8_interop_server.exe (3920)
+      23790,          git.exe (28076)
+      23559,          git.exe (17804)
+   11575794, perf_rust_source.exe (14124)
+   11010903, perf_rust_source.exe (28680)
+   11887970, perf_direct_peer.exe (23484)
+      11679,          git.exe (26196)
+     778317,        xperf.exe (15400)
+    9930091, perf_rust_source.exe (18892)
+   11857833, wp8_interop_server.exe (20704)
+      12868,          git.exe (33048)
+   11646800, perf_direct_peer.exe (13028)
+   11695179, perf_direct_peer.exe (16920)
+        216,      svchost.exe (9364)
+       4265,      svchost.exe (15020)
+        391,      svchost.exe (1632)
+        312,      svchost.exe (14576)
+        113,      svchost.exe (8660)
+     179482, ChatGPT Classic.exe (14160)
+      20695,   SearchHost.exe (8380)
+        284, msedgewebview2.exe (9204)
+        594,      svchost.exe (2428)
+       3292, msedgewebview2.exe (9264)
+        742, CrossDeviceResume.exe (4040)
+       8302,      svchost.exe (10516)
+     582690, ChatGPT Classic.exe (13116)
+     205338, TextInputHost.exe (10744)
+        208, RuntimeBroker.exe (9676)
+      12237, msedgewebview2.exe (9432)
+    2349653, ChatGPT Classic.exe (14144)
+       9122, RuntimeBroker.exe (8532)
+     284395, CrossDeviceService.exe (8676)
+      16097, msedgewebview2.exe (6300)
+       4565, msedgewebview2.exe (5520)
+     367652,       ctfmon.exe (10192)
+    3407225, ChatGPT Classic.exe (12200)
+       1817,      svchost.exe (8568)
+      30073, msedgewebview2.exe (3280)
+        234, WidgetService.exe (8484)
+        253,    ShellHost.exe (21444)
+       3650, RuntimeBroker.exe (2992)
+        226,      ChatGPT.exe (28700)
+    1789487,      ChatGPT.exe (34196)
+    1539410,      ChatGPT.exe (7012)
+    1999566,      ChatGPT.exe (34764)
+      10546, StartMenuExperienceHost.exe (5052)
+       4049,   AppActions.exe (8520)
+        962,      conhost.exe (16544)
+     438482,      ChatGPT.exe (32412)
+       1346,      ChatGPT.exe (33892)
+       4781, ChatGPT Classic.exe (10024)
+      46825,      ChatGPT.exe (9604)
+       3030, ChatGPT Classic.exe (7948)
+        194, RuntimeBroker.exe (11696)
+       6661,      ChatGPT.exe (11588)
+      19950,      ChatGPT.exe (31780)
+     174080,        codex.exe (8548)
+        258, RuntimeBroker.exe (15076)
+         85, RuntimeBroker.exe (23512)
+       2920,      svchost.exe (31452)
+     232904,        cargo.exe (24188)
+    1203940,       python.exe (30740)
+   12029622, perf_direct_peer.exe (22652)
+    5597725,      Taskmgr.exe (22784)
+       1365,      audiodg.exe (29540)
+      16689, backgroundTaskHost.exe (20980)
+      10047, RuntimeBroker.exe (21304)
+     922410,      MsMpEng.exe (17484)
+      14358, MpDefenderCoreService.exe (9552)
+       2161,      svchost.exe (17480)
+        555,  smartscreen.exe ( 472)
+     238952,         pwsh.exe (18132)
+      74996,        xperf.exe (30756)
+       3816,      ChatGPT.exe (18212)
+        319,   powershell.exe (28600)
+      85455,      conhost.exe (2968)
+       1004,     WmiPrvSE.exe (16764)
+        442,      svchost.exe (23304)
+      27524,       rustup.exe (23448)
+       3972,       NisSrv.exe (22280)
+  Time (us),     Process Name ( PID),   ThreadID
+       4072,           System (   4),        940
+     103113,           System (   4),        948
+     126499,           System (   4),        944
+        273,           System (   4),          8
+       8634,           System (   4),       2332
+       3662,           System (   4),       2336
+       1862,           System (   4),        656
+        241,           System (   4),        964
+         75,           System (   4),        224
+       1466,           System (   4),        260
+       4033,           System (   4),        152
+        581,           System (   4),        208
+     284278,           System (   4),        188
+         40,           System (   4),        156
+      16585,           System (   4),        144
+        530,           System (   4),        236
+        467,           System (   4),        164
+      13180,           System (   4),         24
+      96896,           System (   4),         28
+      12959,           System (   4),        104
+  344671556,             Idle (   0),          0
+        986,           System (   4),        528
+      20763,           System (   4),        484
+       2978,           System (   4),        532
+      16794,           System (   4),        536
+       2019,           System (   4),        352
+       1089,           System (   4),        408
+       1576,           System (   4),        564
+        354,           System (   4),       4584
+        172,           System (   4),       4260
+       5253,           System (   4),       4024
+        581,           System (   4),      31596
+      48682,           System (   4),      33124
+     144648,           System (   4),      25156
+      55964,           System (   4),      31040
+     379563,           System (   4),      25100
+      70368,           System (   4),      19728
+      36611,           System (   4),      23300
+     103857,           System (   4),      11152
+        337,           System (   4),      16968
+        346,           System (   4),      22396
+        329,           System (   4),      32356
+        277,           System (   4),      33652
+        334,           System (   4),      12484
+        540,           System (   4),      24536
+        294,           System (   4),      21896
+     102441,           System (   4),       6188
+     105532,           System (   4),      15784
+      46337,           System (   4),      12036
+      99714,           System (   4),      11516
+      87297,           System (   4),      32220
+      20174,           System (   4),      16516
+        349,           System (   4),      33384
+        376,           System (   4),      34700
+        243,           System (   4),      13692
+        410,           System (   4),      23492
+     109446,           System (   4),      14552
+        140,           System (   4),      35128
+        705,        csrss.exe ( 916),        932
+      79004,           System (   4),       7044
+        694,        csrss.exe ( 916),       1824
+     115957,           System (   4),       2216
+      91001,           System (   4),      18180
+        310,           System (   4),      21564
+        383,           System (   4),      28052
+        903,        csrss.exe ( 916),       1620
+        361,        csrss.exe ( 916),      31740
+       7195,           System (   4),       3284
+        345,           System (   4),      24020
+      88053,           System (   4),      10992
+       1382,         Registry ( 180),        808
+      49632,           System (   4),      15748
+        779,        csrss.exe ( 916),       1828
+     159461,           System (   4),      25240
+        325,           System (   4),       5000
+        102,      wininit.exe ( 996),      28980
+     166034,           System (   4),      20912
+       1393,        csrss.exe (1004),       1020
+        287,           System (   4),      17380
+        337,           System (   4),      33620
+     112482,           System (   4),      27640
+        722,        csrss.exe ( 916),        796
+      84816,           System (   4),      23452
+        269,           System (   4),      15832
+        388,           System (   4),        928
+       1795,        csrss.exe (1004),       1556
+       1986,        csrss.exe (1004),      16216
+       1240,     services.exe (1048),       6512
+        187,     services.exe (1048),      13496
+         38,        lsass.exe (1076),      22208
+        178,     services.exe (1048),      25936
+      50213,        lsass.exe (1076),      19668
+       1639,        csrss.exe (1004),      19208
+        280,        lsass.exe (1076),      29328
+       3852,        lsass.exe (1076),       9144
+      29259,        csrss.exe (1004),      10108
+      95261,        csrss.exe (1004),       1036
+        104,     services.exe (1048),       7980
+       1156,        csrss.exe (1004),      28260
+       1652,        csrss.exe (1004),       8496
+       2025,        csrss.exe (1004),      13548
+        271,     services.exe (1048),       3580
+       1682,        csrss.exe (1004),       9804
+       2012,     services.exe (1048),       5240
+       1674,        csrss.exe (1004),      11700
+        202,     winlogon.exe ( 676),      14904
+       1740,     services.exe (1048),      27876
+       1170,        lsass.exe (1076),       8364
+       3661,        csrss.exe (1004),       1560
+       1494,        csrss.exe (1004),        992
+       1191,        csrss.exe (1004),       8524
+        197,     winlogon.exe ( 676),       2544
+       1731,        csrss.exe (1004),       6924
+       1024,     WUDFHost.exe (1280),       5704
+        170,      svchost.exe (1220),       6988
+        252,      svchost.exe (1220),      26964
+        191,      svchost.exe (1220),      25892
+      15730,      svchost.exe (1220),      29292
+        236,      svchost.exe (1220),      22844
+        152,      svchost.exe (1220),      35364
+        726,     WUDFHost.exe (1280),      28048
+        442,      svchost.exe (1220),      29508
+        202,      svchost.exe (1220),      20904
+        220,      svchost.exe (1220),      22812
+        183,      svchost.exe (1220),      34812
+       1110,      svchost.exe (1220),      22388
+        255,      svchost.exe (1220),      12108
+        193,      svchost.exe (1220),      17688
+       2893,      svchost.exe (1220),      26908
+       9865,     WUDFHost.exe (1280),       6248
+       4201,      svchost.exe (1220),      27596
+        162,      svchost.exe (1220),       2664
+       4334,      svchost.exe (1220),       1228
+        821,      svchost.exe (1220),       7480
+      10927,      svchost.exe (1220),      25756
+        259,      svchost.exe (1220),      10920
+        437,      svchost.exe (1388),      11040
+        218,      svchost.exe (1432),       6232
+     603815,          dwm.exe (1548),       1628
+        186,      svchost.exe (1432),      17156
+       1492,          dwm.exe (1548),      34112
+        214,      svchost.exe (1388),      16064
+      28358,          dwm.exe (1548),       2072
+        447,      svchost.exe (1388),       1424
+        226,      svchost.exe (1388),      22164
+       3253,      svchost.exe (1388),      21936
+       7208,      svchost.exe (1388),       8636
+        258,          dwm.exe (1548),       3948
+     138844,          dwm.exe (1548),       2232
+        169,      svchost.exe (1388),      27072
+        345,      svchost.exe (1388),      12944
+     265248,          dwm.exe (1548),       2088
+      90645,     WUDFHost.exe (1492),       1708
+        575,      svchost.exe (1432),      22500
+      39799,      svchost.exe (1388),      12888
+        473,      svchost.exe (1432),       4592
+       2475,      svchost.exe (1432),      27920
+        228,          dwm.exe (1548),       3292
+      17022,          dwm.exe (1548),       9132
+       1850,          dwm.exe (1548),       2008
+     698985,          dwm.exe (1548),       2092
+        113,      svchost.exe (2136),      13768
+       1931,      svchost.exe (2284),       2296
+        493,      svchost.exe (1044),      29984
+        174,      svchost.exe (1044),      12864
+        113,      svchost.exe ( 988),      17472
+        879,      svchost.exe (2284),       2528
+       1364,      svchost.exe (2284),       6068
+         62,      svchost.exe (1832),      23952
+        535,      svchost.exe (2284),      28088
+         73,      svchost.exe (2020),       2512
+        476,      svchost.exe (1832),      31524
+       2627,      svchost.exe (1784),      10300
+        309,      svchost.exe (2284),       2532
+         84,      svchost.exe (1832),       1836
+         96,      svchost.exe (1860),      24884
+         29,      svchost.exe (2020),       5880
+        718,      svchost.exe (2104),      30680
+         89,      svchost.exe (1792),       1268
+         86,      svchost.exe (2020),      23276
+         56,      svchost.exe (1832),       5684
+         79,      svchost.exe (2104),       2516
+         22,      svchost.exe (2136),       7292
+        271,      svchost.exe (2276),      32796
+         71,      svchost.exe (2276),      19064
+        300,      svchost.exe (2276),      28396
+        142,      svchost.exe (1808),      16096
+        122,      svchost.exe (1808),      26960
+       6667,      svchost.exe (2580),       6636
+        338,      svchost.exe (2580),      22644
+        100,      svchost.exe (2460),      33356
+        167,      svchost.exe (2284),      25620
+      10469,      svchost.exe (2580),      29144
+        210,      svchost.exe (2580),      31108
+        205,      svchost.exe (2580),        324
+        169,      svchost.exe (2284),       9036
+        112,      svchost.exe (2460),      22836
+        154,      svchost.exe (2460),       2344
+       8575,      svchost.exe (2284),       9764
+        177,      svchost.exe (2460),      27860
+        186,      svchost.exe (2460),       9176
+        177,      svchost.exe (2580),      32560
+       2880,      svchost.exe (2580),       2736
+         96,      svchost.exe (2836),      28780
+        226,      svchost.exe (2876),       2272
+        110,      svchost.exe (3060),      11352
+        151,      svchost.exe (2936),      17900
+         51,      svchost.exe (3060),      26640
+        150,      svchost.exe (3068),      28268
+        137,      svchost.exe (3068),      29548
+        166,      svchost.exe (2876),      19096
+       5350,         vmms.exe (2684),      31620
+        639,      svchost.exe (2876),      15080
+       5623,      svchost.exe (2616),       6108
+        243,      svchost.exe (2616),      24620
+        229,      svchost.exe (2936),       3016
+       3990,      svchost.exe (2616),       3704
+        814,      svchost.exe (2876),       2328
+       1189,      svchost.exe (2876),       3032
+       3628,   ETDService.exe (2956),       7660
+       6979,      svchost.exe (2616),      34324
+        155,      svchost.exe (2936),       3208
+         70,      svchost.exe (3020),      23076
+         91,      svchost.exe (3020),      15304
+        140,      svchost.exe (3060),      32192
+     212337,      svchost.exe (2616),      16684
+         95,      svchost.exe (2836),      34620
+       4189,      svchost.exe (3412),      28188
+        175,      svchost.exe (3412),      13488
+         70,      svchost.exe (3500),       7232
+        113,      svchost.exe (3172),      12384
+         61,      svchost.exe (3172),      11104
+         87,      svchost.exe (3068),      16552
+         60,      svchost.exe (3220),       7392
+         98,      svchost.exe (3220),      23052
+         74,      svchost.exe (3500),       6452
+        147,      svchost.exe (3220),      23684
+        133,      svchost.exe (3172),      32988
+      56203,      svchost.exe (3412),      30296
+        155,      svchost.exe (3220),      20508
+         53,      svchost.exe (3500),       9008
+       3097,      svchost.exe (3412),      34496
+         72,      svchost.exe (3268),      13528
+        100,      svchost.exe (3412),      24924
+        126,      svchost.exe (3220),      34120
+        243,      svchost.exe (3928),       7464
+         93,   CxAudioSvc.exe (4164),       4936
+         70,      svchost.exe (4004),      21056
+        153,      svchost.exe (3752),       6316
+        505,   CxAudioSvc.exe (4164),       6180
+        242,      svchost.exe (3928),      14516
+         56,      svchost.exe (3828),      33436
+       1369,      svchost.exe (4176),      21992
+         89,      svchost.exe (3800),      26080
+        327,      svchost.exe (3772),      13180
+        121,      svchost.exe (4052),       4072
+         22,      svchost.exe (4152),      17240
+         63,      svchost.exe (4152),      32284
+        129,      svchost.exe (4080),      32344
+        100,      svchost.exe (4080),       5748
+         24,      svchost.exe (4152),      32004
+        298,      svchost.exe (4052),       6004
+        800,      svchost.exe (3772),       5984
+        110,      svchost.exe (4080),      18624
+        506,      svchost.exe (3772),      29264
+       8786,      svchost.exe (3752),       7080
+        512,      svchost.exe (3584),      22400
+        136,      svchost.exe (3584),      33524
+       2373,      svchost.exe (3752),      13956
+       5375,      svchost.exe (3752),       4100
+        190,      svchost.exe (3584),      24828
+       6207,      svchost.exe (3752),      17404
+        800,      svchost.exe (3640),      17532
+        132,      svchost.exe (3584),      18356
+       8600,      svchost.exe (3752),      12152
+         45,      svchost.exe (3752),      17716
+        207,      svchost.exe (3584),      33968
+        402,      svchost.exe (3584),      26200
+        563,      svchost.exe (3640),      17800
+        146,      svchost.exe (3640),      18512
+       1155,      svchost.exe (3640),      18740
+         61,      svchost.exe (3752),       6216
+        916,      svchost.exe (3752),      32512
+       4784,      svchost.exe (3508),       7204
+      23054,      svchost.exe (3508),      14868
+       1564,      svchost.exe (3640),      25608
+         90,      svchost.exe (3640),       3964
+        176,      svchost.exe (3584),      10512
+       2970,      svchost.exe (3640),       6064
+      22332,      svchost.exe (3508),      26812
+       1774,      svchost.exe (4176),       7264
+         72,   EasyResume.exe (4356),      28472
+        634,      svchost.exe (4212),        908
+         51,      svchost.exe (4212),       6016
+        215,      DAX3API.exe (4204),      23112
+       8288,      svchost.exe (4212),      20876
+        232,      svchost.exe (4176),      32216
+        276, OneApp.IGCC.WinService.exe (4244),      10072
+        107,      svchost.exe (4212),      10312
+       6021,      svchost.exe (4212),      11668
+        256,      svchost.exe (4212),      10376
+      12366,      svchost.exe (4212),      12624
+        172,      DAX3API.exe (4204),      11844
+       9783,      svchost.exe (4212),       5724
+      24995,      svchost.exe (4212),      30828
+        352,      svchost.exe (4176),      34728
+        408, IntelAudioService.exe (4312),      10960
+        103,   EasyResume.exe (4356),       4360
+        561, OneApp.IGCC.WinService.exe (4244),       5876
+       2079,      svchost.exe (4212),      17860
+        139,      svchost.exe (4212),      13996
+        481, IntelAudioService.exe (4312),      25452
+      17080,      svchost.exe (4212),      22348
+        502,   EasyResume.exe (4356),      10392
+         81,      svchost.exe (4520),      10440
+         22,      svchost.exe (4376),       5844
+         59,      svchost.exe (4376),      24344
+         83, SecurityHealthService.exe (8040),       5088
+        187,       sihost.exe (5212),      20564
+        372,       sihost.exe (5212),      27156
+     214001,      ETDCtrl.exe (7352),       3400
+        235,      DAX3API.exe (7912),      28564
+        210,      DAX3API.exe (7912),       7924
+       3517,       sihost.exe (5212),      15744
+        395,       sihost.exe (5212),      35516
+        161,      DAX3API.exe (7912),      34804
+       1019,       sihost.exe (5212),      29928
+      26346,      svchost.exe (2056),      15488
+        280,      svchost.exe (2996),      31092
+       3471,      svchost.exe (2056),      22976
+        110,      svchost.exe (6812),      25640
+      13103,      svchost.exe (2056),      27024
+        162,      svchost.exe (2996),      23700
+         76,      svchost.exe (4856),      34484
+        154,      svchost.exe (2996),       7196
+        202,      svchost.exe (7004),      14836
+       1604,      svchost.exe (6752),      11544
+       1543,      svchost.exe (4668),       7528
+        696,   wslservice.exe (4832),      32868
+       6109,      svchost.exe (5932),      18008
+       3496,      svchost.exe (6752),      31776
+         99,      svchost.exe (4668),       7840
+        391,      svchost.exe (5932),      30612
+        169,      svchost.exe (5932),       6340
+        320,      svchost.exe (5012),      23540
+        881,      svchost.exe (4668),      32436
+        690,      svchost.exe (5012),       5884
+        193,   wslservice.exe (4832),      14444
+        663,      svchost.exe (4668),      19392
+       1062,      svchost.exe (4668),       8112
+         81,      svchost.exe (6664),       1468
+         71,      svchost.exe (4668),      20380
+      58774,      svchost.exe (6752),       3652
+        467,      svchost.exe (6752),      20424
+       2011,      svchost.exe (5932),       6308
+      16525,      svchost.exe (5932),       6348
+        377,      svchost.exe (5932),      24712
+        198,      svchost.exe (5932),      24256
+        503,      svchost.exe (5012),      19424
+        792,      svchost.exe (6752),      33832
+        344,      svchost.exe (6752),      29760
+        277,      svchost.exe (7004),      25932
+         35,      svchost.exe (1508),       6788
+       2461,      svchost.exe (2844),        100
+         93,      svchost.exe (1728),      14988
+         99,      svchost.exe (7484),      22864
+         98,      svchost.exe (4268),      19588
+       5002,      svchost.exe (6632),      10248
+        191,      svchost.exe (3648),      33744
+       1402,      svchost.exe (2844),        148
+         28,      svchost.exe (1508),        784
+        222,      svchost.exe (2844),       7744
+       9684,      svchost.exe (2844),      27992
+      21724,      svchost.exe (6632),       7116
+        186,      svchost.exe (6632),      24880
+      19197,      svchost.exe (6632),       4944
+        222,      svchost.exe (6632),      10720
+        180,      svchost.exe (2056),       3680
+       2654,      svchost.exe (2056),       1948
+      19017,      svchost.exe (2056),      32676
+       5449,      svchost.exe (2056),      34892
+         99,      svchost.exe (1508),      24948
+       8689,     explorer.exe ( 904),      33224
+         21,     explorer.exe ( 904),       8708
+      45407,     explorer.exe ( 904),       9152
+         53,     explorer.exe ( 904),       4508
+       2357,     explorer.exe ( 904),       2424
+         49,     explorer.exe ( 904),       9212
+        651,     explorer.exe ( 904),       9112
+        849,     explorer.exe ( 904),       6644
+        137,   SearchHost.exe (8380),       8756
+        650,   SearchHost.exe (8380),       8968
+        781,   SearchHost.exe (8380),      24916
+        755,   SearchHost.exe (8380),      35536
+        746,   SearchHost.exe (8380),      33964
+        136, CrossDeviceResume.exe (4040),      17644
+        904,   SearchHost.exe (8380),       1028
+        300,      svchost.exe (7828),       4744
+        426,   SearchHost.exe (8380),       8640
+       1295,     explorer.exe ( 904),      13336
+        711,   SearchHost.exe (8380),      21092
+       2418,   SearchHost.exe (8380),      26276
+        715,   SearchHost.exe (8380),      35452
+        194,      svchost.exe (2428),      26308
+       9147,     explorer.exe ( 904),      12536
+        133,      svchost.exe (7828),      15104
+        197,   SearchHost.exe (8380),       8468
+        835,   SearchHost.exe (8380),      27168
+        681,   SearchHost.exe (8380),      28860
+        194,     explorer.exe ( 904),      33576
+        208,      svchost.exe (2428),        420
+        145,   SearchHost.exe (8380),       6944
+       4713,     explorer.exe ( 904),      12428
+        930,     explorer.exe ( 904),      31416
+       2781,   SearchHost.exe (8380),      18172
+        323,      svchost.exe (7828),      30332
+        968,     explorer.exe ( 904),      19048
+        361, CrossDeviceResume.exe (4040),       5664
+       1143,     explorer.exe ( 904),       8120
+        161,     explorer.exe ( 904),      13264
+       1501,     explorer.exe ( 904),      23400
+        193,      svchost.exe (2428),      29304
+       9660,     explorer.exe ( 904),      20760
+        860,   SearchHost.exe (8380),      34824
+        392,   SearchHost.exe (8380),      35472
+       6030,     explorer.exe ( 904),      25136
+       1046,     explorer.exe ( 904),      13104
+        545,   SearchHost.exe (8380),       7208
+        876,   SearchHost.exe (8380),       8384
+        744,   SearchHost.exe (8380),      21980
+        714,   SearchHost.exe (8380),      21404
+        137,      svchost.exe (5432),      33376
+       3126,      ETDCtrl.exe (7352),       7384
+        827,      svchost.exe (8012),       4104
+        239,    taskhostw.exe (6864),      14304
+        134,      svchost.exe (5432),       7848
+        164,      svchost.exe (5432),      26688
+        290,      svchost.exe ( 708),      16864
+        463,      svchost.exe (8012),      15804
+        121,      svchost.exe (7708),      24624
+        864,    taskhostw.exe (6864),      23580
+        247,      svchost.exe (5432),      27612
+     668190,     explorer.exe ( 904),       7712
+        204,      svchost.exe ( 708),      15828
+        117,      svchost.exe (5432),      28344
+         81,     explorer.exe ( 904),       5592
+       1328,     explorer.exe ( 904),       6704
+      67934,     explorer.exe ( 904),       3424
+      21991,     PowerMgr.exe (1580),       1892
+         63,      svchost.exe ( 708),       1852
+        185,      svchost.exe (5432),      34420
+        237,      svchost.exe (5432),      20404
+      17067,     explorer.exe ( 904),       1200
+       3730,     PowerMgr.exe (1580),       7328
+        457,      svchost.exe (8012),      30412
+       1054,      svchost.exe (8012),      17520
+       1762, msedgewebview2.exe (9264),       9268
+        206,       ctfmon.exe (10192),       9284
+       1335, msedgewebview2.exe (5520),      13060
+     216325,       ctfmon.exe (10192),      10232
+       1270, msedgewebview2.exe (9432),       3840
+        207,       ctfmon.exe (10192),       9348
+        316,       ctfmon.exe (10192),       9356
+       1762, msedgewebview2.exe (9432),       9752
+        834, msedgewebview2.exe (9264),      12744
+        175, msedgewebview2.exe (9432),       9820
+        400, msedgewebview2.exe (5520),       9324
+         69, msedgewebview2.exe (9264),       9444
+        395, msedgewebview2.exe (9264),       9404
+       2703, msedgewebview2.exe (9432),       9436
+        232, msedgewebview2.exe (9264),       9396
+       1490, msedgewebview2.exe (9432),       9824
+       2085, msedgewebview2.exe (9432),       9956
+        124, msedgewebview2.exe (9432),      32252
+        490, msedgewebview2.exe (9432),      30120
+       1394,       ctfmon.exe (10192),      10224
+        169, msedgewebview2.exe (5520),      25096
+        256,       ctfmon.exe (10192),       9228
+        245,       ctfmon.exe (10192),       9352
+       1973, msedgewebview2.exe (9432),      33148
+        274, msedgewebview2.exe (5520),      16636
+     148474,       ctfmon.exe (10192),      10236
+        179,      svchost.exe (8568),      11980
+     116425, CrossDeviceService.exe (8676),       9708
+       1103, CrossDeviceService.exe (8676),       3420
+      13837, msedgewebview2.exe (3280),       7128
+        417, CrossDeviceService.exe (8676),      34848
+       1637, RuntimeBroker.exe (8532),       8536
+        604, RuntimeBroker.exe (8532),      30604
+       1891, msedgewebview2.exe (3280),       4952
+        295, RuntimeBroker.exe (8532),      21572
+        746,   SearchHost.exe (8380),       6044
+         58, RuntimeBroker.exe (8532),       9912
+        619,   SearchHost.exe (8380),      21208
+        562, RuntimeBroker.exe (8532),       8472
+         52, RuntimeBroker.exe (8532),       1748
+       1424, RuntimeBroker.exe (8532),       8388
+        230,      svchost.exe (8568),      32424
+      73038, CrossDeviceService.exe (8676),      28972
+      66876, CrossDeviceService.exe (8676),      12192
+         43, RuntimeBroker.exe (8532),       9916
+        658,      svchost.exe (8568),       2348
+        147,      svchost.exe (8568),      29040
+        564, RuntimeBroker.exe (8532),      16196
+       1263, RuntimeBroker.exe (8532),       9900
+        464, RuntimeBroker.exe (8532),      27816
+    9917390, wp8_interop_server.exe (3920),      31392
+      22541, CrossDeviceService.exe (8676),      10176
+        206, CrossDeviceService.exe (8676),      32628
+        372,   SearchHost.exe (8380),       5304
+        874, msedgewebview2.exe (3280),       7036
+        440,   SearchHost.exe (8380),      11316
+        682,   SearchHost.exe (8380),      17296
+        824,   SearchHost.exe (8380),      35144
+        897, wp8_interop_server.exe (3920),      28540
+        664, RuntimeBroker.exe (8532),      20780
+        255,      svchost.exe (8568),      16268
+       4259, msedgewebview2.exe (6300),       8148
+        412, msedgewebview2.exe (6300),      31860
+         84, msedgewebview2.exe (6300),      21204
+        227, msedgewebview2.exe (3280),      18680
+       9673, msedgewebview2.exe (3280),       7280
+        201, msedgewebview2.exe (3280),      30752
+        185, msedgewebview2.exe (9204),      31284
+        861, msedgewebview2.exe (3280),      13616
+         70, msedgewebview2.exe (3280),       5828
+       8614, msedgewebview2.exe (6300),       2368
+       1070, msedgewebview2.exe (6300),       7860
+        209, msedgewebview2.exe (3280),       8220
+       2231, msedgewebview2.exe (3280),        612
+       1314, msedgewebview2.exe (6300),       7904
+        172, msedgewebview2.exe (6300),       9880
+       2087, msedgewebview2.exe (5520),       6608
+        239, msedgewebview2.exe (5520),       9224
+        172, msedgewebview2.exe (6300),      16400
+     934795, ChatGPT Classic.exe (14144),      14156
+       1584, TextInputHost.exe (10744),      11260
+       2295,      svchost.exe (10516),      10604
+        130, TextInputHost.exe (10744),      17496
+        492, TextInputHost.exe (10744),      21828
+       1659, TextInputHost.exe (10744),      25988
+      13777, ChatGPT Classic.exe (14144),      12044
+      23121, ChatGPT Classic.exe (14144),      13780
+        229,       ctfmon.exe (10192),      22304
+         74, RuntimeBroker.exe (9676),       9700
+       4061,      svchost.exe (10516),      10600
+       5630, TextInputHost.exe (10744),      11080
+       1744,      svchost.exe (10516),      28988
+         88, RuntimeBroker.exe (9676),      21724
+        165, TextInputHost.exe (10744),      10832
+        161, TextInputHost.exe (10744),      10748
+       4939, TextInputHost.exe (10744),       7276
+      12460, TextInputHost.exe (10744),      11252
+     129214, TextInputHost.exe (10744),      10792
+        202,      svchost.exe (10516),       3204
+      47528, TextInputHost.exe (10744),      10836
+       1377, TextInputHost.exe (10744),       8372
+        139, ChatGPT Classic.exe (14144),      13992
+        150, ChatGPT Classic.exe (14144),       5220
+        508, ChatGPT Classic.exe (14144),       9644
+       1574, ChatGPT Classic.exe (14144),      14268
+        134, ChatGPT Classic.exe (14144),       6140
+     246848, ChatGPT Classic.exe (13116),      14012
+        234, ChatGPT Classic.exe (13116),      12052
+      10172, ChatGPT Classic.exe (14144),      13788
+     234472, ChatGPT Classic.exe (14144),      14024
+        468, ChatGPT Classic.exe (14144),       6364
+       4599, ChatGPT Classic.exe (14144),      12460
+       1324, ChatGPT Classic.exe (14144),      11792
+        624, ChatGPT Classic.exe (14144),      29968
+       2011, ChatGPT Classic.exe (14144),      13784
+     114708, ChatGPT Classic.exe (14144),      13792
+        105, ChatGPT Classic.exe (14144),      14004
+       4518, ChatGPT Classic.exe (14144),      24572
+        216, ChatGPT Classic.exe (14144),      21144
+        222, ChatGPT Classic.exe (14144),      11288
+        252, ChatGPT Classic.exe (14144),      13724
+       2316, ChatGPT Classic.exe (14160),      13920
+       5896, ChatGPT Classic.exe (14160),      12656
+     165385, ChatGPT Classic.exe (13116),      14136
+      82604, ChatGPT Classic.exe (13116),      14080
+     161144, ChatGPT Classic.exe (14160),      13944
+     140939, ChatGPT Classic.exe (12200),      10700
+     161867, ChatGPT Classic.exe (12200),      10724
+       2151, ChatGPT Classic.exe (12200),       9032
+      80818, ChatGPT Classic.exe (13116),       8688
+       6744, ChatGPT Classic.exe (13116),       8920
+        592, ChatGPT Classic.exe (14160),      31704
+     335330, ChatGPT Classic.exe (12200),      12668
+         57, ChatGPT Classic.exe (13116),      15936
+    1445590, ChatGPT Classic.exe (12200),       9160
+     164727, ChatGPT Classic.exe (12200),      12684
+       1855, ChatGPT Classic.exe (12200),       3664
+     161020, ChatGPT Classic.exe (12200),      11892
+        983, ChatGPT Classic.exe (12200),      24328
+     372722, ChatGPT Classic.exe (12200),      11268
+      83447, ChatGPT Classic.exe (12200),      10728
+        306, ChatGPT Classic.exe (14160),      13916
+     174829, ChatGPT Classic.exe (12200),      13740
+     119406, ChatGPT Classic.exe (12200),      10716
+     240868, ChatGPT Classic.exe (12200),      13824
+       6890, ChatGPT Classic.exe (14160),      13884
+       2339, ChatGPT Classic.exe (14160),      14000
+         19,      svchost.exe (9364),       6720
+        220,      svchost.exe (15020),       9068
+        476,      svchost.exe (15020),      33508
+       1409,      svchost.exe (15020),      17396
+        752,      svchost.exe (15020),      26956
+        116,      svchost.exe (9364),      12812
+       1409,      svchost.exe (15020),      31580
+        419,      ChatGPT.exe (33892),      18484
+       3374,        codex.exe (8548),      14596
+       8499,      ChatGPT.exe (32412),      23044
+        397,      ChatGPT.exe (32412),      20344
+       1236,        codex.exe (8548),      10304
+       9182,      ChatGPT.exe (32412),       6052
+       7186,      ChatGPT.exe (32412),      12088
+        586,      ChatGPT.exe (33892),      23244
+        342,      ChatGPT.exe (33892),      27096
+        277,        codex.exe (8548),      17984
+       8301,      ChatGPT.exe (32412),      18616
+       1917,      ChatGPT.exe (32412),      18292
+       8432,      ChatGPT.exe (32412),      29468
+        124,      ChatGPT.exe (32412),      32176
+       7872,      ChatGPT.exe (32412),      34532
+       2190,      ChatGPT.exe (32412),      14328
+      25501,        codex.exe (8548),      23040
+     203611,      ChatGPT.exe (32412),       6288
+       1045,      ChatGPT.exe (32412),      29356
+        962,      conhost.exe (16544),       8052
+     179445,      ChatGPT.exe (32412),      20896
+         77, RuntimeBroker.exe (15076),       6156
+        122, RuntimeBroker.exe (15076),       9168
+       2266, ChatGPT Classic.exe (7948),       8704
+        100,      svchost.exe (14576),      18472
+         91,      svchost.exe (1632),      24972
+        147, ChatGPT Classic.exe (7948),      34836
+        482, ChatGPT Classic.exe (7948),      20232
+       3411, ChatGPT Classic.exe (10024),       4064
+        122, WidgetService.exe (8484),      17656
+        133, ChatGPT Classic.exe (10024),       6604
+        147, ChatGPT Classic.exe (10024),      13328
+        524, ChatGPT Classic.exe (10024),      31484
+        220, ChatGPT Classic.exe (10024),       5116
+        175, ChatGPT Classic.exe (10024),      25196
+        159,   AppActions.exe (8520),      35212
+         40, RuntimeBroker.exe (11696),      32280
+        253,    ShellHost.exe (21444),      33472
+       3659,   AppActions.exe (8520),      30584
+         85, RuntimeBroker.exe (23512),      29096
+        463, RuntimeBroker.exe (2992),      25716
+       1112, RuntimeBroker.exe (2992),      16692
+         52, RuntimeBroker.exe (2992),      31296
+         68, RuntimeBroker.exe (2992),      12308
+        510, RuntimeBroker.exe (2992),      29596
+        117,   AppActions.exe (8520),      13904
+        166, RuntimeBroker.exe (2992),      32884
+         95, RuntimeBroker.exe (11696),      22816
+     132254,      ChatGPT.exe (34196),      17288
+      16625,      ChatGPT.exe (34196),      28288
+      15103,      ChatGPT.exe (34196),      14672
+       2224,      ChatGPT.exe (34196),      34336
+        340,      ChatGPT.exe (34196),      20828
+       6555,      ChatGPT.exe (34196),      35060
+        424,      ChatGPT.exe (34196),      25632
+      16942,      ChatGPT.exe (34196),      18316
+        492,      ChatGPT.exe (34196),      13100
+      14317,      ChatGPT.exe (34196),       7228
+       9798,      ChatGPT.exe (34196),       7428
+    1083128,      ChatGPT.exe (34196),       8760
+       1658,      ChatGPT.exe (34196),      13292
+     169952,      ChatGPT.exe (34196),       8136
+        347,      ChatGPT.exe (34196),      35616
+       7226,      ChatGPT.exe (34196),      33516
+      90011,      ChatGPT.exe (34196),      32952
+        388,      ChatGPT.exe (34196),      19408
+        518,      ChatGPT.exe (34196),      31132
+        514,      ChatGPT.exe (34196),      13324
+        396,      ChatGPT.exe (34196),      26380
+      17036,      ChatGPT.exe (34196),      15236
+       8556,      ChatGPT.exe (34196),      28724
+       3805,      ChatGPT.exe (34196),      21916
+        949,      ChatGPT.exe (34196),      21308
+      22736,      ChatGPT.exe (34196),      25144
+     166876,      ChatGPT.exe (34196),      19312
+       1424,      ChatGPT.exe (9604),      32268
+       6317,      ChatGPT.exe (9604),       1476
+       2058, StartMenuExperienceHost.exe (5052),      18880
+       1164, StartMenuExperienceHost.exe (5052),      28256
+       1495, StartMenuExperienceHost.exe (5052),      28236
+        420,      ChatGPT.exe (7012),      24720
+        152,      ChatGPT.exe (28700),      25648
+      35344,      ChatGPT.exe (7012),      14040
+        174, StartMenuExperienceHost.exe (5052),      27188
+        315, StartMenuExperienceHost.exe (5052),       5324
+      17453,      ChatGPT.exe (7012),      25372
+        291, StartMenuExperienceHost.exe (5052),      17980
+        487, StartMenuExperienceHost.exe (5052),       6952
+        238,      ChatGPT.exe (7012),      17464
+     147459,      ChatGPT.exe (7012),      19060
+     431246,      ChatGPT.exe (7012),      12984
+        514, StartMenuExperienceHost.exe (5052),      19068
+       5928,      ChatGPT.exe (7012),       3112
+        599,      ChatGPT.exe (9604),      11120
+        539, StartMenuExperienceHost.exe (5052),      15204
+        301, StartMenuExperienceHost.exe (5052),      24064
+       5119,      ChatGPT.exe (7012),      24096
+         55,      ChatGPT.exe (7012),      12268
+     754095,      ChatGPT.exe (7012),      17024
+       8442,      ChatGPT.exe (7012),      22780
+        318, StartMenuExperienceHost.exe (5052),      35680
+     103363,      ChatGPT.exe (7012),      33056
+        247,      ChatGPT.exe (7012),       6208
+        529, StartMenuExperienceHost.exe (5052),      26808
+        345,      ChatGPT.exe (9604),      31044
+        448,      ChatGPT.exe (9604),      26008
+       1055, StartMenuExperienceHost.exe (5052),      31356
+       6795,      ChatGPT.exe (9604),       6400
+        720, StartMenuExperienceHost.exe (5052),      19480
+        590, StartMenuExperienceHost.exe (5052),      30888
+      28677,      ChatGPT.exe (9604),      16180
+      79136,      ChatGPT.exe (34764),      24452
+        433,      ChatGPT.exe (34764),       4028
+       1318,      ChatGPT.exe (11588),      10388
+      18855,      ChatGPT.exe (31780),       3092
+        413,      ChatGPT.exe (11588),      24472
+        441,      ChatGPT.exe (31780),      23628
+       2220,      ChatGPT.exe (9604),      29604
+        360,      ChatGPT.exe (34764),      21676
+       1879,      ChatGPT.exe (34764),       7736
+      52060,      ChatGPT.exe (34764),      30860
+     480258,      ChatGPT.exe (34764),       9156
+       4930,      ChatGPT.exe (11588),      22620
+      12994,      ChatGPT.exe (34764),      34952
+    1363664,      ChatGPT.exe (34764),      30728
+        654,      ChatGPT.exe (31780),      21048
+       6012,      ChatGPT.exe (34764),      23872
+        214,      ChatGPT.exe (34764),      26672
+        401,      ChatGPT.exe (34764),      10784
+        624,      ChatGPT.exe (34764),      20560
+        368,      ChatGPT.exe (34764),      31160
+      31195,        codex.exe (8548),      33120
+       1962,        codex.exe (8548),      35000
+      29031,        codex.exe (8548),      26368
+      15918,        codex.exe (8548),      27592
+      15210,        codex.exe (8548),      30864
+        966,        codex.exe (8548),      24848
+         78,        codex.exe (8548),      11500
+      29345,        codex.exe (8548),      27772
+        405,      ChatGPT.exe (34764),      25828
+        306,      ChatGPT.exe (34764),        588
+        374,      ChatGPT.exe (34764),      27828
+        676,        codex.exe (8548),      19844
+        853,        codex.exe (8548),      28524
+     472695,       python.exe (30740),      19584
+        623, perf_direct_peer.exe (6380),      26816
+        698, perf_direct_peer.exe (6380),      28424
+       1701,     explorer.exe ( 904),      12560
+       8892,        codex.exe (8548),      18780
+        556,      svchost.exe (1044),       5216
+       1492, RuntimeBroker.exe (8532),      29896
+      30004,      ChatGPT.exe (7012),      27056
+      23250,       rustup.exe (23448),      34540
+        290,      svchost.exe (4856),       5700
+        531,       rustup.exe (23448),      19132
+        792,        codex.exe (8548),      31932
+       1404,       rustup.exe (23448),      19432
+       1230,        cargo.exe (24188),      15740
+       1420,      svchost.exe (6752),      18556
+    9760225, perf_direct_peer.exe (22652),       1060
+        149,       rustup.exe (23448),      34452
+         59, RuntimeBroker.exe (11696),       3336
+        209,       rustup.exe (23448),      24824
+         78,      wininit.exe ( 996),       1316
+         65,      svchost.exe (1792),      22576
+        111,      svchost.exe (7004),      13844
+        393,      svchost.exe (2460),      17440
+       1278, RuntimeBroker.exe (2992),      29432
+        215,      svchost.exe (3220),      31128
+         51,      svchost.exe (3268),      25848
+         59,      svchost.exe (2136),      34900
+       1951,        cargo.exe (24188),       4348
+     112781,       python.exe (30740),      20464
+        945,       python.exe (30740),      11772
+        794,        codex.exe (8548),      12764
+        119,      svchost.exe (3068),      34752
+        131,      svchost.exe (3500),      33748
+         72,      svchost.exe (4152),      30148
+        377,      svchost.exe (17480),       1588
+      22485,         pwsh.exe (18132),      13072
+        204,       rustup.exe (23448),      27304
+       2728,       python.exe (30740),      13492
+        290,        cargo.exe (24188),       1872
+        582,       rustup.exe (23448),      14800
+        218,       rustup.exe (23448),      12492
+       1152, perf_direct_peer.exe (22652),      20072
+       2457,        cargo.exe (24188),      35744
+        564, perf_direct_peer.exe (22652),       3852
+    9433340, perf_direct_peer.exe (6380),      35240
+        487,       python.exe (30740),      26880
+       1861,        cargo.exe (24188),       7020
+        477,       python.exe (30740),       7568
+        941, perf_direct_peer.exe (6380),      35124
+        395,       rustup.exe (23448),      29156
+        165,       rustup.exe (23448),      16128
+        132,       rustup.exe (23448),      32128
+       2904,       python.exe (30740),      22968
+     225114,        cargo.exe (24188),      26564
+    2266963, perf_direct_peer.exe (22652),      19628
+       4685,       python.exe (30740),      34544
+        504, perf_direct_peer.exe (22652),       8672
+        284,       rustup.exe (23448),      10456
+        213, perf_direct_peer.exe (22652),       5344
+        254,     WmiPrvSE.exe (16764),      21524
+        467,       python.exe (30740),      16052
+      44017,      MsMpEng.exe (17484),      22160
+      26104,      MsMpEng.exe (17484),      15540
+      67979,      MsMpEng.exe (17484),      10736
+     211982,      MsMpEng.exe (17484),      25644
+      36791,      MsMpEng.exe (17484),      14092
+       7852,      MsMpEng.exe (17484),      23280
+        387,      ChatGPT.exe (18212),      31196
+     133479,      MsMpEng.exe (17484),      33720
+      51244,      MsMpEng.exe (17484),      19100
+       1084,      MsMpEng.exe (17484),      12548
+        162,      ChatGPT.exe (18212),      25036
+      15777,      MsMpEng.exe (17484),      20744
+       5612,      MsMpEng.exe (17484),      35520
+      47520,      MsMpEng.exe (17484),      13112
+        440,      ChatGPT.exe (18212),      10320
+       2747,      ChatGPT.exe (18212),      16564
+       8112,      MsMpEng.exe (17484),      18140
+      20520,      MsMpEng.exe (17484),       7672
+       8996,      MsMpEng.exe (17484),      20824
+      38982,      MsMpEng.exe (17484),       3496
+      52131,      MsMpEng.exe (17484),      14120
+       5363,      MsMpEng.exe (17484),      10116
+       9090,      MsMpEng.exe (17484),       9716
+         24, backgroundTaskHost.exe (20980),      29700
+        156, backgroundTaskHost.exe (20980),      19204
+       2258,       NisSrv.exe (22280),       6524
+       2408, MpDefenderCoreService.exe (9552),      20496
+        419,      svchost.exe (31452),      20472
+         30, backgroundTaskHost.exe (20980),      32184
+       4647, MpDefenderCoreService.exe (9552),      11744
+        354,      svchost.exe (17480),      17968
+        130,       NisSrv.exe (22280),      18992
+        154,      audiodg.exe (29540),       2492
+        238,      audiodg.exe (29540),       8308
+         16,      svchost.exe (31452),       3620
+        175,      svchost.exe (31452),      22128
+        319,       NisSrv.exe (22280),      11868
+        607,      svchost.exe (31452),      24260
+        180,       NisSrv.exe (22280),      16660
+        151,      svchost.exe (31452),      21096
+       1281,      svchost.exe (31452),      19760
+        178, backgroundTaskHost.exe (20980),       7320
+        210,       NisSrv.exe (22280),       3764
+      38794,      MsMpEng.exe (17484),      32348
+        188,       NisSrv.exe (22280),      24928
+        413,      svchost.exe (17480),      19680
+         97,      svchost.exe (17480),      31664
+        164,       NisSrv.exe (22280),      30784
+      53049,      MsMpEng.exe (17484),      14584
+        305,       NisSrv.exe (22280),      18128
+        272,      svchost.exe (31452),      29620
+        322,      audiodg.exe (29540),      16844
+       7303, MpDefenderCoreService.exe (9552),      14280
+         24, backgroundTaskHost.exe (20980),      15568
+        229,      svchost.exe (17480),      23916
+        219,       NisSrv.exe (22280),      31544
+        135,      audiodg.exe (29540),      29200
+      37935,      MsMpEng.exe (17484),      20100
+        167,      audiodg.exe (29540),      16288
+        196,      audiodg.exe (29540),      11064
+         37, backgroundTaskHost.exe (20980),      11100
+        138,  smartscreen.exe ( 472),      32200
+        156, backgroundTaskHost.exe (20980),      29924
+        279, backgroundTaskHost.exe (20980),       7144
+        167, backgroundTaskHost.exe (20980),      16444
+        155, backgroundTaskHost.exe (20980),      25456
+        224, backgroundTaskHost.exe (20980),       5444
+         23, backgroundTaskHost.exe (20980),       2740
+         59,      svchost.exe (23304),       7032
+       4393, RuntimeBroker.exe (21304),       7892
+        761, RuntimeBroker.exe (21304),      14420
+         43, RuntimeBroker.exe (21304),      24136
+       1167, RuntimeBroker.exe (21304),      28348
+         67, RuntimeBroker.exe (21304),      20004
+      14823, backgroundTaskHost.exe (20980),      20880
+         36, RuntimeBroker.exe (21304),       6100
+       3118, RuntimeBroker.exe (21304),      16396
+         31, backgroundTaskHost.exe (20980),      21976
+        123, RuntimeBroker.exe (21304),      34924
+         24, backgroundTaskHost.exe (20980),       6624
+        335,  smartscreen.exe ( 472),      16152
+         78, RuntimeBroker.exe (21304),      29956
+        319,   powershell.exe (28600),      19788
+        261, RuntimeBroker.exe (21304),      16248
+         36, backgroundTaskHost.exe (20980),      12272
+        204, backgroundTaskHost.exe (20980),       8400
+        138,      svchost.exe (23304),      14884
+         47, backgroundTaskHost.exe (20980),      12196
+        245,      svchost.exe (23304),       9164
+         28, backgroundTaskHost.exe (20980),      26536
+         42, backgroundTaskHost.exe (20980),       8252
+    1165063,      Taskmgr.exe (22784),      22092
+        140,         pwsh.exe (18132),      26100
+      10127,      Taskmgr.exe (22784),      14256
+    2945035,      Taskmgr.exe (22784),      30284
+        122,         pwsh.exe (18132),        876
+       2276,         pwsh.exe (18132),      27292
+      10913,      conhost.exe (2968),      16476
+        358,      conhost.exe (2968),      22444
+        816,         pwsh.exe (18132),      15448
+      24231,      conhost.exe (2968),       7796
+      68382,         pwsh.exe (18132),      20548
+       5731,         pwsh.exe (18132),      34372
+      48488,      conhost.exe (2968),      32332
+       1124,         pwsh.exe (18132),      32632
+       1390,         pwsh.exe (18132),      11508
+       2713,         pwsh.exe (18132),      20280
+       4353,         pwsh.exe (18132),      31996
+       4560,         pwsh.exe (18132),      23424
+       1465,      conhost.exe (2968),      21924
+        235,         pwsh.exe (18132),      32468
+       6636,         pwsh.exe (18132),      25884
+        160,         pwsh.exe (18132),      25128
+        118,      Taskmgr.exe (22784),       8584
+        109,      Taskmgr.exe (22784),       9420
+         99,      Taskmgr.exe (22784),      28828
+     275482,      Taskmgr.exe (22784),      32832
+       2602,         pwsh.exe (18132),      18256
+      83365,      Taskmgr.exe (22784),      23372
+       8699,      Taskmgr.exe (22784),      31036
+       9807,      Taskmgr.exe (22784),      25840
+        357,      Taskmgr.exe (22784),      33180
+        585,      Taskmgr.exe (22784),      23308
+      72595,      Taskmgr.exe (22784),      22392
+         59,         pwsh.exe (18132),      29772
+      14396,         pwsh.exe (18132),      25984
+     500219,      Taskmgr.exe (22784),      33760
+      14087,      Taskmgr.exe (22784),      19528
+      19384,      Taskmgr.exe (22784),      24636
+        145,        xperf.exe (30756),       9692
+         37,        xperf.exe (30756),      34340
+        631,      Taskmgr.exe (22784),      22728
+         33,        xperf.exe (30756),      30040
+        124,     WmiPrvSE.exe (16764),      33504
+        297,     WmiPrvSE.exe (16764),      26920
+         74,        xperf.exe (30756),       8208
+      74627,        xperf.exe (30756),      34104
+         45,        xperf.exe (30756),        464
+      17967,      Taskmgr.exe (22784),      27428
+         35,        xperf.exe (30756),      20588
+       1699,      Taskmgr.exe (22784),       9812
+        224,     WmiPrvSE.exe (16764),      27840
+     465929,      Taskmgr.exe (22784),      33520
+        105,     WmiPrvSE.exe (16764),       9532
+        737,        codex.exe (8548),      18344
+        714,        codex.exe (8548),      18372
+        424,       python.exe (30740),      12348
+    9934002, perf_direct_peer.exe (23484),      12144
+        906, perf_rust_source.exe (14124),      29516
+        320,       python.exe (30740),      32036
+        591, perf_direct_peer.exe (23484),      22560
+        154,      audiodg.exe (29540),      15560
+        341, perf_direct_peer.exe (23484),      12600
+        554, OneApp.IGCC.WinService.exe (4244),      15452
+        435,        codex.exe (8548),      16600
+       1276,        codex.exe (8548),      17428
+        112, SecurityHealthService.exe (8040),      32008
+         64,      svchost.exe (1728),      16700
+      24131,         pwsh.exe (18132),      19840
+        296, wp8_interop_server.exe (3920),      24376
+       1098,         pwsh.exe (18132),      33188
+        361,        codex.exe (8548),      32552
+    9927326, perf_rust_source.exe (18892),      12096
+       1576, perf_rust_source.exe (18892),       8916
+    5840916, perf_direct_peer.exe (13028),      22184
+       1132, perf_rust_source.exe (14124),      18080
+        362,        codex.exe (8548),      16412
+        461, perf_direct_peer.exe (13028),       6324
+       2031,     explorer.exe ( 904),      22496
+         74,      svchost.exe (4268),      13628
+        787, wp8_interop_server.exe (3920),      13084
+       1194,        codex.exe (8548),      13040
+         92,     winlogon.exe ( 676),      26596
+         47, RuntimeBroker.exe (9676),       1576
+       7325, perf_direct_peer.exe (13028),      26652
+    5796190, perf_direct_peer.exe (13028),       2292
+        579,      Taskmgr.exe (22784),      26508
+        533,       python.exe (30740),      18628
+        212,       python.exe (30740),       6964
+        454, perf_rust_source.exe (18892),      27620
+        735, perf_rust_source.exe (18892),      18652
+       1570, perf_direct_peer.exe (13028),      19996
+        237,       NgcIso.exe (4116),      27496
+    9962424, wp8_interop_server.exe (20704),      17144
+       1034,      Taskmgr.exe (22784),      31252
+        533, wp8_interop_server.exe (20704),      19872
+        631, wp8_interop_server.exe (20704),       6012
+        138, wp8_interop_server.exe (20704),      32324
+        585,       python.exe (30740),      22360
+       4136,      Taskmgr.exe (22784),      16976
+     106818,       python.exe (30740),      28528
+     971304, perf_direct_peer.exe (23484),      26608
+       1261, perf_direct_peer.exe (23484),      10864
+        513,       python.exe (30740),      29072
+       2245,     WUDFHost.exe (1280),      20220
+        338, perf_direct_peer.exe (13028),      20572
+     142015,       python.exe (30740),      17152
+     979817, perf_direct_peer.exe (23484),      11112
+       1528,        codex.exe (8548),      11284
+        112, WidgetService.exe (8484),      18608
+        590, OneApp.IGCC.WinService.exe (4244),      19124
+        654, perf_direct_peer.exe (23484),      16804
+        792,        codex.exe (8548),      29980
+        167, msedgewebview2.exe (9432),      18864
+      13092,   CxAudioSvc.exe (4164),      12248
+     942586, wp8_interop_server.exe (20704),       5460
+        586, perf_direct_peer.exe (16920),      30380
+        691,      svchost.exe (17480),      11788
+         81,      svchost.exe (9364),      31408
+        245, CrossDeviceResume.exe (4040),      29284
+        135,      svchost.exe (1044),      23404
+       8010, perf_rust_source.exe (14124),      17184
+        319,      ChatGPT.exe (34196),      16148
+         68,      svchost.exe (1860),      13304
+         53,      svchost.exe ( 988),      31256
+         50,      svchost.exe (4376),       2764
+        294,      svchost.exe (3584),      31328
+       8078,         pwsh.exe (18132),      25060
+       7359, perf_direct_peer.exe (25880),      21148
+        412,       python.exe (30740),      24084
+         90,      svchost.exe (6812),       8608
+        152,      svchost.exe (2104),      11528
+      13786,         pwsh.exe (18132),      12800
+        349,      svchost.exe (8568),      13668
+        582,        codex.exe (8548),      33588
+        634, OneApp.IGCC.WinService.exe (4244),      34984
+        662,      svchost.exe (5932),      17876
+        316, perf_direct_peer.exe (16920),       7920
+        522, perf_rust_source.exe (14124),      11140
+        864,      svchost.exe (2284),      27684
+     124895,       python.exe (30740),      19368
+        359,   CxAudioSvc.exe (4164),      26260
+         87,       NgcIso.exe (4116),       1976
+    9715009, perf_direct_peer.exe (16920),      31984
+        506, wp8_interop_server.exe (20704),      21948
+        621, perf_direct_peer.exe (16920),      33004
+        661,   wslservice.exe (4832),      22364
+       2649,      svchost.exe (5932),       6616
+         45,      svchost.exe (4004),      17200
+     113655,       python.exe (30740),      15980
+        764,   CxAudioSvc.exe (4164),      13756
+        719,       python.exe (30740),      25068
+        362,       python.exe (30740),       6272
+         72,      svchost.exe (4520),      26668
+         47,      svchost.exe (7708),      34996
+       3560, CrossDeviceService.exe (8676),      15276
+        281,      ChatGPT.exe (32412),       4604
+       1306, perf_direct_peer.exe (25880),      25676
+        338,      svchost.exe (5432),      12920
+        436, perf_direct_peer.exe (25880),      21372
+         61,      svchost.exe (3800),      27940
+        662, perf_direct_peer.exe (25880),      18636
+        690, OneApp.IGCC.WinService.exe (4244),      20860
+    5767764, perf_rust_source.exe (14124),      17320
+     951015, wp8_interop_server.exe (20704),       4184
+        648,       python.exe (30740),      23556
+    5797462, perf_rust_source.exe (14124),      24580
+       1087,     explorer.exe ( 904),       8784
+       3213,     services.exe (1048),      29716
+         53,      svchost.exe (2020),       1396
+         84,      svchost.exe (3020),       4984
+         58,      svchost.exe (3828),      17072
+        212,      svchost.exe (14576),      34316
+         61, msedgewebview2.exe (5520),      12948
+     501435, perf_direct_peer.exe (16920),       3564
+        347, wp8_interop_server.exe (31564),      27780
+     506300, perf_direct_peer.exe (16920),       7692
+        241, wp8_interop_server.exe (31564),      31204
+       1492, ChatGPT Classic.exe (12200),      19956
+        870, ChatGPT Classic.exe (14144),      11472
+    1000896, ChatGPT Classic.exe (14144),      23920
+        596, perf_rust_source.exe (28680),      26044
+        586, perf_direct_peer.exe (16920),      31804
+         60, RuntimeBroker.exe (15076),      17960
+        758, perf_rust_source.exe (28680),      22332
+    2816198, perf_rust_source.exe (28680),      22572
+    2895939, perf_rust_source.exe (28680),      23524
+        994, perf_rust_source.exe (28680),      34992
+     112499,       python.exe (30740),      12120
+    2608774, perf_rust_source.exe (28680),      30588
+        578, wp8_interop_server.exe (31564),      12264
+     513803, wp8_interop_server.exe (31564),      26944
+        187,      svchost.exe (1632),      16220
+     529494, wp8_interop_server.exe (31564),      14876
+       8349, perf_rust_source.exe (28680),      34712
+        131,      svchost.exe (1508),      33948
+        113,      svchost.exe (1632),      30996
+    2777061, perf_direct_peer.exe (25880),       5032
+       1650,      svchost.exe (6752),      17368
+      21278,      svchost.exe (6752),       5584
+        144,      svchost.exe (7004),      28176
+         74,      ChatGPT.exe (28700),      12976
+    2819219, perf_direct_peer.exe (25880),      26988
+        854,      svchost.exe (6752),      24600
+    2679296, perf_rust_source.exe (28680),      15060
+         78,      ChatGPT.exe (34764),       5296
+       2146,         pwsh.exe (18132),      24212
+     496007, perf_direct_peer.exe (16920),      16944
+         42,      svchost.exe (7484),       7444
+    2700639, perf_direct_peer.exe (25880),      10128
+       2617,      svchost.exe (6752),       5812
+       1098,      svchost.exe (6752),      24088
+        134, ChatGPT Classic.exe (7948),      10472
+        473,       python.exe (30740),      30020
+     546607, wp8_interop_server.exe (31564),      28568
+         49,      svchost.exe (3648),      24892
+         83,  smartscreen.exe ( 472),      10100
+        622,      Taskmgr.exe (22784),      25568
+       1006, wp8_interop_server.exe (31564),      22868
+        172, ChatGPT Classic.exe (10024),       9516
+    9856953, wp8_interop_server.exe (31564),      34212
+        688,       python.exe (30740),      16500
+     493272, wp8_interop_server.exe (31564),      33324
+       1557,         pwsh.exe (18132),      32072
+         70,      svchost.exe (6664),      25264
+        113,      svchost.exe (8660),      24176
+    2565809, perf_direct_peer.exe (25880),      32136
+     474319, perf_direct_peer.exe (16920),      18568
+         99, msedgewebview2.exe (9204),      25252
+         80,      ChatGPT.exe (18212),      24220
+        951,          git.exe (28076),      23868
+        252,          git.exe (33048),      18176
+       1721,          git.exe (17804),      32896
+        867,          git.exe (17804),      18416
+      10243,          git.exe (26196),      19700
+        626,          git.exe (33048),      21560
+      17826,      svchost.exe (2580),      24808
+        723,       NgcIso.exe (4116),       7436
+        816,          git.exe (26196),       7056
+        388,          git.exe (26196),      20764
+        229, CrossDeviceService.exe (8676),      14976
+         53,      svchost.exe (4856),      35176
+        155,      svchost.exe (1784),      19984
+      19620,          git.exe (17804),      25040
+        447,        xperf.exe (15400),      25700
+        849,          git.exe (33048),      25212
+       1351,          git.exe (17804),      11256
+      49978,         pwsh.exe (18132),      14364
+        207,      svchost.exe (1808),      31888
+       1482,        xperf.exe (15400),      27048
+        113,   AppActions.exe (8520),       8180
+       1663,        xperf.exe (15400),      31992
+       1449,          git.exe (28076),      19032
+       1301,        xperf.exe (15400),        456
+         99,        xperf.exe (15400),      31348
+     768472,        xperf.exe (15400),      15316
+         61,      svchost.exe (2616),      30168
+         35,      svchost.exe (1808),      35296
+       1504,          git.exe (28076),      31456
+       1329,             Idle (   0),         32
+        232,          git.exe (26196),      34788
+      19886,          git.exe (28076),      35468
+       1456,      svchost.exe (2580),      32640
+       4854,        xperf.exe (15400),       5832
+      11141,          git.exe (33048),      22504

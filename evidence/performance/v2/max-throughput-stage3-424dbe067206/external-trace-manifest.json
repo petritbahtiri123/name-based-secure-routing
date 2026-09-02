@@ -1,0 +1,19 @@
+{
+  "schema": "nbsr-max-throughput-v2-stage3-external-trace-v1",
+  "capture_root": "C:\\NBSR-build\\max-throughput-v2-stage3-20260902-211248",
+  "git_sha": "424dbe0672062c92964a1777eda9213c27e6f660",
+  "files": [
+    {"path":"stage3.etl","bytes":635437056,"sha256":"bc6e0be3dc95fc74bad09629a087f01120ab3b795ec1b035f1aa30bbc7fef815"},
+    {"path":"stage3-raw.etl","bytes":627048448,"sha256":"8940e2372519e8b700a255b220c3458f0b88fad318a628e852f98dad7f4ec678"},
+    {"path":"readythread.txt","bytes":3458475336,"sha256":"d149ced3000359ef84ec3ce625d442b6e79b49904d7e4322dea52054ae1ae42e"},
+    {"path":"cpu-profile-detail.txt","bytes":670834,"sha256":"f533750c69452e8337f28fdc1ce60070bc0c563f8c18618e973672d3e9738432"},
+    {"path":"cswitch-process-thread.txt","bytes":67166,"sha256":"2577b8c55475b6dc40fd40188f841d25a3244411c43f1589479dde8c6ae32dff"},
+    {"path":"thread-activity.txt","bytes":748522,"sha256":"8f32bcfed64732a36780e7a89349f7ea49ee23a018a46f29abc2af6691556651"},
+    {"path":"process-thread.txt","bytes":626569,"sha256":"ad7574ca3d7b55e433eb61c8711a98f6e90c2e0df8a997bc552c5a65acb37fb2"},
+    {"path":"metadata.json","bytes":1516,"sha256":"a779fd239d175e806409a8bacc827b305a3c8928ae6dc9bde8b119f65228aeb9"},
+    {"path":"profile-overhead.json","bytes":1144,"sha256":"0ccb810408e3634c6f74aa0ac707bacac3016cab911e44df01486a0856da1a50"},
+    {"path":"trace-stats.txt","bytes":950,"sha256":"0874888eb4723263b48dcb932340ecd8898480175b47d948b5911e3fe10737ea"}
+  ],
+  "large_files_not_committed": ["stage3.etl", "stage3-raw.etl", "readythread.txt"],
+  "preservation_status": "PRESENT_AND_HASH_VERIFIED_ON_CAPTURE_HOST"
+}

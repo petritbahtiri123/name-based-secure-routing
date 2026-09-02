@@ -1,0 +1,44 @@
+[
+  {
+    "path": "direct",
+    "groups": 1,
+    "control_gbps": 2.332774607634902,
+    "profiled_gbps": 1.856792268939035,
+    "throughput_overhead_fraction": 0.20404128934618537
+  },
+  {
+    "path": "nbsr",
+    "groups": 1,
+    "control_gbps": 2.3632426801514943,
+    "profiled_gbps": 2.20078044996408,
+    "throughput_overhead_fraction": 0.06874547059932057
+  },
+  {
+    "path": "direct",
+    "groups": 2,
+    "control_gbps": 2.269138456138887,
+    "profiled_gbps": 1.4591220683253467,
+    "throughput_overhead_fraction": 0.3569708959901218
+  },
+  {
+    "path": "nbsr",
+    "groups": 2,
+    "control_gbps": 2.3895287247335957,
+    "profiled_gbps": 1.6963266549394453,
+    "throughput_overhead_fraction": 0.29009991075601504
+  },
+  {
+    "path": "direct",
+    "groups": 4,
+    "control_gbps": 2.1390221681945163,
+    "profiled_gbps": 1.4843746548048893,
+    "throughput_overhead_fraction": 0.30604989659466464
+  },
+  {
+    "path": "nbsr",
+    "groups": 4,
+    "control_gbps": 2.1214881293443906,
+    "profiled_gbps": 1.4154444704193685,
+    "throughput_overhead_fraction": 0.3328058494219398
+  }
+]

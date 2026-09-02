@@ -1,0 +1,44 @@
+{
+  "schema": "nbsr-max-throughput-v2-stage3-analysis-v1",
+  "classification": {
+    "evidence": "PASS",
+    "system": "HARNESS-LIMITED:shared-destination-quic-listener-endpoint-driver-runtime"
+  },
+  "workload": {
+    "payload_bytes": 16384,
+    "streams_per_group": 1,
+    "outstanding_per_stream": 4,
+    "groups": [1, 2, 4],
+    "runtime_workers": 1,
+    "affinity_mask": "0x55"
+  },
+  "trace_integrity": {
+    "lost_events": 0,
+    "rust_symbols_readable": true
+  },
+  "cells": [
+    {"path":"direct","groups":1,"control_gbps":2.332774607634902,"profiled_gbps":1.856792268939035,"profile_overhead_fraction":0.20404128934618537,"control_destination_cores":0.9667239719284669,"control_p99_ns":698200,"destination_main_thread_core":0.948,"destination_handler_cores":0.221,"main_thread_ready_events":6796},
+    {"path":"direct","groups":2,"control_gbps":2.269138456138887,"profiled_gbps":1.4591220683253467,"profile_overhead_fraction":0.3569708959901218,"control_destination_cores":0.9646990089724412,"control_p99_ns":1651100,"destination_main_thread_core":0.969,"destination_handler_cores":0.191,"main_thread_ready_events":516},
+    {"path":"direct","groups":4,"control_gbps":2.1390221681945163,"profiled_gbps":1.4843746548048893,"profile_overhead_fraction":0.30604989659466464,"control_destination_cores":0.9567348415868907,"control_p99_ns":4257400,"destination_main_thread_core":0.946,"destination_handler_cores":0.193,"main_thread_ready_events":190},
+    {"path":"nbsr","groups":1,"control_gbps":2.3632426801514943,"profiled_gbps":2.20078044996408,"profile_overhead_fraction":0.06874547059932057,"control_destination_cores":0.8593087902577107,"control_p99_ns":1157700,"destination_main_thread_core":0.969,"destination_handler_cores":0.000,"main_thread_ready_events":712},
+    {"path":"nbsr","groups":2,"control_gbps":2.3895287247335957,"profiled_gbps":1.6963266549394453,"profile_overhead_fraction":0.29009991075601504,"control_destination_cores":0.9568820481666396,"control_p99_ns":1511700,"destination_main_thread_core":0.971,"destination_handler_cores":0.185,"main_thread_ready_events":392},
+    {"path":"nbsr","groups":4,"control_gbps":2.1214881293443906,"profiled_gbps":1.4154444704193685,"profile_overhead_fraction":0.3328058494219398,"control_destination_cores":0.9724411581713269,"control_p99_ns":4672500,"destination_main_thread_core":0.957,"destination_handler_cores":0.202,"main_thread_ready_events":198}
+  ],
+  "nbsr_destination_hotspots_percent": {
+    "groups_1": {"kernel_socket_network":58.46,"crypto":9.73,"quinn_driver":5.13,"tokio_scheduler":2.23,"io_poll_udp":1.82,"lock_sync":0.42},
+    "groups_2": {"kernel_socket_network":64.37,"crypto":6.95,"quinn_driver":3.76,"tokio_scheduler":2.17,"io_poll_udp":2.02,"lock_sync":0.84},
+    "groups_4": {"kernel_socket_network":66.22,"crypto":6.18,"quinn_driver":3.54,"tokio_scheduler":2.45,"io_poll_udp":2.17,"lock_sync":0.66}
+  },
+  "accounting": {
+    "control_all_valid": true,
+    "profiled_all_valid": true,
+    "errors": 0,
+    "timeouts": 0,
+    "cleanup_pass": true,
+    "configured_outstanding_per_group": 4,
+    "observed_outstanding_reached_configuration": true
+  },
+  "attribution": "One shared destination main thread consumes 0.946 to 0.971 core across all group counts while additional group handlers remain lightly utilized. Both Direct and NBSR plateau and suffer p99 growth with unused host cores. The shared destination QUIC listener/endpoint-driver runtime is the measured harness serialization boundary.",
+  "recommended_harness_only_experiment": "Use one independently bound destination QUIC endpoint/listener and current-thread runtime per group on distinct loopback UDP ports, identically for Direct and NBSR.",
+  "claim_boundary": "Windows loopback harness attribution only; profiled throughput is not a capacity result and no production or hardware ceiling is claimed."
+}

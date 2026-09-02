@@ -1,0 +1,56 @@
+{
+  "schema": "nbsr-max-throughput-v2-stage3-capture-v1",
+  "timestamp_utc": "2026-09-02T19:16:53.5104181Z",
+  "git": {
+    "branch": "codex/nbsr-v3-wp0-wp1",
+    "sha": "424dbe0672062c92964a1777eda9213c27e6f660"
+  },
+  "workload": {
+    "payload_bytes": 16384,
+    "streams_per_group": 1,
+    "outstanding_per_stream": 4,
+    "groups": [
+      1,
+      2,
+      4
+    ],
+    "paths": [
+      "direct",
+      "nbsr"
+    ],
+    "runtime_workers": 1
+  },
+  "xperf_start_arguments": [
+    "-on",
+    "PROC_THREAD+LOADER+PROFILE+CSWITCH+DISPATCHER",
+    "-stackwalk",
+    "Profile+CSwitch+ReadyThread",
+    "-BufferSize",
+    "1024",
+    "-MinBuffers",
+    "256",
+    "-MaxBuffers",
+    "768",
+    "-f",
+    "C:\\NBSR-build\\max-throughput-v2-stage3-20260902-211248\\stage3-raw.etl"
+  ],
+  "trace": "C:\\NBSR-build\\max-throughput-v2-stage3-20260902-211248\\stage3.etl",
+  "lost_events": 0,
+  "symbol_checks": {
+    "perf_direct_peer": true,
+    "perf_rust_source": true,
+    "wp8_interop_server": true
+  },
+  "control": {
+    "label": "control",
+    "started_utc": "2026-09-02T19:12:48.9928406Z",
+    "ended_utc": "2026-09-02T19:13:51.3920968Z",
+    "output": "C:\\NBSR-build\\max-throughput-v2-stage3-20260902-211248\\control"
+  },
+  "profiled": {
+    "label": "profiled",
+    "started_utc": "2026-09-02T19:13:52.0962856Z",
+    "ended_utc": "2026-09-02T19:14:54.5972300Z",
+    "output": "C:\\NBSR-build\\max-throughput-v2-stage3-20260902-211248\\profiled"
+  }
+}
