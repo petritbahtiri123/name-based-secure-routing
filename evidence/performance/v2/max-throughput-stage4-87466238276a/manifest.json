@@ -1,0 +1,214 @@
+{
+  "schema": "nbsr-max-throughput-v2-stage4-v1",
+  "git_sha": "87466238276ab1f09796d8219bd7c07ccbefb554",
+  "branch": "codex/nbsr-v3-wp0-wp1",
+  "timestamp_utc": "2026-09-02T19:47:27Z",
+  "command": [
+    "C:\\Users\\bajra\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+    "scripts/run_max_throughput_v2_stage4.py",
+    "--output",
+    "evidence\\performance\\v2\\max-throughput-stage4-87466238276a",
+    "--warmup-seconds",
+    "2",
+    "--duration-seconds",
+    "8",
+    "--repeats",
+    "3"
+  ],
+  "warmup_seconds": 2.0,
+  "duration_seconds": 8.0,
+  "processor_topology": {
+    "verified": true,
+    "scope": "physical-core-selected-logical-processors",
+    "physical_cores": 4,
+    "logical_processors": 8,
+    "cores": [
+      {
+        "core_index": 0,
+        "smt": true,
+        "efficiency_class": 0,
+        "logical_mask": 3
+      },
+      {
+        "core_index": 1,
+        "smt": true,
+        "efficiency_class": 0,
+        "logical_mask": 12
+      },
+      {
+        "core_index": 2,
+        "smt": true,
+        "efficiency_class": 0,
+        "logical_mask": 48
+      },
+      {
+        "core_index": 3,
+        "smt": true,
+        "efficiency_class": 0,
+        "logical_mask": 192
+      }
+    ],
+    "affinity_masks": {
+      "1": {
+        "decimal": 1,
+        "hex": "0x1"
+      },
+      "2": {
+        "decimal": 5,
+        "hex": "0x5"
+      },
+      "4": {
+        "decimal": 85,
+        "hex": "0x55"
+      }
+    }
+  },
+  "cells": [
+    {
+      "path": "direct",
+      "endpoint_groups": 1,
+      "repeat_count": 3,
+      "median_gbps": 1.3862343191783804,
+      "throughput_cv": 0.012856385143761879,
+      "median_ops_per_second": 5288.064266885301,
+      "median_p50_latency_ns": 751400,
+      "median_p95_latency_ns": 948000,
+      "median_p99_latency_ns": 1231800,
+      "median_effective_cores": 1.702973605646458,
+      "errors": 0,
+      "timeouts": 0,
+      "cleanup_pass": true,
+      "valid": true,
+      "peak_working_set_bytes": 17575936,
+      "per_group_median_gbps": [
+        1.3862343191783804
+      ]
+    },
+    {
+      "path": "direct",
+      "endpoint_groups": 2,
+      "repeat_count": 5,
+      "median_gbps": 1.9827103900657563,
+      "throughput_cv": 0.09909275615285298,
+      "median_ops_per_second": 7563.439903510118,
+      "median_p50_latency_ns": 1119600,
+      "median_p95_latency_ns": 1459000,
+      "median_p99_latency_ns": 2500100,
+      "median_effective_cores": 3.436862676777375,
+      "errors": 0,
+      "timeouts": 0,
+      "cleanup_pass": true,
+      "valid": true,
+      "peak_working_set_bytes": 27238400,
+      "per_group_median_gbps": [
+        1.0260019263231692,
+        0.9769607870486047
+      ]
+    },
+    {
+      "path": "direct",
+      "endpoint_groups": 4,
+      "repeat_count": 5,
+      "median_gbps": 1.9842821205625638,
+      "throughput_cv": 0.11742227196809094,
+      "median_ops_per_second": 7569.435579538589,
+      "median_p50_latency_ns": 1738850,
+      "median_p95_latency_ns": 6683400,
+      "median_p99_latency_ns": 10381100,
+      "median_effective_cores": 3.7159916196160294,
+      "errors": 0,
+      "timeouts": 0,
+      "cleanup_pass": true,
+      "valid": true,
+      "peak_working_set_bytes": 45993984,
+      "per_group_median_gbps": [
+        0.42559578920728947,
+        0.4499552374959445,
+        0.6019799007546809,
+        0.6507388027352881
+      ]
+    },
+    {
+      "path": "nbsr",
+      "endpoint_groups": 1,
+      "repeat_count": 5,
+      "median_gbps": 2.3970321244727373,
+      "throughput_cv": 0.14423647223982106,
+      "median_ops_per_second": 9143.951890841436,
+      "median_p50_latency_ns": 400700,
+      "median_p95_latency_ns": 569100,
+      "median_p99_latency_ns": 863400,
+      "median_effective_cores": 1.884641804033475,
+      "errors": 0,
+      "timeouts": 0,
+      "cleanup_pass": true,
+      "valid": true,
+      "peak_working_set_bytes": 18960384,
+      "per_group_median_gbps": [
+        2.3970321244727373
+      ]
+    },
+    {
+      "path": "nbsr",
+      "endpoint_groups": 2,
+      "repeat_count": 5,
+      "median_gbps": 3.014191283372115,
+      "throughput_cv": 0.06225137362710313,
+      "median_ops_per_second": 11498.227246750317,
+      "median_p50_latency_ns": 629100,
+      "median_p95_latency_ns": 1068000,
+      "median_p99_latency_ns": 2059800,
+      "median_effective_cores": 3.7494341635167983,
+      "errors": 0,
+      "timeouts": 0,
+      "cleanup_pass": true,
+      "valid": true,
+      "peak_working_set_bytes": 29224960,
+      "per_group_median_gbps": [
+        1.4990375834734764,
+        1.5653992101585152
+      ]
+    },
+    {
+      "path": "nbsr",
+      "endpoint_groups": 4,
+      "repeat_count": 5,
+      "median_gbps": 2.3328695265507924,
+      "throughput_cv": 0.1644818189013569,
+      "median_ops_per_second": 8899.191003993195,
+      "median_p50_latency_ns": 1649650,
+      "median_p95_latency_ns": 3164600,
+      "median_p99_latency_ns": 5644000,
+      "median_effective_cores": 3.7309977008811623,
+      "errors": 0,
+      "timeouts": 0,
+      "cleanup_pass": true,
+      "valid": true,
+      "peak_working_set_bytes": 48693248,
+      "per_group_median_gbps": [
+        0.5551853662864457,
+        0.6049114467076729,
+        0.5753308888308512,
+        0.6145757696284943
+      ]
+    }
+  ],
+  "all_valid": true,
+  "all_cleanup_pass": true,
+  "errors": 0,
+  "timeouts": 0,
+  "binaries": {
+    "direct": {
+      "path": "C:\\NBSR-build\\max-throughput-v2-stage4\\release\\perf_direct_peer.exe",
+      "sha256": "678464d8b5fe1d30e7015022be8ef41c2989915869fc900075ea702dd814e55c"
+    },
+    "nbsr": {
+      "path": "C:\\NBSR-build\\max-throughput-v2-stage4\\release\\perf_rust_source.exe",
+      "sha256": "e2e5a8f0dbfeaa3c247f3e69e9110e4c7faabad8c7263cec7f32b0ada1e9176b"
+    },
+    "server": {
+      "path": "C:\\NBSR-build\\max-throughput-v2-stage4\\release\\wp8_interop_server.exe",
+      "sha256": "cd6705b08fbb41d4c482e9614c5494cf4051aa47c554dfdca92b5b9a1829cd8c"
+    }
+  }
+}

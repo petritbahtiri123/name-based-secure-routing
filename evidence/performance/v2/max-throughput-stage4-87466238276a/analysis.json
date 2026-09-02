@@ -1,0 +1,33 @@
+{
+  "schema": "nbsr-max-throughput-v2-stage4-analysis-v1",
+  "classification": {
+    "evidence": "PASS",
+    "system": "AFFINITY_CPU_SATURATED"
+  },
+  "primary_answer": "YES",
+  "primary_answer_detail": "Separating destination endpoint drivers increased NBSR median throughput by 25.746803832891096 percent from one to two groups; every two-group repeat exceeded every one-group repeat.",
+  "highest_strict_stable_nbsr_gbps": null,
+  "highest_repeatable_nbsr_gbps": null,
+  "highest_measured_median_nbsr_gbps": 3.014191283372115,
+  "highest_valid_single_repeat_nbsr_gbps": 3.406931867394561,
+  "repeatability_rule": "CV <= 0.05",
+  "strict_stable_limitation": "No NBSR cell met the pre-existing CV <= 5 percent repeatability gate after five repeats where required.",
+  "regions": {
+    "1": "DEGRADED_VARIABILITY",
+    "2": "DEGRADED_AFFINITY_CPU_SATURATION",
+    "4": "SATURATED"
+  },
+  "scaling": {
+    "nbsr_1_to_2_percent": 25.746803832891096,
+    "nbsr_2_to_4_percent": -22.60379958564197,
+    "direct_1_to_2_percent": 43.02851708655624,
+    "direct_2_to_4_percent": 0.07926980119030147
+  },
+  "direct_nbsr_delta_percent": {
+    "1": 72.916807159518,
+    "2": 52.02378009791686,
+    "4": 17.567431686044756
+  },
+  "delta_limitation": "The large Direct/NBSR deltas are measured for this run but are not generalized because several cells remained above the 5 percent CV gate.",
+  "limiting_resource": "The tracked benchmark processes consumed about 3.73 to 3.75 effective cores within the four-logical-processor 0x55 affinity pool at two and four NBSR groups. Four groups reduced throughput and increased p99. This is an affinity-constrained benchmark CPU limit, not a whole-host, NIC, memory, or production NBSR ceiling."
+}

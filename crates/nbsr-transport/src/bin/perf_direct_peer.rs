@@ -8,7 +8,8 @@ use std::time::{Duration, Instant};
 #[cfg(feature = "benchmark-harness")]
 use nbsr_transport::p2a_benchmark::{
     OutstandingTracker, build_benchmark_runtime, decode_frame, decode_measured_frame, encode_frame,
-    encode_measured_frame, parse_group_count, parse_runtime_workers, run_current_thread_groups,
+    encode_measured_frame, parse_group_count, parse_group_endpoints, parse_runtime_workers,
+    run_current_thread_groups,
 };
 use quinn::crypto::rustls::{QuicClientConfig, QuicServerConfig};
 use quinn::{ClientConfig, Connection, Endpoint, ServerConfig, TransportConfig, VarInt};
@@ -325,9 +326,21 @@ async fn server() {
     endpoint.wait_idle().await;
 }
 
-async fn client(group_barrier: Option<Arc<std::sync::Barrier>>) {
+async fn client(group_barrier: Option<Arc<std::sync::Barrier>>, group_ordinal: usize) {
     let authority = PathBuf::from(argument("--authority-dir"));
-    let remote: SocketAddr = argument("--endpoint").parse().unwrap();
+    let default_remote = argument("--endpoint");
+    #[cfg(feature = "benchmark-harness")]
+    let remote: SocketAddr = parse_group_endpoints(
+        env::args(),
+        parse_group_count(env::args()).expect("valid --p2a-groups"),
+    )
+    .expect("valid --p2a-endpoints")
+    .and_then(|endpoints| endpoints.get(group_ordinal).cloned())
+    .unwrap_or(default_remote)
+    .parse()
+    .unwrap();
+    #[cfg(not(feature = "benchmark-harness"))]
+    let remote: SocketAddr = default_remote.parse().unwrap();
     let samples = count("--samples");
     let payload_bytes = count("--payload-bytes");
     let lifecycle = argument("--lifecycle");
@@ -561,7 +574,7 @@ async fn client(group_barrier: Option<Arc<std::sync::Barrier>>) {
 async fn run() {
     match argument("--role").as_str() {
         "server" => server().await,
-        "client" => client(None).await,
+        "client" => client(None, 0).await,
         other => panic!("unsupported role {other}"),
     }
 }
@@ -571,8 +584,10 @@ fn main() {
     let workers = parse_runtime_workers(env::args()).expect("valid --p2a-runtime-workers");
     let groups = parse_group_count(env::args()).expect("valid --p2a-groups");
     if groups > 1 && argument("--role") == "client" {
-        run_current_thread_groups(groups, |_, barrier| async { client(Some(barrier)).await })
-            .expect("independent Direct benchmark groups");
+        run_current_thread_groups(groups, |ordinal, barrier| async move {
+            client(Some(barrier), ordinal).await
+        })
+        .expect("independent Direct benchmark groups");
         return;
     }
     build_benchmark_runtime(workers)

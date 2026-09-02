@@ -13,7 +13,8 @@ use nbsr_transport::StreamCreditRefill;
 #[cfg(feature = "benchmark-harness")]
 use nbsr_transport::p2a_benchmark::{
     OutstandingTracker, build_benchmark_runtime, decode_frame, decode_measured_frame, encode_frame,
-    encode_measured_frame, parse_group_count, parse_runtime_workers, run_current_thread_groups,
+    encode_measured_frame, parse_group_count, parse_group_endpoints, parse_runtime_workers,
+    run_current_thread_groups,
 };
 use nbsr_transport::{
     AdmissionPolicy, AuthorizedServicePolicy, ControlSession, CoreV02Limits, DestinationAdmission,
@@ -937,10 +938,22 @@ async fn run_p2d_after(
         .unwrap();
 }
 
-async fn run(group_barrier: Option<Arc<std::sync::Barrier>>) {
+async fn run(group_barrier: Option<Arc<std::sync::Barrier>>, group_ordinal: usize) {
     let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..");
     let authority = PathBuf::from(argument("--authority-dir"));
-    let endpoint: SocketAddr = argument("--endpoint").parse().unwrap();
+    let default_endpoint = argument("--endpoint");
+    #[cfg(feature = "benchmark-harness")]
+    let endpoint: SocketAddr = parse_group_endpoints(
+        env::args(),
+        parse_group_count(env::args()).expect("valid --p2a-groups"),
+    )
+    .expect("valid --p2a-endpoints")
+    .and_then(|endpoints| endpoints.get(group_ordinal).cloned())
+    .unwrap_or(default_endpoint)
+    .parse()
+    .unwrap();
+    #[cfg(not(feature = "benchmark-harness"))]
+    let endpoint: SocketAddr = default_endpoint.parse().unwrap();
     let samples: u64 = argument("--samples").parse().unwrap();
     let payload_bytes: usize = argument("--payload-bytes").parse().unwrap();
     let offered_rate =
@@ -1624,20 +1637,22 @@ fn main() {
     let workers = parse_runtime_workers(env::args()).expect("valid --p2a-runtime-workers");
     let groups = parse_group_count(env::args()).expect("valid --p2a-groups");
     if groups > 1 {
-        run_current_thread_groups(groups, |_, barrier| async { run(Some(barrier)).await })
-            .expect("independently authorized NBSR benchmark groups");
+        run_current_thread_groups(groups, |ordinal, barrier| async move {
+            run(Some(barrier), ordinal).await
+        })
+        .expect("independently authorized NBSR benchmark groups");
         emit_diagnostic(0, "group_cleanup");
         return;
     }
     build_benchmark_runtime(workers)
         .expect("benchmark Tokio runtime")
-        .block_on(run(None));
+        .block_on(run(None, 0));
 }
 
 #[cfg(not(feature = "benchmark-harness"))]
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
-    run(None).await;
+    run(None, 0).await;
 }
 
 trait ReadBytes {

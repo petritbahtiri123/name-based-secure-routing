@@ -1,0 +1,145 @@
+{
+  "groups": 4,
+  "payload_bytes": 16384,
+  "streams_per_group": 1,
+  "outstanding_per_stream": 4,
+  "completed_operations": 66427,
+  "measured_ns": 8002369700,
+  "configured_total_outstanding": 16,
+  "max_observed_total_outstanding": 16,
+  "operations_per_second": 8300.916164870514,
+  "aggregate_application_gbps": 2.176035367123816,
+  "p50_latency_ns": 1620500.0,
+  "p95_latency_ns": 5810700,
+  "p99_latency_ns": 8485500,
+  "per_group": [
+    {
+      "ordinal": 0,
+      "completed_operations": 12992,
+      "measured_ns": 8002369700,
+      "gbps": 0.42559578920728947,
+      "p99_latency_ns": 8485500
+    },
+    {
+      "ordinal": 1,
+      "completed_operations": 14632,
+      "measured_ns": 8000976200,
+      "gbps": 0.47940287686395067,
+      "p99_latency_ns": 7883000
+    },
+    {
+      "ordinal": 2,
+      "completed_operations": 18376,
+      "measured_ns": 8002191000,
+      "gbps": 0.6019799007546809,
+      "p99_latency_ns": 6846500
+    },
+    {
+      "ordinal": 3,
+      "completed_operations": 20427,
+      "measured_ns": 8001152700,
+      "gbps": 0.6692555046474741,
+      "p99_latency_ns": 5419000
+    }
+  ],
+  "schema": "nbsr-max-throughput-v2-stage4-repeat-v1",
+  "path": "direct",
+  "repeat": 2,
+  "endpoint_groups": 4,
+  "runtime_workers": 1,
+  "errors": 0,
+  "timeouts": 0,
+  "valid": true,
+  "cleanup_pass": true,
+  "cleanup_diagnostic": null,
+  "resources": {
+    "runtime_workers": 1,
+    "roles": {
+      "source": {
+        "cpu_ns": 14406250000,
+        "effective_cores": 1.8002479940410654,
+        "effective_cores_per_runtime_worker": 1.8002479940410654,
+        "peak_thread_count": 8,
+        "peak_working_set_bytes": 11837440,
+        "peak_private_bytes": 5820416
+      },
+      "destination_0": {
+        "cpu_ns": 2828125000,
+        "effective_cores": 0.3534109402618577,
+        "effective_cores_per_runtime_worker": 0.3534109402618577,
+        "peak_thread_count": 5,
+        "peak_working_set_bytes": 8458240,
+        "peak_private_bytes": 1921024
+      },
+      "destination_1": {
+        "cpu_ns": 4812500000,
+        "effective_cores": 0.6013843624345424,
+        "effective_cores_per_runtime_worker": 0.6013843624345424,
+        "peak_thread_count": 5,
+        "peak_working_set_bytes": 8474624,
+        "peak_private_bytes": 1945600
+      },
+      "destination_2": {
+        "cpu_ns": 3375000000,
+        "effective_cores": 0.4217500723566921,
+        "effective_cores_per_runtime_worker": 0.4217500723566921,
+        "peak_thread_count": 5,
+        "peak_working_set_bytes": 8445952,
+        "peak_private_bytes": 1904640
+      },
+      "destination_3": {
+        "cpu_ns": 4296875000,
+        "effective_cores": 0.53695032360227,
+        "effective_cores_per_runtime_worker": 0.53695032360227,
+        "peak_thread_count": 5,
+        "peak_working_set_bytes": 8441856,
+        "peak_private_bytes": 1908736
+      }
+    },
+    "total_cpu_ns": 29718750000,
+    "cpu_ns_per_completed_operation": 447389.61566832766
+  },
+  "affinity": {
+    "endpoint_masks": [
+      "0x1",
+      "0x4",
+      "0x10",
+      "0x40"
+    ],
+    "server": [
+      {
+        "requested_mask": 1,
+        "observed_mask": 1,
+        "system_mask": 255,
+        "verified": true
+      },
+      {
+        "requested_mask": 4,
+        "observed_mask": 4,
+        "system_mask": 255,
+        "verified": true
+      },
+      {
+        "requested_mask": 16,
+        "observed_mask": 16,
+        "system_mask": 255,
+        "verified": true
+      },
+      {
+        "requested_mask": 64,
+        "observed_mask": 64,
+        "system_mask": 255,
+        "verified": true
+      }
+    ],
+    "source_process_mask": "0x55",
+    "source": {
+      "requested_mask": 85,
+      "observed_mask": 85,
+      "system_mask": 255,
+      "verified": true
+    },
+    "source_group_thread_masks_enforced": false,
+    "placement": "each destination endpoint process pinned to a distinct verified physical-core representative; source process constrained to 0x55"
+  }
+}

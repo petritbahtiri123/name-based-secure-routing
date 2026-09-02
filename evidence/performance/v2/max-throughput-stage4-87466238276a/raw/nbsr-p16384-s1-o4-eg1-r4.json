@@ -1,0 +1,79 @@
+{
+  "groups": 1,
+  "payload_bytes": 16384,
+  "streams_per_group": 1,
+  "outstanding_per_stream": 4,
+  "completed_operations": 54873,
+  "measured_ns": 8000480100,
+  "configured_total_outstanding": 4,
+  "max_observed_total_outstanding": 4,
+  "operations_per_second": 6858.713391462594,
+  "aggregate_application_gbps": 1.7979705632915701,
+  "p50_latency_ns": 504300,
+  "p95_latency_ns": 923700,
+  "p99_latency_ns": 1624000,
+  "per_group": [
+    {
+      "ordinal": 0,
+      "completed_operations": 54873,
+      "measured_ns": 8000480100,
+      "gbps": 1.7979705632915701,
+      "p99_latency_ns": 1624000
+    }
+  ],
+  "schema": "nbsr-max-throughput-v2-stage4-repeat-v1",
+  "path": "nbsr",
+  "repeat": 4,
+  "endpoint_groups": 1,
+  "runtime_workers": 1,
+  "errors": 0,
+  "timeouts": 0,
+  "valid": true,
+  "cleanup_pass": true,
+  "cleanup_diagnostic": null,
+  "resources": {
+    "runtime_workers": 1,
+    "roles": {
+      "source": {
+        "cpu_ns": 7234375000,
+        "effective_cores": 0.9042426091404189,
+        "effective_cores_per_runtime_worker": 0.9042426091404189,
+        "peak_thread_count": 4,
+        "peak_working_set_bytes": 9420800,
+        "peak_private_bytes": 2818048
+      },
+      "destination_0": {
+        "cpu_ns": 7250000000,
+        "effective_cores": 0.9061956169355385,
+        "effective_cores_per_runtime_worker": 0.9061956169355385,
+        "peak_thread_count": 3,
+        "peak_working_set_bytes": 8712192,
+        "peak_private_bytes": 1945600
+      }
+    },
+    "total_cpu_ns": 14484375000,
+    "cpu_ns_per_completed_operation": 263961.78448417253
+  },
+  "affinity": {
+    "endpoint_masks": [
+      "0x1"
+    ],
+    "server": [
+      {
+        "requested_mask": 1,
+        "observed_mask": 1,
+        "system_mask": 255,
+        "verified": true
+      }
+    ],
+    "source_process_mask": "0x55",
+    "source": {
+      "requested_mask": 85,
+      "observed_mask": 85,
+      "system_mask": 255,
+      "verified": true
+    },
+    "source_group_thread_masks_enforced": false,
+    "placement": "each destination endpoint process pinned to a distinct verified physical-core representative; source process constrained to 0x55"
+  }
+}

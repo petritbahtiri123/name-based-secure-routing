@@ -4,7 +4,8 @@ use std::time::Instant;
 
 use nbsr_transport::p2a_benchmark::{
     FrameError, OutstandingTracker, decode_frame, decode_measured_frame, encode_frame,
-    encode_measured_frame, parse_group_count, parse_runtime_workers, run_current_thread_groups,
+    encode_measured_frame, parse_group_count, parse_group_endpoints, parse_runtime_workers,
+    run_current_thread_groups,
 };
 
 #[test]
@@ -102,6 +103,38 @@ fn group_count_defaults_to_one_and_accepts_only_scaling_cells() {
         );
     }
     assert!(parse_group_count(["bench", "--p2a-groups", "3"]).is_err());
+}
+
+#[test]
+fn group_endpoints_require_one_nonempty_endpoint_per_group() {
+    assert_eq!(parse_group_endpoints(["bench"], 2), Ok(None));
+    assert_eq!(
+        parse_group_endpoints(
+            [
+                "bench",
+                "--p2a-endpoints",
+                "127.0.0.1:41001,127.0.0.1:41002"
+            ],
+            2,
+        ),
+        Ok(Some(vec![
+            "127.0.0.1:41001".to_owned(),
+            "127.0.0.1:41002".to_owned(),
+        ]))
+    );
+    assert!(parse_group_endpoints(["bench", "--p2a-endpoints", "127.0.0.1:41001"], 2).is_err());
+    assert!(parse_group_endpoints(["bench", "--p2a-endpoints", ","], 2).is_err());
+    assert!(
+        parse_group_endpoints(
+            [
+                "bench",
+                "--p2a-endpoints",
+                "127.0.0.1:41001,,127.0.0.1:41002"
+            ],
+            2,
+        )
+        .is_err()
+    );
 }
 
 #[test]

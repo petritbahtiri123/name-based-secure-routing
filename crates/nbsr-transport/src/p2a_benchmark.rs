@@ -70,6 +70,36 @@ where
     Ok(1)
 }
 
+pub fn parse_group_endpoints<I, S>(
+    arguments: I,
+    groups: usize,
+) -> Result<Option<Vec<String>>, RuntimeWorkerError>
+where
+    I: IntoIterator<Item = S>,
+    S: AsRef<str>,
+{
+    let mut arguments = arguments.into_iter();
+    while let Some(argument) = arguments.next() {
+        if argument.as_ref() == "--p2a-endpoints" {
+            let value = arguments.next().ok_or(RuntimeWorkerError::MissingValue)?;
+            let endpoints = value
+                .as_ref()
+                .split(',')
+                .map(str::trim)
+                .map(str::to_owned)
+                .collect::<Vec<_>>();
+            return if endpoints.len() == groups
+                && endpoints.iter().all(|endpoint| !endpoint.is_empty())
+            {
+                Ok(Some(endpoints))
+            } else {
+                Err(RuntimeWorkerError::InvalidValue)
+            };
+        }
+    }
+    Ok(None)
+}
+
 pub fn run_current_thread_groups<F, Fut, T>(
     groups: usize,
     operation: F,
