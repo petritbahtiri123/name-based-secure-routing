@@ -1,0 +1,176 @@
+{
+  "groups": 2,
+  "payload_bytes": 16384,
+  "streams_per_group": 1,
+  "outstanding_per_stream": 4,
+  "completed_operations": 216363,
+  "measured_ns": 20000986300,
+  "configured_total_outstanding": 8,
+  "max_observed_total_outstanding": 8,
+  "operations_per_second": 10817.61652924086,
+  "aggregate_application_gbps": 2.8357732674413163,
+  "p50_latency_ns": 652400.0,
+  "p95_latency_ns": 1133300,
+  "p99_latency_ns": 1334400,
+  "per_group": [
+    {
+      "ordinal": 0,
+      "completed_operations": 108311,
+      "measured_ns": 20000931800,
+      "gbps": 1.4195878006043698,
+      "p99_latency_ns": 1320600
+    },
+    {
+      "ordinal": 1,
+      "completed_operations": 108052,
+      "measured_ns": 20000986300,
+      "gbps": 1.4161893350229433,
+      "p99_latency_ns": 1334400
+    }
+  ],
+  "schema": "nbsr-max-throughput-v2-stage6-repeat-v1",
+  "path": "nbsr",
+  "repeat": 5,
+  "endpoint_groups": 2,
+  "runtime_workers": 1,
+  "errors": 0,
+  "timeouts": 0,
+  "valid": true,
+  "cleanup_pass": true,
+  "cleanup_diagnostic": {
+    "event": "diagnostic",
+    "schema": "nbsr-rust-ownership-v1",
+    "timestamp_ns": 0,
+    "phase": "group_cleanup",
+    "transport_sessions_created": 0,
+    "transport_sessions_completed": 0,
+    "transport_sessions_failed_or_cancelled": 0,
+    "transport_sessions_current_live": 0,
+    "transport_sessions_high_water_live": 0,
+    "service_channels_created": 0,
+    "service_channels_completed": 0,
+    "service_channels_failed_or_cancelled": 0,
+    "service_channels_current_live": 0,
+    "service_channels_high_water_live": 0,
+    "application_streams_created": 2,
+    "application_streams_completed": 0,
+    "application_streams_failed_or_cancelled": 2,
+    "application_streams_current_live": 0,
+    "application_streams_high_water_live": 2,
+    "nbsr_tasks_created": 0,
+    "nbsr_tasks_completed": 0,
+    "nbsr_tasks_failed_or_cancelled": 0,
+    "nbsr_tasks_current_live": 0,
+    "nbsr_tasks_high_water_live": 0,
+    "quic_connections_created": 0,
+    "quic_connections_completed": 0,
+    "quic_connections_failed_or_cancelled": 0,
+    "quic_connections_current_live": 0,
+    "quic_connections_high_water_live": 0,
+    "quic_streams_created": 2,
+    "quic_streams_completed": 2,
+    "quic_streams_failed_or_cancelled": 0,
+    "quic_streams_current_live": 0,
+    "quic_streams_high_water_live": 2,
+    "pending_routes_inserts": 0,
+    "pending_routes_removals": 0,
+    "pending_routes_current_entries": 0,
+    "pending_routes_high_water_entries": 0,
+    "pending_routes_retained_capacity": 0,
+    "pending_routes_high_water_retained_capacity": 3,
+    "channel_registry_inserts": 1,
+    "channel_registry_removals": 1,
+    "channel_registry_current_entries": 0,
+    "channel_registry_high_water_entries": 1,
+    "channel_registry_retained_capacity": 0,
+    "channel_registry_high_water_retained_capacity": 6,
+    "stream_registry_inserts": 1,
+    "stream_registry_removals": 1,
+    "stream_registry_current_entries": 0,
+    "stream_registry_high_water_entries": 1,
+    "stream_registry_retained_capacity": 0,
+    "stream_registry_high_water_retained_capacity": 6,
+    "audit_queue_inserts": 7,
+    "audit_queue_removals": 7,
+    "audit_queue_current_entries": 0,
+    "audit_queue_high_water_entries": 5,
+    "audit_queue_retained_capacity": 0,
+    "audit_queue_high_water_retained_capacity": 1024,
+    "replay_state_inserts": 1,
+    "replay_state_removals": 1,
+    "replay_state_current_entries": 0,
+    "replay_state_high_water_entries": 1,
+    "replay_state_retained_capacity": 0,
+    "replay_state_high_water_retained_capacity": 3
+  },
+  "resources": {
+    "runtime_workers": 1,
+    "roles": {
+      "source": {
+        "cpu_ns": 38640625000,
+        "effective_cores": 1.9319359765773152,
+        "effective_cores_per_runtime_worker": 1.9319359765773152,
+        "peak_thread_count": 6,
+        "peak_working_set_bytes": 12165120,
+        "peak_private_bytes": 6123520
+      },
+      "destination_0": {
+        "cpu_ns": 18984375000,
+        "effective_cores": 0.9491719415857007,
+        "effective_cores_per_runtime_worker": 0.9491719415857007,
+        "peak_thread_count": 4,
+        "peak_working_set_bytes": 8736768,
+        "peak_private_bytes": 1994752
+      },
+      "destination_1": {
+        "cpu_ns": 19343750000,
+        "effective_cores": 0.9671398055004917,
+        "effective_cores_per_runtime_worker": 0.9671398055004917,
+        "peak_thread_count": 4,
+        "peak_working_set_bytes": 8769536,
+        "peak_private_bytes": 2023424
+      }
+    },
+    "total_cpu_ns": 76968750000,
+    "cpu_ns_per_completed_operation": 355738.9664591451
+  },
+  "affinity": {
+    "endpoint_masks": [
+      "0x3",
+      "0xc"
+    ],
+    "server": [
+      {
+        "requested_mask": 3,
+        "observed_mask": 3,
+        "system_mask": 255,
+        "verified": true
+      },
+      {
+        "requested_mask": 12,
+        "observed_mask": 12,
+        "system_mask": 255,
+        "verified": true
+      }
+    ],
+    "source_process_mask": "0xff",
+    "source": {
+      "requested_mask": 255,
+      "observed_mask": 255,
+      "system_mask": 255,
+      "verified": true
+    },
+    "logical_processors_available": 8,
+    "source_group_thread_masks_enforced": false,
+    "placement": "destination endpoint masks [0x3, 0xc]; source process mask 0xff; source group-thread placement not verified"
+  },
+  "affinity_mode": "smt",
+  "host_counters": {
+    "status": "MEASURED",
+    "sample_count": 24,
+    "processor_utility_percent_median": 71.8726537589107,
+    "processor_performance_percent_median": 126.27017857127873,
+    "processor_frequency_mhz_median": 2101.0,
+    "thermal_temperature": "UNAVAILABLE: ACPI thermal zone not exposed on host"
+  }
+}

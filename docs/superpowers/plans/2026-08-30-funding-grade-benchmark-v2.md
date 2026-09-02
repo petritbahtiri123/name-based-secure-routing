@@ -166,6 +166,8 @@ Each stage writes `evidence/performance/v2/{stage}-{start_sha_12}/`, where both 
 
 **Task 3 Stage 5 status:** PASS / CPU-HOST-LIMITED FOR THIS BENCHMARK TOPOLOGY. Five-repeat comparison of `0x55` and full-host `0xFF` found the best repeatable NBSR median at 3.040 Gbit/s with four SMT-enabled endpoint groups (CV 3.64%, 7.001 effective cores, p99 6.428 ms). This is only 0.98% above the best current-run `0x55` median, so SMT did not provide a material ceiling increase. The cell is SATURATED rather than strict-stable because p99 rose approximately fourfold; strict-stable NBSR throughput remains not established. The claim is limited to this Windows laptop/loopback endpoint-per-group topology. See `evidence/performance/v2/max-throughput-stage5-5a9477d623dc/`.
 
+**Task 3 Stage 6 status:** PASS / STRICT-STABLE CEILING ESTABLISHED. Longer 20-second windows with five repeats per cell established 2.185 Gbit/s as the highest strict-stable NBSR median (`0xFF`, one endpoint group, CV 2.96%, p99 0.864 ms, 1.934 effective cores). The higher 2.942 Gbit/s `0x55` two-group median was repeatable but not strict-stable because p99 was 1.856x its lowest-load baseline. All 20 runs were valid with zero errors/timeouts, full configured outstanding depth, and successful cleanup. See `evidence/performance/v2/max-throughput-stage6-31f927f8681c/`.
+
 ### Task 4: B4b-v2 mixed multi-client/connection/route scaling
 
 **Current result:** Evidence PASS / System SATURATED. Clients 1–8 were STABLE, 16–64 DEGRADED, and 128 SATURATED. At 128 clients: 0.271 Gbit/s, 22.22 admissions/s, 71 pending clients, 1,032 failures, and 258 timeouts.

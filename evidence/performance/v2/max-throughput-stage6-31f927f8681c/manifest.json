@@ -1,0 +1,203 @@
+{
+  "schema": "nbsr-max-throughput-v2-stage6-v1",
+  "git_sha": "31f927f8681cd4e29452236c75574c91bc8be993",
+  "branch": "codex/nbsr-v3-wp0-wp1",
+  "timestamp_utc": "2026-09-02T20:42:52Z",
+  "command": [
+    "C:\\Users\\bajra\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+    "scripts/run_max_throughput_v2_stage6.py",
+    "--output",
+    "evidence\\performance\\v2\\max-throughput-stage6-31f927f8681c",
+    "--warmup-seconds",
+    "3",
+    "--duration-seconds",
+    "20",
+    "--initial-repeats",
+    "5",
+    "--maximum-repeats",
+    "10"
+  ],
+  "warmup_seconds": 3.0,
+  "duration_seconds": 20.0,
+  "processor_topology": {
+    "verified": true,
+    "scope": "physical-core-selected-logical-processors",
+    "physical_cores": 4,
+    "logical_processors": 8,
+    "cores": [
+      {
+        "core_index": 0,
+        "smt": true,
+        "efficiency_class": 0,
+        "logical_mask": 3
+      },
+      {
+        "core_index": 1,
+        "smt": true,
+        "efficiency_class": 0,
+        "logical_mask": 12
+      },
+      {
+        "core_index": 2,
+        "smt": true,
+        "efficiency_class": 0,
+        "logical_mask": 48
+      },
+      {
+        "core_index": 3,
+        "smt": true,
+        "efficiency_class": 0,
+        "logical_mask": 192
+      }
+    ],
+    "affinity_masks": {
+      "1": {
+        "decimal": 1,
+        "hex": "0x1"
+      },
+      "2": {
+        "decimal": 5,
+        "hex": "0x5"
+      },
+      "4": {
+        "decimal": 85,
+        "hex": "0x55"
+      }
+    }
+  },
+  "cells": [
+    {
+      "affinity_mode": "physical",
+      "path": "nbsr",
+      "endpoint_groups": 1,
+      "repeat_count": 5,
+      "median_gbps": 2.143603610142962,
+      "max_gbps": 2.1966710179697246,
+      "throughput_cv": 0.024829119249918055,
+      "median_ops_per_second": 8177.1988301962365,
+      "median_effective_cores": 1.9553847760007947,
+      "median_p50_latency_ns": 460300,
+      "median_p95_latency_ns": 661800,
+      "median_p99_latency_ns": 915500,
+      "peak_working_set_bytes": 23343104,
+      "achieved_offered_ratio": 1.0,
+      "backlog_drained": true,
+      "errors": 0,
+      "timeouts": 0,
+      "valid": true,
+      "cleanup_pass": true,
+      "host_counters": {
+        "processor_utility_percent_median": 48.59654233121721,
+        "processor_performance_percent_median": 159.06179700442829,
+        "processor_frequency_mhz_median": 2101.0
+      },
+      "strict_stable": true,
+      "p99_ratio_to_lowest_load": 1.0
+    },
+    {
+      "affinity_mode": "physical",
+      "path": "nbsr",
+      "endpoint_groups": 2,
+      "repeat_count": 5,
+      "median_gbps": 2.942202042040476,
+      "max_gbps": 2.956134869958883,
+      "throughput_cv": 0.03475149119730883,
+      "median_ops_per_second": 11223.610084688095,
+      "median_effective_cores": 3.623214780987413,
+      "median_p50_latency_ns": 625850,
+      "median_p95_latency_ns": 1052500,
+      "median_p99_latency_ns": 1699200,
+      "peak_working_set_bytes": 31346688,
+      "achieved_offered_ratio": 1.0,
+      "backlog_drained": true,
+      "errors": 0,
+      "timeouts": 0,
+      "valid": true,
+      "cleanup_pass": true,
+      "host_counters": {
+        "processor_utility_percent_median": 67.74044223900185,
+        "processor_performance_percent_median": 125.98036666887273,
+        "processor_frequency_mhz_median": 2101.0
+      },
+      "strict_stable": false,
+      "p99_ratio_to_lowest_load": 1.8560349535772802
+    },
+    {
+      "affinity_mode": "smt",
+      "path": "nbsr",
+      "endpoint_groups": 1,
+      "repeat_count": 5,
+      "median_gbps": 2.1853521064002583,
+      "max_gbps": 2.197382592473321,
+      "throughput_cv": 0.029567916205282964,
+      "median_ops_per_second": 8336.4567047129,
+      "median_effective_cores": 1.9335141278882135,
+      "median_p50_latency_ns": 457400,
+      "median_p95_latency_ns": 699300,
+      "median_p99_latency_ns": 863900,
+      "peak_working_set_bytes": 20312064,
+      "achieved_offered_ratio": 1.0,
+      "backlog_drained": true,
+      "errors": 0,
+      "timeouts": 0,
+      "valid": true,
+      "cleanup_pass": true,
+      "host_counters": {
+        "processor_utility_percent_median": 48.959528553234456,
+        "processor_performance_percent_median": 160.45178896536265,
+        "processor_frequency_mhz_median": 2101.0
+      },
+      "strict_stable": true,
+      "p99_ratio_to_lowest_load": 1.0
+    },
+    {
+      "affinity_mode": "smt",
+      "path": "nbsr",
+      "endpoint_groups": 2,
+      "repeat_count": 5,
+      "median_gbps": 2.7746389186822227,
+      "max_gbps": 2.8357732674413163,
+      "throughput_cv": 0.023079171062115603,
+      "median_ops_per_second": 10584.407496193782,
+      "median_effective_cores": 3.9028913924357056,
+      "median_p50_latency_ns": 661150,
+      "median_p95_latency_ns": 1133900,
+      "median_p99_latency_ns": 1334400,
+      "peak_working_set_bytes": 31399936,
+      "achieved_offered_ratio": 1.0,
+      "backlog_drained": true,
+      "errors": 0,
+      "timeouts": 0,
+      "valid": true,
+      "cleanup_pass": true,
+      "host_counters": {
+        "processor_utility_percent_median": 71.91873873019118,
+        "processor_performance_percent_median": 126.95621155772002,
+        "processor_frequency_mhz_median": 2101.0
+      },
+      "strict_stable": false,
+      "p99_ratio_to_lowest_load": 1.544623220280125
+    }
+  ],
+  "highest_single_nbsr_gbps": 2.956134869958883,
+  "highest_repeatable_nbsr_gbps": 2.942202042040476,
+  "highest_strict_stable_nbsr_gbps": 2.1853521064002583,
+  "all_valid": true,
+  "all_cleanup_pass": true,
+  "errors": 0,
+  "timeouts": 0,
+  "binaries": {
+    "direct": {
+      "path": "C:\\NBSR-build\\max-throughput-v2-stage6\\release\\perf_direct_peer.exe",
+      "sha256": "0443dad21d1651dcf5e27b8b27d16db4736b62614f4eb96db578dee3d3b9cc22"
+    },
+    "nbsr": {
+      "path": "C:\\NBSR-build\\max-throughput-v2-stage6\\release\\perf_rust_source.exe",
+      "sha256": "0b3ee73ce2bce5c71cd816041699828a7f1545d79571699c581fc78e4bccf0bc"
+    },
+    "server": {
+      "path": "C:\\NBSR-build\\max-throughput-v2-stage6\\release\\wp8_interop_server.exe",
+      "sha256": "4045b1d10f2a045869bc6d59f33ab163c2ada49361b3bfa15b54832b99f1357d"
+    }
+  }
+}

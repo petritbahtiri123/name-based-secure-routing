@@ -1,0 +1,52 @@
+{
+  "schema": "nbsr-max-throughput-v2-stage6-analysis-v1",
+  "classification": {
+    "evidence": "PASS",
+    "system": "STRICT_STABLE_CEILING_ESTABLISHED"
+  },
+  "funding_grade_stability_rule": "errors/timeouts zero; cleanup passes; p99 no more than 1.25x the lowest-load p99 for the same affinity mode; achieved/offered at least 0.95; backlog bounded and drained; repeat CV no more than 0.05",
+  "achieved_offered_definition": "This is a closed-loop workload. Achieved/offered is the maximum observed outstanding depth divided by configured outstanding depth, capped at 1.0; zero errors and successful cleanup separately prove completion and drain behavior.",
+  "highest_single_stage6_nbsr_gbps": 2.956134869958883,
+  "highest_repeatable_stage6_nbsr_gbps": 2.942202042040476,
+  "highest_strict_stable_stage6_nbsr_gbps": 2.1853521064002583,
+  "strict_stable_cell": {
+    "affinity_mask": "0xFF",
+    "endpoint_groups": 1,
+    "payload_bytes": 16384,
+    "streams_per_group": 1,
+    "outstanding_per_stream": 4,
+    "runtime_workers": 1,
+    "repeat_count": 5,
+    "measurement_seconds": 20,
+    "median_gbps": 2.1853521064002583,
+    "throughput_cv": 0.029567916205282964,
+    "effective_cores": 1.9335141278882135,
+    "p50_latency_ns": 457400,
+    "p95_latency_ns": 699300,
+    "p99_latency_ns": 863900,
+    "errors": 0,
+    "timeouts": 0,
+    "achieved_offered_ratio": 1.0,
+    "cleanup_pass": true,
+    "peak_working_set_bytes": 20312064
+  },
+  "highest_repeatable_cell": {
+    "affinity_mask": "0x55",
+    "endpoint_groups": 2,
+    "median_gbps": 2.942202042040476,
+    "throughput_cv": 0.03475149119730883,
+    "effective_cores": 3.623214780987413,
+    "p99_latency_ns": 1699200,
+    "p99_ratio_to_lowest_load": 1.8560349535772802,
+    "strict_stable": false,
+    "reason": "p99 exceeds 1.25x the 0x55 one-group lowest-load baseline"
+  },
+  "cell_classification": {
+    "physical_1_group": "STRICT_STABLE",
+    "physical_2_groups": "REPEATABLE_DEGRADED_LATENCY",
+    "smt_1_group": "STRICT_STABLE",
+    "smt_2_groups": "REPEATABLE_DEGRADED_LATENCY"
+  },
+  "repeat_extension": "No cell exceeded the 5 percent CV threshold after five longer-window repeats, so the approved extension to ten repeats was not triggered.",
+  "scope_limit": "The strict-stable ceiling applies only to this Windows laptop, loopback, 16 KiB, one-stream, outstanding-four, endpoint-per-group benchmark topology. It is not a WAN, NIC, server-class, or production deployment ceiling."
+}
