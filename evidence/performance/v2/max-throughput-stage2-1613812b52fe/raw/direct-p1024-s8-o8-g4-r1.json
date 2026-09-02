@@ -1,0 +1,95 @@
+{
+  "groups": 4,
+  "payload_bytes": 1024,
+  "streams_per_group": 8,
+  "outstanding_per_stream": 8,
+  "completed_operations": 355288,
+  "measured_ns": 3033969100,
+  "configured_total_outstanding": 256,
+  "max_observed_total_outstanding": 256,
+  "operations_per_second": 117103.36799409064,
+  "aggregate_application_gbps": 1.918621581215181,
+  "p50_latency_ns": 1737450.0,
+  "p95_latency_ns": 3493300,
+  "p99_latency_ns": 28365800,
+  "per_group": [
+    {
+      "ordinal": 0,
+      "completed_operations": 90175,
+      "measured_ns": 3002099800,
+      "gbps": 0.4921312742501099,
+      "p99_latency_ns": 5491100
+    },
+    {
+      "ordinal": 1,
+      "completed_operations": 86184,
+      "measured_ns": 3003248900,
+      "gbps": 0.4701703731582154,
+      "p99_latency_ns": 28365800
+    },
+    {
+      "ordinal": 2,
+      "completed_operations": 92365,
+      "measured_ns": 3003127400,
+      "gbps": 0.5039107431805924,
+      "p99_latency_ns": 4842700
+    },
+    {
+      "ordinal": 3,
+      "completed_operations": 86564,
+      "measured_ns": 3033969100,
+      "gbps": 0.46746177342412615,
+      "p99_latency_ns": 6548500
+    }
+  ],
+  "schema": "nbsr-p2a-stage2-repeat-v1",
+  "path": "direct",
+  "repeat": 1,
+  "runtime_workers": 1,
+  "errors": 0,
+  "timeouts": 0,
+  "valid": true,
+  "cleanup_pass": true,
+  "cleanup_diagnostic": null,
+  "resources": {
+    "runtime_workers": 1,
+    "roles": {
+      "source": {
+        "cpu_ns": 2656250000,
+        "effective_cores": 0.8755033134648603,
+        "effective_cores_per_runtime_worker": 0.8755033134648603,
+        "peak_thread_count": 8,
+        "peak_working_set_bytes": 16551936,
+        "peak_private_bytes": 9564160
+      },
+      "destination": {
+        "cpu_ns": 2546875000,
+        "effective_cores": 0.8394531770280719,
+        "effective_cores_per_runtime_worker": 0.8394531770280719,
+        "peak_thread_count": 9,
+        "peak_working_set_bytes": 10039296,
+        "peak_private_bytes": 3629056
+      }
+    },
+    "total_cpu_ns": 5203125000,
+    "cpu_ns_per_completed_operation": 14644.809281484317
+  },
+  "affinity": {
+    "process_mask": "0x55",
+    "server": {
+      "requested_mask": 85,
+      "observed_mask": 85,
+      "system_mask": 255,
+      "verified": true
+    },
+    "client": {
+      "requested_mask": 85,
+      "observed_mask": 85,
+      "system_mask": 255,
+      "verified": true
+    },
+    "group_thread_masks": null,
+    "group_thread_masks_enforced": false,
+    "group_placement": "process constrained to verified physical-core mask 0x55; per-thread placement not verified"
+  }
+}

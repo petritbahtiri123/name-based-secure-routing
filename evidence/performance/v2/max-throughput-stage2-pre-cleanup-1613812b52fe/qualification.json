@@ -1,0 +1,5 @@
+{
+  "status": "REJECTED_AS_AUTHORITATIVE",
+  "reason": "Per-group cleanup diagnostics observed concurrent peer groups and therefore could not prove process-level cleanup. This run also predates the dedicated destination application-runtime correction.",
+  "use": "Preserved only as diagnostic history; do not use for Stage 2 conclusions."
+}

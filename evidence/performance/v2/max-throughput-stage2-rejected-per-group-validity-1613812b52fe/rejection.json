@@ -1,0 +1,5 @@
+{
+  "status": "REJECTED_AS_AUTHORITATIVE",
+  "reason": "The single-group validity helper treated overlapping process-global lifecycle deltas as per-group failures. Process-level cleanup was clean, but nine aggregate records were incorrectly marked invalid.",
+  "resolution": "Stage 2 validity now checks correctness per group and lifecycle from the post-join process-level cleanup snapshot. The authoritative campaign was rerun without changing workload semantics."
+}

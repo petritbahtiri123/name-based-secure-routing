@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import os
+import subprocess
+import sys
 import time
 
 import pytest
@@ -103,6 +105,37 @@ def test_background_sampler_streams_each_resource_sample_before_shutdown() -> No
 
     assert len(streamed) >= 3
     assert streamed == records
+
+
+def test_background_sampler_preserves_samples_when_verified_process_exits_before_stop(monkeypatch) -> None:
+    import scripts.performance.resources as resources
+
+    process = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(1)"])
+    real_sample = resources.sample_windows_process
+    calls = 0
+
+    def exiting_sample(pid: int):
+        nonlocal calls
+        calls += 1
+        if calls > 1:
+            raise ProcessLookupError(pid)
+        return real_sample(pid)
+
+    monkeypatch.setattr(resources, "sample_windows_process", exiting_sample)
+    sampler = ProcessResourceSampler(
+        {"source": process.pid}, interval_seconds=0.01, assigned_logical_processors=1
+    )
+    sampler.start()
+    time.sleep(0.05)
+
+    try:
+        records = sampler.stop()
+    finally:
+        process.kill()
+        process.wait(timeout=5)
+
+    assert len(records) >= 1
+    assert {record.role for record in records} == {"source"}
 
 
 def memory_samples(values: tuple[int, ...], *, warmup_count: int = 2) -> list[MemorySample]:

@@ -4,7 +4,7 @@ use std::time::Instant;
 
 use nbsr_transport::p2a_benchmark::{
     FrameError, OutstandingTracker, decode_frame, decode_measured_frame, encode_frame,
-    encode_measured_frame, parse_runtime_workers,
+    encode_measured_frame, parse_group_count, parse_runtime_workers, run_current_thread_groups,
 };
 
 #[test]
@@ -90,4 +90,44 @@ fn runtime_workers_default_to_one_and_accept_only_scaling_cells() {
         Ok(4)
     );
     assert!(parse_runtime_workers(["bench", "--p2a-runtime-workers", "3"]).is_err());
+}
+
+#[test]
+fn group_count_defaults_to_one_and_accepts_only_scaling_cells() {
+    assert_eq!(parse_group_count(["bench"]), Ok(1));
+    for (value, expected) in [("1", 1), ("2", 2), ("4", 4)] {
+        assert_eq!(
+            parse_group_count(["bench", "--p2a-groups", value]),
+            Ok(expected)
+        );
+    }
+    assert!(parse_group_count(["bench", "--p2a-groups", "3"]).is_err());
+}
+
+#[test]
+fn groups_use_distinct_os_threads_and_current_thread_runtimes() {
+    let records = run_current_thread_groups(4, |ordinal, barrier| async move {
+        barrier.wait();
+        (
+            ordinal,
+            std::thread::current().id(),
+            tokio::runtime::Handle::current().runtime_flavor(),
+        )
+    })
+    .unwrap();
+
+    assert_eq!(
+        records.iter().map(|record| record.0).collect::<Vec<_>>(),
+        [0, 1, 2, 3]
+    );
+    let unique_threads = records
+        .iter()
+        .map(|record| record.1)
+        .collect::<std::collections::HashSet<_>>();
+    assert_eq!(unique_threads.len(), 4);
+    assert!(
+        records
+            .iter()
+            .all(|record| record.2 == tokio::runtime::RuntimeFlavor::CurrentThread)
+    );
 }

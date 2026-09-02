@@ -1,0 +1,80 @@
+{
+  "groups": 2,
+  "payload_bytes": 16384,
+  "streams_per_group": 4,
+  "outstanding_per_stream": 2,
+  "completed_operations": 22861,
+  "measured_ns": 3002078300,
+  "configured_total_outstanding": 16,
+  "max_observed_total_outstanding": 16,
+  "operations_per_second": 7615.057875072745,
+  "aggregate_application_gbps": 1.9962417316030698,
+  "p50_latency_ns": 2006450.0,
+  "p95_latency_ns": 3099000,
+  "p99_latency_ns": 3732400,
+  "per_group": [
+    {
+      "ordinal": 0,
+      "completed_operations": 11162,
+      "measured_ns": 3001262500,
+      "gbps": 0.9749401553512896,
+      "p99_latency_ns": 3732400
+    },
+    {
+      "ordinal": 1,
+      "completed_operations": 11699,
+      "measured_ns": 3002078300,
+      "gbps": 1.0215665114397583,
+      "p99_latency_ns": 3579600
+    }
+  ],
+  "schema": "nbsr-p2a-stage2-repeat-v1",
+  "path": "nbsr",
+  "repeat": 3,
+  "runtime_workers": 1,
+  "errors": 0,
+  "timeouts": 0,
+  "valid": true,
+  "cleanup_pass": true,
+  "resources": {
+    "runtime_workers": 1,
+    "roles": {
+      "source": {
+        "cpu_ns": 2562500000,
+        "effective_cores": 0.853575338124925,
+        "effective_cores_per_runtime_worker": 0.853575338124925,
+        "peak_thread_count": 6,
+        "peak_working_set_bytes": 10956800,
+        "peak_private_bytes": 4251648
+      },
+      "destination": {
+        "cpu_ns": 1984375000,
+        "effective_cores": 0.6610004142796675,
+        "effective_cores_per_runtime_worker": 0.6610004142796675,
+        "peak_thread_count": 4,
+        "peak_working_set_bytes": 9326592,
+        "peak_private_bytes": 2646016
+      }
+    },
+    "total_cpu_ns": 4546875000,
+    "cpu_ns_per_completed_operation": 198892.21818818073
+  },
+  "affinity": {
+    "process_mask": "0x55",
+    "server": {
+      "requested_mask": 85,
+      "observed_mask": 85,
+      "system_mask": 255,
+      "verified": true
+    },
+    "client": {
+      "requested_mask": 85,
+      "observed_mask": 85,
+      "system_mask": 255,
+      "verified": true
+    },
+    "group_thread_masks": null,
+    "group_thread_masks_enforced": false,
+    "group_placement": "process constrained to verified physical-core mask 0x55; per-thread placement not verified"
+  }
+}

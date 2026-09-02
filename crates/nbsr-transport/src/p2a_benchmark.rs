@@ -1,6 +1,8 @@
 //! Benchmark-only P2A application framing. Not an NBSR wire protocol.
 
 use std::collections::VecDeque;
+use std::future::Future;
+use std::sync::Arc;
 use std::time::Instant;
 
 use sha2::{Digest, Sha256};
@@ -48,6 +50,60 @@ where
         }
     }
     Ok(1)
+}
+
+pub fn parse_group_count<I, S>(arguments: I) -> Result<usize, RuntimeWorkerError>
+where
+    I: IntoIterator<Item = S>,
+    S: AsRef<str>,
+{
+    let mut arguments = arguments.into_iter();
+    while let Some(argument) = arguments.next() {
+        if argument.as_ref() == "--p2a-groups" {
+            let value = arguments.next().ok_or(RuntimeWorkerError::MissingValue)?;
+            return match value.as_ref().parse::<usize>() {
+                Ok(groups @ (1 | 2 | 4)) => Ok(groups),
+                _ => Err(RuntimeWorkerError::InvalidValue),
+            };
+        }
+    }
+    Ok(1)
+}
+
+pub fn run_current_thread_groups<F, Fut, T>(
+    groups: usize,
+    operation: F,
+) -> Result<Vec<T>, RuntimeWorkerError>
+where
+    F: Fn(usize, Arc<std::sync::Barrier>) -> Fut + Send + Sync + 'static,
+    Fut: Future<Output = T> + Send + 'static,
+    T: Send + 'static,
+{
+    if !matches!(groups, 1 | 2 | 4) {
+        return Err(RuntimeWorkerError::InvalidValue);
+    }
+    let operation = Arc::new(operation);
+    let measurement_barrier = Arc::new(std::sync::Barrier::new(groups));
+    let handles = (0..groups)
+        .map(|ordinal| {
+            let operation = Arc::clone(&operation);
+            let measurement_barrier = Arc::clone(&measurement_barrier);
+            std::thread::spawn(move || {
+                let value = build_benchmark_runtime(1)
+                    .unwrap()
+                    .block_on(operation(ordinal, measurement_barrier));
+                Ok(value)
+            })
+        })
+        .collect::<Vec<_>>();
+    handles
+        .into_iter()
+        .map(|handle| {
+            handle
+                .join()
+                .map_err(|_| RuntimeWorkerError::InvalidValue)?
+        })
+        .collect()
 }
 
 pub fn build_benchmark_runtime(

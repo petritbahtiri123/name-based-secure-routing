@@ -1,0 +1,7 @@
+{
+  "schema": "nbsr-benchmark-rejected-attempt-v1",
+  "status": "REJECTED",
+  "reason": "Source groups used distinct current-thread runtimes, but destination application handlers still shared one current-thread runtime. Results identified that serialization but did not satisfy the approved fair group-runtime topology.",
+  "benchmark_results_used": false,
+  "preserved_for_diagnostic_provenance": true
+}

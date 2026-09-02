@@ -158,6 +158,8 @@ Each stage writes `evidence/performance/v2/{stage}-{start_sha_12}/`, where both 
 
 **Task 3 current status:** PARTIAL / HARNESS-LIMITED: single-thread peer event loops. The single-channel matrix retained 574 valid repeats with zero errors, timeouts, or cleanup failures. It plateaued at about 1.3 effective cores across both peers, so no hardware ceiling is claimed. The current P2A harness lacks an in-process independently authorized multi-channel/connection-group mode; this must be added before Task 3 can establish the funding-grade stable ceiling.
 
+**Task 3 Stage 2 status:** PASS / HARNESS-LIMITED: shared destination QUIC endpoint driver runtime. The added in-process group mode uses one OS thread and current-thread runtime per independently authenticated connection and authorized channel on the source, plus dedicated destination application-handler runtimes. Across four near-best shapes, group counts 2 and 4 did not produce stable scaling: p99 crossed the strict saturation boundary at two groups and four-group throughput declined while source and destination each remained below one effective core. Matched Direct showed the same pattern. All destination connections retain one shared listener/QUIC endpoint driver runtime, which is the next harness serialization boundary requiring profiling or isolation. No production or host-hardware ceiling is claimed. See `evidence/performance/v2/max-throughput-stage2-1613812b52fe/`.
+
 ### Task 4: B4b-v2 mixed multi-client/connection/route scaling
 
 **Current result:** Evidence PASS / System SATURATED. Clients 1–8 were STABLE, 16–64 DEGRADED, and 128 SATURATED. At 128 clients: 0.271 Gbit/s, 22.22 admissions/s, 71 pending clients, 1,032 failures, and 258 timeouts.

@@ -1,0 +1,20 @@
+{
+  "schema": "nbsr-max-throughput-v2-stage2-manifest-v1",
+  "command": [
+    "C:\\Users\\bajra\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+    "scripts/run_max_throughput_v2_stage2.py",
+    "--output",
+    "evidence/performance/v2/max-throughput-stage2-1613812b52fe",
+    "--warmup-seconds",
+    "1",
+    "--duration-seconds",
+    "3",
+    "--repeats",
+    "3"
+  ],
+  "warmup_seconds": 1.0,
+  "duration_seconds": 3.0,
+  "minimum_repeats": 3,
+  "records": 96,
+  "cells": 24
+}

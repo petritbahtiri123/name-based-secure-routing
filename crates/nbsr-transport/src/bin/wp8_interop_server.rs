@@ -8,6 +8,8 @@ use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 #[cfg(feature = "benchmark-harness")]
 use std::sync::Arc;
+#[cfg(feature = "benchmark-harness")]
+use std::sync::Mutex;
 use std::sync::mpsc::{self, Receiver, Sender, TryRecvError};
 use std::thread::JoinHandle;
 use std::time::Duration;
@@ -2678,6 +2680,79 @@ async fn run_p2d_before(
 }
 
 #[cfg(feature = "benchmark-harness")]
+async fn run_p2a_group_connection(
+    connection: nbsr_transport::AuthenticatedConnection,
+    stream_count: u64,
+) -> u64 {
+    let mut control = connection.accept_control_stream().await.unwrap();
+    let admission_policy = policy();
+    let edge = edge_hello_for_policy(&admission_policy);
+    let mut session = ControlSession::new(
+        &connection,
+        DestinationAdmission::new_federated(admission_policy, authorities()).unwrap(),
+        vec![issuer()],
+        TrustProfileId::new("federation-dev-v1").unwrap(),
+    );
+    let client = control
+        .receive_envelope(CoreV02Limits::default())
+        .await
+        .unwrap();
+    session.accept_client_hello(&client).unwrap();
+    session.confirm_edge_hello(&edge).unwrap();
+    control.send_envelope(&edge).await.unwrap();
+    let route = control
+        .receive_envelope(CoreV02Limits::default())
+        .await
+        .unwrap();
+    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..");
+    let attestations = LocalFederationAdmissionAttestations {
+        source: fs::read(root.join("vectors/wp8-local-admission/source.cose")).unwrap(),
+        destination: fs::read(root.join("vectors/wp8-local-admission/destination.cose")).unwrap(),
+    };
+    let admitted = accept_configured_route(&mut session, &route, &attestations, None).unwrap();
+    let channel: [u8; 16] = (0x40..0x50).collect::<Vec<_>>().try_into().unwrap();
+    assert_eq!(admitted.channel_id, channel);
+    let accepted = route_accept();
+    session.confirm_route_accept(&accepted).unwrap();
+    control.send_envelope(&accepted).await.unwrap();
+    connection.bind_channel(&mut session, channel).unwrap();
+    for index in 0..stream_count {
+        let stream = control
+            .receive_envelope(CoreV02Limits::default())
+            .await
+            .unwrap();
+        session.authorize_stream_open(channel, &stream).unwrap();
+        let accepted = stream_accept(index);
+        session.confirm_stream_accept(channel, &accepted).unwrap();
+        control.send_envelope(&accepted).await.unwrap();
+    }
+    let mut tasks = tokio::task::JoinSet::new();
+    for _ in 0..stream_count {
+        let mut application = connection
+            .accept_session_stream(&mut session, channel)
+            .await
+            .unwrap();
+        tasks.spawn(async move {
+            let mut completed = 0_u64;
+            while let Ok(wire) = application.benchmark_read_frame().await {
+                if application.benchmark_write_frame(&wire).await.is_err() {
+                    break;
+                }
+                completed += 1;
+            }
+            completed
+        });
+    }
+    let mut echoed = 0_u64;
+    while let Some(joined) = tasks.join_next().await {
+        echoed += joined.unwrap();
+    }
+    drop(session);
+    connection.close().await.unwrap();
+    echoed
+}
+
+#[cfg(feature = "benchmark-harness")]
 async fn run_p2d_after(
     connection: nbsr_transport::AuthenticatedConnection,
     mut control: nbsr_transport::ControlStream,
@@ -2964,6 +3039,47 @@ async fn run() {
         })
         .await
         .expect("demo harness completion acknowledgement");
+        listener.close().await.unwrap();
+        return;
+    }
+    #[cfg(feature = "benchmark-harness")]
+    if let (Ok(stream_count), Ok(groups)) =
+        (env::var("NBSR_P2A_STREAMS"), env::var("NBSR_P2A_GROUPS"))
+    {
+        let stream_count = stream_count.parse::<u64>().unwrap();
+        let groups = groups.parse::<usize>().unwrap();
+        assert!((1..=64).contains(&stream_count));
+        assert!(matches!(groups, 2 | 4));
+        let mut connections = Vec::with_capacity(groups);
+        for _ in 0..groups {
+            connections.push(Some(listener.accept_one().await.unwrap()));
+        }
+        let connections = Arc::new(Mutex::new(connections));
+        let echoed = tokio::task::spawn_blocking(move || {
+            nbsr_transport::p2a_benchmark::run_current_thread_groups(groups, move |ordinal, _| {
+                let connection = connections.lock().unwrap()[ordinal].take().unwrap();
+                async move { run_p2a_group_connection(connection, stream_count).await }
+            })
+            .expect("independent NBSR destination groups")
+            .into_iter()
+            .sum::<u64>()
+        })
+        .await
+        .unwrap();
+        tokio::time::timeout(Duration::from_secs(30), async {
+            while !completion_ack.exists() {
+                tokio::time::sleep(Duration::from_millis(10)).await;
+            }
+        })
+        .await
+        .expect("P2A group completion acknowledgement");
+        fs::write(
+            result,
+            format!(
+                "{{\"status\":\"PASS\",\"groups\":{groups},\"streams_per_group\":{stream_count},\"echoed_frames\":{echoed}}}"
+            ),
+        )
+        .unwrap();
         listener.close().await.unwrap();
         return;
     }

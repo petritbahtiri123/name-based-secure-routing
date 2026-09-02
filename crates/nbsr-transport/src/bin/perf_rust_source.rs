@@ -13,7 +13,7 @@ use nbsr_transport::StreamCreditRefill;
 #[cfg(feature = "benchmark-harness")]
 use nbsr_transport::p2a_benchmark::{
     OutstandingTracker, build_benchmark_runtime, decode_frame, decode_measured_frame, encode_frame,
-    encode_measured_frame, parse_runtime_workers,
+    encode_measured_frame, parse_group_count, parse_runtime_workers, run_current_thread_groups,
 };
 use nbsr_transport::{
     AdmissionPolicy, AuthorizedServicePolicy, ControlSession, CoreV02Limits, DestinationAdmission,
@@ -937,7 +937,7 @@ async fn run_p2d_after(
         .unwrap();
 }
 
-async fn run() {
+async fn run(group_barrier: Option<Arc<std::sync::Barrier>>) {
     let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..");
     let authority = PathBuf::from(argument("--authority-dir"));
     let endpoint: SocketAddr = argument("--endpoint").parse().unwrap();
@@ -1260,6 +1260,9 @@ async fn run() {
             });
         }
         ready.wait().await;
+        if let Some(barrier) = group_barrier {
+            barrier.wait();
+        }
         b1_support::counter_phase(counter_control, "measurement-start").unwrap();
         let before = nbsr_transport::diagnostics::global().snapshot();
         let measured_started = Instant::now();
@@ -1619,15 +1622,22 @@ async fn run() {
 #[cfg(feature = "benchmark-harness")]
 fn main() {
     let workers = parse_runtime_workers(env::args()).expect("valid --p2a-runtime-workers");
+    let groups = parse_group_count(env::args()).expect("valid --p2a-groups");
+    if groups > 1 {
+        run_current_thread_groups(groups, |_, barrier| async { run(Some(barrier)).await })
+            .expect("independently authorized NBSR benchmark groups");
+        emit_diagnostic(0, "group_cleanup");
+        return;
+    }
     build_benchmark_runtime(workers)
         .expect("benchmark Tokio runtime")
-        .block_on(run());
+        .block_on(run(None));
 }
 
 #[cfg(not(feature = "benchmark-harness"))]
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
-    run().await;
+    run(None).await;
 }
 
 trait ReadBytes {

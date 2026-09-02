@@ -1,0 +1,73 @@
+{
+  "schema": "nbsr-max-throughput-v2-stage2-environment-v1",
+  "git_sha": "1613812b52fedd757242cff241a7005239ab9a32",
+  "branch": "codex/nbsr-v3-wp0-wp1",
+  "timestamp_utc": "2026-09-02T18:47:28Z",
+  "os": "Windows-11-10.0.26200-SP0",
+  "processor_topology": {
+    "verified": true,
+    "scope": "physical-core-selected-logical-processors",
+    "physical_cores": 4,
+    "logical_processors": 8,
+    "cores": [
+      {
+        "core_index": 0,
+        "smt": true,
+        "efficiency_class": 0,
+        "logical_mask": 3
+      },
+      {
+        "core_index": 1,
+        "smt": true,
+        "efficiency_class": 0,
+        "logical_mask": 12
+      },
+      {
+        "core_index": 2,
+        "smt": true,
+        "efficiency_class": 0,
+        "logical_mask": 48
+      },
+      {
+        "core_index": 3,
+        "smt": true,
+        "efficiency_class": 0,
+        "logical_mask": 192
+      }
+    ],
+    "affinity_masks": {
+      "1": {
+        "decimal": 1,
+        "hex": "0x1"
+      },
+      "2": {
+        "decimal": 5,
+        "hex": "0x5"
+      },
+      "4": {
+        "decimal": 85,
+        "hex": "0x55"
+      }
+    }
+  },
+  "process_affinity_mask": "0x55",
+  "group_thread_masks": null,
+  "group_thread_masks_enforced": false,
+  "runtime_workers": 1,
+  "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+  "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)",
+  "binaries": {
+    "direct": {
+      "path": "C:\\NBSR-build\\b2-v2-profile\\release\\perf_direct_peer.exe",
+      "sha256": "d06ebf55b41d82a6d4e59b1e8c28ed218055e19443139718ec018c06ebd883e5"
+    },
+    "nbsr": {
+      "path": "C:\\NBSR-build\\b2-v2-profile\\release\\perf_rust_source.exe",
+      "sha256": "f90baaebd3f8de77b403549f5027e840847e2f117f163efff970f3dd55bb5a20"
+    },
+    "server": {
+      "path": "C:\\NBSR-build\\b2-v2-profile\\release\\wp8_interop_server.exe",
+      "sha256": "8fe1ae6833143382a1fae874a3ad99fe9a40f91f82fe614090b95da3b733e080"
+    }
+  }
+}

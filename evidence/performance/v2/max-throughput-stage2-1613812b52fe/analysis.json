@@ -1,0 +1,2260 @@
+{
+  "schema": "nbsr-max-throughput-v2-stage2-analysis-v1",
+  "classification": {
+    "evidence": "PASS",
+    "system": "HARNESS-LIMITED:shared-destination-quic-endpoint-driver-runtime"
+  },
+  "cells": [
+    {
+      "path": "direct",
+      "payload_bytes": 1024,
+      "streams_per_group": 8,
+      "outstanding_per_stream": 8,
+      "groups": 1,
+      "repeat_count": 3,
+      "median_gbps": 2.004621422058838,
+      "throughput_cv": 0.005627042166090133,
+      "median_ops_per_second": 122352.38171745835,
+      "median_effective_cores": 1.4572551102772393,
+      "median_cpu_ns_per_op": 11934.671653313473,
+      "median_p50_latency_ns": 496100,
+      "median_p95_latency_ns": 692600,
+      "median_p99_latency_ns": 1032600,
+      "errors": 0,
+      "timeouts": 0,
+      "cleanup_pass": true,
+      "achieved_offered_ratio": 1.0,
+      "peak_working_set_bytes": 15147008,
+      "roles": {
+        "source": {
+          "median_effective_cores": 0.6658224925224805,
+          "median_peak_thread_count": 4
+        },
+        "destination": {
+          "median_effective_cores": 0.7910813455790727,
+          "median_peak_thread_count": 6
+        }
+      },
+      "per_group_median_gbps": [
+        2.004621422058838
+      ]
+    },
+    {
+      "path": "nbsr",
+      "payload_bytes": 1024,
+      "streams_per_group": 8,
+      "outstanding_per_stream": 8,
+      "groups": 1,
+      "repeat_count": 3,
+      "median_gbps": 2.102496777338295,
+      "throughput_cv": 0.02916276511612985,
+      "median_ops_per_second": 128326.2193199643,
+      "median_effective_cores": 1.3056098670765564,
+      "median_cpu_ns_per_op": 10174.083019220343,
+      "median_p50_latency_ns": 482600,
+      "median_p95_latency_ns": 636500,
+      "median_p99_latency_ns": 812300,
+      "errors": 0,
+      "timeouts": 0,
+      "cleanup_pass": true,
+      "achieved_offered_ratio": 1.0,
+      "peak_working_set_bytes": 15867904,
+      "roles": {
+        "source": {
+          "median_effective_cores": 0.6554016044697341,
+          "median_peak_thread_count": 4
+        },
+        "destination": {
+          "median_effective_cores": 0.6554057500065582,
+          "median_peak_thread_count": 4
+        }
+      },
+      "per_group_median_gbps": [
+        2.102496777338295
+      ]
+    },
+    {
+      "path": "direct",
+      "payload_bytes": 1024,
+      "streams_per_group": 8,
+      "outstanding_per_stream": 8,
+      "groups": 2,
+      "repeat_count": 3,
+      "median_gbps": 2.091079716684209,
+      "throughput_cv": 0.008326239999896668,
+      "median_ops_per_second": 127629.37723902643,
+      "median_effective_cores": 1.6231783069860695,
+      "median_cpu_ns_per_op": 12753.808920972526,
+      "median_p50_latency_ns": 947600.0,
+      "median_p95_latency_ns": 1493500,
+      "median_p99_latency_ns": 1935400,
+      "errors": 0,
+      "timeouts": 0,
+      "cleanup_pass": true,
+      "achieved_offered_ratio": 1.0,
+      "peak_working_set_bytes": 16318464,
+      "roles": {
+        "source": {
+          "median_effective_cores": 0.8532091100824212,
+          "median_peak_thread_count": 6
+        },
+        "destination": {
+          "median_effective_cores": 0.7699691969036484,
+          "median_peak_thread_count": 7
+        }
+      },
+      "per_group_median_gbps": [
+        1.0304290307049537,
+        1.0531100283155708
+      ]
+    },
+    {
+      "path": "nbsr",
+      "payload_bytes": 1024,
+      "streams_per_group": 8,
+      "outstanding_per_stream": 8,
+      "groups": 2,
+      "repeat_count": 3,
+      "median_gbps": 2.1255849614478026,
+      "throughput_cv": 0.003810698987540409,
+      "median_ops_per_second": 129735.41024461687,
+      "median_effective_cores": 1.7015648918694746,
+      "median_cpu_ns_per_op": 13109.465884278776,
+      "median_p50_latency_ns": 935250.0,
+      "median_p95_latency_ns": 1470600,
+      "median_p99_latency_ns": 1879800,
+      "errors": 0,
+      "timeouts": 0,
+      "cleanup_pass": true,
+      "achieved_offered_ratio": 1.0,
+      "peak_working_set_bytes": 15933440,
+      "roles": {
+        "source": {
+          "median_effective_cores": 0.8794020389172514,
+          "median_peak_thread_count": 6
+        },
+        "destination": {
+          "median_effective_cores": 0.8065461223160685,
+          "median_peak_thread_count": 7
+        }
+      },
+      "per_group_median_gbps": [
+        1.0689453211874447,
+        1.0576551246047539
+      ]
+    },
+    {
+      "path": "direct",
+      "payload_bytes": 1024,
+      "streams_per_group": 8,
+      "outstanding_per_stream": 8,
+      "groups": 4,
+      "repeat_count": 3,
+      "median_gbps": 1.8932893730361997,
+      "throughput_cv": 0.02931736668889737,
+      "median_ops_per_second": 115557.21270972899,
+      "median_effective_cores": 1.7149564904929322,
+      "median_cpu_ns_per_op": 14897.068904929516,
+      "median_p50_latency_ns": 1825150.0,
+      "median_p95_latency_ns": 3770300,
+      "median_p99_latency_ns": 29801100,
+      "errors": 0,
+      "timeouts": 0,
+      "cleanup_pass": true,
+      "achieved_offered_ratio": 1.0,
+      "peak_working_set_bytes": 17113088,
+      "roles": {
+        "source": {
+          "median_effective_cores": 0.8755033134648603,
+          "median_peak_thread_count": 8
+        },
+        "destination": {
+          "median_effective_cores": 0.8165251068010679,
+          "median_peak_thread_count": 9
+        }
+      },
+      "per_group_median_gbps": [
+        0.4334647663179449,
+        0.46602691561239545,
+        0.47589908929636726,
+        0.48195341621236665
+      ]
+    },
+    {
+      "path": "nbsr",
+      "payload_bytes": 1024,
+      "streams_per_group": 8,
+      "outstanding_per_stream": 8,
+      "groups": 4,
+      "repeat_count": 5,
+      "median_gbps": 1.5839582327812467,
+      "throughput_cv": 0.10778153921750962,
+      "median_ops_per_second": 96677.13823127726,
+      "median_effective_cores": 1.7266739825496586,
+      "median_cpu_ns_per_op": 18669.80979287758,
+      "median_p50_latency_ns": 2226950.0,
+      "median_p95_latency_ns": 4251200,
+      "median_p99_latency_ns": 29421700,
+      "errors": 0,
+      "timeouts": 0,
+      "cleanup_pass": true,
+      "achieved_offered_ratio": 1.0,
+      "peak_working_set_bytes": 19529728,
+      "roles": {
+        "source": {
+          "median_effective_cores": 0.9257468942585518,
+          "median_peak_thread_count": 8
+        },
+        "destination": {
+          "median_effective_cores": 0.8010046204110258,
+          "median_peak_thread_count": 9
+        }
+      },
+      "per_group_median_gbps": [
+        0.3986973005710797,
+        0.38722921403001576,
+        0.38656309662827093,
+        0.42234595736588204
+      ]
+    },
+    {
+      "path": "direct",
+      "payload_bytes": 1024,
+      "streams_per_group": 64,
+      "outstanding_per_stream": 4,
+      "groups": 1,
+      "repeat_count": 5,
+      "median_gbps": 1.4539727657317125,
+      "throughput_cv": 0.06431018487071036,
+      "median_ops_per_second": 88743.45493967972,
+      "median_effective_cores": 1.4353132046451762,
+      "median_cpu_ns_per_op": 16234.89275827663,
+      "median_p50_latency_ns": 2673000,
+      "median_p95_latency_ns": 4500200,
+      "median_p99_latency_ns": 6296400,
+      "errors": 0,
+      "timeouts": 0,
+      "cleanup_pass": true,
+      "achieved_offered_ratio": 1.0,
+      "peak_working_set_bytes": 13996032,
+      "roles": {
+        "source": {
+          "median_effective_cores": 0.6501536434768298,
+          "median_peak_thread_count": 4
+        },
+        "destination": {
+          "median_effective_cores": 0.7904623445871984,
+          "median_peak_thread_count": 6
+        }
+      },
+      "per_group_median_gbps": [
+        1.4539727657317125
+      ]
+    },
+    {
+      "path": "nbsr",
+      "payload_bytes": 1024,
+      "streams_per_group": 64,
+      "outstanding_per_stream": 4,
+      "groups": 1,
+      "repeat_count": 5,
+      "median_gbps": 2.1538380854545736,
+      "throughput_cv": 0.10727143123951972,
+      "median_ops_per_second": 131459.84408292075,
+      "median_effective_cores": 1.28960527562043,
+      "median_cpu_ns_per_op": 9887.953538101156,
+      "median_p50_latency_ns": 1923400,
+      "median_p95_latency_ns": 2528700,
+      "median_p99_latency_ns": 3141800,
+      "errors": 0,
+      "timeouts": 0,
+      "cleanup_pass": true,
+      "achieved_offered_ratio": 1.0,
+      "peak_working_set_bytes": 15802368,
+      "roles": {
+        "source": {
+          "median_effective_cores": 0.6656435946498097,
+          "median_peak_thread_count": 4
+        },
+        "destination": {
+          "median_effective_cores": 0.6188583457668042,
+          "median_peak_thread_count": 4
+        }
+      },
+      "per_group_median_gbps": [
+        2.1538380854545736
+      ]
+    },
+    {
+      "path": "direct",
+      "payload_bytes": 1024,
+      "streams_per_group": 64,
+      "outstanding_per_stream": 4,
+      "groups": 2,
+      "repeat_count": 3,
+      "median_gbps": 1.5113392910093872,
+      "throughput_cv": 0.010561161663735464,
+      "median_ops_per_second": 92244.82977352217,
+      "median_effective_cores": 1.6976706106839539,
+      "median_cpu_ns_per_op": 18400.326879019078,
+      "median_p50_latency_ns": 5281100.0,
+      "median_p95_latency_ns": 9550200,
+      "median_p99_latency_ns": 12854600,
+      "errors": 0,
+      "timeouts": 0,
+      "cleanup_pass": true,
+      "achieved_offered_ratio": 1.0,
+      "peak_working_set_bytes": 14852096,
+      "roles": {
+        "source": {
+          "median_effective_cores": 0.8728345266339055,
+          "median_peak_thread_count": 6
+        },
+        "destination": {
+          "median_effective_cores": 0.8098979060143633,
+          "median_peak_thread_count": 7
+        }
+      },
+      "per_group_median_gbps": [
+        0.6841168610742832,
+        0.8112283852912775
+      ]
+    },
+    {
+      "path": "nbsr",
+      "payload_bytes": 1024,
+      "streams_per_group": 64,
+      "outstanding_per_stream": 4,
+      "groups": 2,
+      "repeat_count": 3,
+      "median_gbps": 1.6018264741781256,
+      "throughput_cv": 0.02328013624969154,
+      "median_ops_per_second": 97767.72913684849,
+      "median_effective_cores": 1.7043713516891967,
+      "median_cpu_ns_per_op": 17432.862220861607,
+      "median_p50_latency_ns": 5024150.0,
+      "median_p95_latency_ns": 8651800,
+      "median_p99_latency_ns": 10444400,
+      "errors": 0,
+      "timeouts": 0,
+      "cleanup_pass": true,
+      "achieved_offered_ratio": 1.0,
+      "peak_working_set_bytes": 15499264,
+      "roles": {
+        "source": {
+          "median_effective_cores": 0.9042124777430697,
+          "median_peak_thread_count": 6
+        },
+        "destination": {
+          "median_effective_cores": 0.8313247419135712,
+          "median_peak_thread_count": 7
+        }
+      },
+      "per_group_median_gbps": [
+        0.8238827313124861,
+        0.7846345223760033
+      ]
+    },
+    {
+      "path": "direct",
+      "payload_bytes": 1024,
+      "streams_per_group": 64,
+      "outstanding_per_stream": 4,
+      "groups": 4,
+      "repeat_count": 5,
+      "median_gbps": 1.7207804178895096,
+      "throughput_cv": 0.1224214346444909,
+      "median_ops_per_second": 105028.10167782652,
+      "median_effective_cores": 1.6918981720933737,
+      "median_cpu_ns_per_op": 16109.00459082149,
+      "median_p50_latency_ns": 7467300.0,
+      "median_p95_latency_ns": 24926000,
+      "median_p99_latency_ns": 69034800,
+      "errors": 0,
+      "timeouts": 0,
+      "cleanup_pass": true,
+      "achieved_offered_ratio": 1.0,
+      "peak_working_set_bytes": 19615744,
+      "roles": {
+        "source": {
+          "median_effective_cores": 0.8845181933132531,
+          "median_peak_thread_count": 8
+        },
+        "destination": {
+          "median_effective_cores": 0.8073799787801206,
+          "median_peak_thread_count": 9
+        }
+      },
+      "per_group_median_gbps": [
+        0.33373823455407764,
+        0.47404800865446983,
+        0.485669790069126,
+        0.40196361556301174
+      ]
+    },
+    {
+      "path": "nbsr",
+      "payload_bytes": 1024,
+      "streams_per_group": 64,
+      "outstanding_per_stream": 4,
+      "groups": 4,
+      "repeat_count": 5,
+      "median_gbps": 1.3831097497886373,
+      "throughput_cv": 0.15736289125626743,
+      "median_ops_per_second": 84418.31968924789,
+      "median_effective_cores": 1.7162123803757454,
+      "median_cpu_ns_per_op": 20288.85277501099,
+      "median_p50_latency_ns": 10675600.0,
+      "median_p95_latency_ns": 21803300,
+      "median_p99_latency_ns": 70049300,
+      "errors": 0,
+      "timeouts": 0,
+      "cleanup_pass": true,
+      "achieved_offered_ratio": 1.0,
+      "peak_working_set_bytes": 20348928,
+      "roles": {
+        "source": {
+          "median_effective_cores": 0.9332876992979885,
+          "median_peak_thread_count": 8
+        },
+        "destination": {
+          "median_effective_cores": 0.7929431122834314,
+          "median_peak_thread_count": 9
+        }
+      },
+      "per_group_median_gbps": [
+        0.38349771843410824,
+        0.32742303067967604,
+        0.35394305748799715,
+        0.3569132582060454
+      ]
+    },
+    {
+      "path": "direct",
+      "payload_bytes": 16384,
+      "streams_per_group": 4,
+      "outstanding_per_stream": 2,
+      "groups": 1,
+      "repeat_count": 3,
+      "median_gbps": 1.9122338505579355,
+      "throughput_cv": 0.030118708564995957,
+      "median_ops_per_second": 7294.593240958921,
+      "median_effective_cores": 1.379690075751212,
+      "median_cpu_ns_per_op": 189138.7264754248,
+      "median_p50_latency_ns": 1019300,
+      "median_p95_latency_ns": 1498000,
+      "median_p99_latency_ns": 1879400,
+      "errors": 0,
+      "timeouts": 0,
+      "cleanup_pass": true,
+      "achieved_offered_ratio": 1.0,
+      "peak_working_set_bytes": 9109504,
+      "roles": {
+        "source": {
+          "median_effective_cores": 0.6609830424602683,
+          "median_peak_thread_count": 4
+        },
+        "destination": {
+          "median_effective_cores": 0.7234381330864353,
+          "median_peak_thread_count": 6
+        }
+      },
+      "per_group_median_gbps": [
+        1.9122338505579355
+      ]
+    },
+    {
+      "path": "nbsr",
+      "payload_bytes": 16384,
+      "streams_per_group": 4,
+      "outstanding_per_stream": 2,
+      "groups": 1,
+      "repeat_count": 3,
+      "median_gbps": 2.188859554489432,
+      "throughput_cv": 0.025998299924592842,
+      "median_ops_per_second": 8349.836557347991,
+      "median_effective_cores": 1.2236412878756449,
+      "median_cpu_ns_per_op": 150277.4352651048,
+      "median_p50_latency_ns": 861800,
+      "median_p95_latency_ns": 1312400,
+      "median_p99_latency_ns": 1582500,
+      "errors": 0,
+      "timeouts": 0,
+      "cleanup_pass": true,
+      "achieved_offered_ratio": 1.0,
+      "peak_working_set_bytes": 9531392,
+      "roles": {
+        "source": {
+          "median_effective_cores": 0.614454359363303,
+          "median_peak_thread_count": 4
+        },
+        "destination": {
+          "median_effective_cores": 0.6092171518359593,
+          "median_peak_thread_count": 4
+        }
+      },
+      "per_group_median_gbps": [
+        2.188859554489432
+      ]
+    },
+    {
+      "path": "direct",
+      "payload_bytes": 16384,
+      "streams_per_group": 4,
+      "outstanding_per_stream": 2,
+      "groups": 2,
+      "repeat_count": 5,
+      "median_gbps": 2.2541501761417235,
+      "throughput_cv": 0.07088719923312864,
+      "median_ops_per_second": 8598.900513235945,
+      "median_effective_cores": 1.556461709401157,
+      "median_cpu_ns_per_op": 183293.26923076922,
+      "median_p50_latency_ns": 1797850.0,
+      "median_p95_latency_ns": 2711100,
+      "median_p99_latency_ns": 3323300,
+      "errors": 0,
+      "timeouts": 0,
+      "cleanup_pass": true,
+      "achieved_offered_ratio": 1.0,
+      "peak_working_set_bytes": 10362880,
+      "roles": {
+        "source": {
+          "median_effective_cores": 0.8067237869022733,
+          "median_peak_thread_count": 6
+        },
+        "destination": {
+          "median_effective_cores": 0.739132487153919,
+          "median_peak_thread_count": 7
+        }
+      },
+      "per_group_median_gbps": [
+        1.0973640510765592,
+        1.1191726828436364
+      ]
+    },
+    {
+      "path": "nbsr",
+      "payload_bytes": 16384,
+      "streams_per_group": 4,
+      "outstanding_per_stream": 2,
+      "groups": 2,
+      "repeat_count": 3,
+      "median_gbps": 1.910725478670252,
+      "throughput_cv": 0.04225521727428377,
+      "median_ops_per_second": 7288.83925884343,
+      "median_effective_cores": 1.5354177295574212,
+      "median_cpu_ns_per_op": 209218.7642811443,
+      "median_p50_latency_ns": 2133400.0,
+      "median_p95_latency_ns": 3040600,
+      "median_p99_latency_ns": 3607700,
+      "errors": 0,
+      "timeouts": 0,
+      "cleanup_pass": true,
+      "achieved_offered_ratio": 1.0,
+      "peak_working_set_bytes": 10862592,
+      "roles": {
+        "source": {
+          "median_effective_cores": 0.8067449087505095,
+          "median_peak_thread_count": 6
+        },
+        "destination": {
+          "median_effective_cores": 0.7494693507173804,
+          "median_peak_thread_count": 7
+        }
+      },
+      "per_group_median_gbps": [
+        0.9577676143979832,
+        0.9530051126134326
+      ]
+    },
+    {
+      "path": "direct",
+      "payload_bytes": 16384,
+      "streams_per_group": 4,
+      "outstanding_per_stream": 2,
+      "groups": 4,
+      "repeat_count": 3,
+      "median_gbps": 1.7736049959918525,
+      "throughput_cv": 0.008441228823737115,
+      "median_ops_per_second": 6765.766128508959,
+      "median_effective_cores": 1.5857211444670032,
+      "median_cpu_ns_per_op": 233849.796358997,
+      "median_p50_latency_ns": 3828800.0,
+      "median_p95_latency_ns": 8373600,
+      "median_p99_latency_ns": 36119800,
+      "errors": 0,
+      "timeouts": 0,
+      "cleanup_pass": true,
+      "achieved_offered_ratio": 1.0,
+      "peak_working_set_bytes": 12525568,
+      "roles": {
+        "source": {
+          "median_effective_cores": 0.8423099307883289,
+          "median_peak_thread_count": 8
+        },
+        "destination": {
+          "median_effective_cores": 0.747853147768157,
+          "median_peak_thread_count": 9
+        }
+      },
+      "per_group_median_gbps": [
+        0.4611300164209966,
+        0.4092934606135044,
+        0.5034104587978543,
+        0.4016765778709409
+      ]
+    },
+    {
+      "path": "nbsr",
+      "payload_bytes": 16384,
+      "streams_per_group": 4,
+      "outstanding_per_stream": 2,
+      "groups": 4,
+      "repeat_count": 3,
+      "median_gbps": 1.8283053698865788,
+      "throughput_cv": 0.014521960077839515,
+      "median_ops_per_second": 6974.431495233836,
+      "median_effective_cores": 1.6113302795732405,
+      "median_cpu_ns_per_op": 227580.4117454834,
+      "median_p50_latency_ns": 3648500.0,
+      "median_p95_latency_ns": 7987000,
+      "median_p99_latency_ns": 35617200,
+      "errors": 0,
+      "timeouts": 0,
+      "cleanup_pass": true,
+      "achieved_offered_ratio": 1.0,
+      "peak_working_set_bytes": 13402112,
+      "roles": {
+        "source": {
+          "median_effective_cores": 0.8366522605476441,
+          "median_peak_thread_count": 8
+        },
+        "destination": {
+          "median_effective_cores": 0.7746780190255963,
+          "median_peak_thread_count": 9
+        }
+      },
+      "per_group_median_gbps": [
+        0.49121376614685563,
+        0.5110647686579632,
+        0.43731193117796796,
+        0.44384154300189416
+      ]
+    },
+    {
+      "path": "direct",
+      "payload_bytes": 16384,
+      "streams_per_group": 1,
+      "outstanding_per_stream": 4,
+      "groups": 1,
+      "repeat_count": 3,
+      "median_gbps": 1.9713795075596583,
+      "throughput_cv": 0.029096047439998704,
+      "median_ops_per_second": 7520.2160169969875,
+      "median_effective_cores": 1.3903777908287906,
+      "median_cpu_ns_per_op": 182112.7852869488,
+      "median_p50_latency_ns": 512300,
+      "median_p95_latency_ns": 671500,
+      "median_p99_latency_ns": 829200,
+      "errors": 0,
+      "timeouts": 0,
+      "cleanup_pass": true,
+      "achieved_offered_ratio": 1.0,
+      "peak_working_set_bytes": 8880128,
+      "roles": {
+        "source": {
+          "median_effective_cores": 0.6509259320359507,
+          "median_peak_thread_count": 4
+        },
+        "destination": {
+          "median_effective_cores": 0.7394518587928399,
+          "median_peak_thread_count": 6
+        }
+      },
+      "per_group_median_gbps": [
+        1.9713795075596583
+      ]
+    },
+    {
+      "path": "nbsr",
+      "payload_bytes": 16384,
+      "streams_per_group": 1,
+      "outstanding_per_stream": 4,
+      "groups": 1,
+      "repeat_count": 3,
+      "median_gbps": 2.6584379637633355,
+      "throughput_cv": 0.0008466155551743874,
+      "median_ops_per_second": 10141.13603120169,
+      "median_effective_cores": 1.3227170245770905,
+      "median_cpu_ns_per_op": 130255.34149463389,
+      "median_p50_latency_ns": 383500,
+      "median_p95_latency_ns": 459800,
+      "median_p99_latency_ns": 650600,
+      "errors": 0,
+      "timeouts": 0,
+      "cleanup_pass": true,
+      "achieved_offered_ratio": 1.0,
+      "peak_working_set_bytes": 9351168,
+      "roles": {
+        "source": {
+          "median_effective_cores": 0.6613768296620246,
+          "median_peak_thread_count": 4
+        },
+        "destination": {
+          "median_effective_cores": 0.6613585122885453,
+          "median_peak_thread_count": 4
+        }
+      },
+      "per_group_median_gbps": [
+        2.6584379637633355
+      ]
+    },
+    {
+      "path": "direct",
+      "payload_bytes": 16384,
+      "streams_per_group": 1,
+      "outstanding_per_stream": 4,
+      "groups": 2,
+      "repeat_count": 5,
+      "median_gbps": 1.9110280530292458,
+      "throughput_cv": 0.11646054532154435,
+      "median_ops_per_second": 7289.993488423332,
+      "median_effective_cores": 1.5880319613414748,
+      "median_cpu_ns_per_op": 217837.22631073731,
+      "median_p50_latency_ns": 1063400.0,
+      "median_p95_latency_ns": 1614500,
+      "median_p99_latency_ns": 1942600,
+      "errors": 0,
+      "timeouts": 0,
+      "cleanup_pass": true,
+      "achieved_offered_ratio": 1.0,
+      "peak_working_set_bytes": 10027008,
+      "roles": {
+        "source": {
+          "median_effective_cores": 0.8486859334382307,
+          "median_peak_thread_count": 6
+        },
+        "destination": {
+          "median_effective_cores": 0.7341241497780209,
+          "median_peak_thread_count": 7
+        }
+      },
+      "per_group_median_gbps": [
+        0.9502309335472937,
+        0.9660708420505351
+      ]
+    },
+    {
+      "path": "nbsr",
+      "payload_bytes": 16384,
+      "streams_per_group": 1,
+      "outstanding_per_stream": 4,
+      "groups": 2,
+      "repeat_count": 3,
+      "median_gbps": 1.954928061729805,
+      "throughput_cv": 0.010930925627328754,
+      "median_ops_per_second": 7457.458731574268,
+      "median_effective_cores": 1.6141128194464647,
+      "median_cpu_ns_per_op": 216809.90107873417,
+      "median_p50_latency_ns": 1041700.0,
+      "median_p95_latency_ns": 1576100,
+      "median_p99_latency_ns": 1944300,
+      "errors": 0,
+      "timeouts": 0,
+      "cleanup_pass": true,
+      "achieved_offered_ratio": 1.0,
+      "peak_working_set_bytes": 10461184,
+      "roles": {
+        "source": {
+          "median_effective_cores": 0.9006882666137896,
+          "median_peak_thread_count": 6
+        },
+        "destination": {
+          "median_effective_cores": 0.7341609920708113,
+          "median_peak_thread_count": 7
+        }
+      },
+      "per_group_median_gbps": [
+        0.9983302907036908,
+        0.9750662108661992
+      ]
+    },
+    {
+      "path": "direct",
+      "payload_bytes": 16384,
+      "streams_per_group": 1,
+      "outstanding_per_stream": 4,
+      "groups": 4,
+      "repeat_count": 3,
+      "median_gbps": 1.7304719119776644,
+      "throughput_cv": 0.009140850829499721,
+      "median_ops_per_second": 6601.226470862062,
+      "median_effective_cores": 1.5928605404883251,
+      "median_cpu_ns_per_op": 238638.62494403264,
+      "median_p50_latency_ns": 2089700.0,
+      "median_p95_latency_ns": 4016000,
+      "median_p99_latency_ns": 5864200,
+      "errors": 0,
+      "timeouts": 0,
+      "cleanup_pass": true,
+      "achieved_offered_ratio": 1.0,
+      "peak_working_set_bytes": 11472896,
+      "roles": {
+        "source": {
+          "median_effective_cores": 0.8692201254601725,
+          "median_peak_thread_count": 8
+        },
+        "destination": {
+          "median_effective_cores": 0.7286875303258931,
+          "median_peak_thread_count": 9
+        }
+      },
+      "per_group_median_gbps": [
+        0.3830684716433228,
+        0.4533335741289781,
+        0.4374188953418068,
+        0.4471857684510511
+      ]
+    },
+    {
+      "path": "nbsr",
+      "payload_bytes": 16384,
+      "streams_per_group": 1,
+      "outstanding_per_stream": 4,
+      "groups": 4,
+      "repeat_count": 5,
+      "median_gbps": 2.14168447268,
+      "throughput_cv": 0.15144989663985253,
+      "median_ops_per_second": 8169.877901763916,
+      "median_effective_cores": 1.6662640753234963,
+      "median_cpu_ns_per_op": 206881.97669681415,
+      "median_p50_latency_ns": 1764300.0,
+      "median_p95_latency_ns": 3282400,
+      "median_p99_latency_ns": 4799600,
+      "errors": 0,
+      "timeouts": 0,
+      "cleanup_pass": true,
+      "achieved_offered_ratio": 1.0,
+      "peak_working_set_bytes": 12509184,
+      "roles": {
+        "source": {
+          "median_effective_cores": 0.9051311026448622,
+          "median_peak_thread_count": 8
+        },
+        "destination": {
+          "median_effective_cores": 0.7390727326181252,
+          "median_peak_thread_count": 9
+        }
+      },
+      "per_group_median_gbps": [
+        0.4531012216514196,
+        0.4887094131667907,
+        0.558312146647229,
+        0.46506726372406315
+      ]
+    }
+  ],
+  "scaling": {
+    "p1024-s8-o8-direct": {
+      "cells": [
+        {
+          "path": "direct",
+          "payload_bytes": 1024,
+          "streams_per_group": 8,
+          "outstanding_per_stream": 8,
+          "groups": 1,
+          "repeat_count": 3,
+          "median_gbps": 2.004621422058838,
+          "throughput_cv": 0.005627042166090133,
+          "median_ops_per_second": 122352.38171745835,
+          "median_effective_cores": 1.4572551102772393,
+          "median_cpu_ns_per_op": 11934.671653313473,
+          "median_p50_latency_ns": 496100,
+          "median_p95_latency_ns": 692600,
+          "median_p99_latency_ns": 1032600,
+          "errors": 0,
+          "timeouts": 0,
+          "cleanup_pass": true,
+          "achieved_offered_ratio": 1.0,
+          "peak_working_set_bytes": 15147008,
+          "roles": {
+            "source": {
+              "median_effective_cores": 0.6658224925224805,
+              "median_peak_thread_count": 4
+            },
+            "destination": {
+              "median_effective_cores": 0.7910813455790727,
+              "median_peak_thread_count": 6
+            }
+          },
+          "per_group_median_gbps": [
+            2.004621422058838
+          ],
+          "region": "STABLE"
+        },
+        {
+          "path": "direct",
+          "payload_bytes": 1024,
+          "streams_per_group": 8,
+          "outstanding_per_stream": 8,
+          "groups": 2,
+          "repeat_count": 3,
+          "median_gbps": 2.091079716684209,
+          "throughput_cv": 0.008326239999896668,
+          "median_ops_per_second": 127629.37723902643,
+          "median_effective_cores": 1.6231783069860695,
+          "median_cpu_ns_per_op": 12753.808920972526,
+          "median_p50_latency_ns": 947600.0,
+          "median_p95_latency_ns": 1493500,
+          "median_p99_latency_ns": 1935400,
+          "errors": 0,
+          "timeouts": 0,
+          "cleanup_pass": true,
+          "achieved_offered_ratio": 1.0,
+          "peak_working_set_bytes": 16318464,
+          "roles": {
+            "source": {
+              "median_effective_cores": 0.8532091100824212,
+              "median_peak_thread_count": 6
+            },
+            "destination": {
+              "median_effective_cores": 0.7699691969036484,
+              "median_peak_thread_count": 7
+            }
+          },
+          "per_group_median_gbps": [
+            1.0304290307049537,
+            1.0531100283155708
+          ],
+          "region": "DEGRADED"
+        },
+        {
+          "path": "direct",
+          "payload_bytes": 1024,
+          "streams_per_group": 8,
+          "outstanding_per_stream": 8,
+          "groups": 4,
+          "repeat_count": 3,
+          "median_gbps": 1.8932893730361997,
+          "throughput_cv": 0.02931736668889737,
+          "median_ops_per_second": 115557.21270972899,
+          "median_effective_cores": 1.7149564904929322,
+          "median_cpu_ns_per_op": 14897.068904929516,
+          "median_p50_latency_ns": 1825150.0,
+          "median_p95_latency_ns": 3770300,
+          "median_p99_latency_ns": 29801100,
+          "errors": 0,
+          "timeouts": 0,
+          "cleanup_pass": true,
+          "achieved_offered_ratio": 1.0,
+          "peak_working_set_bytes": 17113088,
+          "roles": {
+            "source": {
+              "median_effective_cores": 0.8755033134648603,
+              "median_peak_thread_count": 8
+            },
+            "destination": {
+              "median_effective_cores": 0.8165251068010679,
+              "median_peak_thread_count": 9
+            }
+          },
+          "per_group_median_gbps": [
+            0.4334647663179449,
+            0.46602691561239545,
+            0.47589908929636726,
+            0.48195341621236665
+          ],
+          "region": "SATURATED"
+        }
+      ],
+      "highest_repeatable": {
+        "path": "direct",
+        "payload_bytes": 1024,
+        "streams_per_group": 8,
+        "outstanding_per_stream": 8,
+        "groups": 2,
+        "repeat_count": 3,
+        "median_gbps": 2.091079716684209,
+        "throughput_cv": 0.008326239999896668,
+        "median_ops_per_second": 127629.37723902643,
+        "median_effective_cores": 1.6231783069860695,
+        "median_cpu_ns_per_op": 12753.808920972526,
+        "median_p50_latency_ns": 947600.0,
+        "median_p95_latency_ns": 1493500,
+        "median_p99_latency_ns": 1935400,
+        "errors": 0,
+        "timeouts": 0,
+        "cleanup_pass": true,
+        "achieved_offered_ratio": 1.0,
+        "peak_working_set_bytes": 16318464,
+        "roles": {
+          "source": {
+            "median_effective_cores": 0.8532091100824212,
+            "median_peak_thread_count": 6
+          },
+          "destination": {
+            "median_effective_cores": 0.7699691969036484,
+            "median_peak_thread_count": 7
+          }
+        },
+        "per_group_median_gbps": [
+          1.0304290307049537,
+          1.0531100283155708
+        ],
+        "region": "DEGRADED"
+      },
+      "highest_strict_stable": {
+        "path": "direct",
+        "payload_bytes": 1024,
+        "streams_per_group": 8,
+        "outstanding_per_stream": 8,
+        "groups": 1,
+        "repeat_count": 3,
+        "median_gbps": 2.004621422058838,
+        "throughput_cv": 0.005627042166090133,
+        "median_ops_per_second": 122352.38171745835,
+        "median_effective_cores": 1.4572551102772393,
+        "median_cpu_ns_per_op": 11934.671653313473,
+        "median_p50_latency_ns": 496100,
+        "median_p95_latency_ns": 692600,
+        "median_p99_latency_ns": 1032600,
+        "errors": 0,
+        "timeouts": 0,
+        "cleanup_pass": true,
+        "achieved_offered_ratio": 1.0,
+        "peak_working_set_bytes": 15147008,
+        "roles": {
+          "source": {
+            "median_effective_cores": 0.6658224925224805,
+            "median_peak_thread_count": 4
+          },
+          "destination": {
+            "median_effective_cores": 0.7910813455790727,
+            "median_peak_thread_count": 6
+          }
+        },
+        "per_group_median_gbps": [
+          2.004621422058838
+        ],
+        "region": "STABLE"
+      }
+    },
+    "p1024-s8-o8-nbsr": {
+      "cells": [
+        {
+          "path": "nbsr",
+          "payload_bytes": 1024,
+          "streams_per_group": 8,
+          "outstanding_per_stream": 8,
+          "groups": 1,
+          "repeat_count": 3,
+          "median_gbps": 2.102496777338295,
+          "throughput_cv": 0.02916276511612985,
+          "median_ops_per_second": 128326.2193199643,
+          "median_effective_cores": 1.3056098670765564,
+          "median_cpu_ns_per_op": 10174.083019220343,
+          "median_p50_latency_ns": 482600,
+          "median_p95_latency_ns": 636500,
+          "median_p99_latency_ns": 812300,
+          "errors": 0,
+          "timeouts": 0,
+          "cleanup_pass": true,
+          "achieved_offered_ratio": 1.0,
+          "peak_working_set_bytes": 15867904,
+          "roles": {
+            "source": {
+              "median_effective_cores": 0.6554016044697341,
+              "median_peak_thread_count": 4
+            },
+            "destination": {
+              "median_effective_cores": 0.6554057500065582,
+              "median_peak_thread_count": 4
+            }
+          },
+          "per_group_median_gbps": [
+            2.102496777338295
+          ],
+          "region": "STABLE"
+        },
+        {
+          "path": "nbsr",
+          "payload_bytes": 1024,
+          "streams_per_group": 8,
+          "outstanding_per_stream": 8,
+          "groups": 2,
+          "repeat_count": 3,
+          "median_gbps": 2.1255849614478026,
+          "throughput_cv": 0.003810698987540409,
+          "median_ops_per_second": 129735.41024461687,
+          "median_effective_cores": 1.7015648918694746,
+          "median_cpu_ns_per_op": 13109.465884278776,
+          "median_p50_latency_ns": 935250.0,
+          "median_p95_latency_ns": 1470600,
+          "median_p99_latency_ns": 1879800,
+          "errors": 0,
+          "timeouts": 0,
+          "cleanup_pass": true,
+          "achieved_offered_ratio": 1.0,
+          "peak_working_set_bytes": 15933440,
+          "roles": {
+            "source": {
+              "median_effective_cores": 0.8794020389172514,
+              "median_peak_thread_count": 6
+            },
+            "destination": {
+              "median_effective_cores": 0.8065461223160685,
+              "median_peak_thread_count": 7
+            }
+          },
+          "per_group_median_gbps": [
+            1.0689453211874447,
+            1.0576551246047539
+          ],
+          "region": "SATURATED"
+        },
+        {
+          "path": "nbsr",
+          "payload_bytes": 1024,
+          "streams_per_group": 8,
+          "outstanding_per_stream": 8,
+          "groups": 4,
+          "repeat_count": 5,
+          "median_gbps": 1.5839582327812467,
+          "throughput_cv": 0.10778153921750962,
+          "median_ops_per_second": 96677.13823127726,
+          "median_effective_cores": 1.7266739825496586,
+          "median_cpu_ns_per_op": 18669.80979287758,
+          "median_p50_latency_ns": 2226950.0,
+          "median_p95_latency_ns": 4251200,
+          "median_p99_latency_ns": 29421700,
+          "errors": 0,
+          "timeouts": 0,
+          "cleanup_pass": true,
+          "achieved_offered_ratio": 1.0,
+          "peak_working_set_bytes": 19529728,
+          "roles": {
+            "source": {
+              "median_effective_cores": 0.9257468942585518,
+              "median_peak_thread_count": 8
+            },
+            "destination": {
+              "median_effective_cores": 0.8010046204110258,
+              "median_peak_thread_count": 9
+            }
+          },
+          "per_group_median_gbps": [
+            0.3986973005710797,
+            0.38722921403001576,
+            0.38656309662827093,
+            0.42234595736588204
+          ],
+          "region": "SATURATED"
+        }
+      ],
+      "highest_repeatable": {
+        "path": "nbsr",
+        "payload_bytes": 1024,
+        "streams_per_group": 8,
+        "outstanding_per_stream": 8,
+        "groups": 2,
+        "repeat_count": 3,
+        "median_gbps": 2.1255849614478026,
+        "throughput_cv": 0.003810698987540409,
+        "median_ops_per_second": 129735.41024461687,
+        "median_effective_cores": 1.7015648918694746,
+        "median_cpu_ns_per_op": 13109.465884278776,
+        "median_p50_latency_ns": 935250.0,
+        "median_p95_latency_ns": 1470600,
+        "median_p99_latency_ns": 1879800,
+        "errors": 0,
+        "timeouts": 0,
+        "cleanup_pass": true,
+        "achieved_offered_ratio": 1.0,
+        "peak_working_set_bytes": 15933440,
+        "roles": {
+          "source": {
+            "median_effective_cores": 0.8794020389172514,
+            "median_peak_thread_count": 6
+          },
+          "destination": {
+            "median_effective_cores": 0.8065461223160685,
+            "median_peak_thread_count": 7
+          }
+        },
+        "per_group_median_gbps": [
+          1.0689453211874447,
+          1.0576551246047539
+        ],
+        "region": "SATURATED"
+      },
+      "highest_strict_stable": {
+        "path": "nbsr",
+        "payload_bytes": 1024,
+        "streams_per_group": 8,
+        "outstanding_per_stream": 8,
+        "groups": 1,
+        "repeat_count": 3,
+        "median_gbps": 2.102496777338295,
+        "throughput_cv": 0.02916276511612985,
+        "median_ops_per_second": 128326.2193199643,
+        "median_effective_cores": 1.3056098670765564,
+        "median_cpu_ns_per_op": 10174.083019220343,
+        "median_p50_latency_ns": 482600,
+        "median_p95_latency_ns": 636500,
+        "median_p99_latency_ns": 812300,
+        "errors": 0,
+        "timeouts": 0,
+        "cleanup_pass": true,
+        "achieved_offered_ratio": 1.0,
+        "peak_working_set_bytes": 15867904,
+        "roles": {
+          "source": {
+            "median_effective_cores": 0.6554016044697341,
+            "median_peak_thread_count": 4
+          },
+          "destination": {
+            "median_effective_cores": 0.6554057500065582,
+            "median_peak_thread_count": 4
+          }
+        },
+        "per_group_median_gbps": [
+          2.102496777338295
+        ],
+        "region": "STABLE"
+      }
+    },
+    "p1024-s64-o4-direct": {
+      "cells": [
+        {
+          "path": "direct",
+          "payload_bytes": 1024,
+          "streams_per_group": 64,
+          "outstanding_per_stream": 4,
+          "groups": 1,
+          "repeat_count": 5,
+          "median_gbps": 1.4539727657317125,
+          "throughput_cv": 0.06431018487071036,
+          "median_ops_per_second": 88743.45493967972,
+          "median_effective_cores": 1.4353132046451762,
+          "median_cpu_ns_per_op": 16234.89275827663,
+          "median_p50_latency_ns": 2673000,
+          "median_p95_latency_ns": 4500200,
+          "median_p99_latency_ns": 6296400,
+          "errors": 0,
+          "timeouts": 0,
+          "cleanup_pass": true,
+          "achieved_offered_ratio": 1.0,
+          "peak_working_set_bytes": 13996032,
+          "roles": {
+            "source": {
+              "median_effective_cores": 0.6501536434768298,
+              "median_peak_thread_count": 4
+            },
+            "destination": {
+              "median_effective_cores": 0.7904623445871984,
+              "median_peak_thread_count": 6
+            }
+          },
+          "per_group_median_gbps": [
+            1.4539727657317125
+          ],
+          "region": "DEGRADED"
+        },
+        {
+          "path": "direct",
+          "payload_bytes": 1024,
+          "streams_per_group": 64,
+          "outstanding_per_stream": 4,
+          "groups": 2,
+          "repeat_count": 3,
+          "median_gbps": 1.5113392910093872,
+          "throughput_cv": 0.010561161663735464,
+          "median_ops_per_second": 92244.82977352217,
+          "median_effective_cores": 1.6976706106839539,
+          "median_cpu_ns_per_op": 18400.326879019078,
+          "median_p50_latency_ns": 5281100.0,
+          "median_p95_latency_ns": 9550200,
+          "median_p99_latency_ns": 12854600,
+          "errors": 0,
+          "timeouts": 0,
+          "cleanup_pass": true,
+          "achieved_offered_ratio": 1.0,
+          "peak_working_set_bytes": 14852096,
+          "roles": {
+            "source": {
+              "median_effective_cores": 0.8728345266339055,
+              "median_peak_thread_count": 6
+            },
+            "destination": {
+              "median_effective_cores": 0.8098979060143633,
+              "median_peak_thread_count": 7
+            }
+          },
+          "per_group_median_gbps": [
+            0.6841168610742832,
+            0.8112283852912775
+          ],
+          "region": "SATURATED"
+        },
+        {
+          "path": "direct",
+          "payload_bytes": 1024,
+          "streams_per_group": 64,
+          "outstanding_per_stream": 4,
+          "groups": 4,
+          "repeat_count": 5,
+          "median_gbps": 1.7207804178895096,
+          "throughput_cv": 0.1224214346444909,
+          "median_ops_per_second": 105028.10167782652,
+          "median_effective_cores": 1.6918981720933737,
+          "median_cpu_ns_per_op": 16109.00459082149,
+          "median_p50_latency_ns": 7467300.0,
+          "median_p95_latency_ns": 24926000,
+          "median_p99_latency_ns": 69034800,
+          "errors": 0,
+          "timeouts": 0,
+          "cleanup_pass": true,
+          "achieved_offered_ratio": 1.0,
+          "peak_working_set_bytes": 19615744,
+          "roles": {
+            "source": {
+              "median_effective_cores": 0.8845181933132531,
+              "median_peak_thread_count": 8
+            },
+            "destination": {
+              "median_effective_cores": 0.8073799787801206,
+              "median_peak_thread_count": 9
+            }
+          },
+          "per_group_median_gbps": [
+            0.33373823455407764,
+            0.47404800865446983,
+            0.485669790069126,
+            0.40196361556301174
+          ],
+          "region": "SATURATED"
+        }
+      ],
+      "highest_repeatable": {
+        "path": "direct",
+        "payload_bytes": 1024,
+        "streams_per_group": 64,
+        "outstanding_per_stream": 4,
+        "groups": 2,
+        "repeat_count": 3,
+        "median_gbps": 1.5113392910093872,
+        "throughput_cv": 0.010561161663735464,
+        "median_ops_per_second": 92244.82977352217,
+        "median_effective_cores": 1.6976706106839539,
+        "median_cpu_ns_per_op": 18400.326879019078,
+        "median_p50_latency_ns": 5281100.0,
+        "median_p95_latency_ns": 9550200,
+        "median_p99_latency_ns": 12854600,
+        "errors": 0,
+        "timeouts": 0,
+        "cleanup_pass": true,
+        "achieved_offered_ratio": 1.0,
+        "peak_working_set_bytes": 14852096,
+        "roles": {
+          "source": {
+            "median_effective_cores": 0.8728345266339055,
+            "median_peak_thread_count": 6
+          },
+          "destination": {
+            "median_effective_cores": 0.8098979060143633,
+            "median_peak_thread_count": 7
+          }
+        },
+        "per_group_median_gbps": [
+          0.6841168610742832,
+          0.8112283852912775
+        ],
+        "region": "SATURATED"
+      },
+      "highest_strict_stable": null
+    },
+    "p1024-s64-o4-nbsr": {
+      "cells": [
+        {
+          "path": "nbsr",
+          "payload_bytes": 1024,
+          "streams_per_group": 64,
+          "outstanding_per_stream": 4,
+          "groups": 1,
+          "repeat_count": 5,
+          "median_gbps": 2.1538380854545736,
+          "throughput_cv": 0.10727143123951972,
+          "median_ops_per_second": 131459.84408292075,
+          "median_effective_cores": 1.28960527562043,
+          "median_cpu_ns_per_op": 9887.953538101156,
+          "median_p50_latency_ns": 1923400,
+          "median_p95_latency_ns": 2528700,
+          "median_p99_latency_ns": 3141800,
+          "errors": 0,
+          "timeouts": 0,
+          "cleanup_pass": true,
+          "achieved_offered_ratio": 1.0,
+          "peak_working_set_bytes": 15802368,
+          "roles": {
+            "source": {
+              "median_effective_cores": 0.6656435946498097,
+              "median_peak_thread_count": 4
+            },
+            "destination": {
+              "median_effective_cores": 0.6188583457668042,
+              "median_peak_thread_count": 4
+            }
+          },
+          "per_group_median_gbps": [
+            2.1538380854545736
+          ],
+          "region": "DEGRADED"
+        },
+        {
+          "path": "nbsr",
+          "payload_bytes": 1024,
+          "streams_per_group": 64,
+          "outstanding_per_stream": 4,
+          "groups": 2,
+          "repeat_count": 3,
+          "median_gbps": 1.6018264741781256,
+          "throughput_cv": 0.02328013624969154,
+          "median_ops_per_second": 97767.72913684849,
+          "median_effective_cores": 1.7043713516891967,
+          "median_cpu_ns_per_op": 17432.862220861607,
+          "median_p50_latency_ns": 5024150.0,
+          "median_p95_latency_ns": 8651800,
+          "median_p99_latency_ns": 10444400,
+          "errors": 0,
+          "timeouts": 0,
+          "cleanup_pass": true,
+          "achieved_offered_ratio": 1.0,
+          "peak_working_set_bytes": 15499264,
+          "roles": {
+            "source": {
+              "median_effective_cores": 0.9042124777430697,
+              "median_peak_thread_count": 6
+            },
+            "destination": {
+              "median_effective_cores": 0.8313247419135712,
+              "median_peak_thread_count": 7
+            }
+          },
+          "per_group_median_gbps": [
+            0.8238827313124861,
+            0.7846345223760033
+          ],
+          "region": "SATURATED"
+        },
+        {
+          "path": "nbsr",
+          "payload_bytes": 1024,
+          "streams_per_group": 64,
+          "outstanding_per_stream": 4,
+          "groups": 4,
+          "repeat_count": 5,
+          "median_gbps": 1.3831097497886373,
+          "throughput_cv": 0.15736289125626743,
+          "median_ops_per_second": 84418.31968924789,
+          "median_effective_cores": 1.7162123803757454,
+          "median_cpu_ns_per_op": 20288.85277501099,
+          "median_p50_latency_ns": 10675600.0,
+          "median_p95_latency_ns": 21803300,
+          "median_p99_latency_ns": 70049300,
+          "errors": 0,
+          "timeouts": 0,
+          "cleanup_pass": true,
+          "achieved_offered_ratio": 1.0,
+          "peak_working_set_bytes": 20348928,
+          "roles": {
+            "source": {
+              "median_effective_cores": 0.9332876992979885,
+              "median_peak_thread_count": 8
+            },
+            "destination": {
+              "median_effective_cores": 0.7929431122834314,
+              "median_peak_thread_count": 9
+            }
+          },
+          "per_group_median_gbps": [
+            0.38349771843410824,
+            0.32742303067967604,
+            0.35394305748799715,
+            0.3569132582060454
+          ],
+          "region": "SATURATED"
+        }
+      ],
+      "highest_repeatable": {
+        "path": "nbsr",
+        "payload_bytes": 1024,
+        "streams_per_group": 64,
+        "outstanding_per_stream": 4,
+        "groups": 2,
+        "repeat_count": 3,
+        "median_gbps": 1.6018264741781256,
+        "throughput_cv": 0.02328013624969154,
+        "median_ops_per_second": 97767.72913684849,
+        "median_effective_cores": 1.7043713516891967,
+        "median_cpu_ns_per_op": 17432.862220861607,
+        "median_p50_latency_ns": 5024150.0,
+        "median_p95_latency_ns": 8651800,
+        "median_p99_latency_ns": 10444400,
+        "errors": 0,
+        "timeouts": 0,
+        "cleanup_pass": true,
+        "achieved_offered_ratio": 1.0,
+        "peak_working_set_bytes": 15499264,
+        "roles": {
+          "source": {
+            "median_effective_cores": 0.9042124777430697,
+            "median_peak_thread_count": 6
+          },
+          "destination": {
+            "median_effective_cores": 0.8313247419135712,
+            "median_peak_thread_count": 7
+          }
+        },
+        "per_group_median_gbps": [
+          0.8238827313124861,
+          0.7846345223760033
+        ],
+        "region": "SATURATED"
+      },
+      "highest_strict_stable": null
+    },
+    "p16384-s4-o2-direct": {
+      "cells": [
+        {
+          "path": "direct",
+          "payload_bytes": 16384,
+          "streams_per_group": 4,
+          "outstanding_per_stream": 2,
+          "groups": 1,
+          "repeat_count": 3,
+          "median_gbps": 1.9122338505579355,
+          "throughput_cv": 0.030118708564995957,
+          "median_ops_per_second": 7294.593240958921,
+          "median_effective_cores": 1.379690075751212,
+          "median_cpu_ns_per_op": 189138.7264754248,
+          "median_p50_latency_ns": 1019300,
+          "median_p95_latency_ns": 1498000,
+          "median_p99_latency_ns": 1879400,
+          "errors": 0,
+          "timeouts": 0,
+          "cleanup_pass": true,
+          "achieved_offered_ratio": 1.0,
+          "peak_working_set_bytes": 9109504,
+          "roles": {
+            "source": {
+              "median_effective_cores": 0.6609830424602683,
+              "median_peak_thread_count": 4
+            },
+            "destination": {
+              "median_effective_cores": 0.7234381330864353,
+              "median_peak_thread_count": 6
+            }
+          },
+          "per_group_median_gbps": [
+            1.9122338505579355
+          ],
+          "region": "STABLE"
+        },
+        {
+          "path": "direct",
+          "payload_bytes": 16384,
+          "streams_per_group": 4,
+          "outstanding_per_stream": 2,
+          "groups": 2,
+          "repeat_count": 5,
+          "median_gbps": 2.2541501761417235,
+          "throughput_cv": 0.07088719923312864,
+          "median_ops_per_second": 8598.900513235945,
+          "median_effective_cores": 1.556461709401157,
+          "median_cpu_ns_per_op": 183293.26923076922,
+          "median_p50_latency_ns": 1797850.0,
+          "median_p95_latency_ns": 2711100,
+          "median_p99_latency_ns": 3323300,
+          "errors": 0,
+          "timeouts": 0,
+          "cleanup_pass": true,
+          "achieved_offered_ratio": 1.0,
+          "peak_working_set_bytes": 10362880,
+          "roles": {
+            "source": {
+              "median_effective_cores": 0.8067237869022733,
+              "median_peak_thread_count": 6
+            },
+            "destination": {
+              "median_effective_cores": 0.739132487153919,
+              "median_peak_thread_count": 7
+            }
+          },
+          "per_group_median_gbps": [
+            1.0973640510765592,
+            1.1191726828436364
+          ],
+          "region": "DEGRADED"
+        },
+        {
+          "path": "direct",
+          "payload_bytes": 16384,
+          "streams_per_group": 4,
+          "outstanding_per_stream": 2,
+          "groups": 4,
+          "repeat_count": 3,
+          "median_gbps": 1.7736049959918525,
+          "throughput_cv": 0.008441228823737115,
+          "median_ops_per_second": 6765.766128508959,
+          "median_effective_cores": 1.5857211444670032,
+          "median_cpu_ns_per_op": 233849.796358997,
+          "median_p50_latency_ns": 3828800.0,
+          "median_p95_latency_ns": 8373600,
+          "median_p99_latency_ns": 36119800,
+          "errors": 0,
+          "timeouts": 0,
+          "cleanup_pass": true,
+          "achieved_offered_ratio": 1.0,
+          "peak_working_set_bytes": 12525568,
+          "roles": {
+            "source": {
+              "median_effective_cores": 0.8423099307883289,
+              "median_peak_thread_count": 8
+            },
+            "destination": {
+              "median_effective_cores": 0.747853147768157,
+              "median_peak_thread_count": 9
+            }
+          },
+          "per_group_median_gbps": [
+            0.4611300164209966,
+            0.4092934606135044,
+            0.5034104587978543,
+            0.4016765778709409
+          ],
+          "region": "SATURATED"
+        }
+      ],
+      "highest_repeatable": {
+        "path": "direct",
+        "payload_bytes": 16384,
+        "streams_per_group": 4,
+        "outstanding_per_stream": 2,
+        "groups": 1,
+        "repeat_count": 3,
+        "median_gbps": 1.9122338505579355,
+        "throughput_cv": 0.030118708564995957,
+        "median_ops_per_second": 7294.593240958921,
+        "median_effective_cores": 1.379690075751212,
+        "median_cpu_ns_per_op": 189138.7264754248,
+        "median_p50_latency_ns": 1019300,
+        "median_p95_latency_ns": 1498000,
+        "median_p99_latency_ns": 1879400,
+        "errors": 0,
+        "timeouts": 0,
+        "cleanup_pass": true,
+        "achieved_offered_ratio": 1.0,
+        "peak_working_set_bytes": 9109504,
+        "roles": {
+          "source": {
+            "median_effective_cores": 0.6609830424602683,
+            "median_peak_thread_count": 4
+          },
+          "destination": {
+            "median_effective_cores": 0.7234381330864353,
+            "median_peak_thread_count": 6
+          }
+        },
+        "per_group_median_gbps": [
+          1.9122338505579355
+        ],
+        "region": "STABLE"
+      },
+      "highest_strict_stable": {
+        "path": "direct",
+        "payload_bytes": 16384,
+        "streams_per_group": 4,
+        "outstanding_per_stream": 2,
+        "groups": 1,
+        "repeat_count": 3,
+        "median_gbps": 1.9122338505579355,
+        "throughput_cv": 0.030118708564995957,
+        "median_ops_per_second": 7294.593240958921,
+        "median_effective_cores": 1.379690075751212,
+        "median_cpu_ns_per_op": 189138.7264754248,
+        "median_p50_latency_ns": 1019300,
+        "median_p95_latency_ns": 1498000,
+        "median_p99_latency_ns": 1879400,
+        "errors": 0,
+        "timeouts": 0,
+        "cleanup_pass": true,
+        "achieved_offered_ratio": 1.0,
+        "peak_working_set_bytes": 9109504,
+        "roles": {
+          "source": {
+            "median_effective_cores": 0.6609830424602683,
+            "median_peak_thread_count": 4
+          },
+          "destination": {
+            "median_effective_cores": 0.7234381330864353,
+            "median_peak_thread_count": 6
+          }
+        },
+        "per_group_median_gbps": [
+          1.9122338505579355
+        ],
+        "region": "STABLE"
+      }
+    },
+    "p16384-s4-o2-nbsr": {
+      "cells": [
+        {
+          "path": "nbsr",
+          "payload_bytes": 16384,
+          "streams_per_group": 4,
+          "outstanding_per_stream": 2,
+          "groups": 1,
+          "repeat_count": 3,
+          "median_gbps": 2.188859554489432,
+          "throughput_cv": 0.025998299924592842,
+          "median_ops_per_second": 8349.836557347991,
+          "median_effective_cores": 1.2236412878756449,
+          "median_cpu_ns_per_op": 150277.4352651048,
+          "median_p50_latency_ns": 861800,
+          "median_p95_latency_ns": 1312400,
+          "median_p99_latency_ns": 1582500,
+          "errors": 0,
+          "timeouts": 0,
+          "cleanup_pass": true,
+          "achieved_offered_ratio": 1.0,
+          "peak_working_set_bytes": 9531392,
+          "roles": {
+            "source": {
+              "median_effective_cores": 0.614454359363303,
+              "median_peak_thread_count": 4
+            },
+            "destination": {
+              "median_effective_cores": 0.6092171518359593,
+              "median_peak_thread_count": 4
+            }
+          },
+          "per_group_median_gbps": [
+            2.188859554489432
+          ],
+          "region": "STABLE"
+        },
+        {
+          "path": "nbsr",
+          "payload_bytes": 16384,
+          "streams_per_group": 4,
+          "outstanding_per_stream": 2,
+          "groups": 2,
+          "repeat_count": 3,
+          "median_gbps": 1.910725478670252,
+          "throughput_cv": 0.04225521727428377,
+          "median_ops_per_second": 7288.83925884343,
+          "median_effective_cores": 1.5354177295574212,
+          "median_cpu_ns_per_op": 209218.7642811443,
+          "median_p50_latency_ns": 2133400.0,
+          "median_p95_latency_ns": 3040600,
+          "median_p99_latency_ns": 3607700,
+          "errors": 0,
+          "timeouts": 0,
+          "cleanup_pass": true,
+          "achieved_offered_ratio": 1.0,
+          "peak_working_set_bytes": 10862592,
+          "roles": {
+            "source": {
+              "median_effective_cores": 0.8067449087505095,
+              "median_peak_thread_count": 6
+            },
+            "destination": {
+              "median_effective_cores": 0.7494693507173804,
+              "median_peak_thread_count": 7
+            }
+          },
+          "per_group_median_gbps": [
+            0.9577676143979832,
+            0.9530051126134326
+          ],
+          "region": "SATURATED"
+        },
+        {
+          "path": "nbsr",
+          "payload_bytes": 16384,
+          "streams_per_group": 4,
+          "outstanding_per_stream": 2,
+          "groups": 4,
+          "repeat_count": 3,
+          "median_gbps": 1.8283053698865788,
+          "throughput_cv": 0.014521960077839515,
+          "median_ops_per_second": 6974.431495233836,
+          "median_effective_cores": 1.6113302795732405,
+          "median_cpu_ns_per_op": 227580.4117454834,
+          "median_p50_latency_ns": 3648500.0,
+          "median_p95_latency_ns": 7987000,
+          "median_p99_latency_ns": 35617200,
+          "errors": 0,
+          "timeouts": 0,
+          "cleanup_pass": true,
+          "achieved_offered_ratio": 1.0,
+          "peak_working_set_bytes": 13402112,
+          "roles": {
+            "source": {
+              "median_effective_cores": 0.8366522605476441,
+              "median_peak_thread_count": 8
+            },
+            "destination": {
+              "median_effective_cores": 0.7746780190255963,
+              "median_peak_thread_count": 9
+            }
+          },
+          "per_group_median_gbps": [
+            0.49121376614685563,
+            0.5110647686579632,
+            0.43731193117796796,
+            0.44384154300189416
+          ],
+          "region": "SATURATED"
+        }
+      ],
+      "highest_repeatable": {
+        "path": "nbsr",
+        "payload_bytes": 16384,
+        "streams_per_group": 4,
+        "outstanding_per_stream": 2,
+        "groups": 1,
+        "repeat_count": 3,
+        "median_gbps": 2.188859554489432,
+        "throughput_cv": 0.025998299924592842,
+        "median_ops_per_second": 8349.836557347991,
+        "median_effective_cores": 1.2236412878756449,
+        "median_cpu_ns_per_op": 150277.4352651048,
+        "median_p50_latency_ns": 861800,
+        "median_p95_latency_ns": 1312400,
+        "median_p99_latency_ns": 1582500,
+        "errors": 0,
+        "timeouts": 0,
+        "cleanup_pass": true,
+        "achieved_offered_ratio": 1.0,
+        "peak_working_set_bytes": 9531392,
+        "roles": {
+          "source": {
+            "median_effective_cores": 0.614454359363303,
+            "median_peak_thread_count": 4
+          },
+          "destination": {
+            "median_effective_cores": 0.6092171518359593,
+            "median_peak_thread_count": 4
+          }
+        },
+        "per_group_median_gbps": [
+          2.188859554489432
+        ],
+        "region": "STABLE"
+      },
+      "highest_strict_stable": {
+        "path": "nbsr",
+        "payload_bytes": 16384,
+        "streams_per_group": 4,
+        "outstanding_per_stream": 2,
+        "groups": 1,
+        "repeat_count": 3,
+        "median_gbps": 2.188859554489432,
+        "throughput_cv": 0.025998299924592842,
+        "median_ops_per_second": 8349.836557347991,
+        "median_effective_cores": 1.2236412878756449,
+        "median_cpu_ns_per_op": 150277.4352651048,
+        "median_p50_latency_ns": 861800,
+        "median_p95_latency_ns": 1312400,
+        "median_p99_latency_ns": 1582500,
+        "errors": 0,
+        "timeouts": 0,
+        "cleanup_pass": true,
+        "achieved_offered_ratio": 1.0,
+        "peak_working_set_bytes": 9531392,
+        "roles": {
+          "source": {
+            "median_effective_cores": 0.614454359363303,
+            "median_peak_thread_count": 4
+          },
+          "destination": {
+            "median_effective_cores": 0.6092171518359593,
+            "median_peak_thread_count": 4
+          }
+        },
+        "per_group_median_gbps": [
+          2.188859554489432
+        ],
+        "region": "STABLE"
+      }
+    },
+    "p16384-s1-o4-direct": {
+      "cells": [
+        {
+          "path": "direct",
+          "payload_bytes": 16384,
+          "streams_per_group": 1,
+          "outstanding_per_stream": 4,
+          "groups": 1,
+          "repeat_count": 3,
+          "median_gbps": 1.9713795075596583,
+          "throughput_cv": 0.029096047439998704,
+          "median_ops_per_second": 7520.2160169969875,
+          "median_effective_cores": 1.3903777908287906,
+          "median_cpu_ns_per_op": 182112.7852869488,
+          "median_p50_latency_ns": 512300,
+          "median_p95_latency_ns": 671500,
+          "median_p99_latency_ns": 829200,
+          "errors": 0,
+          "timeouts": 0,
+          "cleanup_pass": true,
+          "achieved_offered_ratio": 1.0,
+          "peak_working_set_bytes": 8880128,
+          "roles": {
+            "source": {
+              "median_effective_cores": 0.6509259320359507,
+              "median_peak_thread_count": 4
+            },
+            "destination": {
+              "median_effective_cores": 0.7394518587928399,
+              "median_peak_thread_count": 6
+            }
+          },
+          "per_group_median_gbps": [
+            1.9713795075596583
+          ],
+          "region": "STABLE"
+        },
+        {
+          "path": "direct",
+          "payload_bytes": 16384,
+          "streams_per_group": 1,
+          "outstanding_per_stream": 4,
+          "groups": 2,
+          "repeat_count": 5,
+          "median_gbps": 1.9110280530292458,
+          "throughput_cv": 0.11646054532154435,
+          "median_ops_per_second": 7289.993488423332,
+          "median_effective_cores": 1.5880319613414748,
+          "median_cpu_ns_per_op": 217837.22631073731,
+          "median_p50_latency_ns": 1063400.0,
+          "median_p95_latency_ns": 1614500,
+          "median_p99_latency_ns": 1942600,
+          "errors": 0,
+          "timeouts": 0,
+          "cleanup_pass": true,
+          "achieved_offered_ratio": 1.0,
+          "peak_working_set_bytes": 10027008,
+          "roles": {
+            "source": {
+              "median_effective_cores": 0.8486859334382307,
+              "median_peak_thread_count": 6
+            },
+            "destination": {
+              "median_effective_cores": 0.7341241497780209,
+              "median_peak_thread_count": 7
+            }
+          },
+          "per_group_median_gbps": [
+            0.9502309335472937,
+            0.9660708420505351
+          ],
+          "region": "SATURATED"
+        },
+        {
+          "path": "direct",
+          "payload_bytes": 16384,
+          "streams_per_group": 1,
+          "outstanding_per_stream": 4,
+          "groups": 4,
+          "repeat_count": 3,
+          "median_gbps": 1.7304719119776644,
+          "throughput_cv": 0.009140850829499721,
+          "median_ops_per_second": 6601.226470862062,
+          "median_effective_cores": 1.5928605404883251,
+          "median_cpu_ns_per_op": 238638.62494403264,
+          "median_p50_latency_ns": 2089700.0,
+          "median_p95_latency_ns": 4016000,
+          "median_p99_latency_ns": 5864200,
+          "errors": 0,
+          "timeouts": 0,
+          "cleanup_pass": true,
+          "achieved_offered_ratio": 1.0,
+          "peak_working_set_bytes": 11472896,
+          "roles": {
+            "source": {
+              "median_effective_cores": 0.8692201254601725,
+              "median_peak_thread_count": 8
+            },
+            "destination": {
+              "median_effective_cores": 0.7286875303258931,
+              "median_peak_thread_count": 9
+            }
+          },
+          "per_group_median_gbps": [
+            0.3830684716433228,
+            0.4533335741289781,
+            0.4374188953418068,
+            0.4471857684510511
+          ],
+          "region": "SATURATED"
+        }
+      ],
+      "highest_repeatable": {
+        "path": "direct",
+        "payload_bytes": 16384,
+        "streams_per_group": 1,
+        "outstanding_per_stream": 4,
+        "groups": 1,
+        "repeat_count": 3,
+        "median_gbps": 1.9713795075596583,
+        "throughput_cv": 0.029096047439998704,
+        "median_ops_per_second": 7520.2160169969875,
+        "median_effective_cores": 1.3903777908287906,
+        "median_cpu_ns_per_op": 182112.7852869488,
+        "median_p50_latency_ns": 512300,
+        "median_p95_latency_ns": 671500,
+        "median_p99_latency_ns": 829200,
+        "errors": 0,
+        "timeouts": 0,
+        "cleanup_pass": true,
+        "achieved_offered_ratio": 1.0,
+        "peak_working_set_bytes": 8880128,
+        "roles": {
+          "source": {
+            "median_effective_cores": 0.6509259320359507,
+            "median_peak_thread_count": 4
+          },
+          "destination": {
+            "median_effective_cores": 0.7394518587928399,
+            "median_peak_thread_count": 6
+          }
+        },
+        "per_group_median_gbps": [
+          1.9713795075596583
+        ],
+        "region": "STABLE"
+      },
+      "highest_strict_stable": {
+        "path": "direct",
+        "payload_bytes": 16384,
+        "streams_per_group": 1,
+        "outstanding_per_stream": 4,
+        "groups": 1,
+        "repeat_count": 3,
+        "median_gbps": 1.9713795075596583,
+        "throughput_cv": 0.029096047439998704,
+        "median_ops_per_second": 7520.2160169969875,
+        "median_effective_cores": 1.3903777908287906,
+        "median_cpu_ns_per_op": 182112.7852869488,
+        "median_p50_latency_ns": 512300,
+        "median_p95_latency_ns": 671500,
+        "median_p99_latency_ns": 829200,
+        "errors": 0,
+        "timeouts": 0,
+        "cleanup_pass": true,
+        "achieved_offered_ratio": 1.0,
+        "peak_working_set_bytes": 8880128,
+        "roles": {
+          "source": {
+            "median_effective_cores": 0.6509259320359507,
+            "median_peak_thread_count": 4
+          },
+          "destination": {
+            "median_effective_cores": 0.7394518587928399,
+            "median_peak_thread_count": 6
+          }
+        },
+        "per_group_median_gbps": [
+          1.9713795075596583
+        ],
+        "region": "STABLE"
+      }
+    },
+    "p16384-s1-o4-nbsr": {
+      "cells": [
+        {
+          "path": "nbsr",
+          "payload_bytes": 16384,
+          "streams_per_group": 1,
+          "outstanding_per_stream": 4,
+          "groups": 1,
+          "repeat_count": 3,
+          "median_gbps": 2.6584379637633355,
+          "throughput_cv": 0.0008466155551743874,
+          "median_ops_per_second": 10141.13603120169,
+          "median_effective_cores": 1.3227170245770905,
+          "median_cpu_ns_per_op": 130255.34149463389,
+          "median_p50_latency_ns": 383500,
+          "median_p95_latency_ns": 459800,
+          "median_p99_latency_ns": 650600,
+          "errors": 0,
+          "timeouts": 0,
+          "cleanup_pass": true,
+          "achieved_offered_ratio": 1.0,
+          "peak_working_set_bytes": 9351168,
+          "roles": {
+            "source": {
+              "median_effective_cores": 0.6613768296620246,
+              "median_peak_thread_count": 4
+            },
+            "destination": {
+              "median_effective_cores": 0.6613585122885453,
+              "median_peak_thread_count": 4
+            }
+          },
+          "per_group_median_gbps": [
+            2.6584379637633355
+          ],
+          "region": "STABLE"
+        },
+        {
+          "path": "nbsr",
+          "payload_bytes": 16384,
+          "streams_per_group": 1,
+          "outstanding_per_stream": 4,
+          "groups": 2,
+          "repeat_count": 3,
+          "median_gbps": 1.954928061729805,
+          "throughput_cv": 0.010930925627328754,
+          "median_ops_per_second": 7457.458731574268,
+          "median_effective_cores": 1.6141128194464647,
+          "median_cpu_ns_per_op": 216809.90107873417,
+          "median_p50_latency_ns": 1041700.0,
+          "median_p95_latency_ns": 1576100,
+          "median_p99_latency_ns": 1944300,
+          "errors": 0,
+          "timeouts": 0,
+          "cleanup_pass": true,
+          "achieved_offered_ratio": 1.0,
+          "peak_working_set_bytes": 10461184,
+          "roles": {
+            "source": {
+              "median_effective_cores": 0.9006882666137896,
+              "median_peak_thread_count": 6
+            },
+            "destination": {
+              "median_effective_cores": 0.7341609920708113,
+              "median_peak_thread_count": 7
+            }
+          },
+          "per_group_median_gbps": [
+            0.9983302907036908,
+            0.9750662108661992
+          ],
+          "region": "SATURATED"
+        },
+        {
+          "path": "nbsr",
+          "payload_bytes": 16384,
+          "streams_per_group": 1,
+          "outstanding_per_stream": 4,
+          "groups": 4,
+          "repeat_count": 5,
+          "median_gbps": 2.14168447268,
+          "throughput_cv": 0.15144989663985253,
+          "median_ops_per_second": 8169.877901763916,
+          "median_effective_cores": 1.6662640753234963,
+          "median_cpu_ns_per_op": 206881.97669681415,
+          "median_p50_latency_ns": 1764300.0,
+          "median_p95_latency_ns": 3282400,
+          "median_p99_latency_ns": 4799600,
+          "errors": 0,
+          "timeouts": 0,
+          "cleanup_pass": true,
+          "achieved_offered_ratio": 1.0,
+          "peak_working_set_bytes": 12509184,
+          "roles": {
+            "source": {
+              "median_effective_cores": 0.9051311026448622,
+              "median_peak_thread_count": 8
+            },
+            "destination": {
+              "median_effective_cores": 0.7390727326181252,
+              "median_peak_thread_count": 9
+            }
+          },
+          "per_group_median_gbps": [
+            0.4531012216514196,
+            0.4887094131667907,
+            0.558312146647229,
+            0.46506726372406315
+          ],
+          "region": "SATURATED"
+        }
+      ],
+      "highest_repeatable": {
+        "path": "nbsr",
+        "payload_bytes": 16384,
+        "streams_per_group": 1,
+        "outstanding_per_stream": 4,
+        "groups": 1,
+        "repeat_count": 3,
+        "median_gbps": 2.6584379637633355,
+        "throughput_cv": 0.0008466155551743874,
+        "median_ops_per_second": 10141.13603120169,
+        "median_effective_cores": 1.3227170245770905,
+        "median_cpu_ns_per_op": 130255.34149463389,
+        "median_p50_latency_ns": 383500,
+        "median_p95_latency_ns": 459800,
+        "median_p99_latency_ns": 650600,
+        "errors": 0,
+        "timeouts": 0,
+        "cleanup_pass": true,
+        "achieved_offered_ratio": 1.0,
+        "peak_working_set_bytes": 9351168,
+        "roles": {
+          "source": {
+            "median_effective_cores": 0.6613768296620246,
+            "median_peak_thread_count": 4
+          },
+          "destination": {
+            "median_effective_cores": 0.6613585122885453,
+            "median_peak_thread_count": 4
+          }
+        },
+        "per_group_median_gbps": [
+          2.6584379637633355
+        ],
+        "region": "STABLE"
+      },
+      "highest_strict_stable": {
+        "path": "nbsr",
+        "payload_bytes": 16384,
+        "streams_per_group": 1,
+        "outstanding_per_stream": 4,
+        "groups": 1,
+        "repeat_count": 3,
+        "median_gbps": 2.6584379637633355,
+        "throughput_cv": 0.0008466155551743874,
+        "median_ops_per_second": 10141.13603120169,
+        "median_effective_cores": 1.3227170245770905,
+        "median_cpu_ns_per_op": 130255.34149463389,
+        "median_p50_latency_ns": 383500,
+        "median_p95_latency_ns": 459800,
+        "median_p99_latency_ns": 650600,
+        "errors": 0,
+        "timeouts": 0,
+        "cleanup_pass": true,
+        "achieved_offered_ratio": 1.0,
+        "peak_working_set_bytes": 9351168,
+        "roles": {
+          "source": {
+            "median_effective_cores": 0.6613768296620246,
+            "median_peak_thread_count": 4
+          },
+          "destination": {
+            "median_effective_cores": 0.6613585122885453,
+            "median_peak_thread_count": 4
+          }
+        },
+        "per_group_median_gbps": [
+          2.6584379637633355
+        ],
+        "region": "STABLE"
+      }
+    }
+  },
+  "claim_boundary": "Windows loopback benchmark harness; no production or hardware ceiling claim."
+}

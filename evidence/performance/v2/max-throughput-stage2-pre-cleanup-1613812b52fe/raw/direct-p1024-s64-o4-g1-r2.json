@@ -1,0 +1,73 @@
+{
+  "groups": 1,
+  "payload_bytes": 1024,
+  "streams_per_group": 64,
+  "outstanding_per_stream": 4,
+  "completed_operations": 342683,
+  "measured_ns": 3004688600,
+  "configured_total_outstanding": 256,
+  "max_observed_total_outstanding": 256,
+  "operations_per_second": 114049.42262569239,
+  "aggregate_application_gbps": 1.868585740299344,
+  "p50_latency_ns": 2212100,
+  "p95_latency_ns": 2772800,
+  "p99_latency_ns": 3369500,
+  "per_group": [
+    {
+      "ordinal": 0,
+      "completed_operations": 342683,
+      "measured_ns": 3004688600,
+      "gbps": 1.868585740299344,
+      "p99_latency_ns": 3369500
+    }
+  ],
+  "schema": "nbsr-p2a-stage2-repeat-v1",
+  "path": "direct",
+  "repeat": 2,
+  "runtime_workers": 1,
+  "errors": 0,
+  "timeouts": 0,
+  "valid": true,
+  "cleanup_pass": true,
+  "resources": {
+    "runtime_workers": 1,
+    "roles": {
+      "source": {
+        "cpu_ns": 1984375000,
+        "effective_cores": 0.6604261752781969,
+        "effective_cores_per_runtime_worker": 0.6604261752781969,
+        "peak_thread_count": 4,
+        "peak_working_set_bytes": 14307328,
+        "peak_private_bytes": 5435392
+      },
+      "destination": {
+        "cpu_ns": 2000000000,
+        "effective_cores": 0.6656263813827497,
+        "effective_cores_per_runtime_worker": 0.6656263813827497,
+        "peak_thread_count": 4,
+        "peak_working_set_bytes": 8716288,
+        "peak_private_bytes": 2101248
+      }
+    },
+    "total_cpu_ns": 3984375000,
+    "cpu_ns_per_completed_operation": 11626.99929672613
+  },
+  "affinity": {
+    "process_mask": "0x55",
+    "server": {
+      "requested_mask": 85,
+      "observed_mask": 85,
+      "system_mask": 255,
+      "verified": true
+    },
+    "client": {
+      "requested_mask": 85,
+      "observed_mask": 85,
+      "system_mask": 255,
+      "verified": true
+    },
+    "group_thread_masks": null,
+    "group_thread_masks_enforced": false,
+    "group_placement": "process constrained to verified physical-core mask 0x55; per-thread placement not verified"
+  }
+}

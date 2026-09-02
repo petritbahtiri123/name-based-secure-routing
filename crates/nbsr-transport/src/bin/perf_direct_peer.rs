@@ -8,7 +8,7 @@ use std::time::{Duration, Instant};
 #[cfg(feature = "benchmark-harness")]
 use nbsr_transport::p2a_benchmark::{
     OutstandingTracker, build_benchmark_runtime, decode_frame, decode_measured_frame, encode_frame,
-    encode_measured_frame, parse_runtime_workers,
+    encode_measured_frame, parse_group_count, parse_runtime_workers, run_current_thread_groups,
 };
 use quinn::crypto::rustls::{QuicClientConfig, QuicServerConfig};
 use quinn::{ClientConfig, Connection, Endpoint, ServerConfig, TransportConfig, VarInt};
@@ -262,19 +262,45 @@ async fn server() {
     #[cfg(feature = "benchmark-harness")]
     if let Some(stream_count) = optional_argument("--p2a-streams") {
         let stream_count = stream_count.parse::<usize>().unwrap();
-        let connection = accept_connection(&endpoint).await;
-        let mut tasks = JoinSet::new();
-        for _ in 0..stream_count {
-            let (mut send, mut receive) = connection.accept_bi().await.unwrap();
-            tasks.spawn(async move {
-                while let Ok(wire) = read_frame(&mut receive).await {
-                    if write_frame(&mut send, &wire).await.is_err() {
-                        break;
-                    }
-                }
-            });
+        let groups = parse_group_count(env::args()).expect("valid --p2a-groups");
+        let mut connections = Vec::with_capacity(groups);
+        for _ in 0..groups {
+            connections.push(Some(accept_connection(&endpoint).await));
         }
-        while tasks.join_next().await.is_some() {}
+        let connections = Arc::new(std::sync::Mutex::new(connections));
+        tokio::task::spawn_blocking(move || {
+            run_current_thread_groups(groups, move |ordinal, _| {
+                let connection = connections.lock().unwrap()[ordinal].take().unwrap();
+                async move {
+                    let mut streams = JoinSet::new();
+                    for _ in 0..stream_count {
+                        let (mut send, mut receive) = connection.accept_bi().await.unwrap();
+                        streams.spawn(async move {
+                            while let Ok(wire) = read_frame(&mut receive).await {
+                                if write_frame(&mut send, &wire).await.is_err() {
+                                    break;
+                                }
+                            }
+                        });
+                    }
+                    while streams.join_next().await.is_some() {}
+                    connection.closed().await;
+                }
+            })
+            .expect("independent Direct destination groups");
+        })
+        .await
+        .unwrap();
+        if let Some(completion_ack) = optional_argument("--completion-ack") {
+            let completion_ack = PathBuf::from(completion_ack);
+            tokio::time::timeout(Duration::from_secs(30), async {
+                while !completion_ack.exists() {
+                    tokio::time::sleep(Duration::from_millis(10)).await;
+                }
+            })
+            .await
+            .expect("P2A group completion acknowledgement");
+        }
         endpoint.close(VarInt::from_u32(0), b"");
         endpoint.wait_idle().await;
         return;
@@ -299,7 +325,7 @@ async fn server() {
     endpoint.wait_idle().await;
 }
 
-async fn client() {
+async fn client(group_barrier: Option<Arc<std::sync::Barrier>>) {
     let authority = PathBuf::from(argument("--authority-dir"));
     let remote: SocketAddr = argument("--endpoint").parse().unwrap();
     let samples = count("--samples");
@@ -406,6 +432,9 @@ async fn client() {
             });
         }
         ready.wait().await;
+        if let Some(barrier) = group_barrier {
+            barrier.wait();
+        }
         b1_support::counter_phase(counter_control, "measurement-start").unwrap();
         let measured_started = Instant::now();
         measure.wait().await;
@@ -532,7 +561,7 @@ async fn client() {
 async fn run() {
     match argument("--role").as_str() {
         "server" => server().await,
-        "client" => client().await,
+        "client" => client(None).await,
         other => panic!("unsupported role {other}"),
     }
 }
@@ -540,6 +569,12 @@ async fn run() {
 #[cfg(feature = "benchmark-harness")]
 fn main() {
     let workers = parse_runtime_workers(env::args()).expect("valid --p2a-runtime-workers");
+    let groups = parse_group_count(env::args()).expect("valid --p2a-groups");
+    if groups > 1 && argument("--role") == "client" {
+        run_current_thread_groups(groups, |_, barrier| async { client(Some(barrier)).await })
+            .expect("independent Direct benchmark groups");
+        return;
+    }
     build_benchmark_runtime(workers)
         .expect("benchmark Tokio runtime")
         .block_on(run());

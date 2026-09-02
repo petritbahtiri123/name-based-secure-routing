@@ -1,0 +1,7 @@
+{
+  "schema": "nbsr-benchmark-rejected-attempt-v1",
+  "status": "REJECTED",
+  "reason": "NBSR_P2A_GROUPS=1 incorrectly selected the destination multi-group branch, which accepts only 2 or 4 groups; the destination exited before authoritative resource sampling completed.",
+  "benchmark_results_used": false,
+  "preserved_for_diagnostic_provenance": true
+}
