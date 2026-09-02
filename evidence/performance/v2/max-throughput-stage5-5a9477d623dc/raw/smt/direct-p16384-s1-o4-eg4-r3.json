@@ -1,0 +1,155 @@
+{
+  "groups": 4,
+  "payload_bytes": 16384,
+  "streams_per_group": 1,
+  "outstanding_per_stream": 4,
+  "completed_operations": 69109,
+  "measured_ns": 8001826000,
+  "configured_total_outstanding": 16,
+  "max_observed_total_outstanding": 16,
+  "operations_per_second": 8636.653683796674,
+  "aggregate_application_gbps": 2.2640469432851953,
+  "p50_latency_ns": 1624100.0,
+  "p95_latency_ns": 4134000,
+  "p99_latency_ns": 9768300,
+  "per_group": [
+    {
+      "ordinal": 0,
+      "completed_operations": 18075,
+      "measured_ns": 8001230400,
+      "gbps": 0.5921905210978551,
+      "p99_latency_ns": 5283500
+    },
+    {
+      "ordinal": 1,
+      "completed_operations": 17882,
+      "measured_ns": 8001826000,
+      "gbps": 0.5858236617492059,
+      "p99_latency_ns": 5433300
+    },
+    {
+      "ordinal": 2,
+      "completed_operations": 15600,
+      "measured_ns": 8001191800,
+      "gbps": 0.5111046581835471,
+      "p99_latency_ns": 9768300
+    },
+    {
+      "ordinal": 3,
+      "completed_operations": 17552,
+      "measured_ns": 8001512500,
+      "gbps": 0.5750352184040204,
+      "p99_latency_ns": 6534000
+    }
+  ],
+  "schema": "nbsr-max-throughput-v2-stage5-repeat-v1",
+  "path": "direct",
+  "repeat": 3,
+  "endpoint_groups": 4,
+  "runtime_workers": 1,
+  "errors": 0,
+  "timeouts": 0,
+  "valid": true,
+  "cleanup_pass": true,
+  "cleanup_diagnostic": null,
+  "resources": {
+    "runtime_workers": 1,
+    "roles": {
+      "source": {
+        "cpu_ns": 25000000000,
+        "effective_cores": 3.1242868815192937,
+        "effective_cores_per_runtime_worker": 3.1242868815192937,
+        "peak_thread_count": 8,
+        "peak_working_set_bytes": 12398592,
+        "peak_private_bytes": 6266880
+      },
+      "destination_0": {
+        "cpu_ns": 5984375000,
+        "effective_cores": 0.7478761722636809,
+        "effective_cores_per_runtime_worker": 0.7478761722636809,
+        "peak_thread_count": 6,
+        "peak_working_set_bytes": 8458240,
+        "peak_private_bytes": 1966080
+      },
+      "destination_1": {
+        "cpu_ns": 6968750000,
+        "effective_cores": 0.8708949682235031,
+        "effective_cores_per_runtime_worker": 0.8708949682235031,
+        "peak_thread_count": 6,
+        "peak_working_set_bytes": 8491008,
+        "peak_private_bytes": 1982464
+      },
+      "destination_2": {
+        "cpu_ns": 7046875000,
+        "effective_cores": 0.8806583647282509,
+        "effective_cores_per_runtime_worker": 0.8806583647282509,
+        "peak_thread_count": 6,
+        "peak_working_set_bytes": 8450048,
+        "peak_private_bytes": 1937408
+      },
+      "destination_3": {
+        "cpu_ns": 7015625000,
+        "effective_cores": 0.8767530061263518,
+        "effective_cores_per_runtime_worker": 0.8767530061263518,
+        "peak_thread_count": 6,
+        "peak_working_set_bytes": 8392704,
+        "peak_private_bytes": 1896448
+      }
+    },
+    "total_cpu_ns": 52015625000,
+    "cpu_ns_per_completed_operation": 752660.6520134859
+  },
+  "affinity": {
+    "endpoint_masks": [
+      "0x3",
+      "0xc",
+      "0x30",
+      "0xc0"
+    ],
+    "server": [
+      {
+        "requested_mask": 3,
+        "observed_mask": 3,
+        "system_mask": 255,
+        "verified": true
+      },
+      {
+        "requested_mask": 12,
+        "observed_mask": 12,
+        "system_mask": 255,
+        "verified": true
+      },
+      {
+        "requested_mask": 48,
+        "observed_mask": 48,
+        "system_mask": 255,
+        "verified": true
+      },
+      {
+        "requested_mask": 192,
+        "observed_mask": 192,
+        "system_mask": 255,
+        "verified": true
+      }
+    ],
+    "source_process_mask": "0xff",
+    "source": {
+      "requested_mask": 255,
+      "observed_mask": 255,
+      "system_mask": 255,
+      "verified": true
+    },
+    "logical_processors_available": 8,
+    "source_group_thread_masks_enforced": false,
+    "placement": "each destination endpoint process pinned to a distinct verified physical-core representative; source process constrained to 0x55"
+  },
+  "affinity_mode": "smt",
+  "host_counters": {
+    "status": "MEASURED",
+    "sample_count": 11,
+    "processor_utility_percent_median": 111.02095548951121,
+    "processor_performance_percent_median": 114.74486822181031,
+    "processor_frequency_mhz_median": 2101.0,
+    "thermal_temperature": "UNAVAILABLE: ACPI thermal zone not exposed on host"
+  }
+}

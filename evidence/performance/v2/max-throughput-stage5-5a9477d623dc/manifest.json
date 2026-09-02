@@ -1,0 +1,278 @@
+{
+  "schema": "nbsr-max-throughput-v2-stage5-v1",
+  "git_sha": "5a9477d623dc27eb266eacfb73fddef22ed18c31",
+  "branch": "codex/nbsr-v3-wp0-wp1",
+  "timestamp_utc": "2026-09-02T20:18:35Z",
+  "command": [
+    "C:\\Users\\bajra\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+    "scripts/run_max_throughput_v2_stage5.py",
+    "--output",
+    "evidence\\performance\\v2\\max-throughput-stage5-5a9477d623dc",
+    "--warmup-seconds",
+    "2",
+    "--duration-seconds",
+    "8",
+    "--repeats",
+    "5"
+  ],
+  "warmup_seconds": 2.0,
+  "duration_seconds": 8.0,
+  "processor_topology": {
+    "verified": true,
+    "scope": "physical-core-selected-logical-processors",
+    "physical_cores": 4,
+    "logical_processors": 8,
+    "cores": [
+      {
+        "core_index": 0,
+        "smt": true,
+        "efficiency_class": 0,
+        "logical_mask": 3
+      },
+      {
+        "core_index": 1,
+        "smt": true,
+        "efficiency_class": 0,
+        "logical_mask": 12
+      },
+      {
+        "core_index": 2,
+        "smt": true,
+        "efficiency_class": 0,
+        "logical_mask": 48
+      },
+      {
+        "core_index": 3,
+        "smt": true,
+        "efficiency_class": 0,
+        "logical_mask": 192
+      }
+    ],
+    "affinity_masks": {
+      "1": {
+        "decimal": 1,
+        "hex": "0x1"
+      },
+      "2": {
+        "decimal": 5,
+        "hex": "0x5"
+      },
+      "4": {
+        "decimal": 85,
+        "hex": "0x55"
+      }
+    }
+  },
+  "cells": [
+    {
+      "affinity_mode": "physical",
+      "path": "direct",
+      "endpoint_groups": 2,
+      "repeat_count": 5,
+      "median_gbps": 2.1206567069339632,
+      "max_gbps": 2.170003030349009,
+      "throughput_cv": 0.021535611332096482,
+      "median_ops_per_second": 8089.663341270306,
+      "median_effective_cores": 3.47619689099199,
+      "median_p50_latency_ns": 920500,
+      "median_p95_latency_ns": 1436400,
+      "median_p99_latency_ns": 2001400,
+      "peak_working_set_bytes": 28631040,
+      "errors": 0,
+      "timeouts": 0,
+      "valid": true,
+      "cleanup_pass": true,
+      "host_counters": {
+        "processor_utility_percent_median": 83.38404373169114,
+        "processor_performance_percent_median": 163.98029741213972,
+        "processor_frequency_mhz_median": 2101.0
+      }
+    },
+    {
+      "affinity_mode": "physical",
+      "path": "direct",
+      "endpoint_groups": 4,
+      "repeat_count": 5,
+      "median_gbps": 1.9000794613322747,
+      "max_gbps": 1.9629278296293287,
+      "throughput_cv": 0.04553100968737893,
+      "median_ops_per_second": 7248.227925614451,
+      "median_effective_cores": 3.7060254810097724,
+      "median_p50_latency_ns": 1824850,
+      "median_p95_latency_ns": 6632000,
+      "median_p99_latency_ns": 10604500,
+      "peak_working_set_bytes": 45752320,
+      "errors": 0,
+      "timeouts": 0,
+      "valid": true,
+      "cleanup_pass": true,
+      "host_counters": {
+        "processor_utility_percent_median": 74.14878128005401,
+        "processor_performance_percent_median": 127.00151054743412,
+        "processor_frequency_mhz_median": 2101.0
+      }
+    },
+    {
+      "affinity_mode": "physical",
+      "path": "nbsr",
+      "endpoint_groups": 2,
+      "repeat_count": 5,
+      "median_gbps": 3.010394615718839,
+      "max_gbps": 3.258059970947227,
+      "throughput_cv": 0.08584582367182023,
+      "median_ops_per_second": 11483.744109034877,
+      "median_effective_cores": 3.714399182847803,
+      "median_p50_latency_ns": 631150,
+      "median_p95_latency_ns": 1053700,
+      "median_p99_latency_ns": 1669200,
+      "peak_working_set_bytes": 29122560,
+      "errors": 0,
+      "timeouts": 0,
+      "valid": true,
+      "cleanup_pass": true,
+      "host_counters": {
+        "processor_utility_percent_median": 69.41282787194447,
+        "processor_performance_percent_median": 124.96257552610416,
+        "processor_frequency_mhz_median": 2101.0
+      }
+    },
+    {
+      "affinity_mode": "physical",
+      "path": "nbsr",
+      "endpoint_groups": 4,
+      "repeat_count": 5,
+      "median_gbps": 2.6921660474779547,
+      "max_gbps": 2.7809028836458753,
+      "throughput_cv": 0.02682698029249127,
+      "median_ops_per_second": 10269.798459922618,
+      "median_effective_cores": 3.768883802873714,
+      "median_p50_latency_ns": 965350,
+      "median_p95_latency_ns": 3761700,
+      "median_p99_latency_ns": 17058300,
+      "peak_working_set_bytes": 48365568,
+      "errors": 0,
+      "timeouts": 0,
+      "valid": true,
+      "cleanup_pass": true,
+      "host_counters": {
+        "processor_utility_percent_median": 72.96883005709034,
+        "processor_performance_percent_median": 124.9744909940076,
+        "processor_frequency_mhz_median": 2101.0
+      }
+    },
+    {
+      "affinity_mode": "smt",
+      "path": "direct",
+      "endpoint_groups": 2,
+      "repeat_count": 5,
+      "median_gbps": 2.337667627177248,
+      "max_gbps": 2.500645213121993,
+      "throughput_cv": 0.04968949031039499,
+      "median_ops_per_second": 8917.49430533313,
+      "median_effective_cores": 3.9251226144252995,
+      "median_p50_latency_ns": 768300,
+      "median_p95_latency_ns": 1454800,
+      "median_p99_latency_ns": 2270000,
+      "peak_working_set_bytes": 27721728,
+      "errors": 0,
+      "timeouts": 0,
+      "valid": true,
+      "cleanup_pass": true,
+      "host_counters": {
+        "processor_utility_percent_median": 78.9537548666027,
+        "processor_performance_percent_median": 123.02724356926537,
+        "processor_frequency_mhz_median": 2101.0
+      }
+    },
+    {
+      "affinity_mode": "smt",
+      "path": "direct",
+      "endpoint_groups": 4,
+      "repeat_count": 5,
+      "median_gbps": 2.2640469432851953,
+      "max_gbps": 2.3467386160138424,
+      "throughput_cv": 0.04471131250839104,
+      "median_ops_per_second": 8636.653683796674,
+      "median_effective_cores": 6.5004693928610795,
+      "median_p50_latency_ns": 1624800,
+      "median_p95_latency_ns": 3908300,
+      "median_p99_latency_ns": 8784600,
+      "peak_working_set_bytes": 46190592,
+      "errors": 0,
+      "timeouts": 0,
+      "valid": true,
+      "cleanup_pass": true,
+      "host_counters": {
+        "processor_utility_percent_median": 111.02095548951121,
+        "processor_performance_percent_median": 114.82560514359864,
+        "processor_frequency_mhz_median": 2101.0
+      }
+    },
+    {
+      "affinity_mode": "smt",
+      "path": "nbsr",
+      "endpoint_groups": 2,
+      "repeat_count": 5,
+      "median_gbps": 2.7591891184097697,
+      "max_gbps": 2.8447038577516115,
+      "throughput_cv": 0.05374171644199551,
+      "median_ops_per_second": 10525.471185340002,
+      "median_effective_cores": 3.8667631227472783,
+      "median_p50_latency_ns": 678950,
+      "median_p95_latency_ns": 1182500,
+      "median_p99_latency_ns": 1574000,
+      "peak_working_set_bytes": 29298688,
+      "errors": 0,
+      "timeouts": 0,
+      "valid": true,
+      "cleanup_pass": true,
+      "host_counters": {
+        "processor_utility_percent_median": 71.1901619532983,
+        "processor_performance_percent_median": 123.83121154801223,
+        "processor_frequency_mhz_median": 2101.0
+      }
+    },
+    {
+      "affinity_mode": "smt",
+      "path": "nbsr",
+      "endpoint_groups": 4,
+      "repeat_count": 5,
+      "median_gbps": 3.0398554168972107,
+      "max_gbps": 3.1672193287330677,
+      "throughput_cv": 0.036424446956186934,
+      "median_ops_per_second": 11596.128146733134,
+      "median_effective_cores": 7.000647066781603,
+      "median_p50_latency_ns": 1255650,
+      "median_p95_latency_ns": 3002300,
+      "median_p99_latency_ns": 6427600,
+      "peak_working_set_bytes": 48566272,
+      "errors": 0,
+      "timeouts": 0,
+      "valid": true,
+      "cleanup_pass": true,
+      "host_counters": {
+        "processor_utility_percent_median": 111.08041432988323,
+        "processor_performance_percent_median": 113.09468751728552,
+        "processor_frequency_mhz_median": 2101.0
+      }
+    }
+  ],
+  "all_valid": true,
+  "all_cleanup_pass": true,
+  "errors": 0,
+  "timeouts": 0,
+  "binaries": {
+    "direct": {
+      "path": "C:\\NBSR-build\\max-throughput-v2-stage5\\release\\perf_direct_peer.exe",
+      "sha256": "679f4c3415c97af132eec672ec24cde2b17fab1c93107c51126489ae8d71d0bd"
+    },
+    "nbsr": {
+      "path": "C:\\NBSR-build\\max-throughput-v2-stage5\\release\\perf_rust_source.exe",
+      "sha256": "ee8e89cd47752c85dee6ddf6327bd8d3008305d871efedb551b04f22673c3a12"
+    },
+    "server": {
+      "path": "C:\\NBSR-build\\max-throughput-v2-stage5\\release\\wp8_interop_server.exe",
+      "sha256": "02ffe6c455ad98c62c37a3d0e406cbf2ceee2de1e7c1d402e7528112c5358ed7"
+    }
+  }
+}

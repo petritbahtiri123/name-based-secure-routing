@@ -4,6 +4,7 @@ import argparse
 from dataclasses import asdict
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import statistics
@@ -56,6 +57,14 @@ def endpoint_masks(topology: dict, groups: int) -> list[int]:
     return masks
 
 
+def placement_description(source_mask: int, endpoint_group_masks: list[int]) -> str:
+    endpoint_text = ", ".join(hex(mask) for mask in endpoint_group_masks)
+    return (
+        f"destination endpoint masks [{endpoint_text}]; "
+        f"source process mask {hex(source_mask)}; source group-thread placement not verified"
+    )
+
+
 def _server_command(cell: dict, binaries: dict[str, Path], authority: Path, ready: Path,
                     result: Path, ack: Path) -> tuple[list[str], dict[str, str]]:
     streams = str(cell["streams_per_group"])
@@ -71,15 +80,23 @@ def _server_command(cell: dict, binaries: dict[str, Path], authority: Path, read
 
 
 def run_repeat(cell: dict, repeat: int, binaries: dict[str, Path], authority: Path,
-               warmup: float, duration: float, raw: Path, topology: dict) -> dict:
+               warmup: float, duration: float, raw: Path, topology: dict,
+               placement: dict | None = None, host_counter_path: Path | None = None) -> dict:
     groups = int(cell["endpoint_groups"])
-    masks = endpoint_masks(topology, groups)
+    placement = placement or {
+        "source_mask": 0x55,
+        "endpoint_masks": endpoint_masks(topology, groups),
+        "logical_processors_available": 4,
+    }
+    masks = [int(mask) for mask in placement["endpoint_masks"]]
+    source_mask = int(placement["source_mask"])
     prefix = f"{cell['path']}-p16384-s1-o4-eg{groups}-r{repeat}"
     ack = raw / f"{prefix}.ack"
     ack.unlink(missing_ok=True)
     servers: list[subprocess.Popen[str]] = []
     server_affinity = []
     endpoints = []
+    counter: subprocess.Popen[str] | None = None
     try:
         for ordinal, mask in enumerate(masks):
             ready = raw / f"{prefix}-d{ordinal}.ready.json"
@@ -106,7 +123,16 @@ def run_repeat(cell: dict, repeat: int, binaries: dict[str, Path], authority: Pa
             argv, cwd=ROOT, env=os.environ.copy(), stdout=subprocess.PIPE,
             stderr=subprocess.PIPE, text=True
         )
-        client_affinity = set_and_verify_exact_affinity(client.pid, 0x55)
+        client_affinity = set_and_verify_exact_affinity(client.pid, source_mask)
+        if host_counter_path is not None:
+            counter = subprocess.Popen(
+                ["typeperf", r"\Processor Information(_Total)\% Processor Utility",
+                 r"\Processor Information(_Total)\% Processor Performance",
+                 r"\Processor Information(_Total)\Processor Frequency",
+                 "-sc", str(max(2, math.ceil(warmup + duration) + 2)), "-si", "1",
+                 "-f", "CSV", "-o", str(host_counter_path), "-y"],
+                cwd=ROOT, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, text=True,
+            )
         processes = {"source": client.pid}
         processes.update({f"destination_{ordinal}": server.pid for ordinal, server in enumerate(servers)})
         sampler = ProcessResourceSampler(
@@ -115,6 +141,12 @@ def run_repeat(cell: dict, repeat: int, binaries: dict[str, Path], authority: Pa
         sampler.start()
         stdout, stderr = client.communicate(timeout=int(warmup + duration + 90))
         samples = [asdict(sample) for sample in sampler.stop()]
+        if counter is not None:
+            try:
+                counter.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                counter.terminate()
+                counter.wait(timeout=5)
         if client.returncode:
             raise RuntimeError(stderr)
         records = [json.loads(line) for line in stdout.splitlines()
@@ -154,13 +186,17 @@ def run_repeat(cell: dict, repeat: int, binaries: dict[str, Path], authority: Pa
             "affinity": {
                 "endpoint_masks": [hex(mask) for mask in masks],
                 "server": server_affinity,
-                "source_process_mask": "0x55", "source": client_affinity,
+                "source_process_mask": hex(source_mask), "source": client_affinity,
+                "logical_processors_available": placement["logical_processors_available"],
                 "source_group_thread_masks_enforced": False,
-                "placement": "each destination endpoint process pinned to a distinct verified physical-core representative; source process constrained to 0x55",
+                "placement": placement_description(source_mask, masks),
             },
         })
         return aggregate
     finally:
+        if counter is not None and counter.poll() is None:
+            counter.terminate()
+            counter.wait(timeout=5)
         for server in servers:
             if server.poll() is None:
                 server.kill()

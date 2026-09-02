@@ -1,0 +1,41 @@
+{
+  "schema": "nbsr-max-throughput-v2-stage5-analysis-v1",
+  "classification": {
+    "evidence": "PASS",
+    "system": "CPU_HOST_LIMITED_FOR_THIS_BENCHMARK_TOPOLOGY"
+  },
+  "primary_answer": "NO_REPEATABLE_MATERIAL_GAIN",
+  "physical_best": {
+    "affinity_mask": "0x55",
+    "endpoint_groups": 2,
+    "median_gbps": 3.010394615718839,
+    "throughput_cv": 0.08584582367182023,
+    "effective_cores": 3.714399182847803,
+    "p99_latency_ns": 1669200
+  },
+  "full_host_best": {
+    "affinity_mask": "0xFF",
+    "endpoint_groups": 4,
+    "median_gbps": 3.0398554168972107,
+    "throughput_cv": 0.036424446956186934,
+    "effective_cores": 7.000647066781603,
+    "p99_latency_ns": 6427600
+  },
+  "full_host_gain_over_physical_best_percent": 0.9786358580546883,
+  "highest_single_stage5_nbsr_gbps": 3.258059970947227,
+  "highest_single_all_prior_stages_nbsr_gbps": 3.406931867394561,
+  "highest_repeatable_stage5_nbsr_gbps": 3.0398554168972107,
+  "highest_strict_stable_stage5_nbsr_gbps": null,
+  "repeatability_rule": "five repeats and CV <= 0.05",
+  "strict_stable_reason": "The repeatable 0xFF four-group cell increased p99 approximately fourfold over its two-group peer and is therefore saturated, not strict-stable. The lower-latency NBSR cells exceeded the CV gate.",
+  "regions": {
+    "physical_nbsr_2": "DEGRADED_VARIABILITY",
+    "physical_nbsr_4": "SATURATED",
+    "smt_nbsr_2": "DEGRADED_VARIABILITY",
+    "smt_nbsr_4": "SATURATED_REPEATABLE"
+  },
+  "host_limit_evidence": "The 0xFF four-group NBSR cell consumed 7.001 effective cores across eight logical processors, while producing only 0.98 percent more median throughput than the best 0x55 cell and materially higher p99. Memory remained negligible relative to host RAM and errors/timeouts were zero.",
+  "frequency_thermal_limit": "TypePerf Processor Performance and Utility were measured. Processor Frequency remained fixed at the nominal 2101 MHz and is not used as a turbo-frequency claim. ACPI temperature was unavailable, so the observed performance-counter variation is not attributed specifically to thermal throttling.",
+  "scope_limit": "CPU/HOST-LIMITED applies only to this laptop, Windows loopback, endpoint-per-group benchmark topology. It is not a server-class, WAN, NIC, production runtime, or general NBSR ceiling.",
+  "raw_metadata_note": "The Stage-5 raw records preserve an inherited Stage-4 free-text placement sentence that says source mask 0x55 even for 0xFF cells. The structured source_process_mask, endpoint affinity masks, and verified OS affinity fields are authoritative and correct. Raw records were not rewritten; the runner now derives this sentence from the actual masks for future captures."
+}
