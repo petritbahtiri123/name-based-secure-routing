@@ -1,0 +1,92 @@
+{
+  "schema": "nbsr-p2a-repeat-v2",
+  "path": "nbsr",
+  "streams": 1,
+  "payload_bytes": 16384,
+  "model": "bounded-outstanding-per-stream",
+  "outstanding_per_stream": 1,
+  "configured_total_outstanding": 1,
+  "max_outstanding_per_stream_observed": 1,
+  "completed_operations": 10126,
+  "measured_ns": 3000244000,
+  "p50_latency_ns": 288400,
+  "p95_latency_ns": 330900,
+  "p99_latency_ns": 465300,
+  "latency_sample_count": 10126,
+  "latency_sample_stride": 1,
+  "scheduled_admissions": 0,
+  "successful_admissions": 0,
+  "failed_admissions": 0,
+  "admission_timeouts": 0,
+  "admission_p50_latency_ns": null,
+  "admission_p95_latency_ns": null,
+  "admission_p99_latency_ns": null,
+  "max_admission_start_lateness_ns": 0,
+  "errors": 0,
+  "missing": 0,
+  "duplicates": 0,
+  "corrupt": 0,
+  "wrong_request": 0,
+  "transport_sessions_created_delta": 0,
+  "service_channels_created_delta": 0,
+  "application_streams_created_delta": 0,
+  "replay_entries_delta": 0,
+  "repeat": 3,
+  "valid": true,
+  "operations_per_second": 3375.0588285486115,
+  "request_messages_per_second": 3375.0588285486115,
+  "response_messages_per_second": 3375.0588285486115,
+  "payload_bytes_sent": 165904384,
+  "payload_bytes_received": 165904384,
+  "client_to_server_goodput_bytes_per_second": 55296963.84694045,
+  "server_to_client_goodput_bytes_per_second": 55296963.84694045,
+  "aggregate_goodput_bytes_per_second": 110593927.6938809,
+  "aggregate_application_gbps": 0.8847514215510472,
+  "timeouts": 0,
+  "runtime_workers": 1,
+  "resources": {
+    "runtime_workers": 1,
+    "roles": {
+      "source": {
+        "cpu_ns": 1593750000,
+        "effective_cores": 0.5312067951806586,
+        "effective_cores_per_runtime_worker": 0.5312067951806586,
+        "peak_thread_count": 4,
+        "peak_working_set_bytes": 8937472,
+        "peak_private_bytes": 2334720
+      },
+      "destination": {
+        "cpu_ns": 1468750000,
+        "effective_cores": 0.4895435171272737,
+        "effective_cores_per_runtime_worker": 0.4895435171272737,
+        "peak_thread_count": 4,
+        "peak_working_set_bytes": 8511488,
+        "peak_private_bytes": 1814528
+      }
+    },
+    "total_cpu_ns": 3062500000,
+    "cpu_ns_per_completed_operation": 302439.2652577523
+  },
+  "affinity": {
+    "requested_processors": 4,
+    "server": {
+      "requested_processors": 4,
+      "requested_mask": 85,
+      "observed_mask": 85,
+      "system_mask": 255,
+      "verified": true
+    },
+    "verified": true,
+    "client": {
+      "requested_processors": 4,
+      "requested_mask": 85,
+      "observed_mask": 85,
+      "system_mask": 255,
+      "verified": true
+    }
+  },
+  "allocations_per_operation": null,
+  "allocated_bytes_per_operation": null,
+  "affinity_verified": true,
+  "affinity_mask": "0x55"
+}

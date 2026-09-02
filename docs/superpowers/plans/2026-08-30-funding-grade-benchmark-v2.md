@@ -151,10 +151,12 @@ Each stage writes `evidence/performance/v2/{stage}-{start_sha_12}/`, where both 
 
 **Stop condition:** stop escalation on first FAIL, memory pressure, thermal throttling that invalidates comparability, or configured safe resource bound; never increase a hard safety limit during the run.
 
-- [ ] **Step 1: Write RED schema/load-ladder tests** including midpoint refinement and stable-ceiling derivation.
-- [ ] **Step 2: Implement runner and short smoke sweep GREEN.**
-- [ ] **Step 3: Run authoritative Direct/NBSR progression**, profile boundary cells, and derive peak/classification.
-- [ ] **Step 4: Commit:** `test(bench): establish v2 stable throughput ceiling`.
+- [x] **Step 1: Write RED schema/load-ladder tests** including midpoint refinement and stable-ceiling derivation.
+- [x] **Step 2: Implement runner and short smoke sweep GREEN.**
+- [ ] **Step 3: Run authoritative Direct/NBSR progression**, profile boundary cells, and derive peak/classification. The complete single-channel progression ran, but in-process multi-channel/connection-group scaling remains missing.
+- [x] **Step 4: Commit:** retain the bounded partial result atomically without claiming a stable host ceiling.
+
+**Task 3 current status:** PARTIAL / HARNESS-LIMITED: single-thread peer event loops. The single-channel matrix retained 574 valid repeats with zero errors, timeouts, or cleanup failures. It plateaued at about 1.3 effective cores across both peers, so no hardware ceiling is claimed. The current P2A harness lacks an in-process independently authorized multi-channel/connection-group mode; this must be added before Task 3 can establish the funding-grade stable ceiling.
 
 ### Task 4: B4b-v2 mixed multi-client/connection/route scaling
 

@@ -1,0 +1,82 @@
+{
+  "schema": "nbsr-p2a-repeat-v2",
+  "path": "direct",
+  "streams": 64,
+  "payload_bytes": 1024,
+  "model": "bounded-outstanding-per-stream",
+  "outstanding_per_stream": 1,
+  "configured_total_outstanding": 64,
+  "max_outstanding_per_stream_observed": 1,
+  "completed_operations": 261135,
+  "measured_ns": 3002517900,
+  "p50_latency_ns": 689100,
+  "p95_latency_ns": 1169200,
+  "p99_latency_ns": 1477600,
+  "errors": 0,
+  "missing": 0,
+  "duplicates": 0,
+  "corrupt": 0,
+  "wrong_request": 0,
+  "transport_sessions_created_delta": 0,
+  "service_channels_created_delta": 0,
+  "application_streams_created_delta": 0,
+  "replay_entries_delta": 0,
+  "repeat": 4,
+  "valid": true,
+  "operations_per_second": 86972.00439670985,
+  "request_messages_per_second": 86972.00439670985,
+  "response_messages_per_second": 86972.00439670985,
+  "payload_bytes_sent": 267402240,
+  "payload_bytes_received": 267402240,
+  "client_to_server_goodput_bytes_per_second": 89059332.50223088,
+  "server_to_client_goodput_bytes_per_second": 89059332.50223088,
+  "aggregate_goodput_bytes_per_second": 178118665.00446177,
+  "aggregate_application_gbps": 1.4249493200356942,
+  "timeouts": 0,
+  "runtime_workers": 1,
+  "resources": {
+    "runtime_workers": 1,
+    "roles": {
+      "source": {
+        "cpu_ns": 1906250000,
+        "effective_cores": 0.6348838086860364,
+        "effective_cores_per_runtime_worker": 0.6348838086860364,
+        "peak_thread_count": 6,
+        "peak_working_set_bytes": 12288000,
+        "peak_private_bytes": 4935680
+      },
+      "destination": {
+        "cpu_ns": 1937500000,
+        "effective_cores": 0.6452917399759714,
+        "effective_cores_per_runtime_worker": 0.6452917399759714,
+        "peak_thread_count": 6,
+        "peak_working_set_bytes": 8458240,
+        "peak_private_bytes": 1986560
+      }
+    },
+    "total_cpu_ns": 3843750000,
+    "cpu_ns_per_completed_operation": 14719.398012522259
+  },
+  "affinity": {
+    "requested_processors": 4,
+    "server": {
+      "requested_processors": 4,
+      "requested_mask": 85,
+      "observed_mask": 85,
+      "system_mask": 255,
+      "verified": true
+    },
+    "verified": true,
+    "client": {
+      "requested_processors": 4,
+      "requested_mask": 85,
+      "observed_mask": 85,
+      "system_mask": 255,
+      "verified": true
+    }
+  },
+  "allocations_per_operation": null,
+  "allocated_bytes_per_operation": null,
+  "affinity_verified": true,
+  "affinity_mask": "0x55"
+}
