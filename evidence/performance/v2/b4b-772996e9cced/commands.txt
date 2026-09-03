@@ -1,0 +1,1 @@
+scripts/run_b4b_v2.py --output 'evidence\performance\v2\b4b-772996e9cced' --duration-seconds 20 --warmup-seconds 2

@@ -200,6 +200,8 @@ Each stage writes `evidence/performance/v2/{stage}-{start_sha_12}/`, where both 
 - [ ] **Step 3: Execute the load matrix branch-by-branch and profile boundaries.**
 - [ ] **Step 4: Apply only separately gated fixes, rerun affected branches, and commit:** `test(bench): attribute v2 mixed-connection saturation`.
 
+**Task 4 status:** PASS / SATURATED / HARNESS-LIMITED. With one independent client process, transport connection, route/session admission, and application stream per requested client, 8 clients were STABLE, 16–128 were DEGRADED, and 256 were SATURATED. The 256-client cell completed only 81/256 median admissions, accumulated 868 handshake timeouts across five valid repeats, and reduced established forwarding to 0.441 Gbit/s. Owned resources cleaned up in every run. Host CPU median was 47.7%, processor queue median was zero, and approximately 7.0 GB remained available, so no hardware limit is claimed. The measured boundary is the process/listener-per-client harness fan-out reaching its fixed QUIC handshake deadline; lower-level Windows scheduling versus process-launch contribution remains unprofiled. See `evidence/performance/v2/b4b-772996e9cced/`.
+
 ### Task 5: B3-v2 memory/session scaling and same-process lifecycle
 
 **Current result:** Rust↔Rust and Go↔Rust are Evidence PARTIAL / Lifecycle CLEAN for counts 1/2/4/8. Measured connection slopes were approximately 230,961 and 222,466 private bytes/connection. All ownership counters returned to zero.
