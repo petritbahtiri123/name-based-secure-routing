@@ -1,0 +1,1217 @@
+{
+  "classification": "PARTIAL / UNRESOLVED",
+  "metadata": {
+    "schema": "nbsr-b4b-task4e-capture-v1",
+    "timestamp_utc": "2026-09-03T19:06:52.2422601Z",
+    "git": {
+      "branch": "codex/nbsr-v3-wp0-wp1",
+      "sha": "9274ffc56a7d7d3d8651a599a123bfa41ac3a060"
+    },
+    "workload": {
+      "clients": [
+        128,
+        256,
+        512
+      ],
+      "connections_per_client": 1
+    },
+    "xperf_kernel_arguments": [
+      "-on",
+      "PROC_THREAD+LOADER+PROFILE+CSWITCH+DISPATCHER",
+      "-stackwalk",
+      "Profile+CSwitch+ReadyThread",
+      "-BufferSize",
+      "1024",
+      "-MinBuffers",
+      "256",
+      "-MaxBuffers",
+      "768",
+      "-f",
+      "C:\\NBSR-build\\b4b-task4e-20260903-210049\\task4e-kernel-raw.etl"
+    ],
+    "xperf_network_arguments": [
+      "-start",
+      "NBSRTask4eNetwork",
+      "-on",
+      "Microsoft-Windows-Winsock-AFD+Microsoft-Windows-TCPIP",
+      "-BufferSize",
+      "256",
+      "-MinBuffers",
+      "128",
+      "-MaxBuffers",
+      "512",
+      "-f",
+      "C:\\NBSR-build\\b4b-task4e-20260903-210049\\task4e-network-raw.etl"
+    ],
+    "trace": "C:\\NBSR-build\\b4b-task4e-20260903-210049\\task4e.etl",
+    "kernel_lost_events": 0,
+    "network_lost_events": 0,
+    "network_trace_valid": true,
+    "symbol_checks": {
+      "perf_rust_source": true,
+      "wp8_interop_server": true
+    },
+    "control": {
+      "label": "control",
+      "started_utc": "2026-09-03T19:00:49.5855604Z",
+      "ended_utc": "2026-09-03T19:02:51.7162374Z",
+      "output": "C:\\NBSR-build\\b4b-task4e-20260903-210049\\control"
+    },
+    "profiled": {
+      "label": "profiled",
+      "started_utc": "2026-09-03T19:02:52.5800555Z",
+      "ended_utc": "2026-09-03T19:03:43.0634365Z",
+      "output": "C:\\NBSR-build\\b4b-task4e-20260903-210049\\profiled"
+    }
+  },
+  "cells": [
+    {
+      "clients": 128,
+      "roles": {
+        "admission-source": {
+          "pid": 15320,
+          "highest_cpu_thread": 8452,
+          "thread_cpu_us": 701208,
+          "resources": {
+            "effective_cores": 0.22251460167904952,
+            "threads": 5,
+            "handles": 212
+          },
+          "hotspots": [
+            {
+              "weight": 323976,
+              "fraction": 0.40174100665897844,
+              "function": "ntoskrnl.exe!\"Unknown\""
+            },
+            {
+              "weight": 78254,
+              "fraction": 0.09703756060662426,
+              "function": "Ntfs.sys!\"Unknown\""
+            },
+            {
+              "weight": 66990,
+              "fraction": 0.08306982627134407,
+              "function": "ntdll.dll!\"Unknown\""
+            },
+            {
+              "weight": 29656,
+              "fraction": 0.03677442555460486,
+              "function": "FLTMGR.SYS!\"Unknown\""
+            },
+            {
+              "weight": 19951,
+              "fraction": 0.024739903029401187,
+              "function": "tcpip.sys!\"Unknown\""
+            },
+            {
+              "weight": 15901,
+              "fraction": 0.01971776843619409,
+              "function": "perf_rust_source.exe!_RNvXNvXsc_NtNtNtNtCslhUBgBxAt96_16curve25519_dalek7backend6vector4avx27edwardsNtB8_11CachedPointINtNtCs55qC6OcLGgs_4core7convert4FromNtB8_13ExtendedPointE4fromB1e_NtB2_13___Impl_from__10__impl_from"
+            },
+            {
+              "weight": 13910,
+              "fraction": 0.01724886226950882,
+              "function": "NETIO.SYS!\"Unknown\""
+            },
+            {
+              "weight": 13820,
+              "fraction": 0.017137259278548665,
+              "function": "perf_rust_source.exe!ring_core_0_17_14__CRYPTO_memcmp"
+            },
+            {
+              "weight": 13013,
+              "fraction": 0.016136552459605918,
+              "function": "perf_rust_source.exe!__ecp_nistz256_sqr_montx"
+            },
+            {
+              "weight": 11997,
+              "fraction": 0.014876678694989025,
+              "function": "perf_rust_source.exe!_RNvMNtCsjYuCDNEjSrs_11quinn_proto10connectionNtB2_10Connection14handle_timeout"
+            },
+            {
+              "weight": 10875,
+              "fraction": 0.013485361407685727,
+              "function": "WdFilter.sys!\"Unknown\""
+            },
+            {
+              "weight": 10020,
+              "fraction": 0.012425132993564228,
+              "function": "perf_rust_source.exe!__ecp_nistz256_mul_montx"
+            },
+            {
+              "weight": 7959,
+              "fraction": 0.009869424500576615,
+              "function": "perf_rust_source.exe!_RNvXNvMsb_NtNtNtNtCslhUBgBxAt96_16curve25519_dalek7backend6vector4avx25fieldNtB8_18FieldElement2625x419square_and_negate_DB1c_NtB2_28___Impl_square_and_negate_D__25__impl_square_and_negate_D"
+            },
+            {
+              "weight": 6992,
+              "fraction": 0.008670312364371366,
+              "function": "afd.sys!\"Unknown\""
+            },
+            {
+              "weight": 6114,
+              "fraction": 0.007581563185893382,
+              "function": "perf_rust_source.exe!_RINvXs8_NtCsjYuCDNEjSrs_11quinn_proto6varintNtB6_6VarIntNtNtB8_6coding5Codec6decodeNtNtCsfwKeslHFEcz_5bytes5bytes5BytesEB8_"
+            },
+            {
+              "weight": 6005,
+              "fraction": 0.007446399563508302,
+              "function": "vcruntime140.dll!\"Unknown\""
+            },
+            {
+              "weight": 5970,
+              "fraction": 0.0074029984003571294,
+              "function": "perf_rust_source.exe!ring_core_0_17_14__x25519_scalar_mult_generic_masked"
+            },
+            {
+              "weight": 5022,
+              "fraction": 0.006227446895576801,
+              "function": "fse.sys!\"Unknown\""
+            },
+            {
+              "weight": 4969,
+              "fraction": 0.006161725134233597,
+              "function": "perf_rust_source.exe!L$avx_00_47"
+            },
+            {
+              "weight": 4898,
+              "fraction": 0.006073682774698362,
+              "function": "KernelBase.dll!\"Unknown\""
+            }
+          ],
+          "scheduling": {
+            "switch_out_count": 497,
+            "wait_us": 2578562,
+            "ready_us": 16712,
+            "unresolved_intervals": 48,
+            "longest_off_cpu_us": 580323,
+            "reasons": {
+              "Suspended": 1,
+              "WrDispatchInt": 180,
+              "WrLpcReply": 1,
+              "Executive": 28,
+              "WrPushLock": 3,
+              "WrAlertByThreadId": 1,
+              "WrResource": 62,
+              "WrQueue": 193,
+              "WrPreempted": 10,
+              "WrFastMutex": 14,
+              "WrQuantumEnd": 2,
+              "UserRequest": 1,
+              "WrTerminated": 1
+            },
+            "last_switch_out": {
+              "time_us": 6402525,
+              "state": "Terminated",
+              "reason": "WrTerminated"
+            },
+            "open_interval_at_end": true
+          }
+        },
+        "admission-destination": {
+          "pid": 3652,
+          "highest_cpu_thread": 33544,
+          "thread_cpu_us": 519149,
+          "resources": {
+            "effective_cores": 0.10882063503892123,
+            "threads": 5,
+            "handles": 84
+          },
+          "hotspots": [
+            {
+              "weight": 175107,
+              "fraction": 0.33789111117543197,
+              "function": "ntoskrnl.exe!\"Unknown\""
+            },
+            {
+              "weight": 51188,
+              "fraction": 0.09877372234603993,
+              "function": "ntdll.dll!\"Unknown\""
+            },
+            {
+              "weight": 19758,
+              "fraction": 0.038125560797707604,
+              "function": "FLTMGR.SYS!\"Unknown\""
+            },
+            {
+              "weight": 17695,
+              "fraction": 0.03414474128532423,
+              "function": "tcpip.sys!\"Unknown\""
+            },
+            {
+              "weight": 17041,
+              "fraction": 0.032882765540729594,
+              "function": "Ntfs.sys!\"Unknown\""
+            },
+            {
+              "weight": 15125,
+              "fraction": 0.029185601126901887,
+              "function": "wp8_interop_server.exe!_RNvXNvXsc_NtNtNtNtCslhUBgBxAt96_16curve25519_dalek7backend6vector4avx27edwardsNtB8_11CachedPointINtNtCs55qC6OcLGgs_4core7convert4FromNtB8_13ExtendedPointE4fromB1e_NtB2_13___Impl_from__10__impl_from"
+            },
+            {
+              "weight": 11095,
+              "fraction": 0.021409206248130676,
+              "function": "wp8_interop_server.exe!L$avx_00_47"
+            },
+            {
+              "weight": 10936,
+              "fraction": 0.021102395631325557,
+              "function": "wp8_interop_server.exe!ring_core_0_17_14__CRYPTO_memcmp"
+            },
+            {
+              "weight": 10887,
+              "fraction": 0.021007843931806998,
+              "function": "afd.sys!\"Unknown\""
+            },
+            {
+              "weight": 7124,
+              "fraction": 0.013746659334085887,
+              "function": "wp8_interop_server.exe!_RNvMNtCsjYuCDNEjSrs_11quinn_proto10connectionNtB2_10Connection14handle_timeout"
+            },
+            {
+              "weight": 6970,
+              "fraction": 0.013449496849884704,
+              "function": "wp8_interop_server.exe!__ecp_nistz256_mul_montx"
+            },
+            {
+              "weight": 6871,
+              "fraction": 0.013258463824326801,
+              "function": "vcruntime140.dll!\"Unknown\""
+            },
+            {
+              "weight": 6013,
+              "fraction": 0.01160284426949164,
+              "function": "wp8_interop_server.exe!_RNvXsp_NtCsjYuCDNEjSrs_11quinn_proto5frameNtB5_4IterNtNtNtNtCs55qC6OcLGgs_4core4iter6traits8iterator8Iterator4next"
+            },
+            {
+              "weight": 5997,
+              "fraction": 0.01157197024515905,
+              "function": "wp8_interop_server.exe!_RNvMs8_NtNtNtNtCslhUBgBxAt96_16curve25519_dalek7backend6serial3u645fieldNtB5_14FieldElement515pow2k"
+            },
+            {
+              "weight": 4997,
+              "fraction": 0.009642343724372148,
+              "function": "NETIO.SYS!\"Unknown\""
+            },
+            {
+              "weight": 4968,
+              "fraction": 0.009586384555269327,
+              "function": "wp8_interop_server.exe!ring_core_0_17_14__x25519_scalar_mult_generic_masked"
+            },
+            {
+              "weight": 4100,
+              "fraction": 0.007911468735226296,
+              "function": "wp8_interop_server.exe!L$select_loop_avx2_w7"
+            },
+            {
+              "weight": 4091,
+              "fraction": 0.007894102096539214,
+              "function": "wp8_interop_server.exe!_RNvMs_NtNtNtCsjYuCDNEjSrs_11quinn_proto10connection7streams5stateNtB4_12StreamsState10set_params"
+            },
+            {
+              "weight": 4066,
+              "fraction": 0.007845861433519542,
+              "function": "wp8_interop_server.exe!_RINvCsbgG4xnMpt3c_6subtle9black_boxhECslhUBgBxAt96_16curve25519_dalek"
+            },
+            {
+              "weight": 4056,
+              "fraction": 0.007826565168311672,
+              "function": "wp8_interop_server.exe!_RNvXNvMsb_NtNtNtNtCslhUBgBxAt96_16curve25519_dalek7backend6vector4avx25fieldNtB8_18FieldElement2625x419square_and_negate_DB1c_NtB2_28___Impl_square_and_negate_D__25__impl_square_and_negate_D"
+            }
+          ],
+          "scheduling": {
+            "switch_out_count": 406,
+            "wait_us": 3715502,
+            "ready_us": 11342,
+            "unresolved_intervals": 23,
+            "longest_off_cpu_us": 1000526,
+            "reasons": {
+              "Suspended": 1,
+              "WrDispatchInt": 91,
+              "WrLpcReply": 1,
+              "Executive": 18,
+              "WrResource": 19,
+              "UserRequest": 3,
+              "WrQueue": 257,
+              "WrQuantumEnd": 1,
+              "WrFastMutex": 10,
+              "WrAlertByThreadId": 1,
+              "WrPreempted": 3,
+              "WrTerminated": 1
+            },
+            "last_switch_out": {
+              "time_us": 7294922,
+              "state": "Terminated",
+              "reason": "WrTerminated"
+            },
+            "open_interval_at_end": true
+          }
+        }
+      },
+      "control": {
+        "successful_admissions": 128,
+        "errors": 0,
+        "timeouts": 0,
+        "admission_elapsed_seconds": 3.3848983999923803,
+        "failure_detail": null,
+        "cleanup": {
+          "all_zero": true,
+          "destinations": [
+            {
+              "all_zero": true,
+              "counters": {
+                "application_streams_current_live": 0,
+                "audit_queue_current_entries": 0,
+                "nbsr_tasks_current_live": 0,
+                "quic_connections_current_live": 0,
+                "quic_streams_current_live": 0,
+                "replay_state_current_entries": 0,
+                "service_channels_current_live": 0,
+                "transport_sessions_current_live": 0
+              }
+            },
+            {
+              "all_zero": true,
+              "counters": {
+                "application_streams_current_live": 0,
+                "audit_queue_current_entries": 0,
+                "nbsr_tasks_current_live": 0,
+                "quic_connections_current_live": 0,
+                "quic_streams_current_live": 0,
+                "replay_state_current_entries": 0,
+                "service_channels_current_live": 0,
+                "transport_sessions_current_live": 0
+              }
+            }
+          ],
+          "driver_completed_clients": 128,
+          "processes_exited": true,
+          "terminal_evidence_exact": true
+        },
+        "admission_p99_latency_ns": 3043352400,
+        "handshake": {
+          "p50_ms": 193.7201,
+          "p95_ms": 1074.4857,
+          "p99_ms": 3032.0055
+        },
+        "admissions_per_second": 37.81501979506627
+      },
+      "profiled": {
+        "successful_admissions": 128,
+        "errors": 0,
+        "timeouts": 0,
+        "admission_elapsed_seconds": 3.3784562000073493,
+        "failure_detail": null,
+        "cleanup": {
+          "all_zero": true,
+          "destinations": [
+            {
+              "all_zero": true,
+              "counters": {
+                "application_streams_current_live": 0,
+                "audit_queue_current_entries": 0,
+                "nbsr_tasks_current_live": 0,
+                "quic_connections_current_live": 0,
+                "quic_streams_current_live": 0,
+                "replay_state_current_entries": 0,
+                "service_channels_current_live": 0,
+                "transport_sessions_current_live": 0
+              }
+            },
+            {
+              "all_zero": true,
+              "counters": {
+                "application_streams_current_live": 0,
+                "audit_queue_current_entries": 0,
+                "nbsr_tasks_current_live": 0,
+                "quic_connections_current_live": 0,
+                "quic_streams_current_live": 0,
+                "replay_state_current_entries": 0,
+                "service_channels_current_live": 0,
+                "transport_sessions_current_live": 0
+              }
+            }
+          ],
+          "driver_completed_clients": 128,
+          "processes_exited": true,
+          "terminal_evidence_exact": true
+        },
+        "admission_p99_latency_ns": 2016445000,
+        "handshake": {
+          "p50_ms": 190.5582,
+          "p95_ms": 1118.1323,
+          "p99_ms": 1118.8898
+        },
+        "admissions_per_second": 37.88712726236367
+      },
+      "observer_overhead_fraction": -0.0019068472709569129
+    },
+    {
+      "clients": 256,
+      "roles": {
+        "admission-source": {
+          "pid": 35140,
+          "highest_cpu_thread": 25860,
+          "thread_cpu_us": 1523993,
+          "resources": {
+            "effective_cores": 0.17653288650020824,
+            "threads": 5,
+            "handles": 345
+          },
+          "hotspots": [
+            {
+              "weight": 679610,
+              "fraction": 0.3946242240893756,
+              "function": "ntoskrnl.exe!\"Unknown\""
+            },
+            {
+              "weight": 153139,
+              "fraction": 0.08892211570286325,
+              "function": "Ntfs.sys!\"Unknown\""
+            },
+            {
+              "weight": 142538,
+              "fraction": 0.08276650969416492,
+              "function": "ntdll.dll!\"Unknown\""
+            },
+            {
+              "weight": 60815,
+              "fraction": 0.03531300626535127,
+              "function": "FLTMGR.SYS!\"Unknown\""
+            },
+            {
+              "weight": 46839,
+              "fraction": 0.02719766341301962,
+              "function": "tcpip.sys!\"Unknown\""
+            },
+            {
+              "weight": 32839,
+              "fraction": 0.019068384654244354,
+              "function": "WdFilter.sys!\"Unknown\""
+            },
+            {
+              "weight": 25869,
+              "fraction": 0.01502116515791124,
+              "function": "NETIO.SYS!\"Unknown\""
+            },
+            {
+              "weight": 24868,
+              "fraction": 0.01443992172665881,
+              "function": "perf_rust_source.exe!ring_core_0_17_14__CRYPTO_memcmp"
+            },
+            {
+              "weight": 23113,
+              "fraction": 0.01342085856796948,
+              "function": "perf_rust_source.exe!_RNvXNvXsc_NtNtNtNtCslhUBgBxAt96_16curve25519_dalek7backend6vector4avx27edwardsNtB8_11CachedPointINtNtCs55qC6OcLGgs_4core7convert4FromNtB8_13ExtendedPointE4fromB1e_NtB2_13___Impl_from__10__impl_from"
+            },
+            {
+              "weight": 20693,
+              "fraction": 0.012015654668238326,
+              "function": "vcruntime140.dll!\"Unknown\""
+            },
+            {
+              "weight": 20102,
+              "fraction": 0.011672482972064314,
+              "function": "perf_rust_source.exe!_RNvMs8_NtNtNtNtCslhUBgBxAt96_16curve25519_dalek7backend6serial3u645fieldNtB5_14FieldElement515pow2k"
+            },
+            {
+              "weight": 20013,
+              "fraction": 0.011620803985669243,
+              "function": "perf_rust_source.exe!L$avx_00_47"
+            },
+            {
+              "weight": 16890,
+              "fraction": 0.009807394159693875,
+              "function": "perf_rust_source.exe!_RNvXsp_NtCsjYuCDNEjSrs_11quinn_proto5frameNtB5_4IterNtNtNtNtCs55qC6OcLGgs_4core4iter6traits8iterator8Iterator4next"
+            },
+            {
+              "weight": 15977,
+              "fraction": 0.00927724905206803,
+              "function": "perf_rust_source.exe!__ecp_nistz256_sqr_montx"
+            },
+            {
+              "weight": 15002,
+              "fraction": 0.008711102852796181,
+              "function": "perf_rust_source.exe!__ecp_nistz256_mul_montx"
+            },
+            {
+              "weight": 14050,
+              "fraction": 0.008158311897199464,
+              "function": "perf_rust_source.exe!_RNvXNvMsb_NtNtNtNtCslhUBgBxAt96_16curve25519_dalek7backend6vector4avx25fieldNtB8_18FieldElement2625x419square_and_negate_DB1c_NtB2_28___Impl_square_and_negate_D__25__impl_square_and_negate_D"
+            },
+            {
+              "weight": 12003,
+              "fraction": 0.006969695210112823,
+              "function": "afd.sys!\"Unknown\""
+            },
+            {
+              "weight": 11945,
+              "fraction": 0.006936016769540754,
+              "function": "perf_rust_source.exe!_RNvMNtCsjYuCDNEjSrs_11quinn_proto10connectionNtB2_10Connection14handle_timeout"
+            },
+            {
+              "weight": 10153,
+              "fraction": 0.005895469088417519,
+              "function": "perf_rust_source.exe!_RINvXs8_NtCsjYuCDNEjSrs_11quinn_proto6varintNtB6_6VarIntNtNtB8_6coding5Codec6decodeNtNtCsfwKeslHFEcz_5bytes5bytes5BytesEB8_"
+            },
+            {
+              "weight": 10024,
+              "fraction": 0.00582056359128309,
+              "function": "perf_rust_source.exe!ring_core_0_17_14__x25519_scalar_mult_generic_masked"
+            }
+          ],
+          "scheduling": {
+            "switch_out_count": 1087,
+            "wait_us": 7196567,
+            "ready_us": 37704,
+            "unresolved_intervals": 108,
+            "longest_off_cpu_us": 2107753,
+            "reasons": {
+              "Suspended": 1,
+              "WrDispatchInt": 528,
+              "WrLpcReply": 1,
+              "Executive": 42,
+              "WrAlertByThreadId": 4,
+              "WrResource": 89,
+              "WrPreempted": 38,
+              "WrQuantumEnd": 5,
+              "WrFastMutex": 28,
+              "WrQueue": 348,
+              "WrPushLock": 1,
+              "UserRequest": 1,
+              "WrTerminated": 1
+            },
+            "last_switch_out": {
+              "time_us": 23216737,
+              "state": "Terminated",
+              "reason": "WrTerminated"
+            },
+            "open_interval_at_end": true
+          }
+        },
+        "admission-destination": {
+          "pid": 28636,
+          "highest_cpu_thread": 19504,
+          "thread_cpu_us": 1112759,
+          "resources": {
+            "effective_cores": 0.11708813900524015,
+            "threads": 5,
+            "handles": 84
+          },
+          "hotspots": [
+            {
+              "weight": 346209,
+              "fraction": 0.3094046929627008,
+              "function": "ntoskrnl.exe!\"Unknown\""
+            },
+            {
+              "weight": 105122,
+              "fraction": 0.09394683596794143,
+              "function": "ntdll.dll!\"Unknown\""
+            },
+            {
+              "weight": 42438,
+              "fraction": 0.03792655985243335,
+              "function": "tcpip.sys!\"Unknown\""
+            },
+            {
+              "weight": 38886,
+              "fraction": 0.03475216095060378,
+              "function": "wp8_interop_server.exe!ring_core_0_17_14__CRYPTO_memcmp"
+            },
+            {
+              "weight": 38089,
+              "fraction": 0.03403988732313808,
+              "function": "FLTMGR.SYS!\"Unknown\""
+            },
+            {
+              "weight": 37969,
+              "fraction": 0.03393264411699519,
+              "function": "Ntfs.sys!\"Unknown\""
+            },
+            {
+              "weight": 29009,
+              "fraction": 0.025925151391659337,
+              "function": "wp8_interop_server.exe!_RNvXNvXsc_NtNtNtNtCslhUBgBxAt96_16curve25519_dalek7backend6vector4avx27edwardsNtB8_11CachedPointINtNtCs55qC6OcLGgs_4core7convert4FromNtB8_13ExtendedPointE4fromB1e_NtB2_13___Impl_from__10__impl_from"
+            },
+            {
+              "weight": 24913,
+              "fraction": 0.022264583288648665,
+              "function": "vcruntime140.dll!\"Unknown\""
+            },
+            {
+              "weight": 24182,
+              "fraction": 0.021611293424561553,
+              "function": "wp8_interop_server.exe!L$avx_00_47"
+            },
+            {
+              "weight": 23316,
+              "fraction": 0.020837354953563692,
+              "function": "wp8_interop_server.exe!_RNvMs8_NtNtNtNtCslhUBgBxAt96_16curve25519_dalek7backend6serial3u645fieldNtB5_14FieldElement515pow2k"
+            },
+            {
+              "weight": 21353,
+              "fraction": 0.019083034839742902,
+              "function": "wp8_interop_server.exe!__ecp_nistz256_mul_montx"
+            },
+            {
+              "weight": 18869,
+              "fraction": 0.01686310047258506,
+              "function": "WdFilter.sys!\"Unknown\""
+            },
+            {
+              "weight": 13168,
+              "fraction": 0.011768154487413222,
+              "function": "wp8_interop_server.exe!_RNvXsp_NtCsjYuCDNEjSrs_11quinn_proto5frameNtB5_4IterNtNtNtNtCs55qC6OcLGgs_4core4iter6traits8iterator8Iterator4next"
+            },
+            {
+              "weight": 13054,
+              "fraction": 0.011666273441577476,
+              "function": "wp8_interop_server.exe!_RNvMNtCsjYuCDNEjSrs_11quinn_proto10connectionNtB2_10Connection14handle_timeout"
+            },
+            {
+              "weight": 12926,
+              "fraction": 0.011551880688358393,
+              "function": "wp8_interop_server.exe!_RNvXNvMs7_NtNtNtNtCslhUBgBxAt96_16curve25519_dalek7backend6vector4avx27edwardsNtB8_13ExtendedPoint6doubleB1e_NtB2_15___Impl_double__12__impl_double"
+            },
+            {
+              "weight": 12891,
+              "fraction": 0.011520601419900049,
+              "function": "NETIO.SYS!\"Unknown\""
+            },
+            {
+              "weight": 9020,
+              "fraction": 0.008061114328407296,
+              "function": "wp8_interop_server.exe!_RNvMs_NtNtNtCsjYuCDNEjSrs_11quinn_proto10connection7streams5stateNtB4_12StreamsState10set_params"
+            },
+            {
+              "weight": 9010,
+              "fraction": 0.008052177394562054,
+              "function": "afd.sys!\"Unknown\""
+            },
+            {
+              "weight": 8999,
+              "fraction": 0.00804234676733229,
+              "function": "wp8_interop_server.exe!_RINvMs6_NtCsfNFD5h9On6T_9hashbrown3rawINtB6_8RawTableTNtCsjYuCDNEjSrs_11quinn_proto8StreamIdINtNtCs55qC6OcLGgs_4core6option6OptionNtNtNtNtBS_10connection7streams5state10StreamRecvEEE14reserve_rehashNCINvNtB8_3map11make_hasherBQ_B1s_NtCsa6xBF8IXG7W_10rustc_hash13FxBuildHasherE0EBS_"
+            },
+            {
+              "weight": 8036,
+              "fraction": 0.00718172003803559,
+              "function": "wp8_interop_server.exe!_RNvMs1_NtCsfNFD5h9On6T_9hashbrown3mapINtB5_7HashMapNtCsjYuCDNEjSrs_11quinn_proto8StreamIdINtNtCs55qC6OcLGgs_4core6option6OptionNtNtNtNtBP_10connection7streams5state10StreamRecvENtCsa6xBF8IXG7W_10rustc_hash13FxBuildHasherE6insertBP_"
+            }
+          ],
+          "scheduling": {
+            "switch_out_count": 1048,
+            "wait_us": 8340849,
+            "ready_us": 40247,
+            "unresolved_intervals": 65,
+            "longest_off_cpu_us": 3206398,
+            "reasons": {
+              "Suspended": 1,
+              "WrLpcReply": 1,
+              "Executive": 25,
+              "WrDispatchInt": 467,
+              "UserRequest": 3,
+              "WrQueue": 471,
+              "WrPreempted": 17,
+              "WrResource": 39,
+              "WrQuantumEnd": 3,
+              "WrFastMutex": 19,
+              "WrPushLock": 1,
+              "WrTerminated": 1
+            },
+            "last_switch_out": {
+              "time_us": 23903129,
+              "state": "Terminated",
+              "reason": "WrTerminated"
+            },
+            "open_interval_at_end": true
+          }
+        }
+      },
+      "control": {
+        "successful_admissions": 201,
+        "errors": 55,
+        "timeouts": 55,
+        "admission_elapsed_seconds": 5.352934200025629,
+        "failure_detail": null,
+        "cleanup": {
+          "all_zero": true,
+          "destinations": [
+            {
+              "all_zero": true,
+              "counters": {
+                "application_streams_current_live": 0,
+                "audit_queue_current_entries": 0,
+                "nbsr_tasks_current_live": 0,
+                "quic_connections_current_live": 0,
+                "quic_streams_current_live": 0,
+                "replay_state_current_entries": 0,
+                "service_channels_current_live": 0,
+                "transport_sessions_current_live": 0
+              }
+            },
+            {
+              "all_zero": true,
+              "counters": {
+                "application_streams_current_live": 0,
+                "audit_queue_current_entries": 0,
+                "nbsr_tasks_current_live": 0,
+                "quic_connections_current_live": 0,
+                "quic_streams_current_live": 0,
+                "replay_state_current_entries": 0,
+                "service_channels_current_live": 0,
+                "transport_sessions_current_live": 0
+              }
+            }
+          ],
+          "driver_completed_clients": 256,
+          "processes_exited": true,
+          "terminal_evidence_exact": true
+        },
+        "admission_p99_latency_ns": 3193904700,
+        "handshake": {
+          "p50_ms": 251.2654,
+          "p95_ms": 3107.7866,
+          "p99_ms": 3108.671
+        },
+        "admissions_per_second": 37.54949948740966
+      },
+      "profiled": {
+        "successful_admissions": 253,
+        "errors": 3,
+        "timeouts": 3,
+        "admission_elapsed_seconds": 8.795984699972905,
+        "failure_detail": null,
+        "cleanup": {
+          "all_zero": true,
+          "destinations": [
+            {
+              "all_zero": true,
+              "counters": {
+                "application_streams_current_live": 0,
+                "audit_queue_current_entries": 0,
+                "nbsr_tasks_current_live": 0,
+                "quic_connections_current_live": 0,
+                "quic_streams_current_live": 0,
+                "replay_state_current_entries": 0,
+                "service_channels_current_live": 0,
+                "transport_sessions_current_live": 0
+              }
+            },
+            {
+              "all_zero": true,
+              "counters": {
+                "application_streams_current_live": 0,
+                "audit_queue_current_entries": 0,
+                "nbsr_tasks_current_live": 0,
+                "quic_connections_current_live": 0,
+                "quic_streams_current_live": 0,
+                "replay_state_current_entries": 0,
+                "service_channels_current_live": 0,
+                "transport_sessions_current_live": 0
+              }
+            }
+          ],
+          "driver_completed_clients": 256,
+          "processes_exited": true,
+          "terminal_evidence_exact": true
+        },
+        "admission_p99_latency_ns": 3996348600,
+        "handshake": {
+          "p50_ms": 343.8511,
+          "p95_ms": 3239.0321,
+          "p99_ms": 3239.7082
+        },
+        "admissions_per_second": 28.76312415604581
+      },
+      "observer_overhead_fraction": 0.2339944726642741
+    },
+    {
+      "clients": 512,
+      "roles": {
+        "admission-source": {
+          "pid": 14900,
+          "highest_cpu_thread": 29188,
+          "thread_cpu_us": 1946044,
+          "resources": {
+            "effective_cores": 0.3949011329387355,
+            "threads": 5,
+            "handles": 609
+          },
+          "hotspots": [
+            {
+              "weight": 1008042,
+              "fraction": 0.4167532799349098,
+              "function": "ntoskrnl.exe!\"Unknown\""
+            },
+            {
+              "weight": 207612,
+              "fraction": 0.08583271525774372,
+              "function": "Ntfs.sys!\"Unknown\""
+            },
+            {
+              "weight": 181891,
+              "fraction": 0.07519892111701762,
+              "function": "ntdll.dll!\"Unknown\""
+            },
+            {
+              "weight": 129801,
+              "fraction": 0.05366343117531931,
+              "function": "FLTMGR.SYS!\"Unknown\""
+            },
+            {
+              "weight": 65802,
+              "fraction": 0.027204421369622433,
+              "function": "tcpip.sys!\"Unknown\""
+            },
+            {
+              "weight": 38490,
+              "fraction": 0.015912862504434022,
+              "function": "perf_rust_source.exe!ring_core_0_17_14__CRYPTO_memcmp"
+            },
+            {
+              "weight": 38068,
+              "fraction": 0.015738395682483614,
+              "function": "WdFilter.sys!\"Unknown\""
+            },
+            {
+              "weight": 32246,
+              "fraction": 0.013331415025148854,
+              "function": "vcruntime140.dll!\"Unknown\""
+            },
+            {
+              "weight": 28119,
+              "fraction": 0.011625195655031962,
+              "function": "NETIO.SYS!\"Unknown\""
+            },
+            {
+              "weight": 25810,
+              "fraction": 0.010670589276161135,
+              "function": "perf_rust_source.exe!_RNvXNvXsc_NtNtNtNtCslhUBgBxAt96_16curve25519_dalek7backend6vector4avx27edwardsNtB8_11CachedPointINtNtCs55qC6OcLGgs_4core7convert4FromNtB8_13ExtendedPointE4fromB1e_NtB2_13___Impl_from__10__impl_from"
+            },
+            {
+              "weight": 24214,
+              "fraction": 0.010010757409258648,
+              "function": "perf_rust_source.exe!_RNvMNtCsjYuCDNEjSrs_11quinn_proto10connectionNtB2_10Connection14handle_timeout"
+            },
+            {
+              "weight": 24114,
+              "fraction": 0.009969414560455234,
+              "function": "perf_rust_source.exe!__ecp_nistz256_mul_montx"
+            },
+            {
+              "weight": 21963,
+              "fraction": 0.009080129882693801,
+              "function": "perf_rust_source.exe!ring_core_0_17_14__x25519_scalar_mult_generic_masked"
+            },
+            {
+              "weight": 19031,
+              "fraction": 0.007867957555777705,
+              "function": "perf_rust_source.exe!L$avx_00_47"
+            },
+            {
+              "weight": 17965,
+              "fraction": 0.007427242787533312,
+              "function": "perf_rust_source.exe!_RNvXsp_NtCsjYuCDNEjSrs_11quinn_proto5frameNtB5_4IterNtNtNtNtCs55qC6OcLGgs_4core4iter6traits8iterator8Iterator4next"
+            },
+            {
+              "weight": 17099,
+              "fraction": 0.007069213716895747,
+              "function": "afd.sys!\"Unknown\""
+            },
+            {
+              "weight": 15845,
+              "fraction": 0.006550774392900937,
+              "function": "perf_rust_source.exe!_RINvMs6_NtCsfNFD5h9On6T_9hashbrown3rawINtB6_8RawTableTNtCsjYuCDNEjSrs_11quinn_proto8StreamIdINtNtCs55qC6OcLGgs_4core6option6OptionNtNtNtNtBS_10connection7streams5state10StreamRecvEEE14reserve_rehashNCINvNtB8_3map11make_hasherBQ_B1s_NtCsa6xBF8IXG7W_10rustc_hash13FxBuildHasherE0EBS_"
+            },
+            {
+              "weight": 15842,
+              "fraction": 0.006549534107436835,
+              "function": "perf_rust_source.exe!_RNvXNvMsb_NtNtNtNtCslhUBgBxAt96_16curve25519_dalek7backend6vector4avx25fieldNtB8_18FieldElement2625x419square_and_negate_DB1c_NtB2_28___Impl_square_and_negate_D__25__impl_square_and_negate_D"
+            },
+            {
+              "weight": 14970,
+              "fraction": 0.006189024465871065,
+              "function": "perf_rust_source.exe!__ecp_nistz256_sqr_montx"
+            },
+            {
+              "weight": 14030,
+              "fraction": 0.005800401687118974,
+              "function": "perf_rust_source.exe!_RNvMs8_NtNtNtNtCslhUBgBxAt96_16curve25519_dalek7backend6serial3u645fieldNtB5_14FieldElement515pow2k"
+            }
+          ],
+          "scheduling": {
+            "switch_out_count": 1678,
+            "wait_us": 3646999,
+            "ready_us": 71036,
+            "unresolved_intervals": 126,
+            "longest_off_cpu_us": 179879,
+            "reasons": {
+              "Suspended": 1,
+              "WrLpcReply": 1,
+              "Executive": 61,
+              "UserRequest": 2,
+              "WrResource": 108,
+              "WrDispatchInt": 1027,
+              "WrPushLock": 2,
+              "WrPreempted": 75,
+              "WrQuantumEnd": 6,
+              "WrFastMutex": 45,
+              "WrQueue": 349,
+              "WrTerminated": 1
+            },
+            "last_switch_out": {
+              "time_us": 31900541,
+              "state": "Terminated",
+              "reason": "WrTerminated"
+            },
+            "open_interval_at_end": true
+          }
+        },
+        "admission-destination": {
+          "pid": 10776,
+          "highest_cpu_thread": 22500,
+          "thread_cpu_us": 1184403,
+          "resources": {
+            "effective_cores": 0.14004700325990832,
+            "threads": 5,
+            "handles": 84
+          },
+          "hotspots": [
+            {
+              "weight": 339904,
+              "fraction": 0.282501878336957,
+              "function": "ntoskrnl.exe!\"Unknown\""
+            },
+            {
+              "weight": 98576,
+              "fraction": 0.0819287362282994,
+              "function": "ntdll.dll!\"Unknown\""
+            },
+            {
+              "weight": 51125,
+              "fraction": 0.04249114023364517,
+              "function": "tcpip.sys!\"Unknown\""
+            },
+            {
+              "weight": 45986,
+              "fraction": 0.03822000146277568,
+              "function": "FLTMGR.SYS!\"Unknown\""
+            },
+            {
+              "weight": 43372,
+              "fraction": 0.036047447123983535,
+              "function": "wp8_interop_server.exe!_RNvXNvXsc_NtNtNtNtCslhUBgBxAt96_16curve25519_dalek7backend6vector4avx27edwardsNtB8_11CachedPointINtNtCs55qC6OcLGgs_4core7convert4FromNtB8_13ExtendedPointE4fromB1e_NtB2_13___Impl_from__10__impl_from"
+            },
+            {
+              "weight": 41705,
+              "fraction": 0.03466196583753881,
+              "function": "Ntfs.sys!\"Unknown\""
+            },
+            {
+              "weight": 35092,
+              "fraction": 0.029165752431864575,
+              "function": "wp8_interop_server.exe!ring_core_0_17_14__CRYPTO_memcmp"
+            },
+            {
+              "weight": 22028,
+              "fraction": 0.018307967473187987,
+              "function": "wp8_interop_server.exe!L$avx_00_47"
+            },
+            {
+              "weight": 22019,
+              "fraction": 0.01830048737026177,
+              "function": "wp8_interop_server.exe!__ecp_nistz256_mul_montx"
+            },
+            {
+              "weight": 16986,
+              "fraction": 0.014117447589412163,
+              "function": "wp8_interop_server.exe!_RNvMNtCsjYuCDNEjSrs_11quinn_proto10connectionNtB2_10Connection14handle_timeout"
+            },
+            {
+              "weight": 16163,
+              "fraction": 0.013433433732937055,
+              "function": "wp8_interop_server.exe!_RNvMs8_NtNtNtNtCslhUBgBxAt96_16curve25519_dalek7backend6serial3u645fieldNtB5_14FieldElement515pow2k"
+            },
+            {
+              "weight": 15943,
+              "fraction": 0.013250586772518435,
+              "function": "wp8_interop_server.exe!_RINvXs8_NtCsjYuCDNEjSrs_11quinn_proto6varintNtB6_6VarIntNtNtB8_6coding5Codec6decodeNtNtCsfwKeslHFEcz_5bytes5bytes5BytesEB8_"
+            },
+            {
+              "weight": 15073,
+              "fraction": 0.012527510156317529,
+              "function": "WdFilter.sys!\"Unknown\""
+            },
+            {
+              "weight": 15009,
+              "fraction": 0.012474318313286657,
+              "function": "vcruntime140.dll!\"Unknown\""
+            },
+            {
+              "weight": 12963,
+              "fraction": 0.010773841581393493,
+              "function": "wp8_interop_server.exe!_RNvXsp_NtCsjYuCDNEjSrs_11quinn_proto5frameNtB5_4IterNtNtNtNtCs55qC6OcLGgs_4core4iter6traits8iterator8Iterator4next"
+            },
+            {
+              "weight": 12073,
+              "fraction": 0.01003414251424544,
+              "function": "wp8_interop_server.exe!__ecp_nistz256_sqr_montx"
+            },
+            {
+              "weight": 12044,
+              "fraction": 0.010010039960372077,
+              "function": "afd.sys!\"Unknown\""
+            },
+            {
+              "weight": 11963,
+              "fraction": 0.00994271903403613,
+              "function": "wp8_interop_server.exe!_RNvXs5_NtCsbdzH57LsLNY_5quinn8endpointNtB5_6AcceptNtNtNtCs55qC6OcLGgs_4core6future6future6Future4poll"
+            },
+            {
+              "weight": 11009,
+              "fraction": 0.009149828123857206,
+              "function": "wp8_interop_server.exe!ring_core_0_17_14__x25519_scalar_mult_generic_masked"
+            },
+            {
+              "weight": 10031,
+              "fraction": 0.008336990272541705,
+              "function": "wp8_interop_server.exe!_RNvXsq_NtCs8oYkXk2gzQW_5alloc6stringNtB5_6StringNtNtCs55qC6OcLGgs_4core3fmt7Display3fmt.llvm.11569818133911854781"
+            }
+          ],
+          "scheduling": {
+            "switch_out_count": 855,
+            "wait_us": 22988627,
+            "ready_us": 26535,
+            "unresolved_intervals": 51,
+            "longest_off_cpu_us": 19148034,
+            "reasons": {
+              "Suspended": 1,
+              "WrLpcReply": 1,
+              "Executive": 30,
+              "WrDispatchInt": 307,
+              "WrAlertByThreadId": 1,
+              "WrFastMutex": 27,
+              "UserRequest": 1,
+              "WrResource": 55,
+              "WrQueue": 404,
+              "WrPreempted": 21,
+              "WrQuantumEnd": 6,
+              "WrTerminated": 1
+            },
+            "last_switch_out": {
+              "time_us": 50379273,
+              "state": "Terminated",
+              "reason": "WrTerminated"
+            },
+            "open_interval_at_end": true
+          }
+        }
+      },
+      "control": {
+        "successful_admissions": 272,
+        "errors": 242,
+        "timeouts": 240,
+        "admission_elapsed_seconds": 5.491192099987529,
+        "failure_detail": "lifecycle destination cleanup exceeded 15 seconds\nlifecycle server failed: lifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: ",
+        "cleanup": {
+          "all_zero": true,
+          "destinations": [
+            {
+              "all_zero": true,
+              "counters": {
+                "application_streams_current_live": 0,
+                "audit_queue_current_entries": 0,
+                "nbsr_tasks_current_live": 0,
+                "quic_connections_current_live": 0,
+                "quic_streams_current_live": 0,
+                "replay_state_current_entries": 0,
+                "service_channels_current_live": 0,
+                "transport_sessions_current_live": 0
+              }
+            },
+            {
+              "all_zero": true,
+              "counters": {
+                "application_streams_current_live": 0,
+                "audit_queue_current_entries": 0,
+                "nbsr_tasks_current_live": 0,
+                "quic_connections_current_live": 0,
+                "quic_streams_current_live": 0,
+                "replay_state_current_entries": 0,
+                "service_channels_current_live": 0,
+                "transport_sessions_current_live": 0
+              }
+            }
+          ],
+          "driver_completed_clients": 512,
+          "processes_exited": true,
+          "terminal_evidence_exact": true
+        },
+        "admission_p99_latency_ns": 4077170000,
+        "handshake": {
+          "p50_ms": 1331.6268,
+          "p95_ms": 3329.693,
+          "p99_ms": 3330.9374
+        },
+        "admissions_per_second": 49.53387079658308
+      },
+      "profiled": {
+        "successful_admissions": 258,
+        "errors": 256,
+        "timeouts": 254,
+        "admission_elapsed_seconds": 5.71562560001621,
+        "failure_detail": "lifecycle destination cleanup exceeded 15 seconds\nlifecycle server failed: lifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: HandshakeTimeout\nlifecycle destination handshake failed: ",
+        "cleanup": {
+          "all_zero": true,
+          "destinations": [
+            {
+              "all_zero": true,
+              "counters": {
+                "application_streams_current_live": 0,
+                "audit_queue_current_entries": 0,
+                "nbsr_tasks_current_live": 0,
+                "quic_connections_current_live": 0,
+                "quic_streams_current_live": 0,
+                "replay_state_current_entries": 0,
+                "service_channels_current_live": 0,
+                "transport_sessions_current_live": 0
+              }
+            },
+            {
+              "all_zero": true,
+              "counters": {
+                "application_streams_current_live": 0,
+                "audit_queue_current_entries": 0,
+                "nbsr_tasks_current_live": 0,
+                "quic_connections_current_live": 0,
+                "quic_streams_current_live": 0,
+                "replay_state_current_entries": 0,
+                "service_channels_current_live": 0,
+                "transport_sessions_current_live": 0
+              }
+            }
+          ],
+          "driver_completed_clients": 512,
+          "processes_exited": true,
+          "terminal_evidence_exact": true
+        },
+        "admission_p99_latency_ns": 4575086800,
+        "handshake": {
+          "p50_ms": 1441.0124,
+          "p95_ms": 3449.7722,
+          "p99_ms": 3451.6944
+        },
+        "admissions_per_second": 45.13941570967634
+      },
+      "observer_overhead_fraction": 0.08871616565063345
+    }
+  ],
+  "limitations": [
+    "One control/profile pair; not capacity evidence",
+    "Missing wakeups remain unresolved, not imputed",
+    "CPU summary units are microseconds, not context-switch counts",
+    "Hotspot association alone does not establish handshake causality"
+  ]
+}

@@ -27,3 +27,4 @@ evidence/performance/v2/b2-optimization-8721b95177bd/**/*.etl filter=lfs diff=lf
 evidence/performance/v2/b4b-task4d-361c315038bb/** -text whitespace=cr-at-eol,-blank-at-eof
 evidence/performance/v2/b4b-task4d-pre-writer-shutdown-361c315038bb/** -text whitespace=cr-at-eol,-blank-at-eof
 evidence/performance/v2/b4b-task4d-interrupted-baseline-361c315038bb/** -text whitespace=cr-at-eol,-blank-at-eof
+evidence/performance/v2/b4b-task4e-9274ffc56a7d/** -text whitespace=cr-at-eol,-blank-at-eof

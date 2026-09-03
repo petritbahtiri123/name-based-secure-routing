@@ -1,0 +1,249 @@
+{
+  "capture_root": "C:\\NBSR-build\\b4b-task4e-20260903-210049",
+  "files": {
+    "cpu-profile-detail.txt": {
+      "bytes": 577262,
+      "sha256": "446d5f1994ab6a9d24f00ff0d0faecd7fc19724add8d7f4be7e8ce65fd340124"
+    },
+    "cpu-profile-errors.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "cswitch-process-thread.txt": {
+      "bytes": 77512,
+      "sha256": "24d838db33f556b2d8e701787ce0b802269dd35f109ead45b8a2ba5c5d6dac88"
+    },
+    "kernel-events.csv": {
+      "bytes": 8089804821,
+      "sha256": "384130d872f478754ee2e476ec366dcff1ed65b05dd31225509925a5cab7b6d3"
+    },
+    "kernel-trace-stats.txt": {
+      "bytes": 943,
+      "sha256": "83c8873534b748cba831cf174f2823b2797c5240bbb1cd323ba71740855a3297"
+    },
+    "metadata.json": {
+      "bytes": 1692,
+      "sha256": "dd7a92a89e10ceaeb47297741c045dfb990875403bc78140a8111de8d990ff0a"
+    },
+    "network-trace-stats.txt": {
+      "bytes": 944,
+      "sha256": "b640680825b7df0ffdfcf6c245f2badb26a7d32d7b86fd6ce475d0b00d0f7ed9"
+    },
+    "process-thread.txt": {
+      "bytes": 699513,
+      "sha256": "0be6a8267fb7f177d5d1dd5c217f9b1daf77129bfc11267acb61883477c53ee1"
+    },
+    "profile-overhead.json": {
+      "bytes": 631,
+      "sha256": "83b9c49bf7831b09942f38db9994d33f2ba9642431f14221e82ecfef239150ff"
+    },
+    "readythread.txt": {
+      "bytes": 3756173233,
+      "sha256": "bfa7795ff62d4a16a4b59d8cd0f480830f52c9cea967375940a49feaedc3635f"
+    },
+    "task4e-kernel-raw.etl": {
+      "bytes": 624951296,
+      "sha256": "ea6e556b6c30334b9a6fc4d5979aa6e5e5966b2c45411bd08f42c7088f8ca791"
+    },
+    "task4e-kernel.etl": {
+      "bytes": 633339904,
+      "sha256": "36099a490fec9aee7a1e000daa8748c81d4ae12cef6c79639d6dd4973e9c5e5f"
+    },
+    "task4e-network-raw.etl": {
+      "bytes": 1679294464,
+      "sha256": "0c2c06c1b628c6d1efb367b3af202cd7f73e920efdee40ed497085358042842f"
+    },
+    "task4e-network.etl": {
+      "bytes": 1680080896,
+      "sha256": "9284c262f98ce132a4aa946e51c93adbc4a296df74705b29d1edc4a7c1ce9e1e"
+    },
+    "task4e.etl": {
+      "bytes": 2312110080,
+      "sha256": "9535a425f9aee6d91472d6c9635796014b2859a5421f0e39f4569ff0646ad58b"
+    },
+    "thread-activity.txt": {
+      "bytes": 748014,
+      "sha256": "ea4fb3a4068589d1edaa632e515886770dc806403e8d212e37b29338a75e4dc7"
+    },
+    "xperf-kernel-stop.log": {
+      "bytes": 457,
+      "sha256": "bc2904e112222955aa530ec56f89afe6db2e1110123ea572e8a88a0d718c6cf5"
+    },
+    "xperf-merge.log": {
+      "bytes": 65,
+      "sha256": "7abfddd3bc8c2f1442889b4e5220e13bede0a30c1e40a5fe0b2310257214ae16"
+    },
+    "xperf-network-stop.log": {
+      "bytes": 459,
+      "sha256": "b38f69053af1d04d40e001ce578e9d3b23181c3ac9b6dbc6a8f92fb38a196eb7"
+    },
+    "control\\manifest.json": {
+      "bytes": 354571,
+      "sha256": "306a7efd52ea2e51bdf03a8a40ed741763c76533e3bb73bf192df1fc9109d28e"
+    },
+    "profiled\\manifest.json": {
+      "bytes": 358975,
+      "sha256": "d4813c87722066fa02ad7977086c5e993984adaf58343285f9abfcebeb70d066"
+    },
+    "profiled\\raw\\clients-128.json": {
+      "bytes": 87240,
+      "sha256": "d9f11932525dbb3cd72414a2b73ce04c9ac95144ce7b384316a064955d595823"
+    },
+    "profiled\\raw\\clients-256.json": {
+      "bytes": 113843,
+      "sha256": "0f465870c978e842124251c867cb8ba2a18db48dafd157464995843945bdecd7"
+    },
+    "profiled\\raw\\clients-512.json": {
+      "bytes": 110612,
+      "sha256": "b21ca1f7c52a8841b82aa8075683681360d64343fafb446b0840b1cbf7e478e9"
+    },
+    "profiled\\raw\\clients-128-connections-1-r1\\admission-source.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "profiled\\raw\\clients-128-connections-1-r1\\admission-source.stdout": {
+      "bytes": 54035,
+      "sha256": "d23e60a3e97412d20a7d4069942df9ffdb1d9da8c16b9545a762aea992de9a36"
+    },
+    "profiled\\raw\\clients-128-connections-1-r1\\established-diagnostics.ndjson": {
+      "bytes": 28497,
+      "sha256": "02b322fa3b91dc37c98c74aad0f2d593b9b08af17a019ffe416d4ead8b5ac230"
+    },
+    "profiled\\raw\\clients-128-connections-1-r1\\established-server-result.json": {
+      "bytes": 124,
+      "sha256": "b04f3b15067b766fac2f23d8ff39d8877e7fa948c8209d2ae0f6557ae4db58ef"
+    },
+    "profiled\\raw\\clients-128-connections-1-r1\\lifecycle-diagnostics.ndjson": {
+      "bytes": 13275,
+      "sha256": "2e503ab93cef123cc0ff1a79bdf92cdf8eb1057d3d8a837afdaaea1686f39895"
+    },
+    "profiled\\raw\\clients-128-connections-1-r1\\lifecycle-server-result.json": {
+      "bytes": 8951,
+      "sha256": "e937e7aaf00703e6250473b8ff88713fa10f37ee6d9360029ca85d9a60009d73"
+    },
+    "profiled\\raw\\clients-256-connections-1-r1\\admission-source.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "profiled\\raw\\clients-256-connections-1-r1\\admission-source.stdout": {
+      "bytes": 107372,
+      "sha256": "ef7e8b204b5a570b7fa41b9fd5f3876fc5720a8870afeb344863e5a3bb8f6465"
+    },
+    "profiled\\raw\\clients-256-connections-1-r1\\established-diagnostics.ndjson": {
+      "bytes": 28497,
+      "sha256": "0c206c898aa925a40e500de3ec1194b433e943eb19910f194b4998ad88ad2f5c"
+    },
+    "profiled\\raw\\clients-256-connections-1-r1\\established-server-result.json": {
+      "bytes": 124,
+      "sha256": "4933f84a4f08214d1ffef2125ecb7f16d99c66d5ebb5af08569926d8e1b73d51"
+    },
+    "profiled\\raw\\clients-256-connections-1-r1\\lifecycle-diagnostics.ndjson": {
+      "bytes": 24435,
+      "sha256": "3beb4f3fbd6f80211f7cf4d8c56986c45c64a4b5880c7262a9a2c2f2a9e55fd9"
+    },
+    "profiled\\raw\\clients-256-connections-1-r1\\lifecycle-server-result.json": {
+      "bytes": 17620,
+      "sha256": "de95d7cf6280016029db7a1d1949f96fe626c06e6d791f0bf940945a4bbe06d8"
+    },
+    "profiled\\raw\\clients-512-connections-1-r1\\admission-source.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "profiled\\raw\\clients-512-connections-1-r1\\admission-source.stdout": {
+      "bytes": 131505,
+      "sha256": "c10cb3a6db03e7b130bff71e38bd2682e66af72058757ef7fa2ceff1ba995193"
+    },
+    "profiled\\raw\\clients-512-connections-1-r1\\established-diagnostics.ndjson": {
+      "bytes": 28497,
+      "sha256": "ffb15a7f933e9e678497c974874540c78c8b8fc6461173e751d93fd4c691475d"
+    },
+    "profiled\\raw\\clients-512-connections-1-r1\\established-server-result.json": {
+      "bytes": 124,
+      "sha256": "12c9cfc54b81a7aeceb3b9574c2db199e835436bf40f439d0f8f42c49f69d1a5"
+    },
+    "profiled\\raw\\clients-512-connections-1-r1\\lifecycle-diagnostics.ndjson": {
+      "bytes": 44508,
+      "sha256": "c5e4e83bb9be25b503084acbfa9c3d13be6eab051bb72061e767e45a198431f9"
+    },
+    "control\\raw\\clients-128.json": {
+      "bytes": 88814,
+      "sha256": "8c141deccd1d19c2b9d11f9614345eea330334690fc0bccfff3eaff62ba606eb"
+    },
+    "control\\raw\\clients-256.json": {
+      "bytes": 100829,
+      "sha256": "3a71b887d73081f0d0c916b0db6723ef7142ed767b3f6f87cd634cf256557205"
+    },
+    "control\\raw\\clients-512.json": {
+      "bytes": 118225,
+      "sha256": "b4fff41b44ac41b1e4aa7486e9ffa131945e3885095a9d72d5fc38569a8aa72b"
+    },
+    "control\\raw\\clients-128-connections-1-r1\\admission-source.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "control\\raw\\clients-128-connections-1-r1\\admission-source.stdout": {
+      "bytes": 53929,
+      "sha256": "35ca8fff358e4425bbdddbb8abf91f745ca823356ce43251e2f50f0fadc6e35c"
+    },
+    "control\\raw\\clients-128-connections-1-r1\\established-diagnostics.ndjson": {
+      "bytes": 28497,
+      "sha256": "df5843400ab71b6a581b0b0cd2467770b14d18920be587c0ce036d7e5de166bd"
+    },
+    "control\\raw\\clients-128-connections-1-r1\\established-server-result.json": {
+      "bytes": 124,
+      "sha256": "54ae116693bb09da5c8ef615def59cfe7efcb3e442854a87a60571c52571eb23"
+    },
+    "control\\raw\\clients-128-connections-1-r1\\lifecycle-diagnostics.ndjson": {
+      "bytes": 13284,
+      "sha256": "0831491386ecfd58808e768d2d1b15a4395f89c7bd99ea1d73213ca4b9f478b3"
+    },
+    "control\\raw\\clients-128-connections-1-r1\\lifecycle-server-result.json": {
+      "bytes": 8937,
+      "sha256": "fcc0443a970390dd11fb5307e01a3efd3e8e63fd636ab2ad599f7f7201693f7f"
+    },
+    "control\\raw\\clients-256-connections-1-r1\\admission-source.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "control\\raw\\clients-256-connections-1-r1\\admission-source.stdout": {
+      "bytes": 89630,
+      "sha256": "499b933b3021c196503a5b812f6e1435c8daf05b56996b9fb7d2fbe054717da3"
+    },
+    "control\\raw\\clients-256-connections-1-r1\\established-diagnostics.ndjson": {
+      "bytes": 28497,
+      "sha256": "8596e7b7f285f2811ea4f3ecb49b582695cc2c5c1d424d53e94291cfd806656d"
+    },
+    "control\\raw\\clients-256-connections-1-r1\\established-server-result.json": {
+      "bytes": 124,
+      "sha256": "ed80ce0af4c43925996034fa52a64aa8752b1aac174b8ec8136c741161d70fa7"
+    },
+    "control\\raw\\clients-256-connections-1-r1\\lifecycle-diagnostics.ndjson": {
+      "bytes": 15527,
+      "sha256": "6557b9de3768e6c3f21e81f5ac6c40cbbc5656ae23bbe2e303b2ddd0d90f1caf"
+    },
+    "control\\raw\\clients-256-connections-1-r1\\lifecycle-server-result.json": {
+      "bytes": 13977,
+      "sha256": "ca2db27410b076c92ee3214b0c768b4f78d4ff3dd40300770b538db41411b1ba"
+    },
+    "control\\raw\\clients-512-connections-1-r1\\admission-source.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "control\\raw\\clients-512-connections-1-r1\\admission-source.stdout": {
+      "bytes": 135662,
+      "sha256": "c5ae0939c90aba9479e751aecd5b44258772ce8dba58248dbe6fcce48fb5ebfb"
+    },
+    "control\\raw\\clients-512-connections-1-r1\\established-diagnostics.ndjson": {
+      "bytes": 28496,
+      "sha256": "1794d0a23b60e2363864c6fb6c494fece51ef54207032be9031e0c1622d7c0c7"
+    },
+    "control\\raw\\clients-512-connections-1-r1\\established-server-result.json": {
+      "bytes": 124,
+      "sha256": "7bc037eb95173bb105e8eb1ed6e6c31fa9feb9be18cb0dbb3053062f79c95916"
+    },
+    "control\\raw\\clients-512-connections-1-r1\\lifecycle-diagnostics.ndjson": {
+      "bytes": 44464,
+      "sha256": "13af4541f2b1d5cb782a1728f26a3fdecd638a5727b75b94507f8c82d8fbb98d"
+    }
+  }
+}

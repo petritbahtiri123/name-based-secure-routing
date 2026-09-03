@@ -1,0 +1,20 @@
+[
+  {
+    "clients": 128,
+    "control_admissions_per_second": 37.81501979506627,
+    "profiled_admissions_per_second": 37.88712726236367,
+    "admission_rate_overhead_fraction": -0.0019068472709569129
+  },
+  {
+    "clients": 256,
+    "control_admissions_per_second": 37.54949948740966,
+    "profiled_admissions_per_second": 28.76312415604581,
+    "admission_rate_overhead_fraction": 0.2339944726642741
+  },
+  {
+    "clients": 512,
+    "control_admissions_per_second": 49.53387079658308,
+    "profiled_admissions_per_second": 45.13941570967634,
+    "admission_rate_overhead_fraction": 0.08871616565063345
+  }
+]

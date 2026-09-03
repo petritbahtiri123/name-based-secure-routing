@@ -1,0 +1,64 @@
+{
+  "schema": "nbsr-b4b-task4e-capture-v1",
+  "timestamp_utc": "2026-09-03T19:06:52.2422601Z",
+  "git": {
+    "branch": "codex/nbsr-v3-wp0-wp1",
+    "sha": "9274ffc56a7d7d3d8651a599a123bfa41ac3a060"
+  },
+  "workload": {
+    "clients": [
+      128,
+      256,
+      512
+    ],
+    "connections_per_client": 1
+  },
+  "xperf_kernel_arguments": [
+    "-on",
+    "PROC_THREAD+LOADER+PROFILE+CSWITCH+DISPATCHER",
+    "-stackwalk",
+    "Profile+CSwitch+ReadyThread",
+    "-BufferSize",
+    "1024",
+    "-MinBuffers",
+    "256",
+    "-MaxBuffers",
+    "768",
+    "-f",
+    "C:\\NBSR-build\\b4b-task4e-20260903-210049\\task4e-kernel-raw.etl"
+  ],
+  "xperf_network_arguments": [
+    "-start",
+    "NBSRTask4eNetwork",
+    "-on",
+    "Microsoft-Windows-Winsock-AFD+Microsoft-Windows-TCPIP",
+    "-BufferSize",
+    "256",
+    "-MinBuffers",
+    "128",
+    "-MaxBuffers",
+    "512",
+    "-f",
+    "C:\\NBSR-build\\b4b-task4e-20260903-210049\\task4e-network-raw.etl"
+  ],
+  "trace": "C:\\NBSR-build\\b4b-task4e-20260903-210049\\task4e.etl",
+  "kernel_lost_events": 0,
+  "network_lost_events": 0,
+  "network_trace_valid": true,
+  "symbol_checks": {
+    "perf_rust_source": true,
+    "wp8_interop_server": true
+  },
+  "control": {
+    "label": "control",
+    "started_utc": "2026-09-03T19:00:49.5855604Z",
+    "ended_utc": "2026-09-03T19:02:51.7162374Z",
+    "output": "C:\\NBSR-build\\b4b-task4e-20260903-210049\\control"
+  },
+  "profiled": {
+    "label": "profiled",
+    "started_utc": "2026-09-03T19:02:52.5800555Z",
+    "ended_utc": "2026-09-03T19:03:43.0634365Z",
+    "output": "C:\\NBSR-build\\b4b-task4e-20260903-210049\\profiled"
+  }
+}
