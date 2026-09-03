@@ -1,0 +1,47 @@
+{
+  "attribution": "No causal attribution from timeline-only counts or timings",
+  "classification": "PARTIAL / UNRESOLVED",
+  "etw_collected": false,
+  "gates": [
+    {
+      "absolute_median_impact": {
+        "admission_p50_latency_ns": 0.007666794005678046,
+        "admission_p95_latency_ns": 0.033984288673134744,
+        "admission_p99_latency_ns": 0.5812273354533463,
+        "admission_rate": 0.8997948675910601,
+        "established_goodput_bytes_per_second": 0.03203842764991793,
+        "established_p50_latency_ns": 0.00661914460285129,
+        "established_p95_latency_ns": 0.07876230661040784,
+        "established_p99_latency_ns": 0.1014145288899545,
+        "handshake_p50": 0.09228921024426717,
+        "handshake_p95": 0.020975336584455273,
+        "handshake_p99": 0.6533085287951422
+      },
+      "all_runs_valid": true,
+      "clients": 128,
+      "on_cleanup_zero": true,
+      "pass": false,
+      "success_shift_fraction": 0.0
+    },
+    {
+      "absolute_median_impact": {
+        "admission_p50_latency_ns": 0.010768052580332532,
+        "admission_p95_latency_ns": 0.009782875866590768,
+        "admission_p99_latency_ns": 0.00562943367109936,
+        "admission_rate": 0.060200906577110525,
+        "established_goodput_bytes_per_second": 0.009143639920758617,
+        "established_p50_latency_ns": 0.01985111662531014,
+        "established_p95_latency_ns": 0.03781250000000003,
+        "established_p99_latency_ns": 0.12207239176721085,
+        "handshake_p50": 0.5874374957070931,
+        "handshake_p95": 0.006269565080987083,
+        "handshake_p99": 0.005612550251141379
+      },
+      "all_runs_valid": true,
+      "clients": 256,
+      "on_cleanup_zero": true,
+      "pass": false,
+      "success_shift_fraction": 0.04296875
+    }
+  ]
+}

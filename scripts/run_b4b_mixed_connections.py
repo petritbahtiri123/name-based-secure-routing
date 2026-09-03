@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import ctypes
+from contextlib import ExitStack
 from dataclasses import asdict
 import hashlib
 import json
@@ -169,11 +170,17 @@ def run_cell(
     duration: float,
     warmup: float,
     planned_clients: list[int],
+    timeline: bool = False,
 ) -> dict[str, Any]:
     stem = f"clients-{clients}-connections-{connections_per_client}-r{repeat}"
     cell_dir = raw_dir / stem
     cell_dir.mkdir(parents=True)
-    with tempfile.TemporaryDirectory(prefix="nbsr-b4b-") as temporary:
+    with ExitStack() as timeline_lifetime, tempfile.TemporaryDirectory(prefix="nbsr-b4b-") as temporary:
+        source_timeline = destination_timeline = None
+        if timeline:
+            from scripts.performance.handshake_timeline import Timeline
+            source_timeline = timeline_lifetime.enter_context(Timeline(clients * connections_per_client, 1))
+            destination_timeline = timeline_lifetime.enter_context(Timeline(clients * connections_per_client, 2))
         temp = Path(temporary)
         established_authority = temp / "established-authority"
         lifecycle_authority = temp / "lifecycle-authority"
@@ -281,6 +288,7 @@ def run_cell(
                         "NBSR_PERF_STREAMS_PER_SERVICE": "1",
                         "NBSR_PERF_CONCURRENT_STREAMS": "1",
                         "NBSR_PERF_CONCURRENT_SESSIONS": "1",
+                        "NBSR_BENCH_TIMELINE": destination_timeline.name if destination_timeline else "",
                     },
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
@@ -306,6 +314,7 @@ def run_cell(
                 admission_client = subprocess.Popen(
                     argv,
                     cwd=ROOT,
+                    env={**os.environ, "NBSR_BENCH_TIMELINE": source_timeline.name if source_timeline else ""},
                     stdout=admission_stdout_file,
                     stderr=admission_stderr_file,
                     text=True,
@@ -417,6 +426,17 @@ def run_cell(
                 "driver_completed_clients": len(terminal_marker_clients),
                 "terminal_evidence_exact": terminal_evidence_exact,
             }
+            timeline_capture = {"valid": True, "enabled": timeline}
+            if timeline:
+                try:
+                    if not process_exit:
+                        raise ValueError("timeline read before measured process exit")
+                    # Preserve original bytes, including rejected/corrupt evidence.
+                    for role, owner in (("source", source_timeline), ("destination", destination_timeline)):
+                        (cell_dir / f"timeline-{role}.bin").write_bytes(owner.mapping[:])
+                    timeline_capture.update(source=source_timeline.snapshot(), destination=destination_timeline.snapshot())
+                except (ValueError, OSError) as error:
+                    timeline_capture.update(valid=False, error=str(error))
             return {
                 "schema": "nbsr-b4b-mixed-connections-repeat-v2",
                 "repeat": repeat,
@@ -441,6 +461,10 @@ def run_cell(
                 "admission_p50_latency_ns": percentile(latencies, 0.50),
                 "admission_p95_latency_ns": percentile(latencies, 0.95),
                 "admission_p99_latency_ns": percentile(latencies, 0.99),
+                "handshake_latency_ns": {str(p): percentile(
+                    [int(v["transport_handshake_ns"]) for v in admission_outputs
+                     if v.get("success") and v.get("transport_handshake_ns") is not None], p / 100)
+                    for p in (50, 95, 99)},
                 "admission_elapsed_seconds": max(admission_finished - admission_started, 1e-9),
                 "admissions_completed_before_established_end": admission_finished <= established_finished,
                 "peak_pending_clients": peak_pending,
@@ -467,6 +491,7 @@ def run_cell(
                 },
                 "cleanup": cleanup,
                 "stderr_capture": stderr_capture,
+                "timeline_capture": timeline_capture,
                 "destination_cleanup_wait_seconds": destination_cleanup_seconds,
                 "saturation_failure": "; ".join(server_failures) if server_failures else None,
                 "commands": {
@@ -478,10 +503,21 @@ def run_cell(
                 "failure_detail": "\n".join(value for value in [failure, *server_failures] if value) or None,
             }
         finally:
+            shutdown_error = None
             for process in [admission_client, established_client, lifecycle_server, established_server]:
                 if process is not None and process.poll() is None:
-                    process.kill()
-                    process.wait(timeout=5)
+                    try:
+                        process.kill()
+                        process.wait(timeout=5)
+                    except (OSError, subprocess.TimeoutExpired) as error:
+                        shutdown_error = error
+            if timeline and all(process is None or process.poll() is not None for process in
+                                [admission_client, established_client, lifecycle_server, established_server]):
+                # Exceptional runs retain raw records after child termination too.
+                for role, owner in (("source", source_timeline), ("destination", destination_timeline)):
+                    path = cell_dir / f"timeline-{role}.bin"
+                    if not path.exists():
+                        path.write_bytes(owner.mapping[:])
             if admission_stdout_file is not None:
                 admission_stdout_file.close()
             if admission_stderr_file is not None:
@@ -493,6 +529,8 @@ def run_cell(
                     stderr_drain.finish(0)
                 except (RuntimeError, TimeoutError):
                     pass
+            if shutdown_error is not None:
+                raise shutdown_error
 
 
 def checksums(root: Path) -> None:

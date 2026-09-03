@@ -1,0 +1,390 @@
+{
+  "causal_attribution": "NOT ESTABLISHED",
+  "cells": [
+    {
+      "clients": 128,
+      "gate": {
+        "absolute_median_impact": {
+          "admission_p50_latency_ns": 0.007666794005678046,
+          "admission_p95_latency_ns": 0.033984288673134744,
+          "admission_p99_latency_ns": 0.5812273354533463,
+          "admission_rate": 0.8997948675910601,
+          "established_goodput_bytes_per_second": 0.03203842764991793,
+          "established_p50_latency_ns": 0.00661914460285129,
+          "established_p95_latency_ns": 0.07876230661040784,
+          "established_p99_latency_ns": 0.1014145288899545,
+          "handshake_p50": 0.09228921024426717,
+          "handshake_p95": 0.020975336584455273,
+          "handshake_p99": 0.6533085287951422
+        },
+        "all_runs_valid": true,
+        "on_cleanup_zero": true,
+        "pass": false,
+        "success_shift_fraction": 0.0
+      },
+      "modes": {
+        "off": {
+          "admission_rate_cv": 0.4102774239621246,
+          "cleanup_zero": true,
+          "goodput_cv": 0.061129307690901795,
+          "median_admissions_per_second": 38.731466993348064,
+          "median_admitted": 128,
+          "median_effective_cores": 1.34687859363365,
+          "median_gbps": 0.6183587932408797,
+          "repeats": 5,
+          "valid": 5
+        },
+        "on": {
+          "admission_rate_cv": 0.09663838243686021,
+          "cleanup_zero": true,
+          "goodput_cv": 0.029357203869752397,
+          "median_admissions_per_second": 73.5818422082352,
+          "median_admitted": 128,
+          "median_effective_cores": 1.3350469202694433,
+          "median_gbps": 0.6381700366998182,
+          "repeats": 5,
+          "valid": 5
+        }
+      },
+      "timeline": {
+        "destination": {
+          "cross_process_matching": "NONE",
+          "outcomes": {
+            "admitted": 640
+          },
+          "pooled_observed_intervals_ns": {
+            "admitted:admission_started->route_accepted": {
+              "count": 640,
+              "p50": 738200.0,
+              "p95": 1140200.0,
+              "p99": 2239200.0
+            },
+            "admitted:admitted->cleaned": {
+              "count": 640,
+              "p50": 36300700.0,
+              "p95": 270946000.0,
+              "p99": 310668200.0
+            },
+            "admitted:connect_first_poll->connected": {
+              "count": 640,
+              "p50": 259620300.0,
+              "p95": 1179757800.0,
+              "p99": 1185338700.0
+            },
+            "admitted:connected->control_hello_complete": {
+              "count": 640,
+              "p50": 76160300.0,
+              "p95": 639812500.0,
+              "p99": 687047100.0
+            },
+            "admitted:control_hello_complete->admission_started": {
+              "count": 640,
+              "p50": 43875100.0,
+              "p95": 271148600.0,
+              "p99": 314364500.0
+            },
+            "admitted:requested->task_started": {
+              "count": 640,
+              "p50": 102100.0,
+              "p95": 160900.0,
+              "p99": 169400.0
+            },
+            "admitted:route_accepted->admitted": {
+              "count": 640,
+              "p50": 106300.0,
+              "p95": 161600.0,
+              "p99": 214800.0
+            },
+            "admitted:task_started->connect_first_poll": {
+              "count": 640,
+              "p50": 100.0,
+              "p95": 100.0,
+              "p99": 500.0
+            }
+          }
+        },
+        "source": {
+          "cross_process_matching": "NONE",
+          "outcomes": {
+            "admitted": 640
+          },
+          "pooled_observed_intervals_ns": {
+            "admitted:admission_started->route_accepted": {
+              "count": 640,
+              "p50": 35676200.0,
+              "p95": 184605500.0,
+              "p99": 246531100.0
+            },
+            "admitted:admitted->cleaned": {
+              "count": 640,
+              "p50": 460330500.0,
+              "p95": 951924200.0,
+              "p99": 1156612700.0
+            },
+            "admitted:connect_first_poll->connected": {
+              "count": 640,
+              "p50": 174349600.0,
+              "p95": 1048708300.0,
+              "p99": 1053744100.0
+            },
+            "admitted:connected->control_hello_complete": {
+              "count": 640,
+              "p50": 96859800.0,
+              "p95": 1100287900.0,
+              "p99": 1192671500.0
+            },
+            "admitted:control_hello_complete->admission_started": {
+              "count": 640,
+              "p50": 344200.0,
+              "p95": 536300.0,
+              "p99": 801300.0
+            },
+            "admitted:requested->task_started": {
+              "count": 640,
+              "p50": 68963800.0,
+              "p95": 117360600.0,
+              "p99": 128558300.0
+            },
+            "admitted:route_accepted->admitted": {
+              "count": 640,
+              "p50": 118900.0,
+              "p95": 194300.0,
+              "p99": 258700.0
+            },
+            "admitted:task_started->connect_first_poll": {
+              "count": 640,
+              "p50": 399500.0,
+              "p95": 601600.0,
+              "p99": 978200.0
+            }
+          }
+        }
+      }
+    },
+    {
+      "clients": 256,
+      "gate": {
+        "absolute_median_impact": {
+          "admission_p50_latency_ns": 0.010768052580332532,
+          "admission_p95_latency_ns": 0.009782875866590768,
+          "admission_p99_latency_ns": 0.00562943367109936,
+          "admission_rate": 0.060200906577110525,
+          "established_goodput_bytes_per_second": 0.009143639920758617,
+          "established_p50_latency_ns": 0.01985111662531014,
+          "established_p95_latency_ns": 0.03781250000000003,
+          "established_p99_latency_ns": 0.12207239176721085,
+          "handshake_p50": 0.5874374957070931,
+          "handshake_p95": 0.006269565080987083,
+          "handshake_p99": 0.005612550251141379
+        },
+        "all_runs_valid": true,
+        "on_cleanup_zero": true,
+        "pass": false,
+        "success_shift_fraction": 0.04296875
+      },
+      "modes": {
+        "off": {
+          "admission_rate_cv": 0.0851284191418275,
+          "cleanup_zero": true,
+          "goodput_cv": 0.06335950772538801,
+          "median_admissions_per_second": 44.17560245615387,
+          "median_admitted": 237,
+          "median_effective_cores": 1.3954689980821133,
+          "median_gbps": 0.5980262489990944,
+          "repeats": 5,
+          "valid": 5
+        },
+        "on": {
+          "admission_rate_cv": 0.21169352517269427,
+          "cleanup_zero": true,
+          "goodput_cv": 0.09597646345487038,
+          "median_admissions_per_second": 41.51619113970337,
+          "median_admitted": 226,
+          "median_effective_cores": 1.39874813608406,
+          "median_gbps": 0.5925581123150847,
+          "repeats": 5,
+          "valid": 5
+        }
+      },
+      "timeline": {
+        "destination": {
+          "cross_process_matching": "NONE",
+          "outcomes": {
+            "admitted": 1138,
+            "timed_out": 142
+          },
+          "pooled_observed_intervals_ns": {
+            "admitted:admission_started->route_accepted": {
+              "count": 1138,
+              "p50": 830500.0,
+              "p95": 1280500.0,
+              "p99": 3739300.0
+            },
+            "admitted:admitted->cleaned": {
+              "count": 1138,
+              "p50": 46874100.0,
+              "p95": 300124100.0,
+              "p99": 429072500.0
+            },
+            "admitted:connect_first_poll->connected": {
+              "count": 1138,
+              "p50": 1303216400.0,
+              "p95": 3434897100.0,
+              "p99": 5249722400.0
+            },
+            "admitted:connected->control_hello_complete": {
+              "count": 1138,
+              "p50": 50385300.0,
+              "p95": 847805000.0,
+              "p99": 2155598200.0
+            },
+            "admitted:control_hello_complete->admission_started": {
+              "count": 1138,
+              "p50": 61828000.0,
+              "p95": 240293500.0,
+              "p99": 335675900.0
+            },
+            "admitted:requested->task_started": {
+              "count": 1138,
+              "p50": 235500.0,
+              "p95": 2612200.0,
+              "p99": 2680100.0
+            },
+            "admitted:route_accepted->admitted": {
+              "count": 1138,
+              "p50": 120400.0,
+              "p95": 179300.0,
+              "p99": 313600.0
+            },
+            "admitted:task_started->connect_first_poll": {
+              "count": 1138,
+              "p50": 100.0,
+              "p95": 200.0,
+              "p99": 400.0
+            },
+            "timed_out:connect_first_poll->timed_out": {
+              "count": 142,
+              "p50": 5010845200.0,
+              "p95": 5014001600.0,
+              "p99": 5015769600.0
+            },
+            "timed_out:requested->task_started": {
+              "count": 142,
+              "p50": 260600.0,
+              "p95": 2668200.0,
+              "p99": 2677200.0
+            },
+            "timed_out:task_started->connect_first_poll": {
+              "count": 142,
+              "p50": 100.0,
+              "p95": 300.0,
+              "p99": 500.0
+            }
+          }
+        },
+        "source": {
+          "cross_process_matching": "NONE",
+          "outcomes": {
+            "admitted": 1138,
+            "timed_out": 142
+          },
+          "pooled_observed_intervals_ns": {
+            "admitted:admission_started->route_accepted": {
+              "count": 1138,
+              "p50": 43442100.0,
+              "p95": 174539200.0,
+              "p99": 207435500.0
+            },
+            "admitted:admitted->cleaned": {
+              "count": 1138,
+              "p50": 533477300.0,
+              "p95": 1377561400.0,
+              "p99": 1583606900.0
+            },
+            "admitted:connect_first_poll->connected": {
+              "count": 1138,
+              "p50": 478695200.0,
+              "p95": 3190501400.0,
+              "p99": 3316066100.0
+            },
+            "admitted:connected->control_hello_complete": {
+              "count": 1138,
+              "p50": 98861300.0,
+              "p95": 1489210100.0,
+              "p99": 3815335400.0
+            },
+            "admitted:control_hello_complete->admission_started": {
+              "count": 1138,
+              "p50": 408900.0,
+              "p95": 625300.0,
+              "p99": 1783400.0
+            },
+            "admitted:requested->task_started": {
+              "count": 1138,
+              "p50": 124729500.0,
+              "p95": 246083700.0,
+              "p99": 276453500.0
+            },
+            "admitted:route_accepted->admitted": {
+              "count": 1138,
+              "p50": 132600.0,
+              "p95": 224700.0,
+              "p99": 329800.0
+            },
+            "admitted:task_started->connect_first_poll": {
+              "count": 1138,
+              "p50": 463200.0,
+              "p95": 708700.0,
+              "p99": 1045300.0
+            },
+            "timed_out:connect_first_poll->timed_out": {
+              "count": 142,
+              "p50": 5007845800.0,
+              "p95": 5018179300.0,
+              "p99": 5028112700.0
+            },
+            "timed_out:requested->task_started": {
+              "count": 142,
+              "p50": 228615000.0,
+              "p95": 310767500.0,
+              "p99": 331958600.0
+            },
+            "timed_out:task_started->connect_first_poll": {
+              "count": 142,
+              "p50": 461900.0,
+              "p95": 933900.0,
+              "p99": 1465600.0
+            }
+          }
+        }
+      }
+    }
+  ],
+  "classification": "PARTIAL / UNRESOLVED",
+  "etw": "NOT RUN",
+  "input_sha256": {
+    "raw/off/clients-128-r1.json": "d3c0db9ea4b60a781bfbf5853cecb317ff5a626b4f0a3f074356670e00df8d4b",
+    "raw/off/clients-128-r2.json": "7d50fede3dfe3046a85dd1b5078c426ab088ba9acb831a00410203130ad6c27b",
+    "raw/off/clients-128-r3.json": "990194eadcbe8b263a5c2ac68f6980c36f91c12f35ae16749b0d6ecdc79ba8b9",
+    "raw/off/clients-128-r4.json": "d6ceea6910abe1e07acf02411394efbffa72687c1a8dfb0c143e5aff98b94a06",
+    "raw/off/clients-128-r5.json": "d272e23b307bc77cf065ee695990f9a419f739acdf0986d6bce1b652c596902a",
+    "raw/off/clients-256-r1.json": "8428ce6e10d5fd935db55c6b7079f4c32a5f0b02db4932ca78941dbf48c7bca5",
+    "raw/off/clients-256-r2.json": "d620f2139f6d0faef32133006f2fc766861a3865d6db4a6fe62547632690013f",
+    "raw/off/clients-256-r3.json": "9b2aa958c0ba99ea54b2e1c78493354f84c556395fa6ec57a48ffaa58b82f797",
+    "raw/off/clients-256-r4.json": "9acabb414b374df5b5bd96eb00c82ec3a5227d970d9604db0ec43dca93224723",
+    "raw/off/clients-256-r5.json": "c40931aac845c72e60f0defc146907db2c499b40ddfa3256dedb992654fb48bb",
+    "raw/on/clients-128-r1.json": "9cf0e15ba4a1a75c22a51ebeb5504240ff227f01604852bea691d43127810659",
+    "raw/on/clients-128-r2.json": "08f030bd53a534b4072590e1f210d21adc4f6e85e0ffa375afac95d9c3ac9291",
+    "raw/on/clients-128-r3.json": "4a7c470c84abbf0a477a8c83be9383b5200c6241935d1ff6825b64ad585c65c5",
+    "raw/on/clients-128-r4.json": "a01b75b5ac3629bdac9673aafdfa56225fe81a541cf087cf9286c9633b1a70d9",
+    "raw/on/clients-128-r5.json": "7b007e42a634387c8928c8f545a38940cd6df21e69027c90051c670860065d19",
+    "raw/on/clients-256-r1.json": "d884968ae2d9eb7f3e01b2d2acd747463a0a74bd038f05c073c6a2970732c418",
+    "raw/on/clients-256-r2.json": "e84080045bfc2743bb6c713a91aea2ae1da2ceb660dbb2eec6b95cb73b9e032a",
+    "raw/on/clients-256-r3.json": "d2287ec5ca999b88281d42194476b71b0b605085756dd2f3a7546ec964e7b131",
+    "raw/on/clients-256-r4.json": "f0944da21b98f5c256212cb75c949ac38e2d3a8397e845dd6d01934c91cbac88",
+    "raw/on/clients-256-r5.json": "db3aa9c0d3df04c306769e33fa9b2f03fb8419081f809a03312aff28052d15ff"
+  },
+  "note": "Intervals are pooled descriptive ON observations, not independent repeat medians. Rejected observer data cannot attribute the uninstrumented collapse.",
+  "observer_gate_pass": false,
+  "schema": "nbsr-task4g-descriptive-analysis-v1"
+}

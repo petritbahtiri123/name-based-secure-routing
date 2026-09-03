@@ -1,0 +1,49 @@
+{
+  "affinity": "inherited; not modified",
+  "binary_sha256": {
+    "direct": "de3df081b7269036b18ca6403a6c7051a4a945138285f2c6a62acda9578dc02b",
+    "nbsr": "b2fd08507dab87cdcb91d7f25c5803aff1e25212b5275009b94397ff4265db59",
+    "server": "e5b2e57df1743380938011246a5dfbc3e424a2931eb7bf43a8afb2115b534bb5"
+  },
+  "build": "release",
+  "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)",
+  "command": [
+    "C:\\Users\\bajra\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+    "scripts/run_b4b_task4g.py",
+    "--output",
+    "C:\\NBSR-build\\b4b-task4g-observer-20260903-a"
+  ],
+  "cores": 4,
+  "cpu": "Intel(R) Core(TM) i5-10210U CPU @ 1.60GHz",
+  "dirty_tree": true,
+  "duration_seconds": 20,
+  "go": "go version go1.26.5 windows/amd64",
+  "logical_processors": 8,
+  "memory_bytes": 16942501888,
+  "os": "Windows-11-10.0.26200-SP0",
+  "planned_clients": [
+    128,
+    256
+  ],
+  "power_plan": "Power Scheme GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c  (High performance)",
+  "python": "3.14.6",
+  "repository_sha": "e4ce037ebaf4024609497aec5fc594720812386e",
+  "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+  "schema": "nbsr-performance-environment-v1",
+  "source_sha256": {
+    "crates/nbsr-transport/src/bin/benchmark_support/handshake_timeline.rs": "a3226c6c0f80fe6282b802b38b67fbdd35326791f243bc00c2cc2ca1a6097887",
+    "crates/nbsr-transport/src/bin/benchmark_support/lifecycle_completion.rs": "b4996edf2c2e5f35997476a95776d8e015290e3cb5a3f3870803aab1c34896a5",
+    "crates/nbsr-transport/src/bin/perf_rust_source.rs": "d7f160f2c7283e5c2cc99a400e5e0579625d7208c2711c4eeaf49865346799df",
+    "crates/nbsr-transport/src/bin/wp8_interop_server.rs": "4b08d5de1a97ad9de4154d0bb9e690e3677b47faabb8ea7599802c345f7f3091",
+    "scripts/performance/handshake_timeline.py": "cad20208e45076d80c59d6e872eef46fa106fc74d11d231d77a03890cdc91600",
+    "scripts/performance/mixed_connections.py": "55d8bed5dc4125e7027d5f53bb7a28b04c9210a91174d0023996e7724b9fda15",
+    "scripts/performance/stderr_drain.py": "2f6428c62b865a5682d3402c085d5174ac2fd4ede7fc4c1d4b01c4e7d0ea6e53",
+    "scripts/run_b4b_mixed_connections.py": "77baf9d43beede6609741c5c462d433c7e1c27ba2016645be0293cefaf63269c",
+    "scripts/run_b4b_task4g.py": "04542c9b3b2b996cf8bef4135aa029fd142a912ced5204ee358edc8562cd5fe3",
+    "scripts/run_p2a_established.py": "79e152af25a0195f1a4004a18e073bfed57593505110cb4409c54eafab48b658",
+    "tests/performance/test_mixed_connections.py": "d933f3072d5676559f3012f4700ce8b0470772ebeef77d2b454d415448a1bb3d"
+  },
+  "timestamp_utc": "2026-09-03T20:06:24Z",
+  "topology": "windows-loopback",
+  "warmup_seconds": 2
+}

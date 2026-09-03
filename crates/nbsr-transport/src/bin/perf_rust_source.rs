@@ -36,6 +36,8 @@ mod b3_support;
 mod b4_support;
 #[cfg(feature = "benchmark-harness")]
 mod b5_support;
+#[path = "benchmark_support/handshake_timeline.rs"]
+mod handshake_timeline;
 #[path = "benchmark_support/lifecycle_completion.rs"]
 mod lifecycle_completion;
 use lifecycle_completion::{CompletionCoordinator, CompletionSender, TerminalKind};
@@ -373,7 +375,7 @@ async fn run_lifecycle(
         }
         let total_cold = Instant::now();
         let handshake = Instant::now();
-        let connection = match connect(
+        let connection = match handshake_timeline::observe(connect(
             build_client_config(
                 PeerPolicy::new(
                     EdgeRole::Source,
@@ -387,12 +389,19 @@ async fn run_lifecycle(
             )
             .unwrap(),
             endpoint,
-        )
+        ))
         .await
         {
             Ok(connection) => connection,
             Err(error) => {
                 let logical_client_id = connection_offset + connection_ordinal;
+                handshake_timeline::mark(
+                    if matches!(error, nbsr_transport::TransportError::HandshakeTimeout) {
+                        handshake_timeline::Event::TimedOut
+                    } else {
+                        handshake_timeline::Event::Failed
+                    },
+                );
                 if let Some(sender) = &completion {
                     let terminal =
                         if matches!(error, nbsr_transport::TransportError::HandshakeTimeout) {
@@ -415,10 +424,12 @@ async fn run_lifecycle(
                     "{{\"logical_client_id\":{logical_client_id},\"success\":false,\"error\":\"{error:?}\",\"timed_out\":{}}}",
                     matches!(error, nbsr_transport::TransportError::HandshakeTimeout)
                 );
+                handshake_timeline::mark(handshake_timeline::Event::Cleaned);
                 return;
             }
         };
         let handshake_ns = handshake.elapsed().as_nanos();
+        handshake_timeline::mark(handshake_timeline::Event::Connected);
         if report_connections {
             fs::write(
                 root.join(format!(
@@ -447,6 +458,7 @@ async fn run_lifecycle(
         );
         session.accept_client_hello(&client).unwrap();
         session.confirm_edge_hello(&edge).unwrap();
+        handshake_timeline::mark(handshake_timeline::Event::ControlHelloComplete);
         let concurrent_barrier = Arc::new(tokio::sync::Barrier::new(
             (services * streams_per_service) as usize + 1,
         ));
@@ -462,6 +474,7 @@ async fn run_lifecycle(
                 destination: fs::read(directory.join("destination.cose")).unwrap(),
             };
             let source_admission = Instant::now();
+            handshake_timeline::mark(handshake_timeline::Event::AdmissionStarted);
             session
                 .accept_federated_route_open(&route, &attestations)
                 .unwrap();
@@ -474,9 +487,11 @@ async fn run_lifecycle(
                 .unwrap();
             let route_open_rtt_ns = route_started.elapsed().as_nanos();
             session.confirm_route_accept(&accepted).unwrap();
+            handshake_timeline::mark(handshake_timeline::Event::RouteAccepted);
             let channel = fixed::<16>(&directory.join("channel-id.bin"));
             let binding = Instant::now();
             connection.bind_channel(&mut session, channel).unwrap();
+            handshake_timeline::mark(handshake_timeline::Event::Admitted);
             let channel_binding_ns = binding.elapsed().as_nanos();
             if concurrent {
                 for local_stream in 0..streams_per_service {
@@ -675,6 +690,13 @@ async fn run_lifecycle(
             drop(connection);
         } else {
             if let Err(error) = connection.close().await {
+                handshake_timeline::mark(
+                    if matches!(error, nbsr_transport::TransportError::CloseTimeout) {
+                        handshake_timeline::Event::TimedOut
+                    } else {
+                        handshake_timeline::Event::Failed
+                    },
+                );
                 terminal = if matches!(error, nbsr_transport::TransportError::CloseTimeout) {
                     TerminalKind::TimedOut
                 } else {
@@ -686,6 +708,9 @@ async fn run_lifecycle(
                 );
             }
         }
+        // close(self) has consumed/dropped the connection even on error.
+        // This observation does not change the failed lifecycle outcome.
+        handshake_timeline::mark(handshake_timeline::Event::Cleaned);
         if let Some(sender) = &completion {
             sender
                 .record(logical_client_id as usize, terminal)
@@ -1710,6 +1735,7 @@ fn main() {
             .parse::<usize>()
             .expect("valid --lifecycle-clients");
         assert!((1..=1024).contains(&logical_clients));
+        let timeline = handshake_timeline::Region::open(logical_clients, 1);
         build_benchmark_runtime(1)
             .expect("lifecycle driver Tokio runtime")
             .block_on(async move {
@@ -1721,9 +1747,15 @@ fn main() {
                 let mut lifecycle_clients = tokio::task::JoinSet::new();
                 for ordinal in 0..logical_clients {
                     let completion = completion.clone();
+                    let slot = timeline.as_ref().and_then(|region| region.claim(ordinal));
                     lifecycle_clients.spawn(async move {
-                        let outcome = tokio::spawn(run(None, ordinal, Some(completion.clone()))).await;
+                        let task_completion = completion.clone();
+                        let outcome = tokio::spawn(handshake_timeline::scope(slot.clone(), async move {
+                            handshake_timeline::mark(handshake_timeline::Event::TaskStarted);
+                            run(None, ordinal, Some(task_completion)).await
+                        })).await;
                         if let Err(error) = outcome {
+                            if let Some(slot) = &slot { slot.mark(if error.is_cancelled() { handshake_timeline::Event::Cancelled } else { handshake_timeline::Event::Failed }); }
                             let terminal = if error.is_cancelled() {
                                 TerminalKind::Cancelled
                             } else {
@@ -1733,7 +1765,9 @@ fn main() {
                             println!(
                                 "{{\"logical_client_id\":{ordinal},\"success\":false,\"error\":\"client_task_failed\",\"timed_out\":false}}"
                             );
+                            if let Some(slot) = &slot { slot.mark(handshake_timeline::Event::Cleaned); }
                         }
+                        if let Some(slot) = &slot { slot.complete(); }
                     });
                 }
                 while let Some(client) = lifecycle_clients.join_next().await {
