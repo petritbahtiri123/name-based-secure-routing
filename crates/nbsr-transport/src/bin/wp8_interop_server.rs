@@ -1,6 +1,7 @@
-use std::collections::{BTreeMap, VecDeque};
+use std::collections::BTreeMap;
 use std::env;
 use std::fs;
+use std::future::{Future, poll_fn};
 use std::io::{Read, Write};
 use std::net::{Ipv4Addr, SocketAddr};
 use std::path::{Path, PathBuf};
@@ -11,6 +12,7 @@ use std::sync::Arc;
 #[cfg(feature = "benchmark-harness")]
 use std::sync::Mutex;
 use std::sync::mpsc::{self, Receiver, Sender, TryRecvError};
+use std::task::Poll;
 use std::thread::JoinHandle;
 use std::time::Duration;
 
@@ -2319,92 +2321,57 @@ fn lifecycle_stream_accept(
     envelope(7, stream_request(stream_ordinal), sequence, body)
 }
 
-async fn run_lifecycle(
-    listener: &TransportListener,
+async fn run_lifecycle_connection(
+    connection: nbsr_transport::AuthenticatedConnection,
     root: &Path,
-    connections: u64,
+    total_connections: u64,
     services: u64,
     streams_per_service: u64,
     concurrent: bool,
 ) -> Vec<(u128, u128)> {
-    let mut measurements =
-        Vec::with_capacity((connections * services * streams_per_service) as usize);
-    let concurrent_sessions = env::var_os("NBSR_PERF_CONCURRENT_SESSIONS").is_some();
-    let mut accepted_connections = VecDeque::new();
-    if concurrent_sessions {
-        for _ in 0..connections {
-            accepted_connections.push_back(listener.accept_one().await.unwrap());
-        }
-    }
-    for connection_ordinal in 0..connections {
-        let connection = if concurrent_sessions {
-            accepted_connections.pop_front().unwrap()
-        } else {
-            listener.accept_one().await.unwrap()
-        };
-        let mut control = connection.accept_control_stream().await.unwrap();
-        let mut session = ControlSession::new(
-            &connection,
-            DestinationAdmission::new_federated(lifecycle_policy(root, services), authorities())
-                .unwrap(),
-            vec![issuer()],
-            TrustProfileId::new("federation-dev-v1").unwrap(),
-        );
-        let client = control
+    let mut measurements = Vec::with_capacity((services * streams_per_service) as usize);
+    let mut control = connection.accept_control_stream().await.unwrap();
+    let mut session = ControlSession::new(
+        &connection,
+        DestinationAdmission::new_federated(lifecycle_policy(root, services), authorities())
+            .unwrap(),
+        vec![issuer()],
+        TrustProfileId::new("federation-dev-v1").unwrap(),
+    );
+    let client = control
+        .receive_envelope(CoreV02Limits::default())
+        .await
+        .unwrap();
+    session.accept_client_hello(&client).unwrap();
+    let edge = edge_hello();
+    session.confirm_edge_hello(&edge).unwrap();
+    control.send_envelope(&edge).await.unwrap();
+    let mut concurrent_tasks = tokio::task::JoinSet::new();
+    let mut concurrent_admissions = vec![0_u128; services as usize];
+    let mut concurrent_channels = Vec::with_capacity(services as usize);
+    for index in 0..services {
+        let directory = root.join(format!("{index:02}"));
+        let route = control
             .receive_envelope(CoreV02Limits::default())
             .await
             .unwrap();
-        session.accept_client_hello(&client).unwrap();
-        let edge = edge_hello();
-        session.confirm_edge_hello(&edge).unwrap();
-        control.send_envelope(&edge).await.unwrap();
-        let mut concurrent_tasks = tokio::task::JoinSet::new();
-        let mut concurrent_admissions = vec![0_u128; services as usize];
-        let mut concurrent_channels = Vec::with_capacity(services as usize);
-        for index in 0..services {
-            let directory = root.join(format!("{index:02}"));
-            let route = control
-                .receive_envelope(CoreV02Limits::default())
-                .await
-                .unwrap();
-            let attestations = LocalFederationAdmissionAttestations {
-                source: fs::read(directory.join("source.cose")).unwrap(),
-                destination: fs::read(directory.join("destination.cose")).unwrap(),
-            };
-            let destination_admission = std::time::Instant::now();
-            session
-                .accept_federated_route_open(&route, &attestations)
-                .unwrap();
-            let destination_admission_ns = destination_admission.elapsed().as_nanos();
-            concurrent_admissions[index as usize] = destination_admission_ns;
-            let route_sequence = 2 + index * (1 + streams_per_service);
-            let accepted = lifecycle_route_accept(root, index, route_sequence);
-            session.confirm_route_accept(&accepted).unwrap();
-            control.send_envelope(&accepted).await.unwrap();
-            let channel = fixed::<16>(&directory.join("channel-id.bin"));
-            connection.bind_channel(&mut session, channel).unwrap();
-            if concurrent {
-                for local_stream in 0..streams_per_service {
-                    let stream_ordinal = index * streams_per_service + local_stream;
-                    let stream = control
-                        .receive_envelope(CoreV02Limits::default())
-                        .await
-                        .unwrap();
-                    session.authorize_stream_open(channel, &stream).unwrap();
-                    let stream_accepted = lifecycle_stream_accept(
-                        root,
-                        index,
-                        stream_ordinal,
-                        route_sequence + 1 + local_stream,
-                    );
-                    session
-                        .confirm_stream_accept(channel, &stream_accepted)
-                        .unwrap();
-                    control.send_envelope(&stream_accepted).await.unwrap();
-                }
-                concurrent_channels.push(channel);
-                continue;
-            }
+        let attestations = LocalFederationAdmissionAttestations {
+            source: fs::read(directory.join("source.cose")).unwrap(),
+            destination: fs::read(directory.join("destination.cose")).unwrap(),
+        };
+        let destination_admission = std::time::Instant::now();
+        session
+            .accept_federated_route_open(&route, &attestations)
+            .unwrap();
+        let destination_admission_ns = destination_admission.elapsed().as_nanos();
+        concurrent_admissions[index as usize] = destination_admission_ns;
+        let route_sequence = 2 + index * (1 + streams_per_service);
+        let accepted = lifecycle_route_accept(root, index, route_sequence);
+        session.confirm_route_accept(&accepted).unwrap();
+        control.send_envelope(&accepted).await.unwrap();
+        let channel = fixed::<16>(&directory.join("channel-id.bin"));
+        connection.bind_channel(&mut session, channel).unwrap();
+        if concurrent {
             for local_stream in 0..streams_per_service {
                 let stream_ordinal = index * streams_per_service + local_stream;
                 let stream = control
@@ -2422,87 +2389,202 @@ async fn run_lifecycle(
                     .confirm_stream_accept(channel, &stream_accepted)
                     .unwrap();
                 control.send_envelope(&stream_accepted).await.unwrap();
-                let application_processing = std::time::Instant::now();
-                let application = connection
-                    .accept_session_stream(&mut session, channel)
-                    .await;
-                if let Err(error) = &application {
-                    eprintln!("nbsr-perf lifecycle application admission failed: {error:?}");
-                }
-                application.unwrap().echo_once().await.unwrap();
-                measurements.push((
-                    if local_stream == 0 {
-                        destination_admission_ns
-                    } else {
-                        0
-                    },
-                    application_processing.elapsed().as_nanos(),
-                ));
-                session
-                    .release_stream(channel, 4 + stream_ordinal * 4)
-                    .unwrap();
-                while session.pop_audit_event().is_some() {}
             }
+            concurrent_channels.push(channel);
+            continue;
         }
-        if concurrent {
-            for stream_ordinal in 0..(services * streams_per_service) {
-                let service = stream_ordinal / streams_per_service;
-                let local_stream = stream_ordinal % streams_per_service;
-                let channel = concurrent_channels[service as usize];
-                let mut application = connection
-                    .accept_session_stream(&mut session, channel)
-                    .await
-                    .unwrap();
-                concurrent_tasks.spawn(async move {
-                    let started = std::time::Instant::now();
-                    application.echo_once().await.unwrap();
-                    (service, local_stream, channel, started.elapsed().as_nanos())
-                });
+        for local_stream in 0..streams_per_service {
+            let stream_ordinal = index * streams_per_service + local_stream;
+            let stream = control
+                .receive_envelope(CoreV02Limits::default())
+                .await
+                .unwrap();
+            session.authorize_stream_open(channel, &stream).unwrap();
+            let stream_accepted = lifecycle_stream_accept(
+                root,
+                index,
+                stream_ordinal,
+                route_sequence + 1 + local_stream,
+            );
+            session
+                .confirm_stream_accept(channel, &stream_accepted)
+                .unwrap();
+            control.send_envelope(&stream_accepted).await.unwrap();
+            let application_processing = std::time::Instant::now();
+            let application = connection
+                .accept_session_stream(&mut session, channel)
+                .await;
+            if let Err(error) = &application {
+                eprintln!("nbsr-perf lifecycle application admission failed: {error:?}");
             }
-            let mut completed = vec![0_u128; (services * streams_per_service) as usize];
-            while let Some(joined) = concurrent_tasks.join_next().await {
-                let (service, local_stream, channel, application_ns) = joined.unwrap();
-                let stream_ordinal = service * streams_per_service + local_stream;
-                completed[stream_ordinal as usize] = application_ns;
-                session
-                    .release_stream(channel, 4 + stream_ordinal * 4)
-                    .unwrap();
-            }
-            for (stream_ordinal, application_ns) in completed.into_iter().enumerate() {
-                let service = stream_ordinal / streams_per_service as usize;
-                let local_stream = stream_ordinal % streams_per_service as usize;
-                measurements.push((
-                    if local_stream == 0 {
-                        concurrent_admissions[service]
-                    } else {
-                        0
-                    },
-                    application_ns,
-                ));
-            }
+            let mut application = application.unwrap();
+            application.echo_once().await.unwrap();
+            measurements.push((
+                if local_stream == 0 {
+                    destination_admission_ns
+                } else {
+                    0
+                },
+                application_processing.elapsed().as_nanos(),
+            ));
+            session
+                .release_stream(channel, 4 + stream_ordinal * 4)
+                .unwrap();
             while session.pop_audit_event().is_some() {}
         }
-        tokio::time::timeout(Duration::from_secs(10), async {
-            while fs::read_dir(root)
-                .unwrap()
-                .filter_map(Result::ok)
-                .filter(|entry| {
-                    let name = entry.file_name();
-                    let name = name.to_string_lossy();
-                    name.starts_with("connection-") && name.ends_with(".ack")
-                })
-                .count()
-                < connection_ordinal as usize + 1
-            {
-                tokio::time::sleep(Duration::from_millis(1)).await;
+    }
+    if concurrent {
+        for stream_ordinal in 0..(services * streams_per_service) {
+            let service = stream_ordinal / streams_per_service;
+            let local_stream = stream_ordinal % streams_per_service;
+            let channel = concurrent_channels[service as usize];
+            let mut application = connection
+                .accept_session_stream(&mut session, channel)
+                .await
+                .unwrap();
+            concurrent_tasks.spawn(async move {
+                let started = std::time::Instant::now();
+                application.echo_once().await.unwrap();
+                (service, local_stream, channel, started.elapsed().as_nanos())
+            });
+        }
+        let mut completed = vec![0_u128; (services * streams_per_service) as usize];
+        while let Some(joined) = concurrent_tasks.join_next().await {
+            let (service, local_stream, channel, application_ns) = joined.unwrap();
+            let stream_ordinal = service * streams_per_service + local_stream;
+            completed[stream_ordinal as usize] = application_ns;
+            session
+                .release_stream(channel, 4 + stream_ordinal * 4)
+                .unwrap();
+        }
+        for (stream_ordinal, application_ns) in completed.into_iter().enumerate() {
+            let service = stream_ordinal / streams_per_service as usize;
+            let local_stream = stream_ordinal % streams_per_service as usize;
+            measurements.push((
+                if local_stream == 0 {
+                    concurrent_admissions[service]
+                } else {
+                    0
+                },
+                application_ns,
+            ));
+        }
+        while session.pop_audit_event().is_some() {}
+    }
+    if !wait_for_lifecycle_client_terminals(root, total_connections).await {
+        eprintln!("lifecycle destination terminal barrier timed out");
+    }
+    drop(session);
+    drop(control);
+    drop(connection);
+    measurements
+}
+
+async fn wait_for_lifecycle_client_terminals(root: &Path, total_connections: u64) -> bool {
+    tokio::time::timeout(Duration::from_secs(10), async {
+        while fs::read_dir(root)
+            .unwrap()
+            .filter_map(Result::ok)
+            .filter(|entry| {
+                let name = entry.file_name();
+                let name = name.to_string_lossy();
+                name.starts_with("connection-")
+                    && (name.ends_with(".ack") || name.ends_with(".failed"))
+            })
+            .count()
+            < total_connections as usize
+        {
+            tokio::time::sleep(Duration::from_millis(1)).await;
+        }
+    })
+    .await
+    .is_ok()
+}
+
+async fn run_lifecycle(
+    listener: &TransportListener,
+    root: &Path,
+    connections: u64,
+    services: u64,
+    streams_per_service: u64,
+    concurrent: bool,
+) -> Vec<(u128, u128)> {
+    let concurrent_sessions = env::var_os("NBSR_PERF_CONCURRENT_SESSIONS").is_some();
+    if !concurrent_sessions {
+        let mut measurements = Vec::new();
+        for connection_ordinal in 0..connections {
+            let connection = listener.accept_one().await.unwrap();
+            measurements.extend(
+                run_lifecycle_connection(
+                    connection,
+                    root,
+                    connection_ordinal + 1,
+                    services,
+                    streams_per_service,
+                    concurrent,
+                )
+                .await,
+            );
+        }
+        return measurements;
+    }
+
+    let mut sessions = tokio::task::JoinSet::new();
+    let mut accepts = (0..connections)
+        .map(|_| Box::pin(listener.accept_one()))
+        .collect::<Vec<_>>();
+    let mut accepted_connections = 0_u64;
+    while !accepts.is_empty() {
+        let failed_clients = fs::read_dir(root)
+            .unwrap()
+            .filter_map(Result::ok)
+            .filter(|entry| entry.file_name().to_string_lossy().ends_with(".failed"))
+            .count() as u64;
+        if accepted_connections + failed_clients >= connections {
+            break;
+        }
+        let next_accept = poll_fn(|context| {
+            for (index, accepting) in accepts.iter_mut().enumerate() {
+                if let Poll::Ready(result) = accepting.as_mut().poll(context) {
+                    return Poll::Ready((index, result));
+                }
             }
-        })
-        .await
-        .expect("lifecycle client completion acknowledgement");
-        if !concurrent_sessions {
-            drop(session);
-            drop(control);
-            drop(connection);
+            Poll::Pending
+        });
+        let Some((index, accepted)) = (tokio::select! {
+            result = next_accept => Some(result),
+            () = tokio::time::sleep(Duration::from_millis(1)) => None,
+        }) else {
+            continue;
+        };
+        drop(accepts.swap_remove(index));
+        let connection = match accepted {
+            Ok(connection) => connection,
+            Err(error) => {
+                eprintln!("lifecycle destination handshake failed: {error:?}");
+                continue;
+            }
+        };
+        accepted_connections += 1;
+        let root = root.to_path_buf();
+        sessions.spawn(async move {
+            run_lifecycle_connection(
+                connection,
+                &root,
+                connections,
+                services,
+                streams_per_service,
+                concurrent,
+            )
+            .await
+        });
+    }
+    let mut measurements =
+        Vec::with_capacity((connections * services * streams_per_service) as usize);
+    while let Some(session) = sessions.join_next().await {
+        match session {
+            Ok(values) => measurements.extend(values),
+            Err(error) => eprintln!("independent lifecycle destination session failed: {error}"),
         }
     }
     measurements

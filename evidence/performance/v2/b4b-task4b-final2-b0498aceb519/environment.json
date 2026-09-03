@@ -1,0 +1,45 @@
+{
+  "affinity": "inherited; not modified",
+  "base_git_sha": "b0498aceb519ec9347323de8dbfd668cd1b9127a",
+  "binary_sha256": {
+    "direct": "bc519cfc9ba1d4b068a5e6a0c4240f36ceda8f501e47eff6d47ef4595ae65ae4",
+    "nbsr": "8609927717d78576b47c319ab22f722f5133aa65206990c43ee54fdcba1708df",
+    "server": "b19d73277183e7366e1bbe08a9ed59532abd70bb6b890b8866116b327b158232"
+  },
+  "branch": "codex/nbsr-v3-wp0-wp1",
+  "build": "release",
+  "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)",
+  "connections_per_client": 1,
+  "cores": 4,
+  "cpu": "Intel(R) Core(TM) i5-10210U CPU @ 1.60GHz",
+  "dirty_tree": true,
+  "go": "go version go1.26.5 windows/amd64",
+  "logical_processors": 8,
+  "memory_bytes": 16942501888,
+  "observed_progression": [
+    0,
+    8,
+    16,
+    32,
+    64,
+    128,
+    256,
+    512
+  ],
+  "os": "Windows-11-10.0.26200-SP0",
+  "planned_progression": [
+    8,
+    16,
+    32,
+    64,
+    128,
+    256,
+    512
+  ],
+  "power_plan": "Power Scheme GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c  (High performance)",
+  "python": "3.14.6",
+  "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+  "schema": "nbsr-b4b-v2-environment-v1",
+  "timestamp_utc": "2026-09-03T11:08:41Z",
+  "topology": "windows-loopback"
+}

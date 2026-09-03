@@ -1,15 +1,16 @@
 from __future__ import annotations
 
 import inspect
+from pathlib import Path
 
 from scripts.performance.mixed_connections import admission_server_specs, analyze_records, load_levels, remember_completion
-from scripts.run_b4b_mixed_connections import run_cell
+from scripts.run_b4b_mixed_connections import lifecycle_client_command, run_cell
 
 
 def test_admission_destinations_start_after_established_warmup() -> None:
     source = inspect.getsource(run_cell)
     warmup_complete = source.index("while time.monotonic() < warmup_deadline:")
-    admission_destination_start = source.index('processes[f"admission-destination-{index}"] = server')
+    admission_destination_start = source.index('processes["admission-destination"] = lifecycle_server')
 
     assert admission_destination_start > warmup_complete
 
@@ -57,14 +58,73 @@ def test_load_levels_increase_clients_without_changing_connection_work() -> None
     assert {connections for clients, connections in levels if clients} == {4}
 
 
-def test_each_client_gets_an_independent_server_and_disjoint_offsets() -> None:
+def test_historical_fanout_specs_remain_available_for_comparison() -> None:
     assert admission_server_specs(3, 8) == [(0, 0), (1, 8), (2, 16)]
+
+
+def test_task4b_uses_one_bounded_driver_for_independent_logical_clients() -> None:
+    command = lifecycle_client_command(
+        Path("perf_rust_source"),
+        "127.0.0.1:4433",
+        Path("authority"),
+        Path("lifecycle"),
+        connections=1,
+        offset=0,
+        logical_clients=512,
+    )
+
+    assert command[command.index("--connections") + 1] == "1"
+    assert command[command.index("--lifecycle-clients") + 1] == "512"
+
+
+def test_task4b_orchestration_has_bounded_admission_processes() -> None:
+    source = inspect.getsource(run_cell)
+
+    assert 'processes["admission-destination"]' in source
+    assert 'processes["admission-source"]' in source
+    assert 'processes[f"admission-destination-{index}"]' not in source
+    assert "stdout=admission_stdout_file" in source
+    assert "stderr=admission_stderr_file" in source
+    assert "lifecycle destination cleanup exceeded 15 seconds" in source
+
+
+def test_task4b_each_client_owns_an_independent_task_on_one_driver_runtime() -> None:
+    source = (Path("crates/nbsr-transport/src/bin/perf_rust_source.rs")).read_text(
+        encoding="utf-8"
+    )
+
+    assert "lifecycle_clients.spawn(async move" in source
+    assert "build_benchmark_runtime(1)" in source
+    assert "!wait_for_lifecycle_client_terminals(root, total_clients).await" in source
+    assert "if let Err(error) = connection.close().await" in source
+    assert "client_task_failed" in source
+
+
+def test_task4b_destination_keeps_connections_until_every_client_acknowledges() -> None:
+    source = (Path("crates/nbsr-transport/src/bin/wp8_interop_server.rs")).read_text(
+        encoding="utf-8"
+    )
+
+    assert "if !wait_for_lifecycle_client_terminals(root, total_connections).await" in source
+    assert source.index("if !wait_for_lifecycle_client_terminals(root, total_connections).await") < source.index(
+        "drop(connection);", source.index("async fn run_lifecycle_connection")
+    )
+    assert "application.wait_for_send_ack().await.unwrap();" not in source
+    assert "lifecycle destination handshake failed: {error:?}" in source
+    assert "poll_fn(|context|" in source
+    assert "accepted_connections + failed_clients >= connections" in source
 
 
 def test_first_admission_completion_timestamp_is_immutable() -> None:
     assert remember_completion(None, pending=1, now=10.0) is None
     assert remember_completion(None, pending=0, now=11.0) == 11.0
     assert remember_completion(11.0, pending=0, now=12.0) == 11.0
+
+
+def test_task4b_records_completion_when_driver_exits_between_polls() -> None:
+    source = inspect.getsource(run_cell)
+
+    assert "pending=0, now=established_finished" in source
 
 
 def test_analysis_classifies_stable_degraded_and_saturated_regions() -> None:

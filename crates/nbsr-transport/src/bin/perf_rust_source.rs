@@ -355,6 +355,7 @@ async fn run_lifecycle(
     report_connections: bool,
     hold_for_release: bool,
     payload_bytes: usize,
+    total_clients: Option<u64>,
 ) {
     let payload = vec![0x5a; payload_bytes];
     let mut sample_id = 0_u64;
@@ -369,7 +370,7 @@ async fn run_lifecycle(
         }
         let total_cold = Instant::now();
         let handshake = Instant::now();
-        let connection = connect(
+        let connection = match connect(
             build_client_config(
                 PeerPolicy::new(
                     EdgeRole::Source,
@@ -385,7 +386,22 @@ async fn run_lifecycle(
             endpoint,
         )
         .await
-        .unwrap();
+        {
+            Ok(connection) => connection,
+            Err(error) => {
+                let logical_client_id = connection_offset + connection_ordinal;
+                fs::write(
+                    root.join(format!("connection-{logical_client_id}.failed")),
+                    format!("{error:?}\n"),
+                )
+                .unwrap();
+                println!(
+                    "{{\"logical_client_id\":{logical_client_id},\"success\":false,\"error\":\"{error:?}\",\"timed_out\":{}}}",
+                    matches!(error, nbsr_transport::TransportError::HandshakeTimeout)
+                );
+                return;
+            }
+        };
         let handshake_ns = handshake.elapsed().as_nanos();
         if report_connections {
             fs::write(
@@ -532,7 +548,8 @@ async fn run_lifecycle(
                     scenario_started.elapsed().as_nanos()
                 };
                 println!(
-                    "{{\"sample_id\":{sample_id},\"success\":true,\"transport_handshake_ns\":{},\"hello_rtt_ns\":{},\"source_admission_ns\":{},\"destination_admission_ns\":null,\"route_open_rtt_ns\":{},\"channel_binding_ns\":{},\"stream_open_rtt_ns\":{stream_open_rtt_ns},\"ttfab_ns\":{total_ns},\"request_latency_ns\":{request_latency_ns},\"application_processing_ns\":null,\"total_scenario_ns\":{total_ns},\"bytes_transmitted\":{payload_bytes},\"bytes_received\":{payload_bytes}}}",
+                    "{{\"sample_id\":{sample_id},\"logical_client_id\":{},\"success\":true,\"transport_handshake_ns\":{},\"hello_rtt_ns\":{},\"source_admission_ns\":{},\"destination_admission_ns\":null,\"route_open_rtt_ns\":{},\"channel_binding_ns\":{},\"stream_open_rtt_ns\":{stream_open_rtt_ns},\"ttfab_ns\":{total_ns},\"request_latency_ns\":{request_latency_ns},\"application_processing_ns\":null,\"total_scenario_ns\":{total_ns},\"bytes_transmitted\":{payload_bytes},\"bytes_received\":{payload_bytes}}}",
+                    connection_offset + connection_ordinal,
                     if service == 0 && local_stream == 0 {
                         handshake_ns.to_string()
                     } else {
@@ -602,7 +619,8 @@ async fn run_lifecycle(
                     scenario_started.elapsed().as_nanos()
                 };
                 println!(
-                    "{{\"sample_id\":{sample_id},\"success\":true,\"transport_handshake_ns\":{},\"hello_rtt_ns\":{},\"source_admission_ns\":{},\"destination_admission_ns\":null,\"route_open_rtt_ns\":{},\"channel_binding_ns\":{},\"stream_open_rtt_ns\":{stream_open_rtt_ns},\"ttfab_ns\":{total_ns},\"request_latency_ns\":{request_latency_ns},\"application_processing_ns\":null,\"total_scenario_ns\":{total_ns},\"bytes_transmitted\":{payload_bytes},\"bytes_received\":{payload_bytes}}}",
+                    "{{\"sample_id\":{sample_id},\"logical_client_id\":{},\"success\":true,\"transport_handshake_ns\":{},\"hello_rtt_ns\":{},\"source_admission_ns\":{},\"destination_admission_ns\":null,\"route_open_rtt_ns\":{},\"channel_binding_ns\":{},\"stream_open_rtt_ns\":{stream_open_rtt_ns},\"ttfab_ns\":{total_ns},\"request_latency_ns\":{request_latency_ns},\"application_processing_ns\":null,\"total_scenario_ns\":{total_ns},\"bytes_transmitted\":{payload_bytes},\"bytes_received\":{payload_bytes}}}",
+                    connection_offset + connection_ordinal,
                     if service == 0 && local_stream == 0 {
                         handshake_ns.to_string()
                     } else {
@@ -641,14 +659,51 @@ async fn run_lifecycle(
             b"complete\n",
         )
         .unwrap();
+        if let Some(total_clients) = total_clients
+            && !wait_for_lifecycle_client_terminals(root, total_clients).await
+        {
+            let logical_client_id = connection_offset + connection_ordinal;
+            println!(
+                "{{\"logical_client_id\":{logical_client_id},\"success\":false,\"phase\":\"cleanup\",\"error\":\"terminal_barrier_timeout\",\"timed_out\":true}}"
+            );
+        }
         drop(session);
         drop(control);
         if hold_for_release {
             drop(connection);
         } else {
-            connection.close().await.unwrap();
+            if let Err(error) = connection.close().await {
+                let logical_client_id = connection_offset + connection_ordinal;
+                println!(
+                    "{{\"logical_client_id\":{logical_client_id},\"success\":false,\"phase\":\"close\",\"error\":\"{error:?}\",\"timed_out\":{}}}",
+                    matches!(error, nbsr_transport::TransportError::CloseTimeout)
+                );
+            }
         }
     }
+}
+
+async fn wait_for_lifecycle_client_terminals(root: &Path, total_clients: u64) -> bool {
+    tokio::time::timeout(Duration::from_secs(10), async {
+        loop {
+            let terminal = fs::read_dir(root)
+                .unwrap()
+                .filter_map(Result::ok)
+                .filter(|entry| {
+                    let name = entry.file_name();
+                    let name = name.to_string_lossy();
+                    name.starts_with("connection-")
+                        && (name.ends_with(".ack") || name.ends_with(".failed"))
+                })
+                .count();
+            if terminal >= total_clients as usize {
+                break;
+            }
+            tokio::time::sleep(Duration::from_millis(1)).await;
+        }
+    })
+    .await
+    .is_ok()
 }
 
 fn client_hello() -> nbsr_transport::CoreV02Envelope {
@@ -979,7 +1034,13 @@ async fn run(group_barrier: Option<Arc<std::sync::Barrier>>, group_ordinal: usiz
         nbsr_transport::diagnostics::enable_global();
     }
     if let Some(lifecycle_root) = optional_argument("--lifecycle-authority-dir") {
-        let connections = argument("--connections").parse::<u64>().unwrap();
+        let logical_clients =
+            optional_argument("--lifecycle-clients").map(|value| value.parse::<usize>().unwrap());
+        let connections = if logical_clients.is_some() {
+            1
+        } else {
+            argument("--connections").parse::<u64>().unwrap()
+        };
         let services = argument("--services").parse::<u64>().unwrap();
         let streams_per_service = optional_argument("--streams-per-service")
             .unwrap_or_else(|| "1".into())
@@ -992,7 +1053,12 @@ async fn run(group_barrier: Option<Arc<std::sync::Barrier>>, group_ordinal: usiz
             .clone()
             .unwrap_or_else(|| "0".into())
             .parse::<u64>()
-            .unwrap();
+            .unwrap()
+            + if logical_clients.is_some() {
+                group_ordinal as u64
+            } else {
+                0
+            };
         assert!((1..=32).contains(&services));
         assert!((1..=64).contains(&streams_per_service));
         assert!(!hold_for_release || concurrent);
@@ -1008,6 +1074,7 @@ async fn run(group_barrier: Option<Arc<std::sync::Barrier>>, group_ordinal: usiz
             connection_offset_argument.is_some(),
             hold_for_release,
             payload_bytes,
+            logical_clients.map(|value| value as u64),
         )
         .await;
         return;
@@ -1635,6 +1702,46 @@ async fn run(group_barrier: Option<Arc<std::sync::Barrier>>, group_ordinal: usiz
 #[cfg(feature = "benchmark-harness")]
 fn main() {
     let workers = parse_runtime_workers(env::args()).expect("valid --p2a-runtime-workers");
+    if let Some(logical_clients) = optional_argument("--lifecycle-clients") {
+        let logical_clients = logical_clients
+            .parse::<usize>()
+            .expect("valid --lifecycle-clients");
+        assert!((1..=1024).contains(&logical_clients));
+        build_benchmark_runtime(1)
+            .expect("lifecycle driver Tokio runtime")
+            .block_on(async move {
+                let mut lifecycle_clients = tokio::task::JoinSet::new();
+                for ordinal in 0..logical_clients {
+                    lifecycle_clients.spawn(async move {
+                        let outcome = tokio::spawn(run(None, ordinal)).await;
+                        let lifecycle_root = optional_argument("--lifecycle-authority-dir")
+                            .map(PathBuf::from)
+                            .expect("lifecycle authority directory");
+                        if outcome.is_err() {
+                            fs::write(
+                                lifecycle_root.join(format!("connection-{ordinal}.failed")),
+                                b"client_task_failed\n",
+                            )
+                            .unwrap();
+                            println!(
+                                "{{\"logical_client_id\":{ordinal},\"success\":false,\"error\":\"client_task_failed\",\"timed_out\":false}}"
+                            );
+                        } else {
+                            fs::write(
+                                lifecycle_root
+                                    .join(format!("connection-{ordinal}.driver-complete")),
+                                b"complete\n",
+                            )
+                            .unwrap();
+                        }
+                    });
+                }
+                while let Some(client) = lifecycle_clients.join_next().await {
+                    client.expect("bounded lifecycle client task");
+                }
+            });
+        return;
+    }
     let groups = parse_group_count(env::args()).expect("valid --p2a-groups");
     if groups > 1 {
         run_current_thread_groups(groups, |ordinal, barrier| async move {

@@ -319,7 +319,7 @@ def render_summary(analysis: dict[str, Any], command: str) -> str:
             f"First saturated cell: {analysis['first_saturated_clients']}",
             f"Stop reason: {analysis['stop_reason']}",
             "",
-            "Each requested client is an independent process creating one fresh QUIC transport connection, control session, route/channel admission, and application stream while established forwarding remains active. Separate destination listener processes are benchmark plumbing and are included in owned-resource telemetry.",
+            "Each requested logical client is an independent task within one bounded source driver, creating one fresh QUIC transport connection, control session, route/channel admission, and application stream while established forwarding remains active. One concurrent admission destination and the unchanged established-forwarding pair are included in owned-resource telemetry.",
             "",
             "The classification uses the Funding-Grade V2 thresholds. A hardware limit is not inferred from throughput alone.",
             "",
@@ -402,10 +402,8 @@ def main() -> None:
             }
         cell = summarize_cell(cell_records, baseline_record)
         cells.append(cell)
-        classified = [{**record, "status": cell["status"]} for record in cell_records]
-        if clients and should_stop_after_saturation(classified):
-            stop_reason = f"three valid SATURATED repeats at {clients} clients"
-            break
+        if clients and cell["status"] == "SATURATED":
+            stop_reason = f"requested progression completed after SATURATED cell at {clients} clients"
 
     observed = [cell["clients"] for cell in cells]
     invalid = [record for record in all_records if not record.get("valid")]

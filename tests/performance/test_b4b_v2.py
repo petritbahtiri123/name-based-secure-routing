@@ -7,6 +7,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 EVIDENCE = ROOT / "evidence" / "performance" / "v2" / "b4b-772996e9cced"
+TASK4B_EVIDENCE = ROOT / "evidence" / "performance" / "v2" / "b4b-task4b-final2-b0498aceb519"
 
 
 def record(*, clients: int, goodput: float, p99: int, success_ratio: float = 1.0,
@@ -98,3 +99,16 @@ def test_evidence_classification_fails_closed_on_cleanup_failure() -> None:
     ]
 
     assert b4b.classify_evidence(cells, invalid=[]) == "FAIL"
+
+
+def test_task4b_evidence_preserves_saturation_and_cleanup_failure() -> None:
+    analysis = json.loads((TASK4B_EVIDENCE / "analysis.json").read_text(encoding="utf-8"))
+    cells = {cell["clients"]: cell for cell in analysis["cells"]}
+
+    assert analysis["evidence"] == "FAIL"
+    assert analysis["system"] == "SATURATED"
+    assert all(cells[clients]["status"] == "STABLE" for clients in (8, 16, 32, 64))
+    assert all(cells[clients]["status"] == "SATURATED" for clients in (128, 256, 512))
+    assert all(cells[clients]["median_peak_processes"] == 4 for clients in (8, 64, 128, 256, 512))
+    assert all(cells[clients]["process_cleanup_pass"] for clients in cells)
+    assert not all(cells[clients]["cleanup_pass"] for clients in (128, 256, 512))

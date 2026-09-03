@@ -18,7 +18,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from scripts.performance.authorities import write_authority_set
 from scripts.performance.authority import write_loopback_authority
-from scripts.performance.mixed_connections import admission_server_specs, analyze_records, load_levels, remember_completion
+from scripts.performance.mixed_connections import analyze_records, load_levels, remember_completion
 from scripts.performance.resources import sample_windows_process
 from scripts.run_p2a_established import build
 from scripts.run_performance_validation import ROOT, environment as host_environment, wait_ready
@@ -123,8 +123,9 @@ def lifecycle_client_command(
     *,
     connections: int,
     offset: int,
+    logical_clients: int | None = None,
 ) -> list[str]:
-    return [
+    command = [
         str(binary),
         "--authority-dir",
         str(authority),
@@ -146,6 +147,9 @@ def lifecycle_client_command(
         "--connection-offset",
         str(offset),
     ]
+    if logical_clients is not None:
+        command.extend(["--lifecycle-clients", str(logical_clients)])
+    return command
 
 
 def run_cell(
@@ -197,18 +201,21 @@ def run_cell(
             stderr=subprocess.PIPE,
             text=True,
         )
-        lifecycle_servers: list[subprocess.Popen[str]] = []
-        admission_clients: list[subprocess.Popen[str]] = []
+        lifecycle_server: subprocess.Popen[str] | None = None
+        admission_client: subprocess.Popen[str] | None = None
         processes: dict[str, subprocess.Popen[str]] = {"established-destination": established_server}
         samples: list[dict[str, Any]] = []
         lifecycle_server_commands: list[list[str]] = []
         client_commands: list[list[str]] = []
         established_client: subprocess.Popen[str] | None = None
+        admission_stdout_file = None
+        admission_stderr_file = None
+        admission_stdout_path = cell_dir / "admission-source.stdout"
+        admission_stderr_path = cell_dir / "admission-source.stderr"
         failure = ""
         try:
             established_endpoint = wait_ready(established_ready, established_server)["endpoint"]
-            lifecycle_endpoints: list[str] = []
-            lifecycle_diagnostics: list[Path] = []
+            lifecycle_diagnostics = cell_dir / "lifecycle-diagnostics.ndjson"
             established_client_argv = [
                 str(binaries["nbsr"]),
                 "--authority-dir",
@@ -235,71 +242,77 @@ def run_cell(
                 sample_processes(processes, samples)
                 time.sleep(0.1)
             if clients:
-                for index, _ in admission_server_specs(clients, connections_per_client):
-                    lifecycle_ready = temp / f"lifecycle-ready-{index}.json"
-                    diagnostics = cell_dir / f"lifecycle-diagnostics-{index}.ndjson"
-                    lifecycle_diagnostics.append(diagnostics)
-                    server_argv = [
-                        str(binaries["server"]),
-                        "--ready",
-                        str(lifecycle_ready),
-                        "--result",
-                        str(cell_dir / f"lifecycle-server-result-{index}.json"),
-                        "--authority-dir",
-                        str(lifecycle_authority),
-                        "--completion-ack",
-                        str(temp / f"lifecycle-{index}.ack"),
-                        "--destination-diagnostics-file",
-                        str(diagnostics),
-                        "--diagnostic-drain-seconds",
-                        "1",
-                    ]
-                    lifecycle_server_commands.append(server_argv)
-                    server = subprocess.Popen(
-                        server_argv,
-                        cwd=ROOT,
-                        env={
-                            **os.environ,
-                            "NBSR_PERF_LIFECYCLE_ROOT": str(lifecycle),
-                            "NBSR_PERF_LIFECYCLE_CONNECTIONS": str(connections_per_client),
-                            "NBSR_PERF_LIFECYCLE_SERVICES": "1",
-                            "NBSR_PERF_STREAMS_PER_SERVICE": "1",
-                            "NBSR_PERF_CONCURRENT_STREAMS": "1",
-                        },
-                        stdout=subprocess.PIPE,
-                        stderr=subprocess.PIPE,
-                        text=True,
-                    )
-                    lifecycle_servers.append(server)
-                    processes[f"admission-destination-{index}"] = server
-                    lifecycle_endpoints.append(wait_ready(lifecycle_ready, server)["endpoint"])
+                lifecycle_ready = temp / "lifecycle-ready.json"
+                server_argv = [
+                    str(binaries["server"]), "--ready", str(lifecycle_ready),
+                    "--result", str(cell_dir / "lifecycle-server-result.json"),
+                    "--authority-dir", str(lifecycle_authority),
+                    "--completion-ack", str(temp / "lifecycle.ack"),
+                    "--destination-diagnostics-file", str(lifecycle_diagnostics),
+                    "--diagnostic-drain-seconds", "1",
+                ]
+                lifecycle_server_commands.append(server_argv)
+                lifecycle_server = subprocess.Popen(
+                    server_argv,
+                    cwd=ROOT,
+                    env={
+                        **os.environ,
+                        "NBSR_PERF_LIFECYCLE_ROOT": str(lifecycle),
+                        "NBSR_PERF_LIFECYCLE_CONNECTIONS": str(clients * connections_per_client),
+                        "NBSR_PERF_LIFECYCLE_SERVICES": "1",
+                        "NBSR_PERF_STREAMS_PER_SERVICE": "1",
+                        "NBSR_PERF_CONCURRENT_STREAMS": "1",
+                        "NBSR_PERF_CONCURRENT_SESSIONS": "1",
+                    },
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    text=True,
+                )
+                processes["admission-destination"] = lifecycle_server
+                lifecycle_endpoint = wait_ready(lifecycle_ready, lifecycle_server)["endpoint"]
             admission_started = time.monotonic()
             if clients:
-                for index, offset in admission_server_specs(clients, connections_per_client):
-                    argv = lifecycle_client_command(
-                        binaries["nbsr"],
-                        lifecycle_endpoints[index],
-                        lifecycle_authority,
-                        lifecycle,
-                        connections=connections_per_client,
-                        offset=offset,
-                    )
-                    client_commands.append(argv)
-                    client = subprocess.Popen(argv, cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-                    admission_clients.append(client)
-                    processes[f"admission-source-{index}"] = client
+                argv = lifecycle_client_command(
+                    binaries["nbsr"], lifecycle_endpoint, lifecycle_authority, lifecycle,
+                    connections=connections_per_client, offset=0,
+                    logical_clients=clients * connections_per_client,
+                )
+                client_commands.append(argv)
+                admission_stdout_file = admission_stdout_path.open("w", encoding="utf-8", newline="\n")
+                admission_stderr_file = admission_stderr_path.open("w", encoding="utf-8", newline="\n")
+                admission_client = subprocess.Popen(
+                    argv,
+                    cwd=ROOT,
+                    stdout=admission_stdout_file,
+                    stderr=admission_stderr_file,
+                    text=True,
+                )
+                processes["admission-source"] = admission_client
             peak_pending = 0
             admission_finished: float | None = admission_started if clients == 0 else None
             deadline = time.monotonic() + duration + 45
-            while established_client.poll() is None or any(client.poll() is None for client in admission_clients):
+            while established_client.poll() is None or (admission_client is not None and admission_client.poll() is None):
                 sample_processes(processes, samples)
-                pending = sum(client.poll() is None for client in admission_clients)
+                completed_clients = len(list(lifecycle.glob("connection-*.ack")))
+                pending = max(clients * connections_per_client - completed_clients, 0)
                 peak_pending = max(peak_pending, pending)
                 admission_finished = remember_completion(admission_finished, pending=pending, now=time.monotonic())
                 if time.monotonic() >= deadline:
-                    raise TimeoutError("B4b cell exceeded duration plus 45-second cleanup bound")
+                    driver_complete = len(list(lifecycle.glob("connection-*.driver-complete")))
+                    if admission_client is not None and admission_client.poll() is None:
+                        admission_client.kill()
+                        admission_client.wait(timeout=5)
+                    raise TimeoutError(
+                        "B4b cell exceeded duration plus 45-second cleanup bound; "
+                        f"acks={completed_clients}/{clients * connections_per_client}; "
+                        f"driver_complete={driver_complete}/{clients * connections_per_client}"
+                    )
                 time.sleep(0.1)
             established_finished = time.monotonic()
+            if admission_client is not None and admission_client.poll() is not None:
+                admission_finished = remember_completion(
+                    admission_finished, pending=0, now=established_finished
+                )
             if admission_finished is None:
                 raise RuntimeError("admission completion timestamp missing")
             established_stdout, established_stderr = established_client.communicate(timeout=5)
@@ -310,40 +323,88 @@ def run_cell(
                 raise RuntimeError(f"established server failed: {established_server.stderr.read()}")
             admission_outputs: list[dict[str, Any]] = []
             failed_clients = 0
-            for client in admission_clients:
-                stdout, stderr = client.communicate(timeout=5)
-                if client.returncode:
-                    failed_clients += 1
+            if admission_client is not None:
+                admission_client.wait(timeout=5)
+                admission_stdout_file.close()
+                admission_stderr_file.close()
+                admission_stdout_file = None
+                admission_stderr_file = None
+                stdout = admission_stdout_path.read_text(encoding="utf-8")
+                stderr = admission_stderr_path.read_text(encoding="utf-8")
+                if admission_client.returncode:
+                    failed_clients = clients
                     failure += stderr
                 admission_outputs.extend(json.loads(line) for line in stdout.splitlines() if line.strip())
             server_failures = []
-            for index, server in enumerate(lifecycle_servers):
-                server.wait(timeout=15)
-                if server.returncode:
-                    server_failures.append(f"lifecycle server {index} failed: {server.stderr.read()}")
+            if lifecycle_server is not None:
+                try:
+                    lifecycle_server.wait(timeout=15)
+                except subprocess.TimeoutExpired:
+                    server_failures.append("lifecycle destination cleanup exceeded 15 seconds")
+                    lifecycle_server.kill()
+                    lifecycle_server.wait(timeout=5)
+                if lifecycle_server.returncode:
+                    server_failures.append(f"lifecycle server failed: {lifecycle_server.stderr.read()}")
             established = json.loads(established_stdout.strip().splitlines()[-1])
             measured_seconds = int(established["measured_ns"]) / 1e9
             completed = int(established["completed_operations"])
             latencies = [int(value["ttfab_ns"]) for value in admission_outputs if value.get("success")]
+            successful_clients = {
+                int(value["logical_client_id"])
+                for value in admission_outputs
+                if value.get("success") and "logical_client_id" in value
+            }
+            failed_client_records = [
+                value
+                for value in admission_outputs
+                if not value.get("success")
+                and value.get("phase") not in {"close", "cleanup"}
+                and int(value["logical_client_id"]) not in successful_clients
+            ]
+            cleanup_error_records = [
+                value for value in admission_outputs if value.get("phase") in {"close", "cleanup"}
+            ]
+            connected_clients = {
+                int(value["logical_client_id"])
+                for value in admission_outputs
+                if value.get("success") and value.get("transport_handshake_ns") is not None
+            }
+            cleaned_clients = {
+                int(path.name.removeprefix("connection-").removesuffix(".ack"))
+                for path in lifecycle.glob("connection-*.ack")
+            }
+            driver_completed_clients = {
+                int(path.name.removeprefix("connection-").removesuffix(".driver-complete"))
+                for path in lifecycle.glob("connection-*.driver-complete")
+            }
             cleanup_parts = [diagnostics_cleanup(established_diagnostics)]
-            cleanup_parts.extend(diagnostics_cleanup(path) for path in lifecycle_diagnostics)
+            if clients:
+                cleanup_parts.append(diagnostics_cleanup(lifecycle_diagnostics))
             process_exit = all(process.poll() is not None for process in processes.values())
             cleanup = {
-                "all_zero": all(part["all_zero"] for part in cleanup_parts),
+                "all_zero": all(part["all_zero"] for part in cleanup_parts)
+                and len(driver_completed_clients) == clients * connections_per_client,
                 "processes_exited": process_exit,
                 "destinations": cleanup_parts,
+                "driver_completed_clients": len(driver_completed_clients),
             }
             return {
-                "schema": "nbsr-b4b-mixed-connections-repeat-v1",
+                "schema": "nbsr-b4b-mixed-connections-repeat-v2",
                 "repeat": repeat,
                 "clients": clients,
                 "connections_per_client": connections_per_client,
                 "planned_clients": planned_clients,
                 "scheduled_admissions": clients * connections_per_client,
+                "requested_clients": clients * connections_per_client,
+                "started_clients": clients * connections_per_client,
+                "connected_clients": len(connected_clients),
+                "admitted_clients": len(successful_clients),
+                "cleaned_clients": len(cleaned_clients),
                 "successful_admissions": len(latencies),
                 "failed_admissions": clients * connections_per_client - len(latencies),
-                "errors": failed_clients + len(server_failures),
-                "timeouts": sum("HandshakeTimeout" in detail for detail in server_failures),
+                "errors": len(failed_client_records) + len(cleanup_error_records) + failed_clients + len(server_failures),
+                "timeouts": sum(bool(value.get("timed_out")) for value in [*failed_client_records, *cleanup_error_records]),
+                "cleanup_errors": len(cleanup_error_records),
                 "established_goodput_bytes_per_second": 2 * completed * 1024 / measured_seconds,
                 "established_p50_latency_ns": int(established["p50_latency_ns"]),
                 "established_p95_latency_ns": int(established["p95_latency_ns"]),
@@ -355,12 +416,25 @@ def run_cell(
                 "admissions_completed_before_established_end": admission_finished <= established_finished,
                 "peak_pending_clients": peak_pending,
                 "resources": summarize_resources(samples),
+                "harness_topology": {
+                    "admission_source_processes": 1 if clients else 0,
+                    "admission_destination_processes": 1 if clients else 0,
+                    "logical_clients_share_session": False,
+                    "tls_edge_identity": "source.edge",
+                },
                 "resource_samples": samples,
                 "ownership": {
                     "connections_created": len(latencies),
                     "sessions_created": len(latencies),
                     "routes_admitted": len(latencies),
                     "streams_created": len(latencies),
+                },
+                "logical_client_terminal_cleanup": {
+                    "requested": clients * connections_per_client,
+                    "cleaned": len(cleaned_clients),
+                    "driver_completed": len(driver_completed_clients),
+                    "all_terminal": len(successful_clients) + len(failed_client_records) == clients * connections_per_client,
+                    "client_ids": sorted(successful_clients | {int(value["logical_client_id"]) for value in failed_client_records}),
                 },
                 "cleanup": cleanup,
                 "saturation_failure": "; ".join(server_failures) if server_failures else None,
@@ -373,10 +447,14 @@ def run_cell(
                 "failure_detail": "\n".join(value for value in [failure, *server_failures] if value) or None,
             }
         finally:
-            for process in [*admission_clients, established_client, *lifecycle_servers, established_server]:
+            for process in [admission_client, established_client, lifecycle_server, established_server]:
                 if process is not None and process.poll() is None:
                     process.kill()
                     process.wait(timeout=5)
+            if admission_stdout_file is not None:
+                admission_stdout_file.close()
+            if admission_stderr_file is not None:
+                admission_stderr_file.close()
 
 
 def checksums(root: Path) -> None:
@@ -413,9 +491,9 @@ def render_summary(analysis: dict[str, Any], environment: dict[str, Any], comman
             "",
             "First saturation: " + ("not observed" if saturation is None else f"{saturation['clients']} clients — {saturation['reason']}"),
             "",
-            "Each admission creates a fresh QUIC transport connection, ControlSession, federated route/channel, and application stream from an independent client process. All ownership counters must return to zero.",
+            "Each logical client creates a fresh QUIC transport connection, ControlSession, federated route/channel, and application stream inside one bounded source driver. Logical clients do not share NBSR sessions. The authenticated TLS edge identity remains source.edge.",
             "",
-            "Limitation: established forwarding and admission churn use separate destination processes/listeners on the same Windows loopback host. This measures host contention and multi-client lifecycle behavior, not contention inside one shared destination runtime or WAN/server-class scaling.",
+            "The admission workload uses one source driver process and one concurrent destination listener process. Established forwarding remains the unchanged separate source/destination pair. This is Windows loopback harness evidence, not WAN/server-class scaling.",
             "",
             f"Base Git SHA: `{environment['base_git_sha']}`",
             f"Host: {environment['os']} / {environment['cpu']}",

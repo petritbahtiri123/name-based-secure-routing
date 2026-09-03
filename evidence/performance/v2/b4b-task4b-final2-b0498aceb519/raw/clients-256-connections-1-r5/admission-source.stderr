@@ -1,0 +1,127 @@
+
+thread 'main' (22456) panicked at src\bin\perf_rust_source.rs:480:26:
+called `Result::unwrap()` on an `Err` value: ControlStreamFailed
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+thread 'main' (22456) panicked at src\bin\perf_rust_source.rs:480:26:
+called `Result::unwrap()` on an `Err` value: ControlStreamFailed
+
+thread 'main' (22456) panicked at src\bin\perf_rust_source.rs:480:26:
+called `Result::unwrap()` on an `Err` value: ControlStreamFailed
+
+thread 'main' (22456) panicked at src\bin\perf_rust_source.rs:480:26:
+called `Result::unwrap()` on an `Err` value: ControlStreamFailed
+
+thread 'main' (22456) panicked at src\bin\perf_rust_source.rs:480:26:
+called `Result::unwrap()` on an `Err` value: ControlStreamFailed
+
+thread 'main' (22456) panicked at src\bin\perf_rust_source.rs:458:18:
+called `Result::unwrap()` on an `Err` value: ControlStreamFailed
+
+thread 'main' (22456) panicked at src\bin\perf_rust_source.rs:480:26:
+called `Result::unwrap()` on an `Err` value: ControlStreamFailed
+
+thread 'main' (22456) panicked at src\bin\perf_rust_source.rs:480:26:
+called `Result::unwrap()` on an `Err` value: ControlStreamFailed
+
+thread 'main' (22456) panicked at src\bin\perf_rust_source.rs:494:90:
+called `Result::unwrap()` on an `Err` value: ApplicationStreamRejected
+
+thread 'main' (22456) panicked at src\bin\perf_rust_source.rs:596:59:
+called `Result::unwrap()` on an `Err` value: JoinError::Panic(Id(1132), "called `Result::unwrap()` on an `Err` value: ApplicationStreamRejected", ...)
+
+thread 'main' (22456) panicked at src\bin\perf_rust_source.rs:480:26:
+called `Result::unwrap()` on an `Err` value: ControlStreamFailed
+
+thread 'main' (22456) panicked at src\bin\perf_rust_source.rs:480:26:
+called `Result::unwrap()` on an `Err` value: ControlStreamFailed
+
+thread 'main' (22456) panicked at src\bin\perf_rust_source.rs:494:90:
+called `Result::unwrap()` on an `Err` value: ApplicationStreamRejected
+
+thread 'main' (22456) panicked at src\bin\perf_rust_source.rs:596:59:
+called `Result::unwrap()` on an `Err` value: JoinError::Panic(Id(1087), "called `Result::unwrap()` on an `Err` value: ApplicationStreamRejected", ...)
+
+thread 'main' (22456) panicked at src\bin\perf_rust_source.rs:480:26:
+called `Result::unwrap()` on an `Err` value: ControlStreamFailed
+
+thread 'main' (22456) panicked at src\bin\perf_rust_source.rs:494:90:
+called `Result::unwrap()` on an `Err` value: ApplicationStreamRejected
+
+thread 'main' (22456) panicked at src\bin\perf_rust_source.rs:480:26:
+called `Result::unwrap()` on an `Err` value: ControlStreamFailed
+
+thread 'main' (22456) panicked at src\bin\perf_rust_source.rs:596:59:
+called `Result::unwrap()` on an `Err` value: JoinError::Panic(Id(1092), "called `Result::unwrap()` on an `Err` value: ApplicationStreamRejected", ...)
+
+thread 'main' (22456) panicked at src\bin\perf_rust_source.rs:458:18:
+called `Result::unwrap()` on an `Err` value: ControlStreamFailed
+
+thread 'main' (22456) panicked at src\bin\perf_rust_source.rs:458:18:
+called `Result::unwrap()` on an `Err` value: ControlStreamFailed
+
+thread 'main' (22456) panicked at src\bin\perf_rust_source.rs:458:18:
+called `Result::unwrap()` on an `Err` value: ControlStreamFailed
+
+thread 'main' (22456) panicked at src\bin\perf_rust_source.rs:458:18:
+called `Result::unwrap()` on an `Err` value: ControlStreamFailed
+
+thread 'main' (22456) panicked at src\bin\perf_rust_source.rs:458:18:
+called `Result::unwrap()` on an `Err` value: ControlStreamFailed
+
+thread 'main' (22456) panicked at src\bin\perf_rust_source.rs:480:26:
+called `Result::unwrap()` on an `Err` value: ControlStreamFailed
+
+thread 'main' (22456) panicked at src\bin\perf_rust_source.rs:458:18:
+called `Result::unwrap()` on an `Err` value: ControlStreamFailed
+
+thread 'main' (22456) panicked at src\bin\perf_rust_source.rs:480:26:
+called `Result::unwrap()` on an `Err` value: ControlStreamFailed
+
+thread 'main' (22456) panicked at src\bin\perf_rust_source.rs:480:26:
+called `Result::unwrap()` on an `Err` value: ControlStreamFailed
+
+thread 'main' (22456) panicked at src\bin\perf_rust_source.rs:480:26:
+called `Result::unwrap()` on an `Err` value: ControlStreamFailed
+
+thread 'main' (22456) panicked at src\bin\perf_rust_source.rs:494:90:
+called `Result::unwrap()` on an `Err` value: ApplicationStreamRejected
+
+thread 'main' (22456) panicked at src\bin\perf_rust_source.rs:596:59:
+called `Result::unwrap()` on an `Err` value: JoinError::Panic(Id(1098), "called `Result::unwrap()` on an `Err` value: ApplicationStreamRejected", ...)
+
+thread 'main' (22456) panicked at src\bin\perf_rust_source.rs:480:26:
+called `Result::unwrap()` on an `Err` value: ControlStreamFailed
+
+thread 'main' (22456) panicked at src\bin\perf_rust_source.rs:480:26:
+called `Result::unwrap()` on an `Err` value: ControlStreamFailed
+
+thread 'main' (22456) panicked at src\bin\perf_rust_source.rs:494:90:
+called `Result::unwrap()` on an `Err` value: ApplicationStreamRejected
+
+thread 'main' (22456) panicked at src\bin\perf_rust_source.rs:596:59:
+called `Result::unwrap()` on an `Err` value: JoinError::Panic(Id(1144), "called `Result::unwrap()` on an `Err` value: ApplicationStreamRejected", ...)
+
+thread 'main' (22456) panicked at src\bin\perf_rust_source.rs:480:26:
+called `Result::unwrap()` on an `Err` value: ControlStreamFailed
+
+thread 'main' (22456) panicked at src\bin\perf_rust_source.rs:480:26:
+called `Result::unwrap()` on an `Err` value: ControlStreamFailed
+
+thread 'main' (22456) panicked at src\bin\perf_rust_source.rs:494:90:
+called `Result::unwrap()` on an `Err` value: ApplicationStreamRejected
+
+thread 'main' (22456) panicked at src\bin\perf_rust_source.rs:596:59:
+called `Result::unwrap()` on an `Err` value: JoinError::Panic(Id(1099), "called `Result::unwrap()` on an `Err` value: ApplicationStreamRejected", ...)
+
+thread 'main' (22456) panicked at src\bin\perf_rust_source.rs:480:26:
+called `Result::unwrap()` on an `Err` value: ControlStreamFailed
+
+thread 'main' (22456) panicked at src\bin\perf_rust_source.rs:423:14:
+called `Result::unwrap()` on an `Err` value: ControlStreamFailed
+
+thread 'main' (22456) panicked at src\bin\perf_rust_source.rs:494:90:
+called `Result::unwrap()` on an `Err` value: ApplicationStreamRejected
+
+thread 'main' (22456) panicked at src\bin\perf_rust_source.rs:596:59:
+called `Result::unwrap()` on an `Err` value: JoinError::Panic(Id(1143), "called `Result::unwrap()` on an `Err` value: ApplicationStreamRejected", ...)
