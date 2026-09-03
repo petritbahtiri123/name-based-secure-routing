@@ -161,7 +161,8 @@ def valid_record(record: dict[str, Any]) -> bool:
         "resources",
         "cleanup",
     }
-    return required <= record.keys() and record["cleanup"].get("processes_exited", False)
+    return (required <= record.keys() and record["cleanup"].get("processes_exited", False)
+            and record.get("stderr_capture", {}).get("valid", True))
 
 
 def run_measured_cell(*args: Any, counter_path: Path, **kwargs: Any) -> dict[str, Any]:

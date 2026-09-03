@@ -65,6 +65,13 @@ def test_load_levels_increase_clients_without_changing_connection_work() -> None
     assert {connections for clients, connections in levels if clients} == {4}
 
 
+def test_stderr_failure_is_invalid_in_legacy_analysis() -> None:
+    bad = record(0, 1, goodput=100, p99=10, successful=0)
+    bad["stderr_capture"] = {"valid": False}
+    result = analyze_records([bad])
+    assert result["evidence"] == "FAIL"
+
+
 def test_historical_fanout_specs_remain_available_for_comparison() -> None:
     assert admission_server_specs(3, 8) == [(0, 0), (1, 8), (2, 16)]
 

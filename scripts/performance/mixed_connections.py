@@ -58,6 +58,10 @@ def analyze_records(records: list[dict[str, Any]]) -> dict[str, Any]:
     cleanup_failure = False
     partial_saturation = False
     for record in records:
+        if not record.get("stderr_capture", {}).get("valid", True):
+            invalid.append({"record": record, "reason": "stderr evidence capture failed"})
+            cleanup_failure = True
+            continue
         missing = sorted(required - record.keys())
         if missing:
             invalid.append({"record": record, "reason": f"missing fields: {', '.join(missing)}"})
@@ -156,6 +160,8 @@ def analyze_records(records: list[dict[str, Any]]) -> dict[str, Any]:
 
     enough = bool(cells) and all(cell["valid_repeats"] >= 3 for cell in cells)
     evidence = ("PARTIAL" if partial_saturation else "PASS") if enough and not invalid else "INCONCLUSIVE"
+    if any(not record.get("stderr_capture", {}).get("valid", True) for record in records):
+        evidence = "FAIL"
     load_cells = [cell for cell in cells if cell["status"] != "BASELINE"]
     terminal_status = load_cells[-1]["status"] if load_cells else "STABLE"
     first_saturation = None

@@ -20,6 +20,7 @@ from scripts.performance.authorities import write_authority_set
 from scripts.performance.authority import write_loopback_authority
 from scripts.performance.mixed_connections import analyze_records, load_levels, remember_completion
 from scripts.performance.resources import sample_windows_process
+from scripts.performance.stderr_drain import StderrDrain
 from scripts.run_p2a_established import build
 from scripts.run_performance_validation import ROOT, environment as host_environment, wait_ready
 
@@ -40,6 +41,7 @@ SOURCE_FILES = (
     "crates/nbsr-transport/src/bin/wp8_interop_server.rs",
     "scripts/performance/mixed_connections.py",
     "scripts/run_b4b_mixed_connections.py",
+    "scripts/performance/stderr_drain.py",
     "scripts/run_p2a_established.py",
     "tests/performance/test_mixed_connections.py",
 )
@@ -217,6 +219,10 @@ def run_cell(
         admission_stderr_file = None
         admission_stdout_path = cell_dir / "admission-source.stdout"
         admission_stderr_path = cell_dir / "admission-source.stderr"
+        destination_stderr_path = cell_dir / "admission-destination.stderr.raw"
+        stderr_drain = None
+        stderr_capture = {"valid": True, "not_applicable": clients == 0}
+        destination_cleanup_seconds = None
         failure = ""
         try:
             established_endpoint = wait_ready(established_ready, established_server)["endpoint"]
@@ -278,8 +284,9 @@ def run_cell(
                     },
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
-                    text=True,
+                    text=False,
                 )
+                stderr_drain = StderrDrain(lifecycle_server.stderr, destination_stderr_path)
                 processes["admission-destination"] = lifecycle_server
                 lifecycle_endpoint = wait_ready(lifecycle_ready, lifecycle_server)["endpoint"]
             admission_started = time.monotonic()
@@ -348,14 +355,23 @@ def run_cell(
                 admission_outputs.extend(json.loads(line) for line in stdout.splitlines() if line.strip())
             server_failures = []
             if lifecycle_server is not None:
+                cleanup_started = time.monotonic()
+                cleanup_deadline = cleanup_started + 15
                 try:
                     lifecycle_server.wait(timeout=15)
                 except subprocess.TimeoutExpired:
                     server_failures.append("lifecycle destination cleanup exceeded 15 seconds")
                     lifecycle_server.kill()
                     lifecycle_server.wait(timeout=5)
+                try:
+                    stderr_capture = stderr_drain.finish(cleanup_deadline - time.monotonic())
+                except (RuntimeError, TimeoutError) as error:
+                    stderr_capture = {"valid": False, "error": str(error)}
+                    server_failures.append(str(error))
+                destination_cleanup_seconds = time.monotonic() - cleanup_started
                 if lifecycle_server.returncode:
-                    server_failures.append(f"lifecycle server failed: {lifecycle_server.stderr.read()}")
+                    detail = destination_stderr_path.read_bytes().decode("utf-8", errors="replace") if stderr_capture["valid"] else "stderr evidence incomplete"
+                    server_failures.append(f"lifecycle server failed: {detail}")
             established = json.loads(established_stdout.strip().splitlines()[-1])
             measured_seconds = int(established["measured_ns"]) / 1e9
             completed = int(established["completed_operations"])
@@ -450,6 +466,8 @@ def run_cell(
                     "client_ids": sorted(successful_clients | {int(value["logical_client_id"]) for value in failed_client_records}),
                 },
                 "cleanup": cleanup,
+                "stderr_capture": stderr_capture,
+                "destination_cleanup_wait_seconds": destination_cleanup_seconds,
                 "saturation_failure": "; ".join(server_failures) if server_failures else None,
                 "commands": {
                     "established_server": public_command(established_server_argv, temp),
@@ -468,6 +486,13 @@ def run_cell(
                 admission_stdout_file.close()
             if admission_stderr_file is not None:
                 admission_stderr_file.close()
+            if stderr_drain is not None and stderr_drain.thread.is_alive():
+                # Never extend a used cleanup deadline. A live daemon reader
+                # cannot hold interpreter exit; the capture is already invalid.
+                try:
+                    stderr_drain.finish(0)
+                except (RuntimeError, TimeoutError):
+                    pass
 
 
 def checksums(root: Path) -> None:
