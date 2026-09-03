@@ -29,6 +29,10 @@ use rustls::RootCertStore;
 use rustls::pki_types::{CertificateDer, PrivateKeyDer, PrivatePkcs8KeyDer};
 use sha2::{Digest, Sha256};
 
+#[path = "benchmark_support/lifecycle_completion.rs"]
+mod lifecycle_completion;
+use lifecycle_completion::{CompletionCoordinator, TerminalKind};
+
 fn cli_path(name: &str) -> PathBuf {
     let args: Vec<String> = env::args().collect();
     let index = args
@@ -2324,7 +2328,6 @@ fn lifecycle_stream_accept(
 async fn run_lifecycle_connection(
     connection: nbsr_transport::AuthenticatedConnection,
     root: &Path,
-    total_connections: u64,
     services: u64,
     streams_per_service: u64,
     concurrent: bool,
@@ -2471,34 +2474,10 @@ async fn run_lifecycle_connection(
         }
         while session.pop_audit_event().is_some() {}
     }
-    if !wait_for_lifecycle_client_terminals(root, total_connections).await {
-        eprintln!("lifecycle destination terminal barrier timed out");
-    }
     drop(session);
     drop(control);
     drop(connection);
     measurements
-}
-
-async fn wait_for_lifecycle_client_terminals(root: &Path, total_connections: u64) -> bool {
-    tokio::time::timeout(Duration::from_secs(10), async {
-        while fs::read_dir(root)
-            .unwrap()
-            .filter_map(Result::ok)
-            .filter(|entry| {
-                let name = entry.file_name();
-                let name = name.to_string_lossy();
-                name.starts_with("connection-")
-                    && (name.ends_with(".ack") || name.ends_with(".failed"))
-            })
-            .count()
-            < total_connections as usize
-        {
-            tokio::time::sleep(Duration::from_millis(1)).await;
-        }
-    })
-    .await
-    .is_ok()
 }
 
 async fn run_lifecycle(
@@ -2512,13 +2491,12 @@ async fn run_lifecycle(
     let concurrent_sessions = env::var_os("NBSR_PERF_CONCURRENT_SESSIONS").is_some();
     if !concurrent_sessions {
         let mut measurements = Vec::new();
-        for connection_ordinal in 0..connections {
+        for _connection_ordinal in 0..connections {
             let connection = listener.accept_one().await.unwrap();
             measurements.extend(
                 run_lifecycle_connection(
                     connection,
                     root,
-                    connection_ordinal + 1,
                     services,
                     streams_per_service,
                     concurrent,
@@ -2529,22 +2507,14 @@ async fn run_lifecycle(
         return measurements;
     }
 
+    let (coordinator, completion) = CompletionCoordinator::without_evidence(connections as usize);
     let mut sessions = tokio::task::JoinSet::new();
     let mut accepts = (0..connections)
-        .map(|_| Box::pin(listener.accept_one()))
+        .map(|ordinal| (ordinal as usize, Box::pin(listener.accept_one())))
         .collect::<Vec<_>>();
-    let mut accepted_connections = 0_u64;
     while !accepts.is_empty() {
-        let failed_clients = fs::read_dir(root)
-            .unwrap()
-            .filter_map(Result::ok)
-            .filter(|entry| entry.file_name().to_string_lossy().ends_with(".failed"))
-            .count() as u64;
-        if accepted_connections + failed_clients >= connections {
-            break;
-        }
         let next_accept = poll_fn(|context| {
-            for (index, accepting) in accepts.iter_mut().enumerate() {
+            for (index, (_, accepting)) in accepts.iter_mut().enumerate() {
                 if let Poll::Ready(result) = accepting.as_mut().poll(context) {
                     return Poll::Ready((index, result));
                 }
@@ -2557,36 +2527,62 @@ async fn run_lifecycle(
         }) else {
             continue;
         };
-        drop(accepts.swap_remove(index));
+        let (ordinal, accepting) = accepts.swap_remove(index);
+        drop(accepting);
         let connection = match accepted {
             Ok(connection) => connection,
             Err(error) => {
                 eprintln!("lifecycle destination handshake failed: {error:?}");
+                let terminal = if matches!(error, nbsr_transport::TransportError::HandshakeTimeout)
+                {
+                    TerminalKind::TimedOut
+                } else {
+                    TerminalKind::Failed
+                };
+                completion.record(ordinal, terminal).await.unwrap();
                 continue;
             }
         };
-        accepted_connections += 1;
         let root = root.to_path_buf();
+        let completion = completion.clone();
         sessions.spawn(async move {
-            run_lifecycle_connection(
-                connection,
-                &root,
-                connections,
-                services,
-                streams_per_service,
-                concurrent,
-            )
-            .await
+            let outcome = tokio::spawn(async move {
+                run_lifecycle_connection(
+                    connection,
+                    &root,
+                    services,
+                    streams_per_service,
+                    concurrent,
+                )
+                .await
+            })
+            .await;
+            let terminal = match &outcome {
+                Ok(_) => TerminalKind::Completed,
+                Err(error) if error.is_cancelled() => TerminalKind::Cancelled,
+                Err(_) => TerminalKind::Failed,
+            };
+            completion.record(ordinal, terminal).await.unwrap();
+            outcome
         });
     }
     let mut measurements =
         Vec::with_capacity((connections * services * streams_per_service) as usize);
     while let Some(session) = sessions.join_next().await {
         match session {
-            Ok(values) => measurements.extend(values),
+            Ok(Ok(values)) => measurements.extend(values),
+            Ok(Err(error)) => eprintln!("independent lifecycle destination task failed: {error}"),
             Err(error) => eprintln!("independent lifecycle destination session failed: {error}"),
         }
     }
+    drop(completion);
+    let summary = coordinator
+        .finish(Duration::from_secs(10))
+        .await
+        .expect("bounded destination lifecycle completion");
+    assert_eq!(summary.recorded, connections as usize);
+    assert_eq!(summary.written, 0);
+    assert!(summary.writer_thread.is_none());
     measurements
 }
 

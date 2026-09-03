@@ -1,0 +1,4 @@
+
+thread 'main' (6944) panicked at src\bin\perf_rust_source.rs:439:14:
+called `Result::unwrap()` on an `Err` value: ControlStreamFailed
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace

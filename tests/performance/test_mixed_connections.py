@@ -4,7 +4,14 @@ import inspect
 from pathlib import Path
 
 from scripts.performance.mixed_connections import admission_server_specs, analyze_records, load_levels, remember_completion
-from scripts.run_b4b_mixed_connections import lifecycle_client_command, run_cell
+from scripts.run_b4b_mixed_connections import lifecycle_client_command, run_cell, terminal_evidence_complete
+
+
+def test_exact_markers_do_not_validate_a_failed_evidence_writer() -> None:
+    assert terminal_evidence_complete({0, 1}, {0}, {1}, source_succeeded=True)
+    assert not terminal_evidence_complete({0, 1}, {0}, {1}, source_succeeded=False)
+    assert not terminal_evidence_complete({0, 1}, {0}, {0, 1}, source_succeeded=True)
+    assert not terminal_evidence_complete({0, 1}, {0}, set(), source_succeeded=True)
 
 
 def test_admission_destinations_start_after_established_warmup() -> None:
@@ -88,31 +95,34 @@ def test_task4b_orchestration_has_bounded_admission_processes() -> None:
     assert "lifecycle destination cleanup exceeded 15 seconds" in source
 
 
-def test_task4b_each_client_owns_an_independent_task_on_one_driver_runtime() -> None:
-    source = (Path("crates/nbsr-transport/src/bin/perf_rust_source.rs")).read_text(
-        encoding="utf-8"
-    )
+def test_task4d_each_client_owns_an_independent_task_on_one_driver_runtime() -> None:
+    source = (Path("crates/nbsr-transport/src/bin/perf_rust_source.rs")).read_text(encoding="utf-8")
 
     assert "lifecycle_clients.spawn(async move" in source
     assert "build_benchmark_runtime(1)" in source
-    assert "!wait_for_lifecycle_client_terminals(root, total_clients).await" in source
+    assert "wait_for_lifecycle_client_terminals" not in source
+    assert "fs::read_dir(root)" not in source
+    assert "CompletionCoordinator::with_evidence" in source
+    assert "thread::Builder::new()" in (Path("crates/nbsr-transport/src/bin/benchmark_support/lifecycle_completion.rs")).read_text(
+        encoding="utf-8"
+    )
+    assert "tokio::time::timeout(deadline" in (Path("crates/nbsr-transport/src/bin/benchmark_support/lifecycle_completion.rs")).read_text(
+        encoding="utf-8"
+    )
     assert "if let Err(error) = connection.close().await" in source
     assert "client_task_failed" in source
 
 
-def test_task4b_destination_keeps_connections_until_every_client_acknowledges() -> None:
-    source = (Path("crates/nbsr-transport/src/bin/wp8_interop_server.rs")).read_text(
-        encoding="utf-8"
-    )
+def test_task4d_destination_uses_in_memory_completion_not_filesystem_polling() -> None:
+    source = (Path("crates/nbsr-transport/src/bin/wp8_interop_server.rs")).read_text(encoding="utf-8")
 
-    assert "if !wait_for_lifecycle_client_terminals(root, total_connections).await" in source
-    assert source.index("if !wait_for_lifecycle_client_terminals(root, total_connections).await") < source.index(
-        "drop(connection);", source.index("async fn run_lifecycle_connection")
-    )
+    assert "wait_for_lifecycle_client_terminals" not in source
+    assert "fs::read_dir(root)" not in source
+    assert "CompletionCoordinator::without_evidence" in source
     assert "application.wait_for_send_ack().await.unwrap();" not in source
     assert "lifecycle destination handshake failed: {error:?}" in source
     assert "poll_fn(|context|" in source
-    assert "accepted_connections + failed_clients >= connections" in source
+    assert "completion.record(ordinal, terminal).await.unwrap();" in source
 
 
 def test_first_admission_completion_timestamp_is_immutable() -> None:
@@ -125,6 +135,10 @@ def test_task4b_records_completion_when_driver_exits_between_polls() -> None:
     source = inspect.getsource(run_cell)
 
     assert "pending=0, now=established_finished" in source
+    assert (
+        'glob("connection-*.ack")' not in source[source.index("while established_client.poll()") : source.index("established_finished =")]
+    )
+    assert "connection-*.driver-complete" not in source
 
 
 def test_analysis_classifies_stable_degraded_and_saturated_regions() -> None:

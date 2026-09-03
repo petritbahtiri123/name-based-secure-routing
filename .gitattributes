@@ -24,3 +24,6 @@ evidence/performance/v2/b2-optimization-8721b95177bd/historical-task1b/** -text 
 evidence/performance/v2/b2-optimization-8721b95177bd/post-optimization-profile/** -text whitespace=cr-at-eol,-blank-at-eof
 evidence/performance/v2/b2-optimization-8721b95177bd/rejected-profile-default-workload/** -text whitespace=cr-at-eol,-blank-at-eof
 evidence/performance/v2/b2-optimization-8721b95177bd/**/*.etl filter=lfs diff=lfs merge=lfs -text
+evidence/performance/v2/b4b-task4d-361c315038bb/** -text whitespace=cr-at-eol,-blank-at-eof
+evidence/performance/v2/b4b-task4d-pre-writer-shutdown-361c315038bb/** -text whitespace=cr-at-eol,-blank-at-eof
+evidence/performance/v2/b4b-task4d-interrupted-baseline-361c315038bb/** -text whitespace=cr-at-eol,-blank-at-eof

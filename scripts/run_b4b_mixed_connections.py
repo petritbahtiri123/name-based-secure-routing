@@ -35,6 +35,7 @@ COUNTERS = (
     "replay_state_current_entries",
 )
 SOURCE_FILES = (
+    "crates/nbsr-transport/src/bin/benchmark_support/lifecycle_completion.rs",
     "crates/nbsr-transport/src/bin/perf_rust_source.rs",
     "crates/nbsr-transport/src/bin/wp8_interop_server.rs",
     "scripts/performance/mixed_connections.py",
@@ -54,6 +55,10 @@ def percentile(values: list[int], fraction: float) -> int | None:
         return None
     values.sort()
     return values[round((len(values) - 1) * fraction)]
+
+
+def terminal_evidence_complete(expected: set[int], acknowledgments: set[int], failures: set[int], *, source_succeeded: bool) -> bool:
+    return source_succeeded and acknowledgments | failures == expected and acknowledgments.isdisjoint(failures)
 
 
 def public_command(argv: list[str], temporary_root: Path) -> list[str]:
@@ -244,12 +249,19 @@ def run_cell(
             if clients:
                 lifecycle_ready = temp / "lifecycle-ready.json"
                 server_argv = [
-                    str(binaries["server"]), "--ready", str(lifecycle_ready),
-                    "--result", str(cell_dir / "lifecycle-server-result.json"),
-                    "--authority-dir", str(lifecycle_authority),
-                    "--completion-ack", str(temp / "lifecycle.ack"),
-                    "--destination-diagnostics-file", str(lifecycle_diagnostics),
-                    "--diagnostic-drain-seconds", "1",
+                    str(binaries["server"]),
+                    "--ready",
+                    str(lifecycle_ready),
+                    "--result",
+                    str(cell_dir / "lifecycle-server-result.json"),
+                    "--authority-dir",
+                    str(lifecycle_authority),
+                    "--completion-ack",
+                    str(temp / "lifecycle.ack"),
+                    "--destination-diagnostics-file",
+                    str(lifecycle_diagnostics),
+                    "--diagnostic-drain-seconds",
+                    "1",
                 ]
                 lifecycle_server_commands.append(server_argv)
                 lifecycle_server = subprocess.Popen(
@@ -273,8 +285,12 @@ def run_cell(
             admission_started = time.monotonic()
             if clients:
                 argv = lifecycle_client_command(
-                    binaries["nbsr"], lifecycle_endpoint, lifecycle_authority, lifecycle,
-                    connections=connections_per_client, offset=0,
+                    binaries["nbsr"],
+                    lifecycle_endpoint,
+                    lifecycle_authority,
+                    lifecycle,
+                    connections=connections_per_client,
+                    offset=0,
                     logical_clients=clients * connections_per_client,
                 )
                 client_commands.append(argv)
@@ -293,26 +309,21 @@ def run_cell(
             deadline = time.monotonic() + duration + 45
             while established_client.poll() is None or (admission_client is not None and admission_client.poll() is None):
                 sample_processes(processes, samples)
-                completed_clients = len(list(lifecycle.glob("connection-*.ack")))
-                pending = max(clients * connections_per_client - completed_clients, 0)
+                pending = clients * connections_per_client if admission_client is not None and admission_client.poll() is None else 0
                 peak_pending = max(peak_pending, pending)
                 admission_finished = remember_completion(admission_finished, pending=pending, now=time.monotonic())
                 if time.monotonic() >= deadline:
-                    driver_complete = len(list(lifecycle.glob("connection-*.driver-complete")))
                     if admission_client is not None and admission_client.poll() is None:
                         admission_client.kill()
                         admission_client.wait(timeout=5)
                     raise TimeoutError(
                         "B4b cell exceeded duration plus 45-second cleanup bound; "
-                        f"acks={completed_clients}/{clients * connections_per_client}; "
-                        f"driver_complete={driver_complete}/{clients * connections_per_client}"
+                        f"admission_process_running={admission_client is not None and admission_client.poll() is None}"
                     )
                 time.sleep(0.1)
             established_finished = time.monotonic()
             if admission_client is not None and admission_client.poll() is not None:
-                admission_finished = remember_completion(
-                    admission_finished, pending=0, now=established_finished
-                )
+                admission_finished = remember_completion(admission_finished, pending=0, now=established_finished)
             if admission_finished is None:
                 raise RuntimeError("admission completion timestamp missing")
             established_stdout, established_stderr = established_client.communicate(timeout=5)
@@ -350,9 +361,7 @@ def run_cell(
             completed = int(established["completed_operations"])
             latencies = [int(value["ttfab_ns"]) for value in admission_outputs if value.get("success")]
             successful_clients = {
-                int(value["logical_client_id"])
-                for value in admission_outputs
-                if value.get("success") and "logical_client_id" in value
+                int(value["logical_client_id"]) for value in admission_outputs if value.get("success") and "logical_client_id" in value
             }
             failed_client_records = [
                 value
@@ -361,32 +370,36 @@ def run_cell(
                 and value.get("phase") not in {"close", "cleanup"}
                 and int(value["logical_client_id"]) not in successful_clients
             ]
-            cleanup_error_records = [
-                value for value in admission_outputs if value.get("phase") in {"close", "cleanup"}
-            ]
+            cleanup_error_records = [value for value in admission_outputs if value.get("phase") in {"close", "cleanup"}]
             connected_clients = {
                 int(value["logical_client_id"])
                 for value in admission_outputs
                 if value.get("success") and value.get("transport_handshake_ns") is not None
             }
             cleaned_clients = {
-                int(path.name.removeprefix("connection-").removesuffix(".ack"))
-                for path in lifecycle.glob("connection-*.ack")
+                int(path.name.removeprefix("connection-").removesuffix(".ack")) for path in lifecycle.glob("connection-*.ack")
             }
-            driver_completed_clients = {
-                int(path.name.removeprefix("connection-").removesuffix(".driver-complete"))
-                for path in lifecycle.glob("connection-*.driver-complete")
+            failed_marker_clients = {
+                int(path.name.removeprefix("connection-").removesuffix(".failed")) for path in lifecycle.glob("connection-*.failed")
             }
+            expected_client_ids = set(range(clients * connections_per_client))
+            terminal_marker_clients = cleaned_clients | failed_marker_clients
+            terminal_evidence_exact = terminal_evidence_complete(
+                expected_client_ids,
+                cleaned_clients,
+                failed_marker_clients,
+                source_succeeded=admission_client is None or admission_client.returncode == 0,
+            )
             cleanup_parts = [diagnostics_cleanup(established_diagnostics)]
             if clients:
                 cleanup_parts.append(diagnostics_cleanup(lifecycle_diagnostics))
             process_exit = all(process.poll() is not None for process in processes.values())
             cleanup = {
-                "all_zero": all(part["all_zero"] for part in cleanup_parts)
-                and len(driver_completed_clients) == clients * connections_per_client,
+                "all_zero": all(part["all_zero"] for part in cleanup_parts) and terminal_evidence_exact,
                 "processes_exited": process_exit,
                 "destinations": cleanup_parts,
-                "driver_completed_clients": len(driver_completed_clients),
+                "driver_completed_clients": len(terminal_marker_clients),
+                "terminal_evidence_exact": terminal_evidence_exact,
             }
             return {
                 "schema": "nbsr-b4b-mixed-connections-repeat-v2",
@@ -432,7 +445,7 @@ def run_cell(
                 "logical_client_terminal_cleanup": {
                     "requested": clients * connections_per_client,
                     "cleaned": len(cleaned_clients),
-                    "driver_completed": len(driver_completed_clients),
+                    "driver_completed": len(terminal_marker_clients),
                     "all_terminal": len(successful_clients) + len(failed_client_records) == clients * connections_per_client,
                     "client_ids": sorted(successful_clients | {int(value["logical_client_id"]) for value in failed_client_records}),
                 },

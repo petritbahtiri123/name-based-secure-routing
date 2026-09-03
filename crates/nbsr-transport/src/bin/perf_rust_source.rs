@@ -36,6 +36,9 @@ mod b3_support;
 mod b4_support;
 #[cfg(feature = "benchmark-harness")]
 mod b5_support;
+#[path = "benchmark_support/lifecycle_completion.rs"]
+mod lifecycle_completion;
+use lifecycle_completion::{CompletionCoordinator, CompletionSender, TerminalKind};
 
 fn argument(name: &str) -> String {
     let values = env::args().collect::<Vec<_>>();
@@ -355,7 +358,7 @@ async fn run_lifecycle(
     report_connections: bool,
     hold_for_release: bool,
     payload_bytes: usize,
-    total_clients: Option<u64>,
+    completion: Option<CompletionSender>,
 ) {
     let payload = vec![0x5a; payload_bytes];
     let mut sample_id = 0_u64;
@@ -390,11 +393,24 @@ async fn run_lifecycle(
             Ok(connection) => connection,
             Err(error) => {
                 let logical_client_id = connection_offset + connection_ordinal;
-                fs::write(
-                    root.join(format!("connection-{logical_client_id}.failed")),
-                    format!("{error:?}\n"),
-                )
-                .unwrap();
+                if let Some(sender) = &completion {
+                    let terminal =
+                        if matches!(error, nbsr_transport::TransportError::HandshakeTimeout) {
+                            TerminalKind::TimedOut
+                        } else {
+                            TerminalKind::Failed
+                        };
+                    sender
+                        .record(logical_client_id as usize, terminal)
+                        .await
+                        .unwrap();
+                } else {
+                    fs::write(
+                        root.join(format!("connection-{logical_client_id}.failed")),
+                        format!("{error:?}\n"),
+                    )
+                    .unwrap();
+                }
                 println!(
                     "{{\"logical_client_id\":{logical_client_id},\"success\":false,\"error\":\"{error:?}\",\"timed_out\":{}}}",
                     matches!(error, nbsr_transport::TransportError::HandshakeTimeout)
@@ -651,59 +667,42 @@ async fn run_lifecycle(
             }
             while session.pop_audit_event().is_some() {}
         }
-        fs::write(
-            root.join(format!(
-                "connection-{}.ack",
-                connection_offset + connection_ordinal
-            )),
-            b"complete\n",
-        )
-        .unwrap();
-        if let Some(total_clients) = total_clients
-            && !wait_for_lifecycle_client_terminals(root, total_clients).await
-        {
-            let logical_client_id = connection_offset + connection_ordinal;
-            println!(
-                "{{\"logical_client_id\":{logical_client_id},\"success\":false,\"phase\":\"cleanup\",\"error\":\"terminal_barrier_timeout\",\"timed_out\":true}}"
-            );
-        }
+        let logical_client_id = connection_offset + connection_ordinal;
         drop(session);
         drop(control);
+        let mut terminal = TerminalKind::Completed;
         if hold_for_release {
             drop(connection);
         } else {
             if let Err(error) = connection.close().await {
-                let logical_client_id = connection_offset + connection_ordinal;
+                terminal = if matches!(error, nbsr_transport::TransportError::CloseTimeout) {
+                    TerminalKind::TimedOut
+                } else {
+                    TerminalKind::Failed
+                };
                 println!(
                     "{{\"logical_client_id\":{logical_client_id},\"success\":false,\"phase\":\"close\",\"error\":\"{error:?}\",\"timed_out\":{}}}",
                     matches!(error, nbsr_transport::TransportError::CloseTimeout)
                 );
             }
         }
-    }
-}
-
-async fn wait_for_lifecycle_client_terminals(root: &Path, total_clients: u64) -> bool {
-    tokio::time::timeout(Duration::from_secs(10), async {
-        loop {
-            let terminal = fs::read_dir(root)
-                .unwrap()
-                .filter_map(Result::ok)
-                .filter(|entry| {
-                    let name = entry.file_name();
-                    let name = name.to_string_lossy();
-                    name.starts_with("connection-")
-                        && (name.ends_with(".ack") || name.ends_with(".failed"))
-                })
-                .count();
-            if terminal >= total_clients as usize {
-                break;
-            }
-            tokio::time::sleep(Duration::from_millis(1)).await;
+        if let Some(sender) = &completion {
+            sender
+                .record(logical_client_id as usize, terminal)
+                .await
+                .unwrap();
+        } else {
+            let (extension, contents) = match terminal {
+                TerminalKind::Completed => ("ack", b"complete\n".as_slice()),
+                _ => ("failed", b"close_failed\n".as_slice()),
+            };
+            fs::write(
+                root.join(format!("connection-{logical_client_id}.{extension}")),
+                contents,
+            )
+            .unwrap();
         }
-    })
-    .await
-    .is_ok()
+    }
 }
 
 fn client_hello() -> nbsr_transport::CoreV02Envelope {
@@ -993,7 +992,11 @@ async fn run_p2d_after(
         .unwrap();
 }
 
-async fn run(group_barrier: Option<Arc<std::sync::Barrier>>, group_ordinal: usize) {
+async fn run(
+    group_barrier: Option<Arc<std::sync::Barrier>>,
+    group_ordinal: usize,
+    completion: Option<CompletionSender>,
+) {
     let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..");
     let authority = PathBuf::from(argument("--authority-dir"));
     let default_endpoint = argument("--endpoint");
@@ -1074,7 +1077,7 @@ async fn run(group_barrier: Option<Arc<std::sync::Barrier>>, group_ordinal: usiz
             connection_offset_argument.is_some(),
             hold_for_release,
             payload_bytes,
-            logical_clients.map(|value| value as u64),
+            completion,
         )
         .await;
         return;
@@ -1710,42 +1713,47 @@ fn main() {
         build_benchmark_runtime(1)
             .expect("lifecycle driver Tokio runtime")
             .block_on(async move {
+                let lifecycle_root = optional_argument("--lifecycle-authority-dir")
+                    .map(PathBuf::from)
+                    .expect("lifecycle authority directory");
+                let (coordinator, completion) =
+                    CompletionCoordinator::with_evidence(logical_clients, lifecycle_root);
                 let mut lifecycle_clients = tokio::task::JoinSet::new();
                 for ordinal in 0..logical_clients {
+                    let completion = completion.clone();
                     lifecycle_clients.spawn(async move {
-                        let outcome = tokio::spawn(run(None, ordinal)).await;
-                        let lifecycle_root = optional_argument("--lifecycle-authority-dir")
-                            .map(PathBuf::from)
-                            .expect("lifecycle authority directory");
-                        if outcome.is_err() {
-                            fs::write(
-                                lifecycle_root.join(format!("connection-{ordinal}.failed")),
-                                b"client_task_failed\n",
-                            )
-                            .unwrap();
+                        let outcome = tokio::spawn(run(None, ordinal, Some(completion.clone()))).await;
+                        if let Err(error) = outcome {
+                            let terminal = if error.is_cancelled() {
+                                TerminalKind::Cancelled
+                            } else {
+                                TerminalKind::Failed
+                            };
+                            completion.record(ordinal, terminal).await.unwrap();
                             println!(
                                 "{{\"logical_client_id\":{ordinal},\"success\":false,\"error\":\"client_task_failed\",\"timed_out\":false}}"
                             );
-                        } else {
-                            fs::write(
-                                lifecycle_root
-                                    .join(format!("connection-{ordinal}.driver-complete")),
-                                b"complete\n",
-                            )
-                            .unwrap();
                         }
                     });
                 }
                 while let Some(client) = lifecycle_clients.join_next().await {
                     client.expect("bounded lifecycle client task");
                 }
+                drop(completion);
+                let summary = coordinator
+                    .finish(Duration::from_secs(10))
+                    .await
+                    .expect("bounded lifecycle evidence completion");
+                assert_eq!(summary.recorded, logical_clients);
+                assert_eq!(summary.written, logical_clients);
+                assert!(summary.writer_thread.is_some());
             });
         return;
     }
     let groups = parse_group_count(env::args()).expect("valid --p2a-groups");
     if groups > 1 {
         run_current_thread_groups(groups, |ordinal, barrier| async move {
-            run(Some(barrier), ordinal).await
+            run(Some(barrier), ordinal, None).await
         })
         .expect("independently authorized NBSR benchmark groups");
         emit_diagnostic(0, "group_cleanup");
@@ -1753,13 +1761,13 @@ fn main() {
     }
     build_benchmark_runtime(workers)
         .expect("benchmark Tokio runtime")
-        .block_on(run(None, 0));
+        .block_on(run(None, 0, None));
 }
 
 #[cfg(not(feature = "benchmark-harness"))]
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
-    run(None, 0).await;
+    run(None, 0, None).await;
 }
 
 trait ReadBytes {
