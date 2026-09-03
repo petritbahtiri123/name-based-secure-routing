@@ -1,0 +1,2 @@
+pwsh -NoProfile -ExecutionPolicy Bypass -File "<repo>\scripts\capture_b4b_task4c.ps1"
+python <repo>\scripts\analyze_b4b_task4c.py --capture "<external-capture-root>" --output "<evidence-output>"

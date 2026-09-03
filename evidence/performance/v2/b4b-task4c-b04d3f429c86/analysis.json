@@ -1,0 +1,344 @@
+{
+  "schema": "nbsr-b4b-task4c-analysis-v1",
+  "classification": "PASS / HARNESS-LIMITED",
+  "kernel_trace": {
+    "lost_events": 0,
+    "valid": true
+  },
+  "network_trace": {
+    "lost_events": 1047446,
+    "valid": false,
+    "use": "supplemental only; socket-error attribution rejected when invalid"
+  },
+  "cells": [
+    {
+      "clients": 64,
+      "control": {
+        "successful_admissions": 64,
+        "admissions_per_second": 52.437602937789016,
+        "handshake": {
+          "p50_ms": 105.7866,
+          "p95_ms": 145.7448,
+          "p99_ms": 146.3132
+        },
+        "p99_total_admission_ms": 1143.0308,
+        "errors": 0,
+        "timeouts": 0
+      },
+      "profiled": {
+        "successful_admissions": 64,
+        "admissions_per_second": 11.568889246679452,
+        "handshake": {
+          "p50_ms": 535.5574,
+          "p95_ms": 1125.7436,
+          "p99_ms": 1308.3458
+        },
+        "p99_total_admission_ms": 3104.018,
+        "errors": 6,
+        "timeouts": 6,
+        "observer_overhead_fraction": 0.7793779921556566
+      },
+      "roles": {
+        "admission-source": {
+          "pid": 26476,
+          "main_thread_id": 18412,
+          "main_thread_context_switches": 2949260,
+          "file_system_sample_weight": 1058226,
+          "total_sample_weight": 2974272,
+          "file_system_sample_fraction": 0.35579328319669484,
+          "top_sampled_hotspots": [
+            {
+              "function": "ntoskrnl.exe!\"Unknown\"",
+              "weight": 1306986,
+              "process_sample_fraction": 0.43943055645213347
+            },
+            {
+              "function": "Ntfs.sys!\"Unknown\"",
+              "weight": 589779,
+              "process_sample_fraction": 0.19829356561874636
+            },
+            {
+              "function": "ntdll.dll!\"Unknown\"",
+              "weight": 243925,
+              "process_sample_fraction": 0.08201166537559443
+            },
+            {
+              "function": "FLTMGR.SYS!\"Unknown\"",
+              "weight": 200575,
+              "process_sample_fraction": 0.06743667021711532
+            },
+            {
+              "function": "vcruntime140.dll!\"Unknown\"",
+              "weight": 130791,
+              "process_sample_fraction": 0.04397412207087987
+            },
+            {
+              "function": "perf_rust_source.exe!alloc::wtf8::Wtf8Buf::from_wide",
+              "weight": 97470,
+              "process_sample_fraction": 0.03277104447743851
+            },
+            {
+              "function": "perf_rust_source.exe!core::wtf8::Wtf8::to_string_lossy",
+              "weight": 36997,
+              "process_sample_fraction": 0.012439010285542142
+            },
+            {
+              "function": "perf_rust_source.exe!_RNvXs_NtNtCsfg9DPimMms3_5tokio4time7timeoutINtB4_7TimeoutNCNCNvCs7X549Hs42um_16perf_rust_source35wait_for_lifecycle_client_terminals00ENtNtNtCs55qC6OcLGgs_4core6future6future6Future4pollBZ_",
+              "weight": 29309,
+              "process_sample_fraction": 0.00985417608073505
+            },
+            {
+              "function": "WdFilter.sys!\"Unknown\"",
+              "weight": 28657,
+              "process_sample_fraction": 0.009634962774083877
+            },
+            {
+              "function": "KernelBase.dll!\"Unknown\"",
+              "weight": 25143,
+              "process_sample_fraction": 0.008453497191917889
+            }
+          ],
+          "effective_cores": 0.29936249972734985,
+          "threads": 4,
+          "handles": 146
+        },
+        "admission-destination": {
+          "pid": 18404,
+          "main_thread_id": 21664,
+          "main_thread_context_switches": 3012598,
+          "file_system_sample_weight": 1144630,
+          "total_sample_weight": 3128410,
+          "file_system_sample_fraction": 0.36588234918057416,
+          "top_sampled_hotspots": [
+            {
+              "function": "ntoskrnl.exe!\"Unknown\"",
+              "weight": 1367088,
+              "process_sample_fraction": 0.436991315076988
+            },
+            {
+              "function": "Ntfs.sys!\"Unknown\"",
+              "weight": 624386,
+              "process_sample_fraction": 0.19958573204918792
+            },
+            {
+              "function": "FLTMGR.SYS!\"Unknown\"",
+              "weight": 223473,
+              "process_sample_fraction": 0.0714334118609773
+            },
+            {
+              "function": "ntdll.dll!\"Unknown\"",
+              "weight": 210280,
+              "process_sample_fraction": 0.06721625362404544
+            },
+            {
+              "function": "vcruntime140.dll!\"Unknown\"",
+              "weight": 159887,
+              "process_sample_fraction": 0.051108070873063315
+            },
+            {
+              "function": "wp8_interop_server.exe!alloc::wtf8::Wtf8Buf::from_wide",
+              "weight": 120974,
+              "process_sample_fraction": 0.03866948385921283
+            },
+            {
+              "function": "wp8_interop_server.exe!core::wtf8::Wtf8::to_string_lossy",
+              "weight": 34471,
+              "process_sample_fraction": 0.011018696398489968
+            },
+            {
+              "function": "wp8_interop_server.exe!_RNvXs_NtNtCsfg9DPimMms3_5tokio4time7timeoutINtB4_7TimeoutNCNCNvCsj6NEkVosvQB_18wp8_interop_server35wait_for_lifecycle_client_terminals00ENtNtNtCs55qC6OcLGgs_4core6future6future6Future4pollBZ_",
+              "weight": 30454,
+              "process_sample_fraction": 0.009734657541690507
+            },
+            {
+              "function": "KernelBase.dll!\"Unknown\"",
+              "weight": 29355,
+              "process_sample_fraction": 0.009383360876611442
+            },
+            {
+              "function": "WdFilter.sys!\"Unknown\"",
+              "weight": 29345,
+              "process_sample_fraction": 0.009380164364645298
+            }
+          ],
+          "effective_cores": 0.453207815246414,
+          "threads": 5,
+          "handles": 84
+        }
+      }
+    },
+    {
+      "clients": 128,
+      "control": {
+        "successful_admissions": 122,
+        "admissions_per_second": 9.062775049668351,
+        "handshake": {
+          "p50_ms": 159.0052,
+          "p95_ms": 211.0003,
+          "p99_ms": 211.2614
+        },
+        "p99_total_admission_ms": 8316.7553,
+        "errors": 69,
+        "timeouts": 69
+      },
+      "profiled": {
+        "successful_admissions": 127,
+        "admissions_per_second": 6.488177184766321,
+        "handshake": {
+          "p50_ms": 174.8499,
+          "p95_ms": 257.519,
+          "p99_ms": 1412.0262
+        },
+        "p99_total_admission_ms": 14224.6956,
+        "errors": 137,
+        "timeouts": 137,
+        "observer_overhead_fraction": 0.28408493544107627
+      },
+      "roles": {
+        "admission-source": {
+          "pid": 12352,
+          "main_thread_id": 4708,
+          "main_thread_context_switches": 13242356,
+          "file_system_sample_weight": 5651752,
+          "total_sample_weight": 13693659,
+          "file_system_sample_fraction": 0.412727671983069,
+          "top_sampled_hotspots": [
+            {
+              "function": "ntoskrnl.exe!\"Unknown\"",
+              "weight": 5161854,
+              "process_sample_fraction": 0.3769521352912322
+            },
+            {
+              "function": "Ntfs.sys!\"Unknown\"",
+              "weight": 3282797,
+              "process_sample_fraction": 0.23973117776629313
+            },
+            {
+              "function": "ntdll.dll!\"Unknown\"",
+              "weight": 1140833,
+              "process_sample_fraction": 0.08331104199396232
+            },
+            {
+              "function": "FLTMGR.SYS!\"Unknown\"",
+              "weight": 896427,
+              "process_sample_fraction": 0.0654629270379816
+            },
+            {
+              "function": "vcruntime140.dll!\"Unknown\"",
+              "weight": 827297,
+              "process_sample_fraction": 0.06041460503726579
+            },
+            {
+              "function": "perf_rust_source.exe!alloc::wtf8::Wtf8Buf::from_wide",
+              "weight": 735975,
+              "process_sample_fraction": 0.05374567893066418
+            },
+            {
+              "function": "perf_rust_source.exe!_RNvXs_NtNtCsfg9DPimMms3_5tokio4time7timeoutINtB4_7TimeoutNCNCNvCs7X549Hs42um_16perf_rust_source35wait_for_lifecycle_client_terminals00ENtNtNtCs55qC6OcLGgs_4core6future6future6Future4pollBZ_",
+              "weight": 176522,
+              "process_sample_fraction": 0.012890783975269137
+            },
+            {
+              "function": "perf_rust_source.exe!core::wtf8::Wtf8::to_string_lossy",
+              "weight": 172384,
+              "process_sample_fraction": 0.012588600314934088
+            },
+            {
+              "function": "KernelBase.dll!\"Unknown\"",
+              "weight": 137966,
+              "process_sample_fraction": 0.01007517421019466
+            },
+            {
+              "function": "perf_rust_source.exe!std::sys::fs::windows::impl$6::next",
+              "weight": 111087,
+              "process_sample_fraction": 0.008112294895031343
+            }
+          ],
+          "effective_cores": 0.656744184583877,
+          "threads": 4,
+          "handles": 212
+        },
+        "admission-destination": {
+          "pid": 20048,
+          "main_thread_id": 22832,
+          "main_thread_context_switches": 12931831,
+          "file_system_sample_weight": 5579136,
+          "total_sample_weight": 13246594,
+          "file_system_sample_fraction": 0.4211751337740101,
+          "top_sampled_hotspots": [
+            {
+              "function": "ntoskrnl.exe!\"Unknown\"",
+              "weight": 4964170,
+              "process_sample_fraction": 0.37475067175758536
+            },
+            {
+              "function": "Ntfs.sys!\"Unknown\"",
+              "weight": 3393814,
+              "process_sample_fraction": 0.2562027642728387
+            },
+            {
+              "function": "ntdll.dll!\"Unknown\"",
+              "weight": 1090664,
+              "process_sample_fraction": 0.08233542901669667
+            },
+            {
+              "function": "vcruntime140.dll!\"Unknown\"",
+              "weight": 806057,
+              "process_sample_fraction": 0.06085013249443593
+            },
+            {
+              "function": "FLTMGR.SYS!\"Unknown\"",
+              "weight": 790743,
+              "process_sample_fraction": 0.059694061733906845
+            },
+            {
+              "function": "wp8_interop_server.exe!alloc::wtf8::Wtf8Buf::from_wide",
+              "weight": 649081,
+              "process_sample_fraction": 0.04899984101573582
+            },
+            {
+              "function": "wp8_interop_server.exe!core::wtf8::Wtf8::to_string_lossy",
+              "weight": 195528,
+              "process_sample_fraction": 0.014760624504683996
+            },
+            {
+              "function": "KernelBase.dll!\"Unknown\"",
+              "weight": 142289,
+              "process_sample_fraction": 0.010741553640128172
+            },
+            {
+              "function": "wp8_interop_server.exe!_RNvXs_NtNtCsfg9DPimMms3_5tokio4time7timeoutINtB4_7TimeoutNCNCNvCsj6NEkVosvQB_18wp8_interop_server35wait_for_lifecycle_client_terminals00ENtNtNtCs55qC6OcLGgs_4core6future6future6Future4pollBZ_",
+              "weight": 137512,
+              "process_sample_fraction": 0.010380932638231382
+            },
+            {
+              "function": "wp8_interop_server.exe!std::sys::fs::windows::impl$6::next",
+              "weight": 100351,
+              "process_sample_fraction": 0.0075756077373549755
+            }
+          ],
+          "effective_cores": 0.816771724579331,
+          "threads": 5,
+          "handles": 84
+        }
+      }
+    }
+  ],
+  "context_switch_growth": {
+    "source_main_thread_64_to_128_ratio": 4.490060557563592,
+    "destination_main_thread_64_to_128_ratio": 4.292584340824763
+  },
+  "attribution": {
+    "primary": "synchronous lifecycle-terminal directory polling on both current-thread Tokio runtimes",
+    "mechanism": "completed client/session tasks each scan the shared lifecycle directory every 1 ms while later QUIC handshakes remain pending; the O(completed clients times directory entries) blocking filesystem work serializes both event loops and delays handshake and close progress",
+    "cleanup_delay": "the same all-client terminal barrier keeps every completed task polling until the final terminal marker, amplifying filesystem work and delaying connection close",
+    "handshake_effect": "transport handshake p99 rises modestly in the unprofiled control, while total admission p99 and close/cleanup timeouts collapse; event-loop starvation reaches the remaining handshakes but is primarily a post-handshake lifecycle-barrier amplification",
+    "not_supported": [
+      "host CPU saturation",
+      "ephemeral-port exhaustion",
+      "Windows socket failure attribution because the supplemental network trace lost events",
+      "production NBSR bottleneck"
+    ],
+    "recommended_harness_change": "replace per-task 1 ms read_dir scans with one bounded coordinator that receives one in-memory completion signal per logical client and releases all tasks once; retain file markers only as external evidence written once per client"
+  }
+}

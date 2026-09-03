@@ -1,0 +1,33 @@
+{
+  "capture_root": "C:\\NBSR-build\\b4b-task4c-20260903-192550",
+  "files": {
+    "task4c-kernel.etl": {
+      "bytes": 497025024,
+      "sha256": "e9d0082e100212a6aade8110e578287382dcb9786c36e75bc4a45fa4629c82ca"
+    },
+    "task4c-network.etl": {
+      "bytes": 941096960,
+      "sha256": "ba41cc54e9501935163386efb889770d57d8a866c825386a1cfcc3f88b666579"
+    },
+    "cpu-profile-detail.txt": {
+      "bytes": 372317,
+      "sha256": "52feb94c64831ed96dcd8df01bd2f10a00920659e879b77a93a0c8963fe8698c"
+    },
+    "cswitch-process-thread.txt": {
+      "bytes": 63143,
+      "sha256": "8b6bddf0b96f0131921900eb29212db5cd43c4571afe0c96e472a24f8cb2bfe4"
+    },
+    "readythread.txt": {
+      "bytes": 2855556082,
+      "sha256": "b7ca47f2e22e40ee055398910673eb48c6298b159c9915f8ab91e4d0438fd545"
+    },
+    "thread-activity.txt": {
+      "bytes": 598296,
+      "sha256": "e85a608e091af729936eab918d7eecbf098789db689e99d266a8e70a2d8773e9"
+    },
+    "process-thread.txt": {
+      "bytes": 628555,
+      "sha256": "1b758c97b207ba68b4f3a5c19067f5bbad39ac0a934840808417074aab6bc7de"
+    }
+  }
+}
