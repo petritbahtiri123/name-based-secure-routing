@@ -42,7 +42,66 @@ mod batch_release;
 mod handshake_timeline;
 #[path = "benchmark_support/lifecycle_completion.rs"]
 mod lifecycle_completion;
+#[cfg(feature = "benchmark-harness")]
+#[path = "benchmark_support/lifecycle_shards.rs"]
+mod lifecycle_shards;
 use lifecycle_completion::{CompletionCoordinator, CompletionSender, TerminalKind};
+
+#[cfg(feature = "benchmark-harness")]
+async fn run_lifecycle_clients(
+    clients: Vec<usize>,
+    timeline: Option<Arc<handshake_timeline::Region>>,
+    release_gate: Option<batch_release::BatchRelease>,
+    completion: CompletionSender,
+) {
+    let mut lifecycle_clients = tokio::task::JoinSet::new();
+    for ordinal in clients {
+        let completion = completion.clone();
+        let slot = timeline.as_ref().and_then(|region| region.claim(ordinal));
+        lifecycle_clients.spawn(async move {
+            let task_completion = completion.clone();
+            let run_slot = slot.clone();
+            let outcome = tokio::spawn(batch_release::after_release(
+                release_gate,
+                ordinal,
+                move || {
+                    handshake_timeline::scope(run_slot, async move {
+                        handshake_timeline::mark(handshake_timeline::Event::TaskStarted);
+                        run(None, ordinal, Some(task_completion)).await
+                    })
+                },
+            ))
+            .await;
+            if let Err(error) = outcome {
+                if let Some(slot) = &slot {
+                    slot.mark(if error.is_cancelled() {
+                        handshake_timeline::Event::Cancelled
+                    } else {
+                        handshake_timeline::Event::Failed
+                    });
+                }
+                let terminal = if error.is_cancelled() {
+                    TerminalKind::Cancelled
+                } else {
+                    TerminalKind::Failed
+                };
+                completion.record(ordinal, terminal).await.unwrap();
+                println!(
+                    "{{\"logical_client_id\":{ordinal},\"success\":false,\"error\":\"client_task_failed\",\"timed_out\":false}}"
+                );
+                if let Some(slot) = &slot {
+                    slot.mark(handshake_timeline::Event::Cleaned);
+                }
+            }
+            if let Some(slot) = &slot {
+                slot.complete();
+            }
+        });
+    }
+    while let Some(client) = lifecycle_clients.join_next().await {
+        client.expect("bounded lifecycle client task");
+    }
+}
 
 fn argument(name: &str) -> String {
     let values = env::args().collect::<Vec<_>>();
@@ -1738,66 +1797,59 @@ fn main() {
             .expect("valid --lifecycle-clients");
         assert!((1..=1024).contains(&logical_clients));
         let timeline = handshake_timeline::Region::open(logical_clients, 1);
-        build_benchmark_runtime(1)
-            .expect("lifecycle driver Tokio runtime")
-            .block_on(async move {
-                let lifecycle_root = optional_argument("--lifecycle-authority-dir")
-                    .map(PathBuf::from)
-                    .expect("lifecycle authority directory");
-                let (coordinator, completion) =
-                    CompletionCoordinator::with_evidence(logical_clients, lifecycle_root);
-                let release_gate = batch_release::BatchRelease::from_options(
-                    optional_argument("--lifecycle-release-batch")
-                        .map(|value| value.parse::<usize>().expect("valid release batch")),
-                    optional_argument("--lifecycle-release-interval-ms")
-                        .map(|value| value.parse::<u64>().expect("valid release interval")),
-                    optional_argument("--lifecycle-offered-rate")
-                        .map(|value| value.parse::<f64>().expect("valid offered rate")),
+        let shards = lifecycle_shards::parse_shards(
+            optional_argument("--lifecycle-source-shards").as_deref(),
+        )
+        .expect("valid lifecycle source shards");
+        let lifecycle_root = optional_argument("--lifecycle-authority-dir")
+            .map(PathBuf::from)
+            .expect("lifecycle authority directory");
+        let (coordinator, completion) =
+            CompletionCoordinator::with_evidence(logical_clients, lifecycle_root);
+        let release_gate = batch_release::BatchRelease::from_options(
+            optional_argument("--lifecycle-release-batch")
+                .map(|value| value.parse::<usize>().expect("valid release batch")),
+            optional_argument("--lifecycle-release-interval-ms")
+                .map(|value| value.parse::<u64>().expect("valid release interval")),
+            optional_argument("--lifecycle-offered-rate")
+                .map(|value| value.parse::<f64>().expect("valid offered rate")),
+        )
+        .expect("valid diagnostic lifecycle release configuration");
+        if shards == 1 {
+            eprintln!(
+                "{{\"event\":\"lifecycle_source_shard\",\"shard\":0,\"thread_id\":{}}}",
+                lifecycle_shards::current_os_thread_id()
+            );
+            build_benchmark_runtime(1)
+                .expect("lifecycle driver Tokio runtime")
+                .block_on(run_lifecycle_clients(
+                    (0..logical_clients).collect(),
+                    timeline,
+                    release_gate,
+                    completion.clone(),
+                ));
+        } else {
+            let shard_completion = completion.clone();
+            lifecycle_shards::run_fixed_shards(shards, move |shard| {
+                let clients = lifecycle_shards::assigned_clients(logical_clients, shards, shard)
+                    .expect("valid lifecycle shard assignment");
+                run_lifecycle_clients(
+                    clients,
+                    timeline.clone(),
+                    release_gate,
+                    shard_completion.clone(),
                 )
-                .expect("valid diagnostic lifecycle release configuration");
-                let mut lifecycle_clients = tokio::task::JoinSet::new();
-                for ordinal in 0..logical_clients {
-                    let completion = completion.clone();
-                    let slot = timeline.as_ref().and_then(|region| region.claim(ordinal));
-                    lifecycle_clients.spawn(async move {
-                        let task_completion = completion.clone();
-                        let run_slot = slot.clone();
-                        let outcome = tokio::spawn(batch_release::after_release(
-                            release_gate,
-                            ordinal,
-                            move || handshake_timeline::scope(run_slot, async move {
-                                handshake_timeline::mark(handshake_timeline::Event::TaskStarted);
-                                run(None, ordinal, Some(task_completion)).await
-                            }),
-                        )).await;
-                        if let Err(error) = outcome {
-                            if let Some(slot) = &slot { slot.mark(if error.is_cancelled() { handshake_timeline::Event::Cancelled } else { handshake_timeline::Event::Failed }); }
-                            let terminal = if error.is_cancelled() {
-                                TerminalKind::Cancelled
-                            } else {
-                                TerminalKind::Failed
-                            };
-                            completion.record(ordinal, terminal).await.unwrap();
-                            println!(
-                                "{{\"logical_client_id\":{ordinal},\"success\":false,\"error\":\"client_task_failed\",\"timed_out\":false}}"
-                            );
-                            if let Some(slot) = &slot { slot.mark(handshake_timeline::Event::Cleaned); }
-                        }
-                        if let Some(slot) = &slot { slot.complete(); }
-                    });
-                }
-                while let Some(client) = lifecycle_clients.join_next().await {
-                    client.expect("bounded lifecycle client task");
-                }
-                drop(completion);
-                let summary = coordinator
-                    .finish(Duration::from_secs(10))
-                    .await
-                    .expect("bounded lifecycle evidence completion");
-                assert_eq!(summary.recorded, logical_clients);
-                assert_eq!(summary.written, logical_clients);
-                assert!(summary.writer_thread.is_some());
-            });
+            })
+            .expect("bounded lifecycle source shards");
+        }
+        drop(completion);
+        let summary = build_benchmark_runtime(1)
+            .expect("lifecycle completion runtime")
+            .block_on(coordinator.finish(Duration::from_secs(10)))
+            .expect("bounded lifecycle evidence completion");
+        assert_eq!(summary.recorded, logical_clients);
+        assert_eq!(summary.written, logical_clients);
+        assert!(summary.writer_thread.is_some());
         return;
     }
     let groups = parse_group_count(env::args()).expect("valid --p2a-groups");
