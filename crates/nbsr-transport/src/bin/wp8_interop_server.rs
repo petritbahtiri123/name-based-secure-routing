@@ -29,6 +29,9 @@ use rustls::RootCertStore;
 use rustls::pki_types::{CertificateDer, PrivateKeyDer, PrivatePkcs8KeyDer};
 use sha2::{Digest, Sha256};
 
+#[cfg(feature = "benchmark-harness")]
+#[path = "benchmark_support/batch_release.rs"]
+mod batch_release;
 #[path = "benchmark_support/handshake_timeline.rs"]
 mod handshake_timeline;
 #[path = "benchmark_support/lifecycle_completion.rs"]
@@ -2493,6 +2496,7 @@ async fn run_lifecycle(
     services: u64,
     streams_per_service: u64,
     concurrent: bool,
+    #[cfg(feature = "benchmark-harness")] release_gate: Option<batch_release::BatchRelease>,
 ) -> Vec<(u128, u128)> {
     let concurrent_sessions = env::var_os("NBSR_PERF_CONCURRENT_SESSIONS").is_some();
     if !concurrent_sessions {
@@ -2521,7 +2525,17 @@ async fn run_lifecycle(
             let slot = timeline
                 .as_ref()
                 .and_then(|region| region.claim(ordinal as usize));
-            let accepting = handshake_timeline::scope(slot.clone(), async {
+            let accept_slot = slot.clone();
+            #[cfg(feature = "benchmark-harness")]
+            let accepting =
+                batch_release::after_release(release_gate, ordinal as usize, move || {
+                    handshake_timeline::scope(accept_slot, async {
+                        handshake_timeline::mark(handshake_timeline::Event::TaskStarted);
+                        handshake_timeline::observe(listener.accept_one()).await
+                    })
+                });
+            #[cfg(not(feature = "benchmark-harness"))]
+            let accepting = handshake_timeline::scope(accept_slot, async {
                 handshake_timeline::mark(handshake_timeline::Event::TaskStarted);
                 handshake_timeline::observe(listener.accept_one()).await
             });
@@ -3099,6 +3113,15 @@ async fn run() {
             .parse::<u64>()
             .unwrap();
         let concurrent = env::var_os("NBSR_PERF_CONCURRENT_STREAMS").is_some();
+        #[cfg(feature = "benchmark-harness")]
+        let release_gate = batch_release::BatchRelease::from_options(
+            None,
+            None,
+            env::var("NBSR_PERF_LIFECYCLE_OFFERED_RATE")
+                .ok()
+                .map(|value| value.parse::<f64>().expect("valid offered rate")),
+        )
+        .expect("valid destination offered-rate schedule");
         assert!((1..=32).contains(&services));
         assert!((1..=64).contains(&streams_per_service));
         let measurements = run_lifecycle(
@@ -3108,6 +3131,8 @@ async fn run() {
             services,
             streams_per_service,
             concurrent,
+            #[cfg(feature = "benchmark-harness")]
+            release_gate,
         )
         .await;
         let samples = measurements

@@ -1,0 +1,3 @@
+# Preserve raw Windows evidence and exact captured source without normalization.
+raw/** -text -whitespace
+capture-source/** -text -whitespace

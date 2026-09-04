@@ -1,0 +1,57 @@
+{
+  "affinity": "inherited; not modified",
+  "binary_sha256": {
+    "direct": "6bf26356cf5719622857decf42d7f726118ba2af8e95f69e0a9af971b7f3753e",
+    "nbsr": "066992636967220d8e5c6dd899d2fb49a1ca213c343c74767c84f819856dd126",
+    "server": "8ca5868543d2349f41ca9919d81cf1857e8c6b83d4ffd8f166e52e5227512483"
+  },
+  "build": "release",
+  "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)",
+  "claim_boundary": "rate-controlled admission on Windows loopback; simultaneous burst remains separate",
+  "command": [
+    "C:\\Users\\bajra\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+    "scripts/run_b4b_task4i.py",
+    "--output",
+    "evidence/performance/v2/b4b-task4i-fa46af05db79",
+    "--duration-seconds",
+    "30",
+    "--warmup-seconds",
+    "2"
+  ],
+  "cores": 4,
+  "cpu": "Intel(R) Core(TM) i5-10210U CPU @ 1.60GHz",
+  "dirty_tree": true,
+  "duration_seconds": 30.0,
+  "go": "go version go1.26.5 windows/amd64",
+  "logical_processors": 8,
+  "memory_bytes": 16942501888,
+  "offered_rates": [
+    25,
+    50,
+    75,
+    100,
+    125,
+    150,
+    200,
+    250,
+    300,
+    400
+  ],
+  "os": "Windows-11-10.0.26200-SP0",
+  "power_plan": "Power Scheme GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c  (High performance)",
+  "python": "3.14.6",
+  "repository_sha": "fa46af05db7923a4aa7bb6e4d9c5af8dcb17e5b7",
+  "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+  "schema": "nbsr-performance-environment-v1",
+  "source_sha256": {
+    "crates/nbsr-transport/src/bin/benchmark_support/batch_release.rs": "c353ffe329734597954bce3fe4b91f5d8bfdc570561421ccce3875844b856ef1",
+    "crates/nbsr-transport/src/bin/perf_rust_source.rs": "e27cd50886bb2ed8284b5c86bd287a659f8f69ec6a139b88fe010a971d7e2015",
+    "scripts/run_b4b_mixed_connections.py": "42c19afd6ed0ded47e88cb8b4d8190cc96a5622d1d8769abb7a2181963642bfb",
+    "scripts/run_b4b_task4i.py": "76efc7e3ca5f3482c5857944b6429d474660a5999bb76398c819a05d5aa9cdc0",
+    "scripts/run_b4b_v2.py": "3b32643345593f59b88a7b1797671b4ad3e77b0738dbb44470ddd36198331870"
+  },
+  "timestamp_utc": "2026-09-04T19:14:43Z",
+  "topology": "windows-loopback",
+  "total_clients": 512,
+  "warmup_seconds": 2.0
+}

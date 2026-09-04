@@ -1,14 +1,14 @@
 from pathlib import Path
 
-from scripts.run_b4b_mixed_connections import lifecycle_client_command
+from scripts.run_b4b_mixed_connections import lifecycle_client_command, lifecycle_server_environment
 from scripts.performance.external_packet_capture import flow_table
 from scripts.run_b4b_task4h import observer_gate
 
 
-def command(batch=None, interval=None):
+def command(batch=None, interval=None, rate=None):
     return lifecycle_client_command(Path('source'), '127.0.0.1:4444', Path('a'), Path('l'),
         connections=1, offset=0, logical_clients=256,
-        release_batch=batch, release_interval_ms=interval)
+        release_batch=batch, release_interval_ms=interval, release_rate=rate)
 
 
 def test_disabled_batch_release_keeps_existing_command():
@@ -26,6 +26,18 @@ def test_batched_release_supplies_exact_pair():
 def test_partial_release_configuration_is_rejected():
     import pytest
     with pytest.raises(ValueError): command(8,None)
+
+
+def test_rate_release_is_mutually_exclusive_and_exact():
+    argv=command(rate=125)
+    assert argv[argv.index('--lifecycle-offered-rate')+1]=='125'
+    import pytest
+    with pytest.raises(ValueError): command(8,25,125)
+
+
+def test_disabled_rate_does_not_set_destination_schedule_environment():
+    assert 'NBSR_PERF_LIFECYCLE_OFFERED_RATE' not in lifecycle_server_environment({},None)
+    assert lifecycle_server_environment({},125)['NBSR_PERF_LIFECYCLE_OFFERED_RATE']=='125'
 
 
 def test_udp_flows_remain_port_based_without_client_id_invention():

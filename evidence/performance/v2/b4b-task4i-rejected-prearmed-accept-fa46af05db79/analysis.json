@@ -1,0 +1,93 @@
+{
+  "cells": [
+    {
+      "achieved_offered_ratio": 0.19530219475838184,
+      "actual_admissions_per_second": 4.882554868959546,
+      "admission_p50_latency_ns": 6628700.0,
+      "admission_p95_latency_ns": 8870900.0,
+      "admission_p99_latency_ns": 9610200.0,
+      "admission_success_ratio": 0.244140625,
+      "admitted": 125,
+      "cleanup_pass": true,
+      "connected": 125,
+      "effective_cores": 1.3502827991973967,
+      "errors": 387,
+      "established_goodput_bytes_per_second": 86671370.455616,
+      "established_p99_latency_ns": 337100.0,
+      "failed": 387,
+      "handshake_latency_ns": {
+        "50": 2210300,
+        "95": 3108500,
+        "99": 3971300
+      },
+      "offered_rate": 25,
+      "peak_pending_clients": 512.0,
+      "repeat_cv": 0.0016667482015507674,
+      "repeats": 3,
+      "requested": 512,
+      "resources": {
+        "cpu_seconds": 45.1875,
+        "peak_handles": 453.0,
+        "peak_private_bytes": 90861568.0,
+        "peak_processes": 4.0,
+        "peak_threads": 19.0,
+        "peak_working_set_bytes": 108224512.0
+      },
+      "started": 512,
+      "status": "BASELINE",
+      "timeouts": 387,
+      "valid": 3
+    },
+    {
+      "achieved_offered_ratio": 0.32378081326321284,
+      "actual_admissions_per_second": 16.189040663160643,
+      "admission_p50_latency_ns": 6895500.0,
+      "admission_p95_latency_ns": 11234600.0,
+      "admission_p99_latency_ns": 14189100.0,
+      "admission_success_ratio": 0.486328125,
+      "admitted": 249,
+      "cleanup_pass": true,
+      "connected": 249,
+      "effective_cores": 1.384235414454468,
+      "errors": 263,
+      "established_goodput_bytes_per_second": 80699706.06091163,
+      "established_p99_latency_ns": 348400.0,
+      "failed": 263,
+      "handshake_latency_ns": {
+        "50": 2415300,
+        "95": 4061600,
+        "99": 4784600
+      },
+      "offered_rate": 50,
+      "peak_pending_clients": 512.0,
+      "repeat_cv": 0.0010900463696239327,
+      "repeats": 3,
+      "requested": 512,
+      "resources": {
+        "cpu_seconds": 46.34375,
+        "peak_handles": 516.0,
+        "peak_private_bytes": 103657472.0,
+        "peak_processes": 4.0,
+        "peak_threads": 19.0,
+        "peak_working_set_bytes": 122728448.0
+      },
+      "started": 512,
+      "status": "SATURATED",
+      "timeouts": 263,
+      "valid": 3
+    }
+  ],
+  "classification": "PARTIAL",
+  "invalid_runs": 0,
+  "schema": "nbsr-b4b-task4i-analysis-v1",
+  "simultaneous_burst_result": "separate Task 4h diagnostic; not mixed into capacity",
+  "thresholds": {
+    "saturated_achieved_offered": 0.9,
+    "saturated_goodput_ratio": 0.75,
+    "saturated_p99_ratio": 2.0,
+    "stable_achieved_offered": 0.95,
+    "stable_cv": 0.05,
+    "stable_goodput_ratio": 0.9,
+    "stable_p99_ratio": 1.25
+  }
+}

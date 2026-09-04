@@ -1,0 +1,222 @@
+{
+  "cells": [
+    {
+      "destination_cleanup_seconds_median": 3.220001235604286e-05,
+      "host_counters_median": {
+        "available_bytes_max": 8069775360.0,
+        "available_bytes_median": 8031064064.0,
+        "committed_bytes_max": 8764542976.0,
+        "committed_bytes_median": 8713203712.0,
+        "context_switches_per_second_max": 47965.89074609834,
+        "context_switches_per_second_median": 44306.48358453668,
+        "processor_queue_length_max": 1.0,
+        "processor_queue_length_median": 0.0,
+        "processor_time_percent_max": 38.652465650486924,
+        "processor_time_percent_median": 24.905786955147356,
+        "sample_count": 31.0
+      },
+      "offered_rate": 25,
+      "ownership_high_water_median": {
+        "application_streams_high_water_live": 1,
+        "audit_queue_high_water_entries": 6,
+        "channel_registry_high_water_entries": 1,
+        "nbsr_tasks_high_water_live": 0,
+        "pending_routes_high_water_entries": 1,
+        "quic_connections_high_water_live": 1,
+        "quic_streams_high_water_live": 1,
+        "replay_state_high_water_entries": 1,
+        "service_channels_high_water_live": 1,
+        "stream_registry_high_water_entries": 1,
+        "transport_sessions_high_water_live": 1
+      },
+      "status": "BASELINE"
+    },
+    {
+      "destination_cleanup_seconds_median": 3.029999788850546e-05,
+      "host_counters_median": {
+        "available_bytes_max": 8056934400.0,
+        "available_bytes_median": 8042737664.0,
+        "committed_bytes_max": 8748777472.0,
+        "committed_bytes_median": 8708005888.0,
+        "context_switches_per_second_max": 45425.19220097517,
+        "context_switches_per_second_median": 41717.450472692835,
+        "processor_queue_length_max": 1.0,
+        "processor_queue_length_median": 0.0,
+        "processor_time_percent_max": 44.159425826471235,
+        "processor_time_percent_median": 25.69411011546642,
+        "sample_count": 31.0
+      },
+      "offered_rate": 50,
+      "ownership_high_water_median": {
+        "application_streams_high_water_live": 2,
+        "audit_queue_high_water_entries": 6,
+        "channel_registry_high_water_entries": 1,
+        "nbsr_tasks_high_water_live": 0,
+        "pending_routes_high_water_entries": 1,
+        "quic_connections_high_water_live": 2,
+        "quic_streams_high_water_live": 1,
+        "replay_state_high_water_entries": 1,
+        "service_channels_high_water_live": 2,
+        "stream_registry_high_water_entries": 1,
+        "transport_sessions_high_water_live": 2
+      },
+      "status": "SATURATED"
+    },
+    {
+      "destination_cleanup_seconds_median": 3.77000542357564e-05,
+      "host_counters_median": {
+        "available_bytes_max": 7981436928.0,
+        "available_bytes_median": 7961653248.0,
+        "committed_bytes_max": 8848441344.0,
+        "committed_bytes_median": 8789688320.0,
+        "context_switches_per_second_max": 44129.7224713275,
+        "context_switches_per_second_median": 40097.001056945664,
+        "processor_queue_length_max": 1.0,
+        "processor_queue_length_median": 0.0,
+        "processor_time_percent_max": 46.19934138543643,
+        "processor_time_percent_median": 24.408954332902198,
+        "sample_count": 31.0
+      },
+      "offered_rate": 75,
+      "ownership_high_water_median": {
+        "application_streams_high_water_live": 3,
+        "audit_queue_high_water_entries": 6,
+        "channel_registry_high_water_entries": 1,
+        "nbsr_tasks_high_water_live": 0,
+        "pending_routes_high_water_entries": 1,
+        "quic_connections_high_water_live": 3,
+        "quic_streams_high_water_live": 2,
+        "replay_state_high_water_entries": 1,
+        "service_channels_high_water_live": 3,
+        "stream_registry_high_water_entries": 1,
+        "transport_sessions_high_water_live": 3
+      },
+      "status": "STABLE"
+    },
+    {
+      "destination_cleanup_seconds_median": 4.220008850097656e-05,
+      "host_counters_median": {
+        "available_bytes_max": 7991885824.0,
+        "available_bytes_median": 7979659264.0,
+        "committed_bytes_max": 8797351936.0,
+        "committed_bytes_median": 8762605568.0,
+        "context_switches_per_second_max": 47625.214626789595,
+        "context_switches_per_second_median": 41242.25550812305,
+        "processor_queue_length_max": 0.0,
+        "processor_queue_length_median": 0.0,
+        "processor_time_percent_max": 52.42869730793813,
+        "processor_time_percent_median": 23.003066865329092,
+        "sample_count": 31.0
+      },
+      "offered_rate": 100,
+      "ownership_high_water_median": {
+        "application_streams_high_water_live": 4,
+        "audit_queue_high_water_entries": 6,
+        "channel_registry_high_water_entries": 1,
+        "nbsr_tasks_high_water_live": 0,
+        "pending_routes_high_water_entries": 1,
+        "quic_connections_high_water_live": 4,
+        "quic_streams_high_water_live": 2,
+        "replay_state_high_water_entries": 1,
+        "service_channels_high_water_live": 4,
+        "stream_registry_high_water_entries": 1,
+        "transport_sessions_high_water_live": 4
+      },
+      "status": "STABLE"
+    },
+    {
+      "destination_cleanup_seconds_median": 3.190001007169485e-05,
+      "host_counters_median": {
+        "available_bytes_max": 8012926976.0,
+        "available_bytes_median": 7955456000.0,
+        "committed_bytes_max": 8877748224.0,
+        "committed_bytes_median": 8795103232.0,
+        "context_switches_per_second_max": 49201.67662564434,
+        "context_switches_per_second_median": 40272.75368067776,
+        "processor_queue_length_max": 1.0,
+        "processor_queue_length_median": 0.0,
+        "processor_time_percent_max": 58.519200091874744,
+        "processor_time_percent_median": 23.674222131598988,
+        "sample_count": 31.0
+      },
+      "offered_rate": 125,
+      "ownership_high_water_median": {
+        "application_streams_high_water_live": 4,
+        "audit_queue_high_water_entries": 6,
+        "channel_registry_high_water_entries": 1,
+        "nbsr_tasks_high_water_live": 0,
+        "pending_routes_high_water_entries": 1,
+        "quic_connections_high_water_live": 5,
+        "quic_streams_high_water_live": 2,
+        "replay_state_high_water_entries": 1,
+        "service_channels_high_water_live": 4,
+        "stream_registry_high_water_entries": 1,
+        "transport_sessions_high_water_live": 5
+      },
+      "status": "STABLE"
+    },
+    {
+      "destination_cleanup_seconds_median": 3.4100026823580265e-05,
+      "host_counters_median": {
+        "available_bytes_max": 8035958784.0,
+        "available_bytes_median": 8017829888.0,
+        "committed_bytes_max": 8833060864.0,
+        "committed_bytes_median": 8736219136.0,
+        "context_switches_per_second_max": 50012.091451299675,
+        "context_switches_per_second_median": 41229.80292782934,
+        "processor_queue_length_max": 1.0,
+        "processor_queue_length_median": 0.0,
+        "processor_time_percent_max": 61.814936518514216,
+        "processor_time_percent_median": 22.897002914155017,
+        "sample_count": 31.0
+      },
+      "offered_rate": 150,
+      "ownership_high_water_median": {
+        "application_streams_high_water_live": 5,
+        "audit_queue_high_water_entries": 6,
+        "channel_registry_high_water_entries": 1,
+        "nbsr_tasks_high_water_live": 0,
+        "pending_routes_high_water_entries": 1,
+        "quic_connections_high_water_live": 10,
+        "quic_streams_high_water_live": 2,
+        "replay_state_high_water_entries": 1,
+        "service_channels_high_water_live": 6,
+        "stream_registry_high_water_entries": 1,
+        "transport_sessions_high_water_live": 10
+      },
+      "status": "DEGRADED"
+    },
+    {
+      "destination_cleanup_seconds_median": 2.9199989512562752e-05,
+      "host_counters_median": {
+        "available_bytes_max": 8046387200.0,
+        "available_bytes_median": 8022872064.0,
+        "committed_bytes_max": 8829665280.0,
+        "committed_bytes_median": 8723218432.0,
+        "context_switches_per_second_max": 52339.1524801962,
+        "context_switches_per_second_median": 40981.12278451983,
+        "processor_queue_length_max": 0.0,
+        "processor_queue_length_median": 0.0,
+        "processor_time_percent_max": 66.87171131723474,
+        "processor_time_percent_median": 23.273595387098013,
+        "sample_count": 31.0
+      },
+      "offered_rate": 200,
+      "ownership_high_water_median": {
+        "application_streams_high_water_live": 50,
+        "audit_queue_high_water_entries": 6,
+        "channel_registry_high_water_entries": 1,
+        "nbsr_tasks_high_water_live": 0,
+        "pending_routes_high_water_entries": 1,
+        "quic_connections_high_water_live": 120,
+        "quic_streams_high_water_live": 6,
+        "replay_state_high_water_entries": 1,
+        "service_channels_high_water_live": 76,
+        "stream_registry_high_water_entries": 1,
+        "transport_sessions_high_water_live": 107
+      },
+      "status": "SATURATED"
+    }
+  ],
+  "schema": "nbsr-b4b-task4i-telemetry-v1"
+}

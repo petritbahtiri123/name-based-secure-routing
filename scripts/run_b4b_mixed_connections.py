@@ -123,6 +123,13 @@ def diagnostics_cleanup(path: Path) -> dict[str, Any]:
     return {"all_zero": len(counters) == len(COUNTERS) and all(value == 0 for value in counters.values()), "counters": counters}
 
 
+def lifecycle_server_environment(base: dict[str, str], release_rate: float | None) -> dict[str, str]:
+    result = dict(base)
+    if release_rate is not None:
+        result["NBSR_PERF_LIFECYCLE_OFFERED_RATE"] = str(release_rate)
+    return result
+
+
 def lifecycle_client_command(
     binary: Path,
     endpoint: str,
@@ -134,9 +141,12 @@ def lifecycle_client_command(
     logical_clients: int | None = None,
     release_batch: int | None = None,
     release_interval_ms: int | None = None,
+    release_rate: float | None = None,
 ) -> list[str]:
     if (release_batch is None) != (release_interval_ms is None):
         raise ValueError("release batch and interval must be supplied together")
+    if release_rate is not None and release_batch is not None:
+        raise ValueError("release batch and offered rate are mutually exclusive")
     command = [
         str(binary),
         "--authority-dir",
@@ -164,6 +174,8 @@ def lifecycle_client_command(
     if release_batch is not None:
         command.extend(["--lifecycle-release-batch", str(release_batch),
                         "--lifecycle-release-interval-ms", str(release_interval_ms)])
+    if release_rate is not None:
+        command.extend(["--lifecycle-offered-rate", str(release_rate)])
     return command
 
 
@@ -180,6 +192,7 @@ def run_cell(
     timeline: bool = False,
     release_batch: int | None = None,
     release_interval_ms: int | None = None,
+    release_rate: float | None = None,
     packet_capture: Any = None,
 ) -> dict[str, Any]:
     stem = f"clients-{clients}-connections-{connections_per_client}-r{repeat}"
@@ -290,7 +303,7 @@ def run_cell(
                 lifecycle_server = subprocess.Popen(
                     server_argv,
                     cwd=ROOT,
-                    env={
+                    env=lifecycle_server_environment({
                         **os.environ,
                         "NBSR_PERF_LIFECYCLE_ROOT": str(lifecycle),
                         "NBSR_PERF_LIFECYCLE_CONNECTIONS": str(clients * connections_per_client),
@@ -299,7 +312,7 @@ def run_cell(
                         "NBSR_PERF_CONCURRENT_STREAMS": "1",
                         "NBSR_PERF_CONCURRENT_SESSIONS": "1",
                         "NBSR_BENCH_TIMELINE": destination_timeline.name if destination_timeline else "",
-                    },
+                    }, release_rate),
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
                     text=False,
@@ -322,6 +335,7 @@ def run_cell(
                     logical_clients=clients * connections_per_client,
                     release_batch=release_batch,
                     release_interval_ms=release_interval_ms,
+                    release_rate=release_rate,
                 )
                 client_commands.append(argv)
                 admission_stdout_file = admission_stdout_path.open("w", encoding="utf-8", newline="\n")
@@ -511,6 +525,7 @@ def run_cell(
                 "stderr_capture": stderr_capture,
                 "timeline_capture": timeline_capture,
                 "diagnostic_release": {"batch_size": release_batch, "interval_ms": release_interval_ms},
+                "offered_admission_rate": release_rate,
                 "packet_capture": packet_capture.report if packet_capture is not None else {"enabled": False, "valid": True},
                 "destination_cleanup_wait_seconds": destination_cleanup_seconds,
                 "saturation_failure": "; ".join(server_failures) if server_failures else None,
