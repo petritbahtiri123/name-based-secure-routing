@@ -1757,6 +1757,7 @@ fn main() {
                 for ordinal in 0..logical_clients {
                     let completion = completion.clone();
                     let slot = timeline.as_ref().and_then(|region| region.claim(ordinal));
+                    let release_gate = release_gate;
                     lifecycle_clients.spawn(async move {
                         let task_completion = completion.clone();
                         let run_slot = slot.clone();

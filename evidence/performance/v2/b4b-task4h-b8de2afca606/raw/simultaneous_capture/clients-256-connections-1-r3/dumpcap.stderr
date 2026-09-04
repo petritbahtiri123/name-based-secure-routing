@@ -1,0 +1,4 @@
+Capturing on 'Adapter for loopback traffic capture'
+File: evidence\performance\v2\b4b-task4h-b8de2afca606\raw\simultaneous_capture\clients-256-connections-1-r3\loopback.pcapng
+Packets captured: 7610
+Packets received/dropped on interface 'Adapter for loopback traffic capture': 7610/0 (pcap:0/dumpcap:0/flushed:0/ps_ifdrop:0) (100.0%)

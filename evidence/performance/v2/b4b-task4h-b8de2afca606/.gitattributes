@@ -1,0 +1,4 @@
+# Preserve raw Windows/packet evidence without normalization or source-style
+# whitespace checks; generated TShark TSV rows legitimately end in empty fields.
+raw/** -text -whitespace
+capture-source/** -text -whitespace

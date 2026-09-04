@@ -1,0 +1,90 @@
+{
+  "best_diagnostic_batch": 32,
+  "burst_rule": "supported only when batched median is >=99% and improves >=5 percentage points over simultaneous",
+  "burst_scheduling_supported": true,
+  "capture_observer_gate": {
+    "absolute_median_impact": {
+      "admission_p95_latency_ns": 0.019189531159880868,
+      "admission_p99_latency_ns": 0.021351281304105907,
+      "admission_rate": 0.07127323655085904,
+      "established_goodput_bytes_per_second": 0.15778118460653967,
+      "established_p95_latency_ns": 0.23049504950495048,
+      "established_p99_latency_ns": 0.22951281329203033,
+      "handshake_p95": 0.008618550851194229,
+      "handshake_p99": 0.008903474999260474
+    },
+    "cleanup_zero": true,
+    "pass": false,
+    "required_repeats": 5,
+    "success_shift_fraction": 0.06640625
+  },
+  "capture_usable_for_causal_attribution": false,
+  "cells": {
+    "batch16": {
+      "admissions_per_second": 94.51598677015828,
+      "admitted": 256,
+      "cleanup_zero": true,
+      "effective_cores": 1.396395088114668,
+      "gbps": 0.6418797095757978,
+      "p99_ns": 1133976600,
+      "peak_pending": 256,
+      "repeats": 5,
+      "valid": 5
+    },
+    "batch32": {
+      "admissions_per_second": 96.22433742157766,
+      "admitted": 256,
+      "cleanup_zero": true,
+      "effective_cores": 1.3857943233496135,
+      "gbps": 0.7004871439715674,
+      "p99_ns": 1165607300,
+      "peak_pending": 256,
+      "repeats": 5,
+      "valid": 5
+    },
+    "batch8": {
+      "admissions_per_second": 138.06835894319403,
+      "admitted": 256,
+      "cleanup_zero": true,
+      "effective_cores": 1.3787181040339955,
+      "gbps": 0.6603171985326143,
+      "p99_ns": 645696400,
+      "peak_pending": 256,
+      "repeats": 5,
+      "valid": 5
+    },
+    "simultaneous_capture": {
+      "admissions_per_second": 43.64610903135524,
+      "admitted": 233,
+      "cleanup_zero": true,
+      "effective_cores": 1.2980640332605937,
+      "gbps": 0.589412880551977,
+      "p99_ns": 3321684700,
+      "packet_capture": {
+        "first_reply_delay_p95_seconds": 3.040526866912842,
+        "flows": 256,
+        "flows_without_reply": 23,
+        "packets": 8810,
+        "repeated_initial_flows": 256,
+        "retry_packets": 0,
+        "valid": 5
+      },
+      "peak_pending": 256,
+      "repeats": 5,
+      "valid": 5
+    },
+    "simultaneous_off": {
+      "admissions_per_second": 40.742275212513555,
+      "admitted": 216,
+      "cleanup_zero": true,
+      "effective_cores": 1.375027785294814,
+      "gbps": 0.6998334278207978,
+      "p99_ns": 3252245100,
+      "peak_pending": 256,
+      "repeats": 5,
+      "valid": 5
+    }
+  },
+  "claim_boundary": "Batched results are diagnostic only, never capacity claims.",
+  "packet_attribution": "REJECTED_BY_OBSERVER_GATE"
+}
