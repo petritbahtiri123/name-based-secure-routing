@@ -1,0 +1,1548 @@
+{
+  "schema": "nbsr-b4b-task4j-analysis-v1",
+  "source": "evidence/performance/v2/b4b-task4i-fa46af05db79",
+  "classification": "HARNESS-LIMITED:admission-source-current-thread-runtime",
+  "attribution": {
+    "supported": true,
+    "completion_change_150_to_200_percent": -0.3964836652044945,
+    "admission_source_effective_core_peak": 0.9505980631035164,
+    "admission_destination_effective_core_peak": 0.5453209715612931,
+    "destination_validation_p99_growth_ratio_125_to_200": 1.0815323428539545,
+    "control_hello_p99_growth_ratio_125_to_200": 33.74441749888239,
+    "scope": "benchmark admission-source process scheduling; not production NBSR capacity"
+  },
+  "cells": [
+    {
+      "offered_rate": 125,
+      "repeat_count": 3,
+      "completion_rate_median": 119.81302335385337,
+      "achieved_percent": 95.8504186830827,
+      "successful_median": 512.0,
+      "peak_pending_clients_median": 512.0,
+      "effective_cores_median": 1.4681148847364451,
+      "host_cpu_percent_median": 23.674222131598988,
+      "memory_private_bytes_peak_median": 42356736.0,
+      "threads_peak_median": 19.0,
+      "handles_peak_median": 346.0,
+      "role_effective_cores_median": {
+        "admission-destination": 0.44178646239642055,
+        "admission-source": 0.7708587298535919,
+        "established-destination": 0.6781318816395873,
+        "established-source": 0.6845553580657237
+      },
+      "occupancy_peak_median": {
+        "transport_establishment": 1.0,
+        "control_and_route_admission": 0.0,
+        "channel_and_application_activation": 0.0,
+        "application_and_close": 0.0
+      },
+      "queue_peak_median": {
+        "pending_routes": 0.0,
+        "audit": 3.0
+      },
+      "stage_latency_median": {
+        "transport_handshake": {
+          "p50_ms": 3.668,
+          "p95_ms": 8.52441,
+          "p99_ms": 10.439298
+        },
+        "control_hello": {
+          "p50_ms": 0.95055,
+          "p95_ms": 4.142054999999999,
+          "p99_ms": 6.415403999999997
+        },
+        "source_admission": {
+          "p50_ms": 0.3484,
+          "p95_ms": 0.5411,
+          "p99_ms": 0.597012
+        },
+        "route_open": {
+          "p50_ms": 1.9631,
+          "p95_ms": 4.692059999999999,
+          "p99_ms": 6.372651
+        },
+        "channel_binding": {
+          "p50_ms": 0.0178,
+          "p95_ms": 0.0272,
+          "p99_ms": 0.03495699999999999
+        },
+        "stream_open": {
+          "p50_ms": 1.57715,
+          "p95_ms": 4.495799999999999,
+          "p99_ms": 5.852742
+        },
+        "total_scenario": {
+          "p50_ms": 13.2625,
+          "p95_ms": 26.80661,
+          "p99_ms": 32.228666999999994
+        },
+        "destination_admission": {
+          "p50_ms": 0.3679,
+          "p95_ms": 0.54389,
+          "p99_ms": 0.5735269999999999
+        },
+        "application_processing": {
+          "p50_ms": 0.0094,
+          "p95_ms": 0.015489999999999999,
+          "p99_ms": 0.018677999999999997
+        }
+      },
+      "repeats": [
+        {
+          "repeat": 1,
+          "valid": true,
+          "offered_rate": 125.0,
+          "completion_rate": 120.53280868751627,
+          "successful": 512,
+          "requested": 512,
+          "peak_pending_clients": 512,
+          "effective_cores": 1.4681148847364451,
+          "host_cpu_percent": 31.4688524486755,
+          "memory_private_bytes_peak": 42921984.0,
+          "thread_count_peak": 19,
+          "handle_count_peak": 347,
+          "resource_roles": {
+            "admission-destination": {
+              "effective_cores": 0.44178646239642055,
+              "peak_threads": 5,
+              "peak_handles": 84,
+              "peak_private_bytes": 6692864
+            },
+            "admission-source": {
+              "effective_cores": 0.7772010302698772,
+              "peak_threads": 5,
+              "peak_handles": 100,
+              "peak_private_bytes": 33071104
+            },
+            "established-destination": {
+              "effective_cores": 0.6781318816395873,
+              "peak_threads": 5,
+              "peak_handles": 83,
+              "peak_private_bytes": 1957888
+            },
+            "established-source": {
+              "effective_cores": 0.683475327698352,
+              "peak_threads": 4,
+              "peak_handles": 81,
+              "peak_private_bytes": 10493952
+            }
+          },
+          "stage_latency": {
+            "transport_handshake": {
+              "p50_ms": 3.5882,
+              "p95_ms": 9.089415,
+              "p99_ms": 11.443384
+            },
+            "control_hello": {
+              "p50_ms": 0.8943,
+              "p95_ms": 4.142054999999999,
+              "p99_ms": 8.347402999999996
+            },
+            "source_admission": {
+              "p50_ms": 0.35325,
+              "p95_ms": 0.56923,
+              "p99_ms": 0.61389
+            },
+            "route_open": {
+              "p50_ms": 1.9631,
+              "p95_ms": 4.692059999999999,
+              "p99_ms": 6.577515999999997
+            },
+            "channel_binding": {
+              "p50_ms": 0.0184,
+              "p95_ms": 0.0272,
+              "p99_ms": 0.03495699999999999
+            },
+            "stream_open": {
+              "p50_ms": 1.60965,
+              "p95_ms": 4.702604999999999,
+              "p99_ms": 6.115374999999999
+            },
+            "total_scenario": {
+              "p50_ms": 13.2625,
+              "p95_ms": 27.54952,
+              "p99_ms": 37.421530999999995
+            },
+            "destination_admission": {
+              "p50_ms": 0.38445,
+              "p95_ms": 0.5779,
+              "p99_ms": 0.621945
+            },
+            "application_processing": {
+              "p50_ms": 0.0096,
+              "p95_ms": 0.015489999999999999,
+              "p99_ms": 0.018544999999999992
+            }
+          },
+          "diagnostics": {
+            "duration_seconds": 5.1448956,
+            "occupancy_peak": {
+              "transport_establishment": 0,
+              "control_and_route_admission": 1,
+              "channel_and_application_activation": 1,
+              "application_and_close": 0
+            },
+            "occupancy_mean": {
+              "transport_establishment": 0.0,
+              "control_and_route_admission": 0.14285714285714285,
+              "channel_and_application_activation": 0.2857142857142857,
+              "application_and_close": 0.0
+            },
+            "completion_rate_per_second": {
+              "quic_connections": 99.51611068648313,
+              "transport_sessions": 99.51611068648313,
+              "service_channels": 99.51611068648313,
+              "application_streams": 99.51611068648313
+            },
+            "queue_peak": {
+              "pending_routes": 0,
+              "audit": 3
+            },
+            "final_live": {
+              "quic_connections": 0,
+              "transport_sessions": 0,
+              "service_channels": 0,
+              "application_streams": 0
+            }
+          }
+        },
+        {
+          "repeat": 2,
+          "valid": true,
+          "offered_rate": 125.0,
+          "completion_rate": 118.36372506889442,
+          "successful": 512,
+          "requested": 512,
+          "peak_pending_clients": 512,
+          "effective_cores": 1.467961392056897,
+          "host_cpu_percent": 23.674222131598988,
+          "memory_private_bytes_peak": 41984000.0,
+          "thread_count_peak": 19,
+          "handle_count_peak": 346,
+          "resource_roles": {
+            "admission-destination": {
+              "effective_cores": 0.41734235211792897,
+              "peak_threads": 5,
+              "peak_handles": 84,
+              "peak_private_bytes": 7049216
+            },
+            "admission-source": {
+              "effective_cores": 0.7614263217017251,
+              "peak_threads": 5,
+              "peak_handles": 99,
+              "peak_private_bytes": 32419840
+            },
+            "established-destination": {
+              "effective_cores": 0.6585083105611084,
+              "peak_threads": 5,
+              "peak_handles": 83,
+              "peak_private_bytes": 1908736
+            },
+            "established-source": {
+              "effective_cores": 0.7090506458366473,
+              "peak_threads": 4,
+              "peak_handles": 81,
+              "peak_private_bytes": 19742720
+            }
+          },
+          "stage_latency": {
+            "transport_handshake": {
+              "p50_ms": 3.6921,
+              "p95_ms": 8.52441,
+              "p99_ms": 10.439298
+            },
+            "control_hello": {
+              "p50_ms": 1.42605,
+              "p95_ms": 4.820399999999999,
+              "p99_ms": 6.415403999999997
+            },
+            "source_admission": {
+              "p50_ms": 0.3431,
+              "p95_ms": 0.53939,
+              "p99_ms": 0.571289
+            },
+            "route_open": {
+              "p50_ms": 1.9907,
+              "p95_ms": 4.770094999999999,
+              "p99_ms": 6.372651
+            },
+            "channel_binding": {
+              "p50_ms": 0.01715,
+              "p95_ms": 0.0256,
+              "p99_ms": 0.030289
+            },
+            "stream_open": {
+              "p50_ms": 1.56655,
+              "p95_ms": 4.39673,
+              "p99_ms": 5.827975999999999
+            },
+            "total_scenario": {
+              "p50_ms": 13.2402,
+              "p95_ms": 26.80661,
+              "p99_ms": 32.228666999999994
+            },
+            "destination_admission": {
+              "p50_ms": 0.36105,
+              "p95_ms": 0.54389,
+              "p99_ms": 0.5735269999999999
+            },
+            "application_processing": {
+              "p50_ms": 0.0084,
+              "p95_ms": 0.0137,
+              "p99_ms": 0.019278999999999987
+            }
+          },
+          "diagnostics": {
+            "duration_seconds": 5.1462449,
+            "occupancy_peak": {
+              "transport_establishment": 1,
+              "control_and_route_admission": 0,
+              "channel_and_application_activation": 0,
+              "application_and_close": 1
+            },
+            "occupancy_mean": {
+              "transport_establishment": 0.14285714285714285,
+              "control_and_route_admission": 0.0,
+              "channel_and_application_activation": 0.0,
+              "application_and_close": 0.2857142857142857
+            },
+            "completion_rate_per_second": {
+              "quic_connections": 99.49001844043605,
+              "transport_sessions": 99.49001844043605,
+              "service_channels": 99.49001844043605,
+              "application_streams": 99.49001844043605
+            },
+            "queue_peak": {
+              "pending_routes": 0,
+              "audit": 5
+            },
+            "final_live": {
+              "quic_connections": 0,
+              "transport_sessions": 0,
+              "service_channels": 0,
+              "application_streams": 0
+            }
+          }
+        },
+        {
+          "repeat": 3,
+          "valid": true,
+          "offered_rate": 125.0,
+          "completion_rate": 119.81302335385337,
+          "successful": 512,
+          "requested": 512,
+          "peak_pending_clients": 512,
+          "effective_cores": 1.4859335230971953,
+          "host_cpu_percent": 23.486282674507198,
+          "memory_private_bytes_peak": 42356736.0,
+          "thread_count_peak": 19,
+          "handle_count_peak": 346,
+          "resource_roles": {
+            "admission-destination": {
+              "effective_cores": 0.46727149728136363,
+              "peak_threads": 5,
+              "peak_handles": 84,
+              "peak_private_bytes": 6938624
+            },
+            "admission-source": {
+              "effective_cores": 0.7708587298535919,
+              "peak_threads": 5,
+              "peak_handles": 98,
+              "peak_private_bytes": 32358400
+            },
+            "established-destination": {
+              "effective_cores": 0.6918430304368988,
+              "peak_threads": 5,
+              "peak_handles": 83,
+              "peak_private_bytes": 2039808
+            },
+            "established-source": {
+              "effective_cores": 0.6845553580657237,
+              "peak_threads": 4,
+              "peak_handles": 81,
+              "peak_private_bytes": 19099648
+            }
+          },
+          "stage_latency": {
+            "transport_handshake": {
+              "p50_ms": 3.668,
+              "p95_ms": 7.64696,
+              "p99_ms": 9.908335999999997
+            },
+            "control_hello": {
+              "p50_ms": 0.95055,
+              "p95_ms": 3.7959999999999994,
+              "p99_ms": 5.202143999999999
+            },
+            "source_admission": {
+              "p50_ms": 0.3484,
+              "p95_ms": 0.5411,
+              "p99_ms": 0.597012
+            },
+            "route_open": {
+              "p50_ms": 1.89315,
+              "p95_ms": 4.2060249999999995,
+              "p99_ms": 5.598282999999999
+            },
+            "channel_binding": {
+              "p50_ms": 0.0178,
+              "p95_ms": 0.0274,
+              "p99_ms": 0.03822799999999993
+            },
+            "stream_open": {
+              "p50_ms": 1.57715,
+              "p95_ms": 4.495799999999999,
+              "p99_ms": 5.852742
+            },
+            "total_scenario": {
+              "p50_ms": 13.39175,
+              "p95_ms": 25.342984999999995,
+              "p99_ms": 30.43887599999998
+            },
+            "destination_admission": {
+              "p50_ms": 0.3679,
+              "p95_ms": 0.535245,
+              "p99_ms": 0.56387
+            },
+            "application_processing": {
+              "p50_ms": 0.0094,
+              "p95_ms": 0.015844999999999998,
+              "p99_ms": 0.018677999999999997
+            }
+          },
+          "diagnostics": {
+            "duration_seconds": 5.1424842,
+            "occupancy_peak": {
+              "transport_establishment": 1,
+              "control_and_route_admission": 0,
+              "channel_and_application_activation": 0,
+              "application_and_close": 0
+            },
+            "occupancy_mean": {
+              "transport_establishment": 0.2857142857142857,
+              "control_and_route_admission": 0.0,
+              "channel_and_application_activation": 0.0,
+              "application_and_close": 0.0
+            },
+            "completion_rate_per_second": {
+              "quic_connections": 99.56277551616006,
+              "transport_sessions": 99.56277551616006,
+              "service_channels": 99.56277551616006,
+              "application_streams": 99.56277551616006
+            },
+            "queue_peak": {
+              "pending_routes": 0,
+              "audit": 0
+            },
+            "final_live": {
+              "quic_connections": 0,
+              "transport_sessions": 0,
+              "service_channels": 0,
+              "application_streams": 0
+            }
+          }
+        }
+      ]
+    },
+    {
+      "offered_rate": 150,
+      "repeat_count": 3,
+      "completion_rate_median": 139.51118278627845,
+      "achieved_percent": 93.00745519085231,
+      "successful_median": 512.0,
+      "peak_pending_clients_median": 512.0,
+      "effective_cores_median": 1.4872099009201507,
+      "host_cpu_percent_median": 22.897002914155017,
+      "memory_private_bytes_peak_median": 45596672.0,
+      "threads_peak_median": 19.0,
+      "handles_peak_median": 351.0,
+      "role_effective_cores_median": {
+        "admission-destination": 0.5453209715612931,
+        "admission-source": 0.9505980631035164,
+        "established-destination": 0.6731457024325238,
+        "established-source": 0.699353249607258
+      },
+      "occupancy_peak_median": {
+        "transport_establishment": 0.0,
+        "control_and_route_admission": 1.0,
+        "channel_and_application_activation": 1.0,
+        "application_and_close": 1.0
+      },
+      "queue_peak_median": {
+        "pending_routes": 1.0,
+        "audit": 5.0
+      },
+      "stage_latency_median": {
+        "transport_handshake": {
+          "p50_ms": 3.29575,
+          "p95_ms": 9.214345,
+          "p99_ms": 11.726632999999998
+        },
+        "control_hello": {
+          "p50_ms": 0.811,
+          "p95_ms": 4.866254999999998,
+          "p99_ms": 7.3152159999999915
+        },
+        "source_admission": {
+          "p50_ms": 0.3581,
+          "p95_ms": 0.559365,
+          "p99_ms": 0.594402
+        },
+        "route_open": {
+          "p50_ms": 2.2289,
+          "p95_ms": 5.034875,
+          "p99_ms": 6.473588
+        },
+        "channel_binding": {
+          "p50_ms": 0.0179,
+          "p95_ms": 0.027845,
+          "p99_ms": 0.032989
+        },
+        "stream_open": {
+          "p50_ms": 1.8739,
+          "p95_ms": 5.649379999999999,
+          "p99_ms": 7.585688999999996
+        },
+        "total_scenario": {
+          "p50_ms": 12.3872,
+          "p95_ms": 33.10595999999999,
+          "p99_ms": 45.5210159999999
+        },
+        "destination_admission": {
+          "p50_ms": 0.3903,
+          "p95_ms": 0.56177,
+          "p99_ms": 0.5992949999999999
+        },
+        "application_processing": {
+          "p50_ms": 0.01,
+          "p95_ms": 0.016089999999999997,
+          "p99_ms": 0.022378999999999986
+        }
+      },
+      "repeats": [
+        {
+          "repeat": 1,
+          "valid": true,
+          "offered_rate": 150.0,
+          "completion_rate": 140.477356872157,
+          "successful": 512,
+          "requested": 512,
+          "peak_pending_clients": 512,
+          "effective_cores": 1.4887871119363674,
+          "host_cpu_percent": 22.00743916754958,
+          "memory_private_bytes_peak": 45596672.0,
+          "thread_count_peak": 19,
+          "handle_count_peak": 351,
+          "resource_roles": {
+            "admission-destination": {
+              "effective_cores": 0.5453209715612931,
+              "peak_threads": 5,
+              "peak_handles": 84,
+              "peak_private_bytes": 7565312
+            },
+            "admission-source": {
+              "effective_cores": 0.9505980631035164,
+              "peak_threads": 5,
+              "peak_handles": 104,
+              "peak_private_bytes": 34979840
+            },
+            "established-destination": {
+              "effective_cores": 0.6731457024325238,
+              "peak_threads": 5,
+              "peak_handles": 83,
+              "peak_private_bytes": 1925120
+            },
+            "established-source": {
+              "effective_cores": 0.699353249607258,
+              "peak_threads": 4,
+              "peak_handles": 81,
+              "peak_private_bytes": 20021248
+            }
+          },
+          "stage_latency": {
+            "transport_handshake": {
+              "p50_ms": 3.26175,
+              "p95_ms": 8.472025,
+              "p99_ms": 10.694627999999993
+            },
+            "control_hello": {
+              "p50_ms": 0.811,
+              "p95_ms": 4.346824999999999,
+              "p99_ms": 7.202777999999995
+            },
+            "source_admission": {
+              "p50_ms": 0.35,
+              "p95_ms": 0.542525,
+              "p99_ms": 0.564379
+            },
+            "route_open": {
+              "p50_ms": 2.19885,
+              "p95_ms": 4.53742,
+              "p99_ms": 6.446116999999999
+            },
+            "channel_binding": {
+              "p50_ms": 0.0178,
+              "p95_ms": 0.027845,
+              "p99_ms": 0.032989
+            },
+            "stream_open": {
+              "p50_ms": 1.74725,
+              "p95_ms": 5.449985,
+              "p99_ms": 7.585688999999996
+            },
+            "total_scenario": {
+              "p50_ms": 12.0484,
+              "p95_ms": 29.557674999999996,
+              "p99_ms": 45.5210159999999
+            },
+            "destination_admission": {
+              "p50_ms": 0.37905,
+              "p95_ms": 0.55324,
+              "p99_ms": 0.583425
+            },
+            "application_processing": {
+              "p50_ms": 0.0097,
+              "p95_ms": 0.015244999999999998,
+              "p99_ms": 0.01822299999999999
+            }
+          },
+          "diagnostics": {
+            "duration_seconds": 4.4584552,
+            "occupancy_peak": {
+              "transport_establishment": 0,
+              "control_and_route_admission": 1,
+              "channel_and_application_activation": 1,
+              "application_and_close": 1
+            },
+            "occupancy_mean": {
+              "transport_establishment": 0.0,
+              "control_and_route_admission": 0.16666666666666666,
+              "channel_and_application_activation": 0.5,
+              "application_and_close": 0.16666666666666666
+            },
+            "completion_rate_per_second": {
+              "quic_connections": 114.83798244737324,
+              "transport_sessions": 114.83798244737324,
+              "service_channels": 114.83798244737324,
+              "application_streams": 114.83798244737324
+            },
+            "queue_peak": {
+              "pending_routes": 1,
+              "audit": 3
+            },
+            "final_live": {
+              "quic_connections": 0,
+              "transport_sessions": 0,
+              "service_channels": 0,
+              "application_streams": 0
+            }
+          }
+        },
+        {
+          "repeat": 2,
+          "valid": true,
+          "offered_rate": 150.0,
+          "completion_rate": 139.20333875131422,
+          "successful": 512,
+          "requested": 512,
+          "peak_pending_clients": 512,
+          "effective_cores": 1.474014565443965,
+          "host_cpu_percent": 27.98270801316065,
+          "memory_private_bytes_peak": 42782720.0,
+          "thread_count_peak": 19,
+          "handle_count_peak": 350,
+          "resource_roles": {
+            "admission-destination": {
+              "effective_cores": 0.5333170236339122,
+              "peak_threads": 5,
+              "peak_handles": 84,
+              "peak_private_bytes": 8048640
+            },
+            "admission-source": {
+              "effective_cores": 0.9017457798297505,
+              "peak_threads": 5,
+              "peak_handles": 103,
+              "peak_private_bytes": 32538624
+            },
+            "established-destination": {
+              "effective_cores": 0.6772366712451973,
+              "peak_threads": 5,
+              "peak_handles": 84,
+              "peak_private_bytes": 1998848
+            },
+            "established-source": {
+              "effective_cores": 0.6868067686473857,
+              "peak_threads": 4,
+              "peak_handles": 81,
+              "peak_private_bytes": 18776064
+            }
+          },
+          "stage_latency": {
+            "transport_handshake": {
+              "p50_ms": 3.29575,
+              "p95_ms": 9.214345,
+              "p99_ms": 11.726632999999998
+            },
+            "control_hello": {
+              "p50_ms": 0.79485,
+              "p95_ms": 4.866254999999998,
+              "p99_ms": 7.3152159999999915
+            },
+            "source_admission": {
+              "p50_ms": 0.3581,
+              "p95_ms": 0.559365,
+              "p99_ms": 0.594402
+            },
+            "route_open": {
+              "p50_ms": 2.2289,
+              "p95_ms": 5.034875,
+              "p99_ms": 6.473588
+            },
+            "channel_binding": {
+              "p50_ms": 0.0179,
+              "p95_ms": 0.027289999999999995,
+              "p99_ms": 0.03245599999999999
+            },
+            "stream_open": {
+              "p50_ms": 1.8739,
+              "p95_ms": 5.649379999999999,
+              "p99_ms": 7.496244
+            },
+            "total_scenario": {
+              "p50_ms": 12.3872,
+              "p95_ms": 33.10595999999999,
+              "p99_ms": 38.448407
+            },
+            "destination_admission": {
+              "p50_ms": 0.3903,
+              "p95_ms": 0.56177,
+              "p99_ms": 0.5992949999999999
+            },
+            "application_processing": {
+              "p50_ms": 0.01,
+              "p95_ms": 0.016089999999999997,
+              "p99_ms": 0.022378999999999986
+            }
+          },
+          "diagnostics": {
+            "duration_seconds": 4.4632938,
+            "occupancy_peak": {
+              "transport_establishment": 0,
+              "control_and_route_admission": 1,
+              "channel_and_application_activation": 1,
+              "application_and_close": 1
+            },
+            "occupancy_mean": {
+              "transport_establishment": 0.0,
+              "control_and_route_admission": 0.16666666666666666,
+              "channel_and_application_activation": 0.16666666666666666,
+              "application_and_close": 0.16666666666666666
+            },
+            "completion_rate_per_second": {
+              "quic_connections": 114.71348805225415,
+              "transport_sessions": 114.71348805225415,
+              "service_channels": 114.71348805225415,
+              "application_streams": 114.71348805225415
+            },
+            "queue_peak": {
+              "pending_routes": 1,
+              "audit": 5
+            },
+            "final_live": {
+              "quic_connections": 0,
+              "transport_sessions": 0,
+              "service_channels": 0,
+              "application_streams": 0
+            }
+          }
+        },
+        {
+          "repeat": 3,
+          "valid": true,
+          "offered_rate": 150.0,
+          "completion_rate": 139.51118278627845,
+          "successful": 512,
+          "requested": 512,
+          "peak_pending_clients": 512,
+          "effective_cores": 1.4872099009201507,
+          "host_cpu_percent": 22.897002914155017,
+          "memory_private_bytes_peak": 50364416.0,
+          "thread_count_peak": 19,
+          "handle_count_peak": 382,
+          "resource_roles": {
+            "admission-destination": {
+              "effective_cores": 0.5813981571507114,
+              "peak_threads": 5,
+              "peak_handles": 84,
+              "peak_private_bytes": 13623296
+            },
+            "admission-source": {
+              "effective_cores": 1.015169155801147,
+              "peak_threads": 5,
+              "peak_handles": 135,
+              "peak_private_bytes": 35065856
+            },
+            "established-destination": {
+              "effective_cores": 0.6517038981828169,
+              "peak_threads": 5,
+              "peak_handles": 83,
+              "peak_private_bytes": 2011136
+            },
+            "established-source": {
+              "effective_cores": 0.7100219203915701,
+              "peak_threads": 4,
+              "peak_handles": 81,
+              "peak_private_bytes": 19689472
+            }
+          },
+          "stage_latency": {
+            "transport_handshake": {
+              "p50_ms": 9.7927,
+              "p95_ms": 28.935544999999998,
+              "p99_ms": 38.895742
+            },
+            "control_hello": {
+              "p50_ms": 5.4035,
+              "p95_ms": 19.083394999999996,
+              "p99_ms": 24.232565999999995
+            },
+            "source_admission": {
+              "p50_ms": 0.37785,
+              "p95_ms": 0.60449,
+              "p99_ms": 0.7254869999999995
+            },
+            "route_open": {
+              "p50_ms": 5.61565,
+              "p95_ms": 19.025155,
+              "p99_ms": 24.761852999999995
+            },
+            "channel_binding": {
+              "p50_ms": 0.02,
+              "p95_ms": 0.031089999999999996,
+              "p99_ms": 0.03926899999999997
+            },
+            "stream_open": {
+              "p50_ms": 5.96815,
+              "p95_ms": 19.432,
+              "p99_ms": 24.790220999999995
+            },
+            "total_scenario": {
+              "p50_ms": 37.2382,
+              "p95_ms": 114.203215,
+              "p99_ms": 139.860026
+            },
+            "destination_admission": {
+              "p50_ms": 0.4894,
+              "p95_ms": 0.601725,
+              "p99_ms": 0.6676299999999998
+            },
+            "application_processing": {
+              "p50_ms": 0.0114,
+              "p95_ms": 0.018634999999999995,
+              "p99_ms": 0.025489
+            }
+          },
+          "diagnostics": {
+            "duration_seconds": 4.4671611,
+            "occupancy_peak": {
+              "transport_establishment": 1,
+              "control_and_route_admission": 2,
+              "channel_and_application_activation": 1,
+              "application_and_close": 4
+            },
+            "occupancy_mean": {
+              "transport_establishment": 0.16666666666666666,
+              "control_and_route_admission": 0.5,
+              "channel_and_application_activation": 0.5,
+              "application_and_close": 0.8333333333333334
+            },
+            "completion_rate_per_second": {
+              "quic_connections": 114.61417856633824,
+              "transport_sessions": 114.61417856633824,
+              "service_channels": 114.61417856633824,
+              "application_streams": 114.61417856633824
+            },
+            "queue_peak": {
+              "pending_routes": 1,
+              "audit": 5
+            },
+            "final_live": {
+              "quic_connections": 0,
+              "transport_sessions": 0,
+              "service_channels": 0,
+              "application_streams": 0
+            }
+          }
+        }
+      ]
+    },
+    {
+      "offered_rate": 200,
+      "repeat_count": 5,
+      "completion_rate_median": 138.95804373539727,
+      "achieved_percent": 69.47902186769863,
+      "successful_median": 512.0,
+      "peak_pending_clients_median": 512.0,
+      "effective_cores_median": 1.4849467923478503,
+      "host_cpu_percent_median": 23.273595387098013,
+      "memory_private_bytes_peak_median": 146432000.0,
+      "threads_peak_median": 19.0,
+      "handles_peak_median": 547.0,
+      "role_effective_cores_median": {
+        "admission-destination": 0.530748438546452,
+        "admission-source": 0.8808281509632906,
+        "established-destination": 0.6778738649245857,
+        "established-source": 0.7078275462435446
+      },
+      "occupancy_peak_median": {
+        "transport_establishment": 12.0,
+        "control_and_route_admission": 21.0,
+        "channel_and_application_activation": 24.0,
+        "application_and_close": 27.0
+      },
+      "queue_peak_median": {
+        "pending_routes": 0.0,
+        "audit": 5.0
+      },
+      "stage_latency_median": {
+        "transport_handshake": {
+          "p50_ms": 95.95705,
+          "p95_ms": 201.04951,
+          "p99_ms": 222.00214899999997
+        },
+        "control_hello": {
+          "p50_ms": 98.9797,
+          "p95_ms": 194.22382999999996,
+          "p99_ms": 216.484071
+        },
+        "source_admission": {
+          "p50_ms": 0.3689,
+          "p95_ms": 0.592015,
+          "p99_ms": 0.6284849999999998
+        },
+        "route_open": {
+          "p50_ms": 88.3132,
+          "p95_ms": 193.285945,
+          "p99_ms": 212.470302
+        },
+        "channel_binding": {
+          "p50_ms": 0.01825,
+          "p95_ms": 0.029445,
+          "p99_ms": 0.045778
+        },
+        "stream_open": {
+          "p50_ms": 80.30575,
+          "p95_ms": 193.855625,
+          "p99_ms": 219.977894
+        },
+        "total_scenario": {
+          "p50_ms": 505.6494,
+          "p95_ms": 862.133075,
+          "p99_ms": 883.101043
+        },
+        "destination_admission": {
+          "p50_ms": 0.44115,
+          "p95_ms": 0.58589,
+          "p99_ms": 0.6202879999999998
+        },
+        "application_processing": {
+          "p50_ms": 0.0085,
+          "p95_ms": 0.015444999999999999,
+          "p99_ms": 0.020822999999999987
+        }
+      },
+      "repeats": [
+        {
+          "repeat": 1,
+          "valid": true,
+          "offered_rate": 200.0,
+          "completion_rate": 138.95804373539727,
+          "successful": 512,
+          "requested": 512,
+          "peak_pending_clients": 512,
+          "effective_cores": 1.468674601671085,
+          "host_cpu_percent": 23.273595387098013,
+          "memory_private_bytes_peak": 146432000.0,
+          "thread_count_peak": 19,
+          "handle_count_peak": 547,
+          "resource_roles": {
+            "admission-destination": {
+              "effective_cores": 0.5622671185983414,
+              "peak_threads": 5,
+              "peak_handles": 84,
+              "peak_private_bytes": 55156736
+            },
+            "admission-source": {
+              "effective_cores": 0.8808281509632906,
+              "peak_threads": 5,
+              "peak_handles": 300,
+              "peak_private_bytes": 88649728
+            },
+            "established-destination": {
+              "effective_cores": 0.691204041900571,
+              "peak_threads": 5,
+              "peak_handles": 83,
+              "peak_private_bytes": 1912832
+            },
+            "established-source": {
+              "effective_cores": 0.6742032397456027,
+              "peak_threads": 4,
+              "peak_handles": 81,
+              "peak_private_bytes": 19591168
+            }
+          },
+          "stage_latency": {
+            "transport_handshake": {
+              "p50_ms": 95.95705,
+              "p95_ms": 201.04951,
+              "p99_ms": 222.00214899999997
+            },
+            "control_hello": {
+              "p50_ms": 98.9797,
+              "p95_ms": 194.22382999999996,
+              "p99_ms": 216.484071
+            },
+            "source_admission": {
+              "p50_ms": 0.3689,
+              "p95_ms": 0.592015,
+              "p99_ms": 0.6284849999999998
+            },
+            "route_open": {
+              "p50_ms": 88.3132,
+              "p95_ms": 193.285945,
+              "p99_ms": 212.470302
+            },
+            "channel_binding": {
+              "p50_ms": 0.01825,
+              "p95_ms": 0.029445,
+              "p99_ms": 0.056309999999999874
+            },
+            "stream_open": {
+              "p50_ms": 80.30575,
+              "p95_ms": 193.855625,
+              "p99_ms": 219.977894
+            },
+            "total_scenario": {
+              "p50_ms": 505.6494,
+              "p95_ms": 862.133075,
+              "p99_ms": 883.101043
+            },
+            "destination_admission": {
+              "p50_ms": 0.44115,
+              "p95_ms": 0.58589,
+              "p99_ms": 0.6155839999999999
+            },
+            "application_processing": {
+              "p50_ms": 0.0083,
+              "p95_ms": 0.015444999999999999,
+              "p99_ms": 0.020822999999999987
+            }
+          },
+          "diagnostics": {
+            "duration_seconds": 3.9664027,
+            "occupancy_peak": {
+              "transport_establishment": 12,
+              "control_and_route_admission": 21,
+              "channel_and_application_activation": 24,
+              "application_and_close": 27
+            },
+            "occupancy_mean": {
+              "transport_establishment": 3.2,
+              "control_and_route_admission": 5.8,
+              "channel_and_application_activation": 5.8,
+              "application_and_close": 7.0
+            },
+            "completion_rate_per_second": {
+              "quic_connections": 129.08422031882944,
+              "transport_sessions": 129.08422031882944,
+              "service_channels": 129.08422031882944,
+              "application_streams": 129.08422031882944
+            },
+            "queue_peak": {
+              "pending_routes": 0,
+              "audit": 5
+            },
+            "final_live": {
+              "quic_connections": 0,
+              "transport_sessions": 0,
+              "service_channels": 0,
+              "application_streams": 0
+            }
+          }
+        },
+        {
+          "repeat": 2,
+          "valid": true,
+          "offered_rate": 200.0,
+          "completion_rate": 109.12191428394729,
+          "successful": 512,
+          "requested": 512,
+          "peak_pending_clients": 512,
+          "effective_cores": 1.5033110555532567,
+          "host_cpu_percent": 30.62533349446238,
+          "memory_private_bytes_peak": 212783104.0,
+          "thread_count_peak": 19,
+          "handle_count_peak": 640,
+          "resource_roles": {
+            "admission-destination": {
+              "effective_cores": 0.5142633294864759,
+              "peak_threads": 5,
+              "peak_handles": 84,
+              "peak_private_bytes": 82509824
+            },
+            "admission-source": {
+              "effective_cores": 0.8009927073680573,
+              "peak_threads": 5,
+              "peak_handles": 393,
+              "peak_private_bytes": 127029248
+            },
+            "established-destination": {
+              "effective_cores": 0.6799521391912755,
+              "peak_threads": 5,
+              "peak_handles": 83,
+              "peak_private_bytes": 1974272
+            },
+            "established-source": {
+              "effective_cores": 0.7037165149547366,
+              "peak_threads": 4,
+              "peak_handles": 81,
+              "peak_private_bytes": 17723392
+            }
+          },
+          "stage_latency": {
+            "transport_handshake": {
+              "p50_ms": 172.12975,
+              "p95_ms": 340.594375,
+              "p99_ms": 357.628673
+            },
+            "control_hello": {
+              "p50_ms": 179.91115,
+              "p95_ms": 331.65781,
+              "p99_ms": 358.465332
+            },
+            "source_admission": {
+              "p50_ms": 0.45585,
+              "p95_ms": 0.6664349999999999,
+              "p99_ms": 0.8370539999999996
+            },
+            "route_open": {
+              "p50_ms": 168.3508,
+              "p95_ms": 329.58034,
+              "p99_ms": 355.341041
+            },
+            "channel_binding": {
+              "p50_ms": 0.0206,
+              "p95_ms": 0.030345,
+              "p99_ms": 0.045778
+            },
+            "stream_open": {
+              "p50_ms": 146.39485,
+              "p95_ms": 331.30213,
+              "p99_ms": 351.95735899999994
+            },
+            "total_scenario": {
+              "p50_ms": 942.68475,
+              "p95_ms": 1389.5872,
+              "p99_ms": 1400.546069
+            },
+            "destination_admission": {
+              "p50_ms": 0.5235,
+              "p95_ms": 0.64941,
+              "p99_ms": 0.8015479999999995
+            },
+            "application_processing": {
+              "p50_ms": 0.0092,
+              "p95_ms": 0.017424999999999993,
+              "p99_ms": 0.02996999999999996
+            }
+          },
+          "diagnostics": {
+            "duration_seconds": 4.2779276,
+            "occupancy_peak": {
+              "transport_establishment": 21,
+              "control_and_route_admission": 53,
+              "channel_and_application_activation": 60,
+              "application_and_close": 56
+            },
+            "occupancy_mean": {
+              "transport_establishment": 4.666666666666667,
+              "control_and_route_admission": 17.0,
+              "channel_and_application_activation": 18.333333333333332,
+              "application_and_close": 18.0
+            },
+            "completion_rate_per_second": {
+              "quic_connections": 119.68411994630297,
+              "transport_sessions": 119.68411994630297,
+              "service_channels": 119.68411994630297,
+              "application_streams": 119.68411994630297
+            },
+            "queue_peak": {
+              "pending_routes": 1,
+              "audit": 3
+            },
+            "final_live": {
+              "quic_connections": 0,
+              "transport_sessions": 0,
+              "service_channels": 0,
+              "application_streams": 0
+            }
+          }
+        },
+        {
+          "repeat": 3,
+          "valid": true,
+          "offered_rate": 200.0,
+          "completion_rate": 109.2248281939226,
+          "successful": 512,
+          "requested": 512,
+          "peak_pending_clients": 512,
+          "effective_cores": 1.492950101499727,
+          "host_cpu_percent": 23.297546458717644,
+          "memory_private_bytes_peak": 274743296.0,
+          "thread_count_peak": 19,
+          "handle_count_peak": 715,
+          "resource_roles": {
+            "admission-destination": {
+              "effective_cores": 0.5257156485184152,
+              "peak_threads": 5,
+              "peak_handles": 84,
+              "peak_private_bytes": 110800896
+            },
+            "admission-source": {
+              "effective_cores": 0.7834376982303544,
+              "peak_threads": 5,
+              "peak_handles": 467,
+              "peak_private_bytes": 159453184
+            },
+            "established-destination": {
+              "effective_cores": 0.6660764015405646,
+              "peak_threads": 5,
+              "peak_handles": 83,
+              "peak_private_bytes": 1994752
+            },
+            "established-source": {
+              "effective_cores": 0.7078275462435446,
+              "peak_threads": 4,
+              "peak_handles": 81,
+              "peak_private_bytes": 20115456
+            }
+          },
+          "stage_latency": {
+            "transport_handshake": {
+              "p50_ms": 303.1419,
+              "p95_ms": 433.930685,
+              "p99_ms": 460.445201
+            },
+            "control_hello": {
+              "p50_ms": 289.31295,
+              "p95_ms": 376.813775,
+              "p99_ms": 446.4106039999999
+            },
+            "source_admission": {
+              "p50_ms": 0.39365,
+              "p95_ms": 0.65355,
+              "p99_ms": 0.8765179999999996
+            },
+            "route_open": {
+              "p50_ms": 251.6558,
+              "p95_ms": 375.329695,
+              "p99_ms": 437.035797
+            },
+            "channel_binding": {
+              "p50_ms": 0.01985,
+              "p95_ms": 0.034335,
+              "p99_ms": 0.06639499999999993
+            },
+            "stream_open": {
+              "p50_ms": 189.54485,
+              "p95_ms": 375.405265,
+              "p99_ms": 444.77446899999995
+            },
+            "total_scenario": {
+              "p50_ms": 1274.2144,
+              "p95_ms": 1874.38053,
+              "p99_ms": 1887.269717
+            },
+            "destination_admission": {
+              "p50_ms": 0.4889,
+              "p95_ms": 0.6404499999999999,
+              "p99_ms": 0.8204269999999996
+            },
+            "application_processing": {
+              "p50_ms": 0.00825,
+              "p95_ms": 0.0176,
+              "p99_ms": 0.02694599999999998
+            }
+          },
+          "diagnostics": {
+            "duration_seconds": 4.3676081,
+            "occupancy_peak": {
+              "transport_establishment": 39,
+              "control_and_route_admission": 76,
+              "channel_and_application_activation": 60,
+              "application_and_close": 87
+            },
+            "occupancy_mean": {
+              "transport_establishment": 11.333333333333334,
+              "control_and_route_admission": 28.0,
+              "channel_and_application_activation": 18.0,
+              "application_and_close": 21.166666666666668
+            },
+            "completion_rate_per_second": {
+              "quic_connections": 117.22663487138418,
+              "transport_sessions": 117.22663487138418,
+              "service_channels": 117.22663487138418,
+              "application_streams": 117.22663487138418
+            },
+            "queue_peak": {
+              "pending_routes": 1,
+              "audit": 5
+            },
+            "final_live": {
+              "quic_connections": 0,
+              "transport_sessions": 0,
+              "service_channels": 0,
+              "application_streams": 0
+            }
+          }
+        },
+        {
+          "repeat": 4,
+          "valid": true,
+          "offered_rate": 200.0,
+          "completion_rate": 149.16338713829316,
+          "successful": 512,
+          "requested": 512,
+          "peak_pending_clients": 512,
+          "effective_cores": 1.4849467923478503,
+          "host_cpu_percent": 21.52205905827764,
+          "memory_private_bytes_peak": 111071232.0,
+          "thread_count_peak": 19,
+          "handle_count_peak": 492,
+          "resource_roles": {
+            "admission-destination": {
+              "effective_cores": 0.5915288483320565,
+              "peak_threads": 5,
+              "peak_handles": 84,
+              "peak_private_bytes": 44470272
+            },
+            "admission-source": {
+              "effective_cores": 0.9581119670969857,
+              "peak_threads": 5,
+              "peak_handles": 245,
+              "peak_private_bytes": 65908736
+            },
+            "established-destination": {
+              "effective_cores": 0.6655530950503921,
+              "peak_threads": 5,
+              "peak_handles": 83,
+              "peak_private_bytes": 1953792
+            },
+            "established-source": {
+              "effective_cores": 0.71357769884776,
+              "peak_threads": 4,
+              "peak_handles": 81,
+              "peak_private_bytes": 19689472
+            }
+          },
+          "stage_latency": {
+            "transport_handshake": {
+              "p50_ms": 61.69755,
+              "p95_ms": 135.745105,
+              "p99_ms": 149.403202
+            },
+            "control_hello": {
+              "p50_ms": 61.97085,
+              "p95_ms": 131.84446,
+              "p99_ms": 144.65257099999997
+            },
+            "source_admission": {
+              "p50_ms": 0.3598,
+              "p95_ms": 0.569945,
+              "p99_ms": 0.6000499999999999
+            },
+            "route_open": {
+              "p50_ms": 53.68805,
+              "p95_ms": 131.17693,
+              "p99_ms": 146.385097
+            },
+            "channel_binding": {
+              "p50_ms": 0.0168,
+              "p95_ms": 0.026879999999999998,
+              "p99_ms": 0.03626899999999997
+            },
+            "stream_open": {
+              "p50_ms": 50.4449,
+              "p95_ms": 129.777505,
+              "p99_ms": 149.831561
+            },
+            "total_scenario": {
+              "p50_ms": 312.13525,
+              "p95_ms": 609.22354,
+              "p99_ms": 621.610782
+            },
+            "destination_admission": {
+              "p50_ms": 0.4344,
+              "p95_ms": 0.583025,
+              "p99_ms": 0.603203
+            },
+            "application_processing": {
+              "p50_ms": 0.0085,
+              "p95_ms": 0.0149,
+              "p99_ms": 0.018655999999999992
+            }
+          },
+          "diagnostics": {
+            "duration_seconds": 3.844141,
+            "occupancy_peak": {
+              "transport_establishment": 7,
+              "control_and_route_admission": 14,
+              "channel_and_application_activation": 14,
+              "application_and_close": 16
+            },
+            "occupancy_mean": {
+              "transport_establishment": 1.4,
+              "control_and_route_admission": 3.2,
+              "channel_and_application_activation": 3.6,
+              "application_and_close": 4.0
+            },
+            "completion_rate_per_second": {
+              "quic_connections": 133.18970349942938,
+              "transport_sessions": 133.18970349942938,
+              "service_channels": 133.18970349942938,
+              "application_streams": 133.18970349942938
+            },
+            "queue_peak": {
+              "pending_routes": 0,
+              "audit": 0
+            },
+            "final_live": {
+              "quic_connections": 0,
+              "transport_sessions": 0,
+              "service_channels": 0,
+              "application_streams": 0
+            }
+          }
+        },
+        {
+          "repeat": 5,
+          "valid": true,
+          "offered_rate": 200.0,
+          "completion_rate": 149.67076232308492,
+          "successful": 512,
+          "requested": 512,
+          "peak_pending_clients": 512,
+          "effective_cores": 1.482379724579104,
+          "host_cpu_percent": 22.99099347658997,
+          "memory_private_bytes_peak": 104296448.0,
+          "thread_count_peak": 19,
+          "handle_count_peak": 476,
+          "resource_roles": {
+            "admission-destination": {
+              "effective_cores": 0.530748438546452,
+              "peak_threads": 5,
+              "peak_handles": 84,
+              "peak_private_bytes": 40595456
+            },
+            "admission-source": {
+              "effective_cores": 0.9482622909583894,
+              "peak_threads": 5,
+              "peak_handles": 229,
+              "peak_private_bytes": 61562880
+            },
+            "established-destination": {
+              "effective_cores": 0.6778738649245857,
+              "peak_threads": 5,
+              "peak_handles": 83,
+              "peak_private_bytes": 1900544
+            },
+            "established-source": {
+              "effective_cores": 0.7078558583687897,
+              "peak_threads": 4,
+              "peak_handles": 81,
+              "peak_private_bytes": 18677760
+            }
+          },
+          "stage_latency": {
+            "transport_handshake": {
+              "p50_ms": 54.93215,
+              "p95_ms": 129.517415,
+              "p99_ms": 145.48883
+            },
+            "control_hello": {
+              "p50_ms": 53.0667,
+              "p95_ms": 123.24636999999998,
+              "p99_ms": 148.81369199999992
+            },
+            "source_admission": {
+              "p50_ms": 0.3513,
+              "p95_ms": 0.56623,
+              "p99_ms": 0.602447
+            },
+            "route_open": {
+              "p50_ms": 49.4257,
+              "p95_ms": 122.74604,
+              "p99_ms": 146.27152099999995
+            },
+            "channel_binding": {
+              "p50_ms": 0.01705,
+              "p95_ms": 0.0283,
+              "p99_ms": 0.032567
+            },
+            "stream_open": {
+              "p50_ms": 47.2749,
+              "p95_ms": 121.84274,
+              "p99_ms": 143.080838
+            },
+            "total_scenario": {
+              "p50_ms": 284.5567,
+              "p95_ms": 579.741445,
+              "p99_ms": 593.283875
+            },
+            "destination_admission": {
+              "p50_ms": 0.4199,
+              "p95_ms": 0.5853,
+              "p99_ms": 0.6202879999999998
+            },
+            "application_processing": {
+              "p50_ms": 0.0085,
+              "p95_ms": 0.014034999999999997,
+              "p99_ms": 0.01960099999999999
+            }
+          },
+          "diagnostics": {
+            "duration_seconds": 3.8438575,
+            "occupancy_peak": {
+              "transport_establishment": 7,
+              "control_and_route_admission": 14,
+              "channel_and_application_activation": 16,
+              "application_and_close": 14
+            },
+            "occupancy_mean": {
+              "transport_establishment": 1.8,
+              "control_and_route_admission": 3.4,
+              "channel_and_application_activation": 3.8,
+              "application_and_close": 3.4
+            },
+            "completion_rate_per_second": {
+              "quic_connections": 133.1995267774625,
+              "transport_sessions": 133.1995267774625,
+              "service_channels": 133.1995267774625,
+              "application_streams": 133.1995267774625
+            },
+            "queue_peak": {
+              "pending_routes": 0,
+              "audit": 5
+            },
+            "final_live": {
+              "quic_connections": 0,
+              "transport_sessions": 0,
+              "service_channels": 0,
+              "application_streams": 0
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

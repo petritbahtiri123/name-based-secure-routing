@@ -1,0 +1,9 @@
+{
+  "schema": "nbsr-b4b-task4j-environment-v1",
+  "analysis_commit_input": "8d0fd5699d56929c9192b947a5b7d3351ea8ca5f",
+  "branch": "codex/nbsr-v3-wp0-wp1",
+  "source_evidence": "evidence/performance/v2/b4b-task4i-fa46af05db79",
+  "analysis_type": "offline; no timed-path instrumentation",
+  "host_scope": "Windows loopback host from Task 4i environment metadata",
+  "command": "python scripts/analyze_b4b_task4j.py --source evidence/performance/v2/b4b-task4i-fa46af05db79 --output evidence/performance/v2/b4b-task4j-8d0fd5699d56"
+}
