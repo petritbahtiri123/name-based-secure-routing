@@ -1,0 +1,40 @@
+{
+  "classification": "DIAGNOSTIC; CAPTURE FAILED; no socket-drop attribution",
+  "external_root": "C:\\NBSR-build\\b4b-task4l-etw-20260905-144552",
+  "error": "0xc5580612: An Event session cannot be started without any providers.",
+  "control_records": 10,
+  "control_manifest_verified_files": 101,
+  "trace_started": false,
+  "inputs": [
+    {
+      "path": "C:\\NBSR-build\\b4b-task4l-etw-20260905-144552\\start.log",
+      "bytes": 206,
+      "sha256": "218c80c7006db395470d3e080a6381cfb74816abdc465908e7dcc2c51f1d793c"
+    },
+    {
+      "path": "C:\\NBSR-build\\b4b-task4l-etw-20260905-144552\\none.log",
+      "bytes": 330,
+      "sha256": "51577933882ed00207e61521fdb9c67849eedb94a6127b30bef2bb95800dc184"
+    },
+    {
+      "path": "C:\\NBSR-build\\b4b-task4l-etw-20260905-144552\\capture-profile.wprp",
+      "bytes": 1011,
+      "sha256": "20fe71f134e345f41e8253d32c21bb9030ed902f3f7dbb7d4518074d73596b0c"
+    },
+    {
+      "path": "C:\\NBSR-build\\b4b-task4l-etw-20260905-144552\\none\\checksums.sha256",
+      "bytes": 13085,
+      "sha256": "4bd5920dc14047a8bc51d65bbf102f24a9ad8568cbadb06057953544cb2b5382"
+    },
+    {
+      "path": "C:\\NBSR-build\\b4b-task4l-etw-20260905-144552\\none\\analysis.json",
+      "bytes": 3192480,
+      "sha256": "cdf74f739d1090f280db164efcf710ee8ec3d0d5c720d05cdf43863ab244b885"
+    },
+    {
+      "path": "C:\\NBSR-build\\b4b-task4l-etw-20260905-144552\\none\\environment.json",
+      "bytes": 2589,
+      "sha256": "9fa80e511f93119059c10a767b641bd688b7172ed9a6666365290e75a9a0edf1"
+    }
+  ]
+}

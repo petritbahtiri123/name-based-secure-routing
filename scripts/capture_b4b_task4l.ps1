@@ -47,7 +47,40 @@ function Invoke-BoundaryWorkload([string]$Mode) {
         Tee-Object -FilePath (Join-Path $OutputRoot "$Mode.log") | Out-Host
     if ($LASTEXITCODE -ne 0) { throw "$Mode workload failed: $LASTEXITCODE" }
 }
-# Build and measure controls before tracing. No capture process controls admission.
+# Verify that WPR can actually collect the provider before expensive controls.
+# Enumeration alone did not detect the failed provider startup.
+if ($DatagramDropsOnly) {
+    $ProbeTrace = Join-Path $OutputRoot 'afd-preflight.etl'
+    $probeStarted = $false
+    try {
+        & $CaptureTool @CaptureArguments 2>&1 | Set-Content (Join-Path $OutputRoot 'preflight-start.log')
+        if ($LASTEXITCODE -ne 0) { throw "AFD preflight start failed: $LASTEXITCODE" }
+        $probeStarted = $true
+        $probeSocket = [Net.Sockets.UdpClient]::new([Net.Sockets.AddressFamily]::InterNetwork)
+        try {
+            $probeSocket.Client.Bind([Net.IPEndPoint]::new([Net.IPAddress]::Loopback, 0))
+        }
+        finally { $probeSocket.Dispose() }
+    }
+    finally {
+        if ($probeStarted) {
+            & $CaptureTool -stop $ProbeTrace -skipPdbGen -instancename $Instance 2>&1 |
+                Set-Content (Join-Path $OutputRoot 'preflight-stop.log')
+            if ($LASTEXITCODE -ne 0) { throw "AFD preflight stop failed: $LASTEXITCODE" }
+        }
+    }
+    $probeEvents = @(Get-WinEvent -FilterHashtable @{
+        Path = $ProbeTrace; ProviderName = 'Microsoft-Windows-Winsock-AFD'
+    } -Oldest -ErrorAction Stop)
+    $probeIds = @($probeEvents | Select-Object -ExpandProperty Id -Unique)
+    if (1000 -notin $probeIds -or 1030 -notin $probeIds) {
+        throw 'AFD preflight lacks required socket-create/bind events; controls were not started'
+    }
+    [ordered]@{ status = 'PASS'; event_ids = $probeIds; trace = $ProbeTrace } |
+        ConvertTo-Json | Set-Content (Join-Path $OutputRoot 'preflight.json') -Encoding utf8
+    Write-Host 'AFD_PREFLIGHT_PASS: socket-create/bind events captured'
+}
+# Build and measure controls before the measured trace. No capture process controls admission.
 Invoke-BoundaryWorkload 'none'
 $started = $false
 try {
