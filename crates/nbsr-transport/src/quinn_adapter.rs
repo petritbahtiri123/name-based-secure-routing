@@ -979,7 +979,23 @@ impl ConnectionBindingCapability {
     }
 }
 
+#[cfg(feature = "benchmark-harness")]
+fn benchmark_close_reason_category(reason: Option<&quinn::ConnectionError>) -> &'static str {
+    match reason {
+        None => "not_closed",
+        Some(quinn::ConnectionError::TimedOut) => "timed_out",
+        Some(_) => "other_closed",
+    }
+}
+
 impl AuthenticatedConnection {
+    /// Failure-only benchmark diagnosis; never exposes peer-supplied reason text.
+    #[cfg(feature = "benchmark-harness")]
+    #[must_use]
+    pub fn benchmark_close_reason_category(&self) -> &'static str {
+        benchmark_close_reason_category(self.connection.close_reason().as_ref())
+    }
+
     pub fn authenticated_peer(&self) -> &EdgeIdentity {
         &self.authenticated_peer
     }
@@ -1557,6 +1573,28 @@ fn authenticate_connection(
 impl Drop for AuthenticatedConnection {
     fn drop(&mut self) {
         crate::diagnostics::global().completed(crate::diagnostics::DiagnosticOwner::QuicConnection);
+    }
+}
+
+#[cfg(all(test, feature = "benchmark-harness"))]
+mod benchmark_close_reason_tests {
+    use super::*;
+
+    #[test]
+    fn benchmark_close_reason_distinguishes_timeout_without_peer_text() {
+        assert_eq!(benchmark_close_reason_category(None), "not_closed");
+        assert_eq!(
+            benchmark_close_reason_category(Some(&quinn::ConnectionError::TimedOut)),
+            "timed_out"
+        );
+        assert_eq!(
+            benchmark_close_reason_category(Some(&quinn::ConnectionError::LocallyClosed)),
+            "other_closed"
+        );
+        assert_eq!(
+            benchmark_close_reason_category(Some(&quinn::ConnectionError::Reset)),
+            "other_closed"
+        );
     }
 }
 

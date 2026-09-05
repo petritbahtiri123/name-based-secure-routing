@@ -2341,6 +2341,8 @@ async fn run_lifecycle_connection(
     materialized_ordinal: Option<u64>,
 ) -> Vec<(u128, u128)> {
     assert!(materialized_ordinal.is_none() || concurrent);
+    #[cfg(feature = "benchmark-harness")]
+    let b3_diagnostic_origin = materialized_ordinal.map(|_| std::time::Instant::now());
     let mut measurements = Vec::with_capacity((services * streams_per_service) as usize);
     let mut control = connection.accept_control_stream().await.unwrap();
     let mut session = ControlSession::new(
@@ -2481,8 +2483,16 @@ async fn run_lifecycle_connection(
                 (service, local_stream, channel, started.elapsed().as_nanos())
             });
         }
+        #[cfg(feature = "benchmark-harness")]
+        let mut b3_prepared_ns = None;
+        #[cfg(feature = "benchmark-harness")]
+        let mut b3_released_ns = None;
         if let Some((prepared, release)) = materialized_barriers {
             prepared.wait().await;
+            #[cfg(feature = "benchmark-harness")]
+            {
+                b3_prepared_ns = Some(b3_diagnostic_origin.unwrap().elapsed().as_nanos());
+            }
             let ordinal = materialized_ordinal.unwrap();
             let snapshot = nbsr_transport::diagnostics::global().snapshot();
             let active = root.join(format!("destination-{ordinal}.active"));
@@ -2501,10 +2511,27 @@ async fn run_lifecycle_connection(
             })
             .await
             .expect("B3 materialized stream release marker");
+            #[cfg(feature = "benchmark-harness")]
+            {
+                b3_released_ns = Some(b3_diagnostic_origin.unwrap().elapsed().as_nanos());
+            }
             release.wait().await;
         }
         let mut completed = vec![0_u128; (services * streams_per_service) as usize];
         while let Some(joined) = concurrent_tasks.join_next().await {
+            #[cfg(feature = "benchmark-harness")]
+            if joined.is_err()
+                && let Some(ordinal) = materialized_ordinal
+            {
+                eprintln!(
+                    "{{\"schema\":\"nbsr-b3-close-diagnostic-v1\",\"role\":\"destination\",\"accept_ordinal\":{},\"clock_origin\":\"destination_lifecycle_entry\",\"prepared_elapsed_ns\":{},\"released_elapsed_ns\":{},\"failed_elapsed_ns\":{},\"close_reason\":\"{}\"}}",
+                    ordinal,
+                    b3_prepared_ns.unwrap(),
+                    b3_released_ns.unwrap(),
+                    b3_diagnostic_origin.unwrap().elapsed().as_nanos(),
+                    connection.benchmark_close_reason_category()
+                );
+            }
             let (service, local_stream, channel, application_ns) = joined.unwrap();
             let stream_ordinal = service * streams_per_service + local_stream;
             completed[stream_ordinal as usize] = application_ns;
