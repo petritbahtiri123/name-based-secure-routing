@@ -2431,6 +2431,7 @@ async fn run_lifecycle_connection(
             }
             let mut application = application.unwrap();
             application.echo_once().await.unwrap();
+            application.wait_for_send_ack().await.unwrap();
             measurements.push((
                 if local_stream == 0 {
                     destination_admission_ns
@@ -2457,6 +2458,7 @@ async fn run_lifecycle_connection(
             concurrent_tasks.spawn(async move {
                 let started = std::time::Instant::now();
                 application.echo_once().await.unwrap();
+                application.wait_for_send_ack().await.unwrap();
                 (service, local_stream, channel, started.elapsed().as_nanos())
             });
         }
@@ -2524,27 +2526,36 @@ async fn run_lifecycle(
     let (coordinator, completion) = CompletionCoordinator::without_evidence(connections as usize);
     let timeline = handshake_timeline::Region::open(connections as usize, 2);
     let mut sessions = tokio::task::JoinSet::new();
-    let mut accepts = (0..connections)
-        .map(|ordinal| {
-            let slot = timeline
-                .as_ref()
-                .and_then(|region| region.claim(ordinal as usize));
-            let accept_slot = slot.clone();
-            #[cfg(feature = "benchmark-harness")]
-            let accepting =
-                batch_release::after_release(release_gate, ordinal as usize, move || {
-                    handshake_timeline::scope(accept_slot, async {
-                        handshake_timeline::mark(handshake_timeline::Event::TaskStarted);
-                        handshake_timeline::observe(listener.accept_one()).await
-                    })
-                });
-            #[cfg(not(feature = "benchmark-harness"))]
-            let accepting = handshake_timeline::scope(accept_slot, async {
+    // Memory holds keep connections alive while later clients are still offered.
+    // Arm one acceptance deadline at a time in that explicit harness mode;
+    // session tasks remain concurrent. The admission benchmark keeps its window.
+    let accept_window = if env::var_os("NBSR_PERF_LIFECYCLE_SERIAL_ACCEPT").is_some() {
+        1
+    } else {
+        connections as usize
+    };
+    let mut pending_accepts = (0..connections).map(|ordinal| {
+        let slot = timeline
+            .as_ref()
+            .and_then(|region| region.claim(ordinal as usize));
+        let accept_slot = slot.clone();
+        #[cfg(feature = "benchmark-harness")]
+        let accepting = batch_release::after_release(release_gate, ordinal as usize, move || {
+            handshake_timeline::scope(accept_slot, async {
                 handshake_timeline::mark(handshake_timeline::Event::TaskStarted);
                 handshake_timeline::observe(listener.accept_one()).await
-            });
-            (ordinal as usize, slot, Box::pin(accepting))
-        })
+            })
+        });
+        #[cfg(not(feature = "benchmark-harness"))]
+        let accepting = handshake_timeline::scope(accept_slot, async {
+            handshake_timeline::mark(handshake_timeline::Event::TaskStarted);
+            handshake_timeline::observe(listener.accept_one()).await
+        });
+        (ordinal as usize, slot, Box::pin(accepting))
+    });
+    let mut accepts = pending_accepts
+        .by_ref()
+        .take(accept_window)
         .collect::<Vec<_>>();
     #[cfg(feature = "benchmark-harness")]
     let mut pump_profile = env::var_os("NBSR_PERF_ACCEPT_PUMP_PROFILE")
@@ -2582,6 +2593,9 @@ async fn run_lifecycle(
             continue;
         };
         let (ordinal, slot, accepting) = accepts.swap_remove(index);
+        if let Some(next) = pending_accepts.next() {
+            accepts.push(next);
+        }
         drop(accepting);
         let connection = match accepted {
             Ok(connection) => connection,

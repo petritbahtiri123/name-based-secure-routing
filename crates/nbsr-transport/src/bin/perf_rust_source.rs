@@ -432,6 +432,7 @@ async fn run_lifecycle(
                 &root.join(format!("connection-{ordinal}.start")),
                 Duration::from_secs(120),
             )
+            .await
             .unwrap();
         }
         let total_cold = Instant::now();
@@ -680,6 +681,7 @@ async fn run_lifecycle(
                     &root.join(format!("connection-{ordinal}.release")),
                     Duration::from_secs(120),
                 )
+                .await
                 .unwrap();
             }
             concurrent_barrier.wait().await;
@@ -787,7 +789,18 @@ async fn run_lifecycle(
                 contents,
             )
             .unwrap();
+            if hold_for_release && optional_argument("--diagnostics").is_some() {
+                emit_diagnostic(0, &format!("lifecycle_cycle_{logical_client_id}_closed"));
+            }
         }
+    }
+    if hold_for_release
+        && completion.is_none()
+        && let Some(path) = optional_argument("--lifecycle-final-release")
+    {
+        b3_support::wait_for_lifecycle_start(Path::new(&path), Duration::from_secs(120))
+            .await
+            .unwrap();
     }
 }
 
@@ -1850,6 +1863,9 @@ fn main() {
         assert_eq!(summary.recorded, logical_clients);
         assert_eq!(summary.written, logical_clients);
         assert!(summary.writer_thread.is_some());
+        if optional_argument("--diagnostics").is_some() {
+            emit_diagnostic(0, "lifecycle_cleanup");
+        }
         return;
     }
     let groups = parse_group_count(env::args()).expect("valid --p2a-groups");
@@ -1864,6 +1880,11 @@ fn main() {
     build_benchmark_runtime(workers)
         .expect("benchmark Tokio runtime")
         .block_on(run(None, 0, None));
+    if optional_argument("--lifecycle-authority-dir").is_some()
+        && optional_argument("--diagnostics").is_some()
+    {
+        emit_diagnostic(0, "lifecycle_cleanup");
+    }
 }
 
 #[cfg(not(feature = "benchmark-harness"))]

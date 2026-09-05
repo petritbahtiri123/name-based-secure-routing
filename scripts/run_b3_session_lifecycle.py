@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+from contextlib import ExitStack
 from dataclasses import asdict
 import hashlib
 import json
@@ -120,12 +121,20 @@ def client_command(path: str, binaries: dict[str, Path], ready: Path, authority:
     return ([str(binaries["go"]), "--config", str(config)], GO_PEER)
 
 
+def source_plan(path: str, sessions: int, cycles: int) -> list[tuple[int, int, int]]:
+    if path == "rust-rust" and sessions > 1:
+        return [(1, 0, sessions)]
+    return [(1, ordinal, 1) for ordinal in range(sessions)] if sessions > 1 else [(cycles, 0, 1)]
+
+
 def run_cell(path: str, spec: dict[str, int | str], binaries: dict[str, Path], root: Path, *, idle_seconds: float, active_seconds: float, cooldown_seconds: float, cadence: float) -> dict[str, Any]:
     name = str(spec["name"])
     sessions, services, streams, cycles = (int(spec[key]) for key in ("sessions", "channels", "streams", "cycles"))
     cell_dir = root / "raw" / path / name
     cell_dir.mkdir(parents=True)
-    with tempfile.TemporaryDirectory(prefix="nbsr-b3-cell-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="nbsr-b3-cell-") as temporary, ExitStack() as logs:
+        def log(label, stream):
+            return logs.enter_context((cell_dir / f"{label}.{stream}").open("w", encoding="utf-8"))
         temporary_root = Path(temporary)
         lifecycle = temporary_root / "lifecycle"
         write_authority_set(lifecycle, services)
@@ -137,24 +146,34 @@ def run_cell(path: str, spec: dict[str, int | str], binaries: dict[str, Path], r
         diagnostics = cell_dir / "destination-diagnostics.ndjson"
         server_argv = [str(binaries["server"]), "--ready", str(ready), "--result", str(result), "--authority-dir", str(authority), "--completion-ack", str(completion_ack), "--destination-diagnostics-file", str(diagnostics), "--diagnostic-drain-seconds", str(max(1, round(cooldown_seconds)))]
         total_connections = sessions if sessions > 1 else cycles
-        server = subprocess.Popen(server_argv, cwd=ROOT, env={**os.environ, "NBSR_PERF_LIFECYCLE_ROOT": str(lifecycle), "NBSR_PERF_LIFECYCLE_CONNECTIONS": str(total_connections), "NBSR_PERF_LIFECYCLE_SERVICES": str(services), "NBSR_PERF_STREAMS_PER_SERVICE": str(streams), "NBSR_PERF_CONCURRENT_STREAMS": "1", **({"NBSR_PERF_CONCURRENT_SESSIONS": "1"} if sessions > 1 else {})}, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        server = subprocess.Popen(server_argv, cwd=ROOT, env={**os.environ, "NBSR_PERF_LIFECYCLE_ROOT": str(lifecycle), "NBSR_PERF_LIFECYCLE_CONNECTIONS": str(total_connections), "NBSR_PERF_LIFECYCLE_SERVICES": str(services), "NBSR_PERF_STREAMS_PER_SERVICE": str(streams), "NBSR_PERF_CONCURRENT_STREAMS": "1", **({"NBSR_PERF_LIFECYCLE_OFFERED_RATE": str(spec["start_rate"])} if float(spec.get("start_rate", 0)) > 0 else {}), **({"NBSR_PERF_CONCURRENT_SESSIONS": "1", "NBSR_PERF_LIFECYCLE_SERIAL_ACCEPT": "1"} if sessions > 1 else {})}, stdout=log("destination", "stdout"), stderr=log("destination", "stderr"), text=True)
         clients: list[subprocess.Popen[str]] = []
         commands: list[list[str]] = []
         resources: list[dict[str, Any]] = []
         failure_detail = ""
         try:
             wait_ready(ready, server)
-            client_specs = [(1, ordinal, temporary_root / f"go-runtime-{ordinal}.ndjson") for ordinal in range(sessions)] if sessions > 1 else [(cycles, 0, temporary_root / "go-runtime-0.ndjson")]
-            for connections, offset, runtime_path in client_specs:
+            client_specs = source_plan(path, sessions, cycles)
+            for index, (connections, offset, logical_clients) in enumerate(client_specs):
+                runtime_path = temporary_root / f"go-runtime-{offset}.ndjson"
                 argv, cwd = client_command(path, binaries, ready, authority, lifecycle, connections=connections, services=services, streams=streams, offset=offset, runtime_path=runtime_path)
+                if path == "rust-rust":
+                    argv.extend(["--diagnostics", "1"])
+                    if logical_clients > 1:
+                        argv.extend(["--lifecycle-clients", str(logical_clients), "--lifecycle-source-shards", "2"])
+                    else:
+                        argv.extend(["--lifecycle-final-release", str(lifecycle / "source.final-release")])
                 commands.append(argv)
-                clients.append(subprocess.Popen(argv, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True))
+                clients.append(subprocess.Popen(argv, cwd=cwd, stdout=log(f"source-{index}", "stdout"), stderr=log(f"source-{index}", "stderr"), text=True))
             rounds = 1 if sessions > 1 else cycles
             for cycle in range(rounds):
                 cycle_index = int(spec.get("cycle_index", cycle))
                 ordinals = list(range(sessions)) if sessions > 1 else [cycle]
-                capture(resources, server, clients, phase="idle" if cycle == 0 else "cooldown", cycle=cycle_index, seconds=idle_seconds if cycle == 0 else cooldown_seconds, cadence=cadence)
-                for ordinal in ordinals:
+                capture(resources, server, clients, phase="idle" if cycle == 0 else "cooldown", cycle=cycle_index if cycle == 0 else cycle_index - 1, seconds=idle_seconds if cycle == 0 else cooldown_seconds, cadence=cadence)
+                start_origin = time.perf_counter()
+                for start_index, ordinal in enumerate(ordinals):
+                    if float(spec.get("start_rate", 0)) > 0:
+                        time.sleep(max(0, start_origin + start_index / float(spec["start_rate"]) - time.perf_counter()))
                     (lifecycle / f"connection-{ordinal}.start").write_text("start\n", encoding="ascii")
                 if spec["kind"] == "connections":
                     wait_paths([lifecycle / f"connection-{ordinal}.connected" for ordinal in ordinals], [server, *clients], 60)
@@ -173,38 +192,56 @@ def run_cell(path: str, spec: dict[str, int | str], binaries: dict[str, Path], r
                 wait_paths([lifecycle / f"connection-{ordinal}.ack" for ordinal in ordinals], [server, *clients], 60)
             final_cycle = int(spec.get("cycle_index", rounds - 1))
             capture(resources, server, clients, phase="cooldown", cycle=final_cycle, seconds=cooldown_seconds, cadence=cadence)
+            if path == "rust-rust":
+                (lifecycle / "source.final-release").write_text("release\n", encoding="ascii")
             outputs = []
-            for client in clients:
-                stdout, stderr = client.communicate(timeout=30)
+            for index, client in enumerate(clients):
+                client.wait(timeout=30)
                 if client.returncode:
-                    raise RuntimeError(stderr)
+                    raise RuntimeError((cell_dir / f"source-{index}.stderr").read_text())
+                stdout = (cell_dir / f"source-{index}.stdout").read_text()
                 outputs.extend(json.loads(line) for line in stdout.splitlines() if line.strip())
-            for _, ordinal, runtime_path in client_specs:
+            for _, ordinal, _ in client_specs:
+                runtime_path = temporary_root / f"go-runtime-{ordinal}.ndjson"
                 if runtime_path.is_file():
                     (cell_dir / f"go-runtime-{ordinal}.ndjson").write_bytes(runtime_path.read_bytes())
             server.wait(timeout=30)
             if server.returncode:
-                raise RuntimeError(server.stderr.read() if server.stderr else "destination failed")
+                raise RuntimeError((cell_dir / "destination.stderr").read_text())
         except Exception as error:
             details = []
             for label, process in [("destination", server), *[(f"source-{index}", client) for index, client in enumerate(clients)]]:
                 if process.poll() is None:
                     process.kill()
                     process.wait(timeout=5)
-                if process.stderr is not None and not process.stderr.closed:
-                    details.append(f"{label}: {process.stderr.read()}")
+                details.append(f"{label}: {(cell_dir / f'{label}.stderr').read_text()}")
             details.append(f"lifecycle_files: {sorted(item.name for item in lifecycle.iterdir())}")
             details.append(f"commands: {commands}")
             failure_detail = "\n".join(details)
+            write_json(cell_dir / "failure.json", {"error": str(error), "detail": failure_detail, "samples": resources})
             raise RuntimeError(f"{error}\n{failure_detail}") from error
         finally:
             for process in [*clients, server]:
                 if process.poll() is None:
-                    process.kill(); process.wait(timeout=5)
+                    process.kill()
+                    process.wait(timeout=5)
         diagnostic_records = [json.loads(line) for line in diagnostics.read_text(encoding="utf-8").splitlines()]
         final = diagnostic_records[-1]
         cleanup_values = {field: int(final[field]) for field in COUNTERS if field in final}
         cleanup = {"counters": cleanup_values, "all_zero": len(cleanup_values) == len(COUNTERS) and all(value == 0 for value in cleanup_values.values()), "source_processes_exited": all(client.poll() is not None for client in clients), "destination_exited": server.poll() is not None}
+        if path == "rust-rust":
+            source_final = [row for row in outputs if row.get("phase") == "lifecycle_cleanup"]
+            cleanup["source_counters"] = [{field: row.get(field) for field in COUNTERS} for row in source_final]
+            cleanup["source_all_zero"] = len(source_final) == len(clients) and all(
+                row.get(field) == 0 for row in source_final for field in COUNTERS
+            )
+            cleanup["all_zero"] = cleanup["all_zero"] and cleanup["source_all_zero"]
+            if spec["kind"] == "cycles":
+                cycle_rows = [row for row in outputs if row.get("phase", "").startswith("lifecycle_cycle_")]
+                cleanup["source_cycle_all_zero"] = len(cycle_rows) == cycles and all(
+                    row.get(field) == 0 for row in cycle_rows for field in COUNTERS
+                )
+                cleanup["all_zero"] = cleanup["all_zero"] and cleanup["source_cycle_all_zero"]
         cell = {**spec, "active_count": int(spec["active_count"]), "samples": resources, "cleanup": cleanup, "commands": {"server": public_command(server_argv, temporary_root), "clients": [public_command(command, temporary_root) for command in commands]}, "client_results": outputs}
         write_json(cell_dir / "cell.json", cell)
         return cell
