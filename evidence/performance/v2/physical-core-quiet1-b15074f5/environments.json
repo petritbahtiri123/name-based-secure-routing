@@ -1,0 +1,146 @@
+[
+  {
+    "schema": "nbsr-physical-core-forwarding-v1",
+    "topology": {
+      "verified": true,
+      "scope": "physical-core-selected-logical-processors",
+      "physical_cores": 4,
+      "logical_processors": 8,
+      "cores": [
+        {
+          "core_index": 0,
+          "smt": true,
+          "efficiency_class": 0,
+          "logical_mask": 3
+        },
+        {
+          "core_index": 1,
+          "smt": true,
+          "efficiency_class": 0,
+          "logical_mask": 12
+        },
+        {
+          "core_index": 2,
+          "smt": true,
+          "efficiency_class": 0,
+          "logical_mask": 48
+        },
+        {
+          "core_index": 3,
+          "smt": true,
+          "efficiency_class": 0,
+          "logical_mask": 192
+        }
+      ],
+      "affinity_masks": {
+        "1": {
+          "decimal": 1,
+          "hex": "0x1"
+        },
+        "2": {
+          "decimal": 5,
+          "hex": "0x5"
+        },
+        "4": {
+          "decimal": 85,
+          "hex": "0x55"
+        }
+      }
+    },
+    "placement": {
+      "source_mask": 1,
+      "endpoint_masks": [
+        1
+      ],
+      "logical_processors_available": 1
+    },
+    "physical_cores": 1,
+    "smt_siblings_used": false,
+    "scope": "Windows loopback; both roles share one total physical-core pool",
+    "repository_sha": "b15074f581b7c96facc42a2952c742da26f23865",
+    "git_status": "?? deploy/isp-federation-poc/run_isolation.py\n?? deploy/isp-federation-poc/test_isolation.py\n",
+    "binary_sha256": {
+      "direct": "060130e6f67a811af3e0c85d528feef6925b2dd835271b962abef0bbcedcc890",
+      "nbsr": "9231f9390078306218e1672a9871862eac732b2d4d021cb45e054c6b63cc05f4",
+      "server": "0626a7597a3e495921e9c67c159c18075eb8c25ba0c4839f6385321c8a07df88"
+    },
+    "warmup_seconds": 3.0,
+    "duration_seconds": 30.0,
+    "cpu_accounting": "Process CPU sampled every 0.5s over final measured-duration window; excludes boundary fragments and host interrupt work. CPU ns/op is a sampled estimate.",
+    "allocation_accounting": "NOT_MEASURED",
+    "context_switches": "NOT_MEASURED",
+    "syscalls": "NOT_MEASURED"
+  },
+  {
+    "schema": "nbsr-physical-core-forwarding-v1",
+    "topology": {
+      "verified": true,
+      "scope": "physical-core-selected-logical-processors",
+      "physical_cores": 4,
+      "logical_processors": 8,
+      "cores": [
+        {
+          "core_index": 0,
+          "smt": true,
+          "efficiency_class": 0,
+          "logical_mask": 3
+        },
+        {
+          "core_index": 1,
+          "smt": true,
+          "efficiency_class": 0,
+          "logical_mask": 12
+        },
+        {
+          "core_index": 2,
+          "smt": true,
+          "efficiency_class": 0,
+          "logical_mask": 48
+        },
+        {
+          "core_index": 3,
+          "smt": true,
+          "efficiency_class": 0,
+          "logical_mask": 192
+        }
+      ],
+      "affinity_masks": {
+        "1": {
+          "decimal": 1,
+          "hex": "0x1"
+        },
+        "2": {
+          "decimal": 5,
+          "hex": "0x5"
+        },
+        "4": {
+          "decimal": 85,
+          "hex": "0x55"
+        }
+      }
+    },
+    "placement": {
+      "source_mask": 1,
+      "endpoint_masks": [
+        1
+      ],
+      "logical_processors_available": 1
+    },
+    "physical_cores": 1,
+    "smt_siblings_used": false,
+    "scope": "Windows loopback; both roles share one total physical-core pool",
+    "repository_sha": "6067703253f5638db9ea2b25e931661c581fe885",
+    "git_status": "?? deploy/isp-federation-poc/ISOLATION_ORCHESTRATOR.md\n?? deploy/isp-federation-poc/run_isolation.py\n?? deploy/isp-federation-poc/test_isolation.py\n",
+    "binary_sha256": {
+      "direct": "060130e6f67a811af3e0c85d528feef6925b2dd835271b962abef0bbcedcc890",
+      "nbsr": "9231f9390078306218e1672a9871862eac732b2d4d021cb45e054c6b63cc05f4",
+      "server": "0626a7597a3e495921e9c67c159c18075eb8c25ba0c4839f6385321c8a07df88"
+    },
+    "warmup_seconds": 3.0,
+    "duration_seconds": 30.0,
+    "cpu_accounting": "Process CPU sampled every 0.5s over final measured-duration window; excludes boundary fragments and host interrupt work. CPU ns/op is a sampled estimate.",
+    "allocation_accounting": "NOT_MEASURED",
+    "context_switches": "NOT_MEASURED",
+    "syscalls": "NOT_MEASURED"
+  }
+]

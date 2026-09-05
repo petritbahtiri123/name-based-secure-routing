@@ -1,0 +1,12 @@
+[
+  {
+    "root": "C:\\NBSR-build\\physical-core-v2-quiet1-b15074f5",
+    "checksums_sha256": "5acc167ec6812ea4f9292c956a010c1a2a64c45c9c9d1e2fdd858f243d4da185",
+    "verified_artifacts": 185
+  },
+  {
+    "root": "C:\\NBSR-build\\physical-core-v2-quiet1-refine-b15074f5",
+    "checksums_sha256": "a0184b829247cc4993f6fc154db5bb9e005dc28551b7c9dd20bede8117843511",
+    "verified_artifacts": 97
+  }
+]
