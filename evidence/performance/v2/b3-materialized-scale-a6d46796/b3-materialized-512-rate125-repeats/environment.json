@@ -1,0 +1,13 @@
+{
+  "schema": "nbsr-b3-setup-rate-control-v1",
+  "source_sha": "797aabf172d4c14bd2a06964f72029b0fd1ff174",
+  "classification": "MEASURED_PENDING_ANALYSIS",
+  "start_rate": 125,
+  "bundles": 512,
+  "repeats": 5,
+  "binary_sha256": {
+    "rust": "a007ef88ffb977b55e9a4db0763c51d86cec520cebbf08d6618f20f214adc71e",
+    "server": "443074922e5ba4a778e8aaf0406f4766c368a0d4873e6c2855e506a89e3736cf"
+  },
+  "change": "existing B3 spec start_rate only; same materialized cardinality,2s hold/cooldown, unchanged protocol timeouts"
+}

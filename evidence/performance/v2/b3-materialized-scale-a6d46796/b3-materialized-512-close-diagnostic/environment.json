@@ -1,0 +1,84 @@
+{
+  "acceptance_scope": "B3-only single armed accept, concurrent held sessions; not the B4 admission-capacity workload",
+  "binary_sha256": {
+    "rust": "9466a12d97bfdd02700052b7956ef6df1b40c5f5de9df3b2f8fbeadaad7b850c",
+    "server": "c53e7848dd0d7d8448e7f1d5fbf809ecd61c977de5d6892fc00dc556e4816db2"
+  },
+  "classification": "MEASURED_PENDING_ANALYSIS",
+  "destination_ready_snapshot_scope": "aggregate ownership across all live sessions; not per-connection",
+  "live_resource_proof": "all named .active markers observed before active sampling and before any release",
+  "memory_scope": "private bytes/working set/handles/threads and ownership, not allocator heap attribution",
+  "schema": "nbsr-b3-v2-raw-v1",
+  "scope": "Windows loopback; Rust to Rust; no server-class claim",
+  "source_processes": 1,
+  "source_runtime_shards": "2 for simultaneous bundles; 1 for sequential cycles",
+  "source_sha": "36e8970b2c591ce1045f04004543ee35a85550fc",
+  "stream_residency": "materialized request and both endpoint handles",
+  "workloads": [
+    {
+      "active_count": 512,
+      "channels": 1,
+      "cycles": 1,
+      "kind": "sessions",
+      "materialized_streams": true,
+      "name": "bundles-512-r1",
+      "resource_scope": "one authenticated connection + session + channel + stream per bundle",
+      "sessions": 512,
+      "start_rate": 100,
+      "stream_residency": "materialized request and both endpoint handles",
+      "streams": 1
+    },
+    {
+      "active_count": 512,
+      "channels": 1,
+      "cycles": 1,
+      "kind": "sessions",
+      "materialized_streams": true,
+      "name": "bundles-512-r2",
+      "resource_scope": "one authenticated connection + session + channel + stream per bundle",
+      "sessions": 512,
+      "start_rate": 100,
+      "stream_residency": "materialized request and both endpoint handles",
+      "streams": 1
+    },
+    {
+      "active_count": 512,
+      "channels": 1,
+      "cycles": 1,
+      "kind": "sessions",
+      "materialized_streams": true,
+      "name": "bundles-512-r3",
+      "resource_scope": "one authenticated connection + session + channel + stream per bundle",
+      "sessions": 512,
+      "start_rate": 100,
+      "stream_residency": "materialized request and both endpoint handles",
+      "streams": 1
+    },
+    {
+      "active_count": 512,
+      "channels": 1,
+      "cycles": 1,
+      "kind": "sessions",
+      "materialized_streams": true,
+      "name": "bundles-512-r4",
+      "resource_scope": "one authenticated connection + session + channel + stream per bundle",
+      "sessions": 512,
+      "start_rate": 100,
+      "stream_residency": "materialized request and both endpoint handles",
+      "streams": 1
+    },
+    {
+      "active_count": 512,
+      "channels": 1,
+      "cycles": 1,
+      "kind": "sessions",
+      "materialized_streams": true,
+      "name": "bundles-512-r5",
+      "resource_scope": "one authenticated connection + session + channel + stream per bundle",
+      "sessions": 512,
+      "start_rate": 100,
+      "stream_residency": "materialized request and both endpoint handles",
+      "streams": 1
+    }
+  ]
+}

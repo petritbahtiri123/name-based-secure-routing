@@ -1,0 +1,19 @@
+{
+  "tests": [
+    {
+      "command": "python -m pytest -q tests/performance/test_b3_v2.py tests/performance/test_b3_marker_read.py",
+      "result": "PASS",
+      "tests": 7
+    },
+    {
+      "command": "python -m pytest -q tests/performance/test_b3_v2_analysis.py",
+      "result": "PASS",
+      "tests": 6
+    },
+    {
+      "command": "python -m ruff check scripts/performance/b3_v2_analysis.py tests/performance/test_b3_v2_analysis.py",
+      "result": "PASS"
+    }
+  ],
+  "review": "One independent focused evidence review: no Important factual/correctness findings. Totals, slopes and ownership scopes reconciled."
+}
