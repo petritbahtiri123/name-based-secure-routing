@@ -1,0 +1,8 @@
+{
+  "root": "C:\\NBSR-build\\b3-v2-cycles50-gated-453d026d",
+  "manifest_sha256": "6a577249e4c7006482e466c848f3bc91fe6f7f4ecc99b7e6a231baa122e6ffc1",
+  "raw_file_count": 50,
+  "source_identity": "453d026da19f80b94538374301593ea97351c7f9 plus retained patch/source and binary hashes",
+  "classification": "MEASURED ownership; INCONCLUSIVE memory cause",
+  "concurrent_activity": "No builds, captures or other benchmark processes during this cohort. Focused Python unit tests, analysis and source authoring occurred; this is not quiet-host performance evidence."
+}

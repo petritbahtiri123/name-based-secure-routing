@@ -1,0 +1,77 @@
+{
+  "acceptance_scope": "B3-only single armed accept, concurrent held sessions; not the B4 admission-capacity workload",
+  "binary_sha256": {
+    "rust": "1656394972e7fbd13d14475aba187682d439e7f39a0f81843a0a4b05fa499e5b",
+    "server": "4b07a29ca566084eefe22ce1f4fc9c3da353e3a8c646d32c9e2941bc1c357042"
+  },
+  "classification": "MEASURED_PENDING_ANALYSIS",
+  "live_resource_proof": "all named .active markers observed before active sampling and before any release",
+  "memory_scope": "private bytes/working set/handles/threads and ownership, not allocator heap attribution",
+  "schema": "nbsr-b3-v2-raw-v1",
+  "scope": "Windows loopback; Rust to Rust; no server-class claim",
+  "source_processes": 1,
+  "source_runtime_shards": "2 for simultaneous bundles; 1 for sequential cycles",
+  "source_sha": "453d026da19f80b94538374301593ea97351c7f9",
+  "workloads": [
+    {
+      "active_count": 64,
+      "channels": 1,
+      "cycle_mode": "same-process",
+      "cycles": 50,
+      "kind": "cycles",
+      "name": "cycles-50-r1",
+      "resource_scope": "same source/destination processes; one session/channel and 64 streams per cycle",
+      "sessions": 1,
+      "start_rate": 100,
+      "streams": 64
+    },
+    {
+      "active_count": 64,
+      "channels": 1,
+      "cycle_mode": "same-process",
+      "cycles": 50,
+      "kind": "cycles",
+      "name": "cycles-50-r2",
+      "resource_scope": "same source/destination processes; one session/channel and 64 streams per cycle",
+      "sessions": 1,
+      "start_rate": 100,
+      "streams": 64
+    },
+    {
+      "active_count": 64,
+      "channels": 1,
+      "cycle_mode": "same-process",
+      "cycles": 50,
+      "kind": "cycles",
+      "name": "cycles-50-r3",
+      "resource_scope": "same source/destination processes; one session/channel and 64 streams per cycle",
+      "sessions": 1,
+      "start_rate": 100,
+      "streams": 64
+    },
+    {
+      "active_count": 64,
+      "channels": 1,
+      "cycle_mode": "same-process",
+      "cycles": 50,
+      "kind": "cycles",
+      "name": "cycles-50-r4",
+      "resource_scope": "same source/destination processes; one session/channel and 64 streams per cycle",
+      "sessions": 1,
+      "start_rate": 100,
+      "streams": 64
+    },
+    {
+      "active_count": 64,
+      "channels": 1,
+      "cycle_mode": "same-process",
+      "cycles": 50,
+      "kind": "cycles",
+      "name": "cycles-50-r5",
+      "resource_scope": "same source/destination processes; one session/channel and 64 streams per cycle",
+      "sessions": 1,
+      "start_rate": 100,
+      "streams": 64
+    }
+  ]
+}

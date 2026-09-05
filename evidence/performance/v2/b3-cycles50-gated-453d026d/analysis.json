@@ -1,0 +1,3644 @@
+{
+  "schema": "nbsr-b3-v2-analysis-v1",
+  "inputs": [
+    "C:\\NBSR-build\\b3-v2-cycles50-gated-453d026d"
+  ],
+  "cycles": [
+    {
+      "name": "cycles-50-r1",
+      "cycles": 50,
+      "ownership": "CLEAN",
+      "memory_cause": "INCONCLUSIVE",
+      "roles": {
+        "source": {
+          "cycle_medians": [
+            {
+              "cycle": 0,
+              "private_bytes": 1601536.0,
+              "working_set_bytes": 11137024.0,
+              "handle_count": 85.0,
+              "thread_count": 4.0
+            },
+            {
+              "cycle": 1,
+              "private_bytes": 1581056.0,
+              "working_set_bytes": 11116544.0,
+              "handle_count": 85.0,
+              "thread_count": 4.0
+            },
+            {
+              "cycle": 2,
+              "private_bytes": 1892352.0,
+              "working_set_bytes": 11104256.0,
+              "handle_count": 85.0,
+              "thread_count": 4.0
+            },
+            {
+              "cycle": 3,
+              "private_bytes": 1564672.0,
+              "working_set_bytes": 11087872.0,
+              "handle_count": 85.0,
+              "thread_count": 4.0
+            },
+            {
+              "cycle": 4,
+              "private_bytes": 1597440.0,
+              "working_set_bytes": 11104256.0,
+              "handle_count": 85.0,
+              "thread_count": 4.0
+            },
+            {
+              "cycle": 5,
+              "private_bytes": 1703936.0,
+              "working_set_bytes": 11169792.0,
+              "handle_count": 85.0,
+              "thread_count": 4.0
+            },
+            {
+              "cycle": 6,
+              "private_bytes": 1507328.0,
+              "working_set_bytes": 11116544.0,
+              "handle_count": 85.0,
+              "thread_count": 2.5
+            },
+            {
+              "cycle": 7,
+              "private_bytes": 1458176.0,
+              "working_set_bytes": 11116544.0,
+              "handle_count": 85.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 8,
+              "private_bytes": 1417216.0,
+              "working_set_bytes": 11083776.0,
+              "handle_count": 85.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 9,
+              "private_bytes": 1499136.0,
+              "working_set_bytes": 11165696.0,
+              "handle_count": 85.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 10,
+              "private_bytes": 1433600.0,
+              "working_set_bytes": 11100160.0,
+              "handle_count": 85.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 11,
+              "private_bytes": 1531904.0,
+              "working_set_bytes": 11173888.0,
+              "handle_count": 85.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 12,
+              "private_bytes": 1548288.0,
+              "working_set_bytes": 11190272.0,
+              "handle_count": 85.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 13,
+              "private_bytes": 1560576.0,
+              "working_set_bytes": 11210752.0,
+              "handle_count": 85.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 14,
+              "private_bytes": 1503232.0,
+              "working_set_bytes": 11149312.0,
+              "handle_count": 85.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 15,
+              "private_bytes": 1581056.0,
+              "working_set_bytes": 11227136.0,
+              "handle_count": 85.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 16,
+              "private_bytes": 1486848.0,
+              "working_set_bytes": 11137024.0,
+              "handle_count": 85.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 17,
+              "private_bytes": 1548288.0,
+              "working_set_bytes": 11198464.0,
+              "handle_count": 85.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 18,
+              "private_bytes": 1531904.0,
+              "working_set_bytes": 11182080.0,
+              "handle_count": 85.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 19,
+              "private_bytes": 1515520.0,
+              "working_set_bytes": 11165696.0,
+              "handle_count": 85.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 20,
+              "private_bytes": 1544192.0,
+              "working_set_bytes": 11194368.0,
+              "handle_count": 85.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 21,
+              "private_bytes": 1536000.0,
+              "working_set_bytes": 11186176.0,
+              "handle_count": 85.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 22,
+              "private_bytes": 1896448.0,
+              "working_set_bytes": 11182080.0,
+              "handle_count": 85.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 23,
+              "private_bytes": 1560576.0,
+              "working_set_bytes": 11210752.0,
+              "handle_count": 85.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 24,
+              "private_bytes": 1540096.0,
+              "working_set_bytes": 11190272.0,
+              "handle_count": 85.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 25,
+              "private_bytes": 1744896.0,
+              "working_set_bytes": 11268096.0,
+              "handle_count": 85.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 26,
+              "private_bytes": 1556480.0,
+              "working_set_bytes": 11206656.0,
+              "handle_count": 85.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 27,
+              "private_bytes": 1568768.0,
+              "working_set_bytes": 11218944.0,
+              "handle_count": 85.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 28,
+              "private_bytes": 1601536.0,
+              "working_set_bytes": 11251712.0,
+              "handle_count": 85.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 29,
+              "private_bytes": 1716224.0,
+              "working_set_bytes": 11223040.0,
+              "handle_count": 85.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 30,
+              "private_bytes": 1560576.0,
+              "working_set_bytes": 11186176.0,
+              "handle_count": 85.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 31,
+              "private_bytes": 1675264.0,
+              "working_set_bytes": 11235328.0,
+              "handle_count": 85.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 32,
+              "private_bytes": 1531904.0,
+              "working_set_bytes": 11182080.0,
+              "handle_count": 85.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 33,
+              "private_bytes": 1626112.0,
+              "working_set_bytes": 11272192.0,
+              "handle_count": 85.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 34,
+              "private_bytes": 1527808.0,
+              "working_set_bytes": 11182080.0,
+              "handle_count": 85.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 35,
+              "private_bytes": 1601536.0,
+              "working_set_bytes": 11255808.0,
+              "handle_count": 85.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 36,
+              "private_bytes": 1593344.0,
+              "working_set_bytes": 11247616.0,
+              "handle_count": 85.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 37,
+              "private_bytes": 1568768.0,
+              "working_set_bytes": 11214848.0,
+              "handle_count": 85.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 38,
+              "private_bytes": 1998848.0,
+              "working_set_bytes": 11309056.0,
+              "handle_count": 85.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 39,
+              "private_bytes": 1638400.0,
+              "working_set_bytes": 11223040.0,
+              "handle_count": 85.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 40,
+              "private_bytes": 1597440.0,
+              "working_set_bytes": 11251712.0,
+              "handle_count": 85.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 41,
+              "private_bytes": 1552384.0,
+              "working_set_bytes": 11206656.0,
+              "handle_count": 85.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 42,
+              "private_bytes": 1630208.0,
+              "working_set_bytes": 11284480.0,
+              "handle_count": 85.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 43,
+              "private_bytes": 1589248.0,
+              "working_set_bytes": 11243520.0,
+              "handle_count": 85.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 44,
+              "private_bytes": 1748992.0,
+              "working_set_bytes": 11304960.0,
+              "handle_count": 85.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 45,
+              "private_bytes": 1605632.0,
+              "working_set_bytes": 11259904.0,
+              "handle_count": 85.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 46,
+              "private_bytes": 1830912.0,
+              "working_set_bytes": 11280384.0,
+              "handle_count": 85.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 47,
+              "private_bytes": 1593344.0,
+              "working_set_bytes": 11247616.0,
+              "handle_count": 85.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 48,
+              "private_bytes": 1564672.0,
+              "working_set_bytes": 11214848.0,
+              "handle_count": 85.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 49,
+              "private_bytes": 1662976.0,
+              "working_set_bytes": 11300864.0,
+              "handle_count": 85.0,
+              "thread_count": 1.0
+            }
+          ],
+          "private_slope_bytes_per_cycle": 2150.9654741896757,
+          "second_half_private_slope_bytes_per_cycle": 1707.716923076923,
+          "private_first_to_last_delta": 61440.0,
+          "handle_first_to_last_delta": 0.0,
+          "thread_first_to_last_delta": -3.0
+        },
+        "destination": {
+          "cycle_medians": [
+            {
+              "cycle": 0,
+              "private_bytes": 1773568.0,
+              "working_set_bytes": 11186176.0,
+              "handle_count": 89.0,
+              "thread_count": 5.0
+            },
+            {
+              "cycle": 1,
+              "private_bytes": 2287616.0,
+              "working_set_bytes": 11313152.0,
+              "handle_count": 89.0,
+              "thread_count": 5.0
+            },
+            {
+              "cycle": 2,
+              "private_bytes": 2781184.0,
+              "working_set_bytes": 11341824.0,
+              "handle_count": 89.0,
+              "thread_count": 5.0
+            },
+            {
+              "cycle": 3,
+              "private_bytes": 1843200.0,
+              "working_set_bytes": 11345920.0,
+              "handle_count": 89.0,
+              "thread_count": 5.0
+            },
+            {
+              "cycle": 4,
+              "private_bytes": 2367488.0,
+              "working_set_bytes": 11378688.0,
+              "handle_count": 89.0,
+              "thread_count": 5.0
+            },
+            {
+              "cycle": 5,
+              "private_bytes": 2392064.0,
+              "working_set_bytes": 11382784.0,
+              "handle_count": 89.0,
+              "thread_count": 5.0
+            },
+            {
+              "cycle": 6,
+              "private_bytes": 2715648.0,
+              "working_set_bytes": 11376640.0,
+              "handle_count": 89.0,
+              "thread_count": 3.5
+            },
+            {
+              "cycle": 7,
+              "private_bytes": 2400256.0,
+              "working_set_bytes": 11374592.0,
+              "handle_count": 89.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 8,
+              "private_bytes": 2084864.0,
+              "working_set_bytes": 11325440.0,
+              "handle_count": 89.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 9,
+              "private_bytes": 1810432.0,
+              "working_set_bytes": 11350016.0,
+              "handle_count": 89.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 10,
+              "private_bytes": 2166784.0,
+              "working_set_bytes": 11427840.0,
+              "handle_count": 89.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 11,
+              "private_bytes": 2506752.0,
+              "working_set_bytes": 11452416.0,
+              "handle_count": 89.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 12,
+              "private_bytes": 2285568.0,
+              "working_set_bytes": 11403264.0,
+              "handle_count": 89.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 13,
+              "private_bytes": 2543616.0,
+              "working_set_bytes": 11440128.0,
+              "handle_count": 89.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 14,
+              "private_bytes": 2441216.0,
+              "working_set_bytes": 11444224.0,
+              "handle_count": 89.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 15,
+              "private_bytes": 2117632.0,
+              "working_set_bytes": 11489280.0,
+              "handle_count": 89.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 16,
+              "private_bytes": 2269184.0,
+              "working_set_bytes": 11501568.0,
+              "handle_count": 89.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 17,
+              "private_bytes": 2080768.0,
+              "working_set_bytes": 11534336.0,
+              "handle_count": 89.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 18,
+              "private_bytes": 2228224.0,
+              "working_set_bytes": 11554816.0,
+              "handle_count": 89.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 19,
+              "private_bytes": 2351104.0,
+              "working_set_bytes": 11587584.0,
+              "handle_count": 89.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 20,
+              "private_bytes": 2449408.0,
+              "working_set_bytes": 11640832.0,
+              "handle_count": 89.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 21,
+              "private_bytes": 2326528.0,
+              "working_set_bytes": 11538432.0,
+              "handle_count": 89.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 22,
+              "private_bytes": 2383872.0,
+              "working_set_bytes": 11591680.0,
+              "handle_count": 89.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 23,
+              "private_bytes": 2191360.0,
+              "working_set_bytes": 11542528.0,
+              "handle_count": 89.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 24,
+              "private_bytes": 2244608.0,
+              "working_set_bytes": 11563008.0,
+              "handle_count": 89.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 25,
+              "private_bytes": 2150400.0,
+              "working_set_bytes": 11575296.0,
+              "handle_count": 89.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 26,
+              "private_bytes": 2187264.0,
+              "working_set_bytes": 11612160.0,
+              "handle_count": 89.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 27,
+              "private_bytes": 2146304.0,
+              "working_set_bytes": 11599872.0,
+              "handle_count": 89.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 28,
+              "private_bytes": 2154496.0,
+              "working_set_bytes": 11587584.0,
+              "handle_count": 89.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 29,
+              "private_bytes": 2207744.0,
+              "working_set_bytes": 11583488.0,
+              "handle_count": 89.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 30,
+              "private_bytes": 2248704.0,
+              "working_set_bytes": 11599872.0,
+              "handle_count": 89.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 31,
+              "private_bytes": 2195456.0,
+              "working_set_bytes": 11595776.0,
+              "handle_count": 89.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 32,
+              "private_bytes": 2322432.0,
+              "working_set_bytes": 11669504.0,
+              "handle_count": 89.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 33,
+              "private_bytes": 2392064.0,
+              "working_set_bytes": 11673600.0,
+              "handle_count": 89.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 34,
+              "private_bytes": 2351104.0,
+              "working_set_bytes": 11702272.0,
+              "handle_count": 89.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 35,
+              "private_bytes": 2396160.0,
+              "working_set_bytes": 11698176.0,
+              "handle_count": 89.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 36,
+              "private_bytes": 2195456.0,
+              "working_set_bytes": 11669504.0,
+              "handle_count": 89.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 37,
+              "private_bytes": 2428928.0,
+              "working_set_bytes": 11702272.0,
+              "handle_count": 89.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 38,
+              "private_bytes": 2129920.0,
+              "working_set_bytes": 11669504.0,
+              "handle_count": 89.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 39,
+              "private_bytes": 2314240.0,
+              "working_set_bytes": 11698176.0,
+              "handle_count": 89.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 40,
+              "private_bytes": 2342912.0,
+              "working_set_bytes": 11694080.0,
+              "handle_count": 89.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 41,
+              "private_bytes": 2347008.0,
+              "working_set_bytes": 11726848.0,
+              "handle_count": 89.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 42,
+              "private_bytes": 2646016.0,
+              "working_set_bytes": 11694080.0,
+              "handle_count": 89.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 43,
+              "private_bytes": 2598912.0,
+              "working_set_bytes": 11681792.0,
+              "handle_count": 89.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 44,
+              "private_bytes": 2383872.0,
+              "working_set_bytes": 11661312.0,
+              "handle_count": 89.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 45,
+              "private_bytes": 2396160.0,
+              "working_set_bytes": 11698176.0,
+              "handle_count": 89.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 46,
+              "private_bytes": 2519040.0,
+              "working_set_bytes": 11722752.0,
+              "handle_count": 89.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 47,
+              "private_bytes": 2473984.0,
+              "working_set_bytes": 11718656.0,
+              "handle_count": 89.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 48,
+              "private_bytes": 2449408.0,
+              "working_set_bytes": 11747328.0,
+              "handle_count": 89.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 49,
+              "private_bytes": 2617344.0,
+              "working_set_bytes": 11759616.0,
+              "handle_count": 89.0,
+              "thread_count": 2.0
+            }
+          ],
+          "private_slope_bytes_per_cycle": 4184.312316926771,
+          "second_half_private_slope_bytes_per_cycle": 16232.763076923076,
+          "private_first_to_last_delta": 843776.0,
+          "handle_first_to_last_delta": 0.0,
+          "thread_first_to_last_delta": -3.0
+        }
+      },
+      "limitation": "OS private bytes include runtime, allocator and retained harness results; slopes alone prove neither leaks nor allocator attribution."
+    },
+    {
+      "name": "cycles-50-r2",
+      "cycles": 50,
+      "ownership": "CLEAN",
+      "memory_cause": "INCONCLUSIVE",
+      "roles": {
+        "source": {
+          "cycle_medians": [
+            {
+              "cycle": 0,
+              "private_bytes": 1728512.0,
+              "working_set_bytes": 8970240.0,
+              "handle_count": 79.0,
+              "thread_count": 4.0
+            },
+            {
+              "cycle": 1,
+              "private_bytes": 1576960.0,
+              "working_set_bytes": 8978432.0,
+              "handle_count": 79.0,
+              "thread_count": 4.0
+            },
+            {
+              "cycle": 2,
+              "private_bytes": 1871872.0,
+              "working_set_bytes": 8949760.0,
+              "handle_count": 79.0,
+              "thread_count": 4.0
+            },
+            {
+              "cycle": 3,
+              "private_bytes": 1585152.0,
+              "working_set_bytes": 9048064.0,
+              "handle_count": 79.0,
+              "thread_count": 4.0
+            },
+            {
+              "cycle": 4,
+              "private_bytes": 1654784.0,
+              "working_set_bytes": 9023488.0,
+              "handle_count": 79.0,
+              "thread_count": 4.0
+            },
+            {
+              "cycle": 5,
+              "private_bytes": 1789952.0,
+              "working_set_bytes": 9084928.0,
+              "handle_count": 79.0,
+              "thread_count": 4.0
+            },
+            {
+              "cycle": 6,
+              "private_bytes": 1636352.0,
+              "working_set_bytes": 9050112.0,
+              "handle_count": 79.0,
+              "thread_count": 2.5
+            },
+            {
+              "cycle": 7,
+              "private_bytes": 1507328.0,
+              "working_set_bytes": 9019392.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 8,
+              "private_bytes": 1548288.0,
+              "working_set_bytes": 9031680.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 9,
+              "private_bytes": 1703936.0,
+              "working_set_bytes": 9027584.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 10,
+              "private_bytes": 1851392.0,
+              "working_set_bytes": 9043968.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 11,
+              "private_bytes": 1478656.0,
+              "working_set_bytes": 9056256.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 12,
+              "private_bytes": 1687552.0,
+              "working_set_bytes": 9048064.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 13,
+              "private_bytes": 1417216.0,
+              "working_set_bytes": 9007104.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 14,
+              "private_bytes": 1683456.0,
+              "working_set_bytes": 9060352.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 15,
+              "private_bytes": 1548288.0,
+              "working_set_bytes": 9068544.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 16,
+              "private_bytes": 1503232.0,
+              "working_set_bytes": 9035776.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 17,
+              "private_bytes": 1638400.0,
+              "working_set_bytes": 9072640.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 18,
+              "private_bytes": 1642496.0,
+              "working_set_bytes": 9089024.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 19,
+              "private_bytes": 1949696.0,
+              "working_set_bytes": 9068544.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 20,
+              "private_bytes": 1404928.0,
+              "working_set_bytes": 9003008.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 21,
+              "private_bytes": 1712128.0,
+              "working_set_bytes": 9154560.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 22,
+              "private_bytes": 1667072.0,
+              "working_set_bytes": 9076736.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 23,
+              "private_bytes": 1572864.0,
+              "working_set_bytes": 9138176.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 24,
+              "private_bytes": 1560576.0,
+              "working_set_bytes": 9138176.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 25,
+              "private_bytes": 1835008.0,
+              "working_set_bytes": 9211904.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 26,
+              "private_bytes": 1892352.0,
+              "working_set_bytes": 9125888.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 27,
+              "private_bytes": 1552384.0,
+              "working_set_bytes": 9109504.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 28,
+              "private_bytes": 1658880.0,
+              "working_set_bytes": 9146368.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 29,
+              "private_bytes": 1617920.0,
+              "working_set_bytes": 9195520.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 30,
+              "private_bytes": 1675264.0,
+              "working_set_bytes": 9101312.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 31,
+              "private_bytes": 1601536.0,
+              "working_set_bytes": 9179136.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 32,
+              "private_bytes": 1798144.0,
+              "working_set_bytes": 9170944.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 33,
+              "private_bytes": 1585152.0,
+              "working_set_bytes": 9150464.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 34,
+              "private_bytes": 1703936.0,
+              "working_set_bytes": 9109504.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 35,
+              "private_bytes": 1818624.0,
+              "working_set_bytes": 9211904.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 36,
+              "private_bytes": 1703936.0,
+              "working_set_bytes": 9150464.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 37,
+              "private_bytes": 1740800.0,
+              "working_set_bytes": 9203712.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 38,
+              "private_bytes": 1794048.0,
+              "working_set_bytes": 9142272.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 39,
+              "private_bytes": 1761280.0,
+              "working_set_bytes": 9134080.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 40,
+              "private_bytes": 1646592.0,
+              "working_set_bytes": 9129984.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 41,
+              "private_bytes": 1687552.0,
+              "working_set_bytes": 9216000.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 42,
+              "private_bytes": 1556480.0,
+              "working_set_bytes": 9121792.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 43,
+              "private_bytes": 1675264.0,
+              "working_set_bytes": 9224192.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 44,
+              "private_bytes": 1822720.0,
+              "working_set_bytes": 9207808.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 45,
+              "private_bytes": 1822720.0,
+              "working_set_bytes": 9224192.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 46,
+              "private_bytes": 1613824.0,
+              "working_set_bytes": 9183232.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 47,
+              "private_bytes": 1851392.0,
+              "working_set_bytes": 9232384.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 48,
+              "private_bytes": 1675264.0,
+              "working_set_bytes": 9154560.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 49,
+              "private_bytes": 1753088.0,
+              "working_set_bytes": 9183232.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            }
+          ],
+          "private_slope_bytes_per_cycle": 2033.2484993997598,
+          "second_half_private_slope_bytes_per_cycle": 1024.0,
+          "private_first_to_last_delta": 24576.0,
+          "handle_first_to_last_delta": 0.0,
+          "thread_first_to_last_delta": -3.0
+        },
+        "destination": {
+          "cycle_medians": [
+            {
+              "cycle": 0,
+              "private_bytes": 1798144.0,
+              "working_set_bytes": 9129984.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            {
+              "cycle": 1,
+              "private_bytes": 1970176.0,
+              "working_set_bytes": 9334784.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            {
+              "cycle": 2,
+              "private_bytes": 2441216.0,
+              "working_set_bytes": 9322496.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            {
+              "cycle": 3,
+              "private_bytes": 2142208.0,
+              "working_set_bytes": 9359360.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            {
+              "cycle": 4,
+              "private_bytes": 2826240.0,
+              "working_set_bytes": 9359360.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            {
+              "cycle": 5,
+              "private_bytes": 2121728.0,
+              "working_set_bytes": 9330688.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            {
+              "cycle": 6,
+              "private_bytes": 2621440.0,
+              "working_set_bytes": 9310208.0,
+              "handle_count": 83.0,
+              "thread_count": 3.5
+            },
+            {
+              "cycle": 7,
+              "private_bytes": 2523136.0,
+              "working_set_bytes": 9306112.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 8,
+              "private_bytes": 2461696.0,
+              "working_set_bytes": 9351168.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 9,
+              "private_bytes": 2400256.0,
+              "working_set_bytes": 9351168.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 10,
+              "private_bytes": 2195456.0,
+              "working_set_bytes": 9371648.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 11,
+              "private_bytes": 1986560.0,
+              "working_set_bytes": 9375744.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 12,
+              "private_bytes": 2486272.0,
+              "working_set_bytes": 9359360.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 13,
+              "private_bytes": 2101248.0,
+              "working_set_bytes": 9424896.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 14,
+              "private_bytes": 2351104.0,
+              "working_set_bytes": 9437184.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 15,
+              "private_bytes": 2564096.0,
+              "working_set_bytes": 9453568.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 16,
+              "private_bytes": 2080768.0,
+              "working_set_bytes": 9490432.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 17,
+              "private_bytes": 2539520.0,
+              "working_set_bytes": 9531392.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 18,
+              "private_bytes": 2342912.0,
+              "working_set_bytes": 9547776.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 19,
+              "private_bytes": 2318336.0,
+              "working_set_bytes": 9535488.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 20,
+              "private_bytes": 2371584.0,
+              "working_set_bytes": 9560064.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 21,
+              "private_bytes": 2473984.0,
+              "working_set_bytes": 9576448.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 22,
+              "private_bytes": 2097152.0,
+              "working_set_bytes": 9555968.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 23,
+              "private_bytes": 2723840.0,
+              "working_set_bytes": 9584640.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 24,
+              "private_bytes": 2588672.0,
+              "working_set_bytes": 9592832.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 25,
+              "private_bytes": 2326528.0,
+              "working_set_bytes": 9584640.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 26,
+              "private_bytes": 2547712.0,
+              "working_set_bytes": 9592832.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 27,
+              "private_bytes": 2555904.0,
+              "working_set_bytes": 9584640.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 28,
+              "private_bytes": 2363392.0,
+              "working_set_bytes": 9592832.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 29,
+              "private_bytes": 2457600.0,
+              "working_set_bytes": 9584640.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 30,
+              "private_bytes": 2355200.0,
+              "working_set_bytes": 9576448.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 31,
+              "private_bytes": 2658304.0,
+              "working_set_bytes": 9613312.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 32,
+              "private_bytes": 2756608.0,
+              "working_set_bytes": 9613312.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 33,
+              "private_bytes": 2826240.0,
+              "working_set_bytes": 9564160.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 34,
+              "private_bytes": 2453504.0,
+              "working_set_bytes": 9601024.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 35,
+              "private_bytes": 2854912.0,
+              "working_set_bytes": 9592832.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 36,
+              "private_bytes": 2568192.0,
+              "working_set_bytes": 9650176.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 37,
+              "private_bytes": 2883584.0,
+              "working_set_bytes": 9662464.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 38,
+              "private_bytes": 2314240.0,
+              "working_set_bytes": 9637888.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 39,
+              "private_bytes": 2904064.0,
+              "working_set_bytes": 9641984.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 40,
+              "private_bytes": 2580480.0,
+              "working_set_bytes": 9646080.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 41,
+              "private_bytes": 2617344.0,
+              "working_set_bytes": 9629696.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 42,
+              "private_bytes": 2301952.0,
+              "working_set_bytes": 9617408.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 43,
+              "private_bytes": 2338816.0,
+              "working_set_bytes": 9619456.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 44,
+              "private_bytes": 2666496.0,
+              "working_set_bytes": 9711616.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 45,
+              "private_bytes": 2662400.0,
+              "working_set_bytes": 9695232.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 46,
+              "private_bytes": 2584576.0,
+              "working_set_bytes": 9740288.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 47,
+              "private_bytes": 2629632.0,
+              "working_set_bytes": 9641984.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 48,
+              "private_bytes": 2289664.0,
+              "working_set_bytes": 9662464.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 49,
+              "private_bytes": 2793472.0,
+              "working_set_bytes": 9715712.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            }
+          ],
+          "private_slope_bytes_per_cycle": 8587.143529411765,
+          "second_half_private_slope_bytes_per_cycle": 3468.996923076923,
+          "private_first_to_last_delta": 995328.0,
+          "handle_first_to_last_delta": 0.0,
+          "thread_first_to_last_delta": -3.0
+        }
+      },
+      "limitation": "OS private bytes include runtime, allocator and retained harness results; slopes alone prove neither leaks nor allocator attribution."
+    },
+    {
+      "name": "cycles-50-r3",
+      "cycles": 50,
+      "ownership": "CLEAN",
+      "memory_cause": "INCONCLUSIVE",
+      "roles": {
+        "source": {
+          "cycle_medians": [
+            {
+              "cycle": 0,
+              "private_bytes": 1556480.0,
+              "working_set_bytes": 9019392.0,
+              "handle_count": 79.0,
+              "thread_count": 4.0
+            },
+            {
+              "cycle": 1,
+              "private_bytes": 1929216.0,
+              "working_set_bytes": 8994816.0,
+              "handle_count": 79.0,
+              "thread_count": 4.0
+            },
+            {
+              "cycle": 2,
+              "private_bytes": 1441792.0,
+              "working_set_bytes": 8990720.0,
+              "handle_count": 79.0,
+              "thread_count": 4.0
+            },
+            {
+              "cycle": 3,
+              "private_bytes": 1515520.0,
+              "working_set_bytes": 9068544.0,
+              "handle_count": 79.0,
+              "thread_count": 4.0
+            },
+            {
+              "cycle": 4,
+              "private_bytes": 1511424.0,
+              "working_set_bytes": 9064448.0,
+              "handle_count": 79.0,
+              "thread_count": 4.0
+            },
+            {
+              "cycle": 5,
+              "private_bytes": 1880064.0,
+              "working_set_bytes": 9052160.0,
+              "handle_count": 79.0,
+              "thread_count": 4.0
+            },
+            {
+              "cycle": 6,
+              "private_bytes": 1458176.0,
+              "working_set_bytes": 9019392.0,
+              "handle_count": 79.0,
+              "thread_count": 2.5
+            },
+            {
+              "cycle": 7,
+              "private_bytes": 1474560.0,
+              "working_set_bytes": 8994816.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 8,
+              "private_bytes": 1445888.0,
+              "working_set_bytes": 9031680.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 9,
+              "private_bytes": 1478656.0,
+              "working_set_bytes": 9060352.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 10,
+              "private_bytes": 1445888.0,
+              "working_set_bytes": 9039872.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 11,
+              "private_bytes": 1499136.0,
+              "working_set_bytes": 9076736.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 12,
+              "private_bytes": 1511424.0,
+              "working_set_bytes": 9072640.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 13,
+              "private_bytes": 1609728.0,
+              "working_set_bytes": 9080832.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 14,
+              "private_bytes": 1519616.0,
+              "working_set_bytes": 9019392.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 15,
+              "private_bytes": 1585152.0,
+              "working_set_bytes": 9125888.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 16,
+              "private_bytes": 1531904.0,
+              "working_set_bytes": 9101312.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 17,
+              "private_bytes": 1511424.0,
+              "working_set_bytes": 9097216.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 18,
+              "private_bytes": 1961984.0,
+              "working_set_bytes": 9048064.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 19,
+              "private_bytes": 1650688.0,
+              "working_set_bytes": 9121792.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 20,
+              "private_bytes": 1622016.0,
+              "working_set_bytes": 9129984.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 21,
+              "private_bytes": 1642496.0,
+              "working_set_bytes": 9048064.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 22,
+              "private_bytes": 1613824.0,
+              "working_set_bytes": 9084928.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 23,
+              "private_bytes": 1531904.0,
+              "working_set_bytes": 9043968.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 24,
+              "private_bytes": 1654784.0,
+              "working_set_bytes": 9064448.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 25,
+              "private_bytes": 1536000.0,
+              "working_set_bytes": 9109504.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 26,
+              "private_bytes": 1482752.0,
+              "working_set_bytes": 9072640.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 27,
+              "private_bytes": 1601536.0,
+              "working_set_bytes": 9191424.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 28,
+              "private_bytes": 1658880.0,
+              "working_set_bytes": 9097216.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 29,
+              "private_bytes": 1576960.0,
+              "working_set_bytes": 9138176.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 30,
+              "private_bytes": 1572864.0,
+              "working_set_bytes": 9138176.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 31,
+              "private_bytes": 1794048.0,
+              "working_set_bytes": 9183232.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 32,
+              "private_bytes": 1961984.0,
+              "working_set_bytes": 9228288.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 33,
+              "private_bytes": 1687552.0,
+              "working_set_bytes": 9170944.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 34,
+              "private_bytes": 1568768.0,
+              "working_set_bytes": 9138176.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 35,
+              "private_bytes": 1794048.0,
+              "working_set_bytes": 9150464.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 36,
+              "private_bytes": 1646592.0,
+              "working_set_bytes": 9216000.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 37,
+              "private_bytes": 1560576.0,
+              "working_set_bytes": 9134080.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 38,
+              "private_bytes": 1572864.0,
+              "working_set_bytes": 9146368.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 39,
+              "private_bytes": 1662976.0,
+              "working_set_bytes": 9158656.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 40,
+              "private_bytes": 1646592.0,
+              "working_set_bytes": 9216000.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 41,
+              "private_bytes": 1703936.0,
+              "working_set_bytes": 9191424.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 42,
+              "private_bytes": 1708032.0,
+              "working_set_bytes": 9281536.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 43,
+              "private_bytes": 1691648.0,
+              "working_set_bytes": 9191424.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 44,
+              "private_bytes": 1773568.0,
+              "working_set_bytes": 9273344.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 45,
+              "private_bytes": 1908736.0,
+              "working_set_bytes": 9211904.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 46,
+              "private_bytes": 1732608.0,
+              "working_set_bytes": 9175040.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 47,
+              "private_bytes": 1839104.0,
+              "working_set_bytes": 9154560.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 48,
+              "private_bytes": 1732608.0,
+              "working_set_bytes": 9232384.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 49,
+              "private_bytes": 1777664.0,
+              "working_set_bytes": 9105408.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            }
+          ],
+          "private_slope_bytes_per_cycle": 4467.73781512605,
+          "second_half_private_slope_bytes_per_cycle": 8327.483076923078,
+          "private_first_to_last_delta": 221184.0,
+          "handle_first_to_last_delta": 0.0,
+          "thread_first_to_last_delta": -3.0
+        },
+        "destination": {
+          "cycle_medians": [
+            {
+              "cycle": 0,
+              "private_bytes": 1658880.0,
+              "working_set_bytes": 9138176.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            {
+              "cycle": 1,
+              "private_bytes": 2121728.0,
+              "working_set_bytes": 9338880.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            {
+              "cycle": 2,
+              "private_bytes": 2600960.0,
+              "working_set_bytes": 9302016.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            {
+              "cycle": 3,
+              "private_bytes": 2248704.0,
+              "working_set_bytes": 9355264.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            {
+              "cycle": 4,
+              "private_bytes": 2351104.0,
+              "working_set_bytes": 9363456.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            {
+              "cycle": 5,
+              "private_bytes": 2056192.0,
+              "working_set_bytes": 9383936.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            {
+              "cycle": 6,
+              "private_bytes": 2220032.0,
+              "working_set_bytes": 9334784.0,
+              "handle_count": 83.0,
+              "thread_count": 3.5
+            },
+            {
+              "cycle": 7,
+              "private_bytes": 2043904.0,
+              "working_set_bytes": 9371648.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 8,
+              "private_bytes": 2297856.0,
+              "working_set_bytes": 9355264.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 9,
+              "private_bytes": 2355200.0,
+              "working_set_bytes": 9363456.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 10,
+              "private_bytes": 1785856.0,
+              "working_set_bytes": 9330688.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 11,
+              "private_bytes": 2265088.0,
+              "working_set_bytes": 9412608.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 12,
+              "private_bytes": 2359296.0,
+              "working_set_bytes": 9396224.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 13,
+              "private_bytes": 2289664.0,
+              "working_set_bytes": 9433088.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 14,
+              "private_bytes": 2158592.0,
+              "working_set_bytes": 9457664.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 15,
+              "private_bytes": 2842624.0,
+              "working_set_bytes": 9474048.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 16,
+              "private_bytes": 2269184.0,
+              "working_set_bytes": 9531392.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 17,
+              "private_bytes": 2338816.0,
+              "working_set_bytes": 9535488.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 18,
+              "private_bytes": 2494464.0,
+              "working_set_bytes": 9535488.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 19,
+              "private_bytes": 2281472.0,
+              "working_set_bytes": 9584640.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 20,
+              "private_bytes": 2265088.0,
+              "working_set_bytes": 9519104.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 21,
+              "private_bytes": 2265088.0,
+              "working_set_bytes": 9535488.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 22,
+              "private_bytes": 2404352.0,
+              "working_set_bytes": 9568256.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 23,
+              "private_bytes": 2199552.0,
+              "working_set_bytes": 9568256.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 24,
+              "private_bytes": 2363392.0,
+              "working_set_bytes": 9601024.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 25,
+              "private_bytes": 2383872.0,
+              "working_set_bytes": 9621504.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 26,
+              "private_bytes": 2666496.0,
+              "working_set_bytes": 9621504.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 27,
+              "private_bytes": 2404352.0,
+              "working_set_bytes": 9625600.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 28,
+              "private_bytes": 2486272.0,
+              "working_set_bytes": 9596928.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 29,
+              "private_bytes": 2347008.0,
+              "working_set_bytes": 9650176.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 30,
+              "private_bytes": 2482176.0,
+              "working_set_bytes": 9641984.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 31,
+              "private_bytes": 2592768.0,
+              "working_set_bytes": 9654272.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 32,
+              "private_bytes": 2154496.0,
+              "working_set_bytes": 9637888.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 33,
+              "private_bytes": 2711552.0,
+              "working_set_bytes": 9654272.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 34,
+              "private_bytes": 2400256.0,
+              "working_set_bytes": 9646080.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 35,
+              "private_bytes": 2310144.0,
+              "working_set_bytes": 9650176.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 36,
+              "private_bytes": 2670592.0,
+              "working_set_bytes": 9662464.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 37,
+              "private_bytes": 2351104.0,
+              "working_set_bytes": 9658368.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 38,
+              "private_bytes": 2428928.0,
+              "working_set_bytes": 9658368.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 39,
+              "private_bytes": 2256896.0,
+              "working_set_bytes": 9660416.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 40,
+              "private_bytes": 2568192.0,
+              "working_set_bytes": 9666560.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 41,
+              "private_bytes": 2854912.0,
+              "working_set_bytes": 9682944.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 42,
+              "private_bytes": 2650112.0,
+              "working_set_bytes": 9654272.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 43,
+              "private_bytes": 2158592.0,
+              "working_set_bytes": 9650176.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 44,
+              "private_bytes": 2535424.0,
+              "working_set_bytes": 9646080.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 45,
+              "private_bytes": 2699264.0,
+              "working_set_bytes": 9773056.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 46,
+              "private_bytes": 2502656.0,
+              "working_set_bytes": 9732096.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 47,
+              "private_bytes": 2531328.0,
+              "working_set_bytes": 9764864.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 48,
+              "private_bytes": 2347008.0,
+              "working_set_bytes": 9703424.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 49,
+              "private_bytes": 2560000.0,
+              "working_set_bytes": 9748480.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            }
+          ],
+          "private_slope_bytes_per_cycle": 8297.22737094838,
+          "second_half_private_slope_bytes_per_cycle": 2930.2153846153847,
+          "private_first_to_last_delta": 901120.0,
+          "handle_first_to_last_delta": 0.0,
+          "thread_first_to_last_delta": -3.0
+        }
+      },
+      "limitation": "OS private bytes include runtime, allocator and retained harness results; slopes alone prove neither leaks nor allocator attribution."
+    },
+    {
+      "name": "cycles-50-r4",
+      "cycles": 50,
+      "ownership": "CLEAN",
+      "memory_cause": "INCONCLUSIVE",
+      "roles": {
+        "source": {
+          "cycle_medians": [
+            {
+              "cycle": 0,
+              "private_bytes": 1572864.0,
+              "working_set_bytes": 8978432.0,
+              "handle_count": 79.0,
+              "thread_count": 4.0
+            },
+            {
+              "cycle": 1,
+              "private_bytes": 1523712.0,
+              "working_set_bytes": 8982528.0,
+              "handle_count": 79.0,
+              "thread_count": 4.0
+            },
+            {
+              "cycle": 2,
+              "private_bytes": 1662976.0,
+              "working_set_bytes": 8998912.0,
+              "handle_count": 79.0,
+              "thread_count": 4.0
+            },
+            {
+              "cycle": 3,
+              "private_bytes": 1716224.0,
+              "working_set_bytes": 9084928.0,
+              "handle_count": 79.0,
+              "thread_count": 4.0
+            },
+            {
+              "cycle": 4,
+              "private_bytes": 1662976.0,
+              "working_set_bytes": 9011200.0,
+              "handle_count": 79.0,
+              "thread_count": 4.0
+            },
+            {
+              "cycle": 5,
+              "private_bytes": 1712128.0,
+              "working_set_bytes": 9056256.0,
+              "handle_count": 79.0,
+              "thread_count": 4.0
+            },
+            {
+              "cycle": 6,
+              "private_bytes": 1607680.0,
+              "working_set_bytes": 9035776.0,
+              "handle_count": 79.0,
+              "thread_count": 2.5
+            },
+            {
+              "cycle": 7,
+              "private_bytes": 1400832.0,
+              "working_set_bytes": 8994816.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 8,
+              "private_bytes": 1830912.0,
+              "working_set_bytes": 9072640.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 9,
+              "private_bytes": 1859584.0,
+              "working_set_bytes": 9027584.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 10,
+              "private_bytes": 1720320.0,
+              "working_set_bytes": 9015296.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 11,
+              "private_bytes": 1654784.0,
+              "working_set_bytes": 9027584.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 12,
+              "private_bytes": 1523712.0,
+              "working_set_bytes": 9052160.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 13,
+              "private_bytes": 1445888.0,
+              "working_set_bytes": 9015296.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 14,
+              "private_bytes": 1740800.0,
+              "working_set_bytes": 9084928.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 15,
+              "private_bytes": 1593344.0,
+              "working_set_bytes": 9056256.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 16,
+              "private_bytes": 1822720.0,
+              "working_set_bytes": 9097216.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 17,
+              "private_bytes": 1748992.0,
+              "working_set_bytes": 9064448.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 18,
+              "private_bytes": 1847296.0,
+              "working_set_bytes": 9105408.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 19,
+              "private_bytes": 1826816.0,
+              "working_set_bytes": 9056256.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 20,
+              "private_bytes": 1638400.0,
+              "working_set_bytes": 9076736.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 21,
+              "private_bytes": 1556480.0,
+              "working_set_bytes": 9027584.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 22,
+              "private_bytes": 1511424.0,
+              "working_set_bytes": 9089024.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 23,
+              "private_bytes": 1724416.0,
+              "working_set_bytes": 9064448.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 24,
+              "private_bytes": 1855488.0,
+              "working_set_bytes": 9117696.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 25,
+              "private_bytes": 1765376.0,
+              "working_set_bytes": 9089024.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 26,
+              "private_bytes": 1904640.0,
+              "working_set_bytes": 9089024.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 27,
+              "private_bytes": 1556480.0,
+              "working_set_bytes": 9109504.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 28,
+              "private_bytes": 1609728.0,
+              "working_set_bytes": 9183232.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 29,
+              "private_bytes": 1724416.0,
+              "working_set_bytes": 9150464.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 30,
+              "private_bytes": 1740800.0,
+              "working_set_bytes": 9150464.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 31,
+              "private_bytes": 1699840.0,
+              "working_set_bytes": 9125888.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 32,
+              "private_bytes": 1667072.0,
+              "working_set_bytes": 9162752.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 33,
+              "private_bytes": 1667072.0,
+              "working_set_bytes": 9150464.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 34,
+              "private_bytes": 1638400.0,
+              "working_set_bytes": 9150464.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 35,
+              "private_bytes": 1720320.0,
+              "working_set_bytes": 9121792.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 36,
+              "private_bytes": 1703936.0,
+              "working_set_bytes": 9154560.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 37,
+              "private_bytes": 1822720.0,
+              "working_set_bytes": 9129984.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 38,
+              "private_bytes": 1634304.0,
+              "working_set_bytes": 9154560.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 39,
+              "private_bytes": 1843200.0,
+              "working_set_bytes": 9113600.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 40,
+              "private_bytes": 1568768.0,
+              "working_set_bytes": 9154560.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 41,
+              "private_bytes": 1716224.0,
+              "working_set_bytes": 9162752.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 42,
+              "private_bytes": 1589248.0,
+              "working_set_bytes": 9154560.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 43,
+              "private_bytes": 1871872.0,
+              "working_set_bytes": 9187328.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 44,
+              "private_bytes": 1658880.0,
+              "working_set_bytes": 9211904.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 45,
+              "private_bytes": 2146304.0,
+              "working_set_bytes": 9162752.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 46,
+              "private_bytes": 1679360.0,
+              "working_set_bytes": 9203712.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 47,
+              "private_bytes": 1622016.0,
+              "working_set_bytes": 9162752.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 48,
+              "private_bytes": 1720320.0,
+              "working_set_bytes": 9199616.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 49,
+              "private_bytes": 1658880.0,
+              "working_set_bytes": 9166848.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            }
+          ],
+          "private_slope_bytes_per_cycle": 2077.69968787515,
+          "second_half_private_slope_bytes_per_cycle": 1219.3476923076923,
+          "private_first_to_last_delta": 86016.0,
+          "handle_first_to_last_delta": 0.0,
+          "thread_first_to_last_delta": -3.0
+        },
+        "destination": {
+          "cycle_medians": [
+            {
+              "cycle": 0,
+              "private_bytes": 1785856.0,
+              "working_set_bytes": 9199616.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            {
+              "cycle": 1,
+              "private_bytes": 1810432.0,
+              "working_set_bytes": 9256960.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            {
+              "cycle": 2,
+              "private_bytes": 2293760.0,
+              "working_set_bytes": 9310208.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            {
+              "cycle": 3,
+              "private_bytes": 1998848.0,
+              "working_set_bytes": 9326592.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            {
+              "cycle": 4,
+              "private_bytes": 1781760.0,
+              "working_set_bytes": 9289728.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            {
+              "cycle": 5,
+              "private_bytes": 2228224.0,
+              "working_set_bytes": 9342976.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            {
+              "cycle": 6,
+              "private_bytes": 1755136.0,
+              "working_set_bytes": 9287680.0,
+              "handle_count": 83.0,
+              "thread_count": 3.5
+            },
+            {
+              "cycle": 7,
+              "private_bytes": 2424832.0,
+              "working_set_bytes": 9297920.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 8,
+              "private_bytes": 2596864.0,
+              "working_set_bytes": 9322496.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 9,
+              "private_bytes": 2154496.0,
+              "working_set_bytes": 9347072.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 10,
+              "private_bytes": 2441216.0,
+              "working_set_bytes": 9322496.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 11,
+              "private_bytes": 2248704.0,
+              "working_set_bytes": 9428992.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 12,
+              "private_bytes": 2572288.0,
+              "working_set_bytes": 9388032.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 13,
+              "private_bytes": 2097152.0,
+              "working_set_bytes": 9404416.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 14,
+              "private_bytes": 2691072.0,
+              "working_set_bytes": 9351168.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 15,
+              "private_bytes": 2154496.0,
+              "working_set_bytes": 9388032.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 16,
+              "private_bytes": 2203648.0,
+              "working_set_bytes": 9396224.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 17,
+              "private_bytes": 1859584.0,
+              "working_set_bytes": 9388032.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 18,
+              "private_bytes": 1867776.0,
+              "working_set_bytes": 9396224.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 19,
+              "private_bytes": 2473984.0,
+              "working_set_bytes": 9437184.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 20,
+              "private_bytes": 1865728.0,
+              "working_set_bytes": 9379840.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 21,
+              "private_bytes": 2613248.0,
+              "working_set_bytes": 9457664.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 22,
+              "private_bytes": 2277376.0,
+              "working_set_bytes": 9453568.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 23,
+              "private_bytes": 2146304.0,
+              "working_set_bytes": 9469952.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 24,
+              "private_bytes": 1904640.0,
+              "working_set_bytes": 9445376.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 25,
+              "private_bytes": 1900544.0,
+              "working_set_bytes": 9445376.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 26,
+              "private_bytes": 1896448.0,
+              "working_set_bytes": 9441280.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 27,
+              "private_bytes": 1871872.0,
+              "working_set_bytes": 9418752.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 28,
+              "private_bytes": 1945600.0,
+              "working_set_bytes": 9453568.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 29,
+              "private_bytes": 2334720.0,
+              "working_set_bytes": 9519104.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 30,
+              "private_bytes": 2285568.0,
+              "working_set_bytes": 9482240.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 31,
+              "private_bytes": 2768896.0,
+              "working_set_bytes": 9555968.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 32,
+              "private_bytes": 2342912.0,
+              "working_set_bytes": 9601024.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 33,
+              "private_bytes": 2342912.0,
+              "working_set_bytes": 9592832.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 34,
+              "private_bytes": 2265088.0,
+              "working_set_bytes": 9609216.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 35,
+              "private_bytes": 2355200.0,
+              "working_set_bytes": 9650176.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 36,
+              "private_bytes": 2723840.0,
+              "working_set_bytes": 9666560.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 37,
+              "private_bytes": 2551808.0,
+              "working_set_bytes": 9674752.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 38,
+              "private_bytes": 2437120.0,
+              "working_set_bytes": 9719808.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 39,
+              "private_bytes": 2789376.0,
+              "working_set_bytes": 9674752.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 40,
+              "private_bytes": 2674688.0,
+              "working_set_bytes": 9707520.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 41,
+              "private_bytes": 2789376.0,
+              "working_set_bytes": 9732096.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 42,
+              "private_bytes": 2326528.0,
+              "working_set_bytes": 9760768.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 43,
+              "private_bytes": 2887680.0,
+              "working_set_bytes": 9777152.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 44,
+              "private_bytes": 2330624.0,
+              "working_set_bytes": 9756672.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 45,
+              "private_bytes": 2236416.0,
+              "working_set_bytes": 9756672.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 46,
+              "private_bytes": 2641920.0,
+              "working_set_bytes": 9744384.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 47,
+              "private_bytes": 2752512.0,
+              "working_set_bytes": 9818112.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 48,
+              "private_bytes": 2539520.0,
+              "working_set_bytes": 9744384.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 49,
+              "private_bytes": 2543616.0,
+              "working_set_bytes": 9826304.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            }
+          ],
+          "private_slope_bytes_per_cycle": 11689.285762304922,
+          "second_half_private_slope_bytes_per_cycle": 25861.513846153844,
+          "private_first_to_last_delta": 757760.0,
+          "handle_first_to_last_delta": 0.0,
+          "thread_first_to_last_delta": -3.0
+        }
+      },
+      "limitation": "OS private bytes include runtime, allocator and retained harness results; slopes alone prove neither leaks nor allocator attribution."
+    },
+    {
+      "name": "cycles-50-r5",
+      "cycles": 50,
+      "ownership": "CLEAN",
+      "memory_cause": "INCONCLUSIVE",
+      "roles": {
+        "source": {
+          "cycle_medians": [
+            {
+              "cycle": 0,
+              "private_bytes": 1626112.0,
+              "working_set_bytes": 8978432.0,
+              "handle_count": 79.0,
+              "thread_count": 4.0
+            },
+            {
+              "cycle": 1,
+              "private_bytes": 1552384.0,
+              "working_set_bytes": 8962048.0,
+              "handle_count": 79.0,
+              "thread_count": 4.0
+            },
+            {
+              "cycle": 2,
+              "private_bytes": 1433600.0,
+              "working_set_bytes": 8986624.0,
+              "handle_count": 79.0,
+              "thread_count": 4.0
+            },
+            {
+              "cycle": 3,
+              "private_bytes": 1470464.0,
+              "working_set_bytes": 9027584.0,
+              "handle_count": 79.0,
+              "thread_count": 4.0
+            },
+            {
+              "cycle": 4,
+              "private_bytes": 1482752.0,
+              "working_set_bytes": 9035776.0,
+              "handle_count": 79.0,
+              "thread_count": 4.0
+            },
+            {
+              "cycle": 5,
+              "private_bytes": 1474560.0,
+              "working_set_bytes": 9019392.0,
+              "handle_count": 79.0,
+              "thread_count": 4.0
+            },
+            {
+              "cycle": 6,
+              "private_bytes": 1423360.0,
+              "working_set_bytes": 8970240.0,
+              "handle_count": 79.0,
+              "thread_count": 2.5
+            },
+            {
+              "cycle": 7,
+              "private_bytes": 1802240.0,
+              "working_set_bytes": 8949760.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 8,
+              "private_bytes": 1589248.0,
+              "working_set_bytes": 8970240.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 9,
+              "private_bytes": 1335296.0,
+              "working_set_bytes": 8937472.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 10,
+              "private_bytes": 1392640.0,
+              "working_set_bytes": 8962048.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 11,
+              "private_bytes": 1404928.0,
+              "working_set_bytes": 8966144.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 12,
+              "private_bytes": 1589248.0,
+              "working_set_bytes": 8945664.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 13,
+              "private_bytes": 1601536.0,
+              "working_set_bytes": 8974336.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 14,
+              "private_bytes": 1740800.0,
+              "working_set_bytes": 8998912.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 15,
+              "private_bytes": 1794048.0,
+              "working_set_bytes": 9072640.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 16,
+              "private_bytes": 1441792.0,
+              "working_set_bytes": 9043968.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 17,
+              "private_bytes": 1572864.0,
+              "working_set_bytes": 9093120.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 18,
+              "private_bytes": 1605632.0,
+              "working_set_bytes": 9019392.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 19,
+              "private_bytes": 1581056.0,
+              "working_set_bytes": 9064448.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 20,
+              "private_bytes": 1929216.0,
+              "working_set_bytes": 9043968.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 21,
+              "private_bytes": 1576960.0,
+              "working_set_bytes": 9064448.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 22,
+              "private_bytes": 1667072.0,
+              "working_set_bytes": 9097216.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 23,
+              "private_bytes": 1503232.0,
+              "working_set_bytes": 9048064.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 24,
+              "private_bytes": 1687552.0,
+              "working_set_bytes": 9080832.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 25,
+              "private_bytes": 1671168.0,
+              "working_set_bytes": 9043968.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 26,
+              "private_bytes": 1703936.0,
+              "working_set_bytes": 9031680.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 27,
+              "private_bytes": 1675264.0,
+              "working_set_bytes": 9089024.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 28,
+              "private_bytes": 1642496.0,
+              "working_set_bytes": 9134080.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 29,
+              "private_bytes": 1646592.0,
+              "working_set_bytes": 9158656.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 30,
+              "private_bytes": 1527808.0,
+              "working_set_bytes": 9125888.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 31,
+              "private_bytes": 1822720.0,
+              "working_set_bytes": 9109504.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 32,
+              "private_bytes": 1794048.0,
+              "working_set_bytes": 9084928.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 33,
+              "private_bytes": 1740800.0,
+              "working_set_bytes": 9080832.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 34,
+              "private_bytes": 1646592.0,
+              "working_set_bytes": 9138176.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 35,
+              "private_bytes": 1732608.0,
+              "working_set_bytes": 9080832.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 36,
+              "private_bytes": 1568768.0,
+              "working_set_bytes": 9080832.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 37,
+              "private_bytes": 1789952.0,
+              "working_set_bytes": 9117696.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 38,
+              "private_bytes": 1478656.0,
+              "working_set_bytes": 9080832.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 39,
+              "private_bytes": 1605632.0,
+              "working_set_bytes": 9129984.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 40,
+              "private_bytes": 1515520.0,
+              "working_set_bytes": 9117696.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 41,
+              "private_bytes": 1773568.0,
+              "working_set_bytes": 9101312.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 42,
+              "private_bytes": 1765376.0,
+              "working_set_bytes": 9199616.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 43,
+              "private_bytes": 1646592.0,
+              "working_set_bytes": 9101312.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 44,
+              "private_bytes": 1601536.0,
+              "working_set_bytes": 9195520.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 45,
+              "private_bytes": 1630208.0,
+              "working_set_bytes": 9162752.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 46,
+              "private_bytes": 1515520.0,
+              "working_set_bytes": 9117696.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 47,
+              "private_bytes": 1527808.0,
+              "working_set_bytes": 9129984.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 48,
+              "private_bytes": 1835008.0,
+              "working_set_bytes": 9129984.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            },
+            {
+              "cycle": 49,
+              "private_bytes": 1527808.0,
+              "working_set_bytes": 9125888.0,
+              "handle_count": 79.0,
+              "thread_count": 1.0
+            }
+          ],
+          "private_slope_bytes_per_cycle": 3021.205666266507,
+          "second_half_private_slope_bytes_per_cycle": -3320.9107692307693,
+          "private_first_to_last_delta": -98304.0,
+          "handle_first_to_last_delta": 0.0,
+          "thread_first_to_last_delta": -3.0
+        },
+        "destination": {
+          "cycle_medians": [
+            {
+              "cycle": 0,
+              "private_bytes": 1769472.0,
+              "working_set_bytes": 9179136.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            {
+              "cycle": 1,
+              "private_bytes": 1875968.0,
+              "working_set_bytes": 9297920.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            {
+              "cycle": 2,
+              "private_bytes": 2072576.0,
+              "working_set_bytes": 9342976.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            {
+              "cycle": 3,
+              "private_bytes": 2342912.0,
+              "working_set_bytes": 9347072.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            {
+              "cycle": 4,
+              "private_bytes": 2265088.0,
+              "working_set_bytes": 9359360.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            {
+              "cycle": 5,
+              "private_bytes": 2469888.0,
+              "working_set_bytes": 9355264.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            {
+              "cycle": 6,
+              "private_bytes": 1744896.0,
+              "working_set_bytes": 9273344.0,
+              "handle_count": 83.0,
+              "thread_count": 3.5
+            },
+            {
+              "cycle": 7,
+              "private_bytes": 2134016.0,
+              "working_set_bytes": 9314304.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 8,
+              "private_bytes": 2150400.0,
+              "working_set_bytes": 9363456.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 9,
+              "private_bytes": 1974272.0,
+              "working_set_bytes": 9334784.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 10,
+              "private_bytes": 2166784.0,
+              "working_set_bytes": 9359360.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 11,
+              "private_bytes": 2093056.0,
+              "working_set_bytes": 9375744.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 12,
+              "private_bytes": 2588672.0,
+              "working_set_bytes": 9367552.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 13,
+              "private_bytes": 2080768.0,
+              "working_set_bytes": 9396224.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 14,
+              "private_bytes": 1880064.0,
+              "working_set_bytes": 9363456.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 15,
+              "private_bytes": 2236416.0,
+              "working_set_bytes": 9388032.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 16,
+              "private_bytes": 1990656.0,
+              "working_set_bytes": 9445376.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 17,
+              "private_bytes": 2039808.0,
+              "working_set_bytes": 9457664.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 18,
+              "private_bytes": 2314240.0,
+              "working_set_bytes": 9486336.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 19,
+              "private_bytes": 2473984.0,
+              "working_set_bytes": 9527296.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 20,
+              "private_bytes": 2097152.0,
+              "working_set_bytes": 9519104.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 21,
+              "private_bytes": 2158592.0,
+              "working_set_bytes": 9515008.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 22,
+              "private_bytes": 2420736.0,
+              "working_set_bytes": 9494528.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 23,
+              "private_bytes": 2273280.0,
+              "working_set_bytes": 9510912.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 24,
+              "private_bytes": 2420736.0,
+              "working_set_bytes": 9531392.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 25,
+              "private_bytes": 2134016.0,
+              "working_set_bytes": 9551872.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 26,
+              "private_bytes": 2248704.0,
+              "working_set_bytes": 9474048.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 27,
+              "private_bytes": 2076672.0,
+              "working_set_bytes": 9510912.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 28,
+              "private_bytes": 2064384.0,
+              "working_set_bytes": 9510912.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 29,
+              "private_bytes": 2289664.0,
+              "working_set_bytes": 9547776.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 30,
+              "private_bytes": 2220032.0,
+              "working_set_bytes": 9519104.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 31,
+              "private_bytes": 2088960.0,
+              "working_set_bytes": 9523200.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 32,
+              "private_bytes": 2334720.0,
+              "working_set_bytes": 9535488.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 33,
+              "private_bytes": 2301952.0,
+              "working_set_bytes": 9551872.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 34,
+              "private_bytes": 2420736.0,
+              "working_set_bytes": 9547776.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 35,
+              "private_bytes": 2150400.0,
+              "working_set_bytes": 9555968.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 36,
+              "private_bytes": 2129920.0,
+              "working_set_bytes": 9531392.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 37,
+              "private_bytes": 2244608.0,
+              "working_set_bytes": 9568256.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 38,
+              "private_bytes": 2273280.0,
+              "working_set_bytes": 9560064.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 39,
+              "private_bytes": 2310144.0,
+              "working_set_bytes": 9572352.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 40,
+              "private_bytes": 2433024.0,
+              "working_set_bytes": 9535488.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 41,
+              "private_bytes": 2191360.0,
+              "working_set_bytes": 9527296.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 42,
+              "private_bytes": 2252800.0,
+              "working_set_bytes": 9555968.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 43,
+              "private_bytes": 2318336.0,
+              "working_set_bytes": 9584640.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 44,
+              "private_bytes": 2248704.0,
+              "working_set_bytes": 9576448.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 45,
+              "private_bytes": 2162688.0,
+              "working_set_bytes": 9576448.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 46,
+              "private_bytes": 2355200.0,
+              "working_set_bytes": 9592832.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 47,
+              "private_bytes": 2129920.0,
+              "working_set_bytes": 9609216.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 48,
+              "private_bytes": 2072576.0,
+              "working_set_bytes": 9580544.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            },
+            {
+              "cycle": 49,
+              "private_bytes": 2199552.0,
+              "working_set_bytes": 9633792.0,
+              "handle_count": 83.0,
+              "thread_count": 2.0
+            }
+          ],
+          "private_slope_bytes_per_cycle": 3614.1176470588234,
+          "second_half_private_slope_bytes_per_cycle": 1698.2646153846154,
+          "private_first_to_last_delta": 430080.0,
+          "handle_first_to_last_delta": 0.0,
+          "thread_first_to_last_delta": -3.0
+        }
+      },
+      "limitation": "OS private bytes include runtime, allocator and retained harness results; slopes alone prove neither leaks nor allocator attribution."
+    }
+  ],
+  "scale": []
+}
