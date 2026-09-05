@@ -1,0 +1,20 @@
+[
+  {
+    "label": "one-core",
+    "raw_path": "C:\\NBSR-build\\physical-core-v2-1k-1core-64streams",
+    "raw_index_sha256": "d53bd382aaf1e267ba58e3370c90e0fc4f39e58d7d988d3f1d3e5400ed540f2e",
+    "verified_artifacts": 130
+  },
+  {
+    "label": "two-core",
+    "raw_path": "C:\\NBSR-build\\physical-core-v2-1k-2core-64streams",
+    "raw_index_sha256": "151e4dfd5bde3cbe56bcc9c016617dc0b010a2b2b25b6025ed47866d8b3ac8a9",
+    "verified_artifacts": 191
+  },
+  {
+    "label": "repair",
+    "raw_path": "C:\\NBSR-build\\p2a-cleanup-gap-623e4db0",
+    "raw_index_sha256": "e318a058c5c070f239f10620a31ce5021763de401b93f84e17103651e289b03b",
+    "verified_artifacts": 53
+  }
+]

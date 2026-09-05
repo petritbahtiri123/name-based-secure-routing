@@ -19,6 +19,7 @@ import scripts.run_max_throughput_v2_stage2 as stage2
 import scripts.run_p2a_established as p2a
 from scripts.performance.authority import write_loopback_authority
 from scripts.performance.resources import ProcessResourceSampler
+from scripts.performance.post_close_cleanup import validate_report
 from scripts.profile_b2_v2 import set_and_verify_exact_affinity, windows_processor_topology
 from scripts.run_performance_validation import wait_ready
 
@@ -81,7 +82,8 @@ def _server_command(cell: dict, binaries: dict[str, Path], authority: Path, read
 
 def run_repeat(cell: dict, repeat: int, binaries: dict[str, Path], authority: Path,
                warmup: float, duration: float, raw: Path, topology: dict,
-               placement: dict | None = None, host_counter_path: Path | None = None) -> dict:
+               placement: dict | None = None, host_counter_path: Path | None = None,
+               ownership_reports: bool = False) -> dict:
     groups = int(cell["endpoint_groups"])
     payload = int(cell["payload_bytes"])
     streams = int(cell["streams_per_group"])
@@ -103,16 +105,22 @@ def run_repeat(cell: dict, repeat: int, binaries: dict[str, Path], authority: Pa
     client: subprocess.Popen[str] | None = None
     sampler = None
     sampler_running = False
+    ownership_paths = []
     try:
         for ordinal, mask in enumerate(masks):
             ready = raw / f"{prefix}-d{ordinal}.ready.json"
             result = raw / f"{prefix}-d{ordinal}.result.json"
             p2a.clear_run_markers(ready, result)
             argv, env = _server_command(cell, binaries, authority, ready, result, ack)
+            report_path = raw / f"{prefix}-d{ordinal}.cleanup.json"
+            if ownership_reports and cell["path"] == "nbsr":
+                argv += ["--p2a-cleanup-report", str(report_path)]
             server = subprocess.Popen(
                 argv, cwd=ROOT, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
             )
             servers.append(server)
+            if ownership_reports and cell["path"] == "nbsr":
+                ownership_paths.append(("destination", server.pid, report_path))
             server_affinity.append(set_and_verify_exact_affinity(server.pid, mask))
             if not server_affinity[-1]["verified"]:
                 raise RuntimeError("destination affinity verification failed")
@@ -127,11 +135,16 @@ def run_repeat(cell: dict, repeat: int, binaries: dict[str, Path], authority: Pa
                  "--lifecycle", "warm", *common]
                 if cell["path"] == "direct"
                 else [str(binaries["nbsr"]), "--samples", "1", *common])
+        source_report = raw / f"{prefix}-source.cleanup.json"
+        if ownership_reports and cell["path"] == "nbsr":
+            argv += ["--p2a-cleanup-report", str(source_report)]
         client = subprocess.Popen(
             argv, cwd=ROOT, env=os.environ.copy(), stdout=subprocess.PIPE,
             stderr=subprocess.PIPE, text=True
         )
         client_affinity = set_and_verify_exact_affinity(client.pid, source_mask)
+        if ownership_reports and cell["path"] == "nbsr":
+            ownership_paths.append(("source", client.pid, source_report))
         if not client_affinity["verified"]:
             client.kill()
             client.wait(timeout=5)
@@ -194,6 +207,18 @@ def run_repeat(cell: dict, repeat: int, binaries: dict[str, Path], authority: Pa
                 "application_streams_created_delta", "replay_entries_delta"
             )) for record in records)
         )
+        ownership = {"classification": "NOT_MEASURED", "reports": []}
+        if ownership_paths:
+            for role, pid, report_path in ownership_paths:
+                try:
+                    report = json.loads(report_path.read_text(encoding="utf-8"))
+                except (OSError, ValueError):
+                    report = None
+                ownership["reports"].append({"role": role, "pid": pid,
+                    "path": report_path.name, "valid_zero": validate_report(report, role, pid)})
+            ownership["classification"] = "PASS" if all(
+                item["valid_zero"] for item in ownership["reports"]) else "FAIL"
+            cleanup_pass = cleanup_pass and ownership["classification"] == "PASS"
         resources = p2a.summarize_resources(samples, aggregate["completed_operations"], seconds, 1)
         aggregate.update({
             "schema": "nbsr-max-throughput-v2-stage4-repeat-v1",
@@ -202,6 +227,8 @@ def run_repeat(cell: dict, repeat: int, binaries: dict[str, Path], authority: Pa
             "timeouts": 0,
             "valid": stage2.validate_group_records(records, process_cleanup_pass=cleanup_pass),
             "cleanup_pass": cleanup_pass,
+            "cleanup_scope": "workload drain and process exit; ownership separately classified",
+            "ownership_cleanup": ownership,
             "cleanup_diagnostic": diagnostics[-1] if diagnostics else None,
             "resources": resources,
             "affinity": {

@@ -35,6 +35,9 @@ mod batch_release;
 mod handshake_timeline;
 #[path = "benchmark_support/lifecycle_completion.rs"]
 mod lifecycle_completion;
+#[cfg(feature = "benchmark-harness")]
+#[path = "benchmark_support/post_close.rs"]
+mod post_close;
 use lifecycle_completion::{CompletionCoordinator, TerminalKind};
 
 fn cli_path(name: &str) -> PathBuf {
@@ -3667,11 +3670,15 @@ async fn run() {
 
 #[cfg(feature = "benchmark-harness")]
 fn main() {
+    let cleanup_report = post_close::prepare(optional_cli_path_strict("--p2a-cleanup-report"));
     let workers = nbsr_transport::p2a_benchmark::parse_runtime_workers(env::args())
         .expect("valid --p2a-runtime-workers");
     nbsr_transport::p2a_benchmark::build_benchmark_runtime(workers)
         .expect("benchmark Tokio runtime")
-        .block_on(run());
+        .block_on(async {
+            run().await;
+            post_close::write(cleanup_report.as_deref(), "destination", "runtime_alive");
+        });
 }
 
 #[cfg(not(feature = "benchmark-harness"))]

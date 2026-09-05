@@ -45,6 +45,9 @@ mod lifecycle_completion;
 #[cfg(feature = "benchmark-harness")]
 #[path = "benchmark_support/lifecycle_shards.rs"]
 mod lifecycle_shards;
+#[cfg(feature = "benchmark-harness")]
+#[path = "benchmark_support/post_close.rs"]
+mod post_close;
 use lifecycle_completion::{CompletionCoordinator, CompletionSender, TerminalKind};
 
 #[cfg(feature = "benchmark-harness")]
@@ -1895,17 +1898,27 @@ fn main() {
         return;
     }
     let groups = parse_group_count(env::args()).expect("valid --p2a-groups");
+    let cleanup_report =
+        post_close::prepare(optional_argument("--p2a-cleanup-report").map(PathBuf::from));
     if groups > 1 {
         run_current_thread_groups(groups, |ordinal, barrier| async move {
             run(Some(barrier), ordinal, None).await
         })
         .expect("independently authorized NBSR benchmark groups");
         emit_diagnostic(0, "group_cleanup");
+        post_close::write(
+            cleanup_report.as_deref(),
+            "source",
+            "all_group_runtimes_joined",
+        );
         return;
     }
     build_benchmark_runtime(workers)
         .expect("benchmark Tokio runtime")
-        .block_on(run(None, 0, None));
+        .block_on(async {
+            run(None, 0, None).await;
+            post_close::write(cleanup_report.as_deref(), "source", "runtime_alive");
+        });
     if optional_argument("--lifecycle-authority-dir").is_some()
         && optional_argument("--diagnostics").is_some()
     {

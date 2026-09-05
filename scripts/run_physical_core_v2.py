@@ -67,6 +67,8 @@ def execute(args):
             "cpu_accounting": "Process CPU sampled every 0.5s over final measured-duration window; excludes boundary fragments and host interrupt work. CPU ns/op is a sampled estimate.",
             "allocation_accounting": "NOT_MEASURED", "context_switches": "NOT_MEASURED",
             "syscalls": "NOT_MEASURED"}
+    meta["post_close_ownership_requested"] = args.ownership_reports
+    meta["ownership_observer_scope"] = "NBSR destination counters enabled before setup when requested; compare observer impact separately"
     (args.output / "environment.json").write_text(json.dumps(meta, indent=2), newline="\n")
     (args.output / "source.patch").write_bytes(subprocess.check_output(["git", "diff", "--binary"]))
     for relative in ("scripts/run_physical_core_v2.py", "scripts/run_max_throughput_v2_stage4.py"):
@@ -89,7 +91,8 @@ def execute(args):
                                     outstanding_per_stream=outstanding, endpoint_groups=args.groups, runtime_workers=1)
                         print(f"cores={args.cores} groups={args.groups} payload={args.payload} streams={args.streams} outstanding={outstanding} path={mode} repeat={repeat}", flush=True)
                         row = stage4.run_repeat(cell, repeat, binaries, authority, args.warmup,
-                                                args.duration, args.output, topology, placement=plan)
+                                                args.duration, args.output, topology, placement=plan,
+                                                ownership_reports=args.ownership_reports)
                         all_rows.append(row)
                         modes[mode].append(row)
                         (args.output / "records.json").write_text(json.dumps(all_rows, indent=2), newline="\n")
@@ -115,4 +118,5 @@ if __name__ == "__main__":
     parser.add_argument("--outstanding", type=int, nargs="+", default=[1, 4, 8, 16])
     parser.add_argument("--warmup", type=float, default=3)
     parser.add_argument("--duration", type=float, default=20)
+    parser.add_argument("--ownership-reports", action="store_true")
     execute(parser.parse_args())
