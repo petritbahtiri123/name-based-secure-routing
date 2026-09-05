@@ -1,0 +1,67 @@
+[
+  {
+    "path": "C:\\NBSR-build\\b4b-task4l-etw-20260905-141214\\metadata.json",
+    "bytes": 845,
+    "sha256": "64543c1de2fd9c23758abe77d0c33b4a9fb8e5a3bb06d763c13efabc85195951"
+  },
+  {
+    "path": "C:\\NBSR-build\\b4b-task4l-etw-20260905-141214\\observer-comparison.json",
+    "bytes": 1560,
+    "sha256": "cd708083d9e471ef5fa112cc39739a04a45ac36a17f8fce25b1bc09fb059795d"
+  },
+  {
+    "path": "C:\\NBSR-build\\b4b-task4l-etw-20260905-141214\\trace-stats.txt",
+    "bytes": 940,
+    "sha256": "1b141cba356f1def0b419372aa0c132f633698b9b9da6ff9e2703a87219fa55a"
+  },
+  {
+    "path": "C:\\NBSR-build\\b4b-task4l-etw-20260905-141214\\etw\\analysis.json",
+    "bytes": 3491388,
+    "sha256": "6bd821938c7a9efdb735b1c59500651e7e8383babe990504246e7c2bfe34244e"
+  },
+  {
+    "path": "C:\\NBSR-build\\b4b-task4l-etw-20260905-141214\\none\\analysis.json",
+    "bytes": 3186246,
+    "sha256": "c23dd0c8dc45c30f4ffa5d11b05504131489799b38c8bc776d18b18669bec057"
+  },
+  {
+    "path": "C:\\NBSR-build\\b4b-task4l-etw-20260905-141214\\kernel.etl",
+    "bytes": 2651848704,
+    "sha256": "4a838f5bdfc85e92462ff4b4665837d5a1c3cbbe6a7e2c69909534e262d24f87"
+  },
+  {
+    "path": "C:\\NBSR-build\\b4b-task4l-etw-20260905-141214\\etw\\environment.json",
+    "bytes": 2586,
+    "sha256": "e4feb572e03954edd329fc01c1ca79565d355b581918b84dd02a544c149219ee"
+  },
+  {
+    "path": "C:\\NBSR-build\\b4b-task4l-etw-20260905-141214\\none\\environment.json",
+    "bytes": 2589,
+    "sha256": "c330b7a71735c31c4f61804c597481b5ba736008a1f0212e20ee00953c9e6d80"
+  },
+  {
+    "path": "C:\\NBSR-build\\b4b-task4l-etw-20260905-141214\\etw\\checksums.sha256",
+    "bytes": 12995,
+    "sha256": "0c9a8b422029ca450053b9ceef78c0900081ce350b666e5f98180da3656ec4ff"
+  },
+  {
+    "path": "C:\\NBSR-build\\b4b-task4l-etw-20260905-141214\\none\\checksums.sha256",
+    "bytes": 13085,
+    "sha256": "7505a55958884cdf12203fbbaf915eacc43cad5edd211ad34d9210ddfcbf07eb"
+  },
+  {
+    "path": "C:\\NBSR-build\\b4b-task4l-etw-20260905-141214\\window-200-r1-us.csv",
+    "bytes": 495997587,
+    "sha256": "c59924773914aea2b102caf8f8f8c19bf3515a441b2714cef5295b69c0d64efe"
+  },
+  {
+    "path": "C:\\NBSR-build\\b4b-task4l-etw-20260905-141214\\window-250-r1-us.csv",
+    "bytes": 578403829,
+    "sha256": "60649a08388ad87e9c52462a27d9ddf77bd336fd9aed46f06b591448d4fbd1b5"
+  },
+  {
+    "path": "C:\\NBSR-build\\b4b-task4l-etw-20260905-141214\\profile-250-r1.txt",
+    "bytes": 252922,
+    "sha256": "b33d356cd86cb4bec810cc87ce5075b0e3d08ce67cd56ff5d38a191cb591612d"
+  }
+]

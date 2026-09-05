@@ -1,11 +1,11 @@
 [CmdletBinding()]
-param([string]$OutputRoot)
+param([string]$OutputRoot, [switch]$DatagramDropsOnly)
 
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 $principal = [Security.Principal.WindowsPrincipal]::new([Security.Principal.WindowsIdentity]::GetCurrent())
 if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
-    [Console]::Error.WriteLine('MANUAL_ELEVATION_REQUIRED: kernel scheduling/network/timer ETW requires Administrator.')
+    [Console]::Error.WriteLine('MANUAL_ELEVATION_REQUIRED: ETW provider capture requires Administrator.')
     exit 5
 }
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
@@ -30,6 +30,18 @@ $CaptureArguments = @(
     '-BufferSize', '1024', '-MinBuffers', '128', '-MaxBuffers', '512',
     '-f', $RawTrace
 )
+$CaptureTool = $Xperf
+$StopArguments = @('-d', $Trace)
+if ($DatagramDropsOnly) {
+    $CaptureTool = (Get-Command wpr.exe -ErrorAction Stop).Source
+    $Profile = Join-Path $PSScriptRoot 'performance\task4l-afd.wprp'
+    $Trace = Join-Path $OutputRoot 'afd-drops.etl'
+    $Instance = 'NBSRTask4lAFD-' + [guid]::NewGuid().ToString('N')
+    $CaptureArguments = @('-start', "${Profile}!NBSRTask4lAFD", '-filemode', '-instancename', $Instance,
+        '-recordtempto', $OutputRoot)
+    $StopArguments = @('-stop', $Trace, '-skipPdbGen', '-instancename', $Instance)
+    Copy-Item -LiteralPath $Profile -Destination (Join-Path $OutputRoot 'capture-profile.wprp')
+}
 function Invoke-BoundaryWorkload([string]$Mode) {
     & $Python -u $Runner --output (Join-Path $OutputRoot $Mode) --target $Target --mode $Mode 2>&1 |
         Tee-Object -FilePath (Join-Path $OutputRoot "$Mode.log") | Out-Host
@@ -39,14 +51,14 @@ function Invoke-BoundaryWorkload([string]$Mode) {
 Invoke-BoundaryWorkload 'none'
 $started = $false
 try {
-    & $Xperf @CaptureArguments 2>&1 | Set-Content (Join-Path $OutputRoot 'start.log')
+    & $CaptureTool @CaptureArguments 2>&1 | Set-Content (Join-Path $OutputRoot 'start.log')
     if ($LASTEXITCODE -ne 0) { throw "ETW start failed: $LASTEXITCODE" }
     $started = $true
     Invoke-BoundaryWorkload 'etw'
 }
 finally {
     if ($started) {
-        & $Xperf -d $Trace 2>&1 | Set-Content (Join-Path $OutputRoot 'stop.log')
+        & $CaptureTool @StopArguments 2>&1 | Set-Content (Join-Path $OutputRoot 'stop.log')
         if ($LASTEXITCODE -ne 0) { throw "ETW stop failed: $LASTEXITCODE" }
     }
 }
@@ -61,6 +73,8 @@ if ($LASTEXITCODE -ne 0) { throw 'Matched observer comparison failed; preserve t
     sha = (& git -C $RepoRoot rev-parse HEAD).Trim()
     timestamp_utc = (Get-Date).ToUniversalTime().ToString('o')
     arguments = $CaptureArguments
+    capture_tool = $CaptureTool
+    datagram_drops_only = [bool]$DatagramDropsOnly
     trace = $Trace
     trace_sha256 = (Get-FileHash -LiteralPath $Trace -Algorithm SHA256).Hash.ToLowerInvariant()
     lost_events = $(if ($lost.Success) { [int64]$lost.Groups[1].Value } else { $null })
