@@ -50,6 +50,7 @@ def test_summary_never_hides_one_failed_repeat_with_a_median():
     assert result['errors']==1 and result['timeouts']==1
     assert result['admission_success_ratio']==511/512
     assert result['repeat_cv'] > .05
+    assert result['status'] == 'SATURATED'
 
 
 def test_isolated_low_rate_failure_does_not_hide_a_later_stable_region():

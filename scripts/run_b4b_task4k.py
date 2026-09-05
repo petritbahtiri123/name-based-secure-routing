@@ -22,8 +22,8 @@ CLIENTS = 512
 
 
 def classify_boundary_movement(one: list[dict], two: list[dict]) -> dict:
-    stable_one = max((cell["offered_rate"] for cell in one if cell["status"] in {"BASELINE", "STABLE"}), default=0)
-    stable_two = max((cell["offered_rate"] for cell in two if cell["status"] in {"BASELINE", "STABLE"}), default=0)
+    stable_one = max((cell["offered_rate"] for cell in one if cell["status"] == "STABLE"), default=0)
+    stable_two = max((cell["offered_rate"] for cell in two if cell["status"] == "STABLE"), default=0)
     first_saturated_one = min((cell["offered_rate"] for cell in one if cell["status"] == "SATURATED"), default=None)
     first_saturated_two = min((cell["offered_rate"] for cell in two if cell["status"] == "SATURATED"), default=None)
     moved = stable_two > stable_one or (

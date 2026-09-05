@@ -73,7 +73,9 @@ def summarize(rate, records, baseline=None):
         repeat_cv=max(v2.coefficient_of_variation([float(r['admission_rate']) for r in records]),
             v2.coefficient_of_variation([float(r['established_goodput_bytes_per_second']) for r in records])),
         resources={key:statistics.median(float(r['resources'][key]) for r in records) for key in records[0]['resources'] if isinstance(records[0]['resources'][key],(int,float))})
-    result['status']='BASELINE' if baseline is None else classify_cell(result,baseline)
+    # Being the reference cell does not waive absolute rate/error/CV gates.
+    result['status']=classify_cell(result, result if baseline is None else baseline)
+    result['is_reference_cell']=baseline is None
     return result
 
 

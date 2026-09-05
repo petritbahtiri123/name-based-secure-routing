@@ -53,8 +53,8 @@ def test_pass_requires_two_shards_to_move_a_classification_boundary():
     assert classify_boundary_movement(one, one)["classification"] == "FAIL"
 
 
-def test_baseline_is_the_stable_reference_boundary():
+def test_unclassified_baseline_is_not_a_proven_stable_boundary():
     cells = [{"offered_rate": 125, "status": "BASELINE"}, {"offered_rate": 150, "status": "DEGRADED"}]
     result = classify_boundary_movement(cells, cells)
-    assert result["one_shard_highest_stable"] == 125
+    assert result["one_shard_highest_stable"] == 0
     assert result["classification"] == "FAIL"
