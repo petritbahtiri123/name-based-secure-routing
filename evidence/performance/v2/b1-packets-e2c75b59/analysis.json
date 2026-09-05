@@ -1,0 +1,395 @@
+{
+  "schema": "nbsr-b1-v2-paired-accounting-analysis-v1",
+  "source": {
+    "schema": "nbsr-b1-v2-capture-control-v1",
+    "repository_sha": "e2c75b598b213b4fafbd50aeb93e06edc06b864e",
+    "binary_sha256": {
+      "direct": "060130e6f67a811af3e0c85d528feef6925b2dd835271b962abef0bbcedcc890",
+      "nbsr": "9231f9390078306218e1672a9871862eac732b2d4d021cb45e054c6b63cc05f4",
+      "server": "0626a7597a3e495921e9c67c159c18075eb8c25ba0c4839f6385321c8a07df88"
+    },
+    "scope": "IPv4 Windows loopback; capture observes only server-facing leg of equivalent single-flow relay",
+    "phase_scope": "Whole capture: setup, fixed measured operations, matched untimed frame-validation exchanges and teardown. No warmup. Established-only packet split NOT_PROVEN.",
+    "capture_readiness": "Exact private UDP probe observed in open pcapng before workload; separately validated probes excluded from workload byte totals.",
+    "performance_timing": "DIAGNOSTIC; no timing capacity claim from capture runs",
+    "operation_denominator": "Aggregate request/response bytes for fixed useful operations; excludes untimed frame-validation exchanges",
+    "physical_ethernet_bytes": "NOT_MEASURED"
+  },
+  "records_sha256": "710c369de8af24a216c038f47534ce05379162189199d1159852a611f9282e59",
+  "capture_gates": {
+    "valid_captures": 20,
+    "matched_pairs": 10,
+    "readiness_pass": 20,
+    "zero_capture_loss": 20,
+    "exact_inventory": 20,
+    "completed_operation_and_error_gates": 20
+  },
+  "qualifications": [
+    "Whole-capture server-facing loopback leg only, including setup, untimed validation and teardown.",
+    "Byte denominator includes useful fixed request/response payload only; not a phase-aligned established overhead ratio.",
+    "CV uses sample standard deviation divided by absolute mean; descriptive only, no timing/capacity gate.",
+    "Established-only packet split NOT_PROVEN; physical Ethernet NOT_MEASURED; no performance/capacity claim."
+  ],
+  "workloads": [
+    {
+      "payload_bytes": 1024,
+      "streams": 64,
+      "operations_per_stream": 1000,
+      "application_bytes": 131072000,
+      "pairs": [
+        {
+          "repeat": 1,
+          "application_bytes": 131072000,
+          "delta_bytes": {
+            "captured_frame_bytes": 101906,
+            "ip_bytes": 96866,
+            "udp_bytes": 71666,
+            "udp_payload_bytes": 61586
+          }
+        },
+        {
+          "repeat": 2,
+          "application_bytes": 131072000,
+          "delta_bytes": {
+            "captured_frame_bytes": -35844,
+            "ip_bytes": -31724,
+            "udp_bytes": -11124,
+            "udp_payload_bytes": -2884
+          }
+        },
+        {
+          "repeat": 3,
+          "application_bytes": 131072000,
+          "delta_bytes": {
+            "captured_frame_bytes": -8276,
+            "ip_bytes": -4424,
+            "udp_bytes": 14836,
+            "udp_payload_bytes": 22540
+          }
+        },
+        {
+          "repeat": 4,
+          "application_bytes": 131072000,
+          "delta_bytes": {
+            "captured_frame_bytes": -90470,
+            "ip_bytes": -81874,
+            "udp_bytes": -38894,
+            "udp_payload_bytes": -21702
+          }
+        },
+        {
+          "repeat": 5,
+          "application_bytes": 131072000,
+          "delta_bytes": {
+            "captured_frame_bytes": -3447,
+            "ip_bytes": -611,
+            "udp_bytes": 13569,
+            "udp_payload_bytes": 19241
+          }
+        }
+      ],
+      "paths": {
+        "direct": {
+          "captured_frame_bytes": {
+            "median": 144561964,
+            "minimum": 144496940,
+            "maximum": 144653590,
+            "mean": 144559404,
+            "sample_cv_percent": 0.04246907551714416
+          },
+          "ip_bytes": {
+            "median": 144069012,
+            "minimum": 144008384,
+            "maximum": 144153538,
+            "mean": 144066264,
+            "sample_cv_percent": 0.03957948116375183
+          },
+          "udp_bytes": {
+            "median": 141604252,
+            "minimum": 141565604,
+            "maximum": 141653278,
+            "mean": 141600564,
+            "sample_cv_percent": 0.024870759990918433
+          },
+          "udp_payload_bytes": {
+            "median": 140618348,
+            "minimum": 140588492,
+            "maximum": 140653174,
+            "mean": 140614284,
+            "sample_cv_percent": 0.01888758755316886
+          }
+        },
+        "nbsr": {
+          "captured_frame_bytes": {
+            "median": 144526120,
+            "minimum": 144406470,
+            "maximum": 144755496,
+            "mean": 144552177.8,
+            "sample_cv_percent": 0.08869336050502741
+          },
+          "ip_bytes": {
+            "median": 144037288,
+            "minimum": 143926510,
+            "maximum": 144250404,
+            "mean": 144061910.6,
+            "sample_cv_percent": 0.08257583429732072
+          },
+          "udp_bytes": {
+            "median": 141593128,
+            "minimum": 141526710,
+            "maximum": 141724944,
+            "mean": 141610574.6,
+            "sample_cv_percent": 0.05137619452429884
+          },
+          "udp_payload_bytes": {
+            "median": 140615464,
+            "minimum": 140566790,
+            "maximum": 140714760,
+            "mean": 140630040.2,
+            "sample_cv_percent": 0.03861772249388149
+          }
+        }
+      },
+      "paired_delta": {
+        "captured_frame_bytes": {
+          "median": -8276,
+          "minimum": -90470,
+          "maximum": 101906,
+          "mean": -7226.2,
+          "sample_cv_percent": 970.5175269039281
+        },
+        "ip_bytes": {
+          "median": -4424,
+          "minimum": -81874,
+          "maximum": 96866,
+          "mean": -4353.4,
+          "sample_cv_percent": 1498.2880528730402
+        },
+        "udp_bytes": {
+          "median": 13569,
+          "minimum": -38894,
+          "maximum": 71666,
+          "mean": 10010.6,
+          "sample_cv_percent": 408.0911761266298
+        },
+        "udp_payload_bytes": {
+          "median": 19241,
+          "minimum": -21702,
+          "maximum": 61586,
+          "mean": 15756.2,
+          "sample_cv_percent": 198.40716980428562
+        }
+      },
+      "paired_delta_percent_useful_application_bytes": {
+        "captured_frame_bytes": {
+          "median": -0.0063140869140625,
+          "minimum": -0.06902313232421875,
+          "maximum": 0.07774810791015625,
+          "mean": -0.005513153076171874,
+          "sample_cv_percent": 970.5175269039281
+        },
+        "ip_bytes": {
+          "median": -0.003375244140625,
+          "minimum": -0.06246490478515625,
+          "maximum": 0.07390289306640625,
+          "mean": -0.003321380615234374,
+          "sample_cv_percent": 1498.288052873041
+        },
+        "udp_bytes": {
+          "median": 0.010352325439453126,
+          "minimum": -0.02967376708984375,
+          "maximum": 0.05467681884765625,
+          "mean": 0.0076374816894531255,
+          "sample_cv_percent": 408.0911761266298
+        },
+        "udp_payload_bytes": {
+          "median": 0.014679718017578124,
+          "minimum": -0.01655731201171875,
+          "maximum": 0.04698638916015625,
+          "mean": 0.012021026611328126,
+          "sample_cv_percent": 198.4071698042856
+        }
+      }
+    },
+    {
+      "payload_bytes": 16384,
+      "streams": 8,
+      "operations_per_stream": 1000,
+      "application_bytes": 262144000,
+      "pairs": [
+        {
+          "repeat": 1,
+          "application_bytes": 262144000,
+          "delta_bytes": {
+            "captured_frame_bytes": -1704945,
+            "ip_bytes": -1604037,
+            "udp_bytes": -1099497,
+            "udp_payload_bytes": -897681
+          }
+        },
+        {
+          "repeat": 2,
+          "application_bytes": 262144000,
+          "delta_bytes": {
+            "captured_frame_bytes": -2139795,
+            "ip_bytes": -2003371,
+            "udp_bytes": -1321251,
+            "udp_payload_bytes": -1048403
+          }
+        },
+        {
+          "repeat": 3,
+          "application_bytes": 262144000,
+          "delta_bytes": {
+            "captured_frame_bytes": -1065553,
+            "ip_bytes": -995673,
+            "udp_bytes": -646273,
+            "udp_payload_bytes": -506513
+          }
+        },
+        {
+          "repeat": 4,
+          "application_bytes": 262144000,
+          "delta_bytes": {
+            "captured_frame_bytes": 517127,
+            "ip_bytes": 483907,
+            "udp_bytes": 317807,
+            "udp_payload_bytes": 251367
+          }
+        },
+        {
+          "repeat": 5,
+          "application_bytes": 262144000,
+          "delta_bytes": {
+            "captured_frame_bytes": -1279419,
+            "ip_bytes": -1204659,
+            "udp_bytes": -830859,
+            "udp_payload_bytes": -681339
+          }
+        }
+      ],
+      "paths": {
+        "direct": {
+          "captured_frame_bytes": {
+            "median": 280716275,
+            "minimum": 279646939,
+            "maximum": 280971682,
+            "mean": 280491437.2,
+            "sample_cv_percent": 0.18304437343488905
+          },
+          "ip_bytes": {
+            "median": 279669195,
+            "minimum": 278665935,
+            "maximum": 279908090,
+            "mean": 279458290,
+            "sample_cv_percent": 0.17216877947129544
+          },
+          "udp_bytes": {
+            "median": 274422353,
+            "minimum": 273760915,
+            "maximum": 274590130,
+            "mean": 274292554,
+            "sample_cv_percent": 0.11662894700292355
+          },
+          "udp_payload_bytes": {
+            "median": 272323209,
+            "minimum": 271798907,
+            "maximum": 272462946,
+            "mean": 272226259.6,
+            "sample_cv_percent": 0.09388617645804334
+          }
+        },
+        "nbsr": {
+          "captured_frame_bytes": {
+            "median": 279123086,
+            "minimum": 278831887,
+            "maximum": 280164066,
+            "mean": 279356920.2,
+            "sample_cv_percent": 0.1948494775417683
+          },
+          "ip_bytes": {
+            "median": 278173358,
+            "minimum": 277904719,
+            "maximum": 279149842,
+            "mean": 278393523.4,
+            "sample_cv_percent": 0.1835963383069407
+          },
+          "udp_bytes": {
+            "median": 273424718,
+            "minimum": 273268879,
+            "maximum": 274078722,
+            "mean": 273576539.4,
+            "sample_cv_percent": 0.12645922378916463
+          },
+          "udp_payload_bytes": {
+            "median": 271525262,
+            "minimum": 271414543,
+            "maximum": 272050274,
+            "mean": 271649745.8,
+            "sample_cv_percent": 0.10332665585835966
+          }
+        }
+      },
+      "paired_delta": {
+        "captured_frame_bytes": {
+          "median": -1279419,
+          "minimum": -2139795,
+          "maximum": 517127,
+          "mean": -1134517,
+          "sample_cv_percent": 89.12554516632818
+        },
+        "ip_bytes": {
+          "median": -1204659,
+          "minimum": -2003371,
+          "maximum": 483907,
+          "mean": -1064766.6,
+          "sample_cv_percent": 89.02998691792729
+        },
+        "udp_bytes": {
+          "median": -830859,
+          "minimum": -1321251,
+          "maximum": 317807,
+          "mean": -716014.6,
+          "sample_cv_percent": 88.33577570910948
+        },
+        "udp_payload_bytes": {
+          "median": -681339,
+          "minimum": -1048403,
+          "maximum": 251367,
+          "mean": -576513.8,
+          "sample_cv_percent": 87.89562570854677
+        }
+      },
+      "paired_delta_percent_useful_application_bytes": {
+        "captured_frame_bytes": {
+          "median": -0.48805961608886717,
+          "minimum": -0.8162670135498047,
+          "maximum": 0.19726829528808593,
+          "mean": -0.4327838897705078,
+          "sample_cv_percent": 89.12554516632818
+        },
+        "ip_bytes": {
+          "median": -0.45954093933105467,
+          "minimum": -0.7642253875732422,
+          "maximum": 0.18459587097167968,
+          "mean": -0.4061762237548828,
+          "sample_cv_percent": 89.02998691792727
+        },
+        "udp_bytes": {
+          "median": -0.31694755554199217,
+          "minimum": -0.5040172576904297,
+          "maximum": 0.12123374938964844,
+          "mean": -0.27313789367675784,
+          "sample_cv_percent": 88.33577570910948
+        },
+        "udp_payload_bytes": {
+          "median": -0.25991020202636717,
+          "minimum": -0.3999340057373047,
+          "maximum": 0.09588890075683594,
+          "mean": -0.21992256164550783,
+          "sample_cv_percent": 87.89562570854679
+        }
+      }
+    }
+  ]
+}

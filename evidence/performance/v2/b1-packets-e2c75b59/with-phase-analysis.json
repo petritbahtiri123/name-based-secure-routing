@@ -1,0 +1,938 @@
+{
+  "schema": "nbsr-b1-v2-paired-accounting-analysis-v1",
+  "source": {
+    "schema": "nbsr-b1-v2-capture-control-v1",
+    "repository_sha": "e2c75b598b213b4fafbd50aeb93e06edc06b864e",
+    "binary_sha256": {
+      "direct": "060130e6f67a811af3e0c85d528feef6925b2dd835271b962abef0bbcedcc890",
+      "nbsr": "9231f9390078306218e1672a9871862eac732b2d4d021cb45e054c6b63cc05f4",
+      "server": "0626a7597a3e495921e9c67c159c18075eb8c25ba0c4839f6385321c8a07df88"
+    },
+    "scope": "IPv4 Windows loopback; capture observes only server-facing leg of equivalent single-flow relay",
+    "phase_scope": "Whole capture: setup, fixed measured operations, matched untimed frame-validation exchanges and teardown. No warmup. Established-only packet split NOT_PROVEN.",
+    "capture_readiness": "Exact private UDP probe observed in open pcapng before workload; separately validated probes excluded from workload byte totals.",
+    "performance_timing": "DIAGNOSTIC; no timing capacity claim from capture runs",
+    "operation_denominator": "Aggregate request/response bytes for fixed useful operations; excludes untimed frame-validation exchanges",
+    "physical_ethernet_bytes": "NOT_MEASURED"
+  },
+  "records_sha256": "710c369de8af24a216c038f47534ce05379162189199d1159852a611f9282e59",
+  "capture_gates": {
+    "valid_captures": 20,
+    "matched_pairs": 10,
+    "readiness_pass": 20,
+    "zero_capture_loss": 20,
+    "exact_inventory": 20,
+    "completed_operation_and_error_gates": 20
+  },
+  "qualifications": [
+    "Whole-capture server-facing loopback leg only, including setup, untimed validation and teardown.",
+    "Byte denominator includes useful fixed request/response payload only; not a phase-aligned established overhead ratio.",
+    "CV uses sample standard deviation divided by absolute mean; descriptive only, no timing/capacity gate.",
+    "Established-only packet split NOT_PROVEN; physical Ethernet NOT_MEASURED; no performance/capacity claim."
+  ],
+  "workloads": [
+    {
+      "payload_bytes": 1024,
+      "streams": 64,
+      "operations_per_stream": 1000,
+      "application_bytes": 131072000,
+      "pairs": [
+        {
+          "repeat": 1,
+          "application_bytes": 131072000,
+          "delta_bytes": {
+            "captured_frame_bytes": 101906,
+            "ip_bytes": 96866,
+            "udp_bytes": 71666,
+            "udp_payload_bytes": 61586
+          }
+        },
+        {
+          "repeat": 2,
+          "application_bytes": 131072000,
+          "delta_bytes": {
+            "captured_frame_bytes": -35844,
+            "ip_bytes": -31724,
+            "udp_bytes": -11124,
+            "udp_payload_bytes": -2884
+          }
+        },
+        {
+          "repeat": 3,
+          "application_bytes": 131072000,
+          "delta_bytes": {
+            "captured_frame_bytes": -8276,
+            "ip_bytes": -4424,
+            "udp_bytes": 14836,
+            "udp_payload_bytes": 22540
+          }
+        },
+        {
+          "repeat": 4,
+          "application_bytes": 131072000,
+          "delta_bytes": {
+            "captured_frame_bytes": -90470,
+            "ip_bytes": -81874,
+            "udp_bytes": -38894,
+            "udp_payload_bytes": -21702
+          }
+        },
+        {
+          "repeat": 5,
+          "application_bytes": 131072000,
+          "delta_bytes": {
+            "captured_frame_bytes": -3447,
+            "ip_bytes": -611,
+            "udp_bytes": 13569,
+            "udp_payload_bytes": 19241
+          }
+        }
+      ],
+      "paths": {
+        "direct": {
+          "captured_frame_bytes": {
+            "median": 144561964,
+            "minimum": 144496940,
+            "maximum": 144653590,
+            "mean": 144559404,
+            "sample_cv_percent": 0.04246907551714416
+          },
+          "ip_bytes": {
+            "median": 144069012,
+            "minimum": 144008384,
+            "maximum": 144153538,
+            "mean": 144066264,
+            "sample_cv_percent": 0.03957948116375183
+          },
+          "udp_bytes": {
+            "median": 141604252,
+            "minimum": 141565604,
+            "maximum": 141653278,
+            "mean": 141600564,
+            "sample_cv_percent": 0.024870759990918433
+          },
+          "udp_payload_bytes": {
+            "median": 140618348,
+            "minimum": 140588492,
+            "maximum": 140653174,
+            "mean": 140614284,
+            "sample_cv_percent": 0.01888758755316886
+          }
+        },
+        "nbsr": {
+          "captured_frame_bytes": {
+            "median": 144526120,
+            "minimum": 144406470,
+            "maximum": 144755496,
+            "mean": 144552177.8,
+            "sample_cv_percent": 0.08869336050502741
+          },
+          "ip_bytes": {
+            "median": 144037288,
+            "minimum": 143926510,
+            "maximum": 144250404,
+            "mean": 144061910.6,
+            "sample_cv_percent": 0.08257583429732072
+          },
+          "udp_bytes": {
+            "median": 141593128,
+            "minimum": 141526710,
+            "maximum": 141724944,
+            "mean": 141610574.6,
+            "sample_cv_percent": 0.05137619452429884
+          },
+          "udp_payload_bytes": {
+            "median": 140615464,
+            "minimum": 140566790,
+            "maximum": 140714760,
+            "mean": 140630040.2,
+            "sample_cv_percent": 0.03861772249388149
+          }
+        }
+      },
+      "paired_delta": {
+        "captured_frame_bytes": {
+          "median": -8276,
+          "minimum": -90470,
+          "maximum": 101906,
+          "mean": -7226.2,
+          "sample_cv_percent": 970.5175269039281
+        },
+        "ip_bytes": {
+          "median": -4424,
+          "minimum": -81874,
+          "maximum": 96866,
+          "mean": -4353.4,
+          "sample_cv_percent": 1498.2880528730402
+        },
+        "udp_bytes": {
+          "median": 13569,
+          "minimum": -38894,
+          "maximum": 71666,
+          "mean": 10010.6,
+          "sample_cv_percent": 408.0911761266298
+        },
+        "udp_payload_bytes": {
+          "median": 19241,
+          "minimum": -21702,
+          "maximum": 61586,
+          "mean": 15756.2,
+          "sample_cv_percent": 198.40716980428562
+        }
+      },
+      "paired_delta_percent_useful_application_bytes": {
+        "captured_frame_bytes": {
+          "median": -0.0063140869140625,
+          "minimum": -0.06902313232421875,
+          "maximum": 0.07774810791015625,
+          "mean": -0.005513153076171874,
+          "sample_cv_percent": 970.5175269039281
+        },
+        "ip_bytes": {
+          "median": -0.003375244140625,
+          "minimum": -0.06246490478515625,
+          "maximum": 0.07390289306640625,
+          "mean": -0.003321380615234374,
+          "sample_cv_percent": 1498.288052873041
+        },
+        "udp_bytes": {
+          "median": 0.010352325439453126,
+          "minimum": -0.02967376708984375,
+          "maximum": 0.05467681884765625,
+          "mean": 0.0076374816894531255,
+          "sample_cv_percent": 408.0911761266298
+        },
+        "udp_payload_bytes": {
+          "median": 0.014679718017578124,
+          "minimum": -0.01655731201171875,
+          "maximum": 0.04698638916015625,
+          "mean": 0.012021026611328126,
+          "sample_cv_percent": 198.4071698042856
+        }
+      }
+    },
+    {
+      "payload_bytes": 16384,
+      "streams": 8,
+      "operations_per_stream": 1000,
+      "application_bytes": 262144000,
+      "pairs": [
+        {
+          "repeat": 1,
+          "application_bytes": 262144000,
+          "delta_bytes": {
+            "captured_frame_bytes": -1704945,
+            "ip_bytes": -1604037,
+            "udp_bytes": -1099497,
+            "udp_payload_bytes": -897681
+          }
+        },
+        {
+          "repeat": 2,
+          "application_bytes": 262144000,
+          "delta_bytes": {
+            "captured_frame_bytes": -2139795,
+            "ip_bytes": -2003371,
+            "udp_bytes": -1321251,
+            "udp_payload_bytes": -1048403
+          }
+        },
+        {
+          "repeat": 3,
+          "application_bytes": 262144000,
+          "delta_bytes": {
+            "captured_frame_bytes": -1065553,
+            "ip_bytes": -995673,
+            "udp_bytes": -646273,
+            "udp_payload_bytes": -506513
+          }
+        },
+        {
+          "repeat": 4,
+          "application_bytes": 262144000,
+          "delta_bytes": {
+            "captured_frame_bytes": 517127,
+            "ip_bytes": 483907,
+            "udp_bytes": 317807,
+            "udp_payload_bytes": 251367
+          }
+        },
+        {
+          "repeat": 5,
+          "application_bytes": 262144000,
+          "delta_bytes": {
+            "captured_frame_bytes": -1279419,
+            "ip_bytes": -1204659,
+            "udp_bytes": -830859,
+            "udp_payload_bytes": -681339
+          }
+        }
+      ],
+      "paths": {
+        "direct": {
+          "captured_frame_bytes": {
+            "median": 280716275,
+            "minimum": 279646939,
+            "maximum": 280971682,
+            "mean": 280491437.2,
+            "sample_cv_percent": 0.18304437343488905
+          },
+          "ip_bytes": {
+            "median": 279669195,
+            "minimum": 278665935,
+            "maximum": 279908090,
+            "mean": 279458290,
+            "sample_cv_percent": 0.17216877947129544
+          },
+          "udp_bytes": {
+            "median": 274422353,
+            "minimum": 273760915,
+            "maximum": 274590130,
+            "mean": 274292554,
+            "sample_cv_percent": 0.11662894700292355
+          },
+          "udp_payload_bytes": {
+            "median": 272323209,
+            "minimum": 271798907,
+            "maximum": 272462946,
+            "mean": 272226259.6,
+            "sample_cv_percent": 0.09388617645804334
+          }
+        },
+        "nbsr": {
+          "captured_frame_bytes": {
+            "median": 279123086,
+            "minimum": 278831887,
+            "maximum": 280164066,
+            "mean": 279356920.2,
+            "sample_cv_percent": 0.1948494775417683
+          },
+          "ip_bytes": {
+            "median": 278173358,
+            "minimum": 277904719,
+            "maximum": 279149842,
+            "mean": 278393523.4,
+            "sample_cv_percent": 0.1835963383069407
+          },
+          "udp_bytes": {
+            "median": 273424718,
+            "minimum": 273268879,
+            "maximum": 274078722,
+            "mean": 273576539.4,
+            "sample_cv_percent": 0.12645922378916463
+          },
+          "udp_payload_bytes": {
+            "median": 271525262,
+            "minimum": 271414543,
+            "maximum": 272050274,
+            "mean": 271649745.8,
+            "sample_cv_percent": 0.10332665585835966
+          }
+        }
+      },
+      "paired_delta": {
+        "captured_frame_bytes": {
+          "median": -1279419,
+          "minimum": -2139795,
+          "maximum": 517127,
+          "mean": -1134517,
+          "sample_cv_percent": 89.12554516632818
+        },
+        "ip_bytes": {
+          "median": -1204659,
+          "minimum": -2003371,
+          "maximum": 483907,
+          "mean": -1064766.6,
+          "sample_cv_percent": 89.02998691792729
+        },
+        "udp_bytes": {
+          "median": -830859,
+          "minimum": -1321251,
+          "maximum": 317807,
+          "mean": -716014.6,
+          "sample_cv_percent": 88.33577570910948
+        },
+        "udp_payload_bytes": {
+          "median": -681339,
+          "minimum": -1048403,
+          "maximum": 251367,
+          "mean": -576513.8,
+          "sample_cv_percent": 87.89562570854677
+        }
+      },
+      "paired_delta_percent_useful_application_bytes": {
+        "captured_frame_bytes": {
+          "median": -0.48805961608886717,
+          "minimum": -0.8162670135498047,
+          "maximum": 0.19726829528808593,
+          "mean": -0.4327838897705078,
+          "sample_cv_percent": 89.12554516632818
+        },
+        "ip_bytes": {
+          "median": -0.45954093933105467,
+          "minimum": -0.7642253875732422,
+          "maximum": 0.18459587097167968,
+          "mean": -0.4061762237548828,
+          "sample_cv_percent": 89.02998691792727
+        },
+        "udp_bytes": {
+          "median": -0.31694755554199217,
+          "minimum": -0.5040172576904297,
+          "maximum": 0.12123374938964844,
+          "mean": -0.27313789367675784,
+          "sample_cv_percent": 88.33577570910948
+        },
+        "udp_payload_bytes": {
+          "median": -0.25991020202636717,
+          "minimum": -0.3999340057373047,
+          "maximum": 0.09588890075683594,
+          "mean": -0.21992256164550783,
+          "sample_cv_percent": 87.89562570854679
+        }
+      }
+    }
+  ],
+  "relay_phase_accounting": {
+    "classification": "DIRECTLY_MEASURED_RELAY_UDP_PAYLOAD_AND_DATAGRAM_WINDOWS",
+    "validated_records": 20,
+    "boundary_evidence": "Successful clients require acknowledged setup-complete, measurement-start and measurement-stop before final record; relay transitions and counters share a lock. Records do not retain individual phase ACK transcripts or phase timestamps.",
+    "ownership_evidence": "Authorized child PID checked against OS UDP endpoint ownership for first client tuple; subsequent datagrams match that tuple; all 20 records have zero rejected datagrams.",
+    "setup_scope": "Relay creation through acknowledged setup-complete after connection and stream-open preparation. Does not include later preflight validation/materialization during excluded warmup phase.",
+    "established_scope": "Acknowledged measurement-start before fixed-operation barrier release through acknowledged measurement-stop after one postflight validation exchange per stream plus 100 ms settling. Excludes teardown; not identical to measured_ns interval.",
+    "exclusions": "Excluded warmup/preflight and stopped/teardown traffic mean setup plus established is not the whole-PCAP inventory.",
+    "denominator_scope": "Fixed useful request/response bytes exclude postflight payload; no fixed-operation-only overhead claim.",
+    "phase_ip_udp_header_or_l2_bytes": "NOT_PROVEN: no phase-aligned capture timestamps; do not relabel whole-PCAP layers.",
+    "workload_results": [
+      {
+        "payload_bytes": 1024,
+        "streams": 64,
+        "fixed_useful_application_bytes": 131072000,
+        "phases": {
+          "setup": {
+            "pairs": [
+              {
+                "repeat": 1,
+                "direct": {
+                  "udp_payload_bytes": 6782,
+                  "udp_datagrams": 10
+                },
+                "nbsr": {
+                  "udp_payload_bytes": 37850,
+                  "udp_datagrams": 224
+                },
+                "delta": {
+                  "udp_payload_bytes": 31068,
+                  "udp_datagrams": 214
+                }
+              },
+              {
+                "repeat": 2,
+                "nbsr": {
+                  "udp_payload_bytes": 37767,
+                  "udp_datagrams": 221
+                },
+                "direct": {
+                  "udp_payload_bytes": 6782,
+                  "udp_datagrams": 10
+                },
+                "delta": {
+                  "udp_payload_bytes": 30985,
+                  "udp_datagrams": 211
+                }
+              },
+              {
+                "repeat": 3,
+                "direct": {
+                  "udp_payload_bytes": 6782,
+                  "udp_datagrams": 10
+                },
+                "nbsr": {
+                  "udp_payload_bytes": 37857,
+                  "udp_datagrams": 224
+                },
+                "delta": {
+                  "udp_payload_bytes": 31075,
+                  "udp_datagrams": 214
+                }
+              },
+              {
+                "repeat": 4,
+                "nbsr": {
+                  "udp_payload_bytes": 37758,
+                  "udp_datagrams": 221
+                },
+                "direct": {
+                  "udp_payload_bytes": 6752,
+                  "udp_datagrams": 9
+                },
+                "delta": {
+                  "udp_payload_bytes": 31006,
+                  "udp_datagrams": 212
+                }
+              },
+              {
+                "repeat": 5,
+                "direct": {
+                  "udp_payload_bytes": 6752,
+                  "udp_datagrams": 9
+                },
+                "nbsr": {
+                  "udp_payload_bytes": 37801,
+                  "udp_datagrams": 222
+                },
+                "delta": {
+                  "udp_payload_bytes": 31049,
+                  "udp_datagrams": 213
+                }
+              }
+            ],
+            "paths": {
+              "direct": {
+                "udp_payload_bytes": {
+                  "median": 6782,
+                  "minimum": 6752,
+                  "maximum": 6782,
+                  "mean": 6770,
+                  "sample_cv_percent": 0.24271309786048717
+                },
+                "udp_datagrams": {
+                  "median": 10,
+                  "minimum": 9,
+                  "maximum": 10,
+                  "mean": 9.6,
+                  "sample_cv_percent": 5.70544330734548
+                }
+              },
+              "nbsr": {
+                "udp_payload_bytes": {
+                  "median": 37801,
+                  "minimum": 37758,
+                  "maximum": 37857,
+                  "mean": 37806.6,
+                  "sample_cv_percent": 0.12110416922447935
+                },
+                "udp_datagrams": {
+                  "median": 222,
+                  "minimum": 221,
+                  "maximum": 224,
+                  "mean": 222.4,
+                  "sample_cv_percent": 0.6819132593571537
+                }
+              }
+            },
+            "paired_delta": {
+              "udp_payload_bytes": {
+                "median": 31049,
+                "minimum": 30985,
+                "maximum": 31075,
+                "mean": 31036.6,
+                "sample_cv_percent": 0.12698532419377734
+              },
+              "udp_datagrams": {
+                "median": 213,
+                "minimum": 211,
+                "maximum": 214,
+                "mean": 212.8,
+                "sample_cv_percent": 0.6127069929701737
+              }
+            }
+          },
+          "established": {
+            "pairs": [
+              {
+                "repeat": 1,
+                "direct": {
+                  "udp_payload_bytes": 140483820,
+                  "udp_datagrams": 124844
+                },
+                "nbsr": {
+                  "udp_payload_bytes": 140520715,
+                  "udp_datagrams": 125898
+                },
+                "delta": {
+                  "udp_payload_bytes": 36895,
+                  "udp_datagrams": 1054
+                }
+              },
+              {
+                "repeat": 2,
+                "nbsr": {
+                  "udp_payload_bytes": 140412480,
+                  "udp_datagrams": 121832
+                },
+                "direct": {
+                  "udp_payload_bytes": 140440436,
+                  "udp_datagrams": 123057
+                },
+                "delta": {
+                  "udp_payload_bytes": -27956,
+                  "udp_datagrams": -1225
+                }
+              },
+              {
+                "repeat": 3,
+                "direct": {
+                  "udp_payload_bytes": 140414625,
+                  "udp_datagrams": 122405
+                },
+                "nbsr": {
+                  "udp_payload_bytes": 140400202,
+                  "udp_datagrams": 121232
+                },
+                "delta": {
+                  "udp_payload_bytes": -14423,
+                  "udp_datagrams": -1173
+                }
+              },
+              {
+                "repeat": 4,
+                "nbsr": {
+                  "udp_payload_bytes": 140353825,
+                  "udp_datagrams": 119590
+                },
+                "direct": {
+                  "udp_payload_bytes": 140410797,
+                  "udp_datagrams": 121953
+                },
+                "delta": {
+                  "udp_payload_bytes": -56972,
+                  "udp_datagrams": -2363
+                }
+              },
+              {
+                "repeat": 5,
+                "direct": {
+                  "udp_payload_bytes": 140441677,
+                  "udp_datagrams": 123263
+                },
+                "nbsr": {
+                  "udp_payload_bytes": 140428330,
+                  "udp_datagrams": 122344
+                },
+                "delta": {
+                  "udp_payload_bytes": -13347,
+                  "udp_datagrams": -919
+                }
+              }
+            ],
+            "paths": {
+              "direct": {
+                "udp_payload_bytes": {
+                  "median": 140440436,
+                  "minimum": 140410797,
+                  "maximum": 140483820,
+                  "mean": 140438271,
+                  "sample_cv_percent": 0.02077495635314183
+                },
+                "udp_datagrams": {
+                  "median": 123057,
+                  "minimum": 121953,
+                  "maximum": 124844,
+                  "mean": 123104.4,
+                  "sample_cv_percent": 0.8961766481614254
+                }
+              },
+              "nbsr": {
+                "udp_payload_bytes": {
+                  "median": 140412480,
+                  "minimum": 140353825,
+                  "maximum": 140520715,
+                  "mean": 140423110.4,
+                  "sample_cv_percent": 0.04359770722460016
+                },
+                "udp_datagrams": {
+                  "median": 121832,
+                  "minimum": 119590,
+                  "maximum": 125898,
+                  "mean": 122179.2,
+                  "sample_cv_percent": 1.9009976943358344
+                }
+              }
+            },
+            "paired_delta": {
+              "udp_payload_bytes": {
+                "median": -14423,
+                "minimum": -56972,
+                "maximum": 36895,
+                "mean": -15160.6,
+                "sample_cv_percent": 224.30272999574433
+              },
+              "udp_datagrams": {
+                "median": -1173,
+                "minimum": -2363,
+                "maximum": 1054,
+                "mean": -925.2,
+                "sample_cv_percent": 133.86617534620368
+              }
+            }
+          }
+        }
+      },
+      {
+        "payload_bytes": 16384,
+        "streams": 8,
+        "fixed_useful_application_bytes": 262144000,
+        "phases": {
+          "setup": {
+            "pairs": [
+              {
+                "repeat": 1,
+                "direct": {
+                  "udp_payload_bytes": 6782,
+                  "udp_datagrams": 10
+                },
+                "nbsr": {
+                  "udp_payload_bytes": 19750,
+                  "udp_datagrams": 56
+                },
+                "delta": {
+                  "udp_payload_bytes": 12968,
+                  "udp_datagrams": 46
+                }
+              },
+              {
+                "repeat": 2,
+                "nbsr": {
+                  "udp_payload_bytes": 19702,
+                  "udp_datagrams": 54
+                },
+                "direct": {
+                  "udp_payload_bytes": 6782,
+                  "udp_datagrams": 10
+                },
+                "delta": {
+                  "udp_payload_bytes": 12920,
+                  "udp_datagrams": 44
+                }
+              },
+              {
+                "repeat": 3,
+                "direct": {
+                  "udp_payload_bytes": 6782,
+                  "udp_datagrams": 10
+                },
+                "nbsr": {
+                  "udp_payload_bytes": 19728,
+                  "udp_datagrams": 55
+                },
+                "delta": {
+                  "udp_payload_bytes": 12946,
+                  "udp_datagrams": 45
+                }
+              },
+              {
+                "repeat": 4,
+                "nbsr": {
+                  "udp_payload_bytes": 19725,
+                  "udp_datagrams": 55
+                },
+                "direct": {
+                  "udp_payload_bytes": 6782,
+                  "udp_datagrams": 10
+                },
+                "delta": {
+                  "udp_payload_bytes": 12943,
+                  "udp_datagrams": 45
+                }
+              },
+              {
+                "repeat": 5,
+                "direct": {
+                  "udp_payload_bytes": 6782,
+                  "udp_datagrams": 10
+                },
+                "nbsr": {
+                  "udp_payload_bytes": 19750,
+                  "udp_datagrams": 56
+                },
+                "delta": {
+                  "udp_payload_bytes": 12968,
+                  "udp_datagrams": 46
+                }
+              }
+            ],
+            "paths": {
+              "direct": {
+                "udp_payload_bytes": {
+                  "median": 6782,
+                  "minimum": 6782,
+                  "maximum": 6782,
+                  "mean": 6782,
+                  "sample_cv_percent": 0.0
+                },
+                "udp_datagrams": {
+                  "median": 10,
+                  "minimum": 10,
+                  "maximum": 10,
+                  "mean": 10,
+                  "sample_cv_percent": 0.0
+                }
+              },
+              "nbsr": {
+                "udp_payload_bytes": {
+                  "median": 19728,
+                  "minimum": 19702,
+                  "maximum": 19750,
+                  "mean": 19731,
+                  "sample_cv_percent": 0.10161642925226001
+                },
+                "udp_datagrams": {
+                  "median": 55,
+                  "minimum": 54,
+                  "maximum": 56,
+                  "mean": 55.2,
+                  "sample_cv_percent": 1.5156884538660789
+                }
+              }
+            },
+            "paired_delta": {
+              "udp_payload_bytes": {
+                "median": 12946,
+                "minimum": 12920,
+                "maximum": 12968,
+                "mean": 12949,
+                "sample_cv_percent": 0.15483772998504458
+              },
+              "udp_datagrams": {
+                "median": 45,
+                "minimum": 44,
+                "maximum": 46,
+                "mean": 45.2,
+                "sample_cv_percent": 1.8510177578187512
+              }
+            }
+          },
+          "established": {
+            "pairs": [
+              {
+                "repeat": 1,
+                "direct": {
+                  "udp_payload_bytes": 271604272,
+                  "udp_datagrams": 261695
+                },
+                "nbsr": {
+                  "udp_payload_bytes": 270760265,
+                  "udp_datagrams": 236540
+                },
+                "delta": {
+                  "udp_payload_bytes": -844007,
+                  "udp_datagrams": -25155
+                }
+              },
+              {
+                "repeat": 2,
+                "nbsr": {
+                  "udp_payload_bytes": 270588756,
+                  "udp_datagrams": 231062
+                },
+                "direct": {
+                  "udp_payload_bytes": 271710472,
+                  "udp_datagrams": 265174
+                },
+                "delta": {
+                  "udp_payload_bytes": -1121716,
+                  "udp_datagrams": -34112
+                }
+              },
+              {
+                "repeat": 3,
+                "direct": {
+                  "udp_payload_bytes": 271575537,
+                  "udp_datagrams": 261052
+                },
+                "nbsr": {
+                  "udp_payload_bytes": 270982285,
+                  "udp_datagrams": 243502
+                },
+                "delta": {
+                  "udp_payload_bytes": -593252,
+                  "udp_datagrams": -17550
+                }
+              },
+              {
+                "repeat": 4,
+                "nbsr": {
+                  "udp_payload_bytes": 271294325,
+                  "udp_datagrams": 252810
+                },
+                "direct": {
+                  "udp_payload_bytes": 271028535,
+                  "udp_datagrams": 244547
+                },
+                "delta": {
+                  "udp_payload_bytes": 265790,
+                  "udp_datagrams": 8263
+                }
+              },
+              {
+                "repeat": 5,
+                "direct": {
+                  "udp_payload_bytes": 271389131,
+                  "udp_datagrams": 255369
+                },
+                "nbsr": {
+                  "udp_payload_bytes": 270760620,
+                  "udp_datagrams": 236728
+                },
+                "delta": {
+                  "udp_payload_bytes": -628511,
+                  "udp_datagrams": -18641
+                }
+              }
+            ],
+            "paths": {
+              "direct": {
+                "udp_payload_bytes": {
+                  "median": 271575537,
+                  "minimum": 271028535,
+                  "maximum": 271710472,
+                  "mean": 271461589.4,
+                  "sample_cv_percent": 0.09885794629716835
+                },
+                "udp_datagrams": {
+                  "median": 261052,
+                  "minimum": 244547,
+                  "maximum": 265174,
+                  "mean": 257567.4,
+                  "sample_cv_percent": 3.1385925771740735
+                }
+              },
+              "nbsr": {
+                "udp_payload_bytes": {
+                  "median": 270760620,
+                  "minimum": 270588756,
+                  "maximum": 271294325,
+                  "mean": 270877250.2,
+                  "sample_cv_percent": 0.10034061536977537
+                },
+                "udp_datagrams": {
+                  "median": 236728,
+                  "minimum": 231062,
+                  "maximum": 252810,
+                  "mean": 240128.4,
+                  "sample_cv_percent": 3.4770139070159143
+                }
+              }
+            },
+            "paired_delta": {
+              "udp_payload_bytes": {
+                "median": -628511,
+                "minimum": -1121716,
+                "maximum": 265790,
+                "mean": -584339.2,
+                "sample_cv_percent": 88.96272428210062
+              },
+              "udp_datagrams": {
+                "median": -18641,
+                "minimum": -34112,
+                "maximum": 8263,
+                "mean": -17439,
+                "sample_cv_percent": 90.64758350909244
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

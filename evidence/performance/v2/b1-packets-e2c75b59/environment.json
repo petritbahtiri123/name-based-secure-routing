@@ -1,0 +1,15 @@
+{
+  "schema": "nbsr-b1-v2-capture-control-v1",
+  "repository_sha": "e2c75b598b213b4fafbd50aeb93e06edc06b864e",
+  "binary_sha256": {
+    "direct": "060130e6f67a811af3e0c85d528feef6925b2dd835271b962abef0bbcedcc890",
+    "nbsr": "9231f9390078306218e1672a9871862eac732b2d4d021cb45e054c6b63cc05f4",
+    "server": "0626a7597a3e495921e9c67c159c18075eb8c25ba0c4839f6385321c8a07df88"
+  },
+  "scope": "IPv4 Windows loopback; capture observes only server-facing leg of equivalent single-flow relay",
+  "phase_scope": "Whole capture: setup, fixed measured operations, matched untimed frame-validation exchanges and teardown. No warmup. Established-only packet split NOT_PROVEN.",
+  "capture_readiness": "Exact private UDP probe observed in open pcapng before workload; separately validated probes excluded from workload byte totals.",
+  "performance_timing": "DIAGNOSTIC; no timing capacity claim from capture runs",
+  "operation_denominator": "Aggregate request/response bytes for fixed useful operations; excludes untimed frame-validation exchanges",
+  "physical_ethernet_bytes": "NOT_MEASURED"
+}
