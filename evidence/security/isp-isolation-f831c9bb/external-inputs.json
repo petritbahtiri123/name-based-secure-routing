@@ -1,0 +1,32 @@
+[
+  {
+    "label": "prepare",
+    "path": "C:\\NBSR-build\\isp-prepare-live-r7-20260906",
+    "verified_artifacts": 23,
+    "raw_index_sha256": "9b0c796c1a32f7c2b5b5101f3e621b046e1c496d3e57576b61ffe8aea4b2645f"
+  },
+  {
+    "label": "repeat1",
+    "path": "C:\\NBSR-build\\isp-isolation-live-r7-20260906",
+    "verified_artifacts": 122,
+    "raw_index_sha256": "ead80638b3bc72f916d0c7ce5ff4adc310ef1729132206702674fe8a223a34c1"
+  },
+  {
+    "label": "repeat2",
+    "path": "C:\\NBSR-build\\isp-isolation-live-r7-repeat2-20260906",
+    "verified_artifacts": 122,
+    "raw_index_sha256": "79d10dc2db76e60ae284a3ce82a1f8a1150851a7e27190b594118d7d00391c6e"
+  },
+  {
+    "label": "repeat3",
+    "path": "C:\\NBSR-build\\isp-isolation-live-r7-repeat3-20260906",
+    "verified_artifacts": 122,
+    "raw_index_sha256": "57af813c32ced5ee83fdbb97285f0b178f4483a4927aa46235ad9c757a5eaaf7"
+  },
+  {
+    "label": "failed-predecessor",
+    "path": "C:\\NBSR-build\\isp-isolation-live-r6-20260906",
+    "verified_artifacts": 116,
+    "raw_index_sha256": "994f23a2e9b7080a4d2a2eef7d05b1ce80fd6b753712384ef40c0a7d3af0a3d0"
+  }
+]

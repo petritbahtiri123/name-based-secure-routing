@@ -1,0 +1,38 @@
+[
+  {
+    "result": {
+      "connected": false,
+      "reason": "dns_failed",
+      "resolved": false
+    },
+    "source": "client",
+    "target_kind": "dns"
+  },
+  {
+    "result": {
+      "connected": false,
+      "reason": "dns_failed",
+      "resolved": false
+    },
+    "source": "isp-a",
+    "target_kind": "dns"
+  },
+  {
+    "result": {
+      "connected": false,
+      "reason": "connect_failed",
+      "resolved": true
+    },
+    "source": "client",
+    "target_kind": "ip"
+  },
+  {
+    "result": {
+      "connected": false,
+      "reason": "connect_failed",
+      "resolved": true
+    },
+    "source": "isp-a",
+    "target_kind": "ip"
+  }
+]

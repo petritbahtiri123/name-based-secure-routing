@@ -1,0 +1,18 @@
+{
+  "active_allocations": 0,
+  "admitted_grants": 1,
+  "artifacts": {
+    "vectors/wp8-f75-route-open/federation-context.cbor": "586b97a3d9539c420adcf8cfbc87fdf3c08e258cb512783436499dfba37f0699",
+    "vectors/wp8-local-admission/destination.cose": "0e22e19d2f790e8a803927f75ec4d69d41063aef6d6539ab98a2a892e97a9379",
+    "vectors/wp8-local-admission/source.cose": "48f67e84395bf1dcc98c92f5f34561193e9c7daaae03a93835bf110a4cd82e68"
+  },
+  "limit_buckets": 8,
+  "live_runtime_federation": "NOT_CLAIMED",
+  "operators": [
+    "isp-a",
+    "isp-b"
+  ],
+  "schema": "nbsr-isp-preflight-v1",
+  "source_sha": "f831c9bbe70a5e1bd3686e38907b64881243dc95",
+  "status": "PASS"
+}

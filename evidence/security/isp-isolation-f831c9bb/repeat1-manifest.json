@@ -1,0 +1,12 @@
+{
+  "claim_scope": "one logical Docker topology",
+  "images": {
+    "adapter": "sha256:e8896bf956ad10fdc01e7ce1498f18b9a7feff42c9b34e373a803303b6dc8038",
+    "runtime": "sha256:5b765654984c9edf3186714997f9887da5c93136580bcfd87c828940ffe4f8e4"
+  },
+  "live_runtime_federation": "NOT_CLAIMED",
+  "prepared_manifest_sha256": "1a5534f9af975a04ff0f0f6b3580360e55ad2185b13d492b735ca7a1e8823ba0",
+  "project": "nbsr-isp-poc-live-r7-20260906",
+  "runtime_owned_counters": "NOT_MEASURED",
+  "source_sha": "f831c9bbe70a5e1bd3686e38907b64881243dc95"
+}

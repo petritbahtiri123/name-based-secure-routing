@@ -1,0 +1,16 @@
+{
+  "authorized_body": "PASS_EXACT_BODY_AND_ONE_ORIGIN_REQUEST",
+  "cleanup": {
+    "containers": 0,
+    "networks": 0,
+    "runtime_owned_counters": "NOT_MEASURED",
+    "status": "PASS_DOCKER_RESOURCES_ZERO",
+    "volumes": 0
+  },
+  "federation_admission_preflight": "PASS",
+  "live_runtime_federation": "NOT_CLAIMED",
+  "log_capture": "PASS",
+  "network_isolation": "PASS_FOUR_DENIED_PROBES",
+  "runtime_owned_counters": "NOT_MEASURED",
+  "status": "PASS_SCOPED_ISOLATION_AND_BODY"
+}
