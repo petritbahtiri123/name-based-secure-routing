@@ -14,10 +14,10 @@ x-runtime: &runtime
   environment: &identity
     NBSR_ISP_RUN_ID: ${NBSR_ISP_RUN_ID:?bounded unique run ID required}
     NBSR_SOURCE_SHA: ${NBSR_SOURCE_SHA:?source SHA required}
+    ISP_B_PRIVATE_CIDR: ${ISP_B_PRIVATE_CIDR:?private subnet required}
   tmpfs:
     - /tmp:rw,noexec,nosuid,nodev,size=16777216,uid=65532,gid=65532
     - /health:rw,noexec,nosuid,nodev,size=1048576,uid=65532,gid=65532
-    - /opt/nbsr-build/nbsr-demo:rw,nosuid,nodev,size=134217728,uid=65532,gid=65532,mode=0700
   labels: {nbsr.isp-poc.scope: logical-isolation}
 
 services:

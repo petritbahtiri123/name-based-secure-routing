@@ -9,7 +9,6 @@ import json
 import os
 from pathlib import Path
 import re
-import shutil
 import signal
 import socket
 import subprocess
@@ -26,6 +25,14 @@ ARTIFACTS = (
     "vectors/wp8-local-admission/destination.cose",
 )
 READY_FIELDS = {"alpn", "ca_der", "client_cert_der", "client_key_der", "endpoint", "quic_version", "server_name", "tls_version"}
+
+
+def validate_build_identity(value, sha, run_id, private_cidr):
+    cidr = ipaddress.IPv4Network(private_cidr, strict=True)
+    if not any(cidr.subnet_of(ipaddress.IPv4Network(parent)) for parent in ("10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16")):
+        raise ValueError("invalid private subnet")
+    if value != {"source_sha": sha, "run_id": run_id, "private_cidr": str(cidr)}:
+        raise ValueError("immutable build identity mismatch")
 
 
 def closed_pairs(pairs):
@@ -136,8 +143,8 @@ class Supervisor:
         self.sha = os.environ.get("NBSR_SOURCE_SHA", "")
         if not re.fullmatch(r"[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?", self.run_id) or not re.fullmatch(r"[0-9a-f]{40}", self.sha):
             raise ValueError("explicit run identity required")
-        if read_json(Path("/opt/nbsr/build-info.json"))["source_sha"] != self.sha:
-            raise ValueError("image source mismatch")
+        self.private_cidr = os.environ.get("ISP_B_PRIVATE_CIDR", "")
+        validate_build_identity(read_json(Path("/opt/nbsr/build-info.json")), self.sha, self.run_id, self.private_cidr)
         self.relative = f"test-results/nbsr-demo/runtime/{self.run_id}"
         self.root = RUNTIME_BASE / self.run_id
         self.build = Path("/opt/nbsr-build/nbsr-demo") / self.run_id
@@ -172,12 +179,13 @@ class Supervisor:
         validate_preflight(value, self.sha, self.hashes)
 
     def stage_binaries(self):
-        self.build.mkdir(parents=True, exist_ok=False)
+        if not self.build.is_dir() or self.build.resolve() != self.build.absolute():
+            raise ValueError("immutable artifact directory invalid")
         hashes = {}
         for name in ("wp8_interop_server", "origin-connector"):
             target = self.build / name
-            shutil.copyfile(BINARIES / name, target)
-            target.chmod(0o500)
+            if target.is_symlink() or not target.is_file():
+                raise ValueError("immutable artifact invalid")
             hashes[name] = hash_file(target)
             if hashes[name] != hash_file(BINARIES / name):
                 raise ValueError("artifact copy changed")
@@ -310,7 +318,13 @@ class Supervisor:
         cidr = ipaddress.IPv4Network(os.environ["ISP_B_PRIVATE_CIDR"], strict=True)
         if not any(cidr.subnet_of(ipaddress.IPv4Network(parent)) for parent in ("10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16")):
             raise ValueError("invalid private subnet")
-        write_json(self.build / "origin-config.json", {"schema": "nbsr-isp-origin-config-v1", "private_cidr": str(cidr)})
+        origin_config = self.build / "origin-config.json"
+        if (
+            origin_config.is_symlink()
+            or not origin_config.is_file()
+            or read_json(origin_config) != {"schema": "nbsr-isp-origin-config-v1", "private_cidr": str(cidr)}
+        ):
+            raise ValueError("immutable origin configuration mismatch")
         admission = self.wait(self.root / "destination/runtime-admission.conf")
         sys.path.insert(0, str(REPO))
         from scripts.performance.authority import write_loopback_authority

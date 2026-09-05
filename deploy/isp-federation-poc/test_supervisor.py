@@ -2,6 +2,7 @@ import importlib.util
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
 SPEC = importlib.util.spec_from_file_location("isp_supervisor", Path(__file__).with_name("supervisor.py"))
 MODULE = importlib.util.module_from_spec(SPEC)
@@ -9,6 +10,34 @@ SPEC.loader.exec_module(MODULE)
 
 
 class SupervisorTests(unittest.TestCase):
+    def test_immutable_build_identity_requires_exact_run_and_subnet(self):
+        valid = {"source_sha": "a" * 40, "run_id": "test-run", "private_cidr": "172.29.248.0/24"}
+        MODULE.validate_build_identity(valid, "a" * 40, "test-run", "172.29.248.0/24")
+        for change in ({"source_sha": "b" * 40}, {"run_id": "other"}, {"private_cidr": "172.29.249.0/24"}, {"extra": 1}):
+            with self.assertRaises(ValueError):
+                MODULE.validate_build_identity({**valid, **change}, "a" * 40, "test-run", "172.29.248.0/24")
+
+    def test_artifacts_are_verified_without_recreating_build_directory(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            binaries, build = root / "bin", root / "build"
+            binaries.mkdir()
+            build.mkdir()
+            for name in ("wp8_interop_server", "origin-connector"):
+                (binaries / name).write_bytes(b"artifact")
+                (build / name).write_bytes(b"artifact")
+            supervisor = object.__new__(MODULE.Supervisor)
+            supervisor.build = build
+            with patch.object(MODULE, "BINARIES", binaries):
+                self.assertEqual(set(supervisor.stage_binaries()), {"wp8_interop_server", "origin-connector"})
+                (build / "origin-connector").write_bytes(b"tampered")
+                with self.assertRaises(ValueError):
+                    supervisor.stage_binaries()
+                (build / "origin-connector").write_bytes(b"artifact")
+                with patch.object(Path, "is_symlink", return_value=True):
+                    with self.assertRaises(ValueError):
+                        supervisor.stage_binaries()
+
     def test_failure_diagnostic_reports_trusted_origin_without_secret_values(self):
         secret = "PRIVATE_KEY_credential_192.0.2.99"
         with tempfile.TemporaryDirectory(prefix=secret) as temporary:

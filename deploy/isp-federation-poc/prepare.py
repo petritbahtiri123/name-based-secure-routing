@@ -83,6 +83,10 @@ def main():
             tag,
             "--build-arg",
             "SOURCE_SHA=" + sha,
+            "--build-arg",
+            "RUN_ID=" + args.run_id,
+            "--build-arg",
+            "PRIVATE_CIDR=" + str(subnet),
         ]
         for key, value in bases.items():
             argv += ["--build-arg", key + "=" + value]

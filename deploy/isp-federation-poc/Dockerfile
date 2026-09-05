@@ -30,6 +30,8 @@ RUN python3 -m pip install --no-cache-dir --only-binary=:all: --require-hashes -
 
 FROM python-deps AS runtime
 ARG SOURCE_SHA
+ARG RUN_ID
+ARG PRIVATE_CIDR
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PYTHONPATH=/src
 WORKDIR /src
 COPY nbsr /src/nbsr
@@ -47,7 +49,7 @@ COPY --from=rust-build /cargo-target/release/wp8_interop_server /opt/nbsr/bin/wp
 RUN python3 -c "import pytest, cryptography, cbor2; import scripts.performance.authority; import tests.federation.test_live_interoperability; import tests.federation.test_authorization" && \
     mkdir -p /src/client/nbsr-go-client/demo/test-results/nbsr-demo/runtime /opt/nbsr-build/nbsr-demo /projection-a /projection-b /control /health /state && \
     chown -R 65532:65532 /src/client/nbsr-go-client/demo/test-results /opt/nbsr-build /projection-a /projection-b /control /health /state && \
-    python3 -c 'import json,sys,re; assert re.fullmatch("[0-9a-f]{40}",sys.argv[1]); json.dump({"source_sha":sys.argv[1]},open("/opt/nbsr/build-info.json","w"))' "$SOURCE_SHA"
+    python3 -c 'import json,sys,re,ipaddress,shutil; from pathlib import Path; sha,run,cidr=sys.argv[1:]; assert re.fullmatch("[0-9a-f]{40}",sha); assert re.fullmatch("nbsr-isp-poc-[a-z0-9-]{1,40}",run) and not run.endswith("-"); subnet=ipaddress.IPv4Network(cidr,strict=True); assert any(subnet.subnet_of(ipaddress.IPv4Network(p)) for p in ("10.0.0.0/8","172.16.0.0/12","192.168.0.0/16")); root=Path("/opt/nbsr-build/nbsr-demo")/run; root.mkdir(); [(shutil.copyfile(Path("/opt/nbsr/bin")/name,root/name),(root/name).chmod(0o555)) for name in ("wp8_interop_server","origin-connector")]; config=root/"origin-config.json"; config.write_text(json.dumps({"schema":"nbsr-isp-origin-config-v1","private_cidr":str(subnet)})); config.chmod(0o444); root.chmod(0o555); json.dump({"source_sha":sha,"run_id":run,"private_cidr":str(subnet)},open("/opt/nbsr/build-info.json","w"))' "$SOURCE_SHA" "$RUN_ID" "$PRIVATE_CIDR"
 USER 65532:65532
 ENTRYPOINT ["python3", "/opt/nbsr/supervisor.py"]
 
