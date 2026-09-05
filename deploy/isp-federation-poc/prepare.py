@@ -11,6 +11,7 @@ import json
 from pathlib import Path
 import re
 import subprocess
+import sys
 
 ROOT = Path(__file__).resolve().parents[2]
 PIN = re.compile(r"[A-Za-z0-9][A-Za-z0-9._:/-]*@sha256:[0-9a-f]{64}\Z")
@@ -123,8 +124,10 @@ def main():
                 "private_cidr": str(subnet),
                 "project": args.run_id,
                 "status": "BUILD_AND_CONFIG_ONLY",
-                "startup_command": [*compose, "up", "--detach"],
-                "cleanup_command": [*compose, "down", "--volumes", "--remove-orphans"],
+                "validation_command": [sys.executable, "deploy/isp-federation-poc/run_isolation.py",
+                                       "--prepared", str(output / "manifest.json"),
+                                       "--output", str(output.with_name(output.name + "-validation"))],
+                "cleanup_policy": "Validated orchestrator preserves child logs before exact-ID teardown; failed export retains resources.",
                 "live_validation": "NOT_RUN",
             },
             indent=2,
