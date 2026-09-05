@@ -9,8 +9,8 @@ COPY interop/nbsr-go-peer /src/interop/nbsr-go-peer
 COPY deploy/isp-federation-poc/adapter /src/deploy/isp-federation-poc/adapter
 COPY deploy/isp-federation-poc/origin-connector /src/deploy/isp-federation-poc/origin-connector
 RUN mkdir /out && cd /src/client/nbsr-go-client/demo && \
-    CGO_ENABLED=0 go build -mod=readonly -trimpath -o /out/nbsr-demo-authority ./cmd/nbsr-demo-authority && \
-    CGO_ENABLED=0 go build -mod=readonly -trimpath -o /out/nbsr-demo-client ./cmd/nbsr-demo-client && \
+    CGO_ENABLED=0 go build -mod=readonly -o /out/nbsr-demo-authority ./cmd/nbsr-demo-authority && \
+    CGO_ENABLED=0 go build -mod=readonly -o /out/nbsr-demo-client ./cmd/nbsr-demo-client && \
     cd /src/deploy/isp-federation-poc/adapter && \
     CGO_ENABLED=0 go build -mod=readonly -trimpath -o /out/isp-a-tcp ./cmd/isp-a-tcp && \
     CGO_ENABLED=0 go build -mod=readonly -trimpath -o /out/isp-b-udp ./cmd/isp-b-udp && \
@@ -35,6 +35,7 @@ WORKDIR /src
 COPY nbsr /src/nbsr
 COPY tests /src/tests
 COPY vectors /src/vectors
+COPY docs/protocol/registries/federation-v0.1-development.json /src/docs/protocol/registries/federation-v0.1-development.json
 COPY pyproject.toml /src/pyproject.toml
 COPY client/nbsr-go-client/demo/testdata /src/client/nbsr-go-client/demo/testdata
 COPY scripts/performance/authority.py /src/scripts/performance/authority.py
