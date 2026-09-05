@@ -154,6 +154,15 @@ def source_plan(path: str, sessions: int, cycles: int) -> list[tuple[int, int, i
 def run_cell(path: str, spec: dict[str, int | str], binaries: dict[str, Path], root: Path, *, idle_seconds: float, active_seconds: float, cooldown_seconds: float, cadence: float) -> dict[str, Any]:
     name = str(spec["name"])
     sessions, services, streams, cycles = (int(spec[key]) for key in ("sessions", "channels", "streams", "cycles"))
+    materialized = spec.get("materialized_streams", False)
+    if materialized and path != "rust-rust":
+        raise ValueError("materialized streams require the Rust B3 harness")
+    if materialized and spec["kind"] == "connections":
+        raise ValueError("materialized streams do not support connection-only workload")
+    if materialized:
+        spec = {**spec,
+                "stream_residency": "both endpoint stream handles and authorized request payload retained before common release",
+                "timing_scope": "materialized-stream workload includes explicit hold in request/processing times; not comparable with registry-only timing"}
     cell_dir = root / "raw" / path / name
     cell_dir.mkdir(parents=True)
     with tempfile.TemporaryDirectory(prefix="nbsr-b3-cell-") as temporary, ExitStack() as logs:
@@ -173,6 +182,8 @@ def run_cell(path: str, spec: dict[str, int | str], binaries: dict[str, Path], r
         report_gate = path == "rust-rust"
         if report_gate:
             server_argv.extend(["--b3-report-gate", str(lifecycle)])
+        if materialized:
+            server_argv.extend(["--b3-materialized-streams", "1"])
         server = subprocess.Popen(server_argv, cwd=ROOT, env={**os.environ, "NBSR_PERF_LIFECYCLE_ROOT": str(lifecycle), "NBSR_PERF_LIFECYCLE_CONNECTIONS": str(total_connections), "NBSR_PERF_LIFECYCLE_SERVICES": str(services), "NBSR_PERF_STREAMS_PER_SERVICE": str(streams), "NBSR_PERF_CONCURRENT_STREAMS": "1", **({"NBSR_PERF_LIFECYCLE_OFFERED_RATE": str(spec["start_rate"])} if float(spec.get("start_rate", 0)) > 0 else {}), **({"NBSR_PERF_CONCURRENT_SESSIONS": "1", "NBSR_PERF_LIFECYCLE_SERIAL_ACCEPT": "1"} if sessions > 1 else {})}, stdout=log("destination", "stdout"), stderr=log("destination", "stderr"), text=True)
         clients: list[subprocess.Popen[str]] = []
         commands: list[list[str]] = []
@@ -186,6 +197,8 @@ def run_cell(path: str, spec: dict[str, int | str], binaries: dict[str, Path], r
                 argv, cwd = client_command(path, binaries, ready, authority, lifecycle, connections=connections, services=services, streams=streams, offset=offset, runtime_path=runtime_path)
                 if path == "rust-rust":
                     argv.extend(["--diagnostics", "1"])
+                    if materialized:
+                        argv.extend(["--b3-materialized-streams", "1"])
                     if logical_clients > 1:
                         argv.extend(["--lifecycle-clients", str(logical_clients), "--lifecycle-source-shards", "2"])
                     else:
@@ -213,6 +226,11 @@ def run_cell(path: str, spec: dict[str, int | str], binaries: dict[str, Path], r
                         pending.remove(ordinal)
                     continue
                 wait_paths([lifecycle / f"connection-{ordinal}.active" for ordinal in ordinals], [server, *clients], 60)
+                if materialized:
+                    wait_paths([lifecycle / f"destination-{ordinal}.active" for ordinal in ordinals], [server, *clients], 120)
+                    for ordinal in ordinals:
+                        snapshot = json.loads((lifecycle / f"destination-{ordinal}.active").read_text())
+                        write_json(cell_dir / f"destination-{ordinal}.active.json", snapshot)
                 capture(resources, server, clients, phase="active", cycle=cycle_index, seconds=active_seconds, cadence=cadence)
                 for ordinal in ordinals:
                     (lifecycle / f"connection-{ordinal}.release").write_text("release\n", encoding="ascii")

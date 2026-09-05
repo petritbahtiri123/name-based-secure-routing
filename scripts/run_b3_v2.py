@@ -13,7 +13,7 @@ from scripts import run_b3_session_lifecycle as b3
 from scripts.run_b4b_task4k import checksums
 
 
-def spec_for(axis, count, repeat):
+def spec_for(axis, count, repeat, *, materialized_streams=False):
     spec = dict(name=f"{axis}-{count}-r{repeat}", kind=axis, active_count=count,
                 sessions=1, channels=1, streams=1, cycles=1, start_rate=100)
     if axis == "bundles":
@@ -37,11 +37,13 @@ def spec_for(axis, count, repeat):
                     resource_scope="same source/destination processes; one session/channel and 64 streams per cycle")
     else:
         raise ValueError("unknown resource axis")
+    spec.update(materialized_streams=materialized_streams,
+                stream_residency="materialized request and both endpoint handles" if materialized_streams else "registry-only; destination stream handles not proven during hold")
     return spec
 
 
 def execute(args):
-    specs = [spec_for(args.axis, count, repeat) for count in args.counts for repeat in range(1, args.repeats + 1)]
+    specs = [spec_for(args.axis, count, repeat, materialized_streams=args.materialized_streams) for count in args.counts for repeat in range(1, args.repeats + 1)]
     args.output.mkdir(parents=True, exist_ok=False)
     (args.output / "binaries").mkdir()
     binaries = {}
@@ -53,6 +55,8 @@ def execute(args):
                 "source_sha": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
                 "binary_sha256": {k: hashlib.sha256(v.read_bytes()).hexdigest() for k, v in binaries.items()},
                 "workloads": specs, "scope": "Windows loopback; Rust to Rust; no server-class claim",
+                "stream_residency": specs[0]["stream_residency"],
+                "destination_ready_snapshot_scope": "aggregate ownership across all live sessions; not per-connection",
                 "source_processes": 1, "source_runtime_shards": "2 for simultaneous bundles; 1 for sequential cycles",
                 "acceptance_scope": "B3-only single armed accept, concurrent held sessions; not the B4 admission-capacity workload",
                 "memory_scope": "private bytes/working set/handles/threads and ownership, not allocator heap attribution",
@@ -87,6 +91,7 @@ if __name__ == "__main__":
     parser.add_argument("--axis", choices=("bundles", "channels", "streams", "cycles"), required=True)
     parser.add_argument("--counts", type=int, nargs="+", required=True)
     parser.add_argument("--repeats", type=int, choices=(1, 3, 5), default=5)
+    parser.add_argument("--materialized-streams", action="store_true", help="retain authorized request and both endpoint stream handles during active hold")
     args = parser.parse_args()
     try:
         execute(args)

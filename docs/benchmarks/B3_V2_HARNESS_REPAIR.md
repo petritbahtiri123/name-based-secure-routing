@@ -41,3 +41,26 @@ The last destination cooldown overlapped report serialization, unlike earlier cy
 `C:\NBSR-build\b3-v2-bundles-2e3b8f25` preserves five valid 16-bundle and three valid 32-bundle runs, then incomplete 32-r4. That run completed all 32 source operations with source ownership zero, but a process exited between `poll()` and memory sampling. The resulting `ProcessLookupError` interrupted destination diagnostic collection, so the run is not accepted as fully verified. The sampler now skips that exception only when a fresh poll confirms exit; it still rejects failure to sample a live process.
 
 Verification: literal Rust gate and Python gate/exit-race RED failures; 2 Rust gate tests and 13 focused Python tests GREEN; release Clippy, Ruff and release builds passed. `C:\NBSR-build\b3-v2-reportgate-smoke-d95bd144` then completed five cycles with all ownership zero and a separate approximately two-second report/drain phase. Full repeated cycles and remaining ladders must follow; this is not final B3 closure.
+# Materialized-stream measurement
+
+An opt-in `--materialized-streams` workload now sends the same authorized
+request/FIN before the hold, retains the request and stream handle at the
+destination, and returns the identical response after common release with the
+existing response ACK wait. Registry-only mode remains the default. This is
+a distinct memory-residency workload, not a comparable latency optimization:
+its request/processing durations include the explicit hold and retained payload.
+
+Literal live RED at `C:/NBSR-build/b3-v2-materialized-red-2x2` showed that source
+readiness alone did not prove four destination QUIC handles. An intermediate
+attempt exposed buffered periodic diagnostics; it remains preserved. The
+immediate destination marker now atomically publishes aggregate ownership.
+Live GREEN at `C:/NBSR-build/b3-v2-materialized-green-2x2-snapshot` proved one
+session, two channels and four application/QUIC stream handles before release,
+four completed exchanges and zero final ownership. These are regression-only
+results, not a repeated memory-scale cell.
+
+Validation: six focused Rust B3 tests, both-bin Clippy and release build passed;
+13 Python B3 tests and Ruff passed. The opt-in live test is skipped in ordinary
+unit runs and requires fresh `NBSR_B3_LIVE_OUTPUT` plus `NBSR_B3_LIVE_TARGET`.
+The readiness snapshot is process-aggregate across all live sessions, not a
+per-connection memory allocation measurement.

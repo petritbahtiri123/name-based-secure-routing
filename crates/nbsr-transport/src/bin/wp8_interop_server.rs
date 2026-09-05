@@ -2336,7 +2336,9 @@ async fn run_lifecycle_connection(
     services: u64,
     streams_per_service: u64,
     concurrent: bool,
+    materialized_ordinal: Option<u64>,
 ) -> Vec<(u128, u128)> {
+    assert!(materialized_ordinal.is_none() || concurrent);
     let mut measurements = Vec::with_capacity((services * streams_per_service) as usize);
     let mut control = connection.accept_control_stream().await.unwrap();
     let mut session = ControlSession::new(
@@ -2447,6 +2449,13 @@ async fn run_lifecycle_connection(
         }
     }
     if concurrent {
+        let materialized_barriers = materialized_ordinal.map(|_| {
+            let count = (services * streams_per_service) as usize + 1;
+            (
+                Arc::new(tokio::sync::Barrier::new(count)),
+                Arc::new(tokio::sync::Barrier::new(count)),
+            )
+        });
         for stream_ordinal in 0..(services * streams_per_service) {
             let service = stream_ordinal / streams_per_service;
             let local_stream = stream_ordinal % streams_per_service;
@@ -2455,12 +2464,42 @@ async fn run_lifecycle_connection(
                 .accept_session_stream(&mut session, channel)
                 .await
                 .unwrap();
+            let barriers = materialized_barriers.clone();
             concurrent_tasks.spawn(async move {
                 let started = std::time::Instant::now();
-                application.echo_once().await.unwrap();
+                if let Some((prepared, release)) = barriers {
+                    let payload = application.receive_payload().await.unwrap();
+                    prepared.wait().await;
+                    release.wait().await;
+                    application.send_payload(&payload).await.unwrap();
+                } else {
+                    application.echo_once().await.unwrap();
+                }
                 application.wait_for_send_ack().await.unwrap();
                 (service, local_stream, channel, started.elapsed().as_nanos())
             });
+        }
+        if let Some((prepared, release)) = materialized_barriers {
+            prepared.wait().await;
+            let ordinal = materialized_ordinal.unwrap();
+            let snapshot = nbsr_transport::diagnostics::global().snapshot();
+            let active = root.join(format!("destination-{ordinal}.active"));
+            let pending = active.with_extension("pending");
+            fs::write(
+                &pending,
+                format!("{{\"phase\":\"b3_materialized_streams_ready\",\"transport_sessions_current_live\":{},\"service_channels_current_live\":{},\"application_streams_current_live\":{},\"quic_streams_current_live\":{}}}\n",
+                    snapshot.transport_sessions.current_live, snapshot.service_channels.current_live,
+                    snapshot.application_streams.current_live, snapshot.quic_streams.current_live),
+            ).unwrap();
+            fs::rename(pending, active).unwrap();
+            tokio::time::timeout(Duration::from_secs(120), async {
+                while !root.join(format!("connection-{ordinal}.release")).is_file() {
+                    tokio::time::sleep(Duration::from_millis(10)).await;
+                }
+            })
+            .await
+            .expect("B3 materialized stream release marker");
+            release.wait().await;
         }
         let mut completed = vec![0_u128; (services * streams_per_service) as usize];
         while let Some(joined) = concurrent_tasks.join_next().await {
@@ -2518,6 +2557,7 @@ async fn run_lifecycle(
     #[cfg(feature = "benchmark-harness")] release_gate: Option<batch_release::BatchRelease>,
 ) -> Vec<(u128, u128)> {
     let concurrent_sessions = env::var_os("NBSR_PERF_CONCURRENT_SESSIONS").is_some();
+    let materialized = optional_cli_value("--b3-materialized-streams").is_some();
     if !concurrent_sessions {
         let mut measurements = Vec::new();
         for _connection_ordinal in 0..connections {
@@ -2529,6 +2569,7 @@ async fn run_lifecycle(
                     services,
                     streams_per_service,
                     concurrent,
+                    materialized.then_some(_connection_ordinal),
                 )
                 .await,
             );
@@ -2646,6 +2687,7 @@ async fn run_lifecycle(
                     services,
                     streams_per_service,
                     concurrent,
+                    materialized.then_some(ordinal as u64),
                 )
                 .await
             }))

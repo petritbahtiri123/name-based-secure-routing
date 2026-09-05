@@ -423,6 +423,8 @@ async fn run_lifecycle(
     payload_bytes: usize,
     completion: Option<CompletionSender>,
 ) {
+    let materialized_streams = optional_argument("--b3-materialized-streams").is_some();
+    assert!(!materialized_streams || (hold_for_release && concurrent));
     let payload = vec![0x5a; payload_bytes];
     let mut sample_id = 0_u64;
     for connection_ordinal in 0..connections {
@@ -525,6 +527,11 @@ async fn run_lifecycle(
             (services * streams_per_service) as usize + 1,
         ));
         let mut concurrent_tasks = tokio::task::JoinSet::new();
+        let prepared_barrier = materialized_streams.then(|| {
+            Arc::new(tokio::sync::Barrier::new(
+                (services * streams_per_service) as usize + 1,
+            ))
+        });
         let mut concurrent_metrics: Vec<(u64, u64, Instant, u128, u128, u128, u128)> = Vec::new();
         for service in 0..services {
             let scenario_started = Instant::now();
@@ -580,11 +587,24 @@ async fn run_lifecycle(
                         .unwrap();
                     let mut application = connection.open_session_stream(&permit).await.unwrap();
                     let task_barrier = concurrent_barrier.clone();
+                    let task_prepared = prepared_barrier.clone();
                     let task_payload = payload.clone();
                     concurrent_tasks.spawn(async move {
+                        let materialized_started = if let Some(prepared) = task_prepared {
+                            let started = Instant::now();
+                            application.send_payload(&task_payload).await.unwrap();
+                            prepared.wait().await;
+                            Some(started)
+                        } else {
+                            None
+                        };
                         task_barrier.wait().await;
-                        let request_started = Instant::now();
-                        let response = application.send_and_receive(&task_payload).await.unwrap();
+                        let request_started = materialized_started.unwrap_or_else(Instant::now);
+                        let response = if materialized_started.is_some() {
+                            application.receive_payload().await.unwrap()
+                        } else {
+                            application.send_and_receive(&task_payload).await.unwrap()
+                        };
                         assert_eq!(response, task_payload);
                         (stream_ordinal, request_started.elapsed().as_nanos())
                     });
@@ -674,6 +694,12 @@ async fn run_lifecycle(
             }
         }
         if concurrent {
+            if let Some(prepared) = prepared_barrier {
+                prepared.wait().await;
+                if optional_argument("--diagnostics").is_some() {
+                    emit_diagnostic(0, "b3_materialized_streams_ready");
+                }
+            }
             if hold_for_release {
                 let ordinal = connection_offset + connection_ordinal;
                 b3_support::wait_for_lifecycle_release(
