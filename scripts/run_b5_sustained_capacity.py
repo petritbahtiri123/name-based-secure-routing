@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import argparse
-from dataclasses import asdict
 import hashlib
 import json
 import os
@@ -136,7 +135,7 @@ def _run_one(
                 received_progress.append((time.perf_counter_ns(), int(document["elapsed_ns"])))
             elif document.get("event") == "diagnostic":
                 source_diagnostics.append(document)
-            elif document.get("schema") == "nbsr-p2a-repeat-v1":
+            elif document.get("schema") == "nbsr-p2a-repeat-v2":
                 final_records.append(document)
 
         _stdout, _sampled = measured_client(
@@ -148,7 +147,7 @@ def _run_one(
             resource_sink=resources.append,
             sampling_interval_seconds=float(sample_seconds),
         )
-        if len(final_records) != 1 or final_records[0].get("schema") != "nbsr-p2a-repeat-v1":
+        if len(final_records) != 1 or final_records[0].get("schema") != "nbsr-p2a-repeat-v2":
             raise RuntimeError("missing unique final P2A result")
         final = final_records[0]
         server.wait(timeout=cooldown_seconds + 30)
