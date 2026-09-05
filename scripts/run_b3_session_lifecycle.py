@@ -75,13 +75,25 @@ def wait_active_ordinal(root: Path, pending: set[int], processes: list[subproces
         time.sleep(0.01)
 
 
+def sample_if_running(process):
+    if process.poll() is not None:
+        return None
+    try:
+        return sample_windows_process(process.pid)
+    except ProcessLookupError:
+        if process.poll() is None:
+            raise
+        return None
+
+
 def capture(resources: list[dict[str, Any]], destination: subprocess.Popen[str], clients: list[subprocess.Popen[str]], *, phase: str, cycle: int, seconds: float, cadence: float) -> None:
     deadline = time.monotonic() + seconds
     while time.monotonic() < deadline:
         observed = time.perf_counter_ns()
-        if destination.poll() is None:
-            resources.append({"timestamp_ns": observed, "role": "destination", "phase": phase, "cycle": cycle, **asdict(sample_windows_process(destination.pid))})
-        source_samples = [sample_windows_process(client.pid) for client in clients if client.poll() is None]
+        destination_sample = sample_if_running(destination)
+        if destination_sample is not None:
+            resources.append({"timestamp_ns": observed, "role": "destination", "phase": phase, "cycle": cycle, **asdict(destination_sample)})
+        source_samples = [sample for client in clients if (sample := sample_if_running(client)) is not None]
         if source_samples:
             resources.append({
                 "timestamp_ns": observed, "role": "source", "phase": phase, "cycle": cycle,
@@ -121,6 +133,18 @@ def client_command(path: str, binaries: dict[str, Path], ready: Path, authority:
     return ([str(binaries["go"]), "--config", str(config)], GO_PEER)
 
 
+def capture_final_cooldown(resources, server, clients, lifecycle, *, cycle, seconds, cadence, report_gate):
+    if report_gate:
+        wait_paths([lifecycle / "destination.report-ready"], [server], 120)
+    capture(resources, server, clients, phase="cooldown", cycle=cycle, seconds=seconds, cadence=cadence)
+    if report_gate:
+        phase = {"phase": "report_generation", "started_unix_ns": time.time_ns(),
+                 "scope": "report serialization and destination diagnostic drain; excluded from cooldown"}
+        (lifecycle / "destination.report-release").write_text("release\n", encoding="ascii")
+        return phase
+    return None
+
+
 def source_plan(path: str, sessions: int, cycles: int) -> list[tuple[int, int, int]]:
     if path == "rust-rust" and sessions > 1:
         return [(1, 0, sessions)]
@@ -146,6 +170,9 @@ def run_cell(path: str, spec: dict[str, int | str], binaries: dict[str, Path], r
         diagnostics = cell_dir / "destination-diagnostics.ndjson"
         server_argv = [str(binaries["server"]), "--ready", str(ready), "--result", str(result), "--authority-dir", str(authority), "--completion-ack", str(completion_ack), "--destination-diagnostics-file", str(diagnostics), "--diagnostic-drain-seconds", str(max(1, round(cooldown_seconds)))]
         total_connections = sessions if sessions > 1 else cycles
+        report_gate = path == "rust-rust"
+        if report_gate:
+            server_argv.extend(["--b3-report-gate", str(lifecycle)])
         server = subprocess.Popen(server_argv, cwd=ROOT, env={**os.environ, "NBSR_PERF_LIFECYCLE_ROOT": str(lifecycle), "NBSR_PERF_LIFECYCLE_CONNECTIONS": str(total_connections), "NBSR_PERF_LIFECYCLE_SERVICES": str(services), "NBSR_PERF_STREAMS_PER_SERVICE": str(streams), "NBSR_PERF_CONCURRENT_STREAMS": "1", **({"NBSR_PERF_LIFECYCLE_OFFERED_RATE": str(spec["start_rate"])} if float(spec.get("start_rate", 0)) > 0 else {}), **({"NBSR_PERF_CONCURRENT_SESSIONS": "1", "NBSR_PERF_LIFECYCLE_SERIAL_ACCEPT": "1"} if sessions > 1 else {})}, stdout=log("destination", "stdout"), stderr=log("destination", "stderr"), text=True)
         clients: list[subprocess.Popen[str]] = []
         commands: list[list[str]] = []
@@ -191,7 +218,9 @@ def run_cell(path: str, spec: dict[str, int | str], binaries: dict[str, Path], r
                     (lifecycle / f"connection-{ordinal}.release").write_text("release\n", encoding="ascii")
                 wait_paths([lifecycle / f"connection-{ordinal}.ack" for ordinal in ordinals], [server, *clients], 60)
             final_cycle = int(spec.get("cycle_index", rounds - 1))
-            capture(resources, server, clients, phase="cooldown", cycle=final_cycle, seconds=cooldown_seconds, cadence=cadence)
+            report_phase = capture_final_cooldown(resources, server, clients, lifecycle,
+                                                  cycle=final_cycle, seconds=cooldown_seconds,
+                                                  cadence=cadence, report_gate=report_gate)
             if path == "rust-rust":
                 (lifecycle / "source.final-release").write_text("release\n", encoding="ascii")
             outputs = []
@@ -208,6 +237,9 @@ def run_cell(path: str, spec: dict[str, int | str], binaries: dict[str, Path], r
             server.wait(timeout=30)
             if server.returncode:
                 raise RuntimeError((cell_dir / "destination.stderr").read_text())
+            if report_phase is not None:
+                report_phase["ended_unix_ns"] = time.time_ns()
+                write_json(cell_dir / "report-phase.json", report_phase)
         except Exception as error:
             details = []
             for label, process in [("destination", server), *[(f"source-{index}", client) for index, client in enumerate(clients)]]:

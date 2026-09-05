@@ -2495,6 +2495,19 @@ async fn run_lifecycle_connection(
 #[path = "benchmark_support/accept_pump_profile.rs"]
 mod accept_pump_profile;
 
+async fn wait_for_b3_report_release(root: &Path, timeout: Duration) -> Result<(), &'static str> {
+    fs::write(root.join("destination.report-ready"), b"ready\n")
+        .map_err(|_| "cannot publish B3 report-ready marker")?;
+    let deadline = std::time::Instant::now() + timeout;
+    while !root.join("destination.report-release").is_file() {
+        if std::time::Instant::now() >= deadline {
+            return Err("B3 report release marker timeout");
+        }
+        tokio::time::sleep(Duration::from_millis(10)).await;
+    }
+    Ok(())
+}
+
 async fn run_lifecycle(
     listener: &TransportListener,
     root: &Path,
@@ -3182,6 +3195,13 @@ async fn run() {
             release_gate,
         )
         .await;
+        // B3 samples the final cooldown with the same retained measurement
+        // vector as earlier cycles, before allocating the serialized report.
+        if let Some(root) = optional_cli_value("--b3-report-gate") {
+            wait_for_b3_report_release(Path::new(&root), Duration::from_secs(120))
+                .await
+                .expect("B3 report release after final cooldown");
+        }
         let samples = measurements
             .iter()
             .map(|(destination, application)| format!("{{\"destination_admission_ns\":{destination},\"application_processing_ns\":{application}}}"))
@@ -3656,5 +3676,54 @@ fn argument(t: &mut Vec<u8>, m: u8, v: u64) {
             t.push(i | 27);
             t.extend(v.to_be_bytes())
         }
+    }
+}
+
+#[cfg(test)]
+mod b3_report_gate_tests {
+    use super::*;
+
+    #[tokio::test(flavor = "current_thread")]
+    async fn report_gate_publishes_ready_and_yields_until_release() {
+        let unique = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
+        let root =
+            std::env::temp_dir().join(format!("nbsr-report-{}-{unique}", std::process::id()));
+        std::fs::create_dir(&root).unwrap();
+        let gate = wait_for_b3_report_release(&root, Duration::from_secs(1));
+        tokio::pin!(gate);
+        assert!(
+            tokio::time::timeout(Duration::from_millis(20), &mut gate)
+                .await
+                .is_err()
+        );
+        assert!(root.join("destination.report-ready").is_file());
+        std::fs::write(root.join("destination.report-release"), b"release\n").unwrap();
+        assert!(gate.await.is_ok());
+        std::fs::remove_file(root.join("destination.report-ready")).unwrap();
+        std::fs::remove_file(root.join("destination.report-release")).unwrap();
+        std::fs::remove_dir(&root).unwrap();
+    }
+
+    #[tokio::test]
+    async fn report_gate_missing_release_fails_closed() {
+        let unique = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
+        let root = std::env::temp_dir().join(format!(
+            "nbsr-report-timeout-{}-{unique}",
+            std::process::id()
+        ));
+        std::fs::create_dir(&root).unwrap();
+        assert!(
+            wait_for_b3_report_release(&root, Duration::from_millis(20))
+                .await
+                .is_err()
+        );
+        std::fs::remove_file(root.join("destination.report-ready")).unwrap();
+        std::fs::remove_dir(root).unwrap();
     }
 }
