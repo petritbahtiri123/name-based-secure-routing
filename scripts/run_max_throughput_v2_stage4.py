@@ -83,6 +83,9 @@ def run_repeat(cell: dict, repeat: int, binaries: dict[str, Path], authority: Pa
                warmup: float, duration: float, raw: Path, topology: dict,
                placement: dict | None = None, host_counter_path: Path | None = None) -> dict:
     groups = int(cell["endpoint_groups"])
+    payload = int(cell["payload_bytes"])
+    streams = int(cell["streams_per_group"])
+    outstanding = int(cell["outstanding_per_stream"])
     placement = placement or {
         "source_mask": 0x55,
         "endpoint_masks": endpoint_masks(topology, groups),
@@ -90,13 +93,16 @@ def run_repeat(cell: dict, repeat: int, binaries: dict[str, Path], authority: Pa
     }
     masks = [int(mask) for mask in placement["endpoint_masks"]]
     source_mask = int(placement["source_mask"])
-    prefix = f"{cell['path']}-p16384-s1-o4-eg{groups}-r{repeat}"
+    prefix = f"{cell['path']}-p{payload}-s{streams}-o{outstanding}-eg{groups}-r{repeat}"
     ack = raw / f"{prefix}.ack"
     ack.unlink(missing_ok=True)
     servers: list[subprocess.Popen[str]] = []
     server_affinity = []
     endpoints = []
     counter: subprocess.Popen[str] | None = None
+    client: subprocess.Popen[str] | None = None
+    sampler = None
+    sampler_running = False
     try:
         for ordinal, mask in enumerate(masks):
             ready = raw / f"{prefix}-d{ordinal}.ready.json"
@@ -108,12 +114,14 @@ def run_repeat(cell: dict, repeat: int, binaries: dict[str, Path], authority: Pa
             )
             servers.append(server)
             server_affinity.append(set_and_verify_exact_affinity(server.pid, mask))
+            if not server_affinity[-1]["verified"]:
+                raise RuntimeError("destination affinity verification failed")
             endpoints.append(wait_ready(ready, server)["endpoint"])
 
         common = ["--authority-dir", str(authority), "--endpoint", endpoints[0],
-                  "--p2a-endpoints", ",".join(endpoints), "--payload-bytes", "16384",
-                  "--p2a-streams", "1", "--p2a-groups", str(groups),
-                  "--p2a-runtime-workers", "1", "--p2a-outstanding-per-stream", "4",
+                  "--p2a-endpoints", ",".join(endpoints), "--payload-bytes", str(payload),
+                  "--p2a-streams", str(streams), "--p2a-groups", str(groups),
+                  "--p2a-runtime-workers", "1", "--p2a-outstanding-per-stream", str(outstanding),
                   "--p2a-warmup-seconds", str(warmup), "--p2a-duration-seconds", str(duration)]
         argv = ([str(binaries["direct"]), "--role", "client", "--samples", "1",
                  "--lifecycle", "warm", *common]
@@ -124,6 +132,10 @@ def run_repeat(cell: dict, repeat: int, binaries: dict[str, Path], authority: Pa
             stderr=subprocess.PIPE, text=True
         )
         client_affinity = set_and_verify_exact_affinity(client.pid, source_mask)
+        if not client_affinity["verified"]:
+            client.kill()
+            client.wait(timeout=5)
+            raise RuntimeError("source affinity verification failed")
         if host_counter_path is not None:
             counter = subprocess.Popen(
                 ["typeperf", r"\Processor Information(_Total)\% Processor Utility",
@@ -136,11 +148,19 @@ def run_repeat(cell: dict, repeat: int, binaries: dict[str, Path], authority: Pa
         processes = {"source": client.pid}
         processes.update({f"destination_{ordinal}": server.pid for ordinal, server in enumerate(servers)})
         sampler = ProcessResourceSampler(
-            processes, interval_seconds=0.5, assigned_logical_processors=4
+            processes, interval_seconds=0.5,
+            assigned_logical_processors=int(placement["logical_processors_available"])
         )
         sampler.start()
+        sampler_running = True
         stdout, stderr = client.communicate(timeout=int(warmup + duration + 90))
         samples = [asdict(sample) for sample in sampler.stop()]
+        sampler_running = False
+        (raw / f"{prefix}.stdout.jsonl").write_text(stdout, encoding="utf-8", newline="\n")
+        (raw / f"{prefix}.stderr.txt").write_text(stderr, encoding="utf-8", newline="\n")
+        (raw / f"{prefix}.resources.json").write_text(
+            json.dumps(samples), encoding="utf-8", newline="\n"
+        )
         if counter is not None:
             try:
                 counter.wait(timeout=5)
@@ -162,7 +182,8 @@ def run_repeat(cell: dict, repeat: int, binaries: dict[str, Path], authority: Pa
                 raise RuntimeError(server.stderr.read())
 
         aggregate = stage2.aggregate_group_records(
-            records, payload_bytes=16384, streams_per_group=1, outstanding_per_stream=4
+            records, payload_bytes=payload, streams_per_group=streams,
+            outstanding_per_stream=outstanding
         )
         seconds = aggregate["measured_ns"] / 1e9
         cleanup_pass = (
@@ -194,6 +215,24 @@ def run_repeat(cell: dict, repeat: int, binaries: dict[str, Path], authority: Pa
         })
         return aggregate
     finally:
+        cleanup_errors = []
+        if sampler_running:
+            try:
+                samples = [asdict(sample) for sample in sampler.stop()]
+                (raw / f"{prefix}.resources.json").write_text(json.dumps(samples), encoding="utf-8")
+            except Exception as error:
+                cleanup_errors.append(f"sampler: {error}")
+        if client is not None:
+            try:
+                if client.poll() is None:
+                    client.kill()
+                if not (raw / f"{prefix}.stdout.jsonl").exists():
+                    stdout, stderr = client.communicate(timeout=5)
+                    (raw / f"{prefix}.stdout.jsonl").write_text(stdout, encoding="utf-8", newline="\n")
+                    (raw / f"{prefix}.stderr.txt").write_text(stderr, encoding="utf-8", newline="\n")
+                client.wait(timeout=5)
+            except Exception as error:
+                cleanup_errors.append(f"source cleanup: {error}")
         if counter is not None and counter.poll() is None:
             counter.terminate()
             counter.wait(timeout=5)
@@ -201,6 +240,9 @@ def run_repeat(cell: dict, repeat: int, binaries: dict[str, Path], authority: Pa
             if server.poll() is None:
                 server.kill()
                 server.wait(timeout=5)
+        if cleanup_errors:
+            (raw / f"{prefix}.cleanup-errors.txt").write_text("\n".join(cleanup_errors), encoding="utf-8")
+            raise RuntimeError("; ".join(cleanup_errors))
 
 
 def summarize(records: list[dict]) -> list[dict]:

@@ -1,0 +1,8 @@
+{
+  "root": "C:\\NBSR-build\\physical-core-v2-one-069b66ad",
+  "manifest_sha256": "a501a596dfb5d20301cd4f92015853c1019fac8b1d21c28d911748186baf5af1",
+  "raw_file_count": 229,
+  "source_identity": "069b66ad plus retained source.patch and source copies; retained binary hashes",
+  "classification": "DIAGNOSTIC / DISPERSION",
+  "concurrent_activity": "Focused Python tests and harness review/fix commands occurred during early outstanding=1 runs; later runs had read-only inspection and source/doc authoring. No builds or other benchmarks during measurement. This run is not a quiet-host capacity claim."
+}
