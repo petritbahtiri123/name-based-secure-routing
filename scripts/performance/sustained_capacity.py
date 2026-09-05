@@ -10,6 +10,32 @@ def _median(values: list[float]) -> float:
     return float(statistics.median(values))
 
 
+def _comparison_windows(ordered: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    third = max(1, len(ordered) // 3)
+    return ordered[:third], ordered[-third:]
+
+
+def live_drift_failure(progress: list[dict[str, Any]]) -> str | None:
+    """Compare steady progress thirds; no qualification before three windows.
+
+    The Rust source starts p2a_progress after the measurement barrier. Missing
+    latency samples cannot establish a latency comparison; this is not a PASS.
+    """
+    if len(progress) < 3:
+        return None
+    early, late = _comparison_windows(progress)
+    for field, reason, factor in (("goodput_bytes_per_second", "goodput", 0.95),
+                                  ("p99_latency_ns", "p99", 1.20)):
+        if any(item.get(field) is None for item in early + late):
+            continue
+        before = _median([float(item[field]) for item in early])
+        after = _median([float(item[field]) for item in late])
+        if before > 0 and ((reason == "goodput" and after < before * factor)
+                           or (reason == "p99" and after > before * factor)):
+            return reason
+    return None
+
+
 def _slope(values: list[tuple[float, float]]) -> tuple[float, float]:
     if len(values) < 4:
         return 0.0, 0.0
@@ -83,9 +109,7 @@ def analyze_soak_run(
     errors = sum(int(item.get("errors", 0)) for item in ordered)
     timeouts = sum(int(item.get("timeouts", 0)) for item in ordered)
     usable = [item for item in ordered if required <= item.keys()]
-    third = max(1, len(usable) // 3)
-    early = usable[:third]
-    late = usable[-third:]
+    early, late = _comparison_windows(usable)
     early_goodput = _median([float(item["goodput_bytes_per_second"]) for item in early]) if early else 0.0
     late_goodput = _median([float(item["goodput_bytes_per_second"]) for item in late]) if late else 0.0
     goodput_drift = (late_goodput / early_goodput - 1.0) * 100 if early_goodput else 0.0

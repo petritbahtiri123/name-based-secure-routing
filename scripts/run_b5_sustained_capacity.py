@@ -18,7 +18,7 @@ from typing import Any
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from scripts.performance.authority import write_loopback_authority
-from scripts.performance.sustained_capacity import analyze_soak_run
+from scripts.performance.sustained_capacity import analyze_soak_run, live_drift_failure
 from scripts.run_p2a_established import build
 from scripts.run_performance_validation import measured_client, wait_ready
 
@@ -143,6 +143,12 @@ def _run_one(
             if document.get("event") == "p2a_progress":
                 progress.append(document)
                 received_progress.append((time.perf_counter_ns(), int(document["elapsed_ns"])))
+                for field in ("errors", "timeouts"):
+                    if int(document.get(field, 0)) > 0:
+                        raise RuntimeError(f"soak live abort: {field} in progress window")
+                drift = live_drift_failure(progress)
+                if drift is not None:
+                    raise RuntimeError(f"soak live abort: {drift} drift in progress windows")
             elif document.get("event") == "diagnostic":
                 source_diagnostics.append(document)
             elif document.get("schema") == "nbsr-p2a-repeat-v2":

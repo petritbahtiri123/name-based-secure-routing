@@ -2,8 +2,8 @@
 
 The current P2A v2 result schema and bounded outstanding-operation workload are
 supported. The final analyzer rejects throughput decay over 5% or p99 drift
-over 20%; these checks do not replace the pending live V2 abort and accepted
-ceiling-consumption gates.
+over 20%; the matching live abort checks now use disjoint first/last thirds after at least
+three steady-state progress windows. Accepted ceiling-consumption gates remain pending.
 
 Focused synthetic child processes exposed three runner defects in literal RED:
 
@@ -28,3 +28,15 @@ Validation: 21 focused Python tests passed across `test_measured_client_failure`
 Ruff passed on the changed Python files. These are harness regression results,
 not long-duration performance evidence. Current near-ceiling soak execution is
 still pending a defensible current strict-stable load and live abort gates.
+
+Live guard regression: immediate reported errors/timeouts and throughput decay
+over 5% or p99 drift over 20% stop the owned source through the existing reader
+failure path. The offending window is appended before checking, and partial
+evidence remains INCOMPLETE. Literal RED tests showed continuation after failure;
+21 focused B5 tests then passed, with Ruff and one scoped review.
+
+The first live comparison can contain one sample per third; this is an early
+safety gate, not long-run stability qualification. Source progress begins after
+the measurement barrier and excludes warmup. Missing latency samples do not
+establish PASS. Resource-growth, thermal/power and measured-safe-boundary live
+telemetry remain unimplemented; offline checks are not substitutes for them.
