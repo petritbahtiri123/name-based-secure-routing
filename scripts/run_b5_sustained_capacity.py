@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+from contextlib import ExitStack
 import hashlib
 import json
 import os
@@ -109,20 +110,22 @@ def _run_one(
         "--destination-diagnostics-file", str(destination_diagnostics_path),
         "--diagnostic-drain-seconds", str(cooldown_seconds),
     ]
-    server = subprocess.Popen(
-        server_argv,
-        cwd=ROOT,
-        env={**os.environ, "NBSR_P2A_STREAMS": str(spec["streams"])},
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-    )
+    handles = ExitStack()
+    server = None
     progress: list[dict[str, Any]] = []
     source_diagnostics: list[dict[str, Any]] = []
     final_records: list[dict[str, Any]] = []
     resources: list[dict[str, Any]] = []
     received_progress: list[tuple[int, int]] = []
     try:
+        _write_json(run_dir / "commands.json", {"client": None, "destination": server_argv})
+        server = subprocess.Popen(
+            server_argv, cwd=ROOT,
+            env={**os.environ, "NBSR_P2A_STREAMS": str(spec["streams"])},
+            stdout=handles.enter_context((run_dir / "destination.stdout").open("wb")),
+            stderr=handles.enter_context((run_dir / "destination.stderr").open("wb")),
+            text=True,
+        )
         endpoint = wait_ready(ready, server)["endpoint"]
         client_argv = [
             str(binaries["nbsr"]), "--authority-dir", str(authority), "--endpoint", endpoint,
@@ -132,6 +135,7 @@ def _run_one(
             "--p2a-duration-seconds", str(spec["duration_seconds"]),
             "--p2a-progress-seconds", str(sample_seconds), "--p2a-cooldown-seconds", str(cooldown_seconds),
         ]
+        _write_json(run_dir / "commands.json", {"client": client_argv, "destination": server_argv})
         call_started = time.perf_counter_ns()
 
         def line_sink(line: str) -> None:
@@ -149,6 +153,8 @@ def _run_one(
             cwd=ROOT,
             server=server,
             timeout=warmup_seconds + int(spec["duration_seconds"]) + cooldown_seconds + 120,
+            stdout_path=run_dir / "source.stdout.ndjson",
+            stderr_path=run_dir / "source.stderr",
             output_line_sink=line_sink,
             resource_sink=resources.append,
             sampling_interval_seconds=float(sample_seconds),
@@ -158,7 +164,7 @@ def _run_one(
         final = final_records[0]
         server.wait(timeout=cooldown_seconds + 30)
         if server.returncode:
-            raise RuntimeError(server.stderr.read() if server.stderr else "destination failed")
+            raise RuntimeError("destination failed; retained destination.stderr")
         destination_diagnostics = [json.loads(line) for line in destination_diagnostics_path.read_text(encoding="utf-8").splitlines()]
         if not received_progress:
             raise RuntimeError("no periodic application telemetry")
@@ -187,18 +193,25 @@ def _run_one(
             "destination_return_code": server.returncode,
         }
         analysis["outstanding_per_stream"] = int(spec.get("outstanding_per_stream", 1))
-        _write_ndjson(run_dir / "progress.ndjson", progress)
-        _write_ndjson(run_dir / "resources.ndjson", resources)
-        _write_ndjson(run_dir / "source-diagnostics.ndjson", source_diagnostics)
         _write_json(run_dir / "final.json", final)
         _write_json(run_dir / "cleanup.json", cleanup)
         _write_json(run_dir / "analysis.json", analysis)
         _write_json(run_dir / "commands.json", {"client": client_argv, "destination": server_argv})
         return analysis
+    except BaseException as error:
+        _write_json(run_dir / "failure.json", {"classification": "INCOMPLETE", "error_type": type(error).__name__,
+                                               "message": str(error), "spec": spec})
+        raise
     finally:
-        if server.poll() is None:
+        if server is not None and server.poll() is None:
             server.kill()
             server.wait(timeout=5)
+        handles.close()
+        _write_ndjson(run_dir / "progress.ndjson", progress)
+        _write_ndjson(run_dir / "resources.ndjson", resources)
+        _write_ndjson(run_dir / "source-diagnostics.ndjson", source_diagnostics)
+        _write_ndjson(run_dir / "final-records.ndjson", final_records)
+        _checksums(run_dir)
 
 
 def _summary(analyses: list[dict[str, Any]], environment: dict[str, Any], command: str) -> str:

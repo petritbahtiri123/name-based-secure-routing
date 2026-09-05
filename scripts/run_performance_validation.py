@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+from contextlib import ExitStack
 import ctypes
 from dataclasses import asdict
 import hashlib
@@ -60,19 +61,16 @@ def measured_client(
     sampling_interval_seconds: float = 1.0,
     client_started: Callable[[int], None] | None = None,
     env: dict[str, str] | None = None,
+    stderr_path: Path | None = None,
 ) -> tuple[str, list[dict[str, Any]]]:
-    output_handle = stdout_path.open("w", encoding="utf-8", newline="\n") if stdout_path is not None else None
+    handles = ExitStack()
+    client = None
+    sampler = None
+    sampler_started = False
+    reader_started = False
+    sampler_stopped = False
+    reader = None
     capture_stream = output_line_sink is not None
-    client = subprocess.Popen(
-        argv,
-        cwd=cwd,
-        stdout=subprocess.PIPE if capture_stream else output_handle if output_handle is not None else subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-        env=env,
-    )
-    if client_started is not None:
-        client_started(client.pid)
     streamed_output: list[str] = []
     stream_error: list[BaseException] = []
 
@@ -91,47 +89,72 @@ def measured_client(
         except BaseException as error:
             stream_error.append(error)
 
-    reader = threading.Thread(target=stream_lines, name="nbsr-measured-client-output", daemon=True) if capture_stream else None
-    sampler = ProcessResourceSampler(
-        {"source": client.pid, "destination": server.pid},
-        interval_seconds=sampling_interval_seconds,
-        assigned_logical_processors=os.cpu_count() or 1,
-        record_sink=(lambda record: resource_sink(asdict(record))) if resource_sink is not None else None,
-    )
-    sampler.start()
-    if reader is not None:
-        reader.start()
-    sampler_stopped = False
     try:
+        output_handle = handles.enter_context(stdout_path.open("w", encoding="utf-8", newline="\n")) if stdout_path is not None else None
+        # A file cannot create unread PIPE backpressure. Keep full diagnostics
+        # when requested; otherwise use disposable disk storage, not a growing list.
+        errors = handles.enter_context(stderr_path.open("w+b") if stderr_path is not None else tempfile.TemporaryFile())
+        client = subprocess.Popen(
+            argv, cwd=cwd,
+            stdout=subprocess.PIPE if capture_stream else output_handle if output_handle is not None else subprocess.PIPE,
+            stderr=errors, text=True, env=env,
+        )
+        if client_started is not None:
+            client_started(client.pid)
+        sampler = ProcessResourceSampler(
+            {"source": client.pid, "destination": server.pid},
+            interval_seconds=sampling_interval_seconds,
+            assigned_logical_processors=os.cpu_count() or 1,
+            record_sink=(lambda record: resource_sink(asdict(record))) if resource_sink is not None else None,
+        )
+        sampler.start()
+        sampler_started = True
+        reader = threading.Thread(target=stream_lines, name="nbsr-measured-client-output", daemon=True) if capture_stream else None
+        if reader is not None:
+            reader.start()
+            reader_started = True
         if reader is None:
-            stdout, stderr = client.communicate(timeout=timeout)
+            stdout, _stderr = client.communicate(timeout=timeout)
         else:
-            client.wait(timeout=timeout)
+            deadline = time.monotonic() + timeout
+            while client.poll() is None:
+                if stream_error:
+                    raise RuntimeError("measured client output reader failed") from stream_error[0]
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    raise subprocess.TimeoutExpired(argv, timeout)
+                try:
+                    client.wait(timeout=min(0.1, remaining))
+                except subprocess.TimeoutExpired:
+                    continue
             reader.join(timeout=5)
             if reader.is_alive():
                 raise RuntimeError("measured client output reader did not stop")
             if stream_error:
                 raise RuntimeError("measured client output reader failed") from stream_error[0]
             stdout = "".join(streamed_output)
-            stderr = client.stderr.read() if client.stderr is not None else ""
         resources = [asdict(record) for record in sampler.stop()]
         sampler_stopped = True
         if client.returncode:
+            errors.seek(0, os.SEEK_END)
+            errors.seek(max(0, errors.tell() - 65536))
+            stderr = errors.read().decode("utf-8", errors="replace")
             raise RuntimeError(f"command failed ({client.returncode}): {argv!r}\n{stderr}")
         return stdout or "", resources
     finally:
-        if client.poll() is None:
+        if client is not None and client.poll() is None:
             client.kill()
             client.wait(timeout=5)
-        if not sampler_stopped:
+        if sampler_started and not sampler_stopped:
             try:
                 sampler.stop()
             except RuntimeError:
                 pass
-        if reader is not None:
+        if reader_started:
             reader.join(timeout=1)
-        if output_handle is not None:
-            output_handle.close()
+        if client is not None and client.stdout is not None:
+            client.stdout.close()
+        handles.close()
 
 
 def sha256(path: Path) -> str:
