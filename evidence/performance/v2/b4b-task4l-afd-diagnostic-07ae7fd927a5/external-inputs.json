@@ -1,0 +1,62 @@
+[
+  {
+    "path": "C:\\NBSR-build\\b4b-task4l-etw-20260905-150353\\afd-drops.etl",
+    "bytes": 4718592,
+    "sha256": "6791d09844f7fb080f1241676377a950c425c7e43c446ba9bcf001e065768bba"
+  },
+  {
+    "path": "C:\\NBSR-build\\b4b-task4l-etw-20260905-150353\\afd-events.jsonl",
+    "bytes": 7656560,
+    "sha256": "48523ce0cee5b5bdb9a4d9975084a3bcfd9e43723a96c8a07de54f78e902c9be"
+  },
+  {
+    "path": "C:\\NBSR-build\\b4b-task4l-etw-20260905-150353\\afd-role-diagnostic.json",
+    "bytes": 8552,
+    "sha256": "08abb34814fbf1d382013d00f4aaa427b433317721b03898fed7717ffabd1881"
+  },
+  {
+    "path": "C:\\NBSR-build\\b4b-task4l-etw-20260905-150353\\drop-reason-rendered.txt",
+    "bytes": 193,
+    "sha256": "8174c380b66d058602ba42bddda796179d6761eb0a0b8728e455558e112260c1"
+  },
+  {
+    "path": "C:\\NBSR-build\\b4b-task4l-etw-20260905-150353\\trace-stats.txt",
+    "bytes": 943,
+    "sha256": "7c9d52875bd62bc8972563d6fa8b89f9c504e088f8f98d8f947f8338ce73ed27"
+  },
+  {
+    "path": "C:\\NBSR-build\\b4b-task4l-etw-20260905-150353\\capture-profile.wprp",
+    "bytes": 1040,
+    "sha256": "e21e69ecdd9e5d5f620499c5005d1e37042499217f690bb2a6dd6131a6cbffcc"
+  },
+  {
+    "path": "C:\\NBSR-build\\b4b-task4l-etw-20260905-150353\\none\\analysis.json",
+    "bytes": 3344994,
+    "sha256": "b94d8c7da0ae328cfa7a54c29c28f2b22348a2fb6a1fc4829747ea18d773a3ca"
+  },
+  {
+    "path": "C:\\NBSR-build\\b4b-task4l-etw-20260905-150353\\none\\environment.json",
+    "bytes": 2588,
+    "sha256": "c0a9704f947c65c4257dbfc6dbefcf63c63e05f744c6ee538e8be8ab6551f94c"
+  },
+  {
+    "path": "C:\\NBSR-build\\b4b-task4l-etw-20260905-150353\\none\\checksums.sha256",
+    "bytes": 13085,
+    "sha256": "3e991d8525184e93fab0d719ce8f0b6dee2a7bfe37c93b5170d63c04eb65bd8f"
+  },
+  {
+    "path": "C:\\NBSR-build\\b4b-task4l-etw-20260905-150353\\etw\\analysis.json",
+    "bytes": 3267610,
+    "sha256": "b1b6af402e8153d26fef5f922422f44e733ae16d4a7e165ca89cbcd49add7b9f"
+  },
+  {
+    "path": "C:\\NBSR-build\\b4b-task4l-etw-20260905-150353\\etw\\environment.json",
+    "bytes": 2586,
+    "sha256": "716c08bd275118c84c12748865443903fc87076c0f9ab230b386835c4f4b96d3"
+  },
+  {
+    "path": "C:\\NBSR-build\\b4b-task4l-etw-20260905-150353\\etw\\checksums.sha256",
+    "bytes": 12995,
+    "sha256": "2b3de2e18e46921d45f08514fe8671084aab5175564d9d9505926c0a473e9635"
+  }
+]
