@@ -2469,7 +2469,21 @@ async fn run_lifecycle_connection(
             let mut application = connection
                 .accept_session_stream(&mut session, channel)
                 .await
-                .unwrap();
+                .unwrap_or_else(|error| {
+                    if materialized_ordinal.is_some() {
+                        eprintln!(
+                            "{}",
+                            nbsr_transport::diagnostics::global().snapshot().json_line(
+                                "destination",
+                                0,
+                                "b3_materialized_accept_failed",
+                            )
+                        );
+                    }
+                    panic!("B3 application accept failed at ordinal {stream_ordinal}: {error:?}");
+                });
+            // Materialization generates a separate mandatory authorization audit event.
+            while session.pop_audit_event().is_some() {}
             let barriers = materialized_barriers.clone();
             concurrent_tasks.spawn(async move {
                 let started = std::time::Instant::now();

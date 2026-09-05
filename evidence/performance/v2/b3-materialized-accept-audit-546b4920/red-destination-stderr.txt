@@ -1,0 +1,5 @@
+udp_receive_buffer_bytes=1048576
+
+thread 'main' (16560) panicked at src\bin\wp8_interop_server.rs:2472:18:
+called `Result::unwrap()` on an `Err` value: ApplicationStreamRejected
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace

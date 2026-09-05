@@ -1,0 +1,20 @@
+[
+  {
+    "role": "red",
+    "raw_path": "C:\\NBSR-build\\b3-wide-audit-red-546b4920",
+    "raw_index_sha256": "a4e21a872f660c65667e590555fdf869e4ec7153222a39b7e60f0083d14d73af",
+    "verified_artifacts": 15
+  },
+  {
+    "role": "diagnostic",
+    "raw_path": "C:\\NBSR-build\\b3-wide-audit-diagnostic-546b4920",
+    "raw_index_sha256": "be215cd21fab254b0b0c80af5398130e6ec826f4ba07f80d8785b7869cf31587",
+    "verified_artifacts": 15
+  },
+  {
+    "role": "green",
+    "raw_path": "C:\\NBSR-build\\b3-wide-audit-green-546b4920",
+    "raw_index_sha256": "7e0a9cc5fb4411ab0b9dd293a5bf7ef664ec84b11ca64fb140ff581d48d57da5",
+    "verified_artifacts": 19
+  }
+]

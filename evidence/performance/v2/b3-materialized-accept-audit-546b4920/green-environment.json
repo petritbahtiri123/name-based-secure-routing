@@ -1,0 +1,32 @@
+{
+  "acceptance_scope": "B3-only single armed accept, concurrent held sessions; not the B4 admission-capacity workload",
+  "binary_sha256": {
+    "rust": "07f76f549c358bc1d96acf439915270dfdafed49f5abd1c98a8a2c9d57922268",
+    "server": "382fd7ae58c8e6ca42ae8f6f12f8630fb8d31568913c3d2fe0112c1b47e0d894"
+  },
+  "classification": "DIAGNOSTIC",
+  "destination_ready_snapshot_scope": "aggregate ownership across all live sessions; not per-connection",
+  "live_resource_proof": "all named .active markers observed before active sampling and before any release",
+  "memory_scope": "private bytes/working set/handles/threads and ownership, not allocator heap attribution",
+  "schema": "nbsr-b3-v2-raw-v1",
+  "scope": "Windows loopback; Rust to Rust; no server-class claim",
+  "source_processes": 1,
+  "source_runtime_shards": "2 for simultaneous bundles; 1 for sequential cycles",
+  "source_sha": "546b49204aae549445e224324caa03351ed24ded",
+  "stream_residency": "materialized request and both endpoint handles",
+  "workloads": [
+    {
+      "active_count": 2048,
+      "channels": 32,
+      "cycles": 1,
+      "kind": "streams",
+      "materialized_streams": true,
+      "name": "streams-c32-2048-r1",
+      "resource_scope": "application streams across 32 fixed channels; one connection/session",
+      "sessions": 1,
+      "start_rate": 100,
+      "stream_residency": "materialized request and both endpoint handles",
+      "streams": 64
+    }
+  ]
+}

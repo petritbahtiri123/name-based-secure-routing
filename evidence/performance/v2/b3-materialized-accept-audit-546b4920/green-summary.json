@@ -1,0 +1,41 @@
+{
+  "name": "streams-c32-2048-r1",
+  "channels": 32,
+  "streams_per_channel": 64,
+  "active_count": 2048,
+  "cleanup": {
+    "all_zero": true,
+    "counters": {
+      "application_streams_current_live": 0,
+      "audit_queue_current_entries": 0,
+      "nbsr_tasks_current_live": 0,
+      "quic_connections_current_live": 0,
+      "quic_streams_current_live": 0,
+      "replay_state_current_entries": 0,
+      "service_channels_current_live": 0,
+      "transport_sessions_current_live": 0
+    },
+    "destination_exited": true,
+    "source_all_zero": true,
+    "source_counters": [
+      {
+        "application_streams_current_live": 0,
+        "audit_queue_current_entries": 0,
+        "nbsr_tasks_current_live": 0,
+        "quic_connections_current_live": 0,
+        "quic_streams_current_live": 0,
+        "replay_state_current_entries": 0,
+        "service_channels_current_live": 0,
+        "transport_sessions_current_live": 0
+      }
+    ],
+    "source_processes_exited": true
+  },
+  "destination_active": {
+    "application_streams_current_live": 2048,
+    "phase": "b3_materialized_streams_ready",
+    "quic_streams_current_live": 2048,
+    "service_channels_current_live": 32,
+    "transport_sessions_current_live": 1
+  }
+}
