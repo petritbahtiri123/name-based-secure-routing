@@ -1,0 +1,14 @@
+[
+  {
+    "path": "C:\\NBSR-build\\physical-core-v2-2core-group1-controls",
+    "raw_index_sha256": "a57b43f684d985c11c23ddc4ff99d4219adb0419dd2d391976430e3836b0e607",
+    "artifacts": 141,
+    "records": 24
+  },
+  {
+    "path": "C:\\NBSR-build\\physical-core-v2-4core-group2-controls",
+    "raw_index_sha256": "ccb11cada448024de5ce82eecdce30805edda0bfcb85442695107d4801aaaaa0",
+    "artifacts": 233,
+    "records": 32
+  }
+]
