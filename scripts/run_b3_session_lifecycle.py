@@ -61,6 +61,33 @@ def wait_paths(paths: list[Path], processes: list[subprocess.Popen[str]], timeou
         time.sleep(0.01)
 
 
+def wait_json_paths(paths, processes, timeout):
+    """Wait for readable atomic JSON publications within one original deadline.
+
+    Windows can report a renamed marker before another file handle permits its
+    read. Retry only missing/sharing-denied reads; malformed JSON still fails.
+    """
+    deadline = time.monotonic() + timeout
+    decoded = {}
+    while len(decoded) < len(paths):
+        failed = [process.returncode for process in processes if process.poll() not in (None, 0)]
+        if failed:
+            raise RuntimeError(f"lifecycle process exited before JSON marker: {failed}")
+        for index, path in enumerate(paths):
+            if index in decoded:
+                continue
+            if time.monotonic() >= deadline:
+                missing = [p.name for i, p in enumerate(paths) if i not in decoded]
+                raise RuntimeError(f"lifecycle JSON marker timeout: {missing}")
+            try:
+                decoded[index] = json.loads(path.read_text(encoding="utf-8"))
+            except (FileNotFoundError, PermissionError):
+                break
+        if len(decoded) < len(paths):
+            time.sleep(min(.01, max(0, deadline - time.monotonic())))
+    return [decoded[index] for index in range(len(paths))]
+
+
 def wait_active_ordinal(root: Path, pending: set[int], processes: list[subprocess.Popen[str]], timeout: float) -> int:
     deadline = time.monotonic() + timeout
     while True:
@@ -227,9 +254,10 @@ def run_cell(path: str, spec: dict[str, int | str], binaries: dict[str, Path], r
                     continue
                 wait_paths([lifecycle / f"connection-{ordinal}.active" for ordinal in ordinals], [server, *clients], 60)
                 if materialized:
-                    wait_paths([lifecycle / f"destination-{ordinal}.active" for ordinal in ordinals], [server, *clients], 120)
-                    for ordinal in ordinals:
-                        snapshot = json.loads((lifecycle / f"destination-{ordinal}.active").read_text())
+                    snapshots = wait_json_paths(
+                        [lifecycle / f"destination-{ordinal}.active" for ordinal in ordinals],
+                        [server, *clients], 120)
+                    for ordinal, snapshot in zip(ordinals, snapshots, strict=True):
                         write_json(cell_dir / f"destination-{ordinal}.active.json", snapshot)
                 capture(resources, server, clients, phase="active", cycle=cycle_index, seconds=active_seconds, cadence=cadence)
                 for ordinal in ordinals:
