@@ -36,6 +36,26 @@ def live_drift_failure(progress: list[dict[str, Any]]) -> str | None:
     return None
 
 
+def private_growth(points):
+    slope, r_squared = _slope(points)
+    delta = points[-1][1] - points[0][1] if len(points) >= 2 else 0.0
+    end = points[-1][1] if points else 0.0
+    return len(points) >= 4 and slope > 0 and r_squared >= 0.8 and delta > max(1.0, end * 0.02)
+
+
+def live_private_growth(resources, steady_start_ns, progress_received_ns):
+    series = {}
+    for role in ("source", "destination"):
+        selected = sorted((r for r in resources if r.get("role") == role
+                           and r.get("monotonic_timestamp_ns") is not None
+                           and steady_start_ns <= r["monotonic_timestamp_ns"] <= progress_received_ns),
+                          key=lambda r: r["monotonic_timestamp_ns"])
+        series[role] = [((r["monotonic_timestamp_ns"] - steady_start_ns) / 1e9, float(r["private_bytes"])) for r in selected]
+    if any(len(points) < 4 for points in series.values()):
+        return None
+    return next((role for role, points in series.items() if private_growth(points)), None)
+
+
 def _slope(values: list[tuple[float, float]]) -> tuple[float, float]:
     if len(values) < 4:
         return 0.0, 0.0
@@ -137,9 +157,8 @@ def analyze_soak_run(
         working_slope, working_r_squared = _slope(
             [(int(item["timestamp_ns"]) / 1e9, float(item["working_set_bytes"])) for item in values]
         )
-        delta = (points[-1][1] - points[0][1]) if len(points) >= 2 else 0.0
         end = points[-1][1] if points else 0.0
-        role_growth = len(points) >= 4 and slope > 0 and r_squared >= 0.8 and delta > max(1.0, end * 0.02)
+        role_growth = private_growth(points)
         growth = growth or role_growth
         cooldown = [item for item in role_values if item.get("phase") == "cooldown"]
         if not cooldown:

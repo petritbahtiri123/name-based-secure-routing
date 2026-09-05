@@ -109,6 +109,7 @@ class TimedProcessResourceSample:
     private_bytes: int
     thread_count: int
     handle_count: int
+    monotonic_timestamp_ns: int | None = None
 
 
 @dataclass(frozen=True)
@@ -244,9 +245,9 @@ class ProcessResourceSampler:
         origin = time.perf_counter_ns()
         try:
             while not self._stop.is_set():
-                timestamp = time.perf_counter_ns()
                 for role, pid in self.processes.items():
                     sample = sample_windows_process(pid)
+                    timestamp = time.perf_counter_ns()
                     observed_roles.add(role)
                     cpu_total = sample.user_cpu_ns + sample.kernel_cpu_ns
                     prior = previous.get(role)
@@ -255,6 +256,7 @@ class ProcessResourceSampler:
                     record = TimedProcessResourceSample(
                         role=role,
                         timestamp_ns=timestamp - origin,
+                        monotonic_timestamp_ns=timestamp,
                         pid=pid,
                         user_cpu_ns=sample.user_cpu_ns,
                         kernel_cpu_ns=sample.kernel_cpu_ns,

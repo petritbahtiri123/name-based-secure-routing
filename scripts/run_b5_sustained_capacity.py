@@ -18,7 +18,7 @@ from typing import Any
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from scripts.performance.authority import write_loopback_authority
-from scripts.performance.sustained_capacity import analyze_soak_run, live_drift_failure
+from scripts.performance.sustained_capacity import analyze_soak_run, live_drift_failure, live_private_growth
 from scripts.run_p2a_established import build
 from scripts.run_performance_validation import measured_client, wait_ready
 
@@ -29,6 +29,7 @@ SOURCE_FILES = (
     "crates/nbsr-transport/src/bin/perf_rust_source.rs",
     "crates/nbsr-transport/src/bin/wp8_interop_server.rs",
     "scripts/performance/sustained_capacity.py",
+    "scripts/performance/resources.py",
     "scripts/run_b5_sustained_capacity.py",
     "tests/performance/test_sustained_capacity.py",
 )
@@ -88,6 +89,16 @@ def _diagnostic_cleanup(source: list[dict[str, Any]], destination: list[dict[str
     return result
 
 
+def tag_resource_phases(resources, received_progress):
+    measurement_origin = int(round(sum(received - elapsed for received, elapsed in received_progress) / len(received_progress)))
+    for sample in resources:
+        absolute = int(sample["monotonic_timestamp_ns"])
+        sample["measurement_relative_ns"] = absolute - measurement_origin
+        sample["phase"] = "pre_first_progress" if absolute < received_progress[0][0] else (
+            "steady" if absolute <= received_progress[-1][0] else "cooldown"
+        )
+
+
 def _run_one(
     spec: dict[str, Any],
     *,
@@ -136,8 +147,6 @@ def _run_one(
             "--p2a-progress-seconds", str(sample_seconds), "--p2a-cooldown-seconds", str(cooldown_seconds),
         ]
         _write_json(run_dir / "commands.json", {"client": client_argv, "destination": server_argv})
-        call_started = time.perf_counter_ns()
-
         def line_sink(line: str) -> None:
             document = json.loads(line)
             if document.get("event") == "p2a_progress":
@@ -149,6 +158,9 @@ def _run_one(
                 drift = live_drift_failure(progress)
                 if drift is not None:
                     raise RuntimeError(f"soak live abort: {drift} drift in progress windows")
+                growth = live_private_growth(list(resources), received_progress[0][0], received_progress[-1][0])
+                if growth is not None:
+                    raise RuntimeError(f"soak live abort: {growth} private memory growth (early safety diagnostic, not unbounded-growth proof)")
             elif document.get("event") == "diagnostic":
                 source_diagnostics.append(document)
             elif document.get("schema") == "nbsr-p2a-repeat-v2":
@@ -174,14 +186,7 @@ def _run_one(
         destination_diagnostics = [json.loads(line) for line in destination_diagnostics_path.read_text(encoding="utf-8").splitlines()]
         if not received_progress:
             raise RuntimeError("no periodic application telemetry")
-        measurement_origin = int(round(sum(received - elapsed for received, elapsed in received_progress) / len(received_progress)))
-        for sample in resources:
-            absolute = call_started + int(sample["timestamp_ns"])
-            relative = absolute - measurement_origin
-            sample["measurement_relative_ns"] = relative
-            sample["phase"] = "warmup" if relative < 0 else (
-                "steady" if relative <= int(spec["duration_seconds"]) * 1_000_000_000 else "cooldown"
-            )
+        tag_resource_phases(resources, received_progress)
         if int(final["completed_operations"]) != sum(int(item["completed_operations"]) for item in progress):
             raise RuntimeError("final and periodic completed-operation accounting differ")
         cleanup = _diagnostic_cleanup(source_diagnostics, destination_diagnostics)

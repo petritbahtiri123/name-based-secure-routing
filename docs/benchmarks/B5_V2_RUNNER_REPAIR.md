@@ -38,5 +38,37 @@ evidence remains INCOMPLETE. Literal RED tests showed continuation after failure
 The first live comparison can contain one sample per third; this is an early
 safety gate, not long-run stability qualification. Source progress begins after
 the measurement barrier and excludes warmup. Missing latency samples do not
-establish PASS. Resource-growth, thermal/power and measured-safe-boundary live
-telemetry remain unimplemented; offline checks are not substitutes for them.
+establish PASS. Thermal/power and measured-safe-boundary live telemetry remain
+unimplemented; no new thresholds for those signals are inferred here.
+
+The sampler now records `monotonic_timestamp_ns` immediately after each role's
+process read, alongside the unchanged sampler-relative `timestamp_ns` field.
+The new field defaults to null for older dataclass callers; old evidence is not
+rewritten or assigned a fabricated absolute clock. B5 no longer adds a caller
+start time to sampler-relative time, which used different origins.
+
+B5 evaluates live private-memory growth from the progress reader, after raw
+resources and the triggering progress window have been appended. The first
+progress arrival is the conservative steady cutoff; samples before it and after
+the latest progress arrival are excluded. Both source and destination need at
+least four eligible samples before the live guard evaluates either. Live and
+offline checks share the existing predicate: positive slope, R-squared at least
+0.8, and first-to-last growth greater than max(1 byte, 2% of final private bytes).
+A failure enters the existing reader abort/owned-child cleanup path and retains
+partial resources, progress, failure metadata and checksums.
+
+Final/cooldown records do not trigger a growth check. Offline phase tagging uses
+the same first/last progress-receipt bounds with the actual absolute sample
+clock. Samples before the first arrival are labelled `pre_first_progress`,
+because they include both warmup and the first measured prefix. These are
+conservative receipt-based observation bounds, not exact child
+phase timestamps; progress transport delay remains possible. The estimated
+`measurement_relative_ns` is retained for diagnostics and does not choose phases.
+This excludes the pre-first-progress measurement prefix as well as warmup from
+the growth decision. Four early points may rise before an eventual plateau; an
+abort is an early safety/resource-growth diagnostic, not proof of unbounded
+growth or an allocator leak. No timeout or offered-load reduction was added.
+
+Literal RED regressions covered the missing absolute clock, warmup/post-progress
+exclusion, continued execution after growth, and skewed relative-origin phase
+tagging. The focused resource/B5 suite passed 37 tests after correction.
