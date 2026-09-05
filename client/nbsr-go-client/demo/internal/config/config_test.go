@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 )
@@ -38,6 +39,9 @@ func TestRunConfigBindsUniqueRuntimeAndFreshArtifact(t *testing.T) {
 	}
 	t.Cleanup(func() { _ = os.RemoveAll(runtimeRoot) })
 	buildRoot := filepath.Join(`C:\NBSR-build\nbsr-demo`, runID)
+	if runtime.GOOS == "linux" {
+		buildRoot = filepath.Join("/opt/nbsr-build/nbsr-demo", runID)
+	}
 	if err := os.MkdirAll(buildRoot, 0o700); err != nil {
 		t.Fatal(err)
 	}

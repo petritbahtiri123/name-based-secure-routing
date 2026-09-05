@@ -15,6 +15,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strconv"
 	"strings"
 
@@ -247,12 +248,29 @@ func validateBuildRoot(root, runID string) error {
 		return errors.New("build root must be absolute")
 	}
 	clean := filepath.Clean(root)
-	parent := filepath.Clean(`C:\NBSR-build\nbsr-demo`)
+	parent, err := demoBuildParent(runtime.GOOS)
+	if err != nil {
+		return err
+	}
+	parent = filepath.Clean(parent)
 	relative, err := filepath.Rel(parent, clean)
 	if err != nil || relative != runID || !validRunID(runID) {
 		return errors.New("build root is outside the approved hierarchy")
 	}
 	return nil
+}
+
+// demoBuildParent selects only a fixed demo build hierarchy. It does not
+// change runtime containment, artifact verification or production admission.
+func demoBuildParent(platform string) (string, error) {
+	switch platform {
+	case "windows":
+		return `C:\NBSR-build\nbsr-demo`, nil
+	case "linux":
+		return "/opt/nbsr-build/nbsr-demo", nil
+	default:
+		return "", errors.New("unsupported demo build platform")
+	}
 }
 
 func containedPath(base, candidate string) error {
