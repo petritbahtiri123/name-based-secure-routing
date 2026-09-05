@@ -1,0 +1,73 @@
+{
+  "schema": "nbsr-physical-core-forwarding-v1",
+  "topology": {
+    "verified": true,
+    "scope": "physical-core-selected-logical-processors",
+    "physical_cores": 4,
+    "logical_processors": 8,
+    "cores": [
+      {
+        "core_index": 0,
+        "smt": true,
+        "efficiency_class": 0,
+        "logical_mask": 3
+      },
+      {
+        "core_index": 1,
+        "smt": true,
+        "efficiency_class": 0,
+        "logical_mask": 12
+      },
+      {
+        "core_index": 2,
+        "smt": true,
+        "efficiency_class": 0,
+        "logical_mask": 48
+      },
+      {
+        "core_index": 3,
+        "smt": true,
+        "efficiency_class": 0,
+        "logical_mask": 192
+      }
+    ],
+    "affinity_masks": {
+      "1": {
+        "decimal": 1,
+        "hex": "0x1"
+      },
+      "2": {
+        "decimal": 5,
+        "hex": "0x5"
+      },
+      "4": {
+        "decimal": 85,
+        "hex": "0x55"
+      }
+    }
+  },
+  "placement": {
+    "source_mask": 5,
+    "endpoint_masks": [
+      5,
+      5
+    ],
+    "logical_processors_available": 2
+  },
+  "physical_cores": 2,
+  "smt_siblings_used": false,
+  "scope": "Windows loopback; both roles share one total physical-core pool",
+  "repository_sha": "53468db421f9e46d49aaa5be2ca9bd0755a2e09a",
+  "git_status": "",
+  "binary_sha256": {
+    "direct": "baecf2a6bba27c90bd4ba3bfb874056a54d0bb1e2de387196f8c5d2748d8e5c6",
+    "nbsr": "a809e236a28d984273662b8881ebf8f18a2a5f9e6b9ff9a69d7a53ce477089a8",
+    "server": "0efee4bf4bc49383000e3ca25490d74f3f31a1cb190d07658987f8b755a17d3a"
+  },
+  "warmup_seconds": 3.0,
+  "duration_seconds": 30.0,
+  "cpu_accounting": "Process CPU sampled every 0.5s over final measured-duration window; excludes boundary fragments and host interrupt work. CPU ns/op is a sampled estimate.",
+  "allocation_accounting": "NOT_MEASURED",
+  "context_switches": "NOT_MEASURED",
+  "syscalls": "NOT_MEASURED"
+}

@@ -1,0 +1,16 @@
+[
+  {
+    "cores": 2,
+    "raw_path": "C:\\NBSR-build\\physical-core-v2-2core-f831c9bb",
+    "raw_index_sha256": "7d44067eaa21b826f36aa91e4e63e517f27a82bc04ecda6de7fa572e15cb24aa",
+    "raw_artifacts": 317,
+    "records": 44
+  },
+  {
+    "cores": 4,
+    "raw_path": "C:\\NBSR-build\\physical-core-v2-4core-53468db4",
+    "raw_index_sha256": "c3cea7d81177c170ae67468a59f210b605c17714aa8af1f94d631c323fd230bc",
+    "raw_artifacts": 469,
+    "records": 46
+  }
+]
