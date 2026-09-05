@@ -7,7 +7,6 @@ use std::net::{Ipv4Addr, SocketAddr};
 use std::path::{Path, PathBuf};
 #[cfg(not(windows))]
 use std::process::{Command, Stdio};
-#[cfg(feature = "benchmark-harness")]
 use std::sync::Arc;
 #[cfg(feature = "benchmark-harness")]
 use std::sync::Mutex;
