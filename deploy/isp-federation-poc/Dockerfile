@@ -37,6 +37,9 @@ WORKDIR /src
 COPY nbsr /src/nbsr
 COPY tests /src/tests
 COPY vectors /src/vectors
+# The unchanged Rust fixture opens CARGO_MANIFEST_DIR/../../vectors without
+# lexical normalization. Preserve its empty directory anchor in the runtime.
+RUN mkdir -p /src/crates/nbsr-transport && python3 -c 'from pathlib import Path; root=Path("/src/crates/nbsr-transport/../../vectors/wp8-local-admission"); assert all((root/name).read_bytes()==(Path("/src/vectors/wp8-local-admission")/name).read_bytes() for name in ("source.cose","destination.cose"))'
 COPY docs/protocol/registries/federation-v0.1-development.json /src/docs/protocol/registries/federation-v0.1-development.json
 COPY pyproject.toml /src/pyproject.toml
 COPY client/nbsr-go-client/demo/testdata /src/client/nbsr-go-client/demo/testdata
