@@ -6,6 +6,7 @@ import json
 import os
 from pathlib import Path
 import platform
+import re
 import shlex
 import subprocess
 import sys
@@ -44,11 +45,15 @@ def _write_ndjson(path: Path, values: list[dict[str, Any]]) -> None:
 
 def _parse_run(value: str) -> dict[str, Any]:
     parts = value.split(":")
-    if len(parts) != 4:
-        raise argparse.ArgumentTypeError("run must be NAME:DURATION_SECONDS:PAYLOAD_BYTES:STREAMS")
-    name, duration, payload, streams = parts
-    result = {"name": name, "duration_seconds": int(duration), "payload_bytes": int(payload), "streams": int(streams)}
-    if not name or result["duration_seconds"] < 10 or result["payload_bytes"] not in {1024, 16384} or result["streams"] not in {8, 64}:
+    if len(parts) not in {4, 5}:
+        raise argparse.ArgumentTypeError("run must be NAME:DURATION_SECONDS:PAYLOAD_BYTES:STREAMS[:OUTSTANDING_PER_STREAM]")
+    name, duration, payload, streams = parts[:4]
+    try:
+        result = {"name": name, "duration_seconds": int(duration), "payload_bytes": int(payload),
+                  "streams": int(streams), "outstanding_per_stream": int(parts[4]) if len(parts) == 5 else 1}
+    except ValueError as error:
+        raise argparse.ArgumentTypeError("run counts must be integers") from error
+    if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]{0,80}", name) or result["duration_seconds"] < 10 or result["payload_bytes"] not in {1024, 16384} or not 1 <= result["streams"] <= 64 or not 1 <= result["outstanding_per_stream"] <= 64:
         raise argparse.ArgumentTypeError("invalid bounded run configuration")
     return result
 
@@ -123,6 +128,7 @@ def _run_one(
             str(binaries["nbsr"]), "--authority-dir", str(authority), "--endpoint", endpoint,
             "--samples", "1", "--payload-bytes", str(spec["payload_bytes"]),
             "--p2a-streams", str(spec["streams"]), "--p2a-warmup-seconds", str(warmup_seconds),
+            "--p2a-outstanding-per-stream", str(spec.get("outstanding_per_stream", 1)),
             "--p2a-duration-seconds", str(spec["duration_seconds"]),
             "--p2a-progress-seconds", str(sample_seconds), "--p2a-cooldown-seconds", str(cooldown_seconds),
         ]
@@ -180,6 +186,7 @@ def _run_one(
             "destination_exited": server.poll() is not None,
             "destination_return_code": server.returncode,
         }
+        analysis["outstanding_per_stream"] = int(spec.get("outstanding_per_stream", 1))
         _write_ndjson(run_dir / "progress.ndjson", progress)
         _write_ndjson(run_dir / "resources.ndjson", resources)
         _write_ndjson(run_dir / "source-diagnostics.ndjson", source_diagnostics)
@@ -201,7 +208,7 @@ def _summary(analyses: list[dict[str, Any]], environment: dict[str, Any], comman
         peak = max((role.get("peak_working_set_bytes") or 0 for role in memory.values()), default=0)
         slopes = ", ".join(f"{role}={values['steady_private_slope_bytes_per_second']:.1f} B/s" for role, values in memory.items())
         rows.append(
-            f"| {item['duration_seconds']} | {item['payload_bytes']} | {item['streams']} | {item['completed_operations']} | "
+            f"| {item['duration_seconds']} | {item['payload_bytes']} | {item['streams']} | {item.get('outstanding_per_stream', 1)} | {item['completed_operations']} | "
             f"{item['median_goodput_bytes_per_second'] * 8 / 1e9:.3f} | {item['goodput_drift_percent']:.3f}% | "
             f"{item['median_p95_latency_ns']:.0f} | {item['median_p99_latency_ns']:.0f} | {peak / 1048576:.1f} MiB | "
             f"{slopes} | {item['errors']} | {item['timeouts']} | {item['cleanup_result']} | "
@@ -212,8 +219,8 @@ def _summary(analyses: list[dict[str, Any]], environment: dict[str, Any], comman
     overall_system = next(iter(outcomes)) if len(outcomes) == 1 else "UNSTABLE"
     return "\n".join([
         "# B5 Sustained Capacity", "", f"Evidence Status: **{overall_evidence}**", f"System Result: **{overall_system}**", "",
-        "| Duration s | Payload B | Streams | Operations | Median Gbit/s | Goodput drift | p95 ns | p99 ns | Peak working set | Steady private slope | Errors | Timeouts | Cleanup | Classification |",
-        "|---:|---:|---:|---:|---:|---:|---:|---:|---:|:---|---:|---:|:---|:---|", *rows, "",
+        "| Duration s | Payload B | Streams | Outstanding/stream | Operations | Median Gbit/s | Goodput drift | p95 ns | p99 ns | Peak working set | Steady private slope | Errors | Timeouts | Cleanup | Classification |",
+        "|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|:---|---:|---:|:---|:---|", *rows, "",
         "Latency percentiles use deterministic 1-in-64 samples; operation and goodput counts are exact. Early/late comparisons exclude warm-up by construction.",
         "Resource phase alignment uses monotonic progress arrival timestamps; packet capture was not enabled to avoid observer overhead.", "",
         f"Base Git SHA: `{environment['source_identity']['base_git_sha']}`", f"Host: {environment['os']} / {environment['cpu']}",

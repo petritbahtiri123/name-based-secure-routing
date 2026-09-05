@@ -73,6 +73,22 @@ def test_analysis_separates_valid_evidence_from_observed_stability() -> None:
     assert result["memory"]["source"]["max_handles"] == 20
 
 
+@pytest.mark.parametrize("late_goodput,late_p99", [(80_000_000, 2000), (100_000_000, 3000)])
+def test_observed_decay_or_latency_drift_is_not_stable(late_goodput, late_p99):
+    progress = [_progress(i, 1000, 100_000_000 if i <= 6 else late_goodput, 1000,
+                          2000 if i <= 6 else late_p99) for i in range(1, 13)]
+    fields = {key: 0 for key in (
+        "transport_sessions_current_live", "service_channels_current_live", "application_streams_current_live",
+        "nbsr_tasks_current_live", "quic_connections_current_live", "quic_streams_current_live",
+        "audit_queue_current_entries", "replay_state_current_entries")}
+    resources = [_resource(i, 10_000_000, role=role, phase="steady" if i < 13 else "cooldown")
+                 for role in ("source", "destination") for i in range(1, 14)]
+    result = analyze_soak_run(progress, resources, {"source": fields, "destination": fields},
+                              expected_duration_seconds=60, payload_bytes=1024, streams=8)
+    assert result["evidence_status"] == "PASS"
+    assert result["system_result"] == "UNSTABLE"
+
+
 def test_analysis_rejects_missing_cadence_and_unreconciled_totals() -> None:
     progress = [_progress(i, 1_000, 100_000_000, 1000, 2000) for i in range(1, 13)]
     progress.pop(5)

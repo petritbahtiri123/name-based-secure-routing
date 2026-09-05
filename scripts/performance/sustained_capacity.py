@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import math
 import statistics
 from typing import Any
 
@@ -154,7 +153,7 @@ def analyze_soak_run(
         system_result = "UNSTABLE"
     elif growth:
         system_result = "RESOURCE-GROWTH"
-    elif errors or timeouts or cleanup == "FAIL":
+    elif errors or timeouts or cleanup == "FAIL" or goodput_drift < -5 or (p99_early > 0 and p99_late > p99_early * 1.20):
         system_result = "UNSTABLE"
     else:
         system_result = "STABLE"

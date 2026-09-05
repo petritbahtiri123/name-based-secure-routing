@@ -1,9 +1,18 @@
 import json
+import argparse
 from pathlib import Path
 
 import pytest
 
 from scripts import run_b5_sustained_capacity as b5
+
+
+def test_soak_accepts_existing_bounded_outstanding_workload_shape():
+    assert b5._parse_run("near:3600:16384:1:2")["outstanding_per_stream"] == 2
+    assert b5._parse_run("old:3600:1024:64")["outstanding_per_stream"] == 1
+    for value in ("bad:3600:1024:65:1", "bad:3600:1024:1:65", "../bad:3600:1024:1:1"):
+        with pytest.raises(argparse.ArgumentTypeError):
+            b5._parse_run(value)
 
 
 @pytest.mark.parametrize("schema,count", [("nbsr-p2a-repeat-v2", 1), ("nbsr-p2a-repeat-v1", 1),
