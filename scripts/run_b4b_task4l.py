@@ -53,6 +53,9 @@ def execute(output: Path, target: Path, mode: str):
     output.mkdir(parents=True)
     binaries = v2.build(target)
     sources = [
+        "crates/nbsr-transport/Cargo.toml", "crates/nbsr-transport/Cargo.lock",
+        "crates/nbsr-transport/src/lib.rs", "crates/nbsr-transport/src/quinn_adapter.rs",
+        "crates/nbsr-transport/src/udp_socket.rs", "crates/nbsr-transport/src/bin/perf_direct_peer.rs",
         "scripts/run_b4b_task4l.py", "scripts/run_b4b_v2.py",
         "scripts/run_b4b_mixed_connections.py", "scripts/run_b4b_task4h.py",
         "scripts/performance/external_packet_capture.py",

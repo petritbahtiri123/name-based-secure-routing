@@ -1,0 +1,24 @@
+# Task 4m bounded Windows UDP receive-buffer experiment
+
+PARTIAL: a production socket-buffer candidate with a measured latency tradeoff; no new strict-stable capacity or hardware ceiling established. Matched AFD diagnostics at Task 4l showed admission-listener datagrams dropped for insufficient local buffer space. The existing standard UDP bind measured 65,536 receive bytes in literal RED. Candidate requests a fixed 1 MiB per Windows listener; all ten candidate destination logs read back 1,048,576 bytes on the actual socket. Other platforms keep their existing receive-buffer behavior.
+
+The same internal socket helper is used by Direct and NBSR listeners. The bound covers a 512-peer burst of one <=1452-byte datagram per peer; it does not promise capacity for arbitrary burst duration or handshake flight size. Sending, QUIC flow control, application credit, authentication, replay, wire formats, authority and fail-closed gates are unchanged. Default runtime selection is retained. Socket setup errors remain bind failures. socket2 0.6.5 was already in Cargo.lock through Quinn/Tokio; only a direct dependency edge was added.
+
+## Matched unobserved release experiment
+
+Five valid repeats per variant/rate, alternating variant order and rate order, 512 clients, one connection/client, two source shards, 30-second established traffic and 2-second warmup. No ETW or packet observer. Both binary sets were frozen in separate directories and SHA-256 verified before/after. Baseline binary hashes match the accepted Task 4l reference. Candidate code was uncommitted during measurement and is bound by source copies, candidate.patch and binary hashes; do not attribute its binaries solely to the pre-change Git HEAD. Every raw run remains external, including unfavorable valid results.
+
+| Offered/s | Baseline admissions/s | Candidate admissions/s | Baseline HS p50/p99 ms | Candidate HS p50/p99 ms |
+|---|---|---|---|---|
+| 200 | 178.518 | 178.484 | 5.712 / 18.183 | 5.383 / 16.619 |
+| 250 | 116.818 | 134.880 | 33.610 / 1018.110 | 59.024 / 138.248 |
+
+At 250/s, median admissions improved ~15.46% and handshake p99 fell ~86.42%, but handshake p50 increased ~75.61%. Established goodput median changed from 78.019 to 76.677 MB/s. At 200/s admission rate was essentially unchanged. Admission-rate sample CV (sample standard deviation / mean) at 250/s is 32.61% baseline and 24.78% candidate. One candidate repeat reached only 69.31 admissions/s, and its first paired repeat was slower than baseline. All unfavorable valid results are retained. Handshake p99 improved in all five pairs, but the high rate variance prevents a strong generalized throughput-improvement claim. summary.json contains exact values and variation. These are diagnostic workload results, not sustainable capacity claims. The 250/s candidate achieves only ~53.95% of offered rate and remains saturated in this experiment. Stable/degraded boundaries were not re-established here.
+
+All 20 records are valid with zero cleanup residuals, errors and timeouts. Both complete raw/source manifests and ten actual receive-buffer readbacks were verified. AFD after-change capture remains required to confirm remaining socket drops, followed by progressive scaling and attribution of the residual limit. The destination harness still has a timer-driven accept scan; this is a profiling lead only, not an attributed bottleneck or authorization to optimize by guessing.
+
+## Verification
+
+Literal RED socket regression reported actual SO_RCVBUF=65536; GREEN passed both receive-buffer and conflicting-bind tests. Rust release library: 66 passed, one existing evidence-only soak ignored. Release integration/binary test command passed. Clippy release all-targets with benchmark-harness and -D warnings passed; fmt passed. Python: 13 focused tests passed; Ruff passed. Focused independent review found no Important/Critical issue. Non-benchmark library Clippy also passed. An additional non-benchmark all-targets Clippy attempt exposed existing unused/dead-code warnings in benchmark binaries (including group parameters, CompletionCoordinator and timeline items); that broader configuration is not clean and is not reported as passing. No unrelated warning suppression was retained. No Go code changed. Privacy review: new telemetry is only a buffer-size scalar; raw captures remain external. Git diff checks passed.
+
+Reproduce comparison: python scripts/run_b4b_task4m.py --baseline C:/NBSR-build/b4b-task4m-baseline-217df28e --candidate C:/NBSR-build/b4b-task4m-candidate-217df28e --output <fresh-output>. Rebuild candidate using cargo build --locked --manifest-path crates/nbsr-transport/Cargo.toml --release --features benchmark-harness --bins with CARGO_TARGET_DIR outside OneDrive. Preserve baseline binaries and reference-environment.json; never overwrite evidence output.

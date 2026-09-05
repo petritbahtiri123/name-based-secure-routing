@@ -1,0 +1,62 @@
+{
+  "200": {
+    "baseline": {
+      "repeats": 5,
+      "admissions_s": 178.51782715567012,
+      "admission_rate_cv": 0.010621820575211074,
+      "handshake_ms": {
+        "50": 5.7119,
+        "95": 12.7583,
+        "99": 18.1833
+      },
+      "goodput_bytes_s": 80670244.64920087,
+      "errors": 0,
+      "timeouts": 0,
+      "valid_clean": true
+    },
+    "candidate": {
+      "repeats": 5,
+      "admissions_s": 178.48353762895803,
+      "admission_rate_cv": 0.025520662356471654,
+      "handshake_ms": {
+        "50": 5.3832,
+        "95": 12.1861,
+        "99": 16.6188
+      },
+      "goodput_bytes_s": 80268012.77034895,
+      "errors": 0,
+      "timeouts": 0,
+      "valid_clean": true
+    }
+  },
+  "250": {
+    "baseline": {
+      "repeats": 5,
+      "admissions_s": 116.81809059677902,
+      "admission_rate_cv": 0.3261282792101558,
+      "handshake_ms": {
+        "50": 33.61,
+        "95": 1005.532,
+        "99": 1018.1096
+      },
+      "goodput_bytes_s": 78018867.5591887,
+      "errors": 0,
+      "timeouts": 0,
+      "valid_clean": true
+    },
+    "candidate": {
+      "repeats": 5,
+      "admissions_s": 134.88019846253644,
+      "admission_rate_cv": 0.24777448453111328,
+      "handshake_ms": {
+        "50": 59.0238,
+        "95": 133.1829,
+        "99": 138.2479
+      },
+      "goodput_bytes_s": 76676520.0332797,
+      "errors": 0,
+      "timeouts": 0,
+      "valid_clean": true
+    }
+  }
+}

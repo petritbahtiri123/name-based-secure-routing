@@ -1,0 +1,22 @@
+[
+  {
+    "path": "C:\\NBSR-build\\b4b-task4m-paired-217df28e\\analysis.json",
+    "bytes": 6313087,
+    "sha256": "b978c34cd2aeb90a3a1bae3d2ef19bc97664fff6d3a988b36eb4c4d005e08473"
+  },
+  {
+    "path": "C:\\NBSR-build\\b4b-task4m-paired-217df28e\\environment.json",
+    "bytes": 4474,
+    "sha256": "2ac34c8e3b326850d5d84aaba48880c0283fa3a3626fd3e27b0c8c05d413959c"
+  },
+  {
+    "path": "C:\\NBSR-build\\b4b-task4m-paired-217df28e\\candidate.patch",
+    "bytes": 5226,
+    "sha256": "7643756c0d7b58545162a7f1188be4d28851cde8b5c3d3012faacf4ccca36b98"
+  },
+  {
+    "path": "C:\\NBSR-build\\b4b-task4m-paired-217df28e\\checksums.sha256",
+    "bytes": 26399,
+    "sha256": "b24ae3d328a2fb81c8a3c5f5b818bd5e68cdbb474548636cd15d27a5fa3e2427"
+  }
+]

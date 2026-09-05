@@ -94,6 +94,8 @@ pub(crate) fn configure_datagram_buffers(transport: &mut quinn::TransportConfig)
 pub struct TransportListener {
     endpoint: Endpoint,
     policy: PeerPolicy,
+    #[cfg(feature = "benchmark-harness")]
+    udp_receive_buffer_bytes: usize,
 }
 
 impl TransportListener {
@@ -101,12 +103,30 @@ impl TransportListener {
         config: ServerEndpointConfig,
         bind_address: SocketAddr,
     ) -> Result<Self, TransportError> {
-        let endpoint =
-            Endpoint::server(config.quinn, bind_address).map_err(|_| TransportError::BindFailed)?;
+        let socket = crate::udp_socket::bind_receive_socket(bind_address)
+            .map_err(|_| TransportError::BindFailed)?;
+        #[cfg(feature = "benchmark-harness")]
+        let udp_receive_buffer_bytes = socket2::SockRef::from(&socket)
+            .recv_buffer_size()
+            .map_err(|_| TransportError::BindFailed)?;
+        let endpoint = Endpoint::new(
+            quinn::EndpointConfig::default(),
+            Some(config.quinn),
+            socket,
+            quinn::default_runtime().ok_or(TransportError::BindFailed)?,
+        )
+        .map_err(|_| TransportError::BindFailed)?;
         Ok(Self {
             endpoint,
             policy: config.policy,
+            #[cfg(feature = "benchmark-harness")]
+            udp_receive_buffer_bytes,
         })
+    }
+
+    #[cfg(feature = "benchmark-harness")]
+    pub fn udp_receive_buffer_bytes(&self) -> usize {
+        self.udp_receive_buffer_bytes
     }
 
     pub fn local_addr(&self) -> Result<SocketAddr, TransportError> {

@@ -248,14 +248,26 @@ async fn wait_until(deadline: Instant) {
     }
 }
 
+#[path = "../udp_socket.rs"]
+mod udp_socket;
+
 async fn server() {
     let ready = PathBuf::from(argument("--ready"));
     let authority = PathBuf::from(argument("--authority-dir"));
     let connections = count("--connections");
     let requests = count("--requests-per-connection");
-    let endpoint = Endpoint::server(
-        server_config(&authority),
-        SocketAddr::from((Ipv4Addr::LOCALHOST, 0)),
+    let socket =
+        udp_socket::bind_receive_socket(SocketAddr::from((Ipv4Addr::LOCALHOST, 0))).unwrap();
+    #[cfg(feature = "benchmark-harness")]
+    eprintln!(
+        "udp_receive_buffer_bytes={}",
+        socket2::SockRef::from(&socket).recv_buffer_size().unwrap()
+    );
+    let endpoint = Endpoint::new(
+        quinn::EndpointConfig::default(),
+        Some(server_config(&authority)),
+        socket,
+        quinn::default_runtime().expect("active QUIC runtime"),
     )
     .unwrap();
     let address = endpoint.local_addr().unwrap();

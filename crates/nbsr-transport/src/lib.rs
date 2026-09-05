@@ -147,6 +147,7 @@ mod session;
 mod session_tests;
 mod stream_credit;
 mod stream_gate;
+mod udp_socket;
 
 pub use admission::{
     ActiveChannel, AdmissionPolicy, AdmissionReject, AuthorizedServicePolicy, DestinationAdmission,

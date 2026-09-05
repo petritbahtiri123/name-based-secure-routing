@@ -3091,6 +3091,11 @@ async fn run() {
     )
     .unwrap();
     let endpoint = listener.local_addr().unwrap();
+    #[cfg(feature = "benchmark-harness")]
+    eprintln!(
+        "udp_receive_buffer_bytes={}",
+        listener.udp_receive_buffer_bytes()
+    );
     let path = |name: &str| {
         authority
             .join(name)
