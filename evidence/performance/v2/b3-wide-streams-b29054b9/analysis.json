@@ -1,0 +1,1338 @@
+[
+  {
+    "kind": "streams",
+    "role": "source",
+    "points": [
+      {
+        "count": 32,
+        "repeats": 5,
+        "active_private_cv_percent": 1.5054654404303651,
+        "repeat_gate": true,
+        "active_private_median": 2461696.0,
+        "active_private_range": [
+          2424832.0,
+          2527232.0
+        ],
+        "incremental_private_median": 1331200.0,
+        "rows": [
+          {
+            "name": "streams-c32-32-r1",
+            "idle": {
+              "private_bytes": 1183744.0,
+              "working_set_bytes": 10448896.0,
+              "handle_count": 77.0,
+              "thread_count": 4.0
+            },
+            "active": {
+              "private_bytes": 2527232.0,
+              "working_set_bytes": 12156928.0,
+              "handle_count": 87.0,
+              "thread_count": 4.0
+            },
+            "incremental_private_bytes": 1343488.0
+          },
+          {
+            "name": "streams-c32-32-r2",
+            "idle": {
+              "private_bytes": 1126400.0,
+              "working_set_bytes": 6078464.0,
+              "handle_count": 71.0,
+              "thread_count": 4.0
+            },
+            "active": {
+              "private_bytes": 2424832.0,
+              "working_set_bytes": 9920512.0,
+              "handle_count": 81.0,
+              "thread_count": 4.0
+            },
+            "incremental_private_bytes": 1298432.0
+          },
+          {
+            "name": "streams-c32-32-r3",
+            "idle": {
+              "private_bytes": 1130496.0,
+              "working_set_bytes": 6082560.0,
+              "handle_count": 71.0,
+              "thread_count": 4.0
+            },
+            "active": {
+              "private_bytes": 2461696.0,
+              "working_set_bytes": 9961472.0,
+              "handle_count": 81.0,
+              "thread_count": 4.0
+            },
+            "incremental_private_bytes": 1331200.0
+          },
+          {
+            "name": "streams-c32-32-r4",
+            "idle": {
+              "private_bytes": 1138688.0,
+              "working_set_bytes": 6082560.0,
+              "handle_count": 71.0,
+              "thread_count": 4.0
+            },
+            "active": {
+              "private_bytes": 2469888.0,
+              "working_set_bytes": 9957376.0,
+              "handle_count": 81.0,
+              "thread_count": 4.0
+            },
+            "incremental_private_bytes": 1331200.0
+          },
+          {
+            "name": "streams-c32-32-r5",
+            "idle": {
+              "private_bytes": 1134592.0,
+              "working_set_bytes": 6086656.0,
+              "handle_count": 71.0,
+              "thread_count": 4.0
+            },
+            "active": {
+              "private_bytes": 2457600.0,
+              "working_set_bytes": 9883648.0,
+              "handle_count": 81.0,
+              "thread_count": 4.0
+            },
+            "incremental_private_bytes": 1323008.0
+          }
+        ]
+      },
+      {
+        "count": 64,
+        "repeats": 5,
+        "active_private_cv_percent": 0.41570772830745956,
+        "repeat_gate": true,
+        "active_private_median": 3063808.0,
+        "active_private_range": [
+          3055616.0,
+          3084288.0
+        ],
+        "incremental_private_median": 1925120.0,
+        "rows": [
+          {
+            "name": "streams-c32-64-r1",
+            "idle": {
+              "private_bytes": 1134592.0,
+              "working_set_bytes": 6090752.0,
+              "handle_count": 71.0,
+              "thread_count": 4.0
+            },
+            "active": {
+              "private_bytes": 3055616.0,
+              "working_set_bytes": 10485760.0,
+              "handle_count": 81.0,
+              "thread_count": 4.0
+            },
+            "incremental_private_bytes": 1921024.0
+          },
+          {
+            "name": "streams-c32-64-r2",
+            "idle": {
+              "private_bytes": 1138688.0,
+              "working_set_bytes": 6086656.0,
+              "handle_count": 71.0,
+              "thread_count": 4.0
+            },
+            "active": {
+              "private_bytes": 3063808.0,
+              "working_set_bytes": 10489856.0,
+              "handle_count": 81.0,
+              "thread_count": 4.0
+            },
+            "incremental_private_bytes": 1925120.0
+          },
+          {
+            "name": "streams-c32-64-r3",
+            "idle": {
+              "private_bytes": 1142784.0,
+              "working_set_bytes": 6090752.0,
+              "handle_count": 71.0,
+              "thread_count": 4.0
+            },
+            "active": {
+              "private_bytes": 3059712.0,
+              "working_set_bytes": 10547200.0,
+              "handle_count": 81.0,
+              "thread_count": 4.0
+            },
+            "incremental_private_bytes": 1916928.0
+          },
+          {
+            "name": "streams-c32-64-r4",
+            "idle": {
+              "private_bytes": 1138688.0,
+              "working_set_bytes": 6086656.0,
+              "handle_count": 71.0,
+              "thread_count": 4.0
+            },
+            "active": {
+              "private_bytes": 3080192.0,
+              "working_set_bytes": 10498048.0,
+              "handle_count": 81.0,
+              "thread_count": 4.0
+            },
+            "incremental_private_bytes": 1941504.0
+          },
+          {
+            "name": "streams-c32-64-r5",
+            "idle": {
+              "private_bytes": 1138688.0,
+              "working_set_bytes": 6086656.0,
+              "handle_count": 71.0,
+              "thread_count": 4.0
+            },
+            "active": {
+              "private_bytes": 3084288.0,
+              "working_set_bytes": 10551296.0,
+              "handle_count": 81.0,
+              "thread_count": 4.0
+            },
+            "incremental_private_bytes": 1945600.0
+          }
+        ]
+      },
+      {
+        "count": 128,
+        "repeats": 5,
+        "active_private_cv_percent": 0.2867773308628344,
+        "repeat_gate": true,
+        "active_private_median": 4349952.0,
+        "active_private_range": [
+          4345856.0,
+          4374528.0
+        ],
+        "incremental_private_median": 3219456.0,
+        "rows": [
+          {
+            "name": "streams-c32-128-r1",
+            "idle": {
+              "private_bytes": 1130496.0,
+              "working_set_bytes": 6082560.0,
+              "handle_count": 71.0,
+              "thread_count": 4.0
+            },
+            "active": {
+              "private_bytes": 4345856.0,
+              "working_set_bytes": 11788288.0,
+              "handle_count": 81.0,
+              "thread_count": 4.0
+            },
+            "incremental_private_bytes": 3215360.0
+          },
+          {
+            "name": "streams-c32-128-r2",
+            "idle": {
+              "private_bytes": 1134592.0,
+              "working_set_bytes": 6082560.0,
+              "handle_count": 71.0,
+              "thread_count": 4.0
+            },
+            "active": {
+              "private_bytes": 4349952.0,
+              "working_set_bytes": 11833344.0,
+              "handle_count": 81.0,
+              "thread_count": 4.0
+            },
+            "incremental_private_bytes": 3215360.0
+          },
+          {
+            "name": "streams-c32-128-r3",
+            "idle": {
+              "private_bytes": 1142784.0,
+              "working_set_bytes": 6086656.0,
+              "handle_count": 71.0,
+              "thread_count": 4.0
+            },
+            "active": {
+              "private_bytes": 4362240.0,
+              "working_set_bytes": 11837440.0,
+              "handle_count": 81.0,
+              "thread_count": 4.0
+            },
+            "incremental_private_bytes": 3219456.0
+          },
+          {
+            "name": "streams-c32-128-r4",
+            "idle": {
+              "private_bytes": 1126400.0,
+              "working_set_bytes": 6078464.0,
+              "handle_count": 71.0,
+              "thread_count": 4.0
+            },
+            "active": {
+              "private_bytes": 4345856.0,
+              "working_set_bytes": 11784192.0,
+              "handle_count": 81.0,
+              "thread_count": 4.0
+            },
+            "incremental_private_bytes": 3219456.0
+          },
+          {
+            "name": "streams-c32-128-r5",
+            "idle": {
+              "private_bytes": 1134592.0,
+              "working_set_bytes": 6078464.0,
+              "handle_count": 71.0,
+              "thread_count": 4.0
+            },
+            "active": {
+              "private_bytes": 4374528.0,
+              "working_set_bytes": 11849728.0,
+              "handle_count": 81.0,
+              "thread_count": 4.0
+            },
+            "incremental_private_bytes": 3239936.0
+          }
+        ]
+      },
+      {
+        "count": 256,
+        "repeats": 5,
+        "active_private_cv_percent": 0.19300716584607186,
+        "repeat_gate": true,
+        "active_private_median": 6934528.0,
+        "active_private_range": [
+          6930432.0,
+          6963200.0
+        ],
+        "incremental_private_median": 5808128.0,
+        "rows": [
+          {
+            "name": "streams-c32-256-r1",
+            "idle": {
+              "private_bytes": 1134592.0,
+              "working_set_bytes": 6082560.0,
+              "handle_count": 71.0,
+              "thread_count": 4.0
+            },
+            "active": {
+              "private_bytes": 6934528.0,
+              "working_set_bytes": 14381056.0,
+              "handle_count": 81.0,
+              "thread_count": 4.0
+            },
+            "incremental_private_bytes": 5799936.0
+          },
+          {
+            "name": "streams-c32-256-r2",
+            "idle": {
+              "private_bytes": 1142784.0,
+              "working_set_bytes": 6086656.0,
+              "handle_count": 71.0,
+              "thread_count": 4.0
+            },
+            "active": {
+              "private_bytes": 6963200.0,
+              "working_set_bytes": 14409728.0,
+              "handle_count": 81.0,
+              "thread_count": 4.0
+            },
+            "incremental_private_bytes": 5820416.0
+          },
+          {
+            "name": "streams-c32-256-r3",
+            "idle": {
+              "private_bytes": 1138688.0,
+              "working_set_bytes": 6086656.0,
+              "handle_count": 71.0,
+              "thread_count": 4.0
+            },
+            "active": {
+              "private_bytes": 6946816.0,
+              "working_set_bytes": 14372864.0,
+              "handle_count": 81.0,
+              "thread_count": 4.0
+            },
+            "incremental_private_bytes": 5808128.0
+          },
+          {
+            "name": "streams-c32-256-r4",
+            "idle": {
+              "private_bytes": 1126400.0,
+              "working_set_bytes": 6078464.0,
+              "handle_count": 71.0,
+              "thread_count": 4.0
+            },
+            "active": {
+              "private_bytes": 6934528.0,
+              "working_set_bytes": 14389248.0,
+              "handle_count": 81.0,
+              "thread_count": 4.0
+            },
+            "incremental_private_bytes": 5808128.0
+          },
+          {
+            "name": "streams-c32-256-r5",
+            "idle": {
+              "private_bytes": 1150976.0,
+              "working_set_bytes": 6094848.0,
+              "handle_count": 71.0,
+              "thread_count": 4.0
+            },
+            "active": {
+              "private_bytes": 6930432.0,
+              "working_set_bytes": 14360576.0,
+              "handle_count": 81.0,
+              "thread_count": 4.0
+            },
+            "incremental_private_bytes": 5779456.0
+          }
+        ]
+      },
+      {
+        "count": 512,
+        "repeats": 5,
+        "active_private_cv_percent": 0.14621625000795035,
+        "repeat_gate": true,
+        "active_private_median": 12140544.0,
+        "active_private_range": [
+          12128256.0,
+          12165120.0
+        ],
+        "incremental_private_median": 11010048.0,
+        "rows": [
+          {
+            "name": "streams-c32-512-r1",
+            "idle": {
+              "private_bytes": 1130496.0,
+              "working_set_bytes": 6082560.0,
+              "handle_count": 71.0,
+              "thread_count": 4.0
+            },
+            "active": {
+              "private_bytes": 12140544.0,
+              "working_set_bytes": 19464192.0,
+              "handle_count": 81.0,
+              "thread_count": 4.0
+            },
+            "incremental_private_bytes": 11010048.0
+          },
+          {
+            "name": "streams-c32-512-r2",
+            "idle": {
+              "private_bytes": 1138688.0,
+              "working_set_bytes": 6090752.0,
+              "handle_count": 71.0,
+              "thread_count": 4.0
+            },
+            "active": {
+              "private_bytes": 12128256.0,
+              "working_set_bytes": 19451904.0,
+              "handle_count": 81.0,
+              "thread_count": 4.0
+            },
+            "incremental_private_bytes": 10989568.0
+          },
+          {
+            "name": "streams-c32-512-r3",
+            "idle": {
+              "private_bytes": 1126400.0,
+              "working_set_bytes": 6082560.0,
+              "handle_count": 71.0,
+              "thread_count": 4.0
+            },
+            "active": {
+              "private_bytes": 12165120.0,
+              "working_set_bytes": 19492864.0,
+              "handle_count": 81.0,
+              "thread_count": 4.0
+            },
+            "incremental_private_bytes": 11038720.0
+          },
+          {
+            "name": "streams-c32-512-r4",
+            "idle": {
+              "private_bytes": 1134592.0,
+              "working_set_bytes": 6082560.0,
+              "handle_count": 71.0,
+              "thread_count": 4.0
+            },
+            "active": {
+              "private_bytes": 12132352.0,
+              "working_set_bytes": 19460096.0,
+              "handle_count": 81.0,
+              "thread_count": 4.0
+            },
+            "incremental_private_bytes": 10997760.0
+          },
+          {
+            "name": "streams-c32-512-r5",
+            "idle": {
+              "private_bytes": 1138688.0,
+              "working_set_bytes": 6078464.0,
+              "handle_count": 71.0,
+              "thread_count": 4.0
+            },
+            "active": {
+              "private_bytes": 12165120.0,
+              "working_set_bytes": 19480576.0,
+              "handle_count": 81.0,
+              "thread_count": 4.0
+            },
+            "incremental_private_bytes": 11026432.0
+          }
+        ]
+      },
+      {
+        "count": 1024,
+        "repeats": 5,
+        "active_private_cv_percent": 0.7260076886641721,
+        "repeat_gate": true,
+        "active_private_median": 22007808.0,
+        "active_private_range": [
+          21958656.0,
+          22278144.0
+        ],
+        "incremental_private_median": 20869120.0,
+        "rows": [
+          {
+            "name": "streams-c32-1024-r1",
+            "idle": {
+              "private_bytes": 1142784.0,
+              "working_set_bytes": 6086656.0,
+              "handle_count": 71.0,
+              "thread_count": 4.0
+            },
+            "active": {
+              "private_bytes": 22261760.0,
+              "working_set_bytes": 29700096.0,
+              "handle_count": 81.0,
+              "thread_count": 4.0
+            },
+            "incremental_private_bytes": 21118976.0
+          },
+          {
+            "name": "streams-c32-1024-r2",
+            "idle": {
+              "private_bytes": 1134592.0,
+              "working_set_bytes": 6082560.0,
+              "handle_count": 71.0,
+              "thread_count": 4.0
+            },
+            "active": {
+              "private_bytes": 22278144.0,
+              "working_set_bytes": 29716480.0,
+              "handle_count": 81.0,
+              "thread_count": 4.0
+            },
+            "incremental_private_bytes": 21143552.0
+          },
+          {
+            "name": "streams-c32-1024-r3",
+            "idle": {
+              "private_bytes": 1134592.0,
+              "working_set_bytes": 6082560.0,
+              "handle_count": 71.0,
+              "thread_count": 4.0
+            },
+            "active": {
+              "private_bytes": 21970944.0,
+              "working_set_bytes": 29417472.0,
+              "handle_count": 81.0,
+              "thread_count": 4.0
+            },
+            "incremental_private_bytes": 20836352.0
+          },
+          {
+            "name": "streams-c32-1024-r4",
+            "idle": {
+              "private_bytes": 1138688.0,
+              "working_set_bytes": 6082560.0,
+              "handle_count": 71.0,
+              "thread_count": 4.0
+            },
+            "active": {
+              "private_bytes": 22007808.0,
+              "working_set_bytes": 29454336.0,
+              "handle_count": 81.0,
+              "thread_count": 4.0
+            },
+            "incremental_private_bytes": 20869120.0
+          },
+          {
+            "name": "streams-c32-1024-r5",
+            "idle": {
+              "private_bytes": 1138688.0,
+              "working_set_bytes": 6078464.0,
+              "handle_count": 71.0,
+              "thread_count": 4.0
+            },
+            "active": {
+              "private_bytes": 21958656.0,
+              "working_set_bytes": 29405184.0,
+              "handle_count": 81.0,
+              "thread_count": 4.0
+            },
+            "incremental_private_bytes": 20819968.0
+          }
+        ]
+      },
+      {
+        "count": 2048,
+        "repeats": 5,
+        "active_private_cv_percent": 0.24273343096103805,
+        "repeat_gate": true,
+        "active_private_median": 42516480.0,
+        "active_private_range": [
+          42295296.0,
+          42536960.0
+        ],
+        "incremental_private_median": 41385984.0,
+        "rows": [
+          {
+            "name": "streams-c32-2048-r1",
+            "idle": {
+              "private_bytes": 1130496.0,
+              "working_set_bytes": 6078464.0,
+              "handle_count": 71.0,
+              "thread_count": 4.0
+            },
+            "active": {
+              "private_bytes": 42295296.0,
+              "working_set_bytes": 49688576.0,
+              "handle_count": 81.0,
+              "thread_count": 4.0
+            },
+            "incremental_private_bytes": 41164800.0
+          },
+          {
+            "name": "streams-c32-2048-r2",
+            "idle": {
+              "private_bytes": 1138688.0,
+              "working_set_bytes": 6082560.0,
+              "handle_count": 71.0,
+              "thread_count": 4.0
+            },
+            "active": {
+              "private_bytes": 42512384.0,
+              "working_set_bytes": 49901568.0,
+              "handle_count": 81.0,
+              "thread_count": 4.0
+            },
+            "incremental_private_bytes": 41373696.0
+          },
+          {
+            "name": "streams-c32-2048-r3",
+            "idle": {
+              "private_bytes": 1134592.0,
+              "working_set_bytes": 6082560.0,
+              "handle_count": 71.0,
+              "thread_count": 4.0
+            },
+            "active": {
+              "private_bytes": 42536960.0,
+              "working_set_bytes": 49922048.0,
+              "handle_count": 81.0,
+              "thread_count": 4.0
+            },
+            "incremental_private_bytes": 41402368.0
+          },
+          {
+            "name": "streams-c32-2048-r4",
+            "idle": {
+              "private_bytes": 1130496.0,
+              "working_set_bytes": 6082560.0,
+              "handle_count": 71.0,
+              "thread_count": 4.0
+            },
+            "active": {
+              "private_bytes": 42516480.0,
+              "working_set_bytes": 49909760.0,
+              "handle_count": 81.0,
+              "thread_count": 4.0
+            },
+            "incremental_private_bytes": 41385984.0
+          },
+          {
+            "name": "streams-c32-2048-r5",
+            "idle": {
+              "private_bytes": 1142784.0,
+              "working_set_bytes": 6082560.0,
+              "handle_count": 71.0,
+              "thread_count": 4.0
+            },
+            "active": {
+              "private_bytes": 42532864.0,
+              "working_set_bytes": 49930240.0,
+              "handle_count": 81.0,
+              "thread_count": 4.0
+            },
+            "incremental_private_bytes": 41390080.0
+          }
+        ]
+      }
+    ],
+    "materialized_streams": true,
+    "derived_active_private_slope_bytes_per_unit": 19848.839170965697,
+    "derived_incremental_private_slope_bytes_per_unit": 19848.613268169065,
+    "resource_scope": "application streams across 32 fixed channels; one connection/session"
+  },
+  {
+    "kind": "streams",
+    "role": "destination",
+    "points": [
+      {
+        "count": 32,
+        "repeats": 5,
+        "active_private_cv_percent": 1.2074656977257374,
+        "repeat_gate": true,
+        "active_private_median": 2686976.0,
+        "active_private_range": [
+          2660352.0,
+          2740224.0
+        ],
+        "incremental_private_median": 1226752.0,
+        "rows": [
+          {
+            "name": "streams-c32-32-r1",
+            "idle": {
+              "private_bytes": 1499136.0,
+              "working_set_bytes": 11008000.0,
+              "handle_count": 88.0,
+              "thread_count": 5.0
+            },
+            "active": {
+              "private_bytes": 2740224.0,
+              "working_set_bytes": 12210176.0,
+              "handle_count": 89.0,
+              "thread_count": 5.0
+            },
+            "incremental_private_bytes": 1241088.0
+          },
+          {
+            "name": "streams-c32-32-r2",
+            "idle": {
+              "private_bytes": 1449984.0,
+              "working_set_bytes": 7434240.0,
+              "handle_count": 82.0,
+              "thread_count": 5.0
+            },
+            "active": {
+              "private_bytes": 2660352.0,
+              "working_set_bytes": 10024960.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            "incremental_private_bytes": 1210368.0
+          },
+          {
+            "name": "streams-c32-32-r3",
+            "idle": {
+              "private_bytes": 1445888.0,
+              "working_set_bytes": 7421952.0,
+              "handle_count": 82.0,
+              "thread_count": 5.0
+            },
+            "active": {
+              "private_bytes": 2672640.0,
+              "working_set_bytes": 10033152.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            "incremental_private_bytes": 1226752.0
+          },
+          {
+            "name": "streams-c32-32-r4",
+            "idle": {
+              "private_bytes": 1462272.0,
+              "working_set_bytes": 7438336.0,
+              "handle_count": 82.0,
+              "thread_count": 5.0
+            },
+            "active": {
+              "private_bytes": 2715648.0,
+              "working_set_bytes": 10072064.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            "incremental_private_bytes": 1253376.0
+          },
+          {
+            "name": "streams-c32-32-r5",
+            "idle": {
+              "private_bytes": 1460224.0,
+              "working_set_bytes": 7432192.0,
+              "handle_count": 82.0,
+              "thread_count": 5.0
+            },
+            "active": {
+              "private_bytes": 2686976.0,
+              "working_set_bytes": 10106880.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            "incremental_private_bytes": 1226752.0
+          }
+        ]
+      },
+      {
+        "count": 64,
+        "repeats": 5,
+        "active_private_cv_percent": 0.5398275791599518,
+        "repeat_gate": true,
+        "active_private_median": 3321856.0,
+        "active_private_range": [
+          3301376.0,
+          3346432.0
+        ],
+        "incremental_private_median": 1863680.0,
+        "rows": [
+          {
+            "name": "streams-c32-64-r1",
+            "idle": {
+              "private_bytes": 1433600.0,
+              "working_set_bytes": 7417856.0,
+              "handle_count": 82.0,
+              "thread_count": 5.0
+            },
+            "active": {
+              "private_bytes": 3338240.0,
+              "working_set_bytes": 10727424.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            "incremental_private_bytes": 1904640.0
+          },
+          {
+            "name": "streams-c32-64-r2",
+            "idle": {
+              "private_bytes": 1466368.0,
+              "working_set_bytes": 7450624.0,
+              "handle_count": 82.0,
+              "thread_count": 5.0
+            },
+            "active": {
+              "private_bytes": 3321856.0,
+              "working_set_bytes": 10698752.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            "incremental_private_bytes": 1855488.0
+          },
+          {
+            "name": "streams-c32-64-r3",
+            "idle": {
+              "private_bytes": 1482752.0,
+              "working_set_bytes": 7452672.0,
+              "handle_count": 82.0,
+              "thread_count": 5.0
+            },
+            "active": {
+              "private_bytes": 3346432.0,
+              "working_set_bytes": 10754048.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            "incremental_private_bytes": 1863680.0
+          },
+          {
+            "name": "streams-c32-64-r4",
+            "idle": {
+              "private_bytes": 1445888.0,
+              "working_set_bytes": 7428096.0,
+              "handle_count": 82.0,
+              "thread_count": 5.0
+            },
+            "active": {
+              "private_bytes": 3315712.0,
+              "working_set_bytes": 10676224.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            "incremental_private_bytes": 1869824.0
+          },
+          {
+            "name": "streams-c32-64-r5",
+            "idle": {
+              "private_bytes": 1474560.0,
+              "working_set_bytes": 7452672.0,
+              "handle_count": 82.0,
+              "thread_count": 5.0
+            },
+            "active": {
+              "private_bytes": 3301376.0,
+              "working_set_bytes": 10721280.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            "incremental_private_bytes": 1826816.0
+          }
+        ]
+      },
+      {
+        "count": 128,
+        "repeats": 5,
+        "active_private_cv_percent": 0.7697224010309305,
+        "repeat_gate": true,
+        "active_private_median": 4718592.0,
+        "active_private_range": [
+          4661248.0,
+          4755456.0
+        ],
+        "incremental_private_median": 3252224.0,
+        "rows": [
+          {
+            "name": "streams-c32-128-r1",
+            "idle": {
+              "private_bytes": 1449984.0,
+              "working_set_bytes": 7430144.0,
+              "handle_count": 82.0,
+              "thread_count": 5.0
+            },
+            "active": {
+              "private_bytes": 4685824.0,
+              "working_set_bytes": 12107776.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            "incremental_private_bytes": 3235840.0
+          },
+          {
+            "name": "streams-c32-128-r2",
+            "idle": {
+              "private_bytes": 1449984.0,
+              "working_set_bytes": 7430144.0,
+              "handle_count": 82.0,
+              "thread_count": 5.0
+            },
+            "active": {
+              "private_bytes": 4661248.0,
+              "working_set_bytes": 12046336.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            "incremental_private_bytes": 3211264.0
+          },
+          {
+            "name": "streams-c32-128-r3",
+            "idle": {
+              "private_bytes": 1454080.0,
+              "working_set_bytes": 7430144.0,
+              "handle_count": 82.0,
+              "thread_count": 5.0
+            },
+            "active": {
+              "private_bytes": 4755456.0,
+              "working_set_bytes": 12107776.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            "incremental_private_bytes": 3301376.0
+          },
+          {
+            "name": "streams-c32-128-r4",
+            "idle": {
+              "private_bytes": 1470464.0,
+              "working_set_bytes": 7452672.0,
+              "handle_count": 82.0,
+              "thread_count": 5.0
+            },
+            "active": {
+              "private_bytes": 4722688.0,
+              "working_set_bytes": 12093440.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            "incremental_private_bytes": 3252224.0
+          },
+          {
+            "name": "streams-c32-128-r5",
+            "idle": {
+              "private_bytes": 1456128.0,
+              "working_set_bytes": 7428096.0,
+              "handle_count": 82.0,
+              "thread_count": 5.0
+            },
+            "active": {
+              "private_bytes": 4718592.0,
+              "working_set_bytes": 12122112.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            "incremental_private_bytes": 3262464.0
+          }
+        ]
+      },
+      {
+        "count": 256,
+        "repeats": 5,
+        "active_private_cv_percent": 0.5685113084696855,
+        "repeat_gate": true,
+        "active_private_median": 7364608.0,
+        "active_private_range": [
+          7299072.0,
+          7405568.0
+        ],
+        "incremental_private_median": 5918720.0,
+        "rows": [
+          {
+            "name": "streams-c32-256-r1",
+            "idle": {
+              "private_bytes": 1445888.0,
+              "working_set_bytes": 7434240.0,
+              "handle_count": 82.0,
+              "thread_count": 5.0
+            },
+            "active": {
+              "private_bytes": 7364608.0,
+              "working_set_bytes": 14766080.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            "incremental_private_bytes": 5918720.0
+          },
+          {
+            "name": "streams-c32-256-r2",
+            "idle": {
+              "private_bytes": 1441792.0,
+              "working_set_bytes": 7424000.0,
+              "handle_count": 82.0,
+              "thread_count": 5.0
+            },
+            "active": {
+              "private_bytes": 7335936.0,
+              "working_set_bytes": 14725120.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            "incremental_private_bytes": 5894144.0
+          },
+          {
+            "name": "streams-c32-256-r3",
+            "idle": {
+              "private_bytes": 1441792.0,
+              "working_set_bytes": 7432192.0,
+              "handle_count": 82.0,
+              "thread_count": 5.0
+            },
+            "active": {
+              "private_bytes": 7299072.0,
+              "working_set_bytes": 14696448.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            "incremental_private_bytes": 5857280.0
+          },
+          {
+            "name": "streams-c32-256-r4",
+            "idle": {
+              "private_bytes": 1449984.0,
+              "working_set_bytes": 7430144.0,
+              "handle_count": 82.0,
+              "thread_count": 5.0
+            },
+            "active": {
+              "private_bytes": 7385088.0,
+              "working_set_bytes": 14768128.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            "incremental_private_bytes": 5935104.0
+          },
+          {
+            "name": "streams-c32-256-r5",
+            "idle": {
+              "private_bytes": 1449984.0,
+              "working_set_bytes": 7430144.0,
+              "handle_count": 82.0,
+              "thread_count": 5.0
+            },
+            "active": {
+              "private_bytes": 7405568.0,
+              "working_set_bytes": 14772224.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            "incremental_private_bytes": 5955584.0
+          }
+        ]
+      },
+      {
+        "count": 512,
+        "repeats": 5,
+        "active_private_cv_percent": 0.2272719762417118,
+        "repeat_gate": true,
+        "active_private_median": 12779520.0,
+        "active_private_range": [
+          12750848.0,
+          12828672.0
+        ],
+        "incremental_private_median": 11329536.0,
+        "rows": [
+          {
+            "name": "streams-c32-512-r1",
+            "idle": {
+              "private_bytes": 1490944.0,
+              "working_set_bytes": 7467008.0,
+              "handle_count": 82.0,
+              "thread_count": 5.0
+            },
+            "active": {
+              "private_bytes": 12750848.0,
+              "working_set_bytes": 20004864.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            "incremental_private_bytes": 11259904.0
+          },
+          {
+            "name": "streams-c32-512-r2",
+            "idle": {
+              "private_bytes": 1474560.0,
+              "working_set_bytes": 7458816.0,
+              "handle_count": 82.0,
+              "thread_count": 5.0
+            },
+            "active": {
+              "private_bytes": 12828672.0,
+              "working_set_bytes": 20086784.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            "incremental_private_bytes": 11354112.0
+          },
+          {
+            "name": "streams-c32-512-r3",
+            "idle": {
+              "private_bytes": 1445888.0,
+              "working_set_bytes": 7430144.0,
+              "handle_count": 82.0,
+              "thread_count": 5.0
+            },
+            "active": {
+              "private_bytes": 12767232.0,
+              "working_set_bytes": 20017152.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            "incremental_private_bytes": 11321344.0
+          },
+          {
+            "name": "streams-c32-512-r4",
+            "idle": {
+              "private_bytes": 1435648.0,
+              "working_set_bytes": 7419904.0,
+              "handle_count": 82.0,
+              "thread_count": 5.0
+            },
+            "active": {
+              "private_bytes": 12779520.0,
+              "working_set_bytes": 20037632.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            "incremental_private_bytes": 11343872.0
+          },
+          {
+            "name": "streams-c32-512-r5",
+            "idle": {
+              "private_bytes": 1454080.0,
+              "working_set_bytes": 7440384.0,
+              "handle_count": 82.0,
+              "thread_count": 5.0
+            },
+            "active": {
+              "private_bytes": 12783616.0,
+              "working_set_bytes": 20045824.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            "incremental_private_bytes": 11329536.0
+          }
+        ]
+      },
+      {
+        "count": 1024,
+        "repeats": 5,
+        "active_private_cv_percent": 0.1962676416958712,
+        "repeat_gate": true,
+        "active_private_median": 22904832.0,
+        "active_private_range": [
+          22863872.0,
+          22982656.0
+        ],
+        "incremental_private_median": 21422080.0,
+        "rows": [
+          {
+            "name": "streams-c32-1024-r1",
+            "idle": {
+              "private_bytes": 1449984.0,
+              "working_set_bytes": 7430144.0,
+              "handle_count": 82.0,
+              "thread_count": 5.0
+            },
+            "active": {
+              "private_bytes": 22908928.0,
+              "working_set_bytes": 30265344.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            "incremental_private_bytes": 21458944.0
+          },
+          {
+            "name": "streams-c32-1024-r2",
+            "idle": {
+              "private_bytes": 1458176.0,
+              "working_set_bytes": 7438336.0,
+              "handle_count": 82.0,
+              "thread_count": 5.0
+            },
+            "active": {
+              "private_bytes": 22863872.0,
+              "working_set_bytes": 30248960.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            "incremental_private_bytes": 21405696.0
+          },
+          {
+            "name": "streams-c32-1024-r3",
+            "idle": {
+              "private_bytes": 1462272.0,
+              "working_set_bytes": 7430144.0,
+              "handle_count": 82.0,
+              "thread_count": 5.0
+            },
+            "active": {
+              "private_bytes": 22884352.0,
+              "working_set_bytes": 30265344.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            "incremental_private_bytes": 21422080.0
+          },
+          {
+            "name": "streams-c32-1024-r4",
+            "idle": {
+              "private_bytes": 1482752.0,
+              "working_set_bytes": 7456768.0,
+              "handle_count": 82.0,
+              "thread_count": 5.0
+            },
+            "active": {
+              "private_bytes": 22904832.0,
+              "working_set_bytes": 30285824.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            "incremental_private_bytes": 21422080.0
+          },
+          {
+            "name": "streams-c32-1024-r5",
+            "idle": {
+              "private_bytes": 1437696.0,
+              "working_set_bytes": 7426048.0,
+              "handle_count": 82.0,
+              "thread_count": 5.0
+            },
+            "active": {
+              "private_bytes": 22982656.0,
+              "working_set_bytes": 30375936.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            "incremental_private_bytes": 21544960.0
+          }
+        ]
+      },
+      {
+        "count": 2048,
+        "repeats": 5,
+        "active_private_cv_percent": 0.09915217326989817,
+        "repeat_gate": true,
+        "active_private_median": 44367872.0,
+        "active_private_range": [
+          44290048.0,
+          44408832.0
+        ],
+        "incremental_private_median": 42905600.0,
+        "rows": [
+          {
+            "name": "streams-c32-2048-r1",
+            "idle": {
+              "private_bytes": 1445888.0,
+              "working_set_bytes": 7421952.0,
+              "handle_count": 82.0,
+              "thread_count": 5.0
+            },
+            "active": {
+              "private_bytes": 44376064.0,
+              "working_set_bytes": 51671040.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            "incremental_private_bytes": 42930176.0
+          },
+          {
+            "name": "streams-c32-2048-r2",
+            "idle": {
+              "private_bytes": 1458176.0,
+              "working_set_bytes": 7438336.0,
+              "handle_count": 82.0,
+              "thread_count": 5.0
+            },
+            "active": {
+              "private_bytes": 44290048.0,
+              "working_set_bytes": 51533824.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            "incremental_private_bytes": 42831872.0
+          },
+          {
+            "name": "streams-c32-2048-r3",
+            "idle": {
+              "private_bytes": 1454080.0,
+              "working_set_bytes": 7428096.0,
+              "handle_count": 82.0,
+              "thread_count": 5.0
+            },
+            "active": {
+              "private_bytes": 44347392.0,
+              "working_set_bytes": 51580928.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            "incremental_private_bytes": 42893312.0
+          },
+          {
+            "name": "streams-c32-2048-r4",
+            "idle": {
+              "private_bytes": 1462272.0,
+              "working_set_bytes": 7438336.0,
+              "handle_count": 82.0,
+              "thread_count": 5.0
+            },
+            "active": {
+              "private_bytes": 44367872.0,
+              "working_set_bytes": 51611648.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            "incremental_private_bytes": 42905600.0
+          },
+          {
+            "name": "streams-c32-2048-r5",
+            "idle": {
+              "private_bytes": 1454080.0,
+              "working_set_bytes": 7434240.0,
+              "handle_count": 82.0,
+              "thread_count": 5.0
+            },
+            "active": {
+              "private_bytes": 44408832.0,
+              "working_set_bytes": 51652608.0,
+              "handle_count": 83.0,
+              "thread_count": 5.0
+            },
+            "incremental_private_bytes": 42954752.0
+          }
+        ]
+      }
+    ],
+    "materialized_streams": true,
+    "derived_active_private_slope_bytes_per_unit": 20624.502488913025,
+    "derived_incremental_private_slope_bytes_per_unit": 20619.358856005067,
+    "resource_scope": "application streams across 32 fixed channels; one connection/session"
+  }
+]

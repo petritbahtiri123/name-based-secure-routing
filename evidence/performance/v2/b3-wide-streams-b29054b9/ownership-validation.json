@@ -1,0 +1,317 @@
+[
+  {
+    "name": "streams-c32-32-r1",
+    "materialized_streams_per_role": 32,
+    "channels_per_role": 32,
+    "validated_completions": 32,
+    "all_11_final_counters_zero": true,
+    "source_audit_high_water": 5,
+    "destination_audit_high_water": 5
+  },
+  {
+    "name": "streams-c32-32-r2",
+    "materialized_streams_per_role": 32,
+    "channels_per_role": 32,
+    "validated_completions": 32,
+    "all_11_final_counters_zero": true,
+    "source_audit_high_water": 5,
+    "destination_audit_high_water": 5
+  },
+  {
+    "name": "streams-c32-32-r3",
+    "materialized_streams_per_role": 32,
+    "channels_per_role": 32,
+    "validated_completions": 32,
+    "all_11_final_counters_zero": true,
+    "source_audit_high_water": 5,
+    "destination_audit_high_water": 5
+  },
+  {
+    "name": "streams-c32-32-r4",
+    "materialized_streams_per_role": 32,
+    "channels_per_role": 32,
+    "validated_completions": 32,
+    "all_11_final_counters_zero": true,
+    "source_audit_high_water": 5,
+    "destination_audit_high_water": 5
+  },
+  {
+    "name": "streams-c32-32-r5",
+    "materialized_streams_per_role": 32,
+    "channels_per_role": 32,
+    "validated_completions": 32,
+    "all_11_final_counters_zero": true,
+    "source_audit_high_water": 5,
+    "destination_audit_high_water": 5
+  },
+  {
+    "name": "streams-c32-64-r1",
+    "materialized_streams_per_role": 64,
+    "channels_per_role": 32,
+    "validated_completions": 64,
+    "all_11_final_counters_zero": true,
+    "source_audit_high_water": 5,
+    "destination_audit_high_water": 5
+  },
+  {
+    "name": "streams-c32-64-r2",
+    "materialized_streams_per_role": 64,
+    "channels_per_role": 32,
+    "validated_completions": 64,
+    "all_11_final_counters_zero": true,
+    "source_audit_high_water": 5,
+    "destination_audit_high_water": 5
+  },
+  {
+    "name": "streams-c32-64-r3",
+    "materialized_streams_per_role": 64,
+    "channels_per_role": 32,
+    "validated_completions": 64,
+    "all_11_final_counters_zero": true,
+    "source_audit_high_water": 5,
+    "destination_audit_high_water": 5
+  },
+  {
+    "name": "streams-c32-64-r4",
+    "materialized_streams_per_role": 64,
+    "channels_per_role": 32,
+    "validated_completions": 64,
+    "all_11_final_counters_zero": true,
+    "source_audit_high_water": 5,
+    "destination_audit_high_water": 5
+  },
+  {
+    "name": "streams-c32-64-r5",
+    "materialized_streams_per_role": 64,
+    "channels_per_role": 32,
+    "validated_completions": 64,
+    "all_11_final_counters_zero": true,
+    "source_audit_high_water": 5,
+    "destination_audit_high_water": 5
+  },
+  {
+    "name": "streams-c32-128-r1",
+    "materialized_streams_per_role": 128,
+    "channels_per_role": 32,
+    "validated_completions": 128,
+    "all_11_final_counters_zero": true,
+    "source_audit_high_water": 5,
+    "destination_audit_high_water": 5
+  },
+  {
+    "name": "streams-c32-128-r2",
+    "materialized_streams_per_role": 128,
+    "channels_per_role": 32,
+    "validated_completions": 128,
+    "all_11_final_counters_zero": true,
+    "source_audit_high_water": 5,
+    "destination_audit_high_water": 5
+  },
+  {
+    "name": "streams-c32-128-r3",
+    "materialized_streams_per_role": 128,
+    "channels_per_role": 32,
+    "validated_completions": 128,
+    "all_11_final_counters_zero": true,
+    "source_audit_high_water": 5,
+    "destination_audit_high_water": 5
+  },
+  {
+    "name": "streams-c32-128-r4",
+    "materialized_streams_per_role": 128,
+    "channels_per_role": 32,
+    "validated_completions": 128,
+    "all_11_final_counters_zero": true,
+    "source_audit_high_water": 5,
+    "destination_audit_high_water": 5
+  },
+  {
+    "name": "streams-c32-128-r5",
+    "materialized_streams_per_role": 128,
+    "channels_per_role": 32,
+    "validated_completions": 128,
+    "all_11_final_counters_zero": true,
+    "source_audit_high_water": 5,
+    "destination_audit_high_water": 5
+  },
+  {
+    "name": "streams-c32-256-r1",
+    "materialized_streams_per_role": 256,
+    "channels_per_role": 32,
+    "validated_completions": 256,
+    "all_11_final_counters_zero": true,
+    "source_audit_high_water": 5,
+    "destination_audit_high_water": 5
+  },
+  {
+    "name": "streams-c32-256-r2",
+    "materialized_streams_per_role": 256,
+    "channels_per_role": 32,
+    "validated_completions": 256,
+    "all_11_final_counters_zero": true,
+    "source_audit_high_water": 5,
+    "destination_audit_high_water": 5
+  },
+  {
+    "name": "streams-c32-256-r3",
+    "materialized_streams_per_role": 256,
+    "channels_per_role": 32,
+    "validated_completions": 256,
+    "all_11_final_counters_zero": true,
+    "source_audit_high_water": 5,
+    "destination_audit_high_water": 5
+  },
+  {
+    "name": "streams-c32-256-r4",
+    "materialized_streams_per_role": 256,
+    "channels_per_role": 32,
+    "validated_completions": 256,
+    "all_11_final_counters_zero": true,
+    "source_audit_high_water": 5,
+    "destination_audit_high_water": 5
+  },
+  {
+    "name": "streams-c32-256-r5",
+    "materialized_streams_per_role": 256,
+    "channels_per_role": 32,
+    "validated_completions": 256,
+    "all_11_final_counters_zero": true,
+    "source_audit_high_water": 5,
+    "destination_audit_high_water": 5
+  },
+  {
+    "name": "streams-c32-512-r1",
+    "materialized_streams_per_role": 512,
+    "channels_per_role": 32,
+    "validated_completions": 512,
+    "all_11_final_counters_zero": true,
+    "source_audit_high_water": 5,
+    "destination_audit_high_water": 5
+  },
+  {
+    "name": "streams-c32-512-r2",
+    "materialized_streams_per_role": 512,
+    "channels_per_role": 32,
+    "validated_completions": 512,
+    "all_11_final_counters_zero": true,
+    "source_audit_high_water": 5,
+    "destination_audit_high_water": 5
+  },
+  {
+    "name": "streams-c32-512-r3",
+    "materialized_streams_per_role": 512,
+    "channels_per_role": 32,
+    "validated_completions": 512,
+    "all_11_final_counters_zero": true,
+    "source_audit_high_water": 5,
+    "destination_audit_high_water": 5
+  },
+  {
+    "name": "streams-c32-512-r4",
+    "materialized_streams_per_role": 512,
+    "channels_per_role": 32,
+    "validated_completions": 512,
+    "all_11_final_counters_zero": true,
+    "source_audit_high_water": 5,
+    "destination_audit_high_water": 5
+  },
+  {
+    "name": "streams-c32-512-r5",
+    "materialized_streams_per_role": 512,
+    "channels_per_role": 32,
+    "validated_completions": 512,
+    "all_11_final_counters_zero": true,
+    "source_audit_high_water": 5,
+    "destination_audit_high_water": 5
+  },
+  {
+    "name": "streams-c32-1024-r1",
+    "materialized_streams_per_role": 1024,
+    "channels_per_role": 32,
+    "validated_completions": 1024,
+    "all_11_final_counters_zero": true,
+    "source_audit_high_water": 5,
+    "destination_audit_high_water": 5
+  },
+  {
+    "name": "streams-c32-1024-r2",
+    "materialized_streams_per_role": 1024,
+    "channels_per_role": 32,
+    "validated_completions": 1024,
+    "all_11_final_counters_zero": true,
+    "source_audit_high_water": 5,
+    "destination_audit_high_water": 5
+  },
+  {
+    "name": "streams-c32-1024-r3",
+    "materialized_streams_per_role": 1024,
+    "channels_per_role": 32,
+    "validated_completions": 1024,
+    "all_11_final_counters_zero": true,
+    "source_audit_high_water": 5,
+    "destination_audit_high_water": 5
+  },
+  {
+    "name": "streams-c32-1024-r4",
+    "materialized_streams_per_role": 1024,
+    "channels_per_role": 32,
+    "validated_completions": 1024,
+    "all_11_final_counters_zero": true,
+    "source_audit_high_water": 5,
+    "destination_audit_high_water": 5
+  },
+  {
+    "name": "streams-c32-1024-r5",
+    "materialized_streams_per_role": 1024,
+    "channels_per_role": 32,
+    "validated_completions": 1024,
+    "all_11_final_counters_zero": true,
+    "source_audit_high_water": 5,
+    "destination_audit_high_water": 5
+  },
+  {
+    "name": "streams-c32-2048-r1",
+    "materialized_streams_per_role": 2048,
+    "channels_per_role": 32,
+    "validated_completions": 2048,
+    "all_11_final_counters_zero": true,
+    "source_audit_high_water": 5,
+    "destination_audit_high_water": 5
+  },
+  {
+    "name": "streams-c32-2048-r2",
+    "materialized_streams_per_role": 2048,
+    "channels_per_role": 32,
+    "validated_completions": 2048,
+    "all_11_final_counters_zero": true,
+    "source_audit_high_water": 5,
+    "destination_audit_high_water": 5
+  },
+  {
+    "name": "streams-c32-2048-r3",
+    "materialized_streams_per_role": 2048,
+    "channels_per_role": 32,
+    "validated_completions": 2048,
+    "all_11_final_counters_zero": true,
+    "source_audit_high_water": 5,
+    "destination_audit_high_water": 5
+  },
+  {
+    "name": "streams-c32-2048-r4",
+    "materialized_streams_per_role": 2048,
+    "channels_per_role": 32,
+    "validated_completions": 2048,
+    "all_11_final_counters_zero": true,
+    "source_audit_high_water": 5,
+    "destination_audit_high_water": 5
+  },
+  {
+    "name": "streams-c32-2048-r5",
+    "materialized_streams_per_role": 2048,
+    "channels_per_role": 32,
+    "validated_completions": 2048,
+    "all_11_final_counters_zero": true,
+    "source_audit_high_water": 5,
+    "destination_audit_high_water": 5
+  }
+]
