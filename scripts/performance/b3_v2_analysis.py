@@ -45,6 +45,7 @@ def analyze_cycles(cell):
                        "thread_first_to_last_delta": points[-1]["thread_count"] - points[0]["thread_count"]}
     clean = cleanup["all_zero"] and cleanup["source_cycle_all_zero"]
     return {"name": cell["name"], "cycles": cell["cycles"],
+            "materialized_streams": cell.get("materialized_streams", False),
             "ownership": "CLEAN" if clean else "RESOURCE_GROWTH",
             "memory_cause": "INCONCLUSIVE", "roles": roles,
             "limitation": "OS private bytes include runtime, allocator and retained harness results; slopes alone prove neither leaks nor allocator attribution."}
@@ -54,6 +55,9 @@ def analyze_scale(cells):
     result = []
     for kind in sorted({c["kind"] for c in cells}):
         selected = [c for c in cells if c["kind"] == kind]
+        residency = {c.get("materialized_streams", False) for c in selected}
+        if len(residency) != 1:
+            raise ValueError("different stream residency workloads must be analyzed separately")
         for role in ("source", "destination"):
             points = []
             for count in sorted({c["active_count"] for c in selected}):
@@ -82,6 +86,7 @@ def analyze_scale(cells):
                                "incremental_private_median": statistics.median(r["incremental_private_bytes"] for r in rows),
                                "rows": rows})
             result.append({"kind": kind, "role": role, "points": points,
+                           "materialized_streams": selected[0].get("materialized_streams", False),
                            "derived_active_private_slope_bytes_per_unit": slope([(p["count"], p["active_private_median"]) for p in points]),
                            "derived_incremental_private_slope_bytes_per_unit": slope([(p["count"], p["incremental_private_median"]) for p in points]),
                            "resource_scope": selected[0]["resource_scope"]})

@@ -32,6 +32,17 @@ def test_nonzero_ownership_cannot_be_clean():
     assert analyze_cycles(cell)["ownership"] == "RESOURCE_GROWTH"
 
 
+def test_scale_refuses_to_pool_registry_and_materialized_residency():
+    cells = [{"name": str(mode), "kind": "streams", "materialized_streams": mode,
+              "active_count": 16, "cleanup": {"all_zero": True}, "resource_scope": "streams",
+              "samples": [{"role": role, "phase": phase, "private_bytes": 1000,
+                           "working_set_bytes": 1000, "handle_count": 10, "thread_count": 4}
+                          for role in ("source", "destination") for phase in ("idle", "active")]}
+             for mode in (False, True)]
+    with pytest.raises(ValueError, match="residency"):
+        analyze_scale(cells)
+
+
 def test_missing_ownership_is_unknown_not_measured_growth():
     cell = fixture()
     del cell["cleanup"]["source_cycle_all_zero"]
