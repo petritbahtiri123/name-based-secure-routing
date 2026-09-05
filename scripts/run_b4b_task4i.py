@@ -86,35 +86,42 @@ def checksums(root):
     (root/'checksums.sha256').write_text('\n'.join(lines)+'\n',encoding='utf-8',newline='\n')
 
 
-def execute(output: Path, duration=30, warmup=2):
+def execute(output: Path, duration=30, warmup=2, *, offered_rates=None, source_shards=1):
+    rates = tuple(RATES if offered_rates is None else offered_rates)
+    if not rates or any(type(rate) is not int or rate <= 0 for rate in rates) or list(rates) != sorted(set(rates)):
+        raise ValueError('offered rates must be positive unique increasing integers')
+    if type(source_shards) is not int or source_shards not in (1, 2):
+        raise ValueError('source shards must be one or two')
     if output.exists(): raise FileExistsError(output)
     output.mkdir(parents=True); raw=output/'raw'; raw.mkdir()
     target=Path(os.environ.get('CARGO_TARGET_DIR',r'C:\NBSR-build\b4b-task4i'))
     binaries=v2.build(target); environment=v2.host_environment()
     sources=['crates/nbsr-transport/src/bin/benchmark_support/batch_release.rs','crates/nbsr-transport/src/bin/perf_rust_source.rs',
         'crates/nbsr-transport/src/bin/wp8_interop_server.rs','scripts/run_b4b_mixed_connections.py',
-        'scripts/run_b4b_v2.py','scripts/run_b4b_task4i.py','scripts/analyze_b4b_task4i.py']
+        'scripts/run_b4b_v2.py','scripts/run_b4b_task4i.py','scripts/analyze_b4b_task4i.py',
+        'crates/nbsr-transport/src/bin/benchmark_support/lifecycle_shards.rs','scripts/performance/resources.py']
     for source in sources:
         destination=output/'capture-source'/source; destination.parent.mkdir(parents=True,exist_ok=True); shutil.copy2(v2.ROOT/source,destination)
     environment.update(timestamp_utc=time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),build='release',duration_seconds=duration,
-        warmup_seconds=warmup,total_clients=CLIENTS,offered_rates=list(RATES),command=[sys.executable,*sys.argv],
+        warmup_seconds=warmup,total_clients=CLIENTS,offered_rates=list(rates),source_shards=source_shards,command=[sys.executable,*sys.argv],
         claim_boundary='rate-controlled admission on Windows loopback; simultaneous burst remains separate',
         binary_sha256={k:hashlib.sha256(p.read_bytes()).hexdigest() for k,p in binaries.items()},
         source_sha256={p:hashlib.sha256((v2.ROOT/p).read_bytes()).hexdigest() for p in sources})
     v2.write_json(output/'environment.json',environment)
     cells=[]; invalid=[]
-    for rate in RATES:
+    for rate in rates:
         directory=raw/f'rate-{rate}'; directory.mkdir()
         records=[]; target_repeats=3; repeat=1
         while repeat<=target_repeats:
             print(f'rate={rate}/s repeat={repeat}/{target_repeats}',flush=True)
             record=v2.run_measured_cell(CLIENTS,1,repeat,binaries,directory,duration=duration,warmup=warmup,planned_clients=[CLIENTS],
-                release_rate=rate,counter_path=directory/f'r{repeat}-host.csv')
+                release_rate=rate,source_shards=source_shards,counter_path=directory/f'r{repeat}-host.csv')
             v2.write_json(directory/f'r{repeat}.json',record)
             (records if record['valid'] else invalid).append(record)
             if repeat==3 and len(records)==3: target_repeats=required_repeats(records)
             repeat+=1
-        if not records: break
+        # Invalid attempts remain raw evidence and cannot qualify a short cell.
+        if len(records) < target_repeats: break
         cell=summarize(rate,records,None if not cells else cells[0]); cells.append(cell)
         if should_stop(cells): break
     analysis=dict(schema='nbsr-b4b-task4i-analysis-v1',classification='PASS' if any(c['status']=='STABLE' for c in cells) and any(c['status'] in ('DEGRADED','SATURATED') for c in cells) and not invalid else 'PARTIAL',
@@ -125,4 +132,7 @@ def execute(output: Path, duration=30, warmup=2):
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser(); parser.add_argument('--output',type=Path,required=True); parser.add_argument('--duration-seconds',type=float,default=30); parser.add_argument('--warmup-seconds',type=float,default=2)
-    args=parser.parse_args(); execute(args.output,args.duration_seconds,args.warmup_seconds)
+    parser.add_argument('--offered-rates', type=int, nargs='+', default=None)
+    parser.add_argument('--source-shards', type=int, choices=(1, 2), default=1)
+    args=parser.parse_args(); execute(args.output,args.duration_seconds,args.warmup_seconds,
+        offered_rates=args.offered_rates,source_shards=args.source_shards)
