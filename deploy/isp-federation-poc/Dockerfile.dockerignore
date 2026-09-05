@@ -1,0 +1,11 @@
+**/.git
+**/.codex
+**/node_modules
+**/target
+**/test-results
+**/__pycache__
+**/.pytest_cache
+**/.ruff_cache
+evidence
+**/*.exe
+**/*.log

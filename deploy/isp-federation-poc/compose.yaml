@@ -1,0 +1,141 @@
+# Complete logical topology. Run only with prepare.py's validated env file.
+x-runtime: &runtime
+  image: ${NBSR_ISP_RUNTIME_IMAGE:?immutable runtime image ID required}
+  pull_policy: never
+  user: "65532:65532"
+  read_only: true
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  pids_limit: 128
+  mem_limit: 512m
+  cpus: 2
+  restart: "no"
+  stop_grace_period: 15s
+  environment: &identity
+    NBSR_ISP_RUN_ID: ${NBSR_ISP_RUN_ID:?bounded unique run ID required}
+    NBSR_SOURCE_SHA: ${NBSR_SOURCE_SHA:?source SHA required}
+  tmpfs:
+    - /tmp:rw,noexec,nosuid,nodev,size=16777216,uid=65532,gid=65532
+    - /health:rw,noexec,nosuid,nodev,size=1048576,uid=65532,gid=65532
+    - /opt/nbsr-build/nbsr-demo:rw,nosuid,nodev,size=134217728,uid=65532,gid=65532,mode=0700
+  labels: {nbsr.isp-poc.scope: logical-isolation}
+
+services:
+  federation-preflight:
+    <<: *runtime
+    command: [preflight]
+    network_mode: none
+    volumes:
+      - runtime:/src/client/nbsr-go-client/demo/test-results/nbsr-demo/runtime
+  private-origin:
+    <<: *runtime
+    entrypoint: [python3, /opt/nbsr/private-origin.py, --state-dir, /state]
+    environment: {}
+    tmpfs:
+      - /state:rw,noexec,nosuid,nodev,size=1048576,uid=65532,gid=65532,mode=0700
+    networks: [isp_b_private]
+    healthcheck:
+      test: [CMD, python3, /opt/nbsr/healthcheck.py, origin]
+      interval: 1s
+      timeout: 1s
+      retries: 20
+  isp-a-runtime:
+    <<: *runtime
+    command: [isp-a]
+    depends_on:
+      federation-preflight: {condition: service_completed_successfully}
+    volumes:
+      - runtime:/src/client/nbsr-go-client/demo/test-results/nbsr-demo/runtime
+      - projection_a:/projection-a
+    networks:
+      isp_a_access: {aliases: [isp-a-adapter]}
+      federation_transit: {}
+    healthcheck:
+      test: [CMD, python3, /opt/nbsr/healthcheck.py, runtime]
+      interval: 1s
+      timeout: 1s
+      retries: 60
+  isp-b-runtime:
+    <<: *runtime
+    command: [isp-b]
+    environment:
+      <<: *identity
+      ISP_B_PRIVATE_CIDR: ${ISP_B_PRIVATE_CIDR:?inspected dedicated private subnet required}
+    depends_on:
+      federation-preflight: {condition: service_completed_successfully}
+      private-origin: {condition: service_healthy}
+    volumes:
+      - runtime:/src/client/nbsr-go-client/demo/test-results/nbsr-demo/runtime
+      - projection_b:/projection-b
+      - control:/control
+    networks:
+      federation_transit: {aliases: [isp-b-adapter]}
+      isp_b_private: {}
+    healthcheck:
+      test: [CMD, python3, /opt/nbsr/healthcheck.py, runtime]
+      interval: 1s
+      timeout: 1s
+      retries: 60
+  isp-a-adapter:
+    <<: *runtime
+    image: ${NBSR_ISP_ADAPTER_IMAGE:?immutable adapter image ID required}
+    environment: {}
+    command: [adapter-a]
+    network_mode: service:isp-a-runtime
+    depends_on:
+      isp-a-runtime: {condition: service_healthy}
+    volumes:
+      - projection_a:/projection-a:ro
+    healthcheck:
+      test: [CMD, python3, /opt/nbsr/healthcheck.py, adapter-a]
+      interval: 1s
+      timeout: 1s
+      retries: 20
+  isp-b-adapter:
+    <<: *runtime
+    image: ${NBSR_ISP_ADAPTER_IMAGE:?immutable adapter image ID required}
+    environment: {}
+    command: [adapter-b]
+    network_mode: service:isp-b-runtime
+    depends_on:
+      isp-b-runtime: {condition: service_healthy}
+    volumes:
+      - projection_b:/projection-b:ro
+    healthcheck:
+      test: [CMD, python3, /opt/nbsr/healthcheck.py, adapter-b]
+      interval: 1s
+      timeout: 1s
+      retries: 20
+  client-workload:
+    <<: *runtime
+    command: [workload]
+    environment: {}
+    depends_on:
+      isp-a-adapter: {condition: service_healthy}
+      isp-b-adapter: {condition: service_healthy}
+    volumes:
+      - control:/control
+    networks: [isp_a_access]
+
+networks:
+  isp_a_access:
+    internal: true
+    labels: {nbsr.isp-poc.scope: logical-isolation}
+  federation_transit:
+    internal: true
+    labels: {nbsr.isp-poc.scope: logical-isolation}
+  isp_b_private:
+    internal: true
+    ipam:
+      config:
+        - subnet: ${ISP_B_PRIVATE_CIDR:?dedicated private subnet required}
+    labels: {nbsr.isp-poc.scope: logical-isolation}
+volumes:
+  runtime:
+    labels: {nbsr.isp-poc.scope: logical-isolation}
+  projection_a:
+    labels: {nbsr.isp-poc.scope: logical-isolation}
+  projection_b:
+    labels: {nbsr.isp-poc.scope: logical-isolation}
+  control:
+    labels: {nbsr.isp-poc.scope: logical-isolation}

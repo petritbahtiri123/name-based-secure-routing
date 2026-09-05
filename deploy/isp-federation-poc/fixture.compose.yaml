@@ -1,0 +1,26 @@
+# Origin-only fixture definition, not the complete approved seven-service PoC.
+# No host port or non-private attachment exists; workload/runtime integration
+# must use the separately reviewed full topology before any reachability claim.
+services:
+  private-origin:
+    image: ${NBSR_ISP_FIXTURE_IMAGE:?verified immutable fixture image reference required}
+    pull_policy: never
+    user: "65532:65532"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 16
+    mem_limit: 64m
+    cpus: 0.25
+    restart: "no"
+    stop_grace_period: 5s
+    tmpfs:
+      - /state:rw,noexec,nosuid,nodev,size=1048576,uid=65532,gid=65532,mode=0700
+    networks: [isp_b_private]
+    labels:
+      nbsr.isp-poc.scope: private-origin-fixture
+networks:
+  isp_b_private:
+    internal: true
+    labels:
+      nbsr.isp-poc.scope: private-origin-fixture
