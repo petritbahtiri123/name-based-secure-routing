@@ -1,0 +1,7 @@
+{
+  "raw_root": "C:\\NBSR-build\\security-current-b7df259b",
+  "verified_artifacts": 45,
+  "raw_index_sha256": "4990fd7172246b3196d0d0185aa8b0096f1c7bae46cb2464480632aa77a3388f",
+  "earlier_compile_failure_retained": "C:/NBSR-build/security-current-dfdf21fd",
+  "scope": "13 current-SHA executable fail-closed regressions; direct-origin network isolation still INCONCLUSIVE"
+}
