@@ -620,6 +620,9 @@ async fn run_lifecycle(
                         channel_binding_ns,
                         stream_rtt_ns,
                     ));
+                    // Consume mandatory audit records during setup, as the serial path does.
+                    // Waiting until every held stream closes can fill the bounded audit queue.
+                    while session.pop_audit_event().is_some() {}
                 }
                 continue;
             }

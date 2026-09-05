@@ -1,0 +1,27 @@
+diff --git a/crates/nbsr-transport/src/bin/perf_rust_source.rs b/crates/nbsr-transport/src/bin/perf_rust_source.rs
+index 87a866e3..87c92519 100644
+--- a/crates/nbsr-transport/src/bin/perf_rust_source.rs
++++ b/crates/nbsr-transport/src/bin/perf_rust_source.rs
+@@ -620,6 +620,9 @@ async fn run_lifecycle(
+                         channel_binding_ns,
+                         stream_rtt_ns,
+                     ));
++                    // Consume mandatory audit records during setup, as the serial path does.
++                    // Waiting until every held stream closes can fill the bounded audit queue.
++                    while session.pop_audit_event().is_some() {}
+                 }
+                 continue;
+             }
+diff --git a/crates/nbsr-transport/src/bin/wp8_interop_server.rs b/crates/nbsr-transport/src/bin/wp8_interop_server.rs
+index 81981957..cbb0626a 100644
+--- a/crates/nbsr-transport/src/bin/wp8_interop_server.rs
++++ b/crates/nbsr-transport/src/bin/wp8_interop_server.rs
+@@ -2407,6 +2407,8 @@ async fn run_lifecycle_connection(
+                     .confirm_stream_accept(channel, &stream_accepted)
+                     .unwrap();
+                 control.send_envelope(&stream_accepted).await.unwrap();
++                // Keep the same audit consumer active while concurrent streams are held.
++                while session.pop_audit_event().is_some() {}
+             }
+             concurrent_channels.push(channel);
+             continue;

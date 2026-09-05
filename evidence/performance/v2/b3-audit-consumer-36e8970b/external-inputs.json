@@ -1,0 +1,14 @@
+[
+  {
+    "role": "red",
+    "raw_path": "C:\\NBSR-build\\b3-materialized-streams-36e8970b",
+    "raw_index_sha256": "b9c4d4bf6bcc3b7475ab3867a0d3023acf1d9987f5f0537884c769558cecd935",
+    "verified_artifacts": 286
+  },
+  {
+    "role": "green",
+    "raw_path": "C:\\NBSR-build\\b3-audit-consumer-green-36e8970b",
+    "raw_index_sha256": "c4d4ce3affd0fcbaf06591de12d162d95978c6c70e964e7c804f6479a96770db",
+    "verified_artifacts": 19
+  }
+]

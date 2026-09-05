@@ -2407,6 +2407,8 @@ async fn run_lifecycle_connection(
                     .confirm_stream_accept(channel, &stream_accepted)
                     .unwrap();
                 control.send_envelope(&stream_accepted).await.unwrap();
+                // Keep the same audit consumer active while concurrent streams are held.
+                while session.pop_audit_event().is_some() {}
             }
             concurrent_channels.push(channel);
             continue;

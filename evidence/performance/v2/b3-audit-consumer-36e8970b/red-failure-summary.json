@@ -1,0 +1,5 @@
+{
+  "error": "lifecycle process exited before marker: [101]",
+  "source_stderr": "\nthread 'main' (8576) panicked at src\\bin\\perf_rust_source.rs:577:69:\ncalled `Result::unwrap()` on an `Err` value: AuditUnavailable\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+  "active_phase_observed": false
+}
