@@ -1,0 +1,7 @@
+{
+  "root": "C:\\NBSR-build\\b4b-task4n-pump-aede59ac",
+  "raw_manifest_sha256": "417dea4ca64c15561f9770b82f25f62822e5faa4c31fbe5aa8f848969db3540a",
+  "verified_file_count": 201,
+  "source_identity": "aede59ac04e3a678a5e97086373e741b3de6cbb4 plus retained source.patch and source copies; binary hashes in environment.json",
+  "authoritative_raw": "Retain entire root, including all unfavorable valid runs and binaries."
+}

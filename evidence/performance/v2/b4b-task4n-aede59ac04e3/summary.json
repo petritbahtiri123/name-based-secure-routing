@@ -1,0 +1,32 @@
+{
+  "classification": "PLATFORM_DIAGNOSTIC_LIMIT",
+  "causal_attribution": "REJECTED_OBSERVER_DISTORTION",
+  "valid_runs": 20,
+  "raw_files_verified": 201,
+  "cells": {
+    "200": {
+      "off": {
+        "admission_rate": 134.912754138142,
+        "admission_p99_latency_ns": 509498000,
+        "established_goodput_bytes_per_second": 70380760.04367377
+      },
+      "on": {
+        "admission_rate": 137.99237268906242,
+        "admission_p99_latency_ns": 435389300,
+        "established_goodput_bytes_per_second": 64750050.94584676
+      }
+    },
+    "250": {
+      "off": {
+        "admission_rate": 94.2127846523771,
+        "admission_p99_latency_ns": 1151417400,
+        "established_goodput_bytes_per_second": 68353472.34294562
+      },
+      "on": {
+        "admission_rate": 97.65278001434713,
+        "admission_p99_latency_ns": 1145923500,
+        "established_goodput_bytes_per_second": 63192216.17949184
+      }
+    }
+  }
+}

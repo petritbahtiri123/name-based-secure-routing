@@ -1,0 +1,34 @@
+{
+  "200": {
+    "absolute_median_impact": {
+      "admission_p95_latency_ns": 0.1595130398913991,
+      "admission_p99_latency_ns": 0.14545434918292122,
+      "admission_rate": 0.02282674140479779,
+      "established_goodput_bytes_per_second": 0.08000352787229004,
+      "established_p95_latency_ns": 0.1692528735632184,
+      "established_p99_latency_ns": 0.0031626803716149343,
+      "handshake_p95": 0.14145120111792753,
+      "handshake_p99": 0.1529709206235762
+    },
+    "cleanup_zero": true,
+    "pass": false,
+    "required_repeats": 5,
+    "success_shift_fraction": 0.0
+  },
+  "250": {
+    "absolute_median_impact": {
+      "admission_p95_latency_ns": 0.004679794741329846,
+      "admission_p99_latency_ns": 0.004771423464679292,
+      "admission_rate": 0.03651304198960692,
+      "established_goodput_bytes_per_second": 0.0755083243987742,
+      "established_p95_latency_ns": 0.18767048554282595,
+      "established_p99_latency_ns": 0.057817589576547146,
+      "handshake_p95": 0.08000710474305162,
+      "handshake_p99": 0.07513983931393275
+    },
+    "cleanup_zero": true,
+    "pass": false,
+    "required_repeats": 5,
+    "success_shift_fraction": 0.0
+  }
+}

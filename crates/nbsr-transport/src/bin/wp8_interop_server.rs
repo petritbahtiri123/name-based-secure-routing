@@ -2489,6 +2489,10 @@ async fn run_lifecycle_connection(
     measurements
 }
 
+#[cfg(feature = "benchmark-harness")]
+#[path = "benchmark_support/accept_pump_profile.rs"]
+mod accept_pump_profile;
+
 async fn run_lifecycle(
     listener: &TransportListener,
     root: &Path,
@@ -2542,19 +2546,39 @@ async fn run_lifecycle(
             (ordinal as usize, slot, Box::pin(accepting))
         })
         .collect::<Vec<_>>();
+    #[cfg(feature = "benchmark-harness")]
+    let mut pump_profile = env::var_os("NBSR_PERF_ACCEPT_PUMP_PROFILE")
+        .map(|path| (PathBuf::from(path), accept_pump_profile::Profile::default()));
     while !accepts.is_empty() {
+        #[cfg(feature = "benchmark-harness")]
+        let select_start = pump_profile.as_ref().map(|_| std::time::Instant::now());
         let next_accept = poll_fn(|context| {
+            #[cfg(feature = "benchmark-harness")]
+            let scan_start = pump_profile.as_ref().map(|_| std::time::Instant::now());
             for (index, (_, _, accepting)) in accepts.iter_mut().enumerate() {
                 if let Poll::Ready(result) = accepting.as_mut().poll(context) {
+                    #[cfg(feature = "benchmark-harness")]
+                    if let (Some(start), Some((_, profile))) = (scan_start, pump_profile.as_mut()) {
+                        profile.scan(start.elapsed(), index + 1);
+                    }
                     return Poll::Ready((index, result));
                 }
             }
+            #[cfg(feature = "benchmark-harness")]
+            if let (Some(start), Some((_, profile))) = (scan_start, pump_profile.as_mut()) {
+                profile.scan(start.elapsed(), accepts.len());
+            }
             Poll::Pending
         });
-        let Some((index, accepted)) = (tokio::select! {
+        let selected = tokio::select! {
             result = next_accept => Some(result),
             () = tokio::time::sleep(Duration::from_millis(1)) => None,
-        }) else {
+        };
+        #[cfg(feature = "benchmark-harness")]
+        if let (Some(start), Some((_, profile))) = (select_start, pump_profile.as_mut()) {
+            profile.selected(start.elapsed(), selected.is_none());
+        }
+        let Some((index, accepted)) = selected else {
             continue;
         };
         let (ordinal, slot, accepting) = accepts.swap_remove(index);
@@ -2636,6 +2660,10 @@ async fn run_lifecycle(
     assert_eq!(summary.recorded, connections as usize);
     assert_eq!(summary.written, 0);
     assert!(summary.writer_thread.is_none());
+    #[cfg(feature = "benchmark-harness")]
+    if let Some((path, profile)) = pump_profile {
+        profile.write(&path).expect("preserve accept-pump profile");
+    }
     measurements
 }
 
