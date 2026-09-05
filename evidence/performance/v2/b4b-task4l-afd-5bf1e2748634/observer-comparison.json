@@ -1,0 +1,41 @@
+{
+  "attribution": "UNRESOLVED; trace integrity and event correlation require separate verification",
+  "capture_order": "five controls per rate followed by five ETW repeats per rate",
+  "claim_class": "DIAGNOSTIC",
+  "observer_gates": {
+    "200": {
+      "absolute_median_impact": {
+        "admission_p95_latency_ns": 0.037113731903056335,
+        "admission_p99_latency_ns": 0.014529403650742512,
+        "admission_rate": 0.03754357948587528,
+        "established_goodput_bytes_per_second": 0.058185192132196195,
+        "established_p95_latency_ns": 0.05626406601650413,
+        "established_p99_latency_ns": 0.15617892342683848,
+        "handshake_p95": 0.1330151279067473,
+        "handshake_p99": 0.19831947560600072
+      },
+      "cleanup_zero": true,
+      "pass": false,
+      "required_repeats": 3,
+      "success_shift_fraction": 0.0
+    },
+    "250": {
+      "absolute_median_impact": {
+        "admission_p95_latency_ns": 0.0046667348327158464,
+        "admission_p99_latency_ns": 0.2142945342560414,
+        "admission_rate": 0.44156936328392515,
+        "established_goodput_bytes_per_second": 0.028815856036497944,
+        "established_p95_latency_ns": 0.04575645756457569,
+        "established_p99_latency_ns": 0.03895519027246119,
+        "handshake_p95": 0.0027914872903840315,
+        "handshake_p99": 0.009452437223931298
+      },
+      "cleanup_zero": true,
+      "pass": false,
+      "required_repeats": 5,
+      "success_shift_fraction": 0.0
+    }
+  },
+  "order_limitation": "block order can confound temporal host drift",
+  "timing_comparable": false
+}
