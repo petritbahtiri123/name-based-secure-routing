@@ -1,0 +1,42 @@
+[
+  {
+    "path": "C:\\NBSR-build\\b4b-task4l-etw-20260905-150050\\capture-profile.wprp",
+    "bytes": 1018,
+    "sha256": "a0bd21294b50dd3eb2408f90ac3bae4d33c9916887dcead0e113c3a78bb99b97"
+  },
+  {
+    "path": "C:\\NBSR-build\\b4b-task4l-etw-20260905-150050\\preflight-start.log",
+    "bytes": 206,
+    "sha256": "218c80c7006db395470d3e080a6381cfb74816abdc465908e7dcc2c51f1d793c"
+  },
+  {
+    "path": "C:\\NBSR-build\\b4b-task4l-etw-20260905-150200\\capture-profile.wprp",
+    "bytes": 1018,
+    "sha256": "a0bd21294b50dd3eb2408f90ac3bae4d33c9916887dcead0e113c3a78bb99b97"
+  },
+  {
+    "path": "C:\\NBSR-build\\b4b-task4l-etw-20260905-150200\\preflight-start.log",
+    "bytes": 206,
+    "sha256": "218c80c7006db395470d3e080a6381cfb74816abdc465908e7dcc2c51f1d793c"
+  },
+  {
+    "path": "C:\\NBSR-build\\b4b-task4l-etw-20260905-150353\\capture-profile.wprp",
+    "bytes": 1040,
+    "sha256": "e21e69ecdd9e5d5f620499c5005d1e37042499217f690bb2a6dd6131a6cbffcc"
+  },
+  {
+    "path": "C:\\NBSR-build\\b4b-task4l-etw-20260905-150353\\preflight.json",
+    "bytes": 152,
+    "sha256": "4b0d007e7ce25a050fde19eeaf4bfd5fab9fc30d0e460a268adbd9bbcf71df4f"
+  },
+  {
+    "path": "C:\\NBSR-build\\b4b-task4l-etw-20260905-150353\\preflight-stop.log",
+    "bytes": 79,
+    "sha256": "56f7594e4d60953c950db6c9a06253129b7d11f145d55c129ff61fe31f466486"
+  },
+  {
+    "path": "C:\\NBSR-build\\b4b-task4l-etw-20260905-150353\\afd-preflight.etl",
+    "bytes": 655360,
+    "sha256": "f90f64e39694b2cd161fc9dfdc4a1dab5361c7368451cc912a16731a80812baf"
+  }
+]

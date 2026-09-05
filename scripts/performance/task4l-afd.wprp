@@ -5,7 +5,7 @@
       <BufferSize Value="64" />
       <Buffers Value="64" />
     </EventCollector>
-    <EventProvider Id="Task4lAFDProvider" Name="e53c6823-7bb8-44bb-90dc-3f86090d48a6" Level="4">
+    <EventProvider Id="Task4lAFDProvider" Name="e53c6823-7bb8-44bb-90dc-3f86090d48a6" Level="4" NonPagedMemory="true">
       <Keywords><Keyword Value="0x4" /></Keywords>
       <EventFilters FilterIn="true">
         <EventId Value="1000" />

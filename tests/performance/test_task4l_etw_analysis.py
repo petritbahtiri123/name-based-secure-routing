@@ -35,6 +35,7 @@ def test_next_capture_filters_to_socket_identity_and_drop_events():
     # WPR must receive the registered GUID, not merely a display name that
     # profile enumeration can print without resolving a capture provider.
     assert provider.attrib["Name"].lower() == "e53c6823-7bb8-44bb-90dc-3f86090d48a6"
+    assert provider.attrib.get("NonPagedMemory") == "true"
     assert provider.attrib.get("Stack", "false") == "false"
     assert {int(e.attrib["Value"]) for e in provider.findall("EventFilters/EventId")} == {1000, 1030, 1033}
 
