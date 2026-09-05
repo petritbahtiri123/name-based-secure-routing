@@ -13,7 +13,11 @@ from scripts import run_b3_session_lifecycle as b3
 from scripts.run_b4b_task4k import checksums
 
 
-def spec_for(axis, count, repeat, *, materialized_streams=False):
+def spec_for(axis, count, repeat, *, materialized_streams=False, fixed_channels=8):
+    if type(fixed_channels) is not int or not 1 <= fixed_channels <= 32:
+        raise ValueError("fixed channels must fit the existing 1..32 authority bound")
+    if axis != "streams" and fixed_channels != 8:
+        raise ValueError("fixed channel override applies only to the streams axis")
     spec = dict(name=f"{axis}-{count}-r{repeat}", kind=axis, active_count=count,
                 sessions=1, channels=1, streams=1, cycles=1, start_rate=100)
     if axis == "bundles":
@@ -26,10 +30,13 @@ def spec_for(axis, count, repeat, *, materialized_streams=False):
             raise ValueError("frozen harness authority supports at most 32 services per connection")
         spec.update(channels=count, resource_scope="channels with one stream each; one connection/session")
     elif axis == "streams":
-        if count % 8 or not 8 <= count <= 512:
-            raise ValueError("stream axis uses eight fixed channels, 1..64 streams each")
-        spec.update(channels=8, streams=count // 8,
-                    resource_scope="application streams across eight fixed channels; one connection/session")
+        if count % fixed_channels or not fixed_channels <= count <= 64 * fixed_channels:
+            raise ValueError("stream axis requires 1..64 streams per fixed channel")
+        label = "eight" if fixed_channels == 8 else str(fixed_channels)
+        spec.update(channels=fixed_channels, streams=count // fixed_channels,
+                    resource_scope=f"application streams across {label} fixed channels; one connection/session")
+        if fixed_channels != 8:
+            spec["name"] = f"streams-c{fixed_channels}-{count}-r{repeat}"
     elif axis == "cycles":
         if not 1 <= count <= 100:
             raise ValueError("bounded cycle count required")
@@ -43,7 +50,9 @@ def spec_for(axis, count, repeat, *, materialized_streams=False):
 
 
 def execute(args):
-    specs = [spec_for(args.axis, count, repeat, materialized_streams=args.materialized_streams) for count in args.counts for repeat in range(1, args.repeats + 1)]
+    specs = [spec_for(args.axis, count, repeat, materialized_streams=args.materialized_streams,
+                      fixed_channels=args.fixed_channels)
+             for count in args.counts for repeat in range(1, args.repeats + 1)]
     args.output.mkdir(parents=True, exist_ok=False)
     (args.output / "binaries").mkdir()
     binaries = {}
@@ -91,6 +100,8 @@ if __name__ == "__main__":
     parser.add_argument("--axis", choices=("bundles", "channels", "streams", "cycles"), required=True)
     parser.add_argument("--counts", type=int, nargs="+", required=True)
     parser.add_argument("--repeats", type=int, choices=(1, 3, 5), default=5)
+    parser.add_argument("--fixed-channels", type=int, default=8,
+                        help="streams axis only: hold 1..32 channels fixed; default 8")
     parser.add_argument("--materialized-streams", action="store_true", help="retain authorized request and both endpoint stream handles during active hold")
     args = parser.parse_args()
     try:

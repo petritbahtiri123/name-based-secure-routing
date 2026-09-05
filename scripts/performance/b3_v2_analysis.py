@@ -58,6 +58,8 @@ def analyze_scale(cells):
         residency = {c.get("materialized_streams", False) for c in selected}
         if len(residency) != 1:
             raise ValueError("different stream residency workloads must be analyzed separately")
+        if len({c["resource_scope"] for c in selected}) != 1:
+            raise ValueError("different resource scope workloads must be analyzed separately")
         for role in ("source", "destination"):
             points = []
             for count in sorted({c["active_count"] for c in selected}):
