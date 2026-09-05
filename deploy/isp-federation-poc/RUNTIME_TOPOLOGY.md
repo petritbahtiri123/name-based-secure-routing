@@ -1,6 +1,6 @@
 # Runtime topology implementation status
 
-**FOCUSED_TESTS_PASS / DOCKER_NOT_RUN.** These files implement the approved logical Option A plumbing, not live-validation evidence. Four supervisor tests, three fixture tests, the connector Go tests/vet, adapter race tests/vet, Python compilation and Ruff checks pass on Windows. The authentic federation preflight test selection passes 37 tests. Linux images and live topology remain unexecuted. The Docker startup reparse-point error remains an environment blocker and is not repaired here.
+**FOCUSED_TESTS_PASS / FULL_RUNTIME_NOT_RUN.** These files implement the approved logical Option A plumbing, not live-validation evidence. Four supervisor tests, three fixture tests, the connector Go tests/vet, adapter race tests/vet, Python compilation and Ruff checks pass on Windows. The authentic federation preflight test selection also passes 37 tests in the pinned Linux Python dependency container. Docker is available and the dependency-only image stage has built; full runtime/adapter builds and live topology remain separate unexecuted gates. See [BOOTSTRAP.md](BOOTSTRAP.md).
 
 ## Real entrypoints
 
@@ -14,7 +14,7 @@ The Origin Connector is a new PoC-only stdlib command at `origin-connector/main.
 
 ## Build inputs and command
 
-`Dockerfile` has actual Go/Rust release stages and separate runtime/adapter targets. All three base-image references must be supplied as locally available immutable repository digests. The Python base must already provide compatible Python, pytest, cryptography and cbor2; the build checks imports instead of installing floating dependencies. Go/Rust versions and Debian/glibc compatibility must be checked when selecting the bases. No hash is invented and there is no floating default.
+`Dockerfile` has actual Go/Rust release stages and separate runtime/adapter targets. All three official base-image references must be supplied as locally available immutable repository digests. The `python-deps` stage installs the complete hash-pinned Linux wheel lock and checks dependency compatibility; no prebuilt custom Python dependency image or push is needed. See [BOOTSTRAP.md](BOOTSTRAP.md) for verified base references, dependency provenance and exact commands. No floating base default is used.
 
 From a clean accepted checkout, once measurement and Docker environment holds are cleared:
 

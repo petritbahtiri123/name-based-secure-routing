@@ -22,9 +22,13 @@ WORKDIR /src
 COPY crates/nbsr-transport /src/crates/nbsr-transport
 RUN cargo build --locked --release --manifest-path crates/nbsr-transport/Cargo.toml --bin wp8_interop_server
 
-# PYTHON_IMAGE must already contain the recorded project-compatible pytest,
-# cryptography and cbor2 dependencies. No unpinned pip installation occurs here.
-FROM ${PYTHON_IMAGE} AS runtime
+# Official Python base plus a complete Linux wheel lock; no custom pushed base.
+FROM ${PYTHON_IMAGE} AS python-deps
+COPY deploy/isp-federation-poc/requirements.lock /tmp/requirements.lock
+RUN python3 -m pip install --no-cache-dir --only-binary=:all: --require-hashes -r /tmp/requirements.lock && \
+    python3 -m pip check
+
+FROM python-deps AS runtime
 ARG SOURCE_SHA
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PYTHONPATH=/src
 WORKDIR /src

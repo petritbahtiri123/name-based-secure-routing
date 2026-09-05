@@ -1,0 +1,9 @@
+cbor2==5.9.0
+cryptography==45.0.7
+dnslib==0.9.26
+fastapi==0.117.1
+httpx==0.28.1
+pydantic-settings==2.14.2
+PyJWT==2.13.0
+uvicorn==0.36.1
+pytest==8.4.2
