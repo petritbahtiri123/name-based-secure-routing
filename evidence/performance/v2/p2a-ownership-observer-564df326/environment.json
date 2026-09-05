@@ -1,0 +1,67 @@
+{
+  "schema": "nbsr-post-close-observer-v1",
+  "repository_sha": "564df326bf429387a9d1abb3685e433b2b4ce4e2",
+  "git_status": "",
+  "topology": {
+    "verified": true,
+    "scope": "physical-core-selected-logical-processors",
+    "physical_cores": 4,
+    "logical_processors": 8,
+    "cores": [
+      {
+        "core_index": 0,
+        "smt": true,
+        "efficiency_class": 0,
+        "logical_mask": 3
+      },
+      {
+        "core_index": 1,
+        "smt": true,
+        "efficiency_class": 0,
+        "logical_mask": 12
+      },
+      {
+        "core_index": 2,
+        "smt": true,
+        "efficiency_class": 0,
+        "logical_mask": 48
+      },
+      {
+        "core_index": 3,
+        "smt": true,
+        "efficiency_class": 0,
+        "logical_mask": 192
+      }
+    ],
+    "affinity_masks": {
+      "1": {
+        "decimal": 1,
+        "hex": "0x1"
+      },
+      "2": {
+        "decimal": 5,
+        "hex": "0x5"
+      },
+      "4": {
+        "decimal": 85,
+        "hex": "0x55"
+      }
+    }
+  },
+  "binary_sha256": {
+    "direct": "baecf2a6bba27c90bd4ba3bfb874056a54d0bb1e2de387196f8c5d2748d8e5c6",
+    "nbsr": "a007ef88ffb977b55e9a4db0763c51d86cec520cebbf08d6618f20f214adc71e",
+    "server": "443074922e5ba4a778e8aaf0406f4766c368a0d4873e6c2855e506a89e3736cf"
+  },
+  "duration_seconds": 30,
+  "warmup_seconds": 3,
+  "repeats": 5,
+  "path": "nbsr",
+  "order": "off/on odd; on/off even",
+  "observer": "optional destination ownership counters enabled before setup; source post-close report",
+  "threshold": {
+    "absolute_median_goodput_change": 0.05,
+    "absolute_median_p99_change": 0.05
+  },
+  "scope": "Windows loopback paired observer control; not Direct comparison; no hardware ceiling inference"
+}

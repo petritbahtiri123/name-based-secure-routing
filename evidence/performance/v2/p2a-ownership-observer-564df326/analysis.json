@@ -1,0 +1,26 @@
+{
+  "1core-1k64": {
+    "median_relative_changes": {
+      "aggregate_application_gbps": 0.02376470847635348,
+      "p99_latency_ns": -0.1528405483135995
+    },
+    "observer_gate": "FAIL",
+    "ownership_all_zero": true,
+    "cv": {
+      "off": 0.019937882911750884,
+      "on": 0.012175440794087897
+    }
+  },
+  "4core-16k1": {
+    "median_relative_changes": {
+      "aggregate_application_gbps": -0.0027624541284523296,
+      "p99_latency_ns": -0.019875659382064814
+    },
+    "observer_gate": "PASS",
+    "ownership_all_zero": true,
+    "cv": {
+      "off": 0.10739454429647004,
+      "on": 0.008140544746173895
+    }
+  }
+}
