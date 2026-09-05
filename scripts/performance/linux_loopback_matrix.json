@@ -1,0 +1,10 @@
+{
+  "schema": "nbsr-linux-loopback-v1",
+  "cores": [1, 2, 4],
+  "workloads": [
+    {"payload_bytes": 1024, "streams": 64, "outstanding": 1},
+    {"payload_bytes": 16384, "streams": 8, "outstanding": 1}
+  ],
+  "warmup_seconds": 3,
+  "duration_seconds": 20
+}
