@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 import argparse
+from contextlib import ExitStack
 import hashlib
 import json
 import os
 from pathlib import Path
 import shlex
-import statistics
 import subprocess
 import sys
 import tempfile
@@ -71,6 +71,7 @@ def _run_repeat(
     authority: Path,
     warmup_seconds: float,
     raw_dir: Path,
+    observer=None,
 ) -> dict[str, Any]:
     stem = f"{path}-p{cell['payload_bytes']}-s{cell['streams']}-r{repeat}"
     ready = raw_dir / f"{stem}.ready.json"
@@ -100,8 +101,13 @@ def _run_repeat(
         text=True,
     )
     counter: UdpFlowCounter | None = None
+    observers = ExitStack()
     try:
         server_endpoint = wait_ready(ready, server)["endpoint"]
+        if observer is not None:
+            directory = raw_dir / stem
+            directory.mkdir(exist_ok=False)
+            observers.enter_context(observer.capture(server_endpoint, directory))
         host, port = server_endpoint.rsplit(":", 1)
         counter = UdpFlowCounter((host, int(port)))
         counter.start()
@@ -165,11 +171,16 @@ def _run_repeat(
             raise RuntimeError("isolated relay rejected contaminating datagrams")
         return record
     finally:
-        if counter is not None:
-            counter.close()
-        if server.poll() is None:
-            server.kill()
-            server.wait(timeout=5)
+        try:
+            if counter is not None:
+                counter.close()
+        finally:
+            try:
+                if server.poll() is None:
+                    server.kill()
+                    server.wait(timeout=5)
+            finally:
+                observers.close()
 
 
 def _render_summary(analysis: dict[str, Any], env: dict[str, Any], command_line: str) -> str:
