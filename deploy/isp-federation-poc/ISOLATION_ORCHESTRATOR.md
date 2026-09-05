@@ -48,3 +48,14 @@ with exact `NetworkMode=none`; namespace-shared adapters must still have an
 empty map and the exact inspected runtime container ID. The built-in `none`
 network is not a project-owned bridge and must never enter teardown inventory.
 This source check establishes expected API shape, not local Docker proof.
+
+## Child log preservation before teardown
+
+The supervisor writes child stdout/stderr to the shared runtime volume; Compose
+logs alone do not contain them. Two literal RED regressions exposed this evidence
+gap. Teardown now validates and stops exact owned containers, copies only the
+known child-log directory from an inspected runtime-volume holder, rejects
+symlinks/unexpected directory entries, and hashes retained files before removing
+containers or volumes. A failed export retains stopped resources and marks FAIL;
+no unique child diagnostics are deliberately deleted. Twelve synthetic tests and
+Ruff pass. Live Docker validation is still pending.

@@ -2,6 +2,8 @@ import importlib.util
 import json
 from pathlib import Path
 import unittest
+import tempfile
+from unittest.mock import patch
 
 SPEC = importlib.util.spec_from_file_location("isp_isolation", Path(__file__).with_name("run_isolation.py"))
 MODULE = importlib.util.module_from_spec(SPEC)
@@ -22,6 +24,36 @@ class FakeBackend:
 
 
 class IsolationTests(unittest.TestCase):
+    def test_failed_child_log_capture_preserves_runtime_volume(self):
+        resources = {"container": [{"Id": "a" * 64, "Config": {"Labels": {
+            "com.docker.compose.service": "federation-preflight"}}}], "network": [], "volume": [{}]}
+        backend = FakeBackend([(0, "", ""), (1, "", "copy failed")])
+        with tempfile.TemporaryDirectory() as directory:
+            backend.output = Path(directory)
+            with patch.object(MODULE, "inventory", return_value=resources), patch.object(MODULE, "cleanup") as clean:
+                with self.assertRaises(RuntimeError):
+                    MODULE.preserve_and_cleanup(backend, "nbsr-isp-poc-run")
+                clean.assert_not_called()
+
+    def test_child_logs_are_retained_before_volume_cleanup(self):
+        resources = {"container": [{"Id": "a" * 64, "Config": {"Labels": {
+            "com.docker.compose.service": "federation-preflight"}}}], "network": [], "volume": [{}]}
+        with tempfile.TemporaryDirectory() as directory:
+            class CopyBackend:
+                output = Path(directory)
+                def run(self, argv, **kwargs):
+                    if argv[:2] == ["docker", "cp"]:
+                        target = Path(argv[-1])
+                        target.mkdir()
+                        (target / "destination.stderr").write_text("unique failure detail")
+                    return 0, "", ""
+            def check_cleanup(*args):
+                self.assertEqual((Path(directory) / "runtime-child-logs/destination.stderr").read_text(), "unique failure detail")
+                return {"status": "PASS_DOCKER_RESOURCES_ZERO"}
+            with patch.object(MODULE, "inventory", return_value=resources), patch.object(MODULE, "cleanup", side_effect=check_cleanup) as clean:
+                MODULE.preserve_and_cleanup(CopyBackend(), "nbsr-isp-poc-run")
+                clean.assert_called_once()
+
     @staticmethod
     def inspected_topology():
         """Synthetic contract data, not retained Docker execution evidence.

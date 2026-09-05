@@ -293,6 +293,29 @@ def validate_preflight_result(value, sha):
         raise ValueError("federation preflight result or artifact binding invalid")
 
 
+def preserve_and_cleanup(backend, project):
+    resources = inventory(backend, project)
+    ids = [item["Id"] for item in resources["container"]]
+    if ids:
+        backend.run(["docker", "stop", "--time", "5", *ids])
+    holders = [item for item in resources["container"] if item["Config"]["Labels"]["com.docker.compose.service"]
+               in {"federation-preflight", "isp-a-runtime", "isp-b-runtime"}]
+    if holders:
+        # Child stdout/stderr are files in the shared runtime volume, not Docker logs.
+        source = f"{holders[0]['Id']}:/src/client/nbsr-go-client/demo/test-results/nbsr-demo/runtime/{project}/logs"
+        target = backend.output / "runtime-child-logs"
+        backend.run(["docker", "cp", source, str(target)])
+        files = list(target.rglob("*"))
+        if not files or any(path.is_symlink() or not path.is_file() for path in files):
+            raise ValueError("child log export missing or unexpected; runtime resources retained")
+        write_json(backend.output / "runtime-child-logs-manifest.json", {
+            path.name: hashlib.sha256(path.read_bytes()).hexdigest() for path in files
+        })
+    elif resources["volume"]:
+        raise ValueError("runtime volume exists without inspectable holder; retained for evidence")
+    return cleanup(backend, project)
+
+
 def cleanup(backend, project):
     # Inventory and validate every final ID before issuing any deletion.
     resources = inventory(backend, project)
@@ -444,7 +467,7 @@ def main():
             except Exception:
                 analysis["log_capture"] = "FAIL"
             try:
-                analysis["cleanup"] = cleanup(backend, project)
+                analysis["cleanup"] = preserve_and_cleanup(backend, project)
             except Exception as error:
                 analysis["cleanup"] = {"status": "FAIL", "reason": str(error)}
                 analysis["status"] = "FAIL"
