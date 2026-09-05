@@ -72,3 +72,29 @@ growth or an allocator leak. No timeout or offered-load reduction was added.
 Literal RED regressions covered the missing absolute clock, warmup/post-progress
 exclusion, continued execution after growth, and skewed relative-origin phase
 tagging. The focused resource/B5 suite passed 37 tests after correction.
+
+## Optional host-power observations
+
+`--host-power` is off by default. When explicitly enabled, each received progress
+window triggers one `GetSystemPowerStatus` and one read-only
+`CallNtPowerInformation(ProcessorInformation)` call on the existing reader path.
+No new thread, service, threshold, load change or timeout is introduced. Raw
+records are retained separately in `power.ndjson`, including on abort, and are
+covered by the run's checksums. Final/cooldown messages do not trigger sampling.
+
+Each record has a monotonic timestamp, per-API call cost, numeric return/error
+status and raw fields. DLL bindings are cached; per-API cost excludes initial
+binding setup. Exceptions are never rendered. API failure or unsupported binding
+produces explicit `UNAVAILABLE` and null fields; it does not establish successful
+power observation or a thermal-health result. The run analysis separately records
+whether power sampling was requested and available, without changing existing
+capacity gates.
+
+These are [OS power-state fields](https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-getsystempowerstatus)
+and [OS-reported processor MHz/limits](https://learn.microsoft.com/en-us/windows/win32/power/processor-power-information-str),
+not effective CPU frequency, package temperature, throttling attribution or
+watts. Processor enumeration follows `GetSystemInfo`'s current group (at most 64);
+no all-groups claim is made. Raw unknown sentinel values remain unchanged.
+An observer comparison remains required before interpreting a soak with this
+option enabled; the single nonadmin availability probe does not prove negligible
+sustained observer cost.

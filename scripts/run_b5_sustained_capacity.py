@@ -19,6 +19,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from scripts.performance.authority import write_loopback_authority
 from scripts.performance.sustained_capacity import analyze_soak_run, live_drift_failure, live_private_growth
+from scripts.performance.windows_power import sample_host_power
 from scripts.run_p2a_established import build
 from scripts.run_performance_validation import measured_client, wait_ready
 
@@ -30,6 +31,7 @@ SOURCE_FILES = (
     "crates/nbsr-transport/src/bin/wp8_interop_server.rs",
     "scripts/performance/sustained_capacity.py",
     "scripts/performance/resources.py",
+    "scripts/performance/windows_power.py",
     "scripts/run_b5_sustained_capacity.py",
     "tests/performance/test_sustained_capacity.py",
 )
@@ -108,6 +110,7 @@ def _run_one(
     warmup_seconds: int,
     cooldown_seconds: int,
     sample_seconds: int,
+    host_power: bool = False,
 ) -> dict[str, Any]:
     run_dir = output / "raw" / spec["name"]
     run_dir.mkdir(parents=True)
@@ -128,6 +131,7 @@ def _run_one(
     final_records: list[dict[str, Any]] = []
     resources: list[dict[str, Any]] = []
     received_progress: list[tuple[int, int]] = []
+    power_samples: list[dict[str, Any]] = []
     try:
         _write_json(run_dir / "commands.json", {"client": None, "destination": server_argv})
         server = subprocess.Popen(
@@ -152,6 +156,8 @@ def _run_one(
             if document.get("event") == "p2a_progress":
                 progress.append(document)
                 received_progress.append((time.perf_counter_ns(), int(document["elapsed_ns"])))
+                if host_power:
+                    power_samples.append(sample_host_power())
                 for field in ("errors", "timeouts"):
                     if int(document.get(field, 0)) > 0:
                         raise RuntimeError(f"soak live abort: {field} in progress window")
@@ -204,6 +210,9 @@ def _run_one(
             "destination_return_code": server.returncode,
         }
         analysis["outstanding_per_stream"] = int(spec.get("outstanding_per_stream", 1))
+        analysis["host_power"] = {"enabled": host_power, "sample_count": len(power_samples),
+                                  "availability": "NOT_REQUESTED" if not host_power else
+                                  "AVAILABLE" if power_samples and all(r["status"] == "AVAILABLE" for r in power_samples) else "UNAVAILABLE"}
         _write_json(run_dir / "final.json", final)
         _write_json(run_dir / "cleanup.json", cleanup)
         _write_json(run_dir / "analysis.json", analysis)
@@ -222,6 +231,8 @@ def _run_one(
         _write_ndjson(run_dir / "resources.ndjson", resources)
         _write_ndjson(run_dir / "source-diagnostics.ndjson", source_diagnostics)
         _write_ndjson(run_dir / "final-records.ndjson", final_records)
+        if host_power:
+            _write_ndjson(run_dir / "power.ndjson", power_samples)
         _checksums(run_dir)
 
 
@@ -267,6 +278,7 @@ def main() -> None:
     parser.add_argument("--warmup-seconds", type=int, default=10)
     parser.add_argument("--cooldown-seconds", type=int, default=30)
     parser.add_argument("--sample-seconds", type=int, default=5)
+    parser.add_argument("--host-power", action="store_true", help="record optional OS-reported power state at progress cadence")
     args = parser.parse_args()
     if args.warmup_seconds < 1 or args.cooldown_seconds < 1 or not 1 <= args.sample_seconds <= 5:
         parser.error("warmup/cooldown must be positive and sampling must be 1..5 seconds")
@@ -283,6 +295,7 @@ def main() -> None:
         "binary_sha256": {name: hashlib.sha256(path.read_bytes()).hexdigest() for name, path in binaries.items()},
         "build": "cargo release with benchmark-harness feature", "topology": "Windows loopback",
         "packet_capture": "not enabled; optional installed Dumpcap/Npcap capture excluded from authoritative run to avoid observer overhead",
+        "host_power": {"enabled": args.host_power, "scope": "OS-reported power state and processor MHz/limits; no thermal/effective-clock claim"},
     }
     _write_json(args.output / "environment.json", environment)
     analyses = []
@@ -295,6 +308,7 @@ def main() -> None:
                     spec, binaries=binaries, authority=authority, output=args.output,
                     warmup_seconds=args.warmup_seconds, cooldown_seconds=args.cooldown_seconds,
                     sample_seconds=args.sample_seconds,
+                    host_power=args.host_power,
                 )
             )
     overall = {
