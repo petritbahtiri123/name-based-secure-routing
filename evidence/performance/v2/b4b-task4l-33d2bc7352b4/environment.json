@@ -1,0 +1,54 @@
+{
+  "affinity": "inherited; not modified",
+  "binary_sha256": {
+    "direct": "0a51b07b8a96c99cb612382d7da14f80ec46de7c5d563aab120aa9aaf8740013",
+    "nbsr": "574a5ddf678c3ba8a414ede26cd9ec63c18a8a819b8aadf984f7396ee84c8c1c",
+    "server": "7a72da4e34649a5b2e4e47ef0788343edbd1bd4b75e0a1515db06de8777c67d1"
+  },
+  "build": "release",
+  "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)",
+  "claim_class": "DIAGNOSTIC",
+  "clients": 512,
+  "command": [
+    "C:\\Users\\bajra\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+    "scripts/run_b4b_task4l.py",
+    "--output",
+    "C:/NBSR-build/b4b-task4l-packet-33d2bc7352b4",
+    "--mode",
+    "paired"
+  ],
+  "cores": 4,
+  "cpu": "Intel(R) Core(TM) i5-10210U CPU @ 1.60GHz",
+  "dirty_tree": true,
+  "duration_seconds": 30,
+  "go": "go version go1.26.5 windows/amd64",
+  "logical_processors": 8,
+  "memory_bytes": 16942501888,
+  "mode": "paired",
+  "os": "Windows-11-10.0.26200-SP0",
+  "power_plan": "Power Scheme GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c  (High performance)",
+  "python": "3.14.6",
+  "rates": [
+    200,
+    250
+  ],
+  "repository_sha": "33d2bc7352b437d29398bd37e2ed1b54f35c0e6f",
+  "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+  "schema": "nbsr-performance-environment-v1",
+  "source_sha256": {
+    "crates/nbsr-transport/src/bin/benchmark_support/batch_release.rs": "c353ffe329734597954bce3fe4b91f5d8bfdc570561421ccce3875844b856ef1",
+    "crates/nbsr-transport/src/bin/benchmark_support/lifecycle_shards.rs": "2d72d160798616a0a708360062936457c475ce68ee9007a604ee59ac7a4bb4cc",
+    "crates/nbsr-transport/src/bin/perf_rust_source.rs": "d27325d9cc408a2a13a7a5a993be7b30b331c62a4e63e317bed4cedeaa228db6",
+    "crates/nbsr-transport/src/bin/wp8_interop_server.rs": "0b90db0c5fc65d198ac3374f175c355a3f99f1547d161d2d2672e276d511a4b6",
+    "scripts/performance/external_packet_capture.py": "af7a7491026d473106af9e3be62828b99862b197d4542efb855694bc61aa19a5",
+    "scripts/run_b4b_mixed_connections.py": "d31caaa33fcc214fb3e4fddcf0e78f714911bdcaacff147a4d4a20e0b1f88ce1",
+    "scripts/run_b4b_task4h.py": "c35da921cb1ca5cf57c865a514b9418df1152932d93fef1ef04c851bb13d5f16",
+    "scripts/run_b4b_task4l.py": "1e0ac86d15dfd00639d79bb349dabd41cdd47eb240d8910de2bdccb61979f5b7",
+    "scripts/run_b4b_v2.py": "3b32643345593f59b88a7b1797671b4ad3e77b0738dbb44470ddd36198331870"
+  },
+  "source_shards": 2,
+  "timeline": false,
+  "timestamp_utc": "2026-09-05T11:54:36Z",
+  "topology": "windows-loopback",
+  "warmup_seconds": 2
+}

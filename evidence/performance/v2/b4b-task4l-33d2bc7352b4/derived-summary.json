@@ -1,0 +1,101 @@
+{
+  "cells": [
+    {
+      "rate": 200,
+      "observer": "none",
+      "repeats": 5,
+      "admissions_per_second": 142.83185237448177,
+      "handshake_p99_ms": 1003.1662,
+      "goodput_gbps": 0.6013696708828218,
+      "errors": 0,
+      "timeouts": 0,
+      "cleanup": true
+    },
+    {
+      "rate": 200,
+      "observer": "packet",
+      "repeats": 5,
+      "admissions_per_second": 122.81108431350273,
+      "handshake_p99_ms": 1010.1327,
+      "goodput_gbps": 0.5169825859155595,
+      "errors": 1,
+      "timeouts": 0,
+      "cleanup": true
+    },
+    {
+      "rate": 250,
+      "observer": "none",
+      "repeats": 5,
+      "admissions_per_second": 62.56516262565515,
+      "handshake_p99_ms": 1044.534,
+      "goodput_gbps": 0.6246374949787293,
+      "errors": 1,
+      "timeouts": 0,
+      "cleanup": true
+    },
+    {
+      "rate": 250,
+      "observer": "packet",
+      "repeats": 5,
+      "admissions_per_second": 42.81544462819355,
+      "handshake_p99_ms": 3017.8654,
+      "goodput_gbps": 0.5105471947558311,
+      "errors": 0,
+      "timeouts": 0,
+      "cleanup": true
+    }
+  ],
+  "capture_drops": [
+    {
+      "path": "raw/packet/rate-200/clients-512-connections-1-r1/dumpcap.stderr",
+      "received": 17524,
+      "dropped": 0
+    },
+    {
+      "path": "raw/packet/rate-200/clients-512-connections-1-r2/dumpcap.stderr",
+      "received": 18792,
+      "dropped": 0
+    },
+    {
+      "path": "raw/packet/rate-200/clients-512-connections-1-r3/dumpcap.stderr",
+      "received": 17494,
+      "dropped": 0
+    },
+    {
+      "path": "raw/packet/rate-200/clients-512-connections-1-r4/dumpcap.stderr",
+      "received": 20310,
+      "dropped": 0
+    },
+    {
+      "path": "raw/packet/rate-200/clients-512-connections-1-r5/dumpcap.stderr",
+      "received": 18941,
+      "dropped": 0
+    },
+    {
+      "path": "raw/packet/rate-250/clients-512-connections-1-r1/dumpcap.stderr",
+      "received": 22110,
+      "dropped": 0
+    },
+    {
+      "path": "raw/packet/rate-250/clients-512-connections-1-r2/dumpcap.stderr",
+      "received": 23571,
+      "dropped": 0
+    },
+    {
+      "path": "raw/packet/rate-250/clients-512-connections-1-r3/dumpcap.stderr",
+      "received": 22238,
+      "dropped": 0
+    },
+    {
+      "path": "raw/packet/rate-250/clients-512-connections-1-r4/dumpcap.stderr",
+      "received": 20912,
+      "dropped": 0
+    },
+    {
+      "path": "raw/packet/rate-250/clients-512-connections-1-r5/dumpcap.stderr",
+      "received": 19777,
+      "dropped": 0
+    }
+  ],
+  "classification": "PARTIAL / UNRESOLVED:transport-handshake-progress"
+}
