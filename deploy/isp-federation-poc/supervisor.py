@@ -1,6 +1,7 @@
 """PoC-only container supervisor; no Docker socket, protocol or authority changes."""
 
 import argparse
+import builtins
 from dataclasses import replace
 import hashlib
 import ipaddress
@@ -440,6 +441,21 @@ def workload():
     print("NBSR_ISP_POC_WORKLOAD status=PASS_BODY_ONLY", flush=True)
 
 
+def failure_diagnostic(error):
+    # Never format the exception, source text, frame locals or external paths.
+    known_types = tuple(value for value in vars(builtins).values() if isinstance(value, type) and issubclass(value, Exception))
+    known_types += (json.JSONDecodeError, subprocess.CalledProcessError, subprocess.TimeoutExpired)
+    exception_type = type(error).__name__ if type(error) in known_types else "Exception"
+    location = None
+    trace = error.__traceback__
+    while trace is not None:
+        code = trace.tb_frame.f_code
+        if code.co_filename == __file__:
+            location = {"file": "supervisor.py", "function": code.co_name, "line": trace.tb_lineno}
+        trace = trace.tb_next
+    return {"status": "failed", "exception_type": exception_type, "location": location}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("role", choices=("preflight", "isp-a", "isp-b", "adapter-a", "adapter-b", "workload"))
@@ -458,6 +474,6 @@ def main():
 if __name__ == "__main__":
     try:
         main()
-    except Exception:
-        print("NBSR_ISP_POC_SUPERVISOR status=failed", flush=True)
+    except Exception as error:
+        print("NBSR_ISP_POC_SUPERVISOR status=failed diagnostic=" + json.dumps(failure_diagnostic(error)), flush=True)
         raise SystemExit(1) from None

@@ -9,6 +9,24 @@ SPEC.loader.exec_module(MODULE)
 
 
 class SupervisorTests(unittest.TestCase):
+    def test_failure_diagnostic_reports_trusted_origin_without_secret_values(self):
+        secret = "PRIVATE_KEY_credential_192.0.2.99"
+        with tempfile.TemporaryDirectory(prefix=secret) as temporary:
+            path = Path(temporary) / (secret + ".json")
+            path.write_text('{"' + secret + '":')
+            try:
+                MODULE.read_json(path)
+            except Exception as error:
+                diagnostic = MODULE.failure_diagnostic(error)
+            else:
+                self.fail("invalid JSON must fail")
+        self.assertNotIn(secret, str(diagnostic))
+        self.assertEqual(diagnostic["exception_type"], "JSONDecodeError")
+        self.assertEqual(diagnostic["location"]["file"], "supervisor.py")
+        self.assertEqual(diagnostic["location"]["function"], "read_json")
+        self.assertGreater(diagnostic["location"]["line"], 0)
+        self.assertEqual(set(diagnostic), {"status", "exception_type", "location"})
+
     def test_endpoint_only_projection_preserves_every_other_field(self):
         original = {
             "alpn": "nbsr-quic-1",
