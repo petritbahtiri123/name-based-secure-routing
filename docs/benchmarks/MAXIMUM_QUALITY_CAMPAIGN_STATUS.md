@@ -94,3 +94,8 @@ composition/clock wiring and observer qualification are still outstanding.
 B5 live guards now have explicit Linux clock/private-resident metric selection
 (60 focused tests); terminal null memory cannot establish live stability.
 Full Linux sustained orchestration and observer qualification remain pending.
+
+A new deferred ADMIN_REQUIRED item is now established specifically for Direct
+paced CPU attribution: WPR CPU start fails0xc5585011 in the current process.
+The final admin ledger contains one matched five-pair capture command; its
+syntax and non-admin refusal pass, elevated execution remains NOT_RUN.
