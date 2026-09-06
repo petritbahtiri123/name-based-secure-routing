@@ -1,0 +1,8 @@
+   Compiling nbsr-transport v0.1.0 (C:\Users\bajra\OneDrive\Documents\NBSR\crates\nbsr-transport)
+    Finished `release` profile [optimized] target(s) in 4.01s
+     Running unittests src\bin\perf_rust_source.rs (C:/NBSR-build/b4b-task4k\release\deps\perf_rust_source-25bd4629be05d890.exe)
+
+running 1 test
+test b5_support::coordinator_contract_tests::status_exposes_drain_and_snapshot_seal_separately ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 58 filtered out; finished in 0.00s

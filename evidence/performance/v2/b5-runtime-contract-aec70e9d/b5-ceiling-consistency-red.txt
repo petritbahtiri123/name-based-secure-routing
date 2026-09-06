@@ -1,0 +1,32 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+__________________ test_parses_the_bytes_that_were_verified ___________________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-896/test_parses_the_bytes_that_wer0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000025C35512650>
+
+    def test_parses_the_bytes_that_were_verified(tmp_path, monkeypatch):
+        _, records = fixture(tmp_path)
+        changed = []
+        for row in records:
+            changed.append({**row, "completed_operations": row["completed_operations"] + 100,
+                            "operations_per_second": row["operations_per_second"] + 100,
+                            "aggregate_application_gbps": (row["completed_operations"] + 100) * 16384 / 1e9})
+        original_read = Path.read_text
+
+        def replaced_read(path, *args, **kwargs):
+            if path.name == "records.json":
+                return json.dumps(changed)
+            return original_read(path, *args, **kwargs)
+
+        monkeypatch.setattr(Path, "read_text", replaced_read)
+        result = load(tmp_path)
+>       assert Fraction(result["rate_numerator"], result["rate_denominator"]) == Fraction(1002 * 7, 10)
+E       assert Fraction(3857, 5) == Fraction(3507, 5)
+E        +  where Fraction(3857, 5) = Fraction(3857, 5)
+E        +  and   Fraction(3507, 5) = Fraction((1002 * 7), 10)
+
+tests\performance\test_b5_ceiling.py:125: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_b5_ceiling.py::test_parses_the_bytes_that_were_verified
+1 failed, 17 deselected in 0.72s

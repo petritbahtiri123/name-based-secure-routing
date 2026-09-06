@@ -59,6 +59,8 @@ pub(crate) struct Status {
     pub(crate) deadline_ns: Option<u64>,
     pub(crate) failed: bool,
     pub(crate) postflight_allowed: bool,
+    pub(crate) all_groups_drained: bool,
+    pub(crate) sealed: bool,
 }
 pub(crate) struct Snapshot {
     pub(crate) window_index: u64,
@@ -179,6 +181,8 @@ impl<C: Clock> PacedRun<C> {
             deadline_ns: state.deadline,
             failed,
             postflight_allowed: state.published && !failed,
+            all_groups_drained: state.origin.is_some() && state.drained.iter().all(|value| *value),
+            sealed: state.sealed,
         }
     }
     pub(crate) fn fail(&self) {

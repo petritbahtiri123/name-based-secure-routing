@@ -1,0 +1,51 @@
+   Compiling nbsr-transport v0.1.0 (C:\Users\bajra\OneDrive\Documents\NBSR\crates\nbsr-transport)
+error[E0609]: no field `all_groups_drained` on type `Status`
+  --> src\bin\b5_support\coordinator_contract_tests.rs:13:27
+   |
+13 |     assert!(!run.status().all_groups_drained);
+   |                           ^^^^^^^^^^^^^^^^^^ unknown field
+   |
+   = note: available fields are: `origin_ns`, `deadline_ns`, `failed`, `postflight_allowed`
+
+error[E0609]: no field `sealed` on type `Status`
+  --> src\bin\b5_support\coordinator_contract_tests.rs:14:27
+   |
+14 |     assert!(!run.status().sealed);
+   |                           ^^^^^^ unknown field
+   |
+   = note: available fields are: `origin_ns`, `deadline_ns`, `failed`, `postflight_allowed`
+
+error[E0609]: no field `all_groups_drained` on type `Status`
+  --> src\bin\b5_support\coordinator_contract_tests.rs:18:27
+   |
+18 |     assert!(!run.status().all_groups_drained);
+   |                           ^^^^^^^^^^^^^^^^^^ unknown field
+   |
+   = note: available fields are: `origin_ns`, `deadline_ns`, `failed`, `postflight_allowed`
+
+error[E0609]: no field `all_groups_drained` on type `Status`
+  --> src\bin\b5_support\coordinator_contract_tests.rs:20:26
+   |
+20 |     assert!(run.status().all_groups_drained);
+   |                          ^^^^^^^^^^^^^^^^^^ unknown field
+   |
+   = note: available fields are: `origin_ns`, `deadline_ns`, `failed`, `postflight_allowed`
+
+error[E0609]: no field `sealed` on type `Status`
+  --> src\bin\b5_support\coordinator_contract_tests.rs:21:27
+   |
+21 |     assert!(!run.status().sealed);
+   |                           ^^^^^^ unknown field
+   |
+   = note: available fields are: `origin_ns`, `deadline_ns`, `failed`, `postflight_allowed`
+
+error[E0609]: no field `sealed` on type `Status`
+  --> src\bin\b5_support\coordinator_contract_tests.rs:23:26
+   |
+23 |     assert!(run.status().sealed);
+   |                          ^^^^^^ unknown field
+   |
+   = note: available fields are: `origin_ns`, `deadline_ns`, `failed`, `postflight_allowed`
+
+For more information about this error, try `rustc --explain E0609`.
+error: could not compile `nbsr-transport` (bin "perf_rust_source" test) due to 6 previous errors

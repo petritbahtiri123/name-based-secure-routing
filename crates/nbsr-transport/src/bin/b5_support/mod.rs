@@ -153,3 +153,9 @@ mod coordinator_contract_tests;
 
 #[cfg(test)]
 mod coordinator;
+
+#[cfg(test)]
+mod runtime_contract_tests;
+
+#[cfg(test)]
+mod runtime;

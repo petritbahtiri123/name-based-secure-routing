@@ -7,6 +7,23 @@ use std::sync::{
 
 const MS: u64 = 1_000_000;
 
+#[test]
+fn status_exposes_drain_and_snapshot_seal_separately() {
+    let (clock, run) = setup(8);
+    assert!(!run.status().all_groups_drained);
+    assert!(!run.status().sealed);
+    start(&run);
+    clock.set(25 * MS);
+    run.drained(0).unwrap();
+    assert!(!run.status().all_groups_drained);
+    run.drained(1).unwrap();
+    assert!(run.status().all_groups_drained);
+    assert!(!run.status().sealed);
+    run.snapshot(true).unwrap();
+    assert!(run.status().sealed);
+    assert!(!run.status().postflight_allowed);
+}
+
 #[derive(Default)]
 struct ManualClock(AtomicU64);
 impl ManualClock {

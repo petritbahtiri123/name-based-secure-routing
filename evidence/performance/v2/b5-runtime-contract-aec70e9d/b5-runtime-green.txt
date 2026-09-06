@@ -1,0 +1,14 @@
+   Compiling nbsr-transport v0.1.0 (C:\Users\bajra\OneDrive\Documents\NBSR\crates\nbsr-transport)
+    Finished `release` profile [optimized] target(s) in 4.65s
+     Running unittests src\bin\perf_rust_source.rs (C:/NBSR-build/b4b-task4k\release\deps\perf_rust_source-25bd4629be05d890.exe)
+
+running 7 tests
+test b5_support::runtime_contract_tests::forwarding_methods_keep_exact_counts_and_notify_on_failure ... ok
+test b5_support::runtime_contract_tests::instant_clock_is_monotonic_and_uses_one_epoch ... ok
+test b5_support::runtime_contract_tests::notify_registers_before_readiness_and_late_waiter_sees_stored_predicate ... ok
+test b5_support::runtime_contract_tests::final_sink_success_is_required_before_postflight_wakes ... ok
+test b5_support::runtime_contract_tests::guard_drop_wakes_ready_and_postflight_waiters_with_failure ... ok
+test b5_support::runtime_contract_tests::sink_panic_invalidates_even_after_final_snapshot_sealed ... ok
+test b5_support::runtime_contract_tests::sink_error_latches_failure_and_releases_postflight_waiter ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 59 filtered out; finished in 0.00s

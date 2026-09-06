@@ -72,3 +72,27 @@ then 20 resource tests PASS. Scoped review found a missed sampler-exit condition
 the new live-coverage regression/fix closed it, and scoped re-review found no
 remaining Important issue. Release Clippy, repository-configured Rust fmt and
 scoped Ruff passed. Logs: `b5-coordinator-contract-28bfbb26` evidence directory.
+
+## Async coordination and ceiling consumption
+
+The test-only async wrapper registers notification waiters before inspecting
+state. Guard drop and accounting/publication failures invalidate then notify
+waiters. A sole publisher serializes outside the coordinator lock and grants
+postflight permission only after the supplied sink succeeds. The caller still
+owns bounded output, flush semantics, publisher scheduling, all transport I/O
+and cleanup. No background publisher or live paced path has been enabled yet.
+
+`scripts/performance/b5_ceiling.py` consumes a completed physical-core runner
+directory. It verifies the manifest, parses the same input bytes it verified,
+requires current SHA/clean tree/binary hashes/physical-core selection and workload
+shape, and rebuilds the existing classifier from all NBSR rows. The selected depth
+must be STABLE. A 70–80% rational rate comes from exact median completed operations
+and elapsed nanoseconds; historical or rounded headline numbers are not inputs.
+The caller must independently supply current verified topology and binaries.
+This accepts a reference for calibration, not the future paced soak itself.
+
+Validation: runtime missing-module RED then seven async tests; 33 total Rust B5
+tests PASS. Ceiling missing-module RED plus a hash/read consistency RED then 18
+Python tests PASS. Release Clippy and focused formatting/lint pass. Focused review
+found no additional Important issue; parsed-byte consistency is regression-tested.
+Logs are retained under `b5-runtime-contract-aec70e9d`.
