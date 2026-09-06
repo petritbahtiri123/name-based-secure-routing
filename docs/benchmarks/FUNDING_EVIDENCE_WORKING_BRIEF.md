@@ -1,6 +1,6 @@
 # NBSR technical evidence: working brief
 
-**DRAFT — NOT a final funding freeze.** This is a navigation and claims brief
+**DRAFT â€” NOT a final funding freeze.** This is a navigation and claims brief
 for the ongoing campaign. Each measurement belongs to its recorded source,
 workload and host; different stages are not one final-SHA scoreboard.
 
@@ -31,7 +31,7 @@ flowchart LR
 | Resource cost | DERIVED about 40,473 additional combined process-private bytes per held stream in that fixed 32-channel series | Includes QUIC/runtime/allocator/fixture costs; not pure NBSR object size; retained-memory cause remains INCONCLUSIVE |
 | Sustained stability | NOT_PROVEN near the new ceilings | Three light-load 120-second controls passed; subsequent 70%-load one-core observer cohort aborted on drift. No accepted new 60/120-minute soak; [retained abort](../../evidence/performance/v2/b5-observer-drift-cbdca987/REPORT.md) |
 | Wire accounting | MEASURED 20 matched captures with zero reported capture loss; setup UDP-payload increment is consistent; whole/established deltas cross zero | No constant data-overhead, physical Ethernet, or phase-aligned L2 claim; [packet accounting](../../evidence/performance/v2/b1-packets-e2c75b59/REPORT.md) |
-| Adversarial checks | MEASURED 13 fail-closed executable cases pass at their recorded source | Replay, tampering, bindings, expiry/revocation/generation, downgrade, unauthorized/forged identity, malformed input and failure/recovery; final regression refresh remains pending; [matrix](../../evidence/security/adversarial-campaign-b7df259b/summary.md) |
+| Adversarial checks | MEASURED 13 fail-closed executable cases pass at their recorded source | Replay, tampering, bindings, expiry/revocation/generation, downgrade, unauthorized/forged identity, malformed input and failure/recovery; refresh at bf53b8d4:13 PASS/0 FAIL/1 network-isolation INCONCLUSIVE; final whole-campaign gates remain pending; [refresh matrix](../../evidence/security/adversarial-refresh-bf53b8d4/summary.md) |
 | Private origin | MEASURED three Docker network lifecycles deny client/ISP-A DNS/IP direct probes, then return the exact authorized body with one origin request | Local topology, shared test bootstrap material, no host/root resistance claim; [isolation](../../evidence/security/isp-isolation-f831c9bb/REPORT.md) |
 | Federation | MEASURED admission preflight separately from route isolation; live runtime federation NOT_PROVEN | No independent-operator live-federation claim |
 | Linux | MEASURED six restricted Docker Linux compatibility repeats pass | Docker Desktop VM, not bare-metal/server/NIC scaling; [Linux control](../../evidence/performance/v2/linux-compatibility-3644c324/REPORT.md) |
