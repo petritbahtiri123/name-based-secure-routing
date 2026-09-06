@@ -135,6 +135,17 @@ def test_every_destination_growth_is_checked_and_mixed_excluded_from_drift():
     assert guards.steady == []
 
 
+def test_receive_clock_origin_is_explicit_and_does_not_rebase():
+    guards = b5.LiveGuards(groups=1, max_progress=10, max_resources=10)
+    assert guards.qualification()["resource_phase_origin_monotonic_ns"] is None
+    value = dict(phase="steady", elapsed_ns=100, goodput_bytes_per_second=100,
+                 p99_latency_ns=100)
+    guards.progress(value, received_ns=1000)
+    assert guards.qualification()["resource_phase_origin_monotonic_ns"] == 900
+    guards.progress({**value, "elapsed_ns": 200}, received_ns=9000)
+    assert guards.qualification()["resource_phase_origin_monotonic_ns"] == 900
+
+
 def test_callback_retention_bounds_fail_instead_of_dropping():
     guards = b5.LiveGuards(groups=1, max_progress=1, max_resources=1)
     guards.resource(dict(role="source", monotonic_timestamp_ns=1, private_bytes=1))
@@ -216,7 +227,10 @@ def test_run_one_ack_follows_sampling_and_preserves_failed_reader_tail(monkeypat
         def check_health(self, **kwargs):
             pass
 
-    def consume(*_):
+    def consume(source, reader, stream):
+        stream._on_progress(dict(phase="steady", elapsed_ns=100,
+                                 goodput_bytes_per_second=100, p99_latency_ns=100),
+                            received_ns=1000)
         if failure == "parser":
             raise ValueError("injected parser failure")
         return dict(completed=1, offered=1, measurement_duration_ns=2_000_000_000, drain_duration_ns=0)
@@ -232,6 +246,9 @@ def test_run_one_ack_follows_sampling_and_preserves_failed_reader_tail(monkeypat
                         tmp_path, dict(endpoint_masks=[1], source_mask=1, logical_processors_available=1),
                         tmp_path / "run", warmup=2, duration=2, progress=1, rate=(200, 1), diagnostic=True)
     assert result["valid"] is (failure is None)
+    assert result["qualification"]["resource_phase_origin_monotonic_ns"] == 900
+    retained = json.loads((tmp_path / "run" / "result.json").read_text())
+    assert retained["qualification"]["resource_phase_origin_monotonic_ns"] == 900
     assert all(process.poll() is not None for process in processes)
     if failure == "parser":
         assert (tmp_path / "run" / "source.stdout.ndjson").read_bytes() == b"retained failure bytes\n"

@@ -1,0 +1,13 @@
+{
+  "base_sha": "1cca67ad092292acec85f622c7d2825c47654a67",
+  "classification": "HARNESS_EVIDENCE_FIX",
+  "red": "4 expected failures: missing origin or failed-result qualification",
+  "green": "32 controller tests PASS",
+  "ruff": "PASS",
+  "review": "One parent focused correctness/security review: no Important finding. No changes to drift, admission, ownership or cleanup assertions; no new timed writes or clock reads.",
+  "source_sha256": {
+    "scripts/run_b5_v2.py": "0e78aeca03ab445440230c6ed9908e17b125af884941fae029f12b621dc565b6",
+    "tests/performance/test_b5_v2_controller.py": "8adf974d0652e9eacc082e5a27c6bc15ad8795192fd208caac63d82d74bc57c4",
+    "docs/superpowers/plans/2026-09-06-b5-receive-clock-preservation.md": "29ded02c049b5023ece47fc34a91a1cbc4d8ac54160502fdd176212efdf807ae"
+  }
+}

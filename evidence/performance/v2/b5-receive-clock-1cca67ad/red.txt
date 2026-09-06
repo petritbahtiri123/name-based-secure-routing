@@ -1,0 +1,257 @@
+FFFF                                                                     [100%]
+================================== FAILURES ===================================
+__________ test_receive_clock_origin_is_explicit_and_does_not_rebase __________
+
+    def test_receive_clock_origin_is_explicit_and_does_not_rebase():
+        guards = b5.LiveGuards(groups=1, max_progress=10, max_resources=10)
+>       assert guards.qualification()["resource_phase_origin_monotonic_ns"] is None
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'resource_phase_origin_monotonic_ns'
+
+tests\performance\test_b5_v2_controller.py:140: KeyError
+__ test_run_one_ack_follows_sampling_and_preserves_failed_reader_tail[None] ___
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001AE32BFEEA0>
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-940/test_run_one_ack_follows_sampl0')
+failure = None
+
+    @pytest.mark.parametrize("failure", [None, "ownership", "parser"])
+    def test_run_one_ack_follows_sampling_and_preserves_failed_reader_tail(monkeypatch, tmp_path, failure):
+        from scripts.performance.post_close_cleanup import FIELDS
+        stopped = []
+        processes = []
+
+        class Process:
+            def __init__(self, argv, **kwargs):
+                self.source = argv[0] == "source.exe"
+                self.pid = 100 + len(processes)
+                self.returncode = 0 if self.source else None
+                self.stdout = io.BytesIO(b"retained failure bytes\n")
+                self.argv = argv
+                processes.append(self)
+                report = Path(argv[argv.index("--p2a-cleanup-report") + 1])
+                counters = dict.fromkeys(FIELDS, 0)
+                if failure == "ownership":
+                    counters[FIELDS[-1]] = 1
+                report.write_text(json.dumps(dict(schema="nbsr-p2a-post-close-v1", pid=self.pid,
+                    role="source" if self.source else "destination", diagnostics_enabled_before_run=True,
+                    runtime_state="runtime_alive", ownership=counters)))
+
+            def poll(self):
+                return self.returncode
+
+            def wait(self, timeout):
+                if not self.source and self.returncode is None:
+                    assert stopped, "ACK cannot precede sampler stop"
+                    ack = Path(self.argv[self.argv.index("--completion-ack") + 1])
+                    assert ack.is_file()
+                self.returncode = 0
+                return 0
+
+            def kill(self):
+                self.returncode = -1
+
+        class Sampler:
+            def __init__(self, processes, **kwargs):
+                assert kwargs["max_records"] == 388  # ceil((2+2+92)/.5+2)*2
+
+            def start(self):
+                pass
+
+            def stop(self):
+                stopped.append(True)
+                return []
+
+            def check_health(self, **kwargs):
+                pass
+
+        def consume(source, reader, stream):
+            stream._on_progress(dict(phase="steady", elapsed_ns=100,
+                                     goodput_bytes_per_second=100, p99_latency_ns=100),
+                                received_ns=1000)
+            if failure == "parser":
+                raise ValueError("injected parser failure")
+            return dict(completed=1, offered=1, measurement_duration_ns=2_000_000_000, drain_duration_ns=0)
+
+        monkeypatch.setattr(b5.subprocess, "Popen", Process)
+        monkeypatch.setattr(b5, "ProcessResourceSampler", Sampler)
+        monkeypatch.setattr(b5, "consume", consume)
+        monkeypatch.setattr(b5, "wait_ready", lambda *_: {"endpoint": "127.0.0.1:1234"})
+        monkeypatch.setattr(b5, "set_and_verify_exact_affinity", lambda *_: {"verified": True})
+        result = b5.run_one(dict(path="nbsr", endpoint_groups=1, streams_per_group=1,
+                                outstanding_per_stream=1, payload_bytes=1024),
+                            dict(direct="direct.exe", nbsr="source.exe", server="server.exe"),
+                            tmp_path, dict(endpoint_masks=[1], source_mask=1, logical_processors_available=1),
+                            tmp_path / "run", warmup=2, duration=2, progress=1, rate=(200, 1), diagnostic=True)
+        assert result["valid"] is (failure is None)
+>       assert result["qualification"]["resource_phase_origin_monotonic_ns"] == 900
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'resource_phase_origin_monotonic_ns'
+
+tests\performance\test_b5_v2_controller.py:249: KeyError
+_ test_run_one_ack_follows_sampling_and_preserves_failed_reader_tail[ownership] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001AE32BFF360>
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-940/test_run_one_ack_follows_sampl1')
+failure = 'ownership'
+
+    @pytest.mark.parametrize("failure", [None, "ownership", "parser"])
+    def test_run_one_ack_follows_sampling_and_preserves_failed_reader_tail(monkeypatch, tmp_path, failure):
+        from scripts.performance.post_close_cleanup import FIELDS
+        stopped = []
+        processes = []
+
+        class Process:
+            def __init__(self, argv, **kwargs):
+                self.source = argv[0] == "source.exe"
+                self.pid = 100 + len(processes)
+                self.returncode = 0 if self.source else None
+                self.stdout = io.BytesIO(b"retained failure bytes\n")
+                self.argv = argv
+                processes.append(self)
+                report = Path(argv[argv.index("--p2a-cleanup-report") + 1])
+                counters = dict.fromkeys(FIELDS, 0)
+                if failure == "ownership":
+                    counters[FIELDS[-1]] = 1
+                report.write_text(json.dumps(dict(schema="nbsr-p2a-post-close-v1", pid=self.pid,
+                    role="source" if self.source else "destination", diagnostics_enabled_before_run=True,
+                    runtime_state="runtime_alive", ownership=counters)))
+
+            def poll(self):
+                return self.returncode
+
+            def wait(self, timeout):
+                if not self.source and self.returncode is None:
+                    assert stopped, "ACK cannot precede sampler stop"
+                    ack = Path(self.argv[self.argv.index("--completion-ack") + 1])
+                    assert ack.is_file()
+                self.returncode = 0
+                return 0
+
+            def kill(self):
+                self.returncode = -1
+
+        class Sampler:
+            def __init__(self, processes, **kwargs):
+                assert kwargs["max_records"] == 388  # ceil((2+2+92)/.5+2)*2
+
+            def start(self):
+                pass
+
+            def stop(self):
+                stopped.append(True)
+                return []
+
+            def check_health(self, **kwargs):
+                pass
+
+        def consume(source, reader, stream):
+            stream._on_progress(dict(phase="steady", elapsed_ns=100,
+                                     goodput_bytes_per_second=100, p99_latency_ns=100),
+                                received_ns=1000)
+            if failure == "parser":
+                raise ValueError("injected parser failure")
+            return dict(completed=1, offered=1, measurement_duration_ns=2_000_000_000, drain_duration_ns=0)
+
+        monkeypatch.setattr(b5.subprocess, "Popen", Process)
+        monkeypatch.setattr(b5, "ProcessResourceSampler", Sampler)
+        monkeypatch.setattr(b5, "consume", consume)
+        monkeypatch.setattr(b5, "wait_ready", lambda *_: {"endpoint": "127.0.0.1:1234"})
+        monkeypatch.setattr(b5, "set_and_verify_exact_affinity", lambda *_: {"verified": True})
+        result = b5.run_one(dict(path="nbsr", endpoint_groups=1, streams_per_group=1,
+                                outstanding_per_stream=1, payload_bytes=1024),
+                            dict(direct="direct.exe", nbsr="source.exe", server="server.exe"),
+                            tmp_path, dict(endpoint_masks=[1], source_mask=1, logical_processors_available=1),
+                            tmp_path / "run", warmup=2, duration=2, progress=1, rate=(200, 1), diagnostic=True)
+        assert result["valid"] is (failure is None)
+>       assert result["qualification"]["resource_phase_origin_monotonic_ns"] == 900
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'qualification'
+
+tests\performance\test_b5_v2_controller.py:249: KeyError
+_ test_run_one_ack_follows_sampling_and_preserves_failed_reader_tail[parser] __
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001AE32C07E30>
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-940/test_run_one_ack_follows_sampl2')
+failure = 'parser'
+
+    @pytest.mark.parametrize("failure", [None, "ownership", "parser"])
+    def test_run_one_ack_follows_sampling_and_preserves_failed_reader_tail(monkeypatch, tmp_path, failure):
+        from scripts.performance.post_close_cleanup import FIELDS
+        stopped = []
+        processes = []
+
+        class Process:
+            def __init__(self, argv, **kwargs):
+                self.source = argv[0] == "source.exe"
+                self.pid = 100 + len(processes)
+                self.returncode = 0 if self.source else None
+                self.stdout = io.BytesIO(b"retained failure bytes\n")
+                self.argv = argv
+                processes.append(self)
+                report = Path(argv[argv.index("--p2a-cleanup-report") + 1])
+                counters = dict.fromkeys(FIELDS, 0)
+                if failure == "ownership":
+                    counters[FIELDS[-1]] = 1
+                report.write_text(json.dumps(dict(schema="nbsr-p2a-post-close-v1", pid=self.pid,
+                    role="source" if self.source else "destination", diagnostics_enabled_before_run=True,
+                    runtime_state="runtime_alive", ownership=counters)))
+
+            def poll(self):
+                return self.returncode
+
+            def wait(self, timeout):
+                if not self.source and self.returncode is None:
+                    assert stopped, "ACK cannot precede sampler stop"
+                    ack = Path(self.argv[self.argv.index("--completion-ack") + 1])
+                    assert ack.is_file()
+                self.returncode = 0
+                return 0
+
+            def kill(self):
+                self.returncode = -1
+
+        class Sampler:
+            def __init__(self, processes, **kwargs):
+                assert kwargs["max_records"] == 388  # ceil((2+2+92)/.5+2)*2
+
+            def start(self):
+                pass
+
+            def stop(self):
+                stopped.append(True)
+                return []
+
+            def check_health(self, **kwargs):
+                pass
+
+        def consume(source, reader, stream):
+            stream._on_progress(dict(phase="steady", elapsed_ns=100,
+                                     goodput_bytes_per_second=100, p99_latency_ns=100),
+                                received_ns=1000)
+            if failure == "parser":
+                raise ValueError("injected parser failure")
+            return dict(completed=1, offered=1, measurement_duration_ns=2_000_000_000, drain_duration_ns=0)
+
+        monkeypatch.setattr(b5.subprocess, "Popen", Process)
+        monkeypatch.setattr(b5, "ProcessResourceSampler", Sampler)
+        monkeypatch.setattr(b5, "consume", consume)
+        monkeypatch.setattr(b5, "wait_ready", lambda *_: {"endpoint": "127.0.0.1:1234"})
+        monkeypatch.setattr(b5, "set_and_verify_exact_affinity", lambda *_: {"verified": True})
+        result = b5.run_one(dict(path="nbsr", endpoint_groups=1, streams_per_group=1,
+                                outstanding_per_stream=1, payload_bytes=1024),
+                            dict(direct="direct.exe", nbsr="source.exe", server="server.exe"),
+                            tmp_path, dict(endpoint_masks=[1], source_mask=1, logical_processors_available=1),
+                            tmp_path / "run", warmup=2, duration=2, progress=1, rate=(200, 1), diagnostic=True)
+        assert result["valid"] is (failure is None)
+>       assert result["qualification"]["resource_phase_origin_monotonic_ns"] == 900
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'qualification'
+
+tests\performance\test_b5_v2_controller.py:249: KeyError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_b5_v2_controller.py::test_receive_clock_origin_is_explicit_and_does_not_rebase
+FAILED tests/performance/test_b5_v2_controller.py::test_run_one_ack_follows_sampling_and_preserves_failed_reader_tail[None]
+FAILED tests/performance/test_b5_v2_controller.py::test_run_one_ack_follows_sampling_and_preserves_failed_reader_tail[ownership]
+FAILED tests/performance/test_b5_v2_controller.py::test_run_one_ack_follows_sampling_and_preserves_failed_reader_tail[parser]
+4 failed, 28 deselected in 0.98s

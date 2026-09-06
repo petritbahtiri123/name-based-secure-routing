@@ -173,6 +173,7 @@ class LiveGuards:
         return {"steady_windows": len(self.steady), "latency_comparison_available":
                 len(self.steady) >= 3 and all(r["p99_latency_ns"] is not None for r in self.steady),
                 "resource_series_available": complete,
+                "resource_phase_origin_monotonic_ns": self.origin_ns,
                 "resource_phase_clock": "first-progress receive time minus elapsed; approximate, excludes earlier samples",
                 "thermal_and_power": "NOT_MEASURED"}
 
@@ -342,7 +343,7 @@ def run_one(cell, binaries, authority, plan, directory, *, warmup, duration, pro
             result.update(valid=True, classification="DIAGNOSTIC" if diagnostic else "ACCOUNTING_PASS",
                           final=final, achieved_offered_ratio=ratio,
                           gbps=final["completed"] * cell["payload_bytes"] * 16 / elapsed,
-                          qualification=guards.qualification(), ownership_reports=ownership,
+                          ownership_reports=ownership,
                           continuous_ownership=continuous,
                           cleanup_scope="11-counter reports and all process joins" if reports else "process joins only; runtime ownership NOT_MEASURED",
                           internal_failure_thread_join="NOT_MEASURED")
@@ -380,6 +381,7 @@ def run_one(cell, binaries, authority, plan, directory, *, warmup, duration, pro
             for tail in tails:
                 tail.close()
             result["affinity"] = affinities
+            result["qualification"] = guards.qualification()
             write_json(directory / "result.json", result)
     return result
 
