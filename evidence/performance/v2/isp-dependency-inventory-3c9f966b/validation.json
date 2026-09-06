@@ -1,0 +1,13 @@
+{
+  "source_sha": "cbdca987e4fcc7d53f54d9546683bc7010f5ecc0",
+  "commands": {
+    "red": "python -m pytest tests/federation/test_isp_adapter_dependency_inventory.py -q (10 failed, 2 passed before fix)",
+    "green": "python -m pytest tests/federation/test_isp_adapter_dependency_inventory.py -q (12 passed)",
+    "ruff": "python -m ruff check scripts/verify_wp8_repository_safety.py tests/federation/test_isp_adapter_dependency_inventory.py",
+    "live": "python scripts/verify_wp8_repository_safety.py dependencies ."
+  },
+  "files": {
+    "scripts/verify_wp8_repository_safety.py": "481f057730f3330dc8c7c89fd05fda0bd8134301673a26c30df7d556cf940fbe",
+    "tests/federation/test_isp_adapter_dependency_inventory.py": "9a767ac94430aa45f64c480c1b9bcbdc30c6174ed4cb6808a64e84ab0e1c6623"
+  }
+}

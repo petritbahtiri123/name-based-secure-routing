@@ -1,0 +1,511 @@
+FFFFFFF..FFF                                                             [100%]
+================================== FAILURES ===================================
+__________________ test_approved_stdlib_adapter_is_accepted ___________________
+
+repository = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-914/test_approved_stdlib_adapter_i0')
+
+    def test_approved_stdlib_adapter_is_accepted(repository):
+>       assert "PASS" in safety.dependency_inspection(repository)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\federation\test_isp_adapter_dependency_inventory.py:42:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-914/test_approved_stdlib_adapter_i0')
+
+    def dependency_inspection(root: Path) -> str:
+        found = {
+            path.relative_to(root).as_posix()
+            for path in root.rglob("*")
+            if path.is_file()
+            and path.name in DEPENDENCY_NAMES
+            and ".git" not in path.parts
+            and ".worktrees" not in path.relative_to(root).parts
+        }
+        expected = ORIGINAL_DEPENDENCY_FILES | TASK10B_DEPENDENCY_FILES | TRANCHE2B_DEPENDENCY_FILES | DEMO_DEPENDENCY_FILES
+        if found != expected:
+>           raise ValueError(f"dependency manifest inventory differs: {sorted(found ^ expected)}")
+E           ValueError: dependency manifest inventory differs: ['deploy/isp-federation-poc/adapter/go.mod']
+
+scripts\verify_wp8_repository_safety.py:56: ValueError
+_ test_adapter_declarations_cannot_expand[module example.invalid/other\n\ngo 1.26.5\n] _
+
+repository = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-914/test_adapter_declarations_cann0')
+text = 'module example.invalid/other\n\ngo 1.26.5\n'
+
+    @pytest.mark.parametrize("text", [
+        APPROVED.replace("nbsr.local/isp-federation-poc/adapter", "example.invalid/other"),
+        APPROVED.replace("1.26.5", "1.26.6"),
+        APPROVED + "require example.invalid/dependency v1.0.0\n",
+        APPROVED + "require (\nexample.invalid/dependency v1.0.0\n)\n",
+        APPROVED + "replace example.invalid/dependency => ../dependency\n",
+        APPROVED + "toolchain go1.26.5\n",
+    ])
+    def test_adapter_declarations_cannot_expand(repository, text):
+        (repository / ADAPTER).write_text(text, encoding="utf-8")
+        with pytest.raises(ValueError, match="ISP adapter declarations differ"):
+>           safety.dependency_inspection(repository)
+
+tests\federation\test_isp_adapter_dependency_inventory.py:56:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-914/test_adapter_declarations_cann0')
+
+    def dependency_inspection(root: Path) -> str:
+        found = {
+            path.relative_to(root).as_posix()
+            for path in root.rglob("*")
+            if path.is_file()
+            and path.name in DEPENDENCY_NAMES
+            and ".git" not in path.parts
+            and ".worktrees" not in path.relative_to(root).parts
+        }
+        expected = ORIGINAL_DEPENDENCY_FILES | TASK10B_DEPENDENCY_FILES | TRANCHE2B_DEPENDENCY_FILES | DEMO_DEPENDENCY_FILES
+        if found != expected:
+>           raise ValueError(f"dependency manifest inventory differs: {sorted(found ^ expected)}")
+E           ValueError: dependency manifest inventory differs: ['deploy/isp-federation-poc/adapter/go.mod']
+
+scripts\verify_wp8_repository_safety.py:56: ValueError
+
+During handling of the above exception, another exception occurred:
+
+repository = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-914/test_adapter_declarations_cann0')
+text = 'module example.invalid/other\n\ngo 1.26.5\n'
+
+    @pytest.mark.parametrize("text", [
+        APPROVED.replace("nbsr.local/isp-federation-poc/adapter", "example.invalid/other"),
+        APPROVED.replace("1.26.5", "1.26.6"),
+        APPROVED + "require example.invalid/dependency v1.0.0\n",
+        APPROVED + "require (\nexample.invalid/dependency v1.0.0\n)\n",
+        APPROVED + "replace example.invalid/dependency => ../dependency\n",
+        APPROVED + "toolchain go1.26.5\n",
+    ])
+    def test_adapter_declarations_cannot_expand(repository, text):
+        (repository / ADAPTER).write_text(text, encoding="utf-8")
+>       with pytest.raises(ValueError, match="ISP adapter declarations differ"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E        Regex: 'ISP adapter declarations differ'
+E        Input: "dependency manifest inventory differs: ['deploy/isp-federation-poc/adapter/go.mod']"
+
+tests\federation\test_isp_adapter_dependency_inventory.py:55: AssertionError
+_ test_adapter_declarations_cannot_expand[module nbsr.local/isp-federation-poc/adapter\n\ngo 1.26.6\n] _
+
+repository = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-914/test_adapter_declarations_cann1')
+text = 'module nbsr.local/isp-federation-poc/adapter\n\ngo 1.26.6\n'
+
+    @pytest.mark.parametrize("text", [
+        APPROVED.replace("nbsr.local/isp-federation-poc/adapter", "example.invalid/other"),
+        APPROVED.replace("1.26.5", "1.26.6"),
+        APPROVED + "require example.invalid/dependency v1.0.0\n",
+        APPROVED + "require (\nexample.invalid/dependency v1.0.0\n)\n",
+        APPROVED + "replace example.invalid/dependency => ../dependency\n",
+        APPROVED + "toolchain go1.26.5\n",
+    ])
+    def test_adapter_declarations_cannot_expand(repository, text):
+        (repository / ADAPTER).write_text(text, encoding="utf-8")
+        with pytest.raises(ValueError, match="ISP adapter declarations differ"):
+>           safety.dependency_inspection(repository)
+
+tests\federation\test_isp_adapter_dependency_inventory.py:56:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-914/test_adapter_declarations_cann1')
+
+    def dependency_inspection(root: Path) -> str:
+        found = {
+            path.relative_to(root).as_posix()
+            for path in root.rglob("*")
+            if path.is_file()
+            and path.name in DEPENDENCY_NAMES
+            and ".git" not in path.parts
+            and ".worktrees" not in path.relative_to(root).parts
+        }
+        expected = ORIGINAL_DEPENDENCY_FILES | TASK10B_DEPENDENCY_FILES | TRANCHE2B_DEPENDENCY_FILES | DEMO_DEPENDENCY_FILES
+        if found != expected:
+>           raise ValueError(f"dependency manifest inventory differs: {sorted(found ^ expected)}")
+E           ValueError: dependency manifest inventory differs: ['deploy/isp-federation-poc/adapter/go.mod']
+
+scripts\verify_wp8_repository_safety.py:56: ValueError
+
+During handling of the above exception, another exception occurred:
+
+repository = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-914/test_adapter_declarations_cann1')
+text = 'module nbsr.local/isp-federation-poc/adapter\n\ngo 1.26.6\n'
+
+    @pytest.mark.parametrize("text", [
+        APPROVED.replace("nbsr.local/isp-federation-poc/adapter", "example.invalid/other"),
+        APPROVED.replace("1.26.5", "1.26.6"),
+        APPROVED + "require example.invalid/dependency v1.0.0\n",
+        APPROVED + "require (\nexample.invalid/dependency v1.0.0\n)\n",
+        APPROVED + "replace example.invalid/dependency => ../dependency\n",
+        APPROVED + "toolchain go1.26.5\n",
+    ])
+    def test_adapter_declarations_cannot_expand(repository, text):
+        (repository / ADAPTER).write_text(text, encoding="utf-8")
+>       with pytest.raises(ValueError, match="ISP adapter declarations differ"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E        Regex: 'ISP adapter declarations differ'
+E        Input: "dependency manifest inventory differs: ['deploy/isp-federation-poc/adapter/go.mod']"
+
+tests\federation\test_isp_adapter_dependency_inventory.py:55: AssertionError
+_ test_adapter_declarations_cannot_expand[module nbsr.local/isp-federation-poc/adapter\n\ngo 1.26.5\nrequire example.invalid/dependency v1.0.0\n] _
+
+repository = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-914/test_adapter_declarations_cann2')
+text = 'module nbsr.local/isp-federation-poc/adapter\n\ngo 1.26.5\nrequire example.invalid/dependency v1.0.0\n'
+
+    @pytest.mark.parametrize("text", [
+        APPROVED.replace("nbsr.local/isp-federation-poc/adapter", "example.invalid/other"),
+        APPROVED.replace("1.26.5", "1.26.6"),
+        APPROVED + "require example.invalid/dependency v1.0.0\n",
+        APPROVED + "require (\nexample.invalid/dependency v1.0.0\n)\n",
+        APPROVED + "replace example.invalid/dependency => ../dependency\n",
+        APPROVED + "toolchain go1.26.5\n",
+    ])
+    def test_adapter_declarations_cannot_expand(repository, text):
+        (repository / ADAPTER).write_text(text, encoding="utf-8")
+        with pytest.raises(ValueError, match="ISP adapter declarations differ"):
+>           safety.dependency_inspection(repository)
+
+tests\federation\test_isp_adapter_dependency_inventory.py:56:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-914/test_adapter_declarations_cann2')
+
+    def dependency_inspection(root: Path) -> str:
+        found = {
+            path.relative_to(root).as_posix()
+            for path in root.rglob("*")
+            if path.is_file()
+            and path.name in DEPENDENCY_NAMES
+            and ".git" not in path.parts
+            and ".worktrees" not in path.relative_to(root).parts
+        }
+        expected = ORIGINAL_DEPENDENCY_FILES | TASK10B_DEPENDENCY_FILES | TRANCHE2B_DEPENDENCY_FILES | DEMO_DEPENDENCY_FILES
+        if found != expected:
+>           raise ValueError(f"dependency manifest inventory differs: {sorted(found ^ expected)}")
+E           ValueError: dependency manifest inventory differs: ['deploy/isp-federation-poc/adapter/go.mod']
+
+scripts\verify_wp8_repository_safety.py:56: ValueError
+
+During handling of the above exception, another exception occurred:
+
+repository = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-914/test_adapter_declarations_cann2')
+text = 'module nbsr.local/isp-federation-poc/adapter\n\ngo 1.26.5\nrequire example.invalid/dependency v1.0.0\n'
+
+    @pytest.mark.parametrize("text", [
+        APPROVED.replace("nbsr.local/isp-federation-poc/adapter", "example.invalid/other"),
+        APPROVED.replace("1.26.5", "1.26.6"),
+        APPROVED + "require example.invalid/dependency v1.0.0\n",
+        APPROVED + "require (\nexample.invalid/dependency v1.0.0\n)\n",
+        APPROVED + "replace example.invalid/dependency => ../dependency\n",
+        APPROVED + "toolchain go1.26.5\n",
+    ])
+    def test_adapter_declarations_cannot_expand(repository, text):
+        (repository / ADAPTER).write_text(text, encoding="utf-8")
+>       with pytest.raises(ValueError, match="ISP adapter declarations differ"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E        Regex: 'ISP adapter declarations differ'
+E        Input: "dependency manifest inventory differs: ['deploy/isp-federation-poc/adapter/go.mod']"
+
+tests\federation\test_isp_adapter_dependency_inventory.py:55: AssertionError
+_ test_adapter_declarations_cannot_expand[module nbsr.local/isp-federation-poc/adapter\n\ngo 1.26.5\nrequire (\nexample.invalid/dependency v1.0.0\n)\n] _
+
+repository = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-914/test_adapter_declarations_cann3')
+text = 'module nbsr.local/isp-federation-poc/adapter\n\ngo 1.26.5\nrequire (\nexample.invalid/dependency v1.0.0\n)\n'
+
+    @pytest.mark.parametrize("text", [
+        APPROVED.replace("nbsr.local/isp-federation-poc/adapter", "example.invalid/other"),
+        APPROVED.replace("1.26.5", "1.26.6"),
+        APPROVED + "require example.invalid/dependency v1.0.0\n",
+        APPROVED + "require (\nexample.invalid/dependency v1.0.0\n)\n",
+        APPROVED + "replace example.invalid/dependency => ../dependency\n",
+        APPROVED + "toolchain go1.26.5\n",
+    ])
+    def test_adapter_declarations_cannot_expand(repository, text):
+        (repository / ADAPTER).write_text(text, encoding="utf-8")
+        with pytest.raises(ValueError, match="ISP adapter declarations differ"):
+>           safety.dependency_inspection(repository)
+
+tests\federation\test_isp_adapter_dependency_inventory.py:56:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-914/test_adapter_declarations_cann3')
+
+    def dependency_inspection(root: Path) -> str:
+        found = {
+            path.relative_to(root).as_posix()
+            for path in root.rglob("*")
+            if path.is_file()
+            and path.name in DEPENDENCY_NAMES
+            and ".git" not in path.parts
+            and ".worktrees" not in path.relative_to(root).parts
+        }
+        expected = ORIGINAL_DEPENDENCY_FILES | TASK10B_DEPENDENCY_FILES | TRANCHE2B_DEPENDENCY_FILES | DEMO_DEPENDENCY_FILES
+        if found != expected:
+>           raise ValueError(f"dependency manifest inventory differs: {sorted(found ^ expected)}")
+E           ValueError: dependency manifest inventory differs: ['deploy/isp-federation-poc/adapter/go.mod']
+
+scripts\verify_wp8_repository_safety.py:56: ValueError
+
+During handling of the above exception, another exception occurred:
+
+repository = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-914/test_adapter_declarations_cann3')
+text = 'module nbsr.local/isp-federation-poc/adapter\n\ngo 1.26.5\nrequire (\nexample.invalid/dependency v1.0.0\n)\n'
+
+    @pytest.mark.parametrize("text", [
+        APPROVED.replace("nbsr.local/isp-federation-poc/adapter", "example.invalid/other"),
+        APPROVED.replace("1.26.5", "1.26.6"),
+        APPROVED + "require example.invalid/dependency v1.0.0\n",
+        APPROVED + "require (\nexample.invalid/dependency v1.0.0\n)\n",
+        APPROVED + "replace example.invalid/dependency => ../dependency\n",
+        APPROVED + "toolchain go1.26.5\n",
+    ])
+    def test_adapter_declarations_cannot_expand(repository, text):
+        (repository / ADAPTER).write_text(text, encoding="utf-8")
+>       with pytest.raises(ValueError, match="ISP adapter declarations differ"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E        Regex: 'ISP adapter declarations differ'
+E        Input: "dependency manifest inventory differs: ['deploy/isp-federation-poc/adapter/go.mod']"
+
+tests\federation\test_isp_adapter_dependency_inventory.py:55: AssertionError
+_ test_adapter_declarations_cannot_expand[module nbsr.local/isp-federation-poc/adapter\n\ngo 1.26.5\nreplace example.invalid/dependency => ../dependency\n] _
+
+repository = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-914/test_adapter_declarations_cann4')
+text = 'module nbsr.local/isp-federation-poc/adapter\n\ngo 1.26.5\nreplace example.invalid/dependency => ../dependency\n'
+
+    @pytest.mark.parametrize("text", [
+        APPROVED.replace("nbsr.local/isp-federation-poc/adapter", "example.invalid/other"),
+        APPROVED.replace("1.26.5", "1.26.6"),
+        APPROVED + "require example.invalid/dependency v1.0.0\n",
+        APPROVED + "require (\nexample.invalid/dependency v1.0.0\n)\n",
+        APPROVED + "replace example.invalid/dependency => ../dependency\n",
+        APPROVED + "toolchain go1.26.5\n",
+    ])
+    def test_adapter_declarations_cannot_expand(repository, text):
+        (repository / ADAPTER).write_text(text, encoding="utf-8")
+        with pytest.raises(ValueError, match="ISP adapter declarations differ"):
+>           safety.dependency_inspection(repository)
+
+tests\federation\test_isp_adapter_dependency_inventory.py:56:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-914/test_adapter_declarations_cann4')
+
+    def dependency_inspection(root: Path) -> str:
+        found = {
+            path.relative_to(root).as_posix()
+            for path in root.rglob("*")
+            if path.is_file()
+            and path.name in DEPENDENCY_NAMES
+            and ".git" not in path.parts
+            and ".worktrees" not in path.relative_to(root).parts
+        }
+        expected = ORIGINAL_DEPENDENCY_FILES | TASK10B_DEPENDENCY_FILES | TRANCHE2B_DEPENDENCY_FILES | DEMO_DEPENDENCY_FILES
+        if found != expected:
+>           raise ValueError(f"dependency manifest inventory differs: {sorted(found ^ expected)}")
+E           ValueError: dependency manifest inventory differs: ['deploy/isp-federation-poc/adapter/go.mod']
+
+scripts\verify_wp8_repository_safety.py:56: ValueError
+
+During handling of the above exception, another exception occurred:
+
+repository = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-914/test_adapter_declarations_cann4')
+text = 'module nbsr.local/isp-federation-poc/adapter\n\ngo 1.26.5\nreplace example.invalid/dependency => ../dependency\n'
+
+    @pytest.mark.parametrize("text", [
+        APPROVED.replace("nbsr.local/isp-federation-poc/adapter", "example.invalid/other"),
+        APPROVED.replace("1.26.5", "1.26.6"),
+        APPROVED + "require example.invalid/dependency v1.0.0\n",
+        APPROVED + "require (\nexample.invalid/dependency v1.0.0\n)\n",
+        APPROVED + "replace example.invalid/dependency => ../dependency\n",
+        APPROVED + "toolchain go1.26.5\n",
+    ])
+    def test_adapter_declarations_cannot_expand(repository, text):
+        (repository / ADAPTER).write_text(text, encoding="utf-8")
+>       with pytest.raises(ValueError, match="ISP adapter declarations differ"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E        Regex: 'ISP adapter declarations differ'
+E        Input: "dependency manifest inventory differs: ['deploy/isp-federation-poc/adapter/go.mod']"
+
+tests\federation\test_isp_adapter_dependency_inventory.py:55: AssertionError
+_ test_adapter_declarations_cannot_expand[module nbsr.local/isp-federation-poc/adapter\n\ngo 1.26.5\ntoolchain go1.26.5\n] _
+
+repository = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-914/test_adapter_declarations_cann5')
+text = 'module nbsr.local/isp-federation-poc/adapter\n\ngo 1.26.5\ntoolchain go1.26.5\n'
+
+    @pytest.mark.parametrize("text", [
+        APPROVED.replace("nbsr.local/isp-federation-poc/adapter", "example.invalid/other"),
+        APPROVED.replace("1.26.5", "1.26.6"),
+        APPROVED + "require example.invalid/dependency v1.0.0\n",
+        APPROVED + "require (\nexample.invalid/dependency v1.0.0\n)\n",
+        APPROVED + "replace example.invalid/dependency => ../dependency\n",
+        APPROVED + "toolchain go1.26.5\n",
+    ])
+    def test_adapter_declarations_cannot_expand(repository, text):
+        (repository / ADAPTER).write_text(text, encoding="utf-8")
+        with pytest.raises(ValueError, match="ISP adapter declarations differ"):
+>           safety.dependency_inspection(repository)
+
+tests\federation\test_isp_adapter_dependency_inventory.py:56:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-914/test_adapter_declarations_cann5')
+
+    def dependency_inspection(root: Path) -> str:
+        found = {
+            path.relative_to(root).as_posix()
+            for path in root.rglob("*")
+            if path.is_file()
+            and path.name in DEPENDENCY_NAMES
+            and ".git" not in path.parts
+            and ".worktrees" not in path.relative_to(root).parts
+        }
+        expected = ORIGINAL_DEPENDENCY_FILES | TASK10B_DEPENDENCY_FILES | TRANCHE2B_DEPENDENCY_FILES | DEMO_DEPENDENCY_FILES
+        if found != expected:
+>           raise ValueError(f"dependency manifest inventory differs: {sorted(found ^ expected)}")
+E           ValueError: dependency manifest inventory differs: ['deploy/isp-federation-poc/adapter/go.mod']
+
+scripts\verify_wp8_repository_safety.py:56: ValueError
+
+During handling of the above exception, another exception occurred:
+
+repository = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-914/test_adapter_declarations_cann5')
+text = 'module nbsr.local/isp-federation-poc/adapter\n\ngo 1.26.5\ntoolchain go1.26.5\n'
+
+    @pytest.mark.parametrize("text", [
+        APPROVED.replace("nbsr.local/isp-federation-poc/adapter", "example.invalid/other"),
+        APPROVED.replace("1.26.5", "1.26.6"),
+        APPROVED + "require example.invalid/dependency v1.0.0\n",
+        APPROVED + "require (\nexample.invalid/dependency v1.0.0\n)\n",
+        APPROVED + "replace example.invalid/dependency => ../dependency\n",
+        APPROVED + "toolchain go1.26.5\n",
+    ])
+    def test_adapter_declarations_cannot_expand(repository, text):
+        (repository / ADAPTER).write_text(text, encoding="utf-8")
+>       with pytest.raises(ValueError, match="ISP adapter declarations differ"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E        Regex: 'ISP adapter declarations differ'
+E        Input: "dependency manifest inventory differs: ['deploy/isp-federation-poc/adapter/go.mod']"
+
+tests\federation\test_isp_adapter_dependency_inventory.py:55: AssertionError
+_____________________ test_missing_adapter_still_rejected _____________________
+
+repository = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-914/test_missing_adapter_still_rej0')
+
+    def test_missing_adapter_still_rejected(repository):
+        (repository / ADAPTER).unlink()
+>       with pytest.raises(ValueError, match="manifest inventory differs"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\federation\test_isp_adapter_dependency_inventory.py:73: Failed
+__________________ test_existing_lock_digest_check_preserved __________________
+
+repository = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-914/test_existing_lock_digest_chec0')
+
+    def test_existing_lock_digest_check_preserved(repository):
+        with (repository / "interop/nbsr-go-peer/go.sum").open("a") as stream:
+            stream.write("\nchanged\n")
+        with pytest.raises(ValueError, match="dependency digest differs"):
+>           safety.dependency_inspection(repository)
+
+tests\federation\test_isp_adapter_dependency_inventory.py:81:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-914/test_existing_lock_digest_chec0')
+
+    def dependency_inspection(root: Path) -> str:
+        found = {
+            path.relative_to(root).as_posix()
+            for path in root.rglob("*")
+            if path.is_file()
+            and path.name in DEPENDENCY_NAMES
+            and ".git" not in path.parts
+            and ".worktrees" not in path.relative_to(root).parts
+        }
+        expected = ORIGINAL_DEPENDENCY_FILES | TASK10B_DEPENDENCY_FILES | TRANCHE2B_DEPENDENCY_FILES | DEMO_DEPENDENCY_FILES
+        if found != expected:
+>           raise ValueError(f"dependency manifest inventory differs: {sorted(found ^ expected)}")
+E           ValueError: dependency manifest inventory differs: ['deploy/isp-federation-poc/adapter/go.mod']
+
+scripts\verify_wp8_repository_safety.py:56: ValueError
+
+During handling of the above exception, another exception occurred:
+
+repository = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-914/test_existing_lock_digest_chec0')
+
+    def test_existing_lock_digest_check_preserved(repository):
+        with (repository / "interop/nbsr-go-peer/go.sum").open("a") as stream:
+            stream.write("\nchanged\n")
+>       with pytest.raises(ValueError, match="dependency digest differs"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E        Regex: 'dependency digest differs'
+E        Input: "dependency manifest inventory differs: ['deploy/isp-federation-poc/adapter/go.mod']"
+
+tests\federation\test_isp_adapter_dependency_inventory.py:80: AssertionError
+________________ test_original_manifest_status_check_preserved ________________
+
+repository = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-914/test_original_manifest_status_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000028E71C68460>
+
+    def test_original_manifest_status_check_preserved(repository, monkeypatch):
+        monkeypatch.setattr(safety.subprocess, "run", lambda *a, **k: SimpleNamespace(
+            stdout=" M pyproject.toml\n"))
+        with pytest.raises(ValueError, match="changed dependency authority"):
+>           safety.dependency_inspection(repository)
+
+tests\federation\test_isp_adapter_dependency_inventory.py:88:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-914/test_original_manifest_status_0')
+
+    def dependency_inspection(root: Path) -> str:
+        found = {
+            path.relative_to(root).as_posix()
+            for path in root.rglob("*")
+            if path.is_file()
+            and path.name in DEPENDENCY_NAMES
+            and ".git" not in path.parts
+            and ".worktrees" not in path.relative_to(root).parts
+        }
+        expected = ORIGINAL_DEPENDENCY_FILES | TASK10B_DEPENDENCY_FILES | TRANCHE2B_DEPENDENCY_FILES | DEMO_DEPENDENCY_FILES
+        if found != expected:
+>           raise ValueError(f"dependency manifest inventory differs: {sorted(found ^ expected)}")
+E           ValueError: dependency manifest inventory differs: ['deploy/isp-federation-poc/adapter/go.mod']
+
+scripts\verify_wp8_repository_safety.py:56: ValueError
+
+During handling of the above exception, another exception occurred:
+
+repository = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-914/test_original_manifest_status_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000028E71C68460>
+
+    def test_original_manifest_status_check_preserved(repository, monkeypatch):
+        monkeypatch.setattr(safety.subprocess, "run", lambda *a, **k: SimpleNamespace(
+            stdout=" M pyproject.toml\n"))
+>       with pytest.raises(ValueError, match="changed dependency authority"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E        Regex: 'changed dependency authority'
+E        Input: "dependency manifest inventory differs: ['deploy/isp-federation-poc/adapter/go.mod']"
+
+tests\federation\test_isp_adapter_dependency_inventory.py:87: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/federation/test_isp_adapter_dependency_inventory.py::test_approved_stdlib_adapter_is_accepted
+FAILED tests/federation/test_isp_adapter_dependency_inventory.py::test_adapter_declarations_cannot_expand[module example.invalid/other\n\ngo 1.26.5\n]
+FAILED tests/federation/test_isp_adapter_dependency_inventory.py::test_adapter_declarations_cannot_expand[module nbsr.local/isp-federation-poc/adapter\n\ngo 1.26.6\n]
+FAILED tests/federation/test_isp_adapter_dependency_inventory.py::test_adapter_declarations_cannot_expand[module nbsr.local/isp-federation-poc/adapter\n\ngo 1.26.5\nrequire example.invalid/dependency v1.0.0\n]
+FAILED tests/federation/test_isp_adapter_dependency_inventory.py::test_adapter_declarations_cannot_expand[module nbsr.local/isp-federation-poc/adapter\n\ngo 1.26.5\nrequire (\nexample.invalid/dependency v1.0.0\n)\n]
+FAILED tests/federation/test_isp_adapter_dependency_inventory.py::test_adapter_declarations_cannot_expand[module nbsr.local/isp-federation-poc/adapter\n\ngo 1.26.5\nreplace example.invalid/dependency => ../dependency\n]
+FAILED tests/federation/test_isp_adapter_dependency_inventory.py::test_adapter_declarations_cannot_expand[module nbsr.local/isp-federation-poc/adapter\n\ngo 1.26.5\ntoolchain go1.26.5\n]
+FAILED tests/federation/test_isp_adapter_dependency_inventory.py::test_missing_adapter_still_rejected
+FAILED tests/federation/test_isp_adapter_dependency_inventory.py::test_existing_lock_digest_check_preserved
+FAILED tests/federation/test_isp_adapter_dependency_inventory.py::test_original_manifest_status_check_preserved
+10 failed, 2 passed in 1.02s

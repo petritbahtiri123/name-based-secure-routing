@@ -21,6 +21,7 @@ ORIGINAL_DEPENDENCY_FILES = {
 TASK10B_DEPENDENCY_FILES = {"interop/nbsr-go-peer/go.mod", "interop/nbsr-go-peer/go.sum"}
 TRANCHE2B_DEPENDENCY_FILES = {"client/nbsr-go-client/go.mod", "client/nbsr-go-client/go.sum"}
 DEMO_DEPENDENCY_FILES = {"client/nbsr-go-client/demo/go.mod", "client/nbsr-go-client/demo/go.sum"}
+ISP_ADAPTER_MANIFEST = "deploy/isp-federation-poc/adapter/go.mod"
 DEPENDENCY_NAMES = {"Cargo.lock", "Cargo.toml", "go.mod", "go.sum", "package.json", "package-lock.json", "pyproject.toml"}
 PRIVATE_SUFFIXES = {".env", ".key", ".p12", ".pfx", ".pkcs8"}
 BINARY_SUFFIXES = {".bin", ".cbor", ".cose", ".pcapng"}
@@ -51,9 +52,19 @@ def dependency_inspection(root: Path) -> str:
         and ".git" not in path.parts
         and ".worktrees" not in path.relative_to(root).parts
     }
-    expected = ORIGINAL_DEPENDENCY_FILES | TASK10B_DEPENDENCY_FILES | TRANCHE2B_DEPENDENCY_FILES | DEMO_DEPENDENCY_FILES
+    expected = (
+        ORIGINAL_DEPENDENCY_FILES | TASK10B_DEPENDENCY_FILES
+        | TRANCHE2B_DEPENDENCY_FILES | DEMO_DEPENDENCY_FILES | {ISP_ADAPTER_MANIFEST}
+    )
     if found != expected:
         raise ValueError(f"dependency manifest inventory differs: {sorted(found ^ expected)}")
+    # This approved adapter is stdlib-only; no other Go directives are allowed.
+    adapter_lines = [
+        line.split() for line in (root / ISP_ADAPTER_MANIFEST).read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    if adapter_lines != [["module", "nbsr.local/isp-federation-poc/adapter"], ["go", "1.26.5"]]:
+        raise ValueError("ISP adapter declarations differ from approved stdlib-only manifest")
     status = subprocess.run(
         ["git", "status", "--porcelain=v1", "--", *sorted(ORIGINAL_DEPENDENCY_FILES)],
         cwd=root,

@@ -1,0 +1,1 @@
+dependency inspection: PASS (python=8, cargo-lock=131, node=0, task9-go=0, task10b-go=3; original manifests unchanged, isolated overlay locked)
