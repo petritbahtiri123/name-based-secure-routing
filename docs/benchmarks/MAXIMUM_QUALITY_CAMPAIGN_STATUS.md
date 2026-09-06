@@ -104,3 +104,8 @@ Explicit Linux B5 adapter now connects those primitives to shared run_one:
 55 focused tests and an actual two-child Linux lifecycle fixture PASS.
 `linux-b5-backend-c6bb0e9f` is lifecycle-only; current Rust execution, sustained
 CLI/provenance wiring and observer-qualified benchmark remain pending.
+
+The Linux sustained CLI is now AUTHORED/PARTIAL (`linux_b5_campaign`), with
+strict current reference/build binding,3-to5 paired repeats, p99/goodput CV
+and failed-prefix preservation.59 focused tests and Ruff PASS. Actual current
+Rust/QUIC execution and observer qualification remain NOT_RUN; no stable soak.

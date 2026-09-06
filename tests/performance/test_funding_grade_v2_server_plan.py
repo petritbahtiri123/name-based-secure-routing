@@ -36,7 +36,8 @@ def test_missing_backends_cannot_be_reported_as_executed_or_complete():
             assert coverage["missing"]
         for source in coverage.get("sources", []):
             assert (ROOT / source).is_file(), source
-    assert value["coverage"]["linux_sustained_b5"]["status"] == "NOT_IMPLEMENTED"
+    assert value["coverage"]["linux_sustained_b5"]["status"] == "PARTIAL"
+    assert value["coverage"]["linux_sustained_b5"]["command"] == "python3 -m scripts.performance.linux_b5_campaign --help"
     assert value["acceptance"]["definition_pass_requires_all_commands_executable"] is True
     assert value["acceptance"]["server_claim_requires_external_raw_results"] is True
     assert value["evidence"]["preserve_failed_and_partial"] is True

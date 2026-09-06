@@ -137,3 +137,37 @@ sampling are composed and tested (55 focused tests plus a real restricted
 Linux Python-child fixture). See `linux-b5-backend-c6bb0e9f`. No current Rust
 B5 run or observer qualification exists; sustained CLI/provenance binding and
 actual benchmark validation remain pending.
+
+## Linux sustained CLI (AUTHORED, actual Rust execution pending)
+
+The entrypoint now exists. For a matching accepted16KiB/1stream reference
+created using the earlier example, this is the reference-bound accounting
+command (substitute the same actual absolute build/evidence paths):
+
+```bash
+python3 -m scripts.performance.linux_b5_campaign \
+  --binaries /absolute/immutable-linux-binaries \
+  --build-manifest /absolute/build-manifest.json \
+  --output /absolute/new-linux-b5-output \
+  --reference /absolute/new-reference-output \
+  --paths nbsr --ownership-sampling --payload 16384 --streams 1 \
+  --depth 1 --percent 70 --duration 600 --warmup 3 --progress 30
+```
+
+The existing strict loader rejects mismatched source/binaries/shape/topology/
+cgroups or a non-stable reference. The CLI checks a clean current release build,
+retains controller/binary hashes and source snapshots, runs3 valid repeats
+(5 if goodput or window-p99 CV exceeds5%), and stops on first invalid cell with
+no replacement. Direct/NBSR order is counterbalanced when both are selected.
+One explicit-rational-rate diagnostic is available via `--diagnostic --rate N D`
+without `--reference`; it cannot count as a qualified cohort. No builds occur
+inside this entrypoint. All paths must be outside the clean source checkout.
+
+Output is DIAGNOSTIC or ACCOUNTING_PASS_QUALIFICATION_PENDING, never automatic
+STABLE: observer qualification and actual current Rust/QUIC execution are still
+NOT_RUN. p99 dispersion uses repeat medians of steady-window p99, not pooled
+operation percentiles. The metadata keeps private-resident memory distinct from
+Windows private bytes and identifies unmeasured thermal/power/server evidence.
+Four literal RED cohort tests preceded implementation;59 focused tests and Ruff
+passed after it, and CLI help was checked. Source-dirty and manual-rate bypass
+regressions also pass. This does not close long-soak or external-host validation.

@@ -20,7 +20,7 @@ python3 scripts/run_b4b_linux.py --help
 python3 -m scripts.performance.linux_b5_reference --help
 ```
 
-6. Do not attempt the absent Linux sustained B5 or full wire/multihost executor. Their matrix entries have null commands and named missing work. Complete and validate those backends before declaring this definition ready for a third party to execute end to end.
+6. The Linux sustained CLI is now authored; use the exact reference-bound example in LINUX_B5_REFERENCE.md. Current Rust/QUIC execution and observer qualification remain pending. The full wire/multihost executors are still absent, with null matrix commands and named missing work. Complete and validate these gaps before declaring end-to-end definition readiness.
 
 ## Cell and acceptance rules
 
