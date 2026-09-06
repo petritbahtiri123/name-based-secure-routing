@@ -1,0 +1,78 @@
+{
+  "classification": "DIAGNOSTIC_OBSERVER_QUALIFICATION",
+  "reference": {
+    "schema": "nbsr-b5-ceiling-load-v1",
+    "reference_sha": "70dea630c262a32752f825e705740f57c9e814c7",
+    "manifest_sha256": "8d37cf34f3be0fc6c0ba7b4a357967589e1a08145e95b22b902476a89eab7a8a",
+    "reference_repeats": 3,
+    "reference_operations_per_second": 53339.41215076016,
+    "reference_gbps": 0.8739129286780545,
+    "load_percent": 70,
+    "rate_numerator": 2803566500000,
+    "rate_denominator": 75086973,
+    "shape": {
+      "physical_cores": 1,
+      "endpoint_groups": 1,
+      "streams_per_group": 64,
+      "payload_bytes": 1024,
+      "runtime_workers": 1
+    },
+    "outstanding_per_stream": 1,
+    "binary_sha256": {
+      "direct": "873ec882297b82c99372c278e0ea4dab6e5d658cb1e2ce7e9812b9c8c45c361c",
+      "nbsr": "87900af9cd2e8362aeebe8c9d6085da52f41474f724eb9b4f2ed6e847df6fa93",
+      "server": "32c9579d31fe5e6ba6d46bb53366b2d3545b530e931b61385b8637d5ab88a3a0"
+    },
+    "reference_placement": {
+      "source_mask": 1,
+      "endpoint_masks": [
+        1
+      ],
+      "logical_processors_available": 1
+    },
+    "reference_topology_identity": {
+      "scope": "physical-core-selected-logical-processors",
+      "physical_cores": 4,
+      "logical_processors": 8,
+      "cores": [
+        {
+          "core_index": 0,
+          "smt": true,
+          "efficiency_class": 0,
+          "logical_mask": 3
+        },
+        {
+          "core_index": 1,
+          "smt": true,
+          "efficiency_class": 0,
+          "logical_mask": 12
+        },
+        {
+          "core_index": 2,
+          "smt": true,
+          "efficiency_class": 0,
+          "logical_mask": 48
+        },
+        {
+          "core_index": 3,
+          "smt": true,
+          "efficiency_class": 0,
+          "logical_mask": 192
+        }
+      ]
+    },
+    "hardware_identity_scope": "TOPOLOGY_ONLY_NO_HOST_ID",
+    "scope": "Current finite closed-loop reference; actual paced load/stability requires live validation."
+  },
+  "repeats": 3,
+  "max_repeats": 5,
+  "comparison_gate": "absolute median goodput and median steady-window p99 deltas <=5%; expand both arms to five if either CV >5%; no invalid replacement; dispersion remains explicit",
+  "duration_seconds": 120,
+  "warmup_seconds": 3,
+  "progress_seconds": 30,
+  "pair_order": "off/on odd; on/off even",
+  "failure_policy": "stop first invalid; prefix cannot qualify",
+  "observer_scope": "periodic ownership off/on; finite reference and both arms retain mandatory final eleven-counter reports",
+  "methodology_helper": "C:\\NBSR-build\\b5-pdh-observer-preparation\\driver.py",
+  "methodology_helper_sha256": "6a525ef05574ba30788d6f1bde3bab7dbef8924e32dbaaf074138ac3f9381a26"
+}

@@ -9,6 +9,9 @@ pub(crate) mod runtime;
 pub(crate) use coordinator::Action;
 use coordinator::{Clock, Config, Counts, Phase, Snapshot};
 use runtime::{AsyncRun, InstantClock};
+#[cfg(test)]
+#[path = "allocation_contract_tests.rs"]
+mod allocation_contract_tests;
 use std::collections::BTreeMap;
 use std::io::Write;
 use std::sync::{
@@ -492,8 +495,8 @@ fn counts_json(snapshot: &Snapshot) -> String {
     )
 }
 fn progress_json(snapshot: &Snapshot, previous_completed: u64, payload: u64) -> String {
-    let mut samples = snapshot.latency_samples_ns.clone();
-    samples.sort_unstable();
+    // AsyncRun publishes an exclusively owned, sorted window.
+    let samples = &snapshot.latency_samples_ns;
     let quantile = |percent: usize| {
         if samples.is_empty() {
             "null".to_owned()

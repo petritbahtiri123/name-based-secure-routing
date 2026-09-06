@@ -14,7 +14,7 @@ fn snapshot_preserves_sampling_lateness_and_actual_outstanding_peak() {
     clock.set(3 * MS);
     complete_one(&run, 0);
     complete_one(&run, 1);
-    let snapshot = run.snapshot(false).unwrap();
+    let snapshot = run.snapshot(false, None).unwrap();
     assert_eq!(snapshot.sample_stride, 2);
     assert_eq!(snapshot.sample_capacity, 8);
     assert_eq!(snapshot.sample_overflow_count, 0);
@@ -34,7 +34,7 @@ fn status_exposes_drain_and_snapshot_seal_separately() {
     run.drained(1).unwrap();
     assert!(run.status().all_groups_drained);
     assert!(!run.status().sealed);
-    run.snapshot(true).unwrap();
+    run.snapshot(true, None).unwrap();
     assert!(run.status().sealed);
     assert!(!run.status().postflight_allowed);
 }
@@ -131,7 +131,7 @@ fn reservation_write_and_completion_are_distinct_commits() {
     start(&run);
     assert_eq!(run.next(0).unwrap(), Action::Permit);
     clock.set(MS);
-    let before_write = run.snapshot(false).unwrap();
+    let before_write = run.snapshot(false, None).unwrap();
     assert_eq!(
         (
             before_write.totals.reserved,
@@ -142,7 +142,7 @@ fn reservation_write_and_completion_are_distinct_commits() {
     );
     run.issued(0).unwrap();
     clock.set(2 * MS);
-    let before_response = run.snapshot(false).unwrap();
+    let before_response = run.snapshot(false, None).unwrap();
     assert_eq!(
         (
             before_response.totals.reserved,
@@ -153,7 +153,7 @@ fn reservation_write_and_completion_are_distinct_commits() {
     );
     run.completed(0, 20).unwrap();
     clock.set(3 * MS);
-    assert_eq!(run.snapshot(false).unwrap().totals.completed, 1);
+    assert_eq!(run.snapshot(false, None).unwrap().totals.completed, 1);
 }
 
 #[test]
@@ -173,7 +173,7 @@ fn skipped_windows_expire_without_catchup_and_final_window_is_clipped() {
     complete_one(&run, 0); // Aggregate slot 5 belongs to partition 0.
     assert_eq!(run.next(1).unwrap(), Action::WaitUntil(25 * MS));
     clock.set(25 * MS);
-    let snapshot = run.snapshot(false).unwrap();
+    let snapshot = run.snapshot(false, None).unwrap();
     assert_eq!(snapshot.totals.offered, 5);
     assert_eq!(snapshot.totals.reserved, 1);
     assert_eq!(snapshot.totals.missed, 4);
@@ -188,12 +188,12 @@ fn coherent_global_samples_and_counts_use_actual_contiguous_snapshot_bounds() {
     start(&run);
     complete_one(&run, 0);
     clock.set(7 * MS);
-    let first = run.snapshot(false).unwrap();
+    let first = run.snapshot(false, None).unwrap();
     assert_eq!((first.start_ns, first.end_ns), (0, 7 * MS));
     assert_eq!(first.sample_count, 0);
     complete_one(&run, 1);
     clock.set(26 * MS);
-    let second = run.snapshot(false).unwrap();
+    let second = run.snapshot(false, None).unwrap();
     assert_eq!((second.start_ns, second.end_ns), (7 * MS, 26 * MS));
     assert_eq!(second.issue_deadline_ns, 25 * MS);
     assert_eq!(second.phase, Phase::Mixed);
@@ -202,7 +202,7 @@ fn coherent_global_samples_and_counts_use_actual_contiguous_snapshot_bounds() {
     assert_eq!(second.totals.completed, 2);
     assert_eq!(second.groups.iter().map(|g| g.completed).sum::<u64>(), 2);
     clock.set(27 * MS);
-    let third = run.snapshot(false).unwrap();
+    let third = run.snapshot(false, None).unwrap();
     assert_eq!(third.phase, Phase::Drain);
     assert_eq!(third.sample_count, 0);
     assert_eq!(third.totals, second.totals);
@@ -216,7 +216,7 @@ fn guard_finish_after_publication_preserves_success_and_regressed_clock_fails() 
     clock.set(26 * MS);
     run.drained(0).unwrap();
     run.drained(1).unwrap();
-    let final_window = run.snapshot(true).unwrap();
+    let final_window = run.snapshot(true, None).unwrap();
     run.published_final(final_window.window_index).unwrap();
     guard.finish().unwrap();
     assert!(!run.status().failed);
@@ -224,7 +224,7 @@ fn guard_finish_after_publication_preserves_success_and_regressed_clock_fails() 
     let (clock, run) = setup(8);
     start(&run);
     clock.set(2 * MS);
-    run.snapshot(false).unwrap();
+    run.snapshot(false, None).unwrap();
     clock.set(MS);
     assert!(run.next(0).is_err());
     assert!(run.status().failed);
@@ -258,14 +258,14 @@ fn all_groups_drain_and_final_publication_precede_postflight_permission() {
     run.completed(1, 23).unwrap();
     run.drained(1).unwrap();
     clock.set(27 * MS);
-    let final_window = run.snapshot(true).unwrap();
+    let final_window = run.snapshot(true, None).unwrap();
     assert_eq!(final_window.totals.completed, 2);
     assert_eq!(final_window.end_ns, 27 * MS);
     assert_eq!(final_window.phase, Phase::Mixed);
     assert!(!run.status().postflight_allowed);
     run.published_final(final_window.window_index).unwrap();
     assert!(run.status().postflight_allowed);
-    assert!(run.snapshot(false).is_err());
+    assert!(run.snapshot(false, None).is_err());
 }
 
 #[test]
@@ -274,7 +274,7 @@ fn final_snapshot_cannot_bypass_slow_group() {
     start(&run);
     clock.set(26 * MS);
     run.drained(0).unwrap();
-    assert!(run.snapshot(true).is_err());
+    assert!(run.snapshot(true, None).is_err());
     assert!(!run.status().postflight_allowed);
 }
 
@@ -290,7 +290,7 @@ fn collector_overflow_and_publication_failure_never_allow_postflight() {
     run.issued(1).unwrap();
     assert!(run.completed(1, 31).is_err()); // Second sample exceeds hard cap.
     assert!(run.status().failed);
-    assert!(run.snapshot(false).is_err());
+    assert!(run.snapshot(false, None).is_err());
     assert!(!run.status().postflight_allowed);
 
     let (clock, run) = setup(8);
@@ -298,7 +298,7 @@ fn collector_overflow_and_publication_failure_never_allow_postflight() {
     clock.set(26 * MS);
     run.drained(0).unwrap();
     run.drained(1).unwrap();
-    let final_window = run.snapshot(true).unwrap();
+    let final_window = run.snapshot(true, None).unwrap();
     run.fail(); // stdout write failed; do not acknowledge publication.
     assert!(run.published_final(final_window.window_index).is_err());
     assert!(!run.status().postflight_allowed);

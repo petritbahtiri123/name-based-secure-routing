@@ -41,6 +41,15 @@ paths. This does not prove the exact earlier sampler failure cause or resolve
 goodput drift. Fresh benchmark qualification remains required.
 No near-ceiling 60/120-minute soak has qualified.
 
+At 70dea630, a fresh 18-repeat reference with ownership reports measured
+one-core NBSR 0.873913 Gbit/s STABLE (depth2 DEGRADED, depth4 SATURATED).
+Three after-hold fixed-load diagnostics passed, but the separate matched
+observer comparison aborted on private-memory growth while eleven live
+ownership gauges remained constant. Measured large benchmark latency-vector
+allocations are now removed through two prepared reusable buffers; see
+`b5-window-reuse-70dea630`. Live memory/observer/soak effects remain pending;
+no leak fix or production speedup is claimed.
+
 ## Protected boundaries
 
 No frozen protocol, wire format, authentication, authorization, crypto, replay, admission-security, ACK/send-completion, authority or fail-closed semantics have been relaxed. A measured improvement that requires such a change is `BLOCKED_ARCHITECTURAL`; other independent work continues.

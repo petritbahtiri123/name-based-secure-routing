@@ -28,14 +28,20 @@ impl Clock for InstantClock {
 pub(crate) struct AsyncRun<C: Clock> {
     run: Arc<PacedRun<C>>,
     changed: Notify,
-    publisher: Mutex<()>,
+    publisher: Mutex<Vec<u64>>,
 }
 impl<C: Clock> AsyncRun<C> {
     pub(crate) fn new(config: Config, clock: Arc<C>) -> Result<Self, Error> {
+        let capacity = config.sample_capacity;
+        let run = Arc::new(PacedRun::new(config, clock)?);
+        let mut spare = Vec::new();
+        spare
+            .try_reserve_exact(capacity)
+            .map_err(|_| "sample allocation failed")?;
         Ok(Self {
-            run: Arc::new(PacedRun::new(config, clock)?),
+            run,
             changed: Notify::new(),
-            publisher: Mutex::new(()),
+            publisher: Mutex::new(spare),
         })
     }
 
@@ -126,11 +132,17 @@ impl<C: Clock> AsyncRun<C> {
             run: self,
             armed: true,
         };
-        let _publisher = self
+        let mut publisher = self
             .publisher
             .try_lock()
             .map_err(|_| "publisher busy or poisoned")?;
-        let snapshot = self.checked(self.run.snapshot(final_window))?;
+        let mut snapshot = self.checked(
+            self.run
+                .snapshot(final_window, Some(std::mem::take(&mut *publisher))),
+        )?;
+        // Only the sole publisher owns this window. Sort outside coordinator
+        // locks, then return its storage for the next swap after publication.
+        snapshot.latency_samples_ns.sort_unstable();
         sink(&snapshot).map_err(|_| "progress output failed")?;
         if final_window {
             self.checked(self.run.published_final(snapshot.window_index))?;
@@ -139,6 +151,8 @@ impl<C: Clock> AsyncRun<C> {
         if self.status().failed {
             return Err("paced run failed during publication");
         }
+        snapshot.latency_samples_ns.clear();
+        *publisher = snapshot.latency_samples_ns;
         failure.armed = false;
         self.changed.notify_waiters();
         Ok(())

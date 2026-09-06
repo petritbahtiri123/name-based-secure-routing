@@ -1,0 +1,8 @@
+{
+  "cohort_complete": false,
+  "observer_accepted": false,
+  "classification": "INVALID_PARTIAL_DIAGNOSTIC",
+  "prefix_causal_qualification": "INVALID",
+  "valid_cells_retained": 2,
+  "no_replacement": true
+}

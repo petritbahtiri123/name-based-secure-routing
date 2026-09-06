@@ -307,7 +307,11 @@ impl<C: Clock> PacedRun<C> {
             Ok(())
         })
     }
-    pub(crate) fn snapshot(&self, final_window: bool) -> Result<Snapshot, Error> {
+    pub(crate) fn snapshot(
+        &self,
+        final_window: bool,
+        replacement: Option<Vec<u64>>,
+    ) -> Result<Snapshot, Error> {
         self.change(|s, now| {
             if s.sealed || (final_window && !s.drained.iter().all(|v| *v)) {
                 return Err("invalid final state");
@@ -340,7 +344,7 @@ impl<C: Clock> PacedRun<C> {
             if !collector.evidence_valid || collector.overflow_count != 0 {
                 return Err("invalid sampled evidence");
             }
-            let window = s.collector.take_window()?;
+            let window = s.collector.take_window(replacement)?;
             if collector.completed != window.completed
                 || collector.retained_samples != window.latency_samples_ns.len()
                 || window

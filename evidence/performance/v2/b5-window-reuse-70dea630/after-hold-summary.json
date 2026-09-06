@@ -1,0 +1,66 @@
+{
+  "classification": "DIAGNOSTIC_ACCOUNTING_PASS",
+  "rows": [
+    {
+      "repeat": 1,
+      "gbps": 0.584883122768012,
+      "ratio": 0.9569792378731218,
+      "ownership_reports": [
+        {
+          "role": "destination",
+          "pid": 12924,
+          "file": "d0.cleanup.json",
+          "all_11_zero": true
+        },
+        {
+          "role": "source",
+          "pid": 12504,
+          "file": "source.cleanup.json",
+          "all_11_zero": true
+        }
+      ]
+    },
+    {
+      "repeat": 2,
+      "gbps": 0.5848981176249466,
+      "ratio": 0.9570006835819695,
+      "ownership_reports": [
+        {
+          "role": "destination",
+          "pid": 17868,
+          "file": "d0.cleanup.json",
+          "all_11_zero": true
+        },
+        {
+          "role": "source",
+          "pid": 33920,
+          "file": "source.cleanup.json",
+          "all_11_zero": true
+        }
+      ]
+    },
+    {
+      "repeat": 3,
+      "gbps": 0.5855551566490813,
+      "ratio": 0.9580790006299676,
+      "ownership_reports": [
+        {
+          "role": "destination",
+          "pid": 15236,
+          "file": "d0.cleanup.json",
+          "all_11_zero": true
+        },
+        {
+          "role": "source",
+          "pid": 31848,
+          "file": "source.cleanup.json",
+          "all_11_zero": true
+        }
+      ]
+    }
+  ],
+  "goodput_cv": 0.0006558461642756452,
+  "required_repeats": 3,
+  "observer_qualified": false,
+  "soak_qualified": false
+}

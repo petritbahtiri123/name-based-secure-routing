@@ -1,0 +1,76 @@
+{
+  "classification": "DIAGNOSTIC_MEMORY_GROWTH_NOT_LEAK_PROOF",
+  "failure": "B5 stream failed: live private growth: source (receive-clock diagnostic)",
+  "samples": 175,
+  "first_private_bytes": 2883584,
+  "last_private_bytes": 3325952,
+  "delta_private_bytes": 442368,
+  "progress": [
+    {
+      "elapsed_ns": 30012981300,
+      "sample_count": 16941,
+      "sample_capacity": 35013,
+      "p99_latency_ns": 2112100
+    },
+    {
+      "elapsed_ns": 60023326000,
+      "sample_count": 16883,
+      "sample_capacity": 35013,
+      "p99_latency_ns": 2174300
+    },
+    {
+      "elapsed_ns": 90008458500,
+      "sample_count": 16918,
+      "sample_capacity": 35013,
+      "p99_latency_ns": 2144900
+    }
+  ],
+  "ownership_ranges": {
+    "transport_sessions_current_live": [
+      1,
+      1
+    ],
+    "service_channels_current_live": [
+      1,
+      1
+    ],
+    "application_streams_current_live": [
+      64,
+      64
+    ],
+    "nbsr_tasks_current_live": [
+      0,
+      0
+    ],
+    "quic_connections_current_live": [
+      1,
+      1
+    ],
+    "quic_streams_current_live": [
+      64,
+      64
+    ],
+    "pending_routes_current_entries": [
+      0,
+      0
+    ],
+    "channel_registry_current_entries": [
+      1,
+      1
+    ],
+    "stream_registry_current_entries": [
+      64,
+      64
+    ],
+    "replay_state_current_entries": [
+      64,
+      64
+    ],
+    "audit_queue_current_entries": [
+      131,
+      131
+    ]
+  },
+  "candidate": "Benchmark allocates a full replacement latency buffer per window and clones collected samples for percentile sorting. Allocation regression/profile required before a causal claim.",
+  "source_bound": "70dea630c262a32752f825e705740f57c9e814c7"
+}

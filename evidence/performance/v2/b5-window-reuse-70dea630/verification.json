@@ -1,0 +1,25 @@
+{
+  "base_sha": "70dea630c262a32752f825e705740f57c9e814c7",
+  "scope": "benchmark-only allocation regression, working tested source retained",
+  "literal_red": {
+    "serializer_large_allocations": 1,
+    "three_empty_publications_large_allocations": 3,
+    "result": "2 failed, 0 passed"
+  },
+  "green": {
+    "large_allocations_threshold_bytes": 32768,
+    "serializer_large_allocations": 0,
+    "three_full_publications_large_allocations": 0,
+    "full_publication_samples_each": 8192,
+    "quantiles_and_counts": "PASS",
+    "rust_direct": "7 PASS",
+    "rust_source": "88 PASS, 1 pre-existing ignored timer diagnostic",
+    "python": "101 focused PASS; 2 live lifecycle PASS",
+    "fmt": "PASS",
+    "release_clippy_tests_D_warnings": "PASS",
+    "release_build": "PASS",
+    "diff": "PASS"
+  },
+  "review": "One focused parent review; no Important finding. Sort outside coordinator locks; fixed spare ownership under sole publisher lock; existing sink-error/panic/reentrant/final publication and overflow checks preserved. Invalid replacement regression latches failure without erasing samples.",
+  "limitations": "Not zero allocations/op; small formatting/group allocations remain. No production change. Live memory/soak effect needs matched rerun."
+}

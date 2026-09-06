@@ -236,16 +236,29 @@ impl BoundedCollector {
         Ok(())
     }
 
-    pub(crate) fn take_window(&self) -> Result<CollectedWindow, Error> {
+    pub(crate) fn take_window(
+        &self,
+        replacement: Option<Vec<u64>>,
+    ) -> Result<CollectedWindow, Error> {
         let mut state = self.state.lock().map_err(|_| "collector lock poisoned")?;
         if !state.valid {
             return Err("collector invalid");
         }
-        let mut replacement = Vec::new();
-        if replacement.try_reserve_exact(self.capacity).is_err() {
-            state.valid = false;
-            return Err("sample allocation failed");
-        }
+        let replacement = match replacement {
+            Some(buffer) if buffer.is_empty() && buffer.capacity() >= self.capacity => buffer,
+            Some(_) => {
+                state.valid = false;
+                return Err("invalid replacement sample buffer");
+            }
+            None => {
+                let mut buffer = Vec::new();
+                if buffer.try_reserve_exact(self.capacity).is_err() {
+                    state.valid = false;
+                    return Err("sample allocation failed");
+                }
+                buffer
+            }
+        };
         let result = CollectedWindow {
             completed: state.completed,
             group_completed: state.groups.clone(),

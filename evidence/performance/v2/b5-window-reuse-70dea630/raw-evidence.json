@@ -1,0 +1,22 @@
+[
+  {
+    "raw_root": "C:\\NBSR-build\\physical-core-b5-reference-70dea630",
+    "files": 126,
+    "index_sha256": "8d37cf34f3be0fc6c0ba7b4a357967589e1a08145e95b22b902476a89eab7a8a"
+  },
+  {
+    "raw_root": "C:\\NBSR-build\\b5-after-hold-70dea630",
+    "files": 68,
+    "index_sha256": "fd911c15ca5f7834b0c2d49a8372c39c1e1e235134aae7e87df3bac781874139"
+  },
+  {
+    "raw_root": "C:\\NBSR-build\\b5-observer-current-70dea630",
+    "files": 67,
+    "index_sha256": "09dcbaa4474dadce2ff246a97113af92799964154d90df617cacf2a029e35825"
+  },
+  {
+    "raw_root": "C:\\NBSR-build\\b5-window-reuse-70dea630",
+    "files": 15,
+    "index_sha256": "20c2c946bb1ec287483c3b58ce0293c90102a8fceae9378a52e103788ac1ef7c"
+  }
+]

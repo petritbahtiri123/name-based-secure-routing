@@ -122,18 +122,21 @@ fn coherent_collector_samples_global_ordinals_and_exact_group_counts() {
     collector.record_completed(1, 20).unwrap();
     collector.record_completed(1, 30).unwrap();
     collector.record_completed(0, 40).unwrap();
-    let window = collector.take_window().unwrap();
+    let window = collector.take_window(None).unwrap();
     assert_eq!(window.completed, 4);
     assert_eq!(window.group_completed, [2, 2]);
     assert_eq!(window.latency_samples_ns, [20, 40]);
     assert_eq!(window.sample_capacity, 2);
-    let empty = collector.take_window().unwrap();
+    let empty = collector.take_window(None).unwrap();
     assert_eq!(empty.completed, 0);
     assert_eq!(empty.group_completed, [0, 0]);
     assert!(empty.latency_samples_ns.is_empty());
     collector.record_completed(1, 50).unwrap();
     collector.record_completed(0, 60).unwrap();
-    assert_eq!(collector.take_window().unwrap().latency_samples_ns, [60]);
+    assert_eq!(
+        collector.take_window(None).unwrap().latency_samples_ns,
+        [60]
+    );
 }
 
 #[test]
@@ -147,7 +150,7 @@ fn collector_stall_has_hard_cap_and_latched_overflow_invalidity() {
     assert_eq!(status.completed, 3); // operation happened; never erase it.
     assert_eq!(status.overflow_count, 1);
     assert!(!status.evidence_valid);
-    assert!(collector.take_window().is_err()); // No plausible percentile after loss.
+    assert!(collector.take_window(None).is_err()); // No plausible percentile after loss.
     assert!(collector.record_completed(0, 40).is_err());
     assert_eq!(collector.status().unwrap().retained_samples, 2);
 }
@@ -160,4 +163,18 @@ fn collector_rejects_invalid_identity_and_capacity() {
     let collector = BoundedCollector::new(2, 1, 2).unwrap();
     assert!(collector.record_completed(2, 10).is_err());
     assert_eq!(collector.status().unwrap().completed, 0);
+}
+
+#[test]
+fn invalid_replacement_buffer_latches_failure_without_erasing_samples() {
+    for replacement in [Vec::with_capacity(1), vec![99, 100]] {
+        let collector = BoundedCollector::new(1, 1, 2).unwrap();
+        collector.record_completed(0, 42).unwrap();
+        assert!(collector.take_window(Some(replacement)).is_err());
+        let status = collector.status().unwrap();
+        assert!(!status.evidence_valid);
+        assert_eq!(status.completed, 1);
+        assert_eq!(status.retained_samples, 1);
+        assert!(collector.take_window(None).is_err());
+    }
 }
