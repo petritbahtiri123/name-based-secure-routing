@@ -1,0 +1,71 @@
+{
+  "attempts": [
+    {
+      "errors": 0,
+      "original_terminal_marker_gate": true,
+      "owned_process_exit_gate": true,
+      "raw_destination_8_counter_reports_verified": 2,
+      "raw_source_success_ID_set_exact": true,
+      "repeat": 1,
+      "resource_capture_valid": true,
+      "successes": 512,
+      "timeouts": 0
+    },
+    {
+      "errors": 0,
+      "original_terminal_marker_gate": true,
+      "owned_process_exit_gate": true,
+      "raw_destination_8_counter_reports_verified": 2,
+      "raw_source_success_ID_set_exact": true,
+      "repeat": 2,
+      "resource_capture_valid": true,
+      "successes": 512,
+      "timeouts": 0
+    },
+    {
+      "errors": 0,
+      "original_terminal_marker_gate": true,
+      "owned_process_exit_gate": true,
+      "raw_destination_8_counter_reports_verified": 2,
+      "raw_source_success_ID_set_exact": true,
+      "repeat": 3,
+      "resource_capture_valid": true,
+      "successes": 512,
+      "timeouts": 0
+    },
+    {
+      "errors": 0,
+      "original_terminal_marker_gate": true,
+      "owned_process_exit_gate": true,
+      "raw_destination_8_counter_reports_verified": 2,
+      "raw_source_success_ID_set_exact": true,
+      "repeat": 4,
+      "resource_capture_valid": true,
+      "successes": 512,
+      "timeouts": 0
+    },
+    {
+      "errors": 0,
+      "original_terminal_marker_gate": true,
+      "owned_process_exit_gate": true,
+      "raw_destination_8_counter_reports_verified": 2,
+      "raw_source_success_ID_set_exact": true,
+      "repeat": 5,
+      "resource_capture_valid": true,
+      "successes": 512,
+      "timeouts": 0
+    }
+  ],
+  "binary_source_sha": "3644c324a535586e89af72a8c9796e8d58fadf48",
+  "cause": "UNRESOLVED",
+  "classification": "DIAGNOSTIC_BINARY_SOURCE_MISMATCH",
+  "controller_sha": "9397429f9a579ee083f59ca094fdc5fe7ed06ebf",
+  "failure_reproduction": "NOT_REPRODUCED_IN_FIVE_ATTEMPTS",
+  "hardware_capacity": "NOT_PROVEN",
+  "marker_scope": "Original temporary-marker validation preserved in records; independent raw success-ID and destination counter verification does not recreate deleted marker files",
+  "no_pooling_with_prior_cohort": true,
+  "not_a_fix_claim": true,
+  "observer_cost": "NOT_QUALIFIED",
+  "raw_artifacts_verified": 80,
+  "source_files_verified": 236
+}

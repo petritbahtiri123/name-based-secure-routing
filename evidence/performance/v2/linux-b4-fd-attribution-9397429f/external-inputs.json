@@ -1,0 +1,13 @@
+{
+  "captured_index_sha256": "1e9f09ba3ad467ded62eea5ca1d5d6cc7e7901956dfce3461173dfa323854d66",
+  "captured_root": "C:\\NBSR-build\\linux-b4-fd-diagnostic-9397429f\\captured",
+  "controller_archive_sha256": "2f159a6d0f0a56ab2cf3bda6b13e5c1e26d514fa5946a51c6d1ae7281fd5d6d7",
+  "exact_stopped_container_removed": "4effc913b8698a86bdacc9631d312bb0f409619da394e5ae23bd7c7183b51bcb",
+  "external_index_sha256": "0599061eb6740ee077dc1d556d4924ccb61302284b7cef1d97829c401d93da0c",
+  "prior_failed_cohort": "../linux-b4-compatibility-c62b1165",
+  "raw_artifacts_verified": 80,
+  "raw_root": "C:\\NBSR-build\\linux-b4-fd-diagnostic-9397429f",
+  "removal_receipt_sha256": "fb86b595d7746f55dbd1b954387552cf812547744c4e39e098ee96a270fb5107",
+  "scope": "Nonempty tar verified before release; all raw and metadata retained externally. No pooling, source fullownership proof, hardware or fix claim.",
+  "separate_cohort_source_SHA": true
+}
