@@ -1,0 +1,35 @@
+{
+  "base_sha": "c6b2db86e0ec0e3500ad241f2efe30f03f176b1f",
+  "classification": "PYTHON_VALIDATED_LINUX_RUNTIME_NOT_EXECUTED",
+  "focused_tests": {
+    "command": "python -m pytest tests/performance/test_mixed_connections.py tests/performance/test_b4_linux.py tests/performance/test_b4b_v2.py tests/performance/test_task4i_rate_capacity.py tests/performance/test_task4i_fresh_progression.py -q",
+    "failed": 0,
+    "passed": 47
+  },
+  "native_or_docker_run": false,
+  "observer_cost": "NOT_QUALIFIED",
+  "owned_source_sha256": {
+    "docs/benchmarks/LINUX_B4_SINGLE_HOST.md": "2df3dcc323c199b1aca53decd7de446a96f20a4c16b241c103f056a455bb6726",
+    "docs/superpowers/plans/2026-09-06-linux-b4.md": "7cd1dc5a8e0bfab7ee89347668463fef0afad0d1355c8d3538e3e002e7a77f4c",
+    "scripts/performance/b4_linux.py": "f178ff44618a7f3db5fba7d5db81e9170eb63343df24b552dde06f2fd253fdfe",
+    "scripts/run_b4b_linux.py": "67d1dae750d24f959fff85b56e01177872a822654236a9bc9390a9b087b21630",
+    "scripts/run_b4b_mixed_connections.py": "7b08b2a9a01083a66331db332bf06160d312fc9e3b2136ba503ac145ebe3d2c3",
+    "scripts/run_b4b_task4i.py": "a7f138b288a6710e909829ae4bc201540c6073954fec14c1217cc93a58dec14c",
+    "scripts/run_b4b_v2.py": "25834c111b2893b96db29feda4455bc65377584c61bc7e4a99292f979b115d05",
+    "tests/performance/test_b4_linux.py": "543a9949d22089365b2d22e0f5be7530ef076396c5ff71afbfc661ac9d7abd5a",
+    "tests/performance/test_mixed_connections.py": "57442c92e012d3f2cbe8884c9ecc73390474a18d58f45652e3f69e70710f9346"
+  },
+  "parent_review": "PASS after observation-origin/documentation followups",
+  "ruff": {
+    "other_owned_files": "PASS",
+    "task4i_baseline_count": 21,
+    "task4i_current_count": 20,
+    "task4i_excluding_E701_E702_E731": "PASS",
+    "task4i_full": "PRE_EXISTING_COMPACT_STYLE_WARNINGS"
+  },
+  "syntax": {
+    "bash_blocks": 2,
+    "executed": false,
+    "python_blocks": 1
+  }
+}

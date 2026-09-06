@@ -167,7 +167,9 @@ def valid_record(record: dict[str, Any]) -> bool:
             and record.get("packet_capture", {}).get("valid", True))
 
 
-def run_measured_cell(*args: Any, counter_path: Path, **kwargs: Any) -> dict[str, Any]:
+def run_measured_cell(*args: Any, counter_path: Path, backend=None, **kwargs: Any) -> dict[str, Any]:
+    if backend is not None:
+        return backend.measure(run_cell, args, kwargs, counter_path)
     counter = start_host_counters(counter_path)
     started = time.monotonic()
     try:

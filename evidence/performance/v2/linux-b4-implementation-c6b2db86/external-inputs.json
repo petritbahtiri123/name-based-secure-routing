@@ -1,0 +1,7 @@
+{
+  "canonical_log_normalization": "UTF-8 LF, trailing whitespace removed; original exact log bytes retained externally and indexed",
+  "preservation": "Initial RED/ACK-regression baseline, initial source snapshots and original index retained; final sources separately under source-final; no live execution.",
+  "raw_index_sha256": "7d9fbcc7ae3116ce7ad089d02fb0af8fe9791b0d117aa3ce945e4a371b932961",
+  "raw_root": "C:\\NBSR-build\\b4-linux-implementation",
+  "verified_artifacts": 33
+}

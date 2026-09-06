@@ -1,0 +1,1 @@
+PASS: Bash -n 2 blocks; ast.parse 1 Python blocks; no block executed.

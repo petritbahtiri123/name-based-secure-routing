@@ -1,0 +1,23 @@
+C:/NBSR-build/b4-linux-baseline-task4i.py:58:5: E731 Do not assign a `lambda` expression, use a `def`
+C:/NBSR-build/b4-linux-baseline-task4i.py:95:23: E701 Multiple statements on one line (colon)
+C:/NBSR-build/b4-linux-baseline-task4i.py:96:31: E702 Multiple statements on one line (semicolon)
+C:/NBSR-build/b4-linux-baseline-task4i.py:96:49: E702 Multiple statements on one line (semicolon)
+C:/NBSR-build/b4-linux-baseline-task4i.py:98:30: E702 Multiple statements on one line (semicolon)
+C:/NBSR-build/b4-linux-baseline-task4i.py:104:51: E702 Multiple statements on one line (semicolon)
+C:/NBSR-build/b4-linux-baseline-task4i.py:104:105: E702 Multiple statements on one line (semicolon)
+C:/NBSR-build/b4-linux-baseline-task4i.py:111:13: E702 Multiple statements on one line (semicolon)
+C:/NBSR-build/b4-linux-baseline-task4i.py:113:37: E702 Multiple statements on one line (semicolon)
+C:/NBSR-build/b4-linux-baseline-task4i.py:114:19: E702 Multiple statements on one line (semicolon)
+C:/NBSR-build/b4-linux-baseline-task4i.py:114:37: E702 Multiple statements on one line (semicolon)
+C:/NBSR-build/b4-linux-baseline-task4i.py:121:45: E701 Multiple statements on one line (colon)
+C:/NBSR-build/b4-linux-baseline-task4i.py:124:41: E701 Multiple statements on one line (colon)
+C:/NBSR-build/b4-linux-baseline-task4i.py:125:69: E702 Multiple statements on one line (semicolon)
+C:/NBSR-build/b4-linux-baseline-task4i.py:126:30: E701 Multiple statements on one line (colon)
+C:/NBSR-build/b4-linux-baseline-task4i.py:130:51: E702 Multiple statements on one line (semicolon)
+C:/NBSR-build/b4-linux-baseline-task4i.py:130:70: E702 Multiple statements on one line (semicolon)
+C:/NBSR-build/b4-linux-baseline-task4i.py:134:37: E702 Multiple statements on one line (semicolon)
+C:/NBSR-build/b4-linux-baseline-task4i.py:134:94: E702 Multiple statements on one line (semicolon)
+C:/NBSR-build/b4-linux-baseline-task4i.py:134:159: E702 Multiple statements on one line (semicolon)
+C:/NBSR-build/b4-linux-baseline-task4i.py:137:29: E702 Multiple statements on one line (semicolon)
+Found 21 errors.
+No fixes available (1 hidden fix can be enabled with the `--unsafe-fixes` option).

@@ -86,7 +86,8 @@ def checksums(root):
     (root/'checksums.sha256').write_text('\n'.join(lines)+'\n',encoding='utf-8',newline='\n')
 
 
-def execute(output: Path, duration=30, warmup=2, *, offered_rates=None, source_shards=1):
+def execute(output: Path, duration=30, warmup=2, *, offered_rates=None, source_shards=1,
+            backend=None, prepared_binaries=None, prepared_environment=None):
     rates = tuple(RATES if offered_rates is None else offered_rates)
     if not rates or any(type(rate) is not int or rate <= 0 for rate in rates) or list(rates) != sorted(set(rates)):
         raise ValueError('offered rates must be positive unique increasing integers')
@@ -95,16 +96,22 @@ def execute(output: Path, duration=30, warmup=2, *, offered_rates=None, source_s
     if output.exists(): raise FileExistsError(output)
     output.mkdir(parents=True); raw=output/'raw'; raw.mkdir()
     target=Path(os.environ.get('CARGO_TARGET_DIR',r'C:\NBSR-build\b4b-task4i'))
-    binaries=v2.build(target); environment=v2.host_environment()
+    binaries=v2.build(target) if prepared_binaries is None else prepared_binaries
+    environment=v2.host_environment() if prepared_environment is None else dict(prepared_environment)
     sources=['crates/nbsr-transport/src/bin/benchmark_support/batch_release.rs','crates/nbsr-transport/src/bin/perf_rust_source.rs',
         'crates/nbsr-transport/src/bin/wp8_interop_server.rs','scripts/run_b4b_mixed_connections.py',
         'scripts/run_b4b_v2.py','scripts/run_b4b_task4i.py','scripts/analyze_b4b_task4i.py',
         'crates/nbsr-transport/src/bin/benchmark_support/lifecycle_shards.rs','scripts/performance/resources.py']
+    if backend is not None:
+        sources += ['scripts/run_b4b_linux.py', 'scripts/performance/b4_linux.py',
+                    'scripts/performance/linux_resources.py', 'scripts/performance/linux_loopback.py',
+                    'scripts/performance/b3_linux.py', 'scripts/run_b3_v2.py']
     for source in sources:
         destination=output/'capture-source'/source; destination.parent.mkdir(parents=True,exist_ok=True); shutil.copy2(v2.ROOT/source,destination)
     environment.update(timestamp_utc=time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),build='release',duration_seconds=duration,
         warmup_seconds=warmup,total_clients=CLIENTS,offered_rates=list(rates),source_shards=source_shards,command=[sys.executable,*sys.argv],
-        claim_boundary='rate-controlled admission on Windows loopback; simultaneous burst remains separate',
+        claim_boundary=('rate-controlled admission on Linux single-host loopback; no distributed-host claim'
+                        if backend is not None else 'rate-controlled admission on Windows loopback; simultaneous burst remains separate'),
         binary_sha256={k:hashlib.sha256(p.read_bytes()).hexdigest() for k,p in binaries.items()},
         source_sha256={p:hashlib.sha256((v2.ROOT/p).read_bytes()).hexdigest() for p in sources})
     v2.write_json(output/'environment.json',environment)
@@ -115,7 +122,8 @@ def execute(output: Path, duration=30, warmup=2, *, offered_rates=None, source_s
         while repeat<=target_repeats:
             print(f'rate={rate}/s repeat={repeat}/{target_repeats}',flush=True)
             record=v2.run_measured_cell(CLIENTS,1,repeat,binaries,directory,duration=duration,warmup=warmup,planned_clients=[CLIENTS],
-                release_rate=rate,source_shards=source_shards,counter_path=directory/f'r{repeat}-host.csv')
+                release_rate=rate,source_shards=source_shards,counter_path=directory/f'r{repeat}-host.csv',
+                **({'backend': backend} if backend is not None else {}))
             v2.write_json(directory/f'r{repeat}.json',record)
             (records if record['valid'] else invalid).append(record)
             if repeat==3 and len(records)==3: target_repeats=required_repeats(records)

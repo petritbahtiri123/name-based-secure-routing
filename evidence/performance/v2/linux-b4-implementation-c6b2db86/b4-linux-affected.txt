@@ -1,0 +1,26 @@
+....................................F........                            [100%]
+================================== FAILURES ===================================
+__ test_task4d_destination_uses_in_memory_completion_not_filesystem_polling ___
+
+    def test_task4d_destination_uses_in_memory_completion_not_filesystem_polling() -> None:
+        source = (Path("crates/nbsr-transport/src/bin/wp8_interop_server.rs")).read_text(encoding="utf-8")
+
+        assert "wait_for_lifecycle_client_terminals" not in source
+        assert "fs::read_dir(root)" not in source
+        assert "CompletionCoordinator::without_evidence" in source
+>       assert "application.wait_for_send_ack().await.unwrap();" not in source
+E       AssertionError: assert 'application...it.unwrap();' not in 'use std::co...\n    }\n}\n'
+E
+E         'application.wait_f...k().await.unwrap();' is contained here:
+E                     application.wait_for_send_ack().await.unwrap();
+E                       measurements.push((
+E                           if local_stream == 0 {
+E                               destination_admission_ns
+E                           } else {...
+E
+E         ...Full output truncated (1431 lines hidden), use '-vv' to show
+
+tests\performance\test_mixed_connections.py:129: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_mixed_connections.py::test_task4d_destination_uses_in_memory_completion_not_filesystem_polling
+1 failed, 44 passed in 1.84s

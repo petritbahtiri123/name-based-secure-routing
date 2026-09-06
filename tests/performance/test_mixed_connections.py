@@ -126,7 +126,12 @@ def test_task4d_destination_uses_in_memory_completion_not_filesystem_polling() -
     assert "wait_for_lifecycle_client_terminals" not in source
     assert "fs::read_dir(root)" not in source
     assert "CompletionCoordinator::without_evidence" in source
-    assert "application.wait_for_send_ack().await.unwrap();" not in source
+    # B3_V2_HARNESS_REPAIR.md: the accepted dda3938d repair retains each
+    # response until FIN ACK in both shared lifecycle echo branches.
+    lifecycle = source.split("async fn run_lifecycle_connection(", 1)[1].split("async fn run_lifecycle(", 1)[0]
+    sequential, concurrent = lifecycle.split("    if concurrent {\n        let materialized_barriers", 1)
+    for branch in (sequential, concurrent):
+        assert branch.count("application.wait_for_send_ack().await.unwrap();") == 1
     assert "lifecycle destination handshake failed: {error:?}" in source
     assert "poll_fn(|context|" in source
     assert "completion.record(ordinal, terminal).await.unwrap();" in source

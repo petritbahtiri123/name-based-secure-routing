@@ -238,7 +238,10 @@ def run_cell(
     release_rate: float | None = None,
     source_shards: int = 1,
     packet_capture: Any = None,
+    backend: Any = None,
 ) -> dict[str, Any]:
+    command = backend.command if backend is not None else lambda argv: argv
+    sample_owned = backend.sample if backend is not None else sample_processes
     stem = f"clients-{clients}-connections-{connections_per_client}-r{repeat}"
     cell_dir = raw_dir / stem
     cell_dir.mkdir(parents=True)
@@ -276,7 +279,7 @@ def run_cell(
             "1",
         ]
         established_server = subprocess.Popen(
-            established_server_argv,
+            command(established_server_argv),
             cwd=ROOT,
             env={**os.environ, "NBSR_P2A_STREAMS": "8"},
             stdout=subprocess.PIPE,
@@ -321,12 +324,12 @@ def run_cell(
                 str(duration),
             ]
             established_client = subprocess.Popen(
-                established_client_argv, cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+                command(established_client_argv), cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
             )
             processes["established-source"] = established_client
             warmup_deadline = time.monotonic() + warmup
             while time.monotonic() < warmup_deadline:
-                sample_processes(processes, samples)
+                sample_owned(processes, samples)
                 time.sleep(0.1)
             if clients:
                 lifecycle_ready = temp / "lifecycle-ready.json"
@@ -347,7 +350,7 @@ def run_cell(
                 ]
                 lifecycle_server_commands.append(server_argv)
                 lifecycle_server = subprocess.Popen(
-                    server_argv,
+                    command(server_argv),
                     cwd=ROOT,
                     env=lifecycle_server_environment(
                         {
@@ -391,7 +394,7 @@ def run_cell(
                 admission_stdout_file = admission_stdout_path.open("w", encoding="utf-8", newline="\n")
                 admission_stderr_file = admission_stderr_path.open("w", encoding="utf-8", newline="\n")
                 admission_client = subprocess.Popen(
-                    argv,
+                    command(argv),
                     cwd=ROOT,
                     env={**os.environ, "NBSR_BENCH_TIMELINE": source_timeline.name if source_timeline else ""},
                     stdout=admission_stdout_file,
@@ -403,8 +406,9 @@ def run_cell(
             admission_finished: float | None = admission_started if clients == 0 else None
             deadline = time.monotonic() + duration + 45
             while established_client.poll() is None or (admission_client is not None and admission_client.poll() is None):
-                sample_processes(processes, samples)
-                sample_admission_threads(admission_client, admission_thread_samples)
+                sample_owned(processes, samples)
+                if backend is None:
+                    sample_admission_threads(admission_client, admission_thread_samples)
                 pending = clients * connections_per_client if admission_client is not None and admission_client.poll() is None else 0
                 peak_pending = max(peak_pending, pending)
                 admission_finished = remember_completion(admission_finished, pending=pending, now=time.monotonic())
@@ -572,9 +576,10 @@ def run_cell(
                 },
                 "admissions_completed_before_established_end": admission_finished <= established_finished,
                 "peak_pending_clients": peak_pending,
-                "resources": summarize_resources(samples),
+                "resources": backend.summarize(samples) if backend is not None else summarize_resources(samples),
                 "source_shards": source_shards,
-                "source_shard_cpu": summarize_shard_cpu(admission_thread_samples, shard_mapping) if admission_client is not None else {},
+                "source_shard_cpu": (backend.shard_cpu(shard_mapping) if backend is not None
+                                     else summarize_shard_cpu(admission_thread_samples, shard_mapping)) if admission_client is not None else {},
                 "admission_thread_samples": admission_thread_samples,
                 "harness_topology": {
                     "admission_source_processes": 1 if clients else 0,
@@ -606,10 +611,10 @@ def run_cell(
                 "destination_cleanup_wait_seconds": destination_cleanup_seconds,
                 "saturation_failure": "; ".join(server_failures) if server_failures else None,
                 "commands": {
-                    "established_server": public_command(established_server_argv, temp),
-                    "established_client": public_command(established_client_argv, temp),
-                    "lifecycle_servers": [public_command(argv, temp) for argv in lifecycle_server_commands],
-                    "admission_clients": [public_command(argv, temp) for argv in client_commands],
+                    "established_server": public_command(command(established_server_argv), temp),
+                    "established_client": public_command(command(established_client_argv), temp),
+                    "lifecycle_servers": [public_command(command(argv), temp) for argv in lifecycle_server_commands],
+                    "admission_clients": [public_command(command(argv), temp) for argv in client_commands],
                 },
                 "failure_detail": "\n".join(value for value in [failure, *server_failures] if value) or None,
             }
@@ -642,6 +647,8 @@ def run_cell(
                     stderr_drain.finish(0)
                 except (RuntimeError, TimeoutError):
                     pass
+            if backend is not None:
+                backend.preserve(cell_dir, samples, processes)
             if shutdown_error is not None:
                 raise shutdown_error
 
