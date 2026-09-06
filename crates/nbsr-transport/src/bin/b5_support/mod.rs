@@ -139,3 +139,11 @@ mod tests {
         assert_eq!(values, vec![6, 7, 8, 9]);
     }
 }
+
+#[cfg(test)]
+mod paced_contract_tests;
+
+#[cfg(test)]
+mod paced;
+#[cfg(test)]
+use paced::{BoundedCollector, PacingWindow};

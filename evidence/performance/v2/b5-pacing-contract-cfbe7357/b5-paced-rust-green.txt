@@ -1,0 +1,20 @@
+   Compiling nbsr-transport v0.1.0 (C:\Users\bajra\OneDrive\Documents\NBSR\crates\nbsr-transport)
+    Finished `release` profile [optimized] target(s) in 4.14s
+     Running unittests src\bin\perf_rust_source.rs (C:/NBSR-build/b4b-task4k\release\deps\perf_rust_source-25bd4629be05d890.exe)
+
+running 13 tests
+test b5_support::paced_contract_tests::coherent_collector_samples_global_ordinals_and_exact_group_counts ... ok
+test b5_support::paced_contract_tests::collector_rejects_invalid_identity_and_capacity ... ok
+test b5_support::paced_contract_tests::rational_group_budgets_sum_to_exact_cumulative_target ... ok
+test b5_support::paced_contract_tests::partial_last_window_is_clipped_and_deadline_expires_unused_budget ... ok
+test b5_support::paced_contract_tests::collector_stall_has_hard_cap_and_latched_overflow_invalidity ... ok
+test b5_support::paced_contract_tests::invalid_rates_groups_times_and_unrepresentable_budget_fail_closed ... ok
+test b5_support::paced_contract_tests::reservation_accounts_lateness_without_changing_the_budget ... ok
+test b5_support::paced_contract_tests::expiration_never_carries_unused_slots_into_a_later_window ... ok
+test b5_support::tests::final_latency_sample_retains_only_the_bounded_tail ... ok
+test b5_support::tests::progress_window_is_explicit_when_no_latency_sample_exists ... ok
+test b5_support::paced_contract_tests::stream_partitions_balance_cumulative_stream_and_group_offered_work ... ok
+test b5_support::tests::progress_window_preserves_exact_count_and_sampled_percentiles ... ok
+test b5_support::tests::soak_telemetry_samples_boundedly_and_resets_each_window ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 33 filtered out; finished in 0.00s

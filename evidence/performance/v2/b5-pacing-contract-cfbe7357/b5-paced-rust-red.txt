@@ -1,0 +1,11 @@
+   Compiling nbsr-transport v0.1.0 (C:\Users\bajra\OneDrive\Documents\NBSR\crates\nbsr-transport)
+error[E0432]: unresolved imports `super::BoundedCollector`, `super::PacingWindow`
+ --> src\bin\b5_support\paced_contract_tests.rs:3:13
+  |
+3 | use super::{BoundedCollector, PacingWindow};
+  |             ^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^ no `PacingWindow` in `b5_support`
+  |             |
+  |             no `BoundedCollector` in `b5_support`
+
+For more information about this error, try `rustc --explain E0432`.
+error: could not compile `nbsr-transport` (bin "perf_rust_source" test) due to 1 previous error
