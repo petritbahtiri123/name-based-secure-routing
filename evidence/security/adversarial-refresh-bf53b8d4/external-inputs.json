@@ -1,0 +1,23 @@
+{
+  "canonical_format": "analysis/environment JSON normalized to sorted keys, indent2, UTF-8 LF; external checksum index retains exact raw bytes; canonical checksums cover canonical bytes only",
+  "isolation_qualification": "Accepted f831c9bb Docker proof is separate evidence, not a bf53b8d4 network-isolation scan.",
+  "prior_campaign": "../adversarial-campaign-b7df259b",
+  "raw_index_sha256": "3d1da43893be368a0fc32f022fa3427be1c6a9208b8b6d9d608048a06ad39288",
+  "raw_root": "C:\\NBSR-build\\security-refresh-bf53b8d4",
+  "scope": "13 refresh-SHA executable fail-closed regressions; direct-origin network isolation remains INCONCLUSIVE",
+  "separate_accepted_isolation": "../isp-isolation-f831c9bb",
+  "source_bindings": {
+    "scripts/security/adversarial_campaign.py": {
+      "commit_blob_sha256": "c5e8f73613adef157c22891533095db55ec2cd9b3c9a508454835668a60b3ed1",
+      "normalized_content_matches_commit": true,
+      "raw_checkout_sha256": "c5e8f73613adef157c22891533095db55ec2cd9b3c9a508454835668a60b3ed1"
+    },
+    "tests/security/test_adversarial_campaign.py": {
+      "commit_blob_sha256": "1c74e7f0aa38025951653c2a2af798625adede641daad9751312f7b4d2ff421a",
+      "normalized_content_matches_commit": true,
+      "raw_checkout_sha256": "1c74e7f0aa38025951653c2a2af798625adede641daad9751312f7b4d2ff421a"
+    }
+  },
+  "source_sha": "bf53b8d4fbbd512ae925496f13f5f9dabef35214",
+  "verified_artifacts": 45
+}
