@@ -109,3 +109,13 @@ The Linux sustained CLI is now AUTHORED/PARTIAL (`linux_b5_campaign`), with
 strict current reference/build binding,3-to5 paired repeats, p99/goodput CV
 and failed-prefix preservation.59 focused tests and Ruff PASS. Actual current
 Rust/QUIC execution and observer qualification remain NOT_RUN; no stable soak.
+
+## Current-source Linux execution at edc0f96d
+
+Native release build and binary hashes PASS. Actual Linux B5 CLI compatibility
+stops on Direct p99 drift. Finite reference first exposed missing build-root
+vectors; mounting the unchanged captured tree restores NBSR execution. The
+corrected cohort retains5 valid rows then an NBSR /proc/230/fd PermissionError.
+All6 post-close reports have11 zero counters, but missing telemetry still
+invalidates the cohort. No accepted Linux reference or soak. See
+`linux-current-edc0f96d` (365 indexed raw files) and NEXT_SESSION_HANDOFF.md.

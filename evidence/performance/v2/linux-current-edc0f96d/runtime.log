@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/evidence/runtime.py", line 6, in <module>
+    subprocess.run(['git','-c','safe.directory=/src','clone','--no-hardlinks','--no-checkout','/src',str(repo)],stdout=log,stderr=subprocess.STDOUT,check=True)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['git', '-c', 'safe.directory=/src', 'clone', '--no-hardlinks', '--no-checkout', '/src', '/tmp/nbsr-source']' returned non-zero exit status 128.

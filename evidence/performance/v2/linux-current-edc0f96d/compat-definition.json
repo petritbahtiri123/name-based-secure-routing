@@ -1,0 +1,15 @@
+{
+  "classification": "DIAGNOSTIC_PORT_COMPATIBILITY",
+  "purpose": "Current-source release CLI/QUIC lifecycle compatibility, not replacement for failed Windows load or capacity measurement",
+  "repeats": 3,
+  "paths": [
+    "direct",
+    "nbsr"
+  ],
+  "duration_seconds": 10,
+  "warmup_seconds": 3,
+  "offered_ops_per_second": 1000,
+  "shape": "1 selected guest core,1group,32streams,1KiB,depth1",
+  "failure_policy": "stop first failed cell; no replacement",
+  "repository_sha": "edc0f96d0be2ae089e559092cab8fce2de50aac8"
+}

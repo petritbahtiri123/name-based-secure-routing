@@ -1,0 +1,15 @@
+{
+  "raw_root": "C:\\NBSR-build\\linux-current-edc0f96d",
+  "indexed_files": 365,
+  "raw_index_sha256": "679ce31f6d1e0b25b99401daed3c3dd69bcb5c5af4d6198b9cb4787f86d217da",
+  "validated_zero_cleanup_reports": [
+    "reference-1k32-with-fixtures\\raw\\nbsr-d1-r1\\client.cleanup.json",
+    "reference-1k32-with-fixtures\\raw\\nbsr-d1-r1\\server.cleanup.json",
+    "reference-1k32-with-fixtures\\raw\\nbsr-d1-r2\\client.cleanup.json",
+    "reference-1k32-with-fixtures\\raw\\nbsr-d1-r2\\server.cleanup.json",
+    "reference-1k32-with-fixtures\\raw\\nbsr-d1-r3\\client.cleanup.json",
+    "reference-1k32-with-fixtures\\raw\\nbsr-d1-r3\\server.cleanup.json"
+  ],
+  "source_sha": "edc0f96d0be2ae089e559092cab8fce2de50aac8",
+  "claim": "Current-source release build and partial Linux VM evidence only; no accepted finite reference or soak"
+}

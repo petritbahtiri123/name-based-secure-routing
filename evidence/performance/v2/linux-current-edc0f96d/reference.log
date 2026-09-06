@@ -1,0 +1,15 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 203, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/tmp/nbsr-source/scripts/performance/linux_b5_reference.py", line 454, in <module>
+    main()
+    ~~~~^^
+  File "/tmp/nbsr-source/scripts/performance/linux_b5_reference.py", line 450, in main
+    execute(parser.parse_args())
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/nbsr-source/scripts/performance/linux_b5_reference.py", line 424, in execute
+    run_ladder(args.payload_bytes, args.streams, args.depths, run, retain)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/nbsr-source/scripts/performance/linux_b5_reference.py", line 308, in run_ladder
+    raise RuntimeError("invalid retained reference attempt")
+RuntimeError: invalid retained reference attempt

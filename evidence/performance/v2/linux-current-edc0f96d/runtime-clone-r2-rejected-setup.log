@@ -1,0 +1,9 @@
+Cloning into '/tmp/nbsr-source'...
+fatal: detected dubious ownership in repository at '/src/.git'
+To add an exception for this directory, call:
+
+	git config --global --add safe.directory /src/.git
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.

@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/evidence/reference-with-fixtures.py", line 14, in <module>
+    with (root/'reference-with-fixtures.log').open('w') as log:subprocess.run(argv,cwd=repo,stdout=log,stderr=subprocess.STDOUT,check=True)
+                                                               ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/usr/local/bin/python3', '-B', '-m', 'scripts.performance.linux_b5_reference', '--binaries', '/tmp/nbsr-binaries', '--build-manifest', '/evidence/build-manifest-with-fixtures.json', '--output', '/evidence/reference-1k32-with-fixtures', '--payload-bytes', '1024', '--streams', '32', '--depths', '1', '2', '4', '--warmup', '3', '--duration', '30']' returned non-zero exit status 1.

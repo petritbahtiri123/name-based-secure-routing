@@ -1,0 +1,551 @@
+[
+  {
+    "aggregate_application_gbps": 1.4468023944660993,
+    "binary_record": {
+      "application_streams_created_delta": 0,
+      "completed_operations": 2650111,
+      "configured_total_outstanding": 32,
+      "corrupt": 0,
+      "duplicates": 0,
+      "errors": 0,
+      "max_outstanding_per_stream_observed": 1,
+      "measured_ns": 30010607385,
+      "missing": 0,
+      "model": "bounded-outstanding-per-stream",
+      "outstanding_per_stream": 1,
+      "p50_latency_ns": 344618,
+      "p95_latency_ns": 507927,
+      "p99_latency_ns": 648535,
+      "path": "direct",
+      "payload_bytes": 1024,
+      "replay_entries_delta": 0,
+      "schema": "nbsr-p2a-repeat-v2",
+      "service_channels_created_delta": 0,
+      "streams": 32,
+      "transport_sessions_created_delta": 0,
+      "wrong_request": 0
+    },
+    "cleanup_pass": true,
+    "cleanup_reports": [],
+    "cleanup_scope": "Direct bothprocessjoins; runtimeownership NOT_MEASURED",
+    "completed_operations": 2650111,
+    "configured_total_outstanding": 32,
+    "cpu_scope": "whole process lifetime including taskset/warmup/drain; no steady CPU estimate",
+    "endpoint_groups": 1,
+    "errors": 0,
+    "final_process_samples": {
+      "client": {
+        "affinity": [
+          0
+        ],
+        "cpu_ns": 14930000000,
+        "fd_count": null,
+        "fd_count_state": "UNAVAILABLE_ZOMBIE",
+        "pid": 90,
+        "rss_bytes": 0,
+        "start_ticks": 113551,
+        "state": "Z",
+        "thread_ids": [
+          90
+        ],
+        "timestamp_ns": 1168829723862
+      },
+      "server": {
+        "affinity": [
+          0
+        ],
+        "cpu_ns": 18080000000,
+        "fd_count": null,
+        "fd_count_state": "UNAVAILABLE_ZOMBIE",
+        "pid": 89,
+        "rss_bytes": 0,
+        "start_ticks": 113548,
+        "state": "Z",
+        "thread_ids": [
+          89
+        ],
+        "timestamp_ns": 1168942470725
+      }
+    },
+    "lifetime_cpu_ns": 33010000000,
+    "max_observed_total_outstanding": 32,
+    "measured_ns": 30010607385,
+    "observer": {
+      "cadence_ns": 100000000,
+      "nbsr_post_close_reports": true,
+      "qualification": "NOT_QUALIFIED_NO_MATCHED_COMPARISON",
+      "resource_mode": "proc-stat-fd-thread-affinity"
+    },
+    "operations_per_second": 88305.8102091125,
+    "outstanding_observation_scope": "conservative per-stream maximum times streams; not simultaneous global high-water",
+    "outstanding_per_stream": 1,
+    "p99_latency_ns": 648535,
+    "path": "direct",
+    "payload_bytes": 1024,
+    "process_exit_codes": {
+      "client": 0,
+      "server": 0
+    },
+    "process_ids": {
+      "client": 90,
+      "server": 89
+    },
+    "raw_directory": "raw/direct-d1-r1",
+    "repeat": 1,
+    "resource_records": 658,
+    "runtime_workers": 1,
+    "streams_per_group": 32,
+    "timeouts": 0,
+    "valid": true
+  },
+  {
+    "aggregate_application_gbps": 1.8291872683404722,
+    "binary_record": {
+      "admission_p50_latency_ns": null,
+      "admission_p95_latency_ns": null,
+      "admission_p99_latency_ns": null,
+      "admission_timeouts": 0,
+      "application_streams_created_delta": 0,
+      "completed_operations": 3350761,
+      "configured_total_outstanding": 32,
+      "corrupt": 0,
+      "duplicates": 0,
+      "errors": 0,
+      "failed_admissions": 0,
+      "latency_sample_count": 3350761,
+      "latency_sample_stride": 1,
+      "max_admission_start_lateness_ns": 0,
+      "max_outstanding_per_stream_observed": 1,
+      "measured_ns": 30012710658,
+      "missing": 0,
+      "model": "bounded-outstanding-per-stream",
+      "outstanding_per_stream": 1,
+      "p50_latency_ns": 268214,
+      "p95_latency_ns": 367819,
+      "p99_latency_ns": 501127,
+      "path": "nbsr",
+      "payload_bytes": 1024,
+      "replay_entries_delta": 0,
+      "scheduled_admissions": 0,
+      "schema": "nbsr-p2a-repeat-v2",
+      "service_channels_created_delta": 0,
+      "streams": 32,
+      "successful_admissions": 0,
+      "transport_sessions_created_delta": 0,
+      "wrong_request": 0
+    },
+    "cleanup_pass": true,
+    "cleanup_reports": [
+      {
+        "all_11_zero": true,
+        "file": "client.cleanup.json",
+        "pid": 119,
+        "role": "source"
+      },
+      {
+        "all_11_zero": true,
+        "file": "server.cleanup.json",
+        "pid": 118,
+        "role": "destination"
+      }
+    ],
+    "cleanup_scope": "NBSR11fields+bothprocessjoins",
+    "completed_operations": 3350761,
+    "configured_total_outstanding": 32,
+    "cpu_scope": "whole process lifetime including taskset/warmup/drain; no steady CPU estimate",
+    "endpoint_groups": 1,
+    "errors": 0,
+    "final_process_samples": {
+      "client": {
+        "affinity": [
+          0
+        ],
+        "cpu_ns": 17050000000,
+        "fd_count": null,
+        "fd_count_state": "UNAVAILABLE_ZOMBIE",
+        "pid": 119,
+        "rss_bytes": 0,
+        "start_ticks": 116916,
+        "state": "Z",
+        "thread_ids": [
+          119
+        ],
+        "timestamp_ns": 1202536985348
+      },
+      "server": {
+        "affinity": [
+          0
+        ],
+        "cpu_ns": 15970000000,
+        "fd_count": null,
+        "fd_count_state": "UNAVAILABLE_ZOMBIE",
+        "pid": 118,
+        "rss_bytes": 0,
+        "start_ticks": 116913,
+        "state": "Z",
+        "thread_ids": [
+          118
+        ],
+        "timestamp_ns": 1202535959294
+      }
+    },
+    "lifetime_cpu_ns": 33020000000,
+    "max_observed_total_outstanding": 32,
+    "measured_ns": 30012710658,
+    "observer": {
+      "cadence_ns": 100000000,
+      "nbsr_post_close_reports": true,
+      "qualification": "NOT_QUALIFIED_NO_MATCHED_COMPARISON",
+      "resource_mode": "proc-stat-fd-thread-affinity"
+    },
+    "operations_per_second": 111644.7307336714,
+    "outstanding_observation_scope": "conservative per-stream maximum times streams; not simultaneous global high-water",
+    "outstanding_per_stream": 1,
+    "p99_latency_ns": 501127,
+    "path": "nbsr",
+    "payload_bytes": 1024,
+    "process_exit_codes": {
+      "client": 0,
+      "server": 0
+    },
+    "process_ids": {
+      "client": 119,
+      "server": 118
+    },
+    "raw_directory": "raw/nbsr-d1-r1",
+    "repeat": 1,
+    "resource_records": 659,
+    "runtime_workers": 1,
+    "streams_per_group": 32,
+    "timeouts": 0,
+    "valid": true
+  },
+  {
+    "aggregate_application_gbps": 1.8245612613171949,
+    "binary_record": {
+      "admission_p50_latency_ns": null,
+      "admission_p95_latency_ns": null,
+      "admission_p99_latency_ns": null,
+      "admission_timeouts": 0,
+      "application_streams_created_delta": 0,
+      "completed_operations": 3342251,
+      "configured_total_outstanding": 32,
+      "corrupt": 0,
+      "duplicates": 0,
+      "errors": 0,
+      "failed_admissions": 0,
+      "latency_sample_count": 3342251,
+      "latency_sample_stride": 1,
+      "max_admission_start_lateness_ns": 0,
+      "max_outstanding_per_stream_observed": 1,
+      "measured_ns": 30012387934,
+      "missing": 0,
+      "model": "bounded-outstanding-per-stream",
+      "outstanding_per_stream": 1,
+      "p50_latency_ns": 268716,
+      "p95_latency_ns": 372025,
+      "p99_latency_ns": 510727,
+      "path": "nbsr",
+      "payload_bytes": 1024,
+      "replay_entries_delta": 0,
+      "scheduled_admissions": 0,
+      "schema": "nbsr-p2a-repeat-v2",
+      "service_channels_created_delta": 0,
+      "streams": 32,
+      "successful_admissions": 0,
+      "transport_sessions_created_delta": 0,
+      "wrong_request": 0
+    },
+    "cleanup_pass": true,
+    "cleanup_reports": [
+      {
+        "all_11_zero": true,
+        "file": "client.cleanup.json",
+        "pid": 146,
+        "role": "source"
+      },
+      {
+        "all_11_zero": true,
+        "file": "server.cleanup.json",
+        "pid": 145,
+        "role": "destination"
+      }
+    ],
+    "cleanup_scope": "NBSR11fields+bothprocessjoins",
+    "completed_operations": 3342251,
+    "configured_total_outstanding": 32,
+    "cpu_scope": "whole process lifetime including taskset/warmup/drain; no steady CPU estimate",
+    "endpoint_groups": 1,
+    "errors": 0,
+    "final_process_samples": {
+      "client": {
+        "affinity": [
+          0
+        ],
+        "cpu_ns": 17000000000,
+        "fd_count": null,
+        "fd_count_state": "UNAVAILABLE_ZOMBIE",
+        "pid": 146,
+        "rss_bytes": 0,
+        "start_ticks": 120283,
+        "state": "Z",
+        "thread_ids": [
+          146
+        ],
+        "timestamp_ns": 1236184871306
+      },
+      "server": {
+        "affinity": [
+          0
+        ],
+        "cpu_ns": 16030000000,
+        "fd_count": null,
+        "fd_count_state": "UNAVAILABLE_ZOMBIE",
+        "pid": 145,
+        "rss_bytes": 0,
+        "start_ticks": 120278,
+        "state": "Z",
+        "thread_ids": [
+          145
+        ],
+        "timestamp_ns": 1236183854852
+      }
+    },
+    "lifetime_cpu_ns": 33030000000,
+    "max_observed_total_outstanding": 32,
+    "measured_ns": 30012387934,
+    "observer": {
+      "cadence_ns": 100000000,
+      "nbsr_post_close_reports": true,
+      "qualification": "NOT_QUALIFIED_NO_MATCHED_COMPARISON",
+      "resource_mode": "proc-stat-fd-thread-affinity"
+    },
+    "operations_per_second": 111362.38167219207,
+    "outstanding_observation_scope": "conservative per-stream maximum times streams; not simultaneous global high-water",
+    "outstanding_per_stream": 1,
+    "p99_latency_ns": 510727,
+    "path": "nbsr",
+    "payload_bytes": 1024,
+    "process_exit_codes": {
+      "client": 0,
+      "server": 0
+    },
+    "process_ids": {
+      "client": 146,
+      "server": 145
+    },
+    "raw_directory": "raw/nbsr-d1-r2",
+    "repeat": 2,
+    "resource_records": 659,
+    "runtime_workers": 1,
+    "streams_per_group": 32,
+    "timeouts": 0,
+    "valid": true
+  },
+  {
+    "aggregate_application_gbps": 1.4585218737556258,
+    "binary_record": {
+      "application_streams_created_delta": 0,
+      "completed_operations": 2671547,
+      "configured_total_outstanding": 32,
+      "corrupt": 0,
+      "duplicates": 0,
+      "errors": 0,
+      "max_outstanding_per_stream_observed": 1,
+      "measured_ns": 30010263703,
+      "missing": 0,
+      "model": "bounded-outstanding-per-stream",
+      "outstanding_per_stream": 1,
+      "p50_latency_ns": 339717,
+      "p95_latency_ns": 499926,
+      "p99_latency_ns": 613232,
+      "path": "direct",
+      "payload_bytes": 1024,
+      "replay_entries_delta": 0,
+      "schema": "nbsr-p2a-repeat-v2",
+      "service_channels_created_delta": 0,
+      "streams": 32,
+      "transport_sessions_created_delta": 0,
+      "wrong_request": 0
+    },
+    "cleanup_pass": true,
+    "cleanup_reports": [],
+    "cleanup_scope": "Direct bothprocessjoins; runtimeownership NOT_MEASURED",
+    "completed_operations": 2671547,
+    "configured_total_outstanding": 32,
+    "cpu_scope": "whole process lifetime including taskset/warmup/drain; no steady CPU estimate",
+    "endpoint_groups": 1,
+    "errors": 0,
+    "final_process_samples": {
+      "client": {
+        "affinity": [
+          0
+        ],
+        "cpu_ns": 14930000000,
+        "fd_count": null,
+        "fd_count_state": "UNAVAILABLE_ZOMBIE",
+        "pid": 173,
+        "rss_bytes": 0,
+        "start_ticks": 123642,
+        "state": "Z",
+        "thread_ids": [
+          173
+        ],
+        "timestamp_ns": 1269729143305
+      },
+      "server": {
+        "affinity": [
+          0
+        ],
+        "cpu_ns": 18080000000,
+        "fd_count": null,
+        "fd_count_state": "UNAVAILABLE_ZOMBIE",
+        "pid": 172,
+        "rss_bytes": 0,
+        "start_ticks": 123639,
+        "state": "Z",
+        "thread_ids": [
+          172
+        ],
+        "timestamp_ns": 1269841285871
+      }
+    },
+    "lifetime_cpu_ns": 33010000000,
+    "max_observed_total_outstanding": 32,
+    "measured_ns": 30010263703,
+    "observer": {
+      "cadence_ns": 100000000,
+      "nbsr_post_close_reports": true,
+      "qualification": "NOT_QUALIFIED_NO_MATCHED_COMPARISON",
+      "resource_mode": "proc-stat-fd-thread-affinity"
+    },
+    "operations_per_second": 89021.11045871739,
+    "outstanding_observation_scope": "conservative per-stream maximum times streams; not simultaneous global high-water",
+    "outstanding_per_stream": 1,
+    "p99_latency_ns": 613232,
+    "path": "direct",
+    "payload_bytes": 1024,
+    "process_exit_codes": {
+      "client": 0,
+      "server": 0
+    },
+    "process_ids": {
+      "client": 173,
+      "server": 172
+    },
+    "raw_directory": "raw/direct-d1-r2",
+    "repeat": 2,
+    "resource_records": 658,
+    "runtime_workers": 1,
+    "streams_per_group": 32,
+    "timeouts": 0,
+    "valid": true
+  },
+  {
+    "aggregate_application_gbps": 1.4224449381221527,
+    "binary_record": {
+      "application_streams_created_delta": 0,
+      "completed_operations": 2605418,
+      "configured_total_outstanding": 32,
+      "corrupt": 0,
+      "duplicates": 0,
+      "errors": 0,
+      "max_outstanding_per_stream_observed": 1,
+      "measured_ns": 30009715925,
+      "missing": 0,
+      "model": "bounded-outstanding-per-stream",
+      "outstanding_per_stream": 1,
+      "p50_latency_ns": 349619,
+      "p95_latency_ns": 522927,
+      "p99_latency_ns": 688536,
+      "path": "direct",
+      "payload_bytes": 1024,
+      "replay_entries_delta": 0,
+      "schema": "nbsr-p2a-repeat-v2",
+      "service_channels_created_delta": 0,
+      "streams": 32,
+      "transport_sessions_created_delta": 0,
+      "wrong_request": 0
+    },
+    "cleanup_pass": true,
+    "cleanup_reports": [],
+    "cleanup_scope": "Direct bothprocessjoins; runtimeownership NOT_MEASURED",
+    "completed_operations": 2605418,
+    "configured_total_outstanding": 32,
+    "cpu_scope": "whole process lifetime including taskset/warmup/drain; no steady CPU estimate",
+    "endpoint_groups": 1,
+    "errors": 0,
+    "final_process_samples": {
+      "client": {
+        "affinity": [
+          0
+        ],
+        "cpu_ns": 14950000000,
+        "fd_count": null,
+        "fd_count_state": "UNAVAILABLE_ZOMBIE",
+        "pid": 202,
+        "rss_bytes": 0,
+        "start_ticks": 127006,
+        "state": "Z",
+        "thread_ids": [
+          202
+        ],
+        "timestamp_ns": 1303374956665
+      },
+      "server": {
+        "affinity": [
+          0
+        ],
+        "cpu_ns": 18050000000,
+        "fd_count": null,
+        "fd_count_state": "UNAVAILABLE_ZOMBIE",
+        "pid": 201,
+        "rss_bytes": 0,
+        "start_ticks": 127003,
+        "state": "Z",
+        "thread_ids": [
+          201
+        ],
+        "timestamp_ns": 1303487105328
+      }
+    },
+    "lifetime_cpu_ns": 33000000000,
+    "max_observed_total_outstanding": 32,
+    "measured_ns": 30009715925,
+    "observer": {
+      "cadence_ns": 100000000,
+      "nbsr_post_close_reports": true,
+      "qualification": "NOT_QUALIFIED_NO_MATCHED_COMPARISON",
+      "resource_mode": "proc-stat-fd-thread-affinity"
+    },
+    "operations_per_second": 86819.14905530716,
+    "outstanding_observation_scope": "conservative per-stream maximum times streams; not simultaneous global high-water",
+    "outstanding_per_stream": 1,
+    "p99_latency_ns": 688536,
+    "path": "direct",
+    "payload_bytes": 1024,
+    "process_exit_codes": {
+      "client": 0,
+      "server": 0
+    },
+    "process_ids": {
+      "client": 202,
+      "server": 201
+    },
+    "raw_directory": "raw/direct-d1-r3",
+    "repeat": 3,
+    "resource_records": 658,
+    "runtime_workers": 1,
+    "streams_per_group": 32,
+    "timeouts": 0,
+    "valid": true
+  },
+  {
+    "classification": "FAIL",
+    "error": "PermissionError: [Errno 13] Permission denied: '/proc/230/fd'",
+    "path": "nbsr",
+    "raw_directory": "raw/nbsr-d1-r3",
+    "repeat": 3,
+    "valid": false
+  }
+]

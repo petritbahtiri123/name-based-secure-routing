@@ -1,0 +1,9 @@
+{
+  "runtime_image_id": "sha256:dd08db4a391b16a9d303a251d2693808baf470f2fc4870d8e3c54b7523deed71",
+  "build": "Current edc0f96d release, Rust1.97.1, all three ELF binaries and hashes verified",
+  "raw_integrity": "365 files verified twice",
+  "cleanup": "six post-close reports validated, all eleven integer counters zero; includes the telemetry-invalid third NBSR attempt",
+  "unresolved": "PermissionError /proc/230/fd in corrected finite cohort; no replacement",
+  "runtime_containers": "All automatically removed after logs/evidence persisted; no active container",
+  "retained_build_cache": "nbsr-linux-build-edc0f96d, exited0, project-owned generated Cargo cache; retained because cleanup is unnecessary"
+}
