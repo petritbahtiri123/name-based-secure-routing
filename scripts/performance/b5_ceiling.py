@@ -16,6 +16,44 @@ def require(condition, reason):
         raise ValueError(reason)
 
 
+def topology_identity(topology):
+    """Stable fields actually supplied by windows_processor_topology.
+
+    These identify processor layout, not a unique host or CPU model. Do not
+    manufacture a hardware identifier or compare timestamps/derived labels.
+    """
+    try:
+        require(type(topology) is dict and topology["verified"] is True, "unverified topology")
+        require(topology["scope"] == "physical-core-selected-logical-processors", "unsupported topology scope")
+        physical, logical = topology["physical_cores"], topology["logical_processors"]
+        require(type(physical) is int and physical > 0 and type(logical) is int and logical > 0, "invalid processor counts")
+        require(type(topology["cores"]) is list and len(topology["cores"]) == physical, "missing core identity")
+        cores, combined = [], 0
+        for index, core in enumerate(topology["cores"]):
+            require(type(core) is dict and type(core["core_index"]) is int and core["core_index"] == index, "invalid core index")
+            require(type(core["smt"]) is bool and type(core["efficiency_class"]) is int and core["efficiency_class"] >= 0, "invalid core identity")
+            mask = core["logical_mask"]
+            require(type(mask) is int and mask > 0 and mask & combined == 0, "invalid core mask")
+            combined |= mask
+            cores.append({key: core[key] for key in ("core_index", "smt", "efficiency_class", "logical_mask")})
+        require(combined.bit_count() == logical, "topology count mismatch")
+        return {"scope": topology["scope"], "physical_cores": physical, "logical_processors": logical, "cores": cores}
+    except (KeyError, TypeError) as error:
+        raise ValueError("incomplete topology identity") from error
+
+
+def placement_identity(value):
+    try:
+        require(type(value) is dict, "invalid reference placement")
+        mask, count, endpoints = value["source_mask"], value["logical_processors_available"], value["endpoint_masks"]
+        require(type(mask) is int and mask > 0 and type(count) is int and count > 0 and mask.bit_count() == count, "invalid source pool")
+        require(type(endpoints) is list and len(endpoints) in (1, 2, 4)
+                and all(type(v) is int and v == mask for v in endpoints), "reference requires matched shared pool")
+        return {"source_mask": mask, "endpoint_masks": list(endpoints), "logical_processors_available": count}
+    except (KeyError, TypeError) as error:
+        raise ValueError("incomplete reference placement") from error
+
+
 def load_ceiling(root, *, current_sha, binary_sha256, shape, percent, depth):
     """Recompute classification and derive the rate from exact operation counts.
 
@@ -55,6 +93,10 @@ def load_ceiling(root, *, current_sha, binary_sha256, shape, percent, depth):
         require(env["binary_sha256"] == binary_sha256, "binary mismatch")
         require(env["topology"]["verified"] is True and env["smt_siblings_used"] is False, "unverified physical cores")
         require(type(env["physical_cores"]) is int and env["physical_cores"] == shape["physical_cores"], "physical-core mismatch")
+        reference_topology = topology_identity(env["topology"])
+        reference_placement = placement_identity(env["placement"])
+        require(reference_placement["logical_processors_available"] == shape["physical_cores"]
+                and len(reference_placement["endpoint_masks"]) == shape["endpoint_groups"], "placement shape mismatch")
         require(type(records) is list, "invalid records")
         rows = [r for r in records if r["path"] == "nbsr"]
         require(rows, "missing NBSR reference")
@@ -92,6 +134,9 @@ def load_ceiling(root, *, current_sha, binary_sha256, shape, percent, depth):
             "shape": dict(shape),
             "outstanding_per_stream": depth,
             "binary_sha256": dict(binary_sha256),
+            "reference_placement": reference_placement,
+            "reference_topology_identity": reference_topology,
+            "hardware_identity_scope": "TOPOLOGY_ONLY_NO_HOST_ID",
             "scope": "Current finite closed-loop reference; actual paced load/stability requires live validation.",
         }
     except (OSError, KeyError, TypeError, OverflowError, UnicodeError) as error:

@@ -1,6 +1,7 @@
 """Soak load must consume a matching stable cohort, never a rounded peak."""
 
 import hashlib
+from copy import deepcopy
 import json
 from fractions import Fraction
 from pathlib import Path
@@ -12,6 +13,9 @@ from scripts.performance.b5_ceiling import load_ceiling
 SHA = "a" * 40
 BINARIES = dict(direct="b" * 64, nbsr="c" * 64, server="d" * 64)
 SHAPE = dict(physical_cores=1, endpoint_groups=1, streams_per_group=1, payload_bytes=1024, runtime_workers=1)
+TOPOLOGY = dict(verified=True, scope="physical-core-selected-logical-processors", physical_cores=1,
+                logical_processors=2, cores=[dict(core_index=0, smt=True, efficiency_class=0, logical_mask=3)])
+PLACEMENT = dict(source_mask=1, endpoint_masks=[1], logical_processors_available=1)
 
 
 def fixture(root, *, status="", sha=SHA, counts=(1001, 1002, 1003)):
@@ -21,7 +25,8 @@ def fixture(root, *, status="", sha=SHA, counts=(1001, 1002, 1003)):
         binary_sha256=BINARIES,
         physical_cores=1,
         smt_siblings_used=False,
-        topology=dict(verified=True),
+        topology=deepcopy(TOPOLOGY),
+        placement=deepcopy(PLACEMENT),
     )
     records = [
         dict(
@@ -135,3 +140,19 @@ def test_only_declared_integer_load_range_allowed(tmp_path, percent):
     fixture(tmp_path)
     with pytest.raises(ValueError):
         load(tmp_path, percent=percent)
+
+
+def test_verified_reference_returns_exact_placement_and_stable_topology(tmp_path, monkeypatch):
+    fixture(tmp_path)
+    original = Path.read_text
+
+    def unverified_environment(path, *args, **kwargs):
+        if path.name == "environment.json":
+            raise AssertionError("must not reread unverified environment")
+        return original(path, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "read_text", unverified_environment)
+    result = load(tmp_path)
+    assert result["reference_placement"] == PLACEMENT
+    assert result["reference_topology_identity"] == {k: v for k, v in TOPOLOGY.items() if k != "verified"}
+    assert result["hardware_identity_scope"] == "TOPOLOGY_ONLY_NO_HOST_ID"

@@ -119,3 +119,17 @@ RED/GREEN tests are indexed by `b5-live-driver-f9e36322`.
 
 The bounded streaming controller, live failure coverage, current-SHA reference,
 resource/drift gates and long repeated soaks remain outstanding.
+
+## Bounded controller
+
+`scripts/run_b5_v2.py` now connects the driver to bounded binary stdout queues,
+silent-output deadline/resource polling, raw file preservation, failure cleanup,
+per-role memory checks and eleven-counter NBSR close reports. Diagnostic runs
+are explicit; ceiling-bound runs require current source/binary/placement/topology
+matching and three repeats, five for CV above 5%. The loader uses already-verified
+reference bytes. Topology equality is not a unique host identity proof.
+
+Fifty-three focused tests pass, including literal RED/GREEN for the controller
+and reference-placement binding. See `b5-controller-3951dbc5`. Live smoke and
+continuous ownership/observer qualification still precede authoritative soaks;
+the controller reports accounting qualification pending, never automatic STABLE.

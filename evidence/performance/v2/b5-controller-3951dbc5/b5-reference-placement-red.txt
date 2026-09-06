@@ -1,0 +1,170 @@
+FFFFFFF                                                                  [100%]
+================================== FAILURES ===================================
+_____ test_verified_reference_returns_exact_placement_and_stable_topology _____
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-901/test_verified_reference_return0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000284FA4AF100>
+
+    def test_verified_reference_returns_exact_placement_and_stable_topology(tmp_path, monkeypatch):
+        fixture(tmp_path)
+        original = Path.read_text
+
+        def unverified_environment(path, *args, **kwargs):
+            if path.name == "environment.json":
+                raise AssertionError("must not reread unverified environment")
+            return original(path, *args, **kwargs)
+
+        monkeypatch.setattr(Path, "read_text", unverified_environment)
+        result = load(tmp_path)
+>       assert result["reference_placement"] == PLACEMENT
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'reference_placement'
+
+tests\performance\test_b5_ceiling.py:156: KeyError
+__________ test_reference_pool_and_stable_topology_must_match[None] ___________
+
+change = None
+
+    @pytest.mark.parametrize("change", [None, "mask", "efficiency", "logical_count"])
+    def test_reference_pool_and_stable_topology_must_match(change):
+        from copy import deepcopy
+        topology = dict(verified=True, scope="physical-core-selected-logical-processors", physical_cores=1,
+                        logical_processors=2, cores=[dict(core_index=0, smt=True, efficiency_class=0, logical_mask=3)])
+        plan = dict(source_mask=1, endpoint_masks=[1], logical_processors_available=1)
+        load = dict(reference_placement=deepcopy(plan),
+                    reference_topology_identity={k: deepcopy(v) for k, v in topology.items() if k != "verified"})
+        if change == "mask":
+            plan["source_mask"] = 2
+            plan["endpoint_masks"] = [2]
+        elif change == "efficiency":
+            topology["cores"][0]["efficiency_class"] = 1
+        elif change == "logical_count":
+            topology["logical_processors"] = 4
+        if change:
+            with pytest.raises(ValueError):
+                b5.require_reference_placement(load, plan, topology)
+        else:
+>           b5.require_reference_placement(load, plan, topology)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: module 'scripts.run_b5_v2' has no attribute 'require_reference_placement'
+
+tests\performance\test_b5_v2_controller.py:202: AttributeError
+__________ test_reference_pool_and_stable_topology_must_match[mask] ___________
+
+change = 'mask'
+
+    @pytest.mark.parametrize("change", [None, "mask", "efficiency", "logical_count"])
+    def test_reference_pool_and_stable_topology_must_match(change):
+        from copy import deepcopy
+        topology = dict(verified=True, scope="physical-core-selected-logical-processors", physical_cores=1,
+                        logical_processors=2, cores=[dict(core_index=0, smt=True, efficiency_class=0, logical_mask=3)])
+        plan = dict(source_mask=1, endpoint_masks=[1], logical_processors_available=1)
+        load = dict(reference_placement=deepcopy(plan),
+                    reference_topology_identity={k: deepcopy(v) for k, v in topology.items() if k != "verified"})
+        if change == "mask":
+            plan["source_mask"] = 2
+            plan["endpoint_masks"] = [2]
+        elif change == "efficiency":
+            topology["cores"][0]["efficiency_class"] = 1
+        elif change == "logical_count":
+            topology["logical_processors"] = 4
+        if change:
+            with pytest.raises(ValueError):
+>               b5.require_reference_placement(load, plan, topology)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               AttributeError: module 'scripts.run_b5_v2' has no attribute 'require_reference_placement'
+
+tests\performance\test_b5_v2_controller.py:200: AttributeError
+_______ test_reference_pool_and_stable_topology_must_match[efficiency] ________
+
+change = 'efficiency'
+
+    @pytest.mark.parametrize("change", [None, "mask", "efficiency", "logical_count"])
+    def test_reference_pool_and_stable_topology_must_match(change):
+        from copy import deepcopy
+        topology = dict(verified=True, scope="physical-core-selected-logical-processors", physical_cores=1,
+                        logical_processors=2, cores=[dict(core_index=0, smt=True, efficiency_class=0, logical_mask=3)])
+        plan = dict(source_mask=1, endpoint_masks=[1], logical_processors_available=1)
+        load = dict(reference_placement=deepcopy(plan),
+                    reference_topology_identity={k: deepcopy(v) for k, v in topology.items() if k != "verified"})
+        if change == "mask":
+            plan["source_mask"] = 2
+            plan["endpoint_masks"] = [2]
+        elif change == "efficiency":
+            topology["cores"][0]["efficiency_class"] = 1
+        elif change == "logical_count":
+            topology["logical_processors"] = 4
+        if change:
+            with pytest.raises(ValueError):
+>               b5.require_reference_placement(load, plan, topology)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               AttributeError: module 'scripts.run_b5_v2' has no attribute 'require_reference_placement'
+
+tests\performance\test_b5_v2_controller.py:200: AttributeError
+______ test_reference_pool_and_stable_topology_must_match[logical_count] ______
+
+change = 'logical_count'
+
+    @pytest.mark.parametrize("change", [None, "mask", "efficiency", "logical_count"])
+    def test_reference_pool_and_stable_topology_must_match(change):
+        from copy import deepcopy
+        topology = dict(verified=True, scope="physical-core-selected-logical-processors", physical_cores=1,
+                        logical_processors=2, cores=[dict(core_index=0, smt=True, efficiency_class=0, logical_mask=3)])
+        plan = dict(source_mask=1, endpoint_masks=[1], logical_processors_available=1)
+        load = dict(reference_placement=deepcopy(plan),
+                    reference_topology_identity={k: deepcopy(v) for k, v in topology.items() if k != "verified"})
+        if change == "mask":
+            plan["source_mask"] = 2
+            plan["endpoint_masks"] = [2]
+        elif change == "efficiency":
+            topology["cores"][0]["efficiency_class"] = 1
+        elif change == "logical_count":
+            topology["logical_processors"] = 4
+        if change:
+            with pytest.raises(ValueError):
+>               b5.require_reference_placement(load, plan, topology)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               AttributeError: module 'scripts.run_b5_v2' has no attribute 'require_reference_placement'
+
+tests\performance\test_b5_v2_controller.py:200: AttributeError
+_ test_final_source_identity_check_rejects_repository_drift[bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb-] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000284FA5A8180>
+head = 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', status = ''
+
+    @pytest.mark.parametrize("head,status", [("b" * 40, ""), ("a" * 40, " M source.rs")])
+    def test_final_source_identity_check_rejects_repository_drift(monkeypatch, head, status):
+        def output(argv, **kwargs):
+            return head if argv[1] == "rev-parse" else status
+        monkeypatch.setattr(b5.subprocess, "check_output", output)
+        with pytest.raises(RuntimeError, match="source changed"):
+>           b5.assert_clean_source("a" * 40)
+            ^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: module 'scripts.run_b5_v2' has no attribute 'assert_clean_source'
+
+tests\performance\test_b5_v2_controller.py:211: AttributeError
+_ test_final_source_identity_check_rejects_repository_drift[aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa- M source.rs] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000284FA531010>
+head = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', status = ' M source.rs'
+
+    @pytest.mark.parametrize("head,status", [("b" * 40, ""), ("a" * 40, " M source.rs")])
+    def test_final_source_identity_check_rejects_repository_drift(monkeypatch, head, status):
+        def output(argv, **kwargs):
+            return head if argv[1] == "rev-parse" else status
+        monkeypatch.setattr(b5.subprocess, "check_output", output)
+        with pytest.raises(RuntimeError, match="source changed"):
+>           b5.assert_clean_source("a" * 40)
+            ^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: module 'scripts.run_b5_v2' has no attribute 'assert_clean_source'
+
+tests\performance\test_b5_v2_controller.py:211: AttributeError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_b5_ceiling.py::test_verified_reference_returns_exact_placement_and_stable_topology
+FAILED tests/performance/test_b5_v2_controller.py::test_reference_pool_and_stable_topology_must_match[None]
+FAILED tests/performance/test_b5_v2_controller.py::test_reference_pool_and_stable_topology_must_match[mask]
+FAILED tests/performance/test_b5_v2_controller.py::test_reference_pool_and_stable_topology_must_match[efficiency]
+FAILED tests/performance/test_b5_v2_controller.py::test_reference_pool_and_stable_topology_must_match[logical_count]
+FAILED tests/performance/test_b5_v2_controller.py::test_final_source_identity_check_rejects_repository_drift[bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb-]
+FAILED tests/performance/test_b5_v2_controller.py::test_final_source_identity_check_rejects_repository_drift[aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa- M source.rs]
+7 failed, 29 deselected in 1.01s
