@@ -1,0 +1,24 @@
+[
+  {
+    "path": "direct",
+    "groups": 2,
+    "exit_code": 101,
+    "elapsed_seconds": 0.021837499924004078,
+    "source_pid": 24972,
+    "source_process_exited": true,
+    "success_final": false,
+    "cleanup": "NOT_MEASURED; destination processes explicitly terminated",
+    "result": "PASS"
+  },
+  {
+    "path": "nbsr",
+    "groups": 2,
+    "exit_code": 101,
+    "elapsed_seconds": 0.012369100004434586,
+    "source_pid": 26888,
+    "source_process_exited": true,
+    "success_final": false,
+    "cleanup": "NOT_MEASURED; destination processes explicitly terminated",
+    "result": "PASS"
+  }
+]

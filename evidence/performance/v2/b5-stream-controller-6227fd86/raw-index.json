@@ -1,0 +1,12 @@
+[
+  {
+    "path": "C:\\NBSR-build\\b5-failure-6227fd86",
+    "files_verified": 16,
+    "manifest_sha256": "fe09ed022e2c7a241009cd5490141e2209d579fc70785634d0aaaa33d566c6f5"
+  },
+  {
+    "path": "C:\\NBSR-build\\b5-failure-immediate-6227fd86",
+    "files_verified": 35,
+    "manifest_sha256": "58147acaa5c01e1e36a37a6346207f8237fd785652321a94569bccf74d1f3c38"
+  }
+]
