@@ -1,0 +1,842 @@
+[
+  {
+    "path": "direct",
+    "valid": true,
+    "classification": "DIAGNOSTIC",
+    "scope": "Windows loopback",
+    "final": {
+      "schema": "nbsr-b5-grouped-final-v1",
+      "groups": 4,
+      "payload_bytes": 16384,
+      "streams_per_group": 1,
+      "outstanding_per_stream": 1,
+      "measurement_duration_ns": 120000000000,
+      "drain_duration_ns": 571100,
+      "offered": 240000,
+      "reserved": 238498,
+      "issued": 238498,
+      "completed": 238498,
+      "missed": 1502,
+      "unreserved_current": 0,
+      "group_counters": [
+        {
+          "group_id": 0,
+          "offered": 60000,
+          "reserved": 59640,
+          "issued": 59640,
+          "completed": 59640,
+          "missed": 360,
+          "unreserved_current": 0
+        },
+        {
+          "group_id": 1,
+          "offered": 60000,
+          "reserved": 59624,
+          "issued": 59624,
+          "completed": 59624,
+          "missed": 376,
+          "unreserved_current": 0
+        },
+        {
+          "group_id": 2,
+          "offered": 60000,
+          "reserved": 59628,
+          "issued": 59628,
+          "completed": 59628,
+          "missed": 372,
+          "unreserved_current": 0
+        },
+        {
+          "group_id": 3,
+          "offered": 60000,
+          "reserved": 59606,
+          "issued": 59606,
+          "completed": 59606,
+          "missed": 394,
+          "unreserved_current": 0
+        }
+      ],
+      "max_outstanding_observed": 4,
+      "errors": 0,
+      "timeouts": 0,
+      "collector_overflow_count": 0,
+      "all_groups_joined": true,
+      "source_cleanup": {
+        "status": "NOT_MEASURED"
+      },
+      "evidence_valid": true
+    },
+    "achieved_offered_ratio": 0.9937416666666666,
+    "gbps": 0.521004351386791,
+    "qualification": {
+      "steady_windows": 3,
+      "latency_comparison_available": true,
+      "resource_series_available": true,
+      "resource_phase_clock": "first-progress receive time minus elapsed; approximate, excludes earlier samples",
+      "thermal_and_power": "NOT_MEASURED"
+    },
+    "ownership_reports": [],
+    "continuous_ownership": {
+      "classification": "NOT_MEASURED"
+    },
+    "cleanup_scope": "process joins only; runtime ownership NOT_MEASURED",
+    "internal_failure_thread_join": "NOT_MEASURED",
+    "affinity": [
+      {
+        "requested_mask": 85,
+        "observed_mask": 85,
+        "system_mask": 255,
+        "verified": true
+      },
+      {
+        "requested_mask": 85,
+        "observed_mask": 85,
+        "system_mask": 255,
+        "verified": true
+      },
+      {
+        "requested_mask": 85,
+        "observed_mask": 85,
+        "system_mask": 255,
+        "verified": true
+      },
+      {
+        "requested_mask": 85,
+        "observed_mask": 85,
+        "system_mask": 255,
+        "verified": true
+      },
+      {
+        "requested_mask": 85,
+        "observed_mask": 85,
+        "system_mask": 255,
+        "verified": true
+      }
+    ],
+    "repeat": 1
+  },
+  {
+    "path": "nbsr",
+    "valid": true,
+    "classification": "DIAGNOSTIC",
+    "scope": "Windows loopback",
+    "final": {
+      "schema": "nbsr-b5-grouped-final-v1",
+      "groups": 4,
+      "payload_bytes": 16384,
+      "streams_per_group": 1,
+      "outstanding_per_stream": 1,
+      "measurement_duration_ns": 120000000000,
+      "drain_duration_ns": 1342300,
+      "offered": 240000,
+      "reserved": 238427,
+      "issued": 238427,
+      "completed": 238427,
+      "missed": 1573,
+      "unreserved_current": 0,
+      "group_counters": [
+        {
+          "group_id": 0,
+          "offered": 60000,
+          "reserved": 59627,
+          "issued": 59627,
+          "completed": 59627,
+          "missed": 373,
+          "unreserved_current": 0
+        },
+        {
+          "group_id": 1,
+          "offered": 60000,
+          "reserved": 59611,
+          "issued": 59611,
+          "completed": 59611,
+          "missed": 389,
+          "unreserved_current": 0
+        },
+        {
+          "group_id": 2,
+          "offered": 60000,
+          "reserved": 59594,
+          "issued": 59594,
+          "completed": 59594,
+          "missed": 406,
+          "unreserved_current": 0
+        },
+        {
+          "group_id": 3,
+          "offered": 60000,
+          "reserved": 59595,
+          "issued": 59595,
+          "completed": 59595,
+          "missed": 405,
+          "unreserved_current": 0
+        }
+      ],
+      "max_outstanding_observed": 4,
+      "errors": 0,
+      "timeouts": 0,
+      "collector_overflow_count": 0,
+      "all_groups_joined": true,
+      "source_cleanup": {
+        "status": "SEPARATE_REPORT_REQUIRED"
+      },
+      "evidence_valid": true
+    },
+    "achieved_offered_ratio": 0.9934458333333334,
+    "gbps": 0.5208459029712037,
+    "qualification": {
+      "steady_windows": 3,
+      "latency_comparison_available": true,
+      "resource_series_available": true,
+      "resource_phase_clock": "first-progress receive time minus elapsed; approximate, excludes earlier samples",
+      "thermal_and_power": "NOT_MEASURED"
+    },
+    "ownership_reports": [
+      {
+        "role": "destination",
+        "pid": 20648,
+        "file": "d0.cleanup.json",
+        "all_11_zero": true
+      },
+      {
+        "role": "destination",
+        "pid": 34556,
+        "file": "d1.cleanup.json",
+        "all_11_zero": true
+      },
+      {
+        "role": "destination",
+        "pid": 31464,
+        "file": "d2.cleanup.json",
+        "all_11_zero": true
+      },
+      {
+        "role": "destination",
+        "pid": 35084,
+        "file": "d3.cleanup.json",
+        "all_11_zero": true
+      },
+      {
+        "role": "source",
+        "pid": 34632,
+        "file": "source.cleanup.json",
+        "all_11_zero": true
+      }
+    ],
+    "continuous_ownership": {
+      "classification": "SAMPLED_NO_SUSTAINED_GROWTH",
+      "sample_counts": {
+        "destination_2": 124,
+        "destination_1": 124,
+        "destination_0": 124,
+        "source": 121,
+        "destination_3": 124
+      },
+      "max_snapshot_gap_ns": {
+        "destination_2": 1020447400,
+        "destination_1": 1030335400,
+        "destination_0": 1030192200,
+        "source": 1033848000,
+        "destination_3": 1032507300
+      },
+      "retained_window_per_role": 60,
+      "scope": "Process-local sample intervals; cross-process clock alignment and final zero cleanup are separate.",
+      "retained_capacity_scope": "Optional fields observed when emitted; not allocator or leak attribution."
+    },
+    "cleanup_scope": "11-counter reports and all process joins",
+    "internal_failure_thread_join": "NOT_MEASURED",
+    "affinity": [
+      {
+        "requested_mask": 85,
+        "observed_mask": 85,
+        "system_mask": 255,
+        "verified": true
+      },
+      {
+        "requested_mask": 85,
+        "observed_mask": 85,
+        "system_mask": 255,
+        "verified": true
+      },
+      {
+        "requested_mask": 85,
+        "observed_mask": 85,
+        "system_mask": 255,
+        "verified": true
+      },
+      {
+        "requested_mask": 85,
+        "observed_mask": 85,
+        "system_mask": 255,
+        "verified": true
+      },
+      {
+        "requested_mask": 85,
+        "observed_mask": 85,
+        "system_mask": 255,
+        "verified": true
+      }
+    ],
+    "repeat": 1
+  },
+  {
+    "path": "direct",
+    "valid": true,
+    "classification": "DIAGNOSTIC",
+    "scope": "Windows loopback",
+    "final": {
+      "schema": "nbsr-b5-grouped-final-v1",
+      "groups": 4,
+      "payload_bytes": 16384,
+      "streams_per_group": 1,
+      "outstanding_per_stream": 1,
+      "measurement_duration_ns": 120000000000,
+      "drain_duration_ns": 936200,
+      "offered": 240000,
+      "reserved": 239082,
+      "issued": 239082,
+      "completed": 239082,
+      "missed": 918,
+      "unreserved_current": 0,
+      "group_counters": [
+        {
+          "group_id": 0,
+          "offered": 60000,
+          "reserved": 59765,
+          "issued": 59765,
+          "completed": 59765,
+          "missed": 235,
+          "unreserved_current": 0
+        },
+        {
+          "group_id": 1,
+          "offered": 60000,
+          "reserved": 59781,
+          "issued": 59781,
+          "completed": 59781,
+          "missed": 219,
+          "unreserved_current": 0
+        },
+        {
+          "group_id": 2,
+          "offered": 60000,
+          "reserved": 59770,
+          "issued": 59770,
+          "completed": 59770,
+          "missed": 230,
+          "unreserved_current": 0
+        },
+        {
+          "group_id": 3,
+          "offered": 60000,
+          "reserved": 59766,
+          "issued": 59766,
+          "completed": 59766,
+          "missed": 234,
+          "unreserved_current": 0
+        }
+      ],
+      "max_outstanding_observed": 4,
+      "errors": 0,
+      "timeouts": 0,
+      "collector_overflow_count": 0,
+      "all_groups_joined": true,
+      "source_cleanup": {
+        "status": "NOT_MEASURED"
+      },
+      "evidence_valid": true
+    },
+    "achieved_offered_ratio": 0.996175,
+    "gbps": 0.5222785237570505,
+    "qualification": {
+      "steady_windows": 3,
+      "latency_comparison_available": true,
+      "resource_series_available": true,
+      "resource_phase_clock": "first-progress receive time minus elapsed; approximate, excludes earlier samples",
+      "thermal_and_power": "NOT_MEASURED"
+    },
+    "ownership_reports": [],
+    "continuous_ownership": {
+      "classification": "NOT_MEASURED"
+    },
+    "cleanup_scope": "process joins only; runtime ownership NOT_MEASURED",
+    "internal_failure_thread_join": "NOT_MEASURED",
+    "affinity": [
+      {
+        "requested_mask": 85,
+        "observed_mask": 85,
+        "system_mask": 255,
+        "verified": true
+      },
+      {
+        "requested_mask": 85,
+        "observed_mask": 85,
+        "system_mask": 255,
+        "verified": true
+      },
+      {
+        "requested_mask": 85,
+        "observed_mask": 85,
+        "system_mask": 255,
+        "verified": true
+      },
+      {
+        "requested_mask": 85,
+        "observed_mask": 85,
+        "system_mask": 255,
+        "verified": true
+      },
+      {
+        "requested_mask": 85,
+        "observed_mask": 85,
+        "system_mask": 255,
+        "verified": true
+      }
+    ],
+    "repeat": 2
+  },
+  {
+    "path": "nbsr",
+    "valid": true,
+    "classification": "DIAGNOSTIC",
+    "scope": "Windows loopback",
+    "final": {
+      "schema": "nbsr-b5-grouped-final-v1",
+      "groups": 4,
+      "payload_bytes": 16384,
+      "streams_per_group": 1,
+      "outstanding_per_stream": 1,
+      "measurement_duration_ns": 120000000000,
+      "drain_duration_ns": 1018500,
+      "offered": 240000,
+      "reserved": 239244,
+      "issued": 239244,
+      "completed": 239244,
+      "missed": 756,
+      "unreserved_current": 0,
+      "group_counters": [
+        {
+          "group_id": 0,
+          "offered": 60000,
+          "reserved": 59808,
+          "issued": 59808,
+          "completed": 59808,
+          "missed": 192,
+          "unreserved_current": 0
+        },
+        {
+          "group_id": 1,
+          "offered": 60000,
+          "reserved": 59813,
+          "issued": 59813,
+          "completed": 59813,
+          "missed": 187,
+          "unreserved_current": 0
+        },
+        {
+          "group_id": 2,
+          "offered": 60000,
+          "reserved": 59808,
+          "issued": 59808,
+          "completed": 59808,
+          "missed": 192,
+          "unreserved_current": 0
+        },
+        {
+          "group_id": 3,
+          "offered": 60000,
+          "reserved": 59815,
+          "issued": 59815,
+          "completed": 59815,
+          "missed": 185,
+          "unreserved_current": 0
+        }
+      ],
+      "max_outstanding_observed": 4,
+      "errors": 0,
+      "timeouts": 0,
+      "collector_overflow_count": 0,
+      "all_groups_joined": true,
+      "source_cleanup": {
+        "status": "SEPARATE_REPORT_REQUIRED"
+      },
+      "evidence_valid": true
+    },
+    "achieved_offered_ratio": 0.99685,
+    "gbps": 0.5226320569604166,
+    "qualification": {
+      "steady_windows": 3,
+      "latency_comparison_available": true,
+      "resource_series_available": true,
+      "resource_phase_clock": "first-progress receive time minus elapsed; approximate, excludes earlier samples",
+      "thermal_and_power": "NOT_MEASURED"
+    },
+    "ownership_reports": [
+      {
+        "role": "destination",
+        "pid": 15968,
+        "file": "d0.cleanup.json",
+        "all_11_zero": true
+      },
+      {
+        "role": "destination",
+        "pid": 29528,
+        "file": "d1.cleanup.json",
+        "all_11_zero": true
+      },
+      {
+        "role": "destination",
+        "pid": 5172,
+        "file": "d2.cleanup.json",
+        "all_11_zero": true
+      },
+      {
+        "role": "destination",
+        "pid": 14944,
+        "file": "d3.cleanup.json",
+        "all_11_zero": true
+      },
+      {
+        "role": "source",
+        "pid": 16128,
+        "file": "source.cleanup.json",
+        "all_11_zero": true
+      }
+    ],
+    "continuous_ownership": {
+      "classification": "SAMPLED_NO_SUSTAINED_GROWTH",
+      "sample_counts": {
+        "destination_2": 124,
+        "destination_3": 124,
+        "destination_0": 124,
+        "source": 121,
+        "destination_1": 124
+      },
+      "max_snapshot_gap_ns": {
+        "destination_2": 1020157800,
+        "destination_3": 1019098900,
+        "destination_0": 1023273000,
+        "source": 1013617500,
+        "destination_1": 1019225500
+      },
+      "retained_window_per_role": 60,
+      "scope": "Process-local sample intervals; cross-process clock alignment and final zero cleanup are separate.",
+      "retained_capacity_scope": "Optional fields observed when emitted; not allocator or leak attribution."
+    },
+    "cleanup_scope": "11-counter reports and all process joins",
+    "internal_failure_thread_join": "NOT_MEASURED",
+    "affinity": [
+      {
+        "requested_mask": 85,
+        "observed_mask": 85,
+        "system_mask": 255,
+        "verified": true
+      },
+      {
+        "requested_mask": 85,
+        "observed_mask": 85,
+        "system_mask": 255,
+        "verified": true
+      },
+      {
+        "requested_mask": 85,
+        "observed_mask": 85,
+        "system_mask": 255,
+        "verified": true
+      },
+      {
+        "requested_mask": 85,
+        "observed_mask": 85,
+        "system_mask": 255,
+        "verified": true
+      },
+      {
+        "requested_mask": 85,
+        "observed_mask": 85,
+        "system_mask": 255,
+        "verified": true
+      }
+    ],
+    "repeat": 2
+  },
+  {
+    "path": "direct",
+    "valid": true,
+    "classification": "DIAGNOSTIC",
+    "scope": "Windows loopback",
+    "final": {
+      "schema": "nbsr-b5-grouped-final-v1",
+      "groups": 4,
+      "payload_bytes": 16384,
+      "streams_per_group": 1,
+      "outstanding_per_stream": 1,
+      "measurement_duration_ns": 120000000000,
+      "drain_duration_ns": 1466800,
+      "offered": 240000,
+      "reserved": 239604,
+      "issued": 239604,
+      "completed": 239604,
+      "missed": 396,
+      "unreserved_current": 0,
+      "group_counters": [
+        {
+          "group_id": 0,
+          "offered": 60000,
+          "reserved": 59909,
+          "issued": 59909,
+          "completed": 59909,
+          "missed": 91,
+          "unreserved_current": 0
+        },
+        {
+          "group_id": 1,
+          "offered": 60000,
+          "reserved": 59897,
+          "issued": 59897,
+          "completed": 59897,
+          "missed": 103,
+          "unreserved_current": 0
+        },
+        {
+          "group_id": 2,
+          "offered": 60000,
+          "reserved": 59899,
+          "issued": 59899,
+          "completed": 59899,
+          "missed": 101,
+          "unreserved_current": 0
+        },
+        {
+          "group_id": 3,
+          "offered": 60000,
+          "reserved": 59899,
+          "issued": 59899,
+          "completed": 59899,
+          "missed": 101,
+          "unreserved_current": 0
+        }
+      ],
+      "max_outstanding_observed": 4,
+      "errors": 0,
+      "timeouts": 0,
+      "collector_overflow_count": 0,
+      "all_groups_joined": true,
+      "source_cleanup": {
+        "status": "NOT_MEASURED"
+      },
+      "evidence_valid": true
+    },
+    "achieved_offered_ratio": 0.99835,
+    "gbps": 0.5234165269053195,
+    "qualification": {
+      "steady_windows": 3,
+      "latency_comparison_available": true,
+      "resource_series_available": true,
+      "resource_phase_clock": "first-progress receive time minus elapsed; approximate, excludes earlier samples",
+      "thermal_and_power": "NOT_MEASURED"
+    },
+    "ownership_reports": [],
+    "continuous_ownership": {
+      "classification": "NOT_MEASURED"
+    },
+    "cleanup_scope": "process joins only; runtime ownership NOT_MEASURED",
+    "internal_failure_thread_join": "NOT_MEASURED",
+    "affinity": [
+      {
+        "requested_mask": 85,
+        "observed_mask": 85,
+        "system_mask": 255,
+        "verified": true
+      },
+      {
+        "requested_mask": 85,
+        "observed_mask": 85,
+        "system_mask": 255,
+        "verified": true
+      },
+      {
+        "requested_mask": 85,
+        "observed_mask": 85,
+        "system_mask": 255,
+        "verified": true
+      },
+      {
+        "requested_mask": 85,
+        "observed_mask": 85,
+        "system_mask": 255,
+        "verified": true
+      },
+      {
+        "requested_mask": 85,
+        "observed_mask": 85,
+        "system_mask": 255,
+        "verified": true
+      }
+    ],
+    "repeat": 3
+  },
+  {
+    "path": "nbsr",
+    "valid": true,
+    "classification": "DIAGNOSTIC",
+    "scope": "Windows loopback",
+    "final": {
+      "schema": "nbsr-b5-grouped-final-v1",
+      "groups": 4,
+      "payload_bytes": 16384,
+      "streams_per_group": 1,
+      "outstanding_per_stream": 1,
+      "measurement_duration_ns": 120000000000,
+      "drain_duration_ns": 1044000,
+      "offered": 240000,
+      "reserved": 239178,
+      "issued": 239178,
+      "completed": 239178,
+      "missed": 822,
+      "unreserved_current": 0,
+      "group_counters": [
+        {
+          "group_id": 0,
+          "offered": 60000,
+          "reserved": 59796,
+          "issued": 59796,
+          "completed": 59796,
+          "missed": 204,
+          "unreserved_current": 0
+        },
+        {
+          "group_id": 1,
+          "offered": 60000,
+          "reserved": 59788,
+          "issued": 59788,
+          "completed": 59788,
+          "missed": 212,
+          "unreserved_current": 0
+        },
+        {
+          "group_id": 2,
+          "offered": 60000,
+          "reserved": 59795,
+          "issued": 59795,
+          "completed": 59795,
+          "missed": 205,
+          "unreserved_current": 0
+        },
+        {
+          "group_id": 3,
+          "offered": 60000,
+          "reserved": 59799,
+          "issued": 59799,
+          "completed": 59799,
+          "missed": 201,
+          "unreserved_current": 0
+        }
+      ],
+      "max_outstanding_observed": 4,
+      "errors": 0,
+      "timeouts": 0,
+      "collector_overflow_count": 0,
+      "all_groups_joined": true,
+      "source_cleanup": {
+        "status": "SEPARATE_REPORT_REQUIRED"
+      },
+      "evidence_valid": true
+    },
+    "achieved_offered_ratio": 0.996575,
+    "gbps": 0.5224877679564188,
+    "qualification": {
+      "steady_windows": 3,
+      "latency_comparison_available": true,
+      "resource_series_available": true,
+      "resource_phase_clock": "first-progress receive time minus elapsed; approximate, excludes earlier samples",
+      "thermal_and_power": "NOT_MEASURED"
+    },
+    "ownership_reports": [
+      {
+        "role": "destination",
+        "pid": 30884,
+        "file": "d0.cleanup.json",
+        "all_11_zero": true
+      },
+      {
+        "role": "destination",
+        "pid": 13608,
+        "file": "d1.cleanup.json",
+        "all_11_zero": true
+      },
+      {
+        "role": "destination",
+        "pid": 17984,
+        "file": "d2.cleanup.json",
+        "all_11_zero": true
+      },
+      {
+        "role": "destination",
+        "pid": 32052,
+        "file": "d3.cleanup.json",
+        "all_11_zero": true
+      },
+      {
+        "role": "source",
+        "pid": 5156,
+        "file": "source.cleanup.json",
+        "all_11_zero": true
+      }
+    ],
+    "continuous_ownership": {
+      "classification": "SAMPLED_NO_SUSTAINED_GROWTH",
+      "sample_counts": {
+        "destination_0": 124,
+        "source": 121,
+        "destination_2": 124,
+        "destination_3": 124,
+        "destination_1": 124
+      },
+      "max_snapshot_gap_ns": {
+        "destination_0": 1023902200,
+        "source": 1016563500,
+        "destination_2": 1023925000,
+        "destination_3": 1023996400,
+        "destination_1": 1023918700
+      },
+      "retained_window_per_role": 60,
+      "scope": "Process-local sample intervals; cross-process clock alignment and final zero cleanup are separate.",
+      "retained_capacity_scope": "Optional fields observed when emitted; not allocator or leak attribution."
+    },
+    "cleanup_scope": "11-counter reports and all process joins",
+    "internal_failure_thread_join": "NOT_MEASURED",
+    "affinity": [
+      {
+        "requested_mask": 85,
+        "observed_mask": 85,
+        "system_mask": 255,
+        "verified": true
+      },
+      {
+        "requested_mask": 85,
+        "observed_mask": 85,
+        "system_mask": 255,
+        "verified": true
+      },
+      {
+        "requested_mask": 85,
+        "observed_mask": 85,
+        "system_mask": 255,
+        "verified": true
+      },
+      {
+        "requested_mask": 85,
+        "observed_mask": 85,
+        "system_mask": 255,
+        "verified": true
+      },
+      {
+        "requested_mask": 85,
+        "observed_mask": 85,
+        "system_mask": 255,
+        "verified": true
+      }
+    ],
+    "repeat": 3
+  }
+]

@@ -1,0 +1,24 @@
+[
+  {
+    "path": "direct",
+    "repeats": 3,
+    "median_gbps": 0.5222785237570505,
+    "cv": 0.002310707770845479,
+    "achieved_offered_range": [
+      0.9937416666666666,
+      0.99835
+    ],
+    "classification": "DIAGNOSTIC integration only"
+  },
+  {
+    "path": "nbsr",
+    "repeats": 3,
+    "median_gbps": 0.5224877679564188,
+    "cv": 0.0019008273485690236,
+    "achieved_offered_range": [
+      0.9934458333333334,
+      0.99685
+    ],
+    "classification": "DIAGNOSTIC integration only"
+  }
+]
