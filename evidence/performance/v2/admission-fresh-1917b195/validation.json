@@ -1,0 +1,13 @@
+{
+  "raw_root": "C:\\NBSR-build\\task4i-fresh-1917b195",
+  "verified_raw_artifacts": 254,
+  "valid_repeats": 27,
+  "invalid_repeats": 0,
+  "successful_admissions": 13824,
+  "errors": 0,
+  "timeouts": 0,
+  "recomputed_cells_equal": true,
+  "destination_cleanup_scope": "eight tracked counters on each of two destinations",
+  "source_cleanup_scope": "exact terminal evidence for all 512 clients and process exit; no source 11-counter assertion",
+  "observational_work": "No concurrent builds/tests/Docker workloads or repository edits during measurement; light read-only status inspection and external planning continued."
+}
