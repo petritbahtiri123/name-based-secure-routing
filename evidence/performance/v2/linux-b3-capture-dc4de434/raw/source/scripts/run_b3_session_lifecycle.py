@@ -162,16 +162,10 @@ def client_command(path: str, binaries: dict[str, Path], ready: Path, authority:
     return ([str(binaries["go"]), "--config", str(config)], GO_PEER)
 
 
-def capture_final_cooldown(resources, server, clients, lifecycle, *, cycle, seconds, cadence, report_gate, capture_backend=None, allow_exited_sources=False):
-    if allow_exited_sources and (not report_gate or capture_backend is None):
-        raise ValueError('expected final source exit requires explicit backend and report-ready gate')
+def capture_final_cooldown(resources, server, clients, lifecycle, *, cycle, seconds, cadence, report_gate, capture_backend=None):
     if report_gate:
         wait_paths([lifecycle / "destination.report-ready"], [server], 120)
-    if allow_exited_sources:
-        capture_backend.capture(resources, server, clients, phase="cooldown", cycle=cycle,
-                                seconds=seconds, cadence=cadence, allow_exited_sources=True)
-    else:
-        capture(resources, server, clients, phase="cooldown", cycle=cycle, seconds=seconds, cadence=cadence, **({"capture_backend": capture_backend} if capture_backend is not None else {}))
+    capture(resources, server, clients, phase="cooldown", cycle=cycle, seconds=seconds, cadence=cadence, **({"capture_backend": capture_backend} if capture_backend is not None else {}))
     if report_gate:
         phase = {"phase": "report_generation", "started_unix_ns": time.time_ns(),
                  "scope": "report serialization and destination diagnostic drain; excluded from cooldown"}
@@ -281,9 +275,7 @@ def run_cell(path: str, spec: dict[str, int | str], binaries: dict[str, Path], r
             final_cycle = int(spec.get("cycle_index", rounds - 1))
             report_phase = capture_final_cooldown(resources, server, clients, lifecycle,
                                                   cycle=final_cycle, seconds=cooldown_seconds,
-                                                  cadence=cadence, report_gate=report_gate,
-                                                  **(dict(capture_options, allow_exited_sources=True)
-                                                     if capture_backend is not None and sessions > 1 else capture_options))
+                                                  cadence=cadence, report_gate=report_gate, **capture_options)
             if path == "rust-rust":
                 (lifecycle / "source.final-release").write_text("release\n", encoding="ascii")
             outputs = []

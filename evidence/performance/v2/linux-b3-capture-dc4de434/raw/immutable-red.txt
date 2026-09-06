@@ -1,0 +1,67 @@
+....F                                                                    [100%]
+================================== FAILURES ===================================
+_____ test_linux_executes_verified_original_windows_keeps_retained[linux] _____
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-926/test_linux_executes_verified_o1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000242CAA9D0F0>
+platform_name = 'linux'
+
+    @pytest.mark.parametrize('platform_name', ['windows', 'linux'])
+    def test_linux_executes_verified_original_windows_keeps_retained(tmp_path, monkeypatch, platform_name):
+        from scripts.performance import b3_linux
+        target = tmp_path / 'target'
+        (target / 'release').mkdir(parents=True)
+        binaries = {}
+        for role, name in runner.binary_names(platform_name).items():
+            binaries[role] = target / 'release' / name
+            binaries[role].write_bytes(role.encode())
+        manifest = tmp_path / 'manifest.json'
+        manifest.write_text(json.dumps(dict(source_sha='a' * 40, build_profile='release',
+            binary_sha256={p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in binaries.values()},
+            build_commands=['recorded'], toolchains={'rust': 'recorded'})))
+        monkeypatch.setattr(b3_linux, 'environment', lambda _: dict(selected_cpus=[0], taskset='/usr/bin/taskset', scope='diagnostic'))
+        monkeypatch.setattr(runner.subprocess, 'check_output', lambda *a, **kw: 'a' * 40 if kw.get('text') else b'')
+        output = tmp_path / 'output'
+    
+        def run(path, spec, observed, root, **kwargs):
+            for role, original in binaries.items():
+                assert observed[role] == (original if platform_name == 'linux' else output / 'binaries' / original.name)
+                assert (output / 'binaries' / original.name).read_bytes() == original.read_bytes()
+            assert ('capture_backend' in kwargs) == (platform_name == 'linux')
+            return {'cleanup': {'all_zero': True}}
+    
+        monkeypatch.setattr(runner.b3, 'run_cell', run)
+>       runner.execute(SimpleNamespace(platform=platform_name, cores=1, axis='streams', counts=[8],
+            repeats=1, materialized_streams=True, fixed_channels=8, target=target,
+            output=output, build_manifest=manifest))
+
+tests\performance\test_b3_linux_runner.py:65: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+scripts\run_b3_v2.py:133: in execute
+    row = b3.run_cell("rust-rust", spec, binaries, args.output,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+path = 'rust-rust'
+spec = {'active_count': 8, 'channels': 8, 'cycles': 1, 'kind': 'streams', ...}
+observed = {'rust': WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-926/test_linux_executes_verified_o1/out...jra/AppData/Local/Temp/pytest-of-bajra/pytest-926/test_linux_executes_verified_o1/output/binaries/wp8_interop_server')}
+root = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-926/test_linux_executes_verified_o1/output')
+kwargs = {'active_seconds': 2, 'cadence': 0.5, 'capture_backend': <scripts.performance.b3_linux.LinuxCapture object at 0x00000242CA94E510>, 'cooldown_seconds': 2, ...}
+role = 'rust'
+original = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-926/test_linux_executes_verified_o1/target/release/perf_rust_source')
+@py_assert0 = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-926/test_linux_executes_verified_o1/output/binaries/perf_rust_source')
+@py_assert3 = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-926/test_linux_executes_verified_o1/target/release/perf_rust_source')
+@py_assert2 = False
+@py_format5 = "WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-926/test_linux_executes_verified_o1/output/bina.../bajra/AppData/Local/Temp/pytest-of-bajra/pytest-926/test_linux_executes_verified_o1/target/release/perf_rust_source')"
+@py_format7 = "assert WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-926/test_linux_executes_verified_o1/outp.../bajra/AppData/Local/Temp/pytest-of-bajra/pytest-926/test_linux_executes_verified_o1/target/release/perf_rust_source')"
+
+    def run(path, spec, observed, root, **kwargs):
+        for role, original in binaries.items():
+>           assert observed[role] == (original if platform_name == 'linux' else output / 'binaries' / original.name)
+E           AssertionError: assert WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-926/test_linux_executes_verified_o1/output/binaries/perf_rust_source') == WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-926/test_linux_executes_verified_o1/target/release/perf_rust_source')
+
+tests\performance\test_b3_linux_runner.py:59: AssertionError
+---------------------------- Captured stdout call -----------------------------
+streams-8-r1
+=========================== short test summary info ===========================
+FAILED tests/performance/test_b3_linux_runner.py::test_linux_executes_verified_original_windows_keeps_retained[linux]
+1 failed, 4 passed in 1.08s

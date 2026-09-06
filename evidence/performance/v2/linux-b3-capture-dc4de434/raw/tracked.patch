@@ -1,0 +1,226 @@
+diff --git a/scripts/run_b3_session_lifecycle.py b/scripts/run_b3_session_lifecycle.py
+index 39ba5122..6c63bdd8 100644
+--- a/scripts/run_b3_session_lifecycle.py
++++ b/scripts/run_b3_session_lifecycle.py
+@@ -113,7 +113,9 @@ def sample_if_running(process):
+         return None
+ 
+ 
+-def capture(resources: list[dict[str, Any]], destination: subprocess.Popen[str], clients: list[subprocess.Popen[str]], *, phase: str, cycle: int, seconds: float, cadence: float) -> None:
++def capture(resources: list[dict[str, Any]], destination: subprocess.Popen[str], clients: list[subprocess.Popen[str]], *, phase: str, cycle: int, seconds: float, cadence: float, capture_backend=None) -> None:
++    if capture_backend is not None:
++        return capture_backend.capture(resources, destination, clients, phase=phase, cycle=cycle, seconds=seconds, cadence=cadence)
+     deadline = time.monotonic() + seconds
+     while time.monotonic() < deadline:
+         observed = time.perf_counter_ns()
+@@ -160,10 +162,10 @@ def client_command(path: str, binaries: dict[str, Path], ready: Path, authority:
+     return ([str(binaries["go"]), "--config", str(config)], GO_PEER)
+ 
+ 
+-def capture_final_cooldown(resources, server, clients, lifecycle, *, cycle, seconds, cadence, report_gate):
++def capture_final_cooldown(resources, server, clients, lifecycle, *, cycle, seconds, cadence, report_gate, capture_backend=None):
+     if report_gate:
+         wait_paths([lifecycle / "destination.report-ready"], [server], 120)
+-    capture(resources, server, clients, phase="cooldown", cycle=cycle, seconds=seconds, cadence=cadence)
++    capture(resources, server, clients, phase="cooldown", cycle=cycle, seconds=seconds, cadence=cadence, **({"capture_backend": capture_backend} if capture_backend is not None else {}))
+     if report_gate:
+         phase = {"phase": "report_generation", "started_unix_ns": time.time_ns(),
+                  "scope": "report serialization and destination diagnostic drain; excluded from cooldown"}
+@@ -178,7 +180,10 @@ def source_plan(path: str, sessions: int, cycles: int) -> list[tuple[int, int, i
+     return [(1, ordinal, 1) for ordinal in range(sessions)] if sessions > 1 else [(cycles, 0, 1)]
+ 
+ 
+-def run_cell(path: str, spec: dict[str, int | str], binaries: dict[str, Path], root: Path, *, idle_seconds: float, active_seconds: float, cooldown_seconds: float, cadence: float) -> dict[str, Any]:
++def run_cell(path: str, spec: dict[str, int | str], binaries: dict[str, Path], root: Path, *, idle_seconds: float, active_seconds: float, cooldown_seconds: float, cadence: float, capture_backend=None) -> dict[str, Any]:
++    if capture_backend is not None and path != "rust-rust":
++        raise ValueError("explicit capture backend supports Rust B3 only")
++    capture_options = {"capture_backend": capture_backend} if capture_backend is not None else {}
+     name = str(spec["name"])
+     sessions, services, streams, cycles = (int(spec[key]) for key in ("sessions", "channels", "streams", "cycles"))
+     materialized = spec.get("materialized_streams", False)
+@@ -211,6 +216,8 @@ def run_cell(path: str, spec: dict[str, int | str], binaries: dict[str, Path], r
+             server_argv.extend(["--b3-report-gate", str(lifecycle)])
+         if materialized:
+             server_argv.extend(["--b3-materialized-streams", "1"])
++        if capture_backend is not None:
++            server_argv = capture_backend.command(server_argv)
+         server = subprocess.Popen(server_argv, cwd=ROOT, env={**os.environ, "NBSR_PERF_LIFECYCLE_ROOT": str(lifecycle), "NBSR_PERF_LIFECYCLE_CONNECTIONS": str(total_connections), "NBSR_PERF_LIFECYCLE_SERVICES": str(services), "NBSR_PERF_STREAMS_PER_SERVICE": str(streams), "NBSR_PERF_CONCURRENT_STREAMS": "1", **({"NBSR_PERF_LIFECYCLE_OFFERED_RATE": str(spec["start_rate"])} if float(spec.get("start_rate", 0)) > 0 else {}), **({"NBSR_PERF_CONCURRENT_SESSIONS": "1", "NBSR_PERF_LIFECYCLE_SERIAL_ACCEPT": "1"} if sessions > 1 else {})}, stdout=log("destination", "stdout"), stderr=log("destination", "stderr"), text=True)
+         clients: list[subprocess.Popen[str]] = []
+         commands: list[list[str]] = []
+@@ -230,13 +237,15 @@ def run_cell(path: str, spec: dict[str, int | str], binaries: dict[str, Path], r
+                         argv.extend(["--lifecycle-clients", str(logical_clients), "--lifecycle-source-shards", "2"])
+                     else:
+                         argv.extend(["--lifecycle-final-release", str(lifecycle / "source.final-release")])
++                if capture_backend is not None:
++                    argv = capture_backend.command(argv)
+                 commands.append(argv)
+                 clients.append(subprocess.Popen(argv, cwd=cwd, stdout=log(f"source-{index}", "stdout"), stderr=log(f"source-{index}", "stderr"), text=True))
+             rounds = 1 if sessions > 1 else cycles
+             for cycle in range(rounds):
+                 cycle_index = int(spec.get("cycle_index", cycle))
+                 ordinals = list(range(sessions)) if sessions > 1 else [cycle]
+-                capture(resources, server, clients, phase="idle" if cycle == 0 else "cooldown", cycle=cycle_index if cycle == 0 else cycle_index - 1, seconds=idle_seconds if cycle == 0 else cooldown_seconds, cadence=cadence)
++                capture(resources, server, clients, phase="idle" if cycle == 0 else "cooldown", cycle=cycle_index if cycle == 0 else cycle_index - 1, seconds=idle_seconds if cycle == 0 else cooldown_seconds, cadence=cadence, **capture_options)
+                 start_origin = time.perf_counter()
+                 for start_index, ordinal in enumerate(ordinals):
+                     if float(spec.get("start_rate", 0)) > 0:
+@@ -244,7 +253,7 @@ def run_cell(path: str, spec: dict[str, int | str], binaries: dict[str, Path], r
+                     (lifecycle / f"connection-{ordinal}.start").write_text("start\n", encoding="ascii")
+                 if spec["kind"] == "connections":
+                     wait_paths([lifecycle / f"connection-{ordinal}.connected" for ordinal in ordinals], [server, *clients], 60)
+-                    capture(resources, server, clients, phase="active", cycle=cycle_index, seconds=active_seconds, cadence=cadence)
++                    capture(resources, server, clients, phase="active", cycle=cycle_index, seconds=active_seconds, cadence=cadence, **capture_options)
+                     pending = set(ordinals)
+                     while pending:
+                         ordinal = wait_active_ordinal(lifecycle, pending, [server, *clients], 60)
+@@ -259,14 +268,14 @@ def run_cell(path: str, spec: dict[str, int | str], binaries: dict[str, Path], r
+                         [server, *clients], 120)
+                     for ordinal, snapshot in zip(ordinals, snapshots, strict=True):
+                         write_json(cell_dir / f"destination-{ordinal}.active.json", snapshot)
+-                capture(resources, server, clients, phase="active", cycle=cycle_index, seconds=active_seconds, cadence=cadence)
++                capture(resources, server, clients, phase="active", cycle=cycle_index, seconds=active_seconds, cadence=cadence, **capture_options)
+                 for ordinal in ordinals:
+                     (lifecycle / f"connection-{ordinal}.release").write_text("release\n", encoding="ascii")
+                 wait_paths([lifecycle / f"connection-{ordinal}.ack" for ordinal in ordinals], [server, *clients], 60)
+             final_cycle = int(spec.get("cycle_index", rounds - 1))
+             report_phase = capture_final_cooldown(resources, server, clients, lifecycle,
+                                                   cycle=final_cycle, seconds=cooldown_seconds,
+-                                                  cadence=cadence, report_gate=report_gate)
++                                                  cadence=cadence, report_gate=report_gate, **capture_options)
+             if path == "rust-rust":
+                 (lifecycle / "source.final-release").write_text("release\n", encoding="ascii")
+             outputs = []
+diff --git a/scripts/run_b3_v2.py b/scripts/run_b3_v2.py
+index 899ac01f..9001c205 100644
+--- a/scripts/run_b3_v2.py
++++ b/scripts/run_b3_v2.py
+@@ -3,7 +3,10 @@ from __future__ import annotations
+ 
+ import argparse
+ import hashlib
++import json
++import math
+ from pathlib import Path
++import re
+ import shutil
+ import subprocess
+ import sys
+@@ -13,6 +16,34 @@ from scripts import run_b3_session_lifecycle as b3
+ from scripts.run_b4b_task4k import checksums
+ 
+ 
++def binary_names(platform_name):
++    if platform_name not in ('windows', 'linux'):
++        raise ValueError('explicit supported platform required')
++    suffix = '.exe' if platform_name == 'windows' else ''
++    return {'rust': 'perf_rust_source' + suffix, 'server': 'wp8_interop_server' + suffix}
++
++
++def validate_linux_manifest(path, binaries):
++    if path is None:
++        raise ValueError('Linux build manifest required')
++    manifest = json.loads(Path(path).read_text())
++    expected = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in binaries.values()}
++    if (set(binaries) != {'rust', 'server'} or not re.fullmatch(r'[0-9a-f]{40}', str(manifest.get('source_sha', '')))
++            or manifest.get('build_profile') != 'release' or not manifest.get('build_commands')
++            or not manifest.get('toolchains') or not isinstance(manifest.get('binary_sha256'), dict)
++            or any(manifest['binary_sha256'].get(name) != digest for name, digest in expected.items())):
++        raise ValueError('Linux binary hashes/source/build metadata mismatch')
++    return manifest
++
++
++def verify_linux_execution(binaries, retained, build):
++    for original in binaries.values():
++        expected = build['binary_sha256'][original.name]
++        if any(hashlib.sha256(path.read_bytes()).hexdigest() != expected
++               for path in (original, retained / original.name)):
++            raise ValueError('Linux executable/retained bytes changed before launch')
++
++
+ def spec_for(axis, count, repeat, *, materialized_streams=False, fixed_channels=8):
+     if type(fixed_channels) is not int or not 1 <= fixed_channels <= 32:
+         raise ValueError("fixed channels must fit the existing 1..32 authority bound")
+@@ -50,16 +81,23 @@ def spec_for(axis, count, repeat, *, materialized_streams=False, fixed_channels=
+ 
+ 
+ def execute(args):
++    platform_name = getattr(args, 'platform', 'windows')
++    linux = None
++    if platform_name == 'linux':
++        from scripts.performance.b3_linux import LinuxCapture, environment
++        linux = environment(args.cores)
+     specs = [spec_for(args.axis, count, repeat, materialized_streams=args.materialized_streams,
+                       fixed_channels=args.fixed_channels)
+              for count in args.counts for repeat in range(1, args.repeats + 1)]
+     args.output.mkdir(parents=True, exist_ok=False)
+     (args.output / "binaries").mkdir()
+     binaries = {}
+-    for role, name in (("rust", "perf_rust_source.exe"), ("server", "wp8_interop_server.exe")):
++    for role, name in binary_names(platform_name).items():
++        original = args.target / "release" / name
+         retained = args.output / "binaries" / name
+-        shutil.copy2(args.target / "release" / name, retained)
+-        binaries[role] = retained
++        shutil.copy2(original, retained)
++        binaries[role] = original if linux else retained
++    build = validate_linux_manifest(args.build_manifest, binaries) if linux else None
+     metadata = {"schema": "nbsr-b3-v2-raw-v1", "classification": "DIAGNOSTIC" if args.repeats < 3 else "MEASURED_PENDING_ANALYSIS",
+                 "source_sha": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
+                 "binary_sha256": {k: hashlib.sha256(v.read_bytes()).hexdigest() for k, v in binaries.items()},
+@@ -70,12 +108,27 @@ def execute(args):
+                 "acceptance_scope": "B3-only single armed accept, concurrent held sessions; not the B4 admission-capacity workload",
+                 "memory_scope": "private bytes/working set/handles/threads and ownership, not allocator heap attribution",
+                 "live_resource_proof": "all named .active markers observed before active sampling and before any release"}
++    if linux:
++        metadata.update(platform='linux', linux_environment=linux, build_manifest=build,
++                        scope=linux['scope'],
++                        memory_scope='Linux smaps private resident/RSS/PSS/separate hugetlb, FD/thread counts; no Windows commit/handle aliases',
++                        binary_source_sha=build['source_sha'],
++                        execution_paths={role: str(path.resolve()) for role, path in binaries.items()},
++                        retained_paths={role: str((args.output / 'binaries' / path.name).resolve()) for role, path in binaries.items()},
++                        binary_provenance='declared build source SHA and actual-byte hash verification; distinct from controller source SHA')
++        if build['source_sha'] != metadata['source_sha']:
++            metadata['classification'] = 'DIAGNOSTIC_BINARY_SOURCE_MISMATCH'
++        b3.write_json(args.output / 'build-manifest.json', build)
+     b3.write_json(args.output / "environment.json", metadata)
+     (args.output / "source.patch").write_bytes(subprocess.check_output(["git", "diff", "--binary"]))
+-    for source in ("scripts/run_b3_v2.py", "scripts/run_b3_session_lifecycle.py",
++    sources = ["scripts/run_b3_v2.py", "scripts/run_b3_session_lifecycle.py",
+                    "crates/nbsr-transport/src/bin/perf_rust_source.rs",
+                    "crates/nbsr-transport/src/bin/wp8_interop_server.rs",
+-                   "crates/nbsr-transport/src/bin/b3_support/mod.rs"):
++                   "crates/nbsr-transport/src/bin/b3_support/mod.rs"]
++    if linux:
++        sources += ['scripts/performance/b3_linux.py', 'scripts/performance/b3_linux_analysis.py',
++                    'scripts/performance/linux_resources.py', 'scripts/performance/linux_loopback.py']
++    for source in sources:
+         dest = args.output / "source" / source
+         dest.parent.mkdir(parents=True, exist_ok=True)
+         shutil.copy2(source, dest)
+@@ -83,8 +136,14 @@ def execute(args):
+     try:
+         for spec in specs:
+             print(spec["name"], flush=True)
++            options = {}
++            if linux:
++                verify_linux_execution(binaries, args.output / 'binaries', build)
++                rounds = 1 if spec['sessions'] > 1 else spec['cycles']
++                cap = 2 * (rounds + 1) * (3 * (math.ceil(2 / .5) + 2))
++                options['capture_backend'] = LinuxCapture(linux['selected_cpus'], linux['taskset'], max_records=cap)
+             row = b3.run_cell("rust-rust", spec, binaries, args.output,
+-                              idle_seconds=2, active_seconds=2, cooldown_seconds=2, cadence=0.5)
++                              idle_seconds=2, active_seconds=2, cooldown_seconds=2, cadence=0.5, **options)
+             records.append(row)
+             b3.write_json(args.output / "records.json", records)
+             if not row["cleanup"]["all_zero"]:
+@@ -97,6 +156,10 @@ if __name__ == "__main__":
+     parser = argparse.ArgumentParser()
+     parser.add_argument("--output", type=Path, required=True)
+     parser.add_argument("--target", type=Path, default=Path(r"C:\NBSR-build\b4b-task4k"))
++    parser.add_argument('--platform', choices=('windows', 'linux'), default='windows')
++    parser.add_argument('--cores', type=int, choices=(1, 2, 4), default=1,
++                        help='Linux only: shared physical-core-selected logical pool')
++    parser.add_argument('--build-manifest', type=Path, help='Linux only: release source SHA, binary hashes and build metadata')
+     parser.add_argument("--axis", choices=("bundles", "channels", "streams", "cycles"), required=True)
+     parser.add_argument("--counts", type=int, nargs="+", required=True)
+     parser.add_argument("--repeats", type=int, choices=(1, 3, 5), default=5)

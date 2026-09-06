@@ -1,0 +1,77 @@
+...........FFFF                                                          [100%]
+================================== FAILURES ===================================
+___________ test_expected_bundle_exit_only_final_after_report_ready ___________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-933/test_expected_bundle_exit_only0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000029225142780>
+
+    def test_expected_bundle_exit_only_final_after_report_ready(tmp_path, monkeypatch):
+        events = []
+        monkeypatch.setattr(b3, 'wait_paths', lambda *args: events.append('ready'))
+    
+        class Capture:
+            def capture(self, *args, **kwargs):
+                assert events == ['ready']
+                assert kwargs['allow_exited_sources'] is True
+                events.append('captured')
+    
+>       b3.capture_final_cooldown([], process(1), [process(2)], tmp_path,
+            cycle=0, seconds=2, cadence=.5, report_gate=True, capture_backend=Capture(),
+            allow_exited_sources=True)
+E       TypeError: capture_final_cooldown() got an unexpected keyword argument 'allow_exited_sources'
+
+tests\performance\test_b3_linux.py:94: TypeError
+_____________ test_expected_exited_source_is_unavailable_not_zero _____________
+
+    def test_expected_exited_source_is_unavailable_not_zero():
+        tick = 100
+    
+        def read(pid, cpus):
+            return reading(pid, cpus) | {'timestamp_ns': tick}
+    
+        capture = backend(read)
+        rows = []
+        capture.capture_once(rows, process(1), [process(2)], phase='active', cycle=0)
+        tick += 1
+        exited = SimpleNamespace(pid=2, poll=lambda: 0)
+>       capture.capture_once(rows, process(1), [exited], phase='cooldown', cycle=0,
+                             allow_exited_sources=True)
+E       TypeError: LinuxCapture.capture_once() got an unexpected keyword argument 'allow_exited_sources'
+
+tests\performance\test_b3_linux.py:112: TypeError
+____ test_exit_exception_never_masks_active_exit_or_failed_exit[active-0] _____
+
+phase = 'active', code = 0
+
+    @pytest.mark.parametrize('phase,code', [('active', 0), ('cooldown', 1)])
+    def test_exit_exception_never_masks_active_exit_or_failed_exit(phase, code):
+        capture = backend()
+        rows = []
+        capture.capture_once(rows, process(1), [process(2)], phase='idle', cycle=0)
+        with pytest.raises(RuntimeError):
+>           capture.capture_once(rows, process(1), [SimpleNamespace(pid=2, poll=lambda: code)],
+                phase=phase, cycle=0, allow_exited_sources=True)
+E           TypeError: LinuxCapture.capture_once() got an unexpected keyword argument 'allow_exited_sources'
+
+tests\performance\test_b3_linux.py:127: TypeError
+___ test_exit_exception_never_masks_active_exit_or_failed_exit[cooldown-1] ____
+
+phase = 'cooldown', code = 1
+
+    @pytest.mark.parametrize('phase,code', [('active', 0), ('cooldown', 1)])
+    def test_exit_exception_never_masks_active_exit_or_failed_exit(phase, code):
+        capture = backend()
+        rows = []
+        capture.capture_once(rows, process(1), [process(2)], phase='idle', cycle=0)
+        with pytest.raises(RuntimeError):
+>           capture.capture_once(rows, process(1), [SimpleNamespace(pid=2, poll=lambda: code)],
+                phase=phase, cycle=0, allow_exited_sources=True)
+E           TypeError: LinuxCapture.capture_once() got an unexpected keyword argument 'allow_exited_sources'
+
+tests\performance\test_b3_linux.py:127: TypeError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_b3_linux.py::test_expected_bundle_exit_only_final_after_report_ready
+FAILED tests/performance/test_b3_linux.py::test_expected_exited_source_is_unavailable_not_zero
+FAILED tests/performance/test_b3_linux.py::test_exit_exception_never_masks_active_exit_or_failed_exit[active-0]
+FAILED tests/performance/test_b3_linux.py::test_exit_exception_never_masks_active_exit_or_failed_exit[cooldown-1]
+4 failed, 11 passed in 0.81s

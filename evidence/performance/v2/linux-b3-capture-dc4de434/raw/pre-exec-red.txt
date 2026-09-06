@@ -1,0 +1,48 @@
+.....FF                                                                  [100%]
+================================== FAILURES ===================================
+_______ test_immediate_execution_check_rejects_changed_bytes[original] ________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-929/test_immediate_execution_check0')
+changed = 'original'
+
+    @pytest.mark.parametrize('changed', ['original', 'retained'])
+    def test_immediate_execution_check_rejects_changed_bytes(tmp_path, changed):
+        original = tmp_path / 'original'
+        original.mkdir()
+        retained = tmp_path / 'retained'
+        retained.mkdir()
+        binaries = {role: original / name for role, name in runner.binary_names('linux').items()}
+        for path in binaries.values():
+            path.write_bytes(b'original')
+            (retained / path.name).write_bytes(b'original')
+        build = {'binary_sha256': {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in binaries.values()}}
+>       runner.verify_linux_execution(binaries, retained, build)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'scripts.run_b3_v2' has no attribute 'verify_linux_execution'
+
+tests\performance\test_b3_linux_runner.py:81: AttributeError
+_______ test_immediate_execution_check_rejects_changed_bytes[retained] ________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-929/test_immediate_execution_check1')
+changed = 'retained'
+
+    @pytest.mark.parametrize('changed', ['original', 'retained'])
+    def test_immediate_execution_check_rejects_changed_bytes(tmp_path, changed):
+        original = tmp_path / 'original'
+        original.mkdir()
+        retained = tmp_path / 'retained'
+        retained.mkdir()
+        binaries = {role: original / name for role, name in runner.binary_names('linux').items()}
+        for path in binaries.values():
+            path.write_bytes(b'original')
+            (retained / path.name).write_bytes(b'original')
+        build = {'binary_sha256': {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in binaries.values()}}
+>       runner.verify_linux_execution(binaries, retained, build)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'scripts.run_b3_v2' has no attribute 'verify_linux_execution'
+
+tests\performance\test_b3_linux_runner.py:81: AttributeError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_b3_linux_runner.py::test_immediate_execution_check_rejects_changed_bytes[original]
+FAILED tests/performance/test_b3_linux_runner.py::test_immediate_execution_check_rejects_changed_bytes[retained]
+2 failed, 5 passed in 1.00s

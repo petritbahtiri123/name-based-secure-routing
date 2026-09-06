@@ -1,0 +1,11 @@
+{
+  "scripts/run_b3_v2.py": "70353f94393a1ca71a15d98f0a236377166dfd9765cdcbf0fd108ab7a38f06a2",
+  "scripts/run_b3_session_lifecycle.py": "914db06f0c5085a2d651346c1a9c496bcae1484a4e9784f3dfda568750317212",
+  "scripts/performance/b3_linux.py": "7a53d5af316b7e306e56ecf40c1d6954f089744aadc61b50ed526f210e050b92",
+  "scripts/performance/b3_linux_analysis.py": "d606cfb7254a42d04925fa0829ced5821cd6d349a4fb619ee2919946d5b9f0a3",
+  "tests/performance/test_b3_linux.py": "8bd18a5a2c76e90110f3edd5003154423bf58dd8ecff3765fc61dc4a761899e8",
+  "tests/performance/test_b3_linux_analysis.py": "0549fc5018a24c98b2beeb880a7918507e96165025843e95b5886206318bd6ec",
+  "tests/performance/test_b3_linux_runner.py": "24ef602ea9fec2cd4936c8af8777ccd13ecd401512e48cc6e0c42965e4203867",
+  "docs/benchmarks/LINUX_B3_CAPTURE.md": "14d5a7fe89d0648f595889c1992080c219284f460b37aaadc37e44cc7d67d999",
+  "docs/superpowers/plans/2026-09-06-linux-b3-capture.md": "31de07f5ff3ac0d869a60ed3bcb2ca3cd2162b30911d48b0fee8c21de24d45bd"
+}

@@ -1,0 +1,313 @@
+.........FFFFFFFFF                                                       [100%]
+================================== FAILURES ===================================
+________ test_scale_allows_explicit_postclose_source_but_cycles_do_not ________
+
+    def test_scale_allows_explicit_postclose_source_but_cycles_do_not():
+        value = cell(cycles=1)
+        row = next(r for r in value['samples'] if r['role'] == 'source' and r['phase'] == 'cooldown')
+        row['memory_state'] = 'UNAVAILABLE_EXPECTED_EXIT'
+        for field in ('private_resident_bytes', 'rss_bytes', 'pss_bytes', 'private_hugetlb_bytes', 'fd_count', 'thread_count'):
+            row[field] = None
+        row['processes'][0] = dict(pid=10, start_ticks=10, state='EXITED', exit_code=0,
+            memory_state='UNAVAILABLE_EXPECTED_EXIT')
+>       assert analyze_scale([value])[0]['points'][0]['active_private_resident_median'] == 1000
+               ^^^^^^^^^^^^^^^^^^^^^^
+
+tests\performance\test_b3_linux_analysis.py:83: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+scripts\performance\b3_linux_analysis.py:72: in analyze_scale
+    validate(cell)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+cell = {'active_count': 16, 'cleanup': {'all_zero': True, 'source_cycle_all_zero': True}, 'cycles': 1, 'kind': 'streams', ...}
+
+    def validate(cell, *, cycles=False):
+        cleanup = cell.get('cleanup', {})
+        if type(cleanup.get('all_zero')) is not bool:
+            raise ValueError('incomplete ownership evidence')
+        if cycles and type(cleanup.get('source_cycle_all_zero')) is not bool:
+            raise ValueError('incomplete cycle ownership evidence')
+        identities = {}
+        for row in cell['samples']:
+            role = row.get('role')
+            if role not in ('source', 'destination') or row.get('platform') != 'linux' or row.get('memory_basis') != 'linux_smaps_rollup':
+                raise ValueError('Linux role/memory evidence required')
+            processes = row.get('processes', [])
+            count = row.get('process_count')
+            if type(count) is not int or count < 1 or count != len(processes) or (cycles and count != 1):
+                raise ValueError('invalid process count')
+            identity = tuple((p.get('pid'), p.get('start_ticks')) for p in processes)
+            if (any(type(pid) is not int or pid <= 0 or type(start) is not int or start < 0 for pid, start in identity)
+                    or len({pid for pid, _ in identity}) != count
+                    or role in identities and identity != identities[role]):
+                raise ValueError('process identity changed')
+            identities[role] = identity
+            for field in FIELDS:
+                values = [len(p['thread_ids']) if field == 'thread_count' else p.get(field) for p in processes]
+                if (any(type(v) is not int or v < 0 for v in values)
+                        or type(row.get(field)) is not int or row[field] != sum(values)):
+>                   raise ValueError('invalid Linux metric aggregate')
+E                   ValueError: invalid Linux metric aggregate
+
+scripts\performance\b3_linux_analysis.py:37: ValueError
+______ test_pool_preserves_diagnostic_classification_and_hash_provenance ______
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-935/test_pool_preserves_diagnostic0')
+
+    def test_pool_preserves_diagnostic_classification_and_hash_provenance(tmp_path):
+        root = tmp_path / 'r1'
+        evidence(root)
+>       result = analysis.analyze_roots([root])
+                 ^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'scripts.performance.b3_linux_analysis' has no attribute 'analyze_roots'. Did you mean: 'analyze_cycles'?
+
+tests\performance\test_b3_linux_analysis.py:122: AttributeError
+_____ test_pool_rejects_incompatible_or_unverified_inputs[controller_sha] _____
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-935/test_pool_rejects_incompatible0')
+change = 'controller_sha'
+
+    @pytest.mark.parametrize('change', ['controller_sha', 'binary_sha', 'placement', 'topology', 'memory', 'source_bytes', 'raw_tamper'])
+    def test_pool_rejects_incompatible_or_unverified_inputs(tmp_path, change):
+        a, b = tmp_path / 'a', tmp_path / 'b'
+        evidence(a, 'r1')
+        evidence(b, 'r2')
+        env = json.loads((b / 'environment.json').read_text())
+        if change == 'controller_sha':
+            env['source_sha'] = 'c' * 40
+        elif change == 'binary_sha':
+            env['binary_source_sha'] = 'c' * 40
+        elif change == 'placement':
+            env['linux_environment']['selected_cpus'] = [1]
+        elif change == 'topology':
+            env['linux_environment']['topology']['cpus'][0]['core'] = 1
+        elif change == 'memory':
+            env['memory_scope'] = 'Windows private commit'
+        elif change == 'source_bytes':
+            (b / 'source/scripts/run_b3_v2.py').write_text('changed')
+        else:
+            (b / 'records.json').write_text('[]')
+        (b / 'environment.json').write_text(json.dumps(env))
+        if change != 'raw_tamper':
+            index(b)
+        with pytest.raises(ValueError):
+>           analysis.analyze_roots([a, b])
+            ^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: module 'scripts.performance.b3_linux_analysis' has no attribute 'analyze_roots'. Did you mean: 'analyze_cycles'?
+
+tests\performance\test_b3_linux_analysis.py:152: AttributeError
+_______ test_pool_rejects_incompatible_or_unverified_inputs[binary_sha] _______
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-935/test_pool_rejects_incompatible1')
+change = 'binary_sha'
+
+    @pytest.mark.parametrize('change', ['controller_sha', 'binary_sha', 'placement', 'topology', 'memory', 'source_bytes', 'raw_tamper'])
+    def test_pool_rejects_incompatible_or_unverified_inputs(tmp_path, change):
+        a, b = tmp_path / 'a', tmp_path / 'b'
+        evidence(a, 'r1')
+        evidence(b, 'r2')
+        env = json.loads((b / 'environment.json').read_text())
+        if change == 'controller_sha':
+            env['source_sha'] = 'c' * 40
+        elif change == 'binary_sha':
+            env['binary_source_sha'] = 'c' * 40
+        elif change == 'placement':
+            env['linux_environment']['selected_cpus'] = [1]
+        elif change == 'topology':
+            env['linux_environment']['topology']['cpus'][0]['core'] = 1
+        elif change == 'memory':
+            env['memory_scope'] = 'Windows private commit'
+        elif change == 'source_bytes':
+            (b / 'source/scripts/run_b3_v2.py').write_text('changed')
+        else:
+            (b / 'records.json').write_text('[]')
+        (b / 'environment.json').write_text(json.dumps(env))
+        if change != 'raw_tamper':
+            index(b)
+        with pytest.raises(ValueError):
+>           analysis.analyze_roots([a, b])
+            ^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: module 'scripts.performance.b3_linux_analysis' has no attribute 'analyze_roots'. Did you mean: 'analyze_cycles'?
+
+tests\performance\test_b3_linux_analysis.py:152: AttributeError
+_______ test_pool_rejects_incompatible_or_unverified_inputs[placement] ________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-935/test_pool_rejects_incompatible2')
+change = 'placement'
+
+    @pytest.mark.parametrize('change', ['controller_sha', 'binary_sha', 'placement', 'topology', 'memory', 'source_bytes', 'raw_tamper'])
+    def test_pool_rejects_incompatible_or_unverified_inputs(tmp_path, change):
+        a, b = tmp_path / 'a', tmp_path / 'b'
+        evidence(a, 'r1')
+        evidence(b, 'r2')
+        env = json.loads((b / 'environment.json').read_text())
+        if change == 'controller_sha':
+            env['source_sha'] = 'c' * 40
+        elif change == 'binary_sha':
+            env['binary_source_sha'] = 'c' * 40
+        elif change == 'placement':
+            env['linux_environment']['selected_cpus'] = [1]
+        elif change == 'topology':
+            env['linux_environment']['topology']['cpus'][0]['core'] = 1
+        elif change == 'memory':
+            env['memory_scope'] = 'Windows private commit'
+        elif change == 'source_bytes':
+            (b / 'source/scripts/run_b3_v2.py').write_text('changed')
+        else:
+            (b / 'records.json').write_text('[]')
+        (b / 'environment.json').write_text(json.dumps(env))
+        if change != 'raw_tamper':
+            index(b)
+        with pytest.raises(ValueError):
+>           analysis.analyze_roots([a, b])
+            ^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: module 'scripts.performance.b3_linux_analysis' has no attribute 'analyze_roots'. Did you mean: 'analyze_cycles'?
+
+tests\performance\test_b3_linux_analysis.py:152: AttributeError
+________ test_pool_rejects_incompatible_or_unverified_inputs[topology] ________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-935/test_pool_rejects_incompatible3')
+change = 'topology'
+
+    @pytest.mark.parametrize('change', ['controller_sha', 'binary_sha', 'placement', 'topology', 'memory', 'source_bytes', 'raw_tamper'])
+    def test_pool_rejects_incompatible_or_unverified_inputs(tmp_path, change):
+        a, b = tmp_path / 'a', tmp_path / 'b'
+        evidence(a, 'r1')
+        evidence(b, 'r2')
+        env = json.loads((b / 'environment.json').read_text())
+        if change == 'controller_sha':
+            env['source_sha'] = 'c' * 40
+        elif change == 'binary_sha':
+            env['binary_source_sha'] = 'c' * 40
+        elif change == 'placement':
+            env['linux_environment']['selected_cpus'] = [1]
+        elif change == 'topology':
+            env['linux_environment']['topology']['cpus'][0]['core'] = 1
+        elif change == 'memory':
+            env['memory_scope'] = 'Windows private commit'
+        elif change == 'source_bytes':
+            (b / 'source/scripts/run_b3_v2.py').write_text('changed')
+        else:
+            (b / 'records.json').write_text('[]')
+        (b / 'environment.json').write_text(json.dumps(env))
+        if change != 'raw_tamper':
+            index(b)
+        with pytest.raises(ValueError):
+>           analysis.analyze_roots([a, b])
+            ^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: module 'scripts.performance.b3_linux_analysis' has no attribute 'analyze_roots'. Did you mean: 'analyze_cycles'?
+
+tests\performance\test_b3_linux_analysis.py:152: AttributeError
+_________ test_pool_rejects_incompatible_or_unverified_inputs[memory] _________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-935/test_pool_rejects_incompatible4')
+change = 'memory'
+
+    @pytest.mark.parametrize('change', ['controller_sha', 'binary_sha', 'placement', 'topology', 'memory', 'source_bytes', 'raw_tamper'])
+    def test_pool_rejects_incompatible_or_unverified_inputs(tmp_path, change):
+        a, b = tmp_path / 'a', tmp_path / 'b'
+        evidence(a, 'r1')
+        evidence(b, 'r2')
+        env = json.loads((b / 'environment.json').read_text())
+        if change == 'controller_sha':
+            env['source_sha'] = 'c' * 40
+        elif change == 'binary_sha':
+            env['binary_source_sha'] = 'c' * 40
+        elif change == 'placement':
+            env['linux_environment']['selected_cpus'] = [1]
+        elif change == 'topology':
+            env['linux_environment']['topology']['cpus'][0]['core'] = 1
+        elif change == 'memory':
+            env['memory_scope'] = 'Windows private commit'
+        elif change == 'source_bytes':
+            (b / 'source/scripts/run_b3_v2.py').write_text('changed')
+        else:
+            (b / 'records.json').write_text('[]')
+        (b / 'environment.json').write_text(json.dumps(env))
+        if change != 'raw_tamper':
+            index(b)
+        with pytest.raises(ValueError):
+>           analysis.analyze_roots([a, b])
+            ^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: module 'scripts.performance.b3_linux_analysis' has no attribute 'analyze_roots'. Did you mean: 'analyze_cycles'?
+
+tests\performance\test_b3_linux_analysis.py:152: AttributeError
+______ test_pool_rejects_incompatible_or_unverified_inputs[source_bytes] ______
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-935/test_pool_rejects_incompatible5')
+change = 'source_bytes'
+
+    @pytest.mark.parametrize('change', ['controller_sha', 'binary_sha', 'placement', 'topology', 'memory', 'source_bytes', 'raw_tamper'])
+    def test_pool_rejects_incompatible_or_unverified_inputs(tmp_path, change):
+        a, b = tmp_path / 'a', tmp_path / 'b'
+        evidence(a, 'r1')
+        evidence(b, 'r2')
+        env = json.loads((b / 'environment.json').read_text())
+        if change == 'controller_sha':
+            env['source_sha'] = 'c' * 40
+        elif change == 'binary_sha':
+            env['binary_source_sha'] = 'c' * 40
+        elif change == 'placement':
+            env['linux_environment']['selected_cpus'] = [1]
+        elif change == 'topology':
+            env['linux_environment']['topology']['cpus'][0]['core'] = 1
+        elif change == 'memory':
+            env['memory_scope'] = 'Windows private commit'
+        elif change == 'source_bytes':
+            (b / 'source/scripts/run_b3_v2.py').write_text('changed')
+        else:
+            (b / 'records.json').write_text('[]')
+        (b / 'environment.json').write_text(json.dumps(env))
+        if change != 'raw_tamper':
+            index(b)
+        with pytest.raises(ValueError):
+>           analysis.analyze_roots([a, b])
+            ^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: module 'scripts.performance.b3_linux_analysis' has no attribute 'analyze_roots'. Did you mean: 'analyze_cycles'?
+
+tests\performance\test_b3_linux_analysis.py:152: AttributeError
+_______ test_pool_rejects_incompatible_or_unverified_inputs[raw_tamper] _______
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-935/test_pool_rejects_incompatible6')
+change = 'raw_tamper'
+
+    @pytest.mark.parametrize('change', ['controller_sha', 'binary_sha', 'placement', 'topology', 'memory', 'source_bytes', 'raw_tamper'])
+    def test_pool_rejects_incompatible_or_unverified_inputs(tmp_path, change):
+        a, b = tmp_path / 'a', tmp_path / 'b'
+        evidence(a, 'r1')
+        evidence(b, 'r2')
+        env = json.loads((b / 'environment.json').read_text())
+        if change == 'controller_sha':
+            env['source_sha'] = 'c' * 40
+        elif change == 'binary_sha':
+            env['binary_source_sha'] = 'c' * 40
+        elif change == 'placement':
+            env['linux_environment']['selected_cpus'] = [1]
+        elif change == 'topology':
+            env['linux_environment']['topology']['cpus'][0]['core'] = 1
+        elif change == 'memory':
+            env['memory_scope'] = 'Windows private commit'
+        elif change == 'source_bytes':
+            (b / 'source/scripts/run_b3_v2.py').write_text('changed')
+        else:
+            (b / 'records.json').write_text('[]')
+        (b / 'environment.json').write_text(json.dumps(env))
+        if change != 'raw_tamper':
+            index(b)
+        with pytest.raises(ValueError):
+>           analysis.analyze_roots([a, b])
+            ^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: module 'scripts.performance.b3_linux_analysis' has no attribute 'analyze_roots'. Did you mean: 'analyze_cycles'?
+
+tests\performance\test_b3_linux_analysis.py:152: AttributeError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_b3_linux_analysis.py::test_scale_allows_explicit_postclose_source_but_cycles_do_not
+FAILED tests/performance/test_b3_linux_analysis.py::test_pool_preserves_diagnostic_classification_and_hash_provenance
+FAILED tests/performance/test_b3_linux_analysis.py::test_pool_rejects_incompatible_or_unverified_inputs[controller_sha]
+FAILED tests/performance/test_b3_linux_analysis.py::test_pool_rejects_incompatible_or_unverified_inputs[binary_sha]
+FAILED tests/performance/test_b3_linux_analysis.py::test_pool_rejects_incompatible_or_unverified_inputs[placement]
+FAILED tests/performance/test_b3_linux_analysis.py::test_pool_rejects_incompatible_or_unverified_inputs[topology]
+FAILED tests/performance/test_b3_linux_analysis.py::test_pool_rejects_incompatible_or_unverified_inputs[memory]
+FAILED tests/performance/test_b3_linux_analysis.py::test_pool_rejects_incompatible_or_unverified_inputs[source_bytes]
+FAILED tests/performance/test_b3_linux_analysis.py::test_pool_rejects_incompatible_or_unverified_inputs[raw_tamper]
+9 failed, 9 passed in 1.01s
