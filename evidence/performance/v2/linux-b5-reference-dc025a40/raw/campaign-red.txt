@@ -1,0 +1,234 @@
+FFFFF                                                                    [100%]
+================================== FAILURES ===================================
+______ test_campaign_freezes_inputs_and_preserves_failed_attempts[None] _______
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-955/test_campaign_freezes_inputs_a0')
+fault = None
+
+    @pytest.mark.parametrize('fault', [None, 'stale-build', 'dirty-final', 'binary-drift', 'invalid-run'])
+    def test_campaign_freezes_inputs_and_preserves_failed_attempts(tmp_path, fault):
+        from argparse import Namespace
+        from tests.performance.test_linux_b5_ceiling import LINUX, SHA
+        from scripts.performance.linux_loopback import digest
+    
+        binaries = tmp_path / 'bin'
+        binaries.mkdir()
+        names = ('perf_direct_peer', 'perf_rust_source', 'wp8_interop_server')
+        for name in names:
+            (binaries / name).write_bytes(name.encode())
+        manifest = tmp_path / 'build.json'
+        manifest.write_text(json.dumps(dict(source_sha='b' * 40 if fault == 'stale-build' else SHA,
+            build_profile='release', build_commands=['cargo build --release'], toolchains={'rustc': 'test'},
+            binary_sha256={name: digest(binaries / name) for name in names})))
+        args = Namespace(binaries=binaries, build_manifest=manifest, output=tmp_path / 'output',
+                         payload_bytes=16384, streams=1, depths=[1], warmup=3, duration=20)
+        calls = []
+    
+        def run(value, repeat, *unused, **kwargs):
+            calls.append(value['path'])
+            if fault == 'invalid-run':
+                return dict(valid=False, path=value['path'], repeat=repeat, error='retained failure')
+            if fault == 'binary-drift':
+                (binaries / names[0]).write_bytes(b'changed')
+            return reference.finish_record(value, repeat, result() | {'path': value['path']}, cleanup_pass=True)
+    
+        def state():
+            return SHA, ' M changed' if calls and fault == 'dirty-final' else ''
+    
+        kwargs = dict(linux_environment=LINUX | {'taskset': '/usr/bin/taskset'},
+            git_state_fn=state, run_fn=run, authority_fn=lambda p: p.mkdir(), executable_fn=lambda p: True)
+        if fault:
+            with pytest.raises((ValueError, RuntimeError)):
+                reference.execute(args, **kwargs)
+            if fault == 'stale-build':
+                assert calls == []
+                return
+        else:
+>           reference.execute(args, **kwargs)
+            ^^^^^^^^^^^^^^^^^
+E           AttributeError: module 'scripts.performance.linux_b5_reference' has no attribute 'execute'
+
+tests\performance\test_linux_b5_reference.py:201: AttributeError
+___ test_campaign_freezes_inputs_and_preserves_failed_attempts[stale-build] ___
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-955/test_campaign_freezes_inputs_a1')
+fault = 'stale-build'
+
+    @pytest.mark.parametrize('fault', [None, 'stale-build', 'dirty-final', 'binary-drift', 'invalid-run'])
+    def test_campaign_freezes_inputs_and_preserves_failed_attempts(tmp_path, fault):
+        from argparse import Namespace
+        from tests.performance.test_linux_b5_ceiling import LINUX, SHA
+        from scripts.performance.linux_loopback import digest
+    
+        binaries = tmp_path / 'bin'
+        binaries.mkdir()
+        names = ('perf_direct_peer', 'perf_rust_source', 'wp8_interop_server')
+        for name in names:
+            (binaries / name).write_bytes(name.encode())
+        manifest = tmp_path / 'build.json'
+        manifest.write_text(json.dumps(dict(source_sha='b' * 40 if fault == 'stale-build' else SHA,
+            build_profile='release', build_commands=['cargo build --release'], toolchains={'rustc': 'test'},
+            binary_sha256={name: digest(binaries / name) for name in names})))
+        args = Namespace(binaries=binaries, build_manifest=manifest, output=tmp_path / 'output',
+                         payload_bytes=16384, streams=1, depths=[1], warmup=3, duration=20)
+        calls = []
+    
+        def run(value, repeat, *unused, **kwargs):
+            calls.append(value['path'])
+            if fault == 'invalid-run':
+                return dict(valid=False, path=value['path'], repeat=repeat, error='retained failure')
+            if fault == 'binary-drift':
+                (binaries / names[0]).write_bytes(b'changed')
+            return reference.finish_record(value, repeat, result() | {'path': value['path']}, cleanup_pass=True)
+    
+        def state():
+            return SHA, ' M changed' if calls and fault == 'dirty-final' else ''
+    
+        kwargs = dict(linux_environment=LINUX | {'taskset': '/usr/bin/taskset'},
+            git_state_fn=state, run_fn=run, authority_fn=lambda p: p.mkdir(), executable_fn=lambda p: True)
+        if fault:
+            with pytest.raises((ValueError, RuntimeError)):
+>               reference.execute(args, **kwargs)
+                ^^^^^^^^^^^^^^^^^
+E               AttributeError: module 'scripts.performance.linux_b5_reference' has no attribute 'execute'
+
+tests\performance\test_linux_b5_reference.py:196: AttributeError
+___ test_campaign_freezes_inputs_and_preserves_failed_attempts[dirty-final] ___
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-955/test_campaign_freezes_inputs_a2')
+fault = 'dirty-final'
+
+    @pytest.mark.parametrize('fault', [None, 'stale-build', 'dirty-final', 'binary-drift', 'invalid-run'])
+    def test_campaign_freezes_inputs_and_preserves_failed_attempts(tmp_path, fault):
+        from argparse import Namespace
+        from tests.performance.test_linux_b5_ceiling import LINUX, SHA
+        from scripts.performance.linux_loopback import digest
+    
+        binaries = tmp_path / 'bin'
+        binaries.mkdir()
+        names = ('perf_direct_peer', 'perf_rust_source', 'wp8_interop_server')
+        for name in names:
+            (binaries / name).write_bytes(name.encode())
+        manifest = tmp_path / 'build.json'
+        manifest.write_text(json.dumps(dict(source_sha='b' * 40 if fault == 'stale-build' else SHA,
+            build_profile='release', build_commands=['cargo build --release'], toolchains={'rustc': 'test'},
+            binary_sha256={name: digest(binaries / name) for name in names})))
+        args = Namespace(binaries=binaries, build_manifest=manifest, output=tmp_path / 'output',
+                         payload_bytes=16384, streams=1, depths=[1], warmup=3, duration=20)
+        calls = []
+    
+        def run(value, repeat, *unused, **kwargs):
+            calls.append(value['path'])
+            if fault == 'invalid-run':
+                return dict(valid=False, path=value['path'], repeat=repeat, error='retained failure')
+            if fault == 'binary-drift':
+                (binaries / names[0]).write_bytes(b'changed')
+            return reference.finish_record(value, repeat, result() | {'path': value['path']}, cleanup_pass=True)
+    
+        def state():
+            return SHA, ' M changed' if calls and fault == 'dirty-final' else ''
+    
+        kwargs = dict(linux_environment=LINUX | {'taskset': '/usr/bin/taskset'},
+            git_state_fn=state, run_fn=run, authority_fn=lambda p: p.mkdir(), executable_fn=lambda p: True)
+        if fault:
+            with pytest.raises((ValueError, RuntimeError)):
+>               reference.execute(args, **kwargs)
+                ^^^^^^^^^^^^^^^^^
+E               AttributeError: module 'scripts.performance.linux_b5_reference' has no attribute 'execute'
+
+tests\performance\test_linux_b5_reference.py:196: AttributeError
+__ test_campaign_freezes_inputs_and_preserves_failed_attempts[binary-drift] ___
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-955/test_campaign_freezes_inputs_a3')
+fault = 'binary-drift'
+
+    @pytest.mark.parametrize('fault', [None, 'stale-build', 'dirty-final', 'binary-drift', 'invalid-run'])
+    def test_campaign_freezes_inputs_and_preserves_failed_attempts(tmp_path, fault):
+        from argparse import Namespace
+        from tests.performance.test_linux_b5_ceiling import LINUX, SHA
+        from scripts.performance.linux_loopback import digest
+    
+        binaries = tmp_path / 'bin'
+        binaries.mkdir()
+        names = ('perf_direct_peer', 'perf_rust_source', 'wp8_interop_server')
+        for name in names:
+            (binaries / name).write_bytes(name.encode())
+        manifest = tmp_path / 'build.json'
+        manifest.write_text(json.dumps(dict(source_sha='b' * 40 if fault == 'stale-build' else SHA,
+            build_profile='release', build_commands=['cargo build --release'], toolchains={'rustc': 'test'},
+            binary_sha256={name: digest(binaries / name) for name in names})))
+        args = Namespace(binaries=binaries, build_manifest=manifest, output=tmp_path / 'output',
+                         payload_bytes=16384, streams=1, depths=[1], warmup=3, duration=20)
+        calls = []
+    
+        def run(value, repeat, *unused, **kwargs):
+            calls.append(value['path'])
+            if fault == 'invalid-run':
+                return dict(valid=False, path=value['path'], repeat=repeat, error='retained failure')
+            if fault == 'binary-drift':
+                (binaries / names[0]).write_bytes(b'changed')
+            return reference.finish_record(value, repeat, result() | {'path': value['path']}, cleanup_pass=True)
+    
+        def state():
+            return SHA, ' M changed' if calls and fault == 'dirty-final' else ''
+    
+        kwargs = dict(linux_environment=LINUX | {'taskset': '/usr/bin/taskset'},
+            git_state_fn=state, run_fn=run, authority_fn=lambda p: p.mkdir(), executable_fn=lambda p: True)
+        if fault:
+            with pytest.raises((ValueError, RuntimeError)):
+>               reference.execute(args, **kwargs)
+                ^^^^^^^^^^^^^^^^^
+E               AttributeError: module 'scripts.performance.linux_b5_reference' has no attribute 'execute'
+
+tests\performance\test_linux_b5_reference.py:196: AttributeError
+___ test_campaign_freezes_inputs_and_preserves_failed_attempts[invalid-run] ___
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-955/test_campaign_freezes_inputs_a4')
+fault = 'invalid-run'
+
+    @pytest.mark.parametrize('fault', [None, 'stale-build', 'dirty-final', 'binary-drift', 'invalid-run'])
+    def test_campaign_freezes_inputs_and_preserves_failed_attempts(tmp_path, fault):
+        from argparse import Namespace
+        from tests.performance.test_linux_b5_ceiling import LINUX, SHA
+        from scripts.performance.linux_loopback import digest
+    
+        binaries = tmp_path / 'bin'
+        binaries.mkdir()
+        names = ('perf_direct_peer', 'perf_rust_source', 'wp8_interop_server')
+        for name in names:
+            (binaries / name).write_bytes(name.encode())
+        manifest = tmp_path / 'build.json'
+        manifest.write_text(json.dumps(dict(source_sha='b' * 40 if fault == 'stale-build' else SHA,
+            build_profile='release', build_commands=['cargo build --release'], toolchains={'rustc': 'test'},
+            binary_sha256={name: digest(binaries / name) for name in names})))
+        args = Namespace(binaries=binaries, build_manifest=manifest, output=tmp_path / 'output',
+                         payload_bytes=16384, streams=1, depths=[1], warmup=3, duration=20)
+        calls = []
+    
+        def run(value, repeat, *unused, **kwargs):
+            calls.append(value['path'])
+            if fault == 'invalid-run':
+                return dict(valid=False, path=value['path'], repeat=repeat, error='retained failure')
+            if fault == 'binary-drift':
+                (binaries / names[0]).write_bytes(b'changed')
+            return reference.finish_record(value, repeat, result() | {'path': value['path']}, cleanup_pass=True)
+    
+        def state():
+            return SHA, ' M changed' if calls and fault == 'dirty-final' else ''
+    
+        kwargs = dict(linux_environment=LINUX | {'taskset': '/usr/bin/taskset'},
+            git_state_fn=state, run_fn=run, authority_fn=lambda p: p.mkdir(), executable_fn=lambda p: True)
+        if fault:
+            with pytest.raises((ValueError, RuntimeError)):
+>               reference.execute(args, **kwargs)
+                ^^^^^^^^^^^^^^^^^
+E               AttributeError: module 'scripts.performance.linux_b5_reference' has no attribute 'execute'
+
+tests\performance\test_linux_b5_reference.py:196: AttributeError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_linux_b5_reference.py::test_campaign_freezes_inputs_and_preserves_failed_attempts[None]
+FAILED tests/performance/test_linux_b5_reference.py::test_campaign_freezes_inputs_and_preserves_failed_attempts[stale-build]
+FAILED tests/performance/test_linux_b5_reference.py::test_campaign_freezes_inputs_and_preserves_failed_attempts[dirty-final]
+FAILED tests/performance/test_linux_b5_reference.py::test_campaign_freezes_inputs_and_preserves_failed_attempts[binary-drift]
+FAILED tests/performance/test_linux_b5_reference.py::test_campaign_freezes_inputs_and_preserves_failed_attempts[invalid-run]
+5 failed, 30 deselected in 0.65s

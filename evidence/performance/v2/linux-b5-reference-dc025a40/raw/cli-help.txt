@@ -1,0 +1,17 @@
+usage: python.exe -m scripts.performance.linux_b5_reference
+       [-h] --binaries BINARIES --build-manifest BUILD_MANIFEST
+       --output OUTPUT --payload-bytes {1024,16384} --streams STREAMS
+       [--depths DEPTHS [DEPTHS ...]] [--warmup WARMUP] [--duration DURATION]
+
+Finite Linux 1-core/1-group reference. Never a server or sustained maximum.
+
+options:
+  -h, --help            show this help message and exit
+  --binaries BINARIES
+  --build-manifest BUILD_MANIFEST
+  --output OUTPUT
+  --payload-bytes {1024,16384}
+  --streams STREAMS
+  --depths DEPTHS [DEPTHS ...]
+  --warmup WARMUP
+  --duration DURATION

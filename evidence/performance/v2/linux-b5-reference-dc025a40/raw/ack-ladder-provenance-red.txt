@@ -1,0 +1,476 @@
+................FFFFFFFFFFFFFF..............FF                           [100%]
+================================== FAILURES ===================================
+____ test_orchestration_samples_source_then_ack_then_server_join[final-0] _____
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-952/test_orchestration_samples_sou2')
+server_code = 0, source_fault = 'final'
+
+    @pytest.mark.parametrize('server_code', [0, 1])
+    @pytest.mark.parametrize('source_fault', [None, 'final', 'report'])
+    def test_orchestration_samples_source_then_ack_then_server_join(tmp_path, server_code, source_fault):
+        from scripts.performance.post_close_cleanup import FIELDS
+        events = []
+    
+        class Process:
+            def __init__(self, argv, **kwargs):
+                self.role = 'server' if '--ready' in argv else 'client'
+                self.pid = 11 if self.role == 'server' else 12
+                self.returncode = None
+                self.code = server_code if self.role == 'server' else 0
+                if self.role == 'server':
+                    Path(argv[argv.index('--ready') + 1]).write_text(json.dumps({'endpoint': '127.0.0.1:42'}))
+                else:
+                    final = result()
+                    if source_fault == 'final':
+                        final['errors'] = 1
+                    kwargs['stdout'].write((json.dumps(final) + '\n').encode())
+                    kwargs['stdout'].flush()
+                report = dict(schema='nbsr-p2a-post-close-v1', pid=self.pid,
+                    role='destination' if self.role == 'server' else 'source', diagnostics_enabled_before_run=True,
+                    runtime_state='runtime_alive', ownership=dict.fromkeys(FIELDS, 0))
+                if self.role == 'client' and source_fault == 'report':
+                    report['ownership']['pending_routes_current_entries'] = 1
+                Path(argv[argv.index('--p2a-cleanup-report') + 1]).write_text(json.dumps(report))
+    
+            def poll(self):
+                return self.returncode
+    
+            def wait(self, timeout):
+                if self.role == 'server' and self.returncode is None:
+                    assert (tmp_path / 'raw/completion.ack').exists()
+                events.append(self.role + '-join')
+                self.returncode = self.code
+                return self.code
+    
+            def kill(self):
+                self.returncode = -1
+    
+        clock = 0
+    
+        def sample(pid, cpus):
+            nonlocal clock
+            clock += 1
+            state = 'Z' if pid == 12 or (tmp_path / 'raw/completion.ack').exists() else 'S'
+            if pid == 12:
+                assert not (tmp_path / 'raw/completion.ack').exists()
+                events.append('client-final-sample')
+            return dict(pid=pid, start_ticks=pid, state=state, cpu_ns=clock, timestamp_ns=clock, affinity=cpus)
+    
+        row = reference.run_cell(cell(), 1, Path('/bin'), tmp_path / 'authority', tmp_path / 'raw', [0],
+            '/usr/bin/taskset', warmup=3, duration=20, sample_fn=sample, popen=Process,
+            exec_check=lambda *args: None)
+        assert row['valid'] is (server_code == 0 and source_fault is None)
+        assert events.index('client-final-sample') < events.index('client-join')
+        if source_fault is not None:
+>           assert not (tmp_path / 'raw/completion.ack').exists()
+E           AssertionError: assert not True
+E            +  where True = exists()
+E            +    where exists = (WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-952/test_orchestration_samples_sou2') / 'raw/completion.ack').exists
+
+tests\performance\test_linux_b5_reference.py:117: AssertionError
+____ test_orchestration_samples_source_then_ack_then_server_join[final-1] _____
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-952/test_orchestration_samples_sou3')
+server_code = 1, source_fault = 'final'
+
+    @pytest.mark.parametrize('server_code', [0, 1])
+    @pytest.mark.parametrize('source_fault', [None, 'final', 'report'])
+    def test_orchestration_samples_source_then_ack_then_server_join(tmp_path, server_code, source_fault):
+        from scripts.performance.post_close_cleanup import FIELDS
+        events = []
+    
+        class Process:
+            def __init__(self, argv, **kwargs):
+                self.role = 'server' if '--ready' in argv else 'client'
+                self.pid = 11 if self.role == 'server' else 12
+                self.returncode = None
+                self.code = server_code if self.role == 'server' else 0
+                if self.role == 'server':
+                    Path(argv[argv.index('--ready') + 1]).write_text(json.dumps({'endpoint': '127.0.0.1:42'}))
+                else:
+                    final = result()
+                    if source_fault == 'final':
+                        final['errors'] = 1
+                    kwargs['stdout'].write((json.dumps(final) + '\n').encode())
+                    kwargs['stdout'].flush()
+                report = dict(schema='nbsr-p2a-post-close-v1', pid=self.pid,
+                    role='destination' if self.role == 'server' else 'source', diagnostics_enabled_before_run=True,
+                    runtime_state='runtime_alive', ownership=dict.fromkeys(FIELDS, 0))
+                if self.role == 'client' and source_fault == 'report':
+                    report['ownership']['pending_routes_current_entries'] = 1
+                Path(argv[argv.index('--p2a-cleanup-report') + 1]).write_text(json.dumps(report))
+    
+            def poll(self):
+                return self.returncode
+    
+            def wait(self, timeout):
+                if self.role == 'server' and self.returncode is None:
+                    assert (tmp_path / 'raw/completion.ack').exists()
+                events.append(self.role + '-join')
+                self.returncode = self.code
+                return self.code
+    
+            def kill(self):
+                self.returncode = -1
+    
+        clock = 0
+    
+        def sample(pid, cpus):
+            nonlocal clock
+            clock += 1
+            state = 'Z' if pid == 12 or (tmp_path / 'raw/completion.ack').exists() else 'S'
+            if pid == 12:
+                assert not (tmp_path / 'raw/completion.ack').exists()
+                events.append('client-final-sample')
+            return dict(pid=pid, start_ticks=pid, state=state, cpu_ns=clock, timestamp_ns=clock, affinity=cpus)
+    
+        row = reference.run_cell(cell(), 1, Path('/bin'), tmp_path / 'authority', tmp_path / 'raw', [0],
+            '/usr/bin/taskset', warmup=3, duration=20, sample_fn=sample, popen=Process,
+            exec_check=lambda *args: None)
+        assert row['valid'] is (server_code == 0 and source_fault is None)
+        assert events.index('client-final-sample') < events.index('client-join')
+        if source_fault is not None:
+>           assert not (tmp_path / 'raw/completion.ack').exists()
+E           AssertionError: assert not True
+E            +  where True = exists()
+E            +    where exists = (WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-952/test_orchestration_samples_sou3') / 'raw/completion.ack').exists
+
+tests\performance\test_linux_b5_reference.py:117: AssertionError
+____ test_orchestration_samples_source_then_ack_then_server_join[report-0] ____
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-952/test_orchestration_samples_sou4')
+server_code = 0, source_fault = 'report'
+
+    @pytest.mark.parametrize('server_code', [0, 1])
+    @pytest.mark.parametrize('source_fault', [None, 'final', 'report'])
+    def test_orchestration_samples_source_then_ack_then_server_join(tmp_path, server_code, source_fault):
+        from scripts.performance.post_close_cleanup import FIELDS
+        events = []
+    
+        class Process:
+            def __init__(self, argv, **kwargs):
+                self.role = 'server' if '--ready' in argv else 'client'
+                self.pid = 11 if self.role == 'server' else 12
+                self.returncode = None
+                self.code = server_code if self.role == 'server' else 0
+                if self.role == 'server':
+                    Path(argv[argv.index('--ready') + 1]).write_text(json.dumps({'endpoint': '127.0.0.1:42'}))
+                else:
+                    final = result()
+                    if source_fault == 'final':
+                        final['errors'] = 1
+                    kwargs['stdout'].write((json.dumps(final) + '\n').encode())
+                    kwargs['stdout'].flush()
+                report = dict(schema='nbsr-p2a-post-close-v1', pid=self.pid,
+                    role='destination' if self.role == 'server' else 'source', diagnostics_enabled_before_run=True,
+                    runtime_state='runtime_alive', ownership=dict.fromkeys(FIELDS, 0))
+                if self.role == 'client' and source_fault == 'report':
+                    report['ownership']['pending_routes_current_entries'] = 1
+                Path(argv[argv.index('--p2a-cleanup-report') + 1]).write_text(json.dumps(report))
+    
+            def poll(self):
+                return self.returncode
+    
+            def wait(self, timeout):
+                if self.role == 'server' and self.returncode is None:
+                    assert (tmp_path / 'raw/completion.ack').exists()
+                events.append(self.role + '-join')
+                self.returncode = self.code
+                return self.code
+    
+            def kill(self):
+                self.returncode = -1
+    
+        clock = 0
+    
+        def sample(pid, cpus):
+            nonlocal clock
+            clock += 1
+            state = 'Z' if pid == 12 or (tmp_path / 'raw/completion.ack').exists() else 'S'
+            if pid == 12:
+                assert not (tmp_path / 'raw/completion.ack').exists()
+                events.append('client-final-sample')
+            return dict(pid=pid, start_ticks=pid, state=state, cpu_ns=clock, timestamp_ns=clock, affinity=cpus)
+    
+        row = reference.run_cell(cell(), 1, Path('/bin'), tmp_path / 'authority', tmp_path / 'raw', [0],
+            '/usr/bin/taskset', warmup=3, duration=20, sample_fn=sample, popen=Process,
+            exec_check=lambda *args: None)
+        assert row['valid'] is (server_code == 0 and source_fault is None)
+        assert events.index('client-final-sample') < events.index('client-join')
+        if source_fault is not None:
+>           assert not (tmp_path / 'raw/completion.ack').exists()
+E           AssertionError: assert not True
+E            +  where True = exists()
+E            +    where exists = (WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-952/test_orchestration_samples_sou4') / 'raw/completion.ack').exists
+
+tests\performance\test_linux_b5_reference.py:117: AssertionError
+____ test_orchestration_samples_source_then_ack_then_server_join[report-1] ____
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-952/test_orchestration_samples_sou5')
+server_code = 1, source_fault = 'report'
+
+    @pytest.mark.parametrize('server_code', [0, 1])
+    @pytest.mark.parametrize('source_fault', [None, 'final', 'report'])
+    def test_orchestration_samples_source_then_ack_then_server_join(tmp_path, server_code, source_fault):
+        from scripts.performance.post_close_cleanup import FIELDS
+        events = []
+    
+        class Process:
+            def __init__(self, argv, **kwargs):
+                self.role = 'server' if '--ready' in argv else 'client'
+                self.pid = 11 if self.role == 'server' else 12
+                self.returncode = None
+                self.code = server_code if self.role == 'server' else 0
+                if self.role == 'server':
+                    Path(argv[argv.index('--ready') + 1]).write_text(json.dumps({'endpoint': '127.0.0.1:42'}))
+                else:
+                    final = result()
+                    if source_fault == 'final':
+                        final['errors'] = 1
+                    kwargs['stdout'].write((json.dumps(final) + '\n').encode())
+                    kwargs['stdout'].flush()
+                report = dict(schema='nbsr-p2a-post-close-v1', pid=self.pid,
+                    role='destination' if self.role == 'server' else 'source', diagnostics_enabled_before_run=True,
+                    runtime_state='runtime_alive', ownership=dict.fromkeys(FIELDS, 0))
+                if self.role == 'client' and source_fault == 'report':
+                    report['ownership']['pending_routes_current_entries'] = 1
+                Path(argv[argv.index('--p2a-cleanup-report') + 1]).write_text(json.dumps(report))
+    
+            def poll(self):
+                return self.returncode
+    
+            def wait(self, timeout):
+                if self.role == 'server' and self.returncode is None:
+                    assert (tmp_path / 'raw/completion.ack').exists()
+                events.append(self.role + '-join')
+                self.returncode = self.code
+                return self.code
+    
+            def kill(self):
+                self.returncode = -1
+    
+        clock = 0
+    
+        def sample(pid, cpus):
+            nonlocal clock
+            clock += 1
+            state = 'Z' if pid == 12 or (tmp_path / 'raw/completion.ack').exists() else 'S'
+            if pid == 12:
+                assert not (tmp_path / 'raw/completion.ack').exists()
+                events.append('client-final-sample')
+            return dict(pid=pid, start_ticks=pid, state=state, cpu_ns=clock, timestamp_ns=clock, affinity=cpus)
+    
+        row = reference.run_cell(cell(), 1, Path('/bin'), tmp_path / 'authority', tmp_path / 'raw', [0],
+            '/usr/bin/taskset', warmup=3, duration=20, sample_fn=sample, popen=Process,
+            exec_check=lambda *args: None)
+        assert row['valid'] is (server_code == 0 and source_fault is None)
+        assert events.index('client-final-sample') < events.index('client-join')
+        if source_fault is not None:
+>           assert not (tmp_path / 'raw/completion.ack').exists()
+E           AssertionError: assert not True
+E            +  where True = exists()
+E            +    where exists = (WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-952/test_orchestration_samples_sou5') / 'raw/completion.ack').exists
+
+tests\performance\test_linux_b5_reference.py:117: AssertionError
+__________ test_ladder_retains_three_or_five_matched_repeats[False] ___________
+
+dispersed = False
+
+    @pytest.mark.parametrize('dispersed', [False, True])
+    def test_ladder_retains_three_or_five_matched_repeats(dispersed):
+        calls, retained = [], []
+    
+        def run(value, repeat):
+            calls.append((value['path'], value['outstanding'], repeat))
+            record = result() | {'path': value['path']}
+            if dispersed and value['path'] == 'nbsr' and repeat == 1:
+                record['completed_operations'] = 80
+            return reference.finish_record(value, repeat, record, cleanup_pass=True)
+    
+>       rows = reference.run_ladder(16384, 1, [1], run, lambda row: retained.append(dict(row)))
+               ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'scripts.performance.linux_b5_reference' has no attribute 'run_ladder'
+
+tests\performance\test_linux_b5_reference.py:138: AttributeError
+___________ test_ladder_retains_three_or_five_matched_repeats[True] ___________
+
+dispersed = True
+
+    @pytest.mark.parametrize('dispersed', [False, True])
+    def test_ladder_retains_three_or_five_matched_repeats(dispersed):
+        calls, retained = [], []
+    
+        def run(value, repeat):
+            calls.append((value['path'], value['outstanding'], repeat))
+            record = result() | {'path': value['path']}
+            if dispersed and value['path'] == 'nbsr' and repeat == 1:
+                record['completed_operations'] = 80
+            return reference.finish_record(value, repeat, record, cleanup_pass=True)
+    
+>       rows = reference.run_ladder(16384, 1, [1], run, lambda row: retained.append(dict(row)))
+               ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'scripts.performance.linux_b5_reference' has no attribute 'run_ladder'
+
+tests\performance\test_linux_b5_reference.py:138: AttributeError
+__________ test_ladder_invalid_attempt_is_retained_and_never_counted __________
+
+    def test_ladder_invalid_attempt_is_retained_and_never_counted():
+        retained = []
+    
+        def run(value, repeat):
+            return dict(path=value['path'], repeat=repeat, valid=False, error='source failed')
+    
+        with pytest.raises(RuntimeError, match='invalid'):
+>           reference.run_ladder(16384, 1, [1], run, retained.append)
+            ^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: module 'scripts.performance.linux_b5_reference' has no attribute 'run_ladder'
+
+tests\performance\test_linux_b5_reference.py:152: AttributeError
+_________ test_ladder_rejects_ambiguous_or_missing_baseline[depths0] __________
+
+depths = []
+
+    @pytest.mark.parametrize('depths', [[], [2], [1, 1], [2, 1], [1, True], [1, 3], [1, 2, 4, 8, 16, 32]])
+    def test_ladder_rejects_ambiguous_or_missing_baseline(depths):
+        with pytest.raises(ValueError):
+>           reference.run_ladder(16384, 1, depths, lambda *args: pytest.fail('launched'), lambda row: None)
+            ^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: module 'scripts.performance.linux_b5_reference' has no attribute 'run_ladder'
+
+tests\performance\test_linux_b5_reference.py:159: AttributeError
+_________ test_ladder_rejects_ambiguous_or_missing_baseline[depths1] __________
+
+depths = [2]
+
+    @pytest.mark.parametrize('depths', [[], [2], [1, 1], [2, 1], [1, True], [1, 3], [1, 2, 4, 8, 16, 32]])
+    def test_ladder_rejects_ambiguous_or_missing_baseline(depths):
+        with pytest.raises(ValueError):
+>           reference.run_ladder(16384, 1, depths, lambda *args: pytest.fail('launched'), lambda row: None)
+            ^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: module 'scripts.performance.linux_b5_reference' has no attribute 'run_ladder'
+
+tests\performance\test_linux_b5_reference.py:159: AttributeError
+_________ test_ladder_rejects_ambiguous_or_missing_baseline[depths2] __________
+
+depths = [1, 1]
+
+    @pytest.mark.parametrize('depths', [[], [2], [1, 1], [2, 1], [1, True], [1, 3], [1, 2, 4, 8, 16, 32]])
+    def test_ladder_rejects_ambiguous_or_missing_baseline(depths):
+        with pytest.raises(ValueError):
+>           reference.run_ladder(16384, 1, depths, lambda *args: pytest.fail('launched'), lambda row: None)
+            ^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: module 'scripts.performance.linux_b5_reference' has no attribute 'run_ladder'
+
+tests\performance\test_linux_b5_reference.py:159: AttributeError
+_________ test_ladder_rejects_ambiguous_or_missing_baseline[depths3] __________
+
+depths = [2, 1]
+
+    @pytest.mark.parametrize('depths', [[], [2], [1, 1], [2, 1], [1, True], [1, 3], [1, 2, 4, 8, 16, 32]])
+    def test_ladder_rejects_ambiguous_or_missing_baseline(depths):
+        with pytest.raises(ValueError):
+>           reference.run_ladder(16384, 1, depths, lambda *args: pytest.fail('launched'), lambda row: None)
+            ^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: module 'scripts.performance.linux_b5_reference' has no attribute 'run_ladder'
+
+tests\performance\test_linux_b5_reference.py:159: AttributeError
+_________ test_ladder_rejects_ambiguous_or_missing_baseline[depths4] __________
+
+depths = [1, True]
+
+    @pytest.mark.parametrize('depths', [[], [2], [1, 1], [2, 1], [1, True], [1, 3], [1, 2, 4, 8, 16, 32]])
+    def test_ladder_rejects_ambiguous_or_missing_baseline(depths):
+        with pytest.raises(ValueError):
+>           reference.run_ladder(16384, 1, depths, lambda *args: pytest.fail('launched'), lambda row: None)
+            ^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: module 'scripts.performance.linux_b5_reference' has no attribute 'run_ladder'
+
+tests\performance\test_linux_b5_reference.py:159: AttributeError
+_________ test_ladder_rejects_ambiguous_or_missing_baseline[depths5] __________
+
+depths = [1, 3]
+
+    @pytest.mark.parametrize('depths', [[], [2], [1, 1], [2, 1], [1, True], [1, 3], [1, 2, 4, 8, 16, 32]])
+    def test_ladder_rejects_ambiguous_or_missing_baseline(depths):
+        with pytest.raises(ValueError):
+>           reference.run_ladder(16384, 1, depths, lambda *args: pytest.fail('launched'), lambda row: None)
+            ^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: module 'scripts.performance.linux_b5_reference' has no attribute 'run_ladder'
+
+tests\performance\test_linux_b5_reference.py:159: AttributeError
+_________ test_ladder_rejects_ambiguous_or_missing_baseline[depths6] __________
+
+depths = [1, 2, 4, 8, 16, 32]
+
+    @pytest.mark.parametrize('depths', [[], [2], [1, 1], [2, 1], [1, True], [1, 3], [1, 2, 4, 8, 16, 32]])
+    def test_ladder_rejects_ambiguous_or_missing_baseline(depths):
+        with pytest.raises(ValueError):
+>           reference.run_ladder(16384, 1, depths, lambda *args: pytest.fail('launched'), lambda row: None)
+            ^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: module 'scripts.performance.linux_b5_reference' has no attribute 'run_ladder'
+
+tests\performance\test_linux_b5_reference.py:159: AttributeError
+_ test_reference_controller_sources_must_match_retained_and_current[missing] __
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-952/test_reference_controller_sour0')
+change = 'missing'
+
+    @pytest.mark.parametrize('change', ['missing', 'altered'])
+    def test_reference_controller_sources_must_match_retained_and_current(tmp_path, change):
+        binaries = fixture(tmp_path)
+        env = json.loads((tmp_path / 'environment.json').read_text())
+        key = 'scripts/performance/linux_b5_reference.py'
+        if change == 'missing':
+            del env['source_sha256'][key]
+        else:
+            retained = tmp_path / 'source' / key
+            retained.write_bytes(b'# altered controller\n')
+            env['source_sha256'][key] = hashlib.sha256(retained.read_bytes()).hexdigest()
+        write(tmp_path / 'environment.json', env)
+        index(tmp_path)
+>       with pytest.raises(ValueError, match='source'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_linux_b5_ceiling.py:136: Failed
+_ test_reference_controller_sources_must_match_retained_and_current[altered] __
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-952/test_reference_controller_sour1')
+change = 'altered'
+
+    @pytest.mark.parametrize('change', ['missing', 'altered'])
+    def test_reference_controller_sources_must_match_retained_and_current(tmp_path, change):
+        binaries = fixture(tmp_path)
+        env = json.loads((tmp_path / 'environment.json').read_text())
+        key = 'scripts/performance/linux_b5_reference.py'
+        if change == 'missing':
+            del env['source_sha256'][key]
+        else:
+            retained = tmp_path / 'source' / key
+            retained.write_bytes(b'# altered controller\n')
+            env['source_sha256'][key] = hashlib.sha256(retained.read_bytes()).hexdigest()
+        write(tmp_path / 'environment.json', env)
+        index(tmp_path)
+>       with pytest.raises(ValueError, match='source'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_linux_b5_ceiling.py:136: Failed
+=========================== short test summary info ===========================
+FAILED tests/performance/test_linux_b5_reference.py::test_orchestration_samples_source_then_ack_then_server_join[final-0]
+FAILED tests/performance/test_linux_b5_reference.py::test_orchestration_samples_source_then_ack_then_server_join[final-1]
+FAILED tests/performance/test_linux_b5_reference.py::test_orchestration_samples_source_then_ack_then_server_join[report-0]
+FAILED tests/performance/test_linux_b5_reference.py::test_orchestration_samples_source_then_ack_then_server_join[report-1]
+FAILED tests/performance/test_linux_b5_reference.py::test_ladder_retains_three_or_five_matched_repeats[False]
+FAILED tests/performance/test_linux_b5_reference.py::test_ladder_retains_three_or_five_matched_repeats[True]
+FAILED tests/performance/test_linux_b5_reference.py::test_ladder_invalid_attempt_is_retained_and_never_counted
+FAILED tests/performance/test_linux_b5_reference.py::test_ladder_rejects_ambiguous_or_missing_baseline[depths0]
+FAILED tests/performance/test_linux_b5_reference.py::test_ladder_rejects_ambiguous_or_missing_baseline[depths1]
+FAILED tests/performance/test_linux_b5_reference.py::test_ladder_rejects_ambiguous_or_missing_baseline[depths2]
+FAILED tests/performance/test_linux_b5_reference.py::test_ladder_rejects_ambiguous_or_missing_baseline[depths3]
+FAILED tests/performance/test_linux_b5_reference.py::test_ladder_rejects_ambiguous_or_missing_baseline[depths4]
+FAILED tests/performance/test_linux_b5_reference.py::test_ladder_rejects_ambiguous_or_missing_baseline[depths5]
+FAILED tests/performance/test_linux_b5_reference.py::test_ladder_rejects_ambiguous_or_missing_baseline[depths6]
+FAILED tests/performance/test_linux_b5_ceiling.py::test_reference_controller_sources_must_match_retained_and_current[missing]
+FAILED tests/performance/test_linux_b5_ceiling.py::test_reference_controller_sources_must_match_retained_and_current[altered]
+16 failed, 30 passed in 3.79s

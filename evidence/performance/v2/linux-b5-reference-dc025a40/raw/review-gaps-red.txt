@@ -1,0 +1,772 @@
+................FFFFFFFFFFFFFFFF                                         [100%]
+================================== FAILURES ===================================
+_ test_reference_requires_complete_ladder_and_bound_execution_evidence[no-baseline] _
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-962/test_reference_requires_comple0')
+fault = 'no-baseline'
+
+    @pytest.mark.parametrize('fault', ['no-baseline', 'omitted-depth', 'duplicate-raw', 'missing-commands',
+        'missing-resources', 'missing-ack', 'affinity', 'pid', 'start', 'time', 'cpu', 'terminal', 'final',
+        'command-workers', 'command-duration', 'duplicate-flag'])
+    def test_reference_requires_complete_ladder_and_bound_execution_evidence(tmp_path, fault):
+        binaries = fixture(tmp_path)
+        rows = json.loads((tmp_path / 'records.json').read_text())
+        env = json.loads((tmp_path / 'environment.json').read_text())
+        raw = tmp_path / rows[0]['raw_directory']
+        if fault == 'no-baseline':
+            env['workload']['depths'] = [2]
+        elif fault == 'omitted-depth':
+            env['workload']['depths'] = [1, 2]
+        elif fault == 'duplicate-raw':
+            rows[1]['raw_directory'] = rows[0]['raw_directory']
+        elif fault.startswith('missing-'):
+            filename = {'missing-commands': 'commands.json', 'missing-resources': 'resources.ndjson',
+                        'missing-ack': 'completion.ack'}[fault]
+            (raw / filename).unlink()
+        elif fault.startswith('command-') or fault == 'duplicate-flag':
+            value = json.loads((raw / 'commands.json').read_text())
+            if fault == 'duplicate-flag':
+                value['client'] += ['--p2a-runtime-workers', '1']
+            else:
+                flag = '--p2a-runtime-workers' if fault == 'command-workers' else '--p2a-duration-seconds'
+                value['client'][value['client'].index(flag) + 1] = '4'
+            write(raw / 'commands.json', value)
+        elif fault == 'final':
+            rows[0]['final_process_samples']['client']['cpu_ns'] += 1
+        else:
+            samples = [json.loads(line) for line in (raw / 'resources.ndjson').read_text().splitlines()]
+            field, value = {'affinity': ('affinity', [1]), 'pid': ('pid', 999), 'start': ('start_ticks', 999),
+                            'time': ('timestamp_ns', 1), 'cpu': ('cpu_ns', 0), 'terminal': ('state', 'S')}[fault]
+            samples[2][field] = value
+            (raw / 'resources.ndjson').write_text(''.join(json.dumps(s) + '\n' for s in samples))
+        write(tmp_path / 'environment.json', env)
+        write(tmp_path / 'records.json', rows)
+        index(tmp_path)
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_linux_b5_ceiling.py:307: Failed
+_ test_reference_requires_complete_ladder_and_bound_execution_evidence[omitted-depth] _
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-962/test_reference_requires_comple1')
+fault = 'omitted-depth'
+
+    @pytest.mark.parametrize('fault', ['no-baseline', 'omitted-depth', 'duplicate-raw', 'missing-commands',
+        'missing-resources', 'missing-ack', 'affinity', 'pid', 'start', 'time', 'cpu', 'terminal', 'final',
+        'command-workers', 'command-duration', 'duplicate-flag'])
+    def test_reference_requires_complete_ladder_and_bound_execution_evidence(tmp_path, fault):
+        binaries = fixture(tmp_path)
+        rows = json.loads((tmp_path / 'records.json').read_text())
+        env = json.loads((tmp_path / 'environment.json').read_text())
+        raw = tmp_path / rows[0]['raw_directory']
+        if fault == 'no-baseline':
+            env['workload']['depths'] = [2]
+        elif fault == 'omitted-depth':
+            env['workload']['depths'] = [1, 2]
+        elif fault == 'duplicate-raw':
+            rows[1]['raw_directory'] = rows[0]['raw_directory']
+        elif fault.startswith('missing-'):
+            filename = {'missing-commands': 'commands.json', 'missing-resources': 'resources.ndjson',
+                        'missing-ack': 'completion.ack'}[fault]
+            (raw / filename).unlink()
+        elif fault.startswith('command-') or fault == 'duplicate-flag':
+            value = json.loads((raw / 'commands.json').read_text())
+            if fault == 'duplicate-flag':
+                value['client'] += ['--p2a-runtime-workers', '1']
+            else:
+                flag = '--p2a-runtime-workers' if fault == 'command-workers' else '--p2a-duration-seconds'
+                value['client'][value['client'].index(flag) + 1] = '4'
+            write(raw / 'commands.json', value)
+        elif fault == 'final':
+            rows[0]['final_process_samples']['client']['cpu_ns'] += 1
+        else:
+            samples = [json.loads(line) for line in (raw / 'resources.ndjson').read_text().splitlines()]
+            field, value = {'affinity': ('affinity', [1]), 'pid': ('pid', 999), 'start': ('start_ticks', 999),
+                            'time': ('timestamp_ns', 1), 'cpu': ('cpu_ns', 0), 'terminal': ('state', 'S')}[fault]
+            samples[2][field] = value
+            (raw / 'resources.ndjson').write_text(''.join(json.dumps(s) + '\n' for s in samples))
+        write(tmp_path / 'environment.json', env)
+        write(tmp_path / 'records.json', rows)
+        index(tmp_path)
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_linux_b5_ceiling.py:307: Failed
+_ test_reference_requires_complete_ladder_and_bound_execution_evidence[duplicate-raw] _
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-962/test_reference_requires_comple2')
+fault = 'duplicate-raw'
+
+    @pytest.mark.parametrize('fault', ['no-baseline', 'omitted-depth', 'duplicate-raw', 'missing-commands',
+        'missing-resources', 'missing-ack', 'affinity', 'pid', 'start', 'time', 'cpu', 'terminal', 'final',
+        'command-workers', 'command-duration', 'duplicate-flag'])
+    def test_reference_requires_complete_ladder_and_bound_execution_evidence(tmp_path, fault):
+        binaries = fixture(tmp_path)
+        rows = json.loads((tmp_path / 'records.json').read_text())
+        env = json.loads((tmp_path / 'environment.json').read_text())
+        raw = tmp_path / rows[0]['raw_directory']
+        if fault == 'no-baseline':
+            env['workload']['depths'] = [2]
+        elif fault == 'omitted-depth':
+            env['workload']['depths'] = [1, 2]
+        elif fault == 'duplicate-raw':
+            rows[1]['raw_directory'] = rows[0]['raw_directory']
+        elif fault.startswith('missing-'):
+            filename = {'missing-commands': 'commands.json', 'missing-resources': 'resources.ndjson',
+                        'missing-ack': 'completion.ack'}[fault]
+            (raw / filename).unlink()
+        elif fault.startswith('command-') or fault == 'duplicate-flag':
+            value = json.loads((raw / 'commands.json').read_text())
+            if fault == 'duplicate-flag':
+                value['client'] += ['--p2a-runtime-workers', '1']
+            else:
+                flag = '--p2a-runtime-workers' if fault == 'command-workers' else '--p2a-duration-seconds'
+                value['client'][value['client'].index(flag) + 1] = '4'
+            write(raw / 'commands.json', value)
+        elif fault == 'final':
+            rows[0]['final_process_samples']['client']['cpu_ns'] += 1
+        else:
+            samples = [json.loads(line) for line in (raw / 'resources.ndjson').read_text().splitlines()]
+            field, value = {'affinity': ('affinity', [1]), 'pid': ('pid', 999), 'start': ('start_ticks', 999),
+                            'time': ('timestamp_ns', 1), 'cpu': ('cpu_ns', 0), 'terminal': ('state', 'S')}[fault]
+            samples[2][field] = value
+            (raw / 'resources.ndjson').write_text(''.join(json.dumps(s) + '\n' for s in samples))
+        write(tmp_path / 'environment.json', env)
+        write(tmp_path / 'records.json', rows)
+        index(tmp_path)
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_linux_b5_ceiling.py:307: Failed
+_ test_reference_requires_complete_ladder_and_bound_execution_evidence[missing-commands] _
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-962/test_reference_requires_comple3')
+fault = 'missing-commands'
+
+    @pytest.mark.parametrize('fault', ['no-baseline', 'omitted-depth', 'duplicate-raw', 'missing-commands',
+        'missing-resources', 'missing-ack', 'affinity', 'pid', 'start', 'time', 'cpu', 'terminal', 'final',
+        'command-workers', 'command-duration', 'duplicate-flag'])
+    def test_reference_requires_complete_ladder_and_bound_execution_evidence(tmp_path, fault):
+        binaries = fixture(tmp_path)
+        rows = json.loads((tmp_path / 'records.json').read_text())
+        env = json.loads((tmp_path / 'environment.json').read_text())
+        raw = tmp_path / rows[0]['raw_directory']
+        if fault == 'no-baseline':
+            env['workload']['depths'] = [2]
+        elif fault == 'omitted-depth':
+            env['workload']['depths'] = [1, 2]
+        elif fault == 'duplicate-raw':
+            rows[1]['raw_directory'] = rows[0]['raw_directory']
+        elif fault.startswith('missing-'):
+            filename = {'missing-commands': 'commands.json', 'missing-resources': 'resources.ndjson',
+                        'missing-ack': 'completion.ack'}[fault]
+            (raw / filename).unlink()
+        elif fault.startswith('command-') or fault == 'duplicate-flag':
+            value = json.loads((raw / 'commands.json').read_text())
+            if fault == 'duplicate-flag':
+                value['client'] += ['--p2a-runtime-workers', '1']
+            else:
+                flag = '--p2a-runtime-workers' if fault == 'command-workers' else '--p2a-duration-seconds'
+                value['client'][value['client'].index(flag) + 1] = '4'
+            write(raw / 'commands.json', value)
+        elif fault == 'final':
+            rows[0]['final_process_samples']['client']['cpu_ns'] += 1
+        else:
+            samples = [json.loads(line) for line in (raw / 'resources.ndjson').read_text().splitlines()]
+            field, value = {'affinity': ('affinity', [1]), 'pid': ('pid', 999), 'start': ('start_ticks', 999),
+                            'time': ('timestamp_ns', 1), 'cpu': ('cpu_ns', 0), 'terminal': ('state', 'S')}[fault]
+            samples[2][field] = value
+            (raw / 'resources.ndjson').write_text(''.join(json.dumps(s) + '\n' for s in samples))
+        write(tmp_path / 'environment.json', env)
+        write(tmp_path / 'records.json', rows)
+        index(tmp_path)
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_linux_b5_ceiling.py:307: Failed
+_ test_reference_requires_complete_ladder_and_bound_execution_evidence[missing-resources] _
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-962/test_reference_requires_comple4')
+fault = 'missing-resources'
+
+    @pytest.mark.parametrize('fault', ['no-baseline', 'omitted-depth', 'duplicate-raw', 'missing-commands',
+        'missing-resources', 'missing-ack', 'affinity', 'pid', 'start', 'time', 'cpu', 'terminal', 'final',
+        'command-workers', 'command-duration', 'duplicate-flag'])
+    def test_reference_requires_complete_ladder_and_bound_execution_evidence(tmp_path, fault):
+        binaries = fixture(tmp_path)
+        rows = json.loads((tmp_path / 'records.json').read_text())
+        env = json.loads((tmp_path / 'environment.json').read_text())
+        raw = tmp_path / rows[0]['raw_directory']
+        if fault == 'no-baseline':
+            env['workload']['depths'] = [2]
+        elif fault == 'omitted-depth':
+            env['workload']['depths'] = [1, 2]
+        elif fault == 'duplicate-raw':
+            rows[1]['raw_directory'] = rows[0]['raw_directory']
+        elif fault.startswith('missing-'):
+            filename = {'missing-commands': 'commands.json', 'missing-resources': 'resources.ndjson',
+                        'missing-ack': 'completion.ack'}[fault]
+            (raw / filename).unlink()
+        elif fault.startswith('command-') or fault == 'duplicate-flag':
+            value = json.loads((raw / 'commands.json').read_text())
+            if fault == 'duplicate-flag':
+                value['client'] += ['--p2a-runtime-workers', '1']
+            else:
+                flag = '--p2a-runtime-workers' if fault == 'command-workers' else '--p2a-duration-seconds'
+                value['client'][value['client'].index(flag) + 1] = '4'
+            write(raw / 'commands.json', value)
+        elif fault == 'final':
+            rows[0]['final_process_samples']['client']['cpu_ns'] += 1
+        else:
+            samples = [json.loads(line) for line in (raw / 'resources.ndjson').read_text().splitlines()]
+            field, value = {'affinity': ('affinity', [1]), 'pid': ('pid', 999), 'start': ('start_ticks', 999),
+                            'time': ('timestamp_ns', 1), 'cpu': ('cpu_ns', 0), 'terminal': ('state', 'S')}[fault]
+            samples[2][field] = value
+            (raw / 'resources.ndjson').write_text(''.join(json.dumps(s) + '\n' for s in samples))
+        write(tmp_path / 'environment.json', env)
+        write(tmp_path / 'records.json', rows)
+        index(tmp_path)
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_linux_b5_ceiling.py:307: Failed
+_ test_reference_requires_complete_ladder_and_bound_execution_evidence[missing-ack] _
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-962/test_reference_requires_comple5')
+fault = 'missing-ack'
+
+    @pytest.mark.parametrize('fault', ['no-baseline', 'omitted-depth', 'duplicate-raw', 'missing-commands',
+        'missing-resources', 'missing-ack', 'affinity', 'pid', 'start', 'time', 'cpu', 'terminal', 'final',
+        'command-workers', 'command-duration', 'duplicate-flag'])
+    def test_reference_requires_complete_ladder_and_bound_execution_evidence(tmp_path, fault):
+        binaries = fixture(tmp_path)
+        rows = json.loads((tmp_path / 'records.json').read_text())
+        env = json.loads((tmp_path / 'environment.json').read_text())
+        raw = tmp_path / rows[0]['raw_directory']
+        if fault == 'no-baseline':
+            env['workload']['depths'] = [2]
+        elif fault == 'omitted-depth':
+            env['workload']['depths'] = [1, 2]
+        elif fault == 'duplicate-raw':
+            rows[1]['raw_directory'] = rows[0]['raw_directory']
+        elif fault.startswith('missing-'):
+            filename = {'missing-commands': 'commands.json', 'missing-resources': 'resources.ndjson',
+                        'missing-ack': 'completion.ack'}[fault]
+            (raw / filename).unlink()
+        elif fault.startswith('command-') or fault == 'duplicate-flag':
+            value = json.loads((raw / 'commands.json').read_text())
+            if fault == 'duplicate-flag':
+                value['client'] += ['--p2a-runtime-workers', '1']
+            else:
+                flag = '--p2a-runtime-workers' if fault == 'command-workers' else '--p2a-duration-seconds'
+                value['client'][value['client'].index(flag) + 1] = '4'
+            write(raw / 'commands.json', value)
+        elif fault == 'final':
+            rows[0]['final_process_samples']['client']['cpu_ns'] += 1
+        else:
+            samples = [json.loads(line) for line in (raw / 'resources.ndjson').read_text().splitlines()]
+            field, value = {'affinity': ('affinity', [1]), 'pid': ('pid', 999), 'start': ('start_ticks', 999),
+                            'time': ('timestamp_ns', 1), 'cpu': ('cpu_ns', 0), 'terminal': ('state', 'S')}[fault]
+            samples[2][field] = value
+            (raw / 'resources.ndjson').write_text(''.join(json.dumps(s) + '\n' for s in samples))
+        write(tmp_path / 'environment.json', env)
+        write(tmp_path / 'records.json', rows)
+        index(tmp_path)
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_linux_b5_ceiling.py:307: Failed
+_ test_reference_requires_complete_ladder_and_bound_execution_evidence[affinity] _
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-962/test_reference_requires_comple6')
+fault = 'affinity'
+
+    @pytest.mark.parametrize('fault', ['no-baseline', 'omitted-depth', 'duplicate-raw', 'missing-commands',
+        'missing-resources', 'missing-ack', 'affinity', 'pid', 'start', 'time', 'cpu', 'terminal', 'final',
+        'command-workers', 'command-duration', 'duplicate-flag'])
+    def test_reference_requires_complete_ladder_and_bound_execution_evidence(tmp_path, fault):
+        binaries = fixture(tmp_path)
+        rows = json.loads((tmp_path / 'records.json').read_text())
+        env = json.loads((tmp_path / 'environment.json').read_text())
+        raw = tmp_path / rows[0]['raw_directory']
+        if fault == 'no-baseline':
+            env['workload']['depths'] = [2]
+        elif fault == 'omitted-depth':
+            env['workload']['depths'] = [1, 2]
+        elif fault == 'duplicate-raw':
+            rows[1]['raw_directory'] = rows[0]['raw_directory']
+        elif fault.startswith('missing-'):
+            filename = {'missing-commands': 'commands.json', 'missing-resources': 'resources.ndjson',
+                        'missing-ack': 'completion.ack'}[fault]
+            (raw / filename).unlink()
+        elif fault.startswith('command-') or fault == 'duplicate-flag':
+            value = json.loads((raw / 'commands.json').read_text())
+            if fault == 'duplicate-flag':
+                value['client'] += ['--p2a-runtime-workers', '1']
+            else:
+                flag = '--p2a-runtime-workers' if fault == 'command-workers' else '--p2a-duration-seconds'
+                value['client'][value['client'].index(flag) + 1] = '4'
+            write(raw / 'commands.json', value)
+        elif fault == 'final':
+            rows[0]['final_process_samples']['client']['cpu_ns'] += 1
+        else:
+            samples = [json.loads(line) for line in (raw / 'resources.ndjson').read_text().splitlines()]
+            field, value = {'affinity': ('affinity', [1]), 'pid': ('pid', 999), 'start': ('start_ticks', 999),
+                            'time': ('timestamp_ns', 1), 'cpu': ('cpu_ns', 0), 'terminal': ('state', 'S')}[fault]
+            samples[2][field] = value
+            (raw / 'resources.ndjson').write_text(''.join(json.dumps(s) + '\n' for s in samples))
+        write(tmp_path / 'environment.json', env)
+        write(tmp_path / 'records.json', rows)
+        index(tmp_path)
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_linux_b5_ceiling.py:307: Failed
+__ test_reference_requires_complete_ladder_and_bound_execution_evidence[pid] __
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-962/test_reference_requires_comple7')
+fault = 'pid'
+
+    @pytest.mark.parametrize('fault', ['no-baseline', 'omitted-depth', 'duplicate-raw', 'missing-commands',
+        'missing-resources', 'missing-ack', 'affinity', 'pid', 'start', 'time', 'cpu', 'terminal', 'final',
+        'command-workers', 'command-duration', 'duplicate-flag'])
+    def test_reference_requires_complete_ladder_and_bound_execution_evidence(tmp_path, fault):
+        binaries = fixture(tmp_path)
+        rows = json.loads((tmp_path / 'records.json').read_text())
+        env = json.loads((tmp_path / 'environment.json').read_text())
+        raw = tmp_path / rows[0]['raw_directory']
+        if fault == 'no-baseline':
+            env['workload']['depths'] = [2]
+        elif fault == 'omitted-depth':
+            env['workload']['depths'] = [1, 2]
+        elif fault == 'duplicate-raw':
+            rows[1]['raw_directory'] = rows[0]['raw_directory']
+        elif fault.startswith('missing-'):
+            filename = {'missing-commands': 'commands.json', 'missing-resources': 'resources.ndjson',
+                        'missing-ack': 'completion.ack'}[fault]
+            (raw / filename).unlink()
+        elif fault.startswith('command-') or fault == 'duplicate-flag':
+            value = json.loads((raw / 'commands.json').read_text())
+            if fault == 'duplicate-flag':
+                value['client'] += ['--p2a-runtime-workers', '1']
+            else:
+                flag = '--p2a-runtime-workers' if fault == 'command-workers' else '--p2a-duration-seconds'
+                value['client'][value['client'].index(flag) + 1] = '4'
+            write(raw / 'commands.json', value)
+        elif fault == 'final':
+            rows[0]['final_process_samples']['client']['cpu_ns'] += 1
+        else:
+            samples = [json.loads(line) for line in (raw / 'resources.ndjson').read_text().splitlines()]
+            field, value = {'affinity': ('affinity', [1]), 'pid': ('pid', 999), 'start': ('start_ticks', 999),
+                            'time': ('timestamp_ns', 1), 'cpu': ('cpu_ns', 0), 'terminal': ('state', 'S')}[fault]
+            samples[2][field] = value
+            (raw / 'resources.ndjson').write_text(''.join(json.dumps(s) + '\n' for s in samples))
+        write(tmp_path / 'environment.json', env)
+        write(tmp_path / 'records.json', rows)
+        index(tmp_path)
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_linux_b5_ceiling.py:307: Failed
+_ test_reference_requires_complete_ladder_and_bound_execution_evidence[start] _
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-962/test_reference_requires_comple8')
+fault = 'start'
+
+    @pytest.mark.parametrize('fault', ['no-baseline', 'omitted-depth', 'duplicate-raw', 'missing-commands',
+        'missing-resources', 'missing-ack', 'affinity', 'pid', 'start', 'time', 'cpu', 'terminal', 'final',
+        'command-workers', 'command-duration', 'duplicate-flag'])
+    def test_reference_requires_complete_ladder_and_bound_execution_evidence(tmp_path, fault):
+        binaries = fixture(tmp_path)
+        rows = json.loads((tmp_path / 'records.json').read_text())
+        env = json.loads((tmp_path / 'environment.json').read_text())
+        raw = tmp_path / rows[0]['raw_directory']
+        if fault == 'no-baseline':
+            env['workload']['depths'] = [2]
+        elif fault == 'omitted-depth':
+            env['workload']['depths'] = [1, 2]
+        elif fault == 'duplicate-raw':
+            rows[1]['raw_directory'] = rows[0]['raw_directory']
+        elif fault.startswith('missing-'):
+            filename = {'missing-commands': 'commands.json', 'missing-resources': 'resources.ndjson',
+                        'missing-ack': 'completion.ack'}[fault]
+            (raw / filename).unlink()
+        elif fault.startswith('command-') or fault == 'duplicate-flag':
+            value = json.loads((raw / 'commands.json').read_text())
+            if fault == 'duplicate-flag':
+                value['client'] += ['--p2a-runtime-workers', '1']
+            else:
+                flag = '--p2a-runtime-workers' if fault == 'command-workers' else '--p2a-duration-seconds'
+                value['client'][value['client'].index(flag) + 1] = '4'
+            write(raw / 'commands.json', value)
+        elif fault == 'final':
+            rows[0]['final_process_samples']['client']['cpu_ns'] += 1
+        else:
+            samples = [json.loads(line) for line in (raw / 'resources.ndjson').read_text().splitlines()]
+            field, value = {'affinity': ('affinity', [1]), 'pid': ('pid', 999), 'start': ('start_ticks', 999),
+                            'time': ('timestamp_ns', 1), 'cpu': ('cpu_ns', 0), 'terminal': ('state', 'S')}[fault]
+            samples[2][field] = value
+            (raw / 'resources.ndjson').write_text(''.join(json.dumps(s) + '\n' for s in samples))
+        write(tmp_path / 'environment.json', env)
+        write(tmp_path / 'records.json', rows)
+        index(tmp_path)
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_linux_b5_ceiling.py:307: Failed
+_ test_reference_requires_complete_ladder_and_bound_execution_evidence[time] __
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-962/test_reference_requires_comple9')
+fault = 'time'
+
+    @pytest.mark.parametrize('fault', ['no-baseline', 'omitted-depth', 'duplicate-raw', 'missing-commands',
+        'missing-resources', 'missing-ack', 'affinity', 'pid', 'start', 'time', 'cpu', 'terminal', 'final',
+        'command-workers', 'command-duration', 'duplicate-flag'])
+    def test_reference_requires_complete_ladder_and_bound_execution_evidence(tmp_path, fault):
+        binaries = fixture(tmp_path)
+        rows = json.loads((tmp_path / 'records.json').read_text())
+        env = json.loads((tmp_path / 'environment.json').read_text())
+        raw = tmp_path / rows[0]['raw_directory']
+        if fault == 'no-baseline':
+            env['workload']['depths'] = [2]
+        elif fault == 'omitted-depth':
+            env['workload']['depths'] = [1, 2]
+        elif fault == 'duplicate-raw':
+            rows[1]['raw_directory'] = rows[0]['raw_directory']
+        elif fault.startswith('missing-'):
+            filename = {'missing-commands': 'commands.json', 'missing-resources': 'resources.ndjson',
+                        'missing-ack': 'completion.ack'}[fault]
+            (raw / filename).unlink()
+        elif fault.startswith('command-') or fault == 'duplicate-flag':
+            value = json.loads((raw / 'commands.json').read_text())
+            if fault == 'duplicate-flag':
+                value['client'] += ['--p2a-runtime-workers', '1']
+            else:
+                flag = '--p2a-runtime-workers' if fault == 'command-workers' else '--p2a-duration-seconds'
+                value['client'][value['client'].index(flag) + 1] = '4'
+            write(raw / 'commands.json', value)
+        elif fault == 'final':
+            rows[0]['final_process_samples']['client']['cpu_ns'] += 1
+        else:
+            samples = [json.loads(line) for line in (raw / 'resources.ndjson').read_text().splitlines()]
+            field, value = {'affinity': ('affinity', [1]), 'pid': ('pid', 999), 'start': ('start_ticks', 999),
+                            'time': ('timestamp_ns', 1), 'cpu': ('cpu_ns', 0), 'terminal': ('state', 'S')}[fault]
+            samples[2][field] = value
+            (raw / 'resources.ndjson').write_text(''.join(json.dumps(s) + '\n' for s in samples))
+        write(tmp_path / 'environment.json', env)
+        write(tmp_path / 'records.json', rows)
+        index(tmp_path)
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_linux_b5_ceiling.py:307: Failed
+__ test_reference_requires_complete_ladder_and_bound_execution_evidence[cpu] __
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-962/test_reference_requires_comple10')
+fault = 'cpu'
+
+    @pytest.mark.parametrize('fault', ['no-baseline', 'omitted-depth', 'duplicate-raw', 'missing-commands',
+        'missing-resources', 'missing-ack', 'affinity', 'pid', 'start', 'time', 'cpu', 'terminal', 'final',
+        'command-workers', 'command-duration', 'duplicate-flag'])
+    def test_reference_requires_complete_ladder_and_bound_execution_evidence(tmp_path, fault):
+        binaries = fixture(tmp_path)
+        rows = json.loads((tmp_path / 'records.json').read_text())
+        env = json.loads((tmp_path / 'environment.json').read_text())
+        raw = tmp_path / rows[0]['raw_directory']
+        if fault == 'no-baseline':
+            env['workload']['depths'] = [2]
+        elif fault == 'omitted-depth':
+            env['workload']['depths'] = [1, 2]
+        elif fault == 'duplicate-raw':
+            rows[1]['raw_directory'] = rows[0]['raw_directory']
+        elif fault.startswith('missing-'):
+            filename = {'missing-commands': 'commands.json', 'missing-resources': 'resources.ndjson',
+                        'missing-ack': 'completion.ack'}[fault]
+            (raw / filename).unlink()
+        elif fault.startswith('command-') or fault == 'duplicate-flag':
+            value = json.loads((raw / 'commands.json').read_text())
+            if fault == 'duplicate-flag':
+                value['client'] += ['--p2a-runtime-workers', '1']
+            else:
+                flag = '--p2a-runtime-workers' if fault == 'command-workers' else '--p2a-duration-seconds'
+                value['client'][value['client'].index(flag) + 1] = '4'
+            write(raw / 'commands.json', value)
+        elif fault == 'final':
+            rows[0]['final_process_samples']['client']['cpu_ns'] += 1
+        else:
+            samples = [json.loads(line) for line in (raw / 'resources.ndjson').read_text().splitlines()]
+            field, value = {'affinity': ('affinity', [1]), 'pid': ('pid', 999), 'start': ('start_ticks', 999),
+                            'time': ('timestamp_ns', 1), 'cpu': ('cpu_ns', 0), 'terminal': ('state', 'S')}[fault]
+            samples[2][field] = value
+            (raw / 'resources.ndjson').write_text(''.join(json.dumps(s) + '\n' for s in samples))
+        write(tmp_path / 'environment.json', env)
+        write(tmp_path / 'records.json', rows)
+        index(tmp_path)
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_linux_b5_ceiling.py:307: Failed
+_ test_reference_requires_complete_ladder_and_bound_execution_evidence[terminal] _
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-962/test_reference_requires_comple11')
+fault = 'terminal'
+
+    @pytest.mark.parametrize('fault', ['no-baseline', 'omitted-depth', 'duplicate-raw', 'missing-commands',
+        'missing-resources', 'missing-ack', 'affinity', 'pid', 'start', 'time', 'cpu', 'terminal', 'final',
+        'command-workers', 'command-duration', 'duplicate-flag'])
+    def test_reference_requires_complete_ladder_and_bound_execution_evidence(tmp_path, fault):
+        binaries = fixture(tmp_path)
+        rows = json.loads((tmp_path / 'records.json').read_text())
+        env = json.loads((tmp_path / 'environment.json').read_text())
+        raw = tmp_path / rows[0]['raw_directory']
+        if fault == 'no-baseline':
+            env['workload']['depths'] = [2]
+        elif fault == 'omitted-depth':
+            env['workload']['depths'] = [1, 2]
+        elif fault == 'duplicate-raw':
+            rows[1]['raw_directory'] = rows[0]['raw_directory']
+        elif fault.startswith('missing-'):
+            filename = {'missing-commands': 'commands.json', 'missing-resources': 'resources.ndjson',
+                        'missing-ack': 'completion.ack'}[fault]
+            (raw / filename).unlink()
+        elif fault.startswith('command-') or fault == 'duplicate-flag':
+            value = json.loads((raw / 'commands.json').read_text())
+            if fault == 'duplicate-flag':
+                value['client'] += ['--p2a-runtime-workers', '1']
+            else:
+                flag = '--p2a-runtime-workers' if fault == 'command-workers' else '--p2a-duration-seconds'
+                value['client'][value['client'].index(flag) + 1] = '4'
+            write(raw / 'commands.json', value)
+        elif fault == 'final':
+            rows[0]['final_process_samples']['client']['cpu_ns'] += 1
+        else:
+            samples = [json.loads(line) for line in (raw / 'resources.ndjson').read_text().splitlines()]
+            field, value = {'affinity': ('affinity', [1]), 'pid': ('pid', 999), 'start': ('start_ticks', 999),
+                            'time': ('timestamp_ns', 1), 'cpu': ('cpu_ns', 0), 'terminal': ('state', 'S')}[fault]
+            samples[2][field] = value
+            (raw / 'resources.ndjson').write_text(''.join(json.dumps(s) + '\n' for s in samples))
+        write(tmp_path / 'environment.json', env)
+        write(tmp_path / 'records.json', rows)
+        index(tmp_path)
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_linux_b5_ceiling.py:307: Failed
+_ test_reference_requires_complete_ladder_and_bound_execution_evidence[final] _
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-962/test_reference_requires_comple12')
+fault = 'final'
+
+    @pytest.mark.parametrize('fault', ['no-baseline', 'omitted-depth', 'duplicate-raw', 'missing-commands',
+        'missing-resources', 'missing-ack', 'affinity', 'pid', 'start', 'time', 'cpu', 'terminal', 'final',
+        'command-workers', 'command-duration', 'duplicate-flag'])
+    def test_reference_requires_complete_ladder_and_bound_execution_evidence(tmp_path, fault):
+        binaries = fixture(tmp_path)
+        rows = json.loads((tmp_path / 'records.json').read_text())
+        env = json.loads((tmp_path / 'environment.json').read_text())
+        raw = tmp_path / rows[0]['raw_directory']
+        if fault == 'no-baseline':
+            env['workload']['depths'] = [2]
+        elif fault == 'omitted-depth':
+            env['workload']['depths'] = [1, 2]
+        elif fault == 'duplicate-raw':
+            rows[1]['raw_directory'] = rows[0]['raw_directory']
+        elif fault.startswith('missing-'):
+            filename = {'missing-commands': 'commands.json', 'missing-resources': 'resources.ndjson',
+                        'missing-ack': 'completion.ack'}[fault]
+            (raw / filename).unlink()
+        elif fault.startswith('command-') or fault == 'duplicate-flag':
+            value = json.loads((raw / 'commands.json').read_text())
+            if fault == 'duplicate-flag':
+                value['client'] += ['--p2a-runtime-workers', '1']
+            else:
+                flag = '--p2a-runtime-workers' if fault == 'command-workers' else '--p2a-duration-seconds'
+                value['client'][value['client'].index(flag) + 1] = '4'
+            write(raw / 'commands.json', value)
+        elif fault == 'final':
+            rows[0]['final_process_samples']['client']['cpu_ns'] += 1
+        else:
+            samples = [json.loads(line) for line in (raw / 'resources.ndjson').read_text().splitlines()]
+            field, value = {'affinity': ('affinity', [1]), 'pid': ('pid', 999), 'start': ('start_ticks', 999),
+                            'time': ('timestamp_ns', 1), 'cpu': ('cpu_ns', 0), 'terminal': ('state', 'S')}[fault]
+            samples[2][field] = value
+            (raw / 'resources.ndjson').write_text(''.join(json.dumps(s) + '\n' for s in samples))
+        write(tmp_path / 'environment.json', env)
+        write(tmp_path / 'records.json', rows)
+        index(tmp_path)
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_linux_b5_ceiling.py:307: Failed
+_ test_reference_requires_complete_ladder_and_bound_execution_evidence[command-workers] _
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-962/test_reference_requires_comple13')
+fault = 'command-workers'
+
+    @pytest.mark.parametrize('fault', ['no-baseline', 'omitted-depth', 'duplicate-raw', 'missing-commands',
+        'missing-resources', 'missing-ack', 'affinity', 'pid', 'start', 'time', 'cpu', 'terminal', 'final',
+        'command-workers', 'command-duration', 'duplicate-flag'])
+    def test_reference_requires_complete_ladder_and_bound_execution_evidence(tmp_path, fault):
+        binaries = fixture(tmp_path)
+        rows = json.loads((tmp_path / 'records.json').read_text())
+        env = json.loads((tmp_path / 'environment.json').read_text())
+        raw = tmp_path / rows[0]['raw_directory']
+        if fault == 'no-baseline':
+            env['workload']['depths'] = [2]
+        elif fault == 'omitted-depth':
+            env['workload']['depths'] = [1, 2]
+        elif fault == 'duplicate-raw':
+            rows[1]['raw_directory'] = rows[0]['raw_directory']
+        elif fault.startswith('missing-'):
+            filename = {'missing-commands': 'commands.json', 'missing-resources': 'resources.ndjson',
+                        'missing-ack': 'completion.ack'}[fault]
+            (raw / filename).unlink()
+        elif fault.startswith('command-') or fault == 'duplicate-flag':
+            value = json.loads((raw / 'commands.json').read_text())
+            if fault == 'duplicate-flag':
+                value['client'] += ['--p2a-runtime-workers', '1']
+            else:
+                flag = '--p2a-runtime-workers' if fault == 'command-workers' else '--p2a-duration-seconds'
+                value['client'][value['client'].index(flag) + 1] = '4'
+            write(raw / 'commands.json', value)
+        elif fault == 'final':
+            rows[0]['final_process_samples']['client']['cpu_ns'] += 1
+        else:
+            samples = [json.loads(line) for line in (raw / 'resources.ndjson').read_text().splitlines()]
+            field, value = {'affinity': ('affinity', [1]), 'pid': ('pid', 999), 'start': ('start_ticks', 999),
+                            'time': ('timestamp_ns', 1), 'cpu': ('cpu_ns', 0), 'terminal': ('state', 'S')}[fault]
+            samples[2][field] = value
+            (raw / 'resources.ndjson').write_text(''.join(json.dumps(s) + '\n' for s in samples))
+        write(tmp_path / 'environment.json', env)
+        write(tmp_path / 'records.json', rows)
+        index(tmp_path)
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_linux_b5_ceiling.py:307: Failed
+_ test_reference_requires_complete_ladder_and_bound_execution_evidence[command-duration] _
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-962/test_reference_requires_comple14')
+fault = 'command-duration'
+
+    @pytest.mark.parametrize('fault', ['no-baseline', 'omitted-depth', 'duplicate-raw', 'missing-commands',
+        'missing-resources', 'missing-ack', 'affinity', 'pid', 'start', 'time', 'cpu', 'terminal', 'final',
+        'command-workers', 'command-duration', 'duplicate-flag'])
+    def test_reference_requires_complete_ladder_and_bound_execution_evidence(tmp_path, fault):
+        binaries = fixture(tmp_path)
+        rows = json.loads((tmp_path / 'records.json').read_text())
+        env = json.loads((tmp_path / 'environment.json').read_text())
+        raw = tmp_path / rows[0]['raw_directory']
+        if fault == 'no-baseline':
+            env['workload']['depths'] = [2]
+        elif fault == 'omitted-depth':
+            env['workload']['depths'] = [1, 2]
+        elif fault == 'duplicate-raw':
+            rows[1]['raw_directory'] = rows[0]['raw_directory']
+        elif fault.startswith('missing-'):
+            filename = {'missing-commands': 'commands.json', 'missing-resources': 'resources.ndjson',
+                        'missing-ack': 'completion.ack'}[fault]
+            (raw / filename).unlink()
+        elif fault.startswith('command-') or fault == 'duplicate-flag':
+            value = json.loads((raw / 'commands.json').read_text())
+            if fault == 'duplicate-flag':
+                value['client'] += ['--p2a-runtime-workers', '1']
+            else:
+                flag = '--p2a-runtime-workers' if fault == 'command-workers' else '--p2a-duration-seconds'
+                value['client'][value['client'].index(flag) + 1] = '4'
+            write(raw / 'commands.json', value)
+        elif fault == 'final':
+            rows[0]['final_process_samples']['client']['cpu_ns'] += 1
+        else:
+            samples = [json.loads(line) for line in (raw / 'resources.ndjson').read_text().splitlines()]
+            field, value = {'affinity': ('affinity', [1]), 'pid': ('pid', 999), 'start': ('start_ticks', 999),
+                            'time': ('timestamp_ns', 1), 'cpu': ('cpu_ns', 0), 'terminal': ('state', 'S')}[fault]
+            samples[2][field] = value
+            (raw / 'resources.ndjson').write_text(''.join(json.dumps(s) + '\n' for s in samples))
+        write(tmp_path / 'environment.json', env)
+        write(tmp_path / 'records.json', rows)
+        index(tmp_path)
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_linux_b5_ceiling.py:307: Failed
+_ test_reference_requires_complete_ladder_and_bound_execution_evidence[duplicate-flag] _
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-962/test_reference_requires_comple15')
+fault = 'duplicate-flag'
+
+    @pytest.mark.parametrize('fault', ['no-baseline', 'omitted-depth', 'duplicate-raw', 'missing-commands',
+        'missing-resources', 'missing-ack', 'affinity', 'pid', 'start', 'time', 'cpu', 'terminal', 'final',
+        'command-workers', 'command-duration', 'duplicate-flag'])
+    def test_reference_requires_complete_ladder_and_bound_execution_evidence(tmp_path, fault):
+        binaries = fixture(tmp_path)
+        rows = json.loads((tmp_path / 'records.json').read_text())
+        env = json.loads((tmp_path / 'environment.json').read_text())
+        raw = tmp_path / rows[0]['raw_directory']
+        if fault == 'no-baseline':
+            env['workload']['depths'] = [2]
+        elif fault == 'omitted-depth':
+            env['workload']['depths'] = [1, 2]
+        elif fault == 'duplicate-raw':
+            rows[1]['raw_directory'] = rows[0]['raw_directory']
+        elif fault.startswith('missing-'):
+            filename = {'missing-commands': 'commands.json', 'missing-resources': 'resources.ndjson',
+                        'missing-ack': 'completion.ack'}[fault]
+            (raw / filename).unlink()
+        elif fault.startswith('command-') or fault == 'duplicate-flag':
+            value = json.loads((raw / 'commands.json').read_text())
+            if fault == 'duplicate-flag':
+                value['client'] += ['--p2a-runtime-workers', '1']
+            else:
+                flag = '--p2a-runtime-workers' if fault == 'command-workers' else '--p2a-duration-seconds'
+                value['client'][value['client'].index(flag) + 1] = '4'
+            write(raw / 'commands.json', value)
+        elif fault == 'final':
+            rows[0]['final_process_samples']['client']['cpu_ns'] += 1
+        else:
+            samples = [json.loads(line) for line in (raw / 'resources.ndjson').read_text().splitlines()]
+            field, value = {'affinity': ('affinity', [1]), 'pid': ('pid', 999), 'start': ('start_ticks', 999),
+                            'time': ('timestamp_ns', 1), 'cpu': ('cpu_ns', 0), 'terminal': ('state', 'S')}[fault]
+            samples[2][field] = value
+            (raw / 'resources.ndjson').write_text(''.join(json.dumps(s) + '\n' for s in samples))
+        write(tmp_path / 'environment.json', env)
+        write(tmp_path / 'records.json', rows)
+        index(tmp_path)
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_linux_b5_ceiling.py:307: Failed
+=========================== short test summary info ===========================
+FAILED tests/performance/test_linux_b5_ceiling.py::test_reference_requires_complete_ladder_and_bound_execution_evidence[no-baseline]
+FAILED tests/performance/test_linux_b5_ceiling.py::test_reference_requires_complete_ladder_and_bound_execution_evidence[omitted-depth]
+FAILED tests/performance/test_linux_b5_ceiling.py::test_reference_requires_complete_ladder_and_bound_execution_evidence[duplicate-raw]
+FAILED tests/performance/test_linux_b5_ceiling.py::test_reference_requires_complete_ladder_and_bound_execution_evidence[missing-commands]
+FAILED tests/performance/test_linux_b5_ceiling.py::test_reference_requires_complete_ladder_and_bound_execution_evidence[missing-resources]
+FAILED tests/performance/test_linux_b5_ceiling.py::test_reference_requires_complete_ladder_and_bound_execution_evidence[missing-ack]
+FAILED tests/performance/test_linux_b5_ceiling.py::test_reference_requires_complete_ladder_and_bound_execution_evidence[affinity]
+FAILED tests/performance/test_linux_b5_ceiling.py::test_reference_requires_complete_ladder_and_bound_execution_evidence[pid]
+FAILED tests/performance/test_linux_b5_ceiling.py::test_reference_requires_complete_ladder_and_bound_execution_evidence[start]
+FAILED tests/performance/test_linux_b5_ceiling.py::test_reference_requires_complete_ladder_and_bound_execution_evidence[time]
+FAILED tests/performance/test_linux_b5_ceiling.py::test_reference_requires_complete_ladder_and_bound_execution_evidence[cpu]
+FAILED tests/performance/test_linux_b5_ceiling.py::test_reference_requires_complete_ladder_and_bound_execution_evidence[terminal]
+FAILED tests/performance/test_linux_b5_ceiling.py::test_reference_requires_complete_ladder_and_bound_execution_evidence[final]
+FAILED tests/performance/test_linux_b5_ceiling.py::test_reference_requires_complete_ladder_and_bound_execution_evidence[command-workers]
+FAILED tests/performance/test_linux_b5_ceiling.py::test_reference_requires_complete_ladder_and_bound_execution_evidence[command-duration]
+FAILED tests/performance/test_linux_b5_ceiling.py::test_reference_requires_complete_ladder_and_bound_execution_evidence[duplicate-flag]
+16 failed, 16 passed in 7.53s

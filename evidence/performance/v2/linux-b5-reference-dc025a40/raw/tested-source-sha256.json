@@ -1,0 +1,8 @@
+{
+  "tests/performance/test_linux_b5_ceiling.py": "17c66d155aa221dee06b5245dc0947a2233b3f453351140c87c6ffa56ae89893",
+  "tests/performance/test_linux_b5_reference.py": "680b210abc0a41f36a1e5d3616417fc7c8dee295c094b993741263489150b564",
+  "scripts/performance/linux_b5_reference.py": "1182cf1d75c09ca84a6ade99288b38dd27d9777074ea53ac46e07fa6d065df48",
+  "docs/superpowers/plans/2026-09-06-linux-b5-reference.md": "9cfead2f1bac6fc944688927277ac32ad562e6a6fd8f2116a3e9648ad8484c72",
+  "docs/benchmarks/LINUX_B5_REFERENCE.md": "f67580602bf3024982c26b44acde948eb58eaf0954487075280676ebf5743f40",
+  "scripts/performance/linux_b5_ceiling.py": "8eef6e6c2e9e0b8638444c3eb353835bd844dd9914b8b559c5ace25fa23442ae"
+}

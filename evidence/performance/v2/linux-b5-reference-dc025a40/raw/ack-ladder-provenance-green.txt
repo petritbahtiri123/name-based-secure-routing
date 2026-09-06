@@ -1,0 +1,326 @@
+..............................F..............F                           [100%]
+================================== FAILURES ===================================
+____________ test_exact_rational_load_remains_observer_unqualified ____________
+
+root = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-953/test_exact_rational_load_remai0')
+
+    def load_reference(root, *, current_sha, binary_sha256, shape, linux_environment, percent, depth):
+        try:
+            require(type(percent) is int and 70 <= percent <= 80, 'load must be70-80percent')
+            require(type(depth) is int and depth in (1, 2, 4, 8, 16), 'invalid depth')
+            require(type(current_sha) is str and re.fullmatch(r'[0-9a-f]{40}', current_sha), 'invalid current SHA')
+            require(set(shape) == {'physical_cores', 'endpoint_groups', 'runtime_workers', 'payload_bytes', 'streams_per_group'}
+                    and all(type(v) is int for v in shape.values()) and shape['physical_cores'] == shape['endpoint_groups'] == shape['runtime_workers'] == 1,
+                    'single core/group/worker only')
+            current_identity = identity(linux_environment)
+            root = Path(root).resolve()
+            manifest = (root / 'checksums.sha256').read_bytes()
+            verified = {}
+            for line in manifest.decode().splitlines():
+                digest, relative = line.split('  ', 1)
+                path = (root / relative).resolve()
+                require(path.is_relative_to(root) and path not in verified and re.fullmatch(r'[0-9a-f]{64}', digest), 'invalid checksum path/digest')
+                with path.open('rb') as stream:
+                    require(hashlib.file_digest(stream, 'sha256').hexdigest() == digest, 'checksum mismatch')
+                verified[path] = digest
+    
+            def checked(name):
+                path = (root / name).resolve()
+                require(path.is_relative_to(root) and path in verified, 'required input missing from checksums')
+                return path
+    
+            env = json.loads(checked('environment.json').read_bytes())
+            build = json.loads(checked('build-manifest.json').read_bytes())
+            rows = json.loads(checked('records.json').read_bytes())
+            require(env.get('schema') == 'nbsr-linux-b5-reference-v1' and env.get('classification') == 'REFERENCE_CANDIDATE', 'diagnostic/unknown reference cannot qualify')
+            require(env['repository_sha'] == current_sha and env['git_status'] == '', 'stale/dirty controller source')
+            require(env['shape'] == shape and env['observer'] == OBSERVER, 'shape/observer mismatch')
+            require(set(env.get('source_sha256', {})) == set(SOURCE_PATHS), 'missing source provenance')
+            for relative in SOURCE_PATHS:
+                require(verified[checked('source/' + relative)] == env['source_sha256'][relative]
+>                       == digest(ROOT / relative), 'controller source mismatch')
+                           ^^^^^^^^^^^^^^^^^^^^^^^
+E                       TypeError: 'str' object is not callable
+
+scripts\performance\linux_b5_ceiling.py:77: TypeError
+
+The above exception was the direct cause of the following exception:
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-953/test_exact_rational_load_remai0')
+
+    def test_exact_rational_load_remains_observer_unqualified(tmp_path):
+        binaries=fixture(tmp_path)
+>       value=load(tmp_path,binaries)
+              ^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\performance\test_linux_b5_ceiling.py:87: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\performance\test_linux_b5_ceiling.py:81: in load
+    return ceiling.load_reference(root,current_sha=SHA,binary_sha256=binaries,shape=SHAPE,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-953/test_exact_rational_load_remai0')
+
+    def load_reference(root, *, current_sha, binary_sha256, shape, linux_environment, percent, depth):
+        try:
+            require(type(percent) is int and 70 <= percent <= 80, 'load must be70-80percent')
+            require(type(depth) is int and depth in (1, 2, 4, 8, 16), 'invalid depth')
+            require(type(current_sha) is str and re.fullmatch(r'[0-9a-f]{40}', current_sha), 'invalid current SHA')
+            require(set(shape) == {'physical_cores', 'endpoint_groups', 'runtime_workers', 'payload_bytes', 'streams_per_group'}
+                    and all(type(v) is int for v in shape.values()) and shape['physical_cores'] == shape['endpoint_groups'] == shape['runtime_workers'] == 1,
+                    'single core/group/worker only')
+            current_identity = identity(linux_environment)
+            root = Path(root).resolve()
+            manifest = (root / 'checksums.sha256').read_bytes()
+            verified = {}
+            for line in manifest.decode().splitlines():
+                digest, relative = line.split('  ', 1)
+                path = (root / relative).resolve()
+                require(path.is_relative_to(root) and path not in verified and re.fullmatch(r'[0-9a-f]{64}', digest), 'invalid checksum path/digest')
+                with path.open('rb') as stream:
+                    require(hashlib.file_digest(stream, 'sha256').hexdigest() == digest, 'checksum mismatch')
+                verified[path] = digest
+    
+            def checked(name):
+                path = (root / name).resolve()
+                require(path.is_relative_to(root) and path in verified, 'required input missing from checksums')
+                return path
+    
+            env = json.loads(checked('environment.json').read_bytes())
+            build = json.loads(checked('build-manifest.json').read_bytes())
+            rows = json.loads(checked('records.json').read_bytes())
+            require(env.get('schema') == 'nbsr-linux-b5-reference-v1' and env.get('classification') == 'REFERENCE_CANDIDATE', 'diagnostic/unknown reference cannot qualify')
+            require(env['repository_sha'] == current_sha and env['git_status'] == '', 'stale/dirty controller source')
+            require(env['shape'] == shape and env['observer'] == OBSERVER, 'shape/observer mismatch')
+            require(set(env.get('source_sha256', {})) == set(SOURCE_PATHS), 'missing source provenance')
+            for relative in SOURCE_PATHS:
+                require(verified[checked('source/' + relative)] == env['source_sha256'][relative]
+                        == digest(ROOT / relative), 'controller source mismatch')
+            require(identity(env['linux_environment']) == current_identity, 'Linux placement/kernel/cgroup mismatch')
+            require(build['source_sha'] == current_sha and build['build_profile'] == 'release' and build['build_commands'] and build['toolchains'], 'stale/incomplete release build')
+            require(set(binary_sha256) == set(NAMES) and env['binary_sha256'] == binary_sha256, 'binary identity mismatch')
+            for role, name in NAMES.items():
+                require(verified[checked('binaries/' + name)] == binary_sha256[role] == build['binary_sha256'][name], 'actual binary bytes mismatch')
+            require(type(rows) is list and rows and {r['path'] for r in rows} == {'direct', 'nbsr'}, 'both paths required')
+            parsed = []
+            for row in rows:
+                require(row['valid'] is True and row['observer'] == OBSERVER, 'invalid attempt or observer mismatch')
+                require(all(row.get(key) == shape[key] and type(row.get(key)) is int for key in ('payload_bytes', 'streams_per_group', 'endpoint_groups', 'runtime_workers')), 'row shape mismatch')
+                raw = Path(row['raw_directory'])
+                record = read_binary_record(checked(raw / 'client.stdout'))
+                derived = finish_record(dict(path=row['path'], cores=1, payload_bytes=shape['payload_bytes'], streams=shape['streams_per_group'],
+                                             outstanding=row['outstanding_per_stream']), row['repeat'], record, cleanup_pass=row['cleanup_pass'])
+                require(all(row.get(key) == value for key, value in derived.items()), 'summary/raw mismatch')
+                exits, pids = row['process_exit_codes'], row['process_ids']
+                require(set(exits) == set(pids) == {'server', 'client'} and all(type(v) is int and v == 0 for v in exits.values())
+                        and all(type(v) is int and v > 0 for v in pids.values()) and len(set(pids.values())) == 2, 'both owned exits required')
+                if row['path'] == 'nbsr':
+                    require(len(row['cleanup_reports']) == 2, 'both cleanup reports required')
+                    for role, stem in (('source', 'client'), ('destination', 'server')):
+                        report = json.loads(checked(raw / f'{stem}.cleanup.json').read_bytes())
+                        require(validate_report(report, role, pids[stem]), 'NBSR11field cleanup failed')
+                parsed.append(derived)
+            ladders = {path: classify_ladder([r for r in parsed if r['path'] == path]) for path in ('direct', 'nbsr')}
+            require({r['outstanding_per_stream'] for r in parsed if r['path'] == 'direct'} ==
+                    {r['outstanding_per_stream'] for r in parsed if r['path'] == 'nbsr'}, 'path depth mismatch')
+            selected = [c for c in ladders['nbsr']['cells'] if c['outstanding_per_stream'] == depth]
+            require(len(selected) == 1 and selected[0]['classification'] == 'STABLE', 'selected finite cell is not strict stable')
+            rates = [Fraction(r['completed_operations'] * 1_000_000_000, r['measured_ns']) for r in parsed
+                     if r['path'] == 'nbsr' and r['outstanding_per_stream'] == depth]
+            reference = statistics.median(rates)
+            offered = reference * Fraction(percent, 100)
+            require(0 < offered.numerator < 2**64 and 0 < offered.denominator < 2**64, 'rate overflow')
+            return dict(schema='nbsr-linux-b5-ceiling-v1', reference_sha=current_sha,
+                manifest_sha256=hashlib.sha256(manifest).hexdigest(), reference_repeats=selected[0]['repeat_count'],
+                rate_numerator=offered.numerator, rate_denominator=offered.denominator,
+                reference_operations_per_second=float(reference), load_percent=percent, depth=depth,
+                shape=dict(shape), binary_sha256=dict(binary_sha256), reference_linux_identity=current_identity,
+                observer=dict(OBSERVER), scope='matched-state finite reference only; paced feasibility, observer cost and sustained stability NOT_QUALIFIED')
+        except (OSError, KeyError, TypeError, OverflowError, UnicodeError) as error:
+>           raise ValueError('invalid Linux finite reference') from error
+E           ValueError: invalid Linux finite reference
+
+scripts\performance\linux_b5_ceiling.py:119: ValueError
+_ test_reference_controller_sources_must_match_retained_and_current[altered] __
+
+root = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-953/test_reference_controller_sour1')
+
+    def load_reference(root, *, current_sha, binary_sha256, shape, linux_environment, percent, depth):
+        try:
+            require(type(percent) is int and 70 <= percent <= 80, 'load must be70-80percent')
+            require(type(depth) is int and depth in (1, 2, 4, 8, 16), 'invalid depth')
+            require(type(current_sha) is str and re.fullmatch(r'[0-9a-f]{40}', current_sha), 'invalid current SHA')
+            require(set(shape) == {'physical_cores', 'endpoint_groups', 'runtime_workers', 'payload_bytes', 'streams_per_group'}
+                    and all(type(v) is int for v in shape.values()) and shape['physical_cores'] == shape['endpoint_groups'] == shape['runtime_workers'] == 1,
+                    'single core/group/worker only')
+            current_identity = identity(linux_environment)
+            root = Path(root).resolve()
+            manifest = (root / 'checksums.sha256').read_bytes()
+            verified = {}
+            for line in manifest.decode().splitlines():
+                digest, relative = line.split('  ', 1)
+                path = (root / relative).resolve()
+                require(path.is_relative_to(root) and path not in verified and re.fullmatch(r'[0-9a-f]{64}', digest), 'invalid checksum path/digest')
+                with path.open('rb') as stream:
+                    require(hashlib.file_digest(stream, 'sha256').hexdigest() == digest, 'checksum mismatch')
+                verified[path] = digest
+    
+            def checked(name):
+                path = (root / name).resolve()
+                require(path.is_relative_to(root) and path in verified, 'required input missing from checksums')
+                return path
+    
+            env = json.loads(checked('environment.json').read_bytes())
+            build = json.loads(checked('build-manifest.json').read_bytes())
+            rows = json.loads(checked('records.json').read_bytes())
+            require(env.get('schema') == 'nbsr-linux-b5-reference-v1' and env.get('classification') == 'REFERENCE_CANDIDATE', 'diagnostic/unknown reference cannot qualify')
+            require(env['repository_sha'] == current_sha and env['git_status'] == '', 'stale/dirty controller source')
+            require(env['shape'] == shape and env['observer'] == OBSERVER, 'shape/observer mismatch')
+            require(set(env.get('source_sha256', {})) == set(SOURCE_PATHS), 'missing source provenance')
+            for relative in SOURCE_PATHS:
+                require(verified[checked('source/' + relative)] == env['source_sha256'][relative]
+>                       == digest(ROOT / relative), 'controller source mismatch')
+                           ^^^^^^^^^^^^^^^^^^^^^^^
+E                       TypeError: 'str' object is not callable
+
+scripts\performance\linux_b5_ceiling.py:77: TypeError
+
+The above exception was the direct cause of the following exception:
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-953/test_reference_controller_sour1')
+change = 'altered'
+
+    @pytest.mark.parametrize('change', ['missing', 'altered'])
+    def test_reference_controller_sources_must_match_retained_and_current(tmp_path, change):
+        binaries = fixture(tmp_path)
+        env = json.loads((tmp_path / 'environment.json').read_text())
+        key = 'scripts/performance/linux_b5_reference.py'
+        if change == 'missing':
+            del env['source_sha256'][key]
+        else:
+            retained = tmp_path / 'source' / key
+            retained.write_bytes(b'# altered controller\n')
+            env['source_sha256'][key] = hashlib.sha256(retained.read_bytes()).hexdigest()
+        write(tmp_path / 'environment.json', env)
+        index(tmp_path)
+        with pytest.raises(ValueError, match='source'):
+>           load(tmp_path, binaries)
+
+tests\performance\test_linux_b5_ceiling.py:137: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\performance\test_linux_b5_ceiling.py:81: in load
+    return ceiling.load_reference(root,current_sha=SHA,binary_sha256=binaries,shape=SHAPE,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-953/test_reference_controller_sour1')
+
+    def load_reference(root, *, current_sha, binary_sha256, shape, linux_environment, percent, depth):
+        try:
+            require(type(percent) is int and 70 <= percent <= 80, 'load must be70-80percent')
+            require(type(depth) is int and depth in (1, 2, 4, 8, 16), 'invalid depth')
+            require(type(current_sha) is str and re.fullmatch(r'[0-9a-f]{40}', current_sha), 'invalid current SHA')
+            require(set(shape) == {'physical_cores', 'endpoint_groups', 'runtime_workers', 'payload_bytes', 'streams_per_group'}
+                    and all(type(v) is int for v in shape.values()) and shape['physical_cores'] == shape['endpoint_groups'] == shape['runtime_workers'] == 1,
+                    'single core/group/worker only')
+            current_identity = identity(linux_environment)
+            root = Path(root).resolve()
+            manifest = (root / 'checksums.sha256').read_bytes()
+            verified = {}
+            for line in manifest.decode().splitlines():
+                digest, relative = line.split('  ', 1)
+                path = (root / relative).resolve()
+                require(path.is_relative_to(root) and path not in verified and re.fullmatch(r'[0-9a-f]{64}', digest), 'invalid checksum path/digest')
+                with path.open('rb') as stream:
+                    require(hashlib.file_digest(stream, 'sha256').hexdigest() == digest, 'checksum mismatch')
+                verified[path] = digest
+    
+            def checked(name):
+                path = (root / name).resolve()
+                require(path.is_relative_to(root) and path in verified, 'required input missing from checksums')
+                return path
+    
+            env = json.loads(checked('environment.json').read_bytes())
+            build = json.loads(checked('build-manifest.json').read_bytes())
+            rows = json.loads(checked('records.json').read_bytes())
+            require(env.get('schema') == 'nbsr-linux-b5-reference-v1' and env.get('classification') == 'REFERENCE_CANDIDATE', 'diagnostic/unknown reference cannot qualify')
+            require(env['repository_sha'] == current_sha and env['git_status'] == '', 'stale/dirty controller source')
+            require(env['shape'] == shape and env['observer'] == OBSERVER, 'shape/observer mismatch')
+            require(set(env.get('source_sha256', {})) == set(SOURCE_PATHS), 'missing source provenance')
+            for relative in SOURCE_PATHS:
+                require(verified[checked('source/' + relative)] == env['source_sha256'][relative]
+                        == digest(ROOT / relative), 'controller source mismatch')
+            require(identity(env['linux_environment']) == current_identity, 'Linux placement/kernel/cgroup mismatch')
+            require(build['source_sha'] == current_sha and build['build_profile'] == 'release' and build['build_commands'] and build['toolchains'], 'stale/incomplete release build')
+            require(set(binary_sha256) == set(NAMES) and env['binary_sha256'] == binary_sha256, 'binary identity mismatch')
+            for role, name in NAMES.items():
+                require(verified[checked('binaries/' + name)] == binary_sha256[role] == build['binary_sha256'][name], 'actual binary bytes mismatch')
+            require(type(rows) is list and rows and {r['path'] for r in rows} == {'direct', 'nbsr'}, 'both paths required')
+            parsed = []
+            for row in rows:
+                require(row['valid'] is True and row['observer'] == OBSERVER, 'invalid attempt or observer mismatch')
+                require(all(row.get(key) == shape[key] and type(row.get(key)) is int for key in ('payload_bytes', 'streams_per_group', 'endpoint_groups', 'runtime_workers')), 'row shape mismatch')
+                raw = Path(row['raw_directory'])
+                record = read_binary_record(checked(raw / 'client.stdout'))
+                derived = finish_record(dict(path=row['path'], cores=1, payload_bytes=shape['payload_bytes'], streams=shape['streams_per_group'],
+                                             outstanding=row['outstanding_per_stream']), row['repeat'], record, cleanup_pass=row['cleanup_pass'])
+                require(all(row.get(key) == value for key, value in derived.items()), 'summary/raw mismatch')
+                exits, pids = row['process_exit_codes'], row['process_ids']
+                require(set(exits) == set(pids) == {'server', 'client'} and all(type(v) is int and v == 0 for v in exits.values())
+                        and all(type(v) is int and v > 0 for v in pids.values()) and len(set(pids.values())) == 2, 'both owned exits required')
+                if row['path'] == 'nbsr':
+                    require(len(row['cleanup_reports']) == 2, 'both cleanup reports required')
+                    for role, stem in (('source', 'client'), ('destination', 'server')):
+                        report = json.loads(checked(raw / f'{stem}.cleanup.json').read_bytes())
+                        require(validate_report(report, role, pids[stem]), 'NBSR11field cleanup failed')
+                parsed.append(derived)
+            ladders = {path: classify_ladder([r for r in parsed if r['path'] == path]) for path in ('direct', 'nbsr')}
+            require({r['outstanding_per_stream'] for r in parsed if r['path'] == 'direct'} ==
+                    {r['outstanding_per_stream'] for r in parsed if r['path'] == 'nbsr'}, 'path depth mismatch')
+            selected = [c for c in ladders['nbsr']['cells'] if c['outstanding_per_stream'] == depth]
+            require(len(selected) == 1 and selected[0]['classification'] == 'STABLE', 'selected finite cell is not strict stable')
+            rates = [Fraction(r['completed_operations'] * 1_000_000_000, r['measured_ns']) for r in parsed
+                     if r['path'] == 'nbsr' and r['outstanding_per_stream'] == depth]
+            reference = statistics.median(rates)
+            offered = reference * Fraction(percent, 100)
+            require(0 < offered.numerator < 2**64 and 0 < offered.denominator < 2**64, 'rate overflow')
+            return dict(schema='nbsr-linux-b5-ceiling-v1', reference_sha=current_sha,
+                manifest_sha256=hashlib.sha256(manifest).hexdigest(), reference_repeats=selected[0]['repeat_count'],
+                rate_numerator=offered.numerator, rate_denominator=offered.denominator,
+                reference_operations_per_second=float(reference), load_percent=percent, depth=depth,
+                shape=dict(shape), binary_sha256=dict(binary_sha256), reference_linux_identity=current_identity,
+                observer=dict(OBSERVER), scope='matched-state finite reference only; paced feasibility, observer cost and sustained stability NOT_QUALIFIED')
+        except (OSError, KeyError, TypeError, OverflowError, UnicodeError) as error:
+>           raise ValueError('invalid Linux finite reference') from error
+E           ValueError: invalid Linux finite reference
+
+scripts\performance\linux_b5_ceiling.py:119: ValueError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-953/test_reference_controller_sour1')
+change = 'altered'
+
+    @pytest.mark.parametrize('change', ['missing', 'altered'])
+    def test_reference_controller_sources_must_match_retained_and_current(tmp_path, change):
+        binaries = fixture(tmp_path)
+        env = json.loads((tmp_path / 'environment.json').read_text())
+        key = 'scripts/performance/linux_b5_reference.py'
+        if change == 'missing':
+            del env['source_sha256'][key]
+        else:
+            retained = tmp_path / 'source' / key
+            retained.write_bytes(b'# altered controller\n')
+            env['source_sha256'][key] = hashlib.sha256(retained.read_bytes()).hexdigest()
+        write(tmp_path / 'environment.json', env)
+        index(tmp_path)
+>       with pytest.raises(ValueError, match='source'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E        Regex: 'source'
+E        Input: 'invalid Linux finite reference'
+
+tests\performance\test_linux_b5_ceiling.py:136: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_linux_b5_ceiling.py::test_exact_rational_load_remains_observer_unqualified
+FAILED tests/performance/test_linux_b5_ceiling.py::test_reference_controller_sources_must_match_retained_and_current[altered]
+2 failed, 44 passed in 3.32s

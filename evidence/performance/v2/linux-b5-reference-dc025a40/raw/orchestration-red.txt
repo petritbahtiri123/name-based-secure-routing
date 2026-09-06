@@ -1,0 +1,120 @@
+..............FF                                                         [100%]
+================================== FAILURES ===================================
+_______ test_orchestration_samples_source_then_ack_then_server_join[0] ________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-949/test_orchestration_samples_sou0')
+server_code = 0
+
+    @pytest.mark.parametrize('server_code', [0, 1])
+    def test_orchestration_samples_source_then_ack_then_server_join(tmp_path, server_code):
+        from scripts.performance.post_close_cleanup import FIELDS
+        events = []
+    
+        class Process:
+            def __init__(self, argv, **kwargs):
+                self.role = 'server' if '--ready' in argv else 'client'
+                self.pid = 11 if self.role == 'server' else 12
+                self.returncode = None
+                self.code = server_code if self.role == 'server' else 0
+                if self.role == 'server':
+                    Path(argv[argv.index('--ready') + 1]).write_text(json.dumps({'endpoint': '127.0.0.1:42'}))
+                else:
+                    kwargs['stdout'].write((json.dumps(result()) + '\n').encode())
+                    kwargs['stdout'].flush()
+                report = dict(schema='nbsr-p2a-post-close-v1', pid=self.pid,
+                    role='destination' if self.role == 'server' else 'source', diagnostics_enabled_before_run=True,
+                    runtime_state='runtime_alive', ownership=dict.fromkeys(FIELDS, 0))
+                Path(argv[argv.index('--p2a-cleanup-report') + 1]).write_text(json.dumps(report))
+    
+            def poll(self):
+                return self.returncode
+    
+            def wait(self, timeout):
+                if self.role == 'server':
+                    assert (tmp_path / 'raw/completion.ack').exists()
+                events.append(self.role + '-join')
+                self.returncode = self.code
+                return self.code
+    
+            def kill(self):
+                self.returncode = -1
+    
+        clock = 0
+    
+        def sample(pid, cpus):
+            nonlocal clock
+            clock += 1
+            state = 'Z' if pid == 12 or (tmp_path / 'raw/completion.ack').exists() else 'S'
+            if pid == 12:
+                assert not (tmp_path / 'raw/completion.ack').exists()
+                events.append('client-final-sample')
+            return dict(pid=pid, start_ticks=pid, state=state, cpu_ns=clock, timestamp_ns=clock, affinity=cpus)
+    
+>       row = reference.run_cell(cell(), 1, Path('/bin'), tmp_path / 'authority', tmp_path / 'raw', [0],
+              ^^^^^^^^^^^^^^^^^^
+            '/usr/bin/taskset', warmup=3, duration=20, sample_fn=sample, popen=Process,
+            exec_check=lambda *args: None)
+E       AttributeError: module 'scripts.performance.linux_b5_reference' has no attribute 'run_cell'
+
+tests\performance\test_linux_b5_reference.py:105: AttributeError
+_______ test_orchestration_samples_source_then_ack_then_server_join[1] ________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-949/test_orchestration_samples_sou1')
+server_code = 1
+
+    @pytest.mark.parametrize('server_code', [0, 1])
+    def test_orchestration_samples_source_then_ack_then_server_join(tmp_path, server_code):
+        from scripts.performance.post_close_cleanup import FIELDS
+        events = []
+    
+        class Process:
+            def __init__(self, argv, **kwargs):
+                self.role = 'server' if '--ready' in argv else 'client'
+                self.pid = 11 if self.role == 'server' else 12
+                self.returncode = None
+                self.code = server_code if self.role == 'server' else 0
+                if self.role == 'server':
+                    Path(argv[argv.index('--ready') + 1]).write_text(json.dumps({'endpoint': '127.0.0.1:42'}))
+                else:
+                    kwargs['stdout'].write((json.dumps(result()) + '\n').encode())
+                    kwargs['stdout'].flush()
+                report = dict(schema='nbsr-p2a-post-close-v1', pid=self.pid,
+                    role='destination' if self.role == 'server' else 'source', diagnostics_enabled_before_run=True,
+                    runtime_state='runtime_alive', ownership=dict.fromkeys(FIELDS, 0))
+                Path(argv[argv.index('--p2a-cleanup-report') + 1]).write_text(json.dumps(report))
+    
+            def poll(self):
+                return self.returncode
+    
+            def wait(self, timeout):
+                if self.role == 'server':
+                    assert (tmp_path / 'raw/completion.ack').exists()
+                events.append(self.role + '-join')
+                self.returncode = self.code
+                return self.code
+    
+            def kill(self):
+                self.returncode = -1
+    
+        clock = 0
+    
+        def sample(pid, cpus):
+            nonlocal clock
+            clock += 1
+            state = 'Z' if pid == 12 or (tmp_path / 'raw/completion.ack').exists() else 'S'
+            if pid == 12:
+                assert not (tmp_path / 'raw/completion.ack').exists()
+                events.append('client-final-sample')
+            return dict(pid=pid, start_ticks=pid, state=state, cpu_ns=clock, timestamp_ns=clock, affinity=cpus)
+    
+>       row = reference.run_cell(cell(), 1, Path('/bin'), tmp_path / 'authority', tmp_path / 'raw', [0],
+              ^^^^^^^^^^^^^^^^^^
+            '/usr/bin/taskset', warmup=3, duration=20, sample_fn=sample, popen=Process,
+            exec_check=lambda *args: None)
+E       AttributeError: module 'scripts.performance.linux_b5_reference' has no attribute 'run_cell'
+
+tests\performance\test_linux_b5_reference.py:105: AttributeError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_linux_b5_reference.py::test_orchestration_samples_source_then_ack_then_server_join[0]
+FAILED tests/performance/test_linux_b5_reference.py::test_orchestration_samples_source_then_ack_then_server_join[1]
+2 failed, 14 passed in 0.59s
