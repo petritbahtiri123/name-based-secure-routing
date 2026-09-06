@@ -1,0 +1,7 @@
+{
+  "red": "python -m pytest tests/performance/test_linux_sampler_zombie.py -q: 3 failed, 3 passed",
+  "green": "python -m pytest tests/performance/test_linux_sampler_zombie.py tests/performance/test_linux_loopback.py -q: 13 passed",
+  "ruff": "python -m ruff check scripts/performance/linux_loopback.py tests/performance/test_linux_sampler_zombie.py: PASS",
+  "live": "NOT_RERUN; previous restricted Linux zombie probe is the live RED",
+  "change_scope": "same-identity zombie only; fd_count null with explicit state; final CPU and exit checks preserved; no security settings changed"
+}

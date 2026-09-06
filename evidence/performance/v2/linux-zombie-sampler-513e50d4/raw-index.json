@@ -1,0 +1,14 @@
+[
+  {
+    "path": "C:\\NBSR-build\\linux-smoke-preparation-6227fd86",
+    "manifest": "evidence-checksums.sha256",
+    "files_verified": 43,
+    "manifest_sha256": "f19082908fd4309a93ad712bda18d2bce07216ee9f412fa353a345db74d67cc9"
+  },
+  {
+    "path": "C:\\NBSR-build\\linux-zombie-fix-redgreen-6227fd86",
+    "manifest": "checksums.sha256",
+    "files_verified": 7,
+    "manifest_sha256": "348afad0e353518ec314824c49fd36af5ef02d095b544d7aeb4e45af38e4c3e6"
+  }
+]

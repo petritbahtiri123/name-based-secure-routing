@@ -109,9 +109,16 @@ def parse_proc_stat(text, ticks, page_size):
 
 def sample_process(pid, cpus, proc_root=Path("/proc"), ticks=None, page_size=None):
     base = proc_root / str(pid)
-    sample = parse_proc_stat((base / "stat").read_text(),
-                             ticks if ticks is not None else os.sysconf("SC_CLK_TCK"),
-                             page_size if page_size is not None else os.sysconf("SC_PAGE_SIZE"))
+    ticks = ticks if ticks is not None else os.sysconf("SC_CLK_TCK")
+    page_size = page_size if page_size is not None else os.sysconf("SC_PAGE_SIZE")
+
+    def read_stat():
+        text = (base / "stat").read_text()
+        if int(text.split(" ", 1)[0]) != pid:
+            raise RuntimeError("process identity changed")
+        return parse_proc_stat(text, ticks, page_size)
+
+    sample = read_stat()
     tids = []
     for task in (base / "task").iterdir():
         try:
@@ -126,8 +133,23 @@ def sample_process(pid, cpus, proc_root=Path("/proc"), ticks=None, page_size=Non
                 raise
     if pid not in tids:
         raise RuntimeError("main-thread affinity unavailable")
+    fd_count = None
+    if sample["state"] != "Z":
+        try:
+            fd_count = len(list((base / "fd").iterdir()))
+        except PermissionError:
+            # Linux can deny zombie FD access even to its same-UID parent.
+            # Only an unchanged process that has now exited permits omission.
+            final = read_stat()
+            if final["start_ticks"] != sample["start_ticks"]:
+                raise RuntimeError("process identity changed") from None
+            if final["state"] != "Z":
+                raise
+            sample = final
     sample.update(pid=pid, timestamp_ns=time.monotonic_ns(), thread_ids=tids,
-                  fd_count=len(list((base / "fd").iterdir())), affinity=list(cpus))
+                  fd_count=fd_count,
+                  fd_count_state="UNAVAILABLE_ZOMBIE" if sample["state"] == "Z" else "MEASURED",
+                  affinity=list(cpus))
     return sample
 
 

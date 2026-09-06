@@ -1,0 +1,93 @@
+FF...F                                                                   [100%]
+================================== FAILURES ===================================
+_______ test_known_zombie_does_not_enumerate_fd_and_preserves_final_cpu _______
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-904/test_known_zombie_does_not_enu0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001DF77606780>
+
+    def test_known_zombie_does_not_enumerate_fd_and_preserves_final_cpu(tmp_path, monkeypatch):
+        base = fixture(tmp_path, "Z")
+        original = Path.iterdir
+
+        def guarded(path):
+            assert path != base / "fd", "zombie FD directory must not be enumerated"
+            return original(path)
+
+        monkeypatch.setattr(Path, "iterdir", guarded)
+>       sample = sample_process(123, [0], tmp_path, 100, 4096)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\performance\test_linux_sampler_zombie.py:36:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+scripts\performance\linux_loopback.py:130: in sample_process
+    fd_count=len(list((base / "fd").iterdir())), affinity=list(cpus))
+                      ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-904/test_known_zombie_does_not_enu0/123/fd')
+
+    def guarded(path):
+>       assert path != base / "fd", "zombie FD directory must not be enumerated"
+E       AssertionError: zombie FD directory must not be enumerated
+E       assert WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-904/test_known_zombie_does_not_enu0/123/fd') != (WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-904/test_known_zombie_does_not_enu0/123') / 'fd')
+
+tests\performance\test_linux_sampler_zombie.py:32: AssertionError
+_______ test_fd_permission_race_requires_same_identity_zombie[Z-99-123] _______
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-904/test_fd_permission_race_requir0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001DF776050F0>
+final_state = 'Z', start = 99, pid = 123
+
+    @pytest.mark.parametrize("final_state,start,pid", [("Z", 99, 123), ("S", 99, 123), ("Z", 100, 123), ("Z", 99, 124)])
+    def test_fd_permission_race_requires_same_identity_zombie(tmp_path, monkeypatch, final_state, start, pid):
+        base = fixture(tmp_path)
+        original = Path.iterdir
+
+        def exiting(path):
+            if path == base / "fd":
+                (base / "stat").write_text(stat(final_state, pid=pid, start=start, cpu=20))
+                raise PermissionError(13, "FD unavailable")
+            return original(path)
+
+        monkeypatch.setattr(Path, "iterdir", exiting)
+        if (final_state, start, pid) != ("Z", 99, 123):
+            with pytest.raises((PermissionError, RuntimeError)):
+                sample_process(123, [0], tmp_path, 100, 4096)
+        else:
+>           sample = sample_process(123, [0], tmp_path, 100, 4096)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\performance\test_linux_sampler_zombie.py:60:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+scripts\performance\linux_loopback.py:130: in sample_process
+    fd_count=len(list((base / "fd").iterdir())), affinity=list(cpus))
+                      ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-904/test_fd_permission_race_requir0/123/fd')
+
+    def exiting(path):
+        if path == base / "fd":
+            (base / "stat").write_text(stat(final_state, pid=pid, start=start, cpu=20))
+>           raise PermissionError(13, "FD unavailable")
+E           PermissionError: [Errno 13] FD unavailable
+
+tests\performance\test_linux_sampler_zombie.py:52: PermissionError
+_____________________ test_live_fd_count_remains_measured _____________________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-904/test_live_fd_count_remains_mea0')
+
+    def test_live_fd_count_remains_measured(tmp_path):
+        fixture(tmp_path)
+        sample = sample_process(123, [0], tmp_path, 100, 4096)
+        assert sample["fd_count"] == 1
+>       assert sample["fd_count_state"] == "MEASURED"
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'fd_count_state'
+
+tests\performance\test_linux_sampler_zombie.py:71: KeyError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_linux_sampler_zombie.py::test_known_zombie_does_not_enumerate_fd_and_preserves_final_cpu
+FAILED tests/performance/test_linux_sampler_zombie.py::test_fd_permission_race_requires_same_identity_zombie[Z-99-123]
+FAILED tests/performance/test_linux_sampler_zombie.py::test_live_fd_count_remains_measured
+3 failed, 3 passed in 0.63s
