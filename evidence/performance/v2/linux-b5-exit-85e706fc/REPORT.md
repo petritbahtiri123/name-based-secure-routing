@@ -1,0 +1,7 @@
+# Linux B5 terminal observation prerequisite
+
+PARTIAL; no Linux sustained performance claim. The existing consume loop called Popen.poll(), which reaps Linux child processes before a future backend can retain terminal /proc evidence. An optional exit observer now allows WNOWAIT observation; Windows defaults remain Popen.poll(). The caller still owns explicit wait/cleanup. Nonzero and signal exit statuses remain unchanged, and stream validation remains mandatory. Permission/ownership errors are not treated as running/success.
+
+Ten literal RED tests preceded implementation; 54 focused tests and Ruff pass after it. A restricted network-disabled, nonroot, read-only, capability-dropped Docker run confirmed exit0,exit7 and SIGKILL all retain zombie identity and CPU across repeated observations, then disappear only after explicit wait. The first container launch used the image's inherited smoke entrypoint and failed before this helper ran; its log is retained. The corrected launch explicitly selects python3. Neither container remains.
+
+This is a prerequisite only: Linux sampler terminal-source handling, clock/metric wiring, lifecycle composition and observer-qualified long-run execution still need implementation. No production or protocol change. Retained helper, fixture, patch, logs and image identity are indexed here. The existing image supplies Python only; no claim that its old Rust binaries match the current source is made.

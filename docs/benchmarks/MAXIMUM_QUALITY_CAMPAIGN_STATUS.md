@@ -81,3 +81,7 @@ Task8 now has the requested machine-readable server matrix and companion
 tests and four verified CLI-help entrypoints. This closes the missing workload
 definition files, not portable execution: Linux sustained/wire/full-matrix
 backends remain explicitly PARTIAL_REQUIRED_PORTING. No server results.
+
+Linux B5 now has an optional nonreaping exit-observation primitive/controller
+injection (54 focused tests, three actual Linux terminal-state cases). See
+`linux-b5-exit-85e706fc`; full sustained backend remains NOT_IMPLEMENTED.

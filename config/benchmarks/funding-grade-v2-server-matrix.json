@@ -342,7 +342,7 @@
     "linux_sustained_b5": {
       "status": "NOT_IMPLEMENTED",
       "command": null,
-      "missing": "nonreaping source terminal observation, Linux sampler lifecycle wiring, qualified smaps ownership observer, sustained CLI and regression tests"
+      "missing": "wire validated nonreaping exit helper into Linux sampler terminal lifecycle, qualify smaps ownership observer, implement sustained CLI and regression tests"
     },
     "linux_wire_matrix": {
       "status": "NOT_IMPLEMENTED",

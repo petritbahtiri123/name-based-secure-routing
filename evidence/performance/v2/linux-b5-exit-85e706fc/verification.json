@@ -1,0 +1,12 @@
+{
+  "classification": "LINUX_LIFECYCLE_COMPATIBILITY_ONLY",
+  "image_id": "sha256:dd08db4a391b16a9d303a251d2693808baf470f2fc4870d8e3c54b7523deed71",
+  "source_stage": "85e706fc plus retained patch",
+  "red": "10 focused failures: absent observation injection/module",
+  "green": "54 focused controller/ownership/exit tests PASS; Ruff PASS",
+  "live": "exit0,exit7,SIGKILL retained zombie identity/CPU until explicit join",
+  "first_attempt": "FAIL_LAUNCH: inherited prepared-image entrypoint ran unrelated old smoke preflight; retained; helper not executed",
+  "second_attempt": "PASS with explicit python3 entrypoint",
+  "cleanup": "Both uniquely named --rm test containers absent after exit",
+  "backend_status": "Sustained Linux B5 NOT_IMPLEMENTED; only exit observation primitive/injection provided"
+}

@@ -1,0 +1,37 @@
+diff --git a/scripts/run_b5_v2.py b/scripts/run_b5_v2.py
+index 7ea96cbe..62f89dbe 100644
+--- a/scripts/run_b5_v2.py
++++ b/scripts/run_b5_v2.py
+@@ -84,16 +84,20 @@ class BoundedReader:
+             raise RuntimeError("stdout reader did not join; evidence incomplete")
+ 
+ 
+-def consume(source, reader, stream, *, poll=None):
++def consume(source, reader, stream, *, poll=None, observe_exit=None):
++    # Linux can supply WNOWAIT observation, then sample /proc before wait().
++    # Existing Windows callers retain Popen.poll() behavior.
++    observe_exit = source.poll if observe_exit is None else observe_exit
+     eof = False
+     while True:
+-        active = source.poll() is None
++        exit_code = observe_exit()
++        active = exit_code is None
+         stream.check(source_active=active)
+         if poll is not None:
+             poll()
+         if eof:
+             if not active:
+-                return stream.finish(source.returncode)
++                return stream.finish(exit_code)
+             time.sleep(0.1)
+             continue
+         try:
+@@ -105,7 +109,7 @@ def consume(source, reader, stream, *, poll=None):
+         if value is None:
+             eof = True
+         else:
+-            stream.feed(value, source_active=source.poll() is None)
++            stream.feed(value, source_active=observe_exit() is None)
+ 
+ 
+ def preserve_tail(reader, raw):
