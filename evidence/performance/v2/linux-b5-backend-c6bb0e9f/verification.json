@@ -1,0 +1,8 @@
+{
+  "classification": "LINUX_BACKEND_LIFECYCLE_ONLY",
+  "red": "5 missing-backend regression failures",
+  "green": "55 focused backend/controller/guard/ownership tests PASS; Ruff PASS",
+  "live": "Prelaunch taskset affinity, live sampling, source terminal snapshot before join, destination terminal snapshot after ACK and before join all passed in restricted Docker Python fixture",
+  "image_id": "sha256:dd08db4a391b16a9d303a251d2693808baf470f2fc4870d8e3c54b7523deed71",
+  "limits": "Python child fixture only; no current Rust/QUIC run; no sustained Linux CLI/reference binding or observer qualification"
+}

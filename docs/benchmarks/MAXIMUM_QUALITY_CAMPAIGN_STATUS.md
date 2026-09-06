@@ -99,3 +99,8 @@ A new deferred ADMIN_REQUIRED item is now established specifically for Direct
 paced CPU attribution: WPR CPU start fails0xc5585011 in the current process.
 The final admin ledger contains one matched five-pair capture command; its
 syntax and non-admin refusal pass, elevated execution remains NOT_RUN.
+
+Explicit Linux B5 adapter now connects those primitives to shared run_one:
+55 focused tests and an actual two-child Linux lifecycle fixture PASS.
+`linux-b5-backend-c6bb0e9f` is lifecycle-only; current Rust execution, sustained
+CLI/provenance wiring and observer-qualified benchmark remain pending.

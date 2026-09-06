@@ -130,3 +130,10 @@ and receive-clock approximation remain unchanged.
 These are tested prerequisites, not a completed Linux B5 CLI. End-to-end
 launch/affinity/sampler/terminal/ACK composition, strict Linux reference binding
 and matched observer qualification remain required before any sustained claim.
+
+The explicit `LinuxB5Backend` is now connected to shared `run_one`; prelaunch
+taskset, sampler selection, source stop-before-reap and destination terminal
+sampling are composed and tested (55 focused tests plus a real restricted
+Linux Python-child fixture). See `linux-b5-backend-c6bb0e9f`. No current Rust
+B5 run or observer qualification exists; sustained CLI/provenance binding and
+actual benchmark validation remain pending.

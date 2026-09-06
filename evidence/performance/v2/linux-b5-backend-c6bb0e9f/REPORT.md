@@ -1,0 +1,7 @@
+# Shared B5 Linux lifecycle adapter
+
+PARTIAL / LIFECYCLE COMPATIBILITY ONLY. The shared run_one controller now accepts an explicit Linux backend. The default Windows launch/sampler/reaping path remains selected when absent. Linux commands include prelaunch taskset affinity; startup verifies executable transition and observed affinity. Source terminal sampling and sampler stop occur before reaping. Destination receives the existing harness ACK only after successful source completion, and its terminal identity/CPU is sampled after exit but before explicit wait. Exit, sampling, identity and cleanup failures remain failures; existing deadlines and workload/security semantics are unchanged.
+
+Five literal RED tests preceded implementation;55 focused backend/controller/metric/ownership tests and Ruff pass. A restricted nonroot, network-disabled, read-only Docker Python fixture exercised both roles with taskset and real procfs samples, preserving terminal evidence before both explicit joins. It does not exercise Rust/QUIC or qualify observer distortion. Helper snapshots, full controller snapshot and raw records are retained with image identity and hashes.
+
+The adapter is connected to run_one, but no Linux sustained CLI/current build/reference campaign has executed. Exact-current Linux Rust build and finite reference, entrypoint/provenance wiring, observer comparison and long-run qualification remain required. Do not describe this as completed Linux soak or server validation.
