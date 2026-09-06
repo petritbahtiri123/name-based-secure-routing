@@ -1,0 +1,8 @@
+{
+  "red": "14 failed,17 deselected before implementation",
+  "green": "python -m pytest tests/performance/test_b5_v2_controller.py -q:31 PASS",
+  "ruff": "PASS",
+  "diff_check": "PASS",
+  "live": "NOT_RUN",
+  "scope": "Explicit selected paths only; fixed rates/duration, alternating default pair and existing3to5repeat gates unchanged"
+}

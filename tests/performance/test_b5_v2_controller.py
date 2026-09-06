@@ -4,8 +4,66 @@ from pathlib import Path
 import queue
 
 import pytest
-
 from scripts import run_b5_v2 as b5
+
+
+@pytest.mark.parametrize("paths", [[], ["nbsr", "nbsr"], ["unknown"], "nbsr", None])
+def test_path_selection_rejects_empty_duplicate_and_unknown(paths):
+    with pytest.raises(ValueError):
+        b5.selected_paths(paths)
+
+
+def test_default_pair_alternates_and_single_path_stays_selected():
+    assert b5.selected_paths(["nbsr", "direct"]) == ("direct", "nbsr")
+    assert b5.path_order(("direct", "nbsr"), 1) == ("direct", "nbsr")
+    assert b5.path_order(("direct", "nbsr"), 2) == ("nbsr", "direct")
+    assert b5.path_order(("nbsr",), 2) == ("nbsr",)
+
+
+@pytest.mark.parametrize("dispersed", [False, True])
+@pytest.mark.parametrize("paths", [["nbsr"], ["direct"], ["direct", "nbsr"]])
+def test_execute_runs_only_selected_paths_with_same_repeat_gate(monkeypatch, tmp_path, paths, dispersed):
+    from types import SimpleNamespace
+    binaries = {}
+    for role in ("direct", "nbsr", "server"):
+        binary = tmp_path / f"{role}.exe"
+        binary.write_bytes(role.encode())
+        binaries[role] = binary
+    monkeypatch.setattr(b5.subprocess, "check_output", lambda argv, **kw: "a" * 40 if argv[1] == "rev-parse" else "")
+    monkeypatch.setattr(b5, "assert_clean_source", lambda *_: None)
+    monkeypatch.setattr(b5, "windows_processor_topology", lambda: {})
+    monkeypatch.setattr(b5, "placement", lambda *_: {})
+    monkeypatch.setattr(b5.p2a, "build", lambda *_: binaries.copy())
+    monkeypatch.setattr(b5, "load_ceiling", lambda *a, **kw: dict(rate_numerator=123, rate_denominator=2))
+    monkeypatch.setattr(b5, "require_reference_placement", lambda *_: None)
+    monkeypatch.setattr(b5, "write_loopback_authority", lambda *_: None)
+    calls = []
+    def run(cell, *args, **kwargs):
+        calls.append(cell["path"])
+        assert kwargs["duration"] == 7200 and kwargs["rate"] == (123, 2)
+        return dict(path=cell["path"], valid=True, gbps=calls.count(cell["path"]) if dispersed else 1)
+    monkeypatch.setattr(b5, "run_one", run)
+    args = SimpleNamespace(paths=paths, diagnostic=False, reference=tmp_path / "reference", rate=None,
+        duration=7200, warmup=2, progress=1, output=tmp_path / "output", target=tmp_path,
+        cores=1, groups=1, streams=1, payload=1024, percent=70, depth=1, ownership_sampling=True)
+    b5.execute(args)
+    expected = []
+    for repeat in range(1, 6 if dispersed else 4):
+        pair = ("direct", "nbsr") if repeat % 2 else ("nbsr", "direct")
+        expected.extend(path for path in pair if path in paths)
+    assert calls == expected
+    summary = json.loads((args.output / "summary.json").read_text())
+    assert summary["selected_paths"] == [path for path in ("direct", "nbsr") if path in paths]
+    assert summary["repeats_per_path"] == (5 if dispersed else 3)
+
+@pytest.mark.parametrize("options,expected", [([], ["direct", "nbsr"]), (["--paths", "nbsr"], ["nbsr"])])
+def test_paths_cli_default_and_explicit_selection(monkeypatch, options, expected):
+    import sys
+    received = []
+    monkeypatch.setattr(sys, "argv", ["run_b5_v2.py", "--output", "unused", "--duration", "7200", *options])
+    monkeypatch.setattr(b5, "execute", lambda args: received.append(args.paths))
+    b5.main()
+    assert received == [expected]
 
 
 def test_reader_has_fixed_queue_and_chunk_bounds_and_joins():

@@ -384,7 +384,20 @@ def run_one(cell, binaries, authority, plan, directory, *, warmup, duration, pro
     return result
 
 
+def selected_paths(paths):
+    if (type(paths) not in (list, tuple) or not paths
+            or any(path not in ("direct", "nbsr") for path in paths)
+            or len(set(paths)) != len(paths)):
+        raise ValueError("paths must be unique choices from direct/nbsr")
+    return tuple(path for path in ("direct", "nbsr") if path in paths)
+
+
+def path_order(paths, repeat):
+    return paths if repeat % 2 else tuple(reversed(paths))
+
+
 def execute(args):
+    paths = selected_paths(args.paths)
     mode = validate_mode(diagnostic=args.diagnostic, reference=args.reference, rate=args.rate)
     if not (math.isfinite(args.duration) and 0 < args.duration <= 7200 and math.isfinite(args.warmup)
             and 0 <= args.warmup <= 60 and 1 <= args.progress <= 60):
@@ -420,12 +433,12 @@ def execute(args):
         with tempfile.TemporaryDirectory(prefix="nbsr-b5-v2-") as temporary:
             authority = Path(temporary) / "authority"
             write_loopback_authority(authority)
-            by_path = {"direct": [], "nbsr": []}
+            by_path = {path: [] for path in paths}
             required = 1 if args.diagnostic else 3
             for repeat in range(1, 6):
                 if repeat > required:
                     break
-                for path in (("direct", "nbsr") if repeat % 2 else ("nbsr", "direct")):
+                for path in path_order(paths, repeat):
                     cell = dict(path=path, endpoint_groups=args.groups, streams_per_group=args.streams,
                                 outstanding_per_stream=args.depth, payload_bytes=args.payload)
                     row = run_one(cell, binaries, authority, plan, args.output / f"{path}-r{repeat}", warmup=args.warmup,
@@ -440,7 +453,7 @@ def execute(args):
                     required = max(required_repeats(values) for values in by_path.values())
         assert_clean_source(sha)
         write_json(args.output / "summary.json", {"classification": "DIAGNOSTIC" if args.diagnostic else "ACCOUNTING_PASS_QUALIFICATION_PENDING",
-                   "repeats_per_path": required, "thermal_and_power": "NOT_MEASURED",
+                   "selected_paths": list(paths), "repeats_per_path": required, "thermal_and_power": "NOT_MEASURED",
                    "note": "No STABLE claim; inspect qualified steady drift/resource windows and owned cleanup separately."})
     except Exception as error:
         write_json(args.output / "failure.json", {"classification": "FAIL", "error": str(error), "partial_records_retained": len(rows)})
@@ -457,6 +470,8 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--target", type=Path, default=Path("C:/NBSR-build/b4b-task4k"))
     parser.add_argument("--reference", type=Path)
+    parser.add_argument("--paths", nargs="+", choices=("direct", "nbsr"), default=["direct", "nbsr"],
+                        help="Paths to run; a single path does not establish a Direct/NBSR comparison")
     parser.add_argument("--diagnostic", action="store_true")
     parser.add_argument("--ownership-sampling", action="store_true",
                         help="Optional periodic NBSR ownership evidence; qualify observer cost separately")

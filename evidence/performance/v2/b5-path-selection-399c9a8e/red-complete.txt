@@ -1,0 +1,427 @@
+FFFFFFFFFFFFFF                                                           [100%]
+================================== FAILURES ===================================
+_______ test_path_selection_rejects_empty_duplicate_and_unknown[paths0] _______
+
+paths = []
+
+    @pytest.mark.parametrize("paths", [[], ["nbsr", "nbsr"], ["unknown"], "nbsr", None])
+    def test_path_selection_rejects_empty_duplicate_and_unknown(paths):
+        with pytest.raises(ValueError):
+>           b5.selected_paths(paths)
+            ^^^^^^^^^^^^^^^^^
+E           AttributeError: module 'scripts.run_b5_v2' has no attribute 'selected_paths'
+
+tests\performance\test_b5_v2_controller.py:13: AttributeError
+_______ test_path_selection_rejects_empty_duplicate_and_unknown[paths1] _______
+
+paths = ['nbsr', 'nbsr']
+
+    @pytest.mark.parametrize("paths", [[], ["nbsr", "nbsr"], ["unknown"], "nbsr", None])
+    def test_path_selection_rejects_empty_duplicate_and_unknown(paths):
+        with pytest.raises(ValueError):
+>           b5.selected_paths(paths)
+            ^^^^^^^^^^^^^^^^^
+E           AttributeError: module 'scripts.run_b5_v2' has no attribute 'selected_paths'
+
+tests\performance\test_b5_v2_controller.py:13: AttributeError
+_______ test_path_selection_rejects_empty_duplicate_and_unknown[paths2] _______
+
+paths = ['unknown']
+
+    @pytest.mark.parametrize("paths", [[], ["nbsr", "nbsr"], ["unknown"], "nbsr", None])
+    def test_path_selection_rejects_empty_duplicate_and_unknown(paths):
+        with pytest.raises(ValueError):
+>           b5.selected_paths(paths)
+            ^^^^^^^^^^^^^^^^^
+E           AttributeError: module 'scripts.run_b5_v2' has no attribute 'selected_paths'
+
+tests\performance\test_b5_v2_controller.py:13: AttributeError
+________ test_path_selection_rejects_empty_duplicate_and_unknown[nbsr] ________
+
+paths = 'nbsr'
+
+    @pytest.mark.parametrize("paths", [[], ["nbsr", "nbsr"], ["unknown"], "nbsr", None])
+    def test_path_selection_rejects_empty_duplicate_and_unknown(paths):
+        with pytest.raises(ValueError):
+>           b5.selected_paths(paths)
+            ^^^^^^^^^^^^^^^^^
+E           AttributeError: module 'scripts.run_b5_v2' has no attribute 'selected_paths'
+
+tests\performance\test_b5_v2_controller.py:13: AttributeError
+________ test_path_selection_rejects_empty_duplicate_and_unknown[None] ________
+
+paths = None
+
+    @pytest.mark.parametrize("paths", [[], ["nbsr", "nbsr"], ["unknown"], "nbsr", None])
+    def test_path_selection_rejects_empty_duplicate_and_unknown(paths):
+        with pytest.raises(ValueError):
+>           b5.selected_paths(paths)
+            ^^^^^^^^^^^^^^^^^
+E           AttributeError: module 'scripts.run_b5_v2' has no attribute 'selected_paths'
+
+tests\performance\test_b5_v2_controller.py:13: AttributeError
+_________ test_default_pair_alternates_and_single_path_stays_selected _________
+
+    def test_default_pair_alternates_and_single_path_stays_selected():
+>       assert b5.selected_paths(["nbsr", "direct"]) == ("direct", "nbsr")
+               ^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'scripts.run_b5_v2' has no attribute 'selected_paths'
+
+tests\performance\test_b5_v2_controller.py:17: AttributeError
+__ test_execute_runs_only_selected_paths_with_same_repeat_gate[paths0-False] __
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001BA42BB7CE0>
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-911/test_execute_runs_only_selecte0')
+paths = ['nbsr'], dispersed = False
+
+    @pytest.mark.parametrize("dispersed", [False, True])
+    @pytest.mark.parametrize("paths", [["nbsr"], ["direct"], ["direct", "nbsr"]])
+    def test_execute_runs_only_selected_paths_with_same_repeat_gate(monkeypatch, tmp_path, paths, dispersed):
+        from types import SimpleNamespace
+        binaries = {}
+        for role in ("direct", "nbsr", "server"):
+            binary = tmp_path / f"{role}.exe"
+            binary.write_bytes(role.encode())
+            binaries[role] = binary
+        monkeypatch.setattr(b5.subprocess, "check_output", lambda argv, **kw: "a" * 40 if argv[1] == "rev-parse" else "")
+        monkeypatch.setattr(b5, "assert_clean_source", lambda *_: None)
+        monkeypatch.setattr(b5, "windows_processor_topology", lambda: {})
+        monkeypatch.setattr(b5, "placement", lambda *_: {})
+        monkeypatch.setattr(b5.p2a, "build", lambda *_: binaries.copy())
+        monkeypatch.setattr(b5, "load_ceiling", lambda *a, **kw: dict(rate_numerator=123, rate_denominator=2))
+        monkeypatch.setattr(b5, "require_reference_placement", lambda *_: None)
+        monkeypatch.setattr(b5, "write_loopback_authority", lambda *_: None)
+        calls = []
+        def run(cell, *args, **kwargs):
+            calls.append(cell["path"])
+            assert kwargs["duration"] == 7200 and kwargs["rate"] == (123, 2)
+            return dict(path=cell["path"], valid=True, gbps=calls.count(cell["path"]) if dispersed else 1)
+        monkeypatch.setattr(b5, "run_one", run)
+        args = SimpleNamespace(paths=paths, diagnostic=False, reference=tmp_path / "reference", rate=None,
+            duration=7200, warmup=2, progress=1, output=tmp_path / "output", target=tmp_path,
+            cores=1, groups=1, streams=1, payload=1024, percent=70, depth=1, ownership_sampling=True)
+        b5.execute(args)
+        expected = []
+        for repeat in range(1, 6 if dispersed else 4):
+            pair = ("direct", "nbsr") if repeat % 2 else ("nbsr", "direct")
+            expected.extend(path for path in pair if path in paths)
+>       assert calls == expected
+E       AssertionError: assert ['direct', 'n...rect', 'nbsr'] == ['nbsr', 'nbsr', 'nbsr']
+E
+E         At index 0 diff: 'direct' != 'nbsr'
+E         Left contains 3 more items, first extra item: 'direct'
+E         Use -v to get more diff
+
+tests\performance\test_b5_v2_controller.py:54: AssertionError
+__ test_execute_runs_only_selected_paths_with_same_repeat_gate[paths0-True] ___
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001BA42C642B0>
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-911/test_execute_runs_only_selecte1')
+paths = ['nbsr'], dispersed = True
+
+    @pytest.mark.parametrize("dispersed", [False, True])
+    @pytest.mark.parametrize("paths", [["nbsr"], ["direct"], ["direct", "nbsr"]])
+    def test_execute_runs_only_selected_paths_with_same_repeat_gate(monkeypatch, tmp_path, paths, dispersed):
+        from types import SimpleNamespace
+        binaries = {}
+        for role in ("direct", "nbsr", "server"):
+            binary = tmp_path / f"{role}.exe"
+            binary.write_bytes(role.encode())
+            binaries[role] = binary
+        monkeypatch.setattr(b5.subprocess, "check_output", lambda argv, **kw: "a" * 40 if argv[1] == "rev-parse" else "")
+        monkeypatch.setattr(b5, "assert_clean_source", lambda *_: None)
+        monkeypatch.setattr(b5, "windows_processor_topology", lambda: {})
+        monkeypatch.setattr(b5, "placement", lambda *_: {})
+        monkeypatch.setattr(b5.p2a, "build", lambda *_: binaries.copy())
+        monkeypatch.setattr(b5, "load_ceiling", lambda *a, **kw: dict(rate_numerator=123, rate_denominator=2))
+        monkeypatch.setattr(b5, "require_reference_placement", lambda *_: None)
+        monkeypatch.setattr(b5, "write_loopback_authority", lambda *_: None)
+        calls = []
+        def run(cell, *args, **kwargs):
+            calls.append(cell["path"])
+            assert kwargs["duration"] == 7200 and kwargs["rate"] == (123, 2)
+            return dict(path=cell["path"], valid=True, gbps=calls.count(cell["path"]) if dispersed else 1)
+        monkeypatch.setattr(b5, "run_one", run)
+        args = SimpleNamespace(paths=paths, diagnostic=False, reference=tmp_path / "reference", rate=None,
+            duration=7200, warmup=2, progress=1, output=tmp_path / "output", target=tmp_path,
+            cores=1, groups=1, streams=1, payload=1024, percent=70, depth=1, ownership_sampling=True)
+        b5.execute(args)
+        expected = []
+        for repeat in range(1, 6 if dispersed else 4):
+            pair = ("direct", "nbsr") if repeat % 2 else ("nbsr", "direct")
+            expected.extend(path for path in pair if path in paths)
+>       assert calls == expected
+E       AssertionError: assert ['direct', 'n..., 'nbsr', ...] == ['nbsr', 'nbs...nbsr', 'nbsr']
+E
+E         At index 0 diff: 'direct' != 'nbsr'
+E         Left contains 5 more items, first extra item: 'nbsr'
+E         Use -v to get more diff
+
+tests\performance\test_b5_v2_controller.py:54: AssertionError
+__ test_execute_runs_only_selected_paths_with_same_repeat_gate[paths1-False] __
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001BA42C59B50>
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-911/test_execute_runs_only_selecte2')
+paths = ['direct'], dispersed = False
+
+    @pytest.mark.parametrize("dispersed", [False, True])
+    @pytest.mark.parametrize("paths", [["nbsr"], ["direct"], ["direct", "nbsr"]])
+    def test_execute_runs_only_selected_paths_with_same_repeat_gate(monkeypatch, tmp_path, paths, dispersed):
+        from types import SimpleNamespace
+        binaries = {}
+        for role in ("direct", "nbsr", "server"):
+            binary = tmp_path / f"{role}.exe"
+            binary.write_bytes(role.encode())
+            binaries[role] = binary
+        monkeypatch.setattr(b5.subprocess, "check_output", lambda argv, **kw: "a" * 40 if argv[1] == "rev-parse" else "")
+        monkeypatch.setattr(b5, "assert_clean_source", lambda *_: None)
+        monkeypatch.setattr(b5, "windows_processor_topology", lambda: {})
+        monkeypatch.setattr(b5, "placement", lambda *_: {})
+        monkeypatch.setattr(b5.p2a, "build", lambda *_: binaries.copy())
+        monkeypatch.setattr(b5, "load_ceiling", lambda *a, **kw: dict(rate_numerator=123, rate_denominator=2))
+        monkeypatch.setattr(b5, "require_reference_placement", lambda *_: None)
+        monkeypatch.setattr(b5, "write_loopback_authority", lambda *_: None)
+        calls = []
+        def run(cell, *args, **kwargs):
+            calls.append(cell["path"])
+            assert kwargs["duration"] == 7200 and kwargs["rate"] == (123, 2)
+            return dict(path=cell["path"], valid=True, gbps=calls.count(cell["path"]) if dispersed else 1)
+        monkeypatch.setattr(b5, "run_one", run)
+        args = SimpleNamespace(paths=paths, diagnostic=False, reference=tmp_path / "reference", rate=None,
+            duration=7200, warmup=2, progress=1, output=tmp_path / "output", target=tmp_path,
+            cores=1, groups=1, streams=1, payload=1024, percent=70, depth=1, ownership_sampling=True)
+        b5.execute(args)
+        expected = []
+        for repeat in range(1, 6 if dispersed else 4):
+            pair = ("direct", "nbsr") if repeat % 2 else ("nbsr", "direct")
+            expected.extend(path for path in pair if path in paths)
+>       assert calls == expected
+E       AssertionError: assert ['direct', 'n...rect', 'nbsr'] == ['direct', 'direct', 'direct']
+E
+E         At index 1 diff: 'nbsr' != 'direct'
+E         Left contains 3 more items, first extra item: 'direct'
+E         Use -v to get more diff
+
+tests\performance\test_b5_v2_controller.py:54: AssertionError
+__ test_execute_runs_only_selected_paths_with_same_repeat_gate[paths1-True] ___
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001BA42BD6E00>
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-911/test_execute_runs_only_selecte3')
+paths = ['direct'], dispersed = True
+
+    @pytest.mark.parametrize("dispersed", [False, True])
+    @pytest.mark.parametrize("paths", [["nbsr"], ["direct"], ["direct", "nbsr"]])
+    def test_execute_runs_only_selected_paths_with_same_repeat_gate(monkeypatch, tmp_path, paths, dispersed):
+        from types import SimpleNamespace
+        binaries = {}
+        for role in ("direct", "nbsr", "server"):
+            binary = tmp_path / f"{role}.exe"
+            binary.write_bytes(role.encode())
+            binaries[role] = binary
+        monkeypatch.setattr(b5.subprocess, "check_output", lambda argv, **kw: "a" * 40 if argv[1] == "rev-parse" else "")
+        monkeypatch.setattr(b5, "assert_clean_source", lambda *_: None)
+        monkeypatch.setattr(b5, "windows_processor_topology", lambda: {})
+        monkeypatch.setattr(b5, "placement", lambda *_: {})
+        monkeypatch.setattr(b5.p2a, "build", lambda *_: binaries.copy())
+        monkeypatch.setattr(b5, "load_ceiling", lambda *a, **kw: dict(rate_numerator=123, rate_denominator=2))
+        monkeypatch.setattr(b5, "require_reference_placement", lambda *_: None)
+        monkeypatch.setattr(b5, "write_loopback_authority", lambda *_: None)
+        calls = []
+        def run(cell, *args, **kwargs):
+            calls.append(cell["path"])
+            assert kwargs["duration"] == 7200 and kwargs["rate"] == (123, 2)
+            return dict(path=cell["path"], valid=True, gbps=calls.count(cell["path"]) if dispersed else 1)
+        monkeypatch.setattr(b5, "run_one", run)
+        args = SimpleNamespace(paths=paths, diagnostic=False, reference=tmp_path / "reference", rate=None,
+            duration=7200, warmup=2, progress=1, output=tmp_path / "output", target=tmp_path,
+            cores=1, groups=1, streams=1, payload=1024, percent=70, depth=1, ownership_sampling=True)
+        b5.execute(args)
+        expected = []
+        for repeat in range(1, 6 if dispersed else 4):
+            pair = ("direct", "nbsr") if repeat % 2 else ("nbsr", "direct")
+            expected.extend(path for path in pair if path in paths)
+>       assert calls == expected
+E       AssertionError: assert ['direct', 'n..., 'nbsr', ...] == ['direct', 'd...ct', 'direct']
+E
+E         At index 1 diff: 'nbsr' != 'direct'
+E         Left contains 5 more items, first extra item: 'nbsr'
+E         Use -v to get more diff
+
+tests\performance\test_b5_v2_controller.py:54: AssertionError
+__ test_execute_runs_only_selected_paths_with_same_repeat_gate[paths2-False] __
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001BA42BD7020>
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-911/test_execute_runs_only_selecte4')
+paths = ['direct', 'nbsr'], dispersed = False
+
+    @pytest.mark.parametrize("dispersed", [False, True])
+    @pytest.mark.parametrize("paths", [["nbsr"], ["direct"], ["direct", "nbsr"]])
+    def test_execute_runs_only_selected_paths_with_same_repeat_gate(monkeypatch, tmp_path, paths, dispersed):
+        from types import SimpleNamespace
+        binaries = {}
+        for role in ("direct", "nbsr", "server"):
+            binary = tmp_path / f"{role}.exe"
+            binary.write_bytes(role.encode())
+            binaries[role] = binary
+        monkeypatch.setattr(b5.subprocess, "check_output", lambda argv, **kw: "a" * 40 if argv[1] == "rev-parse" else "")
+        monkeypatch.setattr(b5, "assert_clean_source", lambda *_: None)
+        monkeypatch.setattr(b5, "windows_processor_topology", lambda: {})
+        monkeypatch.setattr(b5, "placement", lambda *_: {})
+        monkeypatch.setattr(b5.p2a, "build", lambda *_: binaries.copy())
+        monkeypatch.setattr(b5, "load_ceiling", lambda *a, **kw: dict(rate_numerator=123, rate_denominator=2))
+        monkeypatch.setattr(b5, "require_reference_placement", lambda *_: None)
+        monkeypatch.setattr(b5, "write_loopback_authority", lambda *_: None)
+        calls = []
+        def run(cell, *args, **kwargs):
+            calls.append(cell["path"])
+            assert kwargs["duration"] == 7200 and kwargs["rate"] == (123, 2)
+            return dict(path=cell["path"], valid=True, gbps=calls.count(cell["path"]) if dispersed else 1)
+        monkeypatch.setattr(b5, "run_one", run)
+        args = SimpleNamespace(paths=paths, diagnostic=False, reference=tmp_path / "reference", rate=None,
+            duration=7200, warmup=2, progress=1, output=tmp_path / "output", target=tmp_path,
+            cores=1, groups=1, streams=1, payload=1024, percent=70, depth=1, ownership_sampling=True)
+        b5.execute(args)
+        expected = []
+        for repeat in range(1, 6 if dispersed else 4):
+            pair = ("direct", "nbsr") if repeat % 2 else ("nbsr", "direct")
+            expected.extend(path for path in pair if path in paths)
+        assert calls == expected
+        summary = json.loads((args.output / "summary.json").read_text())
+>       assert summary["selected_paths"] == [path for path in ("direct", "nbsr") if path in paths]
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'selected_paths'
+
+tests\performance\test_b5_v2_controller.py:56: KeyError
+__ test_execute_runs_only_selected_paths_with_same_repeat_gate[paths2-True] ___
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001BA42C3A650>
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-911/test_execute_runs_only_selecte5')
+paths = ['direct', 'nbsr'], dispersed = True
+
+    @pytest.mark.parametrize("dispersed", [False, True])
+    @pytest.mark.parametrize("paths", [["nbsr"], ["direct"], ["direct", "nbsr"]])
+    def test_execute_runs_only_selected_paths_with_same_repeat_gate(monkeypatch, tmp_path, paths, dispersed):
+        from types import SimpleNamespace
+        binaries = {}
+        for role in ("direct", "nbsr", "server"):
+            binary = tmp_path / f"{role}.exe"
+            binary.write_bytes(role.encode())
+            binaries[role] = binary
+        monkeypatch.setattr(b5.subprocess, "check_output", lambda argv, **kw: "a" * 40 if argv[1] == "rev-parse" else "")
+        monkeypatch.setattr(b5, "assert_clean_source", lambda *_: None)
+        monkeypatch.setattr(b5, "windows_processor_topology", lambda: {})
+        monkeypatch.setattr(b5, "placement", lambda *_: {})
+        monkeypatch.setattr(b5.p2a, "build", lambda *_: binaries.copy())
+        monkeypatch.setattr(b5, "load_ceiling", lambda *a, **kw: dict(rate_numerator=123, rate_denominator=2))
+        monkeypatch.setattr(b5, "require_reference_placement", lambda *_: None)
+        monkeypatch.setattr(b5, "write_loopback_authority", lambda *_: None)
+        calls = []
+        def run(cell, *args, **kwargs):
+            calls.append(cell["path"])
+            assert kwargs["duration"] == 7200 and kwargs["rate"] == (123, 2)
+            return dict(path=cell["path"], valid=True, gbps=calls.count(cell["path"]) if dispersed else 1)
+        monkeypatch.setattr(b5, "run_one", run)
+        args = SimpleNamespace(paths=paths, diagnostic=False, reference=tmp_path / "reference", rate=None,
+            duration=7200, warmup=2, progress=1, output=tmp_path / "output", target=tmp_path,
+            cores=1, groups=1, streams=1, payload=1024, percent=70, depth=1, ownership_sampling=True)
+        b5.execute(args)
+        expected = []
+        for repeat in range(1, 6 if dispersed else 4):
+            pair = ("direct", "nbsr") if repeat % 2 else ("nbsr", "direct")
+            expected.extend(path for path in pair if path in paths)
+        assert calls == expected
+        summary = json.loads((args.output / "summary.json").read_text())
+>       assert summary["selected_paths"] == [path for path in ("direct", "nbsr") if path in paths]
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'selected_paths'
+
+tests\performance\test_b5_v2_controller.py:56: KeyError
+______ test_paths_cli_default_and_explicit_selection[options0-expected0] ______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001BA42C3AC50>
+options = [], expected = ['direct', 'nbsr']
+
+    @pytest.mark.parametrize("options,expected", [([], ["direct", "nbsr"]), (["--paths", "nbsr"], ["nbsr"])])
+    def test_paths_cli_default_and_explicit_selection(monkeypatch, options, expected):
+        import sys
+        received = []
+        monkeypatch.setattr(sys, "argv", ["run_b5_v2.py", "--output", "unused", "--duration", "7200", *options])
+        monkeypatch.setattr(b5, "execute", lambda args: received.append(args.paths))
+>       b5.main()
+
+tests\performance\test_b5_v2_controller.py:65:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+scripts\run_b5_v2.py:473: in main
+    execute(parser.parse_args())
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = Namespace(output=WindowsPath('unused'), target=WindowsPath('C:/NBSR-build/b4b-task4k'), reference=None, diagnostic=Fal...se, rate=None, percent=70, cores=4, groups=4, streams=1, depth=1, payload=16384, warmup=2, duration=7200.0, progress=1)
+
+>   monkeypatch.setattr(b5, "execute", lambda args: received.append(args.paths))
+                                                                    ^^^^^^^^^^
+E   AttributeError: 'Namespace' object has no attribute 'paths'
+
+tests\performance\test_b5_v2_controller.py:64: AttributeError
+______ test_paths_cli_default_and_explicit_selection[options1-expected1] ______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001BA42D30140>
+options = ['--paths', 'nbsr'], expected = ['nbsr']
+
+    @pytest.mark.parametrize("options,expected", [([], ["direct", "nbsr"]), (["--paths", "nbsr"], ["nbsr"])])
+    def test_paths_cli_default_and_explicit_selection(monkeypatch, options, expected):
+        import sys
+        received = []
+        monkeypatch.setattr(sys, "argv", ["run_b5_v2.py", "--output", "unused", "--duration", "7200", *options])
+        monkeypatch.setattr(b5, "execute", lambda args: received.append(args.paths))
+>       b5.main()
+
+tests\performance\test_b5_v2_controller.py:65:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+scripts\run_b5_v2.py:473: in main
+    execute(parser.parse_args())
+            ^^^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Local\Programs\Python\Python314\Lib\argparse.py:2009: in parse_args
+    self.error(msg)
+..\..\..\AppData\Local\Programs\Python\Python314\Lib\argparse.py:2782: in error
+    self.exit(2, _('%(prog)s: error: %(message)s\n') % args)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = ArgumentParser(prog='python.exe -m pytest', usage=None, description='Bounded Windows grouped paced B5 controller; no hardware-general claims.', formatter_class=<class 'argparse.HelpFormatter'>, conflict_handler='error', add_help=True)
+status = 2
+message = 'python.exe -m pytest: error: unrecognized arguments: --paths nbsr\n'
+
+    def exit(self, status=0, message=None):
+        if message:
+            self._print_message(message, _sys.stderr)
+>       _sys.exit(status)
+E       SystemExit: 2
+
+..\..\..\AppData\Local\Programs\Python\Python314\Lib\argparse.py:2769: SystemExit
+---------------------------- Captured stderr call -----------------------------
+usage: python.exe -m pytest [-h] --output OUTPUT [--target TARGET]
+                            [--reference REFERENCE] [--diagnostic]
+                            [--ownership-sampling]
+                            [--rate NUMERATOR DENOMINATOR]
+                            [--percent {70,71,72,73,74,75,76,77,78,79,80}]
+                            [--cores {1,2,4}] [--groups {1,2,4}]
+                            [--streams {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64}]
+                            [--depth {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64}]
+                            [--payload {1024,16384}] [--warmup WARMUP]
+                            --duration DURATION [--progress PROGRESS]
+python.exe -m pytest: error: unrecognized arguments: --paths nbsr
+=========================== short test summary info ===========================
+FAILED tests/performance/test_b5_v2_controller.py::test_path_selection_rejects_empty_duplicate_and_unknown[paths0]
+FAILED tests/performance/test_b5_v2_controller.py::test_path_selection_rejects_empty_duplicate_and_unknown[paths1]
+FAILED tests/performance/test_b5_v2_controller.py::test_path_selection_rejects_empty_duplicate_and_unknown[paths2]
+FAILED tests/performance/test_b5_v2_controller.py::test_path_selection_rejects_empty_duplicate_and_unknown[nbsr]
+FAILED tests/performance/test_b5_v2_controller.py::test_path_selection_rejects_empty_duplicate_and_unknown[None]
+FAILED tests/performance/test_b5_v2_controller.py::test_default_pair_alternates_and_single_path_stays_selected
+FAILED tests/performance/test_b5_v2_controller.py::test_execute_runs_only_selected_paths_with_same_repeat_gate[paths0-False]
+FAILED tests/performance/test_b5_v2_controller.py::test_execute_runs_only_selected_paths_with_same_repeat_gate[paths0-True]
+FAILED tests/performance/test_b5_v2_controller.py::test_execute_runs_only_selected_paths_with_same_repeat_gate[paths1-False]
+FAILED tests/performance/test_b5_v2_controller.py::test_execute_runs_only_selected_paths_with_same_repeat_gate[paths1-True]
+FAILED tests/performance/test_b5_v2_controller.py::test_execute_runs_only_selected_paths_with_same_repeat_gate[paths2-False]
+FAILED tests/performance/test_b5_v2_controller.py::test_execute_runs_only_selected_paths_with_same_repeat_gate[paths2-True]
+FAILED tests/performance/test_b5_v2_controller.py::test_paths_cli_default_and_explicit_selection[options0-expected0]
+FAILED tests/performance/test_b5_v2_controller.py::test_paths_cli_default_and_explicit_selection[options1-expected1]
+14 failed, 17 deselected in 1.51s
