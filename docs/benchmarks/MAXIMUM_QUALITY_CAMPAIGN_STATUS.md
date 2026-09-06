@@ -75,3 +75,9 @@ completes one ten-minute run at 0.555331 Gbit/s, 97.68%, with final eleven
 counts zero, then repeat 2 aborts on source private growth at 30 seconds.
 No replacements; no stable long-soak claim. Causes remain UNRESOLVED.
 All 470 indexed artifacts across six roots were verified for this stage.
+
+Task8 now has the requested machine-readable server matrix and companion
+`funding-grade-v2-server-linux-validation.md`, with two RED/GREEN contract
+tests and four verified CLI-help entrypoints. This closes the missing workload
+definition files, not portable execution: Linux sustained/wire/full-matrix
+backends remain explicitly PARTIAL_REQUIRED_PORTING. No server results.

@@ -1,0 +1,358 @@
+{
+  "schema": "nbsr-server-validation-definition-v1",
+  "execution_status": "NOT_RUN",
+  "definition_status": "PARTIAL_REQUIRED_PORTING",
+  "physical_cores": [
+    1,
+    2,
+    4,
+    8,
+    16,
+    32
+  ],
+  "paths": [
+    "direct",
+    "nbsr"
+  ],
+  "placements": [
+    "loopback_shared_core_pool",
+    "two_host_disjoint_core_pools"
+  ],
+  "hardware": {
+    "hosts": {
+      "loopback": 1,
+      "physical_network": 2
+    },
+    "dedicated_bare_metal": true,
+    "minimum_ram_gib": 16,
+    "recommended_ram_gib": 64,
+    "minimum_free_evidence_gib": 100,
+    "os": "Maintained Linux with cgroup v2 and procfs; exact distribution/kernel recorded",
+    "unavailable_counts": "NOT_RUN; never substitute SMT siblings"
+  },
+  "topology": {
+    "identity": [
+      "socket",
+      "physical_core",
+      "logical_cpu",
+      "numa_node",
+      "smt_siblings",
+      "online"
+    ],
+    "single_numa_first": true,
+    "cross_numa": "separate cohort"
+  },
+  "affinity": {
+    "before_launch": true,
+    "verify_every_observed_thread": true,
+    "one_logical_per_physical_core": true,
+    "source_and_destination_masks_retained": true,
+    "irq_cpu_accounting": "separate from process CPU"
+  },
+  "nic": {
+    "minimum_negotiated_gbps": 10,
+    "record": [
+      "driver",
+      "firmware",
+      "mtu",
+      "queues",
+      "rss",
+      "irq_affinity",
+      "switch_path",
+      "rx_tx_bytes",
+      "drops",
+      "errors",
+      "link_speed"
+    ],
+    "capture_interface": "dedicated physical data interface; loopback separate"
+  },
+  "profiler": {
+    "tools": [
+      "perf",
+      "pidstat",
+      "procfs",
+      "cgroup_v2",
+      "ethtool",
+      "dumpcap",
+      "tshark"
+    ],
+    "observer_gate": {
+      "maximum_absolute_median_delta": 0.05,
+      "metrics": [
+        "goodput",
+        "p99"
+      ],
+      "counterbalanced_pairs": 3,
+      "expand_pairs_if_cv_above": 0.05,
+      "maximum_pairs": 5
+    },
+    "distorting_capture": "packet accounting only; no performance timing claim"
+  },
+  "repeat_policy": {
+    "minimum_valid": 3,
+    "high_cv_valid": 5,
+    "cv_threshold": 0.05,
+    "invalid_replacement": false,
+    "discard_unfavorable_valid": false,
+    "pair_order": "counterbalanced Direct/NBSR; sticky five repeats after high CV",
+    "invalid": "retain and stop affected cohort"
+  },
+  "workloads": {
+    "forwarding": {
+      "payload_bytes": [
+        1024,
+        16384
+      ],
+      "streams_per_group": [
+        1,
+        8,
+        32,
+        64
+      ],
+      "endpoint_groups": [
+        1,
+        2,
+        4
+      ],
+      "outstanding_per_stream": [
+        1,
+        2,
+        4,
+        8,
+        16
+      ],
+      "warmup_seconds": 3,
+      "measurement_seconds": 30,
+      "workers": "one per endpoint group initially; additional worker changes separate named cells",
+      "progression": "ordered depth ladder within each fixed shape, preserve first saturated cell; no unmeasured interpolation"
+    },
+    "admission": {
+      "modes": [
+        "rate_controlled",
+        "burst"
+      ],
+      "offered_per_second": [
+        25,
+        50,
+        75,
+        100,
+        125,
+        150,
+        200,
+        250,
+        500,
+        1000
+      ],
+      "clients": [
+        16,
+        32,
+        64,
+        128,
+        256,
+        512,
+        1024
+      ],
+      "source_shards": [
+        1,
+        2,
+        4
+      ],
+      "measurement_seconds": 30,
+      "progression": "stop affected rate ladder after first saturated cell; further causal diagnostics separately declared",
+      "security": "same mandatory admission checks at every rate"
+    },
+    "memory": {
+      "axes": [
+        "connections",
+        "sessions",
+        "channels",
+        "streams"
+      ],
+      "cardinalities": [
+        16,
+        32,
+        64,
+        128,
+        256,
+        512,
+        1024,
+        2048
+      ],
+      "same_process_cycles": 10,
+      "steady_seconds": 30,
+      "cooldown_seconds": 30,
+      "axis_isolation": "vary one resource type at a time where supported; otherwise report bundle cost, never isolated bytes/resource"
+    },
+    "soak": {
+      "reference": "exact source/binary/workload strict-stable artifact only",
+      "validation": [
+        {
+          "seconds": 600,
+          "percent": 70
+        },
+        {
+          "seconds": 1800,
+          "percent": 80
+        }
+      ],
+      "authoritative_seconds": [
+        3600,
+        7200
+      ],
+      "load_percent": [
+        70,
+        80
+      ],
+      "progress_seconds": 30,
+      "representative_payload_bytes": [
+        1024,
+        16384
+      ],
+      "progression": "60 minutes at70 after validation,120 at80 only after60 passes"
+    },
+    "wire": {
+      "payload_bytes": [
+        1024,
+        16384
+      ],
+      "streams": [
+        64,
+        8
+      ],
+      "operations_per_stream": 1000,
+      "paths": [
+        "direct",
+        "nbsr"
+      ],
+      "capture": "fixed completed-operation accounting; separate timed performance",
+      "accounting": [
+        "application_bytes",
+        "udp_bytes",
+        "ip_bytes",
+        "packet_count",
+        "direct_nbsr_delta"
+      ],
+      "derived_separately": [
+        "l2_estimate"
+      ],
+      "capture_drop_requirement": 0
+    }
+  },
+  "stop_gates": {
+    "errors_or_timeouts": true,
+    "cleanup_nonzero": true,
+    "security_regression": true,
+    "goodput_decay_above": 0.05,
+    "p99_drift_above": 0.2,
+    "paced_achieved_offered_below": 0.95,
+    "unbounded_owned_resource_growth": true,
+    "sampling_failure": true,
+    "source_or_binary_mismatch": true,
+    "disk_or_thermal_instability": true,
+    "no_timeout_increase": true
+  },
+  "acceptance": {
+    "definition_pass_requires_all_commands_executable": true,
+    "server_claim_requires_external_raw_results": true,
+    "host_cpu_bound_min_allocated_fraction": 0.9,
+    "nic_bound_min_link_fraction": 0.85,
+    "nic_bound_requires_queue_drop_irq_correlation": true,
+    "memory_bound_requires_measured_pressure": true,
+    "plateau_alone_is_host_bound": false,
+    "thermal_power_missing": "explicit limitation; no thermal qualification",
+    "result_labels": [
+      "STRICT_STABLE",
+      "DEGRADED",
+      "SATURATED",
+      "PEAK_DIAGNOSTIC",
+      "UNRESOLVED",
+      "INVALID",
+      "NOT_RUN"
+    ]
+  },
+  "evidence": {
+    "root": "evidence/performance/v2/server-linux-{start_sha_12}-{host_id}",
+    "manifest_required": [
+      "source_sha",
+      "binary_sha256",
+      "controller_sha256",
+      "toolchains",
+      "hardware",
+      "topology",
+      "affinity",
+      "workload",
+      "start_end_timestamps",
+      "classification",
+      "limitations"
+    ],
+    "directories": [
+      "raw",
+      "commands",
+      "telemetry",
+      "analysis"
+    ],
+    "preserve_failed_and_partial": true,
+    "hash": "SHA-256 every retained raw artifact, supplemental analysis, and binary; index checksum recorded separately",
+    "source_match": "same source/workload across platforms, platform-specific binary hashes"
+  },
+  "coverage": {
+    "loopback_finite": {
+      "status": "AUTHORED_UNEXECUTED",
+      "command": "python3 -m scripts.performance.linux_loopback --help",
+      "sources": [
+        "scripts/performance/linux_loopback.py",
+        "docs/benchmarks/EXTERNAL_LINUX_SERVER_VALIDATION.md"
+      ],
+      "scope": "CLI help is interface discovery, not a benchmark; existing runner subset1/2/4cores only; older Docker compatibility is separate historical evidence"
+    },
+    "two_host_finite": {
+      "status": "AUTHORED_UNEXECUTED",
+      "command": null,
+      "sources": [
+        "docs/benchmarks/EXTERNAL_NATIVE_TWO_HOST_RUNBOOK.md"
+      ],
+      "scope": "Execute the ordered runbook with real host addresses; automated full matrix absent"
+    },
+    "linux_memory": {
+      "status": "PARTIAL",
+      "command": "python3 scripts/run_b3_v2.py --help",
+      "sources": [
+        "scripts/performance/b3_linux.py",
+        "scripts/run_b3_v2.py"
+      ],
+      "scope": "backend compatibility exists; independently isolated resource axes and full server matrix unqualified"
+    },
+    "linux_admission": {
+      "status": "PARTIAL",
+      "command": "python3 scripts/run_b4b_linux.py --help",
+      "sources": [
+        "scripts/run_b4b_linux.py"
+      ],
+      "scope": "finite loopback backend; sustainable multihost matrix not qualified"
+    },
+    "linux_b5_reference": {
+      "status": "AUTHORED_UNEXECUTED",
+      "command": "python3 -m scripts.performance.linux_b5_reference --help",
+      "sources": [
+        "scripts/performance/linux_b5_reference.py",
+        "docs/benchmarks/LINUX_B5_REFERENCE.md"
+      ],
+      "scope": "one core,onegroup strict finite reference; exactcurrentLinuxrun pending"
+    },
+    "linux_sustained_b5": {
+      "status": "NOT_IMPLEMENTED",
+      "command": null,
+      "missing": "nonreaping source terminal observation, Linux sampler lifecycle wiring, qualified smaps ownership observer, sustained CLI and regression tests"
+    },
+    "linux_wire_matrix": {
+      "status": "NOT_IMPLEMENTED",
+      "command": null,
+      "missing": "bounded dedicated-interface capture orchestration, phase accounting, loss validation, paired byte analysis"
+    },
+    "full_matrix_executor": {
+      "status": "NOT_IMPLEMENTED",
+      "command": null,
+      "missing": "physical-core8/16/32 and multihost orchestration for all workload classes; no tool consumes this definition as a complete executable matrix"
+    }
+  }
+}
