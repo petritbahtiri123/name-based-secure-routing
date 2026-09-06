@@ -1,0 +1,449 @@
+[
+  {
+    "cell": "bundles-16-r1",
+    "cleanup": {
+      "counters": {
+        "transport_sessions_current_live": 0,
+        "service_channels_current_live": 0,
+        "application_streams_current_live": 0,
+        "nbsr_tasks_current_live": 0,
+        "quic_connections_current_live": 0,
+        "quic_streams_current_live": 0,
+        "pending_routes_current_entries": 0,
+        "channel_registry_current_entries": 0,
+        "stream_registry_current_entries": 0,
+        "replay_state_current_entries": 0,
+        "audit_queue_current_entries": 0
+      },
+      "all_zero": true,
+      "source_all_zero": true,
+      "source_counters": [
+        {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        }
+      ],
+      "counter_scope": "rust-all-11-current-fields"
+    },
+    "scope": "postprocessing replay only; original raw/cell records unchanged"
+  },
+  {
+    "cell": "bundles-16-r2",
+    "cleanup": {
+      "counters": {
+        "transport_sessions_current_live": 0,
+        "service_channels_current_live": 0,
+        "application_streams_current_live": 0,
+        "nbsr_tasks_current_live": 0,
+        "quic_connections_current_live": 0,
+        "quic_streams_current_live": 0,
+        "pending_routes_current_entries": 0,
+        "channel_registry_current_entries": 0,
+        "stream_registry_current_entries": 0,
+        "replay_state_current_entries": 0,
+        "audit_queue_current_entries": 0
+      },
+      "all_zero": true,
+      "source_all_zero": true,
+      "source_counters": [
+        {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        }
+      ],
+      "counter_scope": "rust-all-11-current-fields"
+    },
+    "scope": "postprocessing replay only; original raw/cell records unchanged"
+  },
+  {
+    "cell": "bundles-16-r3",
+    "cleanup": {
+      "counters": {
+        "transport_sessions_current_live": 0,
+        "service_channels_current_live": 0,
+        "application_streams_current_live": 0,
+        "nbsr_tasks_current_live": 0,
+        "quic_connections_current_live": 0,
+        "quic_streams_current_live": 0,
+        "pending_routes_current_entries": 0,
+        "channel_registry_current_entries": 0,
+        "stream_registry_current_entries": 0,
+        "replay_state_current_entries": 0,
+        "audit_queue_current_entries": 0
+      },
+      "all_zero": true,
+      "source_all_zero": true,
+      "source_counters": [
+        {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        }
+      ],
+      "counter_scope": "rust-all-11-current-fields"
+    },
+    "scope": "postprocessing replay only; original raw/cell records unchanged"
+  },
+  {
+    "cell": "cycles-3-r1",
+    "cleanup": {
+      "counters": {
+        "transport_sessions_current_live": 0,
+        "service_channels_current_live": 0,
+        "application_streams_current_live": 0,
+        "nbsr_tasks_current_live": 0,
+        "quic_connections_current_live": 0,
+        "quic_streams_current_live": 0,
+        "pending_routes_current_entries": 0,
+        "channel_registry_current_entries": 0,
+        "stream_registry_current_entries": 0,
+        "replay_state_current_entries": 0,
+        "audit_queue_current_entries": 0
+      },
+      "all_zero": true,
+      "source_all_zero": true,
+      "source_counters": [
+        {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        }
+      ],
+      "counter_scope": "rust-all-11-current-fields",
+      "source_cycle_all_zero": true
+    },
+    "scope": "postprocessing replay only; original raw/cell records unchanged"
+  },
+  {
+    "cell": "cycles-3-r2",
+    "cleanup": {
+      "counters": {
+        "transport_sessions_current_live": 0,
+        "service_channels_current_live": 0,
+        "application_streams_current_live": 0,
+        "nbsr_tasks_current_live": 0,
+        "quic_connections_current_live": 0,
+        "quic_streams_current_live": 0,
+        "pending_routes_current_entries": 0,
+        "channel_registry_current_entries": 0,
+        "stream_registry_current_entries": 0,
+        "replay_state_current_entries": 0,
+        "audit_queue_current_entries": 0
+      },
+      "all_zero": true,
+      "source_all_zero": true,
+      "source_counters": [
+        {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        }
+      ],
+      "counter_scope": "rust-all-11-current-fields",
+      "source_cycle_all_zero": true
+    },
+    "scope": "postprocessing replay only; original raw/cell records unchanged"
+  },
+  {
+    "cell": "cycles-3-r3",
+    "cleanup": {
+      "counters": {
+        "transport_sessions_current_live": 0,
+        "service_channels_current_live": 0,
+        "application_streams_current_live": 0,
+        "nbsr_tasks_current_live": 0,
+        "quic_connections_current_live": 0,
+        "quic_streams_current_live": 0,
+        "pending_routes_current_entries": 0,
+        "channel_registry_current_entries": 0,
+        "stream_registry_current_entries": 0,
+        "replay_state_current_entries": 0,
+        "audit_queue_current_entries": 0
+      },
+      "all_zero": true,
+      "source_all_zero": true,
+      "source_counters": [
+        {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        }
+      ],
+      "counter_scope": "rust-all-11-current-fields",
+      "source_cycle_all_zero": true
+    },
+    "scope": "postprocessing replay only; original raw/cell records unchanged"
+  },
+  {
+    "cell": "streams-16-r1",
+    "cleanup": {
+      "counters": {
+        "transport_sessions_current_live": 0,
+        "service_channels_current_live": 0,
+        "application_streams_current_live": 0,
+        "nbsr_tasks_current_live": 0,
+        "quic_connections_current_live": 0,
+        "quic_streams_current_live": 0,
+        "pending_routes_current_entries": 0,
+        "channel_registry_current_entries": 0,
+        "stream_registry_current_entries": 0,
+        "replay_state_current_entries": 0,
+        "audit_queue_current_entries": 0
+      },
+      "all_zero": true,
+      "source_all_zero": true,
+      "source_counters": [
+        {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        }
+      ],
+      "counter_scope": "rust-all-11-current-fields"
+    },
+    "scope": "postprocessing replay only; original raw/cell records unchanged"
+  },
+  {
+    "cell": "streams-16-r2",
+    "cleanup": {
+      "counters": {
+        "transport_sessions_current_live": 0,
+        "service_channels_current_live": 0,
+        "application_streams_current_live": 0,
+        "nbsr_tasks_current_live": 0,
+        "quic_connections_current_live": 0,
+        "quic_streams_current_live": 0,
+        "pending_routes_current_entries": 0,
+        "channel_registry_current_entries": 0,
+        "stream_registry_current_entries": 0,
+        "replay_state_current_entries": 0,
+        "audit_queue_current_entries": 0
+      },
+      "all_zero": true,
+      "source_all_zero": true,
+      "source_counters": [
+        {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        }
+      ],
+      "counter_scope": "rust-all-11-current-fields"
+    },
+    "scope": "postprocessing replay only; original raw/cell records unchanged"
+  },
+  {
+    "cell": "streams-16-r3",
+    "cleanup": {
+      "counters": {
+        "transport_sessions_current_live": 0,
+        "service_channels_current_live": 0,
+        "application_streams_current_live": 0,
+        "nbsr_tasks_current_live": 0,
+        "quic_connections_current_live": 0,
+        "quic_streams_current_live": 0,
+        "pending_routes_current_entries": 0,
+        "channel_registry_current_entries": 0,
+        "stream_registry_current_entries": 0,
+        "replay_state_current_entries": 0,
+        "audit_queue_current_entries": 0
+      },
+      "all_zero": true,
+      "source_all_zero": true,
+      "source_counters": [
+        {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        }
+      ],
+      "counter_scope": "rust-all-11-current-fields"
+    },
+    "scope": "postprocessing replay only; original raw/cell records unchanged"
+  },
+  {
+    "cell": "streams-32-r1",
+    "cleanup": {
+      "counters": {
+        "transport_sessions_current_live": 0,
+        "service_channels_current_live": 0,
+        "application_streams_current_live": 0,
+        "nbsr_tasks_current_live": 0,
+        "quic_connections_current_live": 0,
+        "quic_streams_current_live": 0,
+        "pending_routes_current_entries": 0,
+        "channel_registry_current_entries": 0,
+        "stream_registry_current_entries": 0,
+        "replay_state_current_entries": 0,
+        "audit_queue_current_entries": 0
+      },
+      "all_zero": true,
+      "source_all_zero": true,
+      "source_counters": [
+        {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        }
+      ],
+      "counter_scope": "rust-all-11-current-fields"
+    },
+    "scope": "postprocessing replay only; original raw/cell records unchanged"
+  },
+  {
+    "cell": "streams-32-r2",
+    "cleanup": {
+      "counters": {
+        "transport_sessions_current_live": 0,
+        "service_channels_current_live": 0,
+        "application_streams_current_live": 0,
+        "nbsr_tasks_current_live": 0,
+        "quic_connections_current_live": 0,
+        "quic_streams_current_live": 0,
+        "pending_routes_current_entries": 0,
+        "channel_registry_current_entries": 0,
+        "stream_registry_current_entries": 0,
+        "replay_state_current_entries": 0,
+        "audit_queue_current_entries": 0
+      },
+      "all_zero": true,
+      "source_all_zero": true,
+      "source_counters": [
+        {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        }
+      ],
+      "counter_scope": "rust-all-11-current-fields"
+    },
+    "scope": "postprocessing replay only; original raw/cell records unchanged"
+  },
+  {
+    "cell": "streams-32-r3",
+    "cleanup": {
+      "counters": {
+        "transport_sessions_current_live": 0,
+        "service_channels_current_live": 0,
+        "application_streams_current_live": 0,
+        "nbsr_tasks_current_live": 0,
+        "quic_connections_current_live": 0,
+        "quic_streams_current_live": 0,
+        "pending_routes_current_entries": 0,
+        "channel_registry_current_entries": 0,
+        "stream_registry_current_entries": 0,
+        "replay_state_current_entries": 0,
+        "audit_queue_current_entries": 0
+      },
+      "all_zero": true,
+      "source_all_zero": true,
+      "source_counters": [
+        {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        }
+      ],
+      "counter_scope": "rust-all-11-current-fields"
+    },
+    "scope": "postprocessing replay only; original raw/cell records unchanged"
+  }
+]

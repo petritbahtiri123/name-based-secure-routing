@@ -1,0 +1,812 @@
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF                               [100%]
+================================== FAILURES ===================================
+___________ test_rust_cleanup_requires_all_eleven_exact_zero_fields ___________
+
+    def test_rust_cleanup_requires_all_eleven_exact_zero_fields():
+        final, source = fixture()
+>       value = b3.ownership_cleanup('rust-rust', final, source, source_count=1, cycles=1)
+                ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'scripts.run_b3_session_lifecycle' has no attribute 'ownership_cleanup'
+
+tests\performance\test_b3_cleanup_gate.py:17: AttributeError
+_ test_omitted_fields_missing_nonzero_boolean_or_string_fail[destination-None-pending_routes_current_entries] _
+
+field = 'pending_routes_current_entries', value = None, role = 'destination'
+
+    @pytest.mark.parametrize('field', ['pending_routes_current_entries', 'channel_registry_current_entries', 'stream_registry_current_entries'])
+    @pytest.mark.parametrize('value', [None, 1, False, '0'])
+    @pytest.mark.parametrize('role', ['destination', 'source_final', 'source_cycle'])
+    def test_omitted_fields_missing_nonzero_boolean_or_string_fail(field, value, role):
+        final, source = fixture()
+        target = final if role == 'destination' else source[0 if role == 'source_final' else 1]
+        if value is None:
+            target.pop(field)
+        else:
+            target[field] = value
+>       assert not b3.ownership_cleanup('rust-rust', final, source, source_count=1, cycles=1)['all_zero']
+                   ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'scripts.run_b3_session_lifecycle' has no attribute 'ownership_cleanup'
+
+tests\performance\test_b3_cleanup_gate.py:33: AttributeError
+_ test_omitted_fields_missing_nonzero_boolean_or_string_fail[destination-None-channel_registry_current_entries] _
+
+field = 'channel_registry_current_entries', value = None, role = 'destination'
+
+    @pytest.mark.parametrize('field', ['pending_routes_current_entries', 'channel_registry_current_entries', 'stream_registry_current_entries'])
+    @pytest.mark.parametrize('value', [None, 1, False, '0'])
+    @pytest.mark.parametrize('role', ['destination', 'source_final', 'source_cycle'])
+    def test_omitted_fields_missing_nonzero_boolean_or_string_fail(field, value, role):
+        final, source = fixture()
+        target = final if role == 'destination' else source[0 if role == 'source_final' else 1]
+        if value is None:
+            target.pop(field)
+        else:
+            target[field] = value
+>       assert not b3.ownership_cleanup('rust-rust', final, source, source_count=1, cycles=1)['all_zero']
+                   ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'scripts.run_b3_session_lifecycle' has no attribute 'ownership_cleanup'
+
+tests\performance\test_b3_cleanup_gate.py:33: AttributeError
+_ test_omitted_fields_missing_nonzero_boolean_or_string_fail[destination-None-stream_registry_current_entries] _
+
+field = 'stream_registry_current_entries', value = None, role = 'destination'
+
+    @pytest.mark.parametrize('field', ['pending_routes_current_entries', 'channel_registry_current_entries', 'stream_registry_current_entries'])
+    @pytest.mark.parametrize('value', [None, 1, False, '0'])
+    @pytest.mark.parametrize('role', ['destination', 'source_final', 'source_cycle'])
+    def test_omitted_fields_missing_nonzero_boolean_or_string_fail(field, value, role):
+        final, source = fixture()
+        target = final if role == 'destination' else source[0 if role == 'source_final' else 1]
+        if value is None:
+            target.pop(field)
+        else:
+            target[field] = value
+>       assert not b3.ownership_cleanup('rust-rust', final, source, source_count=1, cycles=1)['all_zero']
+                   ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'scripts.run_b3_session_lifecycle' has no attribute 'ownership_cleanup'
+
+tests\performance\test_b3_cleanup_gate.py:33: AttributeError
+_ test_omitted_fields_missing_nonzero_boolean_or_string_fail[destination-1-pending_routes_current_entries] _
+
+field = 'pending_routes_current_entries', value = 1, role = 'destination'
+
+    @pytest.mark.parametrize('field', ['pending_routes_current_entries', 'channel_registry_current_entries', 'stream_registry_current_entries'])
+    @pytest.mark.parametrize('value', [None, 1, False, '0'])
+    @pytest.mark.parametrize('role', ['destination', 'source_final', 'source_cycle'])
+    def test_omitted_fields_missing_nonzero_boolean_or_string_fail(field, value, role):
+        final, source = fixture()
+        target = final if role == 'destination' else source[0 if role == 'source_final' else 1]
+        if value is None:
+            target.pop(field)
+        else:
+            target[field] = value
+>       assert not b3.ownership_cleanup('rust-rust', final, source, source_count=1, cycles=1)['all_zero']
+                   ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'scripts.run_b3_session_lifecycle' has no attribute 'ownership_cleanup'
+
+tests\performance\test_b3_cleanup_gate.py:33: AttributeError
+_ test_omitted_fields_missing_nonzero_boolean_or_string_fail[destination-1-channel_registry_current_entries] _
+
+field = 'channel_registry_current_entries', value = 1, role = 'destination'
+
+    @pytest.mark.parametrize('field', ['pending_routes_current_entries', 'channel_registry_current_entries', 'stream_registry_current_entries'])
+    @pytest.mark.parametrize('value', [None, 1, False, '0'])
+    @pytest.mark.parametrize('role', ['destination', 'source_final', 'source_cycle'])
+    def test_omitted_fields_missing_nonzero_boolean_or_string_fail(field, value, role):
+        final, source = fixture()
+        target = final if role == 'destination' else source[0 if role == 'source_final' else 1]
+        if value is None:
+            target.pop(field)
+        else:
+            target[field] = value
+>       assert not b3.ownership_cleanup('rust-rust', final, source, source_count=1, cycles=1)['all_zero']
+                   ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'scripts.run_b3_session_lifecycle' has no attribute 'ownership_cleanup'
+
+tests\performance\test_b3_cleanup_gate.py:33: AttributeError
+_ test_omitted_fields_missing_nonzero_boolean_or_string_fail[destination-1-stream_registry_current_entries] _
+
+field = 'stream_registry_current_entries', value = 1, role = 'destination'
+
+    @pytest.mark.parametrize('field', ['pending_routes_current_entries', 'channel_registry_current_entries', 'stream_registry_current_entries'])
+    @pytest.mark.parametrize('value', [None, 1, False, '0'])
+    @pytest.mark.parametrize('role', ['destination', 'source_final', 'source_cycle'])
+    def test_omitted_fields_missing_nonzero_boolean_or_string_fail(field, value, role):
+        final, source = fixture()
+        target = final if role == 'destination' else source[0 if role == 'source_final' else 1]
+        if value is None:
+            target.pop(field)
+        else:
+            target[field] = value
+>       assert not b3.ownership_cleanup('rust-rust', final, source, source_count=1, cycles=1)['all_zero']
+                   ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'scripts.run_b3_session_lifecycle' has no attribute 'ownership_cleanup'
+
+tests\performance\test_b3_cleanup_gate.py:33: AttributeError
+_ test_omitted_fields_missing_nonzero_boolean_or_string_fail[destination-False-pending_routes_current_entries] _
+
+field = 'pending_routes_current_entries', value = False, role = 'destination'
+
+    @pytest.mark.parametrize('field', ['pending_routes_current_entries', 'channel_registry_current_entries', 'stream_registry_current_entries'])
+    @pytest.mark.parametrize('value', [None, 1, False, '0'])
+    @pytest.mark.parametrize('role', ['destination', 'source_final', 'source_cycle'])
+    def test_omitted_fields_missing_nonzero_boolean_or_string_fail(field, value, role):
+        final, source = fixture()
+        target = final if role == 'destination' else source[0 if role == 'source_final' else 1]
+        if value is None:
+            target.pop(field)
+        else:
+            target[field] = value
+>       assert not b3.ownership_cleanup('rust-rust', final, source, source_count=1, cycles=1)['all_zero']
+                   ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'scripts.run_b3_session_lifecycle' has no attribute 'ownership_cleanup'
+
+tests\performance\test_b3_cleanup_gate.py:33: AttributeError
+_ test_omitted_fields_missing_nonzero_boolean_or_string_fail[destination-False-channel_registry_current_entries] _
+
+field = 'channel_registry_current_entries', value = False, role = 'destination'
+
+    @pytest.mark.parametrize('field', ['pending_routes_current_entries', 'channel_registry_current_entries', 'stream_registry_current_entries'])
+    @pytest.mark.parametrize('value', [None, 1, False, '0'])
+    @pytest.mark.parametrize('role', ['destination', 'source_final', 'source_cycle'])
+    def test_omitted_fields_missing_nonzero_boolean_or_string_fail(field, value, role):
+        final, source = fixture()
+        target = final if role == 'destination' else source[0 if role == 'source_final' else 1]
+        if value is None:
+            target.pop(field)
+        else:
+            target[field] = value
+>       assert not b3.ownership_cleanup('rust-rust', final, source, source_count=1, cycles=1)['all_zero']
+                   ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'scripts.run_b3_session_lifecycle' has no attribute 'ownership_cleanup'
+
+tests\performance\test_b3_cleanup_gate.py:33: AttributeError
+_ test_omitted_fields_missing_nonzero_boolean_or_string_fail[destination-False-stream_registry_current_entries] _
+
+field = 'stream_registry_current_entries', value = False, role = 'destination'
+
+    @pytest.mark.parametrize('field', ['pending_routes_current_entries', 'channel_registry_current_entries', 'stream_registry_current_entries'])
+    @pytest.mark.parametrize('value', [None, 1, False, '0'])
+    @pytest.mark.parametrize('role', ['destination', 'source_final', 'source_cycle'])
+    def test_omitted_fields_missing_nonzero_boolean_or_string_fail(field, value, role):
+        final, source = fixture()
+        target = final if role == 'destination' else source[0 if role == 'source_final' else 1]
+        if value is None:
+            target.pop(field)
+        else:
+            target[field] = value
+>       assert not b3.ownership_cleanup('rust-rust', final, source, source_count=1, cycles=1)['all_zero']
+                   ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'scripts.run_b3_session_lifecycle' has no attribute 'ownership_cleanup'
+
+tests\performance\test_b3_cleanup_gate.py:33: AttributeError
+_ test_omitted_fields_missing_nonzero_boolean_or_string_fail[destination-0-pending_routes_current_entries] _
+
+field = 'pending_routes_current_entries', value = '0', role = 'destination'
+
+    @pytest.mark.parametrize('field', ['pending_routes_current_entries', 'channel_registry_current_entries', 'stream_registry_current_entries'])
+    @pytest.mark.parametrize('value', [None, 1, False, '0'])
+    @pytest.mark.parametrize('role', ['destination', 'source_final', 'source_cycle'])
+    def test_omitted_fields_missing_nonzero_boolean_or_string_fail(field, value, role):
+        final, source = fixture()
+        target = final if role == 'destination' else source[0 if role == 'source_final' else 1]
+        if value is None:
+            target.pop(field)
+        else:
+            target[field] = value
+>       assert not b3.ownership_cleanup('rust-rust', final, source, source_count=1, cycles=1)['all_zero']
+                   ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'scripts.run_b3_session_lifecycle' has no attribute 'ownership_cleanup'
+
+tests\performance\test_b3_cleanup_gate.py:33: AttributeError
+_ test_omitted_fields_missing_nonzero_boolean_or_string_fail[destination-0-channel_registry_current_entries] _
+
+field = 'channel_registry_current_entries', value = '0', role = 'destination'
+
+    @pytest.mark.parametrize('field', ['pending_routes_current_entries', 'channel_registry_current_entries', 'stream_registry_current_entries'])
+    @pytest.mark.parametrize('value', [None, 1, False, '0'])
+    @pytest.mark.parametrize('role', ['destination', 'source_final', 'source_cycle'])
+    def test_omitted_fields_missing_nonzero_boolean_or_string_fail(field, value, role):
+        final, source = fixture()
+        target = final if role == 'destination' else source[0 if role == 'source_final' else 1]
+        if value is None:
+            target.pop(field)
+        else:
+            target[field] = value
+>       assert not b3.ownership_cleanup('rust-rust', final, source, source_count=1, cycles=1)['all_zero']
+                   ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'scripts.run_b3_session_lifecycle' has no attribute 'ownership_cleanup'
+
+tests\performance\test_b3_cleanup_gate.py:33: AttributeError
+_ test_omitted_fields_missing_nonzero_boolean_or_string_fail[destination-0-stream_registry_current_entries] _
+
+field = 'stream_registry_current_entries', value = '0', role = 'destination'
+
+    @pytest.mark.parametrize('field', ['pending_routes_current_entries', 'channel_registry_current_entries', 'stream_registry_current_entries'])
+    @pytest.mark.parametrize('value', [None, 1, False, '0'])
+    @pytest.mark.parametrize('role', ['destination', 'source_final', 'source_cycle'])
+    def test_omitted_fields_missing_nonzero_boolean_or_string_fail(field, value, role):
+        final, source = fixture()
+        target = final if role == 'destination' else source[0 if role == 'source_final' else 1]
+        if value is None:
+            target.pop(field)
+        else:
+            target[field] = value
+>       assert not b3.ownership_cleanup('rust-rust', final, source, source_count=1, cycles=1)['all_zero']
+                   ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'scripts.run_b3_session_lifecycle' has no attribute 'ownership_cleanup'
+
+tests\performance\test_b3_cleanup_gate.py:33: AttributeError
+_ test_omitted_fields_missing_nonzero_boolean_or_string_fail[source_final-None-pending_routes_current_entries] _
+
+field = 'pending_routes_current_entries', value = None, role = 'source_final'
+
+    @pytest.mark.parametrize('field', ['pending_routes_current_entries', 'channel_registry_current_entries', 'stream_registry_current_entries'])
+    @pytest.mark.parametrize('value', [None, 1, False, '0'])
+    @pytest.mark.parametrize('role', ['destination', 'source_final', 'source_cycle'])
+    def test_omitted_fields_missing_nonzero_boolean_or_string_fail(field, value, role):
+        final, source = fixture()
+        target = final if role == 'destination' else source[0 if role == 'source_final' else 1]
+        if value is None:
+            target.pop(field)
+        else:
+            target[field] = value
+>       assert not b3.ownership_cleanup('rust-rust', final, source, source_count=1, cycles=1)['all_zero']
+                   ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'scripts.run_b3_session_lifecycle' has no attribute 'ownership_cleanup'
+
+tests\performance\test_b3_cleanup_gate.py:33: AttributeError
+_ test_omitted_fields_missing_nonzero_boolean_or_string_fail[source_final-None-channel_registry_current_entries] _
+
+field = 'channel_registry_current_entries', value = None, role = 'source_final'
+
+    @pytest.mark.parametrize('field', ['pending_routes_current_entries', 'channel_registry_current_entries', 'stream_registry_current_entries'])
+    @pytest.mark.parametrize('value', [None, 1, False, '0'])
+    @pytest.mark.parametrize('role', ['destination', 'source_final', 'source_cycle'])
+    def test_omitted_fields_missing_nonzero_boolean_or_string_fail(field, value, role):
+        final, source = fixture()
+        target = final if role == 'destination' else source[0 if role == 'source_final' else 1]
+        if value is None:
+            target.pop(field)
+        else:
+            target[field] = value
+>       assert not b3.ownership_cleanup('rust-rust', final, source, source_count=1, cycles=1)['all_zero']
+                   ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'scripts.run_b3_session_lifecycle' has no attribute 'ownership_cleanup'
+
+tests\performance\test_b3_cleanup_gate.py:33: AttributeError
+_ test_omitted_fields_missing_nonzero_boolean_or_string_fail[source_final-None-stream_registry_current_entries] _
+
+field = 'stream_registry_current_entries', value = None, role = 'source_final'
+
+    @pytest.mark.parametrize('field', ['pending_routes_current_entries', 'channel_registry_current_entries', 'stream_registry_current_entries'])
+    @pytest.mark.parametrize('value', [None, 1, False, '0'])
+    @pytest.mark.parametrize('role', ['destination', 'source_final', 'source_cycle'])
+    def test_omitted_fields_missing_nonzero_boolean_or_string_fail(field, value, role):
+        final, source = fixture()
+        target = final if role == 'destination' else source[0 if role == 'source_final' else 1]
+        if value is None:
+            target.pop(field)
+        else:
+            target[field] = value
+>       assert not b3.ownership_cleanup('rust-rust', final, source, source_count=1, cycles=1)['all_zero']
+                   ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'scripts.run_b3_session_lifecycle' has no attribute 'ownership_cleanup'
+
+tests\performance\test_b3_cleanup_gate.py:33: AttributeError
+_ test_omitted_fields_missing_nonzero_boolean_or_string_fail[source_final-1-pending_routes_current_entries] _
+
+field = 'pending_routes_current_entries', value = 1, role = 'source_final'
+
+    @pytest.mark.parametrize('field', ['pending_routes_current_entries', 'channel_registry_current_entries', 'stream_registry_current_entries'])
+    @pytest.mark.parametrize('value', [None, 1, False, '0'])
+    @pytest.mark.parametrize('role', ['destination', 'source_final', 'source_cycle'])
+    def test_omitted_fields_missing_nonzero_boolean_or_string_fail(field, value, role):
+        final, source = fixture()
+        target = final if role == 'destination' else source[0 if role == 'source_final' else 1]
+        if value is None:
+            target.pop(field)
+        else:
+            target[field] = value
+>       assert not b3.ownership_cleanup('rust-rust', final, source, source_count=1, cycles=1)['all_zero']
+                   ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'scripts.run_b3_session_lifecycle' has no attribute 'ownership_cleanup'
+
+tests\performance\test_b3_cleanup_gate.py:33: AttributeError
+_ test_omitted_fields_missing_nonzero_boolean_or_string_fail[source_final-1-channel_registry_current_entries] _
+
+field = 'channel_registry_current_entries', value = 1, role = 'source_final'
+
+    @pytest.mark.parametrize('field', ['pending_routes_current_entries', 'channel_registry_current_entries', 'stream_registry_current_entries'])
+    @pytest.mark.parametrize('value', [None, 1, False, '0'])
+    @pytest.mark.parametrize('role', ['destination', 'source_final', 'source_cycle'])
+    def test_omitted_fields_missing_nonzero_boolean_or_string_fail(field, value, role):
+        final, source = fixture()
+        target = final if role == 'destination' else source[0 if role == 'source_final' else 1]
+        if value is None:
+            target.pop(field)
+        else:
+            target[field] = value
+>       assert not b3.ownership_cleanup('rust-rust', final, source, source_count=1, cycles=1)['all_zero']
+                   ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'scripts.run_b3_session_lifecycle' has no attribute 'ownership_cleanup'
+
+tests\performance\test_b3_cleanup_gate.py:33: AttributeError
+_ test_omitted_fields_missing_nonzero_boolean_or_string_fail[source_final-1-stream_registry_current_entries] _
+
+field = 'stream_registry_current_entries', value = 1, role = 'source_final'
+
+    @pytest.mark.parametrize('field', ['pending_routes_current_entries', 'channel_registry_current_entries', 'stream_registry_current_entries'])
+    @pytest.mark.parametrize('value', [None, 1, False, '0'])
+    @pytest.mark.parametrize('role', ['destination', 'source_final', 'source_cycle'])
+    def test_omitted_fields_missing_nonzero_boolean_or_string_fail(field, value, role):
+        final, source = fixture()
+        target = final if role == 'destination' else source[0 if role == 'source_final' else 1]
+        if value is None:
+            target.pop(field)
+        else:
+            target[field] = value
+>       assert not b3.ownership_cleanup('rust-rust', final, source, source_count=1, cycles=1)['all_zero']
+                   ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'scripts.run_b3_session_lifecycle' has no attribute 'ownership_cleanup'
+
+tests\performance\test_b3_cleanup_gate.py:33: AttributeError
+_ test_omitted_fields_missing_nonzero_boolean_or_string_fail[source_final-False-pending_routes_current_entries] _
+
+field = 'pending_routes_current_entries', value = False, role = 'source_final'
+
+    @pytest.mark.parametrize('field', ['pending_routes_current_entries', 'channel_registry_current_entries', 'stream_registry_current_entries'])
+    @pytest.mark.parametrize('value', [None, 1, False, '0'])
+    @pytest.mark.parametrize('role', ['destination', 'source_final', 'source_cycle'])
+    def test_omitted_fields_missing_nonzero_boolean_or_string_fail(field, value, role):
+        final, source = fixture()
+        target = final if role == 'destination' else source[0 if role == 'source_final' else 1]
+        if value is None:
+            target.pop(field)
+        else:
+            target[field] = value
+>       assert not b3.ownership_cleanup('rust-rust', final, source, source_count=1, cycles=1)['all_zero']
+                   ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'scripts.run_b3_session_lifecycle' has no attribute 'ownership_cleanup'
+
+tests\performance\test_b3_cleanup_gate.py:33: AttributeError
+_ test_omitted_fields_missing_nonzero_boolean_or_string_fail[source_final-False-channel_registry_current_entries] _
+
+field = 'channel_registry_current_entries', value = False, role = 'source_final'
+
+    @pytest.mark.parametrize('field', ['pending_routes_current_entries', 'channel_registry_current_entries', 'stream_registry_current_entries'])
+    @pytest.mark.parametrize('value', [None, 1, False, '0'])
+    @pytest.mark.parametrize('role', ['destination', 'source_final', 'source_cycle'])
+    def test_omitted_fields_missing_nonzero_boolean_or_string_fail(field, value, role):
+        final, source = fixture()
+        target = final if role == 'destination' else source[0 if role == 'source_final' else 1]
+        if value is None:
+            target.pop(field)
+        else:
+            target[field] = value
+>       assert not b3.ownership_cleanup('rust-rust', final, source, source_count=1, cycles=1)['all_zero']
+                   ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'scripts.run_b3_session_lifecycle' has no attribute 'ownership_cleanup'
+
+tests\performance\test_b3_cleanup_gate.py:33: AttributeError
+_ test_omitted_fields_missing_nonzero_boolean_or_string_fail[source_final-False-stream_registry_current_entries] _
+
+field = 'stream_registry_current_entries', value = False, role = 'source_final'
+
+    @pytest.mark.parametrize('field', ['pending_routes_current_entries', 'channel_registry_current_entries', 'stream_registry_current_entries'])
+    @pytest.mark.parametrize('value', [None, 1, False, '0'])
+    @pytest.mark.parametrize('role', ['destination', 'source_final', 'source_cycle'])
+    def test_omitted_fields_missing_nonzero_boolean_or_string_fail(field, value, role):
+        final, source = fixture()
+        target = final if role == 'destination' else source[0 if role == 'source_final' else 1]
+        if value is None:
+            target.pop(field)
+        else:
+            target[field] = value
+>       assert not b3.ownership_cleanup('rust-rust', final, source, source_count=1, cycles=1)['all_zero']
+                   ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'scripts.run_b3_session_lifecycle' has no attribute 'ownership_cleanup'
+
+tests\performance\test_b3_cleanup_gate.py:33: AttributeError
+_ test_omitted_fields_missing_nonzero_boolean_or_string_fail[source_final-0-pending_routes_current_entries] _
+
+field = 'pending_routes_current_entries', value = '0', role = 'source_final'
+
+    @pytest.mark.parametrize('field', ['pending_routes_current_entries', 'channel_registry_current_entries', 'stream_registry_current_entries'])
+    @pytest.mark.parametrize('value', [None, 1, False, '0'])
+    @pytest.mark.parametrize('role', ['destination', 'source_final', 'source_cycle'])
+    def test_omitted_fields_missing_nonzero_boolean_or_string_fail(field, value, role):
+        final, source = fixture()
+        target = final if role == 'destination' else source[0 if role == 'source_final' else 1]
+        if value is None:
+            target.pop(field)
+        else:
+            target[field] = value
+>       assert not b3.ownership_cleanup('rust-rust', final, source, source_count=1, cycles=1)['all_zero']
+                   ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'scripts.run_b3_session_lifecycle' has no attribute 'ownership_cleanup'
+
+tests\performance\test_b3_cleanup_gate.py:33: AttributeError
+_ test_omitted_fields_missing_nonzero_boolean_or_string_fail[source_final-0-channel_registry_current_entries] _
+
+field = 'channel_registry_current_entries', value = '0', role = 'source_final'
+
+    @pytest.mark.parametrize('field', ['pending_routes_current_entries', 'channel_registry_current_entries', 'stream_registry_current_entries'])
+    @pytest.mark.parametrize('value', [None, 1, False, '0'])
+    @pytest.mark.parametrize('role', ['destination', 'source_final', 'source_cycle'])
+    def test_omitted_fields_missing_nonzero_boolean_or_string_fail(field, value, role):
+        final, source = fixture()
+        target = final if role == 'destination' else source[0 if role == 'source_final' else 1]
+        if value is None:
+            target.pop(field)
+        else:
+            target[field] = value
+>       assert not b3.ownership_cleanup('rust-rust', final, source, source_count=1, cycles=1)['all_zero']
+                   ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'scripts.run_b3_session_lifecycle' has no attribute 'ownership_cleanup'
+
+tests\performance\test_b3_cleanup_gate.py:33: AttributeError
+_ test_omitted_fields_missing_nonzero_boolean_or_string_fail[source_final-0-stream_registry_current_entries] _
+
+field = 'stream_registry_current_entries', value = '0', role = 'source_final'
+
+    @pytest.mark.parametrize('field', ['pending_routes_current_entries', 'channel_registry_current_entries', 'stream_registry_current_entries'])
+    @pytest.mark.parametrize('value', [None, 1, False, '0'])
+    @pytest.mark.parametrize('role', ['destination', 'source_final', 'source_cycle'])
+    def test_omitted_fields_missing_nonzero_boolean_or_string_fail(field, value, role):
+        final, source = fixture()
+        target = final if role == 'destination' else source[0 if role == 'source_final' else 1]
+        if value is None:
+            target.pop(field)
+        else:
+            target[field] = value
+>       assert not b3.ownership_cleanup('rust-rust', final, source, source_count=1, cycles=1)['all_zero']
+                   ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'scripts.run_b3_session_lifecycle' has no attribute 'ownership_cleanup'
+
+tests\performance\test_b3_cleanup_gate.py:33: AttributeError
+_ test_omitted_fields_missing_nonzero_boolean_or_string_fail[source_cycle-None-pending_routes_current_entries] _
+
+field = 'pending_routes_current_entries', value = None, role = 'source_cycle'
+
+    @pytest.mark.parametrize('field', ['pending_routes_current_entries', 'channel_registry_current_entries', 'stream_registry_current_entries'])
+    @pytest.mark.parametrize('value', [None, 1, False, '0'])
+    @pytest.mark.parametrize('role', ['destination', 'source_final', 'source_cycle'])
+    def test_omitted_fields_missing_nonzero_boolean_or_string_fail(field, value, role):
+        final, source = fixture()
+        target = final if role == 'destination' else source[0 if role == 'source_final' else 1]
+        if value is None:
+            target.pop(field)
+        else:
+            target[field] = value
+>       assert not b3.ownership_cleanup('rust-rust', final, source, source_count=1, cycles=1)['all_zero']
+                   ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'scripts.run_b3_session_lifecycle' has no attribute 'ownership_cleanup'
+
+tests\performance\test_b3_cleanup_gate.py:33: AttributeError
+_ test_omitted_fields_missing_nonzero_boolean_or_string_fail[source_cycle-None-channel_registry_current_entries] _
+
+field = 'channel_registry_current_entries', value = None, role = 'source_cycle'
+
+    @pytest.mark.parametrize('field', ['pending_routes_current_entries', 'channel_registry_current_entries', 'stream_registry_current_entries'])
+    @pytest.mark.parametrize('value', [None, 1, False, '0'])
+    @pytest.mark.parametrize('role', ['destination', 'source_final', 'source_cycle'])
+    def test_omitted_fields_missing_nonzero_boolean_or_string_fail(field, value, role):
+        final, source = fixture()
+        target = final if role == 'destination' else source[0 if role == 'source_final' else 1]
+        if value is None:
+            target.pop(field)
+        else:
+            target[field] = value
+>       assert not b3.ownership_cleanup('rust-rust', final, source, source_count=1, cycles=1)['all_zero']
+                   ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'scripts.run_b3_session_lifecycle' has no attribute 'ownership_cleanup'
+
+tests\performance\test_b3_cleanup_gate.py:33: AttributeError
+_ test_omitted_fields_missing_nonzero_boolean_or_string_fail[source_cycle-None-stream_registry_current_entries] _
+
+field = 'stream_registry_current_entries', value = None, role = 'source_cycle'
+
+    @pytest.mark.parametrize('field', ['pending_routes_current_entries', 'channel_registry_current_entries', 'stream_registry_current_entries'])
+    @pytest.mark.parametrize('value', [None, 1, False, '0'])
+    @pytest.mark.parametrize('role', ['destination', 'source_final', 'source_cycle'])
+    def test_omitted_fields_missing_nonzero_boolean_or_string_fail(field, value, role):
+        final, source = fixture()
+        target = final if role == 'destination' else source[0 if role == 'source_final' else 1]
+        if value is None:
+            target.pop(field)
+        else:
+            target[field] = value
+>       assert not b3.ownership_cleanup('rust-rust', final, source, source_count=1, cycles=1)['all_zero']
+                   ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'scripts.run_b3_session_lifecycle' has no attribute 'ownership_cleanup'
+
+tests\performance\test_b3_cleanup_gate.py:33: AttributeError
+_ test_omitted_fields_missing_nonzero_boolean_or_string_fail[source_cycle-1-pending_routes_current_entries] _
+
+field = 'pending_routes_current_entries', value = 1, role = 'source_cycle'
+
+    @pytest.mark.parametrize('field', ['pending_routes_current_entries', 'channel_registry_current_entries', 'stream_registry_current_entries'])
+    @pytest.mark.parametrize('value', [None, 1, False, '0'])
+    @pytest.mark.parametrize('role', ['destination', 'source_final', 'source_cycle'])
+    def test_omitted_fields_missing_nonzero_boolean_or_string_fail(field, value, role):
+        final, source = fixture()
+        target = final if role == 'destination' else source[0 if role == 'source_final' else 1]
+        if value is None:
+            target.pop(field)
+        else:
+            target[field] = value
+>       assert not b3.ownership_cleanup('rust-rust', final, source, source_count=1, cycles=1)['all_zero']
+                   ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'scripts.run_b3_session_lifecycle' has no attribute 'ownership_cleanup'
+
+tests\performance\test_b3_cleanup_gate.py:33: AttributeError
+_ test_omitted_fields_missing_nonzero_boolean_or_string_fail[source_cycle-1-channel_registry_current_entries] _
+
+field = 'channel_registry_current_entries', value = 1, role = 'source_cycle'
+
+    @pytest.mark.parametrize('field', ['pending_routes_current_entries', 'channel_registry_current_entries', 'stream_registry_current_entries'])
+    @pytest.mark.parametrize('value', [None, 1, False, '0'])
+    @pytest.mark.parametrize('role', ['destination', 'source_final', 'source_cycle'])
+    def test_omitted_fields_missing_nonzero_boolean_or_string_fail(field, value, role):
+        final, source = fixture()
+        target = final if role == 'destination' else source[0 if role == 'source_final' else 1]
+        if value is None:
+            target.pop(field)
+        else:
+            target[field] = value
+>       assert not b3.ownership_cleanup('rust-rust', final, source, source_count=1, cycles=1)['all_zero']
+                   ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'scripts.run_b3_session_lifecycle' has no attribute 'ownership_cleanup'
+
+tests\performance\test_b3_cleanup_gate.py:33: AttributeError
+_ test_omitted_fields_missing_nonzero_boolean_or_string_fail[source_cycle-1-stream_registry_current_entries] _
+
+field = 'stream_registry_current_entries', value = 1, role = 'source_cycle'
+
+    @pytest.mark.parametrize('field', ['pending_routes_current_entries', 'channel_registry_current_entries', 'stream_registry_current_entries'])
+    @pytest.mark.parametrize('value', [None, 1, False, '0'])
+    @pytest.mark.parametrize('role', ['destination', 'source_final', 'source_cycle'])
+    def test_omitted_fields_missing_nonzero_boolean_or_string_fail(field, value, role):
+        final, source = fixture()
+        target = final if role == 'destination' else source[0 if role == 'source_final' else 1]
+        if value is None:
+            target.pop(field)
+        else:
+            target[field] = value
+>       assert not b3.ownership_cleanup('rust-rust', final, source, source_count=1, cycles=1)['all_zero']
+                   ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'scripts.run_b3_session_lifecycle' has no attribute 'ownership_cleanup'
+
+tests\performance\test_b3_cleanup_gate.py:33: AttributeError
+_ test_omitted_fields_missing_nonzero_boolean_or_string_fail[source_cycle-False-pending_routes_current_entries] _
+
+field = 'pending_routes_current_entries', value = False, role = 'source_cycle'
+
+    @pytest.mark.parametrize('field', ['pending_routes_current_entries', 'channel_registry_current_entries', 'stream_registry_current_entries'])
+    @pytest.mark.parametrize('value', [None, 1, False, '0'])
+    @pytest.mark.parametrize('role', ['destination', 'source_final', 'source_cycle'])
+    def test_omitted_fields_missing_nonzero_boolean_or_string_fail(field, value, role):
+        final, source = fixture()
+        target = final if role == 'destination' else source[0 if role == 'source_final' else 1]
+        if value is None:
+            target.pop(field)
+        else:
+            target[field] = value
+>       assert not b3.ownership_cleanup('rust-rust', final, source, source_count=1, cycles=1)['all_zero']
+                   ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'scripts.run_b3_session_lifecycle' has no attribute 'ownership_cleanup'
+
+tests\performance\test_b3_cleanup_gate.py:33: AttributeError
+_ test_omitted_fields_missing_nonzero_boolean_or_string_fail[source_cycle-False-channel_registry_current_entries] _
+
+field = 'channel_registry_current_entries', value = False, role = 'source_cycle'
+
+    @pytest.mark.parametrize('field', ['pending_routes_current_entries', 'channel_registry_current_entries', 'stream_registry_current_entries'])
+    @pytest.mark.parametrize('value', [None, 1, False, '0'])
+    @pytest.mark.parametrize('role', ['destination', 'source_final', 'source_cycle'])
+    def test_omitted_fields_missing_nonzero_boolean_or_string_fail(field, value, role):
+        final, source = fixture()
+        target = final if role == 'destination' else source[0 if role == 'source_final' else 1]
+        if value is None:
+            target.pop(field)
+        else:
+            target[field] = value
+>       assert not b3.ownership_cleanup('rust-rust', final, source, source_count=1, cycles=1)['all_zero']
+                   ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'scripts.run_b3_session_lifecycle' has no attribute 'ownership_cleanup'
+
+tests\performance\test_b3_cleanup_gate.py:33: AttributeError
+_ test_omitted_fields_missing_nonzero_boolean_or_string_fail[source_cycle-False-stream_registry_current_entries] _
+
+field = 'stream_registry_current_entries', value = False, role = 'source_cycle'
+
+    @pytest.mark.parametrize('field', ['pending_routes_current_entries', 'channel_registry_current_entries', 'stream_registry_current_entries'])
+    @pytest.mark.parametrize('value', [None, 1, False, '0'])
+    @pytest.mark.parametrize('role', ['destination', 'source_final', 'source_cycle'])
+    def test_omitted_fields_missing_nonzero_boolean_or_string_fail(field, value, role):
+        final, source = fixture()
+        target = final if role == 'destination' else source[0 if role == 'source_final' else 1]
+        if value is None:
+            target.pop(field)
+        else:
+            target[field] = value
+>       assert not b3.ownership_cleanup('rust-rust', final, source, source_count=1, cycles=1)['all_zero']
+                   ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'scripts.run_b3_session_lifecycle' has no attribute 'ownership_cleanup'
+
+tests\performance\test_b3_cleanup_gate.py:33: AttributeError
+_ test_omitted_fields_missing_nonzero_boolean_or_string_fail[source_cycle-0-pending_routes_current_entries] _
+
+field = 'pending_routes_current_entries', value = '0', role = 'source_cycle'
+
+    @pytest.mark.parametrize('field', ['pending_routes_current_entries', 'channel_registry_current_entries', 'stream_registry_current_entries'])
+    @pytest.mark.parametrize('value', [None, 1, False, '0'])
+    @pytest.mark.parametrize('role', ['destination', 'source_final', 'source_cycle'])
+    def test_omitted_fields_missing_nonzero_boolean_or_string_fail(field, value, role):
+        final, source = fixture()
+        target = final if role == 'destination' else source[0 if role == 'source_final' else 1]
+        if value is None:
+            target.pop(field)
+        else:
+            target[field] = value
+>       assert not b3.ownership_cleanup('rust-rust', final, source, source_count=1, cycles=1)['all_zero']
+                   ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'scripts.run_b3_session_lifecycle' has no attribute 'ownership_cleanup'
+
+tests\performance\test_b3_cleanup_gate.py:33: AttributeError
+_ test_omitted_fields_missing_nonzero_boolean_or_string_fail[source_cycle-0-channel_registry_current_entries] _
+
+field = 'channel_registry_current_entries', value = '0', role = 'source_cycle'
+
+    @pytest.mark.parametrize('field', ['pending_routes_current_entries', 'channel_registry_current_entries', 'stream_registry_current_entries'])
+    @pytest.mark.parametrize('value', [None, 1, False, '0'])
+    @pytest.mark.parametrize('role', ['destination', 'source_final', 'source_cycle'])
+    def test_omitted_fields_missing_nonzero_boolean_or_string_fail(field, value, role):
+        final, source = fixture()
+        target = final if role == 'destination' else source[0 if role == 'source_final' else 1]
+        if value is None:
+            target.pop(field)
+        else:
+            target[field] = value
+>       assert not b3.ownership_cleanup('rust-rust', final, source, source_count=1, cycles=1)['all_zero']
+                   ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'scripts.run_b3_session_lifecycle' has no attribute 'ownership_cleanup'
+
+tests\performance\test_b3_cleanup_gate.py:33: AttributeError
+_ test_omitted_fields_missing_nonzero_boolean_or_string_fail[source_cycle-0-stream_registry_current_entries] _
+
+field = 'stream_registry_current_entries', value = '0', role = 'source_cycle'
+
+    @pytest.mark.parametrize('field', ['pending_routes_current_entries', 'channel_registry_current_entries', 'stream_registry_current_entries'])
+    @pytest.mark.parametrize('value', [None, 1, False, '0'])
+    @pytest.mark.parametrize('role', ['destination', 'source_final', 'source_cycle'])
+    def test_omitted_fields_missing_nonzero_boolean_or_string_fail(field, value, role):
+        final, source = fixture()
+        target = final if role == 'destination' else source[0 if role == 'source_final' else 1]
+        if value is None:
+            target.pop(field)
+        else:
+            target[field] = value
+>       assert not b3.ownership_cleanup('rust-rust', final, source, source_count=1, cycles=1)['all_zero']
+                   ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'scripts.run_b3_session_lifecycle' has no attribute 'ownership_cleanup'
+
+tests\performance\test_b3_cleanup_gate.py:33: AttributeError
+___________________ test_exact_report_counts[final_missing] ___________________
+
+which = 'final_missing'
+
+    @pytest.mark.parametrize('which', ['final_missing', 'final_duplicate', 'cycle_missing', 'cycle_duplicate'])
+    def test_exact_report_counts(which):
+        final, source = fixture()
+        if which.endswith('missing'):
+            source.pop(0 if which.startswith('final') else 1)
+        else:
+            source.append(deepcopy(source[0 if which.startswith('final') else 1]))
+>       assert not b3.ownership_cleanup('rust-rust', final, source, source_count=1, cycles=1)['all_zero']
+                   ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'scripts.run_b3_session_lifecycle' has no attribute 'ownership_cleanup'
+
+tests\performance\test_b3_cleanup_gate.py:43: AttributeError
+__________________ test_exact_report_counts[final_duplicate] __________________
+
+which = 'final_duplicate'
+
+    @pytest.mark.parametrize('which', ['final_missing', 'final_duplicate', 'cycle_missing', 'cycle_duplicate'])
+    def test_exact_report_counts(which):
+        final, source = fixture()
+        if which.endswith('missing'):
+            source.pop(0 if which.startswith('final') else 1)
+        else:
+            source.append(deepcopy(source[0 if which.startswith('final') else 1]))
+>       assert not b3.ownership_cleanup('rust-rust', final, source, source_count=1, cycles=1)['all_zero']
+                   ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'scripts.run_b3_session_lifecycle' has no attribute 'ownership_cleanup'
+
+tests\performance\test_b3_cleanup_gate.py:43: AttributeError
+___________________ test_exact_report_counts[cycle_missing] ___________________
+
+which = 'cycle_missing'
+
+    @pytest.mark.parametrize('which', ['final_missing', 'final_duplicate', 'cycle_missing', 'cycle_duplicate'])
+    def test_exact_report_counts(which):
+        final, source = fixture()
+        if which.endswith('missing'):
+            source.pop(0 if which.startswith('final') else 1)
+        else:
+            source.append(deepcopy(source[0 if which.startswith('final') else 1]))
+>       assert not b3.ownership_cleanup('rust-rust', final, source, source_count=1, cycles=1)['all_zero']
+                   ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'scripts.run_b3_session_lifecycle' has no attribute 'ownership_cleanup'
+
+tests\performance\test_b3_cleanup_gate.py:43: AttributeError
+__________________ test_exact_report_counts[cycle_duplicate] __________________
+
+which = 'cycle_duplicate'
+
+    @pytest.mark.parametrize('which', ['final_missing', 'final_duplicate', 'cycle_missing', 'cycle_duplicate'])
+    def test_exact_report_counts(which):
+        final, source = fixture()
+        if which.endswith('missing'):
+            source.pop(0 if which.startswith('final') else 1)
+        else:
+            source.append(deepcopy(source[0 if which.startswith('final') else 1]))
+>       assert not b3.ownership_cleanup('rust-rust', final, source, source_count=1, cycles=1)['all_zero']
+                   ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'scripts.run_b3_session_lifecycle' has no attribute 'ownership_cleanup'
+
+tests\performance\test_b3_cleanup_gate.py:43: AttributeError
+_______________ test_historical_go_scope_remains_explicit_eight _______________
+
+    def test_historical_go_scope_remains_explicit_eight():
+        final = dict.fromkeys(b3.COUNTERS, 0)
+>       value = b3.ownership_cleanup('go-rust', final, [], source_count=1)
+                ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'scripts.run_b3_session_lifecycle' has no attribute 'ownership_cleanup'
+
+tests\performance\test_b3_cleanup_gate.py:48: AttributeError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_b3_cleanup_gate.py::test_rust_cleanup_requires_all_eleven_exact_zero_fields
+FAILED tests/performance/test_b3_cleanup_gate.py::test_omitted_fields_missing_nonzero_boolean_or_string_fail[destination-None-pending_routes_current_entries]
+FAILED tests/performance/test_b3_cleanup_gate.py::test_omitted_fields_missing_nonzero_boolean_or_string_fail[destination-None-channel_registry_current_entries]
+FAILED tests/performance/test_b3_cleanup_gate.py::test_omitted_fields_missing_nonzero_boolean_or_string_fail[destination-None-stream_registry_current_entries]
+FAILED tests/performance/test_b3_cleanup_gate.py::test_omitted_fields_missing_nonzero_boolean_or_string_fail[destination-1-pending_routes_current_entries]
+FAILED tests/performance/test_b3_cleanup_gate.py::test_omitted_fields_missing_nonzero_boolean_or_string_fail[destination-1-channel_registry_current_entries]
+FAILED tests/performance/test_b3_cleanup_gate.py::test_omitted_fields_missing_nonzero_boolean_or_string_fail[destination-1-stream_registry_current_entries]
+FAILED tests/performance/test_b3_cleanup_gate.py::test_omitted_fields_missing_nonzero_boolean_or_string_fail[destination-False-pending_routes_current_entries]
+FAILED tests/performance/test_b3_cleanup_gate.py::test_omitted_fields_missing_nonzero_boolean_or_string_fail[destination-False-channel_registry_current_entries]
+FAILED tests/performance/test_b3_cleanup_gate.py::test_omitted_fields_missing_nonzero_boolean_or_string_fail[destination-False-stream_registry_current_entries]
+FAILED tests/performance/test_b3_cleanup_gate.py::test_omitted_fields_missing_nonzero_boolean_or_string_fail[destination-0-pending_routes_current_entries]
+FAILED tests/performance/test_b3_cleanup_gate.py::test_omitted_fields_missing_nonzero_boolean_or_string_fail[destination-0-channel_registry_current_entries]
+FAILED tests/performance/test_b3_cleanup_gate.py::test_omitted_fields_missing_nonzero_boolean_or_string_fail[destination-0-stream_registry_current_entries]
+FAILED tests/performance/test_b3_cleanup_gate.py::test_omitted_fields_missing_nonzero_boolean_or_string_fail[source_final-None-pending_routes_current_entries]
+FAILED tests/performance/test_b3_cleanup_gate.py::test_omitted_fields_missing_nonzero_boolean_or_string_fail[source_final-None-channel_registry_current_entries]
+FAILED tests/performance/test_b3_cleanup_gate.py::test_omitted_fields_missing_nonzero_boolean_or_string_fail[source_final-None-stream_registry_current_entries]
+FAILED tests/performance/test_b3_cleanup_gate.py::test_omitted_fields_missing_nonzero_boolean_or_string_fail[source_final-1-pending_routes_current_entries]
+FAILED tests/performance/test_b3_cleanup_gate.py::test_omitted_fields_missing_nonzero_boolean_or_string_fail[source_final-1-channel_registry_current_entries]
+FAILED tests/performance/test_b3_cleanup_gate.py::test_omitted_fields_missing_nonzero_boolean_or_string_fail[source_final-1-stream_registry_current_entries]
+FAILED tests/performance/test_b3_cleanup_gate.py::test_omitted_fields_missing_nonzero_boolean_or_string_fail[source_final-False-pending_routes_current_entries]
+FAILED tests/performance/test_b3_cleanup_gate.py::test_omitted_fields_missing_nonzero_boolean_or_string_fail[source_final-False-channel_registry_current_entries]
+FAILED tests/performance/test_b3_cleanup_gate.py::test_omitted_fields_missing_nonzero_boolean_or_string_fail[source_final-False-stream_registry_current_entries]
+FAILED tests/performance/test_b3_cleanup_gate.py::test_omitted_fields_missing_nonzero_boolean_or_string_fail[source_final-0-pending_routes_current_entries]
+FAILED tests/performance/test_b3_cleanup_gate.py::test_omitted_fields_missing_nonzero_boolean_or_string_fail[source_final-0-channel_registry_current_entries]
+FAILED tests/performance/test_b3_cleanup_gate.py::test_omitted_fields_missing_nonzero_boolean_or_string_fail[source_final-0-stream_registry_current_entries]
+FAILED tests/performance/test_b3_cleanup_gate.py::test_omitted_fields_missing_nonzero_boolean_or_string_fail[source_cycle-None-pending_routes_current_entries]
+FAILED tests/performance/test_b3_cleanup_gate.py::test_omitted_fields_missing_nonzero_boolean_or_string_fail[source_cycle-None-channel_registry_current_entries]
+FAILED tests/performance/test_b3_cleanup_gate.py::test_omitted_fields_missing_nonzero_boolean_or_string_fail[source_cycle-None-stream_registry_current_entries]
+FAILED tests/performance/test_b3_cleanup_gate.py::test_omitted_fields_missing_nonzero_boolean_or_string_fail[source_cycle-1-pending_routes_current_entries]
+FAILED tests/performance/test_b3_cleanup_gate.py::test_omitted_fields_missing_nonzero_boolean_or_string_fail[source_cycle-1-channel_registry_current_entries]
+FAILED tests/performance/test_b3_cleanup_gate.py::test_omitted_fields_missing_nonzero_boolean_or_string_fail[source_cycle-1-stream_registry_current_entries]
+FAILED tests/performance/test_b3_cleanup_gate.py::test_omitted_fields_missing_nonzero_boolean_or_string_fail[source_cycle-False-pending_routes_current_entries]
+FAILED tests/performance/test_b3_cleanup_gate.py::test_omitted_fields_missing_nonzero_boolean_or_string_fail[source_cycle-False-channel_registry_current_entries]
+FAILED tests/performance/test_b3_cleanup_gate.py::test_omitted_fields_missing_nonzero_boolean_or_string_fail[source_cycle-False-stream_registry_current_entries]
+FAILED tests/performance/test_b3_cleanup_gate.py::test_omitted_fields_missing_nonzero_boolean_or_string_fail[source_cycle-0-pending_routes_current_entries]
+FAILED tests/performance/test_b3_cleanup_gate.py::test_omitted_fields_missing_nonzero_boolean_or_string_fail[source_cycle-0-channel_registry_current_entries]
+FAILED tests/performance/test_b3_cleanup_gate.py::test_omitted_fields_missing_nonzero_boolean_or_string_fail[source_cycle-0-stream_registry_current_entries]
+FAILED tests/performance/test_b3_cleanup_gate.py::test_exact_report_counts[final_missing]
+FAILED tests/performance/test_b3_cleanup_gate.py::test_exact_report_counts[final_duplicate]
+FAILED tests/performance/test_b3_cleanup_gate.py::test_exact_report_counts[cycle_missing]
+FAILED tests/performance/test_b3_cleanup_gate.py::test_exact_report_counts[cycle_duplicate]
+FAILED tests/performance/test_b3_cleanup_gate.py::test_historical_go_scope_remains_explicit_eight
+42 failed in 1.10s

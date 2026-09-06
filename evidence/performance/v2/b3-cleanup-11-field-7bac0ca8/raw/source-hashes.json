@@ -1,0 +1,6 @@
+{
+  "scripts/run_b3_session_lifecycle.py": "7703ff13fd6c4f8f4cf1837a36ea449a30a6dc495615aa7e21ecf51ed79a4a76",
+  "tests/performance/test_b3_cleanup_gate.py": "11be8d4e876bd40a3693394a9b0e155e7fd87c25fb0d9ff00e2973467b467a39",
+  "docs/benchmarks/B3_CLEANUP_11_FIELD_REPAIR.md": "9259b7d5cb3ac699b35e2bc64e65c5639ffb1ad927ab4af67d5979e978236404",
+  "docs/benchmarks/LINUX_B3_CAPTURE.md": "adb51647f443a51e05c618cb52bc83f882c3c85185025305313126588776e4a0"
+}

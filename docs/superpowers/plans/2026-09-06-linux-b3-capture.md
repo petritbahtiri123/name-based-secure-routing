@@ -32,3 +32,13 @@ Final agent suite69 PASS/1 opt-in liveSKIP; parent independently63 PASS/1 liveSK
 (omitting six unchanged Windows analyzer tests). Ruff and diff checks PASS.
 Docker/runtime compatibility: NOT_RUN; separately coordinated after quiet measurements.
 Canonical evidence: `evidence/performance/v2/linux-b3-capture-dc4de434/`.
+
+## Subsequent raw audit and gate correction
+
+The compatibility raw audit proved the inherited B3 controller actually enforced
+8fields, despite this plan's11field description. Raw records were preserved;
+33retained source/destination/cycle reports independently passed all11fields.
+The separate Rust-only gate repair now uses shared FIELDS, exact integer zeros
+and exact report counts.42literalRED failures ->85focusedGREEN; parent42fresh
+cleanup tests and focused review PASS. Historical Go8field scope stays explicit.
+See `docs/benchmarks/B3_CLEANUP_11_FIELD_REPAIR.md` and its canonical evidence.
