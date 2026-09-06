@@ -1,0 +1,153 @@
+[
+  {
+    "path": "direct",
+    "valid": true,
+    "classification": "DIAGNOSTIC",
+    "scope": "Windows loopback",
+    "final": {
+      "schema": "nbsr-b5-grouped-final-v1",
+      "groups": 4,
+      "payload_bytes": 16384,
+      "streams_per_group": 1,
+      "outstanding_per_stream": 1,
+      "measurement_duration_ns": 10000000000,
+      "drain_duration_ns": 85285600,
+      "offered": 20000,
+      "reserved": 19998,
+      "issued": 19998,
+      "completed": 19998,
+      "missed": 2,
+      "unreserved_current": 0,
+      "group_counters": [
+        {
+          "group_id": 0,
+          "offered": 5000,
+          "reserved": 5000,
+          "issued": 5000,
+          "completed": 5000,
+          "missed": 0,
+          "unreserved_current": 0
+        },
+        {
+          "group_id": 1,
+          "offered": 5000,
+          "reserved": 4999,
+          "issued": 4999,
+          "completed": 4999,
+          "missed": 1,
+          "unreserved_current": 0
+        },
+        {
+          "group_id": 2,
+          "offered": 5000,
+          "reserved": 4999,
+          "issued": 4999,
+          "completed": 4999,
+          "missed": 1,
+          "unreserved_current": 0
+        },
+        {
+          "group_id": 3,
+          "offered": 5000,
+          "reserved": 5000,
+          "issued": 5000,
+          "completed": 5000,
+          "missed": 0,
+          "unreserved_current": 0
+        }
+      ],
+      "max_outstanding_observed": 4,
+      "errors": 0,
+      "timeouts": 0,
+      "collector_overflow_count": 0,
+      "all_groups_joined": true,
+      "source_cleanup": {
+        "status": "NOT_MEASURED"
+      },
+      "evidence_valid": true
+    },
+    "achieved_offered_ratio": 0.9999,
+    "gbps": 0.519802405199115,
+    "qualification": {
+      "steady_windows": 9,
+      "latency_comparison_available": true,
+      "resource_series_available": true,
+      "resource_phase_clock": "first-progress receive time minus elapsed; approximate, excludes earlier samples",
+      "thermal_and_power": "NOT_MEASURED"
+    },
+    "ownership_reports": [],
+    "cleanup_scope": "process joins only; runtime ownership NOT_MEASURED",
+    "internal_failure_thread_join": "NOT_MEASURED",
+    "affinity": [
+      {
+        "requested_mask": 85,
+        "observed_mask": 85,
+        "system_mask": 255,
+        "verified": true
+      },
+      {
+        "requested_mask": 85,
+        "observed_mask": 85,
+        "system_mask": 255,
+        "verified": true
+      },
+      {
+        "requested_mask": 85,
+        "observed_mask": 85,
+        "system_mask": 255,
+        "verified": true
+      },
+      {
+        "requested_mask": 85,
+        "observed_mask": 85,
+        "system_mask": 255,
+        "verified": true
+      },
+      {
+        "requested_mask": 85,
+        "observed_mask": 85,
+        "system_mask": 255,
+        "verified": true
+      }
+    ]
+  },
+  {
+    "path": "nbsr",
+    "valid": false,
+    "classification": "FAIL",
+    "scope": "Windows loopback",
+    "error": "B5 stream failed: live p99 drift",
+    "affinity": [
+      {
+        "requested_mask": 85,
+        "observed_mask": 85,
+        "system_mask": 255,
+        "verified": true
+      },
+      {
+        "requested_mask": 85,
+        "observed_mask": 85,
+        "system_mask": 255,
+        "verified": true
+      },
+      {
+        "requested_mask": 85,
+        "observed_mask": 85,
+        "system_mask": 255,
+        "verified": true
+      },
+      {
+        "requested_mask": 85,
+        "observed_mask": 85,
+        "system_mask": 255,
+        "verified": true
+      },
+      {
+        "requested_mask": 85,
+        "observed_mask": 85,
+        "system_mask": 255,
+        "verified": true
+      }
+    ]
+  }
+]

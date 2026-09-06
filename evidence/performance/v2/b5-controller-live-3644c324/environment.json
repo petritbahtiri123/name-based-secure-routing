@@ -1,0 +1,101 @@
+{
+  "repository_sha": "3644c324a535586e89af72a8c9796e8d58fadf48",
+  "git_status": "",
+  "binary_sha256": {
+    "direct": "409f82055e2d9c05321bdabab6d31a3f89e6efa0710133835e4eb248c78013a3",
+    "nbsr": "7df65d10912dad8f439a6f3a5b1189e16f208b6dcde5333486ed4eba2e0d2b68",
+    "server": "382fd7ae58c8e6ca42ae8f6f12f8630fb8d31568913c3d2fe0112c1b47e0d894"
+  },
+  "topology": {
+    "verified": true,
+    "scope": "physical-core-selected-logical-processors",
+    "physical_cores": 4,
+    "logical_processors": 8,
+    "cores": [
+      {
+        "core_index": 0,
+        "smt": true,
+        "efficiency_class": 0,
+        "logical_mask": 3
+      },
+      {
+        "core_index": 1,
+        "smt": true,
+        "efficiency_class": 0,
+        "logical_mask": 12
+      },
+      {
+        "core_index": 2,
+        "smt": true,
+        "efficiency_class": 0,
+        "logical_mask": 48
+      },
+      {
+        "core_index": 3,
+        "smt": true,
+        "efficiency_class": 0,
+        "logical_mask": 192
+      }
+    ],
+    "affinity_masks": {
+      "1": {
+        "decimal": 1,
+        "hex": "0x1"
+      },
+      "2": {
+        "decimal": 5,
+        "hex": "0x5"
+      },
+      "4": {
+        "decimal": 85,
+        "hex": "0x55"
+      }
+    }
+  },
+  "placement": {
+    "source_mask": 85,
+    "endpoint_masks": [
+      85,
+      85,
+      85,
+      85
+    ],
+    "logical_processors_available": 4
+  },
+  "shape": {
+    "physical_cores": 4,
+    "endpoint_groups": 4,
+    "streams_per_group": 1,
+    "payload_bytes": 16384,
+    "runtime_workers": 1
+  },
+  "mode": "DIAGNOSTIC",
+  "load": {
+    "mode": "DIAGNOSTIC",
+    "rate_numerator": 2000,
+    "rate_denominator": 1
+  },
+  "controller_args": {
+    "output": "C:\\NBSR-build\\b5-controller-live-3644c324",
+    "target": "C:\\NBSR-build\\b4b-task4k",
+    "reference": null,
+    "diagnostic": true,
+    "rate": [
+      2000,
+      1
+    ],
+    "percent": 70,
+    "cores": 4,
+    "groups": 4,
+    "streams": 1,
+    "depth": 1,
+    "payload": 16384,
+    "warmup": 3.0,
+    "duration": 10.0,
+    "progress": 1.0
+  },
+  "platform": "win32",
+  "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+  "source_sha256": "b993edfb9f0a07e5311725624b3f789dc478822a0595b5de487cec93df859e89",
+  "scope": "Windows loopback, shared physical pool; no external-server or thermal qualification"
+}
