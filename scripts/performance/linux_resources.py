@@ -32,7 +32,11 @@ def sample_linux_process(pid, cpus, *, proc_root=Path('/proc'), ticks=None, page
     if int(initial_text.split(' ', 1)[0]) != pid:
         raise RuntimeError('process identity changed')
     initial = parse_proc_stat(initial_text, 1, 1)
-    first = sample_process(pid, cpus, proc_root, ticks, page_size)
+    try:
+        first = sample_process(pid, cpus, proc_root, ticks, page_size)
+    except PermissionError as error:
+        error.add_note('sample_linux_process phase=before_smaps')
+        raise
     if initial['start_ticks'] != first['start_ticks']:
         raise RuntimeError('process identity changed')
     memory, failure = None, None
@@ -41,7 +45,11 @@ def sample_linux_process(pid, cpus, *, proc_root=Path('/proc'), ticks=None, page
             memory = parse_smaps_rollup((base / 'smaps_rollup').read_text())
         except OSError as error:
             failure = error
-    final = sample_process(pid, cpus, proc_root, ticks, page_size)
+    try:
+        final = sample_process(pid, cpus, proc_root, ticks, page_size)
+    except PermissionError as error:
+        error.add_note('sample_linux_process phase=after_smaps')
+        raise
     if final['start_ticks'] != first['start_ticks']:
         raise RuntimeError('process identity changed')
     if final['state'] == 'Z':

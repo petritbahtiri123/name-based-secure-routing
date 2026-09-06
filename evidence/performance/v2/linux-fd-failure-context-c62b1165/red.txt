@@ -1,0 +1,127 @@
+FFFFF                                                                    [100%]
+================================== FAILURES ===================================
+___________ test_live_fd_denial_retains_existing_stat_observations ____________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-959/test_live_fd_denial_retains_ex0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000284B5B02780>
+
+    def test_live_fd_denial_retains_existing_stat_observations(tmp_path, monkeypatch):
+        base = fixture(tmp_path)
+        original = Path.iterdir
+        failure = PermissionError(13, 'FD unavailable', '/proc/123/fd')
+
+        def denied(path):
+            if path == base / 'fd':
+                (base / 'stat').write_text(stat('R', cpu=20))
+                raise failure
+            return original(path)
+
+        monkeypatch.setattr(Path, 'iterdir', denied)
+        with pytest.raises(PermissionError) as caught:
+            sample_process(123, [0], tmp_path, 100, 4096)
+        assert caught.value is failure
+>       note = json.loads(failure.__notes__[0])
+                          ^^^^^^^^^^^^^^^^^
+E       AttributeError: 'PermissionError' object has no attribute '__notes__'. Did you mean: '__ne__'?
+
+tests\performance\test_linux_failure_context.py:27: AttributeError
+__ test_memory_sampler_labels_denied_subphase_without_retry[1-before_smaps] ___
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-959/test_memory_sampler_labels_den0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000284B5B010F0>
+failed_call = 1, phase = 'before_smaps'
+
+    @pytest.mark.parametrize('failed_call,phase', [(1, 'before_smaps'), (2, 'after_smaps')])
+    def test_memory_sampler_labels_denied_subphase_without_retry(tmp_path, monkeypatch, failed_call, phase):
+        base = fixture(tmp_path)
+        (base / 'smaps_rollup').write_text('Rss: 1 kB\nPss: 1 kB\nPrivate_Clean: 0 kB\nPrivate_Dirty: 1 kB\nPrivate_Hugetlb: 0 kB\n')
+        failure = PermissionError(13, 'FD unavailable')
+        calls = []
+
+        def sampled(*args):
+            calls.append(args)
+            if len(calls) == failed_call:
+                raise failure
+            return dict(state='S', start_ticks=99)
+
+        monkeypatch.setattr(linux_resources, 'sample_process', sampled)
+        with pytest.raises(PermissionError) as caught:
+            linux_resources.sample_linux_process(123, [0], proc_root=tmp_path, ticks=100, page_size=4096)
+        assert caught.value is failure
+        assert len(calls) == failed_call
+>       assert f'sample_linux_process phase={phase}' in failure.__notes__
+                                                        ^^^^^^^^^^^^^^^^^
+E       AttributeError: 'PermissionError' object has no attribute '__notes__'. Did you mean: '__ne__'?
+
+tests\performance\test_linux_failure_context.py:54: AttributeError
+___ test_memory_sampler_labels_denied_subphase_without_retry[2-after_smaps] ___
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-959/test_memory_sampler_labels_den1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000284B5C557F0>
+failed_call = 2, phase = 'after_smaps'
+
+    @pytest.mark.parametrize('failed_call,phase', [(1, 'before_smaps'), (2, 'after_smaps')])
+    def test_memory_sampler_labels_denied_subphase_without_retry(tmp_path, monkeypatch, failed_call, phase):
+        base = fixture(tmp_path)
+        (base / 'smaps_rollup').write_text('Rss: 1 kB\nPss: 1 kB\nPrivate_Clean: 0 kB\nPrivate_Dirty: 1 kB\nPrivate_Hugetlb: 0 kB\n')
+        failure = PermissionError(13, 'FD unavailable')
+        calls = []
+
+        def sampled(*args):
+            calls.append(args)
+            if len(calls) == failed_call:
+                raise failure
+            return dict(state='S', start_ticks=99)
+
+        monkeypatch.setattr(linux_resources, 'sample_process', sampled)
+        with pytest.raises(PermissionError) as caught:
+            linux_resources.sample_linux_process(123, [0], proc_root=tmp_path, ticks=100, page_size=4096)
+        assert caught.value is failure
+        assert len(calls) == failed_call
+>       assert f'sample_linux_process phase={phase}' in failure.__notes__
+                                                        ^^^^^^^^^^^^^^^^^
+E       AttributeError: 'PermissionError' object has no attribute '__notes__'. Did you mean: '__ne__'?
+
+tests\performance\test_linux_failure_context.py:54: AttributeError
+_____________ test_failure_metadata_preserves_traceback_and_notes _____________
+
+    def test_failure_metadata_preserves_traceback_and_notes():
+        try:
+            error = PermissionError(13, 'FD unavailable')
+            error.add_note('sample_linux_process phase=after_smaps')
+>           raise error
+E           PermissionError: [Errno 13] FD unavailable
+E           sample_linux_process phase=after_smaps
+
+tests\performance\test_linux_failure_context.py:61: PermissionError
+
+During handling of the above exception, another exception occurred:
+
+    def test_failure_metadata_preserves_traceback_and_notes():
+        try:
+            error = PermissionError(13, 'FD unavailable')
+            error.add_note('sample_linux_process phase=after_smaps')
+            raise error
+        except PermissionError as caught:
+>           value = b4_linux.failure_details(caught)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: module 'scripts.performance.b4_linux' has no attribute 'failure_details'
+
+tests\performance\test_linux_failure_context.py:63: AttributeError
+__________ test_failure_metadata_is_bounded_and_keeps_terminal_notes __________
+
+    def test_failure_metadata_is_bounded_and_keeps_terminal_notes():
+        error = PermissionError('x' * 100_000)
+        error.add_note('terminal observation')
+>       value = b4_linux.failure_details(error)
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'scripts.performance.b4_linux' has no attribute 'failure_details'
+
+tests\performance\test_linux_failure_context.py:74: AttributeError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_linux_failure_context.py::test_live_fd_denial_retains_existing_stat_observations
+FAILED tests/performance/test_linux_failure_context.py::test_memory_sampler_labels_denied_subphase_without_retry[1-before_smaps]
+FAILED tests/performance/test_linux_failure_context.py::test_memory_sampler_labels_denied_subphase_without_retry[2-after_smaps]
+FAILED tests/performance/test_linux_failure_context.py::test_failure_metadata_preserves_traceback_and_notes
+FAILED tests/performance/test_linux_failure_context.py::test_failure_metadata_is_bounded_and_keeps_terminal_notes
+5 failed in 0.59s

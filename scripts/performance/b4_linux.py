@@ -4,8 +4,16 @@ import math
 from pathlib import Path
 import subprocess
 import time
+import traceback
 
 from scripts.performance.linux_resources import sample_linux_process
+
+
+def failure_details(error):
+    """Failure-only bounded traceback; retain terminal exception notes, no locals."""
+    detail = ''.join(traceback.format_exception(error))
+    return {'error_type': type(error).__name__, 'error': str(error)[:4096],
+            'traceback': detail[-65536:], 'traceback_truncated': len(detail) > 65536}
 
 
 def parse_host(stat, meminfo, *, timestamp_ns):

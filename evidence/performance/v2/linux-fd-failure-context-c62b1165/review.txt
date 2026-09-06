@@ -1,0 +1,7 @@
+Independent reviewer /root/review_afd_preflight: no Important findings.
+Reviewed four changed implementation files and five focused cases.
+Existing same-identity Z acceptance and live-denial rejection remain unchanged.
+Notes use only already-read stat fields. Phase labels add no successful reads
+or retries; original PermissionError identity is re-raised. Bounded standard
+tracebacks contain no locals, but paths/messages may appear and remain raw
+diagnostic evidence. No reviewer edits or duplicate tests/builds.

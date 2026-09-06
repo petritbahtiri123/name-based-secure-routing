@@ -1,0 +1,7 @@
+{
+  "root": "C:\\NBSR-build\\linux-fd-context-c62b1165",
+  "artifacts": 11,
+  "index_sha256": "04c34092b46eff1f0c240d8b67675d2f497d5159dcd6fb8f8ced17c9437aa3d9",
+  "base_sha": "c62b116556ee21c1c067e4f08bb9e846595c85a5",
+  "scope": "synthetic failure-context verification; no performance workload rerun"
+}

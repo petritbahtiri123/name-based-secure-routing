@@ -10,7 +10,7 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from scripts import run_b4b_task4i as task4i
 from scripts.performance.b3_linux import environment
-from scripts.performance.b4_linux import LinuxB4Backend
+from scripts.performance.b4_linux import LinuxB4Backend, failure_details
 from scripts.run_b3_v2 import verify_linux_execution
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -73,7 +73,7 @@ def execute(args):
         return result
     except BaseException as error:
         task4i.v2.write_json(args.output / 'failure.json', {'classification': 'INVALID_PARTIAL_LINUX_B4',
-                                  'error_type': type(error).__name__, 'partial_evidence_retained': True})
+                                  **failure_details(error), 'partial_evidence_retained': True})
         raise
     finally:
         task4i.checksums(args.output)

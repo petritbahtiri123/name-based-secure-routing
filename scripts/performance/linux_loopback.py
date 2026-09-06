@@ -137,13 +137,15 @@ def sample_process(pid, cpus, proc_root=Path("/proc"), ticks=None, page_size=Non
     if sample["state"] != "Z":
         try:
             fd_count = len(list((base / "fd").iterdir()))
-        except PermissionError:
+        except PermissionError as error:
             # Linux can deny zombie FD access even to its same-UID parent.
             # Only an unchanged process that has now exited permits omission.
             final = read_stat()
             if final["start_ticks"] != sample["start_ticks"]:
                 raise RuntimeError("process identity changed") from None
             if final["state"] != "Z":
+                error.add_note(json.dumps({"phase": "fd_permission_recheck", "pid": pid,
+                                           "initial_stat": sample, "recheck_stat": final}, sort_keys=True))
                 raise
             sample = final
     sample.update(pid=pid, timestamp_ns=time.monotonic_ns(), thread_ids=tids,
