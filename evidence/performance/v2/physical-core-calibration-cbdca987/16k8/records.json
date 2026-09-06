@@ -1,0 +1,2382 @@
+[
+  {
+    "groups": 1,
+    "payload_bytes": 16384,
+    "streams_per_group": 8,
+    "outstanding_per_stream": 1,
+    "completed_operations": 124855,
+    "measured_ns": 30002140800,
+    "configured_total_outstanding": 8,
+    "max_observed_total_outstanding": 8,
+    "operations_per_second": 4161.536366098248,
+    "aggregate_application_gbps": 1.0909217891544591,
+    "p50_latency_ns": 1836800,
+    "p95_latency_ns": 2281500,
+    "p99_latency_ns": 3129600,
+    "per_group": [
+      {
+        "ordinal": 0,
+        "completed_operations": 124855,
+        "measured_ns": 30002140800,
+        "gbps": 1.0909217891544591,
+        "p99_latency_ns": 3129600
+      }
+    ],
+    "schema": "nbsr-max-throughput-v2-stage4-repeat-v1",
+    "path": "direct",
+    "repeat": 1,
+    "endpoint_groups": 1,
+    "runtime_workers": 1,
+    "errors": 0,
+    "timeouts": 0,
+    "valid": true,
+    "cleanup_pass": true,
+    "cleanup_scope": "workload drain and process exit; ownership separately classified",
+    "ownership_cleanup": {
+      "classification": "NOT_MEASURED",
+      "reports": []
+    },
+    "cleanup_diagnostic": null,
+    "resources": {
+      "runtime_workers": 1,
+      "roles": {
+        "source": {
+          "cpu_ns": 15750000000,
+          "effective_cores": 0.5249625386732403,
+          "effective_cores_per_runtime_worker": 0.5249625386732403,
+          "peak_thread_count": 3,
+          "peak_working_set_bytes": 10764288,
+          "peak_private_bytes": 3817472
+        },
+        "destination_0": {
+          "cpu_ns": 13218750000,
+          "effective_cores": 0.4405935592436124,
+          "effective_cores_per_runtime_worker": 0.4405935592436124,
+          "peak_thread_count": 5,
+          "peak_working_set_bytes": 11149312,
+          "peak_private_bytes": 2174976
+        }
+      },
+      "total_cpu_ns": 28968750000,
+      "cpu_ns_per_completed_operation": 232019.14220495775
+    },
+    "affinity": {
+      "endpoint_masks": [
+        "0x1"
+      ],
+      "server": [
+        {
+          "requested_mask": 1,
+          "observed_mask": 1,
+          "system_mask": 255,
+          "verified": true
+        }
+      ],
+      "source_process_mask": "0x1",
+      "source": {
+        "requested_mask": 1,
+        "observed_mask": 1,
+        "system_mask": 255,
+        "verified": true
+      },
+      "logical_processors_available": 1,
+      "source_group_thread_masks_enforced": false,
+      "placement": "destination endpoint masks [0x1]; source process mask 0x1; source group-thread placement not verified"
+    }
+  },
+  {
+    "groups": 1,
+    "payload_bytes": 16384,
+    "streams_per_group": 8,
+    "outstanding_per_stream": 1,
+    "completed_operations": 114992,
+    "measured_ns": 30001604900,
+    "configured_total_outstanding": 8,
+    "max_observed_total_outstanding": 8,
+    "operations_per_second": 3832.86162134613,
+    "aggregate_application_gbps": 1.00476167686616,
+    "p50_latency_ns": 1945900,
+    "p95_latency_ns": 3294000,
+    "p99_latency_ns": 4630200,
+    "per_group": [
+      {
+        "ordinal": 0,
+        "completed_operations": 114992,
+        "measured_ns": 30001604900,
+        "gbps": 1.00476167686616,
+        "p99_latency_ns": 4630200
+      }
+    ],
+    "schema": "nbsr-max-throughput-v2-stage4-repeat-v1",
+    "path": "nbsr",
+    "repeat": 1,
+    "endpoint_groups": 1,
+    "runtime_workers": 1,
+    "errors": 0,
+    "timeouts": 0,
+    "valid": true,
+    "cleanup_pass": true,
+    "cleanup_scope": "workload drain and process exit; ownership separately classified",
+    "ownership_cleanup": {
+      "classification": "NOT_MEASURED",
+      "reports": []
+    },
+    "cleanup_diagnostic": null,
+    "resources": {
+      "runtime_workers": 1,
+      "roles": {
+        "source": {
+          "cpu_ns": 13203125000,
+          "effective_cores": 0.4400806238202277,
+          "effective_cores_per_runtime_worker": 0.4400806238202277,
+          "peak_thread_count": 3,
+          "peak_working_set_bytes": 13701120,
+          "peak_private_bytes": 3956736
+        },
+        "destination_0": {
+          "cpu_ns": 15609375000,
+          "effective_cores": 0.5202846665046242,
+          "effective_cores_per_runtime_worker": 0.5202846665046242,
+          "peak_thread_count": 3,
+          "peak_working_set_bytes": 11653120,
+          "peak_private_bytes": 2031616
+        }
+      },
+      "total_cpu_ns": 28812500000,
+      "cpu_ns_per_completed_operation": 250560.90858494505
+    },
+    "affinity": {
+      "endpoint_masks": [
+        "0x1"
+      ],
+      "server": [
+        {
+          "requested_mask": 1,
+          "observed_mask": 1,
+          "system_mask": 255,
+          "verified": true
+        }
+      ],
+      "source_process_mask": "0x1",
+      "source": {
+        "requested_mask": 1,
+        "observed_mask": 1,
+        "system_mask": 255,
+        "verified": true
+      },
+      "logical_processors_available": 1,
+      "source_group_thread_masks_enforced": false,
+      "placement": "destination endpoint masks [0x1]; source process mask 0x1; source group-thread placement not verified"
+    }
+  },
+  {
+    "groups": 1,
+    "payload_bytes": 16384,
+    "streams_per_group": 8,
+    "outstanding_per_stream": 1,
+    "completed_operations": 125622,
+    "measured_ns": 30001575700,
+    "configured_total_outstanding": 8,
+    "max_observed_total_outstanding": 8,
+    "operations_per_second": 4187.180075345176,
+    "aggregate_application_gbps": 1.0976441336712859,
+    "p50_latency_ns": 1848800,
+    "p95_latency_ns": 2390500,
+    "p99_latency_ns": 2952300,
+    "per_group": [
+      {
+        "ordinal": 0,
+        "completed_operations": 125622,
+        "measured_ns": 30001575700,
+        "gbps": 1.0976441336712859,
+        "p99_latency_ns": 2952300
+      }
+    ],
+    "schema": "nbsr-max-throughput-v2-stage4-repeat-v1",
+    "path": "nbsr",
+    "repeat": 2,
+    "endpoint_groups": 1,
+    "runtime_workers": 1,
+    "errors": 0,
+    "timeouts": 0,
+    "valid": true,
+    "cleanup_pass": true,
+    "cleanup_scope": "workload drain and process exit; ownership separately classified",
+    "ownership_cleanup": {
+      "classification": "NOT_MEASURED",
+      "reports": []
+    },
+    "cleanup_diagnostic": null,
+    "resources": {
+      "runtime_workers": 1,
+      "roles": {
+        "source": {
+          "cpu_ns": 15031250000,
+          "effective_cores": 0.5010153516703457,
+          "effective_cores_per_runtime_worker": 0.5010153516703457,
+          "peak_thread_count": 3,
+          "peak_working_set_bytes": 11198464,
+          "peak_private_bytes": 4096000
+        },
+        "destination_0": {
+          "cpu_ns": 14000000000,
+          "effective_cores": 0.46664215706510376,
+          "effective_cores_per_runtime_worker": 0.46664215706510376,
+          "peak_thread_count": 3,
+          "peak_working_set_bytes": 9662464,
+          "peak_private_bytes": 2207744
+        }
+      },
+      "total_cpu_ns": 29031250000,
+      "cpu_ns_per_completed_operation": 231100.0461702568
+    },
+    "affinity": {
+      "endpoint_masks": [
+        "0x1"
+      ],
+      "server": [
+        {
+          "requested_mask": 1,
+          "observed_mask": 1,
+          "system_mask": 255,
+          "verified": true
+        }
+      ],
+      "source_process_mask": "0x1",
+      "source": {
+        "requested_mask": 1,
+        "observed_mask": 1,
+        "system_mask": 255,
+        "verified": true
+      },
+      "logical_processors_available": 1,
+      "source_group_thread_masks_enforced": false,
+      "placement": "destination endpoint masks [0x1]; source process mask 0x1; source group-thread placement not verified"
+    }
+  },
+  {
+    "groups": 1,
+    "payload_bytes": 16384,
+    "streams_per_group": 8,
+    "outstanding_per_stream": 1,
+    "completed_operations": 127592,
+    "measured_ns": 30001695100,
+    "configured_total_outstanding": 8,
+    "max_observed_total_outstanding": 8,
+    "operations_per_second": 4252.826367800798,
+    "aggregate_application_gbps": 1.1148529153607725,
+    "p50_latency_ns": 1830700,
+    "p95_latency_ns": 2156500,
+    "p99_latency_ns": 2656300,
+    "per_group": [
+      {
+        "ordinal": 0,
+        "completed_operations": 127592,
+        "measured_ns": 30001695100,
+        "gbps": 1.1148529153607725,
+        "p99_latency_ns": 2656300
+      }
+    ],
+    "schema": "nbsr-max-throughput-v2-stage4-repeat-v1",
+    "path": "direct",
+    "repeat": 2,
+    "endpoint_groups": 1,
+    "runtime_workers": 1,
+    "errors": 0,
+    "timeouts": 0,
+    "valid": true,
+    "cleanup_pass": true,
+    "cleanup_scope": "workload drain and process exit; ownership separately classified",
+    "ownership_cleanup": {
+      "classification": "NOT_MEASURED",
+      "reports": []
+    },
+    "cleanup_diagnostic": null,
+    "resources": {
+      "runtime_workers": 1,
+      "roles": {
+        "source": {
+          "cpu_ns": 16593750000,
+          "effective_cores": 0.5530937483595718,
+          "effective_cores_per_runtime_worker": 0.5530937483595718,
+          "peak_thread_count": 3,
+          "peak_working_set_bytes": 10633216,
+          "peak_private_bytes": 3604480
+        },
+        "destination_0": {
+          "cpu_ns": 12906250000,
+          "effective_cores": 0.4301840265018892,
+          "effective_cores_per_runtime_worker": 0.4301840265018892,
+          "peak_thread_count": 5,
+          "peak_working_set_bytes": 9216000,
+          "peak_private_bytes": 2105344
+        }
+      },
+      "total_cpu_ns": 29500000000,
+      "cpu_ns_per_completed_operation": 231205.71822684808
+    },
+    "affinity": {
+      "endpoint_masks": [
+        "0x1"
+      ],
+      "server": [
+        {
+          "requested_mask": 1,
+          "observed_mask": 1,
+          "system_mask": 255,
+          "verified": true
+        }
+      ],
+      "source_process_mask": "0x1",
+      "source": {
+        "requested_mask": 1,
+        "observed_mask": 1,
+        "system_mask": 255,
+        "verified": true
+      },
+      "logical_processors_available": 1,
+      "source_group_thread_masks_enforced": false,
+      "placement": "destination endpoint masks [0x1]; source process mask 0x1; source group-thread placement not verified"
+    }
+  },
+  {
+    "groups": 1,
+    "payload_bytes": 16384,
+    "streams_per_group": 8,
+    "outstanding_per_stream": 1,
+    "completed_operations": 130512,
+    "measured_ns": 30001772300,
+    "configured_total_outstanding": 8,
+    "max_observed_total_outstanding": 8,
+    "operations_per_second": 4350.143008051561,
+    "aggregate_application_gbps": 1.1403638887026684,
+    "p50_latency_ns": 1791000,
+    "p95_latency_ns": 2040200,
+    "p99_latency_ns": 2289300,
+    "per_group": [
+      {
+        "ordinal": 0,
+        "completed_operations": 130512,
+        "measured_ns": 30001772300,
+        "gbps": 1.1403638887026684,
+        "p99_latency_ns": 2289300
+      }
+    ],
+    "schema": "nbsr-max-throughput-v2-stage4-repeat-v1",
+    "path": "direct",
+    "repeat": 3,
+    "endpoint_groups": 1,
+    "runtime_workers": 1,
+    "errors": 0,
+    "timeouts": 0,
+    "valid": true,
+    "cleanup_pass": true,
+    "cleanup_scope": "workload drain and process exit; ownership separately classified",
+    "ownership_cleanup": {
+      "classification": "NOT_MEASURED",
+      "reports": []
+    },
+    "cleanup_diagnostic": null,
+    "resources": {
+      "runtime_workers": 1,
+      "roles": {
+        "source": {
+          "cpu_ns": 15656250000,
+          "effective_cores": 0.5218441711858469,
+          "effective_cores_per_runtime_worker": 0.5218441711858469,
+          "peak_thread_count": 3,
+          "peak_working_set_bytes": 11231232,
+          "peak_private_bytes": 5070848
+        },
+        "destination_0": {
+          "cpu_ns": 13250000000,
+          "effective_cores": 0.44164057601357104,
+          "effective_cores_per_runtime_worker": 0.44164057601357104,
+          "peak_thread_count": 5,
+          "peak_working_set_bytes": 9187328,
+          "peak_private_bytes": 2068480
+        }
+      },
+      "total_cpu_ns": 28906250000,
+      "cpu_ns_per_completed_operation": 221483.46512198113
+    },
+    "affinity": {
+      "endpoint_masks": [
+        "0x1"
+      ],
+      "server": [
+        {
+          "requested_mask": 1,
+          "observed_mask": 1,
+          "system_mask": 255,
+          "verified": true
+        }
+      ],
+      "source_process_mask": "0x1",
+      "source": {
+        "requested_mask": 1,
+        "observed_mask": 1,
+        "system_mask": 255,
+        "verified": true
+      },
+      "logical_processors_available": 1,
+      "source_group_thread_masks_enforced": false,
+      "placement": "destination endpoint masks [0x1]; source process mask 0x1; source group-thread placement not verified"
+    }
+  },
+  {
+    "groups": 1,
+    "payload_bytes": 16384,
+    "streams_per_group": 8,
+    "outstanding_per_stream": 1,
+    "completed_operations": 120464,
+    "measured_ns": 30002693400,
+    "configured_total_outstanding": 8,
+    "max_observed_total_outstanding": 8,
+    "operations_per_second": 4015.10619043289,
+    "aggregate_application_gbps": 1.0525359971848396,
+    "p50_latency_ns": 1908100,
+    "p95_latency_ns": 3094600,
+    "p99_latency_ns": 3786100,
+    "per_group": [
+      {
+        "ordinal": 0,
+        "completed_operations": 120464,
+        "measured_ns": 30002693400,
+        "gbps": 1.0525359971848396,
+        "p99_latency_ns": 3786100
+      }
+    ],
+    "schema": "nbsr-max-throughput-v2-stage4-repeat-v1",
+    "path": "nbsr",
+    "repeat": 3,
+    "endpoint_groups": 1,
+    "runtime_workers": 1,
+    "errors": 0,
+    "timeouts": 0,
+    "valid": true,
+    "cleanup_pass": true,
+    "cleanup_scope": "workload drain and process exit; ownership separately classified",
+    "ownership_cleanup": {
+      "classification": "NOT_MEASURED",
+      "reports": []
+    },
+    "cleanup_diagnostic": null,
+    "resources": {
+      "runtime_workers": 1,
+      "roles": {
+        "source": {
+          "cpu_ns": 13375000000,
+          "effective_cores": 0.44579331000996064,
+          "effective_cores_per_runtime_worker": 0.44579331000996064,
+          "peak_thread_count": 3,
+          "peak_working_set_bytes": 11141120,
+          "peak_private_bytes": 4136960
+        },
+        "destination_0": {
+          "cpu_ns": 15843750000,
+          "effective_cores": 0.5280775891940421,
+          "effective_cores_per_runtime_worker": 0.5280775891940421,
+          "peak_thread_count": 3,
+          "peak_working_set_bytes": 9502720,
+          "peak_private_bytes": 2039808
+        }
+      },
+      "total_cpu_ns": 29218750000,
+      "cpu_ns_per_completed_operation": 242551.71669544428
+    },
+    "affinity": {
+      "endpoint_masks": [
+        "0x1"
+      ],
+      "server": [
+        {
+          "requested_mask": 1,
+          "observed_mask": 1,
+          "system_mask": 255,
+          "verified": true
+        }
+      ],
+      "source_process_mask": "0x1",
+      "source": {
+        "requested_mask": 1,
+        "observed_mask": 1,
+        "system_mask": 255,
+        "verified": true
+      },
+      "logical_processors_available": 1,
+      "source_group_thread_masks_enforced": false,
+      "placement": "destination endpoint masks [0x1]; source process mask 0x1; source group-thread placement not verified"
+    }
+  },
+  {
+    "groups": 1,
+    "payload_bytes": 16384,
+    "streams_per_group": 8,
+    "outstanding_per_stream": 2,
+    "completed_operations": 133789,
+    "measured_ns": 30002579700,
+    "configured_total_outstanding": 16,
+    "max_observed_total_outstanding": 16,
+    "operations_per_second": 4459.249882435943,
+    "aggregate_application_gbps": 1.1689656011812877,
+    "p50_latency_ns": 3584100,
+    "p95_latency_ns": 3961300,
+    "p99_latency_ns": 4335600,
+    "per_group": [
+      {
+        "ordinal": 0,
+        "completed_operations": 133789,
+        "measured_ns": 30002579700,
+        "gbps": 1.1689656011812877,
+        "p99_latency_ns": 4335600
+      }
+    ],
+    "schema": "nbsr-max-throughput-v2-stage4-repeat-v1",
+    "path": "direct",
+    "repeat": 1,
+    "endpoint_groups": 1,
+    "runtime_workers": 1,
+    "errors": 0,
+    "timeouts": 0,
+    "valid": true,
+    "cleanup_pass": true,
+    "cleanup_scope": "workload drain and process exit; ownership separately classified",
+    "ownership_cleanup": {
+      "classification": "NOT_MEASURED",
+      "reports": []
+    },
+    "cleanup_diagnostic": null,
+    "resources": {
+      "runtime_workers": 1,
+      "roles": {
+        "source": {
+          "cpu_ns": 16421875000,
+          "effective_cores": 0.5473487668128751,
+          "effective_cores_per_runtime_worker": 0.5473487668128751,
+          "peak_thread_count": 3,
+          "peak_working_set_bytes": 11632640,
+          "peak_private_bytes": 4681728
+        },
+        "destination_0": {
+          "cpu_ns": 12859375000,
+          "effective_cores": 0.42860897724737984,
+          "effective_cores_per_runtime_worker": 0.42860897724737984,
+          "peak_thread_count": 5,
+          "peak_working_set_bytes": 9625600,
+          "peak_private_bytes": 2514944
+        }
+      },
+      "total_cpu_ns": 29281250000,
+      "cpu_ns_per_completed_operation": 218861.41611044257
+    },
+    "affinity": {
+      "endpoint_masks": [
+        "0x1"
+      ],
+      "server": [
+        {
+          "requested_mask": 1,
+          "observed_mask": 1,
+          "system_mask": 255,
+          "verified": true
+        }
+      ],
+      "source_process_mask": "0x1",
+      "source": {
+        "requested_mask": 1,
+        "observed_mask": 1,
+        "system_mask": 255,
+        "verified": true
+      },
+      "logical_processors_available": 1,
+      "source_group_thread_masks_enforced": false,
+      "placement": "destination endpoint masks [0x1]; source process mask 0x1; source group-thread placement not verified"
+    }
+  },
+  {
+    "groups": 1,
+    "payload_bytes": 16384,
+    "streams_per_group": 8,
+    "outstanding_per_stream": 2,
+    "completed_operations": 131483,
+    "measured_ns": 30003497500,
+    "configured_total_outstanding": 16,
+    "max_observed_total_outstanding": 16,
+    "operations_per_second": 4382.255768681634,
+    "aggregate_application_gbps": 1.1487820562252784,
+    "p50_latency_ns": 3559700,
+    "p95_latency_ns": 4420700,
+    "p99_latency_ns": 5851400,
+    "per_group": [
+      {
+        "ordinal": 0,
+        "completed_operations": 131483,
+        "measured_ns": 30003497500,
+        "gbps": 1.1487820562252784,
+        "p99_latency_ns": 5851400
+      }
+    ],
+    "schema": "nbsr-max-throughput-v2-stage4-repeat-v1",
+    "path": "nbsr",
+    "repeat": 1,
+    "endpoint_groups": 1,
+    "runtime_workers": 1,
+    "errors": 0,
+    "timeouts": 0,
+    "valid": true,
+    "cleanup_pass": true,
+    "cleanup_scope": "workload drain and process exit; ownership separately classified",
+    "ownership_cleanup": {
+      "classification": "NOT_MEASURED",
+      "reports": []
+    },
+    "cleanup_diagnostic": null,
+    "resources": {
+      "runtime_workers": 1,
+      "roles": {
+        "source": {
+          "cpu_ns": 15093750000,
+          "effective_cores": 0.5030663508479303,
+          "effective_cores_per_runtime_worker": 0.5030663508479303,
+          "peak_thread_count": 3,
+          "peak_working_set_bytes": 11272192,
+          "peak_private_bytes": 4042752
+        },
+        "destination_0": {
+          "cpu_ns": 13796875000,
+          "effective_cores": 0.4598422233941226,
+          "effective_cores_per_runtime_worker": 0.4598422233941226,
+          "peak_thread_count": 3,
+          "peak_working_set_bytes": 9818112,
+          "peak_private_bytes": 2367488
+        }
+      },
+      "total_cpu_ns": 28890625000,
+      "cpu_ns_per_completed_operation": 219728.9763695687
+    },
+    "affinity": {
+      "endpoint_masks": [
+        "0x1"
+      ],
+      "server": [
+        {
+          "requested_mask": 1,
+          "observed_mask": 1,
+          "system_mask": 255,
+          "verified": true
+        }
+      ],
+      "source_process_mask": "0x1",
+      "source": {
+        "requested_mask": 1,
+        "observed_mask": 1,
+        "system_mask": 255,
+        "verified": true
+      },
+      "logical_processors_available": 1,
+      "source_group_thread_masks_enforced": false,
+      "placement": "destination endpoint masks [0x1]; source process mask 0x1; source group-thread placement not verified"
+    }
+  },
+  {
+    "groups": 1,
+    "payload_bytes": 16384,
+    "streams_per_group": 8,
+    "outstanding_per_stream": 2,
+    "completed_operations": 136401,
+    "measured_ns": 30001972300,
+    "configured_total_outstanding": 16,
+    "max_observed_total_outstanding": 16,
+    "operations_per_second": 4546.401104436724,
+    "aggregate_application_gbps": 1.1918117711214606,
+    "p50_latency_ns": 3495600,
+    "p95_latency_ns": 4276200,
+    "p99_latency_ns": 4931500,
+    "per_group": [
+      {
+        "ordinal": 0,
+        "completed_operations": 136401,
+        "measured_ns": 30001972300,
+        "gbps": 1.1918117711214606,
+        "p99_latency_ns": 4931500
+      }
+    ],
+    "schema": "nbsr-max-throughput-v2-stage4-repeat-v1",
+    "path": "nbsr",
+    "repeat": 2,
+    "endpoint_groups": 1,
+    "runtime_workers": 1,
+    "errors": 0,
+    "timeouts": 0,
+    "valid": true,
+    "cleanup_pass": true,
+    "cleanup_scope": "workload drain and process exit; ownership separately classified",
+    "ownership_cleanup": {
+      "classification": "NOT_MEASURED",
+      "reports": []
+    },
+    "cleanup_diagnostic": null,
+    "resources": {
+      "runtime_workers": 1,
+      "roles": {
+        "source": {
+          "cpu_ns": 14703125000,
+          "effective_cores": 0.4900719477032515,
+          "effective_cores_per_runtime_worker": 0.4900719477032515,
+          "peak_thread_count": 3,
+          "peak_working_set_bytes": 12591104,
+          "peak_private_bytes": 5849088
+        },
+        "destination_0": {
+          "cpu_ns": 14937500000,
+          "effective_cores": 0.4978839341172247,
+          "effective_cores_per_runtime_worker": 0.4978839341172247,
+          "peak_thread_count": 3,
+          "peak_working_set_bytes": 9789440,
+          "peak_private_bytes": 2322432
+        }
+      },
+      "total_cpu_ns": 29640625000,
+      "cpu_ns_per_completed_operation": 217305.04175189332
+    },
+    "affinity": {
+      "endpoint_masks": [
+        "0x1"
+      ],
+      "server": [
+        {
+          "requested_mask": 1,
+          "observed_mask": 1,
+          "system_mask": 255,
+          "verified": true
+        }
+      ],
+      "source_process_mask": "0x1",
+      "source": {
+        "requested_mask": 1,
+        "observed_mask": 1,
+        "system_mask": 255,
+        "verified": true
+      },
+      "logical_processors_available": 1,
+      "source_group_thread_masks_enforced": false,
+      "placement": "destination endpoint masks [0x1]; source process mask 0x1; source group-thread placement not verified"
+    }
+  },
+  {
+    "groups": 1,
+    "payload_bytes": 16384,
+    "streams_per_group": 8,
+    "outstanding_per_stream": 2,
+    "completed_operations": 127094,
+    "measured_ns": 30003579600,
+    "configured_total_outstanding": 16,
+    "max_observed_total_outstanding": 16,
+    "operations_per_second": 4235.961231772491,
+    "aggregate_application_gbps": 1.110431821141768,
+    "p50_latency_ns": 3677600,
+    "p95_latency_ns": 4467300,
+    "p99_latency_ns": 5777700,
+    "per_group": [
+      {
+        "ordinal": 0,
+        "completed_operations": 127094,
+        "measured_ns": 30003579600,
+        "gbps": 1.110431821141768,
+        "p99_latency_ns": 5777700
+      }
+    ],
+    "schema": "nbsr-max-throughput-v2-stage4-repeat-v1",
+    "path": "direct",
+    "repeat": 2,
+    "endpoint_groups": 1,
+    "runtime_workers": 1,
+    "errors": 0,
+    "timeouts": 0,
+    "valid": true,
+    "cleanup_pass": true,
+    "cleanup_scope": "workload drain and process exit; ownership separately classified",
+    "ownership_cleanup": {
+      "classification": "NOT_MEASURED",
+      "reports": []
+    },
+    "cleanup_diagnostic": null,
+    "resources": {
+      "runtime_workers": 1,
+      "roles": {
+        "source": {
+          "cpu_ns": 15656250000,
+          "effective_cores": 0.5218127373041849,
+          "effective_cores_per_runtime_worker": 0.5218127373041849,
+          "peak_thread_count": 3,
+          "peak_working_set_bytes": 10694656,
+          "peak_private_bytes": 3833856
+        },
+        "destination_0": {
+          "cpu_ns": 13421875000,
+          "effective_cores": 0.44734245643143195,
+          "effective_cores_per_runtime_worker": 0.44734245643143195,
+          "peak_thread_count": 5,
+          "peak_working_set_bytes": 9629696,
+          "peak_private_bytes": 2510848
+        }
+      },
+      "total_cpu_ns": 29078125000,
+      "cpu_ns_per_completed_operation": 228792.27186177162
+    },
+    "affinity": {
+      "endpoint_masks": [
+        "0x1"
+      ],
+      "server": [
+        {
+          "requested_mask": 1,
+          "observed_mask": 1,
+          "system_mask": 255,
+          "verified": true
+        }
+      ],
+      "source_process_mask": "0x1",
+      "source": {
+        "requested_mask": 1,
+        "observed_mask": 1,
+        "system_mask": 255,
+        "verified": true
+      },
+      "logical_processors_available": 1,
+      "source_group_thread_masks_enforced": false,
+      "placement": "destination endpoint masks [0x1]; source process mask 0x1; source group-thread placement not verified"
+    }
+  },
+  {
+    "groups": 1,
+    "payload_bytes": 16384,
+    "streams_per_group": 8,
+    "outstanding_per_stream": 2,
+    "completed_operations": 132392,
+    "measured_ns": 30003239500,
+    "configured_total_outstanding": 16,
+    "max_observed_total_outstanding": 16,
+    "operations_per_second": 4412.590180470345,
+    "aggregate_application_gbps": 1.1567340402692181,
+    "p50_latency_ns": 3638800,
+    "p95_latency_ns": 4012500,
+    "p99_latency_ns": 4351000,
+    "per_group": [
+      {
+        "ordinal": 0,
+        "completed_operations": 132392,
+        "measured_ns": 30003239500,
+        "gbps": 1.1567340402692181,
+        "p99_latency_ns": 4351000
+      }
+    ],
+    "schema": "nbsr-max-throughput-v2-stage4-repeat-v1",
+    "path": "direct",
+    "repeat": 3,
+    "endpoint_groups": 1,
+    "runtime_workers": 1,
+    "errors": 0,
+    "timeouts": 0,
+    "valid": true,
+    "cleanup_pass": true,
+    "cleanup_scope": "workload drain and process exit; ownership separately classified",
+    "ownership_cleanup": {
+      "classification": "NOT_MEASURED",
+      "reports": []
+    },
+    "cleanup_diagnostic": null,
+    "resources": {
+      "runtime_workers": 1,
+      "roles": {
+        "source": {
+          "cpu_ns": 16687500000,
+          "effective_cores": 0.5561899407562306,
+          "effective_cores_per_runtime_worker": 0.5561899407562306,
+          "peak_thread_count": 3,
+          "peak_working_set_bytes": 11595776,
+          "peak_private_bytes": 5103616
+        },
+        "destination_0": {
+          "cpu_ns": 12734375000,
+          "effective_cores": 0.42443333494038205,
+          "effective_cores_per_runtime_worker": 0.42443333494038205,
+          "peak_thread_count": 5,
+          "peak_working_set_bytes": 9658368,
+          "peak_private_bytes": 2535424
+        }
+      },
+      "total_cpu_ns": 29421875000,
+      "cpu_ns_per_completed_operation": 222233.02767538824
+    },
+    "affinity": {
+      "endpoint_masks": [
+        "0x1"
+      ],
+      "server": [
+        {
+          "requested_mask": 1,
+          "observed_mask": 1,
+          "system_mask": 255,
+          "verified": true
+        }
+      ],
+      "source_process_mask": "0x1",
+      "source": {
+        "requested_mask": 1,
+        "observed_mask": 1,
+        "system_mask": 255,
+        "verified": true
+      },
+      "logical_processors_available": 1,
+      "source_group_thread_masks_enforced": false,
+      "placement": "destination endpoint masks [0x1]; source process mask 0x1; source group-thread placement not verified"
+    }
+  },
+  {
+    "groups": 1,
+    "payload_bytes": 16384,
+    "streams_per_group": 8,
+    "outstanding_per_stream": 2,
+    "completed_operations": 132717,
+    "measured_ns": 30062637400,
+    "configured_total_outstanding": 16,
+    "max_observed_total_outstanding": 16,
+    "operations_per_second": 4414.682525492591,
+    "aggregate_application_gbps": 1.1572825359627297,
+    "p50_latency_ns": 3463600,
+    "p95_latency_ns": 4328900,
+    "p99_latency_ns": 5857200,
+    "per_group": [
+      {
+        "ordinal": 0,
+        "completed_operations": 132717,
+        "measured_ns": 30062637400,
+        "gbps": 1.1572825359627297,
+        "p99_latency_ns": 5857200
+      }
+    ],
+    "schema": "nbsr-max-throughput-v2-stage4-repeat-v1",
+    "path": "nbsr",
+    "repeat": 3,
+    "endpoint_groups": 1,
+    "runtime_workers": 1,
+    "errors": 0,
+    "timeouts": 0,
+    "valid": true,
+    "cleanup_pass": true,
+    "cleanup_scope": "workload drain and process exit; ownership separately classified",
+    "ownership_cleanup": {
+      "classification": "NOT_MEASURED",
+      "reports": []
+    },
+    "cleanup_diagnostic": null,
+    "resources": {
+      "runtime_workers": 1,
+      "roles": {
+        "source": {
+          "cpu_ns": 14046875000,
+          "effective_cores": 0.46725358168342207,
+          "effective_cores_per_runtime_worker": 0.46725358168342207,
+          "peak_thread_count": 3,
+          "peak_working_set_bytes": 11886592,
+          "peak_private_bytes": 5218304
+        },
+        "destination_0": {
+          "cpu_ns": 14921875000,
+          "effective_cores": 0.49635947776158856,
+          "effective_cores_per_runtime_worker": 0.49635947776158856,
+          "peak_thread_count": 3,
+          "peak_working_set_bytes": 9768960,
+          "peak_private_bytes": 2310144
+        }
+      },
+      "total_cpu_ns": 28968750000,
+      "cpu_ns_per_completed_operation": 218274.599335428
+    },
+    "affinity": {
+      "endpoint_masks": [
+        "0x1"
+      ],
+      "server": [
+        {
+          "requested_mask": 1,
+          "observed_mask": 1,
+          "system_mask": 255,
+          "verified": true
+        }
+      ],
+      "source_process_mask": "0x1",
+      "source": {
+        "requested_mask": 1,
+        "observed_mask": 1,
+        "system_mask": 255,
+        "verified": true
+      },
+      "logical_processors_available": 1,
+      "source_group_thread_masks_enforced": false,
+      "placement": "destination endpoint masks [0x1]; source process mask 0x1; source group-thread placement not verified"
+    }
+  },
+  {
+    "groups": 1,
+    "payload_bytes": 16384,
+    "streams_per_group": 8,
+    "outstanding_per_stream": 4,
+    "completed_operations": 126957,
+    "measured_ns": 30005010900,
+    "configured_total_outstanding": 32,
+    "max_observed_total_outstanding": 32,
+    "operations_per_second": 4231.19326378915,
+    "aggregate_application_gbps": 1.1091819269427428,
+    "p50_latency_ns": 7568100,
+    "p95_latency_ns": 8718500,
+    "p99_latency_ns": 10720000,
+    "per_group": [
+      {
+        "ordinal": 0,
+        "completed_operations": 126957,
+        "measured_ns": 30005010900,
+        "gbps": 1.1091819269427428,
+        "p99_latency_ns": 10720000
+      }
+    ],
+    "schema": "nbsr-max-throughput-v2-stage4-repeat-v1",
+    "path": "direct",
+    "repeat": 1,
+    "endpoint_groups": 1,
+    "runtime_workers": 1,
+    "errors": 0,
+    "timeouts": 0,
+    "valid": true,
+    "cleanup_pass": true,
+    "cleanup_scope": "workload drain and process exit; ownership separately classified",
+    "ownership_cleanup": {
+      "classification": "NOT_MEASURED",
+      "reports": []
+    },
+    "cleanup_diagnostic": null,
+    "resources": {
+      "runtime_workers": 1,
+      "roles": {
+        "source": {
+          "cpu_ns": 16656250000,
+          "effective_cores": 0.5551156123725988,
+          "effective_cores_per_runtime_worker": 0.5551156123725988,
+          "peak_thread_count": 3,
+          "peak_working_set_bytes": 11010048,
+          "peak_private_bytes": 3964928
+        },
+        "destination_0": {
+          "cpu_ns": 12578125000,
+          "effective_cores": 0.41920081422133393,
+          "effective_cores_per_runtime_worker": 0.41920081422133393,
+          "peak_thread_count": 5,
+          "peak_working_set_bytes": 10272768,
+          "peak_private_bytes": 3153920
+        }
+      },
+      "total_cpu_ns": 29234375000,
+      "cpu_ns_per_completed_operation": 230269.89453121924
+    },
+    "affinity": {
+      "endpoint_masks": [
+        "0x1"
+      ],
+      "server": [
+        {
+          "requested_mask": 1,
+          "observed_mask": 1,
+          "system_mask": 255,
+          "verified": true
+        }
+      ],
+      "source_process_mask": "0x1",
+      "source": {
+        "requested_mask": 1,
+        "observed_mask": 1,
+        "system_mask": 255,
+        "verified": true
+      },
+      "logical_processors_available": 1,
+      "source_group_thread_masks_enforced": false,
+      "placement": "destination endpoint masks [0x1]; source process mask 0x1; source group-thread placement not verified"
+    }
+  },
+  {
+    "groups": 1,
+    "payload_bytes": 16384,
+    "streams_per_group": 8,
+    "outstanding_per_stream": 4,
+    "completed_operations": 130493,
+    "measured_ns": 30004003900,
+    "configured_total_outstanding": 32,
+    "max_observed_total_outstanding": 32,
+    "operations_per_second": 4349.186209777822,
+    "aggregate_application_gbps": 1.1401130697759974,
+    "p50_latency_ns": 7336400,
+    "p95_latency_ns": 8204400,
+    "p99_latency_ns": 9182500,
+    "per_group": [
+      {
+        "ordinal": 0,
+        "completed_operations": 130493,
+        "measured_ns": 30004003900,
+        "gbps": 1.1401130697759974,
+        "p99_latency_ns": 9182500
+      }
+    ],
+    "schema": "nbsr-max-throughput-v2-stage4-repeat-v1",
+    "path": "nbsr",
+    "repeat": 1,
+    "endpoint_groups": 1,
+    "runtime_workers": 1,
+    "errors": 0,
+    "timeouts": 0,
+    "valid": true,
+    "cleanup_pass": true,
+    "cleanup_scope": "workload drain and process exit; ownership separately classified",
+    "ownership_cleanup": {
+      "classification": "NOT_MEASURED",
+      "reports": []
+    },
+    "cleanup_diagnostic": null,
+    "resources": {
+      "runtime_workers": 1,
+      "roles": {
+        "source": {
+          "cpu_ns": 13734375000,
+          "effective_cores": 0.45775140697138755,
+          "effective_cores_per_runtime_worker": 0.45775140697138755,
+          "peak_thread_count": 3,
+          "peak_working_set_bytes": 12177408,
+          "peak_private_bytes": 4296704
+        },
+        "destination_0": {
+          "cpu_ns": 15171875000,
+          "effective_cores": 0.5056616793733986,
+          "effective_cores_per_runtime_worker": 0.5056616793733986,
+          "peak_thread_count": 3,
+          "peak_working_set_bytes": 9895936,
+          "peak_private_bytes": 2441216
+        }
+      },
+      "total_cpu_ns": 28906250000,
+      "cpu_ns_per_completed_operation": 221515.71348654717
+    },
+    "affinity": {
+      "endpoint_masks": [
+        "0x1"
+      ],
+      "server": [
+        {
+          "requested_mask": 1,
+          "observed_mask": 1,
+          "system_mask": 255,
+          "verified": true
+        }
+      ],
+      "source_process_mask": "0x1",
+      "source": {
+        "requested_mask": 1,
+        "observed_mask": 1,
+        "system_mask": 255,
+        "verified": true
+      },
+      "logical_processors_available": 1,
+      "source_group_thread_masks_enforced": false,
+      "placement": "destination endpoint masks [0x1]; source process mask 0x1; source group-thread placement not verified"
+    }
+  },
+  {
+    "groups": 1,
+    "payload_bytes": 16384,
+    "streams_per_group": 8,
+    "outstanding_per_stream": 4,
+    "completed_operations": 125615,
+    "measured_ns": 30003602500,
+    "configured_total_outstanding": 32,
+    "max_observed_total_outstanding": 32,
+    "operations_per_second": 4186.6639181078335,
+    "aggregate_application_gbps": 1.09750882614846,
+    "p50_latency_ns": 7442800,
+    "p95_latency_ns": 9368900,
+    "p99_latency_ns": 11784900,
+    "per_group": [
+      {
+        "ordinal": 0,
+        "completed_operations": 125615,
+        "measured_ns": 30003602500,
+        "gbps": 1.09750882614846,
+        "p99_latency_ns": 11784900
+      }
+    ],
+    "schema": "nbsr-max-throughput-v2-stage4-repeat-v1",
+    "path": "nbsr",
+    "repeat": 2,
+    "endpoint_groups": 1,
+    "runtime_workers": 1,
+    "errors": 0,
+    "timeouts": 0,
+    "valid": true,
+    "cleanup_pass": true,
+    "cleanup_scope": "workload drain and process exit; ownership separately classified",
+    "ownership_cleanup": {
+      "classification": "NOT_MEASURED",
+      "reports": []
+    },
+    "cleanup_diagnostic": null,
+    "resources": {
+      "runtime_workers": 1,
+      "roles": {
+        "source": {
+          "cpu_ns": 14171875000,
+          "effective_cores": 0.4723391132781472,
+          "effective_cores_per_runtime_worker": 0.4723391132781472,
+          "peak_thread_count": 3,
+          "peak_working_set_bytes": 11558912,
+          "peak_private_bytes": 4210688
+        },
+        "destination_0": {
+          "cpu_ns": 14765625000,
+          "effective_cores": 0.49212840358087,
+          "effective_cores_per_runtime_worker": 0.49212840358087,
+          "peak_thread_count": 3,
+          "peak_working_set_bytes": 9912320,
+          "peak_private_bytes": 2531328
+        }
+      },
+      "total_cpu_ns": 28937500000,
+      "cpu_ns_per_completed_operation": 230366.5963459778
+    },
+    "affinity": {
+      "endpoint_masks": [
+        "0x1"
+      ],
+      "server": [
+        {
+          "requested_mask": 1,
+          "observed_mask": 1,
+          "system_mask": 255,
+          "verified": true
+        }
+      ],
+      "source_process_mask": "0x1",
+      "source": {
+        "requested_mask": 1,
+        "observed_mask": 1,
+        "system_mask": 255,
+        "verified": true
+      },
+      "logical_processors_available": 1,
+      "source_group_thread_masks_enforced": false,
+      "placement": "destination endpoint masks [0x1]; source process mask 0x1; source group-thread placement not verified"
+    }
+  },
+  {
+    "groups": 1,
+    "payload_bytes": 16384,
+    "streams_per_group": 8,
+    "outstanding_per_stream": 4,
+    "completed_operations": 130983,
+    "measured_ns": 30006070800,
+    "configured_total_outstanding": 32,
+    "max_observed_total_outstanding": 32,
+    "operations_per_second": 4365.2166547577435,
+    "aggregate_application_gbps": 1.144315354744814,
+    "p50_latency_ns": 7411700,
+    "p95_latency_ns": 8181500,
+    "p99_latency_ns": 8782700,
+    "per_group": [
+      {
+        "ordinal": 0,
+        "completed_operations": 130983,
+        "measured_ns": 30006070800,
+        "gbps": 1.144315354744814,
+        "p99_latency_ns": 8782700
+      }
+    ],
+    "schema": "nbsr-max-throughput-v2-stage4-repeat-v1",
+    "path": "direct",
+    "repeat": 2,
+    "endpoint_groups": 1,
+    "runtime_workers": 1,
+    "errors": 0,
+    "timeouts": 0,
+    "valid": true,
+    "cleanup_pass": true,
+    "cleanup_scope": "workload drain and process exit; ownership separately classified",
+    "ownership_cleanup": {
+      "classification": "NOT_MEASURED",
+      "reports": []
+    },
+    "cleanup_diagnostic": null,
+    "resources": {
+      "runtime_workers": 1,
+      "roles": {
+        "source": {
+          "cpu_ns": 16937500000,
+          "effective_cores": 0.564469107364767,
+          "effective_cores_per_runtime_worker": 0.564469107364767,
+          "peak_thread_count": 3,
+          "peak_working_set_bytes": 11042816,
+          "peak_private_bytes": 3981312
+        },
+        "destination_0": {
+          "cpu_ns": 12437500000,
+          "effective_cores": 0.4144994552235743,
+          "effective_cores_per_runtime_worker": 0.4144994552235743,
+          "peak_thread_count": 5,
+          "peak_working_set_bytes": 10354688,
+          "peak_private_bytes": 3244032
+        }
+      },
+      "total_cpu_ns": 29375000000,
+      "cpu_ns_per_completed_operation": 224265.74440957987
+    },
+    "affinity": {
+      "endpoint_masks": [
+        "0x1"
+      ],
+      "server": [
+        {
+          "requested_mask": 1,
+          "observed_mask": 1,
+          "system_mask": 255,
+          "verified": true
+        }
+      ],
+      "source_process_mask": "0x1",
+      "source": {
+        "requested_mask": 1,
+        "observed_mask": 1,
+        "system_mask": 255,
+        "verified": true
+      },
+      "logical_processors_available": 1,
+      "source_group_thread_masks_enforced": false,
+      "placement": "destination endpoint masks [0x1]; source process mask 0x1; source group-thread placement not verified"
+    }
+  },
+  {
+    "groups": 1,
+    "payload_bytes": 16384,
+    "streams_per_group": 8,
+    "outstanding_per_stream": 4,
+    "completed_operations": 126134,
+    "measured_ns": 30005158100,
+    "configured_total_outstanding": 32,
+    "max_observed_total_outstanding": 32,
+    "operations_per_second": 4203.743888954879,
+    "aggregate_application_gbps": 1.101986238026188,
+    "p50_latency_ns": 7551300,
+    "p95_latency_ns": 8685400,
+    "p99_latency_ns": 11373700,
+    "per_group": [
+      {
+        "ordinal": 0,
+        "completed_operations": 126134,
+        "measured_ns": 30005158100,
+        "gbps": 1.101986238026188,
+        "p99_latency_ns": 11373700
+      }
+    ],
+    "schema": "nbsr-max-throughput-v2-stage4-repeat-v1",
+    "path": "direct",
+    "repeat": 3,
+    "endpoint_groups": 1,
+    "runtime_workers": 1,
+    "errors": 0,
+    "timeouts": 0,
+    "valid": true,
+    "cleanup_pass": true,
+    "cleanup_scope": "workload drain and process exit; ownership separately classified",
+    "ownership_cleanup": {
+      "classification": "NOT_MEASURED",
+      "reports": []
+    },
+    "cleanup_diagnostic": null,
+    "resources": {
+      "runtime_workers": 1,
+      "roles": {
+        "source": {
+          "cpu_ns": 15593750000,
+          "effective_cores": 0.5197023107836916,
+          "effective_cores_per_runtime_worker": 0.5197023107836916,
+          "peak_thread_count": 3,
+          "peak_working_set_bytes": 11022336,
+          "peak_private_bytes": 3993600
+        },
+        "destination_0": {
+          "cpu_ns": 13484375000,
+          "effective_cores": 0.4494018980023305,
+          "effective_cores_per_runtime_worker": 0.4494018980023305,
+          "peak_thread_count": 5,
+          "peak_working_set_bytes": 10248192,
+          "peak_private_bytes": 3125248
+        }
+      },
+      "total_cpu_ns": 29078125000,
+      "cpu_ns_per_completed_operation": 230533.59918816495
+    },
+    "affinity": {
+      "endpoint_masks": [
+        "0x1"
+      ],
+      "server": [
+        {
+          "requested_mask": 1,
+          "observed_mask": 1,
+          "system_mask": 255,
+          "verified": true
+        }
+      ],
+      "source_process_mask": "0x1",
+      "source": {
+        "requested_mask": 1,
+        "observed_mask": 1,
+        "system_mask": 255,
+        "verified": true
+      },
+      "logical_processors_available": 1,
+      "source_group_thread_masks_enforced": false,
+      "placement": "destination endpoint masks [0x1]; source process mask 0x1; source group-thread placement not verified"
+    }
+  },
+  {
+    "groups": 1,
+    "payload_bytes": 16384,
+    "streams_per_group": 8,
+    "outstanding_per_stream": 4,
+    "completed_operations": 129683,
+    "measured_ns": 30003658400,
+    "configured_total_outstanding": 32,
+    "max_observed_total_outstanding": 32,
+    "operations_per_second": 4322.239583956869,
+    "aggregate_application_gbps": 1.1330491734967894,
+    "p50_latency_ns": 7423500,
+    "p95_latency_ns": 8963500,
+    "p99_latency_ns": 9940800,
+    "per_group": [
+      {
+        "ordinal": 0,
+        "completed_operations": 129683,
+        "measured_ns": 30003658400,
+        "gbps": 1.1330491734967894,
+        "p99_latency_ns": 9940800
+      }
+    ],
+    "schema": "nbsr-max-throughput-v2-stage4-repeat-v1",
+    "path": "nbsr",
+    "repeat": 3,
+    "endpoint_groups": 1,
+    "runtime_workers": 1,
+    "errors": 0,
+    "timeouts": 0,
+    "valid": true,
+    "cleanup_pass": true,
+    "cleanup_scope": "workload drain and process exit; ownership separately classified",
+    "ownership_cleanup": {
+      "classification": "NOT_MEASURED",
+      "reports": []
+    },
+    "cleanup_diagnostic": null,
+    "resources": {
+      "runtime_workers": 1,
+      "roles": {
+        "source": {
+          "cpu_ns": 14046875000,
+          "effective_cores": 0.4681720746427376,
+          "effective_cores_per_runtime_worker": 0.4681720746427376,
+          "peak_thread_count": 3,
+          "peak_working_set_bytes": 11472896,
+          "peak_private_bytes": 4308992
+        },
+        "destination_0": {
+          "cpu_ns": 15312500000,
+          "effective_cores": 0.5103544306450309,
+          "effective_cores_per_runtime_worker": 0.5103544306450309,
+          "peak_thread_count": 3,
+          "peak_working_set_bytes": 10027008,
+          "peak_private_bytes": 2572288
+        }
+      },
+      "total_cpu_ns": 29359375000,
+      "cpu_ns_per_completed_operation": 226393.3977468134
+    },
+    "affinity": {
+      "endpoint_masks": [
+        "0x1"
+      ],
+      "server": [
+        {
+          "requested_mask": 1,
+          "observed_mask": 1,
+          "system_mask": 255,
+          "verified": true
+        }
+      ],
+      "source_process_mask": "0x1",
+      "source": {
+        "requested_mask": 1,
+        "observed_mask": 1,
+        "system_mask": 255,
+        "verified": true
+      },
+      "logical_processors_available": 1,
+      "source_group_thread_masks_enforced": false,
+      "placement": "destination endpoint masks [0x1]; source process mask 0x1; source group-thread placement not verified"
+    }
+  },
+  {
+    "groups": 1,
+    "payload_bytes": 16384,
+    "streams_per_group": 8,
+    "outstanding_per_stream": 8,
+    "completed_operations": 124966,
+    "measured_ns": 30010830100,
+    "configured_total_outstanding": 64,
+    "max_observed_total_outstanding": 64,
+    "operations_per_second": 4164.030104585478,
+    "aggregate_application_gbps": 1.0915755077364555,
+    "p50_latency_ns": 15233800,
+    "p95_latency_ns": 17710700,
+    "p99_latency_ns": 21279500,
+    "per_group": [
+      {
+        "ordinal": 0,
+        "completed_operations": 124966,
+        "measured_ns": 30010830100,
+        "gbps": 1.0915755077364555,
+        "p99_latency_ns": 21279500
+      }
+    ],
+    "schema": "nbsr-max-throughput-v2-stage4-repeat-v1",
+    "path": "direct",
+    "repeat": 1,
+    "endpoint_groups": 1,
+    "runtime_workers": 1,
+    "errors": 0,
+    "timeouts": 0,
+    "valid": true,
+    "cleanup_pass": true,
+    "cleanup_scope": "workload drain and process exit; ownership separately classified",
+    "ownership_cleanup": {
+      "classification": "NOT_MEASURED",
+      "reports": []
+    },
+    "cleanup_diagnostic": null,
+    "resources": {
+      "runtime_workers": 1,
+      "roles": {
+        "source": {
+          "cpu_ns": 15703125000,
+          "effective_cores": 0.5232486055092491,
+          "effective_cores_per_runtime_worker": 0.5232486055092491,
+          "peak_thread_count": 3,
+          "peak_working_set_bytes": 11698176,
+          "peak_private_bytes": 4685824
+        },
+        "destination_0": {
+          "cpu_ns": 13187500000,
+          "effective_cores": 0.43942469955204605,
+          "effective_cores_per_runtime_worker": 0.43942469955204605,
+          "peak_thread_count": 5,
+          "peak_working_set_bytes": 12066816,
+          "peak_private_bytes": 4960256
+        }
+      },
+      "total_cpu_ns": 28890625000,
+      "cpu_ns_per_completed_operation": 231187.88310420435
+    },
+    "affinity": {
+      "endpoint_masks": [
+        "0x1"
+      ],
+      "server": [
+        {
+          "requested_mask": 1,
+          "observed_mask": 1,
+          "system_mask": 255,
+          "verified": true
+        }
+      ],
+      "source_process_mask": "0x1",
+      "source": {
+        "requested_mask": 1,
+        "observed_mask": 1,
+        "system_mask": 255,
+        "verified": true
+      },
+      "logical_processors_available": 1,
+      "source_group_thread_masks_enforced": false,
+      "placement": "destination endpoint masks [0x1]; source process mask 0x1; source group-thread placement not verified"
+    }
+  },
+  {
+    "groups": 1,
+    "payload_bytes": 16384,
+    "streams_per_group": 8,
+    "outstanding_per_stream": 8,
+    "completed_operations": 123179,
+    "measured_ns": 30011911700,
+    "configured_total_outstanding": 64,
+    "max_observed_total_outstanding": 64,
+    "operations_per_second": 4104.3370122936885,
+    "aggregate_application_gbps": 1.0759273217507166,
+    "p50_latency_ns": 15538700,
+    "p95_latency_ns": 18197200,
+    "p99_latency_ns": 19590300,
+    "per_group": [
+      {
+        "ordinal": 0,
+        "completed_operations": 123179,
+        "measured_ns": 30011911700,
+        "gbps": 1.0759273217507166,
+        "p99_latency_ns": 19590300
+      }
+    ],
+    "schema": "nbsr-max-throughput-v2-stage4-repeat-v1",
+    "path": "nbsr",
+    "repeat": 1,
+    "endpoint_groups": 1,
+    "runtime_workers": 1,
+    "errors": 0,
+    "timeouts": 0,
+    "valid": true,
+    "cleanup_pass": true,
+    "cleanup_scope": "workload drain and process exit; ownership separately classified",
+    "ownership_cleanup": {
+      "classification": "NOT_MEASURED",
+      "reports": []
+    },
+    "cleanup_diagnostic": null,
+    "resources": {
+      "runtime_workers": 1,
+      "roles": {
+        "source": {
+          "cpu_ns": 15500000000,
+          "effective_cores": 0.5164616021444579,
+          "effective_cores_per_runtime_worker": 0.5164616021444579,
+          "peak_thread_count": 3,
+          "peak_working_set_bytes": 12136448,
+          "peak_private_bytes": 4878336
+        },
+        "destination_0": {
+          "cpu_ns": 13500000000,
+          "effective_cores": 0.44982139541614075,
+          "effective_cores_per_runtime_worker": 0.44982139541614075,
+          "peak_thread_count": 3,
+          "peak_working_set_bytes": 10866688,
+          "peak_private_bytes": 3407872
+        }
+      },
+      "total_cpu_ns": 29000000000,
+      "cpu_ns_per_completed_operation": 235429.7404590068
+    },
+    "affinity": {
+      "endpoint_masks": [
+        "0x1"
+      ],
+      "server": [
+        {
+          "requested_mask": 1,
+          "observed_mask": 1,
+          "system_mask": 255,
+          "verified": true
+        }
+      ],
+      "source_process_mask": "0x1",
+      "source": {
+        "requested_mask": 1,
+        "observed_mask": 1,
+        "system_mask": 255,
+        "verified": true
+      },
+      "logical_processors_available": 1,
+      "source_group_thread_masks_enforced": false,
+      "placement": "destination endpoint masks [0x1]; source process mask 0x1; source group-thread placement not verified"
+    }
+  },
+  {
+    "groups": 1,
+    "payload_bytes": 16384,
+    "streams_per_group": 8,
+    "outstanding_per_stream": 8,
+    "completed_operations": 135052,
+    "measured_ns": 30007335000,
+    "configured_total_outstanding": 64,
+    "max_observed_total_outstanding": 64,
+    "operations_per_second": 4500.632928582295,
+    "aggregate_application_gbps": 1.1798139184302772,
+    "p50_latency_ns": 13909600,
+    "p95_latency_ns": 15311900,
+    "p99_latency_ns": 19235600,
+    "per_group": [
+      {
+        "ordinal": 0,
+        "completed_operations": 135052,
+        "measured_ns": 30007335000,
+        "gbps": 1.1798139184302772,
+        "p99_latency_ns": 19235600
+      }
+    ],
+    "schema": "nbsr-max-throughput-v2-stage4-repeat-v1",
+    "path": "nbsr",
+    "repeat": 2,
+    "endpoint_groups": 1,
+    "runtime_workers": 1,
+    "errors": 0,
+    "timeouts": 0,
+    "valid": true,
+    "cleanup_pass": true,
+    "cleanup_scope": "workload drain and process exit; ownership separately classified",
+    "ownership_cleanup": {
+      "classification": "NOT_MEASURED",
+      "reports": []
+    },
+    "cleanup_diagnostic": null,
+    "resources": {
+      "runtime_workers": 1,
+      "roles": {
+        "source": {
+          "cpu_ns": 14796875000,
+          "effective_cores": 0.4931086016135722,
+          "effective_cores_per_runtime_worker": 0.4931086016135722,
+          "peak_thread_count": 3,
+          "peak_working_set_bytes": 12488704,
+          "peak_private_bytes": 5804032
+        },
+        "destination_0": {
+          "cpu_ns": 14500000000,
+          "effective_cores": 0.483215187220058,
+          "effective_cores_per_runtime_worker": 0.483215187220058,
+          "peak_thread_count": 3,
+          "peak_working_set_bytes": 10518528,
+          "peak_private_bytes": 3063808
+        }
+      },
+      "total_cpu_ns": 29296875000,
+      "cpu_ns_per_completed_operation": 216930.3305393478
+    },
+    "affinity": {
+      "endpoint_masks": [
+        "0x1"
+      ],
+      "server": [
+        {
+          "requested_mask": 1,
+          "observed_mask": 1,
+          "system_mask": 255,
+          "verified": true
+        }
+      ],
+      "source_process_mask": "0x1",
+      "source": {
+        "requested_mask": 1,
+        "observed_mask": 1,
+        "system_mask": 255,
+        "verified": true
+      },
+      "logical_processors_available": 1,
+      "source_group_thread_masks_enforced": false,
+      "placement": "destination endpoint masks [0x1]; source process mask 0x1; source group-thread placement not verified"
+    }
+  },
+  {
+    "groups": 1,
+    "payload_bytes": 16384,
+    "streams_per_group": 8,
+    "outstanding_per_stream": 8,
+    "completed_operations": 127618,
+    "measured_ns": 30009997000,
+    "configured_total_outstanding": 64,
+    "max_observed_total_outstanding": 64,
+    "operations_per_second": 4252.516253167237,
+    "aggregate_application_gbps": 1.114771620670272,
+    "p50_latency_ns": 15200800,
+    "p95_latency_ns": 17183900,
+    "p99_latency_ns": 18213500,
+    "per_group": [
+      {
+        "ordinal": 0,
+        "completed_operations": 127618,
+        "measured_ns": 30009997000,
+        "gbps": 1.114771620670272,
+        "p99_latency_ns": 18213500
+      }
+    ],
+    "schema": "nbsr-max-throughput-v2-stage4-repeat-v1",
+    "path": "direct",
+    "repeat": 2,
+    "endpoint_groups": 1,
+    "runtime_workers": 1,
+    "errors": 0,
+    "timeouts": 0,
+    "valid": true,
+    "cleanup_pass": true,
+    "cleanup_scope": "workload drain and process exit; ownership separately classified",
+    "ownership_cleanup": {
+      "classification": "NOT_MEASURED",
+      "reports": []
+    },
+    "cleanup_diagnostic": null,
+    "resources": {
+      "runtime_workers": 1,
+      "roles": {
+        "source": {
+          "cpu_ns": 16609375000,
+          "effective_cores": 0.553461401545625,
+          "effective_cores_per_runtime_worker": 0.553461401545625,
+          "peak_thread_count": 3,
+          "peak_working_set_bytes": 11616256,
+          "peak_private_bytes": 4694016
+        },
+        "destination_0": {
+          "cpu_ns": 12875000000,
+          "effective_cores": 0.4290237016684807,
+          "effective_cores_per_runtime_worker": 0.4290237016684807,
+          "peak_thread_count": 5,
+          "peak_working_set_bytes": 12075008,
+          "peak_private_bytes": 4988928
+        }
+      },
+      "total_cpu_ns": 29484375000,
+      "cpu_ns_per_completed_operation": 231036.17828206051
+    },
+    "affinity": {
+      "endpoint_masks": [
+        "0x1"
+      ],
+      "server": [
+        {
+          "requested_mask": 1,
+          "observed_mask": 1,
+          "system_mask": 255,
+          "verified": true
+        }
+      ],
+      "source_process_mask": "0x1",
+      "source": {
+        "requested_mask": 1,
+        "observed_mask": 1,
+        "system_mask": 255,
+        "verified": true
+      },
+      "logical_processors_available": 1,
+      "source_group_thread_masks_enforced": false,
+      "placement": "destination endpoint masks [0x1]; source process mask 0x1; source group-thread placement not verified"
+    }
+  },
+  {
+    "groups": 1,
+    "payload_bytes": 16384,
+    "streams_per_group": 8,
+    "outstanding_per_stream": 8,
+    "completed_operations": 124473,
+    "measured_ns": 30011244100,
+    "configured_total_outstanding": 64,
+    "max_observed_total_outstanding": 64,
+    "operations_per_second": 4147.545486126648,
+    "aggregate_application_gbps": 1.087254163915184,
+    "p50_latency_ns": 15332000,
+    "p95_latency_ns": 17774400,
+    "p99_latency_ns": 22198400,
+    "per_group": [
+      {
+        "ordinal": 0,
+        "completed_operations": 124473,
+        "measured_ns": 30011244100,
+        "gbps": 1.087254163915184,
+        "p99_latency_ns": 22198400
+      }
+    ],
+    "schema": "nbsr-max-throughput-v2-stage4-repeat-v1",
+    "path": "direct",
+    "repeat": 3,
+    "endpoint_groups": 1,
+    "runtime_workers": 1,
+    "errors": 0,
+    "timeouts": 0,
+    "valid": true,
+    "cleanup_pass": true,
+    "cleanup_scope": "workload drain and process exit; ownership separately classified",
+    "ownership_cleanup": {
+      "classification": "NOT_MEASURED",
+      "reports": []
+    },
+    "cleanup_diagnostic": null,
+    "resources": {
+      "runtime_workers": 1,
+      "roles": {
+        "source": {
+          "cpu_ns": 16359375000,
+          "effective_cores": 0.5451081916327487,
+          "effective_cores_per_runtime_worker": 0.5451081916327487,
+          "peak_thread_count": 3,
+          "peak_working_set_bytes": 11640832,
+          "peak_private_bytes": 4603904
+        },
+        "destination_0": {
+          "cpu_ns": 12781250000,
+          "effective_cores": 0.4258820446567225,
+          "effective_cores_per_runtime_worker": 0.4258820446567225,
+          "peak_thread_count": 5,
+          "peak_working_set_bytes": 12046336,
+          "peak_private_bytes": 4952064
+        }
+      },
+      "total_cpu_ns": 29140625000,
+      "cpu_ns_per_completed_operation": 234112.0162605545
+    },
+    "affinity": {
+      "endpoint_masks": [
+        "0x1"
+      ],
+      "server": [
+        {
+          "requested_mask": 1,
+          "observed_mask": 1,
+          "system_mask": 255,
+          "verified": true
+        }
+      ],
+      "source_process_mask": "0x1",
+      "source": {
+        "requested_mask": 1,
+        "observed_mask": 1,
+        "system_mask": 255,
+        "verified": true
+      },
+      "logical_processors_available": 1,
+      "source_group_thread_masks_enforced": false,
+      "placement": "destination endpoint masks [0x1]; source process mask 0x1; source group-thread placement not verified"
+    }
+  },
+  {
+    "groups": 1,
+    "payload_bytes": 16384,
+    "streams_per_group": 8,
+    "outstanding_per_stream": 8,
+    "completed_operations": 137675,
+    "measured_ns": 30007222500,
+    "configured_total_outstanding": 64,
+    "max_observed_total_outstanding": 64,
+    "operations_per_second": 4588.062090718326,
+    "aggregate_application_gbps": 1.2027329487092648,
+    "p50_latency_ns": 13860000,
+    "p95_latency_ns": 14922600,
+    "p99_latency_ns": 15757900,
+    "per_group": [
+      {
+        "ordinal": 0,
+        "completed_operations": 137675,
+        "measured_ns": 30007222500,
+        "gbps": 1.2027329487092648,
+        "p99_latency_ns": 15757900
+      }
+    ],
+    "schema": "nbsr-max-throughput-v2-stage4-repeat-v1",
+    "path": "nbsr",
+    "repeat": 3,
+    "endpoint_groups": 1,
+    "runtime_workers": 1,
+    "errors": 0,
+    "timeouts": 0,
+    "valid": true,
+    "cleanup_pass": true,
+    "cleanup_scope": "workload drain and process exit; ownership separately classified",
+    "ownership_cleanup": {
+      "classification": "NOT_MEASURED",
+      "reports": []
+    },
+    "cleanup_diagnostic": null,
+    "resources": {
+      "runtime_workers": 1,
+      "roles": {
+        "source": {
+          "cpu_ns": 14171875000,
+          "effective_cores": 0.4722821314101963,
+          "effective_cores_per_runtime_worker": 0.4722821314101963,
+          "peak_thread_count": 3,
+          "peak_working_set_bytes": 12259328,
+          "peak_private_bytes": 5464064
+        },
+        "destination_0": {
+          "cpu_ns": 14937500000,
+          "effective_cores": 0.49779682208175047,
+          "effective_cores_per_runtime_worker": 0.49779682208175047,
+          "peak_thread_count": 3,
+          "peak_working_set_bytes": 10428416,
+          "peak_private_bytes": 2965504
+        }
+      },
+      "total_cpu_ns": 29109375000,
+      "cpu_ns_per_completed_operation": 211435.4457962593
+    },
+    "affinity": {
+      "endpoint_masks": [
+        "0x1"
+      ],
+      "server": [
+        {
+          "requested_mask": 1,
+          "observed_mask": 1,
+          "system_mask": 255,
+          "verified": true
+        }
+      ],
+      "source_process_mask": "0x1",
+      "source": {
+        "requested_mask": 1,
+        "observed_mask": 1,
+        "system_mask": 255,
+        "verified": true
+      },
+      "logical_processors_available": 1,
+      "source_group_thread_masks_enforced": false,
+      "placement": "destination endpoint masks [0x1]; source process mask 0x1; source group-thread placement not verified"
+    }
+  },
+  {
+    "groups": 1,
+    "payload_bytes": 16384,
+    "streams_per_group": 8,
+    "outstanding_per_stream": 8,
+    "completed_operations": 134806,
+    "measured_ns": 30007370200,
+    "configured_total_outstanding": 64,
+    "max_observed_total_outstanding": 64,
+    "operations_per_second": 4492.429663163219,
+    "aggregate_application_gbps": 1.177663481620259,
+    "p50_latency_ns": 13887600,
+    "p95_latency_ns": 15206700,
+    "p99_latency_ns": 19880900,
+    "per_group": [
+      {
+        "ordinal": 0,
+        "completed_operations": 134806,
+        "measured_ns": 30007370200,
+        "gbps": 1.177663481620259,
+        "p99_latency_ns": 19880900
+      }
+    ],
+    "schema": "nbsr-max-throughput-v2-stage4-repeat-v1",
+    "path": "nbsr",
+    "repeat": 4,
+    "endpoint_groups": 1,
+    "runtime_workers": 1,
+    "errors": 0,
+    "timeouts": 0,
+    "valid": true,
+    "cleanup_pass": true,
+    "cleanup_scope": "workload drain and process exit; ownership separately classified",
+    "ownership_cleanup": {
+      "classification": "NOT_MEASURED",
+      "reports": []
+    },
+    "cleanup_diagnostic": null,
+    "resources": {
+      "runtime_workers": 1,
+      "roles": {
+        "source": {
+          "cpu_ns": 14500000000,
+          "effective_cores": 0.4832146203868275,
+          "effective_cores_per_runtime_worker": 0.4832146203868275,
+          "peak_thread_count": 3,
+          "peak_working_set_bytes": 12210176,
+          "peak_private_bytes": 5255168
+        },
+        "destination_0": {
+          "cpu_ns": 14609375000,
+          "effective_cores": 0.4868595582561247,
+          "effective_cores_per_runtime_worker": 0.4868595582561247,
+          "peak_thread_count": 3,
+          "peak_working_set_bytes": 10424320,
+          "peak_private_bytes": 2957312
+        }
+      },
+      "total_cpu_ns": 29109375000,
+      "cpu_ns_per_completed_operation": 215935.30703381155
+    },
+    "affinity": {
+      "endpoint_masks": [
+        "0x1"
+      ],
+      "server": [
+        {
+          "requested_mask": 1,
+          "observed_mask": 1,
+          "system_mask": 255,
+          "verified": true
+        }
+      ],
+      "source_process_mask": "0x1",
+      "source": {
+        "requested_mask": 1,
+        "observed_mask": 1,
+        "system_mask": 255,
+        "verified": true
+      },
+      "logical_processors_available": 1,
+      "source_group_thread_masks_enforced": false,
+      "placement": "destination endpoint masks [0x1]; source process mask 0x1; source group-thread placement not verified"
+    }
+  },
+  {
+    "groups": 1,
+    "payload_bytes": 16384,
+    "streams_per_group": 8,
+    "outstanding_per_stream": 8,
+    "completed_operations": 126545,
+    "measured_ns": 30012254200,
+    "configured_total_outstanding": 64,
+    "max_observed_total_outstanding": 64,
+    "operations_per_second": 4216.444361583476,
+    "aggregate_application_gbps": 1.1053155907229388,
+    "p50_latency_ns": 15336900,
+    "p95_latency_ns": 17451900,
+    "p99_latency_ns": 18730800,
+    "per_group": [
+      {
+        "ordinal": 0,
+        "completed_operations": 126545,
+        "measured_ns": 30012254200,
+        "gbps": 1.1053155907229388,
+        "p99_latency_ns": 18730800
+      }
+    ],
+    "schema": "nbsr-max-throughput-v2-stage4-repeat-v1",
+    "path": "direct",
+    "repeat": 4,
+    "endpoint_groups": 1,
+    "runtime_workers": 1,
+    "errors": 0,
+    "timeouts": 0,
+    "valid": true,
+    "cleanup_pass": true,
+    "cleanup_scope": "workload drain and process exit; ownership separately classified",
+    "ownership_cleanup": {
+      "classification": "NOT_MEASURED",
+      "reports": []
+    },
+    "cleanup_diagnostic": null,
+    "resources": {
+      "runtime_workers": 1,
+      "roles": {
+        "source": {
+          "cpu_ns": 16437500000,
+          "effective_cores": 0.547692948702267,
+          "effective_cores_per_runtime_worker": 0.547692948702267,
+          "peak_thread_count": 3,
+          "peak_working_set_bytes": 11665408,
+          "peak_private_bytes": 4661248
+        },
+        "destination_0": {
+          "cpu_ns": 12843750000,
+          "effective_cores": 0.4279501937578551,
+          "effective_cores_per_runtime_worker": 0.4279501937578551,
+          "peak_thread_count": 5,
+          "peak_working_set_bytes": 11988992,
+          "peak_private_bytes": 4874240
+        }
+      },
+      "total_cpu_ns": 29281250000,
+      "cpu_ns_per_completed_operation": 231390.01936070173
+    },
+    "affinity": {
+      "endpoint_masks": [
+        "0x1"
+      ],
+      "server": [
+        {
+          "requested_mask": 1,
+          "observed_mask": 1,
+          "system_mask": 255,
+          "verified": true
+        }
+      ],
+      "source_process_mask": "0x1",
+      "source": {
+        "requested_mask": 1,
+        "observed_mask": 1,
+        "system_mask": 255,
+        "verified": true
+      },
+      "logical_processors_available": 1,
+      "source_group_thread_masks_enforced": false,
+      "placement": "destination endpoint masks [0x1]; source process mask 0x1; source group-thread placement not verified"
+    }
+  },
+  {
+    "groups": 1,
+    "payload_bytes": 16384,
+    "streams_per_group": 8,
+    "outstanding_per_stream": 8,
+    "completed_operations": 126914,
+    "measured_ns": 30010244600,
+    "configured_total_outstanding": 64,
+    "max_observed_total_outstanding": 64,
+    "operations_per_second": 4229.022511865831,
+    "aggregate_application_gbps": 1.1086128773505564,
+    "p50_latency_ns": 15125300,
+    "p95_latency_ns": 17480700,
+    "p99_latency_ns": 18996800,
+    "per_group": [
+      {
+        "ordinal": 0,
+        "completed_operations": 126914,
+        "measured_ns": 30010244600,
+        "gbps": 1.1086128773505564,
+        "p99_latency_ns": 18996800
+      }
+    ],
+    "schema": "nbsr-max-throughput-v2-stage4-repeat-v1",
+    "path": "direct",
+    "repeat": 5,
+    "endpoint_groups": 1,
+    "runtime_workers": 1,
+    "errors": 0,
+    "timeouts": 0,
+    "valid": true,
+    "cleanup_pass": true,
+    "cleanup_scope": "workload drain and process exit; ownership separately classified",
+    "ownership_cleanup": {
+      "classification": "NOT_MEASURED",
+      "reports": []
+    },
+    "cleanup_diagnostic": null,
+    "resources": {
+      "runtime_workers": 1,
+      "roles": {
+        "source": {
+          "cpu_ns": 16468750000,
+          "effective_cores": 0.5487709353758483,
+          "effective_cores_per_runtime_worker": 0.5487709353758483,
+          "peak_thread_count": 3,
+          "peak_working_set_bytes": 11681792,
+          "peak_private_bytes": 4608000
+        },
+        "destination_0": {
+          "cpu_ns": 12812500000,
+          "effective_cores": 0.42693753985597305,
+          "effective_cores_per_runtime_worker": 0.42693753985597305,
+          "peak_thread_count": 5,
+          "peak_working_set_bytes": 12001280,
+          "peak_private_bytes": 4907008
+        }
+      },
+      "total_cpu_ns": 29281250000,
+      "cpu_ns_per_completed_operation": 230717.25735537452
+    },
+    "affinity": {
+      "endpoint_masks": [
+        "0x1"
+      ],
+      "server": [
+        {
+          "requested_mask": 1,
+          "observed_mask": 1,
+          "system_mask": 255,
+          "verified": true
+        }
+      ],
+      "source_process_mask": "0x1",
+      "source": {
+        "requested_mask": 1,
+        "observed_mask": 1,
+        "system_mask": 255,
+        "verified": true
+      },
+      "logical_processors_available": 1,
+      "source_group_thread_masks_enforced": false,
+      "placement": "destination endpoint masks [0x1]; source process mask 0x1; source group-thread placement not verified"
+    }
+  },
+  {
+    "groups": 1,
+    "payload_bytes": 16384,
+    "streams_per_group": 8,
+    "outstanding_per_stream": 8,
+    "completed_operations": 137764,
+    "measured_ns": 30007163200,
+    "configured_total_outstanding": 64,
+    "max_observed_total_outstanding": 64,
+    "operations_per_second": 4591.037116097666,
+    "aggregate_application_gbps": 1.2035128337623064,
+    "p50_latency_ns": 13844100,
+    "p95_latency_ns": 14820300,
+    "p99_latency_ns": 15564600,
+    "per_group": [
+      {
+        "ordinal": 0,
+        "completed_operations": 137764,
+        "measured_ns": 30007163200,
+        "gbps": 1.2035128337623064,
+        "p99_latency_ns": 15564600
+      }
+    ],
+    "schema": "nbsr-max-throughput-v2-stage4-repeat-v1",
+    "path": "nbsr",
+    "repeat": 5,
+    "endpoint_groups": 1,
+    "runtime_workers": 1,
+    "errors": 0,
+    "timeouts": 0,
+    "valid": true,
+    "cleanup_pass": true,
+    "cleanup_scope": "workload drain and process exit; ownership separately classified",
+    "ownership_cleanup": {
+      "classification": "NOT_MEASURED",
+      "reports": []
+    },
+    "cleanup_diagnostic": null,
+    "resources": {
+      "runtime_workers": 1,
+      "roles": {
+        "source": {
+          "cpu_ns": 14078125000,
+          "effective_cores": 0.46915881072023496,
+          "effective_cores_per_runtime_worker": 0.46915881072023496,
+          "peak_thread_count": 3,
+          "peak_working_set_bytes": 12312576,
+          "peak_private_bytes": 5496832
+        },
+        "destination_0": {
+          "cpu_ns": 14765625000,
+          "effective_cores": 0.492070006804242,
+          "effective_cores_per_runtime_worker": 0.492070006804242,
+          "peak_thread_count": 3,
+          "peak_working_set_bytes": 10309632,
+          "peak_private_bytes": 2928640
+        }
+      },
+      "total_cpu_ns": 28843750000,
+      "cpu_ns_per_completed_operation": 209370.73546064284
+    },
+    "affinity": {
+      "endpoint_masks": [
+        "0x1"
+      ],
+      "server": [
+        {
+          "requested_mask": 1,
+          "observed_mask": 1,
+          "system_mask": 255,
+          "verified": true
+        }
+      ],
+      "source_process_mask": "0x1",
+      "source": {
+        "requested_mask": 1,
+        "observed_mask": 1,
+        "system_mask": 255,
+        "verified": true
+      },
+      "logical_processors_available": 1,
+      "source_group_thread_masks_enforced": false,
+      "placement": "destination endpoint masks [0x1]; source process mask 0x1; source group-thread placement not verified"
+    }
+  }
+]

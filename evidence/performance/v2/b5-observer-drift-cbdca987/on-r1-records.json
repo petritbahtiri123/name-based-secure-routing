@@ -1,0 +1,96 @@
+[
+  {
+    "path": "nbsr",
+    "valid": true,
+    "classification": "DIAGNOSTIC",
+    "scope": "Windows loopback",
+    "final": {
+      "schema": "nbsr-b5-grouped-final-v1",
+      "groups": 1,
+      "payload_bytes": 16384,
+      "streams_per_group": 8,
+      "outstanding_per_stream": 1,
+      "measurement_duration_ns": 120000000000,
+      "drain_duration_ns": 372900,
+      "offered": 337268,
+      "reserved": 333303,
+      "issued": 333303,
+      "completed": 333303,
+      "missed": 3965,
+      "unreserved_current": 0,
+      "group_counters": [
+        {
+          "group_id": 0,
+          "offered": 337268,
+          "reserved": 333303,
+          "issued": 333303,
+          "completed": 333303,
+          "missed": 3965,
+          "unreserved_current": 0
+        }
+      ],
+      "max_outstanding_observed": 8,
+      "errors": 0,
+      "timeouts": 0,
+      "collector_overflow_count": 0,
+      "all_groups_joined": true,
+      "source_cleanup": {
+        "status": "SEPARATE_REPORT_REQUIRED"
+      },
+      "evidence_valid": true
+    },
+    "achieved_offered_ratio": 0.9882437705326328,
+    "gbps": 0.7281092510005025,
+    "qualification": {
+      "steady_windows": 3,
+      "latency_comparison_available": true,
+      "resource_series_available": true,
+      "resource_phase_clock": "first-progress receive time minus elapsed; approximate, excludes earlier samples",
+      "thermal_and_power": "NOT_MEASURED"
+    },
+    "ownership_reports": [
+      {
+        "role": "destination",
+        "pid": 17620,
+        "file": "d0.cleanup.json",
+        "all_11_zero": true
+      },
+      {
+        "role": "source",
+        "pid": 24200,
+        "file": "source.cleanup.json",
+        "all_11_zero": true
+      }
+    ],
+    "continuous_ownership": {
+      "classification": "SAMPLED_NO_SUSTAINED_GROWTH",
+      "sample_counts": {
+        "destination_0": 123,
+        "source": 120
+      },
+      "max_snapshot_gap_ns": {
+        "destination_0": 1064082400,
+        "source": 1020167700
+      },
+      "retained_window_per_role": 60,
+      "scope": "Process-local sample intervals; cross-process clock alignment and final zero cleanup are separate.",
+      "retained_capacity_scope": "Optional fields observed when emitted; not allocator or leak attribution."
+    },
+    "cleanup_scope": "11-counter reports and all process joins",
+    "internal_failure_thread_join": "NOT_MEASURED",
+    "affinity": [
+      {
+        "requested_mask": 1,
+        "observed_mask": 1,
+        "system_mask": 255,
+        "verified": true
+      },
+      {
+        "requested_mask": 1,
+        "observed_mask": 1,
+        "system_mask": 255,
+        "verified": true
+      }
+    ]
+  }
+]

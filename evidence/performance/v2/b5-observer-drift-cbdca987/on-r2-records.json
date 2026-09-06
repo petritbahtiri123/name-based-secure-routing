@@ -1,0 +1,23 @@
+[
+  {
+    "path": "nbsr",
+    "valid": false,
+    "classification": "FAIL",
+    "scope": "Windows loopback",
+    "error": "B5 stream failed: live goodput drift",
+    "affinity": [
+      {
+        "requested_mask": 1,
+        "observed_mask": 1,
+        "system_mask": 255,
+        "verified": true
+      },
+      {
+        "requested_mask": 1,
+        "observed_mask": 1,
+        "system_mask": 255,
+        "verified": true
+      }
+    ]
+  }
+]

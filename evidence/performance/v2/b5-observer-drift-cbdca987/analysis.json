@@ -1,0 +1,76 @@
+{
+  "classification": "INCONCLUSIVE_OBSERVER_QUALIFICATION",
+  "raw_root": "C:\\NBSR-build\\b5-observer-16k8-cbdca987",
+  "verified_raw_files": 62,
+  "raw_index_sha256": "48f3cf6ae276364012fc8e1a4c94fa2c204e048648ad2b7eae5ac2435c23c799",
+  "completed": [
+    "off-r1",
+    "on-r1"
+  ],
+  "aborted": "on-r2",
+  "not_run": [
+    "off-r2",
+    "off-r3",
+    "on-r3"
+  ],
+  "reason": "live goodput drift",
+  "goodput_late_early_ratio": 0.9458266531550211,
+  "p99_late_early_ratio": 2.2746953175112252,
+  "windows": [
+    {
+      "start_seconds": 0,
+      "roles": {
+        "source": {
+          "effective_cores": 0.33228952235779496,
+          "private_delta": 135168,
+          "handle_delta": 0
+        },
+        "destination_0": {
+          "effective_cores": 0.41587433758448805,
+          "private_delta": -45056,
+          "handle_delta": 0
+        }
+      },
+      "total_effective_cores": 0.7481638599422831
+    },
+    {
+      "start_seconds": 30,
+      "roles": {
+        "source": {
+          "effective_cores": 0.32678025350758083,
+          "private_delta": -311296,
+          "handle_delta": -1
+        },
+        "destination_0": {
+          "effective_cores": 0.413390707899821,
+          "private_delta": -139264,
+          "handle_delta": 0
+        }
+      },
+      "total_effective_cores": 0.7401709614074019
+    },
+    {
+      "start_seconds": 60,
+      "roles": {
+        "source": {
+          "effective_cores": 0.3511899744400652,
+          "private_delta": 139264,
+          "handle_delta": 0
+        },
+        "destination_0": {
+          "effective_cores": 0.3940955289121515,
+          "private_delta": 212992,
+          "handle_delta": 0
+        }
+      },
+      "total_effective_cores": 0.7452855033522168
+    }
+  ],
+  "resource_alignment": "DERIVED: minimum source receipt minus source elapsed; boundary fragments excluded",
+  "limits": [
+    "No causal observer claim with one completed pair and one aborted observed run",
+    "No hardware ceiling: tracked processes used about 0.75 core; competing host work and frequency not measured",
+    "No production attribution; no throughput/security/timeout threshold changed",
+    "Failed partial result retained; no successful final ownership cleanup claim for aborted run"
+  ]
+}

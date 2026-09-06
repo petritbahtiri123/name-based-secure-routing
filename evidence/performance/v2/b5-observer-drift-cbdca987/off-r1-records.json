@@ -1,0 +1,85 @@
+[
+  {
+    "path": "nbsr",
+    "valid": true,
+    "classification": "DIAGNOSTIC",
+    "scope": "Windows loopback",
+    "final": {
+      "schema": "nbsr-b5-grouped-final-v1",
+      "groups": 1,
+      "payload_bytes": 16384,
+      "streams_per_group": 8,
+      "outstanding_per_stream": 1,
+      "measurement_duration_ns": 120000000000,
+      "drain_duration_ns": 690100,
+      "offered": 337268,
+      "reserved": 325329,
+      "issued": 325329,
+      "completed": 325329,
+      "missed": 11939,
+      "unreserved_current": 0,
+      "group_counters": [
+        {
+          "group_id": 0,
+          "offered": 337268,
+          "reserved": 325329,
+          "issued": 325329,
+          "completed": 325329,
+          "missed": 11939,
+          "unreserved_current": 0
+        }
+      ],
+      "max_outstanding_observed": 8,
+      "errors": 0,
+      "timeouts": 0,
+      "collector_overflow_count": 0,
+      "all_groups_joined": true,
+      "source_cleanup": {
+        "status": "SEPARATE_REPORT_REQUIRED"
+      },
+      "evidence_valid": true
+    },
+    "achieved_offered_ratio": 0.9646008515483235,
+    "gbps": 0.710687957752003,
+    "qualification": {
+      "steady_windows": 3,
+      "latency_comparison_available": true,
+      "resource_series_available": true,
+      "resource_phase_clock": "first-progress receive time minus elapsed; approximate, excludes earlier samples",
+      "thermal_and_power": "NOT_MEASURED"
+    },
+    "ownership_reports": [
+      {
+        "role": "destination",
+        "pid": 26912,
+        "file": "d0.cleanup.json",
+        "all_11_zero": true
+      },
+      {
+        "role": "source",
+        "pid": 13716,
+        "file": "source.cleanup.json",
+        "all_11_zero": true
+      }
+    ],
+    "continuous_ownership": {
+      "classification": "NOT_MEASURED"
+    },
+    "cleanup_scope": "11-counter reports and all process joins",
+    "internal_failure_thread_join": "NOT_MEASURED",
+    "affinity": [
+      {
+        "requested_mask": 1,
+        "observed_mask": 1,
+        "system_mask": 255,
+        "verified": true
+      },
+      {
+        "requested_mask": 1,
+        "observed_mask": 1,
+        "system_mask": 255,
+        "verified": true
+      }
+    ]
+  }
+]
