@@ -1,0 +1,70 @@
+[
+  {
+    "path": "direct",
+    "mode": "default",
+    "classification": "DIAGNOSTIC",
+    "valid": true,
+    "ready_endpoint": "127.0.0.1:52392",
+    "source_udp_endpoints": [
+      {
+        "LocalAddress": "127.0.0.1",
+        "LocalPort": 52393,
+        "OwningProcess": 29524
+      }
+    ],
+    "source_exit": 0,
+    "server_exit": 0,
+    "owned_processes_joined": true
+  },
+  {
+    "path": "nbsr",
+    "mode": "default",
+    "classification": "DIAGNOSTIC",
+    "valid": true,
+    "ready_endpoint": "127.0.0.1:58127",
+    "source_udp_endpoints": [
+      {
+        "LocalAddress": "127.0.0.1",
+        "LocalPort": 58128,
+        "OwningProcess": 34112
+      }
+    ],
+    "source_exit": 0,
+    "server_exit": 0,
+    "owned_processes_joined": true
+  },
+  {
+    "path": "direct",
+    "mode": "explicit",
+    "classification": "DIAGNOSTIC",
+    "valid": true,
+    "ready_endpoint": "127.0.0.2:64338",
+    "source_udp_endpoints": [
+      {
+        "LocalAddress": "127.0.0.2",
+        "LocalPort": 64339,
+        "OwningProcess": 30296
+      }
+    ],
+    "source_exit": 0,
+    "server_exit": 0,
+    "owned_processes_joined": true
+  },
+  {
+    "path": "nbsr",
+    "mode": "explicit",
+    "classification": "DIAGNOSTIC",
+    "valid": true,
+    "ready_endpoint": "127.0.0.2:55798",
+    "source_udp_endpoints": [
+      {
+        "LocalAddress": "127.0.0.2",
+        "LocalPort": 55799,
+        "OwningProcess": 31484
+      }
+    ],
+    "source_exit": 0,
+    "server_exit": 0,
+    "owned_processes_joined": true
+  }
+]

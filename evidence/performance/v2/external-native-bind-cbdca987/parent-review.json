@@ -1,0 +1,12 @@
+{
+  "raw_root": "C:\\NBSR-build\\external-bind-implementation-20260906",
+  "raw_files": 79,
+  "raw_index_sha256": "6aab8667e9ce8e5abac3c6e1ff77fd51707f20ceb24c702c3d411fcd8941c62e",
+  "parent_review": "One focused code/security review; no Important/Critical finding",
+  "tested_source_bytes": "Eight copied source files exactly match current working files",
+  "cargo_fmt_check": "PASS",
+  "runbook_bash_syntax_blocks": 11,
+  "runbook_python_ast_blocks": 5,
+  "runbook_normalized_sha256": "9d401a2d0ba635c353cb120663cce48623b5b37a74619f353eaa8fb11cad2eaa",
+  "remote_execution": "NOT_RUN"
+}

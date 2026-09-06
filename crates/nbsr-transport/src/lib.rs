@@ -130,6 +130,8 @@ mod channel_lifecycle;
 mod channel_registry;
 mod channel_streams;
 pub use channel_streams::{ReplayHistoryLimit, ReplayHistoryLimitError};
+#[cfg(feature = "benchmark-harness")]
+pub mod benchmark_bind;
 mod config;
 mod core_v02;
 mod datagram_gate;
@@ -181,6 +183,8 @@ pub use error::TransportError;
 pub use federation::{
     FederationReject, LocalFederationAdmissionAttestations, LocalFederationAdmissionAuthorities,
 };
+#[cfg(feature = "benchmark-harness")]
+pub use quinn_adapter::benchmark_connect_from;
 pub use quinn_adapter::{
     ApplicationStream, ApplicationStreamPermit, AuthenticatedConnection, ControlStream,
     TransportListener, connect,

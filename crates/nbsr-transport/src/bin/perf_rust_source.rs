@@ -31,6 +31,11 @@ use tokio::task::JoinSet;
 
 #[cfg(feature = "benchmark-harness")]
 mod b1_support;
+#[cfg(all(test, feature = "benchmark-harness"))]
+#[path = "benchmark_support/external_bind_contract_tests.rs"]
+mod external_bind_contract_tests;
+#[cfg(feature = "benchmark-harness")]
+use nbsr_transport::benchmark_bind as external_bind;
 mod b3_support;
 #[cfg(feature = "benchmark-harness")]
 mod b4_support;
@@ -1241,23 +1246,28 @@ async fn run(
     assert!(samples <= 100_000 || offered_rate.is_some());
     assert!((1..=1_048_576).contains(&payload_bytes));
     let handshake = Instant::now();
-    let connection = connect(
-        build_client_config(
-            PeerPolicy::new(
-                EdgeRole::Source,
-                EdgeRole::Destination,
-                identity("destination.edge"),
-                Duration::from_secs(5),
-                Duration::from_secs(30),
-            )
-            .unwrap(),
-            tls_material(&authority),
+    let config = build_client_config(
+        PeerPolicy::new(
+            EdgeRole::Source,
+            EdgeRole::Destination,
+            identity("destination.edge"),
+            Duration::from_secs(5),
+            Duration::from_secs(30),
         )
         .unwrap(),
+        tls_material(&authority),
+    )
+    .unwrap();
+    #[cfg(feature = "benchmark-harness")]
+    let connection = nbsr_transport::benchmark_connect_from(
+        config,
         endpoint,
+        external_bind::client_bind(env::args()).expect("valid benchmark client bind"),
     )
     .await
     .unwrap();
+    #[cfg(not(feature = "benchmark-harness"))]
+    let connection = connect(config, endpoint).await.unwrap();
     let handshake_ns = handshake.elapsed().as_nanos();
     let mut control = connection.open_control_stream().await.unwrap();
     let client = client_hello();
@@ -1940,6 +1950,14 @@ async fn run(
 
 #[cfg(feature = "benchmark-harness")]
 fn main() {
+    external_bind::client_bind(env::args()).expect("valid benchmark client bind");
+    if env::args().any(|arg| arg == "--benchmark-client-bind") {
+        assert!(
+            optional_argument("--lifecycle-authority-dir").is_none()
+                && optional_argument("--lifecycle-clients").is_none(),
+            "explicit client bind is not supported by the separate lifecycle harness"
+        );
+    }
     let workers = parse_runtime_workers(env::args()).expect("valid --p2a-runtime-workers");
     if let Some(driver) =
         b5_driver::prepare(env::args()).expect("valid paced benchmark configuration")

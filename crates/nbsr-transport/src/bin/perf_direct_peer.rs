@@ -1,6 +1,10 @@
+#[cfg(feature = "benchmark-harness")]
+use nbsr_transport::benchmark_bind as external_bind;
 use std::env;
 use std::fs;
-use std::net::{IpAddr, Ipv4Addr, SocketAddr};
+#[cfg(not(feature = "benchmark-harness"))]
+use std::net::Ipv4Addr;
+use std::net::SocketAddr;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
@@ -158,8 +162,13 @@ async fn accept_connection(endpoint: &Endpoint) -> Connection {
 }
 
 async fn connect(authority: &Path, remote: SocketAddr) -> (Endpoint, Connection) {
-    let mut endpoint =
-        Endpoint::client(SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), 0)).unwrap();
+    #[cfg(feature = "benchmark-harness")]
+    let local = SocketAddr::V4(
+        external_bind::client_bind(env::args()).expect("valid benchmark client bind"),
+    );
+    #[cfg(not(feature = "benchmark-harness"))]
+    let local = SocketAddr::from((Ipv4Addr::LOCALHOST, 0));
+    let mut endpoint = Endpoint::client(local).unwrap();
     endpoint.set_default_client_config(client_config(authority));
     let connection = endpoint
         .connect(remote, "destination.edge")
@@ -259,8 +268,13 @@ async fn server() {
     let authority = PathBuf::from(argument("--authority-dir"));
     let connections = count("--connections");
     let requests = count("--requests-per-connection");
-    let socket =
-        udp_socket::bind_receive_socket(SocketAddr::from((Ipv4Addr::LOCALHOST, 0))).unwrap();
+    #[cfg(feature = "benchmark-harness")]
+    let local = SocketAddr::V4(
+        external_bind::listener_bind(env::args(), None).expect("valid benchmark listener bind"),
+    );
+    #[cfg(not(feature = "benchmark-harness"))]
+    let local = SocketAddr::from((Ipv4Addr::LOCALHOST, 0));
+    let socket = udp_socket::bind_receive_socket(local).unwrap();
     #[cfg(feature = "benchmark-harness")]
     eprintln!(
         "udp_receive_buffer_bytes={}",
@@ -683,6 +697,15 @@ async fn run() {
 
 #[cfg(feature = "benchmark-harness")]
 fn main() {
+    match argument("--role").as_str() {
+        "client" => {
+            external_bind::client_bind(env::args()).expect("valid benchmark client bind");
+        }
+        "server" => {
+            external_bind::listener_bind(env::args(), None).expect("valid benchmark listener bind");
+        }
+        _ => {}
+    }
     let workers = parse_runtime_workers(env::args()).expect("valid --p2a-runtime-workers");
     let groups = parse_group_count(env::args()).expect("valid --p2a-groups");
     if argument("--role") == "client"

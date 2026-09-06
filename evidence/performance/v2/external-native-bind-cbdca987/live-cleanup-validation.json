@@ -1,0 +1,22 @@
+[
+  {
+    "file": "live\\nbsr-default\\destination.cleanup.json",
+    "current_counter_count": 11,
+    "all_zero": true
+  },
+  {
+    "file": "live\\nbsr-default\\source.cleanup.json",
+    "current_counter_count": 11,
+    "all_zero": true
+  },
+  {
+    "file": "live\\nbsr-explicit\\destination.cleanup.json",
+    "current_counter_count": 11,
+    "all_zero": true
+  },
+  {
+    "file": "live\\nbsr-explicit\\source.cleanup.json",
+    "current_counter_count": 11,
+    "all_zero": true
+  }
+]

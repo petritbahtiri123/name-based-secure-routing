@@ -1,0 +1,9 @@
+   Compiling nbsr-transport v0.1.0 (C:\Users\bajra\OneDrive\Documents\NBSR\crates\nbsr-transport)
+    Finished `release` profile [optimized] target(s) in 10.00s
+     Running unittests src\lib.rs (C:/NBSR-build/b4b-task4k\release\deps\nbsr_transport-249485c09d157015.exe)
+
+running 2 tests
+test udp_socket::tests::receive_buffer_covers_measured_admission_burst ... ok
+test udp_socket::tests::bind_conflict_remains_an_error ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 66 filtered out; finished in 0.00s

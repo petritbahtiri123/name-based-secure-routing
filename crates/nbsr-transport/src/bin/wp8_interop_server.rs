@@ -3,7 +3,9 @@ use std::env;
 use std::fs;
 use std::future::{Future, poll_fn};
 use std::io::{Read, Write};
-use std::net::{Ipv4Addr, SocketAddr};
+#[cfg(not(feature = "benchmark-harness"))]
+use std::net::Ipv4Addr;
+use std::net::SocketAddr;
 use std::path::{Path, PathBuf};
 #[cfg(not(windows))]
 use std::process::{Command, Stdio};
@@ -3223,13 +3225,24 @@ async fn run() {
         Duration::from_secs(10),
     )
     .unwrap();
+    #[cfg(feature = "benchmark-harness")]
+    let bind_address = SocketAddr::V4(
+        nbsr_transport::benchmark_bind::listener_bind(
+            env::args(),
+            env::var("NBSR_TASK10B_CAPTURE_PORT").ok().as_deref(),
+        )
+        .expect("valid benchmark listener bind"),
+    );
+    #[cfg(not(feature = "benchmark-harness"))]
     let port = env::var("NBSR_TASK10B_CAPTURE_PORT")
         .ok()
         .map(|value| value.parse::<u16>().expect("valid capture port"))
         .unwrap_or(0);
+    #[cfg(not(feature = "benchmark-harness"))]
+    let bind_address = SocketAddr::from((Ipv4Addr::LOCALHOST, port));
     let listener = TransportListener::bind(
         build_server_config(peer_policy, tls_material(&authority)).unwrap(),
-        SocketAddr::from((Ipv4Addr::LOCALHOST, port)),
+        bind_address,
     )
     .unwrap();
     let endpoint = listener.local_addr().unwrap();

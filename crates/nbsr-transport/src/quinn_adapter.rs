@@ -933,8 +933,33 @@ pub async fn connect(
     config: ClientEndpointConfig,
     remote: SocketAddr,
 ) -> Result<AuthenticatedConnection, TransportError> {
-    let mut endpoint = Endpoint::client(SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), 0))
-        .map_err(|_| TransportError::BindFailed)?;
+    connect_at(
+        config,
+        remote,
+        SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), 0),
+    )
+    .await
+}
+
+/// Explicit local socket placement for benchmark harnesses only. Authentication
+/// still uses the configured peer identity, never this socket's IP address.
+#[cfg(feature = "benchmark-harness")]
+pub async fn benchmark_connect_from(
+    config: ClientEndpointConfig,
+    remote: SocketAddr,
+    local: std::net::SocketAddrV4,
+) -> Result<AuthenticatedConnection, TransportError> {
+    let local =
+        crate::benchmark_bind::validate_client(local).map_err(|_| TransportError::BindFailed)?;
+    connect_at(config, remote, SocketAddr::V4(local)).await
+}
+
+async fn connect_at(
+    config: ClientEndpointConfig,
+    remote: SocketAddr,
+    local: SocketAddr,
+) -> Result<AuthenticatedConnection, TransportError> {
+    let mut endpoint = Endpoint::client(local).map_err(|_| TransportError::BindFailed)?;
     endpoint.set_default_client_config(config.quinn);
 
     let connecting = endpoint
