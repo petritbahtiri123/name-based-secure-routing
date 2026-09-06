@@ -1,0 +1,7 @@
+# Linux B5 terminal sampler prerequisite
+
+PARTIAL / LIFECYCLE COMPATIBILITY ONLY. The prior live-only sampler rejected a child transitioning to zombie, which blocks terminal CPU/identity preservation in a future sustained Linux backend. Explicit terminal_roles now permits exactly one terminal snapshot after a prior live sample. All memory quantities must be null with UNAVAILABLE_ZOMBIE; identity, monotonic CPU/time and affinity checks remain mandatory. Other roles continue sampling. Default live-only behavior, bounds and latched failures are unchanged. Caller must retain the unreaped child until sampler stop/join and then wait explicitly.
+
+Six literal RED tests preceded the change (43 existing tests passed). After implementation,84 focused sampler/B3/B4 tests and Ruff pass. A restricted nonroot, network-disabled, read-only Docker Python fixture retained one source terminal sample and continued destination sampling; seven raw records are retained. Source exit0 and explicit process cleanup passed. The first attempt failed importing the snapshot before child launch; snapshot package markers fixed that test packaging, and its failure log is retained. The image supplies Python only, not current Rust benchmark evidence.
+
+No production/security change; no completed Linux sustained backend or soak claim. Remaining work includes clock/private-memory metric wiring, end-to-end B5 orchestration, and observer qualification. Evidence snapshots and logs are indexed below this directory.

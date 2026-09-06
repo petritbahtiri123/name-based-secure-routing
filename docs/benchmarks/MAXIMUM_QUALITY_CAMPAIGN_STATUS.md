@@ -85,3 +85,8 @@ backends remain explicitly PARTIAL_REQUIRED_PORTING. No server results.
 Linux B5 now has an optional nonreaping exit-observation primitive/controller
 injection (54 focused tests, three actual Linux terminal-state cases). See
 `linux-b5-exit-85e706fc`; full sustained backend remains NOT_IMPLEMENTED.
+
+Linux terminal-source sampler opt-in now preserves one validated zombie CPU/
+identity snapshot while the destination continues (84 focused tests, actual
+restricted Linux fixture). See `linux-b5-terminal-648c8acd`. Full B5 runtime
+composition/clock wiring and observer qualification are still outstanding.

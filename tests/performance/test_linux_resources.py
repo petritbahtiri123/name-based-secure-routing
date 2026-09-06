@@ -222,3 +222,58 @@ def test_empty_sampling_fails_and_preserves_empty_prefix():
     with pytest.raises(RuntimeError):
         instance.stop()
     assert instance.records_snapshot() == []
+
+
+def test_opted_in_terminal_source_does_not_stop_destination_sampling():
+    counts = {123: 0, 456: 0}
+
+    def sample(pid, _cpus):
+        counts[pid] += 1
+        value = record() | dict(pid=pid, timestamp_ns=1000 + counts[pid], cpu_ns=100 + counts[pid])
+        if pid == 123 and counts[pid] == 2:
+            value.update(state='Z', memory_state='UNAVAILABLE_ZOMBIE',
+                         rss_bytes=None, pss_bytes=None, private_resident_bytes=None,
+                         private_hugetlb_bytes=None)
+        assert pid != 123 or counts[pid] <= 2, 'terminal source must not be resampled'
+        return value
+
+    def sink(row):
+        if row['role'] == 'destination' and counts[456] == 3:
+            instance._stop.set()
+
+    instance = sampler(processes={'source': 123, 'destination': 456},
+                       terminal_roles=('source',), sample_fn=sample,
+                       record_sink=sink, interval_seconds=.001)
+    instance.start()
+    instance._thread.join(2)
+    rows = instance.stop()
+    assert counts == {123: 2, 456: 3}
+    terminal = [r for r in rows if r['state'] == 'Z']
+    assert len(terminal) == 1 and terminal[0]['private_resident_bytes'] is None
+
+
+@pytest.mark.parametrize('change', [dict(start_ticks=100), dict(cpu_ns=99),
+    dict(memory_state='MEASURED'), dict(private_resident_bytes=50)])
+def test_terminal_opt_in_does_not_hide_identity_or_memory_failure(change):
+    terminal = record() | dict(state='Z', memory_state='UNAVAILABLE_ZOMBIE',
+        timestamp_ns=1001, rss_bytes=None, pss_bytes=None, private_resident_bytes=None,
+        private_hugetlb_bytes=None) | change
+    values = iter([record(), terminal])
+    instance = sampler(terminal_roles=('source',), sample_fn=lambda *_: next(values),
+                       interval_seconds=.001)
+    instance.start()
+    instance._thread.join(2)
+    with pytest.raises(RuntimeError):
+        instance.stop()
+    assert len(instance.records_snapshot()) == 1
+
+
+def test_terminal_opt_in_requires_a_prior_live_sample():
+    instance = sampler(terminal_roles=('source',), sample_fn=lambda *_: record() | dict(
+        state='Z', memory_state='UNAVAILABLE_ZOMBIE', rss_bytes=None, pss_bytes=None,
+        private_resident_bytes=None, private_hugetlb_bytes=None))
+    instance.start()
+    instance._thread.join(2)
+    with pytest.raises(RuntimeError):
+        instance.stop()
+    assert instance.records_snapshot() == []

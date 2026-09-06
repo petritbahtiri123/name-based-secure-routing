@@ -1,0 +1,10 @@
+{
+  "classification": "LINUX_SAMPLER_LIFECYCLE_COMPATIBILITY_ONLY",
+  "image_id": "sha256:dd08db4a391b16a9d303a251d2693808baf470f2fc4870d8e3c54b7523deed71",
+  "red": "6 terminal-role regression failures;43 existing PASS",
+  "green": "84 affected sampler/B3/B4 tests PASS; Ruff PASS",
+  "live": "7 records: one source terminal observation, destination continues, explicit child joins",
+  "first_attempt": "FAIL_IMPORT: missing package markers allowed prepared-image scripts package to shadow snapshot; no fixture child started",
+  "second_attempt": "PASS after snapshot package markers added; no production change for import repair",
+  "limits": "No live sustained B5 integration, no long-run Linux result"
+}
