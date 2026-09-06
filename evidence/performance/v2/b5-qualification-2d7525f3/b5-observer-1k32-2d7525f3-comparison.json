@@ -1,0 +1,28 @@
+{
+  "required_pairs": 3,
+  "cv": {
+    "off_gbps": 0.0015050716473408727,
+    "off_p99_ns": 0.004921502774139296,
+    "on_gbps": 0.0019916413976650365,
+    "on_p99_ns": 0.0023722208049829626
+  },
+  "medians": {
+    "off": {
+      "gbps": 0.5669286605692628,
+      "p99_ns": 2078900
+    },
+    "on": {
+      "gbps": 0.5670870894524405,
+      "p99_ns": 2062200
+    }
+  },
+  "absolute_median_impact": {
+    "gbps": 0.00027945118001015956,
+    "p99_ns": 0.008033094424936271
+  },
+  "observer_accepted": true,
+  "p99_definition": "per-repeat median of steady-window p99; not pooled-operation p99",
+  "cohort_complete": true,
+  "dispersion_unresolved": false,
+  "classification": "DIAGNOSTIC_OBSERVER_COMPARISON_ONLY"
+}

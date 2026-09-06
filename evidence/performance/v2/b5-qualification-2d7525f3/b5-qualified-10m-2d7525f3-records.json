@@ -1,0 +1,76 @@
+[
+  {
+    "path": "direct",
+    "valid": false,
+    "classification": "FAIL",
+    "scope": "Windows loopback",
+    "final": {
+      "schema": "nbsr-b5-grouped-final-v1",
+      "groups": 1,
+      "payload_bytes": 1024,
+      "streams_per_group": 32,
+      "outstanding_per_stream": 1,
+      "measurement_duration_ns": 600000000000,
+      "drain_duration_ns": 4146200,
+      "offered": 20818978,
+      "reserved": 4199083,
+      "issued": 4199083,
+      "completed": 4199083,
+      "missed": 16619895,
+      "unreserved_current": 0,
+      "group_counters": [
+        {
+          "group_id": 0,
+          "offered": 20818978,
+          "reserved": 4199083,
+          "issued": 4199083,
+          "completed": 4199083,
+          "missed": 16619895,
+          "unreserved_current": 0
+        }
+      ],
+      "max_outstanding_observed": 32,
+      "errors": 0,
+      "timeouts": 0,
+      "collector_overflow_count": 0,
+      "all_groups_joined": true,
+      "source_cleanup": {
+        "status": "NOT_MEASURED"
+      },
+      "evidence_valid": true
+    },
+    "achieved_offered_ratio": 0.2016949631245107,
+    "gbps": 0.11466216743286899,
+    "ownership_reports": [],
+    "continuous_ownership": {
+      "classification": "NOT_MEASURED"
+    },
+    "cleanup_scope": "process joins only; runtime ownership NOT_MEASURED",
+    "internal_failure_thread_join": "NOT_MEASURED",
+    "error": "paced achievable/offered gate below 95%; target unchanged",
+    "failure_traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\scripts\\run_b5_v2.py\", line 353, in run_one\n    raise RuntimeError(\"paced achievable/offered gate below 95%; target unchanged\")\nRuntimeError: paced achievable/offered gate below 95%; target unchanged\n",
+    "failure_traceback_truncated": false,
+    "affinity": [
+      {
+        "requested_mask": 1,
+        "observed_mask": 1,
+        "system_mask": 255,
+        "verified": true
+      },
+      {
+        "requested_mask": 1,
+        "observed_mask": 1,
+        "system_mask": 255,
+        "verified": true
+      }
+    ],
+    "qualification": {
+      "steady_windows": 19,
+      "latency_comparison_available": true,
+      "resource_series_available": true,
+      "resource_phase_origin_monotonic_ns": 707865712644200,
+      "resource_phase_clock": "first-progress receive time minus elapsed; approximate, excludes earlier samples",
+      "thermal_and_power": "NOT_MEASURED"
+    }
+  }
+]

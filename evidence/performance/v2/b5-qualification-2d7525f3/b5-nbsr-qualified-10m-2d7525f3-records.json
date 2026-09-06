@@ -1,0 +1,128 @@
+[
+  {
+    "path": "nbsr",
+    "valid": true,
+    "classification": "ACCOUNTING_PASS",
+    "scope": "Windows loopback",
+    "final": {
+      "schema": "nbsr-b5-grouped-final-v1",
+      "groups": 1,
+      "payload_bytes": 1024,
+      "streams_per_group": 32,
+      "outstanding_per_stream": 1,
+      "measurement_duration_ns": 600000000000,
+      "drain_duration_ns": 1039800,
+      "offered": 20818978,
+      "reserved": 20336859,
+      "issued": 20336859,
+      "completed": 20336859,
+      "missed": 482119,
+      "unreserved_current": 0,
+      "group_counters": [
+        {
+          "group_id": 0,
+          "offered": 20818978,
+          "reserved": 20336859,
+          "issued": 20336859,
+          "completed": 20336859,
+          "missed": 482119,
+          "unreserved_current": 0
+        }
+      ],
+      "max_outstanding_observed": 32,
+      "errors": 0,
+      "timeouts": 0,
+      "collector_overflow_count": 0,
+      "all_groups_joined": true,
+      "source_cleanup": {
+        "status": "SEPARATE_REPORT_REQUIRED"
+      },
+      "evidence_valid": true
+    },
+    "achieved_offered_ratio": 0.9768423310692773,
+    "gbps": 0.5553308673716069,
+    "ownership_reports": [
+      {
+        "role": "destination",
+        "pid": 7604,
+        "file": "d0.cleanup.json",
+        "all_11_zero": true
+      },
+      {
+        "role": "source",
+        "pid": 13508,
+        "file": "source.cleanup.json",
+        "all_11_zero": true
+      }
+    ],
+    "continuous_ownership": {
+      "classification": "SAMPLED_NO_SUSTAINED_GROWTH",
+      "sample_counts": {
+        "source": 600,
+        "destination_0": 598
+      },
+      "max_snapshot_gap_ns": {
+        "source": 1024466200,
+        "destination_0": 1044159600
+      },
+      "retained_window_per_role": 60,
+      "scope": "Process-local sample intervals; cross-process clock alignment and final zero cleanup are separate.",
+      "retained_capacity_scope": "Optional fields observed when emitted; not allocator or leak attribution."
+    },
+    "cleanup_scope": "11-counter reports and all process joins",
+    "internal_failure_thread_join": "NOT_MEASURED",
+    "affinity": [
+      {
+        "requested_mask": 1,
+        "observed_mask": 1,
+        "system_mask": 255,
+        "verified": true
+      },
+      {
+        "requested_mask": 1,
+        "observed_mask": 1,
+        "system_mask": 255,
+        "verified": true
+      }
+    ],
+    "qualification": {
+      "steady_windows": 19,
+      "latency_comparison_available": true,
+      "resource_series_available": true,
+      "resource_phase_origin_monotonic_ns": 708521644824200,
+      "resource_phase_clock": "first-progress receive time minus elapsed; approximate, excludes earlier samples",
+      "thermal_and_power": "NOT_MEASURED"
+    }
+  },
+  {
+    "path": "nbsr",
+    "valid": false,
+    "classification": "FAIL",
+    "scope": "Windows loopback",
+    "error": "B5 stream failed: live private growth: source (receive-clock diagnostic)",
+    "failure_traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\scripts\\performance\\b5_stream.py\", line 117, in feed\n    self._accept_line(line)\n    ~~~~~~~~~~~~~~~~~^^^^^^\n  File \"C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\scripts\\performance\\b5_stream.py\", line 140, in _accept_line\n    self._on_progress(value)\n    ~~~~~~~~~~~~~~~~~^^^^^^^\n  File \"C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\scripts\\run_b5_v2.py\", line 167, in progress\n    raise RuntimeError(f\"live private growth: {role} (receive-clock diagnostic)\")\nRuntimeError: live private growth: source (receive-clock diagnostic)\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\scripts\\run_b5_v2.py\", line 323, in run_one\n    final = consume(source, reader, stream, poll=poll_ownership) if history else consume(source, reader, stream)\n            ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\scripts\\run_b5_v2.py\", line 108, in consume\n    stream.feed(value, source_active=source.poll() is None)\n    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\scripts\\performance\\b5_stream.py\", line 124, in feed\n    raise ValueError(f\"B5 stream failed: {error}\") from error\nValueError: B5 stream failed: live private growth: source (receive-clock diagnostic)\n",
+    "failure_traceback_truncated": false,
+    "affinity": [
+      {
+        "requested_mask": 1,
+        "observed_mask": 1,
+        "system_mask": 255,
+        "verified": true
+      },
+      {
+        "requested_mask": 1,
+        "observed_mask": 1,
+        "system_mask": 255,
+        "verified": true
+      }
+    ],
+    "qualification": {
+      "steady_windows": 1,
+      "latency_comparison_available": false,
+      "resource_series_available": true,
+      "resource_phase_origin_monotonic_ns": 709125040382800,
+      "resource_phase_clock": "first-progress receive time minus elapsed; approximate, excludes earlier samples",
+      "thermal_and_power": "NOT_MEASURED"
+    }
+  }
+]

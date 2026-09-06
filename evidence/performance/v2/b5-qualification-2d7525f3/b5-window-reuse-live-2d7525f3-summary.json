@@ -1,0 +1,78 @@
+{
+  "classification": "DIAGNOSTIC_ACCOUNTING_PASS",
+  "rows": [
+    {
+      "repeat": 1,
+      "gbps": 0.5872816966775477,
+      "ratio": 0.9600268719409174,
+      "source_private_first": 3190784,
+      "source_private_last": 3133440,
+      "source_private_peak": 3190784,
+      "ownership_reports": [
+        {
+          "role": "destination",
+          "pid": 20624,
+          "file": "d0.cleanup.json",
+          "all_11_zero": true
+        },
+        {
+          "role": "source",
+          "pid": 11092,
+          "file": "source.cleanup.json",
+          "all_11_zero": true
+        }
+      ]
+    },
+    {
+      "repeat": 2,
+      "gbps": 0.5878011751047676,
+      "ratio": 0.9608740969220022,
+      "source_private_first": 3141632,
+      "source_private_last": 3162112,
+      "source_private_peak": 3215360,
+      "ownership_reports": [
+        {
+          "role": "destination",
+          "pid": 13496,
+          "file": "d0.cleanup.json",
+          "all_11_zero": true
+        },
+        {
+          "role": "source",
+          "pid": 24128,
+          "file": "source.cleanup.json",
+          "all_11_zero": true
+        }
+      ]
+    },
+    {
+      "repeat": 3,
+      "gbps": 0.5892387735380782,
+      "ratio": 0.9632242758078879,
+      "source_private_first": 3198976,
+      "source_private_last": 3182592,
+      "source_private_peak": 3198976,
+      "ownership_reports": [
+        {
+          "role": "destination",
+          "pid": 24916,
+          "file": "d0.cleanup.json",
+          "all_11_zero": true
+        },
+        {
+          "role": "source",
+          "pid": 9608,
+          "file": "source.cleanup.json",
+          "all_11_zero": true
+        }
+      ]
+    }
+  ],
+  "cv": {
+    "gbps": 0.0017238289492487676,
+    "source_private_peak": 0.0039083801236297145
+  },
+  "required_repeats": 3,
+  "observer_qualified": false,
+  "soak_qualified": false
+}

@@ -1,0 +1,62 @@
+{
+  "raw_root": "C:\\NBSR-build\\physical-core-b5-reference-2d7525f3",
+  "raw_index_sha256": "a1f5e3ebda348ac15c8ca6605802bdf7c2af6de3a82c61a378b5f87bf93dc284",
+  "valid_repeats": 10,
+  "ladders": {
+    "direct": {
+      "schema": "nbsr-physical-core-ladder-classification-v1",
+      "cells": [
+        {
+          "outstanding_per_stream": 1,
+          "repeat_count": 5,
+          "classification": "STABLE",
+          "median_gbps": 0.8632056310509246,
+          "gbps_range": [
+            0.852623927026822,
+            0.8657462564817155
+          ],
+          "repeat_cv": 0.006537865507524749,
+          "median_p99_ns": 1911800,
+          "p99_ratio_range": [
+            0.9949262475154305,
+            1.0266764305889737
+          ],
+          "errors_timeouts_or_cleanup_failure": false
+        }
+      ],
+      "reference_p99_ns": 1911800,
+      "strict_stable_gbps": 0.8632056310509246,
+      "observed_peak_diagnostic_gbps": 0.8657462564817155,
+      "scope": "One fixed-shape closed-loop depth ladder. Bounded in-flight work and clean drain are required; no external offered-rate claim.",
+      "hardware_ceiling": "NOT_CLASSIFIED; CPU/topology and other resource evidence must be assessed separately."
+    },
+    "nbsr": {
+      "schema": "nbsr-physical-core-ladder-classification-v1",
+      "cells": [
+        {
+          "outstanding_per_stream": 1,
+          "repeat_count": 5,
+          "classification": "SATURATED",
+          "median_gbps": 0.8544017655642945,
+          "gbps_range": [
+            0.6663733477052519,
+            0.8742616767980175
+          ],
+          "repeat_cv": 0.10579163057286303,
+          "median_p99_ns": 2649300,
+          "p99_ratio_range": [
+            0.8417695240252142,
+            2.23345789453818
+          ],
+          "errors_timeouts_or_cleanup_failure": false
+        }
+      ],
+      "reference_p99_ns": 2649300,
+      "strict_stable_gbps": null,
+      "observed_peak_diagnostic_gbps": 0.8742616767980175,
+      "scope": "One fixed-shape closed-loop depth ladder. Bounded in-flight work and clean drain are required; no external offered-rate claim.",
+      "hardware_ceiling": "NOT_CLASSIFIED; CPU/topology and other resource evidence must be assessed separately."
+    }
+  },
+  "no_replacement": true
+}

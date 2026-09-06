@@ -1,0 +1,159 @@
+{
+  "repository_sha": "2d7525f343fdcbfea4dc74bc41cf2eb0f6a34399",
+  "git_status": "",
+  "binary_sha256": {
+    "direct": "3318a85b353b3205ea9063ac5b38b13875f4e2ea97c211c183218bb86fd32c63",
+    "nbsr": "ec182ce580cd63166052ecbcb65b9e30021b3f543dfc81d9e6f5919fb9b4a5a2",
+    "server": "32c9579d31fe5e6ba6d46bb53366b2d3545b530e931b61385b8637d5ab88a3a0"
+  },
+  "topology": {
+    "verified": true,
+    "scope": "physical-core-selected-logical-processors",
+    "physical_cores": 4,
+    "logical_processors": 8,
+    "cores": [
+      {
+        "core_index": 0,
+        "smt": true,
+        "efficiency_class": 0,
+        "logical_mask": 3
+      },
+      {
+        "core_index": 1,
+        "smt": true,
+        "efficiency_class": 0,
+        "logical_mask": 12
+      },
+      {
+        "core_index": 2,
+        "smt": true,
+        "efficiency_class": 0,
+        "logical_mask": 48
+      },
+      {
+        "core_index": 3,
+        "smt": true,
+        "efficiency_class": 0,
+        "logical_mask": 192
+      }
+    ],
+    "affinity_masks": {
+      "1": {
+        "decimal": 1,
+        "hex": "0x1"
+      },
+      "2": {
+        "decimal": 5,
+        "hex": "0x5"
+      },
+      "4": {
+        "decimal": 85,
+        "hex": "0x55"
+      }
+    }
+  },
+  "placement": {
+    "source_mask": 1,
+    "endpoint_masks": [
+      1
+    ],
+    "logical_processors_available": 1
+  },
+  "shape": {
+    "physical_cores": 1,
+    "endpoint_groups": 1,
+    "streams_per_group": 32,
+    "payload_bytes": 1024,
+    "runtime_workers": 1
+  },
+  "mode": "CEILING_BOUND_SOAK",
+  "load": {
+    "schema": "nbsr-b5-ceiling-load-v1",
+    "reference_sha": "2d7525f343fdcbfea4dc74bc41cf2eb0f6a34399",
+    "manifest_sha256": "e589abb257406e123e5df2c61f6e1d11842c5183c252619b026fc8b8d8447766",
+    "reference_repeats": 3,
+    "reference_operations_per_second": 49568.997016603564,
+    "reference_gbps": 0.8121384471200329,
+    "load_percent": 70,
+    "rate_numerator": 5206274500000,
+    "rate_denominator": 150044089,
+    "shape": {
+      "physical_cores": 1,
+      "endpoint_groups": 1,
+      "streams_per_group": 32,
+      "payload_bytes": 1024,
+      "runtime_workers": 1
+    },
+    "outstanding_per_stream": 1,
+    "binary_sha256": {
+      "direct": "3318a85b353b3205ea9063ac5b38b13875f4e2ea97c211c183218bb86fd32c63",
+      "nbsr": "ec182ce580cd63166052ecbcb65b9e30021b3f543dfc81d9e6f5919fb9b4a5a2",
+      "server": "32c9579d31fe5e6ba6d46bb53366b2d3545b530e931b61385b8637d5ab88a3a0"
+    },
+    "reference_placement": {
+      "source_mask": 1,
+      "endpoint_masks": [
+        1
+      ],
+      "logical_processors_available": 1
+    },
+    "reference_topology_identity": {
+      "scope": "physical-core-selected-logical-processors",
+      "physical_cores": 4,
+      "logical_processors": 8,
+      "cores": [
+        {
+          "core_index": 0,
+          "smt": true,
+          "efficiency_class": 0,
+          "logical_mask": 3
+        },
+        {
+          "core_index": 1,
+          "smt": true,
+          "efficiency_class": 0,
+          "logical_mask": 12
+        },
+        {
+          "core_index": 2,
+          "smt": true,
+          "efficiency_class": 0,
+          "logical_mask": 48
+        },
+        {
+          "core_index": 3,
+          "smt": true,
+          "efficiency_class": 0,
+          "logical_mask": 192
+        }
+      ]
+    },
+    "hardware_identity_scope": "TOPOLOGY_ONLY_NO_HOST_ID",
+    "scope": "Current finite closed-loop reference; actual paced load/stability requires live validation."
+  },
+  "controller_args": {
+    "output": "C:\\NBSR-build\\b5-qualified-10m-2d7525f3",
+    "target": "C:\\NBSR-build\\b4b-task4k",
+    "reference": "C:\\NBSR-build\\physical-core-1k32-2d7525f3",
+    "paths": [
+      "direct",
+      "nbsr"
+    ],
+    "diagnostic": false,
+    "ownership_sampling": true,
+    "rate": null,
+    "percent": 70,
+    "cores": 1,
+    "groups": 1,
+    "streams": 32,
+    "depth": 1,
+    "payload": 1024,
+    "warmup": 3.0,
+    "duration": 600.0,
+    "progress": 30.0
+  },
+  "platform": "win32",
+  "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+  "source_sha256": "f139b586dec3f76957088456ef167716f203009f0f7b865b84c65cb4b6920598",
+  "scope": "Windows loopback, shared physical pool; no external-server or thermal qualification"
+}

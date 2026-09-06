@@ -1,0 +1,193 @@
+{
+  "raw_root": "C:\\NBSR-build\\physical-core-1k32-2d7525f3",
+  "raw_index_sha256": "e589abb257406e123e5df2c61f6e1d11842c5183c252619b026fc8b8d8447766",
+  "valid_repeats": 22,
+  "ladders": {
+    "direct": {
+      "schema": "nbsr-physical-core-ladder-classification-v1",
+      "cells": [
+        {
+          "outstanding_per_stream": 1,
+          "repeat_count": 3,
+          "classification": "STABLE",
+          "median_gbps": 0.822045477156749,
+          "gbps_range": [
+            0.8101062276071573,
+            0.823545833778996
+          ],
+          "repeat_cv": 0.008996896355176684,
+          "median_p99_ns": 935300,
+          "p99_ratio_range": [
+            0.9957232973377526,
+            1.0568801454078904
+          ],
+          "errors_timeouts_or_cleanup_failure": false
+        },
+        {
+          "outstanding_per_stream": 2,
+          "repeat_count": 3,
+          "classification": "SATURATED",
+          "median_gbps": 0.8426483332681055,
+          "gbps_range": [
+            0.8214286939077841,
+            0.8430797433944265
+          ],
+          "repeat_cv": 0.014810699173774235,
+          "median_p99_ns": 1707200,
+          "p99_ratio_range": [
+            1.7856302790548486,
+            2.0203143376456754
+          ],
+          "errors_timeouts_or_cleanup_failure": false
+        },
+        {
+          "outstanding_per_stream": 4,
+          "repeat_count": 5,
+          "classification": "SATURATED",
+          "median_gbps": 0.9144010024167497,
+          "gbps_range": [
+            0.9044452253920621,
+            0.9396855482774713
+          ],
+          "repeat_cv": 0.01427526733858782,
+          "median_p99_ns": 3184800,
+          "p99_ratio_range": [
+            3.1855019779749814,
+            3.734416764674436
+          ],
+          "errors_timeouts_or_cleanup_failure": false
+        }
+      ],
+      "reference_p99_ns": 935300,
+      "strict_stable_gbps": 0.822045477156749,
+      "observed_peak_diagnostic_gbps": 0.9396855482774713,
+      "scope": "One fixed-shape closed-loop depth ladder. Bounded in-flight work and clean drain are required; no external offered-rate claim.",
+      "hardware_ceiling": "NOT_CLASSIFIED; CPU/topology and other resource evidence must be assessed separately."
+    },
+    "nbsr": {
+      "schema": "nbsr-physical-core-ladder-classification-v1",
+      "cells": [
+        {
+          "outstanding_per_stream": 1,
+          "repeat_count": 3,
+          "classification": "STABLE",
+          "median_gbps": 0.8121384471200329,
+          "gbps_range": [
+            0.8036124716020006,
+            0.8146417746841055
+          ],
+          "repeat_cv": 0.007137390238927911,
+          "median_p99_ns": 1016800,
+          "p99_ratio_range": [
+            0.8637883556254917,
+            1.0011801730920535
+          ],
+          "errors_timeouts_or_cleanup_failure": false
+        },
+        {
+          "outstanding_per_stream": 2,
+          "repeat_count": 3,
+          "classification": "SATURATED",
+          "median_gbps": 0.854550846404895,
+          "gbps_range": [
+            0.8452099621753576,
+            0.8625945014501947
+          ],
+          "repeat_cv": 0.010186330251012675,
+          "median_p99_ns": 1987700,
+          "p99_ratio_range": [
+            1.874901652242329,
+            2.264358772619984
+          ],
+          "errors_timeouts_or_cleanup_failure": false
+        },
+        {
+          "outstanding_per_stream": 4,
+          "repeat_count": 5,
+          "classification": "SATURATED",
+          "median_gbps": 0.8693816247943331,
+          "gbps_range": [
+            0.6818014174454374,
+            0.9534463639155433
+          ],
+          "repeat_cv": 0.12574668958663357,
+          "median_p99_ns": 4548600,
+          "p99_ratio_range": [
+            3.6228363493312354,
+            11.509146341463415
+          ],
+          "errors_timeouts_or_cleanup_failure": false
+        }
+      ],
+      "reference_p99_ns": 1016800,
+      "strict_stable_gbps": 0.8121384471200329,
+      "observed_peak_diagnostic_gbps": 0.9534463639155433,
+      "scope": "One fixed-shape closed-loop depth ladder. Bounded in-flight work and clean drain are required; no external offered-rate claim.",
+      "hardware_ceiling": "NOT_CLASSIFIED; CPU/topology and other resource evidence must be assessed separately."
+    }
+  },
+  "load": {
+    "schema": "nbsr-b5-ceiling-load-v1",
+    "reference_sha": "2d7525f343fdcbfea4dc74bc41cf2eb0f6a34399",
+    "manifest_sha256": "e589abb257406e123e5df2c61f6e1d11842c5183c252619b026fc8b8d8447766",
+    "reference_repeats": 3,
+    "reference_operations_per_second": 49568.997016603564,
+    "reference_gbps": 0.8121384471200329,
+    "load_percent": 70,
+    "rate_numerator": 5206274500000,
+    "rate_denominator": 150044089,
+    "shape": {
+      "physical_cores": 1,
+      "endpoint_groups": 1,
+      "streams_per_group": 32,
+      "payload_bytes": 1024,
+      "runtime_workers": 1
+    },
+    "outstanding_per_stream": 1,
+    "binary_sha256": {
+      "direct": "3318a85b353b3205ea9063ac5b38b13875f4e2ea97c211c183218bb86fd32c63",
+      "nbsr": "ec182ce580cd63166052ecbcb65b9e30021b3f543dfc81d9e6f5919fb9b4a5a2",
+      "server": "32c9579d31fe5e6ba6d46bb53366b2d3545b530e931b61385b8637d5ab88a3a0"
+    },
+    "reference_placement": {
+      "source_mask": 1,
+      "endpoint_masks": [
+        1
+      ],
+      "logical_processors_available": 1
+    },
+    "reference_topology_identity": {
+      "scope": "physical-core-selected-logical-processors",
+      "physical_cores": 4,
+      "logical_processors": 8,
+      "cores": [
+        {
+          "core_index": 0,
+          "smt": true,
+          "efficiency_class": 0,
+          "logical_mask": 3
+        },
+        {
+          "core_index": 1,
+          "smt": true,
+          "efficiency_class": 0,
+          "logical_mask": 12
+        },
+        {
+          "core_index": 2,
+          "smt": true,
+          "efficiency_class": 0,
+          "logical_mask": 48
+        },
+        {
+          "core_index": 3,
+          "smt": true,
+          "efficiency_class": 0,
+          "logical_mask": 192
+        }
+      ]
+    },
+    "hardware_identity_scope": "TOPOLOGY_ONLY_NO_HOST_ID",
+    "scope": "Current finite closed-loop reference; actual paced load/stability requires live validation."
+  }
+}

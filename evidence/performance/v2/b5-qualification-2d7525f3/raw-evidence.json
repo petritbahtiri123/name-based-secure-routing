@@ -1,0 +1,32 @@
+[
+  {
+    "raw_root": "C:\\NBSR-build\\b5-window-reuse-live-2d7525f3",
+    "files": 68,
+    "index_sha256": "ba9073817fb1fd8e0122f615a7d2f255520d65f3775e2ef4f7407cb88ccc4c37"
+  },
+  {
+    "raw_root": "C:\\NBSR-build\\physical-core-b5-reference-2d7525f3",
+    "files": 74,
+    "index_sha256": "a1f5e3ebda348ac15c8ca6605802bdf7c2af6de3a82c61a378b5f87bf93dc284"
+  },
+  {
+    "raw_root": "C:\\NBSR-build\\physical-core-1k32-2d7525f3",
+    "files": 152,
+    "index_sha256": "e589abb257406e123e5df2c61f6e1d11842c5183c252619b026fc8b8d8447766"
+  },
+  {
+    "raw_root": "C:\\NBSR-build\\b5-observer-1k32-2d7525f3",
+    "files": 131,
+    "index_sha256": "fc7eb6f13baa45a438d8439a8155573b4dde3a5976de32fa98864852c6fc3def"
+  },
+  {
+    "raw_root": "C:\\NBSR-build\\b5-qualified-10m-2d7525f3",
+    "files": 15,
+    "index_sha256": "d958c754e44fa5186112a38cc03131a3886e6533b62c7fe741953f4a41bab16e"
+  },
+  {
+    "raw_root": "C:\\NBSR-build\\b5-nbsr-qualified-10m-2d7525f3",
+    "files": 30,
+    "index_sha256": "74d9769fa249eb498136eeff20ca78e40f0e4a5cee2e1272f8c2ad71f8f72c41"
+  }
+]

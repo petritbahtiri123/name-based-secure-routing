@@ -1,0 +1,25 @@
+{
+  "classification": "FIXED_LOAD_DIAGNOSTIC_AFTER_LATENCY_BUFFER_REUSE",
+  "source_sha": "2d7525f343fdcbfea4dc74bc41cf2eb0f6a34399",
+  "rate": [
+    2803566500000,
+    75086973
+  ],
+  "duration_seconds": 120,
+  "warmup_seconds": 3,
+  "progress_seconds": 30,
+  "cores": 1,
+  "groups": 1,
+  "streams": 64,
+  "payload": 1024,
+  "depth": 1,
+  "ownership_sampling": true,
+  "repeats": 3,
+  "max_repeats": 5,
+  "expand": "goodput or steady-source-private-peak CV >5%",
+  "stop_first_invalid": true,
+  "no_replacement": true,
+  "pool_with_prior": false,
+  "qualified_soak": false,
+  "reference": "Historical fixed offered rate from 70dea630; not current ceiling qualification"
+}

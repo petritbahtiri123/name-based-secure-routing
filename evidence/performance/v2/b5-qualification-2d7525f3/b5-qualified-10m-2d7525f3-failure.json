@@ -1,0 +1,5 @@
+{
+  "classification": "FAIL",
+  "error": "invalid partial run retained; no replacement repeats",
+  "partial_records_retained": 1
+}

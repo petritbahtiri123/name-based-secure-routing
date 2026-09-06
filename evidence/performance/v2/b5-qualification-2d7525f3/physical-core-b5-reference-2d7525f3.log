@@ -1,0 +1,10 @@
+cores=1 groups=1 payload=1024 streams=64 outstanding=1 path=direct repeat=1
+cores=1 groups=1 payload=1024 streams=64 outstanding=1 path=nbsr repeat=1
+cores=1 groups=1 payload=1024 streams=64 outstanding=1 path=nbsr repeat=2
+cores=1 groups=1 payload=1024 streams=64 outstanding=1 path=direct repeat=2
+cores=1 groups=1 payload=1024 streams=64 outstanding=1 path=direct repeat=3
+cores=1 groups=1 payload=1024 streams=64 outstanding=1 path=nbsr repeat=3
+cores=1 groups=1 payload=1024 streams=64 outstanding=1 path=nbsr repeat=4
+cores=1 groups=1 payload=1024 streams=64 outstanding=1 path=direct repeat=4
+cores=1 groups=1 payload=1024 streams=64 outstanding=1 path=direct repeat=5
+cores=1 groups=1 payload=1024 streams=64 outstanding=1 path=nbsr repeat=5

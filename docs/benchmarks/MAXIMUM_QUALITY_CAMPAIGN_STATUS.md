@@ -63,3 +63,15 @@ Last inspected disk free space was approximately 11.69 GiB. No build-cache clean
 Git commits succeed, but automatic maintenance reports permission denial for stale worktree metadata at `.git/worktrees/nbsr-name-routing`. Its ownership/state has not been established; it has not been deleted or repaired destructively. This does not authorize changing branches or history.
 
 Final recommendation remains **MORE ENGINEERING REQUIRED** until the outstanding gates are executed or explicitly classified under the authorized stop conditions.
+
+## Latest 2d7525f3 qualification
+
+See `evidence/performance/v2/b5-qualification-2d7525f3/REPORT.md`. The 32-stream
+1 KiB one-core finite reference is STABLE at 0.812138 Gbit/s NBSR; depths 2/4
+are saturated. The separate 64-stream reference is saturated and retained.
+Three ownership observer pairs pass the 5% gate. Direct ten-minute pacing
+fails the 95% achieved/offered gate (20.17%, 0.114662 Gbit/s). Separate NBSR
+completes one ten-minute run at 0.555331 Gbit/s, 97.68%, with final eleven
+counts zero, then repeat 2 aborts on source private growth at 30 seconds.
+No replacements; no stable long-soak claim. Causes remain UNRESOLVED.
+All 470 indexed artifacts across six roots were verified for this stage.

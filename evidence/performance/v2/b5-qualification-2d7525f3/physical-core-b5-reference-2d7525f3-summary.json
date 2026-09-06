@@ -1,0 +1,30 @@
+[
+  {
+    "path": "direct",
+    "outstanding": 1,
+    "repeats": 5,
+    "median_gbps": 0.8632056310509246,
+    "cv": 0.006537865507524749,
+    "median_ops_per_second": 52685.89056707304,
+    "median_cpu_ns_per_op": 18636.0689949566,
+    "median_effective_cores": 0.9792573938316725,
+    "median_p50_ns": 1182200,
+    "median_p95_ns": 1705700,
+    "median_p99_ns": 1911800,
+    "valid": true
+  },
+  {
+    "path": "nbsr",
+    "outstanding": 1,
+    "repeats": 5,
+    "median_gbps": 0.8544017655642945,
+    "cv": 0.10579163057286303,
+    "median_ops_per_second": 52148.54526149258,
+    "median_cpu_ns_per_op": 18832.217681954226,
+    "median_effective_cores": 0.9803956654731427,
+    "median_p50_ns": 1141400,
+    "median_p95_ns": 1905300,
+    "median_p99_ns": 2649300,
+    "valid": true
+  }
+]
