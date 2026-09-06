@@ -1,0 +1,70 @@
+{
+  "binary_mismatch_scope": "Compatibility only; CLIcurrentbuildacceptanceNOT_RUN",
+  "binary_source_sha": "3644c324a535586e89af72a8c9796e8d58fadf48",
+  "classification": "INVALID_PARTIAL_DIAGNOSTIC",
+  "completed_cells": [
+    {
+      "admission_rate_cv": 0.039436056705792165,
+      "admitted": 1536,
+      "all_existing_destination_8_counters_zero": true,
+      "established_goodput_cv": 0.024571979989770638,
+      "rate": 125,
+      "required_repeats": 3,
+      "source_terminal_scope": "Original controller marker checks plus independently verified512successIDs; fullsourceownershipNOT_MEASURED",
+      "valid_repeats": 3
+    },
+    {
+      "admission_rate_cv": 0.05276369915213832,
+      "admitted": 1536,
+      "all_existing_destination_8_counters_zero": true,
+      "established_goodput_cv": 0.009932925086270309,
+      "rate": 200,
+      "required_repeats": 5,
+      "source_terminal_scope": "Original controller marker checks plus independently verified512successIDs; fullsourceownershipNOT_MEASURED",
+      "valid_repeats": 3
+    }
+  ],
+  "controller_sha": "c62b116556ee21c1c067e4f08bb9e846595c85a5",
+  "failure": {
+    "destination_result": "PASS connections512",
+    "error": "PermissionError /proc/74/fd",
+    "failure_time_state": "NOT_RETAINED",
+    "last_successful_sample": {
+      "affinity": [
+        0
+      ],
+      "cpu_ns": 670000000,
+      "fd_count": 8,
+      "fd_count_state": "MEASURED",
+      "memory_basis": "linux_smaps_rollup",
+      "memory_state": "MEASURED",
+      "pid": 74,
+      "platform": "linux",
+      "private_hugetlb_bytes": 0,
+      "private_resident_bytes": 69304320,
+      "pss_bytes": 71482368,
+      "role": "admission-destination",
+      "rss_bytes": 74674176,
+      "sample_round": 64,
+      "start_ticks": 21044,
+      "state": "S",
+      "thread_ids": [
+        74,
+        76
+      ],
+      "timestamp_ns": 215058083716
+    },
+    "phase": "late admission cleanup while established workload still active; failure-time proc state unproven",
+    "rate": 200,
+    "repeat": 4,
+    "role": "admission-destination",
+    "source_success_rows": 512,
+    "traceback": "NOT_RETAINED"
+  },
+  "full_200_repeat_gate": "INCOMPLETE",
+  "hardware_capacity": "NOT_PROVEN",
+  "no_replacement": true,
+  "observer_cost": "NOT_QUALIFIED",
+  "raw_artifacts_verified": 107,
+  "raw_index_sha256": "92a983f72ea68f060a51c57e231eea866da16c3f5e1284a185e3da48afc245cb"
+}
