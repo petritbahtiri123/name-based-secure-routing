@@ -1,0 +1,27 @@
+[
+  {
+    "path": "C:\\NBSR-build\\b5-live-red-f9e36322",
+    "files_verified": 16,
+    "manifest_sha256": "dd224f8d8a9ae7f82aaadbdde0c1410e0de3aa0a4b3e31d94455b08e653f4606"
+  },
+  {
+    "path": "C:\\NBSR-build\\b5-live-green-f9e36322",
+    "files_verified": 86,
+    "manifest_sha256": "87dd6f0b0e0f8b6403d720b6b45bb54885c98aa654e6d0e6e48786366e654f66"
+  },
+  {
+    "path": "C:\\NBSR-build\\b5-timer-green-f9e36322-r1",
+    "files_verified": 86,
+    "manifest_sha256": "8c16cc9672217b3152df75942a2255af9a742a65da1bee4d9e96bacdf2a90c26"
+  },
+  {
+    "path": "C:\\NBSR-build\\b5-timer-green-f9e36322-r2",
+    "files_verified": 86,
+    "manifest_sha256": "c82114d10115229c2505cc330fc5fb337bd02535ce38d6a5e54727b2249b9e10"
+  },
+  {
+    "path": "C:\\NBSR-build\\b5-timer-green-f9e36322-r3",
+    "files_verified": 86,
+    "manifest_sha256": "766dd7a43b8f90d0fda33e0df60ebde3c5cb8ca185f6519fb06fe7071f0ab4fe"
+  }
+]

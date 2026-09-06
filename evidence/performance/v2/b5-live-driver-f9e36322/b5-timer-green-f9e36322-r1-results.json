@@ -1,0 +1,62 @@
+[
+  {
+    "path": "direct",
+    "groups": 1,
+    "progress_windows": 2,
+    "completed": 400,
+    "offered": 400,
+    "missed": 0,
+    "cleanup": "process exit only",
+    "result": "PASS"
+  },
+  {
+    "path": "direct",
+    "groups": 2,
+    "progress_windows": 2,
+    "completed": 400,
+    "offered": 400,
+    "missed": 0,
+    "cleanup": "process exit only",
+    "result": "PASS"
+  },
+  {
+    "path": "direct",
+    "groups": 4,
+    "progress_windows": 2,
+    "completed": 400,
+    "offered": 400,
+    "missed": 0,
+    "cleanup": "process exit only",
+    "result": "PASS"
+  },
+  {
+    "path": "nbsr",
+    "groups": 1,
+    "progress_windows": 2,
+    "completed": 400,
+    "offered": 400,
+    "missed": 0,
+    "cleanup": "11-counter PASS every role",
+    "result": "PASS"
+  },
+  {
+    "path": "nbsr",
+    "groups": 2,
+    "progress_windows": 2,
+    "completed": 396,
+    "offered": 400,
+    "missed": 4,
+    "cleanup": "11-counter PASS every role",
+    "result": "PASS"
+  },
+  {
+    "path": "nbsr",
+    "groups": 4,
+    "progress_windows": 2,
+    "completed": 400,
+    "offered": 400,
+    "missed": 0,
+    "cleanup": "11-counter PASS every role",
+    "result": "PASS"
+  }
+]

@@ -8,6 +8,21 @@ use std::sync::{
 const MS: u64 = 1_000_000;
 
 #[test]
+fn snapshot_preserves_sampling_lateness_and_actual_outstanding_peak() {
+    let (clock, run) = setup(8);
+    start(&run);
+    clock.set(3 * MS);
+    complete_one(&run, 0);
+    complete_one(&run, 1);
+    let snapshot = run.snapshot(false).unwrap();
+    assert_eq!(snapshot.sample_stride, 2);
+    assert_eq!(snapshot.sample_capacity, 8);
+    assert_eq!(snapshot.sample_overflow_count, 0);
+    assert_eq!(snapshot.max_outstanding_observed, 1);
+    assert_eq!(snapshot.max_reservation_lateness_ns, 3 * MS);
+}
+
+#[test]
 fn status_exposes_drain_and_snapshot_seal_separately() {
     let (clock, run) = setup(8);
     assert!(!run.status().all_groups_drained);

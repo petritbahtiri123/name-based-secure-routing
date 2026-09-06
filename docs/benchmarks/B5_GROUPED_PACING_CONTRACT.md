@@ -96,3 +96,26 @@ tests PASS. Ceiling missing-module RED plus a hash/read consistency RED then 18
 Python tests PASS. Release Clippy and focused formatting/lint pass. Focused review
 found no additional Important issue; parsed-byte consistency is regression-tested.
 Logs are retained under `b5-runtime-contract-aec70e9d`.
+
+## Live integration and measured timer correction
+
+The preparation sections above describe their historical stage. Both benchmark
+binaries now activate the common driver only with explicit B5 rate arguments.
+They preserve existing frame/preflight/postflight and security semantics, join
+all groups, and emit one final record after drain/publication and close.
+Unsupported nonzero cooldown is rejected explicitly.
+
+Initial low-rate integration passed accounting but missed 143–175 of 400 offered
+slots. Isolated timer correlation found coarse Tokio wakeups skipping 68–76 of
+100 ten-millisecond windows; std sleep skipped none in three matched probes.
+A single shared sleeping timer now wakes registered pacing waiters. Expired slots
+remain missed; no catch-up or workload-budget change was introduced.
+
+Three repeats per Direct/NBSR 1/2/4-group cell now complete 99–100% of 400 offered
+operations, with maximum count CV 0.5793%. NBSR eleven-counter cleanup passes on
+every role. This is DIAGNOSTIC integration, not capacity or a soak. The timer
+thread's observer cost still requires near-ceiling calibration. Raw evidence and
+RED/GREEN tests are indexed by `b5-live-driver-f9e36322`.
+
+The bounded streaming controller, live failure coverage, current-SHA reference,
+resource/drift gates and long repeated soaks remain outstanding.

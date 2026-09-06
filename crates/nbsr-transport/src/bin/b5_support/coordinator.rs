@@ -72,6 +72,11 @@ pub(crate) struct Snapshot {
     pub(crate) groups: Vec<Counts>,
     pub(crate) sample_count: usize,
     pub(crate) latency_samples_ns: Vec<u64>,
+    pub(crate) sample_stride: u64,
+    pub(crate) sample_capacity: usize,
+    pub(crate) sample_overflow_count: u64,
+    pub(crate) max_outstanding_observed: u64,
+    pub(crate) max_reservation_lateness_ns: u64,
 }
 struct Partition {
     pacer: PacingWindow,
@@ -91,6 +96,8 @@ struct State {
     index: u64,
     sealed: bool,
     published: bool,
+    outstanding: u64,
+    max_outstanding: u64,
     partitions: Vec<Partition>,
     collector: BoundedCollector,
 }
@@ -142,6 +149,8 @@ impl<C: Clock> PacedRun<C> {
             index: 0,
             sealed: false,
             published: false,
+            outstanding: 0,
+            max_outstanding: 0,
             partitions,
             collector,
         };
@@ -255,6 +264,8 @@ impl<C: Clock> PacedRun<C> {
             }
             p.issued = p.issued.checked_add(1).ok_or("issued overflow")?;
             p.pending = false;
+            s.outstanding = s.outstanding.checked_add(1).ok_or("outstanding overflow")?;
+            s.max_outstanding = s.max_outstanding.max(s.outstanding);
             Ok(())
         })
     }
@@ -268,6 +279,10 @@ impl<C: Clock> PacedRun<C> {
                 return Err("completion without issue");
             }
             p.completed = p.completed.checked_add(1).ok_or("completed overflow")?;
+            s.outstanding = s
+                .outstanding
+                .checked_sub(1)
+                .ok_or("outstanding underflow")?;
             s.collector
                 .record_completed(partition % self.config.groups, latency_ns)
         })
@@ -304,8 +319,10 @@ impl<C: Clock> PacedRun<C> {
                 return Err("empty snapshot interval");
             }
             let mut groups = vec![Counts::default(); self.config.groups];
+            let mut max_lateness = 0;
             for (id, p) in s.partitions.iter_mut().enumerate() {
                 let c = p.pacer.advance(end)?;
+                max_lateness = max_lateness.max(c.max_reservation_lateness_ns);
                 groups[id % self.config.groups].add(Counts {
                     offered: c.offered,
                     reserved: c.reserved,
@@ -319,7 +336,21 @@ impl<C: Clock> PacedRun<C> {
             for group in &groups {
                 totals.add(*group)?;
             }
+            let collector = s.collector.status()?;
+            if !collector.evidence_valid || collector.overflow_count != 0 {
+                return Err("invalid sampled evidence");
+            }
             let window = s.collector.take_window()?;
+            if collector.completed != window.completed
+                || collector.retained_samples != window.latency_samples_ns.len()
+                || window
+                    .group_completed
+                    .iter()
+                    .try_fold(0_u64, |sum, count| sum.checked_add(*count))
+                    != Some(window.completed)
+            {
+                return Err("collector snapshot mismatch");
+            }
             let phase = if end <= self.config.duration_ns {
                 Phase::Steady
             } else if s.last_end >= self.config.duration_ns {
@@ -338,6 +369,13 @@ impl<C: Clock> PacedRun<C> {
                 groups,
                 sample_count: window.latency_samples_ns.len(),
                 latency_samples_ns: window.latency_samples_ns,
+                sample_stride: self.config.sample_stride,
+                sample_capacity: window.sample_capacity,
+                // take_window fails after any collector overflow; no invalid
+                // prefix can be published as a valid zero-overflow snapshot.
+                sample_overflow_count: collector.overflow_count,
+                max_outstanding_observed: s.max_outstanding,
+                max_reservation_lateness_ns: max_lateness,
             };
             s.last_end = end;
             s.sealed = final_window;

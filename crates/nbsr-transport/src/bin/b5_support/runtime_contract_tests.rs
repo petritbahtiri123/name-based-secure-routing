@@ -33,6 +33,21 @@ fn setup() -> (Arc<ManualClock>, Arc<AsyncRun<ManualClock>>) {
     let run = Arc::new(AsyncRun::new(config(), Arc::clone(&clock)).unwrap());
     (clock, run)
 }
+
+#[tokio::test]
+async fn explicit_failure_wait_cannot_succeed_on_readiness() {
+    let (_, run) = setup();
+    run.ready(0).unwrap();
+    run.ready(1).unwrap();
+    let waiting = run.wait_failed();
+    tokio::pin!(waiting);
+    tokio::select! {
+        result = &mut waiting => panic!("failure wait completed before failure: {result:?}"),
+        () = tokio::task::yield_now() => {}
+    }
+    run.fail();
+    assert!(waiting.await.is_err());
+}
 #[derive(Default)]
 struct WakeCount(AtomicUsize);
 impl Wake for WakeCount {

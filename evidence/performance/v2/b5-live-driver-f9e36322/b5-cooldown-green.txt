@@ -1,0 +1,135 @@
+   Compiling nbsr-transport v0.1.0 (C:\Users\bajra\OneDrive\Documents\NBSR\crates\nbsr-transport)
+warning: unused import: `coordinator::Action`
+ --> src\bin\b5_support\driver.rs:9:16
+  |
+9 | pub(crate) use coordinator::Action;
+  |                ^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: enum `Action` is never used
+  --> src\bin\b5_support\coordinator.rs:21:17
+   |
+21 | pub(crate) enum Action {
+   |                 ^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: fields `guards` and `outstanding` are never read
+  --> src\bin\b5_support\coordinator.rs:91:5
+   |
+87 | struct State {
+   |        ----- fields in this struct
+...
+91 |     guards: Vec<bool>,
+   |     ^^^^^^
+...
+99 |     outstanding: u64,
+   |     ^^^^^^^^^^^
+
+warning: methods `next`, `issued`, `completed`, and `group_guard` are never used
+   --> src\bin\b5_support\coordinator.rs:217:19
+    |
+109 | impl<C: Clock> PacedRun<C> {
+    | -------------------------- methods in this implementation
+...
+217 |     pub(crate) fn next(&self, partition: usize) -> Result<Action, Error> {
+    |                   ^^^^
+...
+256 |     pub(crate) fn issued(&self, partition: usize) -> Result<(), Error> {
+    |                   ^^^^^^
+...
+272 |     pub(crate) fn completed(&self, partition: usize, latency_ns: u64) -> Result<(), Error> {
+    |                   ^^^^^^^^^
+...
+394 |     pub(crate) fn group_guard(self: &Arc<Self>, group: usize) -> Result<GroupGuard<C>, Error> {
+    |                   ^^^^^^^^^^^
+
+warning: struct `GroupGuard` is never constructed
+   --> src\bin\b5_support\coordinator.rs:408:19
+    |
+408 | pub(crate) struct GroupGuard<C: Clock> {
+    |                   ^^^^^^^^^^
+
+warning: method `finish` is never used
+   --> src\bin\b5_support\coordinator.rs:413:19
+    |
+412 | impl<C: Clock> GroupGuard<C> {
+    | ---------------------------- method in this implementation
+413 |     pub(crate) fn finish(mut self) -> Result<(), Error> {
+    |                   ^^^^^^
+
+warning: method `reserve` is never used
+   --> src\bin\b5_support\paced.rs:132:19
+    |
+ 28 | impl PacingWindow {
+    | ----------------- method in this implementation
+...
+132 |     pub(crate) fn reserve(&mut self, elapsed: u64) -> Result<bool, Error> {
+    |                   ^^^^^^^
+
+warning: field `ordinal` is never read
+   --> src\bin\b5_support\paced.rs:166:5
+    |
+165 | struct CollectorState {
+    |        -------------- field in this struct
+166 |     ordinal: u64,
+    |     ^^^^^^^
+
+warning: field `stride` is never read
+   --> src\bin\b5_support\paced.rs:175:5
+    |
+174 | pub(crate) struct BoundedCollector {
+    |                   ---------------- field in this struct
+175 |     stride: u64,
+    |     ^^^^^^
+
+warning: method `record_completed` is never used
+   --> src\bin\b5_support\paced.rs:203:19
+    |
+180 | impl BoundedCollector {
+    | --------------------- method in this implementation
+...
+203 |     pub(crate) fn record_completed(&self, group: usize, latency_ns: u64) -> Result<(), Error> {
+    |                   ^^^^^^^^^^^^^^^^
+
+warning: methods `next`, `issued`, `completed`, and `group_guard` are never used
+   --> src\bin\b5_support\runtime.rs:70:19
+    |
+ 33 | impl<C: Clock> AsyncRun<C> {
+    | -------------------------- methods in this implementation
+...
+ 70 |     pub(crate) fn next(&self, partition: usize) -> Result<Action, Error> {
+    |                   ^^^^
+...
+ 74 |     pub(crate) fn issued(&self, partition: usize) -> Result<(), Error> {
+    |                   ^^^^^^
+...
+ 78 |     pub(crate) fn completed(&self, partition: usize, latency_ns: u64) -> Result<(), Error> {
+    |                   ^^^^^^^^^
+...
+147 |     pub(crate) fn group_guard(
+    |                   ^^^^^^^^^^^
+
+warning: struct `RuntimeGroupGuard` is never constructed
+   --> src\bin\b5_support\runtime.rs:171:19
+    |
+171 | pub(crate) struct RuntimeGroupGuard<C: Clock> {
+    |                   ^^^^^^^^^^^^^^^^^
+
+warning: method `finish` is never used
+   --> src\bin\b5_support\runtime.rs:176:19
+    |
+175 | impl<C: Clock> RuntimeGroupGuard<C> {
+    | ----------------------------------- method in this implementation
+176 |     pub(crate) fn finish(mut self) -> Result<(), Error> {
+    |                   ^^^^^^
+
+warning: `nbsr-transport` (bin "perf_rust_source" test) generated 13 warnings (run `cargo fix --bin "perf_rust_source" -p nbsr-transport --tests` to apply 1 suggestion)
+    Finished `release` profile [optimized] target(s) in 6.55s
+     Running unittests src\bin\perf_rust_source.rs (C:/NBSR-build/b4b-task4k\release\deps\perf_rust_source-25bd4629be05d890.exe)
+
+running 1 test
+test b5_support::driver_contract_tests::paced_cooldown_cannot_be_silently_accepted ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 75 filtered out; finished in 0.00s

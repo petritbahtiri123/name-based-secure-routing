@@ -144,7 +144,7 @@ mod tests {
 mod paced_contract_tests;
 
 #[cfg(test)]
-mod paced;
+use crate::b5_driver::paced;
 #[cfg(test)]
 use paced::{BoundedCollector, PacingWindow};
 
@@ -152,10 +152,16 @@ use paced::{BoundedCollector, PacingWindow};
 mod coordinator_contract_tests;
 
 #[cfg(test)]
-mod coordinator;
+use crate::b5_driver::coordinator;
 
 #[cfg(test)]
 mod runtime_contract_tests;
 
 #[cfg(test)]
-mod runtime;
+use crate::b5_driver::runtime;
+
+#[cfg(test)]
+mod driver_contract_tests;
+
+#[cfg(test)]
+use crate::b5_driver as driver;

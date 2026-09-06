@@ -1,0 +1,71 @@
+{
+  "classification": "DIAGNOSTIC integration; not capacity or soak",
+  "cells": [
+    {
+      "path": "direct",
+      "groups": 1,
+      "completed": [
+        400,
+        400,
+        400
+      ],
+      "offered_each": 400,
+      "cv": 0.0
+    },
+    {
+      "path": "direct",
+      "groups": 2,
+      "completed": [
+        400,
+        400,
+        400
+      ],
+      "offered_each": 400,
+      "cv": 0.0
+    },
+    {
+      "path": "direct",
+      "groups": 4,
+      "completed": [
+        400,
+        400,
+        400
+      ],
+      "offered_each": 400,
+      "cv": 0.0
+    },
+    {
+      "path": "nbsr",
+      "groups": 1,
+      "completed": [
+        400,
+        400,
+        400
+      ],
+      "offered_each": 400,
+      "cv": 0.0
+    },
+    {
+      "path": "nbsr",
+      "groups": 2,
+      "completed": [
+        396,
+        400,
+        400
+      ],
+      "offered_each": 400,
+      "cv": 0.005792812065447749
+    },
+    {
+      "path": "nbsr",
+      "groups": 4,
+      "completed": [
+        400,
+        400,
+        400
+      ],
+      "offered_each": 400,
+      "cv": 0.0
+    }
+  ]
+}

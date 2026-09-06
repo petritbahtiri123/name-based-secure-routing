@@ -1,0 +1,56 @@
+   Compiling nbsr-transport v0.1.0 (C:\Users\bajra\OneDrive\Documents\NBSR\crates\nbsr-transport)
+error[E0609]: no field `sample_stride` on type `Snapshot`
+  --> src\bin\b5_support\coordinator_contract_tests.rs:18:25
+   |
+18 |     assert_eq!(snapshot.sample_stride, 2);
+   |                         ^^^^^^^^^^^^^ unknown field
+   |
+   = note: available fields are: `window_index`, `start_ns`, `end_ns`, `issue_deadline_ns`, `phase` ... and 4 others
+
+error[E0609]: no field `sample_capacity` on type `Snapshot`
+  --> src\bin\b5_support\coordinator_contract_tests.rs:19:25
+   |
+19 |     assert_eq!(snapshot.sample_capacity, 8);
+   |                         ^^^^^^^^^^^^^^^ unknown field
+   |
+   = note: available fields are: `window_index`, `start_ns`, `end_ns`, `issue_deadline_ns`, `phase` ... and 4 others
+
+error[E0609]: no field `sample_overflow_count` on type `Snapshot`
+  --> src\bin\b5_support\coordinator_contract_tests.rs:20:25
+   |
+20 |     assert_eq!(snapshot.sample_overflow_count, 0);
+   |                         ^^^^^^^^^^^^^^^^^^^^^ unknown field
+   |
+   = note: available fields are: `window_index`, `start_ns`, `end_ns`, `issue_deadline_ns`, `phase` ... and 4 others
+
+error[E0609]: no field `max_outstanding_observed` on type `Snapshot`
+  --> src\bin\b5_support\coordinator_contract_tests.rs:21:25
+   |
+21 |     assert_eq!(snapshot.max_outstanding_observed, 1);
+   |                         ^^^^^^^^^^^^^^^^^^^^^^^^ unknown field
+   |
+   = note: available fields are: `window_index`, `start_ns`, `end_ns`, `issue_deadline_ns`, `phase` ... and 4 others
+
+error[E0609]: no field `max_reservation_lateness_ns` on type `Snapshot`
+  --> src\bin\b5_support\coordinator_contract_tests.rs:22:25
+   |
+22 |     assert_eq!(snapshot.max_reservation_lateness_ns, 3 * MS);
+   |                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^ unknown field
+   |
+   = note: available fields are: `window_index`, `start_ns`, `end_ns`, `issue_deadline_ns`, `phase` ... and 4 others
+
+error[E0599]: no method named `wait_failed` found for struct `std::sync::Arc<AsyncRun<runtime_contract_tests::ManualClock>>` in the current scope
+  --> src\bin\b5_support\runtime_contract_tests.rs:42:23
+   |
+42 |     let waiting = run.wait_failed();
+   |                       ^^^^^^^^^^^
+   |
+help: there is a method `wait_drained` with a similar name
+   |
+42 -     let waiting = run.wait_failed();
+42 +     let waiting = run.wait_drained();
+   |
+
+Some errors have detailed explanations: E0599, E0609.
+For more information about an error, try `rustc --explain E0599`.
+error: could not compile `nbsr-transport` (bin "perf_rust_source" test) due to 6 previous errors

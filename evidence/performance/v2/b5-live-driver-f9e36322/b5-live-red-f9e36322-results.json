@@ -1,0 +1,14 @@
+[
+  {
+    "path": "direct",
+    "expected_new_final_count": 1,
+    "actual_new_final_count": 0,
+    "old_final_count": 2
+  },
+  {
+    "path": "nbsr",
+    "expected_new_final_count": 1,
+    "actual_new_final_count": 0,
+    "old_final_count": 2
+  }
+]

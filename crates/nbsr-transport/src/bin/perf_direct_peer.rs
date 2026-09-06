@@ -24,6 +24,9 @@ use tokio::task::JoinSet;
 
 #[cfg(feature = "benchmark-harness")]
 mod b1_support;
+#[cfg(feature = "benchmark-harness")]
+#[path = "b5_support/driver.rs"]
+mod b5_driver;
 use x509_parser::extensions::GeneralName;
 use x509_parser::prelude::{FromDer, X509Certificate};
 
@@ -338,7 +341,15 @@ async fn server() {
     endpoint.wait_idle().await;
 }
 
-async fn client(group_barrier: Option<Arc<std::sync::Barrier>>, group_ordinal: usize) {
+async fn client(
+    group_barrier: Option<Arc<std::sync::Barrier>>,
+    group_ordinal: usize,
+    #[cfg(feature = "benchmark-harness")] paced: Option<Arc<b5_driver::Driver>>,
+) {
+    #[cfg(feature = "benchmark-harness")]
+    let paced_guard = paced
+        .as_ref()
+        .map(|driver| driver.run.group_guard(group_ordinal).unwrap());
     let authority = PathBuf::from(argument("--authority-dir"));
     let default_remote = argument("--endpoint");
     #[cfg(feature = "benchmark-harness")]
@@ -389,7 +400,9 @@ async fn client(group_barrier: Option<Arc<std::sync::Barrier>>, group_ordinal: u
             let ready = Arc::clone(&ready);
             let measure = Arc::clone(&measure);
             let payload = payload.clone();
+            let paced = paced.clone();
             tasks.spawn(async move {
+                let mut failure_guard = paced.as_ref().map(|driver| driver.failure_guard());
                 let mut sequence = (ordinal as u64) << 56;
                 let preflight = encode_frame(sequence, &payload);
                 write_frame(&mut send, &preflight).await.unwrap();
@@ -427,24 +440,66 @@ async fn client(group_barrier: Option<Arc<std::sync::Barrier>>, group_ordinal: u
                 };
                 let mut tracker = OutstandingTracker::new(outstanding_per_stream).unwrap();
                 let mut latencies = Vec::new();
-                loop {
-                    while tracker.can_issue()
-                        && (deadline.is_some_and(|value| Instant::now() < value)
-                            || operation_limit.is_some_and(|value| tracker.sent() < value))
-                    {
-                        let started = Instant::now();
-                        let wire = encode_measured_frame(sequence, &payload);
-                        write_frame(&mut send, &wire).await.unwrap();
-                        tracker.issue(sequence, started).unwrap();
-                        sequence += 1;
+                if let Some(driver) = &paced {
+                    let partition = driver.partition(group_ordinal, ordinal).unwrap();
+                    loop {
+                        match driver.run.next(partition).unwrap() {
+                            b5_driver::Action::Permit => {
+                                assert!(tracker.can_issue());
+                                let started = Instant::now();
+                                let wire = encode_measured_frame(sequence, &payload);
+                                write_frame(&mut send, &wire).await.unwrap();
+                                tracker.issue(sequence, started).unwrap();
+                                driver.run.issued(partition).unwrap();
+                                sequence += 1;
+                            }
+                            b5_driver::Action::Read => {
+                                let expected =
+                                    tracker.next_sequence().expect("paced outstanding response");
+                                let response = read_frame(&mut receive).await.unwrap();
+                                decode_measured_frame(&response, expected, &payload).unwrap();
+                                let started = tracker.complete(expected).unwrap();
+                                driver
+                                    .run
+                                    .completed(
+                                        partition,
+                                        u64::try_from(started.elapsed().as_nanos()).unwrap(),
+                                    )
+                                    .unwrap();
+                            }
+                            b5_driver::Action::WaitUntil(when) => {
+                                driver.idle_until(when).await.unwrap()
+                            }
+                            b5_driver::Action::AwaitReady => driver.run.wait_ready().await.unwrap(),
+                            b5_driver::Action::Draining => {
+                                assert_eq!(tracker.in_flight(), 0);
+                                break;
+                            }
+                        }
                     }
-                    let Some(expected) = tracker.next_sequence() else {
-                        break;
-                    };
-                    let response = read_frame(&mut receive).await.unwrap();
-                    decode_measured_frame(&response, expected, &payload).unwrap();
-                    let started = tracker.complete(expected).unwrap();
-                    latencies.push(started.elapsed().as_nanos() as u64);
+                } else {
+                    loop {
+                        while tracker.can_issue()
+                            && (deadline.is_some_and(|value| Instant::now() < value)
+                                || operation_limit.is_some_and(|value| tracker.sent() < value))
+                        {
+                            let started = Instant::now();
+                            let wire = encode_measured_frame(sequence, &payload);
+                            write_frame(&mut send, &wire).await.unwrap();
+                            tracker.issue(sequence, started).unwrap();
+                            sequence += 1;
+                        }
+                        let Some(expected) = tracker.next_sequence() else {
+                            break;
+                        };
+                        let response = read_frame(&mut receive).await.unwrap();
+                        decode_measured_frame(&response, expected, &payload).unwrap();
+                        let started = tracker.complete(expected).unwrap();
+                        latencies.push(started.elapsed().as_nanos() as u64);
+                    }
+                }
+                if let Some(guard) = &mut failure_guard {
+                    guard.disarm();
                 }
                 (
                     tracker.completed(),
@@ -456,7 +511,16 @@ async fn client(group_barrier: Option<Arc<std::sync::Barrier>>, group_ordinal: u
                 )
             });
         }
-        ready.wait().await;
+        if let Some(driver) = &paced {
+            tokio::select! {
+                _ = ready.wait() => {}
+                _ = driver.run.wait_failed() => panic!("paced warmup failed"),
+            }
+            driver.run.ready(group_ordinal).unwrap();
+            driver.run.wait_ready().await.unwrap();
+        } else {
+            ready.wait().await;
+        }
         if let Some(barrier) = group_barrier {
             barrier.wait();
         }
@@ -467,12 +531,27 @@ async fn client(group_barrier: Option<Arc<std::sync::Barrier>>, group_ordinal: u
         let mut latencies = Vec::new();
         let mut max_outstanding_observed = 0_usize;
         let mut established_streams = Vec::with_capacity(stream_count);
-        while let Some(joined) = tasks.join_next().await {
+        loop {
+            let joined = if let Some(driver) = &paced {
+                tokio::select! {
+                    joined = tasks.join_next() => joined,
+                    _ = driver.run.wait_failed() => panic!("paced peer group failed"),
+                }
+            } else {
+                tasks.join_next().await
+            };
+            let Some(joined) = joined else {
+                break;
+            };
             let (count, mut values, max_outstanding, sequence, send, receive) = joined.unwrap();
             completed += count;
             latencies.append(&mut values);
             max_outstanding_observed = max_outstanding_observed.max(max_outstanding);
             established_streams.push((sequence, send, receive));
+        }
+        if let Some(driver) = &paced {
+            driver.run.drained(group_ordinal).unwrap();
+            driver.run.wait_postflight().await.unwrap();
         }
         let measured_ns = measured_started.elapsed().as_nanos();
         for (sequence, send, receive) in &mut established_streams {
@@ -484,17 +563,23 @@ async fn client(group_barrier: Option<Arc<std::sync::Barrier>>, group_ordinal: u
         tokio::time::sleep(Duration::from_millis(100)).await;
         b1_support::counter_phase(counter_control, "measurement-stop").unwrap();
         drop(established_streams);
-        latencies.sort_unstable();
-        let percentile = |p: f64| latencies[((latencies.len() - 1) as f64 * p).round() as usize];
-        println!(
-            "{{\"schema\":\"nbsr-p2a-repeat-v2\",\"path\":\"direct\",\"streams\":{stream_count},\"payload_bytes\":{payload_bytes},\"model\":\"bounded-outstanding-per-stream\",\"outstanding_per_stream\":{outstanding_per_stream},\"configured_total_outstanding\":{},\"max_outstanding_per_stream_observed\":{max_outstanding_observed},\"completed_operations\":{completed},\"measured_ns\":{measured_ns},\"p50_latency_ns\":{},\"p95_latency_ns\":{},\"p99_latency_ns\":{},\"errors\":0,\"missing\":0,\"duplicates\":0,\"corrupt\":0,\"wrong_request\":0,\"transport_sessions_created_delta\":0,\"service_channels_created_delta\":0,\"application_streams_created_delta\":0,\"replay_entries_delta\":0}}",
-            stream_count * outstanding_per_stream,
-            percentile(0.50),
-            percentile(0.95),
-            percentile(0.99)
-        );
+        if paced.is_none() {
+            latencies.sort_unstable();
+            let percentile =
+                |p: f64| latencies[((latencies.len() - 1) as f64 * p).round() as usize];
+            println!(
+                "{{\"schema\":\"nbsr-p2a-repeat-v2\",\"path\":\"direct\",\"streams\":{stream_count},\"payload_bytes\":{payload_bytes},\"model\":\"bounded-outstanding-per-stream\",\"outstanding_per_stream\":{outstanding_per_stream},\"configured_total_outstanding\":{},\"max_outstanding_per_stream_observed\":{max_outstanding_observed},\"completed_operations\":{completed},\"measured_ns\":{measured_ns},\"p50_latency_ns\":{},\"p95_latency_ns\":{},\"p99_latency_ns\":{},\"errors\":0,\"missing\":0,\"duplicates\":0,\"corrupt\":0,\"wrong_request\":0,\"transport_sessions_created_delta\":0,\"service_channels_created_delta\":0,\"application_streams_created_delta\":0,\"replay_entries_delta\":0}}",
+                stream_count * outstanding_per_stream,
+                percentile(0.50),
+                percentile(0.95),
+                percentile(0.99)
+            );
+        }
         connection.close(VarInt::from_u32(0), b"");
         endpoint.wait_idle().await;
+        if let Some(guard) = paced_guard {
+            guard.finish().unwrap();
+        }
         return;
     }
     assert!(matches!(lifecycle.as_str(), "cold" | "warm"));
@@ -586,7 +671,12 @@ async fn client(group_barrier: Option<Arc<std::sync::Barrier>>, group_ordinal: u
 async fn run() {
     match argument("--role").as_str() {
         "server" => server().await,
-        "client" => client(None, 0).await,
+        "client" => {
+            #[cfg(feature = "benchmark-harness")]
+            client(None, 0, None).await;
+            #[cfg(not(feature = "benchmark-harness"))]
+            client(None, 0).await;
+        }
         other => panic!("unsupported role {other}"),
     }
 }
@@ -595,9 +685,57 @@ async fn run() {
 fn main() {
     let workers = parse_runtime_workers(env::args()).expect("valid --p2a-runtime-workers");
     let groups = parse_group_count(env::args()).expect("valid --p2a-groups");
+    if argument("--role") == "client"
+        && let Some(driver) = b5_driver::prepare(env::args()).expect("valid paced workload")
+    {
+        let publisher = driver.start_publisher().unwrap();
+        if groups > 1 {
+            let handles: Vec<_> = (0..groups)
+                .map(|ordinal| {
+                    let driver = Arc::clone(&driver);
+                    std::thread::spawn(move || {
+                        let mut failure = driver.failure_guard();
+                        build_benchmark_runtime(1).unwrap().block_on(async {
+                            tokio::select! {
+                                () = client(None, ordinal, Some(Arc::clone(&driver))) => {}
+                                _ = driver.run.wait_failed() => panic!("paced Direct group failed"),
+                            }
+                        });
+                        failure.disarm();
+                    })
+                })
+                .collect();
+            let mut failed = false;
+            for handle in handles {
+                if handle.join().is_err() {
+                    driver.run.fail();
+                    failed = true;
+                }
+            }
+            assert!(!failed, "paced Direct group failed");
+        } else {
+            build_benchmark_runtime(workers).unwrap().block_on(async {
+                tokio::select! {
+                    () = client(None, 0, Some(Arc::clone(&driver))) => {}
+                    _ = driver.run.wait_failed() => panic!("paced Direct group failed"),
+                }
+            });
+        }
+        publisher
+            .join()
+            .expect("paced publisher thread")
+            .expect("paced publisher output");
+        println!(
+            "{}",
+            driver
+                .final_record_after_joins(r#"{"status":"NOT_MEASURED"}"#)
+                .unwrap()
+        );
+        return;
+    }
     if groups > 1 && argument("--role") == "client" {
         run_current_thread_groups(groups, |ordinal, barrier| async move {
-            client(Some(barrier), ordinal).await
+            client(Some(barrier), ordinal, None).await
         })
         .expect("independent Direct benchmark groups");
         return;

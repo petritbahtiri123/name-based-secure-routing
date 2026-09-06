@@ -35,6 +35,9 @@ mod b3_support;
 #[cfg(feature = "benchmark-harness")]
 mod b4_support;
 #[cfg(feature = "benchmark-harness")]
+#[path = "b5_support/driver.rs"]
+mod b5_driver;
+#[cfg(feature = "benchmark-harness")]
 mod b5_support;
 #[path = "benchmark_support/batch_release.rs"]
 mod batch_release;
@@ -70,7 +73,7 @@ async fn run_lifecycle_clients(
                 move || {
                     handshake_timeline::scope(run_slot, async move {
                         handshake_timeline::mark(handshake_timeline::Event::TaskStarted);
-                        run(None, ordinal, Some(task_completion)).await
+                        run(None, ordinal, Some(task_completion), None).await
                     })
                 },
             ))
@@ -1142,7 +1145,12 @@ async fn run(
     group_barrier: Option<Arc<std::sync::Barrier>>,
     group_ordinal: usize,
     completion: Option<CompletionSender>,
+    #[cfg(feature = "benchmark-harness")] paced: Option<Arc<b5_driver::Driver>>,
 ) {
+    #[cfg(feature = "benchmark-harness")]
+    let paced_guard = paced
+        .as_ref()
+        .map(|driver| driver.run.group_guard(group_ordinal).unwrap());
     let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..");
     let authority = PathBuf::from(argument("--authority-dir"));
     let default_endpoint = argument("--endpoint");
@@ -1373,8 +1381,11 @@ async fn run(
             duration_seconds,
         )
         .unwrap();
-        let progress_interval =
-            optional_argument("--p2a-progress-seconds").map(|value| value.parse::<f64>().unwrap());
+        let progress_interval = if paced.is_some() {
+            None
+        } else {
+            optional_argument("--p2a-progress-seconds").map(|value| value.parse::<f64>().unwrap())
+        };
         if let Some(seconds) = progress_interval {
             assert!(seconds.is_finite() && (1.0..=60.0).contains(&seconds));
             assert!(duration_seconds.is_some());
@@ -1413,7 +1424,9 @@ async fn run(
             let measure = Arc::clone(&measure);
             let payload = payload.clone();
             let soak_telemetry = soak_telemetry.clone();
+            let paced = paced.clone();
             tasks.spawn(async move {
+                let mut failure_guard = paced.as_ref().map(|driver| driver.failure_guard());
                 let mut sequence = (ordinal as u64) << 56;
                 let preflight = encode_frame(sequence, &payload);
                 application.benchmark_write_frame(&preflight).await.unwrap();
@@ -1435,8 +1448,19 @@ async fn run(
                         warmup_tracker.complete(expected).unwrap();
                     }
                 }
-                ready.wait().await;
-                measure.wait().await;
+                if let Some(driver) = &paced {
+                    tokio::select! {
+                        _ = ready.wait() => {}
+                        _ = driver.run.wait_failed() => panic!("paced warmup failed"),
+                    }
+                    tokio::select! {
+                        _ = measure.wait() => {}
+                        _ = driver.run.wait_failed() => panic!("paced measurement readiness failed"),
+                    }
+                } else {
+                    ready.wait().await;
+                    measure.wait().await;
+                }
                 let deadline = match measurement {
                     b1_support::MeasurementMode::Duration(seconds) => {
                         Some(Instant::now() + Duration::from_secs_f64(seconds))
@@ -1452,6 +1476,30 @@ async fn run(
                 let mut latencies = Vec::new();
                 let mut tracker = OutstandingTracker::new(outstanding_per_stream).unwrap();
                 loop {
+                    if let Some(driver) = &paced {
+                        let partition = driver.partition(group_ordinal, ordinal).unwrap();
+                        match driver.run.next(partition).unwrap() {
+                            b5_driver::Action::Permit => {
+                                let started = Instant::now();
+                                let wire = encode_measured_frame(sequence, &payload);
+                                application.benchmark_write_frame(&wire).await.unwrap();
+                                tracker.issue(sequence, started).unwrap();
+                                driver.run.issued(partition).unwrap();
+                                sequence += 1;
+                            }
+                            b5_driver::Action::Read => {
+                                let expected = tracker.next_sequence().unwrap();
+                                let response = application.benchmark_read_frame().await.unwrap();
+                                decode_measured_frame(&response, expected, &payload).unwrap();
+                                let started = tracker.complete(expected).unwrap();
+                                driver.run.completed(partition, u64::try_from(started.elapsed().as_nanos()).unwrap()).unwrap();
+                            }
+                            b5_driver::Action::WaitUntil(deadline) => driver.idle_until(deadline).await.unwrap(),
+                            b5_driver::Action::Draining => break,
+                            b5_driver::Action::AwaitReady => driver.run.wait_ready().await.unwrap(),
+                        }
+                        continue;
+                    }
                     while tracker.can_issue()
                         && (deadline.is_some_and(|value| Instant::now() < value)
                             || operation_limit.is_some_and(|value| tracker.sent() < value))
@@ -1479,6 +1527,9 @@ async fn run(
                         latencies.push(latency);
                     }
                 }
+                if let Some(guard) = &mut failure_guard {
+                    guard.disarm();
+                }
                 (
                     tracker.completed(),
                     latencies,
@@ -1488,14 +1539,30 @@ async fn run(
                 )
             });
         }
-        ready.wait().await;
+        if let Some(driver) = &paced {
+            tokio::select! {
+                _ = ready.wait() => {}
+                _ = driver.run.wait_failed() => panic!("paced local warmup failed"),
+            }
+            driver.run.ready(group_ordinal).unwrap();
+            driver.run.wait_ready().await.unwrap();
+        } else {
+            ready.wait().await;
+        }
         if let Some(barrier) = group_barrier {
             barrier.wait();
         }
         b1_support::counter_phase(counter_control, "measurement-start").unwrap();
         let before = nbsr_transport::diagnostics::global().snapshot();
         let measured_started = Instant::now();
-        measure.wait().await;
+        if let Some(driver) = &paced {
+            tokio::select! {
+                _ = measure.wait() => {}
+                _ = driver.run.wait_failed() => panic!("paced local measurement readiness failed"),
+            }
+        } else {
+            measure.wait().await;
+        }
         let progress_stop = Arc::new(AtomicBool::new(false));
         let progress_notify = Arc::new(Notify::new());
         let progress_task = if let (Some(seconds), Some(telemetry)) =
@@ -1617,7 +1684,18 @@ async fn run(
         let mut latencies = Vec::new();
         let mut max_outstanding_observed = 0_usize;
         let mut established_streams = Vec::with_capacity(stream_count as usize);
-        while let Some(result) = tasks.join_next().await {
+        loop {
+            let result = if let Some(driver) = &paced {
+                tokio::select! {
+                    result = tasks.join_next() => result,
+                    _ = driver.run.wait_failed() => panic!("paced stream failed"),
+                }
+            } else {
+                tasks.join_next().await
+            };
+            let Some(result) = result else {
+                break;
+            };
             let (count, mut values, max_outstanding, sequence, application) = result.unwrap();
             completed += count;
             latencies.append(&mut values);
@@ -1630,6 +1708,10 @@ async fn run(
             task.await.unwrap();
         }
         let measured_ns = measured_started.elapsed().as_nanos();
+        if let Some(driver) = &paced {
+            driver.run.drained(group_ordinal).unwrap();
+            driver.run.wait_postflight().await.unwrap();
+        }
         for (sequence, application) in &mut established_streams {
             let postflight = encode_frame(*sequence, &payload);
             application
@@ -1642,6 +1724,14 @@ async fn run(
         tokio::time::sleep(Duration::from_millis(100)).await;
         b1_support::counter_phase(counter_control, "measurement-stop").unwrap();
         drop(established_streams);
+        if paced.is_some() {
+            drop(session);
+            connection.close().await.unwrap();
+            if let Some(guard) = paced_guard {
+                guard.finish().unwrap();
+            }
+            return;
+        }
         let after = nbsr_transport::diagnostics::global().snapshot();
         latencies.sort_unstable();
         admission_latencies.sort_unstable();
@@ -1851,6 +1941,68 @@ async fn run(
 #[cfg(feature = "benchmark-harness")]
 fn main() {
     let workers = parse_runtime_workers(env::args()).expect("valid --p2a-runtime-workers");
+    if let Some(driver) =
+        b5_driver::prepare(env::args()).expect("valid paced benchmark configuration")
+    {
+        let groups = parse_group_count(env::args()).expect("valid --p2a-groups");
+        let cleanup_report =
+            post_close::prepare(optional_argument("--p2a-cleanup-report").map(PathBuf::from));
+        let publisher = driver.start_publisher().expect("paced publisher");
+        if groups == 1 {
+            build_benchmark_runtime(workers)
+                .expect("paced benchmark runtime")
+                .block_on(async {
+                    tokio::select! {
+                        () = run(None, 0, None, Some(Arc::clone(&driver))) => {}
+                        _ = driver.run.wait_failed() => panic!("paced group failed"),
+                    }
+                    post_close::write(cleanup_report.as_deref(), "source", "runtime_alive");
+                });
+        } else {
+            let handles: Vec<_> = (0..groups)
+                .map(|ordinal| {
+                    let driver = Arc::clone(&driver);
+                    std::thread::spawn(move || {
+                        let mut failure = driver.failure_guard();
+                        build_benchmark_runtime(1)
+                            .expect("paced group runtime")
+                            .block_on(async {
+                                tokio::select! {
+                                    () = run(None, ordinal, None, Some(Arc::clone(&driver))) => {}
+                                    _ = driver.run.wait_failed() => panic!("paced group failed"),
+                                }
+                            });
+                        failure.disarm();
+                    })
+                })
+                .collect();
+            let mut failed = false;
+            for handle in handles {
+                if handle.join().is_err() {
+                    driver.run.fail();
+                    failed = true;
+                }
+            }
+            assert!(!failed, "paced NBSR group failed");
+            emit_diagnostic(0, "group_cleanup");
+            post_close::write(
+                cleanup_report.as_deref(),
+                "source",
+                "all_group_runtimes_joined",
+            );
+        }
+        publisher
+            .join()
+            .expect("paced publisher thread")
+            .expect("paced publication");
+        println!(
+            "{}",
+            driver
+                .final_record_after_joins(r#"{"status":"SEPARATE_REPORT_REQUIRED"}"#)
+                .expect("paced final evidence")
+        );
+        return;
+    }
     if let Some(logical_clients) = optional_argument("--lifecycle-clients") {
         let logical_clients = logical_clients
             .parse::<usize>()
@@ -1920,7 +2072,7 @@ fn main() {
         post_close::prepare(optional_argument("--p2a-cleanup-report").map(PathBuf::from));
     if groups > 1 {
         run_current_thread_groups(groups, |ordinal, barrier| async move {
-            run(Some(barrier), ordinal, None).await
+            run(Some(barrier), ordinal, None, None).await
         })
         .expect("independently authorized NBSR benchmark groups");
         emit_diagnostic(0, "group_cleanup");
@@ -1934,7 +2086,7 @@ fn main() {
     build_benchmark_runtime(workers)
         .expect("benchmark Tokio runtime")
         .block_on(async {
-            run(None, 0, None).await;
+            run(None, 0, None, None).await;
             post_close::write(cleanup_report.as_deref(), "source", "runtime_alive");
         });
     if optional_argument("--lifecycle-authority-dir").is_some()

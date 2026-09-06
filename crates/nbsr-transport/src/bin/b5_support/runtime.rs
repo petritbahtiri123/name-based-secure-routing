@@ -109,6 +109,10 @@ impl<C: Clock> AsyncRun<C> {
         self.wait_for(|s| s.postflight_allowed).await
     }
 
+    pub(crate) async fn wait_failed(&self) -> Result<(), Error> {
+        self.wait_for(|_| false).await
+    }
+
     // The caller provides bounded synchronous serialization/output. It must
     // return Ok only after the complete record has been written (and flushed if
     // buffered). No coordinator lock is held while it performs output. A sole
