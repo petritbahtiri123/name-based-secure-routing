@@ -1,0 +1,35 @@
+{
+  "controller_index_sha256": "54fc7cc04539a8282e09699e02b4cfc5a8c6de5ca8d4ce3737eb7a7eda428613",
+  "nested_controller_indexed_artifacts": 14,
+  "nested_indexes_overlap_do_not_sum": true,
+  "outside_console_and_manifest_files": [
+    {
+      "bytes": 614,
+      "path": "C:\\NBSR-build\\b5-pdh-observer-1cca67ad.log",
+      "sha256": "a18e351138a12a0d4394051e7e717ff457ebbf64b47f40988834a1c6f1835386"
+    },
+    {
+      "bytes": 421,
+      "path": "C:\\NBSR-build\\b5-pdh-prebuilt-1cca67ad.json",
+      "sha256": "38f7ed3efa30f583d4232313b4d6c63c2ddc29890febaf56e00f1984e866d5aa"
+    },
+    {
+      "bytes": 0,
+      "path": "C:\\NBSR-build\\b5-pdh-prebuild-1cca67ad.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "preparation_artifacts_verified": 8,
+  "preparation_index_sha256": "aff6f8347caa2432fbb9c3b8253c4a7d71696fac9118da5fb1a5a50df5297223",
+  "preparation_root": "C:\\NBSR-build\\b5-pdh-observer-preparation",
+  "raw_index_sha256": "761322602f6a2d8ceb80017dbb06678c4fff3ead94777cf81afd7153099398bc",
+  "raw_logs_preserved_external": true,
+  "raw_root": "C:\\NBSR-build\\b5-pdh-observer-1cca67ad",
+  "raw_root_indexed_artifacts": 20,
+  "source_bindings_verified": [
+    "controller committed bytes match environment source_sha256",
+    "prepared and controller source SHA agree",
+    "prepared driver SHA matches retained driver",
+    "prepared and controller binary hashes agree; raw binaries covered by verified raw indexes"
+  ]
+}

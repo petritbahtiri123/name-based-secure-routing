@@ -1,0 +1,3 @@
+external-checksums.sha256 -text whitespace=cr-at-eol
+external-controller-checksums.sha256 -text whitespace=cr-at-eol
+preparation-* -text whitespace=-blank-at-eol,-blank-at-eof,cr-at-eol

@@ -1,0 +1,170 @@
+...FFFFFFF                                                               [100%]
+================================== FAILURES ===================================
+______________ test_coverage_accepts_contiguous_bounded_interval ______________
+
+    def test_coverage_accepts_contiguous_bounded_interval():
+        rows, meta = coverage_fixture()
+>       assert driver.validate_coverage(rows, meta)["coverage_valid"]
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'driver' has no attribute 'validate_coverage'
+
+C:\NBSR-build\b5-pdh-observer-preparation\test_driver.py:58: AttributeError
+____________ test_coverage_rejects_unsupported_interval[duplicate] ____________
+
+problem = 'duplicate'
+
+    @pytest.mark.parametrize("problem", ["duplicate", "stale", "gap", "clock", "offset", "format"])
+    def test_coverage_rejects_unsupported_interval(problem):
+        rows, meta = coverage_fixture()
+        if problem == "duplicate":
+            rows[4] = rows[3]
+        elif problem == "stale":
+            rows = rows[:110]
+        elif problem == "gap":
+            del rows[5:9]
+        elif problem == "clock":
+            meta["before_stop"]["monotonic_ns"] += 10_000_000_000
+        elif problem == "offset":
+            meta["before_stop"]["local_utc_offset_seconds"] = 3600
+        elif problem == "format":
+            rows[0]["typeperf_local_timestamp"] = "2026-09-06 12:00:01"
+        with pytest.raises(ValueError):
+>           driver.validate_coverage(rows, meta)
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: module 'driver' has no attribute 'validate_coverage'
+
+C:\NBSR-build\b5-pdh-observer-preparation\test_driver.py:77: AttributeError
+______________ test_coverage_rejects_unsupported_interval[stale] ______________
+
+problem = 'stale'
+
+    @pytest.mark.parametrize("problem", ["duplicate", "stale", "gap", "clock", "offset", "format"])
+    def test_coverage_rejects_unsupported_interval(problem):
+        rows, meta = coverage_fixture()
+        if problem == "duplicate":
+            rows[4] = rows[3]
+        elif problem == "stale":
+            rows = rows[:110]
+        elif problem == "gap":
+            del rows[5:9]
+        elif problem == "clock":
+            meta["before_stop"]["monotonic_ns"] += 10_000_000_000
+        elif problem == "offset":
+            meta["before_stop"]["local_utc_offset_seconds"] = 3600
+        elif problem == "format":
+            rows[0]["typeperf_local_timestamp"] = "2026-09-06 12:00:01"
+        with pytest.raises(ValueError):
+>           driver.validate_coverage(rows, meta)
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: module 'driver' has no attribute 'validate_coverage'
+
+C:\NBSR-build\b5-pdh-observer-preparation\test_driver.py:77: AttributeError
+_______________ test_coverage_rejects_unsupported_interval[gap] _______________
+
+problem = 'gap'
+
+    @pytest.mark.parametrize("problem", ["duplicate", "stale", "gap", "clock", "offset", "format"])
+    def test_coverage_rejects_unsupported_interval(problem):
+        rows, meta = coverage_fixture()
+        if problem == "duplicate":
+            rows[4] = rows[3]
+        elif problem == "stale":
+            rows = rows[:110]
+        elif problem == "gap":
+            del rows[5:9]
+        elif problem == "clock":
+            meta["before_stop"]["monotonic_ns"] += 10_000_000_000
+        elif problem == "offset":
+            meta["before_stop"]["local_utc_offset_seconds"] = 3600
+        elif problem == "format":
+            rows[0]["typeperf_local_timestamp"] = "2026-09-06 12:00:01"
+        with pytest.raises(ValueError):
+>           driver.validate_coverage(rows, meta)
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: module 'driver' has no attribute 'validate_coverage'
+
+C:\NBSR-build\b5-pdh-observer-preparation\test_driver.py:77: AttributeError
+______________ test_coverage_rejects_unsupported_interval[clock] ______________
+
+problem = 'clock'
+
+    @pytest.mark.parametrize("problem", ["duplicate", "stale", "gap", "clock", "offset", "format"])
+    def test_coverage_rejects_unsupported_interval(problem):
+        rows, meta = coverage_fixture()
+        if problem == "duplicate":
+            rows[4] = rows[3]
+        elif problem == "stale":
+            rows = rows[:110]
+        elif problem == "gap":
+            del rows[5:9]
+        elif problem == "clock":
+            meta["before_stop"]["monotonic_ns"] += 10_000_000_000
+        elif problem == "offset":
+            meta["before_stop"]["local_utc_offset_seconds"] = 3600
+        elif problem == "format":
+            rows[0]["typeperf_local_timestamp"] = "2026-09-06 12:00:01"
+        with pytest.raises(ValueError):
+>           driver.validate_coverage(rows, meta)
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: module 'driver' has no attribute 'validate_coverage'
+
+C:\NBSR-build\b5-pdh-observer-preparation\test_driver.py:77: AttributeError
+_____________ test_coverage_rejects_unsupported_interval[offset] ______________
+
+problem = 'offset'
+
+    @pytest.mark.parametrize("problem", ["duplicate", "stale", "gap", "clock", "offset", "format"])
+    def test_coverage_rejects_unsupported_interval(problem):
+        rows, meta = coverage_fixture()
+        if problem == "duplicate":
+            rows[4] = rows[3]
+        elif problem == "stale":
+            rows = rows[:110]
+        elif problem == "gap":
+            del rows[5:9]
+        elif problem == "clock":
+            meta["before_stop"]["monotonic_ns"] += 10_000_000_000
+        elif problem == "offset":
+            meta["before_stop"]["local_utc_offset_seconds"] = 3600
+        elif problem == "format":
+            rows[0]["typeperf_local_timestamp"] = "2026-09-06 12:00:01"
+        with pytest.raises(ValueError):
+>           driver.validate_coverage(rows, meta)
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: module 'driver' has no attribute 'validate_coverage'
+
+C:\NBSR-build\b5-pdh-observer-preparation\test_driver.py:77: AttributeError
+_____________ test_coverage_rejects_unsupported_interval[format] ______________
+
+problem = 'format'
+
+    @pytest.mark.parametrize("problem", ["duplicate", "stale", "gap", "clock", "offset", "format"])
+    def test_coverage_rejects_unsupported_interval(problem):
+        rows, meta = coverage_fixture()
+        if problem == "duplicate":
+            rows[4] = rows[3]
+        elif problem == "stale":
+            rows = rows[:110]
+        elif problem == "gap":
+            del rows[5:9]
+        elif problem == "clock":
+            meta["before_stop"]["monotonic_ns"] += 10_000_000_000
+        elif problem == "offset":
+            meta["before_stop"]["local_utc_offset_seconds"] = 3600
+        elif problem == "format":
+            rows[0]["typeperf_local_timestamp"] = "2026-09-06 12:00:01"
+        with pytest.raises(ValueError):
+>           driver.validate_coverage(rows, meta)
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: module 'driver' has no attribute 'validate_coverage'
+
+C:\NBSR-build\b5-pdh-observer-preparation\test_driver.py:77: AttributeError
+=========================== short test summary info ===========================
+FAILED ..\..\..\..\..\NBSR-build\b5-pdh-observer-preparation\test_driver.py::test_coverage_accepts_contiguous_bounded_interval
+FAILED ..\..\..\..\..\NBSR-build\b5-pdh-observer-preparation\test_driver.py::test_coverage_rejects_unsupported_interval[duplicate]
+FAILED ..\..\..\..\..\NBSR-build\b5-pdh-observer-preparation\test_driver.py::test_coverage_rejects_unsupported_interval[stale]
+FAILED ..\..\..\..\..\NBSR-build\b5-pdh-observer-preparation\test_driver.py::test_coverage_rejects_unsupported_interval[gap]
+FAILED ..\..\..\..\..\NBSR-build\b5-pdh-observer-preparation\test_driver.py::test_coverage_rejects_unsupported_interval[clock]
+FAILED ..\..\..\..\..\NBSR-build\b5-pdh-observer-preparation\test_driver.py::test_coverage_rejects_unsupported_interval[offset]
+FAILED ..\..\..\..\..\NBSR-build\b5-pdh-observer-preparation\test_driver.py::test_coverage_rejects_unsupported_interval[format]
+7 failed, 3 passed in 0.54s

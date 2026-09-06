@@ -1,0 +1,102 @@
+{
+  "binary_sha256": {
+    "direct": "873ec882297b82c99372c278e0ea4dab6e5d658cb1e2ce7e9812b9c8c45c361c",
+    "nbsr": "87900af9cd2e8362aeebe8c9d6085da52f41474f724eb9b4f2ed6e847df6fa93",
+    "server": "40c210aef1371d506e23bac47a098527781640bd4c54263b7707de51edd20503"
+  },
+  "controller_args": {
+    "cores": 1,
+    "depth": 1,
+    "diagnostic": true,
+    "duration": 120,
+    "groups": 1,
+    "output": "C:\\NBSR-build\\b5-pdh-observer-1cca67ad\\off-r1",
+    "ownership_sampling": false,
+    "paths": [
+      "nbsr"
+    ],
+    "payload": 16384,
+    "percent": 70,
+    "progress": 30,
+    "rate": [
+      421624000000,
+      150013467
+    ],
+    "reference": null,
+    "streams": 8,
+    "target": "C:\\NBSR-build\\b4b-task4k",
+    "warmup": 3
+  },
+  "git_status": "",
+  "load": {
+    "mode": "DIAGNOSTIC",
+    "rate_denominator": 150013467,
+    "rate_numerator": 421624000000
+  },
+  "mode": "DIAGNOSTIC",
+  "placement": {
+    "endpoint_masks": [
+      1
+    ],
+    "logical_processors_available": 1,
+    "source_mask": 1
+  },
+  "platform": "win32",
+  "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+  "repository_sha": "1cca67ad092292acec85f622c7d2825c47654a67",
+  "scope": "Windows loopback, shared physical pool; no external-server or thermal qualification",
+  "shape": {
+    "endpoint_groups": 1,
+    "payload_bytes": 16384,
+    "physical_cores": 1,
+    "runtime_workers": 1,
+    "streams_per_group": 8
+  },
+  "source_sha256": "5984acbacc8d551eaf4e0ff7a4b829192dee2e6a1fff368a28e6948623b7db56",
+  "topology": {
+    "affinity_masks": {
+      "1": {
+        "decimal": 1,
+        "hex": "0x1"
+      },
+      "2": {
+        "decimal": 5,
+        "hex": "0x5"
+      },
+      "4": {
+        "decimal": 85,
+        "hex": "0x55"
+      }
+    },
+    "cores": [
+      {
+        "core_index": 0,
+        "efficiency_class": 0,
+        "logical_mask": 3,
+        "smt": true
+      },
+      {
+        "core_index": 1,
+        "efficiency_class": 0,
+        "logical_mask": 12,
+        "smt": true
+      },
+      {
+        "core_index": 2,
+        "efficiency_class": 0,
+        "logical_mask": 48,
+        "smt": true
+      },
+      {
+        "core_index": 3,
+        "efficiency_class": 0,
+        "logical_mask": 192,
+        "smt": true
+      }
+    ],
+    "logical_processors": 8,
+    "physical_cores": 4,
+    "scope": "physical-core-selected-logical-processors",
+    "verified": true
+  }
+}

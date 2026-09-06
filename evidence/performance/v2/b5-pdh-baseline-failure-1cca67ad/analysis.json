@@ -1,0 +1,73 @@
+{
+  "attempted_off_cells": 1,
+  "attempted_on_cells": 0,
+  "cause": "UNRESOLVED",
+  "classification": "INVALID_PARTIAL_DIAGNOSTIC",
+  "cleanup_scope": "Controller abort path and partial raw evidence; no final eleven-counter ownership report or success final retained",
+  "cpu_window_correlation": {
+    "raw_sample_count": 362,
+    "reason": "Resource absolute monotonic timestamps are retained, but LiveGuards first-progress receive timestamp/origin is not serialized. Source elapsed_ns cannot independently recover that host receive anchor. No invented alignment or per-window CPU attribution.",
+    "role_counts": {
+      "destination_0": 181,
+      "source": 181
+    },
+    "status": "NOT_RECONSTRUCTIBLE_FROM_RETAINED_RECEIVE_CLOCK"
+  },
+  "inference_limit": "This failure occurred without PDH presence. That does not identify the drift cause or qualify observer impact.",
+  "last_progress_seconds": 90.0178559,
+  "load_scope": "Historical fixed rational421624000000/150013467 ops/s; not70% of current capacity",
+  "observer": "NOT_EVALUATED",
+  "planned_duration_seconds": 120,
+  "qualified_cells": 0,
+  "source_sha": "1cca67ad092292acec85f622c7d2825c47654a67",
+  "trigger": {
+    "goodput_last_over_first": 1.0082616306783905,
+    "last_over_first": 1.2145422489225546,
+    "metric": "p99_latency_ns",
+    "threshold": 1.2
+  },
+  "windows": [
+    {
+      "completed": 81376,
+      "elapsed_ns": 30017634800,
+      "goodput_bytes_per_second": 88832074.4044764,
+      "goodput_bytes_per_second_relative_to_window1": 1.0,
+      "interval_end_ns": 30017634800,
+      "interval_start_ns": 0,
+      "missed": 2997,
+      "offered": 84373,
+      "p99_latency_ns": 3062800,
+      "p99_latency_ns_relative_to_window1": 1.0,
+      "sample_count": 1271,
+      "window_index": 1
+    },
+    {
+      "completed": 163844,
+      "elapsed_ns": 60018257100,
+      "goodput_bytes_per_second": 90075179.00720346,
+      "goodput_bytes_per_second_relative_to_window1": 1.013993871144637,
+      "interval_end_ns": 60018257100,
+      "interval_start_ns": 30017634800,
+      "missed": 4846,
+      "offered": 168690,
+      "p99_latency_ns": 3030600,
+      "p99_latency_ns_relative_to_window1": 0.9894867441556745,
+      "sample_count": 1289,
+      "window_index": 2
+    },
+    {
+      "completed": 245843,
+      "elapsed_ns": 90017855900,
+      "goodput_bytes_per_second": 89565972.1956015,
+      "goodput_bytes_per_second_relative_to_window1": 1.0082616306783905,
+      "interval_end_ns": 90017855900,
+      "interval_start_ns": 60018257100,
+      "missed": 7164,
+      "offered": 253007,
+      "p99_latency_ns": 3719900,
+      "p99_latency_ns_relative_to_window1": 1.2145422489225546,
+      "sample_count": 1281,
+      "window_index": 3
+    }
+  ]
+}

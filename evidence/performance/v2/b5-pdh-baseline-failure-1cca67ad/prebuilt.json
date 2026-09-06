@@ -1,0 +1,9 @@
+{
+  "binary_sha256": {
+    "direct": "873ec882297b82c99372c278e0ea4dab6e5d658cb1e2ce7e9812b9c8c45c361c",
+    "nbsr": "87900af9cd2e8362aeebe8c9d6085da52f41474f724eb9b4f2ed6e847df6fa93",
+    "server": "40c210aef1371d506e23bac47a098527781640bd4c54263b7707de51edd20503"
+  },
+  "driver_sha256": "6a525ef05574ba30788d6f1bde3bab7dbef8924e32dbaaf074138ac3f9381a26",
+  "sha": "1cca67ad092292acec85f622c7d2825c47654a67"
+}

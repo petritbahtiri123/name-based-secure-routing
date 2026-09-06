@@ -1,0 +1,21 @@
+{
+  "affinity": [
+    {
+      "observed_mask": 1,
+      "requested_mask": 1,
+      "system_mask": 255,
+      "verified": true
+    },
+    {
+      "observed_mask": 1,
+      "requested_mask": 1,
+      "system_mask": 255,
+      "verified": true
+    }
+  ],
+  "classification": "FAIL",
+  "error": "B5 stream failed: live p99 drift",
+  "path": "nbsr",
+  "scope": "Windows loopback",
+  "valid": false
+}
