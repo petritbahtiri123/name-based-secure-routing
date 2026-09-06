@@ -1,0 +1,16 @@
+
+=================================== ERRORS ====================================
+_________ ERROR collecting tests/performance/test_linux_resources.py __________
+ImportError while importing test module 'C:\Users\bajra\OneDrive\Documents\NBSR\tests\performance\test_linux_resources.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+..\..\..\AppData\Local\Programs\Python\Python314\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\performance\test_linux_resources.py:5: in <module>
+    from scripts.performance import linux_resources as resources
+E   ImportError: cannot import name 'linux_resources' from 'scripts.performance' (C:\Users\bajra\OneDrive\Documents\NBSR\scripts\performance\__init__.py)
+=========================== short test summary info ===========================
+ERROR tests/performance/test_linux_resources.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+1 error in 0.64s

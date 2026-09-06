@@ -1,0 +1,5 @@
+{
+  "scripts/performance/linux_resources.py": "9e441c29699b1ecb388fc6dd4dfdefcee64a26a86c5d62038a7940d9590dd902",
+  "tests/performance/test_linux_resources.py": "eb7ebbad2d29d2c2891c3adeb3b0001c382c779e483f129d6bbcaf1d36da63ba",
+  "docs/benchmarks/LINUX_RESOURCE_SAMPLING.md": "9e6475363a6dd33f522ad11e2b981e1b80b3fa88975ade782973f0d321e21c5f"
+}

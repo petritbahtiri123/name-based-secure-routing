@@ -1,0 +1,643 @@
+..................FFFFFFFFFFFFFFFFFFFFFFFFF                              [100%]
+================================== FAILURES ===================================
+____________________ test_invalid_sampler_bounds[changes0] ____________________
+
+changes = {'max_records': 0}
+
+    @pytest.mark.parametrize('changes', [dict(max_records=0), dict(max_records=True),
+        dict(max_records=1.5), dict(interval_seconds=float('nan')),
+        dict(interval_seconds=float('inf')), dict(interval_seconds=0),
+        dict(processes={}), dict(processes={'source': True}), dict(processes={'': 123}),
+        dict(cpus=[]), dict(cpus=[-1]), dict(cpus=[True]), dict(cpus=[0, 0])])
+    def test_invalid_sampler_bounds(changes):
+        with pytest.raises(ValueError):
+>           sampler(**changes)
+
+tests\performance\test_linux_resources.py:140: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+kwargs = {'max_records': 0}
+
+    def sampler(**kwargs):
+>       return resources.LinuxResourceSampler(**(dict(processes={'source': 123}, cpus=[0],
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            interval_seconds=1, max_records=8, sample_fn=lambda *_: record()) | kwargs))
+E       AttributeError: module 'scripts.performance.linux_resources' has no attribute 'LinuxResourceSampler'
+
+tests\performance\test_linux_resources.py:129: AttributeError
+____________________ test_invalid_sampler_bounds[changes1] ____________________
+
+changes = {'max_records': True}
+
+    @pytest.mark.parametrize('changes', [dict(max_records=0), dict(max_records=True),
+        dict(max_records=1.5), dict(interval_seconds=float('nan')),
+        dict(interval_seconds=float('inf')), dict(interval_seconds=0),
+        dict(processes={}), dict(processes={'source': True}), dict(processes={'': 123}),
+        dict(cpus=[]), dict(cpus=[-1]), dict(cpus=[True]), dict(cpus=[0, 0])])
+    def test_invalid_sampler_bounds(changes):
+        with pytest.raises(ValueError):
+>           sampler(**changes)
+
+tests\performance\test_linux_resources.py:140: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+kwargs = {'max_records': True}
+
+    def sampler(**kwargs):
+>       return resources.LinuxResourceSampler(**(dict(processes={'source': 123}, cpus=[0],
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            interval_seconds=1, max_records=8, sample_fn=lambda *_: record()) | kwargs))
+E       AttributeError: module 'scripts.performance.linux_resources' has no attribute 'LinuxResourceSampler'
+
+tests\performance\test_linux_resources.py:129: AttributeError
+____________________ test_invalid_sampler_bounds[changes2] ____________________
+
+changes = {'max_records': 1.5}
+
+    @pytest.mark.parametrize('changes', [dict(max_records=0), dict(max_records=True),
+        dict(max_records=1.5), dict(interval_seconds=float('nan')),
+        dict(interval_seconds=float('inf')), dict(interval_seconds=0),
+        dict(processes={}), dict(processes={'source': True}), dict(processes={'': 123}),
+        dict(cpus=[]), dict(cpus=[-1]), dict(cpus=[True]), dict(cpus=[0, 0])])
+    def test_invalid_sampler_bounds(changes):
+        with pytest.raises(ValueError):
+>           sampler(**changes)
+
+tests\performance\test_linux_resources.py:140: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+kwargs = {'max_records': 1.5}
+
+    def sampler(**kwargs):
+>       return resources.LinuxResourceSampler(**(dict(processes={'source': 123}, cpus=[0],
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            interval_seconds=1, max_records=8, sample_fn=lambda *_: record()) | kwargs))
+E       AttributeError: module 'scripts.performance.linux_resources' has no attribute 'LinuxResourceSampler'
+
+tests\performance\test_linux_resources.py:129: AttributeError
+____________________ test_invalid_sampler_bounds[changes3] ____________________
+
+changes = {'interval_seconds': nan}
+
+    @pytest.mark.parametrize('changes', [dict(max_records=0), dict(max_records=True),
+        dict(max_records=1.5), dict(interval_seconds=float('nan')),
+        dict(interval_seconds=float('inf')), dict(interval_seconds=0),
+        dict(processes={}), dict(processes={'source': True}), dict(processes={'': 123}),
+        dict(cpus=[]), dict(cpus=[-1]), dict(cpus=[True]), dict(cpus=[0, 0])])
+    def test_invalid_sampler_bounds(changes):
+        with pytest.raises(ValueError):
+>           sampler(**changes)
+
+tests\performance\test_linux_resources.py:140: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+kwargs = {'interval_seconds': nan}
+
+    def sampler(**kwargs):
+>       return resources.LinuxResourceSampler(**(dict(processes={'source': 123}, cpus=[0],
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            interval_seconds=1, max_records=8, sample_fn=lambda *_: record()) | kwargs))
+E       AttributeError: module 'scripts.performance.linux_resources' has no attribute 'LinuxResourceSampler'
+
+tests\performance\test_linux_resources.py:129: AttributeError
+____________________ test_invalid_sampler_bounds[changes4] ____________________
+
+changes = {'interval_seconds': inf}
+
+    @pytest.mark.parametrize('changes', [dict(max_records=0), dict(max_records=True),
+        dict(max_records=1.5), dict(interval_seconds=float('nan')),
+        dict(interval_seconds=float('inf')), dict(interval_seconds=0),
+        dict(processes={}), dict(processes={'source': True}), dict(processes={'': 123}),
+        dict(cpus=[]), dict(cpus=[-1]), dict(cpus=[True]), dict(cpus=[0, 0])])
+    def test_invalid_sampler_bounds(changes):
+        with pytest.raises(ValueError):
+>           sampler(**changes)
+
+tests\performance\test_linux_resources.py:140: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+kwargs = {'interval_seconds': inf}
+
+    def sampler(**kwargs):
+>       return resources.LinuxResourceSampler(**(dict(processes={'source': 123}, cpus=[0],
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            interval_seconds=1, max_records=8, sample_fn=lambda *_: record()) | kwargs))
+E       AttributeError: module 'scripts.performance.linux_resources' has no attribute 'LinuxResourceSampler'
+
+tests\performance\test_linux_resources.py:129: AttributeError
+____________________ test_invalid_sampler_bounds[changes5] ____________________
+
+changes = {'interval_seconds': 0}
+
+    @pytest.mark.parametrize('changes', [dict(max_records=0), dict(max_records=True),
+        dict(max_records=1.5), dict(interval_seconds=float('nan')),
+        dict(interval_seconds=float('inf')), dict(interval_seconds=0),
+        dict(processes={}), dict(processes={'source': True}), dict(processes={'': 123}),
+        dict(cpus=[]), dict(cpus=[-1]), dict(cpus=[True]), dict(cpus=[0, 0])])
+    def test_invalid_sampler_bounds(changes):
+        with pytest.raises(ValueError):
+>           sampler(**changes)
+
+tests\performance\test_linux_resources.py:140: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+kwargs = {'interval_seconds': 0}
+
+    def sampler(**kwargs):
+>       return resources.LinuxResourceSampler(**(dict(processes={'source': 123}, cpus=[0],
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            interval_seconds=1, max_records=8, sample_fn=lambda *_: record()) | kwargs))
+E       AttributeError: module 'scripts.performance.linux_resources' has no attribute 'LinuxResourceSampler'
+
+tests\performance\test_linux_resources.py:129: AttributeError
+____________________ test_invalid_sampler_bounds[changes6] ____________________
+
+changes = {'processes': {}}
+
+    @pytest.mark.parametrize('changes', [dict(max_records=0), dict(max_records=True),
+        dict(max_records=1.5), dict(interval_seconds=float('nan')),
+        dict(interval_seconds=float('inf')), dict(interval_seconds=0),
+        dict(processes={}), dict(processes={'source': True}), dict(processes={'': 123}),
+        dict(cpus=[]), dict(cpus=[-1]), dict(cpus=[True]), dict(cpus=[0, 0])])
+    def test_invalid_sampler_bounds(changes):
+        with pytest.raises(ValueError):
+>           sampler(**changes)
+
+tests\performance\test_linux_resources.py:140: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+kwargs = {'processes': {}}
+
+    def sampler(**kwargs):
+>       return resources.LinuxResourceSampler(**(dict(processes={'source': 123}, cpus=[0],
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            interval_seconds=1, max_records=8, sample_fn=lambda *_: record()) | kwargs))
+E       AttributeError: module 'scripts.performance.linux_resources' has no attribute 'LinuxResourceSampler'
+
+tests\performance\test_linux_resources.py:129: AttributeError
+____________________ test_invalid_sampler_bounds[changes7] ____________________
+
+changes = {'processes': {'source': True}}
+
+    @pytest.mark.parametrize('changes', [dict(max_records=0), dict(max_records=True),
+        dict(max_records=1.5), dict(interval_seconds=float('nan')),
+        dict(interval_seconds=float('inf')), dict(interval_seconds=0),
+        dict(processes={}), dict(processes={'source': True}), dict(processes={'': 123}),
+        dict(cpus=[]), dict(cpus=[-1]), dict(cpus=[True]), dict(cpus=[0, 0])])
+    def test_invalid_sampler_bounds(changes):
+        with pytest.raises(ValueError):
+>           sampler(**changes)
+
+tests\performance\test_linux_resources.py:140: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+kwargs = {'processes': {'source': True}}
+
+    def sampler(**kwargs):
+>       return resources.LinuxResourceSampler(**(dict(processes={'source': 123}, cpus=[0],
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            interval_seconds=1, max_records=8, sample_fn=lambda *_: record()) | kwargs))
+E       AttributeError: module 'scripts.performance.linux_resources' has no attribute 'LinuxResourceSampler'
+
+tests\performance\test_linux_resources.py:129: AttributeError
+____________________ test_invalid_sampler_bounds[changes8] ____________________
+
+changes = {'processes': {'': 123}}
+
+    @pytest.mark.parametrize('changes', [dict(max_records=0), dict(max_records=True),
+        dict(max_records=1.5), dict(interval_seconds=float('nan')),
+        dict(interval_seconds=float('inf')), dict(interval_seconds=0),
+        dict(processes={}), dict(processes={'source': True}), dict(processes={'': 123}),
+        dict(cpus=[]), dict(cpus=[-1]), dict(cpus=[True]), dict(cpus=[0, 0])])
+    def test_invalid_sampler_bounds(changes):
+        with pytest.raises(ValueError):
+>           sampler(**changes)
+
+tests\performance\test_linux_resources.py:140: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+kwargs = {'processes': {'': 123}}
+
+    def sampler(**kwargs):
+>       return resources.LinuxResourceSampler(**(dict(processes={'source': 123}, cpus=[0],
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            interval_seconds=1, max_records=8, sample_fn=lambda *_: record()) | kwargs))
+E       AttributeError: module 'scripts.performance.linux_resources' has no attribute 'LinuxResourceSampler'
+
+tests\performance\test_linux_resources.py:129: AttributeError
+____________________ test_invalid_sampler_bounds[changes9] ____________________
+
+changes = {'cpus': []}
+
+    @pytest.mark.parametrize('changes', [dict(max_records=0), dict(max_records=True),
+        dict(max_records=1.5), dict(interval_seconds=float('nan')),
+        dict(interval_seconds=float('inf')), dict(interval_seconds=0),
+        dict(processes={}), dict(processes={'source': True}), dict(processes={'': 123}),
+        dict(cpus=[]), dict(cpus=[-1]), dict(cpus=[True]), dict(cpus=[0, 0])])
+    def test_invalid_sampler_bounds(changes):
+        with pytest.raises(ValueError):
+>           sampler(**changes)
+
+tests\performance\test_linux_resources.py:140: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+kwargs = {'cpus': []}
+
+    def sampler(**kwargs):
+>       return resources.LinuxResourceSampler(**(dict(processes={'source': 123}, cpus=[0],
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            interval_seconds=1, max_records=8, sample_fn=lambda *_: record()) | kwargs))
+E       AttributeError: module 'scripts.performance.linux_resources' has no attribute 'LinuxResourceSampler'
+
+tests\performance\test_linux_resources.py:129: AttributeError
+___________________ test_invalid_sampler_bounds[changes10] ____________________
+
+changes = {'cpus': [-1]}
+
+    @pytest.mark.parametrize('changes', [dict(max_records=0), dict(max_records=True),
+        dict(max_records=1.5), dict(interval_seconds=float('nan')),
+        dict(interval_seconds=float('inf')), dict(interval_seconds=0),
+        dict(processes={}), dict(processes={'source': True}), dict(processes={'': 123}),
+        dict(cpus=[]), dict(cpus=[-1]), dict(cpus=[True]), dict(cpus=[0, 0])])
+    def test_invalid_sampler_bounds(changes):
+        with pytest.raises(ValueError):
+>           sampler(**changes)
+
+tests\performance\test_linux_resources.py:140: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+kwargs = {'cpus': [-1]}
+
+    def sampler(**kwargs):
+>       return resources.LinuxResourceSampler(**(dict(processes={'source': 123}, cpus=[0],
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            interval_seconds=1, max_records=8, sample_fn=lambda *_: record()) | kwargs))
+E       AttributeError: module 'scripts.performance.linux_resources' has no attribute 'LinuxResourceSampler'
+
+tests\performance\test_linux_resources.py:129: AttributeError
+___________________ test_invalid_sampler_bounds[changes11] ____________________
+
+changes = {'cpus': [True]}
+
+    @pytest.mark.parametrize('changes', [dict(max_records=0), dict(max_records=True),
+        dict(max_records=1.5), dict(interval_seconds=float('nan')),
+        dict(interval_seconds=float('inf')), dict(interval_seconds=0),
+        dict(processes={}), dict(processes={'source': True}), dict(processes={'': 123}),
+        dict(cpus=[]), dict(cpus=[-1]), dict(cpus=[True]), dict(cpus=[0, 0])])
+    def test_invalid_sampler_bounds(changes):
+        with pytest.raises(ValueError):
+>           sampler(**changes)
+
+tests\performance\test_linux_resources.py:140: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+kwargs = {'cpus': [True]}
+
+    def sampler(**kwargs):
+>       return resources.LinuxResourceSampler(**(dict(processes={'source': 123}, cpus=[0],
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            interval_seconds=1, max_records=8, sample_fn=lambda *_: record()) | kwargs))
+E       AttributeError: module 'scripts.performance.linux_resources' has no attribute 'LinuxResourceSampler'
+
+tests\performance\test_linux_resources.py:129: AttributeError
+___________________ test_invalid_sampler_bounds[changes12] ____________________
+
+changes = {'cpus': [0, 0]}
+
+    @pytest.mark.parametrize('changes', [dict(max_records=0), dict(max_records=True),
+        dict(max_records=1.5), dict(interval_seconds=float('nan')),
+        dict(interval_seconds=float('inf')), dict(interval_seconds=0),
+        dict(processes={}), dict(processes={'source': True}), dict(processes={'': 123}),
+        dict(cpus=[]), dict(cpus=[-1]), dict(cpus=[True]), dict(cpus=[0, 0])])
+    def test_invalid_sampler_bounds(changes):
+        with pytest.raises(ValueError):
+>           sampler(**changes)
+
+tests\performance\test_linux_resources.py:140: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+kwargs = {'cpus': [0, 0]}
+
+    def sampler(**kwargs):
+>       return resources.LinuxResourceSampler(**(dict(processes={'source': 123}, cpus=[0],
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            interval_seconds=1, max_records=8, sample_fn=lambda *_: record()) | kwargs))
+E       AttributeError: module 'scripts.performance.linux_resources' has no attribute 'LinuxResourceSampler'
+
+tests\performance\test_linux_resources.py:129: AttributeError
+_________________ test_start_once_stop_and_snapshot_isolation _________________
+
+    def test_start_once_stop_and_snapshot_isolation():
+        emitted = threading.Event()
+        value = record()
+    
+        def sink(row):
+            row['affinity'].append(7)
+            emitted.set()
+    
+>       instance = sampler(sample_fn=lambda *_: value, record_sink=sink)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\performance\test_linux_resources.py:151: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+kwargs = {'record_sink': <function test_start_once_stop_and_snapshot_isolation.<locals>.sink at 0x0000018D74107D70>, 'sample_fn': <function test_start_once_stop_and_snapshot_isolation.<locals>.<lambda> at 0x0000018D74107CC0>}
+
+    def sampler(**kwargs):
+>       return resources.LinuxResourceSampler(**(dict(processes={'source': 123}, cpus=[0],
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            interval_seconds=1, max_records=8, sample_fn=lambda *_: record()) | kwargs))
+E       AttributeError: module 'scripts.performance.linux_resources' has no attribute 'LinuxResourceSampler'
+
+tests\performance\test_linux_resources.py:129: AttributeError
+_______________ test_sink_failure_preserves_prefix_and_latches ________________
+
+    def test_sink_failure_preserves_prefix_and_latches():
+        seen = threading.Event()
+    
+        def sink(row):
+            seen.set()
+            raise OSError('disk full')
+    
+>       instance = sampler(record_sink=sink)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\performance\test_linux_resources.py:177: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+kwargs = {'record_sink': <function test_sink_failure_preserves_prefix_and_latches.<locals>.sink at 0x0000018D74134250>}
+
+    def sampler(**kwargs):
+>       return resources.LinuxResourceSampler(**(dict(processes={'source': 123}, cpus=[0],
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            interval_seconds=1, max_records=8, sample_fn=lambda *_: record()) | kwargs))
+E       AttributeError: module 'scripts.performance.linux_resources' has no attribute 'LinuxResourceSampler'
+
+tests\performance\test_linux_resources.py:129: AttributeError
+___________________ test_record_cap_preserves_exact_prefix ____________________
+
+    def test_record_cap_preserves_exact_prefix():
+        seen = threading.Event()
+>       instance = sampler(max_records=1, interval_seconds=.001,
+                           record_sink=lambda row: seen.set())
+
+tests\performance\test_linux_resources.py:189: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+kwargs = {'interval_seconds': 0.001, 'max_records': 1, 'record_sink': <function test_record_cap_preserves_exact_prefix.<locals>.<lambda> at 0x0000018D741345C0>}
+
+    def sampler(**kwargs):
+>       return resources.LinuxResourceSampler(**(dict(processes={'source': 123}, cpus=[0],
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            interval_seconds=1, max_records=8, sample_fn=lambda *_: record()) | kwargs))
+E       AttributeError: module 'scripts.performance.linux_resources' has no attribute 'LinuxResourceSampler'
+
+tests\performance\test_linux_resources.py:129: AttributeError
+___________ test_discontinuous_or_lost_live_sampling_fails[change0] ___________
+
+change = {'pid': 124}
+
+    @pytest.mark.parametrize('change', [dict(pid=124), dict(start_ticks=100),
+        dict(cpu_ns=99), dict(timestamp_ns=999), dict(timestamp_ns=1000),
+        dict(cpu_ns=True), dict(state='Z', memory_state='UNAVAILABLE_ZOMBIE'),
+        dict(affinity=[1])])
+    def test_discontinuous_or_lost_live_sampling_fails(change):
+        values = iter([record(), record() | dict(timestamp_ns=1001) | change])
+>       instance = sampler(sample_fn=lambda *_: next(values), interval_seconds=.001)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\performance\test_linux_resources.py:205: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+kwargs = {'interval_seconds': 0.001, 'sample_fn': <function test_discontinuous_or_lost_live_sampling_fails.<locals>.<lambda> at 0x0000018D74107480>}
+
+    def sampler(**kwargs):
+>       return resources.LinuxResourceSampler(**(dict(processes={'source': 123}, cpus=[0],
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            interval_seconds=1, max_records=8, sample_fn=lambda *_: record()) | kwargs))
+E       AttributeError: module 'scripts.performance.linux_resources' has no attribute 'LinuxResourceSampler'
+
+tests\performance\test_linux_resources.py:129: AttributeError
+___________ test_discontinuous_or_lost_live_sampling_fails[change1] ___________
+
+change = {'start_ticks': 100}
+
+    @pytest.mark.parametrize('change', [dict(pid=124), dict(start_ticks=100),
+        dict(cpu_ns=99), dict(timestamp_ns=999), dict(timestamp_ns=1000),
+        dict(cpu_ns=True), dict(state='Z', memory_state='UNAVAILABLE_ZOMBIE'),
+        dict(affinity=[1])])
+    def test_discontinuous_or_lost_live_sampling_fails(change):
+        values = iter([record(), record() | dict(timestamp_ns=1001) | change])
+>       instance = sampler(sample_fn=lambda *_: next(values), interval_seconds=.001)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\performance\test_linux_resources.py:205: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+kwargs = {'interval_seconds': 0.001, 'sample_fn': <function test_discontinuous_or_lost_live_sampling_fails.<locals>.<lambda> at 0x0000018D74106560>}
+
+    def sampler(**kwargs):
+>       return resources.LinuxResourceSampler(**(dict(processes={'source': 123}, cpus=[0],
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            interval_seconds=1, max_records=8, sample_fn=lambda *_: record()) | kwargs))
+E       AttributeError: module 'scripts.performance.linux_resources' has no attribute 'LinuxResourceSampler'
+
+tests\performance\test_linux_resources.py:129: AttributeError
+___________ test_discontinuous_or_lost_live_sampling_fails[change2] ___________
+
+change = {'cpu_ns': 99}
+
+    @pytest.mark.parametrize('change', [dict(pid=124), dict(start_ticks=100),
+        dict(cpu_ns=99), dict(timestamp_ns=999), dict(timestamp_ns=1000),
+        dict(cpu_ns=True), dict(state='Z', memory_state='UNAVAILABLE_ZOMBIE'),
+        dict(affinity=[1])])
+    def test_discontinuous_or_lost_live_sampling_fails(change):
+        values = iter([record(), record() | dict(timestamp_ns=1001) | change])
+>       instance = sampler(sample_fn=lambda *_: next(values), interval_seconds=.001)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\performance\test_linux_resources.py:205: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+kwargs = {'interval_seconds': 0.001, 'sample_fn': <function test_discontinuous_or_lost_live_sampling_fails.<locals>.<lambda> at 0x0000018D74134720>}
+
+    def sampler(**kwargs):
+>       return resources.LinuxResourceSampler(**(dict(processes={'source': 123}, cpus=[0],
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            interval_seconds=1, max_records=8, sample_fn=lambda *_: record()) | kwargs))
+E       AttributeError: module 'scripts.performance.linux_resources' has no attribute 'LinuxResourceSampler'
+
+tests\performance\test_linux_resources.py:129: AttributeError
+___________ test_discontinuous_or_lost_live_sampling_fails[change3] ___________
+
+change = {'timestamp_ns': 999}
+
+    @pytest.mark.parametrize('change', [dict(pid=124), dict(start_ticks=100),
+        dict(cpu_ns=99), dict(timestamp_ns=999), dict(timestamp_ns=1000),
+        dict(cpu_ns=True), dict(state='Z', memory_state='UNAVAILABLE_ZOMBIE'),
+        dict(affinity=[1])])
+    def test_discontinuous_or_lost_live_sampling_fails(change):
+        values = iter([record(), record() | dict(timestamp_ns=1001) | change])
+>       instance = sampler(sample_fn=lambda *_: next(values), interval_seconds=.001)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\performance\test_linux_resources.py:205: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+kwargs = {'interval_seconds': 0.001, 'sample_fn': <function test_discontinuous_or_lost_live_sampling_fails.<locals>.<lambda> at 0x0000018D74134BF0>}
+
+    def sampler(**kwargs):
+>       return resources.LinuxResourceSampler(**(dict(processes={'source': 123}, cpus=[0],
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            interval_seconds=1, max_records=8, sample_fn=lambda *_: record()) | kwargs))
+E       AttributeError: module 'scripts.performance.linux_resources' has no attribute 'LinuxResourceSampler'
+
+tests\performance\test_linux_resources.py:129: AttributeError
+___________ test_discontinuous_or_lost_live_sampling_fails[change4] ___________
+
+change = {'timestamp_ns': 1000}
+
+    @pytest.mark.parametrize('change', [dict(pid=124), dict(start_ticks=100),
+        dict(cpu_ns=99), dict(timestamp_ns=999), dict(timestamp_ns=1000),
+        dict(cpu_ns=True), dict(state='Z', memory_state='UNAVAILABLE_ZOMBIE'),
+        dict(affinity=[1])])
+    def test_discontinuous_or_lost_live_sampling_fails(change):
+        values = iter([record(), record() | dict(timestamp_ns=1001) | change])
+>       instance = sampler(sample_fn=lambda *_: next(values), interval_seconds=.001)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\performance\test_linux_resources.py:205: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+kwargs = {'interval_seconds': 0.001, 'sample_fn': <function test_discontinuous_or_lost_live_sampling_fails.<locals>.<lambda> at 0x0000018D74134F60>}
+
+    def sampler(**kwargs):
+>       return resources.LinuxResourceSampler(**(dict(processes={'source': 123}, cpus=[0],
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            interval_seconds=1, max_records=8, sample_fn=lambda *_: record()) | kwargs))
+E       AttributeError: module 'scripts.performance.linux_resources' has no attribute 'LinuxResourceSampler'
+
+tests\performance\test_linux_resources.py:129: AttributeError
+___________ test_discontinuous_or_lost_live_sampling_fails[change5] ___________
+
+change = {'cpu_ns': True}
+
+    @pytest.mark.parametrize('change', [dict(pid=124), dict(start_ticks=100),
+        dict(cpu_ns=99), dict(timestamp_ns=999), dict(timestamp_ns=1000),
+        dict(cpu_ns=True), dict(state='Z', memory_state='UNAVAILABLE_ZOMBIE'),
+        dict(affinity=[1])])
+    def test_discontinuous_or_lost_live_sampling_fails(change):
+        values = iter([record(), record() | dict(timestamp_ns=1001) | change])
+>       instance = sampler(sample_fn=lambda *_: next(values), interval_seconds=.001)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\performance\test_linux_resources.py:205: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+kwargs = {'interval_seconds': 0.001, 'sample_fn': <function test_discontinuous_or_lost_live_sampling_fails.<locals>.<lambda> at 0x0000018D741352D0>}
+
+    def sampler(**kwargs):
+>       return resources.LinuxResourceSampler(**(dict(processes={'source': 123}, cpus=[0],
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            interval_seconds=1, max_records=8, sample_fn=lambda *_: record()) | kwargs))
+E       AttributeError: module 'scripts.performance.linux_resources' has no attribute 'LinuxResourceSampler'
+
+tests\performance\test_linux_resources.py:129: AttributeError
+___________ test_discontinuous_or_lost_live_sampling_fails[change6] ___________
+
+change = {'memory_state': 'UNAVAILABLE_ZOMBIE', 'state': 'Z'}
+
+    @pytest.mark.parametrize('change', [dict(pid=124), dict(start_ticks=100),
+        dict(cpu_ns=99), dict(timestamp_ns=999), dict(timestamp_ns=1000),
+        dict(cpu_ns=True), dict(state='Z', memory_state='UNAVAILABLE_ZOMBIE'),
+        dict(affinity=[1])])
+    def test_discontinuous_or_lost_live_sampling_fails(change):
+        values = iter([record(), record() | dict(timestamp_ns=1001) | change])
+>       instance = sampler(sample_fn=lambda *_: next(values), interval_seconds=.001)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\performance\test_linux_resources.py:205: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+kwargs = {'interval_seconds': 0.001, 'sample_fn': <function test_discontinuous_or_lost_live_sampling_fails.<locals>.<lambda> at 0x0000018D74135640>}
+
+    def sampler(**kwargs):
+>       return resources.LinuxResourceSampler(**(dict(processes={'source': 123}, cpus=[0],
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            interval_seconds=1, max_records=8, sample_fn=lambda *_: record()) | kwargs))
+E       AttributeError: module 'scripts.performance.linux_resources' has no attribute 'LinuxResourceSampler'
+
+tests\performance\test_linux_resources.py:129: AttributeError
+___________ test_discontinuous_or_lost_live_sampling_fails[change7] ___________
+
+change = {'affinity': [1]}
+
+    @pytest.mark.parametrize('change', [dict(pid=124), dict(start_ticks=100),
+        dict(cpu_ns=99), dict(timestamp_ns=999), dict(timestamp_ns=1000),
+        dict(cpu_ns=True), dict(state='Z', memory_state='UNAVAILABLE_ZOMBIE'),
+        dict(affinity=[1])])
+    def test_discontinuous_or_lost_live_sampling_fails(change):
+        values = iter([record(), record() | dict(timestamp_ns=1001) | change])
+>       instance = sampler(sample_fn=lambda *_: next(values), interval_seconds=.001)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\performance\test_linux_resources.py:205: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+kwargs = {'interval_seconds': 0.001, 'sample_fn': <function test_discontinuous_or_lost_live_sampling_fails.<locals>.<lambda> at 0x0000018D741359B0>}
+
+    def sampler(**kwargs):
+>       return resources.LinuxResourceSampler(**(dict(processes={'source': 123}, cpus=[0],
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            interval_seconds=1, max_records=8, sample_fn=lambda *_: record()) | kwargs))
+E       AttributeError: module 'scripts.performance.linux_resources' has no attribute 'LinuxResourceSampler'
+
+tests\performance\test_linux_resources.py:129: AttributeError
+____________ test_empty_sampling_fails_and_preserves_empty_prefix _____________
+
+    def test_empty_sampling_fails_and_preserves_empty_prefix():
+        def unavailable(*_):
+            raise ProcessLookupError('gone')
+    
+>       instance = sampler(sample_fn=unavailable)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\performance\test_linux_resources.py:217: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+kwargs = {'sample_fn': <function test_empty_sampling_fails_and_preserves_empty_prefix.<locals>.unavailable at 0x0000018D74135D20>}
+
+    def sampler(**kwargs):
+>       return resources.LinuxResourceSampler(**(dict(processes={'source': 123}, cpus=[0],
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            interval_seconds=1, max_records=8, sample_fn=lambda *_: record()) | kwargs))
+E       AttributeError: module 'scripts.performance.linux_resources' has no attribute 'LinuxResourceSampler'
+
+tests\performance\test_linux_resources.py:129: AttributeError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_linux_resources.py::test_invalid_sampler_bounds[changes0]
+FAILED tests/performance/test_linux_resources.py::test_invalid_sampler_bounds[changes1]
+FAILED tests/performance/test_linux_resources.py::test_invalid_sampler_bounds[changes2]
+FAILED tests/performance/test_linux_resources.py::test_invalid_sampler_bounds[changes3]
+FAILED tests/performance/test_linux_resources.py::test_invalid_sampler_bounds[changes4]
+FAILED tests/performance/test_linux_resources.py::test_invalid_sampler_bounds[changes5]
+FAILED tests/performance/test_linux_resources.py::test_invalid_sampler_bounds[changes6]
+FAILED tests/performance/test_linux_resources.py::test_invalid_sampler_bounds[changes7]
+FAILED tests/performance/test_linux_resources.py::test_invalid_sampler_bounds[changes8]
+FAILED tests/performance/test_linux_resources.py::test_invalid_sampler_bounds[changes9]
+FAILED tests/performance/test_linux_resources.py::test_invalid_sampler_bounds[changes10]
+FAILED tests/performance/test_linux_resources.py::test_invalid_sampler_bounds[changes11]
+FAILED tests/performance/test_linux_resources.py::test_invalid_sampler_bounds[changes12]
+FAILED tests/performance/test_linux_resources.py::test_start_once_stop_and_snapshot_isolation
+FAILED tests/performance/test_linux_resources.py::test_sink_failure_preserves_prefix_and_latches
+FAILED tests/performance/test_linux_resources.py::test_record_cap_preserves_exact_prefix
+FAILED tests/performance/test_linux_resources.py::test_discontinuous_or_lost_live_sampling_fails[change0]
+FAILED tests/performance/test_linux_resources.py::test_discontinuous_or_lost_live_sampling_fails[change1]
+FAILED tests/performance/test_linux_resources.py::test_discontinuous_or_lost_live_sampling_fails[change2]
+FAILED tests/performance/test_linux_resources.py::test_discontinuous_or_lost_live_sampling_fails[change3]
+FAILED tests/performance/test_linux_resources.py::test_discontinuous_or_lost_live_sampling_fails[change4]
+FAILED tests/performance/test_linux_resources.py::test_discontinuous_or_lost_live_sampling_fails[change5]
+FAILED tests/performance/test_linux_resources.py::test_discontinuous_or_lost_live_sampling_fails[change6]
+FAILED tests/performance/test_linux_resources.py::test_discontinuous_or_lost_live_sampling_fails[change7]
+FAILED tests/performance/test_linux_resources.py::test_empty_sampling_fails_and_preserves_empty_prefix
+25 failed, 18 passed in 0.94s
