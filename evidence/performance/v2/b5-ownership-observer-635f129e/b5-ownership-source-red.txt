@@ -1,0 +1,28 @@
+   Compiling nbsr-transport v0.1.0 (C:\Users\bajra\OneDrive\Documents\NBSR\crates\nbsr-transport)
+error[E0425]: cannot find type `OwnershipObserver` in module `driver`
+   --> src\bin\b5_support\driver_contract_tests.rs:219:27
+    |
+219 |     let observer: driver::OwnershipObserver = Arc::new({
+    |                           ^^^^^^^^^^^^^^^^^ not found in `driver`
+
+error[E0425]: cannot find type `OwnershipObserver` in module `driver`
+   --> src\bin\b5_support\driver_contract_tests.rs:266:27
+    |
+266 |     let observer: driver::OwnershipObserver = Arc::new(|_, _| Err(std::io::Error::other("ownership write failed")));
+    |                           ^^^^^^^^^^^^^^^^^ not found in `driver`
+
+error[E0599]: no method named `publish_to_with_observer` found for struct `std::sync::Arc<Driver>` in the current scope
+   --> src\bin\b5_support\driver_contract_tests.rs:235:33
+    |
+235 |             let result = driver.publish_to_with_observer(&mut output, Some(&observer)).await;
+    |                                 ^^^^^^^^^^^^^^^^^^^^^^^^ method not found in `std::sync::Arc<Driver>`
+
+error[E0599]: no method named `publish_to_with_observer` found for struct `std::sync::Arc<Driver>` in the current scope
+   --> src\bin\b5_support\driver_contract_tests.rs:267:20
+    |
+267 |     assert!(driver.publish_to_with_observer(&mut Vec::new(), Some(&observer)).await.is_err());
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^ method not found in `std::sync::Arc<Driver>`
+
+Some errors have detailed explanations: E0425, E0599.
+For more information about an error, try `rustc --explain E0425`.
+error: could not compile `nbsr-transport` (bin "perf_rust_source" test) due to 4 previous errors

@@ -1,0 +1,9 @@
+   Compiling nbsr-transport v0.1.0 (C:\Users\bajra\OneDrive\Documents\NBSR\crates\nbsr-transport)
+error[E0432]: unresolved import `super::require_p2a_diagnostic_outcome`
+    --> src\bin\wp8_interop_server.rs:3824:9
+     |
+3824 |     use super::require_p2a_diagnostic_outcome;
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ no `require_p2a_diagnostic_outcome` in the root
+
+For more information about this error, try `rustc --explain E0432`.
+error: could not compile `nbsr-transport` (bin "wp8_interop_server" test) due to 1 previous error

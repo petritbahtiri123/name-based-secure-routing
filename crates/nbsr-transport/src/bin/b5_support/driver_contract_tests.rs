@@ -207,3 +207,76 @@ fn publisher_thread_propagates_failure_before_readiness_without_output() {
     assert!(handle.join().unwrap().is_err());
     assert!(driver.start_publisher().is_err());
 }
+
+#[tokio::test(flavor = "current_thread")]
+async fn ownership_observer_starts_after_all_ready_and_runs_independently_of_progress() {
+    let parsed = driver::prepare(args()).unwrap().unwrap();
+    let mut config = parsed.config.clone();
+    config.duration_ns = 30_000_000_000;
+    config.progress_ns = 30_000_000_000;
+    let driver = Driver::from_config(config).unwrap();
+    let records = Arc::new(std::sync::Mutex::new(Vec::new()));
+    let observer: driver::OwnershipObserver = Arc::new({
+        let driver = Arc::clone(&driver);
+        let records = Arc::clone(&records);
+        move |elapsed, phase| {
+            // Acquiring coordinator status here proves callback is outside its lock.
+            assert!(driver.run.status().origin_ns.is_some());
+            let mut records = records.lock().unwrap();
+            records.push((elapsed, phase));
+            if records.len() == 2 {
+                return Err(std::io::Error::other("stop after second observation"));
+            }
+            Ok(())
+        }
+    });
+    let publishing = {
+        let driver = Arc::clone(&driver);
+        async move {
+            let mut output = Vec::new();
+            let result = driver
+                .publish_to_with_observer(&mut output, Some(&observer))
+                .await;
+            assert!(result.is_err());
+            assert!(output.is_empty(), "30-second progress did not become due");
+        }
+    };
+    let readiness = async {
+        driver.run.ready(0).unwrap();
+        tokio::task::yield_now().await;
+        assert!(records.lock().unwrap().is_empty());
+        driver.run.ready(1).unwrap();
+    };
+    tokio::time::timeout(std::time::Duration::from_secs(3), async {
+        tokio::join!(publishing, readiness);
+    })
+    .await
+    .unwrap();
+    let records = records.lock().unwrap();
+    assert_eq!(records.len(), 2); // One source-global observer, despite two groups.
+    assert_eq!(records[0].1, "b5_initial");
+    assert_eq!(records[1].1, "b5_sample");
+    assert!(records[1].0 >= records[0].0 + 1_000_000_000);
+    assert!(driver.run.status().failed);
+    assert!(!driver.run.status().postflight_allowed);
+}
+
+#[tokio::test(flavor = "current_thread")]
+async fn ownership_output_failure_cannot_ack_final() {
+    let driver = short_driver();
+    driver.run.ready(0).unwrap();
+    driver.run.ready(1).unwrap();
+    tokio::time::sleep(std::time::Duration::from_millis(3)).await;
+    driver.run.drained(0).unwrap();
+    driver.run.drained(1).unwrap();
+    let observer: driver::OwnershipObserver =
+        Arc::new(|_, _| Err(std::io::Error::other("ownership write failed")));
+    assert!(
+        driver
+            .publish_to_with_observer(&mut Vec::new(), Some(&observer))
+            .await
+            .is_err()
+    );
+    assert!(driver.run.status().failed);
+    assert!(driver.final_record_after_joins("{}").is_err());
+}

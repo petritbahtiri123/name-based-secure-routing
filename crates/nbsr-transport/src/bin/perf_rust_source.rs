@@ -1947,7 +1947,26 @@ fn main() {
         let groups = parse_group_count(env::args()).expect("valid --p2a-groups");
         let cleanup_report =
             post_close::prepare(optional_argument("--p2a-cleanup-report").map(PathBuf::from));
-        let publisher = driver.start_publisher().expect("paced publisher");
+        let ownership_observer = optional_argument("--diagnostics").map(|_| {
+            nbsr_transport::diagnostics::enable_global();
+            Arc::new(|elapsed: u64, phase: &'static str| {
+                use std::io::Write as _;
+                let line = nbsr_transport::diagnostics::global().snapshot().json_line(
+                    "source",
+                    elapsed.into(),
+                    phase,
+                );
+                let mut output = std::io::stdout().lock();
+                writeln!(output, "{line}")?;
+                output.flush()
+            }) as b5_driver::OwnershipObserver
+        });
+        let publisher = if ownership_observer.is_some() {
+            driver.start_publisher_with_observer(ownership_observer)
+        } else {
+            driver.start_publisher()
+        }
+        .expect("paced publisher");
         if groups == 1 {
             build_benchmark_runtime(workers)
                 .expect("paced benchmark runtime")

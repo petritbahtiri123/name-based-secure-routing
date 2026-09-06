@@ -1,0 +1,71 @@
+.........FFF                                                             [100%]
+================================== FAILURES ===================================
+_______________________ test_tail_rejects_replaced_file _______________________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-907/test_tail_rejects_replaced_fil0')
+
+    def test_tail_rejects_replaced_file(tmp_path):
+        path = tmp_path / "current"
+        path.write_bytes(b"{}\n")
+        tail = OwnershipTail(path, lambda value: None)
+        tail.poll()
+        replacement = tmp_path / "replacement"
+        replacement.write_bytes(b'{"replacement":true}\n')
+>       replacement.replace(path)
+
+tests\performance\test_b5_ownership.py:91:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-907/test_tail_rejects_replaced_fil0/replacement')
+target = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-907/test_tail_rejects_replaced_fil0/current')
+
+    def replace(self, target):
+        """
+        Rename this path to the target path, overwriting if that path exists.
+
+        The target path may be absolute or relative. Relative paths are
+        interpreted relative to the current working directory, *not* the
+        directory of the Path object.
+
+        Returns the new Path instance pointing to the target path.
+        """
+>       os.replace(self, target)
+E       PermissionError: [WinError 5] Access is denied: 'C:\\Users\\bajra\\AppData\\Local\\Temp\\pytest-of-bajra\\pytest-907\\test_tail_rejects_replaced_fil0\\replacement' -> 'C:\\Users\\bajra\\AppData\\Local\\Temp\\pytest-of-bajra\\pytest-907\\test_tail_rejects_replaced_fil0\\current'
+
+..\..\..\AppData\Local\Programs\Python\Python314\Lib\pathlib\__init__.py:1091: PermissionError
+_____________________ test_source_observer_flag_is_opt_in _____________________
+
+    def test_source_observer_flag_is_opt_in():
+        from scripts.run_b5_v2 import source_command
+        cell = dict(path="nbsr", endpoint_groups=1, streams_per_group=1,
+                    outstanding_per_stream=1, payload_bytes=1024)
+>       arguments = source_command(cell, {"nbsr": "source"}, "authority", ["endpoint"],
+                                   warmup=3, duration=30, progress=10, rate=(2000, 1),
+                                   report="cleanup", ownership_sampling=True)
+E       TypeError: source_command() got an unexpected keyword argument 'ownership_sampling'
+
+tests\performance\test_b5_ownership.py:101: TypeError
+___________________ test_silent_controller_polls_ownership ____________________
+
+    def test_silent_controller_polls_ownership():
+        from scripts.run_b5_v2 import consume
+        class Source:
+            def poll(self):
+                return None
+        class Stream:
+            def check(self, **kwargs):
+                pass
+        called = []
+        def poll():
+            called.append(True)
+            raise ValueError("ownership failed")
+        with pytest.raises(ValueError, match="ownership failed"):
+>           consume(Source(), None, Stream(), poll=poll)
+E           TypeError: consume() got an unexpected keyword argument 'poll'
+
+tests\performance\test_b5_ownership.py:120: TypeError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_b5_ownership.py::test_tail_rejects_replaced_file
+FAILED tests/performance/test_b5_ownership.py::test_source_observer_flag_is_opt_in
+FAILED tests/performance/test_b5_ownership.py::test_silent_controller_polls_ownership
+3 failed, 9 passed in 1.03s

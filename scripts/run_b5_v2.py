@@ -26,6 +26,7 @@ from scripts.performance.authority import write_loopback_authority
 from scripts.performance.b5_ceiling import load_ceiling, placement_identity, topology_identity
 from scripts.performance.b5_stream import B5Stream
 from scripts.performance.post_close_cleanup import validate_report
+from scripts.performance.b5_ownership import OwnershipHistory, OwnershipTail
 from scripts.performance.resources import ProcessResourceSampler
 from scripts.performance.sustained_capacity import live_drift_failure, private_growth
 from scripts.profile_b2_v2 import set_and_verify_exact_affinity, windows_processor_topology
@@ -82,11 +83,13 @@ class BoundedReader:
             raise RuntimeError("stdout reader did not join; evidence incomplete")
 
 
-def consume(source, reader, stream):
+def consume(source, reader, stream, *, poll=None):
     eof = False
     while True:
         active = source.poll() is None
         stream.check(source_active=active)
+        if poll is not None:
+            poll()
         if eof:
             if not active:
                 return stream.finish(source.returncode)
@@ -205,7 +208,8 @@ def assert_clean_source(expected_sha):
         raise RuntimeError("source changed during preparation or measurement")
 
 
-def source_command(cell, binaries, authority, endpoints, *, warmup, duration, progress, rate, report):
+def source_command(cell, binaries, authority, endpoints, *, warmup, duration, progress, rate, report,
+                   ownership_sampling=False):
     common = ["--authority-dir", str(authority), "--endpoint", endpoints[0], "--p2a-endpoints", ",".join(endpoints),
               "--payload-bytes", str(cell["payload_bytes"]), "--p2a-streams", str(cell["streams_per_group"]),
               "--p2a-groups", str(cell["endpoint_groups"]), "--p2a-runtime-workers", "1",
@@ -215,10 +219,12 @@ def source_command(cell, binaries, authority, endpoints, *, warmup, duration, pr
               "--b5-rate-denominator", str(rate[1])]
     if cell["path"] == "direct":
         return [str(binaries["direct"]), "--role", "client", "--samples", "1", "--lifecycle", "warm", *common]
-    return [str(binaries["nbsr"]), "--samples", "1", *common, "--p2a-cleanup-report", str(report)]
+    return [str(binaries["nbsr"]), "--samples", "1", *common, "--p2a-cleanup-report", str(report),
+            *(["--diagnostics", "1"] if ownership_sampling else [])]
 
 
-def run_one(cell, binaries, authority, plan, directory, *, warmup, duration, progress, rate, diagnostic):
+def run_one(cell, binaries, authority, plan, directory, *, warmup, duration, progress, rate, diagnostic,
+            ownership_sampling=False):
     directory.mkdir(parents=True, exist_ok=False)
     groups = cell["endpoint_groups"]
     allowance = warmup + duration + ALLOWANCE
@@ -230,10 +236,30 @@ def run_one(cell, binaries, authority, plan, directory, *, warmup, duration, pro
     sampler_running = False
     result = {"path": cell["path"], "valid": False, "classification": "FAIL", "scope": "Windows loopback"}
     cleanup_errors = []
+    history = OwnershipHistory(groups=groups, max_samples=math.ceil(allowance) + 2) if ownership_sampling and cell["path"] == "nbsr" else None
+    tails = []
     with ExitStack() as files:
         raw = files.enter_context((directory / "source.stdout.ndjson").open("xb"))
         resource_file = files.enter_context((directory / "resources.ndjson").open("x", encoding="utf-8"))
         ack = directory / "completion.ack"
+        receipts = files.enter_context((directory / "ownership-receipts.ndjson").open("x", encoding="utf-8")) if history else None
+        def observe(role, value):
+            received = time.monotonic_ns()
+            receipts.write(json.dumps({"role": role, "received_ns": received,
+                                      "snapshot": value}) + "\n")
+            receipts.flush()
+            history.accept(role, value, received)
+        def source_diagnostic(value):
+            if history and value.get("phase") in ("b5_initial", "b5_sample"):
+                observe("source", value)
+        next_poll = 0
+        def poll_ownership():
+            nonlocal next_poll
+            now = time.monotonic_ns()
+            if now >= next_poll:
+                next_poll = now + 1_000_000_000
+                for tail in tails:
+                    tail.poll()
         try:
             endpoints = []
             for ordinal, mask in enumerate(plan["endpoint_masks"]):
@@ -241,6 +267,11 @@ def run_one(cell, binaries, authority, plan, directory, *, warmup, duration, pro
                 argv, env = stage4._server_command(cell, binaries, authority, ready, directory / f"d{ordinal}.result.json", ack)
                 if cell["path"] == "nbsr":
                     argv += ["--p2a-cleanup-report", str(report)]
+                if history:
+                    diagnostic_path = directory / f"d{ordinal}.ownership.ndjson"
+                    argv += ["--destination-diagnostics-file", str(diagnostic_path)]
+                    tails.append(OwnershipTail(diagnostic_path,
+                        lambda value, role=f"destination_{ordinal}": observe(role, value)))
                 commands.append({"role": f"destination_{ordinal}", "argv": argv,
                                  "environment_overrides": {"NBSR_P2A_STREAMS": env.get("NBSR_P2A_STREAMS")}})
                 write_json(directory / "commands.json", commands)
@@ -257,7 +288,7 @@ def run_one(cell, binaries, authority, plan, directory, *, warmup, duration, pro
                 endpoints.append(wait_ready(ready, server)["endpoint"])
             report = directory / "source.cleanup.json"
             argv = source_command(cell, binaries, authority, endpoints, warmup=warmup, duration=duration,
-                                  progress=progress, rate=rate, report=report)
+                                  progress=progress, rate=rate, report=report, ownership_sampling=ownership_sampling)
             commands.append({"role": "source", "argv": argv, "environment_overrides": {}})
             write_json(directory / "commands.json", commands)
             launched = time.monotonic_ns()
@@ -283,10 +314,10 @@ def run_one(cell, binaries, authority, plan, directory, *, warmup, duration, pro
             sampler_running = True
             stream = B5Stream(raw_sink=raw, groups=groups, payload_bytes=cell["payload_bytes"], sampler=sampler,
                 deadline_ns=deadline, max_line_bytes=262_144, max_lines=progress_bound + resource_bound + 1024,
-                on_progress=guards.progress)
+                on_progress=guards.progress, on_diagnostic=source_diagnostic)
             reader = BoundedReader(source.stdout)
             reader.start()
-            final = consume(source, reader, stream)
+            final = consume(source, reader, stream, poll=poll_ownership) if history else consume(source, reader, stream)
             reader.join()
             source.wait(timeout=0)
             sampler.stop()
@@ -296,6 +327,9 @@ def run_one(cell, binaries, authority, plan, directory, *, warmup, duration, pro
                 server.wait(timeout=max(0, (deadline - time.monotonic_ns()) / 1e9))
                 if server.returncode != 0:
                     raise RuntimeError("destination failed")
+            for tail in tails:
+                tail.finish()
+            continuous = history.finish(duration_ns=final["measurement_duration_ns"]) if history else {"classification": "NOT_MEASURED"}
             ownership = []
             for role, pid, path in reports:
                 value = json.loads(path.read_text(encoding="utf-8"))
@@ -309,6 +343,7 @@ def run_one(cell, binaries, authority, plan, directory, *, warmup, duration, pro
                           final=final, achieved_offered_ratio=ratio,
                           gbps=final["completed"] * cell["payload_bytes"] * 16 / elapsed,
                           qualification=guards.qualification(), ownership_reports=ownership,
+                          continuous_ownership=continuous,
                           cleanup_scope="11-counter reports and all process joins" if reports else "process joins only; runtime ownership NOT_MEASURED",
                           internal_failure_thread_join="NOT_MEASURED")
             if not diagnostic and ratio < 0.95:
@@ -342,6 +377,8 @@ def run_one(cell, binaries, authority, plan, directory, *, warmup, duration, pro
                     cleanup_errors.append(f"destination cleanup: {error}")
             if cleanup_errors:
                 result.update(valid=False, classification="FAIL", cleanup_errors=cleanup_errors)
+            for tail in tails:
+                tail.close()
             result["affinity"] = affinities
             write_json(directory / "result.json", result)
     return result
@@ -392,7 +429,8 @@ def execute(args):
                     cell = dict(path=path, endpoint_groups=args.groups, streams_per_group=args.streams,
                                 outstanding_per_stream=args.depth, payload_bytes=args.payload)
                     row = run_one(cell, binaries, authority, plan, args.output / f"{path}-r{repeat}", warmup=args.warmup,
-                                  duration=args.duration, progress=args.progress, rate=rate, diagnostic=args.diagnostic)
+                                  duration=args.duration, progress=args.progress, rate=rate, diagnostic=args.diagnostic,
+                                  ownership_sampling=args.ownership_sampling)
                     rows.append(row)
                     by_path[path].append(row)
                     write_json(args.output / "records.json", rows)
@@ -420,6 +458,8 @@ def main():
     parser.add_argument("--target", type=Path, default=Path("C:/NBSR-build/b4b-task4k"))
     parser.add_argument("--reference", type=Path)
     parser.add_argument("--diagnostic", action="store_true")
+    parser.add_argument("--ownership-sampling", action="store_true",
+                        help="Optional periodic NBSR ownership evidence; qualify observer cost separately")
     parser.add_argument("--rate", type=int, nargs=2, metavar=("NUMERATOR", "DENOMINATOR"))
     parser.add_argument("--percent", type=int, choices=range(70, 81), default=70)
     parser.add_argument("--cores", type=int, choices=(1, 2, 4), default=4)

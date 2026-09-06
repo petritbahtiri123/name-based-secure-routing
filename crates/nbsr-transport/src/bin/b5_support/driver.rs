@@ -18,6 +18,8 @@ use std::sync::{
 use std::time::Duration;
 
 type Error = &'static str;
+pub(crate) type OwnershipObserver =
+    Arc<dyn Fn(u64, &'static str) -> std::io::Result<()> + Send + Sync>;
 const NS: u64 = 1_000_000_000;
 const WINDOW: u64 = 10_000_000;
 const STRIDE: u64 = 64;
@@ -277,6 +279,13 @@ impl Driver {
     pub(crate) fn start_publisher(
         self: &Arc<Self>,
     ) -> Result<std::thread::JoinHandle<Result<(), Error>>, Error> {
+        self.start_publisher_with_observer(None)
+    }
+
+    pub(crate) fn start_publisher_with_observer(
+        self: &Arc<Self>,
+        observer: Option<OwnershipObserver>,
+    ) -> Result<std::thread::JoinHandle<Result<(), Error>>, Error> {
         if self.started.swap(true, Ordering::SeqCst) {
             self.run.fail();
             return Err("publisher already started");
@@ -296,7 +305,13 @@ impl Driver {
                         // Do not retain StdoutLock across readiness/timer awaits:
                         // group diagnostics also write stdout before readiness.
                         let mut sink = std::io::stdout();
-                        driver.publish_to(&mut sink).await
+                        if observer.is_some() {
+                            driver
+                                .publish_to_with_observer(&mut sink, observer.as_ref())
+                                .await
+                        } else {
+                            driver.publish_to(&mut sink).await
+                        }
                     });
                     if result.is_err() {
                         driver.run.fail();
@@ -318,8 +333,45 @@ impl Driver {
     // Single worker owns publication. Raw NDJSON is written and flushed before
     // runtime acknowledges final publication. This method owns no transport.
     pub(crate) async fn publish_to(self: &Arc<Self>, sink: &mut impl Write) -> Result<(), Error> {
+        self.publish_to_with_observer(sink, None).await
+    }
+
+    fn observe_ownership(
+        &self,
+        observer: Option<&OwnershipObserver>,
+        phase: &'static str,
+    ) -> Result<(), Error> {
+        if let Some(observer) = observer {
+            let status = self.run.status();
+            if status.failed {
+                return Err("paced run failed");
+            }
+            let elapsed = self
+                .clock
+                .now_ns()
+                .checked_sub(status.origin_ns.ok_or("ownership before readiness")?)
+                .ok_or("ownership clock before origin")?;
+            // The callback takes its own diagnostic snapshot, outside coordinator
+            // locks. Its timestamp is actual observation time, not a progress end.
+            observer(elapsed, phase).map_err(|_| "ownership output failed")?;
+        }
+        Ok(())
+    }
+
+    pub(crate) async fn publish_to_with_observer(
+        self: &Arc<Self>,
+        sink: &mut impl Write,
+        observer: Option<&OwnershipObserver>,
+    ) -> Result<(), Error> {
         let mut failure = self.failure_guard();
         self.run.wait_ready().await?;
+        self.observe_ownership(observer, "b5_initial")?;
+        let ownership_period = Duration::from_secs(1);
+        let mut ownership_ticks = tokio::time::interval_at(
+            tokio::time::Instant::now() + ownership_period,
+            ownership_period,
+        );
+        ownership_ticks.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Skip);
         let period = Duration::from_nanos(self.config.progress_ns);
         let mut ticks = tokio::time::interval_at(tokio::time::Instant::now() + period, period);
         ticks.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Skip);
@@ -328,6 +380,10 @@ impl Driver {
             let final_window = tokio::select! {
                 biased;
                 result = self.run.wait_drained() => { result?; true },
+                _ = ownership_ticks.tick(), if observer.is_some() => {
+                    self.observe_ownership(observer, "b5_sample")?;
+                    continue;
+                },
                 _ = ticks.tick() => false,
             };
             self.run.publish(final_window, |snapshot| {

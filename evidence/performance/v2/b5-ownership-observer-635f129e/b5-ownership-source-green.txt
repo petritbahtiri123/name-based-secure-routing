@@ -1,0 +1,9 @@
+   Compiling nbsr-transport v0.1.0 (C:\Users\bajra\OneDrive\Documents\NBSR\crates\nbsr-transport)
+    Finished `release` profile [optimized] target(s) in 8.43s
+     Running unittests src\bin\perf_rust_source.rs (C:/NBSR-build/b4b-task4k\release\deps\perf_rust_source-25bd4629be05d890.exe)
+
+running 2 tests
+test b5_support::driver_contract_tests::ownership_output_failure_cannot_ack_final ... ok
+test b5_support::driver_contract_tests::ownership_observer_starts_after_all_ready_and_runs_independently_of_progress ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 77 filtered out; finished in 1.00s

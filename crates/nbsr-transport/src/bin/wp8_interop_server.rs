@@ -3579,21 +3579,30 @@ async fn run() {
         while let Some(joined) = tasks.join_next().await {
             echoed += joined.unwrap();
         }
-        fs::write(
-            result,
-            format!(
-                "{{\"status\":\"{}\",\"streams\":{stream_count},\"echoed_frames\":{echoed},\"mixed_admissions\":{admitted},\"rejected_admissions\":{rejected_admissions},\"admission_rejection\":{}}}",
-                if rejected_admissions == 0 { "PASS" } else { "SATURATED" },
-                admission_rejection.map_or_else(|| "null".into(), |value| format!("\"{value}\""))
-            ),
-        )
-        .unwrap();
+        let p2a_result = format!(
+            "{{\"status\":\"{}\",\"streams\":{stream_count},\"echoed_frames\":{echoed},\"mixed_admissions\":{admitted},\"rejected_admissions\":{rejected_admissions},\"admission_rejection\":{}}}",
+            if rejected_admissions == 0 {
+                "PASS"
+            } else {
+                "SATURATED"
+            },
+            admission_rejection.map_or_else(|| "null".into(), |value| format!("\"{value}\""))
+        );
+        if diagnostic_sampler.is_none() {
+            // Preserve the existing result timing when observation is disabled.
+            fs::write(&result, &p2a_result).unwrap();
+        }
         drop(session);
         connection.close().await.unwrap();
         if diagnostic_sampler.is_some() && diagnostic_drain_seconds > 0 {
             std::thread::sleep(Duration::from_secs(diagnostic_drain_seconds));
         }
         listener.close().await.unwrap();
+        if let Some(sampler) = diagnostic_sampler {
+            require_p2a_diagnostic_outcome(sampler.stop_and_join())
+                .expect("requested P2A diagnostics complete without output failure");
+            fs::write(result, p2a_result).unwrap();
+        }
         return;
     }
     let benchmark_samples = env::var("NBSR_PERF_STREAM_SAMPLES").ok();
@@ -3816,5 +3825,42 @@ mod b3_report_gate_tests {
         );
         std::fs::remove_file(root.join("destination.report-ready")).unwrap();
         std::fs::remove_dir(root).unwrap();
+    }
+}
+
+fn require_p2a_diagnostic_outcome(
+    outcome: nbsr_transport::diagnostics::SamplerOutcome,
+) -> Result<(), &'static str> {
+    if !outcome.output_opened || outcome.io_failed || outcome.snapshots_written == 0 {
+        return Err("requested diagnostic evidence incomplete");
+    }
+    Ok(())
+}
+
+#[cfg(test)]
+mod p2a_diagnostic_outcome_tests {
+    use super::require_p2a_diagnostic_outcome;
+    use nbsr_transport::diagnostics::SamplerOutcome;
+
+    #[test]
+    fn requested_p2a_diagnostic_sampler_requires_open_write_and_nonempty_outcome() {
+        for (opened, failed, count) in [(false, false, 1), (true, true, 1), (true, false, 0)] {
+            assert!(
+                require_p2a_diagnostic_outcome(SamplerOutcome {
+                    output_opened: opened,
+                    io_failed: failed,
+                    snapshots_written: count,
+                })
+                .is_err()
+            );
+        }
+        assert!(
+            require_p2a_diagnostic_outcome(SamplerOutcome {
+                output_opened: true,
+                io_failed: false,
+                snapshots_written: 1,
+            })
+            .is_ok()
+        );
     }
 }
