@@ -1,0 +1,6 @@
+{
+  "ended_unix_ns": 1788668105134426891,
+  "phase": "report_generation",
+  "scope": "report serialization and destination diagnostic drain; excluded from cooldown",
+  "started_unix_ns": 1788668103101549618
+}

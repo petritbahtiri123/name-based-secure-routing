@@ -1,0 +1,5417 @@
+[
+  {
+    "active_count": 16,
+    "channels": 8,
+    "cleanup": {
+      "all_zero": true,
+      "counters": {
+        "application_streams_current_live": 0,
+        "audit_queue_current_entries": 0,
+        "nbsr_tasks_current_live": 0,
+        "quic_connections_current_live": 0,
+        "quic_streams_current_live": 0,
+        "replay_state_current_entries": 0,
+        "service_channels_current_live": 0,
+        "transport_sessions_current_live": 0
+      },
+      "destination_exited": true,
+      "source_all_zero": true,
+      "source_counters": [
+        {
+          "application_streams_current_live": 0,
+          "audit_queue_current_entries": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "replay_state_current_entries": 0,
+          "service_channels_current_live": 0,
+          "transport_sessions_current_live": 0
+        }
+      ],
+      "source_processes_exited": true
+    },
+    "client_results": [
+      {
+        "application_streams_completed": 0,
+        "application_streams_created": 16,
+        "application_streams_current_live": 16,
+        "application_streams_failed_or_cancelled": 0,
+        "application_streams_high_water_live": 16,
+        "audit_queue_current_entries": 0,
+        "audit_queue_high_water_entries": 5,
+        "audit_queue_high_water_retained_capacity": 1024,
+        "audit_queue_inserts": 56,
+        "audit_queue_removals": 56,
+        "audit_queue_retained_capacity": 1024,
+        "channel_registry_current_entries": 8,
+        "channel_registry_high_water_entries": 8,
+        "channel_registry_high_water_retained_capacity": 17,
+        "channel_registry_inserts": 8,
+        "channel_registry_removals": 0,
+        "channel_registry_retained_capacity": 17,
+        "event": "diagnostic",
+        "nbsr_tasks_completed": 0,
+        "nbsr_tasks_created": 0,
+        "nbsr_tasks_current_live": 0,
+        "nbsr_tasks_failed_or_cancelled": 0,
+        "nbsr_tasks_high_water_live": 0,
+        "pending_routes_current_entries": 0,
+        "pending_routes_high_water_entries": 1,
+        "pending_routes_high_water_retained_capacity": 3,
+        "pending_routes_inserts": 8,
+        "pending_routes_removals": 8,
+        "pending_routes_retained_capacity": 3,
+        "phase": "b3_materialized_streams_ready",
+        "quic_connections_completed": 0,
+        "quic_connections_created": 1,
+        "quic_connections_current_live": 1,
+        "quic_connections_failed_or_cancelled": 0,
+        "quic_connections_high_water_live": 1,
+        "quic_streams_completed": 0,
+        "quic_streams_created": 16,
+        "quic_streams_current_live": 16,
+        "quic_streams_failed_or_cancelled": 0,
+        "quic_streams_high_water_live": 16,
+        "replay_state_current_entries": 16,
+        "replay_state_high_water_entries": 16,
+        "replay_state_high_water_retained_capacity": 28,
+        "replay_state_inserts": 16,
+        "replay_state_removals": 0,
+        "replay_state_retained_capacity": 28,
+        "schema": "nbsr-rust-ownership-v1",
+        "service_channels_completed": 0,
+        "service_channels_created": 8,
+        "service_channels_current_live": 8,
+        "service_channels_failed_or_cancelled": 0,
+        "service_channels_high_water_live": 8,
+        "stream_registry_current_entries": 16,
+        "stream_registry_high_water_entries": 16,
+        "stream_registry_high_water_retained_capacity": 38,
+        "stream_registry_inserts": 16,
+        "stream_registry_removals": 0,
+        "stream_registry_retained_capacity": 38,
+        "timestamp_ns": 0,
+        "transport_sessions_completed": 0,
+        "transport_sessions_created": 1,
+        "transport_sessions_current_live": 1,
+        "transport_sessions_failed_or_cancelled": 0,
+        "transport_sessions_high_water_live": 1
+      },
+      {
+        "application_processing_ns": null,
+        "bytes_received": 1024,
+        "bytes_transmitted": 1024,
+        "channel_binding_ns": 6500,
+        "destination_admission_ns": null,
+        "hello_rtt_ns": 770132,
+        "logical_client_id": 0,
+        "request_latency_ns": 2024108056,
+        "route_open_rtt_ns": 337014,
+        "sample_id": 0,
+        "source_admission_ns": 202409,
+        "stream_open_rtt_ns": 114505,
+        "success": true,
+        "total_scenario_ns": 2028319233,
+        "transport_handshake_ns": 2498604,
+        "ttfab_ns": 2028319233
+      },
+      {
+        "application_processing_ns": null,
+        "bytes_received": 1024,
+        "bytes_transmitted": 1024,
+        "channel_binding_ns": null,
+        "destination_admission_ns": null,
+        "hello_rtt_ns": null,
+        "logical_client_id": 0,
+        "request_latency_ns": 2023782543,
+        "route_open_rtt_ns": null,
+        "sample_id": 1,
+        "source_admission_ns": null,
+        "stream_open_rtt_ns": 102404,
+        "success": true,
+        "total_scenario_ns": 2024939492,
+        "transport_handshake_ns": null,
+        "ttfab_ns": 2024939492
+      },
+      {
+        "application_processing_ns": null,
+        "bytes_received": 1024,
+        "bytes_transmitted": 1024,
+        "channel_binding_ns": 8500,
+        "destination_admission_ns": null,
+        "hello_rtt_ns": null,
+        "logical_client_id": 0,
+        "request_latency_ns": 2022851004,
+        "route_open_rtt_ns": 452619,
+        "sample_id": 2,
+        "source_admission_ns": 184907,
+        "stream_open_rtt_ns": 101304,
+        "success": true,
+        "total_scenario_ns": 2024059255,
+        "transport_handshake_ns": null,
+        "ttfab_ns": 2024059255
+      },
+      {
+        "application_processing_ns": null,
+        "bytes_received": 1024,
+        "bytes_transmitted": 1024,
+        "channel_binding_ns": null,
+        "destination_admission_ns": null,
+        "hello_rtt_ns": null,
+        "logical_client_id": 0,
+        "request_latency_ns": 2022817403,
+        "route_open_rtt_ns": null,
+        "sample_id": 3,
+        "source_admission_ns": null,
+        "stream_open_rtt_ns": 117505,
+        "success": true,
+        "total_scenario_ns": 2024060655,
+        "transport_handshake_ns": null,
+        "ttfab_ns": 2024060655
+      },
+      {
+        "application_processing_ns": null,
+        "bytes_received": 1024,
+        "bytes_transmitted": 1024,
+        "channel_binding_ns": 6601,
+        "destination_admission_ns": null,
+        "hello_rtt_ns": null,
+        "logical_client_id": 0,
+        "request_latency_ns": 2021900765,
+        "route_open_rtt_ns": 436418,
+        "sample_id": 4,
+        "source_admission_ns": 186308,
+        "stream_open_rtt_ns": 106605,
+        "success": true,
+        "total_scenario_ns": 2023084314,
+        "transport_handshake_ns": null,
+        "ttfab_ns": 2023084314
+      },
+      {
+        "application_processing_ns": null,
+        "bytes_received": 1024,
+        "bytes_transmitted": 1024,
+        "channel_binding_ns": null,
+        "destination_admission_ns": null,
+        "hello_rtt_ns": null,
+        "logical_client_id": 0,
+        "request_latency_ns": 2021849762,
+        "route_open_rtt_ns": null,
+        "sample_id": 5,
+        "source_admission_ns": null,
+        "stream_open_rtt_ns": 100804,
+        "success": true,
+        "total_scenario_ns": 2023090214,
+        "transport_handshake_ns": null,
+        "ttfab_ns": 2023090214
+      },
+      {
+        "application_processing_ns": null,
+        "bytes_received": 1024,
+        "bytes_transmitted": 1024,
+        "channel_binding_ns": 6000,
+        "destination_admission_ns": null,
+        "hello_rtt_ns": null,
+        "logical_client_id": 0,
+        "request_latency_ns": 2021051329,
+        "route_open_rtt_ns": 330014,
+        "sample_id": 6,
+        "source_admission_ns": 185708,
+        "stream_open_rtt_ns": 91504,
+        "success": true,
+        "total_scenario_ns": 2022132374,
+        "transport_handshake_ns": null,
+        "ttfab_ns": 2022132374
+      },
+      {
+        "application_processing_ns": null,
+        "bytes_received": 1024,
+        "bytes_transmitted": 1024,
+        "channel_binding_ns": null,
+        "destination_admission_ns": null,
+        "hello_rtt_ns": null,
+        "logical_client_id": 0,
+        "request_latency_ns": 2020720415,
+        "route_open_rtt_ns": null,
+        "sample_id": 7,
+        "source_admission_ns": null,
+        "stream_open_rtt_ns": 119505,
+        "success": true,
+        "total_scenario_ns": 2022133474,
+        "transport_handshake_ns": null,
+        "ttfab_ns": 2022133474
+      },
+      {
+        "application_processing_ns": null,
+        "bytes_received": 1024,
+        "bytes_transmitted": 1024,
+        "channel_binding_ns": 5800,
+        "destination_admission_ns": null,
+        "hello_rtt_ns": null,
+        "logical_client_id": 0,
+        "request_latency_ns": 2020174392,
+        "route_open_rtt_ns": 379815,
+        "sample_id": 8,
+        "source_admission_ns": 184508,
+        "stream_open_rtt_ns": 87103,
+        "success": true,
+        "total_scenario_ns": 2021301039,
+        "transport_handshake_ns": null,
+        "ttfab_ns": 2021301039
+      },
+      {
+        "application_processing_ns": null,
+        "bytes_received": 1024,
+        "bytes_transmitted": 1024,
+        "channel_binding_ns": null,
+        "destination_admission_ns": null,
+        "hello_rtt_ns": null,
+        "logical_client_id": 0,
+        "request_latency_ns": 2020160292,
+        "route_open_rtt_ns": null,
+        "sample_id": 9,
+        "source_admission_ns": null,
+        "stream_open_rtt_ns": 99504,
+        "success": true,
+        "total_scenario_ns": 2021302039,
+        "transport_handshake_ns": null,
+        "ttfab_ns": 2021302039
+      },
+      {
+        "application_processing_ns": null,
+        "bytes_received": 1024,
+        "bytes_transmitted": 1024,
+        "channel_binding_ns": 5800,
+        "destination_admission_ns": null,
+        "hello_rtt_ns": null,
+        "logical_client_id": 0,
+        "request_latency_ns": 2019660571,
+        "route_open_rtt_ns": 325813,
+        "sample_id": 10,
+        "source_admission_ns": 202209,
+        "stream_open_rtt_ns": 86003,
+        "success": true,
+        "total_scenario_ns": 2020457605,
+        "transport_handshake_ns": null,
+        "ttfab_ns": 2020457605
+      },
+      {
+        "application_processing_ns": null,
+        "bytes_received": 1024,
+        "bytes_transmitted": 1024,
+        "channel_binding_ns": null,
+        "destination_admission_ns": null,
+        "hello_rtt_ns": null,
+        "logical_client_id": 0,
+        "request_latency_ns": 2019310256,
+        "route_open_rtt_ns": null,
+        "sample_id": 11,
+        "source_admission_ns": null,
+        "stream_open_rtt_ns": 110004,
+        "success": true,
+        "total_scenario_ns": 2020458705,
+        "transport_handshake_ns": null,
+        "ttfab_ns": 2020458705
+      },
+      {
+        "application_processing_ns": null,
+        "bytes_received": 1024,
+        "bytes_transmitted": 1024,
+        "channel_binding_ns": 6001,
+        "destination_admission_ns": null,
+        "hello_rtt_ns": null,
+        "logical_client_id": 0,
+        "request_latency_ns": 2018504723,
+        "route_open_rtt_ns": 361215,
+        "sample_id": 12,
+        "source_admission_ns": 196108,
+        "stream_open_rtt_ns": 84804,
+        "success": true,
+        "total_scenario_ns": 2019610769,
+        "transport_handshake_ns": null,
+        "ttfab_ns": 2019610769
+      },
+      {
+        "application_processing_ns": null,
+        "bytes_received": 1024,
+        "bytes_transmitted": 1024,
+        "channel_binding_ns": null,
+        "destination_admission_ns": null,
+        "hello_rtt_ns": null,
+        "logical_client_id": 0,
+        "request_latency_ns": 2018023803,
+        "route_open_rtt_ns": null,
+        "sample_id": 13,
+        "source_admission_ns": null,
+        "stream_open_rtt_ns": 111105,
+        "success": true,
+        "total_scenario_ns": 2019611769,
+        "transport_handshake_ns": null,
+        "ttfab_ns": 2019611769
+      },
+      {
+        "application_processing_ns": null,
+        "bytes_received": 1024,
+        "bytes_transmitted": 1024,
+        "channel_binding_ns": 6900,
+        "destination_admission_ns": null,
+        "hello_rtt_ns": null,
+        "logical_client_id": 0,
+        "request_latency_ns": 2017415477,
+        "route_open_rtt_ns": 454319,
+        "sample_id": 14,
+        "source_admission_ns": 289112,
+        "stream_open_rtt_ns": 92104,
+        "success": true,
+        "total_scenario_ns": 2018735133,
+        "transport_handshake_ns": null,
+        "ttfab_ns": 2018735133
+      },
+      {
+        "application_processing_ns": null,
+        "bytes_received": 1024,
+        "bytes_transmitted": 1024,
+        "channel_binding_ns": null,
+        "destination_admission_ns": null,
+        "hello_rtt_ns": null,
+        "logical_client_id": 0,
+        "request_latency_ns": 2017294773,
+        "route_open_rtt_ns": null,
+        "sample_id": 15,
+        "source_admission_ns": null,
+        "stream_open_rtt_ns": 401117,
+        "success": true,
+        "total_scenario_ns": 2018737033,
+        "transport_handshake_ns": null,
+        "ttfab_ns": 2018737033
+      },
+      {
+        "application_streams_completed": 16,
+        "application_streams_created": 16,
+        "application_streams_current_live": 0,
+        "application_streams_failed_or_cancelled": 0,
+        "application_streams_high_water_live": 16,
+        "audit_queue_current_entries": 0,
+        "audit_queue_high_water_entries": 5,
+        "audit_queue_high_water_retained_capacity": 1024,
+        "audit_queue_inserts": 56,
+        "audit_queue_removals": 56,
+        "audit_queue_retained_capacity": 0,
+        "channel_registry_current_entries": 0,
+        "channel_registry_high_water_entries": 8,
+        "channel_registry_high_water_retained_capacity": 17,
+        "channel_registry_inserts": 8,
+        "channel_registry_removals": 8,
+        "channel_registry_retained_capacity": 0,
+        "event": "diagnostic",
+        "nbsr_tasks_completed": 0,
+        "nbsr_tasks_created": 0,
+        "nbsr_tasks_current_live": 0,
+        "nbsr_tasks_failed_or_cancelled": 0,
+        "nbsr_tasks_high_water_live": 0,
+        "pending_routes_current_entries": 0,
+        "pending_routes_high_water_entries": 1,
+        "pending_routes_high_water_retained_capacity": 3,
+        "pending_routes_inserts": 8,
+        "pending_routes_removals": 8,
+        "pending_routes_retained_capacity": 0,
+        "phase": "lifecycle_cycle_0_closed",
+        "quic_connections_completed": 1,
+        "quic_connections_created": 1,
+        "quic_connections_current_live": 0,
+        "quic_connections_failed_or_cancelled": 0,
+        "quic_connections_high_water_live": 1,
+        "quic_streams_completed": 16,
+        "quic_streams_created": 16,
+        "quic_streams_current_live": 0,
+        "quic_streams_failed_or_cancelled": 0,
+        "quic_streams_high_water_live": 16,
+        "replay_state_current_entries": 0,
+        "replay_state_high_water_entries": 16,
+        "replay_state_high_water_retained_capacity": 28,
+        "replay_state_inserts": 16,
+        "replay_state_removals": 16,
+        "replay_state_retained_capacity": 0,
+        "schema": "nbsr-rust-ownership-v1",
+        "service_channels_completed": 8,
+        "service_channels_created": 8,
+        "service_channels_current_live": 0,
+        "service_channels_failed_or_cancelled": 0,
+        "service_channels_high_water_live": 8,
+        "stream_registry_current_entries": 0,
+        "stream_registry_high_water_entries": 16,
+        "stream_registry_high_water_retained_capacity": 38,
+        "stream_registry_inserts": 16,
+        "stream_registry_removals": 16,
+        "stream_registry_retained_capacity": 0,
+        "timestamp_ns": 0,
+        "transport_sessions_completed": 1,
+        "transport_sessions_created": 1,
+        "transport_sessions_current_live": 0,
+        "transport_sessions_failed_or_cancelled": 0,
+        "transport_sessions_high_water_live": 1
+      },
+      {
+        "application_streams_completed": 16,
+        "application_streams_created": 16,
+        "application_streams_current_live": 0,
+        "application_streams_failed_or_cancelled": 0,
+        "application_streams_high_water_live": 16,
+        "audit_queue_current_entries": 0,
+        "audit_queue_high_water_entries": 5,
+        "audit_queue_high_water_retained_capacity": 1024,
+        "audit_queue_inserts": 56,
+        "audit_queue_removals": 56,
+        "audit_queue_retained_capacity": 0,
+        "channel_registry_current_entries": 0,
+        "channel_registry_high_water_entries": 8,
+        "channel_registry_high_water_retained_capacity": 17,
+        "channel_registry_inserts": 8,
+        "channel_registry_removals": 8,
+        "channel_registry_retained_capacity": 0,
+        "event": "diagnostic",
+        "nbsr_tasks_completed": 0,
+        "nbsr_tasks_created": 0,
+        "nbsr_tasks_current_live": 0,
+        "nbsr_tasks_failed_or_cancelled": 0,
+        "nbsr_tasks_high_water_live": 0,
+        "pending_routes_current_entries": 0,
+        "pending_routes_high_water_entries": 1,
+        "pending_routes_high_water_retained_capacity": 3,
+        "pending_routes_inserts": 8,
+        "pending_routes_removals": 8,
+        "pending_routes_retained_capacity": 0,
+        "phase": "lifecycle_cleanup",
+        "quic_connections_completed": 1,
+        "quic_connections_created": 1,
+        "quic_connections_current_live": 0,
+        "quic_connections_failed_or_cancelled": 0,
+        "quic_connections_high_water_live": 1,
+        "quic_streams_completed": 16,
+        "quic_streams_created": 16,
+        "quic_streams_current_live": 0,
+        "quic_streams_failed_or_cancelled": 0,
+        "quic_streams_high_water_live": 16,
+        "replay_state_current_entries": 0,
+        "replay_state_high_water_entries": 16,
+        "replay_state_high_water_retained_capacity": 28,
+        "replay_state_inserts": 16,
+        "replay_state_removals": 16,
+        "replay_state_retained_capacity": 0,
+        "schema": "nbsr-rust-ownership-v1",
+        "service_channels_completed": 8,
+        "service_channels_created": 8,
+        "service_channels_current_live": 0,
+        "service_channels_failed_or_cancelled": 0,
+        "service_channels_high_water_live": 8,
+        "stream_registry_current_entries": 0,
+        "stream_registry_high_water_entries": 16,
+        "stream_registry_high_water_retained_capacity": 38,
+        "stream_registry_inserts": 16,
+        "stream_registry_removals": 16,
+        "stream_registry_retained_capacity": 0,
+        "timestamp_ns": 0,
+        "transport_sessions_completed": 1,
+        "transport_sessions_created": 1,
+        "transport_sessions_current_live": 0,
+        "transport_sessions_failed_or_cancelled": 0,
+        "transport_sessions_high_water_live": 1
+      }
+    ],
+    "commands": {
+      "clients": [
+        [
+          "/usr/bin/taskset",
+          "-c",
+          "0",
+          "/opt/nbsr/bin/perf_rust_source",
+          "--authority-dir",
+          "<temporary>/authority",
+          "--endpoint",
+          "127.0.0.1:33960",
+          "--samples",
+          "1",
+          "--payload-bytes",
+          "1024",
+          "--lifecycle-authority-dir",
+          "<temporary>/lifecycle",
+          "--connections",
+          "1",
+          "--services",
+          "8",
+          "--streams-per-service",
+          "2",
+          "--concurrent-streams",
+          "--hold-for-release",
+          "--connection-offset",
+          "0",
+          "--diagnostics",
+          "1",
+          "--b3-materialized-streams",
+          "1",
+          "--lifecycle-final-release",
+          "<temporary>/lifecycle/source.final-release"
+        ]
+      ],
+      "server": [
+        "/usr/bin/taskset",
+        "-c",
+        "0",
+        "/opt/nbsr/bin/wp8_interop_server",
+        "--ready",
+        "<temporary>/ready.json",
+        "--result",
+        "/evidence/streams-16/raw/rust-rust/streams-16-r1/server-result.json",
+        "--authority-dir",
+        "<temporary>/authority",
+        "--completion-ack",
+        "<temporary>/completion.ack",
+        "--destination-diagnostics-file",
+        "/evidence/streams-16/raw/rust-rust/streams-16-r1/destination-diagnostics.ndjson",
+        "--diagnostic-drain-seconds",
+        "2",
+        "--b3-report-gate",
+        "<temporary>/lifecycle",
+        "--b3-materialized-streams",
+        "1"
+      ]
+    },
+    "cycles": 1,
+    "kind": "streams",
+    "materialized_streams": true,
+    "name": "streams-16-r1",
+    "resource_scope": "application streams across eight fixed channels; one connection/session",
+    "samples": [
+      {
+        "cpu_ns": 0,
+        "cycle": 0,
+        "fd_count": 8,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "idle",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 3645440,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 0,
+            "fd_count": 8,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 11,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 3645440,
+            "pss_bytes": 4544512,
+            "rss_bytes": 5447680,
+            "start_ticks": 26521,
+            "state": "S",
+            "thread_ids": [
+              11,
+              12
+            ],
+            "timestamp_ns": 265227307131
+          }
+        ],
+        "pss_bytes": 4544512,
+        "role": "destination",
+        "rss_bytes": 5447680,
+        "thread_count": 2,
+        "timestamp_ns": 265227307131
+      },
+      {
+        "cpu_ns": 0,
+        "cycle": 0,
+        "fd_count": 6,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "idle",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 1597440,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 0,
+            "fd_count": 6,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 13,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 1597440,
+            "pss_bytes": 2189312,
+            "rss_bytes": 3362816,
+            "start_ticks": 26522,
+            "state": "R",
+            "thread_ids": [
+              13
+            ],
+            "timestamp_ns": 265227878555
+          }
+        ],
+        "pss_bytes": 2189312,
+        "role": "source",
+        "rss_bytes": 3362816,
+        "thread_count": 1,
+        "timestamp_ns": 265227878555
+      },
+      {
+        "cpu_ns": 0,
+        "cycle": 0,
+        "fd_count": 8,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "idle",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 3641344,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 0,
+            "fd_count": 8,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 11,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 3641344,
+            "pss_bytes": 4253696,
+            "rss_bytes": 5447680,
+            "start_ticks": 26521,
+            "state": "S",
+            "thread_ids": [
+              11,
+              12
+            ],
+            "timestamp_ns": 265729562213
+          }
+        ],
+        "pss_bytes": 4253696,
+        "role": "destination",
+        "rss_bytes": 5447680,
+        "thread_count": 2,
+        "timestamp_ns": 265729562213
+      },
+      {
+        "cpu_ns": 0,
+        "cycle": 0,
+        "fd_count": 6,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "idle",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 2191360,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 0,
+            "fd_count": 6,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 13,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 2191360,
+            "pss_bytes": 2783232,
+            "rss_bytes": 3956736,
+            "start_ticks": 26522,
+            "state": "S",
+            "thread_ids": [
+              13
+            ],
+            "timestamp_ns": 265730168738
+          }
+        ],
+        "pss_bytes": 2783232,
+        "role": "source",
+        "rss_bytes": 3956736,
+        "thread_count": 1,
+        "timestamp_ns": 265730168738
+      },
+      {
+        "cpu_ns": 0,
+        "cycle": 0,
+        "fd_count": 8,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "idle",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 3641344,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 0,
+            "fd_count": 8,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 11,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 3641344,
+            "pss_bytes": 4253696,
+            "rss_bytes": 5447680,
+            "start_ticks": 26521,
+            "state": "S",
+            "thread_ids": [
+              11,
+              12
+            ],
+            "timestamp_ns": 266231919298
+          }
+        ],
+        "pss_bytes": 4253696,
+        "role": "destination",
+        "rss_bytes": 5447680,
+        "thread_count": 2,
+        "timestamp_ns": 266231919298
+      },
+      {
+        "cpu_ns": 0,
+        "cycle": 0,
+        "fd_count": 6,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "idle",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 2191360,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 0,
+            "fd_count": 6,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 13,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 2191360,
+            "pss_bytes": 2783232,
+            "rss_bytes": 3956736,
+            "start_ticks": 26522,
+            "state": "S",
+            "thread_ids": [
+              13
+            ],
+            "timestamp_ns": 266232579426
+          }
+        ],
+        "pss_bytes": 2783232,
+        "role": "source",
+        "rss_bytes": 3956736,
+        "thread_count": 1,
+        "timestamp_ns": 266232579426
+      },
+      {
+        "cpu_ns": 0,
+        "cycle": 0,
+        "fd_count": 8,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "idle",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 3641344,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 0,
+            "fd_count": 8,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 11,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 3641344,
+            "pss_bytes": 4253696,
+            "rss_bytes": 5447680,
+            "start_ticks": 26521,
+            "state": "S",
+            "thread_ids": [
+              11,
+              12
+            ],
+            "timestamp_ns": 266733580455
+          }
+        ],
+        "pss_bytes": 4253696,
+        "role": "destination",
+        "rss_bytes": 5447680,
+        "thread_count": 2,
+        "timestamp_ns": 266733580455
+      },
+      {
+        "cpu_ns": 10000000,
+        "cycle": 0,
+        "fd_count": 6,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "idle",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 2191360,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 10000000,
+            "fd_count": 6,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 13,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 2191360,
+            "pss_bytes": 2783232,
+            "rss_bytes": 3956736,
+            "start_ticks": 26522,
+            "state": "S",
+            "thread_ids": [
+              13
+            ],
+            "timestamp_ns": 266734069476
+          }
+        ],
+        "pss_bytes": 2783232,
+        "role": "source",
+        "rss_bytes": 3956736,
+        "thread_count": 1,
+        "timestamp_ns": 266734069476
+      },
+      {
+        "cpu_ns": 0,
+        "cycle": 0,
+        "fd_count": 8,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "idle",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 3645440,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 0,
+            "fd_count": 8,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 11,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 3645440,
+            "pss_bytes": 4257792,
+            "rss_bytes": 5451776,
+            "start_ticks": 26521,
+            "state": "S",
+            "thread_ids": [
+              11,
+              12
+            ],
+            "timestamp_ns": 267227404485
+          }
+        ],
+        "pss_bytes": 4257792,
+        "role": "destination",
+        "rss_bytes": 5451776,
+        "thread_count": 2,
+        "timestamp_ns": 267227404485
+      },
+      {
+        "cpu_ns": 10000000,
+        "cycle": 0,
+        "fd_count": 6,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "idle",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 2191360,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 10000000,
+            "fd_count": 6,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 13,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 2191360,
+            "pss_bytes": 2783232,
+            "rss_bytes": 3956736,
+            "start_ticks": 26522,
+            "state": "S",
+            "thread_ids": [
+              13
+            ],
+            "timestamp_ns": 267227899105
+          }
+        ],
+        "pss_bytes": 2783232,
+        "role": "source",
+        "rss_bytes": 3956736,
+        "thread_count": 1,
+        "timestamp_ns": 267227899105
+      },
+      {
+        "cpu_ns": 0,
+        "cycle": 0,
+        "fd_count": 8,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "active",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4902912,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 0,
+            "fd_count": 8,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 11,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4902912,
+            "pss_bytes": 5515264,
+            "rss_bytes": 6709248,
+            "start_ticks": 26521,
+            "state": "S",
+            "thread_ids": [
+              11,
+              12
+            ],
+            "timestamp_ns": 267249820721
+          }
+        ],
+        "pss_bytes": 5515264,
+        "role": "destination",
+        "rss_bytes": 6709248,
+        "thread_count": 2,
+        "timestamp_ns": 267249820721
+      },
+      {
+        "cpu_ns": 10000000,
+        "cycle": 0,
+        "fd_count": 7,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "active",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4878336,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 10000000,
+            "fd_count": 7,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 13,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4878336,
+            "pss_bytes": 5470208,
+            "rss_bytes": 6643712,
+            "start_ticks": 26522,
+            "state": "S",
+            "thread_ids": [
+              13
+            ],
+            "timestamp_ns": 267250322942
+          }
+        ],
+        "pss_bytes": 5470208,
+        "role": "source",
+        "rss_bytes": 6643712,
+        "thread_count": 1,
+        "timestamp_ns": 267250322942
+      },
+      {
+        "cpu_ns": 0,
+        "cycle": 0,
+        "fd_count": 8,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "active",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4902912,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 0,
+            "fd_count": 8,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 11,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4902912,
+            "pss_bytes": 5515264,
+            "rss_bytes": 6709248,
+            "start_ticks": 26521,
+            "state": "S",
+            "thread_ids": [
+              11,
+              12
+            ],
+            "timestamp_ns": 267751800791
+          }
+        ],
+        "pss_bytes": 5515264,
+        "role": "destination",
+        "rss_bytes": 6709248,
+        "thread_count": 2,
+        "timestamp_ns": 267751800791
+      },
+      {
+        "cpu_ns": 10000000,
+        "cycle": 0,
+        "fd_count": 7,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "active",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4878336,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 10000000,
+            "fd_count": 7,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 13,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4878336,
+            "pss_bytes": 5470208,
+            "rss_bytes": 6643712,
+            "start_ticks": 26522,
+            "state": "S",
+            "thread_ids": [
+              13
+            ],
+            "timestamp_ns": 267752455419
+          }
+        ],
+        "pss_bytes": 5470208,
+        "role": "source",
+        "rss_bytes": 6643712,
+        "thread_count": 1,
+        "timestamp_ns": 267752455419
+      },
+      {
+        "cpu_ns": 0,
+        "cycle": 0,
+        "fd_count": 8,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "active",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4902912,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 0,
+            "fd_count": 8,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 11,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4902912,
+            "pss_bytes": 5515264,
+            "rss_bytes": 6709248,
+            "start_ticks": 26521,
+            "state": "S",
+            "thread_ids": [
+              11,
+              12
+            ],
+            "timestamp_ns": 268253843164
+          }
+        ],
+        "pss_bytes": 5515264,
+        "role": "destination",
+        "rss_bytes": 6709248,
+        "thread_count": 2,
+        "timestamp_ns": 268253843164
+      },
+      {
+        "cpu_ns": 20000000,
+        "cycle": 0,
+        "fd_count": 7,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "active",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4878336,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 20000000,
+            "fd_count": 7,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 13,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4878336,
+            "pss_bytes": 5470208,
+            "rss_bytes": 6643712,
+            "start_ticks": 26522,
+            "state": "S",
+            "thread_ids": [
+              13
+            ],
+            "timestamp_ns": 268254392787
+          }
+        ],
+        "pss_bytes": 5470208,
+        "role": "source",
+        "rss_bytes": 6643712,
+        "thread_count": 1,
+        "timestamp_ns": 268254392787
+      },
+      {
+        "cpu_ns": 10000000,
+        "cycle": 0,
+        "fd_count": 8,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "active",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4902912,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 10000000,
+            "fd_count": 8,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 11,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4902912,
+            "pss_bytes": 5515264,
+            "rss_bytes": 6709248,
+            "start_ticks": 26521,
+            "state": "S",
+            "thread_ids": [
+              11,
+              12
+            ],
+            "timestamp_ns": 268756235251
+          }
+        ],
+        "pss_bytes": 5515264,
+        "role": "destination",
+        "rss_bytes": 6709248,
+        "thread_count": 2,
+        "timestamp_ns": 268756235251
+      },
+      {
+        "cpu_ns": 20000000,
+        "cycle": 0,
+        "fd_count": 7,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "active",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4878336,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 20000000,
+            "fd_count": 7,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 13,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4878336,
+            "pss_bytes": 5470208,
+            "rss_bytes": 6643712,
+            "start_ticks": 26522,
+            "state": "S",
+            "thread_ids": [
+              13
+            ],
+            "timestamp_ns": 268756783074
+          }
+        ],
+        "pss_bytes": 5470208,
+        "role": "source",
+        "rss_bytes": 6643712,
+        "thread_count": 1,
+        "timestamp_ns": 268756783074
+      },
+      {
+        "cpu_ns": 10000000,
+        "cycle": 0,
+        "fd_count": 8,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "active",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4907008,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 10000000,
+            "fd_count": 8,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 11,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4907008,
+            "pss_bytes": 5519360,
+            "rss_bytes": 6713344,
+            "start_ticks": 26521,
+            "state": "S",
+            "thread_ids": [
+              11,
+              12
+            ],
+            "timestamp_ns": 269250251389
+          }
+        ],
+        "pss_bytes": 5519360,
+        "role": "destination",
+        "rss_bytes": 6713344,
+        "thread_count": 2,
+        "timestamp_ns": 269250251389
+      },
+      {
+        "cpu_ns": 20000000,
+        "cycle": 0,
+        "fd_count": 7,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "active",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4878336,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 20000000,
+            "fd_count": 7,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 13,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4878336,
+            "pss_bytes": 5470208,
+            "rss_bytes": 6643712,
+            "start_ticks": 26522,
+            "state": "S",
+            "thread_ids": [
+              13
+            ],
+            "timestamp_ns": 269250799112
+          }
+        ],
+        "pss_bytes": 5470208,
+        "role": "source",
+        "rss_bytes": 6643712,
+        "thread_count": 1,
+        "timestamp_ns": 269250799112
+      },
+      {
+        "cpu_ns": 10000000,
+        "cycle": 0,
+        "fd_count": 8,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "cooldown",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4927488,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 10000000,
+            "fd_count": 8,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 11,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4927488,
+            "pss_bytes": 5539840,
+            "rss_bytes": 6733824,
+            "start_ticks": 26521,
+            "state": "S",
+            "thread_ids": [
+              11,
+              12
+            ],
+            "timestamp_ns": 269273064642
+          }
+        ],
+        "pss_bytes": 5539840,
+        "role": "destination",
+        "rss_bytes": 6733824,
+        "thread_count": 2,
+        "timestamp_ns": 269273064642
+      },
+      {
+        "cpu_ns": 20000000,
+        "cycle": 0,
+        "fd_count": 7,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "cooldown",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4968448,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 20000000,
+            "fd_count": 7,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 13,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4968448,
+            "pss_bytes": 5560320,
+            "rss_bytes": 6733824,
+            "start_ticks": 26522,
+            "state": "S",
+            "thread_ids": [
+              13
+            ],
+            "timestamp_ns": 269273605464
+          }
+        ],
+        "pss_bytes": 5560320,
+        "role": "source",
+        "rss_bytes": 6733824,
+        "thread_count": 1,
+        "timestamp_ns": 269273605464
+      },
+      {
+        "cpu_ns": 10000000,
+        "cycle": 0,
+        "fd_count": 8,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "cooldown",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4927488,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 10000000,
+            "fd_count": 8,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 11,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4927488,
+            "pss_bytes": 5539840,
+            "rss_bytes": 6733824,
+            "start_ticks": 26521,
+            "state": "S",
+            "thread_ids": [
+              11,
+              12
+            ],
+            "timestamp_ns": 269774973709
+          }
+        ],
+        "pss_bytes": 5539840,
+        "role": "destination",
+        "rss_bytes": 6733824,
+        "thread_count": 2,
+        "timestamp_ns": 269774973709
+      },
+      {
+        "cpu_ns": 20000000,
+        "cycle": 0,
+        "fd_count": 6,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "cooldown",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4952064,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 20000000,
+            "fd_count": 6,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 13,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4952064,
+            "pss_bytes": 5543936,
+            "rss_bytes": 6717440,
+            "start_ticks": 26522,
+            "state": "S",
+            "thread_ids": [
+              13
+            ],
+            "timestamp_ns": 269775484030
+          }
+        ],
+        "pss_bytes": 5543936,
+        "role": "source",
+        "rss_bytes": 6717440,
+        "thread_count": 1,
+        "timestamp_ns": 269775484030
+      },
+      {
+        "cpu_ns": 10000000,
+        "cycle": 0,
+        "fd_count": 8,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "cooldown",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4931584,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 10000000,
+            "fd_count": 8,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 11,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4931584,
+            "pss_bytes": 5543936,
+            "rss_bytes": 6737920,
+            "start_ticks": 26521,
+            "state": "S",
+            "thread_ids": [
+              11,
+              12
+            ],
+            "timestamp_ns": 270277020582
+          }
+        ],
+        "pss_bytes": 5543936,
+        "role": "destination",
+        "rss_bytes": 6737920,
+        "thread_count": 2,
+        "timestamp_ns": 270277020582
+      },
+      {
+        "cpu_ns": 30000000,
+        "cycle": 0,
+        "fd_count": 6,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "cooldown",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4952064,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 30000000,
+            "fd_count": 6,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 13,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4952064,
+            "pss_bytes": 5543936,
+            "rss_bytes": 6717440,
+            "start_ticks": 26522,
+            "state": "S",
+            "thread_ids": [
+              13
+            ],
+            "timestamp_ns": 270277552104
+          }
+        ],
+        "pss_bytes": 5543936,
+        "role": "source",
+        "rss_bytes": 6717440,
+        "thread_count": 1,
+        "timestamp_ns": 270277552104
+      },
+      {
+        "cpu_ns": 30000000,
+        "cycle": 0,
+        "fd_count": 8,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "cooldown",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4931584,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 30000000,
+            "fd_count": 8,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 11,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4931584,
+            "pss_bytes": 5543936,
+            "rss_bytes": 6737920,
+            "start_ticks": 26521,
+            "state": "S",
+            "thread_ids": [
+              11,
+              12
+            ],
+            "timestamp_ns": 270779282564
+          }
+        ],
+        "pss_bytes": 5543936,
+        "role": "destination",
+        "rss_bytes": 6737920,
+        "thread_count": 2,
+        "timestamp_ns": 270779282564
+      },
+      {
+        "cpu_ns": 30000000,
+        "cycle": 0,
+        "fd_count": 6,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "cooldown",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4952064,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 30000000,
+            "fd_count": 6,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 13,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4952064,
+            "pss_bytes": 5543936,
+            "rss_bytes": 6717440,
+            "start_ticks": 26522,
+            "state": "S",
+            "thread_ids": [
+              13
+            ],
+            "timestamp_ns": 270779823786
+          }
+        ],
+        "pss_bytes": 5543936,
+        "role": "source",
+        "rss_bytes": 6717440,
+        "thread_count": 1,
+        "timestamp_ns": 270779823786
+      },
+      {
+        "cpu_ns": 30000000,
+        "cycle": 0,
+        "fd_count": 8,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "cooldown",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4931584,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 30000000,
+            "fd_count": 8,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 11,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4931584,
+            "pss_bytes": 5543936,
+            "rss_bytes": 6737920,
+            "start_ticks": 26521,
+            "state": "S",
+            "thread_ids": [
+              11,
+              12
+            ],
+            "timestamp_ns": 271273181496
+          }
+        ],
+        "pss_bytes": 5543936,
+        "role": "destination",
+        "rss_bytes": 6737920,
+        "thread_count": 2,
+        "timestamp_ns": 271273181496
+      },
+      {
+        "cpu_ns": 30000000,
+        "cycle": 0,
+        "fd_count": 6,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "cooldown",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4952064,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 30000000,
+            "fd_count": 6,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 13,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4952064,
+            "pss_bytes": 5543936,
+            "rss_bytes": 6717440,
+            "start_ticks": 26522,
+            "state": "S",
+            "thread_ids": [
+              13
+            ],
+            "timestamp_ns": 271273685517
+          }
+        ],
+        "pss_bytes": 5543936,
+        "role": "source",
+        "rss_bytes": 6717440,
+        "thread_count": 1,
+        "timestamp_ns": 271273685517
+      }
+    ],
+    "sessions": 1,
+    "start_rate": 100,
+    "stream_residency": "both endpoint stream handles and authorized request payload retained before common release",
+    "streams": 2,
+    "timing_scope": "materialized-stream workload includes explicit hold in request/processing times; not comparable with registry-only timing"
+  },
+  {
+    "active_count": 16,
+    "channels": 8,
+    "cleanup": {
+      "all_zero": true,
+      "counters": {
+        "application_streams_current_live": 0,
+        "audit_queue_current_entries": 0,
+        "nbsr_tasks_current_live": 0,
+        "quic_connections_current_live": 0,
+        "quic_streams_current_live": 0,
+        "replay_state_current_entries": 0,
+        "service_channels_current_live": 0,
+        "transport_sessions_current_live": 0
+      },
+      "destination_exited": true,
+      "source_all_zero": true,
+      "source_counters": [
+        {
+          "application_streams_current_live": 0,
+          "audit_queue_current_entries": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "replay_state_current_entries": 0,
+          "service_channels_current_live": 0,
+          "transport_sessions_current_live": 0
+        }
+      ],
+      "source_processes_exited": true
+    },
+    "client_results": [
+      {
+        "application_streams_completed": 0,
+        "application_streams_created": 16,
+        "application_streams_current_live": 16,
+        "application_streams_failed_or_cancelled": 0,
+        "application_streams_high_water_live": 16,
+        "audit_queue_current_entries": 0,
+        "audit_queue_high_water_entries": 5,
+        "audit_queue_high_water_retained_capacity": 1024,
+        "audit_queue_inserts": 56,
+        "audit_queue_removals": 56,
+        "audit_queue_retained_capacity": 1024,
+        "channel_registry_current_entries": 8,
+        "channel_registry_high_water_entries": 8,
+        "channel_registry_high_water_retained_capacity": 17,
+        "channel_registry_inserts": 8,
+        "channel_registry_removals": 0,
+        "channel_registry_retained_capacity": 17,
+        "event": "diagnostic",
+        "nbsr_tasks_completed": 0,
+        "nbsr_tasks_created": 0,
+        "nbsr_tasks_current_live": 0,
+        "nbsr_tasks_failed_or_cancelled": 0,
+        "nbsr_tasks_high_water_live": 0,
+        "pending_routes_current_entries": 0,
+        "pending_routes_high_water_entries": 1,
+        "pending_routes_high_water_retained_capacity": 3,
+        "pending_routes_inserts": 8,
+        "pending_routes_removals": 8,
+        "pending_routes_retained_capacity": 3,
+        "phase": "b3_materialized_streams_ready",
+        "quic_connections_completed": 0,
+        "quic_connections_created": 1,
+        "quic_connections_current_live": 1,
+        "quic_connections_failed_or_cancelled": 0,
+        "quic_connections_high_water_live": 1,
+        "quic_streams_completed": 0,
+        "quic_streams_created": 16,
+        "quic_streams_current_live": 16,
+        "quic_streams_failed_or_cancelled": 0,
+        "quic_streams_high_water_live": 16,
+        "replay_state_current_entries": 16,
+        "replay_state_high_water_entries": 16,
+        "replay_state_high_water_retained_capacity": 28,
+        "replay_state_inserts": 16,
+        "replay_state_removals": 0,
+        "replay_state_retained_capacity": 28,
+        "schema": "nbsr-rust-ownership-v1",
+        "service_channels_completed": 0,
+        "service_channels_created": 8,
+        "service_channels_current_live": 8,
+        "service_channels_failed_or_cancelled": 0,
+        "service_channels_high_water_live": 8,
+        "stream_registry_current_entries": 16,
+        "stream_registry_high_water_entries": 16,
+        "stream_registry_high_water_retained_capacity": 38,
+        "stream_registry_inserts": 16,
+        "stream_registry_removals": 0,
+        "stream_registry_retained_capacity": 38,
+        "timestamp_ns": 0,
+        "transport_sessions_completed": 0,
+        "transport_sessions_created": 1,
+        "transport_sessions_current_live": 1,
+        "transport_sessions_failed_or_cancelled": 0,
+        "transport_sessions_high_water_live": 1
+      },
+      {
+        "application_processing_ns": null,
+        "bytes_received": 1024,
+        "bytes_transmitted": 1024,
+        "channel_binding_ns": 6500,
+        "destination_admission_ns": null,
+        "hello_rtt_ns": 813500,
+        "logical_client_id": 0,
+        "request_latency_ns": 2017560461,
+        "route_open_rtt_ns": 409400,
+        "sample_id": 0,
+        "source_admission_ns": 201200,
+        "stream_open_rtt_ns": 96800,
+        "success": true,
+        "total_scenario_ns": 2021746061,
+        "transport_handshake_ns": 2426700,
+        "ttfab_ns": 2021746061
+      },
+      {
+        "application_processing_ns": null,
+        "bytes_received": 1024,
+        "bytes_transmitted": 1024,
+        "channel_binding_ns": null,
+        "destination_admission_ns": null,
+        "hello_rtt_ns": null,
+        "logical_client_id": 0,
+        "request_latency_ns": 2016933061,
+        "route_open_rtt_ns": null,
+        "sample_id": 1,
+        "source_admission_ns": null,
+        "stream_open_rtt_ns": 100300,
+        "success": true,
+        "total_scenario_ns": 2018428761,
+        "transport_handshake_ns": null,
+        "ttfab_ns": 2018428761
+      },
+      {
+        "application_processing_ns": null,
+        "bytes_received": 1024,
+        "bytes_transmitted": 1024,
+        "channel_binding_ns": 5700,
+        "destination_admission_ns": null,
+        "hello_rtt_ns": null,
+        "logical_client_id": 0,
+        "request_latency_ns": 2016740661,
+        "route_open_rtt_ns": 323700,
+        "sample_id": 2,
+        "source_admission_ns": 184700,
+        "stream_open_rtt_ns": 87600,
+        "success": true,
+        "total_scenario_ns": 2017514361,
+        "transport_handshake_ns": null,
+        "ttfab_ns": 2017514361
+      },
+      {
+        "application_processing_ns": null,
+        "bytes_received": 1024,
+        "bytes_transmitted": 1024,
+        "channel_binding_ns": null,
+        "destination_admission_ns": null,
+        "hello_rtt_ns": null,
+        "logical_client_id": 0,
+        "request_latency_ns": 2016408461,
+        "route_open_rtt_ns": null,
+        "sample_id": 3,
+        "source_admission_ns": null,
+        "stream_open_rtt_ns": 106000,
+        "success": true,
+        "total_scenario_ns": 2017515761,
+        "transport_handshake_ns": null,
+        "ttfab_ns": 2017515761
+      },
+      {
+        "application_processing_ns": null,
+        "bytes_received": 1024,
+        "bytes_transmitted": 1024,
+        "channel_binding_ns": 5700,
+        "destination_admission_ns": null,
+        "hello_rtt_ns": null,
+        "logical_client_id": 0,
+        "request_latency_ns": 2015608961,
+        "route_open_rtt_ns": 318500,
+        "sample_id": 4,
+        "source_admission_ns": 184400,
+        "stream_open_rtt_ns": 105300,
+        "success": true,
+        "total_scenario_ns": 2016681961,
+        "transport_handshake_ns": null,
+        "ttfab_ns": 2016681961
+      },
+      {
+        "application_processing_ns": null,
+        "bytes_received": 1024,
+        "bytes_transmitted": 1024,
+        "channel_binding_ns": null,
+        "destination_admission_ns": null,
+        "hello_rtt_ns": null,
+        "logical_client_id": 0,
+        "request_latency_ns": 2015541561,
+        "route_open_rtt_ns": null,
+        "sample_id": 5,
+        "source_admission_ns": null,
+        "stream_open_rtt_ns": 113500,
+        "success": true,
+        "total_scenario_ns": 2016686561,
+        "transport_handshake_ns": null,
+        "ttfab_ns": 2016686561
+      },
+      {
+        "application_processing_ns": null,
+        "bytes_received": 1024,
+        "bytes_transmitted": 1024,
+        "channel_binding_ns": 6000,
+        "destination_admission_ns": null,
+        "hello_rtt_ns": null,
+        "logical_client_id": 0,
+        "request_latency_ns": 2014980861,
+        "route_open_rtt_ns": 400000,
+        "sample_id": 6,
+        "source_admission_ns": 238500,
+        "stream_open_rtt_ns": 93100,
+        "success": true,
+        "total_scenario_ns": 2015870961,
+        "transport_handshake_ns": null,
+        "ttfab_ns": 2015870961
+      },
+      {
+        "application_processing_ns": null,
+        "bytes_received": 1024,
+        "bytes_transmitted": 1024,
+        "channel_binding_ns": null,
+        "destination_admission_ns": null,
+        "hello_rtt_ns": null,
+        "logical_client_id": 0,
+        "request_latency_ns": 2014334862,
+        "route_open_rtt_ns": null,
+        "sample_id": 7,
+        "source_admission_ns": null,
+        "stream_open_rtt_ns": 103900,
+        "success": true,
+        "total_scenario_ns": 2015872061,
+        "transport_handshake_ns": null,
+        "ttfab_ns": 2015872061
+      },
+      {
+        "application_processing_ns": null,
+        "bytes_received": 1024,
+        "bytes_transmitted": 1024,
+        "channel_binding_ns": 5700,
+        "destination_admission_ns": null,
+        "hello_rtt_ns": null,
+        "logical_client_id": 0,
+        "request_latency_ns": 2014116462,
+        "route_open_rtt_ns": 389500,
+        "sample_id": 8,
+        "source_admission_ns": 184799,
+        "stream_open_rtt_ns": 82300,
+        "success": true,
+        "total_scenario_ns": 2014934961,
+        "transport_handshake_ns": null,
+        "ttfab_ns": 2014934961
+      },
+      {
+        "application_processing_ns": null,
+        "bytes_received": 1024,
+        "bytes_transmitted": 1024,
+        "channel_binding_ns": null,
+        "destination_admission_ns": null,
+        "hello_rtt_ns": null,
+        "logical_client_id": 0,
+        "request_latency_ns": 2013688062,
+        "route_open_rtt_ns": null,
+        "sample_id": 9,
+        "source_admission_ns": null,
+        "stream_open_rtt_ns": 113400,
+        "success": true,
+        "total_scenario_ns": 2014935961,
+        "transport_handshake_ns": null,
+        "ttfab_ns": 2014935961
+      },
+      {
+        "application_processing_ns": null,
+        "bytes_received": 1024,
+        "bytes_transmitted": 1024,
+        "channel_binding_ns": 5900,
+        "destination_admission_ns": null,
+        "hello_rtt_ns": null,
+        "logical_client_id": 0,
+        "request_latency_ns": 2012839862,
+        "route_open_rtt_ns": 328800,
+        "sample_id": 10,
+        "source_admission_ns": 184600,
+        "stream_open_rtt_ns": 101000,
+        "success": true,
+        "total_scenario_ns": 2013983862,
+        "transport_handshake_ns": null,
+        "ttfab_ns": 2013983862
+      },
+      {
+        "application_processing_ns": null,
+        "bytes_received": 1024,
+        "bytes_transmitted": 1024,
+        "channel_binding_ns": null,
+        "destination_admission_ns": null,
+        "hello_rtt_ns": null,
+        "logical_client_id": 0,
+        "request_latency_ns": 2012517162,
+        "route_open_rtt_ns": null,
+        "sample_id": 11,
+        "source_admission_ns": null,
+        "stream_open_rtt_ns": 98000,
+        "success": true,
+        "total_scenario_ns": 2013984962,
+        "transport_handshake_ns": null,
+        "ttfab_ns": 2013984962
+      },
+      {
+        "application_processing_ns": null,
+        "bytes_received": 1024,
+        "bytes_transmitted": 1024,
+        "channel_binding_ns": 5800,
+        "destination_admission_ns": null,
+        "hello_rtt_ns": null,
+        "logical_client_id": 0,
+        "request_latency_ns": 2012036562,
+        "route_open_rtt_ns": 333800,
+        "sample_id": 12,
+        "source_admission_ns": 184100,
+        "stream_open_rtt_ns": 87900,
+        "success": true,
+        "total_scenario_ns": 2013126262,
+        "transport_handshake_ns": null,
+        "ttfab_ns": 2013126262
+      },
+      {
+        "application_processing_ns": null,
+        "bytes_received": 1024,
+        "bytes_transmitted": 1024,
+        "channel_binding_ns": null,
+        "destination_admission_ns": null,
+        "hello_rtt_ns": null,
+        "logical_client_id": 0,
+        "request_latency_ns": 2011686162,
+        "route_open_rtt_ns": null,
+        "sample_id": 13,
+        "source_admission_ns": null,
+        "stream_open_rtt_ns": 101200,
+        "success": true,
+        "total_scenario_ns": 2013127362,
+        "transport_handshake_ns": null,
+        "ttfab_ns": 2013127362
+      },
+      {
+        "application_processing_ns": null,
+        "bytes_received": 1024,
+        "bytes_transmitted": 1024,
+        "channel_binding_ns": 5900,
+        "destination_admission_ns": null,
+        "hello_rtt_ns": null,
+        "logical_client_id": 0,
+        "request_latency_ns": 2011142462,
+        "route_open_rtt_ns": 345400,
+        "sample_id": 14,
+        "source_admission_ns": 184900,
+        "stream_open_rtt_ns": 134500,
+        "success": true,
+        "total_scenario_ns": 2012290262,
+        "transport_handshake_ns": null,
+        "ttfab_ns": 2012290262
+      },
+      {
+        "application_processing_ns": null,
+        "bytes_received": 1024,
+        "bytes_transmitted": 1024,
+        "channel_binding_ns": null,
+        "destination_admission_ns": null,
+        "hello_rtt_ns": null,
+        "logical_client_id": 0,
+        "request_latency_ns": 2010929062,
+        "route_open_rtt_ns": null,
+        "sample_id": 15,
+        "source_admission_ns": null,
+        "stream_open_rtt_ns": 476700,
+        "success": true,
+        "total_scenario_ns": 2012292162,
+        "transport_handshake_ns": null,
+        "ttfab_ns": 2012292162
+      },
+      {
+        "application_streams_completed": 16,
+        "application_streams_created": 16,
+        "application_streams_current_live": 0,
+        "application_streams_failed_or_cancelled": 0,
+        "application_streams_high_water_live": 16,
+        "audit_queue_current_entries": 0,
+        "audit_queue_high_water_entries": 5,
+        "audit_queue_high_water_retained_capacity": 1024,
+        "audit_queue_inserts": 56,
+        "audit_queue_removals": 56,
+        "audit_queue_retained_capacity": 0,
+        "channel_registry_current_entries": 0,
+        "channel_registry_high_water_entries": 8,
+        "channel_registry_high_water_retained_capacity": 17,
+        "channel_registry_inserts": 8,
+        "channel_registry_removals": 8,
+        "channel_registry_retained_capacity": 0,
+        "event": "diagnostic",
+        "nbsr_tasks_completed": 0,
+        "nbsr_tasks_created": 0,
+        "nbsr_tasks_current_live": 0,
+        "nbsr_tasks_failed_or_cancelled": 0,
+        "nbsr_tasks_high_water_live": 0,
+        "pending_routes_current_entries": 0,
+        "pending_routes_high_water_entries": 1,
+        "pending_routes_high_water_retained_capacity": 3,
+        "pending_routes_inserts": 8,
+        "pending_routes_removals": 8,
+        "pending_routes_retained_capacity": 0,
+        "phase": "lifecycle_cycle_0_closed",
+        "quic_connections_completed": 1,
+        "quic_connections_created": 1,
+        "quic_connections_current_live": 0,
+        "quic_connections_failed_or_cancelled": 0,
+        "quic_connections_high_water_live": 1,
+        "quic_streams_completed": 16,
+        "quic_streams_created": 16,
+        "quic_streams_current_live": 0,
+        "quic_streams_failed_or_cancelled": 0,
+        "quic_streams_high_water_live": 16,
+        "replay_state_current_entries": 0,
+        "replay_state_high_water_entries": 16,
+        "replay_state_high_water_retained_capacity": 28,
+        "replay_state_inserts": 16,
+        "replay_state_removals": 16,
+        "replay_state_retained_capacity": 0,
+        "schema": "nbsr-rust-ownership-v1",
+        "service_channels_completed": 8,
+        "service_channels_created": 8,
+        "service_channels_current_live": 0,
+        "service_channels_failed_or_cancelled": 0,
+        "service_channels_high_water_live": 8,
+        "stream_registry_current_entries": 0,
+        "stream_registry_high_water_entries": 16,
+        "stream_registry_high_water_retained_capacity": 38,
+        "stream_registry_inserts": 16,
+        "stream_registry_removals": 16,
+        "stream_registry_retained_capacity": 0,
+        "timestamp_ns": 0,
+        "transport_sessions_completed": 1,
+        "transport_sessions_created": 1,
+        "transport_sessions_current_live": 0,
+        "transport_sessions_failed_or_cancelled": 0,
+        "transport_sessions_high_water_live": 1
+      },
+      {
+        "application_streams_completed": 16,
+        "application_streams_created": 16,
+        "application_streams_current_live": 0,
+        "application_streams_failed_or_cancelled": 0,
+        "application_streams_high_water_live": 16,
+        "audit_queue_current_entries": 0,
+        "audit_queue_high_water_entries": 5,
+        "audit_queue_high_water_retained_capacity": 1024,
+        "audit_queue_inserts": 56,
+        "audit_queue_removals": 56,
+        "audit_queue_retained_capacity": 0,
+        "channel_registry_current_entries": 0,
+        "channel_registry_high_water_entries": 8,
+        "channel_registry_high_water_retained_capacity": 17,
+        "channel_registry_inserts": 8,
+        "channel_registry_removals": 8,
+        "channel_registry_retained_capacity": 0,
+        "event": "diagnostic",
+        "nbsr_tasks_completed": 0,
+        "nbsr_tasks_created": 0,
+        "nbsr_tasks_current_live": 0,
+        "nbsr_tasks_failed_or_cancelled": 0,
+        "nbsr_tasks_high_water_live": 0,
+        "pending_routes_current_entries": 0,
+        "pending_routes_high_water_entries": 1,
+        "pending_routes_high_water_retained_capacity": 3,
+        "pending_routes_inserts": 8,
+        "pending_routes_removals": 8,
+        "pending_routes_retained_capacity": 0,
+        "phase": "lifecycle_cleanup",
+        "quic_connections_completed": 1,
+        "quic_connections_created": 1,
+        "quic_connections_current_live": 0,
+        "quic_connections_failed_or_cancelled": 0,
+        "quic_connections_high_water_live": 1,
+        "quic_streams_completed": 16,
+        "quic_streams_created": 16,
+        "quic_streams_current_live": 0,
+        "quic_streams_failed_or_cancelled": 0,
+        "quic_streams_high_water_live": 16,
+        "replay_state_current_entries": 0,
+        "replay_state_high_water_entries": 16,
+        "replay_state_high_water_retained_capacity": 28,
+        "replay_state_inserts": 16,
+        "replay_state_removals": 16,
+        "replay_state_retained_capacity": 0,
+        "schema": "nbsr-rust-ownership-v1",
+        "service_channels_completed": 8,
+        "service_channels_created": 8,
+        "service_channels_current_live": 0,
+        "service_channels_failed_or_cancelled": 0,
+        "service_channels_high_water_live": 8,
+        "stream_registry_current_entries": 0,
+        "stream_registry_high_water_entries": 16,
+        "stream_registry_high_water_retained_capacity": 38,
+        "stream_registry_inserts": 16,
+        "stream_registry_removals": 16,
+        "stream_registry_retained_capacity": 0,
+        "timestamp_ns": 0,
+        "transport_sessions_completed": 1,
+        "transport_sessions_created": 1,
+        "transport_sessions_current_live": 0,
+        "transport_sessions_failed_or_cancelled": 0,
+        "transport_sessions_high_water_live": 1
+      }
+    ],
+    "commands": {
+      "clients": [
+        [
+          "/usr/bin/taskset",
+          "-c",
+          "0",
+          "/opt/nbsr/bin/perf_rust_source",
+          "--authority-dir",
+          "<temporary>/authority",
+          "--endpoint",
+          "127.0.0.1:59206",
+          "--samples",
+          "1",
+          "--payload-bytes",
+          "1024",
+          "--lifecycle-authority-dir",
+          "<temporary>/lifecycle",
+          "--connections",
+          "1",
+          "--services",
+          "8",
+          "--streams-per-service",
+          "2",
+          "--concurrent-streams",
+          "--hold-for-release",
+          "--connection-offset",
+          "0",
+          "--diagnostics",
+          "1",
+          "--b3-materialized-streams",
+          "1",
+          "--lifecycle-final-release",
+          "<temporary>/lifecycle/source.final-release"
+        ]
+      ],
+      "server": [
+        "/usr/bin/taskset",
+        "-c",
+        "0",
+        "/opt/nbsr/bin/wp8_interop_server",
+        "--ready",
+        "<temporary>/ready.json",
+        "--result",
+        "/evidence/streams-16/raw/rust-rust/streams-16-r2/server-result.json",
+        "--authority-dir",
+        "<temporary>/authority",
+        "--completion-ack",
+        "<temporary>/completion.ack",
+        "--destination-diagnostics-file",
+        "/evidence/streams-16/raw/rust-rust/streams-16-r2/destination-diagnostics.ndjson",
+        "--diagnostic-drain-seconds",
+        "2",
+        "--b3-report-gate",
+        "<temporary>/lifecycle",
+        "--b3-materialized-streams",
+        "1"
+      ]
+    },
+    "cycles": 1,
+    "kind": "streams",
+    "materialized_streams": true,
+    "name": "streams-16-r2",
+    "resource_scope": "application streams across eight fixed channels; one connection/session",
+    "samples": [
+      {
+        "cpu_ns": 0,
+        "cycle": 0,
+        "fd_count": 8,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "idle",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 3649536,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 0,
+            "fd_count": 8,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 14,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 3649536,
+            "pss_bytes": 4493312,
+            "rss_bytes": 5398528,
+            "start_ticks": 27340,
+            "state": "S",
+            "thread_ids": [
+              14,
+              15
+            ],
+            "timestamp_ns": 273418506543
+          }
+        ],
+        "pss_bytes": 4493312,
+        "role": "destination",
+        "rss_bytes": 5398528,
+        "thread_count": 2,
+        "timestamp_ns": 273418506543
+      },
+      {
+        "cpu_ns": 0,
+        "cycle": 0,
+        "fd_count": 6,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "idle",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 1392640,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 0,
+            "fd_count": 6,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 16,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 1392640,
+            "pss_bytes": 2025472,
+            "rss_bytes": 3244032,
+            "start_ticks": 27341,
+            "state": "R",
+            "thread_ids": [
+              16
+            ],
+            "timestamp_ns": 273419319743
+          }
+        ],
+        "pss_bytes": 2025472,
+        "role": "source",
+        "rss_bytes": 3244032,
+        "thread_count": 1,
+        "timestamp_ns": 273419319743
+      },
+      {
+        "cpu_ns": 0,
+        "cycle": 0,
+        "fd_count": 8,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "idle",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 3555328,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 0,
+            "fd_count": 8,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 14,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 3555328,
+            "pss_bytes": 4184064,
+            "rss_bytes": 5398528,
+            "start_ticks": 27340,
+            "state": "S",
+            "thread_ids": [
+              14,
+              15
+            ],
+            "timestamp_ns": 273920843883
+          }
+        ],
+        "pss_bytes": 4184064,
+        "role": "destination",
+        "rss_bytes": 5398528,
+        "thread_count": 2,
+        "timestamp_ns": 273920843883
+      },
+      {
+        "cpu_ns": 0,
+        "cycle": 0,
+        "fd_count": 6,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "idle",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 2117632,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 0,
+            "fd_count": 6,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 16,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 2117632,
+            "pss_bytes": 2750464,
+            "rss_bytes": 3969024,
+            "start_ticks": 27341,
+            "state": "S",
+            "thread_ids": [
+              16
+            ],
+            "timestamp_ns": 273921931083
+          }
+        ],
+        "pss_bytes": 2750464,
+        "role": "source",
+        "rss_bytes": 3969024,
+        "thread_count": 1,
+        "timestamp_ns": 273921931083
+      },
+      {
+        "cpu_ns": 0,
+        "cycle": 0,
+        "fd_count": 8,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "idle",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 3555328,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 0,
+            "fd_count": 8,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 14,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 3555328,
+            "pss_bytes": 4184064,
+            "rss_bytes": 5398528,
+            "start_ticks": 27340,
+            "state": "S",
+            "thread_ids": [
+              14,
+              15
+            ],
+            "timestamp_ns": 274423301224
+          }
+        ],
+        "pss_bytes": 4184064,
+        "role": "destination",
+        "rss_bytes": 5398528,
+        "thread_count": 2,
+        "timestamp_ns": 274423301224
+      },
+      {
+        "cpu_ns": 0,
+        "cycle": 0,
+        "fd_count": 6,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "idle",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 2117632,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 0,
+            "fd_count": 6,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 16,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 2117632,
+            "pss_bytes": 2750464,
+            "rss_bytes": 3969024,
+            "start_ticks": 27341,
+            "state": "S",
+            "thread_ids": [
+              16
+            ],
+            "timestamp_ns": 274423834524
+          }
+        ],
+        "pss_bytes": 2750464,
+        "role": "source",
+        "rss_bytes": 3969024,
+        "thread_count": 1,
+        "timestamp_ns": 274423834524
+      },
+      {
+        "cpu_ns": 0,
+        "cycle": 0,
+        "fd_count": 8,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "idle",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 3555328,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 0,
+            "fd_count": 8,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 14,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 3555328,
+            "pss_bytes": 4184064,
+            "rss_bytes": 5398528,
+            "start_ticks": 27340,
+            "state": "S",
+            "thread_ids": [
+              14,
+              15
+            ],
+            "timestamp_ns": 274925253965
+          }
+        ],
+        "pss_bytes": 4184064,
+        "role": "destination",
+        "rss_bytes": 5398528,
+        "thread_count": 2,
+        "timestamp_ns": 274925253965
+      },
+      {
+        "cpu_ns": 0,
+        "cycle": 0,
+        "fd_count": 6,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "idle",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 2117632,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 0,
+            "fd_count": 6,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 16,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 2117632,
+            "pss_bytes": 2750464,
+            "rss_bytes": 3969024,
+            "start_ticks": 27341,
+            "state": "S",
+            "thread_ids": [
+              16
+            ],
+            "timestamp_ns": 274925751965
+          }
+        ],
+        "pss_bytes": 2750464,
+        "role": "source",
+        "rss_bytes": 3969024,
+        "thread_count": 1,
+        "timestamp_ns": 274925751965
+      },
+      {
+        "cpu_ns": 0,
+        "cycle": 0,
+        "fd_count": 8,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "idle",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 3559424,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 0,
+            "fd_count": 8,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 14,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 3559424,
+            "pss_bytes": 4188160,
+            "rss_bytes": 5402624,
+            "start_ticks": 27340,
+            "state": "S",
+            "thread_ids": [
+              14,
+              15
+            ],
+            "timestamp_ns": 275418882306
+          }
+        ],
+        "pss_bytes": 4188160,
+        "role": "destination",
+        "rss_bytes": 5402624,
+        "thread_count": 2,
+        "timestamp_ns": 275418882306
+      },
+      {
+        "cpu_ns": 10000000,
+        "cycle": 0,
+        "fd_count": 6,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "idle",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 2117632,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 10000000,
+            "fd_count": 6,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 16,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 2117632,
+            "pss_bytes": 2750464,
+            "rss_bytes": 3969024,
+            "start_ticks": 27341,
+            "state": "S",
+            "thread_ids": [
+              16
+            ],
+            "timestamp_ns": 275419382106
+          }
+        ],
+        "pss_bytes": 2750464,
+        "role": "source",
+        "rss_bytes": 3969024,
+        "thread_count": 1,
+        "timestamp_ns": 275419382106
+      },
+      {
+        "cpu_ns": 0,
+        "cycle": 0,
+        "fd_count": 8,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "active",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4882432,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 0,
+            "fd_count": 8,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 14,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4882432,
+            "pss_bytes": 5511168,
+            "rss_bytes": 6725632,
+            "start_ticks": 27340,
+            "state": "S",
+            "thread_ids": [
+              14,
+              15
+            ],
+            "timestamp_ns": 275441662003
+          }
+        ],
+        "pss_bytes": 5511168,
+        "role": "destination",
+        "rss_bytes": 6725632,
+        "thread_count": 2,
+        "timestamp_ns": 275441662003
+      },
+      {
+        "cpu_ns": 10000000,
+        "cycle": 0,
+        "fd_count": 7,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "active",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4874240,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 10000000,
+            "fd_count": 7,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 16,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4874240,
+            "pss_bytes": 5507072,
+            "rss_bytes": 6725632,
+            "start_ticks": 27341,
+            "state": "S",
+            "thread_ids": [
+              16
+            ],
+            "timestamp_ns": 275442228303
+          }
+        ],
+        "pss_bytes": 5507072,
+        "role": "source",
+        "rss_bytes": 6725632,
+        "thread_count": 1,
+        "timestamp_ns": 275442228303
+      },
+      {
+        "cpu_ns": 10000000,
+        "cycle": 0,
+        "fd_count": 8,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "active",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4882432,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 10000000,
+            "fd_count": 8,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 14,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4882432,
+            "pss_bytes": 5511168,
+            "rss_bytes": 6725632,
+            "start_ticks": 27340,
+            "state": "S",
+            "thread_ids": [
+              14,
+              15
+            ],
+            "timestamp_ns": 275943339844
+          }
+        ],
+        "pss_bytes": 5511168,
+        "role": "destination",
+        "rss_bytes": 6725632,
+        "thread_count": 2,
+        "timestamp_ns": 275943339844
+      },
+      {
+        "cpu_ns": 20000000,
+        "cycle": 0,
+        "fd_count": 7,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "active",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4874240,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 20000000,
+            "fd_count": 7,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 16,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4874240,
+            "pss_bytes": 5507072,
+            "rss_bytes": 6725632,
+            "start_ticks": 27341,
+            "state": "S",
+            "thread_ids": [
+              16
+            ],
+            "timestamp_ns": 275943868044
+          }
+        ],
+        "pss_bytes": 5507072,
+        "role": "source",
+        "rss_bytes": 6725632,
+        "thread_count": 1,
+        "timestamp_ns": 275943868044
+      },
+      {
+        "cpu_ns": 10000000,
+        "cycle": 0,
+        "fd_count": 8,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "active",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4882432,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 10000000,
+            "fd_count": 8,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 14,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4882432,
+            "pss_bytes": 5511168,
+            "rss_bytes": 6725632,
+            "start_ticks": 27340,
+            "state": "S",
+            "thread_ids": [
+              14,
+              15
+            ],
+            "timestamp_ns": 276445361985
+          }
+        ],
+        "pss_bytes": 5511168,
+        "role": "destination",
+        "rss_bytes": 6725632,
+        "thread_count": 2,
+        "timestamp_ns": 276445361985
+      },
+      {
+        "cpu_ns": 20000000,
+        "cycle": 0,
+        "fd_count": 7,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "active",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4874240,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 20000000,
+            "fd_count": 7,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 16,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4874240,
+            "pss_bytes": 5507072,
+            "rss_bytes": 6725632,
+            "start_ticks": 27341,
+            "state": "S",
+            "thread_ids": [
+              16
+            ],
+            "timestamp_ns": 276445889785
+          }
+        ],
+        "pss_bytes": 5507072,
+        "role": "source",
+        "rss_bytes": 6725632,
+        "thread_count": 1,
+        "timestamp_ns": 276445889785
+      },
+      {
+        "cpu_ns": 10000000,
+        "cycle": 0,
+        "fd_count": 8,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "active",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4882432,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 10000000,
+            "fd_count": 8,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 14,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4882432,
+            "pss_bytes": 5511168,
+            "rss_bytes": 6725632,
+            "start_ticks": 27340,
+            "state": "S",
+            "thread_ids": [
+              14,
+              15
+            ],
+            "timestamp_ns": 276947451025
+          }
+        ],
+        "pss_bytes": 5511168,
+        "role": "destination",
+        "rss_bytes": 6725632,
+        "thread_count": 2,
+        "timestamp_ns": 276947451025
+      },
+      {
+        "cpu_ns": 20000000,
+        "cycle": 0,
+        "fd_count": 7,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "active",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4874240,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 20000000,
+            "fd_count": 7,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 16,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4874240,
+            "pss_bytes": 5507072,
+            "rss_bytes": 6725632,
+            "start_ticks": 27341,
+            "state": "S",
+            "thread_ids": [
+              16
+            ],
+            "timestamp_ns": 276947961925
+          }
+        ],
+        "pss_bytes": 5507072,
+        "role": "source",
+        "rss_bytes": 6725632,
+        "thread_count": 1,
+        "timestamp_ns": 276947961925
+      },
+      {
+        "cpu_ns": 10000000,
+        "cycle": 0,
+        "fd_count": 8,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "active",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4886528,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 10000000,
+            "fd_count": 8,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 14,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4886528,
+            "pss_bytes": 5515264,
+            "rss_bytes": 6729728,
+            "start_ticks": 27340,
+            "state": "S",
+            "thread_ids": [
+              14,
+              15
+            ],
+            "timestamp_ns": 277442219067
+          }
+        ],
+        "pss_bytes": 5515264,
+        "role": "destination",
+        "rss_bytes": 6729728,
+        "thread_count": 2,
+        "timestamp_ns": 277442219067
+      },
+      {
+        "cpu_ns": 20000000,
+        "cycle": 0,
+        "fd_count": 7,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "active",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4874240,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 20000000,
+            "fd_count": 7,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 16,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4874240,
+            "pss_bytes": 5507072,
+            "rss_bytes": 6725632,
+            "start_ticks": 27341,
+            "state": "S",
+            "thread_ids": [
+              16
+            ],
+            "timestamp_ns": 277442731067
+          }
+        ],
+        "pss_bytes": 5507072,
+        "role": "source",
+        "rss_bytes": 6725632,
+        "thread_count": 1,
+        "timestamp_ns": 277442731067
+      },
+      {
+        "cpu_ns": 10000000,
+        "cycle": 0,
+        "fd_count": 8,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "cooldown",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4907008,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 10000000,
+            "fd_count": 8,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 14,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4907008,
+            "pss_bytes": 5535744,
+            "rss_bytes": 6750208,
+            "start_ticks": 27340,
+            "state": "S",
+            "thread_ids": [
+              14,
+              15
+            ],
+            "timestamp_ns": 277453873865
+          }
+        ],
+        "pss_bytes": 5535744,
+        "role": "destination",
+        "rss_bytes": 6750208,
+        "thread_count": 2,
+        "timestamp_ns": 277453873865
+      },
+      {
+        "cpu_ns": 20000000,
+        "cycle": 0,
+        "fd_count": 7,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "cooldown",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4898816,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 20000000,
+            "fd_count": 7,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 16,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4898816,
+            "pss_bytes": 5531648,
+            "rss_bytes": 6750208,
+            "start_ticks": 27341,
+            "state": "S",
+            "thread_ids": [
+              16
+            ],
+            "timestamp_ns": 277454409665
+          }
+        ],
+        "pss_bytes": 5531648,
+        "role": "source",
+        "rss_bytes": 6750208,
+        "thread_count": 1,
+        "timestamp_ns": 277454409665
+      },
+      {
+        "cpu_ns": 10000000,
+        "cycle": 0,
+        "fd_count": 8,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "cooldown",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4907008,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 10000000,
+            "fd_count": 8,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 14,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4907008,
+            "pss_bytes": 5535744,
+            "rss_bytes": 6750208,
+            "start_ticks": 27340,
+            "state": "S",
+            "thread_ids": [
+              14,
+              15
+            ],
+            "timestamp_ns": 277955574406
+          }
+        ],
+        "pss_bytes": 5535744,
+        "role": "destination",
+        "rss_bytes": 6750208,
+        "thread_count": 2,
+        "timestamp_ns": 277955574406
+      },
+      {
+        "cpu_ns": 20000000,
+        "cycle": 0,
+        "fd_count": 6,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "cooldown",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4882432,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 20000000,
+            "fd_count": 6,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 16,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4882432,
+            "pss_bytes": 5515264,
+            "rss_bytes": 6733824,
+            "start_ticks": 27341,
+            "state": "S",
+            "thread_ids": [
+              16
+            ],
+            "timestamp_ns": 277956210006
+          }
+        ],
+        "pss_bytes": 5515264,
+        "role": "source",
+        "rss_bytes": 6733824,
+        "thread_count": 1,
+        "timestamp_ns": 277956210006
+      },
+      {
+        "cpu_ns": 10000000,
+        "cycle": 0,
+        "fd_count": 8,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "cooldown",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4911104,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 10000000,
+            "fd_count": 8,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 14,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4911104,
+            "pss_bytes": 5539840,
+            "rss_bytes": 6754304,
+            "start_ticks": 27340,
+            "state": "S",
+            "thread_ids": [
+              14,
+              15
+            ],
+            "timestamp_ns": 278457513414
+          }
+        ],
+        "pss_bytes": 5539840,
+        "role": "destination",
+        "rss_bytes": 6754304,
+        "thread_count": 2,
+        "timestamp_ns": 278457513414
+      },
+      {
+        "cpu_ns": 30000000,
+        "cycle": 0,
+        "fd_count": 6,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "cooldown",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4882432,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 30000000,
+            "fd_count": 6,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 16,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4882432,
+            "pss_bytes": 5515264,
+            "rss_bytes": 6733824,
+            "start_ticks": 27341,
+            "state": "S",
+            "thread_ids": [
+              16
+            ],
+            "timestamp_ns": 278458019536
+          }
+        ],
+        "pss_bytes": 5515264,
+        "role": "source",
+        "rss_bytes": 6733824,
+        "thread_count": 1,
+        "timestamp_ns": 278458019536
+      },
+      {
+        "cpu_ns": 10000000,
+        "cycle": 0,
+        "fd_count": 8,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "cooldown",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4911104,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 10000000,
+            "fd_count": 8,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 14,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4911104,
+            "pss_bytes": 5539840,
+            "rss_bytes": 6754304,
+            "start_ticks": 27340,
+            "state": "S",
+            "thread_ids": [
+              14,
+              15
+            ],
+            "timestamp_ns": 278959097015
+          }
+        ],
+        "pss_bytes": 5539840,
+        "role": "destination",
+        "rss_bytes": 6754304,
+        "thread_count": 2,
+        "timestamp_ns": 278959097015
+      },
+      {
+        "cpu_ns": 30000000,
+        "cycle": 0,
+        "fd_count": 6,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "cooldown",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4882432,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 30000000,
+            "fd_count": 6,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 16,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4882432,
+            "pss_bytes": 5515264,
+            "rss_bytes": 6733824,
+            "start_ticks": 27341,
+            "state": "S",
+            "thread_ids": [
+              16
+            ],
+            "timestamp_ns": 278959617138
+          }
+        ],
+        "pss_bytes": 5515264,
+        "role": "source",
+        "rss_bytes": 6733824,
+        "thread_count": 1,
+        "timestamp_ns": 278959617138
+      },
+      {
+        "cpu_ns": 10000000,
+        "cycle": 0,
+        "fd_count": 8,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "cooldown",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4911104,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 10000000,
+            "fd_count": 8,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 14,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4911104,
+            "pss_bytes": 5539840,
+            "rss_bytes": 6754304,
+            "start_ticks": 27340,
+            "state": "S",
+            "thread_ids": [
+              14,
+              15
+            ],
+            "timestamp_ns": 279454106027
+          }
+        ],
+        "pss_bytes": 5539840,
+        "role": "destination",
+        "rss_bytes": 6754304,
+        "thread_count": 2,
+        "timestamp_ns": 279454106027
+      },
+      {
+        "cpu_ns": 30000000,
+        "cycle": 0,
+        "fd_count": 6,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "cooldown",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4882432,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 30000000,
+            "fd_count": 6,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 16,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4882432,
+            "pss_bytes": 5515264,
+            "rss_bytes": 6733824,
+            "start_ticks": 27341,
+            "state": "S",
+            "thread_ids": [
+              16
+            ],
+            "timestamp_ns": 279454593549
+          }
+        ],
+        "pss_bytes": 5515264,
+        "role": "source",
+        "rss_bytes": 6733824,
+        "thread_count": 1,
+        "timestamp_ns": 279454593549
+      }
+    ],
+    "sessions": 1,
+    "start_rate": 100,
+    "stream_residency": "both endpoint stream handles and authorized request payload retained before common release",
+    "streams": 2,
+    "timing_scope": "materialized-stream workload includes explicit hold in request/processing times; not comparable with registry-only timing"
+  },
+  {
+    "active_count": 16,
+    "channels": 8,
+    "cleanup": {
+      "all_zero": true,
+      "counters": {
+        "application_streams_current_live": 0,
+        "audit_queue_current_entries": 0,
+        "nbsr_tasks_current_live": 0,
+        "quic_connections_current_live": 0,
+        "quic_streams_current_live": 0,
+        "replay_state_current_entries": 0,
+        "service_channels_current_live": 0,
+        "transport_sessions_current_live": 0
+      },
+      "destination_exited": true,
+      "source_all_zero": true,
+      "source_counters": [
+        {
+          "application_streams_current_live": 0,
+          "audit_queue_current_entries": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "replay_state_current_entries": 0,
+          "service_channels_current_live": 0,
+          "transport_sessions_current_live": 0
+        }
+      ],
+      "source_processes_exited": true
+    },
+    "client_results": [
+      {
+        "application_streams_completed": 0,
+        "application_streams_created": 16,
+        "application_streams_current_live": 16,
+        "application_streams_failed_or_cancelled": 0,
+        "application_streams_high_water_live": 16,
+        "audit_queue_current_entries": 0,
+        "audit_queue_high_water_entries": 5,
+        "audit_queue_high_water_retained_capacity": 1024,
+        "audit_queue_inserts": 56,
+        "audit_queue_removals": 56,
+        "audit_queue_retained_capacity": 1024,
+        "channel_registry_current_entries": 8,
+        "channel_registry_high_water_entries": 8,
+        "channel_registry_high_water_retained_capacity": 17,
+        "channel_registry_inserts": 8,
+        "channel_registry_removals": 0,
+        "channel_registry_retained_capacity": 17,
+        "event": "diagnostic",
+        "nbsr_tasks_completed": 0,
+        "nbsr_tasks_created": 0,
+        "nbsr_tasks_current_live": 0,
+        "nbsr_tasks_failed_or_cancelled": 0,
+        "nbsr_tasks_high_water_live": 0,
+        "pending_routes_current_entries": 0,
+        "pending_routes_high_water_entries": 1,
+        "pending_routes_high_water_retained_capacity": 3,
+        "pending_routes_inserts": 8,
+        "pending_routes_removals": 8,
+        "pending_routes_retained_capacity": 3,
+        "phase": "b3_materialized_streams_ready",
+        "quic_connections_completed": 0,
+        "quic_connections_created": 1,
+        "quic_connections_current_live": 1,
+        "quic_connections_failed_or_cancelled": 0,
+        "quic_connections_high_water_live": 1,
+        "quic_streams_completed": 0,
+        "quic_streams_created": 16,
+        "quic_streams_current_live": 16,
+        "quic_streams_failed_or_cancelled": 0,
+        "quic_streams_high_water_live": 16,
+        "replay_state_current_entries": 16,
+        "replay_state_high_water_entries": 16,
+        "replay_state_high_water_retained_capacity": 28,
+        "replay_state_inserts": 16,
+        "replay_state_removals": 0,
+        "replay_state_retained_capacity": 28,
+        "schema": "nbsr-rust-ownership-v1",
+        "service_channels_completed": 0,
+        "service_channels_created": 8,
+        "service_channels_current_live": 8,
+        "service_channels_failed_or_cancelled": 0,
+        "service_channels_high_water_live": 8,
+        "stream_registry_current_entries": 16,
+        "stream_registry_high_water_entries": 16,
+        "stream_registry_high_water_retained_capacity": 38,
+        "stream_registry_inserts": 16,
+        "stream_registry_removals": 0,
+        "stream_registry_retained_capacity": 38,
+        "timestamp_ns": 0,
+        "transport_sessions_completed": 0,
+        "transport_sessions_created": 1,
+        "transport_sessions_current_live": 1,
+        "transport_sessions_failed_or_cancelled": 0,
+        "transport_sessions_high_water_live": 1
+      },
+      {
+        "application_processing_ns": null,
+        "bytes_received": 1024,
+        "bytes_transmitted": 1024,
+        "channel_binding_ns": 7401,
+        "destination_admission_ns": null,
+        "hello_rtt_ns": 938918,
+        "logical_client_id": 0,
+        "request_latency_ns": 2027302414,
+        "route_open_rtt_ns": 317841,
+        "sample_id": 0,
+        "source_admission_ns": 215527,
+        "stream_open_rtt_ns": 109014,
+        "success": true,
+        "total_scenario_ns": 2031966466,
+        "transport_handshake_ns": 2367299,
+        "ttfab_ns": 2031966466
+      },
+      {
+        "application_processing_ns": null,
+        "bytes_received": 1024,
+        "bytes_transmitted": 1024,
+        "channel_binding_ns": null,
+        "destination_admission_ns": null,
+        "hello_rtt_ns": null,
+        "logical_client_id": 0,
+        "request_latency_ns": 2027348387,
+        "route_open_rtt_ns": null,
+        "sample_id": 1,
+        "source_admission_ns": null,
+        "stream_open_rtt_ns": 98213,
+        "success": true,
+        "total_scenario_ns": 2028541333,
+        "transport_handshake_ns": null,
+        "ttfab_ns": 2028541333
+      },
+      {
+        "application_processing_ns": null,
+        "bytes_received": 1024,
+        "bytes_transmitted": 1024,
+        "channel_binding_ns": 5900,
+        "destination_admission_ns": null,
+        "hello_rtt_ns": null,
+        "logical_client_id": 0,
+        "request_latency_ns": 2026853126,
+        "route_open_rtt_ns": 328942,
+        "sample_id": 2,
+        "source_admission_ns": 186824,
+        "stream_open_rtt_ns": 89111,
+        "success": true,
+        "total_scenario_ns": 2027620216,
+        "transport_handshake_ns": null,
+        "ttfab_ns": 2027620216
+      },
+      {
+        "application_processing_ns": null,
+        "bytes_received": 1024,
+        "bytes_transmitted": 1024,
+        "channel_binding_ns": null,
+        "destination_admission_ns": null,
+        "hello_rtt_ns": null,
+        "logical_client_id": 0,
+        "request_latency_ns": 2026541785,
+        "route_open_rtt_ns": null,
+        "sample_id": 3,
+        "source_admission_ns": null,
+        "stream_open_rtt_ns": 100413,
+        "success": true,
+        "total_scenario_ns": 2027621616,
+        "transport_handshake_ns": null,
+        "ttfab_ns": 2027621616
+      },
+      {
+        "application_processing_ns": null,
+        "bytes_received": 1024,
+        "bytes_transmitted": 1024,
+        "channel_binding_ns": 5901,
+        "destination_admission_ns": null,
+        "hello_rtt_ns": null,
+        "logical_client_id": 0,
+        "request_latency_ns": 2025490686,
+        "route_open_rtt_ns": 406652,
+        "sample_id": 4,
+        "source_admission_ns": 185323,
+        "stream_open_rtt_ns": 84510,
+        "success": true,
+        "total_scenario_ns": 2026818015,
+        "transport_handshake_ns": null,
+        "ttfab_ns": 2026818015
+      },
+      {
+        "application_processing_ns": null,
+        "bytes_received": 1024,
+        "bytes_transmitted": 1024,
+        "channel_binding_ns": null,
+        "destination_admission_ns": null,
+        "hello_rtt_ns": null,
+        "logical_client_id": 0,
+        "request_latency_ns": 2025142241,
+        "route_open_rtt_ns": null,
+        "sample_id": 5,
+        "source_admission_ns": null,
+        "stream_open_rtt_ns": 145918,
+        "success": true,
+        "total_scenario_ns": 2026822916,
+        "transport_handshake_ns": null,
+        "ttfab_ns": 2026822916
+      },
+      {
+        "application_processing_ns": null,
+        "bytes_received": 1024,
+        "bytes_transmitted": 1024,
+        "channel_binding_ns": 5901,
+        "destination_admission_ns": null,
+        "hello_rtt_ns": null,
+        "logical_client_id": 0,
+        "request_latency_ns": 2025057698,
+        "route_open_rtt_ns": 320341,
+        "sample_id": 6,
+        "source_admission_ns": 187323,
+        "stream_open_rtt_ns": 92212,
+        "success": true,
+        "total_scenario_ns": 2025829390,
+        "transport_handshake_ns": null,
+        "ttfab_ns": 2025829390
+      },
+      {
+        "application_processing_ns": null,
+        "bytes_received": 1024,
+        "bytes_transmitted": 1024,
+        "channel_binding_ns": null,
+        "destination_admission_ns": null,
+        "hello_rtt_ns": null,
+        "logical_client_id": 0,
+        "request_latency_ns": 2024262229,
+        "route_open_rtt_ns": null,
+        "sample_id": 7,
+        "source_admission_ns": null,
+        "stream_open_rtt_ns": 111114,
+        "success": true,
+        "total_scenario_ns": 2025830590,
+        "transport_handshake_ns": null,
+        "ttfab_ns": 2025830590
+      },
+      {
+        "application_processing_ns": null,
+        "bytes_received": 1024,
+        "bytes_transmitted": 1024,
+        "channel_binding_ns": 6100,
+        "destination_admission_ns": null,
+        "hello_rtt_ns": null,
+        "logical_client_id": 0,
+        "request_latency_ns": 2023738665,
+        "route_open_rtt_ns": 340643,
+        "sample_id": 8,
+        "source_admission_ns": 223528,
+        "stream_open_rtt_ns": 97412,
+        "success": true,
+        "total_scenario_ns": 2024981883,
+        "transport_handshake_ns": null,
+        "ttfab_ns": 2024981883
+      },
+      {
+        "application_processing_ns": null,
+        "bytes_received": 1024,
+        "bytes_transmitted": 1024,
+        "channel_binding_ns": null,
+        "destination_admission_ns": null,
+        "hello_rtt_ns": null,
+        "logical_client_id": 0,
+        "request_latency_ns": 2023359616,
+        "route_open_rtt_ns": null,
+        "sample_id": 9,
+        "source_admission_ns": null,
+        "stream_open_rtt_ns": 136817,
+        "success": true,
+        "total_scenario_ns": 2024982883,
+        "transport_handshake_ns": null,
+        "ttfab_ns": 2024982883
+      },
+      {
+        "application_processing_ns": null,
+        "bytes_received": 1024,
+        "bytes_transmitted": 1024,
+        "channel_binding_ns": 5900,
+        "destination_admission_ns": null,
+        "hello_rtt_ns": null,
+        "logical_client_id": 0,
+        "request_latency_ns": 2023278573,
+        "route_open_rtt_ns": 331541,
+        "sample_id": 10,
+        "source_admission_ns": 186624,
+        "stream_open_rtt_ns": 86511,
+        "success": true,
+        "total_scenario_ns": 2024048565,
+        "transport_handshake_ns": null,
+        "ttfab_ns": 2024048565
+      },
+      {
+        "application_processing_ns": null,
+        "bytes_received": 1024,
+        "bytes_transmitted": 1024,
+        "channel_binding_ns": null,
+        "destination_admission_ns": null,
+        "hello_rtt_ns": null,
+        "logical_client_id": 0,
+        "request_latency_ns": 2022911127,
+        "route_open_rtt_ns": null,
+        "sample_id": 11,
+        "source_admission_ns": null,
+        "stream_open_rtt_ns": 97613,
+        "success": true,
+        "total_scenario_ns": 2024049665,
+        "transport_handshake_ns": null,
+        "ttfab_ns": 2024049665
+      },
+      {
+        "application_processing_ns": null,
+        "bytes_received": 1024,
+        "bytes_transmitted": 1024,
+        "channel_binding_ns": 5800,
+        "destination_admission_ns": null,
+        "hello_rtt_ns": null,
+        "logical_client_id": 0,
+        "request_latency_ns": 2021946737,
+        "route_open_rtt_ns": 329841,
+        "sample_id": 12,
+        "source_admission_ns": 201926,
+        "stream_open_rtt_ns": 119315,
+        "success": true,
+        "total_scenario_ns": 2023250864,
+        "transport_handshake_ns": null,
+        "ttfab_ns": 2023250864
+      },
+      {
+        "application_processing_ns": null,
+        "bytes_received": 1024,
+        "bytes_transmitted": 1024,
+        "channel_binding_ns": null,
+        "destination_admission_ns": null,
+        "hello_rtt_ns": null,
+        "logical_client_id": 0,
+        "request_latency_ns": 2021592993,
+        "route_open_rtt_ns": null,
+        "sample_id": 13,
+        "source_admission_ns": null,
+        "stream_open_rtt_ns": 108414,
+        "success": true,
+        "total_scenario_ns": 2023251864,
+        "transport_handshake_ns": null,
+        "ttfab_ns": 2023251864
+      },
+      {
+        "application_processing_ns": null,
+        "bytes_received": 1024,
+        "bytes_transmitted": 1024,
+        "channel_binding_ns": 5901,
+        "destination_admission_ns": null,
+        "hello_rtt_ns": null,
+        "logical_client_id": 0,
+        "request_latency_ns": 2021518151,
+        "route_open_rtt_ns": 323341,
+        "sample_id": 14,
+        "source_admission_ns": 188224,
+        "stream_open_rtt_ns": 88711,
+        "success": true,
+        "total_scenario_ns": 2022301344,
+        "transport_handshake_ns": null,
+        "ttfab_ns": 2022301344
+      },
+      {
+        "application_processing_ns": null,
+        "bytes_received": 1024,
+        "bytes_transmitted": 1024,
+        "channel_binding_ns": null,
+        "destination_admission_ns": null,
+        "hello_rtt_ns": null,
+        "logical_client_id": 0,
+        "request_latency_ns": 2021106300,
+        "route_open_rtt_ns": null,
+        "sample_id": 15,
+        "source_admission_ns": null,
+        "stream_open_rtt_ns": 401151,
+        "success": true,
+        "total_scenario_ns": 2022303344,
+        "transport_handshake_ns": null,
+        "ttfab_ns": 2022303344
+      },
+      {
+        "application_streams_completed": 16,
+        "application_streams_created": 16,
+        "application_streams_current_live": 0,
+        "application_streams_failed_or_cancelled": 0,
+        "application_streams_high_water_live": 16,
+        "audit_queue_current_entries": 0,
+        "audit_queue_high_water_entries": 5,
+        "audit_queue_high_water_retained_capacity": 1024,
+        "audit_queue_inserts": 56,
+        "audit_queue_removals": 56,
+        "audit_queue_retained_capacity": 0,
+        "channel_registry_current_entries": 0,
+        "channel_registry_high_water_entries": 8,
+        "channel_registry_high_water_retained_capacity": 17,
+        "channel_registry_inserts": 8,
+        "channel_registry_removals": 8,
+        "channel_registry_retained_capacity": 0,
+        "event": "diagnostic",
+        "nbsr_tasks_completed": 0,
+        "nbsr_tasks_created": 0,
+        "nbsr_tasks_current_live": 0,
+        "nbsr_tasks_failed_or_cancelled": 0,
+        "nbsr_tasks_high_water_live": 0,
+        "pending_routes_current_entries": 0,
+        "pending_routes_high_water_entries": 1,
+        "pending_routes_high_water_retained_capacity": 3,
+        "pending_routes_inserts": 8,
+        "pending_routes_removals": 8,
+        "pending_routes_retained_capacity": 0,
+        "phase": "lifecycle_cycle_0_closed",
+        "quic_connections_completed": 1,
+        "quic_connections_created": 1,
+        "quic_connections_current_live": 0,
+        "quic_connections_failed_or_cancelled": 0,
+        "quic_connections_high_water_live": 1,
+        "quic_streams_completed": 16,
+        "quic_streams_created": 16,
+        "quic_streams_current_live": 0,
+        "quic_streams_failed_or_cancelled": 0,
+        "quic_streams_high_water_live": 16,
+        "replay_state_current_entries": 0,
+        "replay_state_high_water_entries": 16,
+        "replay_state_high_water_retained_capacity": 28,
+        "replay_state_inserts": 16,
+        "replay_state_removals": 16,
+        "replay_state_retained_capacity": 0,
+        "schema": "nbsr-rust-ownership-v1",
+        "service_channels_completed": 8,
+        "service_channels_created": 8,
+        "service_channels_current_live": 0,
+        "service_channels_failed_or_cancelled": 0,
+        "service_channels_high_water_live": 8,
+        "stream_registry_current_entries": 0,
+        "stream_registry_high_water_entries": 16,
+        "stream_registry_high_water_retained_capacity": 38,
+        "stream_registry_inserts": 16,
+        "stream_registry_removals": 16,
+        "stream_registry_retained_capacity": 0,
+        "timestamp_ns": 0,
+        "transport_sessions_completed": 1,
+        "transport_sessions_created": 1,
+        "transport_sessions_current_live": 0,
+        "transport_sessions_failed_or_cancelled": 0,
+        "transport_sessions_high_water_live": 1
+      },
+      {
+        "application_streams_completed": 16,
+        "application_streams_created": 16,
+        "application_streams_current_live": 0,
+        "application_streams_failed_or_cancelled": 0,
+        "application_streams_high_water_live": 16,
+        "audit_queue_current_entries": 0,
+        "audit_queue_high_water_entries": 5,
+        "audit_queue_high_water_retained_capacity": 1024,
+        "audit_queue_inserts": 56,
+        "audit_queue_removals": 56,
+        "audit_queue_retained_capacity": 0,
+        "channel_registry_current_entries": 0,
+        "channel_registry_high_water_entries": 8,
+        "channel_registry_high_water_retained_capacity": 17,
+        "channel_registry_inserts": 8,
+        "channel_registry_removals": 8,
+        "channel_registry_retained_capacity": 0,
+        "event": "diagnostic",
+        "nbsr_tasks_completed": 0,
+        "nbsr_tasks_created": 0,
+        "nbsr_tasks_current_live": 0,
+        "nbsr_tasks_failed_or_cancelled": 0,
+        "nbsr_tasks_high_water_live": 0,
+        "pending_routes_current_entries": 0,
+        "pending_routes_high_water_entries": 1,
+        "pending_routes_high_water_retained_capacity": 3,
+        "pending_routes_inserts": 8,
+        "pending_routes_removals": 8,
+        "pending_routes_retained_capacity": 0,
+        "phase": "lifecycle_cleanup",
+        "quic_connections_completed": 1,
+        "quic_connections_created": 1,
+        "quic_connections_current_live": 0,
+        "quic_connections_failed_or_cancelled": 0,
+        "quic_connections_high_water_live": 1,
+        "quic_streams_completed": 16,
+        "quic_streams_created": 16,
+        "quic_streams_current_live": 0,
+        "quic_streams_failed_or_cancelled": 0,
+        "quic_streams_high_water_live": 16,
+        "replay_state_current_entries": 0,
+        "replay_state_high_water_entries": 16,
+        "replay_state_high_water_retained_capacity": 28,
+        "replay_state_inserts": 16,
+        "replay_state_removals": 16,
+        "replay_state_retained_capacity": 0,
+        "schema": "nbsr-rust-ownership-v1",
+        "service_channels_completed": 8,
+        "service_channels_created": 8,
+        "service_channels_current_live": 0,
+        "service_channels_failed_or_cancelled": 0,
+        "service_channels_high_water_live": 8,
+        "stream_registry_current_entries": 0,
+        "stream_registry_high_water_entries": 16,
+        "stream_registry_high_water_retained_capacity": 38,
+        "stream_registry_inserts": 16,
+        "stream_registry_removals": 16,
+        "stream_registry_retained_capacity": 0,
+        "timestamp_ns": 0,
+        "transport_sessions_completed": 1,
+        "transport_sessions_created": 1,
+        "transport_sessions_current_live": 0,
+        "transport_sessions_failed_or_cancelled": 0,
+        "transport_sessions_high_water_live": 1
+      }
+    ],
+    "commands": {
+      "clients": [
+        [
+          "/usr/bin/taskset",
+          "-c",
+          "0",
+          "/opt/nbsr/bin/perf_rust_source",
+          "--authority-dir",
+          "<temporary>/authority",
+          "--endpoint",
+          "127.0.0.1:59860",
+          "--samples",
+          "1",
+          "--payload-bytes",
+          "1024",
+          "--lifecycle-authority-dir",
+          "<temporary>/lifecycle",
+          "--connections",
+          "1",
+          "--services",
+          "8",
+          "--streams-per-service",
+          "2",
+          "--concurrent-streams",
+          "--hold-for-release",
+          "--connection-offset",
+          "0",
+          "--diagnostics",
+          "1",
+          "--b3-materialized-streams",
+          "1",
+          "--lifecycle-final-release",
+          "<temporary>/lifecycle/source.final-release"
+        ]
+      ],
+      "server": [
+        "/usr/bin/taskset",
+        "-c",
+        "0",
+        "/opt/nbsr/bin/wp8_interop_server",
+        "--ready",
+        "<temporary>/ready.json",
+        "--result",
+        "/evidence/streams-16/raw/rust-rust/streams-16-r3/server-result.json",
+        "--authority-dir",
+        "<temporary>/authority",
+        "--completion-ack",
+        "<temporary>/completion.ack",
+        "--destination-diagnostics-file",
+        "/evidence/streams-16/raw/rust-rust/streams-16-r3/destination-diagnostics.ndjson",
+        "--diagnostic-drain-seconds",
+        "2",
+        "--b3-report-gate",
+        "<temporary>/lifecycle",
+        "--b3-materialized-streams",
+        "1"
+      ]
+    },
+    "cycles": 1,
+    "kind": "streams",
+    "materialized_streams": true,
+    "name": "streams-16-r3",
+    "resource_scope": "application streams across eight fixed channels; one connection/session",
+    "samples": [
+      {
+        "cpu_ns": 0,
+        "cycle": 0,
+        "fd_count": 8,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "idle",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 3723264,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 0,
+            "fd_count": 8,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 17,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 3723264,
+            "pss_bytes": 4624384,
+            "rss_bytes": 5529600,
+            "start_ticks": 28158,
+            "state": "S",
+            "thread_ids": [
+              17,
+              18
+            ],
+            "timestamp_ns": 281598348208
+          }
+        ],
+        "pss_bytes": 4624384,
+        "role": "destination",
+        "rss_bytes": 5529600,
+        "thread_count": 2,
+        "timestamp_ns": 281598348208
+      },
+      {
+        "cpu_ns": 0,
+        "cycle": 0,
+        "fd_count": 6,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "idle",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 1835008,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 0,
+            "fd_count": 6,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 19,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 1835008,
+            "pss_bytes": 2428928,
+            "rss_bytes": 3575808,
+            "start_ticks": 28159,
+            "state": "S",
+            "thread_ids": [
+              19
+            ],
+            "timestamp_ns": 281598911979
+          }
+        ],
+        "pss_bytes": 2428928,
+        "role": "source",
+        "rss_bytes": 3575808,
+        "thread_count": 1,
+        "timestamp_ns": 281598911979
+      },
+      {
+        "cpu_ns": 0,
+        "cycle": 0,
+        "fd_count": 8,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "idle",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 3715072,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 0,
+            "fd_count": 8,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 17,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 3715072,
+            "pss_bytes": 4345856,
+            "rss_bytes": 5529600,
+            "start_ticks": 28158,
+            "state": "S",
+            "thread_ids": [
+              17,
+              18
+            ],
+            "timestamp_ns": 282100671402
+          }
+        ],
+        "pss_bytes": 4345856,
+        "role": "destination",
+        "rss_bytes": 5529600,
+        "thread_count": 2,
+        "timestamp_ns": 282100671402
+      },
+      {
+        "cpu_ns": 0,
+        "cycle": 0,
+        "fd_count": 6,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "idle",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 2101248,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 0,
+            "fd_count": 6,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 19,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 2101248,
+            "pss_bytes": 2695168,
+            "rss_bytes": 3842048,
+            "start_ticks": 28159,
+            "state": "S",
+            "thread_ids": [
+              19
+            ],
+            "timestamp_ns": 282101217471
+          }
+        ],
+        "pss_bytes": 2695168,
+        "role": "source",
+        "rss_bytes": 3842048,
+        "thread_count": 1,
+        "timestamp_ns": 282101217471
+      },
+      {
+        "cpu_ns": 0,
+        "cycle": 0,
+        "fd_count": 8,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "idle",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 3715072,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 0,
+            "fd_count": 8,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 17,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 3715072,
+            "pss_bytes": 4345856,
+            "rss_bytes": 5529600,
+            "start_ticks": 28158,
+            "state": "S",
+            "thread_ids": [
+              17,
+              18
+            ],
+            "timestamp_ns": 282602633451
+          }
+        ],
+        "pss_bytes": 4345856,
+        "role": "destination",
+        "rss_bytes": 5529600,
+        "thread_count": 2,
+        "timestamp_ns": 282602633451
+      },
+      {
+        "cpu_ns": 0,
+        "cycle": 0,
+        "fd_count": 6,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "idle",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 2101248,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 0,
+            "fd_count": 6,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 19,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 2101248,
+            "pss_bytes": 2695168,
+            "rss_bytes": 3842048,
+            "start_ticks": 28159,
+            "state": "S",
+            "thread_ids": [
+              19
+            ],
+            "timestamp_ns": 282603132714
+          }
+        ],
+        "pss_bytes": 2695168,
+        "role": "source",
+        "rss_bytes": 3842048,
+        "thread_count": 1,
+        "timestamp_ns": 282603132714
+      },
+      {
+        "cpu_ns": 0,
+        "cycle": 0,
+        "fd_count": 8,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "idle",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 3715072,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 0,
+            "fd_count": 8,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 17,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 3715072,
+            "pss_bytes": 4345856,
+            "rss_bytes": 5529600,
+            "start_ticks": 28158,
+            "state": "S",
+            "thread_ids": [
+              17,
+              18
+            ],
+            "timestamp_ns": 283104771122
+          }
+        ],
+        "pss_bytes": 4345856,
+        "role": "destination",
+        "rss_bytes": 5529600,
+        "thread_count": 2,
+        "timestamp_ns": 283104771122
+      },
+      {
+        "cpu_ns": 0,
+        "cycle": 0,
+        "fd_count": 6,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "idle",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 2101248,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 0,
+            "fd_count": 6,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 19,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 2101248,
+            "pss_bytes": 2695168,
+            "rss_bytes": 3842048,
+            "start_ticks": 28159,
+            "state": "S",
+            "thread_ids": [
+              19
+            ],
+            "timestamp_ns": 283105348494
+          }
+        ],
+        "pss_bytes": 2695168,
+        "role": "source",
+        "rss_bytes": 3842048,
+        "thread_count": 1,
+        "timestamp_ns": 283105348494
+      },
+      {
+        "cpu_ns": 0,
+        "cycle": 0,
+        "fd_count": 8,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "idle",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 3719168,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 0,
+            "fd_count": 8,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 17,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 3719168,
+            "pss_bytes": 4349952,
+            "rss_bytes": 5533696,
+            "start_ticks": 28158,
+            "state": "S",
+            "thread_ids": [
+              17,
+              18
+            ],
+            "timestamp_ns": 283598801869
+          }
+        ],
+        "pss_bytes": 4349952,
+        "role": "destination",
+        "rss_bytes": 5533696,
+        "thread_count": 2,
+        "timestamp_ns": 283598801869
+      },
+      {
+        "cpu_ns": 10000000,
+        "cycle": 0,
+        "fd_count": 6,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "idle",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 2101248,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 10000000,
+            "fd_count": 6,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 19,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 2101248,
+            "pss_bytes": 2695168,
+            "rss_bytes": 3842048,
+            "start_ticks": 28159,
+            "state": "S",
+            "thread_ids": [
+              19
+            ],
+            "timestamp_ns": 283599303232
+          }
+        ],
+        "pss_bytes": 2695168,
+        "role": "source",
+        "rss_bytes": 3842048,
+        "thread_count": 1,
+        "timestamp_ns": 283599303232
+      },
+      {
+        "cpu_ns": 0,
+        "cycle": 0,
+        "fd_count": 8,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "active",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4988928,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 0,
+            "fd_count": 8,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 17,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4988928,
+            "pss_bytes": 5619712,
+            "rss_bytes": 6803456,
+            "start_ticks": 28158,
+            "state": "S",
+            "thread_ids": [
+              17,
+              18
+            ],
+            "timestamp_ns": 283621628450
+          }
+        ],
+        "pss_bytes": 5619712,
+        "role": "destination",
+        "rss_bytes": 6803456,
+        "thread_count": 2,
+        "timestamp_ns": 283621628450
+      },
+      {
+        "cpu_ns": 10000000,
+        "cycle": 0,
+        "fd_count": 7,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "active",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4923392,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 10000000,
+            "fd_count": 7,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 19,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4923392,
+            "pss_bytes": 5517312,
+            "rss_bytes": 6664192,
+            "start_ticks": 28159,
+            "state": "S",
+            "thread_ids": [
+              19
+            ],
+            "timestamp_ns": 283622170518
+          }
+        ],
+        "pss_bytes": 5517312,
+        "role": "source",
+        "rss_bytes": 6664192,
+        "thread_count": 1,
+        "timestamp_ns": 283622170518
+      },
+      {
+        "cpu_ns": 0,
+        "cycle": 0,
+        "fd_count": 8,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "active",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4988928,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 0,
+            "fd_count": 8,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 17,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4988928,
+            "pss_bytes": 5619712,
+            "rss_bytes": 6803456,
+            "start_ticks": 28158,
+            "state": "S",
+            "thread_ids": [
+              17,
+              18
+            ],
+            "timestamp_ns": 284123227253
+          }
+        ],
+        "pss_bytes": 5619712,
+        "role": "destination",
+        "rss_bytes": 6803456,
+        "thread_count": 2,
+        "timestamp_ns": 284123227253
+      },
+      {
+        "cpu_ns": 10000000,
+        "cycle": 0,
+        "fd_count": 7,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "active",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4923392,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 10000000,
+            "fd_count": 7,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 19,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4923392,
+            "pss_bytes": 5517312,
+            "rss_bytes": 6664192,
+            "start_ticks": 28159,
+            "state": "S",
+            "thread_ids": [
+              19
+            ],
+            "timestamp_ns": 284123864033
+          }
+        ],
+        "pss_bytes": 5517312,
+        "role": "source",
+        "rss_bytes": 6664192,
+        "thread_count": 1,
+        "timestamp_ns": 284123864033
+      },
+      {
+        "cpu_ns": 10000000,
+        "cycle": 0,
+        "fd_count": 8,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "active",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4988928,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 10000000,
+            "fd_count": 8,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 17,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4988928,
+            "pss_bytes": 5619712,
+            "rss_bytes": 6803456,
+            "start_ticks": 28158,
+            "state": "S",
+            "thread_ids": [
+              17,
+              18
+            ],
+            "timestamp_ns": 284624917667
+          }
+        ],
+        "pss_bytes": 5619712,
+        "role": "destination",
+        "rss_bytes": 6803456,
+        "thread_count": 2,
+        "timestamp_ns": 284624917667
+      },
+      {
+        "cpu_ns": 10000000,
+        "cycle": 0,
+        "fd_count": 7,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "active",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4923392,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 10000000,
+            "fd_count": 7,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 19,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4923392,
+            "pss_bytes": 5517312,
+            "rss_bytes": 6664192,
+            "start_ticks": 28159,
+            "state": "S",
+            "thread_ids": [
+              19
+            ],
+            "timestamp_ns": 284625417430
+          }
+        ],
+        "pss_bytes": 5517312,
+        "role": "source",
+        "rss_bytes": 6664192,
+        "thread_count": 1,
+        "timestamp_ns": 284625417430
+      },
+      {
+        "cpu_ns": 10000000,
+        "cycle": 0,
+        "fd_count": 8,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "active",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4988928,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 10000000,
+            "fd_count": 8,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 17,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4988928,
+            "pss_bytes": 5619712,
+            "rss_bytes": 6803456,
+            "start_ticks": 28158,
+            "state": "S",
+            "thread_ids": [
+              17,
+              18
+            ],
+            "timestamp_ns": 285126827402
+          }
+        ],
+        "pss_bytes": 5619712,
+        "role": "destination",
+        "rss_bytes": 6803456,
+        "thread_count": 2,
+        "timestamp_ns": 285126827402
+      },
+      {
+        "cpu_ns": 20000000,
+        "cycle": 0,
+        "fd_count": 7,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "active",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4923392,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 20000000,
+            "fd_count": 7,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 19,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4923392,
+            "pss_bytes": 5517312,
+            "rss_bytes": 6664192,
+            "start_ticks": 28159,
+            "state": "S",
+            "thread_ids": [
+              19
+            ],
+            "timestamp_ns": 285127336025
+          }
+        ],
+        "pss_bytes": 5517312,
+        "role": "source",
+        "rss_bytes": 6664192,
+        "thread_count": 1,
+        "timestamp_ns": 285127336025
+      },
+      {
+        "cpu_ns": 10000000,
+        "cycle": 0,
+        "fd_count": 8,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "active",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4993024,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 10000000,
+            "fd_count": 8,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 17,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4993024,
+            "pss_bytes": 5623808,
+            "rss_bytes": 6807552,
+            "start_ticks": 28158,
+            "state": "S",
+            "thread_ids": [
+              17,
+              18
+            ],
+            "timestamp_ns": 285622184145
+          }
+        ],
+        "pss_bytes": 5623808,
+        "role": "destination",
+        "rss_bytes": 6807552,
+        "thread_count": 2,
+        "timestamp_ns": 285622184145
+      },
+      {
+        "cpu_ns": 20000000,
+        "cycle": 0,
+        "fd_count": 7,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "active",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4923392,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 20000000,
+            "fd_count": 7,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 19,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4923392,
+            "pss_bytes": 5517312,
+            "rss_bytes": 6664192,
+            "start_ticks": 28159,
+            "state": "S",
+            "thread_ids": [
+              19
+            ],
+            "timestamp_ns": 285622764571
+          }
+        ],
+        "pss_bytes": 5517312,
+        "role": "source",
+        "rss_bytes": 6664192,
+        "thread_count": 1,
+        "timestamp_ns": 285622764571
+      },
+      {
+        "cpu_ns": 10000000,
+        "cycle": 0,
+        "fd_count": 8,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "cooldown",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 5009408,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 10000000,
+            "fd_count": 8,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 17,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 5009408,
+            "pss_bytes": 5640192,
+            "rss_bytes": 6823936,
+            "start_ticks": 28158,
+            "state": "S",
+            "thread_ids": [
+              17,
+              18
+            ],
+            "timestamp_ns": 285645001688
+          }
+        ],
+        "pss_bytes": 5640192,
+        "role": "destination",
+        "rss_bytes": 6823936,
+        "thread_count": 2,
+        "timestamp_ns": 285645001688
+      },
+      {
+        "cpu_ns": 20000000,
+        "cycle": 0,
+        "fd_count": 7,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "cooldown",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 5013504,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 20000000,
+            "fd_count": 7,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 19,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 5013504,
+            "pss_bytes": 5607424,
+            "rss_bytes": 6754304,
+            "start_ticks": 28159,
+            "state": "S",
+            "thread_ids": [
+              19
+            ],
+            "timestamp_ns": 285645511311
+          }
+        ],
+        "pss_bytes": 5607424,
+        "role": "source",
+        "rss_bytes": 6754304,
+        "thread_count": 1,
+        "timestamp_ns": 285645511311
+      },
+      {
+        "cpu_ns": 10000000,
+        "cycle": 0,
+        "fd_count": 8,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "cooldown",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 5009408,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 10000000,
+            "fd_count": 8,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 17,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 5009408,
+            "pss_bytes": 5640192,
+            "rss_bytes": 6823936,
+            "start_ticks": 28158,
+            "state": "S",
+            "thread_ids": [
+              17,
+              18
+            ],
+            "timestamp_ns": 286146900529
+          }
+        ],
+        "pss_bytes": 5640192,
+        "role": "destination",
+        "rss_bytes": 6823936,
+        "thread_count": 2,
+        "timestamp_ns": 286146900529
+      },
+      {
+        "cpu_ns": 20000000,
+        "cycle": 0,
+        "fd_count": 6,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "cooldown",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4997120,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 20000000,
+            "fd_count": 6,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 19,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4997120,
+            "pss_bytes": 5591040,
+            "rss_bytes": 6737920,
+            "start_ticks": 28159,
+            "state": "S",
+            "thread_ids": [
+              19
+            ],
+            "timestamp_ns": 286147409153
+          }
+        ],
+        "pss_bytes": 5591040,
+        "role": "source",
+        "rss_bytes": 6737920,
+        "thread_count": 1,
+        "timestamp_ns": 286147409153
+      },
+      {
+        "cpu_ns": 10000000,
+        "cycle": 0,
+        "fd_count": 8,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "cooldown",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 5013504,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 10000000,
+            "fd_count": 8,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 17,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 5013504,
+            "pss_bytes": 5644288,
+            "rss_bytes": 6828032,
+            "start_ticks": 28158,
+            "state": "S",
+            "thread_ids": [
+              17,
+              18
+            ],
+            "timestamp_ns": 286649022581
+          }
+        ],
+        "pss_bytes": 5644288,
+        "role": "destination",
+        "rss_bytes": 6828032,
+        "thread_count": 2,
+        "timestamp_ns": 286649022581
+      },
+      {
+        "cpu_ns": 20000000,
+        "cycle": 0,
+        "fd_count": 6,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "cooldown",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4997120,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 20000000,
+            "fd_count": 6,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 19,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4997120,
+            "pss_bytes": 5591040,
+            "rss_bytes": 6737920,
+            "start_ticks": 28159,
+            "state": "S",
+            "thread_ids": [
+              19
+            ],
+            "timestamp_ns": 286649569906
+          }
+        ],
+        "pss_bytes": 5591040,
+        "role": "source",
+        "rss_bytes": 6737920,
+        "thread_count": 1,
+        "timestamp_ns": 286649569906
+      },
+      {
+        "cpu_ns": 20000000,
+        "cycle": 0,
+        "fd_count": 8,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "cooldown",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 5013504,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 20000000,
+            "fd_count": 8,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 17,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 5013504,
+            "pss_bytes": 5644288,
+            "rss_bytes": 6828032,
+            "start_ticks": 28158,
+            "state": "S",
+            "thread_ids": [
+              17,
+              18
+            ],
+            "timestamp_ns": 287151312241
+          }
+        ],
+        "pss_bytes": 5644288,
+        "role": "destination",
+        "rss_bytes": 6828032,
+        "thread_count": 2,
+        "timestamp_ns": 287151312241
+      },
+      {
+        "cpu_ns": 30000000,
+        "cycle": 0,
+        "fd_count": 6,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "cooldown",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4997120,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 30000000,
+            "fd_count": 6,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 19,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4997120,
+            "pss_bytes": 5591040,
+            "rss_bytes": 6737920,
+            "start_ticks": 28159,
+            "state": "S",
+            "thread_ids": [
+              19
+            ],
+            "timestamp_ns": 287151935269
+          }
+        ],
+        "pss_bytes": 5591040,
+        "role": "source",
+        "rss_bytes": 6737920,
+        "thread_count": 1,
+        "timestamp_ns": 287151935269
+      },
+      {
+        "cpu_ns": 20000000,
+        "cycle": 0,
+        "fd_count": 8,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "cooldown",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 5013504,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 20000000,
+            "fd_count": 8,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 17,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 5013504,
+            "pss_bytes": 5644288,
+            "rss_bytes": 6828032,
+            "start_ticks": 28158,
+            "state": "S",
+            "thread_ids": [
+              17,
+              18
+            ],
+            "timestamp_ns": 287645485530
+          }
+        ],
+        "pss_bytes": 5644288,
+        "role": "destination",
+        "rss_bytes": 6828032,
+        "thread_count": 2,
+        "timestamp_ns": 287645485530
+      },
+      {
+        "cpu_ns": 30000000,
+        "cycle": 0,
+        "fd_count": 6,
+        "memory_basis": "linux_smaps_rollup",
+        "memory_state": "MEASURED",
+        "phase": "cooldown",
+        "platform": "linux",
+        "private_hugetlb_bytes": 0,
+        "private_resident_bytes": 4997120,
+        "process_count": 1,
+        "processes": [
+          {
+            "affinity": [
+              0
+            ],
+            "cpu_ns": 30000000,
+            "fd_count": 6,
+            "fd_count_state": "MEASURED",
+            "memory_basis": "linux_smaps_rollup",
+            "memory_state": "MEASURED",
+            "pid": 19,
+            "private_hugetlb_bytes": 0,
+            "private_resident_bytes": 4997120,
+            "pss_bytes": 5591040,
+            "rss_bytes": 6737920,
+            "start_ticks": 28159,
+            "state": "S",
+            "thread_ids": [
+              19
+            ],
+            "timestamp_ns": 287646067656
+          }
+        ],
+        "pss_bytes": 5591040,
+        "role": "source",
+        "rss_bytes": 6737920,
+        "thread_count": 1,
+        "timestamp_ns": 287646067656
+      }
+    ],
+    "sessions": 1,
+    "start_rate": 100,
+    "stream_residency": "both endpoint stream handles and authorized request payload retained before common release",
+    "streams": 2,
+    "timing_scope": "materialized-stream workload includes explicit hold in request/processing times; not comparable with registry-only timing"
+  }
+]

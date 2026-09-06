@@ -1,0 +1,21 @@
+{
+  "indexes": [
+    {
+      "root": "C:\\NBSR-build\\linux-b3-live-1cca67ad-r2",
+      "index_sha256": "c0238134e2b09832dd46b51eec38326aeb7705f224c76ee188cd297fd407447f",
+      "verified_artifacts": 471
+    },
+    {
+      "root": "C:\\NBSR-build\\linux-b3-live-1cca67ad",
+      "index_sha256": "9ec900c86a038972725cd102a7becf31267edef2fa71da88199f64a667e7a047",
+      "verified_artifacts": 247
+    }
+  ],
+  "omitted_binaries": {
+    "perf_rust_source": "0a0beaa85ef03eba89dabe73f4d6548023355d224dc7bd63098410b3d4d655c7",
+    "wp8_interop_server": "9afa410a8b6acd72d4198ea0c04127ae8af0e49215b148e54c13e299d5629c52"
+  },
+  "original_tar": "C:\\NBSR-build\\linux-b3-live-1cca67ad-r2\\evidence.tar",
+  "controller_archive": "C:\\NBSR-build\\linux-b3-live-1cca67ad\\controller.tar",
+  "note": "Original binaries and complete stage/tar remain external; canonical raw indexes reference these hash-bound omitted binaries. Rehydrate before analyzer CLI replay."
+}

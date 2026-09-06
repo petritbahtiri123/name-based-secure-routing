@@ -1,0 +1,285 @@
+{
+  "classification": "DIAGNOSTIC_BINARY_SOURCE_MISMATCH",
+  "cycles": [],
+  "inputs": [
+    {
+      "binary_sha256": {
+        "rust": "0a0beaa85ef03eba89dabe73f4d6548023355d224dc7bd63098410b3d4d655c7",
+        "server": "9afa410a8b6acd72d4198ea0c04127ae8af0e49215b148e54c13e299d5629c52"
+      },
+      "binary_source_sha": "3644c324a535586e89af72a8c9796e8d58fadf48",
+      "build_manifest_sha256": "fbe95f721e00b15c662e41bed53b4f67bd2cb73033ee76aa70148e6ed4a7d8da",
+      "cgroup_limits": {
+        "/sys/fs/cgroup/cpu.max": "100000 100000\n",
+        "/sys/fs/cgroup/cpuset.cpus.effective": "0-7\n",
+        "/sys/fs/cgroup/memory.max": "805306368\n",
+        "/sys/fs/cgroup/pids.max": "128\n"
+      },
+      "checksums_sha256": "87c0d9ed4a3c60189e3faae5e60f6a976ad03a954061f5a0cb5e15877bb416fa",
+      "classification": "DIAGNOSTIC_BINARY_SOURCE_MISMATCH",
+      "controller_hashes": {
+        "performance/b3_linux.py": "0866cc3a53df25e555f250215df02f30ce0135e19516e6e63f8a9f6eac78ad91",
+        "performance/b3_linux_analysis.py": "b8853e00fdf7aef2b5cfb2d4c5a253904e3ddac5ee323115515121c8c7cde8e9",
+        "performance/linux_loopback.py": "2d685dba08effaa389292b5049e5c7d4dc62783335366c9cf3eafc34c47485cb",
+        "performance/linux_resources.py": "9e441c29699b1ecb388fc6dd4dfdefcee64a26a86c5d62038a7940d9590dd902",
+        "run_b3_session_lifecycle.py": "5661e54f3ff148dfdc6395ddab7dd6a15bc1fd143a67b2b3ef1dfb29c0b61a4b",
+        "run_b3_v2.py": "70353f94393a1ca71a15d98f0a236377166dfd9765cdcbf0fd108ab7a38f06a2"
+      },
+      "environment_sha256": "3011c8d379247ab6edb12f31c3d23e461ecb72e7d980c95e5f2dc36bf9cb372f",
+      "memory_scope": "Linux smaps private resident/RSS/PSS/separate hugetlb, FD/thread counts; no Windows aliases",
+      "platform": {
+        "inherited_cpus": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "kernel": "Linux-6.6.114.1-microsoft-standard-WSL2-x86_64-with-glibc2.36",
+        "lscpu_version": "lscpu from util-linux 2.38.1",
+        "python": "3.14.6",
+        "selected_cpus": [
+          0
+        ],
+        "taskset_version": "taskset from util-linux 2.38.1",
+        "topology": {
+          "cpus": [
+            {
+              "core": 0,
+              "cpu": 0,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            },
+            {
+              "core": 0,
+              "cpu": 1,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            },
+            {
+              "core": 1,
+              "cpu": 2,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            },
+            {
+              "core": 1,
+              "cpu": 3,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            },
+            {
+              "core": 2,
+              "cpu": 4,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            },
+            {
+              "core": 2,
+              "cpu": 5,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            },
+            {
+              "core": 3,
+              "cpu": 6,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            },
+            {
+              "core": 3,
+              "cpu": 7,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            }
+          ]
+        }
+      },
+      "records_sha256": "408dbf738ac88ed7c1b25e4561e887c205638ee4c3f481f2ff5368558e94eb00",
+      "root": "/evidence/streams-32",
+      "source_sha": "1cca67ad092292acec85f622c7d2825c47654a67"
+    }
+  ],
+  "scale": [
+    {
+      "derived_active_private_resident_slope_bytes_per_unit": null,
+      "derived_incremental_private_resident_slope_bytes_per_unit": null,
+      "kind": "streams",
+      "materialized_streams": true,
+      "points": [
+        {
+          "active_private_resident_cv_percent": 0.7353447551222939,
+          "active_private_resident_median": 5251072,
+          "active_private_resident_range": [
+            5234688,
+            5308416
+          ],
+          "count": 32,
+          "incremental_private_resident_median": 3129344,
+          "repeat_gate": true,
+          "repeats": 3,
+          "rows": [
+            {
+              "active": {
+                "fd_count": 7,
+                "private_hugetlb_bytes": 0,
+                "private_resident_bytes": 5234688,
+                "pss_bytes": 5830656,
+                "rss_bytes": 6991872,
+                "thread_count": 1
+              },
+              "idle": {
+                "fd_count": 6,
+                "private_hugetlb_bytes": 0,
+                "private_resident_bytes": 2166784,
+                "pss_bytes": 2762752,
+                "rss_bytes": 3923968,
+                "thread_count": 1
+              },
+              "incremental_private_resident_bytes": 3067904,
+              "name": "streams-32-r1"
+            },
+            {
+              "active": {
+                "fd_count": 7,
+                "private_hugetlb_bytes": 0,
+                "private_resident_bytes": 5251072,
+                "pss_bytes": 5861376,
+                "rss_bytes": 7024640,
+                "thread_count": 1
+              },
+              "idle": {
+                "fd_count": 6,
+                "private_hugetlb_bytes": 0,
+                "private_resident_bytes": 2113536,
+                "pss_bytes": 2723840,
+                "rss_bytes": 3887104,
+                "thread_count": 1
+              },
+              "incremental_private_resident_bytes": 3137536,
+              "name": "streams-32-r2"
+            },
+            {
+              "active": {
+                "fd_count": 7,
+                "private_hugetlb_bytes": 0,
+                "private_resident_bytes": 5308416,
+                "pss_bytes": 5907456,
+                "rss_bytes": 7057408,
+                "thread_count": 1
+              },
+              "idle": {
+                "fd_count": 6,
+                "private_hugetlb_bytes": 0,
+                "private_resident_bytes": 2179072,
+                "pss_bytes": 2778112,
+                "rss_bytes": 3928064,
+                "thread_count": 1
+              },
+              "incremental_private_resident_bytes": 3129344,
+              "name": "streams-32-r3"
+            }
+          ]
+        }
+      ],
+      "resource_scope": "application streams across eight fixed channels; one connection/session",
+      "role": "source"
+    },
+    {
+      "derived_active_private_resident_slope_bytes_per_unit": null,
+      "derived_incremental_private_resident_slope_bytes_per_unit": null,
+      "kind": "streams",
+      "materialized_streams": true,
+      "points": [
+        {
+          "active_private_resident_cv_percent": 2.0775457738735006,
+          "active_private_resident_median": 5226496,
+          "active_private_resident_range": [
+            5074944,
+            5283840
+          ],
+          "count": 32,
+          "incremental_private_resident_median": 1593344,
+          "repeat_gate": true,
+          "repeats": 3,
+          "rows": [
+            {
+              "active": {
+                "fd_count": 8,
+                "private_hugetlb_bytes": 0,
+                "private_resident_bytes": 5283840,
+                "pss_bytes": 5918720,
+                "rss_bytes": 7118848,
+                "thread_count": 2
+              },
+              "idle": {
+                "fd_count": 8,
+                "private_hugetlb_bytes": 0,
+                "private_resident_bytes": 3690496,
+                "pss_bytes": 4325376,
+                "rss_bytes": 5525504,
+                "thread_count": 2
+              },
+              "incremental_private_resident_bytes": 1593344,
+              "name": "streams-32-r1"
+            },
+            {
+              "active": {
+                "fd_count": 8,
+                "private_hugetlb_bytes": 0,
+                "private_resident_bytes": 5074944,
+                "pss_bytes": 5693440,
+                "rss_bytes": 6864896,
+                "thread_count": 2
+              },
+              "idle": {
+                "fd_count": 8,
+                "private_hugetlb_bytes": 0,
+                "private_resident_bytes": 3416064,
+                "pss_bytes": 4034560,
+                "rss_bytes": 5206016,
+                "thread_count": 2
+              },
+              "incremental_private_resident_bytes": 1658880,
+              "name": "streams-32-r2"
+            },
+            {
+              "active": {
+                "fd_count": 8,
+                "private_hugetlb_bytes": 0,
+                "private_resident_bytes": 5226496,
+                "pss_bytes": 5860352,
+                "rss_bytes": 7045120,
+                "thread_count": 2
+              },
+              "idle": {
+                "fd_count": 8,
+                "private_hugetlb_bytes": 0,
+                "private_resident_bytes": 3633152,
+                "pss_bytes": 4267008,
+                "rss_bytes": 5451776,
+                "thread_count": 2
+              },
+              "incremental_private_resident_bytes": 1593344,
+              "name": "streams-32-r3"
+            }
+          ]
+        }
+      ],
+      "resource_scope": "application streams across eight fixed channels; one connection/session",
+      "role": "destination"
+    }
+  ],
+  "schema": "nbsr-b3-linux-analysis-v1"
+}

@@ -1,0 +1,17 @@
+RUN streams-16 repeat=1
+RUN streams-16 repeat=2
+RUN streams-16 repeat=3
+{"axis": "streams", "count": 16, "valid_repeats": 3, "status": "COMPATIBILITY_PASS"}
+RUN streams-32 repeat=1
+RUN streams-32 repeat=2
+RUN streams-32 repeat=3
+{"axis": "streams", "count": 32, "valid_repeats": 3, "status": "COMPATIBILITY_PASS"}
+RUN bundles-16 repeat=1
+RUN bundles-16 repeat=2
+RUN bundles-16 repeat=3
+{"axis": "bundles", "count": 16, "valid_repeats": 3, "status": "COMPATIBILITY_PASS"}
+RUN cycles-3 repeat=1
+RUN cycles-3 repeat=2
+RUN cycles-3 repeat=3
+{"axis": "cycles", "count": 3, "valid_repeats": 3, "status": "COMPATIBILITY_PASS"}
+READY_FOR_EVIDENCE_COPY

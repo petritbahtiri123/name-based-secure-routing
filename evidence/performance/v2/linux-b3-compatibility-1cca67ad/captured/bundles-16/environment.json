@@ -1,0 +1,112 @@
+{
+  "binary_sha256": {
+    "rust": "0a0beaa85ef03eba89dabe73f4d6548023355d224dc7bd63098410b3d4d655c7",
+    "server": "9afa410a8b6acd72d4198ea0c04127ae8af0e49215b148e54c13e299d5629c52"
+  },
+  "binary_source_sha": "3644c324a535586e89af72a8c9796e8d58fadf48",
+  "classification": "DIAGNOSTIC_BINARY_SOURCE_MISMATCH",
+  "execution_paths": {
+    "rust": "/opt/nbsr/bin/perf_rust_source",
+    "server": "/opt/nbsr/bin/wp8_interop_server"
+  },
+  "invocation_scope": "current staged run_cell+LinuxCapture compatibility; run_b3_v2 CLI live NOT_RUN",
+  "linux_environment": {
+    "cgroup_observed": {
+      "/sys/fs/cgroup/cpu.max": "100000 100000\n",
+      "/sys/fs/cgroup/cpu.stat": "usage_usec 497583\nuser_usec 411226\nsystem_usec 86357\nnr_periods 14\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0\n",
+      "/sys/fs/cgroup/cpuset.cpus.effective": "0-7\n",
+      "/sys/fs/cgroup/memory.max": "805306368\n",
+      "/sys/fs/cgroup/pids.max": "128\n"
+    },
+    "inherited_cpus": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "kernel": "Linux-6.6.114.1-microsoft-standard-WSL2-x86_64-with-glibc2.36",
+    "lscpu_version": "lscpu from util-linux 2.38.1",
+    "platform": "linux",
+    "proc_cgroup": "0::/\n",
+    "proc_mountinfo": "437 327 0:83 / / ro,relatime - overlay overlay rw,lowerdir=/var/lib/desktop-containerd/daemon/io.containerd.snapshotter.v1.overlayfs/snapshots/1493/fs:/var/lib/desktop-containerd/daemon/io.containerd.snapshotter.v1.overlayfs/snapshots/1482/fs:/var/lib/desktop-containerd/daemon/io.containerd.snapshotter.v1.overlayfs/snapshots/1481/fs:/var/lib/desktop-containerd/daemon/io.containerd.snapshotter.v1.overlayfs/snapshots/1480/fs:/var/lib/desktop-containerd/daemon/io.containerd.snapshotter.v1.overlayfs/snapshots/1479/fs:/var/lib/desktop-containerd/daemon/io.containerd.snapshotter.v1.overlayfs/snapshots/1478/fs:/var/lib/desktop-containerd/daemon/io.containerd.snapshotter.v1.overlayfs/snapshots/1477/fs:/var/lib/desktop-containerd/daemon/io.containerd.snapshotter.v1.overlayfs/snapshots/1476/fs:/var/lib/desktop-containerd/daemon/io.containerd.snapshotter.v1.overlayfs/snapshots/1442/fs:/var/lib/desktop-containerd/daemon/io.containerd.snapshotter.v1.overlayfs/snapshots/1040/fs:/var/lib/desktop-containerd/daemon/io.containerd.snapshotter.v1.overlayfs/snapshots/1039/fs:/var/lib/desktop-containerd/daemon/io.containerd.snapshotter.v1.overlayfs/snapshots/1038/fs:/var/lib/desktop-containerd/daemon/io.containerd.snapshotter.v1.overlayfs/snapshots/1037/fs,upperdir=/var/lib/desktop-containerd/daemon/io.containerd.snapshotter.v1.overlayfs/snapshots/1494/fs,workdir=/var/lib/desktop-containerd/daemon/io.containerd.snapshotter.v1.overlayfs/snapshots/1494/work\n439 437 0:92 / /proc rw,nosuid,nodev,noexec,relatime - proc proc rw\n440 437 0:93 / /dev rw,nosuid - tmpfs tmpfs rw,size=65536k,mode=755\n441 440 0:94 / /dev/pts rw,nosuid,noexec,relatime - devpts devpts rw,gid=5,mode=620,ptmxmode=666\n442 437 0:95 / /sys ro,nosuid,nodev,noexec,relatime - sysfs sysfs ro\n443 442 0:23 / /sys/fs/cgroup ro,nosuid,nodev,noexec,relatime - cgroup2 cgroup rw\n444 440 0:90 / /dev/mqueue rw,nosuid,nodev,noexec,relatime - mqueue mqueue rw\n445 440 0:96 / /dev/shm rw,nosuid,nodev,noexec,relatime - tmpfs shm rw,size=65536k\n446 437 0:97 / /evidence rw,nosuid,nodev,noexec,relatime - tmpfs tmpfs rw,size=262144k,mode=755,uid=65532,gid=65532\n447 437 0:98 / /tmp rw,nosuid,nodev,noexec,relatime - tmpfs tmpfs rw,size=16384k,uid=65532,gid=65532\n448 437 0:66 /NBSR-build/linux-b3-live-1cca67ad-r2/stage /controller ro,noatime - 9p C:\\134 rw,aname=drvfs;path=C:\\;uid=0;gid=0;metadata;symlinkroot=/mnt/host/,cache=5,access=client,msize=65536,trans=fd,rfd=5,wfd=5\n449 437 8:48 /data/docker/containers/607740dc3b1b105a2fc2038b766ccb8d5f984efcd8d183bb03897a4ca3ab702b/resolv.conf /etc/resolv.conf ro,relatime - ext4 /dev/sdd rw\n450 437 8:48 /data/docker/containers/607740dc3b1b105a2fc2038b766ccb8d5f984efcd8d183bb03897a4ca3ab702b/hostname /etc/hostname ro,relatime - ext4 /dev/sdd rw\n451 437 8:48 /data/docker/containers/607740dc3b1b105a2fc2038b766ccb8d5f984efcd8d183bb03897a4ca3ab702b/hosts /etc/hosts ro,relatime - ext4 /dev/sdd rw\n340 439 0:92 /bus /proc/bus ro,nosuid,nodev,noexec,relatime - proc proc rw\n341 439 0:92 /fs /proc/fs ro,nosuid,nodev,noexec,relatime - proc proc rw\n342 439 0:92 /irq /proc/irq ro,nosuid,nodev,noexec,relatime - proc proc rw\n343 439 0:92 /sys /proc/sys ro,nosuid,nodev,noexec,relatime - proc proc rw\n344 439 0:92 /sysrq-trigger /proc/sysrq-trigger ro,nosuid,nodev,noexec,relatime - proc proc rw\n345 439 0:99 / /proc/acpi ro,relatime - tmpfs tmpfs ro,size=4k,nr_inodes=1\n346 439 0:93 /null /proc/interrupts rw,nosuid - tmpfs tmpfs rw,size=65536k,mode=755\n347 439 0:93 /null /proc/kcore rw,nosuid - tmpfs tmpfs rw,size=65536k,mode=755\n348 439 0:93 /null /proc/keys rw,nosuid - tmpfs tmpfs rw,size=65536k,mode=755\n349 439 0:93 /null /proc/latency_stats rw,nosuid - tmpfs tmpfs rw,size=65536k,mode=755\n350 439 0:99 / /proc/scsi ro,relatime - tmpfs tmpfs ro,size=4k,nr_inodes=1\n351 439 0:93 /null /proc/timer_list rw,nosuid - tmpfs tmpfs rw,size=65536k,mode=755\n352 442 0:99 / /sys/firmware ro,relatime - tmpfs tmpfs ro,size=4k,nr_inodes=1\n",
+    "python": "3.14.6",
+    "scope": "Linux shared physical-core-selected logical pool; guest/cgroup observations, not dedicated hardware proof",
+    "selected_cpus": [
+      0
+    ],
+    "taskset": "/usr/bin/taskset",
+    "taskset_version": "taskset from util-linux 2.38.1",
+    "topology": {
+      "cpus": [
+        {
+          "core": 0,
+          "cpu": 0,
+          "node": 0,
+          "online": true,
+          "socket": 0
+        },
+        {
+          "core": 0,
+          "cpu": 1,
+          "node": 0,
+          "online": true,
+          "socket": 0
+        },
+        {
+          "core": 1,
+          "cpu": 2,
+          "node": 0,
+          "online": true,
+          "socket": 0
+        },
+        {
+          "core": 1,
+          "cpu": 3,
+          "node": 0,
+          "online": true,
+          "socket": 0
+        },
+        {
+          "core": 2,
+          "cpu": 4,
+          "node": 0,
+          "online": true,
+          "socket": 0
+        },
+        {
+          "core": 2,
+          "cpu": 5,
+          "node": 0,
+          "online": true,
+          "socket": 0
+        },
+        {
+          "core": 3,
+          "cpu": 6,
+          "node": 0,
+          "online": true,
+          "socket": 0
+        },
+        {
+          "core": 3,
+          "cpu": 7,
+          "node": 0,
+          "online": true,
+          "socket": 0
+        }
+      ]
+    }
+  },
+  "memory_scope": "Linux smaps private resident/RSS/PSS/separate hugetlb, FD/thread counts; no Windows aliases",
+  "platform": "linux",
+  "retained_paths": {
+    "rust": "/evidence/bundles-16/binaries/perf_rust_source",
+    "server": "/evidence/bundles-16/binaries/wp8_interop_server"
+  },
+  "source_sha": "1cca67ad092292acec85f622c7d2825c47654a67",
+  "wrapper_sha256": "8822a8cf49c769c097ce12d1bc4f30b4c3010ebfaa4a453600b3a2a251f02963"
+}

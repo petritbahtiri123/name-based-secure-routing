@@ -1,0 +1,7 @@
+{
+  "application_streams_current_live": 7,
+  "phase": "b3_materialized_streams_ready",
+  "quic_streams_current_live": 7,
+  "service_channels_current_live": 7,
+  "transport_sessions_current_live": 7
+}

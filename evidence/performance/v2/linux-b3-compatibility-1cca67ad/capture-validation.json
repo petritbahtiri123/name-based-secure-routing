@@ -1,0 +1,64 @@
+{
+  "status": "CAPTURE_HASHES_AND_12_CLEANUP_RUNS_PASS",
+  "checksums_verified": 425,
+  "captured_file_count": 219,
+  "results": [
+    {
+      "shape": "bundles-16",
+      "valid_repeats": 3,
+      "classification": "DIAGNOSTIC_BINARY_SOURCE_MISMATCH",
+      "scale_repeat_gates": [
+        {
+          "role": "source",
+          "cv_percent": 0.8895649649490921,
+          "repeat_gate": true
+        },
+        {
+          "role": "destination",
+          "cv_percent": 1.9363493512264032,
+          "repeat_gate": true
+        }
+      ]
+    },
+    {
+      "shape": "cycles-3",
+      "valid_repeats": 3,
+      "classification": "DIAGNOSTIC_BINARY_SOURCE_MISMATCH",
+      "scale_repeat_gates": []
+    },
+    {
+      "shape": "streams-16",
+      "valid_repeats": 3,
+      "classification": "DIAGNOSTIC_BINARY_SOURCE_MISMATCH",
+      "scale_repeat_gates": [
+        {
+          "role": "source",
+          "cv_percent": 0.5574932837130387,
+          "repeat_gate": true
+        },
+        {
+          "role": "destination",
+          "cv_percent": 1.1474467472456267,
+          "repeat_gate": true
+        }
+      ]
+    },
+    {
+      "shape": "streams-32",
+      "valid_repeats": 3,
+      "classification": "DIAGNOSTIC_BINARY_SOURCE_MISMATCH",
+      "scale_repeat_gates": [
+        {
+          "role": "source",
+          "cv_percent": 0.7353447551222939,
+          "repeat_gate": true
+        },
+        {
+          "role": "destination",
+          "cv_percent": 2.0775457738735006,
+          "repeat_gate": true
+        }
+      ]
+    }
+  ]
+}

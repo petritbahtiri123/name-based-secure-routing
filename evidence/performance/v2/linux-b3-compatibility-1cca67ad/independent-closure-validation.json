@@ -1,0 +1,94 @@
+{
+  "status": "INDEPENDENT_RAW_11_COUNTER_CHECK_PASS",
+  "runs": [
+    {
+      "shape": "streams-16",
+      "name": "streams-16-r1",
+      "raw_11_counter_reports": 2,
+      "original_controller_counter_count": 8,
+      "all_zero": true
+    },
+    {
+      "shape": "streams-16",
+      "name": "streams-16-r2",
+      "raw_11_counter_reports": 2,
+      "original_controller_counter_count": 8,
+      "all_zero": true
+    },
+    {
+      "shape": "streams-16",
+      "name": "streams-16-r3",
+      "raw_11_counter_reports": 2,
+      "original_controller_counter_count": 8,
+      "all_zero": true
+    },
+    {
+      "shape": "streams-32",
+      "name": "streams-32-r1",
+      "raw_11_counter_reports": 2,
+      "original_controller_counter_count": 8,
+      "all_zero": true
+    },
+    {
+      "shape": "streams-32",
+      "name": "streams-32-r2",
+      "raw_11_counter_reports": 2,
+      "original_controller_counter_count": 8,
+      "all_zero": true
+    },
+    {
+      "shape": "streams-32",
+      "name": "streams-32-r3",
+      "raw_11_counter_reports": 2,
+      "original_controller_counter_count": 8,
+      "all_zero": true
+    },
+    {
+      "shape": "bundles-16",
+      "name": "bundles-16-r1",
+      "raw_11_counter_reports": 2,
+      "original_controller_counter_count": 8,
+      "all_zero": true
+    },
+    {
+      "shape": "bundles-16",
+      "name": "bundles-16-r2",
+      "raw_11_counter_reports": 2,
+      "original_controller_counter_count": 8,
+      "all_zero": true
+    },
+    {
+      "shape": "bundles-16",
+      "name": "bundles-16-r3",
+      "raw_11_counter_reports": 2,
+      "original_controller_counter_count": 8,
+      "all_zero": true
+    },
+    {
+      "shape": "cycles-3",
+      "name": "cycles-3-r1",
+      "raw_11_counter_reports": 5,
+      "original_controller_counter_count": 8,
+      "all_zero": true
+    },
+    {
+      "shape": "cycles-3",
+      "name": "cycles-3-r2",
+      "raw_11_counter_reports": 5,
+      "original_controller_counter_count": 8,
+      "all_zero": true
+    },
+    {
+      "shape": "cycles-3",
+      "name": "cycles-3-r3",
+      "raw_11_counter_reports": 5,
+      "original_controller_counter_count": 8,
+      "all_zero": true
+    }
+  ],
+  "total_raw_reports": 33,
+  "expected_postclose_source_rows": 15,
+  "limitation": "Existing B3 controller gates8 counters, not11. Independent raw validation covers11; original records unchanged.",
+  "first_attempt": "INVALID_FAILED_EVIDENCE_CAPTURE_NOT_COUNTED",
+  "cli_live": "NOT_RUN"
+}

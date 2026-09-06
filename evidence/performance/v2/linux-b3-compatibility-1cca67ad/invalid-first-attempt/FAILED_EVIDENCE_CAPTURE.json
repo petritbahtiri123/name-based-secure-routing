@@ -1,0 +1,6 @@
+{
+  "status": "FAILED_EVIDENCE_CAPTURE",
+  "workload_terminal_status": "12 reported compatibility passes; NOT_ACCEPTED without raw evidence",
+  "mechanism": "docker cp live tmpfs returned0 and empty destination; wrapper then released",
+  "captured_file_count": 0
+}

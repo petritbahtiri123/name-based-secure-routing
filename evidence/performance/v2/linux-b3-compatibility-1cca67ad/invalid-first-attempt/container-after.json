@@ -1,0 +1,228 @@
+[
+    {
+        "Id": "fcc646c6666c46f3b846c2a3b6d22543340df8f74cb5c6cd11e992560ec1c69e",
+        "Created": "2026-09-06T04:09:48.5685843Z",
+        "Path": "python3",
+        "Args": [
+            "/controller/compatibility.py"
+        ],
+        "State": {
+            "Status": "exited",
+            "Running": false,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 0,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2026-09-06T04:09:49.0041079Z",
+            "FinishedAt": "2026-09-06T04:12:10.119245898Z"
+        },
+        "Image": "sha256:dd08db4a391b16a9d303a251d2693808baf470f2fc4870d8e3c54b7523deed71",
+        "ResolvConfPath": "/var/lib/docker/containers/fcc646c6666c46f3b846c2a3b6d22543340df8f74cb5c6cd11e992560ec1c69e/resolv.conf",
+        "HostnamePath": "/var/lib/docker/containers/fcc646c6666c46f3b846c2a3b6d22543340df8f74cb5c6cd11e992560ec1c69e/hostname",
+        "HostsPath": "/var/lib/docker/containers/fcc646c6666c46f3b846c2a3b6d22543340df8f74cb5c6cd11e992560ec1c69e/hosts",
+        "LogPath": "/var/lib/docker/containers/fcc646c6666c46f3b846c2a3b6d22543340df8f74cb5c6cd11e992560ec1c69e/fcc646c6666c46f3b846c2a3b6d22543340df8f74cb5c6cd11e992560ec1c69e-json.log",
+        "Name": "/nbsr-b3-linux-1cca67ad",
+        "RestartCount": 0,
+        "Driver": "overlayfs",
+        "Platform": "linux",
+        "MountLabel": "",
+        "ProcessLabel": "",
+        "AppArmorProfile": "",
+        "ExecIDs": null,
+        "HostConfig": {
+            "Binds": null,
+            "ContainerIDFile": "",
+            "LogConfig": {
+                "Type": "json-file",
+                "Config": {}
+            },
+            "NetworkMode": "none",
+            "PortBindings": {},
+            "RestartPolicy": {
+                "Name": "no",
+                "MaximumRetryCount": 0
+            },
+            "AutoRemove": false,
+            "VolumeDriver": "",
+            "VolumesFrom": null,
+            "ConsoleSize": [
+                0,
+                0
+            ],
+            "CapAdd": null,
+            "CapDrop": [
+                "ALL"
+            ],
+            "CgroupnsMode": "private",
+            "Dns": null,
+            "DnsOptions": [],
+            "DnsSearch": [],
+            "ExtraHosts": null,
+            "GroupAdd": null,
+            "IpcMode": "private",
+            "Cgroup": "",
+            "Links": null,
+            "OomScoreAdj": 0,
+            "PidMode": "",
+            "Privileged": false,
+            "PublishAllPorts": false,
+            "ReadonlyRootfs": true,
+            "SecurityOpt": [
+                "no-new-privileges:true"
+            ],
+            "Tmpfs": {
+                "/evidence": "rw,noexec,nosuid,nodev,size=268435456,uid=65532,gid=65532",
+                "/tmp": "rw,noexec,nosuid,nodev,size=16777216,uid=65532,gid=65532"
+            },
+            "UTSMode": "",
+            "UsernsMode": "",
+            "ShmSize": 67108864,
+            "Runtime": "runc",
+            "Isolation": "",
+            "CpuShares": 0,
+            "Memory": 805306368,
+            "NanoCpus": 1000000000,
+            "CgroupParent": "",
+            "BlkioWeight": 0,
+            "BlkioWeightDevice": [],
+            "BlkioDeviceReadBps": [],
+            "BlkioDeviceWriteBps": [],
+            "BlkioDeviceReadIOps": [],
+            "BlkioDeviceWriteIOps": [],
+            "CpuPeriod": 0,
+            "CpuQuota": 0,
+            "CpuRealtimePeriod": 0,
+            "CpuRealtimeRuntime": 0,
+            "CpusetCpus": "",
+            "CpusetMems": "",
+            "Devices": [],
+            "DeviceCgroupRules": null,
+            "DeviceRequests": null,
+            "MemoryReservation": 0,
+            "MemorySwap": 805306368,
+            "MemorySwappiness": null,
+            "OomKillDisable": null,
+            "PidsLimit": 128,
+            "Ulimits": [],
+            "CpuCount": 0,
+            "CpuPercent": 0,
+            "IOMaximumIOps": 0,
+            "IOMaximumBandwidth": 0,
+            "Mounts": [
+                {
+                    "Type": "bind",
+                    "Source": "C:/NBSR-build/linux-b3-live-1cca67ad/stage",
+                    "Target": "/controller",
+                    "ReadOnly": true
+                }
+            ],
+            "MaskedPaths": [
+                "/proc/acpi",
+                "/proc/asound",
+                "/proc/interrupts",
+                "/proc/kcore",
+                "/proc/keys",
+                "/proc/latency_stats",
+                "/proc/sched_debug",
+                "/proc/scsi",
+                "/proc/timer_list",
+                "/proc/timer_stats",
+                "/sys/devices/virtual/powercap",
+                "/sys/firmware"
+            ],
+            "ReadonlyPaths": [
+                "/proc/bus",
+                "/proc/fs",
+                "/proc/irq",
+                "/proc/sys",
+                "/proc/sysrq-trigger"
+            ]
+        },
+        "Storage": {
+            "RootFS": {
+                "Snapshot": {
+                    "Name": "overlayfs"
+                }
+            }
+        },
+        "Mounts": [
+            {
+                "Type": "bind",
+                "Source": "C:/NBSR-build/linux-b3-live-1cca67ad/stage",
+                "Destination": "/controller",
+                "Mode": "",
+                "RW": false,
+                "Propagation": "rprivate"
+            }
+        ],
+        "Config": {
+            "Hostname": "fcc646c6666c",
+            "Domainname": "",
+            "User": "65532:65532",
+            "AttachStdin": false,
+            "AttachStdout": true,
+            "AttachStderr": true,
+            "Tty": false,
+            "OpenStdin": false,
+            "StdinOnce": false,
+            "Env": [
+                "PYTHONPATH=/controller",
+                "PYTHONDONTWRITEBYTECODE=1",
+                "PATH=/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                "PYTHON_VERSION=3.14.6",
+                "PYTHON_SHA256=143b1dddefaec3bd2e21e3b839b34a2b7fb9842272883c576420d605e9f30c63",
+                "GIT_CONFIG_COUNT=1",
+                "GIT_CONFIG_KEY_0=safe.directory",
+                "GIT_CONFIG_VALUE_0=/src"
+            ],
+            "Cmd": [
+                "/controller/compatibility.py"
+            ],
+            "Image": "sha256:dd08db4a391b16a9d303a251d2693808baf470f2fc4870d8e3c54b7523deed71",
+            "Volumes": null,
+            "WorkingDir": "/controller",
+            "Entrypoint": [
+                "python3"
+            ],
+            "Labels": {
+                "nbsr.diagnostic": "linux-b3-1cca67ad"
+            }
+        },
+        "NetworkSettings": {
+            "SandboxID": "",
+            "SandboxKey": "",
+            "Ports": {},
+            "Networks": {
+                "none": {
+                    "IPAMConfig": null,
+                    "Links": null,
+                    "Aliases": null,
+                    "DriverOpts": null,
+                    "GwPriority": 0,
+                    "NetworkID": "5e8bf3d5902ab6f894165d69cfdbdd73c02b73c4460bd62dd40e6ece133c4008",
+                    "EndpointID": "",
+                    "Gateway": "",
+                    "IPAddress": "",
+                    "MacAddress": "",
+                    "IPPrefixLen": 0,
+                    "IPv6Gateway": "",
+                    "GlobalIPv6Address": "",
+                    "GlobalIPv6PrefixLen": 0,
+                    "DNSNames": null
+                }
+            }
+        },
+        "ImageManifestDescriptor": {
+            "mediaType": "application/vnd.oci.image.manifest.v1+json",
+            "digest": "sha256:4e75c7a9767ad99cad7e6d2409c77f9e8919639d7241d0b9f3a07b15a348de70",
+            "size": 2581,
+            "platform": {
+                "architecture": "amd64",
+                "os": "linux"
+            }
+        }
+    }
+]

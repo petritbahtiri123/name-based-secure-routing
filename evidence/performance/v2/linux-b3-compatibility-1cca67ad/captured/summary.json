@@ -1,0 +1,26 @@
+[
+  {
+    "axis": "streams",
+    "count": 16,
+    "status": "COMPATIBILITY_PASS",
+    "valid_repeats": 3
+  },
+  {
+    "axis": "streams",
+    "count": 32,
+    "status": "COMPATIBILITY_PASS",
+    "valid_repeats": 3
+  },
+  {
+    "axis": "bundles",
+    "count": 16,
+    "status": "COMPATIBILITY_PASS",
+    "valid_repeats": 3
+  },
+  {
+    "axis": "cycles",
+    "count": 3,
+    "status": "COMPATIBILITY_PASS",
+    "valid_repeats": 3
+  }
+]
