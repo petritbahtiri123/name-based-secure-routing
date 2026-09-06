@@ -1,0 +1,41 @@
+{
+  "container_id": "de5ed31f35bba90bdf43c44540cf8c129a6389fb4eabd4e95a344f64d7075d95",
+  "image": "sha256:dd08db4a391b16a9d303a251d2693808baf470f2fc4870d8e3c54b7523deed71",
+  "user": "65532:65532",
+  "state": {
+    "Status": "exited",
+    "Running": false,
+    "Paused": false,
+    "Restarting": false,
+    "OOMKilled": false,
+    "Dead": false,
+    "Pid": 0,
+    "ExitCode": 0,
+    "Error": "",
+    "StartedAt": "2026-09-06T01:41:49.366433452Z",
+    "FinishedAt": "2026-09-06T01:44:21.505775168Z"
+  },
+  "settings": {
+    "ReadonlyRootfs": true,
+    "NetworkMode": "none",
+    "CapDrop": [
+      "ALL"
+    ],
+    "SecurityOpt": [
+      "no-new-privileges"
+    ],
+    "NanoCpus": 1000000000,
+    "Memory": 1073741824,
+    "PidsLimit": 128,
+    "Tmpfs": {
+      "/tmp": "rw,noexec,nosuid,nodev,size=16777216,uid=65532,gid=65532"
+    },
+    "Mounts": [
+      {
+        "Type": "volume",
+        "Source": "nbsr-linux-smoke-3644c324-evidence",
+        "Target": "/evidence"
+      }
+    ]
+  }
+}

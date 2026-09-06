@@ -1,0 +1,22 @@
+{
+  "raw_root": "C:\\NBSR-build\\linux-smoke-preparation-3644c324",
+  "indexes": [
+    {
+      "root": "C:\\NBSR-build\\linux-smoke-preparation-3644c324",
+      "name": "evidence-checksums.sha256",
+      "sha256": "0c237495fb33ee0a53af7dc938eea046dbfa3dc47d71b750c3e8dcbca201e55e",
+      "verified_artifacts": 91
+    },
+    {
+      "root": "C:\\NBSR-build\\linux-smoke-preparation-3644c324\\captured\\run",
+      "name": "checksums.sha256",
+      "sha256": "6552867d86073e7313e1ed932ab4cf1cbb79277813b4b121b341df21690a8e42",
+      "verified_artifacts": 61
+    }
+  ],
+  "source_sha": "3644c324a535586e89af72a8c9796e8d58fadf48",
+  "prior_failure": "C:/NBSR-build/linux-smoke-preparation-6227fd86",
+  "frozen_source_bundle": "C:\\NBSR-build\\linux-smoke-preparation-3644c324\\source.bundle",
+  "build_log": "C:\\NBSR-build\\linux-smoke-preparation-3644c324\\build.log",
+  "compact_json": "Normalized JSON; original bytes remain bound by raw index"
+}

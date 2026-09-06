@@ -1,0 +1,17 @@
+{
+  "source_sha": "3644c324a535586e89af72a8c9796e8d58fadf48",
+  "build_profile": "release",
+  "binary_sha256": {
+    "perf_direct_peer": "9cf101ef845c87690f61223ee0a3fb7e04f4dde13648fa53eac18ee1ce0d1cf2",
+    "perf_rust_source": "0a0beaa85ef03eba89dabe73f4d6548023355d224dc7bd63098410b3d4d655c7",
+    "wp8_interop_server": "9afa410a8b6acd72d4198ea0c04127ae8af0e49215b148e54c13e299d5629c52"
+  },
+  "build_commands": [
+    "CARGO_TARGET_DIR=/build cargo build --locked --release --manifest-path crates/nbsr-transport/Cargo.toml --features benchmark-harness --bin perf_direct_peer --bin perf_rust_source --bin wp8_interop_server"
+  ],
+  "toolchains": {
+    "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)\nbinary: rustc\ncommit-hash: 8bab26f4f68e0e26f0bb7960be334d5b520ea452\ncommit-date: 2026-07-14\nhost: x86_64-unknown-linux-gnu\nrelease: 1.97.1\nLLVM version: 22.1.6\n",
+    "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)\n",
+    "python": "3.14.6"
+  }
+}

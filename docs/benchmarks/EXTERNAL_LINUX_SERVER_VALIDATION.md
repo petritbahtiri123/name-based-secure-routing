@@ -1,6 +1,6 @@
 # External Linux/server validation definition
 
-Status: **NOT_RUN / EXTERNAL_HARDWARE_REQUIRED**. No usable external host, Linux execution, physical-NIC measurement, or server scaling result is established by this document. A new executable Linux **loopback control** runner and machine-readable matrix now exist, with synthetic tests only. Full external definition readiness remains **PARTIAL / REQUIRED PORTING**: two-host orchestration and the full matrix are not implemented. Do not mark the Task 8 definition gate PASS on the basis of the loopback subset.
+Status: **NOT_RUN / EXTERNAL_HARDWARE_REQUIRED**. No usable external host, physical-NIC measurement, or server scaling result is established. Docker Desktop Linux VM compatibility passed six finite repeats at 3644c324; see evidence/performance/v2/linux-compatibility-3644c324. This is not bare-metal/server capacity. A new executable Linux **loopback control** runner and machine-readable matrix now exist, with synthetic tests and a scoped Docker VM execution. Full external definition readiness remains **PARTIAL / REQUIRED PORTING**: two-host orchestration and the full matrix are not implemented. Do not mark the Task 8 definition gate PASS on the basis of the loopback subset.
 
 Contract: [funding-grade V2 plan, Task 8](../superpowers/plans/2026-08-30-funding-grade-benchmark-v2.md). Frozen protocol, trust, authority, admission, and wire semantics remain unchanged. No application payload before ACCEPT. This file contains proposed execution requirements, not measurements.
 

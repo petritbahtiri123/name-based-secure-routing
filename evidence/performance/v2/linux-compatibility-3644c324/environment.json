@@ -1,0 +1,72 @@
+{
+  "cpu_sets": {
+    "1": [
+      0
+    ]
+  },
+  "platform": "Linux-6.6.114.1-microsoft-standard-WSL2-x86_64-with-glibc2.36",
+  "python": "3.14.6",
+  "scope": "Linux loopback, shared source/destination physical-core pool",
+  "source_sha": "3644c324a535586e89af72a8c9796e8d58fadf48",
+  "timestamp_utc": "2026-09-06T01:42:01Z",
+  "topology": {
+    "cpus": [
+      {
+        "core": 0,
+        "cpu": 0,
+        "node": 0,
+        "online": true,
+        "socket": 0
+      },
+      {
+        "core": 0,
+        "cpu": 1,
+        "node": 0,
+        "online": true,
+        "socket": 0
+      },
+      {
+        "core": 1,
+        "cpu": 2,
+        "node": 0,
+        "online": true,
+        "socket": 0
+      },
+      {
+        "core": 1,
+        "cpu": 3,
+        "node": 0,
+        "online": true,
+        "socket": 0
+      },
+      {
+        "core": 2,
+        "cpu": 4,
+        "node": 0,
+        "online": true,
+        "socket": 0
+      },
+      {
+        "core": 2,
+        "cpu": 5,
+        "node": 0,
+        "online": true,
+        "socket": 0
+      },
+      {
+        "core": 3,
+        "cpu": 6,
+        "node": 0,
+        "online": true,
+        "socket": 0
+      },
+      {
+        "core": 3,
+        "cpu": 7,
+        "node": 0,
+        "online": true,
+        "socket": 0
+      }
+    ]
+  }
+}

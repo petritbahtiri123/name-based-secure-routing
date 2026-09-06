@@ -1,0 +1,35 @@
+{
+  "cells": [
+    {
+      "cell": {
+        "cores": 1,
+        "outstanding": 1,
+        "path": "direct",
+        "payload_bytes": 1024,
+        "streams": 64
+      },
+      "cv": 0.00826729045771809,
+      "median_gbps": 1.5991896578208002,
+      "repeatable": true,
+      "valid_repeats": 3
+    },
+    {
+      "cell": {
+        "cores": 1,
+        "outstanding": 1,
+        "path": "nbsr",
+        "payload_bytes": 1024,
+        "streams": 64
+      },
+      "cv": 0.021143744414762366,
+      "median_gbps": 1.9367720048490997,
+      "repeatable": true,
+      "valid_repeats": 3
+    }
+  ],
+  "external_two_host": "NOT_RUN / EXTERNAL_HARDWARE_REQUIRED",
+  "status": "PASS_LOOPBACK_CONTROL",
+  "steady_cpu_ns_per_operation": null,
+  "strict_stable_ceiling": "NOT_ESTABLISHED",
+  "valid_runs": 6
+}

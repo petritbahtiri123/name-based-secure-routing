@@ -1,0 +1,12 @@
+{
+  "classification": "DOCKER_DESKTOP_LINUX_VM_LOOPBACK_SMOKE_ONLY",
+  "physical_server_validation": "NOT_RUN",
+  "physical_core_topology": "NOT_ESTABLISHED",
+  "guest_topology_only": true,
+  "cgroup_v2": {
+    "cpu.max": "100000 100000\n",
+    "cpuset.cpus.effective": "0-7\n",
+    "memory.max": "1073741824\n",
+    "cpu.stat": "usage_usec 5996112\nuser_usec 5485034\nsystem_usec 511078\nnr_periods 60\nnr_throttled 5\nthrottled_usec 438023\nnr_bursts 0\nburst_usec 0\n"
+  }
+}

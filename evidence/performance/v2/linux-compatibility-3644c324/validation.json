@@ -1,0 +1,9 @@
+{
+  "valid_runs": 6,
+  "terminal_process_samples": 12,
+  "same_identity_final_cpu_preserved": true,
+  "final_fd_count": "null / UNAVAILABLE_ZOMBIE",
+  "cleanup_scope": "Process exit and terminal CPU/identity; no 11-counter ownership proof",
+  "classification": "PASS_LOOPBACK_CONTROL",
+  "scope": "Docker Desktop Linux VM compatibility only"
+}
