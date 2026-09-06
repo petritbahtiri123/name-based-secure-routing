@@ -1,0 +1,44 @@
+{
+  "classification": "INVALID_PARTIAL_DIAGNOSTIC",
+  "source_sha": "d12e38c95a0d5f8d02a78eb7a797af11969f81a2",
+  "attempts": [
+    {
+      "attempt": 1,
+      "valid": true,
+      "error": null,
+      "steady_goodput": [
+        70256037.58433953,
+        72424454.55535734,
+        70556630.49902987
+      ],
+      "steady_p99_ns": [
+        2699600,
+        2165700,
+        2873400
+      ],
+      "ratio": 0.93405578565014
+    },
+    {
+      "attempt": 2,
+      "valid": false,
+      "error": "B5 stream failed: live goodput drift",
+      "steady_goodput": [
+        72497228.03773257,
+        65919139.95792736,
+        59812326.7366549
+      ],
+      "steady_p99_ns": [
+        2246000,
+        4738000,
+        8558000
+      ],
+      "ratio": null
+    }
+  ],
+  "stop_reason": "live goodput drift in attempt2",
+  "sampler_lookup_failure": "NOT_REPRODUCED_BEFORE_DIFFERENT_ABORT",
+  "original_failure_cause": "UNRESOLVED",
+  "no_replacement": true,
+  "observer_qualified": false,
+  "soak_qualified": false
+}

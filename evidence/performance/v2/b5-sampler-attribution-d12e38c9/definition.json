@@ -1,0 +1,23 @@
+{
+  "classification": "DIAGNOSTIC_FAILURE_ATTRIBUTION",
+  "repository_sha": "d12e38c95a0d5f8d02a78eb7a797af11969f81a2",
+  "max_attempts": 5,
+  "stop_on_first_invalid": true,
+  "replacement": false,
+  "pool_with_prior_cohort": false,
+  "current_capacity_qualification": false,
+  "ownership_sampling": true,
+  "duration_seconds": 120,
+  "warmup_seconds": 3,
+  "progress_seconds": 30,
+  "physical_cores": 1,
+  "endpoint_groups": 1,
+  "streams_per_group": 64,
+  "payload_bytes": 1024,
+  "outstanding_per_stream": 1,
+  "fixed_historical_rate": [
+    32925900000,
+    882649
+  ],
+  "purpose": "Reproduce sampler stop with original exception and role/PID; failure-only diagnostic change. No observer or soak qualification."
+}
