@@ -1,0 +1,22 @@
+[
+  {
+    "raw_root": "C:\\NBSR-build\\physical-core-1core-1k64-96f6b902",
+    "indexed_files": 108,
+    "index_sha256": "b0f77b635d03ab14ed6edaec116e3c470eb21023dc65f0ddaf5f09e5f6411f6e"
+  },
+  {
+    "raw_root": "C:\\NBSR-build\\physical-core-4core-1k64-96f6b902",
+    "indexed_files": 229,
+    "index_sha256": "5fd06c51c988ad0a6b9463c914041511e75f06b3199fc1a71fabb40d63c3b92e"
+  },
+  {
+    "raw_root": "C:\\NBSR-build\\physical-core-4core-1k64-depth8-96f6b902",
+    "indexed_files": 109,
+    "index_sha256": "7534d4dbe0a69efa2cbd4ae6a708a75c5511fc2e7b8123e31b5906db29507913"
+  },
+  {
+    "raw_root": "C:\\NBSR-build\\b5-observer-1k64-96f6b902",
+    "indexed_files": 151,
+    "index_sha256": "7da8d0d2c1e2af2f362bbd847777d1887bcf0bd8761f0baf24276f3ad7ff372b"
+  }
+]

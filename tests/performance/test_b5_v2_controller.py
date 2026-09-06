@@ -232,7 +232,9 @@ def test_run_one_ack_follows_sampling_and_preserves_failed_reader_tail(monkeypat
                                  goodput_bytes_per_second=100, p99_latency_ns=100),
                             received_ns=1000)
         if failure == "parser":
-            raise ValueError("injected parser failure")
+            cause = ProcessLookupError("synthetic lookup failure")
+            cause.add_note("resource sampler role=destination_0 pid=100")
+            raise ValueError("injected parser failure") from cause
         return dict(completed=1, offered=1, measurement_duration_ns=2_000_000_000, drain_duration_ns=0)
 
     monkeypatch.setattr(b5.subprocess, "Popen", Process)
@@ -253,6 +255,9 @@ def test_run_one_ack_follows_sampling_and_preserves_failed_reader_tail(monkeypat
     if failure == "parser":
         assert (tmp_path / "run" / "source.stdout.ndjson").read_bytes() == b"retained failure bytes\n"
         assert not (tmp_path / "run" / "completion.ack").exists()
+        assert "synthetic lookup failure" in retained["failure_traceback"]
+        assert "role=destination_0 pid=100" in retained["failure_traceback"]
+        assert retained["failure_traceback_truncated"] is False
 
 
 @pytest.mark.parametrize("change", [None, "mask", "efficiency", "logical_count"])

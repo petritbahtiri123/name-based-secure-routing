@@ -223,6 +223,7 @@ class ProcessResourceSampler:
         self._thread: threading.Thread | None = None
         self._records: list[TimedProcessResourceSample] = []
         self._error: BaseException | None = None
+        self._lookup_stop: ProcessLookupError | None = None
 
     def start(self) -> None:
         if self._thread is not None:
@@ -247,7 +248,7 @@ class ProcessResourceSampler:
         if self._error is not None:
             raise RuntimeError("authoritative resource sample disappeared") from self._error
         if require_running and (self._thread is None or not self._thread.is_alive()):
-            raise RuntimeError("authoritative resource sampling stopped")
+            raise RuntimeError("authoritative resource sampling stopped") from self._lookup_stop
 
     def _run(self) -> None:
         previous: dict[str, tuple[int, int]] = {}
@@ -285,6 +286,8 @@ class ProcessResourceSampler:
                         self.record_sink(record)
                 self._stop.wait(self.interval_seconds)
         except ProcessLookupError as error:
+            error.add_note(f"resource sampler role={role} pid={pid}; process lookup failed")
+            self._lookup_stop = error
             if observed_roles != set(self.processes):
                 self._error = error
         except BaseException as error:

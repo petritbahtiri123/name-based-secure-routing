@@ -1,0 +1,31 @@
+[
+  {
+    "path": "nbsr",
+    "valid": false,
+    "classification": "FAIL",
+    "scope": "Windows loopback",
+    "error": "B5 stream failed: authoritative resource sampling stopped",
+    "affinity": [
+      {
+        "requested_mask": 1,
+        "observed_mask": 1,
+        "system_mask": 255,
+        "verified": true
+      },
+      {
+        "requested_mask": 1,
+        "observed_mask": 1,
+        "system_mask": 255,
+        "verified": true
+      }
+    ],
+    "qualification": {
+      "steady_windows": 3,
+      "latency_comparison_available": true,
+      "resource_series_available": true,
+      "resource_phase_origin_monotonic_ns": 700198233719500,
+      "resource_phase_clock": "first-progress receive time minus elapsed; approximate, excludes earlier samples",
+      "thermal_and_power": "NOT_MEASURED"
+    }
+  }
+]

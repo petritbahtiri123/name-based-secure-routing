@@ -1,0 +1,14 @@
+{
+  "classification": "INVALID_PARTIAL_DIAGNOSTIC",
+  "cohort_complete": false,
+  "observer_accepted": false,
+  "valid_cells_retained": 6,
+  "failed_cell": "on-r4",
+  "required_pairs": 5,
+  "completed_pairs": 3,
+  "no_replacement": true,
+  "prefix_causal_qualification": "INVALID",
+  "failure": "B5 stream failed: authoritative resource sampling stopped",
+  "attribution": "Resource sampler stopped near terminal progress; original process-lookup exception was not retained. Cause UNRESOLVED.",
+  "qualified_soak": "NOT_PROVEN"
+}

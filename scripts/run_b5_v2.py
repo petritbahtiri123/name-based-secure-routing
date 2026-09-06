@@ -17,6 +17,7 @@ import sys
 import tempfile
 import threading
 import time
+import traceback
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from scripts import run_max_throughput_v2_stage4 as stage4
@@ -351,6 +352,9 @@ def run_one(cell, binaries, authority, plan, directory, *, warmup, duration, pro
                 raise RuntimeError("paced achievable/offered gate below 95%; target unchanged")
         except Exception as error:
             result.update(valid=False, classification="FAIL", error=str(error))
+            detail = "".join(traceback.format_exception(error))
+            result.update(failure_traceback=detail[-65536:],
+                          failure_traceback_truncated=len(detail) > 65536)
         finally:
             # Stop authoritative sampling while owned processes still exist.
             if sampler_running:
