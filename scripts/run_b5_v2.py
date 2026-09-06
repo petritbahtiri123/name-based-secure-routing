@@ -132,7 +132,14 @@ def preserve_tail(reader, raw):
 
 
 class LiveGuards:
-    def __init__(self, *, groups, max_progress, max_resources):
+    def __init__(self, *, groups, max_progress, max_resources,
+                 resource_basis="windows_private_bytes"):
+        bases = {"windows_private_bytes": ("monotonic_timestamp_ns", "private_bytes"),
+                 "linux_private_resident": ("timestamp_ns", "private_resident_bytes")}
+        if resource_basis not in bases:
+            raise ValueError("unsupported resource basis")
+        self.resource_basis = resource_basis
+        self.resource_clock, self.private_metric = bases[resource_basis]
         self.roles = {"source", *(f"destination_{i}" for i in range(groups))}
         self.max_progress, self.max_resources = max_progress, max_resources
         self.steady = []
@@ -145,8 +152,15 @@ class LiveGuards:
         with self.lock:
             if len(self.resources) >= self.max_resources:
                 raise RuntimeError("live resource bound exceeded")
-            if value["role"] not in self.roles or type(value.get("monotonic_timestamp_ns")) is not int:
+            if value["role"] not in self.roles or type(value.get(self.resource_clock)) is not int:
                 raise RuntimeError("invalid resource role/clock")
+            memory = value.get(self.private_metric)
+            terminal = (self.resource_basis == "linux_private_resident"
+                        and value.get("state") == "Z"
+                        and value.get("memory_state") == "UNAVAILABLE_ZOMBIE"
+                        and self.private_metric in value and memory is None)
+            if not terminal and (type(memory) is not int or memory < 0):
+                raise RuntimeError("invalid live resource memory")
             self.resources.append(value)
 
     def progress(self, value, *, received_ns=None):
@@ -164,20 +178,24 @@ class LiveGuards:
             raise RuntimeError(f"live {reason} drift")
         with self.lock:
             for role in sorted(self.roles):
-                points = [((r["monotonic_timestamp_ns"] - self.origin_ns) / 1e9, float(r["private_bytes"]))
+                points = [((r[self.resource_clock] - self.origin_ns) / 1e9, float(r[self.private_metric]))
                           for r in self.resources if r["role"] == role
-                          and self.origin_ns <= r["monotonic_timestamp_ns"] <= received_ns]
+                          and r[self.private_metric] is not None
+                          and self.origin_ns <= r[self.resource_clock] <= received_ns]
                 if private_growth(points):
                     raise RuntimeError(f"live private growth: {role} (receive-clock diagnostic)")
 
     def qualification(self):
         with self.lock:
             complete = self.origin_ns is not None and all(sum(
-                r["role"] == role and r["monotonic_timestamp_ns"] >= self.origin_ns
+                r["role"] == role and r[self.resource_clock] >= self.origin_ns
+                and r[self.private_metric] is not None
                 for r in self.resources) >= 4 for role in self.roles)
         return {"steady_windows": len(self.steady), "latency_comparison_available":
                 len(self.steady) >= 3 and all(r["p99_latency_ns"] is not None for r in self.steady),
                 "resource_series_available": complete,
+                "resource_sample_clock": self.resource_clock,
+                "resource_memory_metric": self.private_metric,
                 "resource_phase_origin_monotonic_ns": self.origin_ns,
                 "resource_phase_clock": "first-progress receive time minus elapsed; approximate, excludes earlier samples",
                 "thermal_and_power": "NOT_MEASURED"}

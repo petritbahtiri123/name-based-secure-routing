@@ -90,3 +90,7 @@ Linux terminal-source sampler opt-in now preserves one validated zombie CPU/
 identity snapshot while the destination continues (84 focused tests, actual
 restricted Linux fixture). See `linux-b5-terminal-648c8acd`. Full B5 runtime
 composition/clock wiring and observer qualification are still outstanding.
+
+B5 live guards now have explicit Linux clock/private-resident metric selection
+(60 focused tests); terminal null memory cannot establish live stability.
+Full Linux sustained orchestration and observer qualification remain pending.

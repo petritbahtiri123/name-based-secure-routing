@@ -107,3 +107,26 @@ private-resident memory, so no memory-growth claim is made by the finite stage.
 Multicore/grouped references, the Linux B5 live controller backend and two-host
 NIC workloads are separate unimplemented stages. Native two-host bind support
 does not make this loopback controller a remote workload orchestrator.
+
+## Sustained backend prerequisites now available
+
+The shared B5 consume loop accepts an optional nonreaping exit observer;
+`scripts/performance/linux_exit.py` uses waitid WNOWAIT so an exclusively owned
+child remains available for terminal CPU/identity sampling until explicit wait.
+The Linux sampler accepts an explicit `terminal_roles` opt-in, requires a prior
+live sample and consistent identity/CPU/affinity, records exactly one zombie
+snapshot with null memory, then continues the other roles. Defaults remain
+live-only. Both primitives have restricted-container Python lifecycle evidence.
+
+`LiveGuards(resource_basis="linux_private_resident")` now selects Linux
+monotonic `timestamp_ns` and `private_resident_bytes` together. The default
+Windows pair remains `monotonic_timestamp_ns`/`private_bytes`. Wrong clocks,
+missing live memory and invalid values fail; terminal null memory is excluded
+from growth fits and minimum live-sample counts. Qualification identifies both
+clock and metric. Six literal RED tests preceded this addition;60 focused
+controller/ownership/exit/metric tests and Ruff pass. Growth/drift thresholds
+and receive-clock approximation remain unchanged.
+
+These are tested prerequisites, not a completed Linux B5 CLI. End-to-end
+launch/affinity/sampler/terminal/ACK composition, strict Linux reference binding
+and matched observer qualification remain required before any sustained claim.
