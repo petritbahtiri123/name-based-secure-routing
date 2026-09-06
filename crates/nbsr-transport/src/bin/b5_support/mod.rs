@@ -147,3 +147,9 @@ mod paced_contract_tests;
 mod paced;
 #[cfg(test)]
 use paced::{BoundedCollector, PacingWindow};
+
+#[cfg(test)]
+mod coordinator_contract_tests;
+
+#[cfg(test)]
+mod coordinator;

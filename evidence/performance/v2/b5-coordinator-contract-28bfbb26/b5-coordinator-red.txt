@@ -1,0 +1,9 @@
+   Compiling nbsr-transport v0.1.0 (C:\Users\bajra\OneDrive\Documents\NBSR\crates\nbsr-transport)
+error[E0432]: unresolved import `super::coordinator`
+ --> src\bin\b5_support\coordinator_contract_tests.rs:2:12
+  |
+2 | use super::coordinator::{Action, Clock, Config, PacedRun, Phase};
+  |            ^^^^^^^^^^^ could not find `coordinator` in `super`
+
+For more information about this error, try `rustc --explain E0432`.
+error: could not compile `nbsr-transport` (bin "perf_rust_source" test) due to 1 previous error

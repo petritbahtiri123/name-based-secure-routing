@@ -1,0 +1,100 @@
+FFFFFFF                                                                  [100%]
+================================== FAILURES ===================================
+_________________ test_invalid_sample_bounds_are_rejected[0] __________________
+
+limit = 0
+
+    @pytest.mark.parametrize("limit", [0, -1, True, 1.5, "3"])
+    def test_invalid_sample_bounds_are_rejected(limit):
+        with pytest.raises(ValueError, match="sample bound"):
+>           resources.ProcessResourceSampler(
+                {"source": 1}, assigned_logical_processors=1, max_records=limit
+            )
+E           TypeError: ProcessResourceSampler.__init__() got an unexpected keyword argument 'max_records'
+
+tests\performance\test_resource_sample_bound.py:10: TypeError
+_________________ test_invalid_sample_bounds_are_rejected[-1] _________________
+
+limit = -1
+
+    @pytest.mark.parametrize("limit", [0, -1, True, 1.5, "3"])
+    def test_invalid_sample_bounds_are_rejected(limit):
+        with pytest.raises(ValueError, match="sample bound"):
+>           resources.ProcessResourceSampler(
+                {"source": 1}, assigned_logical_processors=1, max_records=limit
+            )
+E           TypeError: ProcessResourceSampler.__init__() got an unexpected keyword argument 'max_records'
+
+tests\performance\test_resource_sample_bound.py:10: TypeError
+________________ test_invalid_sample_bounds_are_rejected[True] ________________
+
+limit = True
+
+    @pytest.mark.parametrize("limit", [0, -1, True, 1.5, "3"])
+    def test_invalid_sample_bounds_are_rejected(limit):
+        with pytest.raises(ValueError, match="sample bound"):
+>           resources.ProcessResourceSampler(
+                {"source": 1}, assigned_logical_processors=1, max_records=limit
+            )
+E           TypeError: ProcessResourceSampler.__init__() got an unexpected keyword argument 'max_records'
+
+tests\performance\test_resource_sample_bound.py:10: TypeError
+________________ test_invalid_sample_bounds_are_rejected[1.5] _________________
+
+limit = 1.5
+
+    @pytest.mark.parametrize("limit", [0, -1, True, 1.5, "3"])
+    def test_invalid_sample_bounds_are_rejected(limit):
+        with pytest.raises(ValueError, match="sample bound"):
+>           resources.ProcessResourceSampler(
+                {"source": 1}, assigned_logical_processors=1, max_records=limit
+            )
+E           TypeError: ProcessResourceSampler.__init__() got an unexpected keyword argument 'max_records'
+
+tests\performance\test_resource_sample_bound.py:10: TypeError
+_________________ test_invalid_sample_bounds_are_rejected[3] __________________
+
+limit = '3'
+
+    @pytest.mark.parametrize("limit", [0, -1, True, 1.5, "3"])
+    def test_invalid_sample_bounds_are_rejected(limit):
+        with pytest.raises(ValueError, match="sample bound"):
+>           resources.ProcessResourceSampler(
+                {"source": 1}, assigned_logical_processors=1, max_records=limit
+            )
+E           TypeError: ProcessResourceSampler.__init__() got an unexpected keyword argument 'max_records'
+
+tests\performance\test_resource_sample_bound.py:10: TypeError
+___________ test_sample_bound_latches_failure_and_preserves_prefix ____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002AD60D72C40>
+
+    def test_sample_bound_latches_failure_and_preserves_prefix(monkeypatch):
+        sample = resources.ProcessResourceSample(1, 1, 1, 100, 100, 100, 1, 1)
+        monkeypatch.setattr(resources, "sample_windows_process", lambda _pid: sample)
+        streamed = []
+>       sampler = resources.ProcessResourceSampler(
+            {"source": 1}, interval_seconds=0.001, assigned_logical_processors=1,
+            record_sink=streamed.append, max_records=3,
+        )
+E       TypeError: ProcessResourceSampler.__init__() got an unexpected keyword argument 'max_records'
+
+tests\performance\test_resource_sample_bound.py:19: TypeError
+________________ test_default_keeps_existing_sampler_contract _________________
+
+    def test_default_keeps_existing_sampler_contract():
+        sampler = resources.ProcessResourceSampler({"source": 1}, assigned_logical_processors=1)
+>       assert sampler.max_records is None
+               ^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'ProcessResourceSampler' object has no attribute 'max_records'
+
+tests\performance\test_resource_sample_bound.py:37: AttributeError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_resource_sample_bound.py::test_invalid_sample_bounds_are_rejected[0]
+FAILED tests/performance/test_resource_sample_bound.py::test_invalid_sample_bounds_are_rejected[-1]
+FAILED tests/performance/test_resource_sample_bound.py::test_invalid_sample_bounds_are_rejected[True]
+FAILED tests/performance/test_resource_sample_bound.py::test_invalid_sample_bounds_are_rejected[1.5]
+FAILED tests/performance/test_resource_sample_bound.py::test_invalid_sample_bounds_are_rejected[3]
+FAILED tests/performance/test_resource_sample_bound.py::test_sample_bound_latches_failure_and_preserves_prefix
+FAILED tests/performance/test_resource_sample_bound.py::test_default_keeps_existing_sampler_contract
+7 failed in 0.60s

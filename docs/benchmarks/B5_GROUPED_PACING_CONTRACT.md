@@ -45,3 +45,30 @@ all runtimes, coherent progress timestamp/counters, stop propagation, equivalent
 Direct/NBSR behavior, bounded stdout/resource history, postflight and two-sided
 ownership validation. Then run matched calibration, observer checks and the
 required long soaks. This preparation establishes no throughput/stability result.
+
+## Coordinator and resource coverage preparation
+
+The test-only coordinator now enforces one common origin after every group is
+ready, separate reservation/write/completion commits, group drain before a final
+snapshot, and successful final publication before postflight permission. Clock
+reads and snapshots occur under the same outer lock; collector locking always
+follows that outer lock. Guard drop, arithmetic failure, clock regression and
+publication failure invalidate the coordinator. These deterministic tests do not
+prove asynchronous wake delivery or transport integration.
+
+`ProcessResourceSampler` now offers optional `max_records`, shared across roles.
+Exhaustion invalidates sampling and preserves the captured prefix; it cannot
+publish truncated evidence as a successful run. The B5 caller must derive this
+bound from the full allowed phase duration and cadence, retain the disk evidence,
+and call `check_health(require_running=True)` while live coverage is mandatory.
+This detects both explicit sampling failures and sampler termination after a
+process exits. Existing default stop-after-process-exit behavior is preserved.
+The returned copied list and external sink retention also count toward the
+caller memory bound. No live benchmark currently activates this option.
+
+Validation: coordinator missing-module literal RED, then 25 total Rust B5 tests
+PASS; sampler seven missing-API RED tests plus a separate live-coverage RED,
+then 20 resource tests PASS. Scoped review found a missed sampler-exit condition;
+the new live-coverage regression/fix closed it, and scoped re-review found no
+remaining Important issue. Release Clippy, repository-configured Rust fmt and
+scoped Ruff passed. Logs: `b5-coordinator-contract-28bfbb26` evidence directory.

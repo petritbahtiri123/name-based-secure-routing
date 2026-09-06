@@ -208,13 +208,17 @@ class ProcessResourceSampler:
         interval_seconds: float = 1.0,
         assigned_logical_processors: int,
         record_sink: Callable[[TimedProcessResourceSample], None] | None = None,
+        max_records: int | None = None,
     ) -> None:
         if not processes or interval_seconds <= 0 or assigned_logical_processors < 1:
             raise ValueError("invalid resource sampler configuration")
+        if max_records is not None and (type(max_records) is not int or max_records < 1):
+            raise ValueError("invalid resource sample bound")
         self.processes = dict(processes)
         self.interval_seconds = interval_seconds
         self.assigned_logical_processors = assigned_logical_processors
         self.record_sink = record_sink
+        self.max_records = max_records
         self._stop = threading.Event()
         self._thread: threading.Thread | None = None
         self._records: list[TimedProcessResourceSample] = []
@@ -233,11 +237,17 @@ class ProcessResourceSampler:
         self._thread.join(timeout=max(5.0, self.interval_seconds * 2))
         if self._thread.is_alive():
             raise RuntimeError("resource sampler did not stop")
-        if self._error is not None:
-            raise RuntimeError("authoritative resource sample disappeared") from self._error
+        self.check_health()
         if not self._records:
             raise RuntimeError("no authoritative resource samples collected")
         return list(self._records)
+
+    def check_health(self, *, require_running: bool = False) -> None:
+        """Allow a live controller to abort promptly after sampler failure."""
+        if self._error is not None:
+            raise RuntimeError("authoritative resource sample disappeared") from self._error
+        if require_running and (self._thread is None or not self._thread.is_alive()):
+            raise RuntimeError("authoritative resource sampling stopped")
 
     def _run(self) -> None:
         previous: dict[str, tuple[int, int]] = {}
@@ -246,6 +256,8 @@ class ProcessResourceSampler:
         try:
             while not self._stop.is_set():
                 for role, pid in self.processes.items():
+                    if self.max_records is not None and len(self._records) >= self.max_records:
+                        raise RuntimeError("resource sample bound exceeded")
                     sample = sample_windows_process(pid)
                     timestamp = time.perf_counter_ns()
                     observed_roles.add(role)

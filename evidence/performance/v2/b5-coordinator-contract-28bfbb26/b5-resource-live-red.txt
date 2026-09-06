@@ -1,0 +1,32 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+____________ test_live_coverage_detects_exit_after_initial_sample _____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001FA06481F30>
+
+    def test_live_coverage_detects_exit_after_initial_sample(monkeypatch):
+        calls = 0
+
+        def sample(_pid):
+            nonlocal calls
+            calls += 1
+            if calls > 1:
+                raise ProcessLookupError("process exited")
+            return resources.ProcessResourceSample(1, 1, 1, 100, 100, 100, 1, 1)
+
+        monkeypatch.setattr(resources, "sample_windows_process", sample)
+        sampler = resources.ProcessResourceSampler(
+            {"source": 1}, interval_seconds=0.001, assigned_logical_processors=1,
+            max_records=3,
+        )
+        sampler.start()
+        sampler._thread.join(timeout=5)
+        assert not sampler._thread.is_alive()
+        with pytest.raises(RuntimeError, match="authoritative resource sampling stopped"):
+>           sampler.check_health(require_running=True)
+E           TypeError: ProcessResourceSampler.check_health() got an unexpected keyword argument 'require_running'
+
+tests\performance\test_resource_sample_bound.py:62: TypeError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_resource_sample_bound.py::test_live_coverage_detects_exit_after_initial_sample
+1 failed, 7 deselected in 0.58s
