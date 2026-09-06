@@ -34,7 +34,11 @@ retention was added at d12e38c9 (71 focused tests). A separate diagnostic then
 completed one accounting run below 95% achieved/offered operations and aborted on goodput
 drift in the next. See `b5-sampler-attribution-d12e38c9`; no replacement.
 The sampler lookup cause and longer-run paced stability remain UNRESOLVED.
-A candidate benchmark destination exit/ACK mismatch needs focused validation.
+The candidate benchmark destination exit/ACK mismatch was independently
+reproduced and corrected with an optional post-cleanup hold used only by B5;
+see `b5-destination-hold-a1ec0649`. Live process sampling now passes on both
+paths. This does not prove the exact earlier sampler failure cause or resolve
+goodput drift. Fresh benchmark qualification remains required.
 No near-ceiling 60/120-minute soak has qualified.
 
 ## Protected boundaries

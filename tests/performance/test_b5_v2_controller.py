@@ -191,6 +191,8 @@ def test_run_one_ack_follows_sampling_and_preserves_failed_reader_tail(monkeypat
             self.stdout = io.BytesIO(b"retained failure bytes\n")
             self.argv = argv
             processes.append(self)
+            if not self.source:
+                assert argv[argv.index("--p2a-post-cleanup-ack") + 1] == argv[argv.index("--completion-ack") + 1]
             report = Path(argv[argv.index("--p2a-cleanup-report") + 1])
             counters = dict.fromkeys(FIELDS, 0)
             if failure == "ownership":

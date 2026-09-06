@@ -268,7 +268,8 @@ def run_one(cell, binaries, authority, plan, directory, *, warmup, duration, pro
                 ready, report = directory / f"d{ordinal}.ready.json", directory / f"d{ordinal}.cleanup.json"
                 argv, env = stage4._server_command(cell, binaries, authority, ready, directory / f"d{ordinal}.result.json", ack)
                 if cell["path"] == "nbsr":
-                    argv += ["--p2a-cleanup-report", str(report)]
+                    argv += ["--p2a-cleanup-report", str(report),
+                             "--p2a-post-cleanup-ack", str(ack)]
                 if history:
                     diagnostic_path = directory / f"d{ordinal}.ownership.ndjson"
                     argv += ["--destination-diagnostics-file", str(diagnostic_path)]

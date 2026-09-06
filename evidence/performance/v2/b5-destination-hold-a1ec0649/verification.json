@@ -1,0 +1,15 @@
+{
+  "classification": "FUNCTIONAL_LIFECYCLE_REGRESSION_PASS",
+  "base_sha": "a1ec0649",
+  "source_status": "tested working source retained; commit follows",
+  "red": "Direct PASS; NBSR exits code0 before controller ACK after both cleanup reports validate",
+  "green": "44 focused Python tests PASS; additional live Direct/NBSR sampling 2 PASS; 23 release Rust server tests PASS; release build/fmt/clippy -D warnings/Ruff/diff PASS",
+  "review": "One focused parent review: no Important finding; optional benchmark-only path after cleanup, default disabled, 30-second bound; mandatory sampling and cleanup gates unchanged",
+  "performance": "NOT_MEASURED; no timing or capacity inference",
+  "original_sampler_failure": "Exact original cause remains unproven; this reproduces and closes the candidate destination-lifetime mismatch",
+  "binary_sha256": {
+    "perf_direct_peer.exe": "873ec882297b82c99372c278e0ea4dab6e5d658cb1e2ce7e9812b9c8c45c361c",
+    "perf_rust_source.exe": "87900af9cd2e8362aeebe8c9d6085da52f41474f724eb9b4f2ed6e847df6fa93",
+    "wp8_interop_server.exe": "32c9579d31fe5e6ba6d46bb53366b2d3545b530e931b61385b8637d5ab88a3a0"
+  }
+}

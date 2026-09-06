@@ -3736,6 +3736,11 @@ async fn run() {
 #[cfg(feature = "benchmark-harness")]
 fn main() {
     let cleanup_report = post_close::prepare(optional_cli_path_strict("--p2a-cleanup-report"));
+    let post_cleanup_ack = optional_cli_path_strict("--p2a-post-cleanup-ack");
+    assert!(
+        post_cleanup_ack.is_none() || cleanup_report.is_some(),
+        "post-cleanup ACK requires a cleanup report"
+    );
     let workers = nbsr_transport::p2a_benchmark::parse_runtime_workers(env::args())
         .expect("valid --p2a-runtime-workers");
     nbsr_transport::p2a_benchmark::build_benchmark_runtime(workers)
@@ -3743,6 +3748,17 @@ fn main() {
         .block_on(async {
             run().await;
             post_close::write(cleanup_report.as_deref(), "destination", "runtime_alive");
+            if let Some(ack) = post_cleanup_ack {
+                // External benchmark coordination only, after transport cleanup.
+                // Keep the process observable until the controller stops sampling.
+                tokio::time::timeout(Duration::from_secs(30), async {
+                    while !ack.exists() {
+                        tokio::time::sleep(Duration::from_millis(10)).await;
+                    }
+                })
+                .await
+                .expect("post-cleanup benchmark acknowledgement");
+            }
         });
 }
 

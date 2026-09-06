@@ -1,0 +1,31 @@
+   Compiling nbsr-transport v0.1.0 (C:\Users\bajra\OneDrive\Documents\NBSR\crates\nbsr-transport)
+    Finished `release` profile [optimized] target(s) in 3.65s
+     Running unittests src\bin\wp8_interop_server.rs (C:/NBSR-build/b4b-task4k\release\deps\wp8_interop_server-7615fba8997d1bf9.exe)
+
+running 23 tests
+test batch_release::tests::disabled_and_invalid_options_fail_closed ... ok
+test accept_pump_profile::tests::scan_and_timer_waits_remain_separate_and_histograms_conserve ... ok
+test batch_release::tests::exact_batch_boundaries_are_deterministic ... ok
+test batch_release::tests::disabled_gate_preserves_immediate_existing_behavior ... ok
+test batch_release::tests::offered_rate_schedules_each_independent_client_deterministically ... ok
+test handshake_timeline::tests::timeline_cannot_skip_connected_or_cross_slots ... ok
+test handshake_timeline::tests::real_mapping_isolates_slots_rejects_claims_and_counter_overflow ... ok
+test handshake_timeline::tests::timeline_order_and_duplicate_rejection ... ok
+test handshake_timeline::tests::timeline_rejects_clock_reversal ... ok
+test handshake_timeline::tests::timeline_timeout_is_retained ... ok
+test accept_pump_profile::tests::profile_never_overwrites_existing_evidence ... ok
+test lifecycle_completion::tests::cancellation_and_timeout_are_deterministic_terminal_failures ... ok
+test lifecycle_completion::tests::evidence_writer_creates_exactly_one_terminal_file_per_client ... ok
+test lifecycle_completion::tests::evidence_failure_invalidates_run_without_changing_terminal_state ... ok
+test batch_release::tests::cancellation_never_starts_the_client_operation ... ok
+test p2a_diagnostic_outcome_tests::requested_p2a_diagnostic_sampler_requires_open_write_and_nonempty_outcome ... ok
+test lifecycle_completion::tests::duplicate_and_unknown_ids_never_advance_completion ... ok
+test lifecycle_completion::tests::every_expected_client_needs_its_own_terminal_state ... ok
+test lifecycle_completion::tests::panicked_and_cancelled_tasks_each_record_their_own_failure ... ok
+test batch_release::tests::waiting_is_async_and_operation_starts_after_release ... ok
+test lifecycle_completion::tests::writer_timeout_does_not_extend_runtime_shutdown_deadline ... ok
+test b3_report_gate_tests::report_gate_missing_release_fails_closed ... ok
+test b3_report_gate_tests::report_gate_publishes_ready_and_yields_until_release ... ok
+
+test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+

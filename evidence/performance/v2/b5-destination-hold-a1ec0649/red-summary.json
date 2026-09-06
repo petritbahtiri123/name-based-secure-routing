@@ -1,0 +1,8 @@
+{
+  "command": "NBSR_B5_LIVE_BINARIES=C:/NBSR-build/b4b-task4k/release python -m pytest tests/performance/test_b5_destination_hold.py -q",
+  "result": "1 failed, 1 passed in 9.05s",
+  "direct": "PASS",
+  "nbsr": "FAIL: destination exited before controller sampling ACK; exit code 0; both eleven-counter cleanup reports validated",
+  "old_server_sha256": "40c210aef1371d506e23bac47a098527781640bd4c54263b7707de51edd20503",
+  "scope": "functional lifecycle regression; not throughput; source cleanup complete before assertion"
+}
