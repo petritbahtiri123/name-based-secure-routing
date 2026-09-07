@@ -1,0 +1,17 @@
+[
+  {
+    "root": "C:\\NBSR-build\\linux-fd-diagnostic-4ceb32c4",
+    "files": 132,
+    "index_sha256": "22562413b80edf9310e8cc37b6c02dd2b1ba7839d5ffef54148307bc4a48595e"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-fd-nonroot-ad86ab24",
+    "files": 119,
+    "index_sha256": "ea67f28542cb5e694e925da82d70cdcad29a04632c77c41f492ae136ffffd0fa"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-fd-exit-transition-ad86ab24",
+    "files": 4,
+    "index_sha256": "a124982b3f17bd210e6491e934d1d1dd85a4bdb2956eff8a8eab097d7b9ae0bd"
+  }
+]

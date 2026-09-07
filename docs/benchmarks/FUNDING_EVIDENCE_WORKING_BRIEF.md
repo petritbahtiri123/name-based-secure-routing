@@ -29,12 +29,12 @@ flowchart LR
 | Admission | MEASURED highest tested stable offered rate 125/s gives119.920 actual/s; 150/s DEGRADED; 200/s SATURATED by achieved/offered ratio | Finite 512-client batches with two source shards, not sustained admissions/s/core or a production ceiling; [admission](../../evidence/performance/v2/admission-fresh-1917b195/REPORT.md) |
 | Resource scale | MEASURED 35 valid cells through 2,048 materialized streams on 32 fixed channels; all 11 final ownership counters zero on both roles | Fixture residency scale, not a global resource/hardware ceiling; [memory](../../evidence/performance/v2/b3-wide-streams-b29054b9/REPORT.md) |
 | Resource cost | DERIVED about 40,473 additional combined process-private bytes per held stream in that fixed 32-channel series | Includes QUIC/runtime/allocator/fixture costs; not pure NBSR object size; retained-memory cause remains INCONCLUSIVE |
-| Sustained stability | NOT_PROVEN near the new ceilings | Three light-load 120-second controls passed; subsequent 70%-load one-core observer cohort aborted on drift. No accepted new 60/120-minute soak; [retained abort](../../evidence/performance/v2/b5-observer-drift-cbdca987/REPORT.md) |
+| Sustained stability | NOT_PROVEN near the new ceilings | At 2d7525f3, one NBSR 10-minute run achieved 0.555331 Gbit/s, 97.68% of offered load, zero errors/timeouts and eleven-counter cleanup on both roles. Repeat 2 aborted on source-private growth; Direct's separate 10-minute run achieved only 20.17% of offered load. No qualified 60/120-minute soak; [qualification](../../evidence/performance/v2/b5-qualification-2d7525f3/REPORT.md) |
 | Wire accounting | MEASURED 20 matched captures with zero reported capture loss; setup UDP-payload increment is consistent; whole/established deltas cross zero | No constant data-overhead, physical Ethernet, or phase-aligned L2 claim; [packet accounting](../../evidence/performance/v2/b1-packets-e2c75b59/REPORT.md) |
 | Adversarial checks | MEASURED 13 fail-closed executable cases pass at their recorded source | Replay, tampering, bindings, expiry/revocation/generation, downgrade, unauthorized/forged identity, malformed input and failure/recovery; refresh at bf53b8d4:13 PASS/0 FAIL/1 network-isolation INCONCLUSIVE; final whole-campaign gates remain pending; [refresh matrix](../../evidence/security/adversarial-refresh-bf53b8d4/summary.md) |
 | Private origin | MEASURED three Docker network lifecycles deny client/ISP-A DNS/IP direct probes, then return the exact authorized body with one origin request | Local topology, shared test bootstrap material, no host/root resistance claim; [isolation](../../evidence/security/isp-isolation-f831c9bb/REPORT.md) |
 | Federation | MEASURED admission preflight separately from route isolation; live runtime federation NOT_PROVEN | No independent-operator live-federation claim |
-| Linux | MEASURED six restricted Docker Linux compatibility repeats pass | Docker Desktop VM, not bare-metal/server/NIC scaling; [Linux control](../../evidence/performance/v2/linux-compatibility-3644c324/REPORT.md) |
+| Linux | HISTORICAL six restricted compatibility repeats pass; current edc0f96d native reference remains PARTIAL | Five valid finite rows followed by one telemetry-invalid NBSR attempt; no accepted current reference or soak. Docker Desktop VM, not bare-metal/server/NIC scaling; [current execution](../../evidence/performance/v2/linux-current-edc0f96d/REPORT.md) |
 
 ## Why the numbers changed
 
@@ -77,11 +77,12 @@ portable matrix preparation and final focused security/quality gates;
 qualify or explicitly classify pacing/observer drift; complete source-compatible
 soak/scaling work where valid; reconcile same-process private retention; freeze
 the final commit, command and checksum index. External hardware is unavailable.
-The reviewed source snapshot containing native bind support and its dependency
-gate repair is `30af3c5c07b3305b67f489622b59302b44817e0c`; it can fill the
-finite runbook SOURCE_SHA parameter. No new mandatory Administrator command
-has been established; see the
-[Administrator ledger](ADMIN_REQUIRED_FINAL_VALIDATION.md).
+Linux sustained orchestration and its CLI are implemented, but current Rust
+reference/soak qualification remains incomplete. The native external runbook
+must retain its tested source binding; local Docker results do not validate a
+server. One Administrator-only Windows Direct CPU attribution command is
+deferred in the [Administrator ledger](ADMIN_REQUIRED_FINAL_VALIDATION.md).
+Linux FD failure attribution and Windows source-private growth remain open.
 
 Current campaign recommendation: **MORE ENGINEERING REQUIRED**. This brief is
 not a readiness endorsement and must be rewritten around the final accepted

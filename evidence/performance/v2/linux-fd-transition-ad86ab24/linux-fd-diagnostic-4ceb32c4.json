@@ -1,0 +1,20 @@
+{
+  "classification": "DIAGNOSTIC_NONREPRODUCTION",
+  "uid": 0,
+  "valid": 6,
+  "invalid": 0,
+  "paths": {
+    "direct": {
+      "count": 3,
+      "median_gbps": 1.2531785096657373,
+      "cv_percent": 9.96085769251942,
+      "cleanup_pass": true
+    },
+    "nbsr": {
+      "count": 3,
+      "median_gbps": 1.795957042723777,
+      "cv_percent": 1.9099136955425828,
+      "cleanup_pass": true
+    }
+  }
+}

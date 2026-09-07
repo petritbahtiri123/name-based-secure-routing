@@ -1,0 +1,43 @@
+{
+  "trials": 500,
+  "denials": 500,
+  "non_zombie_rechecks": 290,
+  "all_denied_rechecks_have_exiting_flag": true,
+  "states": [
+    {
+      "before": "R",
+      "after": "R",
+      "waitid_exited": true,
+      "after_waitid": "Z",
+      "count": 8
+    },
+    {
+      "before": "R",
+      "after": "R",
+      "waitid_exited": false,
+      "after_waitid": "Z",
+      "count": 48
+    },
+    {
+      "before": "R",
+      "after": "R",
+      "waitid_exited": false,
+      "after_waitid": "R",
+      "count": 234
+    },
+    {
+      "before": "Z",
+      "after": "Z",
+      "waitid_exited": true,
+      "after_waitid": "Z",
+      "count": 204
+    },
+    {
+      "before": "R",
+      "after": "Z",
+      "waitid_exited": true,
+      "after_waitid": "Z",
+      "count": 6
+    }
+  ]
+}
