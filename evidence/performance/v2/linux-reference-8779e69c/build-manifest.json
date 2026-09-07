@@ -1,0 +1,20 @@
+{
+  "source_sha": "8779e69cfd7fe5cb244aba2f3e96e785c3dd47eb",
+  "build_profile": "release",
+  "binary_sha256": {
+    "perf_direct_peer": "0fdeec36d150d08490ba91a74ef9b12c32bce16949d82f88eeea83dbb4eee2e8",
+    "perf_rust_source": "9163377f4754a0a2ec2dc3fa563701e8995460b27c39de022c5548d5e325603e",
+    "wp8_interop_server": "7c27a95dc4765c727557b7e73cbeae86d36aed10f4f7341debfe92ea5c33718b"
+  },
+  "build_commands": [
+    "set -eu\ntar -xf /evidence/crates.tar -C /work\ntar -xf /evidence/vectors.tar -C /work\nrustc --version > /evidence/rustc-version.txt\ncargo --version > /evidence/cargo-version.txt\nCARGO_BUILD_JOBS=2 cargo build --locked --release --manifest-path /work/crates/nbsr-transport/Cargo.toml --target-dir /target --features benchmark-harness --bin perf_direct_peer --bin perf_rust_source --bin wp8_interop_server\nmkdir /evidence/binaries\ncp /target/release/perf_direct_peer /target/release/perf_rust_source /target/release/wp8_interop_server /evidence/binaries/\nsha256sum /evidence/binaries/* > /evidence/binaries.sha256\n"
+  ],
+  "toolchains": {
+    "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+    "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)",
+    "image_id": "sha256:b364820948277bf9cf78b3d3ee8ddb1b8066956d87995cdbbb26e65a206ef4ab"
+  },
+  "source_archive_sha256": "4235bcaab503a8fe8212399f25c54728e9569492438cd679625b591a478c9138",
+  "runtime_fixture_archive_sha256": "3ff0e6b4df138563e28a90f28e3b47a796266bc54d8a1fb0d58079fb975792e5",
+  "runtime_build_root": "/work"
+}

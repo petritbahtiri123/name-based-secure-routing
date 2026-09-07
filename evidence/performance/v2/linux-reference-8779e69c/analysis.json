@@ -1,0 +1,134 @@
+{
+  "external_hardware": "NOT_PROVEN",
+  "ladders": {
+    "direct": {
+      "cells": [
+        {
+          "classification": "UNRESOLVED",
+          "errors_timeouts_or_cleanup_failure": false,
+          "gbps_range": [
+            1.2050651045412195,
+            1.427974744213468
+          ],
+          "median_gbps": 1.4154314047004333,
+          "median_p99_ns": 729134,
+          "outstanding_per_stream": 1,
+          "p99_ratio_range": [
+            0.933759775295076,
+            1.974501257656343
+          ],
+          "repeat_count": 5,
+          "repeat_cv": 0.06978879226820398
+        },
+        {
+          "classification": "DEGRADED",
+          "errors_timeouts_or_cleanup_failure": false,
+          "gbps_range": [
+            1.7280778229872464,
+            1.742523367332683
+          ],
+          "median_gbps": 1.7376431992199175,
+          "median_p99_ns": 1089160,
+          "outstanding_per_stream": 2,
+          "p99_ratio_range": [
+            1.4779958142124767,
+            1.500076803440794
+          ],
+          "repeat_count": 3,
+          "repeat_cv": 0.004232700512191006
+        },
+        {
+          "classification": "SATURATED",
+          "errors_timeouts_or_cleanup_failure": false,
+          "gbps_range": [
+            2.02902783708009,
+            2.065316736843017
+          ],
+          "median_gbps": 2.033175273032136,
+          "median_p99_ns": 1818095,
+          "outstanding_per_stream": 4,
+          "p99_ratio_range": [
+            2.2407239272890855,
+            2.595939840962018
+          ],
+          "repeat_count": 3,
+          "repeat_cv": 0.009724664637558354
+        }
+      ],
+      "hardware_ceiling": "NOT_CLASSIFIED; CPU/topology and other resource evidence must be assessed separately.",
+      "observed_peak_diagnostic_gbps": 2.065316736843017,
+      "reference_p99_ns": 729134,
+      "schema": "nbsr-physical-core-ladder-classification-v1",
+      "scope": "One fixed-shape closed-loop depth ladder. Bounded in-flight work and clean drain are required; no external offered-rate claim.",
+      "strict_stable_gbps": null
+    },
+    "nbsr": {
+      "cells": [
+        {
+          "classification": "STABLE",
+          "errors_timeouts_or_cleanup_failure": false,
+          "gbps_range": [
+            1.8127058957900852,
+            1.842420351343362
+          ],
+          "median_gbps": 1.8224169051257917,
+          "median_p99_ns": 482626,
+          "outstanding_per_stream": 1,
+          "p99_ratio_range": [
+            0.9682963619863,
+            1.0582252095825753
+          ],
+          "repeat_count": 5,
+          "repeat_cv": 0.0066280182869386545
+        },
+        {
+          "classification": "DEGRADED",
+          "errors_timeouts_or_cleanup_failure": false,
+          "gbps_range": [
+            2.1411566011921903,
+            2.173900275692418
+          ],
+          "median_gbps": 2.165110088049897,
+          "median_p99_ns": 850445,
+          "outstanding_per_stream": 2,
+          "p99_ratio_range": [
+            1.651471325622739,
+            1.957308557765226
+          ],
+          "repeat_count": 3,
+          "repeat_cv": 0.007845586328440582
+        },
+        {
+          "classification": "SATURATED",
+          "errors_timeouts_or_cleanup_failure": false,
+          "gbps_range": [
+            2.423025410914935,
+            2.4322379542732055
+          ],
+          "median_gbps": 2.4321452713911795,
+          "median_p99_ns": 1513480,
+          "outstanding_per_stream": 4,
+          "p99_ratio_range": [
+            2.9542026330947775,
+            3.346249476820561
+          ],
+          "repeat_count": 3,
+          "repeat_cv": 0.0021786806409189734
+        }
+      ],
+      "hardware_ceiling": "NOT_CLASSIFIED; CPU/topology and other resource evidence must be assessed separately.",
+      "observed_peak_diagnostic_gbps": 2.4322379542732055,
+      "reference_p99_ns": 482626,
+      "schema": "nbsr-physical-core-ladder-classification-v1",
+      "scope": "One fixed-shape closed-loop depth ladder. Bounded in-flight work and clean drain are required; no external offered-rate claim.",
+      "strict_stable_gbps": 1.8224169051257917
+    }
+  },
+  "observer": {
+    "cadence_ns": 100000000,
+    "nbsr_post_close_reports": true,
+    "qualification": "NOT_QUALIFIED_NO_MATCHED_COMPARISON",
+    "resource_mode": "proc-stat-fd-thread-affinity"
+  },
+  "sustained_capacity": "NOT_RUN"
+}

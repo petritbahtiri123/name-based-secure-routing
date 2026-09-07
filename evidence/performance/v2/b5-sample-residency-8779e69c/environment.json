@@ -1,0 +1,173 @@
+{
+  "binary_sha256": {
+    "direct": "0fdeec36d150d08490ba91a74ef9b12c32bce16949d82f88eeea83dbb4eee2e8",
+    "nbsr": "9163377f4754a0a2ec2dc3fa563701e8995460b27c39de022c5548d5e325603e",
+    "server": "7c27a95dc4765c727557b7e73cbeae86d36aed10f4f7341debfe92ea5c33718b"
+  },
+  "controller_args": {
+    "binaries": "/tmp/binaries",
+    "build_manifest": "/build/build-manifest.json",
+    "depth": 1,
+    "diagnostic": true,
+    "duration": 120.0,
+    "output": "/out/off-r1",
+    "ownership_sampling": false,
+    "paths": [
+      "nbsr"
+    ],
+    "payload": 1024,
+    "percent": 70,
+    "progress": 10.0,
+    "rate": [
+      6676826000000,
+      85751993
+    ],
+    "reference": null,
+    "streams": 32,
+    "warmup": 3.0
+  },
+  "git_status": "",
+  "linux_environment": {
+    "cgroup_observed": {
+      "/sys/fs/cgroup/cpu.max": "max 100000\n",
+      "/sys/fs/cgroup/cpu.stat": "usage_usec 16304587\nuser_usec 13839705\nsystem_usec 2464881\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0\n",
+      "/sys/fs/cgroup/cpuset.cpus.effective": "0-7\n",
+      "/sys/fs/cgroup/memory.max": "max\n",
+      "/sys/fs/cgroup/pids.max": "max\n"
+    },
+    "inherited_cpus": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "kernel": "Linux-6.6.114.1-microsoft-standard-WSL2-x86_64-with-glibc2.36",
+    "lscpu_version": "lscpu from util-linux 2.38.1",
+    "platform": "linux",
+    "proc_cgroup": "0::/\n",
+    "proc_mountinfo": "437 327 0:83 / / rw,relatime - overlay overlay rw,lowerdir=/var/lib/desktop-containerd/daemon/io.containerd.snapshotter.v1.overlayfs/snapshots/1612/fs:/var/lib/desktop-containerd/daemon/io.containerd.snapshotter.v1.overlayfs/snapshots/1482/fs:/var/lib/desktop-containerd/daemon/io.containerd.snapshotter.v1.overlayfs/snapshots/1481/fs:/var/lib/desktop-containerd/daemon/io.containerd.snapshotter.v1.overlayfs/snapshots/1480/fs:/var/lib/desktop-containerd/daemon/io.containerd.snapshotter.v1.overlayfs/snapshots/1479/fs:/var/lib/desktop-containerd/daemon/io.containerd.snapshotter.v1.overlayfs/snapshots/1478/fs:/var/lib/desktop-containerd/daemon/io.containerd.snapshotter.v1.overlayfs/snapshots/1477/fs:/var/lib/desktop-containerd/daemon/io.containerd.snapshotter.v1.overlayfs/snapshots/1476/fs:/var/lib/desktop-containerd/daemon/io.containerd.snapshotter.v1.overlayfs/snapshots/1442/fs:/var/lib/desktop-containerd/daemon/io.containerd.snapshotter.v1.overlayfs/snapshots/1040/fs:/var/lib/desktop-containerd/daemon/io.containerd.snapshotter.v1.overlayfs/snapshots/1039/fs:/var/lib/desktop-containerd/daemon/io.containerd.snapshotter.v1.overlayfs/snapshots/1038/fs:/var/lib/desktop-containerd/daemon/io.containerd.snapshotter.v1.overlayfs/snapshots/1037/fs,upperdir=/var/lib/desktop-containerd/daemon/io.containerd.snapshotter.v1.overlayfs/snapshots/1613/fs,workdir=/var/lib/desktop-containerd/daemon/io.containerd.snapshotter.v1.overlayfs/snapshots/1613/work\n439 437 0:92 / /proc rw,nosuid,nodev,noexec,relatime - proc proc rw\n440 437 0:93 / /dev rw,nosuid - tmpfs tmpfs rw,size=65536k,mode=755\n441 440 0:94 / /dev/pts rw,nosuid,noexec,relatime - devpts devpts rw,gid=5,mode=620,ptmxmode=666\n442 437 0:95 / /sys ro,nosuid,nodev,noexec,relatime - sysfs sysfs ro\n443 442 0:23 / /sys/fs/cgroup ro,nosuid,nodev,noexec,relatime - cgroup2 cgroup rw\n444 440 0:90 / /dev/mqueue rw,nosuid,nodev,noexec,relatime - mqueue mqueue rw\n445 440 0:96 / /dev/shm rw,nosuid,nodev,noexec,relatime - tmpfs shm rw,size=65536k\n446 437 0:66 /NBSR-build/linux-current-edc0f96d /old ro,noatime - 9p C:\\134 rw,aname=drvfs;path=C:\\;uid=0;gid=0;metadata;symlinkroot=/mnt/host/,cache=5,access=client,msize=65536,trans=fd,rfd=5,wfd=5\n447 437 0:66 /NBSR-build/linux-current-8779e69c /build ro,noatime - 9p C:\\134 rw,aname=drvfs;path=C:\\;uid=0;gid=0;metadata;symlinkroot=/mnt/host/,cache=5,access=client,msize=65536,trans=fd,rfd=5,wfd=5\n448 437 0:66 /NBSR-build/linux-b5-ownership-8779e69c /out rw,noatime - 9p C:\\134 rw,aname=drvfs;path=C:\\;uid=0;gid=0;metadata;symlinkroot=/mnt/host/,cache=5,access=client,msize=65536,trans=fd,rfd=5,wfd=5\n449 437 8:48 /data/docker/containers/8ddbf44611aafa18ebd7baea7922751873d9239c17cba52dad2c88871b6a887a/resolv.conf /etc/resolv.conf rw,relatime - ext4 /dev/sdd rw\n450 437 8:48 /data/docker/containers/8ddbf44611aafa18ebd7baea7922751873d9239c17cba52dad2c88871b6a887a/hostname /etc/hostname rw,relatime - ext4 /dev/sdd rw\n451 437 8:48 /data/docker/containers/8ddbf44611aafa18ebd7baea7922751873d9239c17cba52dad2c88871b6a887a/hosts /etc/hosts rw,relatime - ext4 /dev/sdd rw\n340 439 0:92 /bus /proc/bus ro,nosuid,nodev,noexec,relatime - proc proc rw\n341 439 0:92 /fs /proc/fs ro,nosuid,nodev,noexec,relatime - proc proc rw\n342 439 0:92 /irq /proc/irq ro,nosuid,nodev,noexec,relatime - proc proc rw\n343 439 0:92 /sys /proc/sys ro,nosuid,nodev,noexec,relatime - proc proc rw\n344 439 0:92 /sysrq-trigger /proc/sysrq-trigger ro,nosuid,nodev,noexec,relatime - proc proc rw\n345 439 0:97 / /proc/acpi ro,relatime - tmpfs tmpfs ro,size=4k,nr_inodes=1\n346 439 0:93 /null /proc/interrupts rw,nosuid - tmpfs tmpfs rw,size=65536k,mode=755\n347 439 0:93 /null /proc/kcore rw,nosuid - tmpfs tmpfs rw,size=65536k,mode=755\n348 439 0:93 /null /proc/keys rw,nosuid - tmpfs tmpfs rw,size=65536k,mode=755\n349 439 0:93 /null /proc/latency_stats rw,nosuid - tmpfs tmpfs rw,size=65536k,mode=755\n350 439 0:97 / /proc/scsi ro,relatime - tmpfs tmpfs ro,size=4k,nr_inodes=1\n351 439 0:93 /null /proc/timer_list rw,nosuid - tmpfs tmpfs rw,size=65536k,mode=755\n352 442 0:97 / /sys/firmware ro,relatime - tmpfs tmpfs ro,size=4k,nr_inodes=1\n",
+    "python": "3.14.6",
+    "scope": "Linux shared physical-core-selected logical pool; guest/cgroup observations, not dedicated hardware proof",
+    "selected_cpus": [
+      0
+    ],
+    "taskset": "/usr/bin/taskset",
+    "taskset_version": "taskset from util-linux 2.38.1",
+    "topology": {
+      "cpus": [
+        {
+          "core": 0,
+          "cpu": 0,
+          "node": 0,
+          "online": true,
+          "socket": 0
+        },
+        {
+          "core": 0,
+          "cpu": 1,
+          "node": 0,
+          "online": true,
+          "socket": 0
+        },
+        {
+          "core": 1,
+          "cpu": 2,
+          "node": 0,
+          "online": true,
+          "socket": 0
+        },
+        {
+          "core": 1,
+          "cpu": 3,
+          "node": 0,
+          "online": true,
+          "socket": 0
+        },
+        {
+          "core": 2,
+          "cpu": 4,
+          "node": 0,
+          "online": true,
+          "socket": 0
+        },
+        {
+          "core": 2,
+          "cpu": 5,
+          "node": 0,
+          "online": true,
+          "socket": 0
+        },
+        {
+          "core": 3,
+          "cpu": 6,
+          "node": 0,
+          "online": true,
+          "socket": 0
+        },
+        {
+          "core": 3,
+          "cpu": 7,
+          "node": 0,
+          "online": true,
+          "socket": 0
+        }
+      ]
+    }
+  },
+  "load": {
+    "mode": "DIAGNOSTIC",
+    "rate_denominator": 85751993,
+    "rate_numerator": 6676826000000
+  },
+  "mode": "DIAGNOSTIC",
+  "observer_qualification": "NOT_QUALIFIED",
+  "placement": {
+    "endpoint_masks": [
+      1
+    ],
+    "logical_processors_available": 1,
+    "source_mask": 1
+  },
+  "repository_sha": "8779e69cfd7fe5cb244aba2f3e96e785c3dd47eb",
+  "schema": "nbsr-linux-b5-campaign-v1",
+  "scope": "Linux loopback shared physical-core pool; observer qualification pending",
+  "shape": {
+    "endpoint_groups": 1,
+    "payload_bytes": 1024,
+    "physical_cores": 1,
+    "runtime_workers": 1,
+    "streams_per_group": 32
+  },
+  "source_scope": "listed controllers plus entire clean Git SHA",
+  "source_sha256": {
+    "scripts/performance/authority.py": "1b555178d20ee6b0202b3730835e5382ad41c5f87d3b46bfb02ce5ea4a4302b5",
+    "scripts/performance/b3_linux.py": "0866cc3a53df25e555f250215df02f30ce0135e19516e6e63f8a9f6eac78ad91",
+    "scripts/performance/b4_linux.py": "b8f68fb4e857d4383a92dcced8206d9801777132246b050cc8e92e6700dd151e",
+    "scripts/performance/b5_ceiling.py": "81ef5708f26ec1fb93bd19d7fff948e7179d14b3fbee3e8834d5ad24ea1b3139",
+    "scripts/performance/b5_ownership.py": "da4f45778fe7b3f43b2037d74eae0ef405f4e286d32ff925a553ea95ab38e881",
+    "scripts/performance/b5_stream.py": "60e40a7979a1dc99a2ccf041d107c3dd6f6733e54b481f8066776a608a278684",
+    "scripts/performance/linux_b5_backend.py": "ff3e219c4cbc5a699c4281ad6232694a563a01c10063517a66e8feaf8e9bc123",
+    "scripts/performance/linux_b5_campaign.py": "0ed2d1baf5a7b81ea2678101768c41d35e2ccf109fbc9e7e8fcb58e843cb77d6",
+    "scripts/performance/linux_b5_ceiling.py": "8eef6e6c2e9e0b8638444c3eb353835bd844dd9914b8b559c5ace25fa23442ae",
+    "scripts/performance/linux_b5_reference.py": "131a4a19941279df62e6ce022503e41c76a80e5f80a930b6a825159de353a35c",
+    "scripts/performance/linux_exit.py": "0b0a00daa335d42bac15ce032187640a623f68e96a893f6adb88ec3e94f42a5b",
+    "scripts/performance/linux_loopback.py": "5691c05db02e68f6691821ec7e30bdd80a0c0d482fa2943805e625b5f69c7caf",
+    "scripts/performance/linux_resources.py": "9feee74b6ba9a8178be67ecdffc68b9b3263192c4518f0f557e1e76b90883de5",
+    "scripts/performance/p2a_established.py": "99ba92405763fa3e1528d061bd154197d1afb7f01d8a3d37cce0c42677dc966d",
+    "scripts/performance/physical_core_analysis.py": "df5f9d1fdc0e49ff7e76f4e45f23458155670ad2a90296f2c3a8d981749380c9",
+    "scripts/performance/post_close_cleanup.py": "a71ea28bec962fac2ac86016e5fb318e84102b35845869812622363c1cc16324",
+    "scripts/performance/resources.py": "0f11a4988a6c0d0ab9081be0ceb28e7f3d3fc8a0ea80b43d97f4269ed6b10aa4",
+    "scripts/performance/sustained_capacity.py": "459fe5f7df96a446bf332caef71b053bd48bd8571e739bfecc20192a226b0be1",
+    "scripts/profile_b2_v2.py": "0b5032b5dfecf26087bc10366b9a93709a28a6f76432a954237b4520d75f45f8",
+    "scripts/run_b5_v2.py": "84c5d1be1ae65370687650928066484a46986778753412c8a60850550e0d30b1",
+    "scripts/run_max_throughput_v2_stage4.py": "722d3cbad095da55519a5f55190987a90215ca165998d1d8a6c8b8f682222aee",
+    "scripts/run_p2a_established.py": "f302b5b1047b0991aefc8ec6262b760d3d43daa3a4308495adb5e9c9f88b8ce6",
+    "scripts/run_performance_validation.py": "fccc46525703d3aa8de1bca5788abdb8d23b0d75832c31ca0357da2430ef1557",
+    "scripts/run_physical_core_v2.py": "82104fde0f6966a98b403b459aba539e545a0b21b4a629e1e076aea26b0498ed"
+  },
+  "thermal_and_power": "NOT_MEASURED"
+}

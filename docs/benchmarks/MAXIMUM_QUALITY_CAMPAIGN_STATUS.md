@@ -1,5 +1,16 @@
 # Maximum-quality campaign: current state
 
+Latest continuation,2026-09-07: finite Linux FD exit-transition handling is fixed
+and regression-tested (500 actual lifecycles); the original failure cannot be
+retrospectively attributed. At8779e69c a fresh release reference has22 valid rows:
+NBSR1.822417GbpsSTABLE,2.165110DEGRADED,2.432145SATURATED for depth1/2/4 on one
+selected guest-core representative,1KiB/32streams. Direct baseline remains
+UNRESOLVED (CV6.98%). See linux-reference-8779e69c. A70%paced control then aborted
+at10seconds on source-private growth. A three-pair Rust probe proves lazy
+latency-buffer residency is a harness artifact; pre-touch correction/rerun is
+pending (b5-sample-residency-8779e69c). No new production/server/long-soak claim.
+The stage history below remains scoped to its recorded source and workload.
+
 Working status, 2026-09-06. **NOT a final evidence freeze.** Technical outreach must retain the historical/diagnostic qualifications below. Repository branch: `codex/nbsr-v3-wp0-wp1`; protected `main` and `origin/main`: `1938154d498b32d81a3564319969430644e8a688`. No push or main integration is authorized.
 
 | Area | State | Evidence and next gate |

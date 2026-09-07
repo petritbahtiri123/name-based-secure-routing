@@ -1,0 +1,115 @@
+{
+  "schema": "nbsr-linux-b5-ceiling-v1",
+  "reference_sha": "8779e69cfd7fe5cb244aba2f3e96e785c3dd47eb",
+  "manifest_sha256": "b19685de2af4cef27a2c0c8abbdbcb415e5265e4f0f6851e64e879c3f0d38737",
+  "reference_repeats": 5,
+  "rate_numerator": 6676826000000,
+  "rate_denominator": 85751993,
+  "reference_operations_per_second": 111231.50055699413,
+  "load_percent": 70,
+  "depth": 1,
+  "shape": {
+    "physical_cores": 1,
+    "endpoint_groups": 1,
+    "runtime_workers": 1,
+    "payload_bytes": 1024,
+    "streams_per_group": 32
+  },
+  "binary_sha256": {
+    "direct": "0fdeec36d150d08490ba91a74ef9b12c32bce16949d82f88eeea83dbb4eee2e8",
+    "nbsr": "9163377f4754a0a2ec2dc3fa563701e8995460b27c39de022c5548d5e325603e",
+    "server": "7c27a95dc4765c727557b7e73cbeae86d36aed10f4f7341debfe92ea5c33718b"
+  },
+  "reference_linux_identity": {
+    "kernel": "Linux-6.6.114.1-microsoft-standard-WSL2-x86_64-with-glibc2.36",
+    "python": "3.14.6",
+    "taskset_version": "taskset from util-linux 2.38.1",
+    "lscpu_version": "lscpu from util-linux 2.38.1",
+    "topology": {
+      "cpus": [
+        {
+          "cpu": 0,
+          "core": 0,
+          "socket": 0,
+          "node": 0,
+          "online": true
+        },
+        {
+          "cpu": 1,
+          "core": 0,
+          "socket": 0,
+          "node": 0,
+          "online": true
+        },
+        {
+          "cpu": 2,
+          "core": 1,
+          "socket": 0,
+          "node": 0,
+          "online": true
+        },
+        {
+          "cpu": 3,
+          "core": 1,
+          "socket": 0,
+          "node": 0,
+          "online": true
+        },
+        {
+          "cpu": 4,
+          "core": 2,
+          "socket": 0,
+          "node": 0,
+          "online": true
+        },
+        {
+          "cpu": 5,
+          "core": 2,
+          "socket": 0,
+          "node": 0,
+          "online": true
+        },
+        {
+          "cpu": 6,
+          "core": 3,
+          "socket": 0,
+          "node": 0,
+          "online": true
+        },
+        {
+          "cpu": 7,
+          "core": 3,
+          "socket": 0,
+          "node": 0,
+          "online": true
+        }
+      ]
+    },
+    "inherited_cpus": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "selected_cpus": [
+      0
+    ],
+    "cgroup_limits": {
+      "cpu.max": "max 100000",
+      "cpuset.cpus.effective": "0-7",
+      "memory.max": "max",
+      "pids.max": "max"
+    }
+  },
+  "observer": {
+    "resource_mode": "proc-stat-fd-thread-affinity",
+    "cadence_ns": 100000000,
+    "nbsr_post_close_reports": true,
+    "qualification": "NOT_QUALIFIED_NO_MATCHED_COMPARISON"
+  },
+  "scope": "matched-state finite reference only; paced feasibility, observer cost and sustained stability NOT_QUALIFIED"
+}

@@ -34,7 +34,7 @@ flowchart LR
 | Adversarial checks | MEASURED 13 fail-closed executable cases pass at their recorded source | Replay, tampering, bindings, expiry/revocation/generation, downgrade, unauthorized/forged identity, malformed input and failure/recovery; refresh at bf53b8d4:13 PASS/0 FAIL/1 network-isolation INCONCLUSIVE; final whole-campaign gates remain pending; [refresh matrix](../../evidence/security/adversarial-refresh-bf53b8d4/summary.md) |
 | Private origin | MEASURED three Docker network lifecycles deny client/ISP-A DNS/IP direct probes, then return the exact authorized body with one origin request | Local topology, shared test bootstrap material, no host/root resistance claim; [isolation](../../evidence/security/isp-isolation-f831c9bb/REPORT.md) |
 | Federation | MEASURED admission preflight separately from route isolation; live runtime federation NOT_PROVEN | No independent-operator live-federation claim |
-| Linux | HISTORICAL six restricted compatibility repeats pass; current edc0f96d native reference remains PARTIAL | Five valid finite rows followed by one telemetry-invalid NBSR attempt; no accepted current reference or soak. Docker Desktop VM, not bare-metal/server/NIC scaling; [current execution](../../evidence/performance/v2/linux-current-edc0f96d/REPORT.md) |
+| Linux | MEASURED at 8779e69c: NBSR finite depth-one 1.822417 Gbit/s STABLE, depth-two 2.165110 DEGRADED, depth-four 2.432145 SATURATED | 22 valid rows; one selected guest-core representative, 1 KiB/32 streams. Direct baseline remains dispersed. Docker Desktop VM, not dedicated physical-server/NIC evidence; [reference](../../evidence/performance/v2/linux-reference-8779e69c/REPORT.md). Paced memory/soak qualification remains pending. |
 
 ## Why the numbers changed
 

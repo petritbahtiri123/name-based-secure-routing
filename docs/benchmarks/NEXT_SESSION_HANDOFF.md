@@ -1,5 +1,49 @@
 # NBSR campaign continuation checkpoint
 
+## Active continuation, 2026-09-07
+
+User authorized an additional 15 percentage points of weekly account usage,
+maximum 17. Baseline 21% used; target stop around36%, maximum38%, reserving room
+for a clean checkpoint/report. Latest observation27%; this is account-wide,
+not a per-task token count. Do not silently restart this budget after compaction.
+
+New commits:4ceb32c4 retains finite failure traceback/notes;ad86ab24 binds the
+formatter source;c6c7e925 preserves FD exit-transition diagnosis and updates the
+working brief;8779e69c adds explicit finite-only exiting observations.121 tests,
+Ruff and500 real Linux lifecycle checks pass. The500-child diagnosis showed290
+FD denials with non-zombie rechecks; all had PF_EXITING. The original invalid
+attempt lacks enough evidence for retrospective attribution. Ordinary live
+permission failures still fail; no timeout or protocol change.
+
+Current release build at8779e69c completed and all three Linux binary hashes
+equal the prior edc0f96d binaries. New raw root:C:/NBSR-build/linux-current-8779e69c.
+The reference-1k32 ladder completed22 valid rows, no telemetry failures. NBSR
+depth1 isSTABLE1.822417Gbps/CV0.663%;depth2DEGRADED2.165110;depth4SATURATED2.432145.
+Direct baseline remainsUNRESOLVED/CV6.98%.266 outer hashes are preserved in
+linux-reference-8779e69c; no dedicated physical-server claim. Never replace old
+failed cohorts.
+
+The next B5 ownership comparison loaded that reference at70%, but its first
+ownership-off control aborted on source-private growth at10seconds. See
+b5-sample-residency-8779e69c:114688bytes of steady growth,10530bytes/s, while
+12067 retained u64 latency samples account for96536bytes and9653bytes/s.
+A three-pair optimized Rust mincore probe proved reserved sample pages become
+resident during filling (1->24pages); pre-touch before filling stays48->48.
+Next: RED residency test, prepare both existing sample buffers before measurement
+without changing capacity/stride/guards, then actual rerun. Some residual growth
+may remain; do not claim all growth attributed or a production leak fixed.
+No active benchmark container remains at this checkpoint.
+
+The earlier nonreproductions and transition probes are preserved in
+linux-fd-transition-ad86ab24 (255 indexed files) and linux-fd-exiting-c6c7e925
+(7 files). No production code changed. B5's general Linux resource sampler is
+still strict; the finite opt-in does not automatically extend to its null-memory
+guards. Source-private growth and qualified long soaks remain open. About12.6GB
+free disk remained; no cleanup/deletion was needed. Docker build-cache image
+nbsr-linux-build-cache:edc0f96d is generated campaign cache, not evidence.
+
+The older checkpoint below is historical context and is superseded where noted.
+
 Campaign PARTIAL, not final closure. Latest engineering SHA edc0f96d0be2ae089e559092cab8fce2de50aac8; this checkpoint is added by a subsequent evidence-only commit. Branch codex/nbsr-v3-wp0-wp1. main/origin-main remain1938154d498b32d81a3564319969430644e8a688. No push, reset, merge or history rewrite. User authorizes continued safe work and deferred admin validation; do not ask routine approval.
 
 ## Next measured problem

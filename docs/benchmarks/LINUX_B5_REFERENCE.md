@@ -1,9 +1,10 @@
 # Linux single-core finite reference
 
-Implementation and synthetic verification only. Linux CLI execution is **NOT_RUN**;
-external dedicated/server hardware remains **EXTERNAL_HARDWARE_REQUIRED**.
-This stage prepares a checksum-bound finite reference for a later Linux B5 backend.
-It does not implement that backend or qualify sustained capacity.
+Linux release execution is **PARTIAL**, and external dedicated/server hardware
+remains **EXTERNAL_HARDWARE_REQUIRED**. The edc0f96d finite attempt retained five
+valid rows then one telemetry-invalid NBSR row; it is not an accepted reference.
+The sustained backend and CLI are implemented, but no qualified long soak exists.
+See [current-source execution](../../evidence/performance/v2/linux-current-edc0f96d/REPORT.md).
 
 The workload uses one selected logical CPU from one physical core, shared by the
 source and destination; one endpoint group; one runtime worker per process;
@@ -104,8 +105,8 @@ process lifetime including startup, warmup and drain; there is no steady CPU
 ns/op claim. This observer does not sample Windows private commit or Linux
 private-resident memory, so no memory-growth claim is made by the finite stage.
 
-Multicore/grouped references, the Linux B5 live controller backend and two-host
-NIC workloads are separate unimplemented stages. Native two-host bind support
+Multicore/grouped references and two-host NIC orchestration remain separate
+unimplemented stages. Native two-host bind support
 does not make this loopback controller a remote workload orchestrator.
 
 ## Sustained backend prerequisites now available
@@ -134,11 +135,11 @@ and matched observer qualification remain required before any sustained claim.
 The explicit `LinuxB5Backend` is now connected to shared `run_one`; prelaunch
 taskset, sampler selection, source stop-before-reap and destination terminal
 sampling are composed and tested (55 focused tests plus a real restricted
-Linux Python-child fixture). See `linux-b5-backend-c6bb0e9f`. No current Rust
-B5 run or observer qualification exists; sustained CLI/provenance binding and
-actual benchmark validation remain pending.
+Linux Python-child fixture). See `linux-b5-backend-c6bb0e9f`. The later edc0f96d
+Rust B5 CLI diagnostic stopped on Direct p99 drift; observer qualification and
+accepted sustained validation remain pending.
 
-## Linux sustained CLI (AUTHORED, actual Rust execution pending)
+## Linux sustained CLI (implemented, qualification pending)
 
 The entrypoint now exists. For a matching accepted16KiB/1stream reference
 created using the earlier example, this is the reference-bound accounting
@@ -164,10 +165,20 @@ without `--reference`; it cannot count as a qualified cohort. No builds occur
 inside this entrypoint. All paths must be outside the clean source checkout.
 
 Output is DIAGNOSTIC or ACCOUNTING_PASS_QUALIFICATION_PENDING, never automatic
-STABLE: observer qualification and actual current Rust/QUIC execution are still
-NOT_RUN. p99 dispersion uses repeat medians of steady-window p99, not pooled
+STABLE: observer qualification and an accepted sustained Rust/QUIC cohort remain
+pending. p99 dispersion uses repeat medians of steady-window p99, not pooled
 operation percentiles. The metadata keeps private-resident memory distinct from
 Windows private bytes and identifies unmeasured thermal/power/server evidence.
 Four literal RED cohort tests preceded implementation;59 focused tests and Ruff
 passed after it, and CLI help was checked. Source-dirty and manual-rate bypass
 regressions also pass. This does not close long-soak or external-host validation.
+
+## Finite FD exit transition
+
+At 8779e69c the finite owner explicitly opts into PF_EXITING observations after
+FD denial. They retain null FD count and real process state, never final CPU or
+cleanup. A prior matching sample, monotonic identity/CPU, later zombie sample,
+successful join and the existing ownership/ACK checks remain mandatory. Ordinary
+live permission denial still fails. The general resource sampler is not opted
+in by this finite-only change. See the [diagnosis](../../evidence/performance/v2/linux-fd-transition-ad86ab24/REPORT.md)
+and [500-cycle regression](../../evidence/performance/v2/linux-fd-exiting-c6c7e925/REPORT.md).
