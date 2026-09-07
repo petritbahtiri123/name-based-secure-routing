@@ -39,6 +39,7 @@ SOURCE_PATHS = tuple(
         "linux_b5_ceiling.py",
         "linux_loopback.py",
         "b3_linux.py",
+        "b4_linux.py",
         "linux_resources.py",
         "p2a_established.py",
         "physical_core_analysis.py",

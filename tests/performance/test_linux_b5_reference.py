@@ -84,6 +84,10 @@ def test_cleanup_failure_cannot_be_valid():
         reference.finish_record(cell(), 1, result(), cleanup_pass=False)
 
 
+def test_failure_formatter_is_bound_in_retained_sources():
+    assert "scripts/performance/b4_linux.py" in reference.SOURCE_PATHS
+
+
 @pytest.mark.parametrize("server_code", [0, 1])
 @pytest.mark.parametrize("source_fault", [None, "final", "report", "telemetry"])
 def test_orchestration_samples_source_then_ack_then_server_join(tmp_path, server_code, source_fault):
