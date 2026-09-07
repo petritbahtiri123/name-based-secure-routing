@@ -22,6 +22,8 @@ mod interop_server;
 mod support;
 
 use interop_server::run_verified_executable_for_test;
+#[cfg(windows)]
+use interop_server::verified_executable_spawn_path_for_test;
 use interop_server::{
     DemoBackendError, DemoBackendThreadFailure, accept_configured_route, authorities, edge_hello,
     ensure_demo_backend_binding, ensure_runtime_admission_binding,
@@ -30,7 +32,7 @@ use interop_server::{
     relay_demo_backend_with_timeout, route_accept, run_demo_backend, run_demo_backend_connector,
     run_demo_backend_server_operation_with_timeout, run_demo_backend_with_thread_failure,
     run_demo_backend_with_timeout, runtime_route_grant_service_digest,
-    verified_executable_spawn_path_for_test, verify_executable_with_limit_for_test,
+    verify_executable_with_limit_for_test,
 };
 
 fn runtime_admission_text() -> String {
@@ -462,10 +464,6 @@ fn inheritable_sentinel(path: &Path) -> fs::File {
         unsafe { fcntl(sentinel.as_raw_fd(), 2, 0) },
         0,
         "clear FD_CLOEXEC for inheritance sentinel"
-    );
-    assert!(
-        PathBuf::from(format!("{}.descendant-started", descendant.display())).exists(),
-        "lifecycle helper must start the stdio-retaining descendant"
     );
     sentinel
 }
@@ -1720,6 +1718,11 @@ async fn timeout_kills_backend_process_tree_that_retains_stdio() {
         bounded,
         Ok(Err(DemoBackendError::TimedOut)),
         "timeout cleanup must terminate descendants retaining stdout/stderr"
+    );
+    #[cfg(target_os = "linux")]
+    assert!(
+        PathBuf::from(format!("{}.descendant-started", descendant.display())).exists(),
+        "lifecycle helper must start the stdio-retaining descendant"
     );
     fs::remove_file(descendant).expect("backend process tree was reaped");
 }

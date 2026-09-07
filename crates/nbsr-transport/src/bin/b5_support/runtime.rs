@@ -1,5 +1,6 @@
 //! Test-only async lifecycle wrapper. Owns no transport or publisher worker.
 use super::coordinator::{Action, Clock, Config, GroupGuard, PacedRun, Snapshot, Status};
+use super::paced::prepared_sample_buffer;
 use std::sync::{Arc, Mutex};
 use std::time::Instant;
 use tokio::sync::Notify;
@@ -34,10 +35,7 @@ impl<C: Clock> AsyncRun<C> {
     pub(crate) fn new(config: Config, clock: Arc<C>) -> Result<Self, Error> {
         let capacity = config.sample_capacity;
         let run = Arc::new(PacedRun::new(config, clock)?);
-        let mut spare = Vec::new();
-        spare
-            .try_reserve_exact(capacity)
-            .map_err(|_| "sample allocation failed")?;
+        let spare = prepared_sample_buffer(capacity)?;
         Ok(Self {
             run,
             changed: Notify::new(),

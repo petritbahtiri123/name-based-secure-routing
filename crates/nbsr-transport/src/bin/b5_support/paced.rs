@@ -148,6 +148,20 @@ impl PacingWindow {
     }
 }
 
+pub(crate) fn prepared_sample_buffer(capacity: usize) -> Result<Vec<u64>, Error> {
+    let mut samples = Vec::new();
+    samples
+        .try_reserve_exact(capacity)
+        .map_err(|_| "sample allocation failed")?;
+    // Reservation alone leaves private pages untouched. Prepare the full
+    // bounded fixture before timing, so sample writes do not look like growth.
+    // A nonzero fill plus an opaque observation keeps these writes observable.
+    samples.resize(capacity, u64::MAX);
+    std::hint::black_box(samples.as_slice());
+    samples.clear();
+    Ok(samples)
+}
+
 pub(crate) struct CollectedWindow {
     pub(crate) completed: u64,
     pub(crate) group_completed: Vec<u64>,
@@ -182,10 +196,7 @@ impl BoundedCollector {
         if !(1..=4).contains(&groups) || stride == 0 || capacity == 0 {
             return Err("invalid collector configuration");
         }
-        let mut samples = Vec::new();
-        samples
-            .try_reserve_exact(capacity)
-            .map_err(|_| "sample allocation failed")?;
+        let samples = prepared_sample_buffer(capacity)?;
         Ok(Self {
             stride,
             capacity,
@@ -250,14 +261,7 @@ impl BoundedCollector {
                 state.valid = false;
                 return Err("invalid replacement sample buffer");
             }
-            None => {
-                let mut buffer = Vec::new();
-                if buffer.try_reserve_exact(self.capacity).is_err() {
-                    state.valid = false;
-                    return Err("sample allocation failed");
-                }
-                buffer
-            }
+            None => prepared_sample_buffer(self.capacity).inspect_err(|_| state.valid = false)?,
         };
         let result = CollectedWindow {
             completed: state.completed,

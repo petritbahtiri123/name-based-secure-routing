@@ -1,6 +1,41 @@
 //! Deterministic pacing and bounded sampling contracts, established RED first.
 use super::{BoundedCollector, PacingWindow};
 
+#[cfg(target_os = "linux")]
+#[test]
+fn collector_storage_is_resident_before_sampling() {
+    use std::ffi::{c_int, c_void};
+    unsafe extern "C" {
+        fn mincore(addr: *mut c_void, length: usize, vector: *mut u8) -> c_int;
+        fn getpagesize() -> c_int;
+    }
+    let capacity = 1_048_576;
+    let collector = BoundedCollector::new(1, 64, capacity).unwrap();
+    for _ in 0..2 {
+        let window = collector.take_window(None).unwrap();
+        assert_eq!(window.completed, 0);
+        assert!(window.latency_samples_ns.is_empty());
+        let buffer = &window.latency_samples_ns;
+        // Query mapping metadata for the live allocation, never uninitialized
+        // sample values. Page rounding stays within the allocator's mappings.
+        let page = unsafe { getpagesize() } as usize;
+        assert!(page.is_power_of_two());
+        let start = buffer.as_ptr() as usize;
+        let base = start / page * page;
+        let pages = (start - base + buffer.capacity() * size_of::<u64>()).div_ceil(page);
+        let mut flags = vec![0_u8; pages];
+        assert_eq!(
+            unsafe { mincore(base as *mut c_void, pages * page, flags.as_mut_ptr()) },
+            0
+        );
+        assert_eq!(
+            flags.iter().filter(|value| **value & 1 != 0).count(),
+            pages,
+            "reserved latency pages must be resident before measurement"
+        );
+    }
+}
+
 #[test]
 fn stream_partitions_balance_cumulative_stream_and_group_offered_work() {
     let groups = 4;
