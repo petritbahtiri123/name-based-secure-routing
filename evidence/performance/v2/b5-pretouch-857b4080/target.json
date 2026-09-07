@@ -1,0 +1,7 @@
+{
+  "rate_numerator": 6676826000000,
+  "rate_denominator": 85751993,
+  "calibration_sha": "8779e69cfd7fe5cb244aba2f3e96e785c3dd47eb",
+  "run_sha": "857b4080bc0a14f172d438d94df61121b5d543ee",
+  "classification": "FIXED_RATE_DIAGNOSTIC_NOT_CURRENT_CALIBRATION"
+}

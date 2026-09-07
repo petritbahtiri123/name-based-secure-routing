@@ -1,0 +1,17 @@
+[
+  {
+    "root": "C:\\NBSR-build\\b5-pretouch-17a4701f",
+    "files": 14,
+    "index_sha256": "8ad55916ed94af0fa2648e013210cc1c171b80509b4a1e02ed8d00fa63eb3862"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-current-857b4080",
+    "files": 13,
+    "index_sha256": "799b975ff1082a9ddfabfec4419366016badb52724551ce10ae0be029083db4e"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-b5-pretouch-857b4080",
+    "files": 48,
+    "index_sha256": "b091d01d96d1e79cbc735c93e618317148bb19bed7b9a2656058f279ba77c271"
+  }
+]

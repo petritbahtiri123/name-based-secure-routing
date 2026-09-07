@@ -27,5 +27,18 @@ completed without the descendant-started marker. This stronger Windows proof
 remains INCONCLUSIVE; the timeout is not increased and no Windows descendant
 coverage is claimed from that failure. The original Windows assertions remain.
 
-Before/after fixed-load B5 reruns remain required. Passing unit tests does not
-establish that all private growth is eliminated or qualify a sustained soak.
+The exact-source release rerun at857b4080 retained the original fixed rate
+6676826000000/85751993 operations/s,32streams,1KiB,depth1,3second warmup,
+120second intended duration and10second progress. It failed at100seconds on
+destination-private growth, versus the preceding source failure at10seconds.
+Source grew73728bytes over the retained100second prefix (883bytes/s); destination
+grew126976bytes (978bytes/s,R-squared0.895). Handles and threads remained constant.
+The final progress had7670302 completed/7786983offered, zero errors/timeouts.
+This single failed diagnostic does not establish a repeatable performance gain,
+prove a leak, or qualify sustained stability. No replacement run was accepted.
+Canonical logs, source/build binding, analysis and81 raw-file hashes are in
+`evidence/performance/v2/b5-pretouch-857b4080`.
+
+The sample-storage mechanism is fixed and unit-tested; remaining destination
+growth requires attribution. Passing unit tests does not establish that all
+private growth is eliminated or qualify a sustained soak.

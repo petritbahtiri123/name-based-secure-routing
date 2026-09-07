@@ -1,0 +1,103 @@
+{
+  "classification": "FAILED_DIAGNOSTIC_NO_STABLE_CLAIM",
+  "source_sha": "857b4080",
+  "error": "B5 stream failed: live private growth: destination_0 (receive-clock diagnostic)",
+  "steady_windows": 10,
+  "roles": {
+    "source": {
+      "samples": 199,
+      "first_private": 5369856,
+      "last_private": 5443584,
+      "delta": 73728,
+      "slope_bytes_s": 882.6435115489294,
+      "r_squared": 0.800746500372155,
+      "fd_range": [
+        10,
+        10
+      ],
+      "thread_range": [
+        3,
+        3
+      ],
+      "ten_second_last_private": [
+        5382144,
+        5382144,
+        5382144,
+        5390336,
+        5439488,
+        5439488,
+        5439488,
+        5439488,
+        5443584,
+        5443584
+      ]
+    },
+    "destination_0": {
+      "samples": 199,
+      "first_private": 4894720,
+      "last_private": 5021696,
+      "delta": 126976,
+      "slope_bytes_s": 977.7542476380661,
+      "r_squared": 0.895349726845543,
+      "fd_range": [
+        7,
+        7
+      ],
+      "thread_range": [
+        1,
+        1
+      ],
+      "ten_second_last_private": [
+        4915200,
+        4915200,
+        4923392,
+        4923392,
+        4935680,
+        4964352,
+        4964352,
+        4964352,
+        4984832,
+        5021696
+      ]
+    }
+  },
+  "last_progress": {
+    "schema": "nbsr-b5-grouped-progress-v1",
+    "event": "b5_grouped_progress",
+    "window_index": 10,
+    "phase": "steady",
+    "elapsed_ns": 100001057565,
+    "interval_start_ns": 90000771385,
+    "interval_end_ns": 100001057565,
+    "issue_deadline_ns": 120000000000,
+    "offered": 7786983,
+    "reserved": 7670334,
+    "issued": 7670334,
+    "completed": 7670302,
+    "missed": 115945,
+    "unreserved_current": 704,
+    "group_counters": [
+      {
+        "group_id": 0,
+        "offered": 7786983,
+        "reserved": 7670334,
+        "issued": 7670334,
+        "completed": 7670302,
+        "missed": 115945,
+        "unreserved_current": 704
+      }
+    ],
+    "goodput_bytes_per_second": 156613860.42454237,
+    "sample_count": 11949,
+    "sample_stride": 64,
+    "sample_capacity": 24347,
+    "sample_overflow_count": 0,
+    "p50_latency_ns": 289312,
+    "p95_latency_ns": 449518,
+    "p99_latency_ns": 735230,
+    "max_reservation_lateness_ns": 9999966,
+    "errors": 0,
+    "timeouts": 0,
+    "evidence_valid": true
+  }
+}

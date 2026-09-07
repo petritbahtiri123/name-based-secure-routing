@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 203, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/tmp/source/scripts/performance/linux_b5_campaign.py", line 179, in <module>
+    main()
+    ~~~~^^
+  File "/tmp/source/scripts/performance/linux_b5_campaign.py", line 175, in main
+    execute(parser.parse_args())
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/source/scripts/performance/linux_b5_campaign.py", line 140, in execute
+    repeats = run_cohort(paths, run, retain, diagnostic=args.diagnostic)
+  File "/tmp/source/scripts/performance/linux_b5_campaign.py", line 46, in run_cohort
+    raise RuntimeError("invalid partial run retained; no replacement")
+RuntimeError: invalid partial run retained; no replacement

@@ -1,0 +1,18 @@
+    Finished `release` profile [optimized] target(s) in 2.60s
+     Running tests\demo_backend.rs (C:/NBSR-build/b5-pretouch-windows-target-506ddfa1\release\deps\demo_backend-648557a3e1657185.exe)
+
+running 1 test
+
+thread 'timeout_kills_backend_process_tree_that_retains_stdio' (29664) panicked at tests\demo_backend.rs:1722:5:
+lifecycle helper must start the stdio-retaining descendant
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test timeout_kills_backend_process_tree_that_retains_stdio ... FAILED
+
+failures:
+
+failures:
+    timeout_kills_backend_process_tree_that_retains_stdio
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 53 filtered out; finished in 1.32s
+
+error: test failed, to rerun pass `--test demo_backend`

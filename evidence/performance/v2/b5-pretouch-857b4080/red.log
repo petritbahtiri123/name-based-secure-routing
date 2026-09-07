@@ -1,0 +1,34 @@
+
+ Downloading crates ...
+running 1 test
+test b5_support::paced_contract_tests::collector_storage_is_resident_before_sampling ... FAILED
+
+failures:
+
+failures:
+    b5_support::paced_contract_tests::collector_storage_is_resident_before_sampling
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 87 filtered out; finished in 0.00s
+
+  Downloaded itoa v1.0.18
+  Downloaded serde_json v1.0.151
+  Downloaded bit-vec v0.9.1
+  Downloaded yasna v0.6.0
+  Downloaded zmij v1.0.23
+  Downloaded rcgen v0.14.8
+   Compiling serde_core v1.0.229
+   Compiling zmij v1.0.23
+   Compiling serde_json v1.0.151
+   Compiling yasna v0.6.0
+   Compiling itoa v1.0.18
+   Compiling rcgen v0.14.8
+   Compiling nbsr-transport v0.1.0 (/work/crates/nbsr-transport)
+    Finished `release` profile [optimized] target(s) in 13.07s
+     Running unittests src/bin/perf_rust_source.rs (target/release/deps/perf_rust_source-7c94e9b39cf9546f)
+
+thread 'b5_support::paced_contract_tests::collector_storage_is_resident_before_sampling' (233) panicked at src/bin/b5_support/paced_contract_tests.rs:28:9:
+assertion `left == right` failed: reserved latency pages must be resident before measurement
+  left: 1
+ right: 2049
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+error: test failed, to rerun pass `--bin perf_rust_source`
