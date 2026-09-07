@@ -51,7 +51,8 @@ def test_linux_executes_verified_original_windows_keeps_retained(tmp_path, monke
         binary_sha256={p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in binaries.values()},
         build_commands=['recorded'], toolchains={'rust': 'recorded'})))
     monkeypatch.setattr(b3_linux, 'environment', lambda _: dict(selected_cpus=[0], taskset='/usr/bin/taskset', scope='diagnostic'))
-    monkeypatch.setattr(runner.subprocess, 'check_output', lambda *a, **kw: 'a' * 40 if kw.get('text') else b'')
+    monkeypatch.setattr(runner.subprocess, 'check_output',
+        lambda argv, **kw: '' if argv[1] == 'status' else 'a' * 40 if kw.get('text') else b'')
     output = tmp_path / 'output'
 
     def run(path, spec, observed, root, **kwargs):
@@ -83,3 +84,24 @@ def test_immediate_execution_check_rejects_changed_bytes(tmp_path, changed):
     path.write_bytes(b'changed')
     with pytest.raises(ValueError):
         runner.verify_linux_execution(binaries, retained, build)
+
+
+@pytest.mark.parametrize('dirty', [' M scripts/run_b3_v2.py\n', '?? injected.py\n'])
+def test_dirty_source_cannot_create_measured_b3_evidence(tmp_path, monkeypatch, dirty):
+    target = tmp_path / 'target'
+    (target / 'release').mkdir(parents=True)
+    for name in runner.binary_names('windows').values():
+        (target / 'release' / name).write_bytes(b'fixture')
+
+    def git(argv, **kwargs):
+        if argv[1] == 'status':
+            return dirty
+        return 'a' * 40 if kwargs.get('text') else b''
+
+    monkeypatch.setattr(runner.subprocess, 'check_output', git)
+    monkeypatch.setattr(runner.b3, 'run_cell', lambda *a, **k: {'cleanup': {'all_zero': True}})
+    output = tmp_path / 'output'
+    with pytest.raises(ValueError, match='clean checkout'):
+        runner.execute(SimpleNamespace(platform='windows', axis='streams', counts=[8],
+            repeats=3, materialized_streams=True, fixed_channels=8, target=target, output=output))
+    assert not output.exists()

@@ -81,6 +81,11 @@ def spec_for(axis, count, repeat, *, materialized_streams=False, fixed_channels=
 
 
 def execute(args):
+    source_sha = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
+    source_status = subprocess.check_output(
+        ['git', 'status', '--porcelain', '--untracked-files=all'], text=True)
+    if source_status:
+        raise ValueError('B3 requires a clean checkout before evidence creation')
     platform_name = getattr(args, 'platform', 'windows')
     linux = None
     if platform_name == 'linux':
@@ -99,7 +104,7 @@ def execute(args):
         binaries[role] = original if linux else retained
     build = validate_linux_manifest(args.build_manifest, binaries) if linux else None
     metadata = {"schema": "nbsr-b3-v2-raw-v1", "classification": "DIAGNOSTIC" if args.repeats < 3 else "MEASURED_PENDING_ANALYSIS",
-                "source_sha": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
+                "source_sha": source_sha, "git_status": source_status,
                 "binary_sha256": {k: hashlib.sha256(v.read_bytes()).hexdigest() for k, v in binaries.items()},
                 "workloads": specs, "scope": "Windows loopback; Rust to Rust; no server-class claim",
                 "stream_residency": specs[0]["stream_residency"],

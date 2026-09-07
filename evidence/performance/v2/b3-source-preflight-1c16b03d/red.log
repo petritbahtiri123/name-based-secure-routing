@@ -1,0 +1,66 @@
+FF                                                                       [100%]
+================================== FAILURES ===================================
+_ test_dirty_source_cannot_create_measured_b3_evidence[ M scripts/run_b3_v2.py\n] _
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-987/test_dirty_source_cannot_creat0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001DFA53A16E0>
+dirty = ' M scripts/run_b3_v2.py\n'
+
+    @pytest.mark.parametrize('dirty', [' M scripts/run_b3_v2.py\n', '?? injected.py\n'])
+    def test_dirty_source_cannot_create_measured_b3_evidence(tmp_path, monkeypatch, dirty):
+        target = tmp_path / 'target'
+        (target / 'release').mkdir(parents=True)
+        for name in runner.binary_names('windows').values():
+            (target / 'release' / name).write_bytes(b'fixture')
+    
+        def git(argv, **kwargs):
+            if argv[1] == 'status':
+                return dirty
+            return 'a' * 40 if kwargs.get('text') else b''
+    
+        monkeypatch.setattr(runner.subprocess, 'check_output', git)
+        monkeypatch.setattr(runner.b3, 'run_cell', lambda *a, **k: {'cleanup': {'all_zero': True}})
+        output = tmp_path / 'output'
+>       with pytest.raises(ValueError, match='clean checkout'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_b3_linux_runner.py:103: Failed
+---------------------------- Captured stdout call -----------------------------
+streams-8-r1
+streams-8-r2
+streams-8-r3
+___ test_dirty_source_cannot_create_measured_b3_evidence[?? injected.py\n] ____
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-987/test_dirty_source_cannot_creat1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001DFA4CE50F0>
+dirty = '?? injected.py\n'
+
+    @pytest.mark.parametrize('dirty', [' M scripts/run_b3_v2.py\n', '?? injected.py\n'])
+    def test_dirty_source_cannot_create_measured_b3_evidence(tmp_path, monkeypatch, dirty):
+        target = tmp_path / 'target'
+        (target / 'release').mkdir(parents=True)
+        for name in runner.binary_names('windows').values():
+            (target / 'release' / name).write_bytes(b'fixture')
+    
+        def git(argv, **kwargs):
+            if argv[1] == 'status':
+                return dirty
+            return 'a' * 40 if kwargs.get('text') else b''
+    
+        monkeypatch.setattr(runner.subprocess, 'check_output', git)
+        monkeypatch.setattr(runner.b3, 'run_cell', lambda *a, **k: {'cleanup': {'all_zero': True}})
+        output = tmp_path / 'output'
+>       with pytest.raises(ValueError, match='clean checkout'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_b3_linux_runner.py:103: Failed
+---------------------------- Captured stdout call -----------------------------
+streams-8-r1
+streams-8-r2
+streams-8-r3
+=========================== short test summary info ===========================
+FAILED tests/performance/test_b3_linux_runner.py::test_dirty_source_cannot_create_measured_b3_evidence[ M scripts/run_b3_v2.py\n]
+FAILED tests/performance/test_b3_linux_runner.py::test_dirty_source_cannot_create_measured_b3_evidence[?? injected.py\n]
+2 failed, 7 deselected in 1.22s

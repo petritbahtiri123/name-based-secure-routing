@@ -82,7 +82,16 @@ reference/soak qualification remains incomplete. The native external runbook
 must retain its tested source binding; local Docker results do not validate a
 server. One Administrator-only Windows Direct CPU attribution command is
 deferred in the [Administrator ledger](ADMIN_REQUIRED_FINAL_VALIDATION.md).
-Linux FD failure attribution and Windows source-private growth remain open.
+Windows source-private growth remains open.
+
+The finite Linux FD exit-transition handling is now regression-tested; the
+original missing-context failure still cannot be attributed retrospectively.
+At857b4080, preparing bounded benchmark latency storage removed its lazy-page
+mechanism. The fixed-rate Linux rerun still failed destination-private growth
+at100seconds. Subsequent mapping/allocator traces remain diagnostic and do not
+qualify performance or a60minute soak. Windows started-descendant cancellation
+now passes five repeats; the separate100ms deadline's descendant-start proof
+remains INCONCLUSIVE. These updates do not raise the capacity claims above.
 
 Current campaign recommendation: **MORE ENGINEERING REQUIRED**. This brief is
 not a readiness endorsement and must be rewritten around the final accepted
