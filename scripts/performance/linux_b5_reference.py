@@ -49,6 +49,10 @@ SOURCE_PATHS = tuple(
 )
 
 
+def sample_finite_process(pid, cpus):
+    return sample_process(pid, cpus, allow_exiting=True)
+
+
 def validate_cell(cell):
     if (
         set(cell) != {"path", "payload_bytes", "streams", "outstanding", "cores"}
@@ -165,7 +169,7 @@ def run_cell(
     *,
     warmup,
     duration,
-    sample_fn=sample_process,
+    sample_fn=sample_finite_process,
     popen=subprocess.Popen,
     exec_check=wait_exec,
 ):
@@ -181,6 +185,7 @@ def run_cell(
     recorded = dict(server=prefix + server, environment_overrides=override, selected_cpus=cpus)
     cap = 2 * (math.ceil((warmup + duration + 60) / 0.1) + 4)
     sampled = 0
+    exiting_roles = set()
 
     def launch(role, argv, env):
         stdout, stderr = (raw / f"{role}.stdout").open("xb"), (raw / f"{role}.stderr").open("xb")
@@ -202,6 +207,14 @@ def run_cell(
             if type(value.get(key)) is not int or value[key] < 0:
                 raise RuntimeError("invalid resource counter")
         old = previous.get(role)
+        flags = value.get("flags", 0)
+        is_exiting = type(flags) is int and flags >= 0 and bool(flags & 4)
+        if value.get("fd_count_state") == "UNAVAILABLE_EXITING":
+            if old is None or not is_exiting or value["state"] == "Z" or value.get("fd_count") is not None:
+                raise RuntimeError("unverified exiting FD observation")
+            exiting_roles.add(role)
+        if role in exiting_roles and value["state"] != "Z" and not is_exiting:
+            raise RuntimeError("exiting process returned to live state")
         if old and (
             old["start_ticks"] != value["start_ticks"] or old["cpu_ns"] > value["cpu_ns"] or old["timestamp_ns"] >= value["timestamp_ns"]
         ):

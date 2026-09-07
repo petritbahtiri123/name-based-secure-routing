@@ -6,9 +6,10 @@ import pytest
 from scripts.performance.linux_loopback import sample_process
 
 
-def stat(state, *, pid=123, start=99, cpu=10):
+def stat(state, *, pid=123, start=99, cpu=10, flags=0):
     fields = [state] + ["0"] * 49
     fields[11], fields[19] = str(cpu), str(start)
+    fields[6] = str(flags)
     return f"{pid} (peer) " + " ".join(fields)
 
 
@@ -69,3 +70,26 @@ def test_live_fd_count_remains_measured(tmp_path):
     sample = sample_process(123, [0], tmp_path, 100, 4096)
     assert sample["fd_count"] == 1
     assert sample["fd_count_state"] == "MEASURED"
+
+
+@pytest.mark.parametrize("flags,allowed", [(0, False), (4, False), (0, True), (4, True)])
+def test_exiting_fd_denial_requires_explicit_opt_in_and_kernel_flag(tmp_path, monkeypatch, flags, allowed):
+    base = fixture(tmp_path)
+    original = Path.iterdir
+
+    def denied(path):
+        if path == base / "fd":
+            (base / "stat").write_text(stat("R", flags=flags, cpu=20))
+            raise PermissionError(13, "FD unavailable")
+        return original(path)
+
+    monkeypatch.setattr(Path, "iterdir", denied)
+    if not (flags == 4 and allowed):
+        with pytest.raises(PermissionError):
+            sample_process(123, [0], tmp_path, 100, 4096, allow_exiting=allowed)
+    else:
+        value = sample_process(123, [0], tmp_path, 100, 4096, allow_exiting=True)
+        assert value["state"] == "R" and value["flags"] == 4
+        assert value["fd_count"] is None
+        assert value["fd_count_state"] == "UNAVAILABLE_EXITING"
+        assert value["cpu_ns"] == 200_000_000

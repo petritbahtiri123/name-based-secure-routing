@@ -103,11 +103,16 @@ def parse_cpu_list(value):
 
 def parse_proc_stat(text, ticks, page_size):
     fields = text[text.rindex(")") + 2:].split()
-    return {"state": fields[0], "cpu_ns": (int(fields[11]) + int(fields[12])) * 1_000_000_000 // ticks,
+    return {"state": fields[0], "flags": int(fields[6]), "cpu_ns": (int(fields[11]) + int(fields[12])) * 1_000_000_000 // ticks,
             "start_ticks": int(fields[19]), "rss_bytes": int(fields[21]) * page_size}
 
 
-def sample_process(pid, cpus, proc_root=Path("/proc"), ticks=None, page_size=None):
+def sample_process(pid, cpus, proc_root=Path("/proc"), ticks=None, page_size=None, *, allow_exiting=False):
+    """Opted-in owners must retain exiting observations until a final zombie sample.
+
+    PF_EXITING (0x4) can precede zombie state and FD permission loss. Such a
+    snapshot has no measured FD count and is not final CPU or cleanup evidence.
+    """
     base = proc_root / str(pid)
     ticks = ticks if ticks is not None else os.sysconf("SC_CLK_TCK")
     page_size = page_size if page_size is not None else os.sysconf("SC_PAGE_SIZE")
@@ -138,19 +143,20 @@ def sample_process(pid, cpus, proc_root=Path("/proc"), ticks=None, page_size=Non
         try:
             fd_count = len(list((base / "fd").iterdir()))
         except PermissionError as error:
-            # Linux can deny zombie FD access even to its same-UID parent.
-            # Only an unchanged process that has now exited permits omission.
+            # Same-UID FD access can fail before zombie state. Only a verified
+            # zombie or an opted-in PF_EXITING observation permits omission.
             final = read_stat()
             if final["start_ticks"] != sample["start_ticks"]:
                 raise RuntimeError("process identity changed") from None
-            if final["state"] != "Z":
+            if final["state"] != "Z" and not (allow_exiting is True and final["flags"] & 4):
                 error.add_note(json.dumps({"phase": "fd_permission_recheck", "pid": pid,
                                            "initial_stat": sample, "recheck_stat": final}, sort_keys=True))
                 raise
             sample = final
     sample.update(pid=pid, timestamp_ns=time.monotonic_ns(), thread_ids=tids,
                   fd_count=fd_count,
-                  fd_count_state="UNAVAILABLE_ZOMBIE" if sample["state"] == "Z" else "MEASURED",
+                  fd_count_state=("UNAVAILABLE_ZOMBIE" if sample["state"] == "Z" else
+                                  "UNAVAILABLE_EXITING" if fd_count is None else "MEASURED"),
                   affinity=list(cpus))
     return sample
 

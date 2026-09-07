@@ -89,7 +89,7 @@ def test_failure_formatter_is_bound_in_retained_sources():
 
 
 @pytest.mark.parametrize("server_code", [0, 1])
-@pytest.mark.parametrize("source_fault", [None, "final", "report", "telemetry"])
+@pytest.mark.parametrize("source_fault", [None, "final", "report", "telemetry", "exiting", "exiting-first", "exiting-revival"])
 def test_orchestration_samples_source_then_ack_then_server_join(tmp_path, server_code, source_fault):
     from scripts.performance.post_close_cleanup import FIELDS
 
@@ -135,14 +135,24 @@ def test_orchestration_samples_source_then_ack_then_server_join(tmp_path, server
             self.returncode = -1
 
     clock = 0
+    source_samples = 0
 
     def sample(pid, cpus):
-        nonlocal clock
+        nonlocal clock, source_samples
         clock += 1
         state = "Z" if pid == 12 or (tmp_path / "raw/completion.ack").exists() else "S"
         if pid == 12:
             assert not (tmp_path / "raw/completion.ack").exists()
             events.append("client-final-sample")
+            source_samples += 1
+            if source_fault and source_fault.startswith("exiting"):
+                sequence = (["R", "Z"] if source_fault == "exiting-first" else
+                            ["S", "R", "S", "Z"] if source_fault == "exiting-revival" else ["S", "R", "Z"])
+                state = sequence[source_samples - 1]
+                if state == "R":
+                    return dict(pid=pid, start_ticks=pid, state="R", flags=4, cpu_ns=clock,
+                                timestamp_ns=clock, affinity=cpus, fd_count=None,
+                                fd_count_state="UNAVAILABLE_EXITING")
             if source_fault == "telemetry":
                 error = PermissionError(13, "FD unavailable", "/proc/12/fd")
                 error.add_note("fd_permission_recheck: unchanged identity, state R")
@@ -163,9 +173,10 @@ def test_orchestration_samples_source_then_ack_then_server_join(tmp_path, server
         popen=Process,
         exec_check=lambda *args: None,
     )
-    assert row["valid"] is (server_code == 0 and source_fault is None)
+    expected_source_pass = source_fault in (None, "exiting")
+    assert row["valid"] is (server_code == 0 and expected_source_pass)
     assert events.index("client-final-sample") < events.index("client-join")
-    if source_fault is not None:
+    if not expected_source_pass:
         assert not (tmp_path / "raw/completion.ack").exists()
         assert "error" in row
         assert (tmp_path / "raw/client.stdout").read_bytes()
@@ -174,6 +185,10 @@ def test_orchestration_samples_source_then_ack_then_server_join(tmp_path, server
         assert events.index("client-join") < events.index("server-join")
     assert (tmp_path / "raw/resources.ndjson").exists()
     assert (tmp_path / "raw/record.json").exists()
+    if source_fault == "exiting":
+        assert source_samples == 3
+        if server_code == 0:
+            assert row["final_process_samples"]["client"]["state"] == "Z"
     if source_fault == "telemetry":
         retained = json.loads((tmp_path / "raw/record.json").read_text())
         assert retained["error_type"] == "PermissionError"

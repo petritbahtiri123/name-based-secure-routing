@@ -1,0 +1,15 @@
+{
+  "classification": "PASS_LINUX_LIFECYCLE_REGRESSION_NOT_CAPACITY",
+  "parent_sha": "c6c7e925",
+  "trials": 500,
+  "intermediate_exiting_observations": 939,
+  "all_final_zombie_identity_cpu_and_join_verified": true,
+  "source_sha256": {
+    "scripts/performance/linux_loopback.py": "5691c05db02e68f6691821ec7e30bdd80a0c0d482fa2943805e625b5f69c7caf",
+    "scripts/performance/linux_b5_reference.py": "131a4a19941279df62e6ce022503e41c76a80e5f80a930b6a825159de353a35c",
+    "tests/performance/test_linux_sampler_zombie.py": "3112fc888171da17d8134b6507c661ca84a1eb59460a59dfcb1316f1b73c7b57",
+    "tests/performance/test_linux_b5_reference.py": "182274ebb693acf4deacccdab422ca2a05d6db565d6ed764436bf286fc758273"
+  },
+  "red": "8 focused failures before implementation",
+  "green": "121 focused Python tests; Ruff; actual 500 Linux lifecycles"
+}
