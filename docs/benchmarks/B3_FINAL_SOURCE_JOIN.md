@@ -24,3 +24,9 @@ GREEN:44 focused Linux B3 tests plus73 affected tests pass (one existing skip);
 Ruff passes. Actual matched256/512+ bundle
 reruns remain required before this stage is considered experimentally closed.
 Raw regression logs are retained at `C:/NBSR-build/b3-final-join-6660a04d`.
+
+Matched rerun atd0792699:five256-bundle and five512-bundle cells completed; the
+prior source-exit FD failure did not recur. The1024-bundle attempt instead
+failed post-release connection ACK progress. Three50-cycle runs completed;
+repeat4 was budget-interrupted. This is not a hardware-ceiling claim. See
+`evidence/performance/v2/linux-b3-continuation-d0792699`.

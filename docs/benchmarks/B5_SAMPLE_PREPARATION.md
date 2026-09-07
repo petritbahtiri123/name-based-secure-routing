@@ -36,7 +36,7 @@ grew126976bytes (978bytes/s,R-squared0.895). Handles and threads remained consta
 The final progress had7670302 completed/7786983offered, zero errors/timeouts.
 This single failed diagnostic does not establish a repeatable performance gain,
 prove a leak, or qualify sustained stability. No replacement run was accepted.
-Canonical logs, source/build binding, analysis and81 raw-file hashes are in
+Canonical logs, source/build binding, analysis and75 raw-file hashes are in
 `evidence/performance/v2/b5-pretouch-857b4080`.
 
 The sample-storage mechanism is fixed and unit-tested; remaining destination

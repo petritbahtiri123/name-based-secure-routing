@@ -1,0 +1,63 @@
+[
+  {
+    "root": "linux-b3-current-1c16b03d",
+    "axis": "streams",
+    "valid_rows": 35,
+    "counts": {
+      "32": 5,
+      "64": 5,
+      "128": 5,
+      "256": 5,
+      "512": 5,
+      "1024": 5,
+      "2048": 5
+    },
+    "same_process_cycles": null,
+    "verified_final_zero_reports": 70
+  },
+  {
+    "root": "linux-b3-current-1c16b03d",
+    "axis": "bundles",
+    "valid_rows": 23,
+    "counts": {
+      "16": 5,
+      "32": 5,
+      "64": 5,
+      "128": 5,
+      "256": 3
+    },
+    "same_process_cycles": null,
+    "verified_final_zero_reports": 46
+  },
+  {
+    "root": "linux-b3-current-1c16b03d",
+    "axis": "cycles",
+    "valid_rows": 5,
+    "counts": {
+      "64": 5
+    },
+    "same_process_cycles": 15,
+    "verified_final_zero_reports": 10
+  },
+  {
+    "root": "linux-b3-joined-d0792699",
+    "axis": "bundles",
+    "valid_rows": 10,
+    "counts": {
+      "256": 5,
+      "512": 5
+    },
+    "same_process_cycles": null,
+    "verified_final_zero_reports": 20
+  },
+  {
+    "root": "linux-b3-joined-d0792699",
+    "axis": "cycles",
+    "valid_rows": 3,
+    "counts": {
+      "64": 3
+    },
+    "same_process_cycles": 150,
+    "verified_final_zero_reports": 6
+  }
+]

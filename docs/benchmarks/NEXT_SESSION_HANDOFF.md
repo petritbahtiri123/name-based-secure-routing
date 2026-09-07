@@ -1,46 +1,59 @@
 # NBSR campaign continuation checkpoint
 
-## Active continuation, 2026-09-07
+## Budget stop, 2026-09-07
 
-User authorized an additional 15 percentage points of weekly account usage,
-maximum 17. Baseline 21% used; target stop around36%, maximum38%, reserving room
-for a clean checkpoint/report. Latest observation27%; this is account-wide,
-not a per-task token count. Do not silently restart this budget after compaction.
+STOPPED at weekly37% used, baseline21%: approximately16 percentage points.
+User target was +15, absolute maximum +17 (38% total). Do not automatically
+restart this budget or continue engineering without a new user instruction.
+Campaign PARTIAL, not a funding freeze. No push or main modification.
 
-New commits:4ceb32c4 retains finite failure traceback/notes;ad86ab24 binds the
-formatter source;c6c7e925 preserves FD exit-transition diagnosis and updates the
-working brief;8779e69c adds explicit finite-only exiting observations.121 tests,
-Ruff and500 real Linux lifecycle checks pass. The500-child diagnosis showed290
-FD denials with non-zombie rechecks; all had PF_EXITING. The original invalid
-attempt lacks enough evidence for retrospective attribution. Ordinary live
-permission failures still fail; no timeout or protocol change.
+Latest engineering commit:d0792699 (B3 expected-source join). Additional evidence
+commits follow. This continuation started atba8c93472969d8ecf13dac2b3322694e209d1d2d.
+Use git log from that SHA for the complete atomic sequence.
 
-Current release build at8779e69c completed and all three Linux binary hashes
-equal the prior edc0f96d binaries. New raw root:C:/NBSR-build/linux-current-8779e69c.
-The reference-1k32 ladder completed22 valid rows, no telemetry failures. NBSR
-depth1 isSTABLE1.822417Gbps/CV0.663%;depth2DEGRADED2.165110;depth4SATURATED2.432145.
-Direct baseline remainsUNRESOLVED/CV6.98%.266 outer hashes are preserved in
-linux-reference-8779e69c; no dedicated physical-server claim. Never replace old
-failed cohorts.
+Completed: finite Linux failure-context/source binding; identity-checked finite
+exit-transition handling with500 actual child lifecycles;22-row Linux finite
+reference at8779e69c (NBSR1.822417GbpsSTABLE/2.165110DEGRADED/2.432145SATURATED;
+Direct baseline dispersed). These are VM-loopback results, not server capacity.
 
-The next B5 ownership comparison loaded that reference at70%, but its first
-ownership-off control aborted on source-private growth at10seconds. See
-b5-sample-residency-8779e69c:114688bytes of steady growth,10530bytes/s, while
-12067 retained u64 latency samples account for96536bytes and9653bytes/s.
-A three-pair optimized Rust mincore probe proved reserved sample pages become
-resident during filling (1->24pages); pre-touch before filling stays48->48.
-Next: RED residency test, prepare both existing sample buffers before measurement
-without changing capacity/stride/guards, then actual rerun. Some residual growth
-may remain; do not claim all growth attributed or a production leak fixed.
-No active benchmark container remains at this checkpoint.
+At857b4080, bounded latency storage is prepared before timing (51Linux/50Windows
+B5 tests, one existing ignored each). Fixed-load rerun failed destination-private
+growth at100seconds. Mapping/allocator traces are DIAGNOSTIC, not observer-qualified;
+no production optimization followed. See B5_SAMPLE_PREPARATION.md and
+B5_LINUX_MAPPING_DIAGNOSTICS.md. Long near-ceiling soak remains NOT_PROVEN.
 
-The earlier nonreproductions and transition probes are preserved in
-linux-fd-transition-ad86ab24 (255 indexed files) and linux-fd-exiting-c6c7e925
-(7 files). No production code changed. B5's general Linux resource sampler is
-still strict; the finite opt-in does not automatically extend to its null-memory
-guards. Source-private growth and qualified long soaks remain open. About12.6GB
-free disk remained; no cleanup/deletion was needed. Docker build-cache image
-nbsr-linux-build-cache:edc0f96d is generated campaign cache, not evidence.
+Windows started-descendant cancellation coverage:1c16b03d, five repeated pairs,
+scoped release clippy PASS. The separate100ms timeout cannot establish descendant
+startup on this host; no timeout was extended. See BACKEND_DESCENDANT_CANCELLATION.md.
+
+B3 source preflight6660a04d rejects tracked/untracked dirty source. B3 source join
+d0792699 moves the existing30second join before explicit Linux bundle cooldown;
+ordinary live sampling/report gates remain strict.117 focused tests pass, one
+existing skip; Ruff passes.
+
+Linux B3 retained evidence: evidence/performance/v2/linux-b3-continuation-d0792699.
+At1c16b03d:35 valid materialized stream cells through2048,23 valid bundle cells,
+five3-cycle smokes;256-bundle repeat4 failed /proc FD access during source exit.
+Atd0792699:five256-bundle and five512-bundle repeats pass;1024 fails post-release
+connection ACK timeout, not a proven hardware/production ceiling. Three complete
+50-cycle same-process runs provide150 cycles with final zero ownership. Repeat4
+was interrupted with SIGINT solely for the usage budget; repeat5 was not run.
+All partial/failing artifacts are preserved. Assess three-repeat dispersion
+before deciding whether further cycle repeats are necessary; do not replace or
+hide the interrupted attempt.
+
+Raw roots:C:/NBSR-build/linux-b3-current-1c16b03d,
+linux-b3-joined-d0792699,linux-current-1c16b03d,linux-current-d0792699,
+b3-final-join-6660a04d. Canonical package binds their full indexes and analyses.
+All benchmark containers finished/stopped; no background continuation intended.
+About8GB disk remained; no cleanup was required. Never delete authoritative roots.
+
+Remaining:1024-bundle close/ACK progress attribution; qualified B5 memory/observer
+and long soak; current evidence/claims reconciliation and external portable matrix.
+One deferred Windows Direct CPU Administrator command remains in
+ADMIN_REQUIRED_FINAL_VALIDATION.md. External/server hardware is unavailable.
+Accepted ISP isolation/preflight evidence remains scoped; live federation is not
+implemented. Keep existing valid work; do not rerun indiscriminately.
 
 The older checkpoint below is historical context and is superseded where noted.
 

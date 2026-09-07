@@ -1,0 +1,14 @@
+[
+  {
+    "axis": "streams",
+    "exit_code": 0
+  },
+  {
+    "axis": "bundles",
+    "exit_code": 1
+  },
+  {
+    "axis": "cycles",
+    "exit_code": 0
+  }
+]

@@ -1,0 +1,88 @@
+FF                                                                       [100%]
+================================== FAILURES ===================================
+__________ test_failed_bundle_join_cannot_release_destination[False] __________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-990/test_failed_bundle_join_cannot0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000028AE16136F0>
+timed_out = False
+
+    @pytest.mark.parametrize('timed_out', [False, True])
+    def test_failed_bundle_join_cannot_release_destination(tmp_path, monkeypatch, timed_out):
+        import subprocess
+        monkeypatch.setattr(b3, 'wait_paths', lambda *args: None)
+    
+        def join(timeout):
+            assert timeout == 30
+            if timed_out:
+                raise subprocess.TimeoutExpired('source', timeout)
+            return 1
+    
+        class Capture:
+            def capture(self, *args, **kwargs):
+                pytest.fail('must not sample after failed source join')
+    
+        with pytest.raises(subprocess.TimeoutExpired if timed_out else RuntimeError):
+>           b3.capture_final_cooldown([], process(1), [SimpleNamespace(wait=join)], tmp_path,
+                cycle=0, seconds=2, cadence=.5, report_gate=True, capture_backend=Capture(),
+                allow_exited_sources=True)
+
+tests\performance\test_b3_linux.py:138: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+scripts\run_b3_session_lifecycle.py:195: in capture_final_cooldown
+    capture_backend.capture(resources, server, clients, phase="cooldown", cycle=cycle,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <test_b3_linux.test_failed_bundle_join_cannot_release_destination.<locals>.Capture object at 0x0000028AE15D6120>
+args = ([], namespace(pid=1, poll=<function process.<locals>.<lambda> at 0x0000028AE1725590>), [namespace(wait=<function test_failed_bundle_join_cannot_release_destination.<locals>.join at 0x0000028AE1724D50>)])
+kwargs = {'allow_exited_sources': True, 'cadence': 0.5, 'cycle': 0, 'phase': 'cooldown', ...}
+
+    def capture(self, *args, **kwargs):
+>       pytest.fail('must not sample after failed source join')
+E       Failed: must not sample after failed source join
+
+tests\performance\test_b3_linux.py:135: Failed
+__________ test_failed_bundle_join_cannot_release_destination[True] ___________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-990/test_failed_bundle_join_cannot1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000028AE10510F0>
+timed_out = True
+
+    @pytest.mark.parametrize('timed_out', [False, True])
+    def test_failed_bundle_join_cannot_release_destination(tmp_path, monkeypatch, timed_out):
+        import subprocess
+        monkeypatch.setattr(b3, 'wait_paths', lambda *args: None)
+    
+        def join(timeout):
+            assert timeout == 30
+            if timed_out:
+                raise subprocess.TimeoutExpired('source', timeout)
+            return 1
+    
+        class Capture:
+            def capture(self, *args, **kwargs):
+                pytest.fail('must not sample after failed source join')
+    
+        with pytest.raises(subprocess.TimeoutExpired if timed_out else RuntimeError):
+>           b3.capture_final_cooldown([], process(1), [SimpleNamespace(wait=join)], tmp_path,
+                cycle=0, seconds=2, cadence=.5, report_gate=True, capture_backend=Capture(),
+                allow_exited_sources=True)
+
+tests\performance\test_b3_linux.py:138: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+scripts\run_b3_session_lifecycle.py:195: in capture_final_cooldown
+    capture_backend.capture(resources, server, clients, phase="cooldown", cycle=cycle,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <test_b3_linux.test_failed_bundle_join_cannot_release_destination.<locals>.Capture object at 0x0000028AE15D5A90>
+args = ([], namespace(pid=1, poll=<function process.<locals>.<lambda> at 0x0000028AE17AC880>), [namespace(wait=<function test_failed_bundle_join_cannot_release_destination.<locals>.join at 0x0000028AE17AC7D0>)])
+kwargs = {'allow_exited_sources': True, 'cadence': 0.5, 'cycle': 0, 'phase': 'cooldown', ...}
+
+    def capture(self, *args, **kwargs):
+>       pytest.fail('must not sample after failed source join')
+E       Failed: must not sample after failed source join
+
+tests\performance\test_b3_linux.py:135: Failed
+=========================== short test summary info ===========================
+FAILED tests/performance/test_b3_linux.py::test_failed_bundle_join_cannot_release_destination[False]
+FAILED tests/performance/test_b3_linux.py::test_failed_bundle_join_cannot_release_destination[True]
+2 failed, 15 deselected in 0.82s

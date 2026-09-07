@@ -1,0 +1,3486 @@
+{
+  "schema": "nbsr-b3-linux-analysis-v1",
+  "inputs": [
+    {
+      "root": "C:\\NBSR-build\\linux-b3-joined-d0792699\\bundles",
+      "checksums_sha256": "4f76a72996eee93e2a52b276d8ac0d78f807570acbcfb4e2489812bf7790a325",
+      "environment_sha256": "c99e7f68ea919b97d6abe0109e4236f4d818c7c86147076c74f494e8fba8e15e",
+      "records_sha256": "573244e2ee2deee4fcd1737b6cae212e00a3170bba0527169ba8ee1aba935b9b",
+      "build_manifest_sha256": "a4affaf5dc20f9d7f924167689b13e1dd64b54881f8e50a8c55ffcc72dda4350",
+      "classification": "MEASURED_PENDING_ANALYSIS",
+      "source_sha": "d07926997e0485286a081aa71fd4b6148cf9272d",
+      "binary_source_sha": "d07926997e0485286a081aa71fd4b6148cf9272d",
+      "binary_sha256": {
+        "rust": "6fcd6ebc7ba6856b448ab1f887135b8b8617d66420590d84914f9697e5d58e4a",
+        "server": "7c27a95dc4765c727557b7e73cbeae86d36aed10f4f7341debfe92ea5c33718b"
+      },
+      "controller_hashes": {
+        "run_b3_v2.py": "29aa951e82e35660dd960d70343da6ef28f8829b191b3b6c5503bd8649616a9c",
+        "run_b3_session_lifecycle.py": "7b80554f78e14f86e7c46c469b022cce350b154a1fa4fa6db2e3a4a2fbfc02ad",
+        "performance/b3_linux.py": "0866cc3a53df25e555f250215df02f30ce0135e19516e6e63f8a9f6eac78ad91",
+        "performance/b3_linux_analysis.py": "b8853e00fdf7aef2b5cfb2d4c5a253904e3ddac5ee323115515121c8c7cde8e9",
+        "performance/linux_resources.py": "9feee74b6ba9a8178be67ecdffc68b9b3263192c4518f0f557e1e76b90883de5",
+        "performance/linux_loopback.py": "5691c05db02e68f6691821ec7e30bdd80a0c0d482fa2943805e625b5f69c7caf"
+      },
+      "memory_scope": "Linux smaps private resident/RSS/PSS/separate hugetlb, FD/thread counts; no Windows commit/handle aliases",
+      "platform": {
+        "topology": {
+          "cpus": [
+            {
+              "core": 0,
+              "cpu": 0,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            },
+            {
+              "core": 0,
+              "cpu": 1,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            },
+            {
+              "core": 1,
+              "cpu": 2,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            },
+            {
+              "core": 1,
+              "cpu": 3,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            },
+            {
+              "core": 2,
+              "cpu": 4,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            },
+            {
+              "core": 2,
+              "cpu": 5,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            },
+            {
+              "core": 3,
+              "cpu": 6,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            },
+            {
+              "core": 3,
+              "cpu": 7,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            }
+          ]
+        },
+        "selected_cpus": [
+          0
+        ],
+        "inherited_cpus": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "kernel": "Linux-6.6.114.1-microsoft-standard-WSL2-x86_64-with-glibc2.36",
+        "python": "3.14.6",
+        "taskset_version": "taskset from util-linux 2.38.1",
+        "lscpu_version": "lscpu from util-linux 2.38.1"
+      },
+      "cgroup_limits": {
+        "/sys/fs/cgroup/cpu.max": "max 100000\n",
+        "/sys/fs/cgroup/cpuset.cpus.effective": "0-7\n",
+        "/sys/fs/cgroup/memory.max": "max\n",
+        "/sys/fs/cgroup/pids.max": "max\n"
+      }
+    },
+    {
+      "root": "C:\\NBSR-build\\linux-b3-joined-d0792699\\cycles",
+      "checksums_sha256": "d28376872901c1a563561773a3a505705b733985e3acac6ad2c479042d62841c",
+      "environment_sha256": "a4dc255e919bdf293939b5ba040e401ba3a2d894f179f8e704dd6b5e42e52644",
+      "records_sha256": "279f9e2dbe36ad1ad8c3bcc3b86edf1c317d95dd200beb5b0a888cc19266eca8",
+      "build_manifest_sha256": "a4affaf5dc20f9d7f924167689b13e1dd64b54881f8e50a8c55ffcc72dda4350",
+      "classification": "MEASURED_PENDING_ANALYSIS",
+      "source_sha": "d07926997e0485286a081aa71fd4b6148cf9272d",
+      "binary_source_sha": "d07926997e0485286a081aa71fd4b6148cf9272d",
+      "binary_sha256": {
+        "rust": "6fcd6ebc7ba6856b448ab1f887135b8b8617d66420590d84914f9697e5d58e4a",
+        "server": "7c27a95dc4765c727557b7e73cbeae86d36aed10f4f7341debfe92ea5c33718b"
+      },
+      "controller_hashes": {
+        "run_b3_v2.py": "29aa951e82e35660dd960d70343da6ef28f8829b191b3b6c5503bd8649616a9c",
+        "run_b3_session_lifecycle.py": "7b80554f78e14f86e7c46c469b022cce350b154a1fa4fa6db2e3a4a2fbfc02ad",
+        "performance/b3_linux.py": "0866cc3a53df25e555f250215df02f30ce0135e19516e6e63f8a9f6eac78ad91",
+        "performance/b3_linux_analysis.py": "b8853e00fdf7aef2b5cfb2d4c5a253904e3ddac5ee323115515121c8c7cde8e9",
+        "performance/linux_resources.py": "9feee74b6ba9a8178be67ecdffc68b9b3263192c4518f0f557e1e76b90883de5",
+        "performance/linux_loopback.py": "5691c05db02e68f6691821ec7e30bdd80a0c0d482fa2943805e625b5f69c7caf"
+      },
+      "memory_scope": "Linux smaps private resident/RSS/PSS/separate hugetlb, FD/thread counts; no Windows commit/handle aliases",
+      "platform": {
+        "topology": {
+          "cpus": [
+            {
+              "core": 0,
+              "cpu": 0,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            },
+            {
+              "core": 0,
+              "cpu": 1,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            },
+            {
+              "core": 1,
+              "cpu": 2,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            },
+            {
+              "core": 1,
+              "cpu": 3,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            },
+            {
+              "core": 2,
+              "cpu": 4,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            },
+            {
+              "core": 2,
+              "cpu": 5,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            },
+            {
+              "core": 3,
+              "cpu": 6,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            },
+            {
+              "core": 3,
+              "cpu": 7,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            }
+          ]
+        },
+        "selected_cpus": [
+          0
+        ],
+        "inherited_cpus": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "kernel": "Linux-6.6.114.1-microsoft-standard-WSL2-x86_64-with-glibc2.36",
+        "python": "3.14.6",
+        "taskset_version": "taskset from util-linux 2.38.1",
+        "lscpu_version": "lscpu from util-linux 2.38.1"
+      },
+      "cgroup_limits": {
+        "/sys/fs/cgroup/cpu.max": "max 100000\n",
+        "/sys/fs/cgroup/cpuset.cpus.effective": "0-7\n",
+        "/sys/fs/cgroup/memory.max": "max\n",
+        "/sys/fs/cgroup/pids.max": "max\n"
+      }
+    }
+  ],
+  "classification": "MEASURED_PENDING_ANALYSIS",
+  "cycles": [
+    {
+      "name": "cycles-50-r1",
+      "cycles": 50,
+      "roles": {
+        "source": {
+          "cycle_medians": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 5976064,
+              "rss_bytes": 7737344,
+              "pss_bytes": 6437888,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 1,
+              "private_resident_bytes": 6045696,
+              "rss_bytes": 7806976,
+              "pss_bytes": 6507520,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 2,
+              "private_resident_bytes": 9019392,
+              "rss_bytes": 10780672,
+              "pss_bytes": 9481216,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 3,
+              "private_resident_bytes": 9031680,
+              "rss_bytes": 10792960,
+              "pss_bytes": 9493504,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 4,
+              "private_resident_bytes": 9035776,
+              "rss_bytes": 10797056,
+              "pss_bytes": 9497600,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 5,
+              "private_resident_bytes": 9039872,
+              "rss_bytes": 10801152,
+              "pss_bytes": 9501696,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 6,
+              "private_resident_bytes": 9043968,
+              "rss_bytes": 10805248,
+              "pss_bytes": 9505792,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 7,
+              "private_resident_bytes": 9060352,
+              "rss_bytes": 10821632,
+              "pss_bytes": 9522176,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 8,
+              "private_resident_bytes": 9060352,
+              "rss_bytes": 10821632,
+              "pss_bytes": 9522176,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 9,
+              "private_resident_bytes": 9080832,
+              "rss_bytes": 10842112,
+              "pss_bytes": 9542656,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 10,
+              "private_resident_bytes": 9080832,
+              "rss_bytes": 10842112,
+              "pss_bytes": 9542656,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 11,
+              "private_resident_bytes": 9080832,
+              "rss_bytes": 10842112,
+              "pss_bytes": 9542656,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 12,
+              "private_resident_bytes": 9080832,
+              "rss_bytes": 10842112,
+              "pss_bytes": 9542656,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 13,
+              "private_resident_bytes": 9080832,
+              "rss_bytes": 10842112,
+              "pss_bytes": 9542656,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 14,
+              "private_resident_bytes": 9080832,
+              "rss_bytes": 10842112,
+              "pss_bytes": 9542656,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 15,
+              "private_resident_bytes": 9080832,
+              "rss_bytes": 10842112,
+              "pss_bytes": 9542656,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 16,
+              "private_resident_bytes": 9080832,
+              "rss_bytes": 10842112,
+              "pss_bytes": 9542656,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 17,
+              "private_resident_bytes": 9080832,
+              "rss_bytes": 10842112,
+              "pss_bytes": 9542656,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 18,
+              "private_resident_bytes": 9080832,
+              "rss_bytes": 10842112,
+              "pss_bytes": 9542656,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 19,
+              "private_resident_bytes": 9080832,
+              "rss_bytes": 10842112,
+              "pss_bytes": 9542656,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 20,
+              "private_resident_bytes": 9084928,
+              "rss_bytes": 10846208,
+              "pss_bytes": 9546752,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 21,
+              "private_resident_bytes": 9084928,
+              "rss_bytes": 10846208,
+              "pss_bytes": 9546752,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 22,
+              "private_resident_bytes": 9146368,
+              "rss_bytes": 10907648,
+              "pss_bytes": 9608192,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 23,
+              "private_resident_bytes": 9146368,
+              "rss_bytes": 10907648,
+              "pss_bytes": 9608192,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 24,
+              "private_resident_bytes": 9146368,
+              "rss_bytes": 10907648,
+              "pss_bytes": 9608192,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 25,
+              "private_resident_bytes": 9146368,
+              "rss_bytes": 10907648,
+              "pss_bytes": 9608192,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 26,
+              "private_resident_bytes": 9146368,
+              "rss_bytes": 10907648,
+              "pss_bytes": 9608192,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 27,
+              "private_resident_bytes": 9146368,
+              "rss_bytes": 10907648,
+              "pss_bytes": 9608192,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 28,
+              "private_resident_bytes": 9146368,
+              "rss_bytes": 10907648,
+              "pss_bytes": 9608192,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 29,
+              "private_resident_bytes": 9146368,
+              "rss_bytes": 10907648,
+              "pss_bytes": 9608192,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 30,
+              "private_resident_bytes": 9146368,
+              "rss_bytes": 10907648,
+              "pss_bytes": 9608192,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 31,
+              "private_resident_bytes": 9146368,
+              "rss_bytes": 10907648,
+              "pss_bytes": 9608192,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 32,
+              "private_resident_bytes": 9146368,
+              "rss_bytes": 10907648,
+              "pss_bytes": 9608192,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 33,
+              "private_resident_bytes": 9146368,
+              "rss_bytes": 10907648,
+              "pss_bytes": 9608192,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 34,
+              "private_resident_bytes": 9146368,
+              "rss_bytes": 10907648,
+              "pss_bytes": 9608192,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 35,
+              "private_resident_bytes": 9146368,
+              "rss_bytes": 10907648,
+              "pss_bytes": 9608192,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 36,
+              "private_resident_bytes": 9146368,
+              "rss_bytes": 10907648,
+              "pss_bytes": 9608192,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 37,
+              "private_resident_bytes": 9146368,
+              "rss_bytes": 10907648,
+              "pss_bytes": 9608192,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 38,
+              "private_resident_bytes": 9146368,
+              "rss_bytes": 10907648,
+              "pss_bytes": 9608192,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 39,
+              "private_resident_bytes": 9146368,
+              "rss_bytes": 10907648,
+              "pss_bytes": 9608192,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 40,
+              "private_resident_bytes": 9146368,
+              "rss_bytes": 10907648,
+              "pss_bytes": 9608192,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 41,
+              "private_resident_bytes": 9146368,
+              "rss_bytes": 10907648,
+              "pss_bytes": 9608192,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 42,
+              "private_resident_bytes": 9146368,
+              "rss_bytes": 10907648,
+              "pss_bytes": 9608192,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 43,
+              "private_resident_bytes": 9146368,
+              "rss_bytes": 10907648,
+              "pss_bytes": 9608192,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 44,
+              "private_resident_bytes": 9146368,
+              "rss_bytes": 10907648,
+              "pss_bytes": 9608192,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 45,
+              "private_resident_bytes": 9146368,
+              "rss_bytes": 10907648,
+              "pss_bytes": 9608192,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 46,
+              "private_resident_bytes": 9146368,
+              "rss_bytes": 10907648,
+              "pss_bytes": 9608192,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 47,
+              "private_resident_bytes": 9146368,
+              "rss_bytes": 10907648,
+              "pss_bytes": 9608192,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 48,
+              "private_resident_bytes": 9146368,
+              "rss_bytes": 10907648,
+              "pss_bytes": 9608192,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 49,
+              "private_resident_bytes": 9146368,
+              "rss_bytes": 10907648,
+              "pss_bytes": 9608192,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            }
+          ],
+          "private_resident_slope_bytes_per_cycle": 16622.77762304922,
+          "second_half_private_resident_slope_bytes_per_cycle": 0.0,
+          "private_resident_first_to_last_delta": 3170304,
+          "fd_first_to_last_delta": 0,
+          "thread_first_to_last_delta": 0
+        },
+        "destination": {
+          "cycle_medians": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 5918720,
+              "rss_bytes": 7712768,
+              "pss_bytes": 6393856,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 1,
+              "private_resident_bytes": 5947392,
+              "rss_bytes": 7741440,
+              "pss_bytes": 6422528,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 2,
+              "private_resident_bytes": 5967872,
+              "rss_bytes": 7761920,
+              "pss_bytes": 6443008,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 3,
+              "private_resident_bytes": 5988352,
+              "rss_bytes": 7782400,
+              "pss_bytes": 6463488,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 4,
+              "private_resident_bytes": 6004736,
+              "rss_bytes": 7798784,
+              "pss_bytes": 6479872,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 5,
+              "private_resident_bytes": 6025216,
+              "rss_bytes": 7819264,
+              "pss_bytes": 6500352,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 6,
+              "private_resident_bytes": 6033408,
+              "rss_bytes": 7827456,
+              "pss_bytes": 6508544,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 7,
+              "private_resident_bytes": 6033408,
+              "rss_bytes": 7827456,
+              "pss_bytes": 6508544,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 8,
+              "private_resident_bytes": 6033408,
+              "rss_bytes": 7827456,
+              "pss_bytes": 6508544,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 9,
+              "private_resident_bytes": 6037504,
+              "rss_bytes": 7831552,
+              "pss_bytes": 6512640,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 10,
+              "private_resident_bytes": 6037504,
+              "rss_bytes": 7831552,
+              "pss_bytes": 6512640,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 11,
+              "private_resident_bytes": 6037504,
+              "rss_bytes": 7831552,
+              "pss_bytes": 6512640,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 12,
+              "private_resident_bytes": 6037504,
+              "rss_bytes": 7831552,
+              "pss_bytes": 6512640,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 13,
+              "private_resident_bytes": 6037504,
+              "rss_bytes": 7831552,
+              "pss_bytes": 6512640,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 14,
+              "private_resident_bytes": 6037504,
+              "rss_bytes": 7831552,
+              "pss_bytes": 6512640,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 15,
+              "private_resident_bytes": 6037504,
+              "rss_bytes": 7831552,
+              "pss_bytes": 6512640,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 16,
+              "private_resident_bytes": 6037504,
+              "rss_bytes": 7831552,
+              "pss_bytes": 6512640,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 17,
+              "private_resident_bytes": 6037504,
+              "rss_bytes": 7831552,
+              "pss_bytes": 6512640,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 18,
+              "private_resident_bytes": 6037504,
+              "rss_bytes": 7831552,
+              "pss_bytes": 6512640,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 19,
+              "private_resident_bytes": 6037504,
+              "rss_bytes": 7831552,
+              "pss_bytes": 6512640,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 20,
+              "private_resident_bytes": 6037504,
+              "rss_bytes": 7831552,
+              "pss_bytes": 6512640,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 21,
+              "private_resident_bytes": 6037504,
+              "rss_bytes": 7831552,
+              "pss_bytes": 6512640,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 22,
+              "private_resident_bytes": 6037504,
+              "rss_bytes": 7831552,
+              "pss_bytes": 6512640,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 23,
+              "private_resident_bytes": 6037504,
+              "rss_bytes": 7831552,
+              "pss_bytes": 6512640,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 24,
+              "private_resident_bytes": 6037504,
+              "rss_bytes": 7831552,
+              "pss_bytes": 6512640,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 25,
+              "private_resident_bytes": 6156288,
+              "rss_bytes": 7950336,
+              "pss_bytes": 6631424,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 26,
+              "private_resident_bytes": 6037504,
+              "rss_bytes": 7831552,
+              "pss_bytes": 6512640,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 27,
+              "private_resident_bytes": 6037504,
+              "rss_bytes": 7831552,
+              "pss_bytes": 6512640,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 28,
+              "private_resident_bytes": 6037504,
+              "rss_bytes": 7831552,
+              "pss_bytes": 6512640,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 29,
+              "private_resident_bytes": 6037504,
+              "rss_bytes": 7831552,
+              "pss_bytes": 6512640,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 30,
+              "private_resident_bytes": 6037504,
+              "rss_bytes": 7831552,
+              "pss_bytes": 6512640,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 31,
+              "private_resident_bytes": 6037504,
+              "rss_bytes": 7831552,
+              "pss_bytes": 6512640,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 32,
+              "private_resident_bytes": 6037504,
+              "rss_bytes": 7831552,
+              "pss_bytes": 6512640,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 33,
+              "private_resident_bytes": 6037504,
+              "rss_bytes": 7831552,
+              "pss_bytes": 6512640,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 34,
+              "private_resident_bytes": 6037504,
+              "rss_bytes": 7831552,
+              "pss_bytes": 6512640,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 35,
+              "private_resident_bytes": 6037504,
+              "rss_bytes": 7831552,
+              "pss_bytes": 6512640,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 36,
+              "private_resident_bytes": 6037504,
+              "rss_bytes": 7831552,
+              "pss_bytes": 6512640,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 37,
+              "private_resident_bytes": 6041600,
+              "rss_bytes": 7835648,
+              "pss_bytes": 6516736,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 38,
+              "private_resident_bytes": 6041600,
+              "rss_bytes": 7835648,
+              "pss_bytes": 6516736,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 39,
+              "private_resident_bytes": 6041600,
+              "rss_bytes": 7835648,
+              "pss_bytes": 6516736,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 40,
+              "private_resident_bytes": 6041600,
+              "rss_bytes": 7835648,
+              "pss_bytes": 6516736,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 41,
+              "private_resident_bytes": 6041600,
+              "rss_bytes": 7835648,
+              "pss_bytes": 6516736,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 42,
+              "private_resident_bytes": 6041600,
+              "rss_bytes": 7835648,
+              "pss_bytes": 6516736,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 43,
+              "private_resident_bytes": 6041600,
+              "rss_bytes": 7835648,
+              "pss_bytes": 6516736,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 44,
+              "private_resident_bytes": 6041600,
+              "rss_bytes": 7835648,
+              "pss_bytes": 6516736,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 45,
+              "private_resident_bytes": 6041600,
+              "rss_bytes": 7835648,
+              "pss_bytes": 6516736,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 46,
+              "private_resident_bytes": 6041600,
+              "rss_bytes": 7835648,
+              "pss_bytes": 6516736,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 47,
+              "private_resident_bytes": 6041600,
+              "rss_bytes": 7835648,
+              "pss_bytes": 6516736,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 48,
+              "private_resident_bytes": 6041600,
+              "rss_bytes": 7835648,
+              "pss_bytes": 6516736,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 49,
+              "private_resident_bytes": 6041600,
+              "rss_bytes": 7835648,
+              "pss_bytes": 6516736,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "private_resident_slope_bytes_per_cycle": 943.3092917166866,
+          "second_half_private_resident_slope_bytes_per_cycle": -850.7076923076924,
+          "private_resident_first_to_last_delta": 122880,
+          "fd_first_to_last_delta": 0,
+          "thread_first_to_last_delta": 0
+        }
+      },
+      "memory_cause": "INCONCLUSIVE",
+      "ownership": "CLEAN",
+      "materialized_streams": true,
+      "limitation": "Linux private resident excludes separate hugetlb; slopes do not establish leaks or allocator attribution."
+    },
+    {
+      "name": "cycles-50-r2",
+      "cycles": 50,
+      "roles": {
+        "source": {
+          "cycle_medians": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 5791744,
+              "rss_bytes": 7524352,
+              "pss_bytes": 6255616,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 1,
+              "private_resident_bytes": 5939200,
+              "rss_bytes": 7671808,
+              "pss_bytes": 6403072,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 2,
+              "private_resident_bytes": 8892416,
+              "rss_bytes": 10625024,
+              "pss_bytes": 9356288,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 3,
+              "private_resident_bytes": 8892416,
+              "rss_bytes": 10625024,
+              "pss_bytes": 9356288,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 4,
+              "private_resident_bytes": 8892416,
+              "rss_bytes": 10625024,
+              "pss_bytes": 9356288,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 5,
+              "private_resident_bytes": 8892416,
+              "rss_bytes": 10625024,
+              "pss_bytes": 9356288,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 6,
+              "private_resident_bytes": 8892416,
+              "rss_bytes": 10625024,
+              "pss_bytes": 9356288,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 7,
+              "private_resident_bytes": 8892416,
+              "rss_bytes": 10625024,
+              "pss_bytes": 9356288,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 8,
+              "private_resident_bytes": 8892416,
+              "rss_bytes": 10625024,
+              "pss_bytes": 9356288,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 9,
+              "private_resident_bytes": 8892416,
+              "rss_bytes": 10625024,
+              "pss_bytes": 9356288,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 10,
+              "private_resident_bytes": 8892416,
+              "rss_bytes": 10625024,
+              "pss_bytes": 9356288,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 11,
+              "private_resident_bytes": 8892416,
+              "rss_bytes": 10625024,
+              "pss_bytes": 9356288,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 12,
+              "private_resident_bytes": 8892416,
+              "rss_bytes": 10625024,
+              "pss_bytes": 9356288,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 13,
+              "private_resident_bytes": 8953856,
+              "rss_bytes": 10686464,
+              "pss_bytes": 9417728,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 14,
+              "private_resident_bytes": 8953856,
+              "rss_bytes": 10686464,
+              "pss_bytes": 9417728,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 15,
+              "private_resident_bytes": 8953856,
+              "rss_bytes": 10686464,
+              "pss_bytes": 9417728,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 16,
+              "private_resident_bytes": 8953856,
+              "rss_bytes": 10686464,
+              "pss_bytes": 9417728,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 17,
+              "private_resident_bytes": 8953856,
+              "rss_bytes": 10686464,
+              "pss_bytes": 9417728,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 18,
+              "private_resident_bytes": 8953856,
+              "rss_bytes": 10686464,
+              "pss_bytes": 9417728,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 19,
+              "private_resident_bytes": 8953856,
+              "rss_bytes": 10686464,
+              "pss_bytes": 9417728,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 20,
+              "private_resident_bytes": 8953856,
+              "rss_bytes": 10686464,
+              "pss_bytes": 9417728,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 21,
+              "private_resident_bytes": 8953856,
+              "rss_bytes": 10686464,
+              "pss_bytes": 9417728,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 22,
+              "private_resident_bytes": 8953856,
+              "rss_bytes": 10686464,
+              "pss_bytes": 9417728,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 23,
+              "private_resident_bytes": 8953856,
+              "rss_bytes": 10686464,
+              "pss_bytes": 9417728,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 24,
+              "private_resident_bytes": 8953856,
+              "rss_bytes": 10686464,
+              "pss_bytes": 9417728,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 25,
+              "private_resident_bytes": 8953856,
+              "rss_bytes": 10686464,
+              "pss_bytes": 9417728,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 26,
+              "private_resident_bytes": 8953856,
+              "rss_bytes": 10686464,
+              "pss_bytes": 9417728,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 27,
+              "private_resident_bytes": 8953856,
+              "rss_bytes": 10686464,
+              "pss_bytes": 9417728,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 28,
+              "private_resident_bytes": 8953856,
+              "rss_bytes": 10686464,
+              "pss_bytes": 9417728,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 29,
+              "private_resident_bytes": 8953856,
+              "rss_bytes": 10686464,
+              "pss_bytes": 9417728,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 30,
+              "private_resident_bytes": 8953856,
+              "rss_bytes": 10686464,
+              "pss_bytes": 9417728,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 31,
+              "private_resident_bytes": 8953856,
+              "rss_bytes": 10686464,
+              "pss_bytes": 9417728,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 32,
+              "private_resident_bytes": 8953856,
+              "rss_bytes": 10686464,
+              "pss_bytes": 9417728,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 33,
+              "private_resident_bytes": 8953856,
+              "rss_bytes": 10686464,
+              "pss_bytes": 9417728,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 34,
+              "private_resident_bytes": 8986624,
+              "rss_bytes": 10719232,
+              "pss_bytes": 9450496,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 35,
+              "private_resident_bytes": 8986624,
+              "rss_bytes": 10719232,
+              "pss_bytes": 9450496,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 36,
+              "private_resident_bytes": 8986624,
+              "rss_bytes": 10719232,
+              "pss_bytes": 9450496,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 37,
+              "private_resident_bytes": 8986624,
+              "rss_bytes": 10719232,
+              "pss_bytes": 9450496,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 38,
+              "private_resident_bytes": 8990720,
+              "rss_bytes": 10723328,
+              "pss_bytes": 9454592,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 39,
+              "private_resident_bytes": 8990720,
+              "rss_bytes": 10723328,
+              "pss_bytes": 9454592,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 40,
+              "private_resident_bytes": 8990720,
+              "rss_bytes": 10723328,
+              "pss_bytes": 9454592,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 41,
+              "private_resident_bytes": 8990720,
+              "rss_bytes": 10723328,
+              "pss_bytes": 9454592,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 42,
+              "private_resident_bytes": 8990720,
+              "rss_bytes": 10723328,
+              "pss_bytes": 9454592,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 43,
+              "private_resident_bytes": 8990720,
+              "rss_bytes": 10723328,
+              "pss_bytes": 9454592,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 44,
+              "private_resident_bytes": 8990720,
+              "rss_bytes": 10723328,
+              "pss_bytes": 9454592,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 45,
+              "private_resident_bytes": 8990720,
+              "rss_bytes": 10723328,
+              "pss_bytes": 9454592,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 46,
+              "private_resident_bytes": 8990720,
+              "rss_bytes": 10723328,
+              "pss_bytes": 9454592,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 47,
+              "private_resident_bytes": 8990720,
+              "rss_bytes": 10723328,
+              "pss_bytes": 9454592,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 48,
+              "private_resident_bytes": 9011200,
+              "rss_bytes": 10743808,
+              "pss_bytes": 9475072,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 49,
+              "private_resident_bytes": 9011200,
+              "rss_bytes": 10743808,
+              "pss_bytes": 9475072,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            }
+          ],
+          "private_resident_slope_bytes_per_cycle": 16419.993661464585,
+          "second_half_private_resident_slope_bytes_per_cycle": 2422.9415384615386,
+          "private_resident_first_to_last_delta": 3219456,
+          "fd_first_to_last_delta": 0,
+          "thread_first_to_last_delta": 0
+        },
+        "destination": {
+          "cycle_medians": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 5890048,
+              "rss_bytes": 7712768,
+              "pss_bytes": 6391808,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 1,
+              "private_resident_bytes": 5922816,
+              "rss_bytes": 7745536,
+              "pss_bytes": 6424576,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 2,
+              "private_resident_bytes": 5951488,
+              "rss_bytes": 7774208,
+              "pss_bytes": 6453248,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 3,
+              "private_resident_bytes": 5967872,
+              "rss_bytes": 7790592,
+              "pss_bytes": 6469632,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 4,
+              "private_resident_bytes": 5976064,
+              "rss_bytes": 7798784,
+              "pss_bytes": 6477824,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 5,
+              "private_resident_bytes": 5996544,
+              "rss_bytes": 7819264,
+              "pss_bytes": 6498304,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 6,
+              "private_resident_bytes": 6000640,
+              "rss_bytes": 7823360,
+              "pss_bytes": 6502400,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 7,
+              "private_resident_bytes": 6004736,
+              "rss_bytes": 7827456,
+              "pss_bytes": 6506496,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 8,
+              "private_resident_bytes": 6008832,
+              "rss_bytes": 7831552,
+              "pss_bytes": 6510592,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 9,
+              "private_resident_bytes": 6012928,
+              "rss_bytes": 7835648,
+              "pss_bytes": 6514688,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 10,
+              "private_resident_bytes": 6012928,
+              "rss_bytes": 7835648,
+              "pss_bytes": 6514688,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 11,
+              "private_resident_bytes": 6012928,
+              "rss_bytes": 7835648,
+              "pss_bytes": 6514688,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 12,
+              "private_resident_bytes": 6012928,
+              "rss_bytes": 7835648,
+              "pss_bytes": 6514688,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 13,
+              "private_resident_bytes": 6012928,
+              "rss_bytes": 7835648,
+              "pss_bytes": 6514688,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 14,
+              "private_resident_bytes": 6012928,
+              "rss_bytes": 7835648,
+              "pss_bytes": 6514688,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 15,
+              "private_resident_bytes": 6012928,
+              "rss_bytes": 7835648,
+              "pss_bytes": 6514688,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 16,
+              "private_resident_bytes": 6012928,
+              "rss_bytes": 7835648,
+              "pss_bytes": 6514688,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 17,
+              "private_resident_bytes": 6012928,
+              "rss_bytes": 7835648,
+              "pss_bytes": 6514688,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 18,
+              "private_resident_bytes": 6012928,
+              "rss_bytes": 7835648,
+              "pss_bytes": 6514688,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 19,
+              "private_resident_bytes": 6012928,
+              "rss_bytes": 7835648,
+              "pss_bytes": 6514688,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 20,
+              "private_resident_bytes": 6012928,
+              "rss_bytes": 7835648,
+              "pss_bytes": 6514688,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 21,
+              "private_resident_bytes": 6012928,
+              "rss_bytes": 7835648,
+              "pss_bytes": 6514688,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 22,
+              "private_resident_bytes": 6012928,
+              "rss_bytes": 7835648,
+              "pss_bytes": 6514688,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 23,
+              "private_resident_bytes": 6012928,
+              "rss_bytes": 7835648,
+              "pss_bytes": 6514688,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 24,
+              "private_resident_bytes": 6012928,
+              "rss_bytes": 7835648,
+              "pss_bytes": 6514688,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 25,
+              "private_resident_bytes": 6012928,
+              "rss_bytes": 7835648,
+              "pss_bytes": 6514688,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 26,
+              "private_resident_bytes": 6012928,
+              "rss_bytes": 7835648,
+              "pss_bytes": 6514688,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 27,
+              "private_resident_bytes": 6012928,
+              "rss_bytes": 7835648,
+              "pss_bytes": 6514688,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 28,
+              "private_resident_bytes": 6012928,
+              "rss_bytes": 7835648,
+              "pss_bytes": 6514688,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 29,
+              "private_resident_bytes": 6012928,
+              "rss_bytes": 7835648,
+              "pss_bytes": 6514688,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 30,
+              "private_resident_bytes": 6012928,
+              "rss_bytes": 7835648,
+              "pss_bytes": 6514688,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 31,
+              "private_resident_bytes": 6012928,
+              "rss_bytes": 7835648,
+              "pss_bytes": 6514688,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 32,
+              "private_resident_bytes": 6012928,
+              "rss_bytes": 7835648,
+              "pss_bytes": 6514688,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 33,
+              "private_resident_bytes": 6012928,
+              "rss_bytes": 7835648,
+              "pss_bytes": 6514688,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 34,
+              "private_resident_bytes": 6012928,
+              "rss_bytes": 7835648,
+              "pss_bytes": 6514688,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 35,
+              "private_resident_bytes": 6012928,
+              "rss_bytes": 7835648,
+              "pss_bytes": 6514688,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 36,
+              "private_resident_bytes": 6012928,
+              "rss_bytes": 7835648,
+              "pss_bytes": 6514688,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 37,
+              "private_resident_bytes": 6242304,
+              "rss_bytes": 8065024,
+              "pss_bytes": 6744064,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 38,
+              "private_resident_bytes": 6242304,
+              "rss_bytes": 8065024,
+              "pss_bytes": 6744064,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 39,
+              "private_resident_bytes": 6246400,
+              "rss_bytes": 8069120,
+              "pss_bytes": 6748160,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 40,
+              "private_resident_bytes": 6258688,
+              "rss_bytes": 8081408,
+              "pss_bytes": 6760448,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 41,
+              "private_resident_bytes": 6258688,
+              "rss_bytes": 8081408,
+              "pss_bytes": 6760448,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 42,
+              "private_resident_bytes": 6258688,
+              "rss_bytes": 8081408,
+              "pss_bytes": 6760448,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 43,
+              "private_resident_bytes": 6017024,
+              "rss_bytes": 7839744,
+              "pss_bytes": 6518784,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 44,
+              "private_resident_bytes": 6017024,
+              "rss_bytes": 7839744,
+              "pss_bytes": 6518784,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 45,
+              "private_resident_bytes": 6017024,
+              "rss_bytes": 7839744,
+              "pss_bytes": 6518784,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 46,
+              "private_resident_bytes": 6262784,
+              "rss_bytes": 8085504,
+              "pss_bytes": 6764544,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 47,
+              "private_resident_bytes": 6262784,
+              "rss_bytes": 8085504,
+              "pss_bytes": 6764544,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 48,
+              "private_resident_bytes": 6189056,
+              "rss_bytes": 8011776,
+              "pss_bytes": 6690816,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 49,
+              "private_resident_bytes": 6189056,
+              "rss_bytes": 8011776,
+              "pss_bytes": 6690816,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "private_resident_slope_bytes_per_cycle": 4820.593709483794,
+          "second_half_private_resident_slope_bytes_per_cycle": 9638.203076923077,
+          "private_resident_first_to_last_delta": 299008,
+          "fd_first_to_last_delta": 0,
+          "thread_first_to_last_delta": 0
+        }
+      },
+      "memory_cause": "INCONCLUSIVE",
+      "ownership": "CLEAN",
+      "materialized_streams": true,
+      "limitation": "Linux private resident excludes separate hugetlb; slopes do not establish leaks or allocator attribution."
+    },
+    {
+      "name": "cycles-50-r3",
+      "cycles": 50,
+      "roles": {
+        "source": {
+          "cycle_medians": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 5906432,
+              "rss_bytes": 7720960,
+              "pss_bytes": 6387712,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 1,
+              "private_resident_bytes": 5988352,
+              "rss_bytes": 7802880,
+              "pss_bytes": 6469632,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 2,
+              "private_resident_bytes": 8953856,
+              "rss_bytes": 10768384,
+              "pss_bytes": 9435136,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 3,
+              "private_resident_bytes": 8957952,
+              "rss_bytes": 10772480,
+              "pss_bytes": 9439232,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 4,
+              "private_resident_bytes": 8962048,
+              "rss_bytes": 10776576,
+              "pss_bytes": 9443328,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 5,
+              "private_resident_bytes": 8974336,
+              "rss_bytes": 10788864,
+              "pss_bytes": 9455616,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 6,
+              "private_resident_bytes": 9043968,
+              "rss_bytes": 10858496,
+              "pss_bytes": 9525248,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 7,
+              "private_resident_bytes": 9043968,
+              "rss_bytes": 10858496,
+              "pss_bytes": 9525248,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 8,
+              "private_resident_bytes": 9043968,
+              "rss_bytes": 10858496,
+              "pss_bytes": 9525248,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 9,
+              "private_resident_bytes": 9043968,
+              "rss_bytes": 10858496,
+              "pss_bytes": 9525248,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 10,
+              "private_resident_bytes": 9043968,
+              "rss_bytes": 10858496,
+              "pss_bytes": 9525248,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 11,
+              "private_resident_bytes": 9043968,
+              "rss_bytes": 10858496,
+              "pss_bytes": 9525248,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 12,
+              "private_resident_bytes": 9064448,
+              "rss_bytes": 10878976,
+              "pss_bytes": 9545728,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 13,
+              "private_resident_bytes": 9064448,
+              "rss_bytes": 10878976,
+              "pss_bytes": 9545728,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 14,
+              "private_resident_bytes": 9064448,
+              "rss_bytes": 10878976,
+              "pss_bytes": 9545728,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 15,
+              "private_resident_bytes": 9072640,
+              "rss_bytes": 10887168,
+              "pss_bytes": 9553920,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 16,
+              "private_resident_bytes": 9076736,
+              "rss_bytes": 10891264,
+              "pss_bytes": 9558016,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 17,
+              "private_resident_bytes": 9076736,
+              "rss_bytes": 10891264,
+              "pss_bytes": 9558016,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 18,
+              "private_resident_bytes": 9076736,
+              "rss_bytes": 10891264,
+              "pss_bytes": 9558016,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 19,
+              "private_resident_bytes": 9076736,
+              "rss_bytes": 10891264,
+              "pss_bytes": 9558016,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 20,
+              "private_resident_bytes": 9076736,
+              "rss_bytes": 10891264,
+              "pss_bytes": 9558016,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 21,
+              "private_resident_bytes": 9076736,
+              "rss_bytes": 10891264,
+              "pss_bytes": 9558016,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 22,
+              "private_resident_bytes": 9076736,
+              "rss_bytes": 10891264,
+              "pss_bytes": 9558016,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 23,
+              "private_resident_bytes": 9076736,
+              "rss_bytes": 10891264,
+              "pss_bytes": 9558016,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 24,
+              "private_resident_bytes": 9076736,
+              "rss_bytes": 10891264,
+              "pss_bytes": 9558016,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 25,
+              "private_resident_bytes": 9093120,
+              "rss_bytes": 10907648,
+              "pss_bytes": 9574400,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 26,
+              "private_resident_bytes": 9093120,
+              "rss_bytes": 10907648,
+              "pss_bytes": 9574400,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 27,
+              "private_resident_bytes": 9093120,
+              "rss_bytes": 10907648,
+              "pss_bytes": 9574400,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 28,
+              "private_resident_bytes": 9093120,
+              "rss_bytes": 10907648,
+              "pss_bytes": 9574400,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 29,
+              "private_resident_bytes": 9093120,
+              "rss_bytes": 10907648,
+              "pss_bytes": 9574400,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 30,
+              "private_resident_bytes": 9093120,
+              "rss_bytes": 10907648,
+              "pss_bytes": 9574400,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 31,
+              "private_resident_bytes": 9093120,
+              "rss_bytes": 10907648,
+              "pss_bytes": 9574400,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 32,
+              "private_resident_bytes": 9093120,
+              "rss_bytes": 10907648,
+              "pss_bytes": 9574400,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 33,
+              "private_resident_bytes": 9105408,
+              "rss_bytes": 10919936,
+              "pss_bytes": 9586688,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 34,
+              "private_resident_bytes": 9105408,
+              "rss_bytes": 10919936,
+              "pss_bytes": 9586688,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 35,
+              "private_resident_bytes": 9109504,
+              "rss_bytes": 10924032,
+              "pss_bytes": 9590784,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 36,
+              "private_resident_bytes": 9109504,
+              "rss_bytes": 10924032,
+              "pss_bytes": 9590784,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 37,
+              "private_resident_bytes": 9109504,
+              "rss_bytes": 10924032,
+              "pss_bytes": 9590784,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 38,
+              "private_resident_bytes": 9109504,
+              "rss_bytes": 10924032,
+              "pss_bytes": 9590784,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 39,
+              "private_resident_bytes": 9113600,
+              "rss_bytes": 10928128,
+              "pss_bytes": 9594880,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 40,
+              "private_resident_bytes": 9113600,
+              "rss_bytes": 10928128,
+              "pss_bytes": 9594880,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 41,
+              "private_resident_bytes": 9113600,
+              "rss_bytes": 10928128,
+              "pss_bytes": 9594880,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 42,
+              "private_resident_bytes": 9113600,
+              "rss_bytes": 10928128,
+              "pss_bytes": 9594880,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 43,
+              "private_resident_bytes": 9113600,
+              "rss_bytes": 10928128,
+              "pss_bytes": 9594880,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 44,
+              "private_resident_bytes": 9113600,
+              "rss_bytes": 10928128,
+              "pss_bytes": 9594880,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 45,
+              "private_resident_bytes": 9113600,
+              "rss_bytes": 10928128,
+              "pss_bytes": 9594880,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 46,
+              "private_resident_bytes": 9113600,
+              "rss_bytes": 10928128,
+              "pss_bytes": 9594880,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 47,
+              "private_resident_bytes": 9113600,
+              "rss_bytes": 10928128,
+              "pss_bytes": 9594880,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 48,
+              "private_resident_bytes": 9113600,
+              "rss_bytes": 10928128,
+              "pss_bytes": 9594880,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            },
+            {
+              "cycle": 49,
+              "private_resident_bytes": 9113600,
+              "rss_bytes": 10928128,
+              "pss_bytes": 9594880,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 6,
+              "thread_count": 1
+            }
+          ],
+          "private_resident_slope_bytes_per_cycle": 16715.023673469386,
+          "second_half_private_resident_slope_bytes_per_cycle": 1121.6738461538462,
+          "private_resident_first_to_last_delta": 3207168,
+          "fd_first_to_last_delta": 0,
+          "thread_first_to_last_delta": 0
+        },
+        "destination": {
+          "cycle_medians": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 5816320,
+              "rss_bytes": 7647232,
+              "pss_bytes": 6318080,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 1,
+              "private_resident_bytes": 5844992,
+              "rss_bytes": 7675904,
+              "pss_bytes": 6346752,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 2,
+              "private_resident_bytes": 5861376,
+              "rss_bytes": 7692288,
+              "pss_bytes": 6363136,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 3,
+              "private_resident_bytes": 5881856,
+              "rss_bytes": 7712768,
+              "pss_bytes": 6383616,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 4,
+              "private_resident_bytes": 5890048,
+              "rss_bytes": 7720960,
+              "pss_bytes": 6391808,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 5,
+              "private_resident_bytes": 5906432,
+              "rss_bytes": 7737344,
+              "pss_bytes": 6408192,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 6,
+              "private_resident_bytes": 5918720,
+              "rss_bytes": 7749632,
+              "pss_bytes": 6420480,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 7,
+              "private_resident_bytes": 5926912,
+              "rss_bytes": 7757824,
+              "pss_bytes": 6428672,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 8,
+              "private_resident_bytes": 5931008,
+              "rss_bytes": 7761920,
+              "pss_bytes": 6432768,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 9,
+              "private_resident_bytes": 5935104,
+              "rss_bytes": 7766016,
+              "pss_bytes": 6436864,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 10,
+              "private_resident_bytes": 5935104,
+              "rss_bytes": 7766016,
+              "pss_bytes": 6436864,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 11,
+              "private_resident_bytes": 5935104,
+              "rss_bytes": 7766016,
+              "pss_bytes": 6436864,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 12,
+              "private_resident_bytes": 5935104,
+              "rss_bytes": 7766016,
+              "pss_bytes": 6436864,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 13,
+              "private_resident_bytes": 5935104,
+              "rss_bytes": 7766016,
+              "pss_bytes": 6436864,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 14,
+              "private_resident_bytes": 5935104,
+              "rss_bytes": 7766016,
+              "pss_bytes": 6436864,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 15,
+              "private_resident_bytes": 5935104,
+              "rss_bytes": 7766016,
+              "pss_bytes": 6436864,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 16,
+              "private_resident_bytes": 5935104,
+              "rss_bytes": 7766016,
+              "pss_bytes": 6436864,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 17,
+              "private_resident_bytes": 5935104,
+              "rss_bytes": 7766016,
+              "pss_bytes": 6436864,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 18,
+              "private_resident_bytes": 5939200,
+              "rss_bytes": 7770112,
+              "pss_bytes": 6440960,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 19,
+              "private_resident_bytes": 5939200,
+              "rss_bytes": 7770112,
+              "pss_bytes": 6440960,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 20,
+              "private_resident_bytes": 5939200,
+              "rss_bytes": 7770112,
+              "pss_bytes": 6440960,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 21,
+              "private_resident_bytes": 5939200,
+              "rss_bytes": 7770112,
+              "pss_bytes": 6440960,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 22,
+              "private_resident_bytes": 5939200,
+              "rss_bytes": 7770112,
+              "pss_bytes": 6440960,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 23,
+              "private_resident_bytes": 5939200,
+              "rss_bytes": 7770112,
+              "pss_bytes": 6440960,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 24,
+              "private_resident_bytes": 5939200,
+              "rss_bytes": 7770112,
+              "pss_bytes": 6440960,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 25,
+              "private_resident_bytes": 5939200,
+              "rss_bytes": 7770112,
+              "pss_bytes": 6440960,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 26,
+              "private_resident_bytes": 5939200,
+              "rss_bytes": 7770112,
+              "pss_bytes": 6440960,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 27,
+              "private_resident_bytes": 5939200,
+              "rss_bytes": 7770112,
+              "pss_bytes": 6440960,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 28,
+              "private_resident_bytes": 5939200,
+              "rss_bytes": 7770112,
+              "pss_bytes": 6440960,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 29,
+              "private_resident_bytes": 5939200,
+              "rss_bytes": 7770112,
+              "pss_bytes": 6440960,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 30,
+              "private_resident_bytes": 5939200,
+              "rss_bytes": 7770112,
+              "pss_bytes": 6440960,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 31,
+              "private_resident_bytes": 5939200,
+              "rss_bytes": 7770112,
+              "pss_bytes": 6440960,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 32,
+              "private_resident_bytes": 5939200,
+              "rss_bytes": 7770112,
+              "pss_bytes": 6440960,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 33,
+              "private_resident_bytes": 5939200,
+              "rss_bytes": 7770112,
+              "pss_bytes": 6440960,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 34,
+              "private_resident_bytes": 5939200,
+              "rss_bytes": 7770112,
+              "pss_bytes": 6440960,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 35,
+              "private_resident_bytes": 5939200,
+              "rss_bytes": 7770112,
+              "pss_bytes": 6440960,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 36,
+              "private_resident_bytes": 5939200,
+              "rss_bytes": 7770112,
+              "pss_bytes": 6440960,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 37,
+              "private_resident_bytes": 5943296,
+              "rss_bytes": 7774208,
+              "pss_bytes": 6445056,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 38,
+              "private_resident_bytes": 5943296,
+              "rss_bytes": 7774208,
+              "pss_bytes": 6445056,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 39,
+              "private_resident_bytes": 5943296,
+              "rss_bytes": 7774208,
+              "pss_bytes": 6445056,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 40,
+              "private_resident_bytes": 5943296,
+              "rss_bytes": 7774208,
+              "pss_bytes": 6445056,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 41,
+              "private_resident_bytes": 5943296,
+              "rss_bytes": 7774208,
+              "pss_bytes": 6445056,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 42,
+              "private_resident_bytes": 5943296,
+              "rss_bytes": 7774208,
+              "pss_bytes": 6445056,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 43,
+              "private_resident_bytes": 5943296,
+              "rss_bytes": 7774208,
+              "pss_bytes": 6445056,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 44,
+              "private_resident_bytes": 5943296,
+              "rss_bytes": 7774208,
+              "pss_bytes": 6445056,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 45,
+              "private_resident_bytes": 5943296,
+              "rss_bytes": 7774208,
+              "pss_bytes": 6445056,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 46,
+              "private_resident_bytes": 5943296,
+              "rss_bytes": 7774208,
+              "pss_bytes": 6445056,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 47,
+              "private_resident_bytes": 5943296,
+              "rss_bytes": 7774208,
+              "pss_bytes": 6445056,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 48,
+              "private_resident_bytes": 5943296,
+              "rss_bytes": 7774208,
+              "pss_bytes": 6445056,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            },
+            {
+              "cycle": 49,
+              "private_resident_bytes": 5943296,
+              "rss_bytes": 7774208,
+              "pss_bytes": 6445056,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "private_resident_slope_bytes_per_cycle": 1151.7971668667467,
+          "second_half_private_resident_slope_bytes_per_cycle": 245.76,
+          "private_resident_first_to_last_delta": 126976,
+          "fd_first_to_last_delta": 0,
+          "thread_first_to_last_delta": 0
+        }
+      },
+      "memory_cause": "INCONCLUSIVE",
+      "ownership": "CLEAN",
+      "materialized_streams": true,
+      "limitation": "Linux private resident excludes separate hugetlb; slopes do not establish leaks or allocator attribution."
+    }
+  ],
+  "scale": [
+    {
+      "kind": "sessions",
+      "role": "source",
+      "points": [
+        {
+          "count": 256,
+          "repeats": 5,
+          "active_private_resident_cv_percent": 0.6698521308334122,
+          "repeat_gate": true,
+          "active_private_resident_median": 100425728,
+          "active_private_resident_range": [
+            99639296,
+            101343232
+          ],
+          "incremental_private_resident_median": 85405696,
+          "rows": [
+            {
+              "name": "bundles-256-r1",
+              "idle": {
+                "private_resident_bytes": 15069184,
+                "rss_bytes": 16875520,
+                "pss_bytes": 15550464,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 9,
+                "thread_count": 4
+              },
+              "active": {
+                "private_resident_bytes": 99909632,
+                "rss_bytes": 101715968,
+                "pss_bytes": 100390912,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 265,
+                "thread_count": 4
+              },
+              "incremental_private_resident_bytes": 84840448
+            },
+            {
+              "name": "bundles-256-r2",
+              "idle": {
+                "private_resident_bytes": 15020032,
+                "rss_bytes": 16814080,
+                "pss_bytes": 15481856,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 9,
+                "thread_count": 4
+              },
+              "active": {
+                "private_resident_bytes": 100425728,
+                "rss_bytes": 102219776,
+                "pss_bytes": 100887552,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 265,
+                "thread_count": 4
+              },
+              "incremental_private_resident_bytes": 85405696
+            },
+            {
+              "name": "bundles-256-r3",
+              "idle": {
+                "private_resident_bytes": 15015936,
+                "rss_bytes": 16867328,
+                "pss_bytes": 15514624,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 9,
+                "thread_count": 4
+              },
+              "active": {
+                "private_resident_bytes": 99639296,
+                "rss_bytes": 101490688,
+                "pss_bytes": 100137984,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 265,
+                "thread_count": 4
+              },
+              "incremental_private_resident_bytes": 84623360
+            },
+            {
+              "name": "bundles-256-r4",
+              "idle": {
+                "private_resident_bytes": 15138816,
+                "rss_bytes": 16957440,
+                "pss_bytes": 15619072,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 9,
+                "thread_count": 4
+              },
+              "active": {
+                "private_resident_bytes": 101343232,
+                "rss_bytes": 103161856,
+                "pss_bytes": 101823488,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 265,
+                "thread_count": 4
+              },
+              "incremental_private_resident_bytes": 86204416
+            },
+            {
+              "name": "bundles-256-r5",
+              "idle": {
+                "private_resident_bytes": 15142912,
+                "rss_bytes": 17059840,
+                "pss_bytes": 15665152,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 9,
+                "thread_count": 4
+              },
+              "active": {
+                "private_resident_bytes": 100716544,
+                "rss_bytes": 102633472,
+                "pss_bytes": 101238784,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 265,
+                "thread_count": 4
+              },
+              "incremental_private_resident_bytes": 85573632
+            }
+          ]
+        },
+        {
+          "count": 512,
+          "repeats": 5,
+          "active_private_resident_cv_percent": 0.513104901364389,
+          "repeat_gate": true,
+          "active_private_resident_median": 197906432,
+          "active_private_resident_range": [
+            196571136,
+            199249920
+          ],
+          "incremental_private_resident_median": 170262528,
+          "rows": [
+            {
+              "name": "bundles-512-r1",
+              "idle": {
+                "private_resident_bytes": 27697152,
+                "rss_bytes": 29614080,
+                "pss_bytes": 28222464,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 9,
+                "thread_count": 4
+              },
+              "active": {
+                "private_resident_bytes": 197795840,
+                "rss_bytes": 199712768,
+                "pss_bytes": 198321152,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 521,
+                "thread_count": 4
+              },
+              "incremental_private_resident_bytes": 170098688
+            },
+            {
+              "name": "bundles-512-r2",
+              "idle": {
+                "private_resident_bytes": 27680768,
+                "rss_bytes": 29499392,
+                "pss_bytes": 28161024,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 9,
+                "thread_count": 4
+              },
+              "active": {
+                "private_resident_bytes": 196571136,
+                "rss_bytes": 198389760,
+                "pss_bytes": 197051392,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 521,
+                "thread_count": 4
+              },
+              "incremental_private_resident_bytes": 168890368
+            },
+            {
+              "name": "bundles-512-r3",
+              "idle": {
+                "private_resident_bytes": 27791360,
+                "rss_bytes": 29675520,
+                "pss_bytes": 28294144,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 9,
+                "thread_count": 4
+              },
+              "active": {
+                "private_resident_bytes": 198696960,
+                "rss_bytes": 200581120,
+                "pss_bytes": 199199744,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 521,
+                "thread_count": 4
+              },
+              "incremental_private_resident_bytes": 170905600
+            },
+            {
+              "name": "bundles-512-r4",
+              "idle": {
+                "private_resident_bytes": 27643904,
+                "rss_bytes": 29429760,
+                "pss_bytes": 28118016,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 9,
+                "thread_count": 4
+              },
+              "active": {
+                "private_resident_bytes": 197906432,
+                "rss_bytes": 199757824,
+                "pss_bytes": 198407168,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 521,
+                "thread_count": 4
+              },
+              "incremental_private_resident_bytes": 170262528
+            },
+            {
+              "name": "bundles-512-r5",
+              "idle": {
+                "private_resident_bytes": 27729920,
+                "rss_bytes": 29683712,
+                "pss_bytes": 28253184,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 9,
+                "thread_count": 4
+              },
+              "active": {
+                "private_resident_bytes": 199249920,
+                "rss_bytes": 201203712,
+                "pss_bytes": 199773184,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 521,
+                "thread_count": 4
+              },
+              "incremental_private_resident_bytes": 171520000
+            }
+          ]
+        }
+      ],
+      "resource_scope": "one authenticated connection + session + channel + stream per bundle",
+      "materialized_streams": false,
+      "derived_active_private_resident_slope_bytes_per_unit": 380784.0,
+      "derived_incremental_private_resident_slope_bytes_per_unit": 331472.0
+    },
+    {
+      "kind": "sessions",
+      "role": "destination",
+      "points": [
+        {
+          "count": 256,
+          "repeats": 5,
+          "active_private_resident_cv_percent": 0.7816772821387079,
+          "repeat_gate": true,
+          "active_private_resident_median": 76226560,
+          "active_private_resident_range": [
+            75247616,
+            76816384
+          ],
+          "incremental_private_resident_median": 72556544,
+          "rows": [
+            {
+              "name": "bundles-256-r1",
+              "idle": {
+                "private_resident_bytes": 3690496,
+                "rss_bytes": 5500928,
+                "pss_bytes": 4182016,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 8,
+                "thread_count": 2
+              },
+              "active": {
+                "private_resident_bytes": 76320768,
+                "rss_bytes": 78131200,
+                "pss_bytes": 76812288,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 8,
+                "thread_count": 2
+              },
+              "incremental_private_resident_bytes": 72630272
+            },
+            {
+              "name": "bundles-256-r2",
+              "idle": {
+                "private_resident_bytes": 3715072,
+                "rss_bytes": 5521408,
+                "pss_bytes": 4180992,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 8,
+                "thread_count": 2
+              },
+              "active": {
+                "private_resident_bytes": 75247616,
+                "rss_bytes": 77053952,
+                "pss_bytes": 75713536,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 8,
+                "thread_count": 2
+              },
+              "incremental_private_resident_bytes": 71532544
+            },
+            {
+              "name": "bundles-256-r3",
+              "idle": {
+                "private_resident_bytes": 3354624,
+                "rss_bytes": 5148672,
+                "pss_bytes": 3827712,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 8,
+                "thread_count": 2
+              },
+              "active": {
+                "private_resident_bytes": 76816384,
+                "rss_bytes": 78610432,
+                "pss_bytes": 77289472,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 8,
+                "thread_count": 2
+              },
+              "incremental_private_resident_bytes": 73461760
+            },
+            {
+              "name": "bundles-256-r4",
+              "idle": {
+                "private_resident_bytes": 3670016,
+                "rss_bytes": 5632000,
+                "pss_bytes": 4199424,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 8,
+                "thread_count": 2
+              },
+              "active": {
+                "private_resident_bytes": 76226560,
+                "rss_bytes": 78188544,
+                "pss_bytes": 76755968,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 8,
+                "thread_count": 2
+              },
+              "incremental_private_resident_bytes": 72556544
+            },
+            {
+              "name": "bundles-256-r5",
+              "idle": {
+                "private_resident_bytes": 3751936,
+                "rss_bytes": 5603328,
+                "pss_bytes": 4244480,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 8,
+                "thread_count": 2
+              },
+              "active": {
+                "private_resident_bytes": 75763712,
+                "rss_bytes": 77615104,
+                "pss_bytes": 76256256,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 8,
+                "thread_count": 2
+              },
+              "incremental_private_resident_bytes": 72011776
+            }
+          ]
+        },
+        {
+          "count": 512,
+          "repeats": 5,
+          "active_private_resident_cv_percent": 0.7325649119418859,
+          "repeat_gate": true,
+          "active_private_resident_median": 149286912,
+          "active_private_resident_range": [
+            147677184,
+            150425600
+          ],
+          "incremental_private_resident_median": 145637376,
+          "rows": [
+            {
+              "name": "bundles-512-r1",
+              "idle": {
+                "private_resident_bytes": 3674112,
+                "rss_bytes": 5496832,
+                "pss_bytes": 4154368,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 8,
+                "thread_count": 2
+              },
+              "active": {
+                "private_resident_bytes": 147677184,
+                "rss_bytes": 149499904,
+                "pss_bytes": 148157440,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 8,
+                "thread_count": 2
+              },
+              "incremental_private_resident_bytes": 144003072
+            },
+            {
+              "name": "bundles-512-r2",
+              "idle": {
+                "private_resident_bytes": 3518464,
+                "rss_bytes": 5480448,
+                "pss_bytes": 4047872,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 8,
+                "thread_count": 2
+              },
+              "active": {
+                "private_resident_bytes": 150425600,
+                "rss_bytes": 152387584,
+                "pss_bytes": 150955008,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 8,
+                "thread_count": 2
+              },
+              "incremental_private_resident_bytes": 146907136
+            },
+            {
+              "name": "bundles-512-r3",
+              "idle": {
+                "private_resident_bytes": 3739648,
+                "rss_bytes": 5640192,
+                "pss_bytes": 4247552,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 8,
+                "thread_count": 2
+              },
+              "active": {
+                "private_resident_bytes": 149872640,
+                "rss_bytes": 151773184,
+                "pss_bytes": 150380544,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 8,
+                "thread_count": 2
+              },
+              "incremental_private_resident_bytes": 146132992
+            },
+            {
+              "name": "bundles-512-r4",
+              "idle": {
+                "private_resident_bytes": 3649536,
+                "rss_bytes": 5451776,
+                "pss_bytes": 4136960,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 8,
+                "thread_count": 2
+              },
+              "active": {
+                "private_resident_bytes": 149286912,
+                "rss_bytes": 151089152,
+                "pss_bytes": 149769216,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 8,
+                "thread_count": 2
+              },
+              "incremental_private_resident_bytes": 145637376
+            },
+            {
+              "name": "bundles-512-r5",
+              "idle": {
+                "private_resident_bytes": 3715072,
+                "rss_bytes": 5537792,
+                "pss_bytes": 4184064,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 8,
+                "thread_count": 2
+              },
+              "active": {
+                "private_resident_bytes": 148488192,
+                "rss_bytes": 150310912,
+                "pss_bytes": 148957184,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 8,
+                "thread_count": 2
+              },
+              "incremental_private_resident_bytes": 144773120
+            }
+          ]
+        }
+      ],
+      "resource_scope": "one authenticated connection + session + channel + stream per bundle",
+      "materialized_streams": false,
+      "derived_active_private_resident_slope_bytes_per_unit": 285392.0,
+      "derived_incremental_private_resident_slope_bytes_per_unit": 285472.0
+    }
+  ]
+}

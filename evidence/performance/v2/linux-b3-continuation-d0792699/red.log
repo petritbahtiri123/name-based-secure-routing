@@ -1,0 +1,46 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+___________ test_expected_bundle_exit_only_final_after_report_ready ___________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-989/test_expected_bundle_exit_only0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002CF197436F0>
+
+    def test_expected_bundle_exit_only_final_after_report_ready(tmp_path, monkeypatch):
+        events = []
+        monkeypatch.setattr(b3, 'wait_paths', lambda *args: events.append('ready'))
+    
+        class Capture:
+            def capture(self, *args, **kwargs):
+                assert events == ['ready', ('joined', 30)]
+                assert kwargs['allow_exited_sources'] is True
+                events.append('captured')
+    
+        source = SimpleNamespace(pid=2, wait=lambda timeout: events.append(('joined', timeout)) or 0)
+>       b3.capture_final_cooldown([], process(1), [source], tmp_path,
+            cycle=0, seconds=2, cadence=.5, report_gate=True, capture_backend=Capture(),
+            allow_exited_sources=True)
+
+tests\performance\test_b3_linux.py:95: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+scripts\run_b3_session_lifecycle.py:195: in capture_final_cooldown
+    capture_backend.capture(resources, server, clients, phase="cooldown", cycle=cycle,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <test_b3_linux.test_expected_bundle_exit_only_final_after_report_ready.<locals>.Capture object at 0x000002CF196FDA90>
+args = ([], namespace(pid=1, poll=<function process.<locals>.<lambda> at 0x000002CF198514E0>), [namespace(pid=2, wait=<function test_expected_bundle_exit_only_final_after_report_ready.<locals>.<lambda> at 0x000002CF19850B40>)])
+kwargs = {'allow_exited_sources': True, 'cadence': 0.5, 'cycle': 0, 'phase': 'cooldown', ...}
+@py_assert2 = ['ready', ('joined', 30)], @py_assert1 = False
+@py_format4 = "['ready'] == ['ready', ('joined', 30)]\n~\n~Right contains one more item: ('joined', 30)\n~Use -v to get more diff"
+@py_format6 = "assert ['ready'] == ['ready', ('joined', 30)]\n~\n~Right contains one more item: ('joined', 30)\n~Use -v to get more diff"
+
+    def capture(self, *args, **kwargs):
+>       assert events == ['ready', ('joined', 30)]
+E       AssertionError: assert ['ready'] == ['ready', ('joined', 30)]
+E         
+E         Right contains one more item: ('joined', 30)
+E         Use -v to get more diff
+
+tests\performance\test_b3_linux.py:90: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_b3_linux.py::test_expected_bundle_exit_only_final_after_report_ready
+1 failed, 14 deselected in 0.86s
