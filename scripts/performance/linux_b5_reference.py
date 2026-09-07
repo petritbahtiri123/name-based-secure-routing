@@ -13,6 +13,7 @@ import time
 from scripts.performance.linux_loopback import ROOT, build_commands, sample_process, write_json, repeat_target
 from scripts.performance.p2a_established import validate_repeat
 from scripts.performance.post_close_cleanup import validate_report
+from scripts.performance.b4_linux import failure_details
 
 ZERO_FIELDS = (
     "errors",
@@ -265,7 +266,7 @@ def run_cell(
             cpu_scope="whole process lifetime including taskset/warmup/drain; no steady CPU estimate",
         )
     except Exception as error:
-        row.update(valid=False, classification="FAIL", error=f"{type(error).__name__}: {error}")
+        row.update(valid=False, classification="FAIL", **failure_details(error))
     finally:
         cleanup_errors = []
         for process in processes.values():

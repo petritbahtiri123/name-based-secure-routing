@@ -85,7 +85,7 @@ def test_cleanup_failure_cannot_be_valid():
 
 
 @pytest.mark.parametrize("server_code", [0, 1])
-@pytest.mark.parametrize("source_fault", [None, "final", "report"])
+@pytest.mark.parametrize("source_fault", [None, "final", "report", "telemetry"])
 def test_orchestration_samples_source_then_ack_then_server_join(tmp_path, server_code, source_fault):
     from scripts.performance.post_close_cleanup import FIELDS
 
@@ -139,6 +139,10 @@ def test_orchestration_samples_source_then_ack_then_server_join(tmp_path, server
         if pid == 12:
             assert not (tmp_path / "raw/completion.ack").exists()
             events.append("client-final-sample")
+            if source_fault == "telemetry":
+                error = PermissionError(13, "FD unavailable", "/proc/12/fd")
+                error.add_note("fd_permission_recheck: unchanged identity, state R")
+                raise error
         return dict(pid=pid, start_ticks=pid, state=state, cpu_ns=clock, timestamp_ns=clock, affinity=cpus)
 
     row = reference.run_cell(
@@ -166,6 +170,11 @@ def test_orchestration_samples_source_then_ack_then_server_join(tmp_path, server
         assert events.index("client-join") < events.index("server-join")
     assert (tmp_path / "raw/resources.ndjson").exists()
     assert (tmp_path / "raw/record.json").exists()
+    if source_fault == "telemetry":
+        retained = json.loads((tmp_path / "raw/record.json").read_text())
+        assert retained["error_type"] == "PermissionError"
+        assert "fd_permission_recheck: unchanged identity, state R" in retained["traceback"]
+        assert retained["traceback_truncated"] is False
 
 
 @pytest.mark.parametrize("dispersed", [False, True])
