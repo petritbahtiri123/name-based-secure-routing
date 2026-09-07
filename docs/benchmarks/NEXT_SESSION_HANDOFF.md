@@ -1,5 +1,29 @@
 # NBSR campaign continuation checkpoint
 
+## Five-point continuation checkpoint
+
+User budget baseline 38%, maximum 43%; last check during closure 40%.
+Start `0e4b5cf6`; diagnostic extension `f732ac94`; buffered diagnostic repair
+`befccf5f`; subsequent evidence commit binds the final results. See
+B3_IDLE_ATTRIBUTION.md and evidence/performance/v2/b3-idle-attribution-befccf5f.
+
+Final source befccf5f: 512 bundles PASS 3/3 with zero final ownership and
+private-resident CV below 5%. Three independent unchanged 1024 attempts fail:
+731 failed clients, all with complete diagnostics; 713 verified idle expiry,
+18 other-closed remain unattributed. Pinned Quinn source/archive verification
+proves TimedOut is idle timer expiry. This closes the dominant cause diagnosis,
+not the failed 1024 workload. Do not increase timeout or silently change workload
+to pass it. No production optimization, hardware ceiling or new speed claim.
+
+Initial f732 diagnostics were malformed/interleaved and control 512 failed;
+all attempts preserved, not observer-qualified. Final buffered output passes
+the exact failure-ID completeness verifier for all three attempts. All runs
+are complete; no benchmark is intended to continue in the background.
+Next useful work remains B5 memory/soak, separately specified larger-scale
+active-liveness testing if needed, and deferred admin/external validation.
+This checkpoint supersedes the earlier generic 1024 ACK-progress uncertainty
+for the new measured idle-expiry cases, not every historical failure.
+
 ## Extra two-point diagnostic
 
 At `bc9e0437`, user authorized the remaining 38–40% budget. See

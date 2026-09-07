@@ -1,0 +1,18 @@
+{
+  "version": "0.11.16",
+  "crate_sha256": "2f4bfc015262b9df63c8845072ce59068853ff5872180c2ce2f13038b970e560",
+  "source_sha256": "4a2ae481650d141f263192d929d97f40604194906a92e0a2e6ad16edd32835eb",
+  "source": "src/connection/mod.rs",
+  "idle_timer": {
+    "first_line": 1176,
+    "text": "                Timer::Idle => {\n                    self.kill(ConnectionError::TimedOut);\n                }\n                Timer::KeepAlive => {"
+  },
+  "error_definition": {
+    "first_line": 3875,
+    "text": "    /// Communication with the peer has lapsed for longer than the negotiated idle timeout\n    ///\n    /// If neither side is sending keep-alives, a connection will time out after a long enough idle\n    /// period even if the peer is still reachable. See also [`TransportConfig::max_idle_timeout()`]\n    /// and [`TransportConfig::keep_alive_interval()`].\n    #[error(\"timed out\")]\n    TimedOut,"
+  },
+  "negotiation": {
+    "first_line": 4057,
+    "text": "fn negotiate_max_idle_timeout(x: Option<VarInt>, y: Option<VarInt>) -> Option<Duration> {\n    match (x, y) {\n        (Some(VarInt(0)) | None, Some(VarInt(0)) | None) => None,\n        (Some(VarInt(0)) | None, Some(y)) => Some(Duration::from_millis(y.0)),\n        (Some(x), Some(VarInt(0)) | None) => Some(Duration::from_millis(x.0)),\n        (Some(x), Some(y)) => Some(Duration::from_millis(cmp::min(x, y).0)),\n    }\n}"
+  }
+}

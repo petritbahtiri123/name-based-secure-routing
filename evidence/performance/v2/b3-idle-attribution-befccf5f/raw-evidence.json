@@ -1,0 +1,22 @@
+[
+  {
+    "root": "C:\\NBSR-build\\b3-close-0e4b5cf6",
+    "index_sha256": "dc25890a9827b646977c8911cb20788542dd053f895d99d28fe71482e192d855"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-current-f732ac94",
+    "index_sha256": "549b5d101ea8e4355d88d577819f57b67d968bf58be9c392cdf090d9db9c9101"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-current-befccf5f",
+    "index_sha256": "7b84bdd184dcb5800002aacb33ca6733eb004f130bef8f1772c7bc8ff02633aa"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-b3-close-f732ac94",
+    "index_sha256": "ca0e1c9f5c1cdc3e486b08025e2edcea429ebb0f8fe78dda5a4414aa3bdffcf4"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-b3-close-befccf5f",
+    "index_sha256": "f7ea66715fa770614fc0e4d015ce4e7bf652f816a632bae9ba2acfd1c2582664"
+  }
+]

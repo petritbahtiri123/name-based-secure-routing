@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    from pathlib import Path; p=Path('C:/NBSR-build/linux-b3-joined-d0792699/bundles/raw/rust-rust/bundles-1024-r1/source-0.stderr'); assert 'nbsr-b3-close-diagnostic-v1' in p.read_text(), 'RED: failed held bundles lack categorized transport close diagnostics'
+                                                                                                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: RED: failed held bundles lack categorized transport close diagnostics

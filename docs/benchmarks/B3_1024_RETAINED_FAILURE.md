@@ -1,5 +1,10 @@
 # B3 1024-bundle retained failure analysis
 
+Follow-up: [B3_IDLE_ATTRIBUTION.md](B3_IDLE_ATTRIBUTION.md) records three new
+matched-workload attempts with complete close reasons. Idle expiry is now
+proved for their `timed_out` connections; the historical analysis below keeps
+its original evidentiary limits.
+
 DIAGNOSTIC, not a new benchmark or causal proof. Workload source `d0792699`.
 
 The retained source output contains exactly one outcome for each of 1024 client

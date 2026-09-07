@@ -1,0 +1,19 @@
+{
+  "benchmark_source_sha": "befccf5f7acbac06a538847fc7b6994df9200f08",
+  "classification": "MEASURED_IDLE_EXPIRY_IN_HELD_WORKLOAD_NOT_CAPACITY",
+  "control_512_valid_repeats": 3,
+  "control_final_ownership_zero": true,
+  "failed_1024_repeats": 3,
+  "diagnostic_lines": 731,
+  "idle_expiry_lines": 713,
+  "other_closed_unattributed_lines": 18,
+  "malformed_diagnostic_lines": 0,
+  "production_changes": false,
+  "timeouts_changed": false,
+  "limitations": [
+    "Initial f732ac94 control failed; observer qualification not established",
+    "Host fmt/clippy work overlapped parts of initial f732ac94 diagnostics; no timing claims from that cohort",
+    "No build/test workloads overlapped befccf5f rerun; light status reads only",
+    "The historical d0792699 failure has no retained close reason; new evidence must not be relabeled as retrospective proof for every historical connection"
+  ]
+}

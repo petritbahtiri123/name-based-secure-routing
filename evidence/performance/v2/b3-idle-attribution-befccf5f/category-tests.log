@@ -1,0 +1,9 @@
+   Compiling nbsr-transport v0.1.0 (C:\Users\bajra\OneDrive\Documents\NBSR\crates\nbsr-transport)
+    Finished `release` profile [optimized] target(s) in 15.36s
+     Running unittests src\lib.rs (C:/NBSR-build/b5-pretouch-windows-target-506ddfa1\release\deps\nbsr_transport-249485c09d157015.exe)
+
+running 1 test
+test quinn_adapter::benchmark_close_reason_tests::benchmark_close_reason_distinguishes_timeout_without_peer_text ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 67 filtered out; finished in 0.00s
+

@@ -1,0 +1,86 @@
+{
+  "failure-1024-a": {
+    "classification": "PASS_DIAGNOSTIC_COMPLETENESS_NOT_CAPACITY",
+    "failed": 243,
+    "successful": 781,
+    "categories": {
+      "other_closed": {
+        "count": 5,
+        "held_seconds_range": [
+          9.934685993,
+          10.008480044
+        ]
+      },
+      "timed_out": {
+        "count": 238,
+        "held_seconds_range": [
+          10.004818092,
+          12.29687256
+        ]
+      }
+    },
+    "failed_id_range": [
+      0,
+      243
+    ],
+    "failure_types": {
+      "client_task_failed": 243
+    }
+  },
+  "failure-1024-b": {
+    "classification": "PASS_DIAGNOSTIC_COMPLETENESS_NOT_CAPACITY",
+    "failed": 246,
+    "successful": 778,
+    "categories": {
+      "other_closed": {
+        "count": 6,
+        "held_seconds_range": [
+          9.943832054,
+          10.002390619
+        ]
+      },
+      "timed_out": {
+        "count": 240,
+        "held_seconds_range": [
+          10.004891251,
+          12.3552794
+        ]
+      }
+    },
+    "failed_id_range": [
+      0,
+      246
+    ],
+    "failure_types": {
+      "client_task_failed": 246
+    }
+  },
+  "failure-1024-c": {
+    "classification": "PASS_DIAGNOSTIC_COMPLETENESS_NOT_CAPACITY",
+    "failed": 242,
+    "successful": 782,
+    "categories": {
+      "other_closed": {
+        "count": 7,
+        "held_seconds_range": [
+          9.915956905,
+          9.999548788
+        ]
+      },
+      "timed_out": {
+        "count": 235,
+        "held_seconds_range": [
+          10.011444689,
+          12.291415249
+        ]
+      }
+    },
+    "failed_id_range": [
+      0,
+      241
+    ],
+    "failure_types": {
+      "client_task_failed": 242
+    }
+  }
+}
