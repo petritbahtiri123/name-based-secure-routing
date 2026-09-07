@@ -1727,6 +1727,61 @@ async fn timeout_kills_backend_process_tree_that_retains_stdio() {
     fs::remove_file(descendant).expect("backend process tree was reaped");
 }
 
+#[cfg(windows)]
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn cancellation_after_descendant_start_reaps_process_tree() {
+    let root = TestRoot::new();
+    let helper = build_lifecycle_helper(&root);
+    let executable = copy_executable(&helper, &root, "descendant-cancellation");
+    let marker = PathBuf::from(format!("{}.descendant-started", executable.display()));
+    let map_path = write_map(&root, &executable, "service.example", &sha256(&executable));
+    let map = load_demo_backend_map(&map_path).unwrap();
+    let lifecycle_started = std::time::Instant::now();
+    let task = tokio::spawn(async move {
+        run_demo_backend_with_timeout(
+            &map,
+            &channel("service.example"),
+            REQUEST,
+            Duration::from_secs(10),
+        )
+        .await
+    });
+    let ready_deadline = std::time::Instant::now() + Duration::from_millis(750);
+    while !marker.exists() && std::time::Instant::now() < ready_deadline && !task.is_finished() {
+        tokio::time::sleep(Duration::from_millis(5)).await;
+    }
+    let descendant_started = marker.exists();
+    task.abort();
+    assert!(task.await.unwrap_err().is_cancelled());
+    let cleanup_deadline = std::time::Instant::now() + Duration::from_millis(750);
+    let mut removed = false;
+    while std::time::Instant::now() < cleanup_deadline {
+        match fs::remove_file(&executable) {
+            Ok(()) => {
+                removed = true;
+                break;
+            }
+            Err(error)
+                if error.kind() == io::ErrorKind::PermissionDenied
+                    || error.raw_os_error() == Some(32) => {}
+            Err(error) => panic!("remove cancelled descendant: {error}"),
+        }
+        tokio::time::sleep(Duration::from_millis(5)).await;
+    }
+    assert!(
+        descendant_started,
+        "cancellation must exercise a started descendant"
+    );
+    assert!(
+        removed,
+        "stdio-retaining descendant image remained locked after cancellation"
+    );
+    assert!(
+        lifecycle_started.elapsed() < Duration::from_secs(3),
+        "cleanup must precede the descendant's natural three-second exit"
+    );
+}
+
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn every_worker_start_failure_and_disconnected_result_reap_child() {
     let root = TestRoot::new();
