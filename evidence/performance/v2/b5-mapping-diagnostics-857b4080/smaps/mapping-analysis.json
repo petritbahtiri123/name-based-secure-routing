@@ -1,0 +1,80 @@
+[
+  {
+    "file": "mappings-r1-mappings.ndjson",
+    "error": "B5 stream failed: live private growth: destination_0 (receive-clock diagnostic)",
+    "valid": false,
+    "roles": {
+      "server": {
+        "snapshots": 5,
+        "elapsed_s": 40.082226224,
+        "max_capture_ns": 750632,
+        "changes": {
+          "[anonymous]": {
+            "first": 262144,
+            "last": 294912,
+            "delta": 32768
+          },
+          "[heap]": {
+            "first": 614400,
+            "last": 626688,
+            "delta": 12288
+          }
+        }
+      },
+      "nbsr": {
+        "snapshots": 5,
+        "elapsed_s": 40.082055117,
+        "max_capture_ns": 752632,
+        "changes": {
+          "[anonymous]": {
+            "first": 606208,
+            "last": 618496,
+            "delta": 12288
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "mappings-r2-mappings.ndjson",
+    "error": null,
+    "valid": true,
+    "roles": {
+      "server": {
+        "snapshots": 12,
+        "elapsed_s": 110.233975012,
+        "max_capture_ns": 837636,
+        "changes": {
+          "[anonymous]": {
+            "first": 241664,
+            "last": 331776,
+            "delta": 90112
+          }
+        }
+      },
+      "nbsr": {
+        "snapshots": 12,
+        "elapsed_s": 110.233978511,
+        "max_capture_ns": 935342,
+        "changes": {
+          "[anonymous]": {
+            "first": 602112,
+            "last": 659456,
+            "delta": 57344
+          },
+          "[heap]": {
+            "first": 712704,
+            "last": 716800,
+            "delta": 4096
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "mappings-r3-mappings.ndjson",
+    "error": "B5 stream failed: live private growth: destination_0 (receive-clock diagnostic)",
+    "valid": false,
+    "roles": {}
+  }
+]

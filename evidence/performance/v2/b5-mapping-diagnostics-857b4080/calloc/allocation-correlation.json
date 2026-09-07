@@ -1,0 +1,298 @@
+[
+  {
+    "repeat": "mappings-r1",
+    "pid": 75,
+    "allocated_bytes": 3014656,
+    "snapshots": [
+      {
+        "role": "server",
+        "timestamp_ns": 1024588887411,
+        "mapping_size": 3018752,
+        "private_resident": 221184,
+        "name": "[anonymous]"
+      },
+      {
+        "role": "server",
+        "timestamp_ns": 1034610528146,
+        "mapping_size": 3018752,
+        "private_resident": 241664,
+        "name": "[anonymous]"
+      },
+      {
+        "role": "server",
+        "timestamp_ns": 1044631091770,
+        "mapping_size": 3018752,
+        "private_resident": 270336,
+        "name": "[anonymous]"
+      },
+      {
+        "role": "server",
+        "timestamp_ns": 1054653302709,
+        "mapping_size": 3018752,
+        "private_resident": 274432,
+        "name": "[anonymous]"
+      }
+    ],
+    "mapping_sizes": [
+      3018752
+    ],
+    "private_delta": 53248,
+    "maximum_private": 274432
+  },
+  {
+    "repeat": "mappings-r1",
+    "pid": 76,
+    "allocated_bytes": 3014656,
+    "snapshots": [
+      {
+        "role": "nbsr",
+        "timestamp_ns": 1024589635138,
+        "mapping_size": 3026944,
+        "private_resident": 98304,
+        "name": "[anonymous]"
+      },
+      {
+        "role": "nbsr",
+        "timestamp_ns": 1034611291623,
+        "mapping_size": 3026944,
+        "private_resident": 106496,
+        "name": "[anonymous]"
+      },
+      {
+        "role": "nbsr",
+        "timestamp_ns": 1044631849293,
+        "mapping_size": 3026944,
+        "private_resident": 184320,
+        "name": "[anonymous]"
+      },
+      {
+        "role": "nbsr",
+        "timestamp_ns": 1054654010528,
+        "mapping_size": 3026944,
+        "private_resident": 184320,
+        "name": "[anonymous]"
+      }
+    ],
+    "mapping_sizes": [
+      3026944
+    ],
+    "private_delta": 86016,
+    "maximum_private": 184320
+  },
+  {
+    "repeat": "mappings-r2",
+    "pid": 133,
+    "allocated_bytes": 3014656,
+    "snapshots": [
+      {
+        "role": "server",
+        "timestamp_ns": 1069293460658,
+        "mapping_size": 3018752,
+        "private_resident": 208896,
+        "name": "[anonymous]"
+      },
+      {
+        "role": "server",
+        "timestamp_ns": 1079314430868,
+        "mapping_size": 3018752,
+        "private_resident": 212992,
+        "name": "[anonymous]"
+      },
+      {
+        "role": "server",
+        "timestamp_ns": 1089335446732,
+        "mapping_size": 3018752,
+        "private_resident": 217088,
+        "name": "[anonymous]"
+      },
+      {
+        "role": "server",
+        "timestamp_ns": 1099356260761,
+        "mapping_size": 3018752,
+        "private_resident": 217088,
+        "name": "[anonymous]"
+      },
+      {
+        "role": "server",
+        "timestamp_ns": 1109377836768,
+        "mapping_size": 3018752,
+        "private_resident": 233472,
+        "name": "[anonymous]"
+      },
+      {
+        "role": "server",
+        "timestamp_ns": 1119398923154,
+        "mapping_size": 3018752,
+        "private_resident": 233472,
+        "name": "[anonymous]"
+      },
+      {
+        "role": "server",
+        "timestamp_ns": 1129418891180,
+        "mapping_size": 3018752,
+        "private_resident": 237568,
+        "name": "[anonymous]"
+      },
+      {
+        "role": "server",
+        "timestamp_ns": 1139442235191,
+        "mapping_size": 3018752,
+        "private_resident": 262144,
+        "name": "[anonymous]"
+      },
+      {
+        "role": "server",
+        "timestamp_ns": 1149462870852,
+        "mapping_size": 3018752,
+        "private_resident": 262144,
+        "name": "[anonymous]"
+      }
+    ],
+    "mapping_sizes": [
+      3018752
+    ],
+    "private_delta": 53248,
+    "maximum_private": 262144
+  },
+  {
+    "repeat": "mappings-r2",
+    "pid": 134,
+    "allocated_bytes": 3014656,
+    "snapshots": [
+      {
+        "role": "nbsr",
+        "timestamp_ns": 1069294262986,
+        "mapping_size": 3026944,
+        "private_resident": 106496,
+        "name": "[anonymous]"
+      },
+      {
+        "role": "nbsr",
+        "timestamp_ns": 1079315191385,
+        "mapping_size": 3026944,
+        "private_resident": 110592,
+        "name": "[anonymous]"
+      },
+      {
+        "role": "nbsr",
+        "timestamp_ns": 1089336280460,
+        "mapping_size": 3026944,
+        "private_resident": 118784,
+        "name": "[anonymous]"
+      },
+      {
+        "role": "nbsr",
+        "timestamp_ns": 1099357077787,
+        "mapping_size": 3026944,
+        "private_resident": 118784,
+        "name": "[anonymous]"
+      },
+      {
+        "role": "nbsr",
+        "timestamp_ns": 1109378536652,
+        "mapping_size": 3026944,
+        "private_resident": 118784,
+        "name": "[anonymous]"
+      },
+      {
+        "role": "nbsr",
+        "timestamp_ns": 1119399646865,
+        "mapping_size": 3026944,
+        "private_resident": 118784,
+        "name": "[anonymous]"
+      },
+      {
+        "role": "nbsr",
+        "timestamp_ns": 1129419633615,
+        "mapping_size": 3026944,
+        "private_resident": 122880,
+        "name": "[anonymous]"
+      },
+      {
+        "role": "nbsr",
+        "timestamp_ns": 1139442958120,
+        "mapping_size": 3026944,
+        "private_resident": 167936,
+        "name": "[anonymous]"
+      },
+      {
+        "role": "nbsr",
+        "timestamp_ns": 1149463589283,
+        "mapping_size": 3026944,
+        "private_resident": 167936,
+        "name": "[anonymous]"
+      }
+    ],
+    "mapping_sizes": [
+      3026944
+    ],
+    "private_delta": 61440,
+    "maximum_private": 167936
+  },
+  {
+    "repeat": "mappings-r3",
+    "pid": 191,
+    "allocated_bytes": 3014656,
+    "snapshots": [
+      {
+        "role": "server",
+        "timestamp_ns": 1163806064340,
+        "mapping_size": 3018752,
+        "private_resident": 204800,
+        "name": "[anonymous]"
+      },
+      {
+        "role": "server",
+        "timestamp_ns": 1173827679713,
+        "mapping_size": 3018752,
+        "private_resident": 212992,
+        "name": "[anonymous]"
+      },
+      {
+        "role": "server",
+        "timestamp_ns": 1183849177075,
+        "mapping_size": 3018752,
+        "private_resident": 241664,
+        "name": "[anonymous]"
+      }
+    ],
+    "mapping_sizes": [
+      3018752
+    ],
+    "private_delta": 36864,
+    "maximum_private": 241664
+  },
+  {
+    "repeat": "mappings-r3",
+    "pid": 192,
+    "allocated_bytes": 3014656,
+    "snapshots": [
+      {
+        "role": "nbsr",
+        "timestamp_ns": 1163806806972,
+        "mapping_size": 3026944,
+        "private_resident": 106496,
+        "name": "[anonymous]"
+      },
+      {
+        "role": "nbsr",
+        "timestamp_ns": 1173828515650,
+        "mapping_size": 3026944,
+        "private_resident": 106496,
+        "name": "[anonymous]"
+      },
+      {
+        "role": "nbsr",
+        "timestamp_ns": 1183849902512,
+        "mapping_size": 3026944,
+        "private_resident": 192512,
+        "name": "[anonymous]"
+      }
+    ],
+    "mapping_sizes": [
+      3026944
+    ],
+    "private_delta": 86016,
+    "maximum_private": 192512
+  }
+]

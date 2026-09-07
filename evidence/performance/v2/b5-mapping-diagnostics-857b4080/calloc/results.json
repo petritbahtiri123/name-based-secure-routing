@@ -1,0 +1,17 @@
+[
+  {
+    "repeat": 1,
+    "exit_code": 1,
+    "classification": "DIAGNOSTIC_ONLY_OBSERVER_UNQUALIFIED"
+  },
+  {
+    "repeat": 2,
+    "exit_code": 1,
+    "classification": "DIAGNOSTIC_ONLY_OBSERVER_UNQUALIFIED"
+  },
+  {
+    "repeat": 3,
+    "exit_code": 1,
+    "classification": "DIAGNOSTIC_ONLY_OBSERVER_UNQUALIFIED"
+  }
+]

@@ -1,0 +1,110 @@
+[
+  {
+    "file": "mappings-r1-mappings.ndjson",
+    "error": "B5 stream failed: live p99 drift",
+    "valid": false,
+    "roles": {
+      "server": {
+        "snapshots": 4,
+        "elapsed_s": 30.064415298,
+        "max_capture_ns": 678646,
+        "changes": {
+          "[anonymous]": {
+            "first": 258048,
+            "last": 311296,
+            "delta": 53248
+          }
+        }
+      },
+      "nbsr": {
+        "snapshots": 4,
+        "elapsed_s": 30.06437539,
+        "max_capture_ns": 897409,
+        "changes": {
+          "[anonymous]": {
+            "first": 573440,
+            "last": 663552,
+            "delta": 90112
+          },
+          "[heap]": {
+            "first": 712704,
+            "last": 716800,
+            "delta": 4096
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "mappings-r2-mappings.ndjson",
+    "error": "B5 stream failed: live private growth: destination_0 (receive-clock diagnostic)",
+    "valid": false,
+    "roles": {
+      "server": {
+        "snapshots": 9,
+        "elapsed_s": 80.169410194,
+        "max_capture_ns": 745925,
+        "changes": {
+          "[anonymous]": {
+            "first": 245760,
+            "last": 299008,
+            "delta": 53248
+          },
+          "[heap]": {
+            "first": 602112,
+            "last": 614400,
+            "delta": 12288
+          }
+        }
+      },
+      "nbsr": {
+        "snapshots": 9,
+        "elapsed_s": 80.169326297,
+        "max_capture_ns": 819826,
+        "changes": {
+          "[anonymous]": {
+            "first": 581632,
+            "last": 651264,
+            "delta": 69632
+          }
+        }
+      }
+    }
+  },
+  {
+    "file": "mappings-r3-mappings.ndjson",
+    "error": "B5 stream failed: live p99 drift",
+    "valid": false,
+    "roles": {
+      "server": {
+        "snapshots": 3,
+        "elapsed_s": 20.043112735,
+        "max_capture_ns": 748133,
+        "changes": {
+          "[anonymous]": {
+            "first": 241664,
+            "last": 278528,
+            "delta": 36864
+          }
+        }
+      },
+      "nbsr": {
+        "snapshots": 3,
+        "elapsed_s": 20.04309554,
+        "max_capture_ns": 879945,
+        "changes": {
+          "[anonymous]": {
+            "first": 581632,
+            "last": 667648,
+            "delta": 86016
+          },
+          "[heap]": {
+            "first": 724992,
+            "last": 733184,
+            "delta": 8192
+          }
+        }
+      }
+    }
+  }
+]

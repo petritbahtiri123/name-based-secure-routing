@@ -1,0 +1,96 @@
+[
+  {
+    "achieved_offered_ratio": 0.9799902519905397,
+    "affinity": [
+      {
+        "linux_affinity": [
+          0
+        ],
+        "observed_mask": 1,
+        "requested_mask": 1,
+        "start_ticks": 49716,
+        "verified": true
+      },
+      {
+        "linux_affinity": [
+          0
+        ],
+        "observed_mask": 1,
+        "requested_mask": 1,
+        "start_ticks": 49718,
+        "verified": true
+      }
+    ],
+    "classification": "DIAGNOSTIC",
+    "cleanup_scope": "11-counter reports and all process joins",
+    "continuous_ownership": {
+      "classification": "NOT_MEASURED"
+    },
+    "final": {
+      "all_groups_joined": true,
+      "collector_overflow_count": 0,
+      "completed": 9156486,
+      "drain_duration_ns": 467312,
+      "errors": 0,
+      "evidence_valid": true,
+      "group_counters": [
+        {
+          "completed": 9156486,
+          "group_id": 0,
+          "issued": 9156486,
+          "missed": 186960,
+          "offered": 9343446,
+          "reserved": 9156486,
+          "unreserved_current": 0
+        }
+      ],
+      "groups": 1,
+      "issued": 9156486,
+      "max_outstanding_observed": 32,
+      "measurement_duration_ns": 120000000000,
+      "missed": 186960,
+      "offered": 9343446,
+      "outstanding_per_stream": 1,
+      "payload_bytes": 1024,
+      "reserved": 9156486,
+      "schema": "nbsr-b5-grouped-final-v1",
+      "source_cleanup": {
+        "status": "SEPARATE_REPORT_REQUIRED"
+      },
+      "streams_per_group": 32,
+      "timeouts": 0,
+      "unreserved_current": 0
+    },
+    "gbps": 1.2501606867409096,
+    "internal_failure_thread_join": "NOT_MEASURED",
+    "ownership_reports": [
+      {
+        "all_11_zero": true,
+        "file": "d0.cleanup.json",
+        "pid": 133,
+        "role": "destination"
+      },
+      {
+        "all_11_zero": true,
+        "file": "source.cleanup.json",
+        "pid": 134,
+        "role": "source"
+      }
+    ],
+    "path": "nbsr",
+    "qualification": {
+      "latency_comparison_available": true,
+      "resource_memory_metric": "private_resident_bytes",
+      "resource_phase_clock": "first-progress receive time minus elapsed; approximate, excludes earlier samples",
+      "resource_phase_origin_monotonic_ns": 500196157284,
+      "resource_sample_clock": "timestamp_ns",
+      "resource_series_available": true,
+      "steady_windows": 11,
+      "thermal_and_power": "NOT_MEASURED"
+    },
+    "raw_directory": "raw/nbsr-r1",
+    "scope": "Linux loopback shared physical-core pool; observer qualification pending",
+    "valid": true,
+    "window_p99_median_ns": 708333
+  }
+]

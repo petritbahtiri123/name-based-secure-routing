@@ -1,0 +1,17 @@
+[
+  {
+    "root": "C:\\NBSR-build\\linux-b5-smaps-857b4080",
+    "files": 139,
+    "index_sha256": "90ed21ece14996a6b6da8857612df39e034083a169ee89d15859296fb6ab4b80"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-b5-calloc-857b4080",
+    "files": 147,
+    "index_sha256": "0583c14a45c049c06aa24e6b986f97efd9158ce67cadbe57c9910c06da058197"
+  },
+  {
+    "root": "C:\\NBSR-build\\b5-windows-verification-857b4080",
+    "files": 1,
+    "index_sha256": "dc18e8e0574f9994eb0d8bca9aa6f7b6cad0c6a01cfaae804d241f35fc2c619e"
+  }
+]

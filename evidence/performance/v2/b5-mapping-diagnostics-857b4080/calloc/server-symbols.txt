@@ -1,0 +1,10 @@
+<quinn::endpoint::Endpoint>::new_with_abstract_socket
+??:?
+<quinn::endpoint::Endpoint>::new
+??:?
+<nbsr_transport::quinn_adapter::TransportListener>::bind
+??:?
+wp8_interop_server::run::{closure#0}
+wp8_interop_server.acde6718b0621238-cgu.00:?
+wp8_interop_server::main::{closure#0}
+wp8_interop_server.acde6718b0621238-cgu.00:?
