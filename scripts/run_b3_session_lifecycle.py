@@ -192,6 +192,11 @@ def capture_final_cooldown(resources, server, clients, lifecycle, *, cycle, seco
     if report_gate:
         wait_paths([lifecycle / "destination.report-ready"], [server], 120)
     if allow_exited_sources:
+        # Bundle sources have no final-release gate and may be exiting here.
+        # Move their existing join before cooldown instead of racing /proc.
+        for client in clients:
+            if client.wait(timeout=30) != 0:
+                raise RuntimeError('bundle source failed before final cooldown')
         capture_backend.capture(resources, server, clients, phase="cooldown", cycle=cycle,
                                 seconds=seconds, cadence=cadence, allow_exited_sources=True)
     else:
@@ -312,7 +317,8 @@ def run_cell(path: str, spec: dict[str, int | str], binaries: dict[str, Path], r
                 (lifecycle / "source.final-release").write_text("release\n", encoding="ascii")
             outputs = []
             for index, client in enumerate(clients):
-                client.wait(timeout=30)
+                if capture_backend is None or sessions <= 1:
+                    client.wait(timeout=30)
                 if client.returncode:
                     raise RuntimeError((cell_dir / f"source-{index}.stderr").read_text())
                 stdout = (cell_dir / f"source-{index}.stdout").read_text()

@@ -87,14 +87,15 @@ def test_expected_bundle_exit_only_final_after_report_ready(tmp_path, monkeypatc
 
     class Capture:
         def capture(self, *args, **kwargs):
-            assert events == ['ready']
+            assert events == ['ready', ('joined', 30)]
             assert kwargs['allow_exited_sources'] is True
             events.append('captured')
 
-    b3.capture_final_cooldown([], process(1), [process(2)], tmp_path,
+    source = SimpleNamespace(pid=2, wait=lambda timeout: events.append(('joined', timeout)) or 0)
+    b3.capture_final_cooldown([], process(1), [source], tmp_path,
         cycle=0, seconds=2, cadence=.5, report_gate=True, capture_backend=Capture(),
         allow_exited_sources=True)
-    assert events == ['ready', 'captured']
+    assert events == ['ready', ('joined', 30), 'captured']
     assert (tmp_path / 'destination.report-release').exists()
 
 
@@ -116,6 +117,28 @@ def test_expected_exited_source_is_unavailable_not_zero():
     assert row['private_resident_bytes'] is None and row['cpu_ns'] is None
     assert row['processes'][0]['start_ticks'] == 20
     assert row['processes'][0]['exit_code'] == 0
+
+
+@pytest.mark.parametrize('timed_out', [False, True])
+def test_failed_bundle_join_cannot_release_destination(tmp_path, monkeypatch, timed_out):
+    import subprocess
+    monkeypatch.setattr(b3, 'wait_paths', lambda *args: None)
+
+    def join(timeout):
+        assert timeout == 30
+        if timed_out:
+            raise subprocess.TimeoutExpired('source', timeout)
+        return 1
+
+    class Capture:
+        def capture(self, *args, **kwargs):
+            pytest.fail('must not sample after failed source join')
+
+    with pytest.raises(subprocess.TimeoutExpired if timed_out else RuntimeError):
+        b3.capture_final_cooldown([], process(1), [SimpleNamespace(wait=join)], tmp_path,
+            cycle=0, seconds=2, cadence=.5, report_gate=True, capture_backend=Capture(),
+            allow_exited_sources=True)
+    assert not (tmp_path / 'destination.report-release').exists()
 
 
 @pytest.mark.parametrize('phase,code', [('active', 0), ('cooldown', 1)])
