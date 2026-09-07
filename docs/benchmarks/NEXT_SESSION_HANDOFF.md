@@ -1,5 +1,17 @@
 # NBSR campaign continuation checkpoint
 
+## Additional budget review, 2026-09-07
+
+User authorized three additional weekly percentage points from 37% (limit 40%).
+The focused retained-evidence review reached 38% at its last usage check.
+See VERIFIED_IMPROVEMENTS_2026-09-07.md for actual benefits and remaining gaps.
+Three completed 50-cycle endpoint-footprint CVs are below 5%, but destination
+growth varies materially; no bounded-memory or long-soak closure is established.
+The 1024 failure also contains application-accept failures; ACK timeout alone
+is not causal attribution. No additional benchmark or production change was
+made in this review. Campaign remains PARTIAL. The earlier budget stop below
+is historical; do not mistake this review for completion of remaining engineering.
+
 ## Budget stop, 2026-09-07
 
 STOPPED at weekly37% used, baseline21%: approximately16 percentage points.
