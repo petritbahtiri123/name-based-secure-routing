@@ -715,7 +715,7 @@ async fn run_lifecycle(
                 }
             }
             #[cfg(feature = "benchmark-harness")]
-            let b3_prepared_ns = materialized_streams.then(|| total_cold.elapsed().as_nanos());
+            let b3_prepared_ns = hold_for_release.then(|| total_cold.elapsed().as_nanos());
             if hold_for_release {
                 let ordinal = connection_offset + connection_ordinal;
                 b3_support::wait_for_lifecycle_release(
@@ -727,12 +727,12 @@ async fn run_lifecycle(
                 .unwrap();
             }
             #[cfg(feature = "benchmark-harness")]
-            let b3_released_ns = materialized_streams.then(|| total_cold.elapsed().as_nanos());
+            let b3_released_ns = hold_for_release.then(|| total_cold.elapsed().as_nanos());
             concurrent_barrier.wait().await;
             let mut request_latencies = vec![0_u128; (services * streams_per_service) as usize];
             while let Some(joined) = concurrent_tasks.join_next().await {
                 #[cfg(feature = "benchmark-harness")]
-                if joined.is_err() && materialized_streams {
+                if joined.is_err() && hold_for_release {
                     eprintln!(
                         "{{\"schema\":\"nbsr-b3-close-diagnostic-v1\",\"role\":\"source\",\"logical_client_id\":{},\"clock_origin\":\"connection_attempt\",\"prepared_elapsed_ns\":{},\"released_elapsed_ns\":{},\"failed_elapsed_ns\":{},\"close_reason\":\"{}\"}}",
                         connection_offset + connection_ordinal,
