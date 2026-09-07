@@ -1,5 +1,13 @@
 # NBSR campaign continuation checkpoint
 
+## Extra two-point diagnostic
+
+At `bc9e0437`, user authorized the remaining 38–40% budget. See
+B3_1024_RETAINED_FAILURE.md: 233 failed early client IDs, 791 successful
+application rows; idle-expiry hypothesis is supported but not proven. ACK-file
+timeout is downstream of application failures, not wire ACK attribution.
+Retained-input analysis only; no new benchmark or production modification.
+
 ## Additional budget review, 2026-09-07
 
 User authorized three additional weekly percentage points from 37% (limit 40%).
