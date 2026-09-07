@@ -733,14 +733,18 @@ async fn run_lifecycle(
             while let Some(joined) = concurrent_tasks.join_next().await {
                 #[cfg(feature = "benchmark-harness")]
                 if joined.is_err() && hold_for_release {
-                    eprintln!(
-                        "{{\"schema\":\"nbsr-b3-close-diagnostic-v1\",\"role\":\"source\",\"logical_client_id\":{},\"clock_origin\":\"connection_attempt\",\"prepared_elapsed_ns\":{},\"released_elapsed_ns\":{},\"failed_elapsed_ns\":{},\"close_reason\":\"{}\"}}",
+                    let diagnostic = format!(
+                        "{{\"schema\":\"nbsr-b3-close-diagnostic-v1\",\"role\":\"source\",\"logical_client_id\":{},\"clock_origin\":\"connection_attempt\",\"prepared_elapsed_ns\":{},\"released_elapsed_ns\":{},\"failed_elapsed_ns\":{},\"close_reason\":\"{}\"}}\n",
                         connection_offset + connection_ordinal,
                         b3_prepared_ns.unwrap(),
                         b3_released_ns.unwrap(),
                         total_cold.elapsed().as_nanos(),
                         connection.benchmark_close_reason_category()
                     );
+                    // Build the whole line before writing: panic output from sibling
+                    // tasks can otherwise split a formatted diagnostic between fields.
+                    std::io::Write::write_all(&mut std::io::stderr().lock(), diagnostic.as_bytes())
+                        .expect("B3 failure diagnostic write");
                 }
                 let (stream_ordinal, request_ns) = joined.unwrap();
                 request_latencies[stream_ordinal as usize] = request_ns;
