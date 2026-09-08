@@ -1,0 +1,10 @@
+{
+  "before_free_bytes": 2979553280,
+  "after_free_bytes": 3992719360,
+  "targets": [
+    "C:/NBSR-build/task4d-target",
+    "C:/NBSR-build/security-campaign/cargo-target",
+    "C:/NBSR-build/b4b-mixed/cargo-target"
+  ],
+  "reason": "Verified pure reproducible Cargo outputs; no authoritative raw evidence roots; retained source and binaries in sealed evidence"
+}

@@ -11,12 +11,14 @@ def test_repository_inventory_separates_production_demo_and_independent_peer() -
     assert result["go_modules"] == [
         "client/nbsr-go-client/demo/go.mod",
         "client/nbsr-go-client/go.mod",
+        "deploy/isp-federation-poc/adapter/go.mod",
         "interop/nbsr-go-peer/go.mod",
         "verifiers/federation-go/go.mod",
     ]
     assert "client/nbsr-go-client/streamclient/streamclient.go" in result["production_go_files"]
     assert "client/nbsr-go-client/demo/cmd/nbsr-demo-client/main.go" in result["production_go_files"]
     assert not any(path.startswith("interop/") for path in result["production_go_files"])
+    assert not any(path.startswith("deploy/isp-federation-poc/") for path in result["production_go_files"])
     assert result["wire_capable_go_owner"] == "interop_test_peer_only"
 
 

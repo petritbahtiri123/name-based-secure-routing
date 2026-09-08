@@ -18,7 +18,12 @@ def evaluate_repository(root: Path) -> dict[str, object]:
     root = root.resolve()
     go_modules = _relative_files(root, "go.mod")
     go_files = [Path(path) for path in _relative_files(root, "*.go")]
-    production_go_files = sorted(path.as_posix() for path in go_files if path.parts[0] not in _NON_PRODUCTION_GO_ROOTS)
+    production_go_files = sorted(
+        path.as_posix()
+        for path in go_files
+        if path.parts[0] not in _NON_PRODUCTION_GO_ROOTS
+        and path.parts[:2] != ("deploy", "isp-federation-poc")
+    )
 
     peer_main_path = root / "interop/nbsr-go-peer/cmd/nbsr-go-peer/main.go"
     peer_transport_path = root / "interop/nbsr-go-peer/internal/transport/quic.go"

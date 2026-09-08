@@ -1,0 +1,125 @@
+{
+  "source_sha": "40d109a8557d8e9c0d0a47a83195a1c944fc4f9f",
+  "classification": "PASS_SCOPED_HASH_GIT_BLOB_SECRET_MARKERS",
+  "roots": [
+    {
+      "root": "evidence/performance/v2/b3-1024-retained-analysis",
+      "index_sha256": "f13d7c784a616f387197a63a61d26e1ebcfd76e2eeecbadb57c7190e15107369",
+      "canonical_indexed": 1,
+      "canonical_git_and_privacy_checked": 3,
+      "raw_files_verified": 0
+    },
+    {
+      "root": "evidence/performance/v2/b3-idle-attribution-befccf5f",
+      "index_sha256": "60d594fb86cd84667bea85139c58d684b9dbc75f29177dabaf0048db57c19fb5",
+      "canonical_indexed": 17,
+      "canonical_git_and_privacy_checked": 18,
+      "raw_files_verified": 244
+    },
+    {
+      "root": "evidence/performance/v2/b3-live-bundles-40b277fb",
+      "index_sha256": "5529d6282e64e083d16c22add34236fcda2fc4cb8d45e68b7a23757a06fb99e1",
+      "canonical_indexed": 27,
+      "canonical_git_and_privacy_checked": 28,
+      "raw_files_verified": 8372
+    },
+    {
+      "root": "evidence/performance/v2/b3-source-preflight-1c16b03d",
+      "index_sha256": "55129a53a19655517f188465776c66a6a7a050fdb7042764736116d905034354",
+      "canonical_indexed": 5,
+      "canonical_git_and_privacy_checked": 6,
+      "raw_files_verified": 4
+    },
+    {
+      "root": "evidence/performance/v2/b5-host-requalification-09a669a3",
+      "index_sha256": "4ff4a2b2879ffc95f9ba65794042741f5ed98ea4e918411e7d8eba0348076254",
+      "canonical_indexed": 13,
+      "canonical_git_and_privacy_checked": 14,
+      "raw_files_verified": 609
+    },
+    {
+      "root": "evidence/performance/v2/b5-mapping-diagnostics-857b4080",
+      "index_sha256": "49b0759f6f7b983e55c416705a72551bb30ebb6aef18e7d862ed17a521c4b00b",
+      "canonical_indexed": 26,
+      "canonical_git_and_privacy_checked": 27,
+      "raw_files_verified": 287
+    },
+    {
+      "root": "evidence/performance/v2/b5-pretouch-857b4080",
+      "index_sha256": "1c5ec22a20e0460e59b178c305a5fae921b705c148b3f057a834802b658c2783",
+      "canonical_indexed": 17,
+      "canonical_git_and_privacy_checked": 18,
+      "raw_files_verified": 75
+    },
+    {
+      "root": "evidence/performance/v2/b5-sample-residency-8779e69c",
+      "index_sha256": "d66917e3035433027dc95696a4cdea066a41c9bd4fd4c9aa555e3752d9b58f38",
+      "canonical_indexed": 14,
+      "canonical_git_and_privacy_checked": 15,
+      "raw_files_verified": 50
+    },
+    {
+      "root": "evidence/performance/v2/descendant-cancellation-9f61f79f",
+      "index_sha256": "656ee5217248c8677bf8de6a5349558bb8615362b5e0542957c893eb435bee08",
+      "canonical_indexed": 14,
+      "canonical_git_and_privacy_checked": 15,
+      "raw_files_verified": 27
+    },
+    {
+      "root": "evidence/performance/v2/linux-b3-continuation-d0792699",
+      "index_sha256": "0223ab996a421cbd9dce8d57ff30f1e1b9506276bd0733dac33e0c120a51d659",
+      "canonical_indexed": 18,
+      "canonical_git_and_privacy_checked": 19,
+      "raw_files_verified": 980
+    },
+    {
+      "root": "evidence/performance/v2/linux-fd-exiting-c6c7e925",
+      "index_sha256": "06653accc18e22702a991f43d12b91a01fb7f2afa03152a0f4a8442f8f913862",
+      "canonical_indexed": 5,
+      "canonical_git_and_privacy_checked": 6,
+      "raw_files_verified": 7
+    },
+    {
+      "root": "evidence/performance/v2/linux-fd-transition-ad86ab24",
+      "index_sha256": "42e223f2accee82b1696f929262962fd9d1f3dfedef0e8c6f50e7f8d9e12c580",
+      "canonical_indexed": 9,
+      "canonical_git_and_privacy_checked": 10,
+      "raw_files_verified": 255
+    },
+    {
+      "root": "evidence/performance/v2/linux-followup-2a30272e",
+      "index_sha256": "4057fe913c2f1cd248ad8ca02c19a37058d85f51b236278294e9ea8b892b0f2a",
+      "canonical_indexed": 6,
+      "canonical_git_and_privacy_checked": 7,
+      "raw_files_verified": 3608
+    },
+    {
+      "root": "evidence/performance/v2/linux-reference-8779e69c",
+      "index_sha256": "90851ec28444098210265845e64636501c7fa3a10add8e80450116fa26e91ba9",
+      "canonical_indexed": 12,
+      "canonical_git_and_privacy_checked": 13,
+      "raw_files_verified": 266
+    },
+    {
+      "root": "evidence/performance/v2/linux-requalification-40b277fb",
+      "index_sha256": "dc90dab983bb4c1ab578712f73fe806639cfeddb8aa32a8d60ce535e9103e1bb",
+      "canonical_indexed": 16,
+      "canonical_git_and_privacy_checked": 17,
+      "raw_files_verified": 4024
+    },
+    {
+      "root": "evidence/performance/v2/linux-resource-scale-0124f8ad",
+      "index_sha256": "ca18b36972622385359f46cef65a5e72661031b68ef422fa2b89e40249b5e5c8",
+      "canonical_indexed": 14,
+      "canonical_git_and_privacy_checked": 15,
+      "raw_files_verified": 20966
+    },
+    {
+      "root": "evidence/performance/v2/windows-requalification-07096c08",
+      "index_sha256": "beaa307f32f138edc69b091a138b799b21956850557387f63be086b2b30c1825",
+      "canonical_indexed": 12,
+      "canonical_git_and_privacy_checked": 13,
+      "raw_files_verified": 303
+    }
+  ]
+}
