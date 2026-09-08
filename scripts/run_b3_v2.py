@@ -5,6 +5,7 @@ import argparse
 import hashlib
 import json
 import math
+import os
 from pathlib import Path
 import re
 import shutil
@@ -119,6 +120,7 @@ def execute(args):
                 "live_resource_proof": "all named .active markers observed before active sampling and before any release"}
     if linux:
         metadata.update(platform='linux', linux_environment=linux, build_manifest=build,
+                        benchmark_udp_receive_buffer_request=os.environ.get('NBSR_BENCH_UDP_RECEIVE_BUFFER_BYTES'),
                         scope=linux['scope'],
                         memory_scope='Linux smaps private resident/RSS/PSS/separate hugetlb, FD/thread counts; no Windows commit/handle aliases',
                         binary_source_sha=build['source_sha'],
@@ -132,6 +134,7 @@ def execute(args):
     (args.output / "source.patch").write_bytes(subprocess.check_output(["git", "diff", "--binary"]))
     sources = ["scripts/run_b3_v2.py", "scripts/run_b3_session_lifecycle.py",
                    "crates/nbsr-transport/src/config.rs",
+                   "crates/nbsr-transport/src/udp_socket.rs",
                    "crates/nbsr-transport/src/bin/perf_rust_source.rs",
                    "crates/nbsr-transport/src/bin/wp8_interop_server.rs",
                    "crates/nbsr-transport/src/bin/b3_support/mod.rs"]

@@ -38,8 +38,13 @@ def test_linux_manifest_cannot_omit_build_metadata(tmp_path):
 
 
 @pytest.mark.parametrize('platform_name', ['windows', 'linux'])
-def test_linux_executes_verified_original_windows_keeps_retained(tmp_path, monkeypatch, platform_name):
+@pytest.mark.parametrize('buffer_request', [None, '1048576'])
+def test_linux_executes_verified_original_windows_keeps_retained(tmp_path, monkeypatch, platform_name, buffer_request):
     from scripts.performance import b3_linux
+    if buffer_request is None:
+        monkeypatch.delenv('NBSR_BENCH_UDP_RECEIVE_BUFFER_BYTES', raising=False)
+    else:
+        monkeypatch.setenv('NBSR_BENCH_UDP_RECEIVE_BUFFER_BYTES', buffer_request)
     target = tmp_path / 'target'
     (target / 'release').mkdir(parents=True)
     binaries = {}
@@ -66,6 +71,11 @@ def test_linux_executes_verified_original_windows_keeps_retained(tmp_path, monke
     runner.execute(SimpleNamespace(platform=platform_name, cores=1, axis='streams', counts=[8],
         repeats=1, materialized_streams=True, fixed_channels=8, target=target,
         output=output, build_manifest=manifest))
+    metadata = json.loads((output / 'environment.json').read_text())
+    if platform_name == 'linux':
+        assert metadata['benchmark_udp_receive_buffer_request'] == buffer_request
+    else:
+        assert 'benchmark_udp_receive_buffer_request' not in metadata
 
 
 @pytest.mark.parametrize('changed', ['original', 'retained'])
