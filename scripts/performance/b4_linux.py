@@ -6,7 +6,25 @@ import subprocess
 import time
 import traceback
 
+from scripts.performance.linux_loopback import sample_process
 from scripts.performance.linux_resources import sample_linux_process
+
+
+def sample_b4_process(pid, cpus):
+    """Failure-only exit observation; the B4 owner must confirm child completion."""
+    try:
+        return sample_linux_process(pid, cpus)
+    except PermissionError:
+        partial = sample_process(pid, cpus, allow_exiting=True)
+        if partial['state'] == 'Z':
+            state = 'UNAVAILABLE_ZOMBIE'
+        elif partial['flags'] & 4 and partial['fd_count_state'] == 'UNAVAILABLE_EXITING':
+            state = 'UNAVAILABLE_EXITING'
+        else:
+            raise
+        return {**partial, **dict.fromkeys(('rss_bytes', 'pss_bytes',
+                    'private_resident_bytes', 'private_hugetlb_bytes')),
+                'memory_basis': 'linux_smaps_rollup', 'memory_state': state}
 
 
 def failure_details(error):
@@ -45,7 +63,7 @@ def sample_host():
 
 
 class LinuxB4Backend:
-    def __init__(self, cpus, taskset, *, sample_fn=sample_linux_process, host_fn=sample_host, max_records=10000,
+    def __init__(self, cpus, taskset, *, sample_fn=sample_b4_process, host_fn=sample_host, max_records=10000,
                  verify_execution=None):
         if (not cpus or len(set(cpus)) != len(cpus) or any(type(v) is not int or v < 0 for v in cpus)
                 or not taskset or type(max_records) is not int or max_records < 1):
@@ -55,6 +73,7 @@ class LinuxB4Backend:
         self.previous, self.host, self.round = {}, [], 0
         self.verify_execution = verify_execution
         self.capture_valid = True
+        self.exiting = {}
 
     def command(self, argv):
         return [self.taskset, '-c', ','.join(map(str, self.cpus)), *argv]
@@ -73,7 +92,7 @@ class LinuxB4Backend:
                     raise
                 continue
             if (row.get('pid') != process.pid or row.get('affinity') != self.cpus
-                    or row.get('memory_state') not in ('MEASURED', 'UNAVAILABLE_ZOMBIE')):
+                    or row.get('memory_state') not in ('MEASURED', 'UNAVAILABLE_ZOMBIE', 'UNAVAILABLE_EXITING')):
                 raise RuntimeError('Linux B4 identity/affinity/memory unavailable')
             for field in ('start_ticks', 'cpu_ns', 'timestamp_ns'):
                 if type(row.get(field)) is not int or row[field] < 0:
@@ -88,6 +107,15 @@ class LinuxB4Backend:
             now = (process.pid, row['start_ticks'], row['cpu_ns'], row['timestamp_ns'])
             if prior and (now[:2] != prior[:2] or now[2] < prior[2] or now[3] <= prior[3]):
                 raise RuntimeError('Linux B4 process continuity failed')
+            if row['memory_state'] == 'UNAVAILABLE_EXITING':
+                if (prior is None or type(row.get('flags')) is not int or not row['flags'] & 4
+                        or row.get('fd_count_state') != 'UNAVAILABLE_EXITING'
+                        or any(row.get(key, 'missing') is not None for key in (
+                            'fd_count', 'rss_bytes', 'pss_bytes', 'private_resident_bytes', 'private_hugetlb_bytes'))):
+                    raise RuntimeError('unverified Linux B4 exit transition')
+                self.exiting[role] = process
+            elif role in self.exiting and row['memory_state'] != 'UNAVAILABLE_ZOMBIE':
+                raise RuntimeError('Linux B4 exiting process returned live')
             self.previous[role] = now
             samples.append({**row, 'role': role, 'sample_round': self.round, 'platform': 'linux'})
         if not self.host or time.monotonic_ns() - self.host[-1]['timestamp_ns'] >= 1_000_000_000:
@@ -109,6 +137,14 @@ class LinuxB4Backend:
     def summarize(self, samples):
         if not samples:
             raise RuntimeError('Linux B4 resources missing')
+        transitions = {}
+        for role, process in self.exiting.items():
+            code = process.poll()
+            if process.pid != self.previous[role][0] or code is None:
+                raise RuntimeError('Linux B4 exit transition not confirmed')
+            transitions[role] = dict(pid=process.pid, start_ticks=self.previous[role][1],
+                                     confirmed_exit_code=code,
+                                     scope='owned Popen completion; partial sample is not final CPU/memory')
         roles = {r['role'] for r in samples}
         cpu = 0
         for role in roles:
@@ -119,7 +155,7 @@ class LinuxB4Backend:
         fields = ('rss_bytes', 'pss_bytes', 'private_resident_bytes', 'private_hugetlb_bytes', 'fd_count')
         rounds = [[r for r in samples if r['sample_round'] == n and r['memory_state'] == 'MEASURED']
                   for n in sorted({r['sample_round'] for r in samples})]
-        return {'cpu_seconds': cpu / 1e9, 'cpu_scope': 'sampled process intervals; terminal fragments may be missing',
+        return {'exit_transitions': transitions, 'cpu_seconds': cpu / 1e9, 'cpu_scope': 'sampled process intervals; terminal fragments may be missing',
                 'memory_basis': 'linux_smaps_rollup; sequential samples in each round, not atomic peaks',
                 **{'peak_' + k: max(sum(r[k] for r in rows) for rows in rounds) for k in fields},
                 'peak_threads': max(sum(len(r['thread_ids']) for r in rows) for rows in rounds),
