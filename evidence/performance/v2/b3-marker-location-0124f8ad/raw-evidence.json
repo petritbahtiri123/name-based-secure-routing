@@ -1,0 +1,18 @@
+[
+  {
+    "root": "C:\\NBSR-build\\b3-wait-cpu-58650e15",
+    "index_sha256": "a49dff5f89c7d667526cd8654fec94032e729082c3181ac7052d8f94d613cbf6"
+  },
+  {
+    "root": "C:\\NBSR-build\\b3-wait-cpu-bind-58650e15",
+    "index_sha256": "71de4336701b170a9b6b3d344d72eb949b95f6498e349f832e8096202997c9f5"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-marker-location-0124f8ad",
+    "index_sha256": "1be1efbbc2e5c3a813f5a7159296e73e8e6055a191124a31f643d059d86e2ddc"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-marker-location-0124f8ad-run2",
+    "index_sha256": "6790eaad28f6b3cab7e7db86434d540d46a7695525e72725f10478563186078e"
+  }
+]
