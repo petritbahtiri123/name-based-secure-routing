@@ -47,12 +47,25 @@ exposed a verified PF_EXITING FD-permission race at100/s.2a30272e adds a B4-only
 exit transition with owned completion required;69 tests and500 real Linux
 child lifecycles pass (four actual exiting observations). No production change.
 
-Current private-checkout runtime: nbsr-followup-2a30272e, raw root
-C:/NBSR-build/linux-followup-2a30272e. It runs the full post-fix one-guest-core
-admission ladder, then three independent1024/2048 live-bundle diagnostic pairs
-with pre/post namespace network counters. No extra timed profiler. Do not
-build, run other benchmarks or hash large raw roots while its timing runs.
-A Windows1KiB/64 requalification remains independent follow-up work if useful.
+The2a30272e ladder completed:23 valid records,0 invalid,125/s ->119.313320
+STABLE;150/s ->142.418287 DEGRADED;200/s ->111.350407 SATURATED. The actual
+PF_EXITING transition at200/s repeat4 was followed by owned exit0.
+Canonical:evidence/performance/v2/linux-followup-2a30272e.
+
+At0124f8ad,2048 live/materialized bundles pass five repeats each with two and
+four allocated guest CPUs, all cleanup validation passes. Largest accepted
+active scale is now2048 in this VM workload. Four-CPU4096 fails its first attempt
+with891 handshake timeouts and one ControlStreamFailed task panic; retain it.
+All six one-CPU buffer sensitivity attempts fail; requesting1MiB was clamped to
+425984bytes from212992 and did not establish a reliable improvement. Do not
+promote the diagnostic setting to a production default. Failure-only snapshots
+localize destination UDP receive drops but do not prove the sole timeout cause.
+Canonical:evidence/performance/v2/linux-resource-scale-0124f8ad.
+All containers from these series have exited and all raw roots are sealed.
+No qualified60/120-minute soak; full closure gates remain pending. No Linux
+production optimization or hardware ceiling was established. A possible B3
+per-client lifecycle-marker polling cost is only an unprofiled lead, not a cause.
+
 External documentation now identifies executable Linux B3/B4/B5 loopback CLIs;
 remote/server execution remains unavailable. Usage last read15% of30% cap.
 

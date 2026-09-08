@@ -1,0 +1,265 @@
+{
+  "source_sha": "0124f8ad948dfc4b182c3915400efe4d8c206dfd",
+  "scope": "Docker/WSL loopback; guest CPU allocation, not verified host physical cores or a server ceiling",
+  "scale": [
+    {
+      "cell": "cores-2-live-2048",
+      "roles": [
+        {
+          "kind": "sessions",
+          "role": "source",
+          "resource_scope": "one authenticated connection + session + channel + stream per bundle; QUIC keepalive every 1 second",
+          "materialized_streams": true,
+          "derived_active_private_resident_slope_bytes_per_unit": null,
+          "derived_incremental_private_resident_slope_bytes_per_unit": null,
+          "points": [
+            {
+              "count": 2048,
+              "repeats": 5,
+              "active_private_resident_cv_percent": 0.5311440437936165,
+              "repeat_gate": true,
+              "active_private_resident_median": 765952000,
+              "active_private_resident_range": [
+                761892864,
+                771416064
+              ],
+              "incremental_private_resident_median": 662212608
+            }
+          ]
+        },
+        {
+          "kind": "sessions",
+          "role": "destination",
+          "resource_scope": "one authenticated connection + session + channel + stream per bundle; QUIC keepalive every 1 second",
+          "materialized_streams": true,
+          "derived_active_private_resident_slope_bytes_per_unit": null,
+          "derived_incremental_private_resident_slope_bytes_per_unit": null,
+          "points": [
+            {
+              "count": 2048,
+              "repeats": 5,
+              "active_private_resident_cv_percent": 0.36421152383408417,
+              "repeat_gate": true,
+              "active_private_resident_median": 638349312,
+              "active_private_resident_range": [
+                636469248,
+                641564672
+              ],
+              "incremental_private_resident_median": 634851328
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "cell": "cores-4-live-2048",
+      "roles": [
+        {
+          "kind": "sessions",
+          "role": "source",
+          "resource_scope": "one authenticated connection + session + channel + stream per bundle; QUIC keepalive every 1 second",
+          "materialized_streams": true,
+          "derived_active_private_resident_slope_bytes_per_unit": null,
+          "derived_incremental_private_resident_slope_bytes_per_unit": null,
+          "points": [
+            {
+              "count": 2048,
+              "repeats": 5,
+              "active_private_resident_cv_percent": 1.000296217366137,
+              "repeat_gate": true,
+              "active_private_resident_median": 769716224,
+              "active_private_resident_range": [
+                753360896,
+                771862528
+              ],
+              "incremental_private_resident_median": 665944064
+            }
+          ]
+        },
+        {
+          "kind": "sessions",
+          "role": "destination",
+          "resource_scope": "one authenticated connection + session + channel + stream per bundle; QUIC keepalive every 1 second",
+          "materialized_streams": true,
+          "derived_active_private_resident_slope_bytes_per_unit": null,
+          "derived_incremental_private_resident_slope_bytes_per_unit": null,
+          "points": [
+            {
+              "count": 2048,
+              "repeats": 5,
+              "active_private_resident_cv_percent": 0.4156569663077803,
+              "repeat_gate": true,
+              "active_private_resident_median": 638582784,
+              "active_private_resident_range": [
+                635748352,
+                642461696
+              ],
+              "incremental_private_resident_median": 634953728
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "failures": [
+    {
+      "root": "linux-buffer-pairs-0124f8ad",
+      "label": "live-2048-default-r1",
+      "variant": "default",
+      "repeat": 1,
+      "exit_code": 1,
+      "source_failure_counts": {
+        "HandshakeTimeout": 317
+      },
+      "owned_socket_snapshot": {
+        "destination": {
+          "status": "MEASURED_FAILURE_SNAPSHOT",
+          "live_socket_drops": 1661,
+          "udp_socket_count": 1
+        },
+        "source-0": {
+          "status": "MEASURED_FAILURE_SNAPSHOT",
+          "live_socket_drops": 0,
+          "udp_socket_count": 1731
+        }
+      }
+    },
+    {
+      "root": "linux-buffer-pairs-0124f8ad",
+      "label": "live-2048-requested-1m-r1",
+      "variant": "requested-1m",
+      "repeat": 1,
+      "exit_code": 1,
+      "source_failure_counts": {
+        "HandshakeTimeout": 63
+      },
+      "owned_socket_snapshot": {
+        "destination": {
+          "status": "MEASURED_FAILURE_SNAPSHOT",
+          "live_socket_drops": 8137,
+          "udp_socket_count": 1
+        },
+        "source-0": {
+          "status": "MEASURED_FAILURE_SNAPSHOT",
+          "live_socket_drops": 0,
+          "udp_socket_count": 1985
+        }
+      }
+    },
+    {
+      "root": "linux-buffer-pairs-0124f8ad",
+      "label": "live-2048-requested-1m-r2",
+      "variant": "requested-1m",
+      "repeat": 2,
+      "exit_code": 1,
+      "source_failure_counts": {
+        "HandshakeTimeout": 80,
+        "client_task_failed": 1
+      },
+      "owned_socket_snapshot": {
+        "destination": {
+          "status": "MEASURED_FAILURE_SNAPSHOT",
+          "live_socket_drops": 2879,
+          "udp_socket_count": 1
+        },
+        "source-0": {
+          "status": "MEASURED_FAILURE_SNAPSHOT",
+          "live_socket_drops": 0,
+          "udp_socket_count": 1967
+        }
+      }
+    },
+    {
+      "root": "linux-buffer-pairs-0124f8ad",
+      "label": "live-2048-default-r2",
+      "variant": "default",
+      "repeat": 2,
+      "exit_code": 1,
+      "source_failure_counts": {
+        "HandshakeTimeout": 227,
+        "client_task_failed": 1
+      },
+      "owned_socket_snapshot": {
+        "destination": {
+          "status": "MEASURED_FAILURE_SNAPSHOT",
+          "live_socket_drops": 14781,
+          "udp_socket_count": 1
+        },
+        "source-0": {
+          "status": "MEASURED_FAILURE_SNAPSHOT",
+          "live_socket_drops": 0,
+          "udp_socket_count": 1820
+        }
+      }
+    },
+    {
+      "root": "linux-buffer-pairs-0124f8ad",
+      "label": "live-2048-default-r3",
+      "variant": "default",
+      "repeat": 3,
+      "exit_code": 1,
+      "source_failure_counts": {
+        "HandshakeTimeout": 75
+      },
+      "owned_socket_snapshot": {
+        "destination": {
+          "status": "MEASURED_FAILURE_SNAPSHOT",
+          "live_socket_drops": 5444,
+          "udp_socket_count": 1
+        },
+        "source-0": {
+          "status": "MEASURED_FAILURE_SNAPSHOT",
+          "live_socket_drops": 0,
+          "udp_socket_count": 1973
+        }
+      }
+    },
+    {
+      "root": "linux-buffer-pairs-0124f8ad",
+      "label": "live-2048-requested-1m-r3",
+      "variant": "requested-1m",
+      "repeat": 3,
+      "exit_code": 1,
+      "source_failure_counts": {
+        "HandshakeTimeout": 958,
+        "client_task_failed": 1
+      },
+      "owned_socket_snapshot": {
+        "destination": {
+          "status": "MEASURED_FAILURE_SNAPSHOT",
+          "live_socket_drops": 1964,
+          "udp_socket_count": 1
+        },
+        "source-0": {
+          "status": "MEASURED_FAILURE_SNAPSHOT",
+          "live_socket_drops": 0,
+          "udp_socket_count": 1089
+        }
+      }
+    },
+    {
+      "root": "linux-core-scale-0124f8ad",
+      "label": "cores-4-live-4096",
+      "cores": 4,
+      "count": 4096,
+      "exit_code": 1,
+      "source_failure_counts": {
+        "HandshakeTimeout": 891,
+        "client_task_failed": 1
+      },
+      "owned_socket_snapshot": {
+        "destination": {
+          "status": "MEASURED_FAILURE_SNAPSHOT",
+          "live_socket_drops": 76649,
+          "udp_socket_count": 1
+        },
+        "source-0": {
+          "status": "MEASURED_FAILURE_SNAPSHOT",
+          "live_socket_drops": 0,
+          "udp_socket_count": 3204
+        }
+      }
+    }
+  ],
+  "conclusion": "2048 live bundles pass five repeats at each of two/four guest CPU allocations. All six one-CPU buffer attempts fail; first four-CPU4096 attempt fails. No Linux production buffer change justified; sustained capacity and hardware ceiling NOT_PROVEN."
+}

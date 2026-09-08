@@ -19,6 +19,23 @@ flowchart LR
  O --> P[Isolated private origin]
 ```
 
+## Latest September8 resource follow-up
+
+MEASURED at0124f8ad:2048 active materialized bundles pass five repetitions each
+with two and four allocated Linux guest CPUs, with clean final ownership.
+Combined role-median private-resident totals are1,404,301,312 and1,408,299,008bytes;
+these include both endpoint processes and transport/runtime/fixture costs.
+The first4096 attempt fails. All six one-CPU buffer diagnostic attempts fail;
+no Linux production buffer optimization or hardware ceiling is justified.
+[Resource evidence](../../evidence/performance/v2/linux-resource-scale-0124f8ad/REPORT.md).
+
+The repaired Linux finite admission ladder at2a30272e has23 valid records:
+125 offered/s ->119.313320 actual/s STABLE;150 ->142.418287 DEGRADED;
+200 ->111.350407 SATURATED. This is mixed-workload VM evidence, not sustained
+production capacity. [Admission evidence](../../evidence/performance/v2/linux-followup-2a30272e/REPORT.md).
+The short paced preflights still fail; a qualified60/120-minute soak remains
+NOT_PROVEN. Earlier scoreboard rows below retain their source/workload scope.
+
 ## Evidence available now
 
 | Area | Defensible statement | Qualification / source |
