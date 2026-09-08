@@ -1,5 +1,14 @@
 # Maximum-quality campaign: current state
 
+## September 9 checkpoint
+
+See [the consolidated checkpoint](ENGINEERING_CHECKPOINT_2026-09-09.md).
+The preparation comparison completed with mixed outcomes and no soak qualification.
+Full Rust passes384 tests; all-target release clippy/fmt pass. Four Go race suites
+and five vet runs pass; the independent federation current-package test is a
+pre-existing BLOCKED_ARCHITECTURAL trust-anchor mismatch. No benchmark remains
+active. Usage reached29% of the30% cap; safe follow-up engineering remains.
+
 ## September 8 continuation
 
 This remains an engineering checkpoint, not a funding freeze. The older stage

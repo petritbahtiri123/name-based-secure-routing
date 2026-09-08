@@ -19,6 +19,15 @@ flowchart LR
  O --> P[Isolated private origin]
 ```
 
+## September9 closure caveat
+
+The full quality checkpoint finds a pre-existing independent federation package
+trust-anchor mismatch. Its current-package test fails closed; do not claim all
+current conformance checks are green. See [the authority blocker](FEDERATION_PACKAGE_AUTHORITY_BLOCK.md).
+Rust384 tests pass; four Go module race suites and all five vet runs pass.
+The six five-minute preparation diagnostics still do not qualify a sustained soak.
+See [the budget checkpoint](ENGINEERING_CHECKPOINT_2026-09-09.md).
+
 ## Latest September8 resource follow-up
 
 MEASURED at0124f8ad:2048 active materialized bundles pass five repetitions each

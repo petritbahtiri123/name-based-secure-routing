@@ -80,13 +80,16 @@ verified. Cleanup log: C:/NBSR-build/marker-container-cleanup-0124f8ad.json.
 Earlier pure Cargo-cache cleanup recovered about 1.01GB; its paths and exact
 before/after values are in closure-checks-40d109a8.
 
-ACTIVE: nbsr-b5-16k8-preparation-0124f8ad, output
-C:/NBSR-build/linux-b5-16k8-preparation-0124f8ad. Three counterbalanced warmup
-3/60-second pairs at fixed historical rate64804600000000/7500349701, requested
-300-second measurement, existing live guards. Source/binaries0124f8ad in a
-private checkout. No concurrent build, benchmark or large integrity scan.
-This separately tests the16KiB/eight-stream p99-drift question; earlier1KiB/32
-warmup diagnostics failed on memory. Do not relabel either as qualified soak.
+The preparation series completed: warmup3s completes1/3, warmup60s2/3.
+Three failed prefixes retain p99/private-growth failures; no qualified soak.
+Canonical:b5-16k8-preparation-0124f8ad. No benchmark remains active.
+Full corrected Rust validation passes384 tests, two ignored; all-target release
+clippy-Dwarnings and fmt pass. Four Go module race suites and five vet runs pass.
+The independent federation package test fails on a pre-existing immutable
+manifest/pin mismatch: BLOCKED_ARCHITECTURAL, no trust anchor changed.
+See FEDERATION_PACKAGE_AUTHORITY_BLOCK.md and ENGINEERING_CHECKPOINT_2026-09-09.md.
+Usage reached29% against30%; preserve this budget checkpoint, not completion.
+
 
 
 ## Five-point continuation checkpoint
