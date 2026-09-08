@@ -56,6 +56,24 @@ pub struct ClientEndpointConfig {
     pub(crate) policy: PeerPolicy,
 }
 
+#[cfg(feature = "benchmark-harness")]
+impl ClientEndpointConfig {
+    /// Enable standard QUIC keepalive for an explicitly separate benchmark workload.
+    /// TLS, peer policy and negotiated idle timeout are unchanged.
+    /// Zero intervals or intervals at least as long as the local idle limit are rejected.
+    pub fn with_benchmark_keep_alive(mut self, interval: Duration) -> Result<Self, TransportError> {
+        if interval.is_zero() || interval >= self.policy.idle_timeout() {
+            return Err(TransportError::InvalidTimeout);
+        }
+        let mut transport = transport_config(self.policy.idle_timeout())?;
+        Arc::get_mut(&mut transport)
+            .expect("fresh benchmark transport configuration")
+            .keep_alive_interval(Some(interval));
+        self.quinn.transport_config(transport);
+        Ok(self)
+    }
+}
+
 impl fmt::Debug for ClientEndpointConfig {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         formatter

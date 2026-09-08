@@ -24,6 +24,7 @@ from scripts.run_performance_validation import GO_PEER, ROOT, build_release, wai
 
 
 SOURCE_FILES = (
+    "crates/nbsr-transport/src/config.rs",
     "crates/nbsr-transport/src/bin/b3_support/mod.rs",
     "crates/nbsr-transport/src/bin/perf_rust_source.rs",
     "crates/nbsr-transport/src/bin/wp8_interop_server.rs",
@@ -31,6 +32,8 @@ SOURCE_FILES = (
     "scripts/performance/session_lifecycle_closure.py",
     "scripts/run_b3_session_lifecycle.py",
     "tests/performance/test_session_lifecycle_closure.py",
+    "tests/performance/test_b3_keep_alive.py",
+    "crates/nbsr-transport/tests/benchmark_keep_alive.rs",
 )
 COUNTERS = (
     "transport_sessions_current_live", "service_channels_current_live",
@@ -221,6 +224,10 @@ def run_cell(path: str, spec: dict[str, int | str], binaries: dict[str, Path], r
     capture_options = {"capture_backend": capture_backend} if capture_backend is not None else {}
     name = str(spec["name"])
     sessions, services, streams, cycles = (int(spec[key]) for key in ("sessions", "channels", "streams", "cycles"))
+    keep_alive = spec.get("keep_alive_seconds", 0)
+    if (type(keep_alive) is not int or keep_alive not in (0, 1)
+            or keep_alive and (path != "rust-rust" or spec["kind"] != "sessions")):
+        raise ValueError("keepalive requires the separate Rust session-bundle workload at 1 second")
     materialized = spec.get("materialized_streams", False)
     if materialized and path != "rust-rust":
         raise ValueError("materialized streams require the Rust B3 harness")
@@ -266,6 +273,8 @@ def run_cell(path: str, spec: dict[str, int | str], binaries: dict[str, Path], r
                 argv, cwd = client_command(path, binaries, ready, authority, lifecycle, connections=connections, services=services, streams=streams, offset=offset, runtime_path=runtime_path)
                 if path == "rust-rust":
                     argv.extend(["--diagnostics", "1"])
+                    if keep_alive:
+                        argv.extend(["--b3-keep-alive-seconds", str(keep_alive)])
                     if materialized:
                         argv.extend(["--b3-materialized-streams", "1"])
                     if logical_clients > 1:

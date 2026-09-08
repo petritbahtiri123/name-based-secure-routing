@@ -51,11 +51,14 @@ def spec_for(axis, count, repeat, *, materialized_streams=False, fixed_channels=
         raise ValueError("fixed channel override applies only to the streams axis")
     spec = dict(name=f"{axis}-{count}-r{repeat}", kind=axis, active_count=count,
                 sessions=1, channels=1, streams=1, cycles=1, start_rate=100)
-    if axis == "bundles":
+    if axis in ("bundles", "live-bundles"):
         if not 1 <= count <= 1024:
             raise ValueError("logical client bound is 1024")
         spec.update(sessions=count, kind="sessions",
                     resource_scope="one authenticated connection + session + channel + stream per bundle")
+        if axis == "live-bundles":
+            spec.update(keep_alive_seconds=1,
+                        resource_scope="one authenticated connection + session + channel + stream per bundle; QUIC keepalive every 1 second")
     elif axis == "channels":
         if not 1 <= count <= 32:
             raise ValueError("frozen harness authority supports at most 32 services per connection")
@@ -127,6 +130,7 @@ def execute(args):
     b3.write_json(args.output / "environment.json", metadata)
     (args.output / "source.patch").write_bytes(subprocess.check_output(["git", "diff", "--binary"]))
     sources = ["scripts/run_b3_v2.py", "scripts/run_b3_session_lifecycle.py",
+                   "crates/nbsr-transport/src/config.rs",
                    "crates/nbsr-transport/src/bin/perf_rust_source.rs",
                    "crates/nbsr-transport/src/bin/wp8_interop_server.rs",
                    "crates/nbsr-transport/src/bin/b3_support/mod.rs"]
@@ -165,7 +169,7 @@ if __name__ == "__main__":
     parser.add_argument('--cores', type=int, choices=(1, 2, 4), default=1,
                         help='Linux only: shared physical-core-selected logical pool')
     parser.add_argument('--build-manifest', type=Path, help='Linux only: release source SHA, binary hashes and build metadata')
-    parser.add_argument("--axis", choices=("bundles", "channels", "streams", "cycles"), required=True)
+    parser.add_argument("--axis", choices=("bundles", "live-bundles", "channels", "streams", "cycles"), required=True)
     parser.add_argument("--counts", type=int, nargs="+", required=True)
     parser.add_argument("--repeats", type=int, choices=(1, 3, 5), default=5)
     parser.add_argument("--fixed-channels", type=int, default=8,

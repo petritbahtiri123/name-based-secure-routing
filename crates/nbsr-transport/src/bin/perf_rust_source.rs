@@ -436,6 +436,14 @@ async fn run_lifecycle(
 ) {
     let materialized_streams = optional_argument("--b3-materialized-streams").is_some();
     assert!(!materialized_streams || (hold_for_release && concurrent));
+    let keep_alive = optional_argument("--b3-keep-alive-seconds");
+    assert!(keep_alive.as_deref().is_none_or(|value| value == "1"));
+    assert!(keep_alive.is_none() || hold_for_release);
+    #[cfg(not(feature = "benchmark-harness"))]
+    assert!(
+        keep_alive.is_none(),
+        "B3 keepalive requires benchmark-harness"
+    );
     let payload = vec![0x5a; payload_bytes];
     let mut sample_id = 0_u64;
     for connection_ordinal in 0..connections {
@@ -450,23 +458,27 @@ async fn run_lifecycle(
         }
         let total_cold = Instant::now();
         let handshake = Instant::now();
-        let connection = match handshake_timeline::observe(connect(
-            build_client_config(
-                PeerPolicy::new(
-                    EdgeRole::Source,
-                    EdgeRole::Destination,
-                    identity("destination.edge"),
-                    Duration::from_secs(5),
-                    Duration::from_secs(30),
-                )
-                .unwrap(),
-                tls_material(authority),
+        let client_config = build_client_config(
+            PeerPolicy::new(
+                EdgeRole::Source,
+                EdgeRole::Destination,
+                identity("destination.edge"),
+                Duration::from_secs(5),
+                Duration::from_secs(30),
             )
             .unwrap(),
-            endpoint,
-        ))
-        .await
-        {
+            tls_material(authority),
+        )
+        .unwrap();
+        #[cfg(feature = "benchmark-harness")]
+        let client_config = if keep_alive.is_some() {
+            client_config
+                .with_benchmark_keep_alive(Duration::from_secs(1))
+                .unwrap()
+        } else {
+            client_config
+        };
+        let connection = match handshake_timeline::observe(connect(client_config, endpoint)).await {
             Ok(connection) => connection,
             Err(error) => {
                 let logical_client_id = connection_offset + connection_ordinal;
