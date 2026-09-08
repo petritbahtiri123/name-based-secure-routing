@@ -1,0 +1,421 @@
+{
+  "admission": {
+    "cells": [
+      {
+        "achieved_offered_ratio": 0.9915792981797656,
+        "actual_admissions_per_second": 24.78948245449414,
+        "admission_p50_latency_ns": 7908732.0,
+        "admission_p95_latency_ns": 10650636.0,
+        "admission_p99_latency_ns": 18197094.0,
+        "admission_success_ratio": 1.0,
+        "admitted": 512,
+        "cleanup_pass": true,
+        "connected": 512,
+        "effective_cores": 0.9567614771059845,
+        "errors": 0,
+        "established_goodput_bytes_per_second": 123936903.0639286,
+        "established_p99_latency_ns": 531129.0,
+        "failed": 0,
+        "handshake_latency_ns": {
+          "50": 3984319,
+          "95": 5347893,
+          "99": 9225899
+        },
+        "is_reference_cell": true,
+        "offered_rate": 25,
+        "peak_pending_clients": 512.0,
+        "repeat_cv": 0.033959104464443425,
+        "repeats": 3,
+        "requested": 512,
+        "resources": {
+          "cpu_seconds": 31.96,
+          "peak_fd_count": 36.0,
+          "peak_private_hugetlb_bytes": 0.0,
+          "peak_private_resident_bytes": 46669824.0,
+          "peak_processes": 4.0,
+          "peak_pss_bytes": 55214080.0,
+          "peak_rss_bytes": 68415488.0,
+          "peak_threads": 9.0
+        },
+        "started": 512,
+        "status": "STABLE",
+        "timeouts": 0,
+        "valid": 3
+      },
+      {
+        "achieved_offered_ratio": 0.9843555703987303,
+        "actual_admissions_per_second": 49.217778519936516,
+        "admission_p50_latency_ns": 8203266.0,
+        "admission_p95_latency_ns": 12649075.0,
+        "admission_p99_latency_ns": 34916922.0,
+        "admission_success_ratio": 1.0,
+        "admitted": 512,
+        "cleanup_pass": true,
+        "connected": 512,
+        "effective_cores": 0.9566810932014697,
+        "errors": 0,
+        "established_goodput_bytes_per_second": 120378038.33548582,
+        "established_p99_latency_ns": 586632.0,
+        "failed": 0,
+        "handshake_latency_ns": {
+          "50": 3950338,
+          "95": 6863078,
+          "99": 12239936
+        },
+        "is_reference_cell": false,
+        "offered_rate": 50,
+        "peak_pending_clients": 512.0,
+        "repeat_cv": 0.038715826470002296,
+        "repeats": 3,
+        "requested": 512,
+        "resources": {
+          "cpu_seconds": 31.94,
+          "peak_fd_count": 42.0,
+          "peak_private_hugetlb_bytes": 0.0,
+          "peak_private_resident_bytes": 59678720.0,
+          "peak_processes": 4.0,
+          "peak_pss_bytes": 68251648.0,
+          "peak_rss_bytes": 81489920.0,
+          "peak_threads": 9.0
+        },
+        "started": 512,
+        "status": "STABLE",
+        "timeouts": 0,
+        "valid": 3
+      },
+      {
+        "achieved_offered_ratio": 0.9718964439657627,
+        "actual_admissions_per_second": 72.8922332974322,
+        "admission_p50_latency_ns": 8022542.0,
+        "admission_p95_latency_ns": 11724846.0,
+        "admission_p99_latency_ns": 23753311.0,
+        "admission_success_ratio": 1.0,
+        "admitted": 512,
+        "cleanup_pass": true,
+        "connected": 512,
+        "effective_cores": 0.9567737225262806,
+        "errors": 0,
+        "established_goodput_bytes_per_second": 124781469.4167063,
+        "established_p99_latency_ns": 526128.0,
+        "failed": 0,
+        "handshake_latency_ns": {
+          "50": 4015335,
+          "95": 6874980,
+          "99": 9589329
+        },
+        "is_reference_cell": false,
+        "offered_rate": 75,
+        "peak_pending_clients": 512.0,
+        "repeat_cv": 0.01752723732735856,
+        "repeats": 3,
+        "requested": 512,
+        "resources": {
+          "cpu_seconds": 31.95,
+          "peak_fd_count": 43.0,
+          "peak_private_hugetlb_bytes": 0.0,
+          "peak_private_resident_bytes": 72077312.0,
+          "peak_processes": 4.0,
+          "peak_pss_bytes": 80648192.0,
+          "peak_rss_bytes": 93769728.0,
+          "peak_threads": 9.0
+        },
+        "started": 512,
+        "status": "STABLE",
+        "timeouts": 0,
+        "valid": 3
+      },
+      {
+        "achieved_offered_ratio": 0.9737862870930369,
+        "actual_admissions_per_second": 97.3786287093037,
+        "admission_p50_latency_ns": 7960031.0,
+        "admission_p95_latency_ns": 17096968.0,
+        "admission_p99_latency_ns": 27526098.0,
+        "admission_success_ratio": 1.0,
+        "admitted": 512,
+        "cleanup_pass": true,
+        "connected": 512,
+        "effective_cores": 0.9575861407089373,
+        "errors": 0,
+        "established_goodput_bytes_per_second": 122572242.795256,
+        "established_p99_latency_ns": 547730.0,
+        "failed": 0,
+        "handshake_latency_ns": {
+          "50": 3760991,
+          "95": 6536532,
+          "99": 13221371
+        },
+        "is_reference_cell": false,
+        "offered_rate": 100,
+        "peak_pending_clients": 512.0,
+        "repeat_cv": 0.027538719509078036,
+        "repeats": 3,
+        "requested": 512,
+        "resources": {
+          "cpu_seconds": 31.95,
+          "peak_fd_count": 47.0,
+          "peak_private_hugetlb_bytes": 0.0,
+          "peak_private_resident_bytes": 81358848.0,
+          "peak_processes": 4.0,
+          "peak_pss_bytes": 89914368.0,
+          "peak_rss_bytes": 103174144.0,
+          "peak_threads": 9.0
+        },
+        "started": 512,
+        "status": "STABLE",
+        "timeouts": 0,
+        "valid": 3
+      },
+      {
+        "achieved_offered_ratio": 0.9545065571214286,
+        "actual_admissions_per_second": 119.31331964017858,
+        "admission_p50_latency_ns": 7785322.0,
+        "admission_p95_latency_ns": 24181389.0,
+        "admission_p99_latency_ns": 35677135.0,
+        "admission_success_ratio": 1.0,
+        "admitted": 512,
+        "cleanup_pass": true,
+        "connected": 512,
+        "effective_cores": 0.9573320413379792,
+        "errors": 0,
+        "established_goodput_bytes_per_second": 126216000.25360113,
+        "established_p99_latency_ns": 511427.0,
+        "failed": 0,
+        "handshake_latency_ns": {
+          "50": 3766492,
+          "95": 7903021,
+          "99": 13816937
+        },
+        "is_reference_cell": false,
+        "offered_rate": 125,
+        "peak_pending_clients": 512.0,
+        "repeat_cv": 0.03639102446829916,
+        "repeats": 3,
+        "requested": 512,
+        "resources": {
+          "cpu_seconds": 31.94,
+          "peak_fd_count": 57.0,
+          "peak_private_hugetlb_bytes": 0.0,
+          "peak_private_resident_bytes": 101056512.0,
+          "peak_processes": 4.0,
+          "peak_pss_bytes": 109555712.0,
+          "peak_rss_bytes": 122699776.0,
+          "peak_threads": 9.0
+        },
+        "started": 512,
+        "status": "STABLE",
+        "timeouts": 0,
+        "valid": 3
+      },
+      {
+        "achieved_offered_ratio": 0.9494552447221097,
+        "actual_admissions_per_second": 142.41828670831646,
+        "admission_p50_latency_ns": 12510680.0,
+        "admission_p95_latency_ns": 124640676.0,
+        "admission_p99_latency_ns": 204112197.0,
+        "admission_success_ratio": 1.0,
+        "admitted": 512,
+        "cleanup_pass": true,
+        "connected": 512,
+        "effective_cores": 0.9567891757488048,
+        "errors": 0,
+        "established_goodput_bytes_per_second": 126385744.04326873,
+        "established_p99_latency_ns": 455725.0,
+        "failed": 0,
+        "handshake_latency_ns": {
+          "50": 4852460,
+          "95": 38425989,
+          "99": 67649078
+        },
+        "is_reference_cell": false,
+        "offered_rate": 150,
+        "peak_pending_clients": 512.0,
+        "repeat_cv": 0.01590934275610638,
+        "repeats": 3,
+        "requested": 512,
+        "resources": {
+          "cpu_seconds": 31.92,
+          "peak_fd_count": 84.0,
+          "peak_private_hugetlb_bytes": 0.0,
+          "peak_private_resident_bytes": 203804672.0,
+          "peak_processes": 4.0,
+          "peak_pss_bytes": 212445184.0,
+          "peak_rss_bytes": 225812480.0,
+          "peak_threads": 9.0
+        },
+        "started": 512,
+        "status": "DEGRADED",
+        "timeouts": 0,
+        "valid": 3
+      },
+      {
+        "achieved_offered_ratio": 0.5567520362212603,
+        "actual_admissions_per_second": 111.35040724425207,
+        "admission_p50_latency_ns": 720268585.0,
+        "admission_p95_latency_ns": 1218432949.0,
+        "admission_p99_latency_ns": 1276065565.0,
+        "admission_success_ratio": 1.0,
+        "admitted": 512,
+        "cleanup_pass": true,
+        "connected": 512,
+        "effective_cores": 0.9539288931268171,
+        "errors": 0,
+        "established_goodput_bytes_per_second": 126068598.12009846,
+        "established_p99_latency_ns": 257013.0,
+        "failed": 0,
+        "handshake_latency_ns": {
+          "50": 152771759,
+          "95": 310822163,
+          "99": 343281697
+        },
+        "is_reference_cell": false,
+        "offered_rate": 200,
+        "peak_pending_clients": 512.0,
+        "repeat_cv": 0.0611060396360697,
+        "repeats": 5,
+        "requested": 512,
+        "resources": {
+          "cpu_seconds": 31.85,
+          "peak_fd_count": 329.0,
+          "peak_private_hugetlb_bytes": 0.0,
+          "peak_private_resident_bytes": 532586496.0,
+          "peak_processes": 4.0,
+          "peak_pss_bytes": 541125632.0,
+          "peak_rss_bytes": 554430464.0,
+          "peak_threads": 9.0
+        },
+        "started": 512,
+        "status": "SATURATED",
+        "timeouts": 0,
+        "valid": 5
+      }
+    ],
+    "classification": "PASS",
+    "invalid_runs": 0,
+    "schema": "nbsr-b4b-task4i-analysis-v1",
+    "simultaneous_burst_result": "separate Task 4h diagnostic; not mixed into capacity",
+    "thresholds": {
+      "saturated_achieved_offered": 0.9,
+      "saturated_goodput_ratio": 0.75,
+      "saturated_p99_ratio": 2.0,
+      "stable_achieved_offered": 0.95,
+      "stable_cv": 0.05,
+      "stable_goodput_ratio": 0.9,
+      "stable_p99_ratio": 1.25
+    }
+  },
+  "confirmed_exit_transitions": [
+    {
+      "file": "admission-1core\\campaign\\raw\\rate-200\\r4.json",
+      "role": "admission-destination",
+      "confirmed_exit_code": 0,
+      "pid": 769,
+      "scope": "owned Popen completion; partial sample is not final CPU/memory",
+      "start_ticks": 868202
+    }
+  ],
+  "live_diagnostics": [
+    {
+      "label": "live-1024-diagnostic-r1",
+      "exit_code": 0,
+      "udp_delta": {
+        "InDatagrams": 57319,
+        "NoPorts": 2,
+        "InErrors": 118,
+        "OutDatagrams": 57458,
+        "RcvbufErrors": 118,
+        "SndbufErrors": 0,
+        "InCsumErrors": 0,
+        "IgnoredMulti": 0,
+        "MemErrors": 0
+      },
+      "source_failures": {}
+    },
+    {
+      "label": "live-2048-diagnostic-r1",
+      "exit_code": 1,
+      "udp_delta": {
+        "InDatagrams": 280874,
+        "NoPorts": 14,
+        "InErrors": 6425,
+        "OutDatagrams": 287362,
+        "RcvbufErrors": 6425,
+        "SndbufErrors": 0,
+        "InCsumErrors": 0,
+        "IgnoredMulti": 0,
+        "MemErrors": 0
+      },
+      "source_failures": {
+        "HandshakeTimeout": 424,
+        "client_task_failed": 1
+      }
+    },
+    {
+      "label": "live-1024-diagnostic-r2",
+      "exit_code": 0,
+      "udp_delta": {
+        "InDatagrams": 56407,
+        "NoPorts": 30,
+        "InErrors": 41,
+        "OutDatagrams": 56480,
+        "RcvbufErrors": 41,
+        "SndbufErrors": 0,
+        "InCsumErrors": 0,
+        "IgnoredMulti": 0,
+        "MemErrors": 0
+      },
+      "source_failures": {}
+    },
+    {
+      "label": "live-2048-diagnostic-r2",
+      "exit_code": 1,
+      "udp_delta": {
+        "InDatagrams": 284754,
+        "NoPorts": 9,
+        "InErrors": 13055,
+        "OutDatagrams": 297843,
+        "RcvbufErrors": 13055,
+        "SndbufErrors": 0,
+        "InCsumErrors": 0,
+        "IgnoredMulti": 0,
+        "MemErrors": 0
+      },
+      "source_failures": {
+        "HandshakeTimeout": 387
+      }
+    },
+    {
+      "label": "live-1024-diagnostic-r3",
+      "exit_code": 0,
+      "udp_delta": {
+        "InDatagrams": 56920,
+        "NoPorts": 5,
+        "InErrors": 151,
+        "OutDatagrams": 57087,
+        "RcvbufErrors": 151,
+        "SndbufErrors": 0,
+        "InCsumErrors": 0,
+        "IgnoredMulti": 0,
+        "MemErrors": 0
+      },
+      "source_failures": {}
+    },
+    {
+      "label": "live-2048-diagnostic-r3",
+      "exit_code": 1,
+      "udp_delta": {
+        "InDatagrams": 290186,
+        "NoPorts": 115,
+        "InErrors": 21244,
+        "OutDatagrams": 311608,
+        "RcvbufErrors": 21244,
+        "SndbufErrors": 0,
+        "InCsumErrors": 0,
+        "IgnoredMulti": 0,
+        "MemErrors": 0
+      },
+      "source_failures": {
+        "HandshakeTimeout": 206
+      }
+    }
+  ]
+}
