@@ -1,0 +1,117 @@
+[
+  {
+    "module": "client/nbsr-go-client",
+    "stage": "test",
+    "argv": [
+      "go",
+      "test",
+      "-race",
+      "-mod=readonly",
+      "./..."
+    ],
+    "exit_code": 0
+  },
+  {
+    "module": "client/nbsr-go-client",
+    "stage": "vet",
+    "argv": [
+      "go",
+      "vet",
+      "-mod=readonly",
+      "./..."
+    ],
+    "exit_code": 0
+  },
+  {
+    "module": "client/nbsr-go-client/demo",
+    "stage": "test",
+    "argv": [
+      "go",
+      "test",
+      "-race",
+      "-mod=readonly",
+      "./..."
+    ],
+    "exit_code": 0
+  },
+  {
+    "module": "client/nbsr-go-client/demo",
+    "stage": "vet",
+    "argv": [
+      "go",
+      "vet",
+      "-mod=readonly",
+      "./..."
+    ],
+    "exit_code": 0
+  },
+  {
+    "module": "deploy/isp-federation-poc/adapter",
+    "stage": "test",
+    "argv": [
+      "go",
+      "test",
+      "-race",
+      "-mod=readonly",
+      "./..."
+    ],
+    "exit_code": 0
+  },
+  {
+    "module": "deploy/isp-federation-poc/adapter",
+    "stage": "vet",
+    "argv": [
+      "go",
+      "vet",
+      "-mod=readonly",
+      "./..."
+    ],
+    "exit_code": 0
+  },
+  {
+    "module": "interop/nbsr-go-peer",
+    "stage": "test",
+    "argv": [
+      "go",
+      "test",
+      "-race",
+      "-mod=readonly",
+      "./..."
+    ],
+    "exit_code": 0
+  },
+  {
+    "module": "interop/nbsr-go-peer",
+    "stage": "vet",
+    "argv": [
+      "go",
+      "vet",
+      "-mod=readonly",
+      "./..."
+    ],
+    "exit_code": 0
+  },
+  {
+    "module": "verifiers/federation-go",
+    "stage": "test",
+    "argv": [
+      "go",
+      "test",
+      "-race",
+      "-mod=readonly",
+      "./..."
+    ],
+    "exit_code": 1
+  },
+  {
+    "module": "verifiers/federation-go",
+    "stage": "vet",
+    "argv": [
+      "go",
+      "vet",
+      "-mod=readonly",
+      "./..."
+    ],
+    "exit_code": 0
+  }
+]

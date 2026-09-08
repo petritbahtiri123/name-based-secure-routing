@@ -1,0 +1,19 @@
+{
+  "removed": [
+    {
+      "name": "nbsr-marker-location-0124f8ad",
+      "id": "3368f75f51e526f24bd1e63bcee59e63932e36347d6443a481cea91971ebd669",
+      "exit_code": 1,
+      "output_mount": "C:/NBSR-build/linux-marker-location-0124f8ad"
+    },
+    {
+      "name": "nbsr-marker-location-0124f8ad-run2",
+      "id": "65228ff839ee8b5047052bef36e16a7f66593258bb781b0084798437ab741333",
+      "exit_code": 0,
+      "output_mount": "C:/NBSR-build/linux-marker-location-0124f8ad-run2"
+    }
+  ],
+  "before_free_bytes": 3604160512,
+  "after_free_bytes": 3604160512,
+  "reason": "Campaign-only stopped containers; all guest output copied and original child checksum indexes verified; canonical evidence retained at b3-marker-location-0124f8ad"
+}

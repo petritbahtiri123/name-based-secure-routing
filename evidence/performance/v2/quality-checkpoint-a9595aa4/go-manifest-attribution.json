@@ -1,0 +1,196 @@
+{
+  "classification": "BLOCKED_ARCHITECTURAL_TRUST_ANCHOR_VERSION_MISMATCH",
+  "trusted_manifest_sha256": "1ff9591b925e926e757bb57ab8f3cd1620b6ff9d41149df92ad5672ff810ab35",
+  "current_manifest_sha256": "2ab8286179221e06c2c24843f6a1015f24247c6a1de9d8cb81f20e5fe88aa497",
+  "origin_commit": "e15b2511bc9cc0c0917b74bdd09e354422c805d6",
+  "registry_change": [],
+  "decision": "Do not silently re-pin a trusted immutable package or weaken the failing assertion; define an explicit versioned authority/package compatibility decision.",
+  "serialization_comparison": {
+    "old_length": 78881,
+    "new_length": 78881,
+    "old_crlf": 0,
+    "new_crlf": 0,
+    "equal_after_crlf_normalization": true,
+    "working_matches_git": true,
+    "working_sha256": "ed880f236a2b4b5e11e281e58c540534e1cd27f7c752d3990291cf1be55c80d0"
+  },
+  "registry_change_since_verifier_introduction": [
+    {
+      "path": "/registries/key_purposes",
+      "before": [
+        {
+          "name": "IDENTITY_ROOT",
+          "value": 1,
+          "status": "approved-development-profile"
+        },
+        {
+          "name": "RECOVERY",
+          "value": 2,
+          "status": "approved-development-profile"
+        },
+        {
+          "name": "REGISTRY_SIGNING",
+          "value": 3,
+          "status": "approved-development-profile"
+        },
+        {
+          "name": "KEY_AUTHORIZATION",
+          "value": 4,
+          "status": "approved-development-profile"
+        },
+        {
+          "name": "NAME_OWNERSHIP",
+          "value": 5,
+          "status": "approved-development-profile"
+        },
+        {
+          "name": "DELEGATION",
+          "value": 6,
+          "status": "approved-development-profile"
+        },
+        {
+          "name": "TRUST_BUNDLE",
+          "value": 7,
+          "status": "approved-development-profile"
+        },
+        {
+          "name": "TRANSPARENCY_LOG",
+          "value": 8,
+          "status": "approved-development-profile"
+        },
+        {
+          "name": "WITNESS",
+          "value": 9,
+          "status": "approved-development-profile"
+        },
+        {
+          "name": "ENDPOINT_DISCOVERY",
+          "value": 10,
+          "status": "approved-development-profile"
+        },
+        {
+          "name": "FEDERATION_AUTHORIZATION",
+          "value": 11,
+          "status": "approved-development-profile"
+        },
+        {
+          "name": "REVOCATION",
+          "value": 12,
+          "status": "approved-development-profile"
+        },
+        {
+          "name": "GOVERNANCE",
+          "value": 13,
+          "status": "approved-development-profile"
+        },
+        {
+          "name": "FEDERATION_TRANSPORT",
+          "value": 14,
+          "status": "approved-development-profile"
+        }
+      ],
+      "after": [
+        {
+          "name": "IDENTITY_ROOT",
+          "value": 1,
+          "status": "approved-development-profile"
+        },
+        {
+          "name": "RECOVERY",
+          "value": 2,
+          "status": "approved-development-profile"
+        },
+        {
+          "name": "REGISTRY_SIGNING",
+          "value": 3,
+          "status": "approved-development-profile"
+        },
+        {
+          "name": "KEY_AUTHORIZATION",
+          "value": 4,
+          "status": "approved-development-profile"
+        },
+        {
+          "name": "NAME_OWNERSHIP",
+          "value": 5,
+          "status": "approved-development-profile"
+        },
+        {
+          "name": "DELEGATION",
+          "value": 6,
+          "status": "approved-development-profile"
+        },
+        {
+          "name": "TRUST_BUNDLE",
+          "value": 7,
+          "status": "approved-development-profile"
+        },
+        {
+          "name": "TRANSPARENCY_LOG",
+          "value": 8,
+          "status": "approved-development-profile"
+        },
+        {
+          "name": "WITNESS",
+          "value": 9,
+          "status": "approved-development-profile"
+        },
+        {
+          "name": "ENDPOINT_DISCOVERY",
+          "value": 10,
+          "status": "approved-development-profile"
+        },
+        {
+          "name": "FEDERATION_AUTHORIZATION",
+          "value": 11,
+          "status": "approved-development-profile"
+        },
+        {
+          "name": "REVOCATION",
+          "value": 12,
+          "status": "approved-development-profile"
+        },
+        {
+          "name": "GOVERNANCE",
+          "value": 13,
+          "status": "approved-development-profile"
+        },
+        {
+          "name": "FEDERATION_TRANSPORT",
+          "value": 14,
+          "status": "approved-development-profile"
+        },
+        {
+          "name": "ACP_RESULT_SIGNING",
+          "value": 15,
+          "status": "approved-development-profile"
+        },
+        {
+          "name": "ENROLLMENT_RESULT_SIGNING",
+          "value": 16,
+          "status": "approved-development-profile"
+        }
+      ]
+    },
+    {
+      "path": "/reserved_ranges/key_purposes",
+      "before": [
+        [
+          15,
+          255
+        ]
+      ],
+      "after": [
+        [
+          17,
+          255
+        ]
+      ]
+    }
+  ],
+  "registry_relock_origin_note": "e15b2511 updates authority-locks/manifest to an already changed registry; registry itself is byte-identical immediately before/after e15b2511.",
+  "historical_registry_sha256": "29311cb8e952e328eef7c69fb4776a85504ff4af5edf7c55faad53194d60dc7e",
+  "start_sha": "09a669a343330b381c67605114338cdc87d420e4",
+  "start_manifest_sha256": "2ab8286179221e06c2c24843f6a1015f24247c6a1de9d8cb81f20e5fe88aa497",
+  "start_verifier_has_same_pin": true
+}

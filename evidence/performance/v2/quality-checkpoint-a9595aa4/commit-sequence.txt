@@ -1,0 +1,16 @@
+40b277fbbf6842f76094c0621f0a9fde0ee28f5a bench(b3): add distinct authenticated live-bundle workload
+ec836e81ce09cce9e7d038de8d61623dd390ae39 bench(b3): permit next active-bundle scale steps after 1024 validation
+c4096bd7b427502724454c47360fcc6318dcb29c evidence(b5): retain current-host calibration and preparation failures
+28d07f2b34bfe78fec66b9e8ad597470ab6117e5 evidence(b3): preserve 1024 active bundles and 500 clean lifecycle cycles
+07096c080cd5759d7da470667f559583707e50c1 docs(bench): reconcile executable Linux validation subsets
+9a446fb66c077bdf3bc11b0522320adec30967c6 test(bench): retain Windows current-source reference and pacing failures
+2a30272e4805dae7c0a67640526496a9a16b05c8 fix(bench): verify B4 Linux owned-child exit transitions
+ec508ef6ba42abe66de17ccd2841da0c77b8615e test(bench): preserve Linux requalification and larger-scale failures
+132a3b829bf5a1f830ab5dce8d17a7ce108c2549 bench(b3): capture owned UDP drops only after workload failure
+098ea77add8cc8da531d791efbca308e3e713425 test(bench): verify Linux admission repair and preserve UDP-drop cohorts
+0124f8ad948dfc4b182c3915400efe4d8c206dfd bench(b3): add explicit Linux receive-buffer sensitivity variant
+40d109a8557d8e9c0d0a47a83195a1c944fc4f9f evidence(b3): preserve 2048 guest-core scale and failed buffer probes
+58650e159ee2b266b2a02f2e6d7206c7762b1408 test: repair provenance fixture and PoC inventory classification
+fa0e60a81ed768b43be8e247b8e83ac6e38f00e7 evidence(b3): preserve polling and marker filesystem diagnostics
+df8b7808b8a38dd3dcf4bf3af80ab9e709263639 docs: reconcile September 8 benchmark and validation checkpoint
+a9595aa4dd225740dec186154fb7c71aca2c9be9 evidence(b5): retain mixed five-minute preparation results

@@ -1,0 +1,5 @@
+{
+  "CGO_ENABLED": "1",
+  "gcc_available": true,
+  "race_requested": true
+}

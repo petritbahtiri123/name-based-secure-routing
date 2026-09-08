@@ -1,0 +1,18 @@
+[
+  {
+    "root": "C:\\NBSR-build\\rust-quality-df8b7808",
+    "index_sha256": "fe0f2f56a6989606a2d31c5eb998a0b7f993b952adbc243c57af2a24c029c00d"
+  },
+  {
+    "root": "C:\\NBSR-build\\go-quality-df8b7808",
+    "index_sha256": "0e88eab8a31db32151df7a7e6c3ef2a31c26ede9f278cdef82ab498dc80f87a4"
+  },
+  {
+    "root": "C:\\NBSR-build\\rust-quality-df8b7808-run2",
+    "index_sha256": "f4f367ea6f24b3bccb1fb4e8a0c1acba9b7d0b7f95642b898e0b6380f3d79a66"
+  },
+  {
+    "root": "C:\\NBSR-build\\clippy-quality-a9595aa4",
+    "index_sha256": "e746b883fd3da3e6eda7476164fd6a76533f040df0dca0d5f43aefc4279d3a62"
+  }
+]
