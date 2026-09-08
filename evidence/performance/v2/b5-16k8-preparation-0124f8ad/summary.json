@@ -1,0 +1,156 @@
+{
+  "scope": "Six fixed-rate preparation diagnostics, not current calibration or qualified soak",
+  "rate": [
+    64804600000000,
+    7500349701
+  ],
+  "runs": [
+    {
+      "name": "warmup-3-r1",
+      "warmup": 3,
+      "repeat": 1,
+      "exit_code": 1,
+      "classification": "FAIL",
+      "valid": false,
+      "error": "B5 stream failed: live p99 drift",
+      "gbps": null,
+      "achieved_offered_ratio": null,
+      "window_p99_median_ns": null,
+      "continuous_ownership": null,
+      "ownership_reports": null,
+      "steady_windows": 7,
+      "final_errors": null,
+      "final_timeouts": null
+    },
+    {
+      "name": "warmup-60-r1",
+      "warmup": 60,
+      "repeat": 1,
+      "exit_code": 0,
+      "classification": "DIAGNOSTIC",
+      "valid": true,
+      "error": null,
+      "gbps": 2.2343916100162593,
+      "achieved_offered_ratio": 0.9864960843930105,
+      "window_p99_median_ns": 1320967,
+      "continuous_ownership": {
+        "classification": "NOT_MEASURED"
+      },
+      "ownership_reports": [
+        {
+          "all_11_zero": true,
+          "file": "d0.cleanup.json",
+          "pid": 133,
+          "role": "destination"
+        },
+        {
+          "all_11_zero": true,
+          "file": "source.cleanup.json",
+          "pid": 134,
+          "role": "source"
+        }
+      ],
+      "steady_windows": 9,
+      "final_errors": 0,
+      "final_timeouts": 0
+    },
+    {
+      "name": "warmup-60-r2",
+      "warmup": 60,
+      "repeat": 2,
+      "exit_code": 1,
+      "classification": "FAIL",
+      "valid": false,
+      "error": "B5 stream failed: live p99 drift",
+      "gbps": null,
+      "achieved_offered_ratio": null,
+      "window_p99_median_ns": null,
+      "continuous_ownership": null,
+      "ownership_reports": null,
+      "steady_windows": 6,
+      "final_errors": null,
+      "final_timeouts": null
+    },
+    {
+      "name": "warmup-3-r2",
+      "warmup": 3,
+      "repeat": 2,
+      "exit_code": 1,
+      "classification": "FAIL",
+      "valid": false,
+      "error": "B5 stream failed: live private growth: source (receive-clock diagnostic)",
+      "gbps": null,
+      "achieved_offered_ratio": null,
+      "window_p99_median_ns": null,
+      "continuous_ownership": null,
+      "ownership_reports": null,
+      "steady_windows": 9,
+      "final_errors": null,
+      "final_timeouts": null
+    },
+    {
+      "name": "warmup-3-r3",
+      "warmup": 3,
+      "repeat": 3,
+      "exit_code": 0,
+      "classification": "DIAGNOSTIC",
+      "valid": true,
+      "error": null,
+      "gbps": 2.236823653049633,
+      "achieved_offered_ratio": 0.9875705181548442,
+      "window_p99_median_ns": 1329282,
+      "continuous_ownership": {
+        "classification": "NOT_MEASURED"
+      },
+      "ownership_reports": [
+        {
+          "all_11_zero": true,
+          "file": "d0.cleanup.json",
+          "pid": 332,
+          "role": "destination"
+        },
+        {
+          "all_11_zero": true,
+          "file": "source.cleanup.json",
+          "pid": 333,
+          "role": "source"
+        }
+      ],
+      "steady_windows": 9,
+      "final_errors": 0,
+      "final_timeouts": 0
+    },
+    {
+      "name": "warmup-60-r3",
+      "warmup": 60,
+      "repeat": 3,
+      "exit_code": 0,
+      "classification": "DIAGNOSTIC",
+      "valid": true,
+      "error": null,
+      "gbps": 2.2392477519569676,
+      "achieved_offered_ratio": 0.9886403223995713,
+      "window_p99_median_ns": 1322885,
+      "continuous_ownership": {
+        "classification": "NOT_MEASURED"
+      },
+      "ownership_reports": [
+        {
+          "all_11_zero": true,
+          "file": "d0.cleanup.json",
+          "pid": 415,
+          "role": "destination"
+        },
+        {
+          "all_11_zero": true,
+          "file": "source.cleanup.json",
+          "pid": 416,
+          "role": "source"
+        }
+      ],
+      "steady_windows": 9,
+      "final_errors": 0,
+      "final_timeouts": 0
+    }
+  ]
+}
