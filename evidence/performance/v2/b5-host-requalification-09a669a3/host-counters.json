@@ -1,0 +1,65 @@
+{
+  "classification": "DIAGNOSTIC_SHORT_HOST_SAMPLE_NOT_CEILING",
+  "samples": [
+    {
+      "utc": "2026-09-08T17:26:01.6621528Z",
+      "counter": "<host>\\processor information(_total)\\% processor performance",
+      "value": 132.29601839478028,
+      "status": 0
+    },
+    {
+      "utc": "2026-09-08T17:26:01.6621528Z",
+      "counter": "<host>\\processor(_total)\\% processor time",
+      "value": 38.67955731942361,
+      "status": 0
+    },
+    {
+      "utc": "2026-09-08T17:26:02.6680256Z",
+      "counter": "<host>\\processor information(_total)\\% processor performance",
+      "value": 139.22211319032405,
+      "status": 0
+    },
+    {
+      "utc": "2026-09-08T17:26:02.6680256Z",
+      "counter": "<host>\\processor(_total)\\% processor time",
+      "value": 40.194972962784156,
+      "status": 0
+    },
+    {
+      "utc": "2026-09-08T17:26:03.6774446Z",
+      "counter": "<host>\\processor information(_total)\\% processor performance",
+      "value": 128.4829148762613,
+      "status": 0
+    },
+    {
+      "utc": "2026-09-08T17:26:03.6774446Z",
+      "counter": "<host>\\processor(_total)\\% processor time",
+      "value": 47.75769031492373,
+      "status": 0
+    },
+    {
+      "utc": "2026-09-08T17:26:04.6915753Z",
+      "counter": "<host>\\processor information(_total)\\% processor performance",
+      "value": 121.33681883995436,
+      "status": 0
+    },
+    {
+      "utc": "2026-09-08T17:26:04.6915753Z",
+      "counter": "<host>\\processor(_total)\\% processor time",
+      "value": 64.75584458689595,
+      "status": 0
+    },
+    {
+      "utc": "2026-09-08T17:26:05.6931672Z",
+      "counter": "<host>\\processor information(_total)\\% processor performance",
+      "value": 124.25448377075114,
+      "status": 0
+    },
+    {
+      "utc": "2026-09-08T17:26:05.6931672Z",
+      "counter": "<host>\\processor(_total)\\% processor time",
+      "value": 53.21598088197881,
+      "status": 0
+    }
+  ]
+}

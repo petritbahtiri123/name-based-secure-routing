@@ -1,0 +1,190 @@
+{
+  "source_sha": "09a669a343330b381c67605114338cdc87d420e4",
+  "classification": "DIAGNOSTIC_AND_FINITE_REFERENCE_FAILURE_NOT_SUSTAINED_CAPACITY",
+  "preparation": [
+    {
+      "name": "warmup-3-r1",
+      "warmup": 3,
+      "repeat": 1,
+      "exit_code": 1,
+      "classification": "DIAGNOSTIC_PREPARATION_COMPARISON_NOT_CAPACITY",
+      "valid_records": 0,
+      "failure": "B5 stream failed: live private growth: destination_0 (receive-clock diagnostic)"
+    },
+    {
+      "name": "warmup-60-r1",
+      "warmup": 60,
+      "repeat": 1,
+      "exit_code": 1,
+      "classification": "DIAGNOSTIC_PREPARATION_COMPARISON_NOT_CAPACITY",
+      "valid_records": 0,
+      "failure": "B5 stream failed: live private growth: destination_0 (receive-clock diagnostic)"
+    },
+    {
+      "name": "warmup-60-r2",
+      "warmup": 60,
+      "repeat": 2,
+      "exit_code": 1,
+      "classification": "DIAGNOSTIC_PREPARATION_COMPARISON_NOT_CAPACITY",
+      "valid_records": 0,
+      "failure": "B5 stream failed: live private growth: destination_0 (receive-clock diagnostic)"
+    },
+    {
+      "name": "warmup-3-r2",
+      "warmup": 3,
+      "repeat": 2,
+      "exit_code": 1,
+      "classification": "DIAGNOSTIC_PREPARATION_COMPARISON_NOT_CAPACITY",
+      "valid_records": 0,
+      "failure": "B5 stream failed: live private growth: destination_0 (receive-clock diagnostic)"
+    },
+    {
+      "name": "warmup-3-r3",
+      "warmup": 3,
+      "repeat": 3,
+      "exit_code": 1,
+      "classification": "DIAGNOSTIC_PREPARATION_COMPARISON_NOT_CAPACITY",
+      "valid_records": 0,
+      "failure": "B5 stream failed: live private growth: destination_0 (receive-clock diagnostic)"
+    },
+    {
+      "name": "warmup-60-r3",
+      "warmup": 60,
+      "repeat": 3,
+      "exit_code": 1,
+      "classification": "DIAGNOSTIC_PREPARATION_COMPARISON_NOT_CAPACITY",
+      "valid_records": 0,
+      "failure": "B5 stream failed: live private growth: destination_0 (receive-clock diagnostic)"
+    }
+  ],
+  "finite_reference": {
+    "valid_records": 30,
+    "record_count": 30,
+    "ladders": {
+      "direct": {
+        "cells": [
+          {
+            "classification": "SATURATED",
+            "errors_timeouts_or_cleanup_failure": false,
+            "gbps_range": [
+              0.5211156010982566,
+              1.2461753426058244
+            ],
+            "median_gbps": 0.9060190138801023,
+            "median_p99_ns": 1455995,
+            "outstanding_per_stream": 1,
+            "p99_ratio_range": [
+              0.7892712543655713,
+              2.295534668731692
+            ],
+            "repeat_count": 5,
+            "repeat_cv": 0.291971428444231
+          },
+          {
+            "classification": "SATURATED",
+            "errors_timeouts_or_cleanup_failure": false,
+            "gbps_range": [
+              1.0173228509852772,
+              1.3239941116451308
+            ],
+            "median_gbps": 1.0474674990782558,
+            "median_p99_ns": 2265297,
+            "outstanding_per_stream": 2,
+            "p99_ratio_range": [
+              1.1626241848357997,
+              2.0278194636657405
+            ],
+            "repeat_count": 5,
+            "repeat_cv": 0.11728432442070513
+          },
+          {
+            "classification": "SATURATED",
+            "errors_timeouts_or_cleanup_failure": false,
+            "gbps_range": [
+              0.7631569470199422,
+              1.7340624097481472
+            ],
+            "median_gbps": 1.2784355892050931,
+            "median_p99_ns": 5555624,
+            "outstanding_per_stream": 4,
+            "p99_ratio_range": [
+              1.5943955851496743,
+              9.854109389111914
+            ],
+            "repeat_count": 5,
+            "repeat_cv": 0.3077931668112123
+          }
+        ],
+        "hardware_ceiling": "NOT_CLASSIFIED; CPU/topology and other resource evidence must be assessed separately.",
+        "observed_peak_diagnostic_gbps": 1.7340624097481472,
+        "reference_p99_ns": 1455995,
+        "schema": "nbsr-physical-core-ladder-classification-v1",
+        "scope": "One fixed-shape closed-loop depth ladder. Bounded in-flight work and clean drain are required; no external offered-rate claim.",
+        "strict_stable_gbps": null
+      },
+      "nbsr": {
+        "cells": [
+          {
+            "classification": "SATURATED",
+            "errors_timeouts_or_cleanup_failure": false,
+            "gbps_range": [
+              0.6195923872960001,
+              1.0509410675965514
+            ],
+            "median_gbps": 0.9856542173484371,
+            "median_p99_ns": 1346307,
+            "outstanding_per_stream": 1,
+            "p99_ratio_range": [
+              0.9223594618463694,
+              2.26040197369545
+            ],
+            "repeat_count": 5,
+            "repeat_cv": 0.20023462591013236
+          },
+          {
+            "classification": "SATURATED",
+            "errors_timeouts_or_cleanup_failure": false,
+            "gbps_range": [
+              0.8646024203715033,
+              1.512729450663631
+            ],
+            "median_gbps": 1.2141699960094485,
+            "median_p99_ns": 2057409,
+            "outstanding_per_stream": 2,
+            "p99_ratio_range": [
+              1.2448631701387574,
+              3.189266638292752
+            ],
+            "repeat_count": 5,
+            "repeat_cv": 0.19440392927934078
+          },
+          {
+            "classification": "SATURATED",
+            "errors_timeouts_or_cleanup_failure": false,
+            "gbps_range": [
+              1.2241020609991997,
+              2.046047165938378
+            ],
+            "median_gbps": 1.4929711285988467,
+            "median_p99_ns": 3804872,
+            "outstanding_per_stream": 4,
+            "p99_ratio_range": [
+              1.4824271135781066,
+              9.688567317855437
+            ],
+            "repeat_count": 5,
+            "repeat_cv": 0.20460888644876823
+          }
+        ],
+        "hardware_ceiling": "NOT_CLASSIFIED; CPU/topology and other resource evidence must be assessed separately.",
+        "observed_peak_diagnostic_gbps": 2.046047165938378,
+        "reference_p99_ns": 1346307,
+        "schema": "nbsr-physical-core-ladder-classification-v1",
+        "scope": "One fixed-shape closed-loop depth ladder. Bounded in-flight work and clean drain are required; no external offered-rate claim.",
+        "strict_stable_gbps": null
+      }
+    }
+  },
+  "decision": "No strict-stable current-host reference; no qualified near-ceiling soak started. Preserve historical measurements with their original scope.",
+  "cause": "UNRESOLVED; longer unpaced warmup did not remove paced destination private-resident growth; short host snapshots do not prove thermal, CPU or other hardware cause."
+}

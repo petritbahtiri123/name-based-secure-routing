@@ -1,0 +1,19 @@
+{
+  "utc": "2026-09-08T17:22:02.6807467Z",
+  "classification": "DIAGNOSTIC_SINGLE_HOST_POWER_SNAPSHOT_NOT_CAUSAL",
+  "cpu": [
+    {
+      "Name": "Intel(R) Core(TM) i5-10210U CPU @ 1.60GHz",
+      "CurrentClockSpeed": 2101,
+      "MaxClockSpeed": 2101,
+      "NumberOfCores": 4,
+      "NumberOfLogicalProcessors": 8
+    }
+  ],
+  "battery": [
+    {
+      "BatteryStatus": 2,
+      "EstimatedChargeRemaining": 85
+    }
+  ]
+}

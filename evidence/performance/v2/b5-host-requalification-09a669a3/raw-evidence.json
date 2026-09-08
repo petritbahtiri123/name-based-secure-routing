@@ -1,0 +1,14 @@
+[
+  {
+    "root": "C:\\NBSR-build\\linux-current-09a669a3",
+    "index_sha256": "f2ea926a2b238fb5468d969910732f71b898693801d481c26904852a4a0f2d0c"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-b5-preparation-09a669a3",
+    "index_sha256": "68772df1ee8175fc1bac0fee9db1000a47b0fd4e40be5a282b46756228ca1ff1"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-b5-reference-09a669a3",
+    "index_sha256": "da78b7b16471a7cffc6bb015ff1074a69e82facaa7574260b30348eed82aaba0"
+  }
+]
