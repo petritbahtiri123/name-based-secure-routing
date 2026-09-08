@@ -28,15 +28,33 @@ ec836e81 permits 2048/4096 for only the explicit live workload, after literal
 RED and 53 Python tests, release clippy/default check. Larger runs remain next.
 See B3_LIVE_BUNDLES.md. No production optimization was made.
 
-The original live/cycle container exited zero. A queued 40b277fb container
-`nbsr-requalification-40b277fb` is waiting at its pre-benchmark setup gate under
-C:/NBSR-build/linux-requalification-40b277fb; release only after local builds
-and analysis stop. It will run three independent materialized idle controls,
-two paired Linux references, then the one-guest-core admission ladder.
-Do not overlap that timing with builds or Windows benchmarks. A fresh Windows
-reference/soak check after sample-buffer preparation also remains useful.
-External Linux documentation is being reconciled with implemented B3/B5
-loopback CLIs; remote execution remains unavailable and unclaimed.
+The 40b277fb requalification completed: all three materialized idle controls
+failed with 2,221 matched source idle-expiry diagnostics. Linux 16 KiB/eight
+streams has a short finite NBSR STABLE cell at 3.235685 Gbit/s; 1 KiB/64 has
+no strict-stable cell. Scope remains one selected guest CPU, observer not
+separately qualified, not server or sustained capacity. Its 70% paced preflight
+failed p99 drift at 150 seconds; no longer soak followed.
+
+At07096c08, Windows 16 KiB/eight streams reproduced 1.050835 Gbit/s finite
+STABLE, 1.155600 DEGRADED and 1.108855 SATURATED. The 70% short paced preflight
+failed repeat two at 94.828% achieved/offered. Canonical packages:
+evidence/performance/v2/windows-requalification-07096c08 and
+linux-requalification-40b277fb. These preserve failures, not a funding freeze.
+
+The initial 2048 active-bundle attempt failed with601 handshake timeouts;
+no OOM/memory-pressure evidence and no4096 attempt. The B4 Linux ladder then
+exposed a verified PF_EXITING FD-permission race at100/s.2a30272e adds a B4-only
+exit transition with owned completion required;69 tests and500 real Linux
+child lifecycles pass (four actual exiting observations). No production change.
+
+Current private-checkout runtime: nbsr-followup-2a30272e, raw root
+C:/NBSR-build/linux-followup-2a30272e. It runs the full post-fix one-guest-core
+admission ladder, then three independent1024/2048 live-bundle diagnostic pairs
+with pre/post namespace network counters. No extra timed profiler. Do not
+build, run other benchmarks or hash large raw roots while its timing runs.
+A Windows1KiB/64 requalification remains independent follow-up work if useful.
+External documentation now identifies executable Linux B3/B4/B5 loopback CLIs;
+remote/server execution remains unavailable. Usage last read15% of30% cap.
 
 ## Five-point continuation checkpoint
 

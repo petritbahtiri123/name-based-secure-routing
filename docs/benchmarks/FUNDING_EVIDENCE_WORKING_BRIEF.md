@@ -100,7 +100,8 @@ five repeats at 512 and five at 1024 authenticated bundles, with eleven-counter
 zero ownership on both roles and process exit. Standard QUIC keepalive is
 explicitly enabled only for this benchmark scenario. Ordinary idle expiry,
 negotiated idle limits and production defaults are unchanged. The old idle
-1024 failures remain failures; matched materialized idle controls are pending.
+1024 failures remain failures; three matched materialized idle controls now
+retain 2,221 source failures with complete idle-expiry diagnostics.
 Five 100-cycle repetitions completed 500 clean cycles with zero FD/thread
 growth; the residual private-memory trend still does not prove an allocator
 cause or a general plateau. See `B3_LIVE_BUNDLES.md` and its canonical package.
@@ -114,6 +115,16 @@ strict-stable cell; six preparation diagnostics still abort on destination
 private-resident growth. No new qualified soak or improved throughput claim
 follows. See `B5_CURRENT_HOST_REQUALIFICATION.md`. Earlier finite figures retain
 their original source, workload and host-state scope.
+
+A later 40b277fb 16 KiB/eight-stream Linux finite reference classifies STABLE
+at3.235685 Gbit/s; its separate 70% paced preflight fails p99 drift at150seconds.
+This is observed Docker/WSL short-run evidence, not sustained/server capacity.
+Windows07096c08 reproduces1.050835 Gbit/s STABLE for the one-physical-core
+16KiB/eight-stream finite shape, but its short paced preflight also fails.
+The2048 live-bundle attempt fails handshake progress;1024 remains the largest
+accepted active-bundle count. See LINUX_SEPTEMBER8_REQUALIFICATION.md and
+B5_WINDOWS_REQUALIFICATION_07096C08.md. A B4-only Linux exiting-process observer
+repair is regression-tested; its post-fix admission rerun remains in progress.
 
 Current campaign recommendation: **MORE ENGINEERING REQUIRED**. This brief is
 not a readiness endorsement and must be rewritten around the final accepted

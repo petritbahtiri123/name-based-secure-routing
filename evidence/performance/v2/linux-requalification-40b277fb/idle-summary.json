@@ -1,0 +1,65 @@
+{
+  "1": {
+    "classification": "PASS_DIAGNOSTIC_COMPLETENESS_NOT_CAPACITY",
+    "failed": 801,
+    "successful": 223,
+    "categories": {
+      "timed_out": {
+        "count": 801,
+        "held_seconds_range": [
+          8.155039105,
+          16.143190778
+        ]
+      }
+    },
+    "failed_id_range": [
+      0,
+      801
+    ],
+    "failure_types": {
+      "client_task_failed": 801
+    }
+  },
+  "2": {
+    "classification": "PASS_DIAGNOSTIC_COMPLETENESS_NOT_CAPACITY",
+    "failed": 811,
+    "successful": 213,
+    "categories": {
+      "timed_out": {
+        "count": 811,
+        "held_seconds_range": [
+          8.412236497,
+          16.472640932
+        ]
+      }
+    },
+    "failed_id_range": [
+      0,
+      818
+    ],
+    "failure_types": {
+      "client_task_failed": 811
+    }
+  },
+  "3": {
+    "classification": "PASS_DIAGNOSTIC_COMPLETENESS_NOT_CAPACITY",
+    "failed": 609,
+    "successful": 415,
+    "categories": {
+      "timed_out": {
+        "count": 609,
+        "held_seconds_range": [
+          9.029112496,
+          15.607819145
+        ]
+      }
+    },
+    "failed_id_range": [
+      0,
+      669
+    ],
+    "failure_types": {
+      "client_task_failed": 609
+    }
+  }
+}

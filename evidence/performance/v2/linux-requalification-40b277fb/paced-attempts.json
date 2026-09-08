@@ -1,0 +1,42 @@
+[
+  {
+    "affinity": [
+      {
+        "linux_affinity": [
+          0
+        ],
+        "observed_mask": 1,
+        "requested_mask": 1,
+        "start_ticks": 768003,
+        "verified": true
+      },
+      {
+        "linux_affinity": [
+          0
+        ],
+        "observed_mask": 1,
+        "requested_mask": 1,
+        "start_ticks": 768005,
+        "verified": true
+      }
+    ],
+    "classification": "FAIL",
+    "error": "B5 stream failed: live p99 drift",
+    "failure_traceback": "Traceback (most recent call last):\n  File \"/tmp/source/scripts/performance/b5_stream.py\", line 117, in feed\n    self._accept_line(line)\n    ~~~~~~~~~~~~~~~~~^^^^^^\n  File \"/tmp/source/scripts/performance/b5_stream.py\", line 140, in _accept_line\n    self._on_progress(value)\n    ~~~~~~~~~~~~~~~~~^^^^^^^\n  File \"/tmp/source/scripts/run_b5_v2.py\", line 178, in progress\n    raise RuntimeError(f\"live {reason} drift\")\nRuntimeError: live p99 drift\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/tmp/source/scripts/run_b5_v2.py\", line 363, in run_one\n    final = consume(source, reader, stream, **consume_options)\n  File \"/tmp/source/scripts/run_b5_v2.py\", line 112, in consume\n    stream.feed(value, source_active=observe_exit() is None)\n    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/source/scripts/performance/b5_stream.py\", line 124, in feed\n    raise ValueError(f\"B5 stream failed: {error}\") from error\nValueError: B5 stream failed: live p99 drift\n",
+    "failure_traceback_truncated": false,
+    "path": "nbsr",
+    "qualification": {
+      "latency_comparison_available": true,
+      "resource_memory_metric": "private_resident_bytes",
+      "resource_phase_clock": "first-progress receive time minus elapsed; approximate, excludes earlier samples",
+      "resource_phase_origin_monotonic_ns": 7683066489800,
+      "resource_sample_clock": "timestamp_ns",
+      "resource_series_available": true,
+      "steady_windows": 5,
+      "thermal_and_power": "NOT_MEASURED"
+    },
+    "raw_directory": "raw/nbsr-r1",
+    "scope": "Linux loopback shared physical-core pool; observer qualification pending",
+    "valid": false
+  }
+]
