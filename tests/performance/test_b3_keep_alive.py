@@ -15,6 +15,15 @@ def test_keep_alive_bundles_are_a_distinct_workload():
     assert 'keepalive' in live['resource_scope']
 
 
+def test_live_bundle_progression_preserves_idle_workload_bound():
+    assert v2.spec_for('live-bundles', 2048, 1)['sessions'] == 2048
+    assert v2.spec_for('live-bundles', 4096, 1)['sessions'] == 4096
+    with pytest.raises(ValueError, match='bound'):
+        v2.spec_for('bundles', 2048, 1)
+    with pytest.raises(ValueError, match='bound'):
+        v2.spec_for('live-bundles', 4097, 1)
+
+
 @pytest.mark.parametrize('path,kind,interval', [
     ('go-rust', 'sessions', 1),
     ('rust-rust', 'streams', 1),

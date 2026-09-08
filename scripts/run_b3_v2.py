@@ -52,8 +52,9 @@ def spec_for(axis, count, repeat, *, materialized_streams=False, fixed_channels=
     spec = dict(name=f"{axis}-{count}-r{repeat}", kind=axis, active_count=count,
                 sessions=1, channels=1, streams=1, cycles=1, start_rate=100)
     if axis in ("bundles", "live-bundles"):
-        if not 1 <= count <= 1024:
-            raise ValueError("logical client bound is 1024")
+        maximum = 4096 if axis == "live-bundles" else 1024
+        if not 1 <= count <= maximum:
+            raise ValueError(f"logical client bound is {maximum}")
         spec.update(sessions=count, kind="sessions",
                     resource_scope="one authenticated connection + session + channel + stream per bundle")
         if axis == "live-bundles":

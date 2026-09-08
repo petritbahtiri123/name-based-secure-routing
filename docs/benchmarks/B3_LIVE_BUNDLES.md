@@ -9,9 +9,12 @@ original idle workload passed, or a production optimization.
 Use `scripts.run_b3_v2 --axis live-bundles --materialized-streams` with the
 existing release provenance, Linux telemetry and repeat requirements. Each
 bundle retains an authenticated connection, session, channel, authorized
-request and both endpoint stream handles. Start with 512 and 1024; preserve
-failures. The existing 1024 bound, admission pace, sampling, release, cleanup
-and idle timeouts remain unchanged. Resource scopes and names differ so old
+request and both endpoint stream handles. Five repeats each at 512 and 1024
+passed at 40b277fb. The active scenario now permits the next 2048/4096 steps;
+those larger cells require their own evidence. The ordinary idle workload's
+1024 bound, admission pace, sampling, release, cleanup and idle timeouts remain
+unchanged. The larger Rust bound requires both the explicit keepalive and hold
+flags with benchmark-harness enabled. Resource scopes and names differ so old
 idle and new active scenarios cannot be pooled in analysis.
 
 The keepalive configuration is available only with `benchmark-harness`.

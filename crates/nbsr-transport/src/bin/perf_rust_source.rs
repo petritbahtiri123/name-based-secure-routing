@@ -2060,7 +2060,11 @@ fn main() {
         let logical_clients = logical_clients
             .parse::<usize>()
             .expect("valid --lifecycle-clients");
-        assert!((1..=1024).contains(&logical_clients));
+        let live_bundles = cfg!(feature = "benchmark-harness")
+            && optional_argument("--b3-keep-alive-seconds").as_deref() == Some("1")
+            && optional_argument("--hold-for-release").is_some();
+        let maximum_clients = if live_bundles { 4096 } else { 1024 };
+        assert!((1..=maximum_clients).contains(&logical_clients));
         let timeline = handshake_timeline::Region::open(logical_clients, 1);
         let shards = lifecycle_shards::parse_shards(
             optional_argument("--lifecycle-source-shards").as_deref(),
