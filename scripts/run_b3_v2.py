@@ -137,7 +137,8 @@ def execute(args):
                    "crates/nbsr-transport/src/bin/b3_support/mod.rs"]
     if linux:
         sources += ['scripts/performance/b3_linux.py', 'scripts/performance/b3_linux_analysis.py',
-                    'scripts/performance/linux_resources.py', 'scripts/performance/linux_loopback.py']
+                    'scripts/performance/linux_resources.py', 'scripts/performance/linux_loopback.py',
+                    'scripts/performance/linux_udp_failure.py']
     for source in sources:
         dest = args.output / "source" / source
         dest.parent.mkdir(parents=True, exist_ok=True)

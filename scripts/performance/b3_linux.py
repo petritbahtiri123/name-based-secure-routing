@@ -54,6 +54,10 @@ class LinuxCapture:
     def command(self, argv):
         return [self.taskset, '-c', ','.join(map(str, self.cpus)), *argv]
 
+    def failure_snapshot(self, processes):
+        from scripts.performance.linux_udp_failure import capture_owned_udp
+        return capture_owned_udp(processes, {pid: row[0] for pid, row in self._previous.items()})
+
     def _exited(self, process):
         prior = self._previous.get(process.pid)
         if process.poll() != 0 or prior is None:

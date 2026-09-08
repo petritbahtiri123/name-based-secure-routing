@@ -343,6 +343,13 @@ def run_cell(path: str, spec: dict[str, int | str], binaries: dict[str, Path], r
                 report_phase["ended_unix_ns"] = time.time_ns()
                 write_json(cell_dir / "report-phase.json", report_phase)
         except Exception as error:
+            snapshot = getattr(capture_backend, "failure_snapshot", None)
+            if snapshot is not None:
+                try:
+                    observed = snapshot({"destination": server, **{f"source-{i}": p for i, p in enumerate(clients)}})
+                except Exception as diagnostic_error:
+                    observed = {"status": "UNAVAILABLE", "error_type": type(diagnostic_error).__name__}
+                write_json(cell_dir / "linux-udp-failure.json", observed)
             details = []
             for label, process in [("destination", server), *[(f"source-{index}", client) for index, client in enumerate(clients)]]:
                 if process.poll() is None:
