@@ -1,0 +1,593 @@
+{
+  "schema": "nbsr-b3-linux-analysis-v1",
+  "inputs": [
+    {
+      "root": "C:\\NBSR-build\\linux-b3-live-40b277fb\\live-materialized",
+      "checksums_sha256": "37061373a34146e6137c7c5bd6ecb3ece02c317dc1114fe9ac3e3e5d7bf28329",
+      "environment_sha256": "e803e4026bc1a61458a4c12cbcf241139fd3295fa4b86fdb212e466d23605876",
+      "records_sha256": "e7f4e4efacd06f72aefc922183e6deecc2c17bed7d34598b9a8b1fbdf5fe7288",
+      "build_manifest_sha256": "406923e65991a980b3af202e056b4bb29b32bb56f205929ad67d5048715300e2",
+      "classification": "MEASURED_PENDING_ANALYSIS",
+      "source_sha": "40b277fbbf6842f76094c0621f0a9fde0ee28f5a",
+      "binary_source_sha": "40b277fbbf6842f76094c0621f0a9fde0ee28f5a",
+      "binary_sha256": {
+        "rust": "e111e92433a7eb060e5ee583aa8e0cd8ced2f112bd1382481aab19ab5fac2df0",
+        "server": "54f36df2393211b9377c3e200b911afb9c295d1d9fceccd73b4477644c2167e0"
+      },
+      "controller_hashes": {
+        "run_b3_v2.py": "c9e69c58d30f85d8f8635c0eca8d927f5ed034d2a2a471194e7822211e5adb74",
+        "run_b3_session_lifecycle.py": "5962bd9f5881bf2c3b015c102aaa751447304e7cfa6d857e5d4d7c6d278fa271",
+        "performance/b3_linux.py": "0866cc3a53df25e555f250215df02f30ce0135e19516e6e63f8a9f6eac78ad91",
+        "performance/b3_linux_analysis.py": "b8853e00fdf7aef2b5cfb2d4c5a253904e3ddac5ee323115515121c8c7cde8e9",
+        "performance/linux_resources.py": "9feee74b6ba9a8178be67ecdffc68b9b3263192c4518f0f557e1e76b90883de5",
+        "performance/linux_loopback.py": "5691c05db02e68f6691821ec7e30bdd80a0c0d482fa2943805e625b5f69c7caf"
+      },
+      "memory_scope": "Linux smaps private resident/RSS/PSS/separate hugetlb, FD/thread counts; no Windows commit/handle aliases",
+      "platform": {
+        "topology": {
+          "cpus": [
+            {
+              "core": 0,
+              "cpu": 0,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            },
+            {
+              "core": 0,
+              "cpu": 1,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            },
+            {
+              "core": 1,
+              "cpu": 2,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            },
+            {
+              "core": 1,
+              "cpu": 3,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            },
+            {
+              "core": 2,
+              "cpu": 4,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            },
+            {
+              "core": 2,
+              "cpu": 5,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            },
+            {
+              "core": 3,
+              "cpu": 6,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            },
+            {
+              "core": 3,
+              "cpu": 7,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            }
+          ]
+        },
+        "selected_cpus": [
+          0
+        ],
+        "inherited_cpus": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "kernel": "Linux-6.6.114.1-microsoft-standard-WSL2-x86_64-with-glibc2.36",
+        "python": "3.14.6",
+        "taskset_version": "taskset from util-linux 2.38.1",
+        "lscpu_version": "lscpu from util-linux 2.38.1"
+      },
+      "cgroup_limits": {
+        "/sys/fs/cgroup/cpu.max": "max 100000\n",
+        "/sys/fs/cgroup/cpuset.cpus.effective": "0-7\n",
+        "/sys/fs/cgroup/memory.max": "max\n",
+        "/sys/fs/cgroup/pids.max": "max\n"
+      }
+    }
+  ],
+  "classification": "MEASURED_PENDING_ANALYSIS",
+  "cycles": [],
+  "scale": [
+    {
+      "kind": "sessions",
+      "role": "source",
+      "points": [
+        {
+          "count": 512,
+          "repeats": 5,
+          "active_private_resident_cv_percent": 0.7760481411011408,
+          "repeat_gate": true,
+          "active_private_resident_median": 196157440,
+          "active_private_resident_range": [
+            193744896,
+            197898240
+          ],
+          "incremental_private_resident_median": 168411136,
+          "rows": [
+            {
+              "name": "live-bundles-512-r1",
+              "idle": {
+                "private_resident_bytes": 27734016,
+                "rss_bytes": 29630464,
+                "pss_bytes": 28251136,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 9,
+                "thread_count": 4
+              },
+              "active": {
+                "private_resident_bytes": 193744896,
+                "rss_bytes": 195641344,
+                "pss_bytes": 194262016,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 521,
+                "thread_count": 4
+              },
+              "incremental_private_resident_bytes": 166010880
+            },
+            {
+              "name": "live-bundles-512-r2",
+              "idle": {
+                "private_resident_bytes": 27664384,
+                "rss_bytes": 29532160,
+                "pss_bytes": 28145664,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 9,
+                "thread_count": 4
+              },
+              "active": {
+                "private_resident_bytes": 195248128,
+                "rss_bytes": 197115904,
+                "pss_bytes": 195729408,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 521,
+                "thread_count": 4
+              },
+              "incremental_private_resident_bytes": 167583744
+            },
+            {
+              "name": "live-bundles-512-r3",
+              "idle": {
+                "private_resident_bytes": 27762688,
+                "rss_bytes": 29630464,
+                "pss_bytes": 28241920,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 9,
+                "thread_count": 4
+              },
+              "active": {
+                "private_resident_bytes": 197898240,
+                "rss_bytes": 199766016,
+                "pss_bytes": 198377472,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 521,
+                "thread_count": 4
+              },
+              "incremental_private_resident_bytes": 170135552
+            },
+            {
+              "name": "live-bundles-512-r4",
+              "idle": {
+                "private_resident_bytes": 27725824,
+                "rss_bytes": 29601792,
+                "pss_bytes": 28228608,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 9,
+                "thread_count": 4
+              },
+              "active": {
+                "private_resident_bytes": 196247552,
+                "rss_bytes": 198123520,
+                "pss_bytes": 196750336,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 521,
+                "thread_count": 4
+              },
+              "incremental_private_resident_bytes": 168521728
+            },
+            {
+              "name": "live-bundles-512-r5",
+              "idle": {
+                "private_resident_bytes": 27746304,
+                "rss_bytes": 29614080,
+                "pss_bytes": 28256256,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 9,
+                "thread_count": 4
+              },
+              "active": {
+                "private_resident_bytes": 196157440,
+                "rss_bytes": 198025216,
+                "pss_bytes": 196667392,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 521,
+                "thread_count": 4
+              },
+              "incremental_private_resident_bytes": 168411136
+            }
+          ]
+        },
+        {
+          "count": 1024,
+          "repeats": 5,
+          "active_private_resident_cv_percent": 0.5815361459607301,
+          "repeat_gate": true,
+          "active_private_resident_median": 382308352,
+          "active_private_resident_range": [
+            379756544,
+            385241088
+          ],
+          "incremental_private_resident_median": 329310208,
+          "rows": [
+            {
+              "name": "live-bundles-1024-r1",
+              "idle": {
+                "private_resident_bytes": 52998144,
+                "rss_bytes": 54865920,
+                "pss_bytes": 53495808,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 9,
+                "thread_count": 4
+              },
+              "active": {
+                "private_resident_bytes": 382308352,
+                "rss_bytes": 384176128,
+                "pss_bytes": 382806016,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 1033,
+                "thread_count": 4
+              },
+              "incremental_private_resident_bytes": 329310208
+            },
+            {
+              "name": "live-bundles-1024-r2",
+              "idle": {
+                "private_resident_bytes": 53121024,
+                "rss_bytes": 55005184,
+                "pss_bytes": 53630976,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 9,
+                "thread_count": 4
+              },
+              "active": {
+                "private_resident_bytes": 380141568,
+                "rss_bytes": 382025728,
+                "pss_bytes": 380651520,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 1033,
+                "thread_count": 4
+              },
+              "incremental_private_resident_bytes": 327020544
+            },
+            {
+              "name": "live-bundles-1024-r3",
+              "idle": {
+                "private_resident_bytes": 53006336,
+                "rss_bytes": 54824960,
+                "pss_bytes": 53478400,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 9,
+                "thread_count": 4
+              },
+              "active": {
+                "private_resident_bytes": 379756544,
+                "rss_bytes": 381575168,
+                "pss_bytes": 380228608,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 1033,
+                "thread_count": 4
+              },
+              "incremental_private_resident_bytes": 326750208
+            },
+            {
+              "name": "live-bundles-1024-r4",
+              "idle": {
+                "private_resident_bytes": 53080064,
+                "rss_bytes": 54968320,
+                "pss_bytes": 53590016,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 9,
+                "thread_count": 4
+              },
+              "active": {
+                "private_resident_bytes": 382820352,
+                "rss_bytes": 384708608,
+                "pss_bytes": 383330304,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 1033,
+                "thread_count": 4
+              },
+              "incremental_private_resident_bytes": 329740288
+            },
+            {
+              "name": "live-bundles-1024-r5",
+              "idle": {
+                "private_resident_bytes": 53088256,
+                "rss_bytes": 54874112,
+                "pss_bytes": 53553152,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 9,
+                "thread_count": 4
+              },
+              "active": {
+                "private_resident_bytes": 385241088,
+                "rss_bytes": 387092480,
+                "pss_bytes": 385733632,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 1033,
+                "thread_count": 4
+              },
+              "incremental_private_resident_bytes": 332152832
+            }
+          ]
+        }
+      ],
+      "resource_scope": "one authenticated connection + session + channel + stream per bundle; QUIC keepalive every 1 second",
+      "materialized_streams": true,
+      "derived_active_private_resident_slope_bytes_per_unit": 363576.0,
+      "derived_incremental_private_resident_slope_bytes_per_unit": 314256.0
+    },
+    {
+      "kind": "sessions",
+      "role": "destination",
+      "points": [
+        {
+          "count": 512,
+          "repeats": 5,
+          "active_private_resident_cv_percent": 0.8350190966401922,
+          "repeat_gate": true,
+          "active_private_resident_median": 158560256,
+          "active_private_resident_range": [
+            156286976,
+            159571968
+          ],
+          "incremental_private_resident_median": 154918912,
+          "rows": [
+            {
+              "name": "live-bundles-512-r1",
+              "idle": {
+                "private_resident_bytes": 3641344,
+                "rss_bytes": 5455872,
+                "pss_bytes": 4115456,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 8,
+                "thread_count": 2
+              },
+              "active": {
+                "private_resident_bytes": 157097984,
+                "rss_bytes": 158912512,
+                "pss_bytes": 157572096,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 8,
+                "thread_count": 2
+              },
+              "incremental_private_resident_bytes": 153456640
+            },
+            {
+              "name": "live-bundles-512-r2",
+              "idle": {
+                "private_resident_bytes": 3604480,
+                "rss_bytes": 5591040,
+                "pss_bytes": 4144128,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 8,
+                "thread_count": 2
+              },
+              "active": {
+                "private_resident_bytes": 159571968,
+                "rss_bytes": 161558528,
+                "pss_bytes": 160111616,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 8,
+                "thread_count": 2
+              },
+              "incremental_private_resident_bytes": 155967488
+            },
+            {
+              "name": "live-bundles-512-r3",
+              "idle": {
+                "private_resident_bytes": 3633152,
+                "rss_bytes": 5500928,
+                "pss_bytes": 4112384,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 8,
+                "thread_count": 2
+              },
+              "active": {
+                "private_resident_bytes": 156286976,
+                "rss_bytes": 158154752,
+                "pss_bytes": 156766208,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 8,
+                "thread_count": 2
+              },
+              "incremental_private_resident_bytes": 152653824
+            },
+            {
+              "name": "live-bundles-512-r4",
+              "idle": {
+                "private_resident_bytes": 3641344,
+                "rss_bytes": 5484544,
+                "pss_bytes": 4130816,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 8,
+                "thread_count": 2
+              },
+              "active": {
+                "private_resident_bytes": 158560256,
+                "rss_bytes": 160403456,
+                "pss_bytes": 159049728,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 8,
+                "thread_count": 2
+              },
+              "incremental_private_resident_bytes": 154918912
+            },
+            {
+              "name": "live-bundles-512-r5",
+              "idle": {
+                "private_resident_bytes": 3739648,
+                "rss_bytes": 5566464,
+                "pss_bytes": 4221952,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 8,
+                "thread_count": 2
+              },
+              "active": {
+                "private_resident_bytes": 158662656,
+                "rss_bytes": 160489472,
+                "pss_bytes": 159144960,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 8,
+                "thread_count": 2
+              },
+              "incremental_private_resident_bytes": 154923008
+            }
+          ]
+        },
+        {
+          "count": 1024,
+          "repeats": 5,
+          "active_private_resident_cv_percent": 0.5168771637376829,
+          "repeat_gate": true,
+          "active_private_resident_median": 309698560,
+          "active_private_resident_range": [
+            307113984,
+            310972416
+          ],
+          "incremental_private_resident_median": 306061312,
+          "rows": [
+            {
+              "name": "live-bundles-1024-r1",
+              "idle": {
+                "private_resident_bytes": 3608576,
+                "rss_bytes": 5447680,
+                "pss_bytes": 4111360,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 8,
+                "thread_count": 2
+              },
+              "active": {
+                "private_resident_bytes": 307113984,
+                "rss_bytes": 308953088,
+                "pss_bytes": 307616768,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 8,
+                "thread_count": 2
+              },
+              "incremental_private_resident_bytes": 303505408
+            },
+            {
+              "name": "live-bundles-1024-r2",
+              "idle": {
+                "private_resident_bytes": 3858432,
+                "rss_bytes": 5746688,
+                "pss_bytes": 4365312,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 8,
+                "thread_count": 2
+              },
+              "active": {
+                "private_resident_bytes": 310710272,
+                "rss_bytes": 312598528,
+                "pss_bytes": 311217152,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 8,
+                "thread_count": 2
+              },
+              "incremental_private_resident_bytes": 306851840
+            },
+            {
+              "name": "live-bundles-1024-r3",
+              "idle": {
+                "private_resident_bytes": 3842048,
+                "rss_bytes": 5656576,
+                "pss_bytes": 4311040,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 8,
+                "thread_count": 2
+              },
+              "active": {
+                "private_resident_bytes": 310972416,
+                "rss_bytes": 312786944,
+                "pss_bytes": 311441408,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 8,
+                "thread_count": 2
+              },
+              "incremental_private_resident_bytes": 307130368
+            },
+            {
+              "name": "live-bundles-1024-r4",
+              "idle": {
+                "private_resident_bytes": 3502080,
+                "rss_bytes": 5304320,
+                "pss_bytes": 3980288,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 8,
+                "thread_count": 2
+              },
+              "active": {
+                "private_resident_bytes": 308547584,
+                "rss_bytes": 310349824,
+                "pss_bytes": 309025792,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 8,
+                "thread_count": 2
+              },
+              "incremental_private_resident_bytes": 305045504
+            },
+            {
+              "name": "live-bundles-1024-r5",
+              "idle": {
+                "private_resident_bytes": 3637248,
+                "rss_bytes": 5623808,
+                "pss_bytes": 4179968,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 8,
+                "thread_count": 2
+              },
+              "active": {
+                "private_resident_bytes": 309698560,
+                "rss_bytes": 311685120,
+                "pss_bytes": 310238208,
+                "private_hugetlb_bytes": 0,
+                "fd_count": 8,
+                "thread_count": 2
+              },
+              "incremental_private_resident_bytes": 306061312
+            }
+          ]
+        }
+      ],
+      "resource_scope": "one authenticated connection + session + channel + stream per bundle; QUIC keepalive every 1 second",
+      "materialized_streams": true,
+      "derived_active_private_resident_slope_bytes_per_unit": 295192.0,
+      "derived_incremental_private_resident_slope_bytes_per_unit": 295200.0
+    }
+  ]
+}

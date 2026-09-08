@@ -93,6 +93,28 @@ qualify performance or a60minute soak. Windows started-descendant cancellation
 now passes five repeats; the separate100ms deadline's descendant-start proof
 remains INCONCLUSIVE. These updates do not raise the capacity claims above.
 
+## September 8 continuation (not a final freeze)
+
+At `40b277fb`, a separately named materialized `live-bundles` workload completed
+five repeats at 512 and five at 1024 authenticated bundles, with eleven-counter
+zero ownership on both roles and process exit. Standard QUIC keepalive is
+explicitly enabled only for this benchmark scenario. Ordinary idle expiry,
+negotiated idle limits and production defaults are unchanged. The old idle
+1024 failures remain failures; matched materialized idle controls are pending.
+Five 100-cycle repetitions completed 500 clean cycles with zero FD/thread
+growth; the residual private-memory trend still does not prove an allocator
+cause or a general plateau. See `B3_LIVE_BUNDLES.md` and its canonical package.
+
+This is Docker/WSL loopback on one selected guest CPU with two source scheduler
+shards, not proof of pinned host physical-core or server-class capacity. Active
+hold scale is separate from sustained admissions/s and forwarding throughput.
+
+The fresh `09a669a3` 1 KiB/32-stream paired reference has 30 valid records but no
+strict-stable cell; six preparation diagnostics still abort on destination
+private-resident growth. No new qualified soak or improved throughput claim
+follows. See `B5_CURRENT_HOST_REQUALIFICATION.md`. Earlier finite figures retain
+their original source, workload and host-state scope.
+
 Current campaign recommendation: **MORE ENGINEERING REQUIRED**. This brief is
 not a readiness endorsement and must be rewritten around the final accepted
 state before a funding evidence freeze.

@@ -1,5 +1,43 @@
 # NBSR campaign continuation checkpoint
 
+## Resumed campaign, 2026-09-08
+
+User authorized work up to 30% total weekly usage, stopping earlier if complete.
+Starting usage 2%, starting HEAD `09a669a343330b381c67605114338cdc87d420e4`.
+The older 43% budget below belonged to the previous usage window.
+
+Current-source release build: `C:/NBSR-build/linux-current-09a669a3`;
+binary hashes match the prior befccf5f build. Six fixed-historical-rate Linux
+B5 diagnostics compare warmup 3 versus 60 seconds, three attempts each, under
+`C:/NBSR-build/linux-b5-preparation-09a669a3`. All six abort on destination
+private growth; no limit, assertion, timeout or workload measurement interval
+was changed. Longer unpaced preparation did not close the paced-memory issue.
+This is a diagnostic comparison, not accepted near-ceiling calibration.
+
+A fresh paired current-host finite reference completed under
+`C:/NBSR-build/linux-b5-reference-09a669a3`: 30 valid records, all six cells
+SATURATED, CV 11.73-30.78%. No new strict-stable calibration was established;
+no qualified soak should consume the historical reference on this host state.
+Short host power/load snapshots are diagnostic, not causal or ceiling proof.
+The separately named B3 live-bundles workload at 40b277fb passed five repeats
+each at 512/1024, private-resident CV below 1%, zero final ownership. Five
+100-cycle same-process repetitions completed 500 clean cycles; FD/thread deltas
+zero, retained-memory cause and a general plateau still INCONCLUSIVE.
+Canonical package: evidence/performance/v2/b3-live-bundles-40b277fb.
+ec836e81 permits 2048/4096 for only the explicit live workload, after literal
+RED and 53 Python tests, release clippy/default check. Larger runs remain next.
+See B3_LIVE_BUNDLES.md. No production optimization was made.
+
+The original live/cycle container exited zero. A queued 40b277fb container
+`nbsr-requalification-40b277fb` is waiting at its pre-benchmark setup gate under
+C:/NBSR-build/linux-requalification-40b277fb; release only after local builds
+and analysis stop. It will run three independent materialized idle controls,
+two paired Linux references, then the one-guest-core admission ladder.
+Do not overlap that timing with builds or Windows benchmarks. A fresh Windows
+reference/soak check after sample-buffer preparation also remains useful.
+External Linux documentation is being reconciled with implemented B3/B5
+loopback CLIs; remote execution remains unavailable and unclaimed.
+
 ## Five-point continuation checkpoint
 
 User budget baseline 38%, maximum 43%; last check during closure 40%.

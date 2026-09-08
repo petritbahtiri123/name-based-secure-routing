@@ -1,0 +1,61 @@
+commit ec836e81ce09cce9e7d038de8d61623dd390ae39
+Author:     petritbahtiri123 <38495094+petritbahtiri123@users.noreply.github.com>
+AuthorDate: Tue Sep 8 20:32:15 2026 +0200
+Commit:     petritbahtiri123 <38495094+petritbahtiri123@users.noreply.github.com>
+CommitDate: Tue Sep 8 20:32:15 2026 +0200
+
+    bench(b3): permit next active-bundle scale steps after 1024 validation
+
+diff --git a/crates/nbsr-transport/src/bin/perf_rust_source.rs b/crates/nbsr-transport/src/bin/perf_rust_source.rs
+index eb6e7b41..e9aec875 100644
+--- a/crates/nbsr-transport/src/bin/perf_rust_source.rs
++++ b/crates/nbsr-transport/src/bin/perf_rust_source.rs
+@@ -2060,7 +2060,11 @@ fn main() {
+         let logical_clients = logical_clients
+             .parse::<usize>()
+             .expect("valid --lifecycle-clients");
+-        assert!((1..=1024).contains(&logical_clients));
++        let live_bundles = cfg!(feature = "benchmark-harness")
++            && optional_argument("--b3-keep-alive-seconds").as_deref() == Some("1")
++            && optional_argument("--hold-for-release").is_some();
++        let maximum_clients = if live_bundles { 4096 } else { 1024 };
++        assert!((1..=maximum_clients).contains(&logical_clients));
+         let timeline = handshake_timeline::Region::open(logical_clients, 1);
+         let shards = lifecycle_shards::parse_shards(
+             optional_argument("--lifecycle-source-shards").as_deref(),
+diff --git a/scripts/run_b3_v2.py b/scripts/run_b3_v2.py
+index 815a7b31..b84e1bd1 100644
+--- a/scripts/run_b3_v2.py
++++ b/scripts/run_b3_v2.py
+@@ -52,8 +52,9 @@ def spec_for(axis, count, repeat, *, materialized_streams=False, fixed_channels=
+     spec = dict(name=f"{axis}-{count}-r{repeat}", kind=axis, active_count=count,
+                 sessions=1, channels=1, streams=1, cycles=1, start_rate=100)
+     if axis in ("bundles", "live-bundles"):
+-        if not 1 <= count <= 1024:
+-            raise ValueError("logical client bound is 1024")
++        maximum = 4096 if axis == "live-bundles" else 1024
++        if not 1 <= count <= maximum:
++            raise ValueError(f"logical client bound is {maximum}")
+         spec.update(sessions=count, kind="sessions",
+                     resource_scope="one authenticated connection + session + channel + stream per bundle")
+         if axis == "live-bundles":
+diff --git a/tests/performance/test_b3_keep_alive.py b/tests/performance/test_b3_keep_alive.py
+index 0d8d77c3..7af17013 100644
+--- a/tests/performance/test_b3_keep_alive.py
++++ b/tests/performance/test_b3_keep_alive.py
+@@ -15,6 +15,15 @@ def test_keep_alive_bundles_are_a_distinct_workload():
+     assert 'keepalive' in live['resource_scope']
+ 
+ 
++def test_live_bundle_progression_preserves_idle_workload_bound():
++    assert v2.spec_for('live-bundles', 2048, 1)['sessions'] == 2048
++    assert v2.spec_for('live-bundles', 4096, 1)['sessions'] == 4096
++    with pytest.raises(ValueError, match='bound'):
++        v2.spec_for('bundles', 2048, 1)
++    with pytest.raises(ValueError, match='bound'):
++        v2.spec_for('live-bundles', 4097, 1)
++
++
+ @pytest.mark.parametrize('path,kind,interval', [
+     ('go-rust', 'sessions', 1),
+     ('rust-rust', 'streams', 1),

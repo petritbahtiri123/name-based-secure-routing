@@ -1,0 +1,29 @@
+   Compiling nbsr-transport v0.1.0 (C:\Users\bajra\OneDrive\Documents\NBSR\crates\nbsr-transport)
+error[E0277]: the trait bound `TransportConfig: CloneToUninit` is not satisfied
+    --> src\config.rs:69:23
+     |
+  69 |         Arc::make_mut(&mut transport).keep_alive_interval(Some(interval));
+     |         ------------- ^^^^^^^^^^^^^^ the trait `Clone` is not implemented for `TransportConfig`
+     |         |
+     |         required by a bound introduced by this call
+     |
+     = help: the following other types implement trait `CloneToUninit`:
+               ByteStr
+               CStr
+               OsStr
+               Path
+               [T]
+               std::sys::os_str::wtf8::Slice
+               str
+     = note: required for `TransportConfig` to implement `CloneToUninit`
+note: required by a bound in `Arc::<T, A>::make_mut`
+    --> C:\Users\bajra\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib/rustlib/src/rust\library\alloc\src\sync.rs:2459:18
+     |
+2459 | impl<T: ?Sized + CloneToUninit, A: Allocator + Clone> Arc<T, A> {
+     |                  ^^^^^^^^^^^^^ required by this bound in `Arc::<T, A>::make_mut`
+...
+2512 |     pub fn make_mut(this: &mut Self) -> &mut T {
+     |            -------- required by a bound in this associated function
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `nbsr-transport` (lib) due to 1 previous error

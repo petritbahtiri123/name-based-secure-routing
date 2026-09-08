@@ -1,0 +1,195 @@
+    Checking nbsr-transport v0.1.0 (C:\Users\bajra\OneDrive\Documents\NBSR\crates\nbsr-transport)
+warning: unused import: `CompletionCoordinator`
+  --> src\bin\perf_rust_source.rs:59:28
+   |
+59 | use lifecycle_completion::{CompletionCoordinator, CompletionSender, TerminalKind};
+   |                            ^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `group_barrier`
+    --> src\bin\perf_rust_source.rs:1166:5
+     |
+1166 |     group_barrier: Option<Arc<std::sync::Barrier>>,
+     |     ^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_group_barrier`
+     |
+     = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: struct `BatchRelease` is never constructed
+ --> src\bin\benchmark_support\batch_release.rs:6:12
+  |
+6 | pub struct BatchRelease {
+  |            ^^^^^^^^^^^^
+  |
+  = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: enum `Schedule` is never used
+  --> src\bin\benchmark_support\batch_release.rs:12:6
+   |
+12 | enum Schedule {
+   |      ^^^^^^^^
+
+warning: associated items `new`, `from_options`, `scheduled_delay`, and `wait` are never used
+  --> src\bin\benchmark_support\batch_release.rs:23:12
+   |
+22 | impl BatchRelease {
+   | ----------------- associated items in this implementation
+23 |     pub fn new(batch_size: usize, interval: Duration) -> Result<Self, &'static str> {
+   |            ^^^
+...
+36 |     pub fn from_options(
+   |            ^^^^^^^^^^^^
+...
+56 |     pub fn scheduled_delay(&self, client: usize) -> Duration {
+   |            ^^^^^^^^^^^^^^^
+...
+66 |     async fn wait(&self, client: usize) {
+   |              ^^^^
+
+warning: function `after_release` is never used
+  --> src\bin\benchmark_support\batch_release.rs:74:14
+   |
+74 | pub async fn after_release<F, Fut, T>(gate: Option<BatchRelease>, client: usize, operation: F) -> T
+   |              ^^^^^^^^^^^^^
+
+warning: constant `MAGIC` is never used
+ --> src\bin\benchmark_support\handshake_timeline.rs:7:7
+  |
+7 | const MAGIC: u64 = 0x4e425352544c3031;
+  |       ^^^^^
+
+warning: constant `GUARD` is never used
+ --> src\bin\benchmark_support\handshake_timeline.rs:9:7
+  |
+9 | const GUARD: u64 = 0x719f250adb608ec3;
+  |       ^^^^^
+
+warning: variants `Requested`, `TaskStarted`, and `Cancelled` are never constructed
+  --> src\bin\benchmark_support\handshake_timeline.rs:13:5
+   |
+12 | pub enum Event {
+   |          ----- variants in this enum
+13 |     Requested,
+   |     ^^^^^^^^^
+14 |     TaskStarted,
+   |     ^^^^^^^^^^^
+...
+23 |     Cancelled,
+   |     ^^^^^^^^^
+   |
+   = note: `Event` has a derived impl for the trait `Clone`, but this is intentionally ignored during dead code analysis
+
+warning: associated items `open`, `word`, and `claim` are never used
+   --> src\bin\benchmark_support\handshake_timeline.rs:89:12
+    |
+ 88 | impl Region {
+    | ----------- associated items in this implementation
+ 89 |     pub fn open(count: usize, role: u64) -> Option<Arc<Self>> {
+    |            ^^^^
+...
+134 |     fn word(&self, index: usize) -> &AtomicU64 {
+    |        ^^^^
+...
+144 |     pub fn claim(self: &Arc<Self>, index: usize) -> Option<Slot> {
+    |            ^^^^^
+
+warning: method `complete` is never used
+   --> src\bin\benchmark_support\handshake_timeline.rs:184:12
+    |
+180 | impl Slot {
+    | --------- method in this implementation
+...
+184 |     pub fn complete(&self) {
+    |            ^^^^^^^^
+
+warning: function `scope` is never used
+   --> src\bin\benchmark_support\handshake_timeline.rs:209:14
+    |
+209 | pub async fn scope<F: Future>(slot: Option<Slot>, future: F) -> F::Output {
+    |              ^^^^^
+
+warning: function `OpenFileMappingW` is never used
+  --> src\bin\benchmark_support\handshake_timeline.rs:57:8
+   |
+57 |     fn OpenFileMappingW(access: u32, inherit: i32, name: *const u16) -> *mut std::ffi::c_void;
+   |        ^^^^^^^^^^^^^^^^
+
+warning: function `MapViewOfFile` is never used
+  --> src\bin\benchmark_support\handshake_timeline.rs:58:8
+   |
+58 |     fn MapViewOfFile(
+   |        ^^^^^^^^^^^^^
+
+warning: variant `Cancelled` is never constructed
+  --> src\bin\benchmark_support\lifecycle_completion.rs:16:5
+   |
+12 | pub(crate) enum TerminalKind {
+   |                 ------------ variant in this enum
+...
+16 |     Cancelled,
+   |     ^^^^^^^^^
+   |
+   = note: `TerminalKind` has derived impls for the traits `Debug` and `Clone`, but these are intentionally ignored during dead code analysis
+
+warning: enum `FinishError` is never used
+  --> src\bin\benchmark_support\lifecycle_completion.rs:45:17
+   |
+45 | pub(crate) enum FinishError {
+   |                 ^^^^^^^^^^^
+
+warning: struct `WriterSummary` is never constructed
+  --> src\bin\benchmark_support\lifecycle_completion.rs:70:19
+   |
+70 | pub(crate) struct WriterSummary {
+   |                   ^^^^^^^^^^^^^
+
+warning: fields `state`, `notify`, and `writer` are never read
+   --> src\bin\benchmark_support\lifecycle_completion.rs:122:5
+    |
+121 | pub(crate) struct CompletionCoordinator {
+    |                   --------------------- fields in this struct
+122 |     state: Arc<Mutex<State>>,
+    |     ^^^^^
+123 |     notify: Arc<Notify>,
+    |     ^^^^^^
+124 |     writer: Option<WriterHandle>,
+    |     ^^^^^^
+
+warning: fields `thread` and `completion` are never read
+   --> src\bin\benchmark_support\lifecycle_completion.rs:128:5
+    |
+127 | struct WriterHandle {
+    |        ------------ fields in this struct
+128 |     thread: JoinHandle<()>,
+    |     ^^^^^^
+129 |     completion: oneshot::Receiver<WriterResult>,
+    |     ^^^^^^^^^^
+
+warning: fields `written`, `thread`, and `errors` are never read
+   --> src\bin\benchmark_support\lifecycle_completion.rs:134:5
+    |
+133 | struct WriterResult {
+    |        ------------ fields in this struct
+134 |     written: usize,
+    |     ^^^^^^^
+135 |     thread: ThreadId,
+    |     ^^^^^^
+136 |     errors: Vec<String>,
+    |     ^^^^^^
+    |
+    = note: `WriterResult` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: methods `wait_all` and `finish` are never used
+   --> src\bin\benchmark_support\lifecycle_completion.rs:225:25
+    |
+139 | impl CompletionCoordinator {
+    | -------------------------- methods in this implementation
+...
+225 |     pub(crate) async fn wait_all(&self, deadline: Duration) -> Result<(), FinishError> {
+    |                         ^^^^^^^^
+...
+246 |     pub(crate) async fn finish(mut self, deadline: Duration) -> Result<WriterSummary, FinishError> {
+    |                         ^^^^^^
+
+warning: `nbsr-transport` (bin "perf_rust_source") generated 21 warnings (run `cargo fix --bin "perf_rust_source" -p nbsr-transport` to apply 2 suggestions)
+    Finished `release` profile [optimized] target(s) in 0.82s

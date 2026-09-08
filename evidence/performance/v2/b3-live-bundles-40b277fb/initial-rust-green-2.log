@@ -1,0 +1,11 @@
+   Compiling nbsr-transport v0.1.0 (C:\Users\bajra\OneDrive\Documents\NBSR\crates\nbsr-transport)
+    Finished `release` profile [optimized] target(s) in 54.66s
+     Running tests\benchmark_keep_alive.rs (C:/NBSR-build/b5-pretouch-windows-target-506ddfa1\release\deps\benchmark_keep_alive-4fbdc54448593da9.exe)
+
+running 3 tests
+test rejects_zero_or_idle_length_keep_alive ... ok
+test default_idle_connection_still_expires ... ok
+test explicit_keep_alive_retains_authenticated_connection ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.34s
+

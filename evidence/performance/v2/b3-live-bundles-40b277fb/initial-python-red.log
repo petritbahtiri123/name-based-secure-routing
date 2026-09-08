@@ -1,0 +1,291 @@
+FFFFF                                                                    [100%]
+================================== FAILURES ===================================
+_______________ test_keep_alive_bundles_are_a_distinct_workload _______________
+
+    def test_keep_alive_bundles_are_a_distinct_workload():
+        idle = v2.spec_for('bundles', 1024, 1)
+>       live = v2.spec_for('live-bundles', 1024, 1)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\performance\test_b3_keep_alive.py:9: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+axis = 'live-bundles', count = 1024, repeat = 1
+
+    def spec_for(axis, count, repeat, *, materialized_streams=False, fixed_channels=8):
+        if type(fixed_channels) is not int or not 1 <= fixed_channels <= 32:
+            raise ValueError("fixed channels must fit the existing 1..32 authority bound")
+        if axis != "streams" and fixed_channels != 8:
+            raise ValueError("fixed channel override applies only to the streams axis")
+        spec = dict(name=f"{axis}-{count}-r{repeat}", kind=axis, active_count=count,
+                    sessions=1, channels=1, streams=1, cycles=1, start_rate=100)
+        if axis == "bundles":
+            if not 1 <= count <= 1024:
+                raise ValueError("logical client bound is 1024")
+            spec.update(sessions=count, kind="sessions",
+                        resource_scope="one authenticated connection + session + channel + stream per bundle")
+        elif axis == "channels":
+            if not 1 <= count <= 32:
+                raise ValueError("frozen harness authority supports at most 32 services per connection")
+            spec.update(channels=count, resource_scope="channels with one stream each; one connection/session")
+        elif axis == "streams":
+            if count % fixed_channels or not fixed_channels <= count <= 64 * fixed_channels:
+                raise ValueError("stream axis requires 1..64 streams per fixed channel")
+            label = "eight" if fixed_channels == 8 else str(fixed_channels)
+            spec.update(channels=fixed_channels, streams=count // fixed_channels,
+                        resource_scope=f"application streams across {label} fixed channels; one connection/session")
+            if fixed_channels != 8:
+                spec["name"] = f"streams-c{fixed_channels}-{count}-r{repeat}"
+        elif axis == "cycles":
+            if not 1 <= count <= 100:
+                raise ValueError("bounded cycle count required")
+            spec.update(cycles=count, streams=64, active_count=64, cycle_mode="same-process",
+                        resource_scope="same source/destination processes; one session/channel and 64 streams per cycle")
+        else:
+>           raise ValueError("unknown resource axis")
+E           ValueError: unknown resource axis
+
+scripts\run_b3_v2.py:77: ValueError
+___ test_invalid_keep_alive_spec_fails_before_artifacts[go-rust-sessions-1] ___
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-993/test_invalid_keep_alive_spec_f0')
+path = 'go-rust', kind = 'sessions', interval = 1
+
+    @pytest.mark.parametrize('path,kind,interval', [
+        ('go-rust', 'sessions', 1),
+        ('rust-rust', 'streams', 1),
+        ('rust-rust', 'sessions', 2),
+        ('rust-rust', 'sessions', True),
+    ])
+    def test_invalid_keep_alive_spec_fails_before_artifacts(tmp_path, path, kind, interval):
+        spec = {**v2.spec_for('bundles', 16, 1), 'kind': kind, 'keep_alive_seconds': interval}
+        with pytest.raises(ValueError, match='keepalive'):
+>           b3.run_cell(path, spec, {}, tmp_path, idle_seconds=2, active_seconds=2,
+                        cooldown_seconds=2, cadence=.5)
+
+tests\performance\test_b3_keep_alive.py:27: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+path = 'go-rust'
+spec = {'active_count': 16, 'channels': 1, 'cycles': 1, 'keep_alive_seconds': 1, ...}
+binaries = {}
+root = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-993/test_invalid_keep_alive_spec_f0')
+
+    def run_cell(path: str, spec: dict[str, int | str], binaries: dict[str, Path], root: Path, *, idle_seconds: float, active_seconds: float, cooldown_seconds: float, cadence: float, capture_backend=None) -> dict[str, Any]:
+        if capture_backend is not None and path != "rust-rust":
+            raise ValueError("explicit capture backend supports Rust B3 only")
+        capture_options = {"capture_backend": capture_backend} if capture_backend is not None else {}
+        name = str(spec["name"])
+        sessions, services, streams, cycles = (int(spec[key]) for key in ("sessions", "channels", "streams", "cycles"))
+        materialized = spec.get("materialized_streams", False)
+        if materialized and path != "rust-rust":
+            raise ValueError("materialized streams require the Rust B3 harness")
+        if materialized and spec["kind"] == "connections":
+            raise ValueError("materialized streams do not support connection-only workload")
+        if materialized:
+            spec = {**spec,
+                    "stream_residency": "both endpoint stream handles and authorized request payload retained before common release",
+                    "timing_scope": "materialized-stream workload includes explicit hold in request/processing times; not comparable with registry-only timing"}
+        cell_dir = root / "raw" / path / name
+        cell_dir.mkdir(parents=True)
+        with tempfile.TemporaryDirectory(prefix="nbsr-b3-cell-") as temporary, ExitStack() as logs:
+            def log(label, stream):
+                return logs.enter_context((cell_dir / f"{label}.{stream}").open("w", encoding="utf-8"))
+            temporary_root = Path(temporary)
+            lifecycle = temporary_root / "lifecycle"
+            write_authority_set(lifecycle, services)
+            authority = temporary_root / "authority"
+            from scripts.performance.authority import write_loopback_authority
+            write_loopback_authority(authority)
+            ready, result = temporary_root / "ready.json", cell_dir / "server-result.json"
+            completion_ack = temporary_root / "completion.ack"
+            diagnostics = cell_dir / "destination-diagnostics.ndjson"
+>           server_argv = [str(binaries["server"]), "--ready", str(ready), "--result", str(result), "--authority-dir", str(authority), "--completion-ack", str(completion_ack), "--destination-diagnostics-file", str(diagnostics), "--diagnostic-drain-seconds", str(max(1, round(cooldown_seconds)))]
+                               ^^^^^^^^^^^^^^^^^^
+E           KeyError: 'server'
+
+scripts\run_b3_session_lifecycle.py:247: KeyError
+__ test_invalid_keep_alive_spec_fails_before_artifacts[rust-rust-streams-1] ___
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-993/test_invalid_keep_alive_spec_f1')
+path = 'rust-rust', kind = 'streams', interval = 1
+
+    @pytest.mark.parametrize('path,kind,interval', [
+        ('go-rust', 'sessions', 1),
+        ('rust-rust', 'streams', 1),
+        ('rust-rust', 'sessions', 2),
+        ('rust-rust', 'sessions', True),
+    ])
+    def test_invalid_keep_alive_spec_fails_before_artifacts(tmp_path, path, kind, interval):
+        spec = {**v2.spec_for('bundles', 16, 1), 'kind': kind, 'keep_alive_seconds': interval}
+        with pytest.raises(ValueError, match='keepalive'):
+>           b3.run_cell(path, spec, {}, tmp_path, idle_seconds=2, active_seconds=2,
+                        cooldown_seconds=2, cadence=.5)
+
+tests\performance\test_b3_keep_alive.py:27: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+path = 'rust-rust'
+spec = {'active_count': 16, 'channels': 1, 'cycles': 1, 'keep_alive_seconds': 1, ...}
+binaries = {}
+root = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-993/test_invalid_keep_alive_spec_f1')
+
+    def run_cell(path: str, spec: dict[str, int | str], binaries: dict[str, Path], root: Path, *, idle_seconds: float, active_seconds: float, cooldown_seconds: float, cadence: float, capture_backend=None) -> dict[str, Any]:
+        if capture_backend is not None and path != "rust-rust":
+            raise ValueError("explicit capture backend supports Rust B3 only")
+        capture_options = {"capture_backend": capture_backend} if capture_backend is not None else {}
+        name = str(spec["name"])
+        sessions, services, streams, cycles = (int(spec[key]) for key in ("sessions", "channels", "streams", "cycles"))
+        materialized = spec.get("materialized_streams", False)
+        if materialized and path != "rust-rust":
+            raise ValueError("materialized streams require the Rust B3 harness")
+        if materialized and spec["kind"] == "connections":
+            raise ValueError("materialized streams do not support connection-only workload")
+        if materialized:
+            spec = {**spec,
+                    "stream_residency": "both endpoint stream handles and authorized request payload retained before common release",
+                    "timing_scope": "materialized-stream workload includes explicit hold in request/processing times; not comparable with registry-only timing"}
+        cell_dir = root / "raw" / path / name
+        cell_dir.mkdir(parents=True)
+        with tempfile.TemporaryDirectory(prefix="nbsr-b3-cell-") as temporary, ExitStack() as logs:
+            def log(label, stream):
+                return logs.enter_context((cell_dir / f"{label}.{stream}").open("w", encoding="utf-8"))
+            temporary_root = Path(temporary)
+            lifecycle = temporary_root / "lifecycle"
+            write_authority_set(lifecycle, services)
+            authority = temporary_root / "authority"
+            from scripts.performance.authority import write_loopback_authority
+            write_loopback_authority(authority)
+            ready, result = temporary_root / "ready.json", cell_dir / "server-result.json"
+            completion_ack = temporary_root / "completion.ack"
+            diagnostics = cell_dir / "destination-diagnostics.ndjson"
+>           server_argv = [str(binaries["server"]), "--ready", str(ready), "--result", str(result), "--authority-dir", str(authority), "--completion-ack", str(completion_ack), "--destination-diagnostics-file", str(diagnostics), "--diagnostic-drain-seconds", str(max(1, round(cooldown_seconds)))]
+                               ^^^^^^^^^^^^^^^^^^
+E           KeyError: 'server'
+
+scripts\run_b3_session_lifecycle.py:247: KeyError
+__ test_invalid_keep_alive_spec_fails_before_artifacts[rust-rust-sessions-2] __
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-993/test_invalid_keep_alive_spec_f2')
+path = 'rust-rust', kind = 'sessions', interval = 2
+
+    @pytest.mark.parametrize('path,kind,interval', [
+        ('go-rust', 'sessions', 1),
+        ('rust-rust', 'streams', 1),
+        ('rust-rust', 'sessions', 2),
+        ('rust-rust', 'sessions', True),
+    ])
+    def test_invalid_keep_alive_spec_fails_before_artifacts(tmp_path, path, kind, interval):
+        spec = {**v2.spec_for('bundles', 16, 1), 'kind': kind, 'keep_alive_seconds': interval}
+        with pytest.raises(ValueError, match='keepalive'):
+>           b3.run_cell(path, spec, {}, tmp_path, idle_seconds=2, active_seconds=2,
+                        cooldown_seconds=2, cadence=.5)
+
+tests\performance\test_b3_keep_alive.py:27: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+path = 'rust-rust'
+spec = {'active_count': 16, 'channels': 1, 'cycles': 1, 'keep_alive_seconds': 2, ...}
+binaries = {}
+root = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-993/test_invalid_keep_alive_spec_f2')
+
+    def run_cell(path: str, spec: dict[str, int | str], binaries: dict[str, Path], root: Path, *, idle_seconds: float, active_seconds: float, cooldown_seconds: float, cadence: float, capture_backend=None) -> dict[str, Any]:
+        if capture_backend is not None and path != "rust-rust":
+            raise ValueError("explicit capture backend supports Rust B3 only")
+        capture_options = {"capture_backend": capture_backend} if capture_backend is not None else {}
+        name = str(spec["name"])
+        sessions, services, streams, cycles = (int(spec[key]) for key in ("sessions", "channels", "streams", "cycles"))
+        materialized = spec.get("materialized_streams", False)
+        if materialized and path != "rust-rust":
+            raise ValueError("materialized streams require the Rust B3 harness")
+        if materialized and spec["kind"] == "connections":
+            raise ValueError("materialized streams do not support connection-only workload")
+        if materialized:
+            spec = {**spec,
+                    "stream_residency": "both endpoint stream handles and authorized request payload retained before common release",
+                    "timing_scope": "materialized-stream workload includes explicit hold in request/processing times; not comparable with registry-only timing"}
+        cell_dir = root / "raw" / path / name
+        cell_dir.mkdir(parents=True)
+        with tempfile.TemporaryDirectory(prefix="nbsr-b3-cell-") as temporary, ExitStack() as logs:
+            def log(label, stream):
+                return logs.enter_context((cell_dir / f"{label}.{stream}").open("w", encoding="utf-8"))
+            temporary_root = Path(temporary)
+            lifecycle = temporary_root / "lifecycle"
+            write_authority_set(lifecycle, services)
+            authority = temporary_root / "authority"
+            from scripts.performance.authority import write_loopback_authority
+            write_loopback_authority(authority)
+            ready, result = temporary_root / "ready.json", cell_dir / "server-result.json"
+            completion_ack = temporary_root / "completion.ack"
+            diagnostics = cell_dir / "destination-diagnostics.ndjson"
+>           server_argv = [str(binaries["server"]), "--ready", str(ready), "--result", str(result), "--authority-dir", str(authority), "--completion-ack", str(completion_ack), "--destination-diagnostics-file", str(diagnostics), "--diagnostic-drain-seconds", str(max(1, round(cooldown_seconds)))]
+                               ^^^^^^^^^^^^^^^^^^
+E           KeyError: 'server'
+
+scripts\run_b3_session_lifecycle.py:247: KeyError
+_ test_invalid_keep_alive_spec_fails_before_artifacts[rust-rust-sessions-True] _
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-993/test_invalid_keep_alive_spec_f3')
+path = 'rust-rust', kind = 'sessions', interval = True
+
+    @pytest.mark.parametrize('path,kind,interval', [
+        ('go-rust', 'sessions', 1),
+        ('rust-rust', 'streams', 1),
+        ('rust-rust', 'sessions', 2),
+        ('rust-rust', 'sessions', True),
+    ])
+    def test_invalid_keep_alive_spec_fails_before_artifacts(tmp_path, path, kind, interval):
+        spec = {**v2.spec_for('bundles', 16, 1), 'kind': kind, 'keep_alive_seconds': interval}
+        with pytest.raises(ValueError, match='keepalive'):
+>           b3.run_cell(path, spec, {}, tmp_path, idle_seconds=2, active_seconds=2,
+                        cooldown_seconds=2, cadence=.5)
+
+tests\performance\test_b3_keep_alive.py:27: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+path = 'rust-rust'
+spec = {'active_count': 16, 'channels': 1, 'cycles': 1, 'keep_alive_seconds': True, ...}
+binaries = {}
+root = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-993/test_invalid_keep_alive_spec_f3')
+
+    def run_cell(path: str, spec: dict[str, int | str], binaries: dict[str, Path], root: Path, *, idle_seconds: float, active_seconds: float, cooldown_seconds: float, cadence: float, capture_backend=None) -> dict[str, Any]:
+        if capture_backend is not None and path != "rust-rust":
+            raise ValueError("explicit capture backend supports Rust B3 only")
+        capture_options = {"capture_backend": capture_backend} if capture_backend is not None else {}
+        name = str(spec["name"])
+        sessions, services, streams, cycles = (int(spec[key]) for key in ("sessions", "channels", "streams", "cycles"))
+        materialized = spec.get("materialized_streams", False)
+        if materialized and path != "rust-rust":
+            raise ValueError("materialized streams require the Rust B3 harness")
+        if materialized and spec["kind"] == "connections":
+            raise ValueError("materialized streams do not support connection-only workload")
+        if materialized:
+            spec = {**spec,
+                    "stream_residency": "both endpoint stream handles and authorized request payload retained before common release",
+                    "timing_scope": "materialized-stream workload includes explicit hold in request/processing times; not comparable with registry-only timing"}
+        cell_dir = root / "raw" / path / name
+        cell_dir.mkdir(parents=True)
+        with tempfile.TemporaryDirectory(prefix="nbsr-b3-cell-") as temporary, ExitStack() as logs:
+            def log(label, stream):
+                return logs.enter_context((cell_dir / f"{label}.{stream}").open("w", encoding="utf-8"))
+            temporary_root = Path(temporary)
+            lifecycle = temporary_root / "lifecycle"
+            write_authority_set(lifecycle, services)
+            authority = temporary_root / "authority"
+            from scripts.performance.authority import write_loopback_authority
+            write_loopback_authority(authority)
+            ready, result = temporary_root / "ready.json", cell_dir / "server-result.json"
+            completion_ack = temporary_root / "completion.ack"
+            diagnostics = cell_dir / "destination-diagnostics.ndjson"
+>           server_argv = [str(binaries["server"]), "--ready", str(ready), "--result", str(result), "--authority-dir", str(authority), "--completion-ack", str(completion_ack), "--destination-diagnostics-file", str(diagnostics), "--diagnostic-drain-seconds", str(max(1, round(cooldown_seconds)))]
+                               ^^^^^^^^^^^^^^^^^^
+E           KeyError: 'server'
+
+scripts\run_b3_session_lifecycle.py:247: KeyError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_b3_keep_alive.py::test_keep_alive_bundles_are_a_distinct_workload
+FAILED tests/performance/test_b3_keep_alive.py::test_invalid_keep_alive_spec_fails_before_artifacts[go-rust-sessions-1]
+FAILED tests/performance/test_b3_keep_alive.py::test_invalid_keep_alive_spec_fails_before_artifacts[rust-rust-streams-1]
+FAILED tests/performance/test_b3_keep_alive.py::test_invalid_keep_alive_spec_fails_before_artifacts[rust-rust-sessions-2]
+FAILED tests/performance/test_b3_keep_alive.py::test_invalid_keep_alive_spec_fails_before_artifacts[rust-rust-sessions-True]
+5 failed in 3.25s

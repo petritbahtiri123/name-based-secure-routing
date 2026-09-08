@@ -1,0 +1,203 @@
+{
+  "source_sha": "40b277fbbf6842f76094c0621f0a9fde0ee28f5a",
+  "classification": "PASS_HELD_LIFECYCLE_MEMORY_CAUSE_INCONCLUSIVE",
+  "scope": "Docker/WSL loopback; one selected guest CPU, two source shards for bundles; no host physical-core/server ceiling",
+  "scale": [
+    {
+      "kind": "sessions",
+      "role": "source",
+      "resource_scope": "one authenticated connection + session + channel + stream per bundle; QUIC keepalive every 1 second",
+      "materialized_streams": true,
+      "derived_active_private_resident_slope_bytes_per_unit": 363576.0,
+      "derived_incremental_private_resident_slope_bytes_per_unit": 314256.0,
+      "points": [
+        {
+          "count": 512,
+          "repeats": 5,
+          "active_private_resident_cv_percent": 0.7760481411011408,
+          "repeat_gate": true,
+          "active_private_resident_median": 196157440,
+          "active_private_resident_range": [
+            193744896,
+            197898240
+          ],
+          "incremental_private_resident_median": 168411136
+        },
+        {
+          "count": 1024,
+          "repeats": 5,
+          "active_private_resident_cv_percent": 0.5815361459607301,
+          "repeat_gate": true,
+          "active_private_resident_median": 382308352,
+          "active_private_resident_range": [
+            379756544,
+            385241088
+          ],
+          "incremental_private_resident_median": 329310208
+        }
+      ]
+    },
+    {
+      "kind": "sessions",
+      "role": "destination",
+      "resource_scope": "one authenticated connection + session + channel + stream per bundle; QUIC keepalive every 1 second",
+      "materialized_streams": true,
+      "derived_active_private_resident_slope_bytes_per_unit": 295192.0,
+      "derived_incremental_private_resident_slope_bytes_per_unit": 295200.0,
+      "points": [
+        {
+          "count": 512,
+          "repeats": 5,
+          "active_private_resident_cv_percent": 0.8350190966401922,
+          "repeat_gate": true,
+          "active_private_resident_median": 158560256,
+          "active_private_resident_range": [
+            156286976,
+            159571968
+          ],
+          "incremental_private_resident_median": 154918912
+        },
+        {
+          "count": 1024,
+          "repeats": 5,
+          "active_private_resident_cv_percent": 0.5168771637376829,
+          "repeat_gate": true,
+          "active_private_resident_median": 309698560,
+          "active_private_resident_range": [
+            307113984,
+            310972416
+          ],
+          "incremental_private_resident_median": 306061312
+        }
+      ]
+    }
+  ],
+  "cycles": [
+    {
+      "name": "cycles-100-r1",
+      "cycles": 100,
+      "memory_cause": "INCONCLUSIVE",
+      "ownership": "CLEAN",
+      "materialized_streams": true,
+      "limitation": "Linux private resident excludes separate hugetlb; slopes do not establish leaks or allocator attribution.",
+      "roles": {
+        "source": {
+          "private_resident_slope_bytes_per_cycle": 4859.234851485148,
+          "second_half_private_resident_slope_bytes_per_cycle": 586.7163505402161,
+          "private_resident_first_to_last_delta": 3235840,
+          "fd_first_to_last_delta": 0,
+          "thread_first_to_last_delta": 0
+        },
+        "destination": {
+          "private_resident_slope_bytes_per_cycle": 4988.099705970597,
+          "second_half_private_resident_slope_bytes_per_cycle": 3150.527154861945,
+          "private_resident_first_to_last_delta": 446464,
+          "fd_first_to_last_delta": 0,
+          "thread_first_to_last_delta": 0
+        }
+      }
+    },
+    {
+      "name": "cycles-100-r2",
+      "cycles": 100,
+      "memory_cause": "INCONCLUSIVE",
+      "ownership": "CLEAN",
+      "materialized_streams": true,
+      "limitation": "Linux private resident excludes separate hugetlb; slopes do not establish leaks or allocator attribution.",
+      "roles": {
+        "source": {
+          "private_resident_slope_bytes_per_cycle": 4847.019357935794,
+          "second_half_private_resident_slope_bytes_per_cycle": 818.4132533013205,
+          "private_resident_first_to_last_delta": 3239936,
+          "fd_first_to_last_delta": 0,
+          "thread_first_to_last_delta": 0
+        },
+        "destination": {
+          "private_resident_slope_bytes_per_cycle": 3367.6665586558656,
+          "second_half_private_resident_slope_bytes_per_cycle": 0.0,
+          "private_resident_first_to_last_delta": 393216,
+          "fd_first_to_last_delta": 0,
+          "thread_first_to_last_delta": 0
+        }
+      }
+    },
+    {
+      "name": "cycles-100-r3",
+      "cycles": 100,
+      "memory_cause": "INCONCLUSIVE",
+      "ownership": "CLEAN",
+      "materialized_streams": true,
+      "limitation": "Linux private resident excludes separate hugetlb; slopes do not establish leaks or allocator attribution.",
+      "roles": {
+        "source": {
+          "private_resident_slope_bytes_per_cycle": 4949.609840984099,
+          "second_half_private_resident_slope_bytes_per_cycle": 531.6440816326531,
+          "private_resident_first_to_last_delta": 3244032,
+          "fd_first_to_last_delta": 0,
+          "thread_first_to_last_delta": 0
+        },
+        "destination": {
+          "private_resident_slope_bytes_per_cycle": 4472.640288028803,
+          "second_half_private_resident_slope_bytes_per_cycle": 3336.1993757503,
+          "private_resident_first_to_last_delta": 430080,
+          "fd_first_to_last_delta": 0,
+          "thread_first_to_last_delta": 0
+        }
+      }
+    },
+    {
+      "name": "cycles-100-r4",
+      "cycles": 100,
+      "memory_cause": "INCONCLUSIVE",
+      "ownership": "CLEAN",
+      "materialized_streams": true,
+      "limitation": "Linux private resident excludes separate hugetlb; slopes do not establish leaks or allocator attribution.",
+      "roles": {
+        "source": {
+          "private_resident_slope_bytes_per_cycle": 4972.467806780678,
+          "second_half_private_resident_slope_bytes_per_cycle": 1491.4750540216087,
+          "private_resident_first_to_last_delta": 3256320,
+          "fd_first_to_last_delta": 0,
+          "thread_first_to_last_delta": 0
+        },
+        "destination": {
+          "private_resident_slope_bytes_per_cycle": 417.80920492049205,
+          "second_half_private_resident_slope_bytes_per_cycle": -1052.6670828331332,
+          "private_resident_first_to_last_delta": 126976,
+          "fd_first_to_last_delta": 0,
+          "thread_first_to_last_delta": 0
+        }
+      }
+    },
+    {
+      "name": "cycles-100-r5",
+      "cycles": 100,
+      "memory_cause": "INCONCLUSIVE",
+      "ownership": "CLEAN",
+      "materialized_streams": true,
+      "limitation": "Linux private resident excludes separate hugetlb; slopes do not establish leaks or allocator attribution.",
+      "roles": {
+        "source": {
+          "private_resident_slope_bytes_per_cycle": 4860.095097509751,
+          "second_half_private_resident_slope_bytes_per_cycle": 262.57671068427373,
+          "private_resident_first_to_last_delta": 3231744,
+          "fd_first_to_last_delta": 0,
+          "thread_first_to_last_delta": 0
+        },
+        "destination": {
+          "private_resident_slope_bytes_per_cycle": 4608.5100030003005,
+          "second_half_private_resident_slope_bytes_per_cycle": 3543.9005042016806,
+          "private_resident_first_to_last_delta": 503808,
+          "fd_first_to_last_delta": 0,
+          "thread_first_to_last_delta": 0
+        }
+      }
+    }
+  ],
+  "completed_cycles": 500,
+  "derived_combined_private_resident_bytes_per_bundle": 658768.0,
+  "memory_cost_scope": "Two-point slope 512 to 1024; combined endpoint processes, QUIC/runtime/allocator/fixture costs, not isolated NBSR objects.",
+  "matched_materialized_idle_control": "PENDING",
+  "extension_commit": "ec836e81ce09cce9e7d038de8d61623dd390ae39",
+  "extension_scope": "2048/4096 input bounds tested; actual scale NOT_RUN at this package stage"
+}

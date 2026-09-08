@@ -1,0 +1,53 @@
+   Compiling nbsr-transport v0.1.0 (C:\Users\bajra\OneDrive\Documents\NBSR\crates\nbsr-transport)
+    Finished `release` profile [optimized] target(s) in 12.23s
+     Running tests\application_stream.rs (C:/NBSR-build/b5-pretouch-windows-target-506ddfa1\release\deps\application_stream-9967c7d6fc6ecd9d.exe)
+
+running 4 tests
+test outbound_payload_over_one_mib_is_rejected_before_delivery ... ok
+test federated_two_operator_route_transfers_only_after_f75_admission ... ok
+test accepted_stream_id_four_echoes_only_the_bounded_in_memory_payload ... ok
+test payload_before_stream_accept_is_reset_without_delivery ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.18s
+
+     Running tests\benchmark_keep_alive.rs (C:/NBSR-build/b5-pretouch-windows-target-506ddfa1\release\deps\benchmark_keep_alive-4fbdc54448593da9.exe)
+
+running 4 tests
+test rejects_zero_or_idle_length_keep_alive ... ok
+test keep_alive_does_not_accept_wrong_destination_identity ... ok
+test default_idle_connection_still_expires ... ok
+test explicit_keep_alive_retains_authenticated_connection ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.36s
+
+     Running tests\config.rs (C:/NBSR-build/b5-pretouch-windows-target-506ddfa1\release\deps\config-9b061dc9c034aa7c.exe)
+
+running 8 tests
+test accepts_complementary_edge_roles ... ok
+test rejects_empty_tls_material ... ok
+test rejects_invalid_or_ip_peer_identity ... ok
+test rejects_zero_handshake_timeout ... ok
+test rejects_same_role_peer_before_socket_creation ... ok
+test rejects_zero_idle_timeout ... ok
+test rejects_endpoint_role_reversal ... ok
+test builds_mutual_tls_client_and_server_configuration ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\handshake.rs (C:/NBSR-build/b5-pretouch-windows-target-506ddfa1\release\deps\handshake-27c4ba184353c1d5.exe)
+
+running 11 tests
+test peer_refusal_during_setup_is_rejected ... ok
+test alpn_mismatch_is_rejected ... ok
+test accept_times_out_without_allocating_an_authenticated_connection ... ok
+test destination_identity_mismatch_is_rejected ... ok
+test expired_server_certificate_is_rejected ... ok
+test server_certificate_from_unknown_ca_is_rejected ... ok
+test source_identity_mismatch_is_rejected ... ok
+test missing_client_certificate_is_rejected ... ok
+test expired_client_certificate_is_rejected ... ok
+test client_certificate_from_unknown_ca_is_rejected ... ok
+test valid_mutual_auth_handshake_exposes_only_expected_peer_identity ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s
+

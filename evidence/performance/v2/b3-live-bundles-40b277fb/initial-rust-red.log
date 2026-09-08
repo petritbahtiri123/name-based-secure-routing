@@ -1,0 +1,16 @@
+   Compiling nbsr-transport v0.1.0 (C:\Users\bajra\OneDrive\Documents\NBSR\crates\nbsr-transport)
+error[E0599]: no method named `with_benchmark_keep_alive` found for struct `ClientEndpointConfig` in the current scope
+  --> tests\benchmark_keep_alive.rs:29:25
+   |
+29 |         client = client.with_benchmark_keep_alive(Duration::from_millis(50)).unwrap();
+   |                         ^^^^^^^^^^^^^^^^^^^^^^^^^ method not found in `ClientEndpointConfig`
+
+error[E0599]: no method named `with_benchmark_keep_alive` found for struct `ClientEndpointConfig` in the current scope
+  --> tests\benchmark_keep_alive.rs:67:33
+   |
+67 |         assert!(matches!(client.with_benchmark_keep_alive(interval), Err(TransportError::InvalidTimeout)));
+   |                                 ^^^^^^^^^^^^^^^^^^^^^^^^^ method not found in `ClientEndpointConfig`
+
+For more information about this error, try `rustc --explain E0599`.
+error: could not compile `nbsr-transport` (test "benchmark_keep_alive") due to 2 previous errors
+warning: build failed, waiting for other jobs to finish...
