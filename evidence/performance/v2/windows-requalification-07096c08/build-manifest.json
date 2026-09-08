@@ -1,0 +1,20 @@
+{
+  "source_sha": "07096c080cd5759d7da470667f559583707e50c1",
+  "build_profile": "release",
+  "binary_sha256": {
+    "perf_direct_peer.exe": "ea52de6aeae0e15d1c42c6165cb042d52825181df3fdb279f94782f305058ad6",
+    "perf_rust_source.exe": "6a9b13ca977fd05d037fd251c4552e0e2538a6017f158ea6b03fa5fbcbc1bfc4",
+    "wp8_interop_server.exe": "3824f63035e063489c476f5e2169f89f69cdef0bdd25ba656078d21bdaabb894"
+  },
+  "toolchains": {
+    "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+    "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)"
+  },
+  "build_command": [
+    "python",
+    "-c",
+    "from pathlib import Path; from scripts.run_p2a_established import build; print(build(Path('C:/NBSR-build/b5-pretouch-windows-target-506ddfa1')))"
+  ],
+  "cargo_lock_sha256": "f708851cd9fd14da17508b42bf250cf9e9d2ee92718516f015ffca0643701ce5",
+  "source_dirty": ""
+}

@@ -1,0 +1,212 @@
+[
+  {
+    "label": "historical-rate-direct-r1",
+    "exit_code": 0,
+    "rows": [
+      {
+        "path": "direct",
+        "valid": true,
+        "classification": "DIAGNOSTIC",
+        "error": null,
+        "gbps": 0.11576411068630671,
+        "completed_operations": null,
+        "offered_operations": null,
+        "achieved_offered_ratio": 0.20363946832156724,
+        "qualification": {
+          "steady_windows": 3,
+          "latency_comparison_available": true,
+          "resource_series_available": true,
+          "resource_sample_clock": "monotonic_timestamp_ns",
+          "resource_memory_metric": "private_bytes",
+          "resource_phase_origin_monotonic_ns": 919453622602800,
+          "resource_phase_clock": "first-progress receive time minus elapsed; approximate, excludes earlier samples",
+          "thermal_and_power": "NOT_MEASURED"
+        },
+        "raw_directory": null
+      }
+    ]
+  },
+  {
+    "label": "historical-rate-nbsr-r1",
+    "exit_code": 0,
+    "rows": [
+      {
+        "path": "nbsr",
+        "valid": true,
+        "classification": "DIAGNOSTIC",
+        "error": null,
+        "gbps": 0.5543379648720405,
+        "completed_operations": null,
+        "offered_operations": null,
+        "achieved_offered_ratio": 0.9751003591675382,
+        "qualification": {
+          "steady_windows": 3,
+          "latency_comparison_available": true,
+          "resource_series_available": true,
+          "resource_sample_clock": "monotonic_timestamp_ns",
+          "resource_memory_metric": "private_bytes",
+          "resource_phase_origin_monotonic_ns": 919578781482100,
+          "resource_phase_clock": "first-progress receive time minus elapsed; approximate, excludes earlier samples",
+          "thermal_and_power": "NOT_MEASURED"
+        },
+        "raw_directory": null
+      }
+    ]
+  },
+  {
+    "label": "historical-rate-nbsr-r2",
+    "exit_code": 0,
+    "rows": [
+      {
+        "path": "nbsr",
+        "valid": true,
+        "classification": "DIAGNOSTIC",
+        "error": null,
+        "gbps": 0.539985973728042,
+        "completed_operations": null,
+        "offered_operations": null,
+        "achieved_offered_ratio": 0.9498517578314974,
+        "qualification": {
+          "steady_windows": 3,
+          "latency_comparison_available": true,
+          "resource_series_available": true,
+          "resource_sample_clock": "monotonic_timestamp_ns",
+          "resource_memory_metric": "private_bytes",
+          "resource_phase_origin_monotonic_ns": 919703934310100,
+          "resource_phase_clock": "first-progress receive time minus elapsed; approximate, excludes earlier samples",
+          "thermal_and_power": "NOT_MEASURED"
+        },
+        "raw_directory": null
+      }
+    ]
+  },
+  {
+    "label": "historical-rate-direct-r2",
+    "exit_code": 1,
+    "rows": [
+      {
+        "path": "direct",
+        "valid": false,
+        "classification": "FAIL",
+        "error": "B5 stream failed: live goodput drift",
+        "gbps": null,
+        "completed_operations": null,
+        "offered_operations": null,
+        "achieved_offered_ratio": null,
+        "qualification": {
+          "steady_windows": 3,
+          "latency_comparison_available": true,
+          "resource_series_available": true,
+          "resource_sample_clock": "monotonic_timestamp_ns",
+          "resource_memory_metric": "private_bytes",
+          "resource_phase_origin_monotonic_ns": 919829082265600,
+          "resource_phase_clock": "first-progress receive time minus elapsed; approximate, excludes earlier samples",
+          "thermal_and_power": "NOT_MEASURED"
+        },
+        "raw_directory": null
+      }
+    ]
+  },
+  {
+    "label": "historical-rate-direct-r3",
+    "exit_code": 1,
+    "rows": [
+      {
+        "path": "direct",
+        "valid": false,
+        "classification": "FAIL",
+        "error": "B5 stream failed: live goodput drift",
+        "gbps": null,
+        "completed_operations": null,
+        "offered_operations": null,
+        "achieved_offered_ratio": null,
+        "qualification": {
+          "steady_windows": 3,
+          "latency_comparison_available": true,
+          "resource_series_available": true,
+          "resource_sample_clock": "monotonic_timestamp_ns",
+          "resource_memory_metric": "private_bytes",
+          "resource_phase_origin_monotonic_ns": 919923945321400,
+          "resource_phase_clock": "first-progress receive time minus elapsed; approximate, excludes earlier samples",
+          "thermal_and_power": "NOT_MEASURED"
+        },
+        "raw_directory": null
+      }
+    ]
+  },
+  {
+    "label": "historical-rate-nbsr-r3",
+    "exit_code": 0,
+    "rows": [
+      {
+        "path": "nbsr",
+        "valid": true,
+        "classification": "DIAGNOSTIC",
+        "error": null,
+        "gbps": 0.5443131008969033,
+        "completed_operations": null,
+        "offered_operations": null,
+        "achieved_offered_ratio": 0.95746452455032,
+        "qualification": {
+          "steady_windows": 3,
+          "latency_comparison_available": true,
+          "resource_series_available": true,
+          "resource_sample_clock": "monotonic_timestamp_ns",
+          "resource_memory_metric": "private_bytes",
+          "resource_phase_origin_monotonic_ns": 920018664271300,
+          "resource_phase_clock": "first-progress receive time minus elapsed; approximate, excludes earlier samples",
+          "thermal_and_power": "NOT_MEASURED"
+        },
+        "raw_directory": null
+      }
+    ]
+  },
+  {
+    "label": "reference-16k8-short-preflight",
+    "exit_code": 1,
+    "rows": [
+      {
+        "path": "nbsr",
+        "valid": true,
+        "classification": "ACCOUNTING_PASS",
+        "error": null,
+        "gbps": 0.7039774895039839,
+        "completed_operations": null,
+        "offered_operations": null,
+        "achieved_offered_ratio": 0.957038871713545,
+        "qualification": {
+          "steady_windows": 3,
+          "latency_comparison_available": true,
+          "resource_series_available": true,
+          "resource_sample_clock": "monotonic_timestamp_ns",
+          "resource_memory_metric": "private_bytes",
+          "resource_phase_origin_monotonic_ns": 920144051186800,
+          "resource_phase_clock": "first-progress receive time minus elapsed; approximate, excludes earlier samples",
+          "thermal_and_power": "NOT_MEASURED"
+        },
+        "raw_directory": null
+      },
+      {
+        "path": "nbsr",
+        "valid": false,
+        "classification": "FAIL",
+        "error": "paced achievable/offered gate below 95%; target unchanged",
+        "gbps": 0.6975080624364968,
+        "completed_operations": null,
+        "offered_operations": null,
+        "achieved_offered_ratio": 0.9482809312105203,
+        "qualification": {
+          "steady_windows": 3,
+          "latency_comparison_available": true,
+          "resource_series_available": true,
+          "resource_sample_clock": "monotonic_timestamp_ns",
+          "resource_memory_metric": "private_bytes",
+          "resource_phase_origin_monotonic_ns": 920267434941500,
+          "resource_phase_clock": "first-progress receive time minus elapsed; approximate, excludes earlier samples",
+          "thermal_and_power": "NOT_MEASURED"
+        },
+        "raw_directory": null
+      }
+    ]
+  }
+]

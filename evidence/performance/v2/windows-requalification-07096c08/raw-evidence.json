@@ -1,0 +1,14 @@
+[
+  {
+    "root": "C:\\NBSR-build\\windows-current-07096c08",
+    "index_sha256": "c8c3387cd482ee461ee5f77db9d92849122a7b753f40acde1d5e3b7e2a0d107a"
+  },
+  {
+    "root": "C:\\NBSR-build\\windows-reference-16k8-07096c08",
+    "index_sha256": "fb101b27433112faffda7d86ea191d31e4a5ba931c98ecc7f67ec033cb1f00bd"
+  },
+  {
+    "root": "C:\\NBSR-build\\windows-b5-requalification-07096c08",
+    "index_sha256": "09fabba57e73661a61455183d4fa78ae85e24332147dcad0dd38eaf6e5aae13b"
+  }
+]
