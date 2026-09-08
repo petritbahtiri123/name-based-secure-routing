@@ -115,6 +115,101 @@ Both server commands receive the existing completion-ACK path, and the runner cr
 
 ## Required matrix
 
+### Additional executable Linux loopback subsets
+
+Use the clean checkout, `CARGO_TARGET_DIR`, external `evidence` directory and
+`build-manifest.json` prepared above. These commands exercise implemented
+subsets on the new host; they do not substitute for the remote matrix. Each
+output directory must be fresh. Run stages separately, inspect the retained
+result, and stop the affected branch on failure without deleting it.
+
+```bash
+python3 -m scripts.run_b3_v2 --platform linux --cores 1 \
+  --target "$CARGO_TARGET_DIR" --build-manifest "$evidence/build-manifest.json" \
+  --output "$evidence/b3-streams" --axis streams --fixed-channels 32 \
+  --materialized-streams --counts 32 64 128 256 512 1024 2048 --repeats 5
+
+python3 -m scripts.run_b3_v2 --platform linux --cores 1 \
+  --target "$CARGO_TARGET_DIR" --build-manifest "$evidence/build-manifest.json" \
+  --output "$evidence/b3-bundles" --axis bundles \
+  --counts 16 32 64 128 256 512 --repeats 5
+
+python3 -m scripts.run_b3_v2 --platform linux --cores 1 \
+  --target "$CARGO_TARGET_DIR" --build-manifest "$evidence/build-manifest.json" \
+  --output "$evidence/b3-cycles" --axis cycles --counts 50 \
+  --materialized-streams --repeats 5
+
+python3 -m scripts.run_b3_v2 --platform linux --cores 1 \
+  --target "$CARGO_TARGET_DIR" --build-manifest "$evidence/build-manifest.json" \
+  --output "$evidence/b3-live-bundles" --axis live-bundles \
+  --materialized-streams --counts 512 1024 --repeats 5
+
+python3 -m scripts.performance.b3_linux_analysis "$evidence/b3-streams" \
+  --output "$evidence/b3-streams-analysis.json"
+python3 -m scripts.performance.b3_linux_analysis "$evidence/b3-bundles" \
+  --output "$evidence/b3-bundles-analysis.json"
+python3 -m scripts.performance.b3_linux_analysis "$evidence/b3-cycles" \
+  --output "$evidence/b3-cycles-analysis.json"
+python3 -m scripts.performance.b3_linux_analysis "$evidence/b3-live-bundles" \
+  --output "$evidence/b3-live-bundles-analysis.json"
+```
+
+Do not claim 512 is a server ceiling. The existing 1024-bundle idle-hold
+workload has a launch span exceeding its 10-second negotiated idle lifetime;
+its documented failures are preserved in `B3_IDLE_ATTRIBUTION.md`. A larger
+active-liveness workload now has a distinct `live-bundles` definition using
+one-second QUIC keepalive; see `B3_LIVE_BUNDLES.md`. Do not pool these scenarios
+or relabel the idle failures. Three or five completed lifecycle repeats do not alone
+prove a retained-memory plateau; inspect ownership and cooldown slopes.
+
+The implemented Linux admission ladder keeps the existing 512-admission finite
+batch, 30-second established traffic, two-second warmup, and three-to-five
+repeat/classification rules. All four peers share the selected core pool:
+
+```bash
+python3 -m scripts.run_b4b_linux --target "$CARGO_TARGET_DIR" \
+  --build-manifest "$evidence/build-manifest.json" \
+  --output "$evidence/b4-admission-1core" --cores 1 --source-shards 2 \
+  --offered-rates 25 50 75 100 125 150 200 250
+```
+
+Inspect its retained `campaign/analysis.json`, raw samples and failures before
+progressing to independent two-/four-core directories. These are finite
+rate-controlled batches with concurrent established traffic, not an indefinitely
+sustained admission rate. Source terminal markers and destination ownership
+gauges are recorded; full source ownership is explicitly NOT_MEASURED by this
+runner. Observer, VM topology and remote-path qualification remain separate.
+
+For each B5 workload, create its own current-host/current-SHA reference. The
+example below uses 1 KiB/64 streams on one shared core and one endpoint group:
+
+```bash
+python3 -m scripts.performance.linux_b5_reference \
+  --binaries "$CARGO_TARGET_DIR/release" \
+  --build-manifest "$evidence/build-manifest.json" \
+  --output "$evidence/b5-reference-1k64" \
+  --payload-bytes 1024 --streams 64 --depths 1 2 4 --warmup 3 --duration 30
+
+python3 -m scripts.performance.linux_b5_campaign \
+  --binaries "$CARGO_TARGET_DIR/release" \
+  --build-manifest "$evidence/build-manifest.json" \
+  --reference "$evidence/b5-reference-1k64" \
+  --output "$evidence/b5-1k64-10min" --paths direct nbsr \
+  --payload 1024 --streams 64 --depth 1 --percent 70 \
+  --warmup 3 --duration 600 --progress 30 --ownership-sampling
+```
+
+The reference loader must accept the selected depth as stable and match source,
+binary, topology and shape; a failed gate is not bypassed with `--diagnostic`.
+Only after reviewing a valid 10-minute stage, repeat the campaign command into
+fresh directories with duration/percent 1800/80, then 3600/70, then 7200/80.
+Use the same paired-path semantics and inspect every stage before progressing.
+For the second workload, create a separate reference using payload 16384 and
+streams 8, and apply the same progression. The runner expands three repeats to
+five when its dispersion gates require it, and stops on an invalid attempt.
+Its metadata explicitly retains observer/thermal limitations; completing the
+commands does not waive those final evidence requirements.
+
 Direct means the existing direct-QUIC baseline, not plain TCP. Match payload, completed operation definition, offered-rate schedule, streams, outstanding depth, transport configuration, endpoint groups, process topology, warmup, measurement interval, and CPU allocation. Preserve the additional NBSR admission/setup work and report it separately. First run Linux loopback controls, then the two-host matrix; never mix the two into one ceiling.
 
 | Stage | Required cells and progression | Acceptance evidence |
@@ -138,9 +233,9 @@ Claim a measured saturation cause only with attribution: CPU at least 90% of all
 | --- | --- |
 | `scripts/run_p2a_established.py`, `scripts/run_max_throughput_v2_stage6.py` and their stage dependencies | Windows affinity/topology (`performance/windows_affinity.py`, `profile_b2_v2.windows_processor_topology`), Windows resource collection and loopback authority/endpoints must gain Linux/two-host implementations. Stage 6's fixed NBSR groups/physical-vs-SMT cells are not the full external Direct/NBSR matrix. |
 | Native Rust socket addressing | Default production `connect` and absent benchmark flags remain loopback-bound. Feature-gated `--benchmark-client-bind` and `--benchmark-listen` now have parser/TLS/actual loopback-alias socket evidence; see `external-native-bind-cbdca987`. The finite two-host runbook is authored and syntax-checked, not remotely executed. Native external-interface validation and complete portable orchestration remain outstanding. |
-| `scripts/run_b4b_v2.py` and `run_b4b_mixed_connections.py` | Windows performance counters and process orchestration; current V2 client levels and one connection/client do not implement the full requested admission matrix. Add remote role ownership, explicit addresses, synchronized start/drain and verified offered-rate schedules. |
-| `scripts/run_b3_session_lifecycle.py` | Imports `sample_windows_process`; environment explicitly says Windows loopback. Add Linux RSS/PSS/private mapping and FD/task counters with documented semantics, remote lifecycle barriers and same-process cleanup proofs. Windows private bytes and Linux RSS must not be treated as interchangeable. |
-| `scripts/run_b5_sustained_capacity.py` | Reuses P2A build/measurement and loopback authority helpers; needs Linux telemetry/affinity and two-host sustained orchestration. Preserve B5 success/cleanup semantics and implement the near-ceiling progression above. |
+| B4 admission | `scripts/run_b4b_linux.py` injects Linux resources/affinity into the existing Task 4i finite rate ladder, with clean-SHA/build/hash checks. Loopback orchestration exists; full source ownership, remote roles/addresses/start/drain and the full sustained admission matrix remain outstanding. |
+| B3 lifecycle | `scripts/run_b3_v2.py --platform linux` now supplies Linux RSS/PSS/private-resident, FD/thread/affinity sampling and same-process ownership checks through `b3_linux.py`. Rust-to-Rust loopback execution is implemented; remote lifecycle barriers and Go-to-Rust Linux coverage remain outstanding. Windows private bytes and Linux private resident are distinct. See the executable subset above and `B3_IDLE_ATTRIBUTION.md`. |
+| B5 sustained testing | `scripts/performance/linux_b5_reference.py` and `linux_b5_campaign.py` now provide a source-bound Linux one-core/one-group finite reference and paced 10/30/60/120-minute stages with resource/cleanup gates. This is executable loopback coverage, not a qualified sustained result. Remote orchestration, observer qualification, thermal/power evidence and the complete two-workload soak remain outstanding. |
 | `scripts/run_b1_wire_overhead.py`, `run_b4_mixed_workload.py`, `capture_*.ps1` | Existing Windows paths/capture tooling and loopback assumptions require dedicated Linux interface selection, permission preflight, packet/drop accounting, offload disclosure and transport-counter correlation. PowerShell/WPR/ETW captures are not Linux commands. |
 | `scripts/run_performance_validation.py`, `scripts/performance/resources.py` | Build helper has a platform-sensitive binary suffix, but resource sampling uses WinDLL/kernel32/psapi. A portable build helper does not make the measurement runner portable. Replace OS-specific collection behind tested equivalent accounting boundaries. |
 
