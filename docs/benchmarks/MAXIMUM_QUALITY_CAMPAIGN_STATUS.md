@@ -1,5 +1,29 @@
 # Maximum-quality campaign: current state
 
+## September 8 continuation
+
+This remains an engineering checkpoint, not a funding freeze. The older stage
+history below keeps its recorded source and workload scope.
+
+| Area | Current verified state |
+| --- | --- |
+| Active resource scale | MEASURED: 2048 materialized live bundles, five repeats each on two and four allocated Linux guest CPUs at 0124f8ad, clean final ownership. First 4096 attempt fails. No verified physical-host or server ceiling. |
+| Linux admission observer | FIXED at 2a30272e: owned PF_EXITING transition verified in the real ladder; 23 valid records, zero invalid. 125 offered/s yields 119.313320 actual/s STABLE; 150 DEGRADED; 200 SATURATED. Finite mixed workload, not sustained capacity. |
+| Linux buffer sensitivity | DIAGNOSTIC: all six one-CPU 2048 attempts fail. The OS clamps the requested 1MiB to 425984 bytes; no production default change justified. |
+| Lifecycle polling/location | DIAGNOSTIC: isolated 2048-waiter polling uses 26.47% CPU on guest-native storage. All six real filesystem-location attempts fail. No reliable placement fix or sole handshake cause established. |
+| Current finite forwarding references | Windows 07096c08: 16KiB/eight-stream NBSR 1.050835 Gbit/s STABLE. Linux 40b277fb: corresponding short finite cell 3.235685 Gbit/s STABLE on one guest CPU. Keep host, shape and observer qualifications separate. |
+| Sustained stability | NOT_PROVEN: Windows short paced preflight fails achieved/offered gate; Linux 16KiB/eight-stream preflight fails p99 drift at 150 seconds. No qualified 60/120-minute soak. |
+| Verification | At 58650e15, 834 performance tests pass with three existing skips after fixing stale fixture provenance and PoC inventory classification. Scoped Ruff, dependency and privacy checks pass. Stage-2 integrity verifies 17 packages, 244 canonical files and 40077 raw entries. Later packages retain their own indexes. |
+
+Canonical follow-ups: `linux-resource-scale-0124f8ad`,
+`linux-followup-2a30272e`, `closure-checks-40d109a8`, and
+`b3-marker-location-0124f8ad` under `evidence/performance/v2`.
+No new Linux production optimization or security relaxation was made.
+Administrator-only Windows paced CPU attribution and native/server validation
+remain deferred. The active 16KiB/eight-stream preparation comparison is a
+fixed-historical-rate diagnostic, not a new capacity reference.
+
+
 Latest continuation,2026-09-07: finite Linux FD exit-transition handling is fixed
 and regression-tested (500 actual lifecycles); the original failure cannot be
 retrospectively attributed. At8779e69c a fresh release reference has22 valid rows:
