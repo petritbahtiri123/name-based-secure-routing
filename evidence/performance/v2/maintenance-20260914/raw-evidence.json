@@ -1,0 +1,10 @@
+[
+  {
+    "root": "C:\\NBSR-build\\cleanup-retained-binaries-20260914",
+    "index_sha256": "707b956aeecf39746aa50d8add68412a682682f021a9ff3ce98ee926301eca14"
+  },
+  {
+    "root": "C:\\NBSR-build\\docker-cleanup-20260914",
+    "index_sha256": "02b8b1f2e8e9a2fa40e1594dfc6ddfdd40629a2f21448eb4d0407db716974763"
+  }
+]

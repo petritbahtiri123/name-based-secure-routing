@@ -1,0 +1,19 @@
+{
+  "date": "2026-09-14",
+  "method": "cargo clean --locked, exact verified project-owned target paths; grouped Remove-Item attempt blocked by automatic policy and not executed",
+  "free_before_bytes": 7413743616,
+  "free_after_bytes": 9829208064,
+  "approx_recovered_bytes": 2415464448,
+  "paths": [
+    "C:/NBSR-build/b3-red/cargo-target",
+    "C:/NBSR-build/b3-baseline/cargo-target",
+    "C:/NBSR-build/b3-memory/cargo-target",
+    "C:/NBSR-build/b2-cpu/cargo-target",
+    "C:/NBSR-build/b5-soak/cargo-target",
+    "C:/NBSR-build/b1-wire-overhead/cargo-target",
+    "C:/NBSR-build/b5-verify/cargo-target"
+  ],
+  "verification": "Cargo cache signature; no root/nested reparse points; empty tmp; known generated release contents; no active cargo/peer process",
+  "retained_binary_manifest": "C:/NBSR-build/cleanup-retained-binaries-20260914/manifest.json",
+  "limitations": "Free-space delta also includes concurrent Docker allocation; authoritative evidence, sources, Git and personal files were not deleted"
+}
