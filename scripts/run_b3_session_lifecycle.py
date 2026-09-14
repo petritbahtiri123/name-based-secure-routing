@@ -5,6 +5,7 @@ from contextlib import ExitStack
 from dataclasses import asdict
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import platform
@@ -218,10 +219,26 @@ def source_plan(path: str, sessions: int, cycles: int) -> list[tuple[int, int, i
     return [(1, ordinal, 1) for ordinal in range(sessions)] if sessions > 1 else [(cycles, 0, 1)]
 
 
+def diagnostic_accept_environment(path, spec):
+    if 'NBSR_PERF_LIFECYCLE_ACCEPT_WINDOW' in os.environ:
+        raise ValueError('accept window must be an explicit recorded workload setting')
+    window = spec.get('accept_window')
+    if window is None:
+        return {}
+    rate = spec.get('start_rate', 0)
+    if (path != 'rust-rust' or spec.get('kind') != 'sessions'
+            or type(window) is not int or window not in (1, 2, 4, 8, 16, 32)
+            or spec.get('sessions', 0) < max(window, 2)
+            or type(rate) not in (int, float) or not math.isfinite(rate) or rate <= 0):
+        raise ValueError('accept window requires bounded paced Rust simultaneous bundles')
+    return {'NBSR_PERF_LIFECYCLE_ACCEPT_WINDOW': str(window)}
+
+
 def run_cell(path: str, spec: dict[str, int | str], binaries: dict[str, Path], root: Path, *, idle_seconds: float, active_seconds: float, cooldown_seconds: float, cadence: float, capture_backend=None) -> dict[str, Any]:
     if capture_backend is not None and path != "rust-rust":
         raise ValueError("explicit capture backend supports Rust B3 only")
     capture_options = {"capture_backend": capture_backend} if capture_backend is not None else {}
+    accept_environment = diagnostic_accept_environment(path, spec)
     name = str(spec["name"])
     sessions, services, streams, cycles = (int(spec[key]) for key in ("sessions", "channels", "streams", "cycles"))
     keep_alive = spec.get("keep_alive_seconds", 0)
@@ -260,7 +277,7 @@ def run_cell(path: str, spec: dict[str, int | str], binaries: dict[str, Path], r
             server_argv.extend(["--b3-materialized-streams", "1"])
         if capture_backend is not None:
             server_argv = capture_backend.command(server_argv)
-        server = subprocess.Popen(server_argv, cwd=ROOT, env={**os.environ, "NBSR_PERF_LIFECYCLE_ROOT": str(lifecycle), "NBSR_PERF_LIFECYCLE_CONNECTIONS": str(total_connections), "NBSR_PERF_LIFECYCLE_SERVICES": str(services), "NBSR_PERF_STREAMS_PER_SERVICE": str(streams), "NBSR_PERF_CONCURRENT_STREAMS": "1", **({"NBSR_PERF_LIFECYCLE_OFFERED_RATE": str(spec["start_rate"])} if float(spec.get("start_rate", 0)) > 0 else {}), **({"NBSR_PERF_CONCURRENT_SESSIONS": "1", "NBSR_PERF_LIFECYCLE_SERIAL_ACCEPT": "1"} if sessions > 1 else {})}, stdout=log("destination", "stdout"), stderr=log("destination", "stderr"), text=True)
+        server = subprocess.Popen(server_argv, cwd=ROOT, env={**os.environ, "NBSR_PERF_LIFECYCLE_ROOT": str(lifecycle), "NBSR_PERF_LIFECYCLE_CONNECTIONS": str(total_connections), "NBSR_PERF_LIFECYCLE_SERVICES": str(services), "NBSR_PERF_STREAMS_PER_SERVICE": str(streams), "NBSR_PERF_CONCURRENT_STREAMS": "1", **({"NBSR_PERF_LIFECYCLE_OFFERED_RATE": str(spec["start_rate"])} if float(spec.get("start_rate", 0)) > 0 else {}), **({"NBSR_PERF_CONCURRENT_SESSIONS": "1", "NBSR_PERF_LIFECYCLE_SERIAL_ACCEPT": "1"} if sessions > 1 else {}), **accept_environment}, stdout=log("destination", "stdout"), stderr=log("destination", "stderr"), text=True)
         clients: list[subprocess.Popen[str]] = []
         commands: list[list[str]] = []
         resources: list[dict[str, Any]] = []

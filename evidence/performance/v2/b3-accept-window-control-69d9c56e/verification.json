@@ -1,0 +1,15 @@
+{
+  "classification": "DIAGNOSTIC_CONTROL_READY_NOT_CAPACITY_PROOF",
+  "python_red_failed": 10,
+  "rust_red_failed": 2,
+  "rust_red_passed": 1,
+  "python_green_passed": 36,
+  "python_existing_skipped": 1,
+  "rust_window_tests": 3,
+  "rust_existing_release_gate_tests": 6,
+  "release_clippy": "PASS",
+  "default_server_check": "PASS with one existing unrelated warning",
+  "ruff": "PASS",
+  "fmt": "PASS",
+  "review": "One focused parent review: default remains serial; B4 window unchanged; rate gate and transport/auth deadlines unchanged; bounds and recorded override required; non-UTF8 override fails closed"
+}

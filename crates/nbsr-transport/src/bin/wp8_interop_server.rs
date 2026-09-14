@@ -2581,6 +2581,10 @@ async fn run_lifecycle_connection(
 #[path = "benchmark_support/accept_pump_profile.rs"]
 mod accept_pump_profile;
 
+#[cfg(feature = "benchmark-harness")]
+#[path = "benchmark_support/lifecycle_accept_window.rs"]
+mod lifecycle_accept_window;
+
 async fn wait_for_b3_report_release(root: &Path, timeout: Duration) -> Result<(), &'static str> {
     fs::write(root.join("destination.report-ready"), b"ready\n")
         .map_err(|_| "cannot publish B3 report-ready marker")?;
@@ -2628,9 +2632,38 @@ async fn run_lifecycle(
     let timeline = handshake_timeline::Region::open(connections as usize, 2);
     let mut sessions = tokio::task::JoinSet::new();
     // Memory holds keep connections alive while later clients are still offered.
-    // Arm one acceptance deadline at a time in that explicit harness mode;
-    // session tasks remain concurrent. The admission benchmark keeps its window.
-    let accept_window = if env::var_os("NBSR_PERF_LIFECYCLE_SERIAL_ACCEPT").is_some() {
+    // Default to one acceptance deadline in that explicit harness mode. A
+    // bounded B3-only diagnostic override still applies the existing rate gate
+    // before each accept; it never changes the transport's timeout values.
+    let serial_accept = env::var_os("NBSR_PERF_LIFECYCLE_SERIAL_ACCEPT").is_some();
+    #[cfg(feature = "benchmark-harness")]
+    let accept_window = {
+        let requested = env::var_os("NBSR_PERF_LIFECYCLE_ACCEPT_WINDOW")
+            .map(|value| value.into_string().expect("UTF-8 B3 accept window"));
+        if requested.is_some() {
+            assert!(
+                release_gate.is_some(),
+                "B3 accept window requires paced arrivals"
+            );
+        }
+        let window = lifecycle_accept_window::parse(
+            serial_accept,
+            connections as usize,
+            requested.as_deref(),
+        )
+        .expect("valid B3 diagnostic accept window");
+        if requested.is_some() {
+            eprintln!("{{\"event\":\"lifecycle_accept_window\",\"armed\":{window}}}");
+        }
+        window
+    };
+    #[cfg(not(feature = "benchmark-harness"))]
+    assert!(
+        env::var_os("NBSR_PERF_LIFECYCLE_ACCEPT_WINDOW").is_none(),
+        "B3 accept window requires benchmark-harness"
+    );
+    #[cfg(not(feature = "benchmark-harness"))]
+    let accept_window = if serial_accept {
         1
     } else {
         connections as usize

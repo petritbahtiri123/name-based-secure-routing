@@ -45,7 +45,11 @@ def verify_linux_execution(binaries, retained, build):
             raise ValueError('Linux executable/retained bytes changed before launch')
 
 
-def spec_for(axis, count, repeat, *, materialized_streams=False, fixed_channels=8):
+def spec_for(axis, count, repeat, *, materialized_streams=False, fixed_channels=8, accept_window=None):
+    if accept_window is not None and (
+            type(accept_window) is not int or accept_window not in (1, 2, 4, 8, 16, 32)
+            or axis not in ('bundles', 'live-bundles') or count < 2 or accept_window > count):
+        raise ValueError('accept window requires an explicit bounded simultaneous-bundle diagnostic')
     if type(fixed_channels) is not int or not 1 <= fixed_channels <= 32:
         raise ValueError("fixed channels must fit the existing 1..32 authority bound")
     if axis != "streams" and fixed_channels != 8:
@@ -82,6 +86,8 @@ def spec_for(axis, count, repeat, *, materialized_streams=False, fixed_channels=
         raise ValueError("unknown resource axis")
     spec.update(materialized_streams=materialized_streams,
                 stream_residency="materialized request and both endpoint handles" if materialized_streams else "registry-only; destination stream handles not proven during hold")
+    if accept_window is not None:
+        spec['accept_window'] = accept_window
     return spec
 
 
@@ -97,7 +103,7 @@ def execute(args):
         from scripts.performance.b3_linux import LinuxCapture, environment
         linux = environment(args.cores)
     specs = [spec_for(args.axis, count, repeat, materialized_streams=args.materialized_streams,
-                      fixed_channels=args.fixed_channels)
+                      fixed_channels=args.fixed_channels, accept_window=getattr(args, 'accept_window', None))
              for count in args.counts for repeat in range(1, args.repeats + 1)]
     args.output.mkdir(parents=True, exist_ok=False)
     (args.output / "binaries").mkdir()
@@ -115,7 +121,7 @@ def execute(args):
                 "stream_residency": specs[0]["stream_residency"],
                 "destination_ready_snapshot_scope": "aggregate ownership across all live sessions; not per-connection",
                 "source_processes": 1, "source_runtime_shards": "2 for simultaneous bundles; 1 for sequential cycles",
-                "acceptance_scope": "B3-only single armed accept, concurrent held sessions; not the B4 admission-capacity workload",
+                "acceptance_scope": f"B3-only {specs[0].get('accept_window', 1)} armed accepts, concurrent held sessions; not the B4 admission-capacity workload",
                 "memory_scope": "private bytes/working set/handles/threads and ownership, not allocator heap attribution",
                 "live_resource_proof": "all named .active markers observed before active sampling and before any release"}
     if linux:
@@ -137,7 +143,9 @@ def execute(args):
                    "crates/nbsr-transport/src/udp_socket.rs",
                    "crates/nbsr-transport/src/bin/perf_rust_source.rs",
                    "crates/nbsr-transport/src/bin/wp8_interop_server.rs",
-                   "crates/nbsr-transport/src/bin/b3_support/mod.rs"]
+                   "crates/nbsr-transport/src/bin/b3_support/mod.rs",
+                   "crates/nbsr-transport/src/bin/b3_support/marker_monitor.rs",
+                   "crates/nbsr-transport/src/bin/benchmark_support/lifecycle_accept_window.rs"]
     if linux:
         sources += ['scripts/performance/b3_linux.py', 'scripts/performance/b3_linux_analysis.py',
                     'scripts/performance/linux_resources.py', 'scripts/performance/linux_loopback.py',
@@ -179,6 +187,8 @@ if __name__ == "__main__":
     parser.add_argument("--repeats", type=int, choices=(1, 3, 5), default=5)
     parser.add_argument("--fixed-channels", type=int, default=8,
                         help="streams axis only: hold 1..32 channels fixed; default 8")
+    parser.add_argument("--accept-window", type=int, choices=(1, 2, 4, 8, 16, 32),
+                        help="B3 simultaneous bundles only: diagnostic armed accepts; omitted keeps serial default")
     parser.add_argument("--materialized-streams", action="store_true", help="retain authorized request and both endpoint stream handles during active hold")
     args = parser.parse_args()
     try:
