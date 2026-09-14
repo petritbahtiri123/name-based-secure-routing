@@ -1,0 +1,172 @@
+{
+  "classification": "DIAGNOSTIC improvements within ten failed scale attempts; no new stable scale",
+  "scope": "2048 live materialized bundles, one selected Linux guest CPU, two source shards, guest-native markers",
+  "limitations": [
+    "No accepted complete lifecycle cell or stable-capacity boundary.",
+    "Failure-only UDP counts cover retained sockets, not closed sockets or drop timestamps.",
+    "Marker counts are completed materialization before failure, not sustained admissions/s.",
+    "Idle source CPU is measured before starts, not whole-run or transport-only CPU."
+  ],
+  "rows": [
+    {
+      "mode": "before",
+      "repeat": 1,
+      "classification": "FAIL",
+      "source_sha": "0288122db02dce0931326dea3e993fdf78c3d189",
+      "source_errors": {
+        "HandshakeTimeout": 654,
+        "client_task_failed": 1
+      },
+      "source_active_markers": 1393,
+      "destination_active_markers": 1393,
+      "idle_source_effective_cores": 0.48974436813216604,
+      "retained_destination_udp_drops": 10442,
+      "retained_source_udp_drops": 0
+    },
+    {
+      "mode": "after",
+      "repeat": 1,
+      "classification": "FAIL",
+      "source_sha": "d76cc302be4537d4f9cd26f0df135094c106cfb0",
+      "source_errors": {
+        "HandshakeTimeout": 345
+      },
+      "source_active_markers": 1703,
+      "destination_active_markers": 1703,
+      "idle_source_effective_cores": 0.31575510939882073,
+      "retained_destination_udp_drops": 6596,
+      "retained_source_udp_drops": 0
+    },
+    {
+      "mode": "after",
+      "repeat": 2,
+      "classification": "FAIL",
+      "source_sha": "d76cc302be4537d4f9cd26f0df135094c106cfb0",
+      "source_errors": {
+        "HandshakeTimeout": 209
+      },
+      "source_active_markers": 1839,
+      "destination_active_markers": 1839,
+      "idle_source_effective_cores": 0.3260053668096856,
+      "retained_destination_udp_drops": 42944,
+      "retained_source_udp_drops": 0
+    },
+    {
+      "mode": "before",
+      "repeat": 2,
+      "classification": "FAIL",
+      "source_sha": "0288122db02dce0931326dea3e993fdf78c3d189",
+      "source_errors": {
+        "HandshakeTimeout": 952
+      },
+      "source_active_markers": 1096,
+      "destination_active_markers": 1096,
+      "idle_source_effective_cores": 0.6988904600262595,
+      "retained_destination_udp_drops": 4674,
+      "retained_source_udp_drops": 0
+    },
+    {
+      "mode": "before",
+      "repeat": 3,
+      "classification": "FAIL",
+      "source_sha": "0288122db02dce0931326dea3e993fdf78c3d189",
+      "source_errors": {
+        "HandshakeTimeout": 504
+      },
+      "source_active_markers": 1544,
+      "destination_active_markers": 1544,
+      "idle_source_effective_cores": 0.5097966683635182,
+      "retained_destination_udp_drops": 14996,
+      "retained_source_udp_drops": 0
+    },
+    {
+      "mode": "after",
+      "repeat": 3,
+      "classification": "FAIL",
+      "source_sha": "d76cc302be4537d4f9cd26f0df135094c106cfb0",
+      "source_errors": {
+        "HandshakeTimeout": 405
+      },
+      "source_active_markers": 1643,
+      "destination_active_markers": 1643,
+      "idle_source_effective_cores": 0.47505764610759577,
+      "retained_destination_udp_drops": 343,
+      "retained_source_udp_drops": 0
+    },
+    {
+      "mode": "after",
+      "repeat": 4,
+      "classification": "FAIL",
+      "source_sha": "d76cc302be4537d4f9cd26f0df135094c106cfb0",
+      "source_errors": {
+        "HandshakeTimeout": 273,
+        "client_task_failed": 1
+      },
+      "source_active_markers": 1774,
+      "destination_active_markers": 1774,
+      "idle_source_effective_cores": 0.3864264920428836,
+      "retained_destination_udp_drops": 9414,
+      "retained_source_udp_drops": 0
+    },
+    {
+      "mode": "before",
+      "repeat": 4,
+      "classification": "FAIL",
+      "source_sha": "0288122db02dce0931326dea3e993fdf78c3d189",
+      "source_errors": {
+        "HandshakeTimeout": 578
+      },
+      "source_active_markers": 1470,
+      "destination_active_markers": 1470,
+      "idle_source_effective_cores": 0.5498443660023586,
+      "retained_destination_udp_drops": 2099,
+      "retained_source_udp_drops": 0
+    },
+    {
+      "mode": "before",
+      "repeat": 5,
+      "classification": "FAIL",
+      "source_sha": "0288122db02dce0931326dea3e993fdf78c3d189",
+      "source_errors": {
+        "HandshakeTimeout": 560
+      },
+      "source_active_markers": 1488,
+      "destination_active_markers": 1488,
+      "idle_source_effective_cores": 0.5494981312677543,
+      "retained_destination_udp_drops": 8234,
+      "retained_source_udp_drops": 0
+    },
+    {
+      "mode": "after",
+      "repeat": 5,
+      "classification": "FAIL",
+      "source_sha": "d76cc302be4537d4f9cd26f0df135094c106cfb0",
+      "source_errors": {
+        "HandshakeTimeout": 227
+      },
+      "source_active_markers": 1821,
+      "destination_active_markers": 1821,
+      "idle_source_effective_cores": 0.3597039463863346,
+      "retained_destination_udp_drops": 10548,
+      "retained_source_udp_drops": 0
+    }
+  ],
+  "summary": {
+    "before": {
+      "attempts": 5,
+      "passed": 0,
+      "failed": 5,
+      "median_active_markers": 1470,
+      "median_handshake_timeouts": 578,
+      "median_idle_source_effective_cores": 0.5494981312677543
+    },
+    "after": {
+      "attempts": 5,
+      "passed": 0,
+      "failed": 5,
+      "median_active_markers": 1774,
+      "median_handshake_timeouts": 273,
+      "median_idle_source_effective_cores": 0.3597039463863346
+    }
+  }
+}

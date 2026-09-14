@@ -1,6 +1,6 @@
 # B3 shared marker monitor — 2026-09-14
 
-Status: benchmark-only implementation verified; actual QUIC scale rerun pending.
+Status: benchmark-only implementation verified; matched 2048-bundle rerun remains FAIL.
 Base: `0288122db02dce0931326dea3e993fdf78c3d189`. No production transport,
 protocol, authority, security or timeout setting changed.
 
@@ -48,6 +48,17 @@ the production library or the retained monitor.
 
 Canonical evidence: `evidence/performance/v2/b3-marker-monitor-0288122d`.
 Raw source archives plus exact overlay files bind the pre-commit CPU/test builds.
-An exact-commit release build and matched real lifecycle runs must determine
-whether this changes the 2048/4096 handshake outcome. Do not replace accepted
-capacity numbers or claim a hardware ceiling from these offline measurements.
+Exact-commit builds and five counterbalanced pairs are now retained under
+`evidence/performance/v2/b3-marker-monitor-pairs-d76cc302`. Both variants fail
+all five full 2048-bundle attempts on one guest CPU. Median source/destination
+active-marker count rises from1470 to1774; source handshake timeouts fall from578
+to273. Median pre-start source CPU falls from0.549498 to0.359704 effective cores.
+These are improvements inside failed workloads, not sustainable admissions/s or
+a new stable scale. Retained destination UDP drops remain; closed sockets and
+precise drop timing are unobserved. No hardware ceiling is established.
+
+Next attribution question: B3's deliberately serialized acceptance arms one
+handshake at a time to avoid premature accept deadlines. Determine whether
+head-of-line handshake waiting contributes to the remaining failure, while
+preserving the original paced arrival schedule and timeout values. Do not simply
+re-arm all accepts at startup or reopen the previous deadline defect.

@@ -1,0 +1,14 @@
+[
+  {
+    "root": "C:\\NBSR-build\\linux-current-0288122d",
+    "index_sha256": "a1777ec6c3737d6da8462e3f7cf19a4a39aa689d849ef22405753d32d20996c0"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-current-d76cc302",
+    "index_sha256": "bfa5e2546e60f441f515b7ce3277e3c1fa0120f5d9a9b656be31d192f663dceb"
+  },
+  {
+    "root": "C:\\NBSR-build\\b3-marker-monitor-pairs-d76cc302",
+    "index_sha256": "bd3fd646244b9746cc03cadc51beb39c99b447ef61c458989c61b6e5f757fab1"
+  }
+]
