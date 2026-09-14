@@ -1,0 +1,22 @@
+[
+  {
+    "root": "C:\\NBSR-build\\b3-polling-spike-0288122d",
+    "index_sha256": "a7c9409b89c716c25d8178b064430ec269aaf45cef2bf6e612c9c06ca530175f"
+  },
+  {
+    "root": "C:\\NBSR-build\\b3-polling-spike-0288122d-run2",
+    "index_sha256": "f322a4e806fadbb416cc5703397f9d87622b685ca35fa3ca270620e00451b41a"
+  },
+  {
+    "root": "C:\\NBSR-build\\b3-marker-monitor-red-0288122d",
+    "index_sha256": "908e08eb1e221a38d592fc1ee62ae7fa5654c2bce706b6909c8a3ebe85f0cbab"
+  },
+  {
+    "root": "C:\\NBSR-build\\b3-marker-monitor-green-0288122d",
+    "index_sha256": "72cbf43b94074620cfc1768aaafc8026ef4abfe84664b31ed8159f704cfd18e3"
+  },
+  {
+    "root": "C:\\NBSR-build\\b3-marker-monitor-cpu-0288122d",
+    "index_sha256": "84d6f76c8fdb1974dd80bb01e61bd89feececd562b6febb03a4ec3ff649f41ea"
+  }
+]

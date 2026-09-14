@@ -1,0 +1,471 @@
+{
+  "classification": "DIAGNOSTIC offline no-traffic CPU only; prototype not production; no handshake causality",
+  "rows": [
+    {
+      "mode": "current",
+      "count": 2048,
+      "unrelated": 0,
+      "repeat": 1,
+      "cpu_ticks": 119,
+      "hz": 100,
+      "elapsed_ns": 2001139255,
+      "cpu_percent": 59.466126459050436
+    },
+    {
+      "mode": "batch-stat",
+      "count": 2048,
+      "unrelated": 0,
+      "repeat": 1,
+      "cpu_ticks": 65,
+      "hz": 100,
+      "elapsed_ns": 2001077049,
+      "cpu_percent": 32.482507373957695
+    },
+    {
+      "mode": "batch-dir",
+      "count": 2048,
+      "unrelated": 0,
+      "repeat": 1,
+      "cpu_ticks": 2,
+      "hz": 100,
+      "elapsed_ns": 2001995540,
+      "cpu_percent": 0.9990032245526381
+    },
+    {
+      "mode": "pending",
+      "count": 2048,
+      "unrelated": 0,
+      "repeat": 1,
+      "cpu_ticks": 0,
+      "hz": 100,
+      "elapsed_ns": 2001391713,
+      "cpu_percent": 0.0
+    },
+    {
+      "mode": "pending",
+      "count": 2048,
+      "unrelated": 0,
+      "repeat": 2,
+      "cpu_ticks": 0,
+      "hz": 100,
+      "elapsed_ns": 2000614188,
+      "cpu_percent": 0.0
+    },
+    {
+      "mode": "batch-dir",
+      "count": 2048,
+      "unrelated": 0,
+      "repeat": 2,
+      "cpu_ticks": 3,
+      "hz": 100,
+      "elapsed_ns": 2001077134,
+      "cpu_percent": 1.4991925843474256
+    },
+    {
+      "mode": "batch-stat",
+      "count": 2048,
+      "unrelated": 0,
+      "repeat": 2,
+      "cpu_ticks": 51,
+      "hz": 100,
+      "elapsed_ns": 2001060133,
+      "cpu_percent": 25.48649046520183
+    },
+    {
+      "mode": "current",
+      "count": 2048,
+      "unrelated": 0,
+      "repeat": 2,
+      "cpu_ticks": 100,
+      "hz": 100,
+      "elapsed_ns": 2001078435,
+      "cpu_percent": 49.97305365494081
+    },
+    {
+      "mode": "current",
+      "count": 2048,
+      "unrelated": 0,
+      "repeat": 3,
+      "cpu_ticks": 101,
+      "hz": 100,
+      "elapsed_ns": 2000752139,
+      "cpu_percent": 50.48101562969265
+    },
+    {
+      "mode": "batch-stat",
+      "count": 2048,
+      "unrelated": 0,
+      "repeat": 3,
+      "cpu_ticks": 51,
+      "hz": 100,
+      "elapsed_ns": 2001536921,
+      "cpu_percent": 25.480419304241252
+    },
+    {
+      "mode": "batch-dir",
+      "count": 2048,
+      "unrelated": 0,
+      "repeat": 3,
+      "cpu_ticks": 2,
+      "hz": 100,
+      "elapsed_ns": 2001156521,
+      "cpu_percent": 0.9994220736919558
+    },
+    {
+      "mode": "pending",
+      "count": 2048,
+      "unrelated": 0,
+      "repeat": 3,
+      "cpu_ticks": 0,
+      "hz": 100,
+      "elapsed_ns": 2001477746,
+      "cpu_percent": 0.0
+    },
+    {
+      "mode": "pending",
+      "count": 2048,
+      "unrelated": 0,
+      "repeat": 4,
+      "cpu_ticks": 0,
+      "hz": 100,
+      "elapsed_ns": 2000698361,
+      "cpu_percent": 0.0
+    },
+    {
+      "mode": "batch-dir",
+      "count": 2048,
+      "unrelated": 0,
+      "repeat": 4,
+      "cpu_ticks": 2,
+      "hz": 100,
+      "elapsed_ns": 2000722064,
+      "cpu_percent": 0.9996390982970637
+    },
+    {
+      "mode": "batch-stat",
+      "count": 2048,
+      "unrelated": 0,
+      "repeat": 4,
+      "cpu_ticks": 61,
+      "hz": 100,
+      "elapsed_ns": 2000479785,
+      "cpu_percent": 30.49268503355559
+    },
+    {
+      "mode": "current",
+      "count": 2048,
+      "unrelated": 0,
+      "repeat": 4,
+      "cpu_ticks": 113,
+      "hz": 100,
+      "elapsed_ns": 2000766361,
+      "cpu_percent": 56.478358594314635
+    },
+    {
+      "mode": "current",
+      "count": 2048,
+      "unrelated": 0,
+      "repeat": 5,
+      "cpu_ticks": 123,
+      "hz": 100,
+      "elapsed_ns": 2000539836,
+      "cpu_percent": 61.48340452241812
+    },
+    {
+      "mode": "batch-stat",
+      "count": 2048,
+      "unrelated": 0,
+      "repeat": 5,
+      "cpu_ticks": 64,
+      "hz": 100,
+      "elapsed_ns": 2001089897,
+      "cpu_percent": 31.982571145827936
+    },
+    {
+      "mode": "batch-dir",
+      "count": 2048,
+      "unrelated": 0,
+      "repeat": 5,
+      "cpu_ticks": 2,
+      "hz": 100,
+      "elapsed_ns": 2000971237,
+      "cpu_percent": 0.9995146172108621
+    },
+    {
+      "mode": "pending",
+      "count": 2048,
+      "unrelated": 0,
+      "repeat": 5,
+      "cpu_ticks": 0,
+      "hz": 100,
+      "elapsed_ns": 2000593522,
+      "cpu_percent": 0.0
+    },
+    {
+      "mode": "current",
+      "count": 2048,
+      "unrelated": 8192,
+      "repeat": 1,
+      "cpu_ticks": 103,
+      "hz": 100,
+      "elapsed_ns": 2000626326,
+      "cpu_percent": 51.48387715457865
+    },
+    {
+      "mode": "batch-stat",
+      "count": 2048,
+      "unrelated": 8192,
+      "repeat": 1,
+      "cpu_ticks": 56,
+      "hz": 100,
+      "elapsed_ns": 2000807145,
+      "cpu_percent": 27.988704528541657
+    },
+    {
+      "mode": "batch-dir",
+      "count": 2048,
+      "unrelated": 8192,
+      "repeat": 1,
+      "cpu_ticks": 64,
+      "hz": 100,
+      "elapsed_ns": 2001328708,
+      "cpu_percent": 31.978754786342677
+    },
+    {
+      "mode": "pending",
+      "count": 2048,
+      "unrelated": 8192,
+      "repeat": 1,
+      "cpu_ticks": 0,
+      "hz": 100,
+      "elapsed_ns": 2000411925,
+      "cpu_percent": 0.0
+    },
+    {
+      "mode": "pending",
+      "count": 2048,
+      "unrelated": 8192,
+      "repeat": 2,
+      "cpu_ticks": 0,
+      "hz": 100,
+      "elapsed_ns": 2001694155,
+      "cpu_percent": 0.0
+    },
+    {
+      "mode": "batch-dir",
+      "count": 2048,
+      "unrelated": 8192,
+      "repeat": 2,
+      "cpu_ticks": 64,
+      "hz": 100,
+      "elapsed_ns": 2000774562,
+      "cpu_percent": 31.98761180571227
+    },
+    {
+      "mode": "batch-stat",
+      "count": 2048,
+      "unrelated": 8192,
+      "repeat": 2,
+      "cpu_ticks": 57,
+      "hz": 100,
+      "elapsed_ns": 2002438794,
+      "cpu_percent": 28.465289511365704
+    },
+    {
+      "mode": "current",
+      "count": 2048,
+      "unrelated": 8192,
+      "repeat": 2,
+      "cpu_ticks": 117,
+      "hz": 100,
+      "elapsed_ns": 2000284853,
+      "cpu_percent": 58.49166923627151
+    },
+    {
+      "mode": "current",
+      "count": 2048,
+      "unrelated": 8192,
+      "repeat": 3,
+      "cpu_ticks": 113,
+      "hz": 100,
+      "elapsed_ns": 2001040301,
+      "cpu_percent": 56.47062677524753
+    },
+    {
+      "mode": "batch-stat",
+      "count": 2048,
+      "unrelated": 8192,
+      "repeat": 3,
+      "cpu_ticks": 58,
+      "hz": 100,
+      "elapsed_ns": 2000760483,
+      "cpu_percent": 28.988977187830628
+    },
+    {
+      "mode": "batch-dir",
+      "count": 2048,
+      "unrelated": 8192,
+      "repeat": 3,
+      "cpu_ticks": 66,
+      "hz": 100,
+      "elapsed_ns": 2001206421,
+      "cpu_percent": 32.98010605373727
+    },
+    {
+      "mode": "pending",
+      "count": 2048,
+      "unrelated": 8192,
+      "repeat": 3,
+      "cpu_ticks": 0,
+      "hz": 100,
+      "elapsed_ns": 2000371584,
+      "cpu_percent": 0.0
+    },
+    {
+      "mode": "pending",
+      "count": 2048,
+      "unrelated": 8192,
+      "repeat": 4,
+      "cpu_ticks": 0,
+      "hz": 100,
+      "elapsed_ns": 2001542808,
+      "cpu_percent": 0.0
+    },
+    {
+      "mode": "batch-dir",
+      "count": 2048,
+      "unrelated": 8192,
+      "repeat": 4,
+      "cpu_ticks": 74,
+      "hz": 100,
+      "elapsed_ns": 2004317301,
+      "cpu_percent": 36.920301971688666
+    },
+    {
+      "mode": "batch-stat",
+      "count": 2048,
+      "unrelated": 8192,
+      "repeat": 4,
+      "cpu_ticks": 60,
+      "hz": 100,
+      "elapsed_ns": 2001016178,
+      "cpu_percent": 29.984765070699993
+    },
+    {
+      "mode": "current",
+      "count": 2048,
+      "unrelated": 8192,
+      "repeat": 4,
+      "cpu_ticks": 146,
+      "hz": 100,
+      "elapsed_ns": 2003281734,
+      "cpu_percent": 72.8804129354678
+    },
+    {
+      "mode": "current",
+      "count": 2048,
+      "unrelated": 8192,
+      "repeat": 5,
+      "cpu_ticks": 163,
+      "hz": 100,
+      "elapsed_ns": 2000491336,
+      "cpu_percent": 81.47998297554236
+    },
+    {
+      "mode": "batch-stat",
+      "count": 2048,
+      "unrelated": 8192,
+      "repeat": 5,
+      "cpu_ticks": 72,
+      "hz": 100,
+      "elapsed_ns": 2001758871,
+      "cpu_percent": 35.96836814018046
+    },
+    {
+      "mode": "batch-dir",
+      "count": 2048,
+      "unrelated": 8192,
+      "repeat": 5,
+      "cpu_ticks": 81,
+      "hz": 100,
+      "elapsed_ns": 2001769908,
+      "cpu_percent": 40.46419105227153
+    },
+    {
+      "mode": "pending",
+      "count": 2048,
+      "unrelated": 8192,
+      "repeat": 5,
+      "cpu_ticks": 0,
+      "hz": 100,
+      "elapsed_ns": 2001482457,
+      "cpu_percent": 0.0
+    }
+  ],
+  "cells": [
+    {
+      "mode": "current",
+      "unrelated": 0,
+      "repeats": 5,
+      "median_cpu_percent": 56.478358594314635,
+      "minimum": 49.97305365494081,
+      "maximum": 61.48340452241812
+    },
+    {
+      "mode": "batch-stat",
+      "unrelated": 0,
+      "repeats": 5,
+      "median_cpu_percent": 30.49268503355559,
+      "minimum": 25.480419304241252,
+      "maximum": 32.482507373957695
+    },
+    {
+      "mode": "batch-dir",
+      "unrelated": 0,
+      "repeats": 5,
+      "median_cpu_percent": 0.9995146172108621,
+      "minimum": 0.9990032245526381,
+      "maximum": 1.4991925843474256
+    },
+    {
+      "mode": "pending",
+      "unrelated": 0,
+      "repeats": 5,
+      "median_cpu_percent": 0.0,
+      "minimum": 0.0,
+      "maximum": 0.0
+    },
+    {
+      "mode": "current",
+      "unrelated": 8192,
+      "repeats": 5,
+      "median_cpu_percent": 58.49166923627151,
+      "minimum": 51.48387715457865,
+      "maximum": 81.47998297554236
+    },
+    {
+      "mode": "batch-stat",
+      "unrelated": 8192,
+      "repeats": 5,
+      "median_cpu_percent": 28.988977187830628,
+      "minimum": 27.988704528541657,
+      "maximum": 35.96836814018046
+    },
+    {
+      "mode": "batch-dir",
+      "unrelated": 8192,
+      "repeats": 5,
+      "median_cpu_percent": 32.98010605373727,
+      "minimum": 31.978754786342677,
+      "maximum": 40.46419105227153
+    },
+    {
+      "mode": "pending",
+      "unrelated": 8192,
+      "repeats": 5,
+      "median_cpu_percent": 0.0,
+      "minimum": 0.0,
+      "maximum": 0.0
+    }
+  ]
+}

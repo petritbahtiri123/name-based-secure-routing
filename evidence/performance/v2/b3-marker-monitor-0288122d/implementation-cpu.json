@@ -1,0 +1,368 @@
+{
+  "classification": "DIAGNOSTIC offline implementation CPU comparison; no QUIC traffic, no handshake causality",
+  "source_base": "0288122db02dce0931326dea3e993fdf78c3d189",
+  "overlay_files": [
+    "mod.rs",
+    "marker_monitor.rs",
+    "perf_rust_source.rs"
+  ],
+  "instrumentation": "probe.rs appended to mod.rs; isolated one selected guest CPU; /proc/self/stat 10 ms resolution; 30 ms registration settling; 2 second measurement",
+  "rows": [
+    {
+      "mode": "current",
+      "count": 2048,
+      "unrelated": 0,
+      "repeat": 1,
+      "cpu_ticks": 73,
+      "hz": 100,
+      "elapsed_ns": 2000357068,
+      "cpu_percent": 36.49348467220753
+    },
+    {
+      "mode": "monitor",
+      "count": 2048,
+      "unrelated": 0,
+      "repeat": 1,
+      "cpu_ticks": 38,
+      "hz": 100,
+      "elapsed_ns": 2001137693,
+      "cpu_percent": 18.98919806114511
+    },
+    {
+      "mode": "pending",
+      "count": 2048,
+      "unrelated": 0,
+      "repeat": 1,
+      "cpu_ticks": 0,
+      "hz": 100,
+      "elapsed_ns": 2000333090,
+      "cpu_percent": 0.0
+    },
+    {
+      "mode": "pending",
+      "count": 2048,
+      "unrelated": 0,
+      "repeat": 2,
+      "cpu_ticks": 0,
+      "hz": 100,
+      "elapsed_ns": 2000819215,
+      "cpu_percent": 0.0
+    },
+    {
+      "mode": "monitor",
+      "count": 2048,
+      "unrelated": 0,
+      "repeat": 2,
+      "cpu_ticks": 36,
+      "hz": 100,
+      "elapsed_ns": 2001810068,
+      "cpu_percent": 17.983724118226384
+    },
+    {
+      "mode": "current",
+      "count": 2048,
+      "unrelated": 0,
+      "repeat": 2,
+      "cpu_ticks": 68,
+      "hz": 100,
+      "elapsed_ns": 2001756842,
+      "cpu_percent": 33.97015989817209
+    },
+    {
+      "mode": "current",
+      "count": 2048,
+      "unrelated": 0,
+      "repeat": 3,
+      "cpu_ticks": 59,
+      "hz": 100,
+      "elapsed_ns": 2000803217,
+      "cpu_percent": 29.488157305376824
+    },
+    {
+      "mode": "monitor",
+      "count": 2048,
+      "unrelated": 0,
+      "repeat": 3,
+      "cpu_ticks": 32,
+      "hz": 100,
+      "elapsed_ns": 2001020528,
+      "cpu_percent": 15.991839939784963
+    },
+    {
+      "mode": "pending",
+      "count": 2048,
+      "unrelated": 0,
+      "repeat": 3,
+      "cpu_ticks": 0,
+      "hz": 100,
+      "elapsed_ns": 2001847673,
+      "cpu_percent": 0.0
+    },
+    {
+      "mode": "pending",
+      "count": 2048,
+      "unrelated": 0,
+      "repeat": 4,
+      "cpu_ticks": 0,
+      "hz": 100,
+      "elapsed_ns": 2000714503,
+      "cpu_percent": 0.0
+    },
+    {
+      "mode": "monitor",
+      "count": 2048,
+      "unrelated": 0,
+      "repeat": 4,
+      "cpu_ticks": 34,
+      "hz": 100,
+      "elapsed_ns": 2001476378,
+      "cpu_percent": 16.987460043857684
+    },
+    {
+      "mode": "current",
+      "count": 2048,
+      "unrelated": 0,
+      "repeat": 4,
+      "cpu_ticks": 67,
+      "hz": 100,
+      "elapsed_ns": 2001459677,
+      "cpu_percent": 33.475568241487984
+    },
+    {
+      "mode": "current",
+      "count": 2048,
+      "unrelated": 0,
+      "repeat": 5,
+      "cpu_ticks": 89,
+      "hz": 100,
+      "elapsed_ns": 2001790094,
+      "cpu_percent": 44.460206025977065
+    },
+    {
+      "mode": "monitor",
+      "count": 2048,
+      "unrelated": 0,
+      "repeat": 5,
+      "cpu_ticks": 41,
+      "hz": 100,
+      "elapsed_ns": 2001555462,
+      "cpu_percent": 20.484068904606755
+    },
+    {
+      "mode": "pending",
+      "count": 2048,
+      "unrelated": 0,
+      "repeat": 5,
+      "cpu_ticks": 0,
+      "hz": 100,
+      "elapsed_ns": 2000432878,
+      "cpu_percent": 0.0
+    },
+    {
+      "mode": "current",
+      "count": 2048,
+      "unrelated": 8192,
+      "repeat": 1,
+      "cpu_ticks": 101,
+      "hz": 100,
+      "elapsed_ns": 2000467180,
+      "cpu_percent": 50.488206459853046
+    },
+    {
+      "mode": "monitor",
+      "count": 2048,
+      "unrelated": 8192,
+      "repeat": 1,
+      "cpu_ticks": 44,
+      "hz": 100,
+      "elapsed_ns": 2001345427,
+      "cpu_percent": 21.985210252262966
+    },
+    {
+      "mode": "pending",
+      "count": 2048,
+      "unrelated": 8192,
+      "repeat": 1,
+      "cpu_ticks": 1,
+      "hz": 100,
+      "elapsed_ns": 2001572563,
+      "cpu_percent": 0.4996071681264348
+    },
+    {
+      "mode": "pending",
+      "count": 2048,
+      "unrelated": 8192,
+      "repeat": 2,
+      "cpu_ticks": 0,
+      "hz": 100,
+      "elapsed_ns": 2001694903,
+      "cpu_percent": 0.0
+    },
+    {
+      "mode": "monitor",
+      "count": 2048,
+      "unrelated": 8192,
+      "repeat": 2,
+      "cpu_ticks": 34,
+      "hz": 100,
+      "elapsed_ns": 2001892214,
+      "cpu_percent": 16.983931383630427
+    },
+    {
+      "mode": "current",
+      "count": 2048,
+      "unrelated": 8192,
+      "repeat": 2,
+      "cpu_ticks": 66,
+      "hz": 100,
+      "elapsed_ns": 2001182675,
+      "cpu_percent": 32.98049739512162
+    },
+    {
+      "mode": "current",
+      "count": 2048,
+      "unrelated": 8192,
+      "repeat": 3,
+      "cpu_ticks": 70,
+      "hz": 100,
+      "elapsed_ns": 2001592512,
+      "cpu_percent": 34.97215321317108
+    },
+    {
+      "mode": "monitor",
+      "count": 2048,
+      "unrelated": 8192,
+      "repeat": 3,
+      "cpu_ticks": 35,
+      "hz": 100,
+      "elapsed_ns": 2001443112,
+      "cpu_percent": 17.48738187468403
+    },
+    {
+      "mode": "pending",
+      "count": 2048,
+      "unrelated": 8192,
+      "repeat": 3,
+      "cpu_ticks": 0,
+      "hz": 100,
+      "elapsed_ns": 2000505844,
+      "cpu_percent": 0.0
+    },
+    {
+      "mode": "pending",
+      "count": 2048,
+      "unrelated": 8192,
+      "repeat": 4,
+      "cpu_ticks": 0,
+      "hz": 100,
+      "elapsed_ns": 2001306402,
+      "cpu_percent": 0.0
+    },
+    {
+      "mode": "monitor",
+      "count": 2048,
+      "unrelated": 8192,
+      "repeat": 4,
+      "cpu_ticks": 33,
+      "hz": 100,
+      "elapsed_ns": 2001608417,
+      "cpu_percent": 16.48674122257151
+    },
+    {
+      "mode": "current",
+      "count": 2048,
+      "unrelated": 8192,
+      "repeat": 4,
+      "cpu_ticks": 70,
+      "hz": 100,
+      "elapsed_ns": 2000911568,
+      "cpu_percent": 34.98405482755448
+    },
+    {
+      "mode": "current",
+      "count": 2048,
+      "unrelated": 8192,
+      "repeat": 5,
+      "cpu_ticks": 74,
+      "hz": 100,
+      "elapsed_ns": 2001125781,
+      "cpu_percent": 36.97918476819624
+    },
+    {
+      "mode": "monitor",
+      "count": 2048,
+      "unrelated": 8192,
+      "repeat": 5,
+      "cpu_ticks": 40,
+      "hz": 100,
+      "elapsed_ns": 2002010330,
+      "cpu_percent": 19.97991688684244
+    },
+    {
+      "mode": "pending",
+      "count": 2048,
+      "unrelated": 8192,
+      "repeat": 5,
+      "cpu_ticks": 0,
+      "hz": 100,
+      "elapsed_ns": 2000746500,
+      "cpu_percent": 0.0
+    }
+  ],
+  "cells": [
+    {
+      "mode": "current",
+      "unrelated": 0,
+      "repeats": 5,
+      "median_cpu_percent": 33.97015989817209,
+      "minimum": 29.488157305376824,
+      "maximum": 44.460206025977065,
+      "cv_percent": 15.638514138018742
+    },
+    {
+      "mode": "monitor",
+      "unrelated": 0,
+      "repeats": 5,
+      "median_cpu_percent": 17.983724118226384,
+      "minimum": 15.991839939784963,
+      "maximum": 20.484068904606755,
+      "cv_percent": 9.643377612324995
+    },
+    {
+      "mode": "pending",
+      "unrelated": 0,
+      "repeats": 5,
+      "median_cpu_percent": 0.0,
+      "minimum": 0.0,
+      "maximum": 0.0,
+      "cv_percent": null
+    },
+    {
+      "mode": "current",
+      "unrelated": 8192,
+      "repeats": 5,
+      "median_cpu_percent": 34.98405482755448,
+      "minimum": 32.98049739512162,
+      "maximum": 50.488206459853046,
+      "cv_percent": 18.588248404482783
+    },
+    {
+      "mode": "monitor",
+      "unrelated": 8192,
+      "repeats": 5,
+      "median_cpu_percent": 17.48738187468403,
+      "minimum": 16.48674122257151,
+      "maximum": 21.985210252262966,
+      "cv_percent": 12.526407299922834
+    },
+    {
+      "mode": "pending",
+      "unrelated": 8192,
+      "repeats": 5,
+      "median_cpu_percent": 0.0,
+      "minimum": 0.0,
+      "maximum": 0.4996071681264348,
+      "cv_percent": 223.60679774997894
+    }
+  ]
+}

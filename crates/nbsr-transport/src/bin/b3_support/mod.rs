@@ -1,12 +1,22 @@
 use std::path::Path;
 use std::time::Duration;
 
+#[cfg(feature = "benchmark-harness")]
+pub(crate) mod marker_monitor;
+
 pub(crate) async fn wait_for_lifecycle_release(
     active: &Path,
     release: &Path,
     timeout: Duration,
 ) -> Result<(), &'static str> {
     std::fs::write(active, b"active\n").map_err(|_| "cannot publish active marker")?;
+    #[cfg(feature = "benchmark-harness")]
+    if let Some(result) = marker_monitor::wait_if_scoped(release, timeout).await {
+        return result.map_err(|error| match error {
+            "marker timeout" => "lifecycle release marker timeout",
+            _ => "lifecycle marker monitor stopped",
+        });
+    }
     let deadline = std::time::Instant::now() + timeout;
     while !release.is_file() {
         if std::time::Instant::now() >= deadline {
@@ -21,6 +31,13 @@ pub(crate) async fn wait_for_lifecycle_start(
     path: &Path,
     timeout: Duration,
 ) -> Result<(), &'static str> {
+    #[cfg(feature = "benchmark-harness")]
+    if let Some(result) = marker_monitor::wait_if_scoped(path, timeout).await {
+        return result.map_err(|error| match error {
+            "marker timeout" => "lifecycle start marker timeout",
+            _ => "lifecycle marker monitor stopped",
+        });
+    }
     let deadline = std::time::Instant::now() + timeout;
     while !path.is_file() {
         if std::time::Instant::now() >= deadline {

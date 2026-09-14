@@ -66,13 +66,16 @@ async fn run_lifecycle_clients(
     completion: CompletionSender,
 ) {
     let mut lifecycle_clients = tokio::task::JoinSet::new();
+    let marker_monitor = optional_argument("--hold-for-release")
+        .map(|_| b3_support::marker_monitor::MarkerMonitor::new());
     for ordinal in clients {
+        let marker_waiter = marker_monitor.as_ref().map(|monitor| monitor.waiter());
         let completion = completion.clone();
         let slot = timeline.as_ref().and_then(|region| region.claim(ordinal));
         lifecycle_clients.spawn(async move {
             let task_completion = completion.clone();
             let run_slot = slot.clone();
-            let outcome = tokio::spawn(batch_release::after_release(
+            let client = batch_release::after_release(
                 release_gate,
                 ordinal,
                 move || {
@@ -81,7 +84,8 @@ async fn run_lifecycle_clients(
                         run(None, ordinal, Some(task_completion), None).await
                     })
                 },
-            ))
+            );
+            let outcome = tokio::spawn(b3_support::marker_monitor::scope(marker_waiter, client))
             .await;
             if let Err(error) = outcome {
                 if let Some(slot) = &slot {
@@ -111,6 +115,9 @@ async fn run_lifecycle_clients(
     }
     while let Some(client) = lifecycle_clients.join_next().await {
         client.expect("bounded lifecycle client task");
+    }
+    if let Some(monitor) = marker_monitor {
+        monitor.shutdown().await;
     }
 }
 
