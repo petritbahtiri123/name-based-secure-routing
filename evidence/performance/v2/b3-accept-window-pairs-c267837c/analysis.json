@@ -1,0 +1,183 @@
+{
+  "classification": "DIAGNOSTIC; neither window establishes stable 2048-bundle capacity on one guest CPU",
+  "decision": "Keep default window 1; do not promote window 32.",
+  "indexed_child_files_verified": 2310,
+  "summary": {
+    "1": {
+      "passed": 1,
+      "failed": 4,
+      "median_active_markers": 1537,
+      "median_handshake_timeouts": 511,
+      "total_client_task_failed": 0
+    },
+    "32": {
+      "passed": 0,
+      "failed": 5,
+      "median_active_markers": 1741,
+      "median_handshake_timeouts": 253,
+      "total_client_task_failed": 286
+    }
+  },
+  "rows": [
+    {
+      "window": 1,
+      "repeat": 1,
+      "exit_code": 1,
+      "errors": {
+        "HandshakeTimeout": 663
+      },
+      "active_markers": 1385,
+      "destination_active_markers": 1385,
+      "retained_destination_udp_drops": 5429,
+      "retained_source_udp_drops": 0
+    },
+    {
+      "window": 32,
+      "repeat": 1,
+      "exit_code": 1,
+      "errors": {
+        "HandshakeTimeout": 530,
+        "client_task_failed": 87
+      },
+      "active_markers": 1431,
+      "destination_active_markers": 1431,
+      "retained_destination_udp_drops": 19198,
+      "retained_source_udp_drops": 0
+    },
+    {
+      "window": 32,
+      "repeat": 2,
+      "exit_code": 1,
+      "errors": {
+        "client_task_failed": 82,
+        "HandshakeTimeout": 314
+      },
+      "active_markers": 1652,
+      "destination_active_markers": 1652,
+      "retained_destination_udp_drops": 14957,
+      "retained_source_udp_drops": 0
+    },
+    {
+      "window": 1,
+      "repeat": 2,
+      "exit_code": 1,
+      "errors": {
+        "HandshakeTimeout": 862
+      },
+      "active_markers": 1186,
+      "destination_active_markers": 1186,
+      "retained_destination_udp_drops": 1993,
+      "retained_source_udp_drops": 0
+    },
+    {
+      "window": 1,
+      "repeat": 3,
+      "exit_code": 1,
+      "errors": {
+        "HandshakeTimeout": 403
+      },
+      "active_markers": 1645,
+      "destination_active_markers": 1645,
+      "retained_destination_udp_drops": 6251,
+      "retained_source_udp_drops": 0
+    },
+    {
+      "window": 32,
+      "repeat": 3,
+      "exit_code": 1,
+      "errors": {
+        "client_task_failed": 54,
+        "HandshakeTimeout": 253
+      },
+      "active_markers": 1741,
+      "destination_active_markers": 1741,
+      "retained_destination_udp_drops": 24822,
+      "retained_source_udp_drops": 0
+    },
+    {
+      "window": 32,
+      "repeat": 4,
+      "exit_code": 1,
+      "errors": {
+        "HandshakeTimeout": 170,
+        "client_task_failed": 63
+      },
+      "active_markers": 1815,
+      "destination_active_markers": 1815,
+      "retained_destination_udp_drops": 23639,
+      "retained_source_udp_drops": 0
+    },
+    {
+      "window": 1,
+      "repeat": 4,
+      "exit_code": 0,
+      "errors": {},
+      "active_markers": 2048,
+      "cleanup": {
+        "all_zero": true,
+        "counter_scope": "rust-all-11-current-fields",
+        "counters": {
+          "application_streams_current_live": 0,
+          "audit_queue_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "nbsr_tasks_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "replay_state_current_entries": 0,
+          "service_channels_current_live": 0,
+          "stream_registry_current_entries": 0,
+          "transport_sessions_current_live": 0
+        },
+        "destination_exited": true,
+        "source_all_zero": true,
+        "source_counters": [
+          {
+            "application_streams_current_live": 0,
+            "audit_queue_current_entries": 0,
+            "channel_registry_current_entries": 0,
+            "nbsr_tasks_current_live": 0,
+            "pending_routes_current_entries": 0,
+            "quic_connections_current_live": 0,
+            "quic_streams_current_live": 0,
+            "replay_state_current_entries": 0,
+            "service_channels_current_live": 0,
+            "stream_registry_current_entries": 0,
+            "transport_sessions_current_live": 0
+          }
+        ],
+        "source_processes_exited": true
+      }
+    },
+    {
+      "window": 1,
+      "repeat": 5,
+      "exit_code": 1,
+      "errors": {
+        "HandshakeTimeout": 511
+      },
+      "active_markers": 1537,
+      "destination_active_markers": 1537,
+      "retained_destination_udp_drops": 616,
+      "retained_source_udp_drops": 0
+    },
+    {
+      "window": 32,
+      "repeat": 5,
+      "exit_code": 1,
+      "errors": {
+        "HandshakeTimeout": 91
+      },
+      "active_markers": 1957,
+      "destination_active_markers": 1957,
+      "retained_destination_udp_drops": 25440,
+      "retained_source_udp_drops": 0
+    }
+  ],
+  "limitations": [
+    "Active markers in failed attempts are progress, not accepted capacity or admissions/s.",
+    "Failure-only socket counters omit closed sockets and drop timing.",
+    "One passing attempt is not repeatable capacity.",
+    "Guest CPU affinity does not prove exclusive physical-core capacity."
+  ]
+}

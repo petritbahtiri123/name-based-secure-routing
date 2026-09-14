@@ -1,0 +1,18 @@
+{
+  "classification": "PREDECLARED_DIAGNOSTIC",
+  "source_sha": "c267837c128db9ffafb14eee16811f90839c3c83",
+  "windows": [
+    1,
+    32
+  ],
+  "pairs": 5,
+  "order": "1/32 odd repeats,32/1 even repeats",
+  "active_bundles": 2048,
+  "guest_cpus": 1,
+  "source_shards": 2,
+  "starts_per_second": 100,
+  "keepalive_seconds": 1,
+  "marker_filesystem": "guest-native /tmp",
+  "timeout_changes": false,
+  "default_change": false
+}

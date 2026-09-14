@@ -1,0 +1,92 @@
+[
+  {
+    "window": 1,
+    "repeat": 1,
+    "source_sha": "c267837c128db9ffafb14eee16811f90839c3c83",
+    "exit_code": 1,
+    "original_output": "/tmp/window-1-r1",
+    "retained_output": "/out/window-1-r1",
+    "copied_files_verified": 26
+  },
+  {
+    "window": 32,
+    "repeat": 1,
+    "source_sha": "c267837c128db9ffafb14eee16811f90839c3c83",
+    "exit_code": 1,
+    "original_output": "/tmp/window-32-r1",
+    "retained_output": "/out/window-32-r1",
+    "copied_files_verified": 26
+  },
+  {
+    "window": 32,
+    "repeat": 2,
+    "source_sha": "c267837c128db9ffafb14eee16811f90839c3c83",
+    "exit_code": 1,
+    "original_output": "/tmp/window-32-r2",
+    "retained_output": "/out/window-32-r2",
+    "copied_files_verified": 26
+  },
+  {
+    "window": 1,
+    "repeat": 2,
+    "source_sha": "c267837c128db9ffafb14eee16811f90839c3c83",
+    "exit_code": 1,
+    "original_output": "/tmp/window-1-r2",
+    "retained_output": "/out/window-1-r2",
+    "copied_files_verified": 26
+  },
+  {
+    "window": 1,
+    "repeat": 3,
+    "source_sha": "c267837c128db9ffafb14eee16811f90839c3c83",
+    "exit_code": 1,
+    "original_output": "/tmp/window-1-r3",
+    "retained_output": "/out/window-1-r3",
+    "copied_files_verified": 26
+  },
+  {
+    "window": 32,
+    "repeat": 3,
+    "source_sha": "c267837c128db9ffafb14eee16811f90839c3c83",
+    "exit_code": 1,
+    "original_output": "/tmp/window-32-r3",
+    "retained_output": "/out/window-32-r3",
+    "copied_files_verified": 26
+  },
+  {
+    "window": 32,
+    "repeat": 4,
+    "source_sha": "c267837c128db9ffafb14eee16811f90839c3c83",
+    "exit_code": 1,
+    "original_output": "/tmp/window-32-r4",
+    "retained_output": "/out/window-32-r4",
+    "copied_files_verified": 26
+  },
+  {
+    "window": 1,
+    "repeat": 4,
+    "source_sha": "c267837c128db9ffafb14eee16811f90839c3c83",
+    "exit_code": 0,
+    "original_output": "/tmp/window-1-r4",
+    "retained_output": "/out/window-1-r4",
+    "copied_files_verified": 2076
+  },
+  {
+    "window": 1,
+    "repeat": 5,
+    "source_sha": "c267837c128db9ffafb14eee16811f90839c3c83",
+    "exit_code": 1,
+    "original_output": "/tmp/window-1-r5",
+    "retained_output": "/out/window-1-r5",
+    "copied_files_verified": 26
+  },
+  {
+    "window": 32,
+    "repeat": 5,
+    "source_sha": "c267837c128db9ffafb14eee16811f90839c3c83",
+    "exit_code": 1,
+    "original_output": "/tmp/window-32-r5",
+    "retained_output": "/out/window-32-r5",
+    "copied_files_verified": 26
+  }
+]
