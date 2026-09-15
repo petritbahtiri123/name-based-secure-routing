@@ -139,6 +139,7 @@ def execute(args):
     b3.write_json(args.output / "environment.json", metadata)
     (args.output / "source.patch").write_bytes(subprocess.check_output(["git", "diff", "--binary"]))
     sources = ["scripts/run_b3_v2.py", "scripts/run_b3_session_lifecycle.py",
+                   "scripts/performance/b3_failure_markers.py",
                    "crates/nbsr-transport/src/config.rs",
                    "crates/nbsr-transport/src/udp_socket.rs",
                    "crates/nbsr-transport/src/bin/perf_rust_source.rs",

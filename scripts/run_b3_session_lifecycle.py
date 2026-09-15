@@ -18,6 +18,7 @@ from typing import Any
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from scripts.performance.authorities import write_authority_set
+from scripts.performance.b3_failure_markers import snapshot_markers
 from scripts.performance.resources import sample_windows_process
 from scripts.performance.post_close_cleanup import FIELDS as RUST_CLEANUP_FIELDS
 from scripts.performance.session_lifecycle_closure import analyze_path
@@ -373,6 +374,7 @@ def run_cell(path: str, spec: dict[str, int | str], binaries: dict[str, Path], r
                     process.kill()
                     process.wait(timeout=5)
                 details.append(f"{label}: {(cell_dir / f'{label}.stderr').read_text()}")
+            write_json(cell_dir / "failure-markers.json", snapshot_markers(lifecycle))
             details.append(f"lifecycle_files: {sorted(item.name for item in lifecycle.iterdir())}")
             details.append(f"commands: {commands}")
             failure_detail = "\n".join(details)
