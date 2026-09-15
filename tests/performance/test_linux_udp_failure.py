@@ -13,8 +13,10 @@ def module():
     return linux_udp_failure
 
 
-def stat(start=3):
+def stat(start=3, user_ticks=0, system_ticks=0):
     fields = ["S"] + ["0"] * 49
+    fields[11] = str(user_ticks)
+    fields[12] = str(system_ticks)
     fields[19] = str(start)
     return "11 (fixture) " + " ".join(fields)
 
@@ -39,7 +41,7 @@ def test_snapshot_requires_prior_owned_identity(tmp_path, monkeypatch):
     (base / "fd").mkdir(parents=True)
     (base / "net").mkdir()
     (base / "fd" / "3").touch()
-    (base / "stat").write_text(stat())
+    (base / "stat").write_text(stat(user_ticks=125, system_ticks=75))
     (base / "net" / "udp").write_text(HEADER + ROW)
     (base / "net" / "udp6").write_text(HEADER.replace("rem_address", "remote_address"))
     monkeypatch.setattr(os, "readlink", lambda path: "socket:[99]")
@@ -47,6 +49,8 @@ def test_snapshot_requires_prior_owned_identity(tmp_path, monkeypatch):
     result = udp.capture_owned_udp(children, {11: 3}, proc_root=tmp_path)
     assert result["roles"]["destination"]["status"] == "MEASURED_FAILURE_SNAPSHOT"
     assert result["roles"]["destination"]["live_socket_drops"] == 42
+    assert result["roles"]["destination"]["cpu_ticks"] == 200
+    assert result["roles"]["destination"]["cpu_sample_monotonic_ns"] >= result['timestamp_ns']
     assert udp.capture_owned_udp(children, {11: 4}, proc_root=tmp_path)["roles"]["destination"]["status"] == "UNAVAILABLE"
     assert udp.capture_owned_udp(children, {}, proc_root=tmp_path)["roles"]["destination"]["status"] == "UNAVAILABLE"
     (base / "stat").write_text(stat(4))

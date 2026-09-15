@@ -97,12 +97,16 @@ def capture_owned_udp(processes, expected_starts, *, proc_root=Path("/proc")):
             for family in ("udp", "udp6"):
                 rows.extend(parse_udp(read_bounded(base / "net" / family), inodes, family=family))
             final = identity()
+            cpu_sample_monotonic_ns = time.monotonic_ns()
             if initial["state"] == "Z" or final["state"] == "Z" or final["flags"] & 4:
                 raise ValueError("process exited during observation")
             result["roles"][role] = dict(
                 status="MEASURED_FAILURE_SNAPSHOT",
                 pid=pid,
                 start_ticks=final["start_ticks"],
+                # identity() parses with ticks=1; retain raw kernel ticks here.
+                cpu_ticks=final["cpu_ns"] // 1_000_000_000,
+                cpu_sample_monotonic_ns=cpu_sample_monotonic_ns,
                 all_socket_inode_count=len(inodes),
                 udp_socket_count=len(rows),
                 live_socket_drops=sum(row["drops"] for row in rows),

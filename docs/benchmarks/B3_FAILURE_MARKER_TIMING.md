@@ -51,3 +51,14 @@ No default change or production optimization is justified by this series.
 Canonical evidence: `evidence/performance/v2/b3-failure-markers-72a9cafb`.
 Raw evidence: `C:/NBSR-build/b3-failure-markers-72a9cafb`; exact release build:
 `C:/NBSR-build/linux-current-72a9cafb`. All attempts and failures are retained.
+
+## Failure-end CPU accounting
+
+The existing identity-checked UDP failure snapshot now also retains raw CPU
+ticks from its already-read final `/proc/PID/stat` and the monotonic observation
+time. This adds no proc polling or timed-workload operation. The wrapper must
+record `SC_CLK_TCK` before execution to convert ticks, and analysis must match
+PID/start identity against the last pre-start sample. The resulting average
+covers starts plus the wait until failure, not exclusively the handshake burst.
+It is not function-level profiling or evidence of global hardware saturation.
+Literal RED was a missing cpu_ticks assertion; 36 focused tests and Ruff pass.
