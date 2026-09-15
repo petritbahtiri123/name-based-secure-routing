@@ -1,0 +1,14 @@
+{
+  "classification": "DIAGNOSTIC",
+  "source_sha": "72a9cafbac6753b8a95d779f57b1ac5d8ca3cc5f",
+  "repeats": 5,
+  "active_bundles": 2048,
+  "guest_cpus": 1,
+  "source_shards": 2,
+  "accept_window": 1,
+  "starts_per_second": 100,
+  "keepalive_seconds": 1,
+  "marker_filesystem": "guest-native /tmp",
+  "measurement": "existing marker metadata after failure and child stop",
+  "timeout_changes": false
+}

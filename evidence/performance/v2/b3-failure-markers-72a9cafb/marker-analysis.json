@@ -1,0 +1,307 @@
+{
+  "classification": "DIAGNOSTIC marker publication intervals; wall clock not independently qualified",
+  "indexed_files_verified": 6287,
+  "rows": [
+    {
+      "repeat": 1,
+      "exit_code": 0,
+      "cleanup": {
+        "all_zero": true,
+        "counter_scope": "rust-all-11-current-fields",
+        "counters": {
+          "application_streams_current_live": 0,
+          "audit_queue_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "nbsr_tasks_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "replay_state_current_entries": 0,
+          "service_channels_current_live": 0,
+          "stream_registry_current_entries": 0,
+          "transport_sessions_current_live": 0
+        },
+        "destination_exited": true,
+        "source_all_zero": true,
+        "source_counters": [
+          {
+            "application_streams_current_live": 0,
+            "audit_queue_current_entries": 0,
+            "channel_registry_current_entries": 0,
+            "nbsr_tasks_current_live": 0,
+            "pending_routes_current_entries": 0,
+            "quic_connections_current_live": 0,
+            "quic_streams_current_live": 0,
+            "replay_state_current_entries": 0,
+            "service_channels_current_live": 0,
+            "stream_registry_current_entries": 0,
+            "transport_sessions_current_live": 0
+          }
+        ],
+        "source_processes_exited": true
+      }
+    },
+    {
+      "repeat": 2,
+      "exit_code": 0,
+      "cleanup": {
+        "all_zero": true,
+        "counter_scope": "rust-all-11-current-fields",
+        "counters": {
+          "application_streams_current_live": 0,
+          "audit_queue_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "nbsr_tasks_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "replay_state_current_entries": 0,
+          "service_channels_current_live": 0,
+          "stream_registry_current_entries": 0,
+          "transport_sessions_current_live": 0
+        },
+        "destination_exited": true,
+        "source_all_zero": true,
+        "source_counters": [
+          {
+            "application_streams_current_live": 0,
+            "audit_queue_current_entries": 0,
+            "channel_registry_current_entries": 0,
+            "nbsr_tasks_current_live": 0,
+            "pending_routes_current_entries": 0,
+            "quic_connections_current_live": 0,
+            "quic_streams_current_live": 0,
+            "replay_state_current_entries": 0,
+            "service_channels_current_live": 0,
+            "stream_registry_current_entries": 0,
+            "transport_sessions_current_live": 0
+          }
+        ],
+        "source_processes_exited": true
+      }
+    },
+    {
+      "repeat": 3,
+      "exit_code": 1,
+      "start_timestamps_nondecreasing": true,
+      "start_span_seconds": 20.468415866,
+      "cohorts": [
+        {
+          "first": 0,
+          "last": 511,
+          "missing_connected": 0,
+          "connected_without_active": 0,
+          "start_to_connected": {
+            "n": 512,
+            "p50_ms": 20.001,
+            "p95_ms": 160.011,
+            "p99_ms": 184.013,
+            "max_ms": 204.014
+          },
+          "connected_to_active": {
+            "n": 512,
+            "p50_ms": 12.001,
+            "p95_ms": 48.003,
+            "p99_ms": 64.004,
+            "max_ms": 88.006
+          },
+          "negative_intervals": 0
+        },
+        {
+          "first": 512,
+          "last": 1023,
+          "missing_connected": 0,
+          "connected_without_active": 0,
+          "start_to_connected": {
+            "n": 512,
+            "p50_ms": 100.007,
+            "p95_ms": 760.052,
+            "p99_ms": 968.066,
+            "max_ms": 1024.069
+          },
+          "connected_to_active": {
+            "n": 512,
+            "p50_ms": 28.002,
+            "p95_ms": 80.005,
+            "p99_ms": 136.009,
+            "max_ms": 260.018
+          },
+          "negative_intervals": 0
+        },
+        {
+          "first": 1024,
+          "last": 1535,
+          "missing_connected": 48,
+          "connected_without_active": 0,
+          "start_to_connected": {
+            "n": 464,
+            "p50_ms": 4156.258,
+            "p95_ms": 4784.252,
+            "p99_ms": 5004.258,
+            "max_ms": 5016.261
+          },
+          "connected_to_active": {
+            "n": 464,
+            "p50_ms": 52.003,
+            "p95_ms": 140.007,
+            "p99_ms": 180.012,
+            "max_ms": 1296.085
+          },
+          "negative_intervals": 0
+        },
+        {
+          "first": 1536,
+          "last": 2047,
+          "missing_connected": 201,
+          "connected_without_active": 0,
+          "start_to_connected": {
+            "n": 311,
+            "p50_ms": 4999.368,
+            "p95_ms": 5011.39,
+            "p99_ms": 5016.285,
+            "max_ms": 5032.285
+          },
+          "connected_to_active": {
+            "n": 311,
+            "p50_ms": 40.002,
+            "p95_ms": 64.004,
+            "p99_ms": 120.006,
+            "max_ms": 224.011
+          },
+          "negative_intervals": 0
+        }
+      ]
+    },
+    {
+      "repeat": 4,
+      "exit_code": 1,
+      "start_timestamps_nondecreasing": true,
+      "start_span_seconds": 20.46538645,
+      "cohorts": [
+        {
+          "first": 0,
+          "last": 511,
+          "missing_connected": 0,
+          "connected_without_active": 0,
+          "start_to_connected": {
+            "n": 512,
+            "p50_ms": 12.001,
+            "p95_ms": 36.002,
+            "p99_ms": 68.005,
+            "max_ms": 84.005
+          },
+          "connected_to_active": {
+            "n": 512,
+            "p50_ms": 4.0,
+            "p95_ms": 20.001,
+            "p99_ms": 36.002,
+            "max_ms": 84.006
+          },
+          "negative_intervals": 0
+        },
+        {
+          "first": 512,
+          "last": 1023,
+          "missing_connected": 0,
+          "connected_without_active": 0,
+          "start_to_connected": {
+            "n": 512,
+            "p50_ms": 20.001,
+            "p95_ms": 112.008,
+            "p99_ms": 124.008,
+            "max_ms": 132.009
+          },
+          "connected_to_active": {
+            "n": 512,
+            "p50_ms": 20.001,
+            "p95_ms": 48.003,
+            "p99_ms": 76.005,
+            "max_ms": 128.009
+          },
+          "negative_intervals": 0
+        },
+        {
+          "first": 1024,
+          "last": 1535,
+          "missing_connected": 1,
+          "connected_without_active": 0,
+          "start_to_connected": {
+            "n": 511,
+            "p50_ms": 468.032,
+            "p95_ms": 3460.237,
+            "p99_ms": 3496.24,
+            "max_ms": 3504.24
+          },
+          "connected_to_active": {
+            "n": 511,
+            "p50_ms": 36.002,
+            "p95_ms": 68.005,
+            "p99_ms": 116.008,
+            "max_ms": 3432.236
+          },
+          "negative_intervals": 0
+        },
+        {
+          "first": 1536,
+          "last": 2047,
+          "missing_connected": 481,
+          "connected_without_active": 1,
+          "start_to_connected": {
+            "n": 31,
+            "p50_ms": 4983.319,
+            "p95_ms": 5003.321,
+            "p99_ms": 5007.321,
+            "max_ms": 5007.321
+          },
+          "connected_to_active": {
+            "n": 30,
+            "p50_ms": 44.003,
+            "p95_ms": 140.009,
+            "p99_ms": 144.01,
+            "max_ms": 172.012
+          },
+          "negative_intervals": 0
+        }
+      ]
+    },
+    {
+      "repeat": 5,
+      "exit_code": 0,
+      "cleanup": {
+        "all_zero": true,
+        "counter_scope": "rust-all-11-current-fields",
+        "counters": {
+          "application_streams_current_live": 0,
+          "audit_queue_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "nbsr_tasks_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "replay_state_current_entries": 0,
+          "service_channels_current_live": 0,
+          "stream_registry_current_entries": 0,
+          "transport_sessions_current_live": 0
+        },
+        "destination_exited": true,
+        "source_all_zero": true,
+        "source_counters": [
+          {
+            "application_streams_current_live": 0,
+            "audit_queue_current_entries": 0,
+            "channel_registry_current_entries": 0,
+            "nbsr_tasks_current_live": 0,
+            "pending_routes_current_entries": 0,
+            "quic_connections_current_live": 0,
+            "quic_streams_current_live": 0,
+            "replay_state_current_entries": 0,
+            "service_channels_current_live": 0,
+            "stream_registry_current_entries": 0,
+            "transport_sessions_current_live": 0
+          }
+        ],
+        "source_processes_exited": true
+      }
+    }
+  ]
+}
