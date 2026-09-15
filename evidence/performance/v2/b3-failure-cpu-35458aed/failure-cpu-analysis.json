@@ -1,0 +1,38 @@
+{
+  "classification": "DIAGNOSTIC",
+  "scope": "last idle sample through failure snapshot; includes post-start wait",
+  "limitations": [
+    "Not instantaneous handshake CPU or function attribution.",
+    "Per-role intervals have slightly different endpoints.",
+    "An average below 90% cannot exclude brief CPU saturation."
+  ],
+  "rows": [
+    {
+      "repeat": 2,
+      "clock_ticks_per_second": 100,
+      "roles": [
+        {
+          "role": "destination",
+          "interval_seconds": 80.508022863,
+          "cpu_seconds": 37.099999999999994,
+          "effective_cores": 0.46082363819979577,
+          "affinity": [
+            0
+          ],
+          "udp_drops": 1430
+        },
+        {
+          "role": "source-0",
+          "interval_seconds": 80.531225788,
+          "cpu_seconds": 27.380000000000003,
+          "effective_cores": 0.3399923412575189,
+          "affinity": [
+            0
+          ],
+          "udp_drops": 0
+        }
+      ],
+      "approximate_sum_effective_cores": 0.8008159794573146
+    }
+  ]
+}

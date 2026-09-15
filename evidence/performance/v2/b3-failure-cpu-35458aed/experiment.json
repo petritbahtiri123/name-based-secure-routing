@@ -1,0 +1,14 @@
+{
+  "classification": "DIAGNOSTIC",
+  "source_sha": "35458aedda07129f4e7d83311a61578edb524bca",
+  "repeats": 5,
+  "active_bundles": 2048,
+  "guest_cpus": 1,
+  "source_shards": 2,
+  "accept_window": 1,
+  "starts_per_second": 100,
+  "keepalive_seconds": 1,
+  "marker_filesystem": "guest-native /tmp",
+  "measurement": "existing marker metadata and final proc stat CPU ticks after failure",
+  "timeout_changes": false
+}

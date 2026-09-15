@@ -62,3 +62,19 @@ PID/start identity against the last pre-start sample. The resulting average
 covers starts plus the wait until failure, not exclusively the handshake burst.
 It is not function-level profiling or evidence of global hardware saturation.
 Literal RED was a missing cpu_ticks assertion; 36 focused tests and Ruff pass.
+
+At 35458aed, five unchanged 2048-bundle attempts produced four passes and one
+failure (repeat 2: 2022 materialized, 26 handshake timeouts). It is still not
+repeatable stable capacity. In that failure, source and destination used
+27.38 and 37.10 CPU seconds over approximately 80.53 and 80.51 seconds from the
+last idle samples. Both were pinned to guest CPU 0. Their approximate summed
+average was 0.800816 effective cores. This is below the 90% hardware-claim gate;
+the long average does not exclude transient saturation during starts. It does
+not identify a transport function or prove scheduler idle time. Destination
+retained-socket drops were 1430; source drops zero. No optimization follows.
+
+Canonical evidence: `evidence/performance/v2/b3-failure-cpu-35458aed`, with raw
+root `C:/NBSR-build/b3-failure-cpu-35458aed` and release build
+`C:/NBSR-build/linux-current-35458aed`. The five originals and their indexes
+are retained. Continue independent B5 work rather than interpreting cumulative
+CPU and drop counters as causal profiling.

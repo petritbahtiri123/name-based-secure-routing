@@ -1,0 +1,47 @@
+[
+  {
+    "window": 1,
+    "repeat": 1,
+    "source_sha": "35458aedda07129f4e7d83311a61578edb524bca",
+    "exit_code": 0,
+    "original_output": "/tmp/window-1-r1",
+    "retained_output": "/out/window-1-r1",
+    "copied_files_verified": 2077
+  },
+  {
+    "window": 1,
+    "repeat": 2,
+    "source_sha": "35458aedda07129f4e7d83311a61578edb524bca",
+    "exit_code": 1,
+    "original_output": "/tmp/window-1-r2",
+    "retained_output": "/out/window-1-r2",
+    "copied_files_verified": 28
+  },
+  {
+    "window": 1,
+    "repeat": 3,
+    "source_sha": "35458aedda07129f4e7d83311a61578edb524bca",
+    "exit_code": 0,
+    "original_output": "/tmp/window-1-r3",
+    "retained_output": "/out/window-1-r3",
+    "copied_files_verified": 2077
+  },
+  {
+    "window": 1,
+    "repeat": 4,
+    "source_sha": "35458aedda07129f4e7d83311a61578edb524bca",
+    "exit_code": 0,
+    "original_output": "/tmp/window-1-r4",
+    "retained_output": "/out/window-1-r4",
+    "copied_files_verified": 2077
+  },
+  {
+    "window": 1,
+    "repeat": 5,
+    "source_sha": "35458aedda07129f4e7d83311a61578edb524bca",
+    "exit_code": 0,
+    "original_output": "/tmp/window-1-r5",
+    "retained_output": "/out/window-1-r5",
+    "copied_files_verified": 2077
+  }
+]

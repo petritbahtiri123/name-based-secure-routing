@@ -1,0 +1,254 @@
+{
+  "classification": "DIAGNOSTIC marker publication intervals; wall clock not independently qualified",
+  "indexed_files_verified": 8336,
+  "rows": [
+    {
+      "repeat": 1,
+      "exit_code": 0,
+      "cleanup": {
+        "all_zero": true,
+        "counter_scope": "rust-all-11-current-fields",
+        "counters": {
+          "application_streams_current_live": 0,
+          "audit_queue_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "nbsr_tasks_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "replay_state_current_entries": 0,
+          "service_channels_current_live": 0,
+          "stream_registry_current_entries": 0,
+          "transport_sessions_current_live": 0
+        },
+        "destination_exited": true,
+        "source_all_zero": true,
+        "source_counters": [
+          {
+            "application_streams_current_live": 0,
+            "audit_queue_current_entries": 0,
+            "channel_registry_current_entries": 0,
+            "nbsr_tasks_current_live": 0,
+            "pending_routes_current_entries": 0,
+            "quic_connections_current_live": 0,
+            "quic_streams_current_live": 0,
+            "replay_state_current_entries": 0,
+            "service_channels_current_live": 0,
+            "stream_registry_current_entries": 0,
+            "transport_sessions_current_live": 0
+          }
+        ],
+        "source_processes_exited": true
+      }
+    },
+    {
+      "repeat": 2,
+      "exit_code": 1,
+      "start_timestamps_nondecreasing": true,
+      "start_span_seconds": 20.4685263,
+      "cohorts": [
+        {
+          "first": 0,
+          "last": 511,
+          "missing_connected": 0,
+          "connected_without_active": 0,
+          "start_to_connected": {
+            "n": 512,
+            "p50_ms": 12.001,
+            "p95_ms": 20.001,
+            "p99_ms": 72.004,
+            "max_ms": 100.006
+          },
+          "connected_to_active": {
+            "n": 512,
+            "p50_ms": 4.0,
+            "p95_ms": 12.001,
+            "p99_ms": 20.001,
+            "max_ms": 112.007
+          },
+          "negative_intervals": 0
+        },
+        {
+          "first": 512,
+          "last": 1023,
+          "missing_connected": 0,
+          "connected_without_active": 0,
+          "start_to_connected": {
+            "n": 512,
+            "p50_ms": 12.001,
+            "p95_ms": 28.002,
+            "p99_ms": 40.002,
+            "max_ms": 56.003
+          },
+          "connected_to_active": {
+            "n": 512,
+            "p50_ms": 8.0,
+            "p95_ms": 24.001,
+            "p99_ms": 40.002,
+            "max_ms": 60.004
+          },
+          "negative_intervals": 0
+        },
+        {
+          "first": 1024,
+          "last": 1535,
+          "missing_connected": 0,
+          "connected_without_active": 0,
+          "start_to_connected": {
+            "n": 512,
+            "p50_ms": 20.001,
+            "p95_ms": 416.024,
+            "p99_ms": 424.025,
+            "max_ms": 432.025
+          },
+          "connected_to_active": {
+            "n": 512,
+            "p50_ms": 24.001,
+            "p95_ms": 48.003,
+            "p99_ms": 80.005,
+            "max_ms": 100.006
+          },
+          "negative_intervals": 0
+        },
+        {
+          "first": 1536,
+          "last": 2047,
+          "missing_connected": 26,
+          "connected_without_active": 0,
+          "start_to_connected": {
+            "n": 486,
+            "p50_ms": 4784.287,
+            "p95_ms": 4968.295,
+            "p99_ms": 5008.302,
+            "max_ms": 5036.304
+          },
+          "connected_to_active": {
+            "n": 486,
+            "p50_ms": 40.002,
+            "p95_ms": 84.005,
+            "p99_ms": 196.012,
+            "max_ms": 4444.266
+          },
+          "negative_intervals": 0
+        }
+      ]
+    },
+    {
+      "repeat": 3,
+      "exit_code": 0,
+      "cleanup": {
+        "all_zero": true,
+        "counter_scope": "rust-all-11-current-fields",
+        "counters": {
+          "application_streams_current_live": 0,
+          "audit_queue_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "nbsr_tasks_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "replay_state_current_entries": 0,
+          "service_channels_current_live": 0,
+          "stream_registry_current_entries": 0,
+          "transport_sessions_current_live": 0
+        },
+        "destination_exited": true,
+        "source_all_zero": true,
+        "source_counters": [
+          {
+            "application_streams_current_live": 0,
+            "audit_queue_current_entries": 0,
+            "channel_registry_current_entries": 0,
+            "nbsr_tasks_current_live": 0,
+            "pending_routes_current_entries": 0,
+            "quic_connections_current_live": 0,
+            "quic_streams_current_live": 0,
+            "replay_state_current_entries": 0,
+            "service_channels_current_live": 0,
+            "stream_registry_current_entries": 0,
+            "transport_sessions_current_live": 0
+          }
+        ],
+        "source_processes_exited": true
+      }
+    },
+    {
+      "repeat": 4,
+      "exit_code": 0,
+      "cleanup": {
+        "all_zero": true,
+        "counter_scope": "rust-all-11-current-fields",
+        "counters": {
+          "application_streams_current_live": 0,
+          "audit_queue_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "nbsr_tasks_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "replay_state_current_entries": 0,
+          "service_channels_current_live": 0,
+          "stream_registry_current_entries": 0,
+          "transport_sessions_current_live": 0
+        },
+        "destination_exited": true,
+        "source_all_zero": true,
+        "source_counters": [
+          {
+            "application_streams_current_live": 0,
+            "audit_queue_current_entries": 0,
+            "channel_registry_current_entries": 0,
+            "nbsr_tasks_current_live": 0,
+            "pending_routes_current_entries": 0,
+            "quic_connections_current_live": 0,
+            "quic_streams_current_live": 0,
+            "replay_state_current_entries": 0,
+            "service_channels_current_live": 0,
+            "stream_registry_current_entries": 0,
+            "transport_sessions_current_live": 0
+          }
+        ],
+        "source_processes_exited": true
+      }
+    },
+    {
+      "repeat": 5,
+      "exit_code": 0,
+      "cleanup": {
+        "all_zero": true,
+        "counter_scope": "rust-all-11-current-fields",
+        "counters": {
+          "application_streams_current_live": 0,
+          "audit_queue_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "nbsr_tasks_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "replay_state_current_entries": 0,
+          "service_channels_current_live": 0,
+          "stream_registry_current_entries": 0,
+          "transport_sessions_current_live": 0
+        },
+        "destination_exited": true,
+        "source_all_zero": true,
+        "source_counters": [
+          {
+            "application_streams_current_live": 0,
+            "audit_queue_current_entries": 0,
+            "channel_registry_current_entries": 0,
+            "nbsr_tasks_current_live": 0,
+            "pending_routes_current_entries": 0,
+            "quic_connections_current_live": 0,
+            "quic_streams_current_live": 0,
+            "replay_state_current_entries": 0,
+            "service_channels_current_live": 0,
+            "stream_registry_current_entries": 0,
+            "transport_sessions_current_live": 0
+          }
+        ],
+        "source_processes_exited": true
+      }
+    }
+  ]
+}
