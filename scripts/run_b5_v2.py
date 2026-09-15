@@ -131,6 +131,10 @@ def preserve_tail(reader, raw):
     reader.join()
 
 
+class PerformanceGateFailure(RuntimeError):
+    """A measured drift/growth failure, distinct from malformed data or bounds."""
+
+
 class LiveGuards:
     def __init__(self, *, groups, max_progress, max_resources,
                  resource_basis="windows_private_bytes"):
@@ -175,7 +179,7 @@ class LiveGuards:
         self.steady.append(value)
         reason = live_drift_failure(self.steady)
         if reason:
-            raise RuntimeError(f"live {reason} drift")
+            raise PerformanceGateFailure(f"live {reason} drift")
         with self.lock:
             for role in sorted(self.roles):
                 points = [((r[self.resource_clock] - self.origin_ns) / 1e9, float(r[self.private_metric]))
@@ -183,7 +187,7 @@ class LiveGuards:
                           and r[self.private_metric] is not None
                           and self.origin_ns <= r[self.resource_clock] <= received_ns]
                 if private_growth(points):
-                    raise RuntimeError(f"live private growth: {role} (receive-clock diagnostic)")
+                    raise PerformanceGateFailure(f"live private growth: {role} (receive-clock diagnostic)")
 
     def qualification(self):
         with self.lock:
@@ -199,6 +203,28 @@ class LiveGuards:
                 "resource_phase_origin_monotonic_ns": self.origin_ns,
                 "resource_phase_clock": "first-progress receive time minus elapsed; approximate, excludes earlier samples",
                 "thermal_and_power": "NOT_MEASURED"}
+
+
+class DiagnosticLiveGuards(LiveGuards):
+    """Retain bounded failed trajectories; never turn a gate violation into PASS."""
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.failures = []
+
+    def progress(self, value, *, received_ns=None):
+        try:
+            super().progress(value, received_ns=received_ns)
+        except PerformanceGateFailure as error:
+            # The inherited progress count bounds this list and all samples.
+            self.failures.append(dict(elapsed_ns=value['elapsed_ns'], reason=str(error)))
+
+    def annotate_result(self, result):
+        result['diagnostic_continue_on_performance_failure'] = True
+        result['diagnostic_gate_failures'] = self.failures
+        if self.failures and result.get('valid') is True:
+            result.update(valid=False, classification='FAIL_DIAGNOSTIC_RETAINED',
+                          error=self.failures[0]['reason'])
 
 
 def required_repeats(rows):
@@ -248,7 +274,10 @@ def source_command(cell, binaries, authority, endpoints, *, warmup, duration, pr
 
 
 def run_one(cell, binaries, authority, plan, directory, *, warmup, duration, progress, rate, diagnostic,
-            ownership_sampling=False, backend=None):
+            ownership_sampling=False, backend=None, retain_failed_diagnostic=False):
+    if type(retain_failed_diagnostic) is not bool or (retain_failed_diagnostic and
+            (diagnostic is not True or not 0 < duration <= 600)):
+        raise ValueError('retention requires an explicit diagnostic of at most 600 seconds')
     if backend is not None:
         backend.validate(cell, plan)
     directory.mkdir(parents=True, exist_ok=False)
@@ -256,7 +285,8 @@ def run_one(cell, binaries, authority, plan, directory, *, warmup, duration, pro
     allowance = warmup + duration + ALLOWANCE
     resource_bound = math.ceil(allowance / CADENCE + 2) * (groups + 1)
     progress_bound = math.ceil((duration + ALLOWANCE) / progress) + 2
-    guards = LiveGuards(groups=groups, max_progress=progress_bound, max_resources=resource_bound,
+    guard_type = DiagnosticLiveGuards if retain_failed_diagnostic else LiveGuards
+    guards = guard_type(groups=groups, max_progress=progress_bound, max_resources=resource_bound,
                         resource_basis=backend.resource_basis if backend else "windows_private_bytes")
     source = sampler = reader = None
     servers, reports, commands, affinities = [], [], [], []
@@ -433,6 +463,8 @@ def run_one(cell, binaries, authority, plan, directory, *, warmup, duration, pro
                 tail.close()
             result["affinity"] = affinities
             result["qualification"] = guards.qualification()
+            if retain_failed_diagnostic:
+                guards.annotate_result(result)
             write_json(directory / "result.json", result)
     return result
 

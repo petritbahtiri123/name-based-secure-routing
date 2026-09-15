@@ -54,6 +54,9 @@ def run_cohort(paths, run, retain, *, diagnostic):
 
 def execute(args):
     mode = shared.validate_mode(diagnostic=args.diagnostic, reference=args.reference, rate=args.rate)
+    retain_failed = getattr(args, 'retain_failed_diagnostic', False)
+    require(not retain_failed or (args.diagnostic and 0 < args.duration <= 600),
+            'retention requires diagnostic mode and at most 600 seconds')
     paths = shared.selected_paths(args.paths)
     require(type(args.streams) is int and 1 <= args.streams <= 64, "streams must be1-64")
     require(args.payload in (1024, 16384) and args.depth in (1, 2, 4, 8, 16), "unsupported payload/depth")
@@ -124,7 +127,8 @@ def execute(args):
                 row = shared.run_one(cell, binaries, authority, plan, output / relative,
                     warmup=args.warmup, duration=args.duration, progress=args.progress,
                     rate=(load["rate_numerator"], load["rate_denominator"]), diagnostic=args.diagnostic,
-                    ownership_sampling=args.ownership_sampling, backend=backend)
+                    ownership_sampling=args.ownership_sampling, backend=backend,
+                    retain_failed_diagnostic=retain_failed)
                 row["raw_directory"] = relative
                 if row["valid"]:
                     values = []
@@ -162,6 +166,8 @@ def main():
         parser.add_argument("--" + name, type=Path, required=True)
     parser.add_argument("--reference", type=Path)
     parser.add_argument("--diagnostic", action="store_true")
+    parser.add_argument("--retain-failed-diagnostic", action="store_true",
+                        help="retain up to 600s after performance drift; failed gates remain FAIL")
     parser.add_argument("--rate", type=int, nargs=2)
     parser.add_argument("--paths", choices=("direct", "nbsr"), nargs="+", default=["direct", "nbsr"])
     parser.add_argument("--ownership-sampling", action="store_true")

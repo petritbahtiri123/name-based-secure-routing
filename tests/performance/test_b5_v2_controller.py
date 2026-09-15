@@ -177,7 +177,7 @@ def test_cli_requires_ceiling_unless_explicit_diagnostic():
         b5.validate_mode(diagnostic=True, reference="ref", rate=(200, 1))
 
 
-@pytest.mark.parametrize("failure", [None, "ownership", "parser"])
+@pytest.mark.parametrize("failure", [None, "ownership", "parser", "retained_drift"])
 def test_run_one_ack_follows_sampling_and_preserves_failed_reader_tail(monkeypatch, tmp_path, failure):
     from scripts.performance.post_close_cleanup import FIELDS
     stopped = []
@@ -233,6 +233,10 @@ def test_run_one_ack_follows_sampling_and_preserves_failed_reader_tail(monkeypat
         stream._on_progress(dict(phase="steady", elapsed_ns=100,
                                  goodput_bytes_per_second=100, p99_latency_ns=100),
                             received_ns=1000)
+        if failure == "retained_drift":
+            for elapsed, p99 in ((200, 100), (300, 200)):
+                stream._on_progress(dict(phase="steady", elapsed_ns=elapsed,
+                    goodput_bytes_per_second=100, p99_latency_ns=p99), received_ns=900 + elapsed)
         if failure == "parser":
             cause = ProcessLookupError("synthetic lookup failure")
             cause.add_note("resource sampler role=destination_0 pid=100")
@@ -248,12 +252,18 @@ def test_run_one_ack_follows_sampling_and_preserves_failed_reader_tail(monkeypat
                             outstanding_per_stream=1, payload_bytes=1024),
                         dict(direct="direct.exe", nbsr="source.exe", server="server.exe"),
                         tmp_path, dict(endpoint_masks=[1], source_mask=1, logical_processors_available=1),
-                        tmp_path / "run", warmup=2, duration=2, progress=1, rate=(200, 1), diagnostic=True)
+                        tmp_path / "run", warmup=2, duration=2, progress=1, rate=(200, 1), diagnostic=True,
+                        retain_failed_diagnostic=failure == "retained_drift")
     assert result["valid"] is (failure is None)
     assert result["qualification"]["resource_phase_origin_monotonic_ns"] == 900
     retained = json.loads((tmp_path / "run" / "result.json").read_text())
     assert retained["qualification"]["resource_phase_origin_monotonic_ns"] == 900
     assert all(process.poll() is not None for process in processes)
+    if failure == "retained_drift":
+        assert retained['classification'] == 'FAIL_DIAGNOSTIC_RETAINED'
+        assert retained['final']['completed'] == 1
+        assert retained['diagnostic_gate_failures'][0]['elapsed_ns'] == 300
+        assert all(row['all_11_zero'] for row in retained['ownership_reports'])
     if failure == "parser":
         assert (tmp_path / "run" / "source.stdout.ndjson").read_bytes() == b"retained failure bytes\n"
         assert not (tmp_path / "run" / "completion.ack").exists()
