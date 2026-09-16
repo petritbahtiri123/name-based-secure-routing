@@ -56,3 +56,7 @@ Reproduce using the recorded Docker command/run.sh, then analyze.py after exit.
 Five original work blocks still remain; this completes one diagnostic substep.
 No 2048-connection, sustainable admission, CPU hardware ceiling or soak claim
 is added. The user-requested checkpoint stops before the next experiment.
+
+Follow-up: B3_SELECTIVE_NOTIFICATION_SPIKE.md records a separate name-selective
+candidate with materially lower offline CPU. The negative coarse-prototype
+result above remains valid and retained; neither candidate is integrated yet.

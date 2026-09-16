@@ -1,0 +1,17 @@
+
+running 3 tests
+
+thread 'tests::selects_only_published_names_and_coalesces_duplicates' (37) panicked at /evidence/gate.rs:21:36:
+normal named events must be selective
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test tests::malformed_or_nonlocal_names_require_full_scan ... ok
+test tests::overflow_and_watch_loss_require_full_scan ... ok
+test tests::selects_only_published_names_and_coalesces_duplicates ... FAILED
+
+failures:
+
+failures:
+    tests::selects_only_published_names_and_coalesces_duplicates
+
+test result: FAILED. 2 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

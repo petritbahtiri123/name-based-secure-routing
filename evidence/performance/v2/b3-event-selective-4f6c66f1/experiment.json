@@ -1,0 +1,17 @@
+{
+  "classification": "OFFLINE_SELECTIVE_NOTIFICATION_NOT_QUIC",
+  "repository_head": "4f6c66f1d695fa8778a314b334eafd07c8bcf9e9",
+  "source_archive_base": "91a88774ac6780b209dce15c562d453d1ab0a40f",
+  "comparison": "existing shared scanner versus selective-name prototype",
+  "repeats_per_arm": 5,
+  "ordering": "counterbalanced by repeat parity",
+  "waiters_per_cell": 2048,
+  "publication_rate_per_second": 100,
+  "unrelated_files": 0,
+  "timeout_seconds": 120,
+  "settle_ms": 30,
+  "guest_logical_cpu": 0,
+  "filesystem": "native container temporary directory",
+  "workload_probe": "byte-identical to preceding paced comparison",
+  "limits": ["No QUIC or production changes", "Not a general marker backend", "One step only: tests and offline matched measurement"]
+}

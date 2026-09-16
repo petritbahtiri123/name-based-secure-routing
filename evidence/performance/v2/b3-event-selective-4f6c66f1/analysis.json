@@ -1,0 +1,238 @@
+{
+  "classification": "OFFLINE_DIAGNOSTIC_NOT_INTEGRATED",
+  "rows": [
+    {
+      "mode": "monitor",
+      "count": 2048,
+      "completed": 2048,
+      "offered_per_second": 100,
+      "repeat": 1,
+      "cpu_ticks": 215,
+      "hz": 100,
+      "elapsed_ns": 20476630358,
+      "wake_p50_ns": 6266933,
+      "wake_p95_ns": 12623872,
+      "wake_p99_ns": 13541628,
+      "publish_lateness_p99_ns": 1855846,
+      "cpu_percent": 10.499774437545668
+    },
+    {
+      "mode": "event",
+      "count": 2048,
+      "completed": 2048,
+      "offered_per_second": 100,
+      "repeat": 1,
+      "cpu_ticks": 59,
+      "hz": 100,
+      "elapsed_ns": 20478425425,
+      "wake_p50_ns": 4779129,
+      "wake_p95_ns": 10113596,
+      "wake_p99_ns": 11335178,
+      "publish_lateness_p99_ns": 1687726,
+      "cpu_percent": 2.881080882711469
+    },
+    {
+      "mode": "event",
+      "count": 2048,
+      "completed": 2048,
+      "offered_per_second": 100,
+      "repeat": 2,
+      "cpu_ticks": 61,
+      "hz": 100,
+      "elapsed_ns": 20476003900,
+      "wake_p50_ns": 4620812,
+      "wake_p95_ns": 10460650,
+      "wake_p99_ns": 10812466,
+      "publish_lateness_p99_ns": 2146873,
+      "cpu_percent": 2.97909691255724
+    },
+    {
+      "mode": "monitor",
+      "count": 2048,
+      "completed": 2048,
+      "offered_per_second": 100,
+      "repeat": 2,
+      "cpu_ticks": 215,
+      "hz": 100,
+      "elapsed_ns": 20472249907,
+      "wake_p50_ns": 6169134,
+      "wake_p95_ns": 12598488,
+      "wake_p99_ns": 13602958,
+      "publish_lateness_p99_ns": 1573308,
+      "cpu_percent": 10.502021076173257
+    },
+    {
+      "mode": "monitor",
+      "count": 2048,
+      "completed": 2048,
+      "offered_per_second": 100,
+      "repeat": 3,
+      "cpu_ticks": 217,
+      "hz": 100,
+      "elapsed_ns": 20474033460,
+      "wake_p50_ns": 6384228,
+      "wake_p95_ns": 12525933,
+      "wake_p99_ns": 13669515,
+      "publish_lateness_p99_ns": 2412049,
+      "cpu_percent": 10.598790923339635
+    },
+    {
+      "mode": "event",
+      "count": 2048,
+      "completed": 2048,
+      "offered_per_second": 100,
+      "repeat": 3,
+      "cpu_ticks": 61,
+      "hz": 100,
+      "elapsed_ns": 20476100418,
+      "wake_p50_ns": 4600711,
+      "wake_p95_ns": 10388208,
+      "wake_p99_ns": 10829434,
+      "publish_lateness_p99_ns": 2161828,
+      "cpu_percent": 2.9790828700164265
+    },
+    {
+      "mode": "event",
+      "count": 2048,
+      "completed": 2048,
+      "offered_per_second": 100,
+      "repeat": 4,
+      "cpu_ticks": 61,
+      "hz": 100,
+      "elapsed_ns": 20476236022,
+      "wake_p50_ns": 4726122,
+      "wake_p95_ns": 10477791,
+      "wake_p99_ns": 10928445,
+      "publish_lateness_p99_ns": 1579105,
+      "cpu_percent": 2.9790631410216517
+    },
+    {
+      "mode": "monitor",
+      "count": 2048,
+      "completed": 2048,
+      "offered_per_second": 100,
+      "repeat": 4,
+      "cpu_ticks": 214,
+      "hz": 100,
+      "elapsed_ns": 20473578197,
+      "wake_p50_ns": 6337658,
+      "wake_p95_ns": 12592610,
+      "wake_p99_ns": 13633569,
+      "publish_lateness_p99_ns": 1581912,
+      "cpu_percent": 10.45249628281184
+    },
+    {
+      "mode": "monitor",
+      "count": 2048,
+      "completed": 2048,
+      "offered_per_second": 100,
+      "repeat": 5,
+      "cpu_ticks": 215,
+      "hz": 100,
+      "elapsed_ns": 20477969617,
+      "wake_p50_ns": 6287306,
+      "wake_p95_ns": 12583512,
+      "wake_p99_ns": 13715220,
+      "publish_lateness_p99_ns": 2234932,
+      "cpu_percent": 10.49908775240664
+    },
+    {
+      "mode": "event",
+      "count": 2048,
+      "completed": 2048,
+      "offered_per_second": 100,
+      "repeat": 5,
+      "cpu_ticks": 62,
+      "hz": 100,
+      "elapsed_ns": 20472881288,
+      "wake_p50_ns": 4612211,
+      "wake_p95_ns": 10396701,
+      "wake_p99_ns": 10921053,
+      "publish_lateness_p99_ns": 2067161,
+      "cpu_percent": 3.0283964004783614
+    }
+  ],
+  "cells": [
+    {
+      "mode": "monitor",
+      "repeats": 5,
+      "completed_per_repeat": 2048,
+      "cpu_percent": {
+        "median": 10.499774437545668,
+        "cv": 0.00509637062748891,
+        "min": 10.45249628281184,
+        "max": 10.598790923339635
+      },
+      "wake_p50_ns": {
+        "median": 6287306,
+        "cv": 0.012891699850738533,
+        "min": 6169134,
+        "max": 6384228
+      },
+      "wake_p95_ns": {
+        "median": 12592610,
+        "cv": 0.0028765127190707,
+        "min": 12525933,
+        "max": 12623872
+      },
+      "wake_p99_ns": {
+        "median": 13633569,
+        "cv": 0.004830254790175314,
+        "min": 13541628,
+        "max": 13715220
+      },
+      "publish_lateness_p99_ns": {
+        "median": 1855846,
+        "cv": 0.19700539390952432,
+        "min": 1573308,
+        "max": 2412049
+      }
+    },
+    {
+      "mode": "event",
+      "repeats": 5,
+      "completed_per_repeat": 2048,
+      "cpu_percent": {
+        "median": 2.9790828700164265,
+        "cv": 0.018106136414333385,
+        "min": 2.881080882711469,
+        "max": 3.0283964004783614
+      },
+      "wake_p50_ns": {
+        "median": 4620812,
+        "cv": 0.017136879752696642,
+        "min": 4600711,
+        "max": 4779129
+      },
+      "wake_p95_ns": {
+        "median": 10396701,
+        "cv": 0.014191679221913769,
+        "min": 10113596,
+        "max": 10477791
+      },
+      "wake_p99_ns": {
+        "median": 10921053,
+        "cv": 0.019449896912006367,
+        "min": 10812466,
+        "max": 11335178
+      },
+      "publish_lateness_p99_ns": {
+        "median": 2067161,
+        "cv": 0.14233659993853898,
+        "min": 1579105,
+        "max": 2161828
+      }
+    }
+  ],
+  "prototype_change_percent": {
+    "cpu_percent": -71.62717268131343,
+    "wake_p50_ns": -26.50569258121046,
+    "wake_p95_ns": -17.438076776776224,
+    "wake_p99_ns": -19.895861457847175
+  },
+  "limitations": [
+    "CPU includes publisher and waiter tasks in both arms.",
+    "No QUIC, no handshake/admission capacity, no production memory result.",
+    "Selective-name prototype; fixed native directory and regular marker paths only."
+  ]
+}

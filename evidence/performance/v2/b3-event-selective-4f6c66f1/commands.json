@@ -1,0 +1,5 @@
+{
+  "image": "sha256:7d59795425e21fc5ff09eabea1aad314806e8f20d3a505c5e47cc2df0e20e53d",
+  "command": "docker run --name nbsr-event-selective-4f6c66f1 --mount type=bind,source=C:\\NBSR-build\\b3-event-selective-4f6c66f1,target=/evidence nbsr-b5-green-cache:17a4701f /evidence/run.sh",
+  "classification": "OFFLINE_SELECTIVE_PROTOTYPE_NOT_INTEGRATED"
+}
