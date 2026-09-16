@@ -1,0 +1,62 @@
+rustc 1.97.1 (8bab26f4f 2026-07-14)
+binary: rustc
+commit-hash: 8bab26f4f68e0e26f0bb7960be334d5b520ea452
+commit-date: 2026-07-14
+host: x86_64-unknown-linux-gnu
+release: 1.97.1
+LLVM version: 22.1.6
+cargo 1.97.1 (c980f4866 2026-06-30)
+   Compiling nbsr-transport v0.1.0 (/work/crates/nbsr-transport)
+    Finished `release` profile [optimized] target(s) in 16.25s
+     Running unittests src/bin/perf_rust_source.rs (/target/release/deps/perf_rust_source-7c94e9b39cf9546f)
+
+running 16 tests
+test b3_support::event_monitor::tests::cancelled_requests_are_removed_on_next_scan ... ok
+test b3_support::marker_monitor::tests::cancelled_requests_are_removed_on_next_scan ... ok
+test b3_support::marker_monitor::tests::existing_file_wins_even_with_zero_timeout_but_directory_does_not ... ok
+test b3_support::marker_monitor::tests::shutdown_closes_pending_and_future_waits_without_success ... ok
+test b3_support::paced_event_probe::event_monitor_cpu_comparison ... ignored, offline paced comparison; no QUIC attribution
+test b3_support::tests::active_marker_waits_for_explicit_release ... ok
+test b3_support::tests::lifecycle_wait_allows_sibling_task_to_publish_start ... ok
+test b3_support::event_monitor::gate::tests::idle_directory_does_not_request_full_scan_and_creation_does ... ok
+test b3_support::event_monitor::gate::tests::replaced_root_falls_back_to_scanning ... ok
+test b3_support::event_monitor::tests::existing_file_wins_even_with_zero_timeout_but_directory_does_not ... ok
+test b3_support::event_monitor::tests::shutdown_closes_pending_and_future_waits_without_success ... ok
+test b3_support::marker_monitor::tests::scoped_release_publishes_active_and_still_requires_its_release ... ok
+test b3_support::tests::missing_release_fails_closed ... ok
+test b3_support::marker_monitor::tests::published_marker_releases_only_its_waiter ... ok
+test b3_support::event_monitor::tests::published_marker_releases_only_its_waiter ... ok
+test b3_support::tests::missing_start_fails_closed ... ok
+
+test result: ok. 15 passed; 0 failed; 1 ignored; 0 measured; 84 filtered out; finished in 0.05s
+
+# The following is the parsable format, which can be fed to other
+# programs. Each different item in every column has an unique ID
+# starting usually from zero.
+# CPU,Core,Socket,Online
+0,0,0,Y
+1,0,0,Y
+2,1,0,Y
+3,1,0,Y
+4,2,0,Y
+5,2,0,Y
+6,3,0,Y
+7,3,0,Y
+    Finished `release` profile [optimized] target(s) in 0.07s
+     Running unittests src/bin/perf_rust_source.rs (/target/release/deps/perf_rust_source-7c94e9b39cf9546f)
+
+running 1 test
+test b3_support::paced_event_probe::event_monitor_cpu_comparison ... PACED_CPU mode=monitor count=2048 completed=2048 offered_per_second=100 repeat=1 cpu_ticks=221 hz=100 elapsed_ns=20478976188 wake_p50_ns=6466189 wake_p95_ns=12761065 wake_p99_ns=13771345 publish_lateness_p99_ns=2333808
+PACED_CPU mode=event count=2048 completed=2048 offered_per_second=100 repeat=1 cpu_ticks=225 hz=100 elapsed_ns=20472929096 wake_p50_ns=6369568 wake_p95_ns=12811065 wake_p99_ns=13718142 publish_lateness_p99_ns=2426129
+PACED_CPU mode=event count=2048 completed=2048 offered_per_second=100 repeat=2 cpu_ticks=224 hz=100 elapsed_ns=20481209202 wake_p50_ns=6396676 wake_p95_ns=12695145 wake_p99_ns=13783819 publish_lateness_p99_ns=1666600
+PACED_CPU mode=monitor count=2048 completed=2048 offered_per_second=100 repeat=2 cpu_ticks=224 hz=100 elapsed_ns=20474110618 wake_p50_ns=6384875 wake_p95_ns=12717346 wake_p99_ns=13726521 publish_lateness_p99_ns=2204601
+PACED_CPU mode=monitor count=2048 completed=2048 offered_per_second=100 repeat=3 cpu_ticks=220 hz=100 elapsed_ns=20479351604 wake_p50_ns=6370577 wake_p95_ns=12585126 wake_p99_ns=13755915 publish_lateness_p99_ns=1950805
+PACED_CPU mode=event count=2048 completed=2048 offered_per_second=100 repeat=3 cpu_ticks=224 hz=100 elapsed_ns=20479260619 wake_p50_ns=6444369 wake_p95_ns=12719850 wake_p99_ns=13862436 publish_lateness_p99_ns=1920612
+PACED_CPU mode=event count=2048 completed=2048 offered_per_second=100 repeat=4 cpu_ticks=223 hz=100 elapsed_ns=20472156253 wake_p50_ns=6338163 wake_p95_ns=12656503 wake_p99_ns=13722222 publish_lateness_p99_ns=1720341
+PACED_CPU mode=monitor count=2048 completed=2048 offered_per_second=100 repeat=4 cpu_ticks=220 hz=100 elapsed_ns=20475768176 wake_p50_ns=6462675 wake_p95_ns=12795211 wake_p99_ns=13741964 publish_lateness_p99_ns=2463589
+PACED_CPU mode=monitor count=2048 completed=2048 offered_per_second=100 repeat=5 cpu_ticks=223 hz=100 elapsed_ns=20472195629 wake_p50_ns=6505979 wake_p95_ns=12739430 wake_p99_ns=13675299 publish_lateness_p99_ns=2302280
+PACED_CPU mode=event count=2048 completed=2048 offered_per_second=100 repeat=5 cpu_ticks=225 hz=100 elapsed_ns=20476537728 wake_p50_ns=6436863 wake_p95_ns=12789020 wake_p99_ns=13857908 publish_lateness_p99_ns=1732387
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 99 filtered out; finished in 205.61s
+

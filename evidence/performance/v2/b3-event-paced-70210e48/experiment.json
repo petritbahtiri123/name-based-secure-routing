@@ -1,0 +1,17 @@
+{
+  "classification": "OFFLINE_PACED_PUBLICATION_NOT_QUIC",
+  "repository_head": "70210e48ef3316f1371c03d11c7eda0d8e3eeaa0",
+  "source_archive_base": "91a88774ac6780b209dce15c562d453d1ab0a40f",
+  "arms": ["current shared polling", "unchanged coarse notification prototype"],
+  "repeats_per_arm": 5,
+  "ordering": "counterbalanced by repeat parity",
+  "waiters_per_cell": 2048,
+  "marker_publications_per_second": 100,
+  "unrelated_files": 0,
+  "wait_timeout_seconds": 120,
+  "registration_settle_ms": 30,
+  "guest_logical_cpu": 0,
+  "filesystem": "native container temporary directory",
+  "measurements": ["whole-process CPU including identical publisher", "publication-to-wakeup p50/p95/p99", "publication deadline lateness p99", "completed waiter count"],
+  "limits": ["No QUIC or admission", "Prototype remains unintegrated", "No production change", "No accepted physical-core claim"]
+}

@@ -61,3 +61,7 @@ Remaining count: five original work blocks remain, because this closes a
 diagnostic substep rather than the complete root-cause/fix block. B5 memory/p99
 and the live one-CPU 2048 failure remain unresolved. This is the requested
 one-step checkpoint, not authorization to claim an accepted fix or final soak.
+
+Follow-up: B3_EVENT_PACED_PUBLICATION.md now records five active-publication
+pairs. The idle CPU benefit did not persist at 100 publications/s; the coarse
+prototype was not promoted. Keep the idle result scoped accordingly.
