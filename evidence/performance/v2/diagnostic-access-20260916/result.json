@@ -1,0 +1,18 @@
+{
+  "kernel": "6.6.114.1-microsoft-standard-WSL2",
+  "machine": "x86_64",
+  "uid": 65532,
+  "perf_event_paranoid": "2",
+  "own_process_software_cpu_clock_opened": false,
+  "errno": 1,
+  "error": "EPERM",
+  "process_security": [
+    "CapEff:\t0000000000000000",
+    "NoNewPrivs:\t0",
+    "Seccomp:\t2"
+  ],
+  "limitations": [
+    "A denied syscall does not distinguish seccomp from other permission restrictions.",
+    "No conclusion about native Windows or externally configured Linux permissions."
+  ]
+}

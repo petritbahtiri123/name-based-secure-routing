@@ -1,0 +1,8 @@
+{
+  "image": "sha256:dd08db4a391b16a9d303a251d2693808baf470f2fc4870d8e3c54b7523deed71",
+  "command": "docker run --rm --user 65532 --entrypoint python3 --mount type=bind,source=C:\\NBSR-build\\diagnostic-access-20260916,target=/probe,readonly nbsr-linux-smoke-3644c324:prepared /probe/probe.py",
+  "classification": "PERF_ACCESS_UNAVAILABLE_IN_CURRENT_CONTAINER",
+  "api_reference": "https://man7.org/linux/man-pages/man2/perf_event_open.2.html",
+  "workload": "own-process disabled software CPU clock; no NBSR workload",
+  "security_policy_modified": false
+}
