@@ -1,0 +1,6 @@
+Use a NEW output directory; never overwrite sealed evidence.
+Compile: docker run --rm --entrypoint sh --mount type=bind,source=C:/NBSR-build/b5-allocator-sampler-7d131c71,target=/out nbsr-b5-green-cache:17a4701f -c "cc -O2 -shared -fPIC -pthread -Wall -Wextra -Werror /out/sampler.c -o /out/sampler.so"
+Run: docker run --name nbsr-b5-allocator-7d131c71 --user 0 --entrypoint python3 --mount type=bind,source=C:/NBSR-build/b5-allocator-sampler-7d131c71,target=/out --mount type=bind,source=C:/NBSR-build/linux-current-f8925b25,target=/build,readonly --mount type=bind,source=C:/NBSR-build/linux-current-edc0f96d,target=/old,readonly nbsr-linux-smoke-3644c324:prepared /out/run.py
+python C:/NBSR-build/b5-allocator-sampler-7d131c71/analyze.py
+Runtime image sha256:dd08db4a391b16a9d303a251d2693808baf470f2fc4870d8e3c54b7523deed71; build image sha256:7d59795425e21fc5ff09eabea1aad314806e8f20d3a505c5e47cc2df0e20e53d.
+The runner records all cell argv, checks out the exact build SHA, and sets LD_PRELOAD and NBSR_ALLOCATOR_TRACE_DIR only for allocator-on child invocations. Executed library SHA256: 4d1e4b844324fbec82ffb0c9789b72c67f583e530aacb9ab2326a020563567f1

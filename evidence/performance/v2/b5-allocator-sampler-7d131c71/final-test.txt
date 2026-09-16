@@ -1,0 +1,3 @@
+PASS: activated sampler, initial/final records, bounded join, fixture output
+PASS: unselected executable produces no trace
+PASS: absent opt-in executes normally

@@ -1,0 +1,5 @@
+PASS: initial literal stub RED, GREEN, final sampler activation/filter/opt-in/exit fixture tests.
+PASS: python -m pytest -q tests/performance/test_b5_ownership.py tests/performance/test_b5_retained_diagnostic.py tests/performance/test_linux_b5_campaign.py (26).
+PASS: python -m ruff check C:/NBSR-build/b5-allocator-sampler-7d131c71/test_sampler.py.
+PASS: analyzer validates all ten runs, child indexes, cleanup and allocator trace coverage.
+PASS: all ten source/binary/shape/load/placement identities match.
