@@ -1,0 +1,8 @@
+{
+  "repository_checkpoint": "3646c6ba85af294c34b155e005a16805b327ae68",
+  "build_image": "sha256:7d59795425e21fc5ff09eabea1aad314806e8f20d3a505c5e47cc2df0e20e53d",
+  "runtime_image": "sha256:dd08db4a391b16a9d303a251d2693808baf470f2fc4870d8e3c54b7523deed71",
+  "probe_sha256": "84b51c3466274792fc53e137ebb027f811d8fa61806026b10889902224fdda0b",
+  "source_sha256": "ab61aca7e1679b4ab491f8aa26bf01fbc1bd1758612acc82aa2d6c77bcc611bb",
+  "production_binaries_executed": false
+}

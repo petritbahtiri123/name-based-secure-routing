@@ -1,0 +1,1 @@
+C build PASS with -Wall -Wextra -Werror. All ten process exits zero. Analyzer PASS. Ruff initially reported E731; local analyzer lambda replaced with def, analysis and Ruff rerun PASS. No measured data modified. No production code changed.

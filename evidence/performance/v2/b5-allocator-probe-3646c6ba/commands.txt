@@ -1,0 +1,5 @@
+Reproduce in a NEW directory containing probe.c and analyze.py. Replace source=C:/NBSR-build/b5-allocator-probe-3646c6ba with that directory. Never overwrite retained evidence.
+docker run --rm --entrypoint sh --mount type=bind,source=C:/NBSR-build/b5-allocator-probe-3646c6ba,target=/out nbsr-b5-green-cache:17a4701f -c "cc -O2 -Wall -Wextra -Werror -fno-builtin-calloc /out/probe.c -o /out/probe && cc --version > /out/compiler.txt && ldd /out/probe > /out/linkage.txt"
+Runtime executed in two batches, n=1 2 3 then n=4 5; exact shell payloads are runtime-commands.json.
+python C:/NBSR-build/b5-allocator-probe-3646c6ba/analyze.py
+python -m ruff check C:/NBSR-build/b5-allocator-probe-3646c6ba/analyze.py

@@ -1,0 +1,30 @@
+[
+  [
+    "docker",
+    "run",
+    "--rm",
+    "--user",
+    "65532:65532",
+    "--entrypoint",
+    "sh",
+    "--mount",
+    "type=bind,source=C:/NBSR-build/b5-allocator-probe-3646c6ba,target=/out",
+    "nbsr-linux-smoke-3644c324:prepared",
+    "-c",
+    "set -eu; ldd --version > /out/runtime.txt; for n in 1 2 3; do for mode in large small; do /out/probe \"$mode\" > /out/$mode-r$n.ndjson; done; done"
+  ],
+  [
+    "docker",
+    "run",
+    "--rm",
+    "--user",
+    "65532:65532",
+    "--entrypoint",
+    "sh",
+    "--mount",
+    "type=bind,source=C:/NBSR-build/b5-allocator-probe-3646c6ba,target=/out",
+    "nbsr-linux-smoke-3644c324:prepared",
+    "-c",
+    "set -eu; for n in 4 5; do for mode in large small; do /out/probe \"$mode\" > /out/$mode-r$n.ndjson; done; done"
+  ]
+]

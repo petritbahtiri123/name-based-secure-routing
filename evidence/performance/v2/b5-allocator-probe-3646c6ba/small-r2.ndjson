@@ -1,0 +1,6 @@
+{"mode":"small","phase":"baseline","owned_requested_bytes":0,"arena":135168,"uordblks":2176,"fordblks":132992,"hblkhd":0,"hblks":0,"keepcost":132992,"private_bytes":286720,"mallinfo2_ns":300}
+{"mode":"small","phase":"allocated","owned_requested_bytes":1048576,"arena":1351680,"uordblks":1312896,"fordblks":38784,"hblkhd":0,"hblks":0,"keepcost":38784,"private_bytes":1724416,"mallinfo2_ns":400}
+{"mode":"small","phase":"partial_touch","owned_requested_bytes":1048576,"arena":1351680,"uordblks":1312896,"fordblks":38784,"hblkhd":0,"hblks":0,"keepcost":38784,"private_bytes":1724416,"mallinfo2_ns":400}
+{"mode":"small","phase":"full_touch","owned_requested_bytes":1048576,"arena":1351680,"uordblks":1312896,"fordblks":38784,"hblkhd":0,"hblks":0,"keepcost":38784,"private_bytes":1724416,"mallinfo2_ns":900}
+{"mode":"small","phase":"freed","owned_requested_bytes":0,"arena":1351680,"uordblks":2736,"fordblks":1348944,"hblkhd":0,"hblks":0,"keepcost":38784,"private_bytes":1724416,"mallinfo2_ns":124907}
+{"mode":"small","phase":"cooldown","owned_requested_bytes":0,"arena":1351680,"uordblks":2736,"fordblks":1348944,"hblkhd":0,"hblks":0,"keepcost":38784,"private_bytes":1724416,"mallinfo2_ns":167611}

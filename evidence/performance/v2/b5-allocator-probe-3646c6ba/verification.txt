@@ -1,0 +1,81 @@
+{
+  "large": {
+    "allocation_accounting_delta": [
+      3018752,
+      3018752
+    ],
+    "untouched_private_delta": [
+      8192,
+      36864
+    ],
+    "touch_private_delta": [
+      3014656,
+      3014656
+    ],
+    "post_free_accounting_delta": [
+      0,
+      0
+    ],
+    "post_free_private_delta": [
+      4096,
+      32768
+    ],
+    "post_free_arena_free_delta": [
+      0,
+      0
+    ],
+    "sample_duration_ns_range": [
+      300,
+      2500
+    ],
+    "duration_cv_by_phase": {
+      "baseline": 0.16109486985446062,
+      "allocated": 0.16109486985446062,
+      "partial_touch": 0.5397806622800487,
+      "full_touch": 0.3788118298231976,
+      "freed": 0.49500164066138314,
+      "cooldown": 0.11049495602038387
+    },
+    "first_three_freed_duration_cv": 0.6029433710832989
+  },
+  "small": {
+    "allocation_accounting_delta": [
+      1310720,
+      1310720
+    ],
+    "untouched_private_delta": [
+      1437696,
+      1441792
+    ],
+    "touch_private_delta": [
+      0,
+      0
+    ],
+    "post_free_accounting_delta": [
+      560,
+      560
+    ],
+    "post_free_private_delta": [
+      1437696,
+      1441792
+    ],
+    "post_free_arena_free_delta": [
+      1215952,
+      1215952
+    ],
+    "sample_duration_ns_range": [
+      300,
+      180611
+    ],
+    "duration_cv_by_phase": {
+      "baseline": 0.0,
+      "allocated": 0.10647942749999,
+      "partial_touch": 0.11842577419051108,
+      "full_touch": 0.2614562582918986,
+      "freed": 0.23539379793646178,
+      "cooldown": 0.10676485611004957
+    },
+    "first_three_freed_duration_cv": 0.3072267386085548
+  }
+}
+PASS: 10 fixture processes / 60 phase observations
