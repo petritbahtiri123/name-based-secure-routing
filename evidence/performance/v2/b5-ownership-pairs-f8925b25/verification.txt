@@ -1,0 +1,4 @@
+PASS: 26 tests via python -m pytest -q tests/performance/test_b5_ownership.py tests/performance/test_b5_retained_diagnostic.py tests/performance/test_linux_b5_campaign.py
+PASS: python -m ruff check scripts/performance/b5_ownership.py scripts/performance/linux_b5_campaign.py tests/performance/test_b5_ownership.py tests/performance/test_b5_retained_diagnostic.py tests/performance/test_linux_b5_campaign.py
+PASS: analyze.py verifies 264 child-index entries, six zero-error finals, both-peer final zero ownership, all active sampled counters/capacities constant.
+PASS: all six source/binary/shape/load/placement identities match.

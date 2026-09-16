@@ -1,0 +1,113 @@
+[
+  {
+    "repeat": 1,
+    "observer": "off",
+    "exit_code": 0,
+    "classification": "DIAGNOSTIC",
+    "complete_final": true,
+    "gbps": 2.2382998529800417,
+    "continuous_ownership": {
+      "classification": "NOT_MEASURED"
+    },
+    "gate_failure_count": 0,
+    "window_p99_median_ns": 1272072
+  },
+  {
+    "repeat": 1,
+    "observer": "on",
+    "exit_code": 1,
+    "classification": "FAIL_DIAGNOSTIC_RETAINED",
+    "complete_final": true,
+    "gbps": 2.241595598509763,
+    "continuous_ownership": {
+      "classification": "SAMPLED_NO_SUSTAINED_GROWTH",
+      "max_snapshot_gap_ns": {
+        "destination_0": 1001252543,
+        "source": 1001406608
+      },
+      "retained_capacity_scope": "Optional fields observed when emitted; not allocator or leak attribution.",
+      "retained_window_per_role": 60,
+      "sample_counts": {
+        "destination_0": 305,
+        "source": 300
+      },
+      "scope": "Process-local sample intervals; cross-process clock alignment and final zero cleanup are separate."
+    },
+    "gate_failure_count": 1,
+    "window_p99_median_ns": 1259991
+  },
+  {
+    "repeat": 2,
+    "observer": "on",
+    "exit_code": 0,
+    "classification": "DIAGNOSTIC",
+    "complete_final": true,
+    "gbps": 2.2384673787602845,
+    "continuous_ownership": {
+      "classification": "SAMPLED_NO_SUSTAINED_GROWTH",
+      "max_snapshot_gap_ns": {
+        "destination_0": 1001008682,
+        "source": 1001106473
+      },
+      "retained_capacity_scope": "Optional fields observed when emitted; not allocator or leak attribution.",
+      "retained_window_per_role": 60,
+      "sample_counts": {
+        "destination_0": 305,
+        "source": 300
+      },
+      "scope": "Process-local sample intervals; cross-process clock alignment and final zero cleanup are separate."
+    },
+    "gate_failure_count": 0,
+    "window_p99_median_ns": 1252236
+  },
+  {
+    "repeat": 2,
+    "observer": "off",
+    "exit_code": 1,
+    "classification": "FAIL_DIAGNOSTIC_RETAINED",
+    "complete_final": true,
+    "gbps": 2.2397917384141834,
+    "continuous_ownership": {
+      "classification": "NOT_MEASURED"
+    },
+    "gate_failure_count": 1,
+    "window_p99_median_ns": 1284168
+  },
+  {
+    "repeat": 3,
+    "observer": "off",
+    "exit_code": 1,
+    "classification": "FAIL_DIAGNOSTIC_RETAINED",
+    "complete_final": true,
+    "gbps": 2.2410267843721017,
+    "continuous_ownership": {
+      "classification": "NOT_MEASURED"
+    },
+    "gate_failure_count": 1,
+    "window_p99_median_ns": 1294375
+  },
+  {
+    "repeat": 3,
+    "observer": "on",
+    "exit_code": 1,
+    "classification": "FAIL_DIAGNOSTIC_RETAINED",
+    "complete_final": true,
+    "gbps": 2.243479922818833,
+    "continuous_ownership": {
+      "classification": "SAMPLED_NO_SUSTAINED_GROWTH",
+      "max_snapshot_gap_ns": {
+        "destination_0": 1001262611,
+        "source": 1000966685
+      },
+      "retained_capacity_scope": "Optional fields observed when emitted; not allocator or leak attribution.",
+      "retained_window_per_role": 60,
+      "sample_counts": {
+        "destination_0": 305,
+        "source": 300
+      },
+      "scope": "Process-local sample intervals; cross-process clock alignment and final zero cleanup are separate."
+    },
+    "gate_failure_count": 3,
+    "window_p99_median_ns": 1316371
+  }
+]

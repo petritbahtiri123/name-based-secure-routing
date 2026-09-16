@@ -1,0 +1,5 @@
+Executed from Windows PowerShell, repository working directory.
+docker run --name nbsr-b5-ownership-f8925b25 --user 0 --entrypoint python3 --mount type=bind,source=C:/NBSR-build/b5-ownership-pairs-f8925b25,target=/out --mount type=bind,source=C:/NBSR-build/linux-current-f8925b25,target=/build,readonly --mount type=bind,source=C:/NBSR-build/linux-current-edc0f96d,target=/old,readonly nbsr-linux-smoke-3644c324:prepared /out/run.py
+Runtime image sha256:dd08db4a391b16a9d303a251d2693808baf470f2fc4870d8e3c54b7523deed71
+python C:/NBSR-build/b5-ownership-pairs-f8925b25/analyze.py
+Reproduce into a NEW writable output directory containing run.py. Preserve exact build inputs and old/source-full.bundle; executed runner fetches update.bundle and checks out build source-sha.txt. Do not overwrite sealed evidence. Analyze a writable copy with original raw cell directories; analysis imports repository scripts.performance.post_close_cleanup and b5_ownership from the recorded source revision.

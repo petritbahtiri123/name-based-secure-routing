@@ -1,0 +1,10 @@
+{
+  "required": 3,
+  "cv": {
+    "off/gbps": 0.0006096693170747434,
+    "off/window_p99_median_ns": 0.0086984739672309,
+    "on/gbps": 0.0011297011678887145,
+    "on/window_p99_median_ns": 0.027429179957683927
+  },
+  "classification": "DIAGNOSTIC_ONLY"
+}
