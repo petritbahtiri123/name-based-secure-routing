@@ -1,0 +1,1579 @@
+{
+  "classification": "SCHEDULER_ACCOUNTING_DIAGNOSTIC",
+  "rows": [
+    {
+      "repeat": 1,
+      "roles": {
+        "source": {
+          "samples": 300,
+          "wall_ns": 299044213269,
+          "threads": [
+            {
+              "tid": 162,
+              "runtime_ns": 116213213100,
+              "runqueue_ns": 60721429400,
+              "timeslices": 451897
+            },
+            {
+              "tid": 163,
+              "runtime_ns": 24090100,
+              "runqueue_ns": 72852600,
+              "timeslices": 667
+            },
+            {
+              "tid": 165,
+              "runtime_ns": 597923600,
+              "runqueue_ns": 1425434500,
+              "timeslices": 46124
+            }
+          ],
+          "runtime_cores": 0.39069549456522307,
+          "runqueue_thread_seconds_per_second": 0.20806193110993704
+        },
+        "destination_0": {
+          "samples": 300,
+          "wall_ns": 299044407979,
+          "threads": [
+            {
+              "tid": 160,
+              "runtime_ns": 109271546500,
+              "runqueue_ns": 60409313100,
+              "timeslices": 448405
+            },
+            {
+              "tid": 161,
+              "runtime_ns": 7651600,
+              "runqueue_ns": 19658100,
+              "timeslices": 330
+            }
+          ],
+          "runtime_cores": 0.36542799391745856,
+          "runqueue_thread_seconds_per_second": 0.20207357030479414
+        }
+      },
+      "windows": [
+        {
+          "elapsed_seconds": 30.00095672,
+          "p99_ms": 1.238664,
+          "gbps": 2.240796618435307,
+          "roles": {
+            "source": {
+              "wall_ns": 29004197872,
+              "threads": [
+                {
+                  "tid": 162,
+                  "runtime_ns": 11071209300,
+                  "runqueue_ns": 5838850800,
+                  "timeslices": 42767
+                },
+                {
+                  "tid": 163,
+                  "runtime_ns": 2287500,
+                  "runqueue_ns": 7170200,
+                  "timeslices": 66
+                },
+                {
+                  "tid": 165,
+                  "runtime_ns": 57157500,
+                  "runqueue_ns": 156219500,
+                  "timeslices": 4623
+                }
+              ],
+              "runtime_cores": 0.3837601146262101,
+              "runqueue_thread_seconds_per_second": 0.20694385435131885
+            },
+            "destination_0": {
+              "wall_ns": 29004294078,
+              "threads": [
+                {
+                  "tid": 160,
+                  "runtime_ns": 10545035300,
+                  "runqueue_ns": 5802829700,
+                  "timeslices": 42463
+                },
+                {
+                  "tid": 161,
+                  "runtime_ns": 831200,
+                  "runqueue_ns": 3162600,
+                  "timeslices": 32
+                }
+              ],
+              "runtime_cores": 0.36359673059580266,
+              "runqueue_thread_seconds_per_second": 0.20017699049617255
+            }
+          }
+        },
+        {
+          "elapsed_seconds": 60.000485028,
+          "p99_ms": 1.317065,
+          "gbps": 2.239251779638348,
+          "roles": {
+            "source": {
+              "wall_ns": 29004323609,
+              "threads": [
+                {
+                  "tid": 162,
+                  "runtime_ns": 11522771700,
+                  "runqueue_ns": 6054740200,
+                  "timeslices": 43138
+                },
+                {
+                  "tid": 163,
+                  "runtime_ns": 2189000,
+                  "runqueue_ns": 7092500,
+                  "timeslices": 64
+                },
+                {
+                  "tid": 165,
+                  "runtime_ns": 57766000,
+                  "runqueue_ns": 157882200,
+                  "timeslices": 4583
+                }
+              ],
+              "runtime_cores": 0.39934483065848486,
+              "runqueue_thread_seconds_per_second": 0.2144409565913832
+            },
+            "destination_0": {
+              "wall_ns": 29004309605,
+              "threads": [
+                {
+                  "tid": 160,
+                  "runtime_ns": 10931318300,
+                  "runqueue_ns": 6021076000,
+                  "timeslices": 42849
+                },
+                {
+                  "tid": 161,
+                  "runtime_ns": 697700,
+                  "runqueue_ns": 1666400,
+                  "timeslices": 32
+                }
+              ],
+              "runtime_cores": 0.3769100574666135,
+              "runqueue_thread_seconds_per_second": 0.20764991416867756
+            }
+          }
+        },
+        {
+          "elapsed_seconds": 90.000656713,
+          "p99_ms": 1.316868,
+          "gbps": 2.2406542789756703,
+          "roles": {
+            "source": {
+              "wall_ns": 29003252834,
+              "threads": [
+                {
+                  "tid": 162,
+                  "runtime_ns": 10985692800,
+                  "runqueue_ns": 5736669900,
+                  "timeslices": 43687
+                },
+                {
+                  "tid": 163,
+                  "runtime_ns": 2207300,
+                  "runqueue_ns": 6774500,
+                  "timeslices": 65
+                },
+                {
+                  "tid": 165,
+                  "runtime_ns": 58015000,
+                  "runqueue_ns": 134490000,
+                  "timeslices": 4476
+                }
+              ],
+              "runtime_cores": 0.38085090535262545,
+              "runqueue_thread_seconds_per_second": 0.20266466087932736
+            },
+            "destination_0": {
+              "wall_ns": 29003801067,
+              "threads": [
+                {
+                  "tid": 160,
+                  "runtime_ns": 10331874500,
+                  "runqueue_ns": 5705306600,
+                  "timeslices": 43338
+                },
+                {
+                  "tid": 161,
+                  "runtime_ns": 757200,
+                  "runqueue_ns": 2201200,
+                  "timeslices": 32
+                }
+              ],
+              "runtime_cores": 0.3562509505609691,
+              "runqueue_thread_seconds_per_second": 0.19678482095555053
+            }
+          }
+        },
+        {
+          "elapsed_seconds": 120.000817187,
+          "p99_ms": 1.361569,
+          "gbps": 2.230248055172453,
+          "roles": {
+            "source": {
+              "wall_ns": 29004282427,
+              "threads": [
+                {
+                  "tid": 162,
+                  "runtime_ns": 11873633700,
+                  "runqueue_ns": 6170954400,
+                  "timeslices": 43906
+                },
+                {
+                  "tid": 163,
+                  "runtime_ns": 2777200,
+                  "runqueue_ns": 8192400,
+                  "timeslices": 65
+                },
+                {
+                  "tid": 165,
+                  "runtime_ns": 59634700,
+                  "runqueue_ns": 143272300,
+                  "timeslices": 4353
+                }
+              ],
+              "runtime_cores": 0.411527009159474,
+              "runqueue_thread_seconds_per_second": 0.21798226230601309
+            },
+            "destination_0": {
+              "wall_ns": 29004254926,
+              "threads": [
+                {
+                  "tid": 160,
+                  "runtime_ns": 11094448000,
+                  "runqueue_ns": 6148764600,
+                  "timeslices": 43546
+                },
+                {
+                  "tid": 161,
+                  "runtime_ns": 741200,
+                  "runqueue_ns": 2279200,
+                  "timeslices": 32
+                }
+              ],
+              "runtime_cores": 0.3825366046570653,
+              "runqueue_thread_seconds_per_second": 0.21207384281007957
+            }
+          }
+        },
+        {
+          "elapsed_seconds": 150.000693466,
+          "p99_ms": 1.17276,
+          "gbps": 2.2496417042640435,
+          "roles": {
+            "source": {
+              "wall_ns": 29004317026,
+              "threads": [
+                {
+                  "tid": 162,
+                  "runtime_ns": 10864816100,
+                  "runqueue_ns": 5663386800,
+                  "timeslices": 43907
+                },
+                {
+                  "tid": 163,
+                  "runtime_ns": 2002900,
+                  "runqueue_ns": 6664200,
+                  "timeslices": 64
+                },
+                {
+                  "tid": 165,
+                  "runtime_ns": 56513000,
+                  "runqueue_ns": 122925800,
+                  "timeslices": 4473
+                }
+              ],
+              "runtime_cores": 0.3766105573252466,
+              "runqueue_thread_seconds_per_second": 0.19972808857409294
+            },
+            "destination_0": {
+              "wall_ns": 29004449732,
+              "threads": [
+                {
+                  "tid": 160,
+                  "runtime_ns": 10204643100,
+                  "runqueue_ns": 5632235600,
+                  "timeslices": 43572
+                },
+                {
+                  "tid": 161,
+                  "runtime_ns": 728100,
+                  "runqueue_ns": 2381500,
+                  "timeslices": 33
+                }
+              ],
+              "runtime_cores": 0.3518553633769038,
+              "runqueue_thread_seconds_per_second": 0.19426733318727454
+            }
+          }
+        },
+        {
+          "elapsed_seconds": 180.00131761,
+          "p99_ms": 1.479175,
+          "gbps": 2.212510496094964,
+          "roles": {
+            "source": {
+              "wall_ns": 29004225617,
+              "threads": [
+                {
+                  "tid": 162,
+                  "runtime_ns": 11322485800,
+                  "runqueue_ns": 5906992700,
+                  "timeslices": 43574
+                },
+                {
+                  "tid": 163,
+                  "runtime_ns": 2889200,
+                  "runqueue_ns": 8663000,
+                  "timeslices": 65
+                },
+                {
+                  "tid": 165,
+                  "runtime_ns": 58902700,
+                  "runqueue_ns": 145680400,
+                  "timeslices": 4442
+                }
+              ],
+              "runtime_cores": 0.3925041078610087,
+              "runqueue_thread_seconds_per_second": 0.20898113881886646
+            },
+            "destination_0": {
+              "wall_ns": 29004210616,
+              "threads": [
+                {
+                  "tid": 160,
+                  "runtime_ns": 10587234300,
+                  "runqueue_ns": 5881623900,
+                  "timeslices": 43272
+                },
+                {
+                  "tid": 161,
+                  "runtime_ns": 844300,
+                  "runqueue_ns": 1318400,
+                  "timeslices": 32
+                }
+              ],
+              "runtime_cores": 0.3650531552187512,
+              "runqueue_thread_seconds_per_second": 0.20283062958985376
+            }
+          }
+        },
+        {
+          "elapsed_seconds": 210.000755988,
+          "p99_ms": 1.233362,
+          "gbps": 2.2385244753530964,
+          "roles": {
+            "source": {
+              "wall_ns": 29004417916,
+              "threads": [
+                {
+                  "tid": 162,
+                  "runtime_ns": 11350869300,
+                  "runqueue_ns": 5931052300,
+                  "timeslices": 44080
+                },
+                {
+                  "tid": 163,
+                  "runtime_ns": 2020100,
+                  "runqueue_ns": 7309700,
+                  "timeslices": 65
+                },
+                {
+                  "tid": 165,
+                  "runtime_ns": 57808700,
+                  "runqueue_ns": 130113400,
+                  "timeslices": 4418
+                }
+              ],
+              "runtime_cores": 0.39341241506885755,
+              "runqueue_thread_seconds_per_second": 0.20922589853638765
+            },
+            "destination_0": {
+              "wall_ns": 29004372114,
+              "threads": [
+                {
+                  "tid": 160,
+                  "runtime_ns": 10656029200,
+                  "runqueue_ns": 5908208500,
+                  "timeslices": 43741
+                },
+                {
+                  "tid": 161,
+                  "runtime_ns": 753400,
+                  "runqueue_ns": 550200,
+                  "timeslices": 32
+                }
+              ],
+              "runtime_cores": 0.3674198689119742,
+              "runqueue_thread_seconds_per_second": 0.20371958671527063
+            }
+          }
+        },
+        {
+          "elapsed_seconds": 240.00047242,
+          "p99_ms": 1.37277,
+          "gbps": 2.2370793982710273,
+          "roles": {
+            "source": {
+              "wall_ns": 29004345375,
+              "threads": [
+                {
+                  "tid": 162,
+                  "runtime_ns": 11362146900,
+                  "runqueue_ns": 5913457000,
+                  "timeslices": 44316
+                },
+                {
+                  "tid": 163,
+                  "runtime_ns": 2183200,
+                  "runqueue_ns": 6292700,
+                  "timeslices": 65
+                },
+                {
+                  "tid": 165,
+                  "runtime_ns": 59312700,
+                  "runqueue_ns": 143126600,
+                  "timeslices": 4488
+                }
+              ],
+              "runtime_cores": 0.3938597011000459,
+              "runqueue_thread_seconds_per_second": 0.20903337833047025
+            },
+            "destination_0": {
+              "wall_ns": 29004361175,
+              "threads": [
+                {
+                  "tid": 160,
+                  "runtime_ns": 10629308900,
+                  "runqueue_ns": 5876457900,
+                  "timeslices": 43997
+                },
+                {
+                  "tid": 161,
+                  "runtime_ns": 665900,
+                  "runqueue_ns": 2096500,
+                  "timeslices": 32
+                }
+              ],
+              "runtime_cores": 0.3664957395842386,
+              "runqueue_thread_seconds_per_second": 0.20267829256887607
+            }
+          }
+        },
+        {
+          "elapsed_seconds": 270.0005546,
+          "p99_ms": 1.276164,
+          "gbps": 2.237751173520285,
+          "roles": {
+            "source": {
+              "wall_ns": 29004144398,
+              "threads": [
+                {
+                  "tid": 162,
+                  "runtime_ns": 10886274700,
+                  "runqueue_ns": 5692478700,
+                  "timeslices": 44366
+                },
+                {
+                  "tid": 163,
+                  "runtime_ns": 2217100,
+                  "runqueue_ns": 7533100,
+                  "timeslices": 64
+                },
+                {
+                  "tid": 165,
+                  "runtime_ns": 56255700,
+                  "runqueue_ns": 119344100,
+                  "timeslices": 4403
+                }
+              ],
+              "runtime_cores": 0.37735115884868864,
+              "runqueue_thread_seconds_per_second": 0.2006387714854046
+            },
+            "destination_0": {
+              "wall_ns": 29004100998,
+              "threads": [
+                {
+                  "tid": 160,
+                  "runtime_ns": 10232286000,
+                  "runqueue_ns": 5660639800,
+                  "timeslices": 43928
+                },
+                {
+                  "tid": 161,
+                  "runtime_ns": 699700,
+                  "runqueue_ns": 2008600,
+                  "timeslices": 32
+                }
+              ],
+              "runtime_cores": 0.3528116834479932,
+              "runqueue_thread_seconds_per_second": 0.1952361288629657
+            }
+          }
+        }
+      ],
+      "cgroup_delta": {
+        "usage_usec": 228765136,
+        "user_usec": 185320482,
+        "system_usec": 43444654,
+        "nr_periods": 0,
+        "nr_throttled": 0,
+        "throttled_usec": 0,
+        "nr_bursts": 0,
+        "burst_usec": 0
+      }
+    },
+    {
+      "repeat": 2,
+      "roles": {
+        "source": {
+          "samples": 300,
+          "wall_ns": 299044499192,
+          "threads": [
+            {
+              "tid": 247,
+              "runtime_ns": 114771351600,
+              "runqueue_ns": 61068389000,
+              "timeslices": 437340
+            },
+            {
+              "tid": 248,
+              "runtime_ns": 23097300,
+              "runqueue_ns": 69011300,
+              "timeslices": 669
+            },
+            {
+              "tid": 250,
+              "runtime_ns": 601278600,
+              "runqueue_ns": 1542889400,
+              "timeslices": 47150
+            }
+          ],
+          "runtime_cores": 0.3858814584845808,
+          "runqueue_thread_seconds_per_second": 0.2096018815572877
+        },
+        "destination_0": {
+          "samples": 300,
+          "wall_ns": 299044984515,
+          "threads": [
+            {
+              "tid": 245,
+              "runtime_ns": 109733577100,
+              "runqueue_ns": 60747012200,
+              "timeslices": 434259
+            },
+            {
+              "tid": 246,
+              "runtime_ns": 7821700,
+              "runqueue_ns": 19988000,
+              "timeslices": 329
+            }
+          ],
+          "runtime_cores": 0.3669728786054775,
+          "runqueue_thread_seconds_per_second": 0.20320354243209837
+        }
+      },
+      "windows": [
+        {
+          "elapsed_seconds": 30.001538374,
+          "p99_ms": 1.172264,
+          "gbps": 2.2474986680827995,
+          "roles": {
+            "source": {
+              "wall_ns": 29003241099,
+              "threads": [
+                {
+                  "tid": 247,
+                  "runtime_ns": 10784134500,
+                  "runqueue_ns": 5755259900,
+                  "timeslices": 42594
+                },
+                {
+                  "tid": 248,
+                  "runtime_ns": 2179600,
+                  "runqueue_ns": 6321300,
+                  "timeslices": 66
+                },
+                {
+                  "tid": 250,
+                  "runtime_ns": 57994600,
+                  "runqueue_ns": 142301200,
+                  "timeslices": 4613
+                }
+              ],
+              "runtime_cores": 0.37389989149777814,
+              "runqueue_thread_seconds_per_second": 0.20355940151128693
+            },
+            "destination_0": {
+              "wall_ns": 29004016335,
+              "threads": [
+                {
+                  "tid": 245,
+                  "runtime_ns": 10315658600,
+                  "runqueue_ns": 5722732900,
+                  "timeslices": 42254
+                },
+                {
+                  "tid": 246,
+                  "runtime_ns": 805600,
+                  "runqueue_ns": 2129000,
+                  "timeslices": 32
+                }
+              ],
+              "runtime_cores": 0.35569088366395724,
+              "runqueue_thread_seconds_per_second": 0.19738169479278775
+            }
+          }
+        },
+        {
+          "elapsed_seconds": 60.001574298,
+          "p99_ms": 1.240762,
+          "gbps": 2.2386896029771566,
+          "roles": {
+            "source": {
+              "wall_ns": 29004530890,
+              "threads": [
+                {
+                  "tid": 247,
+                  "runtime_ns": 11459140500,
+                  "runqueue_ns": 6109191300,
+                  "timeslices": 42412
+                },
+                {
+                  "tid": 248,
+                  "runtime_ns": 2186200,
+                  "runqueue_ns": 5945700,
+                  "timeslices": 64
+                },
+                {
+                  "tid": 250,
+                  "runtime_ns": 58572900,
+                  "runqueue_ns": 152014900,
+                  "timeslices": 4534
+                }
+              ],
+              "runtime_cores": 0.3971758634431753,
+              "runqueue_thread_seconds_per_second": 0.21607492718183383
+            },
+            "destination_0": {
+              "wall_ns": 29004434484,
+              "threads": [
+                {
+                  "tid": 245,
+                  "runtime_ns": 10971919200,
+                  "runqueue_ns": 6080919800,
+                  "timeslices": 42178
+                },
+                {
+                  "tid": 246,
+                  "runtime_ns": 714300,
+                  "runqueue_ns": 3179100,
+                  "timeslices": 32
+                }
+              ],
+              "runtime_cores": 0.3783088239852751,
+              "runqueue_thread_seconds_per_second": 0.20976443803295772
+            }
+          }
+        },
+        {
+          "elapsed_seconds": 90.001792842,
+          "p99_ms": 1.339066,
+          "gbps": 2.2319651379136967,
+          "roles": {
+            "source": {
+              "wall_ns": 29004652424,
+              "threads": [
+                {
+                  "tid": 247,
+                  "runtime_ns": 10963025600,
+                  "runqueue_ns": 5817121700,
+                  "timeslices": 42490
+                },
+                {
+                  "tid": 248,
+                  "runtime_ns": 2168000,
+                  "runqueue_ns": 7865800,
+                  "timeslices": 65
+                },
+                {
+                  "tid": 250,
+                  "runtime_ns": 59598400,
+                  "runqueue_ns": 177281100,
+                  "timeslices": 4612
+                }
+              ],
+              "runtime_cores": 0.3801042618555049,
+              "runqueue_thread_seconds_per_second": 0.20694158000091745
+            },
+            "destination_0": {
+              "wall_ns": 29004689026,
+              "threads": [
+                {
+                  "tid": 245,
+                  "runtime_ns": 10478782600,
+                  "runqueue_ns": 5779789800,
+                  "timeslices": 42197
+                },
+                {
+                  "tid": 246,
+                  "runtime_ns": 783800,
+                  "runqueue_ns": 1638500,
+                  "timeslices": 32
+                }
+              ],
+              "runtime_cores": 0.3613059388640935,
+              "runqueue_thread_seconds_per_second": 0.1993273671997479
+            }
+          }
+        },
+        {
+          "elapsed_seconds": 120.001865099,
+          "p99_ms": 1.18016,
+          "gbps": 2.25024741426242,
+          "roles": {
+            "source": {
+              "wall_ns": 29004345195,
+              "threads": [
+                {
+                  "tid": 247,
+                  "runtime_ns": 10965380500,
+                  "runqueue_ns": 5832180700,
+                  "timeslices": 42503
+                },
+                {
+                  "tid": 248,
+                  "runtime_ns": 2262300,
+                  "runqueue_ns": 6028100,
+                  "timeslices": 65
+                },
+                {
+                  "tid": 250,
+                  "runtime_ns": 57111300,
+                  "runqueue_ns": 142101200,
+                  "timeslices": 4629
+                }
+              ],
+              "runtime_cores": 0.380106981415341,
+              "runqueue_thread_seconds_per_second": 0.20618669236604362
+            },
+            "destination_0": {
+              "wall_ns": 29004347797,
+              "threads": [
+                {
+                  "tid": 245,
+                  "runtime_ns": 10470643700,
+                  "runqueue_ns": 5801722800,
+                  "timeslices": 42199
+                },
+                {
+                  "tid": 246,
+                  "runtime_ns": 768800,
+                  "runqueue_ns": 1396800,
+                  "timeslices": 32
+                }
+              ],
+              "runtime_cores": 0.3610290627215237,
+              "runqueue_thread_seconds_per_second": 0.2000775759763932
+            }
+          }
+        },
+        {
+          "elapsed_seconds": 150.001398173,
+          "p99_ms": 1.309863,
+          "gbps": 2.2379057304123693,
+          "roles": {
+            "source": {
+              "wall_ns": 29004703796,
+              "threads": [
+                {
+                  "tid": 247,
+                  "runtime_ns": 11282334600,
+                  "runqueue_ns": 6008438800,
+                  "timeslices": 42244
+                },
+                {
+                  "tid": 248,
+                  "runtime_ns": 2354300,
+                  "runqueue_ns": 7183800,
+                  "timeslices": 64
+                },
+                {
+                  "tid": 250,
+                  "runtime_ns": 56860000,
+                  "runqueue_ns": 152872500,
+                  "timeslices": 4553
+                }
+              ],
+              "runtime_cores": 0.39102446898851273,
+              "runqueue_thread_seconds_per_second": 0.21267223217948147
+            },
+            "destination_0": {
+              "wall_ns": 29004459180,
+              "threads": [
+                {
+                  "tid": 245,
+                  "runtime_ns": 10789123600,
+                  "runqueue_ns": 5980417000,
+                  "timeslices": 41943
+                },
+                {
+                  "tid": 246,
+                  "runtime_ns": 784600,
+                  "runqueue_ns": 2671600,
+                  "timeslices": 32
+                }
+              ],
+              "runtime_cores": 0.372008598162043,
+              "runqueue_thread_seconds_per_second": 0.2062816811328664
+            }
+          }
+        },
+        {
+          "elapsed_seconds": 180.001889796,
+          "p99_ms": 1.214959,
+          "gbps": 2.2467032868330006,
+          "roles": {
+            "source": {
+              "wall_ns": 29004167077,
+              "threads": [
+                {
+                  "tid": 247,
+                  "runtime_ns": 10867788600,
+                  "runqueue_ns": 5778074400,
+                  "timeslices": 42623
+                },
+                {
+                  "tid": 248,
+                  "runtime_ns": 2025400,
+                  "runqueue_ns": 6232100,
+                  "timeslices": 65
+                },
+                {
+                  "tid": 250,
+                  "runtime_ns": 58790300,
+                  "runqueue_ns": 141795600,
+                  "timeslices": 4597
+                }
+              ],
+              "runtime_cores": 0.37679428169706924,
+              "runqueue_thread_seconds_per_second": 0.20431898920825542
+            },
+            "destination_0": {
+              "wall_ns": 29004385986,
+              "threads": [
+                {
+                  "tid": 245,
+                  "runtime_ns": 10380434300,
+                  "runqueue_ns": 5742326400,
+                  "timeslices": 42284
+                },
+                {
+                  "tid": 246,
+                  "runtime_ns": 737800,
+                  "runqueue_ns": 1309900,
+                  "timeslices": 32
+                }
+              ],
+              "runtime_cores": 0.3579173199877716,
+              "runqueue_thread_seconds_per_second": 0.1980264744363963
+            }
+          }
+        },
+        {
+          "elapsed_seconds": 210.001538687,
+          "p99_ms": 1.308064,
+          "gbps": 2.2351095935698093,
+          "roles": {
+            "source": {
+              "wall_ns": 29004600335,
+              "threads": [
+                {
+                  "tid": 247,
+                  "runtime_ns": 11501919300,
+                  "runqueue_ns": 6112803500,
+                  "timeslices": 42072
+                },
+                {
+                  "tid": 248,
+                  "runtime_ns": 2264600,
+                  "runqueue_ns": 6824800,
+                  "timeslices": 66
+                },
+                {
+                  "tid": 250,
+                  "runtime_ns": 58837900,
+                  "runqueue_ns": 153647600,
+                  "timeslices": 4519
+                }
+              ],
+              "runtime_cores": 0.3986616490642294,
+              "runqueue_thread_seconds_per_second": 0.21628554875931202
+            },
+            "destination_0": {
+              "wall_ns": 29004596036,
+              "threads": [
+                {
+                  "tid": 245,
+                  "runtime_ns": 10984496800,
+                  "runqueue_ns": 6086720100,
+                  "timeslices": 41793
+                },
+                {
+                  "tid": 246,
+                  "runtime_ns": 733800,
+                  "runqueue_ns": 1945800,
+                  "timeslices": 32
+                }
+              ],
+              "runtime_cores": 0.3787410307788918,
+              "runqueue_thread_seconds_per_second": 0.20992072747515098
+            }
+          }
+        },
+        {
+          "elapsed_seconds": 240.001832367,
+          "p99_ms": 1.369068,
+          "gbps": 2.2297925120845017,
+          "roles": {
+            "source": {
+              "wall_ns": 29004300654,
+              "threads": [
+                {
+                  "tid": 247,
+                  "runtime_ns": 11019449200,
+                  "runqueue_ns": 5865752800,
+                  "timeslices": 42339
+                },
+                {
+                  "tid": 248,
+                  "runtime_ns": 2060800,
+                  "runqueue_ns": 6666200,
+                  "timeslices": 65
+                },
+                {
+                  "tid": 250,
+                  "runtime_ns": 59265400,
+                  "runqueue_ns": 148018300,
+                  "timeslices": 4561
+                }
+              ],
+              "runtime_cores": 0.38203904766350033,
+              "runqueue_thread_seconds_per_second": 0.20757050383042827
+            },
+            "destination_0": {
+              "wall_ns": 29004387359,
+              "threads": [
+                {
+                  "tid": 245,
+                  "runtime_ns": 10535608200,
+                  "runqueue_ns": 5830868900,
+                  "timeslices": 42019
+                },
+                {
+                  "tid": 246,
+                  "runtime_ns": 764600,
+                  "runqueue_ns": 824500,
+                  "timeslices": 32
+                }
+              ],
+              "runtime_cores": 0.36326824178655115,
+              "runqueue_thread_seconds_per_second": 0.20106245747646995
+            }
+          }
+        },
+        {
+          "elapsed_seconds": 270.00157252,
+          "p99_ms": 1.249762,
+          "gbps": 2.242801156305069,
+          "roles": {
+            "source": {
+              "wall_ns": 29004439637,
+              "threads": [
+                {
+                  "tid": 247,
+                  "runtime_ns": 11353335900,
+                  "runqueue_ns": 6037265400,
+                  "timeslices": 42393
+                },
+                {
+                  "tid": 248,
+                  "runtime_ns": 2200000,
+                  "runqueue_ns": 7530900,
+                  "timeslices": 65
+                },
+                {
+                  "tid": 250,
+                  "runtime_ns": 58966300,
+                  "runqueue_ns": 139865400,
+                  "timeslices": 4543
+                }
+              ],
+              "runtime_cores": 0.3935432762313704,
+              "runqueue_thread_seconds_per_second": 0.21323155273479005
+            },
+            "destination_0": {
+              "wall_ns": 29004325431,
+              "threads": [
+                {
+                  "tid": 245,
+                  "runtime_ns": 10855360800,
+                  "runqueue_ns": 6005842500,
+                  "timeslices": 42091
+                },
+                {
+                  "tid": 246,
+                  "runtime_ns": 769500,
+                  "runqueue_ns": 2522100,
+                  "timeslices": 32
+                }
+              ],
+              "runtime_cores": 0.374293493769619,
+              "runqueue_thread_seconds_per_second": 0.20715408859597967
+            }
+          }
+        }
+      ],
+      "cgroup_delta": {
+        "usage_usec": 227801857,
+        "user_usec": 184870944,
+        "system_usec": 42930913,
+        "nr_periods": 0,
+        "nr_throttled": 0,
+        "throttled_usec": 0,
+        "nr_bursts": 0,
+        "burst_usec": 0
+      }
+    },
+    {
+      "repeat": 3,
+      "roles": {
+        "source": {
+          "samples": 300,
+          "wall_ns": 299043336426,
+          "threads": [
+            {
+              "tid": 450,
+              "runtime_ns": 115070961500,
+              "runqueue_ns": 61165205100,
+              "timeslices": 436552
+            },
+            {
+              "tid": 451,
+              "runtime_ns": 23997400,
+              "runqueue_ns": 71408200,
+              "timeslices": 668
+            },
+            {
+              "tid": 453,
+              "runtime_ns": 615262600,
+              "runqueue_ns": 1622229600,
+              "timeslices": 47297
+            }
+          ],
+          "runtime_cores": 0.3869346258736421,
+          "runqueue_thread_seconds_per_second": 0.21019977790260772
+        },
+        "destination_0": {
+          "samples": 300,
+          "wall_ns": 299043387928,
+          "threads": [
+            {
+              "tid": 448,
+              "runtime_ns": 109978614400,
+              "runqueue_ns": 60838876700,
+              "timeslices": 433071
+            },
+            {
+              "tid": 449,
+              "runtime_ns": 7679900,
+              "runqueue_ns": 20915400,
+              "timeslices": 329
+            }
+          ],
+          "runtime_cores": 0.3677937675267415,
+          "runqueue_thread_seconds_per_second": 0.20351492310758956
+        }
+      },
+      "windows": [
+        {
+          "elapsed_seconds": 30.001818634,
+          "p99_ms": 1.272156,
+          "gbps": 2.229618011362584,
+          "roles": {
+            "source": {
+              "wall_ns": 29004159515,
+              "threads": [
+                {
+                  "tid": 450,
+                  "runtime_ns": 10983620900,
+                  "runqueue_ns": 5848465800,
+                  "timeslices": 42396
+                },
+                {
+                  "tid": 451,
+                  "runtime_ns": 2215600,
+                  "runqueue_ns": 6597800,
+                  "timeslices": 66
+                },
+                {
+                  "tid": 453,
+                  "runtime_ns": 58470300,
+                  "runqueue_ns": 167267600,
+                  "timeslices": 4658
+                }
+              ],
+              "runtime_cores": 0.3807835491419169,
+              "runqueue_thread_seconds_per_second": 0.20763681143338933
+            },
+            "destination_0": {
+              "wall_ns": 29004065096,
+              "threads": [
+                {
+                  "tid": 448,
+                  "runtime_ns": 10552579500,
+                  "runqueue_ns": 5819984500,
+                  "timeslices": 42018
+                },
+                {
+                  "tid": 449,
+                  "runtime_ns": 836100,
+                  "runqueue_ns": 1745900,
+                  "timeslices": 32
+                }
+              ],
+              "runtime_cores": 0.3638598784366761,
+              "runqueue_thread_seconds_per_second": 0.20072118790006732
+            }
+          }
+        },
+        {
+          "elapsed_seconds": 60.000932012,
+          "p99_ms": 1.197676,
+          "gbps": 2.246404540789559,
+          "roles": {
+            "source": {
+              "wall_ns": 29004070408,
+              "threads": [
+                {
+                  "tid": 450,
+                  "runtime_ns": 11230346900,
+                  "runqueue_ns": 5972800400,
+                  "timeslices": 42300
+                },
+                {
+                  "tid": 451,
+                  "runtime_ns": 2151800,
+                  "runqueue_ns": 7497000,
+                  "timeslices": 65
+                },
+                {
+                  "tid": 453,
+                  "runtime_ns": 58096000,
+                  "runqueue_ns": 148109800,
+                  "timeslices": 4574
+                }
+              ],
+              "runtime_cores": 0.38927621334437906,
+              "runqueue_thread_seconds_per_second": 0.21129472911187122
+            },
+            "destination_0": {
+              "wall_ns": 29004172924,
+              "threads": [
+                {
+                  "tid": 448,
+                  "runtime_ns": 10732763800,
+                  "runqueue_ns": 5943473500,
+                  "timeslices": 41997
+                },
+                {
+                  "tid": 449,
+                  "runtime_ns": 705500,
+                  "runqueue_ns": 2291500,
+                  "timeslices": 32
+                }
+              ],
+              "runtime_cores": 0.37006638072821607,
+              "runqueue_thread_seconds_per_second": 0.20499688150321552
+            }
+          }
+        },
+        {
+          "elapsed_seconds": 90.001160865,
+          "p99_ms": 1.252563,
+          "gbps": 2.2421704328189977,
+          "roles": {
+            "source": {
+              "wall_ns": 29003903955,
+              "threads": [
+                {
+                  "tid": 450,
+                  "runtime_ns": 11248056400,
+                  "runqueue_ns": 5971475400,
+                  "timeslices": 42364
+                },
+                {
+                  "tid": 451,
+                  "runtime_ns": 2123000,
+                  "runqueue_ns": 6211600,
+                  "timeslices": 65
+                },
+                {
+                  "tid": 453,
+                  "runtime_ns": 59167000,
+                  "runqueue_ns": 163550400,
+                  "timeslices": 4573
+                }
+              ],
+              "runtime_cores": 0.3899249707055514,
+              "runqueue_thread_seconds_per_second": 0.21173830286875256
+            },
+            "destination_0": {
+              "wall_ns": 29004027062,
+              "threads": [
+                {
+                  "tid": 448,
+                  "runtime_ns": 10752045500,
+                  "runqueue_ns": 5940531800,
+                  "timeslices": 42068
+                },
+                {
+                  "tid": 449,
+                  "runtime_ns": 780500,
+                  "runqueue_ns": 1041600,
+                  "timeslices": 32
+                }
+              ],
+              "runtime_cores": 0.3707356215402224,
+              "runqueue_thread_seconds_per_second": 0.2048533945751426
+            }
+          }
+        },
+        {
+          "elapsed_seconds": 120.000716601,
+          "p99_ms": 1.335766,
+          "gbps": 2.23197075947525,
+          "roles": {
+            "source": {
+              "wall_ns": 29004542667,
+              "threads": [
+                {
+                  "tid": 450,
+                  "runtime_ns": 10914736700,
+                  "runqueue_ns": 5811297000,
+                  "timeslices": 42491
+                },
+                {
+                  "tid": 451,
+                  "runtime_ns": 3128000,
+                  "runqueue_ns": 8747200,
+                  "timeslices": 66
+                },
+                {
+                  "tid": 453,
+                  "runtime_ns": 60765600,
+                  "runqueue_ns": 149187400,
+                  "timeslices": 4558
+                }
+              ],
+              "runtime_cores": 0.3785141667650208,
+              "runqueue_thread_seconds_per_second": 0.20580333462011488
+            },
+            "destination_0": {
+              "wall_ns": 29004238851,
+              "threads": [
+                {
+                  "tid": 448,
+                  "runtime_ns": 10403710400,
+                  "runqueue_ns": 5777438600,
+                  "timeslices": 42111
+                },
+                {
+                  "tid": 449,
+                  "runtime_ns": 714400,
+                  "runqueue_ns": 1772800,
+                  "timeslices": 32
+                }
+              ],
+              "runtime_cores": 0.3587208357181654,
+              "runqueue_thread_seconds_per_second": 0.1992540273057621
+            }
+          }
+        },
+        {
+          "elapsed_seconds": 150.000927615,
+          "p99_ms": 1.237961,
+          "gbps": 2.2448980445028015,
+          "roles": {
+            "source": {
+              "wall_ns": 29003556340,
+              "threads": [
+                {
+                  "tid": 450,
+                  "runtime_ns": 11413079100,
+                  "runqueue_ns": 6049778700,
+                  "timeslices": 42512
+                },
+                {
+                  "tid": 451,
+                  "runtime_ns": 2370500,
+                  "runqueue_ns": 6488100,
+                  "timeslices": 64
+                },
+                {
+                  "tid": 453,
+                  "runtime_ns": 60210100,
+                  "runqueue_ns": 156920500,
+                  "timeslices": 4621
+                }
+              ],
+              "runtime_cores": 0.3956638822313471,
+              "runqueue_thread_seconds_per_second": 0.21422156742313483
+            },
+            "destination_0": {
+              "wall_ns": 29004098865,
+              "threads": [
+                {
+                  "tid": 448,
+                  "runtime_ns": 10874119200,
+                  "runqueue_ns": 6016639100,
+                  "timeslices": 42200
+                },
+                {
+                  "tid": 449,
+                  "runtime_ns": 744900,
+                  "runqueue_ns": 2075800,
+                  "timeslices": 32
+                }
+              ],
+              "runtime_cores": 0.3749423193810369,
+              "runqueue_thread_seconds_per_second": 0.2075125632419816
+            }
+          }
+        },
+        {
+          "elapsed_seconds": 180.001192197,
+          "p99_ms": 1.35587,
+          "gbps": 2.2268324737403478,
+          "roles": {
+            "source": {
+              "wall_ns": 29005627839,
+              "threads": [
+                {
+                  "tid": 450,
+                  "runtime_ns": 11111221700,
+                  "runqueue_ns": 5901715300,
+                  "timeslices": 42071
+                },
+                {
+                  "tid": 451,
+                  "runtime_ns": 2256400,
+                  "runqueue_ns": 6456300,
+                  "timeslices": 65
+                },
+                {
+                  "tid": 453,
+                  "runtime_ns": 60967700,
+                  "runqueue_ns": 159216100,
+                  "timeslices": 4520
+                }
+              ],
+              "runtime_cores": 0.38525095412605453,
+              "runqueue_thread_seconds_per_second": 0.20917967139611413
+            },
+            "destination_0": {
+              "wall_ns": 29005008310,
+              "threads": [
+                {
+                  "tid": 448,
+                  "runtime_ns": 10625657600,
+                  "runqueue_ns": 5870896600,
+                  "timeslices": 41740
+                },
+                {
+                  "tid": 449,
+                  "runtime_ns": 745400,
+                  "runqueue_ns": 2365400,
+                  "timeslices": 32
+                }
+              ],
+              "runtime_cores": 0.36636441839378325,
+              "runqueue_thread_seconds_per_second": 0.20249130554377698
+            }
+          }
+        },
+        {
+          "elapsed_seconds": 210.000942899,
+          "p99_ms": 1.272563,
+          "gbps": 2.2341058527373625,
+          "roles": {
+            "source": {
+              "wall_ns": 29004450418,
+              "threads": [
+                {
+                  "tid": 450,
+                  "runtime_ns": 11537005100,
+                  "runqueue_ns": 6139046000,
+                  "timeslices": 42030
+                },
+                {
+                  "tid": 451,
+                  "runtime_ns": 2167800,
+                  "runqueue_ns": 6748200,
+                  "timeslices": 65
+                },
+                {
+                  "tid": 453,
+                  "runtime_ns": 58989900,
+                  "runqueue_ns": 151565900,
+                  "timeslices": 4590
+                }
+              ],
+              "runtime_cores": 0.39987528233950764,
+              "runqueue_thread_seconds_per_second": 0.2171170289126352
+            },
+            "destination_0": {
+              "wall_ns": 29004331913,
+              "threads": [
+                {
+                  "tid": 448,
+                  "runtime_ns": 11032402000,
+                  "runqueue_ns": 6107305000,
+                  "timeslices": 41763
+                },
+                {
+                  "tid": 449,
+                  "runtime_ns": 748100,
+                  "runqueue_ns": 2297900,
+                  "timeslices": 32
+                }
+              ],
+              "runtime_cores": 0.3803966294791587,
+              "runqueue_thread_seconds_per_second": 0.2106444967712434
+            }
+          }
+        },
+        {
+          "elapsed_seconds": 240.000738644,
+          "p99_ms": 1.412369,
+          "gbps": 2.2236865725033623,
+          "roles": {
+            "source": {
+              "wall_ns": 29004101578,
+              "threads": [
+                {
+                  "tid": 450,
+                  "runtime_ns": 11142237500,
+                  "runqueue_ns": 5925695200,
+                  "timeslices": 42262
+                },
+                {
+                  "tid": 451,
+                  "runtime_ns": 2132200,
+                  "runqueue_ns": 6163000,
+                  "timeslices": 66
+                },
+                {
+                  "tid": 453,
+                  "runtime_ns": 60892800,
+                  "runqueue_ns": 179060000,
+                  "timeslices": 4583
+                }
+              ],
+              "runtime_cores": 0.38633372145198047,
+              "runqueue_thread_seconds_per_second": 0.21069151835529404
+            },
+            "destination_0": {
+              "wall_ns": 29004171881,
+              "threads": [
+                {
+                  "tid": 448,
+                  "runtime_ns": 10670937900,
+                  "runqueue_ns": 5893688900,
+                  "timeslices": 41944
+                },
+                {
+                  "tid": 449,
+                  "runtime_ns": 725400,
+                  "runqueue_ns": 1823800,
+                  "timeslices": 32
+                }
+              ],
+              "runtime_cores": 0.367935459208569,
+              "runqueue_thread_seconds_per_second": 0.20326430019062264
+            }
+          }
+        },
+        {
+          "elapsed_seconds": 270.001116925,
+          "p99_ms": 1.218555,
+          "gbps": 2.2421243127657613,
+          "roles": {
+            "source": {
+              "wall_ns": 29004919381,
+              "threads": [
+                {
+                  "tid": 450,
+                  "runtime_ns": 11326085000,
+                  "runqueue_ns": 6014135600,
+                  "timeslices": 42173
+                },
+                {
+                  "tid": 451,
+                  "runtime_ns": 2023200,
+                  "runqueue_ns": 7117000,
+                  "timeslices": 64
+                },
+                {
+                  "tid": 453,
+                  "runtime_ns": 59550800,
+                  "runqueue_ns": 150592700,
+                  "timeslices": 4573
+                }
+              ],
+              "runtime_cores": 0.3926112963947631,
+              "runqueue_thread_seconds_per_second": 0.2127861559940393
+            },
+            "destination_0": {
+              "wall_ns": 29004530358,
+              "threads": [
+                {
+                  "tid": 448,
+                  "runtime_ns": 10811853400,
+                  "runqueue_ns": 5984583300,
+                  "timeslices": 41813
+                },
+                {
+                  "tid": 449,
+                  "runtime_ns": 732000,
+                  "runqueue_ns": 2366800,
+                  "timeslices": 32
+                }
+              ],
+              "runtime_cores": 0.37278953551536076,
+              "runqueue_thread_seconds_per_second": 0.20641430928560736
+            }
+          }
+        }
+      ],
+      "cgroup_delta": {
+        "usage_usec": 228410249,
+        "user_usec": 186155693,
+        "system_usec": 42254556,
+        "nr_periods": 0,
+        "nr_throttled": 0,
+        "throttled_usec": 0,
+        "nr_bursts": 0,
+        "burst_usec": 0
+      }
+    }
+  ],
+  "source": "https://docs.kernel.org/scheduler/sched-stats.html",
+  "limitations": [
+    "Runqueue time is per-thread wait to execute, not total blocked/IO time.",
+    "Summed waiting thread-seconds are not CPU utilization.",
+    "Guest counters cannot explain Windows host scheduling or prove a physical-core ceiling.",
+    "Cgroup CPU includes controller and observer; kernel counters may update at schedule boundaries.",
+    "Observer qualification must be assessed independently from the matched cohort."
+  ]
+}

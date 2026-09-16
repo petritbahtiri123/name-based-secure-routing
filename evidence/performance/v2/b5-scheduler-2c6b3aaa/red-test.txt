@@ -1,0 +1,29 @@
+FF
+======================================================================
+FAIL: test_bad_counters_rejected (__main__.TaskStats.test_bad_counters_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\NBSR-build\b5-scheduler-2c6b3aaa\test_sched.py", line 22, in test_bad_counters_rejected
+    with self.assertRaises(ValueError): read_task(p)
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_counters_and_identity (__main__.TaskStats.test_counters_and_identity)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\NBSR-build\b5-scheduler-2c6b3aaa\test_sched.py", line 14, in test_counters_and_identity
+    self.assertEqual(read_task(p),dict(tid=123,start_ticks=99,runtime_ns=1000,runqueue_ns=250,timeslices=8))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {} != {'tid': 123, 'start_ticks': 99, 'runtime_n[41 chars]': 8}
+- {}
++ {'runqueue_ns': 250,
++  'runtime_ns': 1000,
++  'start_ticks': 99,
++  'tid': 123,
++  'timeslices': 8}
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.007s
+
+FAILED (failures=2)

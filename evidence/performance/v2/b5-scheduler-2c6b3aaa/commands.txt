@@ -1,0 +1,5 @@
+Reproduce into a NEW output directory containing run.py and sched_observe.py. Never overwrite sealed raw evidence.
+docker run --name nbsr-b5-scheduler-2c6b3aaa --user 0 --entrypoint python3 --mount type=bind,source=C:/NBSR-build/b5-scheduler-2c6b3aaa,target=/out --mount type=bind,source=C:/NBSR-build/linux-current-f8925b25,target=/build,readonly --mount type=bind,source=C:/NBSR-build/linux-current-edc0f96d,target=/old,readonly nbsr-linux-smoke-3644c324:prepared /out/run.py
+python C:/NBSR-build/b5-scheduler-2c6b3aaa/analyze.py
+python C:/NBSR-build/b5-scheduler-2c6b3aaa/analyze_scheduler.py
+Runtime image sha256:dd08db4a391b16a9d303a251d2693808baf470f2fc4870d8e3c54b7523deed71. Runner records cell argv, pins exact source/build, and starts external observer only for on arms.

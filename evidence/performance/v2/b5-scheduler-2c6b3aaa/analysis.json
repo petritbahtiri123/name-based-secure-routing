@@ -1,0 +1,2330 @@
+{
+  "classification": "DIAGNOSTIC_NOT_ACCEPTED_SOAK",
+  "observer_qualification": "NOT_QUALIFIED",
+  "indexed_files_verified": 270,
+  "cohorts": {
+    "off": {
+      "gbps": {
+        "median": 2.2339259363450013,
+        "cv": 0.0017514933681671975
+      },
+      "window_p99_median_ns": {
+        "median": 1280960,
+        "cv": 0.024169287899069303
+      },
+      "sum_effective_cores": {
+        "median": 0.7640181165078452,
+        "cv": 0.02047836673200732
+      }
+    },
+    "on": {
+      "gbps": {
+        "median": 2.237220646101116,
+        "cv": 0.0008065660068669195
+      },
+      "window_p99_median_ns": {
+        "median": 1272156,
+        "cv": 0.026700583197929017
+      },
+      "sum_effective_cores": {
+        "median": 0.7546649098553834,
+        "cv": 0.002125141867798638
+      }
+    }
+  },
+  "median_delta_percent": {
+    "gbps": 0.1474851830363333,
+    "window_p99_median_ns": -0.6872970272295831,
+    "sum_effective_cores": -1.2242126790413366
+  },
+  "paired_deltas": [
+    {
+      "repeat": 1,
+      "delta_percent": {
+        "gbps": -0.14027037013674137,
+        "window_p99_median_ns": 2.8032100924306746,
+        "sum_effective_cores": 2.3122505940142757
+      }
+    },
+    {
+      "repeat": 2,
+      "delta_percent": {
+        "gbps": 0.3226541868463828,
+        "window_p99_median_ns": -6.192686890370913,
+        "sum_effective_cores": -1.4529581599164176
+      }
+    },
+    {
+      "repeat": 3,
+      "delta_percent": {
+        "gbps": 0.1474851830363333,
+        "window_p99_median_ns": -0.2592001956937984,
+        "sum_effective_cores": -1.6608980311284216
+      }
+    }
+  ],
+  "rows": [
+    {
+      "repeat": 1,
+      "observer": "off",
+      "exit_code": 0,
+      "classification": "DIAGNOSTIC",
+      "complete_final": true,
+      "gbps": 2.2402476120199997,
+      "continuous_ownership": {
+        "classification": "SAMPLED_NO_SUSTAINED_GROWTH",
+        "max_snapshot_gap_ns": {
+          "destination_0": 1004579536,
+          "source": 1001485207
+        },
+        "retained_capacity_scope": "Optional fields observed when emitted; not allocator or leak attribution.",
+        "retained_window_per_role": 60,
+        "sample_counts": {
+          "destination_0": 305,
+          "source": 300
+        },
+        "scope": "Process-local sample intervals; cross-process clock alignment and final zero cleanup are separate."
+      },
+      "gate_failure_count": 0,
+      "window_p99_median_ns": 1280960,
+      "failures": [],
+      "final": {
+        "schema": "nbsr-b5-grouped-final-v1",
+        "groups": 1,
+        "payload_bytes": 16384,
+        "streams_per_group": 8,
+        "outstanding_per_stream": 1,
+        "measurement_duration_ns": 300000000000,
+        "drain_duration_ns": 241992,
+        "offered": 2592063,
+        "reserved": 2563762,
+        "issued": 2563762,
+        "completed": 2563762,
+        "missed": 28301,
+        "unreserved_current": 0,
+        "group_counters": [
+          {
+            "group_id": 0,
+            "offered": 2592063,
+            "reserved": 2563762,
+            "issued": 2563762,
+            "completed": 2563762,
+            "missed": 28301,
+            "unreserved_current": 0
+          }
+        ],
+        "max_outstanding_observed": 8,
+        "errors": 0,
+        "timeouts": 0,
+        "collector_overflow_count": 0,
+        "all_groups_joined": true,
+        "source_cleanup": {
+          "status": "SEPARATE_REPORT_REQUIRED"
+        },
+        "evidence_valid": true
+      },
+      "final_all_11_zero": true,
+      "resources": {
+        "source": {
+          "samples": 596,
+          "private_first": 6074368,
+          "private_last": 6107136,
+          "private_delta": 32768,
+          "effective_cores": 0.3799644859997289,
+          "fd_range": [
+            10,
+            10
+          ],
+          "thread_range": [
+            3,
+            3
+          ]
+        },
+        "destination_0": {
+          "samples": 596,
+          "private_first": 4997120,
+          "private_last": 5206016,
+          "private_delta": 208896,
+          "effective_cores": 0.35906717479777045,
+          "fd_range": [
+            8,
+            8
+          ],
+          "thread_range": [
+            2,
+            2
+          ]
+        }
+      },
+      "ownership": {
+        "source": {
+          "samples": 299,
+          "ranges": {
+            "transport_sessions_current_live": [
+              1,
+              1
+            ],
+            "service_channels_current_live": [
+              1,
+              1
+            ],
+            "application_streams_current_live": [
+              8,
+              8
+            ],
+            "nbsr_tasks_current_live": [
+              0,
+              0
+            ],
+            "quic_connections_current_live": [
+              1,
+              1
+            ],
+            "quic_streams_current_live": [
+              8,
+              8
+            ],
+            "pending_routes_current_entries": [
+              0,
+              0
+            ],
+            "channel_registry_current_entries": [
+              1,
+              1
+            ],
+            "stream_registry_current_entries": [
+              8,
+              8
+            ],
+            "replay_state_current_entries": [
+              8,
+              8
+            ],
+            "audit_queue_current_entries": [
+              19,
+              19
+            ],
+            "pending_routes_retained_capacity": [
+              3,
+              3
+            ],
+            "channel_registry_retained_capacity": [
+              6,
+              6
+            ],
+            "stream_registry_retained_capacity": [
+              17,
+              17
+            ],
+            "replay_state_retained_capacity": [
+              14,
+              14
+            ],
+            "audit_queue_retained_capacity": [
+              1024,
+              1024
+            ]
+          },
+          "active_samples": 299,
+          "active_ranges": {
+            "transport_sessions_current_live": [
+              1,
+              1
+            ],
+            "service_channels_current_live": [
+              1,
+              1
+            ],
+            "application_streams_current_live": [
+              8,
+              8
+            ],
+            "nbsr_tasks_current_live": [
+              0,
+              0
+            ],
+            "quic_connections_current_live": [
+              1,
+              1
+            ],
+            "quic_streams_current_live": [
+              8,
+              8
+            ],
+            "pending_routes_current_entries": [
+              0,
+              0
+            ],
+            "channel_registry_current_entries": [
+              1,
+              1
+            ],
+            "stream_registry_current_entries": [
+              8,
+              8
+            ],
+            "replay_state_current_entries": [
+              8,
+              8
+            ],
+            "audit_queue_current_entries": [
+              19,
+              19
+            ],
+            "pending_routes_retained_capacity": [
+              3,
+              3
+            ],
+            "channel_registry_retained_capacity": [
+              6,
+              6
+            ],
+            "stream_registry_retained_capacity": [
+              17,
+              17
+            ],
+            "replay_state_retained_capacity": [
+              14,
+              14
+            ],
+            "audit_queue_retained_capacity": [
+              1024,
+              1024
+            ]
+          }
+        },
+        "destination_0": {
+          "samples": 304,
+          "ranges": {
+            "transport_sessions_current_live": [
+              0,
+              1
+            ],
+            "service_channels_current_live": [
+              0,
+              1
+            ],
+            "application_streams_current_live": [
+              0,
+              8
+            ],
+            "nbsr_tasks_current_live": [
+              0,
+              0
+            ],
+            "quic_connections_current_live": [
+              0,
+              1
+            ],
+            "quic_streams_current_live": [
+              0,
+              8
+            ],
+            "pending_routes_current_entries": [
+              0,
+              0
+            ],
+            "channel_registry_current_entries": [
+              0,
+              1
+            ],
+            "stream_registry_current_entries": [
+              0,
+              8
+            ],
+            "replay_state_current_entries": [
+              0,
+              8
+            ],
+            "audit_queue_current_entries": [
+              0,
+              27
+            ],
+            "pending_routes_retained_capacity": [
+              0,
+              3
+            ],
+            "channel_registry_retained_capacity": [
+              0,
+              6
+            ],
+            "stream_registry_retained_capacity": [
+              0,
+              17
+            ],
+            "replay_state_retained_capacity": [
+              0,
+              14
+            ],
+            "audit_queue_retained_capacity": [
+              0,
+              1024
+            ]
+          },
+          "active_samples": 303,
+          "active_ranges": {
+            "transport_sessions_current_live": [
+              1,
+              1
+            ],
+            "service_channels_current_live": [
+              1,
+              1
+            ],
+            "application_streams_current_live": [
+              8,
+              8
+            ],
+            "nbsr_tasks_current_live": [
+              0,
+              0
+            ],
+            "quic_connections_current_live": [
+              1,
+              1
+            ],
+            "quic_streams_current_live": [
+              8,
+              8
+            ],
+            "pending_routes_current_entries": [
+              0,
+              0
+            ],
+            "channel_registry_current_entries": [
+              1,
+              1
+            ],
+            "stream_registry_current_entries": [
+              8,
+              8
+            ],
+            "replay_state_current_entries": [
+              8,
+              8
+            ],
+            "audit_queue_current_entries": [
+              27,
+              27
+            ],
+            "pending_routes_retained_capacity": [
+              3,
+              3
+            ],
+            "channel_registry_retained_capacity": [
+              6,
+              6
+            ],
+            "stream_registry_retained_capacity": [
+              17,
+              17
+            ],
+            "replay_state_retained_capacity": [
+              14,
+              14
+            ],
+            "audit_queue_retained_capacity": [
+              1024,
+              1024
+            ]
+          }
+        }
+      },
+      "sum_effective_cores": 0.7390316607974994
+    },
+    {
+      "repeat": 1,
+      "observer": "on",
+      "exit_code": 0,
+      "classification": "DIAGNOSTIC",
+      "complete_final": true,
+      "gbps": 2.2371052084026397,
+      "continuous_ownership": {
+        "classification": "SAMPLED_NO_SUSTAINED_GROWTH",
+        "max_snapshot_gap_ns": {
+          "destination_0": 1006725084,
+          "source": 1001105213
+        },
+        "retained_capacity_scope": "Optional fields observed when emitted; not allocator or leak attribution.",
+        "retained_window_per_role": 60,
+        "sample_counts": {
+          "destination_0": 305,
+          "source": 300
+        },
+        "scope": "Process-local sample intervals; cross-process clock alignment and final zero cleanup are separate."
+      },
+      "gate_failure_count": 0,
+      "window_p99_median_ns": 1316868,
+      "failures": [],
+      "final": {
+        "schema": "nbsr-b5-grouped-final-v1",
+        "groups": 1,
+        "payload_bytes": 16384,
+        "streams_per_group": 8,
+        "outstanding_per_stream": 1,
+        "measurement_duration_ns": 300000000000,
+        "drain_duration_ns": 265246,
+        "offered": 2592063,
+        "reserved": 2560166,
+        "issued": 2560166,
+        "completed": 2560166,
+        "missed": 31897,
+        "unreserved_current": 0,
+        "group_counters": [
+          {
+            "group_id": 0,
+            "offered": 2592063,
+            "reserved": 2560166,
+            "issued": 2560166,
+            "completed": 2560166,
+            "missed": 31897,
+            "unreserved_current": 0
+          }
+        ],
+        "max_outstanding_observed": 8,
+        "errors": 0,
+        "timeouts": 0,
+        "collector_overflow_count": 0,
+        "all_groups_joined": true,
+        "source_cleanup": {
+          "status": "SEPARATE_REPORT_REQUIRED"
+        },
+        "evidence_valid": true
+      },
+      "final_all_11_zero": true,
+      "resources": {
+        "source": {
+          "samples": 596,
+          "private_first": 5947392,
+          "private_last": 6094848,
+          "private_delta": 147456,
+          "effective_cores": 0.39069581661873604,
+          "fd_range": [
+            10,
+            10
+          ],
+          "thread_range": [
+            3,
+            3
+          ]
+        },
+        "destination_0": {
+          "samples": 596,
+          "private_first": 5033984,
+          "private_last": 5206016,
+          "private_delta": 172032,
+          "effective_cores": 0.36542410814550713,
+          "fd_range": [
+            8,
+            8
+          ],
+          "thread_range": [
+            2,
+            2
+          ]
+        }
+      },
+      "ownership": {
+        "source": {
+          "samples": 299,
+          "ranges": {
+            "transport_sessions_current_live": [
+              1,
+              1
+            ],
+            "service_channels_current_live": [
+              1,
+              1
+            ],
+            "application_streams_current_live": [
+              8,
+              8
+            ],
+            "nbsr_tasks_current_live": [
+              0,
+              0
+            ],
+            "quic_connections_current_live": [
+              1,
+              1
+            ],
+            "quic_streams_current_live": [
+              8,
+              8
+            ],
+            "pending_routes_current_entries": [
+              0,
+              0
+            ],
+            "channel_registry_current_entries": [
+              1,
+              1
+            ],
+            "stream_registry_current_entries": [
+              8,
+              8
+            ],
+            "replay_state_current_entries": [
+              8,
+              8
+            ],
+            "audit_queue_current_entries": [
+              19,
+              19
+            ],
+            "pending_routes_retained_capacity": [
+              3,
+              3
+            ],
+            "channel_registry_retained_capacity": [
+              6,
+              6
+            ],
+            "stream_registry_retained_capacity": [
+              17,
+              17
+            ],
+            "replay_state_retained_capacity": [
+              14,
+              14
+            ],
+            "audit_queue_retained_capacity": [
+              1024,
+              1024
+            ]
+          },
+          "active_samples": 299,
+          "active_ranges": {
+            "transport_sessions_current_live": [
+              1,
+              1
+            ],
+            "service_channels_current_live": [
+              1,
+              1
+            ],
+            "application_streams_current_live": [
+              8,
+              8
+            ],
+            "nbsr_tasks_current_live": [
+              0,
+              0
+            ],
+            "quic_connections_current_live": [
+              1,
+              1
+            ],
+            "quic_streams_current_live": [
+              8,
+              8
+            ],
+            "pending_routes_current_entries": [
+              0,
+              0
+            ],
+            "channel_registry_current_entries": [
+              1,
+              1
+            ],
+            "stream_registry_current_entries": [
+              8,
+              8
+            ],
+            "replay_state_current_entries": [
+              8,
+              8
+            ],
+            "audit_queue_current_entries": [
+              19,
+              19
+            ],
+            "pending_routes_retained_capacity": [
+              3,
+              3
+            ],
+            "channel_registry_retained_capacity": [
+              6,
+              6
+            ],
+            "stream_registry_retained_capacity": [
+              17,
+              17
+            ],
+            "replay_state_retained_capacity": [
+              14,
+              14
+            ],
+            "audit_queue_retained_capacity": [
+              1024,
+              1024
+            ]
+          }
+        },
+        "destination_0": {
+          "samples": 304,
+          "ranges": {
+            "transport_sessions_current_live": [
+              0,
+              1
+            ],
+            "service_channels_current_live": [
+              0,
+              1
+            ],
+            "application_streams_current_live": [
+              0,
+              8
+            ],
+            "nbsr_tasks_current_live": [
+              0,
+              0
+            ],
+            "quic_connections_current_live": [
+              0,
+              1
+            ],
+            "quic_streams_current_live": [
+              0,
+              8
+            ],
+            "pending_routes_current_entries": [
+              0,
+              0
+            ],
+            "channel_registry_current_entries": [
+              0,
+              1
+            ],
+            "stream_registry_current_entries": [
+              0,
+              8
+            ],
+            "replay_state_current_entries": [
+              0,
+              8
+            ],
+            "audit_queue_current_entries": [
+              0,
+              27
+            ],
+            "pending_routes_retained_capacity": [
+              0,
+              3
+            ],
+            "channel_registry_retained_capacity": [
+              0,
+              6
+            ],
+            "stream_registry_retained_capacity": [
+              0,
+              17
+            ],
+            "replay_state_retained_capacity": [
+              0,
+              14
+            ],
+            "audit_queue_retained_capacity": [
+              0,
+              1024
+            ]
+          },
+          "active_samples": 303,
+          "active_ranges": {
+            "transport_sessions_current_live": [
+              1,
+              1
+            ],
+            "service_channels_current_live": [
+              1,
+              1
+            ],
+            "application_streams_current_live": [
+              8,
+              8
+            ],
+            "nbsr_tasks_current_live": [
+              0,
+              0
+            ],
+            "quic_connections_current_live": [
+              1,
+              1
+            ],
+            "quic_streams_current_live": [
+              8,
+              8
+            ],
+            "pending_routes_current_entries": [
+              0,
+              0
+            ],
+            "channel_registry_current_entries": [
+              1,
+              1
+            ],
+            "stream_registry_current_entries": [
+              8,
+              8
+            ],
+            "replay_state_current_entries": [
+              8,
+              8
+            ],
+            "audit_queue_current_entries": [
+              27,
+              27
+            ],
+            "pending_routes_retained_capacity": [
+              3,
+              3
+            ],
+            "channel_registry_retained_capacity": [
+              6,
+              6
+            ],
+            "stream_registry_retained_capacity": [
+              17,
+              17
+            ],
+            "replay_state_retained_capacity": [
+              14,
+              14
+            ],
+            "audit_queue_retained_capacity": [
+              1024,
+              1024
+            ]
+          }
+        }
+      },
+      "sum_effective_cores": 0.7561199247642432
+    },
+    {
+      "repeat": 2,
+      "observer": "on",
+      "exit_code": 1,
+      "classification": "FAIL_DIAGNOSTIC_RETAINED",
+      "complete_final": true,
+      "gbps": 2.2402881303495343,
+      "continuous_ownership": {
+        "classification": "SAMPLED_NO_SUSTAINED_GROWTH",
+        "max_snapshot_gap_ns": {
+          "destination_0": 1001023241,
+          "source": 1001122815
+        },
+        "retained_capacity_scope": "Optional fields observed when emitted; not allocator or leak attribution.",
+        "retained_window_per_role": 60,
+        "sample_counts": {
+          "destination_0": 305,
+          "source": 300
+        },
+        "scope": "Process-local sample intervals; cross-process clock alignment and final zero cleanup are separate."
+      },
+      "gate_failure_count": 5,
+      "window_p99_median_ns": 1249762,
+      "failures": [
+        {
+          "elapsed_ns": 150001398173,
+          "reason": "live private growth: source (receive-clock diagnostic)"
+        },
+        {
+          "elapsed_ns": 180001889796,
+          "reason": "live private growth: source (receive-clock diagnostic)"
+        },
+        {
+          "elapsed_ns": 210001538687,
+          "reason": "live private growth: source (receive-clock diagnostic)"
+        },
+        {
+          "elapsed_ns": 240001832367,
+          "reason": "live private growth: source (receive-clock diagnostic)"
+        },
+        {
+          "elapsed_ns": 270001572520,
+          "reason": "live private growth: source (receive-clock diagnostic)"
+        }
+      ],
+      "final": {
+        "schema": "nbsr-b5-grouped-final-v1",
+        "groups": 1,
+        "payload_bytes": 16384,
+        "streams_per_group": 8,
+        "outstanding_per_stream": 1,
+        "measurement_duration_ns": 300000000000,
+        "drain_duration_ns": 315759,
+        "offered": 2592063,
+        "reserved": 2563809,
+        "issued": 2563809,
+        "completed": 2563809,
+        "missed": 28254,
+        "unreserved_current": 0,
+        "group_counters": [
+          {
+            "group_id": 0,
+            "offered": 2592063,
+            "reserved": 2563809,
+            "issued": 2563809,
+            "completed": 2563809,
+            "missed": 28254,
+            "unreserved_current": 0
+          }
+        ],
+        "max_outstanding_observed": 8,
+        "errors": 0,
+        "timeouts": 0,
+        "collector_overflow_count": 0,
+        "all_groups_joined": true,
+        "source_cleanup": {
+          "status": "SEPARATE_REPORT_REQUIRED"
+        },
+        "evidence_valid": true
+      },
+      "final_all_11_zero": true,
+      "resources": {
+        "source": {
+          "samples": 596,
+          "private_first": 6090752,
+          "private_last": 6258688,
+          "private_delta": 167936,
+          "effective_cores": 0.38592384777294203,
+          "fd_range": [
+            10,
+            10
+          ],
+          "thread_range": [
+            3,
+            3
+          ]
+        },
+        "destination_0": {
+          "samples": 596,
+          "private_first": 5246976,
+          "private_last": 5308416,
+          "private_delta": 61440,
+          "effective_cores": 0.3669934051678628,
+          "fd_range": [
+            8,
+            8
+          ],
+          "thread_range": [
+            2,
+            2
+          ]
+        }
+      },
+      "ownership": {
+        "source": {
+          "samples": 299,
+          "ranges": {
+            "transport_sessions_current_live": [
+              1,
+              1
+            ],
+            "service_channels_current_live": [
+              1,
+              1
+            ],
+            "application_streams_current_live": [
+              8,
+              8
+            ],
+            "nbsr_tasks_current_live": [
+              0,
+              0
+            ],
+            "quic_connections_current_live": [
+              1,
+              1
+            ],
+            "quic_streams_current_live": [
+              8,
+              8
+            ],
+            "pending_routes_current_entries": [
+              0,
+              0
+            ],
+            "channel_registry_current_entries": [
+              1,
+              1
+            ],
+            "stream_registry_current_entries": [
+              8,
+              8
+            ],
+            "replay_state_current_entries": [
+              8,
+              8
+            ],
+            "audit_queue_current_entries": [
+              19,
+              19
+            ],
+            "pending_routes_retained_capacity": [
+              3,
+              3
+            ],
+            "channel_registry_retained_capacity": [
+              6,
+              6
+            ],
+            "stream_registry_retained_capacity": [
+              17,
+              17
+            ],
+            "replay_state_retained_capacity": [
+              14,
+              14
+            ],
+            "audit_queue_retained_capacity": [
+              1024,
+              1024
+            ]
+          },
+          "active_samples": 299,
+          "active_ranges": {
+            "transport_sessions_current_live": [
+              1,
+              1
+            ],
+            "service_channels_current_live": [
+              1,
+              1
+            ],
+            "application_streams_current_live": [
+              8,
+              8
+            ],
+            "nbsr_tasks_current_live": [
+              0,
+              0
+            ],
+            "quic_connections_current_live": [
+              1,
+              1
+            ],
+            "quic_streams_current_live": [
+              8,
+              8
+            ],
+            "pending_routes_current_entries": [
+              0,
+              0
+            ],
+            "channel_registry_current_entries": [
+              1,
+              1
+            ],
+            "stream_registry_current_entries": [
+              8,
+              8
+            ],
+            "replay_state_current_entries": [
+              8,
+              8
+            ],
+            "audit_queue_current_entries": [
+              19,
+              19
+            ],
+            "pending_routes_retained_capacity": [
+              3,
+              3
+            ],
+            "channel_registry_retained_capacity": [
+              6,
+              6
+            ],
+            "stream_registry_retained_capacity": [
+              17,
+              17
+            ],
+            "replay_state_retained_capacity": [
+              14,
+              14
+            ],
+            "audit_queue_retained_capacity": [
+              1024,
+              1024
+            ]
+          }
+        },
+        "destination_0": {
+          "samples": 304,
+          "ranges": {
+            "transport_sessions_current_live": [
+              0,
+              1
+            ],
+            "service_channels_current_live": [
+              0,
+              1
+            ],
+            "application_streams_current_live": [
+              0,
+              8
+            ],
+            "nbsr_tasks_current_live": [
+              0,
+              0
+            ],
+            "quic_connections_current_live": [
+              0,
+              1
+            ],
+            "quic_streams_current_live": [
+              0,
+              8
+            ],
+            "pending_routes_current_entries": [
+              0,
+              0
+            ],
+            "channel_registry_current_entries": [
+              0,
+              1
+            ],
+            "stream_registry_current_entries": [
+              0,
+              8
+            ],
+            "replay_state_current_entries": [
+              0,
+              8
+            ],
+            "audit_queue_current_entries": [
+              0,
+              27
+            ],
+            "pending_routes_retained_capacity": [
+              0,
+              3
+            ],
+            "channel_registry_retained_capacity": [
+              0,
+              6
+            ],
+            "stream_registry_retained_capacity": [
+              0,
+              17
+            ],
+            "replay_state_retained_capacity": [
+              0,
+              14
+            ],
+            "audit_queue_retained_capacity": [
+              0,
+              1024
+            ]
+          },
+          "active_samples": 303,
+          "active_ranges": {
+            "transport_sessions_current_live": [
+              1,
+              1
+            ],
+            "service_channels_current_live": [
+              1,
+              1
+            ],
+            "application_streams_current_live": [
+              8,
+              8
+            ],
+            "nbsr_tasks_current_live": [
+              0,
+              0
+            ],
+            "quic_connections_current_live": [
+              1,
+              1
+            ],
+            "quic_streams_current_live": [
+              8,
+              8
+            ],
+            "pending_routes_current_entries": [
+              0,
+              0
+            ],
+            "channel_registry_current_entries": [
+              1,
+              1
+            ],
+            "stream_registry_current_entries": [
+              8,
+              8
+            ],
+            "replay_state_current_entries": [
+              8,
+              8
+            ],
+            "audit_queue_current_entries": [
+              27,
+              27
+            ],
+            "pending_routes_retained_capacity": [
+              3,
+              3
+            ],
+            "channel_registry_retained_capacity": [
+              6,
+              6
+            ],
+            "stream_registry_retained_capacity": [
+              17,
+              17
+            ],
+            "replay_state_retained_capacity": [
+              14,
+              14
+            ],
+            "audit_queue_retained_capacity": [
+              1024,
+              1024
+            ]
+          }
+        }
+      },
+      "sum_effective_cores": 0.7529172529408048
+    },
+    {
+      "repeat": 2,
+      "observer": "off",
+      "exit_code": 0,
+      "classification": "DIAGNOSTIC",
+      "complete_final": true,
+      "gbps": 2.233082994571794,
+      "continuous_ownership": {
+        "classification": "SAMPLED_NO_SUSTAINED_GROWTH",
+        "max_snapshot_gap_ns": {
+          "destination_0": 1004254152,
+          "source": 1001099661
+        },
+        "retained_capacity_scope": "Optional fields observed when emitted; not allocator or leak attribution.",
+        "retained_window_per_role": 60,
+        "sample_counts": {
+          "destination_0": 305,
+          "source": 300
+        },
+        "scope": "Process-local sample intervals; cross-process clock alignment and final zero cleanup are separate."
+      },
+      "gate_failure_count": 0,
+      "window_p99_median_ns": 1332265,
+      "failures": [],
+      "final": {
+        "schema": "nbsr-b5-grouped-final-v1",
+        "groups": 1,
+        "payload_bytes": 16384,
+        "streams_per_group": 8,
+        "outstanding_per_stream": 1,
+        "measurement_duration_ns": 300000000000,
+        "drain_duration_ns": 272583,
+        "offered": 2592063,
+        "reserved": 2555563,
+        "issued": 2555563,
+        "completed": 2555563,
+        "missed": 36500,
+        "unreserved_current": 0,
+        "group_counters": [
+          {
+            "group_id": 0,
+            "offered": 2592063,
+            "reserved": 2555563,
+            "issued": 2555563,
+            "completed": 2555563,
+            "missed": 36500,
+            "unreserved_current": 0
+          }
+        ],
+        "max_outstanding_observed": 8,
+        "errors": 0,
+        "timeouts": 0,
+        "collector_overflow_count": 0,
+        "all_groups_joined": true,
+        "source_cleanup": {
+          "status": "SEPARATE_REPORT_REQUIRED"
+        },
+        "evidence_valid": true
+      },
+      "final_all_11_zero": true,
+      "resources": {
+        "source": {
+          "samples": 596,
+          "private_first": 5914624,
+          "private_last": 6144000,
+          "private_delta": 229376,
+          "effective_cores": 0.39357502082152346,
+          "fd_range": [
+            10,
+            10
+          ],
+          "thread_range": [
+            3,
+            3
+          ]
+        },
+        "destination_0": {
+          "samples": 596,
+          "private_first": 5115904,
+          "private_last": 5312512,
+          "private_delta": 196608,
+          "effective_cores": 0.3704430956863218,
+          "fd_range": [
+            8,
+            8
+          ],
+          "thread_range": [
+            2,
+            2
+          ]
+        }
+      },
+      "ownership": {
+        "source": {
+          "samples": 299,
+          "ranges": {
+            "transport_sessions_current_live": [
+              1,
+              1
+            ],
+            "service_channels_current_live": [
+              1,
+              1
+            ],
+            "application_streams_current_live": [
+              8,
+              8
+            ],
+            "nbsr_tasks_current_live": [
+              0,
+              0
+            ],
+            "quic_connections_current_live": [
+              1,
+              1
+            ],
+            "quic_streams_current_live": [
+              8,
+              8
+            ],
+            "pending_routes_current_entries": [
+              0,
+              0
+            ],
+            "channel_registry_current_entries": [
+              1,
+              1
+            ],
+            "stream_registry_current_entries": [
+              8,
+              8
+            ],
+            "replay_state_current_entries": [
+              8,
+              8
+            ],
+            "audit_queue_current_entries": [
+              19,
+              19
+            ],
+            "pending_routes_retained_capacity": [
+              3,
+              3
+            ],
+            "channel_registry_retained_capacity": [
+              6,
+              6
+            ],
+            "stream_registry_retained_capacity": [
+              17,
+              17
+            ],
+            "replay_state_retained_capacity": [
+              14,
+              14
+            ],
+            "audit_queue_retained_capacity": [
+              1024,
+              1024
+            ]
+          },
+          "active_samples": 299,
+          "active_ranges": {
+            "transport_sessions_current_live": [
+              1,
+              1
+            ],
+            "service_channels_current_live": [
+              1,
+              1
+            ],
+            "application_streams_current_live": [
+              8,
+              8
+            ],
+            "nbsr_tasks_current_live": [
+              0,
+              0
+            ],
+            "quic_connections_current_live": [
+              1,
+              1
+            ],
+            "quic_streams_current_live": [
+              8,
+              8
+            ],
+            "pending_routes_current_entries": [
+              0,
+              0
+            ],
+            "channel_registry_current_entries": [
+              1,
+              1
+            ],
+            "stream_registry_current_entries": [
+              8,
+              8
+            ],
+            "replay_state_current_entries": [
+              8,
+              8
+            ],
+            "audit_queue_current_entries": [
+              19,
+              19
+            ],
+            "pending_routes_retained_capacity": [
+              3,
+              3
+            ],
+            "channel_registry_retained_capacity": [
+              6,
+              6
+            ],
+            "stream_registry_retained_capacity": [
+              17,
+              17
+            ],
+            "replay_state_retained_capacity": [
+              14,
+              14
+            ],
+            "audit_queue_retained_capacity": [
+              1024,
+              1024
+            ]
+          }
+        },
+        "destination_0": {
+          "samples": 304,
+          "ranges": {
+            "transport_sessions_current_live": [
+              0,
+              1
+            ],
+            "service_channels_current_live": [
+              0,
+              1
+            ],
+            "application_streams_current_live": [
+              0,
+              8
+            ],
+            "nbsr_tasks_current_live": [
+              0,
+              0
+            ],
+            "quic_connections_current_live": [
+              0,
+              1
+            ],
+            "quic_streams_current_live": [
+              0,
+              8
+            ],
+            "pending_routes_current_entries": [
+              0,
+              0
+            ],
+            "channel_registry_current_entries": [
+              0,
+              1
+            ],
+            "stream_registry_current_entries": [
+              0,
+              8
+            ],
+            "replay_state_current_entries": [
+              0,
+              8
+            ],
+            "audit_queue_current_entries": [
+              0,
+              27
+            ],
+            "pending_routes_retained_capacity": [
+              0,
+              3
+            ],
+            "channel_registry_retained_capacity": [
+              0,
+              6
+            ],
+            "stream_registry_retained_capacity": [
+              0,
+              17
+            ],
+            "replay_state_retained_capacity": [
+              0,
+              14
+            ],
+            "audit_queue_retained_capacity": [
+              0,
+              1024
+            ]
+          },
+          "active_samples": 303,
+          "active_ranges": {
+            "transport_sessions_current_live": [
+              1,
+              1
+            ],
+            "service_channels_current_live": [
+              1,
+              1
+            ],
+            "application_streams_current_live": [
+              8,
+              8
+            ],
+            "nbsr_tasks_current_live": [
+              0,
+              0
+            ],
+            "quic_connections_current_live": [
+              1,
+              1
+            ],
+            "quic_streams_current_live": [
+              8,
+              8
+            ],
+            "pending_routes_current_entries": [
+              0,
+              0
+            ],
+            "channel_registry_current_entries": [
+              1,
+              1
+            ],
+            "stream_registry_current_entries": [
+              8,
+              8
+            ],
+            "replay_state_current_entries": [
+              8,
+              8
+            ],
+            "audit_queue_current_entries": [
+              27,
+              27
+            ],
+            "pending_routes_retained_capacity": [
+              3,
+              3
+            ],
+            "channel_registry_retained_capacity": [
+              6,
+              6
+            ],
+            "stream_registry_retained_capacity": [
+              17,
+              17
+            ],
+            "replay_state_retained_capacity": [
+              14,
+              14
+            ],
+            "audit_queue_retained_capacity": [
+              1024,
+              1024
+            ]
+          }
+        }
+      },
+      "sum_effective_cores": 0.7640181165078452
+    },
+    {
+      "repeat": 3,
+      "observer": "off",
+      "exit_code": 1,
+      "classification": "FAIL_DIAGNOSTIC_RETAINED",
+      "complete_final": true,
+      "gbps": 2.2339259363450013,
+      "continuous_ownership": {
+        "classification": "SAMPLED_NO_SUSTAINED_GROWTH",
+        "max_snapshot_gap_ns": {
+          "destination_0": 1002232949,
+          "source": 1001260614
+        },
+        "retained_capacity_scope": "Optional fields observed when emitted; not allocator or leak attribution.",
+        "retained_window_per_role": 60,
+        "sample_counts": {
+          "destination_0": 305,
+          "source": 300
+        },
+        "scope": "Process-local sample intervals; cross-process clock alignment and final zero cleanup are separate."
+      },
+      "gate_failure_count": 1,
+      "window_p99_median_ns": 1275462,
+      "failures": [
+        {
+          "elapsed_ns": 30001602292,
+          "reason": "live private growth: destination_0 (receive-clock diagnostic)"
+        }
+      ],
+      "final": {
+        "schema": "nbsr-b5-grouped-final-v1",
+        "groups": 1,
+        "payload_bytes": 16384,
+        "streams_per_group": 8,
+        "outstanding_per_stream": 1,
+        "measurement_duration_ns": 300000000000,
+        "drain_duration_ns": 311169,
+        "offered": 2592063,
+        "reserved": 2556528,
+        "issued": 2556528,
+        "completed": 2556528,
+        "missed": 35535,
+        "unreserved_current": 0,
+        "group_counters": [
+          {
+            "group_id": 0,
+            "offered": 2592063,
+            "reserved": 2556528,
+            "issued": 2556528,
+            "completed": 2556528,
+            "missed": 35535,
+            "unreserved_current": 0
+          }
+        ],
+        "max_outstanding_observed": 8,
+        "errors": 0,
+        "timeouts": 0,
+        "collector_overflow_count": 0,
+        "all_groups_joined": true,
+        "source_cleanup": {
+          "status": "SEPARATE_REPORT_REQUIRED"
+        },
+        "evidence_valid": true
+      },
+      "final_all_11_zero": true,
+      "resources": {
+        "source": {
+          "samples": 596,
+          "private_first": 5898240,
+          "private_last": 6160384,
+          "private_delta": 262144,
+          "effective_cores": 0.3971403356325951,
+          "fd_range": [
+            10,
+            10
+          ],
+          "thread_range": [
+            3,
+            3
+          ]
+        },
+        "destination_0": {
+          "samples": 596,
+          "private_first": 5099520,
+          "private_last": 5308416,
+          "private_delta": 208896,
+          "effective_cores": 0.37027048544066044,
+          "fd_range": [
+            8,
+            8
+          ],
+          "thread_range": [
+            2,
+            2
+          ]
+        }
+      },
+      "ownership": {
+        "source": {
+          "samples": 299,
+          "ranges": {
+            "transport_sessions_current_live": [
+              1,
+              1
+            ],
+            "service_channels_current_live": [
+              1,
+              1
+            ],
+            "application_streams_current_live": [
+              8,
+              8
+            ],
+            "nbsr_tasks_current_live": [
+              0,
+              0
+            ],
+            "quic_connections_current_live": [
+              1,
+              1
+            ],
+            "quic_streams_current_live": [
+              8,
+              8
+            ],
+            "pending_routes_current_entries": [
+              0,
+              0
+            ],
+            "channel_registry_current_entries": [
+              1,
+              1
+            ],
+            "stream_registry_current_entries": [
+              8,
+              8
+            ],
+            "replay_state_current_entries": [
+              8,
+              8
+            ],
+            "audit_queue_current_entries": [
+              19,
+              19
+            ],
+            "pending_routes_retained_capacity": [
+              3,
+              3
+            ],
+            "channel_registry_retained_capacity": [
+              6,
+              6
+            ],
+            "stream_registry_retained_capacity": [
+              17,
+              17
+            ],
+            "replay_state_retained_capacity": [
+              14,
+              14
+            ],
+            "audit_queue_retained_capacity": [
+              1024,
+              1024
+            ]
+          },
+          "active_samples": 299,
+          "active_ranges": {
+            "transport_sessions_current_live": [
+              1,
+              1
+            ],
+            "service_channels_current_live": [
+              1,
+              1
+            ],
+            "application_streams_current_live": [
+              8,
+              8
+            ],
+            "nbsr_tasks_current_live": [
+              0,
+              0
+            ],
+            "quic_connections_current_live": [
+              1,
+              1
+            ],
+            "quic_streams_current_live": [
+              8,
+              8
+            ],
+            "pending_routes_current_entries": [
+              0,
+              0
+            ],
+            "channel_registry_current_entries": [
+              1,
+              1
+            ],
+            "stream_registry_current_entries": [
+              8,
+              8
+            ],
+            "replay_state_current_entries": [
+              8,
+              8
+            ],
+            "audit_queue_current_entries": [
+              19,
+              19
+            ],
+            "pending_routes_retained_capacity": [
+              3,
+              3
+            ],
+            "channel_registry_retained_capacity": [
+              6,
+              6
+            ],
+            "stream_registry_retained_capacity": [
+              17,
+              17
+            ],
+            "replay_state_retained_capacity": [
+              14,
+              14
+            ],
+            "audit_queue_retained_capacity": [
+              1024,
+              1024
+            ]
+          }
+        },
+        "destination_0": {
+          "samples": 304,
+          "ranges": {
+            "transport_sessions_current_live": [
+              0,
+              1
+            ],
+            "service_channels_current_live": [
+              0,
+              1
+            ],
+            "application_streams_current_live": [
+              0,
+              8
+            ],
+            "nbsr_tasks_current_live": [
+              0,
+              0
+            ],
+            "quic_connections_current_live": [
+              0,
+              1
+            ],
+            "quic_streams_current_live": [
+              0,
+              8
+            ],
+            "pending_routes_current_entries": [
+              0,
+              0
+            ],
+            "channel_registry_current_entries": [
+              0,
+              1
+            ],
+            "stream_registry_current_entries": [
+              0,
+              8
+            ],
+            "replay_state_current_entries": [
+              0,
+              8
+            ],
+            "audit_queue_current_entries": [
+              0,
+              27
+            ],
+            "pending_routes_retained_capacity": [
+              0,
+              3
+            ],
+            "channel_registry_retained_capacity": [
+              0,
+              6
+            ],
+            "stream_registry_retained_capacity": [
+              0,
+              17
+            ],
+            "replay_state_retained_capacity": [
+              0,
+              14
+            ],
+            "audit_queue_retained_capacity": [
+              0,
+              1024
+            ]
+          },
+          "active_samples": 303,
+          "active_ranges": {
+            "transport_sessions_current_live": [
+              1,
+              1
+            ],
+            "service_channels_current_live": [
+              1,
+              1
+            ],
+            "application_streams_current_live": [
+              8,
+              8
+            ],
+            "nbsr_tasks_current_live": [
+              0,
+              0
+            ],
+            "quic_connections_current_live": [
+              1,
+              1
+            ],
+            "quic_streams_current_live": [
+              8,
+              8
+            ],
+            "pending_routes_current_entries": [
+              0,
+              0
+            ],
+            "channel_registry_current_entries": [
+              1,
+              1
+            ],
+            "stream_registry_current_entries": [
+              8,
+              8
+            ],
+            "replay_state_current_entries": [
+              8,
+              8
+            ],
+            "audit_queue_current_entries": [
+              27,
+              27
+            ],
+            "pending_routes_retained_capacity": [
+              3,
+              3
+            ],
+            "channel_registry_retained_capacity": [
+              6,
+              6
+            ],
+            "stream_registry_retained_capacity": [
+              17,
+              17
+            ],
+            "replay_state_retained_capacity": [
+              14,
+              14
+            ],
+            "audit_queue_retained_capacity": [
+              1024,
+              1024
+            ]
+          }
+        }
+      },
+      "sum_effective_cores": 0.7674108210732555
+    },
+    {
+      "repeat": 3,
+      "observer": "on",
+      "exit_code": 1,
+      "classification": "FAIL_DIAGNOSTIC_RETAINED",
+      "complete_final": true,
+      "gbps": 2.237220646101116,
+      "continuous_ownership": {
+        "classification": "SAMPLED_NO_SUSTAINED_GROWTH",
+        "max_snapshot_gap_ns": {
+          "destination_0": 1001081766,
+          "source": 1001099002
+        },
+        "retained_capacity_scope": "Optional fields observed when emitted; not allocator or leak attribution.",
+        "retained_window_per_role": 60,
+        "sample_counts": {
+          "destination_0": 305,
+          "source": 300
+        },
+        "scope": "Process-local sample intervals; cross-process clock alignment and final zero cleanup are separate."
+      },
+      "gate_failure_count": 5,
+      "window_p99_median_ns": 1272156,
+      "failures": [
+        {
+          "elapsed_ns": 150000927615,
+          "reason": "live private growth: source (receive-clock diagnostic)"
+        },
+        {
+          "elapsed_ns": 180001192197,
+          "reason": "live private growth: source (receive-clock diagnostic)"
+        },
+        {
+          "elapsed_ns": 210000942899,
+          "reason": "live private growth: destination_0 (receive-clock diagnostic)"
+        },
+        {
+          "elapsed_ns": 240000738644,
+          "reason": "live private growth: destination_0 (receive-clock diagnostic)"
+        },
+        {
+          "elapsed_ns": 270001116925,
+          "reason": "live private growth: destination_0 (receive-clock diagnostic)"
+        }
+      ],
+      "final": {
+        "schema": "nbsr-b5-grouped-final-v1",
+        "groups": 1,
+        "payload_bytes": 16384,
+        "streams_per_group": 8,
+        "outstanding_per_stream": 1,
+        "measurement_duration_ns": 300000000000,
+        "drain_duration_ns": 252582,
+        "offered": 2592063,
+        "reserved": 2560298,
+        "issued": 2560298,
+        "completed": 2560298,
+        "missed": 31765,
+        "unreserved_current": 0,
+        "group_counters": [
+          {
+            "group_id": 0,
+            "offered": 2592063,
+            "reserved": 2560298,
+            "issued": 2560298,
+            "completed": 2560298,
+            "missed": 31765,
+            "unreserved_current": 0
+          }
+        ],
+        "max_outstanding_observed": 8,
+        "errors": 0,
+        "timeouts": 0,
+        "collector_overflow_count": 0,
+        "all_groups_joined": true,
+        "source_cleanup": {
+          "status": "SEPARATE_REPORT_REQUIRED"
+        },
+        "evidence_valid": true
+      },
+      "final_all_11_zero": true,
+      "resources": {
+        "source": {
+          "samples": 596,
+          "private_first": 5976064,
+          "private_last": 6139904,
+          "private_delta": 163840,
+          "effective_cores": 0.3868792670236225,
+          "fd_range": [
+            10,
+            10
+          ],
+          "thread_range": [
+            3,
+            3
+          ]
+        },
+        "destination_0": {
+          "samples": 596,
+          "private_first": 5103616,
+          "private_last": 5230592,
+          "private_delta": 126976,
+          "effective_cores": 0.36778564283176085,
+          "fd_range": [
+            8,
+            8
+          ],
+          "thread_range": [
+            2,
+            2
+          ]
+        }
+      },
+      "ownership": {
+        "source": {
+          "samples": 299,
+          "ranges": {
+            "transport_sessions_current_live": [
+              1,
+              1
+            ],
+            "service_channels_current_live": [
+              1,
+              1
+            ],
+            "application_streams_current_live": [
+              8,
+              8
+            ],
+            "nbsr_tasks_current_live": [
+              0,
+              0
+            ],
+            "quic_connections_current_live": [
+              1,
+              1
+            ],
+            "quic_streams_current_live": [
+              8,
+              8
+            ],
+            "pending_routes_current_entries": [
+              0,
+              0
+            ],
+            "channel_registry_current_entries": [
+              1,
+              1
+            ],
+            "stream_registry_current_entries": [
+              8,
+              8
+            ],
+            "replay_state_current_entries": [
+              8,
+              8
+            ],
+            "audit_queue_current_entries": [
+              19,
+              19
+            ],
+            "pending_routes_retained_capacity": [
+              3,
+              3
+            ],
+            "channel_registry_retained_capacity": [
+              6,
+              6
+            ],
+            "stream_registry_retained_capacity": [
+              17,
+              17
+            ],
+            "replay_state_retained_capacity": [
+              14,
+              14
+            ],
+            "audit_queue_retained_capacity": [
+              1024,
+              1024
+            ]
+          },
+          "active_samples": 299,
+          "active_ranges": {
+            "transport_sessions_current_live": [
+              1,
+              1
+            ],
+            "service_channels_current_live": [
+              1,
+              1
+            ],
+            "application_streams_current_live": [
+              8,
+              8
+            ],
+            "nbsr_tasks_current_live": [
+              0,
+              0
+            ],
+            "quic_connections_current_live": [
+              1,
+              1
+            ],
+            "quic_streams_current_live": [
+              8,
+              8
+            ],
+            "pending_routes_current_entries": [
+              0,
+              0
+            ],
+            "channel_registry_current_entries": [
+              1,
+              1
+            ],
+            "stream_registry_current_entries": [
+              8,
+              8
+            ],
+            "replay_state_current_entries": [
+              8,
+              8
+            ],
+            "audit_queue_current_entries": [
+              19,
+              19
+            ],
+            "pending_routes_retained_capacity": [
+              3,
+              3
+            ],
+            "channel_registry_retained_capacity": [
+              6,
+              6
+            ],
+            "stream_registry_retained_capacity": [
+              17,
+              17
+            ],
+            "replay_state_retained_capacity": [
+              14,
+              14
+            ],
+            "audit_queue_retained_capacity": [
+              1024,
+              1024
+            ]
+          }
+        },
+        "destination_0": {
+          "samples": 304,
+          "ranges": {
+            "transport_sessions_current_live": [
+              0,
+              1
+            ],
+            "service_channels_current_live": [
+              0,
+              1
+            ],
+            "application_streams_current_live": [
+              0,
+              8
+            ],
+            "nbsr_tasks_current_live": [
+              0,
+              0
+            ],
+            "quic_connections_current_live": [
+              0,
+              1
+            ],
+            "quic_streams_current_live": [
+              0,
+              8
+            ],
+            "pending_routes_current_entries": [
+              0,
+              0
+            ],
+            "channel_registry_current_entries": [
+              0,
+              1
+            ],
+            "stream_registry_current_entries": [
+              0,
+              8
+            ],
+            "replay_state_current_entries": [
+              0,
+              8
+            ],
+            "audit_queue_current_entries": [
+              0,
+              27
+            ],
+            "pending_routes_retained_capacity": [
+              0,
+              3
+            ],
+            "channel_registry_retained_capacity": [
+              0,
+              6
+            ],
+            "stream_registry_retained_capacity": [
+              0,
+              17
+            ],
+            "replay_state_retained_capacity": [
+              0,
+              14
+            ],
+            "audit_queue_retained_capacity": [
+              0,
+              1024
+            ]
+          },
+          "active_samples": 303,
+          "active_ranges": {
+            "transport_sessions_current_live": [
+              1,
+              1
+            ],
+            "service_channels_current_live": [
+              1,
+              1
+            ],
+            "application_streams_current_live": [
+              8,
+              8
+            ],
+            "nbsr_tasks_current_live": [
+              0,
+              0
+            ],
+            "quic_connections_current_live": [
+              1,
+              1
+            ],
+            "quic_streams_current_live": [
+              8,
+              8
+            ],
+            "pending_routes_current_entries": [
+              0,
+              0
+            ],
+            "channel_registry_current_entries": [
+              1,
+              1
+            ],
+            "stream_registry_current_entries": [
+              8,
+              8
+            ],
+            "replay_state_current_entries": [
+              8,
+              8
+            ],
+            "audit_queue_current_entries": [
+              27,
+              27
+            ],
+            "pending_routes_retained_capacity": [
+              3,
+              3
+            ],
+            "channel_registry_retained_capacity": [
+              6,
+              6
+            ],
+            "stream_registry_retained_capacity": [
+              17,
+              17
+            ],
+            "replay_state_retained_capacity": [
+              14,
+              14
+            ],
+            "audit_queue_retained_capacity": [
+              1024,
+              1024
+            ]
+          }
+        }
+      },
+      "sum_effective_cores": 0.7546649098553834
+    }
+  ],
+  "limitations": [
+    "Complete failed runs are retained, not accepted stability repeats.",
+    "Sampled NBSR counters and retained map capacities do not account for every Quinn, Tokio or allocator allocation.",
+    "Independent 300-second runs cannot establish a sustained soak.",
+    "Fixed historical offered rate is not a current-SHA capacity calibration.",
+    "Guest CPU affinity is not verified host physical-core isolation; resource phase alignment uses receive-clock approximation."
+  ]
+}

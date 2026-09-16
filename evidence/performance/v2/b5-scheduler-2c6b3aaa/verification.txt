@@ -1,0 +1,5 @@
+PASS: literal RED (two failures), GREEN, final three tests including identity reuse, non-root live preflight.
+PASS: python -m pytest -q tests/performance/test_linux_resources.py tests/performance/test_b5_ownership.py tests/performance/test_b5_retained_diagnostic.py tests/performance/test_linux_b5_campaign.py (75).
+PASS: python -m ruff check C:/NBSR-build/b5-scheduler-2c6b3aaa/sched_observe.py C:/NBSR-build/b5-scheduler-2c6b3aaa/analyze_scheduler.py.
+PASS: offline analyses verify child indexes, zero-error finals, ownership, scheduler identities/coverage and monotonic counters.
+PASS: source/binary/shape/load/placement match across all six cells.
