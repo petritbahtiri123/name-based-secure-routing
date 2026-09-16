@@ -1,0 +1,1014 @@
+{
+  "classification": "OFFLINE_DIAGNOSTIC_CORRELATION",
+  "rows": [
+    {
+      "repeat": 1,
+      "windows": [
+        {
+          "elapsed_seconds": 30.001336862,
+          "p99_ms": 1.492388,
+          "gbps": 2.2119161951097195,
+          "effective_cores": {
+            "source": 0.3799014950119757,
+            "destination_0": 0.3512721890491499
+          },
+          "approximate_sum_cores": 0.7311736840611256
+        },
+        {
+          "elapsed_seconds": 60.001439138,
+          "p99_ms": 1.621591,
+          "gbps": 2.2034001895014073,
+          "effective_cores": {
+            "source": 0.40458217760758447,
+            "destination_0": 0.37327920652446345
+          },
+          "approximate_sum_cores": 0.7778613841320479
+        },
+        {
+          "elapsed_seconds": 90.001219215,
+          "p99_ms": 1.373076,
+          "gbps": 2.2383416908939897,
+          "effective_cores": {
+            "source": 0.3817305663569336,
+            "destination_0": 0.3529471109688666
+          },
+          "approximate_sum_cores": 0.7346776773258001
+        },
+        {
+          "elapsed_seconds": 120.001390076,
+          "p99_ms": 1.717497,
+          "gbps": 2.161190208562659,
+          "effective_cores": {
+            "source": 0.4330387316689534,
+            "destination_0": 0.39907936041430714
+          },
+          "approximate_sum_cores": 0.8321180920832605
+        },
+        {
+          "elapsed_seconds": 150.001437606,
+          "p99_ms": 1.625993,
+          "gbps": 2.2077645320317263,
+          "effective_cores": {
+            "source": 0.38983556395474267,
+            "destination_0": 0.35995002516867497
+          },
+          "approximate_sum_cores": 0.7497855891234176
+        },
+        {
+          "elapsed_seconds": 180.001413465,
+          "p99_ms": 1.93692,
+          "gbps": 2.184377804702153,
+          "effective_cores": {
+            "source": 0.38582406136026287,
+            "destination_0": 0.35720468196520627
+          },
+          "approximate_sum_cores": 0.7430287433254692
+        },
+        {
+          "elapsed_seconds": 210.01560919,
+          "p99_ms": 1.15256,
+          "gbps": 2.2573198931853105,
+          "effective_cores": {
+            "source": 0.3604435458750636,
+            "destination_0": 0.33484020323543845
+          },
+          "approximate_sum_cores": 0.6952837491105021
+        },
+        {
+          "elapsed_seconds": 240.001337628,
+          "p99_ms": 1.09646,
+          "gbps": 2.2564817834558153,
+          "effective_cores": {
+            "source": 0.3629091103032229,
+            "destination_0": 0.3372077872626766
+          },
+          "approximate_sum_cores": 0.7001168975658996
+        },
+        {
+          "elapsed_seconds": 270.001543345,
+          "p99_ms": 1.266772,
+          "gbps": 2.2408614509568294,
+          "effective_cores": {
+            "source": 0.3697938423611292,
+            "destination_0": 0.3411680129600908
+          },
+          "approximate_sum_cores": 0.71096185532122
+        },
+        {
+          "elapsed_seconds": 300.00155409,
+          "p99_ms": 1.198571,
+          "gbps": 2.252628799583452,
+          "effective_cores": {
+            "source": 0.35883760998870134,
+            "destination_0": 0.33415705741806856
+          },
+          "approximate_sum_cores": 0.69299466740677
+        },
+        {
+          "elapsed_seconds": 330.001059977,
+          "p99_ms": 1.276375,
+          "gbps": 2.2474150041656653,
+          "effective_cores": {
+            "source": 0.3718914231589516,
+            "destination_0": 0.34494169446664574
+          },
+          "approximate_sum_cores": 0.7168331176255973
+        },
+        {
+          "elapsed_seconds": 360.001314665,
+          "p99_ms": 1.628688,
+          "gbps": 2.2200874264791173,
+          "effective_cores": {
+            "source": 0.3835709809978072,
+            "destination_0": 0.355282616103272
+          },
+          "approximate_sum_cores": 0.7388535971010792
+        },
+        {
+          "elapsed_seconds": 390.0014829,
+          "p99_ms": 1.242571,
+          "gbps": 2.2572132064578736,
+          "effective_cores": {
+            "source": 0.3611953157210054,
+            "destination_0": 0.335494422943329
+          },
+          "approximate_sum_cores": 0.6966897386643344
+        },
+        {
+          "elapsed_seconds": 420.001414989,
+          "p99_ms": 1.41088,
+          "gbps": 2.2412925829473536,
+          "effective_cores": {
+            "source": 0.37783874619407526,
+            "destination_0": 0.35056284528721543
+          },
+          "approximate_sum_cores": 0.7284015914812907
+        },
+        {
+          "elapsed_seconds": 450.001521115,
+          "p99_ms": 1.384551,
+          "gbps": 2.2404669372068606,
+          "effective_cores": {
+            "source": 0.37417499350448885,
+            "destination_0": 0.3468952169156836
+          },
+          "approximate_sum_cores": 0.7210702104201725
+        },
+        {
+          "elapsed_seconds": 480.001175964,
+          "p99_ms": 1.706397,
+          "gbps": 2.1943365504484906,
+          "effective_cores": {
+            "source": 0.416052252670699,
+            "destination_0": 0.38386560941965403
+          },
+          "approximate_sum_cores": 0.7999178620903531
+        },
+        {
+          "elapsed_seconds": 510.001405626,
+          "p99_ms": 2.001915,
+          "gbps": 2.0953271658324146,
+          "effective_cores": {
+            "source": 0.4667627009738005,
+            "destination_0": 0.4307792350166979
+          },
+          "approximate_sum_cores": 0.8975419359904984
+        },
+        {
+          "elapsed_seconds": 540.001590847,
+          "p99_ms": 1.548087,
+          "gbps": 2.223430513532562,
+          "effective_cores": {
+            "source": 0.38398019488330704,
+            "destination_0": 0.3576013241703284
+          },
+          "approximate_sum_cores": 0.7415815190536355
+        },
+        {
+          "elapsed_seconds": 570.001411037,
+          "p99_ms": 1.898624,
+          "gbps": 2.1656282547205494,
+          "effective_cores": {
+            "source": 0.40001833284019406,
+            "destination_0": 0.3700520425319775
+          },
+          "approximate_sum_cores": 0.7700703753721716
+        }
+      ],
+      "early_p99_ms": 1.623792,
+      "late_p99_ms": 1.6272419999999999,
+      "final_thirds_p99_drift_percent": 0.21246563599277568,
+      "min_window_cores": 0.69299466740677,
+      "max_window_cores": 0.8975419359904984
+    },
+    {
+      "repeat": 2,
+      "windows": [
+        {
+          "elapsed_seconds": 30.001858026,
+          "p99_ms": 2.023415,
+          "gbps": 2.1362975994505495,
+          "effective_cores": {
+            "source": 0.41214502207595005,
+            "destination_0": 0.3798992082155314
+          },
+          "approximate_sum_cores": 0.7920442302914814
+        },
+        {
+          "elapsed_seconds": 60.001442318,
+          "p99_ms": 1.308675,
+          "gbps": 2.2350357622082213,
+          "effective_cores": {
+            "source": 0.36308387494226285,
+            "destination_0": 0.34591472050496147
+          },
+          "approximate_sum_cores": 0.7089985954472243
+        },
+        {
+          "elapsed_seconds": 90.001205009,
+          "p99_ms": 1.283673,
+          "gbps": 2.239811006110335,
+          "effective_cores": {
+            "source": 0.3648288503231405,
+            "destination_0": 0.34050761865021995
+          },
+          "approximate_sum_cores": 0.7053364689733604
+        },
+        {
+          "elapsed_seconds": 120.001482119,
+          "p99_ms": 1.315677,
+          "gbps": 2.2383919874398783,
+          "effective_cores": {
+            "source": 0.3698683009755445,
+            "destination_0": 0.34426702735039394
+          },
+          "approximate_sum_cores": 0.7141353283259384
+        },
+        {
+          "elapsed_seconds": 150.001455107,
+          "p99_ms": 1.460584,
+          "gbps": 2.2281735774474893,
+          "effective_cores": {
+            "source": 0.37676004418805653,
+            "destination_0": 0.35209945189694203
+          },
+          "approximate_sum_cores": 0.7288594960849986
+        },
+        {
+          "elapsed_seconds": 180.000999537,
+          "p99_ms": 1.251869,
+          "gbps": 2.2439779781682505,
+          "effective_cores": {
+            "source": 0.36578377968833087,
+            "destination_0": 0.34085983412544224
+          },
+          "approximate_sum_cores": 0.706643613813773
+        },
+        {
+          "elapsed_seconds": 210.00121917,
+          "p99_ms": 1.551591,
+          "gbps": 2.211238356369536,
+          "effective_cores": {
+            "source": 0.38044570147575135,
+            "destination_0": 0.3541261977125812
+          },
+          "approximate_sum_cores": 0.7345718991883325
+        },
+        {
+          "elapsed_seconds": 240.001659785,
+          "p99_ms": 1.111363,
+          "gbps": 2.2558208459832647,
+          "effective_cores": {
+            "source": 0.35875222216196095,
+            "destination_0": 0.33416680281939903
+          },
+          "approximate_sum_cores": 0.6929190249813599
+        },
+        {
+          "elapsed_seconds": 270.001893866,
+          "p99_ms": 1.05716,
+          "gbps": 2.253276122895729,
+          "effective_cores": {
+            "source": 0.3530835366053952,
+            "destination_0": 0.3301767978643606
+          },
+          "approximate_sum_cores": 0.6832603344697559
+        },
+        {
+          "elapsed_seconds": 300.001644544,
+          "p99_ms": 1.065961,
+          "gbps": 2.2602418285337724,
+          "effective_cores": {
+            "source": 0.35030326263305345,
+            "destination_0": 0.3280243631697361
+          },
+          "approximate_sum_cores": 0.6783276258027895
+        },
+        {
+          "elapsed_seconds": 330.0016273,
+          "p99_ms": 1.04626,
+          "gbps": 2.2590010040737774,
+          "effective_cores": {
+            "source": 0.3520836320157895,
+            "destination_0": 0.32917244438008164
+          },
+          "approximate_sum_cores": 0.6812560763958712
+        },
+        {
+          "elapsed_seconds": 360.001706107,
+          "p99_ms": 1.050254,
+          "gbps": 2.259596701065426,
+          "effective_cores": {
+            "source": 0.35304402805646334,
+            "destination_0": 0.3298033413580649
+          },
+          "approximate_sum_cores": 0.6828473694145283
+        },
+        {
+          "elapsed_seconds": 390.001430423,
+          "p99_ms": 1.096961,
+          "gbps": 2.2523444695777584,
+          "effective_cores": {
+            "source": 0.3537039318869147,
+            "destination_0": 0.32936495682510913
+          },
+          "approximate_sum_cores": 0.6830688887120238
+        },
+        {
+          "elapsed_seconds": 420.001658142,
+          "p99_ms": 1.016158,
+          "gbps": 2.2585019648063693,
+          "effective_cores": {
+            "source": 0.35033006398854477,
+            "destination_0": 0.32776118263716947
+          },
+          "approximate_sum_cores": 0.6780912466257143
+        },
+        {
+          "elapsed_seconds": 450.001296114,
+          "p99_ms": 1.226969,
+          "gbps": 2.2511101222965118,
+          "effective_cores": {
+            "source": 0.36315280964923463,
+            "destination_0": 0.33883007650346864
+          },
+          "approximate_sum_cores": 0.7019828861527033
+        },
+        {
+          "elapsed_seconds": 480.00177667,
+          "p99_ms": 2.144621,
+          "gbps": 2.0426457566108596,
+          "effective_cores": {
+            "source": 0.44263226125763167,
+            "destination_0": 0.4096941349914433
+          },
+          "approximate_sum_cores": 0.852326396249075
+        },
+        {
+          "elapsed_seconds": 510.00185639,
+          "p99_ms": 1.320874,
+          "gbps": 2.2416398160157955,
+          "effective_cores": {
+            "source": 0.4120363244670118,
+            "destination_0": 0.3820691556389392
+          },
+          "approximate_sum_cores": 0.7941054801059511
+        },
+        {
+          "elapsed_seconds": 540.001676482,
+          "p99_ms": 1.542887,
+          "gbps": 2.2022936891417677,
+          "effective_cores": {
+            "source": 0.44951538906413,
+            "destination_0": 0.41808023834975727
+          },
+          "approximate_sum_cores": 0.8675956274138873
+        },
+        {
+          "elapsed_seconds": 570.001175279,
+          "p99_ms": 3.33799,
+          "gbps": 1.7630002828343587,
+          "effective_cores": {
+            "source": 0.4989926032969724,
+            "destination_0": 0.46738729905776094
+          },
+          "approximate_sum_cores": 0.9663799023547334
+        }
+      ],
+      "early_p99_ms": 1.312176,
+      "late_p99_ms": 1.4318805000000001,
+      "final_thirds_p99_drift_percent": 9.122594834839237,
+      "min_window_cores": 0.6780912466257143,
+      "max_window_cores": 0.9663799023547334
+    },
+    {
+      "repeat": 3,
+      "windows": [
+        {
+          "elapsed_seconds": 30.001298787,
+          "p99_ms": 1.580792,
+          "gbps": 2.1870600891595995,
+          "effective_cores": {
+            "source": 0.44585192795505557,
+            "destination_0": 0.4146287537520335
+          },
+          "approximate_sum_cores": 0.8604806817070891
+        },
+        {
+          "elapsed_seconds": 60.001139883,
+          "p99_ms": 1.319776,
+          "gbps": 2.235960353301466,
+          "effective_cores": {
+            "source": 0.37653871944836464,
+            "destination_0": 0.35363700904169415
+          },
+          "approximate_sum_cores": 0.7301757284900587
+        },
+        {
+          "elapsed_seconds": 90.001296791,
+          "p99_ms": 1.178668,
+          "gbps": 2.2563052975882787,
+          "effective_cores": {
+            "source": 0.357093893176291,
+            "destination_0": 0.3341318701778473
+          },
+          "approximate_sum_cores": 0.6912257633541383
+        },
+        {
+          "elapsed_seconds": 120.001353236,
+          "p99_ms": 1.401485,
+          "gbps": 2.2392910017073135,
+          "effective_cores": {
+            "source": 0.3570694349207612,
+            "destination_0": 0.33180487235855327
+          },
+          "approximate_sum_cores": 0.6888743072793144
+        },
+        {
+          "elapsed_seconds": 150.001314087,
+          "p99_ms": 1.210051,
+          "gbps": 2.2478964715632985,
+          "effective_cores": {
+            "source": 0.3533131994938288,
+            "destination_0": 0.32932417877373477
+          },
+          "approximate_sum_cores": 0.6826373782675635
+        },
+        {
+          "elapsed_seconds": 180.001283688,
+          "p99_ms": 1.069161,
+          "gbps": 2.260085524277995,
+          "effective_cores": {
+            "source": 0.3503618405619412,
+            "destination_0": 0.32576651031272014
+          },
+          "approximate_sum_cores": 0.6761283508746614
+        },
+        {
+          "elapsed_seconds": 210.001822888,
+          "p99_ms": 1.214671,
+          "gbps": 2.2527988312956726,
+          "effective_cores": {
+            "source": 0.36248158047490664,
+            "destination_0": 0.33687979896655956
+          },
+          "approximate_sum_cores": 0.6993613794414661
+        },
+        {
+          "elapsed_seconds": 240.001238295,
+          "p99_ms": 1.118266,
+          "gbps": 2.253390043868197,
+          "effective_cores": {
+            "source": 0.3584212663520086,
+            "destination_0": 0.33272428017924144
+          },
+          "approximate_sum_cores": 0.69114554653125
+        },
+        {
+          "elapsed_seconds": 270.001225477,
+          "p99_ms": 1.066262,
+          "gbps": 2.250734393130448,
+          "effective_cores": {
+            "source": 0.3543831889720984,
+            "destination_0": 0.3288332431384095
+          },
+          "approximate_sum_cores": 0.6832164321105079
+        },
+        {
+          "elapsed_seconds": 300.001409561,
+          "p99_ms": 1.084361,
+          "gbps": 2.2587848683282097,
+          "effective_cores": {
+            "source": 0.352639030728648,
+            "destination_0": 0.32727874229648696
+          },
+          "approximate_sum_cores": 0.6799177730251349
+        },
+        {
+          "elapsed_seconds": 330.00197281,
+          "p99_ms": 1.160967,
+          "gbps": 2.250123206811796,
+          "effective_cores": {
+            "source": 0.35885371138202393,
+            "destination_0": 0.33425130486494325
+          },
+          "approximate_sum_cores": 0.6931050162469672
+        },
+        {
+          "elapsed_seconds": 360.004301329,
+          "p99_ms": 1.467184,
+          "gbps": 2.2262249365645648,
+          "effective_cores": {
+            "source": 0.375636523327432,
+            "destination_0": 0.34772222942958747
+          },
+          "approximate_sum_cores": 0.7233587527570196
+        },
+        {
+          "elapsed_seconds": 390.001294256,
+          "p99_ms": 1.09486,
+          "gbps": 2.258745515355103,
+          "effective_cores": {
+            "source": 0.35265792786444666,
+            "destination_0": 0.3276394002877066
+          },
+          "approximate_sum_cores": 0.6802973281521533
+        },
+        {
+          "elapsed_seconds": 420.001297934,
+          "p99_ms": 1.04026,
+          "gbps": 2.2587023321497606,
+          "effective_cores": {
+            "source": 0.35238231971579326,
+            "destination_0": 0.3284608420377671
+          },
+          "approximate_sum_cores": 0.6808431617535604
+        },
+        {
+          "elapsed_seconds": 450.002248778,
+          "p99_ms": 1.04406,
+          "gbps": 2.2587620900539744,
+          "effective_cores": {
+            "source": 0.3512597456456984,
+            "destination_0": 0.32727201771334663
+          },
+          "approximate_sum_cores": 0.6785317633590451
+        },
+        {
+          "elapsed_seconds": 480.004983479,
+          "p99_ms": 1.086562,
+          "gbps": 2.2572560301225724,
+          "effective_cores": {
+            "source": 0.35342626377037845,
+            "destination_0": 0.33219915435513314
+          },
+          "approximate_sum_cores": 0.6856254181255116
+        },
+        {
+          "elapsed_seconds": 510.00170564,
+          "p99_ms": 1.129665,
+          "gbps": 2.2544313162297054,
+          "effective_cores": {
+            "source": 0.35634654831024054,
+            "destination_0": 0.33142375223697756
+          },
+          "approximate_sum_cores": 0.6877703005472181
+        },
+        {
+          "elapsed_seconds": 540.001420051,
+          "p99_ms": 1.202773,
+          "gbps": 2.2441837190061373,
+          "effective_cores": {
+            "source": 0.3605425706846266,
+            "destination_0": 0.3338893701577029
+          },
+          "approximate_sum_cores": 0.6944319408423295
+        },
+        {
+          "elapsed_seconds": 570.001411547,
+          "p99_ms": 1.046261,
+          "gbps": 2.259646968001261,
+          "effective_cores": {
+            "source": 0.35272841252327425,
+            "destination_0": 0.32745952820340135
+          },
+          "approximate_sum_cores": 0.6801879407266755
+        }
+      ],
+      "early_p99_ms": 1.2649135,
+      "late_p99_ms": 1.0664115,
+      "final_thirds_p99_drift_percent": -15.692930781432878,
+      "min_window_cores": 0.6761283508746614,
+      "max_window_cores": 0.8604806817070891
+    },
+    {
+      "repeat": 4,
+      "windows": [
+        {
+          "elapsed_seconds": 30.001497627,
+          "p99_ms": 1.027961,
+          "gbps": 2.2570520235316387,
+          "effective_cores": {
+            "source": 0.3526547940537991,
+            "destination_0": 0.3290764279219724
+          },
+          "approximate_sum_cores": 0.6817312219757715
+        },
+        {
+          "elapsed_seconds": 60.000772325,
+          "p99_ms": 1.044058,
+          "gbps": 2.259115490566118,
+          "effective_cores": {
+            "source": 0.35233868800987495,
+            "destination_0": 0.3297690001020027
+          },
+          "approximate_sum_cores": 0.6821076881118777
+        },
+        {
+          "elapsed_seconds": 90.001288963,
+          "p99_ms": 1.235171,
+          "gbps": 2.2493927122082646,
+          "effective_cores": {
+            "source": 0.35529120459784547,
+            "destination_0": 0.33267928452376067
+          },
+          "approximate_sum_cores": 0.6879704891216061
+        },
+        {
+          "elapsed_seconds": 120.001365914,
+          "p99_ms": 1.019658,
+          "gbps": 2.259002649316238,
+          "effective_cores": {
+            "source": 0.35032674435471184,
+            "destination_0": 0.3287670479990574
+          },
+          "approximate_sum_cores": 0.6790937923537692
+        },
+        {
+          "elapsed_seconds": 150.001161043,
+          "p99_ms": 1.187271,
+          "gbps": 2.2511245442045498,
+          "effective_cores": {
+            "source": 0.357101572759973,
+            "destination_0": 0.33385745484906165
+          },
+          "approximate_sum_cores": 0.6909590276090347
+        },
+        {
+          "elapsed_seconds": 180.001507957,
+          "p99_ms": 1.395681,
+          "gbps": 2.2273331683647073,
+          "effective_cores": {
+            "source": 0.3744359223839707,
+            "destination_0": 0.34773884661325566
+          },
+          "approximate_sum_cores": 0.7221747689972264
+        },
+        {
+          "elapsed_seconds": 210.001284168,
+          "p99_ms": 1.570892,
+          "gbps": 2.215683830588959,
+          "effective_cores": {
+            "source": 0.3960141936231083,
+            "destination_0": 0.3670545826236301
+          },
+          "approximate_sum_cores": 0.7630687762467384
+        },
+        {
+          "elapsed_seconds": 240.000707115,
+          "p99_ms": 1.094458,
+          "gbps": 2.2594888118932457,
+          "effective_cores": {
+            "source": 0.3525662535017972,
+            "destination_0": 0.3296097046215923
+          },
+          "approximate_sum_cores": 0.6821759581233895
+        },
+        {
+          "elapsed_seconds": 270.001643551,
+          "p99_ms": 1.015658,
+          "gbps": 2.259226281439264,
+          "effective_cores": {
+            "source": 0.3500260780393826,
+            "destination_0": 0.3281312403238755
+          },
+          "approximate_sum_cores": 0.6781573183632581
+        },
+        {
+          "elapsed_seconds": 300.000787413,
+          "p99_ms": 1.195768,
+          "gbps": 2.2438943422404796,
+          "effective_cores": {
+            "source": 0.3599924572373292,
+            "destination_0": 0.3354124020822097
+          },
+          "approximate_sum_cores": 0.6954048593195389
+        },
+        {
+          "elapsed_seconds": 330.001576301,
+          "p99_ms": 1.093361,
+          "gbps": 2.258861662771353,
+          "effective_cores": {
+            "source": 0.3519425778336236,
+            "destination_0": 0.3300095061222408
+          },
+          "approximate_sum_cores": 0.6819520839558644
+        },
+        {
+          "elapsed_seconds": 360.001297184,
+          "p99_ms": 1.034659,
+          "gbps": 2.2589246029419465,
+          "effective_cores": {
+            "source": 0.34931780624105946,
+            "destination_0": 0.32742233503735735
+          },
+          "approximate_sum_cores": 0.6767401412784169
+        },
+        {
+          "elapsed_seconds": 390.001415612,
+          "p99_ms": 1.186068,
+          "gbps": 2.251668261181039,
+          "effective_cores": {
+            "source": 0.3581096313707012,
+            "destination_0": 0.335490164291422
+          },
+          "approximate_sum_cores": 0.6935997956621232
+        },
+        {
+          "elapsed_seconds": 420.000759397,
+          "p99_ms": 1.132264,
+          "gbps": 2.2490000465188507,
+          "effective_cores": {
+            "source": 0.35336406766594186,
+            "destination_0": 0.3314674932136035
+          },
+          "approximate_sum_cores": 0.6848315608795454
+        },
+        {
+          "elapsed_seconds": 450.001286373,
+          "p99_ms": 1.087564,
+          "gbps": 2.259283330263592,
+          "effective_cores": {
+            "source": 0.350661890895503,
+            "destination_0": 0.3284300336096197
+          },
+          "approximate_sum_cores": 0.6790919245051227
+        },
+        {
+          "elapsed_seconds": 480.001412511,
+          "p99_ms": 0.989356,
+          "gbps": 2.2583523263984753,
+          "effective_cores": {
+            "source": 0.35022570522260255,
+            "destination_0": 0.32829400246160256
+          },
+          "approximate_sum_cores": 0.6785197076842051
+        },
+        {
+          "elapsed_seconds": 510.001423839,
+          "p99_ms": 1.258172,
+          "gbps": 2.246267397142764,
+          "effective_cores": {
+            "source": 0.35570089222553,
+            "destination_0": 0.3331574699595801
+          },
+          "approximate_sum_cores": 0.6888583621851101
+        },
+        {
+          "elapsed_seconds": 540.000774572,
+          "p99_ms": 1.067855,
+          "gbps": 2.259170932971138,
+          "effective_cores": {
+            "source": 0.3513642656274367,
+            "destination_0": 0.3294650248383711
+          },
+          "approximate_sum_cores": 0.6808292904658078
+        },
+        {
+          "elapsed_seconds": 570.001389527,
+          "p99_ms": 1.161764,
+          "gbps": 2.2551087005876345,
+          "effective_cores": {
+            "source": 0.3532787831118934,
+            "destination_0": 0.33168846009480507
+          },
+          "approximate_sum_cores": 0.6849672432066984
+        }
+      ],
+      "early_p99_ms": 1.1156644999999998,
+      "late_p99_ms": 1.1099139999999998,
+      "final_thirds_p99_drift_percent": -0.5154327308971474,
+      "min_window_cores": 0.6767401412784169,
+      "max_window_cores": 0.7630687762467384
+    },
+    {
+      "repeat": 5,
+      "windows": [
+        {
+          "elapsed_seconds": 30.000596665,
+          "p99_ms": 1.157967,
+          "gbps": 2.2483294188175775,
+          "effective_cores": {
+            "source": 0.356413939035471,
+            "destination_0": 0.33619729534672566
+          },
+          "approximate_sum_cores": 0.6926112343821966
+        },
+        {
+          "elapsed_seconds": 60.000515251,
+          "p99_ms": 1.06996,
+          "gbps": 2.2542610168135475,
+          "effective_cores": {
+            "source": 0.35375659748524346,
+            "destination_0": 0.33489126358472804
+          },
+          "approximate_sum_cores": 0.6886478610699716
+        },
+        {
+          "elapsed_seconds": 90.000285369,
+          "p99_ms": 1.136255,
+          "gbps": 2.256465461359773,
+          "effective_cores": {
+            "source": 0.3556545471828465,
+            "destination_0": 0.33578317070761843
+          },
+          "approximate_sum_cores": 0.6914377178904649
+        },
+        {
+          "elapsed_seconds": 120.00127673,
+          "p99_ms": 1.124364,
+          "gbps": 2.252537694199298,
+          "effective_cores": {
+            "source": 0.35069597090302707,
+            "destination_0": 0.32812441886773547
+          },
+          "approximate_sum_cores": 0.6788203897707625
+        },
+        {
+          "elapsed_seconds": 150.000424253,
+          "p99_ms": 1.013858,
+          "gbps": 2.259990167387931,
+          "effective_cores": {
+            "source": 0.34937352916264713,
+            "destination_0": 0.3278127985858071
+          },
+          "approximate_sum_cores": 0.6771863277484542
+        },
+        {
+          "elapsed_seconds": 180.000370093,
+          "p99_ms": 1.087455,
+          "gbps": 2.257369749971522,
+          "effective_cores": {
+            "source": 0.35299895620258104,
+            "destination_0": 0.3310640044839676
+          },
+          "approximate_sum_cores": 0.6840629606865487
+        },
+        {
+          "elapsed_seconds": 210.01637013,
+          "p99_ms": 1.048257,
+          "gbps": 2.255166769075121,
+          "effective_cores": {
+            "source": 0.3503027242882874,
+            "destination_0": 0.32840587915715946
+          },
+          "approximate_sum_cores": 0.6787086034454468
+        },
+        {
+          "elapsed_seconds": 240.00041993,
+          "p99_ms": 1.138264,
+          "gbps": 2.246693796779913,
+          "effective_cores": {
+            "source": 0.3543868227455768,
+            "destination_0": 0.33210549107642223
+          },
+          "approximate_sum_cores": 0.686492313821999
+        },
+        {
+          "elapsed_seconds": 270.000568788,
+          "p99_ms": 0.993756,
+          "gbps": 2.259766186657499,
+          "effective_cores": {
+            "source": 0.34938161747261215,
+            "destination_0": 0.32781805388871005
+          },
+          "approximate_sum_cores": 0.6771996713613222
+        },
+        {
+          "elapsed_seconds": 300.000562108,
+          "p99_ms": 0.959851,
+          "gbps": 2.2607653119304096,
+          "effective_cores": {
+            "source": 0.34898470057910874,
+            "destination_0": 0.32641365646569737
+          },
+          "approximate_sum_cores": 0.6753983570448061
+        },
+        {
+          "elapsed_seconds": 330.000751294,
+          "p99_ms": 1.136164,
+          "gbps": 2.253393089919163,
+          "effective_cores": {
+            "source": 0.36325901376184194,
+            "destination_0": 0.3344715378404645
+          },
+          "approximate_sum_cores": 0.6977305516023065
+        },
+        {
+          "elapsed_seconds": 360.000288908,
+          "p99_ms": 1.052141,
+          "gbps": 2.2589471411177597,
+          "effective_cores": {
+            "source": 0.3493437122298725,
+            "destination_0": 0.3267732441328295
+          },
+          "approximate_sum_cores": 0.676116956362702
+        },
+        {
+          "elapsed_seconds": 390.000439574,
+          "p99_ms": 1.12016,
+          "gbps": 2.2534134594402575,
+          "effective_cores": {
+            "source": 0.3513452984714922,
+            "destination_0": 0.3294472100314745
+          },
+          "approximate_sum_cores": 0.6807925085029667
+        },
+        {
+          "elapsed_seconds": 420.00044866,
+          "p99_ms": 1.195767,
+          "gbps": 2.2463374700592587,
+          "effective_cores": {
+            "source": 0.3568008203139313,
+            "destination_0": 0.3328297315770322
+          },
+          "approximate_sum_cores": 0.6896305518909636
+        },
+        {
+          "elapsed_seconds": 450.000822848,
+          "p99_ms": 1.021458,
+          "gbps": 2.2596356194488947,
+          "effective_cores": {
+            "source": 0.3497482417171506,
+            "destination_0": 0.32751128486057696
+          },
+          "approximate_sum_cores": 0.6772595265777275
+        },
+        {
+          "elapsed_seconds": 480.001569596,
+          "p99_ms": 1.049848,
+          "gbps": 2.2589434768825507,
+          "effective_cores": {
+            "source": 0.3526664260514921,
+            "destination_0": 0.3279887472041328
+          },
+          "approximate_sum_cores": 0.680655173255625
+        },
+        {
+          "elapsed_seconds": 510.000437875,
+          "p99_ms": 1.028958,
+          "gbps": 2.2598014813597427,
+          "effective_cores": {
+            "source": 0.349389453252748,
+            "destination_0": 0.3271530639357064
+          },
+          "approximate_sum_cores": 0.6765425171884545
+        },
+        {
+          "elapsed_seconds": 540.00084624,
+          "p99_ms": 1.06816,
+          "gbps": 2.2580165125695615,
+          "effective_cores": {
+            "source": 0.35273039346748536,
+            "destination_0": 0.33015865045948006
+          },
+          "approximate_sum_cores": 0.6828890439269655
+        },
+        {
+          "elapsed_seconds": 570.000301801,
+          "p99_ms": 1.031758,
+          "gbps": 2.258621264583422,
+          "effective_cores": {
+            "source": 0.34988125194968905,
+            "destination_0": 0.3279525559825155
+          },
+          "approximate_sum_cores": 0.6778338079322046
+        }
+      ],
+      "early_p99_ms": 1.1059095,
+      "late_p99_ms": 1.040803,
+      "final_thirds_p99_drift_percent": -5.887145376723879,
+      "min_window_cores": 0.6753983570448061,
+      "max_window_cores": 0.6977305516023065
+    }
+  ],
+  "cv": {
+    "gbps": 0.014652644978496075,
+    "window_p99_median_ms": 0.1456697476556746
+  },
+  "limitations": [
+    "Approximate receive-clock phase alignment; role intervals differ slightly.",
+    "Window means do not measure scheduler waits or transient saturation.",
+    "Final thirds do not replace live gates or erase early violations."
+  ]
+}

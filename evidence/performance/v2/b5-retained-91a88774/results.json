@@ -1,0 +1,47 @@
+[
+  {
+    "repeat": 1,
+    "exit_code": 1,
+    "classification": "FAIL_DIAGNOSTIC_RETAINED",
+    "complete_final": true,
+    "gbps": 2.2169633833152513,
+    "gate_failure_count": 1,
+    "window_p99_median_ns": 1492388
+  },
+  {
+    "repeat": 2,
+    "exit_code": 0,
+    "classification": "DIAGNOSTIC",
+    "complete_final": true,
+    "gbps": 2.178760342056852,
+    "gate_failure_count": 0,
+    "window_p99_median_ns": 1283673
+  },
+  {
+    "repeat": 3,
+    "exit_code": 1,
+    "classification": "FAIL_DIAGNOSTIC_RETAINED",
+    "complete_final": true,
+    "gbps": 2.248253905952581,
+    "gate_failure_count": 4,
+    "window_p99_median_ns": 1129665
+  },
+  {
+    "repeat": 4,
+    "exit_code": 1,
+    "classification": "FAIL_DIAGNOSTIC_RETAINED",
+    "complete_final": true,
+    "gbps": 2.2517049391742563,
+    "gate_failure_count": 9,
+    "window_p99_median_ns": 1094458
+  },
+  {
+    "repeat": 5,
+    "exit_code": 1,
+    "classification": "FAIL_DIAGNOSTIC_RETAINED",
+    "complete_final": true,
+    "gbps": 2.2559369727145517,
+    "gate_failure_count": 9,
+    "window_p99_median_ns": 1068160
+  }
+]

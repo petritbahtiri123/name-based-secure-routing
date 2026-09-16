@@ -1,0 +1,709 @@
+{
+  "classification": "DIAGNOSTIC_NOT_ACCEPTED_SOAK",
+  "indexed_files_verified": 215,
+  "rows": [
+    {
+      "repeat": 1,
+      "classification": "FAIL_DIAGNOSTIC_RETAINED",
+      "valid": false,
+      "gbps": 2.2169633833152513,
+      "achieved_offered_ratio": 0.9788014411686753,
+      "first_performance_failure": {
+        "elapsed_ns": 570001411037,
+        "reason": "live private growth: source (receive-clock diagnostic)"
+      },
+      "failure_count": 1,
+      "ownership_reports": [
+        {
+          "role": "destination",
+          "pid": 75,
+          "file": "d0.cleanup.json",
+          "all_11_zero": true
+        },
+        {
+          "role": "source",
+          "pid": 76,
+          "file": "source.cleanup.json",
+          "all_11_zero": true
+        }
+      ],
+      "continuous_ownership": {
+        "classification": "NOT_MEASURED"
+      },
+      "final": {
+        "schema": "nbsr-b5-grouped-final-v1",
+        "groups": 1,
+        "payload_bytes": 16384,
+        "streams_per_group": 8,
+        "outstanding_per_stream": 1,
+        "measurement_duration_ns": 600000000000,
+        "drain_duration_ns": 414590,
+        "offered": 5184126,
+        "reserved": 5074230,
+        "issued": 5074230,
+        "completed": 5074230,
+        "missed": 109896,
+        "unreserved_current": 0,
+        "group_counters": [
+          {
+            "group_id": 0,
+            "offered": 5184126,
+            "reserved": 5074230,
+            "issued": 5074230,
+            "completed": 5074230,
+            "missed": 109896,
+            "unreserved_current": 0
+          }
+        ],
+        "max_outstanding_observed": 8,
+        "errors": 0,
+        "timeouts": 0,
+        "collector_overflow_count": 0,
+        "all_groups_joined": true,
+        "source_cleanup": {
+          "status": "SEPARATE_REPORT_REQUIRED"
+        },
+        "evidence_valid": true
+      },
+      "window_count": 19,
+      "window_p99_median_ms": 1.492388,
+      "memory": {
+        "source": {
+          "whole": {
+            "samples": 1192,
+            "first_seconds": 0.023382095,
+            "last_seconds": 599.513424705,
+            "first_bytes": 6025216,
+            "last_bytes": 6189056,
+            "delta_bytes": 163840,
+            "min_bytes": 6025216,
+            "max_bytes": 6189056,
+            "slope_bytes_per_second": 233.94051061081328,
+            "r_squared": 0.8500972477156893,
+            "private_growth_gate": true,
+            "fd_min": 10,
+            "fd_max": 10,
+            "threads_min": 3,
+            "threads_max": 3
+          },
+          "last_300s": {
+            "samples": 596,
+            "first_seconds": 300.020454481,
+            "last_seconds": 599.513424705,
+            "first_bytes": 6127616,
+            "last_bytes": 6189056,
+            "delta_bytes": 61440,
+            "min_bytes": 6127616,
+            "max_bytes": 6189056,
+            "slope_bytes_per_second": 244.15669466223645,
+            "r_squared": 0.5961917699052239,
+            "private_growth_gate": false,
+            "fd_min": 10,
+            "fd_max": 10,
+            "threads_min": 3,
+            "threads_max": 3
+          }
+        },
+        "destination_0": {
+          "whole": {
+            "samples": 1192,
+            "first_seconds": 0.024392551,
+            "last_seconds": 599.514681477,
+            "first_bytes": 5222400,
+            "last_bytes": 5300224,
+            "delta_bytes": 77824,
+            "min_bytes": 5222400,
+            "max_bytes": 5300224,
+            "slope_bytes_per_second": 50.35068484121809,
+            "r_squared": 0.4897085599892811,
+            "private_growth_gate": false,
+            "fd_min": 7,
+            "fd_max": 7,
+            "threads_min": 1,
+            "threads_max": 1
+          },
+          "last_300s": {
+            "samples": 596,
+            "first_seconds": 300.021621148,
+            "last_seconds": 599.514681477,
+            "first_bytes": 5271552,
+            "last_bytes": 5300224,
+            "delta_bytes": 28672,
+            "min_bytes": 5271552,
+            "max_bytes": 5300224,
+            "slope_bytes_per_second": 79.38492071546378,
+            "r_squared": 0.5449280414310165,
+            "private_growth_gate": false,
+            "fd_min": 7,
+            "fd_max": 7,
+            "threads_min": 1,
+            "threads_max": 1
+          }
+        }
+      }
+    },
+    {
+      "repeat": 2,
+      "classification": "DIAGNOSTIC",
+      "valid": true,
+      "gbps": 2.178760342056852,
+      "achieved_offered_ratio": 0.9619343742802547,
+      "first_performance_failure": null,
+      "failure_count": 0,
+      "ownership_reports": [
+        {
+          "role": "destination",
+          "pid": 133,
+          "file": "d0.cleanup.json",
+          "all_11_zero": true
+        },
+        {
+          "role": "source",
+          "pid": 134,
+          "file": "source.cleanup.json",
+          "all_11_zero": true
+        }
+      ],
+      "continuous_ownership": {
+        "classification": "NOT_MEASURED"
+      },
+      "final": {
+        "schema": "nbsr-b5-grouped-final-v1",
+        "groups": 1,
+        "payload_bytes": 16384,
+        "streams_per_group": 8,
+        "outstanding_per_stream": 1,
+        "measurement_duration_ns": 600000000000,
+        "drain_duration_ns": 280151,
+        "offered": 5184126,
+        "reserved": 4986789,
+        "issued": 4986789,
+        "completed": 4986789,
+        "missed": 197337,
+        "unreserved_current": 0,
+        "group_counters": [
+          {
+            "group_id": 0,
+            "offered": 5184126,
+            "reserved": 4986789,
+            "issued": 4986789,
+            "completed": 4986789,
+            "missed": 197337,
+            "unreserved_current": 0
+          }
+        ],
+        "max_outstanding_observed": 8,
+        "errors": 0,
+        "timeouts": 0,
+        "collector_overflow_count": 0,
+        "all_groups_joined": true,
+        "source_cleanup": {
+          "status": "SEPARATE_REPORT_REQUIRED"
+        },
+        "evidence_valid": true
+      },
+      "window_count": 19,
+      "window_p99_median_ms": 1.283673,
+      "memory": {
+        "source": {
+          "whole": {
+            "samples": 1191,
+            "first_seconds": 0.017750215,
+            "last_seconds": 599.526588944,
+            "first_bytes": 5955584,
+            "last_bytes": 6180864,
+            "delta_bytes": 225280,
+            "min_bytes": 5914624,
+            "max_bytes": 6180864,
+            "slope_bytes_per_second": 120.95068787662045,
+            "r_squared": 0.4533474674916854,
+            "private_growth_gate": false,
+            "fd_min": 10,
+            "fd_max": 10,
+            "threads_min": 3,
+            "threads_max": 3
+          },
+          "last_300s": {
+            "samples": 595,
+            "first_seconds": 300.071133413,
+            "last_seconds": 599.526588944,
+            "first_bytes": 6168576,
+            "last_bytes": 6180864,
+            "delta_bytes": 12288,
+            "min_bytes": 6168576,
+            "max_bytes": 6180864,
+            "slope_bytes_per_second": 50.677826621506725,
+            "r_squared": 0.6246255705631234,
+            "private_growth_gate": false,
+            "fd_min": 10,
+            "fd_max": 10,
+            "threads_min": 3,
+            "threads_max": 3
+          }
+        },
+        "destination_0": {
+          "whole": {
+            "samples": 1191,
+            "first_seconds": 0.018847978,
+            "last_seconds": 599.527877617,
+            "first_bytes": 4980736,
+            "last_bytes": 5206016,
+            "delta_bytes": 225280,
+            "min_bytes": 4980736,
+            "max_bytes": 5206016,
+            "slope_bytes_per_second": 81.34349353403486,
+            "r_squared": 0.32289916545166153,
+            "private_growth_gate": false,
+            "fd_min": 7,
+            "fd_max": 7,
+            "threads_min": 1,
+            "threads_max": 1
+          },
+          "last_300s": {
+            "samples": 595,
+            "first_seconds": 300.072248876,
+            "last_seconds": 599.527877617,
+            "first_bytes": 5193728,
+            "last_bytes": 5206016,
+            "delta_bytes": 12288,
+            "min_bytes": 5193728,
+            "max_bytes": 5206016,
+            "slope_bytes_per_second": 14.847092343046816,
+            "r_squared": 0.18256272620323966,
+            "private_growth_gate": false,
+            "fd_min": 7,
+            "fd_max": 7,
+            "threads_min": 1,
+            "threads_max": 1
+          }
+        }
+      }
+    },
+    {
+      "repeat": 3,
+      "classification": "FAIL_DIAGNOSTIC_RETAINED",
+      "valid": false,
+      "gbps": 2.248253905952581,
+      "achieved_offered_ratio": 0.9926161131114483,
+      "first_performance_failure": {
+        "elapsed_ns": 180001283688,
+        "reason": "live private growth: source (receive-clock diagnostic)"
+      },
+      "failure_count": 4,
+      "ownership_reports": [
+        {
+          "role": "destination",
+          "pid": 216,
+          "file": "d0.cleanup.json",
+          "all_11_zero": true
+        },
+        {
+          "role": "source",
+          "pid": 217,
+          "file": "source.cleanup.json",
+          "all_11_zero": true
+        }
+      ],
+      "continuous_ownership": {
+        "classification": "NOT_MEASURED"
+      },
+      "final": {
+        "schema": "nbsr-b5-grouped-final-v1",
+        "groups": 1,
+        "payload_bytes": 16384,
+        "streams_per_group": 8,
+        "outstanding_per_stream": 1,
+        "measurement_duration_ns": 600000000000,
+        "drain_duration_ns": 254596,
+        "offered": 5184126,
+        "reserved": 5145847,
+        "issued": 5145847,
+        "completed": 5145847,
+        "missed": 38279,
+        "unreserved_current": 0,
+        "group_counters": [
+          {
+            "group_id": 0,
+            "offered": 5184126,
+            "reserved": 5145847,
+            "issued": 5145847,
+            "completed": 5145847,
+            "missed": 38279,
+            "unreserved_current": 0
+          }
+        ],
+        "max_outstanding_observed": 8,
+        "errors": 0,
+        "timeouts": 0,
+        "collector_overflow_count": 0,
+        "all_groups_joined": true,
+        "source_cleanup": {
+          "status": "SEPARATE_REPORT_REQUIRED"
+        },
+        "evidence_valid": true
+      },
+      "window_count": 19,
+      "window_p99_median_ms": 1.129665,
+      "memory": {
+        "source": {
+          "whole": {
+            "samples": 1192,
+            "first_seconds": 0.015783003,
+            "last_seconds": 599.52942378,
+            "first_bytes": 6041600,
+            "last_bytes": 6205440,
+            "delta_bytes": 163840,
+            "min_bytes": 6041600,
+            "max_bytes": 6205440,
+            "slope_bytes_per_second": 190.72817417730963,
+            "r_squared": 0.526802434427963,
+            "private_growth_gate": false,
+            "fd_min": 10,
+            "fd_max": 10,
+            "threads_min": 3,
+            "threads_max": 3
+          },
+          "last_300s": {
+            "samples": 596,
+            "first_seconds": 300.04523051,
+            "last_seconds": 599.52942378,
+            "first_bytes": 6201344,
+            "last_bytes": 6205440,
+            "delta_bytes": 4096,
+            "min_bytes": 6201344,
+            "max_bytes": 6205440,
+            "slope_bytes_per_second": 17.53417441154181,
+            "r_squared": 0.6420563832633459,
+            "private_growth_gate": false,
+            "fd_min": 10,
+            "fd_max": 10,
+            "threads_min": 3,
+            "threads_max": 3
+          }
+        },
+        "destination_0": {
+          "whole": {
+            "samples": 1192,
+            "first_seconds": 0.017026875,
+            "last_seconds": 599.530733356,
+            "first_bytes": 5124096,
+            "last_bytes": 5185536,
+            "delta_bytes": 61440,
+            "min_bytes": 5111808,
+            "max_bytes": 5222400,
+            "slope_bytes_per_second": 21.461296021315256,
+            "r_squared": 0.16821856912272048,
+            "private_growth_gate": false,
+            "fd_min": 7,
+            "fd_max": 7,
+            "threads_min": 1,
+            "threads_max": 1
+          },
+          "last_300s": {
+            "samples": 596,
+            "first_seconds": 300.046378674,
+            "last_seconds": 599.530733356,
+            "first_bytes": 5185536,
+            "last_bytes": 5185536,
+            "delta_bytes": 0,
+            "min_bytes": 5185536,
+            "max_bytes": 5222400,
+            "slope_bytes_per_second": -2.3947436488398806,
+            "r_squared": 0.002242916865011213,
+            "private_growth_gate": false,
+            "fd_min": 7,
+            "fd_max": 7,
+            "threads_min": 1,
+            "threads_max": 1
+          }
+        }
+      }
+    },
+    {
+      "repeat": 4,
+      "classification": "FAIL_DIAGNOSTIC_RETAINED",
+      "valid": false,
+      "gbps": 2.2517049391742563,
+      "achieved_offered_ratio": 0.9941398029291726,
+      "first_performance_failure": {
+        "elapsed_ns": 90001288963,
+        "reason": "live p99 drift"
+      },
+      "failure_count": 9,
+      "ownership_reports": [
+        {
+          "role": "destination",
+          "pid": 274,
+          "file": "d0.cleanup.json",
+          "all_11_zero": true
+        },
+        {
+          "role": "source",
+          "pid": 275,
+          "file": "source.cleanup.json",
+          "all_11_zero": true
+        }
+      ],
+      "continuous_ownership": {
+        "classification": "NOT_MEASURED"
+      },
+      "final": {
+        "schema": "nbsr-b5-grouped-final-v1",
+        "groups": 1,
+        "payload_bytes": 16384,
+        "streams_per_group": 8,
+        "outstanding_per_stream": 1,
+        "measurement_duration_ns": 600000000000,
+        "drain_duration_ns": 278864,
+        "offered": 5184126,
+        "reserved": 5153746,
+        "issued": 5153746,
+        "completed": 5153746,
+        "missed": 30380,
+        "unreserved_current": 0,
+        "group_counters": [
+          {
+            "group_id": 0,
+            "offered": 5184126,
+            "reserved": 5153746,
+            "issued": 5153746,
+            "completed": 5153746,
+            "missed": 30380,
+            "unreserved_current": 0
+          }
+        ],
+        "max_outstanding_observed": 8,
+        "errors": 0,
+        "timeouts": 0,
+        "collector_overflow_count": 0,
+        "all_groups_joined": true,
+        "source_cleanup": {
+          "status": "SEPARATE_REPORT_REQUIRED"
+        },
+        "evidence_valid": true
+      },
+      "window_count": 19,
+      "window_p99_median_ms": 1.094458,
+      "memory": {
+        "source": {
+          "whole": {
+            "samples": 1193,
+            "first_seconds": 0.016263641,
+            "last_seconds": 599.861503208,
+            "first_bytes": 6017024,
+            "last_bytes": 6156288,
+            "delta_bytes": 139264,
+            "min_bytes": 5918720,
+            "max_bytes": 6156288,
+            "slope_bytes_per_second": 221.95131872106353,
+            "r_squared": 0.7416460702233446,
+            "private_growth_gate": false,
+            "fd_min": 10,
+            "fd_max": 10,
+            "threads_min": 3,
+            "threads_max": 3
+          },
+          "last_300s": {
+            "samples": 596,
+            "first_seconds": 300.458263102,
+            "last_seconds": 599.861503208,
+            "first_bytes": 6144000,
+            "last_bytes": 6156288,
+            "delta_bytes": 12288,
+            "min_bytes": 6144000,
+            "max_bytes": 6156288,
+            "slope_bytes_per_second": 61.25805403422591,
+            "r_squared": 0.7475607867697516,
+            "private_growth_gate": false,
+            "fd_min": 10,
+            "fd_max": 10,
+            "threads_min": 3,
+            "threads_max": 3
+          }
+        },
+        "destination_0": {
+          "whole": {
+            "samples": 1193,
+            "first_seconds": 0.017391807,
+            "last_seconds": 599.862730277,
+            "first_bytes": 5152768,
+            "last_bytes": 5222400,
+            "delta_bytes": 69632,
+            "min_bytes": 5152768,
+            "max_bytes": 5222400,
+            "slope_bytes_per_second": 45.244020754361344,
+            "r_squared": 0.5525289110157674,
+            "private_growth_gate": false,
+            "fd_min": 7,
+            "fd_max": 7,
+            "threads_min": 1,
+            "threads_max": 1
+          },
+          "last_300s": {
+            "samples": 596,
+            "first_seconds": 300.459376066,
+            "last_seconds": 599.862730277,
+            "first_bytes": 5222400,
+            "last_bytes": 5222400,
+            "delta_bytes": 0,
+            "min_bytes": 5222400,
+            "max_bytes": 5222400,
+            "slope_bytes_per_second": 0.0,
+            "r_squared": 1.0,
+            "private_growth_gate": false,
+            "fd_min": 7,
+            "fd_max": 7,
+            "threads_min": 1,
+            "threads_max": 1
+          }
+        }
+      }
+    },
+    {
+      "repeat": 5,
+      "classification": "FAIL_DIAGNOSTIC_RETAINED",
+      "valid": false,
+      "gbps": 2.2559369727145517,
+      "achieved_offered_ratio": 0.9960087775644342,
+      "first_performance_failure": {
+        "elapsed_ns": 180000370093,
+        "reason": "live private growth: destination_0 (receive-clock diagnostic)"
+      },
+      "failure_count": 9,
+      "ownership_reports": [
+        {
+          "role": "destination",
+          "pid": 332,
+          "file": "d0.cleanup.json",
+          "all_11_zero": true
+        },
+        {
+          "role": "source",
+          "pid": 333,
+          "file": "source.cleanup.json",
+          "all_11_zero": true
+        }
+      ],
+      "continuous_ownership": {
+        "classification": "NOT_MEASURED"
+      },
+      "final": {
+        "schema": "nbsr-b5-grouped-final-v1",
+        "groups": 1,
+        "payload_bytes": 16384,
+        "streams_per_group": 8,
+        "outstanding_per_stream": 1,
+        "measurement_duration_ns": 600000000000,
+        "drain_duration_ns": 585571,
+        "offered": 5184126,
+        "reserved": 5163435,
+        "issued": 5163435,
+        "completed": 5163435,
+        "missed": 20691,
+        "unreserved_current": 0,
+        "group_counters": [
+          {
+            "group_id": 0,
+            "offered": 5184126,
+            "reserved": 5163435,
+            "issued": 5163435,
+            "completed": 5163435,
+            "missed": 20691,
+            "unreserved_current": 0
+          }
+        ],
+        "max_outstanding_observed": 8,
+        "errors": 0,
+        "timeouts": 0,
+        "collector_overflow_count": 0,
+        "all_groups_joined": true,
+        "source_cleanup": {
+          "status": "SEPARATE_REPORT_REQUIRED"
+        },
+        "evidence_valid": true
+      },
+      "window_count": 19,
+      "window_p99_median_ms": 1.06816,
+      "memory": {
+        "source": {
+          "whole": {
+            "samples": 1193,
+            "first_seconds": 0.017843421,
+            "last_seconds": 599.743578232,
+            "first_bytes": 6062080,
+            "last_bytes": 6217728,
+            "delta_bytes": 155648,
+            "min_bytes": 6062080,
+            "max_bytes": 6250496,
+            "slope_bytes_per_second": 251.79171751179737,
+            "r_squared": 0.8902965123922619,
+            "private_growth_gate": true,
+            "fd_min": 10,
+            "fd_max": 10,
+            "threads_min": 3,
+            "threads_max": 3
+          },
+          "last_300s": {
+            "samples": 596,
+            "first_seconds": 300.377200083,
+            "last_seconds": 599.743578232,
+            "first_bytes": 6156288,
+            "last_bytes": 6217728,
+            "delta_bytes": 61440,
+            "min_bytes": 6156288,
+            "max_bytes": 6250496,
+            "slope_bytes_per_second": 219.73081229720364,
+            "r_squared": 0.5633934670141736,
+            "private_growth_gate": false,
+            "fd_min": 10,
+            "fd_max": 10,
+            "threads_min": 3,
+            "threads_max": 3
+          }
+        },
+        "destination_0": {
+          "whole": {
+            "samples": 1193,
+            "first_seconds": 0.018808076,
+            "last_seconds": 599.74457579,
+            "first_bytes": 5050368,
+            "last_bytes": 5197824,
+            "delta_bytes": 147456,
+            "min_bytes": 5050368,
+            "max_bytes": 5230592,
+            "slope_bytes_per_second": 58.74423050794297,
+            "r_squared": 0.17951836639868202,
+            "private_growth_gate": false,
+            "fd_min": 7,
+            "fd_max": 7,
+            "threads_min": 1,
+            "threads_max": 1
+          },
+          "last_300s": {
+            "samples": 596,
+            "first_seconds": 300.378240241,
+            "last_seconds": 599.74457579,
+            "first_bytes": 5197824,
+            "last_bytes": 5197824,
+            "delta_bytes": 0,
+            "min_bytes": 5197824,
+            "max_bytes": 5214208,
+            "slope_bytes_per_second": -0.7256326933534152,
+            "r_squared": 0.005230856368461656,
+            "private_growth_gate": false,
+            "fd_min": 7,
+            "fd_max": 7,
+            "threads_min": 1,
+            "threads_max": 1
+          }
+        }
+      }
+    }
+  ],
+  "limitations": [
+    "RSS/private residency does not identify live allocation ownership or prove a leak.",
+    "Phase origin is first-progress receipt minus elapsed; approximate.",
+    "Last-300s analysis is supplementary; it cannot erase earlier failures.",
+    "Fixed historical rate is not current near-ceiling calibration; observer unqualified."
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "classification": "PREDECLARED_DIAGNOSTIC_NOT_SOAK_ACCEPTANCE",
+  "source_sha": "91a88774ac6780b209dce15c562d453d1ab0a40f",
+  "initial_attempts": 3,
+  "extend_to_five_when_complete_metric_cv_exceeds": 0.05,
+  "duration_seconds": 600,
+  "warmup_seconds": 3,
+  "progress_seconds": 30,
+  "payload_bytes": 16384,
+  "streams": 8,
+  "depth": 1,
+  "guest_cpus": 1,
+  "retain_failed_diagnostic": true,
+  "rate_numerator": 64804600000000,
+  "rate_denominator": 7500349701,
+  "raw_output_filesystem": "Windows bind mount as in historical B5 comparison",
+  "ownership_sampling": false
+}

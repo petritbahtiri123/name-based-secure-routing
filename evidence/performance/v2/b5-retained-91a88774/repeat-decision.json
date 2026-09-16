@@ -1,0 +1,9 @@
+{
+  "required": 5,
+  "complete_finals": 3,
+  "cv": {
+    "gbps": 0.015715299936431098,
+    "window_p99_median_ns": 0.139831461310287
+  },
+  "classification": "DIAGNOSTIC_ONLY"
+}
