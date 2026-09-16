@@ -1,0 +1,15 @@
+
+running 1 test
+
+thread 'tests::idle_directory_does_not_request_full_scan_and_creation_does' (34) panicked at /evidence/gate.rs:16:9:
+unchanged directory must suppress file polling
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test tests::idle_directory_does_not_request_full_scan_and_creation_does ... FAILED
+
+failures:
+
+failures:
+    tests::idle_directory_does_not_request_full_scan_and_creation_does
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
