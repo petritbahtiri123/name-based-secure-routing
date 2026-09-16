@@ -1,0 +1,553 @@
+{
+  "classification": "MATCHED_B3_HARNESS_COMPARISON",
+  "indexed_files_verified": 20775,
+  "rows": [
+    {
+      "mode": "before",
+      "repeat": 1,
+      "exit_code": 0,
+      "passed": true,
+      "active_count": 2048,
+      "cleanup": {
+        "all_zero": true,
+        "counter_scope": "rust-all-11-current-fields",
+        "counters": {
+          "application_streams_current_live": 0,
+          "audit_queue_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "nbsr_tasks_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "replay_state_current_entries": 0,
+          "service_channels_current_live": 0,
+          "stream_registry_current_entries": 0,
+          "transport_sessions_current_live": 0
+        },
+        "destination_exited": true,
+        "source_all_zero": true,
+        "source_counters": [
+          {
+            "application_streams_current_live": 0,
+            "audit_queue_current_entries": 0,
+            "channel_registry_current_entries": 0,
+            "nbsr_tasks_current_live": 0,
+            "pending_routes_current_entries": 0,
+            "quic_connections_current_live": 0,
+            "quic_streams_current_live": 0,
+            "replay_state_current_entries": 0,
+            "service_channels_current_live": 0,
+            "stream_registry_current_entries": 0,
+            "transport_sessions_current_live": 0
+          }
+        ],
+        "source_processes_exited": true
+      },
+      "start_rate": 100,
+      "accept_window": 1,
+      "idle_effective_cores": {
+        "destination": 0.00999848349501362,
+        "source": 0.32979132503377184
+      },
+      "active_private_resident_bytes": {
+        "destination": 611184640,
+        "source": 833425408
+      }
+    },
+    {
+      "mode": "after",
+      "repeat": 1,
+      "exit_code": 0,
+      "passed": true,
+      "active_count": 2048,
+      "cleanup": {
+        "all_zero": true,
+        "counter_scope": "rust-all-11-current-fields",
+        "counters": {
+          "application_streams_current_live": 0,
+          "audit_queue_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "nbsr_tasks_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "replay_state_current_entries": 0,
+          "service_channels_current_live": 0,
+          "stream_registry_current_entries": 0,
+          "transport_sessions_current_live": 0
+        },
+        "destination_exited": true,
+        "source_all_zero": true,
+        "source_counters": [
+          {
+            "application_streams_current_live": 0,
+            "audit_queue_current_entries": 0,
+            "channel_registry_current_entries": 0,
+            "nbsr_tasks_current_live": 0,
+            "pending_routes_current_entries": 0,
+            "quic_connections_current_live": 0,
+            "quic_streams_current_live": 0,
+            "replay_state_current_entries": 0,
+            "service_channels_current_live": 0,
+            "stream_registry_current_entries": 0,
+            "transport_sessions_current_live": 0
+          }
+        ],
+        "source_processes_exited": true
+      },
+      "start_rate": 100,
+      "accept_window": 1,
+      "idle_effective_cores": {
+        "destination": 0.014996974390410683,
+        "source": 0.14026809721957773
+      },
+      "active_private_resident_bytes": {
+        "destination": 614207488,
+        "source": 833708032
+      }
+    },
+    {
+      "mode": "after",
+      "repeat": 2,
+      "exit_code": 0,
+      "passed": true,
+      "active_count": 2048,
+      "cleanup": {
+        "all_zero": true,
+        "counter_scope": "rust-all-11-current-fields",
+        "counters": {
+          "application_streams_current_live": 0,
+          "audit_queue_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "nbsr_tasks_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "replay_state_current_entries": 0,
+          "service_channels_current_live": 0,
+          "stream_registry_current_entries": 0,
+          "transport_sessions_current_live": 0
+        },
+        "destination_exited": true,
+        "source_all_zero": true,
+        "source_counters": [
+          {
+            "application_streams_current_live": 0,
+            "audit_queue_current_entries": 0,
+            "channel_registry_current_entries": 0,
+            "nbsr_tasks_current_live": 0,
+            "pending_routes_current_entries": 0,
+            "quic_connections_current_live": 0,
+            "quic_streams_current_live": 0,
+            "replay_state_current_entries": 0,
+            "service_channels_current_live": 0,
+            "stream_registry_current_entries": 0,
+            "transport_sessions_current_live": 0
+          }
+        ],
+        "source_processes_exited": true
+      },
+      "start_rate": 100,
+      "accept_window": 1,
+      "idle_effective_cores": {
+        "destination": 0.015000378789565194,
+        "source": 0.15496196505056423
+      },
+      "active_private_resident_bytes": {
+        "destination": 608989184,
+        "source": 838316032
+      }
+    },
+    {
+      "mode": "before",
+      "repeat": 2,
+      "exit_code": 0,
+      "passed": true,
+      "active_count": 2048,
+      "cleanup": {
+        "all_zero": true,
+        "counter_scope": "rust-all-11-current-fields",
+        "counters": {
+          "application_streams_current_live": 0,
+          "audit_queue_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "nbsr_tasks_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "replay_state_current_entries": 0,
+          "service_channels_current_live": 0,
+          "stream_registry_current_entries": 0,
+          "transport_sessions_current_live": 0
+        },
+        "destination_exited": true,
+        "source_all_zero": true,
+        "source_counters": [
+          {
+            "application_streams_current_live": 0,
+            "audit_queue_current_entries": 0,
+            "channel_registry_current_entries": 0,
+            "nbsr_tasks_current_live": 0,
+            "pending_routes_current_entries": 0,
+            "quic_connections_current_live": 0,
+            "quic_streams_current_live": 0,
+            "replay_state_current_entries": 0,
+            "service_channels_current_live": 0,
+            "stream_registry_current_entries": 0,
+            "transport_sessions_current_live": 0
+          }
+        ],
+        "source_processes_exited": true
+      },
+      "start_rate": 100,
+      "accept_window": 1,
+      "idle_effective_cores": {
+        "destination": 0.014998336586983315,
+        "source": 0.3053767024700475
+      },
+      "active_private_resident_bytes": {
+        "destination": 613400576,
+        "source": 831463424
+      }
+    },
+    {
+      "mode": "before",
+      "repeat": 3,
+      "exit_code": 0,
+      "passed": true,
+      "active_count": 2048,
+      "cleanup": {
+        "all_zero": true,
+        "counter_scope": "rust-all-11-current-fields",
+        "counters": {
+          "application_streams_current_live": 0,
+          "audit_queue_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "nbsr_tasks_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "replay_state_current_entries": 0,
+          "service_channels_current_live": 0,
+          "stream_registry_current_entries": 0,
+          "transport_sessions_current_live": 0
+        },
+        "destination_exited": true,
+        "source_all_zero": true,
+        "source_counters": [
+          {
+            "application_streams_current_live": 0,
+            "audit_queue_current_entries": 0,
+            "channel_registry_current_entries": 0,
+            "nbsr_tasks_current_live": 0,
+            "pending_routes_current_entries": 0,
+            "quic_connections_current_live": 0,
+            "quic_streams_current_live": 0,
+            "replay_state_current_entries": 0,
+            "service_channels_current_live": 0,
+            "stream_registry_current_entries": 0,
+            "transport_sessions_current_live": 0
+          }
+        ],
+        "source_processes_exited": true
+      },
+      "start_rate": 100,
+      "accept_window": 1,
+      "idle_effective_cores": {
+        "destination": 0.010000061550378843,
+        "source": 0.33493440108794054
+      },
+      "active_private_resident_bytes": {
+        "destination": 613462016,
+        "source": 831995904
+      }
+    },
+    {
+      "mode": "after",
+      "repeat": 3,
+      "exit_code": 0,
+      "passed": true,
+      "active_count": 2048,
+      "cleanup": {
+        "all_zero": true,
+        "counter_scope": "rust-all-11-current-fields",
+        "counters": {
+          "application_streams_current_live": 0,
+          "audit_queue_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "nbsr_tasks_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "replay_state_current_entries": 0,
+          "service_channels_current_live": 0,
+          "stream_registry_current_entries": 0,
+          "transport_sessions_current_live": 0
+        },
+        "destination_exited": true,
+        "source_all_zero": true,
+        "source_counters": [
+          {
+            "application_streams_current_live": 0,
+            "audit_queue_current_entries": 0,
+            "channel_registry_current_entries": 0,
+            "nbsr_tasks_current_live": 0,
+            "pending_routes_current_entries": 0,
+            "quic_connections_current_live": 0,
+            "quic_streams_current_live": 0,
+            "replay_state_current_entries": 0,
+            "service_channels_current_live": 0,
+            "stream_registry_current_entries": 0,
+            "transport_sessions_current_live": 0
+          }
+        ],
+        "source_processes_exited": true
+      },
+      "start_rate": 100,
+      "accept_window": 1,
+      "idle_effective_cores": {
+        "destination": 0.01500059018322017,
+        "source": 0.14494383723442034
+      },
+      "active_private_resident_bytes": {
+        "destination": 611663872,
+        "source": 826105856
+      }
+    },
+    {
+      "mode": "after",
+      "repeat": 4,
+      "exit_code": 0,
+      "passed": true,
+      "active_count": 2048,
+      "cleanup": {
+        "all_zero": true,
+        "counter_scope": "rust-all-11-current-fields",
+        "counters": {
+          "application_streams_current_live": 0,
+          "audit_queue_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "nbsr_tasks_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "replay_state_current_entries": 0,
+          "service_channels_current_live": 0,
+          "stream_registry_current_entries": 0,
+          "transport_sessions_current_live": 0
+        },
+        "destination_exited": true,
+        "source_all_zero": true,
+        "source_counters": [
+          {
+            "application_streams_current_live": 0,
+            "audit_queue_current_entries": 0,
+            "channel_registry_current_entries": 0,
+            "nbsr_tasks_current_live": 0,
+            "pending_routes_current_entries": 0,
+            "quic_connections_current_live": 0,
+            "quic_streams_current_live": 0,
+            "replay_state_current_entries": 0,
+            "service_channels_current_live": 0,
+            "stream_registry_current_entries": 0,
+            "transport_sessions_current_live": 0
+          }
+        ],
+        "source_processes_exited": true
+      },
+      "start_rate": 100,
+      "accept_window": 1,
+      "idle_effective_cores": {
+        "destination": 0.014997110416753341,
+        "source": 0.14037591033408112
+      },
+      "active_private_resident_bytes": {
+        "destination": 610897920,
+        "source": 839393280
+      }
+    },
+    {
+      "mode": "before",
+      "repeat": 4,
+      "exit_code": 0,
+      "passed": true,
+      "active_count": 2048,
+      "cleanup": {
+        "all_zero": true,
+        "counter_scope": "rust-all-11-current-fields",
+        "counters": {
+          "application_streams_current_live": 0,
+          "audit_queue_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "nbsr_tasks_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "replay_state_current_entries": 0,
+          "service_channels_current_live": 0,
+          "stream_registry_current_entries": 0,
+          "transport_sessions_current_live": 0
+        },
+        "destination_exited": true,
+        "source_all_zero": true,
+        "source_counters": [
+          {
+            "application_streams_current_live": 0,
+            "audit_queue_current_entries": 0,
+            "channel_registry_current_entries": 0,
+            "nbsr_tasks_current_live": 0,
+            "pending_routes_current_entries": 0,
+            "quic_connections_current_live": 0,
+            "quic_streams_current_live": 0,
+            "replay_state_current_entries": 0,
+            "service_channels_current_live": 0,
+            "stream_registry_current_entries": 0,
+            "transport_sessions_current_live": 0
+          }
+        ],
+        "source_processes_exited": true
+      },
+      "start_rate": 100,
+      "accept_window": 1,
+      "idle_effective_cores": {
+        "destination": 0.014999263918622826,
+        "source": 0.3148292369367148
+      },
+      "active_private_resident_bytes": {
+        "destination": 611934208,
+        "source": 834072576
+      }
+    },
+    {
+      "mode": "before",
+      "repeat": 5,
+      "exit_code": 0,
+      "passed": true,
+      "active_count": 2048,
+      "cleanup": {
+        "all_zero": true,
+        "counter_scope": "rust-all-11-current-fields",
+        "counters": {
+          "application_streams_current_live": 0,
+          "audit_queue_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "nbsr_tasks_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "replay_state_current_entries": 0,
+          "service_channels_current_live": 0,
+          "stream_registry_current_entries": 0,
+          "transport_sessions_current_live": 0
+        },
+        "destination_exited": true,
+        "source_all_zero": true,
+        "source_counters": [
+          {
+            "application_streams_current_live": 0,
+            "audit_queue_current_entries": 0,
+            "channel_registry_current_entries": 0,
+            "nbsr_tasks_current_live": 0,
+            "pending_routes_current_entries": 0,
+            "quic_connections_current_live": 0,
+            "quic_streams_current_live": 0,
+            "replay_state_current_entries": 0,
+            "service_channels_current_live": 0,
+            "stream_registry_current_entries": 0,
+            "transport_sessions_current_live": 0
+          }
+        ],
+        "source_processes_exited": true
+      },
+      "start_rate": 100,
+      "accept_window": 1,
+      "idle_effective_cores": {
+        "destination": 0.014998652213612759,
+        "source": 0.31982549185783743
+      },
+      "active_private_resident_bytes": {
+        "destination": 612315136,
+        "source": 835076096
+      }
+    },
+    {
+      "mode": "after",
+      "repeat": 5,
+      "exit_code": 0,
+      "passed": true,
+      "active_count": 2048,
+      "cleanup": {
+        "all_zero": true,
+        "counter_scope": "rust-all-11-current-fields",
+        "counters": {
+          "application_streams_current_live": 0,
+          "audit_queue_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "nbsr_tasks_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "replay_state_current_entries": 0,
+          "service_channels_current_live": 0,
+          "stream_registry_current_entries": 0,
+          "transport_sessions_current_live": 0
+        },
+        "destination_exited": true,
+        "source_all_zero": true,
+        "source_counters": [
+          {
+            "application_streams_current_live": 0,
+            "audit_queue_current_entries": 0,
+            "channel_registry_current_entries": 0,
+            "nbsr_tasks_current_live": 0,
+            "pending_routes_current_entries": 0,
+            "quic_connections_current_live": 0,
+            "quic_streams_current_live": 0,
+            "replay_state_current_entries": 0,
+            "service_channels_current_live": 0,
+            "stream_registry_current_entries": 0,
+            "transport_sessions_current_live": 0
+          }
+        ],
+        "source_processes_exited": true
+      },
+      "start_rate": 100,
+      "accept_window": 1,
+      "idle_effective_cores": {
+        "destination": 0.014996841200341131,
+        "source": 0.1403144029738439
+      },
+      "active_private_resident_bytes": {
+        "destination": 607399936,
+        "source": 831930368
+      }
+    }
+  ],
+  "summary": [
+    {
+      "mode": "before",
+      "passed": 5,
+      "failed": 0,
+      "median_active": 2048,
+      "median_idle_cores": {
+        "destination": 0.014998336586983315,
+        "source": 0.31982549185783743
+      }
+    },
+    {
+      "mode": "after",
+      "passed": 5,
+      "failed": 0,
+      "median_active": 2048,
+      "median_idle_cores": {
+        "destination": 0.014997110416753341,
+        "source": 0.14037591033408112
+      }
+    }
+  ],
+  "limitations": [
+    "Guest CPU, not dedicated physical-core or server capacity.",
+    "Idle CPU is pre-start harness cost, not handshake CPU attribution.",
+    "Failed cells remain failures; no accepted cleanup inferred for them."
+  ]
+}

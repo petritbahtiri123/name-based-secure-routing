@@ -1,0 +1,64 @@
+{
+  "cells": [
+    {
+      "mode": "before",
+      "metrics": {
+        "idle_effective_cores": {
+          "destination": {
+            "n": 5,
+            "median": 0.014998336586983315,
+            "cv": 0.2106574108875012
+          },
+          "source": {
+            "n": 5,
+            "median": 0.31982549185783743,
+            "cv": 0.036700553952316944
+          }
+        },
+        "active_private_resident_bytes": {
+          "destination": {
+            "n": 5,
+            "median": 612315136,
+            "cv": 0.0015940767971423756
+          },
+          "source": {
+            "n": 5,
+            "median": 833425408,
+            "cv": 0.00177988042280294
+          }
+        }
+      }
+    },
+    {
+      "mode": "after",
+      "metrics": {
+        "idle_effective_cores": {
+          "destination": {
+            "n": 5,
+            "median": 0.014997110416753341,
+            "cv": 0.0001284036857611228
+          },
+          "source": {
+            "n": 5,
+            "median": 0.14037591033408112,
+            "cv": 0.04407996203021716
+          }
+        },
+        "active_private_resident_bytes": {
+          "destination": {
+            "n": 5,
+            "median": 610897920,
+            "cv": 0.004259827714772693
+          },
+          "source": {
+            "n": 5,
+            "median": 833708032,
+            "cv": 0.006411561139181585
+          }
+        }
+      }
+    }
+  ],
+  "source_prestart_cpu_change_percent": -56.10859237059243,
+  "limitation": "Idle samples are pre-start process CPU and may include setup; not isolated polling or handshake CPU."
+}

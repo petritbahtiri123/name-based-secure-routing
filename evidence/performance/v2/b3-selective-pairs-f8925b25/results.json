@@ -1,0 +1,92 @@
+[
+  {
+    "mode": "before",
+    "repeat": 1,
+    "source_sha": "91a88774ac6780b209dce15c562d453d1ab0a40f",
+    "exit_code": 0,
+    "original_output": "/tmp/before-r1",
+    "retained_output": "/out/before-r1",
+    "copied_files_verified": 2077
+  },
+  {
+    "mode": "after",
+    "repeat": 1,
+    "source_sha": "f8925b25b5907a8e79a3f561ae83f7ae2fc1008c",
+    "exit_code": 0,
+    "original_output": "/tmp/after-r1",
+    "retained_output": "/out/after-r1",
+    "copied_files_verified": 2078
+  },
+  {
+    "mode": "after",
+    "repeat": 2,
+    "source_sha": "f8925b25b5907a8e79a3f561ae83f7ae2fc1008c",
+    "exit_code": 0,
+    "original_output": "/tmp/after-r2",
+    "retained_output": "/out/after-r2",
+    "copied_files_verified": 2078
+  },
+  {
+    "mode": "before",
+    "repeat": 2,
+    "source_sha": "91a88774ac6780b209dce15c562d453d1ab0a40f",
+    "exit_code": 0,
+    "original_output": "/tmp/before-r2",
+    "retained_output": "/out/before-r2",
+    "copied_files_verified": 2077
+  },
+  {
+    "mode": "before",
+    "repeat": 3,
+    "source_sha": "91a88774ac6780b209dce15c562d453d1ab0a40f",
+    "exit_code": 0,
+    "original_output": "/tmp/before-r3",
+    "retained_output": "/out/before-r3",
+    "copied_files_verified": 2077
+  },
+  {
+    "mode": "after",
+    "repeat": 3,
+    "source_sha": "f8925b25b5907a8e79a3f561ae83f7ae2fc1008c",
+    "exit_code": 0,
+    "original_output": "/tmp/after-r3",
+    "retained_output": "/out/after-r3",
+    "copied_files_verified": 2078
+  },
+  {
+    "mode": "after",
+    "repeat": 4,
+    "source_sha": "f8925b25b5907a8e79a3f561ae83f7ae2fc1008c",
+    "exit_code": 0,
+    "original_output": "/tmp/after-r4",
+    "retained_output": "/out/after-r4",
+    "copied_files_verified": 2078
+  },
+  {
+    "mode": "before",
+    "repeat": 4,
+    "source_sha": "91a88774ac6780b209dce15c562d453d1ab0a40f",
+    "exit_code": 0,
+    "original_output": "/tmp/before-r4",
+    "retained_output": "/out/before-r4",
+    "copied_files_verified": 2077
+  },
+  {
+    "mode": "before",
+    "repeat": 5,
+    "source_sha": "91a88774ac6780b209dce15c562d453d1ab0a40f",
+    "exit_code": 0,
+    "original_output": "/tmp/before-r5",
+    "retained_output": "/out/before-r5",
+    "copied_files_verified": 2077
+  },
+  {
+    "mode": "after",
+    "repeat": 5,
+    "source_sha": "f8925b25b5907a8e79a3f561ae83f7ae2fc1008c",
+    "exit_code": 0,
+    "original_output": "/tmp/after-r5",
+    "retained_output": "/out/after-r5",
+    "copied_files_verified": 2078
+  }
+]

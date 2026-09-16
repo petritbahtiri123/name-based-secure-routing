@@ -1,0 +1,28 @@
+info: component clippy is up to date
+   Compiling nbsr-transport v0.1.0 (/work/crates/nbsr-transport)
+    Finished `release` profile [optimized] target(s) in 7.01s
+     Running unittests src/bin/perf_rust_source.rs (/target/release/deps/perf_rust_source-422258d02c3dd2f1)
+
+running 17 tests
+test b3_support::marker_monitor::marker_notifications::tests::overflow_malformed_and_unknown_watch_reject_selection ... ok
+test b3_support::marker_monitor::marker_notifications::tests::unsupported_filesystems_and_relative_roots_use_polling ... ok
+test b3_support::marker_monitor::tests::cancelled_requests_are_removed_on_next_scan ... ok
+test b3_support::marker_monitor::marker_notifications::tests::select_named_creation_without_scanning_unchanged_paths ... ok
+test b3_support::marker_monitor::tests::existing_file_wins_even_with_zero_timeout_but_directory_does_not ... ok
+test b3_support::marker_monitor::tests::shutdown_closes_pending_and_future_waits_without_success ... ok
+test b3_support::tests::active_marker_waits_for_explicit_release ... ok
+test b3_support::tests::lifecycle_wait_allows_sibling_task_to_publish_start ... ok
+test b3_support::marker_monitor::tests::scoped_release_publishes_active_and_still_requires_its_release ... ok
+test b3_support::marker_monitor::marker_notifications::tests::mixed_roots_and_existing_symlink_fall_back ... ok
+test b3_support::marker_monitor::tests::published_marker_releases_only_its_waiter ... ok
+test b3_support::marker_monitor::marker_notifications::tests::late_symlink_and_root_replacement_fall_back_permanently ... ok
+test b3_support::marker_monitor::marker_notifications::tests::event_backlog_falls_back_and_releases_watch ... ok
+test b3_support::marker_monitor::tests::late_registration_and_multiple_directories_preserve_readiness ... ok
+test b3_support::marker_monitor::tests::symlink_target_outside_watch_still_releases_waiter ... ok
+test b3_support::tests::missing_release_fails_closed ... ok
+test b3_support::tests::missing_start_fails_closed ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 84 filtered out; finished in 0.08s
+
+    Checking nbsr-transport v0.1.0 (/work/crates/nbsr-transport)
+    Finished `release` profile [optimized] target(s) in 3.05s

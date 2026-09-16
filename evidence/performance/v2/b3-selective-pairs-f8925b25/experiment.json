@@ -1,0 +1,15 @@
+{
+ "classification":"MATCHED_HARNESS_COMPARISON_NOT_CAPACITY_CLAIM",
+ "before_sha":"91a88774ac6780b209dce15c562d453d1ab0a40f",
+ "after_sha":"f8925b25b5907a8e79a3f561ae83f7ae2fc1008c",
+ "counts":2048,
+ "guest_cpus":1,
+ "repeats_per_arm":5,
+ "order":"before/after for odd repeats; after/before for even repeats",
+ "accept_window":1,
+ "materialized_streams":true,
+ "rate":"unchanged runner default 100 starts/s",
+ "source_shards":"unchanged runner default two",
+ "observer":"existing telemetry and failure-only snapshots; no new timed profiler",
+ "preserve":"every completed or failed cell and child hash index"
+}

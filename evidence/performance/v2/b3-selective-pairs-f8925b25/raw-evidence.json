@@ -1,0 +1,22 @@
+[
+  {
+    "root": "C:\\NBSR-build\\b3-selective-pairs-f8925b25",
+    "index_sha256": "57be158615b0e20cfb938b65e63feb0eb4baa7f9466481c0b2d5a1fa9aa6cb86"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-current-f8925b25",
+    "index_sha256": "6b5bd3c669e5d1bd2e8d67e48a7ea87d77311d1c6263c0edc9e0ab907894ab5b"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-current-91a88774",
+    "index_sha256": "0a4421c7de08dbd1e21622f86dcc43de6842329ce91b6e25a0c1649e42bb3701"
+  },
+  {
+    "root": "C:\\NBSR-build\\marker-integration-red-3768a0eb",
+    "index_sha256": "74c81cd925ffc056a736649abe81337117f56eeb7384e86875974d26d9dd6d91"
+  },
+  {
+    "root": "C:\\NBSR-build\\marker-integration-green-3768a0eb",
+    "index_sha256": "44c6a9a91a960012b647db6721134f85863340bd366287b6f20a76041a5c584a"
+  }
+]

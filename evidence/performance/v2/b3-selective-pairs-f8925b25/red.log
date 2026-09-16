@@ -1,0 +1,23 @@
+   Compiling nbsr-transport v0.1.0 (/work/crates/nbsr-transport)
+    Finished `release` profile [optimized] target(s) in 8.75s
+     Running unittests src/bin/perf_rust_source.rs (target/release/deps/perf_rust_source-7c94e9b39cf9546f)
+
+running 3 tests
+
+thread 'b3_support::marker_notifications::tests::select_named_creation_without_scanning_unchanged_paths' (116) panicked at src/bin/b3_support/marker_notifications.rs:28:9:
+assertion `left == right` failed
+  left: None
+ right: Some({})
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test b3_support::marker_notifications::tests::select_named_creation_without_scanning_unchanged_paths ... FAILED
+test b3_support::marker_notifications::tests::mixed_roots_and_existing_symlink_fall_back ... ok
+test b3_support::marker_notifications::tests::late_symlink_and_root_replacement_fall_back_permanently ... ok
+
+failures:
+
+failures:
+    b3_support::marker_notifications::tests::select_named_creation_without_scanning_unchanged_paths
+
+test result: FAILED. 2 passed; 1 failed; 0 ignored; 0 measured; 93 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--bin perf_rust_source`
