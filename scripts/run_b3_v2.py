@@ -146,6 +146,7 @@ def execute(args):
                    "crates/nbsr-transport/src/bin/wp8_interop_server.rs",
                    "crates/nbsr-transport/src/bin/b3_support/mod.rs",
                    "crates/nbsr-transport/src/bin/b3_support/marker_monitor.rs",
+                   "crates/nbsr-transport/src/bin/b3_support/marker_notifications.rs",
                    "crates/nbsr-transport/src/bin/benchmark_support/lifecycle_accept_window.rs"]
     if linux:
         sources += ['scripts/performance/b3_linux.py', 'scripts/performance/b3_linux_analysis.py',

@@ -6,7 +6,7 @@ license = "Apache-2.0"
 publish = false
 
 [features]
-benchmark-harness = ["tokio/rt-multi-thread"]
+benchmark-harness = ["tokio/rt-multi-thread", "dep:libc"]
 
 [dependencies]
 bytes = "=1.12.1"
@@ -17,6 +17,9 @@ sha2 = "=0.11.0"
 socket2 = "=0.6.5"
 tokio = { version = "=1.53.1", features = ["io-util", "macros", "rt", "sync", "time"] }
 x509-parser = { version = "=0.18.1", default-features = false }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+libc = { version = "=0.2.189", optional = true }
 
 [dev-dependencies]
 rcgen = { version = "=0.14.8", default-features = false, features = ["crypto", "ring"] }

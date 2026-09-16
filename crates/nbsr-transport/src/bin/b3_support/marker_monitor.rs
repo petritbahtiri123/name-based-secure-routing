@@ -1,9 +1,13 @@
 //! Runtime-owned benchmark marker waiting; never protocol or admission authority.
+use std::collections::HashSet;
 use std::future::Future;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 use tokio::sync::{mpsc, oneshot};
 use tokio::task::JoinHandle;
+#[cfg(all(target_os = "linux", feature = "benchmark-harness"))]
+#[path = "marker_notifications.rs"]
+mod marker_notifications;
 
 struct Request {
     path: PathBuf,
@@ -93,11 +97,17 @@ impl MarkerWaiter {
 }
 
 fn poll_pending(pending: &mut Vec<Request>) {
+    poll_selected(pending, None);
+}
+
+fn poll_selected(pending: &mut Vec<Request>, selected: Option<&HashSet<PathBuf>>) {
     let mut index = 0;
     while index < pending.len() {
         if pending[index].ready.is_closed() {
             pending.swap_remove(index);
-        } else if pending[index].path.is_file() {
+        } else if selected.is_none_or(|paths| paths.contains(&pending[index].path))
+            && pending[index].path.is_file()
+        {
             let request = pending.swap_remove(index);
             let _ = request.ready.send(());
         } else {
@@ -108,17 +118,36 @@ fn poll_pending(pending: &mut Vec<Request>) {
 
 async fn scan(mut receiver: mpsc::UnboundedReceiver<Request>) {
     let mut pending = Vec::new();
+    #[cfg(all(target_os = "linux", feature = "benchmark-harness"))]
+    let mut notifications = marker_notifications::Notifications::default();
     loop {
+        let mut added = false;
         if pending.is_empty() {
             match receiver.recv().await {
-                Some(request) => pending.push(request),
+                Some(request) => {
+                    #[cfg(all(target_os = "linux", feature = "benchmark-harness"))]
+                    notifications.observe(&request.path);
+                    pending.push(request);
+                    added = true;
+                }
                 None => return,
             }
         }
         while let Ok(request) = receiver.try_recv() {
+            #[cfg(all(target_os = "linux", feature = "benchmark-harness"))]
+            notifications.observe(&request.path);
             pending.push(request);
+            added = true;
         }
-        poll_pending(&mut pending);
+        #[cfg(all(target_os = "linux", feature = "benchmark-harness"))]
+        let changed = notifications.changed();
+        #[cfg(not(all(target_os = "linux", feature = "benchmark-harness")))]
+        let changed: Option<HashSet<PathBuf>> = None;
+        if added {
+            poll_pending(&mut pending);
+        } else {
+            poll_selected(&mut pending, changed.as_ref());
+        }
         if !pending.is_empty() {
             // Same polling interval as the per-client implementation. Sharing
             // this timer avoids waking every absent-marker waiter each tick.
@@ -242,6 +271,50 @@ mod tests {
         .await;
         assert_eq!(std::fs::read(&active).unwrap(), b"active\n");
         assert_eq!(result, Err("lifecycle release marker timeout"));
+        monitor.shutdown().await;
+    }
+
+    #[cfg(all(target_os = "linux", feature = "benchmark-harness"))]
+    #[tokio::test(flavor = "current_thread")]
+    async fn symlink_target_outside_watch_still_releases_waiter() {
+        let root = Fixture::new();
+        let external = Fixture::new();
+        let target = external.0.join("target");
+        let link = root.0.join("marker");
+        let monitor = MarkerMonitor::new();
+        let waiter = monitor.waiter();
+        let (result, ()) = tokio::join!(waiter.wait(&link, Duration::from_secs(1)), async {
+            tokio::time::sleep(Duration::from_millis(20)).await;
+            std::os::unix::fs::symlink(&target, &link).unwrap();
+            tokio::time::sleep(Duration::from_millis(20)).await;
+            std::fs::write(&target, b"ready").unwrap();
+        });
+        assert_eq!(result, Ok(()));
+        monitor.shutdown().await;
+    }
+
+    #[tokio::test(flavor = "current_thread")]
+    async fn late_registration_and_multiple_directories_preserve_readiness() {
+        let first = Fixture::new();
+        let second = Fixture::new();
+        let monitor = MarkerMonitor::new();
+        let waiter = monitor.waiter();
+        let a = first.0.join("a");
+        let b = second.0.join("b");
+        let (a_result, b_result, ()) = tokio::join!(
+            waiter.wait(&a, Duration::from_secs(1)),
+            async {
+                tokio::time::sleep(Duration::from_millis(20)).await;
+                waiter.wait(&b, Duration::from_secs(1)).await
+            },
+            async {
+                tokio::time::sleep(Duration::from_millis(40)).await;
+                std::fs::write(&a, b"ready").unwrap();
+                std::fs::write(&b, b"ready").unwrap();
+            }
+        );
+        assert_eq!(a_result, Ok(()));
+        assert_eq!(b_result, Ok(()));
         monitor.shutdown().await;
     }
 }
