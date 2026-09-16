@@ -1,0 +1,372 @@
+{
+  "classification": "OFFLINE_FEASIBILITY_ONLY_NOT_INTEGRATED",
+  "rows": [
+    {
+      "mode": "monitor",
+      "count": 2048,
+      "unrelated": 0,
+      "repeat": 1,
+      "cpu_ticks": 62,
+      "hz": 100,
+      "elapsed_ns": 4001449558,
+      "cpu_percent": 15.494384997567924
+    },
+    {
+      "mode": "event",
+      "count": 2048,
+      "unrelated": 0,
+      "repeat": 1,
+      "cpu_ticks": 4,
+      "hz": 100,
+      "elapsed_ns": 4001616246,
+      "cpu_percent": 0.999596101699753
+    },
+    {
+      "mode": "pending",
+      "count": 2048,
+      "unrelated": 0,
+      "repeat": 1,
+      "cpu_ticks": 0,
+      "hz": 100,
+      "elapsed_ns": 4001678308,
+      "cpu_percent": 0.0
+    },
+    {
+      "mode": "pending",
+      "count": 2048,
+      "unrelated": 0,
+      "repeat": 2,
+      "cpu_ticks": 0,
+      "hz": 100,
+      "elapsed_ns": 4000884960,
+      "cpu_percent": 0.0
+    },
+    {
+      "mode": "event",
+      "count": 2048,
+      "unrelated": 0,
+      "repeat": 2,
+      "cpu_ticks": 4,
+      "hz": 100,
+      "elapsed_ns": 4001813572,
+      "cpu_percent": 0.9995468124720529
+    },
+    {
+      "mode": "monitor",
+      "count": 2048,
+      "unrelated": 0,
+      "repeat": 2,
+      "cpu_ticks": 62,
+      "hz": 100,
+      "elapsed_ns": 4002324033,
+      "cpu_percent": 15.490999601430822
+    },
+    {
+      "mode": "monitor",
+      "count": 2048,
+      "unrelated": 0,
+      "repeat": 3,
+      "cpu_ticks": 61,
+      "hz": 100,
+      "elapsed_ns": 4001466291,
+      "cpu_percent": 15.244411814039196
+    },
+    {
+      "mode": "event",
+      "count": 2048,
+      "unrelated": 0,
+      "repeat": 3,
+      "cpu_ticks": 3,
+      "hz": 100,
+      "elapsed_ns": 4001545965,
+      "cpu_percent": 0.7497102435508323
+    },
+    {
+      "mode": "pending",
+      "count": 2048,
+      "unrelated": 0,
+      "repeat": 3,
+      "cpu_ticks": 0,
+      "hz": 100,
+      "elapsed_ns": 4001990196,
+      "cpu_percent": 0.0
+    },
+    {
+      "mode": "pending",
+      "count": 2048,
+      "unrelated": 0,
+      "repeat": 4,
+      "cpu_ticks": 0,
+      "hz": 100,
+      "elapsed_ns": 4001826113,
+      "cpu_percent": 0.0
+    },
+    {
+      "mode": "event",
+      "count": 2048,
+      "unrelated": 0,
+      "repeat": 4,
+      "cpu_ticks": 3,
+      "hz": 100,
+      "elapsed_ns": 4002418894,
+      "cpu_percent": 0.7495467314771276
+    },
+    {
+      "mode": "monitor",
+      "count": 2048,
+      "unrelated": 0,
+      "repeat": 4,
+      "cpu_ticks": 62,
+      "hz": 100,
+      "elapsed_ns": 4001705390,
+      "cpu_percent": 15.493394430018249
+    },
+    {
+      "mode": "monitor",
+      "count": 2048,
+      "unrelated": 0,
+      "repeat": 5,
+      "cpu_ticks": 63,
+      "hz": 100,
+      "elapsed_ns": 4001222174,
+      "cpu_percent": 15.745189159795956
+    },
+    {
+      "mode": "event",
+      "count": 2048,
+      "unrelated": 0,
+      "repeat": 5,
+      "cpu_ticks": 3,
+      "hz": 100,
+      "elapsed_ns": 4001477767,
+      "cpu_percent": 0.7497230210151009
+    },
+    {
+      "mode": "pending",
+      "count": 2048,
+      "unrelated": 0,
+      "repeat": 5,
+      "cpu_ticks": 0,
+      "hz": 100,
+      "elapsed_ns": 4001385596,
+      "cpu_percent": 0.0
+    },
+    {
+      "mode": "monitor",
+      "count": 2048,
+      "unrelated": 8192,
+      "repeat": 1,
+      "cpu_ticks": 63,
+      "hz": 100,
+      "elapsed_ns": 4002011242,
+      "cpu_percent": 15.742084714513654
+    },
+    {
+      "mode": "event",
+      "count": 2048,
+      "unrelated": 8192,
+      "repeat": 1,
+      "cpu_ticks": 4,
+      "hz": 100,
+      "elapsed_ns": 4001242546,
+      "cpu_percent": 0.9996894599650695
+    },
+    {
+      "mode": "pending",
+      "count": 2048,
+      "unrelated": 8192,
+      "repeat": 1,
+      "cpu_ticks": 0,
+      "hz": 100,
+      "elapsed_ns": 4000620177,
+      "cpu_percent": 0.0
+    },
+    {
+      "mode": "pending",
+      "count": 2048,
+      "unrelated": 8192,
+      "repeat": 2,
+      "cpu_ticks": 0,
+      "hz": 100,
+      "elapsed_ns": 4001001040,
+      "cpu_percent": 0.0
+    },
+    {
+      "mode": "event",
+      "count": 2048,
+      "unrelated": 8192,
+      "repeat": 2,
+      "cpu_ticks": 3,
+      "hz": 100,
+      "elapsed_ns": 4002181352,
+      "cpu_percent": 0.749591219423582
+    },
+    {
+      "mode": "monitor",
+      "count": 2048,
+      "unrelated": 8192,
+      "repeat": 2,
+      "cpu_ticks": 62,
+      "hz": 100,
+      "elapsed_ns": 4001412806,
+      "cpu_percent": 15.494527309712417
+    },
+    {
+      "mode": "monitor",
+      "count": 2048,
+      "unrelated": 8192,
+      "repeat": 3,
+      "cpu_ticks": 62,
+      "hz": 100,
+      "elapsed_ns": 4000191172,
+      "cpu_percent": 15.499259243902955
+    },
+    {
+      "mode": "event",
+      "count": 2048,
+      "unrelated": 8192,
+      "repeat": 3,
+      "cpu_ticks": 4,
+      "hz": 100,
+      "elapsed_ns": 4001338985,
+      "cpu_percent": 0.9996653657675544
+    },
+    {
+      "mode": "pending",
+      "count": 2048,
+      "unrelated": 8192,
+      "repeat": 3,
+      "cpu_ticks": 0,
+      "hz": 100,
+      "elapsed_ns": 4001626963,
+      "cpu_percent": 0.0
+    },
+    {
+      "mode": "pending",
+      "count": 2048,
+      "unrelated": 8192,
+      "repeat": 4,
+      "cpu_ticks": 0,
+      "hz": 100,
+      "elapsed_ns": 4002298201,
+      "cpu_percent": 0.0
+    },
+    {
+      "mode": "event",
+      "count": 2048,
+      "unrelated": 8192,
+      "repeat": 4,
+      "cpu_ticks": 3,
+      "hz": 100,
+      "elapsed_ns": 4000972587,
+      "cpu_percent": 0.749817684266978
+    },
+    {
+      "mode": "monitor",
+      "count": 2048,
+      "unrelated": 8192,
+      "repeat": 4,
+      "cpu_ticks": 63,
+      "hz": 100,
+      "elapsed_ns": 4000862940,
+      "cpu_percent": 15.74660290662194
+    },
+    {
+      "mode": "monitor",
+      "count": 2048,
+      "unrelated": 8192,
+      "repeat": 5,
+      "cpu_ticks": 63,
+      "hz": 100,
+      "elapsed_ns": 4000739986,
+      "cpu_percent": 15.747086844048654
+    },
+    {
+      "mode": "event",
+      "count": 2048,
+      "unrelated": 8192,
+      "repeat": 5,
+      "cpu_ticks": 4,
+      "hz": 100,
+      "elapsed_ns": 4001308619,
+      "cpu_percent": 0.9996729522452266
+    },
+    {
+      "mode": "pending",
+      "count": 2048,
+      "unrelated": 8192,
+      "repeat": 5,
+      "cpu_ticks": 0,
+      "hz": 100,
+      "elapsed_ns": 4001680795,
+      "cpu_percent": 0.0
+    }
+  ],
+  "cells": [
+    {
+      "mode": "monitor",
+      "unrelated": 0,
+      "repeats": 5,
+      "median_cpu_percent": 15.493394430018249,
+      "cv": 0.011427809766690418,
+      "min_cpu_percent": 15.244411814039196,
+      "max_cpu_percent": 15.745189159795956
+    },
+    {
+      "mode": "event",
+      "unrelated": 0,
+      "repeats": 5,
+      "median_cpu_percent": 0.7497230210151009,
+      "cv": 0.16110899425217448,
+      "min_cpu_percent": 0.7495467314771276,
+      "max_cpu_percent": 0.999596101699753
+    },
+    {
+      "mode": "pending",
+      "unrelated": 0,
+      "repeats": 5,
+      "median_cpu_percent": 0.0,
+      "cv": null,
+      "min_cpu_percent": 0.0,
+      "max_cpu_percent": 0.0
+    },
+    {
+      "mode": "monitor",
+      "unrelated": 8192,
+      "repeats": 5,
+      "median_cpu_percent": 15.742084714513654,
+      "cv": 0.008696157698602599,
+      "min_cpu_percent": 15.494527309712417,
+      "max_cpu_percent": 15.747086844048654
+    },
+    {
+      "mode": "event",
+      "unrelated": 8192,
+      "repeats": 5,
+      "median_cpu_percent": 0.9996653657675544,
+      "cv": 0.15218068909354765,
+      "min_cpu_percent": 0.749591219423582,
+      "max_cpu_percent": 0.9996894599650695
+    },
+    {
+      "mode": "pending",
+      "unrelated": 8192,
+      "repeats": 5,
+      "median_cpu_percent": 0.0,
+      "cv": null,
+      "min_cpu_percent": 0.0,
+      "max_cpu_percent": 0.0
+    }
+  ],
+  "source_archive_base": "91a88774ac6780b209dce15c562d453d1ab0a40f",
+  "repository_head_at_probe": "a0fb3b36887d66e9b3ae817b129cb2b6ba8b9f9e",
+  "baseline_module_sha256": "a17b66eac7c15727b35b51f59ebf5bf31108241731e13053034590f60730dda8",
+  "limitations": [
+    "No QUIC traffic; idle absent regular-file waiters on native container filesystem.",
+    "Single guest logical CPU selected; no dedicated physical-core capacity claim.",
+    "Prototype assumes one directory and regular marker paths; unsupported as a general backend.",
+    "Any directory event causes a full scan; continuous marker writes may erase the idle benefit.",
+    "Per-process CPU tick resolution is 10ms; low-cost arm CV is quantized.",
+    "No accepted live admission or memory/p99 fix follows from this experiment."
+  ]
+}
