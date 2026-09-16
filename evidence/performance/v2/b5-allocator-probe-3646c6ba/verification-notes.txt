@@ -1,1 +1,2 @@
 C build PASS with -Wall -Wextra -Werror. All ten process exits zero. Analyzer PASS. Ruff initially reported E731; local analyzer lambda replaced with def, analysis and Ruff rerun PASS. No measured data modified. No production code changed.
+Initial staged diff check flagged the verbatim compiler output trailing blank line. Retained compiler bytes unchanged; scoped archive whitespace attribute corrected and canonical index regenerated.

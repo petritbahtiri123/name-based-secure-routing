@@ -1,1 +1,2 @@
 * -text whitespace=cr-at-eol
+compiler.txt whitespace=cr-at-eol,-blank-at-eof
