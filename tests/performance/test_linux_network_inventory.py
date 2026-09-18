@@ -75,15 +75,17 @@ def test_tool_failures_remain_explicit(monkeypatch, failure, status):
     assert inventory.run_command(['ethtool', '-i', 'eth0'])['status'] == status
 
 
-def test_read_only_command_does_not_use_shell_or_change_nic(monkeypatch):
+@pytest.mark.parametrize('returncode', [0, 1])
+def test_read_only_command_does_not_use_shell_or_hide_partial_permission_error(monkeypatch, returncode):
     from scripts.performance import linux_network_inventory as inventory
     seen = []
     def run(argv, **kwargs):
         assert kwargs.get('shell', False) is False
         assert kwargs['timeout'] == 5
         seen.append(argv)
-        return subprocess.CompletedProcess(argv, 1, '', 'Operation not permitted')
+        return subprocess.CompletedProcess(argv, returncode, 'partial link settings', 'Operation not permitted')
     monkeypatch.setattr(inventory.subprocess, 'run', run)
     result = inventory.run_command(['ethtool', '-x', 'eth0'])
     assert result['status'] == 'ADMIN_REQUIRED'
+    assert result['stdout'] == 'partial link settings'
     assert seen == [['ethtool', '-x', 'eth0']]

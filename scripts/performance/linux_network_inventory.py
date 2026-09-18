@@ -40,10 +40,12 @@ def run_command(argv):
     try:
         process = subprocess.run(argv, capture_output=True, text=True, timeout=5, check=False)
         result.update(returncode=process.returncode, stdout=process.stdout, stderr=process.stderr)
-        if process.returncode == 0:
-            result['status'] = 'MEASURED'
-        elif any(s in process.stderr.lower() for s in ('operation not permitted', 'permission denied')):
+        # ethtool can return zero while a netlink subquery was denied.
+        # Preserve partial stdout, but never silently qualify the whole query.
+        if any(s in process.stderr.lower() for s in ('operation not permitted', 'permission denied')):
             result['status'] = 'ADMIN_REQUIRED'
+        elif process.returncode == 0:
+            result['status'] = 'MEASURED'
         elif argv == ['systemd-detect-virt'] and process.returncode == 1 and process.stdout.strip() == 'none':
             result['status'] = 'MEASURED_NO_VIRTUALIZATION_REPORTED'
         else:
