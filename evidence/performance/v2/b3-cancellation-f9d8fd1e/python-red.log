@@ -1,0 +1,32 @@
+FF                                                                       [100%]
+================================== FAILURES ===================================
+________ test_cancelled_linux_capture_unwinds_before_new_work[command] ________
+
+point = 'command'
+
+    @pytest.mark.parametrize('point', ['command', 'capture'])
+    def test_cancelled_linux_capture_unwinds_before_new_work(point):
+        def cancelled():
+            raise InterruptedError('cancelled B3')
+>       capture = LinuxCapture([2], '/usr/bin/taskset', check_cancelled=cancelled,
+                               sample_fn=lambda *a: pytest.fail('sample after cancellation'))
+E       TypeError: LinuxCapture.__init__() got an unexpected keyword argument 'check_cancelled'
+
+tests\performance\test_b3_linux.py:34: TypeError
+________ test_cancelled_linux_capture_unwinds_before_new_work[capture] ________
+
+point = 'capture'
+
+    @pytest.mark.parametrize('point', ['command', 'capture'])
+    def test_cancelled_linux_capture_unwinds_before_new_work(point):
+        def cancelled():
+            raise InterruptedError('cancelled B3')
+>       capture = LinuxCapture([2], '/usr/bin/taskset', check_cancelled=cancelled,
+                               sample_fn=lambda *a: pytest.fail('sample after cancellation'))
+E       TypeError: LinuxCapture.__init__() got an unexpected keyword argument 'check_cancelled'
+
+tests\performance\test_b3_linux.py:34: TypeError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_b3_linux.py::test_cancelled_linux_capture_unwinds_before_new_work[command]
+FAILED tests/performance/test_b3_linux.py::test_cancelled_linux_capture_unwinds_before_new_work[capture]
+2 failed, 17 deselected in 2.61s

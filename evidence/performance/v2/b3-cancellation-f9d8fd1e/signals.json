@@ -1,0 +1,77 @@
+[
+  {
+    "signal": "SIGTERM",
+    "controller_exit": 1,
+    "after": [
+      {
+        "pid": 94,
+        "start_ticks": 187110,
+        "parent": 35,
+        "executable": "/tmp/binaries/wp8_interop_server",
+        "owned_peer_absent": true
+      },
+      {
+        "pid": 96,
+        "start_ticks": 187111,
+        "parent": 35,
+        "executable": "/tmp/binaries/perf_rust_source",
+        "owned_peer_absent": true
+      }
+    ],
+    "failure": {
+      "classification": "INVALID_PARTIAL",
+      "error": "benchmark controller cancelled by SIGTERM\ndestination: udp_receive_buffer_bytes=212992\n\nsource-0: \nlifecycle_files: ['00']\ncommands: [['/usr/bin/taskset', '-c', '0', '/tmp/target/release/perf_rust_source', '--authority-dir', '/tmp/nbsr-b3-cell-mm7580jb/authority', '--endpoint', '127.0.0.1:49534', '--samples', '1', '--payload-bytes', '1024', '--lifecycle-authority-dir', '/tmp/nbsr-b3-cell-mm7580jb/lifecycle', '--connections', '10', '--services', '1', '--streams-per-service', '64', '--concurrent-streams', '--hold-for-release', '--connection-offset', '0', '--diagnostics', '1', '--lifecycle-final-release', '/tmp/nbsr-b3-cell-mm7580jb/lifecycle/source.final-release']]",
+      "error_type": "RuntimeError"
+    }
+  },
+  {
+    "signal": "SIGINT",
+    "controller_exit": 1,
+    "after": [
+      {
+        "pid": 162,
+        "start_ticks": 187485,
+        "parent": 103,
+        "executable": "/tmp/binaries/wp8_interop_server",
+        "owned_peer_absent": true
+      },
+      {
+        "pid": 164,
+        "start_ticks": 187486,
+        "parent": 103,
+        "executable": "/tmp/binaries/perf_rust_source",
+        "owned_peer_absent": true
+      }
+    ],
+    "failure": {
+      "classification": "INVALID_PARTIAL",
+      "error": "benchmark controller cancelled by SIGINT\ndestination: udp_receive_buffer_bytes=212992\n\nsource-0: \nlifecycle_files: ['00']\ncommands: [['/usr/bin/taskset', '-c', '0', '/tmp/target/release/perf_rust_source', '--authority-dir', '/tmp/nbsr-b3-cell-i0jqpwgy/authority', '--endpoint', '127.0.0.1:40502', '--samples', '1', '--payload-bytes', '1024', '--lifecycle-authority-dir', '/tmp/nbsr-b3-cell-i0jqpwgy/lifecycle', '--connections', '10', '--services', '1', '--streams-per-service', '64', '--concurrent-streams', '--hold-for-release', '--connection-offset', '0', '--diagnostics', '1', '--lifecycle-final-release', '/tmp/nbsr-b3-cell-i0jqpwgy/lifecycle/source.final-release']]",
+      "error_type": "RuntimeError"
+    }
+  },
+  {
+    "signal": "SIGHUP",
+    "controller_exit": 1,
+    "after": [
+      {
+        "pid": 230,
+        "start_ticks": 187924,
+        "parent": 171,
+        "executable": "/tmp/binaries/wp8_interop_server",
+        "owned_peer_absent": true
+      },
+      {
+        "pid": 232,
+        "start_ticks": 187926,
+        "parent": 171,
+        "executable": "/tmp/binaries/perf_rust_source",
+        "owned_peer_absent": true
+      }
+    ],
+    "failure": {
+      "classification": "INVALID_PARTIAL",
+      "error": "benchmark controller cancelled by SIGHUP\ndestination: udp_receive_buffer_bytes=212992\n\nsource-0: \nlifecycle_files: ['00']\ncommands: [['/usr/bin/taskset', '-c', '0', '/tmp/target/release/perf_rust_source', '--authority-dir', '/tmp/nbsr-b3-cell-cesv4a7c/authority', '--endpoint', '127.0.0.1:59444', '--samples', '1', '--payload-bytes', '1024', '--lifecycle-authority-dir', '/tmp/nbsr-b3-cell-cesv4a7c/lifecycle', '--connections', '10', '--services', '1', '--streams-per-service', '64', '--concurrent-streams', '--hold-for-release', '--connection-offset', '0', '--diagnostics', '1', '--lifecycle-final-release', '/tmp/nbsr-b3-cell-cesv4a7c/lifecycle/source.final-release']]",
+      "error_type": "RuntimeError"
+    }
+  }
+]

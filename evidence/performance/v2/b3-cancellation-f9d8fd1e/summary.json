@@ -1,0 +1,11 @@
+{
+  "signals_passed": 3,
+  "analysis": {
+    "repeats": 3,
+    "cycles": 30,
+    "cleanup": "PASS"
+  },
+  "classification": "PASS_CONTROLLER_CANCELLATION",
+  "normal_acceptance": "SEE_UNMODIFIED_ANALYSIS",
+  "sustained_capacity": "NOT_PROVEN"
+}
