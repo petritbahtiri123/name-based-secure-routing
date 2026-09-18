@@ -1,0 +1,95 @@
+.........FFF.                                                            [100%]
+================================== FAILURES ===================================
+_ test_child_exception_is_only_tolerated_for_retained_performance_failure[True] _
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1074/test_child_exception_is_only_t0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000264F20588A0>
+expected_failure = True
+
+    @pytest.mark.parametrize('expected_failure', [True, False])
+    def test_child_exception_is_only_tolerated_for_retained_performance_failure(tmp_path, monkeypatch, expected_failure):
+        import json
+        from types import SimpleNamespace
+        from scripts.performance import linux_b5_placement as module
+        args = SimpleNamespace(binaries=tmp_path, build_manifest=tmp_path / 'build.json',
+            path='nbsr', rate=[1, 1], payload=16384, streams=8, depth=1,
+            warmup=3, duration=300, progress=30)
+    
+        def child(options, *, check_cancelled):
+            check_cancelled()
+            options.output.mkdir()
+            (options.output / 'records.json').write_text(json.dumps([row('shared', 1, failed=True)]))
+            raise RuntimeError('invalid partial run retained; no replacement' if expected_failure else 'source changed')
+    
+        monkeypatch.setattr(module.campaign, 'execute', child)
+        result = module.execute_cell(args, 'shared', 1, tmp_path / 'new')
+        if expected_failure:
+>           assert result['classification'] == 'FAIL_DIAGNOSTIC_RETAINED'
+E           AssertionError: assert 'FAIL' == 'FAIL_DIAGNOSTIC_RETAINED'
+E             
+E             - FAIL_DIAGNOSTIC_RETAINED
+E             + FAIL
+
+tests\performance\test_linux_b5_placement.py:86: AssertionError
+_ test_child_exception_is_only_tolerated_for_retained_performance_failure[False] _
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1074/test_child_exception_is_only_t1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000264F2058B00>
+expected_failure = False
+
+    @pytest.mark.parametrize('expected_failure', [True, False])
+    def test_child_exception_is_only_tolerated_for_retained_performance_failure(tmp_path, monkeypatch, expected_failure):
+        import json
+        from types import SimpleNamespace
+        from scripts.performance import linux_b5_placement as module
+        args = SimpleNamespace(binaries=tmp_path, build_manifest=tmp_path / 'build.json',
+            path='nbsr', rate=[1, 1], payload=16384, streams=8, depth=1,
+            warmup=3, duration=300, progress=30)
+    
+        def child(options, *, check_cancelled):
+            check_cancelled()
+            options.output.mkdir()
+            (options.output / 'records.json').write_text(json.dumps([row('shared', 1, failed=True)]))
+            raise RuntimeError('invalid partial run retained; no replacement' if expected_failure else 'source changed')
+    
+        monkeypatch.setattr(module.campaign, 'execute', child)
+        result = module.execute_cell(args, 'shared', 1, tmp_path / 'new')
+        if expected_failure:
+            assert result['classification'] == 'FAIL_DIAGNOSTIC_RETAINED'
+        else:
+>           assert result['classification'] == 'FAIL' and result['controller_error'] == 'source changed'
+E           assert ('FAIL' == 'FAIL'
+E             
+E               FAIL and "test_child_e...ck_cancelled'" == 'source changed'
+E             
+E             - source changed
+E             + test_child_exception_is_only_tolerated_for_retained_performance_failure.<locals>.child() missing 1 required keyword-only argument: 'check_cancelled')
+
+tests\performance\test_linux_b5_placement.py:88: AssertionError
+___________ test_placement_passes_cancellation_into_nested_campaign ___________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1074/test_placement_passes_cancella0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000264F2080DD0>
+
+    def test_placement_passes_cancellation_into_nested_campaign(tmp_path, monkeypatch):
+        from types import SimpleNamespace
+        from scripts.performance import linux_b5_placement as module
+        args = SimpleNamespace(binaries=tmp_path, build_manifest=tmp_path / 'build.json',
+            path='nbsr', rate=[1, 1], payload=16384, streams=8, depth=1,
+            warmup=3, duration=300, progress=30)
+        def cancelled():
+            raise InterruptedError('SIGTERM fixture')
+        def child(options, *, check_cancelled):
+            assert check_cancelled is cancelled
+            check_cancelled()
+        monkeypatch.setattr(module.campaign, 'execute', child)
+>       result = module.execute_cell(args, 'shared', 1, tmp_path / 'new', check_cancelled=cancelled)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: execute_cell() got an unexpected keyword argument 'check_cancelled'
+
+tests\performance\test_linux_b5_placement.py:103: TypeError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_linux_b5_placement.py::test_child_exception_is_only_tolerated_for_retained_performance_failure[True]
+FAILED tests/performance/test_linux_b5_placement.py::test_child_exception_is_only_tolerated_for_retained_performance_failure[False]
+FAILED tests/performance/test_linux_b5_placement.py::test_placement_passes_cancellation_into_nested_campaign
+3 failed, 10 passed in 1.27s

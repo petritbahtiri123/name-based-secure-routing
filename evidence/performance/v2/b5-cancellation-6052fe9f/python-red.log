@@ -1,0 +1,64 @@
+FFFF.......                                                              [100%]
+================================== FAILURES ===================================
+____ test_pending_cancellation_reaches_registered_peer_safe_points[verify] ____
+
+stage = 'verify'
+
+    @pytest.mark.parametrize('stage', ['verify', 'observe', 'source-drain', 'destination-drain'])
+    def test_pending_cancellation_reaches_registered_peer_safe_points(stage):
+        from scripts.performance.linux_b5_backend import LinuxB5Backend
+        def cancelled():
+            raise InterruptedError('SIGTERM fixture')
+>       value = LinuxB5Backend({'platform': 'linux', 'selected_cpus': [2], 'taskset': '/usr/bin/taskset'},
+                              check_cancelled=cancelled)
+E       TypeError: LinuxB5Backend.__init__() got an unexpected keyword argument 'check_cancelled'
+
+tests\performance\test_linux_b5_backend.py:11: TypeError
+___ test_pending_cancellation_reaches_registered_peer_safe_points[observe] ____
+
+stage = 'observe'
+
+    @pytest.mark.parametrize('stage', ['verify', 'observe', 'source-drain', 'destination-drain'])
+    def test_pending_cancellation_reaches_registered_peer_safe_points(stage):
+        from scripts.performance.linux_b5_backend import LinuxB5Backend
+        def cancelled():
+            raise InterruptedError('SIGTERM fixture')
+>       value = LinuxB5Backend({'platform': 'linux', 'selected_cpus': [2], 'taskset': '/usr/bin/taskset'},
+                              check_cancelled=cancelled)
+E       TypeError: LinuxB5Backend.__init__() got an unexpected keyword argument 'check_cancelled'
+
+tests\performance\test_linux_b5_backend.py:11: TypeError
+_ test_pending_cancellation_reaches_registered_peer_safe_points[source-drain] _
+
+stage = 'source-drain'
+
+    @pytest.mark.parametrize('stage', ['verify', 'observe', 'source-drain', 'destination-drain'])
+    def test_pending_cancellation_reaches_registered_peer_safe_points(stage):
+        from scripts.performance.linux_b5_backend import LinuxB5Backend
+        def cancelled():
+            raise InterruptedError('SIGTERM fixture')
+>       value = LinuxB5Backend({'platform': 'linux', 'selected_cpus': [2], 'taskset': '/usr/bin/taskset'},
+                              check_cancelled=cancelled)
+E       TypeError: LinuxB5Backend.__init__() got an unexpected keyword argument 'check_cancelled'
+
+tests\performance\test_linux_b5_backend.py:11: TypeError
+_ test_pending_cancellation_reaches_registered_peer_safe_points[destination-drain] _
+
+stage = 'destination-drain'
+
+    @pytest.mark.parametrize('stage', ['verify', 'observe', 'source-drain', 'destination-drain'])
+    def test_pending_cancellation_reaches_registered_peer_safe_points(stage):
+        from scripts.performance.linux_b5_backend import LinuxB5Backend
+        def cancelled():
+            raise InterruptedError('SIGTERM fixture')
+>       value = LinuxB5Backend({'platform': 'linux', 'selected_cpus': [2], 'taskset': '/usr/bin/taskset'},
+                              check_cancelled=cancelled)
+E       TypeError: LinuxB5Backend.__init__() got an unexpected keyword argument 'check_cancelled'
+
+tests\performance\test_linux_b5_backend.py:11: TypeError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_linux_b5_backend.py::test_pending_cancellation_reaches_registered_peer_safe_points[verify]
+FAILED tests/performance/test_linux_b5_backend.py::test_pending_cancellation_reaches_registered_peer_safe_points[observe]
+FAILED tests/performance/test_linux_b5_backend.py::test_pending_cancellation_reaches_registered_peer_safe_points[source-drain]
+FAILED tests/performance/test_linux_b5_backend.py::test_pending_cancellation_reaches_registered_peer_safe_points[destination-drain]
+4 failed, 7 passed in 0.70s

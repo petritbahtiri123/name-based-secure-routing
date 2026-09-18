@@ -1,0 +1,43 @@
+[
+  {
+    "command": [
+      "C:\\Users\\bajra\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+      "-m",
+      "pytest",
+      "tests/performance/test_linux_b5_backend.py",
+      "tests/performance/test_linux_b5_campaign.py",
+      "tests/performance/test_linux_b5_placement.py",
+      "tests/performance/test_linux_native_peer.py",
+      "-q"
+    ],
+    "exit_code": 0,
+    "stdout": "...............................................                          [100%]\n47 passed in 1.14s\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "C:\\Users\\bajra\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+      "-m",
+      "ruff",
+      "check",
+      "scripts/performance/linux_b5_backend.py",
+      "scripts/performance/linux_b5_campaign.py",
+      "scripts/performance/linux_b5_placement.py",
+      "tests/performance/test_linux_b5_backend.py",
+      "tests/performance/test_linux_b5_placement.py"
+    ],
+    "exit_code": 0,
+    "stdout": "All checks passed!\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+]

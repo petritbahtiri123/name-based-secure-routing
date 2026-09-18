@@ -1,0 +1,1154 @@
+[
+  {
+    "achieved_offered_ratio": 1.0,
+    "affinity": [
+      {
+        "linux_affinity": [
+          0
+        ],
+        "observed_mask": 1,
+        "requested_mask": 1,
+        "start_ticks": 15300,
+        "verified": true
+      },
+      {
+        "linux_affinity": [
+          0
+        ],
+        "observed_mask": 1,
+        "requested_mask": 1,
+        "start_ticks": 15302,
+        "verified": true
+      }
+    ],
+    "classification": "DIAGNOSTIC",
+    "cleanup_scope": "11-counter reports and all process joins",
+    "continuous_ownership": {
+      "classification": "SAMPLED_NO_SUSTAINED_GROWTH",
+      "max_snapshot_gap_ns": {
+        "destination_0": 1000802590,
+        "source": 1001089636
+      },
+      "retained_capacity_scope": "Optional fields observed when emitted; not allocator or leak attribution.",
+      "retained_window_per_role": 60,
+      "sample_counts": {
+        "destination_0": 20,
+        "source": 15
+      },
+      "scope": "Process-local sample intervals; cross-process clock alignment and final zero cleanup are separate."
+    },
+    "diagnostic_continue_on_performance_failure": true,
+    "diagnostic_gate_failures": [],
+    "final": {
+      "all_groups_joined": true,
+      "collector_overflow_count": 0,
+      "completed": 15000,
+      "drain_duration_ns": 755357,
+      "errors": 0,
+      "evidence_valid": true,
+      "group_counters": [
+        {
+          "completed": 15000,
+          "group_id": 0,
+          "issued": 15000,
+          "missed": 0,
+          "offered": 15000,
+          "reserved": 15000,
+          "unreserved_current": 0
+        }
+      ],
+      "groups": 1,
+      "issued": 15000,
+      "max_outstanding_observed": 8,
+      "measurement_duration_ns": 15000000000,
+      "missed": 0,
+      "offered": 15000,
+      "outstanding_per_stream": 1,
+      "payload_bytes": 16384,
+      "reserved": 15000,
+      "schema": "nbsr-b5-grouped-final-v1",
+      "source_cleanup": {
+        "status": "SEPARATE_REPORT_REQUIRED"
+      },
+      "streams_per_group": 8,
+      "timeouts": 0,
+      "unreserved_current": 0
+    },
+    "gbps": 0.26213079984436144,
+    "internal_failure_thread_join": "NOT_MEASURED",
+    "ownership_reports": [
+      {
+        "all_11_zero": true,
+        "file": "d0.cleanup.json",
+        "pid": 742,
+        "role": "destination"
+      },
+      {
+        "all_11_zero": true,
+        "file": "source.cleanup.json",
+        "pid": 744,
+        "role": "source"
+      }
+    ],
+    "path": "nbsr",
+    "placement": "shared",
+    "qualification": {
+      "latency_comparison_available": true,
+      "resource_memory_metric": "private_resident_bytes",
+      "resource_phase_clock": "first-progress receive time minus elapsed; approximate, excludes earlier samples",
+      "resource_phase_origin_monotonic_ns": 156037382909,
+      "resource_sample_clock": "timestamp_ns",
+      "resource_series_available": true,
+      "steady_windows": 4,
+      "thermal_and_power": "NOT_MEASURED"
+    },
+    "raw_directory": "shared-r1",
+    "repeat": 1,
+    "scope": "Linux loopback selected guest CPUs; observer qualification pending",
+    "valid": true,
+    "window_p99_median_ns": 2085268.0
+  },
+  {
+    "achieved_offered_ratio": 1.0,
+    "affinity": [
+      {
+        "linux_affinity": [
+          2
+        ],
+        "observed_mask": 4,
+        "requested_mask": 4,
+        "start_ticks": 17343,
+        "verified": true
+      },
+      {
+        "linux_affinity": [
+          0
+        ],
+        "observed_mask": 1,
+        "requested_mask": 1,
+        "start_ticks": 17345,
+        "verified": true
+      }
+    ],
+    "classification": "FAIL_DIAGNOSTIC_RETAINED",
+    "cleanup_scope": "11-counter reports and all process joins",
+    "continuous_ownership": {
+      "classification": "SAMPLED_NO_SUSTAINED_GROWTH",
+      "max_snapshot_gap_ns": {
+        "destination_0": 1004418216,
+        "source": 1001574924
+      },
+      "retained_capacity_scope": "Optional fields observed when emitted; not allocator or leak attribution.",
+      "retained_window_per_role": 60,
+      "sample_counts": {
+        "destination_0": 20,
+        "source": 15
+      },
+      "scope": "Process-local sample intervals; cross-process clock alignment and final zero cleanup are separate."
+    },
+    "diagnostic_continue_on_performance_failure": true,
+    "diagnostic_gate_failures": [
+      {
+        "elapsed_ns": 12002306411,
+        "reason": "live p99 drift"
+      }
+    ],
+    "error": "live p99 drift",
+    "final": {
+      "all_groups_joined": true,
+      "collector_overflow_count": 0,
+      "completed": 15000,
+      "drain_duration_ns": 831212,
+      "errors": 0,
+      "evidence_valid": true,
+      "group_counters": [
+        {
+          "completed": 15000,
+          "group_id": 0,
+          "issued": 15000,
+          "missed": 0,
+          "offered": 15000,
+          "reserved": 15000,
+          "unreserved_current": 0
+        }
+      ],
+      "groups": 1,
+      "issued": 15000,
+      "max_outstanding_observed": 8,
+      "measurement_duration_ns": 15000000000,
+      "missed": 0,
+      "offered": 15000,
+      "outstanding_per_stream": 1,
+      "payload_bytes": 16384,
+      "reserved": 15000,
+      "schema": "nbsr-b5-grouped-final-v1",
+      "source_cleanup": {
+        "status": "SEPARATE_REPORT_REQUIRED"
+      },
+      "streams_per_group": 8,
+      "timeouts": 0,
+      "unreserved_current": 0
+    },
+    "gbps": 0.2621294743223593,
+    "internal_failure_thread_join": "NOT_MEASURED",
+    "ownership_reports": [
+      {
+        "all_11_zero": true,
+        "file": "d0.cleanup.json",
+        "pid": 874,
+        "role": "destination"
+      },
+      {
+        "all_11_zero": true,
+        "file": "source.cleanup.json",
+        "pid": 876,
+        "role": "source"
+      }
+    ],
+    "path": "nbsr",
+    "placement": "split",
+    "qualification": {
+      "latency_comparison_available": true,
+      "resource_memory_metric": "private_resident_bytes",
+      "resource_phase_clock": "first-progress receive time minus elapsed; approximate, excludes earlier samples",
+      "resource_phase_origin_monotonic_ns": 176470951898,
+      "resource_sample_clock": "timestamp_ns",
+      "resource_series_available": true,
+      "steady_windows": 4,
+      "thermal_and_power": "NOT_MEASURED"
+    },
+    "raw_directory": "split-r1",
+    "repeat": 1,
+    "scope": "Linux loopback selected guest CPUs; observer qualification pending",
+    "valid": false,
+    "window_p99_median_ns": 1331974.0
+  },
+  {
+    "achieved_offered_ratio": 0.9983333333333333,
+    "affinity": [
+      {
+        "linux_affinity": [
+          2
+        ],
+        "observed_mask": 4,
+        "requested_mask": 4,
+        "start_ticks": 19353,
+        "verified": true
+      },
+      {
+        "linux_affinity": [
+          0
+        ],
+        "observed_mask": 1,
+        "requested_mask": 1,
+        "start_ticks": 19356,
+        "verified": true
+      }
+    ],
+    "classification": "FAIL_DIAGNOSTIC_RETAINED",
+    "cleanup_scope": "11-counter reports and all process joins",
+    "continuous_ownership": {
+      "classification": "SAMPLED_NO_SUSTAINED_GROWTH",
+      "max_snapshot_gap_ns": {
+        "destination_0": 1001107437,
+        "source": 1001182270
+      },
+      "retained_capacity_scope": "Optional fields observed when emitted; not allocator or leak attribution.",
+      "retained_window_per_role": 60,
+      "sample_counts": {
+        "destination_0": 20,
+        "source": 15
+      },
+      "scope": "Process-local sample intervals; cross-process clock alignment and final zero cleanup are separate."
+    },
+    "diagnostic_continue_on_performance_failure": true,
+    "diagnostic_gate_failures": [
+      {
+        "elapsed_ns": 9001479648,
+        "reason": "live p99 drift"
+      },
+      {
+        "elapsed_ns": 12000928250,
+        "reason": "live p99 drift"
+      }
+    ],
+    "error": "live p99 drift",
+    "final": {
+      "all_groups_joined": true,
+      "collector_overflow_count": 0,
+      "completed": 14975,
+      "drain_duration_ns": 391613,
+      "errors": 0,
+      "evidence_valid": true,
+      "group_counters": [
+        {
+          "completed": 14975,
+          "group_id": 0,
+          "issued": 14975,
+          "missed": 25,
+          "offered": 15000,
+          "reserved": 14975,
+          "unreserved_current": 0
+        }
+      ],
+      "groups": 1,
+      "issued": 14975,
+      "max_outstanding_observed": 8,
+      "measurement_duration_ns": 15000000000,
+      "missed": 25,
+      "offered": 15000,
+      "outstanding_per_stream": 1,
+      "payload_bytes": 16384,
+      "reserved": 14975,
+      "schema": "nbsr-b5-grouped-final-v1",
+      "source_cleanup": {
+        "status": "SEPARATE_REPORT_REQUIRED"
+      },
+      "streams_per_group": 8,
+      "timeouts": 0,
+      "unreserved_current": 0
+    },
+    "gbps": 0.26170026098504634,
+    "internal_failure_thread_join": "NOT_MEASURED",
+    "ownership_reports": [
+      {
+        "all_11_zero": true,
+        "file": "d0.cleanup.json",
+        "pid": 981,
+        "role": "destination"
+      },
+      {
+        "all_11_zero": true,
+        "file": "source.cleanup.json",
+        "pid": 983,
+        "role": "source"
+      }
+    ],
+    "path": "nbsr",
+    "placement": "split",
+    "qualification": {
+      "latency_comparison_available": true,
+      "resource_memory_metric": "private_resident_bytes",
+      "resource_phase_clock": "first-progress receive time minus elapsed; approximate, excludes earlier samples",
+      "resource_phase_origin_monotonic_ns": 196572797912,
+      "resource_sample_clock": "timestamp_ns",
+      "resource_series_available": true,
+      "steady_windows": 4,
+      "thermal_and_power": "NOT_MEASURED"
+    },
+    "raw_directory": "split-r2",
+    "repeat": 2,
+    "scope": "Linux loopback selected guest CPUs; observer qualification pending",
+    "valid": false,
+    "window_p99_median_ns": 1147807.5
+  },
+  {
+    "achieved_offered_ratio": 0.9997333333333334,
+    "affinity": [
+      {
+        "linux_affinity": [
+          0
+        ],
+        "observed_mask": 1,
+        "requested_mask": 1,
+        "start_ticks": 21460,
+        "verified": true
+      },
+      {
+        "linux_affinity": [
+          0
+        ],
+        "observed_mask": 1,
+        "requested_mask": 1,
+        "start_ticks": 21463,
+        "verified": true
+      }
+    ],
+    "classification": "FAIL_DIAGNOSTIC_RETAINED",
+    "cleanup_scope": "11-counter reports and all process joins",
+    "continuous_ownership": {
+      "classification": "SAMPLED_NO_SUSTAINED_GROWTH",
+      "max_snapshot_gap_ns": {
+        "destination_0": 1000947262,
+        "source": 1001484587
+      },
+      "retained_capacity_scope": "Optional fields observed when emitted; not allocator or leak attribution.",
+      "retained_window_per_role": 60,
+      "sample_counts": {
+        "destination_0": 20,
+        "source": 15
+      },
+      "scope": "Process-local sample intervals; cross-process clock alignment and final zero cleanup are separate."
+    },
+    "diagnostic_continue_on_performance_failure": true,
+    "diagnostic_gate_failures": [
+      {
+        "elapsed_ns": 9001486904,
+        "reason": "live p99 drift"
+      }
+    ],
+    "error": "live p99 drift",
+    "final": {
+      "all_groups_joined": true,
+      "collector_overflow_count": 0,
+      "completed": 14996,
+      "drain_duration_ns": 365523,
+      "errors": 0,
+      "evidence_valid": true,
+      "group_counters": [
+        {
+          "completed": 14996,
+          "group_id": 0,
+          "issued": 14996,
+          "missed": 4,
+          "offered": 15000,
+          "reserved": 14996,
+          "unreserved_current": 0
+        }
+      ],
+      "groups": 1,
+      "issued": 14996,
+      "max_outstanding_observed": 8,
+      "measurement_duration_ns": 15000000000,
+      "missed": 4,
+      "offered": 15000,
+      "outstanding_per_stream": 1,
+      "payload_bytes": 16384,
+      "reserved": 14996,
+      "schema": "nbsr-b5-grouped-final-v1",
+      "source_cleanup": {
+        "status": "SEPARATE_REPORT_REQUIRED"
+      },
+      "streams_per_group": 8,
+      "timeouts": 0,
+      "unreserved_current": 0
+    },
+    "gbps": 0.26206770881499136,
+    "internal_failure_thread_join": "NOT_MEASURED",
+    "ownership_reports": [
+      {
+        "all_11_zero": true,
+        "file": "d0.cleanup.json",
+        "pid": 1088,
+        "role": "destination"
+      },
+      {
+        "all_11_zero": true,
+        "file": "source.cleanup.json",
+        "pid": 1090,
+        "role": "source"
+      }
+    ],
+    "path": "nbsr",
+    "placement": "shared",
+    "qualification": {
+      "latency_comparison_available": true,
+      "resource_memory_metric": "private_resident_bytes",
+      "resource_phase_clock": "first-progress receive time minus elapsed; approximate, excludes earlier samples",
+      "resource_phase_origin_monotonic_ns": 217656234455,
+      "resource_sample_clock": "timestamp_ns",
+      "resource_series_available": true,
+      "steady_windows": 4,
+      "thermal_and_power": "NOT_MEASURED"
+    },
+    "raw_directory": "shared-r2",
+    "repeat": 2,
+    "scope": "Linux loopback selected guest CPUs; observer qualification pending",
+    "valid": false,
+    "window_p99_median_ns": 1959606.5
+  },
+  {
+    "achieved_offered_ratio": 0.9998,
+    "affinity": [
+      {
+        "linux_affinity": [
+          0
+        ],
+        "observed_mask": 1,
+        "requested_mask": 1,
+        "start_ticks": 23525,
+        "verified": true
+      },
+      {
+        "linux_affinity": [
+          0
+        ],
+        "observed_mask": 1,
+        "requested_mask": 1,
+        "start_ticks": 23528,
+        "verified": true
+      }
+    ],
+    "classification": "FAIL_DIAGNOSTIC_RETAINED",
+    "cleanup_scope": "11-counter reports and all process joins",
+    "continuous_ownership": {
+      "classification": "SAMPLED_NO_SUSTAINED_GROWTH",
+      "max_snapshot_gap_ns": {
+        "destination_0": 1000915456,
+        "source": 1001185197
+      },
+      "retained_capacity_scope": "Optional fields observed when emitted; not allocator or leak attribution.",
+      "retained_window_per_role": 60,
+      "sample_counts": {
+        "destination_0": 20,
+        "source": 15
+      },
+      "scope": "Process-local sample intervals; cross-process clock alignment and final zero cleanup are separate."
+    },
+    "diagnostic_continue_on_performance_failure": true,
+    "diagnostic_gate_failures": [
+      {
+        "elapsed_ns": 9000673771,
+        "reason": "live p99 drift"
+      }
+    ],
+    "error": "live p99 drift",
+    "final": {
+      "all_groups_joined": true,
+      "collector_overflow_count": 0,
+      "completed": 14997,
+      "drain_duration_ns": 489552,
+      "errors": 0,
+      "evidence_valid": true,
+      "group_counters": [
+        {
+          "completed": 14997,
+          "group_id": 0,
+          "issued": 14997,
+          "missed": 3,
+          "offered": 15000,
+          "reserved": 14997,
+          "unreserved_current": 0
+        }
+      ],
+      "groups": 1,
+      "issued": 14997,
+      "max_outstanding_observed": 8,
+      "measurement_duration_ns": 15000000000,
+      "missed": 3,
+      "offered": 15000,
+      "outstanding_per_stream": 1,
+      "payload_bytes": 16384,
+      "reserved": 14997,
+      "schema": "nbsr-b5-grouped-final-v1",
+      "source_cleanup": {
+        "status": "SEPARATE_REPORT_REQUIRED"
+      },
+      "streams_per_group": 8,
+      "timeouts": 0,
+      "unreserved_current": 0
+    },
+    "gbps": 0.2620830176489696,
+    "internal_failure_thread_join": "NOT_MEASURED",
+    "ownership_reports": [
+      {
+        "all_11_zero": true,
+        "file": "d0.cleanup.json",
+        "pid": 1195,
+        "role": "destination"
+      },
+      {
+        "all_11_zero": true,
+        "file": "source.cleanup.json",
+        "pid": 1197,
+        "role": "source"
+      }
+    ],
+    "path": "nbsr",
+    "placement": "shared",
+    "qualification": {
+      "latency_comparison_available": true,
+      "resource_memory_metric": "private_resident_bytes",
+      "resource_phase_clock": "first-progress receive time minus elapsed; approximate, excludes earlier samples",
+      "resource_phase_origin_monotonic_ns": 238294949247,
+      "resource_sample_clock": "timestamp_ns",
+      "resource_series_available": true,
+      "steady_windows": 4,
+      "thermal_and_power": "NOT_MEASURED"
+    },
+    "raw_directory": "shared-r3",
+    "repeat": 3,
+    "scope": "Linux loopback selected guest CPUs; observer qualification pending",
+    "valid": false,
+    "window_p99_median_ns": 2476086.5
+  },
+  {
+    "achieved_offered_ratio": 0.9996,
+    "affinity": [
+      {
+        "linux_affinity": [
+          2
+        ],
+        "observed_mask": 4,
+        "requested_mask": 4,
+        "start_ticks": 25601,
+        "verified": true
+      },
+      {
+        "linux_affinity": [
+          0
+        ],
+        "observed_mask": 1,
+        "requested_mask": 1,
+        "start_ticks": 25604,
+        "verified": true
+      }
+    ],
+    "classification": "FAIL_DIAGNOSTIC_RETAINED",
+    "cleanup_scope": "11-counter reports and all process joins",
+    "continuous_ownership": {
+      "classification": "SAMPLED_NO_SUSTAINED_GROWTH",
+      "max_snapshot_gap_ns": {
+        "destination_0": 1001258671,
+        "source": 1000841711
+      },
+      "retained_capacity_scope": "Optional fields observed when emitted; not allocator or leak attribution.",
+      "retained_window_per_role": 60,
+      "sample_counts": {
+        "destination_0": 20,
+        "source": 15
+      },
+      "scope": "Process-local sample intervals; cross-process clock alignment and final zero cleanup are separate."
+    },
+    "diagnostic_continue_on_performance_failure": true,
+    "diagnostic_gate_failures": [
+      {
+        "elapsed_ns": 9001317395,
+        "reason": "live p99 drift"
+      }
+    ],
+    "error": "live p99 drift",
+    "final": {
+      "all_groups_joined": true,
+      "collector_overflow_count": 0,
+      "completed": 14994,
+      "drain_duration_ns": 728780,
+      "errors": 0,
+      "evidence_valid": true,
+      "group_counters": [
+        {
+          "completed": 14994,
+          "group_id": 0,
+          "issued": 14994,
+          "missed": 6,
+          "offered": 15000,
+          "reserved": 14994,
+          "unreserved_current": 0
+        }
+      ],
+      "groups": 1,
+      "issued": 14994,
+      "max_outstanding_observed": 8,
+      "measurement_duration_ns": 15000000000,
+      "missed": 6,
+      "offered": 15000,
+      "outstanding_per_stream": 1,
+      "payload_bytes": 16384,
+      "reserved": 14994,
+      "schema": "nbsr-b5-grouped-final-v1",
+      "source_cleanup": {
+        "status": "SEPARATE_REPORT_REQUIRED"
+      },
+      "streams_per_group": 8,
+      "timeouts": 0,
+      "unreserved_current": 0
+    },
+    "gbps": 0.2620264117594425,
+    "internal_failure_thread_join": "NOT_MEASURED",
+    "ownership_reports": [
+      {
+        "all_11_zero": true,
+        "file": "d0.cleanup.json",
+        "pid": 1302,
+        "role": "destination"
+      },
+      {
+        "all_11_zero": true,
+        "file": "source.cleanup.json",
+        "pid": 1304,
+        "role": "source"
+      }
+    ],
+    "path": "nbsr",
+    "placement": "split",
+    "qualification": {
+      "latency_comparison_available": true,
+      "resource_memory_metric": "private_resident_bytes",
+      "resource_phase_clock": "first-progress receive time minus elapsed; approximate, excludes earlier samples",
+      "resource_phase_origin_monotonic_ns": 259055476373,
+      "resource_sample_clock": "timestamp_ns",
+      "resource_series_available": true,
+      "steady_windows": 4,
+      "thermal_and_power": "NOT_MEASURED"
+    },
+    "raw_directory": "split-r3",
+    "repeat": 3,
+    "scope": "Linux loopback selected guest CPUs; observer qualification pending",
+    "valid": false,
+    "window_p99_median_ns": 1569729.5
+  },
+  {
+    "achieved_offered_ratio": 1.0,
+    "affinity": [
+      {
+        "linux_affinity": [
+          2
+        ],
+        "observed_mask": 4,
+        "requested_mask": 4,
+        "start_ticks": 27612,
+        "verified": true
+      },
+      {
+        "linux_affinity": [
+          0
+        ],
+        "observed_mask": 1,
+        "requested_mask": 1,
+        "start_ticks": 27614,
+        "verified": true
+      }
+    ],
+    "classification": "FAIL_DIAGNOSTIC_RETAINED",
+    "cleanup_scope": "11-counter reports and all process joins",
+    "continuous_ownership": {
+      "classification": "SAMPLED_NO_SUSTAINED_GROWTH",
+      "max_snapshot_gap_ns": {
+        "destination_0": 1001475851,
+        "source": 1000951751
+      },
+      "retained_capacity_scope": "Optional fields observed when emitted; not allocator or leak attribution.",
+      "retained_window_per_role": 60,
+      "sample_counts": {
+        "destination_0": 20,
+        "source": 15
+      },
+      "scope": "Process-local sample intervals; cross-process clock alignment and final zero cleanup are separate."
+    },
+    "diagnostic_continue_on_performance_failure": true,
+    "diagnostic_gate_failures": [
+      {
+        "elapsed_ns": 9001706192,
+        "reason": "live p99 drift"
+      }
+    ],
+    "error": "live p99 drift",
+    "final": {
+      "all_groups_joined": true,
+      "collector_overflow_count": 0,
+      "completed": 15000,
+      "drain_duration_ns": 752890,
+      "errors": 0,
+      "evidence_valid": true,
+      "group_counters": [
+        {
+          "completed": 15000,
+          "group_id": 0,
+          "issued": 15000,
+          "missed": 0,
+          "offered": 15000,
+          "reserved": 15000,
+          "unreserved_current": 0
+        }
+      ],
+      "groups": 1,
+      "issued": 15000,
+      "max_outstanding_observed": 8,
+      "measurement_duration_ns": 15000000000,
+      "missed": 0,
+      "offered": 15000,
+      "outstanding_per_stream": 1,
+      "payload_bytes": 16384,
+      "reserved": 15000,
+      "schema": "nbsr-b5-grouped-final-v1",
+      "source_cleanup": {
+        "status": "SEPARATE_REPORT_REQUIRED"
+      },
+      "streams_per_group": 8,
+      "timeouts": 0,
+      "unreserved_current": 0
+    },
+    "gbps": 0.26213084295397654,
+    "internal_failure_thread_join": "NOT_MEASURED",
+    "ownership_reports": [
+      {
+        "all_11_zero": true,
+        "file": "d0.cleanup.json",
+        "pid": 1409,
+        "role": "destination"
+      },
+      {
+        "all_11_zero": true,
+        "file": "source.cleanup.json",
+        "pid": 1411,
+        "role": "source"
+      }
+    ],
+    "path": "nbsr",
+    "placement": "split",
+    "qualification": {
+      "latency_comparison_available": true,
+      "resource_memory_metric": "private_resident_bytes",
+      "resource_phase_clock": "first-progress receive time minus elapsed; approximate, excludes earlier samples",
+      "resource_phase_origin_monotonic_ns": 279160044157,
+      "resource_sample_clock": "timestamp_ns",
+      "resource_series_available": true,
+      "steady_windows": 4,
+      "thermal_and_power": "NOT_MEASURED"
+    },
+    "raw_directory": "split-r4",
+    "repeat": 4,
+    "scope": "Linux loopback selected guest CPUs; observer qualification pending",
+    "valid": false,
+    "window_p99_median_ns": 1344916.0
+  },
+  {
+    "achieved_offered_ratio": 1.0,
+    "affinity": [
+      {
+        "linux_affinity": [
+          0
+        ],
+        "observed_mask": 1,
+        "requested_mask": 1,
+        "start_ticks": 29620,
+        "verified": true
+      },
+      {
+        "linux_affinity": [
+          0
+        ],
+        "observed_mask": 1,
+        "requested_mask": 1,
+        "start_ticks": 29621,
+        "verified": true
+      }
+    ],
+    "classification": "FAIL_DIAGNOSTIC_RETAINED",
+    "cleanup_scope": "11-counter reports and all process joins",
+    "continuous_ownership": {
+      "classification": "SAMPLED_NO_SUSTAINED_GROWTH",
+      "max_snapshot_gap_ns": {
+        "destination_0": 1001063061,
+        "source": 1001527409
+      },
+      "retained_capacity_scope": "Optional fields observed when emitted; not allocator or leak attribution.",
+      "retained_window_per_role": 60,
+      "sample_counts": {
+        "destination_0": 20,
+        "source": 15
+      },
+      "scope": "Process-local sample intervals; cross-process clock alignment and final zero cleanup are separate."
+    },
+    "diagnostic_continue_on_performance_failure": true,
+    "diagnostic_gate_failures": [
+      {
+        "elapsed_ns": 9001276774,
+        "reason": "live p99 drift"
+      },
+      {
+        "elapsed_ns": 12001683022,
+        "reason": "live p99 drift"
+      }
+    ],
+    "error": "live p99 drift",
+    "final": {
+      "all_groups_joined": true,
+      "collector_overflow_count": 0,
+      "completed": 15000,
+      "drain_duration_ns": 491287,
+      "errors": 0,
+      "evidence_valid": true,
+      "group_counters": [
+        {
+          "completed": 15000,
+          "group_id": 0,
+          "issued": 15000,
+          "missed": 0,
+          "offered": 15000,
+          "reserved": 15000,
+          "unreserved_current": 0
+        }
+      ],
+      "groups": 1,
+      "issued": 15000,
+      "max_outstanding_observed": 8,
+      "measurement_duration_ns": 15000000000,
+      "missed": 0,
+      "offered": 15000,
+      "outstanding_per_stream": 1,
+      "payload_bytes": 16384,
+      "reserved": 15000,
+      "schema": "nbsr-b5-grouped-final-v1",
+      "source_cleanup": {
+        "status": "SEPARATE_REPORT_REQUIRED"
+      },
+      "streams_per_group": 8,
+      "timeouts": 0,
+      "unreserved_current": 0
+    },
+    "gbps": 0.26213541441857713,
+    "internal_failure_thread_join": "NOT_MEASURED",
+    "ownership_reports": [
+      {
+        "all_11_zero": true,
+        "file": "d0.cleanup.json",
+        "pid": 1516,
+        "role": "destination"
+      },
+      {
+        "all_11_zero": true,
+        "file": "source.cleanup.json",
+        "pid": 1518,
+        "role": "source"
+      }
+    ],
+    "path": "nbsr",
+    "placement": "shared",
+    "qualification": {
+      "latency_comparison_available": true,
+      "resource_memory_metric": "private_resident_bytes",
+      "resource_phase_clock": "first-progress receive time minus elapsed; approximate, excludes earlier samples",
+      "resource_phase_origin_monotonic_ns": 299229629650,
+      "resource_sample_clock": "timestamp_ns",
+      "resource_series_available": true,
+      "steady_windows": 4,
+      "thermal_and_power": "NOT_MEASURED"
+    },
+    "raw_directory": "shared-r4",
+    "repeat": 4,
+    "scope": "Linux loopback selected guest CPUs; observer qualification pending",
+    "valid": false,
+    "window_p99_median_ns": 1973944.0
+  },
+  {
+    "achieved_offered_ratio": 0.9998666666666667,
+    "affinity": [
+      {
+        "linux_affinity": [
+          0
+        ],
+        "observed_mask": 1,
+        "requested_mask": 1,
+        "start_ticks": 31624,
+        "verified": true
+      },
+      {
+        "linux_affinity": [
+          0
+        ],
+        "observed_mask": 1,
+        "requested_mask": 1,
+        "start_ticks": 31627,
+        "verified": true
+      }
+    ],
+    "classification": "FAIL_DIAGNOSTIC_RETAINED",
+    "cleanup_scope": "11-counter reports and all process joins",
+    "continuous_ownership": {
+      "classification": "SAMPLED_NO_SUSTAINED_GROWTH",
+      "max_snapshot_gap_ns": {
+        "destination_0": 1001267759,
+        "source": 1001029943
+      },
+      "retained_capacity_scope": "Optional fields observed when emitted; not allocator or leak attribution.",
+      "retained_window_per_role": 60,
+      "sample_counts": {
+        "destination_0": 20,
+        "source": 15
+      },
+      "scope": "Process-local sample intervals; cross-process clock alignment and final zero cleanup are separate."
+    },
+    "diagnostic_continue_on_performance_failure": true,
+    "diagnostic_gate_failures": [
+      {
+        "elapsed_ns": 9001136358,
+        "reason": "live p99 drift"
+      }
+    ],
+    "error": "live p99 drift",
+    "final": {
+      "all_groups_joined": true,
+      "collector_overflow_count": 0,
+      "completed": 14998,
+      "drain_duration_ns": 820715,
+      "errors": 0,
+      "evidence_valid": true,
+      "group_counters": [
+        {
+          "completed": 14998,
+          "group_id": 0,
+          "issued": 14998,
+          "missed": 2,
+          "offered": 15000,
+          "reserved": 14998,
+          "unreserved_current": 0
+        }
+      ],
+      "groups": 1,
+      "issued": 14998,
+      "max_outstanding_observed": 8,
+      "measurement_duration_ns": 15000000000,
+      "missed": 2,
+      "offered": 15000,
+      "outstanding_per_stream": 1,
+      "payload_bytes": 16384,
+      "reserved": 14998,
+      "schema": "nbsr-b5-grouped-final-v1",
+      "source_cleanup": {
+        "status": "SEPARATE_REPORT_REQUIRED"
+      },
+      "streams_per_group": 8,
+      "timeouts": 0,
+      "unreserved_current": 0
+    },
+    "gbps": 0.2620947071294959,
+    "internal_failure_thread_join": "NOT_MEASURED",
+    "ownership_reports": [
+      {
+        "all_11_zero": true,
+        "file": "d0.cleanup.json",
+        "pid": 1623,
+        "role": "destination"
+      },
+      {
+        "all_11_zero": true,
+        "file": "source.cleanup.json",
+        "pid": 1625,
+        "role": "source"
+      }
+    ],
+    "path": "nbsr",
+    "placement": "shared",
+    "qualification": {
+      "latency_comparison_available": true,
+      "resource_memory_metric": "private_resident_bytes",
+      "resource_phase_clock": "first-progress receive time minus elapsed; approximate, excludes earlier samples",
+      "resource_phase_origin_monotonic_ns": 319295282355,
+      "resource_sample_clock": "timestamp_ns",
+      "resource_series_available": true,
+      "steady_windows": 4,
+      "thermal_and_power": "NOT_MEASURED"
+    },
+    "raw_directory": "shared-r5",
+    "repeat": 5,
+    "scope": "Linux loopback selected guest CPUs; observer qualification pending",
+    "valid": false,
+    "window_p99_median_ns": 2442321.5
+  },
+  {
+    "achieved_offered_ratio": 0.9994,
+    "affinity": [
+      {
+        "linux_affinity": [
+          2
+        ],
+        "observed_mask": 4,
+        "requested_mask": 4,
+        "start_ticks": 33690,
+        "verified": true
+      },
+      {
+        "linux_affinity": [
+          0
+        ],
+        "observed_mask": 1,
+        "requested_mask": 1,
+        "start_ticks": 33691,
+        "verified": true
+      }
+    ],
+    "classification": "FAIL_DIAGNOSTIC_RETAINED",
+    "cleanup_scope": "11-counter reports and all process joins",
+    "continuous_ownership": {
+      "classification": "SAMPLED_NO_SUSTAINED_GROWTH",
+      "max_snapshot_gap_ns": {
+        "destination_0": 1003334696,
+        "source": 1009276569
+      },
+      "retained_capacity_scope": "Optional fields observed when emitted; not allocator or leak attribution.",
+      "retained_window_per_role": 60,
+      "sample_counts": {
+        "destination_0": 20,
+        "source": 15
+      },
+      "scope": "Process-local sample intervals; cross-process clock alignment and final zero cleanup are separate."
+    },
+    "diagnostic_continue_on_performance_failure": true,
+    "diagnostic_gate_failures": [
+      {
+        "elapsed_ns": 9009729974,
+        "reason": "live p99 drift"
+      }
+    ],
+    "error": "live p99 drift",
+    "final": {
+      "all_groups_joined": true,
+      "collector_overflow_count": 0,
+      "completed": 14991,
+      "drain_duration_ns": 677136,
+      "errors": 0,
+      "evidence_valid": true,
+      "group_counters": [
+        {
+          "completed": 14991,
+          "group_id": 0,
+          "issued": 14991,
+          "missed": 9,
+          "offered": 15000,
+          "reserved": 14991,
+          "unreserved_current": 0
+        }
+      ],
+      "groups": 1,
+      "issued": 14991,
+      "max_outstanding_observed": 8,
+      "measurement_duration_ns": 15000000000,
+      "missed": 9,
+      "offered": 15000,
+      "outstanding_per_stream": 1,
+      "payload_bytes": 16384,
+      "reserved": 14991,
+      "schema": "nbsr-b5-grouped-final-v1",
+      "source_cleanup": {
+        "status": "SEPARATE_REPORT_REQUIRED"
+      },
+      "streams_per_group": 8,
+      "timeouts": 0,
+      "unreserved_current": 0
+    },
+    "gbps": 0.26197488742484193,
+    "internal_failure_thread_join": "NOT_MEASURED",
+    "ownership_reports": [
+      {
+        "all_11_zero": true,
+        "file": "d0.cleanup.json",
+        "pid": 1730,
+        "role": "destination"
+      },
+      {
+        "all_11_zero": true,
+        "file": "source.cleanup.json",
+        "pid": 1732,
+        "role": "source"
+      }
+    ],
+    "path": "nbsr",
+    "placement": "split",
+    "qualification": {
+      "latency_comparison_available": true,
+      "resource_memory_metric": "private_resident_bytes",
+      "resource_phase_clock": "first-progress receive time minus elapsed; approximate, excludes earlier samples",
+      "resource_phase_origin_monotonic_ns": 339931818095,
+      "resource_sample_clock": "timestamp_ns",
+      "resource_series_available": true,
+      "steady_windows": 4,
+      "thermal_and_power": "NOT_MEASURED"
+    },
+    "raw_directory": "split-r5",
+    "repeat": 5,
+    "scope": "Linux loopback selected guest CPUs; observer qualification pending",
+    "valid": false,
+    "window_p99_median_ns": 1521776.5
+  }
+]

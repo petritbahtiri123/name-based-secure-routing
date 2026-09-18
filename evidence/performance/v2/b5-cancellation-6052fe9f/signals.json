@@ -1,0 +1,401 @@
+[
+  {
+    "kind": "campaign",
+    "signal": "SIGTERM",
+    "controller_exit": 1,
+    "after": [
+      {
+        "pid": 92,
+        "start_ticks": 13568,
+        "parent": 29,
+        "executable": "/tmp/binaries/wp8_interop_server",
+        "owned_peer_absent": true
+      },
+      {
+        "pid": 94,
+        "start_ticks": 13570,
+        "parent": 29,
+        "executable": "/tmp/binaries/perf_rust_source",
+        "owned_peer_absent": true
+      }
+    ],
+    "rows": [
+      {
+        "affinity": [
+          {
+            "linux_affinity": [
+              0
+            ],
+            "observed_mask": 1,
+            "requested_mask": 1,
+            "start_ticks": 13568,
+            "verified": true
+          },
+          {
+            "linux_affinity": [
+              0
+            ],
+            "observed_mask": 1,
+            "requested_mask": 1,
+            "start_ticks": 13570,
+            "verified": true
+          }
+        ],
+        "classification": "FAIL",
+        "error": "benchmark controller cancelled by SIGTERM",
+        "failure_traceback": "Traceback (most recent call last):\n  File \"/tmp/source/scripts/run_b5_v2.py\", line 393, in run_one\n    final = consume(source, reader, stream, **consume_options)\n  File \"/tmp/source/scripts/run_b5_v2.py\", line 93, in consume\n    exit_code = observe_exit()\n  File \"/tmp/source/scripts/run_b5_v2.py\", line 392, in <lambda>\n    consume_options[\"observe_exit\"] = lambda: backend.observe_source(source)\n                                              ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^\n  File \"/tmp/source/scripts/performance/linux_b5_backend.py\", line 62, in observe_source\n    self.check_cancelled()\n    ~~~~~~~~~~~~~~~~~~~~^^\n  File \"/tmp/source/scripts/performance/process_cancellation.py\", line 23, in check\n    raise InterruptedError('benchmark controller cancelled by ' + signal.Signals(self.requested).name)\nInterruptedError: benchmark controller cancelled by SIGTERM\n",
+        "failure_traceback_truncated": false,
+        "path": "nbsr",
+        "qualification": {
+          "latency_comparison_available": false,
+          "resource_memory_metric": "private_resident_bytes",
+          "resource_phase_clock": "first-progress receive time minus elapsed; approximate, excludes earlier samples",
+          "resource_phase_origin_monotonic_ns": null,
+          "resource_sample_clock": "timestamp_ns",
+          "resource_series_available": false,
+          "steady_windows": 0,
+          "thermal_and_power": "NOT_MEASURED"
+        },
+        "raw_directory": "raw/nbsr-r1",
+        "scope": "Linux loopback selected guest CPUs; observer qualification pending",
+        "valid": false
+      }
+    ]
+  },
+  {
+    "kind": "campaign",
+    "signal": "SIGINT",
+    "controller_exit": 1,
+    "after": [
+      {
+        "pid": 168,
+        "start_ticks": 13811,
+        "parent": 105,
+        "executable": "/tmp/binaries/wp8_interop_server",
+        "owned_peer_absent": true
+      },
+      {
+        "pid": 170,
+        "start_ticks": 13813,
+        "parent": 105,
+        "executable": "/tmp/binaries/perf_rust_source",
+        "owned_peer_absent": true
+      }
+    ],
+    "rows": [
+      {
+        "affinity": [
+          {
+            "linux_affinity": [
+              0
+            ],
+            "observed_mask": 1,
+            "requested_mask": 1,
+            "start_ticks": 13811,
+            "verified": true
+          },
+          {
+            "linux_affinity": [
+              0
+            ],
+            "observed_mask": 1,
+            "requested_mask": 1,
+            "start_ticks": 13813,
+            "verified": true
+          }
+        ],
+        "classification": "FAIL",
+        "error": "benchmark controller cancelled by SIGINT",
+        "failure_traceback": "Traceback (most recent call last):\n  File \"/tmp/source/scripts/run_b5_v2.py\", line 393, in run_one\n    final = consume(source, reader, stream, **consume_options)\n  File \"/tmp/source/scripts/run_b5_v2.py\", line 93, in consume\n    exit_code = observe_exit()\n  File \"/tmp/source/scripts/run_b5_v2.py\", line 392, in <lambda>\n    consume_options[\"observe_exit\"] = lambda: backend.observe_source(source)\n                                              ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^\n  File \"/tmp/source/scripts/performance/linux_b5_backend.py\", line 62, in observe_source\n    self.check_cancelled()\n    ~~~~~~~~~~~~~~~~~~~~^^\n  File \"/tmp/source/scripts/performance/process_cancellation.py\", line 23, in check\n    raise InterruptedError('benchmark controller cancelled by ' + signal.Signals(self.requested).name)\nInterruptedError: benchmark controller cancelled by SIGINT\n",
+        "failure_traceback_truncated": false,
+        "path": "nbsr",
+        "qualification": {
+          "latency_comparison_available": false,
+          "resource_memory_metric": "private_resident_bytes",
+          "resource_phase_clock": "first-progress receive time minus elapsed; approximate, excludes earlier samples",
+          "resource_phase_origin_monotonic_ns": null,
+          "resource_sample_clock": "timestamp_ns",
+          "resource_series_available": false,
+          "steady_windows": 0,
+          "thermal_and_power": "NOT_MEASURED"
+        },
+        "raw_directory": "raw/nbsr-r1",
+        "scope": "Linux loopback selected guest CPUs; observer qualification pending",
+        "valid": false
+      }
+    ]
+  },
+  {
+    "kind": "campaign",
+    "signal": "SIGHUP",
+    "controller_exit": 1,
+    "after": [
+      {
+        "pid": 244,
+        "start_ticks": 14044,
+        "parent": 181,
+        "executable": "/tmp/binaries/wp8_interop_server",
+        "owned_peer_absent": true
+      },
+      {
+        "pid": 246,
+        "start_ticks": 14047,
+        "parent": 181,
+        "executable": "/tmp/binaries/perf_rust_source",
+        "owned_peer_absent": true
+      }
+    ],
+    "rows": [
+      {
+        "affinity": [
+          {
+            "linux_affinity": [
+              0
+            ],
+            "observed_mask": 1,
+            "requested_mask": 1,
+            "start_ticks": 14044,
+            "verified": true
+          },
+          {
+            "linux_affinity": [
+              0
+            ],
+            "observed_mask": 1,
+            "requested_mask": 1,
+            "start_ticks": 14047,
+            "verified": true
+          }
+        ],
+        "classification": "FAIL",
+        "error": "benchmark controller cancelled by SIGHUP",
+        "failure_traceback": "Traceback (most recent call last):\n  File \"/tmp/source/scripts/run_b5_v2.py\", line 393, in run_one\n    final = consume(source, reader, stream, **consume_options)\n  File \"/tmp/source/scripts/run_b5_v2.py\", line 93, in consume\n    exit_code = observe_exit()\n  File \"/tmp/source/scripts/run_b5_v2.py\", line 392, in <lambda>\n    consume_options[\"observe_exit\"] = lambda: backend.observe_source(source)\n                                              ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^\n  File \"/tmp/source/scripts/performance/linux_b5_backend.py\", line 62, in observe_source\n    self.check_cancelled()\n    ~~~~~~~~~~~~~~~~~~~~^^\n  File \"/tmp/source/scripts/performance/process_cancellation.py\", line 23, in check\n    raise InterruptedError('benchmark controller cancelled by ' + signal.Signals(self.requested).name)\nInterruptedError: benchmark controller cancelled by SIGHUP\n",
+        "failure_traceback_truncated": false,
+        "path": "nbsr",
+        "qualification": {
+          "latency_comparison_available": false,
+          "resource_memory_metric": "private_resident_bytes",
+          "resource_phase_clock": "first-progress receive time minus elapsed; approximate, excludes earlier samples",
+          "resource_phase_origin_monotonic_ns": null,
+          "resource_sample_clock": "timestamp_ns",
+          "resource_series_available": false,
+          "steady_windows": 0,
+          "thermal_and_power": "NOT_MEASURED"
+        },
+        "raw_directory": "raw/nbsr-r1",
+        "scope": "Linux loopback selected guest CPUs; observer qualification pending",
+        "valid": false
+      }
+    ]
+  },
+  {
+    "kind": "placement",
+    "signal": "SIGTERM",
+    "controller_exit": 1,
+    "after": [
+      {
+        "pid": 370,
+        "start_ticks": 14336,
+        "parent": 257,
+        "executable": "/tmp/binaries/wp8_interop_server",
+        "owned_peer_absent": true
+      },
+      {
+        "pid": 372,
+        "start_ticks": 14338,
+        "parent": 257,
+        "executable": "/tmp/binaries/perf_rust_source",
+        "owned_peer_absent": true
+      }
+    ],
+    "rows": [
+      {
+        "affinity": [
+          {
+            "linux_affinity": [
+              0
+            ],
+            "observed_mask": 1,
+            "requested_mask": 1,
+            "start_ticks": 14336,
+            "verified": true
+          },
+          {
+            "linux_affinity": [
+              0
+            ],
+            "observed_mask": 1,
+            "requested_mask": 1,
+            "start_ticks": 14338,
+            "verified": true
+          }
+        ],
+        "classification": "FAIL",
+        "controller_error": "invalid partial run retained; no replacement",
+        "diagnostic_continue_on_performance_failure": true,
+        "diagnostic_gate_failures": [],
+        "error": "benchmark controller cancelled by SIGTERM",
+        "failure_traceback": "Traceback (most recent call last):\n  File \"/tmp/source/scripts/run_b5_v2.py\", line 393, in run_one\n    final = consume(source, reader, stream, **consume_options)\n  File \"/tmp/source/scripts/run_b5_v2.py\", line 93, in consume\n    exit_code = observe_exit()\n  File \"/tmp/source/scripts/run_b5_v2.py\", line 392, in <lambda>\n    consume_options[\"observe_exit\"] = lambda: backend.observe_source(source)\n                                              ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^\n  File \"/tmp/source/scripts/performance/linux_b5_backend.py\", line 62, in observe_source\n    self.check_cancelled()\n    ~~~~~~~~~~~~~~~~~~~~^^\n  File \"/tmp/source/scripts/performance/process_cancellation.py\", line 23, in check\n    raise InterruptedError('benchmark controller cancelled by ' + signal.Signals(self.requested).name)\nInterruptedError: benchmark controller cancelled by SIGTERM\n",
+        "failure_traceback_truncated": false,
+        "path": "nbsr",
+        "placement": "shared",
+        "provenance_error": "benchmark controller cancelled by SIGTERM",
+        "qualification": {
+          "latency_comparison_available": false,
+          "resource_memory_metric": "private_resident_bytes",
+          "resource_phase_clock": "first-progress receive time minus elapsed; approximate, excludes earlier samples",
+          "resource_phase_origin_monotonic_ns": null,
+          "resource_sample_clock": "timestamp_ns",
+          "resource_series_available": false,
+          "steady_windows": 0,
+          "thermal_and_power": "NOT_MEASURED"
+        },
+        "raw_directory": "shared-r1",
+        "repeat": 1,
+        "scope": "Linux loopback selected guest CPUs; observer qualification pending",
+        "valid": false,
+        "window_p99_median_ns": null
+      }
+    ]
+  },
+  {
+    "kind": "placement",
+    "signal": "SIGINT",
+    "controller_exit": 1,
+    "after": [
+      {
+        "pid": 496,
+        "start_ticks": 14672,
+        "parent": 383,
+        "executable": "/tmp/binaries/wp8_interop_server",
+        "owned_peer_absent": true
+      },
+      {
+        "pid": 498,
+        "start_ticks": 14674,
+        "parent": 383,
+        "executable": "/tmp/binaries/perf_rust_source",
+        "owned_peer_absent": true
+      }
+    ],
+    "rows": [
+      {
+        "affinity": [
+          {
+            "linux_affinity": [
+              0
+            ],
+            "observed_mask": 1,
+            "requested_mask": 1,
+            "start_ticks": 14672,
+            "verified": true
+          },
+          {
+            "linux_affinity": [
+              0
+            ],
+            "observed_mask": 1,
+            "requested_mask": 1,
+            "start_ticks": 14674,
+            "verified": true
+          }
+        ],
+        "classification": "FAIL",
+        "controller_error": "invalid partial run retained; no replacement",
+        "diagnostic_continue_on_performance_failure": true,
+        "diagnostic_gate_failures": [],
+        "error": "benchmark controller cancelled by SIGINT",
+        "failure_traceback": "Traceback (most recent call last):\n  File \"/tmp/source/scripts/run_b5_v2.py\", line 393, in run_one\n    final = consume(source, reader, stream, **consume_options)\n  File \"/tmp/source/scripts/run_b5_v2.py\", line 93, in consume\n    exit_code = observe_exit()\n  File \"/tmp/source/scripts/run_b5_v2.py\", line 392, in <lambda>\n    consume_options[\"observe_exit\"] = lambda: backend.observe_source(source)\n                                              ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^\n  File \"/tmp/source/scripts/performance/linux_b5_backend.py\", line 62, in observe_source\n    self.check_cancelled()\n    ~~~~~~~~~~~~~~~~~~~~^^\n  File \"/tmp/source/scripts/performance/process_cancellation.py\", line 23, in check\n    raise InterruptedError('benchmark controller cancelled by ' + signal.Signals(self.requested).name)\nInterruptedError: benchmark controller cancelled by SIGINT\n",
+        "failure_traceback_truncated": false,
+        "path": "nbsr",
+        "placement": "shared",
+        "provenance_error": "benchmark controller cancelled by SIGINT",
+        "qualification": {
+          "latency_comparison_available": false,
+          "resource_memory_metric": "private_resident_bytes",
+          "resource_phase_clock": "first-progress receive time minus elapsed; approximate, excludes earlier samples",
+          "resource_phase_origin_monotonic_ns": null,
+          "resource_sample_clock": "timestamp_ns",
+          "resource_series_available": false,
+          "steady_windows": 0,
+          "thermal_and_power": "NOT_MEASURED"
+        },
+        "raw_directory": "shared-r1",
+        "repeat": 1,
+        "scope": "Linux loopback selected guest CPUs; observer qualification pending",
+        "valid": false,
+        "window_p99_median_ns": null
+      }
+    ]
+  },
+  {
+    "kind": "placement",
+    "signal": "SIGHUP",
+    "controller_exit": 1,
+    "after": [
+      {
+        "pid": 622,
+        "start_ticks": 14993,
+        "parent": 509,
+        "executable": "/tmp/binaries/wp8_interop_server",
+        "owned_peer_absent": true
+      },
+      {
+        "pid": 624,
+        "start_ticks": 14995,
+        "parent": 509,
+        "executable": "/tmp/binaries/perf_rust_source",
+        "owned_peer_absent": true
+      }
+    ],
+    "rows": [
+      {
+        "affinity": [
+          {
+            "linux_affinity": [
+              0
+            ],
+            "observed_mask": 1,
+            "requested_mask": 1,
+            "start_ticks": 14993,
+            "verified": true
+          },
+          {
+            "linux_affinity": [
+              0
+            ],
+            "observed_mask": 1,
+            "requested_mask": 1,
+            "start_ticks": 14995,
+            "verified": true
+          }
+        ],
+        "classification": "FAIL",
+        "controller_error": "invalid partial run retained; no replacement",
+        "diagnostic_continue_on_performance_failure": true,
+        "diagnostic_gate_failures": [],
+        "error": "benchmark controller cancelled by SIGHUP",
+        "failure_traceback": "Traceback (most recent call last):\n  File \"/tmp/source/scripts/run_b5_v2.py\", line 393, in run_one\n    final = consume(source, reader, stream, **consume_options)\n  File \"/tmp/source/scripts/run_b5_v2.py\", line 93, in consume\n    exit_code = observe_exit()\n  File \"/tmp/source/scripts/run_b5_v2.py\", line 392, in <lambda>\n    consume_options[\"observe_exit\"] = lambda: backend.observe_source(source)\n                                              ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^\n  File \"/tmp/source/scripts/performance/linux_b5_backend.py\", line 62, in observe_source\n    self.check_cancelled()\n    ~~~~~~~~~~~~~~~~~~~~^^\n  File \"/tmp/source/scripts/performance/process_cancellation.py\", line 23, in check\n    raise InterruptedError('benchmark controller cancelled by ' + signal.Signals(self.requested).name)\nInterruptedError: benchmark controller cancelled by SIGHUP\n",
+        "failure_traceback_truncated": false,
+        "path": "nbsr",
+        "placement": "shared",
+        "provenance_error": "benchmark controller cancelled by SIGHUP",
+        "qualification": {
+          "latency_comparison_available": false,
+          "resource_memory_metric": "private_resident_bytes",
+          "resource_phase_clock": "first-progress receive time minus elapsed; approximate, excludes earlier samples",
+          "resource_phase_origin_monotonic_ns": null,
+          "resource_sample_clock": "timestamp_ns",
+          "resource_series_available": false,
+          "steady_windows": 0,
+          "thermal_and_power": "NOT_MEASURED"
+        },
+        "raw_directory": "shared-r1",
+        "repeat": 1,
+        "scope": "Linux loopback selected guest CPUs; observer qualification pending",
+        "valid": false,
+        "window_p99_median_ns": null
+      }
+    ]
+  }
+]
