@@ -102,3 +102,45 @@ retain the authenticated transfer and host custody procedure. The gate does
 not establish observer neutrality, runtime ownership cleanup, external hardware,
 steady-state CPU cost or strict-stable capacity. Do not subtract timestamps
 across the two hosts. Its JSON report goes to stdout, outside the sealed roots.
+
+For a complete fixed-shape comparison, additionally validate the declared cohort
+with `scripts.performance.linux_native_cohort`. Place this JSON outside the sealed
+peer directories, using actual transferred paths (relative to the JSON file or
+absolute). List every attempt in execution order; do not omit failed attempts or
+replace unfavorable valid repeats. The three-pair example is:
+
+```json
+{
+  "schema": "nbsr-native-cohort-v1",
+  "attempts": [
+    {"path":"direct","repeat":1,"source":"direct-r1/source","destination":"direct-r1/destination"},
+    {"path":"nbsr","repeat":1,"source":"nbsr-r1/source","destination":"nbsr-r1/destination"},
+    {"path":"nbsr","repeat":2,"source":"nbsr-r2/source","destination":"nbsr-r2/destination"},
+    {"path":"direct","repeat":2,"source":"direct-r2/source","destination":"direct-r2/destination"},
+    {"path":"direct","repeat":3,"source":"direct-r3/source","destination":"direct-r3/destination"},
+    {"path":"nbsr","repeat":3,"source":"nbsr-r3/source","destination":"nbsr-r3/destination"}
+  ]
+}
+```
+
+```bash
+python3 -B -m scripts.performance.linux_native_cohort \
+  --manifest /absolute/comparison/cohort.json \
+  --source-sha FULL_REVIEWED_40_CHARACTER_SOURCE_SHA \
+  > /absolute/comparison/cohort-analysis.json
+```
+
+If either path's first-three goodput CV exceeds 5%, retain those attempts and
+append repeat four (NBSR then Direct) and five (Direct then NBSR). The validator
+requires both paths to reach five; residual CV above 5% remains unresolved.
+It reuses the complete per-pair integrity gate, rejects reused directories or
+identical sealed evidence presented as new repeats, and checks common workload,
+binary/authority hashes and recorded placement configuration. Any invalid pair
+rejects the cohort; it is never silently filtered out of the statistics.
+
+PASS_FINITE_COHORT_INTEGRITY certifies these checks only. It reports medians and
+paired goodput deltas as finite diagnostic comparisons. Declared execution order
+is not independently verified from cross-host clocks; the manifest cannot prove
+that an operator disclosed every attempt. Same recorded configuration does not
+prove dedicated physical hosts or observer neutrality. No strict-stable,
+sustained, runtime-ownership or hardware-capacity acceptance follows.
