@@ -48,6 +48,13 @@ NBSR tax. Synthetic captured Ethernet lengths are kept separate from measured
 IP/UDP lengths; physical Ethernet bytes remain NOT_MEASURED. Five repeats do
 not erase residual variability. Invalid attempts are retained without replacement.
 
+The first formal Docker cohort at eb4b0608 was INVALID_PARTIAL: Direct reported
+zero drops, but NBSR reported 845 pcap drops (122221 packets captured). Both
+attempts are retained. The observer now requests a 64 MiB kernel capture buffer
+instead of Dumpcap's 2 MiB default, symmetrically for both paths, without changing
+the workload or any timeout. Zero-loss validation still applies to every new cell;
+requesting a larger buffer is not evidence that capture loss has been fixed.
+
 Capture is bounded to two GiB per cell and requires two GiB free before the next
 cell. Raw pcapng, layer exports, drop statistics, markers, workload commands,
 client stdout/stderr, ownership, release hashes and recursive checksums are

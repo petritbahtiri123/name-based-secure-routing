@@ -102,7 +102,7 @@ class LinuxPacketObserver(PacketObserver):
         return signal.SIGINT
 
     def capture_command(self, server_port, pcap):
-        return [*super().capture_command(server_port, pcap), '-p', '-s', '0', '-a', 'filesize:2097152']
+        return [*super().capture_command(server_port, pcap), '-p', '-s', '0', '-B', '64', '-a', 'filesize:2097152']
 
     def finish_capture(self, process, pcap, cell_dir):
         token = secrets.token_bytes(32).hex()

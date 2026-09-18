@@ -66,6 +66,17 @@ def test_linux_capture_requires_exact_lo_ethernet_metadata():
             observer.validate_capture_metadata(invalid)
 
 
+def test_linux_capture_has_bounded_observer_buffer_without_changing_filter_or_workload(tmp_path):
+    from scripts.performance.linux_b1_capture import LinuxPacketObserver
+    observer = LinuxPacketObserver(Path('/usr/bin/dumpcap'), Path('/usr/bin/tshark'), 'lo')
+    observer.probe = dict(source_port=4000, destination_port=4001)
+    command = observer.capture_command(5000, tmp_path / 'capture.pcapng')
+    assert command[command.index('-B') + 1] == '64'
+    assert command[command.index('-s') + 1] == '0'
+    assert command[command.index('-a') + 1] == 'filesize:2097152'
+    assert command[command.index('-f') + 1] == observer.capture_filter(5000)
+
+
 def test_terminal_probe_is_required_and_excluded_from_packet_totals():
     from scripts.analyze_b1_v2_capture import account_packets
     def packet(n, source, dest):

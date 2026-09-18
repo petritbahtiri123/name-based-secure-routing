@@ -67,7 +67,9 @@ class ExternalCapture:
         stderr_path=Path(cell_dir)/'dumpcap.stderr'
         stderr=stderr_path.open('wb')
         try:
-            process=subprocess.Popen(self.capture_command(server_port, pcap),
+            command = self.capture_command(server_port, pcap)
+            self.report['capture_command'] = command
+            process=subprocess.Popen(command,
                 stdout=subprocess.DEVNULL,stderr=stderr,**self.process_options())
         except BaseException:
             stderr.close()
