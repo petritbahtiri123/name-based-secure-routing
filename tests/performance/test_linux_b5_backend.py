@@ -26,6 +26,28 @@ def test_source_sampler_stops_before_reaping():
     assert events == ["stop", "wait"]
 
 
+def test_split_placement_records_exact_role_commands_and_rejects_widening():
+    from scripts.performance.linux_b5_backend import LinuxB5Backend
+    value = LinuxB5Backend({"platform": "linux", "selected_cpus": [2, 4],
+                           "taskset": "/usr/bin/taskset"}, placement="split")
+    plan = dict(source_mask=4, endpoint_masks=[16], logical_processors_available=2)
+    value.validate({"endpoint_groups": 1}, plan)
+    assert value.command(["/source"], mask=4)[2] == "2"
+    assert value.command(["/destination"], mask=16)[2] == "4"
+    with pytest.raises(ValueError):
+        value.command(["/peer"], mask=20)
+    with pytest.raises(ValueError):
+        value.validate({"endpoint_groups": 1}, plan | {"endpoint_masks": [4]})
+
+
+def test_split_placement_requires_two_distinct_cpus():
+    from scripts.performance.linux_b5_backend import LinuxB5Backend
+    for cpus in ([2], [2, 2], [2, True]):
+        with pytest.raises(ValueError):
+            LinuxB5Backend({"platform": "linux", "selected_cpus": cpus,
+                            "taskset": "/usr/bin/taskset"}, placement="split")
+
+
 def test_source_sampler_failure_prevents_reaping():
     def fail(**kwargs):
         raise RuntimeError("sampler failed")

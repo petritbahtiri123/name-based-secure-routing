@@ -63,3 +63,11 @@ def test_manual_rate_cannot_bypass_reference_binding(tmp_path):
     args = SimpleNamespace(diagnostic=False, reference=tmp_path, rate=(1, 1))
     with pytest.raises(ValueError, match="ceiling"):
         campaign.execute(args)
+
+
+def test_split_placement_cannot_reuse_shared_ceiling_reference(tmp_path):
+    from types import SimpleNamespace
+    from scripts.performance import linux_b5_campaign as campaign
+    args = SimpleNamespace(diagnostic=False, reference=tmp_path, rate=None, placement='split')
+    with pytest.raises(ValueError, match='split placement requires diagnostic'):
+        campaign.execute(args)

@@ -73,7 +73,7 @@ class LinuxResourceSampler:
     """
 
     def __init__(self, processes, cpus, *, interval_seconds, max_records,
-                 record_sink=None, sample_fn=sample_linux_process, terminal_roles=()):
+                 record_sink=None, sample_fn=sample_linux_process, terminal_roles=(), role_cpus=None):
         if (not isinstance(processes, dict) or not processes
                 or any(not isinstance(role, str) or not role or type(pid) is not int or pid <= 0
                        for role, pid in processes.items())
@@ -86,6 +86,13 @@ class LinuxResourceSampler:
                 or interval_seconds <= 0 or type(max_records) is not int or max_records < 1):
             raise ValueError('invalid sampler bounds')
         self._processes, self._cpus = dict(processes), sorted(cpus)
+        role_cpus = {role: self._cpus for role in processes} if role_cpus is None else role_cpus
+        if (type(role_cpus) is not dict or set(role_cpus) != set(processes)
+                or any(type(value) is not list or not value
+                       or any(type(cpu) is not int or cpu not in self._cpus for cpu in value)
+                       or len(set(value)) != len(value) for value in role_cpus.values())):
+            raise ValueError('exact nonempty per-role CPU subsets required')
+        self._role_cpus = {role: sorted(value) for role, value in role_cpus.items()}
         terminal_roles = tuple(terminal_roles)
         if (any(type(role) is not str or role not in processes for role in terminal_roles)
                 or len(set(terminal_roles)) != len(terminal_roles)):
@@ -142,7 +149,8 @@ class LinuxResourceSampler:
                     with self._lock:
                         if len(self._records) >= self._cap:
                             raise RuntimeError('resource record cap exceeded')
-                    sample = deepcopy(self._sample(pid, list(self._cpus)))
+                    expected_cpus = self._role_cpus[role]
+                    sample = deepcopy(self._sample(pid, list(expected_cpus)))
                     for field in ('pid', 'start_ticks', 'cpu_ns', 'timestamp_ns'):
                         if type(sample.get(field)) is not int or sample[field] < 0:
                             raise RuntimeError('invalid integer resource identity/counter')
@@ -156,7 +164,7 @@ class LinuxResourceSampler:
                     else:
                         memory_valid = sample.get('memory_state') == 'MEASURED'
                     if (sample['pid'] != pid or not memory_valid
-                            or sample.get('affinity') != self._cpus):
+                            or sample.get('affinity') != expected_cpus):
                         raise RuntimeError('lost live resource identity/memory/affinity')
                     if prior is not None and (sample['start_ticks'] != prior[0]
                                               or sample['cpu_ns'] < prior[1]

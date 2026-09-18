@@ -333,7 +333,7 @@ def run_one(cell, binaries, authority, plan, directory, *, warmup, duration, pro
                         lambda value, role=f"destination_{ordinal}": observe(role, value)))
                 peer_binary = argv[0]
                 if backend:
-                    argv = backend.command(argv)
+                    argv = backend.command(argv, mask=mask)
                 commands.append({"role": f"destination_{ordinal}", "argv": argv,
                                  "environment_overrides": {"NBSR_P2A_STREAMS": env.get("NBSR_P2A_STREAMS")}})
                 write_json(directory / "commands.json", commands)
@@ -354,7 +354,7 @@ def run_one(cell, binaries, authority, plan, directory, *, warmup, duration, pro
                                   progress=progress, rate=rate, report=report, ownership_sampling=ownership_sampling)
             peer_binary = argv[0]
             if backend:
-                argv = backend.command(argv)
+                argv = backend.command(argv, mask=plan["source_mask"])
             commands.append({"role": "source", "argv": argv, "environment_overrides": {}})
             write_json(directory / "commands.json", commands)
             launched = time.monotonic_ns()

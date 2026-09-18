@@ -277,3 +277,37 @@ def test_terminal_opt_in_requires_a_prior_live_sample():
     with pytest.raises(RuntimeError):
         instance.stop()
     assert instance.records_snapshot() == []
+
+
+@pytest.mark.parametrize('wrong_affinity', [False, True])
+def test_role_specific_affinity_is_checked_without_widening(wrong_affinity):
+    from scripts.performance.linux_resources import LinuxResourceSampler
+    seen = []
+
+    def sample(pid, cpus):
+        seen.append((pid, cpus))
+        return record() | dict(pid=pid, affinity=[2] if pid == 123 or wrong_affinity else [4])
+
+    def sink(row):
+        if row['role'] == 'destination':
+            instance._stop.set()
+
+    instance = LinuxResourceSampler({'source': 123, 'destination': 456}, [2, 4],
+        role_cpus={'source': [2], 'destination': [4]}, interval_seconds=.001,
+        max_records=10, sample_fn=sample, record_sink=sink)
+    instance.start()
+    instance._thread.join(2)
+    if wrong_affinity:
+        with pytest.raises(RuntimeError):
+            instance.stop()
+        assert len(instance.records_snapshot()) == 1
+    else:
+        assert len(instance.stop()) == 2
+    assert seen == [(123, [2]), (456, [4])]
+
+
+@pytest.mark.parametrize('mapping', [{}, {'source': []}, {'source': [3]},
+    {'source': [0, 0]}, {'source': [False]}, {'source': [0], 'unknown': [0]}])
+def test_invalid_role_cpu_plan_is_rejected(mapping):
+    with pytest.raises(ValueError, match='per-role CPU'):
+        sampler(role_cpus=mapping)

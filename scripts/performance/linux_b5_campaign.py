@@ -53,6 +53,10 @@ def run_cohort(paths, run, retain, *, diagnostic):
 
 
 def execute(args):
+    placement = getattr(args, 'placement', 'shared')
+    require(placement in ('shared', 'split'), 'unknown placement')
+    require(placement != 'split' or args.diagnostic, 'split placement requires diagnostic mode')
+    selected_count = 2 if placement == 'split' else 1
     mode = shared.validate_mode(diagnostic=args.diagnostic, reference=args.reference, rate=args.rate)
     retain_failed = getattr(args, 'retain_failed_diagnostic', False)
     require(not retain_failed or (args.diagnostic and 0 < args.duration <= 600),
@@ -75,21 +79,24 @@ def execute(args):
             and build.get("build_commands") and build.get("toolchains"), "current release build manifest required")
     require(build.get("binary_sha256") == {NAMES[r]: h for r, h in hashes.items()}, "binary hashes mismatch")
     require(all(os.access(p, os.X_OK) for p in binaries.values()), "executable binaries required")
-    linux = environment(1)
+    linux = environment(selected_count)
     initial_identity = identity(linux)
-    backend = LinuxB5Backend(linux)
-    shape = dict(physical_cores=1, endpoint_groups=1, runtime_workers=1,
+    backend = LinuxB5Backend(linux, placement=placement)
+    shape = dict(physical_cores=selected_count, endpoint_groups=1, runtime_workers=1,
                  payload_bytes=args.payload, streams_per_group=args.streams)
     load = (dict(mode=mode, rate_numerator=args.rate[0], rate_denominator=args.rate[1]) if args.diagnostic else
             load_reference(args.reference, current_sha=sha, binary_sha256=hashes, shape=shape,
                            linux_environment=linux, percent=args.percent, depth=args.depth))
-    plan = dict(source_mask=backend.mask, endpoint_masks=[backend.mask], logical_processors_available=1)
+    plan = dict(source_mask=backend.mask, endpoint_masks=[backend.destination_mask],
+                logical_processors_available=selected_count)
     sources = {path: digest(ROOT / path) for path in SOURCE_PATHS}
     output.mkdir(parents=True, exist_ok=False)
     rows = []
     metadata = dict(schema="nbsr-linux-b5-campaign-v1", repository_sha=sha, git_status="", mode=mode,
         binary_sha256=hashes, source_sha256=sources, source_scope="listed controllers plus entire clean Git SHA",
         linux_environment=linux, shape=shape, load=load, placement=plan,
+        cpu_allocation=dict(placement=placement, selected_guest_cpus=selected_count,
+                            per_peer_guest_cpus=1, verified_host_physical_cores=False),
         observer_qualification="NOT_QUALIFIED", thermal_and_power="NOT_MEASURED",
         controller_args={k: str(v) if isinstance(v, Path) else v for k, v in vars(args).items()},
         scope=backend.scope)
@@ -99,7 +106,7 @@ def execute(args):
         require(all(digest(ROOT / p) == h for p, h in sources.items()), "source bytes changed")
         require(all(digest(binaries[r]) == h and digest(output / "binaries" / NAMES[r]) == h
                     for r, h in hashes.items()), "binary bytes changed")
-        require(identity(environment(1)) == initial_identity, "Linux placement/cgroup changed")
+        require(identity(environment(selected_count)) == initial_identity, "Linux placement/cgroup changed")
 
     def retain(row):
         rows.append(row)
@@ -166,6 +173,8 @@ def main():
         parser.add_argument("--" + name, type=Path, required=True)
     parser.add_argument("--reference", type=Path)
     parser.add_argument("--diagnostic", action="store_true")
+    parser.add_argument("--placement", choices=("shared", "split"), default="shared",
+                        help="split is diagnostic only; allocates one distinct guest CPU per peer")
     parser.add_argument("--retain-failed-diagnostic", action="store_true",
                         help="retain up to 600s after performance drift; failed gates remain FAIL")
     parser.add_argument("--rate", type=int, nargs=2)

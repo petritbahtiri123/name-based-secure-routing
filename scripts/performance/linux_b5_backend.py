@@ -1,4 +1,4 @@
-"""Single-core Linux lifecycle adapter for the shared B5 controller.
+"""Explicit per-peer Linux affinity for the shared B5 controller.
 
 This does not qualify its smaps observer or provide an external server claim.
 """
@@ -13,30 +13,38 @@ from scripts.performance.linux_resources import LinuxResourceSampler, sample_lin
 
 class LinuxB5Backend:
     resource_basis = "linux_private_resident"
-    scope = "Linux loopback shared physical-core pool; observer qualification pending"
+    scope = "Linux loopback selected guest CPUs; observer qualification pending"
 
-    def __init__(self, environment):
+    def __init__(self, environment, *, placement="shared"):
         cpus = environment.get("selected_cpus")
-        if (environment.get("platform") != "linux" or type(cpus) is not list or len(cpus) != 1
-                or type(cpus[0]) is not int or cpus[0] < 0 or not environment.get("taskset")):
-            raise ValueError("one explicitly selected Linux CPU required")
+        if (placement not in ("shared", "split") or environment.get("platform") != "linux"
+                or type(cpus) is not list or len(cpus) != (2 if placement == "split" else 1)
+                or any(type(cpu) is not int or cpu < 0 for cpu in cpus)
+                or len(set(cpus)) != len(cpus) or not environment.get("taskset")):
+            raise ValueError("explicit distinct Linux CPUs required for placement")
         self.cpus = list(cpus)
         self.taskset = environment["taskset"]
         self.mask = 1 << cpus[0]
+        self.destination_mask = 1 << cpus[-1]
+        self.role_cpus = {"source": [cpus[0]], "destination_0": [cpus[-1]]}
 
     def validate(self, cell, plan):
         if (cell["endpoint_groups"] != 1 or plan["source_mask"] != self.mask
-                or plan["endpoint_masks"] != [self.mask] or plan["logical_processors_available"] != 1):
-            raise ValueError("Linux B5 adapter requires one shared selected core/group")
+                or plan["endpoint_masks"] != [self.destination_mask]
+                or plan["logical_processors_available"] != len(self.cpus)):
+            raise ValueError("Linux B5 adapter requires exact per-peer placement/group")
 
-    def command(self, argv):
-        return [self.taskset, "-c", str(self.cpus[0]), *argv]
+    def command(self, argv, *, mask=None):
+        mask = self.mask if mask is None else mask
+        if mask not in (self.mask, self.destination_mask):
+            raise ValueError("Linux command affinity plan mismatch")
+        return [self.taskset, "-c", str(mask.bit_length() - 1), *argv]
 
     def verify_affinity(self, process, mask, binary):
-        if mask != self.mask:
+        if mask not in (self.mask, self.destination_mask):
             raise RuntimeError("Linux affinity plan mismatch")
         wait_exec(process, Path(binary))
-        row = sample_linux_process(process.pid, self.cpus)
+        row = sample_linux_process(process.pid, [mask.bit_length() - 1])
         if row["state"] == "Z":
             raise RuntimeError("peer exited before live affinity verification")
         return dict(verified=True, requested_mask=mask, observed_mask=mask,
@@ -44,7 +52,7 @@ class LinuxB5Backend:
 
     def sampler(self, processes, *, interval, bound, sink):
         return LinuxResourceSampler(processes, self.cpus, interval_seconds=interval,
-            max_records=bound, record_sink=sink, terminal_roles=("source",))
+            max_records=bound, record_sink=sink, terminal_roles=("source",), role_cpus=self.role_cpus)
 
     @staticmethod
     def observe_source(source):
@@ -70,7 +78,7 @@ class LinuxB5Backend:
                 raise RuntimeError("destination terminal sampling deadline")
             time.sleep(.01)
         prior = [r for r in sampler.records_snapshot() if r["role"] == role]
-        final = sample_linux_process(server.pid, self.cpus)
+        final = sample_linux_process(server.pid, self.role_cpus[role])
         if (not prior or final["state"] != "Z" or final["pid"] != prior[-1]["pid"]
                 or final["start_ticks"] != prior[-1]["start_ticks"]
                 or final["cpu_ns"] < prior[-1]["cpu_ns"]
