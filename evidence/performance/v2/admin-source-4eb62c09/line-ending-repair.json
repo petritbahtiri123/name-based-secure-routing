@@ -1,0 +1,8 @@
+{
+  "initial_preparation": "FAILED_EXACT_BYTE_CHECK",
+  "cause": "Git checkout converted LF to CRLF for .ps1; normalized source identical",
+  "action": "Write exact committed blob to this owned clean clone only",
+  "before_sha256": "dee3ed077835723add89fe052a9d4db9179827413c8618758e44c179994132b6",
+  "after_sha256": "ed820a0c929231d4de578c8f26f82138975780b8282b300215f6a48f59808277",
+  "parent_untouched": true
+}

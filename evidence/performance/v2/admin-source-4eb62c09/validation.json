@@ -1,0 +1,14 @@
+{
+  "clone_clean": true,
+  "branch": "codex/nbsr-v3-wp0-wp1",
+  "capture_script_matches_committed_bytes": true,
+  "powershell_parser": "PASS",
+  "nonadmin_refusal": "PASS_ADMIN_REQUIRED",
+  "git_connectivity": "PASS; dangling objects are retained, not deleted",
+  "elevated_capture": "NOT_RUN",
+  "initial_failures": [
+    "Exact-byte assertion found inherited CRLF conversion",
+    "LF restoration retained a stale modified stat entry until explicit index refresh; no Git content diff"
+  ],
+  "parent_refs_unchanged": true
+}

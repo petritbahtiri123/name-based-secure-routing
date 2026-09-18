@@ -1,0 +1,33 @@
+{
+  "status": "PASS_CLEAN_ISOLATED_SOURCE_PREPARATION",
+  "source_sha": "4eb62c093273dcfe883c0bb5c02cf69dbd426c20",
+  "target": "C:\\NBSR-build\\admin-validation-source-4eb62c09",
+  "branch": "codex/nbsr-v3-wp0-wp1",
+  "parent_protected_refs": {
+    "main": "1938154d498b32d81a3564319969430644e8a688",
+    "origin/main": "1938154d498b32d81a3564319969430644e8a688"
+  },
+  "untracked_variants": [
+    {
+      "path": "C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\evidence\\performance\\wire-overhead-b1-94a1e4a\\checksums (1).sha256",
+      "sha256": "cb502aae033dd3a93952c514adb861c9579fec962b4fcd2be1d9d47223da445d",
+      "canonical_sha256": "1503012d307ad86a574d70acfb5279a43d4a5861e7c704ee76a11f71a03b0c34",
+      "action": "PRESERVED_UNCHANGED"
+    },
+    {
+      "path": "C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\evidence\\performance\\wire-overhead-b1-94a1e4a\\commands (1).txt",
+      "sha256": "d981540a87f7aafa1dffba1daf19d29289052a5d1e338fe3e12ab71b5a2268eb",
+      "canonical_sha256": "f4f387edcea9956015f4d92b4ed57ce977ea954ffc59ed75620eaacd895f3529",
+      "action": "PRESERVED_UNCHANGED"
+    },
+    {
+      "path": "C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\evidence\\performance\\wire-overhead-b1-94a1e4a\\summary (1).md",
+      "sha256": "82fa2759fd63e62e1e5606d6cf19c459ed8db209549de6e266b50cab65eaeaab",
+      "canonical_sha256": "7fc6f22f9be43623d77ae17f171e7c2f8a3b3e1dec5f5ca6646a4dfad2b1afe1",
+      "action": "PRESERVED_UNCHANGED"
+    }
+  ],
+  "exact_administrator_command": "pwsh -NoProfile -ExecutionPolicy Bypass -File \"C:\\NBSR-build\\admin-validation-source-4eb62c09\\scripts\\capture_b5_direct_cpu.ps1\"",
+  "elevated_capture": "NOT_RUN",
+  "purpose": "Preserve untracked variants and strict clean-source gate; independent copied Git objects, no parent history/branch mutation"
+}

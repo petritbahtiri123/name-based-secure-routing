@@ -19,8 +19,18 @@ The current non-elevated process was verified unable to start `wpr -start CPU -f
 After other meaningful non-admin work is exhausted, execute this **one command** in Administrator PowerShell from an otherwise idle host:
 
 ```powershell
-pwsh -NoProfile -ExecutionPolicy Bypass -File "C:\Users\bajra\OneDrive\Documents\NBSR\scripts\capture_b5_direct_cpu.ps1"
+pwsh -NoProfile -ExecutionPolicy Bypass -File "C:\NBSR-build\admin-validation-source-4eb62c09\scripts\capture_b5_direct_cpu.ps1"
 ```
+
+The prepared source is an independent clean local clone at
+`4eb62c093273dcfe883c0bb5c02cf69dbd426c20`, on the expected feature branch.
+The original OneDrive checkout contains three pre-existing untracked evidence
+variants with different byte hashes; they remain untouched. The clone avoids
+weakening the clean-source gate or deleting those files. Its capture script
+matches the committed bytes exactly; checkout line-ending normalization and
+index refresh changed no source content or history. Keep this clone at its
+prepared path and do not update it while capturing. This diagnostic is bound to
+that recorded source, not automatically to later documentation commits.
 
 The script requires the expected clean feature branch, refuses an existing/unknown WPR session, prepares release binaries, and runs five counterbalanced off/CPU pairs at the fixed historical diagnostic rate (120seconds per cell, roughly20minutes of workload plus setup/export). No current-ceiling or stable-capacity claim is made. It retains every failed cell and stops without replacement, stops only the recording it successfully started, and hashes raw outputs in a fresh `C:\NBSR-build\b5-direct-cpu-*` root. At least5GiB free is required before each capture; it deletes nothing. Do not run other captures or workloads concurrently.
 

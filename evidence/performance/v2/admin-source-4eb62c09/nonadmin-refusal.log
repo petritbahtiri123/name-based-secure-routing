@@ -1,0 +1,5 @@
+Exception: C:\NBSR-build\admin-validation-source-4eb62c09\scripts\capture_b5_direct_cpu.ps1:9
+Line |
+   9 |      throw 'ADMIN_REQUIRED: WPR CPU profiling requires an elevated pro …
+     |      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | ADMIN_REQUIRED: WPR CPU profiling requires an elevated process; no security policy is changed by this script.

@@ -1,0 +1,35 @@
+{
+  "source_sha": "4eb62c093273dcfe883c0bb5c02cf69dbd426c20",
+  "build_profile": "release",
+  "binary_sha256": {
+    "perf_direct_peer.exe": "fd7ad38cb4c51569629af12ea75169878e85b768d17dbd3379f7079fe3113e71",
+    "perf_rust_source.exe": "439c8fcc873e55f91e302867d143218dff10529b692d81fe0cb5e32d5cbee6c2",
+    "wp8_interop_server.exe": "a2422f7ad79ce7d461f4efd60d5a311733bbfba832cffe100e3062271c293c3d"
+  },
+  "build_commands": [
+    [
+      "cargo",
+      "build",
+      "--locked",
+      "--release",
+      "--manifest-path",
+      "C:\\NBSR-build\\admin-validation-source-4eb62c09\\crates\\nbsr-transport\\Cargo.toml",
+      "--target-dir",
+      "C:/NBSR-build/b4b-task4k",
+      "--features",
+      "benchmark-harness",
+      "--bin",
+      "perf_direct_peer",
+      "--bin",
+      "perf_rust_source",
+      "--bin",
+      "wp8_interop_server"
+    ]
+  ],
+  "toolchains": {
+    "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+    "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)"
+  },
+  "scope": "Windows release preparation only; no WPR or timed workload run",
+  "runtime_source_path": "C:\\NBSR-build\\admin-validation-source-4eb62c09"
+}

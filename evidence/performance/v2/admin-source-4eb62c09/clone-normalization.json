@@ -1,0 +1,48 @@
+{
+  "reason": "Fresh owned clone inherited system autocrlf=true; restored exact committed checkout bytes using clone-local configuration only",
+  "pre_state": " M scripts/capture_b5_direct_cpu.ps1\n",
+  "no_content_diff": true,
+  "commands": [
+    {
+      "command": [
+        "git",
+        "-C",
+        "C:\\NBSR-build\\admin-validation-source-4eb62c09",
+        "config",
+        "--local",
+        "core.autocrlf",
+        "false"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "-C",
+        "C:\\NBSR-build\\admin-validation-source-4eb62c09",
+        "config",
+        "--local",
+        "core.eol",
+        "lf"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "-C",
+        "C:\\NBSR-build\\admin-validation-source-4eb62c09",
+        "checkout-index",
+        "--all",
+        "--force"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ]
+}

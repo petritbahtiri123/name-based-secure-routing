@@ -1,0 +1,7 @@
+{
+  "action": "git add -- scripts/capture_b5_direct_cpu.ps1 in owned clone only",
+  "reason": "Exact blob bytes were restored but stale stat metadata remained; explicit-path index refresh produced no staged diff",
+  "blob_sha256": "ed820a0c929231d4de578c8f26f82138975780b8282b300215f6a48f59808277",
+  "final_status": "clean",
+  "history_changes": false
+}
