@@ -77,3 +77,23 @@ retained, verifies native-address transport and orchestration across namespaces,
 not independent physical hosts, WAN behavior, server scaling or production
 isolation. External hardware acceptance and the full admission/resource/soak/wire
 matrix remain separate gates.
+
+After transferring both complete sealed peer directories, verify their join
+without rerunning or rewriting raw evidence:
+
+```bash
+python3 -B -m scripts.performance.linux_native_pair \
+  --source /absolute/copied-source-cell \
+  --destination /absolute/copied-destination-cell \
+  --source-sha FULL_REVIEWED_40_CHARACTER_SOURCE_SHA
+```
+
+Run this once per Direct/NBSR cell. It rejects incomplete or changed checksum
+inventories, mismatched source/build/workload/CA/readiness, wrong executed
+binaries or command shape, failed exits, inconsistent process identity/CPU
+counters and forced-cleanup attempts. A success is PASS_FINITE_PAIR_INTEGRITY.
+Checksums are not signatures, authenticated transport or remote attestation;
+retain the authenticated transfer and host custody procedure. The gate does
+not establish observer neutrality, runtime ownership cleanup, external hardware,
+steady-state CPU cost or strict-stable capacity. Do not subtract timestamps
+across the two hosts. Its JSON report goes to stdout, outside the sealed roots.
