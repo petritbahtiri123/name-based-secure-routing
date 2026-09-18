@@ -1,0 +1,134 @@
+FFFFFFFFF                                                                [100%]
+================================== FAILURES ===================================
+_____ test_ethernet_probe_requires_explicit_encapsulation_and_exact_token _____
+
+    def test_ethernet_probe_requires_explicit_encapsulation_and_exact_token():
+        from scripts.analyze_b1_v2_capture import probe_frames_from_pcapng
+    
+        def block(kind, body):
+            size = 12 + len(body)
+            return struct.pack('<II', kind, size) + body + struct.pack('<I', size)
+    
+        probe = dict(source_port=4000, destination_port=4001, token_hex='ab' * 32)
+        header = block(0x0A0D0D0A, struct.pack('<IHHq', 0x1A2B3C4D, 1, 0, -1))
+        interface = block(1, struct.pack('<HHI', 1, 0, 65535))
+        ip = bytes.fromhex('4500003c00000000401100007f0000017f000001')
+        frame = b'\0' * 12 + b'\x08\x00' + ip + struct.pack('!HHHH', 4000, 4001, 40, 0) + bytes.fromhex(probe['token_hex'])
+        packet = block(6, struct.pack('<IIIII', 0, 0, 0, len(frame), len(frame)) + frame + b'\0\0')
+        capture = header + interface + packet
+>       assert probe_frames_from_pcapng(capture, probe, expected_linktype=1) == {1: probe['token_hex']}
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: probe_frames_from_pcapng() got an unexpected keyword argument 'expected_linktype'
+
+tests\performance\test_linux_b1_capture.py:21: TypeError
+_ test_udp_ownership_requires_pid_identity_and_matching_socket_inode[change0-12345] _
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1039/test_udp_ownership_requires_pi0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001FB6B3D9CD0>
+change = {}, expected = 12345
+
+    @pytest.mark.parametrize('change,expected', [({}, 12345), ({'start': 100}, None),
+        ({'inode': 54321}, None), ({'address': '0200007F'}, None), ({'duplicate': True}, None),
+        ({'address': '00000000'}, 12345)])
+    def test_udp_ownership_requires_pid_identity_and_matching_socket_inode(tmp_path, monkeypatch, change, expected):
+>       from scripts.performance.linux_b1_capture import udp_owned_by_pid
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_b1_capture'
+
+tests\performance\test_linux_b1_capture.py:46: ModuleNotFoundError
+_ test_udp_ownership_requires_pid_identity_and_matching_socket_inode[change1-None] _
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1039/test_udp_ownership_requires_pi1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001FB6B3D9BA0>
+change = {'start': 100}, expected = None
+
+    @pytest.mark.parametrize('change,expected', [({}, 12345), ({'start': 100}, None),
+        ({'inode': 54321}, None), ({'address': '0200007F'}, None), ({'duplicate': True}, None),
+        ({'address': '00000000'}, 12345)])
+    def test_udp_ownership_requires_pid_identity_and_matching_socket_inode(tmp_path, monkeypatch, change, expected):
+>       from scripts.performance.linux_b1_capture import udp_owned_by_pid
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_b1_capture'
+
+tests\performance\test_linux_b1_capture.py:46: ModuleNotFoundError
+_ test_udp_ownership_requires_pid_identity_and_matching_socket_inode[change2-None] _
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1039/test_udp_ownership_requires_pi2')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001FB6B4027B0>
+change = {'inode': 54321}, expected = None
+
+    @pytest.mark.parametrize('change,expected', [({}, 12345), ({'start': 100}, None),
+        ({'inode': 54321}, None), ({'address': '0200007F'}, None), ({'duplicate': True}, None),
+        ({'address': '00000000'}, 12345)])
+    def test_udp_ownership_requires_pid_identity_and_matching_socket_inode(tmp_path, monkeypatch, change, expected):
+>       from scripts.performance.linux_b1_capture import udp_owned_by_pid
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_b1_capture'
+
+tests\performance\test_linux_b1_capture.py:46: ModuleNotFoundError
+_ test_udp_ownership_requires_pid_identity_and_matching_socket_inode[change3-None] _
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1039/test_udp_ownership_requires_pi3')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001FB6B4D8E20>
+change = {'address': '0200007F'}, expected = None
+
+    @pytest.mark.parametrize('change,expected', [({}, 12345), ({'start': 100}, None),
+        ({'inode': 54321}, None), ({'address': '0200007F'}, None), ({'duplicate': True}, None),
+        ({'address': '00000000'}, 12345)])
+    def test_udp_ownership_requires_pid_identity_and_matching_socket_inode(tmp_path, monkeypatch, change, expected):
+>       from scripts.performance.linux_b1_capture import udp_owned_by_pid
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_b1_capture'
+
+tests\performance\test_linux_b1_capture.py:46: ModuleNotFoundError
+_ test_udp_ownership_requires_pid_identity_and_matching_socket_inode[change4-None] _
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1039/test_udp_ownership_requires_pi4')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001FB6B4D9040>
+change = {'duplicate': True}, expected = None
+
+    @pytest.mark.parametrize('change,expected', [({}, 12345), ({'start': 100}, None),
+        ({'inode': 54321}, None), ({'address': '0200007F'}, None), ({'duplicate': True}, None),
+        ({'address': '00000000'}, 12345)])
+    def test_udp_ownership_requires_pid_identity_and_matching_socket_inode(tmp_path, monkeypatch, change, expected):
+>       from scripts.performance.linux_b1_capture import udp_owned_by_pid
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_b1_capture'
+
+tests\performance\test_linux_b1_capture.py:46: ModuleNotFoundError
+_ test_udp_ownership_requires_pid_identity_and_matching_socket_inode[change5-12345] _
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1039/test_udp_ownership_requires_pi5')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001FB6B529050>
+change = {'address': '00000000'}, expected = 12345
+
+    @pytest.mark.parametrize('change,expected', [({}, 12345), ({'start': 100}, None),
+        ({'inode': 54321}, None), ({'address': '0200007F'}, None), ({'duplicate': True}, None),
+        ({'address': '00000000'}, 12345)])
+    def test_udp_ownership_requires_pid_identity_and_matching_socket_inode(tmp_path, monkeypatch, change, expected):
+>       from scripts.performance.linux_b1_capture import udp_owned_by_pid
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_b1_capture'
+
+tests\performance\test_linux_b1_capture.py:46: ModuleNotFoundError
+_________________ test_missing_process_does_not_authorize_udp _________________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1039/test_missing_process_does_not_0')
+
+    def test_missing_process_does_not_authorize_udp(tmp_path):
+>       from scripts.performance.linux_b1_capture import udp_owned_by_pid
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_b1_capture'
+
+tests\performance\test_linux_b1_capture.py:53: ModuleNotFoundError
+___________ test_linux_capture_requires_exact_lo_ethernet_metadata ____________
+
+    def test_linux_capture_requires_exact_lo_ethernet_metadata():
+>       from scripts.performance.linux_b1_capture import LinuxPacketObserver
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_b1_capture'
+
+tests\performance\test_linux_b1_capture.py:58: ModuleNotFoundError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_linux_b1_capture.py::test_ethernet_probe_requires_explicit_encapsulation_and_exact_token
+FAILED tests/performance/test_linux_b1_capture.py::test_udp_ownership_requires_pid_identity_and_matching_socket_inode[change0-12345]
+FAILED tests/performance/test_linux_b1_capture.py::test_udp_ownership_requires_pid_identity_and_matching_socket_inode[change1-None]
+FAILED tests/performance/test_linux_b1_capture.py::test_udp_ownership_requires_pid_identity_and_matching_socket_inode[change2-None]
+FAILED tests/performance/test_linux_b1_capture.py::test_udp_ownership_requires_pid_identity_and_matching_socket_inode[change3-None]
+FAILED tests/performance/test_linux_b1_capture.py::test_udp_ownership_requires_pid_identity_and_matching_socket_inode[change4-None]
+FAILED tests/performance/test_linux_b1_capture.py::test_udp_ownership_requires_pid_identity_and_matching_socket_inode[change5-12345]
+FAILED tests/performance/test_linux_b1_capture.py::test_missing_process_does_not_authorize_udp
+FAILED tests/performance/test_linux_b1_capture.py::test_linux_capture_requires_exact_lo_ethernet_metadata
+9 failed in 0.69s

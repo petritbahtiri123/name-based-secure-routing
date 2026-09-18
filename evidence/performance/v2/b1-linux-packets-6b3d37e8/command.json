@@ -1,0 +1,14 @@
+[
+  "/usr/local/bin/python",
+  "-B",
+  "-m",
+  "scripts.performance.linux_b1_capture",
+  "--binaries",
+  "/tmp/binaries",
+  "--build-manifest",
+  "/build/build-manifest.json",
+  "--output",
+  "/out/cohort",
+  "--operations",
+  "1000"
+]

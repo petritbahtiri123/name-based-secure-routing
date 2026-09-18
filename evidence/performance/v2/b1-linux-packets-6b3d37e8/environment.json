@@ -1,0 +1,38 @@
+{
+  "repository_sha": "6b3d37e8b9b0b87061bde9757ea2ea51991db1e8",
+  "platform": "Linux-6.6.114.1-microsoft-standard-WSL2-x86_64-with-glibc2.36",
+  "uid": 0,
+  "binary_sha256": {
+    "perf_direct_peer": "bb5e928d925c795360df1a137cbf985f3485f2e90b27bdff550adc41147937f8",
+    "perf_rust_source": "2009afcac4ab8a62cd67f358f467b650f752a2d08319d0273cc1769705e18cea",
+    "wp8_interop_server": "f70771b708dfa8608fbc2325303109a60ce797e37e6e7a3b4d1cd773467097c3"
+  },
+  "capture_tools": {
+    "dumpcap": {
+      "path": "/usr/bin/dumpcap",
+      "sha256": "bcdeb683b5bdbd1871e566fabbc6893cf95e22da98f022f25f71c40ca9cb4d4f",
+      "version": "Dumpcap (Wireshark) 4.0.17 (Git v4.0.17 packaged as 4.0.17-0+deb12u3).\n\nCopyright 1998-2024 Gerald Combs <gerald@wireshark.org> and contributors.\nLicensed under the terms of the GNU General Public License (version 2 or later).\nThis is free software; see the file named COPYING in the distribution. There is\nNO WARRANTY; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\nCompiled (64-bit) using GCC 12.2.0, with GLib 2.74.6, with PCRE2, with zlib\n1.2.13, with libpcap, with POSIX capabilities (Linux), with libnl 3, with binary\nplugins.\n\nRunning on Linux 6.6.114.1-microsoft-standard-WSL2, with Intel(R) Core(TM)\ni5-10210U CPU @ 1.60GHz (with SSE4.2), with 7828 MB of physical memory, with\nGLib 2.74.6, with PCRE2 10.42 2022-12-11, with zlib 1.2.13, with libpcap 1.10.3\n(with TPACKET_V3), with LC_TYPE=C, binary plugins supported.\n"
+    },
+    "tshark": {
+      "path": "/usr/bin/tshark",
+      "sha256": "2ed691c3bcfb3c60677ffbf234aaea3fd9b17b87a2c8272a944aba8b7c91d0fa",
+      "version": "TShark (Wireshark) 4.0.17 (Git v4.0.17 packaged as 4.0.17-0+deb12u3).\n\nCopyright 1998-2024 Gerald Combs <gerald@wireshark.org> and contributors.\nLicensed under the terms of the GNU General Public License (version 2 or later).\nThis is free software; see the file named COPYING in the distribution. There is\nNO WARRANTY; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\nCompiled (64-bit) using GCC 12.2.0, with GLib 2.74.6, with PCRE2, with zlib\n1.2.13, with libpcap, with POSIX capabilities (Linux), with libnl 3, with Lua\n5.2.4, with GnuTLS 3.7.9 and PKCS #11 support, with Gcrypt 1.10.1, with Kerberos\n(MIT), with MaxMind, with nghttp2 1.52.0, with brotli, with LZ4, with Zstandard,\nwith Snappy, with libxml2 2.9.14, with libsmi 0.4.8, with binary plugins.\n\nRunning on Linux 6.6.114.1-microsoft-standard-WSL2, with Intel(R) Core(TM)\ni5-10210U CPU @ 1.60GHz (with SSE4.2), with 7828 MB of physical memory, with\nGLib 2.74.6, with PCRE2 10.42 2022-12-11, with zlib 1.2.13, with libpcap 1.10.3\n(with TPACKET_V3), with c-ares 1.18.1, with GnuTLS 3.7.9, with Gcrypt 1.10.1,\nwith nghttp2 1.52.0, with brotli 1.0.9, with LZ4 1.9.4, with Zstandard 1.5.4,\nwith libsmi 0.4.8, with LC_TYPE=C.UTF-8, binary plugins supported.\n"
+    },
+    "capinfos": {
+      "path": "/usr/bin/capinfos",
+      "sha256": "e29146c56f2b09a55ac24ff9c5756d1ca2597b52934c127b68df562ff12d568a",
+      "version": "Capinfos (Wireshark) 4.0.17 (Git v4.0.17 packaged as 4.0.17-0+deb12u3).\n\nCopyright 1998-2024 Gerald Combs <gerald@wireshark.org> and contributors.\nLicensed under the terms of the GNU General Public License (version 2 or later).\nThis is free software; see the file named COPYING in the distribution. There is\nNO WARRANTY; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\nCompiled (64-bit) using GCC 12.2.0, with GLib 2.74.6, with PCRE2, with zlib\n1.2.13, with binary plugins.\n\nRunning on Linux 6.6.114.1-microsoft-standard-WSL2, with Intel(R) Core(TM)\ni5-10210U CPU @ 1.60GHz (with SSE4.2), with 7828 MB of physical memory, with\nGLib 2.74.6, with PCRE2 10.42 2022-12-11, with zlib 1.2.13, with\nLC_TYPE=C.UTF-8, binary plugins supported.\n"
+    }
+  },
+  "controller_args": {
+    "binaries": "/tmp/binaries",
+    "build_manifest": "/build/build-manifest.json",
+    "output": "/out/cohort",
+    "operations": 1000,
+    "smoke": false
+  },
+  "scope": "Linux lo, captured synthetic Ethernet IPv4/UDP; not physical NIC, WAN or server capacity",
+  "performance_timing": "DIAGNOSTIC_ONLY",
+  "resource_metrics": "NOT_MEASURED",
+  "capture_readiness": "distinct exact initial and terminal markers; validated and excluded"
+}

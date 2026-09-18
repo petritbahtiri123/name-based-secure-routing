@@ -1,0 +1,3945 @@
+[
+  {
+    "schema": "nbsr-b1-wire-overhead-repeat-v1",
+    "path": "direct",
+    "streams": 64,
+    "payload_bytes": 1024,
+    "model": "bounded-outstanding-per-stream",
+    "outstanding_per_stream": 1,
+    "configured_total_outstanding": 64,
+    "max_outstanding_per_stream_observed": 1,
+    "completed_operations": 64000,
+    "measured_ns": 4260429608,
+    "p50_latency_ns": 3219560,
+    "p95_latency_ns": 11370063,
+    "p99_latency_ns": 16673426,
+    "errors": 0,
+    "missing": 0,
+    "duplicates": 0,
+    "corrupt": 0,
+    "wrong_request": 0,
+    "transport_sessions_created_delta": 0,
+    "service_channels_created_delta": 0,
+    "application_streams_created_delta": 0,
+    "replay_entries_delta": 0,
+    "repeat": 1,
+    "operations_per_stream": 1000,
+    "expected_operations": 64000,
+    "warmup_seconds": 0,
+    "benchmark_build": "cargo release with benchmark-harness feature",
+    "phase_semantics": "setup then excluded warmup then established fixed operations without teardown",
+    "timeouts": 0,
+    "application_bytes": 131072000,
+    "application_bytes_definition": "aggregate request plus response payload bytes",
+    "capture_method": "isolated-udp-relay",
+    "measured_unit": "UDP payload bytes and UDP datagrams",
+    "client_ownership": "OS UDP endpoint ownership must match the authorized benchmark client PID",
+    "setup": {
+      "client_to_server": {
+        "bytes": 3864,
+        "packets": 4
+      },
+      "server_to_client": {
+        "bytes": 2890,
+        "packets": 5
+      }
+    },
+    "established": {
+      "client_to_server": {
+        "bytes": 70495585,
+        "packets": 72981
+      },
+      "server_to_client": {
+        "bytes": 70335995,
+        "packets": 64849
+      }
+    },
+    "rejected_datagrams": 0,
+    "server_endpoint": "127.0.0.1:57399",
+    "relay_endpoint": "127.0.0.1:33055",
+    "resources": {
+      "status": "NOT_MEASURED",
+      "scope": "packet accounting only; capture timing is not performance evidence"
+    },
+    "client_command": [
+      "/out/cohort/binaries/perf_direct_peer",
+      "--role",
+      "client",
+      "--samples",
+      "1",
+      "--lifecycle",
+      "warm",
+      "--authority-dir",
+      "/tmp/nbsr-linux-b1-bjxd_w_i/authority",
+      "--endpoint",
+      "127.0.0.1:33055",
+      "--payload-bytes",
+      "1024",
+      "--p2a-streams",
+      "64",
+      "--p2a-warmup-seconds",
+      "0",
+      "--p2a-operations-per-stream",
+      "1000",
+      "--p2a-counter-control",
+      "127.0.0.1:43871"
+    ],
+    "server_command": [
+      "/out/cohort/binaries/perf_direct_peer",
+      "--role",
+      "server",
+      "--ready",
+      "/out/cohort/raw/direct-p1024-s64-r1.ready.json",
+      "--authority-dir",
+      "/tmp/nbsr-linux-b1-bjxd_w_i/authority",
+      "--connections",
+      "1",
+      "--requests-per-connection",
+      "1",
+      "--p2a-streams",
+      "64"
+    ],
+    "linux_socket_ownership": {
+      "pid": 78,
+      "start_ticks": 301796,
+      "socket_inode": 87562,
+      "local_endpoint": [
+        "127.0.0.1",
+        46674
+      ],
+      "scope": "first datagram PID/FD/inode binding"
+    },
+    "packet_observer": {
+      "enabled": true,
+      "valid": true,
+      "status": "complete",
+      "capture_command": [
+        "/usr/bin/dumpcap",
+        "-q",
+        "-i",
+        "lo",
+        "-f",
+        "udp port 57399 or (udp and src host 127.0.0.1 and dst host 127.0.0.1 and src port 38703 and dst port 35775)",
+        "-w",
+        "/out/cohort/raw/direct-p1024-s64-r1/loopback.pcapng",
+        "-p",
+        "-s",
+        "0",
+        "-B",
+        "64",
+        "-a",
+        "filesize:2097152"
+      ],
+      "server_port": 57399,
+      "pcap": "/out/cohort/raw/direct-p1024-s64-r1/loopback.pcapng",
+      "readiness": {
+        "source_port": 38703,
+        "destination_port": 35775,
+        "token_hex": "0b30337aa5ccdb288fa2b2119cea218fff815fb02fc8042de17fdc8916ba4176",
+        "sent_packets": 14,
+        "scope": "separate owned loopback tuple; never sent to the QUIC endpoint",
+        "status": "PASS",
+        "started_unix_ns": 1789756538725858153,
+        "observed_frame_numbers": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "ready_unix_ns": 1789756539316902539,
+        "terminal_token_hex": "993fbc5d226a49d40cef62c82ef71c039309045f13c622a7e8d984e44004951d",
+        "terminal_status": "PASS",
+        "terminal_observed_frame_numbers": [
+          97894
+        ]
+      },
+      "dumpcap_returncode": 0,
+      "tshark_returncode": 0,
+      "packet_count": 97882,
+      "flow_count": 1,
+      "flows_without_reply": 0,
+      "repeated_initial_flows": 1,
+      "retry_packet_count": 0,
+      "first_reply_delay_median_seconds": 0.0010333061218261719,
+      "first_reply_delay_p95_seconds": 0.0010333061218261719,
+      "packet_accounting": {
+        "schema": "nbsr-b1-v2-loopback-packet-accounting-v1",
+        "packet_count": 97882,
+        "capture_inventory_packets": 97895,
+        "readiness_probe_packets": 13,
+        "readiness_probe_frame_bytes": 962,
+        "capture_inventory_frame_bytes": 145098558,
+        "directions": {
+          "client_to_server": 73050,
+          "server_to_client": 24832
+        },
+        "captured_frame_bytes": 145097596,
+        "ip_bytes": 143727248,
+        "udp_bytes": 141769608,
+        "udp_payload_bytes": 140986552,
+        "physical_ethernet_bytes": null,
+        "scope": "Captured IPv4/UDP workload flow totals, excluding only validated readiness probes; not incremental Direct-versus-NBSR cost by itself."
+      },
+      "capture_drops": {
+        "interface": "Loopback: lo",
+        "captured": 97895,
+        "received": 97895,
+        "dropped": 0,
+        "pcap_drops": 0,
+        "dumpcap_drops": 0,
+        "flushed": 0,
+        "interface_drops": 0
+      }
+    }
+  },
+  {
+    "schema": "nbsr-b1-wire-overhead-repeat-v1",
+    "path": "nbsr",
+    "streams": 64,
+    "payload_bytes": 1024,
+    "model": "bounded-outstanding-per-stream",
+    "outstanding_per_stream": 1,
+    "configured_total_outstanding": 64,
+    "max_outstanding_per_stream_observed": 1,
+    "completed_operations": 64000,
+    "measured_ns": 2840563694,
+    "p50_latency_ns": 2774835,
+    "p95_latency_ns": 4212257,
+    "p99_latency_ns": 4915616,
+    "latency_sample_count": 64000,
+    "latency_sample_stride": 1,
+    "scheduled_admissions": 0,
+    "successful_admissions": 0,
+    "failed_admissions": 0,
+    "admission_timeouts": 0,
+    "admission_p50_latency_ns": null,
+    "admission_p95_latency_ns": null,
+    "admission_p99_latency_ns": null,
+    "max_admission_start_lateness_ns": 0,
+    "errors": 0,
+    "missing": 0,
+    "duplicates": 0,
+    "corrupt": 0,
+    "wrong_request": 0,
+    "transport_sessions_created_delta": 0,
+    "service_channels_created_delta": 0,
+    "application_streams_created_delta": 0,
+    "replay_entries_delta": 0,
+    "repeat": 1,
+    "operations_per_stream": 1000,
+    "expected_operations": 64000,
+    "warmup_seconds": 0,
+    "benchmark_build": "cargo release with benchmark-harness feature",
+    "phase_semantics": "setup then excluded warmup then established fixed operations without teardown",
+    "timeouts": 0,
+    "application_bytes": 131072000,
+    "application_bytes_definition": "aggregate request plus response payload bytes",
+    "capture_method": "isolated-udp-relay",
+    "measured_unit": "UDP payload bytes and UDP datagrams",
+    "client_ownership": "OS UDP endpoint ownership must match the authorized benchmark client PID",
+    "setup": {
+      "client_to_server": {
+        "bytes": 20937,
+        "packets": 109
+      },
+      "server_to_client": {
+        "bytes": 16766,
+        "packets": 110
+      }
+    },
+    "established": {
+      "client_to_server": {
+        "bytes": 70595071,
+        "packets": 76586
+      },
+      "server_to_client": {
+        "bytes": 70601827,
+        "packets": 77005
+      }
+    },
+    "rejected_datagrams": 0,
+    "server_endpoint": "127.0.0.1:40464",
+    "relay_endpoint": "127.0.0.1:49394",
+    "resources": {
+      "status": "NOT_MEASURED",
+      "scope": "packet accounting only; capture timing is not performance evidence"
+    },
+    "client_command": [
+      "/out/cohort/binaries/perf_rust_source",
+      "--samples",
+      "1",
+      "--authority-dir",
+      "/tmp/nbsr-linux-b1-bjxd_w_i/authority",
+      "--endpoint",
+      "127.0.0.1:49394",
+      "--payload-bytes",
+      "1024",
+      "--p2a-streams",
+      "64",
+      "--p2a-warmup-seconds",
+      "0",
+      "--p2a-operations-per-stream",
+      "1000",
+      "--p2a-counter-control",
+      "127.0.0.1:33129"
+    ],
+    "server_command": [
+      "/out/cohort/binaries/wp8_interop_server",
+      "--ready",
+      "/out/cohort/raw/nbsr-p1024-s64-r1.ready.json",
+      "--result",
+      "/out/cohort/raw/nbsr-p1024-s64-r1.result.json",
+      "--authority-dir",
+      "/tmp/nbsr-linux-b1-bjxd_w_i/authority",
+      "--completion-ack",
+      "/out/cohort/raw/nbsr-p1024-s64-r1.ack"
+    ],
+    "linux_socket_ownership": {
+      "pid": 139,
+      "start_ticks": 304069,
+      "socket_inode": 89448,
+      "local_endpoint": [
+        "127.0.0.1",
+        52937
+      ],
+      "scope": "first datagram PID/FD/inode binding"
+    },
+    "packet_observer": {
+      "enabled": true,
+      "valid": true,
+      "status": "complete",
+      "capture_command": [
+        "/usr/bin/dumpcap",
+        "-q",
+        "-i",
+        "lo",
+        "-f",
+        "udp port 40464 or (udp and src host 127.0.0.1 and dst host 127.0.0.1 and src port 51392 and dst port 49965)",
+        "-w",
+        "/out/cohort/raw/nbsr-p1024-s64-r1/loopback.pcapng",
+        "-p",
+        "-s",
+        "0",
+        "-B",
+        "64",
+        "-a",
+        "filesize:2097152"
+      ],
+      "server_port": 40464,
+      "pcap": "/out/cohort/raw/nbsr-p1024-s64-r1/loopback.pcapng",
+      "readiness": {
+        "source_port": 51392,
+        "destination_port": 49965,
+        "token_hex": "2eafb5356d9941a68bdbe238006456fda09094ba122997f6dc1ceb408198083f",
+        "sent_packets": 18,
+        "scope": "separate owned loopback tuple; never sent to the QUIC endpoint",
+        "status": "PASS",
+        "started_unix_ns": 1789756561249977687,
+        "observed_frame_numbers": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ],
+        "ready_unix_ns": 1789756562045018582,
+        "terminal_token_hex": "646a75ad91c4b3eb68faeb49d64f14528218d4a8e6878a49de28084a3448e4c9",
+        "terminal_status": "PASS",
+        "terminal_observed_frame_numbers": [
+          126391
+        ]
+      },
+      "dumpcap_returncode": 0,
+      "tshark_returncode": 0,
+      "packet_count": 126375,
+      "flow_count": 1,
+      "flows_without_reply": 0,
+      "repeated_initial_flows": 1,
+      "retry_packet_count": 0,
+      "first_reply_delay_median_seconds": 0.002714872360229492,
+      "first_reply_delay_p95_seconds": 0.002714872360229492,
+      "packet_accounting": {
+        "schema": "nbsr-b1-v2-loopback-packet-accounting-v1",
+        "packet_count": 126375,
+        "capture_inventory_packets": 126392,
+        "readiness_probe_packets": 17,
+        "readiness_probe_frame_bytes": 1258,
+        "capture_inventory_frame_bytes": 146690666,
+        "directions": {
+          "client_to_server": 76754,
+          "server_to_client": 49621
+        },
+        "captured_frame_bytes": 146689408,
+        "ip_bytes": 144920158,
+        "udp_bytes": 142392658,
+        "udp_payload_bytes": 141381658,
+        "physical_ethernet_bytes": null,
+        "scope": "Captured IPv4/UDP workload flow totals, excluding only validated readiness probes; not incremental Direct-versus-NBSR cost by itself."
+      },
+      "capture_drops": {
+        "interface": "Loopback: lo",
+        "captured": 126392,
+        "received": 126392,
+        "dropped": 0,
+        "pcap_drops": 0,
+        "dumpcap_drops": 0,
+        "flushed": 0,
+        "interface_drops": 0
+      }
+    }
+  },
+  {
+    "schema": "nbsr-b1-wire-overhead-repeat-v1",
+    "path": "nbsr",
+    "streams": 64,
+    "payload_bytes": 1024,
+    "model": "bounded-outstanding-per-stream",
+    "outstanding_per_stream": 1,
+    "configured_total_outstanding": 64,
+    "max_outstanding_per_stream_observed": 1,
+    "completed_operations": 64000,
+    "measured_ns": 3092217864,
+    "p50_latency_ns": 3065716,
+    "p95_latency_ns": 4406523,
+    "p99_latency_ns": 5600829,
+    "latency_sample_count": 64000,
+    "latency_sample_stride": 1,
+    "scheduled_admissions": 0,
+    "successful_admissions": 0,
+    "failed_admissions": 0,
+    "admission_timeouts": 0,
+    "admission_p50_latency_ns": null,
+    "admission_p95_latency_ns": null,
+    "admission_p99_latency_ns": null,
+    "max_admission_start_lateness_ns": 0,
+    "errors": 0,
+    "missing": 0,
+    "duplicates": 0,
+    "corrupt": 0,
+    "wrong_request": 0,
+    "transport_sessions_created_delta": 0,
+    "service_channels_created_delta": 0,
+    "application_streams_created_delta": 0,
+    "replay_entries_delta": 0,
+    "repeat": 2,
+    "operations_per_stream": 1000,
+    "expected_operations": 64000,
+    "warmup_seconds": 0,
+    "benchmark_build": "cargo release with benchmark-harness feature",
+    "phase_semantics": "setup then excluded warmup then established fixed operations without teardown",
+    "timeouts": 0,
+    "application_bytes": 131072000,
+    "application_bytes_definition": "aggregate request plus response payload bytes",
+    "capture_method": "isolated-udp-relay",
+    "measured_unit": "UDP payload bytes and UDP datagrams",
+    "client_ownership": "OS UDP endpoint ownership must match the authorized benchmark client PID",
+    "setup": {
+      "client_to_server": {
+        "bytes": 20907,
+        "packets": 108
+      },
+      "server_to_client": {
+        "bytes": 16709,
+        "packets": 108
+      }
+    },
+    "established": {
+      "client_to_server": {
+        "bytes": 70708849,
+        "packets": 81204
+      },
+      "server_to_client": {
+        "bytes": 70658624,
+        "packets": 79500
+      }
+    },
+    "rejected_datagrams": 0,
+    "server_endpoint": "127.0.0.1:49943",
+    "relay_endpoint": "127.0.0.1:42275",
+    "resources": {
+      "status": "NOT_MEASURED",
+      "scope": "packet accounting only; capture timing is not performance evidence"
+    },
+    "client_command": [
+      "/out/cohort/binaries/perf_rust_source",
+      "--samples",
+      "1",
+      "--authority-dir",
+      "/tmp/nbsr-linux-b1-bjxd_w_i/authority",
+      "--endpoint",
+      "127.0.0.1:42275",
+      "--payload-bytes",
+      "1024",
+      "--p2a-streams",
+      "64",
+      "--p2a-warmup-seconds",
+      "0",
+      "--p2a-operations-per-stream",
+      "1000",
+      "--p2a-counter-control",
+      "127.0.0.1:46451"
+    ],
+    "server_command": [
+      "/out/cohort/binaries/wp8_interop_server",
+      "--ready",
+      "/out/cohort/raw/nbsr-p1024-s64-r2.ready.json",
+      "--result",
+      "/out/cohort/raw/nbsr-p1024-s64-r2.result.json",
+      "--authority-dir",
+      "/tmp/nbsr-linux-b1-bjxd_w_i/authority",
+      "--completion-ack",
+      "/out/cohort/raw/nbsr-p1024-s64-r2.ack"
+    ],
+    "linux_socket_ownership": {
+      "pid": 198,
+      "start_ticks": 306508,
+      "socket_inode": 92244,
+      "local_endpoint": [
+        "127.0.0.1",
+        33214
+      ],
+      "scope": "first datagram PID/FD/inode binding"
+    },
+    "packet_observer": {
+      "enabled": true,
+      "valid": true,
+      "status": "complete",
+      "capture_command": [
+        "/usr/bin/dumpcap",
+        "-q",
+        "-i",
+        "lo",
+        "-f",
+        "udp port 49943 or (udp and src host 127.0.0.1 and dst host 127.0.0.1 and src port 54765 and dst port 51014)",
+        "-w",
+        "/out/cohort/raw/nbsr-p1024-s64-r2/loopback.pcapng",
+        "-p",
+        "-s",
+        "0",
+        "-B",
+        "64",
+        "-a",
+        "filesize:2097152"
+      ],
+      "server_port": 49943,
+      "pcap": "/out/cohort/raw/nbsr-p1024-s64-r2/loopback.pcapng",
+      "readiness": {
+        "source_port": 54765,
+        "destination_port": 51014,
+        "token_hex": "4935c8768e52f340f24086b2ad2cee4c2fd4c21fc710a008ac4dea2ea0a3fe66",
+        "sent_packets": 14,
+        "scope": "separate owned loopback tuple; never sent to the QUIC endpoint",
+        "status": "PASS",
+        "started_unix_ns": 1789756585839087356,
+        "observed_frame_numbers": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "ready_unix_ns": 1789756586435786294,
+        "terminal_token_hex": "02aabb8b71b5d433a2055321167f9ed83366fbcb02b348cfa2090877595bda58",
+        "terminal_status": "PASS",
+        "terminal_observed_frame_numbers": [
+          135739
+        ]
+      },
+      "dumpcap_returncode": 0,
+      "tshark_returncode": 0,
+      "packet_count": 135727,
+      "flow_count": 1,
+      "flows_without_reply": 0,
+      "repeated_initial_flows": 1,
+      "retry_packet_count": 0,
+      "first_reply_delay_median_seconds": 0.0027725696563720703,
+      "first_reply_delay_p95_seconds": 0.0027725696563720703,
+      "packet_accounting": {
+        "schema": "nbsr-b1-v2-loopback-packet-accounting-v1",
+        "packet_count": 135727,
+        "capture_inventory_packets": 135740,
+        "readiness_probe_packets": 13,
+        "readiness_probe_frame_bytes": 962,
+        "capture_inventory_frame_bytes": 147251452,
+        "directions": {
+          "client_to_server": 81370,
+          "server_to_client": 54357
+        },
+        "captured_frame_bytes": 147250490,
+        "ip_bytes": 145350312,
+        "udp_bytes": 142635772,
+        "udp_payload_bytes": 141549956,
+        "physical_ethernet_bytes": null,
+        "scope": "Captured IPv4/UDP workload flow totals, excluding only validated readiness probes; not incremental Direct-versus-NBSR cost by itself."
+      },
+      "capture_drops": {
+        "interface": "Loopback: lo",
+        "captured": 135740,
+        "received": 135740,
+        "dropped": 0,
+        "pcap_drops": 0,
+        "dumpcap_drops": 0,
+        "flushed": 0,
+        "interface_drops": 0
+      }
+    }
+  },
+  {
+    "schema": "nbsr-b1-wire-overhead-repeat-v1",
+    "path": "direct",
+    "streams": 64,
+    "payload_bytes": 1024,
+    "model": "bounded-outstanding-per-stream",
+    "outstanding_per_stream": 1,
+    "configured_total_outstanding": 64,
+    "max_outstanding_per_stream_observed": 1,
+    "completed_operations": 64000,
+    "measured_ns": 2709215236,
+    "p50_latency_ns": 2556423,
+    "p95_latency_ns": 4019593,
+    "p99_latency_ns": 4973839,
+    "errors": 0,
+    "missing": 0,
+    "duplicates": 0,
+    "corrupt": 0,
+    "wrong_request": 0,
+    "transport_sessions_created_delta": 0,
+    "service_channels_created_delta": 0,
+    "application_streams_created_delta": 0,
+    "replay_entries_delta": 0,
+    "repeat": 2,
+    "operations_per_stream": 1000,
+    "expected_operations": 64000,
+    "warmup_seconds": 0,
+    "benchmark_build": "cargo release with benchmark-harness feature",
+    "phase_semantics": "setup then excluded warmup then established fixed operations without teardown",
+    "timeouts": 0,
+    "application_bytes": 131072000,
+    "application_bytes_definition": "aggregate request plus response payload bytes",
+    "capture_method": "isolated-udp-relay",
+    "measured_unit": "UDP payload bytes and UDP datagrams",
+    "client_ownership": "OS UDP endpoint ownership must match the authorized benchmark client PID",
+    "setup": {
+      "client_to_server": {
+        "bytes": 3864,
+        "packets": 4
+      },
+      "server_to_client": {
+        "bytes": 2890,
+        "packets": 5
+      }
+    },
+    "established": {
+      "client_to_server": {
+        "bytes": 70550884,
+        "packets": 74913
+      },
+      "server_to_client": {
+        "bytes": 70376728,
+        "packets": 65861
+      }
+    },
+    "rejected_datagrams": 0,
+    "server_endpoint": "127.0.0.1:36221",
+    "relay_endpoint": "127.0.0.1:39092",
+    "resources": {
+      "status": "NOT_MEASURED",
+      "scope": "packet accounting only; capture timing is not performance evidence"
+    },
+    "client_command": [
+      "/out/cohort/binaries/perf_direct_peer",
+      "--role",
+      "client",
+      "--samples",
+      "1",
+      "--lifecycle",
+      "warm",
+      "--authority-dir",
+      "/tmp/nbsr-linux-b1-bjxd_w_i/authority",
+      "--endpoint",
+      "127.0.0.1:39092",
+      "--payload-bytes",
+      "1024",
+      "--p2a-streams",
+      "64",
+      "--p2a-warmup-seconds",
+      "0",
+      "--p2a-operations-per-stream",
+      "1000",
+      "--p2a-counter-control",
+      "127.0.0.1:33493"
+    ],
+    "server_command": [
+      "/out/cohort/binaries/perf_direct_peer",
+      "--role",
+      "server",
+      "--ready",
+      "/out/cohort/raw/direct-p1024-s64-r2.ready.json",
+      "--authority-dir",
+      "/tmp/nbsr-linux-b1-bjxd_w_i/authority",
+      "--connections",
+      "1",
+      "--requests-per-connection",
+      "1",
+      "--p2a-streams",
+      "64"
+    ],
+    "linux_socket_ownership": {
+      "pid": 257,
+      "start_ticks": 308922,
+      "socket_inode": 92389,
+      "local_endpoint": [
+        "127.0.0.1",
+        58979
+      ],
+      "scope": "first datagram PID/FD/inode binding"
+    },
+    "packet_observer": {
+      "enabled": true,
+      "valid": true,
+      "status": "complete",
+      "capture_command": [
+        "/usr/bin/dumpcap",
+        "-q",
+        "-i",
+        "lo",
+        "-f",
+        "udp port 36221 or (udp and src host 127.0.0.1 and dst host 127.0.0.1 and src port 39706 and dst port 49476)",
+        "-w",
+        "/out/cohort/raw/direct-p1024-s64-r2/loopback.pcapng",
+        "-p",
+        "-s",
+        "0",
+        "-B",
+        "64",
+        "-a",
+        "filesize:2097152"
+      ],
+      "server_port": 36221,
+      "pcap": "/out/cohort/raw/direct-p1024-s64-r2/loopback.pcapng",
+      "readiness": {
+        "source_port": 39706,
+        "destination_port": 49476,
+        "token_hex": "9f6c5bb2d99926ad38be17da65fa6dd3e2704dcee3cfe889c3a45bebc3b2d3c5",
+        "sent_packets": 18,
+        "scope": "separate owned loopback tuple; never sent to the QUIC endpoint",
+        "status": "PASS",
+        "started_unix_ns": 1789756609762908629,
+        "observed_frame_numbers": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "ready_unix_ns": 1789756610570478169,
+        "terminal_token_hex": "9e889c2186d257bdd8490da7f0f66ff298a77112e4c6d64f3cd22505f162b331",
+        "terminal_status": "PASS",
+        "terminal_observed_frame_numbers": [
+          100282
+        ]
+      },
+      "dumpcap_returncode": 0,
+      "tshark_returncode": 0,
+      "packet_count": 100267,
+      "flow_count": 1,
+      "flows_without_reply": 0,
+      "repeated_initial_flows": 1,
+      "retry_packet_count": 0,
+      "first_reply_delay_median_seconds": 0.0009403228759765625,
+      "first_reply_delay_p95_seconds": 0.0009403228759765625,
+      "packet_accounting": {
+        "schema": "nbsr-b1-v2-loopback-packet-accounting-v1",
+        "packet_count": 100267,
+        "capture_inventory_packets": 100283,
+        "readiness_probe_packets": 16,
+        "readiness_probe_frame_bytes": 1184,
+        "capture_inventory_frame_bytes": 145295248,
+        "directions": {
+          "client_to_server": 74988,
+          "server_to_client": 25279
+        },
+        "captured_frame_bytes": 145294064,
+        "ip_bytes": 143890326,
+        "udp_bytes": 141884986,
+        "udp_payload_bytes": 141082850,
+        "physical_ethernet_bytes": null,
+        "scope": "Captured IPv4/UDP workload flow totals, excluding only validated readiness probes; not incremental Direct-versus-NBSR cost by itself."
+      },
+      "capture_drops": {
+        "interface": "Loopback: lo",
+        "captured": 100283,
+        "received": 100283,
+        "dropped": 0,
+        "pcap_drops": 0,
+        "dumpcap_drops": 0,
+        "flushed": 0,
+        "interface_drops": 0
+      }
+    }
+  },
+  {
+    "schema": "nbsr-b1-wire-overhead-repeat-v1",
+    "path": "direct",
+    "streams": 64,
+    "payload_bytes": 1024,
+    "model": "bounded-outstanding-per-stream",
+    "outstanding_per_stream": 1,
+    "configured_total_outstanding": 64,
+    "max_outstanding_per_stream_observed": 1,
+    "completed_operations": 64000,
+    "measured_ns": 2859214387,
+    "p50_latency_ns": 2720236,
+    "p95_latency_ns": 4372020,
+    "p99_latency_ns": 5398871,
+    "errors": 0,
+    "missing": 0,
+    "duplicates": 0,
+    "corrupt": 0,
+    "wrong_request": 0,
+    "transport_sessions_created_delta": 0,
+    "service_channels_created_delta": 0,
+    "application_streams_created_delta": 0,
+    "replay_entries_delta": 0,
+    "repeat": 3,
+    "operations_per_stream": 1000,
+    "expected_operations": 64000,
+    "warmup_seconds": 0,
+    "benchmark_build": "cargo release with benchmark-harness feature",
+    "phase_semantics": "setup then excluded warmup then established fixed operations without teardown",
+    "timeouts": 0,
+    "application_bytes": 131072000,
+    "application_bytes_definition": "aggregate request plus response payload bytes",
+    "capture_method": "isolated-udp-relay",
+    "measured_unit": "UDP payload bytes and UDP datagrams",
+    "client_ownership": "OS UDP endpoint ownership must match the authorized benchmark client PID",
+    "setup": {
+      "client_to_server": {
+        "bytes": 3864,
+        "packets": 4
+      },
+      "server_to_client": {
+        "bytes": 2890,
+        "packets": 5
+      }
+    },
+    "established": {
+      "client_to_server": {
+        "bytes": 70534426,
+        "packets": 74283
+      },
+      "server_to_client": {
+        "bytes": 70360485,
+        "packets": 65323
+      }
+    },
+    "rejected_datagrams": 0,
+    "server_endpoint": "127.0.0.1:59214",
+    "relay_endpoint": "127.0.0.1:44795",
+    "resources": {
+      "status": "NOT_MEASURED",
+      "scope": "packet accounting only; capture timing is not performance evidence"
+    },
+    "client_command": [
+      "/out/cohort/binaries/perf_direct_peer",
+      "--role",
+      "client",
+      "--samples",
+      "1",
+      "--lifecycle",
+      "warm",
+      "--authority-dir",
+      "/tmp/nbsr-linux-b1-bjxd_w_i/authority",
+      "--endpoint",
+      "127.0.0.1:44795",
+      "--payload-bytes",
+      "1024",
+      "--p2a-streams",
+      "64",
+      "--p2a-warmup-seconds",
+      "0",
+      "--p2a-operations-per-stream",
+      "1000",
+      "--p2a-counter-control",
+      "127.0.0.1:40927"
+    ],
+    "server_command": [
+      "/out/cohort/binaries/perf_direct_peer",
+      "--role",
+      "server",
+      "--ready",
+      "/out/cohort/raw/direct-p1024-s64-r3.ready.json",
+      "--authority-dir",
+      "/tmp/nbsr-linux-b1-bjxd_w_i/authority",
+      "--connections",
+      "1",
+      "--requests-per-connection",
+      "1",
+      "--p2a-streams",
+      "64"
+    ],
+    "linux_socket_ownership": {
+      "pid": 318,
+      "start_ticks": 310936,
+      "socket_inode": 89751,
+      "local_endpoint": [
+        "127.0.0.1",
+        57787
+      ],
+      "scope": "first datagram PID/FD/inode binding"
+    },
+    "packet_observer": {
+      "enabled": true,
+      "valid": true,
+      "status": "complete",
+      "capture_command": [
+        "/usr/bin/dumpcap",
+        "-q",
+        "-i",
+        "lo",
+        "-f",
+        "udp port 59214 or (udp and src host 127.0.0.1 and dst host 127.0.0.1 and src port 39606 and dst port 33768)",
+        "-w",
+        "/out/cohort/raw/direct-p1024-s64-r3/loopback.pcapng",
+        "-p",
+        "-s",
+        "0",
+        "-B",
+        "64",
+        "-a",
+        "filesize:2097152"
+      ],
+      "server_port": 59214,
+      "pcap": "/out/cohort/raw/direct-p1024-s64-r3/loopback.pcapng",
+      "readiness": {
+        "source_port": 39606,
+        "destination_port": 33768,
+        "token_hex": "a55ff9d8db6f4fc6c215df8812b3296da0ddcb5c45ec914b87f0344f74533a65",
+        "sent_packets": 14,
+        "scope": "separate owned loopback tuple; never sent to the QUIC endpoint",
+        "status": "PASS",
+        "started_unix_ns": 1789756630124032324,
+        "observed_frame_numbers": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "ready_unix_ns": 1789756630715216670,
+        "terminal_token_hex": "90763be746576548d8b9e8594efbb8fdb6f0d56e5767acd1e3844e1ed7758169",
+        "terminal_status": "PASS",
+        "terminal_observed_frame_numbers": [
+          98892
+        ]
+      },
+      "dumpcap_returncode": 0,
+      "tshark_returncode": 0,
+      "packet_count": 98881,
+      "flow_count": 1,
+      "flows_without_reply": 0,
+      "repeated_initial_flows": 1,
+      "retry_packet_count": 0,
+      "first_reply_delay_median_seconds": 0.0009663105010986328,
+      "first_reply_delay_p95_seconds": 0.0009663105010986328,
+      "packet_accounting": {
+        "schema": "nbsr-b1-v2-loopback-packet-accounting-v1",
+        "packet_count": 98881,
+        "capture_inventory_packets": 98893,
+        "readiness_probe_packets": 12,
+        "readiness_probe_frame_bytes": 888,
+        "capture_inventory_frame_bytes": 145203610,
+        "directions": {
+          "client_to_server": 74353,
+          "server_to_client": 24528
+        },
+        "captured_frame_bytes": 145202722,
+        "ip_bytes": 143818388,
+        "udp_bytes": 141840768,
+        "udp_payload_bytes": 141049720,
+        "physical_ethernet_bytes": null,
+        "scope": "Captured IPv4/UDP workload flow totals, excluding only validated readiness probes; not incremental Direct-versus-NBSR cost by itself."
+      },
+      "capture_drops": {
+        "interface": "Loopback: lo",
+        "captured": 98893,
+        "received": 98893,
+        "dropped": 0,
+        "pcap_drops": 0,
+        "dumpcap_drops": 0,
+        "flushed": 0,
+        "interface_drops": 0
+      }
+    }
+  },
+  {
+    "schema": "nbsr-b1-wire-overhead-repeat-v1",
+    "path": "nbsr",
+    "streams": 64,
+    "payload_bytes": 1024,
+    "model": "bounded-outstanding-per-stream",
+    "outstanding_per_stream": 1,
+    "configured_total_outstanding": 64,
+    "max_outstanding_per_stream_observed": 1,
+    "completed_operations": 64000,
+    "measured_ns": 4171770110,
+    "p50_latency_ns": 3834991,
+    "p95_latency_ns": 6476723,
+    "p99_latency_ns": 10222109,
+    "latency_sample_count": 64000,
+    "latency_sample_stride": 1,
+    "scheduled_admissions": 0,
+    "successful_admissions": 0,
+    "failed_admissions": 0,
+    "admission_timeouts": 0,
+    "admission_p50_latency_ns": null,
+    "admission_p95_latency_ns": null,
+    "admission_p99_latency_ns": null,
+    "max_admission_start_lateness_ns": 0,
+    "errors": 0,
+    "missing": 0,
+    "duplicates": 0,
+    "corrupt": 0,
+    "wrong_request": 0,
+    "transport_sessions_created_delta": 0,
+    "service_channels_created_delta": 0,
+    "application_streams_created_delta": 0,
+    "replay_entries_delta": 0,
+    "repeat": 3,
+    "operations_per_stream": 1000,
+    "expected_operations": 64000,
+    "warmup_seconds": 0,
+    "benchmark_build": "cargo release with benchmark-harness feature",
+    "phase_semantics": "setup then excluded warmup then established fixed operations without teardown",
+    "timeouts": 0,
+    "application_bytes": 131072000,
+    "application_bytes_definition": "aggregate request plus response payload bytes",
+    "capture_method": "isolated-udp-relay",
+    "measured_unit": "UDP payload bytes and UDP datagrams",
+    "client_ownership": "OS UDP endpoint ownership must match the authorized benchmark client PID",
+    "setup": {
+      "client_to_server": {
+        "bytes": 21000,
+        "packets": 111
+      },
+      "server_to_client": {
+        "bytes": 16771,
+        "packets": 110
+      }
+    },
+    "established": {
+      "client_to_server": {
+        "bytes": 70575084,
+        "packets": 75839
+      },
+      "server_to_client": {
+        "bytes": 70573108,
+        "packets": 75980
+      }
+    },
+    "rejected_datagrams": 0,
+    "server_endpoint": "127.0.0.1:47817",
+    "relay_endpoint": "127.0.0.1:38454",
+    "resources": {
+      "status": "NOT_MEASURED",
+      "scope": "packet accounting only; capture timing is not performance evidence"
+    },
+    "client_command": [
+      "/out/cohort/binaries/perf_rust_source",
+      "--samples",
+      "1",
+      "--authority-dir",
+      "/tmp/nbsr-linux-b1-bjxd_w_i/authority",
+      "--endpoint",
+      "127.0.0.1:38454",
+      "--payload-bytes",
+      "1024",
+      "--p2a-streams",
+      "64",
+      "--p2a-warmup-seconds",
+      "0",
+      "--p2a-operations-per-stream",
+      "1000",
+      "--p2a-counter-control",
+      "127.0.0.1:43501"
+    ],
+    "server_command": [
+      "/out/cohort/binaries/wp8_interop_server",
+      "--ready",
+      "/out/cohort/raw/nbsr-p1024-s64-r3.ready.json",
+      "--result",
+      "/out/cohort/raw/nbsr-p1024-s64-r3.result.json",
+      "--authority-dir",
+      "/tmp/nbsr-linux-b1-bjxd_w_i/authority",
+      "--completion-ack",
+      "/out/cohort/raw/nbsr-p1024-s64-r3.ack"
+    ],
+    "linux_socket_ownership": {
+      "pid": 379,
+      "start_ticks": 313201,
+      "socket_inode": 89819,
+      "local_endpoint": [
+        "127.0.0.1",
+        56896
+      ],
+      "scope": "first datagram PID/FD/inode binding"
+    },
+    "packet_observer": {
+      "enabled": true,
+      "valid": true,
+      "status": "complete",
+      "capture_command": [
+        "/usr/bin/dumpcap",
+        "-q",
+        "-i",
+        "lo",
+        "-f",
+        "udp port 47817 or (udp and src host 127.0.0.1 and dst host 127.0.0.1 and src port 60708 and dst port 42739)",
+        "-w",
+        "/out/cohort/raw/nbsr-p1024-s64-r3/loopback.pcapng",
+        "-p",
+        "-s",
+        "0",
+        "-B",
+        "64",
+        "-a",
+        "filesize:2097152"
+      ],
+      "server_port": 47817,
+      "pcap": "/out/cohort/raw/nbsr-p1024-s64-r3/loopback.pcapng",
+      "readiness": {
+        "source_port": 60708,
+        "destination_port": 42739,
+        "token_hex": "8a5bc8373c069ec425d8449eee17afb896cca9833c4a515b42c65047ee9b384a",
+        "sent_packets": 14,
+        "scope": "separate owned loopback tuple; never sent to the QUIC endpoint",
+        "status": "PASS",
+        "started_unix_ns": 1789756652553225845,
+        "observed_frame_numbers": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "ready_unix_ns": 1789756653255201914,
+        "terminal_token_hex": "5f2777f7ba32012cfcd3f5885910c286409a5af49b084fa0244e73cf7dfca70a",
+        "terminal_status": "PASS",
+        "terminal_observed_frame_numbers": [
+          123457
+        ]
+      },
+      "dumpcap_returncode": 0,
+      "tshark_returncode": 0,
+      "packet_count": 123446,
+      "flow_count": 1,
+      "flows_without_reply": 0,
+      "repeated_initial_flows": 1,
+      "retry_packet_count": 0,
+      "first_reply_delay_median_seconds": 0.0046329498291015625,
+      "first_reply_delay_p95_seconds": 0.0046329498291015625,
+      "packet_accounting": {
+        "schema": "nbsr-b1-v2-loopback-packet-accounting-v1",
+        "packet_count": 123446,
+        "capture_inventory_packets": 123458,
+        "readiness_probe_packets": 12,
+        "readiness_probe_frame_bytes": 888,
+        "capture_inventory_frame_bytes": 146519302,
+        "directions": {
+          "client_to_server": 76007,
+          "server_to_client": 47439
+        },
+        "captured_frame_bytes": 146518414,
+        "ip_bytes": 144790170,
+        "udp_bytes": 142321250,
+        "udp_payload_bytes": 141333682,
+        "physical_ethernet_bytes": null,
+        "scope": "Captured IPv4/UDP workload flow totals, excluding only validated readiness probes; not incremental Direct-versus-NBSR cost by itself."
+      },
+      "capture_drops": {
+        "interface": "Loopback: lo",
+        "captured": 123458,
+        "received": 123458,
+        "dropped": 0,
+        "pcap_drops": 0,
+        "dumpcap_drops": 0,
+        "flushed": 0,
+        "interface_drops": 0
+      }
+    }
+  },
+  {
+    "schema": "nbsr-b1-wire-overhead-repeat-v1",
+    "path": "nbsr",
+    "streams": 64,
+    "payload_bytes": 1024,
+    "model": "bounded-outstanding-per-stream",
+    "outstanding_per_stream": 1,
+    "configured_total_outstanding": 64,
+    "max_outstanding_per_stream_observed": 1,
+    "completed_operations": 64000,
+    "measured_ns": 2897550163,
+    "p50_latency_ns": 2742438,
+    "p95_latency_ns": 4172310,
+    "p99_latency_ns": 5526979,
+    "latency_sample_count": 64000,
+    "latency_sample_stride": 1,
+    "scheduled_admissions": 0,
+    "successful_admissions": 0,
+    "failed_admissions": 0,
+    "admission_timeouts": 0,
+    "admission_p50_latency_ns": null,
+    "admission_p95_latency_ns": null,
+    "admission_p99_latency_ns": null,
+    "max_admission_start_lateness_ns": 0,
+    "errors": 0,
+    "missing": 0,
+    "duplicates": 0,
+    "corrupt": 0,
+    "wrong_request": 0,
+    "transport_sessions_created_delta": 0,
+    "service_channels_created_delta": 0,
+    "application_streams_created_delta": 0,
+    "replay_entries_delta": 0,
+    "repeat": 4,
+    "operations_per_stream": 1000,
+    "expected_operations": 64000,
+    "warmup_seconds": 0,
+    "benchmark_build": "cargo release with benchmark-harness feature",
+    "phase_semantics": "setup then excluded warmup then established fixed operations without teardown",
+    "timeouts": 0,
+    "application_bytes": 131072000,
+    "application_bytes_definition": "aggregate request plus response payload bytes",
+    "capture_method": "isolated-udp-relay",
+    "measured_unit": "UDP payload bytes and UDP datagrams",
+    "client_ownership": "OS UDP endpoint ownership must match the authorized benchmark client PID",
+    "setup": {
+      "client_to_server": {
+        "bytes": 20934,
+        "packets": 109
+      },
+      "server_to_client": {
+        "bytes": 16709,
+        "packets": 108
+      }
+    },
+    "established": {
+      "client_to_server": {
+        "bytes": 70679721,
+        "packets": 80022
+      },
+      "server_to_client": {
+        "bytes": 70678760,
+        "packets": 80151
+      }
+    },
+    "rejected_datagrams": 0,
+    "server_endpoint": "127.0.0.1:42474",
+    "relay_endpoint": "127.0.0.1:54350",
+    "resources": {
+      "status": "NOT_MEASURED",
+      "scope": "packet accounting only; capture timing is not performance evidence"
+    },
+    "client_command": [
+      "/out/cohort/binaries/perf_rust_source",
+      "--samples",
+      "1",
+      "--authority-dir",
+      "/tmp/nbsr-linux-b1-bjxd_w_i/authority",
+      "--endpoint",
+      "127.0.0.1:54350",
+      "--payload-bytes",
+      "1024",
+      "--p2a-streams",
+      "64",
+      "--p2a-warmup-seconds",
+      "0",
+      "--p2a-operations-per-stream",
+      "1000",
+      "--p2a-counter-control",
+      "127.0.0.1:39065"
+    ],
+    "server_command": [
+      "/out/cohort/binaries/wp8_interop_server",
+      "--ready",
+      "/out/cohort/raw/nbsr-p1024-s64-r4.ready.json",
+      "--result",
+      "/out/cohort/raw/nbsr-p1024-s64-r4.result.json",
+      "--authority-dir",
+      "/tmp/nbsr-linux-b1-bjxd_w_i/authority",
+      "--completion-ack",
+      "/out/cohort/raw/nbsr-p1024-s64-r4.ack"
+    ],
+    "linux_socket_ownership": {
+      "pid": 438,
+      "start_ticks": 315698,
+      "socket_inode": 92621,
+      "local_endpoint": [
+        "127.0.0.1",
+        58715
+      ],
+      "scope": "first datagram PID/FD/inode binding"
+    },
+    "packet_observer": {
+      "enabled": true,
+      "valid": true,
+      "status": "complete",
+      "capture_command": [
+        "/usr/bin/dumpcap",
+        "-q",
+        "-i",
+        "lo",
+        "-f",
+        "udp port 42474 or (udp and src host 127.0.0.1 and dst host 127.0.0.1 and src port 34636 and dst port 39932)",
+        "-w",
+        "/out/cohort/raw/nbsr-p1024-s64-r4/loopback.pcapng",
+        "-p",
+        "-s",
+        "0",
+        "-B",
+        "64",
+        "-a",
+        "filesize:2097152"
+      ],
+      "server_port": 42474,
+      "pcap": "/out/cohort/raw/nbsr-p1024-s64-r4/loopback.pcapng",
+      "readiness": {
+        "source_port": 34636,
+        "destination_port": 39932,
+        "token_hex": "11e16576639ed91dc38c956fa1f322b02942ee7c3619863873e87bcdc88c7ce6",
+        "sent_packets": 18,
+        "scope": "separate owned loopback tuple; never sent to the QUIC endpoint",
+        "status": "PASS",
+        "started_unix_ns": 1789756677514846520,
+        "observed_frame_numbers": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ],
+        "ready_unix_ns": 1789756678332640760,
+        "terminal_token_hex": "21a76b1f3b488ade03ed5f18e7f861edca1d42b4f2018983f5ebff8e02364079",
+        "terminal_status": "PASS",
+        "terminal_observed_frame_numbers": [
+          133459
+        ]
+      },
+      "dumpcap_returncode": 0,
+      "tshark_returncode": 0,
+      "packet_count": 133443,
+      "flow_count": 1,
+      "flows_without_reply": 0,
+      "repeated_initial_flows": 1,
+      "retry_packet_count": 0,
+      "first_reply_delay_median_seconds": 0.0027348995208740234,
+      "first_reply_delay_p95_seconds": 0.0027348995208740234,
+      "packet_accounting": {
+        "schema": "nbsr-b1-v2-loopback-packet-accounting-v1",
+        "packet_count": 133443,
+        "capture_inventory_packets": 133460,
+        "readiness_probe_packets": 17,
+        "readiness_probe_frame_bytes": 1258,
+        "capture_inventory_frame_bytes": 147141323,
+        "directions": {
+          "client_to_server": 80191,
+          "server_to_client": 53252
+        },
+        "captured_frame_bytes": 147140065,
+        "ip_bytes": 145271863,
+        "udp_bytes": 142603003,
+        "udp_payload_bytes": 141535459,
+        "physical_ethernet_bytes": null,
+        "scope": "Captured IPv4/UDP workload flow totals, excluding only validated readiness probes; not incremental Direct-versus-NBSR cost by itself."
+      },
+      "capture_drops": {
+        "interface": "Loopback: lo",
+        "captured": 133460,
+        "received": 133460,
+        "dropped": 0,
+        "pcap_drops": 0,
+        "dumpcap_drops": 0,
+        "flushed": 0,
+        "interface_drops": 0
+      }
+    }
+  },
+  {
+    "schema": "nbsr-b1-wire-overhead-repeat-v1",
+    "path": "direct",
+    "streams": 64,
+    "payload_bytes": 1024,
+    "model": "bounded-outstanding-per-stream",
+    "outstanding_per_stream": 1,
+    "configured_total_outstanding": 64,
+    "max_outstanding_per_stream_observed": 1,
+    "completed_operations": 64000,
+    "measured_ns": 2215455524,
+    "p50_latency_ns": 2144609,
+    "p95_latency_ns": 3090957,
+    "p99_latency_ns": 4026103,
+    "errors": 0,
+    "missing": 0,
+    "duplicates": 0,
+    "corrupt": 0,
+    "wrong_request": 0,
+    "transport_sessions_created_delta": 0,
+    "service_channels_created_delta": 0,
+    "application_streams_created_delta": 0,
+    "replay_entries_delta": 0,
+    "repeat": 4,
+    "operations_per_stream": 1000,
+    "expected_operations": 64000,
+    "warmup_seconds": 0,
+    "benchmark_build": "cargo release with benchmark-harness feature",
+    "phase_semantics": "setup then excluded warmup then established fixed operations without teardown",
+    "timeouts": 0,
+    "application_bytes": 131072000,
+    "application_bytes_definition": "aggregate request plus response payload bytes",
+    "capture_method": "isolated-udp-relay",
+    "measured_unit": "UDP payload bytes and UDP datagrams",
+    "client_ownership": "OS UDP endpoint ownership must match the authorized benchmark client PID",
+    "setup": {
+      "client_to_server": {
+        "bytes": 3864,
+        "packets": 4
+      },
+      "server_to_client": {
+        "bytes": 2892,
+        "packets": 5
+      }
+    },
+    "established": {
+      "client_to_server": {
+        "bytes": 70515009,
+        "packets": 73530
+      },
+      "server_to_client": {
+        "bytes": 70346976,
+        "packets": 64921
+      }
+    },
+    "rejected_datagrams": 0,
+    "server_endpoint": "127.0.0.1:34220",
+    "relay_endpoint": "127.0.0.1:41513",
+    "resources": {
+      "status": "NOT_MEASURED",
+      "scope": "packet accounting only; capture timing is not performance evidence"
+    },
+    "client_command": [
+      "/out/cohort/binaries/perf_direct_peer",
+      "--role",
+      "client",
+      "--samples",
+      "1",
+      "--lifecycle",
+      "warm",
+      "--authority-dir",
+      "/tmp/nbsr-linux-b1-bjxd_w_i/authority",
+      "--endpoint",
+      "127.0.0.1:41513",
+      "--payload-bytes",
+      "1024",
+      "--p2a-streams",
+      "64",
+      "--p2a-warmup-seconds",
+      "0",
+      "--p2a-operations-per-stream",
+      "1000",
+      "--p2a-counter-control",
+      "127.0.0.1:35727"
+    ],
+    "server_command": [
+      "/out/cohort/binaries/perf_direct_peer",
+      "--role",
+      "server",
+      "--ready",
+      "/out/cohort/raw/direct-p1024-s64-r4.ready.json",
+      "--authority-dir",
+      "/tmp/nbsr-linux-b1-bjxd_w_i/authority",
+      "--connections",
+      "1",
+      "--requests-per-connection",
+      "1",
+      "--p2a-streams",
+      "64"
+    ],
+    "linux_socket_ownership": {
+      "pid": 497,
+      "start_ticks": 317908,
+      "socket_inode": 91913,
+      "local_endpoint": [
+        "127.0.0.1",
+        43129
+      ],
+      "scope": "first datagram PID/FD/inode binding"
+    },
+    "packet_observer": {
+      "enabled": true,
+      "valid": true,
+      "status": "complete",
+      "capture_command": [
+        "/usr/bin/dumpcap",
+        "-q",
+        "-i",
+        "lo",
+        "-f",
+        "udp port 34220 or (udp and src host 127.0.0.1 and dst host 127.0.0.1 and src port 57373 and dst port 52064)",
+        "-w",
+        "/out/cohort/raw/direct-p1024-s64-r4/loopback.pcapng",
+        "-p",
+        "-s",
+        "0",
+        "-B",
+        "64",
+        "-a",
+        "filesize:2097152"
+      ],
+      "server_port": 34220,
+      "pcap": "/out/cohort/raw/direct-p1024-s64-r4/loopback.pcapng",
+      "readiness": {
+        "source_port": 57373,
+        "destination_port": 52064,
+        "token_hex": "d9bd12a2595e51bf217da6f681958c0e9440c81c8da5e0285db18431fcd04dbc",
+        "sent_packets": 19,
+        "scope": "separate owned loopback tuple; never sent to the QUIC endpoint",
+        "status": "PASS",
+        "started_unix_ns": 1789756699568842888,
+        "observed_frame_numbers": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "ready_unix_ns": 1789756700434052437,
+        "terminal_token_hex": "b7eeef4e593033d5132b05466baa56f4f148d137c9285d26bf38435961fb6176",
+        "terminal_status": "PASS",
+        "terminal_observed_frame_numbers": [
+          97694
+        ]
+      },
+      "dumpcap_returncode": 0,
+      "tshark_returncode": 0,
+      "packet_count": 97678,
+      "flow_count": 1,
+      "flows_without_reply": 0,
+      "repeated_initial_flows": 1,
+      "retry_packet_count": 0,
+      "first_reply_delay_median_seconds": 0.0009183883666992188,
+      "first_reply_delay_p95_seconds": 0.0009183883666992188,
+      "packet_accounting": {
+        "schema": "nbsr-b1-v2-loopback-packet-accounting-v1",
+        "packet_count": 97678,
+        "capture_inventory_packets": 97695,
+        "readiness_probe_packets": 17,
+        "readiness_probe_frame_bytes": 1258,
+        "capture_inventory_frame_bytes": 145120679,
+        "directions": {
+          "client_to_server": 73603,
+          "server_to_client": 24075
+        },
+        "captured_frame_bytes": 145119421,
+        "ip_bytes": 143751929,
+        "udp_bytes": 141798369,
+        "udp_payload_bytes": 141016945,
+        "physical_ethernet_bytes": null,
+        "scope": "Captured IPv4/UDP workload flow totals, excluding only validated readiness probes; not incremental Direct-versus-NBSR cost by itself."
+      },
+      "capture_drops": {
+        "interface": "Loopback: lo",
+        "captured": 97695,
+        "received": 97695,
+        "dropped": 0,
+        "pcap_drops": 0,
+        "dumpcap_drops": 0,
+        "flushed": 0,
+        "interface_drops": 0
+      }
+    }
+  },
+  {
+    "schema": "nbsr-b1-wire-overhead-repeat-v1",
+    "path": "direct",
+    "streams": 64,
+    "payload_bytes": 1024,
+    "model": "bounded-outstanding-per-stream",
+    "outstanding_per_stream": 1,
+    "configured_total_outstanding": 64,
+    "max_outstanding_per_stream_observed": 1,
+    "completed_operations": 64000,
+    "measured_ns": 2333218134,
+    "p50_latency_ns": 2228928,
+    "p95_latency_ns": 3242387,
+    "p99_latency_ns": 5512718,
+    "errors": 0,
+    "missing": 0,
+    "duplicates": 0,
+    "corrupt": 0,
+    "wrong_request": 0,
+    "transport_sessions_created_delta": 0,
+    "service_channels_created_delta": 0,
+    "application_streams_created_delta": 0,
+    "replay_entries_delta": 0,
+    "repeat": 5,
+    "operations_per_stream": 1000,
+    "expected_operations": 64000,
+    "warmup_seconds": 0,
+    "benchmark_build": "cargo release with benchmark-harness feature",
+    "phase_semantics": "setup then excluded warmup then established fixed operations without teardown",
+    "timeouts": 0,
+    "application_bytes": 131072000,
+    "application_bytes_definition": "aggregate request plus response payload bytes",
+    "capture_method": "isolated-udp-relay",
+    "measured_unit": "UDP payload bytes and UDP datagrams",
+    "client_ownership": "OS UDP endpoint ownership must match the authorized benchmark client PID",
+    "setup": {
+      "client_to_server": {
+        "bytes": 3864,
+        "packets": 4
+      },
+      "server_to_client": {
+        "bytes": 2890,
+        "packets": 5
+      }
+    },
+    "established": {
+      "client_to_server": {
+        "bytes": 70547596,
+        "packets": 74832
+      },
+      "server_to_client": {
+        "bytes": 70373530,
+        "packets": 65706
+      }
+    },
+    "rejected_datagrams": 0,
+    "server_endpoint": "127.0.0.1:40069",
+    "relay_endpoint": "127.0.0.1:54898",
+    "resources": {
+      "status": "NOT_MEASURED",
+      "scope": "packet accounting only; capture timing is not performance evidence"
+    },
+    "client_command": [
+      "/out/cohort/binaries/perf_direct_peer",
+      "--role",
+      "client",
+      "--samples",
+      "1",
+      "--lifecycle",
+      "warm",
+      "--authority-dir",
+      "/tmp/nbsr-linux-b1-bjxd_w_i/authority",
+      "--endpoint",
+      "127.0.0.1:54898",
+      "--payload-bytes",
+      "1024",
+      "--p2a-streams",
+      "64",
+      "--p2a-warmup-seconds",
+      "0",
+      "--p2a-operations-per-stream",
+      "1000",
+      "--p2a-counter-control",
+      "127.0.0.1:34903"
+    ],
+    "server_command": [
+      "/out/cohort/binaries/perf_direct_peer",
+      "--role",
+      "server",
+      "--ready",
+      "/out/cohort/raw/direct-p1024-s64-r5.ready.json",
+      "--authority-dir",
+      "/tmp/nbsr-linux-b1-bjxd_w_i/authority",
+      "--connections",
+      "1",
+      "--requests-per-connection",
+      "1",
+      "--p2a-streams",
+      "64"
+    ],
+    "linux_socket_ownership": {
+      "pid": 558,
+      "start_ticks": 319696,
+      "socket_inode": 90019,
+      "local_endpoint": [
+        "127.0.0.1",
+        42845
+      ],
+      "scope": "first datagram PID/FD/inode binding"
+    },
+    "packet_observer": {
+      "enabled": true,
+      "valid": true,
+      "status": "complete",
+      "capture_command": [
+        "/usr/bin/dumpcap",
+        "-q",
+        "-i",
+        "lo",
+        "-f",
+        "udp port 40069 or (udp and src host 127.0.0.1 and dst host 127.0.0.1 and src port 48125 and dst port 59919)",
+        "-w",
+        "/out/cohort/raw/direct-p1024-s64-r5/loopback.pcapng",
+        "-p",
+        "-s",
+        "0",
+        "-B",
+        "64",
+        "-a",
+        "filesize:2097152"
+      ],
+      "server_port": 40069,
+      "pcap": "/out/cohort/raw/direct-p1024-s64-r5/loopback.pcapng",
+      "readiness": {
+        "source_port": 48125,
+        "destination_port": 59919,
+        "token_hex": "f85a7bc1499cd3703fd9d700aee1530b985c587b5518ada6fe6ef135f17ab8f3",
+        "sent_packets": 14,
+        "scope": "separate owned loopback tuple; never sent to the QUIC endpoint",
+        "status": "PASS",
+        "started_unix_ns": 1789756717711889422,
+        "observed_frame_numbers": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "ready_unix_ns": 1789756718309667864,
+        "terminal_token_hex": "51a62e9894f7e49d9508a0e6d52a902e63bbeb64880cb4c6fcd4f2bb5fac9614",
+        "terminal_status": "PASS",
+        "terminal_observed_frame_numbers": [
+          100052
+        ]
+      },
+      "dumpcap_returncode": 0,
+      "tshark_returncode": 0,
+      "packet_count": 100040,
+      "flow_count": 1,
+      "flows_without_reply": 0,
+      "repeated_initial_flows": 1,
+      "retry_packet_count": 0,
+      "first_reply_delay_median_seconds": 0.0009400844573974609,
+      "first_reply_delay_p95_seconds": 0.0009400844573974609,
+      "packet_accounting": {
+        "schema": "nbsr-b1-v2-loopback-packet-accounting-v1",
+        "packet_count": 100040,
+        "capture_inventory_packets": 100053,
+        "readiness_probe_packets": 13,
+        "readiness_probe_frame_bytes": 962,
+        "capture_inventory_frame_bytes": 145278685,
+        "directions": {
+          "client_to_server": 74904,
+          "server_to_client": 25136
+        },
+        "captured_frame_bytes": 145277723,
+        "ip_bytes": 143877163,
+        "udp_bytes": 141876363,
+        "udp_payload_bytes": 141076043,
+        "physical_ethernet_bytes": null,
+        "scope": "Captured IPv4/UDP workload flow totals, excluding only validated readiness probes; not incremental Direct-versus-NBSR cost by itself."
+      },
+      "capture_drops": {
+        "interface": "Loopback: lo",
+        "captured": 100053,
+        "received": 100053,
+        "dropped": 0,
+        "pcap_drops": 0,
+        "dumpcap_drops": 0,
+        "flushed": 0,
+        "interface_drops": 0
+      }
+    }
+  },
+  {
+    "schema": "nbsr-b1-wire-overhead-repeat-v1",
+    "path": "nbsr",
+    "streams": 64,
+    "payload_bytes": 1024,
+    "model": "bounded-outstanding-per-stream",
+    "outstanding_per_stream": 1,
+    "configured_total_outstanding": 64,
+    "max_outstanding_per_stream_observed": 1,
+    "completed_operations": 64000,
+    "measured_ns": 3716241152,
+    "p50_latency_ns": 3397070,
+    "p95_latency_ns": 5584179,
+    "p99_latency_ns": 10909346,
+    "latency_sample_count": 64000,
+    "latency_sample_stride": 1,
+    "scheduled_admissions": 0,
+    "successful_admissions": 0,
+    "failed_admissions": 0,
+    "admission_timeouts": 0,
+    "admission_p50_latency_ns": null,
+    "admission_p95_latency_ns": null,
+    "admission_p99_latency_ns": null,
+    "max_admission_start_lateness_ns": 0,
+    "errors": 0,
+    "missing": 0,
+    "duplicates": 0,
+    "corrupt": 0,
+    "wrong_request": 0,
+    "transport_sessions_created_delta": 0,
+    "service_channels_created_delta": 0,
+    "application_streams_created_delta": 0,
+    "replay_entries_delta": 0,
+    "repeat": 5,
+    "operations_per_stream": 1000,
+    "expected_operations": 64000,
+    "warmup_seconds": 0,
+    "benchmark_build": "cargo release with benchmark-harness feature",
+    "phase_semantics": "setup then excluded warmup then established fixed operations without teardown",
+    "timeouts": 0,
+    "application_bytes": 131072000,
+    "application_bytes_definition": "aggregate request plus response payload bytes",
+    "capture_method": "isolated-udp-relay",
+    "measured_unit": "UDP payload bytes and UDP datagrams",
+    "client_ownership": "OS UDP endpoint ownership must match the authorized benchmark client PID",
+    "setup": {
+      "client_to_server": {
+        "bytes": 20968,
+        "packets": 110
+      },
+      "server_to_client": {
+        "bytes": 16741,
+        "packets": 109
+      }
+    },
+    "established": {
+      "client_to_server": {
+        "bytes": 70560842,
+        "packets": 75343
+      },
+      "server_to_client": {
+        "bytes": 70539435,
+        "packets": 74716
+      }
+    },
+    "rejected_datagrams": 0,
+    "server_endpoint": "127.0.0.1:46138",
+    "relay_endpoint": "127.0.0.1:45781",
+    "resources": {
+      "status": "NOT_MEASURED",
+      "scope": "packet accounting only; capture timing is not performance evidence"
+    },
+    "client_command": [
+      "/out/cohort/binaries/perf_rust_source",
+      "--samples",
+      "1",
+      "--authority-dir",
+      "/tmp/nbsr-linux-b1-bjxd_w_i/authority",
+      "--endpoint",
+      "127.0.0.1:45781",
+      "--payload-bytes",
+      "1024",
+      "--p2a-streams",
+      "64",
+      "--p2a-warmup-seconds",
+      "0",
+      "--p2a-operations-per-stream",
+      "1000",
+      "--p2a-counter-control",
+      "127.0.0.1:37493"
+    ],
+    "server_command": [
+      "/out/cohort/binaries/wp8_interop_server",
+      "--ready",
+      "/out/cohort/raw/nbsr-p1024-s64-r5.ready.json",
+      "--result",
+      "/out/cohort/raw/nbsr-p1024-s64-r5.result.json",
+      "--authority-dir",
+      "/tmp/nbsr-linux-b1-bjxd_w_i/authority",
+      "--completion-ack",
+      "/out/cohort/raw/nbsr-p1024-s64-r5.ack"
+    ],
+    "linux_socket_ownership": {
+      "pid": 619,
+      "start_ticks": 321622,
+      "socket_inode": 95648,
+      "local_endpoint": [
+        "127.0.0.1",
+        47034
+      ],
+      "scope": "first datagram PID/FD/inode binding"
+    },
+    "packet_observer": {
+      "enabled": true,
+      "valid": true,
+      "status": "complete",
+      "capture_command": [
+        "/usr/bin/dumpcap",
+        "-q",
+        "-i",
+        "lo",
+        "-f",
+        "udp port 46138 or (udp and src host 127.0.0.1 and dst host 127.0.0.1 and src port 36223 and dst port 58018)",
+        "-w",
+        "/out/cohort/raw/nbsr-p1024-s64-r5/loopback.pcapng",
+        "-p",
+        "-s",
+        "0",
+        "-B",
+        "64",
+        "-a",
+        "filesize:2097152"
+      ],
+      "server_port": 46138,
+      "pcap": "/out/cohort/raw/nbsr-p1024-s64-r5/loopback.pcapng",
+      "readiness": {
+        "source_port": 36223,
+        "destination_port": 58018,
+        "token_hex": "21de901c2cc84df0baf4a7e74ac5f0558a383890f42a4d984e801d548725ca9f",
+        "sent_packets": 19,
+        "scope": "separate owned loopback tuple; never sent to the QUIC endpoint",
+        "status": "PASS",
+        "started_unix_ns": 1789756736711599640,
+        "observed_frame_numbers": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ],
+        "ready_unix_ns": 1789756737563906149,
+        "terminal_token_hex": "a5b35264f91b7493d63ddb27a1025fcdabe2a97ddedbf69590182539e6dc119b",
+        "terminal_status": "PASS",
+        "terminal_observed_frame_numbers": [
+          122100
+        ]
+      },
+      "dumpcap_returncode": 0,
+      "tshark_returncode": 0,
+      "packet_count": 122083,
+      "flow_count": 1,
+      "flows_without_reply": 0,
+      "repeated_initial_flows": 1,
+      "retry_packet_count": 0,
+      "first_reply_delay_median_seconds": 0.0030875205993652344,
+      "first_reply_delay_p95_seconds": 0.0030875205993652344,
+      "packet_accounting": {
+        "schema": "nbsr-b1-v2-loopback-packet-accounting-v1",
+        "packet_count": 122083,
+        "capture_inventory_packets": 122101,
+        "readiness_probe_packets": 18,
+        "readiness_probe_frame_bytes": 1332,
+        "capture_inventory_frame_bytes": 146423668,
+        "directions": {
+          "client_to_server": 75509,
+          "server_to_client": 46574
+        },
+        "captured_frame_bytes": 146422336,
+        "ip_bytes": 144713174,
+        "udp_bytes": 142271514,
+        "udp_payload_bytes": 141294850,
+        "physical_ethernet_bytes": null,
+        "scope": "Captured IPv4/UDP workload flow totals, excluding only validated readiness probes; not incremental Direct-versus-NBSR cost by itself."
+      },
+      "capture_drops": {
+        "interface": "Loopback: lo",
+        "captured": 122101,
+        "received": 122101,
+        "dropped": 0,
+        "pcap_drops": 0,
+        "dumpcap_drops": 0,
+        "flushed": 0,
+        "interface_drops": 0
+      }
+    }
+  },
+  {
+    "schema": "nbsr-b1-wire-overhead-repeat-v1",
+    "path": "direct",
+    "streams": 8,
+    "payload_bytes": 16384,
+    "model": "bounded-outstanding-per-stream",
+    "outstanding_per_stream": 1,
+    "configured_total_outstanding": 8,
+    "max_outstanding_per_stream_observed": 1,
+    "completed_operations": 8000,
+    "measured_ns": 3926686948,
+    "p50_latency_ns": 3823290,
+    "p95_latency_ns": 5540076,
+    "p99_latency_ns": 6781637,
+    "errors": 0,
+    "missing": 0,
+    "duplicates": 0,
+    "corrupt": 0,
+    "wrong_request": 0,
+    "transport_sessions_created_delta": 0,
+    "service_channels_created_delta": 0,
+    "application_streams_created_delta": 0,
+    "replay_entries_delta": 0,
+    "repeat": 1,
+    "operations_per_stream": 1000,
+    "expected_operations": 8000,
+    "warmup_seconds": 0,
+    "benchmark_build": "cargo release with benchmark-harness feature",
+    "phase_semantics": "setup then excluded warmup then established fixed operations without teardown",
+    "timeouts": 0,
+    "application_bytes": 262144000,
+    "application_bytes_definition": "aggregate request plus response payload bytes",
+    "capture_method": "isolated-udp-relay",
+    "measured_unit": "UDP payload bytes and UDP datagrams",
+    "client_ownership": "OS UDP endpoint ownership must match the authorized benchmark client PID",
+    "setup": {
+      "client_to_server": {
+        "bytes": 3864,
+        "packets": 4
+      },
+      "server_to_client": {
+        "bytes": 2890,
+        "packets": 5
+      }
+    },
+    "established": {
+      "client_to_server": {
+        "bytes": 135224103,
+        "packets": 114439
+      },
+      "server_to_client": {
+        "bytes": 134782916,
+        "packets": 99864
+      }
+    },
+    "rejected_datagrams": 0,
+    "server_endpoint": "127.0.0.1:46139",
+    "relay_endpoint": "127.0.0.1:52644",
+    "resources": {
+      "status": "NOT_MEASURED",
+      "scope": "packet accounting only; capture timing is not performance evidence"
+    },
+    "client_command": [
+      "/out/cohort/binaries/perf_direct_peer",
+      "--role",
+      "client",
+      "--samples",
+      "1",
+      "--lifecycle",
+      "warm",
+      "--authority-dir",
+      "/tmp/nbsr-linux-b1-bjxd_w_i/authority",
+      "--endpoint",
+      "127.0.0.1:52644",
+      "--payload-bytes",
+      "16384",
+      "--p2a-streams",
+      "8",
+      "--p2a-warmup-seconds",
+      "0",
+      "--p2a-operations-per-stream",
+      "1000",
+      "--p2a-counter-control",
+      "127.0.0.1:40393"
+    ],
+    "server_command": [
+      "/out/cohort/binaries/perf_direct_peer",
+      "--role",
+      "server",
+      "--ready",
+      "/out/cohort/raw/direct-p16384-s8-r1.ready.json",
+      "--authority-dir",
+      "/tmp/nbsr-linux-b1-bjxd_w_i/authority",
+      "--connections",
+      "1",
+      "--requests-per-connection",
+      "1",
+      "--p2a-streams",
+      "8"
+    ],
+    "linux_socket_ownership": {
+      "pid": 678,
+      "start_ticks": 324043,
+      "socket_inode": 92931,
+      "local_endpoint": [
+        "127.0.0.1",
+        52207
+      ],
+      "scope": "first datagram PID/FD/inode binding"
+    },
+    "packet_observer": {
+      "enabled": true,
+      "valid": true,
+      "status": "complete",
+      "capture_command": [
+        "/usr/bin/dumpcap",
+        "-q",
+        "-i",
+        "lo",
+        "-f",
+        "udp port 46139 or (udp and src host 127.0.0.1 and dst host 127.0.0.1 and src port 48782 and dst port 37764)",
+        "-w",
+        "/out/cohort/raw/direct-p16384-s8-r1/loopback.pcapng",
+        "-p",
+        "-s",
+        "0",
+        "-B",
+        "64",
+        "-a",
+        "filesize:2097152"
+      ],
+      "server_port": 46139,
+      "pcap": "/out/cohort/raw/direct-p16384-s8-r1/loopback.pcapng",
+      "readiness": {
+        "source_port": 48782,
+        "destination_port": 37764,
+        "token_hex": "7c3da9798e8df2281fa7e8dceeb99f899189a091c8e163fa56764ad2a71dcae8",
+        "sent_packets": 18,
+        "scope": "separate owned loopback tuple; never sent to the QUIC endpoint",
+        "status": "PASS",
+        "started_unix_ns": 1789756760972150434,
+        "observed_frame_numbers": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "ready_unix_ns": 1789756761774483219,
+        "terminal_token_hex": "fab878d50c2bc21b4a07503a2fd13853500cd71616b0a2b46d9a8d99c92881db",
+        "terminal_status": "PASS",
+        "terminal_observed_frame_numbers": [
+          138899
+        ]
+      },
+      "dumpcap_returncode": 0,
+      "tshark_returncode": 0,
+      "packet_count": 138884,
+      "flow_count": 1,
+      "flows_without_reply": 0,
+      "repeated_initial_flows": 1,
+      "retry_packet_count": 0,
+      "first_reply_delay_median_seconds": 0.0009975433349609375,
+      "first_reply_delay_p95_seconds": 0.0009975433349609375,
+      "packet_accounting": {
+        "schema": "nbsr-b1-v2-loopback-packet-accounting-v1",
+        "packet_count": 138884,
+        "capture_inventory_packets": 138900,
+        "readiness_probe_packets": 16,
+        "readiness_probe_frame_bytes": 1184,
+        "capture_inventory_frame_bytes": 276487286,
+        "directions": {
+          "client_to_server": 114575,
+          "server_to_client": 24309
+        },
+        "captured_frame_bytes": 276486102,
+        "ip_bytes": 274541726,
+        "udp_bytes": 271764046,
+        "udp_payload_bytes": 270652974,
+        "physical_ethernet_bytes": null,
+        "scope": "Captured IPv4/UDP workload flow totals, excluding only validated readiness probes; not incremental Direct-versus-NBSR cost by itself."
+      },
+      "capture_drops": {
+        "interface": "Loopback: lo",
+        "captured": 138900,
+        "received": 138900,
+        "dropped": 0,
+        "pcap_drops": 0,
+        "dumpcap_drops": 0,
+        "flushed": 0,
+        "interface_drops": 0
+      }
+    }
+  },
+  {
+    "schema": "nbsr-b1-wire-overhead-repeat-v1",
+    "path": "nbsr",
+    "streams": 8,
+    "payload_bytes": 16384,
+    "model": "bounded-outstanding-per-stream",
+    "outstanding_per_stream": 1,
+    "configured_total_outstanding": 8,
+    "max_outstanding_per_stream_observed": 1,
+    "completed_operations": 8000,
+    "measured_ns": 3864082916,
+    "p50_latency_ns": 3746789,
+    "p95_latency_ns": 5841196,
+    "p99_latency_ns": 7601085,
+    "latency_sample_count": 8000,
+    "latency_sample_stride": 1,
+    "scheduled_admissions": 0,
+    "successful_admissions": 0,
+    "failed_admissions": 0,
+    "admission_timeouts": 0,
+    "admission_p50_latency_ns": null,
+    "admission_p95_latency_ns": null,
+    "admission_p99_latency_ns": null,
+    "max_admission_start_lateness_ns": 0,
+    "errors": 0,
+    "missing": 0,
+    "duplicates": 0,
+    "corrupt": 0,
+    "wrong_request": 0,
+    "transport_sessions_created_delta": 0,
+    "service_channels_created_delta": 0,
+    "application_streams_created_delta": 0,
+    "replay_entries_delta": 0,
+    "repeat": 1,
+    "operations_per_stream": 1000,
+    "expected_operations": 8000,
+    "warmup_seconds": 0,
+    "benchmark_build": "cargo release with benchmark-harness feature",
+    "phase_semantics": "setup then excluded warmup then established fixed operations without teardown",
+    "timeouts": 0,
+    "application_bytes": 262144000,
+    "application_bytes_definition": "aggregate request plus response payload bytes",
+    "capture_method": "isolated-udp-relay",
+    "measured_unit": "UDP payload bytes and UDP datagrams",
+    "client_ownership": "OS UDP endpoint ownership must match the authorized benchmark client PID",
+    "setup": {
+      "client_to_server": {
+        "bytes": 10822,
+        "packets": 25
+      },
+      "server_to_client": {
+        "bytes": 8724,
+        "packets": 24
+      }
+    },
+    "established": {
+      "client_to_server": {
+        "bytes": 135076207,
+        "packets": 109780
+      },
+      "server_to_client": {
+        "bytes": 134924276,
+        "packets": 104365
+      }
+    },
+    "rejected_datagrams": 0,
+    "server_endpoint": "127.0.0.1:33840",
+    "relay_endpoint": "127.0.0.1:38413",
+    "resources": {
+      "status": "NOT_MEASURED",
+      "scope": "packet accounting only; capture timing is not performance evidence"
+    },
+    "client_command": [
+      "/out/cohort/binaries/perf_rust_source",
+      "--samples",
+      "1",
+      "--authority-dir",
+      "/tmp/nbsr-linux-b1-bjxd_w_i/authority",
+      "--endpoint",
+      "127.0.0.1:38413",
+      "--payload-bytes",
+      "16384",
+      "--p2a-streams",
+      "8",
+      "--p2a-warmup-seconds",
+      "0",
+      "--p2a-operations-per-stream",
+      "1000",
+      "--p2a-counter-control",
+      "127.0.0.1:36555"
+    ],
+    "server_command": [
+      "/out/cohort/binaries/wp8_interop_server",
+      "--ready",
+      "/out/cohort/raw/nbsr-p16384-s8-r1.ready.json",
+      "--result",
+      "/out/cohort/raw/nbsr-p16384-s8-r1.result.json",
+      "--authority-dir",
+      "/tmp/nbsr-linux-b1-bjxd_w_i/authority",
+      "--completion-ack",
+      "/out/cohort/raw/nbsr-p16384-s8-r1.ack"
+    ],
+    "linux_socket_ownership": {
+      "pid": 739,
+      "start_ticks": 326859,
+      "socket_inode": 93053,
+      "local_endpoint": [
+        "127.0.0.1",
+        47581
+      ],
+      "scope": "first datagram PID/FD/inode binding"
+    },
+    "packet_observer": {
+      "enabled": true,
+      "valid": true,
+      "status": "complete",
+      "capture_command": [
+        "/usr/bin/dumpcap",
+        "-q",
+        "-i",
+        "lo",
+        "-f",
+        "udp port 33840 or (udp and src host 127.0.0.1 and dst host 127.0.0.1 and src port 35746 and dst port 52473)",
+        "-w",
+        "/out/cohort/raw/nbsr-p16384-s8-r1/loopback.pcapng",
+        "-p",
+        "-s",
+        "0",
+        "-B",
+        "64",
+        "-a",
+        "filesize:2097152"
+      ],
+      "server_port": 33840,
+      "pcap": "/out/cohort/raw/nbsr-p16384-s8-r1/loopback.pcapng",
+      "readiness": {
+        "source_port": 35746,
+        "destination_port": 52473,
+        "token_hex": "2aa1fac5be95b8380a1ca2d13dbc8a66b7b9062c60453f867ece3e14a302a334",
+        "sent_packets": 14,
+        "scope": "separate owned loopback tuple; never sent to the QUIC endpoint",
+        "status": "PASS",
+        "started_unix_ns": 1789756789341837095,
+        "observed_frame_numbers": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "ready_unix_ns": 1789756789940111779,
+        "terminal_token_hex": "3eeaae47b4c441e5629ec61e44dcd5cce9503fda6dedbc440641f8ba9b1aad57",
+        "terminal_status": "PASS",
+        "terminal_observed_frame_numbers": [
+          138160
+        ]
+      },
+      "dumpcap_returncode": 0,
+      "tshark_returncode": 0,
+      "packet_count": 138148,
+      "flow_count": 1,
+      "flows_without_reply": 0,
+      "repeated_initial_flows": 1,
+      "retry_packet_count": 0,
+      "first_reply_delay_median_seconds": 0.002992868423461914,
+      "first_reply_delay_p95_seconds": 0.002992868423461914,
+      "packet_accounting": {
+        "schema": "nbsr-b1-v2-loopback-packet-accounting-v1",
+        "packet_count": 138148,
+        "capture_inventory_packets": 138161,
+        "readiness_probe_packets": 13,
+        "readiness_probe_frame_bytes": 962,
+        "capture_inventory_frame_bytes": 276448138,
+        "directions": {
+          "client_to_server": 109922,
+          "server_to_client": 28226
+        },
+        "captured_frame_bytes": 276447176,
+        "ip_bytes": 274513104,
+        "udp_bytes": 271750144,
+        "udp_payload_bytes": 270644960,
+        "physical_ethernet_bytes": null,
+        "scope": "Captured IPv4/UDP workload flow totals, excluding only validated readiness probes; not incremental Direct-versus-NBSR cost by itself."
+      },
+      "capture_drops": {
+        "interface": "Loopback: lo",
+        "captured": 138161,
+        "received": 138161,
+        "dropped": 0,
+        "pcap_drops": 0,
+        "dumpcap_drops": 0,
+        "flushed": 0,
+        "interface_drops": 0
+      }
+    }
+  },
+  {
+    "schema": "nbsr-b1-wire-overhead-repeat-v1",
+    "path": "nbsr",
+    "streams": 8,
+    "payload_bytes": 16384,
+    "model": "bounded-outstanding-per-stream",
+    "outstanding_per_stream": 1,
+    "configured_total_outstanding": 8,
+    "max_outstanding_per_stream_observed": 1,
+    "completed_operations": 8000,
+    "measured_ns": 3889035003,
+    "p50_latency_ns": 3541880,
+    "p95_latency_ns": 6809546,
+    "p99_latency_ns": 9561186,
+    "latency_sample_count": 8000,
+    "latency_sample_stride": 1,
+    "scheduled_admissions": 0,
+    "successful_admissions": 0,
+    "failed_admissions": 0,
+    "admission_timeouts": 0,
+    "admission_p50_latency_ns": null,
+    "admission_p95_latency_ns": null,
+    "admission_p99_latency_ns": null,
+    "max_admission_start_lateness_ns": 0,
+    "errors": 0,
+    "missing": 0,
+    "duplicates": 0,
+    "corrupt": 0,
+    "wrong_request": 0,
+    "transport_sessions_created_delta": 0,
+    "service_channels_created_delta": 0,
+    "application_streams_created_delta": 0,
+    "replay_entries_delta": 0,
+    "repeat": 2,
+    "operations_per_stream": 1000,
+    "expected_operations": 8000,
+    "warmup_seconds": 0,
+    "benchmark_build": "cargo release with benchmark-harness feature",
+    "phase_semantics": "setup then excluded warmup then established fixed operations without teardown",
+    "timeouts": 0,
+    "application_bytes": 262144000,
+    "application_bytes_definition": "aggregate request plus response payload bytes",
+    "capture_method": "isolated-udp-relay",
+    "measured_unit": "UDP payload bytes and UDP datagrams",
+    "client_ownership": "OS UDP endpoint ownership must match the authorized benchmark client PID",
+    "setup": {
+      "client_to_server": {
+        "bytes": 10822,
+        "packets": 25
+      },
+      "server_to_client": {
+        "bytes": 8750,
+        "packets": 25
+      }
+    },
+    "established": {
+      "client_to_server": {
+        "bytes": 135024099,
+        "packets": 108019
+      },
+      "server_to_client": {
+        "bytes": 134988337,
+        "packets": 106603
+      }
+    },
+    "rejected_datagrams": 0,
+    "server_endpoint": "127.0.0.1:40197",
+    "relay_endpoint": "127.0.0.1:58654",
+    "resources": {
+      "status": "NOT_MEASURED",
+      "scope": "packet accounting only; capture timing is not performance evidence"
+    },
+    "client_command": [
+      "/out/cohort/binaries/perf_rust_source",
+      "--samples",
+      "1",
+      "--authority-dir",
+      "/tmp/nbsr-linux-b1-bjxd_w_i/authority",
+      "--endpoint",
+      "127.0.0.1:58654",
+      "--payload-bytes",
+      "16384",
+      "--p2a-streams",
+      "8",
+      "--p2a-warmup-seconds",
+      "0",
+      "--p2a-operations-per-stream",
+      "1000",
+      "--p2a-counter-control",
+      "127.0.0.1:42525"
+    ],
+    "server_command": [
+      "/out/cohort/binaries/wp8_interop_server",
+      "--ready",
+      "/out/cohort/raw/nbsr-p16384-s8-r2.ready.json",
+      "--result",
+      "/out/cohort/raw/nbsr-p16384-s8-r2.result.json",
+      "--authority-dir",
+      "/tmp/nbsr-linux-b1-bjxd_w_i/authority",
+      "--completion-ack",
+      "/out/cohort/raw/nbsr-p16384-s8-r2.ack"
+    ],
+    "linux_socket_ownership": {
+      "pid": 798,
+      "start_ticks": 329650,
+      "socket_inode": 98474,
+      "local_endpoint": [
+        "127.0.0.1",
+        36091
+      ],
+      "scope": "first datagram PID/FD/inode binding"
+    },
+    "packet_observer": {
+      "enabled": true,
+      "valid": true,
+      "status": "complete",
+      "capture_command": [
+        "/usr/bin/dumpcap",
+        "-q",
+        "-i",
+        "lo",
+        "-f",
+        "udp port 40197 or (udp and src host 127.0.0.1 and dst host 127.0.0.1 and src port 48481 and dst port 38268)",
+        "-w",
+        "/out/cohort/raw/nbsr-p16384-s8-r2/loopback.pcapng",
+        "-p",
+        "-s",
+        "0",
+        "-B",
+        "64",
+        "-a",
+        "filesize:2097152"
+      ],
+      "server_port": 40197,
+      "pcap": "/out/cohort/raw/nbsr-p16384-s8-r2/loopback.pcapng",
+      "readiness": {
+        "source_port": 48481,
+        "destination_port": 38268,
+        "token_hex": "5bed771756038e12f65a1d006c23e160a5a009b8c48d77ef1eec304417d05acf",
+        "sent_packets": 19,
+        "scope": "separate owned loopback tuple; never sent to the QUIC endpoint",
+        "status": "PASS",
+        "started_unix_ns": 1789756816981719833,
+        "observed_frame_numbers": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "ready_unix_ns": 1789756817840304214,
+        "terminal_token_hex": "25167720d2f6df3e5d4712400acb0913ee6b8e598240442e26f53ecd65004ff8",
+        "terminal_status": "PASS",
+        "terminal_observed_frame_numbers": [
+          138070
+        ]
+      },
+      "dumpcap_returncode": 0,
+      "tshark_returncode": 0,
+      "packet_count": 138054,
+      "flow_count": 1,
+      "flows_without_reply": 0,
+      "repeated_initial_flows": 1,
+      "retry_packet_count": 0,
+      "first_reply_delay_median_seconds": 0.0026831626892089844,
+      "first_reply_delay_p95_seconds": 0.0026831626892089844,
+      "packet_accounting": {
+        "schema": "nbsr-b1-v2-loopback-packet-accounting-v1",
+        "packet_count": 138054,
+        "capture_inventory_packets": 138071,
+        "readiness_probe_packets": 17,
+        "readiness_probe_frame_bytes": 1258,
+        "capture_inventory_frame_bytes": 276425657,
+        "directions": {
+          "client_to_server": 108165,
+          "server_to_client": 29889
+        },
+        "captured_frame_bytes": 276424399,
+        "ip_bytes": 274491643,
+        "udp_bytes": 271730563,
+        "udp_payload_bytes": 270626131,
+        "physical_ethernet_bytes": null,
+        "scope": "Captured IPv4/UDP workload flow totals, excluding only validated readiness probes; not incremental Direct-versus-NBSR cost by itself."
+      },
+      "capture_drops": {
+        "interface": "Loopback: lo",
+        "captured": 138071,
+        "received": 138071,
+        "dropped": 0,
+        "pcap_drops": 0,
+        "dumpcap_drops": 0,
+        "flushed": 0,
+        "interface_drops": 0
+      }
+    }
+  },
+  {
+    "schema": "nbsr-b1-wire-overhead-repeat-v1",
+    "path": "direct",
+    "streams": 8,
+    "payload_bytes": 16384,
+    "model": "bounded-outstanding-per-stream",
+    "outstanding_per_stream": 1,
+    "configured_total_outstanding": 8,
+    "max_outstanding_per_stream_observed": 1,
+    "completed_operations": 8000,
+    "measured_ns": 5958050725,
+    "p50_latency_ns": 5701081,
+    "p95_latency_ns": 9010245,
+    "p99_latency_ns": 12109597,
+    "errors": 0,
+    "missing": 0,
+    "duplicates": 0,
+    "corrupt": 0,
+    "wrong_request": 0,
+    "transport_sessions_created_delta": 0,
+    "service_channels_created_delta": 0,
+    "application_streams_created_delta": 0,
+    "replay_entries_delta": 0,
+    "repeat": 2,
+    "operations_per_stream": 1000,
+    "expected_operations": 8000,
+    "warmup_seconds": 0,
+    "benchmark_build": "cargo release with benchmark-harness feature",
+    "phase_semantics": "setup then excluded warmup then established fixed operations without teardown",
+    "timeouts": 0,
+    "application_bytes": 262144000,
+    "application_bytes_definition": "aggregate request plus response payload bytes",
+    "capture_method": "isolated-udp-relay",
+    "measured_unit": "UDP payload bytes and UDP datagrams",
+    "client_ownership": "OS UDP endpoint ownership must match the authorized benchmark client PID",
+    "setup": {
+      "client_to_server": {
+        "bytes": 3864,
+        "packets": 4
+      },
+      "server_to_client": {
+        "bytes": 2892,
+        "packets": 5
+      }
+    },
+    "established": {
+      "client_to_server": {
+        "bytes": 135305699,
+        "packets": 116954
+      },
+      "server_to_client": {
+        "bytes": 134729543,
+        "packets": 97889
+      }
+    },
+    "rejected_datagrams": 0,
+    "server_endpoint": "127.0.0.1:54348",
+    "relay_endpoint": "127.0.0.1:44196",
+    "resources": {
+      "status": "NOT_MEASURED",
+      "scope": "packet accounting only; capture timing is not performance evidence"
+    },
+    "client_command": [
+      "/out/cohort/binaries/perf_direct_peer",
+      "--role",
+      "client",
+      "--samples",
+      "1",
+      "--lifecycle",
+      "warm",
+      "--authority-dir",
+      "/tmp/nbsr-linux-b1-bjxd_w_i/authority",
+      "--endpoint",
+      "127.0.0.1:44196",
+      "--payload-bytes",
+      "16384",
+      "--p2a-streams",
+      "8",
+      "--p2a-warmup-seconds",
+      "0",
+      "--p2a-operations-per-stream",
+      "1000",
+      "--p2a-counter-control",
+      "127.0.0.1:35141"
+    ],
+    "server_command": [
+      "/out/cohort/binaries/perf_direct_peer",
+      "--role",
+      "server",
+      "--ready",
+      "/out/cohort/raw/direct-p16384-s8-r2.ready.json",
+      "--authority-dir",
+      "/tmp/nbsr-linux-b1-bjxd_w_i/authority",
+      "--connections",
+      "1",
+      "--requests-per-connection",
+      "1",
+      "--p2a-streams",
+      "8"
+    ],
+    "linux_socket_ownership": {
+      "pid": 857,
+      "start_ticks": 332860,
+      "socket_inode": 94173,
+      "local_endpoint": [
+        "127.0.0.1",
+        32988
+      ],
+      "scope": "first datagram PID/FD/inode binding"
+    },
+    "packet_observer": {
+      "enabled": true,
+      "valid": true,
+      "status": "complete",
+      "capture_command": [
+        "/usr/bin/dumpcap",
+        "-q",
+        "-i",
+        "lo",
+        "-f",
+        "udp port 54348 or (udp and src host 127.0.0.1 and dst host 127.0.0.1 and src port 52132 and dst port 60503)",
+        "-w",
+        "/out/cohort/raw/direct-p16384-s8-r2/loopback.pcapng",
+        "-p",
+        "-s",
+        "0",
+        "-B",
+        "64",
+        "-a",
+        "filesize:2097152"
+      ],
+      "server_port": 54348,
+      "pcap": "/out/cohort/raw/direct-p16384-s8-r2/loopback.pcapng",
+      "readiness": {
+        "source_port": 52132,
+        "destination_port": 60503,
+        "token_hex": "6cd465c6b69b230a1f718ef8087a9c1acf2c4182a7b3541491f3655ba5a47fd4",
+        "sent_packets": 14,
+        "scope": "separate owned loopback tuple; never sent to the QUIC endpoint",
+        "status": "PASS",
+        "started_unix_ns": 1789756849329679010,
+        "observed_frame_numbers": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "ready_unix_ns": 1789756849945348472,
+        "terminal_token_hex": "e85e9738739ee38af413f9a95929ac88959f0db2c3454fbd772a95cc484e2fd2",
+        "terminal_status": "PASS",
+        "terminal_observed_frame_numbers": [
+          140848
+        ]
+      },
+      "dumpcap_returncode": 0,
+      "tshark_returncode": 0,
+      "packet_count": 140837,
+      "flow_count": 1,
+      "flows_without_reply": 0,
+      "repeated_initial_flows": 1,
+      "retry_packet_count": 0,
+      "first_reply_delay_median_seconds": 0.0016887187957763672,
+      "first_reply_delay_p95_seconds": 0.0016887187957763672,
+      "packet_accounting": {
+        "schema": "nbsr-b1-v2-loopback-packet-accounting-v1",
+        "packet_count": 140837,
+        "capture_inventory_packets": 140849,
+        "readiness_probe_packets": 12,
+        "readiness_probe_frame_bytes": 888,
+        "capture_inventory_frame_bytes": 276628496,
+        "directions": {
+          "client_to_server": 117095,
+          "server_to_client": 23742
+        },
+        "captured_frame_bytes": 276627608,
+        "ip_bytes": 274655890,
+        "udp_bytes": 271839150,
+        "udp_payload_bytes": 270712454,
+        "physical_ethernet_bytes": null,
+        "scope": "Captured IPv4/UDP workload flow totals, excluding only validated readiness probes; not incremental Direct-versus-NBSR cost by itself."
+      },
+      "capture_drops": {
+        "interface": "Loopback: lo",
+        "captured": 140849,
+        "received": 140849,
+        "dropped": 0,
+        "pcap_drops": 0,
+        "dumpcap_drops": 0,
+        "flushed": 0,
+        "interface_drops": 0
+      }
+    }
+  },
+  {
+    "schema": "nbsr-b1-wire-overhead-repeat-v1",
+    "path": "direct",
+    "streams": 8,
+    "payload_bytes": 16384,
+    "model": "bounded-outstanding-per-stream",
+    "outstanding_per_stream": 1,
+    "configured_total_outstanding": 8,
+    "max_outstanding_per_stream_observed": 1,
+    "completed_operations": 8000,
+    "measured_ns": 3806834985,
+    "p50_latency_ns": 3715388,
+    "p95_latency_ns": 5355871,
+    "p99_latency_ns": 6360823,
+    "errors": 0,
+    "missing": 0,
+    "duplicates": 0,
+    "corrupt": 0,
+    "wrong_request": 0,
+    "transport_sessions_created_delta": 0,
+    "service_channels_created_delta": 0,
+    "application_streams_created_delta": 0,
+    "replay_entries_delta": 0,
+    "repeat": 3,
+    "operations_per_stream": 1000,
+    "expected_operations": 8000,
+    "warmup_seconds": 0,
+    "benchmark_build": "cargo release with benchmark-harness feature",
+    "phase_semantics": "setup then excluded warmup then established fixed operations without teardown",
+    "timeouts": 0,
+    "application_bytes": 262144000,
+    "application_bytes_definition": "aggregate request plus response payload bytes",
+    "capture_method": "isolated-udp-relay",
+    "measured_unit": "UDP payload bytes and UDP datagrams",
+    "client_ownership": "OS UDP endpoint ownership must match the authorized benchmark client PID",
+    "setup": {
+      "client_to_server": {
+        "bytes": 3864,
+        "packets": 4
+      },
+      "server_to_client": {
+        "bytes": 2890,
+        "packets": 5
+      }
+    },
+    "established": {
+      "client_to_server": {
+        "bytes": 135140506,
+        "packets": 111734
+      },
+      "server_to_client": {
+        "bytes": 134820702,
+        "packets": 101116
+      }
+    },
+    "rejected_datagrams": 0,
+    "server_endpoint": "127.0.0.1:52608",
+    "relay_endpoint": "127.0.0.1:38544",
+    "resources": {
+      "status": "NOT_MEASURED",
+      "scope": "packet accounting only; capture timing is not performance evidence"
+    },
+    "client_command": [
+      "/out/cohort/binaries/perf_direct_peer",
+      "--role",
+      "client",
+      "--samples",
+      "1",
+      "--lifecycle",
+      "warm",
+      "--authority-dir",
+      "/tmp/nbsr-linux-b1-bjxd_w_i/authority",
+      "--endpoint",
+      "127.0.0.1:38544",
+      "--payload-bytes",
+      "16384",
+      "--p2a-streams",
+      "8",
+      "--p2a-warmup-seconds",
+      "0",
+      "--p2a-operations-per-stream",
+      "1000",
+      "--p2a-counter-control",
+      "127.0.0.1:44557"
+    ],
+    "server_command": [
+      "/out/cohort/binaries/perf_direct_peer",
+      "--role",
+      "server",
+      "--ready",
+      "/out/cohort/raw/direct-p16384-s8-r3.ready.json",
+      "--authority-dir",
+      "/tmp/nbsr-linux-b1-bjxd_w_i/authority",
+      "--connections",
+      "1",
+      "--requests-per-connection",
+      "1",
+      "--p2a-streams",
+      "8"
+    ],
+    "linux_socket_ownership": {
+      "pid": 918,
+      "start_ticks": 336239,
+      "socket_inode": 99602,
+      "local_endpoint": [
+        "127.0.0.1",
+        44648
+      ],
+      "scope": "first datagram PID/FD/inode binding"
+    },
+    "packet_observer": {
+      "enabled": true,
+      "valid": true,
+      "status": "complete",
+      "capture_command": [
+        "/usr/bin/dumpcap",
+        "-q",
+        "-i",
+        "lo",
+        "-f",
+        "udp port 52608 or (udp and src host 127.0.0.1 and dst host 127.0.0.1 and src port 60463 and dst port 59659)",
+        "-w",
+        "/out/cohort/raw/direct-p16384-s8-r3/loopback.pcapng",
+        "-p",
+        "-s",
+        "0",
+        "-B",
+        "64",
+        "-a",
+        "filesize:2097152"
+      ],
+      "server_port": 52608,
+      "pcap": "/out/cohort/raw/direct-p16384-s8-r3/loopback.pcapng",
+      "readiness": {
+        "source_port": 60463,
+        "destination_port": 59659,
+        "token_hex": "a81ea00e22055e77b727fb1999f273594aee8e8c3c92bae63a03a5bb147c29b6",
+        "sent_packets": 14,
+        "scope": "separate owned loopback tuple; never sent to the QUIC endpoint",
+        "status": "PASS",
+        "started_unix_ns": 1789756883143372757,
+        "observed_frame_numbers": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "ready_unix_ns": 1789756883732438004,
+        "terminal_token_hex": "a83b754d659f193ba1a94cc7224c9de5aa599f7caa58f9bd9c090e426059a287",
+        "terminal_status": "PASS",
+        "terminal_observed_frame_numbers": [
+          136497
+        ]
+      },
+      "dumpcap_returncode": 0,
+      "tshark_returncode": 0,
+      "packet_count": 136485,
+      "flow_count": 1,
+      "flows_without_reply": 0,
+      "repeated_initial_flows": 1,
+      "retry_packet_count": 0,
+      "first_reply_delay_median_seconds": 0.0011632442474365234,
+      "first_reply_delay_p95_seconds": 0.0011632442474365234,
+      "packet_accounting": {
+        "schema": "nbsr-b1-v2-loopback-packet-accounting-v1",
+        "packet_count": 136485,
+        "capture_inventory_packets": 136498,
+        "readiness_probe_packets": 13,
+        "readiness_probe_frame_bytes": 962,
+        "capture_inventory_frame_bytes": 276362737,
+        "directions": {
+          "client_to_server": 111869,
+          "server_to_client": 24616
+        },
+        "captured_frame_bytes": 276361775,
+        "ip_bytes": 274450985,
+        "udp_bytes": 271721285,
+        "udp_payload_bytes": 270629405,
+        "physical_ethernet_bytes": null,
+        "scope": "Captured IPv4/UDP workload flow totals, excluding only validated readiness probes; not incremental Direct-versus-NBSR cost by itself."
+      },
+      "capture_drops": {
+        "interface": "Loopback: lo",
+        "captured": 136498,
+        "received": 136498,
+        "dropped": 0,
+        "pcap_drops": 0,
+        "dumpcap_drops": 0,
+        "flushed": 0,
+        "interface_drops": 0
+      }
+    }
+  },
+  {
+    "schema": "nbsr-b1-wire-overhead-repeat-v1",
+    "path": "nbsr",
+    "streams": 8,
+    "payload_bytes": 16384,
+    "model": "bounded-outstanding-per-stream",
+    "outstanding_per_stream": 1,
+    "configured_total_outstanding": 8,
+    "max_outstanding_per_stream_observed": 1,
+    "completed_operations": 8000,
+    "measured_ns": 3724830814,
+    "p50_latency_ns": 3610383,
+    "p95_latency_ns": 5549982,
+    "p99_latency_ns": 6903652,
+    "latency_sample_count": 8000,
+    "latency_sample_stride": 1,
+    "scheduled_admissions": 0,
+    "successful_admissions": 0,
+    "failed_admissions": 0,
+    "admission_timeouts": 0,
+    "admission_p50_latency_ns": null,
+    "admission_p95_latency_ns": null,
+    "admission_p99_latency_ns": null,
+    "max_admission_start_lateness_ns": 0,
+    "errors": 0,
+    "missing": 0,
+    "duplicates": 0,
+    "corrupt": 0,
+    "wrong_request": 0,
+    "transport_sessions_created_delta": 0,
+    "service_channels_created_delta": 0,
+    "application_streams_created_delta": 0,
+    "replay_entries_delta": 0,
+    "repeat": 3,
+    "operations_per_stream": 1000,
+    "expected_operations": 8000,
+    "warmup_seconds": 0,
+    "benchmark_build": "cargo release with benchmark-harness feature",
+    "phase_semantics": "setup then excluded warmup then established fixed operations without teardown",
+    "timeouts": 0,
+    "application_bytes": 262144000,
+    "application_bytes_definition": "aggregate request plus response payload bytes",
+    "capture_method": "isolated-udp-relay",
+    "measured_unit": "UDP payload bytes and UDP datagrams",
+    "client_ownership": "OS UDP endpoint ownership must match the authorized benchmark client PID",
+    "setup": {
+      "client_to_server": {
+        "bytes": 10822,
+        "packets": 25
+      },
+      "server_to_client": {
+        "bytes": 8725,
+        "packets": 24
+      }
+    },
+    "established": {
+      "client_to_server": {
+        "bytes": 134966348,
+        "packets": 105938
+      },
+      "server_to_client": {
+        "bytes": 135029239,
+        "packets": 107961
+      }
+    },
+    "rejected_datagrams": 0,
+    "server_endpoint": "127.0.0.1:56324",
+    "relay_endpoint": "127.0.0.1:49980",
+    "resources": {
+      "status": "NOT_MEASURED",
+      "scope": "packet accounting only; capture timing is not performance evidence"
+    },
+    "client_command": [
+      "/out/cohort/binaries/perf_rust_source",
+      "--samples",
+      "1",
+      "--authority-dir",
+      "/tmp/nbsr-linux-b1-bjxd_w_i/authority",
+      "--endpoint",
+      "127.0.0.1:49980",
+      "--payload-bytes",
+      "16384",
+      "--p2a-streams",
+      "8",
+      "--p2a-warmup-seconds",
+      "0",
+      "--p2a-operations-per-stream",
+      "1000",
+      "--p2a-counter-control",
+      "127.0.0.1:39959"
+    ],
+    "server_command": [
+      "/out/cohort/binaries/wp8_interop_server",
+      "--ready",
+      "/out/cohort/raw/nbsr-p16384-s8-r3.ready.json",
+      "--result",
+      "/out/cohort/raw/nbsr-p16384-s8-r3.result.json",
+      "--authority-dir",
+      "/tmp/nbsr-linux-b1-bjxd_w_i/authority",
+      "--completion-ack",
+      "/out/cohort/raw/nbsr-p16384-s8-r3.ack"
+    ],
+    "linux_socket_ownership": {
+      "pid": 979,
+      "start_ticks": 339029,
+      "socket_inode": 100764,
+      "local_endpoint": [
+        "127.0.0.1",
+        50674
+      ],
+      "scope": "first datagram PID/FD/inode binding"
+    },
+    "packet_observer": {
+      "enabled": true,
+      "valid": true,
+      "status": "complete",
+      "capture_command": [
+        "/usr/bin/dumpcap",
+        "-q",
+        "-i",
+        "lo",
+        "-f",
+        "udp port 56324 or (udp and src host 127.0.0.1 and dst host 127.0.0.1 and src port 52339 and dst port 45888)",
+        "-w",
+        "/out/cohort/raw/nbsr-p16384-s8-r3/loopback.pcapng",
+        "-p",
+        "-s",
+        "0",
+        "-B",
+        "64",
+        "-a",
+        "filesize:2097152"
+      ],
+      "server_port": 56324,
+      "pcap": "/out/cohort/raw/nbsr-p16384-s8-r3/loopback.pcapng",
+      "readiness": {
+        "source_port": 52339,
+        "destination_port": 45888,
+        "token_hex": "ffa12a2a1f63343f5959ddaf6ca793a35a9f277d10f15fc6917f89b7067c8cf6",
+        "sent_packets": 14,
+        "scope": "separate owned loopback tuple; never sent to the QUIC endpoint",
+        "status": "PASS",
+        "started_unix_ns": 1789756911029471964,
+        "observed_frame_numbers": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "ready_unix_ns": 1789756911627658323,
+        "terminal_token_hex": "61c8a9e91a88fee5c5bccd28e6e8971a5221ab6dcb5bb947f1afaf33fb61e0f3",
+        "terminal_status": "PASS",
+        "terminal_observed_frame_numbers": [
+          136658
+        ]
+      },
+      "dumpcap_returncode": 0,
+      "tshark_returncode": 0,
+      "packet_count": 136646,
+      "flow_count": 1,
+      "flows_without_reply": 0,
+      "repeated_initial_flows": 1,
+      "retry_packet_count": 0,
+      "first_reply_delay_median_seconds": 0.002966642379760742,
+      "first_reply_delay_p95_seconds": 0.002966642379760742,
+      "packet_accounting": {
+        "schema": "nbsr-b1-v2-loopback-packet-accounting-v1",
+        "packet_count": 136646,
+        "capture_inventory_packets": 136659,
+        "readiness_probe_packets": 13,
+        "readiness_probe_frame_bytes": 962,
+        "capture_inventory_frame_bytes": 276247678,
+        "directions": {
+          "client_to_server": 106089,
+          "server_to_client": 30557
+        },
+        "captured_frame_bytes": 276246716,
+        "ip_bytes": 274333672,
+        "udp_bytes": 271600752,
+        "udp_payload_bytes": 270507584,
+        "physical_ethernet_bytes": null,
+        "scope": "Captured IPv4/UDP workload flow totals, excluding only validated readiness probes; not incremental Direct-versus-NBSR cost by itself."
+      },
+      "capture_drops": {
+        "interface": "Loopback: lo",
+        "captured": 136659,
+        "received": 136659,
+        "dropped": 0,
+        "pcap_drops": 0,
+        "dumpcap_drops": 0,
+        "flushed": 0,
+        "interface_drops": 0
+      }
+    }
+  },
+  {
+    "schema": "nbsr-b1-wire-overhead-repeat-v1",
+    "path": "nbsr",
+    "streams": 8,
+    "payload_bytes": 16384,
+    "model": "bounded-outstanding-per-stream",
+    "outstanding_per_stream": 1,
+    "configured_total_outstanding": 8,
+    "max_outstanding_per_stream_observed": 1,
+    "completed_operations": 8000,
+    "measured_ns": 3659718858,
+    "p50_latency_ns": 3464487,
+    "p95_latency_ns": 5599202,
+    "p99_latency_ns": 7093082,
+    "latency_sample_count": 8000,
+    "latency_sample_stride": 1,
+    "scheduled_admissions": 0,
+    "successful_admissions": 0,
+    "failed_admissions": 0,
+    "admission_timeouts": 0,
+    "admission_p50_latency_ns": null,
+    "admission_p95_latency_ns": null,
+    "admission_p99_latency_ns": null,
+    "max_admission_start_lateness_ns": 0,
+    "errors": 0,
+    "missing": 0,
+    "duplicates": 0,
+    "corrupt": 0,
+    "wrong_request": 0,
+    "transport_sessions_created_delta": 0,
+    "service_channels_created_delta": 0,
+    "application_streams_created_delta": 0,
+    "replay_entries_delta": 0,
+    "repeat": 4,
+    "operations_per_stream": 1000,
+    "expected_operations": 8000,
+    "warmup_seconds": 0,
+    "benchmark_build": "cargo release with benchmark-harness feature",
+    "phase_semantics": "setup then excluded warmup then established fixed operations without teardown",
+    "timeouts": 0,
+    "application_bytes": 262144000,
+    "application_bytes_definition": "aggregate request plus response payload bytes",
+    "capture_method": "isolated-udp-relay",
+    "measured_unit": "UDP payload bytes and UDP datagrams",
+    "client_ownership": "OS UDP endpoint ownership must match the authorized benchmark client PID",
+    "setup": {
+      "client_to_server": {
+        "bytes": 10848,
+        "packets": 26
+      },
+      "server_to_client": {
+        "bytes": 8752,
+        "packets": 25
+      }
+    },
+    "established": {
+      "client_to_server": {
+        "bytes": 135009282,
+        "packets": 107356
+      },
+      "server_to_client": {
+        "bytes": 134988337,
+        "packets": 106671
+      }
+    },
+    "rejected_datagrams": 0,
+    "server_endpoint": "127.0.0.1:60622",
+    "relay_endpoint": "127.0.0.1:59783",
+    "resources": {
+      "status": "NOT_MEASURED",
+      "scope": "packet accounting only; capture timing is not performance evidence"
+    },
+    "client_command": [
+      "/out/cohort/binaries/perf_rust_source",
+      "--samples",
+      "1",
+      "--authority-dir",
+      "/tmp/nbsr-linux-b1-bjxd_w_i/authority",
+      "--endpoint",
+      "127.0.0.1:59783",
+      "--payload-bytes",
+      "16384",
+      "--p2a-streams",
+      "8",
+      "--p2a-warmup-seconds",
+      "0",
+      "--p2a-operations-per-stream",
+      "1000",
+      "--p2a-counter-control",
+      "127.0.0.1:34507"
+    ],
+    "server_command": [
+      "/out/cohort/binaries/wp8_interop_server",
+      "--ready",
+      "/out/cohort/raw/nbsr-p16384-s8-r4.ready.json",
+      "--result",
+      "/out/cohort/raw/nbsr-p16384-s8-r4.result.json",
+      "--authority-dir",
+      "/tmp/nbsr-linux-b1-bjxd_w_i/authority",
+      "--completion-ack",
+      "/out/cohort/raw/nbsr-p16384-s8-r4.ack"
+    ],
+    "linux_socket_ownership": {
+      "pid": 1038,
+      "start_ticks": 341858,
+      "socket_inode": 104500,
+      "local_endpoint": [
+        "127.0.0.1",
+        47154
+      ],
+      "scope": "first datagram PID/FD/inode binding"
+    },
+    "packet_observer": {
+      "enabled": true,
+      "valid": true,
+      "status": "complete",
+      "capture_command": [
+        "/usr/bin/dumpcap",
+        "-q",
+        "-i",
+        "lo",
+        "-f",
+        "udp port 60622 or (udp and src host 127.0.0.1 and dst host 127.0.0.1 and src port 53129 and dst port 43719)",
+        "-w",
+        "/out/cohort/raw/nbsr-p16384-s8-r4/loopback.pcapng",
+        "-p",
+        "-s",
+        "0",
+        "-B",
+        "64",
+        "-a",
+        "filesize:2097152"
+      ],
+      "server_port": 60622,
+      "pcap": "/out/cohort/raw/nbsr-p16384-s8-r4/loopback.pcapng",
+      "readiness": {
+        "source_port": 53129,
+        "destination_port": 43719,
+        "token_hex": "c58065ac4ddada04dcb13d770e2f4bd8457566960c26dd81897a8a2e9bc9d22f",
+        "sent_packets": 14,
+        "scope": "separate owned loopback tuple; never sent to the QUIC endpoint",
+        "status": "PASS",
+        "started_unix_ns": 1789756939307195543,
+        "observed_frame_numbers": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "ready_unix_ns": 1789756939915022788,
+        "terminal_token_hex": "d39e56499adb33b07bbc40f8935e47c6c5cd369db49c5b9eb01d321d8abfe2c7",
+        "terminal_status": "PASS",
+        "terminal_observed_frame_numbers": [
+          137454
+        ]
+      },
+      "dumpcap_returncode": 0,
+      "tshark_returncode": 0,
+      "packet_count": 137442,
+      "flow_count": 1,
+      "flows_without_reply": 0,
+      "repeated_initial_flows": 1,
+      "retry_packet_count": 0,
+      "first_reply_delay_median_seconds": 0.002788066864013672,
+      "first_reply_delay_p95_seconds": 0.002788066864013672,
+      "packet_accounting": {
+        "schema": "nbsr-b1-v2-loopback-packet-accounting-v1",
+        "packet_count": 137442,
+        "capture_inventory_packets": 137455,
+        "readiness_probe_packets": 13,
+        "readiness_probe_frame_bytes": 962,
+        "capture_inventory_frame_bytes": 276334803,
+        "directions": {
+          "client_to_server": 107497,
+          "server_to_client": 29945
+        },
+        "captured_frame_bytes": 276333841,
+        "ip_bytes": 274409653,
+        "udp_bytes": 271660813,
+        "udp_payload_bytes": 270561277,
+        "physical_ethernet_bytes": null,
+        "scope": "Captured IPv4/UDP workload flow totals, excluding only validated readiness probes; not incremental Direct-versus-NBSR cost by itself."
+      },
+      "capture_drops": {
+        "interface": "Loopback: lo",
+        "captured": 137455,
+        "received": 137455,
+        "dropped": 0,
+        "pcap_drops": 0,
+        "dumpcap_drops": 0,
+        "flushed": 0,
+        "interface_drops": 0
+      }
+    }
+  },
+  {
+    "schema": "nbsr-b1-wire-overhead-repeat-v1",
+    "path": "direct",
+    "streams": 8,
+    "payload_bytes": 16384,
+    "model": "bounded-outstanding-per-stream",
+    "outstanding_per_stream": 1,
+    "configured_total_outstanding": 8,
+    "max_outstanding_per_stream_observed": 1,
+    "completed_operations": 8000,
+    "measured_ns": 4950008917,
+    "p50_latency_ns": 4433505,
+    "p95_latency_ns": 8732804,
+    "p99_latency_ns": 14551873,
+    "errors": 0,
+    "missing": 0,
+    "duplicates": 0,
+    "corrupt": 0,
+    "wrong_request": 0,
+    "transport_sessions_created_delta": 0,
+    "service_channels_created_delta": 0,
+    "application_streams_created_delta": 0,
+    "replay_entries_delta": 0,
+    "repeat": 4,
+    "operations_per_stream": 1000,
+    "expected_operations": 8000,
+    "warmup_seconds": 0,
+    "benchmark_build": "cargo release with benchmark-harness feature",
+    "phase_semantics": "setup then excluded warmup then established fixed operations without teardown",
+    "timeouts": 0,
+    "application_bytes": 262144000,
+    "application_bytes_definition": "aggregate request plus response payload bytes",
+    "capture_method": "isolated-udp-relay",
+    "measured_unit": "UDP payload bytes and UDP datagrams",
+    "client_ownership": "OS UDP endpoint ownership must match the authorized benchmark client PID",
+    "setup": {
+      "client_to_server": {
+        "bytes": 3864,
+        "packets": 4
+      },
+      "server_to_client": {
+        "bytes": 2890,
+        "packets": 5
+      }
+    },
+    "established": {
+      "client_to_server": {
+        "bytes": 135159093,
+        "packets": 112250
+      },
+      "server_to_client": {
+        "bytes": 134820739,
+        "packets": 101008
+      }
+    },
+    "rejected_datagrams": 0,
+    "server_endpoint": "127.0.0.1:52391",
+    "relay_endpoint": "127.0.0.1:40015",
+    "resources": {
+      "status": "NOT_MEASURED",
+      "scope": "packet accounting only; capture timing is not performance evidence"
+    },
+    "client_command": [
+      "/out/cohort/binaries/perf_direct_peer",
+      "--role",
+      "client",
+      "--samples",
+      "1",
+      "--lifecycle",
+      "warm",
+      "--authority-dir",
+      "/tmp/nbsr-linux-b1-bjxd_w_i/authority",
+      "--endpoint",
+      "127.0.0.1:40015",
+      "--payload-bytes",
+      "16384",
+      "--p2a-streams",
+      "8",
+      "--p2a-warmup-seconds",
+      "0",
+      "--p2a-operations-per-stream",
+      "1000",
+      "--p2a-counter-control",
+      "127.0.0.1:42519"
+    ],
+    "server_command": [
+      "/out/cohort/binaries/perf_direct_peer",
+      "--role",
+      "server",
+      "--ready",
+      "/out/cohort/raw/direct-p16384-s8-r4.ready.json",
+      "--authority-dir",
+      "/tmp/nbsr-linux-b1-bjxd_w_i/authority",
+      "--connections",
+      "1",
+      "--requests-per-connection",
+      "1",
+      "--p2a-streams",
+      "8"
+    ],
+    "linux_socket_ownership": {
+      "pid": 1097,
+      "start_ticks": 344770,
+      "socket_inode": 102610,
+      "local_endpoint": [
+        "127.0.0.1",
+        45095
+      ],
+      "scope": "first datagram PID/FD/inode binding"
+    },
+    "packet_observer": {
+      "enabled": true,
+      "valid": true,
+      "status": "complete",
+      "capture_command": [
+        "/usr/bin/dumpcap",
+        "-q",
+        "-i",
+        "lo",
+        "-f",
+        "udp port 52391 or (udp and src host 127.0.0.1 and dst host 127.0.0.1 and src port 41958 and dst port 58170)",
+        "-w",
+        "/out/cohort/raw/direct-p16384-s8-r4/loopback.pcapng",
+        "-p",
+        "-s",
+        "0",
+        "-B",
+        "64",
+        "-a",
+        "filesize:2097152"
+      ],
+      "server_port": 52391,
+      "pcap": "/out/cohort/raw/direct-p16384-s8-r4/loopback.pcapng",
+      "readiness": {
+        "source_port": 41958,
+        "destination_port": 58170,
+        "token_hex": "00e7003d7880b0af3e94a8dbdfc5ad3d57ebdf10cfdfacebe6cb4e4911025668",
+        "sent_packets": 19,
+        "scope": "separate owned loopback tuple; never sent to the QUIC endpoint",
+        "status": "PASS",
+        "started_unix_ns": 1789756968182984561,
+        "observed_frame_numbers": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ],
+        "ready_unix_ns": 1789756969031748585,
+        "terminal_token_hex": "7f9358ef0e77338f3747195441ffddcb097ed1bd39c215e12056d829e92bfb41",
+        "terminal_status": "PASS",
+        "terminal_observed_frame_numbers": [
+          136860
+        ]
+      },
+      "dumpcap_returncode": 0,
+      "tshark_returncode": 0,
+      "packet_count": 136843,
+      "flow_count": 1,
+      "flows_without_reply": 0,
+      "repeated_initial_flows": 1,
+      "retry_packet_count": 0,
+      "first_reply_delay_median_seconds": 0.0011718273162841797,
+      "first_reply_delay_p95_seconds": 0.0011718273162841797,
+      "packet_accounting": {
+        "schema": "nbsr-b1-v2-loopback-packet-accounting-v1",
+        "packet_count": 136843,
+        "capture_inventory_packets": 136861,
+        "readiness_probe_packets": 18,
+        "readiness_probe_frame_bytes": 1332,
+        "capture_inventory_frame_bytes": 276434742,
+        "directions": {
+          "client_to_server": 112376,
+          "server_to_client": 24467
+        },
+        "captured_frame_bytes": 276433410,
+        "ip_bytes": 274517608,
+        "udp_bytes": 271780748,
+        "udp_payload_bytes": 270686004,
+        "physical_ethernet_bytes": null,
+        "scope": "Captured IPv4/UDP workload flow totals, excluding only validated readiness probes; not incremental Direct-versus-NBSR cost by itself."
+      },
+      "capture_drops": {
+        "interface": "Loopback: lo",
+        "captured": 136861,
+        "received": 136861,
+        "dropped": 0,
+        "pcap_drops": 0,
+        "dumpcap_drops": 0,
+        "flushed": 0,
+        "interface_drops": 0
+      }
+    }
+  },
+  {
+    "schema": "nbsr-b1-wire-overhead-repeat-v1",
+    "path": "direct",
+    "streams": 8,
+    "payload_bytes": 16384,
+    "model": "bounded-outstanding-per-stream",
+    "outstanding_per_stream": 1,
+    "configured_total_outstanding": 8,
+    "max_outstanding_per_stream_observed": 1,
+    "completed_operations": 8000,
+    "measured_ns": 4859152654,
+    "p50_latency_ns": 4709541,
+    "p95_latency_ns": 7239769,
+    "p99_latency_ns": 9262573,
+    "errors": 0,
+    "missing": 0,
+    "duplicates": 0,
+    "corrupt": 0,
+    "wrong_request": 0,
+    "transport_sessions_created_delta": 0,
+    "service_channels_created_delta": 0,
+    "application_streams_created_delta": 0,
+    "replay_entries_delta": 0,
+    "repeat": 5,
+    "operations_per_stream": 1000,
+    "expected_operations": 8000,
+    "warmup_seconds": 0,
+    "benchmark_build": "cargo release with benchmark-harness feature",
+    "phase_semantics": "setup then excluded warmup then established fixed operations without teardown",
+    "timeouts": 0,
+    "application_bytes": 262144000,
+    "application_bytes_definition": "aggregate request plus response payload bytes",
+    "capture_method": "isolated-udp-relay",
+    "measured_unit": "UDP payload bytes and UDP datagrams",
+    "client_ownership": "OS UDP endpoint ownership must match the authorized benchmark client PID",
+    "setup": {
+      "client_to_server": {
+        "bytes": 3864,
+        "packets": 4
+      },
+      "server_to_client": {
+        "bytes": 2892,
+        "packets": 5
+      }
+    },
+    "established": {
+      "client_to_server": {
+        "bytes": 135335897,
+        "packets": 118137
+      },
+      "server_to_client": {
+        "bytes": 134718487,
+        "packets": 97657
+      }
+    },
+    "rejected_datagrams": 0,
+    "server_endpoint": "127.0.0.1:58786",
+    "relay_endpoint": "127.0.0.1:37836",
+    "resources": {
+      "status": "NOT_MEASURED",
+      "scope": "packet accounting only; capture timing is not performance evidence"
+    },
+    "client_command": [
+      "/out/cohort/binaries/perf_direct_peer",
+      "--role",
+      "client",
+      "--samples",
+      "1",
+      "--lifecycle",
+      "warm",
+      "--authority-dir",
+      "/tmp/nbsr-linux-b1-bjxd_w_i/authority",
+      "--endpoint",
+      "127.0.0.1:37836",
+      "--payload-bytes",
+      "16384",
+      "--p2a-streams",
+      "8",
+      "--p2a-warmup-seconds",
+      "0",
+      "--p2a-operations-per-stream",
+      "1000",
+      "--p2a-counter-control",
+      "127.0.0.1:32855"
+    ],
+    "server_command": [
+      "/out/cohort/binaries/perf_direct_peer",
+      "--role",
+      "server",
+      "--ready",
+      "/out/cohort/raw/direct-p16384-s8-r5.ready.json",
+      "--authority-dir",
+      "/tmp/nbsr-linux-b1-bjxd_w_i/authority",
+      "--connections",
+      "1",
+      "--requests-per-connection",
+      "1",
+      "--p2a-streams",
+      "8"
+    ],
+    "linux_socket_ownership": {
+      "pid": 1158,
+      "start_ticks": 348107,
+      "socket_inode": 101888,
+      "local_endpoint": [
+        "127.0.0.1",
+        42940
+      ],
+      "scope": "first datagram PID/FD/inode binding"
+    },
+    "packet_observer": {
+      "enabled": true,
+      "valid": true,
+      "status": "complete",
+      "capture_command": [
+        "/usr/bin/dumpcap",
+        "-q",
+        "-i",
+        "lo",
+        "-f",
+        "udp port 58786 or (udp and src host 127.0.0.1 and dst host 127.0.0.1 and src port 44762 and dst port 41349)",
+        "-w",
+        "/out/cohort/raw/direct-p16384-s8-r5/loopback.pcapng",
+        "-p",
+        "-s",
+        "0",
+        "-B",
+        "64",
+        "-a",
+        "filesize:2097152"
+      ],
+      "server_port": 58786,
+      "pcap": "/out/cohort/raw/direct-p16384-s8-r5/loopback.pcapng",
+      "readiness": {
+        "source_port": 44762,
+        "destination_port": 41349,
+        "token_hex": "c1683efa247f3522d4b73f810a3bf0e18134d588196dde847325fcfef436aab4",
+        "sent_packets": 14,
+        "scope": "separate owned loopback tuple; never sent to the QUIC endpoint",
+        "status": "PASS",
+        "started_unix_ns": 1789757001813468317,
+        "observed_frame_numbers": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "ready_unix_ns": 1789757002401579739,
+        "terminal_token_hex": "24cccd2cdeb27a5de5a15e024d87bc8e04e0daf758ee4a351c49f01c729d7d56",
+        "terminal_status": "PASS",
+        "terminal_observed_frame_numbers": [
+          141982
+        ]
+      },
+      "dumpcap_returncode": 0,
+      "tshark_returncode": 0,
+      "packet_count": 141970,
+      "flow_count": 1,
+      "flows_without_reply": 0,
+      "repeated_initial_flows": 1,
+      "retry_packet_count": 0,
+      "first_reply_delay_median_seconds": 0.0012214183807373047,
+      "first_reply_delay_p95_seconds": 0.0012214183807373047,
+      "packet_accounting": {
+        "schema": "nbsr-b1-v2-loopback-packet-accounting-v1",
+        "packet_count": 141970,
+        "capture_inventory_packets": 141983,
+        "readiness_probe_packets": 13,
+        "readiness_probe_frame_bytes": 962,
+        "capture_inventory_frame_bytes": 276679982,
+        "directions": {
+          "client_to_server": 118263,
+          "server_to_client": 23707
+        },
+        "captured_frame_bytes": 276679020,
+        "ip_bytes": 274691440,
+        "udp_bytes": 271852040,
+        "udp_payload_bytes": 270716280,
+        "physical_ethernet_bytes": null,
+        "scope": "Captured IPv4/UDP workload flow totals, excluding only validated readiness probes; not incremental Direct-versus-NBSR cost by itself."
+      },
+      "capture_drops": {
+        "interface": "Loopback: lo",
+        "captured": 141983,
+        "received": 141983,
+        "dropped": 0,
+        "pcap_drops": 0,
+        "dumpcap_drops": 0,
+        "flushed": 0,
+        "interface_drops": 0
+      }
+    }
+  },
+  {
+    "schema": "nbsr-b1-wire-overhead-repeat-v1",
+    "path": "nbsr",
+    "streams": 8,
+    "payload_bytes": 16384,
+    "model": "bounded-outstanding-per-stream",
+    "outstanding_per_stream": 1,
+    "configured_total_outstanding": 8,
+    "max_outstanding_per_stream_observed": 1,
+    "completed_operations": 8000,
+    "measured_ns": 3218453360,
+    "p50_latency_ns": 3101558,
+    "p95_latency_ns": 4775944,
+    "p99_latency_ns": 5623587,
+    "latency_sample_count": 8000,
+    "latency_sample_stride": 1,
+    "scheduled_admissions": 0,
+    "successful_admissions": 0,
+    "failed_admissions": 0,
+    "admission_timeouts": 0,
+    "admission_p50_latency_ns": null,
+    "admission_p95_latency_ns": null,
+    "admission_p99_latency_ns": null,
+    "max_admission_start_lateness_ns": 0,
+    "errors": 0,
+    "missing": 0,
+    "duplicates": 0,
+    "corrupt": 0,
+    "wrong_request": 0,
+    "transport_sessions_created_delta": 0,
+    "service_channels_created_delta": 0,
+    "application_streams_created_delta": 0,
+    "replay_entries_delta": 0,
+    "repeat": 5,
+    "operations_per_stream": 1000,
+    "expected_operations": 8000,
+    "warmup_seconds": 0,
+    "benchmark_build": "cargo release with benchmark-harness feature",
+    "phase_semantics": "setup then excluded warmup then established fixed operations without teardown",
+    "timeouts": 0,
+    "application_bytes": 262144000,
+    "application_bytes_definition": "aggregate request plus response payload bytes",
+    "capture_method": "isolated-udp-relay",
+    "measured_unit": "UDP payload bytes and UDP datagrams",
+    "client_ownership": "OS UDP endpoint ownership must match the authorized benchmark client PID",
+    "setup": {
+      "client_to_server": {
+        "bytes": 10822,
+        "packets": 25
+      },
+      "server_to_client": {
+        "bytes": 8698,
+        "packets": 23
+      }
+    },
+    "established": {
+      "client_to_server": {
+        "bytes": 135043374,
+        "packets": 108680
+      },
+      "server_to_client": {
+        "bytes": 134921745,
+        "packets": 104377
+      }
+    },
+    "rejected_datagrams": 0,
+    "server_endpoint": "127.0.0.1:45649",
+    "relay_endpoint": "127.0.0.1:54978",
+    "resources": {
+      "status": "NOT_MEASURED",
+      "scope": "packet accounting only; capture timing is not performance evidence"
+    },
+    "client_command": [
+      "/out/cohort/binaries/perf_rust_source",
+      "--samples",
+      "1",
+      "--authority-dir",
+      "/tmp/nbsr-linux-b1-bjxd_w_i/authority",
+      "--endpoint",
+      "127.0.0.1:54978",
+      "--payload-bytes",
+      "16384",
+      "--p2a-streams",
+      "8",
+      "--p2a-warmup-seconds",
+      "0",
+      "--p2a-operations-per-stream",
+      "1000",
+      "--p2a-counter-control",
+      "127.0.0.1:41911"
+    ],
+    "server_command": [
+      "/out/cohort/binaries/wp8_interop_server",
+      "--ready",
+      "/out/cohort/raw/nbsr-p16384-s8-r5.ready.json",
+      "--result",
+      "/out/cohort/raw/nbsr-p16384-s8-r5.result.json",
+      "--authority-dir",
+      "/tmp/nbsr-linux-b1-bjxd_w_i/authority",
+      "--completion-ack",
+      "/out/cohort/raw/nbsr-p16384-s8-r5.ack"
+    ],
+    "linux_socket_ownership": {
+      "pid": 1219,
+      "start_ticks": 351395,
+      "socket_inode": 105717,
+      "local_endpoint": [
+        "127.0.0.1",
+        53366
+      ],
+      "scope": "first datagram PID/FD/inode binding"
+    },
+    "packet_observer": {
+      "enabled": true,
+      "valid": true,
+      "status": "complete",
+      "capture_command": [
+        "/usr/bin/dumpcap",
+        "-q",
+        "-i",
+        "lo",
+        "-f",
+        "udp port 45649 or (udp and src host 127.0.0.1 and dst host 127.0.0.1 and src port 43043 and dst port 36145)",
+        "-w",
+        "/out/cohort/raw/nbsr-p16384-s8-r5/loopback.pcapng",
+        "-p",
+        "-s",
+        "0",
+        "-B",
+        "64",
+        "-a",
+        "filesize:2097152"
+      ],
+      "server_port": 45649,
+      "pcap": "/out/cohort/raw/nbsr-p16384-s8-r5/loopback.pcapng",
+      "readiness": {
+        "source_port": 43043,
+        "destination_port": 36145,
+        "token_hex": "63a48c77dd3661266b1d842fdc22d9b9b65877b5a31d30361261ae784f159d20",
+        "sent_packets": 19,
+        "scope": "separate owned loopback tuple; never sent to the QUIC endpoint",
+        "status": "PASS",
+        "started_unix_ns": 1789757034418174876,
+        "observed_frame_numbers": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ],
+        "ready_unix_ns": 1789757035276617715,
+        "terminal_token_hex": "ad5a19882664d208e65b54fda97db348c2c370c42faa118af03ec5c9f522b719",
+        "terminal_status": "PASS",
+        "terminal_observed_frame_numbers": [
+          136681
+        ]
+      },
+      "dumpcap_returncode": 0,
+      "tshark_returncode": 0,
+      "packet_count": 136664,
+      "flow_count": 1,
+      "flows_without_reply": 0,
+      "repeated_initial_flows": 1,
+      "retry_packet_count": 0,
+      "first_reply_delay_median_seconds": 0.0027620792388916016,
+      "first_reply_delay_p95_seconds": 0.0027620792388916016,
+      "packet_accounting": {
+        "schema": "nbsr-b1-v2-loopback-packet-accounting-v1",
+        "packet_count": 136664,
+        "capture_inventory_packets": 136682,
+        "readiness_probe_packets": 18,
+        "readiness_probe_frame_bytes": 1332,
+        "capture_inventory_frame_bytes": 276325939,
+        "directions": {
+          "client_to_server": 108821,
+          "server_to_client": 27843
+        },
+        "captured_frame_bytes": 276324607,
+        "ip_bytes": 274411311,
+        "udp_bytes": 271678031,
+        "udp_payload_bytes": 270584719,
+        "physical_ethernet_bytes": null,
+        "scope": "Captured IPv4/UDP workload flow totals, excluding only validated readiness probes; not incremental Direct-versus-NBSR cost by itself."
+      },
+      "capture_drops": {
+        "interface": "Loopback: lo",
+        "captured": 136682,
+        "received": 136682,
+        "dropped": 0,
+        "pcap_drops": 0,
+        "dumpcap_drops": 0,
+        "flushed": 0,
+        "interface_drops": 0
+      }
+    }
+  }
+]

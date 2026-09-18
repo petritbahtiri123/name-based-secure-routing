@@ -1,0 +1,17 @@
+{
+  "classification": "FOCUSED_PARENT_REVIEW_PASS",
+  "source_commit": "eb4b06080e920f7d79815fc8a4cd1b2884c8c17b",
+  "scope": [
+    "unchanged Windows defaults",
+    "exact PID start/inode ownership",
+    "terminal capture failure joins child",
+    "all capture rows reconcile and drops zero",
+    "no production semantics change",
+    "negative paired deltas retained"
+  ],
+  "limitations": [
+    "Docker loopback not physical NIC",
+    "capture timing excluded",
+    "full campaign not frozen"
+  ]
+}

@@ -1,0 +1,24 @@
+DOCKER_WSL_PACKET_ACCOUNTING_ROOT_FIXTURE_NOT_PERFORMANCE
+dumpcap: cap_set_proc() fail return: Operation not permitted
+dumpcap: cap_set_proc() fail return: Operation not permitted
+Running as user "root" and group "root". This could be dangerous.
+payload=1024 streams=64 repeat=1 path=direct
+payload=1024 streams=64 repeat=1 path=nbsr
+payload=1024 streams=64 repeat=2 path=nbsr
+payload=1024 streams=64 repeat=2 path=direct
+payload=1024 streams=64 repeat=3 path=direct
+payload=1024 streams=64 repeat=3 path=nbsr
+payload=1024 streams=64 repeat=4 path=nbsr
+payload=1024 streams=64 repeat=4 path=direct
+payload=1024 streams=64 repeat=5 path=direct
+payload=1024 streams=64 repeat=5 path=nbsr
+payload=16384 streams=8 repeat=1 path=direct
+payload=16384 streams=8 repeat=1 path=nbsr
+payload=16384 streams=8 repeat=2 path=nbsr
+payload=16384 streams=8 repeat=2 path=direct
+payload=16384 streams=8 repeat=3 path=direct
+payload=16384 streams=8 repeat=3 path=nbsr
+payload=16384 streams=8 repeat=4 path=nbsr
+payload=16384 streams=8 repeat=4 path=direct
+payload=16384 streams=8 repeat=5 path=direct
+payload=16384 streams=8 repeat=5 path=nbsr

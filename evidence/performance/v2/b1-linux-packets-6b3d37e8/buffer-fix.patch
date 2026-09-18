@@ -1,0 +1,68 @@
+diff --git a/docs/benchmarks/B1_LINUX_PACKET_ACCOUNTING.md b/docs/benchmarks/B1_LINUX_PACKET_ACCOUNTING.md
+index d598d20f..6b4d95d7 100644
+--- a/docs/benchmarks/B1_LINUX_PACKET_ACCOUNTING.md
++++ b/docs/benchmarks/B1_LINUX_PACKET_ACCOUNTING.md
+@@ -48,6 +48,13 @@ NBSR tax. Synthetic captured Ethernet lengths are kept separate from measured
+ IP/UDP lengths; physical Ethernet bytes remain NOT_MEASURED. Five repeats do
+ not erase residual variability. Invalid attempts are retained without replacement.
+ 
++The first formal Docker cohort at eb4b0608 was INVALID_PARTIAL: Direct reported
++zero drops, but NBSR reported 845 pcap drops (122221 packets captured). Both
++attempts are retained. The observer now requests a 64 MiB kernel capture buffer
++instead of Dumpcap's 2 MiB default, symmetrically for both paths, without changing
++the workload or any timeout. Zero-loss validation still applies to every new cell;
++requesting a larger buffer is not evidence that capture loss has been fixed.
++
+ Capture is bounded to two GiB per cell and requires two GiB free before the next
+ cell. Raw pcapng, layer exports, drop statistics, markers, workload commands,
+ client stdout/stderr, ownership, release hashes and recursive checksums are
+diff --git a/scripts/performance/external_packet_capture.py b/scripts/performance/external_packet_capture.py
+index 47166c6c..8ffe962e 100644
+--- a/scripts/performance/external_packet_capture.py
++++ b/scripts/performance/external_packet_capture.py
+@@ -67,7 +67,9 @@ class ExternalCapture:
+         stderr_path=Path(cell_dir)/'dumpcap.stderr'
+         stderr=stderr_path.open('wb')
+         try:
+-            process=subprocess.Popen(self.capture_command(server_port, pcap),
++            command = self.capture_command(server_port, pcap)
++            self.report['capture_command'] = command
++            process=subprocess.Popen(command,
+                 stdout=subprocess.DEVNULL,stderr=stderr,**self.process_options())
+         except BaseException:
+             stderr.close()
+diff --git a/scripts/performance/linux_b1_capture.py b/scripts/performance/linux_b1_capture.py
+index 2a094944..1aaad303 100644
+--- a/scripts/performance/linux_b1_capture.py
++++ b/scripts/performance/linux_b1_capture.py
+@@ -102,7 +102,7 @@ class LinuxPacketObserver(PacketObserver):
+         return signal.SIGINT
+ 
+     def capture_command(self, server_port, pcap):
+-        return [*super().capture_command(server_port, pcap), '-p', '-s', '0', '-a', 'filesize:2097152']
++        return [*super().capture_command(server_port, pcap), '-p', '-s', '0', '-B', '64', '-a', 'filesize:2097152']
+ 
+     def finish_capture(self, process, pcap, cell_dir):
+         token = secrets.token_bytes(32).hex()
+diff --git a/tests/performance/test_linux_b1_capture.py b/tests/performance/test_linux_b1_capture.py
+index 0e0be6e1..3a56a8d0 100644
+--- a/tests/performance/test_linux_b1_capture.py
++++ b/tests/performance/test_linux_b1_capture.py
+@@ -66,6 +66,17 @@ def test_linux_capture_requires_exact_lo_ethernet_metadata():
+             observer.validate_capture_metadata(invalid)
+ 
+ 
++def test_linux_capture_has_bounded_observer_buffer_without_changing_filter_or_workload(tmp_path):
++    from scripts.performance.linux_b1_capture import LinuxPacketObserver
++    observer = LinuxPacketObserver(Path('/usr/bin/dumpcap'), Path('/usr/bin/tshark'), 'lo')
++    observer.probe = dict(source_port=4000, destination_port=4001)
++    command = observer.capture_command(5000, tmp_path / 'capture.pcapng')
++    assert command[command.index('-B') + 1] == '64'
++    assert command[command.index('-s') + 1] == '0'
++    assert command[command.index('-a') + 1] == 'filesize:2097152'
++    assert command[command.index('-f') + 1] == observer.capture_filter(5000)
++
++
+ def test_terminal_probe_is_required_and_excluded_from_packet_totals():
+     from scripts.analyze_b1_v2_capture import account_packets
+     def packet(n, source, dest):

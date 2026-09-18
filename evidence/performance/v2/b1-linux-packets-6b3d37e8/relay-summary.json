@@ -1,0 +1,109 @@
+{
+  "schema": "nbsr-b1-wire-overhead-analysis-v1",
+  "classification": "INCONCLUSIVE",
+  "measurement": "UDP payload bytes and UDP datagrams forwarded by an isolated single-flow relay",
+  "application_bytes_definition": "aggregate request plus response payload bytes",
+  "physical_l2_bytes": "not measured",
+  "retransmissions": "not measurable with the available non-privileged instrumentation",
+  "cells": [
+    {
+      "payload_bytes": 1024,
+      "streams": 64,
+      "operations_per_stream": 1000,
+      "completed_operations": 64000,
+      "valid_pairs": 5,
+      "invalid_pairs": 0,
+      "stability": "stable",
+      "pair_incremental_bytes": [
+        365318,
+        439861,
+        253281,
+        496496,
+        179151
+      ],
+      "pair_incremental_overhead_percent": [
+        0.25940062591075097,
+        0.3121183945130639,
+        0.17976589658373113,
+        0.3524698306643911,
+        0.127128561263412
+      ],
+      "median_direct_measured_udp_payload_bytes": 140894911,
+      "median_nbsr_measured_udp_payload_bytes": 141196898,
+      "median_direct_packets": 139606,
+      "median_nbsr_packets": 153591,
+      "median_direct_derived_ipv4_udp_bytes": 144803879,
+      "median_nbsr_derived_ipv4_udp_bytes": 145497446,
+      "median_direct_setup_udp_payload_bytes": 6754,
+      "median_nbsr_setup_udp_payload_bytes": 37703,
+      "median_setup_incremental_bytes": 30949,
+      "median_setup_incremental_overhead_percent": 458.2321587207581,
+      "median_direct_setup_packets": 9,
+      "median_nbsr_setup_packets": 219,
+      "median_incremental_bytes": 365318,
+      "median_incremental_overhead_percent": 0.2592840276537738,
+      "representative_pair": {
+        "repeat": 1,
+        "direct_measured_udp_payload_bytes": 140831580,
+        "nbsr_measured_udp_payload_bytes": 141196898,
+        "incremental_bytes": 365318,
+        "incremental_overhead_percent": 0.25940062591075097
+      },
+      "direct_bytes_per_application_byte": 1.0749428634643554,
+      "nbsr_bytes_per_application_byte": 1.077246841430664,
+      "direct_packets_per_operation": 2.18134375,
+      "nbsr_packets_per_operation": 2.399859375,
+      "packet_count_delta": 13985
+    },
+    {
+      "payload_bytes": 16384,
+      "streams": 8,
+      "operations_per_stream": 1000,
+      "completed_operations": 8000,
+      "valid_pairs": 5,
+      "invalid_pairs": 0,
+      "stability": "difference-within-pair-dispersion",
+      "pair_incremental_bytes": [
+        -6536,
+        -22806,
+        34379,
+        17787,
+        -89265
+      ],
+      "pair_incremental_overhead_percent": [
+        -0.0024206778120831,
+        -0.008445564301566238,
+        0.012734792622501526,
+        0.006588269897138095,
+        -0.033054453209691276
+      ],
+      "median_direct_measured_udp_payload_bytes": 270007019,
+      "median_nbsr_measured_udp_payload_bytes": 269997619,
+      "median_direct_packets": 214303,
+      "median_nbsr_packets": 214027,
+      "median_direct_derived_ipv4_udp_bytes": 276007503,
+      "median_nbsr_derived_ipv4_udp_bytes": 275990375,
+      "median_direct_setup_udp_payload_bytes": 6754,
+      "median_nbsr_setup_udp_payload_bytes": 19547,
+      "median_setup_incremental_bytes": 12793,
+      "median_setup_incremental_overhead_percent": 189.41368078175896,
+      "median_direct_setup_packets": 9,
+      "median_nbsr_setup_packets": 49,
+      "median_incremental_bytes": -6536,
+      "median_incremental_overhead_percent": -0.0024206778120831,
+      "representative_pair": {
+        "repeat": 1,
+        "direct_measured_udp_payload_bytes": 270007019,
+        "nbsr_measured_udp_payload_bytes": 270000483,
+        "incremental_bytes": -6536,
+        "incremental_overhead_percent": -0.0024206778120831
+      },
+      "direct_bytes_per_application_byte": 1.0299950370788573,
+      "nbsr_bytes_per_application_byte": 1.0299591789245606,
+      "direct_packets_per_operation": 26.787875,
+      "nbsr_packets_per_operation": 26.753375,
+      "packet_count_delta": -276
+    }
+  ],
+  "invalid_pairs": []
+}

@@ -1,0 +1,19 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+_ test_linux_capture_has_bounded_observer_buffer_without_changing_filter_or_workload _
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1045/test_linux_capture_has_bounded0')
+
+    def test_linux_capture_has_bounded_observer_buffer_without_changing_filter_or_workload(tmp_path):
+        from scripts.performance.linux_b1_capture import LinuxPacketObserver
+        observer = LinuxPacketObserver(Path('/usr/bin/dumpcap'), Path('/usr/bin/tshark'), 'lo')
+        observer.probe = dict(source_port=4000, destination_port=4001)
+        command = observer.capture_command(5000, tmp_path / 'capture.pcapng')
+>       assert command[command.index('-B') + 1] == '64'
+                       ^^^^^^^^^^^^^^^^^^^
+E       ValueError: list.index(x): x not in list
+
+tests\performance\test_linux_b1_capture.py:74: ValueError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_linux_b1_capture.py::test_linux_capture_has_bounded_observer_buffer_without_changing_filter_or_workload
+1 failed, 12 deselected in 0.94s

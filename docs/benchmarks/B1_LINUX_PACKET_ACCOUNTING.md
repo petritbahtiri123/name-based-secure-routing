@@ -55,6 +55,12 @@ instead of Dumpcap's 2 MiB default, symmetrically for both paths, without changi
 the workload or any timeout. Zero-loss validation still applies to every new cell;
 requesting a larger buffer is not evidence that capture loss has been fixed.
 
+The subsequent formal cohort at 6b3d37e8 completed 20/20 captures with zero
+reported loss and no workload errors/timeouts. Both exact release builds have
+identical binary hashes. This validates the observer correction for the tested
+workloads only. See `evidence/performance/v2/b1-linux-packets-6b3d37e8/summary.md`
+for paired deltas, CVs, the retained invalid predecessor and raw checksum paths.
+
 Capture is bounded to two GiB per cell and requires two GiB free before the next
 cell. Raw pcapng, layer exports, drop statistics, markers, workload commands,
 client stdout/stderr, ownership, release hashes and recursive checksums are

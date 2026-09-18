@@ -1,0 +1,12 @@
+F.                                                                       [100%]
+================================== FAILURES ===================================
+_ test_packet_pairs_preserve_negative_deltas_and_refuse_missing_or_invalid_runs _
+
+    def test_packet_pairs_preserve_negative_deltas_and_refuse_missing_or_invalid_runs():
+>       from scripts.performance.linux_b1_capture import analyze_packet_pairs
+E       ImportError: cannot import name 'analyze_packet_pairs' from 'scripts.performance.linux_b1_capture' (C:\Users\bajra\OneDrive\Documents\NBSR\scripts\performance\linux_b1_capture.py)
+
+tests\performance\test_linux_b1_capture.py:89: ImportError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_linux_b1_capture.py::test_packet_pairs_preserve_negative_deltas_and_refuse_missing_or_invalid_runs
+1 failed, 1 passed, 10 deselected in 0.88s

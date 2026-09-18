@@ -1,0 +1,65 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+_______ test_terminal_probe_is_required_and_excluded_from_packet_totals _______
+
+    def test_terminal_probe_is_required_and_excluded_from_packet_totals():
+        from scripts.analyze_b1_v2_capture import account_packets
+        def packet(n, source, dest):
+            return {'frame.number': str(n), 'frame.len': '74', 'frame.cap_len': '74',
+                'ip.len': '60', 'ip.hdr_len': '20', 'udp.length': '40',
+                'ip.src': '127.0.0.1', 'ip.dst': '127.0.0.1', 'ip.flags.mf': '0',
+                'ip.frag_offset': '0', 'udp.srcport': str(source), 'udp.dstport': str(dest)}
+        probe = dict(source_port=4000, destination_port=4001, token_hex='ab' * 32,
+            terminal_token_hex='cd' * 32, observed_frame_numbers=[1], terminal_observed_frame_numbers=[3])
+        rows = [packet(1, 4000, 4001), packet(2, 5000, 5001), packet(3, 4000, 4001)]
+>       result = account_packets(rows, server_port=5001, captured_packets=3,
+            readiness_probe=probe, probe_payloads={1: 'ab' * 32, 3: 'cd' * 32})
+
+tests\performance\test_linux_b1_capture.py:79: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+packets = [{'frame.cap_len': '74', 'frame.len': '74', 'frame.number': '1', 'ip.dst': '127.0.0.1', ...}, {'frame.cap_len': '74', ...p.dst': '127.0.0.1', ...}, {'frame.cap_len': '74', 'frame.len': '74', 'frame.number': '3', 'ip.dst': '127.0.0.1', ...}]
+
+    def account_packets(packets, *, server_port, captured_packets, readiness_probe=None, probe_payloads=None):
+        if not packets or len(packets) != captured_packets:
+            raise ValueError("packet inventory does not cover the entire capture")
+        totals = {"captured_frame_bytes": 0, "ip_bytes": 0, "udp_bytes": 0, "udp_payload_bytes": 0}
+        flows = set()
+        probe_frames = set()
+        probe_bytes = 0
+        if readiness_probe is not None:
+            frame_numbers = [int(p["frame.number"]) for p in packets]
+            if frame_numbers != list(range(1, captured_packets + 1)):
+                raise ValueError("packet inventory frame numbers are incomplete or duplicated")
+            probe_ports = (readiness_probe["source_port"], readiness_probe["destination_port"])
+            if server_port in probe_ports or probe_ports[0] == probe_ports[1]:
+                raise ValueError("readiness probe must use separate ports")
+            token = bytes.fromhex(readiness_probe["token_hex"])
+            if len(token) != 32:
+                raise ValueError("readiness probe token must have 32 bytes")
+            probe_payloads = probe_payloads or {}
+        directions = {"client_to_server": 0, "server_to_client": 0}
+        for packet in packets:
+            if packet["ip.src"] != "127.0.0.1" or packet["ip.dst"] != "127.0.0.1":
+                raise ValueError("unexpected non-loopback IPv4 flow")
+            frame, captured, ip, header, udp = (int(packet[key]) for key in
+                                               ("frame.len", "frame.cap_len", "ip.len", "ip.hdr_len", "udp.length"))
+            fragment_flag = packet["ip.flags.mf"]
+            if fragment_flag not in {"0", "1", "False", "True"}:
+                raise ValueError("unknown fragmentation flag")
+            if fragment_flag in {"1", "True"} or int(packet["ip.frag_offset"]):
+                raise ValueError("fragmented traffic requires separate reassembly accounting")
+            if frame != captured or frame < ip or not 20 <= header <= 60 or header % 4 or udp < 8 or ip != header + udp:
+                raise ValueError("truncated packet or inconsistent layer lengths")
+            source, destination = int(packet["udp.srcport"]), int(packet["udp.dstport"])
+            if readiness_probe is not None and (source, destination) == probe_ports:
+                number = int(packet["frame.number"])
+                payload = bytes.fromhex(probe_payloads.get(number, "").replace(":", ""))
+                if payload != token or udp - 8 != len(token):
+>                   raise ValueError("readiness probe payload mismatch or missing evidence")
+E                   ValueError: readiness probe payload mismatch or missing evidence
+
+scripts\analyze_b1_v2_capture.py:132: ValueError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_linux_b1_capture.py::test_terminal_probe_is_required_and_excluded_from_packet_totals
+1 failed, 9 deselected in 0.75s

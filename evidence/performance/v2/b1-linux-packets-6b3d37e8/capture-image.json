@@ -1,0 +1,70 @@
+[
+    {
+        "Architecture": "amd64",
+        "Config": {
+            "Cmd": [
+                "-c",
+                "sleep 3600"
+            ],
+            "Entrypoint": [
+                "sh"
+            ],
+            "Env": [
+                "DEBIAN_FRONTEND=noninteractive",
+                "PATH=/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                "PYTHON_VERSION=3.14.6",
+                "PYTHON_SHA256=143b1dddefaec3bd2e21e3b839b34a2b7fb9842272883c576420d605e9f30c63",
+                "PYTHONDONTWRITEBYTECODE=1",
+                "PYTHONPATH=/src",
+                "GIT_CONFIG_COUNT=1",
+                "GIT_CONFIG_KEY_0=safe.directory",
+                "GIT_CONFIG_VALUE_0=/src"
+            ],
+            "Labels": {
+                "desktop.docker.io/mounts/0/Source": "C:\\NBSR-build\\linux-b1-port-16f800f3",
+                "desktop.docker.io/mounts/0/SourceKind": "hostFile",
+                "desktop.docker.io/mounts/0/Target": "/evidence",
+                "desktop.docker.io/ports.scheme": "v2"
+            },
+            "User": "0",
+            "WorkingDir": "/src"
+        },
+        "Created": "2026-09-18T18:13:16.640305433Z",
+        "Descriptor": {
+            "digest": "sha256:471d52f184ea70769d834cbdc56e9035e85a8bec3dcb2a4c762d2187b74558b4",
+            "mediaType": "application/vnd.oci.image.manifest.v1+json",
+            "size": 3136
+        },
+        "Id": "sha256:471d52f184ea70769d834cbdc56e9035e85a8bec3dcb2a4c762d2187b74558b4",
+        "Metadata": {
+            "LastTagTime": "2026-09-18T18:13:18.06297803Z"
+        },
+        "Os": "linux",
+        "Parent": "sha256:dd08db4a391b16a9d303a251d2693808baf470f2fc4870d8e3c54b7523deed71",
+        "RepoDigests": [
+            "nbsr-linux-capture@sha256:471d52f184ea70769d834cbdc56e9035e85a8bec3dcb2a4c762d2187b74558b4"
+        ],
+        "RepoTags": [
+            "nbsr-linux-capture:4.0.17-16f800f3"
+        ],
+        "RootFS": {
+            "Layers": [
+                "sha256:66462cc862fe2053b9863fefa3866e07bb5dfb06f6b3ce3177cc096e4021aabe",
+                "sha256:97c8a655c2dfbb1952cd052cbe11b7e6e00af00f160154b47b0bad29e019b067",
+                "sha256:3fda3219c8f4a902e577efcdb924b514318c606d47db4a53640511b27925da18",
+                "sha256:594ec838d0ae6e04f1fecf3283c6d40f24e0a03b5741d12090cbca47bf416cb5",
+                "sha256:88f63f9eab7a3fd0256b0bfeb413ab593d25da5624edf8a031d59bcbe3a0f560",
+                "sha256:0d663a0fb989123a1f4049f998c25562f8c8f5ec861a8c39d840a58d5703a7e7",
+                "sha256:99e587745de5d9f6b307d3383f63e363f96f9e1893689766e9a892c4f6bf0346",
+                "sha256:05d5b1e448d291d064c96819b9e6926f0a5ea045fcd461856f2502d2d8cf1a66",
+                "sha256:a5dea4be0c751617a7a0d25975a5bd8eb63332048abdaf96485e8659857c7304",
+                "sha256:277c0592fe9361f6c9612b44411e9f51a95b8a27ff1cda79e220cfe9e476d958",
+                "sha256:8bf361b65dfd38fee652a17de863a462c8d78f946aa925a2dcaa346f05566a61",
+                "sha256:5f70bf18a086007016e948b04aed3b82103a36bea41755b6cddfaf10ace3c6ef",
+                "sha256:d5c06cce202c32ff149b0e596c3c07929931a9bd8cac88769c50f684dd70010c"
+            ],
+            "Type": "layers"
+        },
+        "Size": 954462032
+    }
+]

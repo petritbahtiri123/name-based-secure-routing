@@ -1,0 +1,26 @@
+[
+  {
+    "root": "C:\\NBSR-build\\linux-b1-port-16f800f3",
+    "index_sha256": "936c28fb80c9904bbaa360a3557909ce900cf20e1cfe1173c32e38439107fc53"
+  },
+  {
+    "root": "C:\\NBSR-build\\b1-linux-eb4b0608",
+    "index_sha256": "05b21055e108595d3431de65ba267e30f0cfa2bf7a487789d037e75ea4381721"
+  },
+  {
+    "root": "C:\\NBSR-build\\b1-linux-formal-eb4b0608",
+    "index_sha256": "1465753f8309b5095185aa63b1bd287efb0549aa632798e865e3a4ea24f538b3"
+  },
+  {
+    "root": "C:\\NBSR-build\\b1-linux-formal-6b3d37e8",
+    "index_sha256": "82caf69dc709958f6fcf47913b9f7d43f16e06f9ebd4d09905801c64dccd3678"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-current-eb4b0608",
+    "index_sha256": "10565a0d18a67df884cff40802a9c8601db56c2adced04b6b6279f4f15738fe4"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-current-6b3d37e8",
+    "index_sha256": "e97acf4435762c23450c5fbab0311f91537c457d4cb09196c1f4f25943538db8"
+  }
+]

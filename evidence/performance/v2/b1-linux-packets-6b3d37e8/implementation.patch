@@ -1,0 +1,846 @@
+diff --git a/docs/benchmarks/B1_LINUX_PACKET_ACCOUNTING.md b/docs/benchmarks/B1_LINUX_PACKET_ACCOUNTING.md
+new file mode 100644
+index 00000000..d598d20f
+--- /dev/null
++++ b/docs/benchmarks/B1_LINUX_PACKET_ACCOUNTING.md
+@@ -0,0 +1,56 @@
++# Linux B1 packet accounting
++
++This harness measures matched Direct/NBSR IPv4/UDP traffic on Linux `lo`.
++It does not measure physical Ethernet, a NIC, WAN capacity or production
++throughput. Capture timing is diagnostic only. Both paths retain the same
++secure-transport workload and single-flow relay semantics as Windows B1.
++
++Requirements: a clean Linux checkout, release binaries built with
++`benchmark-harness`, an exact-SHA build manifest accepted by the Linux B5
++drivers, and `dumpcap`, `tshark`, `capinfos` on PATH. The caller must already
++have capture permission. The driver does not elevate or change system policy.
++Do not inherit `NBSR_*` experiment environment variables.
++
++```sh
++python3 -B -m scripts.performance.linux_b1_capture \
++  --binaries /absolute/build/binaries \
++  --build-manifest /absolute/build/build-manifest.json \
++  --output /absolute/evidence/b1-linux --operations 1000
++```
++
++The formal cohort runs five counterbalanced pairs for each shape: 1 KiB / 64
++streams and 16 KiB / 8 streams, fixed operations, no warmup. A mechanics-only
++run uses `--smoke --operations 10` (one pair per payload, one stream). It cannot
++support a repeatable-overhead claim. Output must be new and outside the checkout.
++
++Capture covers the server-facing relay leg, including connection setup, useful
++operations, matched untimed validation exchanges and teardown. Established-only
++packet phase accounting is NOT_PROVEN. The separate relay summary reports its
++existing setup/established UDP payload counters; these are different denominators.
++
++The Linux adapter binds the authorized client's PID/start-time, UDP endpoint,
++socket inode and file descriptor before accepting its first datagram. Ambiguous
++or missing ownership fails closed. This is benchmark isolation, not a new
++production authorization mechanism.
++
++Capture must observe an exact random readiness marker before the workload and
++a distinct exact terminal marker after it. Both use separate owned loopback
++ports. Markers are validated and excluded from workload totals. The terminal
++marker prevents stopping dumpcap while the final workload packets are still
++buffered. Missing markers, nonzero drops, truncated/fragmented packets,
++unexpected interface/encapsulation, multiple flows, or incomplete inventory
++invalidate the cell. Existing Windows NULL/Loopback validation remains the
++default; Linux explicitly requires untagged Ethernet encapsulation on `lo`.
++
++`packet-summary.json` retains every paired delta, including negative values,
++medians, ranges and per-path CV. Generic IP/UDP/QUIC framing is not called an
++NBSR tax. Synthetic captured Ethernet lengths are kept separate from measured
++IP/UDP lengths; physical Ethernet bytes remain NOT_MEASURED. Five repeats do
++not erase residual variability. Invalid attempts are retained without replacement.
++
++Capture is bounded to two GiB per cell and requires two GiB free before the next
++cell. Raw pcapng, layer exports, drop statistics, markers, workload commands,
++client stdout/stderr, ownership, release hashes and recursive checksums are
++retained. Container execution must be labeled Docker/WSL loopback; it is not
++native/server-class validation. Capture permission inside a disposable container
++does not demonstrate Windows Administrator access.
+diff --git a/scripts/analyze_b1_v2_capture.py b/scripts/analyze_b1_v2_capture.py
+index d41b9bb3..5519593e 100644
+--- a/scripts/analyze_b1_v2_capture.py
++++ b/scripts/analyze_b1_v2_capture.py
+@@ -5,12 +5,26 @@ import re
+ import struct
+ 
+ 
+-def probe_frames_from_pcapng(data, probe):
+-    """Inspect complete live NULL/IPv4 EPBs only; final accounting uses TShark.
++def probe_tokens(probe):
++    tokens = {bytes.fromhex(probe["token_hex"])}
++    if "terminal_token_hex" in probe:
++        terminal = bytes.fromhex(probe["terminal_token_hex"])
++        if terminal in tokens:
++            raise ValueError("terminal probe token must be distinct")
++        tokens.add(terminal)
++    if any(len(token) != 32 for token in tokens):
++        raise ValueError("readiness probe token must have 32 bytes")
++    return tokens
++
++
++def probe_frames_from_pcapng(data, probe, *, expected_linktype=0):
++    """Inspect explicitly declared NULL/Ethernet IPv4 EPBs; final uses TShark.
+ 
+     A trailing block being written is ignored, never interpreted as a packet.
+     This avoids launching an offline reader against a file still held by dumpcap.
+     """
++    if expected_linktype not in (0, 1):
++        raise ValueError("unsupported readiness link type")
+     if len(data) < 28:
+         return {}
+     if data[:4] != b"\x0a\x0d\x0d\x0a":
+@@ -43,12 +57,17 @@ def probe_frames_from_pcapng(data, probe):
+             if len(body) < 20:
+                 raise ValueError("short enhanced packet block")
+             interface, _, _, captured, original = struct.unpack_from(endian + "IIIII", body)
+-            if interface >= len(interfaces) or interfaces[interface] != 0 or captured != original or len(body) < 20 + captured:
++            if interface >= len(interfaces) or interfaces[interface] != expected_linktype or captured != original or len(body) < 20 + captured:
+                 raise ValueError("unexpected readiness encapsulation or truncated packet")
+             frame = body[20:20 + captured]
+-            if len(frame) < 32 or struct.unpack_from(endian + "I", frame)[0] != 2:
+-                raise ValueError("readiness requires NULL IPv4 packet")
+-            ip = frame[4:]
++            if expected_linktype == 0:
++                if len(frame) < 32 or struct.unpack_from(endian + "I", frame)[0] != 2:
++                    raise ValueError("readiness requires NULL IPv4 packet")
++                ip = frame[4:]
++            else:
++                if len(frame) < 42 or frame[12:14] != b"\x08\x00":
++                    raise ValueError("readiness requires untagged Ethernet IPv4 packet")
++                ip = frame[14:]
+             header = (ip[0] & 15) * 4
+             if ip[0] >> 4 != 4 or header < 20 or len(ip) < header + 8 or ip[9] != 17:
+                 raise ValueError("invalid readiness IPv4/UDP header")
+@@ -59,7 +78,7 @@ def probe_frames_from_pcapng(data, probe):
+                 if int.from_bytes(ip[2:4], "big") != header + udp_length or len(ip) != header + udp_length:
+                     raise ValueError("invalid readiness probe lengths")
+                 payload = ip[header + 8:]
+-                if len(payload) != 32 or payload.hex() != probe["token_hex"]:
++                if payload not in probe_tokens(probe):
+                     raise ValueError("readiness probe token mismatch")
+                 payloads[number] = payload.hex()
+         offset += length
+@@ -100,9 +119,7 @@ def account_packets(packets, *, server_port, captured_packets, readiness_probe=N
+         probe_ports = (readiness_probe["source_port"], readiness_probe["destination_port"])
+         if server_port in probe_ports or probe_ports[0] == probe_ports[1]:
+             raise ValueError("readiness probe must use separate ports")
+-        token = bytes.fromhex(readiness_probe["token_hex"])
+-        if len(token) != 32:
+-            raise ValueError("readiness probe token must have 32 bytes")
++        tokens = probe_tokens(readiness_probe)
+         probe_payloads = probe_payloads or {}
+     directions = {"client_to_server": 0, "server_to_client": 0}
+     for packet in packets:
+@@ -121,7 +138,7 @@ def account_packets(packets, *, server_port, captured_packets, readiness_probe=N
+         if readiness_probe is not None and (source, destination) == probe_ports:
+             number = int(packet["frame.number"])
+             payload = bytes.fromhex(probe_payloads.get(number, "").replace(":", ""))
+-            if payload != token or udp - 8 != len(token):
++            if payload not in tokens or udp - 8 != len(payload):
+                 raise ValueError("readiness probe payload mismatch or missing evidence")
+             probe_frames.add(number)
+             probe_bytes += frame
+@@ -141,6 +158,14 @@ def account_packets(packets, *, server_port, captured_packets, readiness_probe=N
+         observed = set(readiness_probe.get("observed_frame_numbers", []))
+         if not observed or not observed <= probe_frames or probe_frames != set(probe_payloads):
+             raise ValueError("readiness probe inventory does not reconcile")
++        if any(bytes.fromhex(probe_payloads[n].replace(":", "")) != bytes.fromhex(readiness_probe["token_hex"]) for n in observed):
++            raise ValueError("initial readiness inventory contains terminal marker")
++        if "terminal_token_hex" in readiness_probe:
++            terminal = set(readiness_probe.get("terminal_observed_frame_numbers", []))
++            if not terminal or not terminal <= probe_frames or any(
++                    bytes.fromhex(probe_payloads[n].replace(":", "")) != bytes.fromhex(readiness_probe["terminal_token_hex"])
++                    for n in terminal):
++                raise ValueError("terminal probe inventory does not reconcile")
+     return {"schema": "nbsr-b1-v2-loopback-packet-accounting-v1", "packet_count": len(packets) - len(probe_frames),
+             "capture_inventory_packets": len(packets), "readiness_probe_packets": len(probe_frames),
+             "readiness_probe_frame_bytes": probe_bytes,
+diff --git a/scripts/performance/external_packet_capture.py b/scripts/performance/external_packet_capture.py
+index e345c92b..47166c6c 100644
+--- a/scripts/performance/external_packet_capture.py
++++ b/scripts/performance/external_packet_capture.py
+@@ -25,31 +25,53 @@ def flow_table(packets,server_port):
+         else:
+             flow['inbound_packets']+=1
+             flow['first_reply_timestamp'] = flow['first_reply_timestamp'] or stamp
+-        if str(packet.get('packet_type',''))=='0': flow['initial_packets']+=1
+-        if str(packet.get('packet_type',''))=='3': flow['retry_packets']+=1
++        if str(packet.get('packet_type',''))=='0':
++            flow['initial_packets']+=1
++        if str(packet.get('packet_type',''))=='3':
++            flow['retry_packets']+=1
+     return [grouped[key] for key in sorted(grouped)]
+ 
+ 
+ class ExternalCapture:
+     def __init__(self,dumpcap,tshark,interface=r'\Device\NPF_Loopback'):
+-        self.dumpcap=Path(dumpcap); self.tshark=Path(tshark); self.interface=interface
++        self.dumpcap=Path(dumpcap)
++        self.tshark=Path(tshark)
++        self.interface=interface
+         self.report={'enabled':True,'valid':False,'status':'not_started'}
+ 
+     def capture_filter(self, server_port):
+         return f'udp port {server_port}'
+ 
++    def process_options(self):
++        return dict(creationflags=subprocess.CREATE_NEW_PROCESS_GROUP)
++
++    def stop_signal(self):
++        return signal.CTRL_BREAK_EVENT
++
++    def capture_command(self, server_port, pcap):
++        return [str(self.dumpcap), '-q', '-i', self.interface, '-f',
++                self.capture_filter(server_port), '-w', str(pcap)]
++
+     def wait_capture_ready(self, process, pcap, cell_dir):
+         time.sleep(.35)
+         if process.poll() is not None:
+             raise RuntimeError(f'dumpcap exited before workload: {process.returncode}')
+ 
++    def finish_capture(self, process, pcap, cell_dir):
++        pass
++
+     @contextlib.contextmanager
+     def capture(self,endpoint,cell_dir):
+         server_port=int(endpoint.rsplit(':',1)[1])
+-        pcap=Path(cell_dir)/'loopback.pcapng'; stderr_path=Path(cell_dir)/'dumpcap.stderr'
++        pcap=Path(cell_dir)/'loopback.pcapng'
++        stderr_path=Path(cell_dir)/'dumpcap.stderr'
+         stderr=stderr_path.open('wb')
+-        process=subprocess.Popen([str(self.dumpcap),'-q','-i',self.interface,'-f',self.capture_filter(server_port),'-w',str(pcap)],
+-            stdout=subprocess.DEVNULL,stderr=stderr,creationflags=subprocess.CREATE_NEW_PROCESS_GROUP)
++        try:
++            process=subprocess.Popen(self.capture_command(server_port, pcap),
++                stdout=subprocess.DEVNULL,stderr=stderr,**self.process_options())
++        except BaseException:
++            stderr.close()
++            raise
+         self.report.update(status='capturing',server_port=server_port,pcap=str(pcap))
+         ready = False
+         try:
+@@ -57,17 +79,26 @@ class ExternalCapture:
+             ready = True
+             yield self
+         finally:
++            finish_error = None
++            if ready:
++                try:
++                    self.finish_capture(process, pcap, cell_dir)
++                except BaseException as error:
++                    finish_error = error
+             graceful=True
+             try:
+-                process.send_signal(signal.CTRL_BREAK_EVENT)
++                process.send_signal(self.stop_signal())
+                 process.wait(timeout=10)
+             except (OSError,subprocess.TimeoutExpired):
+-                graceful=False; process.terminate(); process.wait(timeout=5)
++                graceful=False
++                process.terminate()
++                process.wait(timeout=5)
+             stderr.close()
+             fields=['frame.time_epoch','ip.src','udp.srcport','ip.dst','udp.dstport','frame.len','quic.long.packet_type','quic.dcid']
+             packet_path=Path(cell_dir)/'udp-packets.tsv'
+             command=[str(self.tshark),'-r',str(pcap),'-Y',f'udp.port=={server_port}','-T','fields','-E','separator=/t','-E','occurrence=f']
+-            for field in fields: command.extend(['-e',field])
++            for field in fields:
++                command.extend(['-e',field])
+             result=subprocess.run(command,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
+             packet_path.write_text(result.stdout,encoding='utf-8',newline='\n')
+             packets=[]
+@@ -79,9 +110,12 @@ class ExternalCapture:
+             flows=flow_table(packets,server_port)
+             (Path(cell_dir)/'udp-flows.json').write_text(json.dumps(flows,indent=2,sort_keys=True)+'\n',encoding='utf-8',newline='\n')
+             reply_delays=[f['first_reply_timestamp']-f['first_outbound_timestamp'] for f in flows if f['first_reply_timestamp'] is not None and f['first_outbound_timestamp'] is not None]
+-            self.report.update(valid=ready and graceful and process.returncode==0 and result.returncode==0 and pcap.is_file(),
++            self.report.update(valid=ready and finish_error is None and graceful and process.returncode==0 and result.returncode==0 and pcap.is_file(),
+                 status='complete',dumpcap_returncode=process.returncode,tshark_returncode=result.returncode,
+                 packet_count=len(packets),flow_count=len(flows),flows_without_reply=sum(f['first_reply_timestamp'] is None for f in flows),
+                 repeated_initial_flows=sum(f['initial_packets']>1 for f in flows),retry_packet_count=sum(f['retry_packets'] for f in flows),
+                 first_reply_delay_median_seconds=statistics.median(reply_delays) if reply_delays else None,
+                 first_reply_delay_p95_seconds=sorted(reply_delays)[max(0,int(len(reply_delays)*.95)-1)] if reply_delays else None)
++            if finish_error is not None:
++                self.report['finish_error'] = str(finish_error)
++                raise finish_error
+diff --git a/scripts/performance/linux_b1_capture.py b/scripts/performance/linux_b1_capture.py
+new file mode 100644
+index 00000000..2a094944
+--- /dev/null
++++ b/scripts/performance/linux_b1_capture.py
+@@ -0,0 +1,309 @@
++"""Linux loopback packet accounting adapters; capture timing is diagnostic only."""
++
++import os
++import mmap
++import argparse
++import json
++from pathlib import Path
++import platform
++import re
++import secrets
++import shutil
++import signal
++import socket
++import statistics
++import subprocess
++import sys
++import tempfile
++import time
++
++from scripts import run_b1_wire_overhead as b1
++from scripts.analyze_b1_v2_capture import probe_frames_from_pcapng
++from scripts.run_b1_wire_overhead import _write_json
++from scripts.performance.authority import write_loopback_authority
++from scripts.performance.linux_b5_ceiling import NAMES, require
++from scripts.performance.linux_b5_placement import seal_output
++from scripts.performance.linux_b5_reference import git_state
++from scripts.performance.linux_loopback import ROOT, digest, parse_proc_stat
++from scripts.performance.wire_overhead import UdpFlowCounter, analyze_pairs
++from scripts.run_b1_v2_capture import PacketObserver
++
++
++def pid_start(pid, proc_root=Path('/proc')):
++    text = (proc_root / str(pid) / 'stat').read_text()
++    if int(text.split(' ', 1)[0]) != pid:
++        raise ValueError('PID identity mismatch')
++    return parse_proc_stat(text, 1, 1)['start_ticks']
++
++
++def udp_owned_by_pid(peer, pid, start_ticks, *, proc_root=Path('/proc')):
++    """Require a unique IPv4 endpoint inode in the authorized live PID's FDs."""
++    if peer[0] != '127.0.0.1' or type(pid) is not int or pid <= 0:
++        return None
++    try:
++        if pid_start(pid, proc_root) != start_ticks:
++            return None
++        base = proc_root / str(pid)
++        lines = (base / 'net/udp').read_text().splitlines()
++        if len(lines) > 4096:
++            return None
++        matches = []
++        for line in lines[1:]:
++            fields = line.split()
++            host, port = fields[1].split(':')
++            address = socket.inet_ntoa(int(host, 16).to_bytes(4, sys.byteorder))
++            if address in ('0.0.0.0', peer[0]) and int(port, 16) == peer[1]:
++                matches.append(int(fields[9]))
++        if len(matches) != 1 or matches[0] <= 0:
++            return None
++        fds = list((base / 'fd').iterdir())
++        if len(fds) > 4096:
++            return None
++        owned = any(os.readlink(fd) == f'socket:[{matches[0]}]' for fd in fds)
++        if owned and pid_start(pid, proc_root) == start_ticks:
++            return matches[0]
++    except (OSError, ValueError, IndexError):
++        pass
++    return None
++
++
++class LinuxUdpFlowCounter(UdpFlowCounter):
++    def __init__(self, server):
++        self.start_ticks = None
++        self.ownership = None
++        super().__init__(server, owner_lookup=self.lookup)
++
++    def authorize_client_process(self, pid):
++        self.start_ticks = pid_start(pid)
++        super().authorize_client_process(pid)
++
++    def lookup(self, peer, pid):
++        inode = udp_owned_by_pid(peer, pid, self.start_ticks)
++        if inode is not None:
++            self.ownership = dict(pid=pid, start_ticks=self.start_ticks, socket_inode=inode,
++                                  local_endpoint=list(peer), scope='first datagram PID/FD/inode binding')
++            return pid
++        return None
++
++    def close(self):
++        super().close()
++        if any(thread.is_alive() for thread in self._threads):
++            raise RuntimeError('packet counter thread failed to join')
++
++
++class LinuxPacketObserver(PacketObserver):
++    readiness_linktype = 1
++    capinfos_name = 'capinfos'
++
++    def process_options(self):
++        return dict(start_new_session=True)
++
++    def stop_signal(self):
++        return signal.SIGINT
++
++    def capture_command(self, server_port, pcap):
++        return [*super().capture_command(server_port, pcap), '-p', '-s', '0', '-a', 'filesize:2097152']
++
++    def finish_capture(self, process, pcap, cell_dir):
++        token = secrets.token_bytes(32).hex()
++        while token == self.probe['token_hex']:
++            token = secrets.token_bytes(32).hex()
++        self.probe.update(terminal_token_hex=token, terminal_status='WAITING')
++        deadline = time.monotonic() + 5
++        try:
++            while time.monotonic() < deadline:
++                if process.poll() is not None:
++                    raise RuntimeError('dumpcap exited before terminal marker')
++                self.probe_sender.sendto(bytes.fromhex(token), ('127.0.0.1', self.probe['destination_port']))
++                self.probe['sent_packets'] += 1
++                with pcap.open('rb') as stream:
++                    size = os.fstat(stream.fileno()).st_size
++                    if size > 2 * 1024**3:
++                        raise ValueError('capture exceeds two GiB bound')
++                    if size:
++                        with mmap.mmap(stream.fileno(), size, access=mmap.ACCESS_READ) as data:
++                            payloads = probe_frames_from_pcapng(data, self.probe, expected_linktype=1)
++                        terminal = sorted(n for n, payload in payloads.items() if payload == token)
++                        if terminal:
++                            self.probe.update(terminal_status='PASS', terminal_observed_frame_numbers=terminal)
++                            return
++                time.sleep(min(.05, max(0, deadline - time.monotonic())))
++            raise TimeoutError('capture terminal marker not observed within five seconds')
++        except BaseException:
++            self.probe['terminal_status'] = 'FAIL'
++            raise
++        finally:
++            self.report['readiness'] = dict(self.probe)
++            _write_json(Path(cell_dir) / 'capture-readiness.json', self.probe)
++
++    def validate_capture_metadata(self, metadata):
++        patterns = (r'^\s*Number of interfaces in file:\s*1\s*$',
++                    r'^\s*Name = lo\s*$', r'^\s*Encapsulation = Ethernet(?: \(1 - ether\))?\s*$')
++        if self.interface != 'lo' or any(len(re.findall(p, metadata, re.MULTILINE)) != 1 for p in patterns):
++            raise ValueError('Linux packet accounting requires exactly lo / Ethernet capture metadata')
++
++
++class LinuxPacketBackend:
++    def __init__(self, directory):
++        self.directory = directory
++        self.flow_counter = None
++
++    def counter(self, server):
++        self.flow_counter = LinuxUdpFlowCounter(server)
++        return self.flow_counter
++
++    def measured_client(self, argv, *, cwd, server, timeout, client_started):
++        client = None
++        with (self.directory / 'client.stdout').open('w+') as output, \
++                (self.directory / 'client.stderr').open('w+') as errors:
++            try:
++                client = subprocess.Popen(argv, cwd=cwd, stdout=output, stderr=errors, text=True)
++                client_started(client.pid)
++                client.wait(timeout=timeout)
++                output.seek(0)
++                stdout = output.read()
++                if client.returncode:
++                    errors.seek(0)
++                    raise RuntimeError(f'packet workload failed: {errors.read()[-65536:]}')
++                return stdout, []
++            finally:
++                if client is not None and client.poll() is None:
++                    client.kill()
++                    client.wait(timeout=5)
++
++    @staticmethod
++    def summarize_resources(samples, completed, measured_seconds):
++        return dict(status='NOT_MEASURED', scope='packet accounting only; capture timing is not performance evidence')
++
++
++def analyze_packet_pairs(rows, *, repeats):
++    require(repeats in (1, 5), 'one smoke pair or five formal pairs required')
++    grouped = {}
++    for row in rows:
++        shape = (row['payload_bytes'], row['streams'], row['operations_per_stream'])
++        expected = shape[1] * shape[2]
++        require(row.get('completed_operations') == expected
++                and row.get('application_bytes') == expected * shape[0] * 2
++                and not any(row.get(k, 0) for k in ('errors', 'timeouts', 'missing', 'duplicates', 'corrupt', 'wrong_request'))
++                and row['packet_observer'].get('valid') is True, 'invalid packet workload')
++        key = (row['repeat'], row['path'])
++        group = grouped.setdefault(shape, {})
++        require(key not in group, 'duplicate packet pair')
++        group[key] = row
++    require(bool(grouped), 'no packet pairs')
++    cells = []
++    for shape, group in sorted(grouped.items()):
++        require(set(group) == {(r, p) for r in range(1, repeats + 1) for p in ('direct', 'nbsr')}, 'incomplete packet pairs')
++        metrics = {}
++        application = shape[0] * shape[1] * shape[2] * 2
++        for field in ('packet_count', 'ip_bytes', 'udp_bytes', 'udp_payload_bytes', 'captured_frame_bytes'):
++            values = {p: [group[r, p]['packet_observer']['packet_accounting'][field]
++                          for r in range(1, repeats + 1)] for p in ('direct', 'nbsr')}
++            require(all(type(v) is int and v > 0 for a in values.values() for v in a), 'invalid packet totals')
++            deltas = [n - d for n, d in zip(values['nbsr'], values['direct'], strict=True)]
++            metrics[field] = dict(direct_median=statistics.median(values['direct']),
++                nbsr_median=statistics.median(values['nbsr']), paired_deltas=deltas,
++                delta_median=statistics.median(deltas), delta_min=min(deltas), delta_max=max(deltas),
++                delta_per_application_byte=statistics.median(deltas) / application if field != 'packet_count' else None,
++                cv={p: statistics.stdev(v) / statistics.mean(v) if len(v) > 1 else None for p, v in values.items()})
++        cells.append(dict(payload_bytes=shape[0], streams=shape[1], operations_per_stream=shape[2],
++                          application_bytes=application, repeats=repeats, metrics=metrics))
++    return dict(classification='SMOKE_ONLY' if repeats == 1 else 'MEASURED_LOOPBACK_PACKET_ACCOUNTING',
++        cells=cells, performance_capacity='NOT_PROVEN', physical_ethernet_bytes='NOT_MEASURED',
++        phase_scope='whole capture including setup, fixed operations, untimed validation and teardown',
++        interpretation='paired NBSR minus equivalent Direct secure transport; generic framing is not NBSR overhead')
++
++
++def execute(args):
++    require(platform.system() == 'Linux', 'Linux required')
++    require(not any(k.startswith('NBSR_') for k in os.environ), 'remove inherited NBSR experiment settings')
++    require(1 <= args.operations <= 1000, 'fixed operations must be 1..1000 per stream')
++    sha, dirty = git_state()
++    require(not dirty, 'clean checkout required')
++    output = args.output.resolve()
++    require(not output.is_relative_to(ROOT), 'output must be outside checkout')
++    build = json.loads(args.build_manifest.read_bytes())
++    hashes = {name: digest(args.binaries / name) for name in NAMES.values()}
++    require(build.get('source_sha') == sha and build.get('build_profile') == 'release'
++            and build.get('build_commands') and build.get('toolchains')
++            and build.get('binary_sha256') == hashes, 'exact current release manifest required')
++    tools = {name: Path(shutil.which(name) or '') for name in ('dumpcap', 'tshark', 'capinfos')}
++    require(all(p.is_file() for p in tools.values()), 'dumpcap, tshark and capinfos required')
++    require(tools['capinfos'].parent == tools['tshark'].parent, 'capture tools must share directory')
++    output.mkdir(parents=True, exist_ok=False)
++    records = []
++    try:
++        raw = output / 'raw'
++        raw.mkdir()
++        retained = output / 'binaries'
++        retained.mkdir()
++        binaries = {}
++        for role, name in NAMES.items():
++            target = retained / name
++            shutil.copy2(args.binaries / name, target)
++            require(os.access(target, os.X_OK), 'executable binary required')
++            binaries[role] = target
++        _write_json(output / 'build-manifest.json', build)
++        _write_json(output / 'environment.json', dict(repository_sha=sha, platform=platform.platform(),
++            uid=os.getuid(), binary_sha256=hashes, capture_tools={name: dict(path=str(p), sha256=digest(p),
++                version=subprocess.check_output([str(p), '--version'], text=True)) for name, p in tools.items()},
++            controller_args={k: str(v) if isinstance(v, Path) else v for k, v in vars(args).items()},
++            scope='Linux lo, captured synthetic Ethernet IPv4/UDP; not physical NIC, WAN or server capacity',
++            performance_timing='DIAGNOSTIC_ONLY', resource_metrics='NOT_MEASURED',
++            capture_readiness='distinct exact initial and terminal markers; validated and excluded'))
++        def unchanged():
++            require(git_state() == (sha, ''), 'source checkout changed')
++            require(all(digest(retained / n) == h and digest(args.binaries / n) == h for n, h in hashes.items()), 'binary changed')
++            require(json.loads(args.build_manifest.read_bytes()) == build, 'build manifest changed')
++        with tempfile.TemporaryDirectory(prefix='nbsr-linux-b1-') as temp:
++            authority = Path(temp) / 'authority'
++            write_loopback_authority(authority)
++            repeats = 1 if args.smoke else 5
++            cells = [dict(payload_bytes=p, streams=1 if args.smoke else s, operations_per_stream=args.operations)
++                     for p, s in ((1024, 64), (16384, 8))]
++            for cell in cells:
++                for repeat in range(1, repeats + 1):
++                    for mode in (('direct', 'nbsr') if repeat % 2 else ('nbsr', 'direct')):
++                        unchanged()
++                        require(shutil.disk_usage(output).free >= 2 * 1024**3, 'insufficient free disk for next bounded capture')
++                        print(f'payload={cell["payload_bytes"]} streams={cell["streams"]} repeat={repeat} path={mode}', flush=True)
++                        directory = raw / f'{mode}-p{cell["payload_bytes"]}-s{cell["streams"]}-r{repeat}'
++                        backend = LinuxPacketBackend(directory)
++                        observer = LinuxPacketObserver(tools['dumpcap'], tools['tshark'], 'lo')
++                        try:
++                            row = b1._run_repeat(path=mode, cell=cell, repeat=repeat, binaries=binaries,
++                                authority=authority, warmup_seconds=0, raw_dir=raw, observer=observer, backend=backend)
++                            require(backend.flow_counter.ownership is not None, 'missing client socket ownership')
++                            row['linux_socket_ownership'] = backend.flow_counter.ownership
++                            unchanged()
++                        except Exception as error:
++                            row = b1.failure_record(path=mode, cell=cell, repeat=repeat, warmup_seconds=0, error=error)
++                            row['packet_observer'] = observer.report
++                            records.append(row)
++                            raise
++                        row['packet_observer'] = observer.report
++                        records.append(row)
++                        _write_json(output / 'records.json', records)
++                        require(not any(row.get(k, 0) for k in ('errors', 'timeouts', 'missing', 'duplicates', 'corrupt', 'wrong_request')),
++                                'invalid workload; retain without replacement')
++        _write_json(output / 'packet-summary.json', analyze_packet_pairs(records, repeats=repeats))
++        _write_json(output / 'relay-summary.json', analyze_pairs(records))
++    except Exception as error:
++        _write_json(output / 'failure.json', dict(classification='INVALID_PARTIAL', error=str(error), replacement=False))
++        raise
++    finally:
++        _write_json(output / 'records.json', records)
++        seal_output(output)
++
++
++def main():
++    parser = argparse.ArgumentParser(description=__doc__)
++    for name in ('binaries', 'build-manifest', 'output'):
++        parser.add_argument('--' + name, type=Path, required=True)
++    parser.add_argument('--operations', type=int, default=1000)
++    parser.add_argument('--smoke', action='store_true')
++    execute(parser.parse_args())
++
++
++if __name__ == '__main__':
++    main()
+diff --git a/scripts/performance/wire_overhead.py b/scripts/performance/wire_overhead.py
+index 5f02c18e..72805338 100644
+--- a/scripts/performance/wire_overhead.py
++++ b/scripts/performance/wire_overhead.py
+@@ -40,7 +40,8 @@ def _udp_owner_pid(peer: tuple[str, int]) -> int | None:
+ class UdpFlowCounter:
+     """Forward and count exactly one loopback UDP client/server flow."""
+ 
+-    def __init__(self, server: tuple[str, int]) -> None:
++    def __init__(self, server: tuple[str, int], *, owner_lookup=None) -> None:
++        self._owner_lookup = owner_lookup or (lambda peer, _pid: _udp_owner_pid(peer))
+         self._server = (str(server[0]), int(server[1]))
+         self._udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+         self._udp.bind(("127.0.0.1", 0))
+@@ -104,7 +105,7 @@ class UdpFlowCounter:
+                         destination = self._client
+                         direction = "server_to_client"
+                 elif self._client is None:
+-                    if self._expected_client_pid is not None and _udp_owner_pid(peer) == self._expected_client_pid:
++                    if self._expected_client_pid is not None and self._owner_lookup(peer, self._expected_client_pid) == self._expected_client_pid:
+                         self._client = peer
+                         destination = self._server
+                         direction = "client_to_server"
+diff --git a/scripts/run_b1_v2_capture.py b/scripts/run_b1_v2_capture.py
+index 0178dda7..c2daffc7 100644
+--- a/scripts/run_b1_v2_capture.py
++++ b/scripts/run_b1_v2_capture.py
+@@ -15,7 +15,7 @@ import tempfile
+ import time
+ 
+ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+-from scripts.analyze_b1_v2_capture import account_packets, capture_drop_counts, probe_frames_from_pcapng
++from scripts.analyze_b1_v2_capture import account_packets, capture_drop_counts, probe_frames_from_pcapng, probe_tokens
+ from scripts.performance.authority import write_loopback_authority
+ from scripts.performance.external_packet_capture import ExternalCapture
+ from scripts import run_b1_wire_overhead as b1
+@@ -26,6 +26,13 @@ FIELDS = ["frame.number", "frame.len", "frame.cap_len", "ip.len", "ip.hdr_len",
+ 
+ 
+ class PacketObserver(ExternalCapture):
++    readiness_linktype = 0
++    capinfos_name = "capinfos.exe"
++
++    def validate_capture_metadata(self, metadata):
++        if "Number of interfaces in file: 1" not in metadata or r"Name = \Device\NPF_Loopback" not in metadata or "Encapsulation = NULL/Loopback" not in metadata:
++            raise ValueError("capture interface or encapsulation differs from declared loopback")
++
+     def capture_filter(self, server_port):
+         return (f"udp port {server_port} or (udp and src host 127.0.0.1 and dst host 127.0.0.1 "
+                 f"and src port {self.probe['source_port']} and dst port {self.probe['destination_port']})")
+@@ -51,7 +58,7 @@ class PacketObserver(ExternalCapture):
+                 raise ValueError("invalid readiness probe export")
+             number = int(row[0])
+             payload = bytes.fromhex(row[1].replace(":", ""))
+-            if number in payloads or payload.hex() != self.probe["token_hex"]:
++            if number in payloads or payload not in probe_tokens(self.probe):
+                 raise ValueError("readiness probe token mismatch or duplicate frame")
+             payloads[number] = payload.hex()
+         return payloads
+@@ -64,7 +71,7 @@ class PacketObserver(ExternalCapture):
+             return {}
+         if len(data) > 1024 * 1024:
+             raise ValueError("readiness capture exceeds bounded preflight inventory")
+-        return probe_frames_from_pcapng(data, self.probe)
++        return probe_frames_from_pcapng(data, self.probe, expected_linktype=self.readiness_linktype)
+ 
+     def wait_capture_ready(self, process, pcap, cell_dir):
+         deadline = time.monotonic() + 5
+@@ -112,11 +119,10 @@ class PacketObserver(ExternalCapture):
+             raise ValueError("capture did not close cleanly")
+         drop = capture_drop_counts((directory / "dumpcap.stderr").read_text())
+         pcap = directory / "loopback.pcapng"
+-        metadata = subprocess.run([str(self.tshark.parent / "capinfos.exe"), "-M", "-I", "-c", "-d", str(pcap)],
++        metadata = subprocess.run([str(self.tshark.parent / self.capinfos_name), "-M", "-I", "-c", "-d", str(pcap)],
+                                   capture_output=True, text=True, check=True).stdout
+         (directory / "capinfos.txt").write_text(metadata, newline="\n")
+-        if "Number of interfaces in file: 1" not in metadata or r"Name = \Device\NPF_Loopback" not in metadata or "Encapsulation = NULL/Loopback" not in metadata:
+-            raise ValueError("capture interface or encapsulation differs from declared loopback")
++        self.validate_capture_metadata(metadata)
+         command = [str(self.tshark), "-r", str(pcap), "-T", "fields", "-E", "separator=/t", "-E", "occurrence=f"]
+         for field in FIELDS:
+             command.extend(["-e", field])
+diff --git a/scripts/run_b1_wire_overhead.py b/scripts/run_b1_wire_overhead.py
+index d5946bcc..8dbee655 100644
+--- a/scripts/run_b1_wire_overhead.py
++++ b/scripts/run_b1_wire_overhead.py
+@@ -72,6 +72,7 @@ def _run_repeat(
+     warmup_seconds: float,
+     raw_dir: Path,
+     observer=None,
++    backend=None,
+ ) -> dict[str, Any]:
+     stem = f"{path}-p{cell['payload_bytes']}-s{cell['streams']}-r{repeat}"
+     ready = raw_dir / f"{stem}.ready.json"
+@@ -109,7 +110,7 @@ def _run_repeat(
+             directory.mkdir(exist_ok=False)
+             observers.enter_context(observer.capture(server_endpoint, directory))
+         host, port = server_endpoint.rsplit(":", 1)
+-        counter = UdpFlowCounter((host, int(port)))
++        counter = (backend.counter if backend else UdpFlowCounter)((host, int(port)))
+         counter.start()
+         relay = f"{counter.relay_endpoint[0]}:{counter.relay_endpoint[1]}"
+         control = f"{counter.control_endpoint[0]}:{counter.control_endpoint[1]}"
+@@ -125,7 +126,7 @@ def _run_repeat(
+             if path == "direct"
+             else [str(binaries["nbsr"]), "--samples", "1", *common]
+         )
+-        stdout, resources = measured_client(
++        stdout, resources = (backend.measured_client if backend else measured_client)(
+             client_argv,
+             cwd=ROOT,
+             server=server,
+@@ -162,7 +163,7 @@ def _run_repeat(
+                 "rejected_datagrams": capture["rejected_datagrams"],
+                 "server_endpoint": capture["server_endpoint"],
+                 "relay_endpoint": capture["relay_endpoint"],
+-                "resources": summarize_resources(resources, completed, measured_seconds),
++                "resources": (backend.summarize_resources if backend else summarize_resources)(resources, completed, measured_seconds),
+                 "client_command": client_argv,
+                 "server_command": server_argv,
+             }
+diff --git a/tests/performance/test_linux_b1_capture.py b/tests/performance/test_linux_b1_capture.py
+new file mode 100644
+index 00000000..0e0be6e1
+--- /dev/null
++++ b/tests/performance/test_linux_b1_capture.py
+@@ -0,0 +1,135 @@
++from pathlib import Path
++import struct
++
++import pytest
++
++
++def test_ethernet_probe_requires_explicit_encapsulation_and_exact_token():
++    from scripts.analyze_b1_v2_capture import probe_frames_from_pcapng
++
++    def block(kind, body):
++        size = 12 + len(body)
++        return struct.pack('<II', kind, size) + body + struct.pack('<I', size)
++
++    probe = dict(source_port=4000, destination_port=4001, token_hex='ab' * 32)
++    header = block(0x0A0D0D0A, struct.pack('<IHHq', 0x1A2B3C4D, 1, 0, -1))
++    interface = block(1, struct.pack('<HHI', 1, 0, 65535))
++    ip = bytes.fromhex('4500003c00000000401100007f0000017f000001')
++    frame = b'\0' * 12 + b'\x08\x00' + ip + struct.pack('!HHHH', 4000, 4001, 40, 0) + bytes.fromhex(probe['token_hex'])
++    packet = block(6, struct.pack('<IIIII', 0, 0, 0, len(frame), len(frame)) + frame + b'\0\0')
++    capture = header + interface + packet
++    assert probe_frames_from_pcapng(capture, probe, expected_linktype=1) == {1: probe['token_hex']}
++    with pytest.raises(ValueError):
++        probe_frames_from_pcapng(capture, probe)  # Windows default stays strict NULL.
++    with pytest.raises(ValueError, match='token'):
++        probe_frames_from_pcapng(capture, probe | {'token_hex': 'cd' * 32}, expected_linktype=1)
++    with pytest.raises(ValueError, match='Ethernet'):
++        probe_frames_from_pcapng(capture.replace(b'\x08\x00' + ip, b'\x81\x00' + ip), probe, expected_linktype=1)
++
++
++def proc_fixture(root, *, start=99, inode=12345, address='0100007F', duplicate=False):
++    base = root / '123'
++    (base / 'fd').mkdir(parents=True)
++    (base / 'net').mkdir()
++    (base / 'fd/3').touch()
++    fields = ['S'] + ['0'] * 49
++    fields[19] = str(start)
++    (base / 'stat').write_text('123 (test peer) ' + ' '.join(fields))
++    row = f' 1: {address}:1388 00000000:0000 07 00000000:00000000 00:00000000 00000000 65532 0 {inode} 2 0 0\n'
++    (base / 'net/udp').write_text('sl local_address rem_address st tx_queue rx_queue tr tm->when retrnsmt uid timeout inode\n' + row * (2 if duplicate else 1))
++
++
++@pytest.mark.parametrize('change,expected', [({}, 12345), ({'start': 100}, None),
++    ({'inode': 54321}, None), ({'address': '0200007F'}, None), ({'duplicate': True}, None),
++    ({'address': '00000000'}, 12345)])
++def test_udp_ownership_requires_pid_identity_and_matching_socket_inode(tmp_path, monkeypatch, change, expected):
++    from scripts.performance.linux_b1_capture import udp_owned_by_pid
++    proc_fixture(tmp_path, **change)
++    monkeypatch.setattr('os.readlink', lambda path: 'socket:[12345]')
++    assert udp_owned_by_pid(('127.0.0.1', 5000), 123, 99, proc_root=tmp_path) == expected
++
++
++def test_missing_process_does_not_authorize_udp(tmp_path):
++    from scripts.performance.linux_b1_capture import udp_owned_by_pid
++    assert udp_owned_by_pid(('127.0.0.1', 5000), 123, 99, proc_root=tmp_path) is None
++
++
++def test_linux_capture_requires_exact_lo_ethernet_metadata():
++    from scripts.performance.linux_b1_capture import LinuxPacketObserver
++    observer = LinuxPacketObserver(Path('/usr/bin/dumpcap'), Path('/usr/bin/tshark'), 'lo')
++    metadata = 'Number of interfaces in file: 1\nName = lo\nEncapsulation = Ethernet\n'
++    observer.validate_capture_metadata(metadata)
++    observer.validate_capture_metadata(metadata.replace('Ethernet', 'Ethernet (1 - ether)'))
++    for invalid in (metadata.replace('Name = lo', 'Name = eth0'), metadata.replace(': 1', ': 2'),
++                    metadata.replace('Ethernet', 'Linux cooked-mode capture v2')):
++        with pytest.raises(ValueError):
++            observer.validate_capture_metadata(invalid)
++
++
++def test_terminal_probe_is_required_and_excluded_from_packet_totals():
++    from scripts.analyze_b1_v2_capture import account_packets
++    def packet(n, source, dest):
++        return {'frame.number': str(n), 'frame.len': '74', 'frame.cap_len': '74',
++            'ip.len': '60', 'ip.hdr_len': '20', 'udp.length': '40',
++            'ip.src': '127.0.0.1', 'ip.dst': '127.0.0.1', 'ip.flags.mf': '0',
++            'ip.frag_offset': '0', 'udp.srcport': str(source), 'udp.dstport': str(dest)}
++    probe = dict(source_port=4000, destination_port=4001, token_hex='ab' * 32,
++        terminal_token_hex='cd' * 32, observed_frame_numbers=[1], terminal_observed_frame_numbers=[3])
++    rows = [packet(1, 4000, 4001), packet(2, 5000, 5001), packet(3, 4000, 4001)]
++    result = account_packets(rows, server_port=5001, captured_packets=3,
++        readiness_probe=probe, probe_payloads={1: 'ab' * 32, 3: 'cd' * 32})
++    assert result['packet_count'] == 1 and result['readiness_probe_packets'] == 2
++    with pytest.raises(ValueError, match='terminal'):
++        account_packets(rows, server_port=5001, captured_packets=3,
++            readiness_probe=probe | {'terminal_observed_frame_numbers': []},
++            probe_payloads={1: 'ab' * 32, 3: 'cd' * 32})
++
++
++def test_packet_pairs_preserve_negative_deltas_and_refuse_missing_or_invalid_runs():
++    from scripts.performance.linux_b1_capture import analyze_packet_pairs
++    rows = []
++    for repeat in range(1, 6):
++        for mode in ('direct', 'nbsr'):
++            total = 1100 if mode == 'direct' else 1000
++            rows.append(dict(path=mode, repeat=repeat, payload_bytes=1024, streams=1,
++                operations_per_stream=1, completed_operations=1, application_bytes=2048,
++                errors=0, timeouts=0, packet_observer=dict(valid=True,
++                    packet_accounting=dict(packet_count=10, ip_bytes=total, udp_bytes=total-200,
++                        udp_payload_bytes=total-280, captured_frame_bytes=total+140))))
++    summary = analyze_packet_pairs(rows, repeats=5)
++    assert summary['cells'][0]['metrics']['ip_bytes']['delta_median'] == -100
++    assert summary['performance_capacity'] == 'NOT_PROVEN'
++    with pytest.raises(ValueError):
++        analyze_packet_pairs(rows[:-1], repeats=5)
++    rows[-1]['errors'] = 1
++    with pytest.raises(ValueError):
++        analyze_packet_pairs(rows, repeats=5)
++
++
++def test_terminal_marker_failure_still_stops_capture(monkeypatch, tmp_path):
++    from types import SimpleNamespace
++    from scripts.performance.external_packet_capture import ExternalCapture
++    events = []
++    class Process:
++        returncode = 0
++        def send_signal(self, value):
++            events.append('stop')
++        def wait(self, timeout):
++            events.append('join')
++    class Observer(ExternalCapture):
++        def process_options(self):
++            return {}
++        def stop_signal(self):
++            return 2
++        def wait_capture_ready(self, *args):
++            (tmp_path / 'loopback.pcapng').touch()
++        def finish_capture(self, *args):
++            raise TimeoutError('terminal fixture failure')
++    monkeypatch.setattr('subprocess.Popen', lambda *a, **k: Process())
++    monkeypatch.setattr('subprocess.run', lambda *a, **k: SimpleNamespace(returncode=0, stdout=''))
++    observer = Observer('dumpcap', 'tshark', 'lo')
++    with pytest.raises(TimeoutError, match='terminal'):
++        with observer.capture('127.0.0.1:1234', tmp_path):
++            pass
++    assert events == ['stop', 'join']
++    assert observer.report['valid'] is False

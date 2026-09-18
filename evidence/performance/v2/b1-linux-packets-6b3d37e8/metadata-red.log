@@ -1,0 +1,28 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+___________ test_linux_capture_requires_exact_lo_ethernet_metadata ____________
+
+    def test_linux_capture_requires_exact_lo_ethernet_metadata():
+        from scripts.performance.linux_b1_capture import LinuxPacketObserver
+        observer = LinuxPacketObserver(Path('/usr/bin/dumpcap'), Path('/usr/bin/tshark'), 'lo')
+        metadata = 'Number of interfaces in file: 1\nName = lo\nEncapsulation = Ethernet\n'
+        observer.validate_capture_metadata(metadata)
+>       observer.validate_capture_metadata(metadata.replace('Ethernet', 'Ethernet (1 - ether)'))
+
+tests\performance\test_linux_b1_capture.py:62: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <scripts.performance.linux_b1_capture.LinuxPacketObserver object at 0x0000025215FD3770>
+metadata = 'Number of interfaces in file: 1\nName = lo\nEncapsulation = Ethernet (1 - ether)\n'
+
+    def validate_capture_metadata(self, metadata):
+        patterns = (r'^\s*Number of interfaces in file:\s*1\s*$',
+                    r'^\s*Name = lo\s*$', r'^\s*Encapsulation = Ethernet\s*$')
+        if self.interface != 'lo' or any(len(re.findall(p, metadata, re.MULTILINE)) != 1 for p in patterns):
+>           raise ValueError('Linux packet accounting requires exactly lo / Ethernet capture metadata')
+E           ValueError: Linux packet accounting requires exactly lo / Ethernet capture metadata
+
+scripts\performance\linux_b1_capture.py:94: ValueError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_linux_b1_capture.py::test_linux_capture_requires_exact_lo_ethernet_metadata
+1 failed, 8 deselected in 0.88s
