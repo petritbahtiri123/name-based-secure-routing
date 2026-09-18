@@ -74,7 +74,8 @@ def test_child_exception_is_only_tolerated_for_retained_performance_failure(tmp_
         path='nbsr', rate=[1, 1], payload=16384, streams=8, depth=1,
         warmup=3, duration=300, progress=30)
 
-    def child(options):
+    def child(options, *, check_cancelled):
+        check_cancelled()
         options.output.mkdir()
         (options.output / 'records.json').write_text(json.dumps([row('shared', 1, failed=True)]))
         raise RuntimeError('invalid partial run retained; no replacement' if expected_failure else 'source changed')
@@ -85,6 +86,23 @@ def test_child_exception_is_only_tolerated_for_retained_performance_failure(tmp_
         assert result['classification'] == 'FAIL_DIAGNOSTIC_RETAINED'
     else:
         assert result['classification'] == 'FAIL' and result['controller_error'] == 'source changed'
+
+
+def test_placement_passes_cancellation_into_nested_campaign(tmp_path, monkeypatch):
+    from types import SimpleNamespace
+    from scripts.performance import linux_b5_placement as module
+    args = SimpleNamespace(binaries=tmp_path, build_manifest=tmp_path / 'build.json',
+        path='nbsr', rate=[1, 1], payload=16384, streams=8, depth=1,
+        warmup=3, duration=300, progress=30)
+    def cancelled():
+        raise InterruptedError('SIGTERM fixture')
+    def child(options, *, check_cancelled):
+        assert check_cancelled is cancelled
+        check_cancelled()
+    monkeypatch.setattr(module.campaign, 'execute', child)
+    result = module.execute_cell(args, 'shared', 1, tmp_path / 'new', check_cancelled=cancelled)
+    assert result['valid'] is False and result['classification'] == 'FAIL'
+    assert result['controller_error'] == 'SIGTERM fixture'
 
 
 def test_parent_index_covers_nested_indexes(tmp_path):

@@ -16,13 +16,14 @@ from scripts.performance.linux_b5_backend import LinuxB5Backend
 from scripts.performance.linux_b5_ceiling import NAMES, identity, load_reference, require
 from scripts.performance.linux_b5_reference import SOURCE_PATHS as REFERENCE_SOURCES, git_state
 from scripts.performance.linux_loopback import ROOT, checksums, digest, write_json
+from scripts.performance.process_cancellation import Cancellation, not_cancelled
 
 SOURCE_PATHS = tuple(dict.fromkeys((*REFERENCE_SOURCES,
     "scripts/run_b5_v2.py", "scripts/run_max_throughput_v2_stage4.py",
     "scripts/run_p2a_established.py", "scripts/run_physical_core_v2.py",
     "scripts/run_performance_validation.py", "scripts/profile_b2_v2.py",
     *("scripts/performance/" + name for name in (
-        "linux_b5_campaign.py", "linux_b5_backend.py", "linux_exit.py",
+        "linux_b5_campaign.py", "linux_b5_backend.py", "linux_exit.py", "process_cancellation.py",
         "b5_stream.py", "b5_ownership.py", "b5_ceiling.py", "resources.py", "sustained_capacity.py")))))
 
 
@@ -52,7 +53,7 @@ def run_cohort(paths, run, retain, *, diagnostic):
     return required
 
 
-def execute(args):
+def execute(args, *, check_cancelled=not_cancelled):
     placement = getattr(args, 'placement', 'shared')
     require(placement in ('shared', 'split'), 'unknown placement')
     require(placement != 'split' or args.diagnostic, 'split placement requires diagnostic mode')
@@ -81,7 +82,7 @@ def execute(args):
     require(all(os.access(p, os.X_OK) for p in binaries.values()), "executable binaries required")
     linux = environment(selected_count)
     initial_identity = identity(linux, selected_count=selected_count)
-    backend = LinuxB5Backend(linux, placement=placement)
+    backend = LinuxB5Backend(linux, placement=placement, check_cancelled=check_cancelled)
     shape = dict(physical_cores=selected_count, endpoint_groups=1, runtime_workers=1,
                  payload_bytes=args.payload, streams_per_group=args.streams)
     load = (dict(mode=mode, rate_numerator=args.rate[0], rate_denominator=args.rate[1]) if args.diagnostic else
@@ -102,6 +103,7 @@ def execute(args):
         scope=backend.scope)
 
     def unchanged():
+        check_cancelled()
         require(git_state() == (sha, ""), "source checkout changed")
         require(all(digest(ROOT / p) == h for p, h in sources.items()), "source bytes changed")
         require(all(digest(binaries[r]) == h and digest(output / "binaries" / NAMES[r]) == h
@@ -188,7 +190,9 @@ def main():
     parser.add_argument("--warmup", type=float, default=3)
     parser.add_argument("--duration", type=float, required=True)
     parser.add_argument("--progress", type=float, default=30)
-    execute(parser.parse_args())
+    args = parser.parse_args()
+    with Cancellation() as cancellation:
+        execute(args, check_cancelled=cancellation.check)
 
 
 if __name__ == "__main__":

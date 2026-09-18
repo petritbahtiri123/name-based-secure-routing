@@ -3,6 +3,25 @@ from types import SimpleNamespace
 import pytest
 
 
+@pytest.mark.parametrize('stage', ['verify', 'observe', 'source-drain', 'destination-drain'])
+def test_pending_cancellation_reaches_registered_peer_safe_points(stage):
+    from scripts.performance.linux_b5_backend import LinuxB5Backend
+    def cancelled():
+        raise InterruptedError('SIGTERM fixture')
+    value = LinuxB5Backend({'platform': 'linux', 'selected_cpus': [2], 'taskset': '/usr/bin/taskset'},
+                          check_cancelled=cancelled)
+    child = SimpleNamespace(pid=123)
+    with pytest.raises(InterruptedError, match='SIGTERM'):
+        if stage == 'verify':
+            value.verify_affinity(child, 4, '/fixture')
+        elif stage == 'observe':
+            value.observe_source(child)
+        elif stage == 'source-drain':
+            value.complete_source(child, None, 10**30)
+        else:
+            value.complete_destination(child, 'destination_0', None, None, 10**30)
+
+
 def backend():
     from scripts.performance.linux_b5_backend import LinuxB5Backend
     return LinuxB5Backend({"platform": "linux", "selected_cpus": [2], "taskset": "/usr/bin/taskset"})

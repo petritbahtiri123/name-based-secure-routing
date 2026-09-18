@@ -15,6 +15,7 @@ from scripts.performance.b3_linux import environment
 from scripts.performance.linux_b5_ceiling import identity, require
 from scripts.performance.linux_b5_reference import git_state
 from scripts.performance.linux_loopback import ROOT, digest, write_json
+from scripts.performance.process_cancellation import Cancellation, not_cancelled
 
 
 def validate_result(row, placement, repeat):
@@ -82,7 +83,7 @@ def run_pairs(run, retain):
         p99_definition='median of observed steady-window p99; not pooled-operation p99')
 
 
-def execute_cell(args, placement, repeat, directory):
+def execute_cell(args, placement, repeat, directory, *, check_cancelled=not_cancelled):
     child = SimpleNamespace(binaries=args.binaries, build_manifest=args.build_manifest,
         output=directory, diagnostic=True, retain_failed_diagnostic=True, reference=None,
         rate=args.rate, paths=[args.path], placement=placement, ownership_sampling=True,
@@ -90,7 +91,7 @@ def execute_cell(args, placement, repeat, directory):
         warmup=args.warmup, duration=args.duration, progress=args.progress)
     error = None
     try:
-        campaign.execute(child)
+        campaign.execute(child, check_cancelled=check_cancelled)
     except Exception as caught:
         error = caught
     records_path = directory / 'records.json'
@@ -115,7 +116,7 @@ def execute_cell(args, placement, repeat, directory):
     return row
 
 
-def execute(args):
+def execute(args, *, check_cancelled=not_cancelled):
     require(platform.system() == 'Linux', 'Linux required; no platform fallback')
     require(0 < args.duration <= 600 and math.isfinite(args.duration), 'diagnostic duration must be <=600s')
     require(not any(name.startswith('NBSR_') for name in os.environ),
@@ -132,6 +133,7 @@ def execute(args):
     binaries = {p: digest(args.binaries / p) for p in campaign.NAMES.values()}
 
     def unchanged():
+        check_cancelled()
         require(git_state() == (sha, ''), 'source changed')
         require(all(digest(ROOT / p) == h for p, h in sources.items()), 'controller changed')
         require(digest(args.build_manifest) == build_digest
@@ -154,7 +156,8 @@ def execute(args):
         def run(placement, repeat):
             unchanged()
             print(f'placement={placement} repeat={repeat}', flush=True)
-            row = execute_cell(args, placement, repeat, output / f'{placement}-r{repeat}')
+            row = execute_cell(args, placement, repeat, output / f'{placement}-r{repeat}',
+                               check_cancelled=check_cancelled)
             # Retain the cell even if post-run provenance verification fails.
             try:
                 unchanged()
@@ -184,7 +187,9 @@ def main():
     parser.add_argument('--warmup', type=float, default=3)
     parser.add_argument('--duration', type=float, default=300)
     parser.add_argument('--progress', type=float, default=30)
-    execute(parser.parse_args())
+    args = parser.parse_args()
+    with Cancellation() as cancellation:
+        execute(args, check_cancelled=cancellation.check)
 
 
 if __name__ == '__main__':
