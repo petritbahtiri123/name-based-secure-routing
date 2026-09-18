@@ -8,6 +8,7 @@ import traceback
 
 from scripts.performance.linux_loopback import sample_process
 from scripts.performance.linux_resources import sample_linux_process
+from scripts.performance.process_cancellation import not_cancelled
 
 
 def sample_b4_process(pid, cpus):
@@ -64,7 +65,7 @@ def sample_host():
 
 class LinuxB4Backend:
     def __init__(self, cpus, taskset, *, sample_fn=sample_b4_process, host_fn=sample_host, max_records=10000,
-                 verify_execution=None):
+                 verify_execution=None, check_cancelled=not_cancelled):
         if (not cpus or len(set(cpus)) != len(cpus) or any(type(v) is not int or v < 0 for v in cpus)
                 or not taskset or type(max_records) is not int or max_records < 1):
             raise ValueError('invalid Linux observation bounds/placement')
@@ -72,6 +73,7 @@ class LinuxB4Backend:
         self.sample_fn, self.host_fn, self.cap = sample_fn, host_fn, max_records
         self.previous, self.host, self.round = {}, [], 0
         self.verify_execution = verify_execution
+        self.check_cancelled = check_cancelled
         self.capture_valid = True
         self.exiting = {}
 
@@ -79,6 +81,7 @@ class LinuxB4Backend:
         return [self.taskset, '-c', ','.join(map(str, self.cpus)), *argv]
 
     def sample(self, processes, samples):
+        self.check_cancelled()
         self.round += 1
         for role, process in processes.items():
             if process.poll() is not None:
@@ -186,7 +189,9 @@ class LinuxB4Backend:
         from scripts.run_b4b_v2 import valid_record
         duration, warmup = kwargs['duration'], kwargs['warmup']
         cap = math.ceil((duration + warmup + 120) / .1) * 4 + 16
-        child = LinuxB4Backend(self.cpus, self.taskset, sample_fn=self.sample_fn, host_fn=self.host_fn, max_records=cap)
+        self.check_cancelled()
+        child = LinuxB4Backend(self.cpus, self.taskset, sample_fn=self.sample_fn, host_fn=self.host_fn, max_records=cap,
+                              check_cancelled=self.check_cancelled)
         if self.verify_execution is not None:
             self.verify_execution()
         started = time.monotonic()

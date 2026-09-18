@@ -165,3 +165,31 @@ def test_proc_exit_race_only_skipped_after_confirmed_exit():
     b.sample({'source': SimpleNamespace(pid=11, poll=lambda: next(polls))}, [])
     with pytest.raises(FileNotFoundError):
         b.sample({'source': SimpleNamespace(pid=11, poll=lambda: None)}, [])
+
+
+def test_cancelled_sample_stops_before_resource_observation():
+    def cancel():
+        raise InterruptedError('cancelled B4')
+    b = LinuxB4Backend([0], '/usr/bin/taskset', check_cancelled=cancel,
+                      sample_fn=lambda *a: pytest.fail('sample after cancellation'))
+    with pytest.raises(InterruptedError, match='cancelled B4'):
+        b.sample({'source': SimpleNamespace(pid=11, poll=lambda: None)}, [])
+
+
+def test_measure_propagates_cancellation_to_owned_cell_backend(tmp_path):
+    requested = False
+
+    def check():
+        if requested:
+            raise InterruptedError('cancelled owned B4')
+
+    b = LinuxB4Backend([0], '/usr/bin/taskset', check_cancelled=check)
+
+    def run(*args, backend, **kwargs):
+        nonlocal requested
+        requested = True
+        backend.sample({}, [])
+        pytest.fail('cancelled cell continued')
+
+    with pytest.raises(InterruptedError, match='cancelled owned B4'):
+        b.measure(run, (512, 1, 1), {'duration': 30, 'warmup': 2}, tmp_path / 'counter')

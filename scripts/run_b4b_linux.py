@@ -12,6 +12,7 @@ from scripts import run_b4b_task4i as task4i
 from scripts.performance.b3_linux import environment
 from scripts.performance.b4_linux import LinuxB4Backend, failure_details
 from scripts.run_b3_v2 import verify_linux_execution
+from scripts.performance.process_cancellation import Cancellation, not_cancelled
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -35,7 +36,7 @@ def validate_build(path, binaries, sha):
     return value, hashlib.sha256(wire).hexdigest(), wire
 
 
-def execute(args):
+def execute(args, *, check_cancelled=not_cancelled):
     sha = clean_sha()
     host = environment(args.cores)
     binaries = {'nbsr': args.target / 'release/perf_rust_source',
@@ -50,6 +51,7 @@ def execute(args):
         for original in binaries.values():
             shutil.copy2(original, retained / original.name)
         def verify():
+            check_cancelled()
             if clean_sha() != sha:
                 raise ValueError('source changed during run')
             verify_linux_execution(binaries, retained, build)
@@ -65,7 +67,8 @@ def execute(args):
         task4i.v2.write_json(args.output / 'definition.json', metadata)
         task4i.v2.write_json(args.output / 'build-manifest.json', build)
         (args.output / 'input-build-manifest.json').write_bytes(manifest_wire)
-        backend = LinuxB4Backend(host['selected_cpus'], host['taskset'], verify_execution=verify)
+        backend = LinuxB4Backend(host['selected_cpus'], host['taskset'], verify_execution=verify,
+                                check_cancelled=check_cancelled)
         result = task4i.execute(args.output / 'campaign', offered_rates=args.offered_rates,
                                source_shards=args.source_shards, backend=backend,
                                prepared_binaries=binaries, prepared_environment=metadata)
@@ -87,7 +90,8 @@ def main():
     parser.add_argument('--cores', type=int, choices=(1, 2, 4), required=True)
     parser.add_argument('--source-shards', type=int, choices=(1, 2), default=1)
     parser.add_argument('--offered-rates', type=int, nargs='+', default=None)
-    execute(parser.parse_args())
+    with Cancellation() as cancellation:
+        execute(parser.parse_args(), check_cancelled=cancellation.check)
 
 
 if __name__ == '__main__':

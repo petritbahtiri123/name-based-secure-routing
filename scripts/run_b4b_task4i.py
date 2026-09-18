@@ -105,7 +105,8 @@ def execute(output: Path, duration=30, warmup=2, *, offered_rates=None, source_s
     if backend is not None:
         sources += ['scripts/run_b4b_linux.py', 'scripts/performance/b4_linux.py',
                     'scripts/performance/linux_resources.py', 'scripts/performance/linux_loopback.py',
-                    'scripts/performance/b3_linux.py', 'scripts/run_b3_v2.py']
+                    'scripts/performance/b3_linux.py', 'scripts/run_b3_v2.py',
+                    'scripts/performance/process_cancellation.py']
     for source in sources:
         destination=output/'capture-source'/source; destination.parent.mkdir(parents=True,exist_ok=True); shutil.copy2(v2.ROOT/source,destination)
     environment.update(timestamp_utc=time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),build='release',duration_seconds=duration,
