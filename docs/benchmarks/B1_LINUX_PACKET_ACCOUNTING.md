@@ -5,6 +5,15 @@ It does not measure physical Ethernet, a NIC, WAN capacity or production
 throughput. Capture timing is diagnostic only. Both paths retain the same
 secure-transport workload and single-flow relay semantics as Windows B1.
 
+The CLI defers SIGINT/SIGTERM/SIGHUP to ownership safe points, including capture
+readiness and the owned client's wait. Cancellation rejects the attempt while
+normal cleanup closes the relay, kills/reaps the client/server as needed and
+stops/reaps dumpcap. Client waiting uses short polls within the original total
+deadline; no workload or protocol timeout is extended. Capture startup/teardown
+can still take their existing bounded time. SIGKILL/host failure requires the
+operator-owned container/service lifecycle. This is not a Windows signal-handling
+change, packet-loss allowance or capacity claim.
+
 Requirements: a clean Linux checkout, release binaries built with
 `benchmark-harness`, an exact-SHA build manifest accepted by the Linux B5
 drivers, and `dumpcap`, `tshark`, `capinfos` on PATH. The caller must already

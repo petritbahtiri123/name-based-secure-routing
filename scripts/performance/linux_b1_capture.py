@@ -27,6 +27,7 @@ from scripts.performance.linux_b5_reference import git_state
 from scripts.performance.linux_loopback import ROOT, digest, parse_proc_stat
 from scripts.performance.wire_overhead import UdpFlowCounter, analyze_pairs
 from scripts.run_b1_v2_capture import PacketObserver
+from scripts.performance.process_cancellation import Cancellation, not_cancelled
 
 
 def pid_start(pid, proc_root=Path('/proc')):
@@ -95,6 +96,16 @@ class LinuxPacketObserver(PacketObserver):
     readiness_linktype = 1
     capinfos_name = 'capinfos'
 
+    def __init__(self, *args, check_cancelled=not_cancelled, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.check_cancelled = check_cancelled
+
+    def wait_capture_ready(self, process, pcap, cell_dir):
+        # ExternalCapture already owns the child and will stop/reap it on error.
+        self.check_cancelled()
+        super().wait_capture_ready(process, pcap, cell_dir)
+        self.check_cancelled()
+
     def process_options(self):
         return dict(start_new_session=True)
 
@@ -112,6 +123,7 @@ class LinuxPacketObserver(PacketObserver):
         deadline = time.monotonic() + 5
         try:
             while time.monotonic() < deadline:
+                self.check_cancelled()
                 if process.poll() is not None:
                     raise RuntimeError('dumpcap exited before terminal marker')
                 self.probe_sender.sendto(bytes.fromhex(token), ('127.0.0.1', self.probe['destination_port']))
@@ -144,11 +156,13 @@ class LinuxPacketObserver(PacketObserver):
 
 
 class LinuxPacketBackend:
-    def __init__(self, directory):
+    def __init__(self, directory, *, check_cancelled=not_cancelled):
         self.directory = directory
         self.flow_counter = None
+        self.check_cancelled = check_cancelled
 
     def counter(self, server):
+        self.check_cancelled()
         self.flow_counter = LinuxUdpFlowCounter(server)
         return self.flow_counter
 
@@ -159,7 +173,18 @@ class LinuxPacketBackend:
             try:
                 client = subprocess.Popen(argv, cwd=cwd, stdout=output, stderr=errors, text=True)
                 client_started(client.pid)
-                client.wait(timeout=timeout)
+                deadline = time.monotonic() + timeout
+                while True:
+                    self.check_cancelled()
+                    remaining = deadline - time.monotonic()
+                    if remaining <= 0:
+                        raise subprocess.TimeoutExpired(argv, timeout)
+                    try:
+                        client.wait(timeout=min(.1, remaining))
+                        break
+                    except subprocess.TimeoutExpired:
+                        pass
+                self.check_cancelled()
                 output.seek(0)
                 stdout = output.read()
                 if client.returncode:
@@ -214,7 +239,7 @@ def analyze_packet_pairs(rows, *, repeats):
         interpretation='paired NBSR minus equivalent Direct secure transport; generic framing is not NBSR overhead')
 
 
-def execute(args):
+def execute(args, *, check_cancelled=not_cancelled):
     require(platform.system() == 'Linux', 'Linux required')
     require(not any(k.startswith('NBSR_') for k in os.environ), 'remove inherited NBSR experiment settings')
     require(1 <= args.operations <= 1000, 'fixed operations must be 1..1000 per stream')
@@ -252,6 +277,7 @@ def execute(args):
             performance_timing='DIAGNOSTIC_ONLY', resource_metrics='NOT_MEASURED',
             capture_readiness='distinct exact initial and terminal markers; validated and excluded'))
         def unchanged():
+            check_cancelled()
             require(git_state() == (sha, ''), 'source checkout changed')
             require(all(digest(retained / n) == h and digest(args.binaries / n) == h for n, h in hashes.items()), 'binary changed')
             require(json.loads(args.build_manifest.read_bytes()) == build, 'build manifest changed')
@@ -268,8 +294,9 @@ def execute(args):
                         require(shutil.disk_usage(output).free >= 2 * 1024**3, 'insufficient free disk for next bounded capture')
                         print(f'payload={cell["payload_bytes"]} streams={cell["streams"]} repeat={repeat} path={mode}', flush=True)
                         directory = raw / f'{mode}-p{cell["payload_bytes"]}-s{cell["streams"]}-r{repeat}'
-                        backend = LinuxPacketBackend(directory)
-                        observer = LinuxPacketObserver(tools['dumpcap'], tools['tshark'], 'lo')
+                        backend = LinuxPacketBackend(directory, check_cancelled=check_cancelled)
+                        observer = LinuxPacketObserver(tools['dumpcap'], tools['tshark'], 'lo',
+                                                       check_cancelled=check_cancelled)
                         try:
                             row = b1._run_repeat(path=mode, cell=cell, repeat=repeat, binaries=binaries,
                                 authority=authority, warmup_seconds=0, raw_dir=raw, observer=observer, backend=backend)
@@ -302,7 +329,9 @@ def main():
         parser.add_argument('--' + name, type=Path, required=True)
     parser.add_argument('--operations', type=int, default=1000)
     parser.add_argument('--smoke', action='store_true')
-    execute(parser.parse_args())
+    args = parser.parse_args()
+    with Cancellation() as cancellation:
+        execute(args, check_cancelled=cancellation.check)
 
 
 if __name__ == '__main__':

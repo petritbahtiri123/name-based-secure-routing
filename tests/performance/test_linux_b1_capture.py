@@ -4,6 +4,86 @@ import struct
 import pytest
 
 
+@pytest.mark.parametrize('during_wait', [False, True])
+def test_cancelled_packet_client_is_killed_and_reaped_without_extending_deadline(tmp_path, monkeypatch, during_wait):
+    import subprocess
+    from scripts.performance.linux_b1_capture import LinuxPacketBackend
+    events = []
+    waiting = False
+    class Child:
+        pid = 123
+        returncode = None
+        def wait(self, timeout):
+            nonlocal waiting
+            if 'kill' in events:
+                assert timeout == 5
+                self.returncode = -9
+                events.append('reap')
+                return -9
+            assert 0 < timeout <= .1
+            waiting = True
+            raise subprocess.TimeoutExpired('fixture', timeout)
+        def poll(self):
+            return self.returncode
+        def kill(self):
+            events.append('kill')
+    monkeypatch.setattr(subprocess, 'Popen', lambda *a, **k: Child())
+    def cancelled():
+        if not during_wait or waiting:
+            raise InterruptedError('SIGTERM fixture')
+    backend = LinuxPacketBackend(tmp_path, check_cancelled=cancelled)
+    with pytest.raises(InterruptedError, match='SIGTERM'):
+        backend.measured_client(['fixture'], cwd=tmp_path, server=None, timeout=600,
+                                client_started=lambda pid: events.append('registered'))
+    assert events == ['registered', 'kill', 'reap']
+
+
+def test_cancelled_capture_readiness_still_stops_and_reaps_dumpcap(tmp_path, monkeypatch):
+    from types import SimpleNamespace
+    from scripts.performance.linux_b1_capture import LinuxPacketObserver
+    events = []
+    class Child:
+        returncode = 0
+        def send_signal(self, value):
+            events.append('stop')
+        def wait(self, timeout):
+            events.append('reap')
+            return 0
+    monkeypatch.setattr('subprocess.Popen', lambda *a, **k: Child())
+    monkeypatch.setattr('subprocess.run', lambda *a, **k: SimpleNamespace(returncode=0, stdout=''))
+    def cancelled():
+        raise InterruptedError('SIGTERM fixture')
+    observer = LinuxPacketObserver('dumpcap', 'tshark', 'lo', check_cancelled=cancelled)
+    with pytest.raises(InterruptedError, match='SIGTERM'):
+        with observer.capture('127.0.0.1:1234', tmp_path):
+            pytest.fail('cancelled capture cannot run workload')
+    assert events == ['stop', 'reap']
+    assert observer.report['valid'] is False
+
+
+def test_packet_polling_keeps_original_total_timeout(tmp_path, monkeypatch):
+    import subprocess
+    from scripts.performance import linux_b1_capture as capture
+    events = []
+    class Child:
+        pid = 123
+        def poll(self):
+            return None
+        def kill(self):
+            events.append('kill')
+        def wait(self, timeout):
+            assert timeout == 5  # Cleanup only: the original 600-second bound already expired.
+            events.append('reap')
+    ticks = iter([0, 601])
+    monkeypatch.setattr(capture.time, 'monotonic', lambda: next(ticks, 601))
+    monkeypatch.setattr(capture.subprocess, 'Popen', lambda *a, **k: Child())
+    with pytest.raises(subprocess.TimeoutExpired) as error:
+        capture.LinuxPacketBackend(tmp_path).measured_client(['fixture'], cwd=tmp_path,
+            server=None, timeout=600, client_started=lambda _: None)
+    assert error.value.timeout == 600
+    assert events == ['kill', 'reap']
+
+
 def test_ethernet_probe_requires_explicit_encapsulation_and_exact_token():
     from scripts.analyze_b1_v2_capture import probe_frames_from_pcapng
 
