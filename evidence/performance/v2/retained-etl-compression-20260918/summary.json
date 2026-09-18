@@ -1,0 +1,9 @@
+{
+  "files_processed": 8,
+  "allocated_bytes_saved": 10030006272,
+  "initial_host_free_bytes": 6802305024,
+  "final_host_free_bytes": 16830345216,
+  "observed_host_free_delta": 10028040192,
+  "all_processed_hashes_unchanged": true,
+  "scope": "Storage maintenance only; authoritative ETL logical bytes and paths preserved; observed free-space change may include unrelated background activity"
+}

@@ -1,0 +1,15 @@
+{
+  "operation": "lossless per-file NTFS compression; no deletion, move, wildcard, recursive scope or CompactOS",
+  "targets": [
+    "C:\\NBSR-build\\b4b-task4l-etw-20260905-141214\\kernel.etl",
+    "C:\\NBSR-build\\b4b-task4l-etw-20260905-141214\\kernel-raw.etl",
+    "C:\\NBSR-build\\b4b-task4e-20260903-210049\\task4e.etl",
+    "C:\\NBSR-build\\b4b-task4e-20260903-210049\\task4e-network.etl",
+    "C:\\NBSR-build\\b4b-task4e-20260903-210049\\task4e-network-raw.etl",
+    "C:\\NBSR-build\\b4b-task4c-20260903-192550\\task4c.etl",
+    "C:\\NBSR-build\\b4b-task4c-20260903-192550\\task4c-network.etl",
+    "C:\\NBSR-build\\b4b-task4c-20260903-192550\\task4c-network-raw.etl"
+  ],
+  "preserve": "all original paths and logical bytes; SHA256 compared before/after",
+  "initial_host_free_bytes": 6802305024
+}
