@@ -1,0 +1,9 @@
+{
+  "fix_sha": "182257898f34e22fcc8ea7dad5be9959e1e40838",
+  "baseline_sha": "73cbbc40",
+  "scope": "SYNTHETIC_METADATA_ONLY: execute actual documented Python recipe with controlled Git responses and synthetic binary bytes; not compilation evidence",
+  "sources": {
+    "docs/benchmarks/EXTERNAL_LINUX_SERVER_VALIDATION.md": "e163188a67065b18bb06ba1dd4d7ca4d2b553900ed5f5e379624ededeb5cbe57",
+    "tests/performance/test_external_build_recipe.py": "c0b1b3bf63f6e02e82563a53332fcf2d41688fceb4bc4b6d4f6e272c8035b7d2"
+  }
+}
