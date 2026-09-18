@@ -72,6 +72,7 @@ def _run_repeat(
     warmup_seconds: float,
     raw_dir: Path,
     observer=None,
+    backend=None,
 ) -> dict[str, Any]:
     stem = f"{path}-p{cell['payload_bytes']}-s{cell['streams']}-r{repeat}"
     ready = raw_dir / f"{stem}.ready.json"
@@ -109,7 +110,7 @@ def _run_repeat(
             directory.mkdir(exist_ok=False)
             observers.enter_context(observer.capture(server_endpoint, directory))
         host, port = server_endpoint.rsplit(":", 1)
-        counter = UdpFlowCounter((host, int(port)))
+        counter = (backend.counter if backend else UdpFlowCounter)((host, int(port)))
         counter.start()
         relay = f"{counter.relay_endpoint[0]}:{counter.relay_endpoint[1]}"
         control = f"{counter.control_endpoint[0]}:{counter.control_endpoint[1]}"
@@ -125,7 +126,7 @@ def _run_repeat(
             if path == "direct"
             else [str(binaries["nbsr"]), "--samples", "1", *common]
         )
-        stdout, resources = measured_client(
+        stdout, resources = (backend.measured_client if backend else measured_client)(
             client_argv,
             cwd=ROOT,
             server=server,
@@ -162,7 +163,7 @@ def _run_repeat(
                 "rejected_datagrams": capture["rejected_datagrams"],
                 "server_endpoint": capture["server_endpoint"],
                 "relay_endpoint": capture["relay_endpoint"],
-                "resources": summarize_resources(resources, completed, measured_seconds),
+                "resources": (backend.summarize_resources if backend else summarize_resources)(resources, completed, measured_seconds),
                 "client_command": client_argv,
                 "server_command": server_argv,
             }

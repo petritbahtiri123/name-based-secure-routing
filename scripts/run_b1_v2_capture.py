@@ -15,7 +15,7 @@ import tempfile
 import time
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from scripts.analyze_b1_v2_capture import account_packets, capture_drop_counts, probe_frames_from_pcapng
+from scripts.analyze_b1_v2_capture import account_packets, capture_drop_counts, probe_frames_from_pcapng, probe_tokens
 from scripts.performance.authority import write_loopback_authority
 from scripts.performance.external_packet_capture import ExternalCapture
 from scripts import run_b1_wire_overhead as b1
@@ -26,6 +26,13 @@ FIELDS = ["frame.number", "frame.len", "frame.cap_len", "ip.len", "ip.hdr_len", 
 
 
 class PacketObserver(ExternalCapture):
+    readiness_linktype = 0
+    capinfos_name = "capinfos.exe"
+
+    def validate_capture_metadata(self, metadata):
+        if "Number of interfaces in file: 1" not in metadata or r"Name = \Device\NPF_Loopback" not in metadata or "Encapsulation = NULL/Loopback" not in metadata:
+            raise ValueError("capture interface or encapsulation differs from declared loopback")
+
     def capture_filter(self, server_port):
         return (f"udp port {server_port} or (udp and src host 127.0.0.1 and dst host 127.0.0.1 "
                 f"and src port {self.probe['source_port']} and dst port {self.probe['destination_port']})")
@@ -51,7 +58,7 @@ class PacketObserver(ExternalCapture):
                 raise ValueError("invalid readiness probe export")
             number = int(row[0])
             payload = bytes.fromhex(row[1].replace(":", ""))
-            if number in payloads or payload.hex() != self.probe["token_hex"]:
+            if number in payloads or payload not in probe_tokens(self.probe):
                 raise ValueError("readiness probe token mismatch or duplicate frame")
             payloads[number] = payload.hex()
         return payloads
@@ -64,7 +71,7 @@ class PacketObserver(ExternalCapture):
             return {}
         if len(data) > 1024 * 1024:
             raise ValueError("readiness capture exceeds bounded preflight inventory")
-        return probe_frames_from_pcapng(data, self.probe)
+        return probe_frames_from_pcapng(data, self.probe, expected_linktype=self.readiness_linktype)
 
     def wait_capture_ready(self, process, pcap, cell_dir):
         deadline = time.monotonic() + 5
@@ -112,11 +119,10 @@ class PacketObserver(ExternalCapture):
             raise ValueError("capture did not close cleanly")
         drop = capture_drop_counts((directory / "dumpcap.stderr").read_text())
         pcap = directory / "loopback.pcapng"
-        metadata = subprocess.run([str(self.tshark.parent / "capinfos.exe"), "-M", "-I", "-c", "-d", str(pcap)],
+        metadata = subprocess.run([str(self.tshark.parent / self.capinfos_name), "-M", "-I", "-c", "-d", str(pcap)],
                                   capture_output=True, text=True, check=True).stdout
         (directory / "capinfos.txt").write_text(metadata, newline="\n")
-        if "Number of interfaces in file: 1" not in metadata or r"Name = \Device\NPF_Loopback" not in metadata or "Encapsulation = NULL/Loopback" not in metadata:
-            raise ValueError("capture interface or encapsulation differs from declared loopback")
+        self.validate_capture_metadata(metadata)
         command = [str(self.tshark), "-r", str(pcap), "-T", "fields", "-E", "separator=/t", "-E", "occurrence=f"]
         for field in FIELDS:
             command.extend(["-e", field])

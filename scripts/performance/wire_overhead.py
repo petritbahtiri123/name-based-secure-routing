@@ -40,7 +40,8 @@ def _udp_owner_pid(peer: tuple[str, int]) -> int | None:
 class UdpFlowCounter:
     """Forward and count exactly one loopback UDP client/server flow."""
 
-    def __init__(self, server: tuple[str, int]) -> None:
+    def __init__(self, server: tuple[str, int], *, owner_lookup=None) -> None:
+        self._owner_lookup = owner_lookup or (lambda peer, _pid: _udp_owner_pid(peer))
         self._server = (str(server[0]), int(server[1]))
         self._udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self._udp.bind(("127.0.0.1", 0))
@@ -104,7 +105,7 @@ class UdpFlowCounter:
                         destination = self._client
                         direction = "server_to_client"
                 elif self._client is None:
-                    if self._expected_client_pid is not None and _udp_owner_pid(peer) == self._expected_client_pid:
+                    if self._expected_client_pid is not None and self._owner_lookup(peer, self._expected_client_pid) == self._expected_client_pid:
                         self._client = peer
                         destination = self._server
                         direction = "client_to_server"

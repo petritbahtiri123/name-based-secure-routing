@@ -5,12 +5,26 @@ import re
 import struct
 
 
-def probe_frames_from_pcapng(data, probe):
-    """Inspect complete live NULL/IPv4 EPBs only; final accounting uses TShark.
+def probe_tokens(probe):
+    tokens = {bytes.fromhex(probe["token_hex"])}
+    if "terminal_token_hex" in probe:
+        terminal = bytes.fromhex(probe["terminal_token_hex"])
+        if terminal in tokens:
+            raise ValueError("terminal probe token must be distinct")
+        tokens.add(terminal)
+    if any(len(token) != 32 for token in tokens):
+        raise ValueError("readiness probe token must have 32 bytes")
+    return tokens
+
+
+def probe_frames_from_pcapng(data, probe, *, expected_linktype=0):
+    """Inspect explicitly declared NULL/Ethernet IPv4 EPBs; final uses TShark.
 
     A trailing block being written is ignored, never interpreted as a packet.
     This avoids launching an offline reader against a file still held by dumpcap.
     """
+    if expected_linktype not in (0, 1):
+        raise ValueError("unsupported readiness link type")
     if len(data) < 28:
         return {}
     if data[:4] != b"\x0a\x0d\x0d\x0a":
@@ -43,12 +57,17 @@ def probe_frames_from_pcapng(data, probe):
             if len(body) < 20:
                 raise ValueError("short enhanced packet block")
             interface, _, _, captured, original = struct.unpack_from(endian + "IIIII", body)
-            if interface >= len(interfaces) or interfaces[interface] != 0 or captured != original or len(body) < 20 + captured:
+            if interface >= len(interfaces) or interfaces[interface] != expected_linktype or captured != original or len(body) < 20 + captured:
                 raise ValueError("unexpected readiness encapsulation or truncated packet")
             frame = body[20:20 + captured]
-            if len(frame) < 32 or struct.unpack_from(endian + "I", frame)[0] != 2:
-                raise ValueError("readiness requires NULL IPv4 packet")
-            ip = frame[4:]
+            if expected_linktype == 0:
+                if len(frame) < 32 or struct.unpack_from(endian + "I", frame)[0] != 2:
+                    raise ValueError("readiness requires NULL IPv4 packet")
+                ip = frame[4:]
+            else:
+                if len(frame) < 42 or frame[12:14] != b"\x08\x00":
+                    raise ValueError("readiness requires untagged Ethernet IPv4 packet")
+                ip = frame[14:]
             header = (ip[0] & 15) * 4
             if ip[0] >> 4 != 4 or header < 20 or len(ip) < header + 8 or ip[9] != 17:
                 raise ValueError("invalid readiness IPv4/UDP header")
@@ -59,7 +78,7 @@ def probe_frames_from_pcapng(data, probe):
                 if int.from_bytes(ip[2:4], "big") != header + udp_length or len(ip) != header + udp_length:
                     raise ValueError("invalid readiness probe lengths")
                 payload = ip[header + 8:]
-                if len(payload) != 32 or payload.hex() != probe["token_hex"]:
+                if payload not in probe_tokens(probe):
                     raise ValueError("readiness probe token mismatch")
                 payloads[number] = payload.hex()
         offset += length
@@ -100,9 +119,7 @@ def account_packets(packets, *, server_port, captured_packets, readiness_probe=N
         probe_ports = (readiness_probe["source_port"], readiness_probe["destination_port"])
         if server_port in probe_ports or probe_ports[0] == probe_ports[1]:
             raise ValueError("readiness probe must use separate ports")
-        token = bytes.fromhex(readiness_probe["token_hex"])
-        if len(token) != 32:
-            raise ValueError("readiness probe token must have 32 bytes")
+        tokens = probe_tokens(readiness_probe)
         probe_payloads = probe_payloads or {}
     directions = {"client_to_server": 0, "server_to_client": 0}
     for packet in packets:
@@ -121,7 +138,7 @@ def account_packets(packets, *, server_port, captured_packets, readiness_probe=N
         if readiness_probe is not None and (source, destination) == probe_ports:
             number = int(packet["frame.number"])
             payload = bytes.fromhex(probe_payloads.get(number, "").replace(":", ""))
-            if payload != token or udp - 8 != len(token):
+            if payload not in tokens or udp - 8 != len(payload):
                 raise ValueError("readiness probe payload mismatch or missing evidence")
             probe_frames.add(number)
             probe_bytes += frame
@@ -141,6 +158,14 @@ def account_packets(packets, *, server_port, captured_packets, readiness_probe=N
         observed = set(readiness_probe.get("observed_frame_numbers", []))
         if not observed or not observed <= probe_frames or probe_frames != set(probe_payloads):
             raise ValueError("readiness probe inventory does not reconcile")
+        if any(bytes.fromhex(probe_payloads[n].replace(":", "")) != bytes.fromhex(readiness_probe["token_hex"]) for n in observed):
+            raise ValueError("initial readiness inventory contains terminal marker")
+        if "terminal_token_hex" in readiness_probe:
+            terminal = set(readiness_probe.get("terminal_observed_frame_numbers", []))
+            if not terminal or not terminal <= probe_frames or any(
+                    bytes.fromhex(probe_payloads[n].replace(":", "")) != bytes.fromhex(readiness_probe["terminal_token_hex"])
+                    for n in terminal):
+                raise ValueError("terminal probe inventory does not reconcile")
     return {"schema": "nbsr-b1-v2-loopback-packet-accounting-v1", "packet_count": len(packets) - len(probe_frames),
             "capture_inventory_packets": len(packets), "readiness_probe_packets": len(probe_frames),
             "readiness_probe_frame_bytes": probe_bytes,
