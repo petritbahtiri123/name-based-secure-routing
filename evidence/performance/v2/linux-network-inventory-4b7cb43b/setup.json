@@ -1,0 +1,12 @@
+{
+  "command": [
+    "docker",
+    "exec",
+    "nbsr-network-inventory-46961268",
+    "sh",
+    "/evidence/setup.sh"
+  ],
+  "exit_code": 2,
+  "stdout": "",
+  "stderr": "/evidence/setup.sh: 1: set: Illegal option -\n"
+}

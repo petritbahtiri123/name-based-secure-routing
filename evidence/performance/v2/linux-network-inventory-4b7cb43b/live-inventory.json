@@ -1,0 +1,158 @@
+{
+  "schema": "nbsr-linux-network-inventory-v1",
+  "interface": "eth0",
+  "started_monotonic_ns": 85907590123,
+  "completed_monotonic_ns": 85911986283,
+  "fields": {
+    "type": {
+      "status": "MEASURED",
+      "value": 1
+    },
+    "mtu": {
+      "status": "MEASURED",
+      "value": 1500
+    },
+    "operstate": {
+      "status": "MEASURED",
+      "value": "up"
+    },
+    "carrier": {
+      "status": "MEASURED",
+      "value": 1
+    },
+    "speed": {
+      "status": "MEASURED",
+      "value": 10000
+    },
+    "duplex": {
+      "status": "MEASURED",
+      "value": "full"
+    }
+  },
+  "statistics": {
+    "rx_bytes": {
+      "status": "MEASURED",
+      "value": 1698
+    },
+    "tx_bytes": {
+      "status": "MEASURED",
+      "value": 126
+    },
+    "rx_packets": {
+      "status": "MEASURED",
+      "value": 17
+    },
+    "tx_packets": {
+      "status": "MEASURED",
+      "value": 3
+    },
+    "rx_dropped": {
+      "status": "MEASURED",
+      "value": 0
+    },
+    "tx_dropped": {
+      "status": "MEASURED",
+      "value": 0
+    },
+    "rx_errors": {
+      "status": "MEASURED",
+      "value": 0
+    },
+    "tx_errors": {
+      "status": "MEASURED",
+      "value": 0
+    }
+  },
+  "queues": [
+    "rx-0",
+    "tx-0"
+  ],
+  "irq_affinity": {},
+  "commands": [
+    {
+      "argv": [
+        "ethtool",
+        "eth0"
+      ],
+      "status": "TOOL_UNAVAILABLE",
+      "returncode": null,
+      "stdout": "",
+      "stderr": "[Errno 2] No such file or directory: 'ethtool'"
+    },
+    {
+      "argv": [
+        "ethtool",
+        "-i",
+        "eth0"
+      ],
+      "status": "TOOL_UNAVAILABLE",
+      "returncode": null,
+      "stdout": "",
+      "stderr": "[Errno 2] No such file or directory: 'ethtool'"
+    },
+    {
+      "argv": [
+        "ethtool",
+        "-l",
+        "eth0"
+      ],
+      "status": "TOOL_UNAVAILABLE",
+      "returncode": null,
+      "stdout": "",
+      "stderr": "[Errno 2] No such file or directory: 'ethtool'"
+    },
+    {
+      "argv": [
+        "ethtool",
+        "-g",
+        "eth0"
+      ],
+      "status": "TOOL_UNAVAILABLE",
+      "returncode": null,
+      "stdout": "",
+      "stderr": "[Errno 2] No such file or directory: 'ethtool'"
+    },
+    {
+      "argv": [
+        "ethtool",
+        "-k",
+        "eth0"
+      ],
+      "status": "TOOL_UNAVAILABLE",
+      "returncode": null,
+      "stdout": "",
+      "stderr": "[Errno 2] No such file or directory: 'ethtool'"
+    },
+    {
+      "argv": [
+        "ethtool",
+        "-x",
+        "eth0"
+      ],
+      "status": "TOOL_UNAVAILABLE",
+      "returncode": null,
+      "stdout": "",
+      "stderr": "[Errno 2] No such file or directory: 'ethtool'"
+    },
+    {
+      "argv": [
+        "systemd-detect-virt"
+      ],
+      "status": "TOOL_UNAVAILABLE",
+      "returncode": null,
+      "stdout": "",
+      "stderr": "[Errno 2] No such file or directory: 'systemd-detect-virt'"
+    }
+  ],
+  "device_classification": "NO_DEVICE_BACKING_REPORTED",
+  "external_hardware": "NOT_PROVEN",
+  "hardware_ceiling": "NOT_PROVEN",
+  "dedicated_data_path": "NOT_PROVEN",
+  "scope": "interface-wide single snapshot; not process traffic, wire accounting, rate, saturation or bare-metal attestation",
+  "source_sha": "469612682b62c0aa5ceabba8168081ec7c62a781",
+  "kernel": {
+    "system": "Linux",
+    "release": "6.6.114.1-microsoft-standard-WSL2",
+    "machine": "x86_64"
+  }
+}

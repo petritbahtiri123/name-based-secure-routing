@@ -1,0 +1,155 @@
+FFFFFFFFFFFFF                                                            [100%]
+================================== FAILURES ===================================
+___________ test_interface_name_is_not_a_path_or_shell_expression[] ___________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1058/test_interface_name_is_not_a_p0')
+name = ''
+
+    @pytest.mark.parametrize('name', ['', '../eth0', '/eth0', 'eth0/../../', 'eth0;id', 'eth0\n'])
+    def test_interface_name_is_not_a_path_or_shell_expression(tmp_path, name):
+>       from scripts.performance.linux_network_inventory import collect_network
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_network_inventory'
+
+tests\performance\test_linux_network_inventory.py:31: ModuleNotFoundError
+_______ test_interface_name_is_not_a_path_or_shell_expression[../eth0] ________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1058/test_interface_name_is_not_a_p1')
+name = '../eth0'
+
+    @pytest.mark.parametrize('name', ['', '../eth0', '/eth0', 'eth0/../../', 'eth0;id', 'eth0\n'])
+    def test_interface_name_is_not_a_path_or_shell_expression(tmp_path, name):
+>       from scripts.performance.linux_network_inventory import collect_network
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_network_inventory'
+
+tests\performance\test_linux_network_inventory.py:31: ModuleNotFoundError
+________ test_interface_name_is_not_a_path_or_shell_expression[/eth0] _________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1058/test_interface_name_is_not_a_p2')
+name = '/eth0'
+
+    @pytest.mark.parametrize('name', ['', '../eth0', '/eth0', 'eth0/../../', 'eth0;id', 'eth0\n'])
+    def test_interface_name_is_not_a_path_or_shell_expression(tmp_path, name):
+>       from scripts.performance.linux_network_inventory import collect_network
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_network_inventory'
+
+tests\performance\test_linux_network_inventory.py:31: ModuleNotFoundError
+_____ test_interface_name_is_not_a_path_or_shell_expression[eth0/../../] ______
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1058/test_interface_name_is_not_a_p3')
+name = 'eth0/../../'
+
+    @pytest.mark.parametrize('name', ['', '../eth0', '/eth0', 'eth0/../../', 'eth0;id', 'eth0\n'])
+    def test_interface_name_is_not_a_path_or_shell_expression(tmp_path, name):
+>       from scripts.performance.linux_network_inventory import collect_network
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_network_inventory'
+
+tests\performance\test_linux_network_inventory.py:31: ModuleNotFoundError
+_______ test_interface_name_is_not_a_path_or_shell_expression[eth0;id] ________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1058/test_interface_name_is_not_a_p4')
+name = 'eth0;id'
+
+    @pytest.mark.parametrize('name', ['', '../eth0', '/eth0', 'eth0/../../', 'eth0;id', 'eth0\n'])
+    def test_interface_name_is_not_a_path_or_shell_expression(tmp_path, name):
+>       from scripts.performance.linux_network_inventory import collect_network
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_network_inventory'
+
+tests\performance\test_linux_network_inventory.py:31: ModuleNotFoundError
+________ test_interface_name_is_not_a_path_or_shell_expression[eth0\n] ________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1058/test_interface_name_is_not_a_p5')
+name = 'eth0\n'
+
+    @pytest.mark.parametrize('name', ['', '../eth0', '/eth0', 'eth0/../../', 'eth0;id', 'eth0\n'])
+    def test_interface_name_is_not_a_path_or_shell_expression(tmp_path, name):
+>       from scripts.performance.linux_network_inventory import collect_network
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_network_inventory'
+
+tests\performance\test_linux_network_inventory.py:31: ModuleNotFoundError
+________ test_virtual_interface_never_becomes_physical_hardware_proof _________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1058/test_virtual_interface_never_b0')
+
+    def test_virtual_interface_never_becomes_physical_hardware_proof(tmp_path):
+>       from scripts.performance.linux_network_inventory import collect_network
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_network_inventory'
+
+tests\performance\test_linux_network_inventory.py:37: ModuleNotFoundError
+___ test_device_backing_and_irq_are_observations_not_bare_metal_attestation ___
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1058/test_device_backing_and_irq_ar0')
+
+    def test_device_backing_and_irq_are_observations_not_bare_metal_attestation(tmp_path):
+>       from scripts.performance.linux_network_inventory import collect_network
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_network_inventory'
+
+tests\performance\test_linux_network_inventory.py:47: ModuleNotFoundError
+_______ test_missing_and_malformed_counters_are_not_zero_or_saturation ________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1058/test_missing_and_malformed_cou0')
+
+    def test_missing_and_malformed_counters_are_not_zero_or_saturation(tmp_path):
+>       from scripts.performance.linux_network_inventory import collect_network
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_network_inventory'
+
+tests\performance\test_linux_network_inventory.py:58: ModuleNotFoundError
+________ test_tool_failures_remain_explicit[failure0-TOOL_UNAVAILABLE] ________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000027A702DA2C0>
+failure = FileNotFoundError(), status = 'TOOL_UNAVAILABLE'
+
+    @pytest.mark.parametrize('failure,status', [(FileNotFoundError(), 'TOOL_UNAVAILABLE'),
+        (PermissionError(), 'ADMIN_REQUIRED'), (subprocess.TimeoutExpired('ethtool', 5), 'TIMED_OUT')])
+    def test_tool_failures_remain_explicit(monkeypatch, failure, status):
+>       from scripts.performance import linux_network_inventory as inventory
+E       ImportError: cannot import name 'linux_network_inventory' from 'scripts.performance' (C:\Users\bajra\OneDrive\Documents\NBSR\scripts\performance\__init__.py)
+
+tests\performance\test_linux_network_inventory.py:71: ImportError
+_________ test_tool_failures_remain_explicit[failure1-ADMIN_REQUIRED] _________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000027A702DA190>
+failure = PermissionError(), status = 'ADMIN_REQUIRED'
+
+    @pytest.mark.parametrize('failure,status', [(FileNotFoundError(), 'TOOL_UNAVAILABLE'),
+        (PermissionError(), 'ADMIN_REQUIRED'), (subprocess.TimeoutExpired('ethtool', 5), 'TIMED_OUT')])
+    def test_tool_failures_remain_explicit(monkeypatch, failure, status):
+>       from scripts.performance import linux_network_inventory as inventory
+E       ImportError: cannot import name 'linux_network_inventory' from 'scripts.performance' (C:\Users\bajra\OneDrive\Documents\NBSR\scripts\performance\__init__.py)
+
+tests\performance\test_linux_network_inventory.py:71: ImportError
+___________ test_tool_failures_remain_explicit[failure2-TIMED_OUT] ____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000027A70461370>
+failure = TimeoutExpired('ethtool', 5), status = 'TIMED_OUT'
+
+    @pytest.mark.parametrize('failure,status', [(FileNotFoundError(), 'TOOL_UNAVAILABLE'),
+        (PermissionError(), 'ADMIN_REQUIRED'), (subprocess.TimeoutExpired('ethtool', 5), 'TIMED_OUT')])
+    def test_tool_failures_remain_explicit(monkeypatch, failure, status):
+>       from scripts.performance import linux_network_inventory as inventory
+E       ImportError: cannot import name 'linux_network_inventory' from 'scripts.performance' (C:\Users\bajra\OneDrive\Documents\NBSR\scripts\performance\__init__.py)
+
+tests\performance\test_linux_network_inventory.py:71: ImportError
+___________ test_read_only_command_does_not_use_shell_or_change_nic ___________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000027A703D4380>
+
+    def test_read_only_command_does_not_use_shell_or_change_nic(monkeypatch):
+>       from scripts.performance import linux_network_inventory as inventory
+E       ImportError: cannot import name 'linux_network_inventory' from 'scripts.performance' (C:\Users\bajra\OneDrive\Documents\NBSR\scripts\performance\__init__.py)
+
+tests\performance\test_linux_network_inventory.py:79: ImportError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_linux_network_inventory.py::test_interface_name_is_not_a_path_or_shell_expression[]
+FAILED tests/performance/test_linux_network_inventory.py::test_interface_name_is_not_a_path_or_shell_expression[../eth0]
+FAILED tests/performance/test_linux_network_inventory.py::test_interface_name_is_not_a_path_or_shell_expression[/eth0]
+FAILED tests/performance/test_linux_network_inventory.py::test_interface_name_is_not_a_path_or_shell_expression[eth0/../../]
+FAILED tests/performance/test_linux_network_inventory.py::test_interface_name_is_not_a_path_or_shell_expression[eth0;id]
+FAILED tests/performance/test_linux_network_inventory.py::test_interface_name_is_not_a_path_or_shell_expression[eth0\n]
+FAILED tests/performance/test_linux_network_inventory.py::test_virtual_interface_never_becomes_physical_hardware_proof
+FAILED tests/performance/test_linux_network_inventory.py::test_device_backing_and_irq_are_observations_not_bare_metal_attestation
+FAILED tests/performance/test_linux_network_inventory.py::test_missing_and_malformed_counters_are_not_zero_or_saturation
+FAILED tests/performance/test_linux_network_inventory.py::test_tool_failures_remain_explicit[failure0-TOOL_UNAVAILABLE]
+FAILED tests/performance/test_linux_network_inventory.py::test_tool_failures_remain_explicit[failure1-ADMIN_REQUIRED]
+FAILED tests/performance/test_linux_network_inventory.py::test_tool_failures_remain_explicit[failure2-TIMED_OUT]
+FAILED tests/performance/test_linux_network_inventory.py::test_read_only_command_does_not_use_shell_or_change_nic
+13 failed in 0.69s

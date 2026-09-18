@@ -1,0 +1,12 @@
+{
+  "command": [
+    "docker",
+    "exec",
+    "nbsr-network-inventory-46961268",
+    "sh",
+    "/evidence/setup-lf.sh"
+  ],
+  "exit_code": 1,
+  "stdout": "",
+  "stderr": "Cloning into '/tmp/source'...\nFrom /base/update.bundle\n * branch              HEAD       -> FETCH_HEAD\nFrom /evidence/update.bundle\n * branch              HEAD       -> FETCH_HEAD\nPrevious HEAD position was edc0f96d test(bench): add reference-bound Linux B5 campaign entrypoint\nHEAD is now at 46961268 bench: add bounded read-only Linux network inventory\nchmod: changing permissions of '/evidence': Operation not permitted\n"
+}

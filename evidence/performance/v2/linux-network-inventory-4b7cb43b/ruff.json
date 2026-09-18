@@ -1,0 +1,13 @@
+{
+  "command": [
+    "python",
+    "-m",
+    "ruff",
+    "check",
+    "scripts/performance/linux_network_inventory.py",
+    "tests/performance/test_linux_network_inventory.py"
+  ],
+  "exit_code": 0,
+  "stdout": "All checks passed!\n",
+  "stderr": ""
+}

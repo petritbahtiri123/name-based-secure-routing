@@ -1,0 +1,28 @@
+............F.                                                           [100%]
+================================== FAILURES ===================================
+_ test_read_only_command_does_not_use_shell_or_hide_partial_permission_error[0] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019BC4137BD0>
+returncode = 0
+
+    @pytest.mark.parametrize('returncode', [0, 1])
+    def test_read_only_command_does_not_use_shell_or_hide_partial_permission_error(monkeypatch, returncode):
+        from scripts.performance import linux_network_inventory as inventory
+        seen = []
+        def run(argv, **kwargs):
+            assert kwargs.get('shell', False) is False
+            assert kwargs['timeout'] == 5
+            seen.append(argv)
+            return subprocess.CompletedProcess(argv, returncode, 'partial link settings', 'Operation not permitted')
+        monkeypatch.setattr(inventory.subprocess, 'run', run)
+        result = inventory.run_command(['ethtool', '-x', 'eth0'])
+>       assert result['status'] == 'ADMIN_REQUIRED'
+E       AssertionError: assert 'MEASURED' == 'ADMIN_REQUIRED'
+E         
+E         - ADMIN_REQUIRED
+E         + MEASURED
+
+tests\performance\test_linux_network_inventory.py:89: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_linux_network_inventory.py::test_read_only_command_does_not_use_shell_or_hide_partial_permission_error[0]
+1 failed, 13 passed in 1.00s

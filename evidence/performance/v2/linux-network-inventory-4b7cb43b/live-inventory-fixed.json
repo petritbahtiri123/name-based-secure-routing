@@ -1,0 +1,158 @@
+{
+  "schema": "nbsr-linux-network-inventory-v1",
+  "interface": "eth0",
+  "started_monotonic_ns": 253068737517,
+  "completed_monotonic_ns": 253078197378,
+  "fields": {
+    "type": {
+      "status": "MEASURED",
+      "value": 1
+    },
+    "mtu": {
+      "status": "MEASURED",
+      "value": 1500
+    },
+    "operstate": {
+      "status": "MEASURED",
+      "value": "up"
+    },
+    "carrier": {
+      "status": "MEASURED",
+      "value": 1
+    },
+    "speed": {
+      "status": "MEASURED",
+      "value": 10000
+    },
+    "duplex": {
+      "status": "MEASURED",
+      "value": "full"
+    }
+  },
+  "statistics": {
+    "rx_bytes": {
+      "status": "MEASURED",
+      "value": 690
+    },
+    "tx_bytes": {
+      "status": "MEASURED",
+      "value": 84
+    },
+    "rx_packets": {
+      "status": "MEASURED",
+      "value": 7
+    },
+    "tx_packets": {
+      "status": "MEASURED",
+      "value": 2
+    },
+    "rx_dropped": {
+      "status": "MEASURED",
+      "value": 0
+    },
+    "tx_dropped": {
+      "status": "MEASURED",
+      "value": 0
+    },
+    "rx_errors": {
+      "status": "MEASURED",
+      "value": 0
+    },
+    "tx_errors": {
+      "status": "MEASURED",
+      "value": 0
+    }
+  },
+  "queues": [
+    "rx-0",
+    "tx-0"
+  ],
+  "irq_affinity": {},
+  "commands": [
+    {
+      "argv": [
+        "ethtool",
+        "eth0"
+      ],
+      "status": "ADMIN_REQUIRED",
+      "returncode": 0,
+      "stdout": "Settings for eth0:\n\tSupported ports: [  ]\n\tSupported link modes:   Not reported\n\tSupported pause frame use: No\n\tSupports auto-negotiation: No\n\tSupported FEC modes: Not reported\n\tAdvertised link modes:  Not reported\n\tAdvertised pause frame use: No\n\tAdvertised auto-negotiation: No\n\tAdvertised FEC modes: Not reported\n\tSpeed: 10000Mb/s\n\tDuplex: Full\n\tAuto-negotiation: off\n\tPort: Twisted Pair\n\tPHYAD: 0\n\tTransceiver: internal\n\tMDI-X: Unknown\n\tLink detected: yes\n",
+      "stderr": "netlink error: Operation not permitted\n"
+    },
+    {
+      "argv": [
+        "ethtool",
+        "-i",
+        "eth0"
+      ],
+      "status": "MEASURED",
+      "returncode": 0,
+      "stdout": "driver: veth\nversion: 1.0\nfirmware-version: \nexpansion-rom-version: \nbus-info: \nsupports-statistics: yes\nsupports-test: no\nsupports-eeprom-access: no\nsupports-register-dump: no\nsupports-priv-flags: no\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "ethtool",
+        "-l",
+        "eth0"
+      ],
+      "status": "MEASURED",
+      "returncode": 0,
+      "stdout": "Channel parameters for eth0:\nPre-set maximums:\nRX:\t\t8\nTX:\t\t8\nOther:\t\tn/a\nCombined:\tn/a\nCurrent hardware settings:\nRX:\t\t1\nTX:\t\t1\nOther:\t\tn/a\nCombined:\tn/a\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "ethtool",
+        "-g",
+        "eth0"
+      ],
+      "status": "UNAVAILABLE",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "netlink error: Operation not supported\n"
+    },
+    {
+      "argv": [
+        "ethtool",
+        "-k",
+        "eth0"
+      ],
+      "status": "MEASURED",
+      "returncode": 0,
+      "stdout": "Features for eth0:\nrx-checksumming: on\ntx-checksumming: on\n\ttx-checksum-ipv4: off [fixed]\n\ttx-checksum-ip-generic: on\n\ttx-checksum-ipv6: off [fixed]\n\ttx-checksum-fcoe-crc: off [fixed]\n\ttx-checksum-sctp: on\nscatter-gather: on\n\ttx-scatter-gather: on\n\ttx-scatter-gather-fraglist: on\ntcp-segmentation-offload: on\n\ttx-tcp-segmentation: on\n\ttx-tcp-ecn-segmentation: on\n\ttx-tcp-mangleid-segmentation: on\n\ttx-tcp6-segmentation: on\ngeneric-segmentation-offload: on\ngeneric-receive-offload: off\nlarge-receive-offload: off [fixed]\nrx-vlan-offload: on\ntx-vlan-offload: on\nntuple-filters: off [fixed]\nreceive-hashing: off [fixed]\nhighdma: on\nrx-vlan-filter: off [fixed]\nvlan-challenged: off [fixed]\ntx-lockless: on [fixed]\nnetns-local: off [fixed]\ntx-gso-robust: off [fixed]\ntx-fcoe-segmentation: off [fixed]\ntx-gre-segmentation: on\ntx-gre-csum-segmentation: on\ntx-ipxip4-segmentation: on\ntx-ipxip6-segmentation: on\ntx-udp_tnl-segmentation: on\ntx-udp_tnl-csum-segmentation: on\ntx-gso-partial: off [fixed]\ntx-tunnel-remcsum-segmentation: off [fixed]\ntx-sctp-segmentation: on\ntx-esp-segmentation: off [fixed]\ntx-udp-segmentation: on\ntx-gso-list: on\nfcoe-mtu: off [fixed]\ntx-nocache-copy: off\nloopback: off [fixed]\nrx-fcs: off [fixed]\nrx-all: off [fixed]\ntx-vlan-stag-hw-insert: on\nrx-vlan-stag-hw-parse: on\nrx-vlan-stag-filter: off [fixed]\nl2-fwd-offload: off [fixed]\nhw-tc-offload: off [fixed]\nesp-hw-offload: off [fixed]\nesp-tx-csum-hw-offload: off [fixed]\nrx-udp_tunnel-port-offload: off [fixed]\ntls-hw-tx-offload: off [fixed]\ntls-hw-rx-offload: off [fixed]\nrx-gro-hw: off [fixed]\ntls-hw-record: off [fixed]\nrx-gro-list: off\nmacsec-hw-offload: off [fixed]\nrx-udp-gro-forwarding: off\nhsr-tag-ins-offload: off [fixed]\nhsr-tag-rm-offload: off [fixed]\nhsr-fwd-offload: off [fixed]\nhsr-dup-offload: off [fixed]\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "ethtool",
+        "-x",
+        "eth0"
+      ],
+      "status": "UNAVAILABLE",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "Cannot get RX ring count: Operation not supported\n"
+    },
+    {
+      "argv": [
+        "systemd-detect-virt"
+      ],
+      "status": "TOOL_UNAVAILABLE",
+      "returncode": null,
+      "stdout": "",
+      "stderr": "[Errno 2] No such file or directory: 'systemd-detect-virt'"
+    }
+  ],
+  "device_classification": "NO_DEVICE_BACKING_REPORTED",
+  "external_hardware": "NOT_PROVEN",
+  "hardware_ceiling": "NOT_PROVEN",
+  "dedicated_data_path": "NOT_PROVEN",
+  "scope": "interface-wide single snapshot; not process traffic, wire accounting, rate, saturation or bare-metal attestation",
+  "source_sha": "4b7cb43becbdb4711b2a6c8ce8c9232fa8997144",
+  "kernel": {
+    "system": "Linux",
+    "release": "6.6.114.1-microsoft-standard-WSL2",
+    "machine": "x86_64"
+  }
+}

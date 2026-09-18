@@ -1,0 +1,60 @@
+[
+  {
+    "command": [
+      "docker",
+      "exec",
+      "--user",
+      "65532",
+      "-w",
+      "/tmp/source",
+      "nbsr-network-inventory-46961268",
+      "git",
+      "fetch",
+      "/evidence/permission-fix.bundle",
+      "HEAD"
+    ],
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "From /evidence/permission-fix.bundle\n * branch              HEAD       -> FETCH_HEAD\n"
+  },
+  {
+    "command": [
+      "docker",
+      "exec",
+      "--user",
+      "65532",
+      "-w",
+      "/tmp/source",
+      "nbsr-network-inventory-46961268",
+      "git",
+      "checkout",
+      "--detach",
+      "4b7cb43becbdb4711b2a6c8ce8c9232fa8997144"
+    ],
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "Previous HEAD position was 46961268 bench: add bounded read-only Linux network inventory\nHEAD is now at 4b7cb43b fix(bench): retain partial ethtool permission failures despite zero exit\n"
+  },
+  {
+    "command": [
+      "docker",
+      "exec",
+      "--user",
+      "65532",
+      "-w",
+      "/tmp/source",
+      "nbsr-network-inventory-46961268",
+      "python",
+      "-B",
+      "-m",
+      "scripts.performance.linux_network_inventory",
+      "--interface",
+      "eth0",
+      "--output",
+      "/evidence/live-inventory-fixed"
+    ],
+    "exit_code": 0,
+    "stdout": "{\"output\": \"/evidence/live-inventory-fixed\", \"external_hardware\": \"NOT_PROVEN\"}\n",
+    "stderr": ""
+  }
+]

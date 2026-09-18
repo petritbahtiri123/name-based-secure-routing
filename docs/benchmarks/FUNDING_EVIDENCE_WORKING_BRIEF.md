@@ -21,6 +21,23 @@ flowchart LR
 
 ## September18 engineering follow-up
 
+External execution preparation now includes a tested finite per-host runner and
+a read-only source/destination integrity gate. Sixteen Direct/NBSR cells at
+1d24cb4c passed across two isolated Docker network namespaces. The affinity
+negative control was rejected with owned-process cleanup; a fresh untrusted
+authority caused handshake failure without an accepted result. Detailed issuer
+attribution remains INCONCLUSIVE. These are functional mechanics, not independent
+server hardware, observer qualification, a speedup or a new capacity result.
+[Native evidence](../../evidence/performance/v2/native-two-namespace-1d24cb4c/summary.md).
+
+A read-only Linux network inventory now records NIC/queue/IRQ information and
+explicit gaps. Real veth execution found and fixed a collector classification
+bug: ethtool can exit zero while reporting a permission-denied subquery. The
+corrected collector retains partial output and flags the gap. A virtual interface
+reporting 10 Gbit/s is explicitly not physical-NIC proof.
+[Inventory evidence](../../evidence/performance/v2/linux-network-inventory-4b7cb43b/summary.md).
+Neither change optimizes production NBSR or closes the missing full remote matrix.
+
 The retained B3 selective-marker comparison at f8925b25 has five before/after
 pairs with 2048 materialized bundles: all ten pass lifecycle cleanup. Source
 pre-start CPU falls 56.109%, but the unchanged baseline also passes 5/5, so this
