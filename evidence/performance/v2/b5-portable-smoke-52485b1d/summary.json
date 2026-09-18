@@ -1,0 +1,44 @@
+{
+  "classification": "COMPLETE_DIAGNOSTIC",
+  "dispersion_unresolved": true,
+  "failed_gate_runs": 0,
+  "final_cv": {
+    "shared": {
+      "gbps": 1.4283971200181063e-05,
+      "window_p99_median_ns": 0.6734580529103145
+    },
+    "split": {
+      "gbps": 0.0004000175761967599,
+      "window_p99_median_ns": 0.5365365681320241
+    }
+  },
+  "first_three_cv": {
+    "shared": {
+      "gbps": 1.6222043622762786e-05,
+      "window_p99_median_ns": 0.7677155511826242
+    },
+    "split": {
+      "gbps": 0.0005301910803809509,
+      "window_p99_median_ns": 0.23720503768351192
+    }
+  },
+  "median_delta_percent": {
+    "gbps": -0.0006529734832394496,
+    "window_p99_median_ns": -33.47763631243976
+  },
+  "medians": {
+    "shared": {
+      "gbps": 0.26212971431502674,
+      "window_p99_median_ns": 1679799.0
+    },
+    "split": {
+      "gbps": 0.2621280026775006,
+      "window_p99_median_ns": 1117442.0
+    }
+  },
+  "observer_qualification": "NOT_QUALIFIED",
+  "p99_definition": "median of observed steady-window p99; not pooled-operation p99",
+  "repeats_per_placement": 5,
+  "scope": "One path at fixed offered rate; split allocates two guest CPUs versus one shared CPU",
+  "sustained_stability": "NOT_PROVEN"
+}
