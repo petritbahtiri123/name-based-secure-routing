@@ -1,5 +1,10 @@
 # Native Linux two-host finite Direct/NBSR runbook
 
+An executable replacement for this document's inline per-host observer is now
+available: [finite native peer execution](EXTERNAL_NATIVE_PEER_EXECUTION.md).
+Use its checked source/build/role interface for new runs. The legacy inline
+wrapper below remains an authored historical procedure, not executed evidence.
+
 **AUTHORED / NOT_EXECUTED ON EXTERNAL HARDWARE.** This procedure covers one
 finite established-forwarding shape on two operator-controlled Linux hosts.
 It is not full Task 8 acceptance. Six accepted Docker Desktop loopback controls

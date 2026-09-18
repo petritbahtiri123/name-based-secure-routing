@@ -1,0 +1,225 @@
+"""One owned native-address Linux finite peer; no SSH or host-policy changes.
+
+Each host invokes this independently. Readiness transfer and completion ACK
+remain the coordinator's responsibility; source validation authorizes the ACK.
+Lifetime CPU is not steady-state CPU and process exit is not runtime ownership.
+"""
+
+import argparse
+import ipaddress
+import json
+import os
+from pathlib import Path
+import platform
+import shutil
+import signal
+import socket
+import subprocess
+import time
+
+from scripts.performance.b3_linux import environment
+from scripts.performance.linux_b5_ceiling import NAMES, require
+from scripts.performance.linux_b5_placement import seal_output
+from scripts.performance.linux_b5_reference import git_state
+from scripts.performance.linux_exit import observe_owned_exit
+from scripts.performance.linux_loopback import ROOT, build_commands, digest, sample_process, validate_matrix, write_json
+from scripts.performance.p2a_established import validate_repeat
+
+
+def validate_endpoint(value, *, allow_zero):
+    try:
+        address, port_text = value.rsplit(':', 1)
+        ip = ipaddress.IPv4Address(address)
+        port = int(port_text)
+    except (ValueError, AttributeError) as error:
+        raise ValueError('concrete IPv4:port required') from error
+    require(not ip.is_unspecified and not ip.is_multicast and str(ip) != '255.255.255.255'
+            and str(ip) == address and port_text == str(port)
+            and (0 if allow_zero else 1) <= port <= 65535, 'invalid native IPv4 endpoint')
+    return address, port
+
+
+def readiness_endpoint(path, expected_address):
+    value = json.loads(path.read_bytes())
+    host, _ = validate_endpoint(value['endpoint'], allow_zero=False)
+    require(host == expected_address and value.get('alpn') == 'nbsr-quic-1', 'readiness address/ALPN mismatch')
+    return value['endpoint']
+
+
+def native_command(cell, role, binaries, authority, output, *, bind, endpoint):
+    require(role in ('source', 'destination'), 'invalid role')
+    _, port = validate_endpoint(bind, allow_zero=True)
+    if role == 'source':
+        require(port == 0, 'source bind must use an ephemeral port')
+        validate_endpoint(endpoint, allow_zero=False)
+    else:
+        require(endpoint is None, 'destination cannot take a remote endpoint')
+    matrix = dict(schema='nbsr-linux-loopback-v1', cores=[cell['cores']],
+        workloads=[{k: cell[k] for k in ('payload_bytes', 'streams', 'outstanding')}],
+        warmup_seconds=3, duration_seconds=20)
+    validate_matrix(matrix)
+    require(cell['path'] in ('direct', 'nbsr'), 'invalid path')
+    server, client, env = build_commands(cell, binaries, authority, output, endpoint, 3, 20)
+    return ((client + ['--benchmark-client-bind', bind], {}) if role == 'source'
+            else (server + ['--benchmark-listen', bind], env))
+
+
+def observe_child(child, cpus, output, *, deadline):
+    identity = None
+    previous_cpu = None
+    with (output / 'resources.ndjson').open('x') as stream:
+        while True:
+            sample = sample_process(child.pid, cpus, allow_exiting=True)
+            current = sample['pid'], sample['start_ticks']
+            if sample['pid'] != child.pid or (identity is not None and current != identity):
+                raise RuntimeError('owned process identity changed')
+            identity = current
+            if previous_cpu is not None and sample['cpu_ns'] < previous_cpu:
+                raise RuntimeError('owned process CPU counter decreased')
+            previous_cpu = sample.get('cpu_ns')
+            stream.write(json.dumps(sample) + '\n')
+            stream.flush()
+            if sample['state'] == 'Z':
+                result = dict(exit_code=child.wait(timeout=5), final_sample=sample)
+                write_json(output / 'exit.json', result)
+                if result['exit_code'] != 0:
+                    raise RuntimeError('peer exited unsuccessfully; see retained stderr')
+                return result
+            if time.monotonic() >= deadline:
+                raise TimeoutError('finite peer controller deadline')
+            time.sleep(.1)
+
+
+def validate_source(output, cell=None):
+    row = json.loads((output / 'stdout').read_text().strip().splitlines()[-1])
+    require(validate_repeat(row) and type(row.get('measured_ns')) is int and row['measured_ns'] > 0,
+            'source validity contract failed')
+    if cell is not None:
+        require(all(row.get(k) == cell[k] for k in ('path', 'payload_bytes', 'streams'))
+                and row.get('outstanding_per_stream') == cell['outstanding'], 'source workload mismatch')
+    write_json(output / 'validated-result.json', row)
+    return row
+
+
+def wait_target_exec(child, binary):
+    deadline = time.monotonic() + 5
+    while (Path('/proc') / str(child.pid) / 'exe').resolve() != binary.resolve():
+        if observe_owned_exit(child.pid) is not None:
+            raise RuntimeError('owned child exited before target exec verification')
+        if time.monotonic() >= deadline:
+            raise TimeoutError('taskset target exec verification deadline')
+        time.sleep(.001)
+
+
+def execute(args):
+    require(platform.system() == 'Linux', 'Linux required')
+    require(not any(k.startswith('NBSR_') for k in os.environ), 'remove inherited NBSR experiment settings')
+    sha, dirty = git_state()
+    require(not dirty, 'clean checkout required')
+    output, authority, binaries = args.output.resolve(), args.authority.resolve(), args.binaries.resolve()
+    require(not output.is_relative_to(ROOT), 'evidence must be outside checkout')
+    require(not authority.is_relative_to(output) and not output.is_relative_to(authority),
+            'private authority and publishable evidence must be disjoint')
+    bind_ip, _ = validate_endpoint(args.bind, allow_zero=True)
+    # This proves only local bind availability, not NIC ownership or isolation.
+    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as probe:
+        probe.bind((bind_ip, 0))
+    if args.role == 'source':
+        require(args.ready_input is not None and args.destination_address is not None,
+                'source requires transferred readiness and expected destination address')
+        endpoint = readiness_endpoint(args.ready_input, args.destination_address)
+    else:
+        require(args.ready_input is None and args.destination_address is None, 'destination has no readiness input')
+        endpoint = None
+    build = json.loads(args.build_manifest.read_bytes())
+    hashes = {name: digest(binaries / name) for name in NAMES.values()}
+    require(build.get('source_sha') == sha and build.get('build_profile') == 'release'
+            and build.get('binary_sha256') == hashes and build.get('build_commands')
+            and build.get('toolchains'), 'exact current release build manifest required')
+    host = environment(args.cores)
+    cell = dict(path=args.path, cores=args.cores, payload_bytes=args.payload,
+                streams=args.streams, outstanding=args.depth)
+    command, overrides = native_command(cell, args.role, binaries, authority, output, bind=args.bind, endpoint=endpoint)
+    executable = Path(command[0])
+    require(os.access(executable, os.X_OK), 'executable peer required')
+    cert_names = ('ca.der', f'{args.role}.der')
+    certificate_hashes = {name: digest(authority / name) for name in cert_names}
+    require((authority / f'{args.role}-key.der').is_file(), 'role private key required')
+    cpus = host['selected_cpus']
+    command = [host['taskset'], '--cpu-list', ','.join(map(str, cpus)), *command]
+    output.mkdir(parents=True, exist_ok=False)
+    child = None
+    success = False
+    try:
+        write_json(output / 'environment.json', dict(repository_sha=sha, cell=cell, role=args.role,
+            bind=args.bind, endpoint=endpoint, linux_environment=host, uid=os.getuid(),
+            controller_deadline_seconds=120, warmup_seconds=3, duration_seconds=20,
+            binary_sha256=hashes, certificates_sha256=certificate_hashes,
+            scope='finite native-address peer; external/physical hardware unqualified',
+            cpu_scope='whole peer lifetime including startup/warmup/drain; not steady CPU ns/op',
+            cleanup_scope='owned process exit, not eleven-counter runtime cleanup'))
+        write_json(output / 'build-manifest.json', build)
+        write_json(output / 'command.json', dict(argv=command, environment_overrides=overrides))
+        shutil.copyfile(executable, output / 'executed-binary')
+        if args.ready_input is not None:
+            shutil.copyfile(args.ready_input, output / 'input-readiness.json')
+        with (output / 'stdout').open('xb') as stdout, (output / 'stderr').open('xb') as stderr:
+            child = subprocess.Popen(command, cwd=ROOT, env={**os.environ, **overrides},
+                stdout=stdout, stderr=stderr, start_new_session=True)
+            write_json(output / 'pid.json', dict(pid=child.pid, owns_process_group=True))
+            deadline = time.monotonic() + 120
+            wait_target_exec(child, executable)
+            result = observe_child(child, cpus, output, deadline=deadline)
+        if args.role == 'source':
+            row = validate_source(output, cell)
+            result.update(completed_operations=row['completed_operations'],
+                          application_gbps=16 * cell['payload_bytes'] * row['completed_operations'] / row['measured_ns'])
+        elif args.path == 'nbsr':
+            row = json.loads((output / 'server-result.json').read_bytes())
+            require(row.get('status') == 'PASS' and row.get('streams') == args.streams,
+                    'destination validity contract failed')
+        require(git_state() == (sha, ''), 'source changed during cell')
+        require(all(digest(binaries / n) == h for n, h in hashes.items())
+                and digest(output / 'executed-binary') == hashes[executable.name], 'binary changed')
+        require(json.loads(args.build_manifest.read_bytes()) == build, 'build manifest changed')
+        require({n: digest(authority / n) for n in cert_names} == certificate_hashes, 'certificate changed')
+        write_json(output / 'result.json', dict(status='PASS_FINITE_PEER', role=args.role, **result,
+            strict_stable_capacity='NOT_ESTABLISHED', steady_cpu_ns_per_operation=None,
+            runtime_ownership_cleanup='NOT_MEASURED', external_hardware='NOT_PROVEN'))
+        success = True
+        return result
+    except BaseException as error:
+        write_json(output / 'failure.json', dict(status='INVALID_PARTIAL', error_type=type(error).__name__, error=str(error)))
+        raise
+    finally:
+        if child is not None and child.returncode is None:
+            # The unreaped, exclusively owned child's PID reserves its new group.
+            try:
+                os.killpg(child.pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+            code = child.wait(timeout=5)
+            write_json(output / 'forced-cleanup.json', dict(exit_code=code, valid=False, group_killed=True))
+        if not success:
+            (output / 'validated-result.json').unlink(missing_ok=True)
+        seal_output(output)
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--role', choices=('source', 'destination'), required=True)
+    parser.add_argument('--path', choices=('direct', 'nbsr'), required=True)
+    for name in ('binaries', 'build-manifest', 'authority', 'output'):
+        parser.add_argument('--' + name, type=Path, required=True)
+    parser.add_argument('--bind', required=True)
+    parser.add_argument('--ready-input', type=Path)
+    parser.add_argument('--destination-address')
+    parser.add_argument('--cores', type=int, choices=(1, 2, 4, 8, 16, 32), default=1)
+    parser.add_argument('--payload', type=int, choices=(1024, 16384), default=1024)
+    parser.add_argument('--streams', type=int, default=64)
+    parser.add_argument('--depth', type=int, choices=(1, 2, 4, 8, 16), default=1)
+    execute(parser.parse_args())
+
+
+if __name__ == '__main__':
+    main()
