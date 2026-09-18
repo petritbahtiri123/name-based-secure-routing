@@ -136,16 +136,18 @@ def validate_execution(checked, raw, row, env):
     )
 
 
-def identity(linux):
+def identity(linux, *, selected_count=1):
     require(isinstance(linux, dict), "Linux environment required")
+    require(type(selected_count) is int and selected_count in (1, 2), "unsupported selected CPU count")
     keys = ("kernel", "python", "taskset_version", "lscpu_version", "topology", "inherited_cpus", "selected_cpus")
     require(all(key in linux for key in keys), "incomplete Linux identity")
     selected, inherited = linux["selected_cpus"], linux["inherited_cpus"]
     require(
-        type(selected) is list and len(selected) == 1 and type(selected[0]) is int and selected[0] >= 0, "exactly one selected CPU required"
+        type(selected) is list and len(selected) == selected_count
+        and all(type(cpu) is int and cpu >= 0 for cpu in selected), "exact selected CPU count required"
     )
     require(type(inherited) is list and inherited and all(type(v) is int and v >= 0 for v in inherited), "invalid inherited pool")
-    require(physical_cpu_sets(linux["topology"], set(inherited), [1])[1] == selected, "physical core selection mismatch")
+    require(physical_cpu_sets(linux["topology"], set(inherited), [selected_count])[selected_count] == selected, "physical core selection mismatch")
     limits = {}
     for name in ("cpu.max", "cpuset.cpus.effective", "memory.max", "pids.max"):
         value = linux.get("cgroup_observed", {}).get("/sys/fs/cgroup/" + name)
@@ -153,7 +155,7 @@ def identity(linux):
         limits[name] = value.strip()
     quota = limits["cpu.max"].split()
     require(len(quota) == 2 and quota[1].isdigit() and int(quota[1]) > 0, "invalid CPU quota")
-    require(quota[0] == "max" or quota[0].isdigit() and int(quota[0]) >= int(quota[1]), "quota below one CPU")
+    require(quota[0] == "max" or quota[0].isdigit() and int(quota[0]) >= selected_count * int(quota[1]), "quota below selected CPU allocation")
     return {**{key: linux[key] for key in keys}, "cgroup_limits": limits}
 
 

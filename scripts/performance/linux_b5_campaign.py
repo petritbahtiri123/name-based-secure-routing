@@ -80,7 +80,7 @@ def execute(args):
     require(build.get("binary_sha256") == {NAMES[r]: h for r, h in hashes.items()}, "binary hashes mismatch")
     require(all(os.access(p, os.X_OK) for p in binaries.values()), "executable binaries required")
     linux = environment(selected_count)
-    initial_identity = identity(linux)
+    initial_identity = identity(linux, selected_count=selected_count)
     backend = LinuxB5Backend(linux, placement=placement)
     shape = dict(physical_cores=selected_count, endpoint_groups=1, runtime_workers=1,
                  payload_bytes=args.payload, streams_per_group=args.streams)
@@ -106,7 +106,8 @@ def execute(args):
         require(all(digest(ROOT / p) == h for p, h in sources.items()), "source bytes changed")
         require(all(digest(binaries[r]) == h and digest(output / "binaries" / NAMES[r]) == h
                     for r, h in hashes.items()), "binary bytes changed")
-        require(identity(environment(selected_count)) == initial_identity, "Linux placement/cgroup changed")
+        require(identity(environment(selected_count), selected_count=selected_count) == initial_identity,
+                "Linux placement/cgroup changed")
 
     def retain(row):
         rows.append(row)

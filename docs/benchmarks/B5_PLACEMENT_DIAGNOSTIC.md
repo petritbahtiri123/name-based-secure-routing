@@ -36,3 +36,12 @@ Harness validation: literal RED produced five failures before implementation
 Focused GREEN covers exact commands, swapped/widened placement rejection, resource
 identity/affinity continuity and unchanged terminal-before-reap ordering. No Rust,
 Go, wire/security or timeout changes are part of this stage.
+
+The first live split attempt exposed an additional prelaunch restriction in the
+single-CPU environment identity helper. A focused RED test preceded its correction:
+explicit diagnostic selection can validate two CPUs and requires quota for both;
+the reference loader still defaults to exactly one CPU. The preceding complete
+shared run and failed split setup remain retained under
+`C:/NBSR-build/b5-placement-pairs-5e0b94dd`. They are not a complete matched cohort.
+An earlier non-root container setup failure is retained separately under
+`C:/NBSR-build/b5-placement-5e0b94dd`; benchmark peers never started there.

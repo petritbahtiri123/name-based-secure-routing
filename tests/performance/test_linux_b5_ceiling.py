@@ -40,6 +40,20 @@ SOURCE_FILES = (
 )
 
 
+def test_two_cpu_diagnostic_identity_preserves_single_cpu_reference_default():
+    from copy import deepcopy
+    linux = deepcopy(LINUX)
+    linux['selected_cpus'] = linux['inherited_cpus'] = [0, 1]
+    linux['topology']['cpus'].append(dict(cpu=1, core=1, socket=0, node=0, online=True))
+    linux['cgroup_observed']['/sys/fs/cgroup/cpuset.cpus.effective'] = '0-1'
+    assert ceiling.identity(linux, selected_count=2)['selected_cpus'] == [0, 1]
+    with pytest.raises(ValueError, match='selected CPU'):
+        ceiling.identity(linux)
+    linux['cgroup_observed']['/sys/fs/cgroup/cpu.max'] = '100000 100000'
+    with pytest.raises(ValueError, match='quota below'):
+        ceiling.identity(linux, selected_count=2)
+
+
 def write(path, value):
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(value) + "\n")
