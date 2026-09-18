@@ -15,6 +15,7 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from scripts import run_b3_session_lifecycle as b3
 from scripts.run_b4b_task4k import checksums
+from scripts.performance.process_cancellation import Cancellation, not_cancelled
 
 
 def binary_names(platform_name):
@@ -91,7 +92,7 @@ def spec_for(axis, count, repeat, *, materialized_streams=False, fixed_channels=
     return spec
 
 
-def execute(args):
+def execute(args, *, check_cancelled=not_cancelled):
     source_sha = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
     source_status = subprocess.check_output(
         ['git', 'status', '--porcelain', '--untracked-files=all'], text=True)
@@ -150,6 +151,7 @@ def execute(args):
                    "crates/nbsr-transport/src/bin/benchmark_support/lifecycle_accept_window.rs"]
     if linux:
         sources += ['scripts/performance/b3_linux.py', 'scripts/performance/b3_linux_analysis.py',
+                    'scripts/performance/process_cancellation.py',
                     'scripts/performance/linux_resources.py', 'scripts/performance/linux_loopback.py',
                     'scripts/performance/linux_udp_failure.py']
     for source in sources:
@@ -159,19 +161,26 @@ def execute(args):
     records = []
     try:
         for spec in specs:
+            check_cancelled()
             print(spec["name"], flush=True)
             options = {}
             if linux:
                 verify_linux_execution(binaries, args.output / 'binaries', build)
                 rounds = 1 if spec['sessions'] > 1 else spec['cycles']
                 cap = 2 * (rounds + 1) * (3 * (math.ceil(2 / .5) + 2))
-                options['capture_backend'] = LinuxCapture(linux['selected_cpus'], linux['taskset'], max_records=cap)
+                options['capture_backend'] = LinuxCapture(linux['selected_cpus'], linux['taskset'], max_records=cap,
+                                                         check_cancelled=check_cancelled)
             row = b3.run_cell("rust-rust", spec, binaries, args.output,
                               idle_seconds=2, active_seconds=2, cooldown_seconds=2, cadence=0.5, **options)
+            check_cancelled()
             records.append(row)
             b3.write_json(args.output / "records.json", records)
             if not row["cleanup"]["all_zero"]:
                 raise RuntimeError("nonzero ownership; preserve and investigate")
+    except Exception as error:
+        b3.write_json(args.output / 'failure.json', dict(classification='INVALID_PARTIAL',
+                      error_type=type(error).__name__, error=str(error)))
+        raise
     finally:
         checksums(args.output)
 
@@ -194,7 +203,11 @@ if __name__ == "__main__":
     parser.add_argument("--materialized-streams", action="store_true", help="retain authorized request and both endpoint stream handles during active hold")
     args = parser.parse_args()
     try:
-        execute(args)
+        if args.platform == 'linux':
+            with Cancellation() as cancellation:
+                execute(args, check_cancelled=cancellation.check)
+        else:
+            execute(args)
     except Exception as error:
         print(f"B3_FAILED: {type(error).__name__}; retained details under {args.output}", file=sys.stderr)
         sys.exit(1)

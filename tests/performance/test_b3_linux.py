@@ -27,6 +27,19 @@ def test_prefix_places_both_roles_before_launch():
     assert capture.command(['source']) == ['/usr/bin/taskset', '-c', '2', 'source']
 
 
+@pytest.mark.parametrize('point', ['command', 'capture'])
+def test_cancelled_linux_capture_unwinds_before_new_work(point):
+    def cancelled():
+        raise InterruptedError('cancelled B3')
+    capture = LinuxCapture([2], '/usr/bin/taskset', check_cancelled=cancelled,
+                           sample_fn=lambda *a: pytest.fail('sample after cancellation'))
+    with pytest.raises(InterruptedError, match='cancelled B3'):
+        if point == 'command':
+            capture.command(['source'])
+        else:
+            capture.capture_once([], process(1), [process(2)], phase='active', cycle=0)
+
+
 def test_role_sums_keep_original_processes_and_linux_names():
     capture = backend()
     rows = []

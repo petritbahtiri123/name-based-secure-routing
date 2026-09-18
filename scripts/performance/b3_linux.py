@@ -11,6 +11,7 @@ import time
 
 from scripts.performance.linux_loopback import physical_cpu_sets
 from scripts.performance.linux_resources import sample_linux_process
+from scripts.performance.process_cancellation import not_cancelled
 
 FIELDS = ('cpu_ns', 'rss_bytes', 'pss_bytes', 'private_resident_bytes', 'private_hugetlb_bytes', 'fd_count')
 
@@ -41,7 +42,8 @@ def environment(cores):
 
 
 class LinuxCapture:
-    def __init__(self, cpus, taskset, *, sample_fn=sample_linux_process, max_records=10000):
+    def __init__(self, cpus, taskset, *, sample_fn=sample_linux_process, max_records=10000,
+                 check_cancelled=not_cancelled):
         if not cpus or len(set(cpus)) != len(cpus) or any(type(cpu) is not int or cpu < 0 for cpu in cpus):
             raise ValueError('invalid CPU pool')
         if not taskset or type(max_records) is not int or max_records < 1:
@@ -50,8 +52,10 @@ class LinuxCapture:
         self._sample, self._cap = sample_fn, max_records
         self._identities, self._previous = {}, {}
         self._count = 0
+        self.check_cancelled = check_cancelled
 
     def command(self, argv):
+        self.check_cancelled()
         return [self.taskset, '-c', ','.join(map(str, self.cpus)), *argv]
 
     def failure_snapshot(self, processes):
@@ -68,6 +72,7 @@ class LinuxCapture:
                     **dict.fromkeys(FIELDS))
 
     def capture_once(self, resources, destination, clients, *, phase, cycle, allow_exited_sources=False):
+        self.check_cancelled()
         if allow_exited_sources and phase != 'cooldown':
             raise RuntimeError('expected exit exception is final cooldown only')
         expected = {'destination': [destination], 'source': list(clients)}
