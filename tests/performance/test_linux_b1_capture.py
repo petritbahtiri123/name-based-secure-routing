@@ -4,6 +4,19 @@ import struct
 import pytest
 
 
+def test_nonzero_pcap_loss_also_invalidates_the_capture_report(tmp_path):
+    from scripts.performance.linux_b1_capture import LinuxPacketObserver
+    (tmp_path / 'dumpcap.stderr').write_text(
+        "Packets captured: 135798\n"
+        "Packets received/dropped on interface 'Loopback: lo': 135798/2 "
+        "(pcap:2/dumpcap:0/flushed:0/ps_ifdrop:0) (100.0%)\n")
+    observer = LinuxPacketObserver('dumpcap', 'tshark', 'lo')
+    observer.report['valid'] = True  # A graceful file close alone cannot validate packet accounting.
+    with pytest.raises(ValueError, match='nonzero capture loss'):
+        observer._account_capture('127.0.0.1:1234', tmp_path)
+    assert observer.report['valid'] is False
+
+
 @pytest.mark.parametrize('during_wait', [False, True])
 def test_cancelled_packet_client_is_killed_and_reaped_without_extending_deadline(tmp_path, monkeypatch, during_wait):
     import subprocess

@@ -106,6 +106,14 @@ class LinuxPacketObserver(PacketObserver):
         super().wait_capture_ready(process, pcap, cell_dir)
         self.check_cancelled()
 
+    def _account_capture(self, endpoint, directory):
+        try:
+            super()._account_capture(endpoint, directory)
+        except BaseException as error:
+            self.report.update(valid=False, status='invalid_packet_accounting',
+                               packet_accounting_error=str(error))
+            raise
+
     def process_options(self):
         return dict(start_new_session=True)
 
