@@ -1,0 +1,177 @@
+{
+  "classification": "DIAGNOSTIC_DERIVED_PHASE_APPROXIMATION",
+  "rows": [
+    {
+      "repeat": 1,
+      "placement": "shared",
+      "windows": 9,
+      "median_window_latency_ns": {
+        "p50": 612633,
+        "p95": 1070358,
+        "p99": 1811596
+      },
+      "max_window_p99_ns": 4945460,
+      "offered": 2592063,
+      "completed": 2451097,
+      "missed": 140966,
+      "missed_fraction": 0.05438370903793619,
+      "cpu_ns_per_completed_op_approx": 93564.9927671051
+    },
+    {
+      "repeat": 1,
+      "placement": "split",
+      "windows": 9,
+      "median_window_latency_ns": {
+        "p50": 328618,
+        "p95": 627732,
+        "p99": 1083359
+      },
+      "max_window_p99_ns": 1275969,
+      "offered": 2592063,
+      "completed": 2563599,
+      "missed": 28464,
+      "missed_fraction": 0.010981214576960514,
+      "cpu_ns_per_completed_op_approx": 98037.26092009331
+    },
+    {
+      "repeat": 2,
+      "placement": "split",
+      "windows": 9,
+      "median_window_latency_ns": {
+        "p50": 326617,
+        "p95": 613933,
+        "p99": 999054
+      },
+      "max_window_p99_ns": 2381670,
+      "offered": 2592063,
+      "completed": 2551772,
+      "missed": 40291,
+      "missed_fraction": 0.015543989478650789,
+      "cpu_ns_per_completed_op_approx": 100100.47864477977
+    },
+    {
+      "repeat": 2,
+      "placement": "shared",
+      "windows": 9,
+      "median_window_latency_ns": {
+        "p50": 605034,
+        "p95": 1024357,
+        "p99": 1767497
+      },
+      "max_window_p99_ns": 3098668,
+      "offered": 2592063,
+      "completed": 2441410,
+      "missed": 150653,
+      "missed_fraction": 0.05812088672227488,
+      "cpu_ns_per_completed_op_approx": 96140.66558243657
+    },
+    {
+      "repeat": 3,
+      "placement": "shared",
+      "windows": 9,
+      "median_window_latency_ns": {
+        "p50": 584230,
+        "p95": 799950,
+        "p99": 1372683
+      },
+      "max_window_p99_ns": 1497081,
+      "offered": 2592063,
+      "completed": 2553649,
+      "missed": 38414,
+      "missed_fraction": 0.014819855844553162,
+      "cpu_ns_per_completed_op_approx": 81132.5069525404
+    },
+    {
+      "repeat": 3,
+      "placement": "split",
+      "windows": 9,
+      "median_window_latency_ns": {
+        "p50": 329718,
+        "p95": 652635,
+        "p99": 1115560
+      },
+      "max_window_p99_ns": 1207564,
+      "offered": 2592063,
+      "completed": 2567152,
+      "missed": 24911,
+      "missed_fraction": 0.009610491720301552,
+      "cpu_ns_per_completed_op_approx": 98122.13135789288
+    },
+    {
+      "repeat": 4,
+      "placement": "split",
+      "windows": 9,
+      "median_window_latency_ns": {
+        "p50": 331018,
+        "p95": 625034,
+        "p99": 1044957
+      },
+      "max_window_p99_ns": 3026950,
+      "offered": 2592063,
+      "completed": 2544514,
+      "missed": 47549,
+      "missed_fraction": 0.01834407574198621,
+      "cpu_ns_per_completed_op_approx": 102693.26152166862
+    },
+    {
+      "repeat": 4,
+      "placement": "shared",
+      "windows": 9,
+      "median_window_latency_ns": {
+        "p50": 584231,
+        "p95": 783051,
+        "p99": 1361269
+      },
+      "max_window_p99_ns": 1982809,
+      "offered": 2592063,
+      "completed": 2547992,
+      "missed": 44071,
+      "missed_fraction": 0.017002287367243775,
+      "cpu_ns_per_completed_op_approx": 81727.87268217123
+    },
+    {
+      "repeat": 5,
+      "placement": "shared",
+      "windows": 9,
+      "median_window_latency_ns": {
+        "p50": 588531,
+        "p95": 803944,
+        "p99": 1552181
+      },
+      "max_window_p99_ns": 10185063,
+      "offered": 2592063,
+      "completed": 2459610,
+      "missed": 132453,
+      "missed_fraction": 0.05109945244386421,
+      "cpu_ns_per_completed_op_approx": 88707.77879131016
+    },
+    {
+      "repeat": 5,
+      "placement": "split",
+      "windows": 9,
+      "median_window_latency_ns": {
+        "p50": 332619,
+        "p95": 619734,
+        "p99": 1099661
+      },
+      "max_window_p99_ns": 2527037,
+      "offered": 2592063,
+      "completed": 2541146,
+      "missed": 50917,
+      "missed_fraction": 0.019643426876584404,
+      "cpu_ns_per_completed_op_approx": 109043.71943890597
+    }
+  ],
+  "cohorts": {
+    "shared": {
+      "max_window_p99_ns": 3098668,
+      "missed_fraction": 0.05109945244386421,
+      "cpu_ns_per_completed_op_approx": 88707.77879131016
+    },
+    "split": {
+      "max_window_p99_ns": 2381670,
+      "missed_fraction": 0.015543989478650789,
+      "cpu_ns_per_completed_op_approx": 100100.47864477977
+    }
+  }
+}

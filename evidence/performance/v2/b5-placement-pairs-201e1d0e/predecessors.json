@@ -1,0 +1,50 @@
+{
+  "nonroot_setup": {
+    "root": "C:/NBSR-build/b5-placement-5e0b94dd",
+    "classification": "SETUP_FAILURE_NO_PEERS",
+    "reason": "default container UID cannot create /work"
+  },
+  "partial_pair": {
+    "root": "C:\\NBSR-build\\b5-placement-pairs-5e0b94dd",
+    "classification": "UNMATCHED_PREDECESSOR",
+    "results": [
+      {
+        "repeat": 1,
+        "placement": "shared",
+        "exit_code": 1,
+        "classification": "FAIL_DIAGNOSTIC_RETAINED",
+        "complete_final": true,
+        "gbps": 2.212365577245926,
+        "continuous_ownership": {
+          "classification": "SAMPLED_NO_SUSTAINED_GROWTH",
+          "max_snapshot_gap_ns": {
+            "destination_0": 1002223045,
+            "source": 1001228473
+          },
+          "retained_capacity_scope": "Optional fields observed when emitted; not allocator or leak attribution.",
+          "retained_window_per_role": 60,
+          "sample_counts": {
+            "destination_0": 305,
+            "source": 300
+          },
+          "scope": "Process-local sample intervals; cross-process clock alignment and final zero cleanup are separate."
+        },
+        "gate_failure_count": 5,
+        "window_p99_median_ns": 1607297
+      },
+      {
+        "repeat": 1,
+        "placement": "split",
+        "exit_code": 1,
+        "classification": "SETUP_FAILURE",
+        "complete_final": false,
+        "gbps": null,
+        "continuous_ownership": null,
+        "gate_failure_count": 0,
+        "window_p99_median_ns": null
+      }
+    ],
+    "reason": "split rejected before launch by one-CPU environment identity; fixed at 201e1d0e"
+  },
+  "analysis_note": "Supplemental analyzer initially expected 10 steady windows. Inspection established 9 or 10; final boundary progress may be drain. No raw data or existing gate was changed."
+}

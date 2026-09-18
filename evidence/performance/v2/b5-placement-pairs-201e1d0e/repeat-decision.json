@@ -1,0 +1,10 @@
+{
+  "required": 5,
+  "cv": {
+    "shared/gbps": 0.02505818994630061,
+    "shared/window_p99_median_ns": 0.1464227218944219,
+    "split/gbps": 0.003144316024684287,
+    "split/window_p99_median_ns": 0.056439038435082654
+  },
+  "classification": "DIAGNOSTIC_ONLY"
+}

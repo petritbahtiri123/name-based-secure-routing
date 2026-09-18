@@ -1,0 +1,22 @@
+[
+  {
+    "root": "C:\\NBSR-build\\b5-placement-pairs-201e1d0e",
+    "index_sha256": "24fd05d0dd9d6776065eb65338d6d8ba42bb6cfcf60dc0b8c1aacf0686387d1e"
+  },
+  {
+    "root": "C:\\NBSR-build\\b5-placement-5e0b94dd",
+    "index_sha256": "95b2f4fd4bd6df31d86577a08245fdeede2424955c444d61cd23be0b1c9ecb4e"
+  },
+  {
+    "root": "C:\\NBSR-build\\b5-placement-pairs-5e0b94dd",
+    "index_sha256": "241476c1502558ce04d192e90ea3709f3033e162ca77f7a10090fc1191f178d1"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-current-5e0b94dd",
+    "index_sha256": "b0dfb6636d1ea6b06ff8220a6ff2fc084b20085784bbf2f99f3c1a4ddd431d75"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-current-201e1d0e",
+    "index_sha256": "3fe8c1989cb5504f35188eb0bd6d0b918677c2ab7c8baee6b51d0cf2d52e485e"
+  }
+]
