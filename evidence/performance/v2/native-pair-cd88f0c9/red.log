@@ -1,0 +1,210 @@
+FFFFFFFFFFFFFFFF                                                         [100%]
+================================== FAILURES ===================================
+_ test_valid_pair_is_integrity_only_not_capacity_or_external_hardware[direct] _
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1054/test_valid_pair_is_integrity_o0')
+mode = 'direct'
+
+    @pytest.mark.parametrize('mode', ['direct', 'nbsr'])
+    def test_valid_pair_is_integrity_only_not_capacity_or_external_hardware(tmp_path, mode):
+>       from scripts.performance.linux_native_pair import analyze_pair
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_native_pair'
+
+tests\performance\test_linux_native_pair.py:69: ModuleNotFoundError
+__ test_valid_pair_is_integrity_only_not_capacity_or_external_hardware[nbsr] __
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1054/test_valid_pair_is_integrity_o1')
+mode = 'nbsr'
+
+    @pytest.mark.parametrize('mode', ['direct', 'nbsr'])
+    def test_valid_pair_is_integrity_only_not_capacity_or_external_hardware(tmp_path, mode):
+>       from scripts.performance.linux_native_pair import analyze_pair
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_native_pair'
+
+tests\performance\test_linux_native_pair.py:69: ModuleNotFoundError
+_____ test_pair_refuses_corrupt_stale_or_incompatible_evidence[unindexed] _____
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1054/test_pair_refuses_corrupt_stal0')
+fault = 'unindexed'
+
+    @pytest.mark.parametrize('fault', ['unindexed', 'duplicate-index', 'path-traversal', 'tamper',
+        'sha', 'ca', 'ready', 'workload', 'exit', 'pid', 'terminal', 'source-row', 'forced-cleanup', 'binary'])
+    def test_pair_refuses_corrupt_stale_or_incompatible_evidence(tmp_path, fault):
+>       from scripts.performance.linux_native_pair import analyze_pair
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_native_pair'
+
+tests\performance\test_linux_native_pair.py:79: ModuleNotFoundError
+__ test_pair_refuses_corrupt_stale_or_incompatible_evidence[duplicate-index] __
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1054/test_pair_refuses_corrupt_stal1')
+fault = 'duplicate-index'
+
+    @pytest.mark.parametrize('fault', ['unindexed', 'duplicate-index', 'path-traversal', 'tamper',
+        'sha', 'ca', 'ready', 'workload', 'exit', 'pid', 'terminal', 'source-row', 'forced-cleanup', 'binary'])
+    def test_pair_refuses_corrupt_stale_or_incompatible_evidence(tmp_path, fault):
+>       from scripts.performance.linux_native_pair import analyze_pair
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_native_pair'
+
+tests\performance\test_linux_native_pair.py:79: ModuleNotFoundError
+__ test_pair_refuses_corrupt_stale_or_incompatible_evidence[path-traversal] ___
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1054/test_pair_refuses_corrupt_stal2')
+fault = 'path-traversal'
+
+    @pytest.mark.parametrize('fault', ['unindexed', 'duplicate-index', 'path-traversal', 'tamper',
+        'sha', 'ca', 'ready', 'workload', 'exit', 'pid', 'terminal', 'source-row', 'forced-cleanup', 'binary'])
+    def test_pair_refuses_corrupt_stale_or_incompatible_evidence(tmp_path, fault):
+>       from scripts.performance.linux_native_pair import analyze_pair
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_native_pair'
+
+tests\performance\test_linux_native_pair.py:79: ModuleNotFoundError
+______ test_pair_refuses_corrupt_stale_or_incompatible_evidence[tamper] _______
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1054/test_pair_refuses_corrupt_stal3')
+fault = 'tamper'
+
+    @pytest.mark.parametrize('fault', ['unindexed', 'duplicate-index', 'path-traversal', 'tamper',
+        'sha', 'ca', 'ready', 'workload', 'exit', 'pid', 'terminal', 'source-row', 'forced-cleanup', 'binary'])
+    def test_pair_refuses_corrupt_stale_or_incompatible_evidence(tmp_path, fault):
+>       from scripts.performance.linux_native_pair import analyze_pair
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_native_pair'
+
+tests\performance\test_linux_native_pair.py:79: ModuleNotFoundError
+________ test_pair_refuses_corrupt_stale_or_incompatible_evidence[sha] ________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1054/test_pair_refuses_corrupt_stal4')
+fault = 'sha'
+
+    @pytest.mark.parametrize('fault', ['unindexed', 'duplicate-index', 'path-traversal', 'tamper',
+        'sha', 'ca', 'ready', 'workload', 'exit', 'pid', 'terminal', 'source-row', 'forced-cleanup', 'binary'])
+    def test_pair_refuses_corrupt_stale_or_incompatible_evidence(tmp_path, fault):
+>       from scripts.performance.linux_native_pair import analyze_pair
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_native_pair'
+
+tests\performance\test_linux_native_pair.py:79: ModuleNotFoundError
+________ test_pair_refuses_corrupt_stale_or_incompatible_evidence[ca] _________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1054/test_pair_refuses_corrupt_stal5')
+fault = 'ca'
+
+    @pytest.mark.parametrize('fault', ['unindexed', 'duplicate-index', 'path-traversal', 'tamper',
+        'sha', 'ca', 'ready', 'workload', 'exit', 'pid', 'terminal', 'source-row', 'forced-cleanup', 'binary'])
+    def test_pair_refuses_corrupt_stale_or_incompatible_evidence(tmp_path, fault):
+>       from scripts.performance.linux_native_pair import analyze_pair
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_native_pair'
+
+tests\performance\test_linux_native_pair.py:79: ModuleNotFoundError
+_______ test_pair_refuses_corrupt_stale_or_incompatible_evidence[ready] _______
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1054/test_pair_refuses_corrupt_stal6')
+fault = 'ready'
+
+    @pytest.mark.parametrize('fault', ['unindexed', 'duplicate-index', 'path-traversal', 'tamper',
+        'sha', 'ca', 'ready', 'workload', 'exit', 'pid', 'terminal', 'source-row', 'forced-cleanup', 'binary'])
+    def test_pair_refuses_corrupt_stale_or_incompatible_evidence(tmp_path, fault):
+>       from scripts.performance.linux_native_pair import analyze_pair
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_native_pair'
+
+tests\performance\test_linux_native_pair.py:79: ModuleNotFoundError
+_____ test_pair_refuses_corrupt_stale_or_incompatible_evidence[workload] ______
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1054/test_pair_refuses_corrupt_stal7')
+fault = 'workload'
+
+    @pytest.mark.parametrize('fault', ['unindexed', 'duplicate-index', 'path-traversal', 'tamper',
+        'sha', 'ca', 'ready', 'workload', 'exit', 'pid', 'terminal', 'source-row', 'forced-cleanup', 'binary'])
+    def test_pair_refuses_corrupt_stale_or_incompatible_evidence(tmp_path, fault):
+>       from scripts.performance.linux_native_pair import analyze_pair
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_native_pair'
+
+tests\performance\test_linux_native_pair.py:79: ModuleNotFoundError
+_______ test_pair_refuses_corrupt_stale_or_incompatible_evidence[exit] ________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1054/test_pair_refuses_corrupt_stal8')
+fault = 'exit'
+
+    @pytest.mark.parametrize('fault', ['unindexed', 'duplicate-index', 'path-traversal', 'tamper',
+        'sha', 'ca', 'ready', 'workload', 'exit', 'pid', 'terminal', 'source-row', 'forced-cleanup', 'binary'])
+    def test_pair_refuses_corrupt_stale_or_incompatible_evidence(tmp_path, fault):
+>       from scripts.performance.linux_native_pair import analyze_pair
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_native_pair'
+
+tests\performance\test_linux_native_pair.py:79: ModuleNotFoundError
+________ test_pair_refuses_corrupt_stale_or_incompatible_evidence[pid] ________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1054/test_pair_refuses_corrupt_stal9')
+fault = 'pid'
+
+    @pytest.mark.parametrize('fault', ['unindexed', 'duplicate-index', 'path-traversal', 'tamper',
+        'sha', 'ca', 'ready', 'workload', 'exit', 'pid', 'terminal', 'source-row', 'forced-cleanup', 'binary'])
+    def test_pair_refuses_corrupt_stale_or_incompatible_evidence(tmp_path, fault):
+>       from scripts.performance.linux_native_pair import analyze_pair
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_native_pair'
+
+tests\performance\test_linux_native_pair.py:79: ModuleNotFoundError
+_____ test_pair_refuses_corrupt_stale_or_incompatible_evidence[terminal] ______
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1054/test_pair_refuses_corrupt_stal10')
+fault = 'terminal'
+
+    @pytest.mark.parametrize('fault', ['unindexed', 'duplicate-index', 'path-traversal', 'tamper',
+        'sha', 'ca', 'ready', 'workload', 'exit', 'pid', 'terminal', 'source-row', 'forced-cleanup', 'binary'])
+    def test_pair_refuses_corrupt_stale_or_incompatible_evidence(tmp_path, fault):
+>       from scripts.performance.linux_native_pair import analyze_pair
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_native_pair'
+
+tests\performance\test_linux_native_pair.py:79: ModuleNotFoundError
+____ test_pair_refuses_corrupt_stale_or_incompatible_evidence[source-row] _____
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1054/test_pair_refuses_corrupt_stal11')
+fault = 'source-row'
+
+    @pytest.mark.parametrize('fault', ['unindexed', 'duplicate-index', 'path-traversal', 'tamper',
+        'sha', 'ca', 'ready', 'workload', 'exit', 'pid', 'terminal', 'source-row', 'forced-cleanup', 'binary'])
+    def test_pair_refuses_corrupt_stale_or_incompatible_evidence(tmp_path, fault):
+>       from scripts.performance.linux_native_pair import analyze_pair
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_native_pair'
+
+tests\performance\test_linux_native_pair.py:79: ModuleNotFoundError
+__ test_pair_refuses_corrupt_stale_or_incompatible_evidence[forced-cleanup] ___
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1054/test_pair_refuses_corrupt_stal12')
+fault = 'forced-cleanup'
+
+    @pytest.mark.parametrize('fault', ['unindexed', 'duplicate-index', 'path-traversal', 'tamper',
+        'sha', 'ca', 'ready', 'workload', 'exit', 'pid', 'terminal', 'source-row', 'forced-cleanup', 'binary'])
+    def test_pair_refuses_corrupt_stale_or_incompatible_evidence(tmp_path, fault):
+>       from scripts.performance.linux_native_pair import analyze_pair
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_native_pair'
+
+tests\performance\test_linux_native_pair.py:79: ModuleNotFoundError
+______ test_pair_refuses_corrupt_stale_or_incompatible_evidence[binary] _______
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1054/test_pair_refuses_corrupt_stal13')
+fault = 'binary'
+
+    @pytest.mark.parametrize('fault', ['unindexed', 'duplicate-index', 'path-traversal', 'tamper',
+        'sha', 'ca', 'ready', 'workload', 'exit', 'pid', 'terminal', 'source-row', 'forced-cleanup', 'binary'])
+    def test_pair_refuses_corrupt_stale_or_incompatible_evidence(tmp_path, fault):
+>       from scripts.performance.linux_native_pair import analyze_pair
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_native_pair'
+
+tests\performance\test_linux_native_pair.py:79: ModuleNotFoundError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_linux_native_pair.py::test_valid_pair_is_integrity_only_not_capacity_or_external_hardware[direct]
+FAILED tests/performance/test_linux_native_pair.py::test_valid_pair_is_integrity_only_not_capacity_or_external_hardware[nbsr]
+FAILED tests/performance/test_linux_native_pair.py::test_pair_refuses_corrupt_stale_or_incompatible_evidence[unindexed]
+FAILED tests/performance/test_linux_native_pair.py::test_pair_refuses_corrupt_stale_or_incompatible_evidence[duplicate-index]
+FAILED tests/performance/test_linux_native_pair.py::test_pair_refuses_corrupt_stale_or_incompatible_evidence[path-traversal]
+FAILED tests/performance/test_linux_native_pair.py::test_pair_refuses_corrupt_stale_or_incompatible_evidence[tamper]
+FAILED tests/performance/test_linux_native_pair.py::test_pair_refuses_corrupt_stale_or_incompatible_evidence[sha]
+FAILED tests/performance/test_linux_native_pair.py::test_pair_refuses_corrupt_stale_or_incompatible_evidence[ca]
+FAILED tests/performance/test_linux_native_pair.py::test_pair_refuses_corrupt_stale_or_incompatible_evidence[ready]
+FAILED tests/performance/test_linux_native_pair.py::test_pair_refuses_corrupt_stale_or_incompatible_evidence[workload]
+FAILED tests/performance/test_linux_native_pair.py::test_pair_refuses_corrupt_stale_or_incompatible_evidence[exit]
+FAILED tests/performance/test_linux_native_pair.py::test_pair_refuses_corrupt_stale_or_incompatible_evidence[pid]
+FAILED tests/performance/test_linux_native_pair.py::test_pair_refuses_corrupt_stale_or_incompatible_evidence[terminal]
+FAILED tests/performance/test_linux_native_pair.py::test_pair_refuses_corrupt_stale_or_incompatible_evidence[source-row]
+FAILED tests/performance/test_linux_native_pair.py::test_pair_refuses_corrupt_stale_or_incompatible_evidence[forced-cleanup]
+FAILED tests/performance/test_linux_native_pair.py::test_pair_refuses_corrupt_stale_or_incompatible_evidence[binary]
+16 failed in 1.40s

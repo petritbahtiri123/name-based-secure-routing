@@ -1,0 +1,64 @@
+FF..............                                                         [100%]
+================================== FAILURES ===================================
+_ test_valid_pair_is_integrity_only_not_capacity_or_external_hardware[direct] _
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1055/test_valid_pair_is_integrity_o0')
+mode = 'direct'
+
+    @pytest.mark.parametrize('mode', ['direct', 'nbsr'])
+    def test_valid_pair_is_integrity_only_not_capacity_or_external_hardware(tmp_path, mode):
+        from scripts.performance.linux_native_pair import analyze_pair
+        source, destination = fixture(tmp_path, mode)
+>       result = analyze_pair(source, destination, source_sha=SHA)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\performance\test_linux_native_pair.py:71: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+scripts\performance\linux_native_pair.py:121: in analyze_pair
+    src, result, src_index = check_peer(source, 'source', source_sha)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts\performance\linux_native_pair.py:77: in check_peer
+    require(len(argv) > 4 and PurePosixPath(argv[0]).name == 'taskset'
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False, reason = 'executable/affinity command mismatch'
+
+    def require(condition, reason):
+        if not condition:
+>           raise ValueError(reason)
+E           ValueError: executable/affinity command mismatch
+
+scripts\performance\linux_b5_ceiling.py:22: ValueError
+__ test_valid_pair_is_integrity_only_not_capacity_or_external_hardware[nbsr] __
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1055/test_valid_pair_is_integrity_o1')
+mode = 'nbsr'
+
+    @pytest.mark.parametrize('mode', ['direct', 'nbsr'])
+    def test_valid_pair_is_integrity_only_not_capacity_or_external_hardware(tmp_path, mode):
+        from scripts.performance.linux_native_pair import analyze_pair
+        source, destination = fixture(tmp_path, mode)
+>       result = analyze_pair(source, destination, source_sha=SHA)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\performance\test_linux_native_pair.py:71: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+scripts\performance\linux_native_pair.py:121: in analyze_pair
+    src, result, src_index = check_peer(source, 'source', source_sha)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts\performance\linux_native_pair.py:77: in check_peer
+    require(len(argv) > 4 and PurePosixPath(argv[0]).name == 'taskset'
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False, reason = 'executable/affinity command mismatch'
+
+    def require(condition, reason):
+        if not condition:
+>           raise ValueError(reason)
+E           ValueError: executable/affinity command mismatch
+
+scripts\performance\linux_b5_ceiling.py:22: ValueError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_linux_native_pair.py::test_valid_pair_is_integrity_only_not_capacity_or_external_hardware[direct]
+FAILED tests/performance/test_linux_native_pair.py::test_valid_pair_is_integrity_only_not_capacity_or_external_hardware[nbsr]
+2 failed, 14 passed in 2.58s

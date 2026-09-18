@@ -1,0 +1,10 @@
+{
+  "removed": [
+    "nbsr-native-source-1d24cb4c",
+    "nbsr-native-destination-1d24cb4c",
+    "nbsr-build-1d24cb4c"
+  ],
+  "network": "nbsr-native-finite-1d24cb4c",
+  "approximate_disposable_layer_bytes": 922787840,
+  "reason": "Stopped campaign containers only; public raw output and checksum indices verified before removal; binaries and images retained. Docker VHD free blocks do not prove equivalent host free-space recovery."
+}
