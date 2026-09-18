@@ -1,7 +1,31 @@
 from pathlib import Path
 from types import SimpleNamespace
+import signal
 
 import pytest
+
+
+def test_signal_cancellation_is_deferred_until_owned_child_is_registered():
+    from scripts.performance.linux_native_peer import Cancellation
+    previous = signal.getsignal(signal.SIGTERM)
+    with Cancellation() as cancellation:
+        handler = signal.getsignal(signal.SIGTERM)
+        handler(signal.SIGTERM, None)  # Must not raise in the middle of Popen assignment.
+        with pytest.raises(InterruptedError, match='SIGTERM'):
+            cancellation.check()
+        handler(signal.SIGTERM, None)  # Repeated requests cannot interrupt finally cleanup.
+    assert signal.getsignal(signal.SIGTERM) == previous
+
+
+def test_observer_checks_pending_cancel_before_sampling_or_reaping(tmp_path, monkeypatch):
+    from scripts.performance import linux_native_peer as peer
+    monkeypatch.setattr(peer, 'sample_process', lambda *a, **k: pytest.fail('sample after cancellation'))
+    child = SimpleNamespace(pid=123, wait=lambda **k: pytest.fail('reap belongs to owner cleanup'))
+    def cancelled():
+        raise InterruptedError('SIGTERM')
+    with pytest.raises(InterruptedError, match='SIGTERM'):
+        peer.observe_child(child, [0], tmp_path, deadline=peer.time.monotonic() + 1,
+                           check_cancelled=cancelled)
 
 
 def test_native_commands_keep_equivalent_shape_and_explicit_addresses(tmp_path):
@@ -83,7 +107,8 @@ def test_failed_source_validation_cannot_produce_ack_authorization(tmp_path):
     assert not (tmp_path / 'validated-result.json').exists()
 
 
-def test_sampling_failure_kills_only_owned_group_and_seals_rejected_attempt(tmp_path, monkeypatch):
+@pytest.mark.parametrize('failure_kind', ['sampler', 'cancel-after-spawn'])
+def test_failure_kills_only_owned_group_and_seals_rejected_attempt(tmp_path, monkeypatch, failure_kind):
     import json
     from scripts.performance import linux_native_peer as peer
     binaries = tmp_path / 'bins'
@@ -117,15 +142,23 @@ def test_sampling_failure_kills_only_owned_group_and_seals_rejected_attempt(tmp_
     monkeypatch.setattr(peer.os, 'killpg', lambda pid, sig: events.append(('kill_group', pid)), raising=False)
     monkeypatch.setattr(peer.signal, 'SIGKILL', 9, raising=False)
     monkeypatch.setattr(peer.subprocess, 'Popen', launch)
-    monkeypatch.setattr(peer, 'wait_target_exec', lambda *a: None)
+    monkeypatch.setattr(peer, 'wait_target_exec', lambda *a, **k: None)
     def fail(*args, **kwargs):
         raise RuntimeError('sampler failure fixture')
     monkeypatch.setattr(peer, 'observe_child', fail)
     args = SimpleNamespace(output=tmp_path / 'out', authority=authority, binaries=binaries,
         bind='127.0.0.1:0', role='destination', path='direct', ready_input=None,
         destination_address=None, build_manifest=manifest, cores=1, payload=1024, streams=1, depth=1)
-    with pytest.raises(RuntimeError, match='sampler failure'):
-        peer.execute(args)
+    calls = 0
+    def check_cancelled():
+        nonlocal calls
+        calls += 1
+        if failure_kind == 'cancel-after-spawn' and calls == 2:
+            assert (args.output / 'pid.json').is_file()
+            raise InterruptedError('cancelled fixture')
+    expected = RuntimeError if failure_kind == 'sampler' else InterruptedError
+    with pytest.raises(expected, match='fixture'):
+        peer.execute(args, check_cancelled=check_cancelled)
     assert events == [('kill_group', 123), 'wait']
     assert json.loads((args.output / 'forced-cleanup.json').read_text())['valid'] is False
     assert (args.output / 'failure.json').exists() and (args.output / 'checksums.sha256').exists()

@@ -71,6 +71,11 @@ measurements. CPU totals include startup/warmup/drain. Never subtract monotonic
 timestamps across hosts. Private keys are neither copied into nor hashed in the
 publishable output. Forced cancellation kills only the exclusively owned process
 group and rejects the attempt; it cannot produce an accepted source result.
+The CLI defers SIGINT/SIGTERM/SIGHUP requests to owned-process safe points,
+including across process creation, so interruption cannot lose the newly spawned
+peer before cleanup. Repeated catchable signals do not interrupt that cleanup.
+SIGKILL, host failure and kernel failure cannot be handled by a Python controller;
+use the existing operator-owned container/service lifecycle for those cases.
 
 This implementation is a finite per-host subset. Two-container execution, if
 retained, verifies native-address transport and orchestration across namespaces,

@@ -26,6 +26,41 @@ from scripts.performance.linux_loopback import ROOT, build_commands, digest, sam
 from scripts.performance.p2a_established import validate_repeat
 
 
+class Cancellation:
+    """Defer catchable signals to safe points, including across Popen assignment.
+
+    Raising directly in a signal handler can lose ownership of a just-spawned
+    child before Popen returns. Recording a request also lets finally cleanup
+    finish when another signal arrives. SIGKILL cannot be handled.
+    """
+
+    def __init__(self):
+        self.requested = None
+        self.previous = {}
+
+    def request(self, number, frame):
+        self.requested = number
+
+    def check(self):
+        if self.requested is not None:
+            raise InterruptedError('finite peer cancelled by ' + signal.Signals(self.requested).name)
+
+    def __enter__(self):
+        for name in ('SIGINT', 'SIGTERM', 'SIGHUP'):
+            if hasattr(signal, name):
+                number = getattr(signal, name)
+                self.previous[number] = signal.signal(number, self.request)
+        return self
+
+    def __exit__(self, *_):
+        for number, handler in self.previous.items():
+            signal.signal(number, handler)
+
+
+def not_cancelled():
+    pass
+
+
 def validate_endpoint(value, *, allow_zero):
     try:
         address, port_text = value.rsplit(':', 1)
@@ -64,11 +99,12 @@ def native_command(cell, role, binaries, authority, output, *, bind, endpoint):
             else (server + ['--benchmark-listen', bind], env))
 
 
-def observe_child(child, cpus, output, *, deadline):
+def observe_child(child, cpus, output, *, deadline, check_cancelled=not_cancelled):
     identity = None
     previous_cpu = None
     with (output / 'resources.ndjson').open('x') as stream:
         while True:
+            check_cancelled()
             sample = sample_process(child.pid, cpus, allow_exiting=True)
             current = sample['pid'], sample['start_ticks']
             if sample['pid'] != child.pid or (identity is not None and current != identity):
@@ -101,9 +137,10 @@ def validate_source(output, cell=None):
     return row
 
 
-def wait_target_exec(child, binary):
+def wait_target_exec(child, binary, *, check_cancelled=not_cancelled):
     deadline = time.monotonic() + 5
     while (Path('/proc') / str(child.pid) / 'exe').resolve() != binary.resolve():
+        check_cancelled()
         if observe_owned_exit(child.pid) is not None:
             raise RuntimeError('owned child exited before target exec verification')
         if time.monotonic() >= deadline:
@@ -111,7 +148,7 @@ def wait_target_exec(child, binary):
         time.sleep(.001)
 
 
-def execute(args):
+def execute(args, *, check_cancelled=not_cancelled):
     require(platform.system() == 'Linux', 'Linux required')
     require(not any(k.startswith('NBSR_') for k in os.environ), 'remove inherited NBSR experiment settings')
     sha, dirty = git_state()
@@ -147,6 +184,7 @@ def execute(args):
     require((authority / f'{args.role}-key.der').is_file(), 'role private key required')
     cpus = host['selected_cpus']
     command = [host['taskset'], '--cpu-list', ','.join(map(str, cpus)), *command]
+    check_cancelled()
     output.mkdir(parents=True, exist_ok=False)
     child = None
     success = False
@@ -167,9 +205,10 @@ def execute(args):
             child = subprocess.Popen(command, cwd=ROOT, env={**os.environ, **overrides},
                 stdout=stdout, stderr=stderr, start_new_session=True)
             write_json(output / 'pid.json', dict(pid=child.pid, owns_process_group=True))
+            check_cancelled()
             deadline = time.monotonic() + 120
-            wait_target_exec(child, executable)
-            result = observe_child(child, cpus, output, deadline=deadline)
+            wait_target_exec(child, executable, check_cancelled=check_cancelled)
+            result = observe_child(child, cpus, output, deadline=deadline, check_cancelled=check_cancelled)
         if args.role == 'source':
             row = validate_source(output, cell)
             result.update(completed_operations=row['completed_operations'],
@@ -183,6 +222,7 @@ def execute(args):
                 and digest(output / 'executed-binary') == hashes[executable.name], 'binary changed')
         require(json.loads(args.build_manifest.read_bytes()) == build, 'build manifest changed')
         require({n: digest(authority / n) for n in cert_names} == certificate_hashes, 'certificate changed')
+        check_cancelled()
         write_json(output / 'result.json', dict(status='PASS_FINITE_PEER', role=args.role, **result,
             strict_stable_capacity='NOT_ESTABLISHED', steady_cpu_ns_per_operation=None,
             runtime_ownership_cleanup='NOT_MEASURED', external_hardware='NOT_PROVEN'))
@@ -218,7 +258,9 @@ def main():
     parser.add_argument('--payload', type=int, choices=(1024, 16384), default=1024)
     parser.add_argument('--streams', type=int, default=64)
     parser.add_argument('--depth', type=int, choices=(1, 2, 4, 8, 16), default=1)
-    execute(parser.parse_args())
+    args = parser.parse_args()
+    with Cancellation() as cancellation:
+        execute(args, check_cancelled=cancellation.check)
 
 
 if __name__ == '__main__':
