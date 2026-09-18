@@ -1,0 +1,113 @@
+{
+  "classification": "MEASURED_LOOPBACK_PACKET_ACCOUNTING",
+  "cells": [
+    {
+      "payload_bytes": 1024,
+      "streams": 64,
+      "operations_per_stream": 1000,
+      "application_bytes": 131072000,
+      "repeats": 5,
+      "metrics": {
+        "packet_count": {
+          "direct_median": 101211,
+          "nbsr_median": 133836,
+          "paired_deltas": [
+            32942,
+            28218,
+            39604,
+            34266,
+            31659
+          ],
+          "delta_median": 32942,
+          "delta_min": 28218,
+          "delta_max": 39604,
+          "delta_per_application_byte": null,
+          "cv": {
+            "direct": 0.018811507752434346,
+            "nbsr": 0.021139162662750215
+          }
+        },
+        "ip_bytes": {
+          "direct_median": 143946328,
+          "nbsr_median": 145263928,
+          "paired_deltas": [
+            1317600,
+            1135495,
+            1652512,
+            1423802,
+            1270165
+          ],
+          "delta_median": 1317600,
+          "delta_min": 1135495,
+          "delta_max": 1652512,
+          "delta_per_application_byte": 0.010052490234375,
+          "cv": {
+            "direct": 0.0006837649224553026,
+            "nbsr": 0.0008265952532171832
+          }
+        },
+        "udp_bytes": {
+          "direct_median": 141922108,
+          "nbsr_median": 142580868,
+          "paired_deltas": [
+            658760,
+            571135,
+            860432,
+            738482,
+            636985
+          ],
+          "delta_median": 658760,
+          "delta_min": 571135,
+          "delta_max": 860432,
+          "delta_per_application_byte": 0.00502593994140625,
+          "cv": {
+            "direct": 0.0004276360490385613,
+            "nbsr": 0.0004480939899223301
+          }
+        },
+        "udp_payload_bytes": {
+          "direct_median": 141112420,
+          "nbsr_median": 141509418,
+          "paired_deltas": [
+            395224,
+            345391,
+            543600,
+            464354,
+            383713
+          ],
+          "delta_median": 395224,
+          "delta_min": 345391,
+          "delta_max": 543600,
+          "delta_per_application_byte": 0.00301531982421875,
+          "cv": {
+            "direct": 0.00032318754433749387,
+            "nbsr": 0.0002943652578853202
+          }
+        },
+        "captured_frame_bytes": {
+          "direct_median": 145363282,
+          "nbsr_median": 147140530,
+          "paired_deltas": [
+            1778788,
+            1530547,
+            2206968,
+            1903526,
+            1713391
+          ],
+          "delta_median": 1778788,
+          "delta_min": 1530547,
+          "delta_max": 2206968,
+          "delta_per_application_byte": 0.013571075439453125,
+          "cv": {
+            "direct": 0.000858879798684169,
+            "nbsr": 0.001084256727711843
+          }
+        }
+      }
+    }
+  ],
+  "performance_capacity": "NOT_PROVEN",
+  "physical_ethernet_bytes": "NOT_MEASURED",
+  "phase_scope": "whole capture including setup, fixed operations, untimed validation and teardown",
+  "interpretation": "paired NBSR minus equivalent Direct secure transport; generic framing is not NBSR overhead"
+}

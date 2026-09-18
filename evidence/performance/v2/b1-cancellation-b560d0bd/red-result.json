@@ -1,0 +1,11 @@
+{
+  "classification": "CONFIRMED_DUMPCAP_ORPHAN_AFTER_CONTROLLER_SIGTERM",
+  "controller_exit": 143,
+  "observation": {
+    "capture_pid": 98,
+    "start_ticks": 165169,
+    "state": "S",
+    "parent_after": 1,
+    "controller_pid": 41
+  }
+}

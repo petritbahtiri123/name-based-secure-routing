@@ -1,0 +1,23 @@
+F.................                                                       [100%]
+================================== FAILURES ===================================
+_________ test_nonzero_pcap_loss_also_invalidates_the_capture_report __________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1072/test_nonzero_pcap_loss_also_in0')
+
+    def test_nonzero_pcap_loss_also_invalidates_the_capture_report(tmp_path):
+        from scripts.performance.linux_b1_capture import LinuxPacketObserver
+        (tmp_path / 'dumpcap.stderr').write_text(
+            "Packets captured: 135798\n"
+            "Packets received/dropped on interface 'Loopback: lo': 135798/2 "
+            "(pcap:2/dumpcap:0/flushed:0/ps_ifdrop:0) (100.0%)\n")
+        observer = LinuxPacketObserver('dumpcap', 'tshark', 'lo')
+        observer.report['valid'] = True  # A graceful file close alone cannot validate packet accounting.
+        with pytest.raises(ValueError, match='nonzero capture loss'):
+            observer._account_capture('127.0.0.1:1234', tmp_path)
+>       assert observer.report['valid'] is False
+E       assert True is False
+
+tests\performance\test_linux_b1_capture.py:17: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_linux_b1_capture.py::test_nonzero_pcap_loss_also_invalidates_the_capture_report
+1 failed, 17 passed in 1.84s

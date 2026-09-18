@@ -1,0 +1,110 @@
+[
+  {
+    "signal": "SIGTERM",
+    "controller_exit": 1,
+    "injection": {
+      "controller_pid": 41,
+      "capture_pid": 98,
+      "capture_start_ticks": 207376,
+      "owned_children": [
+        {
+          "pid": 97,
+          "start_ticks": 207373
+        },
+        {
+          "pid": 98,
+          "start_ticks": 207376
+        }
+      ]
+    },
+    "failure": {
+      "classification": "INVALID_PARTIAL",
+      "error": "benchmark controller cancelled by SIGTERM",
+      "replacement": false
+    },
+    "after": [
+      {
+        "pid": 97,
+        "start_ticks": 207373,
+        "owned_child_absent": true
+      },
+      {
+        "pid": 98,
+        "start_ticks": 207376,
+        "owned_child_absent": true
+      }
+    ]
+  },
+  {
+    "signal": "SIGINT",
+    "controller_exit": 1,
+    "injection": {
+      "controller_pid": 110,
+      "capture_pid": 172,
+      "capture_start_ticks": 207677,
+      "owned_children": [
+        {
+          "pid": 171,
+          "start_ticks": 207673
+        },
+        {
+          "pid": 172,
+          "start_ticks": 207677
+        }
+      ]
+    },
+    "failure": {
+      "classification": "INVALID_PARTIAL",
+      "error": "benchmark controller cancelled by SIGINT",
+      "replacement": false
+    },
+    "after": [
+      {
+        "pid": 171,
+        "start_ticks": 207673,
+        "owned_child_absent": true
+      },
+      {
+        "pid": 172,
+        "start_ticks": 207677,
+        "owned_child_absent": true
+      }
+    ]
+  },
+  {
+    "signal": "SIGHUP",
+    "controller_exit": 1,
+    "injection": {
+      "controller_pid": 188,
+      "capture_pid": 245,
+      "capture_start_ticks": 207976,
+      "owned_children": [
+        {
+          "pid": 244,
+          "start_ticks": 207973
+        },
+        {
+          "pid": 245,
+          "start_ticks": 207976
+        }
+      ]
+    },
+    "failure": {
+      "classification": "INVALID_PARTIAL",
+      "error": "benchmark controller cancelled by SIGHUP",
+      "replacement": false
+    },
+    "after": [
+      {
+        "pid": 244,
+        "start_ticks": 207973,
+        "owned_child_absent": true
+      },
+      {
+        "pid": 245,
+        "start_ticks": 207976,
+        "owned_child_absent": true
+      }
+    ]
+  }
+]

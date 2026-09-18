@@ -1,0 +1,108 @@
+FFF.............                                                         [100%]
+================================== FAILURES ===================================
+_ test_cancelled_packet_client_is_killed_and_reaped_without_extending_deadline[False] _
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1069/test_cancelled_packet_client_i0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000236D2D6E2C0>
+during_wait = False
+
+    @pytest.mark.parametrize('during_wait', [False, True])
+    def test_cancelled_packet_client_is_killed_and_reaped_without_extending_deadline(tmp_path, monkeypatch, during_wait):
+        import subprocess
+        from scripts.performance.linux_b1_capture import LinuxPacketBackend
+        events = []
+        waiting = False
+        class Child:
+            pid = 123
+            returncode = None
+            def wait(self, timeout):
+                nonlocal waiting
+                if 'kill' in events:
+                    assert timeout == 5
+                    self.returncode = -9
+                    events.append('reap')
+                    return -9
+                assert 0 < timeout <= .1
+                waiting = True
+                raise subprocess.TimeoutExpired('fixture', timeout)
+            def poll(self):
+                return self.returncode
+            def kill(self):
+                events.append('kill')
+        monkeypatch.setattr(subprocess, 'Popen', lambda *a, **k: Child())
+        def cancelled():
+            if not during_wait or waiting:
+                raise InterruptedError('SIGTERM fixture')
+>       backend = LinuxPacketBackend(tmp_path, check_cancelled=cancelled)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: LinuxPacketBackend.__init__() got an unexpected keyword argument 'check_cancelled'
+
+tests\performance\test_linux_b1_capture.py:34: TypeError
+_ test_cancelled_packet_client_is_killed_and_reaped_without_extending_deadline[True] _
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1069/test_cancelled_packet_client_i1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000236D2D6D0F0>
+during_wait = True
+
+    @pytest.mark.parametrize('during_wait', [False, True])
+    def test_cancelled_packet_client_is_killed_and_reaped_without_extending_deadline(tmp_path, monkeypatch, during_wait):
+        import subprocess
+        from scripts.performance.linux_b1_capture import LinuxPacketBackend
+        events = []
+        waiting = False
+        class Child:
+            pid = 123
+            returncode = None
+            def wait(self, timeout):
+                nonlocal waiting
+                if 'kill' in events:
+                    assert timeout == 5
+                    self.returncode = -9
+                    events.append('reap')
+                    return -9
+                assert 0 < timeout <= .1
+                waiting = True
+                raise subprocess.TimeoutExpired('fixture', timeout)
+            def poll(self):
+                return self.returncode
+            def kill(self):
+                events.append('kill')
+        monkeypatch.setattr(subprocess, 'Popen', lambda *a, **k: Child())
+        def cancelled():
+            if not during_wait or waiting:
+                raise InterruptedError('SIGTERM fixture')
+>       backend = LinuxPacketBackend(tmp_path, check_cancelled=cancelled)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: LinuxPacketBackend.__init__() got an unexpected keyword argument 'check_cancelled'
+
+tests\performance\test_linux_b1_capture.py:34: TypeError
+_______ test_cancelled_capture_readiness_still_stops_and_reaps_dumpcap ________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1069/test_cancelled_capture_readine0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000236D34D1D90>
+
+    def test_cancelled_capture_readiness_still_stops_and_reaps_dumpcap(tmp_path, monkeypatch):
+        from types import SimpleNamespace
+        from scripts.performance.linux_b1_capture import LinuxPacketObserver
+        events = []
+        class Child:
+            returncode = 0
+            def send_signal(self, value):
+                events.append('stop')
+            def wait(self, timeout):
+                events.append('reap')
+                return 0
+        monkeypatch.setattr('subprocess.Popen', lambda *a, **k: Child())
+        monkeypatch.setattr('subprocess.run', lambda *a, **k: SimpleNamespace(returncode=0, stdout=''))
+        def cancelled():
+            raise InterruptedError('SIGTERM fixture')
+>       observer = LinuxPacketObserver('dumpcap', 'tshark', 'lo', check_cancelled=cancelled)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: ExternalCapture.__init__() got an unexpected keyword argument 'check_cancelled'
+
+tests\performance\test_linux_b1_capture.py:56: TypeError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_linux_b1_capture.py::test_cancelled_packet_client_is_killed_and_reaped_without_extending_deadline[False]
+FAILED tests/performance/test_linux_b1_capture.py::test_cancelled_packet_client_is_killed_and_reaped_without_extending_deadline[True]
+FAILED tests/performance/test_linux_b1_capture.py::test_cancelled_capture_readiness_still_stops_and_reaps_dumpcap
+3 failed, 13 passed in 1.22s

@@ -1,0 +1,13 @@
+{
+  "report": {
+    "enabled": true,
+    "valid": false,
+    "status": "invalid_packet_accounting",
+    "packet_accounting_error": "nonzero capture loss"
+  },
+  "original_raw_unchanged": true,
+  "pcap_drops": 2,
+  "retained_rows": 13,
+  "valid_rows": 12,
+  "cohort": "INVALID_PARTIAL"
+}
