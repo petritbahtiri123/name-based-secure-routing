@@ -1,0 +1,1162 @@
+{
+  "containers": [
+    {
+      "Id": "cf5829a60b05b8a5edd0b3d1876cc952eeba4050c480c7de05b4c13b0be82085",
+      "Created": "2026-09-18T19:42:40.522082807Z",
+      "Path": "sleep",
+      "Args": [
+        "1800"
+      ],
+      "State": {
+        "Status": "exited",
+        "Running": false,
+        "Paused": false,
+        "Restarting": false,
+        "OOMKilled": false,
+        "Dead": false,
+        "Pid": 0,
+        "ExitCode": 137,
+        "Error": "",
+        "StartedAt": "2026-09-18T19:42:40.654719151Z",
+        "FinishedAt": "2026-09-18T19:43:11.482213416Z"
+      },
+      "Image": "sha256:dd08db4a391b16a9d303a251d2693808baf470f2fc4870d8e3c54b7523deed71",
+      "ResolvConfPath": "/var/lib/docker/containers/cf5829a60b05b8a5edd0b3d1876cc952eeba4050c480c7de05b4c13b0be82085/resolv.conf",
+      "HostnamePath": "/var/lib/docker/containers/cf5829a60b05b8a5edd0b3d1876cc952eeba4050c480c7de05b4c13b0be82085/hostname",
+      "HostsPath": "/var/lib/docker/containers/cf5829a60b05b8a5edd0b3d1876cc952eeba4050c480c7de05b4c13b0be82085/hosts",
+      "LogPath": "/var/lib/docker/containers/cf5829a60b05b8a5edd0b3d1876cc952eeba4050c480c7de05b4c13b0be82085/cf5829a60b05b8a5edd0b3d1876cc952eeba4050c480c7de05b4c13b0be82085-json.log",
+      "Name": "/nbsr-native-cancel-6e5a2afe",
+      "RestartCount": 0,
+      "Driver": "overlayfs",
+      "Platform": "linux",
+      "MountLabel": "",
+      "ProcessLabel": "",
+      "AppArmorProfile": "",
+      "ExecIDs": null,
+      "HostConfig": {
+        "Binds": [
+          "C:/NBSR-build/private-native-two-namespace-1d24cb4c/destination:/authority:ro",
+          "C:\\NBSR-build\\native-cancellation-6e5a2afe:/out",
+          "C:/NBSR-build/native-two-namespace-1d24cb4c:/control:ro",
+          "C:/NBSR-build/linux-current-1d24cb4c:/build:ro",
+          "C:/NBSR-build/linux-current-edc0f96d:/old:ro"
+        ],
+        "ContainerIDFile": "",
+        "LogConfig": {
+          "Type": "json-file",
+          "Config": {}
+        },
+        "NetworkMode": "bridge",
+        "PortBindings": {},
+        "RestartPolicy": {
+          "Name": "no",
+          "MaximumRetryCount": 0
+        },
+        "AutoRemove": false,
+        "VolumeDriver": "",
+        "VolumesFrom": null,
+        "ConsoleSize": [
+          0,
+          0
+        ],
+        "CapAdd": null,
+        "CapDrop": null,
+        "CgroupnsMode": "private",
+        "Dns": null,
+        "DnsOptions": [],
+        "DnsSearch": [],
+        "ExtraHosts": null,
+        "GroupAdd": null,
+        "IpcMode": "private",
+        "Cgroup": "",
+        "Links": null,
+        "OomScoreAdj": 0,
+        "PidMode": "",
+        "Privileged": false,
+        "PublishAllPorts": false,
+        "ReadonlyRootfs": false,
+        "SecurityOpt": null,
+        "UTSMode": "",
+        "UsernsMode": "",
+        "ShmSize": 67108864,
+        "Runtime": "runc",
+        "Isolation": "",
+        "CpuShares": 0,
+        "Memory": 0,
+        "NanoCpus": 0,
+        "CgroupParent": "",
+        "BlkioWeight": 0,
+        "BlkioWeightDevice": [],
+        "BlkioDeviceReadBps": [],
+        "BlkioDeviceWriteBps": [],
+        "BlkioDeviceReadIOps": [],
+        "BlkioDeviceWriteIOps": [],
+        "CpuPeriod": 0,
+        "CpuQuota": 0,
+        "CpuRealtimePeriod": 0,
+        "CpuRealtimeRuntime": 0,
+        "CpusetCpus": "",
+        "CpusetMems": "",
+        "Devices": [],
+        "DeviceCgroupRules": null,
+        "DeviceRequests": null,
+        "MemoryReservation": 0,
+        "MemorySwap": 0,
+        "MemorySwappiness": null,
+        "OomKillDisable": null,
+        "PidsLimit": null,
+        "Ulimits": [],
+        "CpuCount": 0,
+        "CpuPercent": 0,
+        "IOMaximumIOps": 0,
+        "IOMaximumBandwidth": 0,
+        "MaskedPaths": [
+          "/proc/acpi",
+          "/proc/asound",
+          "/proc/interrupts",
+          "/proc/kcore",
+          "/proc/keys",
+          "/proc/latency_stats",
+          "/proc/sched_debug",
+          "/proc/scsi",
+          "/proc/timer_list",
+          "/proc/timer_stats",
+          "/sys/devices/virtual/powercap",
+          "/sys/firmware"
+        ],
+        "ReadonlyPaths": [
+          "/proc/bus",
+          "/proc/fs",
+          "/proc/irq",
+          "/proc/sys",
+          "/proc/sysrq-trigger"
+        ]
+      },
+      "Storage": {
+        "RootFS": {
+          "Snapshot": {
+            "Name": "overlayfs"
+          }
+        }
+      },
+      "SizeRw": 448139264,
+      "SizeRootFs": 2658947072,
+      "Mounts": [
+        {
+          "Type": "bind",
+          "Source": "C:/NBSR-build/linux-current-1d24cb4c",
+          "Destination": "/build",
+          "Mode": "ro",
+          "RW": false,
+          "Propagation": "rprivate"
+        },
+        {
+          "Type": "bind",
+          "Source": "C:/NBSR-build/linux-current-edc0f96d",
+          "Destination": "/old",
+          "Mode": "ro",
+          "RW": false,
+          "Propagation": "rprivate"
+        },
+        {
+          "Type": "bind",
+          "Source": "C:/NBSR-build/private-native-two-namespace-1d24cb4c/destination",
+          "Destination": "/authority",
+          "Mode": "ro",
+          "RW": false,
+          "Propagation": "rprivate"
+        },
+        {
+          "Type": "bind",
+          "Source": "C:\\NBSR-build\\native-cancellation-6e5a2afe",
+          "Destination": "/out",
+          "Mode": "",
+          "RW": true,
+          "Propagation": "rprivate"
+        },
+        {
+          "Type": "bind",
+          "Source": "C:/NBSR-build/native-two-namespace-1d24cb4c",
+          "Destination": "/control",
+          "Mode": "ro",
+          "RW": false,
+          "Propagation": "rprivate"
+        }
+      ],
+      "Config": {
+        "Hostname": "cf5829a60b05",
+        "Domainname": "",
+        "User": "0",
+        "AttachStdin": false,
+        "AttachStdout": false,
+        "AttachStderr": false,
+        "Tty": false,
+        "OpenStdin": false,
+        "StdinOnce": false,
+        "Env": [
+          "PATH=/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+          "PYTHON_VERSION=3.14.6",
+          "PYTHON_SHA256=143b1dddefaec3bd2e21e3b839b34a2b7fb9842272883c576420d605e9f30c63",
+          "PYTHONDONTWRITEBYTECODE=1",
+          "PYTHONPATH=/src",
+          "GIT_CONFIG_COUNT=1",
+          "GIT_CONFIG_KEY_0=safe.directory",
+          "GIT_CONFIG_VALUE_0=/src"
+        ],
+        "Cmd": [
+          "1800"
+        ],
+        "Image": "nbsr-linux-smoke-3644c324:prepared",
+        "Volumes": null,
+        "WorkingDir": "/src",
+        "Entrypoint": [
+          "sleep"
+        ],
+        "Labels": {}
+      },
+      "NetworkSettings": {
+        "SandboxID": "",
+        "SandboxKey": "",
+        "Ports": {},
+        "Networks": {
+          "bridge": {
+            "IPAMConfig": null,
+            "Links": null,
+            "Aliases": null,
+            "DriverOpts": null,
+            "GwPriority": 0,
+            "NetworkID": "276df5633057eb967d13e5e60a83a2f24ba972b0568e6068561d1aad1c4067ef",
+            "EndpointID": "",
+            "Gateway": "",
+            "IPAddress": "",
+            "MacAddress": "",
+            "IPPrefixLen": 0,
+            "IPv6Gateway": "",
+            "GlobalIPv6Address": "",
+            "GlobalIPv6PrefixLen": 0,
+            "DNSNames": null
+          }
+        }
+      },
+      "ImageManifestDescriptor": {
+        "mediaType": "application/vnd.oci.image.manifest.v1+json",
+        "digest": "sha256:4e75c7a9767ad99cad7e6d2409c77f9e8919639d7241d0b9f3a07b15a348de70",
+        "size": 2581,
+        "platform": {
+          "architecture": "amd64",
+          "os": "linux"
+        }
+      }
+    },
+    {
+      "Id": "415efa8481f1e1b1c048657961a58687a7ca7f433c018776143908e89fb46301",
+      "Created": "2026-09-18T19:47:51.578375155Z",
+      "Path": "sleep",
+      "Args": [
+        "1800"
+      ],
+      "State": {
+        "Status": "exited",
+        "Running": false,
+        "Paused": false,
+        "Restarting": false,
+        "OOMKilled": false,
+        "Dead": false,
+        "Pid": 0,
+        "ExitCode": 137,
+        "Error": "",
+        "StartedAt": "2026-09-18T19:51:51.053576291Z",
+        "FinishedAt": "2026-09-18T19:51:58.209488292Z"
+      },
+      "Image": "sha256:dd08db4a391b16a9d303a251d2693808baf470f2fc4870d8e3c54b7523deed71",
+      "ResolvConfPath": "/var/lib/docker/containers/415efa8481f1e1b1c048657961a58687a7ca7f433c018776143908e89fb46301/resolv.conf",
+      "HostnamePath": "/var/lib/docker/containers/415efa8481f1e1b1c048657961a58687a7ca7f433c018776143908e89fb46301/hostname",
+      "HostsPath": "/var/lib/docker/containers/415efa8481f1e1b1c048657961a58687a7ca7f433c018776143908e89fb46301/hosts",
+      "LogPath": "/var/lib/docker/containers/415efa8481f1e1b1c048657961a58687a7ca7f433c018776143908e89fb46301/415efa8481f1e1b1c048657961a58687a7ca7f433c018776143908e89fb46301-json.log",
+      "Name": "/nbsr-native-cancel-green-9d36266f",
+      "RestartCount": 0,
+      "Driver": "overlayfs",
+      "Platform": "linux",
+      "MountLabel": "",
+      "ProcessLabel": "",
+      "AppArmorProfile": "",
+      "ExecIDs": null,
+      "HostConfig": {
+        "Binds": [
+          "C:/NBSR-build/native-two-namespace-1d24cb4c:/control:ro",
+          "C:/NBSR-build/linux-current-9d36266f:/build:ro",
+          "C:/NBSR-build/linux-current-edc0f96d:/old:ro",
+          "C:/NBSR-build/private-native-two-namespace-1d24cb4c/prepared:/authority:ro",
+          "C:\\NBSR-build\\native-cancellation-6e5a2afe\\green:/out"
+        ],
+        "ContainerIDFile": "",
+        "LogConfig": {
+          "Type": "json-file",
+          "Config": {}
+        },
+        "NetworkMode": "bridge",
+        "PortBindings": {},
+        "RestartPolicy": {
+          "Name": "no",
+          "MaximumRetryCount": 0
+        },
+        "AutoRemove": false,
+        "VolumeDriver": "",
+        "VolumesFrom": null,
+        "ConsoleSize": [
+          0,
+          0
+        ],
+        "CapAdd": null,
+        "CapDrop": null,
+        "CgroupnsMode": "private",
+        "Dns": null,
+        "DnsOptions": [],
+        "DnsSearch": [],
+        "ExtraHosts": null,
+        "GroupAdd": null,
+        "IpcMode": "private",
+        "Cgroup": "",
+        "Links": null,
+        "OomScoreAdj": 0,
+        "PidMode": "",
+        "Privileged": false,
+        "PublishAllPorts": false,
+        "ReadonlyRootfs": false,
+        "SecurityOpt": null,
+        "UTSMode": "",
+        "UsernsMode": "",
+        "ShmSize": 67108864,
+        "Runtime": "runc",
+        "Isolation": "",
+        "CpuShares": 0,
+        "Memory": 0,
+        "NanoCpus": 0,
+        "CgroupParent": "",
+        "BlkioWeight": 0,
+        "BlkioWeightDevice": [],
+        "BlkioDeviceReadBps": [],
+        "BlkioDeviceWriteBps": [],
+        "BlkioDeviceReadIOps": [],
+        "BlkioDeviceWriteIOps": [],
+        "CpuPeriod": 0,
+        "CpuQuota": 0,
+        "CpuRealtimePeriod": 0,
+        "CpuRealtimeRuntime": 0,
+        "CpusetCpus": "",
+        "CpusetMems": "",
+        "Devices": [],
+        "DeviceCgroupRules": null,
+        "DeviceRequests": null,
+        "MemoryReservation": 0,
+        "MemorySwap": 0,
+        "MemorySwappiness": null,
+        "OomKillDisable": null,
+        "PidsLimit": null,
+        "Ulimits": [],
+        "CpuCount": 0,
+        "CpuPercent": 0,
+        "IOMaximumIOps": 0,
+        "IOMaximumBandwidth": 0,
+        "MaskedPaths": [
+          "/proc/acpi",
+          "/proc/asound",
+          "/proc/interrupts",
+          "/proc/kcore",
+          "/proc/keys",
+          "/proc/latency_stats",
+          "/proc/sched_debug",
+          "/proc/scsi",
+          "/proc/timer_list",
+          "/proc/timer_stats",
+          "/sys/devices/virtual/powercap",
+          "/sys/firmware"
+        ],
+        "ReadonlyPaths": [
+          "/proc/bus",
+          "/proc/fs",
+          "/proc/irq",
+          "/proc/sys",
+          "/proc/sysrq-trigger"
+        ]
+      },
+      "Storage": {
+        "RootFS": {
+          "Snapshot": {
+            "Name": "overlayfs"
+          }
+        }
+      },
+      "SizeRw": 448258048,
+      "SizeRootFs": 2659065856,
+      "Mounts": [
+        {
+          "Type": "bind",
+          "Source": "C:/NBSR-build/native-two-namespace-1d24cb4c",
+          "Destination": "/control",
+          "Mode": "ro",
+          "RW": false,
+          "Propagation": "rprivate"
+        },
+        {
+          "Type": "bind",
+          "Source": "C:/NBSR-build/linux-current-9d36266f",
+          "Destination": "/build",
+          "Mode": "ro",
+          "RW": false,
+          "Propagation": "rprivate"
+        },
+        {
+          "Type": "bind",
+          "Source": "C:/NBSR-build/linux-current-edc0f96d",
+          "Destination": "/old",
+          "Mode": "ro",
+          "RW": false,
+          "Propagation": "rprivate"
+        },
+        {
+          "Type": "bind",
+          "Source": "C:/NBSR-build/private-native-two-namespace-1d24cb4c/prepared",
+          "Destination": "/authority",
+          "Mode": "ro",
+          "RW": false,
+          "Propagation": "rprivate"
+        },
+        {
+          "Type": "bind",
+          "Source": "C:\\NBSR-build\\native-cancellation-6e5a2afe\\green",
+          "Destination": "/out",
+          "Mode": "",
+          "RW": true,
+          "Propagation": "rprivate"
+        }
+      ],
+      "Config": {
+        "Hostname": "415efa8481f1",
+        "Domainname": "",
+        "User": "0",
+        "AttachStdin": false,
+        "AttachStdout": false,
+        "AttachStderr": false,
+        "Tty": false,
+        "OpenStdin": false,
+        "StdinOnce": false,
+        "Env": [
+          "PATH=/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+          "PYTHON_VERSION=3.14.6",
+          "PYTHON_SHA256=143b1dddefaec3bd2e21e3b839b34a2b7fb9842272883c576420d605e9f30c63",
+          "PYTHONDONTWRITEBYTECODE=1",
+          "PYTHONPATH=/src",
+          "GIT_CONFIG_COUNT=1",
+          "GIT_CONFIG_KEY_0=safe.directory",
+          "GIT_CONFIG_VALUE_0=/src"
+        ],
+        "Cmd": [
+          "1800"
+        ],
+        "Image": "nbsr-linux-smoke-3644c324:prepared",
+        "Volumes": null,
+        "WorkingDir": "/src",
+        "Entrypoint": [
+          "sleep"
+        ],
+        "Labels": {}
+      },
+      "NetworkSettings": {
+        "SandboxID": "",
+        "SandboxKey": "",
+        "Ports": {},
+        "Networks": {
+          "bridge": {
+            "IPAMConfig": null,
+            "Links": null,
+            "Aliases": null,
+            "DriverOpts": null,
+            "GwPriority": 0,
+            "NetworkID": "276df5633057eb967d13e5e60a83a2f24ba972b0568e6068561d1aad1c4067ef",
+            "EndpointID": "",
+            "Gateway": "",
+            "IPAddress": "",
+            "MacAddress": "",
+            "IPPrefixLen": 0,
+            "IPv6Gateway": "",
+            "GlobalIPv6Address": "",
+            "GlobalIPv6PrefixLen": 0,
+            "DNSNames": null
+          }
+        }
+      },
+      "ImageManifestDescriptor": {
+        "mediaType": "application/vnd.oci.image.manifest.v1+json",
+        "digest": "sha256:4e75c7a9767ad99cad7e6d2409c77f9e8919639d7241d0b9f3a07b15a348de70",
+        "size": 2581,
+        "platform": {
+          "architecture": "amd64",
+          "os": "linux"
+        }
+      }
+    },
+    {
+      "Id": "6b649a034132a9cfb85ce68db5c0667d8f6ba106f41c7ceebfb03ccfde3d2974",
+      "Created": "2026-09-18T19:56:49.606619602Z",
+      "Path": "sleep",
+      "Args": [
+        "1800"
+      ],
+      "State": {
+        "Status": "exited",
+        "Running": false,
+        "Paused": false,
+        "Restarting": false,
+        "OOMKilled": false,
+        "Dead": false,
+        "Pid": 0,
+        "ExitCode": 137,
+        "Error": "",
+        "StartedAt": "2026-09-18T19:56:49.72819397Z",
+        "FinishedAt": "2026-09-18T20:01:16.56648272Z"
+      },
+      "Image": "sha256:dd08db4a391b16a9d303a251d2693808baf470f2fc4870d8e3c54b7523deed71",
+      "ResolvConfPath": "/var/lib/docker/containers/6b649a034132a9cfb85ce68db5c0667d8f6ba106f41c7ceebfb03ccfde3d2974/resolv.conf",
+      "HostnamePath": "/var/lib/docker/containers/6b649a034132a9cfb85ce68db5c0667d8f6ba106f41c7ceebfb03ccfde3d2974/hostname",
+      "HostsPath": "/var/lib/docker/containers/6b649a034132a9cfb85ce68db5c0667d8f6ba106f41c7ceebfb03ccfde3d2974/hosts",
+      "LogPath": "/var/lib/docker/containers/6b649a034132a9cfb85ce68db5c0667d8f6ba106f41c7ceebfb03ccfde3d2974/6b649a034132a9cfb85ce68db5c0667d8f6ba106f41c7ceebfb03ccfde3d2974-json.log",
+      "Name": "/nbsr-loopback-cancel-green-b5272672",
+      "RestartCount": 0,
+      "Driver": "overlayfs",
+      "Platform": "linux",
+      "MountLabel": "",
+      "ProcessLabel": "",
+      "AppArmorProfile": "",
+      "ExecIDs": null,
+      "HostConfig": {
+        "Binds": [
+          "C:\\NBSR-build\\loopback-cancellation-9d36266f\\green:/out",
+          "C:/NBSR-build/native-two-namespace-1d24cb4c:/control:ro",
+          "C:/NBSR-build/linux-current-b5272672:/build:ro",
+          "C:/NBSR-build/linux-current-edc0f96d:/old:ro"
+        ],
+        "ContainerIDFile": "",
+        "LogConfig": {
+          "Type": "json-file",
+          "Config": {}
+        },
+        "NetworkMode": "bridge",
+        "PortBindings": {},
+        "RestartPolicy": {
+          "Name": "no",
+          "MaximumRetryCount": 0
+        },
+        "AutoRemove": false,
+        "VolumeDriver": "",
+        "VolumesFrom": null,
+        "ConsoleSize": [
+          0,
+          0
+        ],
+        "CapAdd": null,
+        "CapDrop": null,
+        "CgroupnsMode": "private",
+        "Dns": null,
+        "DnsOptions": [],
+        "DnsSearch": [],
+        "ExtraHosts": null,
+        "GroupAdd": null,
+        "IpcMode": "private",
+        "Cgroup": "",
+        "Links": null,
+        "OomScoreAdj": 0,
+        "PidMode": "",
+        "Privileged": false,
+        "PublishAllPorts": false,
+        "ReadonlyRootfs": false,
+        "SecurityOpt": null,
+        "UTSMode": "",
+        "UsernsMode": "",
+        "ShmSize": 67108864,
+        "Runtime": "runc",
+        "Isolation": "",
+        "CpuShares": 0,
+        "Memory": 0,
+        "NanoCpus": 0,
+        "CgroupParent": "",
+        "BlkioWeight": 0,
+        "BlkioWeightDevice": [],
+        "BlkioDeviceReadBps": [],
+        "BlkioDeviceWriteBps": [],
+        "BlkioDeviceReadIOps": [],
+        "BlkioDeviceWriteIOps": [],
+        "CpuPeriod": 0,
+        "CpuQuota": 0,
+        "CpuRealtimePeriod": 0,
+        "CpuRealtimeRuntime": 0,
+        "CpusetCpus": "",
+        "CpusetMems": "",
+        "Devices": [],
+        "DeviceCgroupRules": null,
+        "DeviceRequests": null,
+        "MemoryReservation": 0,
+        "MemorySwap": 0,
+        "MemorySwappiness": null,
+        "OomKillDisable": null,
+        "PidsLimit": null,
+        "Ulimits": [],
+        "CpuCount": 0,
+        "CpuPercent": 0,
+        "IOMaximumIOps": 0,
+        "IOMaximumBandwidth": 0,
+        "MaskedPaths": [
+          "/proc/acpi",
+          "/proc/asound",
+          "/proc/interrupts",
+          "/proc/kcore",
+          "/proc/keys",
+          "/proc/latency_stats",
+          "/proc/sched_debug",
+          "/proc/scsi",
+          "/proc/timer_list",
+          "/proc/timer_stats",
+          "/sys/devices/virtual/powercap",
+          "/sys/firmware"
+        ],
+        "ReadonlyPaths": [
+          "/proc/bus",
+          "/proc/fs",
+          "/proc/irq",
+          "/proc/sys",
+          "/proc/sysrq-trigger"
+        ]
+      },
+      "Storage": {
+        "RootFS": {
+          "Snapshot": {
+            "Name": "overlayfs"
+          }
+        }
+      },
+      "SizeRw": 448233472,
+      "SizeRootFs": 2659041280,
+      "Mounts": [
+        {
+          "Type": "bind",
+          "Source": "C:\\NBSR-build\\loopback-cancellation-9d36266f\\green",
+          "Destination": "/out",
+          "Mode": "",
+          "RW": true,
+          "Propagation": "rprivate"
+        },
+        {
+          "Type": "bind",
+          "Source": "C:/NBSR-build/native-two-namespace-1d24cb4c",
+          "Destination": "/control",
+          "Mode": "ro",
+          "RW": false,
+          "Propagation": "rprivate"
+        },
+        {
+          "Type": "bind",
+          "Source": "C:/NBSR-build/linux-current-b5272672",
+          "Destination": "/build",
+          "Mode": "ro",
+          "RW": false,
+          "Propagation": "rprivate"
+        },
+        {
+          "Type": "bind",
+          "Source": "C:/NBSR-build/linux-current-edc0f96d",
+          "Destination": "/old",
+          "Mode": "ro",
+          "RW": false,
+          "Propagation": "rprivate"
+        }
+      ],
+      "Config": {
+        "Hostname": "6b649a034132",
+        "Domainname": "",
+        "User": "0",
+        "AttachStdin": false,
+        "AttachStdout": false,
+        "AttachStderr": false,
+        "Tty": false,
+        "OpenStdin": false,
+        "StdinOnce": false,
+        "Env": [
+          "PATH=/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+          "PYTHON_VERSION=3.14.6",
+          "PYTHON_SHA256=143b1dddefaec3bd2e21e3b839b34a2b7fb9842272883c576420d605e9f30c63",
+          "PYTHONDONTWRITEBYTECODE=1",
+          "PYTHONPATH=/src",
+          "GIT_CONFIG_COUNT=1",
+          "GIT_CONFIG_KEY_0=safe.directory",
+          "GIT_CONFIG_VALUE_0=/src"
+        ],
+        "Cmd": [
+          "1800"
+        ],
+        "Image": "nbsr-linux-smoke-3644c324:prepared",
+        "Volumes": null,
+        "WorkingDir": "/src",
+        "Entrypoint": [
+          "sleep"
+        ],
+        "Labels": {}
+      },
+      "NetworkSettings": {
+        "SandboxID": "",
+        "SandboxKey": "",
+        "Ports": {},
+        "Networks": {
+          "bridge": {
+            "IPAMConfig": null,
+            "Links": null,
+            "Aliases": null,
+            "DriverOpts": null,
+            "GwPriority": 0,
+            "NetworkID": "276df5633057eb967d13e5e60a83a2f24ba972b0568e6068561d1aad1c4067ef",
+            "EndpointID": "",
+            "Gateway": "",
+            "IPAddress": "",
+            "MacAddress": "",
+            "IPPrefixLen": 0,
+            "IPv6Gateway": "",
+            "GlobalIPv6Address": "",
+            "GlobalIPv6PrefixLen": 0,
+            "DNSNames": null
+          }
+        }
+      },
+      "ImageManifestDescriptor": {
+        "mediaType": "application/vnd.oci.image.manifest.v1+json",
+        "digest": "sha256:4e75c7a9767ad99cad7e6d2409c77f9e8919639d7241d0b9f3a07b15a348de70",
+        "size": 2581,
+        "platform": {
+          "architecture": "amd64",
+          "os": "linux"
+        }
+      }
+    },
+    {
+      "Id": "b7108bd510fbb929a02b66f5e55511ced4025cec6c41bf3d130b63c5b8eae757",
+      "Created": "2026-09-18T19:46:00.211777571Z",
+      "Path": "sh",
+      "Args": [
+        "/evidence/build.sh"
+      ],
+      "State": {
+        "Status": "exited",
+        "Running": false,
+        "Paused": false,
+        "Restarting": false,
+        "OOMKilled": false,
+        "Dead": false,
+        "Pid": 0,
+        "ExitCode": 0,
+        "Error": "",
+        "StartedAt": "2026-09-18T19:46:00.385380142Z",
+        "FinishedAt": "2026-09-18T19:46:36.662697041Z"
+      },
+      "Image": "sha256:7d59795425e21fc5ff09eabea1aad314806e8f20d3a505c5e47cc2df0e20e53d",
+      "ResolvConfPath": "/var/lib/docker/containers/b7108bd510fbb929a02b66f5e55511ced4025cec6c41bf3d130b63c5b8eae757/resolv.conf",
+      "HostnamePath": "/var/lib/docker/containers/b7108bd510fbb929a02b66f5e55511ced4025cec6c41bf3d130b63c5b8eae757/hostname",
+      "HostsPath": "/var/lib/docker/containers/b7108bd510fbb929a02b66f5e55511ced4025cec6c41bf3d130b63c5b8eae757/hosts",
+      "LogPath": "/var/lib/docker/containers/b7108bd510fbb929a02b66f5e55511ced4025cec6c41bf3d130b63c5b8eae757/b7108bd510fbb929a02b66f5e55511ced4025cec6c41bf3d130b63c5b8eae757-json.log",
+      "Name": "/nbsr-build-9d36266f",
+      "RestartCount": 0,
+      "Driver": "overlayfs",
+      "Platform": "linux",
+      "MountLabel": "",
+      "ProcessLabel": "",
+      "AppArmorProfile": "",
+      "ExecIDs": null,
+      "HostConfig": {
+        "Binds": [
+          "C:\\NBSR-build\\linux-current-9d36266f:/evidence"
+        ],
+        "ContainerIDFile": "",
+        "LogConfig": {
+          "Type": "json-file",
+          "Config": {}
+        },
+        "NetworkMode": "bridge",
+        "PortBindings": {},
+        "RestartPolicy": {
+          "Name": "no",
+          "MaximumRetryCount": 0
+        },
+        "AutoRemove": false,
+        "VolumeDriver": "",
+        "VolumesFrom": null,
+        "ConsoleSize": [
+          0,
+          0
+        ],
+        "CapAdd": null,
+        "CapDrop": null,
+        "CgroupnsMode": "private",
+        "Dns": null,
+        "DnsOptions": [],
+        "DnsSearch": [],
+        "ExtraHosts": null,
+        "GroupAdd": null,
+        "IpcMode": "private",
+        "Cgroup": "",
+        "Links": null,
+        "OomScoreAdj": 0,
+        "PidMode": "",
+        "Privileged": false,
+        "PublishAllPorts": false,
+        "ReadonlyRootfs": false,
+        "SecurityOpt": null,
+        "UTSMode": "",
+        "UsernsMode": "",
+        "ShmSize": 67108864,
+        "Runtime": "runc",
+        "Isolation": "",
+        "CpuShares": 0,
+        "Memory": 0,
+        "NanoCpus": 0,
+        "CgroupParent": "",
+        "BlkioWeight": 0,
+        "BlkioWeightDevice": [],
+        "BlkioDeviceReadBps": [],
+        "BlkioDeviceWriteBps": [],
+        "BlkioDeviceReadIOps": [],
+        "BlkioDeviceWriteIOps": [],
+        "CpuPeriod": 0,
+        "CpuQuota": 0,
+        "CpuRealtimePeriod": 0,
+        "CpuRealtimeRuntime": 0,
+        "CpusetCpus": "",
+        "CpusetMems": "",
+        "Devices": [],
+        "DeviceCgroupRules": null,
+        "DeviceRequests": null,
+        "MemoryReservation": 0,
+        "MemorySwap": 0,
+        "MemorySwappiness": null,
+        "OomKillDisable": null,
+        "PidsLimit": null,
+        "Ulimits": [],
+        "CpuCount": 0,
+        "CpuPercent": 0,
+        "IOMaximumIOps": 0,
+        "IOMaximumBandwidth": 0,
+        "MaskedPaths": [
+          "/proc/acpi",
+          "/proc/asound",
+          "/proc/interrupts",
+          "/proc/kcore",
+          "/proc/keys",
+          "/proc/latency_stats",
+          "/proc/sched_debug",
+          "/proc/scsi",
+          "/proc/timer_list",
+          "/proc/timer_stats",
+          "/sys/devices/virtual/powercap",
+          "/sys/firmware"
+        ],
+        "ReadonlyPaths": [
+          "/proc/bus",
+          "/proc/fs",
+          "/proc/irq",
+          "/proc/sys",
+          "/proc/sysrq-trigger"
+        ]
+      },
+      "Storage": {
+        "RootFS": {
+          "Snapshot": {
+            "Name": "overlayfs"
+          }
+        }
+      },
+      "SizeRw": 26484736,
+      "SizeRootFs": 2042753024,
+      "Mounts": [
+        {
+          "Type": "bind",
+          "Source": "C:\\NBSR-build\\linux-current-9d36266f",
+          "Destination": "/evidence",
+          "Mode": "",
+          "RW": true,
+          "Propagation": "rprivate"
+        }
+      ],
+      "Config": {
+        "Hostname": "b7108bd510fb",
+        "Domainname": "",
+        "User": "0",
+        "AttachStdin": false,
+        "AttachStdout": true,
+        "AttachStderr": true,
+        "Tty": false,
+        "OpenStdin": false,
+        "StdinOnce": false,
+        "Env": [
+          "PATH=/usr/local/cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+          "RUSTUP_HOME=/usr/local/rustup",
+          "CARGO_HOME=/usr/local/cargo",
+          "RUST_VERSION=1.97.1"
+        ],
+        "Cmd": [
+          "/evidence/build.sh"
+        ],
+        "Image": "nbsr-b5-green-cache:17a4701f",
+        "Volumes": null,
+        "WorkingDir": "",
+        "Entrypoint": [
+          "sh"
+        ],
+        "Labels": {
+          "org.opencontainers.image.source": "https://github.com/rust-lang/docker-rust"
+        }
+      },
+      "NetworkSettings": {
+        "SandboxID": "",
+        "SandboxKey": "",
+        "Ports": {},
+        "Networks": {
+          "bridge": {
+            "IPAMConfig": null,
+            "Links": null,
+            "Aliases": null,
+            "DriverOpts": null,
+            "GwPriority": 0,
+            "NetworkID": "276df5633057eb967d13e5e60a83a2f24ba972b0568e6068561d1aad1c4067ef",
+            "EndpointID": "",
+            "Gateway": "",
+            "IPAddress": "",
+            "MacAddress": "",
+            "IPPrefixLen": 0,
+            "IPv6Gateway": "",
+            "GlobalIPv6Address": "",
+            "GlobalIPv6PrefixLen": 0,
+            "DNSNames": null
+          }
+        }
+      },
+      "ImageManifestDescriptor": {
+        "mediaType": "application/vnd.oci.image.manifest.v1+json",
+        "digest": "sha256:7d59795425e21fc5ff09eabea1aad314806e8f20d3a505c5e47cc2df0e20e53d",
+        "size": 2066,
+        "platform": {
+          "architecture": "amd64",
+          "os": "linux"
+        }
+      }
+    },
+    {
+      "Id": "9e26fa9283a6b6120d06da9d286d4a3264672296d68c5ba871608ec7a42c19a9",
+      "Created": "2026-09-18T19:55:25.366302793Z",
+      "Path": "sh",
+      "Args": [
+        "/evidence/build.sh"
+      ],
+      "State": {
+        "Status": "exited",
+        "Running": false,
+        "Paused": false,
+        "Restarting": false,
+        "OOMKilled": false,
+        "Dead": false,
+        "Pid": 0,
+        "ExitCode": 0,
+        "Error": "",
+        "StartedAt": "2026-09-18T19:55:25.491253241Z",
+        "FinishedAt": "2026-09-18T19:55:59.660627498Z"
+      },
+      "Image": "sha256:7d59795425e21fc5ff09eabea1aad314806e8f20d3a505c5e47cc2df0e20e53d",
+      "ResolvConfPath": "/var/lib/docker/containers/9e26fa9283a6b6120d06da9d286d4a3264672296d68c5ba871608ec7a42c19a9/resolv.conf",
+      "HostnamePath": "/var/lib/docker/containers/9e26fa9283a6b6120d06da9d286d4a3264672296d68c5ba871608ec7a42c19a9/hostname",
+      "HostsPath": "/var/lib/docker/containers/9e26fa9283a6b6120d06da9d286d4a3264672296d68c5ba871608ec7a42c19a9/hosts",
+      "LogPath": "/var/lib/docker/containers/9e26fa9283a6b6120d06da9d286d4a3264672296d68c5ba871608ec7a42c19a9/9e26fa9283a6b6120d06da9d286d4a3264672296d68c5ba871608ec7a42c19a9-json.log",
+      "Name": "/nbsr-build-b5272672",
+      "RestartCount": 0,
+      "Driver": "overlayfs",
+      "Platform": "linux",
+      "MountLabel": "",
+      "ProcessLabel": "",
+      "AppArmorProfile": "",
+      "ExecIDs": null,
+      "HostConfig": {
+        "Binds": [
+          "C:\\NBSR-build\\linux-current-b5272672:/evidence"
+        ],
+        "ContainerIDFile": "",
+        "LogConfig": {
+          "Type": "json-file",
+          "Config": {}
+        },
+        "NetworkMode": "bridge",
+        "PortBindings": {},
+        "RestartPolicy": {
+          "Name": "no",
+          "MaximumRetryCount": 0
+        },
+        "AutoRemove": false,
+        "VolumeDriver": "",
+        "VolumesFrom": null,
+        "ConsoleSize": [
+          0,
+          0
+        ],
+        "CapAdd": null,
+        "CapDrop": null,
+        "CgroupnsMode": "private",
+        "Dns": null,
+        "DnsOptions": [],
+        "DnsSearch": [],
+        "ExtraHosts": null,
+        "GroupAdd": null,
+        "IpcMode": "private",
+        "Cgroup": "",
+        "Links": null,
+        "OomScoreAdj": 0,
+        "PidMode": "",
+        "Privileged": false,
+        "PublishAllPorts": false,
+        "ReadonlyRootfs": false,
+        "SecurityOpt": null,
+        "UTSMode": "",
+        "UsernsMode": "",
+        "ShmSize": 67108864,
+        "Runtime": "runc",
+        "Isolation": "",
+        "CpuShares": 0,
+        "Memory": 0,
+        "NanoCpus": 0,
+        "CgroupParent": "",
+        "BlkioWeight": 0,
+        "BlkioWeightDevice": [],
+        "BlkioDeviceReadBps": [],
+        "BlkioDeviceWriteBps": [],
+        "BlkioDeviceReadIOps": [],
+        "BlkioDeviceWriteIOps": [],
+        "CpuPeriod": 0,
+        "CpuQuota": 0,
+        "CpuRealtimePeriod": 0,
+        "CpuRealtimeRuntime": 0,
+        "CpusetCpus": "",
+        "CpusetMems": "",
+        "Devices": [],
+        "DeviceCgroupRules": null,
+        "DeviceRequests": null,
+        "MemoryReservation": 0,
+        "MemorySwap": 0,
+        "MemorySwappiness": null,
+        "OomKillDisable": null,
+        "PidsLimit": null,
+        "Ulimits": [],
+        "CpuCount": 0,
+        "CpuPercent": 0,
+        "IOMaximumIOps": 0,
+        "IOMaximumBandwidth": 0,
+        "MaskedPaths": [
+          "/proc/acpi",
+          "/proc/asound",
+          "/proc/interrupts",
+          "/proc/kcore",
+          "/proc/keys",
+          "/proc/latency_stats",
+          "/proc/sched_debug",
+          "/proc/scsi",
+          "/proc/timer_list",
+          "/proc/timer_stats",
+          "/sys/devices/virtual/powercap",
+          "/sys/firmware"
+        ],
+        "ReadonlyPaths": [
+          "/proc/bus",
+          "/proc/fs",
+          "/proc/irq",
+          "/proc/sys",
+          "/proc/sysrq-trigger"
+        ]
+      },
+      "Storage": {
+        "RootFS": {
+          "Snapshot": {
+            "Name": "overlayfs"
+          }
+        }
+      },
+      "SizeRw": 26484736,
+      "SizeRootFs": 2042753024,
+      "Mounts": [
+        {
+          "Type": "bind",
+          "Source": "C:\\NBSR-build\\linux-current-b5272672",
+          "Destination": "/evidence",
+          "Mode": "",
+          "RW": true,
+          "Propagation": "rprivate"
+        }
+      ],
+      "Config": {
+        "Hostname": "9e26fa9283a6",
+        "Domainname": "",
+        "User": "0",
+        "AttachStdin": false,
+        "AttachStdout": true,
+        "AttachStderr": true,
+        "Tty": false,
+        "OpenStdin": false,
+        "StdinOnce": false,
+        "Env": [
+          "PATH=/usr/local/cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+          "RUSTUP_HOME=/usr/local/rustup",
+          "CARGO_HOME=/usr/local/cargo",
+          "RUST_VERSION=1.97.1"
+        ],
+        "Cmd": [
+          "/evidence/build.sh"
+        ],
+        "Image": "nbsr-b5-green-cache:17a4701f",
+        "Volumes": null,
+        "WorkingDir": "",
+        "Entrypoint": [
+          "sh"
+        ],
+        "Labels": {
+          "org.opencontainers.image.source": "https://github.com/rust-lang/docker-rust"
+        }
+      },
+      "NetworkSettings": {
+        "SandboxID": "",
+        "SandboxKey": "",
+        "Ports": {},
+        "Networks": {
+          "bridge": {
+            "IPAMConfig": null,
+            "Links": null,
+            "Aliases": null,
+            "DriverOpts": null,
+            "GwPriority": 0,
+            "NetworkID": "276df5633057eb967d13e5e60a83a2f24ba972b0568e6068561d1aad1c4067ef",
+            "EndpointID": "",
+            "Gateway": "",
+            "IPAddress": "",
+            "MacAddress": "",
+            "IPPrefixLen": 0,
+            "IPv6Gateway": "",
+            "GlobalIPv6Address": "",
+            "GlobalIPv6PrefixLen": 0,
+            "DNSNames": null
+          }
+        }
+      },
+      "ImageManifestDescriptor": {
+        "mediaType": "application/vnd.oci.image.manifest.v1+json",
+        "digest": "sha256:7d59795425e21fc5ff09eabea1aad314806e8f20d3a505c5e47cc2df0e20e53d",
+        "size": 2066,
+        "platform": {
+          "architecture": "amd64",
+          "os": "linux"
+        }
+      }
+    }
+  ],
+  "reason": "Only stopped campaign containers; canonical and raw checksums verified; images/binaries/raw evidence retained",
+  "approximate_layer_bytes": 1397600256,
+  "host_reclaimed_bytes": "NOT_MEASURED"
+}

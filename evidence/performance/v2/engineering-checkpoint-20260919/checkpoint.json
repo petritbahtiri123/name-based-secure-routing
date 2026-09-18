@@ -1,0 +1,15 @@
+{
+  "start_sha": "c2806269f1078a8dcbb1cf63bcec2afb569c1f88",
+  "pre_checkpoint_head": "59862280ef3398bbfe1006dca72008b56f014b6a",
+  "status": "MORE_ENGINEERING_REQUIRED",
+  "classification": "UNRESOLVED",
+  "combined_tests_passed": 254,
+  "production_changes": false,
+  "admin_capture": "ADMIN_REQUIRED_NOT_RUN",
+  "external_hardware": "UNAVAILABLE",
+  "weekly_usage_observed_percent": 86,
+  "allowance_baseline_percent": 67,
+  "host_free_bytes_observed": 15114752000,
+  "main_unchanged": true,
+  "scope": "Continuation checkpoint, not final funding freeze or exhaustion of all safe engineering work"
+}

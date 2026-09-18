@@ -1,0 +1,27 @@
+1d24cb4c740c53c945932ff8d67bdd34b3b75209 bench: add source-bound Linux native peer execution with owned cleanup
+b01451d694d948bf31fb70d4d1211d92b9f9330d bench: preserve native namespace finite and rejected-control evidence
+cd88f0c9f3314fb1dd3ad15215f018d8676460c1 bench: validate transferred native peer pairs against source and lifecycle evidence
+d391fab054cacc5fffffe397d8262cba9a426387 bench: preserve native pair integrity regression and cleanup evidence
+469612682b62c0aa5ceabba8168081ec7c62a781 bench: add bounded read-only Linux network inventory
+4b7cb43becbdb4711b2a6c8ce8c9232fa8997144 fix(bench): retain partial ethtool permission failures despite zero exit
+6e5a2afe88d59b40d14b0c0110973e5436833754 bench: retain real network inventory and partial-permission correction evidence
+9d36266fa601d4c8c14c7045debc24f7cf8e5069 fix(bench): reap owned native peers on catchable controller cancellation
+b527267233b4a78f8e920d94254f8f4c31960ab9 fix(bench): share deferred cancellation and reap loopback peers
+0d8ea9c6ec97178b221dcbadd3c3f29303e68572 bench: preserve controller orphan reproductions and cancellation closure
+b560d0bdc976b4d97011193c9aac133b2e344b12 fix(bench): stop Linux packet capture on deferred controller cancellation
+a673a74c658632b4bb942dd8de24e633431db9a9 fix(bench): mark Linux capture reports invalid after packet-accounting rejection
+73c0c9091f1897f4a9e7e8bb3e1f03aa865aedd8 bench: preserve B1 cancellation closure and rejected two-packet-loss cohort
+978e200b60305cffa5981a04906c3999e3b45ec1 fix(bench): propagate deferred cancellation through Linux B5 controllers
+6052fe9f1e6a42513a3f012231c4336dce5435b7 maintenance: preserve ETL hashes while reclaiming 9.34 GiB with NTFS compression
+68f23b224af11ff05cced09451fc540e17877171 bench: preserve B5 controller cancellation and failed-gate smoke evidence
+71c0a3eba794efcec74f3b2dee13114acbcc7317 fix(bench): reap finite-reference peers on deferred controller cancellation
+1e3efb1889e04242c790f45dc7e952231ed70ad7 bench: preserve reference cancellation closure and unresolved finite dispersion
+9745cecb395d5bf029f8f0eb0e5addfcc7584470 fix(bench): unwind Linux admission peers on deferred controller cancellation
+b2da99026ae374bea11f3fd7192f735bf705a271 bench: retain B4 cancellation closure and saturated 125-per-second rerun
+f9d8fd1ef96e3592b333d219ef01d3b85adec294 fix(bench): unwind Linux B3 lifecycle peers on controller cancellation
+5d9b5ef41007d852957a467bf266e242da4118ee bench: preserve B3 cancellation and thirty clean lifecycle cycles
+62652d4d6777b0f3a7e15e6c6d5a4876447bc2b5 bench: validate complete native comparison cohorts without dropping repeats
+73cbbc4098d61bc64c6efc1d943a83f5f56f56a0 bench: preserve native cohort integrity and under-repeat rejection evidence
+182257898f34e22fcc8ea7dad5be9959e1e40838 fix(bench): bind external build manifests to pre-build source identity
+4eb62c093273dcfe883c0bb5c02cf69dbd426c20 bench: preserve external build source-binding regression evidence
+59862280ef3398bbfe1006dca72008b56f014b6a docs(bench): preserve clean source for deferred admin validation

@@ -1,0 +1,103 @@
+[
+  {
+    "command": [
+      "C:\\Users\\bajra\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+      "-m",
+      "pytest",
+      "tests/performance/test_b3_linux.py",
+      "tests/performance/test_b3_linux_runner.py",
+      "tests/performance/test_b4_linux.py",
+      "tests/performance/test_external_build_recipe.py",
+      "tests/performance/test_funding_grade_v2_server_plan.py",
+      "tests/performance/test_linux_b1_capture.py",
+      "tests/performance/test_linux_b5_backend.py",
+      "tests/performance/test_linux_b5_campaign.py",
+      "tests/performance/test_linux_b5_ceiling.py",
+      "tests/performance/test_linux_b5_placement.py",
+      "tests/performance/test_linux_b5_reference.py",
+      "tests/performance/test_linux_loopback.py",
+      "tests/performance/test_linux_native_cohort.py",
+      "tests/performance/test_linux_native_pair.py",
+      "tests/performance/test_linux_native_peer.py",
+      "tests/performance/test_linux_network_inventory.py",
+      "-q"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 28.650112800009083,
+    "stdout": "........................................................................ [ 28%]\n........................................................................ [ 56%]\n........................................................................ [ 85%]\n......................................                                   [100%]\n254 passed in 26.98s\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "C:\\Users\\bajra\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+      "-m",
+      "ruff",
+      "check",
+      "scripts/performance/b3_linux.py",
+      "scripts/performance/b4_linux.py",
+      "scripts/performance/linux_b1_capture.py",
+      "scripts/performance/linux_b5_backend.py",
+      "scripts/performance/linux_b5_campaign.py",
+      "scripts/performance/linux_b5_placement.py",
+      "scripts/performance/linux_b5_reference.py",
+      "scripts/performance/linux_loopback.py",
+      "scripts/performance/linux_native_cohort.py",
+      "scripts/performance/linux_native_pair.py",
+      "scripts/performance/linux_native_peer.py",
+      "scripts/performance/linux_network_inventory.py",
+      "scripts/performance/process_cancellation.py",
+      "scripts/run_b3_v2.py",
+      "scripts/run_b4b_linux.py",
+      "tests/performance/test_b3_linux.py",
+      "tests/performance/test_b4_linux.py",
+      "tests/performance/test_external_build_recipe.py",
+      "tests/performance/test_linux_b1_capture.py",
+      "tests/performance/test_linux_b5_backend.py",
+      "tests/performance/test_linux_b5_ceiling.py",
+      "tests/performance/test_linux_b5_placement.py",
+      "tests/performance/test_linux_b5_reference.py",
+      "tests/performance/test_linux_loopback.py",
+      "tests/performance/test_linux_native_cohort.py",
+      "tests/performance/test_linux_native_pair.py",
+      "tests/performance/test_linux_native_peer.py",
+      "tests/performance/test_linux_network_inventory.py"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 0.17468419997021556,
+    "stdout": "All checks passed!\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "C:\\Users\\bajra\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+      "C:/NBSR-build/verify-focused-evidence-20260916.py",
+      "b1-cancellation-b560d0bd",
+      "b3-cancellation-f9d8fd1e",
+      "b4-cancellation-9745cecb",
+      "b5-cancellation-6052fe9f",
+      "controller-cancellation-b5272672",
+      "external-build-source-18225789",
+      "linux-network-inventory-4b7cb43b",
+      "native-cohort-62652d4d",
+      "native-pair-cd88f0c9",
+      "native-two-namespace-1d24cb4c",
+      "reference-cancellation-71c0a3eb",
+      "retained-etl-compression-20260918"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 17.6872409999487,
+    "stdout": "b1-cancellation-b560d0bd {\"canonical\": 14, \"privacy\": 15, \"raw\": 267} PASS\nb3-cancellation-f9d8fd1e {\"canonical\": 10, \"privacy\": 11, \"raw\": 223} PASS\nb4-cancellation-9745cecb {\"canonical\": 12, \"privacy\": 13, \"raw\": 277} PASS\nb5-cancellation-6052fe9f {\"canonical\": 11, \"privacy\": 12, \"raw\": 848} PASS\ncontroller-cancellation-b5272672 {\"canonical\": 13, \"privacy\": 14, \"raw\": 463} PASS\nexternal-build-source-18225789 {\"canonical\": 6, \"privacy\": 7, \"raw\": 4} PASS\nlinux-network-inventory-4b7cb43b {\"canonical\": 16, \"privacy\": 17, \"raw\": 30} PASS\nnative-cohort-62652d4d {\"canonical\": 13, \"privacy\": 14, \"raw\": 599} PASS\nnative-pair-cd88f0c9 {\"canonical\": 10, \"privacy\": 11, \"raw\": 8} PASS\nnative-two-namespace-1d24cb4c {\"canonical\": 17, \"privacy\": 18, \"raw\": 606} PASS\nreference-cancellation-71c0a3eb {\"canonical\": 10, \"privacy\": 11, \"raw\": 273} PASS\nretained-etl-compression-20260918 {\"canonical\": 8, \"privacy\": 9, \"raw\": 21} PASS\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 0.08898579998640344,
+    "stdout": "",
+    "stderr": "warning: in the working copy of 'config/benchmarks/funding-grade-v2-server-matrix.json', CRLF will be replaced by LF the next time Git touches it\nwarning: in the working copy of 'docs/benchmarks/ADMIN_REQUIRED_FINAL_VALIDATION.md', CRLF will be replaced by LF the next time Git touches it\nwarning: in the working copy of 'docs/benchmarks/FUNDING_EVIDENCE_WORKING_BRIEF.md', CRLF will be replaced by LF the next time Git touches it\n"
+  }
+]

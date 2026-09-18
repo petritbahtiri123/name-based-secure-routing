@@ -21,6 +21,34 @@ flowchart LR
 
 ## September18 engineering follow-up
 
+September19 continuation: eight Linux benchmark entry points now pass 24 live
+catchable-signal cancellation controls. Before repair, seven retained SIGTERM
+reproductions left owned peers/capture processes orphaned. Deferred cancellation
+now reaches existing owned-process cleanup and rejects interrupted evidence.
+This is harness reliability, not a production speedup or graceful ownership
+proof for forcibly killed runs. Three additional B3 repetitions complete thirty
+same-process lifecycle cycles with cleanup PASS. See the
+[current checkpoint](ENGINEERING_CHECKPOINT_2026-09-19.md).
+
+Current unfavorable revalidations remain visible: the 9745cecb mixed admission
+cell completes 512/512 in all five attempts without errors/timeouts, but reaches
+only 104.756154 admissions/s at 125 offered/s (83.805%), classified SATURATED.
+It does not reproduce the historical stable 125/s cell. The 71c0a3eb finite
+reference has no strict-stable point: Direct is SATURATED and NBSR UNRESOLVED
+with 23.760% and 13.183% goodput CV respectively. A short B5 placement mechanics
+cohort fails drift gates in nine of ten runs. None qualifies a soak reference.
+[Admission rerun](../../evidence/performance/v2/b4-cancellation-9745cecb/summary.md),
+[finite reference](../../evidence/performance/v2/reference-cancellation-71c0a3eb/summary.md),
+[B5 smoke](../../evidence/performance/v2/b5-cancellation-6052fe9f/summary.md).
+
+The later B1 b560d0bd capture cohort is INVALID_PARTIAL: its thirteenth capture
+reports two pcap drops and is rejected without replacement. The complete five-pair
+1 KiB subset has a +1.005249% median whole-IP-byte delta/useful application bytes;
+16 KiB revalidation remains incomplete. The Linux observer's stale valid flag
+on accounting rejection was separately corrected at a673a74c. Historical zero-loss
+cohorts below retain their original scope, not latest-source recertification.
+[Retained capture failure](../../evidence/performance/v2/b1-cancellation-b560d0bd/summary.md).
+
 External execution preparation now includes a tested finite per-host runner and
 a read-only source/destination integrity gate. Sixteen Direct/NBSR cells at
 1d24cb4c passed across two isolated Docker network namespaces. The affinity
@@ -29,6 +57,10 @@ authority caused handshake failure without an accepted result. Detailed issuer
 attribution remains INCONCLUSIVE. These are functional mechanics, not independent
 server hardware, observer qualification, a speedup or a new capacity result.
 [Native evidence](../../evidence/performance/v2/native-two-namespace-1d24cb4c/summary.md).
+The read-only cohort gate at 62652d4d also revalidates all sixteen cells with
+the declared counterbalanced schedule and three-to-five-repeat policy; the
+1 KiB Direct dispersion remains unresolved. This does not add a capacity claim.
+[Cohort integrity](../../evidence/performance/v2/native-cohort-62652d4d/summary.md).
 
 A read-only Linux network inventory now records NIC/queue/IRQ information and
 explicit gaps. Real veth execution found and fixed a collector classification

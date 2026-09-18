@@ -1,0 +1,180 @@
+[
+  {
+    "path": "evidence/performance/v2/b1-cancellation-b560d0bd",
+    "index_sha256": "0c64f0e7cc3710da914e4ea53e72e1b751c5252501dd91cdacd44793623f27ec",
+    "raw_references": [
+      {
+        "root": "C:\\NBSR-build\\b1-cancellation-b5272672",
+        "index_sha256": "7d084a19c749e9f85a2fe60b475c8bb23c9f54eaa2852d22f3c1a69fc1df6fdd"
+      },
+      {
+        "root": "C:\\NBSR-build\\linux-current-b560d0bd",
+        "index_sha256": "baf2c7a7b788fe0205e2a7b218973bcb50250d334a49dbe0cb43ab6dfeb4441d"
+      }
+    ]
+  },
+  {
+    "path": "evidence/performance/v2/b3-cancellation-f9d8fd1e",
+    "index_sha256": "1bb9e0089bc4c986ee17e524894b3d3d50cae8148189fc8085d37829d3f8c1e6",
+    "raw_references": [
+      {
+        "root": "C:\\NBSR-build\\b3-cancellation-9745cecb",
+        "index_sha256": "5d01edf10b26e0df1a5bdd53f7ee0c13eb1348d2f8bed625aabc4dfcaf5f3402"
+      },
+      {
+        "root": "C:\\NBSR-build\\linux-current-f9d8fd1e",
+        "index_sha256": "0cbd44834726cdc12e96076dfb43c89bbcacda1b86c8ded11725527bff14ee92"
+      }
+    ]
+  },
+  {
+    "path": "evidence/performance/v2/b4-cancellation-9745cecb",
+    "index_sha256": "9400f4bb011bd8c03dfde19d13ff276b1c9f41490ccbd581b76574da18d3f6c0",
+    "raw_references": [
+      {
+        "root": "C:\\NBSR-build\\b4-cancellation-71c0a3eb",
+        "index_sha256": "fa139b05bb770f6c3dd4dd0901a82c1536ddbb2a8b7af0cfaed130cc5e7f5d7e"
+      },
+      {
+        "root": "C:\\NBSR-build\\linux-current-9745cecb",
+        "index_sha256": "4076c6f89dc856daa168edc5e1894a357b52170e0b35d34a800ceb6c4d8dcaf9"
+      }
+    ]
+  },
+  {
+    "path": "evidence/performance/v2/b5-cancellation-6052fe9f",
+    "index_sha256": "f4e9526b1680f5b65b7b1fac61df3ceaf29d09f8601fc3b1699787fe8af87889",
+    "raw_references": [
+      {
+        "root": "C:\\NBSR-build\\b5-cancellation-b5272672",
+        "index_sha256": "474d738235ff1317e4130299aede530359da76531230b2ab5828778790ff7db1"
+      },
+      {
+        "root": "C:\\NBSR-build\\linux-current-6052fe9f",
+        "index_sha256": "c44fcef0abe98a7e5271debfe2d8f152a82b839643da2c0a507f2eddd2bd56e9"
+      }
+    ]
+  },
+  {
+    "path": "evidence/performance/v2/controller-cancellation-b5272672",
+    "index_sha256": "dd31fb044006ec3caf0a418f920ac229f6a5efb8e29205c62d06f1bf83d5bd08",
+    "raw_references": [
+      {
+        "root": "C:\\NBSR-build\\native-cancellation-6e5a2afe",
+        "index_sha256": "5451d8bf1733bb63c6740b59ddc1d17cee7f03e33411e745bb10338aa94ea44a"
+      },
+      {
+        "root": "C:\\NBSR-build\\loopback-cancellation-9d36266f",
+        "index_sha256": "3eb0178ad7cdb9a64c49e9cfd1df4eb4dd15f48f7c4bca26853931cb3b47ce42"
+      },
+      {
+        "root": "C:\\NBSR-build\\linux-current-9d36266f",
+        "index_sha256": "b3946f5242958df52957bd7f53c69034e39c44dd05ccc40d5d0d1ac18e085b50"
+      },
+      {
+        "root": "C:\\NBSR-build\\linux-current-b5272672",
+        "index_sha256": "14b4b048f8ba90e3cd88089cd85188138803dddf650cdee161905f1e87343b56"
+      }
+    ]
+  },
+  {
+    "path": "evidence/performance/v2/external-build-source-18225789",
+    "index_sha256": "464486f4f8b733653216ac9d31c9c3e3f807df6579616396ccfaf743cec61c40",
+    "raw_references": [
+      {
+        "root": "C:\\NBSR-build\\external-build-recipe-73cbbc40",
+        "index_sha256": "b1347e97239d449a3b0ec8f3aae6ab2c7c6d952132808f01f6744b43d5c54917"
+      }
+    ]
+  },
+  {
+    "path": "evidence/performance/v2/linux-network-inventory-4b7cb43b",
+    "index_sha256": "35c57e2fbac158f49dcdf708495695ebba280e29da56fd6d834119c16c4ff9cd",
+    "raw_references": [
+      {
+        "root": "C:\\NBSR-build\\linux-network-inventory-d391fab0",
+        "index_sha256": "1278ea28eb3c7b736e9afdc83a8a49833cb8cd77c7a743dc6f521fb06a17f01d"
+      }
+    ]
+  },
+  {
+    "path": "evidence/performance/v2/native-cohort-62652d4d",
+    "index_sha256": "dddd67de932ba810b3b22cf84857fc5ab6da36a90dba49c2f656e4d1ce38bf81",
+    "raw_references": [
+      {
+        "root": "C:\\NBSR-build\\native-cohort-5d9b5ef4",
+        "index_sha256": "b9bac94d0ab7ab7167e35c54fb60b5157f29a294b325ac42347f807d49572f6a"
+      },
+      {
+        "root": "C:\\NBSR-build\\native-two-namespace-1d24cb4c",
+        "index_sha256": "74fd81a5c19bbd2b041e90c7d3d7a27eedcdf28ebae6bfabd3d24cebd0de2ced"
+      }
+    ]
+  },
+  {
+    "path": "evidence/performance/v2/native-pair-cd88f0c9",
+    "index_sha256": "283877bdde26ae0dcf971a26b4347c17497f7d20d8bb7e868f9082ea041ae7c6",
+    "raw_references": [
+      {
+        "root": "C:\\NBSR-build\\native-pair-b01451d6",
+        "index_sha256": "a5cb8ba55ef471641af69d2b6e3f17682ea8eda9cd0e45c8675297cbf47aa3a4"
+      },
+      {
+        "root": "C:\\NBSR-build\\native-cleanup-1d24cb4c",
+        "index_sha256": "ae469936d19152a0124f07e5b7fd4148e00da595f5cec7005b9ffad3fc6bae3d"
+      }
+    ]
+  },
+  {
+    "path": "evidence/performance/v2/native-two-namespace-1d24cb4c",
+    "index_sha256": "65e124e681abf2a472db5ca076e03eb36d3bb84e2466876f5e9e49052125da6a",
+    "raw_references": [
+      {
+        "root": "C:\\NBSR-build\\native-two-namespace-1d24cb4c",
+        "index_sha256": "74fd81a5c19bbd2b041e90c7d3d7a27eedcdf28ebae6bfabd3d24cebd0de2ced"
+      },
+      {
+        "root": "C:\\NBSR-build\\native-peer-port-c2806269",
+        "index_sha256": "9c2cdcbfadf5c7652f31a880f8a3a736b90d9ee05bef748645dc71978a5b002a"
+      },
+      {
+        "root": "C:\\NBSR-build\\linux-current-1d24cb4c",
+        "index_sha256": "3542a973848762a492ee85eac85b4feaf933c3abd33e24e9fae3f0544e1a87c1"
+      }
+    ]
+  },
+  {
+    "path": "evidence/performance/v2/reference-cancellation-71c0a3eb",
+    "index_sha256": "a29e33db464baab95060d8c4678d792a596ca68bbb4fc10dcdbef71a0b80bd06",
+    "raw_references": [
+      {
+        "root": "C:\\NBSR-build\\b5-reference-cancellation-6052fe9f",
+        "index_sha256": "8915f18c60f0ff420da65b0aa4a3033da93cfafc9e9e24857248294da4d36c34"
+      },
+      {
+        "root": "C:\\NBSR-build\\linux-current-71c0a3eb",
+        "index_sha256": "ebce5b7f1b92a32c9a385b0149235831768a99ffa3e723058e7635932ca17e62"
+      }
+    ]
+  },
+  {
+    "path": "evidence/performance/v2/retained-etl-compression-20260918",
+    "index_sha256": "f32924fd949d538ffc32b67ec3fc0a6287a58a6b7e95cb3b64adb4184ddb48ed",
+    "raw_references": [
+      {
+        "root": "C:\\NBSR-build\\etl-compression-b560d0bd",
+        "index_sha256": "732d62e410643fcdcc065db29ce5cd35f26a24e934a6b522e57ddb1d3c41293f"
+      }
+    ]
+  },
+  {
+    "path": "evidence/performance/v2/admin-source-4eb62c09",
+    "index_sha256": "e14aa3b86103581fee7edd9c93bd29b89f2db2b7a9ac47b44c988fc674248d76",
+    "raw_references": [
+      {
+        "root": "C:\\NBSR-build\\admin-source-preparation-4eb62c09",
+        "index_sha256": "e5985257a9b548af01fda70fd6379b8296b7c3820af448469e4779c7b2794d05"
+      }
+    ]
+  }
+]

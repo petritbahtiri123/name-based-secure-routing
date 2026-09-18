@@ -1,0 +1,359 @@
+{
+  "started_utc": "2026-09-18T21:52:08Z",
+  "host_free_before": 14446800896,
+  "reason": "Stopped task-owned diagnostic containers; raw evidence/build manifests retained on host mounts, source clones and build layers reproducible. No image, volume, source or evidence deletion.",
+  "removed": [
+    {
+      "name": "nbsr-b1-cancel-baseline-b5272672",
+      "id": "f5833b234c81cf9b8af1525431d37bb620ba1bbf8df1dc3773078e80484ad499",
+      "image": "sha256:471d52f184ea70769d834cbdc56e9035e85a8bec3dcb2a4c762d2187b74558b4",
+      "state": "exited",
+      "writable_layer_bytes": 448262144,
+      "mounts": [
+        {
+          "source": "C:/NBSR-build/linux-current-b5272672",
+          "destination": "/build",
+          "type": "bind"
+        },
+        {
+          "source": "C:/NBSR-build/native-two-namespace-1d24cb4c",
+          "destination": "/control",
+          "type": "bind"
+        },
+        {
+          "source": "C:/NBSR-build/linux-current-edc0f96d",
+          "destination": "/old",
+          "type": "bind"
+        },
+        {
+          "source": "C:\\NBSR-build\\b1-cancellation-b5272672",
+          "destination": "/out",
+          "type": "bind"
+        }
+      ],
+      "command": [
+        "docker",
+        "rm",
+        "nbsr-b1-cancel-baseline-b5272672"
+      ]
+    },
+    {
+      "name": "nbsr-b1-cancel-green-b560d0bd",
+      "id": "ede0e95f6ba64eba294f850ec85e5bcb6e3b7843d6034550331803c14e959ab8",
+      "image": "sha256:471d52f184ea70769d834cbdc56e9035e85a8bec3dcb2a4c762d2187b74558b4",
+      "state": "exited",
+      "writable_layer_bytes": 448249856,
+      "mounts": [
+        {
+          "source": "C:/NBSR-build/linux-current-edc0f96d",
+          "destination": "/old",
+          "type": "bind"
+        },
+        {
+          "source": "C:\\NBSR-build\\b1-cancellation-b5272672\\green",
+          "destination": "/out",
+          "type": "bind"
+        },
+        {
+          "source": "C:/NBSR-build/linux-current-b560d0bd",
+          "destination": "/build",
+          "type": "bind"
+        },
+        {
+          "source": "C:/NBSR-build/native-two-namespace-1d24cb4c",
+          "destination": "/control",
+          "type": "bind"
+        }
+      ],
+      "command": [
+        "docker",
+        "rm",
+        "nbsr-b1-cancel-green-b560d0bd"
+      ]
+    },
+    {
+      "name": "nbsr-build-b560d0bd",
+      "id": "f6243d30e113cabee8184abedddf1a07e788777bb0baea254225750e38377b3e",
+      "image": "sha256:7d59795425e21fc5ff09eabea1aad314806e8f20d3a505c5e47cc2df0e20e53d",
+      "state": "exited",
+      "writable_layer_bytes": 26484736,
+      "mounts": [
+        {
+          "source": "C:\\NBSR-build\\linux-current-b560d0bd",
+          "destination": "/evidence",
+          "type": "bind"
+        }
+      ],
+      "command": [
+        "docker",
+        "rm",
+        "nbsr-build-b560d0bd"
+      ]
+    },
+    {
+      "name": "nbsr-b5-cancel-baseline-b5272672",
+      "id": "af54d86f7c049447ba303a505db45f49fe38a7a523a15cac4d17ebead1abcd86",
+      "image": "sha256:dd08db4a391b16a9d303a251d2693808baf470f2fc4870d8e3c54b7523deed71",
+      "state": "exited",
+      "writable_layer_bytes": 448262144,
+      "mounts": [
+        {
+          "source": "C:\\NBSR-build\\b5-cancellation-b5272672",
+          "destination": "/out",
+          "type": "bind"
+        },
+        {
+          "source": "C:/NBSR-build/linux-current-b5272672",
+          "destination": "/build",
+          "type": "bind"
+        },
+        {
+          "source": "C:/NBSR-build/native-two-namespace-1d24cb4c",
+          "destination": "/control",
+          "type": "bind"
+        },
+        {
+          "source": "C:/NBSR-build/linux-current-edc0f96d",
+          "destination": "/old",
+          "type": "bind"
+        }
+      ],
+      "command": [
+        "docker",
+        "rm",
+        "nbsr-b5-cancel-baseline-b5272672"
+      ]
+    },
+    {
+      "name": "nbsr-b5-cancel-green-6052fe9f",
+      "id": "9ab42c9ff9074fff5410b9f2e2d59f8d6dac990438ac60704b8cdf458918096a",
+      "image": "sha256:dd08db4a391b16a9d303a251d2693808baf470f2fc4870d8e3c54b7523deed71",
+      "state": "exited",
+      "writable_layer_bytes": 448274432,
+      "mounts": [
+        {
+          "source": "C:/NBSR-build/linux-current-6052fe9f",
+          "destination": "/build",
+          "type": "bind"
+        },
+        {
+          "source": "C:/NBSR-build/linux-current-edc0f96d",
+          "destination": "/old",
+          "type": "bind"
+        },
+        {
+          "source": "C:\\NBSR-build\\b5-cancellation-b5272672\\green",
+          "destination": "/out",
+          "type": "bind"
+        },
+        {
+          "source": "C:/NBSR-build/native-two-namespace-1d24cb4c",
+          "destination": "/control",
+          "type": "bind"
+        }
+      ],
+      "command": [
+        "docker",
+        "rm",
+        "nbsr-b5-cancel-green-6052fe9f"
+      ]
+    },
+    {
+      "name": "nbsr-build-6052fe9f",
+      "id": "eae393c8ef84b442d4581ca3148f5793d001bd0d06f428b98ca45af59b78b2bd",
+      "image": "sha256:7d59795425e21fc5ff09eabea1aad314806e8f20d3a505c5e47cc2df0e20e53d",
+      "state": "exited",
+      "writable_layer_bytes": 26484736,
+      "mounts": [
+        {
+          "source": "C:\\NBSR-build\\linux-current-6052fe9f",
+          "destination": "/evidence",
+          "type": "bind"
+        }
+      ],
+      "command": [
+        "docker",
+        "rm",
+        "nbsr-build-6052fe9f"
+      ]
+    },
+    {
+      "name": "nbsr-reference-cancel-baseline-6052fe9f",
+      "id": "e156bf8e6bf908fc6873a68f9da515d1aefa388ee33b999accf18d372d9265a5",
+      "image": "sha256:dd08db4a391b16a9d303a251d2693808baf470f2fc4870d8e3c54b7523deed71",
+      "state": "exited",
+      "writable_layer_bytes": 448303104,
+      "mounts": [
+        {
+          "source": "C:/NBSR-build/native-two-namespace-1d24cb4c",
+          "destination": "/control",
+          "type": "bind"
+        },
+        {
+          "source": "C:/NBSR-build/linux-current-6052fe9f",
+          "destination": "/build",
+          "type": "bind"
+        },
+        {
+          "source": "C:/NBSR-build/linux-current-edc0f96d",
+          "destination": "/old",
+          "type": "bind"
+        },
+        {
+          "source": "C:\\NBSR-build\\b5-reference-cancellation-6052fe9f",
+          "destination": "/out",
+          "type": "bind"
+        }
+      ],
+      "command": [
+        "docker",
+        "rm",
+        "nbsr-reference-cancel-baseline-6052fe9f"
+      ]
+    },
+    {
+      "name": "nbsr-reference-cancel-green-71c0a3eb",
+      "id": "411014a3db5579e4d1d1624f274d38908ab736097eb851682ad1ba7dcb195eae",
+      "image": "sha256:dd08db4a391b16a9d303a251d2693808baf470f2fc4870d8e3c54b7523deed71",
+      "state": "exited",
+      "writable_layer_bytes": 448290816,
+      "mounts": [
+        {
+          "source": "C:\\NBSR-build\\b5-reference-cancellation-6052fe9f\\green",
+          "destination": "/out",
+          "type": "bind"
+        },
+        {
+          "source": "C:/NBSR-build/native-two-namespace-1d24cb4c",
+          "destination": "/control",
+          "type": "bind"
+        },
+        {
+          "source": "C:/NBSR-build/linux-current-71c0a3eb",
+          "destination": "/build",
+          "type": "bind"
+        },
+        {
+          "source": "C:/NBSR-build/linux-current-edc0f96d",
+          "destination": "/old",
+          "type": "bind"
+        }
+      ],
+      "command": [
+        "docker",
+        "rm",
+        "nbsr-reference-cancel-green-71c0a3eb"
+      ]
+    },
+    {
+      "name": "nbsr-build-71c0a3eb",
+      "id": "40818421e67f70fb7ec6f07f381a1ceac247b84c6da7b339984be7c78fb3bee9",
+      "image": "sha256:7d59795425e21fc5ff09eabea1aad314806e8f20d3a505c5e47cc2df0e20e53d",
+      "state": "exited",
+      "writable_layer_bytes": 26484736,
+      "mounts": [
+        {
+          "source": "C:\\NBSR-build\\linux-current-71c0a3eb",
+          "destination": "/evidence",
+          "type": "bind"
+        }
+      ],
+      "command": [
+        "docker",
+        "rm",
+        "nbsr-build-71c0a3eb"
+      ]
+    },
+    {
+      "name": "nbsr-b4-cancel-baseline-71c0a3eb",
+      "id": "260fd0232bb3db9247b0f81f5e17d0d244d08c55baa636061222f68adbc1634f",
+      "image": "sha256:dd08db4a391b16a9d303a251d2693808baf470f2fc4870d8e3c54b7523deed71",
+      "state": "exited",
+      "writable_layer_bytes": 448397312,
+      "mounts": [
+        {
+          "source": "C:/NBSR-build/native-two-namespace-1d24cb4c",
+          "destination": "/control",
+          "type": "bind"
+        },
+        {
+          "source": "C:/NBSR-build/linux-current-71c0a3eb",
+          "destination": "/build",
+          "type": "bind"
+        },
+        {
+          "source": "C:/NBSR-build/linux-current-edc0f96d",
+          "destination": "/old",
+          "type": "bind"
+        },
+        {
+          "source": "C:\\NBSR-build\\b4-cancellation-71c0a3eb",
+          "destination": "/out",
+          "type": "bind"
+        }
+      ],
+      "command": [
+        "docker",
+        "rm",
+        "nbsr-b4-cancel-baseline-71c0a3eb"
+      ]
+    },
+    {
+      "name": "nbsr-b4-cancel-green-9745cecb",
+      "id": "fd6db500ab7120add27b569ba6f1846f9ce77bd10b595322ae9400d76c7cea8d",
+      "image": "sha256:dd08db4a391b16a9d303a251d2693808baf470f2fc4870d8e3c54b7523deed71",
+      "state": "exited",
+      "writable_layer_bytes": 448319488,
+      "mounts": [
+        {
+          "source": "C:/NBSR-build/native-two-namespace-1d24cb4c",
+          "destination": "/control",
+          "type": "bind"
+        },
+        {
+          "source": "C:/NBSR-build/linux-current-9745cecb",
+          "destination": "/build",
+          "type": "bind"
+        },
+        {
+          "source": "C:/NBSR-build/linux-current-edc0f96d",
+          "destination": "/old",
+          "type": "bind"
+        },
+        {
+          "source": "C:\\NBSR-build\\b4-cancellation-71c0a3eb\\green",
+          "destination": "/out",
+          "type": "bind"
+        }
+      ],
+      "command": [
+        "docker",
+        "rm",
+        "nbsr-b4-cancel-green-9745cecb"
+      ]
+    },
+    {
+      "name": "nbsr-build-9745cecb",
+      "id": "fb340ac566f4cdc15f8fe03a2ff3178a659e0e179db7db23c4fd4e7a5b6c7a79",
+      "image": "sha256:7d59795425e21fc5ff09eabea1aad314806e8f20d3a505c5e47cc2df0e20e53d",
+      "state": "exited",
+      "writable_layer_bytes": 26484736,
+      "mounts": [
+        {
+          "source": "C:\\NBSR-build\\linux-current-9745cecb",
+          "destination": "/evidence",
+          "type": "bind"
+        }
+      ],
+      "command": [
+        "docker",
+        "rm",
+        "nbsr-build-9745cecb"
+      ]
+    }
+  ],
+  "skipped": [],
+  "host_free_after": 14446706688,
+  "removed_writable_layer_bytes": 3692298240,
+  "scope": "Docker writable-layer allocation; not a promise that WSL VHD shrank or equal host SSD space was recovered"
+}
