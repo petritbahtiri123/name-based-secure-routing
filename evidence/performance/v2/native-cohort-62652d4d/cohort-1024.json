@@ -1,0 +1,65 @@
+{
+  "schema": "nbsr-native-cohort-v1",
+  "attempts": [
+    {
+      "path": "direct",
+      "repeat": 1,
+      "source": "C:\\NBSR-build\\native-two-namespace-1d24cb4c\\source\\p1024-s64-direct-r1",
+      "destination": "C:\\NBSR-build\\native-two-namespace-1d24cb4c\\destination\\p1024-s64-direct-r1"
+    },
+    {
+      "path": "nbsr",
+      "repeat": 1,
+      "source": "C:\\NBSR-build\\native-two-namespace-1d24cb4c\\source\\p1024-s64-nbsr-r1",
+      "destination": "C:\\NBSR-build\\native-two-namespace-1d24cb4c\\destination\\p1024-s64-nbsr-r1"
+    },
+    {
+      "path": "nbsr",
+      "repeat": 2,
+      "source": "C:\\NBSR-build\\native-two-namespace-1d24cb4c\\source\\p1024-s64-nbsr-r2",
+      "destination": "C:\\NBSR-build\\native-two-namespace-1d24cb4c\\destination\\p1024-s64-nbsr-r2"
+    },
+    {
+      "path": "direct",
+      "repeat": 2,
+      "source": "C:\\NBSR-build\\native-two-namespace-1d24cb4c\\source\\p1024-s64-direct-r2",
+      "destination": "C:\\NBSR-build\\native-two-namespace-1d24cb4c\\destination\\p1024-s64-direct-r2"
+    },
+    {
+      "path": "direct",
+      "repeat": 3,
+      "source": "C:\\NBSR-build\\native-two-namespace-1d24cb4c\\source\\p1024-s64-direct-r3",
+      "destination": "C:\\NBSR-build\\native-two-namespace-1d24cb4c\\destination\\p1024-s64-direct-r3"
+    },
+    {
+      "path": "nbsr",
+      "repeat": 3,
+      "source": "C:\\NBSR-build\\native-two-namespace-1d24cb4c\\source\\p1024-s64-nbsr-r3",
+      "destination": "C:\\NBSR-build\\native-two-namespace-1d24cb4c\\destination\\p1024-s64-nbsr-r3"
+    },
+    {
+      "path": "nbsr",
+      "repeat": 4,
+      "source": "C:\\NBSR-build\\native-two-namespace-1d24cb4c\\source\\p1024-s64-nbsr-r4",
+      "destination": "C:\\NBSR-build\\native-two-namespace-1d24cb4c\\destination\\p1024-s64-nbsr-r4"
+    },
+    {
+      "path": "direct",
+      "repeat": 4,
+      "source": "C:\\NBSR-build\\native-two-namespace-1d24cb4c\\source\\p1024-s64-direct-r4",
+      "destination": "C:\\NBSR-build\\native-two-namespace-1d24cb4c\\destination\\p1024-s64-direct-r4"
+    },
+    {
+      "path": "direct",
+      "repeat": 5,
+      "source": "C:\\NBSR-build\\native-two-namespace-1d24cb4c\\source\\p1024-s64-direct-r5",
+      "destination": "C:\\NBSR-build\\native-two-namespace-1d24cb4c\\destination\\p1024-s64-direct-r5"
+    },
+    {
+      "path": "nbsr",
+      "repeat": 5,
+      "source": "C:\\NBSR-build\\native-two-namespace-1d24cb4c\\source\\p1024-s64-nbsr-r5",
+      "destination": "C:\\NBSR-build\\native-two-namespace-1d24cb4c\\destination\\p1024-s64-nbsr-r5"
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+[
+  {
+    "status": "PASS_FINITE_COHORT_INTEGRITY",
+    "source_sha": "1d24cb4c740c53c945932ff8d67bdd34b3b75209",
+    "manifest_sha256": "036c9e54785ac6d22a878ccd9f43c60c729856d7ce71414428e6e538093b200e",
+    "shape": {
+      "cores": 1,
+      "outstanding": 1,
+      "payload_bytes": 1024,
+      "streams": 64
+    },
+    "repeats_per_path": 5,
+    "first_three_cv": {
+      "direct": 0.11670035829378199,
+      "nbsr": 0.03385418663571055
+    },
+    "final_cv": {
+      "direct": 0.10092058308020481,
+      "nbsr": 0.024748488236235527
+    },
+    "dispersion_unresolved": true,
+    "median_application_gbps": {
+      "direct": 1.5036277817846155,
+      "nbsr": 1.7804958890731508
+    },
+    "paired_goodput_delta_percent": [
+      9.39821665378786,
+      46.38024145488446,
+      32.59634414088082,
+      18.41334076442296,
+      13.631409039988274
+    ],
+    "ordering": "declared counterbalanced schedule; not independently timestamp-verified",
+    "coverage": "all listed attempts; cannot detect undisclosed attempts outside the manifest",
+    "strict_stable_capacity": "NOT_PROVEN",
+    "external_hardware": "NOT_PROVEN",
+    "observer_qualification": "NOT_PROVEN",
+    "runtime_ownership_cleanup": "NOT_MEASURED",
+    "authenticity": "checksums are not signatures or remote attestation"
+  },
+  {
+    "status": "PASS_FINITE_COHORT_INTEGRITY",
+    "source_sha": "1d24cb4c740c53c945932ff8d67bdd34b3b75209",
+    "manifest_sha256": "745b77f4046176ccd78f19033d02f9c47672101f10b05898fc4fa561e59df656",
+    "shape": {
+      "cores": 1,
+      "outstanding": 1,
+      "payload_bytes": 16384,
+      "streams": 8
+    },
+    "repeats_per_path": 3,
+    "first_three_cv": {
+      "direct": 0.0022899873263898867,
+      "nbsr": 0.019384255391528972
+    },
+    "final_cv": {
+      "direct": 0.0022899873263898867,
+      "nbsr": 0.019384255391528972
+    },
+    "dispersion_unresolved": false,
+    "median_application_gbps": {
+      "direct": 2.808781570741595,
+      "nbsr": 2.955203393548013
+    },
+    "paired_goodput_delta_percent": [
+      5.104288068608365,
+      6.727848631874389,
+      2.423906042242696
+    ],
+    "ordering": "declared counterbalanced schedule; not independently timestamp-verified",
+    "coverage": "all listed attempts; cannot detect undisclosed attempts outside the manifest",
+    "strict_stable_capacity": "NOT_PROVEN",
+    "external_hardware": "NOT_PROVEN",
+    "observer_qualification": "NOT_PROVEN",
+    "runtime_ownership_cleanup": "NOT_MEASURED",
+    "authenticity": "checksums are not signatures or remote attestation"
+  }
+]

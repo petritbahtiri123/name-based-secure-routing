@@ -1,0 +1,82 @@
+F..FF...........................                                         [100%]
+================================== FAILURES ===================================
+____________ test_complete_counterbalanced_cohort_is_not_capacity _____________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1086/test_complete_counterbalanced_0')
+
+    def test_complete_counterbalanced_cohort_is_not_capacity(tmp_path):
+        from scripts.performance.linux_native_cohort import analyze_cohort
+>       result = analyze_cohort(cohort(tmp_path), source_sha=SHA)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\performance\test_linux_native_cohort.py:34: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+scripts\performance\linux_native_cohort.py:58: in analyze_cohort
+    require(index not in seen_indices, 'duplicate evidence bytes reused as a repeat')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False, reason = 'duplicate evidence bytes reused as a repeat'
+
+    def require(condition, reason):
+        if not condition:
+>           raise ValueError(reason)
+E           ValueError: duplicate evidence bytes reused as a repeat
+
+scripts\performance\linux_b5_ceiling.py:22: ValueError
+_ test_five_retains_unfavorable_valid_results_and_residual_dispersion[counts0-False] _
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1086/test_five_retains_unfavorable_0')
+counts = (94, 100, 106, 100, 100), unresolved = False
+
+    @pytest.mark.parametrize('counts,unresolved', [((94, 100, 106, 100, 100), False),
+                                               ((50, 100, 100, 100, 100), True)])
+    def test_five_retains_unfavorable_valid_results_and_residual_dispersion(tmp_path, counts, unresolved):
+        from scripts.performance.linux_native_cohort import analyze_cohort
+>       result = analyze_cohort(cohort(tmp_path, counts), source_sha=SHA)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\performance\test_linux_native_cohort.py:53: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+scripts\performance\linux_native_cohort.py:58: in analyze_cohort
+    require(index not in seen_indices, 'duplicate evidence bytes reused as a repeat')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False, reason = 'duplicate evidence bytes reused as a repeat'
+
+    def require(condition, reason):
+        if not condition:
+>           raise ValueError(reason)
+E           ValueError: duplicate evidence bytes reused as a repeat
+
+scripts\performance\linux_b5_ceiling.py:22: ValueError
+_ test_five_retains_unfavorable_valid_results_and_residual_dispersion[counts1-True] _
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1086/test_five_retains_unfavorable_1')
+counts = (50, 100, 100, 100, 100), unresolved = True
+
+    @pytest.mark.parametrize('counts,unresolved', [((94, 100, 106, 100, 100), False),
+                                               ((50, 100, 100, 100, 100), True)])
+    def test_five_retains_unfavorable_valid_results_and_residual_dispersion(tmp_path, counts, unresolved):
+        from scripts.performance.linux_native_cohort import analyze_cohort
+>       result = analyze_cohort(cohort(tmp_path, counts), source_sha=SHA)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\performance\test_linux_native_cohort.py:53: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+scripts\performance\linux_native_cohort.py:58: in analyze_cohort
+    require(index not in seen_indices, 'duplicate evidence bytes reused as a repeat')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False, reason = 'duplicate evidence bytes reused as a repeat'
+
+    def require(condition, reason):
+        if not condition:
+>           raise ValueError(reason)
+E           ValueError: duplicate evidence bytes reused as a repeat
+
+scripts\performance\linux_b5_ceiling.py:22: ValueError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_linux_native_cohort.py::test_complete_counterbalanced_cohort_is_not_capacity
+FAILED tests/performance/test_linux_native_cohort.py::test_five_retains_unfavorable_valid_results_and_residual_dispersion[counts0-False]
+FAILED tests/performance/test_linux_native_cohort.py::test_five_retains_unfavorable_valid_results_and_residual_dispersion[counts1-True]
+3 failed, 29 passed in 19.27s

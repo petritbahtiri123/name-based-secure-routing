@@ -1,0 +1,165 @@
+{
+  "status": "PASS_FINITE_COHORT_INTEGRITY",
+  "source_sha": "1d24cb4c740c53c945932ff8d67bdd34b3b75209",
+  "manifest_sha256": "745b77f4046176ccd78f19033d02f9c47672101f10b05898fc4fa561e59df656",
+  "shape": {
+    "cores": 1,
+    "outstanding": 1,
+    "payload_bytes": 16384,
+    "streams": 8
+  },
+  "repeats_per_path": 3,
+  "attempts": [
+    {
+      "sequence": 1,
+      "repeat": 1,
+      "status": "PASS_FINITE_PAIR_INTEGRITY",
+      "source_sha": "1d24cb4c740c53c945932ff8d67bdd34b3b75209",
+      "cell": {
+        "cores": 1,
+        "outstanding": 1,
+        "path": "direct",
+        "payload_bytes": 16384,
+        "streams": 8
+      },
+      "source_index_sha256": "5a5e9fe1e0874805ef88bb8823ccaa64265c5b36a79894b27685b6f2c772aecd",
+      "destination_index_sha256": "87ac573b2d70548720684d6be35f1d8bff0aee4f0e998a88505286b3c6736b24",
+      "application_gbps": 2.811686799704081,
+      "strict_stable_capacity": "NOT_PROVEN",
+      "external_hardware": "NOT_PROVEN",
+      "observer_qualification": "NOT_PROVEN",
+      "runtime_ownership_cleanup": "NOT_MEASURED",
+      "authenticity": "checksums are not signatures or remote attestation"
+    },
+    {
+      "sequence": 2,
+      "repeat": 1,
+      "status": "PASS_FINITE_PAIR_INTEGRITY",
+      "source_sha": "1d24cb4c740c53c945932ff8d67bdd34b3b75209",
+      "cell": {
+        "cores": 1,
+        "outstanding": 1,
+        "path": "nbsr",
+        "payload_bytes": 16384,
+        "streams": 8
+      },
+      "source_index_sha256": "3cf041a20282bb49cc08340ccd4a49c603d9ea9f46c54e1b3aa918697fce9c85",
+      "destination_index_sha256": "70be75bf519516b9a117a76a65b27c90e2fe9b679f5be9786b17ac036320673e",
+      "application_gbps": 2.955203393548013,
+      "strict_stable_capacity": "NOT_PROVEN",
+      "external_hardware": "NOT_PROVEN",
+      "observer_qualification": "NOT_PROVEN",
+      "runtime_ownership_cleanup": "NOT_MEASURED",
+      "authenticity": "checksums are not signatures or remote attestation"
+    },
+    {
+      "sequence": 3,
+      "repeat": 2,
+      "status": "PASS_FINITE_PAIR_INTEGRITY",
+      "source_sha": "1d24cb4c740c53c945932ff8d67bdd34b3b75209",
+      "cell": {
+        "cores": 1,
+        "outstanding": 1,
+        "path": "nbsr",
+        "payload_bytes": 16384,
+        "streams": 8
+      },
+      "source_index_sha256": "1a5164b80c170434977f8e03cc342627643446b755cb584ba5267da7c2110c2d",
+      "destination_index_sha256": "3d90b52ce6847d9f395be2fe27e153442c4300ce4dd7bd1d6f7b2954a9e1d03d",
+      "application_gbps": 2.9877288638402555,
+      "strict_stable_capacity": "NOT_PROVEN",
+      "external_hardware": "NOT_PROVEN",
+      "observer_qualification": "NOT_PROVEN",
+      "runtime_ownership_cleanup": "NOT_MEASURED",
+      "authenticity": "checksums are not signatures or remote attestation"
+    },
+    {
+      "sequence": 4,
+      "repeat": 2,
+      "status": "PASS_FINITE_PAIR_INTEGRITY",
+      "source_sha": "1d24cb4c740c53c945932ff8d67bdd34b3b75209",
+      "cell": {
+        "cores": 1,
+        "outstanding": 1,
+        "path": "direct",
+        "payload_bytes": 16384,
+        "streams": 8
+      },
+      "source_index_sha256": "58716e6e63b815c3fbf031b0842e0849333f4511268de0a791a13f0b8ae77310",
+      "destination_index_sha256": "d239bfa4db124bed678b6cbc609f367de418c75272884ff90e0c122f748da07a",
+      "application_gbps": 2.799390133071573,
+      "strict_stable_capacity": "NOT_PROVEN",
+      "external_hardware": "NOT_PROVEN",
+      "observer_qualification": "NOT_PROVEN",
+      "runtime_ownership_cleanup": "NOT_MEASURED",
+      "authenticity": "checksums are not signatures or remote attestation"
+    },
+    {
+      "sequence": 5,
+      "repeat": 3,
+      "status": "PASS_FINITE_PAIR_INTEGRITY",
+      "source_sha": "1d24cb4c740c53c945932ff8d67bdd34b3b75209",
+      "cell": {
+        "cores": 1,
+        "outstanding": 1,
+        "path": "direct",
+        "payload_bytes": 16384,
+        "streams": 8
+      },
+      "source_index_sha256": "7cc91757f08889f67eaa0b7a5dde0f1f11b7fa815f58411929a539f9e35eda07",
+      "destination_index_sha256": "37857492e739e8e21276897f1d110a82ac3f3e0e1ee3ee34f31fad47dda5dc2c",
+      "application_gbps": 2.808781570741595,
+      "strict_stable_capacity": "NOT_PROVEN",
+      "external_hardware": "NOT_PROVEN",
+      "observer_qualification": "NOT_PROVEN",
+      "runtime_ownership_cleanup": "NOT_MEASURED",
+      "authenticity": "checksums are not signatures or remote attestation"
+    },
+    {
+      "sequence": 6,
+      "repeat": 3,
+      "status": "PASS_FINITE_PAIR_INTEGRITY",
+      "source_sha": "1d24cb4c740c53c945932ff8d67bdd34b3b75209",
+      "cell": {
+        "cores": 1,
+        "outstanding": 1,
+        "path": "nbsr",
+        "payload_bytes": 16384,
+        "streams": 8
+      },
+      "source_index_sha256": "b52b7ea9f55049cc7d523bf048b3a66d9f8c922868eecd67dda4169db467c938",
+      "destination_index_sha256": "8211438fc2d5a82330e9ff21669d9bdd77b1a4ba590bcd0aaf3c16e42302b7bc",
+      "application_gbps": 2.8768637969482,
+      "strict_stable_capacity": "NOT_PROVEN",
+      "external_hardware": "NOT_PROVEN",
+      "observer_qualification": "NOT_PROVEN",
+      "runtime_ownership_cleanup": "NOT_MEASURED",
+      "authenticity": "checksums are not signatures or remote attestation"
+    }
+  ],
+  "first_three_cv": {
+    "direct": 0.0022899873263898867,
+    "nbsr": 0.019384255391528972
+  },
+  "final_cv": {
+    "direct": 0.0022899873263898867,
+    "nbsr": 0.019384255391528972
+  },
+  "dispersion_unresolved": false,
+  "median_application_gbps": {
+    "direct": 2.808781570741595,
+    "nbsr": 2.955203393548013
+  },
+  "paired_goodput_delta_percent": [
+    5.104288068608365,
+    6.727848631874389,
+    2.423906042242696
+  ],
+  "ordering": "declared counterbalanced schedule; not independently timestamp-verified",
+  "coverage": "all listed attempts; cannot detect undisclosed attempts outside the manifest",
+  "strict_stable_capacity": "NOT_PROVEN",
+  "external_hardware": "NOT_PROVEN",
+  "observer_qualification": "NOT_PROVEN",
+  "runtime_ownership_cleanup": "NOT_MEASURED",
+  "authenticity": "checksums are not signatures or remote attestation"
+}

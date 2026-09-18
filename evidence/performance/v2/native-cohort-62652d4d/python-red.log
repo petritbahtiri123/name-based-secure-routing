@@ -1,0 +1,138 @@
+FFFFFFFFFFF                                                              [100%]
+================================== FAILURES ===================================
+____________ test_complete_counterbalanced_cohort_is_not_capacity _____________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1085/test_complete_counterbalanced_0')
+
+    def test_complete_counterbalanced_cohort_is_not_capacity(tmp_path):
+>       from scripts.performance.linux_native_cohort import analyze_cohort
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_native_cohort'
+
+tests\performance\test_linux_native_cohort.py:33: ModuleNotFoundError
+_ test_incomplete_or_under_repeated_cohort_is_rejected[counts0-requires five] _
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1085/test_incomplete_or_under_repea0')
+counts = (94, 100, 106), expected = 'requires five'
+
+    @pytest.mark.parametrize('counts,expected', [((94, 100, 106), 'requires five'),
+        ((100, 100), 'three or five')])
+    def test_incomplete_or_under_repeated_cohort_is_rejected(tmp_path, counts, expected):
+>       from scripts.performance.linux_native_cohort import analyze_cohort
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_native_cohort'
+
+tests\performance\test_linux_native_cohort.py:44: ModuleNotFoundError
+_ test_incomplete_or_under_repeated_cohort_is_rejected[counts1-three or five] _
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1085/test_incomplete_or_under_repea1')
+counts = (100, 100), expected = 'three or five'
+
+    @pytest.mark.parametrize('counts,expected', [((94, 100, 106), 'requires five'),
+        ((100, 100), 'three or five')])
+    def test_incomplete_or_under_repeated_cohort_is_rejected(tmp_path, counts, expected):
+>       from scripts.performance.linux_native_cohort import analyze_cohort
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_native_cohort'
+
+tests\performance\test_linux_native_cohort.py:44: ModuleNotFoundError
+_ test_five_retains_unfavorable_valid_results_and_residual_dispersion[counts0-False] _
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1085/test_five_retains_unfavorable_0')
+counts = (94, 100, 106, 100, 100), unresolved = False
+
+    @pytest.mark.parametrize('counts,unresolved', [((94, 100, 106, 100, 100), False),
+                                               ((50, 100, 100, 100, 100), True)])
+    def test_five_retains_unfavorable_valid_results_and_residual_dispersion(tmp_path, counts, unresolved):
+>       from scripts.performance.linux_native_cohort import analyze_cohort
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_native_cohort'
+
+tests\performance\test_linux_native_cohort.py:52: ModuleNotFoundError
+_ test_five_retains_unfavorable_valid_results_and_residual_dispersion[counts1-True] _
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1085/test_five_retains_unfavorable_1')
+counts = (50, 100, 100, 100, 100), unresolved = True
+
+    @pytest.mark.parametrize('counts,unresolved', [((94, 100, 106, 100, 100), False),
+                                               ((50, 100, 100, 100, 100), True)])
+    def test_five_retains_unfavorable_valid_results_and_residual_dispersion(tmp_path, counts, unresolved):
+>       from scripts.performance.linux_native_cohort import analyze_cohort
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_native_cohort'
+
+tests\performance\test_linux_native_cohort.py:52: ModuleNotFoundError
+__ test_mixed_or_reused_or_invalid_evidence_is_never_silently_dropped[order] __
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1085/test_mixed_or_reused_or_invali0')
+fault = 'order'
+
+    @pytest.mark.parametrize('fault', ['order', 'repeat', 'duplicate-root', 'duplicate-bytes', 'authority', 'invalid-peer'])
+    def test_mixed_or_reused_or_invalid_evidence_is_never_silently_dropped(tmp_path, fault):
+>       from scripts.performance.linux_native_cohort import analyze_cohort
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_native_cohort'
+
+tests\performance\test_linux_native_cohort.py:61: ModuleNotFoundError
+_ test_mixed_or_reused_or_invalid_evidence_is_never_silently_dropped[repeat] __
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1085/test_mixed_or_reused_or_invali1')
+fault = 'repeat'
+
+    @pytest.mark.parametrize('fault', ['order', 'repeat', 'duplicate-root', 'duplicate-bytes', 'authority', 'invalid-peer'])
+    def test_mixed_or_reused_or_invalid_evidence_is_never_silently_dropped(tmp_path, fault):
+>       from scripts.performance.linux_native_cohort import analyze_cohort
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_native_cohort'
+
+tests\performance\test_linux_native_cohort.py:61: ModuleNotFoundError
+_ test_mixed_or_reused_or_invalid_evidence_is_never_silently_dropped[duplicate-root] _
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1085/test_mixed_or_reused_or_invali2')
+fault = 'duplicate-root'
+
+    @pytest.mark.parametrize('fault', ['order', 'repeat', 'duplicate-root', 'duplicate-bytes', 'authority', 'invalid-peer'])
+    def test_mixed_or_reused_or_invalid_evidence_is_never_silently_dropped(tmp_path, fault):
+>       from scripts.performance.linux_native_cohort import analyze_cohort
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_native_cohort'
+
+tests\performance\test_linux_native_cohort.py:61: ModuleNotFoundError
+_ test_mixed_or_reused_or_invalid_evidence_is_never_silently_dropped[duplicate-bytes] _
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1085/test_mixed_or_reused_or_invali3')
+fault = 'duplicate-bytes'
+
+    @pytest.mark.parametrize('fault', ['order', 'repeat', 'duplicate-root', 'duplicate-bytes', 'authority', 'invalid-peer'])
+    def test_mixed_or_reused_or_invalid_evidence_is_never_silently_dropped(tmp_path, fault):
+>       from scripts.performance.linux_native_cohort import analyze_cohort
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_native_cohort'
+
+tests\performance\test_linux_native_cohort.py:61: ModuleNotFoundError
+_ test_mixed_or_reused_or_invalid_evidence_is_never_silently_dropped[authority] _
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1085/test_mixed_or_reused_or_invali4')
+fault = 'authority'
+
+    @pytest.mark.parametrize('fault', ['order', 'repeat', 'duplicate-root', 'duplicate-bytes', 'authority', 'invalid-peer'])
+    def test_mixed_or_reused_or_invalid_evidence_is_never_silently_dropped(tmp_path, fault):
+>       from scripts.performance.linux_native_cohort import analyze_cohort
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_native_cohort'
+
+tests\performance\test_linux_native_cohort.py:61: ModuleNotFoundError
+_ test_mixed_or_reused_or_invalid_evidence_is_never_silently_dropped[invalid-peer] _
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1085/test_mixed_or_reused_or_invali5')
+fault = 'invalid-peer'
+
+    @pytest.mark.parametrize('fault', ['order', 'repeat', 'duplicate-root', 'duplicate-bytes', 'authority', 'invalid-peer'])
+    def test_mixed_or_reused_or_invalid_evidence_is_never_silently_dropped(tmp_path, fault):
+>       from scripts.performance.linux_native_cohort import analyze_cohort
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_native_cohort'
+
+tests\performance\test_linux_native_cohort.py:61: ModuleNotFoundError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_linux_native_cohort.py::test_complete_counterbalanced_cohort_is_not_capacity
+FAILED tests/performance/test_linux_native_cohort.py::test_incomplete_or_under_repeated_cohort_is_rejected[counts0-requires five]
+FAILED tests/performance/test_linux_native_cohort.py::test_incomplete_or_under_repeated_cohort_is_rejected[counts1-three or five]
+FAILED tests/performance/test_linux_native_cohort.py::test_five_retains_unfavorable_valid_results_and_residual_dispersion[counts0-False]
+FAILED tests/performance/test_linux_native_cohort.py::test_five_retains_unfavorable_valid_results_and_residual_dispersion[counts1-True]
+FAILED tests/performance/test_linux_native_cohort.py::test_mixed_or_reused_or_invalid_evidence_is_never_silently_dropped[order]
+FAILED tests/performance/test_linux_native_cohort.py::test_mixed_or_reused_or_invalid_evidence_is_never_silently_dropped[repeat]
+FAILED tests/performance/test_linux_native_cohort.py::test_mixed_or_reused_or_invalid_evidence_is_never_silently_dropped[duplicate-root]
+FAILED tests/performance/test_linux_native_cohort.py::test_mixed_or_reused_or_invalid_evidence_is_never_silently_dropped[duplicate-bytes]
+FAILED tests/performance/test_linux_native_cohort.py::test_mixed_or_reused_or_invalid_evidence_is_never_silently_dropped[authority]
+FAILED tests/performance/test_linux_native_cohort.py::test_mixed_or_reused_or_invalid_evidence_is_never_silently_dropped[invalid-peer]
+11 failed in 1.68s
