@@ -1,0 +1,28 @@
+{
+  "classification": "HARNESS_PORTABILITY_NOT_PERFORMANCE",
+  "base_sha": "f338852c2057a7264f36ac24ba2217d28da9c6ad",
+  "red_source_base": "52485b1dfb4e23f1fc0d2c785c54af80e3cfae2b",
+  "source_sha256": {
+    "config/benchmarks/funding-grade-v2-server-matrix.json": "9bfd3b9c924bb749b257f97183a43993eca62b3dcecfb356659b73b517daddfa",
+    "config/benchmarks/linux-server-loopback-finite.json": "279702bdd322a5c5f53903aea2b5d0a2bad7abcfa1051f981d12b7ff706a9ab1",
+    "crates/nbsr-transport/src/p2a_benchmark.rs": "bfb0cab4e1ea05a9df6c42539d9783917907fec0c0620d646787d1adde10d460",
+    "crates/nbsr-transport/tests/p2a_benchmark.rs": "06f07e208e2900343d401a3200ac00aa139b3d19681f33d3c478168199d3bd7a",
+    "docs/benchmarks/EXTERNAL_LINUX_SERVER_VALIDATION.md": "25df5c328f84cff68eeffa11a2830e2c6f86c9b6bd345efc50c5fed3ef19322d",
+    "docs/benchmarks/EXTERNAL_SERVER_WORKER_SCALES.md": "4d15a46a0b5bb86588286bef43a131bb44dced6298b1e3c67c3ebcc5828bb8c0",
+    "docs/benchmarks/funding-grade-v2-server-linux-validation.md": "4e09b9bf7443eab4669c0dba73a312752746d7b850e390346be8ac82d40c0bde",
+    "scripts/performance/linux_loopback.py": "e17e4bbc555e640cc19ea4bdc43d06e7e3b05d8ef52f73ee573dbba554f86193",
+    "tests/performance/test_linux_loopback.py": "75e98c84773c3f3516456072f828da3c5ea08dddc528c88096b5f7e2579b1175"
+  },
+  "rust_red": "one behavior assertion fails: InvalidValue instead of Ok(8)",
+  "rust_green": "12 release tests pass",
+  "clippy": "release benchmark-harness all-targets -D warnings PASS",
+  "python": "10 tests PASS",
+  "fmt": "PASS",
+  "ruff": "PASS",
+  "host_preflight": "32 physical cores refused on current guest; no performance run",
+  "production_change": false,
+  "dependency_change": false,
+  "protocol_change": false,
+  "implementation_commit": "634fe1b9c1ab87f90d9d338f400bbab010a71233",
+  "source_hash_basis": "executed working-tree file bytes"
+}

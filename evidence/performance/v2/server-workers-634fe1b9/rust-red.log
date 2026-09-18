@@ -1,0 +1,24 @@
+   Compiling nbsr-transport v0.1.0 (/repo/crates/nbsr-transport)
+    Finished `release` profile [optimized] target(s) in 35.87s
+     Running tests/p2a_benchmark.rs (target/release/deps/p2a_benchmark-e04a748cc90b7dd6)
+
+running 1 test
+test server_scale_runtime_workers_build_and_complete_tasks ... FAILED
+
+failures:
+
+---- server_scale_runtime_workers_build_and_complete_tasks stdout ----
+
+thread 'server_scale_runtime_workers_build_and_complete_tasks' (262) panicked at tests/p2a_benchmark.rs:101:9:
+assertion `left == right` failed
+  left: Err(InvalidValue)
+ right: Ok(8)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    server_scale_runtime_workers_build_and_complete_tasks
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 11 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--test p2a_benchmark`

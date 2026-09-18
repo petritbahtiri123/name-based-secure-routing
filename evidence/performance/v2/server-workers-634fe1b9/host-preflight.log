@@ -1,0 +1,1 @@
+EXPECTED_HARDWARE_REFUSAL: insufficient available physical cores on a single NUMA node

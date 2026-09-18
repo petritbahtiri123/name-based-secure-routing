@@ -1,0 +1,20 @@
+   Compiling nbsr-transport v0.1.0 (/repo/crates/nbsr-transport)
+    Finished `release` profile [optimized] target(s) in 52.05s
+     Running tests/p2a_benchmark.rs (target/release/deps/p2a_benchmark-e04a748cc90b7dd6)
+
+running 12 tests
+test frame_rejects_corrupted_payload ... ok
+test frame_rejects_wrong_payload_length ... ok
+test frame_rejects_wrong_sequence ... ok
+test frame_round_trip_preserves_literal_sequence_and_payload ... ok
+test group_count_defaults_to_one_and_accepts_only_scaling_cells ... ok
+test group_endpoints_require_one_nonempty_endpoint_per_group ... ok
+test measured_frame_preserves_wire_size_without_reusing_full_sha_tag ... ok
+test groups_use_distinct_os_threads_and_current_thread_runtimes ... ok
+test measured_frame_sample_detects_corruption_away_from_bounded_probes ... ok
+test outstanding_tracker_enforces_bound_fifo_and_conservation ... ok
+test runtime_workers_default_to_one_and_accept_only_scaling_cells ... ok
+test server_scale_runtime_workers_build_and_complete_tasks ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+

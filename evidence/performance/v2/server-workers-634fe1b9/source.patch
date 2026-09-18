@@ -1,0 +1,283 @@
+diff --git a/config/benchmarks/funding-grade-v2-server-matrix.json b/config/benchmarks/funding-grade-v2-server-matrix.json
+index 22842338..709dbd79 100644
+--- a/config/benchmarks/funding-grade-v2-server-matrix.json
++++ b/config/benchmarks/funding-grade-v2-server-matrix.json
+@@ -301,9 +301,11 @@
+       "command": "python3 -m scripts.performance.linux_loopback --help",
+       "sources": [
+         "scripts/performance/linux_loopback.py",
+-        "docs/benchmarks/EXTERNAL_LINUX_SERVER_VALIDATION.md"
++        "docs/benchmarks/EXTERNAL_LINUX_SERVER_VALIDATION.md",
++        "docs/benchmarks/EXTERNAL_SERVER_WORKER_SCALES.md",
++        "config/benchmarks/linux-server-loopback-finite.json"
+       ],
+-      "scope": "CLI help is interface discovery, not a benchmark; existing runner subset1/2/4cores only; older Docker compatibility is separate historical evidence"
++      "scope": "CLI help is interface discovery; finite single-group runner supports 1/2/4/8/16/32 reported physical cores, with one-NUMA/no-SMT selection; 8+ physical-core performance remains unexecuted"
+     },
+     "two_host_finite": {
+       "status": "AUTHORED_UNEXECUTED",
+@@ -337,7 +339,7 @@
+         "scripts/performance/linux_b5_reference.py",
+         "docs/benchmarks/LINUX_B5_REFERENCE.md"
+       ],
+-      "scope": "one core,onegroup strict finite reference; exactcurrentLinuxrun pending"
++      "scope": "one core/one group finite reference executed in Docker/WSL at recorded SHAs; dedicated native-server execution and fresh per-campaign calibration remain required"
+     },
+     "linux_sustained_b5": {
+       "status": "PARTIAL",
+@@ -347,7 +349,7 @@
+         "scripts/performance/linux_b5_backend.py",
+         "docs/benchmarks/LINUX_B5_REFERENCE.md"
+       ],
+-      "missing": "current-source Rust/QUIC execution and matched observer qualification; dedicated server evidence",
++      "missing": "qualified sustained cohort and matched observer qualification; dedicated native-server evidence (Rust/QUIC execution already exercised in Docker/WSL)",
+       "scope": "single-core/group CLI authored; reference-bound accounting is never an automatic stable-soak claim"
+     },
+     "linux_wire_matrix": {
+@@ -355,10 +357,19 @@
+       "command": null,
+       "missing": "bounded dedicated-interface capture orchestration, phase accounting, loss validation, paired byte analysis"
+     },
++    "linux_b5_placement_diagnostic": {
++      "status": "PARTIAL",
++      "command": "python3 -m scripts.performance.linux_b5_placement --help",
++      "sources": [
++        "scripts/performance/linux_b5_placement.py",
++        "docs/benchmarks/B5_NATIVE_PLACEMENT_VALIDATION.md"
++      ],
++      "scope": "portable counterbalanced shared/split pairs; Docker mechanics verified, native/server execution and sustained acceptance unproven"
++    },
+     "full_matrix_executor": {
+       "status": "NOT_IMPLEMENTED",
+       "command": null,
+-      "missing": "physical-core8/16/32 and multihost orchestration for all workload classes; no tool consumes this definition as a complete executable matrix"
++      "missing": "multihost orchestration for all workload classes and 8/16/32 coverage beyond finite single-group loopback; no tool consumes this definition as a complete executable matrix"
+     }
+   }
+ }
+diff --git a/config/benchmarks/linux-server-loopback-finite.json b/config/benchmarks/linux-server-loopback-finite.json
+new file mode 100644
+index 00000000..ff83ac06
+--- /dev/null
++++ b/config/benchmarks/linux-server-loopback-finite.json
+@@ -0,0 +1,10 @@
++{
++  "schema": "nbsr-linux-loopback-v1",
++  "cores": [1, 2, 4, 8, 16, 32],
++  "workloads": [
++    {"payload_bytes": 1024, "streams": 64, "outstanding": 1},
++    {"payload_bytes": 16384, "streams": 8, "outstanding": 1}
++  ],
++  "warmup_seconds": 3,
++  "duration_seconds": 20
++}
+diff --git a/crates/nbsr-transport/src/p2a_benchmark.rs b/crates/nbsr-transport/src/p2a_benchmark.rs
+index de666bdd..10707d3b 100644
+--- a/crates/nbsr-transport/src/p2a_benchmark.rs
++++ b/crates/nbsr-transport/src/p2a_benchmark.rs
+@@ -44,7 +44,7 @@ where
+         if argument.as_ref() == "--p2a-runtime-workers" {
+             let value = arguments.next().ok_or(RuntimeWorkerError::MissingValue)?;
+             return match value.as_ref().parse::<usize>() {
+-                Ok(workers @ (1 | 2 | 4)) => Ok(workers),
++                Ok(workers @ (1 | 2 | 4 | 8 | 16 | 32)) => Ok(workers),
+                 _ => Err(RuntimeWorkerError::InvalidValue),
+             };
+         }
+@@ -141,7 +141,7 @@ pub fn build_benchmark_runtime(
+ ) -> Result<tokio::runtime::Runtime, RuntimeWorkerError> {
+     let mut builder = if workers == 1 {
+         tokio::runtime::Builder::new_current_thread()
+-    } else if matches!(workers, 2 | 4) {
++    } else if matches!(workers, 2 | 4 | 8 | 16 | 32) {
+         let mut builder = tokio::runtime::Builder::new_multi_thread();
+         builder.worker_threads(workers);
+         builder
+diff --git a/crates/nbsr-transport/tests/p2a_benchmark.rs b/crates/nbsr-transport/tests/p2a_benchmark.rs
+index 2f0f403e..caff4828 100644
+--- a/crates/nbsr-transport/tests/p2a_benchmark.rs
++++ b/crates/nbsr-transport/tests/p2a_benchmark.rs
+@@ -93,6 +93,34 @@ fn runtime_workers_default_to_one_and_accept_only_scaling_cells() {
+     assert!(parse_runtime_workers(["bench", "--p2a-runtime-workers", "3"]).is_err());
+ }
+ 
++#[test]
++fn server_scale_runtime_workers_build_and_complete_tasks() {
++    use nbsr_transport::p2a_benchmark::build_benchmark_runtime;
++    for workers in [8, 16, 32] {
++        let count = workers.to_string();
++        assert_eq!(
++            parse_runtime_workers(["bench", "--p2a-runtime-workers", count.as_str()]),
++            Ok(workers)
++        );
++        let runtime = build_benchmark_runtime(workers).expect("server-scale runtime");
++        assert_eq!(runtime.metrics().num_workers(), workers);
++        let completed = runtime.block_on(async {
++            let tasks: Vec<_> = (0..64)
++                .map(|value| tokio::spawn(async move { value }))
++                .collect();
++            let mut sum = 0;
++            for task in tasks {
++                sum += task.await.expect("benchmark task joined");
++            }
++            sum
++        });
++        assert_eq!(completed, (0..64).sum::<usize>());
++    }
++    for value in ["0", "3", "6", "64"] {
++        assert!(parse_runtime_workers(["bench", "--p2a-runtime-workers", value]).is_err());
++    }
++}
++
+ #[test]
+ fn group_count_defaults_to_one_and_accepts_only_scaling_cells() {
+     assert_eq!(parse_group_count(["bench"]), Ok(1));
+diff --git a/docs/benchmarks/EXTERNAL_LINUX_SERVER_VALIDATION.md b/docs/benchmarks/EXTERNAL_LINUX_SERVER_VALIDATION.md
+index 05b523b5..4f0c2117 100644
+--- a/docs/benchmarks/EXTERNAL_LINUX_SERVER_VALIDATION.md
++++ b/docs/benchmarks/EXTERNAL_LINUX_SERVER_VALIDATION.md
+@@ -4,6 +4,11 @@ Status: **NOT_RUN / EXTERNAL_HARDWARE_REQUIRED**. No usable external host, physi
+ 
+ Contract: [funding-grade V2 plan, Task 8](../superpowers/plans/2026-08-30-funding-grade-benchmark-v2.md). Frozen protocol, trust, authority, admission, and wire semantics remain unchanged. No application payload before ACCEPT. This file contains proposed execution requirements, not measurements.
+ 
++Additional executable subsets: [paired B5 placement diagnostic](B5_NATIVE_PLACEMENT_VALIDATION.md)
++and [8/16/32 worker-scale preparation](EXTERNAL_SERVER_WORKER_SCALES.md). Their
++mechanics/interface validation does not close native hardware, full wire/multihost
++or sustained-stability acceptance.
++
+ ## Host and build gates
+ 
+ - Use a dedicated bare-metal Linux server for loopback controls and two dedicated servers connected by a documented 10 GbE-or-faster path for external cells. Record unavailable core counts as NOT_RUN; a VM or container cannot establish bare-metal capacity without explicit qualification.
+diff --git a/docs/benchmarks/EXTERNAL_SERVER_WORKER_SCALES.md b/docs/benchmarks/EXTERNAL_SERVER_WORKER_SCALES.md
+new file mode 100644
+index 00000000..cc5ae9dc
+--- /dev/null
++++ b/docs/benchmarks/EXTERNAL_SERVER_WORKER_SCALES.md
+@@ -0,0 +1,46 @@
++# External server worker-scale preparation
++
++Status: benchmark interface implemented; 8/16/32-core performance NOT_RUN /
++EXTERNAL_HARDWARE_REQUIRED. No scaling efficiency or server capacity claim.
++
++The prior loopback matrix and benchmark runtime accepted only 1/2/4 workers,
++although the approved external matrix lists 8/16/32 cores. Both Direct and NBSR
++now accept 1/2/4/8/16/32 workers through the common benchmark-only parser/runtime.
++The one-worker current-thread runtime and default 1/2/4 loopback matrix are
++unchanged. This code is gated by `benchmark-harness`; no production protocol,
++security checks, worker default, timeout, wire format or dependency changes.
++
++The server example is `config/benchmarks/linux-server-loopback-finite.json`.
++Use the native build/manifest procedure in `EXTERNAL_LINUX_SERVER_VALIDATION.md`
++with the exact reviewed source SHA, then run from the clean repository:
++
++```bash
++python3 -B -m scripts.performance.linux_loopback \
++  --matrix config/benchmarks/linux-server-loopback-finite.json \
++  --binaries /absolute/immutable-linux-binaries \
++  --build-manifest /absolute/build-manifest.json \
++  --output /absolute/new-server-loopback-output
++```
++
++The complete example requires at least 32 allowed physical cores on one NUMA
++node, one logical CPU per core. Selection never fills missing physical cores
++with SMT siblings or crosses NUMA nodes silently. On a smaller host, retain an
++external copy of the matrix containing only available core counts and record
++excluded counts as NOT_RUN / EXTERNAL_HARDWARE_REQUIRED. Do not present an
++oversubscribed runtime test as a physical-core benchmark. Both peers share the
++selected pool; each has the stated worker count, so this is not disjoint peer
++placement. Shared CPU and all thread affinities are recorded.
++
++The runner's existing finite Direct/NBSR counterbalancing and repeat policy
++remain in force. It does not establish a strict-stable ceiling, sustained soak,
++multi-host path, physical NIC throughput or complete external matrix acceptance.
++No 8/16/32-core hardware is available in the current WSL environment. The added
++Rust test exercises runtime construction, worker count, task completion and drop;
++the Python test verifies synthetic physical-core selection and symmetric command
++arguments, and rejects insufficient physical cores. Neither is a scaling result.
++
++Literal RED: Python rejected the server matrix, and the release Rust test returned
++InvalidValue for eight workers before the implementation changed. Focused GREEN
++then exercises 8/16/32 runtime construction and completion of 64 tasks per runtime,
++while invalid counts remain rejected. See retained verification evidence for
++exact commands and toolchains.
+diff --git a/docs/benchmarks/funding-grade-v2-server-linux-validation.md b/docs/benchmarks/funding-grade-v2-server-linux-validation.md
+index 983b1c60..b07cd71a 100644
+--- a/docs/benchmarks/funding-grade-v2-server-linux-validation.md
++++ b/docs/benchmarks/funding-grade-v2-server-linux-validation.md
+@@ -20,7 +20,7 @@ python3 scripts/run_b4b_linux.py --help
+ python3 -m scripts.performance.linux_b5_reference --help
+ ```
+ 
+-6. The Linux sustained CLI is now authored; use the exact reference-bound example in LINUX_B5_REFERENCE.md. Current Rust/QUIC execution and observer qualification remain pending. The full wire/multihost executors are still absent, with null matrix commands and named missing work. Complete and validate these gaps before declaring end-to-end definition readiness.
++6. The Linux sustained CLI has executed Rust/QUIC workloads in Docker/WSL; use the exact reference-bound example in LINUX_B5_REFERENCE.md. A qualified sustained cohort, accepted observer qualification and dedicated native-server execution remain pending. The full wire/multihost executors are still absent, with null matrix commands and named missing work. Complete and validate these gaps before declaring end-to-end definition readiness.
+ 
+ ## Cell and acceptance rules
+ 
+@@ -34,9 +34,22 @@ Packet accounting uses fixed operation counts and separate timed runs if capture
+ 
+ ## Evidence and unresolved delivery
+ 
+-Each external root is `evidence/performance/v2/server-linux-{start_sha_12}-{host_id}/`, with raw, commands, telemetry and analysis directories. Retain failed partial runs, per-role commands and affinity, host inventory, completed/offered counters, latency windows, CPU, memory/ownership, cleanup, NIC/capture records, source/binary/controller manifests and SHA-256 indexes. Record an index checksum separately. Existing schemas are referenced by the implemented runners; portable sustained/wire schemas still require implementation and tests.
++Each external root is `evidence/performance/v2/server-linux-{start_sha_12}-{host_id}/`, with raw, commands, telemetry and analysis directories. Retain failed partial runs, per-role commands and affinity, host inventory, completed/offered counters, latency windows, CPU, memory/ownership, cleanup, NIC/capture records, source/binary/controller manifests and SHA-256 indexes. Record an index checksum separately. Existing schemas are referenced by the implemented runners; dedicated-interface wire orchestration/accounting and full-matrix integration remain unfinished.
+ 
+-Remaining definition blockers are implementation work, not merely unavailable hardware: sustained Linux B5 nonreaping lifecycle/sampling, observer qualification, dedicated-interface packet orchestration, resource-axis coverage and full multihost/8+core matrix execution. Server execution separately requires external hardware. Definition PASS does not imply execution PASS; both remain unearned here.
++Remaining definition blockers are implementation/qualification work, not merely unavailable hardware: observer qualification, dedicated-interface packet orchestration, resource-axis coverage and full multihost/8+core matrix execution. Linux lifecycle/sampling adapters have been implemented and exercised; do not list their existence as unimplemented. Sustained acceptance remains pending. Server execution separately requires external hardware. Definition PASS does not imply execution PASS; both remain unearned here.
++
++The 2026-09-09 checkpoint records the executed finite reference, admission ladder,
++2048-bundle VM scale and failed soak preflights. Later failure-only diagnostics
++are documented in B3_FAILURE_MARKER_TIMING.md and B5_RETAINED_FAILURE_DIAGNOSTIC.md.
++Retaining a failed B5 trajectory cannot satisfy an external soak acceptance gate.
++
++The later portable B5 placement runner has a ten-cell Docker mechanics smoke;
++see `B5_NATIVE_PLACEMENT_VALIDATION.md` for the native command and limitations.
++Finite single-group loopback interfaces now accept 8/16/32 workers/cores using
++`linux-server-loopback-finite.json`; see `EXTERNAL_SERVER_WORKER_SCALES.md`.
++This removes the old 1/2/4-only CLI restriction, not the unavailable-hardware
++or full-matrix gates. Existing corrections distinguishing executed Docker Rust
++work from unexecuted dedicated-server acceptance are preserved here.
+ 
+ ## Definition verification
+ 
+diff --git a/scripts/performance/linux_loopback.py b/scripts/performance/linux_loopback.py
+index 401cc05b..0a1da175 100644
+--- a/scripts/performance/linux_loopback.py
++++ b/scripts/performance/linux_loopback.py
+@@ -44,8 +44,8 @@ def validate_matrix(matrix):
+     cores = matrix["cores"]
+     if not isinstance(cores, list) or not cores or len(set(cores)) != len(cores):
+         raise ValueError("core counts must be unique and nonempty")
+-    if any(type(c) is not int or c not in (1, 2, 4) for c in cores):
+-        raise ValueError("this runner supports only 1/2/4 physical cores")
++    if any(type(c) is not int or c not in (1, 2, 4, 8, 16, 32) for c in cores):
++        raise ValueError("this runner supports only 1/2/4/8/16/32 physical cores")
+     for key, minimum in (("warmup_seconds", 3), ("duration_seconds", 20)):
+         value = matrix[key]
+         if type(value) not in (int, float) or not math.isfinite(value) or not minimum <= value <= 3600:
+diff --git a/tests/performance/test_linux_loopback.py b/tests/performance/test_linux_loopback.py
+index 7b297ccd..4463358b 100644
+--- a/tests/performance/test_linux_loopback.py
++++ b/tests/performance/test_linux_loopback.py
+@@ -13,6 +13,23 @@ from scripts.performance.linux_loopback import (
+ 
+ 
+ class LinuxLoopbackTests(unittest.TestCase):
++    def test_server_scale_matrix_preserves_physical_core_selection_and_worker_symmetry(self):
++        matrix = {'schema': 'nbsr-linux-loopback-v1', 'cores': [8, 16, 32],
++                  'workloads': [{'payload_bytes': 16384, 'streams': 8, 'outstanding': 1}],
++                  'warmup_seconds': 3, 'duration_seconds': 20}
++        validate_matrix(matrix)
++        topology = {'cpus': [dict(cpu=n, core=n // 2, socket=0, node=0, online=True)
++                             for n in range(64)]}
++        selected = physical_cpu_sets(topology, set(range(64)), matrix['cores'])
++        assert selected[32] == list(range(0, 64, 2))
++        for cell in expand_matrix(matrix):
++            server, client, _ = build_commands(cell, Path('/bin'), Path('/authority'),
++                Path('/raw'), '127.0.0.1:1234', 3, 20)
++            for command in (server, client):
++                assert command[command.index('--p2a-runtime-workers') + 1] == str(cell['cores'])
++        with self.assertRaises(ValueError):
++            physical_cpu_sets(topology, set(range(32)), [32])
++
+     def test_physical_selection_ignores_smt_and_uses_one_numa_node(self):
+         topology = {"cpus": [
+             {"cpu": "0", "core": "0", "socket": "0", "node": "0", "online": "yes"},
