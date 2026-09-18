@@ -93,9 +93,14 @@ python3 - <<'PY'
 import hashlib, json, os, pathlib, subprocess
 root = pathlib.Path(os.environ['NBSR_LINUX_BUILD_EVIDENCE'])
 target = pathlib.Path(os.environ['CARGO_TARGET_DIR']) / 'release'
+expected_sha = (root / 'raw' / 'source-sha.txt').read_text().strip()
+if subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip() != expected_sha:
+    raise ValueError('source SHA changed since pre-build inventory; preserve and rebuild')
+if subprocess.check_output(['git', 'status', '--porcelain', '--untracked-files=all'], text=True):
+    raise ValueError('source became dirty during build; preserve and rebuild')
 names = ('perf_direct_peer', 'perf_rust_source', 'wp8_interop_server')
 manifest = {
-    'source_sha': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
+    'source_sha': expected_sha,
     'binary_sha256': {name: hashlib.sha256((target / name).read_bytes()).hexdigest() for name in names},
     'build_profile': 'release',
     'build_commands': [['cargo', 'build', '--locked', '--release', '--manifest-path',
@@ -104,8 +109,10 @@ manifest = {
     'toolchains': {name: (root / 'raw' / filename).read_text()
         for name, filename in [('rustc', 'rustc.txt'), ('cargo', 'cargo.txt')]},
 }
-(root / 'build-manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
+with (root / 'build-manifest.json').open('x') as stream:
+    stream.write(json.dumps(manifest, indent=2) + '\n')
 PY
+unset NBSR_LINUX_BUILD_EVIDENCE
 python3 -m unittest tests.performance.test_linux_loopback
 python3 -m scripts.performance.linux_loopback \
   --matrix scripts/performance/linux_loopback_matrix.json \
@@ -115,6 +122,12 @@ python3 -m scripts.performance.linux_loopback \
 ```
 
 The output directory must not exist. The runner checks a clean source checkout, source SHA, executable binary hashes, declared build metadata, available physical cores and Linux tooling before launch. Keep build logs and manifest together; metadata is operator-supplied provenance, not a cryptographic proof of compilation. The earlier checksum command covers the combined build and loopback artifacts after execution. Synthetic tests run on Windows do not establish Linux execution compatibility.
+
+The manifest uses the SHA recorded before compilation, refuses a changed HEAD or
+dirty checkout, and never overwrites an existing manifest. Do not edit or switch
+the checkout while building; these pre/post checks are not attestation against
+transient source edits later reverted. On mismatch, preserve the attempt and
+build again in a fresh output directory; never relabel old binaries with a new SHA.
 
 CPU totals in this subset are read from the final unreaped `/proc/<pid>/stat` records and cover **whole process lifetime**, including launcher/startup/warmup/drain. It reports `lifetime_cpu_ns_per_completed_operation`, explicitly not steady-state CPU ns/op. Steady CPU ns/op and effective cores remain null because the binaries do not expose synchronized external measurement barriers. Affinity is sampled at 100 ms; inherited affinity is set before execution, and sampled mismatches fail closed. Resource cleanup means both owned peer processes exited successfully, not a proof that every internal ownership counter returned to zero. A valid repeat additionally passes the existing P2A completed-work and zero-error/corruption/session-delta contract.
 
