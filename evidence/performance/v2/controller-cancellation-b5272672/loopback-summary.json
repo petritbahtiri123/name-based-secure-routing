@@ -1,0 +1,40 @@
+{
+  "signals_passed": 3,
+  "normal": {
+    "cells": [
+      {
+        "cell": {
+          "cores": 1,
+          "outstanding": 1,
+          "path": "direct",
+          "payload_bytes": 1024,
+          "streams": 64
+        },
+        "cv": 0.13155409406241872,
+        "median_gbps": 1.4043277787297146,
+        "repeatable": false,
+        "valid_repeats": 5
+      },
+      {
+        "cell": {
+          "cores": 1,
+          "outstanding": 1,
+          "path": "nbsr",
+          "payload_bytes": 1024,
+          "streams": 64
+        },
+        "cv": 0.12402250145136955,
+        "median_gbps": 1.8947293333667123,
+        "repeatable": false,
+        "valid_repeats": 5
+      }
+    ],
+    "external_two_host": "NOT_RUN / EXTERNAL_HARDWARE_REQUIRED",
+    "status": "PARTIAL_DISPERSION",
+    "steady_cpu_ns_per_operation": null,
+    "strict_stable_ceiling": "NOT_ESTABLISHED",
+    "valid_runs": 10
+  },
+  "classification": "PASS_CONTROLLER_CANCELLATION_AND_FINITE_MECHANICS",
+  "capacity": "NOT_PROVEN"
+}

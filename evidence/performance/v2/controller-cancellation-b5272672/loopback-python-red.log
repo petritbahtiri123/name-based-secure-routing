@@ -1,0 +1,42 @@
+........F                                                                [100%]
+================================== FAILURES ===================================
+_ CancellationOwnershipTests.test_pending_signal_after_either_spawn_reaps_only_registered_children _
+
+self = <test_linux_loopback.CancellationOwnershipTests testMethod=test_pending_signal_after_either_spawn_reaps_only_registered_children>
+
+    def test_pending_signal_after_either_spawn_reaps_only_registered_children(self):
+        from scripts.performance import linux_loopback as loopback
+        for target in (1, 2):
+            with self.subTest(cancel_after_spawn=target), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                raw = root / 'raw'
+                children, events = [], []
+                class Child:
+                    def __init__(self, argv, **kwargs):
+                        self.pid = len(children) + 1
+                        self.returncode = None
+                        children.append(self)
+                        if self.pid == 1:
+                            (raw / 'ready.json').write_text('{"endpoint":"127.0.0.1:123"}')
+                    def kill(self):
+                        events.append(('kill', self.pid))
+                    def wait(self, timeout):
+                        events.append(('wait', self.pid))
+                        self.returncode = -9
+                        return -9
+                def cancelled():
+                    if len(children) == target:
+                        raise InterruptedError('SIGTERM fixture')
+                with patch.object(loopback.subprocess, 'Popen', Child), \
+                     patch.object(loopback, 'sample_process', return_value=dict(state='S', start_ticks=1)):
+                    with self.assertRaisesRegex(InterruptedError, 'SIGTERM'):
+>                       loopback.run_cell(dict(path='direct', cores=1, payload_bytes=1024,
+                            streams=1, outstanding=1), 1, root / 'bins', root / 'authority',
+                            raw, [0], dict(warmup_seconds=3, duration_seconds=20), 'taskset',
+                            check_cancelled=cancelled)
+E                       TypeError: run_cell() got an unexpected keyword argument 'check_cancelled'
+
+tests\performance\test_linux_loopback.py:202: TypeError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_linux_loopback.py::CancellationOwnershipTests::test_pending_signal_after_either_spawn_reaps_only_registered_children
+1 failed, 8 passed in 0.66s

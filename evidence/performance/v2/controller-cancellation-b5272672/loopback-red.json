@@ -1,0 +1,20 @@
+{
+  "classification": "CONFIRMED_LOOPBACK_PEERS_ORPHANED_BY_CONTROLLER_SIGTERM",
+  "controller_exit": 143,
+  "observations": [
+    {
+      "pid": 37,
+      "start_ticks": 104199,
+      "role": "server",
+      "state": "R",
+      "parent": 1
+    },
+    {
+      "pid": 38,
+      "start_ticks": 104203,
+      "role": "client",
+      "state": "R",
+      "parent": 1
+    }
+  ]
+}

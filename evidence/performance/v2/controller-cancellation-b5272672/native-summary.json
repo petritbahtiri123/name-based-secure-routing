@@ -1,0 +1,13 @@
+{
+  "source_sha": "9d36266fa601d4c8c14c7045debc24f7cf8e5069",
+  "signals_passed": 3,
+  "normal_cells": 6,
+  "pairs": 3,
+  "cv": {
+    "direct": 0.042413410960899255,
+    "nbsr": 0.029823653331180082
+  },
+  "classification": "PASS_CATCHABLE_CANCELLATION_AND_NORMAL_FINITE_MECHANICS",
+  "capacity": "NOT_PROVEN",
+  "external_hardware": "NOT_PROVEN"
+}

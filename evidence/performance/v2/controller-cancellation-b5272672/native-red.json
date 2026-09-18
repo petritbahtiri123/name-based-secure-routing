@@ -1,0 +1,12 @@
+{
+  "status": "CONFIRMED_ORPHAN_AFTER_CONTROLLER_SIGTERM",
+  "observation": {
+    "peer_pid": 61,
+    "controller_pid": 29,
+    "controller_command": "/usr/local/bin/python -B -m scripts.performance.linux_native_peer --role destination --path nbsr --binaries /tmp/binaries --build-manifest /build/build-manifest.json --authority /authority --output /out/baseline/peer --bind 127.0.0.1:0 --cores 1 --payload 1024 --streams 64 --depth 1 ",
+    "start_ticks": 51512,
+    "state_after_termination": "S",
+    "parent_after_termination": 1
+  },
+  "no_sealed_exit": true
+}

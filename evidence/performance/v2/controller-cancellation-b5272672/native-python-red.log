@@ -1,0 +1,30 @@
+FF.............                                                          [100%]
+================================== FAILURES ===================================
+____ test_signal_cancellation_is_deferred_until_owned_child_is_registered _____
+
+    def test_signal_cancellation_is_deferred_until_owned_child_is_registered():
+>       from scripts.performance.linux_native_peer import Cancellation
+E       ImportError: cannot import name 'Cancellation' from 'scripts.performance.linux_native_peer' (C:\Users\bajra\OneDrive\Documents\NBSR\scripts\performance\linux_native_peer.py)
+
+tests\performance\test_linux_native_peer.py:9: ImportError
+_______ test_observer_checks_pending_cancel_before_sampling_or_reaping ________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1064/test_observer_checks_pending_c0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001CA74FDCB00>
+
+    def test_observer_checks_pending_cancel_before_sampling_or_reaping(tmp_path, monkeypatch):
+        from scripts.performance import linux_native_peer as peer
+        monkeypatch.setattr(peer, 'sample_process', lambda *a, **k: pytest.fail('sample after cancellation'))
+        child = SimpleNamespace(pid=123, wait=lambda **k: pytest.fail('reap belongs to owner cleanup'))
+        def cancelled():
+            raise InterruptedError('SIGTERM')
+        with pytest.raises(InterruptedError, match='SIGTERM'):
+>           peer.observe_child(child, [0], tmp_path, deadline=peer.time.monotonic() + 1,
+                               check_cancelled=cancelled)
+E           TypeError: observe_child() got an unexpected keyword argument 'check_cancelled'
+
+tests\performance\test_linux_native_peer.py:27: TypeError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_linux_native_peer.py::test_signal_cancellation_is_deferred_until_owned_child_is_registered
+FAILED tests/performance/test_linux_native_peer.py::test_observer_checks_pending_cancel_before_sampling_or_reaping
+2 failed, 13 passed in 1.01s

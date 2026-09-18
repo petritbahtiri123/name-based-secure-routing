@@ -1,0 +1,18 @@
+[
+  {
+    "root": "C:\\NBSR-build\\native-cancellation-6e5a2afe",
+    "index_sha256": "5451d8bf1733bb63c6740b59ddc1d17cee7f03e33411e745bb10338aa94ea44a"
+  },
+  {
+    "root": "C:\\NBSR-build\\loopback-cancellation-9d36266f",
+    "index_sha256": "3eb0178ad7cdb9a64c49e9cfd1df4eb4dd15f48f7c4bca26853931cb3b47ce42"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-current-9d36266f",
+    "index_sha256": "b3946f5242958df52957bd7f53c69034e39c44dd05ccc40d5d0d1ac18e085b50"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-current-b5272672",
+    "index_sha256": "14b4b048f8ba90e3cd88089cd85188138803dddf650cdee161905f1e87343b56"
+  }
+]

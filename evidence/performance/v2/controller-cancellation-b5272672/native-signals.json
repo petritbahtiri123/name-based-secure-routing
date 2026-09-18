@@ -1,0 +1,68 @@
+[
+  {
+    "signal": "SIGTERM",
+    "injection": {
+      "peer_pid": 61,
+      "controller_pid": 29,
+      "signal": "SIGTERM"
+    },
+    "controller_exit": 1,
+    "failure": {
+      "error": "finite peer cancelled by SIGTERM",
+      "error_type": "InterruptedError",
+      "status": "INVALID_PARTIAL"
+    },
+    "cleanup": {
+      "exit_code": -9,
+      "group_killed": true,
+      "valid": false
+    },
+    "after": {
+      "owned_peer_absent": true
+    }
+  },
+  {
+    "signal": "SIGINT",
+    "injection": {
+      "peer_pid": 106,
+      "controller_pid": 74,
+      "signal": "SIGINT"
+    },
+    "controller_exit": 1,
+    "failure": {
+      "error": "finite peer cancelled by SIGINT",
+      "error_type": "InterruptedError",
+      "status": "INVALID_PARTIAL"
+    },
+    "cleanup": {
+      "exit_code": -9,
+      "group_killed": true,
+      "valid": false
+    },
+    "after": {
+      "owned_peer_absent": true
+    }
+  },
+  {
+    "signal": "SIGHUP",
+    "injection": {
+      "peer_pid": 152,
+      "controller_pid": 120,
+      "signal": "SIGHUP"
+    },
+    "controller_exit": 1,
+    "failure": {
+      "error": "finite peer cancelled by SIGHUP",
+      "error_type": "InterruptedError",
+      "status": "INVALID_PARTIAL"
+    },
+    "cleanup": {
+      "exit_code": -9,
+      "group_killed": true,
+      "valid": false
+    },
+    "after": {
+      "owned_peer_absent": true
+    }
+  }
+]

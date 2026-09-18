@@ -1,0 +1,149 @@
+[
+  {
+    "signal": "SIGTERM",
+    "controller_exit": 1,
+    "injection": {
+      "controller_pid": 29,
+      "signal": "SIGTERM"
+    },
+    "cleanup": {
+      "processes": [
+        {
+          "exit_code": -9,
+          "pid": 59,
+          "role": "server"
+        },
+        {
+          "exit_code": -9,
+          "pid": 60,
+          "role": "client"
+        }
+      ],
+      "valid": false
+    },
+    "rejected": {
+      "cell": {
+        "cores": 1,
+        "outstanding": 1,
+        "path": "direct",
+        "payload_bytes": 1024,
+        "streams": 64
+      },
+      "reason": "benchmark controller cancelled by SIGTERM",
+      "repeat": 1,
+      "valid": false
+    },
+    "after": [
+      {
+        "pid": 59,
+        "start_ticks": 136377,
+        "role": "server",
+        "owned_peer_absent": true
+      },
+      {
+        "pid": 60,
+        "start_ticks": 136380,
+        "role": "client",
+        "owned_peer_absent": true
+      }
+    ]
+  },
+  {
+    "signal": "SIGINT",
+    "controller_exit": 1,
+    "injection": {
+      "controller_pid": 75,
+      "signal": "SIGINT"
+    },
+    "cleanup": {
+      "processes": [
+        {
+          "exit_code": -9,
+          "pid": 105,
+          "role": "server"
+        },
+        {
+          "exit_code": -9,
+          "pid": 106,
+          "role": "client"
+        }
+      ],
+      "valid": false
+    },
+    "rejected": {
+      "cell": {
+        "cores": 1,
+        "outstanding": 1,
+        "path": "direct",
+        "payload_bytes": 1024,
+        "streams": 64
+      },
+      "reason": "benchmark controller cancelled by SIGINT",
+      "repeat": 1,
+      "valid": false
+    },
+    "after": [
+      {
+        "pid": 105,
+        "start_ticks": 136495,
+        "role": "server",
+        "owned_peer_absent": true
+      },
+      {
+        "pid": 106,
+        "start_ticks": 136498,
+        "role": "client",
+        "owned_peer_absent": true
+      }
+    ]
+  },
+  {
+    "signal": "SIGHUP",
+    "controller_exit": 1,
+    "injection": {
+      "controller_pid": 121,
+      "signal": "SIGHUP"
+    },
+    "cleanup": {
+      "processes": [
+        {
+          "exit_code": -9,
+          "pid": 151,
+          "role": "server"
+        },
+        {
+          "exit_code": -9,
+          "pid": 152,
+          "role": "client"
+        }
+      ],
+      "valid": false
+    },
+    "rejected": {
+      "cell": {
+        "cores": 1,
+        "outstanding": 1,
+        "path": "direct",
+        "payload_bytes": 1024,
+        "streams": 64
+      },
+      "reason": "benchmark controller cancelled by SIGHUP",
+      "repeat": 1,
+      "valid": false
+    },
+    "after": [
+      {
+        "pid": 151,
+        "start_ticks": 136609,
+        "role": "server",
+        "owned_peer_absent": true
+      },
+      {
+        "pid": 152,
+        "start_ticks": 136612,
+        "role": "client",
+        "owned_peer_absent": true
+      }
+    ]
+  }
+]
