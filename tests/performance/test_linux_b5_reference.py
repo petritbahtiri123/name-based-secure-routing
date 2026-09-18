@@ -300,3 +300,56 @@ def test_campaign_freezes_inputs_and_preserves_failed_attempts(tmp_path, fault):
     assert len(rows) == (6 if fault in (None, "dirty-final") else 1)
     assert all((output / "binaries" / name).exists() for name in names)
     assert env["source_sha256"]
+
+
+@pytest.mark.parametrize("point", ["server-launch", "client-launch", "final-observation"])
+def test_cancelled_reference_reaps_registered_children_without_ack(tmp_path, point):
+    processes = []
+    requested = False
+    clock = 0
+
+    class Process:
+        def __init__(self, argv, **kwargs):
+            nonlocal requested
+            self.pid = 11 + len(processes)
+            self.returncode = None
+            self.joined = False
+            processes.append(self)
+            if "--ready" in argv:
+                Path(argv[argv.index("--ready") + 1]).write_text(json.dumps({"endpoint": "127.0.0.1:42"}))
+                requested = point == "server-launch"
+            else:
+                requested = point == "client-launch"
+
+        def poll(self):
+            return self.returncode
+
+        def kill(self):
+            self.returncode = -9
+
+        def wait(self, timeout):
+            self.joined = True
+            return self.returncode
+
+    def check():
+        if requested:
+            raise InterruptedError("test controller cancellation")
+
+    def sample(pid, cpus):
+        nonlocal requested, clock
+        clock += 1
+        if pid == 12:
+            requested = True
+        return dict(pid=pid, start_ticks=pid, state="Z" if pid == 12 else "S",
+                    cpu_ns=clock, timestamp_ns=clock, affinity=cpus)
+
+    raw = tmp_path / "raw"
+    row = reference.run_cell(cell(), 1, Path("/bin"), tmp_path / "authority", raw,
+        [0], "/usr/bin/taskset", warmup=3, duration=20, sample_fn=sample,
+        popen=Process, exec_check=lambda *args: None, check_cancelled=check)
+    assert row["valid"] is False and row["classification"] == "FAIL"
+    assert row["error_type"] == "InterruptedError"
+    assert len(processes) == (1 if point == "server-launch" else 2)
+    assert all(p.joined and p.returncode == -9 for p in processes)
+    assert not (raw / "completion.ack").exists()
+    assert json.loads((raw / "record.json").read_text())["valid"] is False

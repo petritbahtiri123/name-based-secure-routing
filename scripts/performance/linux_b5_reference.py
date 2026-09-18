@@ -14,6 +14,7 @@ from scripts.performance.linux_loopback import ROOT, build_commands, sample_proc
 from scripts.performance.p2a_established import validate_repeat
 from scripts.performance.post_close_cleanup import validate_report
 from scripts.performance.b4_linux import failure_details
+from scripts.performance.process_cancellation import Cancellation, not_cancelled
 
 ZERO_FIELDS = (
     "errors",
@@ -36,6 +37,7 @@ SOURCE_PATHS = tuple(
     "scripts/performance/" + name
     for name in (
         "linux_b5_reference.py",
+        "process_cancellation.py",
         "linux_b5_ceiling.py",
         "linux_loopback.py",
         "b3_linux.py",
@@ -172,6 +174,7 @@ def run_cell(
     sample_fn=sample_finite_process,
     popen=subprocess.Popen,
     exec_check=wait_exec,
+    check_cancelled=not_cancelled,
 ):
     validate_cell(cell)
     if len(cpus) != 1 or type(cpus[0]) is not int or cpus[0] < 0:
@@ -191,13 +194,16 @@ def run_cell(
         stdout, stderr = (raw / f"{role}.stdout").open("xb"), (raw / f"{role}.stderr").open("xb")
         handles.extend((stdout, stderr))
         processes[role] = popen(argv, cwd=ROOT, env=env, stdout=stdout, stderr=stderr)
+        check_cancelled()
 
     def observe(role, sink):
         nonlocal sampled
+        check_cancelled()
         if sampled >= cap:
             raise RuntimeError("finite observer cap exceeded")
         process = processes[role]
         value = sample_fn(process.pid, cpus)
+        check_cancelled()
         sink.write(json.dumps(dict(role=role, **value)) + "\n")
         sink.flush()
         sampled += 1
@@ -237,6 +243,7 @@ def run_cell(
         launch("server", recorded["server"], dict(environment, **override))
         deadline = time.monotonic() + 30
         while not (raw / "ready.json").exists():
+            check_cancelled()
             if processes["server"].poll() is not None or time.monotonic() >= deadline:
                 raise RuntimeError("server readiness failed")
             time.sleep(0.02)
@@ -261,6 +268,7 @@ def run_cell(
                 if len(final) < 2:
                     time.sleep(0.1)
         reports = []
+        check_cancelled()
         if cell["path"] == "nbsr":
             for role, process_role in (("source", "client"), ("destination", "server")):
                 report = json.loads((raw / f"{process_role}.cleanup.json").read_text())
@@ -334,7 +342,8 @@ def git_state():
     )
 
 
-def execute(args, *, linux_environment=None, git_state_fn=git_state, run_fn=run_cell, authority_fn=None, executable_fn=None):
+def execute(args, *, linux_environment=None, git_state_fn=git_state, run_fn=run_cell, authority_fn=None, executable_fn=None,
+            check_cancelled=not_cancelled):
     from scripts.performance.authority import write_loopback_authority
     from scripts.performance.b3_linux import environment
     from scripts.performance.linux_b5_ceiling import NAMES, identity, require
@@ -392,6 +401,7 @@ def execute(args, *, linux_environment=None, git_state_fn=git_state, run_fn=run_
     )
 
     def unchanged():
+        check_cancelled()
         require(git_state_fn() == (sha, ""), "source checkout changed during campaign")
         require(all(digest(ROOT / p) == h for p, h in sources.items()), "source bytes changed")
         require(
@@ -432,6 +442,7 @@ def execute(args, *, linux_environment=None, git_state_fn=git_state, run_fn=run_
                     linux["taskset"],
                     warmup=args.warmup,
                     duration=args.duration,
+                    check_cancelled=check_cancelled,
                 )
                 row["raw_directory"] = relative
                 return row
@@ -462,7 +473,8 @@ def main():
     parser.add_argument("--depths", type=int, nargs="+", default=[1, 2, 4, 8, 16])
     parser.add_argument("--warmup", type=float, default=3)
     parser.add_argument("--duration", type=float, default=30)
-    execute(parser.parse_args())
+    with Cancellation() as cancellation:
+        execute(parser.parse_args(), check_cancelled=cancellation.check)
 
 
 if __name__ == "__main__":

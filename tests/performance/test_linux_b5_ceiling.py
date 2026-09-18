@@ -28,6 +28,7 @@ LINUX = dict(
 )
 SOURCE_FILES = (
     "linux_b5_reference.py",
+    "process_cancellation.py",
     "linux_b5_ceiling.py",
     "linux_loopback.py",
     "b3_linux.py",
