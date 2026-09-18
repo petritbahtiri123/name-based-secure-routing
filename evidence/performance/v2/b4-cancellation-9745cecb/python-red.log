@@ -1,0 +1,32 @@
+FF                                                                       [100%]
+================================== FAILURES ===================================
+___________ test_cancelled_sample_stops_before_resource_observation ___________
+
+    def test_cancelled_sample_stops_before_resource_observation():
+        def cancel():
+            raise InterruptedError('cancelled B4')
+>       b = LinuxB4Backend([0], '/usr/bin/taskset', check_cancelled=cancel,
+                          sample_fn=lambda *a: pytest.fail('sample after cancellation'))
+E       TypeError: LinuxB4Backend.__init__() got an unexpected keyword argument 'check_cancelled'
+
+tests\performance\test_b4_linux.py:173: TypeError
+_________ test_measure_propagates_cancellation_to_owned_cell_backend __________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1080/test_measure_propagates_cancel0')
+
+    def test_measure_propagates_cancellation_to_owned_cell_backend(tmp_path):
+        requested = False
+    
+        def check():
+            if requested:
+                raise InterruptedError('cancelled owned B4')
+    
+>       b = LinuxB4Backend([0], '/usr/bin/taskset', check_cancelled=check)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: LinuxB4Backend.__init__() got an unexpected keyword argument 'check_cancelled'
+
+tests\performance\test_b4_linux.py:186: TypeError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_b4_linux.py::test_cancelled_sample_stops_before_resource_observation
+FAILED tests/performance/test_b4_linux.py::test_measure_propagates_cancellation_to_owned_cell_backend
+2 failed, 13 deselected in 3.87s

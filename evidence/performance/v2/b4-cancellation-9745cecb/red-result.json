@@ -1,0 +1,22 @@
+{
+  "classification": "CONFIRMED_B4_PEERS_ORPHANED_BY_CONTROLLER_SIGTERM",
+  "controller_exit": 143,
+  "observations": [
+    {
+      "pid": 111,
+      "start_ticks": 110141,
+      "parent": 29,
+      "executable": "/tmp/binaries/wp8_interop_server",
+      "parent_after": 1,
+      "state": "R"
+    },
+    {
+      "pid": 113,
+      "start_ticks": 110143,
+      "parent": 29,
+      "executable": "/tmp/binaries/perf_rust_source",
+      "parent_after": 1,
+      "state": "R"
+    }
+  ]
+}

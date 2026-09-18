@@ -1,0 +1,64 @@
+{
+  "signals_passed": 3,
+  "analysis": {
+    "cells": [
+      {
+        "achieved_offered_ratio": 0.8380492335727574,
+        "actual_admissions_per_second": 104.75615419659468,
+        "admission_p50_latency_ns": 173947815.0,
+        "admission_p95_latency_ns": 608633265.0,
+        "admission_p99_latency_ns": 693525701.0,
+        "admission_success_ratio": 1.0,
+        "admitted": 512,
+        "cleanup_pass": true,
+        "connected": 512,
+        "effective_cores": 0.9526622417456877,
+        "errors": 0,
+        "established_goodput_bytes_per_second": 88176101.00926013,
+        "established_p99_latency_ns": 1215309.0,
+        "failed": 0,
+        "handshake_latency_ns": {
+          "50": 37976687,
+          "95": 153960634,
+          "99": 222628101
+        },
+        "is_reference_cell": true,
+        "offered_rate": 125,
+        "peak_pending_clients": 512.0,
+        "repeat_cv": 0.2639678378697889,
+        "repeats": 5,
+        "requested": 512,
+        "resources": {
+          "cpu_seconds": 31.83,
+          "peak_fd_count": 138.0,
+          "peak_private_hugetlb_bytes": 0.0,
+          "peak_private_resident_bytes": 381943808.0,
+          "peak_processes": 4.0,
+          "peak_pss_bytes": 390634496.0,
+          "peak_rss_bytes": 403845120.0,
+          "peak_threads": 9.0
+        },
+        "started": 512,
+        "status": "SATURATED",
+        "timeouts": 0,
+        "valid": 5
+      }
+    ],
+    "classification": "PARTIAL",
+    "invalid_runs": 0,
+    "schema": "nbsr-b4b-task4i-analysis-v1",
+    "simultaneous_burst_result": "separate Task 4h diagnostic; not mixed into capacity",
+    "thresholds": {
+      "saturated_achieved_offered": 0.9,
+      "saturated_goodput_ratio": 0.75,
+      "saturated_p99_ratio": 2.0,
+      "stable_achieved_offered": 0.95,
+      "stable_cv": 0.05,
+      "stable_goodput_ratio": 0.9,
+      "stable_p99_ratio": 1.25
+    }
+  },
+  "classification": "PASS_CONTROLLER_CANCELLATION",
+  "normal_acceptance": "SEE_UNMODIFIED_ANALYSIS",
+  "sustained_capacity": "NOT_PROVEN"
+}

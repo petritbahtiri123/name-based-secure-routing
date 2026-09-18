@@ -1,0 +1,748 @@
+[
+  {
+    "label": "baseline",
+    "command": [
+      "C:\\Users\\bajra\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+      "-m",
+      "ruff",
+      "check",
+      "--output-format",
+      "json",
+      "--stdin-filename",
+      "scripts/run_b4b_task4i.py",
+      "-"
+    ],
+    "exit_code": 1,
+    "diagnostics": [
+      {
+        "cell": null,
+        "code": "E731",
+        "end_location": {
+          "column": 70,
+          "row": 58
+        },
+        "filename": "C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\scripts\\run_b4b_task4i.py",
+        "fix": {
+          "applicability": "unsafe",
+          "edits": [
+            {
+              "content": "def med(key):\n        return statistics.median(float(r[key]) for r in records)",
+              "end_location": {
+                "column": 70,
+                "row": 58
+              },
+              "location": {
+                "column": 5,
+                "row": 58
+              }
+            }
+          ],
+          "message": "Rewrite `med` as a `def`"
+        },
+        "location": {
+          "column": 5,
+          "row": 58
+        },
+        "message": "Do not assign a `lambda` expression, use a `def`",
+        "noqa_row": 58,
+        "url": "https://docs.astral.sh/ruff/rules/lambda-assignment"
+      },
+      {
+        "cell": null,
+        "code": "E701",
+        "end_location": {
+          "column": 24,
+          "row": 96
+        },
+        "filename": "C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\scripts\\run_b4b_task4i.py",
+        "fix": null,
+        "location": {
+          "column": 23,
+          "row": 96
+        },
+        "message": "Multiple statements on one line (colon)",
+        "noqa_row": 96,
+        "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-colon"
+      },
+      {
+        "cell": null,
+        "code": "E702",
+        "end_location": {
+          "column": 32,
+          "row": 97
+        },
+        "filename": "C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\scripts\\run_b4b_task4i.py",
+        "fix": null,
+        "location": {
+          "column": 31,
+          "row": 97
+        },
+        "message": "Multiple statements on one line (semicolon)",
+        "noqa_row": 97,
+        "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+      },
+      {
+        "cell": null,
+        "code": "E702",
+        "end_location": {
+          "column": 50,
+          "row": 97
+        },
+        "filename": "C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\scripts\\run_b4b_task4i.py",
+        "fix": null,
+        "location": {
+          "column": 49,
+          "row": 97
+        },
+        "message": "Multiple statements on one line (semicolon)",
+        "noqa_row": 97,
+        "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+      },
+      {
+        "cell": null,
+        "code": "E702",
+        "end_location": {
+          "column": 52,
+          "row": 110
+        },
+        "filename": "C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\scripts\\run_b4b_task4i.py",
+        "fix": null,
+        "location": {
+          "column": 51,
+          "row": 110
+        },
+        "message": "Multiple statements on one line (semicolon)",
+        "noqa_row": 110,
+        "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+      },
+      {
+        "cell": null,
+        "code": "E702",
+        "end_location": {
+          "column": 106,
+          "row": 110
+        },
+        "filename": "C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\scripts\\run_b4b_task4i.py",
+        "fix": null,
+        "location": {
+          "column": 105,
+          "row": 110
+        },
+        "message": "Multiple statements on one line (semicolon)",
+        "noqa_row": 110,
+        "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+      },
+      {
+        "cell": null,
+        "code": "E702",
+        "end_location": {
+          "column": 14,
+          "row": 118
+        },
+        "filename": "C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\scripts\\run_b4b_task4i.py",
+        "fix": null,
+        "location": {
+          "column": 13,
+          "row": 118
+        },
+        "message": "Multiple statements on one line (semicolon)",
+        "noqa_row": 118,
+        "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+      },
+      {
+        "cell": null,
+        "code": "E702",
+        "end_location": {
+          "column": 38,
+          "row": 120
+        },
+        "filename": "C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\scripts\\run_b4b_task4i.py",
+        "fix": null,
+        "location": {
+          "column": 37,
+          "row": 120
+        },
+        "message": "Multiple statements on one line (semicolon)",
+        "noqa_row": 120,
+        "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+      },
+      {
+        "cell": null,
+        "code": "E702",
+        "end_location": {
+          "column": 20,
+          "row": 121
+        },
+        "filename": "C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\scripts\\run_b4b_task4i.py",
+        "fix": null,
+        "location": {
+          "column": 19,
+          "row": 121
+        },
+        "message": "Multiple statements on one line (semicolon)",
+        "noqa_row": 121,
+        "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+      },
+      {
+        "cell": null,
+        "code": "E702",
+        "end_location": {
+          "column": 38,
+          "row": 121
+        },
+        "filename": "C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\scripts\\run_b4b_task4i.py",
+        "fix": null,
+        "location": {
+          "column": 37,
+          "row": 121
+        },
+        "message": "Multiple statements on one line (semicolon)",
+        "noqa_row": 121,
+        "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+      },
+      {
+        "cell": null,
+        "code": "E701",
+        "end_location": {
+          "column": 46,
+          "row": 129
+        },
+        "filename": "C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\scripts\\run_b4b_task4i.py",
+        "fix": null,
+        "location": {
+          "column": 45,
+          "row": 129
+        },
+        "message": "Multiple statements on one line (colon)",
+        "noqa_row": 129,
+        "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-colon"
+      },
+      {
+        "cell": null,
+        "code": "E701",
+        "end_location": {
+          "column": 42,
+          "row": 132
+        },
+        "filename": "C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\scripts\\run_b4b_task4i.py",
+        "fix": null,
+        "location": {
+          "column": 41,
+          "row": 132
+        },
+        "message": "Multiple statements on one line (colon)",
+        "noqa_row": 132,
+        "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-colon"
+      },
+      {
+        "cell": null,
+        "code": "E702",
+        "end_location": {
+          "column": 70,
+          "row": 133
+        },
+        "filename": "C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\scripts\\run_b4b_task4i.py",
+        "fix": null,
+        "location": {
+          "column": 69,
+          "row": 133
+        },
+        "message": "Multiple statements on one line (semicolon)",
+        "noqa_row": 133,
+        "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+      },
+      {
+        "cell": null,
+        "code": "E701",
+        "end_location": {
+          "column": 31,
+          "row": 134
+        },
+        "filename": "C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\scripts\\run_b4b_task4i.py",
+        "fix": null,
+        "location": {
+          "column": 30,
+          "row": 134
+        },
+        "message": "Multiple statements on one line (colon)",
+        "noqa_row": 134,
+        "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-colon"
+      },
+      {
+        "cell": null,
+        "code": "E702",
+        "end_location": {
+          "column": 52,
+          "row": 138
+        },
+        "filename": "C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\scripts\\run_b4b_task4i.py",
+        "fix": null,
+        "location": {
+          "column": 51,
+          "row": 138
+        },
+        "message": "Multiple statements on one line (semicolon)",
+        "noqa_row": 138,
+        "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+      },
+      {
+        "cell": null,
+        "code": "E702",
+        "end_location": {
+          "column": 71,
+          "row": 138
+        },
+        "filename": "C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\scripts\\run_b4b_task4i.py",
+        "fix": null,
+        "location": {
+          "column": 70,
+          "row": 138
+        },
+        "message": "Multiple statements on one line (semicolon)",
+        "noqa_row": 138,
+        "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+      },
+      {
+        "cell": null,
+        "code": "E702",
+        "end_location": {
+          "column": 38,
+          "row": 142
+        },
+        "filename": "C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\scripts\\run_b4b_task4i.py",
+        "fix": null,
+        "location": {
+          "column": 37,
+          "row": 142
+        },
+        "message": "Multiple statements on one line (semicolon)",
+        "noqa_row": 142,
+        "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+      },
+      {
+        "cell": null,
+        "code": "E702",
+        "end_location": {
+          "column": 95,
+          "row": 142
+        },
+        "filename": "C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\scripts\\run_b4b_task4i.py",
+        "fix": null,
+        "location": {
+          "column": 94,
+          "row": 142
+        },
+        "message": "Multiple statements on one line (semicolon)",
+        "noqa_row": 142,
+        "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+      },
+      {
+        "cell": null,
+        "code": "E702",
+        "end_location": {
+          "column": 160,
+          "row": 142
+        },
+        "filename": "C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\scripts\\run_b4b_task4i.py",
+        "fix": null,
+        "location": {
+          "column": 159,
+          "row": 142
+        },
+        "message": "Multiple statements on one line (semicolon)",
+        "noqa_row": 142,
+        "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+      },
+      {
+        "cell": null,
+        "code": "E702",
+        "end_location": {
+          "column": 30,
+          "row": 145
+        },
+        "filename": "C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\scripts\\run_b4b_task4i.py",
+        "fix": null,
+        "location": {
+          "column": 29,
+          "row": 145
+        },
+        "message": "Multiple statements on one line (semicolon)",
+        "noqa_row": 145,
+        "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+      }
+    ]
+  },
+  {
+    "label": "current",
+    "command": [
+      "C:\\Users\\bajra\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+      "-m",
+      "ruff",
+      "check",
+      "--output-format",
+      "json",
+      "--stdin-filename",
+      "scripts/run_b4b_task4i.py",
+      "-"
+    ],
+    "exit_code": 1,
+    "diagnostics": [
+      {
+        "cell": null,
+        "code": "E731",
+        "end_location": {
+          "column": 70,
+          "row": 58
+        },
+        "filename": "C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\scripts\\run_b4b_task4i.py",
+        "fix": {
+          "applicability": "unsafe",
+          "edits": [
+            {
+              "content": "def med(key):\n        return statistics.median(float(r[key]) for r in records)",
+              "end_location": {
+                "column": 70,
+                "row": 58
+              },
+              "location": {
+                "column": 5,
+                "row": 58
+              }
+            }
+          ],
+          "message": "Rewrite `med` as a `def`"
+        },
+        "location": {
+          "column": 5,
+          "row": 58
+        },
+        "message": "Do not assign a `lambda` expression, use a `def`",
+        "noqa_row": 58,
+        "url": "https://docs.astral.sh/ruff/rules/lambda-assignment"
+      },
+      {
+        "cell": null,
+        "code": "E701",
+        "end_location": {
+          "column": 24,
+          "row": 96
+        },
+        "filename": "C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\scripts\\run_b4b_task4i.py",
+        "fix": null,
+        "location": {
+          "column": 23,
+          "row": 96
+        },
+        "message": "Multiple statements on one line (colon)",
+        "noqa_row": 96,
+        "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-colon"
+      },
+      {
+        "cell": null,
+        "code": "E702",
+        "end_location": {
+          "column": 32,
+          "row": 97
+        },
+        "filename": "C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\scripts\\run_b4b_task4i.py",
+        "fix": null,
+        "location": {
+          "column": 31,
+          "row": 97
+        },
+        "message": "Multiple statements on one line (semicolon)",
+        "noqa_row": 97,
+        "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+      },
+      {
+        "cell": null,
+        "code": "E702",
+        "end_location": {
+          "column": 50,
+          "row": 97
+        },
+        "filename": "C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\scripts\\run_b4b_task4i.py",
+        "fix": null,
+        "location": {
+          "column": 49,
+          "row": 97
+        },
+        "message": "Multiple statements on one line (semicolon)",
+        "noqa_row": 97,
+        "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+      },
+      {
+        "cell": null,
+        "code": "E702",
+        "end_location": {
+          "column": 52,
+          "row": 111
+        },
+        "filename": "C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\scripts\\run_b4b_task4i.py",
+        "fix": null,
+        "location": {
+          "column": 51,
+          "row": 111
+        },
+        "message": "Multiple statements on one line (semicolon)",
+        "noqa_row": 111,
+        "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+      },
+      {
+        "cell": null,
+        "code": "E702",
+        "end_location": {
+          "column": 106,
+          "row": 111
+        },
+        "filename": "C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\scripts\\run_b4b_task4i.py",
+        "fix": null,
+        "location": {
+          "column": 105,
+          "row": 111
+        },
+        "message": "Multiple statements on one line (semicolon)",
+        "noqa_row": 111,
+        "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+      },
+      {
+        "cell": null,
+        "code": "E702",
+        "end_location": {
+          "column": 14,
+          "row": 119
+        },
+        "filename": "C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\scripts\\run_b4b_task4i.py",
+        "fix": null,
+        "location": {
+          "column": 13,
+          "row": 119
+        },
+        "message": "Multiple statements on one line (semicolon)",
+        "noqa_row": 119,
+        "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+      },
+      {
+        "cell": null,
+        "code": "E702",
+        "end_location": {
+          "column": 38,
+          "row": 121
+        },
+        "filename": "C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\scripts\\run_b4b_task4i.py",
+        "fix": null,
+        "location": {
+          "column": 37,
+          "row": 121
+        },
+        "message": "Multiple statements on one line (semicolon)",
+        "noqa_row": 121,
+        "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+      },
+      {
+        "cell": null,
+        "code": "E702",
+        "end_location": {
+          "column": 20,
+          "row": 122
+        },
+        "filename": "C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\scripts\\run_b4b_task4i.py",
+        "fix": null,
+        "location": {
+          "column": 19,
+          "row": 122
+        },
+        "message": "Multiple statements on one line (semicolon)",
+        "noqa_row": 122,
+        "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+      },
+      {
+        "cell": null,
+        "code": "E702",
+        "end_location": {
+          "column": 38,
+          "row": 122
+        },
+        "filename": "C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\scripts\\run_b4b_task4i.py",
+        "fix": null,
+        "location": {
+          "column": 37,
+          "row": 122
+        },
+        "message": "Multiple statements on one line (semicolon)",
+        "noqa_row": 122,
+        "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+      },
+      {
+        "cell": null,
+        "code": "E701",
+        "end_location": {
+          "column": 46,
+          "row": 130
+        },
+        "filename": "C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\scripts\\run_b4b_task4i.py",
+        "fix": null,
+        "location": {
+          "column": 45,
+          "row": 130
+        },
+        "message": "Multiple statements on one line (colon)",
+        "noqa_row": 130,
+        "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-colon"
+      },
+      {
+        "cell": null,
+        "code": "E701",
+        "end_location": {
+          "column": 42,
+          "row": 133
+        },
+        "filename": "C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\scripts\\run_b4b_task4i.py",
+        "fix": null,
+        "location": {
+          "column": 41,
+          "row": 133
+        },
+        "message": "Multiple statements on one line (colon)",
+        "noqa_row": 133,
+        "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-colon"
+      },
+      {
+        "cell": null,
+        "code": "E702",
+        "end_location": {
+          "column": 70,
+          "row": 134
+        },
+        "filename": "C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\scripts\\run_b4b_task4i.py",
+        "fix": null,
+        "location": {
+          "column": 69,
+          "row": 134
+        },
+        "message": "Multiple statements on one line (semicolon)",
+        "noqa_row": 134,
+        "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+      },
+      {
+        "cell": null,
+        "code": "E701",
+        "end_location": {
+          "column": 31,
+          "row": 135
+        },
+        "filename": "C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\scripts\\run_b4b_task4i.py",
+        "fix": null,
+        "location": {
+          "column": 30,
+          "row": 135
+        },
+        "message": "Multiple statements on one line (colon)",
+        "noqa_row": 135,
+        "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-colon"
+      },
+      {
+        "cell": null,
+        "code": "E702",
+        "end_location": {
+          "column": 52,
+          "row": 139
+        },
+        "filename": "C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\scripts\\run_b4b_task4i.py",
+        "fix": null,
+        "location": {
+          "column": 51,
+          "row": 139
+        },
+        "message": "Multiple statements on one line (semicolon)",
+        "noqa_row": 139,
+        "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+      },
+      {
+        "cell": null,
+        "code": "E702",
+        "end_location": {
+          "column": 71,
+          "row": 139
+        },
+        "filename": "C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\scripts\\run_b4b_task4i.py",
+        "fix": null,
+        "location": {
+          "column": 70,
+          "row": 139
+        },
+        "message": "Multiple statements on one line (semicolon)",
+        "noqa_row": 139,
+        "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+      },
+      {
+        "cell": null,
+        "code": "E702",
+        "end_location": {
+          "column": 38,
+          "row": 143
+        },
+        "filename": "C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\scripts\\run_b4b_task4i.py",
+        "fix": null,
+        "location": {
+          "column": 37,
+          "row": 143
+        },
+        "message": "Multiple statements on one line (semicolon)",
+        "noqa_row": 143,
+        "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+      },
+      {
+        "cell": null,
+        "code": "E702",
+        "end_location": {
+          "column": 95,
+          "row": 143
+        },
+        "filename": "C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\scripts\\run_b4b_task4i.py",
+        "fix": null,
+        "location": {
+          "column": 94,
+          "row": 143
+        },
+        "message": "Multiple statements on one line (semicolon)",
+        "noqa_row": 143,
+        "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+      },
+      {
+        "cell": null,
+        "code": "E702",
+        "end_location": {
+          "column": 160,
+          "row": 143
+        },
+        "filename": "C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\scripts\\run_b4b_task4i.py",
+        "fix": null,
+        "location": {
+          "column": 159,
+          "row": 143
+        },
+        "message": "Multiple statements on one line (semicolon)",
+        "noqa_row": 143,
+        "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+      },
+      {
+        "cell": null,
+        "code": "E702",
+        "end_location": {
+          "column": 30,
+          "row": 146
+        },
+        "filename": "C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\scripts\\run_b4b_task4i.py",
+        "fix": null,
+        "location": {
+          "column": 29,
+          "row": 146
+        },
+        "message": "Multiple statements on one line (semicolon)",
+        "noqa_row": 146,
+        "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+      }
+    ]
+  }
+]

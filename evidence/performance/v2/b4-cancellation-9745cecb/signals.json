@@ -1,0 +1,128 @@
+[
+  {
+    "signal": "SIGTERM",
+    "controller_exit": 1,
+    "after": [
+      {
+        "pid": 117,
+        "start_ticks": 133031,
+        "parent": 35,
+        "executable": "/tmp/binaries/wp8_interop_server",
+        "owned_peer_absent": true
+      },
+      {
+        "pid": 119,
+        "start_ticks": 133032,
+        "parent": 35,
+        "executable": "/tmp/binaries/perf_rust_source",
+        "owned_peer_absent": true
+      },
+      {
+        "pid": 120,
+        "start_ticks": 133237,
+        "parent": 35,
+        "executable": "/tmp/binaries/wp8_interop_server",
+        "owned_peer_absent": true
+      },
+      {
+        "pid": 123,
+        "start_ticks": 133239,
+        "parent": 35,
+        "executable": "/tmp/binaries/perf_rust_source",
+        "owned_peer_absent": true
+      }
+    ],
+    "failure": {
+      "classification": "INVALID_PARTIAL_LINUX_B4",
+      "error": "benchmark controller cancelled by SIGTERM",
+      "error_type": "InterruptedError",
+      "partial_evidence_retained": true,
+      "traceback": "Traceback (most recent call last):\n  File \"/tmp/source/scripts/run_b4b_linux.py\", line 72, in execute\n    result = task4i.execute(args.output / 'campaign', offered_rates=args.offered_rates,\n                           source_shards=args.source_shards, backend=backend,\n                           prepared_binaries=binaries, prepared_environment=metadata)\n  File \"/tmp/source/scripts/run_b4b_task4i.py\", line 125, in execute\n    record=v2.run_measured_cell(CLIENTS,1,repeat,binaries,directory,duration=duration,warmup=warmup,planned_clients=[CLIENTS],\n        release_rate=rate,source_shards=source_shards,counter_path=directory/f'r{repeat}-host.csv',\n        **({'backend': backend} if backend is not None else {}))\n  File \"/tmp/source/scripts/run_b4b_v2.py\", line 172, in run_measured_cell\n    return backend.measure(run_cell, args, kwargs, counter_path)\n           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/source/scripts/performance/b4_linux.py\", line 198, in measure\n    record = run(*args, **kwargs, backend=child)\n  File \"/tmp/source/scripts/run_b4b_mixed_connections.py\", line 409, in run_cell\n    sample_owned(processes, samples)\n    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/source/scripts/performance/b4_linux.py\", line 84, in sample\n    self.check_cancelled()\n    ~~~~~~~~~~~~~~~~~~~~^^\n  File \"/tmp/source/scripts/performance/process_cancellation.py\", line 23, in check\n    raise InterruptedError('benchmark controller cancelled by ' + signal.Signals(self.requested).name)\nInterruptedError: benchmark controller cancelled by SIGTERM\n",
+      "traceback_truncated": false
+    }
+  },
+  {
+    "signal": "SIGINT",
+    "controller_exit": 1,
+    "after": [
+      {
+        "pid": 215,
+        "start_ticks": 133506,
+        "parent": 133,
+        "executable": "/tmp/binaries/wp8_interop_server",
+        "owned_peer_absent": true
+      },
+      {
+        "pid": 217,
+        "start_ticks": 133508,
+        "parent": 133,
+        "executable": "/tmp/binaries/perf_rust_source",
+        "owned_peer_absent": true
+      },
+      {
+        "pid": 218,
+        "start_ticks": 133713,
+        "parent": 133,
+        "executable": "/tmp/binaries/wp8_interop_server",
+        "owned_peer_absent": true
+      },
+      {
+        "pid": 221,
+        "start_ticks": 133716,
+        "parent": 133,
+        "executable": "/tmp/binaries/perf_rust_source",
+        "owned_peer_absent": true
+      }
+    ],
+    "failure": {
+      "classification": "INVALID_PARTIAL_LINUX_B4",
+      "error": "benchmark controller cancelled by SIGINT",
+      "error_type": "InterruptedError",
+      "partial_evidence_retained": true,
+      "traceback": "Traceback (most recent call last):\n  File \"/tmp/source/scripts/run_b4b_linux.py\", line 72, in execute\n    result = task4i.execute(args.output / 'campaign', offered_rates=args.offered_rates,\n                           source_shards=args.source_shards, backend=backend,\n                           prepared_binaries=binaries, prepared_environment=metadata)\n  File \"/tmp/source/scripts/run_b4b_task4i.py\", line 125, in execute\n    record=v2.run_measured_cell(CLIENTS,1,repeat,binaries,directory,duration=duration,warmup=warmup,planned_clients=[CLIENTS],\n        release_rate=rate,source_shards=source_shards,counter_path=directory/f'r{repeat}-host.csv',\n        **({'backend': backend} if backend is not None else {}))\n  File \"/tmp/source/scripts/run_b4b_v2.py\", line 172, in run_measured_cell\n    return backend.measure(run_cell, args, kwargs, counter_path)\n           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/source/scripts/performance/b4_linux.py\", line 198, in measure\n    record = run(*args, **kwargs, backend=child)\n  File \"/tmp/source/scripts/run_b4b_mixed_connections.py\", line 409, in run_cell\n    sample_owned(processes, samples)\n    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/source/scripts/performance/b4_linux.py\", line 84, in sample\n    self.check_cancelled()\n    ~~~~~~~~~~~~~~~~~~~~^^\n  File \"/tmp/source/scripts/performance/process_cancellation.py\", line 23, in check\n    raise InterruptedError('benchmark controller cancelled by ' + signal.Signals(self.requested).name)\nInterruptedError: benchmark controller cancelled by SIGINT\n",
+      "traceback_truncated": false
+    }
+  },
+  {
+    "signal": "SIGHUP",
+    "controller_exit": 1,
+    "after": [
+      {
+        "pid": 313,
+        "start_ticks": 133995,
+        "parent": 231,
+        "executable": "/tmp/binaries/wp8_interop_server",
+        "owned_peer_absent": true
+      },
+      {
+        "pid": 315,
+        "start_ticks": 133996,
+        "parent": 231,
+        "executable": "/tmp/binaries/perf_rust_source",
+        "owned_peer_absent": true
+      },
+      {
+        "pid": 316,
+        "start_ticks": 134201,
+        "parent": 231,
+        "executable": "/tmp/binaries/wp8_interop_server",
+        "owned_peer_absent": true
+      },
+      {
+        "pid": 319,
+        "start_ticks": 134204,
+        "parent": 231,
+        "executable": "/tmp/binaries/perf_rust_source",
+        "owned_peer_absent": true
+      }
+    ],
+    "failure": {
+      "classification": "INVALID_PARTIAL_LINUX_B4",
+      "error": "benchmark controller cancelled by SIGHUP",
+      "error_type": "InterruptedError",
+      "partial_evidence_retained": true,
+      "traceback": "Traceback (most recent call last):\n  File \"/tmp/source/scripts/run_b4b_linux.py\", line 72, in execute\n    result = task4i.execute(args.output / 'campaign', offered_rates=args.offered_rates,\n                           source_shards=args.source_shards, backend=backend,\n                           prepared_binaries=binaries, prepared_environment=metadata)\n  File \"/tmp/source/scripts/run_b4b_task4i.py\", line 125, in execute\n    record=v2.run_measured_cell(CLIENTS,1,repeat,binaries,directory,duration=duration,warmup=warmup,planned_clients=[CLIENTS],\n        release_rate=rate,source_shards=source_shards,counter_path=directory/f'r{repeat}-host.csv',\n        **({'backend': backend} if backend is not None else {}))\n  File \"/tmp/source/scripts/run_b4b_v2.py\", line 172, in run_measured_cell\n    return backend.measure(run_cell, args, kwargs, counter_path)\n           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/source/scripts/performance/b4_linux.py\", line 198, in measure\n    record = run(*args, **kwargs, backend=child)\n  File \"/tmp/source/scripts/run_b4b_mixed_connections.py\", line 409, in run_cell\n    sample_owned(processes, samples)\n    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/source/scripts/performance/b4_linux.py\", line 84, in sample\n    self.check_cancelled()\n    ~~~~~~~~~~~~~~~~~~~~^^\n  File \"/tmp/source/scripts/performance/process_cancellation.py\", line 23, in check\n    raise InterruptedError('benchmark controller cancelled by ' + signal.Signals(self.requested).name)\nInterruptedError: benchmark controller cancelled by SIGHUP\n",
+      "traceback_truncated": false
+    }
+  }
+]
