@@ -1,0 +1,8 @@
+{
+  "approx_removed_container_layer_bytes": 3506200576.0,
+  "approx_gib": 3.2654037475585938,
+  "host_ssd_recovery": "NOT_MEASURED",
+  "authoritative_evidence_deleted": false,
+  "source_or_git_deleted": false,
+  "initial_cleanup_inventory_query_error": "Docker top requested comm,args without PID; refused before deletion; corrected to pid,comm,args; final cleanup succeeded"
+}

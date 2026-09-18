@@ -1,0 +1,85 @@
+{
+  "reason": "Verified portable smoke/build and server-worker test evidence retained; reproducible owned container layers only",
+  "before_free_bytes": 13219573760,
+  "containers": [
+    {
+      "name": "nbsr-build-52485b1d",
+      "id": "f6f5e83f5a889f19a8056da85318d65005b2445b718830aeabbb00f5b45c23d9",
+      "status": "exited",
+      "size_rw": 26484736,
+      "mounts": [
+        {
+          "Type": "bind",
+          "Source": "C:\\NBSR-build\\linux-current-52485b1d",
+          "Destination": "/evidence",
+          "Mode": "",
+          "RW": true,
+          "Propagation": "rprivate"
+        }
+      ]
+    },
+    {
+      "name": "nbsr-b5-portable-smoke-52485b1d",
+      "id": "048a265aca8e65105bd4e71e923029b55c7cede0877d0bc7bd9097c1de7deb09",
+      "status": "exited",
+      "size_rw": 447868928,
+      "mounts": [
+        {
+          "Type": "bind",
+          "Source": "C:\\NBSR-build\\b5-portable-smoke-52485b1d",
+          "Destination": "/out",
+          "Mode": "",
+          "RW": true,
+          "Propagation": "rprivate"
+        },
+        {
+          "Type": "bind",
+          "Source": "C:\\NBSR-build\\linux-current-52485b1d",
+          "Destination": "/build",
+          "Mode": "",
+          "RW": false,
+          "Propagation": "rprivate"
+        },
+        {
+          "Type": "bind",
+          "Source": "C:\\NBSR-build\\linux-current-edc0f96d",
+          "Destination": "/old",
+          "Mode": "",
+          "RW": false,
+          "Propagation": "rprivate"
+        }
+      ]
+    },
+    {
+      "name": "nbsr-server-workers-52485b1d",
+      "id": "b567a545993e6a4a30451d89d22ac1744bf62082ee05ffaeabe9c6c3367528f7",
+      "status": "exited",
+      "size_rw": 81526784,
+      "mounts": [
+        {
+          "Type": "bind",
+          "Source": "C:\\Users\\bajra\\OneDrive\\Documents\\NBSR",
+          "Destination": "/repo",
+          "Mode": "",
+          "RW": false,
+          "Propagation": "rprivate"
+        },
+        {
+          "Type": "bind",
+          "Source": "C:\\NBSR-build\\server-workers-52485b1d",
+          "Destination": "/evidence",
+          "Mode": "",
+          "RW": true,
+          "Propagation": "rprivate"
+        }
+      ]
+    }
+  ],
+  "disposable_layer_bytes": 555880448.0,
+  "removed": [
+    "nbsr-build-52485b1d",
+    "nbsr-b5-portable-smoke-52485b1d",
+    "nbsr-server-workers-52485b1d"
+  ],
+  "after_free_bytes": 13219573760
+}

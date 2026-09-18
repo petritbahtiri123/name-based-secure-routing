@@ -1,0 +1,22 @@
+[
+  {
+    "path": "evidence/performance/v2/b5-placement-pairs-201e1d0e",
+    "index_sha256": "2a6dc6c4380b072e6315129bd351fc820c338a2c75356c26d6133a47845301cd",
+    "canonical_entries_verified": 20
+  },
+  {
+    "path": "evidence/performance/v2/b5-portable-smoke-52485b1d",
+    "index_sha256": "fec80d451bc96e0f9bd631e841ceb5d6aa37c1ccec52ad389d1af394a022477b",
+    "canonical_entries_verified": 12
+  },
+  {
+    "path": "evidence/performance/v2/server-workers-634fe1b9",
+    "index_sha256": "89f554e7ee75eb8b15835d4421c877e957148719d7d26102a974310a4a2d631f",
+    "canonical_entries_verified": 15
+  },
+  {
+    "path": "evidence/performance/v2/b1-linux-packets-6b3d37e8",
+    "index_sha256": "7ddab6ba93178a3f3412feb1c1131b1a93f24c849d43823c962621488d790773",
+    "canonical_entries_verified": 32
+  }
+]

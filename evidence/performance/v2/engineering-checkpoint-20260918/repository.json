@@ -1,0 +1,14 @@
+{
+  "start_sha": "840c326d25c82a8d01d1a52bed6034aa517b5dcf",
+  "technical_evidence_head": "dfbea41fda27c0c66d5bd28592e8d90927b44d4a",
+  "branch": "codex/nbsr-v3-wp0-wp1",
+  "main": "1938154d498b32d81a3564319969430644e8a688",
+  "origin_main": "1938154d498b32d81a3564319969430644e8a688",
+  "pushed": false,
+  "merged": false,
+  "known_unrelated_untracked": [
+    "evidence/performance/wire-overhead-b1-94a1e4a/checksums (1).sha256",
+    "evidence/performance/wire-overhead-b1-94a1e4a/commands (1).txt",
+    "evidence/performance/wire-overhead-b1-94a1e4a/summary (1).md"
+  ]
+}

@@ -19,6 +19,56 @@ flowchart LR
  O --> P[Isolated private origin]
 ```
 
+## September18 engineering follow-up
+
+The retained B3 selective-marker comparison at f8925b25 has five before/after
+pairs with 2048 materialized bundles: all ten pass lifecycle cleanup. Source
+pre-start CPU falls 56.109%, but the unchanged baseline also passes 5/5, so this
+does not prove eradication of the historical sporadic handshake failure or a
+moved capacity boundary. It is a measured benchmark-side CPU reduction, with
+no claimed memory saving. [B3 comparison](B3_SELECTIVE_MARKER_INTEGRATION.md).
+
+MEASURED diagnostic at 201e1d0e: five paired 300-second shared/split guest-CPU
+runs show median steady-window p99 falling from 1.552181 to 1.083359 ms
+(-30.2041%). This allocates two guest CPUs instead of one shared CPU and raises
+summed process CPU by 17.0712%; it is not a same-resource production speedup.
+All ten runs complete without errors/timeouts and both peers' final eleven
+ownership counters are zero, but **0/5 runs in either arm pass every existing
+drift gate**. No stable-capacity increase or qualified soak follows.
+[Placement evidence](B5_PLACEMENT_DIAGNOSTIC.md).
+
+The remaining WSL latency/private-residency cause is PLATFORM_DIAGNOSTIC_LIMIT.
+More invasive local observers are not justified by the retained distortion
+results. A portable, exact-source paired driver is available for native
+validation; its short Docker mechanics smoke is not performance evidence.
+[Native procedure](B5_NATIVE_PLACEMENT_VALIDATION.md).
+
+Benchmark-only worker selection now supports 8/16/32 in addition to 1/2/4.
+Runtime construction/task completion and topology rejection tests pass, but
+8/16/32-core performance is EXTERNAL_HARDWARE_REQUIRED. No server scaling
+efficiency is claimed. [Worker preparation](EXTERNAL_SERVER_WORKER_SCALES.md).
+
+Linux packet accounting now has an exact client PID/socket-inode check and
+distinct captured readiness/terminal markers. These prevent mistaken flow
+ownership and loss of buffered final packets when stopping capture. This is
+a harness change; it does not change NBSR security or wire semantics.
+[Packet procedure and scope](B1_LINUX_PACKET_ACCOUNTING.md).
+
+At 6b3d37e8, the formal Docker/WSL B1 cohort completes all 20 captures with
+zero workload errors/timeouts and zero reported capture loss. Median paired
+whole-capture IP-byte deltas, divided by useful application bytes, are +0.910118%
+for 1 KiB / 64 streams and -0.044751% for 16 KiB / 8 streams. Setup and untimed
+validation/teardown are included in the capture, not the useful-byte denominator.
+The separate established relay delta crosses zero for 16 KiB. These figures
+are not a constant protocol tax, throughput result or physical-wire measurement.
+The earlier capture with 845 pcap drops is preserved as INVALID_PARTIAL.
+[Linux packet evidence](../../evidence/performance/v2/b1-linux-packets-6b3d37e8/summary.md).
+
+The historical scoreboard below is retained with its own source/workload scope.
+It is not recertified at the latest engineering SHA. Final whole-campaign
+acceptance, a qualified 60/120-minute soak and native server validation remain
+open; this document remains a working brief.
+
 ## September9 closure caveat
 
 The full quality checkpoint finds a pre-existing independent federation package
@@ -147,10 +197,13 @@ at3.235685 Gbit/s; its separate 70% paced preflight fails p99 drift at150seconds
 This is observed Docker/WSL short-run evidence, not sustained/server capacity.
 Windows07096c08 reproduces1.050835 Gbit/s STABLE for the one-physical-core
 16KiB/eight-stream finite shape, but its short paced preflight also fails.
-The2048 live-bundle attempt fails handshake progress;1024 remains the largest
-accepted active-bundle count. See LINUX_SEPTEMBER8_REQUALIFICATION.md and
-B5_WINDOWS_REQUALIFICATION_07096C08.md. A B4-only Linux exiting-process observer
-repair is regression-tested; its post-fix admission rerun remains in progress.
+That stage's initial 2048-bundle attempt failed handshake progress. Later
+0124f8ad two/four-guest-CPU series and the f8925b25 matched one-guest-CPU series
+completed 2048-bundle runs, as scoped above; the original failure remains.
+See LINUX_SEPTEMBER8_REQUALIFICATION.md and B5_WINDOWS_REQUALIFICATION_07096C08.md.
+The B4-only Linux exiting-process observer repair's post-fix admission ladder
+completed at 2a30272e; its finite 125/150/200 stable/degraded/saturated cells are
+reported above. Neither update proves a host or production ceiling.
 
 Current campaign recommendation: **MORE ENGINEERING REQUIRED**. This brief is
 not a readiness endorsement and must be rewritten around the final accepted

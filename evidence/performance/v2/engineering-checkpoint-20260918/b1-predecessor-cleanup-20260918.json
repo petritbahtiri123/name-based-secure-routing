@@ -1,0 +1,25 @@
+{
+  "removed": [
+    {
+      "name": "nbsr-build-eb4b0608",
+      "id": "2c01dc9a41724a7b495d164556dae40149b130c16821890927e41be95beffb60",
+      "size_rw": 26484736,
+      "state": "exited"
+    },
+    {
+      "name": "nbsr-b1-smoke-eb4b0608",
+      "id": "f5c8a7a169c5b227af850855aa289eab94bb5db3563a7bbcc62abb814d6e4557",
+      "size_rw": 447983616,
+      "state": "exited"
+    },
+    {
+      "name": "nbsr-b1-formal-eb4b0608",
+      "id": "af0dda7f05a5b9700ffdb537cf0877b414da2972ab32571ad600c554b59f76f9",
+      "size_rw": 447983616,
+      "state": "exited"
+    }
+  ],
+  "approx_layer_bytes": 922451968,
+  "reason": "stopped campaign containers; generated builds/checkouts only; all bind-mounted raw evidence and source bundles retained and checksums verified",
+  "host_ssd_recovery": "NOT_MEASURED; Docker VHD may retain blocks"
+}

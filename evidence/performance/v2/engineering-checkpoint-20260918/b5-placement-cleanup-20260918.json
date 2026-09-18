@@ -1,0 +1,143 @@
+{
+  "reason": "Stopped owned source/build containers; canonical and all raw indexes verified before removal; bind-mounted evidence retained",
+  "before_free_bytes": 13229113344,
+  "containers": [
+    {
+      "name": "nbsr-build-5e0b94dd",
+      "id": "f74cd670d4c626717622d41512ab657971fdf2b9a17e273f657b8665300dabf7",
+      "status": "exited",
+      "size_rw": 26484736,
+      "mounts": [
+        {
+          "Type": "bind",
+          "Source": "C:\\NBSR-build\\linux-current-5e0b94dd",
+          "Destination": "/evidence",
+          "Mode": "",
+          "RW": true,
+          "Propagation": "rprivate"
+        }
+      ]
+    },
+    {
+      "name": "nbsr-b5-placement-5e0b94dd",
+      "id": "8194558a7a2382adf9cce1e7f95a3ff1ff56e9d232fe12821945143cf5845541",
+      "status": "exited",
+      "size_rw": 426676224,
+      "mounts": [
+        {
+          "Type": "bind",
+          "Source": "C:\\NBSR-build\\linux-current-edc0f96d",
+          "Destination": "/old",
+          "Mode": "",
+          "RW": false,
+          "Propagation": "rprivate"
+        },
+        {
+          "Type": "bind",
+          "Source": "C:\\NBSR-build\\b5-placement-5e0b94dd",
+          "Destination": "/out",
+          "Mode": "",
+          "RW": true,
+          "Propagation": "rprivate"
+        },
+        {
+          "Type": "bind",
+          "Source": "C:\\NBSR-build\\linux-current-5e0b94dd",
+          "Destination": "/build",
+          "Mode": "",
+          "RW": false,
+          "Propagation": "rprivate"
+        }
+      ]
+    },
+    {
+      "name": "nbsr-b5-placement-pairs-5e0b94dd",
+      "id": "7b057cbada3d84ff58966301ae39f8962f1a9c0739e8b4ea0d39c1a75c680fcc",
+      "status": "exited",
+      "size_rw": 447803392,
+      "mounts": [
+        {
+          "Type": "bind",
+          "Source": "C:\\NBSR-build\\b5-placement-pairs-5e0b94dd",
+          "Destination": "/out",
+          "Mode": "",
+          "RW": true,
+          "Propagation": "rprivate"
+        },
+        {
+          "Type": "bind",
+          "Source": "C:\\NBSR-build\\linux-current-5e0b94dd",
+          "Destination": "/build",
+          "Mode": "",
+          "RW": false,
+          "Propagation": "rprivate"
+        },
+        {
+          "Type": "bind",
+          "Source": "C:\\NBSR-build\\linux-current-edc0f96d",
+          "Destination": "/old",
+          "Mode": "",
+          "RW": false,
+          "Propagation": "rprivate"
+        }
+      ]
+    },
+    {
+      "name": "nbsr-build-201e1d0e",
+      "id": "a52d6051cb2abada42db09ac6ade378a47d70ab26b5932a19b95c64c479beb78",
+      "status": "exited",
+      "size_rw": 26484736,
+      "mounts": [
+        {
+          "Type": "bind",
+          "Source": "C:\\NBSR-build\\linux-current-201e1d0e",
+          "Destination": "/evidence",
+          "Mode": "",
+          "RW": true,
+          "Propagation": "rprivate"
+        }
+      ]
+    },
+    {
+      "name": "nbsr-b5-placement-pairs-201e1d0e",
+      "id": "e0fd93e9582b35c8e8d3d30949efdba5e3a5e0ce87d0c881e0863bed51874e48",
+      "status": "exited",
+      "size_rw": 447811584,
+      "mounts": [
+        {
+          "Type": "bind",
+          "Source": "C:\\NBSR-build\\linux-current-201e1d0e",
+          "Destination": "/build",
+          "Mode": "",
+          "RW": false,
+          "Propagation": "rprivate"
+        },
+        {
+          "Type": "bind",
+          "Source": "C:\\NBSR-build\\linux-current-edc0f96d",
+          "Destination": "/old",
+          "Mode": "",
+          "RW": false,
+          "Propagation": "rprivate"
+        },
+        {
+          "Type": "bind",
+          "Source": "C:\\NBSR-build\\b5-placement-pairs-201e1d0e",
+          "Destination": "/out",
+          "Mode": "",
+          "RW": true,
+          "Propagation": "rprivate"
+        }
+      ]
+    }
+  ],
+  "disposable_layer_bytes": 1375260672.0,
+  "removed": [
+    "nbsr-build-5e0b94dd",
+    "nbsr-b5-placement-5e0b94dd",
+    "nbsr-b5-placement-pairs-5e0b94dd",
+    "nbsr-build-201e1d0e",
+    "nbsr-b5-placement-pairs-201e1d0e"
+  ],
+  "after_free_bytes": 13229113344
+}

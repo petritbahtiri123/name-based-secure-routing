@@ -1,0 +1,25 @@
+{
+  "removed": [
+    {
+      "name": "nbsr-build-6b3d37e8",
+      "id": "90e029c9e0f2fea35f550ccf969b37d85d750cfd8ae6f6e56822d56bf3cf93b1",
+      "size_rw": 26484736,
+      "prior_state": "exited"
+    },
+    {
+      "name": "nbsr-b1-formal-6b3d37e8",
+      "id": "d58ff3aa387ad25ec602046c485fd1bda7e165a69ca10b64539c8f41a3996176",
+      "size_rw": 447979520,
+      "prior_state": "exited"
+    },
+    {
+      "name": "nbsr-linux-capture-tools-16f800f3",
+      "id": "c3301cab393bf12e96c1c73e2ca54eac9788947415bff6aac6094442446d58f8",
+      "size_rw": 178143232,
+      "prior_state": "running"
+    }
+  ],
+  "approx_layer_bytes": 652607488,
+  "reason": "finished owned builds/capture campaign and idle capture-tools sleep; retained build/capture images and all checksummed authoritative raw outputs; 423 raw entries verified before cleanup",
+  "host_ssd_recovery": "NOT_MEASURED; Docker VHD may retain blocks"
+}
