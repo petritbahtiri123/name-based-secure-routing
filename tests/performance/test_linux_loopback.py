@@ -13,6 +13,23 @@ from scripts.performance.linux_loopback import (
 
 
 class LinuxLoopbackTests(unittest.TestCase):
+    def test_server_scale_matrix_preserves_physical_core_selection_and_worker_symmetry(self):
+        matrix = {'schema': 'nbsr-linux-loopback-v1', 'cores': [8, 16, 32],
+                  'workloads': [{'payload_bytes': 16384, 'streams': 8, 'outstanding': 1}],
+                  'warmup_seconds': 3, 'duration_seconds': 20}
+        validate_matrix(matrix)
+        topology = {'cpus': [dict(cpu=n, core=n // 2, socket=0, node=0, online=True)
+                             for n in range(64)]}
+        selected = physical_cpu_sets(topology, set(range(64)), matrix['cores'])
+        assert selected[32] == list(range(0, 64, 2))
+        for cell in expand_matrix(matrix):
+            server, client, _ = build_commands(cell, Path('/bin'), Path('/authority'),
+                Path('/raw'), '127.0.0.1:1234', 3, 20)
+            for command in (server, client):
+                assert command[command.index('--p2a-runtime-workers') + 1] == str(cell['cores'])
+        with self.assertRaises(ValueError):
+            physical_cpu_sets(topology, set(range(32)), [32])
+
     def test_physical_selection_ignores_smt_and_uses_one_numa_node(self):
         topology = {"cpus": [
             {"cpu": "0", "core": "0", "socket": "0", "node": "0", "online": "yes"},

@@ -20,7 +20,7 @@ python3 scripts/run_b4b_linux.py --help
 python3 -m scripts.performance.linux_b5_reference --help
 ```
 
-6. The Linux sustained CLI is now authored; use the exact reference-bound example in LINUX_B5_REFERENCE.md. Current Rust/QUIC execution and observer qualification remain pending. The full wire/multihost executors are still absent, with null matrix commands and named missing work. Complete and validate these gaps before declaring end-to-end definition readiness.
+6. The Linux sustained CLI has executed Rust/QUIC workloads in Docker/WSL; use the exact reference-bound example in LINUX_B5_REFERENCE.md. A qualified sustained cohort, accepted observer qualification and dedicated native-server execution remain pending. The full wire/multihost executors are still absent, with null matrix commands and named missing work. Complete and validate these gaps before declaring end-to-end definition readiness.
 
 ## Cell and acceptance rules
 
@@ -34,9 +34,22 @@ Packet accounting uses fixed operation counts and separate timed runs if capture
 
 ## Evidence and unresolved delivery
 
-Each external root is `evidence/performance/v2/server-linux-{start_sha_12}-{host_id}/`, with raw, commands, telemetry and analysis directories. Retain failed partial runs, per-role commands and affinity, host inventory, completed/offered counters, latency windows, CPU, memory/ownership, cleanup, NIC/capture records, source/binary/controller manifests and SHA-256 indexes. Record an index checksum separately. Existing schemas are referenced by the implemented runners; portable sustained/wire schemas still require implementation and tests.
+Each external root is `evidence/performance/v2/server-linux-{start_sha_12}-{host_id}/`, with raw, commands, telemetry and analysis directories. Retain failed partial runs, per-role commands and affinity, host inventory, completed/offered counters, latency windows, CPU, memory/ownership, cleanup, NIC/capture records, source/binary/controller manifests and SHA-256 indexes. Record an index checksum separately. Existing schemas are referenced by the implemented runners; dedicated-interface wire orchestration/accounting and full-matrix integration remain unfinished.
 
-Remaining definition blockers are implementation work, not merely unavailable hardware: sustained Linux B5 nonreaping lifecycle/sampling, observer qualification, dedicated-interface packet orchestration, resource-axis coverage and full multihost/8+core matrix execution. Server execution separately requires external hardware. Definition PASS does not imply execution PASS; both remain unearned here.
+Remaining definition blockers are implementation/qualification work, not merely unavailable hardware: observer qualification, dedicated-interface packet orchestration, resource-axis coverage and full multihost/8+core matrix execution. Linux lifecycle/sampling adapters have been implemented and exercised; do not list their existence as unimplemented. Sustained acceptance remains pending. Server execution separately requires external hardware. Definition PASS does not imply execution PASS; both remain unearned here.
+
+The 2026-09-09 checkpoint records the executed finite reference, admission ladder,
+2048-bundle VM scale and failed soak preflights. Later failure-only diagnostics
+are documented in B3_FAILURE_MARKER_TIMING.md and B5_RETAINED_FAILURE_DIAGNOSTIC.md.
+Retaining a failed B5 trajectory cannot satisfy an external soak acceptance gate.
+
+The later portable B5 placement runner has a ten-cell Docker mechanics smoke;
+see `B5_NATIVE_PLACEMENT_VALIDATION.md` for the native command and limitations.
+Finite single-group loopback interfaces now accept 8/16/32 workers/cores using
+`linux-server-loopback-finite.json`; see `EXTERNAL_SERVER_WORKER_SCALES.md`.
+This removes the old 1/2/4-only CLI restriction, not the unavailable-hardware
+or full-matrix gates. Existing corrections distinguishing executed Docker Rust
+work from unexecuted dedicated-server acceptance are preserved here.
 
 ## Definition verification
 

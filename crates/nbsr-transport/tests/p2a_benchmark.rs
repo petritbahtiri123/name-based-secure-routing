@@ -94,6 +94,34 @@ fn runtime_workers_default_to_one_and_accept_only_scaling_cells() {
 }
 
 #[test]
+fn server_scale_runtime_workers_build_and_complete_tasks() {
+    use nbsr_transport::p2a_benchmark::build_benchmark_runtime;
+    for workers in [8, 16, 32] {
+        let count = workers.to_string();
+        assert_eq!(
+            parse_runtime_workers(["bench", "--p2a-runtime-workers", count.as_str()]),
+            Ok(workers)
+        );
+        let runtime = build_benchmark_runtime(workers).expect("server-scale runtime");
+        assert_eq!(runtime.metrics().num_workers(), workers);
+        let completed = runtime.block_on(async {
+            let tasks: Vec<_> = (0..64)
+                .map(|value| tokio::spawn(async move { value }))
+                .collect();
+            let mut sum = 0;
+            for task in tasks {
+                sum += task.await.expect("benchmark task joined");
+            }
+            sum
+        });
+        assert_eq!(completed, (0..64).sum::<usize>());
+    }
+    for value in ["0", "3", "6", "64"] {
+        assert!(parse_runtime_workers(["bench", "--p2a-runtime-workers", value]).is_err());
+    }
+}
+
+#[test]
 fn group_count_defaults_to_one_and_accepts_only_scaling_cells() {
     assert_eq!(parse_group_count(["bench"]), Ok(1));
     for (value, expected) in [("1", 1), ("2", 2), ("4", 4)] {

@@ -4,6 +4,11 @@ Status: **NOT_RUN / EXTERNAL_HARDWARE_REQUIRED**. No usable external host, physi
 
 Contract: [funding-grade V2 plan, Task 8](../superpowers/plans/2026-08-30-funding-grade-benchmark-v2.md). Frozen protocol, trust, authority, admission, and wire semantics remain unchanged. No application payload before ACCEPT. This file contains proposed execution requirements, not measurements.
 
+Additional executable subsets: [paired B5 placement diagnostic](B5_NATIVE_PLACEMENT_VALIDATION.md)
+and [8/16/32 worker-scale preparation](EXTERNAL_SERVER_WORKER_SCALES.md). Their
+mechanics/interface validation does not close native hardware, full wire/multihost
+or sustained-stability acceptance.
+
 ## Host and build gates
 
 - Use a dedicated bare-metal Linux server for loopback controls and two dedicated servers connected by a documented 10 GbE-or-faster path for external cells. Record unavailable core counts as NOT_RUN; a VM or container cannot establish bare-metal capacity without explicit qualification.

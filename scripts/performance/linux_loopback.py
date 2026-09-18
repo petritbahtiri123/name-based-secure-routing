@@ -44,8 +44,8 @@ def validate_matrix(matrix):
     cores = matrix["cores"]
     if not isinstance(cores, list) or not cores or len(set(cores)) != len(cores):
         raise ValueError("core counts must be unique and nonempty")
-    if any(type(c) is not int or c not in (1, 2, 4) for c in cores):
-        raise ValueError("this runner supports only 1/2/4 physical cores")
+    if any(type(c) is not int or c not in (1, 2, 4, 8, 16, 32) for c in cores):
+        raise ValueError("this runner supports only 1/2/4/8/16/32 physical cores")
     for key, minimum in (("warmup_seconds", 3), ("duration_seconds", 20)):
         value = matrix[key]
         if type(value) not in (int, float) or not math.isfinite(value) or not minimum <= value <= 3600:

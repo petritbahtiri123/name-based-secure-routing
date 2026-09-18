@@ -301,9 +301,11 @@
       "command": "python3 -m scripts.performance.linux_loopback --help",
       "sources": [
         "scripts/performance/linux_loopback.py",
-        "docs/benchmarks/EXTERNAL_LINUX_SERVER_VALIDATION.md"
+        "docs/benchmarks/EXTERNAL_LINUX_SERVER_VALIDATION.md",
+        "docs/benchmarks/EXTERNAL_SERVER_WORKER_SCALES.md",
+        "config/benchmarks/linux-server-loopback-finite.json"
       ],
-      "scope": "CLI help is interface discovery, not a benchmark; existing runner subset1/2/4cores only; older Docker compatibility is separate historical evidence"
+      "scope": "CLI help is interface discovery; finite single-group runner supports 1/2/4/8/16/32 reported physical cores, with one-NUMA/no-SMT selection; 8+ physical-core performance remains unexecuted"
     },
     "two_host_finite": {
       "status": "AUTHORED_UNEXECUTED",
@@ -337,7 +339,7 @@
         "scripts/performance/linux_b5_reference.py",
         "docs/benchmarks/LINUX_B5_REFERENCE.md"
       ],
-      "scope": "one core,onegroup strict finite reference; exactcurrentLinuxrun pending"
+      "scope": "one core/one group finite reference executed in Docker/WSL at recorded SHAs; dedicated native-server execution and fresh per-campaign calibration remain required"
     },
     "linux_sustained_b5": {
       "status": "PARTIAL",
@@ -347,7 +349,7 @@
         "scripts/performance/linux_b5_backend.py",
         "docs/benchmarks/LINUX_B5_REFERENCE.md"
       ],
-      "missing": "current-source Rust/QUIC execution and matched observer qualification; dedicated server evidence",
+      "missing": "qualified sustained cohort and matched observer qualification; dedicated native-server evidence (Rust/QUIC execution already exercised in Docker/WSL)",
       "scope": "single-core/group CLI authored; reference-bound accounting is never an automatic stable-soak claim"
     },
     "linux_wire_matrix": {
@@ -355,10 +357,19 @@
       "command": null,
       "missing": "bounded dedicated-interface capture orchestration, phase accounting, loss validation, paired byte analysis"
     },
+    "linux_b5_placement_diagnostic": {
+      "status": "PARTIAL",
+      "command": "python3 -m scripts.performance.linux_b5_placement --help",
+      "sources": [
+        "scripts/performance/linux_b5_placement.py",
+        "docs/benchmarks/B5_NATIVE_PLACEMENT_VALIDATION.md"
+      ],
+      "scope": "portable counterbalanced shared/split pairs; Docker mechanics verified, native/server execution and sustained acceptance unproven"
+    },
     "full_matrix_executor": {
       "status": "NOT_IMPLEMENTED",
       "command": null,
-      "missing": "physical-core8/16/32 and multihost orchestration for all workload classes; no tool consumes this definition as a complete executable matrix"
+      "missing": "multihost orchestration for all workload classes and 8/16/32 coverage beyond finite single-group loopback; no tool consumes this definition as a complete executable matrix"
     }
   }
 }

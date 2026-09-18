@@ -44,7 +44,7 @@ where
         if argument.as_ref() == "--p2a-runtime-workers" {
             let value = arguments.next().ok_or(RuntimeWorkerError::MissingValue)?;
             return match value.as_ref().parse::<usize>() {
-                Ok(workers @ (1 | 2 | 4)) => Ok(workers),
+                Ok(workers @ (1 | 2 | 4 | 8 | 16 | 32)) => Ok(workers),
                 _ => Err(RuntimeWorkerError::InvalidValue),
             };
         }
@@ -141,7 +141,7 @@ pub fn build_benchmark_runtime(
 ) -> Result<tokio::runtime::Runtime, RuntimeWorkerError> {
     let mut builder = if workers == 1 {
         tokio::runtime::Builder::new_current_thread()
-    } else if matches!(workers, 2 | 4) {
+    } else if matches!(workers, 2 | 4 | 8 | 16 | 32) {
         let mut builder = tokio::runtime::Builder::new_multi_thread();
         builder.worker_threads(workers);
         builder
