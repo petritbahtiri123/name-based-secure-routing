@@ -1,0 +1,22 @@
+{
+  "classification": "CONFIRMED_REFERENCE_PEERS_ORPHANED_BY_CONTROLLER_SIGTERM",
+  "controller_exit": 143,
+  "observations": [
+    {
+      "pid": 92,
+      "start_ticks": 46596,
+      "parent": 29,
+      "executable": "/tmp/binaries/perf_direct_peer",
+      "parent_after": 1,
+      "state": "R"
+    },
+    {
+      "pid": 93,
+      "start_ticks": 46600,
+      "parent": 29,
+      "executable": "/tmp/binaries/perf_direct_peer",
+      "parent_after": 1,
+      "state": "R"
+    }
+  ]
+}

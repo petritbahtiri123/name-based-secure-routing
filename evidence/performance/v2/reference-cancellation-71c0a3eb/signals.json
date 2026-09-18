@@ -1,0 +1,98 @@
+[
+  {
+    "signal": "SIGTERM",
+    "controller_exit": 1,
+    "injection": {
+      "controller_pid": 29,
+      "signal": "SIGTERM"
+    },
+    "after": [
+      {
+        "pid": 86,
+        "start_ticks": 73355,
+        "role": "server",
+        "owned_peer_absent": true
+      },
+      {
+        "pid": 87,
+        "start_ticks": 73358,
+        "role": "client",
+        "owned_peer_absent": true
+      }
+    ],
+    "record": {
+      "classification": "FAIL",
+      "error": "benchmark controller cancelled by SIGTERM",
+      "error_type": "InterruptedError",
+      "path": "direct",
+      "repeat": 1,
+      "traceback": "Traceback (most recent call last):\n  File \"/tmp/source/scripts/performance/linux_b5_reference.py\", line 265, in run_cell\n    observe(role, sink)\n    ~~~~~~~^^^^^^^^^^^^\n  File \"/tmp/source/scripts/performance/linux_b5_reference.py\", line 201, in observe\n    check_cancelled()\n    ~~~~~~~~~~~~~~~^^\n  File \"/tmp/source/scripts/performance/process_cancellation.py\", line 23, in check\n    raise InterruptedError('benchmark controller cancelled by ' + signal.Signals(self.requested).name)\nInterruptedError: benchmark controller cancelled by SIGTERM\n",
+      "traceback_truncated": false,
+      "valid": false
+    }
+  },
+  {
+    "signal": "SIGINT",
+    "controller_exit": 1,
+    "injection": {
+      "controller_pid": 102,
+      "signal": "SIGINT"
+    },
+    "after": [
+      {
+        "pid": 159,
+        "start_ticks": 73613,
+        "role": "server",
+        "owned_peer_absent": true
+      },
+      {
+        "pid": 160,
+        "start_ticks": 73616,
+        "role": "client",
+        "owned_peer_absent": true
+      }
+    ],
+    "record": {
+      "classification": "FAIL",
+      "error": "benchmark controller cancelled by SIGINT",
+      "error_type": "InterruptedError",
+      "path": "direct",
+      "repeat": 1,
+      "traceback": "Traceback (most recent call last):\n  File \"/tmp/source/scripts/performance/linux_b5_reference.py\", line 265, in run_cell\n    observe(role, sink)\n    ~~~~~~~^^^^^^^^^^^^\n  File \"/tmp/source/scripts/performance/linux_b5_reference.py\", line 201, in observe\n    check_cancelled()\n    ~~~~~~~~~~~~~~~^^\n  File \"/tmp/source/scripts/performance/process_cancellation.py\", line 23, in check\n    raise InterruptedError('benchmark controller cancelled by ' + signal.Signals(self.requested).name)\nInterruptedError: benchmark controller cancelled by SIGINT\n",
+      "traceback_truncated": false,
+      "valid": false
+    }
+  },
+  {
+    "signal": "SIGHUP",
+    "controller_exit": 1,
+    "injection": {
+      "controller_pid": 176,
+      "signal": "SIGHUP"
+    },
+    "after": [
+      {
+        "pid": 233,
+        "start_ticks": 74015,
+        "role": "server",
+        "owned_peer_absent": true
+      },
+      {
+        "pid": 234,
+        "start_ticks": 74028,
+        "role": "client",
+        "owned_peer_absent": true
+      }
+    ],
+    "record": {
+      "classification": "FAIL",
+      "error": "benchmark controller cancelled by SIGHUP",
+      "error_type": "InterruptedError",
+      "path": "direct",
+      "repeat": 1,
+      "traceback": "Traceback (most recent call last):\n  File \"/tmp/source/scripts/performance/linux_b5_reference.py\", line 265, in run_cell\n    observe(role, sink)\n    ~~~~~~~^^^^^^^^^^^^\n  File \"/tmp/source/scripts/performance/linux_b5_reference.py\", line 201, in observe\n    check_cancelled()\n    ~~~~~~~~~~~~~~~^^\n  File \"/tmp/source/scripts/performance/process_cancellation.py\", line 23, in check\n    raise InterruptedError('benchmark controller cancelled by ' + signal.Signals(self.requested).name)\nInterruptedError: benchmark controller cancelled by SIGHUP\n",
+      "traceback_truncated": false,
+      "valid": false
+    }
+  }
+]

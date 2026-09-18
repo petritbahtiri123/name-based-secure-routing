@@ -1,0 +1,347 @@
+..............................................F.F....................... [ 80%]
+........FFF.......                                                       [100%]
+================================== FAILURES ===================================
+_ test_cancelled_reference_reaps_registered_children_without_ack[final-observation] _
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1078/test_cancelled_reference_reaps2')
+point = 'final-observation'
+
+    @pytest.mark.parametrize("point", ["server-launch", "client-launch", "final-observation"])
+    def test_cancelled_reference_reaps_registered_children_without_ack(tmp_path, point):
+        processes = []
+        requested = False
+    
+        class Process:
+            def __init__(self, argv, **kwargs):
+                nonlocal requested
+                self.pid = 11 + len(processes)
+                self.returncode = None
+                self.joined = False
+                processes.append(self)
+                if "--ready" in argv:
+                    Path(argv[argv.index("--ready") + 1]).write_text(json.dumps({"endpoint": "127.0.0.1:42"}))
+                    requested = point == "server-launch"
+                else:
+                    requested = point == "client-launch"
+    
+            def poll(self):
+                return self.returncode
+    
+            def kill(self):
+                self.returncode = -9
+    
+            def wait(self, timeout):
+                self.joined = True
+                return self.returncode
+    
+        def check():
+            if requested:
+                raise InterruptedError("test controller cancellation")
+    
+        def sample(pid, cpus):
+            nonlocal requested
+            if pid == 12:
+                requested = True
+            return dict(pid=pid, start_ticks=pid, state="Z" if pid == 12 else "S",
+                        cpu_ns=1, timestamp_ns=1, affinity=cpus)
+    
+        raw = tmp_path / "raw"
+        row = reference.run_cell(cell(), 1, Path("/bin"), tmp_path / "authority", raw,
+            [0], "/usr/bin/taskset", warmup=3, duration=20, sample_fn=sample,
+            popen=Process, exec_check=lambda *args: None, check_cancelled=check)
+        assert row["valid"] is False and row["classification"] == "FAIL"
+>       assert row["error_type"] == "InterruptedError"
+E       AssertionError: assert 'RuntimeError' == 'InterruptedError'
+E         
+E         - InterruptedError
+E         + RuntimeError
+
+tests\performance\test_linux_b5_reference.py:349: AssertionError
+____________ test_exact_rational_load_remains_observer_unqualified ____________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1078/test_exact_rational_load_remai0')
+
+    def test_exact_rational_load_remains_observer_unqualified(tmp_path):
+        binaries = fixture(tmp_path)
+>       value = load(tmp_path, binaries)
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\performance\test_linux_b5_ceiling.py:199: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\performance\test_linux_b5_ceiling.py:192: in load
+    return ceiling.load_reference(
+scripts\performance\linux_b5_ceiling.py:202: in load_reference
+    require(set(env.get("source_sha256", {})) == set(SOURCE_PATHS), "missing source provenance")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False, reason = 'missing source provenance'
+
+    def require(condition, reason):
+        if not condition:
+>           raise ValueError(reason)
+E           ValueError: missing source provenance
+
+scripts\performance\linux_b5_ceiling.py:22: ValueError
+_________ test_first_three_dispersion_requires_five_on_both_paths[3] __________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1078/test_first_three_dispersion_re0')
+nbsr_repeats = 3
+
+    @pytest.mark.parametrize("nbsr_repeats", [3, 4, 5])
+    def test_first_three_dispersion_requires_five_on_both_paths(tmp_path, nbsr_repeats):
+        binaries = fixture(tmp_path)
+        rows = json.loads((tmp_path / "records.json").read_text())
+        for path, count in [("direct", 5), ("nbsr", nbsr_repeats)]:
+            template = next(r for r in rows if r["path"] == path)
+            for repeat in range(4, count + 1):
+                row = json.loads(json.dumps(template))
+                old = tmp_path / row["raw_directory"]
+                row["raw_directory"] = f"raw/{path}-d1-r{repeat}"
+                row["repeat"] = repeat
+                shutil.copytree(old, tmp_path / row["raw_directory"])
+                copied_commands = tmp_path / row["raw_directory"] / "commands.json"
+                vectors = json.loads(copied_commands.read_text())
+                for role in ("server", "client"):
+                    vectors[role] = [v.replace(str(old), str(tmp_path / row["raw_directory"])) for v in vectors[role]]
+                write(copied_commands, vectors)
+                rows.append(row)
+        for row in rows:
+            if row["path"] == "direct":
+                record = row["binary_record"] | {"completed_operations": {1: 94, 2: 100, 3: 106}.get(row["repeat"], 100)}
+                row.update(
+                    finish_record(
+                        dict(path="direct", cores=1, payload_bytes=16384, streams=1, outstanding=1), row["repeat"], record, cleanup_pass=True
+                    )
+                )
+                write(tmp_path / row["raw_directory"] / "client.stdout", record)
+        write(tmp_path / "records.json", rows)
+        index(tmp_path)
+        if nbsr_repeats == 5:
+            assert load(tmp_path, binaries)["reference_repeats"] == 5
+        else:
+            with pytest.raises(ValueError, match="repeat"):
+>               load(tmp_path, binaries)
+
+tests\performance\test_linux_b5_ceiling.py:384: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\performance\test_linux_b5_ceiling.py:192: in load
+    return ceiling.load_reference(
+scripts\performance\linux_b5_ceiling.py:202: in load_reference
+    require(set(env.get("source_sha256", {})) == set(SOURCE_PATHS), "missing source provenance")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False, reason = 'missing source provenance'
+
+    def require(condition, reason):
+        if not condition:
+>           raise ValueError(reason)
+E           ValueError: missing source provenance
+
+scripts\performance\linux_b5_ceiling.py:22: ValueError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1078/test_first_three_dispersion_re0')
+nbsr_repeats = 3
+
+    @pytest.mark.parametrize("nbsr_repeats", [3, 4, 5])
+    def test_first_three_dispersion_requires_five_on_both_paths(tmp_path, nbsr_repeats):
+        binaries = fixture(tmp_path)
+        rows = json.loads((tmp_path / "records.json").read_text())
+        for path, count in [("direct", 5), ("nbsr", nbsr_repeats)]:
+            template = next(r for r in rows if r["path"] == path)
+            for repeat in range(4, count + 1):
+                row = json.loads(json.dumps(template))
+                old = tmp_path / row["raw_directory"]
+                row["raw_directory"] = f"raw/{path}-d1-r{repeat}"
+                row["repeat"] = repeat
+                shutil.copytree(old, tmp_path / row["raw_directory"])
+                copied_commands = tmp_path / row["raw_directory"] / "commands.json"
+                vectors = json.loads(copied_commands.read_text())
+                for role in ("server", "client"):
+                    vectors[role] = [v.replace(str(old), str(tmp_path / row["raw_directory"])) for v in vectors[role]]
+                write(copied_commands, vectors)
+                rows.append(row)
+        for row in rows:
+            if row["path"] == "direct":
+                record = row["binary_record"] | {"completed_operations": {1: 94, 2: 100, 3: 106}.get(row["repeat"], 100)}
+                row.update(
+                    finish_record(
+                        dict(path="direct", cores=1, payload_bytes=16384, streams=1, outstanding=1), row["repeat"], record, cleanup_pass=True
+                    )
+                )
+                write(tmp_path / row["raw_directory"] / "client.stdout", record)
+        write(tmp_path / "records.json", rows)
+        index(tmp_path)
+        if nbsr_repeats == 5:
+            assert load(tmp_path, binaries)["reference_repeats"] == 5
+        else:
+>           with pytest.raises(ValueError, match="repeat"):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AssertionError: Regex pattern did not match.
+E            Regex: 'repeat'
+E            Input: 'missing source provenance'
+
+tests\performance\test_linux_b5_ceiling.py:383: AssertionError
+_________ test_first_three_dispersion_requires_five_on_both_paths[4] __________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1078/test_first_three_dispersion_re1')
+nbsr_repeats = 4
+
+    @pytest.mark.parametrize("nbsr_repeats", [3, 4, 5])
+    def test_first_three_dispersion_requires_five_on_both_paths(tmp_path, nbsr_repeats):
+        binaries = fixture(tmp_path)
+        rows = json.loads((tmp_path / "records.json").read_text())
+        for path, count in [("direct", 5), ("nbsr", nbsr_repeats)]:
+            template = next(r for r in rows if r["path"] == path)
+            for repeat in range(4, count + 1):
+                row = json.loads(json.dumps(template))
+                old = tmp_path / row["raw_directory"]
+                row["raw_directory"] = f"raw/{path}-d1-r{repeat}"
+                row["repeat"] = repeat
+                shutil.copytree(old, tmp_path / row["raw_directory"])
+                copied_commands = tmp_path / row["raw_directory"] / "commands.json"
+                vectors = json.loads(copied_commands.read_text())
+                for role in ("server", "client"):
+                    vectors[role] = [v.replace(str(old), str(tmp_path / row["raw_directory"])) for v in vectors[role]]
+                write(copied_commands, vectors)
+                rows.append(row)
+        for row in rows:
+            if row["path"] == "direct":
+                record = row["binary_record"] | {"completed_operations": {1: 94, 2: 100, 3: 106}.get(row["repeat"], 100)}
+                row.update(
+                    finish_record(
+                        dict(path="direct", cores=1, payload_bytes=16384, streams=1, outstanding=1), row["repeat"], record, cleanup_pass=True
+                    )
+                )
+                write(tmp_path / row["raw_directory"] / "client.stdout", record)
+        write(tmp_path / "records.json", rows)
+        index(tmp_path)
+        if nbsr_repeats == 5:
+            assert load(tmp_path, binaries)["reference_repeats"] == 5
+        else:
+            with pytest.raises(ValueError, match="repeat"):
+>               load(tmp_path, binaries)
+
+tests\performance\test_linux_b5_ceiling.py:384: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\performance\test_linux_b5_ceiling.py:192: in load
+    return ceiling.load_reference(
+scripts\performance\linux_b5_ceiling.py:202: in load_reference
+    require(set(env.get("source_sha256", {})) == set(SOURCE_PATHS), "missing source provenance")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False, reason = 'missing source provenance'
+
+    def require(condition, reason):
+        if not condition:
+>           raise ValueError(reason)
+E           ValueError: missing source provenance
+
+scripts\performance\linux_b5_ceiling.py:22: ValueError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1078/test_first_three_dispersion_re1')
+nbsr_repeats = 4
+
+    @pytest.mark.parametrize("nbsr_repeats", [3, 4, 5])
+    def test_first_three_dispersion_requires_five_on_both_paths(tmp_path, nbsr_repeats):
+        binaries = fixture(tmp_path)
+        rows = json.loads((tmp_path / "records.json").read_text())
+        for path, count in [("direct", 5), ("nbsr", nbsr_repeats)]:
+            template = next(r for r in rows if r["path"] == path)
+            for repeat in range(4, count + 1):
+                row = json.loads(json.dumps(template))
+                old = tmp_path / row["raw_directory"]
+                row["raw_directory"] = f"raw/{path}-d1-r{repeat}"
+                row["repeat"] = repeat
+                shutil.copytree(old, tmp_path / row["raw_directory"])
+                copied_commands = tmp_path / row["raw_directory"] / "commands.json"
+                vectors = json.loads(copied_commands.read_text())
+                for role in ("server", "client"):
+                    vectors[role] = [v.replace(str(old), str(tmp_path / row["raw_directory"])) for v in vectors[role]]
+                write(copied_commands, vectors)
+                rows.append(row)
+        for row in rows:
+            if row["path"] == "direct":
+                record = row["binary_record"] | {"completed_operations": {1: 94, 2: 100, 3: 106}.get(row["repeat"], 100)}
+                row.update(
+                    finish_record(
+                        dict(path="direct", cores=1, payload_bytes=16384, streams=1, outstanding=1), row["repeat"], record, cleanup_pass=True
+                    )
+                )
+                write(tmp_path / row["raw_directory"] / "client.stdout", record)
+        write(tmp_path / "records.json", rows)
+        index(tmp_path)
+        if nbsr_repeats == 5:
+            assert load(tmp_path, binaries)["reference_repeats"] == 5
+        else:
+>           with pytest.raises(ValueError, match="repeat"):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AssertionError: Regex pattern did not match.
+E            Regex: 'repeat'
+E            Input: 'missing source provenance'
+
+tests\performance\test_linux_b5_ceiling.py:383: AssertionError
+_________ test_first_three_dispersion_requires_five_on_both_paths[5] __________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1078/test_first_three_dispersion_re2')
+nbsr_repeats = 5
+
+    @pytest.mark.parametrize("nbsr_repeats", [3, 4, 5])
+    def test_first_three_dispersion_requires_five_on_both_paths(tmp_path, nbsr_repeats):
+        binaries = fixture(tmp_path)
+        rows = json.loads((tmp_path / "records.json").read_text())
+        for path, count in [("direct", 5), ("nbsr", nbsr_repeats)]:
+            template = next(r for r in rows if r["path"] == path)
+            for repeat in range(4, count + 1):
+                row = json.loads(json.dumps(template))
+                old = tmp_path / row["raw_directory"]
+                row["raw_directory"] = f"raw/{path}-d1-r{repeat}"
+                row["repeat"] = repeat
+                shutil.copytree(old, tmp_path / row["raw_directory"])
+                copied_commands = tmp_path / row["raw_directory"] / "commands.json"
+                vectors = json.loads(copied_commands.read_text())
+                for role in ("server", "client"):
+                    vectors[role] = [v.replace(str(old), str(tmp_path / row["raw_directory"])) for v in vectors[role]]
+                write(copied_commands, vectors)
+                rows.append(row)
+        for row in rows:
+            if row["path"] == "direct":
+                record = row["binary_record"] | {"completed_operations": {1: 94, 2: 100, 3: 106}.get(row["repeat"], 100)}
+                row.update(
+                    finish_record(
+                        dict(path="direct", cores=1, payload_bytes=16384, streams=1, outstanding=1), row["repeat"], record, cleanup_pass=True
+                    )
+                )
+                write(tmp_path / row["raw_directory"] / "client.stdout", record)
+        write(tmp_path / "records.json", rows)
+        index(tmp_path)
+        if nbsr_repeats == 5:
+>           assert load(tmp_path, binaries)["reference_repeats"] == 5
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\performance\test_linux_b5_ceiling.py:381: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\performance\test_linux_b5_ceiling.py:192: in load
+    return ceiling.load_reference(
+scripts\performance\linux_b5_ceiling.py:202: in load_reference
+    require(set(env.get("source_sha256", {})) == set(SOURCE_PATHS), "missing source provenance")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False, reason = 'missing source provenance'
+
+    def require(condition, reason):
+        if not condition:
+>           raise ValueError(reason)
+E           ValueError: missing source provenance
+
+scripts\performance\linux_b5_ceiling.py:22: ValueError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_linux_b5_reference.py::test_cancelled_reference_reaps_registered_children_without_ack[final-observation]
+FAILED tests/performance/test_linux_b5_ceiling.py::test_exact_rational_load_remains_observer_unqualified
+FAILED tests/performance/test_linux_b5_ceiling.py::test_first_three_dispersion_requires_five_on_both_paths[3]
+FAILED tests/performance/test_linux_b5_ceiling.py::test_first_three_dispersion_requires_five_on_both_paths[4]
+FAILED tests/performance/test_linux_b5_ceiling.py::test_first_three_dispersion_requires_five_on_both_paths[5]
+5 failed, 85 passed in 14.26s

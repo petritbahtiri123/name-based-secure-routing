@@ -1,0 +1,160 @@
+FFF                                                                      [100%]
+================================== FAILURES ===================================
+_ test_cancelled_reference_reaps_registered_children_without_ack[server-launch] _
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1077/test_cancelled_reference_reaps0')
+point = 'server-launch'
+
+    @pytest.mark.parametrize("point", ["server-launch", "client-launch", "final-observation"])
+    def test_cancelled_reference_reaps_registered_children_without_ack(tmp_path, point):
+        processes = []
+        requested = False
+    
+        class Process:
+            def __init__(self, argv, **kwargs):
+                nonlocal requested
+                self.pid = 11 + len(processes)
+                self.returncode = None
+                self.joined = False
+                processes.append(self)
+                if "--ready" in argv:
+                    Path(argv[argv.index("--ready") + 1]).write_text(json.dumps({"endpoint": "127.0.0.1:42"}))
+                    requested = point == "server-launch"
+                else:
+                    requested = point == "client-launch"
+    
+            def poll(self):
+                return self.returncode
+    
+            def kill(self):
+                self.returncode = -9
+    
+            def wait(self, timeout):
+                self.joined = True
+                return self.returncode
+    
+        def check():
+            if requested:
+                raise InterruptedError("test controller cancellation")
+    
+        def sample(pid, cpus):
+            nonlocal requested
+            if pid == 12:
+                requested = True
+            return dict(pid=pid, start_ticks=pid, state="Z" if pid == 12 else "S",
+                        cpu_ns=1, timestamp_ns=1, affinity=cpus)
+    
+        raw = tmp_path / "raw"
+>       row = reference.run_cell(cell(), 1, Path("/bin"), tmp_path / "authority", raw,
+            [0], "/usr/bin/taskset", warmup=3, duration=20, sample_fn=sample,
+            popen=Process, exec_check=lambda *args: None, check_cancelled=check)
+E       TypeError: run_cell() got an unexpected keyword argument 'check_cancelled'
+
+tests\performance\test_linux_b5_reference.py:345: TypeError
+_ test_cancelled_reference_reaps_registered_children_without_ack[client-launch] _
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1077/test_cancelled_reference_reaps1')
+point = 'client-launch'
+
+    @pytest.mark.parametrize("point", ["server-launch", "client-launch", "final-observation"])
+    def test_cancelled_reference_reaps_registered_children_without_ack(tmp_path, point):
+        processes = []
+        requested = False
+    
+        class Process:
+            def __init__(self, argv, **kwargs):
+                nonlocal requested
+                self.pid = 11 + len(processes)
+                self.returncode = None
+                self.joined = False
+                processes.append(self)
+                if "--ready" in argv:
+                    Path(argv[argv.index("--ready") + 1]).write_text(json.dumps({"endpoint": "127.0.0.1:42"}))
+                    requested = point == "server-launch"
+                else:
+                    requested = point == "client-launch"
+    
+            def poll(self):
+                return self.returncode
+    
+            def kill(self):
+                self.returncode = -9
+    
+            def wait(self, timeout):
+                self.joined = True
+                return self.returncode
+    
+        def check():
+            if requested:
+                raise InterruptedError("test controller cancellation")
+    
+        def sample(pid, cpus):
+            nonlocal requested
+            if pid == 12:
+                requested = True
+            return dict(pid=pid, start_ticks=pid, state="Z" if pid == 12 else "S",
+                        cpu_ns=1, timestamp_ns=1, affinity=cpus)
+    
+        raw = tmp_path / "raw"
+>       row = reference.run_cell(cell(), 1, Path("/bin"), tmp_path / "authority", raw,
+            [0], "/usr/bin/taskset", warmup=3, duration=20, sample_fn=sample,
+            popen=Process, exec_check=lambda *args: None, check_cancelled=check)
+E       TypeError: run_cell() got an unexpected keyword argument 'check_cancelled'
+
+tests\performance\test_linux_b5_reference.py:345: TypeError
+_ test_cancelled_reference_reaps_registered_children_without_ack[final-observation] _
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1077/test_cancelled_reference_reaps2')
+point = 'final-observation'
+
+    @pytest.mark.parametrize("point", ["server-launch", "client-launch", "final-observation"])
+    def test_cancelled_reference_reaps_registered_children_without_ack(tmp_path, point):
+        processes = []
+        requested = False
+    
+        class Process:
+            def __init__(self, argv, **kwargs):
+                nonlocal requested
+                self.pid = 11 + len(processes)
+                self.returncode = None
+                self.joined = False
+                processes.append(self)
+                if "--ready" in argv:
+                    Path(argv[argv.index("--ready") + 1]).write_text(json.dumps({"endpoint": "127.0.0.1:42"}))
+                    requested = point == "server-launch"
+                else:
+                    requested = point == "client-launch"
+    
+            def poll(self):
+                return self.returncode
+    
+            def kill(self):
+                self.returncode = -9
+    
+            def wait(self, timeout):
+                self.joined = True
+                return self.returncode
+    
+        def check():
+            if requested:
+                raise InterruptedError("test controller cancellation")
+    
+        def sample(pid, cpus):
+            nonlocal requested
+            if pid == 12:
+                requested = True
+            return dict(pid=pid, start_ticks=pid, state="Z" if pid == 12 else "S",
+                        cpu_ns=1, timestamp_ns=1, affinity=cpus)
+    
+        raw = tmp_path / "raw"
+>       row = reference.run_cell(cell(), 1, Path("/bin"), tmp_path / "authority", raw,
+            [0], "/usr/bin/taskset", warmup=3, duration=20, sample_fn=sample,
+            popen=Process, exec_check=lambda *args: None, check_cancelled=check)
+E       TypeError: run_cell() got an unexpected keyword argument 'check_cancelled'
+
+tests\performance\test_linux_b5_reference.py:345: TypeError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_linux_b5_reference.py::test_cancelled_reference_reaps_registered_children_without_ack[server-launch]
+FAILED tests/performance/test_linux_b5_reference.py::test_cancelled_reference_reaps_registered_children_without_ack[client-launch]
+FAILED tests/performance/test_linux_b5_reference.py::test_cancelled_reference_reaps_registered_children_without_ack[final-observation]
+3 failed, 44 deselected in 0.94s
