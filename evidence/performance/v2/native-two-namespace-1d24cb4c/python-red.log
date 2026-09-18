@@ -1,0 +1,140 @@
+FFFFFFFFFFFF                                                             [100%]
+================================== FAILURES ===================================
+______ test_native_commands_keep_equivalent_shape_and_explicit_addresses ______
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1048/test_native_commands_keep_equi0')
+
+    def test_native_commands_keep_equivalent_shape_and_explicit_addresses(tmp_path):
+>       from scripts.performance.linux_native_peer import native_command
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_native_peer'
+
+tests\performance\test_linux_native_peer.py:8: ModuleNotFoundError
+_ test_native_remote_endpoint_refuses_ambiguous_or_unroutable_forms[0.0.0.0:123] _
+
+endpoint = '0.0.0.0:123'
+
+    @pytest.mark.parametrize('endpoint', ['0.0.0.0:123', '224.0.0.1:123', '255.255.255.255:123',
+        '[::1]:123', '192.0.2.1:0', '192.0.2.1:65536', 'name.example:123'])
+    def test_native_remote_endpoint_refuses_ambiguous_or_unroutable_forms(endpoint):
+>       from scripts.performance.linux_native_peer import validate_endpoint
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_native_peer'
+
+tests\performance\test_linux_native_peer.py:28: ModuleNotFoundError
+_ test_native_remote_endpoint_refuses_ambiguous_or_unroutable_forms[224.0.0.1:123] _
+
+endpoint = '224.0.0.1:123'
+
+    @pytest.mark.parametrize('endpoint', ['0.0.0.0:123', '224.0.0.1:123', '255.255.255.255:123',
+        '[::1]:123', '192.0.2.1:0', '192.0.2.1:65536', 'name.example:123'])
+    def test_native_remote_endpoint_refuses_ambiguous_or_unroutable_forms(endpoint):
+>       from scripts.performance.linux_native_peer import validate_endpoint
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_native_peer'
+
+tests\performance\test_linux_native_peer.py:28: ModuleNotFoundError
+_ test_native_remote_endpoint_refuses_ambiguous_or_unroutable_forms[255.255.255.255:123] _
+
+endpoint = '255.255.255.255:123'
+
+    @pytest.mark.parametrize('endpoint', ['0.0.0.0:123', '224.0.0.1:123', '255.255.255.255:123',
+        '[::1]:123', '192.0.2.1:0', '192.0.2.1:65536', 'name.example:123'])
+    def test_native_remote_endpoint_refuses_ambiguous_or_unroutable_forms(endpoint):
+>       from scripts.performance.linux_native_peer import validate_endpoint
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_native_peer'
+
+tests\performance\test_linux_native_peer.py:28: ModuleNotFoundError
+_ test_native_remote_endpoint_refuses_ambiguous_or_unroutable_forms[[::1]:123] _
+
+endpoint = '[::1]:123'
+
+    @pytest.mark.parametrize('endpoint', ['0.0.0.0:123', '224.0.0.1:123', '255.255.255.255:123',
+        '[::1]:123', '192.0.2.1:0', '192.0.2.1:65536', 'name.example:123'])
+    def test_native_remote_endpoint_refuses_ambiguous_or_unroutable_forms(endpoint):
+>       from scripts.performance.linux_native_peer import validate_endpoint
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_native_peer'
+
+tests\performance\test_linux_native_peer.py:28: ModuleNotFoundError
+_ test_native_remote_endpoint_refuses_ambiguous_or_unroutable_forms[192.0.2.1:0] _
+
+endpoint = '192.0.2.1:0'
+
+    @pytest.mark.parametrize('endpoint', ['0.0.0.0:123', '224.0.0.1:123', '255.255.255.255:123',
+        '[::1]:123', '192.0.2.1:0', '192.0.2.1:65536', 'name.example:123'])
+    def test_native_remote_endpoint_refuses_ambiguous_or_unroutable_forms(endpoint):
+>       from scripts.performance.linux_native_peer import validate_endpoint
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_native_peer'
+
+tests\performance\test_linux_native_peer.py:28: ModuleNotFoundError
+_ test_native_remote_endpoint_refuses_ambiguous_or_unroutable_forms[192.0.2.1:65536] _
+
+endpoint = '192.0.2.1:65536'
+
+    @pytest.mark.parametrize('endpoint', ['0.0.0.0:123', '224.0.0.1:123', '255.255.255.255:123',
+        '[::1]:123', '192.0.2.1:0', '192.0.2.1:65536', 'name.example:123'])
+    def test_native_remote_endpoint_refuses_ambiguous_or_unroutable_forms(endpoint):
+>       from scripts.performance.linux_native_peer import validate_endpoint
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_native_peer'
+
+tests\performance\test_linux_native_peer.py:28: ModuleNotFoundError
+_ test_native_remote_endpoint_refuses_ambiguous_or_unroutable_forms[name.example:123] _
+
+endpoint = 'name.example:123'
+
+    @pytest.mark.parametrize('endpoint', ['0.0.0.0:123', '224.0.0.1:123', '255.255.255.255:123',
+        '[::1]:123', '192.0.2.1:0', '192.0.2.1:65536', 'name.example:123'])
+    def test_native_remote_endpoint_refuses_ambiguous_or_unroutable_forms(endpoint):
+>       from scripts.performance.linux_native_peer import validate_endpoint
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_native_peer'
+
+tests\performance\test_linux_native_peer.py:28: ModuleNotFoundError
+__ test_finite_observer_retains_terminal_before_reap_and_exiting_transition ___
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1048/test_finite_observer_retains_t0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000020A55B46D70>
+
+    def test_finite_observer_retains_terminal_before_reap_and_exiting_transition(tmp_path, monkeypatch):
+>       from scripts.performance import linux_native_peer as peer
+E       ImportError: cannot import name 'linux_native_peer' from 'scripts.performance' (C:\Users\bajra\OneDrive\Documents\NBSR\scripts\performance\__init__.py)
+
+tests\performance\test_linux_native_peer.py:34: ImportError
+____________ test_finite_observer_rejects_pid_reuse_before_reaping ____________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1048/test_finite_observer_rejects_p0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000020A55B46650>
+
+    def test_finite_observer_rejects_pid_reuse_before_reaping(tmp_path, monkeypatch):
+>       from scripts.performance import linux_native_peer as peer
+E       ImportError: cannot import name 'linux_native_peer' from 'scripts.performance' (C:\Users\bajra\OneDrive\Documents\NBSR\scripts\performance\__init__.py)
+
+tests\performance\test_linux_native_peer.py:57: ImportError
+__________ test_readiness_checks_alpn_and_exact_destination_address ___________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1048/test_readiness_checks_alpn_and0')
+
+    def test_readiness_checks_alpn_and_exact_destination_address(tmp_path):
+>       from scripts.performance.linux_native_peer import readiness_endpoint
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_native_peer'
+
+tests\performance\test_linux_native_peer.py:67: ModuleNotFoundError
+_______ test_failed_source_validation_cannot_produce_ack_authorization ________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1048/test_failed_source_validation_0')
+
+    def test_failed_source_validation_cannot_produce_ack_authorization(tmp_path):
+>       from scripts.performance.linux_native_peer import validate_source
+E       ModuleNotFoundError: No module named 'scripts.performance.linux_native_peer'
+
+tests\performance\test_linux_native_peer.py:79: ModuleNotFoundError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_linux_native_peer.py::test_native_commands_keep_equivalent_shape_and_explicit_addresses
+FAILED tests/performance/test_linux_native_peer.py::test_native_remote_endpoint_refuses_ambiguous_or_unroutable_forms[0.0.0.0:123]
+FAILED tests/performance/test_linux_native_peer.py::test_native_remote_endpoint_refuses_ambiguous_or_unroutable_forms[224.0.0.1:123]
+FAILED tests/performance/test_linux_native_peer.py::test_native_remote_endpoint_refuses_ambiguous_or_unroutable_forms[255.255.255.255:123]
+FAILED tests/performance/test_linux_native_peer.py::test_native_remote_endpoint_refuses_ambiguous_or_unroutable_forms[[::1]:123]
+FAILED tests/performance/test_linux_native_peer.py::test_native_remote_endpoint_refuses_ambiguous_or_unroutable_forms[192.0.2.1:0]
+FAILED tests/performance/test_linux_native_peer.py::test_native_remote_endpoint_refuses_ambiguous_or_unroutable_forms[192.0.2.1:65536]
+FAILED tests/performance/test_linux_native_peer.py::test_native_remote_endpoint_refuses_ambiguous_or_unroutable_forms[name.example:123]
+FAILED tests/performance/test_linux_native_peer.py::test_finite_observer_retains_terminal_before_reap_and_exiting_transition
+FAILED tests/performance/test_linux_native_peer.py::test_finite_observer_rejects_pid_reuse_before_reaping
+FAILED tests/performance/test_linux_native_peer.py::test_readiness_checks_alpn_and_exact_destination_address
+FAILED tests/performance/test_linux_native_peer.py::test_failed_source_validation_cannot_produce_ack_authorization
+12 failed in 0.81s

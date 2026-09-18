@@ -1,0 +1,8 @@
+{
+  "addresses": {
+    "source": "172.20.0.2",
+    "destination": "172.20.0.3"
+  },
+  "scope": "two Docker network namespaces on one WSL host; internal bridge; not independent physical hosts or NIC capacity",
+  "guest_cpu_policy": "each peer selects one reported physical core; pools may overlap on shared host"
+}

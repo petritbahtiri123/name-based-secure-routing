@@ -1,0 +1,1026 @@
+[
+  {
+    "path": "direct",
+    "payload_bytes": 1024,
+    "streams": 64,
+    "repeat": 1,
+    "valid": true,
+    "source_directory": "source/p1024-s64-direct-r1",
+    "destination_directory": "destination/p1024-s64-direct-r1",
+    "application_gbps": 1.5432003722379524,
+    "source": {
+      "application_gbps": 1.5432003722379524,
+      "completed_operations": 1885477,
+      "exit_code": 0,
+      "external_hardware": "NOT_PROVEN",
+      "final_sample": {
+        "affinity": [
+          0
+        ],
+        "cpu_ns": 11020000000,
+        "fd_count": null,
+        "fd_count_state": "UNAVAILABLE_ZOMBIE",
+        "flags": 4227084,
+        "pid": 61,
+        "rss_bytes": 0,
+        "start_ticks": 25322,
+        "state": "Z",
+        "thread_ids": [
+          61
+        ],
+        "timestamp_ns": 276541820237
+      },
+      "role": "source",
+      "runtime_ownership_cleanup": "NOT_MEASURED",
+      "status": "PASS_FINITE_PEER",
+      "steady_cpu_ns_per_operation": null,
+      "strict_stable_capacity": "NOT_ESTABLISHED"
+    },
+    "destination": {
+      "exit_code": 0,
+      "external_hardware": "NOT_PROVEN",
+      "final_sample": {
+        "affinity": [
+          0
+        ],
+        "cpu_ns": 12040000000,
+        "fd_count": null,
+        "fd_count_state": "UNAVAILABLE_ZOMBIE",
+        "flags": 4227084,
+        "pid": 61,
+        "rss_bytes": 0,
+        "start_ticks": 25249,
+        "state": "Z",
+        "thread_ids": [
+          61
+        ],
+        "timestamp_ns": 276991591468
+      },
+      "role": "destination",
+      "runtime_ownership_cleanup": "NOT_MEASURED",
+      "status": "PASS_FINITE_PEER",
+      "steady_cpu_ns_per_operation": null,
+      "strict_stable_capacity": "NOT_ESTABLISHED"
+    }
+  },
+  {
+    "path": "nbsr",
+    "payload_bytes": 1024,
+    "streams": 64,
+    "repeat": 1,
+    "valid": true,
+    "source_directory": "source/p1024-s64-nbsr-r1",
+    "destination_directory": "destination/p1024-s64-nbsr-r1",
+    "application_gbps": 1.6882336866229357,
+    "source": {
+      "application_gbps": 1.6882336866229357,
+      "completed_operations": 2061745,
+      "exit_code": 0,
+      "external_hardware": "NOT_PROVEN",
+      "final_sample": {
+        "affinity": [
+          0
+        ],
+        "cpu_ns": 11940000000,
+        "fd_count": null,
+        "fd_count_state": "UNAVAILABLE_ZOMBIE",
+        "flags": 4227084,
+        "pid": 116,
+        "rss_bytes": 0,
+        "start_ticks": 27890,
+        "state": "Z",
+        "thread_ids": [
+          116
+        ],
+        "timestamp_ns": 302196900864
+      },
+      "role": "source",
+      "runtime_ownership_cleanup": "NOT_MEASURED",
+      "status": "PASS_FINITE_PEER",
+      "steady_cpu_ns_per_operation": null,
+      "strict_stable_capacity": "NOT_ESTABLISHED"
+    },
+    "destination": {
+      "exit_code": 0,
+      "external_hardware": "NOT_PROVEN",
+      "final_sample": {
+        "affinity": [
+          0
+        ],
+        "cpu_ns": 11080000000,
+        "fd_count": null,
+        "fd_count_state": "UNAVAILABLE_ZOMBIE",
+        "flags": 4227084,
+        "pid": 118,
+        "rss_bytes": 0,
+        "start_ticks": 27815,
+        "state": "Z",
+        "thread_ids": [
+          118
+        ],
+        "timestamp_ns": 302196900764
+      },
+      "role": "destination",
+      "runtime_ownership_cleanup": "NOT_MEASURED",
+      "status": "PASS_FINITE_PEER",
+      "steady_cpu_ns_per_operation": null,
+      "strict_stable_capacity": "NOT_ESTABLISHED"
+    }
+  },
+  {
+    "path": "nbsr",
+    "payload_bytes": 1024,
+    "streams": 64,
+    "repeat": 2,
+    "valid": true,
+    "source_directory": "source/p1024-s64-nbsr-r2",
+    "destination_directory": "destination/p1024-s64-nbsr-r2",
+    "application_gbps": 1.7939126179080118,
+    "source": {
+      "application_gbps": 1.7939126179080118,
+      "completed_operations": 2190742,
+      "exit_code": 0,
+      "external_hardware": "NOT_PROVEN",
+      "final_sample": {
+        "affinity": [
+          0
+        ],
+        "cpu_ns": 11930000000,
+        "fd_count": null,
+        "fd_count_state": "UNAVAILABLE_ZOMBIE",
+        "flags": 4227084,
+        "pid": 171,
+        "rss_bytes": 0,
+        "start_ticks": 30438,
+        "state": "Z",
+        "thread_ids": [
+          171
+        ],
+        "timestamp_ns": 327647977268
+      },
+      "role": "source",
+      "runtime_ownership_cleanup": "NOT_MEASURED",
+      "status": "PASS_FINITE_PEER",
+      "steady_cpu_ns_per_operation": null,
+      "strict_stable_capacity": "NOT_ESTABLISHED"
+    },
+    "destination": {
+      "exit_code": 0,
+      "external_hardware": "NOT_PROVEN",
+      "final_sample": {
+        "affinity": [
+          0
+        ],
+        "cpu_ns": 11090000000,
+        "fd_count": null,
+        "fd_count_state": "UNAVAILABLE_ZOMBIE",
+        "flags": 4227084,
+        "pid": 173,
+        "rss_bytes": 0,
+        "start_ticks": 30340,
+        "state": "Z",
+        "thread_ids": [
+          173
+        ],
+        "timestamp_ns": 327647977368
+      },
+      "role": "destination",
+      "runtime_ownership_cleanup": "NOT_MEASURED",
+      "status": "PASS_FINITE_PEER",
+      "steady_cpu_ns_per_operation": null,
+      "strict_stable_capacity": "NOT_ESTABLISHED"
+    }
+  },
+  {
+    "path": "direct",
+    "payload_bytes": 1024,
+    "streams": 64,
+    "repeat": 2,
+    "valid": true,
+    "source_directory": "source/p1024-s64-direct-r2",
+    "destination_directory": "destination/p1024-s64-direct-r2",
+    "application_gbps": 1.22551554778034,
+    "source": {
+      "application_gbps": 1.22551554778034,
+      "completed_operations": 1496554,
+      "exit_code": 0,
+      "external_hardware": "NOT_PROVEN",
+      "final_sample": {
+        "affinity": [
+          0
+        ],
+        "cpu_ns": 11070000000,
+        "fd_count": null,
+        "fd_count_state": "UNAVAILABLE_ZOMBIE",
+        "flags": 4227084,
+        "pid": 226,
+        "rss_bytes": 0,
+        "start_ticks": 32943,
+        "state": "Z",
+        "thread_ids": [
+          226
+        ],
+        "timestamp_ns": 352743669237
+      },
+      "role": "source",
+      "runtime_ownership_cleanup": "NOT_MEASURED",
+      "status": "PASS_FINITE_PEER",
+      "steady_cpu_ns_per_operation": null,
+      "strict_stable_capacity": "NOT_ESTABLISHED"
+    },
+    "destination": {
+      "exit_code": 0,
+      "external_hardware": "NOT_PROVEN",
+      "final_sample": {
+        "affinity": [
+          0
+        ],
+        "cpu_ns": 11930000000,
+        "fd_count": null,
+        "fd_count_state": "UNAVAILABLE_ZOMBIE",
+        "flags": 4227084,
+        "pid": 228,
+        "rss_bytes": 0,
+        "start_ticks": 32876,
+        "state": "Z",
+        "thread_ids": [
+          228
+        ],
+        "timestamp_ns": 353120864929
+      },
+      "role": "destination",
+      "runtime_ownership_cleanup": "NOT_MEASURED",
+      "status": "PASS_FINITE_PEER",
+      "steady_cpu_ns_per_operation": null,
+      "strict_stable_capacity": "NOT_ESTABLISHED"
+    }
+  },
+  {
+    "path": "direct",
+    "payload_bytes": 1024,
+    "streams": 64,
+    "repeat": 3,
+    "valid": true,
+    "source_directory": "source/p1024-s64-direct-r3",
+    "destination_directory": "destination/p1024-s64-direct-r3",
+    "application_gbps": 1.348726584779769,
+    "source": {
+      "application_gbps": 1.348726584779769,
+      "completed_operations": 1647016,
+      "exit_code": 0,
+      "external_hardware": "NOT_PROVEN",
+      "final_sample": {
+        "affinity": [
+          0
+        ],
+        "cpu_ns": 10920000000,
+        "fd_count": null,
+        "fd_count_state": "UNAVAILABLE_ZOMBIE",
+        "flags": 4227084,
+        "pid": 281,
+        "rss_bytes": 0,
+        "start_ticks": 35491,
+        "state": "Z",
+        "thread_ids": [
+          281
+        ],
+        "timestamp_ns": 378152803933
+      },
+      "role": "source",
+      "runtime_ownership_cleanup": "NOT_MEASURED",
+      "status": "PASS_FINITE_PEER",
+      "steady_cpu_ns_per_operation": null,
+      "strict_stable_capacity": "NOT_ESTABLISHED"
+    },
+    "destination": {
+      "exit_code": 0,
+      "external_hardware": "NOT_PROVEN",
+      "final_sample": {
+        "affinity": [
+          0
+        ],
+        "cpu_ns": 12070000000,
+        "fd_count": null,
+        "fd_count_state": "UNAVAILABLE_ZOMBIE",
+        "flags": 4227084,
+        "pid": 285,
+        "rss_bytes": 0,
+        "start_ticks": 35418,
+        "state": "Z",
+        "thread_ids": [
+          285
+        ],
+        "timestamp_ns": 378567784858
+      },
+      "role": "destination",
+      "runtime_ownership_cleanup": "NOT_MEASURED",
+      "status": "PASS_FINITE_PEER",
+      "steady_cpu_ns_per_operation": null,
+      "strict_stable_capacity": "NOT_ESTABLISHED"
+    }
+  },
+  {
+    "path": "nbsr",
+    "payload_bytes": 1024,
+    "streams": 64,
+    "repeat": 3,
+    "valid": true,
+    "source_directory": "source/p1024-s64-nbsr-r3",
+    "destination_directory": "destination/p1024-s64-nbsr-r3",
+    "application_gbps": 1.788362143874131,
+    "source": {
+      "application_gbps": 1.788362143874131,
+      "completed_operations": 2184011,
+      "exit_code": 0,
+      "external_hardware": "NOT_PROVEN",
+      "final_sample": {
+        "affinity": [
+          0
+        ],
+        "cpu_ns": 11940000000,
+        "fd_count": null,
+        "fd_count_state": "UNAVAILABLE_ZOMBIE",
+        "flags": 4227084,
+        "pid": 337,
+        "rss_bytes": 0,
+        "start_ticks": 38033,
+        "state": "Z",
+        "thread_ids": [
+          337
+        ],
+        "timestamp_ns": 403600649173
+      },
+      "role": "source",
+      "runtime_ownership_cleanup": "NOT_MEASURED",
+      "status": "PASS_FINITE_PEER",
+      "steady_cpu_ns_per_operation": null,
+      "strict_stable_capacity": "NOT_ESTABLISHED"
+    },
+    "destination": {
+      "exit_code": 0,
+      "external_hardware": "NOT_PROVEN",
+      "final_sample": {
+        "affinity": [
+          0
+        ],
+        "cpu_ns": 11070000000,
+        "fd_count": null,
+        "fd_count_state": "UNAVAILABLE_ZOMBIE",
+        "flags": 4227084,
+        "pid": 342,
+        "rss_bytes": 0,
+        "start_ticks": 37962,
+        "state": "Z",
+        "thread_ids": [
+          342
+        ],
+        "timestamp_ns": 403600649073
+      },
+      "role": "destination",
+      "runtime_ownership_cleanup": "NOT_MEASURED",
+      "status": "PASS_FINITE_PEER",
+      "steady_cpu_ns_per_operation": null,
+      "strict_stable_capacity": "NOT_ESTABLISHED"
+    }
+  },
+  {
+    "path": "nbsr",
+    "payload_bytes": 1024,
+    "streams": 64,
+    "repeat": 4,
+    "valid": true,
+    "source_directory": "source/p1024-s64-nbsr-r4",
+    "destination_directory": "destination/p1024-s64-nbsr-r4",
+    "application_gbps": 1.7804958890731508,
+    "source": {
+      "application_gbps": 1.7804958890731508,
+      "completed_operations": 2174331,
+      "exit_code": 0,
+      "external_hardware": "NOT_PROVEN",
+      "final_sample": {
+        "affinity": [
+          0
+        ],
+        "cpu_ns": 11960000000,
+        "fd_count": null,
+        "fd_count_state": "UNAVAILABLE_ZOMBIE",
+        "flags": 4227084,
+        "pid": 392,
+        "rss_bytes": 0,
+        "start_ticks": 40533,
+        "state": "Z",
+        "thread_ids": [
+          392
+        ],
+        "timestamp_ns": 428588971597
+      },
+      "role": "source",
+      "runtime_ownership_cleanup": "NOT_MEASURED",
+      "status": "PASS_FINITE_PEER",
+      "steady_cpu_ns_per_operation": null,
+      "strict_stable_capacity": "NOT_ESTABLISHED"
+    },
+    "destination": {
+      "exit_code": 0,
+      "external_hardware": "NOT_PROVEN",
+      "final_sample": {
+        "affinity": [
+          0
+        ],
+        "cpu_ns": 11040000000,
+        "fd_count": null,
+        "fd_count_state": "UNAVAILABLE_ZOMBIE",
+        "flags": 4227084,
+        "pid": 397,
+        "rss_bytes": 0,
+        "start_ticks": 40465,
+        "state": "Z",
+        "thread_ids": [
+          397
+        ],
+        "timestamp_ns": 428610713613
+      },
+      "role": "destination",
+      "runtime_ownership_cleanup": "NOT_MEASURED",
+      "status": "PASS_FINITE_PEER",
+      "steady_cpu_ns_per_operation": null,
+      "strict_stable_capacity": "NOT_ESTABLISHED"
+    }
+  },
+  {
+    "path": "direct",
+    "payload_bytes": 1024,
+    "streams": 64,
+    "repeat": 4,
+    "valid": true,
+    "source_directory": "source/p1024-s64-direct-r4",
+    "destination_directory": "destination/p1024-s64-direct-r4",
+    "application_gbps": 1.5036277817846155,
+    "source": {
+      "application_gbps": 1.5036277817846155,
+      "completed_operations": 1836248,
+      "exit_code": 0,
+      "external_hardware": "NOT_PROVEN",
+      "final_sample": {
+        "affinity": [
+          0
+        ],
+        "cpu_ns": 10960000000,
+        "fd_count": null,
+        "fd_count_state": "UNAVAILABLE_ZOMBIE",
+        "flags": 4227084,
+        "pid": 447,
+        "rss_bytes": 0,
+        "start_ticks": 43040,
+        "state": "Z",
+        "thread_ids": [
+          447
+        ],
+        "timestamp_ns": 453659512651
+      },
+      "role": "source",
+      "runtime_ownership_cleanup": "NOT_MEASURED",
+      "status": "PASS_FINITE_PEER",
+      "steady_cpu_ns_per_operation": null,
+      "strict_stable_capacity": "NOT_ESTABLISHED"
+    },
+    "destination": {
+      "exit_code": 0,
+      "external_hardware": "NOT_PROVEN",
+      "final_sample": {
+        "affinity": [
+          0
+        ],
+        "cpu_ns": 12050000000,
+        "fd_count": null,
+        "fd_count_state": "UNAVAILABLE_ZOMBIE",
+        "flags": 4227084,
+        "pid": 452,
+        "rss_bytes": 0,
+        "start_ticks": 42970,
+        "state": "Z",
+        "thread_ids": [
+          452
+        ],
+        "timestamp_ns": 454022132468
+      },
+      "role": "destination",
+      "runtime_ownership_cleanup": "NOT_MEASURED",
+      "status": "PASS_FINITE_PEER",
+      "steady_cpu_ns_per_operation": null,
+      "strict_stable_capacity": "NOT_ESTABLISHED"
+    }
+  },
+  {
+    "path": "direct",
+    "payload_bytes": 1024,
+    "streams": 64,
+    "repeat": 5,
+    "valid": true,
+    "source_directory": "source/p1024-s64-direct-r5",
+    "destination_directory": "destination/p1024-s64-direct-r5",
+    "application_gbps": 1.5629707061742646,
+    "source": {
+      "application_gbps": 1.5629707061742646,
+      "completed_operations": 1908896,
+      "exit_code": 0,
+      "external_hardware": "NOT_PROVEN",
+      "final_sample": {
+        "affinity": [
+          0
+        ],
+        "cpu_ns": 11000000000,
+        "fd_count": null,
+        "fd_count_state": "UNAVAILABLE_ZOMBIE",
+        "flags": 4227084,
+        "pid": 502,
+        "rss_bytes": 0,
+        "start_ticks": 45569,
+        "state": "Z",
+        "thread_ids": [
+          502
+        ],
+        "timestamp_ns": 478936584603
+      },
+      "role": "source",
+      "runtime_ownership_cleanup": "NOT_MEASURED",
+      "status": "PASS_FINITE_PEER",
+      "steady_cpu_ns_per_operation": null,
+      "strict_stable_capacity": "NOT_ESTABLISHED"
+    },
+    "destination": {
+      "exit_code": 0,
+      "external_hardware": "NOT_PROVEN",
+      "final_sample": {
+        "affinity": [
+          0
+        ],
+        "cpu_ns": 12010000000,
+        "fd_count": null,
+        "fd_count_state": "UNAVAILABLE_ZOMBIE",
+        "flags": 4227084,
+        "pid": 509,
+        "rss_bytes": 0,
+        "start_ticks": 45502,
+        "state": "Z",
+        "thread_ids": [
+          509
+        ],
+        "timestamp_ns": 479341485074
+      },
+      "role": "destination",
+      "runtime_ownership_cleanup": "NOT_MEASURED",
+      "status": "PASS_FINITE_PEER",
+      "steady_cpu_ns_per_operation": null,
+      "strict_stable_capacity": "NOT_ESTABLISHED"
+    }
+  },
+  {
+    "path": "nbsr",
+    "payload_bytes": 1024,
+    "streams": 64,
+    "repeat": 5,
+    "valid": true,
+    "source_directory": "source/p1024-s64-nbsr-r5",
+    "destination_directory": "destination/p1024-s64-nbsr-r5",
+    "application_gbps": 1.776025636308072,
+    "source": {
+      "application_gbps": 1.776025636308072,
+      "completed_operations": 2168911,
+      "exit_code": 0,
+      "external_hardware": "NOT_PROVEN",
+      "final_sample": {
+        "affinity": [
+          0
+        ],
+        "cpu_ns": 11920000000,
+        "fd_count": null,
+        "fd_count_state": "UNAVAILABLE_ZOMBIE",
+        "flags": 4227084,
+        "pid": 557,
+        "rss_bytes": 0,
+        "start_ticks": 48105,
+        "state": "Z",
+        "thread_ids": [
+          557
+        ],
+        "timestamp_ns": 504317273975
+      },
+      "role": "source",
+      "runtime_ownership_cleanup": "NOT_MEASURED",
+      "status": "PASS_FINITE_PEER",
+      "steady_cpu_ns_per_operation": null,
+      "strict_stable_capacity": "NOT_ESTABLISHED"
+    },
+    "destination": {
+      "exit_code": 0,
+      "external_hardware": "NOT_PROVEN",
+      "final_sample": {
+        "affinity": [
+          0
+        ],
+        "cpu_ns": 11100000000,
+        "fd_count": null,
+        "fd_count_state": "UNAVAILABLE_ZOMBIE",
+        "flags": 4227084,
+        "pid": 566,
+        "rss_bytes": 0,
+        "start_ticks": 48035,
+        "state": "Z",
+        "thread_ids": [
+          566
+        ],
+        "timestamp_ns": 504317274075
+      },
+      "role": "destination",
+      "runtime_ownership_cleanup": "NOT_MEASURED",
+      "status": "PASS_FINITE_PEER",
+      "steady_cpu_ns_per_operation": null,
+      "strict_stable_capacity": "NOT_ESTABLISHED"
+    }
+  },
+  {
+    "path": "direct",
+    "payload_bytes": 16384,
+    "streams": 8,
+    "repeat": 1,
+    "valid": true,
+    "source_directory": "source/p16384-s8-direct-r1",
+    "destination_directory": "destination/p16384-s8-direct-r1",
+    "application_gbps": 2.811686799704081,
+    "source": {
+      "application_gbps": 2.811686799704081,
+      "completed_operations": 214537,
+      "exit_code": 0,
+      "external_hardware": "NOT_PROVEN",
+      "final_sample": {
+        "affinity": [
+          0
+        ],
+        "cpu_ns": 11240000000,
+        "fd_count": null,
+        "fd_count_state": "UNAVAILABLE_ZOMBIE",
+        "flags": 4227084,
+        "pid": 612,
+        "rss_bytes": 0,
+        "start_ticks": 50603,
+        "state": "Z",
+        "thread_ids": [
+          612
+        ],
+        "timestamp_ns": 529284759044
+      },
+      "role": "source",
+      "runtime_ownership_cleanup": "NOT_MEASURED",
+      "status": "PASS_FINITE_PEER",
+      "steady_cpu_ns_per_operation": null,
+      "strict_stable_capacity": "NOT_ESTABLISHED"
+    },
+    "destination": {
+      "exit_code": 0,
+      "external_hardware": "NOT_PROVEN",
+      "final_sample": {
+        "affinity": [
+          0
+        ],
+        "cpu_ns": 11730000000,
+        "fd_count": null,
+        "fd_count_state": "UNAVAILABLE_ZOMBIE",
+        "flags": 4227084,
+        "pid": 621,
+        "rss_bytes": 0,
+        "start_ticks": 50537,
+        "state": "Z",
+        "thread_ids": [
+          621
+        ],
+        "timestamp_ns": 529690464816
+      },
+      "role": "destination",
+      "runtime_ownership_cleanup": "NOT_MEASURED",
+      "status": "PASS_FINITE_PEER",
+      "steady_cpu_ns_per_operation": null,
+      "strict_stable_capacity": "NOT_ESTABLISHED"
+    }
+  },
+  {
+    "path": "nbsr",
+    "payload_bytes": 16384,
+    "streams": 8,
+    "repeat": 1,
+    "valid": true,
+    "source_directory": "source/p16384-s8-nbsr-r1",
+    "destination_directory": "destination/p16384-s8-nbsr-r1",
+    "application_gbps": 2.955203393548013,
+    "source": {
+      "application_gbps": 2.955203393548013,
+      "completed_operations": 225482,
+      "exit_code": 0,
+      "external_hardware": "NOT_PROVEN",
+      "final_sample": {
+        "affinity": [
+          0
+        ],
+        "cpu_ns": 11680000000,
+        "fd_count": null,
+        "fd_count_state": "UNAVAILABLE_ZOMBIE",
+        "flags": 4227084,
+        "pid": 667,
+        "rss_bytes": 0,
+        "start_ticks": 53134,
+        "state": "Z",
+        "thread_ids": [
+          667
+        ],
+        "timestamp_ns": 554595339678
+      },
+      "role": "source",
+      "runtime_ownership_cleanup": "NOT_MEASURED",
+      "status": "PASS_FINITE_PEER",
+      "steady_cpu_ns_per_operation": null,
+      "strict_stable_capacity": "NOT_ESTABLISHED"
+    },
+    "destination": {
+      "exit_code": 0,
+      "external_hardware": "NOT_PROVEN",
+      "final_sample": {
+        "affinity": [
+          0
+        ],
+        "cpu_ns": 11300000000,
+        "fd_count": null,
+        "fd_count_state": "UNAVAILABLE_ZOMBIE",
+        "flags": 4227084,
+        "pid": 678,
+        "rss_bytes": 0,
+        "start_ticks": 53068,
+        "state": "Z",
+        "thread_ids": [
+          678
+        ],
+        "timestamp_ns": 554640429256
+      },
+      "role": "destination",
+      "runtime_ownership_cleanup": "NOT_MEASURED",
+      "status": "PASS_FINITE_PEER",
+      "steady_cpu_ns_per_operation": null,
+      "strict_stable_capacity": "NOT_ESTABLISHED"
+    }
+  },
+  {
+    "path": "nbsr",
+    "payload_bytes": 16384,
+    "streams": 8,
+    "repeat": 2,
+    "valid": true,
+    "source_directory": "source/p16384-s8-nbsr-r2",
+    "destination_directory": "destination/p16384-s8-nbsr-r2",
+    "application_gbps": 2.9877288638402555,
+    "source": {
+      "application_gbps": 2.9877288638402555,
+      "completed_operations": 227960,
+      "exit_code": 0,
+      "external_hardware": "NOT_PROVEN",
+      "final_sample": {
+        "affinity": [
+          0
+        ],
+        "cpu_ns": 11630000000,
+        "fd_count": null,
+        "fd_count_state": "UNAVAILABLE_ZOMBIE",
+        "flags": 4227084,
+        "pid": 722,
+        "rss_bytes": 0,
+        "start_ticks": 55645,
+        "state": "Z",
+        "thread_ids": [
+          722
+        ],
+        "timestamp_ns": 579711755503
+      },
+      "role": "source",
+      "runtime_ownership_cleanup": "NOT_MEASURED",
+      "status": "PASS_FINITE_PEER",
+      "steady_cpu_ns_per_operation": null,
+      "strict_stable_capacity": "NOT_ESTABLISHED"
+    },
+    "destination": {
+      "exit_code": 0,
+      "external_hardware": "NOT_PROVEN",
+      "final_sample": {
+        "affinity": [
+          0
+        ],
+        "cpu_ns": 11340000000,
+        "fd_count": null,
+        "fd_count_state": "UNAVAILABLE_ZOMBIE",
+        "flags": 4227084,
+        "pid": 734,
+        "rss_bytes": 0,
+        "start_ticks": 55573,
+        "state": "Z",
+        "thread_ids": [
+          734
+        ],
+        "timestamp_ns": 579711756403
+      },
+      "role": "destination",
+      "runtime_ownership_cleanup": "NOT_MEASURED",
+      "status": "PASS_FINITE_PEER",
+      "steady_cpu_ns_per_operation": null,
+      "strict_stable_capacity": "NOT_ESTABLISHED"
+    }
+  },
+  {
+    "path": "direct",
+    "payload_bytes": 16384,
+    "streams": 8,
+    "repeat": 2,
+    "valid": true,
+    "source_directory": "source/p16384-s8-direct-r2",
+    "destination_directory": "destination/p16384-s8-direct-r2",
+    "application_gbps": 2.799390133071573,
+    "source": {
+      "application_gbps": 2.799390133071573,
+      "completed_operations": 213596,
+      "exit_code": 0,
+      "external_hardware": "NOT_PROVEN",
+      "final_sample": {
+        "affinity": [
+          0
+        ],
+        "cpu_ns": 11230000000,
+        "fd_count": null,
+        "fd_count_state": "UNAVAILABLE_ZOMBIE",
+        "flags": 4227084,
+        "pid": 777,
+        "rss_bytes": 0,
+        "start_ticks": 58144,
+        "state": "Z",
+        "thread_ids": [
+          777
+        ],
+        "timestamp_ns": 604688384541
+      },
+      "role": "source",
+      "runtime_ownership_cleanup": "NOT_MEASURED",
+      "status": "PASS_FINITE_PEER",
+      "steady_cpu_ns_per_operation": null,
+      "strict_stable_capacity": "NOT_ESTABLISHED"
+    },
+    "destination": {
+      "exit_code": 0,
+      "external_hardware": "NOT_PROVEN",
+      "final_sample": {
+        "affinity": [
+          0
+        ],
+        "cpu_ns": 11740000000,
+        "fd_count": null,
+        "fd_count_state": "UNAVAILABLE_ZOMBIE",
+        "flags": 4227084,
+        "pid": 789,
+        "rss_bytes": 0,
+        "start_ticks": 58077,
+        "state": "Z",
+        "thread_ids": [
+          789
+        ],
+        "timestamp_ns": 605085937562
+      },
+      "role": "destination",
+      "runtime_ownership_cleanup": "NOT_MEASURED",
+      "status": "PASS_FINITE_PEER",
+      "steady_cpu_ns_per_operation": null,
+      "strict_stable_capacity": "NOT_ESTABLISHED"
+    }
+  },
+  {
+    "path": "direct",
+    "payload_bytes": 16384,
+    "streams": 8,
+    "repeat": 3,
+    "valid": true,
+    "source_directory": "source/p16384-s8-direct-r3",
+    "destination_directory": "destination/p16384-s8-direct-r3",
+    "application_gbps": 2.808781570741595,
+    "source": {
+      "application_gbps": 2.808781570741595,
+      "completed_operations": 214310,
+      "exit_code": 0,
+      "external_hardware": "NOT_PROVEN",
+      "final_sample": {
+        "affinity": [
+          0
+        ],
+        "cpu_ns": 11220000000,
+        "fd_count": null,
+        "fd_count_state": "UNAVAILABLE_ZOMBIE",
+        "flags": 4227084,
+        "pid": 832,
+        "rss_bytes": 0,
+        "start_ticks": 60689,
+        "state": "Z",
+        "thread_ids": [
+          832
+        ],
+        "timestamp_ns": 630145999781
+      },
+      "role": "source",
+      "runtime_ownership_cleanup": "NOT_MEASURED",
+      "status": "PASS_FINITE_PEER",
+      "steady_cpu_ns_per_operation": null,
+      "strict_stable_capacity": "NOT_ESTABLISHED"
+    },
+    "destination": {
+      "exit_code": 0,
+      "external_hardware": "NOT_PROVEN",
+      "final_sample": {
+        "affinity": [
+          0
+        ],
+        "cpu_ns": 11750000000,
+        "fd_count": null,
+        "fd_count_state": "UNAVAILABLE_ZOMBIE",
+        "flags": 4227084,
+        "pid": 846,
+        "rss_bytes": 0,
+        "start_ticks": 60607,
+        "state": "Z",
+        "thread_ids": [
+          846
+        ],
+        "timestamp_ns": 630480539283
+      },
+      "role": "destination",
+      "runtime_ownership_cleanup": "NOT_MEASURED",
+      "status": "PASS_FINITE_PEER",
+      "steady_cpu_ns_per_operation": null,
+      "strict_stable_capacity": "NOT_ESTABLISHED"
+    }
+  },
+  {
+    "path": "nbsr",
+    "payload_bytes": 16384,
+    "streams": 8,
+    "repeat": 3,
+    "valid": true,
+    "source_directory": "source/p16384-s8-nbsr-r3",
+    "destination_directory": "destination/p16384-s8-nbsr-r3",
+    "application_gbps": 2.8768637969482,
+    "source": {
+      "application_gbps": 2.8768637969482,
+      "completed_operations": 219498,
+      "exit_code": 0,
+      "external_hardware": "NOT_PROVEN",
+      "final_sample": {
+        "affinity": [
+          0
+        ],
+        "cpu_ns": 11680000000,
+        "fd_count": null,
+        "fd_count_state": "UNAVAILABLE_ZOMBIE",
+        "flags": 4227084,
+        "pid": 887,
+        "rss_bytes": 0,
+        "start_ticks": 63212,
+        "state": "Z",
+        "thread_ids": [
+          887
+        ],
+        "timestamp_ns": 655330798012
+      },
+      "role": "source",
+      "runtime_ownership_cleanup": "NOT_MEASURED",
+      "status": "PASS_FINITE_PEER",
+      "steady_cpu_ns_per_operation": null,
+      "strict_stable_capacity": "NOT_ESTABLISHED"
+    },
+    "destination": {
+      "exit_code": 0,
+      "external_hardware": "NOT_PROVEN",
+      "final_sample": {
+        "affinity": [
+          0
+        ],
+        "cpu_ns": 11300000000,
+        "fd_count": null,
+        "fd_count_state": "UNAVAILABLE_ZOMBIE",
+        "flags": 4227084,
+        "pid": 903,
+        "rss_bytes": 0,
+        "start_ticks": 63145,
+        "state": "Z",
+        "thread_ids": [
+          903
+        ],
+        "timestamp_ns": 655367039210
+      },
+      "role": "destination",
+      "runtime_ownership_cleanup": "NOT_MEASURED",
+      "status": "PASS_FINITE_PEER",
+      "steady_cpu_ns_per_operation": null,
+      "strict_stable_capacity": "NOT_ESTABLISHED"
+    }
+  }
+]

@@ -1,0 +1,6 @@
+{
+  "wrong_ca": "MEASURED_HANDSHAKE_REJECTION; detailed TLS issuer cause INCONCLUSIVE",
+  "controller": "Original controller assertion expected detailed certificate error; failed and retained unchanged. No rerun or replacement.",
+  "affinity": "PASS_NEGATIVE_CONTROL; mismatch rejected; owned source group killed/reaped; no accepted result or ACK",
+  "production_security": "No full adversarial campaign recertification"
+}

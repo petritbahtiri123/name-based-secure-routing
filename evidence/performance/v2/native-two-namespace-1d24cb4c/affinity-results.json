@@ -1,0 +1,16 @@
+[
+  {
+    "fault": "affinity-change",
+    "status": "PASS_NEGATIVE_CONTROL",
+    "source_exit": 1,
+    "destination_exit": 0,
+    "source_failure": {
+      "error": "affinity mismatch: PID 39, TID 39",
+      "error_type": "RuntimeError",
+      "status": "INVALID_PARTIAL"
+    },
+    "source_stderr": "",
+    "accepted_result": false,
+    "completion_ack": false
+  }
+]

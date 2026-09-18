@@ -1,0 +1,14 @@
+[
+  {
+    "root": "C:\\NBSR-build\\native-two-namespace-1d24cb4c",
+    "index_sha256": "74fd81a5c19bbd2b041e90c7d3d7a27eedcdf28ebae6bfabd3d24cebd0de2ced"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-peer-port-c2806269",
+    "index_sha256": "9c2cdcbfadf5c7652f31a880f8a3a736b90d9ee05bef748645dc71978a5b002a"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-current-1d24cb4c",
+    "index_sha256": "3542a973848762a492ee85eac85b4feaf933c3abd33e24e9fae3f0544e1a87c1"
+  }
+]

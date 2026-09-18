@@ -1,0 +1,40 @@
+[
+  {
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "tests/performance/test_linux_native_peer.py",
+      "tests/performance/test_linux_loopback.py",
+      "tests/performance/test_linux_b5_exit.py",
+      "tests/performance/test_funding_grade_v2_server_plan.py",
+      "-q"
+    ],
+    "exit_code": 0,
+    "stdout": ".................................                                        [100%]\n33 passed in 0.86s\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "python",
+      "-m",
+      "ruff",
+      "check",
+      "scripts/performance/linux_native_peer.py",
+      "tests/performance/test_linux_native_peer.py"
+    ],
+    "exit_code": 0,
+    "stdout": "All checks passed!\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "warning: in the working copy of 'config/benchmarks/funding-grade-v2-server-matrix.json', CRLF will be replaced by LF the next time Git touches it\nwarning: in the working copy of 'docs/benchmarks/funding-grade-v2-server-linux-validation.md', CRLF will be replaced by LF the next time Git touches it\n"
+  }
+]

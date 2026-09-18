@@ -1,0 +1,4 @@
+{
+  "error": "\nthread 'main' (45) panicked at src/bin/perf_rust_source.rs:1291:6:\ncalled `Result::unwrap()` on an `Err` value: HandshakeFailed\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+  "traceback": "Traceback (most recent call last):\n  File \"C:\\NBSR-build\\native-two-namespace-1d24cb4c\\negative.py\", line 38, in <module>\n    if fault=='wrong-ca':assert any(x in err.lower() for x in ('unknownissuer','unknown issuer','certificate','invalid peer')),err\n                                ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: \nthread 'main' (45) panicked at src/bin/perf_rust_source.rs:1291:6:\ncalled `Result::unwrap()` on an `Err` value: HandshakeFailed\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n"
+}

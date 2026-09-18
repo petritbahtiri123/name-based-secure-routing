@@ -1,0 +1,35 @@
+{
+  "classification": "PASS_NATIVE_ADDRESS_NAMESPACE_MECHANICS",
+  "cells": [
+    {
+      "payload_bytes": 1024,
+      "streams": 64,
+      "repeats": 5,
+      "medians": {
+        "direct": 1.5036277817846155,
+        "nbsr": 1.7804958890731508
+      },
+      "cv": {
+        "direct": 0.10092058308020481,
+        "nbsr": 0.024748488236235527
+      }
+    },
+    {
+      "payload_bytes": 16384,
+      "streams": 8,
+      "repeats": 3,
+      "medians": {
+        "direct": 2.808781570741595,
+        "nbsr": 2.955203393548013
+      },
+      "cv": {
+        "direct": 0.0022899873263898867,
+        "nbsr": 0.019384255391528972
+      }
+    }
+  ],
+  "strict_stable_capacity": "NOT_PROVEN",
+  "external_hardware": "NOT_PROVEN",
+  "observer_qualification": "NOT_QUALIFIED",
+  "runtime_ownership_cleanup": "NOT_MEASURED"
+}

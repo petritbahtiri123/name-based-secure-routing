@@ -38,6 +38,15 @@ Each external root is `evidence/performance/v2/server-linux-{start_sha_12}-{host
 
 Remaining definition blockers are implementation/qualification work, not merely unavailable hardware: observer qualification, dedicated-interface packet orchestration, resource-axis coverage and full multihost/8+core matrix execution. Linux lifecycle/sampling adapters have been implemented and exercised; do not list their existence as unimplemented. Sustained acceptance remains pending. Server execution separately requires external hardware. Definition PASS does not imply execution PASS; both remain unearned here.
 
+The finite per-host observer now has an executable source-bound implementation
+and owned-process cancellation tests in `scripts.performance.linux_native_peer`;
+see EXTERNAL_NATIVE_PEER_EXECUTION.md. It replaces the untested inline wrapper
+for new finite runs while preserving the existing readiness and Direct ACK
+sequence. Dedicated-host execution and the full remote matrix remain separate.
+Linux loopback packet accounting has also completed its five-pair-per-shape
+Docker cohort; the dedicated-interface wire executor is still missing. The
+machine-readable coverage keeps these implemented subsets distinct from the gaps.
+
 The 2026-09-09 checkpoint records the executed finite reference, admission ladder,
 2048-bundle VM scale and failed soak preflights. Later failure-only diagnostics
 are documented in B3_FAILURE_MARKER_TIMING.md and B5_RETAINED_FAILURE_DIAGNOSTIC.md.
