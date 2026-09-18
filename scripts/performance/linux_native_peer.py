@@ -24,41 +24,7 @@ from scripts.performance.linux_b5_reference import git_state
 from scripts.performance.linux_exit import observe_owned_exit
 from scripts.performance.linux_loopback import ROOT, build_commands, digest, sample_process, validate_matrix, write_json
 from scripts.performance.p2a_established import validate_repeat
-
-
-class Cancellation:
-    """Defer catchable signals to safe points, including across Popen assignment.
-
-    Raising directly in a signal handler can lose ownership of a just-spawned
-    child before Popen returns. Recording a request also lets finally cleanup
-    finish when another signal arrives. SIGKILL cannot be handled.
-    """
-
-    def __init__(self):
-        self.requested = None
-        self.previous = {}
-
-    def request(self, number, frame):
-        self.requested = number
-
-    def check(self):
-        if self.requested is not None:
-            raise InterruptedError('finite peer cancelled by ' + signal.Signals(self.requested).name)
-
-    def __enter__(self):
-        for name in ('SIGINT', 'SIGTERM', 'SIGHUP'):
-            if hasattr(signal, name):
-                number = getattr(signal, name)
-                self.previous[number] = signal.signal(number, self.request)
-        return self
-
-    def __exit__(self, *_):
-        for number, handler in self.previous.items():
-            signal.signal(number, handler)
-
-
-def not_cancelled():
-    pass
+from scripts.performance.process_cancellation import Cancellation, not_cancelled
 
 
 def validate_endpoint(value, *, allow_zero):

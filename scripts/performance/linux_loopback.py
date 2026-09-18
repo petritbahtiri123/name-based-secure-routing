@@ -19,6 +19,7 @@ import tempfile
 import time
 
 from scripts.performance.p2a_established import validate_repeat
+from scripts.performance.process_cancellation import Cancellation, not_cancelled
 
 ROOT = Path(__file__).resolve().parents[2]
 BINARIES = ("perf_direct_peer", "perf_rust_source", "wp8_interop_server")
@@ -191,7 +192,7 @@ def build_commands(cell, binaries, authority, raw, endpoint, warmup, duration):
     return server, client, env
 
 
-def run_cell(cell, repeat, binaries, authority, raw, cpus, matrix, taskset):
+def run_cell(cell, repeat, binaries, authority, raw, cpus, matrix, taskset, *, check_cancelled=not_cancelled):
     raw.mkdir()
     processes, handles, final, starts = {}, [], {}, {}
     prefix = [taskset, "--cpu-list", ",".join(map(str, cpus))]
@@ -206,6 +207,7 @@ def run_cell(cell, repeat, binaries, authority, raw, cpus, matrix, taskset):
         err = (raw / f"{role}.stderr").open("w")
         handles.extend((out, err))
         processes[role] = subprocess.Popen(argv, cwd=ROOT, env=environment, stdout=out, stderr=err)
+        check_cancelled()
 
     def observe(role, sink):
         proc = processes[role]
@@ -226,10 +228,12 @@ def run_cell(cell, repeat, binaries, authority, raw, cpus, matrix, taskset):
         return sample
 
     try:
+        check_cancelled()
         launch("server", commands["server"], {**env, **override})
         deadline = time.monotonic() + 30
         # taskset exec happens before peer readiness; no measurement begins here.
         while not (raw / "ready.json").exists():
+            check_cancelled()
             if time.monotonic() > deadline:
                 raise RuntimeError("server readiness timeout")
             state = parse_proc_stat((Path("/proc") / str(processes["server"].pid) / "stat").read_text(), 1, 1)["state"]
@@ -249,11 +253,13 @@ def run_cell(cell, repeat, binaries, authority, raw, cpus, matrix, taskset):
             deadline = time.monotonic() + 5
             expected = Path(client[0]).resolve()
             while (Path("/proc") / str(processes["client"].pid) / "exe").resolve() != expected:
+                check_cancelled()
                 if time.monotonic() > deadline:
                     raise RuntimeError("client taskset/exec verification timeout")
                 time.sleep(0.001)
             deadline = time.monotonic() + matrix["warmup_seconds"] + matrix["duration_seconds"] + 60
             while len(final) < 2:
+                check_cancelled()
                 for role in processes:
                     if role not in final:
                         observe(role, sink)
@@ -263,6 +269,7 @@ def run_cell(cell, repeat, binaries, authority, raw, cpus, matrix, taskset):
                     time.sleep(0.1)
         for handle in handles:
             handle.flush()
+        check_cancelled()
         record = json.loads((raw / "client.stdout").read_text().strip().splitlines()[-1])
         if not validate_repeat(record) or int(record.get("measured_ns", 0)) <= 0:
             raise RuntimeError("binary repeat validity contract failed")
@@ -278,12 +285,15 @@ def run_cell(cell, repeat, binaries, authority, raw, cpus, matrix, taskset):
                 "affinity_verified": True, "final_process_samples": final,
                 "strict_stable": "NOT_ESTABLISHED_NO_OFFERED_RATE_OR_BACKLOG_GATE"}
     finally:
-        for process in processes.values():
+        forced = []
+        for role, process in processes.items():
             if process.returncode is None:
                 process.kill()
-                process.wait(timeout=5)
+                forced.append(dict(role=role, pid=process.pid, exit_code=process.wait(timeout=5)))
         for handle in handles:
             handle.close()
+        if forced:
+            write_json(raw / "forced-cleanup.json", dict(valid=False, processes=forced))
 
 
 def checksums(output):
@@ -292,7 +302,7 @@ def checksums(output):
     (output / "checksums.sha256").write_text("\n".join(entries) + "\n", encoding="utf-8")
 
 
-def main():
+def execute(*, check_cancelled):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--matrix", type=Path, default=Path(__file__).with_name("linux_loopback_matrix.json"))
     parser.add_argument("--binaries", type=Path, required=True)
@@ -331,7 +341,8 @@ def main():
                "timestamp_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
                "scope": "Linux loopback, shared source/destination physical-core pool"})
     source_paths = [Path(__file__), Path(__file__).with_name("authority.py"),
-                    Path(__file__).with_name("p2a_established.py")]
+                    Path(__file__).with_name("p2a_established.py"),
+                    Path(__file__).with_name("process_cancellation.py")]
     source_hashes = {str(p.relative_to(ROOT)): digest(p) for p in source_paths}
     write_json(output / "manifest.json", {"matrix": matrix, "build": build, "binary_sha256": hashes,
                "source_sha256": source_hashes,
@@ -356,7 +367,8 @@ def main():
                     for cell in pair if repeat % 2 else pair[::-1]:
                         raw = output / "raw" / f"pair-{index // 2:03d}-{cell['path']}-r{repeat}"
                         try:
-                            record = run_cell(cell, repeat, binaries, authority, raw, cpu_sets[cell["cores"]], matrix, taskset)
+                            record = run_cell(cell, repeat, binaries, authority, raw, cpu_sets[cell["cores"]], matrix, taskset,
+                                              check_cancelled=check_cancelled)
                         except Exception as error:
                             write_json(raw / "rejected.json", {"cell": cell, "repeat": repeat, "valid": False, "reason": str(error)})
                             raise
@@ -376,6 +388,7 @@ def main():
             raise RuntimeError("runner or helper source changed during campaign")
         if subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip() != sha:
             raise RuntimeError("source commit changed during campaign")
+        check_cancelled()
         status = "PASS_LOOPBACK_CONTROL" if all(s["repeatable"] for s in summaries) else "PARTIAL_DISPERSION"
     finally:
         write_json(output / "analysis.json", {"status": status, "cells": summaries, "valid_runs": len(records),
@@ -386,6 +399,11 @@ def main():
         manifest["status"] = status
         write_json(output / "manifest.json", manifest)
         checksums(output)
+
+
+def main():
+    with Cancellation() as cancellation:
+        execute(check_cancelled=cancellation.check)
 
 
 if __name__ == "__main__":

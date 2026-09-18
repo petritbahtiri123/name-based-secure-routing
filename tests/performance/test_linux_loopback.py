@@ -172,5 +172,44 @@ class LinuxLoopbackTests(unittest.TestCase):
                 self.assertLess(events.index("ack"), events.index("server_final"))
 
 
+class CancellationOwnershipTests(unittest.TestCase):
+    def test_pending_signal_after_either_spawn_reaps_only_registered_children(self):
+        from scripts.performance import linux_loopback as loopback
+        for target in (1, 2):
+            with self.subTest(cancel_after_spawn=target), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                raw = root / 'raw'
+                children, events = [], []
+                class Child:
+                    def __init__(self, argv, **kwargs):
+                        self.pid = len(children) + 1
+                        self.returncode = None
+                        children.append(self)
+                        if self.pid == 1:
+                            (raw / 'ready.json').write_text('{"endpoint":"127.0.0.1:123"}')
+                    def kill(self):
+                        events.append(('kill', self.pid))
+                    def wait(self, timeout):
+                        events.append(('wait', self.pid))
+                        self.returncode = -9
+                        return -9
+                def cancelled():
+                    if len(children) == target:
+                        raise InterruptedError('SIGTERM fixture')
+                with patch.object(loopback.subprocess, 'Popen', Child), \
+                     patch.object(loopback, 'sample_process', return_value=dict(state='S', start_ticks=1)):
+                    with self.assertRaisesRegex(InterruptedError, 'SIGTERM'):
+                        loopback.run_cell(dict(path='direct', cores=1, payload_bytes=1024,
+                            streams=1, outstanding=1), 1, root / 'bins', root / 'authority',
+                            raw, [0], dict(warmup_seconds=3, duration_seconds=20), 'taskset',
+                            check_cancelled=cancelled)
+                self.assertEqual(events, [(action, pid) for pid in range(1, target + 1)
+                                          for action in ('kill', 'wait')])
+                self.assertFalse((raw / 'completion.ack').exists())
+                cleanup = json.loads((raw / 'forced-cleanup.json').read_text())
+                self.assertFalse(cleanup['valid'])
+                self.assertEqual([p['exit_code'] for p in cleanup['processes']], [-9] * target)
+
+
 if __name__ == "__main__":
     unittest.main()
