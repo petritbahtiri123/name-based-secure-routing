@@ -6,6 +6,19 @@ import pytest
 from tests.performance.test_linux_native_packet_accounting import CLIENT, SERVER, capture, frame
 from tests.performance.test_native_packet_markers import PROBE, marker
 
+def test_ready_marker_is_invisible_until_complete_json_is_closed(tmp_path, monkeypatch):
+    from scripts.performance import linux_native_capture as capture_module
+    path = tmp_path / 'capture-ready.json'
+    original = capture_module.write_json
+    def observe_write(destination, value):
+        assert destination != path
+        assert not path.exists()
+        original(destination, value)
+        assert not path.exists()
+    monkeypatch.setattr(capture_module, 'write_json', observe_write)
+    capture_module.publish_ready(path, {'status': 'START_MARKER_OBSERVED', 'token': 'test'})
+    assert json.loads(path.read_text())['token'] == 'test'
+    assert list(tmp_path.iterdir()) == [path]
 
 def observer(**kwargs):
     from scripts.performance.linux_native_capture import NativePacketObserver

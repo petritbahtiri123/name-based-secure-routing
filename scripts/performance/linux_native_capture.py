@@ -25,6 +25,13 @@ from scripts.performance.process_cancellation import Cancellation, not_cancelled
 from scripts.run_b1_v2_capture import PacketObserver
 
 
+def publish_ready(path, value):
+    """Expose a complete marker to a coordinator polling the shared mount."""
+    pending = path.with_suffix('.pending')
+    write_json(pending, value)
+    pending.replace(path)
+
+
 class NativePacketObserver(PacketObserver):
     readiness_linktype = 1
     capture_name = 'native.pcapng'
@@ -186,7 +193,7 @@ def execute(args, *, check_cancelled=not_cancelled):
                            for name, path in (('dumpcap', dumpcap), ('tshark', tshark))}))
         deadline = time.monotonic() + 120
         with observer.capture(args.server, output):
-            write_json(output / 'capture-ready.json', dict(token=token, source_sha=sha,
+            publish_ready(output / 'capture-ready.json', dict(token=token, source_sha=sha,
                 status='START_MARKER_OBSERVED', note='Coordinator must now start workload; stop only after both peers complete'))
             while not stop_requested(output / 'capture-stop.json', token):
                 check_cancelled()
