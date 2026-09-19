@@ -1,0 +1,182 @@
+[
+  {
+    "cell": "bundles-16-r1",
+    "public_certificates_sha256": {
+      "ca.der": "19b0d48f8054ec4e9362d304d04fa9bbfdd00832ec5e1085f05506b09c510093",
+      "source.der": "f07141dc7a77ecb9d4cfd5c03e9f60471710e1eeaecc6425b6aaf999e16eab65",
+      "destination.der": "4ad76b1416e1ef0021374da8a34875aebf53d56b83adb6f7134e13734c726284"
+    },
+    "scope": "retained post-run public fixture copy, not remote attestation"
+  },
+  {
+    "cell": "bundles-16-r2",
+    "public_certificates_sha256": {
+      "ca.der": "af49b82be29aa961fba3e9712d0b12a2eadd4559caf0a5c7b81c53d367f875f7",
+      "source.der": "9e1271a66468bfb2270d116e5b9a5354a81c4d997f729ffb405f6a2b82e5bb48",
+      "destination.der": "73b0b8e8e6ac35c433876275d768b52d31c657fc244c05d3c869813da5155d05"
+    },
+    "scope": "retained post-run public fixture copy, not remote attestation"
+  },
+  {
+    "cell": "bundles-16-r3",
+    "public_certificates_sha256": {
+      "ca.der": "41e3136148fe1f89b3647ea318c615ffed1299cd0aeddc8df587ae60378fce3d",
+      "source.der": "e163cdb7cfe624c4d0ce02942f39fcf5a6ffcda068a485c4f72e4edf6508005b",
+      "destination.der": "08ecf4356498158beb2e2e07853f00fd8799cd6edf4f854cfb90814e946de45d"
+    },
+    "scope": "retained post-run public fixture copy, not remote attestation"
+  },
+  {
+    "cell": "bundles-16-r4",
+    "public_certificates_sha256": {
+      "ca.der": "127205a0edbdaf60be099b71652302f13864dee09894f496566bd7dbe899d1ae",
+      "source.der": "d2c24bfa46faaea5090641d022431c457be97b38c06ce6c69755fb0ff3990a61",
+      "destination.der": "24ed2906fa685fe2adb39d334f88624e9f4f26e5db1243dfdcf503bb39596a50"
+    },
+    "scope": "retained post-run public fixture copy, not remote attestation"
+  },
+  {
+    "cell": "bundles-16-r5",
+    "public_certificates_sha256": {
+      "ca.der": "ad7df8478c1ade316113ec517e63a4bf733821da3ae7b45edc990adbcba1ab7e",
+      "source.der": "7e0b0ea497105f46989dabfea9858120231c208a51ead24a54f80433aab99d9f",
+      "destination.der": "d408aa9171181c621d9f4ec2921b3170bbfbe159e5dad7e8a1ec36e743cbad9d"
+    },
+    "scope": "retained post-run public fixture copy, not remote attestation"
+  },
+  {
+    "cell": "bundles-32-r1",
+    "public_certificates_sha256": {
+      "ca.der": "9879d3b7b0fb2e90f221cfd4bee71af959715c438802f63c00308430b4416480",
+      "source.der": "e0ed9d9cde3e0c1d8048164ec8553643cca743ee7f9edab838cf71e46e33b10d",
+      "destination.der": "9ee23c8bbaeda9b248ccb3278ccc6d2cd7d171786a2f3cbd0f7a1356e24e9974"
+    },
+    "scope": "retained post-run public fixture copy, not remote attestation"
+  },
+  {
+    "cell": "bundles-32-r2",
+    "public_certificates_sha256": {
+      "ca.der": "86b96bf6a68a1d16c533481669b573681ae82887473b8619683c0611e500dcf1",
+      "source.der": "f14ce529e94674f256a44477f0af0112bb4183473868d30c2c31a2627110405d",
+      "destination.der": "0f7a97cbc01d17b434328d7c196c90024e3d8f19762cf06087719dfe1107ad21"
+    },
+    "scope": "retained post-run public fixture copy, not remote attestation"
+  },
+  {
+    "cell": "bundles-32-r3",
+    "public_certificates_sha256": {
+      "ca.der": "b5d088175a590f6f95963bef10d4ad29bdf3817e1941121de84b8af221311c6c",
+      "source.der": "14c309bb4dda84274e5d2f10c86dd9d5838d50ad4a40b278a1c3741cc6783a10",
+      "destination.der": "e59dda3e1adf20541c768353ed3c95f612433ef7b8392ba9db7a8a59c088d055"
+    },
+    "scope": "retained post-run public fixture copy, not remote attestation"
+  },
+  {
+    "cell": "bundles-32-r4",
+    "public_certificates_sha256": {
+      "ca.der": "bbe4525d31ed97c672f2b6216c678c71fdf04b17289738e9ac0c948a503182af",
+      "source.der": "2f233d7d063484942784b146632e2e0b4770e8a446f25bf6ed880f61e09b4d7f",
+      "destination.der": "ef5ebb0280e293fd34b7173bf8bd61fc37472a37205dda419349afebe95798c2"
+    },
+    "scope": "retained post-run public fixture copy, not remote attestation"
+  },
+  {
+    "cell": "bundles-32-r5",
+    "public_certificates_sha256": {
+      "ca.der": "38b6398ef627080d8bddfb66e6badf2bec1e25767531985d6ac39622ccbaed0d",
+      "source.der": "0b3a494c81e7875b26d3e8528a6c4bf023aa90fe5772c0da3b646ac69c6fd78b",
+      "destination.der": "6ce99f7661c5c620e82380bc6dbd26386e7d14b4850ba1ba75b658e3f10cdd84"
+    },
+    "scope": "retained post-run public fixture copy, not remote attestation"
+  },
+  {
+    "cell": "bundles-64-r1",
+    "public_certificates_sha256": {
+      "ca.der": "ffc82302d704a4bff78d6d6b8c92d14e69db5cc88fe0ab9a8202039bd08c07b8",
+      "source.der": "d3529dc16776c5a69e323e8a653ab173cf1134aed13e04d4109ea27ec8be025d",
+      "destination.der": "9682c6b5a9c9500c17f7bd5ae63766bfed68d3be74e44a7f2fbe1d644a05b902"
+    },
+    "scope": "retained post-run public fixture copy, not remote attestation"
+  },
+  {
+    "cell": "bundles-64-r2",
+    "public_certificates_sha256": {
+      "ca.der": "727f1619e0ed5f8d54eda4497e649db76004a4c9a75dc56ad17b5891d0c644af",
+      "source.der": "1cde89772955a7734ca7279cac8af8c14169e7c2ebecb4eba864fb8460ab6c39",
+      "destination.der": "3f88d9a65f451b48e6c43ebbe688381e056c4f4cac3bae0021bdfabf3fd2821a"
+    },
+    "scope": "retained post-run public fixture copy, not remote attestation"
+  },
+  {
+    "cell": "bundles-64-r3",
+    "public_certificates_sha256": {
+      "ca.der": "0e0bbc41d342eb5cc3f155f25a222bf27b738d5b7126435da3d1631715d63e44",
+      "source.der": "ddea72e596b9a1584657de3222226f104adb9a052fa7c77252a960e3fd7411be",
+      "destination.der": "91f06239200001fa57b57a6b887b16815de13dd3a11f9f33d8edb9bba54ac04e"
+    },
+    "scope": "retained post-run public fixture copy, not remote attestation"
+  },
+  {
+    "cell": "bundles-64-r4",
+    "public_certificates_sha256": {
+      "ca.der": "e50f1100a60e98788f72237e6e1cd5bf91e05f59fec64351564c84e3b7b3b7df",
+      "source.der": "9392bdcae1ce9cecbe631cd8164de75d06eda38c4ffbc6730fbc368a22d32ab1",
+      "destination.der": "a0af164c55f3d17dc816e16e2dc0b7f901c01a2756a79cfca93877737efbe370"
+    },
+    "scope": "retained post-run public fixture copy, not remote attestation"
+  },
+  {
+    "cell": "bundles-64-r5",
+    "public_certificates_sha256": {
+      "ca.der": "8ebd8d236783e9c9766dee5da2d9fd662ab88ea0b4d453d9d636ab450aee3696",
+      "source.der": "0403080f856b98704843a97eebd3278cb30f7e3bae3e8bd573cca80de06ee29a",
+      "destination.der": "ce9cc7894be001b9543eaad4e7edde53ea61684a0e59bfa22a6331cb8769ac71"
+    },
+    "scope": "retained post-run public fixture copy, not remote attestation"
+  },
+  {
+    "cell": "bundles-128-r1",
+    "public_certificates_sha256": {
+      "ca.der": "7a536a318ea3ea9ae1c6e0ec8a02fcffcc79c4334254e5523dd21e01f7731359",
+      "source.der": "0711325ee58c39ddda9fed2792211e45dae2f2d773152cbaee79dad0a9706ec5",
+      "destination.der": "35be1132d2e280d4dbe43adf9e875b49ee53068557217c5ee08919816d945909"
+    },
+    "scope": "retained post-run public fixture copy, not remote attestation"
+  },
+  {
+    "cell": "bundles-128-r2",
+    "public_certificates_sha256": {
+      "ca.der": "1718c41bf5723ad122d28f78bfa19776e8d6dc6cda4c2bcd0d1cc569f513bef6",
+      "source.der": "0cbf19746167c9903e0900939d4a647bc236fc4e0f496268e89b28e6b679e67e",
+      "destination.der": "aced1bf58c83232ecbb9d79e41c8fb8be3cdd5b28443cf0547a395e487fb2d6f"
+    },
+    "scope": "retained post-run public fixture copy, not remote attestation"
+  },
+  {
+    "cell": "bundles-128-r3",
+    "public_certificates_sha256": {
+      "ca.der": "0af2f8125bef3c5d8308fa96727045bb9cedc4ae427ccf105ce762268f18fa10",
+      "source.der": "f96ac23c45b7b3a394eedb047c301b64cefd25c562ece41b3be3090f9e9e2b5e",
+      "destination.der": "5ee18f207c1f1046c8c2f9a4b916ae62055def252683741a3f05bc22296a3b91"
+    },
+    "scope": "retained post-run public fixture copy, not remote attestation"
+  },
+  {
+    "cell": "bundles-128-r4",
+    "public_certificates_sha256": {
+      "ca.der": "7fa89a50caf958b26c46780f3c6563d5304a71a598719578c978d66625055f47",
+      "source.der": "6e78277785199164acd87831e8cc8a2b0ce57489eed53288c2329785a6ee70c4",
+      "destination.der": "97352eb703a1315584ae1bb369b402c7d5469e0d35cd1897a86f5cc6f876b8f7"
+    },
+    "scope": "retained post-run public fixture copy, not remote attestation"
+  },
+  {
+    "cell": "bundles-128-r5",
+    "public_certificates_sha256": {
+      "ca.der": "34a20d268179ccf11576469890dd6b33f2e22d1f87797367a04b31c97c0fef78",
+      "source.der": "04a308e3814b134e91ba5e4d29672f676f3415c716ce07c4737fc2559e1d4035",
+      "destination.der": "1ef126d6b676d72837869ee758625cf65ab7d3b3f992210f936018504d777a0d"
+    },
+    "scope": "retained post-run public fixture copy, not remote attestation"
+  }
+]

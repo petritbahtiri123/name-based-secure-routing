@@ -20,3 +20,11 @@ same-process cycles with zero final ownership and twelve live source socket
 joins. An unspecified-address negative case rejects. Seven argument contracts,
 four TLS/ALPN/name/channel-binding tests and feature-enabled release clippy pass.
 See [retained evidence](../../evidence/performance/v2/lifecycle-bind-b6cf5e56/summary.md).
+
+The same release binaries subsequently pass five repeats each at 16, 32, 64
+and 128 materialized bundles across distinct internal Docker network namespaces:
+1,200 connections, both-endpoint active markers, live socket identity joins and
+zero final ownership. See [native lifecycle evidence](../../evidence/performance/v2/native-lifecycle-b6cf5e56/summary.md).
+These are functional scale results on a shared WSL host, not qualified timing
+or independent physical-server results. A separate 256-bundle continuation
+failed; larger scale and its cause remain unresolved.

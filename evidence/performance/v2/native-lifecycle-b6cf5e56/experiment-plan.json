@@ -1,0 +1,20 @@
+{
+  "source_sha": "b6cf5e56b6e57b816c0080941d91124d6fa6607e",
+  "counts": [
+    16,
+    32,
+    64,
+    128
+  ],
+  "repeats": 5,
+  "source_shards": 2,
+  "offered_rate": 100,
+  "channels_per_connection": 1,
+  "streams_per_channel": 1,
+  "payload_bytes": 1024,
+  "materialized_streams": true,
+  "hold_seconds": 2,
+  "cooldown_seconds": 2,
+  "scope": "two isolated Docker network namespaces on one WSL host; concurrent materialized lifecycle bundles; no capacity or physical hardware claim",
+  "failure_policy": "preserve every attempt; stop progression on failure; no timeout extension or replacement pooling"
+}

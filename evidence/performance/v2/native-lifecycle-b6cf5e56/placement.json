@@ -1,0 +1,7 @@
+{
+  "addresses": {
+    "source": "172.29.0.2",
+    "destination": "172.29.0.3"
+  },
+  "scope": "shared WSL host; two internal Docker network namespaces; not independent physical servers"
+}
