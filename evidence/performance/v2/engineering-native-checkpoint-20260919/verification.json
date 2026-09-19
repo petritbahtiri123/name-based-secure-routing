@@ -1,0 +1,16 @@
+{
+  "focused_tests": "68 PASS; tests/performance/test_linux_native_capture.py, test_linux_native_packet_accounting.py, test_native_packet_markers.py, test_linux_native_fixed_work.py, test_capture_forced_reap.py",
+  "ruff": "PASS; linux_native_capture.py and test_linux_native_capture.py",
+  "native_fixed_peer_cells": 20,
+  "native_wire_cells": 20,
+  "native_offload_diagnostic_pairs": 3,
+  "raw_integrity_native_wire_files": 991,
+  "main": "1938154d498b32d81a3564319969430644e8a688",
+  "origin_main": "1938154d498b32d81a3564319969430644e8a688",
+  "active_docker_containers": [],
+  "production_change": false,
+  "budget_start_weekly_used_percent": 86,
+  "budget_latest_weekly_used_percent": 95,
+  "classification": "MORE_ENGINEERING_REQUIRED",
+  "full_rust_go_suites": "NOT_RERUN: no production or dependency changes; locked release binaries independently rebuilt"
+}

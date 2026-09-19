@@ -1,0 +1,34 @@
+[
+  {
+    "package": "native-packet-20cd17fc",
+    "index_sha256": "b02a1be7d4575f34c1973d15ab3eaa233df748fb09a4b7157b9d26951e4ef610"
+  },
+  {
+    "package": "native-fixed-6b06fb08",
+    "index_sha256": "859f795b90ad61e963fd34786b34978fc2e78db78e94c124011b2066c950337d"
+  },
+  {
+    "package": "capture-reap-72b7295b",
+    "index_sha256": "d6d11528d12b93071c3131b8b55cad8628368d55d903ed00edc8662d48b3c5be"
+  },
+  {
+    "package": "native-markers-98484de8",
+    "index_sha256": "53e987239915268dd2fb6f14cbfd34fba4064e6b28966eae0fa7d52c911f5a00"
+  },
+  {
+    "package": "native-capture-c4a4cd08",
+    "index_sha256": "8d38c0b81ccf0715efd78cb920f4065647e509f816685929fc9323febb88ac23"
+  },
+  {
+    "package": "native-offload-ec255c18",
+    "index_sha256": "7ab5d4935160bd439ecd9656de1bcfc9ad8999593db1711325c4bb171db6445c"
+  },
+  {
+    "package": "storage-maintenance-ec255c18",
+    "index_sha256": "228c6882a550d7b4bf45f97ad175f270adb802776d59a4bbb43f81b5810bd19f"
+  },
+  {
+    "package": "native-wire-ec255c18",
+    "index_sha256": "449871a5012964a4e4e40b576f316de7f7a7c995d3bf64936b887baf6b3d1d51"
+  }
+]

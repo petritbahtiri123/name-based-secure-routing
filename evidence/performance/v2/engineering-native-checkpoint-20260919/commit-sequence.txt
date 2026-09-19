@@ -1,0 +1,16 @@
+20cd17fcadb7f2d48d1267ab474d6073995b96cc feat(bench): add strict native packet accounting subset
+b44ed5c41af5a7d4a542f15f6ff25aa8daf1d3f3 test(bench): retain native packet accounting crosschecks
+8a252a5ea0aef1219fbff2083c33b56b91545026 chore(evidence): preserve raw pytest transcripts as opaque artifacts
+6b06fb0895342e0486411497cede18c456c2782c feat(bench): port equal-work native peer comparisons
+4d3bbb45dc02451c17f11fb4c3eb44961ac6620b test(bench): verify native fixed-work peer cohorts
+72b7295bf9ba078c3c5ef7d23b71dd8d1b3b422b fix(bench): reap capture children after ignored stop signals
+21422cb36ad115b96c2b1fbf3526e292d21ae33a test(bench): retain resistant capture-child cleanup evidence
+98484de8201f8a737434159a848af3e16c1c898e feat(bench): validate native capture boundary markers
+c9f4b6bb7cb61207de58ad5e0f1f4c6024cbae26 test(bench): retain native marker capture validation
+ba9e844ad10b500445cb831de12919860f55f296 feat(bench): add bounded native capture coordinator
+c4a4cd08be53fd5f45e9e999c3c67a6129a9863e fix(bench): join capture flows and verify interface MTU
+db7edb195c6a626ba071c8762e3405e9f9504ed3 test(bench): retain native capture controls and failed wire attempt
+ec255c18c7f6946f63e068e64299ab173dd15428 fix(bench): publish native capture readiness atomically
+31d9584d7656d6a21f19cdb99946413107bcfbe1 evidence(bench): attribute native capture aggregation and retain disk-limited cohort
+29ec393c0ac1866d33dfde6a6f895167caee6757 chore(evidence): preserve traces while recovering allocated disk space
+f0591bd2c03b64a04b5e8579a8f4225a89803fee evidence(bench): retain twenty matched native packet captures

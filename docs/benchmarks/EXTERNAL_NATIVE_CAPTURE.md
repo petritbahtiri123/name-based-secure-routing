@@ -41,6 +41,8 @@ python3 -B -m scripts.performance.linux_native_capture \
 The coordinator must wait for `capture-ready.json` containing
 `START_MARKER_OBSERVED` before launching the source peer. The live reader has
 already observed the exact private marker tuple/token in the open pcapng.
+The ready marker is published by same-directory atomic rename after JSON close;
+polling must not depend on a partially written marker becoming parseable later.
 Run the existing native peers with matched `--operations-per-stream 1000` and
 depth one. Preserve their own output roots. Source result validation, then the
 unchanged Direct completion ACK, then destination wrapper success remain the
@@ -68,6 +70,16 @@ The random stop token prevents an old marker from closing a new attempt, but is
 not an authentication protocol or proof that the operator verified the peers.
 Bind and validate both complete peer roots separately using the pair/cohort
 commands in EXTERNAL_NATIVE_PEER_EXECUTION.md.
+
+The retained ec255c18 Docker experiment isolates a capture representation issue:
+three matched Direct on/off pairs show oversized IPv4 aggregates only while
+`tx-udp-segmentation` is enabled on the private veths. The MTU rejection stays
+unchanged. This does not establish physical NIC behavior, physical wire bytes,
+or a production performance improvement. Test-specific offload configuration
+and its before/after inventory belong to the external coordinator; this capture
+command does not change them. The initial paired cohort stops at its unchanged
+five-GiB disk reserve and remains INVALID_PARTIAL; see
+[the retained attribution evidence](../../evidence/performance/v2/native-offload-ec255c18/summary.md).
 
 The wrapper observes a distinct terminal token before stopping/reaping its own
 capture child. Complete inventory, exact native flow, both direction totals,

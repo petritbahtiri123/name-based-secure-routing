@@ -4,6 +4,12 @@
 for the ongoing campaign. Each measurement belongs to its recorded source,
 workload and host; different stages are not one final-SHA scoreboard.
 
+Latest native-packet/reliability continuation: see the
+[scoped September 19 follow-up](ENGINEERING_CHECKPOINT_2026-09-19_NATIVE.md).
+Native equal-work peers, bounded packet accounting and capture cleanup now have
+retained positive/negative evidence. These are harness and reproducibility
+improvements, not new production capacity or a completed funding freeze.
+
 NBSR is being evaluated as a secure route to an isolated private origin. The
 accepted PoC connects a client through non-frozen ISP adapters, the unchanged
 NBSR secure path, and a fixed Origin Connector. Authority, authentication,
