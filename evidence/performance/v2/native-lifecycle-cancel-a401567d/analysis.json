@@ -1,0 +1,72 @@
+{
+  "status": "PASS_SIX_LIVE_CANCELLATION_CONTROLS",
+  "records": [
+    {
+      "role": "source",
+      "repeat": 1,
+      "status": "PASS_CANCELLATION_REJECTS_AND_REAPS",
+      "wrapper_exit": 1,
+      "child_pid": 40,
+      "child_start_ticks": 128212,
+      "owned_child_absent": true,
+      "index": "0ec4ec1fa675f3af3c8ed11283bb92e0809356df1c301327fd905ff08622b1c8",
+      "scope": "source probe cancels pending connection to unused fixture endpoint; destination cancels listening peer; no successful admission/security claim"
+    },
+    {
+      "role": "source",
+      "repeat": 2,
+      "status": "PASS_CANCELLATION_REJECTS_AND_REAPS",
+      "wrapper_exit": 1,
+      "child_pid": 71,
+      "child_start_ticks": 128281,
+      "owned_child_absent": true,
+      "index": "f2a9fe528ab7c22746198f4a496c4528b92c39ef2858345bce0344d20886d508",
+      "scope": "source probe cancels pending connection to unused fixture endpoint; destination cancels listening peer; no successful admission/security claim"
+    },
+    {
+      "role": "source",
+      "repeat": 3,
+      "status": "PASS_CANCELLATION_REJECTS_AND_REAPS",
+      "wrapper_exit": 1,
+      "child_pid": 102,
+      "child_start_ticks": 128347,
+      "owned_child_absent": true,
+      "index": "e929c47a83860228a9f510e0cdbe1027629dd2e37203608ab205da3f7e96f850",
+      "scope": "source probe cancels pending connection to unused fixture endpoint; destination cancels listening peer; no successful admission/security claim"
+    },
+    {
+      "role": "destination",
+      "repeat": 1,
+      "status": "PASS_CANCELLATION_REJECTS_AND_REAPS",
+      "wrapper_exit": 1,
+      "child_pid": 40,
+      "child_start_ticks": 128561,
+      "owned_child_absent": true,
+      "index": "8713ae31c08d126268b378b22bde9bccad49ca756a0006566ce58f7e4b423512",
+      "scope": "source probe cancels pending connection to unused fixture endpoint; destination cancels listening peer; no successful admission/security claim"
+    },
+    {
+      "role": "destination",
+      "repeat": 2,
+      "status": "PASS_CANCELLATION_REJECTS_AND_REAPS",
+      "wrapper_exit": 1,
+      "child_pid": 69,
+      "child_start_ticks": 128626,
+      "owned_child_absent": true,
+      "index": "efa07ad5d0c627f608168a1948d11aca93a5db8755bec73cca784d3dc963df38",
+      "scope": "source probe cancels pending connection to unused fixture endpoint; destination cancels listening peer; no successful admission/security claim"
+    },
+    {
+      "role": "destination",
+      "repeat": 3,
+      "status": "PASS_CANCELLATION_REJECTS_AND_REAPS",
+      "wrapper_exit": 1,
+      "child_pid": 98,
+      "child_start_ticks": 128691,
+      "owned_child_absent": true,
+      "index": "5cb9865b0ee5b9ae0bcc17b53a0fc9292f386b9f4d534b97fc2ffdf8f331702b",
+      "scope": "source probe cancels pending connection to unused fixture endpoint; destination cancels listening peer; no successful admission/security claim"
+    }
+  ],
+  "scope": "SIGTERM rejection and owned process cleanup; not graceful runtime ownership, admission success or network security recertification"
+}

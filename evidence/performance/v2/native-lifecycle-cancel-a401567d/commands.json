@@ -1,0 +1,28 @@
+[
+  [
+    "docker",
+    "exec",
+    "--user",
+    "65532",
+    "nbsr-native-control-scale512-source-a401567d",
+    "python",
+    "-B",
+    "/tmp/native-cancel-controller.py",
+    "source",
+    "192.168.48.2",
+    "192.168.48.3"
+  ],
+  [
+    "docker",
+    "exec",
+    "--user",
+    "65532",
+    "nbsr-native-control-scale512-destination-a401567d",
+    "python",
+    "-B",
+    "/tmp/native-cancel-controller.py",
+    "destination",
+    "192.168.48.3",
+    "192.168.48.2"
+  ]
+]
