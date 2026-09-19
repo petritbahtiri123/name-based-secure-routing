@@ -1,0 +1,12 @@
+[
+  {
+    "label": "before",
+    "exit_code": 0,
+    "issues": []
+  },
+  {
+    "label": "after",
+    "exit_code": 0,
+    "issues": []
+  }
+]

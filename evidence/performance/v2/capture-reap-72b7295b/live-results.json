@@ -1,0 +1,44 @@
+{
+  "before": {
+    "error": "TimeoutExpired: Command '['/usr/local/bin/python3', '/out/fixture.py']' timed out after 5 seconds",
+    "pid": 7,
+    "initial_stat": "7 (python3) S 1 7 7 0 -1 4194304 1420 0 0 0 2 0 0 0 20 0 1 0 37236 15421440 2720 18446744073709551615 97797764407296 97797764407633 140734766116240 0 0 0 0 16797698 0 1 0 0 17 7 0 0 0 0 0 97797764418992 97797764419608 97798478270464 140734766124606 140734766124645 140734766124645 140734766125025 0\n",
+    "after_stat": "7 (python3) S 1 7 7 0 -1 4194304 1420 0 0 0 2 0 0 0 20 0 1 0 37236 15421440 2720 18446744073709551615 97797764407296 97797764407633 140734766116240 0 0 0 0 16797698 0 1 0 0 17 7 0 0 0 0 0 97797764418992 97797764419608 97798478270464 140734766124606 140734766124645 140734766124645 140734766125025 0\n",
+    "same_owned_epoch_alive": true,
+    "status": "RED_ORPHAN_REPRODUCED",
+    "scope": "Fault-injected owned capture child ignores SIGINT/SIGTERM; not a real packet workload",
+    "fixture_cleanup_absent": true
+  },
+  "after": [
+    {
+      "error": null,
+      "pid": 7,
+      "initial_stat": "7 (python3) S 1 7 7 0 -1 4194304 1420 0 0 0 2 0 0 0 20 0 1 0 51576 15421440 2720 18446744073709551615 96166071459840 96166071460177 140733655939680 0 0 0 0 16797698 0 1 0 0 17 3 0 0 0 0 0 96166071471536 96166071472152 96166475694080 140733655944766 140733655944805 140733655944805 140733655945185 0\n",
+      "after_stat": null,
+      "same_owned_epoch_alive": false,
+      "status": "GREEN_FORCED_REAP",
+      "scope": "Fault-injected owned capture child ignores SIGINT/SIGTERM; not a real packet workload",
+      "fixture_cleanup_absent": true
+    },
+    {
+      "error": null,
+      "pid": 7,
+      "initial_stat": "7 (python3) S 1 7 7 0 -1 4194304 1419 0 0 0 1 1 0 0 20 0 1 0 53158 15421440 2720 18446744073709551615 97944998207488 97944998207825 140733318531792 0 0 0 0 16797698 0 1 0 0 17 7 0 0 0 0 0 97944998219184 97944998219800 97945629712384 140733318536766 140733318536805 140733318536805 140733318537185 0\n",
+      "after_stat": null,
+      "same_owned_epoch_alive": false,
+      "status": "GREEN_FORCED_REAP",
+      "scope": "Fault-injected owned capture child ignores SIGINT/SIGTERM; not a real packet workload",
+      "fixture_cleanup_absent": true
+    },
+    {
+      "error": null,
+      "pid": 7,
+      "initial_stat": "7 (python3) S 1 7 7 0 -1 4194304 1418 0 0 0 2 0 0 0 20 0 1 0 54739 15421440 2720 18446744073709551615 100452162908160 100452162908497 140726741460528 0 0 0 0 16797698 0 1 0 0 17 6 0 0 0 0 0 100452162919856 100452162920472 100452205203456 140726741466686 140726741466725 140726741466725 140726741467105 0\n",
+      "after_stat": null,
+      "same_owned_epoch_alive": false,
+      "status": "GREEN_FORCED_REAP",
+      "scope": "Fault-injected owned capture child ignores SIGINT/SIGTERM; not a real packet workload",
+      "fixture_cleanup_absent": true
+    }
+  ]
+}

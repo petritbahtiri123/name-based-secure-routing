@@ -1,0 +1,105 @@
+FF                                                                       [100%]
+================================== FAILURES ===================================
+__ test_capture_ignoring_graceful_and_terminate_is_killed_reaped_and_invalid __
+
+self = <test_capture_forced_reap.test_capture_ignoring_graceful_and_terminate_is_killed_reaped_and_invalid.<locals>.Child object at 0x0000027F430BA7B0>
+timeout = 10
+
+    def wait(self, timeout):
+        events.append(('wait', timeout))
+        if 'kill' not in events:
+>           raise subprocess.TimeoutExpired('capture-fixture', timeout)
+E           subprocess.TimeoutExpired: Command 'capture-fixture' timed out after 10 seconds
+
+tests\performance\test_capture_forced_reap.py:16: TimeoutExpired
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1096/test_capture_ignoring_graceful0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000027F430B1940>
+
+    def test_capture_ignoring_graceful_and_terminate_is_killed_reaped_and_invalid(tmp_path, monkeypatch):
+        from scripts.performance.external_packet_capture import ExternalCapture
+        events, opened = [], []
+        class Child:
+            returncode = None
+            def send_signal(self, value):
+                events.append(('signal', value))
+            def wait(self, timeout):
+                events.append(('wait', timeout))
+                if 'kill' not in events:
+                    raise subprocess.TimeoutExpired('capture-fixture', timeout)
+                self.returncode = -9
+                return -9
+            def terminate(self):
+                events.append('terminate')
+            def kill(self):
+                events.append('kill')
+        def spawn(*args, **kwargs):
+            opened.append(kwargs['stderr'])
+            return Child()
+        monkeypatch.setattr(subprocess, 'Popen', spawn)
+        monkeypatch.setattr(subprocess, 'run', lambda *a, **k: SimpleNamespace(returncode=0, stdout=''))
+        observer = ExternalCapture('dumpcap', 'tshark')
+        monkeypatch.setattr(observer, 'process_options', dict)
+        monkeypatch.setattr(observer, 'stop_signal', lambda: signal.SIGINT)
+        monkeypatch.setattr(observer, 'wait_capture_ready', lambda *args: None)
+>       with observer.capture('127.0.0.1:4000', tmp_path):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\performance\test_capture_forced_reap.py:32: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\AppData\Local\Programs\Python\Python314\Lib\contextlib.py:148: in __exit__
+    next(self.gen)
+scripts\performance\external_packet_capture.py:97: in capture
+    process.wait(timeout=5)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <test_capture_forced_reap.test_capture_ignoring_graceful_and_terminate_is_killed_reaped_and_invalid.<locals>.Child object at 0x0000027F430BA7B0>
+timeout = 5
+
+    def wait(self, timeout):
+        events.append(('wait', timeout))
+        if 'kill' not in events:
+>           raise subprocess.TimeoutExpired('capture-fixture', timeout)
+E           subprocess.TimeoutExpired: Command 'capture-fixture' timed out after 5 seconds
+
+tests\performance\test_capture_forced_reap.py:16: TimeoutExpired
+_____________ test_capture_final_reap_failure_still_closes_stderr _____________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1096/test_capture_final_reap_failur0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000027F430B10F0>
+
+    def test_capture_final_reap_failure_still_closes_stderr(tmp_path, monkeypatch):
+        from scripts.performance.external_packet_capture import ExternalCapture
+        import pytest
+        opened = []
+        class Child:
+            def send_signal(self, value):
+                pass
+            def wait(self, timeout):
+                raise subprocess.TimeoutExpired('fixture', timeout)
+            def terminate(self):
+                pass
+            def kill(self):
+                pass
+        def spawn(*args, **kwargs):
+            opened.append(kwargs['stderr'])
+            return Child()
+        observer = ExternalCapture('dumpcap', 'tshark')
+        monkeypatch.setattr(subprocess, 'Popen', spawn)
+        monkeypatch.setattr(observer, 'process_options', dict)
+        monkeypatch.setattr(observer, 'stop_signal', lambda: signal.SIGINT)
+        monkeypatch.setattr(observer, 'wait_capture_ready', lambda *args: None)
+        with pytest.raises(subprocess.TimeoutExpired):
+            with observer.capture('127.0.0.1:4000', tmp_path):
+                pass
+>       assert opened[0].closed
+E       AssertionError: assert False
+E        +  where False = <_io.BufferedWriter name='C:\\Users\\bajra\\AppData\\Local\\Temp\\pytest-of-bajra\\pytest-1096\\test_capture_final_reap_failur0\\dumpcap.stderr'>.closed
+
+tests\performance\test_capture_forced_reap.py:64: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_capture_forced_reap.py::test_capture_ignoring_graceful_and_terminate_is_killed_reaped_and_invalid
+FAILED tests/performance/test_capture_forced_reap.py::test_capture_final_reap_failure_still_closes_stderr
+2 failed in 0.71s
