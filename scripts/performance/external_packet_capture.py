@@ -89,13 +89,21 @@ class ExternalCapture:
                     finish_error = error
             graceful=True
             try:
-                process.send_signal(self.stop_signal())
-                process.wait(timeout=10)
-            except (OSError,subprocess.TimeoutExpired):
-                graceful=False
-                process.terminate()
-                process.wait(timeout=5)
-            stderr.close()
+                try:
+                    process.send_signal(self.stop_signal())
+                    process.wait(timeout=10)
+                except (OSError,subprocess.TimeoutExpired):
+                    graceful=False
+                    try:
+                        process.terminate()
+                        process.wait(timeout=5)
+                    except (OSError,subprocess.TimeoutExpired):
+                        # Only the Popen-owned capture child; escalation never
+                        # turns a failed graceful close into valid evidence.
+                        process.kill()
+                        process.wait(timeout=5)
+            finally:
+                stderr.close()
             fields=['frame.time_epoch','ip.src','udp.srcport','ip.dst','udp.dstport','frame.len','quic.long.packet_type','quic.dcid']
             packet_path=Path(cell_dir)/'udp-packets.tsv'
             command=[str(self.tshark),'-r',str(pcap),'-Y',f'udp.port=={server_port}','-T','fields','-E','separator=/t','-E','occurrence=f']
