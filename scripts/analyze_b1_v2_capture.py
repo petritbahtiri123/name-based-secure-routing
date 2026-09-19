@@ -5,6 +5,8 @@ import re
 import struct
 import ipaddress
 
+PHASE_NAMES = ('setup-complete', 'measurement-start', 'measurement-stop')
+
 
 def probe_tokens(probe):
     tokens = {bytes.fromhex(probe["token_hex"])}
@@ -13,6 +15,15 @@ def probe_tokens(probe):
         if terminal in tokens:
             raise ValueError("terminal probe token must be distinct")
         tokens.add(terminal)
+    if 'phase_tokens' in probe:
+        phases = probe['phase_tokens']
+        if not isinstance(phases, dict) or set(phases) != set(PHASE_NAMES):
+            raise ValueError('three exact phase tokens required')
+        for name in PHASE_NAMES:
+            token = bytes.fromhex(phases[name])
+            if token in tokens:
+                raise ValueError('phase tokens must be distinct')
+            tokens.add(token)
     if any(len(token) != 32 for token in tokens):
         raise ValueError("readiness probe token must have 32 bytes")
     return tokens

@@ -8,7 +8,7 @@ from pathlib import Path
 import re
 import struct
 
-from scripts.analyze_b1_v2_capture import capture_drop_counts, probe_tokens
+from scripts.analyze_b1_v2_capture import PHASE_NAMES, capture_drop_counts, probe_tokens
 from scripts.performance.linux_b5_ceiling import require
 from scripts.performance.linux_loopback import digest
 
@@ -77,10 +77,9 @@ def account_capture(data, *, interface, client, server, drop_log, mtu=1500, prob
         require((probe_client[0], probe_server[0]) == (client[0], server[0])
                 and len({probe_client[1], probe_server[1], client[1], server[1]}) == 4,
                 'marker endpoints must be separate ports on the declared hosts')
-        probe_tokens(probe)
+        all_tokens = probe_tokens(probe)
         require('terminal_token_hex' in probe, 'terminal marker is required')
-        markers = {bytes.fromhex(probe[key]): dict(count=0, first=None, last=None)
-                   for key in ('token_hex', 'terminal_token_hex')}
+        markers = {token: dict(count=0, first=None, last=None) for token in all_tokens}
     drops = capture_drop_counts(drop_log)
     require(drops['interface'] == interface, 'drop-log interface mismatch')
     require(28 <= len(data) <= 2 * 1024**3 and data[:4] == b'\x0a\x0d\x0d\x0a',
@@ -89,6 +88,11 @@ def account_capture(data, *, interface, client, server, drop_log, mtu=1500, prob
     require(endian is not None, 'invalid pcapng byte order')
     totals = dict(packet_count=0, captured_frame_bytes=0, ip_bytes=0, udp_bytes=0, udp_payload_bytes=0)
     directions = {name: dict(totals) for name in ('client_to_server', 'server_to_client')}
+    phase_tokens = ([bytes.fromhex(probe['phase_tokens'][name]) for name in PHASE_NAMES]
+                    if probe is not None and 'phase_tokens' in probe else [])
+    phase_names = ('setup', 'stream_validation_and_warmup', 'established_with_postflight', 'teardown')
+    phase_windows = {name: dict(totals) for name in phase_names}
+    phase_index = 0
     offset, interfaces, inventory, probe_bytes = 0, 0, 0, 0
     first_work = last_work = None
     while offset < len(data):
@@ -120,6 +124,10 @@ def account_capture(data, *, interface, client, server, drop_log, mtu=1500, prob
             inventory += 1
             if probe is not None and (source, destination) == (probe_client, probe_server):
                 require(payload in markers, 'unexpected marker token')
+                if payload in phase_tokens:
+                    require(phase_index < 3 and payload == phase_tokens[phase_index],
+                            'duplicate or reordered phase marker')
+                    phase_index += 1
                 marker = markers[payload]
                 marker['count'] += 1
                 marker['first'] = marker['first'] if marker['first'] is not None else inventory
@@ -133,6 +141,8 @@ def account_capture(data, *, interface, client, server, drop_log, mtu=1500, prob
                 for name, value in fields.items():
                     totals[name] += value
                     directions[direction][name] += value
+                    if phase_tokens:
+                        phase_windows[phase_names[phase_index]][name] += value
         elif kind == 5:
             require(interfaces == 1 and len(body) >= 12 and struct.unpack_from(endian + 'I', body)[0] == 0,
                     'invalid interface statistics block')
@@ -148,13 +158,26 @@ def account_capture(data, *, interface, client, server, drop_log, mtu=1500, prob
         require(start['count'] > 0 and end['count'] > 0
                 and start['last'] < first_work <= last_work < end['first'],
                 'missing/misordered markers do not bracket retained workload')
+    phase_result = {}
+    if phase_tokens:
+        boundaries = [markers[token] for token in phase_tokens]
+        require(phase_index == 3 and all(v['count'] == 1 for v in boundaries), 'missing phase marker')
+        require(start['last'] < boundaries[0]['first'] < boundaries[1]['first']
+                < boundaries[2]['first'] < end['first'], 'phase markers outside capture boundaries')
+        phase_result = dict(phase_windows=phase_windows,
+            phase_marker_frames={name: value['first'] for name, value in zip(PHASE_NAMES, boundaries)},
+            pure_measured_operations_only='NOT_PROVEN',
+            phase_scope='Packet-order windows: setup, stream validation/warmup, established work '
+                        'including untimed postflight and 100 ms ACK drain, teardown. '
+                        'Not exact QUIC semantic boundaries or a pure timed-operation byte count.')
     return dict(schema='nbsr-native-packet-accounting-v1', status='DIAGNOSTIC_PACKET_ACCOUNTING_ONLY',
         interface=interface, client=list(client), server=list(server), declared_mtu=mtu,
         **totals, directions=directions, capture_drops=drops, physical_wire_bytes=None,
         capture_inventory_packets=inventory, probe_packet_count=inventory - totals['packet_count'],
         probe_frame_bytes=probe_bytes, capture_inventory_frame_bytes=totals['captured_frame_bytes'] + probe_bytes,
         readiness_and_terminal_coverage='MARKERS_BRACKET_RETAINED_FLOW' if probe else 'NOT_PROVEN',
-        setup_vs_established='NOT_PROVEN',
+        setup_vs_established='MEASURED_MARKER_WINDOWS' if phase_tokens else 'NOT_PROVEN',
+        **phase_result,
         offload_state='NOT_PROVEN', performance_timing='NOT_QUALIFIED',
         packet_checksums='NOT_VALIDATED; transmit checksum offload may affect captured headers',
         scope='Whole retained exact flow only. Capture truncation in time is not excluded. '

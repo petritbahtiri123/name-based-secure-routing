@@ -14,7 +14,8 @@ import socket
 import subprocess
 import time
 
-from scripts.analyze_b1_v2_capture import probe_frames_from_pcapng
+from scripts.analyze_b1_v2_capture import PHASE_NAMES, probe_frames_from_pcapng
+from scripts.performance.native_phase_control import PhaseControl
 from scripts.performance.external_packet_capture import ExternalCapture
 from scripts.performance.linux_b5_ceiling import require
 from scripts.performance.linux_b5_placement import seal_output
@@ -38,7 +39,7 @@ class NativePacketObserver(PacketObserver):
     export_timeout = 30
 
     def __init__(self, dumpcap, tshark, *, interface, local_address, server, probe_port,
-                 mtu=1500, check_cancelled=not_cancelled):
+                 mtu=1500, check_cancelled=not_cancelled, phase_markers=False):
         super().__init__(dumpcap, tshark, interface)
         self.local_address = endpoint((local_address, 1))[0]
         self.server = endpoint(server)
@@ -49,6 +50,8 @@ class NativePacketObserver(PacketObserver):
         require(probe_port != server[1], 'probe port must differ from QUIC endpoint')
         require(type(mtu) is int and 68 <= mtu <= 65535, 'invalid MTU')
         self.probe_port, self.mtu, self.check_cancelled = probe_port, mtu, check_cancelled
+        self.phase_markers = phase_markers
+        self.phase_control_endpoint = None
 
     def process_options(self):
         return dict(start_new_session=True)
@@ -117,7 +120,7 @@ class NativePacketObserver(PacketObserver):
                     drop_log=(directory / 'dumpcap.stderr').read_text(), mtu=self.mtu, probe=self.probe)
             require(result['packet_count'] == self.report['packet_count'], 'flow export/capture inventory mismatch')
             self.report.update(packet_accounting=result, endpoint_process_ownership='NOT_PROVEN',
-                               performance_timing='DIAGNOSTIC', setup_vs_established='NOT_PROVEN')
+                               performance_timing='DIAGNOSTIC', setup_vs_established=result['setup_vs_established'])
         except BaseException:
             self.report.update(valid=False, status='invalid_native_accounting')
             raise
@@ -137,9 +140,25 @@ class NativePacketObserver(PacketObserver):
                     source_port=port, destination_port=self.probe_port, token_hex=secrets.token_hex(32),
                     terminal_token_hex=secrets.token_hex(32), sent_packets=0)
                 require(self.probe['token_hex'] != self.probe['terminal_token_hex'], 'probe token collision')
+                if self.phase_markers:
+                    self.probe['phase_tokens'] = {name: secrets.token_hex(32) for name in PHASE_NAMES}
                 # Use the existing owned-child lifecycle, not PacketObserver's loopback socket setup.
                 with ExternalCapture.capture(self, endpoint_text, directory):
-                    yield self
+                    if self.phase_markers:
+                        def emit(name):
+                            sender.sendto(bytes.fromhex(self.probe['phase_tokens'][name]),
+                                          (self.server[0], self.probe_port))
+                        control = PhaseControl(emit)
+                        try:
+                            with control:
+                                self.phase_control_endpoint = '%s:%s' % control.endpoint
+                                yield self
+                        finally:
+                            write_json(directory / 'phase-control.json', dict(
+                                endpoint=self.phase_control_endpoint, transitions=control.transitions,
+                                completed=control.completed, error=control.error))
+                    else:
+                        yield self
                 self.account_native(directory)
         except BaseException as error:
             self.report.update(valid=False, status='INVALID_PARTIAL', error=str(error))
@@ -180,7 +199,8 @@ def execute(args, *, check_cancelled=not_cancelled):
     require(dumpcap and tshark, 'dumpcap and tshark required; capture capability may require Administrator/root')
     host, port = args.server.rsplit(':', 1)
     observer = NativePacketObserver(dumpcap, tshark, interface=args.interface, local_address=args.local_address,
-        server=(host, int(port)), probe_port=args.probe_port, mtu=args.mtu, check_cancelled=check_cancelled)
+        server=(host, int(port)), probe_port=args.probe_port, mtu=args.mtu, check_cancelled=check_cancelled,
+        phase_markers=getattr(args, 'phase_markers', False))
     nic = interface_metadata(args.interface, args.mtu)
     token = secrets.token_hex(32)
     output.mkdir(exist_ok=False)
@@ -194,6 +214,7 @@ def execute(args, *, check_cancelled=not_cancelled):
         deadline = time.monotonic() + 120
         with observer.capture(args.server, output):
             publish_ready(output / 'capture-ready.json', dict(token=token, source_sha=sha,
+                phase_control_endpoint=observer.phase_control_endpoint,
                 status='START_MARKER_OBSERVED', note='Coordinator must now start workload; stop only after both peers complete'))
             while not stop_requested(output / 'capture-stop.json', token):
                 check_cancelled()
@@ -222,6 +243,7 @@ def main():
     parser.add_argument('--server', required=True, help='Exact destination IPv4:UDP port from readiness')
     parser.add_argument('--probe-port', type=int, required=True, help='Separate authorized remote UDP fixture port')
     parser.add_argument('--mtu', type=int, required=True)
+    parser.add_argument('--phase-markers', action='store_true')
     args = parser.parse_args()
     with Cancellation() as cancellation:
         execute(args, check_cancelled=cancellation.check)

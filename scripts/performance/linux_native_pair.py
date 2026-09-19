@@ -82,6 +82,13 @@ def check_peer(root, role, source_sha):
         require(argv.count(key) == 1 and argv.index(key) + 1 < len(argv)
                 and argv[argv.index(key) + 1] == str(expected), 'command mismatch: ' + key)
     option('--p2a-runtime-workers', cell['cores'])
+    phase_control = env.get('phase_control_endpoint')
+    if phase_control is not None:
+        require(role == 'source' and validate_endpoint(phase_control, allow_zero=False)[0] == '127.0.0.1',
+                'invalid phase control endpoint')
+        option('--p2a-counter-control', phase_control)
+    else:
+        require('--p2a-counter-control' not in argv, 'undeclared phase observer')
     option('--benchmark-client-bind' if role == 'source' else '--benchmark-listen', env['bind'])
     validate_endpoint(env['bind'], allow_zero=True)
     overrides = {'NBSR_P2A_STREAMS': str(cell['streams'])} if role == 'destination' and cell['path'] == 'nbsr' else {}

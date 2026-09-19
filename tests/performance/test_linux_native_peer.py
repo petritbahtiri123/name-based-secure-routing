@@ -5,6 +5,24 @@ import signal
 import pytest
 
 
+@pytest.mark.parametrize('mode', ['direct', 'nbsr'])
+def test_phase_control_is_optional_source_local_and_symmetric(tmp_path, mode):
+    from scripts.performance.linux_native_peer import native_command
+    cell = dict(path=mode, cores=1, payload_bytes=1024, streams=64, outstanding=1)
+    args = (cell, 'source', Path('/bins'), Path('/private'), tmp_path)
+    plain, _ = native_command(*args, bind='192.0.2.10:0', endpoint='192.0.2.11:4444')
+    observed, _ = native_command(*args, bind='192.0.2.10:0', endpoint='192.0.2.11:4444',
+                                phase_control='127.0.0.1:12345')
+    assert '--p2a-counter-control' not in plain
+    assert observed[observed.index('--p2a-counter-control') + 1] == '127.0.0.1:12345'
+    with pytest.raises(ValueError):
+        native_command(*args, bind='192.0.2.10:0', endpoint='192.0.2.11:4444',
+                       phase_control='192.0.2.10:12345')
+    with pytest.raises(ValueError):
+        native_command(cell, 'destination', Path('/bins'), Path('/private'), tmp_path,
+                       bind='192.0.2.11:0', endpoint=None, phase_control='127.0.0.1:12345')
+
+
 def test_signal_cancellation_is_deferred_until_owned_child_is_registered():
     from scripts.performance.linux_native_peer import Cancellation
     previous = signal.getsignal(signal.SIGTERM)

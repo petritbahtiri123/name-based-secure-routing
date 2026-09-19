@@ -66,7 +66,7 @@ def validate_fixed_work(row, cell):
                 'fixed operation count differs from declared workload')
 
 
-def native_command(cell, role, binaries, authority, output, *, bind, endpoint):
+def native_command(cell, role, binaries, authority, output, *, bind, endpoint, phase_control=None):
     require(role in ('source', 'destination'), 'invalid role')
     _, port = validate_endpoint(bind, allow_zero=True)
     if role == 'source':
@@ -84,6 +84,10 @@ def native_command(cell, role, binaries, authority, output, *, bind, endpoint):
     if duration is None:
         pos = client.index('--p2a-duration-seconds')
         client[pos:pos + 2] = ['--p2a-operations-per-stream', str(cell['operations_per_stream'])]
+    if phase_control is not None:
+        require(role == 'source' and validate_endpoint(phase_control, allow_zero=False)[0] == '127.0.0.1',
+                'phase control requires source-local loopback endpoint')
+        client += ['--p2a-counter-control', phase_control]
     return ((client + ['--benchmark-client-bind', bind], {}) if role == 'source'
             else (server + ['--benchmark-listen', bind], env))
 
@@ -180,7 +184,9 @@ def execute(args, *, check_cancelled=not_cancelled):
     if getattr(args, 'operations_per_stream', None) is not None:
         cell['operations_per_stream'] = args.operations_per_stream
     warmup, duration = measurement_contract(cell)
-    command, overrides = native_command(cell, args.role, binaries, authority, output, bind=args.bind, endpoint=endpoint)
+    phase_control = getattr(args, 'phase_control', None)
+    command, overrides = native_command(cell, args.role, binaries, authority, output, bind=args.bind,
+                                       endpoint=endpoint, phase_control=phase_control)
     executable = Path(command[0])
     require(os.access(executable, os.X_OK), 'executable peer required')
     cert_names = ('ca.der', f'{args.role}.der')
@@ -197,6 +203,7 @@ def execute(args, *, check_cancelled=not_cancelled):
             bind=args.bind, endpoint=endpoint, linux_environment=host, uid=os.getuid(),
             controller_deadline_seconds=120, warmup_seconds=warmup, duration_seconds=duration,
             live_socket_observer=bool(getattr(args, 'observe_socket_ownership', False)),
+            phase_control_endpoint=phase_control,
             binary_sha256=hashes, certificates_sha256=certificate_hashes,
             scope='finite native-address peer; external/physical hardware unqualified',
             cpu_scope='whole peer lifetime including startup/warmup/drain; not steady CPU ns/op',
@@ -255,6 +262,7 @@ def execute(args, *, check_cancelled=not_cancelled):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--phase-control', help='Source-only local capture phase control IPv4:port')
     parser.add_argument('--role', choices=('source', 'destination'), required=True)
     parser.add_argument('--observe-socket-ownership', action='store_true',
                         help='Opt-in bounded live FD observer; timing is diagnostic only')
