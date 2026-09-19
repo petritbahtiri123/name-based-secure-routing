@@ -95,6 +95,13 @@ probe identities, readiness/stop records, UDP export, layer totals, failure or
 result, and a SHA-256 inventory. Marker bytes are reconciled separately.
 Successful status is PASS_DIAGNOSTIC_NATIVE_CAPTURE, not full B1 acceptance.
 Keep performance observations diagnostic while capture is enabled. Physical
-wire bytes, offload qualification, setup-versus-established phase splitting,
+wire bytes, offload qualification,
 process ownership and the complete five-pair overhead analysis remain separate
 gates. Docker veth runs establish mechanics only, never external NIC capacity.
+
+For optional phase accounting, add `--phase-markers` and pass the published
+`phase_control_endpoint` to the source peer's `--phase-control`. See
+[the phase contract](EXTERNAL_NATIVE_PHASE_ACCOUNTING.md). The retained
+`native-phases-6b1095c5` cohort completes twenty cells with four independently
+reconciled packet-order windows. Established work includes untimed postflight
+validation and ACK drain; pure timed-operation accounting remains NOT_PROVEN.

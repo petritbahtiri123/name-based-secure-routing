@@ -14,6 +14,15 @@ bindings across ten captured Direct/NBSR cells; eighty wrong-identity/port joins
 reject. This is local attribution evidence, not continuous exclusive ownership,
 physical-wire validation or a new throughput claim.
 
+The `6b1095c5` phase follow-up completes twenty matched capture cells across
+both payload shapes. Four packet-order windows independently match TShark.
+Median additional setup IP bytes are 38,590 at 1 KiB/64 streams and 15,596 at
+16 KiB/eight streams. Established-with-postflight deltas are small and signed;
+they are not a compression claim or a pure protocol tax. See
+[all paired phase results](../../evidence/performance/v2/native-phases-6b1095c5/paired-phase-accounting.json).
+Physical-interface, observer-qualified timing and final funding closure remain
+unproven; this narrows the previous whole-flow accounting limitation.
+
 NBSR is being evaluated as a secure route to an isolated private origin. The
 accepted PoC connects a client through non-frozen ISP adapters, the unchanged
 NBSR secure path, and a fixed Origin Connector. Authority, authentication,

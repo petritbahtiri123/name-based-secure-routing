@@ -1,0 +1,27 @@
+F......                                                                  [100%]
+================================== FAILURES ===================================
+_______ test_phase_windows_reconcile_without_claiming_pure_measurement ________
+
+    def test_phase_windows_reconcile_without_claiming_pure_measurement():
+>       result = analyze(packets(), PHASE_PROBE)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\performance\test_native_packet_phases.py:21: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\performance\test_native_packet_markers.py:22: in analyze
+    return account_capture(capture(frames), interface='eth0', client=CLIENT, server=SERVER,
+scripts\performance\linux_native_packet_accounting.py:122: in account_capture
+    require(payload in markers, 'unexpected marker token')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False, reason = 'unexpected marker token'
+
+    def require(condition, reason):
+        if not condition:
+>           raise ValueError(reason)
+E           ValueError: unexpected marker token
+
+scripts\performance\linux_b5_ceiling.py:22: ValueError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_native_packet_phases.py::test_phase_windows_reconcile_without_claiming_pure_measurement
+1 failed, 6 passed in 0.70s

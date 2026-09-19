@@ -1,0 +1,60 @@
+[
+  {
+    "payload_bytes": 1024,
+    "windows": {
+      "established_with_postflight": {
+        "median_incremental_ip_bytes": -21451,
+        "median_incremental_ip_percent_of_useful": -0.016365814208984374,
+        "minimum_incremental_ip_bytes": -27877,
+        "maximum_incremental_ip_bytes": -11668
+      },
+      "setup": {
+        "median_incremental_ip_bytes": 38590,
+        "median_incremental_ip_percent_of_useful": 0.02944183349609375,
+        "minimum_incremental_ip_bytes": 37003,
+        "maximum_incremental_ip_bytes": 38652
+      },
+      "stream_validation_and_warmup": {
+        "median_incremental_ip_bytes": -10598,
+        "median_incremental_ip_percent_of_useful": -0.00808563232421875,
+        "minimum_incremental_ip_bytes": -10769,
+        "maximum_incremental_ip_bytes": -9188
+      },
+      "teardown": {
+        "median_incremental_ip_bytes": 0,
+        "median_incremental_ip_percent_of_useful": 0.0,
+        "minimum_incremental_ip_bytes": 0,
+        "maximum_incremental_ip_bytes": 0
+      }
+    }
+  },
+  {
+    "payload_bytes": 16384,
+    "windows": {
+      "established_with_postflight": {
+        "median_incremental_ip_bytes": -23519,
+        "median_incremental_ip_percent_of_useful": -0.008971786499023438,
+        "minimum_incremental_ip_bytes": -54351,
+        "maximum_incremental_ip_bytes": 6074
+      },
+      "setup": {
+        "median_incremental_ip_bytes": 15596,
+        "median_incremental_ip_percent_of_useful": 0.00594940185546875,
+        "minimum_incremental_ip_bytes": 14064,
+        "maximum_incremental_ip_bytes": 15652
+      },
+      "stream_validation_and_warmup": {
+        "median_incremental_ip_bytes": -11669,
+        "median_incremental_ip_percent_of_useful": -0.004451370239257813,
+        "minimum_incremental_ip_bytes": -12033,
+        "maximum_incremental_ip_bytes": -10517
+      },
+      "teardown": {
+        "median_incremental_ip_bytes": 0,
+        "median_incremental_ip_percent_of_useful": 0.0,
+        "minimum_incremental_ip_bytes": 0,
+        "maximum_incremental_ip_bytes": 0
+      }
+    }
+  }
+]

@@ -1,0 +1,16 @@
+
+=================================== ERRORS ====================================
+_______ ERROR collecting tests/performance/test_native_phase_control.py _______
+ImportError while importing test module 'C:\Users\bajra\OneDrive\Documents\NBSR\tests\performance\test_native_phase_control.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+..\..\..\AppData\Local\Programs\Python\Python314\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\performance\test_native_phase_control.py:6: in <module>
+    from scripts.performance.native_phase_control import PhaseControl
+E   ModuleNotFoundError: No module named 'scripts.performance.native_phase_control'
+=========================== short test summary info ===========================
+ERROR tests/performance/test_native_phase_control.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+1 error in 0.72s

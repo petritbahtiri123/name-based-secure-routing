@@ -1,0 +1,21 @@
+{
+  "tests": {
+    "command": "python -m pytest tests/performance/test_native_phase_control.py tests/performance/test_native_packet_phases.py tests/performance/test_native_packet_markers.py tests/performance/test_linux_native_packet_accounting.py tests/performance/test_linux_native_capture.py tests/performance/test_linux_native_peer.py tests/performance/test_linux_native_pair.py tests/performance/test_linux_native_cohort.py -q",
+    "passed": 114
+  },
+  "ruff": "PASS scoped changed Python",
+  "diff_check": "PASS",
+  "independent_tshark_windows": 80,
+  "valid_cells": 20,
+  "live_socket_joins": 40,
+  "negative_socket_joins": 160,
+  "raw_files_verified": 1226,
+  "privacy": "PASS canonical",
+  "production_changes": false,
+  "limitations": [
+    "timing DIAGNOSTIC",
+    "physical hardware NOT_PROVEN",
+    "pure timed-operation bytes NOT_PROVEN",
+    "historical security results not recertified"
+  ]
+}

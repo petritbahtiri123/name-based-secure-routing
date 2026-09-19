@@ -1,0 +1,33 @@
+{
+  "source_sha": "6b1095c5723fe56b139264c9604ecc62c73e024f",
+  "shapes": [
+    {
+      "payload_bytes": 1024,
+      "streams": 64
+    },
+    {
+      "payload_bytes": 16384,
+      "streams": 8
+    }
+  ],
+  "repeats_per_path": 5,
+  "operations_per_stream": 1000,
+  "depth": 1,
+  "warmup_seconds": 0,
+  "order": "counterbalanced Direct/NBSR by repeat",
+  "phase_observer": true,
+  "socket_observer": true,
+  "performance": "DIAGNOSTIC",
+  "gates": [
+    "complete existing peer/cohort checks",
+    "zero capture drops",
+    "MTU 1500",
+    "exact flow tuple",
+    "readiness and terminal markers",
+    "three unique ordered phase markers",
+    "four phase windows reconcile independently through TShark",
+    "live socket joins"
+  ],
+  "failure_policy": "preserve and abort; no replacement pooling",
+  "scope": "shared WSL host; isolated Docker network namespaces; not physical network/server evidence"
+}

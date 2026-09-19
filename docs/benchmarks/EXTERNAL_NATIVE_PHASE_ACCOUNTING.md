@@ -25,5 +25,12 @@ validation remains separate from Docker namespace evidence.
 
 Implementation verification at parent 52824743: literal missing-module RED and
 phase-parser RED retained under C:/NBSR-build; 114 affected tests GREEN, Ruff and
-diff whitespace checks pass. Live phase accounting remains pending until a
-complete matched campaign and independent TShark reconciliation are retained.
+diff whitespace checks pass.
+
+Live validation at 6b1095c5 completes 20/20 cells: five matched pairs each at
+1 KiB/64 streams and 16 KiB/eight streams. All four phase windows match separate
+TShark packet-count/IP-byte queries. Forty live endpoint joins and 160 negative
+identity/port controls pass. See
+[canonical results](../../evidence/performance/v2/native-phases-6b1095c5/summary.md).
+An initial controller-order mistake and its same-capture read-only reanalysis
+are retained separately; none is pooled into the corrected full cohort.

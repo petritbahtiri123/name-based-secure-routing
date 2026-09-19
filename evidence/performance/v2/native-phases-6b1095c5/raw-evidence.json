@@ -1,0 +1,14 @@
+[
+  {
+    "root": "C:\\NBSR-build\\linux-current-6b1095c5",
+    "index_sha256": "cc4d54f1b2933e562b4ceac2b798d2b882dba1c7dcf45840144824f1432a5d2d"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-phases-6b1095c5-corrected",
+    "index_sha256": "2ac015d74d9a958e677e5651d5f15ccaa4be4e9fc4a8bc3e7f1dbe935ca62bf5"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-phases-6b1095c5",
+    "index_sha256": "8bd4919d18573cf07cc34c44e8b2c529e5ebb67417ff8afc1b2575b30c70391f"
+  }
+]

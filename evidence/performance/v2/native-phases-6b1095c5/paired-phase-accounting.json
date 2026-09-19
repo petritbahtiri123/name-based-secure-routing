@@ -1,0 +1,792 @@
+[
+  {
+    "payload_bytes": 1024,
+    "repeat": 1,
+    "useful_request_response_bytes": 131072000,
+    "windows": {
+      "established_with_postflight": {
+        "direct": {
+          "captured_frame_bytes": 144112485,
+          "ip_bytes": 142686333,
+          "packet_count": 101868,
+          "udp_bytes": 140648973,
+          "udp_payload_bytes": 139834029
+        },
+        "nbsr": {
+          "captured_frame_bytes": 144077020,
+          "ip_bytes": 142658456,
+          "packet_count": 101326,
+          "udp_bytes": 140631936,
+          "udp_payload_bytes": 139821328
+        },
+        "incremental_ip_bytes": -27877,
+        "incremental_ip_percent_of_useful": -0.021268463134765624
+      },
+      "setup": {
+        "direct": {
+          "captured_frame_bytes": 5454,
+          "ip_bytes": 5370,
+          "packet_count": 6,
+          "udp_bytes": 5250,
+          "udp_payload_bytes": 5202
+        },
+        "nbsr": {
+          "captured_frame_bytes": 46995,
+          "ip_bytes": 43957,
+          "packet_count": 217,
+          "udp_bytes": 39617,
+          "udp_payload_bytes": 37881
+        },
+        "incremental_ip_bytes": 38587,
+        "incremental_ip_percent_of_useful": 0.029439544677734374
+      },
+      "stream_validation_and_warmup": {
+        "direct": {
+          "captured_frame_bytes": 154314,
+          "ip_bytes": 152648,
+          "packet_count": 119,
+          "udp_bytes": 150268,
+          "udp_payload_bytes": 149316
+        },
+        "nbsr": {
+          "captured_frame_bytes": 143474,
+          "ip_bytes": 142018,
+          "packet_count": 104,
+          "udp_bytes": 139938,
+          "udp_payload_bytes": 139106
+        },
+        "incremental_ip_bytes": -10630,
+        "incremental_ip_percent_of_useful": -0.00811004638671875
+      },
+      "teardown": {
+        "direct": {
+          "captured_frame_bytes": 172,
+          "ip_bytes": 144,
+          "packet_count": 2,
+          "udp_bytes": 104,
+          "udp_payload_bytes": 88
+        },
+        "nbsr": {
+          "captured_frame_bytes": 172,
+          "ip_bytes": 144,
+          "packet_count": 2,
+          "udp_bytes": 104,
+          "udp_payload_bytes": 88
+        },
+        "incremental_ip_bytes": 0,
+        "incremental_ip_percent_of_useful": 0.0
+      }
+    }
+  },
+  {
+    "payload_bytes": 1024,
+    "repeat": 2,
+    "useful_request_response_bytes": 131072000,
+    "windows": {
+      "established_with_postflight": {
+        "direct": {
+          "captured_frame_bytes": 144106500,
+          "ip_bytes": 142680964,
+          "packet_count": 101824,
+          "udp_bytes": 140644484,
+          "udp_payload_bytes": 139829892
+        },
+        "nbsr": {
+          "captured_frame_bytes": 144081686,
+          "ip_bytes": 142662660,
+          "packet_count": 101359,
+          "udp_bytes": 140635480,
+          "udp_payload_bytes": 139824608
+        },
+        "incremental_ip_bytes": -18304,
+        "incremental_ip_percent_of_useful": -0.01396484375
+      },
+      "setup": {
+        "direct": {
+          "captured_frame_bytes": 7067,
+          "ip_bytes": 6955,
+          "packet_count": 8,
+          "udp_bytes": 6795,
+          "udp_payload_bytes": 6731
+        },
+        "nbsr": {
+          "captured_frame_bytes": 46996,
+          "ip_bytes": 43958,
+          "packet_count": 217,
+          "udp_bytes": 39618,
+          "udp_payload_bytes": 37882
+        },
+        "incremental_ip_bytes": 37003,
+        "incremental_ip_percent_of_useful": 0.028231048583984376
+      },
+      "stream_validation_and_warmup": {
+        "direct": {
+          "captured_frame_bytes": 152689,
+          "ip_bytes": 151051,
+          "packet_count": 117,
+          "udp_bytes": 148711,
+          "udp_payload_bytes": 147775
+        },
+        "nbsr": {
+          "captured_frame_bytes": 143291,
+          "ip_bytes": 141863,
+          "packet_count": 102,
+          "udp_bytes": 139823,
+          "udp_payload_bytes": 139007
+        },
+        "incremental_ip_bytes": -9188,
+        "incremental_ip_percent_of_useful": -0.0070098876953125
+      },
+      "teardown": {
+        "direct": {
+          "captured_frame_bytes": 172,
+          "ip_bytes": 144,
+          "packet_count": 2,
+          "udp_bytes": 104,
+          "udp_payload_bytes": 88
+        },
+        "nbsr": {
+          "captured_frame_bytes": 172,
+          "ip_bytes": 144,
+          "packet_count": 2,
+          "udp_bytes": 104,
+          "udp_payload_bytes": 88
+        },
+        "incremental_ip_bytes": 0,
+        "incremental_ip_percent_of_useful": 0.0
+      }
+    }
+  },
+  {
+    "payload_bytes": 1024,
+    "repeat": 3,
+    "useful_request_response_bytes": 131072000,
+    "windows": {
+      "established_with_postflight": {
+        "direct": {
+          "captured_frame_bytes": 144098150,
+          "ip_bytes": 142674098,
+          "packet_count": 101718,
+          "udp_bytes": 140639738,
+          "udp_payload_bytes": 139825994
+        },
+        "nbsr": {
+          "captured_frame_bytes": 144082114,
+          "ip_bytes": 142662430,
+          "packet_count": 101406,
+          "udp_bytes": 140634310,
+          "udp_payload_bytes": 139823062
+        },
+        "incremental_ip_bytes": -11668,
+        "incremental_ip_percent_of_useful": -0.0089019775390625
+      },
+      "setup": {
+        "direct": {
+          "captured_frame_bytes": 5454,
+          "ip_bytes": 5370,
+          "packet_count": 6,
+          "udp_bytes": 5250,
+          "udp_payload_bytes": 5202
+        },
+        "nbsr": {
+          "captured_frame_bytes": 47074,
+          "ip_bytes": 44022,
+          "packet_count": 218,
+          "udp_bytes": 39662,
+          "udp_payload_bytes": 37918
+        },
+        "incremental_ip_bytes": 38652,
+        "incremental_ip_percent_of_useful": 0.0294891357421875
+      },
+      "stream_validation_and_warmup": {
+        "direct": {
+          "captured_frame_bytes": 153949,
+          "ip_bytes": 152353,
+          "packet_count": 114,
+          "udp_bytes": 150073,
+          "udp_payload_bytes": 149161
+        },
+        "nbsr": {
+          "captured_frame_bytes": 143293,
+          "ip_bytes": 141865,
+          "packet_count": 102,
+          "udp_bytes": 139825,
+          "udp_payload_bytes": 139009
+        },
+        "incremental_ip_bytes": -10488,
+        "incremental_ip_percent_of_useful": -0.008001708984375
+      },
+      "teardown": {
+        "direct": {
+          "captured_frame_bytes": 172,
+          "ip_bytes": 144,
+          "packet_count": 2,
+          "udp_bytes": 104,
+          "udp_payload_bytes": 88
+        },
+        "nbsr": {
+          "captured_frame_bytes": 172,
+          "ip_bytes": 144,
+          "packet_count": 2,
+          "udp_bytes": 104,
+          "udp_payload_bytes": 88
+        },
+        "incremental_ip_bytes": 0,
+        "incremental_ip_percent_of_useful": 0.0
+      }
+    }
+  },
+  {
+    "payload_bytes": 1024,
+    "repeat": 4,
+    "useful_request_response_bytes": 131072000,
+    "windows": {
+      "established_with_postflight": {
+        "direct": {
+          "captured_frame_bytes": 144109516,
+          "ip_bytes": 142683518,
+          "packet_count": 101857,
+          "udp_bytes": 140646378,
+          "udp_payload_bytes": 139831522
+        },
+        "nbsr": {
+          "captured_frame_bytes": 144081765,
+          "ip_bytes": 142662067,
+          "packet_count": 101407,
+          "udp_bytes": 140633927,
+          "udp_payload_bytes": 139822671
+        },
+        "incremental_ip_bytes": -21451,
+        "incremental_ip_percent_of_useful": -0.016365814208984374
+      },
+      "setup": {
+        "direct": {
+          "captured_frame_bytes": 5454,
+          "ip_bytes": 5370,
+          "packet_count": 6,
+          "udp_bytes": 5250,
+          "udp_payload_bytes": 5202
+        },
+        "nbsr": {
+          "captured_frame_bytes": 47004,
+          "ip_bytes": 43966,
+          "packet_count": 217,
+          "udp_bytes": 39626,
+          "udp_payload_bytes": 37890
+        },
+        "incremental_ip_bytes": 38596,
+        "incremental_ip_percent_of_useful": 0.0294464111328125
+      },
+      "stream_validation_and_warmup": {
+        "direct": {
+          "captured_frame_bytes": 154191,
+          "ip_bytes": 152553,
+          "packet_count": 117,
+          "udp_bytes": 150213,
+          "udp_payload_bytes": 149277
+        },
+        "nbsr": {
+          "captured_frame_bytes": 143198,
+          "ip_bytes": 141784,
+          "packet_count": 101,
+          "udp_bytes": 139764,
+          "udp_payload_bytes": 138956
+        },
+        "incremental_ip_bytes": -10769,
+        "incremental_ip_percent_of_useful": -0.008216094970703126
+      },
+      "teardown": {
+        "direct": {
+          "captured_frame_bytes": 172,
+          "ip_bytes": 144,
+          "packet_count": 2,
+          "udp_bytes": 104,
+          "udp_payload_bytes": 88
+        },
+        "nbsr": {
+          "captured_frame_bytes": 172,
+          "ip_bytes": 144,
+          "packet_count": 2,
+          "udp_bytes": 104,
+          "udp_payload_bytes": 88
+        },
+        "incremental_ip_bytes": 0,
+        "incremental_ip_percent_of_useful": 0.0
+      }
+    }
+  },
+  {
+    "payload_bytes": 1024,
+    "repeat": 5,
+    "useful_request_response_bytes": 131072000,
+    "windows": {
+      "established_with_postflight": {
+        "direct": {
+          "captured_frame_bytes": 144105420,
+          "ip_bytes": 142680276,
+          "packet_count": 101796,
+          "udp_bytes": 140644356,
+          "udp_payload_bytes": 139829988
+        },
+        "nbsr": {
+          "captured_frame_bytes": 144075451,
+          "ip_bytes": 142657195,
+          "packet_count": 101304,
+          "udp_bytes": 140631115,
+          "udp_payload_bytes": 139820683
+        },
+        "incremental_ip_bytes": -23081,
+        "incremental_ip_percent_of_useful": -0.017609405517578124
+      },
+      "setup": {
+        "direct": {
+          "captured_frame_bytes": 5454,
+          "ip_bytes": 5370,
+          "packet_count": 6,
+          "udp_bytes": 5250,
+          "udp_payload_bytes": 5202
+        },
+        "nbsr": {
+          "captured_frame_bytes": 46998,
+          "ip_bytes": 43960,
+          "packet_count": 217,
+          "udp_bytes": 39620,
+          "udp_payload_bytes": 37884
+        },
+        "incremental_ip_bytes": 38590,
+        "incremental_ip_percent_of_useful": 0.02944183349609375
+      },
+      "stream_validation_and_warmup": {
+        "direct": {
+          "captured_frame_bytes": 154181,
+          "ip_bytes": 152543,
+          "packet_count": 117,
+          "udp_bytes": 150203,
+          "udp_payload_bytes": 149267
+        },
+        "nbsr": {
+          "captured_frame_bytes": 143387,
+          "ip_bytes": 141945,
+          "packet_count": 103,
+          "udp_bytes": 139885,
+          "udp_payload_bytes": 139061
+        },
+        "incremental_ip_bytes": -10598,
+        "incremental_ip_percent_of_useful": -0.00808563232421875
+      },
+      "teardown": {
+        "direct": {
+          "captured_frame_bytes": 172,
+          "ip_bytes": 144,
+          "packet_count": 2,
+          "udp_bytes": 104,
+          "udp_payload_bytes": 88
+        },
+        "nbsr": {
+          "captured_frame_bytes": 172,
+          "ip_bytes": 144,
+          "packet_count": 2,
+          "udp_bytes": 104,
+          "udp_payload_bytes": 88
+        },
+        "incremental_ip_bytes": 0,
+        "incremental_ip_percent_of_useful": 0.0
+      }
+    }
+  },
+  {
+    "payload_bytes": 16384,
+    "repeat": 1,
+    "useful_request_response_bytes": 262144000,
+    "windows": {
+      "established_with_postflight": {
+        "direct": {
+          "captured_frame_bytes": 277812456,
+          "ip_bytes": 275082722,
+          "packet_count": 194981,
+          "udp_bytes": 271183102,
+          "udp_payload_bytes": 269623254
+        },
+        "nbsr": {
+          "captured_frame_bytes": 277814988,
+          "ip_bytes": 275088796,
+          "packet_count": 194728,
+          "udp_bytes": 271194236,
+          "udp_payload_bytes": 269636412
+        },
+        "incremental_ip_bytes": 6074,
+        "incremental_ip_percent_of_useful": 0.002317047119140625
+      },
+      "setup": {
+        "direct": {
+          "captured_frame_bytes": 7068,
+          "ip_bytes": 6956,
+          "packet_count": 8,
+          "udp_bytes": 6796,
+          "udp_payload_bytes": 6732
+        },
+        "nbsr": {
+          "captured_frame_bytes": 21720,
+          "ip_bytes": 21020,
+          "packet_count": 50,
+          "udp_bytes": 20020,
+          "udp_payload_bytes": 19620
+        },
+        "incremental_ip_bytes": 14064,
+        "incremental_ip_percent_of_useful": 0.005364990234375
+      },
+      "stream_validation_and_warmup": {
+        "direct": {
+          "captured_frame_bytes": 287891,
+          "ip_bytes": 284867,
+          "packet_count": 216,
+          "udp_bytes": 280547,
+          "udp_payload_bytes": 278819
+        },
+        "nbsr": {
+          "captured_frame_bytes": 277136,
+          "ip_bytes": 274350,
+          "packet_count": 199,
+          "udp_bytes": 270370,
+          "udp_payload_bytes": 268778
+        },
+        "incremental_ip_bytes": -10517,
+        "incremental_ip_percent_of_useful": -0.004011917114257813
+      },
+      "teardown": {
+        "direct": {
+          "captured_frame_bytes": 172,
+          "ip_bytes": 144,
+          "packet_count": 2,
+          "udp_bytes": 104,
+          "udp_payload_bytes": 88
+        },
+        "nbsr": {
+          "captured_frame_bytes": 172,
+          "ip_bytes": 144,
+          "packet_count": 2,
+          "udp_bytes": 104,
+          "udp_payload_bytes": 88
+        },
+        "incremental_ip_bytes": 0,
+        "incremental_ip_percent_of_useful": 0.0
+      }
+    }
+  },
+  {
+    "payload_bytes": 16384,
+    "repeat": 2,
+    "useful_request_response_bytes": 262144000,
+    "windows": {
+      "established_with_postflight": {
+        "direct": {
+          "captured_frame_bytes": 277816239,
+          "ip_bytes": 275090075,
+          "packet_count": 194726,
+          "udp_bytes": 271195555,
+          "udp_payload_bytes": 269637747
+        },
+        "nbsr": {
+          "captured_frame_bytes": 277757646,
+          "ip_bytes": 275035724,
+          "packet_count": 194423,
+          "udp_bytes": 271147264,
+          "udp_payload_bytes": 269591880
+        },
+        "incremental_ip_bytes": -54351,
+        "incremental_ip_percent_of_useful": -0.02073326110839844
+      },
+      "setup": {
+        "direct": {
+          "captured_frame_bytes": 5700,
+          "ip_bytes": 5602,
+          "packet_count": 7,
+          "udp_bytes": 5462,
+          "udp_payload_bytes": 5406
+        },
+        "nbsr": {
+          "captured_frame_bytes": 21501,
+          "ip_bytes": 20843,
+          "packet_count": 47,
+          "udp_bytes": 19903,
+          "udp_payload_bytes": 19527
+        },
+        "incremental_ip_bytes": 15241,
+        "incremental_ip_percent_of_useful": 0.005813980102539062
+      },
+      "stream_validation_and_warmup": {
+        "direct": {
+          "captured_frame_bytes": 289084,
+          "ip_bytes": 286088,
+          "packet_count": 214,
+          "udp_bytes": 281808,
+          "udp_payload_bytes": 280096
+        },
+        "nbsr": {
+          "captured_frame_bytes": 277219,
+          "ip_bytes": 274419,
+          "packet_count": 200,
+          "udp_bytes": 270419,
+          "udp_payload_bytes": 268819
+        },
+        "incremental_ip_bytes": -11669,
+        "incremental_ip_percent_of_useful": -0.004451370239257813
+      },
+      "teardown": {
+        "direct": {
+          "captured_frame_bytes": 172,
+          "ip_bytes": 144,
+          "packet_count": 2,
+          "udp_bytes": 104,
+          "udp_payload_bytes": 88
+        },
+        "nbsr": {
+          "captured_frame_bytes": 172,
+          "ip_bytes": 144,
+          "packet_count": 2,
+          "udp_bytes": 104,
+          "udp_payload_bytes": 88
+        },
+        "incremental_ip_bytes": 0,
+        "incremental_ip_percent_of_useful": 0.0
+      }
+    }
+  },
+  {
+    "payload_bytes": 16384,
+    "repeat": 3,
+    "useful_request_response_bytes": 262144000,
+    "windows": {
+      "established_with_postflight": {
+        "direct": {
+          "captured_frame_bytes": 277808572,
+          "ip_bytes": 275081218,
+          "packet_count": 194811,
+          "udp_bytes": 271184998,
+          "udp_payload_bytes": 269626510
+        },
+        "nbsr": {
+          "captured_frame_bytes": 277785431,
+          "ip_bytes": 275061031,
+          "packet_count": 194600,
+          "udp_bytes": 271169031,
+          "udp_payload_bytes": 269612231
+        },
+        "incremental_ip_bytes": -20187,
+        "incremental_ip_percent_of_useful": -0.007700729370117188
+      },
+      "setup": {
+        "direct": {
+          "captured_frame_bytes": 5454,
+          "ip_bytes": 5370,
+          "packet_count": 6,
+          "udp_bytes": 5250,
+          "udp_payload_bytes": 5202
+        },
+        "nbsr": {
+          "captured_frame_bytes": 21652,
+          "ip_bytes": 20966,
+          "packet_count": 49,
+          "udp_bytes": 19986,
+          "udp_payload_bytes": 19594
+        },
+        "incremental_ip_bytes": 15596,
+        "incremental_ip_percent_of_useful": 0.00594940185546875
+      },
+      "stream_validation_and_warmup": {
+        "direct": {
+          "captured_frame_bytes": 288239,
+          "ip_bytes": 285215,
+          "packet_count": 216,
+          "udp_bytes": 280895,
+          "udp_payload_bytes": 279167
+        },
+        "nbsr": {
+          "captured_frame_bytes": 277142,
+          "ip_bytes": 274356,
+          "packet_count": 199,
+          "udp_bytes": 270376,
+          "udp_payload_bytes": 268784
+        },
+        "incremental_ip_bytes": -10859,
+        "incremental_ip_percent_of_useful": -0.004142379760742188
+      },
+      "teardown": {
+        "direct": {
+          "captured_frame_bytes": 172,
+          "ip_bytes": 144,
+          "packet_count": 2,
+          "udp_bytes": 104,
+          "udp_payload_bytes": 88
+        },
+        "nbsr": {
+          "captured_frame_bytes": 172,
+          "ip_bytes": 144,
+          "packet_count": 2,
+          "udp_bytes": 104,
+          "udp_payload_bytes": 88
+        },
+        "incremental_ip_bytes": 0,
+        "incremental_ip_percent_of_useful": 0.0
+      }
+    }
+  },
+  {
+    "payload_bytes": 16384,
+    "repeat": 4,
+    "useful_request_response_bytes": 262144000,
+    "windows": {
+      "established_with_postflight": {
+        "direct": {
+          "captured_frame_bytes": 277807823,
+          "ip_bytes": 275081547,
+          "packet_count": 194734,
+          "udp_bytes": 271186867,
+          "udp_payload_bytes": 269628995
+        },
+        "nbsr": {
+          "captured_frame_bytes": 277781700,
+          "ip_bytes": 275058028,
+          "packet_count": 194548,
+          "udp_bytes": 271167068,
+          "udp_payload_bytes": 269610684
+        },
+        "incremental_ip_bytes": -23519,
+        "incremental_ip_percent_of_useful": -0.008971786499023438
+      },
+      "setup": {
+        "direct": {
+          "captured_frame_bytes": 5454,
+          "ip_bytes": 5370,
+          "packet_count": 6,
+          "udp_bytes": 5250,
+          "udp_payload_bytes": 5202
+        },
+        "nbsr": {
+          "captured_frame_bytes": 21722,
+          "ip_bytes": 21022,
+          "packet_count": 50,
+          "udp_bytes": 20022,
+          "udp_payload_bytes": 19622
+        },
+        "incremental_ip_bytes": 15652,
+        "incremental_ip_percent_of_useful": 0.00597076416015625
+      },
+      "stream_validation_and_warmup": {
+        "direct": {
+          "captured_frame_bytes": 289206,
+          "ip_bytes": 286210,
+          "packet_count": 214,
+          "udp_bytes": 281930,
+          "udp_payload_bytes": 280218
+        },
+        "nbsr": {
+          "captured_frame_bytes": 277132,
+          "ip_bytes": 274346,
+          "packet_count": 199,
+          "udp_bytes": 270366,
+          "udp_payload_bytes": 268774
+        },
+        "incremental_ip_bytes": -11864,
+        "incremental_ip_percent_of_useful": -0.0045257568359375
+      },
+      "teardown": {
+        "direct": {
+          "captured_frame_bytes": 172,
+          "ip_bytes": 144,
+          "packet_count": 2,
+          "udp_bytes": 104,
+          "udp_payload_bytes": 88
+        },
+        "nbsr": {
+          "captured_frame_bytes": 172,
+          "ip_bytes": 144,
+          "packet_count": 2,
+          "udp_bytes": 104,
+          "udp_payload_bytes": 88
+        },
+        "incremental_ip_bytes": 0,
+        "incremental_ip_percent_of_useful": 0.0
+      }
+    }
+  },
+  {
+    "payload_bytes": 16384,
+    "repeat": 5,
+    "useful_request_response_bytes": 262144000,
+    "windows": {
+      "established_with_postflight": {
+        "direct": {
+          "captured_frame_bytes": 277820416,
+          "ip_bytes": 275090752,
+          "packet_count": 194976,
+          "udp_bytes": 271191232,
+          "udp_payload_bytes": 269631424
+        },
+        "nbsr": {
+          "captured_frame_bytes": 277787165,
+          "ip_bytes": 275062709,
+          "packet_count": 194604,
+          "udp_bytes": 271170629,
+          "udp_payload_bytes": 269613797
+        },
+        "incremental_ip_bytes": -28043,
+        "incremental_ip_percent_of_useful": -0.010697555541992188
+      },
+      "setup": {
+        "direct": {
+          "captured_frame_bytes": 5454,
+          "ip_bytes": 5370,
+          "packet_count": 6,
+          "udp_bytes": 5250,
+          "udp_payload_bytes": 5202
+        },
+        "nbsr": {
+          "captured_frame_bytes": 21722,
+          "ip_bytes": 21022,
+          "packet_count": 50,
+          "udp_bytes": 20022,
+          "udp_payload_bytes": 19622
+        },
+        "incremental_ip_bytes": 15652,
+        "incremental_ip_percent_of_useful": 0.00597076416015625
+      },
+      "stream_validation_and_warmup": {
+        "direct": {
+          "captured_frame_bytes": 289419,
+          "ip_bytes": 286381,
+          "packet_count": 217,
+          "udp_bytes": 282041,
+          "udp_payload_bytes": 280305
+        },
+        "nbsr": {
+          "captured_frame_bytes": 277134,
+          "ip_bytes": 274348,
+          "packet_count": 199,
+          "udp_bytes": 270368,
+          "udp_payload_bytes": 268776
+        },
+        "incremental_ip_bytes": -12033,
+        "incremental_ip_percent_of_useful": -0.004590225219726562
+      },
+      "teardown": {
+        "direct": {
+          "captured_frame_bytes": 172,
+          "ip_bytes": 144,
+          "packet_count": 2,
+          "udp_bytes": 104,
+          "udp_payload_bytes": 88
+        },
+        "nbsr": {
+          "captured_frame_bytes": 172,
+          "ip_bytes": 144,
+          "packet_count": 2,
+          "udp_bytes": 104,
+          "udp_payload_bytes": 88
+        },
+        "incremental_ip_bytes": 0,
+        "incremental_ip_percent_of_useful": 0.0
+      }
+    }
+  }
+]

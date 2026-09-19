@@ -1,0 +1,532 @@
+[
+  {
+    "payload_bytes": 1024,
+    "analysis": {
+      "status": "PASS_FINITE_COHORT_INTEGRITY",
+      "source_sha": "6b1095c5723fe56b139264c9604ecc62c73e024f",
+      "manifest_sha256": "ccf1abeae64d361b7d4dff08305e34dcf8a037b7613460ede1a6ccef6fb5e718",
+      "shape": {
+        "cores": 1,
+        "operations_per_stream": 1000,
+        "outstanding": 1,
+        "payload_bytes": 1024,
+        "streams": 64
+      },
+      "repeats_per_path": 5,
+      "attempts": [
+        {
+          "sequence": 1,
+          "repeat": 1,
+          "status": "PASS_FINITE_PAIR_INTEGRITY",
+          "source_sha": "6b1095c5723fe56b139264c9604ecc62c73e024f",
+          "cell": {
+            "cores": 1,
+            "operations_per_stream": 1000,
+            "outstanding": 1,
+            "path": "direct",
+            "payload_bytes": 1024,
+            "streams": 64
+          },
+          "source_index_sha256": "9c1b6d7ba957241a21a2d60e4f35a08fe131e67eab00d7211fac2e06e7f89029",
+          "destination_index_sha256": "6b25dfde8d1ae34b9bcdc7076408a4deefc96c86beb1e9bd8e08b86dd40a1629",
+          "application_gbps": 0.669204582618497,
+          "strict_stable_capacity": "NOT_PROVEN",
+          "external_hardware": "NOT_PROVEN",
+          "observer_qualification": "NOT_PROVEN",
+          "runtime_ownership_cleanup": "NOT_MEASURED",
+          "authenticity": "checksums are not signatures or remote attestation"
+        },
+        {
+          "sequence": 2,
+          "repeat": 1,
+          "status": "PASS_FINITE_PAIR_INTEGRITY",
+          "source_sha": "6b1095c5723fe56b139264c9604ecc62c73e024f",
+          "cell": {
+            "cores": 1,
+            "operations_per_stream": 1000,
+            "outstanding": 1,
+            "path": "nbsr",
+            "payload_bytes": 1024,
+            "streams": 64
+          },
+          "source_index_sha256": "d4fbfb55eb934073a6f2bed1b2b90ed0564aa253f224e085cafde5391c4d498c",
+          "destination_index_sha256": "fa327ae2ef5e01536cf7561803fbe48bb1ff8f7e01487b394a8796e530fa2bac",
+          "application_gbps": 0.5801911510110764,
+          "strict_stable_capacity": "NOT_PROVEN",
+          "external_hardware": "NOT_PROVEN",
+          "observer_qualification": "NOT_PROVEN",
+          "runtime_ownership_cleanup": "NOT_MEASURED",
+          "authenticity": "checksums are not signatures or remote attestation"
+        },
+        {
+          "sequence": 3,
+          "repeat": 2,
+          "status": "PASS_FINITE_PAIR_INTEGRITY",
+          "source_sha": "6b1095c5723fe56b139264c9604ecc62c73e024f",
+          "cell": {
+            "cores": 1,
+            "operations_per_stream": 1000,
+            "outstanding": 1,
+            "path": "nbsr",
+            "payload_bytes": 1024,
+            "streams": 64
+          },
+          "source_index_sha256": "ed906e90687f079dcd476417d988e22b486fcea170db523c5482fc29ab090b91",
+          "destination_index_sha256": "7ddbdcf621e314d781157399a4e157cb96605b283ccbb8ab496d831ba1a2f789",
+          "application_gbps": 0.7067191298898142,
+          "strict_stable_capacity": "NOT_PROVEN",
+          "external_hardware": "NOT_PROVEN",
+          "observer_qualification": "NOT_PROVEN",
+          "runtime_ownership_cleanup": "NOT_MEASURED",
+          "authenticity": "checksums are not signatures or remote attestation"
+        },
+        {
+          "sequence": 4,
+          "repeat": 2,
+          "status": "PASS_FINITE_PAIR_INTEGRITY",
+          "source_sha": "6b1095c5723fe56b139264c9604ecc62c73e024f",
+          "cell": {
+            "cores": 1,
+            "operations_per_stream": 1000,
+            "outstanding": 1,
+            "path": "direct",
+            "payload_bytes": 1024,
+            "streams": 64
+          },
+          "source_index_sha256": "c09d0ba428b4054b3e05a28907cd492a361ec2e7c921bfdb8fbc4f5e28e8e58a",
+          "destination_index_sha256": "b8d3ff86731c43201a380a39ad4dc01f5ce935a43465418107a1ff93b7a51f92",
+          "application_gbps": 0.5332861432274677,
+          "strict_stable_capacity": "NOT_PROVEN",
+          "external_hardware": "NOT_PROVEN",
+          "observer_qualification": "NOT_PROVEN",
+          "runtime_ownership_cleanup": "NOT_MEASURED",
+          "authenticity": "checksums are not signatures or remote attestation"
+        },
+        {
+          "sequence": 5,
+          "repeat": 3,
+          "status": "PASS_FINITE_PAIR_INTEGRITY",
+          "source_sha": "6b1095c5723fe56b139264c9604ecc62c73e024f",
+          "cell": {
+            "cores": 1,
+            "operations_per_stream": 1000,
+            "outstanding": 1,
+            "path": "direct",
+            "payload_bytes": 1024,
+            "streams": 64
+          },
+          "source_index_sha256": "66df935b37442217a3baa2aee9dc67b324692470aa17debeb9735121c2d9dd8b",
+          "destination_index_sha256": "ef3fa6a32849db7699b52bcb9cc6e09e02d33cc326a1db27d046723fdc99396a",
+          "application_gbps": 0.667578078667397,
+          "strict_stable_capacity": "NOT_PROVEN",
+          "external_hardware": "NOT_PROVEN",
+          "observer_qualification": "NOT_PROVEN",
+          "runtime_ownership_cleanup": "NOT_MEASURED",
+          "authenticity": "checksums are not signatures or remote attestation"
+        },
+        {
+          "sequence": 6,
+          "repeat": 3,
+          "status": "PASS_FINITE_PAIR_INTEGRITY",
+          "source_sha": "6b1095c5723fe56b139264c9604ecc62c73e024f",
+          "cell": {
+            "cores": 1,
+            "operations_per_stream": 1000,
+            "outstanding": 1,
+            "path": "nbsr",
+            "payload_bytes": 1024,
+            "streams": 64
+          },
+          "source_index_sha256": "2df258b06d33b2e5233bd44a83f4c9cd82e83997e00d2990a77743b8bb34c4eb",
+          "destination_index_sha256": "74dbce086437294c7626bad8374a0a7cb22e55861f6f60a8caf59515c4c29a02",
+          "application_gbps": 0.7269798422192728,
+          "strict_stable_capacity": "NOT_PROVEN",
+          "external_hardware": "NOT_PROVEN",
+          "observer_qualification": "NOT_PROVEN",
+          "runtime_ownership_cleanup": "NOT_MEASURED",
+          "authenticity": "checksums are not signatures or remote attestation"
+        },
+        {
+          "sequence": 7,
+          "repeat": 4,
+          "status": "PASS_FINITE_PAIR_INTEGRITY",
+          "source_sha": "6b1095c5723fe56b139264c9604ecc62c73e024f",
+          "cell": {
+            "cores": 1,
+            "operations_per_stream": 1000,
+            "outstanding": 1,
+            "path": "nbsr",
+            "payload_bytes": 1024,
+            "streams": 64
+          },
+          "source_index_sha256": "fd10dbd6e21de83357d41ab9e35eb69dff40e71c83fef9fee07c04345d60c2b3",
+          "destination_index_sha256": "6c8c0c15a2eb603fc0c64abe68708041afa52fdd5496e6ea469ad73e2aeaab78",
+          "application_gbps": 0.7135341119339096,
+          "strict_stable_capacity": "NOT_PROVEN",
+          "external_hardware": "NOT_PROVEN",
+          "observer_qualification": "NOT_PROVEN",
+          "runtime_ownership_cleanup": "NOT_MEASURED",
+          "authenticity": "checksums are not signatures or remote attestation"
+        },
+        {
+          "sequence": 8,
+          "repeat": 4,
+          "status": "PASS_FINITE_PAIR_INTEGRITY",
+          "source_sha": "6b1095c5723fe56b139264c9604ecc62c73e024f",
+          "cell": {
+            "cores": 1,
+            "operations_per_stream": 1000,
+            "outstanding": 1,
+            "path": "direct",
+            "payload_bytes": 1024,
+            "streams": 64
+          },
+          "source_index_sha256": "ccdeb99da9bf718b44bfe9ae8463e216859233e77d897179754213e0513a45c2",
+          "destination_index_sha256": "c84eb62b063ef3b838821fe3c7574748d6ae9a813fe93a28434cfd09545e902d",
+          "application_gbps": 0.6862530038662445,
+          "strict_stable_capacity": "NOT_PROVEN",
+          "external_hardware": "NOT_PROVEN",
+          "observer_qualification": "NOT_PROVEN",
+          "runtime_ownership_cleanup": "NOT_MEASURED",
+          "authenticity": "checksums are not signatures or remote attestation"
+        },
+        {
+          "sequence": 9,
+          "repeat": 5,
+          "status": "PASS_FINITE_PAIR_INTEGRITY",
+          "source_sha": "6b1095c5723fe56b139264c9604ecc62c73e024f",
+          "cell": {
+            "cores": 1,
+            "operations_per_stream": 1000,
+            "outstanding": 1,
+            "path": "direct",
+            "payload_bytes": 1024,
+            "streams": 64
+          },
+          "source_index_sha256": "9558d35e02f0fd8df7fa9a851c5f8922f8b5df0b2140b76adb84405f2f9f3668",
+          "destination_index_sha256": "409905943ab891466b8aaf145f0a56f8ed18a8a7d77466a6f98b6d93975c0036",
+          "application_gbps": 0.6377733931046229,
+          "strict_stable_capacity": "NOT_PROVEN",
+          "external_hardware": "NOT_PROVEN",
+          "observer_qualification": "NOT_PROVEN",
+          "runtime_ownership_cleanup": "NOT_MEASURED",
+          "authenticity": "checksums are not signatures or remote attestation"
+        },
+        {
+          "sequence": 10,
+          "repeat": 5,
+          "status": "PASS_FINITE_PAIR_INTEGRITY",
+          "source_sha": "6b1095c5723fe56b139264c9604ecc62c73e024f",
+          "cell": {
+            "cores": 1,
+            "operations_per_stream": 1000,
+            "outstanding": 1,
+            "path": "nbsr",
+            "payload_bytes": 1024,
+            "streams": 64
+          },
+          "source_index_sha256": "0b82c3ccd27ff720f4eb63e7f010661aa04b5295c20b2e751788b33fd5a59ec8",
+          "destination_index_sha256": "54128702f663dea2ad09d6fbadd41234e020589f3c0b440f3b294769f969a1e3",
+          "application_gbps": 0.6993928418169543,
+          "strict_stable_capacity": "NOT_PROVEN",
+          "external_hardware": "NOT_PROVEN",
+          "observer_qualification": "NOT_PROVEN",
+          "runtime_ownership_cleanup": "NOT_MEASURED",
+          "authenticity": "checksums are not signatures or remote attestation"
+        }
+      ],
+      "first_three_cv": {
+        "direct": 0.12514072551239938,
+        "nbsr": 0.1184981430416449
+      },
+      "final_cv": {
+        "direct": 0.09630202984553568,
+        "nbsr": 0.08705588985271999
+      },
+      "dispersion_unresolved": true,
+      "median_application_gbps": {
+        "direct": 0.667578078667397,
+        "nbsr": 0.7067191298898142
+      },
+      "paired_goodput_delta_percent": [
+        -13.301378071728742,
+        32.5215625541522,
+        8.898099780396041,
+        3.9753717526870513,
+        9.66165245815187
+      ],
+      "ordering": "declared counterbalanced schedule; not independently timestamp-verified",
+      "coverage": "all listed attempts; cannot detect undisclosed attempts outside the manifest",
+      "strict_stable_capacity": "NOT_PROVEN",
+      "external_hardware": "NOT_PROVEN",
+      "observer_qualification": "NOT_PROVEN",
+      "runtime_ownership_cleanup": "NOT_MEASURED",
+      "authenticity": "checksums are not signatures or remote attestation"
+    }
+  },
+  {
+    "payload_bytes": 16384,
+    "analysis": {
+      "status": "PASS_FINITE_COHORT_INTEGRITY",
+      "source_sha": "6b1095c5723fe56b139264c9604ecc62c73e024f",
+      "manifest_sha256": "e0cde5688b9274c857016d9895c7ead07209ae1e6bcacfe96a7c0a98a624f1b4",
+      "shape": {
+        "cores": 1,
+        "operations_per_stream": 1000,
+        "outstanding": 1,
+        "payload_bytes": 16384,
+        "streams": 8
+      },
+      "repeats_per_path": 5,
+      "attempts": [
+        {
+          "sequence": 1,
+          "repeat": 1,
+          "status": "PASS_FINITE_PAIR_INTEGRITY",
+          "source_sha": "6b1095c5723fe56b139264c9604ecc62c73e024f",
+          "cell": {
+            "cores": 1,
+            "operations_per_stream": 1000,
+            "outstanding": 1,
+            "path": "direct",
+            "payload_bytes": 16384,
+            "streams": 8
+          },
+          "source_index_sha256": "48609c3208cb9e63a5118629e39f8fdbba782fdc5ba15914956c9c74fe3cceba",
+          "destination_index_sha256": "395506d4ed645ca4b6f158d683f02505786172eb23118b899df20edb62030d36",
+          "application_gbps": 0.8336062168960362,
+          "strict_stable_capacity": "NOT_PROVEN",
+          "external_hardware": "NOT_PROVEN",
+          "observer_qualification": "NOT_PROVEN",
+          "runtime_ownership_cleanup": "NOT_MEASURED",
+          "authenticity": "checksums are not signatures or remote attestation"
+        },
+        {
+          "sequence": 2,
+          "repeat": 1,
+          "status": "PASS_FINITE_PAIR_INTEGRITY",
+          "source_sha": "6b1095c5723fe56b139264c9604ecc62c73e024f",
+          "cell": {
+            "cores": 1,
+            "operations_per_stream": 1000,
+            "outstanding": 1,
+            "path": "nbsr",
+            "payload_bytes": 16384,
+            "streams": 8
+          },
+          "source_index_sha256": "c03e3be3d4752d7e0a4c1fb20619d3dddaff04c812b8ecadf7984ab5d026d89e",
+          "destination_index_sha256": "f2b229a4e9b640ac11780fd9555b9a8416003e67e1a07ce0bbe2e423108970cf",
+          "application_gbps": 0.8829477694143961,
+          "strict_stable_capacity": "NOT_PROVEN",
+          "external_hardware": "NOT_PROVEN",
+          "observer_qualification": "NOT_PROVEN",
+          "runtime_ownership_cleanup": "NOT_MEASURED",
+          "authenticity": "checksums are not signatures or remote attestation"
+        },
+        {
+          "sequence": 3,
+          "repeat": 2,
+          "status": "PASS_FINITE_PAIR_INTEGRITY",
+          "source_sha": "6b1095c5723fe56b139264c9604ecc62c73e024f",
+          "cell": {
+            "cores": 1,
+            "operations_per_stream": 1000,
+            "outstanding": 1,
+            "path": "nbsr",
+            "payload_bytes": 16384,
+            "streams": 8
+          },
+          "source_index_sha256": "b8268b6b270f552a542670ac6be35e6c2df3ae2d561d4809a215b6982182eaec",
+          "destination_index_sha256": "e2358b8f9e2a49bd1acf1f1a1da1ba1636f285e79a5960907cd1dd4309379f9d",
+          "application_gbps": 0.6978602290062388,
+          "strict_stable_capacity": "NOT_PROVEN",
+          "external_hardware": "NOT_PROVEN",
+          "observer_qualification": "NOT_PROVEN",
+          "runtime_ownership_cleanup": "NOT_MEASURED",
+          "authenticity": "checksums are not signatures or remote attestation"
+        },
+        {
+          "sequence": 4,
+          "repeat": 2,
+          "status": "PASS_FINITE_PAIR_INTEGRITY",
+          "source_sha": "6b1095c5723fe56b139264c9604ecc62c73e024f",
+          "cell": {
+            "cores": 1,
+            "operations_per_stream": 1000,
+            "outstanding": 1,
+            "path": "direct",
+            "payload_bytes": 16384,
+            "streams": 8
+          },
+          "source_index_sha256": "18504473eabd6621837238ee90da3771bac0f3547d51b4f2a49183ee96f3ab26",
+          "destination_index_sha256": "d3fd95856507772320d27622e34a1d2dd6935bfe0420ecb71df9760bdbe1d69c",
+          "application_gbps": 0.6540548268480842,
+          "strict_stable_capacity": "NOT_PROVEN",
+          "external_hardware": "NOT_PROVEN",
+          "observer_qualification": "NOT_PROVEN",
+          "runtime_ownership_cleanup": "NOT_MEASURED",
+          "authenticity": "checksums are not signatures or remote attestation"
+        },
+        {
+          "sequence": 5,
+          "repeat": 3,
+          "status": "PASS_FINITE_PAIR_INTEGRITY",
+          "source_sha": "6b1095c5723fe56b139264c9604ecc62c73e024f",
+          "cell": {
+            "cores": 1,
+            "operations_per_stream": 1000,
+            "outstanding": 1,
+            "path": "direct",
+            "payload_bytes": 16384,
+            "streams": 8
+          },
+          "source_index_sha256": "473a7c0373815f9b6722bd10c4acaf6177bfea8ab8f57bfdf95f543a666862f1",
+          "destination_index_sha256": "20ceae82244e26a0e18b97853dcb6cd2903e91a0cd5c8ac43def07e1d231e9f3",
+          "application_gbps": 0.8390599065664605,
+          "strict_stable_capacity": "NOT_PROVEN",
+          "external_hardware": "NOT_PROVEN",
+          "observer_qualification": "NOT_PROVEN",
+          "runtime_ownership_cleanup": "NOT_MEASURED",
+          "authenticity": "checksums are not signatures or remote attestation"
+        },
+        {
+          "sequence": 6,
+          "repeat": 3,
+          "status": "PASS_FINITE_PAIR_INTEGRITY",
+          "source_sha": "6b1095c5723fe56b139264c9604ecc62c73e024f",
+          "cell": {
+            "cores": 1,
+            "operations_per_stream": 1000,
+            "outstanding": 1,
+            "path": "nbsr",
+            "payload_bytes": 16384,
+            "streams": 8
+          },
+          "source_index_sha256": "969f71b944e4f131b98496302f530c9175942dd452286803d62548152fcfa1b2",
+          "destination_index_sha256": "305505ad597412949e3f4f334ca60330257d4d0873974e8af7a25e90742b6394",
+          "application_gbps": 0.8844251840806658,
+          "strict_stable_capacity": "NOT_PROVEN",
+          "external_hardware": "NOT_PROVEN",
+          "observer_qualification": "NOT_PROVEN",
+          "runtime_ownership_cleanup": "NOT_MEASURED",
+          "authenticity": "checksums are not signatures or remote attestation"
+        },
+        {
+          "sequence": 7,
+          "repeat": 4,
+          "status": "PASS_FINITE_PAIR_INTEGRITY",
+          "source_sha": "6b1095c5723fe56b139264c9604ecc62c73e024f",
+          "cell": {
+            "cores": 1,
+            "operations_per_stream": 1000,
+            "outstanding": 1,
+            "path": "nbsr",
+            "payload_bytes": 16384,
+            "streams": 8
+          },
+          "source_index_sha256": "fa2d020230437307586a2616ccefc00610b11c373319062d45d5913d0e440e05",
+          "destination_index_sha256": "83e14e1cdf8ce17e6d432d4f28e296e9dbe983f282eaf79d600fdc68f1aa37e0",
+          "application_gbps": 0.8840452092283692,
+          "strict_stable_capacity": "NOT_PROVEN",
+          "external_hardware": "NOT_PROVEN",
+          "observer_qualification": "NOT_PROVEN",
+          "runtime_ownership_cleanup": "NOT_MEASURED",
+          "authenticity": "checksums are not signatures or remote attestation"
+        },
+        {
+          "sequence": 8,
+          "repeat": 4,
+          "status": "PASS_FINITE_PAIR_INTEGRITY",
+          "source_sha": "6b1095c5723fe56b139264c9604ecc62c73e024f",
+          "cell": {
+            "cores": 1,
+            "operations_per_stream": 1000,
+            "outstanding": 1,
+            "path": "direct",
+            "payload_bytes": 16384,
+            "streams": 8
+          },
+          "source_index_sha256": "036bec6d7feba90f7725e0615d2d086c89fed56043d1edf9258b3e179e1d23cb",
+          "destination_index_sha256": "bf06d25e1c6c5412dc8963a4edd4446b573eadbf69ee97e4bdac5411c68a9d2e",
+          "application_gbps": 0.7807727351339739,
+          "strict_stable_capacity": "NOT_PROVEN",
+          "external_hardware": "NOT_PROVEN",
+          "observer_qualification": "NOT_PROVEN",
+          "runtime_ownership_cleanup": "NOT_MEASURED",
+          "authenticity": "checksums are not signatures or remote attestation"
+        },
+        {
+          "sequence": 9,
+          "repeat": 5,
+          "status": "PASS_FINITE_PAIR_INTEGRITY",
+          "source_sha": "6b1095c5723fe56b139264c9604ecc62c73e024f",
+          "cell": {
+            "cores": 1,
+            "operations_per_stream": 1000,
+            "outstanding": 1,
+            "path": "direct",
+            "payload_bytes": 16384,
+            "streams": 8
+          },
+          "source_index_sha256": "5eaf4c082802f286a5f27ae9b543cc238d14af0045dee3bc47b9f45619a51f21",
+          "destination_index_sha256": "f0b0e74ec47f1af379b6415298e8a4a53c5591eb93da20edd3c0cfe4d7e00b99",
+          "application_gbps": 0.7154240391282672,
+          "strict_stable_capacity": "NOT_PROVEN",
+          "external_hardware": "NOT_PROVEN",
+          "observer_qualification": "NOT_PROVEN",
+          "runtime_ownership_cleanup": "NOT_MEASURED",
+          "authenticity": "checksums are not signatures or remote attestation"
+        },
+        {
+          "sequence": 10,
+          "repeat": 5,
+          "status": "PASS_FINITE_PAIR_INTEGRITY",
+          "source_sha": "6b1095c5723fe56b139264c9604ecc62c73e024f",
+          "cell": {
+            "cores": 1,
+            "operations_per_stream": 1000,
+            "outstanding": 1,
+            "path": "nbsr",
+            "payload_bytes": 16384,
+            "streams": 8
+          },
+          "source_index_sha256": "a0b6fb33448c2fd76ef5ea0a1a214af44ab12f5ee10af6f4ea8e61c9fd701d5d",
+          "destination_index_sha256": "8954ec59960c453815dd99220c44f8c0e8fadf722c2f174ab61dc4def3a72b51",
+          "application_gbps": 0.848857146501546,
+          "strict_stable_capacity": "NOT_PROVEN",
+          "external_hardware": "NOT_PROVEN",
+          "observer_qualification": "NOT_PROVEN",
+          "runtime_ownership_cleanup": "NOT_MEASURED",
+          "authenticity": "checksums are not signatures or remote attestation"
+        }
+      ],
+      "first_three_cv": {
+        "direct": 0.13573657362097516,
+        "nbsr": 0.13056295609240412
+      },
+      "final_cv": {
+        "direct": 0.1038242408520322,
+        "nbsr": 0.09609490140912388
+      },
+      "dispersion_unresolved": true,
+      "median_application_gbps": {
+        "direct": 0.7807727351339739,
+        "nbsr": 0.8829477694143961
+      },
+      "paired_goodput_delta_percent": [
+        5.919048049099862,
+        6.697512251267135,
+        5.406679208382847,
+        13.226957019275854,
+        18.65091191733854
+      ],
+      "ordering": "declared counterbalanced schedule; not independently timestamp-verified",
+      "coverage": "all listed attempts; cannot detect undisclosed attempts outside the manifest",
+      "strict_stable_capacity": "NOT_PROVEN",
+      "external_hardware": "NOT_PROVEN",
+      "observer_qualification": "NOT_PROVEN",
+      "runtime_ownership_cleanup": "NOT_MEASURED",
+      "authenticity": "checksums are not signatures or remote attestation"
+    }
+  }
+]
