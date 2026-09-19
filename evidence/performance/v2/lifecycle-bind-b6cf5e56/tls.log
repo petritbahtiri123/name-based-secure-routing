@@ -1,0 +1,12 @@
+   Compiling nbsr-transport v0.1.0 (/work/crates/nbsr-transport)
+    Finished `release` profile [optimized] target(s) in 41.09s
+     Running tests/benchmark_connect_from_tests.rs (target/release/deps/benchmark_connect_from_tests-02e8b5768d6fa167)
+
+running 4 tests
+test transport_entry_validates_local_bind_without_trusting_the_cli ... ok
+test explicit_local_bind_rejects_alpn_mismatch ... ok
+test explicit_local_bind_does_not_replace_the_authenticated_peer_name_with_ip ... ok
+test explicit_local_bind_preserves_expected_tls_identity_and_alpn ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s
+

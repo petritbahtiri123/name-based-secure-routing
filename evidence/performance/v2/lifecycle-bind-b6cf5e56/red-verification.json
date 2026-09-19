@@ -1,0 +1,6 @@
+{
+  "status": "RED_CONFIRMED",
+  "source_stderr": "C:\\NBSR-build\\lifecycle-bind-c7ca8651\\red\\raw\\rust-rust\\cycles-1-r1\\source-0.stderr",
+  "cause": "existing explicit lifecycle bind guard",
+  "controller_note": "Initial verifier inspected wrapper stderr instead of retained child stderr; corrected read-only verification uses the child output"
+}

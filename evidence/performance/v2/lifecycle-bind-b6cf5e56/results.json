@@ -1,0 +1,44 @@
+[
+  {
+    "case": "default",
+    "repeat": 1,
+    "exit_code": 0,
+    "status": "PASS_BIND_AND_CLEANUP"
+  },
+  {
+    "case": "alias",
+    "repeat": 1,
+    "exit_code": 0,
+    "status": "PASS_BIND_AND_CLEANUP"
+  },
+  {
+    "case": "alias",
+    "repeat": 2,
+    "exit_code": 0,
+    "status": "PASS_BIND_AND_CLEANUP"
+  },
+  {
+    "case": "default",
+    "repeat": 2,
+    "exit_code": 0,
+    "status": "PASS_BIND_AND_CLEANUP"
+  },
+  {
+    "case": "default",
+    "repeat": 3,
+    "exit_code": 0,
+    "status": "PASS_BIND_AND_CLEANUP"
+  },
+  {
+    "case": "alias",
+    "repeat": 3,
+    "exit_code": 0,
+    "status": "PASS_BIND_AND_CLEANUP"
+  },
+  {
+    "case": "invalid",
+    "repeat": 1,
+    "exit_code": 1,
+    "status": "EXPECTED_REJECTION"
+  }
+]

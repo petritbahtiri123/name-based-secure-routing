@@ -14,3 +14,9 @@ Validation must observe the actual source UDP binding during active lifecycle
 work, retain full cleanup, and reject malformed or unavailable addresses. A
 loopback-alias pass is a prerequisite, not external two-host/server evidence.
 Remote lifecycle/admission orchestration remains a separate task.
+
+At b6cf5e56, three default and three explicit-alias cells complete twelve total
+same-process cycles with zero final ownership and twelve live source socket
+joins. An unspecified-address negative case rejects. Seven argument contracts,
+four TLS/ALPN/name/channel-binding tests and feature-enabled release clippy pass.
+See [retained evidence](../../evidence/performance/v2/lifecycle-bind-b6cf5e56/summary.md).

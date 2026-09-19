@@ -1,0 +1,326 @@
+[
+  {
+    "case": "default",
+    "repeat": 1,
+    "cycle": 0,
+    "expected": "127.0.0.1",
+    "observed": {
+      "schema": "nbsr-linux-live-socket-v1",
+      "pid": 90,
+      "start_ticks": 168173,
+      "binary": "/tmp/binaries/perf_rust_source",
+      "started_ns": 1685776689714,
+      "scope": "Live FD binding during this observation only; not exclusive ownership, whole-flow continuity, remote-peer identity or cleanup proof",
+      "status": "MEASURED_LIVE_SOCKET_SNAPSHOT",
+      "sockets": [
+        {
+          "fd": 6,
+          "inode": 68967,
+          "local": [
+            "127.0.0.1",
+            41301
+          ]
+        }
+      ],
+      "network_namespace": "net:[4026532396]",
+      "finished_ns": 1685778284336
+    }
+  },
+  {
+    "case": "default",
+    "repeat": 1,
+    "cycle": 1,
+    "expected": "127.0.0.1",
+    "observed": {
+      "schema": "nbsr-linux-live-socket-v1",
+      "pid": 90,
+      "start_ticks": 168173,
+      "binary": "/tmp/binaries/perf_rust_source",
+      "started_ns": 1689855847217,
+      "scope": "Live FD binding during this observation only; not exclusive ownership, whole-flow continuity, remote-peer identity or cleanup proof",
+      "status": "MEASURED_LIVE_SOCKET_SNAPSHOT",
+      "sockets": [
+        {
+          "fd": 6,
+          "inode": 68976,
+          "local": [
+            "127.0.0.1",
+            60433
+          ]
+        }
+      ],
+      "network_namespace": "net:[4026532396]",
+      "finished_ns": 1689857331329
+    }
+  },
+  {
+    "case": "alias",
+    "repeat": 1,
+    "cycle": 0,
+    "expected": "127.0.0.2",
+    "observed": {
+      "schema": "nbsr-linux-live-socket-v1",
+      "pid": 146,
+      "start_ticks": 169555,
+      "binary": "/tmp/binaries/perf_rust_source",
+      "started_ns": 1699584985120,
+      "scope": "Live FD binding during this observation only; not exclusive ownership, whole-flow continuity, remote-peer identity or cleanup proof",
+      "status": "MEASURED_LIVE_SOCKET_SNAPSHOT",
+      "sockets": [
+        {
+          "fd": 6,
+          "inode": 69083,
+          "local": [
+            "127.0.0.2",
+            49291
+          ]
+        }
+      ],
+      "network_namespace": "net:[4026532396]",
+      "finished_ns": 1699585675778
+    }
+  },
+  {
+    "case": "alias",
+    "repeat": 1,
+    "cycle": 1,
+    "expected": "127.0.0.2",
+    "observed": {
+      "schema": "nbsr-linux-live-socket-v1",
+      "pid": 146,
+      "start_ticks": 169555,
+      "binary": "/tmp/binaries/perf_rust_source",
+      "started_ns": 1703647022463,
+      "scope": "Live FD binding during this observation only; not exclusive ownership, whole-flow continuity, remote-peer identity or cleanup proof",
+      "status": "MEASURED_LIVE_SOCKET_SNAPSHOT",
+      "sockets": [
+        {
+          "fd": 6,
+          "inode": 69142,
+          "local": [
+            "127.0.0.2",
+            35285
+          ]
+        }
+      ],
+      "network_namespace": "net:[4026532396]",
+      "finished_ns": 1703647535706
+    }
+  },
+  {
+    "case": "alias",
+    "repeat": 2,
+    "cycle": 0,
+    "expected": "127.0.0.2",
+    "observed": {
+      "schema": "nbsr-linux-live-socket-v1",
+      "pid": 202,
+      "start_ticks": 170981,
+      "binary": "/tmp/binaries/perf_rust_source",
+      "started_ns": 1713844614259,
+      "scope": "Live FD binding during this observation only; not exclusive ownership, whole-flow continuity, remote-peer identity or cleanup proof",
+      "status": "MEASURED_LIVE_SOCKET_SNAPSHOT",
+      "sockets": [
+        {
+          "fd": 6,
+          "inode": 69260,
+          "local": [
+            "127.0.0.2",
+            36174
+          ]
+        }
+      ],
+      "network_namespace": "net:[4026532396]",
+      "finished_ns": 1713846849270
+    }
+  },
+  {
+    "case": "alias",
+    "repeat": 2,
+    "cycle": 1,
+    "expected": "127.0.0.2",
+    "observed": {
+      "schema": "nbsr-linux-live-socket-v1",
+      "pid": 202,
+      "start_ticks": 170981,
+      "binary": "/tmp/binaries/perf_rust_source",
+      "started_ns": 1717911081195,
+      "scope": "Live FD binding during this observation only; not exclusive ownership, whole-flow continuity, remote-peer identity or cleanup proof",
+      "status": "MEASURED_LIVE_SOCKET_SNAPSHOT",
+      "sockets": [
+        {
+          "fd": 6,
+          "inode": 69263,
+          "local": [
+            "127.0.0.2",
+            42765
+          ]
+        }
+      ],
+      "network_namespace": "net:[4026532396]",
+      "finished_ns": 1717911888962
+    }
+  },
+  {
+    "case": "default",
+    "repeat": 2,
+    "cycle": 0,
+    "expected": "127.0.0.1",
+    "observed": {
+      "schema": "nbsr-linux-live-socket-v1",
+      "pid": 258,
+      "start_ticks": 172369,
+      "binary": "/tmp/binaries/perf_rust_source",
+      "started_ns": 1727729749644,
+      "scope": "Live FD binding during this observation only; not exclusive ownership, whole-flow continuity, remote-peer identity or cleanup proof",
+      "status": "MEASURED_LIVE_SOCKET_SNAPSHOT",
+      "sockets": [
+        {
+          "fd": 6,
+          "inode": 69416,
+          "local": [
+            "127.0.0.1",
+            50091
+          ]
+        }
+      ],
+      "network_namespace": "net:[4026532396]",
+      "finished_ns": 1727730366095
+    }
+  },
+  {
+    "case": "default",
+    "repeat": 2,
+    "cycle": 1,
+    "expected": "127.0.0.1",
+    "observed": {
+      "schema": "nbsr-linux-live-socket-v1",
+      "pid": 258,
+      "start_ticks": 172369,
+      "binary": "/tmp/binaries/perf_rust_source",
+      "started_ns": 1731780780986,
+      "scope": "Live FD binding during this observation only; not exclusive ownership, whole-flow continuity, remote-peer identity or cleanup proof",
+      "status": "MEASURED_LIVE_SOCKET_SNAPSHOT",
+      "sockets": [
+        {
+          "fd": 6,
+          "inode": 69515,
+          "local": [
+            "127.0.0.1",
+            51580
+          ]
+        }
+      ],
+      "network_namespace": "net:[4026532396]",
+      "finished_ns": 1731781273727
+    }
+  },
+  {
+    "case": "default",
+    "repeat": 3,
+    "cycle": 0,
+    "expected": "127.0.0.1",
+    "observed": {
+      "schema": "nbsr-linux-live-socket-v1",
+      "pid": 314,
+      "start_ticks": 173751,
+      "binary": "/tmp/binaries/perf_rust_source",
+      "started_ns": 1741544350957,
+      "scope": "Live FD binding during this observation only; not exclusive ownership, whole-flow continuity, remote-peer identity or cleanup proof",
+      "status": "MEASURED_LIVE_SOCKET_SNAPSHOT",
+      "sockets": [
+        {
+          "fd": 6,
+          "inode": 74759,
+          "local": [
+            "127.0.0.1",
+            48062
+          ]
+        }
+      ],
+      "network_namespace": "net:[4026532396]",
+      "finished_ns": 1741545001209
+    }
+  },
+  {
+    "case": "default",
+    "repeat": 3,
+    "cycle": 1,
+    "expected": "127.0.0.1",
+    "observed": {
+      "schema": "nbsr-linux-live-socket-v1",
+      "pid": 314,
+      "start_ticks": 173751,
+      "binary": "/tmp/binaries/perf_rust_source",
+      "started_ns": 1745598571573,
+      "scope": "Live FD binding during this observation only; not exclusive ownership, whole-flow continuity, remote-peer identity or cleanup proof",
+      "status": "MEASURED_LIVE_SOCKET_SNAPSHOT",
+      "sockets": [
+        {
+          "fd": 6,
+          "inode": 74764,
+          "local": [
+            "127.0.0.1",
+            51661
+          ]
+        }
+      ],
+      "network_namespace": "net:[4026532396]",
+      "finished_ns": 1745599611257
+    }
+  },
+  {
+    "case": "alias",
+    "repeat": 3,
+    "cycle": 0,
+    "expected": "127.0.0.2",
+    "observed": {
+      "schema": "nbsr-linux-live-socket-v1",
+      "pid": 370,
+      "start_ticks": 175141,
+      "binary": "/tmp/binaries/perf_rust_source",
+      "started_ns": 1755445177786,
+      "scope": "Live FD binding during this observation only; not exclusive ownership, whole-flow continuity, remote-peer identity or cleanup proof",
+      "status": "MEASURED_LIVE_SOCKET_SNAPSHOT",
+      "sockets": [
+        {
+          "fd": 6,
+          "inode": 74933,
+          "local": [
+            "127.0.0.2",
+            33309
+          ]
+        }
+      ],
+      "network_namespace": "net:[4026532396]",
+      "finished_ns": 1755445734832
+    }
+  },
+  {
+    "case": "alias",
+    "repeat": 3,
+    "cycle": 1,
+    "expected": "127.0.0.2",
+    "observed": {
+      "schema": "nbsr-linux-live-socket-v1",
+      "pid": 370,
+      "start_ticks": 175141,
+      "binary": "/tmp/binaries/perf_rust_source",
+      "started_ns": 1759494844966,
+      "scope": "Live FD binding during this observation only; not exclusive ownership, whole-flow continuity, remote-peer identity or cleanup proof",
+      "status": "MEASURED_LIVE_SOCKET_SNAPSHOT",
+      "sockets": [
+        {
+          "fd": 6,
+          "inode": 74936,
+          "local": [
+            "127.0.0.2",
+            56651
+          ]
+        }
+      ],
+      "network_namespace": "net:[4026532396]",
+      "finished_ns": 1759495225197
+    }
+  }
+]

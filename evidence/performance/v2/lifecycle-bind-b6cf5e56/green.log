@@ -1,0 +1,258 @@
+   Compiling nbsr-transport v0.1.0 (/work/crates/nbsr-transport)
+    Finished `release` profile [optimized] target(s) in 14.36s
+     Running unittests src/bin/perf_rust_source.rs (target/release/deps/perf_rust_source-422258d02c3dd2f1)
+
+running 7 tests
+test external_bind_contract_tests::absent_options_preserve_loopback_and_legacy_capture_port ... ok
+test external_bind_contract_tests::duplicate_missing_or_malformed_options_are_not_silently_ignored ... ok
+test external_bind_contract_tests::explicit_concrete_ipv4_source_uses_only_ephemeral_port ... ok
+test external_bind_contract_tests::explicit_listener_accepts_concrete_ipv4_and_fixed_or_ephemeral_port ... ok
+test external_bind_contract_tests::explicit_listener_and_any_capture_override_conflict_even_if_equal ... ok
+test external_bind_contract_tests::ipv6_multicast_unspecified_and_limited_broadcast_are_rejected ... ok
+test external_bind_contract_tests::role_specific_bind_options_cannot_be_silently_ignored ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 96 filtered out; finished in 0.00s
+
+    Checking cfg-if v1.0.4
+    Checking libc v0.2.189
+    Checking typenum v1.20.1
+    Checking zeroize v1.9.0
+    Checking thiserror v2.0.19
+    Checking generic-array v0.14.7
+    Checking num-traits v0.2.19
+    Checking memchr v2.8.3
+    Checking minimal-lexical v0.2.1
+    Checking rand_core v0.10.1
+    Checking once_cell v1.21.4
+    Checking nom v7.1.3
+    Checking getrandom v0.2.17
+    Checking num-conv v0.2.2
+    Checking cpufeatures v0.3.0
+    Checking powerfmt v0.2.0
+    Checking deranged v0.5.8
+    Checking time-core v0.1.9
+    Checking untrusted v0.9.0
+    Checking pin-project-lite v0.2.17
+    Checking subtle v2.6.1
+    Checking time v0.3.54
+    Checking ring v0.17.14
+    Checking rusticata-macros v4.1.0
+    Checking tracing-core v0.1.36
+    Checking block-buffer v0.10.4
+    Checking crypto-common v0.1.7
+    Checking rustls-pki-types v1.15.1
+    Checking hybrid-array v0.4.14
+    Checking rustls-webpki v0.103.13
+    Checking asn1-rs v0.7.2
+    Checking digest v0.10.7
+    Checking tracing v0.1.44
+    Checking getrandom v0.4.3
+    Checking chacha20 v0.10.1
+    Checking num-integer v0.1.46
+    Checking socket2 v0.6.5
+    Checking tinyvec_macros v0.1.1
+    Checking bytes v1.12.1
+    Checking cpufeatures v0.2.17
+    Checking tinyvec v1.12.0
+    Checking num-bigint v0.4.8
+    Checking rand v0.10.2
+    Checking rustls v0.23.43
+    Checking crypto-common v0.2.2
+    Checking block-buffer v0.12.1
+    Checking rand_pcg v0.10.2
+    Checking mio v1.2.2
+    Checking signature v2.2.0
+    Checking slab v0.4.12
+    Checking const-oid v0.10.2
+    Checking lru-slab v0.1.2
+    Checking rustc-hash v2.1.3
+    Checking digest v0.11.3
+    Checking ed25519 v2.2.3
+    Checking tokio v1.53.1
+    Checking quinn-proto v0.11.16
+    Checking curve25519-dalek v4.1.3
+    Checking der-parser v10.0.0
+    Checking quinn-udp v0.5.15
+    Checking oid-registry v0.8.1
+    Checking sha2 v0.10.9
+    Checking lazy_static v1.5.0
+    Checking data-encoding v2.11.0
+    Checking ed25519-dalek v2.2.0
+    Checking x509-parser v0.18.1
+    Checking quinn v0.11.11
+    Checking sha2 v0.11.0
+    Checking nbsr-transport v0.1.0 (/work/crates/nbsr-transport)
+    Finished `release` profile [optimized] target(s) in 15.57s
+    Checking tokio v1.53.1
+    Checking quinn v0.11.11
+    Checking nbsr-transport v0.1.0 (/work/crates/nbsr-transport)
+warning: unused import: `CompletionCoordinator`
+  --> src/bin/perf_rust_source.rs:64:28
+   |
+64 | use lifecycle_completion::{CompletionCoordinator, CompletionSender, TerminalKind};
+   |                            ^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `group_barrier`
+    --> src/bin/perf_rust_source.rs:1203:5
+     |
+1203 |     group_barrier: Option<Arc<std::sync::Barrier>>,
+     |     ^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_group_barrier`
+     |
+     = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: struct `BatchRelease` is never constructed
+ --> src/bin/benchmark_support/batch_release.rs:6:12
+  |
+6 | pub struct BatchRelease {
+  |            ^^^^^^^^^^^^
+  |
+  = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: enum `Schedule` is never used
+  --> src/bin/benchmark_support/batch_release.rs:12:6
+   |
+12 | enum Schedule {
+   |      ^^^^^^^^
+
+warning: associated items `new`, `from_options`, `scheduled_delay`, and `wait` are never used
+  --> src/bin/benchmark_support/batch_release.rs:23:12
+   |
+22 | impl BatchRelease {
+   | ----------------- associated items in this implementation
+23 |     pub fn new(batch_size: usize, interval: Duration) -> Result<Self, &'static str> {
+   |            ^^^
+...
+36 |     pub fn from_options(
+   |            ^^^^^^^^^^^^
+...
+56 |     pub fn scheduled_delay(&self, client: usize) -> Duration {
+   |            ^^^^^^^^^^^^^^^
+...
+66 |     async fn wait(&self, client: usize) {
+   |              ^^^^
+
+warning: function `after_release` is never used
+  --> src/bin/benchmark_support/batch_release.rs:74:14
+   |
+74 | pub async fn after_release<F, Fut, T>(gate: Option<BatchRelease>, client: usize, operation: F) -> T
+   |              ^^^^^^^^^^^^^
+
+warning: variants `Requested`, `TaskStarted`, and `Cancelled` are never constructed
+  --> src/bin/benchmark_support/handshake_timeline.rs:13:5
+   |
+12 | pub enum Event {
+   |          ----- variants in this enum
+13 |     Requested,
+   |     ^^^^^^^^^
+14 |     TaskStarted,
+   |     ^^^^^^^^^^^
+...
+23 |     Cancelled,
+   |     ^^^^^^^^^
+   |
+   = note: `Event` has a derived impl for the trait `Clone`, but this is intentionally ignored during dead code analysis
+
+warning: associated items `open`, `word`, and `claim` are never used
+   --> src/bin/benchmark_support/handshake_timeline.rs:89:12
+    |
+ 88 | impl Region {
+    | ----------- associated items in this implementation
+ 89 |     pub fn open(count: usize, role: u64) -> Option<Arc<Self>> {
+    |            ^^^^
+...
+134 |     fn word(&self, index: usize) -> &AtomicU64 {
+    |        ^^^^
+...
+144 |     pub fn claim(self: &Arc<Self>, index: usize) -> Option<Slot> {
+    |            ^^^^^
+
+warning: method `complete` is never used
+   --> src/bin/benchmark_support/handshake_timeline.rs:184:12
+    |
+180 | impl Slot {
+    | --------- method in this implementation
+...
+184 |     pub fn complete(&self) {
+    |            ^^^^^^^^
+
+warning: function `scope` is never used
+   --> src/bin/benchmark_support/handshake_timeline.rs:209:14
+    |
+209 | pub async fn scope<F: Future>(slot: Option<Slot>, future: F) -> F::Output {
+    |              ^^^^^
+
+warning: variant `Cancelled` is never constructed
+  --> src/bin/benchmark_support/lifecycle_completion.rs:16:5
+   |
+12 | pub(crate) enum TerminalKind {
+   |                 ------------ variant in this enum
+...
+16 |     Cancelled,
+   |     ^^^^^^^^^
+   |
+   = note: `TerminalKind` has derived impls for the traits `Debug` and `Clone`, but these are intentionally ignored during dead code analysis
+
+warning: enum `FinishError` is never used
+  --> src/bin/benchmark_support/lifecycle_completion.rs:45:17
+   |
+45 | pub(crate) enum FinishError {
+   |                 ^^^^^^^^^^^
+
+warning: struct `WriterSummary` is never constructed
+  --> src/bin/benchmark_support/lifecycle_completion.rs:70:19
+   |
+70 | pub(crate) struct WriterSummary {
+   |                   ^^^^^^^^^^^^^
+
+warning: fields `state`, `notify`, and `writer` are never read
+   --> src/bin/benchmark_support/lifecycle_completion.rs:122:5
+    |
+121 | pub(crate) struct CompletionCoordinator {
+    |                   --------------------- fields in this struct
+122 |     state: Arc<Mutex<State>>,
+    |     ^^^^^
+123 |     notify: Arc<Notify>,
+    |     ^^^^^^
+124 |     writer: Option<WriterHandle>,
+    |     ^^^^^^
+
+warning: fields `thread` and `completion` are never read
+   --> src/bin/benchmark_support/lifecycle_completion.rs:128:5
+    |
+127 | struct WriterHandle {
+    |        ------------ fields in this struct
+128 |     thread: JoinHandle<()>,
+    |     ^^^^^^
+129 |     completion: oneshot::Receiver<WriterResult>,
+    |     ^^^^^^^^^^
+
+warning: fields `written`, `thread`, and `errors` are never read
+   --> src/bin/benchmark_support/lifecycle_completion.rs:134:5
+    |
+133 | struct WriterResult {
+    |        ------------ fields in this struct
+134 |     written: usize,
+    |     ^^^^^^^
+135 |     thread: ThreadId,
+    |     ^^^^^^
+136 |     errors: Vec<String>,
+    |     ^^^^^^
+    |
+    = note: `WriterResult` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: methods `wait_all` and `finish` are never used
+   --> src/bin/benchmark_support/lifecycle_completion.rs:225:25
+    |
+139 | impl CompletionCoordinator {
+    | -------------------------- methods in this implementation
+...
+225 |     pub(crate) async fn wait_all(&self, deadline: Duration) -> Result<(), FinishError> {
+    |                         ^^^^^^^^
+...
+246 |     pub(crate) async fn finish(mut self, deadline: Duration) -> Result<WriterSummary, FinishError> {
+    |                         ^^^^^^
+
+warning: `nbsr-transport` (bin "perf_rust_source") generated 17 warnings (run `cargo fix --bin "perf_rust_source" -p nbsr-transport` to apply 2 suggestions)
+    Finished `release` profile [optimized] target(s) in 4.86s

@@ -1,0 +1,14 @@
+[
+  {
+    "root": "C:\\NBSR-build\\lifecycle-bind-b6cf5e56",
+    "index_sha256": "9aae98dd6ff7a6d28f447de9eb707ea80162c32f89c1c2f91cfc32d538a8af39"
+  },
+  {
+    "root": "C:\\NBSR-build\\lifecycle-bind-c7ca8651",
+    "index_sha256": "fb5fdc4cf8dc8d394cf41f75ef6b1b0e377006d0dd217018fc7cc41e0cd02db2"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-current-b6cf5e56",
+    "index_sha256": "a6ad252fbe95a1dd3d1706d044d76008fb2226c0955f9c4b09699b863e08da6a"
+  }
+]
