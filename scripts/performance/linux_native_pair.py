@@ -147,11 +147,15 @@ def analyze_pair(source, destination, *, source_sha):
                 and src['certificates_sha256']['ca.der'] == dst['certificates_sha256']['ca.der'],
                 'peer workload/build/authority mismatch')
         ready = read(destination, 'ready.json')
-        address, _ = validate_endpoint(ready['endpoint'], allow_zero=False)
+        address, port = validate_endpoint(ready['endpoint'], allow_zero=False)
         require(ready == read(source, 'input-readiness.json') and ready['alpn'] == 'nbsr-quic-1'
                 and address == validate_endpoint(dst['bind'], allow_zero=True)[0]
                 and src['endpoint'] == ready['endpoint'] and dst['endpoint'] is None,
                 'readiness/endpoint mismatch')
+        if dst.get('live_socket_observer', False):
+            require(any(row['local'] == [address, port]
+                        for row in read(destination, 'socket-ownership.json')['sockets']),
+                    'destination readiness socket was not observed')
         row = read(source, 'validated-result.json')
         require(row == json.loads((source / 'stdout').read_text().strip().splitlines()[-1])
                 and validate_repeat(row), 'source result mismatch/invalid')

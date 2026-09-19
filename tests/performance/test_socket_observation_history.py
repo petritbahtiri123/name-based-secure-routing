@@ -41,6 +41,40 @@ def test_failed_attempt_before_success_is_retained_and_accepted(tmp_path):
     assert analyze_pair(source, destination, source_sha=SHA)['status'] == 'PASS_FINITE_PAIR_INTEGRITY'
 
 
+@pytest.mark.parametrize('fault', ['observed-port', 'ready-port'])
+def test_destination_owned_socket_must_match_announced_port(tmp_path, fault):
+    source, destination = instrumented_pair(tmp_path)
+    if fault == 'observed-port':
+        observed = json.loads((destination / 'socket-ownership.json').read_text())
+        observed['sockets'][0]['local'][1] = 5555
+        put(destination, 'socket-ownership.json', observed)
+        (destination / 'socket-observations.ndjson').write_text(json.dumps(observed) + '\n')
+    else:
+        ready = json.loads((destination / 'ready.json').read_text())
+        ready['endpoint'] = ready['endpoint'].replace(':4444', ':5555')
+        put(destination, 'ready.json', ready)
+        put(source, 'input-readiness.json', ready)
+        env = json.loads((source / 'environment.json').read_text())
+        put(source, 'environment.json', env | {'endpoint': ready['endpoint']})
+        command = json.loads((source / 'command.json').read_text())
+        command['argv'][command['argv'].index('--endpoint') + 1] = ready['endpoint']
+        put(source, 'command.json', command)
+    for root in (source, destination):
+        seal_output(root)
+    with pytest.raises(ValueError, match='readiness socket'):
+        analyze_pair(source, destination, source_sha=SHA)
+
+
+def test_readiness_match_is_not_assumed_to_be_first_socket(tmp_path):
+    source, destination = instrumented_pair(tmp_path)
+    observed = json.loads((destination / 'socket-ownership.json').read_text())
+    observed['sockets'].insert(0, dict(fd=4, inode=100, local=[observed['sockets'][0]['local'][0], 5555]))
+    put(destination, 'socket-ownership.json', observed)
+    (destination / 'socket-observations.ndjson').write_text(json.dumps(observed) + '\n')
+    seal_output(destination)
+    assert analyze_pair(source, destination, source_sha=SHA)['status'] == 'PASS_FINITE_PAIR_INTEGRITY'
+
+
 @pytest.mark.parametrize('fault', ['before', 'after', 'missing', 'mismatch', 'extra-success',
                                   'too-many', 'reversed-attempts', 'other-pid', 'boolean-time',
                                   'resource-clock-regression'])
