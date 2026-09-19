@@ -1,0 +1,40 @@
+.........FFF                                                             [100%]
+================================== FAILURES ===================================
+_ test_declared_mtu_and_ethernet_type_must_match_read_only_interface[1500-1-True] _
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1105/test_declared_mtu_and_ethernet0')
+actual_mtu = 1500, linktype = 1, valid = True
+
+    @pytest.mark.parametrize('actual_mtu,linktype,valid', [(1500, 1, True), (9000, 1, False), (1500, 772, False)])
+    def test_declared_mtu_and_ethernet_type_must_match_read_only_interface(tmp_path, actual_mtu, linktype, valid):
+>       from scripts.performance.linux_native_capture import interface_metadata
+E       ImportError: cannot import name 'interface_metadata' from 'scripts.performance.linux_native_capture' (C:\Users\bajra\OneDrive\Documents\NBSR\scripts\performance\linux_native_capture.py)
+
+tests\performance\test_linux_native_capture.py:73: ImportError
+_ test_declared_mtu_and_ethernet_type_must_match_read_only_interface[9000-1-False] _
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1105/test_declared_mtu_and_ethernet1')
+actual_mtu = 9000, linktype = 1, valid = False
+
+    @pytest.mark.parametrize('actual_mtu,linktype,valid', [(1500, 1, True), (9000, 1, False), (1500, 772, False)])
+    def test_declared_mtu_and_ethernet_type_must_match_read_only_interface(tmp_path, actual_mtu, linktype, valid):
+>       from scripts.performance.linux_native_capture import interface_metadata
+E       ImportError: cannot import name 'interface_metadata' from 'scripts.performance.linux_native_capture' (C:\Users\bajra\OneDrive\Documents\NBSR\scripts\performance\linux_native_capture.py)
+
+tests\performance\test_linux_native_capture.py:73: ImportError
+_ test_declared_mtu_and_ethernet_type_must_match_read_only_interface[1500-772-False] _
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1105/test_declared_mtu_and_ethernet2')
+actual_mtu = 1500, linktype = 772, valid = False
+
+    @pytest.mark.parametrize('actual_mtu,linktype,valid', [(1500, 1, True), (9000, 1, False), (1500, 772, False)])
+    def test_declared_mtu_and_ethernet_type_must_match_read_only_interface(tmp_path, actual_mtu, linktype, valid):
+>       from scripts.performance.linux_native_capture import interface_metadata
+E       ImportError: cannot import name 'interface_metadata' from 'scripts.performance.linux_native_capture' (C:\Users\bajra\OneDrive\Documents\NBSR\scripts\performance\linux_native_capture.py)
+
+tests\performance\test_linux_native_capture.py:73: ImportError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_linux_native_capture.py::test_declared_mtu_and_ethernet_type_must_match_read_only_interface[1500-1-True]
+FAILED tests/performance/test_linux_native_capture.py::test_declared_mtu_and_ethernet_type_must_match_read_only_interface[9000-1-False]
+FAILED tests/performance/test_linux_native_capture.py::test_declared_mtu_and_ethernet_type_must_match_read_only_interface[1500-772-False]
+3 failed, 9 passed in 1.02s

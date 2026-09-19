@@ -1,0 +1,23 @@
+{
+  "command": [
+    "C:/Program Files/Wireshark/tshark.exe",
+    "-n",
+    "-r",
+    "C:\\NBSR-build\\native-capture-ba9e844a\\source\\p1024-s64-direct-r1.capture\\native.pcapng",
+    "-Y",
+    "udp.port==51914",
+    "-T",
+    "fields",
+    "-e",
+    "frame.len",
+    "-e",
+    "ip.len",
+    "-e",
+    "udp.length"
+  ],
+  "workload_packets": 14512,
+  "max_captured_ip_length": 14548,
+  "packets_above_declared_1500_mtu": 10855,
+  "median_captured_ip_length": 14540.0,
+  "scope": "Retrospective packet representation diagnostic; not physical-wire accounting or proof of which offload generated it"
+}

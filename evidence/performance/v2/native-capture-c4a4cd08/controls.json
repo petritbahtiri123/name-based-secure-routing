@@ -1,0 +1,107 @@
+[
+  {
+    "mode": "normal-1",
+    "exit_code": 0,
+    "owned_absent": [
+      {
+        "pid": 29,
+        "same_epoch_alive": false
+      },
+      {
+        "pid": 61,
+        "same_epoch_alive": false
+      }
+    ],
+    "status": "PASS_DIAGNOSTIC_NATIVE_CAPTURE"
+  },
+  {
+    "mode": "normal-2",
+    "exit_code": 0,
+    "owned_absent": [
+      {
+        "pid": 105,
+        "same_epoch_alive": false
+      },
+      {
+        "pid": 137,
+        "same_epoch_alive": false
+      }
+    ],
+    "status": "PASS_DIAGNOSTIC_NATIVE_CAPTURE"
+  },
+  {
+    "mode": "normal-3",
+    "exit_code": 0,
+    "owned_absent": [
+      {
+        "pid": 182,
+        "same_epoch_alive": false
+      },
+      {
+        "pid": 214,
+        "same_epoch_alive": false
+      }
+    ],
+    "status": "PASS_DIAGNOSTIC_NATIVE_CAPTURE"
+  },
+  {
+    "mode": "SIGTERM",
+    "exit_code": 1,
+    "owned_absent": [
+      {
+        "pid": 258,
+        "same_epoch_alive": false
+      },
+      {
+        "pid": 290,
+        "same_epoch_alive": false
+      }
+    ],
+    "status": "INVALID_PARTIAL"
+  },
+  {
+    "mode": "SIGINT",
+    "exit_code": 1,
+    "owned_absent": [
+      {
+        "pid": 312,
+        "same_epoch_alive": false
+      },
+      {
+        "pid": 344,
+        "same_epoch_alive": false
+      }
+    ],
+    "status": "INVALID_PARTIAL"
+  },
+  {
+    "mode": "SIGHUP",
+    "exit_code": 1,
+    "owned_absent": [
+      {
+        "pid": 366,
+        "same_epoch_alive": false
+      },
+      {
+        "pid": 398,
+        "same_epoch_alive": false
+      }
+    ],
+    "status": "INVALID_PARTIAL"
+  },
+  {
+    "mode": "wrong-stop",
+    "exit_code": 1,
+    "owned_absent": [
+      {
+        "pid": 420,
+        "same_epoch_alive": false
+      },
+      {
+        "pid": 452,
+        "same_epoch_alive": false
+      }
+    ],
+    "status": "INVALID_PARTIAL"
+  }
+]

@@ -1,0 +1,14 @@
+[
+  {
+    "root": "C:\\NBSR-build\\native-capture-ba9e844a",
+    "index_sha256": "050c88e4c244f5955590adba4e33607c3ee9fb9c2498111cee7e5ee800f27a2f"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-current-ba9e844a",
+    "index_sha256": "e8353f6b31827452218f9c31a287cbc8696cfb76b6037e2d0380e9041fda39c2"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-capture-cli-c4a4cd08",
+    "index_sha256": "90d8b17b618d4474c245f805c4931087d9f2d5ce9876f80b79a11b76be45d183"
+  }
+]

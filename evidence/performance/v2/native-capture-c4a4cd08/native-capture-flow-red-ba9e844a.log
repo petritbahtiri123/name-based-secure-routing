@@ -1,0 +1,33 @@
+......F..                                                                [100%]
+================================== FAILURES ===================================
+_ test_native_accounting_requires_unique_workload_flow_and_resets_valid_on_failure _
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1103/test_native_accounting_require0')
+
+    def test_native_accounting_requires_unique_workload_flow_and_resets_valid_on_failure(tmp_path):
+        value = observer()
+        value.probe = PROBE | dict(status='PASS', terminal_status='PASS')
+        value.report.update(valid=True, packet_count=2, flow_count=1)
+        (tmp_path / 'udp-flows.json').write_text(json.dumps([dict(client_port=CLIENT[1])]))
+        (tmp_path / 'native.pcapng').write_bytes(capture([marker(), frame(), frame(SERVER, CLIENT), marker(True)]))
+        (tmp_path / 'dumpcap.stderr').write_text("Packets captured: 4\nPackets received/dropped on interface 'eth0': 4/0 "
+                                               "(pcap:0/dumpcap:0/flushed:0/ps_ifdrop:0)\n")
+>       value.account_native(tmp_path)
+
+tests\performance\test_linux_native_capture.py:44: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <scripts.performance.linux_native_capture.NativePacketObserver object at 0x000001BEFB274050>
+directory = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1103/test_native_accounting_require0')
+
+    def account_native(self, directory):
+        try:
+            require(self.report['valid'], 'capture did not close gracefully')
+>           require(len(self.report['flows']) == 1, 'exactly one workload flow required')
+                        ^^^^^^^^^^^^^^^^^^^^
+E           KeyError: 'flows'
+
+scripts\performance\linux_native_capture.py:101: KeyError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_linux_native_capture.py::test_native_accounting_requires_unique_workload_flow_and_resets_valid_on_failure
+1 failed, 8 passed in 1.08s
