@@ -1,0 +1,46 @@
+.....................FF.                                                 [100%]
+================================== FAILURES ===================================
+_ test_embedded_nonzero_drop_counters_cannot_contradict_zero_loss_log[interface] _
+
+kind = 'interface'
+
+    @pytest.mark.parametrize('kind', ['interface', 'packet'])
+    def test_embedded_nonzero_drop_counters_cannot_contradict_zero_loss_log(kind):
+        if kind == 'interface':
+            data = capture(extra=block(5, struct.pack('<III', 0, 0, 1)
+                                       + option(5, struct.pack('<Q', 1)) + option(0, b'')))
+        else:
+            packet = frame()
+            epb = block(6, struct.pack('<IIIII', 0, 0, 1, len(packet), len(packet))
+                        + packet + b'\0' * (-len(packet) % 4)
+                        + option(4, struct.pack('<Q', 1)) + option(0, b''))
+            data = capture(frames=[frame(SERVER, CLIENT)]) + epb
+>       with pytest.raises(ValueError, match='drop'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_linux_native_packet_accounting.py:131: Failed
+_ test_embedded_nonzero_drop_counters_cannot_contradict_zero_loss_log[packet] _
+
+kind = 'packet'
+
+    @pytest.mark.parametrize('kind', ['interface', 'packet'])
+    def test_embedded_nonzero_drop_counters_cannot_contradict_zero_loss_log(kind):
+        if kind == 'interface':
+            data = capture(extra=block(5, struct.pack('<III', 0, 0, 1)
+                                       + option(5, struct.pack('<Q', 1)) + option(0, b'')))
+        else:
+            packet = frame()
+            epb = block(6, struct.pack('<IIIII', 0, 0, 1, len(packet), len(packet))
+                        + packet + b'\0' * (-len(packet) % 4)
+                        + option(4, struct.pack('<Q', 1)) + option(0, b''))
+            data = capture(frames=[frame(SERVER, CLIENT)]) + epb
+>       with pytest.raises(ValueError, match='drop'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_linux_native_packet_accounting.py:131: Failed
+=========================== short test summary info ===========================
+FAILED tests/performance/test_linux_native_packet_accounting.py::test_embedded_nonzero_drop_counters_cannot_contradict_zero_loss_log[interface]
+FAILED tests/performance/test_linux_native_packet_accounting.py::test_embedded_nonzero_drop_counters_cannot_contradict_zero_loss_log[packet]
+2 failed, 22 passed in 0.69s

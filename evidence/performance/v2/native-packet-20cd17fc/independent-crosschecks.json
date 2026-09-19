@@ -1,0 +1,89 @@
+[
+  {
+    "expected": {
+      "packet_count": 200,
+      "captured_frame_bytes": 14200,
+      "ip_bytes": 11400,
+      "udp_bytes": 7400,
+      "udp_payload_bytes": 5800
+    },
+    "tshark_command": [
+      "tshark",
+      "-n",
+      "-r",
+      "/out/repeat-1/native.pcapng",
+      "-T",
+      "fields",
+      "-E",
+      "separator=/t",
+      "-e",
+      "frame.len",
+      "-e",
+      "ip.len",
+      "-e",
+      "udp.length"
+    ],
+    "negative": {
+      "truncated": "invalid pcapng block size",
+      "wrong-port": "unrelated IPv4/UDP flow"
+    }
+  },
+  {
+    "expected": {
+      "packet_count": 200,
+      "captured_frame_bytes": 14200,
+      "ip_bytes": 11400,
+      "udp_bytes": 7400,
+      "udp_payload_bytes": 5800
+    },
+    "tshark_command": [
+      "tshark",
+      "-n",
+      "-r",
+      "/out/repeat-2/native.pcapng",
+      "-T",
+      "fields",
+      "-E",
+      "separator=/t",
+      "-e",
+      "frame.len",
+      "-e",
+      "ip.len",
+      "-e",
+      "udp.length"
+    ],
+    "negative": {
+      "truncated": "invalid pcapng block size",
+      "wrong-port": "unrelated IPv4/UDP flow"
+    }
+  },
+  {
+    "expected": {
+      "packet_count": 200,
+      "captured_frame_bytes": 14200,
+      "ip_bytes": 11400,
+      "udp_bytes": 7400,
+      "udp_payload_bytes": 5800
+    },
+    "tshark_command": [
+      "tshark",
+      "-n",
+      "-r",
+      "/out/repeat-3/native.pcapng",
+      "-T",
+      "fields",
+      "-E",
+      "separator=/t",
+      "-e",
+      "frame.len",
+      "-e",
+      "ip.len",
+      "-e",
+      "udp.length"
+    ],
+    "negative": {
+      "truncated": "invalid pcapng block size",
+      "wrong-port": "unrelated IPv4/UDP flow"
+    }
+  }
+]
