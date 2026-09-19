@@ -117,6 +117,13 @@ def check_peer(root, role, source_sha):
             previous, last = sample['cpu_ns'], sample
     require(last is not None and last['state'] == 'Z' and last == exit_record['final_sample'],
             'terminal sample mismatch')
+    require(type(env.get('live_socket_observer', False)) is bool, 'invalid live socket observer mode')
+    if env.get('live_socket_observer', False):
+        from scripts.performance.linux_socket_ownership import validate_binding
+        observed = read(root, 'socket-ownership.json')
+        local = observed['sockets'][0]['local']
+        require(local[0] == validate_endpoint(env['bind'], allow_zero=True)[0], 'observed bind mismatch')
+        validate_binding(observed, pid=last['pid'], start_ticks=last['start_ticks'], binary=argv[3], local=local)
     return env, result, index
 
 
@@ -128,6 +135,7 @@ def analyze_pair(source, destination, *, source_sha):
         src, result, src_index = check_peer(source, 'source', source_sha)
         dst, _, dst_index = check_peer(destination, 'destination', source_sha)
         require(src['cell'] == dst['cell'] and src['binary_sha256'] == dst['binary_sha256']
+                and src.get('live_socket_observer', False) == dst.get('live_socket_observer', False)
                 and src['certificates_sha256']['ca.der'] == dst['certificates_sha256']['ca.der'],
                 'peer workload/build/authority mismatch')
         ready = read(destination, 'ready.json')

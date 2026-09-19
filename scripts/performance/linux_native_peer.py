@@ -25,6 +25,7 @@ from scripts.performance.linux_exit import observe_owned_exit
 from scripts.performance.linux_loopback import ROOT, build_commands, digest, sample_process, validate_matrix, write_json
 from scripts.performance.p2a_established import validate_repeat
 from scripts.performance.process_cancellation import Cancellation, not_cancelled
+from scripts.performance.linux_socket_ownership import snapshot
 
 
 def validate_endpoint(value, *, allow_zero):
@@ -87,9 +88,11 @@ def native_command(cell, role, binaries, authority, output, *, bind, endpoint):
             else (server + ['--benchmark-listen', bind], env))
 
 
-def observe_child(child, cpus, output, *, deadline, check_cancelled=not_cancelled):
+def observe_child(child, cpus, output, *, deadline, check_cancelled=not_cancelled, socket_identity=None):
     identity = None
     previous_cpu = None
+    socket_observed = False
+    socket_attempts = 0
     with (output / 'resources.ndjson').open('x') as stream:
         while True:
             check_cancelled()
@@ -103,11 +106,20 @@ def observe_child(child, cpus, output, *, deadline, check_cancelled=not_cancelle
             previous_cpu = sample.get('cpu_ns')
             stream.write(json.dumps(sample) + '\n')
             stream.flush()
+            if socket_identity is not None and not socket_observed and socket_attempts < 20 and sample['state'] != 'Z':
+                observation = snapshot(child.pid, sample['start_ticks'], *socket_identity)
+                socket_attempts += 1
+                with (output / 'socket-observations.ndjson').open('a') as observations:
+                    observations.write(json.dumps(observation) + '\n')
+                if observation['status'] == 'MEASURED_LIVE_SOCKET_SNAPSHOT':
+                    write_json(output / 'socket-ownership.json', observation)
+                    socket_observed = True
             if sample['state'] == 'Z':
                 result = dict(exit_code=child.wait(timeout=5), final_sample=sample)
                 write_json(output / 'exit.json', result)
                 if result['exit_code'] != 0:
                     raise RuntimeError('peer exited unsuccessfully; see retained stderr')
+                require(socket_identity is None or socket_observed, 'requested live UDP ownership not observed')
                 return result
             if time.monotonic() >= deadline:
                 raise TimeoutError('finite peer controller deadline')
@@ -184,6 +196,7 @@ def execute(args, *, check_cancelled=not_cancelled):
         write_json(output / 'environment.json', dict(repository_sha=sha, cell=cell, role=args.role,
             bind=args.bind, endpoint=endpoint, linux_environment=host, uid=os.getuid(),
             controller_deadline_seconds=120, warmup_seconds=warmup, duration_seconds=duration,
+            live_socket_observer=bool(getattr(args, 'observe_socket_ownership', False)),
             binary_sha256=hashes, certificates_sha256=certificate_hashes,
             scope='finite native-address peer; external/physical hardware unqualified',
             cpu_scope='whole peer lifetime including startup/warmup/drain; not steady CPU ns/op',
@@ -200,7 +213,10 @@ def execute(args, *, check_cancelled=not_cancelled):
             check_cancelled()
             deadline = time.monotonic() + 120
             wait_target_exec(child, executable, check_cancelled=check_cancelled)
-            result = observe_child(child, cpus, output, deadline=deadline, check_cancelled=check_cancelled)
+            socket_identity = ((str(executable), bind_ip)
+                               if getattr(args, 'observe_socket_ownership', False) else None)
+            result = observe_child(child, cpus, output, deadline=deadline,
+                                   check_cancelled=check_cancelled, socket_identity=socket_identity)
         if args.role == 'source':
             row = validate_source(output, cell)
             result.update(completed_operations=row['completed_operations'],
@@ -240,6 +256,8 @@ def execute(args, *, check_cancelled=not_cancelled):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--role', choices=('source', 'destination'), required=True)
+    parser.add_argument('--observe-socket-ownership', action='store_true',
+                        help='Opt-in bounded live FD observer; timing is diagnostic only')
     parser.add_argument('--path', choices=('direct', 'nbsr'), required=True)
     for name in ('binaries', 'build-manifest', 'authority', 'output'):
         parser.add_argument('--' + name, type=Path, required=True)
