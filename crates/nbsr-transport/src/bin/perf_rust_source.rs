@@ -10,6 +10,8 @@ use std::time::{Duration, Instant};
 
 #[cfg(feature = "benchmark-harness")]
 use nbsr_transport::StreamCreditRefill;
+#[cfg(not(feature = "benchmark-harness"))]
+use nbsr_transport::connect;
 #[cfg(feature = "benchmark-harness")]
 use nbsr_transport::p2a_benchmark::{
     OutstandingTracker, build_benchmark_runtime, decode_frame, decode_measured_frame, encode_frame,
@@ -20,7 +22,7 @@ use nbsr_transport::{
     AdmissionPolicy, AuthorizedServicePolicy, ControlSession, CoreV02Limits, DestinationAdmission,
     EdgeIdentity, EdgeRole, LocalFederationAdmissionAttestations,
     LocalFederationAdmissionAuthorities, PeerPolicy, RouteGrantIssuer, TlsMaterial, TrustProfileId,
-    build_client_config, connect, decode_control_envelope,
+    build_client_config, decode_control_envelope,
 };
 use rustls::RootCertStore;
 use rustls::pki_types::{CertificateDer, PrivateKeyDer, PrivatePkcs8KeyDer};
@@ -457,6 +459,9 @@ async fn run_lifecycle(
     let payload = vec![0x5a; payload_bytes];
     let mut sample_id = 0_u64;
     #[cfg(feature = "benchmark-harness")]
+    let lifecycle_bind =
+        external_bind::client_bind(env::args()).expect("valid benchmark client bind");
+    #[cfg(feature = "benchmark-harness")]
     let allocator_directory = optional_argument("--b3-allocator-directory").map(PathBuf::from);
     #[cfg(feature = "benchmark-harness")]
     if let Some(directory) = allocator_directory.as_deref() {
@@ -500,7 +505,12 @@ async fn run_lifecycle(
         } else {
             client_config
         };
-        let connection = match handshake_timeline::observe(connect(client_config, endpoint)).await {
+        #[cfg(feature = "benchmark-harness")]
+        let connecting =
+            nbsr_transport::benchmark_connect_from(client_config, endpoint, lifecycle_bind);
+        #[cfg(not(feature = "benchmark-harness"))]
+        let connecting = connect(client_config, endpoint);
+        let connection = match handshake_timeline::observe(connecting).await {
             Ok(connection) => connection,
             Err(error) => {
                 let logical_client_id = connection_offset + connection_ordinal;
@@ -2003,13 +2013,6 @@ fn main() {
         );
     }
     external_bind::client_bind(env::args()).expect("valid benchmark client bind");
-    if env::args().any(|arg| arg == "--benchmark-client-bind") {
-        assert!(
-            optional_argument("--lifecycle-authority-dir").is_none()
-                && optional_argument("--lifecycle-clients").is_none(),
-            "explicit client bind is not supported by the separate lifecycle harness"
-        );
-    }
     let workers = parse_runtime_workers(env::args()).expect("valid --p2a-runtime-workers");
     if let Some(driver) =
         b5_driver::prepare(env::args()).expect("valid paced benchmark configuration")
