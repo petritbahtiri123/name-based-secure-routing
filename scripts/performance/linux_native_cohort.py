@@ -67,6 +67,8 @@ def analyze_cohort(manifest_path, *, source_sha):
                   for mode in ('direct', 'nbsr')}
         first = {mode: cv(v[:3]) for mode, v in values.items()}
         repeats = len(entries) // 2
+        require('operations_per_stream' not in shape or repeats == 5,
+                'fixed-work packet comparison requires five complete pairs')
         require(repeats == 5 or all(value <= .05 for value in first.values()),
                 'first-three goodput dispersion requires five repeats of both paths')
         final = {mode: cv(v) for mode, v in values.items()}

@@ -144,3 +144,25 @@ is not independently verified from cross-host clocks; the manifest cannot prove
 that an operator disclosed every attempt. Same recorded configuration does not
 prove dedicated physical hosts or observer neutrality. No strict-stable,
 sustained, runtime-ownership or hardware-capacity acceptance follows.
+
+## Fixed useful work for packet comparisons
+
+The separate opt-in `--operations-per-stream 1000` is available on **both** peer
+commands. Keep the same value, payload, streams and `--depth 1` on both hosts
+and both Direct/NBSR paths. Accepted bounds are 1..10000 operations per stream.
+This mode uses zero warmup and the binaries' existing fixed-operation path;
+it does not run the default twenty-second measurement. The existing 120-second
+controller bound, protocol deadlines, security checks and ACK sequence remain.
+Missing or extra completed useful operations reject before any completion ACK.
+
+Record this as a different workload from the historical timed finite cells.
+The pair gate checks the declared mode, exclusive CLI bound and exact completed
+count; the cohort gate requires five counterbalanced pairs for fixed work.
+For 1 KiB/64 streams at 1000 operations, the useful request/response denominator
+is 131072000 bytes; for 16 KiB/eight streams it is 262144000 bytes. Untimed
+frame validation, connection setup and teardown are outside that denominator.
+Zero warmup does not imply that a whole capture is established-phase-only.
+
+This port supplies equivalent useful work, not capture ownership/readiness or
+wire acceptance. Bind packet evidence separately and keep observer-on performance
+diagnostic. No relay or phase-control endpoint is inserted by this peer wrapper.

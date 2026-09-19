@@ -12,7 +12,7 @@ import re
 
 from scripts.performance.linux_b5_ceiling import NAMES, require
 from scripts.performance.linux_loopback import digest, validate_matrix
-from scripts.performance.linux_native_peer import validate_endpoint
+from scripts.performance.linux_native_peer import measurement_contract, validate_endpoint, validate_fixed_work
 from scripts.performance.p2a_established import validate_repeat
 
 
@@ -57,8 +57,9 @@ def check_peer(root, role, source_sha):
     require(cell['path'] in ('direct', 'nbsr'), 'unknown path')
     validate_matrix(dict(schema='nbsr-linux-loopback-v1', cores=[cell['cores']],
         workloads=[{k: cell[k] for k in ('payload_bytes', 'streams', 'outstanding')}],
-        warmup_seconds=env['warmup_seconds'], duration_seconds=env['duration_seconds']))
-    require(env['warmup_seconds'] == 3 and env['duration_seconds'] == 20, 'finite duration mismatch')
+        warmup_seconds=3, duration_seconds=20))
+    warmup, duration = measurement_contract(cell)
+    require(env['warmup_seconds'] == warmup and env['duration_seconds'] == duration, 'finite measurement mode mismatch')
     require(build['source_sha'] == source_sha and build['build_profile'] == 'release'
             and build['binary_sha256'] == env['binary_sha256'] and build['build_commands']
             and build['toolchains'], 'release manifest mismatch')
@@ -88,8 +89,14 @@ def check_peer(root, role, source_sha):
     if role == 'source':
         for key, value in {'--endpoint': env['endpoint'], '--payload-bytes': cell['payload_bytes'],
                 '--p2a-streams': cell['streams'], '--p2a-outstanding-per-stream': cell['outstanding'],
-                '--p2a-warmup-seconds': 3, '--p2a-duration-seconds': 20}.items():
+                '--p2a-warmup-seconds': warmup}.items():
             option(key, value)
+        if duration is None:
+            option('--p2a-operations-per-stream', cell['operations_per_stream'])
+            require('--p2a-duration-seconds' not in argv, 'fixed workload also specifies duration')
+        else:
+            option('--p2a-duration-seconds', duration)
+            require('--p2a-operations-per-stream' not in argv, 'timed workload also specifies operations')
     elif cell['path'] == 'direct':
         option('--p2a-streams', cell['streams'])
     exit_record, pid = read(root, 'exit.json'), read(root, 'pid.json')
@@ -133,6 +140,7 @@ def analyze_pair(source, destination, *, source_sha):
         require(row == json.loads((source / 'stdout').read_text().strip().splitlines()[-1])
                 and validate_repeat(row), 'source result mismatch/invalid')
         cell = src['cell']
+        validate_fixed_work(row, cell)
         require(all(row[k] == cell[k] for k in ('path', 'payload_bytes', 'streams'))
                 and row['outstanding_per_stream'] == cell['outstanding']
                 and type(row['measured_ns']) is int and row['measured_ns'] > 0

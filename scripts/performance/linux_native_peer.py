@@ -47,6 +47,24 @@ def readiness_endpoint(path, expected_address):
     return value['endpoint']
 
 
+def measurement_contract(cell):
+    """Keep historical timed cells separate from equal-work packet fixtures."""
+    if 'operations_per_stream' not in cell:
+        return 3, 20
+    count = cell['operations_per_stream']
+    require(type(count) is int and 1 <= count <= 10000 and cell['outstanding'] == 1,
+            'fixed work requires 1..10000 operations per stream at depth one')
+    return 0, None
+
+
+def validate_fixed_work(row, cell):
+    measurement_contract(cell)
+    if 'operations_per_stream' in cell:
+        require(type(row.get('completed_operations')) is int
+                and row['completed_operations'] == cell['streams'] * cell['operations_per_stream'],
+                'fixed operation count differs from declared workload')
+
+
 def native_command(cell, role, binaries, authority, output, *, bind, endpoint):
     require(role in ('source', 'destination'), 'invalid role')
     _, port = validate_endpoint(bind, allow_zero=True)
@@ -60,7 +78,11 @@ def native_command(cell, role, binaries, authority, output, *, bind, endpoint):
         warmup_seconds=3, duration_seconds=20)
     validate_matrix(matrix)
     require(cell['path'] in ('direct', 'nbsr'), 'invalid path')
-    server, client, env = build_commands(cell, binaries, authority, output, endpoint, 3, 20)
+    warmup, duration = measurement_contract(cell)
+    server, client, env = build_commands(cell, binaries, authority, output, endpoint, warmup, 20)
+    if duration is None:
+        pos = client.index('--p2a-duration-seconds')
+        client[pos:pos + 2] = ['--p2a-operations-per-stream', str(cell['operations_per_stream'])]
     return ((client + ['--benchmark-client-bind', bind], {}) if role == 'source'
             else (server + ['--benchmark-listen', bind], env))
 
@@ -99,6 +121,7 @@ def validate_source(output, cell=None):
     if cell is not None:
         require(all(row.get(k) == cell[k] for k in ('path', 'payload_bytes', 'streams'))
                 and row.get('outstanding_per_stream') == cell['outstanding'], 'source workload mismatch')
+        validate_fixed_work(row, cell)
     write_json(output / 'validated-result.json', row)
     return row
 
@@ -142,6 +165,9 @@ def execute(args, *, check_cancelled=not_cancelled):
     host = environment(args.cores)
     cell = dict(path=args.path, cores=args.cores, payload_bytes=args.payload,
                 streams=args.streams, outstanding=args.depth)
+    if getattr(args, 'operations_per_stream', None) is not None:
+        cell['operations_per_stream'] = args.operations_per_stream
+    warmup, duration = measurement_contract(cell)
     command, overrides = native_command(cell, args.role, binaries, authority, output, bind=args.bind, endpoint=endpoint)
     executable = Path(command[0])
     require(os.access(executable, os.X_OK), 'executable peer required')
@@ -157,7 +183,7 @@ def execute(args, *, check_cancelled=not_cancelled):
     try:
         write_json(output / 'environment.json', dict(repository_sha=sha, cell=cell, role=args.role,
             bind=args.bind, endpoint=endpoint, linux_environment=host, uid=os.getuid(),
-            controller_deadline_seconds=120, warmup_seconds=3, duration_seconds=20,
+            controller_deadline_seconds=120, warmup_seconds=warmup, duration_seconds=duration,
             binary_sha256=hashes, certificates_sha256=certificate_hashes,
             scope='finite native-address peer; external/physical hardware unqualified',
             cpu_scope='whole peer lifetime including startup/warmup/drain; not steady CPU ns/op',
@@ -224,6 +250,8 @@ def main():
     parser.add_argument('--payload', type=int, choices=(1024, 16384), default=1024)
     parser.add_argument('--streams', type=int, default=64)
     parser.add_argument('--depth', type=int, choices=(1, 2, 4, 8, 16), default=1)
+    parser.add_argument('--operations-per-stream', type=int,
+                        help='Distinct fixed-work mode: 1..10000 operations, zero warmup, depth one; both peers must agree')
     args = parser.parse_args()
     with Cancellation() as cancellation:
         execute(args, check_cancelled=cancellation.check)
