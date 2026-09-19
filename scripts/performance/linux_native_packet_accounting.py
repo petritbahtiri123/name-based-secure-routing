@@ -8,7 +8,7 @@ from pathlib import Path
 import re
 import struct
 
-from scripts.analyze_b1_v2_capture import capture_drop_counts
+from scripts.analyze_b1_v2_capture import capture_drop_counts, probe_tokens
 from scripts.performance.linux_b5_ceiling import require
 from scripts.performance.linux_loopback import digest
 
@@ -37,7 +37,7 @@ def options(data, endian):
     return result
 
 
-def packet_fields(frame, client, server, mtu):
+def packet_fields(frame, mtu):
     require(len(frame) >= 42 and frame[12:14] == b'\x08\x00',
             'requires untagged Ethernet IPv4/UDP; VLAN/tunnels unsupported')
     ip = frame[14:]
@@ -50,10 +50,9 @@ def packet_fields(frame, client, server, mtu):
     require(udp_length >= 8 and length == header + udp_length, 'inconsistent UDP/IP length')
     source = (str(ipaddress.IPv4Address(bytes(ip[12:16]))), source_port)
     destination = (str(ipaddress.IPv4Address(bytes(ip[16:20]))), destination_port)
-    require((source, destination) in ((client, server), (server, client)), 'unrelated IPv4/UDP flow')
-    return ('client_to_server' if source == client else 'server_to_client'), dict(
+    return source, destination, dict(
         packet_count=1, captured_frame_bytes=len(frame), ip_bytes=length,
-        udp_bytes=udp_length, udp_payload_bytes=udp_length - 8)
+        udp_bytes=udp_length, udp_payload_bytes=udp_length - 8), bytes(ip[header + 8:length])
 
 
 def zero_drops(values, kinds, endian):
@@ -65,12 +64,23 @@ def zero_drops(values, kinds, endian):
                     'nonzero/unknown embedded capture drops')
 
 
-def account_capture(data, *, interface, client, server, drop_log, mtu=1500):
+def account_capture(data, *, interface, client, server, drop_log, mtu=1500, probe=None):
     client, server = endpoint(client), endpoint(server)
     require(client[0] != server[0], 'native endpoints must use distinct addresses')
     require(re.fullmatch('[A-Za-z0-9_][A-Za-z0-9_.:-]{0,14}', interface)
             and interface not in ('lo', 'any'), 'one named native interface required')
     require(type(mtu) is int and 68 <= mtu <= 65535, 'invalid MTU')
+    markers = {}
+    if probe is not None:
+        probe_client = endpoint((probe['source_address'], probe['source_port']))
+        probe_server = endpoint((probe['destination_address'], probe['destination_port']))
+        require((probe_client[0], probe_server[0]) == (client[0], server[0])
+                and len({probe_client[1], probe_server[1], client[1], server[1]}) == 4,
+                'marker endpoints must be separate ports on the declared hosts')
+        probe_tokens(probe)
+        require('terminal_token_hex' in probe, 'terminal marker is required')
+        markers = {bytes.fromhex(probe[key]): dict(count=0, first=None, last=None)
+                   for key in ('token_hex', 'terminal_token_hex')}
     drops = capture_drop_counts(drop_log)
     require(drops['interface'] == interface, 'drop-log interface mismatch')
     require(28 <= len(data) <= 2 * 1024**3 and data[:4] == b'\x0a\x0d\x0d\x0a',
@@ -79,7 +89,8 @@ def account_capture(data, *, interface, client, server, drop_log, mtu=1500):
     require(endian is not None, 'invalid pcapng byte order')
     totals = dict(packet_count=0, captured_frame_bytes=0, ip_bytes=0, udp_bytes=0, udp_payload_bytes=0)
     directions = {name: dict(totals) for name in ('client_to_server', 'server_to_client')}
-    offset, interfaces = 0, 0
+    offset, interfaces, inventory, probe_bytes = 0, 0, 0, 0
+    first_work = last_work = None
     while offset < len(data):
         require(offset + 12 <= len(data), 'truncated pcapng block')
         kind, size = struct.unpack_from(endian + 'II', data, offset)
@@ -105,10 +116,23 @@ def account_capture(data, *, interface, client, server, drop_log, mtu=1500):
             require(interface_id == 0 and captured == original and captured <= snaplen and 20 + padded <= len(body),
                     'truncated packet or wrong interface')
             zero_drops(options(body[20 + padded:], endian), (4,), endian)
-            direction, fields = packet_fields(body[20:20 + captured], client, server, mtu)
-            for name, value in fields.items():
-                totals[name] += value
-                directions[direction][name] += value
+            source, destination, fields, payload = packet_fields(body[20:20 + captured], mtu)
+            inventory += 1
+            if probe is not None and (source, destination) == (probe_client, probe_server):
+                require(payload in markers, 'unexpected marker token')
+                marker = markers[payload]
+                marker['count'] += 1
+                marker['first'] = marker['first'] if marker['first'] is not None else inventory
+                marker['last'] = inventory
+                probe_bytes += fields['captured_frame_bytes']
+            else:
+                require((source, destination) in ((client, server), (server, client)), 'unrelated IPv4/UDP flow')
+                direction = 'client_to_server' if source == client else 'server_to_client'
+                first_work = inventory if first_work is None else first_work
+                last_work = inventory
+                for name, value in fields.items():
+                    totals[name] += value
+                    directions[direction][name] += value
         elif kind == 5:
             require(interfaces == 1 and len(body) >= 12 and struct.unpack_from(endian + 'I', body)[0] == 0,
                     'invalid interface statistics block')
@@ -117,12 +141,20 @@ def account_capture(data, *, interface, client, server, drop_log, mtu=1500):
         else:
             raise ValueError('unsupported pcapng block; no silent packet or metadata omission')
         offset += size
-    require(totals['packet_count'] == drops['captured'], 'capture packet inventory does not reconcile')
+    require(inventory == drops['captured'], 'capture packet inventory does not reconcile')
     require(all(row['packet_count'] for row in directions.values()), 'bidirectional workload packets required')
+    if probe is not None:
+        start, end = (markers[bytes.fromhex(probe[k])] for k in ('token_hex', 'terminal_token_hex'))
+        require(start['count'] > 0 and end['count'] > 0
+                and start['last'] < first_work <= last_work < end['first'],
+                'missing/misordered markers do not bracket retained workload')
     return dict(schema='nbsr-native-packet-accounting-v1', status='DIAGNOSTIC_PACKET_ACCOUNTING_ONLY',
         interface=interface, client=list(client), server=list(server), declared_mtu=mtu,
         **totals, directions=directions, capture_drops=drops, physical_wire_bytes=None,
-        readiness_and_terminal_coverage='NOT_PROVEN', setup_vs_established='NOT_PROVEN',
+        capture_inventory_packets=inventory, probe_packet_count=inventory - totals['packet_count'],
+        probe_frame_bytes=probe_bytes, capture_inventory_frame_bytes=totals['captured_frame_bytes'] + probe_bytes,
+        readiness_and_terminal_coverage='MARKERS_BRACKET_RETAINED_FLOW' if probe else 'NOT_PROVEN',
+        setup_vs_established='NOT_PROVEN',
         offload_state='NOT_PROVEN', performance_timing='NOT_QUALIFIED',
         packet_checksums='NOT_VALIDATED; transmit checksum offload may affect captured headers',
         scope='Whole retained exact flow only. Capture truncation in time is not excluded. '
@@ -138,17 +170,27 @@ def main():
     parser.add_argument('--client', required=True, help='Exact IPv4:UDP-port')
     parser.add_argument('--server', required=True, help='Exact IPv4:UDP-port')
     parser.add_argument('--mtu', type=int, required=True)
+    parser.add_argument('--probe', type=Path, help='Optional retained start/end marker identity JSON')
     args = parser.parse_args()
     peers = {name: (getattr(args, name).rsplit(':', 1)[0], int(getattr(args, name).rsplit(':', 1)[1]))
              for name in ('client', 'server')}
     with args.drop_log.open() as stream:
         log = stream.read(1048577)
     require(len(log) <= 1048576, 'drop log exceeds bound')
+    probe = None
+    if args.probe:
+        with args.probe.open('rb') as stream:
+            encoded_probe = stream.read(65537)
+        require(len(encoded_probe) <= 65536, 'probe identity exceeds bound')
+        probe = json.loads(encoded_probe)
     with args.pcap.open('rb') as stream:
         require(28 <= args.pcap.stat().st_size <= 2 * 1024**3, 'capture exceeds file bound')
         with mmap.mmap(stream.fileno(), 0, access=mmap.ACCESS_READ) as data:
-            result = account_capture(data, interface=args.interface, drop_log=log, mtu=args.mtu, **peers)
+            result = account_capture(data, interface=args.interface, drop_log=log, mtu=args.mtu,
+                                     probe=probe, **peers)
     result.update(pcap_sha256=digest(args.pcap), drop_log_sha256=digest(args.drop_log))
+    if args.probe:
+        result['probe_sha256'] = digest(args.probe)
     print(json.dumps(result, indent=2))
 
 

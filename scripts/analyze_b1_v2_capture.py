@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import re
 import struct
+import ipaddress
 
 
 def probe_tokens(probe):
@@ -25,6 +26,8 @@ def probe_frames_from_pcapng(data, probe, *, expected_linktype=0):
     """
     if expected_linktype not in (0, 1):
         raise ValueError("unsupported readiness link type")
+    probe_addresses = (ipaddress.IPv4Address(probe.get('source_address', '127.0.0.1')).packed
+                       + ipaddress.IPv4Address(probe.get('destination_address', '127.0.0.1')).packed)
     if len(data) < 28:
         return {}
     if data[:4] != b"\x0a\x0d\x0d\x0a":
@@ -73,7 +76,7 @@ def probe_frames_from_pcapng(data, probe, *, expected_linktype=0):
                 raise ValueError("invalid readiness IPv4/UDP header")
             source, destination, udp_length = struct.unpack_from("!HHH", ip, header)
             if (source, destination) == (probe["source_port"], probe["destination_port"]):
-                if ip[12:20] != b"\x7f\x00\x00\x01" * 2 or int.from_bytes(ip[6:8], "big") & 0x3FFF:
+                if ip[12:20] != probe_addresses or int.from_bytes(ip[6:8], "big") & 0x3FFF:
                     raise ValueError("invalid readiness probe address or fragment")
                 if int.from_bytes(ip[2:4], "big") != header + udp_length or len(ip) != header + udp_length:
                     raise ValueError("invalid readiness probe lengths")

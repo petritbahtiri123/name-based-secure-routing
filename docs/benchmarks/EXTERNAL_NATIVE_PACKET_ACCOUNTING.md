@@ -53,3 +53,21 @@ The full external wire matrix and external hardware run remain unqualified.
 Format reference: [IETF pcapng draft-05, interface/enhanced-packet/statistics
 blocks](https://www.ietf.org/archive/id/draft-ietf-opsawg-pcapng-05.html).
 This bounded subset deliberately rejects otherwise valid unsupported formats.
+
+## Optional explicit marker accounting
+
+`--probe /absolute/cell/probe.json` additionally consumes the retained marker
+identity: `source_address`, `destination_address`, `source_port`,
+`destination_port`, `token_hex` and `terminal_token_hex`. These are a separate
+outbound UDP tuple on the same hosts, with four distinct marker/workload ports
+and two distinct 32-byte tokens. The live prefix reader supports these explicit
+addresses while retaining its historical loopback defaults.
+
+Every start marker must precede the first workload packet, and every terminal
+marker must follow the last. Missing/reversed/interleaved markers, unknown tokens
+or mismatched endpoints reject. Marker frames are excluded only after validation;
+their count and bytes still reconcile the entire capture/drop inventory.
+Output becomes `MARKERS_BRACKET_RETAINED_FLOW`, while overall status remains
+diagnostic. An offline marker inventory alone cannot prove that the coordinator
+waited for readiness before starting the workload, that every workload operation
+completed, or that the markers delimit setup versus established traffic.
