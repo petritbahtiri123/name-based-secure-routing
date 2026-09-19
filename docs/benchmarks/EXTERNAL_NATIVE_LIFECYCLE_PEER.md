@@ -91,3 +91,22 @@ sustained admission/soak validation.
 At a401567d, three release smoke cells with separate role control roots complete
 48 connections and zero final ownership. The first missing-destination-release
 attempt remains rejected and preserved. See [validation evidence](../../evidence/performance/v2/native-lifecycle-peer-a401567d/summary.md).
+
+## Read-only transferred-pair gate
+
+After copying the complete peer output directories, run:
+
+```bash
+python3 -m scripts.performance.linux_native_lifecycle_pair \
+  --source "$SOURCE_OUTPUT" --destination "$DESTINATION_OUTPUT" \
+  --source-sha "$MEASUREMENT_SHA" --count 16 --output "$PAIR_ANALYSIS"
+```
+
+The output must be a new file outside both peer directories. The gate verifies
+complete checksum inventories, role/source/build/binary/fixture agreement,
+exact argv and environment, readiness transfer, PID epochs, monotonic resource
+counters, affinity, terminal exit and raw payload/cardinality/ownership results.
+It rejects forced/failed peers even if someone reseals their checksum indexes.
+It does not authenticate a remote host or prove the coordinator's simultaneous
+all-active hold, actual socket bindings, sustainable admission or performance.
+Keep the independently retained marker/hold/socket evidence with the pair.
