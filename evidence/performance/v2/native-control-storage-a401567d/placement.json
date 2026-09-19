@@ -1,0 +1,7 @@
+{
+  "addresses": {
+    "source": "192.168.32.2",
+    "destination": "192.168.32.3"
+  },
+  "scope": "shared WSL host, separate internal namespaces"
+}

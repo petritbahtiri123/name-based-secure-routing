@@ -1,0 +1,22 @@
+{
+  "source_sha": "a401567dd8f14a474088243e936b220203afd6fc",
+  "counts": [
+    256
+  ],
+  "repeats_per_arm": 5,
+  "order": "windows/local on odd repeats, local/windows on even repeats",
+  "arms": [
+    "windows-bind-control",
+    "linux-local-control"
+  ],
+  "source_shards": 2,
+  "offered_rate": 100,
+  "payload_bytes": 1024,
+  "channels": 1,
+  "materialized_streams": 1,
+  "active_hold_seconds": 2,
+  "cooldown_seconds": 2,
+  "observer": "Identical out-of-affinity control watcher on both arms. Filesystem and any existing selective-marker fallback differ with control-root placement. No timing/capacity claim.",
+  "failure_policy": "Cancel both owned wrappers only after an existing failed marker or failed peer; retain prefix; no replacement. Stop campaign if cancellation cannot be verified.",
+  "prior": "Earlier 0124f8ad all six 2048 location attempts failed before later selective-marker implementation. This new a401567d 256 native-namespace question is separate, not a reinterpretation of that cohort."
+}
