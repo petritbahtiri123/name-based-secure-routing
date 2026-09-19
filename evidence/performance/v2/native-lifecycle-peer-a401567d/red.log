@@ -1,0 +1,317 @@
+FFFFFFFFFFFF                                                             [100%]
+================================== FAILURES ===================================
+_______ test_command_preserves_materialized_workload_and_explicit_bind ________
+
+    def test_command_preserves_materialized_workload_and_explicit_bind():
+>       source, env = fixture()
+                      ^^^^^^^^^
+
+tests\performance\test_linux_native_lifecycle.py:18: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\performance\test_linux_native_lifecycle.py:14: in fixture
+    return native.command(**(args | overrides))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = ()
+kwargs = {'authority': WindowsPath('/private/authority'), 'binaries': WindowsPath('/bin'), 'bind': '192.0.2.1:0', 'count': 16, ...}
+
+    def command(*args, **kwargs):
+>       raise NotImplementedError('native lifecycle command')
+E       NotImplementedError: native lifecycle command
+
+scripts\performance\linux_native_lifecycle.py:5: NotImplementedError
+___________________ test_invalid_workloads_reject[change0] ____________________
+
+change = {'count': 0}
+
+    @pytest.mark.parametrize('change', [dict(count=0), dict(count=1024), dict(count=True),
+                                      dict(shards=3), dict(rate=0), dict(role='other'),
+                                      dict(bind='0.0.0.0:0'), dict(bind='192.0.2.1:4444'),
+                                      dict(endpoint='192.0.2.2:0')])
+    def test_invalid_workloads_reject(change):
+        with pytest.raises(ValueError):
+>           fixture(**change)
+
+tests\performance\test_linux_native_lifecycle.py:40: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\performance\test_linux_native_lifecycle.py:14: in fixture
+    return native.command(**(args | overrides))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = ()
+kwargs = {'authority': WindowsPath('/private/authority'), 'binaries': WindowsPath('/bin'), 'bind': '192.0.2.1:0', 'count': 0, ...}
+
+    def command(*args, **kwargs):
+>       raise NotImplementedError('native lifecycle command')
+E       NotImplementedError: native lifecycle command
+
+scripts\performance\linux_native_lifecycle.py:5: NotImplementedError
+___________________ test_invalid_workloads_reject[change1] ____________________
+
+change = {'count': 1024}
+
+    @pytest.mark.parametrize('change', [dict(count=0), dict(count=1024), dict(count=True),
+                                      dict(shards=3), dict(rate=0), dict(role='other'),
+                                      dict(bind='0.0.0.0:0'), dict(bind='192.0.2.1:4444'),
+                                      dict(endpoint='192.0.2.2:0')])
+    def test_invalid_workloads_reject(change):
+        with pytest.raises(ValueError):
+>           fixture(**change)
+
+tests\performance\test_linux_native_lifecycle.py:40: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\performance\test_linux_native_lifecycle.py:14: in fixture
+    return native.command(**(args | overrides))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = ()
+kwargs = {'authority': WindowsPath('/private/authority'), 'binaries': WindowsPath('/bin'), 'bind': '192.0.2.1:0', 'count': 1024, ...}
+
+    def command(*args, **kwargs):
+>       raise NotImplementedError('native lifecycle command')
+E       NotImplementedError: native lifecycle command
+
+scripts\performance\linux_native_lifecycle.py:5: NotImplementedError
+___________________ test_invalid_workloads_reject[change2] ____________________
+
+change = {'count': True}
+
+    @pytest.mark.parametrize('change', [dict(count=0), dict(count=1024), dict(count=True),
+                                      dict(shards=3), dict(rate=0), dict(role='other'),
+                                      dict(bind='0.0.0.0:0'), dict(bind='192.0.2.1:4444'),
+                                      dict(endpoint='192.0.2.2:0')])
+    def test_invalid_workloads_reject(change):
+        with pytest.raises(ValueError):
+>           fixture(**change)
+
+tests\performance\test_linux_native_lifecycle.py:40: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\performance\test_linux_native_lifecycle.py:14: in fixture
+    return native.command(**(args | overrides))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = ()
+kwargs = {'authority': WindowsPath('/private/authority'), 'binaries': WindowsPath('/bin'), 'bind': '192.0.2.1:0', 'count': True, ...}
+
+    def command(*args, **kwargs):
+>       raise NotImplementedError('native lifecycle command')
+E       NotImplementedError: native lifecycle command
+
+scripts\performance\linux_native_lifecycle.py:5: NotImplementedError
+___________________ test_invalid_workloads_reject[change3] ____________________
+
+change = {'shards': 3}
+
+    @pytest.mark.parametrize('change', [dict(count=0), dict(count=1024), dict(count=True),
+                                      dict(shards=3), dict(rate=0), dict(role='other'),
+                                      dict(bind='0.0.0.0:0'), dict(bind='192.0.2.1:4444'),
+                                      dict(endpoint='192.0.2.2:0')])
+    def test_invalid_workloads_reject(change):
+        with pytest.raises(ValueError):
+>           fixture(**change)
+
+tests\performance\test_linux_native_lifecycle.py:40: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\performance\test_linux_native_lifecycle.py:14: in fixture
+    return native.command(**(args | overrides))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = ()
+kwargs = {'authority': WindowsPath('/private/authority'), 'binaries': WindowsPath('/bin'), 'bind': '192.0.2.1:0', 'count': 16, ...}
+
+    def command(*args, **kwargs):
+>       raise NotImplementedError('native lifecycle command')
+E       NotImplementedError: native lifecycle command
+
+scripts\performance\linux_native_lifecycle.py:5: NotImplementedError
+___________________ test_invalid_workloads_reject[change4] ____________________
+
+change = {'rate': 0}
+
+    @pytest.mark.parametrize('change', [dict(count=0), dict(count=1024), dict(count=True),
+                                      dict(shards=3), dict(rate=0), dict(role='other'),
+                                      dict(bind='0.0.0.0:0'), dict(bind='192.0.2.1:4444'),
+                                      dict(endpoint='192.0.2.2:0')])
+    def test_invalid_workloads_reject(change):
+        with pytest.raises(ValueError):
+>           fixture(**change)
+
+tests\performance\test_linux_native_lifecycle.py:40: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\performance\test_linux_native_lifecycle.py:14: in fixture
+    return native.command(**(args | overrides))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = ()
+kwargs = {'authority': WindowsPath('/private/authority'), 'binaries': WindowsPath('/bin'), 'bind': '192.0.2.1:0', 'count': 16, ...}
+
+    def command(*args, **kwargs):
+>       raise NotImplementedError('native lifecycle command')
+E       NotImplementedError: native lifecycle command
+
+scripts\performance\linux_native_lifecycle.py:5: NotImplementedError
+___________________ test_invalid_workloads_reject[change5] ____________________
+
+change = {'role': 'other'}
+
+    @pytest.mark.parametrize('change', [dict(count=0), dict(count=1024), dict(count=True),
+                                      dict(shards=3), dict(rate=0), dict(role='other'),
+                                      dict(bind='0.0.0.0:0'), dict(bind='192.0.2.1:4444'),
+                                      dict(endpoint='192.0.2.2:0')])
+    def test_invalid_workloads_reject(change):
+        with pytest.raises(ValueError):
+>           fixture(**change)
+
+tests\performance\test_linux_native_lifecycle.py:40: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\performance\test_linux_native_lifecycle.py:14: in fixture
+    return native.command(**(args | overrides))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = ()
+kwargs = {'authority': WindowsPath('/private/authority'), 'binaries': WindowsPath('/bin'), 'bind': '192.0.2.1:0', 'count': 16, ...}
+
+    def command(*args, **kwargs):
+>       raise NotImplementedError('native lifecycle command')
+E       NotImplementedError: native lifecycle command
+
+scripts\performance\linux_native_lifecycle.py:5: NotImplementedError
+___________________ test_invalid_workloads_reject[change6] ____________________
+
+change = {'bind': '0.0.0.0:0'}
+
+    @pytest.mark.parametrize('change', [dict(count=0), dict(count=1024), dict(count=True),
+                                      dict(shards=3), dict(rate=0), dict(role='other'),
+                                      dict(bind='0.0.0.0:0'), dict(bind='192.0.2.1:4444'),
+                                      dict(endpoint='192.0.2.2:0')])
+    def test_invalid_workloads_reject(change):
+        with pytest.raises(ValueError):
+>           fixture(**change)
+
+tests\performance\test_linux_native_lifecycle.py:40: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\performance\test_linux_native_lifecycle.py:14: in fixture
+    return native.command(**(args | overrides))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = ()
+kwargs = {'authority': WindowsPath('/private/authority'), 'binaries': WindowsPath('/bin'), 'bind': '0.0.0.0:0', 'count': 16, ...}
+
+    def command(*args, **kwargs):
+>       raise NotImplementedError('native lifecycle command')
+E       NotImplementedError: native lifecycle command
+
+scripts\performance\linux_native_lifecycle.py:5: NotImplementedError
+___________________ test_invalid_workloads_reject[change7] ____________________
+
+change = {'bind': '192.0.2.1:4444'}
+
+    @pytest.mark.parametrize('change', [dict(count=0), dict(count=1024), dict(count=True),
+                                      dict(shards=3), dict(rate=0), dict(role='other'),
+                                      dict(bind='0.0.0.0:0'), dict(bind='192.0.2.1:4444'),
+                                      dict(endpoint='192.0.2.2:0')])
+    def test_invalid_workloads_reject(change):
+        with pytest.raises(ValueError):
+>           fixture(**change)
+
+tests\performance\test_linux_native_lifecycle.py:40: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\performance\test_linux_native_lifecycle.py:14: in fixture
+    return native.command(**(args | overrides))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = ()
+kwargs = {'authority': WindowsPath('/private/authority'), 'binaries': WindowsPath('/bin'), 'bind': '192.0.2.1:4444', 'count': 16, ...}
+
+    def command(*args, **kwargs):
+>       raise NotImplementedError('native lifecycle command')
+E       NotImplementedError: native lifecycle command
+
+scripts\performance\linux_native_lifecycle.py:5: NotImplementedError
+___________________ test_invalid_workloads_reject[change8] ____________________
+
+change = {'endpoint': '192.0.2.2:0'}
+
+    @pytest.mark.parametrize('change', [dict(count=0), dict(count=1024), dict(count=True),
+                                      dict(shards=3), dict(rate=0), dict(role='other'),
+                                      dict(bind='0.0.0.0:0'), dict(bind='192.0.2.1:4444'),
+                                      dict(endpoint='192.0.2.2:0')])
+    def test_invalid_workloads_reject(change):
+        with pytest.raises(ValueError):
+>           fixture(**change)
+
+tests\performance\test_linux_native_lifecycle.py:40: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\performance\test_linux_native_lifecycle.py:14: in fixture
+    return native.command(**(args | overrides))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = ()
+kwargs = {'authority': WindowsPath('/private/authority'), 'binaries': WindowsPath('/bin'), 'bind': '192.0.2.1:0', 'count': 16, ...}
+
+    def command(*args, **kwargs):
+>       raise NotImplementedError('native lifecycle command')
+E       NotImplementedError: native lifecycle command
+
+scripts\performance\linux_native_lifecycle.py:5: NotImplementedError
+______ test_source_requires_exact_unique_clients_and_all_cleanup_fields _______
+
+    def test_source_requires_exact_unique_clients_and_all_cleanup_fields():
+        rows = source_rows()
+>       result = native.validate_result('source', 16, rows, None)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\performance\test_linux_native_lifecycle.py:51: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = ('source', 16, [{'bytes_received': 1024, 'bytes_transmitted': 1024, 'logical_client_id': 0, 'success': True}, {'bytes_...cess': True}, {'bytes_received': 1024, 'bytes_transmitted': 1024, 'logical_client_id': 5, 'success': True}, ...], None)
+kwargs = {}
+
+    def validate_result(*args, **kwargs):
+>       raise NotImplementedError('native lifecycle result')
+E       NotImplementedError: native lifecycle result
+
+scripts\performance\linux_native_lifecycle.py:9: NotImplementedError
+___ test_destination_requires_result_cardinality_and_explicit_final_cleanup ___
+
+    def test_destination_requires_result_cardinality_and_explicit_final_cleanup():
+        final = dict.fromkeys(RUST_CLEANUP_FIELDS, 0)
+        server = dict(status='PASS', connections=16, samples=[{} for _ in range(16)])
+>       assert native.validate_result('destination', 16, [final], server)['ownership_all_zero']
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\performance\test_linux_native_lifecycle.py:65: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = ('destination', 16, [{'application_streams_current_live': 0, 'audit_queue_current_entries': 0, 'channel_registry_curre..., 'nbsr_tasks_current_live': 0, ...}], {'connections': 16, 'samples': [{}, {}, {}, {}, {}, {}, ...], 'status': 'PASS'})
+kwargs = {}
+
+    def validate_result(*args, **kwargs):
+>       raise NotImplementedError('native lifecycle result')
+E       NotImplementedError: native lifecycle result
+
+scripts\performance\linux_native_lifecycle.py:9: NotImplementedError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_linux_native_lifecycle.py::test_command_preserves_materialized_workload_and_explicit_bind
+FAILED tests/performance/test_linux_native_lifecycle.py::test_invalid_workloads_reject[change0]
+FAILED tests/performance/test_linux_native_lifecycle.py::test_invalid_workloads_reject[change1]
+FAILED tests/performance/test_linux_native_lifecycle.py::test_invalid_workloads_reject[change2]
+FAILED tests/performance/test_linux_native_lifecycle.py::test_invalid_workloads_reject[change3]
+FAILED tests/performance/test_linux_native_lifecycle.py::test_invalid_workloads_reject[change4]
+FAILED tests/performance/test_linux_native_lifecycle.py::test_invalid_workloads_reject[change5]
+FAILED tests/performance/test_linux_native_lifecycle.py::test_invalid_workloads_reject[change6]
+FAILED tests/performance/test_linux_native_lifecycle.py::test_invalid_workloads_reject[change7]
+FAILED tests/performance/test_linux_native_lifecycle.py::test_invalid_workloads_reject[change8]
+FAILED tests/performance/test_linux_native_lifecycle.py::test_source_requires_exact_unique_clients_and_all_cleanup_fields
+FAILED tests/performance/test_linux_native_lifecycle.py::test_destination_requires_result_cardinality_and_explicit_final_cleanup
+12 failed in 1.09s

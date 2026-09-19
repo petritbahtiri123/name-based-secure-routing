@@ -1,0 +1,191 @@
+[
+  {
+    "count": 16,
+    "repeat": 1,
+    "status": "PASS_NATIVE_MATERIALIZED_BUNDLES",
+    "successful": 16,
+    "cleanup": {
+      "counters": {
+        "transport_sessions_current_live": 0,
+        "service_channels_current_live": 0,
+        "application_streams_current_live": 0,
+        "nbsr_tasks_current_live": 0,
+        "quic_connections_current_live": 0,
+        "quic_streams_current_live": 0,
+        "pending_routes_current_entries": 0,
+        "channel_registry_current_entries": 0,
+        "stream_registry_current_entries": 0,
+        "replay_state_current_entries": 0,
+        "audit_queue_current_entries": 0
+      },
+      "all_zero": true,
+      "source_all_zero": true,
+      "source_counters": [
+        {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        }
+      ],
+      "counter_scope": "rust-all-11-current-fields"
+    },
+    "source_index": "1255eb2149652c52f9b4b8b3b78ff0a6a079399f6e23bf0c709f0fd36587d446",
+    "destination_index": "60b29a260cf9a9e009c5bc719e3286d7780582056b3d8c9bbd23ce7a6ff79229",
+    "source_socket_count": 16,
+    "destination_socket_count": 1,
+    "handshake_ns": [
+      25543900,
+      228207903,
+      186582723,
+      212599448,
+      155628527,
+      157847248,
+      126582035,
+      56043371,
+      8350358,
+      67033373,
+      273355977,
+      7920934,
+      102888337,
+      28919285,
+      113230504,
+      48971583
+    ],
+    "timing": "DIAGNOSTIC_ONLY",
+    "capacity": "NOT_PROVEN"
+  },
+  {
+    "count": 16,
+    "repeat": 2,
+    "status": "PASS_NATIVE_MATERIALIZED_BUNDLES",
+    "successful": 16,
+    "cleanup": {
+      "counters": {
+        "transport_sessions_current_live": 0,
+        "service_channels_current_live": 0,
+        "application_streams_current_live": 0,
+        "nbsr_tasks_current_live": 0,
+        "quic_connections_current_live": 0,
+        "quic_streams_current_live": 0,
+        "pending_routes_current_entries": 0,
+        "channel_registry_current_entries": 0,
+        "stream_registry_current_entries": 0,
+        "replay_state_current_entries": 0,
+        "audit_queue_current_entries": 0
+      },
+      "all_zero": true,
+      "source_all_zero": true,
+      "source_counters": [
+        {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        }
+      ],
+      "counter_scope": "rust-all-11-current-fields"
+    },
+    "source_index": "4f3b44d3eee70446edf0dad2a3114cdaf50e81d06cabc4e1f8ed12cd90dae220",
+    "destination_index": "1f2ad2b15b9c78a87d44823c87805a2df382f5fadc1ad59227ec833847ec10ae",
+    "source_socket_count": 16,
+    "destination_socket_count": 1,
+    "handshake_ns": [
+      7356815,
+      49459188,
+      35550204,
+      12054279,
+      70840093,
+      12072080,
+      111999113,
+      105673057,
+      107455958,
+      204172509,
+      73425239,
+      128650652,
+      304642973,
+      274404569,
+      274664383,
+      243350118
+    ],
+    "timing": "DIAGNOSTIC_ONLY",
+    "capacity": "NOT_PROVEN"
+  },
+  {
+    "count": 16,
+    "repeat": 3,
+    "status": "PASS_NATIVE_MATERIALIZED_BUNDLES",
+    "successful": 16,
+    "cleanup": {
+      "counters": {
+        "transport_sessions_current_live": 0,
+        "service_channels_current_live": 0,
+        "application_streams_current_live": 0,
+        "nbsr_tasks_current_live": 0,
+        "quic_connections_current_live": 0,
+        "quic_streams_current_live": 0,
+        "pending_routes_current_entries": 0,
+        "channel_registry_current_entries": 0,
+        "stream_registry_current_entries": 0,
+        "replay_state_current_entries": 0,
+        "audit_queue_current_entries": 0
+      },
+      "all_zero": true,
+      "source_all_zero": true,
+      "source_counters": [
+        {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        }
+      ],
+      "counter_scope": "rust-all-11-current-fields"
+    },
+    "source_index": "3a24acf4a318a9f2fc2bf0225a2077204d7b630eaf5f49e0f08ac019ad906a6e",
+    "destination_index": "cc0cce0e2ec67cb66028a1c83111e6eeaa35fa174a9a354d6b877afd12039efc",
+    "source_socket_count": 16,
+    "destination_socket_count": 1,
+    "handshake_ns": [
+      6360650,
+      16189191,
+      59582079,
+      244181937,
+      41631491,
+      198580027,
+      200589739,
+      167801533,
+      229206513,
+      135320447,
+      121676896,
+      77327155,
+      164167134,
+      50506579,
+      53603850,
+      280112514
+    ],
+    "timing": "DIAGNOSTIC_ONLY",
+    "capacity": "NOT_PROVEN"
+  }
+]

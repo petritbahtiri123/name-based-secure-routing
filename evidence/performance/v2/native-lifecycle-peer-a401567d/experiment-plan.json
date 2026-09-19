@@ -1,0 +1,12 @@
+{
+  "source_sha": "a401567d",
+  "counts": [
+    16
+  ],
+  "repeats": 3,
+  "purpose": "portable per-host CLI smoke with separate role control directories; distinct internal network namespaces on shared WSL host",
+  "timing": "DIAGNOSTIC_ONLY",
+  "external_hardware": "NOT_PROVEN",
+  "failure_policy": "preserve every attempt and stop on failure",
+  "correction": "Publish unchanged release markers to both disjoint per-role control roots, destination then source; prior failed attempt retained separately"
+}

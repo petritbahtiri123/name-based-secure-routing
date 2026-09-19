@@ -61,7 +61,11 @@ python3 -m scripts.performance.linux_native_lifecycle \
 3. Hold all bundles for at least two seconds. Preserve live socket bindings
    under PID/start/executable/FD/inode identity if claiming native socket scale.
    These observers and management transfers are not timing-qualified.
-4. Publish source `connection-N.release` for every bundle. Require every source
+4. Publish `connection-N.release` for every bundle in **both** role control
+   directories (destination first, then source). The destination's existing
+   materialized-stream handler also waits on these markers before returning
+   the held payload; transferring them only to the source cannot complete.
+   Require every source
    `connection-N.ack` and destination `destination.report-ready`, then wait the
    existing two-second cooldown and publish `destination.report-release`.
 5. Require both zero-exit wrappers, both valid result/index files, identical
@@ -83,3 +87,7 @@ remain outstanding. These executable **per-host** commands do not claim a
 complete unattended external B3 campaign. Shared-WSL namespace smoke results
 remain separate from external hardware, same-process repeated retention and
 sustained admission/soak validation.
+
+At a401567d, three release smoke cells with separate role control roots complete
+48 connections and zero final ownership. The first missing-destination-release
+attempt remains rejected and preserved. See [validation evidence](../../evidence/performance/v2/native-lifecycle-peer-a401567d/summary.md).

@@ -1,0 +1,28 @@
+F...........                                                             [100%]
+================================== FAILURES ===================================
+_______ test_command_preserves_materialized_workload_and_explicit_bind ________
+
+    def test_command_preserves_materialized_workload_and_explicit_bind():
+        source, env = fixture()
+        assert not env
+        for flag, value in {'--lifecycle-clients': '16', '--lifecycle-source-shards': '2',
+                            '--lifecycle-offered-rate': '100', '--payload-bytes': '1024',
+                            '--benchmark-client-bind': '192.0.2.1:0',
+                            '--b3-materialized-streams': '1'}.items():
+            assert source[source.index(flag) + 1] == value
+        assert '--hold-for-release' in source
+        dest, env = fixture('destination')
+        assert env['NBSR_PERF_LIFECYCLE_CONNECTIONS'] == '16'
+        assert env['NBSR_PERF_LIFECYCLE_SERIAL_ACCEPT'] == '1'
+>       assert dest[dest.index('--b3-report-gate') + 1] == '/private/lifecycle'
+E       AssertionError: assert '\\private\\lifecycle' == '/private/lifecycle'
+E         
+E         - /private/lifecycle
+E         ? ^       ^
+E         + \private\lifecycle
+E         ? ^       ^
+
+tests\performance\test_linux_native_lifecycle.py:29: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_linux_native_lifecycle.py::test_command_preserves_materialized_workload_and_explicit_bind
+1 failed, 11 passed in 1.23s

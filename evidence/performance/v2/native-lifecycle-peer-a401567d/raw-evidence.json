@@ -1,0 +1,22 @@
+[
+  {
+    "root": "C:\\NBSR-build\\native-lifecycle-peer-a401567d-corrected",
+    "index_sha256": "6eaecf0936d12b54f189a59831316887a20c66a6f7cd2b29f42cb7bf966e4e5c"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-lifecycle-peer-a401567d",
+    "index_sha256": "a3b17fd2e81b1ceba1366de5b3a283e544ec3a1bfd7de0d2ad2e58210aed7670"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-lifecycle-port-b93f4579",
+    "index_sha256": "48c5a61b564f30d781dc7c809bdd281b565836fec144355756d0981b70c024ff"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-current-a401567d",
+    "index_sha256": "58b626edb1ad81acf09b1bf6e50ff849cc63a72d9717d7b0de464b2a5a27379e"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-container-cleanup-20260919",
+    "index_sha256": "ffe65d1b53efc8711e6375c32f9726163babfd725ac4ec20412267bc05dfacb2"
+  }
+]

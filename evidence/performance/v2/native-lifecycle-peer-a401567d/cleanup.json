@@ -1,0 +1,15 @@
+{
+  "removed": [
+    "nbsr-native-lifecycle-source-b6cf5e56",
+    "nbsr-native-lifecycle-destination-b6cf5e56",
+    "nbsr-native-lifecycle-scale-source-b6cf5e56",
+    "nbsr-native-lifecycle-scale-destination-b6cf5e56",
+    "nbsr-native-lifecycle-failure-probe-source-b6cf5e56",
+    "nbsr-native-lifecycle-failure-probe-destination-b6cf5e56"
+  ],
+  "disposable_writable_bytes": 2693197824,
+  "host_free_before": 8610824192,
+  "host_free_after": 8610820096,
+  "reason": "Stopped campaign fixture containers; writable changes only reproducible source/build/runtime copies and mountpoint directories. All authoritative outputs are retained in verified host bind mounts. No images, volumes, source, evidence or private fixtures removed.",
+  "host_reclaimed_claim": "NOT_ESTABLISHED: Docker guest free space need not shrink host VHD"
+}
