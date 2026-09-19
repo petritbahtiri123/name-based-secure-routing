@@ -241,6 +241,10 @@ def run_cell(path: str, spec: dict[str, int | str], binaries: dict[str, Path], r
     capture_options = {"capture_backend": capture_backend} if capture_backend is not None else {}
     accept_environment = diagnostic_accept_environment(path, spec)
     name = str(spec["name"])
+    allocator_snapshots = spec.get('allocator_snapshots', False)
+    if allocator_snapshots:
+        from scripts.performance.b3_allocator_snapshot import observer_spec
+        observer_spec(spec, platform='linux' if capture_backend is not None else 'windows', enabled=True)
     sessions, services, streams, cycles = (int(spec[key]) for key in ("sessions", "channels", "streams", "cycles"))
     keep_alive = spec.get("keep_alive_seconds", 0)
     if (type(keep_alive) is not int or keep_alive not in (0, 1)
@@ -291,6 +295,10 @@ def run_cell(path: str, spec: dict[str, int | str], binaries: dict[str, Path], r
                 argv, cwd = client_command(path, binaries, ready, authority, lifecycle, connections=connections, services=services, streams=streams, offset=offset, runtime_path=runtime_path)
                 if path == "rust-rust":
                     argv.extend(["--diagnostics", "1"])
+                    if allocator_snapshots:
+                        allocator_root = (cell_dir / 'source-allocator').resolve()
+                        allocator_root.mkdir(exist_ok=False)
+                        argv.extend(['--b3-allocator-directory', str(allocator_root)])
                     if keep_alive:
                         argv.extend(["--b3-keep-alive-seconds", str(keep_alive)])
                     if materialized:
@@ -392,6 +400,15 @@ def run_cell(path: str, spec: dict[str, int | str], binaries: dict[str, Path], r
         cleanup.update(source_processes_exited=all(client.poll() is not None for client in clients),
                        destination_exited=server.poll() is not None)
         cell = {**spec, "active_count": int(spec["active_count"]), "samples": resources, "cleanup": cleanup, "commands": {"server": public_command(server_argv, temporary_root), "clients": [public_command(command, temporary_root) for command in commands]}, "client_results": outputs}
+        if allocator_snapshots:
+            from scripts.performance.b3_allocator_snapshot import parse_snapshot
+            expected = {f'allocator-{i}.xml' for i in range(cycles + 1)}
+            if {p.name for p in allocator_root.iterdir()} != expected:
+                raise ValueError('allocator snapshot inventory incomplete')
+            cell['source_allocator'] = [dict(ordinal=i,
+                phase='lifecycle_entry' if i == 0 else 'post_close_before_cooldown',
+                **parse_snapshot((allocator_root / f'allocator-{i}.xml').read_bytes()))
+                for i in range(cycles + 1)]
         write_json(cell_dir / "cell.json", cell)
         return cell
 

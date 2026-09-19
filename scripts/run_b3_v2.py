@@ -106,6 +106,9 @@ def execute(args, *, check_cancelled=not_cancelled):
     specs = [spec_for(args.axis, count, repeat, materialized_streams=args.materialized_streams,
                       fixed_channels=args.fixed_channels, accept_window=getattr(args, 'accept_window', None))
              for count in args.counts for repeat in range(1, args.repeats + 1)]
+    from scripts.performance.b3_allocator_snapshot import observer_spec
+    specs = [observer_spec(spec, platform=platform_name,
+                           enabled=getattr(args, 'allocator_snapshots', False)) for spec in specs]
     args.output.mkdir(parents=True, exist_ok=False)
     (args.output / "binaries").mkdir()
     binaries = {}
@@ -144,6 +147,8 @@ def execute(args, *, check_cancelled=not_cancelled):
                    "crates/nbsr-transport/src/config.rs",
                    "crates/nbsr-transport/src/udp_socket.rs",
                    "crates/nbsr-transport/src/bin/perf_rust_source.rs",
+                   "crates/nbsr-transport/src/bin/benchmark_support/allocator_snapshot.rs",
+                   "scripts/performance/b3_allocator_snapshot.py",
                    "crates/nbsr-transport/src/bin/wp8_interop_server.rs",
                    "crates/nbsr-transport/src/bin/b3_support/mod.rs",
                    "crates/nbsr-transport/src/bin/b3_support/marker_monitor.rs",
@@ -194,6 +199,8 @@ if __name__ == "__main__":
                         help='Linux only: shared physical-core-selected logical pool')
     parser.add_argument('--build-manifest', type=Path, help='Linux only: release source SHA, binary hashes and build metadata')
     parser.add_argument("--axis", choices=("bundles", "live-bundles", "channels", "streams", "cycles"), required=True)
+    parser.add_argument('--allocator-snapshots', action='store_true',
+                        help='Linux/glibc cycles only: diagnostic source allocator XML at entry and post-close')
     parser.add_argument("--counts", type=int, nargs="+", required=True)
     parser.add_argument("--repeats", type=int, choices=(1, 3, 5), default=5)
     parser.add_argument("--fixed-channels", type=int, default=8,

@@ -36,6 +36,9 @@ mod b1_support;
 mod external_bind_contract_tests;
 #[cfg(feature = "benchmark-harness")]
 use nbsr_transport::benchmark_bind as external_bind;
+#[cfg(feature = "benchmark-harness")]
+#[path = "benchmark_support/allocator_snapshot.rs"]
+mod allocator_snapshot;
 mod b3_support;
 #[cfg(feature = "benchmark-harness")]
 mod b4_support;
@@ -453,6 +456,18 @@ async fn run_lifecycle(
     );
     let payload = vec![0x5a; payload_bytes];
     let mut sample_id = 0_u64;
+    #[cfg(feature = "benchmark-harness")]
+    let allocator_directory = optional_argument("--b3-allocator-directory").map(PathBuf::from);
+    #[cfg(feature = "benchmark-harness")]
+    if let Some(directory) = allocator_directory.as_deref() {
+        assert!(
+            hold_for_release
+                && completion.is_none()
+                && connection_offset == 0
+                && connections <= 100
+        );
+        allocator_snapshot::snapshot(directory, 0).expect("initial allocator snapshot");
+    }
     for connection_ordinal in 0..connections {
         if hold_for_release {
             let ordinal = connection_offset + connection_ordinal;
@@ -869,6 +884,11 @@ async fn run_lifecycle(
             .unwrap();
             if hold_for_release && optional_argument("--diagnostics").is_some() {
                 emit_diagnostic(0, &format!("lifecycle_cycle_{logical_client_id}_closed"));
+            }
+            #[cfg(feature = "benchmark-harness")]
+            if let Some(directory) = allocator_directory.as_deref() {
+                allocator_snapshot::snapshot(directory, connection_ordinal + 1)
+                    .expect("completed-cycle allocator snapshot");
             }
         }
     }
@@ -1973,6 +1993,15 @@ async fn run(
 
 #[cfg(feature = "benchmark-harness")]
 fn main() {
+    if optional_argument("--b3-allocator-directory").is_some() {
+        allocator_snapshot::ensure_supported().expect("supported allocator observer");
+        assert!(
+            optional_argument("--lifecycle-authority-dir").is_some()
+                && optional_argument("--hold-for-release").is_some()
+                && optional_argument("--lifecycle-clients").is_none(),
+            "allocator observer requires sequential held lifecycle mode"
+        );
+    }
     external_bind::client_bind(env::args()).expect("valid benchmark client bind");
     if env::args().any(|arg| arg == "--benchmark-client-bind") {
         assert!(
@@ -2163,6 +2192,10 @@ fn main() {
 #[cfg(not(feature = "benchmark-harness"))]
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
+    assert!(
+        optional_argument("--b3-allocator-directory").is_none(),
+        "allocator observer requires benchmark-harness"
+    );
     run(None, 0, None).await;
 }
 
