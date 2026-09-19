@@ -29,3 +29,6 @@ evidence/performance/v2/b4b-task4d-pre-writer-shutdown-361c315038bb/** -text whi
 evidence/performance/v2/b4b-task4d-interrupted-baseline-361c315038bb/** -text whitespace=cr-at-eol,-blank-at-eof
 evidence/performance/v2/b4b-task4e-9274ffc56a7d/** -text whitespace=cr-at-eol,-blank-at-eof
 evidence/performance/v2/b4b-task4f-6c7b40fc9492/** -text whitespace=cr-at-eol,-blank-at-eof
+evidence/performance/v2/native-packet-20cd17fc/native-packet-red-7682846e.txt -diff
+evidence/performance/v2/native-packet-20cd17fc/native-packet-review-red-7682846e.txt -diff
+evidence/performance/v2/native-packet-20cd17fc/native-packet-green-7682846e-final.txt -diff
