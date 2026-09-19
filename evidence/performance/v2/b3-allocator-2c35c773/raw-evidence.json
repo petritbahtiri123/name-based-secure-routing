@@ -1,0 +1,14 @@
+[
+  {
+    "root": "C:\\NBSR-build\\b3-allocator-2c35c773",
+    "index_sha256": "66be815eb80cd632c7f729f1889e3f0a1e957f3a6a20fdc80f52d13c54f157ea"
+  },
+  {
+    "root": "C:\\NBSR-build\\allocator-snapshot-9b427413",
+    "index_sha256": "b4a293d7857a9292feda7bd257ed5ac4ed4bb69ed263e825be1678ef2cafbd2f"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-current-2c35c773",
+    "index_sha256": "6ec85e047b570b78142e9bec432926c3b1d7a183620afe5384e78acbf3bd6808"
+  }
+]

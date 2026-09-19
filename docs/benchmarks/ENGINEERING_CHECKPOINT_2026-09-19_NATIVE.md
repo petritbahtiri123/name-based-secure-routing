@@ -78,7 +78,10 @@ setup, untimed validation, ACK and teardown; they are not pure protocol overhead
 physical wire cost or performance gains. Negative deltas do not prove compression.
 See [all paired measurements](../../evidence/performance/v2/native-wire-ec255c18/paired-accounting.json).
 
-Native phase separation and continuous/exclusive whole-flow ownership remain unproven.
+Native packet-order phase separation is now measured at 6b1095c5 in twenty
+matched cells, with eighty independent TShark window checks. Pure timed-operation
+accounting and continuous/exclusive whole-flow ownership remain unproven. See
+[phase evidence](../../evidence/performance/v2/native-phases-6b1095c5/summary.md).
 Physical server/NIC validation is EXTERNAL_HARDWARE_REQUIRED. External admission,
 memory and sustained-soak matrix porting still needs work. No qualified 60/120
 minute near-ceiling soak, final current-source capacity or hardware ceiling is
@@ -109,9 +112,16 @@ per-cell offload state, peer outputs and checksums are retained. A native captur
 cohort is still PARTIAL with respect to the full B1/external validation program.
 
 No benchmark remains intentionally running at this checkpoint. The next bounded
-native-wire tasks are phase separation and any further justified whole-flow attribution, followed by external
+native-wire tasks are any further justified whole-flow attribution and external
 physical-host validation. Admission, memory retention and sustained-soak gaps
 remain separate work; completing this cohort does not close the whole mission.
+
+The later 2c35c773 source-allocator experiment retains five off/on pairs and
+100 total same-process cycles, all with cleanup PASS. The unchanged 5% observer
+qualification fails; its 55 immediate post-close snapshots do not prove a
+cooldown plateau or causal production-memory behavior. Further invasive WSL
+profiling without a new qualified method is OPTIONAL_LOW_VALUE. See
+[retained failure](../../evidence/performance/v2/b3-allocator-2c35c773/summary.md).
 
 [Canonical evidence/checksum index](../../evidence/performance/v2/engineering-native-checkpoint-20260919/evidence-index.json),
 [commit sequence](../../evidence/performance/v2/engineering-native-checkpoint-20260919/commit-sequence.txt), and

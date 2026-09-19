@@ -1,0 +1,12 @@
+F.......                                                                 [100%]
+================================== FAILURES ===================================
+________ test_observer_accepts_only_explicit_linux_same_process_cycles ________
+
+    def test_observer_accepts_only_explicit_linux_same_process_cycles():
+>       from scripts.performance.b3_allocator_snapshot import observer_spec
+E       ImportError: cannot import name 'observer_spec' from 'scripts.performance.b3_allocator_snapshot' (C:\Users\bajra\OneDrive\Documents\NBSR\scripts\performance\b3_allocator_snapshot.py)
+
+tests\performance\test_b3_allocator_snapshot.py:7: ImportError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_b3_allocator_snapshot.py::test_observer_accepts_only_explicit_linux_same_process_cycles
+1 failed, 7 passed in 0.60s

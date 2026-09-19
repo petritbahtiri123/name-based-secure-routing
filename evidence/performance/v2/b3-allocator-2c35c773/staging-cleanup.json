@@ -1,0 +1,5 @@
+{
+  "reason": "Incomplete source staging archive accidentally included reproducible target cache; no build or test ran from it; source retained",
+  "removed": "C:\\NBSR-build\\allocator-snapshot-9b427413\\crates-red.tar",
+  "logical_bytes": 4397726208
+}

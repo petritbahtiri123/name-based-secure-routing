@@ -1,0 +1,12 @@
+   Compiling nbsr-transport v0.1.0 (/work/crates/nbsr-transport)
+    Finished `release` profile [optimized] target(s) in 13.49s
+     Running unittests src/bin/perf_rust_source.rs (target/release/deps/perf_rust_source-422258d02c3dd2f1)
+
+running 2 tests
+test allocator_snapshot::tests::snapshot_does_not_create_unknown_parent ... ok
+test allocator_snapshot::tests::snapshot_retains_glibc_xml_and_refuses_overwrite ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 101 filtered out; finished in 0.00s
+
+error: 'cargo-clippy' is not installed for the toolchain '1.97.1-x86_64-unknown-linux-gnu'.
+help: run `rustup component add clippy` to install it

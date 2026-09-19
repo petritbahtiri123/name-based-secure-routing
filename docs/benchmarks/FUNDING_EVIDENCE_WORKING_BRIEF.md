@@ -23,6 +23,13 @@ they are not a compression claim or a pure protocol tax. See
 Physical-interface, observer-qualified timing and final funding closure remain
 unproven; this narrows the previous whole-flow accounting limitation.
 
+The `2c35c773` allocator follow-up completes 100 same-process cycles across five
+observer-off/on pairs with cleanup PASS. Its 55 source XML snapshots remain
+DIAGNOSTIC: handshake p99 and source CPU shifts exceed the predeclared 5%
+observer bound. Immediate post-close allocator state does not establish a
+cooldown plateau or a leak. No production memory optimization is claimed.
+[Retained qualification failure](../../evidence/performance/v2/b3-allocator-2c35c773/summary.md).
+
 NBSR is being evaluated as a secure route to an isolated private origin. The
 accepted PoC connects a client through non-frozen ISP adapters, the unchanged
 NBSR secure path, and a fixed Origin Connector. Authority, authentication,

@@ -1,0 +1,24 @@
+   Compiling nbsr-transport v0.1.0 (/work/crates/nbsr-transport)
+    Finished `release` profile [optimized] target(s) in 16.27s
+     Running unittests src/bin/perf_rust_source.rs (target/release/deps/perf_rust_source-422258d02c3dd2f1)
+
+running 2 tests
+
+thread 'allocator_snapshot::tests::snapshot_does_not_create_unknown_parent' (113) panicked at src/bin/benchmark_support/allocator_snapshot.rs:33:9:
+assertion failed: snapshot(&absent, 0).is_err()
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test allocator_snapshot::tests::snapshot_does_not_create_unknown_parent ... FAILED
+
+thread 'allocator_snapshot::tests::snapshot_retains_glibc_xml_and_refuses_overwrite' (114) panicked at src/bin/benchmark_support/allocator_snapshot.rs:19:50:
+called `Result::unwrap()` on an `Err` value: Os { code: 2, kind: NotFound, message: "No such file or directory" }
+test allocator_snapshot::tests::snapshot_retains_glibc_xml_and_refuses_overwrite ... FAILED
+
+failures:
+
+failures:
+    allocator_snapshot::tests::snapshot_does_not_create_unknown_parent
+    allocator_snapshot::tests::snapshot_retains_glibc_xml_and_refuses_overwrite
+
+test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 101 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--bin perf_rust_source`

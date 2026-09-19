@@ -1,0 +1,13 @@
+{
+  "source_sha": "2c35c773",
+  "repeats": 5,
+  "order": "counterbalanced off/on",
+  "cycles": 10,
+  "channels": 1,
+  "streams": 64,
+  "cores": 1,
+  "materialized_streams": false,
+  "observer_scope": "source glibc XML at entry and immediately after close, before cooldown; no allocator tuning",
+  "qualification": "absolute median shift at most 5% for handshake/request p95/p99, source CPU and final private-resident bytes; complete cleanup; retain all repeats and dispersion; no stable performance claim",
+  "longer_diagnostic": "only after evaluating matched controls; no automatic favorable replacement"
+}

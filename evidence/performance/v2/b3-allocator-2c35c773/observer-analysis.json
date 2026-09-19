@@ -1,0 +1,1544 @@
+{
+  "classification": "OBSERVER_REJECTED_FOR_CAUSAL_PERFORMANCE_ATTRIBUTION",
+  "impact": {
+    "transport_handshake_ns_p95": {
+      "off_median": 3526296,
+      "on_median": 4015405,
+      "absolute_fraction": 0.13870333063361673,
+      "cv": {
+        "False": 0.3175178922754384,
+        "True": 0.2692467235489934
+      }
+    },
+    "transport_handshake_ns_p99": {
+      "off_median": 3526296,
+      "on_median": 4015405,
+      "absolute_fraction": 0.13870333063361673,
+      "cv": {
+        "False": 0.3175178922754384,
+        "True": 0.2692467235489934
+      }
+    },
+    "request_latency_ns_p95": {
+      "off_median": 4370403,
+      "on_median": 4028088,
+      "absolute_fraction": 0.07832572877146571,
+      "cv": {
+        "False": 0.2994647712059426,
+        "True": 0.21566958862160235
+      }
+    },
+    "request_latency_ns_p99": {
+      "off_median": 4851947,
+      "on_median": 4582541,
+      "absolute_fraction": 0.05552533859087905,
+      "cv": {
+        "False": 0.3210542723166679,
+        "True": 0.30205161370485534
+      }
+    },
+    "source_cpu_ns": {
+      "off_median": 390000000,
+      "on_median": 410000000,
+      "absolute_fraction": 0.05128205128205132,
+      "cv": {
+        "False": 0.0225865452272706,
+        "True": 0.04714554917076311
+      }
+    },
+    "final_source_private_bytes": {
+      "off_median": 9158656,
+      "on_median": 9121792,
+      "absolute_fraction": 0.00402504472271914,
+      "cv": {
+        "False": 0.004030238858318703,
+        "True": 0.004507653833187351
+      }
+    }
+  },
+  "rows": [
+    {
+      "label": "off-r1",
+      "repeat": 1,
+      "observer": false,
+      "cleanup": true,
+      "metrics": {
+        "transport_handshake_ns_p95": 4500170,
+        "transport_handshake_ns_p99": 4500170,
+        "request_latency_ns_p95": 5073704,
+        "request_latency_ns_p99": 5450227,
+        "source_cpu_ns": 390000000,
+        "final_source_private_bytes": 9220096
+      },
+      "allocator": null,
+      "source_cooldown": [
+        {
+          "cycle": 0,
+          "private_bytes": 6135808
+        },
+        {
+          "cycle": 1,
+          "private_bytes": 6299648
+        },
+        {
+          "cycle": 2,
+          "private_bytes": 9183232
+        },
+        {
+          "cycle": 3,
+          "private_bytes": 9195520
+        },
+        {
+          "cycle": 4,
+          "private_bytes": 9195520
+        },
+        {
+          "cycle": 5,
+          "private_bytes": 9203712
+        },
+        {
+          "cycle": 6,
+          "private_bytes": 9207808
+        },
+        {
+          "cycle": 7,
+          "private_bytes": 9207808
+        },
+        {
+          "cycle": 8,
+          "private_bytes": 9216000
+        },
+        {
+          "cycle": 9,
+          "private_bytes": 9220096
+        }
+      ],
+      "source_fd_range": [
+        6,
+        7
+      ],
+      "source_thread_range": [
+        1,
+        1
+      ]
+    },
+    {
+      "label": "on-r1",
+      "repeat": 1,
+      "observer": true,
+      "cleanup": true,
+      "metrics": {
+        "transport_handshake_ns_p95": 6109768,
+        "transport_handshake_ns_p99": 6109768,
+        "request_latency_ns_p95": 3192792,
+        "request_latency_ns_p99": 3442107,
+        "source_cpu_ns": 430000000,
+        "final_source_private_bytes": 9150464
+      },
+      "allocator": [
+        {
+          "arena_remainder_bytes": 54341,
+          "arena_system_bytes": 135168,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 0,
+          "ordinal": 0,
+          "phase": "lifecycle_entry",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 80827,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 80827,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        },
+        {
+          "arena_remainder_bytes": 373638,
+          "arena_system_bytes": 1814528,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 3018752,
+          "ordinal": 1,
+          "phase": "post_close_before_cooldown",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 1440890,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 1440890,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        },
+        {
+          "arena_remainder_bytes": 3397821,
+          "arena_system_bytes": 4841472,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 0,
+          "ordinal": 2,
+          "phase": "post_close_before_cooldown",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 1443651,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 1443651,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        },
+        {
+          "arena_remainder_bytes": 3408281,
+          "arena_system_bytes": 4841472,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 0,
+          "ordinal": 3,
+          "phase": "post_close_before_cooldown",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 1433191,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 1433191,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        },
+        {
+          "arena_remainder_bytes": 3415315,
+          "arena_system_bytes": 4841472,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 0,
+          "ordinal": 4,
+          "phase": "post_close_before_cooldown",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 1426157,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 1426157,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        },
+        {
+          "arena_remainder_bytes": 3420647,
+          "arena_system_bytes": 4841472,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 0,
+          "ordinal": 5,
+          "phase": "post_close_before_cooldown",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 1420825,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 1420825,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        },
+        {
+          "arena_remainder_bytes": 3425874,
+          "arena_system_bytes": 4841472,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 0,
+          "ordinal": 6,
+          "phase": "post_close_before_cooldown",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 1415598,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 1415598,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        },
+        {
+          "arena_remainder_bytes": 3430616,
+          "arena_system_bytes": 4841472,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 0,
+          "ordinal": 7,
+          "phase": "post_close_before_cooldown",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 1410856,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 1410856,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        },
+        {
+          "arena_remainder_bytes": 3436242,
+          "arena_system_bytes": 4841472,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 0,
+          "ordinal": 8,
+          "phase": "post_close_before_cooldown",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 1405230,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 1405230,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        },
+        {
+          "arena_remainder_bytes": 3442528,
+          "arena_system_bytes": 4841472,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 0,
+          "ordinal": 9,
+          "phase": "post_close_before_cooldown",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 1398944,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 1398944,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        },
+        {
+          "arena_remainder_bytes": 3447456,
+          "arena_system_bytes": 4976640,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 0,
+          "ordinal": 10,
+          "phase": "post_close_before_cooldown",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 1529184,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 1529184,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        }
+      ],
+      "source_cooldown": [
+        {
+          "cycle": 0,
+          "private_bytes": 6066176
+        },
+        {
+          "cycle": 1,
+          "private_bytes": 6217728
+        },
+        {
+          "cycle": 2,
+          "private_bytes": 9109504
+        },
+        {
+          "cycle": 3,
+          "private_bytes": 9125888
+        },
+        {
+          "cycle": 4,
+          "private_bytes": 9125888
+        },
+        {
+          "cycle": 5,
+          "private_bytes": 9129984
+        },
+        {
+          "cycle": 6,
+          "private_bytes": 9138176
+        },
+        {
+          "cycle": 7,
+          "private_bytes": 9142272
+        },
+        {
+          "cycle": 8,
+          "private_bytes": 9146368
+        },
+        {
+          "cycle": 9,
+          "private_bytes": 9150464
+        }
+      ],
+      "source_fd_range": [
+        6,
+        7
+      ],
+      "source_thread_range": [
+        1,
+        1
+      ]
+    },
+    {
+      "label": "on-r2",
+      "repeat": 2,
+      "observer": true,
+      "cleanup": true,
+      "metrics": {
+        "transport_handshake_ns_p95": 3981404,
+        "transport_handshake_ns_p99": 3981404,
+        "request_latency_ns_p95": 3557226,
+        "request_latency_ns_p99": 3766528,
+        "source_cpu_ns": 380000000,
+        "final_source_private_bytes": 9052160
+      },
+      "allocator": [
+        {
+          "arena_remainder_bytes": 54341,
+          "arena_system_bytes": 135168,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 0,
+          "ordinal": 0,
+          "phase": "lifecycle_entry",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 80827,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 80827,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        },
+        {
+          "arena_remainder_bytes": 371920,
+          "arena_system_bytes": 1814528,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 3018752,
+          "ordinal": 1,
+          "phase": "post_close_before_cooldown",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 1442608,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 1442608,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        },
+        {
+          "arena_remainder_bytes": 3401249,
+          "arena_system_bytes": 4820992,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 0,
+          "ordinal": 2,
+          "phase": "post_close_before_cooldown",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 1419743,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 1419743,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        },
+        {
+          "arena_remainder_bytes": 3409473,
+          "arena_system_bytes": 4820992,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 0,
+          "ordinal": 3,
+          "phase": "post_close_before_cooldown",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 1411519,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 1411519,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        },
+        {
+          "arena_remainder_bytes": 3413652,
+          "arena_system_bytes": 4820992,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 0,
+          "ordinal": 4,
+          "phase": "post_close_before_cooldown",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 1407340,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 1407340,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        },
+        {
+          "arena_remainder_bytes": 3422139,
+          "arena_system_bytes": 4820992,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 0,
+          "ordinal": 5,
+          "phase": "post_close_before_cooldown",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 1398853,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 1398853,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        },
+        {
+          "arena_remainder_bytes": 3428256,
+          "arena_system_bytes": 4956160,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 0,
+          "ordinal": 6,
+          "phase": "post_close_before_cooldown",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 1527904,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 1527904,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        },
+        {
+          "arena_remainder_bytes": 3433264,
+          "arena_system_bytes": 4956160,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 0,
+          "ordinal": 7,
+          "phase": "post_close_before_cooldown",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 1522896,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 1522896,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        },
+        {
+          "arena_remainder_bytes": 3433264,
+          "arena_system_bytes": 4956160,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 0,
+          "ordinal": 8,
+          "phase": "post_close_before_cooldown",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 1522896,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 1522896,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        },
+        {
+          "arena_remainder_bytes": 3438190,
+          "arena_system_bytes": 4956160,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 0,
+          "ordinal": 9,
+          "phase": "post_close_before_cooldown",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 1517970,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 1517970,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        },
+        {
+          "arena_remainder_bytes": 3440458,
+          "arena_system_bytes": 4956160,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 0,
+          "ordinal": 10,
+          "phase": "post_close_before_cooldown",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 1515702,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 1515702,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        }
+      ],
+      "source_cooldown": [
+        {
+          "cycle": 0,
+          "private_bytes": 5971968
+        },
+        {
+          "cycle": 1,
+          "private_bytes": 6135808
+        },
+        {
+          "cycle": 2,
+          "private_bytes": 9019392
+        },
+        {
+          "cycle": 3,
+          "private_bytes": 9023488
+        },
+        {
+          "cycle": 4,
+          "private_bytes": 9031680
+        },
+        {
+          "cycle": 5,
+          "private_bytes": 9039872
+        },
+        {
+          "cycle": 6,
+          "private_bytes": 9043968
+        },
+        {
+          "cycle": 7,
+          "private_bytes": 9043968
+        },
+        {
+          "cycle": 8,
+          "private_bytes": 9048064
+        },
+        {
+          "cycle": 9,
+          "private_bytes": 9052160
+        }
+      ],
+      "source_fd_range": [
+        6,
+        7
+      ],
+      "source_thread_range": [
+        1,
+        1
+      ]
+    },
+    {
+      "label": "off-r2",
+      "repeat": 2,
+      "observer": false,
+      "cleanup": true,
+      "metrics": {
+        "transport_handshake_ns_p95": 3526296,
+        "transport_handshake_ns_p99": 3526296,
+        "request_latency_ns_p95": 2220983,
+        "request_latency_ns_p99": 2522994,
+        "source_cpu_ns": 400000000,
+        "final_source_private_bytes": 9158656
+      },
+      "allocator": null,
+      "source_cooldown": [
+        {
+          "cycle": 0,
+          "private_bytes": 6078464
+        },
+        {
+          "cycle": 1,
+          "private_bytes": 6254592
+        },
+        {
+          "cycle": 2,
+          "private_bytes": 9121792
+        },
+        {
+          "cycle": 3,
+          "private_bytes": 9129984
+        },
+        {
+          "cycle": 4,
+          "private_bytes": 9134080
+        },
+        {
+          "cycle": 5,
+          "private_bytes": 9142272
+        },
+        {
+          "cycle": 6,
+          "private_bytes": 9146368
+        },
+        {
+          "cycle": 7,
+          "private_bytes": 9146368
+        },
+        {
+          "cycle": 8,
+          "private_bytes": 9154560
+        },
+        {
+          "cycle": 9,
+          "private_bytes": 9158656
+        }
+      ],
+      "source_fd_range": [
+        6,
+        7
+      ],
+      "source_thread_range": [
+        1,
+        1
+      ]
+    },
+    {
+      "label": "off-r3",
+      "repeat": 3,
+      "observer": false,
+      "cleanup": true,
+      "metrics": {
+        "transport_handshake_ns_p95": 6241737,
+        "transport_handshake_ns_p99": 6241737,
+        "request_latency_ns_p95": 5103031,
+        "request_latency_ns_p99": 6463892,
+        "source_cpu_ns": 390000000,
+        "final_source_private_bytes": 9207808
+      },
+      "allocator": null,
+      "source_cooldown": [
+        {
+          "cycle": 0,
+          "private_bytes": 6131712
+        },
+        {
+          "cycle": 1,
+          "private_bytes": 6266880
+        },
+        {
+          "cycle": 2,
+          "private_bytes": 9179136
+        },
+        {
+          "cycle": 3,
+          "private_bytes": 9187328
+        },
+        {
+          "cycle": 4,
+          "private_bytes": 9191424
+        },
+        {
+          "cycle": 5,
+          "private_bytes": 9195520
+        },
+        {
+          "cycle": 6,
+          "private_bytes": 9195520
+        },
+        {
+          "cycle": 7,
+          "private_bytes": 9203712
+        },
+        {
+          "cycle": 8,
+          "private_bytes": 9203712
+        },
+        {
+          "cycle": 9,
+          "private_bytes": 9207808
+        }
+      ],
+      "source_fd_range": [
+        6,
+        7
+      ],
+      "source_thread_range": [
+        1,
+        1
+      ]
+    },
+    {
+      "label": "on-r3",
+      "repeat": 3,
+      "observer": true,
+      "cleanup": true,
+      "metrics": {
+        "transport_handshake_ns_p95": 4015405,
+        "transport_handshake_ns_p99": 4015405,
+        "request_latency_ns_p95": 5101298,
+        "request_latency_ns_p99": 5865628,
+        "source_cpu_ns": 410000000,
+        "final_source_private_bytes": 9121792
+      },
+      "allocator": [
+        {
+          "arena_remainder_bytes": 54341,
+          "arena_system_bytes": 135168,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 0,
+          "ordinal": 0,
+          "phase": "lifecycle_entry",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 80827,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 80827,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        },
+        {
+          "arena_remainder_bytes": 374255,
+          "arena_system_bytes": 1814528,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 3018752,
+          "ordinal": 1,
+          "phase": "post_close_before_cooldown",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 1440273,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 1440273,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        },
+        {
+          "arena_remainder_bytes": 3403109,
+          "arena_system_bytes": 4829184,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 0,
+          "ordinal": 2,
+          "phase": "post_close_before_cooldown",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 1426075,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 1426075,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        },
+        {
+          "arena_remainder_bytes": 3409990,
+          "arena_system_bytes": 4829184,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 0,
+          "ordinal": 3,
+          "phase": "post_close_before_cooldown",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 1419194,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 1419194,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        },
+        {
+          "arena_remainder_bytes": 3419791,
+          "arena_system_bytes": 4829184,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 0,
+          "ordinal": 4,
+          "phase": "post_close_before_cooldown",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 1409393,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 1409393,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        },
+        {
+          "arena_remainder_bytes": 3422278,
+          "arena_system_bytes": 4829184,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 0,
+          "ordinal": 5,
+          "phase": "post_close_before_cooldown",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 1406906,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 1406906,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        },
+        {
+          "arena_remainder_bytes": 3426457,
+          "arena_system_bytes": 4829184,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 0,
+          "ordinal": 6,
+          "phase": "post_close_before_cooldown",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 1402727,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 1402727,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        },
+        {
+          "arena_remainder_bytes": 3431358,
+          "arena_system_bytes": 4964352,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 0,
+          "ordinal": 7,
+          "phase": "post_close_before_cooldown",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 1532994,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 1532994,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        },
+        {
+          "arena_remainder_bytes": 3434228,
+          "arena_system_bytes": 4964352,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 0,
+          "ordinal": 8,
+          "phase": "post_close_before_cooldown",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 1530124,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 1530124,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        },
+        {
+          "arena_remainder_bytes": 3438786,
+          "arena_system_bytes": 4964352,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 0,
+          "ordinal": 9,
+          "phase": "post_close_before_cooldown",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 1525566,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 1525566,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        },
+        {
+          "arena_remainder_bytes": 3441463,
+          "arena_system_bytes": 4964352,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 0,
+          "ordinal": 10,
+          "phase": "post_close_before_cooldown",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 1522889,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 1522889,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        }
+      ],
+      "source_cooldown": [
+        {
+          "cycle": 0,
+          "private_bytes": 6041600
+        },
+        {
+          "cycle": 1,
+          "private_bytes": 6209536
+        },
+        {
+          "cycle": 2,
+          "private_bytes": 9089024
+        },
+        {
+          "cycle": 3,
+          "private_bytes": 9097216
+        },
+        {
+          "cycle": 4,
+          "private_bytes": 9101312
+        },
+        {
+          "cycle": 5,
+          "private_bytes": 9105408
+        },
+        {
+          "cycle": 6,
+          "private_bytes": 9113600
+        },
+        {
+          "cycle": 7,
+          "private_bytes": 9113600
+        },
+        {
+          "cycle": 8,
+          "private_bytes": 9117696
+        },
+        {
+          "cycle": 9,
+          "private_bytes": 9121792
+        }
+      ],
+      "source_fd_range": [
+        6,
+        7
+      ],
+      "source_thread_range": [
+        1,
+        1
+      ]
+    },
+    {
+      "label": "on-r4",
+      "repeat": 4,
+      "observer": true,
+      "cleanup": true,
+      "metrics": {
+        "transport_handshake_ns_p95": 6474408,
+        "transport_handshake_ns_p99": 6474408,
+        "request_latency_ns_p95": 5223071,
+        "request_latency_ns_p99": 7007663,
+        "source_cpu_ns": 420000000,
+        "final_source_private_bytes": 9113600
+      },
+      "allocator": [
+        {
+          "arena_remainder_bytes": 54341,
+          "arena_system_bytes": 135168,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 0,
+          "ordinal": 0,
+          "phase": "lifecycle_entry",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 80827,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 80827,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        },
+        {
+          "arena_remainder_bytes": 376522,
+          "arena_system_bytes": 1814528,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 3018752,
+          "ordinal": 1,
+          "phase": "post_close_before_cooldown",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 1438006,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 1438006,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        },
+        {
+          "arena_remainder_bytes": 3402555,
+          "arena_system_bytes": 4857856,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 0,
+          "ordinal": 2,
+          "phase": "post_close_before_cooldown",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 1455301,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 1455301,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        },
+        {
+          "arena_remainder_bytes": 3412076,
+          "arena_system_bytes": 4857856,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 0,
+          "ordinal": 3,
+          "phase": "post_close_before_cooldown",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 1445780,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 1445780,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        },
+        {
+          "arena_remainder_bytes": 3416372,
+          "arena_system_bytes": 4857856,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 0,
+          "ordinal": 4,
+          "phase": "post_close_before_cooldown",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 1441484,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 1441484,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        },
+        {
+          "arena_remainder_bytes": 3420253,
+          "arena_system_bytes": 4857856,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 0,
+          "ordinal": 5,
+          "phase": "post_close_before_cooldown",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 1437603,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 1437603,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        },
+        {
+          "arena_remainder_bytes": 3428075,
+          "arena_system_bytes": 4857856,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 0,
+          "ordinal": 6,
+          "phase": "post_close_before_cooldown",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 1429781,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 1429781,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        },
+        {
+          "arena_remainder_bytes": 3431386,
+          "arena_system_bytes": 4857856,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 0,
+          "ordinal": 7,
+          "phase": "post_close_before_cooldown",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 1426470,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 1426470,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        },
+        {
+          "arena_remainder_bytes": 3434272,
+          "arena_system_bytes": 4857856,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 0,
+          "ordinal": 8,
+          "phase": "post_close_before_cooldown",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 1423584,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 1423584,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        },
+        {
+          "arena_remainder_bytes": 3436409,
+          "arena_system_bytes": 4857856,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 0,
+          "ordinal": 9,
+          "phase": "post_close_before_cooldown",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 1421447,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 1421447,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        },
+        {
+          "arena_remainder_bytes": 3442109,
+          "arena_system_bytes": 4857856,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 0,
+          "ordinal": 10,
+          "phase": "post_close_before_cooldown",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 1415747,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 1415747,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        }
+      ],
+      "source_cooldown": [
+        {
+          "cycle": 0,
+          "private_bytes": 6033408
+        },
+        {
+          "cycle": 1,
+          "private_bytes": 6172672
+        },
+        {
+          "cycle": 2,
+          "private_bytes": 9084928
+        },
+        {
+          "cycle": 3,
+          "private_bytes": 9089024
+        },
+        {
+          "cycle": 4,
+          "private_bytes": 9093120
+        },
+        {
+          "cycle": 5,
+          "private_bytes": 9097216
+        },
+        {
+          "cycle": 6,
+          "private_bytes": 9105408
+        },
+        {
+          "cycle": 7,
+          "private_bytes": 9109504
+        },
+        {
+          "cycle": 8,
+          "private_bytes": 9109504
+        },
+        {
+          "cycle": 9,
+          "private_bytes": 9113600
+        }
+      ],
+      "source_fd_range": [
+        6,
+        7
+      ],
+      "source_thread_range": [
+        1,
+        1
+      ]
+    },
+    {
+      "label": "off-r4",
+      "repeat": 4,
+      "observer": false,
+      "cleanup": true,
+      "metrics": {
+        "transport_handshake_ns_p95": 3512422,
+        "transport_handshake_ns_p99": 3512422,
+        "request_latency_ns_p95": 3507639,
+        "request_latency_ns_p99": 3986958,
+        "source_cpu_ns": 410000000,
+        "final_source_private_bytes": 9134080
+      },
+      "allocator": null,
+      "source_cooldown": [
+        {
+          "cycle": 0,
+          "private_bytes": 6057984
+        },
+        {
+          "cycle": 1,
+          "private_bytes": 6234112
+        },
+        {
+          "cycle": 2,
+          "private_bytes": 9105408
+        },
+        {
+          "cycle": 3,
+          "private_bytes": 9109504
+        },
+        {
+          "cycle": 4,
+          "private_bytes": 9117696
+        },
+        {
+          "cycle": 5,
+          "private_bytes": 9121792
+        },
+        {
+          "cycle": 6,
+          "private_bytes": 9125888
+        },
+        {
+          "cycle": 7,
+          "private_bytes": 9129984
+        },
+        {
+          "cycle": 8,
+          "private_bytes": 9134080
+        },
+        {
+          "cycle": 9,
+          "private_bytes": 9134080
+        }
+      ],
+      "source_fd_range": [
+        6,
+        7
+      ],
+      "source_thread_range": [
+        1,
+        1
+      ]
+    },
+    {
+      "label": "off-r5",
+      "repeat": 5,
+      "observer": false,
+      "cleanup": true,
+      "metrics": {
+        "transport_handshake_ns_p95": 2886056,
+        "transport_handshake_ns_p99": 2886056,
+        "request_latency_ns_p95": 4370403,
+        "request_latency_ns_p99": 4851947,
+        "source_cpu_ns": 390000000,
+        "final_source_private_bytes": 9154560
+      },
+      "allocator": null,
+      "source_cooldown": [
+        {
+          "cycle": 0,
+          "private_bytes": 6078464
+        },
+        {
+          "cycle": 1,
+          "private_bytes": 6209536
+        },
+        {
+          "cycle": 2,
+          "private_bytes": 9121792
+        },
+        {
+          "cycle": 3,
+          "private_bytes": 9125888
+        },
+        {
+          "cycle": 4,
+          "private_bytes": 9129984
+        },
+        {
+          "cycle": 5,
+          "private_bytes": 9138176
+        },
+        {
+          "cycle": 6,
+          "private_bytes": 9146368
+        },
+        {
+          "cycle": 7,
+          "private_bytes": 9150464
+        },
+        {
+          "cycle": 8,
+          "private_bytes": 9150464
+        },
+        {
+          "cycle": 9,
+          "private_bytes": 9154560
+        }
+      ],
+      "source_fd_range": [
+        6,
+        7
+      ],
+      "source_thread_range": [
+        1,
+        1
+      ]
+    },
+    {
+      "label": "on-r5",
+      "repeat": 5,
+      "observer": true,
+      "cleanup": true,
+      "metrics": {
+        "transport_handshake_ns_p95": 3756748,
+        "transport_handshake_ns_p99": 3756748,
+        "request_latency_ns_p95": 4028088,
+        "request_latency_ns_p99": 4582541,
+        "source_cpu_ns": 400000000,
+        "final_source_private_bytes": 9154560
+      },
+      "allocator": [
+        {
+          "arena_remainder_bytes": 54341,
+          "arena_system_bytes": 135168,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 0,
+          "ordinal": 0,
+          "phase": "lifecycle_entry",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 80827,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 80827,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        },
+        {
+          "arena_remainder_bytes": 371646,
+          "arena_system_bytes": 1830912,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 3018752,
+          "ordinal": 1,
+          "phase": "post_close_before_cooldown",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 1459266,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 1459266,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        },
+        {
+          "arena_remainder_bytes": 3397248,
+          "arena_system_bytes": 4878336,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 0,
+          "ordinal": 2,
+          "phase": "post_close_before_cooldown",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 1481088,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 1481088,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        },
+        {
+          "arena_remainder_bytes": 3405546,
+          "arena_system_bytes": 4878336,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 0,
+          "ordinal": 3,
+          "phase": "post_close_before_cooldown",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 1472790,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 1472790,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        },
+        {
+          "arena_remainder_bytes": 3412666,
+          "arena_system_bytes": 4878336,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 0,
+          "ordinal": 4,
+          "phase": "post_close_before_cooldown",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 1465670,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 1465670,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        },
+        {
+          "arena_remainder_bytes": 3416379,
+          "arena_system_bytes": 4878336,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 0,
+          "ordinal": 5,
+          "phase": "post_close_before_cooldown",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 1461957,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 1461957,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        },
+        {
+          "arena_remainder_bytes": 3420624,
+          "arena_system_bytes": 4878336,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 0,
+          "ordinal": 6,
+          "phase": "post_close_before_cooldown",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 1457712,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 1457712,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        },
+        {
+          "arena_remainder_bytes": 3422357,
+          "arena_system_bytes": 4878336,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 0,
+          "ordinal": 7,
+          "phase": "post_close_before_cooldown",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 1455979,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 1455979,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        },
+        {
+          "arena_remainder_bytes": 3425365,
+          "arena_system_bytes": 4878336,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 0,
+          "ordinal": 8,
+          "phase": "post_close_before_cooldown",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 1452971,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 1452971,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        },
+        {
+          "arena_remainder_bytes": 3428808,
+          "arena_system_bytes": 4878336,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 0,
+          "ordinal": 9,
+          "phase": "post_close_before_cooldown",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 1449528,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 1449528,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        },
+        {
+          "arena_remainder_bytes": 3433084,
+          "arena_system_bytes": 4878336,
+          "fast_free_bytes": 0,
+          "heap_count": 1,
+          "live_rust_allocations": "NOT_PROVEN",
+          "mmap_bytes": 0,
+          "ordinal": 10,
+          "phase": "post_close_before_cooldown",
+          "remainder_basis": "DERIVED system minus reported free; includes metadata/caches, not exact live Rust objects",
+          "reported_free_bytes": 1445252,
+          "resident_bytes": "NOT_MEASURED",
+          "rest_free_bytes": 1445252,
+          "schema": "nbsr-glibc-allocator-snapshot-v1"
+        }
+      ],
+      "source_cooldown": [
+        {
+          "cycle": 0,
+          "private_bytes": 6082560
+        },
+        {
+          "cycle": 1,
+          "private_bytes": 6213632
+        },
+        {
+          "cycle": 2,
+          "private_bytes": 9125888
+        },
+        {
+          "cycle": 3,
+          "private_bytes": 9134080
+        },
+        {
+          "cycle": 4,
+          "private_bytes": 9138176
+        },
+        {
+          "cycle": 5,
+          "private_bytes": 9142272
+        },
+        {
+          "cycle": 6,
+          "private_bytes": 9146368
+        },
+        {
+          "cycle": 7,
+          "private_bytes": 9146368
+        },
+        {
+          "cycle": 8,
+          "private_bytes": 9150464
+        },
+        {
+          "cycle": 9,
+          "private_bytes": 9154560
+        }
+      ],
+      "source_fd_range": [
+        6,
+        7
+      ],
+      "source_thread_range": [
+        1,
+        1
+      ]
+    }
+  ],
+  "scope": "five matched same-source pairs; allocator XML reports instrumented source state; no leak/production improvement claim",
+  "live_rust_allocations": "NOT_PROVEN",
+  "destination_allocator": "NOT_MEASURED"
+}
