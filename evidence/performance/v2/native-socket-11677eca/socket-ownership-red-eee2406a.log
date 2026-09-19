@@ -1,0 +1,297 @@
+FFFFFFFFF                                                                [100%]
+================================== FAILURES ===================================
+___________________ test_live_socket_binding_and_exact_join ___________________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1110/test_live_socket_binding_and_e0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000021B5F271CD0>
+
+    def test_live_socket_binding_and_exact_join(tmp_path, monkeypatch):
+        fixture(tmp_path, monkeypatch)
+>       row = module().snapshot(11, 3, '/tmp/peer', '127.0.0.1', proc_root=tmp_path)
+              ^^^^^^^^
+
+tests\performance\test_linux_socket_ownership.py:27: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def module():
+>       from scripts.performance import linux_socket_ownership
+E       ImportError: cannot import name 'linux_socket_ownership' from 'scripts.performance' (C:\Users\bajra\OneDrive\Documents\NBSR\scripts\performance\__init__.py)
+
+tests\performance\test_linux_socket_ownership.py:9: ImportError
+_____________ test_unavailable_never_becomes_ownership_proof[pid] _____________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1110/test_unavailable_never_becomes0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000021B5F2710F0>
+change = 'pid'
+
+    @pytest.mark.parametrize('change', ['pid', 'epoch', 'zombie', 'binary', 'fd', 'address', 'table'])
+    def test_unavailable_never_becomes_ownership_proof(tmp_path, monkeypatch, change):
+        base, links = fixture(tmp_path, monkeypatch)
+        if change == 'pid':
+            (base / 'stat').write_text(stat().replace('11 (', '12 ('))
+        elif change == 'epoch':
+            (base / 'stat').write_text(stat(4))
+        elif change == 'zombie':
+            (base / 'stat').write_text(stat().replace(' S ', ' Z '))
+        elif change == 'binary':
+            links['exe'] = '/tmp/other'
+        elif change == 'fd':
+            links['3'] = 'socket:[100]'
+        elif change == 'address':
+            (base / 'net' / 'udp').write_text(HEADER + ROW.replace('0100007F', '00000000'))
+        else:
+            (base / 'net' / 'udp').write_text('unrecognized')
+>       row = module().snapshot(11, 3, '/tmp/peer', '127.0.0.1', proc_root=tmp_path)
+              ^^^^^^^^
+
+tests\performance\test_linux_socket_ownership.py:53: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def module():
+>       from scripts.performance import linux_socket_ownership
+E       ImportError: cannot import name 'linux_socket_ownership' from 'scripts.performance' (C:\Users\bajra\OneDrive\Documents\NBSR\scripts\performance\__init__.py)
+
+tests\performance\test_linux_socket_ownership.py:9: ImportError
+____________ test_unavailable_never_becomes_ownership_proof[epoch] ____________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1110/test_unavailable_never_becomes1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000021B5F28AD50>
+change = 'epoch'
+
+    @pytest.mark.parametrize('change', ['pid', 'epoch', 'zombie', 'binary', 'fd', 'address', 'table'])
+    def test_unavailable_never_becomes_ownership_proof(tmp_path, monkeypatch, change):
+        base, links = fixture(tmp_path, monkeypatch)
+        if change == 'pid':
+            (base / 'stat').write_text(stat().replace('11 (', '12 ('))
+        elif change == 'epoch':
+            (base / 'stat').write_text(stat(4))
+        elif change == 'zombie':
+            (base / 'stat').write_text(stat().replace(' S ', ' Z '))
+        elif change == 'binary':
+            links['exe'] = '/tmp/other'
+        elif change == 'fd':
+            links['3'] = 'socket:[100]'
+        elif change == 'address':
+            (base / 'net' / 'udp').write_text(HEADER + ROW.replace('0100007F', '00000000'))
+        else:
+            (base / 'net' / 'udp').write_text('unrecognized')
+>       row = module().snapshot(11, 3, '/tmp/peer', '127.0.0.1', proc_root=tmp_path)
+              ^^^^^^^^
+
+tests\performance\test_linux_socket_ownership.py:53: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def module():
+>       from scripts.performance import linux_socket_ownership
+E       ImportError: cannot import name 'linux_socket_ownership' from 'scripts.performance' (C:\Users\bajra\OneDrive\Documents\NBSR\scripts\performance\__init__.py)
+
+tests\performance\test_linux_socket_ownership.py:9: ImportError
+___________ test_unavailable_never_becomes_ownership_proof[zombie] ____________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1110/test_unavailable_never_becomes2')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000021B5F388AF0>
+change = 'zombie'
+
+    @pytest.mark.parametrize('change', ['pid', 'epoch', 'zombie', 'binary', 'fd', 'address', 'table'])
+    def test_unavailable_never_becomes_ownership_proof(tmp_path, monkeypatch, change):
+        base, links = fixture(tmp_path, monkeypatch)
+        if change == 'pid':
+            (base / 'stat').write_text(stat().replace('11 (', '12 ('))
+        elif change == 'epoch':
+            (base / 'stat').write_text(stat(4))
+        elif change == 'zombie':
+            (base / 'stat').write_text(stat().replace(' S ', ' Z '))
+        elif change == 'binary':
+            links['exe'] = '/tmp/other'
+        elif change == 'fd':
+            links['3'] = 'socket:[100]'
+        elif change == 'address':
+            (base / 'net' / 'udp').write_text(HEADER + ROW.replace('0100007F', '00000000'))
+        else:
+            (base / 'net' / 'udp').write_text('unrecognized')
+>       row = module().snapshot(11, 3, '/tmp/peer', '127.0.0.1', proc_root=tmp_path)
+              ^^^^^^^^
+
+tests\performance\test_linux_socket_ownership.py:53: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def module():
+>       from scripts.performance import linux_socket_ownership
+E       ImportError: cannot import name 'linux_socket_ownership' from 'scripts.performance' (C:\Users\bajra\OneDrive\Documents\NBSR\scripts\performance\__init__.py)
+
+tests\performance\test_linux_socket_ownership.py:9: ImportError
+___________ test_unavailable_never_becomes_ownership_proof[binary] ____________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1110/test_unavailable_never_becomes3')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000021B5F389260>
+change = 'binary'
+
+    @pytest.mark.parametrize('change', ['pid', 'epoch', 'zombie', 'binary', 'fd', 'address', 'table'])
+    def test_unavailable_never_becomes_ownership_proof(tmp_path, monkeypatch, change):
+        base, links = fixture(tmp_path, monkeypatch)
+        if change == 'pid':
+            (base / 'stat').write_text(stat().replace('11 (', '12 ('))
+        elif change == 'epoch':
+            (base / 'stat').write_text(stat(4))
+        elif change == 'zombie':
+            (base / 'stat').write_text(stat().replace(' S ', ' Z '))
+        elif change == 'binary':
+            links['exe'] = '/tmp/other'
+        elif change == 'fd':
+            links['3'] = 'socket:[100]'
+        elif change == 'address':
+            (base / 'net' / 'udp').write_text(HEADER + ROW.replace('0100007F', '00000000'))
+        else:
+            (base / 'net' / 'udp').write_text('unrecognized')
+>       row = module().snapshot(11, 3, '/tmp/peer', '127.0.0.1', proc_root=tmp_path)
+              ^^^^^^^^
+
+tests\performance\test_linux_socket_ownership.py:53: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def module():
+>       from scripts.performance import linux_socket_ownership
+E       ImportError: cannot import name 'linux_socket_ownership' from 'scripts.performance' (C:\Users\bajra\OneDrive\Documents\NBSR\scripts\performance\__init__.py)
+
+tests\performance\test_linux_socket_ownership.py:9: ImportError
+_____________ test_unavailable_never_becomes_ownership_proof[fd] ______________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1110/test_unavailable_never_becomes4')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000021B5F3B9350>
+change = 'fd'
+
+    @pytest.mark.parametrize('change', ['pid', 'epoch', 'zombie', 'binary', 'fd', 'address', 'table'])
+    def test_unavailable_never_becomes_ownership_proof(tmp_path, monkeypatch, change):
+        base, links = fixture(tmp_path, monkeypatch)
+        if change == 'pid':
+            (base / 'stat').write_text(stat().replace('11 (', '12 ('))
+        elif change == 'epoch':
+            (base / 'stat').write_text(stat(4))
+        elif change == 'zombie':
+            (base / 'stat').write_text(stat().replace(' S ', ' Z '))
+        elif change == 'binary':
+            links['exe'] = '/tmp/other'
+        elif change == 'fd':
+            links['3'] = 'socket:[100]'
+        elif change == 'address':
+            (base / 'net' / 'udp').write_text(HEADER + ROW.replace('0100007F', '00000000'))
+        else:
+            (base / 'net' / 'udp').write_text('unrecognized')
+>       row = module().snapshot(11, 3, '/tmp/peer', '127.0.0.1', proc_root=tmp_path)
+              ^^^^^^^^
+
+tests\performance\test_linux_socket_ownership.py:53: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def module():
+>       from scripts.performance import linux_socket_ownership
+E       ImportError: cannot import name 'linux_socket_ownership' from 'scripts.performance' (C:\Users\bajra\OneDrive\Documents\NBSR\scripts\performance\__init__.py)
+
+tests\performance\test_linux_socket_ownership.py:9: ImportError
+___________ test_unavailable_never_becomes_ownership_proof[address] ___________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1110/test_unavailable_never_becomes5')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000021B5F3B9950>
+change = 'address'
+
+    @pytest.mark.parametrize('change', ['pid', 'epoch', 'zombie', 'binary', 'fd', 'address', 'table'])
+    def test_unavailable_never_becomes_ownership_proof(tmp_path, monkeypatch, change):
+        base, links = fixture(tmp_path, monkeypatch)
+        if change == 'pid':
+            (base / 'stat').write_text(stat().replace('11 (', '12 ('))
+        elif change == 'epoch':
+            (base / 'stat').write_text(stat(4))
+        elif change == 'zombie':
+            (base / 'stat').write_text(stat().replace(' S ', ' Z '))
+        elif change == 'binary':
+            links['exe'] = '/tmp/other'
+        elif change == 'fd':
+            links['3'] = 'socket:[100]'
+        elif change == 'address':
+            (base / 'net' / 'udp').write_text(HEADER + ROW.replace('0100007F', '00000000'))
+        else:
+            (base / 'net' / 'udp').write_text('unrecognized')
+>       row = module().snapshot(11, 3, '/tmp/peer', '127.0.0.1', proc_root=tmp_path)
+              ^^^^^^^^
+
+tests\performance\test_linux_socket_ownership.py:53: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def module():
+>       from scripts.performance import linux_socket_ownership
+E       ImportError: cannot import name 'linux_socket_ownership' from 'scripts.performance' (C:\Users\bajra\OneDrive\Documents\NBSR\scripts\performance\__init__.py)
+
+tests\performance\test_linux_socket_ownership.py:9: ImportError
+____________ test_unavailable_never_becomes_ownership_proof[table] ____________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1110/test_unavailable_never_becomes6')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000021B5F3B6F30>
+change = 'table'
+
+    @pytest.mark.parametrize('change', ['pid', 'epoch', 'zombie', 'binary', 'fd', 'address', 'table'])
+    def test_unavailable_never_becomes_ownership_proof(tmp_path, monkeypatch, change):
+        base, links = fixture(tmp_path, monkeypatch)
+        if change == 'pid':
+            (base / 'stat').write_text(stat().replace('11 (', '12 ('))
+        elif change == 'epoch':
+            (base / 'stat').write_text(stat(4))
+        elif change == 'zombie':
+            (base / 'stat').write_text(stat().replace(' S ', ' Z '))
+        elif change == 'binary':
+            links['exe'] = '/tmp/other'
+        elif change == 'fd':
+            links['3'] = 'socket:[100]'
+        elif change == 'address':
+            (base / 'net' / 'udp').write_text(HEADER + ROW.replace('0100007F', '00000000'))
+        else:
+            (base / 'net' / 'udp').write_text('unrecognized')
+>       row = module().snapshot(11, 3, '/tmp/peer', '127.0.0.1', proc_root=tmp_path)
+              ^^^^^^^^
+
+tests\performance\test_linux_socket_ownership.py:53: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def module():
+>       from scripts.performance import linux_socket_ownership
+E       ImportError: cannot import name 'linux_socket_ownership' from 'scripts.performance' (C:\Users\bajra\OneDrive\Documents\NBSR\scripts\performance\__init__.py)
+
+tests\performance\test_linux_socket_ownership.py:9: ImportError
+___________________ test_fd_change_during_snapshot_rejects ____________________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1110/test_fd_change_during_snapshot0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000021B5F3B7E30>
+
+    def test_fd_change_during_snapshot_rejects(tmp_path, monkeypatch):
+        fixture(tmp_path, monkeypatch)
+        original = os.readlink
+        count = 0
+        def changing(path):
+            nonlocal count
+            if path.name == '3':
+                count += 1
+                if count > 1:
+                    return 'socket:[100]'
+            return original(path)
+        monkeypatch.setattr(os, 'readlink', changing)
+>       assert module().snapshot(11, 3, '/tmp/peer', '127.0.0.1', proc_root=tmp_path)['status'] == 'UNAVAILABLE'
+               ^^^^^^^^
+
+tests\performance\test_linux_socket_ownership.py:71: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def module():
+>       from scripts.performance import linux_socket_ownership
+E       ImportError: cannot import name 'linux_socket_ownership' from 'scripts.performance' (C:\Users\bajra\OneDrive\Documents\NBSR\scripts\performance\__init__.py)
+
+tests\performance\test_linux_socket_ownership.py:9: ImportError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_linux_socket_ownership.py::test_live_socket_binding_and_exact_join
+FAILED tests/performance/test_linux_socket_ownership.py::test_unavailable_never_becomes_ownership_proof[pid]
+FAILED tests/performance/test_linux_socket_ownership.py::test_unavailable_never_becomes_ownership_proof[epoch]
+FAILED tests/performance/test_linux_socket_ownership.py::test_unavailable_never_becomes_ownership_proof[zombie]
+FAILED tests/performance/test_linux_socket_ownership.py::test_unavailable_never_becomes_ownership_proof[binary]
+FAILED tests/performance/test_linux_socket_ownership.py::test_unavailable_never_becomes_ownership_proof[fd]
+FAILED tests/performance/test_linux_socket_ownership.py::test_unavailable_never_becomes_ownership_proof[address]
+FAILED tests/performance/test_linux_socket_ownership.py::test_unavailable_never_becomes_ownership_proof[table]
+FAILED tests/performance/test_linux_socket_ownership.py::test_fd_change_during_snapshot_rejects
+9 failed in 0.95s

@@ -1,0 +1,23 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+______ test_pair_rejects_claimed_observer_without_retained_socket_proof _______
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1115/test_pair_rejects_claimed_obse0')
+
+    def test_pair_rejects_claimed_observer_without_retained_socket_proof(tmp_path):
+        from tests.performance.test_linux_native_pair import fixture, SHA, put
+        from scripts.performance.linux_b5_placement import seal_output
+        from scripts.performance.linux_native_pair import analyze_pair
+        source, destination = fixture(tmp_path)
+        for root in (source, destination):
+            env = json.loads((root / 'environment.json').read_text())
+            put(root, 'environment.json', env | {'live_socket_observer': True})
+            seal_output(root)
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_linux_socket_ownership.py:137: Failed
+=========================== short test summary info ===========================
+FAILED tests/performance/test_linux_socket_ownership.py::test_pair_rejects_claimed_observer_without_retained_socket_proof
+1 failed, 16 deselected in 1.06s

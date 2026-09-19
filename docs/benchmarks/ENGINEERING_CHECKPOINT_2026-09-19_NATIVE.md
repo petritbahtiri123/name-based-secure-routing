@@ -1,6 +1,14 @@
 # September 19 native packet and reliability continuation
 
 **MORE ENGINEERING REQUIRED. No final funding freeze or new stable ceiling.**
+
+Subsequent bounded continuation at `11677eca` completes live socket-binding
+validation: ten Direct/NBSR cells, twenty exact captured-endpoint/PID/start-epoch/
+binary/FD joins and eighty rejected wrong-identity/port controls. Both peers run
+without root. Ninety focused tests and the five-pair cohort gate pass. This closes
+point-in-time local binding attribution for the tested 1 KiB/64-stream workload;
+exclusive/continuous whole-flow ownership, phase separation and physical hardware
+remain unproven. See [the observer runbook and evidence](EXTERNAL_NATIVE_SOCKET_OWNERSHIP.md).
 Continuation starts at 7682846ecb1bbbadc382b8331af7c4072b531c6f. All changes
 are on codex/nbsr-v3-wp0-wp1; protected main/origin-main remain
 1938154d498b32d81a3564319969430644e8a688. No push or merge.
@@ -57,7 +65,7 @@ setup, untimed validation, ACK and teardown; they are not pure protocol overhead
 physical wire cost or performance gains. Negative deltas do not prove compression.
 See [all paired measurements](../../evidence/performance/v2/native-wire-ec255c18/paired-accounting.json).
 
-Native phase separation and live process/socket flow ownership remain unproven.
+Native phase separation and continuous/exclusive whole-flow ownership remain unproven.
 Physical server/NIC validation is EXTERNAL_HARDWARE_REQUIRED. External admission,
 memory and sustained-soak matrix porting still needs work. No qualified 60/120
 minute near-ceiling soak, final current-source capacity or hardware ceiling is
@@ -88,7 +96,7 @@ per-cell offload state, peer outputs and checksums are retained. A native captur
 cohort is still PARTIAL with respect to the full B1/external validation program.
 
 No benchmark remains intentionally running at this checkpoint. The next bounded
-native-wire tasks are flow ownership and phase separation, followed by external
+native-wire tasks are phase separation and any further justified whole-flow attribution, followed by external
 physical-host validation. Admission, memory retention and sustained-soak gaps
 remain separate work; completing this cohort does not close the whole mission.
 

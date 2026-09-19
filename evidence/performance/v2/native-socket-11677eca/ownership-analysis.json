@@ -1,0 +1,1182 @@
+[
+  {
+    "cell": "p1024-s64-direct-r1-udpseg-off",
+    "role": "source",
+    "observed": {
+      "binary": "/tmp/binaries/perf_direct_peer",
+      "finished_ns": 119974293776,
+      "network_namespace": "net:[4026532394]",
+      "pid": 112,
+      "schema": "nbsr-linux-live-socket-v1",
+      "scope": "Live FD binding during this observation only; not exclusive ownership, whole-flow continuity, remote-peer identity or cleanup proof",
+      "sockets": [
+        {
+          "fd": 6,
+          "inode": 16416,
+          "local": [
+            "172.26.0.2",
+            41452
+          ]
+        }
+      ],
+      "start_ticks": 11996,
+      "started_ns": 119973223043,
+      "status": "MEASURED_LIVE_SOCKET_SNAPSHOT"
+    },
+    "captured_local": [
+      "172.26.0.2",
+      41452
+    ],
+    "negative_controls": [
+      {
+        "change": {
+          "pid": 113
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "start_ticks": 11997
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "binary": "/tmp/binaries/perf_direct_peer-wrong"
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "local": [
+            "172.26.0.2",
+            41453
+          ]
+        },
+        "status": "REJECTED"
+      }
+    ],
+    "status": "MEASURED_POINT_IN_TIME_BINDING"
+  },
+  {
+    "cell": "p1024-s64-direct-r1-udpseg-off",
+    "role": "destination",
+    "observed": {
+      "binary": "/tmp/binaries/perf_direct_peer",
+      "finished_ns": 116609306816,
+      "network_namespace": "net:[4026532470]",
+      "pid": 85,
+      "schema": "nbsr-linux-live-socket-v1",
+      "scope": "Live FD binding during this observation only; not exclusive ownership, whole-flow continuity, remote-peer identity or cleanup proof",
+      "sockets": [
+        {
+          "fd": 6,
+          "inode": 10217,
+          "local": [
+            "172.26.0.3",
+            41732
+          ]
+        }
+      ],
+      "start_ticks": 11659,
+      "started_ns": 116607635064,
+      "status": "MEASURED_LIVE_SOCKET_SNAPSHOT"
+    },
+    "captured_local": [
+      "172.26.0.3",
+      41732
+    ],
+    "negative_controls": [
+      {
+        "change": {
+          "pid": 86
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "start_ticks": 11660
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "binary": "/tmp/binaries/perf_direct_peer-wrong"
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "local": [
+            "172.26.0.3",
+            41733
+          ]
+        },
+        "status": "REJECTED"
+      }
+    ],
+    "status": "MEASURED_POINT_IN_TIME_BINDING"
+  },
+  {
+    "cell": "p1024-s64-nbsr-r1-udpseg-off",
+    "role": "source",
+    "observed": {
+      "binary": "/tmp/binaries/perf_rust_source",
+      "finished_ns": 144263522506,
+      "network_namespace": "net:[4026532394]",
+      "pid": 244,
+      "schema": "nbsr-linux-live-socket-v1",
+      "scope": "Live FD binding during this observation only; not exclusive ownership, whole-flow continuity, remote-peer identity or cleanup proof",
+      "sockets": [
+        {
+          "fd": 6,
+          "inode": 16647,
+          "local": [
+            "172.26.0.2",
+            40971
+          ]
+        }
+      ],
+      "start_ticks": 14425,
+      "started_ns": 144262812566,
+      "status": "MEASURED_LIVE_SOCKET_SNAPSHOT"
+    },
+    "captured_local": [
+      "172.26.0.2",
+      40971
+    ],
+    "negative_controls": [
+      {
+        "change": {
+          "pid": 245
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "start_ticks": 14426
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "binary": "/tmp/binaries/perf_rust_source-wrong"
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "local": [
+            "172.26.0.2",
+            40972
+          ]
+        },
+        "status": "REJECTED"
+      }
+    ],
+    "status": "MEASURED_POINT_IN_TIME_BINDING"
+  },
+  {
+    "cell": "p1024-s64-nbsr-r1-udpseg-off",
+    "role": "destination",
+    "observed": {
+      "binary": "/tmp/binaries/wp8_interop_server",
+      "finished_ns": 141555443826,
+      "network_namespace": "net:[4026532470]",
+      "pid": 160,
+      "schema": "nbsr-linux-live-socket-v1",
+      "scope": "Live FD binding during this observation only; not exclusive ownership, whole-flow continuity, remote-peer identity or cleanup proof",
+      "sockets": [
+        {
+          "fd": 6,
+          "inode": 16619,
+          "local": [
+            "172.26.0.3",
+            49085
+          ]
+        }
+      ],
+      "start_ticks": 14154,
+      "started_ns": 141554135054,
+      "status": "MEASURED_LIVE_SOCKET_SNAPSHOT"
+    },
+    "captured_local": [
+      "172.26.0.3",
+      49085
+    ],
+    "negative_controls": [
+      {
+        "change": {
+          "pid": 161
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "start_ticks": 14155
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "binary": "/tmp/binaries/wp8_interop_server-wrong"
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "local": [
+            "172.26.0.3",
+            49086
+          ]
+        },
+        "status": "REJECTED"
+      }
+    ],
+    "status": "MEASURED_POINT_IN_TIME_BINDING"
+  },
+  {
+    "cell": "p1024-s64-nbsr-r2-udpseg-off",
+    "role": "source",
+    "observed": {
+      "binary": "/tmp/binaries/perf_rust_source",
+      "finished_ns": 163243815506,
+      "network_namespace": "net:[4026532394]",
+      "pid": 375,
+      "schema": "nbsr-linux-live-socket-v1",
+      "scope": "Live FD binding during this observation only; not exclusive ownership, whole-flow continuity, remote-peer identity or cleanup proof",
+      "sockets": [
+        {
+          "fd": 6,
+          "inode": 16927,
+          "local": [
+            "172.26.0.2",
+            47393
+          ]
+        }
+      ],
+      "start_ticks": 16323,
+      "started_ns": 163243165736,
+      "status": "MEASURED_LIVE_SOCKET_SNAPSHOT"
+    },
+    "captured_local": [
+      "172.26.0.2",
+      47393
+    ],
+    "negative_controls": [
+      {
+        "change": {
+          "pid": 376
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "start_ticks": 16324
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "binary": "/tmp/binaries/perf_rust_source-wrong"
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "local": [
+            "172.26.0.2",
+            47394
+          ]
+        },
+        "status": "REJECTED"
+      }
+    ],
+    "status": "MEASURED_POINT_IN_TIME_BINDING"
+  },
+  {
+    "cell": "p1024-s64-nbsr-r2-udpseg-off",
+    "role": "destination",
+    "observed": {
+      "binary": "/tmp/binaries/wp8_interop_server",
+      "finished_ns": 160872428019,
+      "network_namespace": "net:[4026532470]",
+      "pid": 233,
+      "schema": "nbsr-linux-live-socket-v1",
+      "scope": "Live FD binding during this observation only; not exclusive ownership, whole-flow continuity, remote-peer identity or cleanup proof",
+      "sockets": [
+        {
+          "fd": 6,
+          "inode": 16894,
+          "local": [
+            "172.26.0.3",
+            49553
+          ]
+        }
+      ],
+      "start_ticks": 16086,
+      "started_ns": 160871553524,
+      "status": "MEASURED_LIVE_SOCKET_SNAPSHOT"
+    },
+    "captured_local": [
+      "172.26.0.3",
+      49553
+    ],
+    "negative_controls": [
+      {
+        "change": {
+          "pid": 234
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "start_ticks": 16087
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "binary": "/tmp/binaries/wp8_interop_server-wrong"
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "local": [
+            "172.26.0.3",
+            49554
+          ]
+        },
+        "status": "REJECTED"
+      }
+    ],
+    "status": "MEASURED_POINT_IN_TIME_BINDING"
+  },
+  {
+    "cell": "p1024-s64-direct-r2-udpseg-off",
+    "role": "source",
+    "observed": {
+      "binary": "/tmp/binaries/perf_direct_peer",
+      "finished_ns": 182447548764,
+      "network_namespace": "net:[4026532394]",
+      "pid": 508,
+      "schema": "nbsr-linux-live-socket-v1",
+      "scope": "Live FD binding during this observation only; not exclusive ownership, whole-flow continuity, remote-peer identity or cleanup proof",
+      "sockets": [
+        {
+          "fd": 6,
+          "inode": 17175,
+          "local": [
+            "172.26.0.2",
+            43653
+          ]
+        }
+      ],
+      "start_ticks": 18243,
+      "started_ns": 182446418616,
+      "status": "MEASURED_LIVE_SOCKET_SNAPSHOT"
+    },
+    "captured_local": [
+      "172.26.0.2",
+      43653
+    ],
+    "negative_controls": [
+      {
+        "change": {
+          "pid": 509
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "start_ticks": 18244
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "binary": "/tmp/binaries/perf_direct_peer-wrong"
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "local": [
+            "172.26.0.2",
+            43654
+          ]
+        },
+        "status": "REJECTED"
+      }
+    ],
+    "status": "MEASURED_POINT_IN_TIME_BINDING"
+  },
+  {
+    "cell": "p1024-s64-direct-r2-udpseg-off",
+    "role": "destination",
+    "observed": {
+      "binary": "/tmp/binaries/perf_direct_peer",
+      "finished_ns": 180200180238,
+      "network_namespace": "net:[4026532470]",
+      "pid": 306,
+      "schema": "nbsr-linux-live-socket-v1",
+      "scope": "Live FD binding during this observation only; not exclusive ownership, whole-flow continuity, remote-peer identity or cleanup proof",
+      "sockets": [
+        {
+          "fd": 6,
+          "inode": 17155,
+          "local": [
+            "172.26.0.3",
+            59596
+          ]
+        }
+      ],
+      "start_ticks": 18018,
+      "started_ns": 180199207933,
+      "status": "MEASURED_LIVE_SOCKET_SNAPSHOT"
+    },
+    "captured_local": [
+      "172.26.0.3",
+      59596
+    ],
+    "negative_controls": [
+      {
+        "change": {
+          "pid": 307
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "start_ticks": 18019
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "binary": "/tmp/binaries/perf_direct_peer-wrong"
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "local": [
+            "172.26.0.3",
+            59597
+          ]
+        },
+        "status": "REJECTED"
+      }
+    ],
+    "status": "MEASURED_POINT_IN_TIME_BINDING"
+  },
+  {
+    "cell": "p1024-s64-direct-r3-udpseg-off",
+    "role": "source",
+    "observed": {
+      "binary": "/tmp/binaries/perf_direct_peer",
+      "finished_ns": 201417284346,
+      "network_namespace": "net:[4026532394]",
+      "pid": 639,
+      "schema": "nbsr-linux-live-socket-v1",
+      "scope": "Live FD binding during this observation only; not exclusive ownership, whole-flow continuity, remote-peer identity or cleanup proof",
+      "sockets": [
+        {
+          "fd": 6,
+          "inode": 25697,
+          "local": [
+            "172.26.0.2",
+            46474
+          ]
+        }
+      ],
+      "start_ticks": 20140,
+      "started_ns": 201416516210,
+      "status": "MEASURED_LIVE_SOCKET_SNAPSHOT"
+    },
+    "captured_local": [
+      "172.26.0.2",
+      46474
+    ],
+    "negative_controls": [
+      {
+        "change": {
+          "pid": 640
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "start_ticks": 20141
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "binary": "/tmp/binaries/perf_direct_peer-wrong"
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "local": [
+            "172.26.0.2",
+            46475
+          ]
+        },
+        "status": "REJECTED"
+      }
+    ],
+    "status": "MEASURED_POINT_IN_TIME_BINDING"
+  },
+  {
+    "cell": "p1024-s64-direct-r3-udpseg-off",
+    "role": "destination",
+    "observed": {
+      "binary": "/tmp/binaries/perf_direct_peer",
+      "finished_ns": 199002981169,
+      "network_namespace": "net:[4026532470]",
+      "pid": 381,
+      "schema": "nbsr-linux-live-socket-v1",
+      "scope": "Live FD binding during this observation only; not exclusive ownership, whole-flow continuity, remote-peer identity or cleanup proof",
+      "sockets": [
+        {
+          "fd": 6,
+          "inode": 25638,
+          "local": [
+            "172.26.0.3",
+            33755
+          ]
+        }
+      ],
+      "start_ticks": 19899,
+      "started_ns": 199001494483,
+      "status": "MEASURED_LIVE_SOCKET_SNAPSHOT"
+    },
+    "captured_local": [
+      "172.26.0.3",
+      33755
+    ],
+    "negative_controls": [
+      {
+        "change": {
+          "pid": 382
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "start_ticks": 19900
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "binary": "/tmp/binaries/perf_direct_peer-wrong"
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "local": [
+            "172.26.0.3",
+            33756
+          ]
+        },
+        "status": "REJECTED"
+      }
+    ],
+    "status": "MEASURED_POINT_IN_TIME_BINDING"
+  },
+  {
+    "cell": "p1024-s64-nbsr-r3-udpseg-off",
+    "role": "source",
+    "observed": {
+      "binary": "/tmp/binaries/perf_rust_source",
+      "finished_ns": 220190151479,
+      "network_namespace": "net:[4026532394]",
+      "pid": 770,
+      "schema": "nbsr-linux-live-socket-v1",
+      "scope": "Live FD binding during this observation only; not exclusive ownership, whole-flow continuity, remote-peer identity or cleanup proof",
+      "sockets": [
+        {
+          "fd": 6,
+          "inode": 25997,
+          "local": [
+            "172.26.0.2",
+            36971
+          ]
+        }
+      ],
+      "start_ticks": 22018,
+      "started_ns": 220189225939,
+      "status": "MEASURED_LIVE_SOCKET_SNAPSHOT"
+    },
+    "captured_local": [
+      "172.26.0.2",
+      36971
+    ],
+    "negative_controls": [
+      {
+        "change": {
+          "pid": 771
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "start_ticks": 22019
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "binary": "/tmp/binaries/perf_rust_source-wrong"
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "local": [
+            "172.26.0.2",
+            36972
+          ]
+        },
+        "status": "REJECTED"
+      }
+    ],
+    "status": "MEASURED_POINT_IN_TIME_BINDING"
+  },
+  {
+    "cell": "p1024-s64-nbsr-r3-udpseg-off",
+    "role": "destination",
+    "observed": {
+      "binary": "/tmp/binaries/wp8_interop_server",
+      "finished_ns": 217861773863,
+      "network_namespace": "net:[4026532470]",
+      "pid": 456,
+      "schema": "nbsr-linux-live-socket-v1",
+      "scope": "Live FD binding during this observation only; not exclusive ownership, whole-flow continuity, remote-peer identity or cleanup proof",
+      "sockets": [
+        {
+          "fd": 6,
+          "inode": 25959,
+          "local": [
+            "172.26.0.3",
+            55229
+          ]
+        }
+      ],
+      "start_ticks": 21785,
+      "started_ns": 217860761619,
+      "status": "MEASURED_LIVE_SOCKET_SNAPSHOT"
+    },
+    "captured_local": [
+      "172.26.0.3",
+      55229
+    ],
+    "negative_controls": [
+      {
+        "change": {
+          "pid": 457
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "start_ticks": 21786
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "binary": "/tmp/binaries/wp8_interop_server-wrong"
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "local": [
+            "172.26.0.3",
+            55230
+          ]
+        },
+        "status": "REJECTED"
+      }
+    ],
+    "status": "MEASURED_POINT_IN_TIME_BINDING"
+  },
+  {
+    "cell": "p1024-s64-nbsr-r4-udpseg-off",
+    "role": "source",
+    "observed": {
+      "binary": "/tmp/binaries/perf_rust_source",
+      "finished_ns": 238776462173,
+      "network_namespace": "net:[4026532394]",
+      "pid": 901,
+      "schema": "nbsr-linux-live-socket-v1",
+      "scope": "Live FD binding during this observation only; not exclusive ownership, whole-flow continuity, remote-peer identity or cleanup proof",
+      "sockets": [
+        {
+          "fd": 6,
+          "inode": 26333,
+          "local": [
+            "172.26.0.2",
+            48954
+          ]
+        }
+      ],
+      "start_ticks": 23876,
+      "started_ns": 238775563932,
+      "status": "MEASURED_LIVE_SOCKET_SNAPSHOT"
+    },
+    "captured_local": [
+      "172.26.0.2",
+      48954
+    ],
+    "negative_controls": [
+      {
+        "change": {
+          "pid": 902
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "start_ticks": 23877
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "binary": "/tmp/binaries/perf_rust_source-wrong"
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "local": [
+            "172.26.0.2",
+            48955
+          ]
+        },
+        "status": "REJECTED"
+      }
+    ],
+    "status": "MEASURED_POINT_IN_TIME_BINDING"
+  },
+  {
+    "cell": "p1024-s64-nbsr-r4-udpseg-off",
+    "role": "destination",
+    "observed": {
+      "binary": "/tmp/binaries/wp8_interop_server",
+      "finished_ns": 236487510129,
+      "network_namespace": "net:[4026532470]",
+      "pid": 529,
+      "schema": "nbsr-linux-live-socket-v1",
+      "scope": "Live FD binding during this observation only; not exclusive ownership, whole-flow continuity, remote-peer identity or cleanup proof",
+      "sockets": [
+        {
+          "fd": 6,
+          "inode": 26189,
+          "local": [
+            "172.26.0.3",
+            51883
+          ]
+        }
+      ],
+      "start_ticks": 23647,
+      "started_ns": 236486641190,
+      "status": "MEASURED_LIVE_SOCKET_SNAPSHOT"
+    },
+    "captured_local": [
+      "172.26.0.3",
+      51883
+    ],
+    "negative_controls": [
+      {
+        "change": {
+          "pid": 530
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "start_ticks": 23648
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "binary": "/tmp/binaries/wp8_interop_server-wrong"
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "local": [
+            "172.26.0.3",
+            51884
+          ]
+        },
+        "status": "REJECTED"
+      }
+    ],
+    "status": "MEASURED_POINT_IN_TIME_BINDING"
+  },
+  {
+    "cell": "p1024-s64-direct-r4-udpseg-off",
+    "role": "source",
+    "observed": {
+      "binary": "/tmp/binaries/perf_direct_peer",
+      "finished_ns": 257528708358,
+      "network_namespace": "net:[4026532394]",
+      "pid": 1033,
+      "schema": "nbsr-linux-live-socket-v1",
+      "scope": "Live FD binding during this observation only; not exclusive ownership, whole-flow continuity, remote-peer identity or cleanup proof",
+      "sockets": [
+        {
+          "fd": 6,
+          "inode": 26573,
+          "local": [
+            "172.26.0.2",
+            50813
+          ]
+        }
+      ],
+      "start_ticks": 25752,
+      "started_ns": 257527890720,
+      "status": "MEASURED_LIVE_SOCKET_SNAPSHOT"
+    },
+    "captured_local": [
+      "172.26.0.2",
+      50813
+    ],
+    "negative_controls": [
+      {
+        "change": {
+          "pid": 1034
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "start_ticks": 25753
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "binary": "/tmp/binaries/perf_direct_peer-wrong"
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "local": [
+            "172.26.0.2",
+            50814
+          ]
+        },
+        "status": "REJECTED"
+      }
+    ],
+    "status": "MEASURED_POINT_IN_TIME_BINDING"
+  },
+  {
+    "cell": "p1024-s64-direct-r4-udpseg-off",
+    "role": "destination",
+    "observed": {
+      "binary": "/tmp/binaries/perf_direct_peer",
+      "finished_ns": 255362749288,
+      "network_namespace": "net:[4026532470]",
+      "pid": 602,
+      "schema": "nbsr-linux-live-socket-v1",
+      "scope": "Live FD binding during this observation only; not exclusive ownership, whole-flow continuity, remote-peer identity or cleanup proof",
+      "sockets": [
+        {
+          "fd": 6,
+          "inode": 26436,
+          "local": [
+            "172.26.0.3",
+            60882
+          ]
+        }
+      ],
+      "start_ticks": 25525,
+      "started_ns": 255362109459,
+      "status": "MEASURED_LIVE_SOCKET_SNAPSHOT"
+    },
+    "captured_local": [
+      "172.26.0.3",
+      60882
+    ],
+    "negative_controls": [
+      {
+        "change": {
+          "pid": 603
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "start_ticks": 25526
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "binary": "/tmp/binaries/perf_direct_peer-wrong"
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "local": [
+            "172.26.0.3",
+            60883
+          ]
+        },
+        "status": "REJECTED"
+      }
+    ],
+    "status": "MEASURED_POINT_IN_TIME_BINDING"
+  },
+  {
+    "cell": "p1024-s64-direct-r5-udpseg-off",
+    "role": "source",
+    "observed": {
+      "binary": "/tmp/binaries/perf_direct_peer",
+      "finished_ns": 276575409429,
+      "network_namespace": "net:[4026532394]",
+      "pid": 1164,
+      "schema": "nbsr-linux-live-socket-v1",
+      "scope": "Live FD binding during this observation only; not exclusive ownership, whole-flow continuity, remote-peer identity or cleanup proof",
+      "sockets": [
+        {
+          "fd": 6,
+          "inode": 33957,
+          "local": [
+            "172.26.0.2",
+            55676
+          ]
+        }
+      ],
+      "start_ticks": 27656,
+      "started_ns": 276574699239,
+      "status": "MEASURED_LIVE_SOCKET_SNAPSHOT"
+    },
+    "captured_local": [
+      "172.26.0.2",
+      55676
+    ],
+    "negative_controls": [
+      {
+        "change": {
+          "pid": 1165
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "start_ticks": 27657
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "binary": "/tmp/binaries/perf_direct_peer-wrong"
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "local": [
+            "172.26.0.2",
+            55677
+          ]
+        },
+        "status": "REJECTED"
+      }
+    ],
+    "status": "MEASURED_POINT_IN_TIME_BINDING"
+  },
+  {
+    "cell": "p1024-s64-direct-r5-udpseg-off",
+    "role": "destination",
+    "observed": {
+      "binary": "/tmp/binaries/perf_direct_peer",
+      "finished_ns": 274264749116,
+      "network_namespace": "net:[4026532470]",
+      "pid": 678,
+      "schema": "nbsr-linux-live-socket-v1",
+      "scope": "Live FD binding during this observation only; not exclusive ownership, whole-flow continuity, remote-peer identity or cleanup proof",
+      "sockets": [
+        {
+          "fd": 6,
+          "inode": 33930,
+          "local": [
+            "172.26.0.3",
+            37957
+          ]
+        }
+      ],
+      "start_ticks": 27425,
+      "started_ns": 274263828129,
+      "status": "MEASURED_LIVE_SOCKET_SNAPSHOT"
+    },
+    "captured_local": [
+      "172.26.0.3",
+      37957
+    ],
+    "negative_controls": [
+      {
+        "change": {
+          "pid": 679
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "start_ticks": 27426
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "binary": "/tmp/binaries/perf_direct_peer-wrong"
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "local": [
+            "172.26.0.3",
+            37958
+          ]
+        },
+        "status": "REJECTED"
+      }
+    ],
+    "status": "MEASURED_POINT_IN_TIME_BINDING"
+  },
+  {
+    "cell": "p1024-s64-nbsr-r5-udpseg-off",
+    "role": "source",
+    "observed": {
+      "binary": "/tmp/binaries/perf_rust_source",
+      "finished_ns": 295570144921,
+      "network_namespace": "net:[4026532394]",
+      "pid": 1295,
+      "schema": "nbsr-linux-live-socket-v1",
+      "scope": "Live FD binding during this observation only; not exclusive ownership, whole-flow continuity, remote-peer identity or cleanup proof",
+      "sockets": [
+        {
+          "fd": 6,
+          "inode": 34068,
+          "local": [
+            "172.26.0.2",
+            60389
+          ]
+        }
+      ],
+      "start_ticks": 29556,
+      "started_ns": 295569496693,
+      "status": "MEASURED_LIVE_SOCKET_SNAPSHOT"
+    },
+    "captured_local": [
+      "172.26.0.2",
+      60389
+    ],
+    "negative_controls": [
+      {
+        "change": {
+          "pid": 1296
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "start_ticks": 29557
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "binary": "/tmp/binaries/perf_rust_source-wrong"
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "local": [
+            "172.26.0.2",
+            60390
+          ]
+        },
+        "status": "REJECTED"
+      }
+    ],
+    "status": "MEASURED_POINT_IN_TIME_BINDING"
+  },
+  {
+    "cell": "p1024-s64-nbsr-r5-udpseg-off",
+    "role": "destination",
+    "observed": {
+      "binary": "/tmp/binaries/wp8_interop_server",
+      "finished_ns": 293199188069,
+      "network_namespace": "net:[4026532470]",
+      "pid": 753,
+      "schema": "nbsr-linux-live-socket-v1",
+      "scope": "Live FD binding during this observation only; not exclusive ownership, whole-flow continuity, remote-peer identity or cleanup proof",
+      "sockets": [
+        {
+          "fd": 6,
+          "inode": 34048,
+          "local": [
+            "172.26.0.3",
+            59005
+          ]
+        }
+      ],
+      "start_ticks": 29319,
+      "started_ns": 293198223827,
+      "status": "MEASURED_LIVE_SOCKET_SNAPSHOT"
+    },
+    "captured_local": [
+      "172.26.0.3",
+      59005
+    ],
+    "negative_controls": [
+      {
+        "change": {
+          "pid": 754
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "start_ticks": 29320
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "binary": "/tmp/binaries/wp8_interop_server-wrong"
+        },
+        "status": "REJECTED"
+      },
+      {
+        "change": {
+          "local": [
+            "172.26.0.3",
+            59006
+          ]
+        },
+        "status": "REJECTED"
+      }
+    ],
+    "status": "MEASURED_POINT_IN_TIME_BINDING"
+  }
+]

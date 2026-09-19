@@ -1,0 +1,20 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+____________ test_comparison_identity_distinguishes_live_observer _____________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1113/test_comparison_identity_disti0')
+
+    def test_comparison_identity_distinguishes_live_observer(tmp_path):
+        from tests.performance.test_linux_native_pair import fixture
+        from scripts.performance.linux_native_cohort import comparison_identity
+        source, _ = fixture(tmp_path)
+        env = json.loads((source / 'environment.json').read_text())
+>       assert comparison_identity(env) != comparison_identity(env | {'live_socket_observer': True})
+E       AssertionError: assert {'binary_sha256': {'perf_direct_peer': '1d1aaf8923f973ae8a33fa00e9093e98bc4014f56a32f56899f84a05d889c213', 'perf_rust_...ccccccccccccc'}, 'cgroup': {'cpu.max': None, 'cpuset.cpus.effective': None, 'memory.max': None, 'pids.max': None}, ...} != {'binary_sha256': {'perf_direct_peer': '1d1aaf8923f973ae8a33fa00e9093e98bc4014f56a32f56899f84a05d889c213', 'perf_rust_...ccccccccccccc'}, 'cgroup': {'cpu.max': None, 'cpuset.cpus.effective': None, 'memory.max': None, 'pids.max': None}, ...}
+E        +  where {'binary_sha256': {'perf_direct_peer': '1d1aaf8923f973ae8a33fa00e9093e98bc4014f56a32f56899f84a05d889c213', 'perf_rust_...ccccccccccccc'}, 'cgroup': {'cpu.max': None, 'cpuset.cpus.effective': None, 'memory.max': None, 'pids.max': None}, ...} = <function comparison_identity at 0x00000261F3E156F0>({'binary_sha256': {'perf_direct_peer': '1d1aaf8923f973ae8a33fa00e9093e98bc4014f56a32f56899f84a05d889c213', 'perf_rust_...bbbbbbbbbbbbbbbbbbbbbbbbbbbbb', 'source.der': 'cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc'}, ...})
+E        +  and   {'binary_sha256': {'perf_direct_peer': '1d1aaf8923f973ae8a33fa00e9093e98bc4014f56a32f56899f84a05d889c213', 'perf_rust_...ccccccccccccc'}, 'cgroup': {'cpu.max': None, 'cpuset.cpus.effective': None, 'memory.max': None, 'pids.max': None}, ...} = <function comparison_identity at 0x00000261F3E156F0>(({'binary_sha256': {'perf_direct_peer': '1d1aaf8923f973ae8a33fa00e9093e98bc4014f56a32f56899f84a05d889c213', 'perf_rust_...bbbbbbbbbbbbbbbbbbbbbbbbbbbbb', 'source.der': 'cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc'}, ...} | {'live_socket_observer': True}))
+
+tests\performance\test_linux_socket_ownership.py:125: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_linux_socket_ownership.py::test_comparison_identity_distinguishes_live_observer
+1 failed, 15 deselected in 0.99s

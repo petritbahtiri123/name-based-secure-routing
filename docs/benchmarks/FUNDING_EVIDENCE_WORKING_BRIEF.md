@@ -9,6 +9,10 @@ Latest native-packet/reliability continuation: see the
 Native equal-work peers, bounded packet accounting and capture cleanup now have
 retained positive/negative evidence. These are harness and reproducibility
 improvements, not new production capacity or a completed funding freeze.
+The `11677eca` follow-up also confirms twenty point-in-time native socket-to-peer
+bindings across ten captured Direct/NBSR cells; eighty wrong-identity/port joins
+reject. This is local attribution evidence, not continuous exclusive ownership,
+physical-wire validation or a new throughput claim.
 
 NBSR is being evaluated as a secure route to an isolated private origin. The
 accepted PoC connects a client through non-frozen ISP adapters, the unchanged

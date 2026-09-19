@@ -1,0 +1,6 @@
+{
+  "source_sha": "11677eca",
+  "design": "Five counterbalanced Direct/NBSR pairs, 1 KiB, 64 streams, 1000 operations/stream, zero warmup, depth one; both peer wrappers opt into bounded live socket observation; exact capture local endpoints will be joined to owned PID/start-epoch/executable/FD/inode snapshots",
+  "scope": "Live binding mechanics with packet capture; not continuous exclusive ownership or performance; stop on invalid cell, no replacement",
+  "environment": "Two internal Docker network namespaces, nonroot benchmark peers, only private veth UDP segmentation off; retained capture marker and zero-loss gates unchanged"
+}
