@@ -1,0 +1,90 @@
+{
+  "classification": "MEASURED_SCOPED_UDP_SEGMENTATION_REPRESENTATION_EFFECT",
+  "diagnostic": [
+    {
+      "repeat": 1,
+      "udp_segmentation": "on",
+      "valid": false,
+      "representation": {
+        "packet_count": 14515,
+        "max_ip_length": 14548,
+        "above_1500": 10635,
+        "declared_mtu": 1500,
+        "capture_exit_code": 1,
+        "udp_segmentation": "on"
+      }
+    },
+    {
+      "repeat": 1,
+      "udp_segmentation": "off",
+      "valid": true,
+      "representation": {
+        "packet_count": 101768,
+        "max_ip_length": 1480,
+        "above_1500": 0,
+        "declared_mtu": 1500,
+        "capture_exit_code": 0,
+        "udp_segmentation": "off"
+      }
+    },
+    {
+      "repeat": 2,
+      "udp_segmentation": "off",
+      "valid": true,
+      "representation": {
+        "packet_count": 101962,
+        "max_ip_length": 1480,
+        "above_1500": 0,
+        "declared_mtu": 1500,
+        "capture_exit_code": 0,
+        "udp_segmentation": "off"
+      }
+    },
+    {
+      "repeat": 2,
+      "udp_segmentation": "on",
+      "valid": false,
+      "representation": {
+        "packet_count": 14237,
+        "max_ip_length": 14548,
+        "above_1500": 10453,
+        "declared_mtu": 1500,
+        "capture_exit_code": 1,
+        "udp_segmentation": "on"
+      }
+    },
+    {
+      "repeat": 3,
+      "udp_segmentation": "on",
+      "valid": false,
+      "representation": {
+        "packet_count": 14380,
+        "max_ip_length": 14548,
+        "above_1500": 10599,
+        "declared_mtu": 1500,
+        "capture_exit_code": 1,
+        "udp_segmentation": "on"
+      }
+    },
+    {
+      "repeat": 3,
+      "udp_segmentation": "off",
+      "valid": true,
+      "representation": {
+        "packet_count": 101908,
+        "max_ip_length": 1480,
+        "above_1500": 0,
+        "declared_mtu": 1500,
+        "capture_exit_code": 0,
+        "udp_segmentation": "off"
+      }
+    }
+  ],
+  "formal_classification": "INVALID_PARTIAL_DISK_RESERVE",
+  "formal_complete_cells": 3,
+  "formal_pairs_accepted": 0,
+  "physical_wire": "NOT_PROVEN",
+  "production_capacity": "NOT_PROVEN",
+  "ownership": "NOT_PROVEN",
+  "established_phase": "NOT_PROVEN"
+}

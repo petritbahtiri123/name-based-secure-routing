@@ -1,0 +1,5 @@
+native-packet-20cd17fc {"canonical": 9, "privacy": 10, "raw": 50} PASS
+native-fixed-6b06fb08 {"canonical": 8, "privacy": 9, "raw": 665} PASS
+capture-reap-72b7295b {"canonical": 7, "privacy": 8, "raw": 56} PASS
+native-markers-98484de8 {"canonical": 6, "privacy": 7, "raw": 43} PASS
+native-capture-c4a4cd08 {"canonical": 10, "privacy": 11, "raw": 222} PASS

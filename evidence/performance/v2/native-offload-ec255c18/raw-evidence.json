@@ -1,0 +1,22 @@
+[
+  {
+    "root": "C:\\NBSR-build\\offload-tooling-db7edb19",
+    "index_sha256": "2467e3de687ae9d3669c5a7a515e9e3c4df057836d8d8de150a3ed56fb6079b5"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-current-db7edb19",
+    "index_sha256": "3554711355ee7b6934c696c3fb94737b727dc8036f8caee7acacebdb49652af5"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-offload-db7edb19",
+    "index_sha256": "d84aa51d11d4ccc6d990e45662e064ece237edbf890e0d8db913879c6ba5944d"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-current-ec255c18",
+    "index_sha256": "cdcc1777151124c980de4f87807f3553dc005abd3a93e5dd0c457440e939ecf2"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-offload-ec255c18",
+    "index_sha256": "5b1e86d0fdc25e0afc3983923f99b843ee65642c0abaa8dd9d1d1f813c6e1084"
+  }
+]

@@ -1,0 +1,14 @@
+{
+  "names": [
+    "nbsr-native-source-fixed-6b06fb08",
+    "nbsr-native-destination-fixed-6b06fb08",
+    "nbsr-native-source-capture-ba9e844a",
+    "nbsr-native-destination-capture-ba9e844a",
+    "nbsr-native-source-offload-db7edb19",
+    "nbsr-native-destination-offload-db7edb19"
+  ],
+  "removed_writable_bytes": 2691866624,
+  "stdout": "nbsr-native-source-fixed-6b06fb08\nnbsr-native-destination-fixed-6b06fb08\nnbsr-native-source-capture-ba9e844a\nnbsr-native-destination-capture-ba9e844a\nnbsr-native-source-offload-db7edb19\nnbsr-native-destination-offload-db7edb19\n",
+  "reason": "Stopped owned test containers; bind-mounted authoritative outputs and source bundles retained; no volume or image deletion; writable clones reproducible",
+  "ssd_bytes_recovered": "NOT_MEASURED"
+}
