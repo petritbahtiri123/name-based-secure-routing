@@ -1,0 +1,8 @@
+{
+  "checker_sha": "b74bb2b5a242317e2f449ad19a45fb80f7b6fa2e",
+  "measurement_source_sha": "11677ecad95dab3904f3f4b18c94d8980bcb86be",
+  "measurement_index_sha256": "d82d1a294417ac0c874d4b45e279ec3890d886387181b57d58c9cd8ba2fd4313",
+  "mode": "READ_ONLY_REANALYSIS",
+  "new_benchmark": false,
+  "status": "PASS: ten original destination readiness endpoints match owned socket observations"
+}

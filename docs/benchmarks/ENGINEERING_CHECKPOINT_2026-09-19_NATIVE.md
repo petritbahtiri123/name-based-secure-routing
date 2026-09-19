@@ -15,6 +15,10 @@ and retained-history validation. Ten negative fixture variants now reject; all
 ten existing `11677eca` measurement cells and twenty peer histories revalidate
 without rerunning or modifying raw evidence. See
 [the source-separated reanalysis](../../evidence/performance/v2/socket-history-206244b6/summary.md).
+The subsequent checker `b74bb2b5` closes the destination readiness-port join:
+two previously accepted wrong-port fixtures now reject, and all ten original
+destination endpoints revalidate read-only. No measurements are replaced or
+relabeled. [Port-join evidence](../../evidence/performance/v2/socket-port-b74bb2b5/summary.md).
 The next campaign step after the usage reset is packet-phase separation; admission
 attribution, memory retention, qualified soak, deferred admin validation and
 external physical-host work remain on the larger closure list.

@@ -1,0 +1,66 @@
+FF.                                                                      [100%]
+================================== FAILURES ===================================
+___ test_destination_owned_socket_must_match_announced_port[observed-port] ____
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1120/test_destination_owned_socket_0')
+fault = 'observed-port'
+
+    @pytest.mark.parametrize('fault', ['observed-port', 'ready-port'])
+    def test_destination_owned_socket_must_match_announced_port(tmp_path, fault):
+        source, destination = instrumented_pair(tmp_path)
+        if fault == 'observed-port':
+            observed = json.loads((destination / 'socket-ownership.json').read_text())
+            observed['sockets'][0]['local'][1] = 5555
+            put(destination, 'socket-ownership.json', observed)
+            (destination / 'socket-observations.ndjson').write_text(json.dumps(observed) + '\n')
+        else:
+            ready = json.loads((destination / 'ready.json').read_text())
+            ready['endpoint'] = ready['endpoint'].replace(':4444', ':5555')
+            put(destination, 'ready.json', ready)
+            put(source, 'input-readiness.json', ready)
+            env = json.loads((source / 'environment.json').read_text())
+            put(source, 'environment.json', env | {'endpoint': ready['endpoint']})
+            command = json.loads((source / 'command.json').read_text())
+            command['argv'][command['argv'].index('--endpoint') + 1] = ready['endpoint']
+            put(source, 'command.json', command)
+        for root in (source, destination):
+            seal_output(root)
+>       with pytest.raises(ValueError, match='readiness socket'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_socket_observation_history.py:64: Failed
+_____ test_destination_owned_socket_must_match_announced_port[ready-port] _____
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1120/test_destination_owned_socket_1')
+fault = 'ready-port'
+
+    @pytest.mark.parametrize('fault', ['observed-port', 'ready-port'])
+    def test_destination_owned_socket_must_match_announced_port(tmp_path, fault):
+        source, destination = instrumented_pair(tmp_path)
+        if fault == 'observed-port':
+            observed = json.loads((destination / 'socket-ownership.json').read_text())
+            observed['sockets'][0]['local'][1] = 5555
+            put(destination, 'socket-ownership.json', observed)
+            (destination / 'socket-observations.ndjson').write_text(json.dumps(observed) + '\n')
+        else:
+            ready = json.loads((destination / 'ready.json').read_text())
+            ready['endpoint'] = ready['endpoint'].replace(':4444', ':5555')
+            put(destination, 'ready.json', ready)
+            put(source, 'input-readiness.json', ready)
+            env = json.loads((source / 'environment.json').read_text())
+            put(source, 'environment.json', env | {'endpoint': ready['endpoint']})
+            command = json.loads((source / 'command.json').read_text())
+            command['argv'][command['argv'].index('--endpoint') + 1] = ready['endpoint']
+            put(source, 'command.json', command)
+        for root in (source, destination):
+            seal_output(root)
+>       with pytest.raises(ValueError, match='readiness socket'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_socket_observation_history.py:64: Failed
+=========================== short test summary info ===========================
+FAILED tests/performance/test_socket_observation_history.py::test_destination_owned_socket_must_match_announced_port[observed-port]
+FAILED tests/performance/test_socket_observation_history.py::test_destination_owned_socket_must_match_announced_port[ready-port]
+2 failed, 1 passed, 12 deselected in 1.70s
