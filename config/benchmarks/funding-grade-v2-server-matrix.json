@@ -392,6 +392,15 @@
       "status": "NOT_IMPLEMENTED",
       "command": null,
       "missing": "multihost orchestration for all workload classes and 8/16/32 coverage beyond finite single-group loopback; no tool consumes this definition as a complete executable matrix"
+    },
+    "linux_native_packet_accounting": {
+      "status": "PARTIAL",
+      "command": "python3 -m scripts.performance.linux_native_packet_accounting --help",
+      "sources": [
+        "scripts/performance/linux_native_packet_accounting.py",
+        "docs/benchmarks/EXTERNAL_NATIVE_PACKET_ACCOUNTING.md"
+      ],
+      "scope": "Read-only exact native IPv4/UDP pcapng accounting; complete bidirectional inventory and loss rejection. No capture lifecycle, phase/ownership/observer qualification or physical-wire claim."
     }
   }
 }
