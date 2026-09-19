@@ -103,10 +103,15 @@ def check_peer(root, role, source_sha):
     require(result['status'] == 'PASS_FINITE_PEER' and result['exit_code'] == exit_record['exit_code'] == 0
             and result['final_sample'] == exit_record['final_sample'] and pid['owns_process_group'] is True,
             'peer exit contract failed')
-    first = previous = last = None
+    first = previous = last = first_sample = None
     with (root / 'resources.ndjson').open() as stream:
         for line in stream:
             sample = json.loads(line)
+            first_sample = sample if first_sample is None else first_sample
+            if env.get('live_socket_observer', False):
+                require(type(sample.get('timestamp_ns')) is int and sample['timestamp_ns'] >= 0
+                        and (last is None or sample['timestamp_ns'] >= last['timestamp_ns']),
+                        'resource clock regressed or unavailable')
             identity = sample['pid'], sample['start_ticks']
             first = identity if first is None else first
             require(sample['pid'] == pid['pid'] and identity == first, 'sample PID identity mismatch')
@@ -119,11 +124,14 @@ def check_peer(root, role, source_sha):
             'terminal sample mismatch')
     require(type(env.get('live_socket_observer', False)) is bool, 'invalid live socket observer mode')
     if env.get('live_socket_observer', False):
-        from scripts.performance.linux_socket_ownership import validate_binding
+        from scripts.performance.linux_socket_ownership import validate_binding, validate_history
+        from scripts.performance.linux_udp_failure import read_bounded
         observed = read(root, 'socket-ownership.json')
         local = observed['sockets'][0]['local']
         require(local[0] == validate_endpoint(env['bind'], allow_zero=True)[0], 'observed bind mismatch')
         validate_binding(observed, pid=last['pid'], start_ticks=last['start_ticks'], binary=argv[3], local=local)
+        validate_history(observed, read_bounded(root / 'socket-observations.ndjson'),
+                         resource_start_ns=first_sample['timestamp_ns'], resource_end_ns=last['timestamp_ns'])
     return env, result, index
 
 

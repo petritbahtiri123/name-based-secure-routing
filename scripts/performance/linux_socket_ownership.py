@@ -1,6 +1,7 @@
 """Bounded live owned-FD/IPv4 binding observation; not whole-flow exclusivity."""
 
 import ipaddress
+import json
 import os
 from pathlib import Path
 import re
@@ -63,3 +64,26 @@ def validate_binding(value, *, pid, start_ticks, binary, local):
             and value['binary'] == str(binary), 'peer identity mismatch')
     require(value['finished_ns'] >= value['started_ns']
             and any(row['local'] == list(local) for row in value['sockets']), 'captured endpoint not owned')
+
+
+def validate_history(value, text, *, resource_start_ns, resource_end_ns):
+    """Validate the collector's bounded attempts against retained process time."""
+    require(type(resource_start_ns) is int and type(resource_end_ns) is int
+            and 0 <= resource_start_ns <= resource_end_ns, 'invalid resource time interval')
+    lines = text.splitlines()
+    require(1 <= len(lines) <= 20, 'socket observation history bound violated')
+    previous_end = resource_start_ns
+    for index, line in enumerate(lines):
+        row = json.loads(line)
+        require(isinstance(row, dict)
+                and all(row.get(k) == value[k] for k in ('schema', 'pid', 'start_ticks', 'binary')),
+                'socket observation history identity mismatch')
+        start, end = row.get('started_ns'), row.get('finished_ns')
+        require(type(start) is int and type(end) is int
+                and previous_end <= start <= end <= resource_end_ns, 'socket observation time mismatch')
+        previous_end = end
+        if index == len(lines) - 1:
+            require(row == value and row['status'] == 'MEASURED_LIVE_SOCKET_SNAPSHOT',
+                    'socket observation report differs from terminal attempt')
+        else:
+            require(row.get('status') == 'UNAVAILABLE', 'observation continued after success')
