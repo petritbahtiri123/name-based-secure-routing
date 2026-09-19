@@ -1,0 +1,322 @@
+[
+  {
+    "payload_bytes": 1024,
+    "streams": 64,
+    "repeat": 1,
+    "useful_bytes": 131072000,
+    "packet_count": {
+      "direct": 101877,
+      "nbsr": 101772,
+      "delta": -105
+    },
+    "ip_bytes": {
+      "direct": 142835160,
+      "nbsr": 142853438,
+      "delta": 18278
+    },
+    "udp_bytes": {
+      "direct": 140797620,
+      "nbsr": 140817998,
+      "delta": 20378
+    },
+    "udp_payload_bytes": {
+      "direct": 139982604,
+      "nbsr": 140003822,
+      "delta": 21218
+    },
+    "captured_frame_bytes": {
+      "direct": 144261438,
+      "nbsr": 144278246,
+      "delta": 16808
+    },
+    "incremental_ip_bytes_per_useful_byte_percent": 0.01394500732421875
+  },
+  {
+    "payload_bytes": 1024,
+    "streams": 64,
+    "repeat": 2,
+    "useful_bytes": 131072000,
+    "packet_count": {
+      "direct": 101965,
+      "nbsr": 101720,
+      "delta": -245
+    },
+    "ip_bytes": {
+      "direct": 142840484,
+      "nbsr": 142849272,
+      "delta": 8788
+    },
+    "udp_bytes": {
+      "direct": 140801184,
+      "nbsr": 140814872,
+      "delta": 13688
+    },
+    "udp_payload_bytes": {
+      "direct": 139985464,
+      "nbsr": 140001112,
+      "delta": 15648
+    },
+    "captured_frame_bytes": {
+      "direct": 144267994,
+      "nbsr": 144273352,
+      "delta": 5358
+    },
+    "incremental_ip_bytes_per_useful_byte_percent": 0.0067047119140625
+  },
+  {
+    "payload_bytes": 1024,
+    "streams": 64,
+    "repeat": 3,
+    "useful_bytes": 131072000,
+    "packet_count": {
+      "direct": 101995,
+      "nbsr": 101740,
+      "delta": -255
+    },
+    "ip_bytes": {
+      "direct": 142840273,
+      "nbsr": 142850411,
+      "delta": 10138
+    },
+    "udp_bytes": {
+      "direct": 140800373,
+      "nbsr": 140815611,
+      "delta": 15238
+    },
+    "udp_payload_bytes": {
+      "direct": 139984413,
+      "nbsr": 140001691,
+      "delta": 17278
+    },
+    "captured_frame_bytes": {
+      "direct": 144268203,
+      "nbsr": 144274771,
+      "delta": 6568
+    },
+    "incremental_ip_bytes_per_useful_byte_percent": 0.00773468017578125
+  },
+  {
+    "payload_bytes": 1024,
+    "streams": 64,
+    "repeat": 4,
+    "useful_bytes": 131072000,
+    "packet_count": {
+      "direct": 101968,
+      "nbsr": 101638,
+      "delta": -330
+    },
+    "ip_bytes": {
+      "direct": 142840222,
+      "nbsr": 142844839,
+      "delta": 4617
+    },
+    "udp_bytes": {
+      "direct": 140800862,
+      "nbsr": 140812079,
+      "delta": 11217
+    },
+    "udp_payload_bytes": {
+      "direct": 139985118,
+      "nbsr": 139998975,
+      "delta": 13857
+    },
+    "captured_frame_bytes": {
+      "direct": 144267774,
+      "nbsr": 144267771,
+      "delta": -3
+    },
+    "incremental_ip_bytes_per_useful_byte_percent": 0.003522491455078125
+  },
+  {
+    "payload_bytes": 1024,
+    "streams": 64,
+    "repeat": 5,
+    "useful_bytes": 131072000,
+    "packet_count": {
+      "direct": 102008,
+      "nbsr": 101710,
+      "delta": -298
+    },
+    "ip_bytes": {
+      "direct": 142842357,
+      "nbsr": 142848886,
+      "delta": 6529
+    },
+    "udp_bytes": {
+      "direct": 140802197,
+      "nbsr": 140814686,
+      "delta": 12489
+    },
+    "udp_payload_bytes": {
+      "direct": 139986133,
+      "nbsr": 140001006,
+      "delta": 14873
+    },
+    "captured_frame_bytes": {
+      "direct": 144270469,
+      "nbsr": 144272826,
+      "delta": 2357
+    },
+    "incremental_ip_bytes_per_useful_byte_percent": 0.004981231689453125
+  },
+  {
+    "payload_bytes": 16384,
+    "streams": 8,
+    "repeat": 1,
+    "useful_bytes": 262144000,
+    "packet_count": {
+      "direct": 195333,
+      "nbsr": 194810,
+      "delta": -523
+    },
+    "ip_bytes": {
+      "direct": 275396564,
+      "nbsr": 275345994,
+      "delta": -50570
+    },
+    "udp_bytes": {
+      "direct": 271489904,
+      "nbsr": 271449794,
+      "delta": -40110
+    },
+    "udp_payload_bytes": {
+      "direct": 269927240,
+      "nbsr": 269891314,
+      "delta": -35926
+    },
+    "captured_frame_bytes": {
+      "direct": 278131226,
+      "nbsr": 278073334,
+      "delta": -57892
+    },
+    "incremental_ip_bytes_per_useful_byte_percent": -0.019290924072265625
+  },
+  {
+    "payload_bytes": 16384,
+    "streams": 8,
+    "repeat": 2,
+    "useful_bytes": 262144000,
+    "packet_count": {
+      "direct": 195120,
+      "nbsr": 195094,
+      "delta": -26
+    },
+    "ip_bytes": {
+      "direct": 275373299,
+      "nbsr": 275394083,
+      "delta": 20784
+    },
+    "udp_bytes": {
+      "direct": 271470899,
+      "nbsr": 271492203,
+      "delta": 21304
+    },
+    "udp_payload_bytes": {
+      "direct": 269909939,
+      "nbsr": 269931451,
+      "delta": 21512
+    },
+    "captured_frame_bytes": {
+      "direct": 278104979,
+      "nbsr": 278125399,
+      "delta": 20420
+    },
+    "incremental_ip_bytes_per_useful_byte_percent": 0.007928466796875
+  },
+  {
+    "payload_bytes": 16384,
+    "streams": 8,
+    "repeat": 3,
+    "useful_bytes": 262144000,
+    "packet_count": {
+      "direct": 195168,
+      "nbsr": 194786,
+      "delta": -382
+    },
+    "ip_bytes": {
+      "direct": 275356551,
+      "nbsr": 275355126,
+      "delta": -1425
+    },
+    "udp_bytes": {
+      "direct": 271453191,
+      "nbsr": 271459406,
+      "delta": 6215
+    },
+    "udp_payload_bytes": {
+      "direct": 269891847,
+      "nbsr": 269901118,
+      "delta": 9271
+    },
+    "captured_frame_bytes": {
+      "direct": 278088903,
+      "nbsr": 278082130,
+      "delta": -6773
+    },
+    "incremental_ip_bytes_per_useful_byte_percent": -0.0005435943603515625
+  },
+  {
+    "payload_bytes": 16384,
+    "streams": 8,
+    "repeat": 4,
+    "useful_bytes": 262144000,
+    "packet_count": {
+      "direct": 194995,
+      "nbsr": 194931,
+      "delta": -64
+    },
+    "ip_bytes": {
+      "direct": 275387806,
+      "nbsr": 275376404,
+      "delta": -11402
+    },
+    "udp_bytes": {
+      "direct": 271487906,
+      "nbsr": 271477784,
+      "delta": -10122
+    },
+    "udp_payload_bytes": {
+      "direct": 269927946,
+      "nbsr": 269918336,
+      "delta": -9610
+    },
+    "captured_frame_bytes": {
+      "direct": 278117736,
+      "nbsr": 278105438,
+      "delta": -12298
+    },
+    "incremental_ip_bytes_per_useful_byte_percent": -0.004349517822265625
+  },
+  {
+    "payload_bytes": 16384,
+    "streams": 8,
+    "repeat": 5,
+    "useful_bytes": 262144000,
+    "packet_count": {
+      "direct": 195170,
+      "nbsr": 194929,
+      "delta": -241
+    },
+    "ip_bytes": {
+      "direct": 275343616,
+      "nbsr": 275368079,
+      "delta": 24463
+    },
+    "udp_bytes": {
+      "direct": 271440216,
+      "nbsr": 271469499,
+      "delta": 29283
+    },
+    "udp_payload_bytes": {
+      "direct": 269878856,
+      "nbsr": 269910067,
+      "delta": 31211
+    },
+    "captured_frame_bytes": {
+      "direct": 278075996,
+      "nbsr": 278097085,
+      "delta": 21089
+    },
+    "incremental_ip_bytes_per_useful_byte_percent": 0.009331893920898438
+  }
+]

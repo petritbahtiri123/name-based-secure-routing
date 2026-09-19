@@ -1,0 +1,12 @@
+{
+  "source_sha": "ec255c18",
+  "design": "Five counterbalanced Direct/NBSR pairs each at 1024 bytes/64 streams and 16384 bytes/8 streams; 1000 operations/stream; depth one; zero warmup; two private Docker network namespaces; UDP segmentation off on both veths; GRO off, GSO/TSO on",
+  "predecessor": "native-offload-ec255c18 retained INVALID_PARTIAL disk-reserve failure; no pooling or replacement",
+  "timing": "DIAGNOSTIC_ONLY",
+  "remaining_gaps": [
+    "physical interface",
+    "socket/process ownership",
+    "established phase separation"
+  ],
+  "disk_precondition": "At least 11 GiB host free before controller launch, existing per-cell reserve unchanged"
+}

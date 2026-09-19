@@ -1,0 +1,30 @@
+{
+  "status": "PARTIAL_NATIVE_NAMESPACE_PACKET_ACCOUNTING",
+  "source_sha": "ec255c18c7f6946f63e068e64299ab173dd15428",
+  "cells": 20,
+  "independent_tshark": "Every cell packet count and IP-byte sum equals native analyzer",
+  "shapes": [
+    {
+      "payload_bytes": 1024,
+      "repeats": 5,
+      "median_incremental_ip_percent": 0.0067047119140625,
+      "min_incremental_ip_percent": 0.003522491455078125,
+      "max_incremental_ip_percent": 0.01394500732421875
+    },
+    {
+      "payload_bytes": 16384,
+      "repeats": 5,
+      "median_incremental_ip_percent": -0.0005435943603515625,
+      "min_incremental_ip_percent": -0.019290924072265625,
+      "max_incremental_ip_percent": 0.009331893920898438
+    }
+  ],
+  "scope": "Whole retained bidirectional UDP flow excluding marker packets; includes setup, untimed validation, ACK and teardown. Captured native veth representation, not physical Ethernet",
+  "gaps": [
+    "physical wire",
+    "process/socket ownership",
+    "established-phase separation",
+    "observer-neutral performance timing"
+  ],
+  "stable_capacity": "NOT_PROVEN"
+}
