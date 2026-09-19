@@ -1,0 +1,82 @@
+[
+  {
+    "path": "C:\\NBSR-build\\b4b-task4c-20260903-192550\\task4c-kernel-raw.etl",
+    "sha256": "008da33fa78fcbe06d6809d35ca39ce41618f7ce9abfff056e5d1f3472dfb1e7",
+    "length": 487587840,
+    "allocated_before": 487587840,
+    "allocated_after": 161660928,
+    "stdout": "\n Compressing files in C:\\NBSR-build\\b4b-task4c-20260903-192550\\\n\ntask4c-kernel-raw.etl 487587840 : 161660928 = 3.0 to 1 [OK]\n\n1 files within 1 directories were compressed.\n487,587,840 total bytes of data are stored in 161,660,928 bytes.\nThe compression ratio is 3.0 to 1.\n"
+  },
+  {
+    "path": "C:\\NBSR-build\\b4b-task4c-20260903-192550\\task4c-kernel.etl",
+    "sha256": "e9d0082e100212a6aade8110e578287382dcb9786c36e75bc4a45fa4629c82ca",
+    "length": 497025024,
+    "allocated_before": 497025024,
+    "allocated_after": 165830656,
+    "stdout": "\n Compressing files in C:\\NBSR-build\\b4b-task4c-20260903-192550\\\n\ntask4c-kernel.etl   497025024 : 165830656 = 3.0 to 1 [OK]\n\n1 files within 1 directories were compressed.\n497,025,024 total bytes of data are stored in 165,830,656 bytes.\nThe compression ratio is 3.0 to 1.\n"
+  },
+  {
+    "path": "C:\\NBSR-build\\b4b-task4e-20260903-210049\\task4e-kernel-raw.etl",
+    "sha256": "ea6e556b6c30334b9a6fc4d5979aa6e5e5966b2c45411bd08f42c7088f8ca791",
+    "length": 624951296,
+    "allocated_before": 624951296,
+    "allocated_after": 217890816,
+    "stdout": "\n Compressing files in C:\\NBSR-build\\b4b-task4e-20260903-210049\\\n\ntask4e-kernel-raw.etl 624951296 : 217890816 = 2.9 to 1 [OK]\n\n1 files within 1 directories were compressed.\n624,951,296 total bytes of data are stored in 217,890,816 bytes.\nThe compression ratio is 2.9 to 1.\n"
+  },
+  {
+    "path": "C:\\NBSR-build\\b4b-task4e-20260903-210049\\task4e-kernel.etl",
+    "sha256": "36099a490fec9aee7a1e000daa8748c81d4ae12cef6c79639d6dd4973e9c5e5f",
+    "length": 633339904,
+    "allocated_before": 633339904,
+    "allocated_after": 222081024,
+    "stdout": "\n Compressing files in C:\\NBSR-build\\b4b-task4e-20260903-210049\\\n\ntask4e-kernel.etl   633339904 : 222081024 = 2.9 to 1 [OK]\n\n1 files within 1 directories were compressed.\n633,339,904 total bytes of data are stored in 222,081,024 bytes.\nThe compression ratio is 2.9 to 1.\n"
+  },
+  {
+    "path": "C:\\NBSR-build\\max-throughput-v2-stage3-20260902-211248\\stage3-raw.etl",
+    "sha256": "8940e2372519e8b700a255b220c3458f0b88fad318a628e852f98dad7f4ec678",
+    "length": 627048448,
+    "allocated_before": 627048448,
+    "allocated_after": 198868992,
+    "stdout": "\n Compressing files in C:\\NBSR-build\\max-throughput-v2-stage3-20260902-211248\\\n\nstage3-raw.etl      627048448 : 198868992 = 3.2 to 1 [OK]\n\n1 files within 1 directories were compressed.\n627,048,448 total bytes of data are stored in 198,868,992 bytes.\nThe compression ratio is 3.2 to 1.\n"
+  },
+  {
+    "path": "C:\\NBSR-build\\max-throughput-v2-stage3-20260902-211248\\stage3.etl",
+    "sha256": "bc6e0be3dc95fc74bad09629a087f01120ab3b795ec1b035f1aa30bbc7fef815",
+    "length": 635437056,
+    "allocated_before": 635437056,
+    "allocated_after": 203296768,
+    "stdout": "\n Compressing files in C:\\NBSR-build\\max-throughput-v2-stage3-20260902-211248\\\n\nstage3.etl          635437056 : 203296768 = 3.1 to 1 [OK]\n\n1 files within 1 directories were compressed.\n635,437,056 total bytes of data are stored in 203,296,768 bytes.\nThe compression ratio is 3.1 to 1.\n"
+  },
+  {
+    "path": "C:\\NBSR-build\\b4b-task4e-20260903-210049\\kernel-events.csv",
+    "sha256": "384130d872f478754ee2e476ec366dcff1ed65b05dd31225509925a5cab7b6d3",
+    "length": 8089804821,
+    "allocated_before": 8089804821,
+    "allocated_after": 2676056064,
+    "stdout": "\n Compressing files in C:\\NBSR-build\\b4b-task4e-20260903-210049\\\n\nkernel-events.csv   8089804821 : 2676056064 = 3.0 to 1 [OK]\n\n1 files within 1 directories were compressed.\n8,089,804,821 total bytes of data are stored in 2,676,056,064 bytes.\nThe compression ratio is 3.0 to 1.\n"
+  },
+  {
+    "path": "C:\\NBSR-build\\b4b-task4e-20260903-210049\\readythread.txt",
+    "sha256": "bfa7795ff62d4a16a4b59d8cd0f480830f52c9cea967375940a49feaedc3635f",
+    "length": 3756173233,
+    "allocated_before": 3756173233,
+    "allocated_after": 939413504,
+    "stdout": "\n Compressing files in C:\\NBSR-build\\b4b-task4e-20260903-210049\\\n\nreadythread.txt     3756173233 : 939413504 = 4.0 to 1 [OK]\n\n1 files within 1 directories were compressed.\n3,756,173,233 total bytes of data are stored in 939,413,504 bytes.\nThe compression ratio is 4.0 to 1.\n"
+  },
+  {
+    "path": "C:\\NBSR-build\\max-throughput-v2-stage3-20260902-211248\\readythread.txt",
+    "sha256": "d149ced3000359ef84ec3ce625d442b6e79b49904d7e4322dea52054ae1ae42e",
+    "length": 3458475336,
+    "allocated_before": 3458475336,
+    "allocated_after": 864927744,
+    "stdout": "\n Compressing files in C:\\NBSR-build\\max-throughput-v2-stage3-20260902-211248\\\n\nreadythread.txt     3458475336 : 864927744 = 4.0 to 1 [OK]\n\n1 files within 1 directories were compressed.\n3,458,475,336 total bytes of data are stored in 864,927,744 bytes.\nThe compression ratio is 4.0 to 1.\n"
+  },
+  {
+    "path": "C:\\NBSR-build\\b4b-task4c-20260903-192550\\readythread.txt",
+    "sha256": "b7ca47f2e22e40ee055398910673eb48c6298b159c9915f8ab91e4d0438fd545",
+    "length": 2855556082,
+    "allocated_before": 2855556082,
+    "allocated_after": 714051584,
+    "stdout": "\n Compressing files in C:\\NBSR-build\\b4b-task4c-20260903-192550\\\n\nreadythread.txt     2855556082 : 714051584 = 4.0 to 1 [OK]\n\n1 files within 1 directories were compressed.\n2,855,556,082 total bytes of data are stored in 714,051,584 bytes.\nThe compression ratio is 4.0 to 1.\n"
+  }
+]
