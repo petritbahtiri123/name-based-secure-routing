@@ -1,0 +1,536 @@
+{
+  "checker_sha": "e74e53b1fbc3b1802f4bd0f7c828d8d09cacd7cf",
+  "measurement_sha": "a401567dd8f14a474088243e936b220203afd6fc",
+  "passed_pairs": 11,
+  "rejected_pairs": 11,
+  "results": [
+    {
+      "base": "native-lifecycle-peer-a401567d-corrected",
+      "label": "bundles-16-r1",
+      "expected": "PASS",
+      "result": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "a401567dd8f14a474088243e936b220203afd6fc",
+        "successful_connections": 16,
+        "source_index_sha256": "1255eb2149652c52f9b4b8b3b78ff0a6a079399f6e23bf0c709f0fd36587d446",
+        "destination_index_sha256": "60b29a260cf9a9e009c5bc719e3286d7780582056b3d8c9bbd23ce7a6ff79229",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      }
+    },
+    {
+      "base": "native-lifecycle-peer-a401567d-corrected",
+      "label": "bundles-16-r2",
+      "expected": "PASS",
+      "result": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "a401567dd8f14a474088243e936b220203afd6fc",
+        "successful_connections": 16,
+        "source_index_sha256": "4f3b44d3eee70446edf0dad2a3114cdaf50e81d06cabc4e1f8ed12cd90dae220",
+        "destination_index_sha256": "1f2ad2b15b9c78a87d44823c87805a2df382f5fadc1ad59227ec833847ec10ae",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      }
+    },
+    {
+      "base": "native-lifecycle-peer-a401567d-corrected",
+      "label": "bundles-16-r3",
+      "expected": "PASS",
+      "result": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "a401567dd8f14a474088243e936b220203afd6fc",
+        "successful_connections": 16,
+        "source_index_sha256": "3a24acf4a318a9f2fc2bf0225a2077204d7b630eaf5f49e0f08ac019ad906a6e",
+        "destination_index_sha256": "cc0cce0e2ec67cb66028a1c83111e6eeaa35fa174a9a354d6b877afd12039efc",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      }
+    },
+    {
+      "base": "native-control-storage-a401567d",
+      "label": "local-256-r1",
+      "expected": "PASS",
+      "result": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "a401567dd8f14a474088243e936b220203afd6fc",
+        "successful_connections": 256,
+        "source_index_sha256": "379a608f581433bbe02bc7e99829671086aae00d2fad1d5e409a1af491795274",
+        "destination_index_sha256": "27275733ee18e510ebacc2ba36af3272078630376c8606fbbd23ddb136b4285a",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      }
+    },
+    {
+      "base": "native-control-storage-a401567d",
+      "label": "local-256-r2",
+      "expected": "PASS",
+      "result": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "a401567dd8f14a474088243e936b220203afd6fc",
+        "successful_connections": 256,
+        "source_index_sha256": "0dbc993d23372f34afae0cf1880cfa18065b78706b29e9956fbb5732ad142362",
+        "destination_index_sha256": "e0c1824219571875c5d15692576aa2170896c0acf106e6a0ff7498f3f119dd37",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      }
+    },
+    {
+      "base": "native-control-storage-a401567d",
+      "label": "local-256-r3",
+      "expected": "PASS",
+      "result": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "a401567dd8f14a474088243e936b220203afd6fc",
+        "successful_connections": 256,
+        "source_index_sha256": "ab4139b4f4fcb99a01496e455b2618038747c25d104868086e526b5ab5a59fb0",
+        "destination_index_sha256": "e4e976eeb387e4b30f6a881f76588c0e91735d6b545a70033766edf66a689daf",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      }
+    },
+    {
+      "base": "native-control-storage-a401567d",
+      "label": "local-256-r4",
+      "expected": "PASS",
+      "result": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "a401567dd8f14a474088243e936b220203afd6fc",
+        "successful_connections": 256,
+        "source_index_sha256": "0ddff0ee9c9f7bd25ca04c24152597be76b16ed2c9ffa9f54bf9ff5b88459433",
+        "destination_index_sha256": "a22f0aa948dddfb46b14dcdd9ca9563c8ea23f472827df1985b4cfbfb7feff0c",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      }
+    },
+    {
+      "base": "native-control-storage-a401567d",
+      "label": "local-256-r5",
+      "expected": "PASS",
+      "result": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "a401567dd8f14a474088243e936b220203afd6fc",
+        "successful_connections": 256,
+        "source_index_sha256": "71ca2e84c33cb88c3f55107b596e35bb43ab1cabca98363b3b09a726d87eb939",
+        "destination_index_sha256": "6f2eba950ddac86bf8d22a06df3bf0784d57db373bc056a3d7fa3b25f6df98db",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      }
+    },
+    {
+      "base": "native-control-scale512-a401567d",
+      "label": "local-512-r1",
+      "expected": "PASS",
+      "result": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "a401567dd8f14a474088243e936b220203afd6fc",
+        "successful_connections": 512,
+        "source_index_sha256": "c37ce063093227321f06232d0b9b738cf913db78e872986171589958aed8fe26",
+        "destination_index_sha256": "0221dd6eda4f0b303e7041f21363ee511c403d21f58d3810e1b5d9eb656bfccc",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      }
+    },
+    {
+      "base": "native-control-scale512-a401567d",
+      "label": "local-512-r4",
+      "expected": "PASS",
+      "result": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "a401567dd8f14a474088243e936b220203afd6fc",
+        "successful_connections": 512,
+        "source_index_sha256": "7691e152cc441b15910489e703e5871734d69fccc0303105c97d040e88b9c2f2",
+        "destination_index_sha256": "2f402c619438e0309df2193b51c6d461c051a014d8a0fefffb0fd0084c6b946a",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      }
+    },
+    {
+      "base": "native-control-scale512-a401567d",
+      "label": "local-512-r5",
+      "expected": "PASS",
+      "result": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "a401567dd8f14a474088243e936b220203afd6fc",
+        "successful_connections": 512,
+        "source_index_sha256": "203f655611331a26705f750515f7f2e396256669618843d0015f8ef642468eaa",
+        "destination_index_sha256": "caa64266a29aaf5f3ba5509a430629c5fca5982b4307116799fc10a8e8968db4",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      }
+    },
+    {
+      "base": "native-control-storage-a401567d",
+      "label": "windows-256-r1",
+      "expected": "REJECT",
+      "reason": "failed or forced peer cannot pass"
+    },
+    {
+      "base": "native-control-storage-a401567d",
+      "label": "windows-256-r2",
+      "expected": "REJECT",
+      "reason": "failed or forced peer cannot pass"
+    },
+    {
+      "base": "native-control-storage-a401567d",
+      "label": "windows-256-r3",
+      "expected": "REJECT",
+      "reason": "failed or forced peer cannot pass"
+    },
+    {
+      "base": "native-control-storage-a401567d",
+      "label": "windows-256-r4",
+      "expected": "REJECT",
+      "reason": "failed or forced peer cannot pass"
+    },
+    {
+      "base": "native-control-storage-a401567d",
+      "label": "windows-256-r5",
+      "expected": "REJECT",
+      "reason": "failed or forced peer cannot pass"
+    },
+    {
+      "base": "native-control-scale512-a401567d",
+      "label": "local-512-r2",
+      "expected": "REJECT",
+      "reason": "failed or forced peer cannot pass"
+    },
+    {
+      "base": "native-control-scale512-a401567d",
+      "label": "local-512-r3",
+      "expected": "REJECT",
+      "reason": "failed or forced peer cannot pass"
+    },
+    {
+      "base": "native-lifecycle-peer-a401567d",
+      "label": "bundles-16-r1",
+      "expected": "REJECT",
+      "reason": "failed or forced peer cannot pass"
+    },
+    {
+      "base": "native-lifecycle-cancel-a401567d",
+      "label": "repeat-1",
+      "expected": "REJECT",
+      "reason": "failed or forced peer cannot pass"
+    },
+    {
+      "base": "native-lifecycle-cancel-a401567d",
+      "label": "repeat-2",
+      "expected": "REJECT",
+      "reason": "failed or forced peer cannot pass"
+    },
+    {
+      "base": "native-lifecycle-cancel-a401567d",
+      "label": "repeat-3",
+      "expected": "REJECT",
+      "reason": "failed or forced peer cannot pass"
+    }
+  ]
+}

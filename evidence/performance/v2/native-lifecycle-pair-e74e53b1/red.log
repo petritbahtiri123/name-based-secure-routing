@@ -1,0 +1,621 @@
+FFFFFFFFFFFFFFF                                                          [100%]
+================================== FAILURES ===================================
+_______ test_pair_rechecks_raw_outcomes_without_claiming_a_held_barrier _______
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1127/test_pair_rechecks_raw_outcome0')
+
+    def test_pair_rechecks_raw_outcomes_without_claiming_a_held_barrier(tmp_path):
+        source, destination = peers(tmp_path)
+        result = analyze(source, destination, source_sha=SHA, count=16)
+>       assert result['status'] == 'PASS_FUNCTIONAL_PEER_PAIR'
+E       AssertionError: assert 'NOT_IMPLEMENTED' == 'PASS_FUNCTIONAL_PEER_PAIR'
+E         
+E         - PASS_FUNCTIONAL_PEER_PAIR
+E         + NOT_IMPLEMENTED
+
+tests\performance\test_linux_native_lifecycle_pair.py:70: AssertionError
+____________ test_rehashed_inconsistent_pair_is_rejected[fixture] _____________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1127/test_rehashed_inconsistent_pai0')
+mutation = 'fixture'
+
+    @pytest.mark.parametrize('mutation', ['fixture', 'readiness', 'command', 'client_id', 'ownership',
+        'summary_count', 'affinity', 'cpu', 'pid_epoch', 'binary', 'build', 'forced', 'extra_flag', 'hash_format'])
+    def test_rehashed_inconsistent_pair_is_rejected(tmp_path, mutation):
+        source, destination = peers(tmp_path)
+        root = destination if mutation == 'fixture' else source
+        filename = {'fixture': 'environment.json', 'readiness': 'input-readiness.json',
+            'command': 'command.json', 'summary_count': 'result.json', 'build': 'build-manifest.json',
+            'extra_flag': 'command.json', 'hash_format': 'environment.json'}.get(mutation)
+        if filename:
+            value = json.loads((root / filename).read_text())
+            if mutation == 'fixture': value['fixture_sha256']['certificates']['source.der'] = 'd' * 64
+            elif mutation == 'readiness': value['endpoint'] = '192.0.2.3:4444'
+            elif mutation == 'command': value['argv'][value['argv'].index('--lifecycle-source-shards') + 1] = '1'
+            elif mutation == 'summary_count': value['successful'] = 15
+            elif mutation == 'build': value['source_sha'] = 'f' * 40
+            elif mutation == 'extra_flag': value['argv'] += ['--b3-keep-alive-ms', '100']
+            elif mutation == 'hash_format': value['fixture_sha256']['certificates']['ca.der'] = 'invalid'
+            write(root, filename, value)
+        elif mutation in ('client_id', 'ownership'):
+            rows = [json.loads(x) for x in (root / 'stdout').read_text().splitlines()]
+            if mutation == 'client_id': rows[0]['logical_client_id'] = 1
+            else: rows[-1][FIELDS[0]] = 1
+            (root / 'stdout').write_text(''.join(json.dumps(r) + '\n' for r in rows))
+        elif mutation in ('affinity', 'cpu', 'pid_epoch'):
+            rows = [json.loads(x) for x in (root / 'resources.ndjson').read_text().splitlines()]
+            if mutation == 'affinity': rows[-1]['affinity'] = [1]
+            elif mutation == 'cpu': rows[-1]['cpu_ns'] = 0
+            else: rows[-1]['start_ticks'] = 2
+            (root / 'resources.ndjson').write_text(''.join(json.dumps(r) + '\n' for r in rows))
+        elif mutation == 'binary': (root / 'executed-binary').write_bytes(b'changed')
+        elif mutation == 'forced': write(root, 'forced-cleanup.json', {'valid': False})
+        seal_output(root)
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_linux_native_lifecycle_pair.py:108: Failed
+___________ test_rehashed_inconsistent_pair_is_rejected[readiness] ____________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1127/test_rehashed_inconsistent_pai1')
+mutation = 'readiness'
+
+    @pytest.mark.parametrize('mutation', ['fixture', 'readiness', 'command', 'client_id', 'ownership',
+        'summary_count', 'affinity', 'cpu', 'pid_epoch', 'binary', 'build', 'forced', 'extra_flag', 'hash_format'])
+    def test_rehashed_inconsistent_pair_is_rejected(tmp_path, mutation):
+        source, destination = peers(tmp_path)
+        root = destination if mutation == 'fixture' else source
+        filename = {'fixture': 'environment.json', 'readiness': 'input-readiness.json',
+            'command': 'command.json', 'summary_count': 'result.json', 'build': 'build-manifest.json',
+            'extra_flag': 'command.json', 'hash_format': 'environment.json'}.get(mutation)
+        if filename:
+            value = json.loads((root / filename).read_text())
+            if mutation == 'fixture': value['fixture_sha256']['certificates']['source.der'] = 'd' * 64
+            elif mutation == 'readiness': value['endpoint'] = '192.0.2.3:4444'
+            elif mutation == 'command': value['argv'][value['argv'].index('--lifecycle-source-shards') + 1] = '1'
+            elif mutation == 'summary_count': value['successful'] = 15
+            elif mutation == 'build': value['source_sha'] = 'f' * 40
+            elif mutation == 'extra_flag': value['argv'] += ['--b3-keep-alive-ms', '100']
+            elif mutation == 'hash_format': value['fixture_sha256']['certificates']['ca.der'] = 'invalid'
+            write(root, filename, value)
+        elif mutation in ('client_id', 'ownership'):
+            rows = [json.loads(x) for x in (root / 'stdout').read_text().splitlines()]
+            if mutation == 'client_id': rows[0]['logical_client_id'] = 1
+            else: rows[-1][FIELDS[0]] = 1
+            (root / 'stdout').write_text(''.join(json.dumps(r) + '\n' for r in rows))
+        elif mutation in ('affinity', 'cpu', 'pid_epoch'):
+            rows = [json.loads(x) for x in (root / 'resources.ndjson').read_text().splitlines()]
+            if mutation == 'affinity': rows[-1]['affinity'] = [1]
+            elif mutation == 'cpu': rows[-1]['cpu_ns'] = 0
+            else: rows[-1]['start_ticks'] = 2
+            (root / 'resources.ndjson').write_text(''.join(json.dumps(r) + '\n' for r in rows))
+        elif mutation == 'binary': (root / 'executed-binary').write_bytes(b'changed')
+        elif mutation == 'forced': write(root, 'forced-cleanup.json', {'valid': False})
+        seal_output(root)
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_linux_native_lifecycle_pair.py:108: Failed
+____________ test_rehashed_inconsistent_pair_is_rejected[command] _____________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1127/test_rehashed_inconsistent_pai2')
+mutation = 'command'
+
+    @pytest.mark.parametrize('mutation', ['fixture', 'readiness', 'command', 'client_id', 'ownership',
+        'summary_count', 'affinity', 'cpu', 'pid_epoch', 'binary', 'build', 'forced', 'extra_flag', 'hash_format'])
+    def test_rehashed_inconsistent_pair_is_rejected(tmp_path, mutation):
+        source, destination = peers(tmp_path)
+        root = destination if mutation == 'fixture' else source
+        filename = {'fixture': 'environment.json', 'readiness': 'input-readiness.json',
+            'command': 'command.json', 'summary_count': 'result.json', 'build': 'build-manifest.json',
+            'extra_flag': 'command.json', 'hash_format': 'environment.json'}.get(mutation)
+        if filename:
+            value = json.loads((root / filename).read_text())
+            if mutation == 'fixture': value['fixture_sha256']['certificates']['source.der'] = 'd' * 64
+            elif mutation == 'readiness': value['endpoint'] = '192.0.2.3:4444'
+            elif mutation == 'command': value['argv'][value['argv'].index('--lifecycle-source-shards') + 1] = '1'
+            elif mutation == 'summary_count': value['successful'] = 15
+            elif mutation == 'build': value['source_sha'] = 'f' * 40
+            elif mutation == 'extra_flag': value['argv'] += ['--b3-keep-alive-ms', '100']
+            elif mutation == 'hash_format': value['fixture_sha256']['certificates']['ca.der'] = 'invalid'
+            write(root, filename, value)
+        elif mutation in ('client_id', 'ownership'):
+            rows = [json.loads(x) for x in (root / 'stdout').read_text().splitlines()]
+            if mutation == 'client_id': rows[0]['logical_client_id'] = 1
+            else: rows[-1][FIELDS[0]] = 1
+            (root / 'stdout').write_text(''.join(json.dumps(r) + '\n' for r in rows))
+        elif mutation in ('affinity', 'cpu', 'pid_epoch'):
+            rows = [json.loads(x) for x in (root / 'resources.ndjson').read_text().splitlines()]
+            if mutation == 'affinity': rows[-1]['affinity'] = [1]
+            elif mutation == 'cpu': rows[-1]['cpu_ns'] = 0
+            else: rows[-1]['start_ticks'] = 2
+            (root / 'resources.ndjson').write_text(''.join(json.dumps(r) + '\n' for r in rows))
+        elif mutation == 'binary': (root / 'executed-binary').write_bytes(b'changed')
+        elif mutation == 'forced': write(root, 'forced-cleanup.json', {'valid': False})
+        seal_output(root)
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_linux_native_lifecycle_pair.py:108: Failed
+___________ test_rehashed_inconsistent_pair_is_rejected[client_id] ____________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1127/test_rehashed_inconsistent_pai3')
+mutation = 'client_id'
+
+    @pytest.mark.parametrize('mutation', ['fixture', 'readiness', 'command', 'client_id', 'ownership',
+        'summary_count', 'affinity', 'cpu', 'pid_epoch', 'binary', 'build', 'forced', 'extra_flag', 'hash_format'])
+    def test_rehashed_inconsistent_pair_is_rejected(tmp_path, mutation):
+        source, destination = peers(tmp_path)
+        root = destination if mutation == 'fixture' else source
+        filename = {'fixture': 'environment.json', 'readiness': 'input-readiness.json',
+            'command': 'command.json', 'summary_count': 'result.json', 'build': 'build-manifest.json',
+            'extra_flag': 'command.json', 'hash_format': 'environment.json'}.get(mutation)
+        if filename:
+            value = json.loads((root / filename).read_text())
+            if mutation == 'fixture': value['fixture_sha256']['certificates']['source.der'] = 'd' * 64
+            elif mutation == 'readiness': value['endpoint'] = '192.0.2.3:4444'
+            elif mutation == 'command': value['argv'][value['argv'].index('--lifecycle-source-shards') + 1] = '1'
+            elif mutation == 'summary_count': value['successful'] = 15
+            elif mutation == 'build': value['source_sha'] = 'f' * 40
+            elif mutation == 'extra_flag': value['argv'] += ['--b3-keep-alive-ms', '100']
+            elif mutation == 'hash_format': value['fixture_sha256']['certificates']['ca.der'] = 'invalid'
+            write(root, filename, value)
+        elif mutation in ('client_id', 'ownership'):
+            rows = [json.loads(x) for x in (root / 'stdout').read_text().splitlines()]
+            if mutation == 'client_id': rows[0]['logical_client_id'] = 1
+            else: rows[-1][FIELDS[0]] = 1
+            (root / 'stdout').write_text(''.join(json.dumps(r) + '\n' for r in rows))
+        elif mutation in ('affinity', 'cpu', 'pid_epoch'):
+            rows = [json.loads(x) for x in (root / 'resources.ndjson').read_text().splitlines()]
+            if mutation == 'affinity': rows[-1]['affinity'] = [1]
+            elif mutation == 'cpu': rows[-1]['cpu_ns'] = 0
+            else: rows[-1]['start_ticks'] = 2
+            (root / 'resources.ndjson').write_text(''.join(json.dumps(r) + '\n' for r in rows))
+        elif mutation == 'binary': (root / 'executed-binary').write_bytes(b'changed')
+        elif mutation == 'forced': write(root, 'forced-cleanup.json', {'valid': False})
+        seal_output(root)
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_linux_native_lifecycle_pair.py:108: Failed
+___________ test_rehashed_inconsistent_pair_is_rejected[ownership] ____________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1127/test_rehashed_inconsistent_pai4')
+mutation = 'ownership'
+
+    @pytest.mark.parametrize('mutation', ['fixture', 'readiness', 'command', 'client_id', 'ownership',
+        'summary_count', 'affinity', 'cpu', 'pid_epoch', 'binary', 'build', 'forced', 'extra_flag', 'hash_format'])
+    def test_rehashed_inconsistent_pair_is_rejected(tmp_path, mutation):
+        source, destination = peers(tmp_path)
+        root = destination if mutation == 'fixture' else source
+        filename = {'fixture': 'environment.json', 'readiness': 'input-readiness.json',
+            'command': 'command.json', 'summary_count': 'result.json', 'build': 'build-manifest.json',
+            'extra_flag': 'command.json', 'hash_format': 'environment.json'}.get(mutation)
+        if filename:
+            value = json.loads((root / filename).read_text())
+            if mutation == 'fixture': value['fixture_sha256']['certificates']['source.der'] = 'd' * 64
+            elif mutation == 'readiness': value['endpoint'] = '192.0.2.3:4444'
+            elif mutation == 'command': value['argv'][value['argv'].index('--lifecycle-source-shards') + 1] = '1'
+            elif mutation == 'summary_count': value['successful'] = 15
+            elif mutation == 'build': value['source_sha'] = 'f' * 40
+            elif mutation == 'extra_flag': value['argv'] += ['--b3-keep-alive-ms', '100']
+            elif mutation == 'hash_format': value['fixture_sha256']['certificates']['ca.der'] = 'invalid'
+            write(root, filename, value)
+        elif mutation in ('client_id', 'ownership'):
+            rows = [json.loads(x) for x in (root / 'stdout').read_text().splitlines()]
+            if mutation == 'client_id': rows[0]['logical_client_id'] = 1
+            else: rows[-1][FIELDS[0]] = 1
+            (root / 'stdout').write_text(''.join(json.dumps(r) + '\n' for r in rows))
+        elif mutation in ('affinity', 'cpu', 'pid_epoch'):
+            rows = [json.loads(x) for x in (root / 'resources.ndjson').read_text().splitlines()]
+            if mutation == 'affinity': rows[-1]['affinity'] = [1]
+            elif mutation == 'cpu': rows[-1]['cpu_ns'] = 0
+            else: rows[-1]['start_ticks'] = 2
+            (root / 'resources.ndjson').write_text(''.join(json.dumps(r) + '\n' for r in rows))
+        elif mutation == 'binary': (root / 'executed-binary').write_bytes(b'changed')
+        elif mutation == 'forced': write(root, 'forced-cleanup.json', {'valid': False})
+        seal_output(root)
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_linux_native_lifecycle_pair.py:108: Failed
+_________ test_rehashed_inconsistent_pair_is_rejected[summary_count] __________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1127/test_rehashed_inconsistent_pai5')
+mutation = 'summary_count'
+
+    @pytest.mark.parametrize('mutation', ['fixture', 'readiness', 'command', 'client_id', 'ownership',
+        'summary_count', 'affinity', 'cpu', 'pid_epoch', 'binary', 'build', 'forced', 'extra_flag', 'hash_format'])
+    def test_rehashed_inconsistent_pair_is_rejected(tmp_path, mutation):
+        source, destination = peers(tmp_path)
+        root = destination if mutation == 'fixture' else source
+        filename = {'fixture': 'environment.json', 'readiness': 'input-readiness.json',
+            'command': 'command.json', 'summary_count': 'result.json', 'build': 'build-manifest.json',
+            'extra_flag': 'command.json', 'hash_format': 'environment.json'}.get(mutation)
+        if filename:
+            value = json.loads((root / filename).read_text())
+            if mutation == 'fixture': value['fixture_sha256']['certificates']['source.der'] = 'd' * 64
+            elif mutation == 'readiness': value['endpoint'] = '192.0.2.3:4444'
+            elif mutation == 'command': value['argv'][value['argv'].index('--lifecycle-source-shards') + 1] = '1'
+            elif mutation == 'summary_count': value['successful'] = 15
+            elif mutation == 'build': value['source_sha'] = 'f' * 40
+            elif mutation == 'extra_flag': value['argv'] += ['--b3-keep-alive-ms', '100']
+            elif mutation == 'hash_format': value['fixture_sha256']['certificates']['ca.der'] = 'invalid'
+            write(root, filename, value)
+        elif mutation in ('client_id', 'ownership'):
+            rows = [json.loads(x) for x in (root / 'stdout').read_text().splitlines()]
+            if mutation == 'client_id': rows[0]['logical_client_id'] = 1
+            else: rows[-1][FIELDS[0]] = 1
+            (root / 'stdout').write_text(''.join(json.dumps(r) + '\n' for r in rows))
+        elif mutation in ('affinity', 'cpu', 'pid_epoch'):
+            rows = [json.loads(x) for x in (root / 'resources.ndjson').read_text().splitlines()]
+            if mutation == 'affinity': rows[-1]['affinity'] = [1]
+            elif mutation == 'cpu': rows[-1]['cpu_ns'] = 0
+            else: rows[-1]['start_ticks'] = 2
+            (root / 'resources.ndjson').write_text(''.join(json.dumps(r) + '\n' for r in rows))
+        elif mutation == 'binary': (root / 'executed-binary').write_bytes(b'changed')
+        elif mutation == 'forced': write(root, 'forced-cleanup.json', {'valid': False})
+        seal_output(root)
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_linux_native_lifecycle_pair.py:108: Failed
+____________ test_rehashed_inconsistent_pair_is_rejected[affinity] ____________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1127/test_rehashed_inconsistent_pai6')
+mutation = 'affinity'
+
+    @pytest.mark.parametrize('mutation', ['fixture', 'readiness', 'command', 'client_id', 'ownership',
+        'summary_count', 'affinity', 'cpu', 'pid_epoch', 'binary', 'build', 'forced', 'extra_flag', 'hash_format'])
+    def test_rehashed_inconsistent_pair_is_rejected(tmp_path, mutation):
+        source, destination = peers(tmp_path)
+        root = destination if mutation == 'fixture' else source
+        filename = {'fixture': 'environment.json', 'readiness': 'input-readiness.json',
+            'command': 'command.json', 'summary_count': 'result.json', 'build': 'build-manifest.json',
+            'extra_flag': 'command.json', 'hash_format': 'environment.json'}.get(mutation)
+        if filename:
+            value = json.loads((root / filename).read_text())
+            if mutation == 'fixture': value['fixture_sha256']['certificates']['source.der'] = 'd' * 64
+            elif mutation == 'readiness': value['endpoint'] = '192.0.2.3:4444'
+            elif mutation == 'command': value['argv'][value['argv'].index('--lifecycle-source-shards') + 1] = '1'
+            elif mutation == 'summary_count': value['successful'] = 15
+            elif mutation == 'build': value['source_sha'] = 'f' * 40
+            elif mutation == 'extra_flag': value['argv'] += ['--b3-keep-alive-ms', '100']
+            elif mutation == 'hash_format': value['fixture_sha256']['certificates']['ca.der'] = 'invalid'
+            write(root, filename, value)
+        elif mutation in ('client_id', 'ownership'):
+            rows = [json.loads(x) for x in (root / 'stdout').read_text().splitlines()]
+            if mutation == 'client_id': rows[0]['logical_client_id'] = 1
+            else: rows[-1][FIELDS[0]] = 1
+            (root / 'stdout').write_text(''.join(json.dumps(r) + '\n' for r in rows))
+        elif mutation in ('affinity', 'cpu', 'pid_epoch'):
+            rows = [json.loads(x) for x in (root / 'resources.ndjson').read_text().splitlines()]
+            if mutation == 'affinity': rows[-1]['affinity'] = [1]
+            elif mutation == 'cpu': rows[-1]['cpu_ns'] = 0
+            else: rows[-1]['start_ticks'] = 2
+            (root / 'resources.ndjson').write_text(''.join(json.dumps(r) + '\n' for r in rows))
+        elif mutation == 'binary': (root / 'executed-binary').write_bytes(b'changed')
+        elif mutation == 'forced': write(root, 'forced-cleanup.json', {'valid': False})
+        seal_output(root)
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_linux_native_lifecycle_pair.py:108: Failed
+______________ test_rehashed_inconsistent_pair_is_rejected[cpu] _______________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1127/test_rehashed_inconsistent_pai7')
+mutation = 'cpu'
+
+    @pytest.mark.parametrize('mutation', ['fixture', 'readiness', 'command', 'client_id', 'ownership',
+        'summary_count', 'affinity', 'cpu', 'pid_epoch', 'binary', 'build', 'forced', 'extra_flag', 'hash_format'])
+    def test_rehashed_inconsistent_pair_is_rejected(tmp_path, mutation):
+        source, destination = peers(tmp_path)
+        root = destination if mutation == 'fixture' else source
+        filename = {'fixture': 'environment.json', 'readiness': 'input-readiness.json',
+            'command': 'command.json', 'summary_count': 'result.json', 'build': 'build-manifest.json',
+            'extra_flag': 'command.json', 'hash_format': 'environment.json'}.get(mutation)
+        if filename:
+            value = json.loads((root / filename).read_text())
+            if mutation == 'fixture': value['fixture_sha256']['certificates']['source.der'] = 'd' * 64
+            elif mutation == 'readiness': value['endpoint'] = '192.0.2.3:4444'
+            elif mutation == 'command': value['argv'][value['argv'].index('--lifecycle-source-shards') + 1] = '1'
+            elif mutation == 'summary_count': value['successful'] = 15
+            elif mutation == 'build': value['source_sha'] = 'f' * 40
+            elif mutation == 'extra_flag': value['argv'] += ['--b3-keep-alive-ms', '100']
+            elif mutation == 'hash_format': value['fixture_sha256']['certificates']['ca.der'] = 'invalid'
+            write(root, filename, value)
+        elif mutation in ('client_id', 'ownership'):
+            rows = [json.loads(x) for x in (root / 'stdout').read_text().splitlines()]
+            if mutation == 'client_id': rows[0]['logical_client_id'] = 1
+            else: rows[-1][FIELDS[0]] = 1
+            (root / 'stdout').write_text(''.join(json.dumps(r) + '\n' for r in rows))
+        elif mutation in ('affinity', 'cpu', 'pid_epoch'):
+            rows = [json.loads(x) for x in (root / 'resources.ndjson').read_text().splitlines()]
+            if mutation == 'affinity': rows[-1]['affinity'] = [1]
+            elif mutation == 'cpu': rows[-1]['cpu_ns'] = 0
+            else: rows[-1]['start_ticks'] = 2
+            (root / 'resources.ndjson').write_text(''.join(json.dumps(r) + '\n' for r in rows))
+        elif mutation == 'binary': (root / 'executed-binary').write_bytes(b'changed')
+        elif mutation == 'forced': write(root, 'forced-cleanup.json', {'valid': False})
+        seal_output(root)
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_linux_native_lifecycle_pair.py:108: Failed
+___________ test_rehashed_inconsistent_pair_is_rejected[pid_epoch] ____________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1127/test_rehashed_inconsistent_pai8')
+mutation = 'pid_epoch'
+
+    @pytest.mark.parametrize('mutation', ['fixture', 'readiness', 'command', 'client_id', 'ownership',
+        'summary_count', 'affinity', 'cpu', 'pid_epoch', 'binary', 'build', 'forced', 'extra_flag', 'hash_format'])
+    def test_rehashed_inconsistent_pair_is_rejected(tmp_path, mutation):
+        source, destination = peers(tmp_path)
+        root = destination if mutation == 'fixture' else source
+        filename = {'fixture': 'environment.json', 'readiness': 'input-readiness.json',
+            'command': 'command.json', 'summary_count': 'result.json', 'build': 'build-manifest.json',
+            'extra_flag': 'command.json', 'hash_format': 'environment.json'}.get(mutation)
+        if filename:
+            value = json.loads((root / filename).read_text())
+            if mutation == 'fixture': value['fixture_sha256']['certificates']['source.der'] = 'd' * 64
+            elif mutation == 'readiness': value['endpoint'] = '192.0.2.3:4444'
+            elif mutation == 'command': value['argv'][value['argv'].index('--lifecycle-source-shards') + 1] = '1'
+            elif mutation == 'summary_count': value['successful'] = 15
+            elif mutation == 'build': value['source_sha'] = 'f' * 40
+            elif mutation == 'extra_flag': value['argv'] += ['--b3-keep-alive-ms', '100']
+            elif mutation == 'hash_format': value['fixture_sha256']['certificates']['ca.der'] = 'invalid'
+            write(root, filename, value)
+        elif mutation in ('client_id', 'ownership'):
+            rows = [json.loads(x) for x in (root / 'stdout').read_text().splitlines()]
+            if mutation == 'client_id': rows[0]['logical_client_id'] = 1
+            else: rows[-1][FIELDS[0]] = 1
+            (root / 'stdout').write_text(''.join(json.dumps(r) + '\n' for r in rows))
+        elif mutation in ('affinity', 'cpu', 'pid_epoch'):
+            rows = [json.loads(x) for x in (root / 'resources.ndjson').read_text().splitlines()]
+            if mutation == 'affinity': rows[-1]['affinity'] = [1]
+            elif mutation == 'cpu': rows[-1]['cpu_ns'] = 0
+            else: rows[-1]['start_ticks'] = 2
+            (root / 'resources.ndjson').write_text(''.join(json.dumps(r) + '\n' for r in rows))
+        elif mutation == 'binary': (root / 'executed-binary').write_bytes(b'changed')
+        elif mutation == 'forced': write(root, 'forced-cleanup.json', {'valid': False})
+        seal_output(root)
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_linux_native_lifecycle_pair.py:108: Failed
+_____________ test_rehashed_inconsistent_pair_is_rejected[binary] _____________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1127/test_rehashed_inconsistent_pai9')
+mutation = 'binary'
+
+    @pytest.mark.parametrize('mutation', ['fixture', 'readiness', 'command', 'client_id', 'ownership',
+        'summary_count', 'affinity', 'cpu', 'pid_epoch', 'binary', 'build', 'forced', 'extra_flag', 'hash_format'])
+    def test_rehashed_inconsistent_pair_is_rejected(tmp_path, mutation):
+        source, destination = peers(tmp_path)
+        root = destination if mutation == 'fixture' else source
+        filename = {'fixture': 'environment.json', 'readiness': 'input-readiness.json',
+            'command': 'command.json', 'summary_count': 'result.json', 'build': 'build-manifest.json',
+            'extra_flag': 'command.json', 'hash_format': 'environment.json'}.get(mutation)
+        if filename:
+            value = json.loads((root / filename).read_text())
+            if mutation == 'fixture': value['fixture_sha256']['certificates']['source.der'] = 'd' * 64
+            elif mutation == 'readiness': value['endpoint'] = '192.0.2.3:4444'
+            elif mutation == 'command': value['argv'][value['argv'].index('--lifecycle-source-shards') + 1] = '1'
+            elif mutation == 'summary_count': value['successful'] = 15
+            elif mutation == 'build': value['source_sha'] = 'f' * 40
+            elif mutation == 'extra_flag': value['argv'] += ['--b3-keep-alive-ms', '100']
+            elif mutation == 'hash_format': value['fixture_sha256']['certificates']['ca.der'] = 'invalid'
+            write(root, filename, value)
+        elif mutation in ('client_id', 'ownership'):
+            rows = [json.loads(x) for x in (root / 'stdout').read_text().splitlines()]
+            if mutation == 'client_id': rows[0]['logical_client_id'] = 1
+            else: rows[-1][FIELDS[0]] = 1
+            (root / 'stdout').write_text(''.join(json.dumps(r) + '\n' for r in rows))
+        elif mutation in ('affinity', 'cpu', 'pid_epoch'):
+            rows = [json.loads(x) for x in (root / 'resources.ndjson').read_text().splitlines()]
+            if mutation == 'affinity': rows[-1]['affinity'] = [1]
+            elif mutation == 'cpu': rows[-1]['cpu_ns'] = 0
+            else: rows[-1]['start_ticks'] = 2
+            (root / 'resources.ndjson').write_text(''.join(json.dumps(r) + '\n' for r in rows))
+        elif mutation == 'binary': (root / 'executed-binary').write_bytes(b'changed')
+        elif mutation == 'forced': write(root, 'forced-cleanup.json', {'valid': False})
+        seal_output(root)
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_linux_native_lifecycle_pair.py:108: Failed
+_____________ test_rehashed_inconsistent_pair_is_rejected[build] ______________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1127/test_rehashed_inconsistent_pai10')
+mutation = 'build'
+
+    @pytest.mark.parametrize('mutation', ['fixture', 'readiness', 'command', 'client_id', 'ownership',
+        'summary_count', 'affinity', 'cpu', 'pid_epoch', 'binary', 'build', 'forced', 'extra_flag', 'hash_format'])
+    def test_rehashed_inconsistent_pair_is_rejected(tmp_path, mutation):
+        source, destination = peers(tmp_path)
+        root = destination if mutation == 'fixture' else source
+        filename = {'fixture': 'environment.json', 'readiness': 'input-readiness.json',
+            'command': 'command.json', 'summary_count': 'result.json', 'build': 'build-manifest.json',
+            'extra_flag': 'command.json', 'hash_format': 'environment.json'}.get(mutation)
+        if filename:
+            value = json.loads((root / filename).read_text())
+            if mutation == 'fixture': value['fixture_sha256']['certificates']['source.der'] = 'd' * 64
+            elif mutation == 'readiness': value['endpoint'] = '192.0.2.3:4444'
+            elif mutation == 'command': value['argv'][value['argv'].index('--lifecycle-source-shards') + 1] = '1'
+            elif mutation == 'summary_count': value['successful'] = 15
+            elif mutation == 'build': value['source_sha'] = 'f' * 40
+            elif mutation == 'extra_flag': value['argv'] += ['--b3-keep-alive-ms', '100']
+            elif mutation == 'hash_format': value['fixture_sha256']['certificates']['ca.der'] = 'invalid'
+            write(root, filename, value)
+        elif mutation in ('client_id', 'ownership'):
+            rows = [json.loads(x) for x in (root / 'stdout').read_text().splitlines()]
+            if mutation == 'client_id': rows[0]['logical_client_id'] = 1
+            else: rows[-1][FIELDS[0]] = 1
+            (root / 'stdout').write_text(''.join(json.dumps(r) + '\n' for r in rows))
+        elif mutation in ('affinity', 'cpu', 'pid_epoch'):
+            rows = [json.loads(x) for x in (root / 'resources.ndjson').read_text().splitlines()]
+            if mutation == 'affinity': rows[-1]['affinity'] = [1]
+            elif mutation == 'cpu': rows[-1]['cpu_ns'] = 0
+            else: rows[-1]['start_ticks'] = 2
+            (root / 'resources.ndjson').write_text(''.join(json.dumps(r) + '\n' for r in rows))
+        elif mutation == 'binary': (root / 'executed-binary').write_bytes(b'changed')
+        elif mutation == 'forced': write(root, 'forced-cleanup.json', {'valid': False})
+        seal_output(root)
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_linux_native_lifecycle_pair.py:108: Failed
+_____________ test_rehashed_inconsistent_pair_is_rejected[forced] _____________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1127/test_rehashed_inconsistent_pai11')
+mutation = 'forced'
+
+    @pytest.mark.parametrize('mutation', ['fixture', 'readiness', 'command', 'client_id', 'ownership',
+        'summary_count', 'affinity', 'cpu', 'pid_epoch', 'binary', 'build', 'forced', 'extra_flag', 'hash_format'])
+    def test_rehashed_inconsistent_pair_is_rejected(tmp_path, mutation):
+        source, destination = peers(tmp_path)
+        root = destination if mutation == 'fixture' else source
+        filename = {'fixture': 'environment.json', 'readiness': 'input-readiness.json',
+            'command': 'command.json', 'summary_count': 'result.json', 'build': 'build-manifest.json',
+            'extra_flag': 'command.json', 'hash_format': 'environment.json'}.get(mutation)
+        if filename:
+            value = json.loads((root / filename).read_text())
+            if mutation == 'fixture': value['fixture_sha256']['certificates']['source.der'] = 'd' * 64
+            elif mutation == 'readiness': value['endpoint'] = '192.0.2.3:4444'
+            elif mutation == 'command': value['argv'][value['argv'].index('--lifecycle-source-shards') + 1] = '1'
+            elif mutation == 'summary_count': value['successful'] = 15
+            elif mutation == 'build': value['source_sha'] = 'f' * 40
+            elif mutation == 'extra_flag': value['argv'] += ['--b3-keep-alive-ms', '100']
+            elif mutation == 'hash_format': value['fixture_sha256']['certificates']['ca.der'] = 'invalid'
+            write(root, filename, value)
+        elif mutation in ('client_id', 'ownership'):
+            rows = [json.loads(x) for x in (root / 'stdout').read_text().splitlines()]
+            if mutation == 'client_id': rows[0]['logical_client_id'] = 1
+            else: rows[-1][FIELDS[0]] = 1
+            (root / 'stdout').write_text(''.join(json.dumps(r) + '\n' for r in rows))
+        elif mutation in ('affinity', 'cpu', 'pid_epoch'):
+            rows = [json.loads(x) for x in (root / 'resources.ndjson').read_text().splitlines()]
+            if mutation == 'affinity': rows[-1]['affinity'] = [1]
+            elif mutation == 'cpu': rows[-1]['cpu_ns'] = 0
+            else: rows[-1]['start_ticks'] = 2
+            (root / 'resources.ndjson').write_text(''.join(json.dumps(r) + '\n' for r in rows))
+        elif mutation == 'binary': (root / 'executed-binary').write_bytes(b'changed')
+        elif mutation == 'forced': write(root, 'forced-cleanup.json', {'valid': False})
+        seal_output(root)
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_linux_native_lifecycle_pair.py:108: Failed
+___________ test_rehashed_inconsistent_pair_is_rejected[extra_flag] ___________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1127/test_rehashed_inconsistent_pai12')
+mutation = 'extra_flag'
+
+    @pytest.mark.parametrize('mutation', ['fixture', 'readiness', 'command', 'client_id', 'ownership',
+        'summary_count', 'affinity', 'cpu', 'pid_epoch', 'binary', 'build', 'forced', 'extra_flag', 'hash_format'])
+    def test_rehashed_inconsistent_pair_is_rejected(tmp_path, mutation):
+        source, destination = peers(tmp_path)
+        root = destination if mutation == 'fixture' else source
+        filename = {'fixture': 'environment.json', 'readiness': 'input-readiness.json',
+            'command': 'command.json', 'summary_count': 'result.json', 'build': 'build-manifest.json',
+            'extra_flag': 'command.json', 'hash_format': 'environment.json'}.get(mutation)
+        if filename:
+            value = json.loads((root / filename).read_text())
+            if mutation == 'fixture': value['fixture_sha256']['certificates']['source.der'] = 'd' * 64
+            elif mutation == 'readiness': value['endpoint'] = '192.0.2.3:4444'
+            elif mutation == 'command': value['argv'][value['argv'].index('--lifecycle-source-shards') + 1] = '1'
+            elif mutation == 'summary_count': value['successful'] = 15
+            elif mutation == 'build': value['source_sha'] = 'f' * 40
+            elif mutation == 'extra_flag': value['argv'] += ['--b3-keep-alive-ms', '100']
+            elif mutation == 'hash_format': value['fixture_sha256']['certificates']['ca.der'] = 'invalid'
+            write(root, filename, value)
+        elif mutation in ('client_id', 'ownership'):
+            rows = [json.loads(x) for x in (root / 'stdout').read_text().splitlines()]
+            if mutation == 'client_id': rows[0]['logical_client_id'] = 1
+            else: rows[-1][FIELDS[0]] = 1
+            (root / 'stdout').write_text(''.join(json.dumps(r) + '\n' for r in rows))
+        elif mutation in ('affinity', 'cpu', 'pid_epoch'):
+            rows = [json.loads(x) for x in (root / 'resources.ndjson').read_text().splitlines()]
+            if mutation == 'affinity': rows[-1]['affinity'] = [1]
+            elif mutation == 'cpu': rows[-1]['cpu_ns'] = 0
+            else: rows[-1]['start_ticks'] = 2
+            (root / 'resources.ndjson').write_text(''.join(json.dumps(r) + '\n' for r in rows))
+        elif mutation == 'binary': (root / 'executed-binary').write_bytes(b'changed')
+        elif mutation == 'forced': write(root, 'forced-cleanup.json', {'valid': False})
+        seal_output(root)
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_linux_native_lifecycle_pair.py:108: Failed
+__________ test_rehashed_inconsistent_pair_is_rejected[hash_format] ___________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1127/test_rehashed_inconsistent_pai13')
+mutation = 'hash_format'
+
+    @pytest.mark.parametrize('mutation', ['fixture', 'readiness', 'command', 'client_id', 'ownership',
+        'summary_count', 'affinity', 'cpu', 'pid_epoch', 'binary', 'build', 'forced', 'extra_flag', 'hash_format'])
+    def test_rehashed_inconsistent_pair_is_rejected(tmp_path, mutation):
+        source, destination = peers(tmp_path)
+        root = destination if mutation == 'fixture' else source
+        filename = {'fixture': 'environment.json', 'readiness': 'input-readiness.json',
+            'command': 'command.json', 'summary_count': 'result.json', 'build': 'build-manifest.json',
+            'extra_flag': 'command.json', 'hash_format': 'environment.json'}.get(mutation)
+        if filename:
+            value = json.loads((root / filename).read_text())
+            if mutation == 'fixture': value['fixture_sha256']['certificates']['source.der'] = 'd' * 64
+            elif mutation == 'readiness': value['endpoint'] = '192.0.2.3:4444'
+            elif mutation == 'command': value['argv'][value['argv'].index('--lifecycle-source-shards') + 1] = '1'
+            elif mutation == 'summary_count': value['successful'] = 15
+            elif mutation == 'build': value['source_sha'] = 'f' * 40
+            elif mutation == 'extra_flag': value['argv'] += ['--b3-keep-alive-ms', '100']
+            elif mutation == 'hash_format': value['fixture_sha256']['certificates']['ca.der'] = 'invalid'
+            write(root, filename, value)
+        elif mutation in ('client_id', 'ownership'):
+            rows = [json.loads(x) for x in (root / 'stdout').read_text().splitlines()]
+            if mutation == 'client_id': rows[0]['logical_client_id'] = 1
+            else: rows[-1][FIELDS[0]] = 1
+            (root / 'stdout').write_text(''.join(json.dumps(r) + '\n' for r in rows))
+        elif mutation in ('affinity', 'cpu', 'pid_epoch'):
+            rows = [json.loads(x) for x in (root / 'resources.ndjson').read_text().splitlines()]
+            if mutation == 'affinity': rows[-1]['affinity'] = [1]
+            elif mutation == 'cpu': rows[-1]['cpu_ns'] = 0
+            else: rows[-1]['start_ticks'] = 2
+            (root / 'resources.ndjson').write_text(''.join(json.dumps(r) + '\n' for r in rows))
+        elif mutation == 'binary': (root / 'executed-binary').write_bytes(b'changed')
+        elif mutation == 'forced': write(root, 'forced-cleanup.json', {'valid': False})
+        seal_output(root)
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_linux_native_lifecycle_pair.py:108: Failed
+=========================== short test summary info ===========================
+FAILED tests/performance/test_linux_native_lifecycle_pair.py::test_pair_rechecks_raw_outcomes_without_claiming_a_held_barrier
+FAILED tests/performance/test_linux_native_lifecycle_pair.py::test_rehashed_inconsistent_pair_is_rejected[fixture]
+FAILED tests/performance/test_linux_native_lifecycle_pair.py::test_rehashed_inconsistent_pair_is_rejected[readiness]
+FAILED tests/performance/test_linux_native_lifecycle_pair.py::test_rehashed_inconsistent_pair_is_rejected[command]
+FAILED tests/performance/test_linux_native_lifecycle_pair.py::test_rehashed_inconsistent_pair_is_rejected[client_id]
+FAILED tests/performance/test_linux_native_lifecycle_pair.py::test_rehashed_inconsistent_pair_is_rejected[ownership]
+FAILED tests/performance/test_linux_native_lifecycle_pair.py::test_rehashed_inconsistent_pair_is_rejected[summary_count]
+FAILED tests/performance/test_linux_native_lifecycle_pair.py::test_rehashed_inconsistent_pair_is_rejected[affinity]
+FAILED tests/performance/test_linux_native_lifecycle_pair.py::test_rehashed_inconsistent_pair_is_rejected[cpu]
+FAILED tests/performance/test_linux_native_lifecycle_pair.py::test_rehashed_inconsistent_pair_is_rejected[pid_epoch]
+FAILED tests/performance/test_linux_native_lifecycle_pair.py::test_rehashed_inconsistent_pair_is_rejected[binary]
+FAILED tests/performance/test_linux_native_lifecycle_pair.py::test_rehashed_inconsistent_pair_is_rejected[build]
+FAILED tests/performance/test_linux_native_lifecycle_pair.py::test_rehashed_inconsistent_pair_is_rejected[forced]
+FAILED tests/performance/test_linux_native_lifecycle_pair.py::test_rehashed_inconsistent_pair_is_rejected[extra_flag]
+FAILED tests/performance/test_linux_native_lifecycle_pair.py::test_rehashed_inconsistent_pair_is_rejected[hash_format]
+15 failed in 2.29s
