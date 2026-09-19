@@ -1,0 +1,409 @@
+FFFFFFFFFFFF                                                             [100%]
+================================== FAILURES ===================================
+_ test_declared_markers_are_excluded_but_counted_and_do_not_prove_whole_workload _
+
+    def test_declared_markers_are_excluded_but_counted_and_do_not_prove_whole_workload():
+>       result = analyze([marker(), frame(), frame(SERVER, CLIENT), marker(True)])
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\performance\test_native_packet_markers.py:27: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+frames = [b'\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x08\x00E\x00\x00<\x00\x01\x00\x00@\x11\x00\x00\xc0\x00\x02\n\xc0\x...d\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd']
+probe = None
+
+    def analyze(frames, probe=None):
+        from scripts.performance.linux_native_packet_accounting import account_capture
+        n = len(frames)
+        log = f"Packets captured: {n}\nPackets received/dropped on interface 'eth0': {n}/0 " \
+              "(pcap:0/dumpcap:0/flushed:0/ps_ifdrop:0)\n"
+>       return account_capture(capture(frames), interface='eth0', client=CLIENT, server=SERVER,
+                               drop_log=log, probe=PROBE if probe is None else probe)
+E       TypeError: account_capture() got an unexpected keyword argument 'probe'
+
+tests\performance\test_native_packet_markers.py:22: TypeError
+__ test_missing_or_misordered_markers_never_allow_silent_truncation[frames0] __
+
+frames = [b'\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x08\x00E\x00\x00 \x00\x01\x00\x00@\x11\x00\x00\xc0\x00\x02\n\xc0\x...d\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd']
+
+    @pytest.mark.parametrize('frames', [
+        [frame(), marker(), frame(SERVER, CLIENT), marker(True)],
+        [marker(), frame(), marker(True), frame(SERVER, CLIENT)],
+        [marker(), frame(), frame(SERVER, CLIENT)],
+        [frame(), frame(SERVER, CLIENT), marker(True)],
+        [marker(), frame(), frame(SERVER, CLIENT), marker(), marker(True)],
+        [marker(True), frame(), frame(SERVER, CLIENT), marker()],
+    ])
+    def test_missing_or_misordered_markers_never_allow_silent_truncation(frames):
+        with pytest.raises(ValueError, match='marker'):
+>           analyze(frames)
+
+tests\performance\test_native_packet_markers.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+frames = [b'\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x08\x00E\x00\x00 \x00\x01\x00\x00@\x11\x00\x00\xc0\x00\x02\n\xc0\x...d\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd']
+probe = None
+
+    def analyze(frames, probe=None):
+        from scripts.performance.linux_native_packet_accounting import account_capture
+        n = len(frames)
+        log = f"Packets captured: {n}\nPackets received/dropped on interface 'eth0': {n}/0 " \
+              "(pcap:0/dumpcap:0/flushed:0/ps_ifdrop:0)\n"
+>       return account_capture(capture(frames), interface='eth0', client=CLIENT, server=SERVER,
+                               drop_log=log, probe=PROBE if probe is None else probe)
+E       TypeError: account_capture() got an unexpected keyword argument 'probe'
+
+tests\performance\test_native_packet_markers.py:22: TypeError
+__ test_missing_or_misordered_markers_never_allow_silent_truncation[frames1] __
+
+frames = [b'\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x08\x00E\x00\x00<\x00\x01\x00\x00@\x11\x00\x00\xc0\x00\x02\n\xc0\x...x01\x01\x08\x00E\x00\x00 \x00\x01\x00\x00@\x11\x00\x00\xc0\x00\x02\x14\xc0\x00\x02\n\xa4\x10\xa0(\x00\x0c\x00\x00test']
+
+    @pytest.mark.parametrize('frames', [
+        [frame(), marker(), frame(SERVER, CLIENT), marker(True)],
+        [marker(), frame(), marker(True), frame(SERVER, CLIENT)],
+        [marker(), frame(), frame(SERVER, CLIENT)],
+        [frame(), frame(SERVER, CLIENT), marker(True)],
+        [marker(), frame(), frame(SERVER, CLIENT), marker(), marker(True)],
+        [marker(True), frame(), frame(SERVER, CLIENT), marker()],
+    ])
+    def test_missing_or_misordered_markers_never_allow_silent_truncation(frames):
+        with pytest.raises(ValueError, match='marker'):
+>           analyze(frames)
+
+tests\performance\test_native_packet_markers.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+frames = [b'\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x08\x00E\x00\x00<\x00\x01\x00\x00@\x11\x00\x00\xc0\x00\x02\n\xc0\x...x01\x01\x08\x00E\x00\x00 \x00\x01\x00\x00@\x11\x00\x00\xc0\x00\x02\x14\xc0\x00\x02\n\xa4\x10\xa0(\x00\x0c\x00\x00test']
+probe = None
+
+    def analyze(frames, probe=None):
+        from scripts.performance.linux_native_packet_accounting import account_capture
+        n = len(frames)
+        log = f"Packets captured: {n}\nPackets received/dropped on interface 'eth0': {n}/0 " \
+              "(pcap:0/dumpcap:0/flushed:0/ps_ifdrop:0)\n"
+>       return account_capture(capture(frames), interface='eth0', client=CLIENT, server=SERVER,
+                               drop_log=log, probe=PROBE if probe is None else probe)
+E       TypeError: account_capture() got an unexpected keyword argument 'probe'
+
+tests\performance\test_native_packet_markers.py:22: TypeError
+__ test_missing_or_misordered_markers_never_allow_silent_truncation[frames2] __
+
+frames = [b'\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x08\x00E\x00\x00<\x00\x01\x00\x00@\x11\x00\x00\xc0\x00\x02\n\xc0\x...x01\x01\x08\x00E\x00\x00 \x00\x01\x00\x00@\x11\x00\x00\xc0\x00\x02\x14\xc0\x00\x02\n\xa4\x10\xa0(\x00\x0c\x00\x00test']
+
+    @pytest.mark.parametrize('frames', [
+        [frame(), marker(), frame(SERVER, CLIENT), marker(True)],
+        [marker(), frame(), marker(True), frame(SERVER, CLIENT)],
+        [marker(), frame(), frame(SERVER, CLIENT)],
+        [frame(), frame(SERVER, CLIENT), marker(True)],
+        [marker(), frame(), frame(SERVER, CLIENT), marker(), marker(True)],
+        [marker(True), frame(), frame(SERVER, CLIENT), marker()],
+    ])
+    def test_missing_or_misordered_markers_never_allow_silent_truncation(frames):
+        with pytest.raises(ValueError, match='marker'):
+>           analyze(frames)
+
+tests\performance\test_native_packet_markers.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+frames = [b'\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x08\x00E\x00\x00<\x00\x01\x00\x00@\x11\x00\x00\xc0\x00\x02\n\xc0\x...x01\x01\x08\x00E\x00\x00 \x00\x01\x00\x00@\x11\x00\x00\xc0\x00\x02\x14\xc0\x00\x02\n\xa4\x10\xa0(\x00\x0c\x00\x00test']
+probe = None
+
+    def analyze(frames, probe=None):
+        from scripts.performance.linux_native_packet_accounting import account_capture
+        n = len(frames)
+        log = f"Packets captured: {n}\nPackets received/dropped on interface 'eth0': {n}/0 " \
+              "(pcap:0/dumpcap:0/flushed:0/ps_ifdrop:0)\n"
+>       return account_capture(capture(frames), interface='eth0', client=CLIENT, server=SERVER,
+                               drop_log=log, probe=PROBE if probe is None else probe)
+E       TypeError: account_capture() got an unexpected keyword argument 'probe'
+
+tests\performance\test_native_packet_markers.py:22: TypeError
+__ test_missing_or_misordered_markers_never_allow_silent_truncation[frames3] __
+
+frames = [b'\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x08\x00E\x00\x00 \x00\x01\x00\x00@\x11\x00\x00\xc0\x00\x02\n\xc0\x...d\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd']
+
+    @pytest.mark.parametrize('frames', [
+        [frame(), marker(), frame(SERVER, CLIENT), marker(True)],
+        [marker(), frame(), marker(True), frame(SERVER, CLIENT)],
+        [marker(), frame(), frame(SERVER, CLIENT)],
+        [frame(), frame(SERVER, CLIENT), marker(True)],
+        [marker(), frame(), frame(SERVER, CLIENT), marker(), marker(True)],
+        [marker(True), frame(), frame(SERVER, CLIENT), marker()],
+    ])
+    def test_missing_or_misordered_markers_never_allow_silent_truncation(frames):
+        with pytest.raises(ValueError, match='marker'):
+>           analyze(frames)
+
+tests\performance\test_native_packet_markers.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+frames = [b'\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x08\x00E\x00\x00 \x00\x01\x00\x00@\x11\x00\x00\xc0\x00\x02\n\xc0\x...d\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd']
+probe = None
+
+    def analyze(frames, probe=None):
+        from scripts.performance.linux_native_packet_accounting import account_capture
+        n = len(frames)
+        log = f"Packets captured: {n}\nPackets received/dropped on interface 'eth0': {n}/0 " \
+              "(pcap:0/dumpcap:0/flushed:0/ps_ifdrop:0)\n"
+>       return account_capture(capture(frames), interface='eth0', client=CLIENT, server=SERVER,
+                               drop_log=log, probe=PROBE if probe is None else probe)
+E       TypeError: account_capture() got an unexpected keyword argument 'probe'
+
+tests\performance\test_native_packet_markers.py:22: TypeError
+__ test_missing_or_misordered_markers_never_allow_silent_truncation[frames4] __
+
+frames = [b'\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x08\x00E\x00\x00<\x00\x01\x00\x00@\x11\x00\x00\xc0\x00\x02\n\xc0\x...d\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd']
+
+    @pytest.mark.parametrize('frames', [
+        [frame(), marker(), frame(SERVER, CLIENT), marker(True)],
+        [marker(), frame(), marker(True), frame(SERVER, CLIENT)],
+        [marker(), frame(), frame(SERVER, CLIENT)],
+        [frame(), frame(SERVER, CLIENT), marker(True)],
+        [marker(), frame(), frame(SERVER, CLIENT), marker(), marker(True)],
+        [marker(True), frame(), frame(SERVER, CLIENT), marker()],
+    ])
+    def test_missing_or_misordered_markers_never_allow_silent_truncation(frames):
+        with pytest.raises(ValueError, match='marker'):
+>           analyze(frames)
+
+tests\performance\test_native_packet_markers.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+frames = [b'\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x08\x00E\x00\x00<\x00\x01\x00\x00@\x11\x00\x00\xc0\x00\x02\n\xc0\x...d\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd']
+probe = None
+
+    def analyze(frames, probe=None):
+        from scripts.performance.linux_native_packet_accounting import account_capture
+        n = len(frames)
+        log = f"Packets captured: {n}\nPackets received/dropped on interface 'eth0': {n}/0 " \
+              "(pcap:0/dumpcap:0/flushed:0/ps_ifdrop:0)\n"
+>       return account_capture(capture(frames), interface='eth0', client=CLIENT, server=SERVER,
+                               drop_log=log, probe=PROBE if probe is None else probe)
+E       TypeError: account_capture() got an unexpected keyword argument 'probe'
+
+tests\performance\test_native_packet_markers.py:22: TypeError
+__ test_missing_or_misordered_markers_never_allow_silent_truncation[frames5] __
+
+frames = [b'\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x08\x00E\x00\x00<\x00\x01\x00\x00@\x11\x00\x00\xc0\x00\x02\n\xc0\x...b\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab']
+
+    @pytest.mark.parametrize('frames', [
+        [frame(), marker(), frame(SERVER, CLIENT), marker(True)],
+        [marker(), frame(), marker(True), frame(SERVER, CLIENT)],
+        [marker(), frame(), frame(SERVER, CLIENT)],
+        [frame(), frame(SERVER, CLIENT), marker(True)],
+        [marker(), frame(), frame(SERVER, CLIENT), marker(), marker(True)],
+        [marker(True), frame(), frame(SERVER, CLIENT), marker()],
+    ])
+    def test_missing_or_misordered_markers_never_allow_silent_truncation(frames):
+        with pytest.raises(ValueError, match='marker'):
+>           analyze(frames)
+
+tests\performance\test_native_packet_markers.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+frames = [b'\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x08\x00E\x00\x00<\x00\x01\x00\x00@\x11\x00\x00\xc0\x00\x02\n\xc0\x...b\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab']
+probe = None
+
+    def analyze(frames, probe=None):
+        from scripts.performance.linux_native_packet_accounting import account_capture
+        n = len(frames)
+        log = f"Packets captured: {n}\nPackets received/dropped on interface 'eth0': {n}/0 " \
+              "(pcap:0/dumpcap:0/flushed:0/ps_ifdrop:0)\n"
+>       return account_capture(capture(frames), interface='eth0', client=CLIENT, server=SERVER,
+                               drop_log=log, probe=PROBE if probe is None else probe)
+E       TypeError: account_capture() got an unexpected keyword argument 'probe'
+
+tests\performance\test_native_packet_markers.py:22: TypeError
+__________ test_marker_identity_and_token_confusion_reject[change0] ___________
+
+change = {'source_address': '192.0.2.30'}
+
+    @pytest.mark.parametrize('change', [dict(source_address='192.0.2.30'), dict(source_port=CLIENT[1]),
+                                       dict(terminal_token_hex=PROBE['token_hex']), dict(token_hex='ab')])
+    def test_marker_identity_and_token_confusion_reject(change):
+        with pytest.raises(ValueError):
+>           analyze([marker(), frame(), frame(SERVER, CLIENT), marker(True)], PROBE | change)
+
+tests\performance\test_native_packet_markers.py:53: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+frames = [b'\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x08\x00E\x00\x00<\x00\x01\x00\x00@\x11\x00\x00\xc0\x00\x02\n\xc0\x...d\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd']
+probe = {'destination_address': '192.0.2.20', 'destination_port': 44000, 'source_address': '192.0.2.30', 'source_port': 43000, ...}
+
+    def analyze(frames, probe=None):
+        from scripts.performance.linux_native_packet_accounting import account_capture
+        n = len(frames)
+        log = f"Packets captured: {n}\nPackets received/dropped on interface 'eth0': {n}/0 " \
+              "(pcap:0/dumpcap:0/flushed:0/ps_ifdrop:0)\n"
+>       return account_capture(capture(frames), interface='eth0', client=CLIENT, server=SERVER,
+                               drop_log=log, probe=PROBE if probe is None else probe)
+E       TypeError: account_capture() got an unexpected keyword argument 'probe'
+
+tests\performance\test_native_packet_markers.py:22: TypeError
+__________ test_marker_identity_and_token_confusion_reject[change1] ___________
+
+change = {'source_port': 41000}
+
+    @pytest.mark.parametrize('change', [dict(source_address='192.0.2.30'), dict(source_port=CLIENT[1]),
+                                       dict(terminal_token_hex=PROBE['token_hex']), dict(token_hex='ab')])
+    def test_marker_identity_and_token_confusion_reject(change):
+        with pytest.raises(ValueError):
+>           analyze([marker(), frame(), frame(SERVER, CLIENT), marker(True)], PROBE | change)
+
+tests\performance\test_native_packet_markers.py:53: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+frames = [b'\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x08\x00E\x00\x00<\x00\x01\x00\x00@\x11\x00\x00\xc0\x00\x02\n\xc0\x...d\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd']
+probe = {'destination_address': '192.0.2.20', 'destination_port': 44000, 'source_address': '192.0.2.10', 'source_port': 41000, ...}
+
+    def analyze(frames, probe=None):
+        from scripts.performance.linux_native_packet_accounting import account_capture
+        n = len(frames)
+        log = f"Packets captured: {n}\nPackets received/dropped on interface 'eth0': {n}/0 " \
+              "(pcap:0/dumpcap:0/flushed:0/ps_ifdrop:0)\n"
+>       return account_capture(capture(frames), interface='eth0', client=CLIENT, server=SERVER,
+                               drop_log=log, probe=PROBE if probe is None else probe)
+E       TypeError: account_capture() got an unexpected keyword argument 'probe'
+
+tests\performance\test_native_packet_markers.py:22: TypeError
+__________ test_marker_identity_and_token_confusion_reject[change2] ___________
+
+change = {'terminal_token_hex': 'abababababababababababababababababababababababababababababababab'}
+
+    @pytest.mark.parametrize('change', [dict(source_address='192.0.2.30'), dict(source_port=CLIENT[1]),
+                                       dict(terminal_token_hex=PROBE['token_hex']), dict(token_hex='ab')])
+    def test_marker_identity_and_token_confusion_reject(change):
+        with pytest.raises(ValueError):
+>           analyze([marker(), frame(), frame(SERVER, CLIENT), marker(True)], PROBE | change)
+
+tests\performance\test_native_packet_markers.py:53: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+frames = [b'\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x08\x00E\x00\x00<\x00\x01\x00\x00@\x11\x00\x00\xc0\x00\x02\n\xc0\x...d\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd']
+probe = {'destination_address': '192.0.2.20', 'destination_port': 44000, 'source_address': '192.0.2.10', 'source_port': 43000, ...}
+
+    def analyze(frames, probe=None):
+        from scripts.performance.linux_native_packet_accounting import account_capture
+        n = len(frames)
+        log = f"Packets captured: {n}\nPackets received/dropped on interface 'eth0': {n}/0 " \
+              "(pcap:0/dumpcap:0/flushed:0/ps_ifdrop:0)\n"
+>       return account_capture(capture(frames), interface='eth0', client=CLIENT, server=SERVER,
+                               drop_log=log, probe=PROBE if probe is None else probe)
+E       TypeError: account_capture() got an unexpected keyword argument 'probe'
+
+tests\performance\test_native_packet_markers.py:22: TypeError
+__________ test_marker_identity_and_token_confusion_reject[change3] ___________
+
+change = {'token_hex': 'ab'}
+
+    @pytest.mark.parametrize('change', [dict(source_address='192.0.2.30'), dict(source_port=CLIENT[1]),
+                                       dict(terminal_token_hex=PROBE['token_hex']), dict(token_hex='ab')])
+    def test_marker_identity_and_token_confusion_reject(change):
+        with pytest.raises(ValueError):
+>           analyze([marker(), frame(), frame(SERVER, CLIENT), marker(True)], PROBE | change)
+
+tests\performance\test_native_packet_markers.py:53: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+frames = [b'\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x08\x00E\x00\x00<\x00\x01\x00\x00@\x11\x00\x00\xc0\x00\x02\n\xc0\x...d\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd']
+probe = {'destination_address': '192.0.2.20', 'destination_port': 44000, 'source_address': '192.0.2.10', 'source_port': 43000, ...}
+
+    def analyze(frames, probe=None):
+        from scripts.performance.linux_native_packet_accounting import account_capture
+        n = len(frames)
+        log = f"Packets captured: {n}\nPackets received/dropped on interface 'eth0': {n}/0 " \
+              "(pcap:0/dumpcap:0/flushed:0/ps_ifdrop:0)\n"
+>       return account_capture(capture(frames), interface='eth0', client=CLIENT, server=SERVER,
+                               drop_log=log, probe=PROBE if probe is None else probe)
+E       TypeError: account_capture() got an unexpected keyword argument 'probe'
+
+tests\performance\test_native_packet_markers.py:22: TypeError
+__ test_nonloopback_live_prefix_reader_validates_probe_addresses_and_tokens ___
+
+    def test_nonloopback_live_prefix_reader_validates_probe_addresses_and_tokens():
+        from scripts.analyze_b1_v2_capture import probe_frames_from_pcapng
+        data = capture([marker()])
+>       assert probe_frames_from_pcapng(data, PROBE, expected_linktype=1) == {1: PROBE['token_hex']}
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\performance\test_native_packet_markers.py:59: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+data = b'\n\r\r\n\x1c\x00\x00\x00M<+\x1a\x01\x00\x00\x00\xff\xff\xff\xff\xff\xff\xff\xff\x1c\x00\x00\x00\x01\x00\x00\x00 \x00...b\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\x00\x00l\x00\x00\x00'
+probe = {'destination_address': '192.0.2.20', 'destination_port': 44000, 'source_address': '192.0.2.10', 'source_port': 43000, ...}
+
+    def probe_frames_from_pcapng(data, probe, *, expected_linktype=0):
+        """Inspect explicitly declared NULL/Ethernet IPv4 EPBs; final uses TShark.
+    
+        A trailing block being written is ignored, never interpreted as a packet.
+        This avoids launching an offline reader against a file still held by dumpcap.
+        """
+        if expected_linktype not in (0, 1):
+            raise ValueError("unsupported readiness link type")
+        if len(data) < 28:
+            return {}
+        if data[:4] != b"\x0a\x0d\x0d\x0a":
+            raise ValueError("readiness requires pcapng section header")
+        magic = data[8:12]
+        endian = "<" if magic == b"\x4d\x3c\x2b\x1a" else ">" if magic == b"\x1a\x2b\x3c\x4d" else None
+        if endian is None:
+            raise ValueError("invalid pcapng byte order")
+        offset, number = 0, 0
+        interfaces, payloads = [], {}
+        while offset + 12 <= len(data):
+            kind, length = struct.unpack_from(endian + "II", data, offset)
+            if length < 12 or length % 4:
+                raise ValueError("invalid pcapng block length")
+            if offset + length > len(data):
+                break
+            if struct.unpack_from(endian + "I", data, offset + length - 4)[0] != length:
+                raise ValueError("pcapng block trailer mismatch")
+            body = data[offset + 8:offset + length - 4]
+            if kind == 0x0A0D0D0A and offset:
+                raise ValueError("multiple readiness capture sections")
+            if kind == 1:
+                if len(body) < 8:
+                    raise ValueError("short pcapng interface block")
+                interfaces.append(struct.unpack_from(endian + "H", body)[0])
+            elif kind in (2, 3):
+                raise ValueError("unsupported readiness packet block")
+            elif kind == 6:
+                number += 1
+                if len(body) < 20:
+                    raise ValueError("short enhanced packet block")
+                interface, _, _, captured, original = struct.unpack_from(endian + "IIIII", body)
+                if interface >= len(interfaces) or interfaces[interface] != expected_linktype or captured != original or len(body) < 20 + captured:
+                    raise ValueError("unexpected readiness encapsulation or truncated packet")
+                frame = body[20:20 + captured]
+                if expected_linktype == 0:
+                    if len(frame) < 32 or struct.unpack_from(endian + "I", frame)[0] != 2:
+                        raise ValueError("readiness requires NULL IPv4 packet")
+                    ip = frame[4:]
+                else:
+                    if len(frame) < 42 or frame[12:14] != b"\x08\x00":
+                        raise ValueError("readiness requires untagged Ethernet IPv4 packet")
+                    ip = frame[14:]
+                header = (ip[0] & 15) * 4
+                if ip[0] >> 4 != 4 or header < 20 or len(ip) < header + 8 or ip[9] != 17:
+                    raise ValueError("invalid readiness IPv4/UDP header")
+                source, destination, udp_length = struct.unpack_from("!HHH", ip, header)
+                if (source, destination) == (probe["source_port"], probe["destination_port"]):
+                    if ip[12:20] != b"\x7f\x00\x00\x01" * 2 or int.from_bytes(ip[6:8], "big") & 0x3FFF:
+>                       raise ValueError("invalid readiness probe address or fragment")
+E                       ValueError: invalid readiness probe address or fragment
+
+scripts\analyze_b1_v2_capture.py:77: ValueError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_native_packet_markers.py::test_declared_markers_are_excluded_but_counted_and_do_not_prove_whole_workload
+FAILED tests/performance/test_native_packet_markers.py::test_missing_or_misordered_markers_never_allow_silent_truncation[frames0]
+FAILED tests/performance/test_native_packet_markers.py::test_missing_or_misordered_markers_never_allow_silent_truncation[frames1]
+FAILED tests/performance/test_native_packet_markers.py::test_missing_or_misordered_markers_never_allow_silent_truncation[frames2]
+FAILED tests/performance/test_native_packet_markers.py::test_missing_or_misordered_markers_never_allow_silent_truncation[frames3]
+FAILED tests/performance/test_native_packet_markers.py::test_missing_or_misordered_markers_never_allow_silent_truncation[frames4]
+FAILED tests/performance/test_native_packet_markers.py::test_missing_or_misordered_markers_never_allow_silent_truncation[frames5]
+FAILED tests/performance/test_native_packet_markers.py::test_marker_identity_and_token_confusion_reject[change0]
+FAILED tests/performance/test_native_packet_markers.py::test_marker_identity_and_token_confusion_reject[change1]
+FAILED tests/performance/test_native_packet_markers.py::test_marker_identity_and_token_confusion_reject[change2]
+FAILED tests/performance/test_native_packet_markers.py::test_marker_identity_and_token_confusion_reject[change3]
+FAILED tests/performance/test_native_packet_markers.py::test_nonloopback_live_prefix_reader_validates_probe_addresses_and_tokens
+12 failed in 0.73s

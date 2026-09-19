@@ -1,0 +1,174 @@
+{
+  "repeats": [
+    {
+      "schema": "nbsr-native-packet-accounting-v1",
+      "status": "DIAGNOSTIC_PACKET_ACCOUNTING_ONLY",
+      "interface": "eth0",
+      "client": [
+        "172.21.0.3",
+        41000
+      ],
+      "server": [
+        "172.21.0.2",
+        42000
+      ],
+      "declared_mtu": 1500,
+      "packet_count": 200,
+      "captured_frame_bytes": 14200,
+      "ip_bytes": 11400,
+      "udp_bytes": 7400,
+      "udp_payload_bytes": 5800,
+      "directions": {
+        "client_to_server": {
+          "packet_count": 100,
+          "captured_frame_bytes": 7100,
+          "ip_bytes": 5700,
+          "udp_bytes": 3700,
+          "udp_payload_bytes": 2900
+        },
+        "server_to_client": {
+          "packet_count": 100,
+          "captured_frame_bytes": 7100,
+          "ip_bytes": 5700,
+          "udp_bytes": 3700,
+          "udp_payload_bytes": 2900
+        }
+      },
+      "capture_drops": {
+        "interface": "eth0",
+        "captured": 224,
+        "received": 224,
+        "dropped": 0,
+        "pcap_drops": 0,
+        "dumpcap_drops": 0,
+        "flushed": 0,
+        "interface_drops": 0
+      },
+      "physical_wire_bytes": null,
+      "capture_inventory_packets": 224,
+      "probe_packet_count": 24,
+      "probe_frame_bytes": 1776,
+      "capture_inventory_frame_bytes": 15976,
+      "readiness_and_terminal_coverage": "MARKERS_BRACKET_RETAINED_FLOW",
+      "setup_vs_established": "NOT_PROVEN",
+      "offload_state": "NOT_PROVEN",
+      "performance_timing": "NOT_QUALIFIED",
+      "packet_checksums": "NOT_VALIDATED; transmit checksum offload may affect captured headers",
+      "scope": "Whole retained exact flow only. Capture truncation in time is not excluded. Captured frame bytes may include padding/FCS; preamble/IFG/physical wire not inferred. No workload completion, ownership, Direct/NBSR equivalence or overhead claim."
+    },
+    {
+      "schema": "nbsr-native-packet-accounting-v1",
+      "status": "DIAGNOSTIC_PACKET_ACCOUNTING_ONLY",
+      "interface": "eth0",
+      "client": [
+        "172.21.0.3",
+        41000
+      ],
+      "server": [
+        "172.21.0.2",
+        42000
+      ],
+      "declared_mtu": 1500,
+      "packet_count": 200,
+      "captured_frame_bytes": 14200,
+      "ip_bytes": 11400,
+      "udp_bytes": 7400,
+      "udp_payload_bytes": 5800,
+      "directions": {
+        "client_to_server": {
+          "packet_count": 100,
+          "captured_frame_bytes": 7100,
+          "ip_bytes": 5700,
+          "udp_bytes": 3700,
+          "udp_payload_bytes": 2900
+        },
+        "server_to_client": {
+          "packet_count": 100,
+          "captured_frame_bytes": 7100,
+          "ip_bytes": 5700,
+          "udp_bytes": 3700,
+          "udp_payload_bytes": 2900
+        }
+      },
+      "capture_drops": {
+        "interface": "eth0",
+        "captured": 220,
+        "received": 220,
+        "dropped": 0,
+        "pcap_drops": 0,
+        "dumpcap_drops": 0,
+        "flushed": 0,
+        "interface_drops": 0
+      },
+      "physical_wire_bytes": null,
+      "capture_inventory_packets": 220,
+      "probe_packet_count": 20,
+      "probe_frame_bytes": 1480,
+      "capture_inventory_frame_bytes": 15680,
+      "readiness_and_terminal_coverage": "MARKERS_BRACKET_RETAINED_FLOW",
+      "setup_vs_established": "NOT_PROVEN",
+      "offload_state": "NOT_PROVEN",
+      "performance_timing": "NOT_QUALIFIED",
+      "packet_checksums": "NOT_VALIDATED; transmit checksum offload may affect captured headers",
+      "scope": "Whole retained exact flow only. Capture truncation in time is not excluded. Captured frame bytes may include padding/FCS; preamble/IFG/physical wire not inferred. No workload completion, ownership, Direct/NBSR equivalence or overhead claim."
+    },
+    {
+      "schema": "nbsr-native-packet-accounting-v1",
+      "status": "DIAGNOSTIC_PACKET_ACCOUNTING_ONLY",
+      "interface": "eth0",
+      "client": [
+        "172.21.0.3",
+        41000
+      ],
+      "server": [
+        "172.21.0.2",
+        42000
+      ],
+      "declared_mtu": 1500,
+      "packet_count": 200,
+      "captured_frame_bytes": 14200,
+      "ip_bytes": 11400,
+      "udp_bytes": 7400,
+      "udp_payload_bytes": 5800,
+      "directions": {
+        "client_to_server": {
+          "packet_count": 100,
+          "captured_frame_bytes": 7100,
+          "ip_bytes": 5700,
+          "udp_bytes": 3700,
+          "udp_payload_bytes": 2900
+        },
+        "server_to_client": {
+          "packet_count": 100,
+          "captured_frame_bytes": 7100,
+          "ip_bytes": 5700,
+          "udp_bytes": 3700,
+          "udp_payload_bytes": 2900
+        }
+      },
+      "capture_drops": {
+        "interface": "eth0",
+        "captured": 228,
+        "received": 228,
+        "dropped": 0,
+        "pcap_drops": 0,
+        "dumpcap_drops": 0,
+        "flushed": 0,
+        "interface_drops": 0
+      },
+      "physical_wire_bytes": null,
+      "capture_inventory_packets": 228,
+      "probe_packet_count": 28,
+      "probe_frame_bytes": 2072,
+      "capture_inventory_frame_bytes": 16272,
+      "readiness_and_terminal_coverage": "MARKERS_BRACKET_RETAINED_FLOW",
+      "setup_vs_established": "NOT_PROVEN",
+      "offload_state": "NOT_PROVEN",
+      "performance_timing": "NOT_QUALIFIED",
+      "packet_checksums": "NOT_VALIDATED; transmit checksum offload may affect captured headers",
+      "scope": "Whole retained exact flow only. Capture truncation in time is not excluded. Captured frame bytes may include padding/FCS; preamble/IFG/physical wire not inferred. No workload completion, ownership, Direct/NBSR equivalence or overhead claim."
+    }
+  ],
+  "status": "PASS_NATIVE_MARKER_NAMESPACE_MECHANICS",
+  "scope": "Synthetic UDP echo; not NBSR workload, physical wire, performance or overhead acceptance; live marker observed before/after this synthetic echo fixture"
+}
