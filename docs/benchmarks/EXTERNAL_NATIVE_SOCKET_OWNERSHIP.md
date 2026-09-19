@@ -18,6 +18,11 @@ timeout is extended. Every unsuccessful observation is retained in
 run fails rather than claiming ownership.
 
 Native pair validation requires the retained snapshot when this mode is enabled.
+It also verifies monotonic integer resource timestamps, the bounded one-to-twenty
+attempt history, matching identities and ordered attempt intervals within the
+process sampling interval. Every attempt before the terminal success must be
+UNAVAILABLE; the final attempt must exactly equal the published snapshot. The
+checks use each host's own monotonic clock and imply no cross-host synchronization.
 Both peer modes must match, and cohort comparison keeps observer-enabled and
 observer-disabled runs separate. Existing uninstrumented evidence remains valid
 under its original scope. All timing with this additional observer is diagnostic;
@@ -57,3 +62,10 @@ binary hashes remain unchanged. Focused suite: 90 tests PASS, scoped Ruff PASS.
 [Canonical evidence and raw checksum references](../../evidence/performance/v2/native-socket-11677eca/summary.md).
 The preceding uninstrumented packet cohort remains separate; no timing or
 capacity comparison pools these different observer modes.
+
+Checker `206244b6` revalidates all ten original cells and twenty peer histories
+read-only, against their original measurement SHA `11677eca`. Ten deliberately
+resealed stale/inconsistent fixture variants that the former validator accepted
+now reject. The accepted original measurements remain valid and unchanged; no
+new benchmark or timing result is inferred. See
+[temporal/history validation evidence](../../evidence/performance/v2/socket-history-206244b6/summary.md).

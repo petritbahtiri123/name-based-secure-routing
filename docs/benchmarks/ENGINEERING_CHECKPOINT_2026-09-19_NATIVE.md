@@ -9,6 +9,15 @@ without root. Ninety focused tests and the five-pair cohort gate pass. This clos
 point-in-time local binding attribution for the tested 1 KiB/64-stream workload;
 exclusive/continuous whole-flow ownership, phase separation and physical hardware
 remain unproven. See [the observer runbook and evidence](EXTERNAL_NATIVE_SOCKET_OWNERSHIP.md).
+
+The final bounded follow-up, checker `206244b6`, adds automatic observation-time
+and retained-history validation. Ten negative fixture variants now reject; all
+ten existing `11677eca` measurement cells and twenty peer histories revalidate
+without rerunning or modifying raw evidence. See
+[the source-separated reanalysis](../../evidence/performance/v2/socket-history-206244b6/summary.md).
+The next campaign step after the usage reset is packet-phase separation; admission
+attribution, memory retention, qualified soak, deferred admin validation and
+external physical-host work remain on the larger closure list.
 Continuation starts at 7682846ecb1bbbadc382b8331af7c4072b531c6f. All changes
 are on codex/nbsr-v3-wp0-wp1; protected main/origin-main remain
 1938154d498b32d81a3564319969430644e8a688. No push or merge.

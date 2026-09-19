@@ -1,0 +1,474 @@
+.FFFFFFFFFF                                                              [100%]
+================================== FAILURES ===================================
+_________ test_resealed_stale_or_inconsistent_history_rejects[before] _________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1117/test_resealed_stale_or_inconsi0')
+fault = 'before'
+
+    @pytest.mark.parametrize('fault', ['before', 'after', 'missing', 'mismatch', 'extra-success',
+                                      'too-many', 'reversed-attempts', 'other-pid', 'boolean-time',
+                                      'resource-clock-regression'])
+    def test_resealed_stale_or_inconsistent_history_rejects(tmp_path, fault):
+        source, destination = instrumented_pair(tmp_path)
+        observed = json.loads((source / 'socket-ownership.json').read_text())
+        history = [observed.copy()]
+        if fault == 'before':
+            observed.update(started_ns=1, finished_ns=2)
+            history = [observed]
+        elif fault == 'after':
+            observed.update(started_ns=1100, finished_ns=1200)
+            history = [observed]
+        elif fault == 'missing':
+            (source / 'socket-observations.ndjson').unlink()
+        elif fault == 'mismatch':
+            history[0]['finished_ns'] = 301
+        elif fault == 'extra-success':
+            history.append(observed.copy())
+        elif fault == 'too-many':
+            history = [observed | {'status': 'UNAVAILABLE'}] * 20 + [observed]
+        elif fault == 'reversed-attempts':
+            history.insert(0, observed | {'status': 'UNAVAILABLE', 'started_ns': 400, 'finished_ns': 500})
+        elif fault == 'other-pid':
+            history.insert(0, observed | {'status': 'UNAVAILABLE', 'pid': 999, 'started_ns': 101, 'finished_ns': 102})
+        elif fault == 'boolean-time':
+            observed['started_ns'] = True
+            history = [observed]
+        else:
+            values = [json.loads(line) for line in (source / 'resources.ndjson').read_text().splitlines()]
+            values.insert(1, values[0] | {'timestamp_ns': 90})
+            (source / 'resources.ndjson').write_text(''.join(json.dumps(v) + '\n' for v in values))
+        put(source, 'socket-ownership.json', observed)
+        if fault != 'missing':
+            (source / 'socket-observations.ndjson').write_text(''.join(json.dumps(v) + '\n' for v in history))
+        seal_output(source)
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_socket_observation_history.py:71: Failed
+_________ test_resealed_stale_or_inconsistent_history_rejects[after] __________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1117/test_resealed_stale_or_inconsi1')
+fault = 'after'
+
+    @pytest.mark.parametrize('fault', ['before', 'after', 'missing', 'mismatch', 'extra-success',
+                                      'too-many', 'reversed-attempts', 'other-pid', 'boolean-time',
+                                      'resource-clock-regression'])
+    def test_resealed_stale_or_inconsistent_history_rejects(tmp_path, fault):
+        source, destination = instrumented_pair(tmp_path)
+        observed = json.loads((source / 'socket-ownership.json').read_text())
+        history = [observed.copy()]
+        if fault == 'before':
+            observed.update(started_ns=1, finished_ns=2)
+            history = [observed]
+        elif fault == 'after':
+            observed.update(started_ns=1100, finished_ns=1200)
+            history = [observed]
+        elif fault == 'missing':
+            (source / 'socket-observations.ndjson').unlink()
+        elif fault == 'mismatch':
+            history[0]['finished_ns'] = 301
+        elif fault == 'extra-success':
+            history.append(observed.copy())
+        elif fault == 'too-many':
+            history = [observed | {'status': 'UNAVAILABLE'}] * 20 + [observed]
+        elif fault == 'reversed-attempts':
+            history.insert(0, observed | {'status': 'UNAVAILABLE', 'started_ns': 400, 'finished_ns': 500})
+        elif fault == 'other-pid':
+            history.insert(0, observed | {'status': 'UNAVAILABLE', 'pid': 999, 'started_ns': 101, 'finished_ns': 102})
+        elif fault == 'boolean-time':
+            observed['started_ns'] = True
+            history = [observed]
+        else:
+            values = [json.loads(line) for line in (source / 'resources.ndjson').read_text().splitlines()]
+            values.insert(1, values[0] | {'timestamp_ns': 90})
+            (source / 'resources.ndjson').write_text(''.join(json.dumps(v) + '\n' for v in values))
+        put(source, 'socket-ownership.json', observed)
+        if fault != 'missing':
+            (source / 'socket-observations.ndjson').write_text(''.join(json.dumps(v) + '\n' for v in history))
+        seal_output(source)
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_socket_observation_history.py:71: Failed
+________ test_resealed_stale_or_inconsistent_history_rejects[missing] _________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1117/test_resealed_stale_or_inconsi2')
+fault = 'missing'
+
+    @pytest.mark.parametrize('fault', ['before', 'after', 'missing', 'mismatch', 'extra-success',
+                                      'too-many', 'reversed-attempts', 'other-pid', 'boolean-time',
+                                      'resource-clock-regression'])
+    def test_resealed_stale_or_inconsistent_history_rejects(tmp_path, fault):
+        source, destination = instrumented_pair(tmp_path)
+        observed = json.loads((source / 'socket-ownership.json').read_text())
+        history = [observed.copy()]
+        if fault == 'before':
+            observed.update(started_ns=1, finished_ns=2)
+            history = [observed]
+        elif fault == 'after':
+            observed.update(started_ns=1100, finished_ns=1200)
+            history = [observed]
+        elif fault == 'missing':
+            (source / 'socket-observations.ndjson').unlink()
+        elif fault == 'mismatch':
+            history[0]['finished_ns'] = 301
+        elif fault == 'extra-success':
+            history.append(observed.copy())
+        elif fault == 'too-many':
+            history = [observed | {'status': 'UNAVAILABLE'}] * 20 + [observed]
+        elif fault == 'reversed-attempts':
+            history.insert(0, observed | {'status': 'UNAVAILABLE', 'started_ns': 400, 'finished_ns': 500})
+        elif fault == 'other-pid':
+            history.insert(0, observed | {'status': 'UNAVAILABLE', 'pid': 999, 'started_ns': 101, 'finished_ns': 102})
+        elif fault == 'boolean-time':
+            observed['started_ns'] = True
+            history = [observed]
+        else:
+            values = [json.loads(line) for line in (source / 'resources.ndjson').read_text().splitlines()]
+            values.insert(1, values[0] | {'timestamp_ns': 90})
+            (source / 'resources.ndjson').write_text(''.join(json.dumps(v) + '\n' for v in values))
+        put(source, 'socket-ownership.json', observed)
+        if fault != 'missing':
+            (source / 'socket-observations.ndjson').write_text(''.join(json.dumps(v) + '\n' for v in history))
+        seal_output(source)
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_socket_observation_history.py:71: Failed
+________ test_resealed_stale_or_inconsistent_history_rejects[mismatch] ________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1117/test_resealed_stale_or_inconsi3')
+fault = 'mismatch'
+
+    @pytest.mark.parametrize('fault', ['before', 'after', 'missing', 'mismatch', 'extra-success',
+                                      'too-many', 'reversed-attempts', 'other-pid', 'boolean-time',
+                                      'resource-clock-regression'])
+    def test_resealed_stale_or_inconsistent_history_rejects(tmp_path, fault):
+        source, destination = instrumented_pair(tmp_path)
+        observed = json.loads((source / 'socket-ownership.json').read_text())
+        history = [observed.copy()]
+        if fault == 'before':
+            observed.update(started_ns=1, finished_ns=2)
+            history = [observed]
+        elif fault == 'after':
+            observed.update(started_ns=1100, finished_ns=1200)
+            history = [observed]
+        elif fault == 'missing':
+            (source / 'socket-observations.ndjson').unlink()
+        elif fault == 'mismatch':
+            history[0]['finished_ns'] = 301
+        elif fault == 'extra-success':
+            history.append(observed.copy())
+        elif fault == 'too-many':
+            history = [observed | {'status': 'UNAVAILABLE'}] * 20 + [observed]
+        elif fault == 'reversed-attempts':
+            history.insert(0, observed | {'status': 'UNAVAILABLE', 'started_ns': 400, 'finished_ns': 500})
+        elif fault == 'other-pid':
+            history.insert(0, observed | {'status': 'UNAVAILABLE', 'pid': 999, 'started_ns': 101, 'finished_ns': 102})
+        elif fault == 'boolean-time':
+            observed['started_ns'] = True
+            history = [observed]
+        else:
+            values = [json.loads(line) for line in (source / 'resources.ndjson').read_text().splitlines()]
+            values.insert(1, values[0] | {'timestamp_ns': 90})
+            (source / 'resources.ndjson').write_text(''.join(json.dumps(v) + '\n' for v in values))
+        put(source, 'socket-ownership.json', observed)
+        if fault != 'missing':
+            (source / 'socket-observations.ndjson').write_text(''.join(json.dumps(v) + '\n' for v in history))
+        seal_output(source)
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_socket_observation_history.py:71: Failed
+_____ test_resealed_stale_or_inconsistent_history_rejects[extra-success] ______
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1117/test_resealed_stale_or_inconsi4')
+fault = 'extra-success'
+
+    @pytest.mark.parametrize('fault', ['before', 'after', 'missing', 'mismatch', 'extra-success',
+                                      'too-many', 'reversed-attempts', 'other-pid', 'boolean-time',
+                                      'resource-clock-regression'])
+    def test_resealed_stale_or_inconsistent_history_rejects(tmp_path, fault):
+        source, destination = instrumented_pair(tmp_path)
+        observed = json.loads((source / 'socket-ownership.json').read_text())
+        history = [observed.copy()]
+        if fault == 'before':
+            observed.update(started_ns=1, finished_ns=2)
+            history = [observed]
+        elif fault == 'after':
+            observed.update(started_ns=1100, finished_ns=1200)
+            history = [observed]
+        elif fault == 'missing':
+            (source / 'socket-observations.ndjson').unlink()
+        elif fault == 'mismatch':
+            history[0]['finished_ns'] = 301
+        elif fault == 'extra-success':
+            history.append(observed.copy())
+        elif fault == 'too-many':
+            history = [observed | {'status': 'UNAVAILABLE'}] * 20 + [observed]
+        elif fault == 'reversed-attempts':
+            history.insert(0, observed | {'status': 'UNAVAILABLE', 'started_ns': 400, 'finished_ns': 500})
+        elif fault == 'other-pid':
+            history.insert(0, observed | {'status': 'UNAVAILABLE', 'pid': 999, 'started_ns': 101, 'finished_ns': 102})
+        elif fault == 'boolean-time':
+            observed['started_ns'] = True
+            history = [observed]
+        else:
+            values = [json.loads(line) for line in (source / 'resources.ndjson').read_text().splitlines()]
+            values.insert(1, values[0] | {'timestamp_ns': 90})
+            (source / 'resources.ndjson').write_text(''.join(json.dumps(v) + '\n' for v in values))
+        put(source, 'socket-ownership.json', observed)
+        if fault != 'missing':
+            (source / 'socket-observations.ndjson').write_text(''.join(json.dumps(v) + '\n' for v in history))
+        seal_output(source)
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_socket_observation_history.py:71: Failed
+________ test_resealed_stale_or_inconsistent_history_rejects[too-many] ________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1117/test_resealed_stale_or_inconsi5')
+fault = 'too-many'
+
+    @pytest.mark.parametrize('fault', ['before', 'after', 'missing', 'mismatch', 'extra-success',
+                                      'too-many', 'reversed-attempts', 'other-pid', 'boolean-time',
+                                      'resource-clock-regression'])
+    def test_resealed_stale_or_inconsistent_history_rejects(tmp_path, fault):
+        source, destination = instrumented_pair(tmp_path)
+        observed = json.loads((source / 'socket-ownership.json').read_text())
+        history = [observed.copy()]
+        if fault == 'before':
+            observed.update(started_ns=1, finished_ns=2)
+            history = [observed]
+        elif fault == 'after':
+            observed.update(started_ns=1100, finished_ns=1200)
+            history = [observed]
+        elif fault == 'missing':
+            (source / 'socket-observations.ndjson').unlink()
+        elif fault == 'mismatch':
+            history[0]['finished_ns'] = 301
+        elif fault == 'extra-success':
+            history.append(observed.copy())
+        elif fault == 'too-many':
+            history = [observed | {'status': 'UNAVAILABLE'}] * 20 + [observed]
+        elif fault == 'reversed-attempts':
+            history.insert(0, observed | {'status': 'UNAVAILABLE', 'started_ns': 400, 'finished_ns': 500})
+        elif fault == 'other-pid':
+            history.insert(0, observed | {'status': 'UNAVAILABLE', 'pid': 999, 'started_ns': 101, 'finished_ns': 102})
+        elif fault == 'boolean-time':
+            observed['started_ns'] = True
+            history = [observed]
+        else:
+            values = [json.loads(line) for line in (source / 'resources.ndjson').read_text().splitlines()]
+            values.insert(1, values[0] | {'timestamp_ns': 90})
+            (source / 'resources.ndjson').write_text(''.join(json.dumps(v) + '\n' for v in values))
+        put(source, 'socket-ownership.json', observed)
+        if fault != 'missing':
+            (source / 'socket-observations.ndjson').write_text(''.join(json.dumps(v) + '\n' for v in history))
+        seal_output(source)
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_socket_observation_history.py:71: Failed
+___ test_resealed_stale_or_inconsistent_history_rejects[reversed-attempts] ____
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1117/test_resealed_stale_or_inconsi6')
+fault = 'reversed-attempts'
+
+    @pytest.mark.parametrize('fault', ['before', 'after', 'missing', 'mismatch', 'extra-success',
+                                      'too-many', 'reversed-attempts', 'other-pid', 'boolean-time',
+                                      'resource-clock-regression'])
+    def test_resealed_stale_or_inconsistent_history_rejects(tmp_path, fault):
+        source, destination = instrumented_pair(tmp_path)
+        observed = json.loads((source / 'socket-ownership.json').read_text())
+        history = [observed.copy()]
+        if fault == 'before':
+            observed.update(started_ns=1, finished_ns=2)
+            history = [observed]
+        elif fault == 'after':
+            observed.update(started_ns=1100, finished_ns=1200)
+            history = [observed]
+        elif fault == 'missing':
+            (source / 'socket-observations.ndjson').unlink()
+        elif fault == 'mismatch':
+            history[0]['finished_ns'] = 301
+        elif fault == 'extra-success':
+            history.append(observed.copy())
+        elif fault == 'too-many':
+            history = [observed | {'status': 'UNAVAILABLE'}] * 20 + [observed]
+        elif fault == 'reversed-attempts':
+            history.insert(0, observed | {'status': 'UNAVAILABLE', 'started_ns': 400, 'finished_ns': 500})
+        elif fault == 'other-pid':
+            history.insert(0, observed | {'status': 'UNAVAILABLE', 'pid': 999, 'started_ns': 101, 'finished_ns': 102})
+        elif fault == 'boolean-time':
+            observed['started_ns'] = True
+            history = [observed]
+        else:
+            values = [json.loads(line) for line in (source / 'resources.ndjson').read_text().splitlines()]
+            values.insert(1, values[0] | {'timestamp_ns': 90})
+            (source / 'resources.ndjson').write_text(''.join(json.dumps(v) + '\n' for v in values))
+        put(source, 'socket-ownership.json', observed)
+        if fault != 'missing':
+            (source / 'socket-observations.ndjson').write_text(''.join(json.dumps(v) + '\n' for v in history))
+        seal_output(source)
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_socket_observation_history.py:71: Failed
+_______ test_resealed_stale_or_inconsistent_history_rejects[other-pid] ________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1117/test_resealed_stale_or_inconsi7')
+fault = 'other-pid'
+
+    @pytest.mark.parametrize('fault', ['before', 'after', 'missing', 'mismatch', 'extra-success',
+                                      'too-many', 'reversed-attempts', 'other-pid', 'boolean-time',
+                                      'resource-clock-regression'])
+    def test_resealed_stale_or_inconsistent_history_rejects(tmp_path, fault):
+        source, destination = instrumented_pair(tmp_path)
+        observed = json.loads((source / 'socket-ownership.json').read_text())
+        history = [observed.copy()]
+        if fault == 'before':
+            observed.update(started_ns=1, finished_ns=2)
+            history = [observed]
+        elif fault == 'after':
+            observed.update(started_ns=1100, finished_ns=1200)
+            history = [observed]
+        elif fault == 'missing':
+            (source / 'socket-observations.ndjson').unlink()
+        elif fault == 'mismatch':
+            history[0]['finished_ns'] = 301
+        elif fault == 'extra-success':
+            history.append(observed.copy())
+        elif fault == 'too-many':
+            history = [observed | {'status': 'UNAVAILABLE'}] * 20 + [observed]
+        elif fault == 'reversed-attempts':
+            history.insert(0, observed | {'status': 'UNAVAILABLE', 'started_ns': 400, 'finished_ns': 500})
+        elif fault == 'other-pid':
+            history.insert(0, observed | {'status': 'UNAVAILABLE', 'pid': 999, 'started_ns': 101, 'finished_ns': 102})
+        elif fault == 'boolean-time':
+            observed['started_ns'] = True
+            history = [observed]
+        else:
+            values = [json.loads(line) for line in (source / 'resources.ndjson').read_text().splitlines()]
+            values.insert(1, values[0] | {'timestamp_ns': 90})
+            (source / 'resources.ndjson').write_text(''.join(json.dumps(v) + '\n' for v in values))
+        put(source, 'socket-ownership.json', observed)
+        if fault != 'missing':
+            (source / 'socket-observations.ndjson').write_text(''.join(json.dumps(v) + '\n' for v in history))
+        seal_output(source)
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_socket_observation_history.py:71: Failed
+______ test_resealed_stale_or_inconsistent_history_rejects[boolean-time] ______
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1117/test_resealed_stale_or_inconsi8')
+fault = 'boolean-time'
+
+    @pytest.mark.parametrize('fault', ['before', 'after', 'missing', 'mismatch', 'extra-success',
+                                      'too-many', 'reversed-attempts', 'other-pid', 'boolean-time',
+                                      'resource-clock-regression'])
+    def test_resealed_stale_or_inconsistent_history_rejects(tmp_path, fault):
+        source, destination = instrumented_pair(tmp_path)
+        observed = json.loads((source / 'socket-ownership.json').read_text())
+        history = [observed.copy()]
+        if fault == 'before':
+            observed.update(started_ns=1, finished_ns=2)
+            history = [observed]
+        elif fault == 'after':
+            observed.update(started_ns=1100, finished_ns=1200)
+            history = [observed]
+        elif fault == 'missing':
+            (source / 'socket-observations.ndjson').unlink()
+        elif fault == 'mismatch':
+            history[0]['finished_ns'] = 301
+        elif fault == 'extra-success':
+            history.append(observed.copy())
+        elif fault == 'too-many':
+            history = [observed | {'status': 'UNAVAILABLE'}] * 20 + [observed]
+        elif fault == 'reversed-attempts':
+            history.insert(0, observed | {'status': 'UNAVAILABLE', 'started_ns': 400, 'finished_ns': 500})
+        elif fault == 'other-pid':
+            history.insert(0, observed | {'status': 'UNAVAILABLE', 'pid': 999, 'started_ns': 101, 'finished_ns': 102})
+        elif fault == 'boolean-time':
+            observed['started_ns'] = True
+            history = [observed]
+        else:
+            values = [json.loads(line) for line in (source / 'resources.ndjson').read_text().splitlines()]
+            values.insert(1, values[0] | {'timestamp_ns': 90})
+            (source / 'resources.ndjson').write_text(''.join(json.dumps(v) + '\n' for v in values))
+        put(source, 'socket-ownership.json', observed)
+        if fault != 'missing':
+            (source / 'socket-observations.ndjson').write_text(''.join(json.dumps(v) + '\n' for v in history))
+        seal_output(source)
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_socket_observation_history.py:71: Failed
+_ test_resealed_stale_or_inconsistent_history_rejects[resource-clock-regression] _
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1117/test_resealed_stale_or_inconsi9')
+fault = 'resource-clock-regression'
+
+    @pytest.mark.parametrize('fault', ['before', 'after', 'missing', 'mismatch', 'extra-success',
+                                      'too-many', 'reversed-attempts', 'other-pid', 'boolean-time',
+                                      'resource-clock-regression'])
+    def test_resealed_stale_or_inconsistent_history_rejects(tmp_path, fault):
+        source, destination = instrumented_pair(tmp_path)
+        observed = json.loads((source / 'socket-ownership.json').read_text())
+        history = [observed.copy()]
+        if fault == 'before':
+            observed.update(started_ns=1, finished_ns=2)
+            history = [observed]
+        elif fault == 'after':
+            observed.update(started_ns=1100, finished_ns=1200)
+            history = [observed]
+        elif fault == 'missing':
+            (source / 'socket-observations.ndjson').unlink()
+        elif fault == 'mismatch':
+            history[0]['finished_ns'] = 301
+        elif fault == 'extra-success':
+            history.append(observed.copy())
+        elif fault == 'too-many':
+            history = [observed | {'status': 'UNAVAILABLE'}] * 20 + [observed]
+        elif fault == 'reversed-attempts':
+            history.insert(0, observed | {'status': 'UNAVAILABLE', 'started_ns': 400, 'finished_ns': 500})
+        elif fault == 'other-pid':
+            history.insert(0, observed | {'status': 'UNAVAILABLE', 'pid': 999, 'started_ns': 101, 'finished_ns': 102})
+        elif fault == 'boolean-time':
+            observed['started_ns'] = True
+            history = [observed]
+        else:
+            values = [json.loads(line) for line in (source / 'resources.ndjson').read_text().splitlines()]
+            values.insert(1, values[0] | {'timestamp_ns': 90})
+            (source / 'resources.ndjson').write_text(''.join(json.dumps(v) + '\n' for v in values))
+        put(source, 'socket-ownership.json', observed)
+        if fault != 'missing':
+            (source / 'socket-observations.ndjson').write_text(''.join(json.dumps(v) + '\n' for v in history))
+        seal_output(source)
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_socket_observation_history.py:71: Failed
+=========================== short test summary info ===========================
+FAILED tests/performance/test_socket_observation_history.py::test_resealed_stale_or_inconsistent_history_rejects[before]
+FAILED tests/performance/test_socket_observation_history.py::test_resealed_stale_or_inconsistent_history_rejects[after]
+FAILED tests/performance/test_socket_observation_history.py::test_resealed_stale_or_inconsistent_history_rejects[missing]
+FAILED tests/performance/test_socket_observation_history.py::test_resealed_stale_or_inconsistent_history_rejects[mismatch]
+FAILED tests/performance/test_socket_observation_history.py::test_resealed_stale_or_inconsistent_history_rejects[extra-success]
+FAILED tests/performance/test_socket_observation_history.py::test_resealed_stale_or_inconsistent_history_rejects[too-many]
+FAILED tests/performance/test_socket_observation_history.py::test_resealed_stale_or_inconsistent_history_rejects[reversed-attempts]
+FAILED tests/performance/test_socket_observation_history.py::test_resealed_stale_or_inconsistent_history_rejects[other-pid]
+FAILED tests/performance/test_socket_observation_history.py::test_resealed_stale_or_inconsistent_history_rejects[boolean-time]
+FAILED tests/performance/test_socket_observation_history.py::test_resealed_stale_or_inconsistent_history_rejects[resource-clock-regression]
+10 failed, 1 passed in 3.14s

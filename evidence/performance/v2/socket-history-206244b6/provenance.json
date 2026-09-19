@@ -1,0 +1,10 @@
+{
+  "checker_sha": "206244b6ece2a54ecd8e06565c17e1340c37d7d8",
+  "measurement_source_sha": "11677ecad95dab3904f3f4b18c94d8980bcb86be",
+  "measurement_root": "C:\\NBSR-build\\native-socket-11677eca",
+  "measurement_index_sha256": "d82d1a294417ac0c874d4b45e279ec3890d886387181b57d58c9cd8ba2fd4313",
+  "mode": "READ_ONLY_REANALYSIS",
+  "status": "PASS: ten cells, twenty peer observation histories",
+  "rerun": false,
+  "scope": "Temporal consistency and exact retained attempt/report join only; no new workload, performance, continuous ownership or physical-host claim"
+}
