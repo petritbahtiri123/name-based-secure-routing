@@ -36,14 +36,15 @@ def test_capture_rejects_ambiguous_interface_or_probe_endpoint(kwargs):
 def test_native_accounting_requires_unique_workload_flow_and_resets_valid_on_failure(tmp_path):
     value = observer()
     value.probe = PROBE | dict(status='PASS', terminal_status='PASS')
-    value.report.update(valid=True, packet_count=2, flows=[dict(client_port=CLIENT[1])])
+    value.report.update(valid=True, packet_count=2, flow_count=1)
+    (tmp_path / 'udp-flows.json').write_text(json.dumps([dict(client_port=CLIENT[1])]))
     (tmp_path / 'native.pcapng').write_bytes(capture([marker(), frame(), frame(SERVER, CLIENT), marker(True)]))
     (tmp_path / 'dumpcap.stderr').write_text("Packets captured: 4\nPackets received/dropped on interface 'eth0': 4/0 "
                                            "(pcap:0/dumpcap:0/flushed:0/ps_ifdrop:0)\n")
     value.account_native(tmp_path)
     assert value.report['packet_accounting']['packet_count'] == 2
     assert value.report['endpoint_process_ownership'] == 'NOT_PROVEN'
-    value.report['flows'].append(dict(client_port=41001))
+    (tmp_path / 'udp-flows.json').write_text(json.dumps([dict(client_port=CLIENT[1]), dict(client_port=41001)]))
     with pytest.raises(ValueError, match='flow'):
         value.account_native(tmp_path)
     assert value.report['valid'] is False
@@ -65,3 +66,17 @@ def test_stop_file_requires_exact_fresh_token_and_bounded_identity(tmp_path):
         stop_requested(path, 'abc')
     path.write_text(json.dumps(dict(token='abc')))
     assert stop_requested(path, 'abc') is True
+
+
+@pytest.mark.parametrize('actual_mtu,linktype,valid', [(1500, 1, True), (9000, 1, False), (1500, 772, False)])
+def test_declared_mtu_and_ethernet_type_must_match_read_only_interface(tmp_path, actual_mtu, linktype, valid):
+    from scripts.performance.linux_native_capture import interface_metadata
+    root = tmp_path / 'class/net/eth0'
+    root.mkdir(parents=True)
+    for name, value in [('mtu', actual_mtu), ('type', linktype), ('operstate', 'up')]:
+        (root / name).write_text(str(value))
+    if valid:
+        assert interface_metadata('eth0', 1500, sys_root=tmp_path)['mtu'] == 1500
+    else:
+        with pytest.raises(ValueError, match='interface'):
+            interface_metadata('eth0', 1500, sys_root=tmp_path)
