@@ -366,9 +366,15 @@
       "scope": "single-core/group CLI authored; reference-bound accounting is never an automatic stable-soak claim"
     },
     "linux_wire_matrix": {
-      "status": "NOT_IMPLEMENTED",
-      "command": null,
-      "missing": "bounded dedicated-interface capture orchestration, phase accounting, loss validation, paired byte analysis"
+      "status": "PARTIAL",
+      "command": "python3 -m scripts.performance.linux_native_capture --help",
+      "sources": [
+        "scripts/performance/linux_native_capture.py",
+        "scripts/performance/linux_native_packet_accounting.py",
+        "docs/benchmarks/EXTERNAL_NATIVE_CAPTURE.md"
+      ],
+      "missing": "physical-interface/offload qualification, exact process/socket ownership, phase accounting and complete equivalent paired byte acceptance",
+      "scope": "bounded owned native capture with start/end markers and zero-loss inventory; no hardware or full B1 claim"
     },
     "linux_loopback_wire": {
       "status": "PARTIAL",

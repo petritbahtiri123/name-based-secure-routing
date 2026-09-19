@@ -63,7 +63,7 @@ class ExternalCapture:
     @contextlib.contextmanager
     def capture(self,endpoint,cell_dir):
         server_port=int(endpoint.rsplit(':',1)[1])
-        pcap=Path(cell_dir)/'loopback.pcapng'
+        pcap=Path(cell_dir)/getattr(self, 'capture_name', 'loopback.pcapng')
         stderr_path=Path(cell_dir)/'dumpcap.stderr'
         stderr=stderr_path.open('wb')
         try:
@@ -109,7 +109,8 @@ class ExternalCapture:
             command=[str(self.tshark),'-r',str(pcap),'-Y',f'udp.port=={server_port}','-T','fields','-E','separator=/t','-E','occurrence=f']
             for field in fields:
                 command.extend(['-e',field])
-            result=subprocess.run(command,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
+            result=subprocess.run(command,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,
+                                  timeout=getattr(self, 'export_timeout', None))
             packet_path.write_text(result.stdout,encoding='utf-8',newline='\n')
             packets=[]
             if result.returncode==0:
