@@ -1,0 +1,46 @@
+[
+  {
+    "attempt": "native-lifecycle-scale-b6cf5e56",
+    "requested": 256,
+    "source_active": 146,
+    "destination_active": 146,
+    "failed": 110,
+    "failure_reasons": {
+      "timed_out": 110
+    },
+    "released": 0,
+    "acked": 0,
+    "classification": "FAIL_NATIVE_LIFECYCLE; CAUSE_UNRESOLVED",
+    "cleanup": "FORCED_PROCESS_CLEANUP; runtime ownership not proven",
+    "timing": "DIAGNOSTIC_ONLY"
+  },
+  {
+    "attempt": "native-lifecycle-failure-probe-b6cf5e56",
+    "requested": 256,
+    "source_active": 138,
+    "destination_active": 138,
+    "failed": 118,
+    "failure_reasons": {
+      "timed_out": 118
+    },
+    "released": 0,
+    "acked": 0,
+    "classification": "FAIL_NATIVE_LIFECYCLE; CAUSE_UNRESOLVED",
+    "cleanup": "FORCED_PROCESS_CLEANUP; runtime ownership not proven",
+    "timing": "DIAGNOSTIC_ONLY",
+    "udp": {
+      "source": {
+        "status": "MEASURED_FAILURE_SNAPSHOT",
+        "udp_socket_count": 256,
+        "live_socket_drops": 0,
+        "cpu_ticks": 103
+      },
+      "destination": {
+        "status": "MEASURED_FAILURE_SNAPSHOT",
+        "udp_socket_count": 1,
+        "live_socket_drops": 0,
+        "cpu_ticks": 80
+      }
+    }
+  }
+]

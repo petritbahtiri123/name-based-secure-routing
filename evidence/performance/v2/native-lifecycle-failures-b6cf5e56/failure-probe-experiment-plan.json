@@ -1,0 +1,24 @@
+{
+  "source_sha": "b6cf5e56b6e57b816c0080941d91124d6fa6607e",
+  "counts": [
+    256
+  ],
+  "repeats": 1,
+  "source_shards": 2,
+  "offered_rate": 100,
+  "channels_per_connection": 1,
+  "streams_per_channel": 1,
+  "payload_bytes": 1024,
+  "materialized_streams": true,
+  "hold_seconds": 2,
+  "cooldown_seconds": 2,
+  "scope": "two isolated Docker network namespaces on one WSL host; concurrent materialized lifecycle bundles; no capacity or physical hardware claim",
+  "failure_policy": "preserve every attempt; stop progression on failure; no timeout extension or replacement pooling",
+  "basis": "All twenty 16/32/64/128 native materialized-bundle controls pass; same workload and binaries; bounded next cardinalities",
+  "hold_scope": "minimum two-second active hold followed by socket snapshots; diagnostic observer, not timing-qualified",
+  "progression_stop": "No 1024 idle-hold repeat: original 100/s launch span plus hold exceeds the established 10-second negotiated idle lifetime",
+  "classification": "DIAGNOSTIC_FAILURE_ONLY",
+  "purpose": "Observe existing owned UDP counters after first failed marker; no causal or capacity claim from one attempt",
+  "prior_failure": "C:\\NBSR-build\\native-lifecycle-scale-b6cf5e56",
+  "observer": "No additional socket observer until failure already exists; same workload and timers"
+}

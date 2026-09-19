@@ -1,0 +1,5 @@
+{
+  "error": "native lifecycle marker deadline",
+  "traceback": "Traceback (most recent call last):\n  File \"C:\\NBSR-build\\native-lifecycle-scale-b6cf5e56\\run.py\", line 57, in <module>\n    wait_files([lifecycle/f'connection-{i}.active' for i in range(count)]+[lifecycle/f'destination-{i}.active' for i in range(count)],list(processes.values()),120)\n    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\NBSR-build\\native-lifecycle-scale-b6cf5e56\\run.py\", line 20, in wait_files\n    if time.monotonic()>deadline:raise TimeoutError('native lifecycle marker deadline')\n                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTimeoutError: native lifecycle marker deadline\n",
+  "replacement": false
+}
