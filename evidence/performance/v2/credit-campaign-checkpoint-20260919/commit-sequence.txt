@@ -1,0 +1,15 @@
+6b1095c5723fe56b139264c9604ecc62c73e024f bench: add bounded native packet phase markers
+9b4274138213bcad8a3ac8b0e081aee8e65558be evidence: retain twenty matched native phase captures
+2c35c77343ac0c70383be470db3edf9bcd5ba96b bench: add opt-in source allocator lifecycle snapshots
+c7ca8651d208d79278c4650e9578499245a8bfe8 evidence: preserve matched allocator observer rejection
+b6cf5e56b6e57b816c0080941d91124d6fa6607e bench: support explicit source bind for lifecycle peers
+9f68eedd8287c6d02d2ac77fb80ccc011b4f5e4c evidence: verify lifecycle socket placement and TLS boundaries
+d42e68a54206803a85d884e96608906a92ff66ac evidence: retain native namespace lifecycle scale through 128 bundles
+b93f457974e5a68a00061894a304c5a063529955 evidence: preserve unresolved native 256-bundle handshake failures
+a401567dd8f14a474088243e936b220203afd6fc bench: add bounded native Linux lifecycle peer runner
+df301761f0bfc6365aa8817f44e65e987f562a48 evidence: validate native lifecycle peers with separate control roots
+82921020455bd3ba84ddb1bed3a399d8406ea399 evidence: measure native lifecycle control-storage sensitivity
+8fd045fe63007fdf2ac26ff1246a766ad5a75d85 evidence: preserve mixed native 512-bundle outcomes
+e3e38a8062ccc30f02d948e2bf45b0e3aaf2cef5 evidence: verify native lifecycle cancellation without orphan peers
+e74e53b1fbc3b1802f4bd0f7c828d8d09cacd7cf bench: verify transferred native lifecycle peer pairs
+50925e1041cef253714ac98ed38ec0f04dd0f9f1 evidence: independently revalidate native lifecycle success and failure pairs

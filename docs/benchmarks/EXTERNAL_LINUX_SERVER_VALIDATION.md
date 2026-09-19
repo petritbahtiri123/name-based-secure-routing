@@ -267,6 +267,13 @@ Required port acceptance: machine-readable expansion of the matrix above; schema
 
 ## Evidence and final classification
 
+The later [native lifecycle per-host runner and pair gate](EXTERNAL_NATIVE_LIFECYCLE_PEER.md)
+now have separate-control-root namespace smoke, live cancellation and read-only
+pair validation. Linux-local control storage completes five 256-bundle cells;
+512 remains partial at three passes/two failures. This is an executable per-host
+B3 building block, not automated physical-host barrier orchestration, sustained
+B4 admission, remote B5 qualification or completion of the required port matrix.
+
 Each future `evidence/performance/v2/server-linux-{start_sha_12}-{host_id}/` contains `environment.json`, `manifest.json`, `analysis.json`, `summary.md`, `raw/`, and `checksums.sha256`. Required manifest fields: schema version, run ID, source SHA/branch/dirty status, source and per-platform binary hashes, toolchains/build flags, host topology, cell definitions and IDs, commands, run order, UTC/monotonic timing, PID/start-time ownership, affinity observations, offered/completed counts, telemetry provenance, exclusions, rejected-run reasons, cleanup outcome and final status. Bind partner-host artifacts and time-sync uncertainty. Keep unavailable measurements null with reasons, never zero placeholders.
 
 Retain raw JSON/CSV/NDJSON, stdout/stderr, control/profile pairs, perf data and stack exports, pcapng and drop reports, NIC snapshots and all derived-analysis inputs. Limit captures to declared test traffic; exclude private authority keys and credentials. After all artifacts are finalized, generate and verify checksums from the evidence root (the checksum file excludes itself):

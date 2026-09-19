@@ -1,0 +1,13 @@
+{
+  "captured_at": "2026-09-19T16:19:55.6576037Z",
+  "cpu": [
+    {
+      "Name": "Intel(R) Core(TM) i5-10210U CPU @ 1.60GHz",
+      "NumberOfCores": 4,
+      "NumberOfLogicalProcessors": 8
+    }
+  ],
+  "memory_bytes": 16942501888,
+  "free_bytes": 7306891264,
+  "scope": "Checkpoint host inventory, not measured allocated-capacity or thermal telemetry"
+}

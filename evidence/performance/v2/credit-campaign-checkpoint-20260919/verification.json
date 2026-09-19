@@ -1,0 +1,85 @@
+[
+  {
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "tests/performance/test_native_phase_control.py",
+      "tests/performance/test_native_packet_phases.py",
+      "tests/performance/test_native_packet_markers.py",
+      "tests/performance/test_linux_native_peer.py",
+      "tests/performance/test_linux_native_pair.py",
+      "tests/performance/test_linux_native_packet_accounting.py",
+      "tests/performance/test_linux_native_lifecycle_pair.py",
+      "tests/performance/test_linux_native_lifecycle.py",
+      "tests/performance/test_linux_native_fixed_work.py",
+      "tests/performance/test_linux_native_cohort.py",
+      "tests/performance/test_linux_native_capture.py",
+      "tests/performance/test_b3_allocator_snapshot.py",
+      "tests/performance/test_b1_v2_capture.py",
+      "-q"
+    ],
+    "exit_code": 0,
+    "log": "check-0.log"
+  },
+  {
+    "command": [
+      "python",
+      "-m",
+      "ruff",
+      "check",
+      "scripts/analyze_b1_v2_capture.py",
+      "scripts/performance/b3_allocator_snapshot.py",
+      "scripts/performance/linux_native_capture.py",
+      "scripts/performance/linux_native_cohort.py",
+      "scripts/performance/linux_native_lifecycle.py",
+      "scripts/performance/linux_native_lifecycle_pair.py",
+      "scripts/performance/linux_native_packet_accounting.py",
+      "scripts/performance/linux_native_pair.py",
+      "scripts/performance/linux_native_peer.py",
+      "scripts/performance/native_phase_control.py",
+      "scripts/run_b3_session_lifecycle.py",
+      "scripts/run_b3_v2.py",
+      "tests/performance/test_b3_allocator_snapshot.py",
+      "tests/performance/test_linux_native_lifecycle.py",
+      "tests/performance/test_linux_native_lifecycle_pair.py",
+      "tests/performance/test_linux_native_peer.py",
+      "tests/performance/test_native_packet_phases.py",
+      "tests/performance/test_native_phase_control.py"
+    ],
+    "exit_code": 0,
+    "log": "check-1.log"
+  },
+  {
+    "command": [
+      "python",
+      "-m",
+      "pip",
+      "check"
+    ],
+    "exit_code": 0,
+    "log": "check-2.log"
+  },
+  {
+    "command": [
+      "cargo",
+      "fmt",
+      "--manifest-path",
+      "crates/nbsr-transport/Cargo.toml",
+      "--",
+      "--check"
+    ],
+    "exit_code": 0,
+    "log": "check-3.log"
+  },
+  {
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "52824743..HEAD"
+    ],
+    "exit_code": 0,
+    "log": "check-4.log"
+  }
+]

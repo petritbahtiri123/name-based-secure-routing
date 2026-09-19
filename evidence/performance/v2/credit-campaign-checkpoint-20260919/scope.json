@@ -1,0 +1,18 @@
+{
+  "start_sha": "52824743e074528852105bc3e0be4ed8d9c83c8a",
+  "implementation_evidence_through": "50925e1041cef253714ac98ed38ec0f04dd0f9f1",
+  "checkpoint_commit": "follows retained sequence; reported in task response",
+  "branch": "codex/nbsr-v3-wp0-wp1",
+  "protected_refs": [
+    "1938154d498b32d81a3564319969430644e8a688",
+    "1938154d498b32d81a3564319969430644e8a688"
+  ],
+  "authorized_credit_budget": 1000,
+  "account_balance_at_checkpoint_preparation": "68.950525",
+  "budget_scope": "Account-level observation, not independently metered per-task billing; reserve for checkpoint verification",
+  "captured_at": "2026-09-19T16:21:35.223400+00:00",
+  "production_optimization": "NONE_THIS_CAMPAIGN",
+  "final_program_status": "MORE_ENGINEERING_REQUIRED",
+  "remaining_safe_work": true,
+  "benchmark_running": false
+}

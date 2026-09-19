@@ -4,6 +4,13 @@
 for the ongoing campaign. Each measurement belongs to its recorded source,
 workload and host; different stages are not one final-SHA scoreboard.
 
+Latest budgeted continuation: [September 19 engineering/evidence checkpoint](ENGINEERING_CHECKPOINT_2026-09-19_CREDIT_CAMPAIGN.md).
+Native Linux-local control storage completes 256 held bundles in all five cells;
+512 completes three of five, with both failures retained. These are functional
+fixtures, not sustainable admission or throughput results. The native lifecycle
+runner now has six live cancellation controls and an independent pair gate.
+No production speedup or final funding closure is claimed.
+
 Latest native-packet/reliability continuation: see the
 [scoped September 19 follow-up](ENGINEERING_CHECKPOINT_2026-09-19_NATIVE.md).
 Native equal-work peers, bounded packet accounting and capture cleanup now have

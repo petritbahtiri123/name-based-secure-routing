@@ -1,0 +1,160 @@
+[
+  {
+    "canonical": "evidence/performance/v2/b3-allocator-2c35c773",
+    "index_sha256": "a1de0ab7246cbac204af0157c00a36abebd99430ca3d9633eca68fb92866b1bf",
+    "summary": "evidence/performance/v2/b3-allocator-2c35c773/summary.md",
+    "raw_references": [
+      {
+        "root": "C:\\NBSR-build\\b3-allocator-2c35c773",
+        "index_sha256": "66be815eb80cd632c7f729f1889e3f0a1e957f3a6a20fdc80f52d13c54f157ea"
+      },
+      {
+        "root": "C:\\NBSR-build\\allocator-snapshot-9b427413",
+        "index_sha256": "b4a293d7857a9292feda7bd257ed5ac4ed4bb69ed263e825be1678ef2cafbd2f"
+      },
+      {
+        "root": "C:\\NBSR-build\\linux-current-2c35c773",
+        "index_sha256": "6ec85e047b570b78142e9bec432926c3b1d7a183620afe5384e78acbf3bd6808"
+      }
+    ]
+  },
+  {
+    "canonical": "evidence/performance/v2/lifecycle-bind-b6cf5e56",
+    "index_sha256": "a3b4d74716f6c98937e55197be05f033fa3d53d625dc5b83627ce69a893a3869",
+    "summary": "evidence/performance/v2/lifecycle-bind-b6cf5e56/summary.md",
+    "raw_references": [
+      {
+        "root": "C:\\NBSR-build\\lifecycle-bind-b6cf5e56",
+        "index_sha256": "9aae98dd6ff7a6d28f447de9eb707ea80162c32f89c1c2f91cfc32d538a8af39"
+      },
+      {
+        "root": "C:\\NBSR-build\\lifecycle-bind-c7ca8651",
+        "index_sha256": "fb5fdc4cf8dc8d394cf41f75ef6b1b0e377006d0dd217018fc7cc41e0cd02db2"
+      },
+      {
+        "root": "C:\\NBSR-build\\linux-current-b6cf5e56",
+        "index_sha256": "a6ad252fbe95a1dd3d1706d044d76008fb2226c0955f9c4b09699b863e08da6a"
+      }
+    ]
+  },
+  {
+    "canonical": "evidence/performance/v2/native-control-scale512-a401567d",
+    "index_sha256": "13f98f7b52275d38c720228b40aa28f1ad0ae982442f74d46cc8abfc0f9d1a7f",
+    "summary": "evidence/performance/v2/native-control-scale512-a401567d/summary.md",
+    "raw_references": [
+      {
+        "root": "C:\\NBSR-build\\native-control-scale512-a401567d",
+        "index_sha256": "40fce3e2c68876d711660f98d2e025e07e0461ae6f1eeaba7fdf3f1fff5718d8"
+      }
+    ]
+  },
+  {
+    "canonical": "evidence/performance/v2/native-control-storage-a401567d",
+    "index_sha256": "4ba7a6fe4a4c92b46b52a06f733b71c9ecbf22522ec0c6812834480abf6cd5ab",
+    "summary": "evidence/performance/v2/native-control-storage-a401567d/summary.md",
+    "raw_references": [
+      {
+        "root": "C:\\NBSR-build\\native-control-storage-a401567d",
+        "index_sha256": "6a74e98bdf7624da06a0072b8cec83f1ec069f68029a2e01081794258b3df047"
+      }
+    ]
+  },
+  {
+    "canonical": "evidence/performance/v2/native-lifecycle-b6cf5e56",
+    "index_sha256": "af2edfe0b7a32634869b17383a032e6d3b5547208d818decd7ac73c203f3558b",
+    "summary": "evidence/performance/v2/native-lifecycle-b6cf5e56/summary.md",
+    "raw_references": [
+      {
+        "root": "C:\\NBSR-build\\native-lifecycle-b6cf5e56",
+        "index_sha256": "cad81ae67c1057b38e52d6819148e8bcb38ae080e0966cbe7915b021bbdf0bb0"
+      },
+      {
+        "root": "C:\\NBSR-build\\linux-current-b6cf5e56",
+        "index_sha256": "a6ad252fbe95a1dd3d1706d044d76008fb2226c0955f9c4b09699b863e08da6a"
+      }
+    ]
+  },
+  {
+    "canonical": "evidence/performance/v2/native-lifecycle-cancel-a401567d",
+    "index_sha256": "25c302a5ff264d0f5c48c3c34a1654c31f71ceb258e98b591598d8823d488356",
+    "summary": "evidence/performance/v2/native-lifecycle-cancel-a401567d/summary.md",
+    "raw_references": [
+      {
+        "root": "C:\\NBSR-build\\native-lifecycle-cancel-a401567d",
+        "index_sha256": "d2a3c9a76d9198483647f136eda4113cac770bcf3c11d8c93578a7a8381a0417"
+      }
+    ]
+  },
+  {
+    "canonical": "evidence/performance/v2/native-lifecycle-failures-b6cf5e56",
+    "index_sha256": "eb70cb090282a01814ae014ab5d57c4c400e6fec2d8c1d5ad55baa86ab3f6f40",
+    "summary": "evidence/performance/v2/native-lifecycle-failures-b6cf5e56/summary.md",
+    "raw_references": [
+      {
+        "root": "C:\\NBSR-build\\native-lifecycle-scale-b6cf5e56",
+        "index_sha256": "cbcef6145cb2def93aba5827356fb199622071f21599b4edd40cfec50846fc04"
+      },
+      {
+        "root": "C:\\NBSR-build\\native-lifecycle-failure-probe-b6cf5e56",
+        "index_sha256": "347626a6d462fe4b38637b0cea2f7e5f3913532dde7f38a6c18992dec9708022"
+      }
+    ]
+  },
+  {
+    "canonical": "evidence/performance/v2/native-lifecycle-pair-e74e53b1",
+    "index_sha256": "670cb408967b06494eb1409d61dc4c60845e06be84ec75290d599fc1fd5684fd",
+    "summary": "evidence/performance/v2/native-lifecycle-pair-e74e53b1/summary.md",
+    "raw_references": [
+      {
+        "root": "C:\\NBSR-build\\native-lifecycle-pair-e3e38a80",
+        "index_sha256": "4f70257281d363bf48203476b117db2426da70152fd789e7b3c778fbc1d888c3"
+      }
+    ]
+  },
+  {
+    "canonical": "evidence/performance/v2/native-lifecycle-peer-a401567d",
+    "index_sha256": "368f293106cf7ee25847a93893457c6367fe5d795e8447c622c1222d965b549f",
+    "summary": "evidence/performance/v2/native-lifecycle-peer-a401567d/summary.md",
+    "raw_references": [
+      {
+        "root": "C:\\NBSR-build\\native-lifecycle-peer-a401567d-corrected",
+        "index_sha256": "6eaecf0936d12b54f189a59831316887a20c66a6f7cd2b29f42cb7bf966e4e5c"
+      },
+      {
+        "root": "C:\\NBSR-build\\native-lifecycle-peer-a401567d",
+        "index_sha256": "a3b17fd2e81b1ceba1366de5b3a283e544ec3a1bfd7de0d2ad2e58210aed7670"
+      },
+      {
+        "root": "C:\\NBSR-build\\native-lifecycle-port-b93f4579",
+        "index_sha256": "48c5a61b564f30d781dc7c809bdd281b565836fec144355756d0981b70c024ff"
+      },
+      {
+        "root": "C:\\NBSR-build\\linux-current-a401567d",
+        "index_sha256": "58b626edb1ad81acf09b1bf6e50ff849cc63a72d9717d7b0de464b2a5a27379e"
+      },
+      {
+        "root": "C:\\NBSR-build\\native-container-cleanup-20260919",
+        "index_sha256": "ffe65d1b53efc8711e6375c32f9726163babfd725ac4ec20412267bc05dfacb2"
+      }
+    ]
+  },
+  {
+    "canonical": "evidence/performance/v2/native-phases-6b1095c5",
+    "index_sha256": "9fe732ef1a4399995fa0dd99bf885f3ce0f87250df144382087e83e5a9184cbf",
+    "summary": "evidence/performance/v2/native-phases-6b1095c5/summary.md",
+    "raw_references": [
+      {
+        "root": "C:\\NBSR-build\\linux-current-6b1095c5",
+        "index_sha256": "cc4d54f1b2933e562b4ceac2b798d2b882dba1c7dcf45840144824f1432a5d2d"
+      },
+      {
+        "root": "C:\\NBSR-build\\native-phases-6b1095c5-corrected",
+        "index_sha256": "2ac015d74d9a958e677e5651d5f15ccaa4be4e9fc4a8bc3e7f1dbe935ca62bf5"
+      },
+      {
+        "root": "C:\\NBSR-build\\native-phases-6b1095c5",
+        "index_sha256": "8bd4919d18573cf07cc34c44e8b2c529e5ebb67417ff8afc1b2575b30c70391f"
+      }
+    ]
+  }
+]

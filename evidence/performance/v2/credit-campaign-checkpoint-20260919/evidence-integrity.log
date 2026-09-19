@@ -1,0 +1,10 @@
+b3-allocator-2c35c773 {"canonical": 12, "privacy": 13, "raw": 466} PASS
+lifecycle-bind-b6cf5e56 {"canonical": 8, "privacy": 9, "raw": 333} PASS
+native-control-scale512-a401567d {"canonical": 10, "privacy": 11, "raw": 15053} PASS
+native-control-storage-a401567d {"canonical": 10, "privacy": 11, "raw": 11899} PASS
+native-lifecycle-b6cf5e56 {"canonical": 11, "privacy": 12, "raw": 592} PASS
+native-lifecycle-cancel-a401567d {"canonical": 9, "privacy": 10, "raw": 117} PASS
+native-lifecycle-failures-b6cf5e56 {"canonical": 14, "privacy": 15, "raw": 1383} PASS
+native-lifecycle-pair-e74e53b1 {"canonical": 6, "privacy": 7, "raw": 3} PASS
+native-lifecycle-peer-a401567d {"canonical": 11, "privacy": 12, "raw": 616} PASS
+native-phases-6b1095c5 {"canonical": 11, "privacy": 12, "raw": 1226} PASS

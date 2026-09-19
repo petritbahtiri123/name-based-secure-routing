@@ -110,3 +110,11 @@ It rejects forced/failed peers even if someone reseals their checksum indexes.
 It does not authenticate a remote host or prove the coordinator's simultaneous
 all-active hold, actual socket bindings, sustainable admission or performance.
 Keep the independently retained marker/hold/socket evidence with the pair.
+
+The a401567d matched fixture finds 5/5 complete 256-bundle cells on Linux-local
+overlayfs and 5/5 failures on Windows-mounted v9fs. Prefer native local control
+storage for the next fixture; keep its raw snapshots separately retained. This
+is functional storage sensitivity, not qualified causal timing attribution.
+The next Linux-local 512 group completes only 3/5 and remains PARTIAL.
+See [storage comparison](../../evidence/performance/v2/native-control-storage-a401567d/summary.md)
+and [all 512 outcomes](../../evidence/performance/v2/native-control-scale512-a401567d/summary.md).
