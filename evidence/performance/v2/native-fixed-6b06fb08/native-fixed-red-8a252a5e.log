@@ -1,0 +1,202 @@
+FFFFFFFFFF.....                                                          [100%]
+================================== FAILURES ===================================
+_____ test_fixed_work_replaces_duration_and_warmup_symmetrically[direct] ______
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1092/test_fixed_work_replaces_durat0')
+mode = 'direct'
+
+    @pytest.mark.parametrize('mode', ['direct', 'nbsr'])
+    def test_fixed_work_replaces_duration_and_warmup_symmetrically(tmp_path, mode):
+        from scripts.performance.linux_native_peer import native_command
+        cell = dict(path=mode, cores=1, payload_bytes=1024, streams=64, outstanding=1, operations_per_stream=1000)
+        argv, _ = native_command(cell, 'source', Path('/bins'), Path('/authority'), tmp_path,
+                                 bind='192.0.2.10:0', endpoint='192.0.2.11:4444')
+>       assert '--p2a-duration-seconds' not in argv
+E       AssertionError: assert '--p2a-duration-seconds' not in ['\\bins\\perf_direct_peer', '--role', 'client', '--samples', '1', '--lifecycle', ...]
+
+tests\performance\test_linux_native_fixed_work.py:16: AssertionError
+______ test_fixed_work_replaces_duration_and_warmup_symmetrically[nbsr] _______
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1092/test_fixed_work_replaces_durat1')
+mode = 'nbsr'
+
+    @pytest.mark.parametrize('mode', ['direct', 'nbsr'])
+    def test_fixed_work_replaces_duration_and_warmup_symmetrically(tmp_path, mode):
+        from scripts.performance.linux_native_peer import native_command
+        cell = dict(path=mode, cores=1, payload_bytes=1024, streams=64, outstanding=1, operations_per_stream=1000)
+        argv, _ = native_command(cell, 'source', Path('/bins'), Path('/authority'), tmp_path,
+                                 bind='192.0.2.10:0', endpoint='192.0.2.11:4444')
+>       assert '--p2a-duration-seconds' not in argv
+E       AssertionError: assert '--p2a-duration-seconds' not in ['\\bins\\perf_rust_source', '--samples', '1', '--authority-dir', '\\authority', '--endpoint', ...]
+
+tests\performance\test_linux_native_fixed_work.py:16: AssertionError
+____________ test_fixed_work_invalid_bounds_or_depth_rejected[0-1] ____________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1092/test_fixed_work_invalid_bounds0')
+operations = 0, depth = 1
+
+    @pytest.mark.parametrize('operations,depth', [(0, 1), (-1, 1), (10001, 1), (True, 1), (10, 2)])
+    def test_fixed_work_invalid_bounds_or_depth_rejected(tmp_path, operations, depth):
+        from scripts.performance.linux_native_peer import native_command
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_linux_native_fixed_work.py:24: Failed
+___________ test_fixed_work_invalid_bounds_or_depth_rejected[-1-1] ____________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1092/test_fixed_work_invalid_bounds1')
+operations = -1, depth = 1
+
+    @pytest.mark.parametrize('operations,depth', [(0, 1), (-1, 1), (10001, 1), (True, 1), (10, 2)])
+    def test_fixed_work_invalid_bounds_or_depth_rejected(tmp_path, operations, depth):
+        from scripts.performance.linux_native_peer import native_command
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_linux_native_fixed_work.py:24: Failed
+__________ test_fixed_work_invalid_bounds_or_depth_rejected[10001-1] __________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1092/test_fixed_work_invalid_bounds2')
+operations = 10001, depth = 1
+
+    @pytest.mark.parametrize('operations,depth', [(0, 1), (-1, 1), (10001, 1), (True, 1), (10, 2)])
+    def test_fixed_work_invalid_bounds_or_depth_rejected(tmp_path, operations, depth):
+        from scripts.performance.linux_native_peer import native_command
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_linux_native_fixed_work.py:24: Failed
+__________ test_fixed_work_invalid_bounds_or_depth_rejected[True-1] ___________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1092/test_fixed_work_invalid_bounds3')
+operations = True, depth = 1
+
+    @pytest.mark.parametrize('operations,depth', [(0, 1), (-1, 1), (10001, 1), (True, 1), (10, 2)])
+    def test_fixed_work_invalid_bounds_or_depth_rejected(tmp_path, operations, depth):
+        from scripts.performance.linux_native_peer import native_command
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_linux_native_fixed_work.py:24: Failed
+___________ test_fixed_work_invalid_bounds_or_depth_rejected[10-2] ____________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1092/test_fixed_work_invalid_bounds4')
+operations = 10, depth = 2
+
+    @pytest.mark.parametrize('operations,depth', [(0, 1), (-1, 1), (10001, 1), (True, 1), (10, 2)])
+    def test_fixed_work_invalid_bounds_or_depth_rejected(tmp_path, operations, depth):
+        from scripts.performance.linux_native_peer import native_command
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_linux_native_fixed_work.py:24: Failed
+________ test_fixed_pair_requires_exact_work_but_not_capacity[direct] _________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1092/test_fixed_pair_requires_exact0')
+mode = 'direct'
+
+    @pytest.mark.parametrize('mode', ['direct', 'nbsr'])
+    def test_fixed_pair_requires_exact_work_but_not_capacity(tmp_path, mode):
+        from scripts.performance.linux_native_pair import analyze_pair
+        roots = fixed_fixture(tmp_path, mode)
+>       result = analyze_pair(*roots, source_sha=SHA)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\performance\test_linux_native_fixed_work.py:60: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+scripts\performance\linux_native_pair.py:121: in analyze_pair
+    src, result, src_index = check_peer(source, 'source', source_sha)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts\performance\linux_native_pair.py:58: in check_peer
+    validate_matrix(dict(schema='nbsr-linux-loopback-v1', cores=[cell['cores']],
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+matrix = {'cores': [1], 'duration_seconds': None, 'schema': 'nbsr-linux-loopback-v1', 'warmup_seconds': 0, ...}
+
+    def validate_matrix(matrix):
+        if set(matrix) != {"schema", "cores", "workloads", "warmup_seconds", "duration_seconds"}:
+            raise ValueError("unknown or missing matrix fields")
+        if matrix["schema"] != "nbsr-linux-loopback-v1":
+            raise ValueError("unsupported schema")
+        cores = matrix["cores"]
+        if not isinstance(cores, list) or not cores or len(set(cores)) != len(cores):
+            raise ValueError("core counts must be unique and nonempty")
+        if any(type(c) is not int or c not in (1, 2, 4, 8, 16, 32) for c in cores):
+            raise ValueError("this runner supports only 1/2/4/8/16/32 physical cores")
+        for key, minimum in (("warmup_seconds", 3), ("duration_seconds", 20)):
+            value = matrix[key]
+            if type(value) not in (int, float) or not math.isfinite(value) or not minimum <= value <= 3600:
+>               raise ValueError(f"invalid {key}")
+E               ValueError: invalid warmup_seconds
+
+scripts\performance\linux_loopback.py:53: ValueError
+_________ test_fixed_pair_requires_exact_work_but_not_capacity[nbsr] __________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1092/test_fixed_pair_requires_exact1')
+mode = 'nbsr'
+
+    @pytest.mark.parametrize('mode', ['direct', 'nbsr'])
+    def test_fixed_pair_requires_exact_work_but_not_capacity(tmp_path, mode):
+        from scripts.performance.linux_native_pair import analyze_pair
+        roots = fixed_fixture(tmp_path, mode)
+>       result = analyze_pair(*roots, source_sha=SHA)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\performance\test_linux_native_fixed_work.py:60: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+scripts\performance\linux_native_pair.py:121: in analyze_pair
+    src, result, src_index = check_peer(source, 'source', source_sha)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts\performance\linux_native_pair.py:58: in check_peer
+    validate_matrix(dict(schema='nbsr-linux-loopback-v1', cores=[cell['cores']],
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+matrix = {'cores': [1], 'duration_seconds': None, 'schema': 'nbsr-linux-loopback-v1', 'warmup_seconds': 0, ...}
+
+    def validate_matrix(matrix):
+        if set(matrix) != {"schema", "cores", "workloads", "warmup_seconds", "duration_seconds"}:
+            raise ValueError("unknown or missing matrix fields")
+        if matrix["schema"] != "nbsr-linux-loopback-v1":
+            raise ValueError("unsupported schema")
+        cores = matrix["cores"]
+        if not isinstance(cores, list) or not cores or len(set(cores)) != len(cores):
+            raise ValueError("core counts must be unique and nonempty")
+        if any(type(c) is not int or c not in (1, 2, 4, 8, 16, 32) for c in cores):
+            raise ValueError("this runner supports only 1/2/4/8/16/32 physical cores")
+        for key, minimum in (("warmup_seconds", 3), ("duration_seconds", 20)):
+            value = matrix[key]
+            if type(value) not in (int, float) or not math.isfinite(value) or not minimum <= value <= 3600:
+>               raise ValueError(f"invalid {key}")
+E               ValueError: invalid warmup_seconds
+
+scripts\performance\linux_loopback.py:53: ValueError
+__________ test_live_source_validation_rejects_incomplete_fixed_work __________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1092/test_live_source_validation_re0')
+
+    def test_live_source_validation_rejects_incomplete_fixed_work(tmp_path):
+        from scripts.performance.linux_native_peer import validate_source
+        source, _ = fixed_fixture(tmp_path, count=127)
+        cell = json.loads((source / 'environment.json').read_text())['cell']
+>       with pytest.raises(ValueError, match='fixed'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_linux_native_fixed_work.py:69: Failed
+=========================== short test summary info ===========================
+FAILED tests/performance/test_linux_native_fixed_work.py::test_fixed_work_replaces_duration_and_warmup_symmetrically[direct]
+FAILED tests/performance/test_linux_native_fixed_work.py::test_fixed_work_replaces_duration_and_warmup_symmetrically[nbsr]
+FAILED tests/performance/test_linux_native_fixed_work.py::test_fixed_work_invalid_bounds_or_depth_rejected[0-1]
+FAILED tests/performance/test_linux_native_fixed_work.py::test_fixed_work_invalid_bounds_or_depth_rejected[-1-1]
+FAILED tests/performance/test_linux_native_fixed_work.py::test_fixed_work_invalid_bounds_or_depth_rejected[10001-1]
+FAILED tests/performance/test_linux_native_fixed_work.py::test_fixed_work_invalid_bounds_or_depth_rejected[True-1]
+FAILED tests/performance/test_linux_native_fixed_work.py::test_fixed_work_invalid_bounds_or_depth_rejected[10-2]
+FAILED tests/performance/test_linux_native_fixed_work.py::test_fixed_pair_requires_exact_work_but_not_capacity[direct]
+FAILED tests/performance/test_linux_native_fixed_work.py::test_fixed_pair_requires_exact_work_but_not_capacity[nbsr]
+FAILED tests/performance/test_linux_native_fixed_work.py::test_live_source_validation_rejects_incomplete_fixed_work
+10 failed, 5 passed in 2.36s

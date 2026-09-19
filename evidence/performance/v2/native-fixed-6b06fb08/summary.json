@@ -1,0 +1,35 @@
+{
+  "classification": "PASS_FIXED_WORK_NAMESPACE_MECHANICS",
+  "cells": [
+    {
+      "payload_bytes": 1024,
+      "streams": 64,
+      "repeats": 5,
+      "medians": {
+        "direct": 1.5509563491759335,
+        "nbsr": 1.6295733598796278
+      },
+      "cv": {
+        "direct": 0.017145168376579558,
+        "nbsr": 0.04061243164600624
+      }
+    },
+    {
+      "payload_bytes": 16384,
+      "streams": 8,
+      "repeats": 5,
+      "medians": {
+        "direct": 2.756195286704085,
+        "nbsr": 2.8376474920051997
+      },
+      "cv": {
+        "direct": 0.022203421065133826,
+        "nbsr": 0.10411201165055879
+      }
+    }
+  ],
+  "strict_stable_capacity": "NOT_PROVEN",
+  "external_hardware": "NOT_PROVEN",
+  "observer_qualification": "NOT_QUALIFIED",
+  "runtime_ownership_cleanup": "NOT_MEASURED"
+}

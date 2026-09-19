@@ -1,0 +1,36 @@
+...............F.                                                        [100%]
+================================== FAILURES ===================================
+____________ test_packet_fixed_work_cohort_requires_five_pairs[3] _____________
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1094/test_packet_fixed_work_cohort_0')
+repeats = 3
+
+    @pytest.mark.parametrize('repeats', [3, 5])
+    def test_packet_fixed_work_cohort_requires_five_pairs(tmp_path, repeats):
+        from scripts.performance.linux_native_cohort import analyze_cohort
+        from tests.performance.test_linux_native_cohort import cohort
+        path = cohort(tmp_path, counts=(128,) * repeats)
+        for entry in json.loads(path.read_text())['attempts']:
+            for role in ('source', 'destination'):
+                root = tmp_path / entry[role]
+                env = json.loads((root / 'environment.json').read_text())
+                env['cell']['operations_per_stream'] = 2
+                env.update(warmup_seconds=0, duration_seconds=None)
+                put(root, 'environment.json', env)
+                if role == 'source':
+                    command = json.loads((root / 'command.json').read_text())
+                    argv = command['argv']
+                    argv[argv.index('--p2a-warmup-seconds') + 1] = '0'
+                    pos = argv.index('--p2a-duration-seconds')
+                    argv[pos:pos + 2] = ['--p2a-operations-per-stream', '2']
+                    put(root, 'command.json', command)
+                seal_output(root)
+        if repeats == 3:
+>           with pytest.raises(ValueError, match='five'):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE <class 'ValueError'>
+
+tests\performance\test_linux_native_fixed_work.py:115: Failed
+=========================== short test summary info ===========================
+FAILED tests/performance/test_linux_native_fixed_work.py::test_packet_fixed_work_cohort_requires_five_pairs[3]
+1 failed, 16 passed in 4.54s
