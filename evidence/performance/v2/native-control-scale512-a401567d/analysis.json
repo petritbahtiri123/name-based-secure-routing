@@ -1,0 +1,461 @@
+{
+  "classification": "PARTIAL_FUNCTIONAL_SCALE; NOT_REPEATABLE_ACCEPTANCE",
+  "count": 512,
+  "passes": 3,
+  "failures": 2,
+  "accepted_native_repeat_qualified_count": 256,
+  "cause": "UNRESOLVED",
+  "records": [
+    {
+      "mode": "local",
+      "count": 512,
+      "repeat": 1,
+      "label": "local-512-r1",
+      "status": "PASS_FUNCTIONAL",
+      "successful": 512,
+      "results": {
+        "source": {
+          "external_hardware": "NOT_PROVEN",
+          "ownership": {
+            "application_streams_current_live": 0,
+            "audit_queue_current_entries": 0,
+            "channel_registry_current_entries": 0,
+            "nbsr_tasks_current_live": 0,
+            "pending_routes_current_entries": 0,
+            "quic_connections_current_live": 0,
+            "quic_streams_current_live": 0,
+            "replay_state_current_entries": 0,
+            "service_channels_current_live": 0,
+            "stream_registry_current_entries": 0,
+            "transport_sessions_current_live": 0
+          },
+          "ownership_all_zero": true,
+          "paired_active_hold": "COORDINATOR_REQUIRED",
+          "process": {
+            "exit_code": 0,
+            "final_sample": {
+              "affinity": [
+                0
+              ],
+              "cpu_ns": 1840000000,
+              "fd_count": null,
+              "fd_count_state": "UNAVAILABLE_ZOMBIE",
+              "flags": 4227084,
+              "pid": 63,
+              "rss_bytes": 0,
+              "start_ticks": 94681,
+              "state": "Z",
+              "thread_ids": [
+                63
+              ],
+              "timestamp_ns": 955441675637
+            }
+          },
+          "role": "source",
+          "status": "PASS_FUNCTIONAL_PEER",
+          "successful": 512,
+          "sustainable_capacity": "NOT_ESTABLISHED",
+          "timing": "DIAGNOSTIC_ONLY"
+        },
+        "destination": {
+          "external_hardware": "NOT_PROVEN",
+          "ownership": {
+            "application_streams_current_live": 0,
+            "audit_queue_current_entries": 0,
+            "channel_registry_current_entries": 0,
+            "nbsr_tasks_current_live": 0,
+            "pending_routes_current_entries": 0,
+            "quic_connections_current_live": 0,
+            "quic_streams_current_live": 0,
+            "replay_state_current_entries": 0,
+            "service_channels_current_live": 0,
+            "stream_registry_current_entries": 0,
+            "transport_sessions_current_live": 0
+          },
+          "ownership_all_zero": true,
+          "paired_active_hold": "COORDINATOR_REQUIRED",
+          "process": {
+            "exit_code": 0,
+            "final_sample": {
+              "affinity": [
+                0
+              ],
+              "cpu_ns": 2130000000,
+              "fd_count": null,
+              "fd_count_state": "UNAVAILABLE_ZOMBIE",
+              "flags": 4227340,
+              "pid": 63,
+              "rss_bytes": 0,
+              "start_ticks": 94226,
+              "state": "Z",
+              "thread_ids": [
+                63
+              ],
+              "timestamp_ns": 959435004715
+            }
+          },
+          "role": "destination",
+          "status": "PASS_FUNCTIONAL_PEER",
+          "successful": 512,
+          "sustainable_capacity": "NOT_ESTABLISHED",
+          "timing": "DIAGNOSTIC_ONLY"
+        }
+      },
+      "exit_codes": {
+        "destination": 0,
+        "source": 0
+      },
+      "indexes": {
+        "destination": "0221dd6eda4f0b303e7041f21363ee511c403d21f58d3810e1b5d9eb656bfccc",
+        "source": "c37ce063093227321f06232d0b9b738cf913db78e872986171589958aed8fe26"
+      },
+      "markers": {
+        "destination": {
+          "active": 512,
+          "failed": 0,
+          "release": 512,
+          "ack": 0
+        },
+        "source": {
+          "active": 512,
+          "failed": 0,
+          "release": 512,
+          "ack": 512
+        }
+      }
+    },
+    {
+      "mode": "local",
+      "count": 512,
+      "repeat": 2,
+      "label": "local-512-r2",
+      "status": "FAIL_RETAINED",
+      "error": "observed failure marker",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\NBSR-build\\native-control-scale512-a401567d\\run.py\", line 55, in <module>\n    wait([ROOT/r/(label+'-active.json') for r in NAMES],list(processes.values()),label)\n    ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\NBSR-build\\native-control-scale512-a401567d\\run.py\", line 18, in wait\n    if any((ROOT/r/(label+'-failed.json')).exists() or (ROOT/r/(label+'-watcher-error.json')).exists() for r in NAMES):raise RuntimeError('observed failure marker')\n                                                                                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nRuntimeError: observed failure marker\n",
+      "exit_codes": {
+        "destination": 1,
+        "source": 1
+      },
+      "indexes": {
+        "destination": "4066c4a760bedddb0f7c61aca9436f8ac7a603fd8975c008d7bb2ec31300a93c",
+        "source": "fcb4fd88e54e0f4cb95535f0e30a91ae7c675f0d6113cfb0653876bb8cbf2c24"
+      },
+      "markers": {
+        "destination": {
+          "active": 511,
+          "failed": 0,
+          "release": 0,
+          "ack": 0
+        },
+        "source": {
+          "active": 511,
+          "failed": 1,
+          "release": 0,
+          "ack": 0
+        }
+      },
+      "recorded_errors": [
+        {
+          "logical_client_id": 511,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        }
+      ]
+    },
+    {
+      "mode": "local",
+      "count": 512,
+      "repeat": 3,
+      "label": "local-512-r3",
+      "status": "FAIL_RETAINED",
+      "error": "observed failure marker",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\NBSR-build\\native-control-scale512-a401567d\\run.py\", line 55, in <module>\n    wait([ROOT/r/(label+'-active.json') for r in NAMES],list(processes.values()),label)\n    ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\NBSR-build\\native-control-scale512-a401567d\\run.py\", line 18, in wait\n    if any((ROOT/r/(label+'-failed.json')).exists() or (ROOT/r/(label+'-watcher-error.json')).exists() for r in NAMES):raise RuntimeError('observed failure marker')\n                                                                                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nRuntimeError: observed failure marker\n",
+      "exit_codes": {
+        "destination": 1,
+        "source": 1
+      },
+      "indexes": {
+        "destination": "65ec11262adbec9aa8002212b7d174f78571837b3bb979f6df75258f75346aa7",
+        "source": "990073fd2c04766f9376c8b156abec7a92ea303024a48973dbff82861dd69e8e"
+      },
+      "markers": {
+        "destination": {
+          "active": 508,
+          "failed": 0,
+          "release": 0,
+          "ack": 0
+        },
+        "source": {
+          "active": 508,
+          "failed": 4,
+          "release": 0,
+          "ack": 0
+        }
+      },
+      "recorded_errors": [
+        {
+          "logical_client_id": 508,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 509,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 510,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 511,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        }
+      ]
+    },
+    {
+      "mode": "local",
+      "count": 512,
+      "repeat": 4,
+      "label": "local-512-r4",
+      "status": "PASS_FUNCTIONAL",
+      "successful": 512,
+      "results": {
+        "source": {
+          "external_hardware": "NOT_PROVEN",
+          "ownership": {
+            "application_streams_current_live": 0,
+            "audit_queue_current_entries": 0,
+            "channel_registry_current_entries": 0,
+            "nbsr_tasks_current_live": 0,
+            "pending_routes_current_entries": 0,
+            "quic_connections_current_live": 0,
+            "quic_streams_current_live": 0,
+            "replay_state_current_entries": 0,
+            "service_channels_current_live": 0,
+            "stream_registry_current_entries": 0,
+            "transport_sessions_current_live": 0
+          },
+          "ownership_all_zero": true,
+          "paired_active_hold": "COORDINATOR_REQUIRED",
+          "process": {
+            "exit_code": 0,
+            "final_sample": {
+              "affinity": [
+                0
+              ],
+              "cpu_ns": 2090000000,
+              "fd_count": null,
+              "fd_count_state": "UNAVAILABLE_ZOMBIE",
+              "flags": 4227084,
+              "pid": 205,
+              "rss_bytes": 0,
+              "start_ticks": 104766,
+              "state": "Z",
+              "thread_ids": [
+                205
+              ],
+              "timestamp_ns": 1056685876763
+            }
+          },
+          "role": "source",
+          "status": "PASS_FUNCTIONAL_PEER",
+          "successful": 512,
+          "sustainable_capacity": "NOT_ESTABLISHED",
+          "timing": "DIAGNOSTIC_ONLY"
+        },
+        "destination": {
+          "external_hardware": "NOT_PROVEN",
+          "ownership": {
+            "application_streams_current_live": 0,
+            "audit_queue_current_entries": 0,
+            "channel_registry_current_entries": 0,
+            "nbsr_tasks_current_live": 0,
+            "pending_routes_current_entries": 0,
+            "quic_connections_current_live": 0,
+            "quic_streams_current_live": 0,
+            "replay_state_current_entries": 0,
+            "service_channels_current_live": 0,
+            "stream_registry_current_entries": 0,
+            "transport_sessions_current_live": 0
+          },
+          "ownership_all_zero": true,
+          "paired_active_hold": "COORDINATOR_REQUIRED",
+          "process": {
+            "exit_code": 0,
+            "final_sample": {
+              "affinity": [
+                0
+              ],
+              "cpu_ns": 2410000000,
+              "fd_count": null,
+              "fd_count_state": "UNAVAILABLE_ZOMBIE",
+              "flags": 4227340,
+              "pid": 199,
+              "rss_bytes": 0,
+              "start_ticks": 104270,
+              "state": "Z",
+              "thread_ids": [
+                199
+              ],
+              "timestamp_ns": 1060733507604
+            }
+          },
+          "role": "destination",
+          "status": "PASS_FUNCTIONAL_PEER",
+          "successful": 512,
+          "sustainable_capacity": "NOT_ESTABLISHED",
+          "timing": "DIAGNOSTIC_ONLY"
+        }
+      },
+      "exit_codes": {
+        "destination": 0,
+        "source": 0
+      },
+      "indexes": {
+        "destination": "2f402c619438e0309df2193b51c6d461c051a014d8a0fefffb0fd0084c6b946a",
+        "source": "7691e152cc441b15910489e703e5871734d69fccc0303105c97d040e88b9c2f2"
+      },
+      "markers": {
+        "destination": {
+          "active": 512,
+          "failed": 0,
+          "release": 512,
+          "ack": 0
+        },
+        "source": {
+          "active": 512,
+          "failed": 0,
+          "release": 512,
+          "ack": 512
+        }
+      }
+    },
+    {
+      "mode": "local",
+      "count": 512,
+      "repeat": 5,
+      "label": "local-512-r5",
+      "status": "PASS_FUNCTIONAL",
+      "successful": 512,
+      "results": {
+        "source": {
+          "external_hardware": "NOT_PROVEN",
+          "ownership": {
+            "application_streams_current_live": 0,
+            "audit_queue_current_entries": 0,
+            "channel_registry_current_entries": 0,
+            "nbsr_tasks_current_live": 0,
+            "pending_routes_current_entries": 0,
+            "quic_connections_current_live": 0,
+            "quic_streams_current_live": 0,
+            "replay_state_current_entries": 0,
+            "service_channels_current_live": 0,
+            "stream_registry_current_entries": 0,
+            "transport_sessions_current_live": 0
+          },
+          "ownership_all_zero": true,
+          "paired_active_hold": "COORDINATOR_REQUIRED",
+          "process": {
+            "exit_code": 0,
+            "final_sample": {
+              "affinity": [
+                0
+              ],
+              "cpu_ns": 2120000000,
+              "fd_count": null,
+              "fd_count_state": "UNAVAILABLE_ZOMBIE",
+              "flags": 4227084,
+              "pid": 271,
+              "rss_bytes": 0,
+              "start_ticks": 107806,
+              "state": "Z",
+              "thread_ids": [
+                271
+              ],
+              "timestamp_ns": 1086938861054
+            }
+          },
+          "role": "source",
+          "status": "PASS_FUNCTIONAL_PEER",
+          "successful": 512,
+          "sustainable_capacity": "NOT_ESTABLISHED",
+          "timing": "DIAGNOSTIC_ONLY"
+        },
+        "destination": {
+          "external_hardware": "NOT_PROVEN",
+          "ownership": {
+            "application_streams_current_live": 0,
+            "audit_queue_current_entries": 0,
+            "channel_registry_current_entries": 0,
+            "nbsr_tasks_current_live": 0,
+            "pending_routes_current_entries": 0,
+            "quic_connections_current_live": 0,
+            "quic_streams_current_live": 0,
+            "replay_state_current_entries": 0,
+            "service_channels_current_live": 0,
+            "stream_registry_current_entries": 0,
+            "transport_sessions_current_live": 0
+          },
+          "ownership_all_zero": true,
+          "paired_active_hold": "COORDINATOR_REQUIRED",
+          "process": {
+            "exit_code": 0,
+            "final_sample": {
+              "affinity": [
+                0
+              ],
+              "cpu_ns": 2370000000,
+              "fd_count": null,
+              "fd_count_state": "UNAVAILABLE_ZOMBIE",
+              "flags": 4227340,
+              "pid": 263,
+              "rss_bytes": 0,
+              "start_ticks": 107352,
+              "state": "Z",
+              "thread_ids": [
+                263
+              ],
+              "timestamp_ns": 1091014403554
+            }
+          },
+          "role": "destination",
+          "status": "PASS_FUNCTIONAL_PEER",
+          "successful": 512,
+          "sustainable_capacity": "NOT_ESTABLISHED",
+          "timing": "DIAGNOSTIC_ONLY"
+        }
+      },
+      "exit_codes": {
+        "destination": 0,
+        "source": 0
+      },
+      "indexes": {
+        "destination": "caa64266a29aaf5f3ba5509a430629c5fca5982b4307116799fc10a8e8968db4",
+        "source": "203f655611331a26705f750515f7f2e396256669618843d0015f8ef642468eaa"
+      },
+      "markers": {
+        "destination": {
+          "active": 512,
+          "failed": 0,
+          "release": 512,
+          "ack": 0
+        },
+        "source": {
+          "active": 512,
+          "failed": 0,
+          "release": 512,
+          "ack": 512
+        }
+      }
+    }
+  ],
+  "limitations": [
+    "No latency/capacity/physical-host claim",
+    "Source/destination held on one shared guest CPU per role; coordinator unqualified",
+    "Read-only previous-cohort checksum work overlapped this diagnostic campaign; no controlled idle-host timing claim",
+    "No 1024 progression under unchanged 100/s/hold/idle budgets"
+  ]
+}
