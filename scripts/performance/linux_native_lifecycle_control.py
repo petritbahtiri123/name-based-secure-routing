@@ -96,7 +96,7 @@ class LifecycleBarrier:
         return [dict(event='report_released')]
 
 
-def decode_control(wire):
+def decode_object(wire):
     require(isinstance(wire, bytes) and 0 < len(wire) <= 65536, 'control message size')
 
     def unique(pairs):
@@ -110,7 +110,13 @@ def decode_control(wire):
         raise ValueError('nonfinite control value')
 
     value = json.loads(wire, object_pairs_hook=unique, parse_constant=nonfinite)
-    require(isinstance(value, dict) and value.get('op') in ('readiness', 'release', 'report_release', 'cancel'),
+    require(isinstance(value, dict), 'control object required')
+    return value
+
+
+def decode_control(wire):
+    value = decode_object(wire)
+    require(value.get('op') in ('readiness', 'release', 'report_release', 'cancel'),
             'unknown control operation')
     expected = {'op', 'value'} if value['op'] == 'readiness' else {'op'}
     require(set(value) == expected and (value['op'] != 'readiness' or isinstance(value['value'], dict)),

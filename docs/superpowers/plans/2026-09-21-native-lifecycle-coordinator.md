@@ -52,12 +52,12 @@ coordinator contract, cancellation limits and pair-gate claim boundaries.
 
 ## Task 2 — Two-host coordinator
 
-- [ ] RED tests for phase order, both-active hold, destination-first release,
+- [x] RED tests for phase order, both-active hold, destination-first release,
   peer failure/cancellation, strict SSH command construction and safe collection.
-- [ ] Implement a coordinator using persistent control streams. SSH uses batch
+- [x] Implement a coordinator using persistent control streams. SSH uses batch
   authentication and strict host-key checking; credentials/hosts are supplied
   by the operator. Do not discover or contact unrelated machines.
-- [ ] Bound evidence transfer and reject traversal/symlinks/special files. Collect
+- [x] Bound evidence transfer and reject traversal/symlinks/special files. Collect
   both peer outputs before independent pair validation. Preserve every failure.
 - [ ] Validate three native namespace smoke pairs and explicit cancellation/error
   cases with exact release/source provenance; state unexecuted SSH/hardware gaps.
@@ -85,3 +85,14 @@ PID/sample mismatch and duplicate socket inodes now reject before acceptance.
 The per-host endpoint delegates child ownership to the existing native runner;
 its control observer uses one local directory inventory per poll. Live release
 smoke and EOF cancellation evidence are the next gate, not yet claimed here.
+
+Task 2 implementation checkpoint: 106 focused tests pass, including real owned
+local relay deadline/EOF tests. Strict SSH command construction, bounded archive
+transfer/extraction, per-host phase clocks, and independent endpoint/pair gates
+are implemented. One focused independent review found that failed startup could
+collect an unowned preexisting output directory. A literal RED regression now
+proves no collection occurs before a ledger-validated live prepared/ready event;
+the correction and scoped re-review passed. Failed pre-phase output stays remote,
+with local management/stderr retained and ownership explicitly unconfirmed.
+Release Docker smoke, live remote EOF cleanup, and real SSH validation are not
+yet claimed. No production Rust/Go or frozen contract changed.
