@@ -139,3 +139,14 @@ cell has a nominal 5.115-second launch span before the unchanged two-second hold
 it is a different workload and must retain its own repeats/failures. No production
 ceiling, sustainable admission rate or independent-tenant count follows from this
 finite fixture. The same test identities and one service are used across bundles.
+
+
+## Optional explicit child CPU pools
+
+Each role may set `"cpu_pool": [0]` (or another available CPU ID) alongside
+`"cores": 1`. The pool must have exactly the requested core count, ascending
+unique nonnegative IDs, inherited availability, distinct advertised physical
+cores and a single NUMA node. Defaults are unchanged when omitted. Only the
+owned Rust child uses this selection; controller/observer placement is unchanged.
+The retained resource samples and pair gate verify actual affinity. Guest CPU
+IDs/topology are not proof of physical host core allocation.

@@ -1,0 +1,22 @@
+[
+  {
+    "root": "C:\\NBSR-build\\native-placement-2da82de2",
+    "index_sha256": "cd7ce6891593b75f86efed11e27e57d38c9ded3691f0eec93454969b890ea1e0"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-placement-tests-20260921",
+    "index_sha256": "eca668770484c649be642d3f7da8a74a04d10d147bbf8a803ae0451928e5db6e"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-current-2da82de2",
+    "index_sha256": "a78a7b3667cabbcb1f9d2209ecda8ca7f23675a6b9fe6a700e6ff8ea7ebbbb43"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-placement-cleanup-20260921",
+    "index_sha256": "2410a47776ff53365d974fa748addee1f37da6578f06f059dd056169fb22f0b8"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-cargo-cleanup-20260921",
+    "index_sha256": "311a72616e0824206a368a3cd7908da07bb577d30787c3eca829de9312f09e5f"
+  }
+]

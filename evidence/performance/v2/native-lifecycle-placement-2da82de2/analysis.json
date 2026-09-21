@@ -1,0 +1,1221 @@
+{
+  "source_sha": "2da82de20b716ac11709d210afc0553a8020ff25",
+  "summary": {
+    "shared": {
+      "passes": 2,
+      "failures": 3,
+      "repeats": 5
+    },
+    "split": {
+      "passes": 5,
+      "failures": 0,
+      "repeats": 5,
+      "cold_handshake_median_cell_quantiles_ms": {
+        "p50": 2.660791,
+        "p95": 36.17089,
+        "p99": 84.14777
+      },
+      "p99_cv_percent": 68.67071578677198
+    }
+  },
+  "cells": [
+    {
+      "label": "shared-1024-r1",
+      "mode": "shared",
+      "repeat": 1,
+      "count": 1024,
+      "rate": 200,
+      "index_sha256": "64c47b969c687f0ddc7a12a1d625b3e19351cb54fe6c5961bc060643f4a16334",
+      "status": "PASS_FUNCTIONAL",
+      "pair": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "2da82de20b716ac11709d210afc0553a8020ff25",
+        "successful_connections": 1024,
+        "source_index_sha256": "2c5b939719e075b5279ba0329a689a2f0c2bda470286e9ac01a2dbc8b5c64640",
+        "destination_index_sha256": "9bc66a7e7ffc9fac4b9a56fa07ccb5705e3f44c8e473c42fb4cba76375b36ebd",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "coordinator_hold_ns": 2015449300,
+      "coordinator_cooldown_ns": 2060453500,
+      "resources": {
+        "source": {
+          "held_samples": 22,
+          "held_rss_median_bytes": 404094976.0,
+          "peak_rss_bytes": 405274624,
+          "held_fd_median": 1035.0,
+          "held_threads_median": 4.0,
+          "to_active_cpu_ns": 3130000000,
+          "to_active_sampled_wall_ns": 5975712360,
+          "to_active_effective_guest_cores": 0.52378692471068,
+          "selected_guest_cpus": [
+            0
+          ],
+          "scope": "Owned Rust peer RSS/FD/threads; startup-to-active CPU only; not total host, allocator bytes or pure NBSR object cost"
+        },
+        "destination": {
+          "held_samples": 24,
+          "held_rss_median_bytes": 337117184.0,
+          "peak_rss_bytes": 337379328,
+          "held_fd_median": 8.0,
+          "held_threads_median": 2.0,
+          "to_active_cpu_ns": 2580000000,
+          "to_active_sampled_wall_ns": 5846750793,
+          "to_active_effective_guest_cores": 0.4412707316153949,
+          "selected_guest_cpus": [
+            0
+          ],
+          "scope": "Owned Rust peer RSS/FD/threads; startup-to-active CPU only; not total host, allocator bytes or pure NBSR object cost"
+        }
+      },
+      "cold_handshake_including_tls_ms": {
+        "p50": 141.53363,
+        "p95": 702.714009,
+        "p99": 707.603146
+      },
+      "source_admission_local_check_ms": {
+        "p50": 0.20911,
+        "p95": 0.327819,
+        "p99": 3.356962
+      }
+    },
+    {
+      "label": "split-1024-r1",
+      "mode": "split",
+      "repeat": 1,
+      "count": 1024,
+      "rate": 200,
+      "index_sha256": "c8d7b0bd750f1df83962fd4a05327427ea7a9eac6136bd29a739120440448587",
+      "status": "PASS_FUNCTIONAL",
+      "pair": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "2da82de20b716ac11709d210afc0553a8020ff25",
+        "successful_connections": 1024,
+        "source_index_sha256": "e9f4ced91ab4985746b52f7fb53c9cb8f9710fee20bdffc608a8dcd0c2dc3c89",
+        "destination_index_sha256": "1fc9f5bfc140ade5e3f8fc578c2aecdb9c4f2dcb1c1438f1668e094b59745f3f",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "coordinator_hold_ns": 2003135500,
+      "coordinator_cooldown_ns": 2057349800,
+      "resources": {
+        "source": {
+          "held_samples": 21,
+          "held_rss_median_bytes": 427819008,
+          "peak_rss_bytes": 428867584,
+          "held_fd_median": 1034,
+          "held_threads_median": 4,
+          "to_active_cpu_ns": 3530000000,
+          "to_active_sampled_wall_ns": 5303739437,
+          "to_active_effective_guest_cores": 0.6655681414840968,
+          "selected_guest_cpus": [
+            0
+          ],
+          "scope": "Owned Rust peer RSS/FD/threads; startup-to-active CPU only; not total host, allocator bytes or pure NBSR object cost"
+        },
+        "destination": {
+          "held_samples": 23,
+          "held_rss_median_bytes": 322174976,
+          "peak_rss_bytes": 322174976,
+          "held_fd_median": 8,
+          "held_threads_median": 2,
+          "to_active_cpu_ns": 2940000000,
+          "to_active_sampled_wall_ns": 5065226328,
+          "to_active_effective_guest_cores": 0.5804281604847569,
+          "selected_guest_cpus": [
+            1
+          ],
+          "scope": "Owned Rust peer RSS/FD/threads; startup-to-active CPU only; not total host, allocator bytes or pure NBSR object cost"
+        }
+      },
+      "cold_handshake_including_tls_ms": {
+        "p50": 2.660791,
+        "p95": 36.17089,
+        "p99": 58.736168
+      },
+      "source_admission_local_check_ms": {
+        "p50": 0.215911,
+        "p95": 0.364319,
+        "p99": 1.598283
+      }
+    },
+    {
+      "label": "split-1024-r2",
+      "mode": "split",
+      "repeat": 2,
+      "count": 1024,
+      "rate": 200,
+      "index_sha256": "e3ba14e8f3c06dc120b4daee9f47e681403ffcd8709b725ea12516386ddd709b",
+      "status": "PASS_FUNCTIONAL",
+      "pair": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "2da82de20b716ac11709d210afc0553a8020ff25",
+        "successful_connections": 1024,
+        "source_index_sha256": "fea6f9492c91a32a93d957fc55bfefb49b61eac41e63a9af0941c927c636c0da",
+        "destination_index_sha256": "9a508d46a3780d0f06f1d1891cecdb006a44e4e865088e04631a4374a80db2ec",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "coordinator_hold_ns": 2015925400,
+      "coordinator_cooldown_ns": 2081873700,
+      "resources": {
+        "source": {
+          "held_samples": 23,
+          "held_rss_median_bytes": 426377216,
+          "peak_rss_bytes": 427819008,
+          "held_fd_median": 1035,
+          "held_threads_median": 4,
+          "to_active_cpu_ns": 3760000000,
+          "to_active_sampled_wall_ns": 5253953136,
+          "to_active_effective_guest_cores": 0.7156516060709682,
+          "selected_guest_cpus": [
+            0
+          ],
+          "scope": "Owned Rust peer RSS/FD/threads; startup-to-active CPU only; not total host, allocator bytes or pure NBSR object cost"
+        },
+        "destination": {
+          "held_samples": 23,
+          "held_rss_median_bytes": 323223552,
+          "peak_rss_bytes": 323223552,
+          "held_fd_median": 8,
+          "held_threads_median": 2,
+          "to_active_cpu_ns": 3300000000,
+          "to_active_sampled_wall_ns": 5148402293,
+          "to_active_effective_guest_cores": 0.640975551674901,
+          "selected_guest_cpus": [
+            1
+          ],
+          "scope": "Owned Rust peer RSS/FD/threads; startup-to-active CPU only; not total host, allocator bytes or pure NBSR object cost"
+        }
+      },
+      "cold_handshake_including_tls_ms": {
+        "p50": 2.927154,
+        "p95": 56.669285,
+        "p99": 84.14777
+      },
+      "source_admission_local_check_ms": {
+        "p50": 0.233312,
+        "p95": 0.413822,
+        "p99": 1.923302
+      }
+    },
+    {
+      "label": "shared-1024-r2",
+      "mode": "shared",
+      "repeat": 2,
+      "count": 1024,
+      "rate": 200,
+      "index_sha256": "f41057032a6d11ca7e5409671a423e4b6a4c7d2a8ff3463a0235c7ddb45e8bc4",
+      "status": "FAIL_RETAINED",
+      "failure": {
+        "error": "source control EOF before completion",
+        "error_type": "InterruptedError",
+        "status": "INVALID_PARTIAL"
+      },
+      "phase_prefix": [
+        {
+          "timestamp_ns": 112756399511100,
+          "action": "start",
+          "role": "source",
+          "command": [
+            "docker",
+            "exec",
+            "-i",
+            "--user",
+            "65532",
+            "nbsr-placement-2da82de2-shared-1024-r2-source",
+            "sh",
+            "-c",
+            "cd /tmp/source && exec python3 -B -m scripts.performance.linux_native_lifecycle_endpoint --role source --binaries /tmp/binaries --build-manifest /build/build-manifest.json --authority /tmp/nbsr-private/authority --lifecycle /tmp/nbsr-private/lifecycle --output /tmp/nbsr-control-output --bind 192.168.224.2:0 --cores 1 --count 1024 --rate 200 --shards 2 --cpu-pool 0 --destination-address 192.168.224.3"
+          ]
+        },
+        {
+          "timestamp_ns": 112757817401200,
+          "action": "receive",
+          "role": "source",
+          "value": {
+            "event": "prepared",
+            "role": "source",
+            "schema": "nbsr-native-lifecycle-control-v1",
+            "timestamp_ns": 813911249904
+          }
+        },
+        {
+          "timestamp_ns": 112757817576000,
+          "action": "start",
+          "role": "destination",
+          "command": [
+            "docker",
+            "exec",
+            "-i",
+            "--user",
+            "65532",
+            "nbsr-placement-2da82de2-shared-1024-r2-destination",
+            "sh",
+            "-c",
+            "cd /tmp/source && exec python3 -B -m scripts.performance.linux_native_lifecycle_endpoint --role destination --binaries /tmp/binaries --build-manifest /build/build-manifest.json --authority /tmp/nbsr-private/authority --lifecycle /tmp/nbsr-private/lifecycle --output /tmp/nbsr-control-output --bind 192.168.224.3:0 --cores 1 --count 1024 --rate 200 --shards 2 --cpu-pool 0"
+          ]
+        },
+        {
+          "timestamp_ns": 112758625726100,
+          "action": "receive",
+          "role": "destination",
+          "value": {
+            "event": "ready",
+            "role": "destination",
+            "schema": "nbsr-native-lifecycle-control-v1",
+            "timestamp_ns": 814719414830,
+            "value": {
+              "alpn": "nbsr-quic-1",
+              "ca_der": "/tmp/nbsr-private/authority/ca.der",
+              "client_cert_der": "/tmp/nbsr-private/authority/source.der",
+              "client_key_der": "/tmp/nbsr-private/authority/source-key.der",
+              "endpoint": "192.168.224.3:48939",
+              "quic_version": "v1",
+              "server_name": "destination.edge",
+              "tls_version": "1.3"
+            }
+          }
+        },
+        {
+          "timestamp_ns": 112758626215600,
+          "action": "send",
+          "role": "source",
+          "value": {
+            "op": "readiness",
+            "value": {
+              "alpn": "nbsr-quic-1",
+              "ca_der": "/tmp/nbsr-private/authority/ca.der",
+              "client_cert_der": "/tmp/nbsr-private/authority/source.der",
+              "client_key_der": "/tmp/nbsr-private/authority/source-key.der",
+              "endpoint": "192.168.224.3:48939",
+              "quic_version": "v1",
+              "server_name": "destination.edge",
+              "tls_version": "1.3"
+            }
+          }
+        },
+        {
+          "timestamp_ns": 112758638282700,
+          "action": "receive",
+          "role": "source",
+          "value": {
+            "event": "readiness_transferred",
+            "role": "source",
+            "schema": "nbsr-native-lifecycle-control-v1",
+            "timestamp_ns": 814732254509
+          }
+        },
+        {
+          "timestamp_ns": 112766814499100,
+          "action": "receive",
+          "role": "destination",
+          "value": {
+            "count": 1024,
+            "event": "active",
+            "role": "destination",
+            "schema": "nbsr-native-lifecycle-control-v1",
+            "timestamp_ns": 822908603007
+          }
+        },
+        {
+          "timestamp_ns": 112767018549400,
+          "action": "receive",
+          "role": "source",
+          "value": {
+            "count": 1024,
+            "event": "active",
+            "role": "source",
+            "schema": "nbsr-native-lifecycle-control-v1",
+            "timestamp_ns": 823112811796
+          }
+        },
+        {
+          "timestamp_ns": 112769026713600,
+          "action": "send",
+          "role": "destination",
+          "value": {
+            "op": "release"
+          }
+        },
+        {
+          "timestamp_ns": 112769133149400,
+          "action": "receive",
+          "role": "destination",
+          "value": {
+            "count": 1024,
+            "event": "released",
+            "role": "destination",
+            "schema": "nbsr-native-lifecycle-control-v1",
+            "timestamp_ns": 825227450720
+          }
+        },
+        {
+          "timestamp_ns": 112769133671300,
+          "action": "send",
+          "role": "source",
+          "value": {
+            "op": "release"
+          }
+        },
+        {
+          "timestamp_ns": 112769318704900,
+          "action": "receive",
+          "role": "source",
+          "value": {
+            "count": 1024,
+            "event": "released",
+            "role": "source",
+            "schema": "nbsr-native-lifecycle-control-v1",
+            "timestamp_ns": 825412968122
+          }
+        },
+        {
+          "timestamp_ns": 112771255077200,
+          "action": "cleanup",
+          "outcomes": {
+            "source": {
+              "exit_code": 1,
+              "local_relay_forced": false,
+              "remote_cleanup": "UNCONFIRMED"
+            },
+            "destination": {
+              "exit_code": 1,
+              "local_relay_forced": false,
+              "remote_cleanup": "UNCONFIRMED"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "label": "shared-1024-r3",
+      "mode": "shared",
+      "repeat": 3,
+      "count": 1024,
+      "rate": 200,
+      "index_sha256": "b57811b2bb90373c7fea4ef715a2d4c643b0989def741d1dc91f9bf1ab7b102f",
+      "status": "FAIL_RETAINED",
+      "failure": {
+        "error": "source control EOF before completion",
+        "error_type": "InterruptedError",
+        "status": "INVALID_PARTIAL"
+      },
+      "phase_prefix": [
+        {
+          "timestamp_ns": 112823591019600,
+          "action": "start",
+          "role": "source",
+          "command": [
+            "docker",
+            "exec",
+            "-i",
+            "--user",
+            "65532",
+            "nbsr-placement-2da82de2-shared-1024-r3-source",
+            "sh",
+            "-c",
+            "cd /tmp/source && exec python3 -B -m scripts.performance.linux_native_lifecycle_endpoint --role source --binaries /tmp/binaries --build-manifest /build/build-manifest.json --authority /tmp/nbsr-private/authority --lifecycle /tmp/nbsr-private/lifecycle --output /tmp/nbsr-control-output --bind 192.168.224.2:0 --cores 1 --count 1024 --rate 200 --shards 2 --cpu-pool 0 --destination-address 192.168.224.3"
+          ]
+        },
+        {
+          "timestamp_ns": 112825362392500,
+          "action": "receive",
+          "role": "source",
+          "value": {
+            "event": "prepared",
+            "role": "source",
+            "schema": "nbsr-native-lifecycle-control-v1",
+            "timestamp_ns": 881462051177
+          }
+        },
+        {
+          "timestamp_ns": 112825362606200,
+          "action": "start",
+          "role": "destination",
+          "command": [
+            "docker",
+            "exec",
+            "-i",
+            "--user",
+            "65532",
+            "nbsr-placement-2da82de2-shared-1024-r3-destination",
+            "sh",
+            "-c",
+            "cd /tmp/source && exec python3 -B -m scripts.performance.linux_native_lifecycle_endpoint --role destination --binaries /tmp/binaries --build-manifest /build/build-manifest.json --authority /tmp/nbsr-private/authority --lifecycle /tmp/nbsr-private/lifecycle --output /tmp/nbsr-control-output --bind 192.168.224.3:0 --cores 1 --count 1024 --rate 200 --shards 2 --cpu-pool 0"
+          ]
+        },
+        {
+          "timestamp_ns": 112826492026800,
+          "action": "receive",
+          "role": "destination",
+          "value": {
+            "event": "ready",
+            "role": "destination",
+            "schema": "nbsr-native-lifecycle-control-v1",
+            "timestamp_ns": 882591379203,
+            "value": {
+              "alpn": "nbsr-quic-1",
+              "ca_der": "/tmp/nbsr-private/authority/ca.der",
+              "client_cert_der": "/tmp/nbsr-private/authority/source.der",
+              "client_key_der": "/tmp/nbsr-private/authority/source-key.der",
+              "endpoint": "192.168.224.3:34727",
+              "quic_version": "v1",
+              "server_name": "destination.edge",
+              "tls_version": "1.3"
+            }
+          }
+        },
+        {
+          "timestamp_ns": 112826492680600,
+          "action": "send",
+          "role": "source",
+          "value": {
+            "op": "readiness",
+            "value": {
+              "alpn": "nbsr-quic-1",
+              "ca_der": "/tmp/nbsr-private/authority/ca.der",
+              "client_cert_der": "/tmp/nbsr-private/authority/source.der",
+              "client_key_der": "/tmp/nbsr-private/authority/source-key.der",
+              "endpoint": "192.168.224.3:34727",
+              "quic_version": "v1",
+              "server_name": "destination.edge",
+              "tls_version": "1.3"
+            }
+          }
+        },
+        {
+          "timestamp_ns": 112826513280000,
+          "action": "receive",
+          "role": "source",
+          "value": {
+            "event": "readiness_transferred",
+            "role": "source",
+            "schema": "nbsr-native-lifecycle-control-v1",
+            "timestamp_ns": 882612351590
+          }
+        },
+        {
+          "timestamp_ns": 112835542423600,
+          "action": "cleanup",
+          "outcomes": {
+            "source": {
+              "exit_code": 1,
+              "local_relay_forced": false,
+              "remote_cleanup": "UNCONFIRMED"
+            },
+            "destination": {
+              "exit_code": 1,
+              "local_relay_forced": false,
+              "remote_cleanup": "UNCONFIRMED"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "label": "split-1024-r3",
+      "mode": "split",
+      "repeat": 3,
+      "count": 1024,
+      "rate": 200,
+      "index_sha256": "0d4922700f303ab4602e9d8dc19e0492c335b7eee1e9f3f33a2a456fe3640aab",
+      "status": "PASS_FUNCTIONAL",
+      "pair": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "2da82de20b716ac11709d210afc0553a8020ff25",
+        "successful_connections": 1024,
+        "source_index_sha256": "4b9846b93beea91034d4c0ea738a9baf2338d434dd6f8e5c30221f5a5212c524",
+        "destination_index_sha256": "5546b53aa66286147fc944d0890043b0ff52f7bf1e9392680da690e9bc1da055",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "coordinator_hold_ns": 2005135100,
+      "coordinator_cooldown_ns": 2041944100,
+      "resources": {
+        "source": {
+          "held_samples": 22,
+          "held_rss_median_bytes": 422313984.0,
+          "peak_rss_bytes": 423755776,
+          "held_fd_median": 1035.0,
+          "held_threads_median": 4.0,
+          "to_active_cpu_ns": 3920000000,
+          "to_active_sampled_wall_ns": 5294180566,
+          "to_active_effective_guest_cores": 0.7404356445971662,
+          "selected_guest_cpus": [
+            0
+          ],
+          "scope": "Owned Rust peer RSS/FD/threads; startup-to-active CPU only; not total host, allocator bytes or pure NBSR object cost"
+        },
+        "destination": {
+          "held_samples": 24,
+          "held_rss_median_bytes": 327548928.0,
+          "peak_rss_bytes": 327680000,
+          "held_fd_median": 8.0,
+          "held_threads_median": 2.0,
+          "to_active_cpu_ns": 3330000000,
+          "to_active_sampled_wall_ns": 5149114931,
+          "to_active_effective_guest_cores": 0.6467130846025391,
+          "selected_guest_cpus": [
+            1
+          ],
+          "scope": "Owned Rust peer RSS/FD/threads; startup-to-active CPU only; not total host, allocator bytes or pure NBSR object cost"
+        }
+      },
+      "cold_handshake_including_tls_ms": {
+        "p50": 3.042507,
+        "p95": 176.049659,
+        "p99": 220.270219
+      },
+      "source_admission_local_check_ms": {
+        "p50": 0.224323,
+        "p95": 0.438245,
+        "p99": 1.530607
+      }
+    },
+    {
+      "label": "split-1024-r4",
+      "mode": "split",
+      "repeat": 4,
+      "count": 1024,
+      "rate": 200,
+      "index_sha256": "73c7e0c943d8956c17173f2aeb2afa4a80ce61325a8ebd6dbec3cec26aedf92e",
+      "status": "PASS_FUNCTIONAL",
+      "pair": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "2da82de20b716ac11709d210afc0553a8020ff25",
+        "successful_connections": 1024,
+        "source_index_sha256": "14ed15210ce128217c73257be26cc6328be4bd5705427d283323ed48b7106287",
+        "destination_index_sha256": "16c97b76ba19a4d456031e7741689562c52c28977fb653fce9dbd1b60d9834c8",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "coordinator_hold_ns": 2002454300,
+      "coordinator_cooldown_ns": 2078656500,
+      "resources": {
+        "source": {
+          "held_samples": 22,
+          "held_rss_median_bytes": 425328640.0,
+          "peak_rss_bytes": 426377216,
+          "held_fd_median": 1034.0,
+          "held_threads_median": 4.0,
+          "to_active_cpu_ns": 3810000000,
+          "to_active_sampled_wall_ns": 5527018557,
+          "to_active_effective_guest_cores": 0.6893409096979806,
+          "selected_guest_cpus": [
+            0
+          ],
+          "scope": "Owned Rust peer RSS/FD/threads; startup-to-active CPU only; not total host, allocator bytes or pure NBSR object cost"
+        },
+        "destination": {
+          "held_samples": 24,
+          "held_rss_median_bytes": 323354624.0,
+          "peak_rss_bytes": 323354624,
+          "held_fd_median": 8.0,
+          "held_threads_median": 2.0,
+          "to_active_cpu_ns": 3240000000,
+          "to_active_sampled_wall_ns": 5343358590,
+          "to_active_effective_guest_cores": 0.6063602031246045,
+          "selected_guest_cpus": [
+            1
+          ],
+          "scope": "Owned Rust peer RSS/FD/threads; startup-to-active CPU only; not total host, allocator bytes or pure NBSR object cost"
+        }
+      },
+      "cold_handshake_including_tls_ms": {
+        "p50": 2.648334,
+        "p95": 23.381146,
+        "p99": 125.576681
+      },
+      "source_admission_local_check_ms": {
+        "p50": 0.215611,
+        "p95": 0.39552,
+        "p99": 0.719637
+      }
+    },
+    {
+      "label": "shared-1024-r4",
+      "mode": "shared",
+      "repeat": 4,
+      "count": 1024,
+      "rate": 200,
+      "index_sha256": "dd55f3bfeb8d2b0b29c8f731bf347b7d4ffddb36a41df92108c67a3f592c2675",
+      "status": "PASS_FUNCTIONAL",
+      "pair": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "2da82de20b716ac11709d210afc0553a8020ff25",
+        "successful_connections": 1024,
+        "source_index_sha256": "8e92fa4aa2d4f8f0ab34197851295bd188e5f7b83be66eb5d7aa8f3d9439d41d",
+        "destination_index_sha256": "21b52be7f946e6e3ec3d05949328ba810131b7147be5bc95f74b28d2a0cbfc98",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "coordinator_hold_ns": 2014637800,
+      "coordinator_cooldown_ns": 2039941300,
+      "resources": {
+        "source": {
+          "held_samples": 21,
+          "held_rss_median_bytes": 403439616,
+          "peak_rss_bytes": 404881408,
+          "held_fd_median": 1034,
+          "held_threads_median": 4,
+          "to_active_cpu_ns": 3200000000,
+          "to_active_sampled_wall_ns": 6125745642,
+          "to_active_effective_guest_cores": 0.5223853857169344,
+          "selected_guest_cpus": [
+            0
+          ],
+          "scope": "Owned Rust peer RSS/FD/threads; startup-to-active CPU only; not total host, allocator bytes or pure NBSR object cost"
+        },
+        "destination": {
+          "held_samples": 23,
+          "held_rss_median_bytes": 336855040,
+          "peak_rss_bytes": 336986112,
+          "held_fd_median": 8,
+          "held_threads_median": 2,
+          "to_active_cpu_ns": 2620000000,
+          "to_active_sampled_wall_ns": 5945278134,
+          "to_active_effective_guest_cores": 0.440685858751785,
+          "selected_guest_cpus": [
+            0
+          ],
+          "scope": "Owned Rust peer RSS/FD/threads; startup-to-active CPU only; not total host, allocator bytes or pure NBSR object cost"
+        }
+      },
+      "cold_handshake_including_tls_ms": {
+        "p50": 139.09769,
+        "p95": 825.244454,
+        "p99": 831.711223
+      },
+      "source_admission_local_check_ms": {
+        "p50": 0.207887,
+        "p95": 0.336914,
+        "p99": 4.701896
+      }
+    },
+    {
+      "label": "shared-1024-r5",
+      "mode": "shared",
+      "repeat": 5,
+      "count": 1024,
+      "rate": 200,
+      "index_sha256": "4be6f58098a2e9620be1887ef3405916c6b8e281c7aceabfc7b47bb18975722c",
+      "status": "FAIL_RETAINED",
+      "failure": {
+        "error": "destination control EOF before completion",
+        "error_type": "InterruptedError",
+        "status": "INVALID_PARTIAL"
+      },
+      "phase_prefix": [
+        {
+          "timestamp_ns": 113043783683400,
+          "action": "start",
+          "role": "source",
+          "command": [
+            "docker",
+            "exec",
+            "-i",
+            "--user",
+            "65532",
+            "nbsr-placement-2da82de2-shared-1024-r5-source",
+            "sh",
+            "-c",
+            "cd /tmp/source && exec python3 -B -m scripts.performance.linux_native_lifecycle_endpoint --role source --binaries /tmp/binaries --build-manifest /build/build-manifest.json --authority /tmp/nbsr-private/authority --lifecycle /tmp/nbsr-private/lifecycle --output /tmp/nbsr-control-output --bind 192.168.224.2:0 --cores 1 --count 1024 --rate 200 --shards 2 --cpu-pool 0 --destination-address 192.168.224.3"
+          ]
+        },
+        {
+          "timestamp_ns": 113045296311000,
+          "action": "receive",
+          "role": "source",
+          "value": {
+            "event": "prepared",
+            "role": "source",
+            "schema": "nbsr-native-lifecycle-control-v1",
+            "timestamp_ns": 1101411936595
+          }
+        },
+        {
+          "timestamp_ns": 113045296538700,
+          "action": "start",
+          "role": "destination",
+          "command": [
+            "docker",
+            "exec",
+            "-i",
+            "--user",
+            "65532",
+            "nbsr-placement-2da82de2-shared-1024-r5-destination",
+            "sh",
+            "-c",
+            "cd /tmp/source && exec python3 -B -m scripts.performance.linux_native_lifecycle_endpoint --role destination --binaries /tmp/binaries --build-manifest /build/build-manifest.json --authority /tmp/nbsr-private/authority --lifecycle /tmp/nbsr-private/lifecycle --output /tmp/nbsr-control-output --bind 192.168.224.3:0 --cores 1 --count 1024 --rate 200 --shards 2 --cpu-pool 0"
+          ]
+        },
+        {
+          "timestamp_ns": 113045979837700,
+          "action": "receive",
+          "role": "destination",
+          "value": {
+            "event": "ready",
+            "role": "destination",
+            "schema": "nbsr-native-lifecycle-control-v1",
+            "timestamp_ns": 1102095265470,
+            "value": {
+              "alpn": "nbsr-quic-1",
+              "ca_der": "/tmp/nbsr-private/authority/ca.der",
+              "client_cert_der": "/tmp/nbsr-private/authority/source.der",
+              "client_key_der": "/tmp/nbsr-private/authority/source-key.der",
+              "endpoint": "192.168.224.3:51231",
+              "quic_version": "v1",
+              "server_name": "destination.edge",
+              "tls_version": "1.3"
+            }
+          }
+        },
+        {
+          "timestamp_ns": 113045980278000,
+          "action": "send",
+          "role": "source",
+          "value": {
+            "op": "readiness",
+            "value": {
+              "alpn": "nbsr-quic-1",
+              "ca_der": "/tmp/nbsr-private/authority/ca.der",
+              "client_cert_der": "/tmp/nbsr-private/authority/source.der",
+              "client_key_der": "/tmp/nbsr-private/authority/source-key.der",
+              "endpoint": "192.168.224.3:51231",
+              "quic_version": "v1",
+              "server_name": "destination.edge",
+              "tls_version": "1.3"
+            }
+          }
+        },
+        {
+          "timestamp_ns": 113045987096100,
+          "action": "receive",
+          "role": "source",
+          "value": {
+            "event": "readiness_transferred",
+            "role": "source",
+            "schema": "nbsr-native-lifecycle-control-v1",
+            "timestamp_ns": 1102103143702
+          }
+        },
+        {
+          "timestamp_ns": 113052068394500,
+          "action": "receive",
+          "role": "destination",
+          "value": {
+            "count": 1024,
+            "event": "active",
+            "role": "destination",
+            "schema": "nbsr-native-lifecycle-control-v1",
+            "timestamp_ns": 1108184490335
+          }
+        },
+        {
+          "timestamp_ns": 113052243996300,
+          "action": "receive",
+          "role": "source",
+          "value": {
+            "count": 1024,
+            "event": "active",
+            "role": "source",
+            "schema": "nbsr-native-lifecycle-control-v1",
+            "timestamp_ns": 1108359548930
+          }
+        },
+        {
+          "timestamp_ns": 113054249329100,
+          "action": "send",
+          "role": "destination",
+          "value": {
+            "op": "release"
+          }
+        },
+        {
+          "timestamp_ns": 113054324716300,
+          "action": "receive",
+          "role": "destination",
+          "value": {
+            "count": 1024,
+            "event": "released",
+            "role": "destination",
+            "schema": "nbsr-native-lifecycle-control-v1",
+            "timestamp_ns": 1110440775592
+          }
+        },
+        {
+          "timestamp_ns": 113054325119200,
+          "action": "send",
+          "role": "source",
+          "value": {
+            "op": "release"
+          }
+        },
+        {
+          "timestamp_ns": 113054416493500,
+          "action": "receive",
+          "role": "source",
+          "value": {
+            "count": 1024,
+            "event": "released",
+            "role": "source",
+            "schema": "nbsr-native-lifecycle-control-v1",
+            "timestamp_ns": 1110532533143
+          }
+        },
+        {
+          "timestamp_ns": 113054564498100,
+          "action": "receive",
+          "role": "source",
+          "value": {
+            "count": 1024,
+            "event": "acked",
+            "role": "source",
+            "schema": "nbsr-native-lifecycle-control-v1",
+            "timestamp_ns": 1110680430972
+          }
+        },
+        {
+          "timestamp_ns": 113055251128600,
+          "action": "receive",
+          "role": "source",
+          "value": {
+            "count": 1024,
+            "event": "complete",
+            "role": "source",
+            "schema": "nbsr-native-lifecycle-control-v1",
+            "timestamp_ns": 1111366886314
+          }
+        },
+        {
+          "timestamp_ns": 113055663862100,
+          "action": "eof",
+          "role": "source"
+        },
+        {
+          "timestamp_ns": 113064306526900,
+          "action": "receive",
+          "role": "destination",
+          "value": {
+            "event": "report_ready",
+            "role": "destination",
+            "schema": "nbsr-native-lifecycle-control-v1",
+            "timestamp_ns": 1120422347070
+          }
+        },
+        {
+          "timestamp_ns": 113066316499100,
+          "action": "send",
+          "role": "destination",
+          "value": {
+            "op": "report_release"
+          }
+        },
+        {
+          "timestamp_ns": 113066331846400,
+          "action": "receive",
+          "role": "destination",
+          "value": {
+            "event": "report_released",
+            "role": "destination",
+            "schema": "nbsr-native-lifecycle-control-v1",
+            "timestamp_ns": 1122447766889
+          }
+        },
+        {
+          "timestamp_ns": 113069125665200,
+          "action": "cleanup",
+          "outcomes": {
+            "source": {
+              "exit_code": 0,
+              "local_relay_forced": false,
+              "remote_cleanup": "REQUIRES_EVIDENCE"
+            },
+            "destination": {
+              "exit_code": 1,
+              "local_relay_forced": false,
+              "remote_cleanup": "UNCONFIRMED"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "label": "split-1024-r5",
+      "mode": "split",
+      "repeat": 5,
+      "count": 1024,
+      "rate": 200,
+      "index_sha256": "1e03dc90dc35c7c7e678b6f22eb1d39001f322aa59e1c8689c8f52d1a3472ab6",
+      "status": "PASS_FUNCTIONAL",
+      "pair": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "2da82de20b716ac11709d210afc0553a8020ff25",
+        "successful_connections": 1024,
+        "source_index_sha256": "a96e2784dabcc07bfa7fd5c0ef4471ac06960de71e52fc7f5d1b6f0853352d7b",
+        "destination_index_sha256": "3f34b0104284ddda04d9685416b37a82855d047790935cf16a6e47e90a73275d",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "coordinator_hold_ns": 2012239700,
+      "coordinator_cooldown_ns": 2090295600,
+      "resources": {
+        "source": {
+          "held_samples": 21,
+          "held_rss_median_bytes": 429260800,
+          "peak_rss_bytes": 430178304,
+          "held_fd_median": 1035,
+          "held_threads_median": 4,
+          "to_active_cpu_ns": 3520000000,
+          "to_active_sampled_wall_ns": 5317665876,
+          "to_active_effective_guest_cores": 0.6619445602791009,
+          "selected_guest_cpus": [
+            0
+          ],
+          "scope": "Owned Rust peer RSS/FD/threads; startup-to-active CPU only; not total host, allocator bytes or pure NBSR object cost"
+        },
+        "destination": {
+          "held_samples": 22,
+          "held_rss_median_bytes": 323747840.0,
+          "peak_rss_bytes": 323878912,
+          "held_fd_median": 8.0,
+          "held_threads_median": 2.0,
+          "to_active_cpu_ns": 2960000000,
+          "to_active_sampled_wall_ns": 5140427249,
+          "to_active_effective_guest_cores": 0.5758276222226134,
+          "selected_guest_cpus": [
+            1
+          ],
+          "scope": "Owned Rust peer RSS/FD/threads; startup-to-active CPU only; not total host, allocator bytes or pure NBSR object cost"
+        }
+      },
+      "cold_handshake_including_tls_ms": {
+        "p50": 2.64689,
+        "p95": 18.171821,
+        "p99": 37.258273
+      },
+      "source_admission_local_check_ms": {
+        "p50": 0.214608,
+        "p95": 0.330213,
+        "p99": 0.524418
+      }
+    }
+  ],
+  "paired_p99": [
+    {
+      "repeat": 1,
+      "shared_p99_ms": 707.603146,
+      "split_p99_ms": 58.736168,
+      "change_percent": -91.69927828444109
+    },
+    {
+      "repeat": 4,
+      "shared_p99_ms": 831.711223,
+      "split_p99_ms": 125.576681,
+      "change_percent": -84.90140838222162
+    }
+  ],
+  "classification": "DIAGNOSTIC_GUEST_ALLOCATION_SENSITIVITY",
+  "capacity": "NOT_ESTABLISHED",
+  "physical_core_scaling": "NOT_PROVEN",
+  "production_changes": "NONE",
+  "timing": "Cold handshake includes TLS configuration. Split doubles selected guest CPU count across roles.",
+  "interruption": "Disk reserve stopped original driver between pairs 1 and 2; original pair retained unchanged, Cargo cache cleaned before resume."
+}

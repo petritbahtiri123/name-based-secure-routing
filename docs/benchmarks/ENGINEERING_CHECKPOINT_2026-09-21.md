@@ -128,3 +128,36 @@ or say only external/admin work is left. The next implementation priority is the
 native remote paced/reference ownership path; use existing B5 guards rather than
 inventing weaker drift/cleanup acceptance. Any later soak must follow a valid
 same-source/shape/host reference and retain every failed preflight.
+
+
+## Final guest CPU placement checkpoint (2da82de2)
+
+The smallest harness-only CPU-pool selector is verified by 124 focused tests
+(10 literal RED failures before implementation), Ruff and focused diff review.
+Production Rust binaries remain byte-identical. The exact-source 1024-bundle,
+200 offered/s, two-shard diagnostic uses five counterbalanced shared/split pairs,
+unchanged controller placement, native TLS/control files and identical private
+fixture bytes within each pair. Shared Rust-child CPUs [0]/[0]: 2/5 complete
+functional passes, three retained failures. Split [0]/[1]: 5/5 complete passes.
+Do not discard the shared failures or call split completion sustainable capacity.
+Split allocates an additional guest CPU; verified host physical scaling and a
+production cause are not established. Shared failures include idle-timeout close
+errors and destination cardinality failure; further stage/timer attribution is
+required before another optimization. Independent process scans show no owned
+Rust peer left before each fixture stop; failure cleanup is not graceful-counter
+proof. See `evidence/performance/v2/native-lifecycle-placement-2da82de2`.
+
+The cohort paused between complete pairs 1 and 2 on its predeclared disk reserve.
+Both first-pair results were retained unchanged. After containment, Git tracking,
+Cargo marker and active-process checks, `cargo clean --locked` removed only the
+rebuildable `crates/nbsr-transport/target` (12,268 files). Measured host free-space
+recovery: 5,572,845,568 bytes. Source, Git, authoritative raw evidence and private
+fixtures were preserved. Separately, 32 stopped verified campaign containers
+(1,446,105,088 logical writable bytes) and two empty owned networks were removed;
+that Docker cleanup did not demonstrate host SSD recovery. Raw inventories,
+commands and results are indexed with the placement package.
+
+This is a budget checkpoint, not final funding closure. The absolute usage cap
+for this turn is 27% (7% baseline plus 20 authorized percentage points). No new
+long campaign is started near that cap. Native paced/reference orchestration,
+qualified soak and the other remaining dispositions above remain open.

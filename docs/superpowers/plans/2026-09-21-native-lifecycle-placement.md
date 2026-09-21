@@ -29,3 +29,11 @@ and all unfavorable outcomes/dispersion remain visible.
 
 Remain under this turn's absolute 27% account usage ceiling; reserve checkpoint
 space and retain any incomplete cohort rather than manufacturing completion.
+
+
+Result: scoped implementation and complete 10-cell diagnostic finished. Shared
+2/5 PASS, split 5/5 PASS; all three unfavorable shared outcomes retained. No
+production optimization or host ceiling claim. First pair retained across a
+disk-reserve pause and verified Cargo cache cleanup. Evidence is in
+`evidence/performance/v2/native-lifecycle-placement-2da82de2`; further attribution
+and paced-reference engineering remain open at the budget checkpoint.
