@@ -11,7 +11,7 @@ import re
 
 from scripts.performance.linux_b5_ceiling import NAMES, require
 from scripts.performance.linux_loopback import digest
-from scripts.performance.linux_native_lifecycle import command, validate_result
+from scripts.performance.linux_native_lifecycle import command, select_cpu_pool, validate_result
 from scripts.performance.linux_native_lifecycle_control import BUNDLE_COUNTS
 from scripts.performance.linux_native_pair import read, verify_index
 from scripts.performance.linux_native_peer import validate_endpoint
@@ -76,6 +76,9 @@ def check_peer(root, role, source_sha, count):
 
     cpus = env["linux_environment"]["selected_cpus"]
     require(len(cpus) in (1, 2, 4) and all(type(c) is int and c >= 0 for c in cpus) and len(set(cpus)) == len(cpus), "invalid CPU pool")
+    if 'requested_cpu_pool' in env['linux_environment']:
+        selected = select_cpu_pool(env['linux_environment'], len(cpus), env['linux_environment']['requested_cpu_pool'])
+        require(selected['selected_cpus'] == cpus, 'requested/observed CPU pool mismatch')
     binary = PurePosixPath(argv[3])
     require(binary.name == name, "wrong role binary")
     bind = option("--benchmark-client-bind" if role == "source" else "--benchmark-listen")

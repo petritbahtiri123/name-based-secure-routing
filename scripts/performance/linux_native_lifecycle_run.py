@@ -73,6 +73,9 @@ def execute(config, output, *, check_cancelled=not_cancelled):
             environment = json.loads((output / role / 'peer' / 'environment.json').read_bytes())
             require(environment['offered_rate'] == config['rate'] and environment['source_shards'] == config['shards'],
                     'requested/actual workload mismatch')
+            cpus = environment['linux_environment']['selected_cpus']
+            require(len(cpus) == config[role]['cores'] and ('cpu_pool' not in config[role]
+                    or cpus == config[role]['cpu_pool']), 'requested/actual CPU allocation mismatch')
         result.update(status='PASS_FUNCTIONAL_CONTROLLED_PAIR', paired_active_hold='COORDINATED_TWO_SECONDS',
                       endpoint_indexes={role: value['index_sha256'] for role, value in endpoints.items()})
         write_json(output / 'result.json', result)

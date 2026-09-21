@@ -20,12 +20,36 @@ from scripts.performance.b3_linux import environment
 from scripts.performance.linux_b5_ceiling import NAMES, require
 from scripts.performance.linux_b5_placement import seal_output
 from scripts.performance.linux_b5_reference import git_state
-from scripts.performance.linux_loopback import ROOT, digest, write_json
+from scripts.performance.linux_loopback import ROOT, digest, physical_cpu_sets, write_json
 from scripts.performance.linux_native_lifecycle_control import BUNDLE_COUNTS
 from scripts.performance.linux_native_peer import observe_child, readiness_endpoint, validate_endpoint, wait_target_exec
 from scripts.performance.linux_udp_failure import capture_owned_udp
 from scripts.performance.post_close_cleanup import FIELDS
 from scripts.performance.process_cancellation import Cancellation, not_cancelled
+
+
+def validate_cpu_pool(pool, cores):
+    require(type(cores) is int and cores in (1, 2, 4) and type(pool) is list and len(pool) == cores
+            and all(type(cpu) is int and cpu >= 0 for cpu in pool)
+            and pool == sorted(set(pool)), 'invalid explicit CPU pool')
+    return pool
+
+
+def parse_cpu_pool(value):
+    require(isinstance(value, str) and 0 < len(value) <= 64, 'invalid CPU pool text')
+    pool = [int(part) for part in value.split(',')]
+    require(value == ','.join(map(str, pool)), 'canonical CPU pool required')
+    return validate_cpu_pool(pool, len(pool))
+
+
+def select_cpu_pool(host, cores, pool):
+    if pool is None:
+        return host
+    validate_cpu_pool(pool, cores)
+    require(set(pool) <= set(host['inherited_cpus']), 'requested CPU is unavailable')
+    selected = physical_cpu_sets(host['topology'], pool, [cores])[cores]
+    require(selected == pool, 'explicit pool does not cover distinct cores on one NUMA node')
+    return dict(host, selected_cpus=selected, requested_cpu_pool=list(pool))
 
 
 def command(*, role, count, shards, rate, binaries, authority, lifecycle, output, bind, endpoint):
@@ -144,7 +168,7 @@ def execute(args, *, check_cancelled=not_cancelled):
         bind=args.bind, endpoint=f'{args.destination_address}:1' if prepared else endpoint)
     binary = binaries / ('perf_rust_source' if args.role == 'source' else 'wp8_interop_server')
     require(os.access(binary, os.X_OK), 'executable peer required')
-    host = environment(args.cores)
+    host = select_cpu_pool(environment(args.cores), args.cores, getattr(args, 'cpu_pool', None))
     check_cancelled()
     output.mkdir(parents=True, exist_ok=False)
     child = None
@@ -225,6 +249,8 @@ def argument_parser():
     parser.add_argument('--shards', type=int, choices=(1, 2), default=2)
     parser.add_argument('--rate', type=int, default=100)
     parser.add_argument('--cores', type=int, choices=(1, 2, 4), default=1)
+    parser.add_argument('--cpu-pool', type=parse_cpu_pool,
+                        help='Optional canonical logical CPU IDs; requires distinct advertised cores on one NUMA node')
     return parser
 
 
