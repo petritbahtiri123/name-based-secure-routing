@@ -7,11 +7,13 @@ import time
 from scripts.performance.linux_b5_ceiling import require
 from scripts.performance.linux_loopback import write_json
 
+BUNDLE_COUNTS = (16, 32, 64, 128, 256, 512, 1024)
+
 
 class LifecycleBarrier:
     def __init__(self, *, role, count, root, output, capture, clock=time.monotonic_ns):
         require(role in ('source', 'destination') and type(count) is int
-                and count in (16, 32, 64, 128, 256, 512), 'invalid role/count')
+                and count in BUNDLE_COUNTS, 'invalid role/count')
         require(root.is_dir() and not root.is_symlink() and output.is_dir(), 'invalid barrier directories')
         self.role, self.count, self.root, self.output = role, count, root, output
         self.capture, self.clock = capture, clock

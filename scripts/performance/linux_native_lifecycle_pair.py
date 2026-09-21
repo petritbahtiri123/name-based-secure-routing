@@ -12,6 +12,7 @@ import re
 from scripts.performance.linux_b5_ceiling import NAMES, require
 from scripts.performance.linux_loopback import digest
 from scripts.performance.linux_native_lifecycle import command, validate_result
+from scripts.performance.linux_native_lifecycle_control import BUNDLE_COUNTS
 from scripts.performance.linux_native_pair import read, verify_index
 from scripts.performance.linux_native_peer import validate_endpoint
 
@@ -144,7 +145,7 @@ def check_peer(root, role, source_sha, count):
 
 def analyze(source, destination, *, source_sha, count):
     require(
-        re.fullmatch("[0-9a-f]{40}", source_sha) and type(count) is int and count in (16, 32, 64, 128, 256, 512),
+        re.fullmatch("[0-9a-f]{40}", source_sha) and type(count) is int and count in BUNDLE_COUNTS,
         "invalid expected source/count",
     )
     require(source.resolve() != destination.resolve(), "distinct peer roots required")

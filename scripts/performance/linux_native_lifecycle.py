@@ -21,6 +21,7 @@ from scripts.performance.linux_b5_ceiling import NAMES, require
 from scripts.performance.linux_b5_placement import seal_output
 from scripts.performance.linux_b5_reference import git_state
 from scripts.performance.linux_loopback import ROOT, digest, write_json
+from scripts.performance.linux_native_lifecycle_control import BUNDLE_COUNTS
 from scripts.performance.linux_native_peer import observe_child, readiness_endpoint, validate_endpoint, wait_target_exec
 from scripts.performance.linux_udp_failure import capture_owned_udp
 from scripts.performance.post_close_cleanup import FIELDS
@@ -29,7 +30,7 @@ from scripts.performance.process_cancellation import Cancellation, not_cancelled
 
 def command(*, role, count, shards, rate, binaries, authority, lifecycle, output, bind, endpoint):
     require(role in ('source', 'destination'), 'invalid lifecycle role')
-    require(type(count) is int and count in (16, 32, 64, 128, 256, 512), 'invalid bundle count')
+    require(type(count) is int and count in BUNDLE_COUNTS, 'invalid bundle count')
     require(type(shards) is int and shards in (1, 2), 'invalid source shards')
     require(type(rate) is int and 1 <= rate <= 1000, 'invalid offered rate')
     _, port = validate_endpoint(bind, allow_zero=True)
@@ -220,7 +221,7 @@ def argument_parser():
     parser.add_argument('--destination-address')
     parser.add_argument('--prepare-before-readiness', action='store_true',
                         help='source: finish preflight/copy, publish prepared marker, then await fresh readiness')
-    parser.add_argument('--count', type=int, choices=(16, 32, 64, 128, 256, 512), default=16)
+    parser.add_argument('--count', type=int, choices=BUNDLE_COUNTS, default=16)
     parser.add_argument('--shards', type=int, choices=(1, 2), default=2)
     parser.add_argument('--rate', type=int, default=100)
     parser.add_argument('--cores', type=int, choices=(1, 2, 4), default=1)

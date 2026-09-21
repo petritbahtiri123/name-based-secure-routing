@@ -31,7 +31,7 @@ def test_command_preserves_materialized_workload_and_explicit_bind():
     assert not any('timeout' in arg or 'keepalive' in arg for arg in source + dest)
 
 
-@pytest.mark.parametrize('change', [dict(count=0), dict(count=1024), dict(count=True),
+@pytest.mark.parametrize('change', [dict(count=0), dict(count=2048), dict(count=True),
                                   dict(shards=3), dict(rate=0), dict(role='other'),
                                   dict(bind='0.0.0.0:0'), dict(bind='192.0.2.1:4444'),
                                   dict(endpoint='192.0.2.2:0')])

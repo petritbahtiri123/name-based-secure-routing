@@ -17,7 +17,7 @@ def config():
 
 def test_config_requires_exact_bounded_workload_and_disjoint_paths():
     assert validate_config(config()) == config()
-    changes = [('count', True), ('count', 1024), ('rate', 0), ('shards', 3),
+    changes = [('count', True), ('count', 2048), ('rate', 0), ('shards', 3),
                ('source_sha', 'not-a-sha'), ('schema', 'unknown'), ('extra', 1)]
     for key, value in changes:
         bad = config()
