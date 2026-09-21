@@ -210,7 +210,7 @@ def execute(args, *, check_cancelled=not_cancelled):
         seal_output(output)
 
 
-def main():
+def argument_parser():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--role', choices=('source', 'destination'), required=True)
     for name in ('binaries', 'build-manifest', 'authority', 'lifecycle', 'output'):
@@ -224,7 +224,11 @@ def main():
     parser.add_argument('--shards', type=int, choices=(1, 2), default=2)
     parser.add_argument('--rate', type=int, default=100)
     parser.add_argument('--cores', type=int, choices=(1, 2, 4), default=1)
-    args = parser.parse_args()
+    return parser
+
+
+def main():
+    args = argument_parser().parse_args()
     with Cancellation() as cancellation:
         execute(args, check_cancelled=cancellation.check)
 
