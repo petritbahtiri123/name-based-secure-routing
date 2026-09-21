@@ -1,0 +1,22 @@
+[
+  {
+    "root": "C:\\NBSR-build\\native-tls-storage-analysis-a1ac83c8",
+    "index_sha256": "cdfadc2f51ebb5b18af2067ac239c6b8ae850cfb358f4e699c1e72f81443edb0"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-tls-storage-a1ac83c8",
+    "index_sha256": "7ef8e6156a5fac70be743191f47d0f2d0e003cdf41623ffb858e4eb145b8286f"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-tls-storage-isolated-a1ac83c8",
+    "index_sha256": "8bd121fb4fd8a31e01ff8aaec0700a014a42db48fa1fcaaf626dd08315c9d4e2"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-tls-storage-isolated-a1ac83c8-v2",
+    "index_sha256": "c0da595723e848217a91a0dfaa9783fc4549d879ae29a8b7c4ebb0db2b8c276e"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-current-a1ac83c8",
+    "index_sha256": "615960753bc502a958e2a249194f2911223d6a4437c1076489824d0da50baa4f"
+  }
+]

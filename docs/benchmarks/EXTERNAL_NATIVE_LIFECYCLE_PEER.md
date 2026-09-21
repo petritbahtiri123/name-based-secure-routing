@@ -146,3 +146,14 @@ setup failure are also retained. See
 [prepared-source validation](../../evidence/performance/v2/native-prepared-source-a1ac83c8/summary.md).
 This closes one startup artifact, not native 512 repeatability or the original
 Windows admission bottleneck. Automated external orchestration remains open.
+
+The subsequent [TLS fixture storage comparison](../../evidence/performance/v2/native-tls-storage-a1ac83c8/summary.md)
+uses fresh containers for every cell and completes 5/5 512-bundle cells in each
+of two counterbalanced arms (5,120 total connections, zero final ownership).
+Native TLS fixtures lower the diagnostic cold-handshake timer in every pair,
+but both arms pass and latency dispersion remains high. Prefer native local
+authority/control/output storage for actual Linux/server validation; explicitly
+disclose any Windows-mounted fixture paths. The raw handshake timer includes
+synchronous TLS configuration before connect. This fresh-per-cell result does
+not erase the earlier reused-namespace failures, establish sustained admission,
+or prove same-process retention. General 512 repeatability remains unresolved.

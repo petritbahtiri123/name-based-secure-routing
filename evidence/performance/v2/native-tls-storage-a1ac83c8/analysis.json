@@ -1,0 +1,549 @@
+{
+  "source_sha": "a1ac83c8431836d5cd2b4a9bd04a7947a2a71a3b",
+  "status": "PASS_FUNCTIONAL_FRESH_NAMESPACE_COMPARISON",
+  "sustainable_capacity": "NOT_ESTABLISHED",
+  "timing": "DIAGNOSTIC_ONLY",
+  "count_per_cell": 512,
+  "completed_total": 5120,
+  "summary": {
+    "prepared-mounted-tls": {
+      "passes": 5,
+      "total_completed": 2560,
+      "median_cell_quantiles_ms": {
+        "p50": 12.120422,
+        "p95": 333.630796,
+        "p99": 450.859221
+      },
+      "p99_cv_percent": 87.57396613516721
+    },
+    "prepared-local-tls": {
+      "passes": 5,
+      "total_completed": 2560,
+      "median_cell_quantiles_ms": {
+        "p50": 2.89012,
+        "p95": 88.587514,
+        "p99": 147.607354
+      },
+      "p99_cv_percent": 65.88900976993614
+    }
+  },
+  "records": [
+    {
+      "label": "prepared-mounted-tls-512-r1",
+      "mode": "prepared-mounted-tls",
+      "repeat": 1,
+      "pair": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "a1ac83c8431836d5cd2b4a9bd04a7947a2a71a3b",
+        "successful_connections": 512,
+        "source_index_sha256": "ff892b07068e80bc8caf407cde9ec3e999d056b08e9471fe59304cdd4cc294af",
+        "destination_index_sha256": "c0b54325070f2979b34fdc69d0a3e1b39e12e136200e706ea3480c6145de2da0",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "cold_handshake_including_tls_configuration_ms": {
+        "p50": 51.664911,
+        "p95": 554.157124,
+        "p99": 565.765883
+      },
+      "tls_filesystem": {
+        "source": "v9fs",
+        "destination": "v9fs"
+      }
+    },
+    {
+      "label": "prepared-local-tls-512-r1",
+      "mode": "prepared-local-tls",
+      "repeat": 1,
+      "pair": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "a1ac83c8431836d5cd2b4a9bd04a7947a2a71a3b",
+        "successful_connections": 512,
+        "source_index_sha256": "7e5ce68815f542511344dcaa826f2d1609028c2fe93b68017edf6ed918686143",
+        "destination_index_sha256": "88f13ede4b9884c416103263d02791865bfa1c13c2c3ab1e79009016bb854dbe",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "cold_handshake_including_tls_configuration_ms": {
+        "p50": 31.981931,
+        "p95": 360.582735,
+        "p99": 411.929014
+      },
+      "tls_filesystem": {
+        "source": "overlayfs",
+        "destination": "overlayfs"
+      }
+    },
+    {
+      "label": "prepared-local-tls-512-r2",
+      "mode": "prepared-local-tls",
+      "repeat": 2,
+      "pair": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "a1ac83c8431836d5cd2b4a9bd04a7947a2a71a3b",
+        "successful_connections": 512,
+        "source_index_sha256": "fcedaa1100c1e2f010c702ca00f9d34eacc7607bf912eceb6a9be991a674c2e4",
+        "destination_index_sha256": "b1e5850561bba1eb2c615bb2a3f140384ac8ea7c757adefd746b8e0a7d75aad1",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "cold_handshake_including_tls_configuration_ms": {
+        "p50": 3.554555,
+        "p95": 174.724054,
+        "p99": 268.322751
+      },
+      "tls_filesystem": {
+        "source": "overlayfs",
+        "destination": "overlayfs"
+      }
+    },
+    {
+      "label": "prepared-mounted-tls-512-r2",
+      "mode": "prepared-mounted-tls",
+      "repeat": 2,
+      "pair": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "a1ac83c8431836d5cd2b4a9bd04a7947a2a71a3b",
+        "successful_connections": 512,
+        "source_index_sha256": "d169d85af27a56291ce3bfbf97905d0ba923bba70cd606287e28c5ab9393346b",
+        "destination_index_sha256": "acb54d8c8f2b7a278bffc809b4d220751185216ee43bf36d30cc3ce3f1b19607",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "cold_handshake_including_tls_configuration_ms": {
+        "p50": 200.266914,
+        "p95": 1750.628421,
+        "p99": 1828.93853
+      },
+      "tls_filesystem": {
+        "source": "v9fs",
+        "destination": "v9fs"
+      }
+    },
+    {
+      "label": "prepared-mounted-tls-512-r3",
+      "mode": "prepared-mounted-tls",
+      "repeat": 3,
+      "pair": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "a1ac83c8431836d5cd2b4a9bd04a7947a2a71a3b",
+        "successful_connections": 512,
+        "source_index_sha256": "f11451d27dddf9c3bae4050f3711ecdb72f3208bc934377901429a2284d18b77",
+        "destination_index_sha256": "5e29053e950cf0a067d6c89a10438ee73d622e764caff79ad74e294601e64649",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "cold_handshake_including_tls_configuration_ms": {
+        "p50": 9.594055,
+        "p95": 274.492009,
+        "p99": 363.781138
+      },
+      "tls_filesystem": {
+        "source": "v9fs",
+        "destination": "v9fs"
+      }
+    },
+    {
+      "label": "prepared-local-tls-512-r3",
+      "mode": "prepared-local-tls",
+      "repeat": 3,
+      "pair": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "a1ac83c8431836d5cd2b4a9bd04a7947a2a71a3b",
+        "successful_connections": 512,
+        "source_index_sha256": "97cb911e87eb1fbeac2ae3dc7b9e356a26a21cc137534b17d36f5c2869b0ba60",
+        "destination_index_sha256": "d2679a08ce3346576fdd02c1319b568b17472a6066f7099b3b8589f6ae878c1e",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "cold_handshake_including_tls_configuration_ms": {
+        "p50": 2.79362,
+        "p95": 25.591511,
+        "p99": 65.741966
+      },
+      "tls_filesystem": {
+        "source": "overlayfs",
+        "destination": "overlayfs"
+      }
+    },
+    {
+      "label": "prepared-local-tls-512-r4",
+      "mode": "prepared-local-tls",
+      "repeat": 4,
+      "pair": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "a1ac83c8431836d5cd2b4a9bd04a7947a2a71a3b",
+        "successful_connections": 512,
+        "source_index_sha256": "7ab5509f46949b9b4540f1f3667bbebda0f1bcd3c36f17e03a2315938879f2b8",
+        "destination_index_sha256": "59e522776d3d570b9cf2149913a26ac45a50d3cf6507f3a305c9613a0d802f5e",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "cold_handshake_including_tls_configuration_ms": {
+        "p50": 2.874931,
+        "p95": 88.587514,
+        "p99": 147.607354
+      },
+      "tls_filesystem": {
+        "source": "overlayfs",
+        "destination": "overlayfs"
+      }
+    },
+    {
+      "label": "prepared-mounted-tls-512-r4",
+      "mode": "prepared-mounted-tls",
+      "repeat": 4,
+      "pair": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "a1ac83c8431836d5cd2b4a9bd04a7947a2a71a3b",
+        "successful_connections": 512,
+        "source_index_sha256": "c94382a05127d1d62cd2cb6468b6e4a0374ab429422cb6140c95f8c195117825",
+        "destination_index_sha256": "4bb967221a39fab9d8b44ed4dce7cfff43818f161eea248571de8debb8884ffd",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "cold_handshake_including_tls_configuration_ms": {
+        "p50": 9.565163,
+        "p95": 310.151704,
+        "p99": 372.031694
+      },
+      "tls_filesystem": {
+        "source": "v9fs",
+        "destination": "v9fs"
+      }
+    },
+    {
+      "label": "prepared-mounted-tls-512-r5",
+      "mode": "prepared-mounted-tls",
+      "repeat": 5,
+      "pair": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "a1ac83c8431836d5cd2b4a9bd04a7947a2a71a3b",
+        "successful_connections": 512,
+        "source_index_sha256": "2ddb5dc058b57f52dc9b42a4d06385f324395ad827850093e70816feec5b4f83",
+        "destination_index_sha256": "025da4a164a939ce16458712ac5825d104ae1ea4b8ab0ea5c28e204617686550",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "cold_handshake_including_tls_configuration_ms": {
+        "p50": 12.120422,
+        "p95": 333.630796,
+        "p99": 450.859221
+      },
+      "tls_filesystem": {
+        "source": "v9fs",
+        "destination": "v9fs"
+      }
+    },
+    {
+      "label": "prepared-local-tls-512-r5",
+      "mode": "prepared-local-tls",
+      "repeat": 5,
+      "pair": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "a1ac83c8431836d5cd2b4a9bd04a7947a2a71a3b",
+        "successful_connections": 512,
+        "source_index_sha256": "c7b378ae11b521465110ef4ae9a4dee54c214d7077509bf1f5bf333054bf9dd9",
+        "destination_index_sha256": "ab4007c7843a7588008f53a03840cb1650b3bd5a853554164c7d56a389765f27",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "cold_handshake_including_tls_configuration_ms": {
+        "p50": 2.89012,
+        "p95": 75.292344,
+        "p99": 138.268449
+      },
+      "tls_filesystem": {
+        "source": "overlayfs",
+        "destination": "overlayfs"
+      }
+    }
+  ],
+  "quantile_method": "nearest rank within cell; median across the five cells",
+  "interpretation": "Local TLS lowers the cold-handshake timer in all five pairs; both arms complete. This supports harness fixture-I/O sensitivity, not attribution of every earlier handshake failure. Each cell has fresh containers, unlike earlier reused-namespace cohorts. Their failures remain retained. The raw transport_handshake_ns timer includes synchronous TLS reads/configuration before connect.",
+  "limits": [
+    "No timing observer qualification or stable latency/capacity claim.",
+    "No same-process retention, pure per-object allocation, external hardware or production optimization.",
+    "Prior interrupted mounted-TLS preview and setup-only failure are separately retained."
+  ]
+}
