@@ -1,0 +1,967 @@
+{
+  "source_sha": "3c3f784a798ed7745aecb1cfaab1103e18df0d10",
+  "status": "COMPLETE_FINITE_CARDINALITY_COHORT",
+  "summary": {
+    "512": {
+      "passes": 5,
+      "failures": 0,
+      "repeats": 5,
+      "completed_in_passing_cells": 2560,
+      "resources_median": {
+        "source": {
+          "held_rss_median_bytes": 208797696,
+          "peak_rss_bytes": 209321984,
+          "held_fd_median": 523,
+          "held_threads_median": 4,
+          "to_active_effective_guest_cores": 0.5517613993661351
+        },
+        "destination": {
+          "held_rss_median_bytes": 172228608,
+          "peak_rss_bytes": 172359680,
+          "held_fd_median": 8,
+          "held_threads_median": 2,
+          "to_active_effective_guest_cores": 0.4043961119002011
+        }
+      },
+      "cold_handshake_median_cell_quantiles_ms": {
+        "p50": 74.751029,
+        "p95": 146.030476,
+        "p99": 166.659061
+      },
+      "cold_handshake_p99_cv_percent": 67.96667867343733
+    },
+    "1024": {
+      "passes": 5,
+      "failures": 0,
+      "repeats": 5,
+      "completed_in_passing_cells": 5120,
+      "resources_median": {
+        "source": {
+          "held_rss_median_bytes": 403177472.0,
+          "peak_rss_bytes": 404619264,
+          "held_fd_median": 1035,
+          "held_threads_median": 4,
+          "to_active_effective_guest_cores": 0.5211091656426828
+        },
+        "destination": {
+          "held_rss_median_bytes": 336068608,
+          "peak_rss_bytes": 336068608,
+          "held_fd_median": 8.0,
+          "held_threads_median": 2.0,
+          "to_active_effective_guest_cores": 0.4422224974338296
+        }
+      },
+      "cold_handshake_median_cell_quantiles_ms": {
+        "p50": 361.873797,
+        "p95": 1017.727116,
+        "p99": 1028.17781
+      },
+      "cold_handshake_p99_cv_percent": 48.726477703205816
+    }
+  },
+  "cells": [
+    {
+      "label": "positive-512-r1",
+      "count": 512,
+      "rate": 200,
+      "index_sha256": "cbddc78bd0fc05437fec4f25b55ab784c7fce0337bfc6c66c31b876c7cf8d89a",
+      "status": "PASS_FUNCTIONAL",
+      "pair": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "3c3f784a798ed7745aecb1cfaab1103e18df0d10",
+        "successful_connections": 512,
+        "source_index_sha256": "6abbc9575dff6b8d8cb3a38650de7b74583b4837fff7680842f683cd7907fbf8",
+        "destination_index_sha256": "b33071d986e6736a60a560e8c40102de77572433b1c26857593f923b01bb6eca",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "coordinator_hold_ns": 2005663000,
+      "coordinator_cooldown_ns": 2048805100,
+      "resources": {
+        "source": {
+          "held_samples": 20,
+          "held_rss_median_bytes": 211681280.0,
+          "peak_rss_bytes": 212467712,
+          "held_fd_median": 523.0,
+          "held_threads_median": 4.0,
+          "to_active_cpu_ns": 1480000000,
+          "to_active_sampled_wall_ns": 2647306883,
+          "to_active_effective_guest_cores": 0.5590587209605348,
+          "selected_guest_cpus": [
+            0
+          ],
+          "scope": "Owned Rust peer RSS/FD/threads; startup-to-active CPU only; not total host, allocator bytes or pure NBSR object cost"
+        },
+        "destination": {
+          "held_samples": 21,
+          "held_rss_median_bytes": 169213952,
+          "peak_rss_bytes": 169345024,
+          "held_fd_median": 8,
+          "held_threads_median": 2,
+          "to_active_cpu_ns": 1040000000,
+          "to_active_sampled_wall_ns": 2620519444,
+          "to_active_effective_guest_cores": 0.39686788143518925,
+          "selected_guest_cpus": [
+            0
+          ],
+          "scope": "Owned Rust peer RSS/FD/threads; startup-to-active CPU only; not total host, allocator bytes or pure NBSR object cost"
+        }
+      },
+      "cold_handshake_including_tls_ms": {
+        "p50": 27.522164,
+        "p95": 67.433114,
+        "p99": 85.848928
+      },
+      "source_admission_local_check_ms": {
+        "p50": 0.205037,
+        "p95": 0.305954,
+        "p99": 1.902936
+      }
+    },
+    {
+      "label": "positive-1024-r1",
+      "count": 1024,
+      "rate": 200,
+      "index_sha256": "e8a7757ce5b55d9bf52b3da9aec07289b89ccefea827bfacdf99283727e83e8d",
+      "status": "PASS_FUNCTIONAL",
+      "pair": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "3c3f784a798ed7745aecb1cfaab1103e18df0d10",
+        "successful_connections": 1024,
+        "source_index_sha256": "eacab9186fb489f17d01a0862b41d734c5251f93f7a9881f7b86bfce3b56cf25",
+        "destination_index_sha256": "fdd856ea1f5eb8cf2acaa1cdb18ba12a0684a690ac09fe92dfa9cf609a04d233",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "coordinator_hold_ns": 2004201000,
+      "coordinator_cooldown_ns": 2027741100,
+      "resources": {
+        "source": {
+          "held_samples": 21,
+          "held_rss_median_bytes": 400162816,
+          "peak_rss_bytes": 401604608,
+          "held_fd_median": 1035,
+          "held_threads_median": 4,
+          "to_active_cpu_ns": 3300000000,
+          "to_active_sampled_wall_ns": 6170724658,
+          "to_active_effective_guest_cores": 0.5347832196210107,
+          "selected_guest_cpus": [
+            0
+          ],
+          "scope": "Owned Rust peer RSS/FD/threads; startup-to-active CPU only; not total host, allocator bytes or pure NBSR object cost"
+        },
+        "destination": {
+          "held_samples": 22,
+          "held_rss_median_bytes": 335020032.0,
+          "peak_rss_bytes": 335020032,
+          "held_fd_median": 8.0,
+          "held_threads_median": 2.0,
+          "to_active_cpu_ns": 2710000000,
+          "to_active_sampled_wall_ns": 6156675885,
+          "to_active_effective_guest_cores": 0.44017259485797994,
+          "selected_guest_cpus": [
+            0
+          ],
+          "scope": "Owned Rust peer RSS/FD/threads; startup-to-active CPU only; not total host, allocator bytes or pure NBSR object cost"
+        }
+      },
+      "cold_handshake_including_tls_ms": {
+        "p50": 575.341177,
+        "p95": 1017.727116,
+        "p99": 1026.44704
+      },
+      "source_admission_local_check_ms": {
+        "p50": 0.210112,
+        "p95": 0.34312,
+        "p99": 4.334547
+      }
+    },
+    {
+      "label": "positive-1024-r2",
+      "count": 1024,
+      "rate": 200,
+      "index_sha256": "368bce16f3f13cdd9efc9bdae65d57e2fb861fc4e84e08485955182a601bb819",
+      "status": "PASS_FUNCTIONAL",
+      "pair": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "3c3f784a798ed7745aecb1cfaab1103e18df0d10",
+        "successful_connections": 1024,
+        "source_index_sha256": "caba7a2c8bf900f4763a4f08d4f28b3945159acce719b58194464f21e77ec37a",
+        "destination_index_sha256": "c1a379cf8bacc1224cedceea9e4317eac85ffe19e244058e9fed4b93b9cb2a03",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "coordinator_hold_ns": 2009773500,
+      "coordinator_cooldown_ns": 2036722100,
+      "resources": {
+        "source": {
+          "held_samples": 22,
+          "held_rss_median_bytes": 394919936.0,
+          "peak_rss_bytes": 396361728,
+          "held_fd_median": 1034.0,
+          "held_threads_median": 4.0,
+          "to_active_cpu_ns": 3900000000,
+          "to_active_sampled_wall_ns": 7484036469,
+          "to_active_effective_guest_cores": 0.5211091656426828,
+          "selected_guest_cpus": [
+            0
+          ],
+          "scope": "Owned Rust peer RSS/FD/threads; startup-to-active CPU only; not total host, allocator bytes or pure NBSR object cost"
+        },
+        "destination": {
+          "held_samples": 22,
+          "held_rss_median_bytes": 336326656.0,
+          "peak_rss_bytes": 336326656,
+          "held_fd_median": 8.0,
+          "held_threads_median": 2.0,
+          "to_active_cpu_ns": 3430000000,
+          "to_active_sampled_wall_ns": 7484050039,
+          "to_active_effective_guest_cores": 0.45830799929529975,
+          "selected_guest_cpus": [
+            0
+          ],
+          "scope": "Owned Rust peer RSS/FD/threads; startup-to-active CPU only; not total host, allocator bytes or pure NBSR object cost"
+        }
+      },
+      "cold_handshake_including_tls_ms": {
+        "p50": 958.967672,
+        "p95": 2031.416813,
+        "p99": 2341.381637
+      },
+      "source_admission_local_check_ms": {
+        "p50": 0.221007,
+        "p95": 0.414514,
+        "p99": 4.031132
+      }
+    },
+    {
+      "label": "positive-512-r2",
+      "count": 512,
+      "rate": 200,
+      "index_sha256": "69382909f825d696bb09a8e5a79b853bfc0cdd2f80dfad69301dbda5444129d7",
+      "status": "PASS_FUNCTIONAL",
+      "pair": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "3c3f784a798ed7745aecb1cfaab1103e18df0d10",
+        "successful_connections": 512,
+        "source_index_sha256": "28876de570caa6a9540d3eba5670d95939d1bad2f014d66851d472af4c66b1d4",
+        "destination_index_sha256": "c4da4c88ff262f7abfd916e20c5225d1f71854bab99bc6f84d76a4aded6f3a37",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "coordinator_hold_ns": 2011182400,
+      "coordinator_cooldown_ns": 2024105800,
+      "resources": {
+        "source": {
+          "held_samples": 21,
+          "held_rss_median_bytes": 208797696,
+          "peak_rss_bytes": 209321984,
+          "held_fd_median": 522,
+          "held_threads_median": 4,
+          "to_active_cpu_ns": 1460000000,
+          "to_active_sampled_wall_ns": 2642925924,
+          "to_active_effective_guest_cores": 0.5524180555883034,
+          "selected_guest_cpus": [
+            0
+          ],
+          "scope": "Owned Rust peer RSS/FD/threads; startup-to-active CPU only; not total host, allocator bytes or pure NBSR object cost"
+        },
+        "destination": {
+          "held_samples": 20,
+          "held_rss_median_bytes": 172359680.0,
+          "peak_rss_bytes": 172359680,
+          "held_fd_median": 8.0,
+          "held_threads_median": 2.0,
+          "to_active_cpu_ns": 1100000000,
+          "to_active_sampled_wall_ns": 2720105282,
+          "to_active_effective_guest_cores": 0.4043961119002011,
+          "selected_guest_cpus": [
+            0
+          ],
+          "scope": "Owned Rust peer RSS/FD/threads; startup-to-active CPU only; not total host, allocator bytes or pure NBSR object cost"
+        }
+      },
+      "cold_handshake_including_tls_ms": {
+        "p50": 74.751029,
+        "p95": 146.030476,
+        "p99": 166.659061
+      },
+      "source_admission_local_check_ms": {
+        "p50": 0.204811,
+        "p95": 0.307016,
+        "p99": 5.289479
+      }
+    },
+    {
+      "label": "positive-512-r3",
+      "count": 512,
+      "rate": 200,
+      "index_sha256": "6b2ef04e2fee1ad3b39da749851cc4eb3117009b5c8522bc5e23b498496ccf0d",
+      "status": "PASS_FUNCTIONAL",
+      "pair": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "3c3f784a798ed7745aecb1cfaab1103e18df0d10",
+        "successful_connections": 512,
+        "source_index_sha256": "459cad7fe49db46420f2575b0b5800a60ab845dcaf3ceff09ad566a390a597a8",
+        "destination_index_sha256": "41d784f7a899f4c33e965582ea11726f75ad1c154c1f8eef4aa75f51b641adc2",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "coordinator_hold_ns": 2015388200,
+      "coordinator_cooldown_ns": 2049466900,
+      "resources": {
+        "source": {
+          "held_samples": 21,
+          "held_rss_median_bytes": 204603392,
+          "peak_rss_bytes": 205389824,
+          "held_fd_median": 523,
+          "held_threads_median": 4,
+          "to_active_cpu_ns": 1590000000,
+          "to_active_sampled_wall_ns": 2975984669,
+          "to_active_effective_guest_cores": 0.5342769459004898,
+          "selected_guest_cpus": [
+            0
+          ],
+          "scope": "Owned Rust peer RSS/FD/threads; startup-to-active CPU only; not total host, allocator bytes or pure NBSR object cost"
+        },
+        "destination": {
+          "held_samples": 21,
+          "held_rss_median_bytes": 172228608,
+          "peak_rss_bytes": 172359680,
+          "held_fd_median": 8,
+          "held_threads_median": 2,
+          "to_active_cpu_ns": 1210000000,
+          "to_active_sampled_wall_ns": 2923286726,
+          "to_active_effective_guest_cores": 0.4139176596117448,
+          "selected_guest_cpus": [
+            0
+          ],
+          "scope": "Owned Rust peer RSS/FD/threads; startup-to-active CPU only; not total host, allocator bytes or pure NBSR object cost"
+        }
+      },
+      "cold_handshake_including_tls_ms": {
+        "p50": 290.65725,
+        "p95": 432.820736,
+        "p99": 445.208069
+      },
+      "source_admission_local_check_ms": {
+        "p50": 0.216213,
+        "p95": 0.397657,
+        "p99": 2.050321
+      }
+    },
+    {
+      "label": "positive-1024-r3",
+      "count": 1024,
+      "rate": 200,
+      "index_sha256": "31976d85682c5b2d76e0027377b3da4399b7faa997d5a1e6f53480ec9e43ec40",
+      "status": "PASS_FUNCTIONAL",
+      "pair": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "3c3f784a798ed7745aecb1cfaab1103e18df0d10",
+        "successful_connections": 1024,
+        "source_index_sha256": "4ce7fdd4898232453d875c3a35317e9f51ff154ab5c6209c038850f0ad7873a7",
+        "destination_index_sha256": "1494701794dec667bdfd8c2b0e55566bc8f3cf23bbdb273a0c206226a08e6a0c",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "coordinator_hold_ns": 2002796300,
+      "coordinator_cooldown_ns": 2058051500,
+      "resources": {
+        "source": {
+          "held_samples": 21,
+          "held_rss_median_bytes": 403701760,
+          "peak_rss_bytes": 405274624,
+          "held_fd_median": 1035,
+          "held_threads_median": 4,
+          "to_active_cpu_ns": 3170000000,
+          "to_active_sampled_wall_ns": 5950645618,
+          "to_active_effective_guest_cores": 0.5327153057831447,
+          "selected_guest_cpus": [
+            0
+          ],
+          "scope": "Owned Rust peer RSS/FD/threads; startup-to-active CPU only; not total host, allocator bytes or pure NBSR object cost"
+        },
+        "destination": {
+          "held_samples": 22,
+          "held_rss_median_bytes": 338952192.0,
+          "peak_rss_bytes": 339083264,
+          "held_fd_median": 8.0,
+          "held_threads_median": 2.0,
+          "to_active_cpu_ns": 2630000000,
+          "to_active_sampled_wall_ns": 5944009953,
+          "to_active_effective_guest_cores": 0.4424622470008842,
+          "selected_guest_cpus": [
+            0
+          ],
+          "scope": "Owned Rust peer RSS/FD/threads; startup-to-active CPU only; not total host, allocator bytes or pure NBSR object cost"
+        }
+      },
+      "cold_handshake_including_tls_ms": {
+        "p50": 215.407149,
+        "p95": 821.325832,
+        "p99": 835.027463
+      },
+      "source_admission_local_check_ms": {
+        "p50": 0.206912,
+        "p95": 0.337607,
+        "p99": 3.114366
+      }
+    },
+    {
+      "label": "positive-1024-r4",
+      "count": 1024,
+      "rate": 200,
+      "index_sha256": "8ec2a408b20e79657ed2cc325c4d5dbafa6a0b183c0f321425dc066434afeb9f",
+      "status": "PASS_FUNCTIONAL",
+      "pair": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "3c3f784a798ed7745aecb1cfaab1103e18df0d10",
+        "successful_connections": 1024,
+        "source_index_sha256": "b9ed80804a3dbb6ed26dda47889d427390d3cccd2c6911bef6d27ced3a90e2bf",
+        "destination_index_sha256": "3f66d0aa1b077a81f1f364f9595537ea771d63cdd362fe482db38fca35e3dcc0",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "coordinator_hold_ns": 2015998400,
+      "coordinator_cooldown_ns": 2070364000,
+      "resources": {
+        "source": {
+          "held_samples": 20,
+          "held_rss_median_bytes": 405274624.0,
+          "peak_rss_bytes": 406847488,
+          "held_fd_median": 1035.0,
+          "held_threads_median": 4.0,
+          "to_active_cpu_ns": 3320000000,
+          "to_active_sampled_wall_ns": 6372490255,
+          "to_active_effective_guest_cores": 0.520989419700572,
+          "selected_guest_cpus": [
+            0
+          ],
+          "scope": "Owned Rust peer RSS/FD/threads; startup-to-active CPU only; not total host, allocator bytes or pure NBSR object cost"
+        },
+        "destination": {
+          "held_samples": 23,
+          "held_rss_median_bytes": 336068608,
+          "peak_rss_bytes": 336068608,
+          "held_fd_median": 8,
+          "held_threads_median": 2,
+          "to_active_cpu_ns": 2690000000,
+          "to_active_sampled_wall_ns": 6147881614,
+          "to_active_effective_guest_cores": 0.4375490890836793,
+          "selected_guest_cpus": [
+            0
+          ],
+          "scope": "Owned Rust peer RSS/FD/threads; startup-to-active CPU only; not total host, allocator bytes or pure NBSR object cost"
+        }
+      },
+      "cold_handshake_including_tls_ms": {
+        "p50": 254.801496,
+        "p95": 1036.51235,
+        "p99": 1054.075232
+      },
+      "source_admission_local_check_ms": {
+        "p50": 0.209613,
+        "p95": 0.32662,
+        "p99": 3.281202
+      }
+    },
+    {
+      "label": "positive-512-r4",
+      "count": 512,
+      "rate": 200,
+      "index_sha256": "4b6ffbf7bf9b208d64efc5cabbf8312f81bb441fd530e71fba7abb4956556140",
+      "status": "PASS_FUNCTIONAL",
+      "pair": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "3c3f784a798ed7745aecb1cfaab1103e18df0d10",
+        "successful_connections": 512,
+        "source_index_sha256": "823a7c9662a4a8a720fc7a7dceb328f93e4a152af0baefc04258b68eb9459d06",
+        "destination_index_sha256": "c697755b6465462aed2826590bd7953bfb3d50ddbb221d51b28cb77ae6cffdc1",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "coordinator_hold_ns": 2006346800,
+      "coordinator_cooldown_ns": 2050174900,
+      "resources": {
+        "source": {
+          "held_samples": 21,
+          "held_rss_median_bytes": 205651968,
+          "peak_rss_bytes": 206307328,
+          "held_fd_median": 523,
+          "held_threads_median": 4,
+          "to_active_cpu_ns": 1480000000,
+          "to_active_sampled_wall_ns": 2745933649,
+          "to_active_effective_guest_cores": 0.5389787916175538,
+          "selected_guest_cpus": [
+            0
+          ],
+          "scope": "Owned Rust peer RSS/FD/threads; startup-to-active CPU only; not total host, allocator bytes or pure NBSR object cost"
+        },
+        "destination": {
+          "held_samples": 21,
+          "held_rss_median_bytes": 173670400,
+          "peak_rss_bytes": 173670400,
+          "held_fd_median": 8,
+          "held_threads_median": 2,
+          "to_active_cpu_ns": 1110000000,
+          "to_active_sampled_wall_ns": 2720695418,
+          "to_active_effective_guest_cores": 0.4079839267035513,
+          "selected_guest_cpus": [
+            0
+          ],
+          "scope": "Owned Rust peer RSS/FD/threads; startup-to-active CPU only; not total host, allocator bytes or pure NBSR object cost"
+        }
+      },
+      "cold_handshake_including_tls_ms": {
+        "p50": 126.210055,
+        "p95": 236.089519,
+        "p99": 249.709646
+      },
+      "source_admission_local_check_ms": {
+        "p50": 0.210712,
+        "p95": 0.372123,
+        "p99": 4.345864
+      }
+    },
+    {
+      "label": "positive-512-r5",
+      "count": 512,
+      "rate": 200,
+      "index_sha256": "d0bd9456bde33dcc2ebc8b85810eb4e17a632f9d0c144c133b382ab10ae96fd4",
+      "status": "PASS_FUNCTIONAL",
+      "pair": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "3c3f784a798ed7745aecb1cfaab1103e18df0d10",
+        "successful_connections": 512,
+        "source_index_sha256": "abc5011c5301bc62469bb54fc45ac7a675e23ed8b4125d304af506cde1283d80",
+        "destination_index_sha256": "561db3b36c257b489c66383e496f0cc23b16a90199cf8624e858b1287bc257bf",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "coordinator_hold_ns": 2001531000,
+      "coordinator_cooldown_ns": 2052977200,
+      "resources": {
+        "source": {
+          "held_samples": 21,
+          "held_rss_median_bytes": 208928768,
+          "peak_rss_bytes": 209846272,
+          "held_fd_median": 523,
+          "held_threads_median": 4,
+          "to_active_cpu_ns": 1460000000,
+          "to_active_sampled_wall_ns": 2646071294,
+          "to_active_effective_guest_cores": 0.5517613993661351,
+          "selected_guest_cpus": [
+            0
+          ],
+          "scope": "Owned Rust peer RSS/FD/threads; startup-to-active CPU only; not total host, allocator bytes or pure NBSR object cost"
+        },
+        "destination": {
+          "held_samples": 21,
+          "held_rss_median_bytes": 171966464,
+          "peak_rss_bytes": 171966464,
+          "held_fd_median": 8,
+          "held_threads_median": 2,
+          "to_active_cpu_ns": 1040000000,
+          "to_active_sampled_wall_ns": 2620843429,
+          "to_active_effective_guest_cores": 0.3968188211826217,
+          "selected_guest_cpus": [
+            0
+          ],
+          "scope": "Owned Rust peer RSS/FD/threads; startup-to-active CPU only; not total host, allocator bytes or pure NBSR object cost"
+        }
+      },
+      "cold_handshake_including_tls_ms": {
+        "p50": 29.430026,
+        "p95": 86.699679,
+        "p99": 114.314194
+      },
+      "source_admission_local_check_ms": {
+        "p50": 0.205312,
+        "p95": 0.299519,
+        "p99": 2.325445
+      }
+    },
+    {
+      "label": "positive-1024-r5",
+      "count": 1024,
+      "rate": 200,
+      "index_sha256": "78f45d12e8ee481fd9edc5ea022662d6a162e2628560729a869caee5b91c78a5",
+      "status": "PASS_FUNCTIONAL",
+      "pair": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "3c3f784a798ed7745aecb1cfaab1103e18df0d10",
+        "successful_connections": 1024,
+        "source_index_sha256": "3eb761457fe3ff6e6c972008620af98fd8c0385b351ac16fdcb194067e7f6116",
+        "destination_index_sha256": "f2924d14cb875957a625151ac0dbae1fe5f29c4cc7baf2fc4580504b3ef916b5",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "coordinator_hold_ns": 2002736900,
+      "coordinator_cooldown_ns": 2052704500,
+      "resources": {
+        "source": {
+          "held_samples": 22,
+          "held_rss_median_bytes": 403177472.0,
+          "peak_rss_bytes": 404619264,
+          "held_fd_median": 1034.0,
+          "held_threads_median": 4.0,
+          "to_active_cpu_ns": 3290000000,
+          "to_active_sampled_wall_ns": 6433599214,
+          "to_active_effective_guest_cores": 0.5113778292002882,
+          "selected_guest_cpus": [
+            0
+          ],
+          "scope": "Owned Rust peer RSS/FD/threads; startup-to-active CPU only; not total host, allocator bytes or pure NBSR object cost"
+        },
+        "destination": {
+          "held_samples": 25,
+          "held_rss_median_bytes": 335151104,
+          "peak_rss_bytes": 335282176,
+          "held_fd_median": 8,
+          "held_threads_median": 2,
+          "to_active_cpu_ns": 2720000000,
+          "to_active_sampled_wall_ns": 6150749941,
+          "to_active_effective_guest_cores": 0.4422224974338296,
+          "selected_guest_cpus": [
+            0
+          ],
+          "scope": "Owned Rust peer RSS/FD/threads; startup-to-active CPU only; not total host, allocator bytes or pure NBSR object cost"
+        }
+      },
+      "cold_handshake_including_tls_ms": {
+        "p50": 361.873797,
+        "p95": 1013.897084,
+        "p99": 1028.17781
+      },
+      "source_admission_local_check_ms": {
+        "p50": 0.210612,
+        "p95": 0.354908,
+        "p99": 3.278781
+      }
+    }
+  ],
+  "resource_slope": {
+    "status": "DERIVED_COMPOUND_RSS_SLOPE_ONLY",
+    "pairs": [
+      {
+        "repeat": 1,
+        "combined_held_rss_delta_bytes": 354287616.0,
+        "bytes_per_extra_bundle": 691968.0
+      },
+      {
+        "repeat": 2,
+        "combined_held_rss_delta_bytes": 350089216.0,
+        "bytes_per_extra_bundle": 683768.0
+      },
+      {
+        "repeat": 3,
+        "combined_held_rss_delta_bytes": 365821952.0,
+        "bytes_per_extra_bundle": 714496.0
+      },
+      {
+        "repeat": 4,
+        "combined_held_rss_delta_bytes": 362020864.0,
+        "bytes_per_extra_bundle": 707072.0
+      },
+      {
+        "repeat": 5,
+        "combined_held_rss_delta_bytes": 357433344.0,
+        "bytes_per_extra_bundle": 698112.0
+      }
+    ],
+    "median_bytes_per_extra_bundle": 698112.0,
+    "scope": "Difference of held Rust-process RSS, divided by 512 extra bundles. Each bundle combines connection/session/channel/stream/TLS/QUIC/harness allocations; not separate object cost or a leak test."
+  },
+  "rate": 200,
+  "shards": 2,
+  "placement": "Fresh Docker namespaces; both roles select guest CPU 0 on one WSL host",
+  "prior_100_rate": "Distinct workload; all prior successes/failures remain retained",
+  "fixture_scope": "Each cell creates fresh equivalent test certificates; byte-identical within source/destination pair, not across cardinality cells",
+  "timing": "DIAGNOSTIC_ONLY: cold handshake includes TLS configuration; source admission is only the local check, not end-to-end admission",
+  "sustainable_admission": "NOT_ESTABLISHED",
+  "hardware_ceiling": "NOT_PROVEN",
+  "same_process_retention": "NOT_MEASURED",
+  "per_connection_session_channel_stream_allocation": "NOT_SEPARATELY_IDENTIFIABLE",
+  "production_changes": "NONE"
+}

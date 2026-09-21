@@ -4,12 +4,19 @@
 for the ongoing campaign. Each measurement belongs to its recorded source,
 workload and host; different stages are not one final-SHA scoreboard.
 
-Latest budgeted continuation: [September 19 engineering/evidence checkpoint](ENGINEERING_CHECKPOINT_2026-09-19_CREDIT_CAMPAIGN.md).
-Native Linux-local control storage completes 256 held bundles in all five cells;
-512 completes three of five, with both failures retained. These are functional
-fixtures, not sustainable admission or throughput results. The native lifecycle
-runner now has six live cancellation controls and an independent pair gate.
-No production speedup or final funding closure is claimed.
+Latest budgeted continuation: [September 21 engineering/evidence checkpoint](ENGINEERING_CHECKPOINT_2026-09-21.md).
+The prepared-source startup fix has matched failure/pass attribution. A bounded
+native lifecycle coordinator now automates readiness, hold, release/ACK,
+cleanup and evidence transfer. At 3c3f784a, five 512 and five 1024 native-address
+cells complete at the separately declared 200 offered/s schedule without
+keepalive; all positive final ownership counters are zero. The 1024 cold-handshake
+p99 remains approximately one second and dispersed: this is functional scale,
+not latency-stable or sustainable admission capacity. Earlier failed cohorts
+and historical keepalive-enabled larger bundles retain their own scope.
+[1024 resource/functional evidence](../../evidence/performance/v2/native-lifecycle-1024-3c3f784a/summary.md),
+[coordinator and EOF controls](../../evidence/performance/v2/native-lifecycle-coordinator-3dfd9f8a/summary.md).
+No production speedup or final funding closure is claimed; actual SSH/server
+execution, remote B5/reference implementation and qualified soak remain open.
 
 Latest native-packet/reliability continuation: see the
 [scoped September 19 follow-up](ENGINEERING_CHECKPOINT_2026-09-19_NATIVE.md).

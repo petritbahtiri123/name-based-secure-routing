@@ -1,0 +1,18 @@
+[
+  {
+    "root": "C:\\NBSR-build\\native-scale1024-tests-20260921",
+    "index_sha256": "99a072131e8efdc26ca7a827e728c65185277c88df1522d151d3db691adf9f7d"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-control-scale1024-3c3f784a",
+    "index_sha256": "1f5857ea7e44c1935adf4547da0ee47981d215db648c63ef422fe4b53813e7a0"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-current-3c3f784a",
+    "index_sha256": "8e123ec3e63df7f0def340454248e85c74d9837bfb02f70811dbe2a1e93047c1"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-control-cleanup-20260921",
+    "index_sha256": "7dec6299c511a1d62b5221cc59807190a04d525b876ffe6ec4845f4dd60c769c"
+  }
+]

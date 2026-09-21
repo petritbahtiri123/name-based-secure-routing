@@ -1,0 +1,58 @@
+{
+  "status": "PASS_SIX_CATCHABLE_ENDPOINT_SIGNAL_CONTROLS",
+  "source_sha": "3c3f784a798ed7745aecb1cfaab1103e18df0d10",
+  "records": [
+    {
+      "label": "signal-source-r1",
+      "role": "source",
+      "elapsed_ns": 354827700,
+      "index_sha256": "f89609057f915036d88efe234369a431ad038c82e2162ffe1c5da59a4d32a341",
+      "targeted": "endpoint controller; owned Rust process cleanup is delegated"
+    },
+    {
+      "label": "signal-source-r2",
+      "role": "source",
+      "elapsed_ns": 379871000,
+      "index_sha256": "9ab5d83e1fab2dcc15c3a58bf65eca97779288e8a38123b63d1100de14b63404",
+      "targeted": "endpoint controller; owned Rust process cleanup is delegated"
+    },
+    {
+      "label": "signal-source-r3",
+      "role": "source",
+      "elapsed_ns": 321515300,
+      "index_sha256": "dc89ea59cf0f50d2d9cfa070758e658577eda51b8bf9971fcbcff5a01768a525",
+      "targeted": "endpoint controller; owned Rust process cleanup is delegated"
+    },
+    {
+      "label": "signal-destination-r1",
+      "role": "destination",
+      "elapsed_ns": 394304000,
+      "index_sha256": "8f99183ea05f73a112fc9f5ca961aa0b08f59b97f4c8b74bd12896cd66cfaf65",
+      "targeted": "endpoint controller; owned Rust process cleanup is delegated"
+    },
+    {
+      "label": "signal-destination-r2",
+      "role": "destination",
+      "elapsed_ns": 401916700,
+      "index_sha256": "e564e7a37dfc4b68431e9bf65c0b509e8073f124de8adaa37bd88ec322107ce5",
+      "targeted": "endpoint controller; owned Rust process cleanup is delegated"
+    },
+    {
+      "label": "signal-destination-r3",
+      "role": "destination",
+      "elapsed_ns": 388009200,
+      "index_sha256": "22716dc90dcf4bd47b72361645d609d80aea168729700f7a92c85b646ba7903b",
+      "targeted": "endpoint controller; owned Rust process cleanup is delegated"
+    }
+  ],
+  "startup_failures_retained": [
+    "stdlib helper-name collision before launch",
+    "Docker address-pool exhaustion before launch",
+    "root-UID signal probe could not read non-root executable; no signal sent"
+  ],
+  "interpretation": "Same-UID identity-checked pidfd delivery, no capability/security policy change; process cleanup, not graceful eleven-counter ownership proof",
+  "limits": [
+    "No real SSH/network-partition/host-loss/SIGKILL proof",
+    "Windows coordinator TerminateProcess is not this catchable Linux signal case"
+  ]
+}

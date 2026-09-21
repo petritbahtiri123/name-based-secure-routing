@@ -40,3 +40,14 @@ functional scale experiment, not a stable admissions/throughput claim.
 If progress fails despite resource headroom, record the actual delayed phase and
 profile before any optimization. No keepalive, transport timeout, protocol,
 security, release/ACK or assertion relaxation is authorized by this extension.
+
+## Result
+
+Complete at 3c3f784a: three RED failures, 112 focused tests GREEN, exact release
+rebuild with unchanged Rust hashes. Five counterbalanced cells at each of 512
+and 1024 complete all clients, ACK/hold/cooldown and eleven zero ownership fields.
+The independent analysis and raw checksum package retain all ten cells. Median
+held RSS is 199.125/164.25 MiB at 512 and 384.5/320.5 MiB at 1024 for the two
+roles. The compound paired RSS slope is 681.75 KiB per extra bundle, not separate
+object allocation. Handshake p99 remains highly dispersed (~1.03 seconds at
+1024), so no latency-stable or sustained-admission claim follows.

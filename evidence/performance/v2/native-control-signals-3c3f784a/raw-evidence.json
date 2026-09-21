@@ -1,0 +1,18 @@
+[
+  {
+    "root": "C:\\NBSR-build\\native-control-signals-3c3f784a",
+    "index_sha256": "ef2328aee7736b80817b2bc8645cdff8b659bb528db7479aaa9c36849a6d8eeb"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-control-signals-3c3f784a-v2",
+    "index_sha256": "e97e8bfb93e4bdcd54740dbc76dad804cc163d10c74c07c6a05509b73c0c548c"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-current-3c3f784a",
+    "index_sha256": "8e123ec3e63df7f0def340454248e85c74d9837bfb02f70811dbe2a1e93047c1"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-control-cleanup-20260921",
+    "index_sha256": "7dec6299c511a1d62b5221cc59807190a04d525b876ffe6ec4845f4dd60c769c"
+  }
+]

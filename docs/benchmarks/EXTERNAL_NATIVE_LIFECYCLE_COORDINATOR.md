@@ -131,7 +131,11 @@ increase them, add keepalive or reduce payload/cardinality to conceal failure.
 Slow external management may exceed the fixture's existing idle lifetime; retain
 and classify that as a fixture/platform limitation rather than NBSR capacity.
 
-Start at 16 bundles and progress through 32/64/128/256/512 only when prior cells
-are meaningful. This finite held fixture does not currently admit 1024: at
-100 offered/s its launch span plus hold exceeds its existing idle contract.
-No production ceiling is implied by that fixture bound.
+Start at 16 bundles and progress through 32/64/128/256/512/1024 only when prior
+cells are meaningful. The Python runner now exposes the Rust binary's existing
+1024-client bound without enabling keepalive. At 100 offered/s the 1024 launch
+span plus hold exceeds its existing idle contract. A separately declared 200/s
+cell has a nominal 5.115-second launch span before the unchanged two-second hold;
+it is a different workload and must retain its own repeats/failures. No production
+ceiling, sustainable admission rate or independent-tenant count follows from this
+finite fixture. The same test identities and one service are used across bundles.
