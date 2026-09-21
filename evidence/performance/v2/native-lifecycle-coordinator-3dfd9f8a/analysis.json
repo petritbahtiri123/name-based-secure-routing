@@ -1,0 +1,440 @@
+{
+  "status": "PASS_FUNCTIONAL_COORDINATOR_VALIDATION",
+  "source_sha": "3dfd9f8a57d48de8082a1bd17d35571ea7ff692d",
+  "positive_16": [
+    {
+      "label": "positive-r1",
+      "count": 16,
+      "status": "PASS_FUNCTIONAL_CONTROLLED_PAIR",
+      "index_sha256": "8a1099c06d6f900a9c007eaabdd1bed8456ba2dbd5b04d778e2cc02473fac186",
+      "hold_ns": 2001684300,
+      "cooldown_ns": 2023883100,
+      "pair": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "3dfd9f8a57d48de8082a1bd17d35571ea7ff692d",
+        "successful_connections": 16,
+        "source_index_sha256": "334c2bdf8738b5ff1d962351c0289f3c0c7af2e0295be48bcdb4541233aac3ab",
+        "destination_index_sha256": "aa6d36a101b2cff4bb8fc5d597634400ad7f6852a1fa9da77c7afb60ba1b1bc5",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "removed_verified_duplicate_archive_bytes": 12574720
+    },
+    {
+      "label": "positive-r2",
+      "count": 16,
+      "status": "PASS_FUNCTIONAL_CONTROLLED_PAIR",
+      "index_sha256": "85db758bb74f8d31ea5094744db3e661d44a162dfaa7bdc52334481380a14339",
+      "hold_ns": 2019422600,
+      "cooldown_ns": 2008415800,
+      "pair": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "3dfd9f8a57d48de8082a1bd17d35571ea7ff692d",
+        "successful_connections": 16,
+        "source_index_sha256": "77e2209bca20ca5e57c5737b05c91225b5643b88b4ee14f55613720721d288a0",
+        "destination_index_sha256": "68cf940a2487998df9279a2a5b9140d2facfac1d5249835b0ca2b58f224b0fd2",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "removed_verified_duplicate_archive_bytes": 12574720
+    },
+    {
+      "label": "positive-r3",
+      "count": 16,
+      "status": "PASS_FUNCTIONAL_CONTROLLED_PAIR",
+      "index_sha256": "eac57e62f8d222ab725d7212161f014a3c391a1c710457797a9cd5a546c46a22",
+      "hold_ns": 2007163400,
+      "cooldown_ns": 2007850000,
+      "pair": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "3dfd9f8a57d48de8082a1bd17d35571ea7ff692d",
+        "successful_connections": 16,
+        "source_index_sha256": "163438c674f66cc3216876bb65f46f5d7c08d3895346ae3c6b9e1fc4b062da34",
+        "destination_index_sha256": "c3bd0593fdee7b3d6b9621370dcb68af708e817e9166c5886a4c183e2509ed9a",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "removed_verified_duplicate_archive_bytes": 12574720
+    }
+  ],
+  "eof_cancellation": [
+    {
+      "label": "eof-source-r1",
+      "index_sha256": "7c01a291fe2d2d63033906a692ccdc2636dfadb452bdb184becf8e423b248b49",
+      "role": "source",
+      "exit_code": 1,
+      "elapsed_ns": 254843200,
+      "interpretation": "Owned process cleanup only; cancelled runs are not successful ownership lifecycles"
+    },
+    {
+      "label": "eof-source-r2",
+      "index_sha256": "4688a5f3c6ed0a3ea29a4462b54c58146a24638e5e018dfc5521bb3fc8119762",
+      "role": "source",
+      "exit_code": 1,
+      "elapsed_ns": 235409800,
+      "interpretation": "Owned process cleanup only; cancelled runs are not successful ownership lifecycles"
+    },
+    {
+      "label": "eof-source-r3",
+      "index_sha256": "b5d451f003df826c4f591458b268a8e6fd057f0d6b7280f8c298f555a30684ae",
+      "role": "source",
+      "exit_code": 1,
+      "elapsed_ns": 246284600,
+      "interpretation": "Owned process cleanup only; cancelled runs are not successful ownership lifecycles"
+    },
+    {
+      "label": "eof-destination-r1",
+      "index_sha256": "38eee6c48c9e4e14b47000df991dbaf5a42363d77b0b6df7bec8c2276bcb92e8",
+      "role": "destination",
+      "exit_code": 1,
+      "elapsed_ns": 191093800,
+      "interpretation": "Owned process cleanup only; cancelled runs are not successful ownership lifecycles"
+    },
+    {
+      "label": "eof-destination-r2",
+      "index_sha256": "9f55f8900b2dbe1029cfe87e10b18851c70b8229f473647be016581b257d9776",
+      "role": "destination",
+      "exit_code": 1,
+      "elapsed_ns": 300295800,
+      "interpretation": "Owned process cleanup only; cancelled runs are not successful ownership lifecycles"
+    },
+    {
+      "label": "eof-destination-r3",
+      "index_sha256": "75f1ea59581c4320c0d801d896c2ad86f15d432c1058fd960347acb266cdf770",
+      "role": "destination",
+      "exit_code": 1,
+      "elapsed_ns": 187610400,
+      "interpretation": "Owned process cleanup only; cancelled runs are not successful ownership lifecycles"
+    }
+  ],
+  "positive_512": [
+    {
+      "label": "positive-r1",
+      "count": 512,
+      "status": "PASS_FUNCTIONAL_CONTROLLED_PAIR",
+      "index_sha256": "aa3a2db753c4866518ff70e68316aeed20a22fdb2c6ec1b62d27834dc2feb54c",
+      "hold_ns": 2011156300,
+      "cooldown_ns": 2024005400,
+      "pair": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "3dfd9f8a57d48de8082a1bd17d35571ea7ff692d",
+        "successful_connections": 512,
+        "source_index_sha256": "76ba527a280d0c4c6009a2d2a71d5864f72075e64e6efcdeae90717dbac9fbe8",
+        "destination_index_sha256": "2570c175cf0f43b6e5304795507b2063e607a95124a184667852f2ec02cd1481",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "removed_verified_duplicate_archive_bytes": 17336320
+    },
+    {
+      "label": "positive-r2",
+      "count": 512,
+      "status": "PASS_FUNCTIONAL_CONTROLLED_PAIR",
+      "index_sha256": "bc04a6f928f5aa2e46db366e92dcc01a688ba1c2622e2a51a4ff07b6775e9111",
+      "hold_ns": 2008118600,
+      "cooldown_ns": 2036983300,
+      "pair": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "3dfd9f8a57d48de8082a1bd17d35571ea7ff692d",
+        "successful_connections": 512,
+        "source_index_sha256": "b2f9d448f3c55a248eb779f1b2012ffe32fd43011e8563ddd584366c55ac6bab",
+        "destination_index_sha256": "dcf621c13cb2d964977a33a649d57dddc7e6458e85e17eea94aad99a2bfedd8f",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "removed_verified_duplicate_archive_bytes": 17336320
+    },
+    {
+      "label": "positive-r3",
+      "count": 512,
+      "status": "PASS_FUNCTIONAL_CONTROLLED_PAIR",
+      "index_sha256": "10ae5cd92a3d29a8cd134387c810be5ad3752c9159d95fcaf59bf27770684b96",
+      "hold_ns": 2010163200,
+      "cooldown_ns": 2046861400,
+      "pair": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "3dfd9f8a57d48de8082a1bd17d35571ea7ff692d",
+        "successful_connections": 512,
+        "source_index_sha256": "aead674219d462d927ac3806107019c665aac1f6918ebd2f8c05cb81d67fee98",
+        "destination_index_sha256": "b61d1f7e19a1ca283c9d027eff92f6ac734a1b24f60d3d814fd4ed00688aee96",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "removed_verified_duplicate_archive_bytes": 17336320
+    },
+    {
+      "label": "positive-r4",
+      "count": 512,
+      "status": "PASS_FUNCTIONAL_CONTROLLED_PAIR",
+      "index_sha256": "ab97d9372da06c0f3fb17bc9ef4284af22877756ba563bd4ff1b2b317f709d93",
+      "hold_ns": 2000683600,
+      "cooldown_ns": 2061572000,
+      "pair": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "3dfd9f8a57d48de8082a1bd17d35571ea7ff692d",
+        "successful_connections": 512,
+        "source_index_sha256": "ff193381fc4715548471c12072bfd27a84a139df3307fa8e1293ce0d0a73ffaa",
+        "destination_index_sha256": "8db2e644e594e36f4795550a8bdc2f663668274923891bc507c394d3846b6bd2",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "removed_verified_duplicate_archive_bytes": 17336320
+    },
+    {
+      "label": "positive-r5",
+      "count": 512,
+      "status": "PASS_FUNCTIONAL_CONTROLLED_PAIR",
+      "index_sha256": "24d4ae8a644d78d8645d7adbee3fd07351b221ea2e9c3dca4e0298f7c339e029",
+      "hold_ns": 2002848700,
+      "cooldown_ns": 2055552900,
+      "pair": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "3dfd9f8a57d48de8082a1bd17d35571ea7ff692d",
+        "successful_connections": 512,
+        "source_index_sha256": "71d0ed48dfea9dea4d92ef3f194b5238b8306b204e0ffc1f39c0846039c72cab",
+        "destination_index_sha256": "ac16a2381f285ec672779b34974738cc9ec19a60a71b39c61d2f5e1eafbb61f3",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "removed_verified_duplicate_archive_bytes": 17336320
+    }
+  ],
+  "successful_completed_connections": 2608,
+  "cancellation_cells": 6,
+  "prior_failure": "25db6831 source interpreter exit 134 after completion event; retained and rejected",
+  "physical_hardware": "NOT_PROVEN",
+  "real_ssh": "NOT_EXECUTED",
+  "sustainable_capacity": "NOT_ESTABLISHED",
+  "production_changes": "NONE",
+  "same_process_retention": "NOT_MEASURED",
+  "limits": [
+    "Fresh Docker namespaces in one WSL host, not separate hardware.",
+    "No observer-qualified latency or forwarding throughput claim.",
+    "Successful fresh-namespace 512 cells do not erase earlier reused-namespace failures.",
+    "EOF cleanup is not proof against host loss, SIGKILL or network partition."
+  ]
+}

@@ -98,9 +98,10 @@ group and seals its partial evidence. When available, failure-only live UDP
 counters are retained before cleanup. Process cleanup is not a passing runtime
 ownership result. The observer cannot recover counters from closed sockets.
 
-Automated two-physical-host barrier orchestration and remote failure testing
-remain outstanding. These executable **per-host** commands do not claim a
-complete unattended external B3 campaign. Shared-WSL namespace smoke results
+The new [private-stream coordinator](EXTERNAL_NATIVE_LIFECYCLE_COORDINATOR.md)
+implements bounded two-endpoint orchestration. Actual two-physical-host SSH
+execution and failure validation remain outstanding. These executable commands
+do not claim a complete unattended external B3 campaign. Shared-WSL namespace smoke results
 remain separate from external hardware, same-process repeated retention and
 sustained admission/soak validation.
 
@@ -145,7 +146,7 @@ Their cause remains unresolved. The prior intermediate close/idle failure and
 setup failure are also retained. See
 [prepared-source validation](../../evidence/performance/v2/native-prepared-source-a1ac83c8/summary.md).
 This closes one startup artifact, not native 512 repeatability or the original
-Windows admission bottleneck. Automated external orchestration remains open.
+Windows admission bottleneck. Actual external hardware execution remains open.
 
 The subsequent [TLS fixture storage comparison](../../evidence/performance/v2/native-tls-storage-a1ac83c8/summary.md)
 uses fresh containers for every cell and completes 5/5 512-bundle cells in each

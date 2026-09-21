@@ -1,0 +1,26 @@
+[
+  {
+    "root": "C:\\NBSR-build\\native-lifecycle-control-20260921",
+    "index_sha256": "f667dcd6f6421b785b6abeba4274c0e9d569f7c0cf27f45afe1eac7be150b6da"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-control-smoke-25db6831",
+    "index_sha256": "f459734b5a59fba0b50a0aefc74bc1cff5620cfdd3ba4d214c6db9f4364b837f"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-control-smoke-3dfd9f8a",
+    "index_sha256": "36e681aa4894da1c17b63ec27d955fb52c214cf8b0520781564dee80eaf81875"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-control-scale512-3dfd9f8a",
+    "index_sha256": "b00a2488de7074549e3ccd25b0bff3e0e994eb2ba46f9ef0b68866153a95605a"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-current-25db6831",
+    "index_sha256": "ad9ebbca93b56846b6518bbcc7914f2563b96a6120deec46d7fd75e03da8094c"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-current-3dfd9f8a",
+    "index_sha256": "796d804573f693cc69ca6c0b32ed2709c401e0d38ffdd07dc1794ba91fc2d5e7"
+  }
+]

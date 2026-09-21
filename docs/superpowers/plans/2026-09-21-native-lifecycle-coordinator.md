@@ -59,9 +59,9 @@ coordinator contract, cancellation limits and pair-gate claim boundaries.
   by the operator. Do not discover or contact unrelated machines.
 - [x] Bound evidence transfer and reject traversal/symlinks/special files. Collect
   both peer outputs before independent pair validation. Preserve every failure.
-- [ ] Validate three native namespace smoke pairs and explicit cancellation/error
+- [x] Validate three native namespace smoke pairs and explicit cancellation/error
   cases with exact release/source provenance; state unexecuted SSH/hardware gaps.
-- [ ] Update the external runbook, preserve checksums, verify and commit.
+- [x] Update the external runbook, preserve checksums, verify and commit.
 
 ## Review focus
 
@@ -96,3 +96,14 @@ the correction and scoped re-review passed. Failed pre-phase output stays remote
 with local management/stderr retained and ownership explicitly unconfirmed.
 Release Docker smoke, live remote EOF cleanup, and real SSH validation are not
 yet claimed. No production Rust/Go or frozen contract changed.
+
+Live gate at 3dfd9f8a: three 16-bundle positive pairs, five 512-bundle positive
+pairs, three source EOF and three destination EOF cases pass. The first
+25db6831 integration failure (Python buffered-stdin daemon shutdown abort 134)
+is retained; the stop-aware descriptor reader correction has literal RED/GREEN
+and 107 passing focused tests. All fourteen new live cells pass their declared
+functional or negative-cancellation gates. Independent analysis verifies the
+coordinator and local hold/cooldown clocks, markers, socket bindings, peer
+provenance, successful ownership cleanup and separately observed process absence.
+See `evidence/performance/v2/native-lifecycle-coordinator-3dfd9f8a/summary.md`.
+Actual two-host SSH/physical-hardware validation remains explicitly unexecuted.
