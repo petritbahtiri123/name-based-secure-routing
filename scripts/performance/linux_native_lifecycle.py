@@ -89,6 +89,19 @@ def immutable_fixture(authority, lifecycle, role):
                 service={n: digest(lifecycle / '00' / n) for n in names})
 
 
+def wait_readiness(path, address, *, check_cancelled=not_cancelled):
+    """Management-only readiness wait; no transport exists during this wait."""
+    deadline = time.monotonic() + 30
+    while True:
+        check_cancelled()
+        if time.monotonic() >= deadline:
+            raise TimeoutError('prepared source readiness deadline')
+        try:
+            return readiness_endpoint(path, address)
+        except (FileNotFoundError, json.JSONDecodeError):
+            time.sleep(.01)
+
+
 def execute(args, *, check_cancelled=not_cancelled):
     require(platform.system() == 'Linux', 'Linux required')
     require(not any(k.startswith('NBSR_') for k in os.environ), 'remove inherited NBSR settings')
@@ -107,10 +120,13 @@ def execute(args, *, check_cancelled=not_cancelled):
     bind_ip, _ = validate_endpoint(args.bind, allow_zero=True)
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as probe:
         probe.bind((bind_ip, 0))
+    prepared = getattr(args, 'prepare_before_readiness', False)
+    require(not prepared or args.role == 'source', 'only source may prepare before readiness')
     if args.role == 'source':
         require(args.ready_input is not None and args.destination_address is not None,
                 'source requires transferred readiness and expected destination')
-        endpoint = readiness_endpoint(args.ready_input, args.destination_address)
+        require(not prepared or not args.ready_input.exists(), 'prepared source requires fresh readiness path')
+        endpoint = None if prepared else readiness_endpoint(args.ready_input, args.destination_address)
     else:
         require(args.ready_input is None and args.destination_address is None, 'unexpected readiness input')
         endpoint = None
@@ -120,24 +136,33 @@ def execute(args, *, check_cancelled=not_cancelled):
             and build.get('binary_sha256') == hashes and build.get('build_commands')
             and build.get('toolchains'), 'exact current release build manifest required')
     fixture = immutable_fixture(authority, lifecycle, args.role)
-    argv, overrides = command(role=args.role, count=args.count, shards=args.shards, rate=args.rate,
+    # Validate the declared workload before advertising preparation. The real
+    # endpoint is validated again after transfer; this placeholder is never run.
+    command(role=args.role, count=args.count, shards=args.shards, rate=args.rate,
         binaries=binaries, authority=authority, lifecycle=lifecycle, output=output,
-        bind=args.bind, endpoint=endpoint)
-    binary = Path(argv[0])
+        bind=args.bind, endpoint=f'{args.destination_address}:1' if prepared else endpoint)
+    binary = binaries / ('perf_rust_source' if args.role == 'source' else 'wp8_interop_server')
     require(os.access(binary, os.X_OK), 'executable peer required')
     host = environment(args.cores)
-    argv = [host['taskset'], '--cpu-list', ','.join(map(str, host['selected_cpus'])), *argv]
     check_cancelled()
     output.mkdir(parents=True, exist_ok=False)
     child = None
     try:
+        shutil.copyfile(binary, output / 'executed-binary')
+        if prepared:
+            write_json(output / 'source-prepared.json', dict(status='PREPARED_NOT_CONNECTED',
+                repository_sha=sha, timestamp_ns=time.monotonic_ns(), readiness_deadline_seconds=30))
+            endpoint = wait_readiness(args.ready_input, args.destination_address, check_cancelled=check_cancelled)
+        argv, overrides = command(role=args.role, count=args.count, shards=args.shards, rate=args.rate,
+            binaries=binaries, authority=authority, lifecycle=lifecycle, output=output,
+            bind=args.bind, endpoint=endpoint)
+        argv = [host['taskset'], '--cpu-list', ','.join(map(str, host['selected_cpus'])), *argv]
         write_json(output / 'environment.json', dict(repository_sha=sha, role=args.role,
             count=args.count, offered_rate=args.rate, source_shards=args.shards, linux_environment=host,
             uid=os.getuid(), binary_sha256=hashes, fixture_sha256=fixture,
             controller_deadline_seconds=120, timing='DIAGNOSTIC_ONLY', physical_host='NOT_PROVEN'))
         write_json(output / 'command.json', dict(argv=argv, environment_overrides=overrides))
         write_json(output / 'build-manifest.json', build)
-        shutil.copyfile(binary, output / 'executed-binary')
         if args.ready_input is not None:
             shutil.copyfile(args.ready_input, output / 'input-readiness.json')
         with (output / 'stdout').open('xb') as stdout, (output / 'stderr').open('xb') as stderr:
@@ -193,6 +218,8 @@ def main():
     parser.add_argument('--bind', required=True)
     parser.add_argument('--ready-input', type=Path)
     parser.add_argument('--destination-address')
+    parser.add_argument('--prepare-before-readiness', action='store_true',
+                        help='source: finish preflight/copy, publish prepared marker, then await fresh readiness')
     parser.add_argument('--count', type=int, choices=(16, 32, 64, 128, 256, 512), default=16)
     parser.add_argument('--shards', type=int, choices=(1, 2), default=2)
     parser.add_argument('--rate', type=int, default=100)

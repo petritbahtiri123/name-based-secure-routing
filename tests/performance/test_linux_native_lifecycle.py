@@ -70,8 +70,35 @@ def test_destination_requires_result_cardinality_and_explicit_final_cleanup():
             native.validate_result('destination', 16, rows, result)
 
 
+def test_prepared_readiness_retries_partial_publish_and_preserves_endpoint_validation(tmp_path, monkeypatch):
+    import json
+
+    path = tmp_path / 'ready.json'
+    writes = iter(['{', json.dumps(dict(endpoint='192.0.2.2:4444', alpn='nbsr-quic-1'))])
+    monkeypatch.setattr(native.time, 'sleep', lambda _: path.write_text(next(writes)))
+    assert native.wait_readiness(path, '192.0.2.2') == '192.0.2.2:4444'
+    with pytest.raises(ValueError, match='address/ALPN'):
+        native.wait_readiness(path, '192.0.2.3')
+
+
+def test_prepared_readiness_is_bounded_and_cancellable(tmp_path, monkeypatch):
+    times = iter([0, 0, 30])
+    monkeypatch.setattr(native.time, 'monotonic', lambda: next(times))
+    monkeypatch.setattr(native.time, 'sleep', lambda _: None)
+    with pytest.raises(TimeoutError, match='prepared source readiness deadline'):
+        native.wait_readiness(tmp_path / 'missing', '192.0.2.2')
+    monkeypatch.setattr(native.time, 'monotonic', lambda: 0)
+
+    def cancelled():
+        raise InterruptedError('cancel before transport')
+
+    with pytest.raises(InterruptedError, match='before transport'):
+        native.wait_readiness(tmp_path / 'missing', '192.0.2.2', check_cancelled=cancelled)
+
+
 @pytest.mark.parametrize('cancel', [False, True])
-def test_failed_owned_child_is_killed_reaped_and_failure_sealed(tmp_path, monkeypatch, cancel):
+@pytest.mark.parametrize('prepared', [False, True])
+def test_failed_owned_child_is_killed_reaped_and_failure_sealed(tmp_path, monkeypatch, cancel, prepared):
     import json
     from types import SimpleNamespace
 
@@ -87,7 +114,11 @@ def test_failed_owned_child_is_killed_reaped_and_failure_sealed(tmp_path, monkey
     output = tmp_path / 'output'
     args = SimpleNamespace(output=output, authority=authority, lifecycle=lifecycle, binaries=bins,
         build_manifest=build, bind='127.0.0.1:0', role='destination', count=16, shards=2, rate=100,
-        cores=1, ready_input=None, destination_address=None)
+        cores=1, ready_input=None, destination_address=None, prepare_before_readiness=prepared)
+    if prepared:
+        args.role = 'source'
+        args.ready_input = tmp_path / 'ready.json'
+        args.destination_address = '127.0.0.1'
     events = []
 
     class Child:
@@ -111,6 +142,13 @@ def test_failed_owned_child_is_killed_reaped_and_failure_sealed(tmp_path, monkey
         if cancel and 'spawn' in events:
             raise InterruptedError('cancel fixture')
 
+    def readiness(path, expected):
+        assert (output / 'executed-binary').read_bytes() == b'executable fixture'
+        assert json.loads((output / 'source-prepared.json').read_text())['status'] == 'PREPARED_NOT_CONNECTED'
+        assert 'spawn' not in events
+        path.write_text('{}')
+        return '127.0.0.1:4444'
+
     monkeypatch.setattr(native.platform, 'system', lambda: 'Linux')
     monkeypatch.setattr(native, 'git_state', lambda: ('a' * 40, ''))
     monkeypatch.setattr(native, 'environment', lambda _: dict(selected_cpus=[0], taskset='taskset'))
@@ -122,6 +160,7 @@ def test_failed_owned_child_is_killed_reaped_and_failure_sealed(tmp_path, monkey
     monkeypatch.setattr(native.subprocess, 'Popen', launch)
     monkeypatch.setattr(native, 'wait_target_exec', lambda *a, **kw: None)
     monkeypatch.setattr(native, 'observe_child', fail)
+    monkeypatch.setattr(native, 'readiness_endpoint', readiness)
     with pytest.raises((RuntimeError, InterruptedError)):
         native.execute(args, check_cancelled=cancellation)
     assert events == ['spawn', ('kill', 123), 'wait']

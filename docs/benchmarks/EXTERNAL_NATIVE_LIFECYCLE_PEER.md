@@ -52,7 +52,23 @@ python3 -m scripts.performance.linux_native_lifecycle \
 
 ## Coordinator contract and limits
 
-1. Launch the destination, transfer readiness, then launch the source. Publish
+For a newly coordinated run, start the source wrapper first with
+`--prepare-before-readiness` and a fresh, not-yet-existing `--ready-input` file.
+Wait for `source-prepared.json` in its output, then launch the destination and
+transfer readiness. The source has already hashed the release binaries,
+checked fixtures/topology and copied its evidence executable before this marker.
+It waits at most 30 seconds for valid readiness, remains cancellable, and has
+not created a transport yet. Existing transport deadlines are unchanged.
+Readiness address/ALPN validation remains mandatory. Publish readiness promptly;
+this management barrier does not guarantee timing on distant hosts.
+
+This ordering avoids spending the destination's finite acceptance slots while
+source preflight runs. Historical 512 failure cells started the source about
+5.43 and 20.05 seconds after the destination and logged respectively one and
+four destination handshake timeouts, matching the missing terminal clients.
+The original results remain failures; successful reruns cannot replace them.
+
+1. Prepare the source as above, launch the destination, then transfer readiness. Publish
    all named source `connection-N.start` markers; the source performs its existing
    finite offered-rate pacing. Do not burst-launch one process per connection.
 2. Require every source `connection-N.active` and destination
