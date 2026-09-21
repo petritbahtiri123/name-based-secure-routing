@@ -1,0 +1,826 @@
+{
+  "source_sha": "a1ac83c8431836d5cd2b4a9bd04a7947a2a71a3b",
+  "classification": "PARTIAL_FUNCTIONAL_NAMESPACE_SCALE",
+  "controlled_startup": {
+    "legacy_failures": 3,
+    "prepared_passes": 3
+  },
+  "largest_five_repeat_successful_native_bundles": 256,
+  "scale_successes": 3,
+  "scale_failures": 2,
+  "total_scale_completed": 1536,
+  "median_scale_peak_resources": {
+    "source": {
+      "peak_rss_bytes": 204865536,
+      "peak_fd_count": 524,
+      "peak_threads": 4
+    },
+    "destination": {
+      "peak_rss_bytes": 175767552,
+      "peak_fd_count": 9,
+      "peak_threads": 2
+    }
+  },
+  "records": [
+    {
+      "root": "C:\\NBSR-build\\native-prepared-counterfactual-a1ac83c8-cached",
+      "label": "legacy-16-r1",
+      "count": 16,
+      "status": "FAIL_RETAINED",
+      "startup_gap_seconds": 8.298820558,
+      "destination_timeout_count": 1,
+      "source_errors": [
+        {
+          "logical_client_id": 15,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        }
+      ],
+      "resources": {
+        "source": {
+          "peak_rss_bytes": 13369344,
+          "peak_fd_count": 27,
+          "peak_threads": 4
+        },
+        "destination": {
+          "peak_rss_bytes": 10485760,
+          "peak_fd_count": 8,
+          "peak_threads": 2
+        }
+      },
+      "pair_rejected": "failed or forced peer cannot pass"
+    },
+    {
+      "root": "C:\\NBSR-build\\native-prepared-counterfactual-a1ac83c8-cached",
+      "label": "prepared-16-r1",
+      "count": 16,
+      "status": "PASS_FUNCTIONAL",
+      "startup_gap_seconds": 0.050102498,
+      "destination_timeout_count": 0,
+      "source_errors": [],
+      "resources": {
+        "source": {
+          "peak_rss_bytes": 12976128,
+          "peak_fd_count": 27,
+          "peak_threads": 4
+        },
+        "destination": {
+          "peak_rss_bytes": 11665408,
+          "peak_fd_count": 8,
+          "peak_threads": 2
+        }
+      },
+      "pair": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "a1ac83c8431836d5cd2b4a9bd04a7947a2a71a3b",
+        "successful_connections": 16,
+        "source_index_sha256": "208cc07af5bc35d70b3eb83a348e5c2d19ef2d797b1534893ec39598c81e017e",
+        "destination_index_sha256": "46c38bc398cf0b4c95dcafa42b8fd2cc01522f73ddfd419773b52093c5f2b3b8",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      }
+    },
+    {
+      "root": "C:\\NBSR-build\\native-prepared-counterfactual-a1ac83c8-cached",
+      "label": "prepared-16-r2",
+      "count": 16,
+      "status": "PASS_FUNCTIONAL",
+      "startup_gap_seconds": 0.088551357,
+      "destination_timeout_count": 0,
+      "source_errors": [],
+      "resources": {
+        "source": {
+          "peak_rss_bytes": 13107200,
+          "peak_fd_count": 27,
+          "peak_threads": 4
+        },
+        "destination": {
+          "peak_rss_bytes": 11141120,
+          "peak_fd_count": 8,
+          "peak_threads": 2
+        }
+      },
+      "pair": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "a1ac83c8431836d5cd2b4a9bd04a7947a2a71a3b",
+        "successful_connections": 16,
+        "source_index_sha256": "af18bd0c1b98b433884ea58d3dffa732d00009db393eb7ff6caea3181c173e73",
+        "destination_index_sha256": "0c74f4e88d1706d5d93f687d4f473bcfdcd8cff15052dafa14c2a27483f999a6",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      }
+    },
+    {
+      "root": "C:\\NBSR-build\\native-prepared-counterfactual-a1ac83c8-cached",
+      "label": "legacy-16-r2",
+      "count": 16,
+      "status": "FAIL_RETAINED",
+      "startup_gap_seconds": 7.188916492,
+      "destination_timeout_count": 1,
+      "source_errors": [
+        {
+          "logical_client_id": 15,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        }
+      ],
+      "resources": {
+        "source": {
+          "peak_rss_bytes": 13107200,
+          "peak_fd_count": 27,
+          "peak_threads": 4
+        },
+        "destination": {
+          "peak_rss_bytes": 10616832,
+          "peak_fd_count": 8,
+          "peak_threads": 2
+        }
+      },
+      "pair_rejected": "failed or forced peer cannot pass"
+    },
+    {
+      "root": "C:\\NBSR-build\\native-prepared-counterfactual-a1ac83c8-cached",
+      "label": "legacy-16-r3",
+      "count": 16,
+      "status": "FAIL_RETAINED",
+      "startup_gap_seconds": 7.306633333,
+      "destination_timeout_count": 1,
+      "source_errors": [
+        {
+          "logical_client_id": 15,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        }
+      ],
+      "resources": {
+        "source": {
+          "peak_rss_bytes": 13107200,
+          "peak_fd_count": 27,
+          "peak_threads": 4
+        },
+        "destination": {
+          "peak_rss_bytes": 10747904,
+          "peak_fd_count": 8,
+          "peak_threads": 2
+        }
+      },
+      "pair_rejected": "failed or forced peer cannot pass"
+    },
+    {
+      "root": "C:\\NBSR-build\\native-prepared-counterfactual-a1ac83c8-cached",
+      "label": "prepared-16-r3",
+      "count": 16,
+      "status": "PASS_FUNCTIONAL",
+      "startup_gap_seconds": 0.050276333,
+      "destination_timeout_count": 0,
+      "source_errors": [],
+      "resources": {
+        "source": {
+          "peak_rss_bytes": 13369344,
+          "peak_fd_count": 27,
+          "peak_threads": 4
+        },
+        "destination": {
+          "peak_rss_bytes": 11010048,
+          "peak_fd_count": 8,
+          "peak_threads": 2
+        }
+      },
+      "pair": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "a1ac83c8431836d5cd2b4a9bd04a7947a2a71a3b",
+        "successful_connections": 16,
+        "source_index_sha256": "e5e5df2286d07df9ed60c9905edf2627c8c3ce926a5aa2afe7a1e65200d2fdf7",
+        "destination_index_sha256": "4c992beb6351b401c5a3fe6202eebc4d13830355e85e379470fd4a5c7137fd11",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      }
+    },
+    {
+      "root": "C:\\NBSR-build\\native-prepared-local-observer512-a1ac83c8",
+      "label": "prepared-512-r1",
+      "count": 512,
+      "status": "PASS_FUNCTIONAL",
+      "startup_gap_seconds": 0.043500394,
+      "destination_timeout_count": 0,
+      "source_errors": [],
+      "resources": {
+        "source": {
+          "peak_rss_bytes": 217317376,
+          "peak_fd_count": 523,
+          "peak_threads": 4
+        },
+        "destination": {
+          "peak_rss_bytes": 182452224,
+          "peak_fd_count": 9,
+          "peak_threads": 2
+        }
+      },
+      "pair": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "a1ac83c8431836d5cd2b4a9bd04a7947a2a71a3b",
+        "successful_connections": 512,
+        "source_index_sha256": "e71b2d452aaece32ab543da749b60c0443c33571c2bda7a4144fd367f9c9b69c",
+        "destination_index_sha256": "9379a59e4e53df35a583c08bea35d0a4b5e8c8a56fe04c89b7989b66555ee665",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      }
+    },
+    {
+      "root": "C:\\NBSR-build\\native-prepared-local-observer512-a1ac83c8",
+      "label": "prepared-512-r2",
+      "count": 512,
+      "status": "PASS_FUNCTIONAL",
+      "startup_gap_seconds": 0.140323906,
+      "destination_timeout_count": 0,
+      "source_errors": [],
+      "resources": {
+        "source": {
+          "peak_rss_bytes": 198574080,
+          "peak_fd_count": 524,
+          "peak_threads": 4
+        },
+        "destination": {
+          "peak_rss_bytes": 174850048,
+          "peak_fd_count": 9,
+          "peak_threads": 2
+        }
+      },
+      "pair": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "a1ac83c8431836d5cd2b4a9bd04a7947a2a71a3b",
+        "successful_connections": 512,
+        "source_index_sha256": "8638f35a7ec889a1772425d09404eeded626a56bdb7848c1c9f9e85499e85148",
+        "destination_index_sha256": "65772799e35c3148999f7f192d80e762d72e6d478ba17f6d618565dfafb8835d",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      }
+    },
+    {
+      "root": "C:\\NBSR-build\\native-prepared-local-observer512-a1ac83c8",
+      "label": "prepared-512-r3",
+      "count": 512,
+      "status": "FAIL_RETAINED",
+      "startup_gap_seconds": 0.14360299,
+      "destination_timeout_count": 0,
+      "source_errors": [
+        {
+          "logical_client_id": 13,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 15,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 17,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 19,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 21,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 23,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 25,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 27,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 29,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 31,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 33,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 35,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 37,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 39,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 41,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 43,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 45,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 47,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 49,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 10,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 12,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 14,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 16,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 18,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 20,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 22,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 24,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 51,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 26,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 28,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 30,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 32,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 34,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 36,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 38,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 40,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 42,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 44,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 46,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 48,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 50,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 52,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 53,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        }
+      ],
+      "resources": {
+        "source": {
+          "peak_rss_bytes": 161873920,
+          "peak_fd_count": 512,
+          "peak_threads": 4
+        },
+        "destination": {
+          "peak_rss_bytes": 12058624,
+          "peak_fd_count": 8,
+          "peak_threads": 2
+        }
+      },
+      "pair_rejected": "failed or forced peer cannot pass"
+    },
+    {
+      "root": "C:\\NBSR-build\\native-prepared-local-observer512-a1ac83c8",
+      "label": "prepared-512-r4",
+      "count": 512,
+      "status": "PASS_FUNCTIONAL",
+      "startup_gap_seconds": 0.082094445,
+      "destination_timeout_count": 0,
+      "source_errors": [],
+      "resources": {
+        "source": {
+          "peak_rss_bytes": 204865536,
+          "peak_fd_count": 524,
+          "peak_threads": 4
+        },
+        "destination": {
+          "peak_rss_bytes": 175767552,
+          "peak_fd_count": 8,
+          "peak_threads": 2
+        }
+      },
+      "pair": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "a1ac83c8431836d5cd2b4a9bd04a7947a2a71a3b",
+        "successful_connections": 512,
+        "source_index_sha256": "0f9416dd5814930592e2b10d619868414b34fa0c526e69c0c8358c54ff997cb5",
+        "destination_index_sha256": "c314ee6def71b4ea15b2c1080a19f27c88c3d9a0c4a2d7e6e8e5a65c0bbcd174",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      }
+    },
+    {
+      "root": "C:\\NBSR-build\\native-prepared-local-observer512-a1ac83c8",
+      "label": "prepared-512-r5",
+      "count": 512,
+      "status": "FAIL_RETAINED",
+      "startup_gap_seconds": 0.113742937,
+      "destination_timeout_count": 0,
+      "source_errors": [
+        {
+          "logical_client_id": 201,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 203,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 204,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 206,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 207,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 210,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 209,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 212,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 211,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        }
+      ],
+      "resources": {
+        "source": {
+          "peak_rss_bytes": 176816128,
+          "peak_fd_count": 524,
+          "peak_threads": 4
+        },
+        "destination": {
+          "peak_rss_bytes": 72351744,
+          "peak_fd_count": 8,
+          "peak_threads": 2
+        }
+      },
+      "pair_rejected": "failed or forced peer cannot pass"
+    }
+  ],
+  "limitations": [
+    "Not sustainable admission, forwarding capacity, physical cores or external server hardware.",
+    "Separate-process repetitions; not same-process memory retention or per-object allocation cost.",
+    "Original failure cohorts remain retained; observer scheduling changed for the final scale cohort.",
+    "Shared-WSL monotonic comparison only; not a cross-physical-host clock assumption.",
+    "Two-second paired hold is controller evidence; peer pair gate does not independently prove it."
+  ]
+}

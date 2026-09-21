@@ -1,0 +1,474 @@
+{
+  "classification": "DIAGNOSTIC_SUPPORTED_STARTUP_SLOT_EXHAUSTION",
+  "raw_root": "C:\\NBSR-build\\native-control-scale512-a401567d",
+  "records": [
+    {
+      "label": "local-512-r1",
+      "first_resource_sample_gap_seconds": 4.551000903,
+      "start_ticks_gap": 455,
+      "destination_timeout_count": 0,
+      "source_failed_ids": [],
+      "source_errors": [],
+      "predicted_empty_wait_slots": 0,
+      "diagnostic_trajectory": [
+        {
+          "seconds": 1.00010653,
+          "quic_connections_created": 0
+        },
+        {
+          "seconds": 2.000217661,
+          "quic_connections_created": 0
+        },
+        {
+          "seconds": 3.000353594,
+          "quic_connections_created": 0
+        },
+        {
+          "seconds": 4.000444724,
+          "quic_connections_created": 0
+        },
+        {
+          "seconds": 5.000537806,
+          "quic_connections_created": 45
+        },
+        {
+          "seconds": 6.000735277,
+          "quic_connections_created": 145
+        },
+        {
+          "seconds": 7.000981252,
+          "quic_connections_created": 244
+        },
+        {
+          "seconds": 8.00112402,
+          "quic_connections_created": 345
+        },
+        {
+          "seconds": 9.001213585,
+          "quic_connections_created": 445
+        },
+        {
+          "seconds": 10.001609768,
+          "quic_connections_created": 512
+        },
+        {
+          "seconds": 11.001764837,
+          "quic_connections_created": 512
+        },
+        {
+          "seconds": 12.002454736,
+          "quic_connections_created": 512
+        },
+        {
+          "seconds": 13.008706116,
+          "quic_connections_created": 512
+        },
+        {
+          "seconds": 14.008827125,
+          "quic_connections_created": 512
+        },
+        {
+          "seconds": 15.008921233,
+          "quic_connections_created": 512
+        },
+        {
+          "seconds": 16.009020641,
+          "quic_connections_created": 512
+        },
+        {
+          "seconds": 17.00911905,
+          "quic_connections_created": 512
+        },
+        {
+          "seconds": 17.118717441,
+          "quic_connections_created": 512
+        }
+      ]
+    },
+    {
+      "label": "local-512-r2",
+      "first_resource_sample_gap_seconds": 5.433577002,
+      "start_ticks_gap": 544,
+      "destination_timeout_count": 1,
+      "source_failed_ids": [
+        511
+      ],
+      "source_errors": [
+        {
+          "logical_client_id": 511,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        }
+      ],
+      "predicted_empty_wait_slots": 1,
+      "diagnostic_trajectory": [
+        {
+          "seconds": 1.000098432,
+          "quic_connections_created": 0
+        },
+        {
+          "seconds": 2.000247893,
+          "quic_connections_created": 0
+        },
+        {
+          "seconds": 3.000373553,
+          "quic_connections_created": 0
+        },
+        {
+          "seconds": 4.000478212,
+          "quic_connections_created": 0
+        },
+        {
+          "seconds": 5.000584871,
+          "quic_connections_created": 0
+        },
+        {
+          "seconds": 6.00137197,
+          "quic_connections_created": 56
+        },
+        {
+          "seconds": 7.001930656,
+          "quic_connections_created": 152
+        },
+        {
+          "seconds": 8.002896966,
+          "quic_connections_created": 248
+        },
+        {
+          "seconds": 9.003020358,
+          "quic_connections_created": 348
+        }
+      ]
+    },
+    {
+      "label": "local-512-r3",
+      "first_resource_sample_gap_seconds": 20.052835813,
+      "start_ticks_gap": 2003,
+      "destination_timeout_count": 4,
+      "source_failed_ids": [
+        508,
+        509,
+        510,
+        511
+      ],
+      "source_errors": [
+        {
+          "logical_client_id": 508,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 509,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 510,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        },
+        {
+          "logical_client_id": 511,
+          "success": false,
+          "error": "HandshakeTimeout",
+          "timed_out": true
+        }
+      ],
+      "predicted_empty_wait_slots": 4,
+      "diagnostic_trajectory": [
+        {
+          "seconds": 1.000206548,
+          "quic_connections_created": 0
+        },
+        {
+          "seconds": 2.000377593,
+          "quic_connections_created": 0
+        },
+        {
+          "seconds": 3.00057304,
+          "quic_connections_created": 0
+        },
+        {
+          "seconds": 4.000741247,
+          "quic_connections_created": 0
+        },
+        {
+          "seconds": 5.000905425,
+          "quic_connections_created": 0
+        },
+        {
+          "seconds": 6.005220743,
+          "quic_connections_created": 0
+        },
+        {
+          "seconds": 7.005419023,
+          "quic_connections_created": 0
+        },
+        {
+          "seconds": 8.005579801,
+          "quic_connections_created": 0
+        },
+        {
+          "seconds": 9.00575688,
+          "quic_connections_created": 0
+        },
+        {
+          "seconds": 10.012315128,
+          "quic_connections_created": 0
+        },
+        {
+          "seconds": 11.012507208,
+          "quic_connections_created": 0
+        },
+        {
+          "seconds": 12.012643986,
+          "quic_connections_created": 0
+        },
+        {
+          "seconds": 13.012819169,
+          "quic_connections_created": 0
+        },
+        {
+          "seconds": 14.013286969,
+          "quic_connections_created": 0
+        },
+        {
+          "seconds": 15.015672581,
+          "quic_connections_created": 0
+        },
+        {
+          "seconds": 16.015846464,
+          "quic_connections_created": 0
+        },
+        {
+          "seconds": 17.015997045,
+          "quic_connections_created": 0
+        },
+        {
+          "seconds": 18.016833567,
+          "quic_connections_created": 0
+        },
+        {
+          "seconds": 19.016987549,
+          "quic_connections_created": 0
+        },
+        {
+          "seconds": 20.017700775,
+          "quic_connections_created": 0
+        },
+        {
+          "seconds": 21.017862086,
+          "quic_connections_created": 11
+        },
+        {
+          "seconds": 22.018015196,
+          "quic_connections_created": 21
+        },
+        {
+          "seconds": 23.020066617,
+          "quic_connections_created": 112
+        },
+        {
+          "seconds": 24.020220227,
+          "quic_connections_created": 166
+        },
+        {
+          "seconds": 25.022202243,
+          "quic_connections_created": 224
+        },
+        {
+          "seconds": 26.02229765,
+          "quic_connections_created": 376
+        },
+        {
+          "seconds": 27.022398357,
+          "quic_connections_created": 488
+        },
+        {
+          "seconds": 28.022505556,
+          "quic_connections_created": 508
+        },
+        {
+          "seconds": 29.022600842,
+          "quic_connections_created": 508
+        }
+      ]
+    },
+    {
+      "label": "local-512-r4",
+      "first_resource_sample_gap_seconds": 4.963391629,
+      "start_ticks_gap": 496,
+      "destination_timeout_count": 0,
+      "source_failed_ids": [],
+      "source_errors": [],
+      "predicted_empty_wait_slots": 0,
+      "diagnostic_trajectory": [
+        {
+          "seconds": 1.000183812,
+          "quic_connections_created": 0
+        },
+        {
+          "seconds": 2.000307222,
+          "quic_connections_created": 0
+        },
+        {
+          "seconds": 3.000442032,
+          "quic_connections_created": 0
+        },
+        {
+          "seconds": 4.000831458,
+          "quic_connections_created": 0
+        },
+        {
+          "seconds": 5.001023372,
+          "quic_connections_created": 0
+        },
+        {
+          "seconds": 6.001104379,
+          "quic_connections_created": 104
+        },
+        {
+          "seconds": 7.001219388,
+          "quic_connections_created": 204
+        },
+        {
+          "seconds": 8.001410089,
+          "quic_connections_created": 302
+        },
+        {
+          "seconds": 9.001703655,
+          "quic_connections_created": 397
+        },
+        {
+          "seconds": 10.004987299,
+          "quic_connections_created": 466
+        },
+        {
+          "seconds": 11.005104754,
+          "quic_connections_created": 512
+        },
+        {
+          "seconds": 12.00523341,
+          "quic_connections_created": 512
+        },
+        {
+          "seconds": 13.005377767,
+          "quic_connections_created": 512
+        },
+        {
+          "seconds": 14.00561023,
+          "quic_connections_created": 512
+        },
+        {
+          "seconds": 15.005757987,
+          "quic_connections_created": 512
+        },
+        {
+          "seconds": 16.005855259,
+          "quic_connections_created": 512
+        },
+        {
+          "seconds": 17.006055022,
+          "quic_connections_created": 512
+        },
+        {
+          "seconds": 17.936661296,
+          "quic_connections_created": 512
+        }
+      ]
+    },
+    {
+      "label": "local-512-r5",
+      "first_resource_sample_gap_seconds": 4.53975633,
+      "start_ticks_gap": 454,
+      "destination_timeout_count": 0,
+      "source_failed_ids": [],
+      "source_errors": [],
+      "predicted_empty_wait_slots": 0,
+      "diagnostic_trajectory": [
+        {
+          "seconds": 1.000203772,
+          "quic_connections_created": 0
+        },
+        {
+          "seconds": 2.000302059,
+          "quic_connections_created": 0
+        },
+        {
+          "seconds": 3.000408848,
+          "quic_connections_created": 0
+        },
+        {
+          "seconds": 4.000505835,
+          "quic_connections_created": 0
+        },
+        {
+          "seconds": 5.000619724,
+          "quic_connections_created": 42
+        },
+        {
+          "seconds": 6.000745713,
+          "quic_connections_created": 142
+        },
+        {
+          "seconds": 7.002420386,
+          "quic_connections_created": 244
+        },
+        {
+          "seconds": 8.002501173,
+          "quic_connections_created": 346
+        },
+        {
+          "seconds": 9.002801026,
+          "quic_connections_created": 436
+        },
+        {
+          "seconds": 10.004261707,
+          "quic_connections_created": 508
+        },
+        {
+          "seconds": 11.00435781,
+          "quic_connections_created": 512
+        },
+        {
+          "seconds": 12.005170654,
+          "quic_connections_created": 512
+        },
+        {
+          "seconds": 13.00533286,
+          "quic_connections_created": 512
+        },
+        {
+          "seconds": 14.005428262,
+          "quic_connections_created": 512
+        },
+        {
+          "seconds": 15.005541866,
+          "quic_connections_created": 512
+        },
+        {
+          "seconds": 16.00566577,
+          "quic_connections_created": 512
+        },
+        {
+          "seconds": 17.005860478,
+          "quic_connections_created": 512
+        },
+        {
+          "seconds": 17.348291633,
+          "quic_connections_created": 512
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "First resource sample gaps are sampled process timing, not exact accept-arm timestamps.",
+    "Shared WSL clock; not applicable to independent host monotonic clocks.",
+    "This analysis alone is correlation. Controlled delayed-start experiment is separate.",
+    "No attribution of historical Windows admission collapse or production ceiling."
+  ]
+}

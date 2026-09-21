@@ -1,0 +1,212 @@
+..FF                                                                     [100%]
+================================== FAILURES ===================================
+___ test_failed_owned_child_is_killed_reaped_and_failure_sealed[True-False] ___
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1131/test_failed_owned_child_is_kil2')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002A250D98DD0>
+cancel = False, prepared = True
+
+    @pytest.mark.parametrize('cancel', [False, True])
+    @pytest.mark.parametrize('prepared', [False, True])
+    def test_failed_owned_child_is_killed_reaped_and_failure_sealed(tmp_path, monkeypatch, cancel, prepared):
+        import json
+        from types import SimpleNamespace
+    
+        bins, authority, lifecycle = (tmp_path / n for n in ('bins', 'authority', 'lifecycle'))
+        for p in (bins, authority, lifecycle):
+            p.mkdir()
+        for name in native.NAMES.values():
+            (bins / name).write_bytes(b'executable fixture')
+        build = tmp_path / 'build.json'
+        build.write_text(json.dumps(dict(source_sha='a' * 40, build_profile='release',
+            binary_sha256={n: native.digest(bins / n) for n in native.NAMES.values()},
+            build_commands=['fixture'], toolchains={'fixture': True})))
+        output = tmp_path / 'output'
+        args = SimpleNamespace(output=output, authority=authority, lifecycle=lifecycle, binaries=bins,
+            build_manifest=build, bind='127.0.0.1:0', role='destination', count=16, shards=2, rate=100,
+            cores=1, ready_input=None, destination_address=None, prepare_before_readiness=prepared)
+        if prepared:
+            args.role = 'source'
+            args.ready_input = tmp_path / 'ready.json'
+            args.destination_address = '127.0.0.1'
+        events = []
+    
+        class Child:
+            pid = 123
+            returncode = None
+    
+            def wait(self, timeout):
+                events.append('wait')
+                self.returncode = -9
+                return -9
+    
+        def launch(*a, **kw):
+            assert kw['start_new_session']
+            events.append('spawn')
+            return Child()
+    
+        def fail(*a, **kw):
+            raise RuntimeError('sampler failure fixture')
+    
+        def cancellation():
+            if cancel and 'spawn' in events:
+                raise InterruptedError('cancel fixture')
+    
+        def readiness(path, expected):
+            assert (output / 'executed-binary').read_bytes() == b'executable fixture'
+            assert json.loads((output / 'source-prepared.json').read_text())['status'] == 'PREPARED_NOT_CONNECTED'
+            assert 'spawn' not in events
+            path.write_text('{}')
+            return '127.0.0.1:4444'
+    
+        monkeypatch.setattr(native.platform, 'system', lambda: 'Linux')
+        monkeypatch.setattr(native, 'git_state', lambda: ('a' * 40, ''))
+        monkeypatch.setattr(native, 'environment', lambda _: dict(selected_cpus=[0], taskset='taskset'))
+        monkeypatch.setattr(native, 'immutable_fixture', lambda *a: {'fixture': True})
+        monkeypatch.setattr(native.os, 'environ', {})
+        monkeypatch.setattr(native.os, 'getuid', lambda: 1000, raising=False)
+        monkeypatch.setattr(native.os, 'killpg', lambda pid, sig: events.append(('kill', pid)), raising=False)
+        monkeypatch.setattr(native.signal, 'SIGKILL', 9, raising=False)
+        monkeypatch.setattr(native.subprocess, 'Popen', launch)
+        monkeypatch.setattr(native, 'wait_target_exec', lambda *a, **kw: None)
+        monkeypatch.setattr(native, 'observe_child', fail)
+        monkeypatch.setattr(native, 'readiness_endpoint', readiness)
+        with pytest.raises((RuntimeError, InterruptedError)):
+>           native.execute(args, check_cancelled=cancellation)
+
+tests\performance\test_linux_native_lifecycle.py:139: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+scripts\performance\linux_native_lifecycle.py:113: in execute
+    endpoint = readiness_endpoint(args.ready_input, args.destination_address)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\performance\test_linux_native_lifecycle.py:120: in readiness
+    assert (output / 'executed-binary').read_bytes() == b'executable fixture'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Local\Programs\Python\Python314\Lib\pathlib\__init__.py:777: in read_bytes
+    with self.open(mode='rb', buffering=0) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1131/test_failed_owned_child_is_kil2/output/executed-binary')
+mode = 'rb', buffering = 0, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\bajra\\AppData\\Local\\Temp\\pytest-of-bajra\\pytest-1131\\test_failed_owned_child_is_kil2\\output\\executed-binary'
+
+..\..\..\AppData\Local\Programs\Python\Python314\Lib\pathlib\__init__.py:771: FileNotFoundError
+___ test_failed_owned_child_is_killed_reaped_and_failure_sealed[True-True] ____
+
+tmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1131/test_failed_owned_child_is_kil3')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002A250E50270>
+cancel = True, prepared = True
+
+    @pytest.mark.parametrize('cancel', [False, True])
+    @pytest.mark.parametrize('prepared', [False, True])
+    def test_failed_owned_child_is_killed_reaped_and_failure_sealed(tmp_path, monkeypatch, cancel, prepared):
+        import json
+        from types import SimpleNamespace
+    
+        bins, authority, lifecycle = (tmp_path / n for n in ('bins', 'authority', 'lifecycle'))
+        for p in (bins, authority, lifecycle):
+            p.mkdir()
+        for name in native.NAMES.values():
+            (bins / name).write_bytes(b'executable fixture')
+        build = tmp_path / 'build.json'
+        build.write_text(json.dumps(dict(source_sha='a' * 40, build_profile='release',
+            binary_sha256={n: native.digest(bins / n) for n in native.NAMES.values()},
+            build_commands=['fixture'], toolchains={'fixture': True})))
+        output = tmp_path / 'output'
+        args = SimpleNamespace(output=output, authority=authority, lifecycle=lifecycle, binaries=bins,
+            build_manifest=build, bind='127.0.0.1:0', role='destination', count=16, shards=2, rate=100,
+            cores=1, ready_input=None, destination_address=None, prepare_before_readiness=prepared)
+        if prepared:
+            args.role = 'source'
+            args.ready_input = tmp_path / 'ready.json'
+            args.destination_address = '127.0.0.1'
+        events = []
+    
+        class Child:
+            pid = 123
+            returncode = None
+    
+            def wait(self, timeout):
+                events.append('wait')
+                self.returncode = -9
+                return -9
+    
+        def launch(*a, **kw):
+            assert kw['start_new_session']
+            events.append('spawn')
+            return Child()
+    
+        def fail(*a, **kw):
+            raise RuntimeError('sampler failure fixture')
+    
+        def cancellation():
+            if cancel and 'spawn' in events:
+                raise InterruptedError('cancel fixture')
+    
+        def readiness(path, expected):
+            assert (output / 'executed-binary').read_bytes() == b'executable fixture'
+            assert json.loads((output / 'source-prepared.json').read_text())['status'] == 'PREPARED_NOT_CONNECTED'
+            assert 'spawn' not in events
+            path.write_text('{}')
+            return '127.0.0.1:4444'
+    
+        monkeypatch.setattr(native.platform, 'system', lambda: 'Linux')
+        monkeypatch.setattr(native, 'git_state', lambda: ('a' * 40, ''))
+        monkeypatch.setattr(native, 'environment', lambda _: dict(selected_cpus=[0], taskset='taskset'))
+        monkeypatch.setattr(native, 'immutable_fixture', lambda *a: {'fixture': True})
+        monkeypatch.setattr(native.os, 'environ', {})
+        monkeypatch.setattr(native.os, 'getuid', lambda: 1000, raising=False)
+        monkeypatch.setattr(native.os, 'killpg', lambda pid, sig: events.append(('kill', pid)), raising=False)
+        monkeypatch.setattr(native.signal, 'SIGKILL', 9, raising=False)
+        monkeypatch.setattr(native.subprocess, 'Popen', launch)
+        monkeypatch.setattr(native, 'wait_target_exec', lambda *a, **kw: None)
+        monkeypatch.setattr(native, 'observe_child', fail)
+        monkeypatch.setattr(native, 'readiness_endpoint', readiness)
+        with pytest.raises((RuntimeError, InterruptedError)):
+>           native.execute(args, check_cancelled=cancellation)
+
+tests\performance\test_linux_native_lifecycle.py:139: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+scripts\performance\linux_native_lifecycle.py:113: in execute
+    endpoint = readiness_endpoint(args.ready_input, args.destination_address)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\performance\test_linux_native_lifecycle.py:120: in readiness
+    assert (output / 'executed-binary').read_bytes() == b'executable fixture'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Local\Programs\Python\Python314\Lib\pathlib\__init__.py:777: in read_bytes
+    with self.open(mode='rb', buffering=0) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('C:/Users/bajra/AppData/Local/Temp/pytest-of-bajra/pytest-1131/test_failed_owned_child_is_kil3/output/executed-binary')
+mode = 'rb', buffering = 0, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\bajra\\AppData\\Local\\Temp\\pytest-of-bajra\\pytest-1131\\test_failed_owned_child_is_kil3\\output\\executed-binary'
+
+..\..\..\AppData\Local\Programs\Python\Python314\Lib\pathlib\__init__.py:771: FileNotFoundError
+=========================== short test summary info ===========================
+FAILED tests/performance/test_linux_native_lifecycle.py::test_failed_owned_child_is_killed_reaped_and_failure_sealed[True-False]
+FAILED tests/performance/test_linux_native_lifecycle.py::test_failed_owned_child_is_killed_reaped_and_failure_sealed[True-True]
+2 failed, 2 passed, 12 deselected in 3.93s

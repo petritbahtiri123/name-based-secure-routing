@@ -1,0 +1,10 @@
+{
+  "status": "PASS_SCOPED_VERIFICATION",
+  "raw_index_entries_verified": 35405,
+  "raw_verification": "python C:/NBSR-build/verify-focused-evidence-20260916.py native-prepared-source-a1ac83c8",
+  "tests": "33 passed: test_linux_native_lifecycle.py and test_linux_native_lifecycle_pair.py",
+  "ruff": "PASS: changed Python module and test",
+  "review": "Focused parent review: optional source-only barrier, fresh readiness, mandatory address/ALPN checks, bounded cancellable pre-transport wait, exact release hashes, unchanged protocol and transport timers, failed outcomes retained. No production optimization or 512 stability claim.",
+  "unchanged_rust_binary_hashes": true,
+  "limits": "No fresh Go/full-security suite; no Go, production Rust or frozen authority changes."
+}

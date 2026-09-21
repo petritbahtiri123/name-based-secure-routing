@@ -134,3 +134,15 @@ is functional storage sensitivity, not qualified causal timing attribution.
 The next Linux-local 512 group completes only 3/5 and remains PARTIAL.
 See [storage comparison](../../evidence/performance/v2/native-control-storage-a401567d/summary.md)
 and [all 512 outcomes](../../evidence/performance/v2/native-control-scale512-a401567d/summary.md).
+
+At a1ac83c8, three controlled delayed-management pairs prove the prepared-source
+ordering fix: legacy order fails 3/3 at 15/16, prepared order passes 3/3 at 16/16,
+with byte-identical Rust binaries. A separate 512 cohort still completes only
+3/5 after moving the same live socket observation out of the remote-command hold
+path. The remaining handshake failures occur after prompt source startup; one
+failure-only destination socket snapshot has 68 drops and the other has zero.
+Their cause remains unresolved. The prior intermediate close/idle failure and
+setup failure are also retained. See
+[prepared-source validation](../../evidence/performance/v2/native-prepared-source-a1ac83c8/summary.md).
+This closes one startup artifact, not native 512 repeatability or the original
+Windows admission bottleneck. Automated external orchestration remains open.

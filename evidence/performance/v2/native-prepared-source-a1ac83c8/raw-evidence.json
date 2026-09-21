@@ -1,0 +1,30 @@
+[
+  {
+    "root": "C:\\NBSR-build\\native-prepared-source-20260921",
+    "index_sha256": "7da660ed049f2cd116dbfe123923e3aba8a0a8dcef75abb688c9a9127c79ecaa"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-prepared-counterfactual-a1ac83c8",
+    "index_sha256": "18fbc4d02c793ac0d0f65cdb5c80169b90465a58ecb93e0313155630b97e2089"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-prepared-counterfactual-a1ac83c8-cached",
+    "index_sha256": "cde4ba2808bde3524b6aef7d5ee9d8cd129a86429a3c43935afe9da24d3799ec"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-prepared-scale512-a1ac83c8",
+    "index_sha256": "494482da91f6db0b38332cce1ac77df9b0d5b36d0626aea63e57a48e35bbb29d"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-prepared-local-observer512-a1ac83c8",
+    "index_sha256": "81a5098e592ff5053b7b8712b19e190cb1985a8c754288da8608243403889414"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-current-a1ac83c8",
+    "index_sha256": "615960753bc502a958e2a249194f2911223d6a4437c1076489824d0da50baa4f"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-control-scale512-a401567d",
+    "index_sha256": "40fce3e2c68876d711660f98d2e025e07e0461ae6f1eeaba7fdf3f1fff5718d8"
+  }
+]
