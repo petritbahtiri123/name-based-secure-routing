@@ -141,3 +141,31 @@ def test_control_eof_uses_existing_delegate_cancellation_and_preserves_failure(t
     assert cleaned == [True]
     assert (args.output / 'failure.json').is_file() and (args.output / 'checksums.sha256').is_file()
     assert not (args.output / 'result.json').exists()
+def test_real_pipe_reader_stops_without_waiting_for_eof():
+    import os
+    import queue
+    import threading
+    from scripts.performance.linux_native_lifecycle_endpoint import read_commands
+
+    read_fd, write_fd = os.pipe()
+    stop, messages, errors = threading.Event(), queue.Queue(), []
+    with os.fdopen(read_fd, 'rb') as stream, os.fdopen(write_fd, 'wb', buffering=0) as writer:
+        def read():
+            try:
+                read_commands(stream, messages, stop)
+            except BaseException as error:
+                errors.append(error)
+        reader = threading.Thread(target=read, daemon=True)
+        reader.start()
+        try:
+            writer.write(b'{"op":"cancel"}\n')
+            reader.join(timeout=.05)
+            assert not errors
+            assert messages.get(timeout=1) == b'{"op":"cancel"}\n'
+            stop.set()
+            reader.join(timeout=1)
+            assert not reader.is_alive()
+        finally:
+            stop.set()
+            writer.close()
+            reader.join(timeout=1)

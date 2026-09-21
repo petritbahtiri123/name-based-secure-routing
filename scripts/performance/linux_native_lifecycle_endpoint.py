@@ -2,6 +2,8 @@
 
 import copy
 import json
+import io
+import os
 import platform
 import queue
 import re
@@ -93,16 +95,59 @@ class EndpointControl:
         return [dict(event='readiness_transferred')]
 
 
-def read_commands(stream, messages):
-    """One bounded frame in addition to the bounded queue; never read all stdin."""
+def read_commands(stream, messages, stop=None):
+    """Bounded frames; stop real pipe reads before interpreter finalization."""
+    stop = stop if stop is not None else threading.Event()
+
+    def put(value):
+        while not stop.is_set():
+            try:
+                messages.put(value, timeout=.05)
+                return True
+            except queue.Full:
+                pass
+        return False
+
+    fd, blocking = None, None
     try:
-        while True:
-            wire = stream.readline(65537)
-            messages.put(wire or None)
-            if not wire:
-                return
+        try:
+            fd = stream.fileno()
+        except (AttributeError, io.UnsupportedOperation):
+            pass  # In-memory unit-test streams have no blocking OS descriptor.
+        if fd is None:
+            while not stop.is_set():
+                wire = stream.readline(65537)
+                if not put(wire or None) or not wire:
+                    return
+        else:
+            blocking = os.get_blocking(fd)
+            os.set_blocking(fd, False)
+            pending = bytearray()
+            while not stop.is_set():
+                try:
+                    chunk = os.read(fd, min(4096, 65537 - len(pending)))
+                except BlockingIOError:
+                    stop.wait(.01)
+                    continue
+                if not chunk:
+                    if pending:
+                        put(bytes(pending))
+                    put(None)
+                    return
+                pending.extend(chunk)
+                while b'\n' in pending:
+                    end = pending.index(b'\n') + 1
+                    if not put(bytes(pending[:end])):
+                        return
+                    del pending[:end]
+                if len(pending) >= 65537:
+                    put(bytes(pending))
+                    return
     except BaseException as error:
-        messages.put(error)
+        put(error)
+    finally:
+        if fd is not None and blocking is not None:
+            os.set_blocking(fd, blocking)
 
 
 def watch_control(control, messages, emit, stop, errors):
@@ -160,7 +205,7 @@ def execute_endpoint(args, *, input_stream=None, output_stream=None, delegate=na
     args.output = output / 'peer'
     args.prepare_before_readiness = args.role == 'source'
     args.ready_input = output / 'transferred-readiness.json' if args.role == 'source' else None
-    stop, errors, watcher = threading.Event(), [], None
+    stop, errors, watcher, reader = threading.Event(), [], None, None
     try:
         if args.role == 'source':
             for i in range(args.count):
@@ -182,7 +227,8 @@ def execute_endpoint(args, *, input_stream=None, output_stream=None, delegate=na
                 output_stream.write(wire)
                 output_stream.flush()
 
-            threading.Thread(target=read_commands, args=(input_stream, messages), daemon=True).start()
+            reader = threading.Thread(target=read_commands, args=(input_stream, messages, stop), daemon=True)
+            reader.start()
             watcher = threading.Thread(target=watch_control, args=(control, messages, emit, stop, errors), daemon=True)
             watcher.start()
             try:
@@ -221,6 +267,8 @@ def execute_endpoint(args, *, input_stream=None, output_stream=None, delegate=na
         stop.set()
         if watcher is not None and watcher.is_alive():
             watcher.join(timeout=2)
+        if reader is not None:
+            reader.join(timeout=2)
         seal_output(output)
 
 
