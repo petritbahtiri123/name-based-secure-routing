@@ -51,7 +51,7 @@ observer or production code. Package:
 
 Short paced native integration is complete at 5595e45f: 5/5 Direct and 5/5 NBSR
 functional passes at 1,000 offered ops/s, 16 KiB / eight streams / depth one.
-Achieved/offered: Direct 99.75–99.93%, NBSR 99.70–99.99%; median goodput including
+Achieved/offered: Direct 99.75â€“99.93%, NBSR 99.70â€“99.99%; median goodput including
 drain 0.261677 / 0.261822 Gbit/s. Zero errors/timeouts, all requested reports clean.
 Retained p99 drift violations in 3/5 Direct and 1/5 NBSR prevent a stability claim.
 Package: `evidence/performance/v2/native-paced-5595e45f` (600 raw files verified).
@@ -103,7 +103,7 @@ Source-only live observer integrated at 55e83c2e, with unchanged short workload
 and deadlines. Five Direct/five NBSR cells functional PASS, zero errors/timeouts,
 20 owned PIDs absent and requested NBSR counters clean. Median goodput
 0.261742/0.261612 Gbit/s at 1,000 offered ops/s; p99 drift fails 3/5 each.
-29–30 evaluated private-resident samples/source, no short-run growth predicate
+29â€“30 evaluated private-resident samples/source, no short-run growth predicate
 failure. Observer neutrality and destination memory NOT_ESTABLISHED/NOT_MEASURED.
 138 affected tests and Ruff, review/re-review PASS. Package
 `evidence/performance/v2/native-source-live-55e83c2e`. This remains pairwise
@@ -148,7 +148,7 @@ two-hour replay and review/re-review PASS. Package
 cleaned with measured 743,329,792-byte recovery; inventory retained in the package.
 
 Reference-bound native diagnostic orchestration is implemented at fa0e4d7e.
-Exact 70–80% rate and current source/shape/stable-depth/bind checks precede launch;
+Exact 70â€“80% rate and current source/shape/stable-depth/bind checks precede launch;
 actual placement/build and unchanged reference evidence gate publication after
 collection. Live observer and sustained-capacity labels remain NOT_ESTABLISHED.
 Initial 36 affected tests, final 24 runner/reference tests, Ruff and focused review
@@ -200,3 +200,11 @@ destination is flat in two and retains one 128 KiB late step. Cause INCONCLUSIVE
 not a leak or allocator claim. Native workload-length gap closed; qualified
 private-memory/per-axis/full B3 closure remains open. Package native-cycles50-b7672a57
 passes 5 canonical/privacy6/raw1411 integrity checks. No production change.
+
+September25: native per-channel stream scale at b9a29408 passes3 repeats each
+16/32/64 streams,4cycles:36/36 cycles and1344/1344 round trips.18 owned PIDs
+absent; source per-cycle/both final ownership zero; cooldown FD/thread6/1 and8/2.
+RSS repeat CV<2.16%; no5-repeat extension required. Canonical native-streams-b9a29408
+retains all raw evidence and independent replay. Diagnostic RSS totals only;
+no qualified bytes/stream, allocator, throughput or physical-hardware claim.
+Channel scale and qualified memory/B3/B5 closure remain open. No production change.

@@ -1,6 +1,6 @@
 # NBSR technical evidence: working brief
 
-**DRAFT — NOT a final funding freeze.** This is a navigation and claims brief
+**DRAFT â€” NOT a final funding freeze.** This is a navigation and claims brief
 for the ongoing campaign. Each measurement belongs to its recorded source,
 workload and host; different stages are not one final-SHA scoreboard.
 
@@ -326,3 +326,11 @@ destination is flat in two and retains one 128 KiB late step. Cause INCONCLUSIVE
 not a leak or allocator claim. Native workload-length gap closed; qualified
 private-memory/per-axis/full B3 closure remains open. Package native-cycles50-b7672a57
 passes 5 canonical/privacy6/raw1411 integrity checks. No production change.
+
+September25: native per-channel stream scale at b9a29408 passes3 repeats each
+16/32/64 streams,4cycles:36/36 cycles and1344/1344 round trips.18 owned PIDs
+absent; source per-cycle/both final ownership zero; cooldown FD/thread6/1 and8/2.
+RSS repeat CV<2.16%; no5-repeat extension required. Canonical native-streams-b9a29408
+retains all raw evidence and independent replay. Diagnostic RSS totals only;
+no qualified bytes/stream, allocator, throughput or physical-hardware claim.
+Channel scale and qualified memory/B3/B5 closure remain open. No production change.

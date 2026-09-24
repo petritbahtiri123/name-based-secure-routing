@@ -1,0 +1,22 @@
+[
+  {
+    "root": "C:\\NBSR-build\\native-streams-b9a29408",
+    "index_sha256": "828eaa499cdaac72f0ecbb7cf55a740e03e87c0d51c80a16bd24ef6d45516b2c"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-current-b9a29408",
+    "index_sha256": "a2ffef42b23294c76ae9f324bf2544ce30fc7227c638da256028d1bed31584f4"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-cycle-stream-tests-20260925",
+    "index_sha256": "3f531bd0a0bc6e46c27780218caf0492cea0fa4cf13da42dbdc8cb72dff25d0c"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-stream-cargo-cleanup-20260925",
+    "index_sha256": "8c2f71d00d24e487cc6d4bb32b612f99f4f2a1bd6ab1be428129214fe958abf9"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-stream-extra-cargo-cleanup-20260925",
+    "index_sha256": "d16699399be7587237689a5ba55166164d91310ab28e4f8bb262a076e86f03ab"
+  }
+]

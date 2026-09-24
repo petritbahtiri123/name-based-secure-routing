@@ -1,0 +1,1465 @@
+{
+  "first_three_resource_cv": {
+    "16": {
+      "source": 0.007837333970899897,
+      "destination": 0.0196078431372549
+    },
+    "32": {
+      "source": 0.007530655685082074,
+      "destination": 0.0215161591002345
+    },
+    "64": {
+      "source": 0.012195121951219513,
+      "destination": 0.01694915254237288
+    }
+  },
+  "classification": "PASS_FUNCTIONAL_STREAM_CYCLES",
+  "trials": 9,
+  "successful_cycles": 36,
+  "successful_operations": 1344,
+  "all_source_per_cycle_closed_ownership_zero": true,
+  "scope": "Docker/WSL namespaces; diagnostic observer; one session/channel; no physical/server or bytes/resource claim",
+  "memory_classification": "DIAGNOSTIC_RSS_ONLY_NO_ALLOCATOR_ATTRIBUTION",
+  "rows": [
+    {
+      "label": "streams16-r1",
+      "streams": 16,
+      "result": {
+        "status": "PASS_FUNCTIONAL_CYCLE_PEERS",
+        "source_sha": "b9a294087bcbe322c808cc3a4f12fbce29e3b288",
+        "cycles": 4,
+        "successful_connections": 4,
+        "same_process_epochs": "VERIFIED_FROM_RETAINED_RESOURCE_SAMPLES",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "memory_cost": "NOT_QUALIFIED",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "streams_per_channel": 16,
+        "successful_operations": 64
+      },
+      "resources": {
+        "source": {
+          "process_epoch": [
+            96,
+            1755505
+          ],
+          "cycles": [
+            {
+              "cycle": 0,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6684672,
+              "cooldown_last_rss_bytes": 6684672,
+              "cooldown_median_rss_bytes": 6684672.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 1,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6815744,
+              "cooldown_last_rss_bytes": 6815744,
+              "cooldown_median_rss_bytes": 6815744.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 2,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 9699328,
+              "cooldown_last_rss_bytes": 9699328,
+              "cooldown_median_rss_bytes": 9699328,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 3,
+              "active_samples": 20,
+              "cooldown_samples": 40,
+              "active_peak_rss_bytes": 9699328,
+              "cooldown_last_rss_bytes": 9699328,
+              "cooldown_median_rss_bytes": 9699328.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            }
+          ],
+          "rss_slope_bytes_per_cycle": 1192755.2,
+          "second_half_rss_slope_bytes_per_cycle": 0.0,
+          "last_ten_rss_slope_bytes_per_cycle": 1192755.2,
+          "last_ten_rss_range_bytes": 3014656.0,
+          "first_to_last_cooldown_median_rss_delta_bytes": 3014656.0,
+          "last_fd_delta": 0,
+          "last_thread_delta": 0
+        },
+        "destination": {
+          "process_epoch": [
+            96,
+            1755502
+          ],
+          "cycles": [
+            {
+              "cycle": 0,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 6684672,
+              "cooldown_last_rss_bytes": 6815744,
+              "cooldown_median_rss_bytes": 6815744,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 1,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6815744,
+              "cooldown_last_rss_bytes": 6815744,
+              "cooldown_median_rss_bytes": 6815744.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 2,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 6815744,
+              "cooldown_last_rss_bytes": 6815744,
+              "cooldown_median_rss_bytes": 6815744,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 3,
+              "active_samples": 20,
+              "cooldown_samples": 40,
+              "active_peak_rss_bytes": 6815744,
+              "cooldown_last_rss_bytes": 6815744,
+              "cooldown_median_rss_bytes": 6815744.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            }
+          ],
+          "rss_slope_bytes_per_cycle": 0.0,
+          "second_half_rss_slope_bytes_per_cycle": 0.0,
+          "last_ten_rss_slope_bytes_per_cycle": 0.0,
+          "last_ten_rss_range_bytes": 0,
+          "first_to_last_cooldown_median_rss_delta_bytes": 0.0,
+          "last_fd_delta": 0,
+          "last_thread_delta": 0
+        }
+      },
+      "source_per_cycle_eleven_counters_zero": true,
+      "destination_per_cycle_closed_ownership": "NOT_MEASURED",
+      "owned_pids_absent_before_stop": {
+        "source": true,
+        "destination": true
+      }
+    },
+    {
+      "label": "streams16-r2",
+      "streams": 16,
+      "result": {
+        "status": "PASS_FUNCTIONAL_CYCLE_PEERS",
+        "source_sha": "b9a294087bcbe322c808cc3a4f12fbce29e3b288",
+        "cycles": 4,
+        "successful_connections": 4,
+        "same_process_epochs": "VERIFIED_FROM_RETAINED_RESOURCE_SAMPLES",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "memory_cost": "NOT_QUALIFIED",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "streams_per_channel": 16,
+        "successful_operations": 64
+      },
+      "resources": {
+        "source": {
+          "process_epoch": [
+            96,
+            1759448
+          ],
+          "cycles": [
+            {
+              "cycle": 0,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 1,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6684672,
+              "cooldown_last_rss_bytes": 6684672,
+              "cooldown_median_rss_bytes": 6684672.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 2,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 3,
+              "active_samples": 21,
+              "cooldown_samples": 40,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            }
+          ],
+          "rss_slope_bytes_per_cycle": 1192755.2,
+          "second_half_rss_slope_bytes_per_cycle": 0.0,
+          "last_ten_rss_slope_bytes_per_cycle": 1192755.2,
+          "last_ten_rss_range_bytes": 3014656.0,
+          "first_to_last_cooldown_median_rss_delta_bytes": 3014656.0,
+          "last_fd_delta": 0,
+          "last_thread_delta": 0
+        },
+        "destination": {
+          "process_epoch": [
+            95,
+            1759445
+          ],
+          "cycles": [
+            {
+              "cycle": 0,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 1,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 2,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 3,
+              "active_samples": 20,
+              "cooldown_samples": 40,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            }
+          ],
+          "rss_slope_bytes_per_cycle": 0.0,
+          "second_half_rss_slope_bytes_per_cycle": 0.0,
+          "last_ten_rss_slope_bytes_per_cycle": 0.0,
+          "last_ten_rss_range_bytes": 0.0,
+          "first_to_last_cooldown_median_rss_delta_bytes": 0.0,
+          "last_fd_delta": 0,
+          "last_thread_delta": 0
+        }
+      },
+      "source_per_cycle_eleven_counters_zero": true,
+      "destination_per_cycle_closed_ownership": "NOT_MEASURED",
+      "owned_pids_absent_before_stop": {
+        "source": true,
+        "destination": true
+      }
+    },
+    {
+      "label": "streams16-r3",
+      "streams": 16,
+      "result": {
+        "status": "PASS_FUNCTIONAL_CYCLE_PEERS",
+        "source_sha": "b9a294087bcbe322c808cc3a4f12fbce29e3b288",
+        "cycles": 4,
+        "successful_connections": 4,
+        "same_process_epochs": "VERIFIED_FROM_RETAINED_RESOURCE_SAMPLES",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "memory_cost": "NOT_QUALIFIED",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "streams_per_channel": 16,
+        "successful_operations": 64
+      },
+      "resources": {
+        "source": {
+          "process_epoch": [
+            96,
+            1763355
+          ],
+          "cycles": [
+            {
+              "cycle": 0,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6684672,
+              "cooldown_last_rss_bytes": 6684672,
+              "cooldown_median_rss_bytes": 6684672.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 1,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6815744,
+              "cooldown_last_rss_bytes": 6815744,
+              "cooldown_median_rss_bytes": 6815744.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 2,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 9699328,
+              "cooldown_last_rss_bytes": 9699328,
+              "cooldown_median_rss_bytes": 9699328,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 3,
+              "active_samples": 20,
+              "cooldown_samples": 40,
+              "active_peak_rss_bytes": 9699328,
+              "cooldown_last_rss_bytes": 9699328,
+              "cooldown_median_rss_bytes": 9699328.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            }
+          ],
+          "rss_slope_bytes_per_cycle": 1192755.2,
+          "second_half_rss_slope_bytes_per_cycle": 0.0,
+          "last_ten_rss_slope_bytes_per_cycle": 1192755.2,
+          "last_ten_rss_range_bytes": 3014656.0,
+          "first_to_last_cooldown_median_rss_delta_bytes": 3014656.0,
+          "last_fd_delta": 0,
+          "last_thread_delta": 0
+        },
+        "destination": {
+          "process_epoch": [
+            96,
+            1763350
+          ],
+          "cycles": [
+            {
+              "cycle": 0,
+              "active_samples": 21,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6684672,
+              "cooldown_median_rss_bytes": 6684672.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 1,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6684672,
+              "cooldown_last_rss_bytes": 6684672,
+              "cooldown_median_rss_bytes": 6684672.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 2,
+              "active_samples": 21,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6684672,
+              "cooldown_last_rss_bytes": 6684672,
+              "cooldown_median_rss_bytes": 6684672.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 3,
+              "active_samples": 20,
+              "cooldown_samples": 40,
+              "active_peak_rss_bytes": 6684672,
+              "cooldown_last_rss_bytes": 6684672,
+              "cooldown_median_rss_bytes": 6684672.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            }
+          ],
+          "rss_slope_bytes_per_cycle": 0.0,
+          "second_half_rss_slope_bytes_per_cycle": 0.0,
+          "last_ten_rss_slope_bytes_per_cycle": 0.0,
+          "last_ten_rss_range_bytes": 0.0,
+          "first_to_last_cooldown_median_rss_delta_bytes": 0.0,
+          "last_fd_delta": 0,
+          "last_thread_delta": 0
+        }
+      },
+      "source_per_cycle_eleven_counters_zero": true,
+      "destination_per_cycle_closed_ownership": "NOT_MEASURED",
+      "owned_pids_absent_before_stop": {
+        "source": true,
+        "destination": true
+      }
+    },
+    {
+      "label": "streams32-r1",
+      "streams": 32,
+      "result": {
+        "status": "PASS_FUNCTIONAL_CYCLE_PEERS",
+        "source_sha": "b9a294087bcbe322c808cc3a4f12fbce29e3b288",
+        "cycles": 4,
+        "successful_connections": 4,
+        "same_process_epochs": "VERIFIED_FROM_RETAINED_RESOURCE_SAMPLES",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "memory_cost": "NOT_QUALIFIED",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "streams_per_channel": 32,
+        "successful_operations": 128
+      },
+      "resources": {
+        "source": {
+          "process_epoch": [
+            96,
+            1767457
+          ],
+          "cycles": [
+            {
+              "cycle": 0,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 7077888,
+              "cooldown_last_rss_bytes": 7077888,
+              "cooldown_median_rss_bytes": 7077888.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 1,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 7077888,
+              "cooldown_last_rss_bytes": 7077888,
+              "cooldown_median_rss_bytes": 7077888.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 2,
+              "active_samples": 21,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 10092544,
+              "cooldown_last_rss_bytes": 10092544,
+              "cooldown_median_rss_bytes": 10092544.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 3,
+              "active_samples": 20,
+              "cooldown_samples": 40,
+              "active_peak_rss_bytes": 10092544,
+              "cooldown_last_rss_bytes": 10092544,
+              "cooldown_median_rss_bytes": 10092544.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            }
+          ],
+          "rss_slope_bytes_per_cycle": 1205862.4,
+          "second_half_rss_slope_bytes_per_cycle": 0.0,
+          "last_ten_rss_slope_bytes_per_cycle": 1205862.4,
+          "last_ten_rss_range_bytes": 3014656.0,
+          "first_to_last_cooldown_median_rss_delta_bytes": 3014656.0,
+          "last_fd_delta": 0,
+          "last_thread_delta": 0
+        },
+        "destination": {
+          "process_epoch": [
+            96,
+            1767455
+          ],
+          "cycles": [
+            {
+              "cycle": 0,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6815744,
+              "cooldown_last_rss_bytes": 6815744,
+              "cooldown_median_rss_bytes": 6815744.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 1,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6815744,
+              "cooldown_last_rss_bytes": 6815744,
+              "cooldown_median_rss_bytes": 6815744.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 2,
+              "active_samples": 21,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6946816,
+              "cooldown_last_rss_bytes": 6946816,
+              "cooldown_median_rss_bytes": 6946816.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 3,
+              "active_samples": 20,
+              "cooldown_samples": 40,
+              "active_peak_rss_bytes": 6946816,
+              "cooldown_last_rss_bytes": 6946816,
+              "cooldown_median_rss_bytes": 6946816.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            }
+          ],
+          "rss_slope_bytes_per_cycle": 52428.8,
+          "second_half_rss_slope_bytes_per_cycle": 0.0,
+          "last_ten_rss_slope_bytes_per_cycle": 52428.8,
+          "last_ten_rss_range_bytes": 131072.0,
+          "first_to_last_cooldown_median_rss_delta_bytes": 131072.0,
+          "last_fd_delta": 0,
+          "last_thread_delta": 0
+        }
+      },
+      "source_per_cycle_eleven_counters_zero": true,
+      "destination_per_cycle_closed_ownership": "NOT_MEASURED",
+      "owned_pids_absent_before_stop": {
+        "source": true,
+        "destination": true
+      }
+    },
+    {
+      "label": "streams32-r2",
+      "streams": 32,
+      "result": {
+        "status": "PASS_FUNCTIONAL_CYCLE_PEERS",
+        "source_sha": "b9a294087bcbe322c808cc3a4f12fbce29e3b288",
+        "cycles": 4,
+        "successful_connections": 4,
+        "same_process_epochs": "VERIFIED_FROM_RETAINED_RESOURCE_SAMPLES",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "memory_cost": "NOT_QUALIFIED",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "streams_per_channel": 32,
+        "successful_operations": 128
+      },
+      "resources": {
+        "source": {
+          "process_epoch": [
+            97,
+            1771976
+          ],
+          "cycles": [
+            {
+              "cycle": 0,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 7077888,
+              "cooldown_last_rss_bytes": 7077888,
+              "cooldown_median_rss_bytes": 7077888.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 1,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 7077888,
+              "cooldown_last_rss_bytes": 7077888,
+              "cooldown_median_rss_bytes": 7077888.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 2,
+              "active_samples": 21,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 10092544,
+              "cooldown_last_rss_bytes": 10092544,
+              "cooldown_median_rss_bytes": 10092544.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 3,
+              "active_samples": 21,
+              "cooldown_samples": 40,
+              "active_peak_rss_bytes": 10092544,
+              "cooldown_last_rss_bytes": 10092544,
+              "cooldown_median_rss_bytes": 10092544.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            }
+          ],
+          "rss_slope_bytes_per_cycle": 1205862.4,
+          "second_half_rss_slope_bytes_per_cycle": 0.0,
+          "last_ten_rss_slope_bytes_per_cycle": 1205862.4,
+          "last_ten_rss_range_bytes": 3014656.0,
+          "first_to_last_cooldown_median_rss_delta_bytes": 3014656.0,
+          "last_fd_delta": 0,
+          "last_thread_delta": 0
+        },
+        "destination": {
+          "process_epoch": [
+            96,
+            1771973
+          ],
+          "cycles": [
+            {
+              "cycle": 0,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 7077888,
+              "cooldown_last_rss_bytes": 7077888,
+              "cooldown_median_rss_bytes": 7077888.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 1,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 7077888,
+              "cooldown_last_rss_bytes": 7208960,
+              "cooldown_median_rss_bytes": 7208960.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 2,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 7208960,
+              "cooldown_last_rss_bytes": 7208960,
+              "cooldown_median_rss_bytes": 7208960,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 3,
+              "active_samples": 20,
+              "cooldown_samples": 40,
+              "active_peak_rss_bytes": 7208960,
+              "cooldown_last_rss_bytes": 7208960,
+              "cooldown_median_rss_bytes": 7208960.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            }
+          ],
+          "rss_slope_bytes_per_cycle": 39321.6,
+          "second_half_rss_slope_bytes_per_cycle": 0.0,
+          "last_ten_rss_slope_bytes_per_cycle": 39321.6,
+          "last_ten_rss_range_bytes": 131072.0,
+          "first_to_last_cooldown_median_rss_delta_bytes": 131072.0,
+          "last_fd_delta": 0,
+          "last_thread_delta": 0
+        }
+      },
+      "source_per_cycle_eleven_counters_zero": true,
+      "destination_per_cycle_closed_ownership": "NOT_MEASURED",
+      "owned_pids_absent_before_stop": {
+        "source": true,
+        "destination": true
+      }
+    },
+    {
+      "label": "streams32-r3",
+      "streams": 32,
+      "result": {
+        "status": "PASS_FUNCTIONAL_CYCLE_PEERS",
+        "source_sha": "b9a294087bcbe322c808cc3a4f12fbce29e3b288",
+        "cycles": 4,
+        "successful_connections": 4,
+        "same_process_epochs": "VERIFIED_FROM_RETAINED_RESOURCE_SAMPLES",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "memory_cost": "NOT_QUALIFIED",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "streams_per_channel": 32,
+        "successful_operations": 128
+      },
+      "resources": {
+        "source": {
+          "process_epoch": [
+            96,
+            1775883
+          ],
+          "cycles": [
+            {
+              "cycle": 0,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6946816,
+              "cooldown_last_rss_bytes": 6946816,
+              "cooldown_median_rss_bytes": 6946816.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 1,
+              "active_samples": 21,
+              "cooldown_samples": 19,
+              "active_peak_rss_bytes": 6946816,
+              "cooldown_last_rss_bytes": 6946816,
+              "cooldown_median_rss_bytes": 6946816,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 2,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9961472,
+              "cooldown_last_rss_bytes": 9961472,
+              "cooldown_median_rss_bytes": 9961472.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 3,
+              "active_samples": 21,
+              "cooldown_samples": 40,
+              "active_peak_rss_bytes": 9961472,
+              "cooldown_last_rss_bytes": 9961472,
+              "cooldown_median_rss_bytes": 9961472.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            }
+          ],
+          "rss_slope_bytes_per_cycle": 1205862.4,
+          "second_half_rss_slope_bytes_per_cycle": 0.0,
+          "last_ten_rss_slope_bytes_per_cycle": 1205862.4,
+          "last_ten_rss_range_bytes": 3014656.0,
+          "first_to_last_cooldown_median_rss_delta_bytes": 3014656.0,
+          "last_fd_delta": 0,
+          "last_thread_delta": 0
+        },
+        "destination": {
+          "process_epoch": [
+            96,
+            1775880
+          ],
+          "cycles": [
+            {
+              "cycle": 0,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6815744,
+              "cooldown_last_rss_bytes": 6815744,
+              "cooldown_median_rss_bytes": 6815744.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 1,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6815744,
+              "cooldown_last_rss_bytes": 6815744,
+              "cooldown_median_rss_bytes": 6815744.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 2,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6946816,
+              "cooldown_last_rss_bytes": 6946816,
+              "cooldown_median_rss_bytes": 6946816.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 3,
+              "active_samples": 20,
+              "cooldown_samples": 40,
+              "active_peak_rss_bytes": 6946816,
+              "cooldown_last_rss_bytes": 6946816,
+              "cooldown_median_rss_bytes": 6946816.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            }
+          ],
+          "rss_slope_bytes_per_cycle": 52428.8,
+          "second_half_rss_slope_bytes_per_cycle": 0.0,
+          "last_ten_rss_slope_bytes_per_cycle": 52428.8,
+          "last_ten_rss_range_bytes": 131072.0,
+          "first_to_last_cooldown_median_rss_delta_bytes": 131072.0,
+          "last_fd_delta": 0,
+          "last_thread_delta": 0
+        }
+      },
+      "source_per_cycle_eleven_counters_zero": true,
+      "destination_per_cycle_closed_ownership": "NOT_MEASURED",
+      "owned_pids_absent_before_stop": {
+        "source": true,
+        "destination": true
+      }
+    },
+    {
+      "label": "streams64-r1",
+      "streams": 64,
+      "result": {
+        "status": "PASS_FUNCTIONAL_CYCLE_PEERS",
+        "source_sha": "b9a294087bcbe322c808cc3a4f12fbce29e3b288",
+        "cycles": 4,
+        "successful_connections": 4,
+        "same_process_epochs": "VERIFIED_FROM_RETAINED_RESOURCE_SAMPLES",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "memory_cost": "NOT_QUALIFIED",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "streams_per_channel": 64,
+        "successful_operations": 256
+      },
+      "resources": {
+        "source": {
+          "process_epoch": [
+            96,
+            1779884
+          ],
+          "cycles": [
+            {
+              "cycle": 0,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 7602176,
+              "cooldown_last_rss_bytes": 7864320,
+              "cooldown_median_rss_bytes": 7864320.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 1,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 7995392,
+              "cooldown_last_rss_bytes": 7995392,
+              "cooldown_median_rss_bytes": 7995392,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 2,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 10878976,
+              "cooldown_last_rss_bytes": 10878976,
+              "cooldown_median_rss_bytes": 10878976.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 3,
+              "active_samples": 20,
+              "cooldown_samples": 40,
+              "active_peak_rss_bytes": 10878976,
+              "cooldown_last_rss_bytes": 10878976,
+              "cooldown_median_rss_bytes": 10878976.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            }
+          ],
+          "rss_slope_bytes_per_cycle": 1192755.2,
+          "second_half_rss_slope_bytes_per_cycle": 0.0,
+          "last_ten_rss_slope_bytes_per_cycle": 1192755.2,
+          "last_ten_rss_range_bytes": 3014656.0,
+          "first_to_last_cooldown_median_rss_delta_bytes": 3014656.0,
+          "last_fd_delta": 0,
+          "last_thread_delta": 0
+        },
+        "destination": {
+          "process_epoch": [
+            96,
+            1779880
+          ],
+          "cycles": [
+            {
+              "cycle": 0,
+              "active_samples": 21,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 7733248,
+              "cooldown_last_rss_bytes": 7733248,
+              "cooldown_median_rss_bytes": 7733248.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 1,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 7733248,
+              "cooldown_last_rss_bytes": 7733248,
+              "cooldown_median_rss_bytes": 7733248.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 2,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 7864320,
+              "cooldown_last_rss_bytes": 7864320,
+              "cooldown_median_rss_bytes": 7864320.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 3,
+              "active_samples": 20,
+              "cooldown_samples": 40,
+              "active_peak_rss_bytes": 7864320,
+              "cooldown_last_rss_bytes": 7864320,
+              "cooldown_median_rss_bytes": 7864320.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            }
+          ],
+          "rss_slope_bytes_per_cycle": 52428.8,
+          "second_half_rss_slope_bytes_per_cycle": 0.0,
+          "last_ten_rss_slope_bytes_per_cycle": 52428.8,
+          "last_ten_rss_range_bytes": 131072.0,
+          "first_to_last_cooldown_median_rss_delta_bytes": 131072.0,
+          "last_fd_delta": 0,
+          "last_thread_delta": 0
+        }
+      },
+      "source_per_cycle_eleven_counters_zero": true,
+      "destination_per_cycle_closed_ownership": "NOT_MEASURED",
+      "owned_pids_absent_before_stop": {
+        "source": true,
+        "destination": true
+      }
+    },
+    {
+      "label": "streams64-r2",
+      "streams": 64,
+      "result": {
+        "status": "PASS_FUNCTIONAL_CYCLE_PEERS",
+        "source_sha": "b9a294087bcbe322c808cc3a4f12fbce29e3b288",
+        "cycles": 4,
+        "successful_connections": 4,
+        "same_process_epochs": "VERIFIED_FROM_RETAINED_RESOURCE_SAMPLES",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "memory_cost": "NOT_QUALIFIED",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "streams_per_channel": 64,
+        "successful_operations": 256
+      },
+      "resources": {
+        "source": {
+          "process_epoch": [
+            96,
+            1783784
+          ],
+          "cycles": [
+            {
+              "cycle": 0,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 7471104,
+              "cooldown_last_rss_bytes": 7602176,
+              "cooldown_median_rss_bytes": 7602176.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 1,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 7733248,
+              "cooldown_last_rss_bytes": 7733248,
+              "cooldown_median_rss_bytes": 7733248.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 2,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 10616832,
+              "cooldown_last_rss_bytes": 10616832,
+              "cooldown_median_rss_bytes": 10616832.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 3,
+              "active_samples": 20,
+              "cooldown_samples": 40,
+              "active_peak_rss_bytes": 10616832,
+              "cooldown_last_rss_bytes": 10616832,
+              "cooldown_median_rss_bytes": 10616832.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            }
+          ],
+          "rss_slope_bytes_per_cycle": 1192755.2,
+          "second_half_rss_slope_bytes_per_cycle": 0.0,
+          "last_ten_rss_slope_bytes_per_cycle": 1192755.2,
+          "last_ten_rss_range_bytes": 3014656.0,
+          "first_to_last_cooldown_median_rss_delta_bytes": 3014656.0,
+          "last_fd_delta": 0,
+          "last_thread_delta": 0
+        },
+        "destination": {
+          "process_epoch": [
+            96,
+            1783780
+          ],
+          "cycles": [
+            {
+              "cycle": 0,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 7340032,
+              "cooldown_last_rss_bytes": 7471104,
+              "cooldown_median_rss_bytes": 7471104,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 1,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 7471104,
+              "cooldown_last_rss_bytes": 7471104,
+              "cooldown_median_rss_bytes": 7471104.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 2,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 7602176,
+              "cooldown_last_rss_bytes": 7602176,
+              "cooldown_median_rss_bytes": 7602176.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 3,
+              "active_samples": 20,
+              "cooldown_samples": 39,
+              "active_peak_rss_bytes": 7602176,
+              "cooldown_last_rss_bytes": 7602176,
+              "cooldown_median_rss_bytes": 7602176,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            }
+          ],
+          "rss_slope_bytes_per_cycle": 52428.8,
+          "second_half_rss_slope_bytes_per_cycle": 0.0,
+          "last_ten_rss_slope_bytes_per_cycle": 52428.8,
+          "last_ten_rss_range_bytes": 131072.0,
+          "first_to_last_cooldown_median_rss_delta_bytes": 131072,
+          "last_fd_delta": 0,
+          "last_thread_delta": 0
+        }
+      },
+      "source_per_cycle_eleven_counters_zero": true,
+      "destination_per_cycle_closed_ownership": "NOT_MEASURED",
+      "owned_pids_absent_before_stop": {
+        "source": true,
+        "destination": true
+      }
+    },
+    {
+      "label": "streams64-r3",
+      "streams": 64,
+      "result": {
+        "status": "PASS_FUNCTIONAL_CYCLE_PEERS",
+        "source_sha": "b9a294087bcbe322c808cc3a4f12fbce29e3b288",
+        "cycles": 4,
+        "successful_connections": 4,
+        "same_process_epochs": "VERIFIED_FROM_RETAINED_RESOURCE_SAMPLES",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "memory_cost": "NOT_QUALIFIED",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "streams_per_channel": 64,
+        "successful_operations": 256
+      },
+      "resources": {
+        "source": {
+          "process_epoch": [
+            96,
+            1787708
+          ],
+          "cycles": [
+            {
+              "cycle": 0,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 7602176,
+              "cooldown_last_rss_bytes": 7733248,
+              "cooldown_median_rss_bytes": 7733248.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 1,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 7864320,
+              "cooldown_last_rss_bytes": 7864320,
+              "cooldown_median_rss_bytes": 7864320.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 2,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 10747904,
+              "cooldown_last_rss_bytes": 10747904,
+              "cooldown_median_rss_bytes": 10747904,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 3,
+              "active_samples": 20,
+              "cooldown_samples": 40,
+              "active_peak_rss_bytes": 10747904,
+              "cooldown_last_rss_bytes": 10747904,
+              "cooldown_median_rss_bytes": 10747904.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            }
+          ],
+          "rss_slope_bytes_per_cycle": 1192755.2,
+          "second_half_rss_slope_bytes_per_cycle": 0.0,
+          "last_ten_rss_slope_bytes_per_cycle": 1192755.2,
+          "last_ten_rss_range_bytes": 3014656.0,
+          "first_to_last_cooldown_median_rss_delta_bytes": 3014656.0,
+          "last_fd_delta": 0,
+          "last_thread_delta": 0
+        },
+        "destination": {
+          "process_epoch": [
+            96,
+            1787705
+          ],
+          "cycles": [
+            {
+              "cycle": 0,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 7602176,
+              "cooldown_last_rss_bytes": 7602176,
+              "cooldown_median_rss_bytes": 7602176.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 1,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 7602176,
+              "cooldown_last_rss_bytes": 7602176,
+              "cooldown_median_rss_bytes": 7602176.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 2,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 7602176,
+              "cooldown_last_rss_bytes": 7733248,
+              "cooldown_median_rss_bytes": 7733248,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 3,
+              "active_samples": 20,
+              "cooldown_samples": 40,
+              "active_peak_rss_bytes": 7733248,
+              "cooldown_last_rss_bytes": 7733248,
+              "cooldown_median_rss_bytes": 7733248.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            }
+          ],
+          "rss_slope_bytes_per_cycle": 52428.8,
+          "second_half_rss_slope_bytes_per_cycle": 0.0,
+          "last_ten_rss_slope_bytes_per_cycle": 52428.8,
+          "last_ten_rss_range_bytes": 131072.0,
+          "first_to_last_cooldown_median_rss_delta_bytes": 131072.0,
+          "last_fd_delta": 0,
+          "last_thread_delta": 0
+        }
+      },
+      "source_per_cycle_eleven_counters_zero": true,
+      "destination_per_cycle_closed_ownership": "NOT_MEASURED",
+      "owned_pids_absent_before_stop": {
+        "source": true,
+        "destination": true
+      }
+    }
+  ]
+}
