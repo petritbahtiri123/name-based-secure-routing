@@ -107,6 +107,15 @@ def load_reference(manifest_path, *, current_sha, identities, shape, path, depth
     require(path in ('direct', 'nbsr') and type(depth) is int
             and type(percent) is int and 70 <= percent <= 80, 'explicit 70–80 percent native load required')
     result = analyze_reference(manifest_path, source_sha=current_sha)
+    return _bind_reference(result, current_sha=current_sha, identities=identities,
+                           shape=shape, path=path, depth=depth, percent=percent)
+
+
+def _bind_reference(result, *, current_sha, identities, shape, path, depth, percent):
+    """Internal: only an immediately verified analysis, never user-supplied JSON."""
+    require(path in ('direct', 'nbsr') and type(depth) is int
+            and type(percent) is int and 70 <= percent <= 80, 'explicit 70–80 percent native load required')
+    require(result['source_sha'] == current_sha, 'reference source mismatch')
     require(result['qualified'] and result['identities'] == identities and result['shape'] == shape,
             'qualified current-source/placement/shape reference required')
     selected = next((cell for cell in result['ladders'][path]['cells'] if cell['outstanding_per_stream'] == depth), None)

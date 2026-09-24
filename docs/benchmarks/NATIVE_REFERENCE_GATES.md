@@ -81,3 +81,39 @@ guards and long-run orchestration are not implemented by these read-only gates.
 Current ac40740c retained evidence is correctly rejected: observer effects/CV
 fail, an interruption is declared, and both finite ladders are UNRESOLVED. No
 current native strict-stable reference is thereby established.
+
+## Reference-bound diagnostic execution
+
+`linux_native_reference_run` connects a qualified native finite reference to the
+duration-capable coordinator. Use a complete ordinary native finite configuration
+with no caller-supplied `diagnostic_rate` or `diagnostic_seconds`. Both endpoints
+must deploy a clean matching source/build that includes long-duration support.
+Existing observer flags, if present, must be true. The wrapper derives the exact
+rational rate at an explicit integer 70–80 percent and enables both live guards
+and post-close reports.
+
+```bash
+python3 -m scripts.performance.linux_native_reference_run \
+  --config /evidence/native-config.json \
+  --reference /evidence/reference.json \
+  --percent 75 --seconds 60 --output /evidence/reference-preflight
+```
+
+The 60-second mode is a functional preflight. Explicit 3600/7200-second durations
+are supported, but **REFERENCE_BOUND_DIAGNOSTIC is not B5 acceptance**. The live
+observer remains unqualified and the wrapper always reports sustained capacity
+NOT_ESTABLISHED. Do not launch a long unqualified run merely to obtain a soak label.
+
+Reference validation and source/shape/depth/bind gates precede child launch.
+One verified in-memory analysis supplies both the retained reference and exact
+rate. Actual build/placement is checked after peer collection; this adapter has
+no independent prelaunch remote-placement attestation. A changed placement or
+reference fails publication and retains failure evidence. The reference is
+revalidated after execution. The original manifest location is recorded because
+its relative paths do not resolve from the retained manifest copy.
+
+No real successful reference-bound execution is claimed: the retained ac40740c
+reference is rejected before any child output is created. Synthetic fixtures test
+the successful branch, mismatch/rejection paths, changed-reference detection and
+deferred CLI signal cancellation. Qualified actual native timing and genuine
+near-ceiling 60/120-minute stability remain open.
