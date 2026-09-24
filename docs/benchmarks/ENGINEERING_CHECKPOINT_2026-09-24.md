@@ -225,3 +225,12 @@ proof. Package native-memory-04866375; private totals diagnostic, not qualified
 bytes/resource, allocator cause or long-run leak freedom.298 affected tests/Ruff
 and review/re-review PASS. No production change. Next:50-cycle private-memory
 observation to distinguish long retention from earlier RSS-only results.
+
+September25: fifty-cycle private-memory observer04866375 passes3/3 trials,
+150/150 operations,6 owned PIDs absent; final/source per-cycle ownership zero,
+FD/thread stable. Final private CV0.406%/2.461%. Source second-half private range
+0-12KiB; destination56-220KiB and two non-flat final tails. Retention cause remains
+INCONCLUSIVE; no leak/allocator/soak claim. Package native-memory50-04866375 also
+preserves actual build-byte verification despite stale Docker inspect bind labels,
+and safe removal of60 exited fixtures (1.958GB logical Docker space; only737280
+host bytes immediately recovered). No authoritative evidence or images deleted.

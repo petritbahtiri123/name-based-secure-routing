@@ -1,0 +1,26 @@
+[
+  {
+    "root": "C:\\NBSR-build\\native-memory50-04866375",
+    "index_sha256": "5ed5e8d6cc060f188f5db53b55b756a412faa34ced3f25cd57e6f33f92b48a5f"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-current-04866375",
+    "index_sha256": "7b45e2b58837e0351ff0316ed3457b37d222ed290d867a024b4891d091012ed1"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-cycle-memory-tests-20260925",
+    "index_sha256": "7e2978d517b81621c8ba4ba5df9c79d765b4bddb13c32c4b99c8402b3928dbd5"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-memory-compat-20260925",
+    "index_sha256": "b5c7f4d1043195a60eb8d3fc67a4f0fa52b62893594f44485f902be77260a6ce"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-bind-metadata-20260925",
+    "index_sha256": "56219a7abf413e5fd933203ead848a7bc7125965c741c4731978578f2bc92312"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-completed-fixture-cleanup-20260925",
+    "index_sha256": "6b48821c55a85dcccbafe385d3267a3c2062418d740e84819b3a993e09941245"
+  }
+]
