@@ -109,3 +109,14 @@ failure. Observer neutrality and destination memory NOT_ESTABLISHED/NOT_MEASURED
 `evidence/performance/v2/native-source-live-55e83c2e`. This remains pairwise
 diagnostic evidence with fresh-per-repeat authority; generic cohort authority
 gate is not weakened. Full native relay/destination live guards remain open.
+
+Paired native live telemetry completed at 94209a9c: both endpoint-local guards,
+ordered source progress relay, independent raw joins. Literal RED exposed and
+fixed reentrant control-writer reordering; 179 affected tests/Ruff/re-review PASS.
+Five Direct/five NBSR cells functional PASS at 1,000 ops/s; medians
+0.261756/0.261911 Gbit/s, p99 drift failures 3/5 and 2/5. Six controlled EOF
+trials PASS after both guards were active; 12 owned PIDs absent. Package
+`evidence/performance/v2/native-paired-live-94209a9c`. No production change.
+Short paired integration is complete; matched observer qualification, qualified
+reference and genuine reference-bound near-ceiling long-duration execution remain
+open. Do not promote these short diagnostic results to B5 acceptance.

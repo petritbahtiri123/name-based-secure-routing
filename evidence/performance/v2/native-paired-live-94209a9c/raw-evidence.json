@@ -1,0 +1,18 @@
+[
+  {
+    "root": "C:\\NBSR-build\\native-paired-live-94209a9c",
+    "index_sha256": "5ba1bf9cf8e8ac4f13ec262cf33a69f4fbd9ccb9ba233bf4d850956b94643024"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-paired-live-eof-94209a9c",
+    "index_sha256": "7e3490280ffd66e909591fccea21a1d87c10d6378cb1c35f9bdb94d34de3042f"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-current-94209a9c",
+    "index_sha256": "48b37307c13c8ea24ba460f542e44086d6398aae7c525ab4878d83b63b85f40c"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-paired-live-tests-20260924",
+    "index_sha256": "287cc3d2fa50d7bb5b39a5b72bfb5e5f7acb4b0e2c2f917753e3f17a41cab2b5"
+  }
+]
