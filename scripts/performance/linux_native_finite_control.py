@@ -43,8 +43,9 @@ class FiniteLedger:
 
 
 class FiniteControl:
-    def __init__(self, args):
+    def __init__(self, args, *, ack_path=None):
         self.args = args
+        self.ack_path = args.output / 'completion.ack' if ack_path is None else ack_path
         self.ready = self.transferred = self.acked = False
 
     @staticmethod
@@ -77,7 +78,7 @@ class FiniteControl:
             self.transferred = True
             return [dict(event='readiness_transferred')]
         require(self.args.role == 'destination' and self.ready and not self.acked, 'ACK permitted once after ready')
-        with (self.args.output / 'completion.ack').open('x') as stream:
+        with self.ack_path.open('x') as stream:
             stream.write('validated source completed and relay exited successfully\n')
         self.acked = True
         return [dict(event='acked')]

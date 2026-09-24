@@ -11,6 +11,7 @@ from scripts.performance.linux_native_pair import verify_index
 def args(tmp_path, role):
     return SimpleNamespace(
         role=role,
+        path="direct",
         output=tmp_path / "out",
         authority=tmp_path / "private",
         ready_input=None,
@@ -83,4 +84,54 @@ def test_cancellation_propagates_into_owned_delegate(tmp_path, monkeypatch):
         endpoint.execute_endpoint(item, input_stream=io.BytesIO(), output_stream=io.StringIO(), delegate=delegate)
     assert (item.output / "delegated-cleanup").exists()
     assert not (item.output / "result.json").exists()
+    verify_index(item.output)
+
+
+def test_nbsr_peer_can_exit_before_controller_ack_without_mutating_sealed_peer(tmp_path, monkeypatch):
+    from scripts.performance.linux_b5_placement import seal_output
+
+    monkeypatch.setattr(endpoint.platform, "system", lambda: "Linux")
+    queue_ref = []
+
+    def reader(stream, messages, stop):
+        queue_ref.append(messages)
+        stop.wait(2)
+
+    monkeypatch.setattr(endpoint, "read_commands", reader)
+
+    def delegate(item, check_cancelled):
+        item.output.mkdir()
+        (item.output / "ready.json").write_text(json.dumps(dict(endpoint="192.0.2.2:4444", alpn="nbsr-quic-1")))
+        check_cancelled()
+        seal_output(item.output)
+        queue_ref[0].put(b'{"op":"ack"}\n')
+        return dict(exit_code=0)
+
+    item = args(tmp_path, "destination")
+    item.path = "nbsr"
+    endpoint.execute_endpoint(item, input_stream=io.BytesIO(), output_stream=io.StringIO(), delegate=delegate)
+    verify_index(item.output / "peer")
+    assert (item.output / "completion.ack").exists()
+    assert not (item.output / "peer/completion.ack").exists()
+
+
+@pytest.mark.parametrize('failure', ['eof', 'deadline'])
+def test_post_peer_ack_wait_remains_cancellable_and_bounded(tmp_path, monkeypatch, failure):
+    monkeypatch.setattr(endpoint.platform, 'system', lambda: 'Linux')
+    queues, exited = [], []
+    monkeypatch.setattr(endpoint, 'read_commands', lambda stream, messages, stop: queues.append(messages))
+    monkeypatch.setattr(endpoint.time, 'monotonic', lambda: 121 if exited and failure == 'deadline' else 0)
+    def delegate(item, check_cancelled):
+        item.output.mkdir()
+        (item.output / 'ready.json').write_text(json.dumps(dict(endpoint='192.0.2.2:4444', alpn='nbsr-quic-1')))
+        check_cancelled()
+        exited.append(True)
+        if failure == 'eof':
+            queues[0].put(None)
+        return dict(exit_code=0)
+    item = args(tmp_path, 'destination')
+    item.path = 'nbsr'
+    with pytest.raises((InterruptedError, ValueError), match='EOF|deadline'):
+        endpoint.execute_endpoint(item, input_stream=io.BytesIO(), output_stream=io.StringIO(), delegate=delegate)
+    assert not (item.output / 'result.json').exists()
     verify_index(item.output)

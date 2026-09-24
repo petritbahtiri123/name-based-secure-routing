@@ -33,11 +33,15 @@ def execute_endpoint(args, *, input_stream=None, output_stream=None, delegate=na
     args.ready_input = output / 'transferred-readiness.json' if args.role == 'source' else None
     stop, messages = threading.Event(), queue.Queue(maxsize=8)
     reader = None
+    controller_deadline = time.monotonic() + 120
     try:
         write_json(output / 'controller.json', dict(schema=SCHEMA, role=args.role,
             workload='existing finite 3s warmup/20s timed or fixed-work native peer',
-            ownership='owned event proves fresh root, not completed peer preparation'))
-        control = FiniteControl(args)
+            ownership='owned event proves fresh root, not completed peer preparation',
+            ack_scope='Direct peer completion gate' if args.path == 'direct' else 'controller-only; NBSR peer may exit first'))
+        # NBSR finite mode already completes after stream ACKs; it does not wait
+        # on this Direct-fixture flag. Keep management ACK outside its sealed peer.
+        control = FiniteControl(args, ack_path=(output if args.path == 'nbsr' else args.output) / 'completion.ack')
         with (output / 'events.ndjson').open('x', encoding='utf-8', newline='\n') as log:
             def emit(value):
                 event = dict(schema=SCHEMA, role=args.role, timestamp_ns=time.monotonic_ns(), **value)
@@ -55,6 +59,7 @@ def execute_endpoint(args, *, input_stream=None, output_stream=None, delegate=na
                 def check():
                     nonlocal received
                     cancellation.check()
+                    require(time.monotonic() < controller_deadline, 'finite controller deadline')
                     for event in control.poll():
                         emit(event)
                     try:
@@ -78,6 +83,9 @@ def execute_endpoint(args, *, input_stream=None, output_stream=None, delegate=na
                         time.sleep(.01)
                 outcome = delegate(args, check_cancelled=check)
                 check()
+                while args.role == 'destination' and not control.acked:
+                    check()
+                    time.sleep(.01)
                 require(control.transferred if args.role == 'source' else control.acked,
                         'peer completed before control handshake')
                 write_json(output / 'result.json', dict(status='PASS_FINITE_ENDPOINT', role=args.role,
