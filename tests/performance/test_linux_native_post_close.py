@@ -19,6 +19,13 @@ def report(role="source", pid=123):
     )
 
 
+def test_cohort_comparison_distinguishes_post_close_observer_mode(tmp_path):
+    from scripts.performance.linux_native_cohort import comparison_identity
+    source, _ = fixture(tmp_path)
+    env = json.loads((source / 'environment.json').read_text())
+    assert comparison_identity(env) != comparison_identity(env | {'post_close_reports': True})
+
+
 @pytest.mark.parametrize("role", ["source", "destination"])
 def test_requested_report_is_bound_to_owned_role_pid_and_zero_counters(tmp_path, role):
     from scripts.performance.linux_native_peer import validate_post_close
