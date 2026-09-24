@@ -10,6 +10,7 @@ import math
 from pathlib import Path, PurePosixPath
 import re
 
+from scripts.performance.linux_native_duration import bounds
 from scripts.performance.linux_b5_ceiling import NAMES, require
 from scripts.performance.linux_loopback import digest, validate_matrix
 from scripts.performance.linux_native_peer import measurement_contract, validate_endpoint, validate_fixed_work, validate_post_close
@@ -93,13 +94,13 @@ def check_peer(root, role, source_sha):
     require(type(observed) is bool and (not observed or (role == 'source' and paced
             and not env.get('live_socket_observer', False))), 'invalid source observer mode')
     if observed:
-        require(result.get('source_live_guard') == replay(root, payload_bytes=cell['payload_bytes']),
+        require(result.get('source_live_guard') == replay(root, payload_bytes=cell['payload_bytes'], diagnostic_seconds=cell.get('diagnostic_seconds')),
                 'source live guard summary mismatch')
     else:
         require('source_live_guard' not in result and not any((root / name).exists() for name in
                 ('live-events.ndjson', 'live-observed-stdout', 'live-result.json')), 'undeclared source live observer')
     if paired_live and role == 'destination':
-        samples = list(read_records(root / 'destination-live-resources.ndjson', 250))
+        samples = list(read_records(root / 'destination-live-resources.ndjson', bounds(cell.get('diagnostic_seconds'))['resources']))
         previous = None
         for sample in samples:
             require(sample.get('role') == 'destination', 'owned destination resource role mismatch')

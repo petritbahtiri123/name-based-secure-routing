@@ -5,6 +5,7 @@ import json
 import queue
 import time
 
+from scripts.performance.linux_native_duration import bounds
 from scripts.performance.b5_stream import B5Stream
 from scripts.performance.linux_b5_ceiling import require
 from scripts.performance.linux_loopback import digest, write_json
@@ -17,15 +18,16 @@ class SourceObserver:
     result_key = 'source_live_guard'
 
     def __init__(self, root, *, pid, cpus, payload_bytes, deadline_ns,
-                 sampler_factory=LinuxResourceSampler, clock=time.monotonic_ns, on_record=None):
+                 diagnostic_seconds=None, sampler_factory=LinuxResourceSampler, clock=time.monotonic_ns, on_record=None):
         require(on_record is None or callable(on_record), 'invalid source record callback')
         self.on_record = on_record
         self.root, self.clock = root, clock
+        self.limits = bounds(diagnostic_seconds)
         self.guard = LocalLiveGuard(role='source', payload_bytes=payload_bytes,
-                                    max_progress=1024, max_resources=250)
-        self.queue = queue.Queue(maxsize=250)
+                                    max_progress=self.limits['progress'], max_resources=self.limits['resources'])
+        self.queue = queue.Queue(maxsize=self.limits['resources'])
         self.sampler = sampler_factory({'source': pid}, cpus, interval_seconds=.5,
-            max_records=250, record_sink=self.queue.put_nowait, terminal_roles=('source',))
+            max_records=self.limits['resources'], record_sink=self.queue.put_nowait, terminal_roles=('source',))
         self.deadline, self.payload = deadline_ns, payload_bytes
         self.stack = ExitStack()
         self.started = self.stopped = False
@@ -37,7 +39,7 @@ class SourceObserver:
             raw = self.stack.enter_context((self.root / 'live-observed-stdout').open('xb'))
             self.stream = B5Stream(raw_sink=raw, groups=1, payload_bytes=self.payload,
                 sampler=self.sampler, deadline_ns=self.deadline, max_line_bytes=65536,
-                max_lines=1024, clock=self.clock, on_progress=self.progress)
+                max_lines=self.limits['progress'], clock=self.clock, on_progress=self.progress)
             self.sampler.start()
             self.started = True
             return self
@@ -113,9 +115,9 @@ def read_records(path, limit):
             yield decode_object(wire)
 
 
-def source_records(root):
+def source_records(root, *, diagnostic_seconds=None):
     expected, final = [], False
-    for row in read_records(root / 'stdout', 1024):
+    for row in read_records(root / 'stdout', bounds(diagnostic_seconds)['progress']):
         require(not final, 'source record after final')
         if row.get('schema') in ('nbsr-b5-grouped-progress-v1', 'nbsr-b5-grouped-final-v1'):
             expected.append(row)
@@ -144,19 +146,20 @@ def validate_resource(root, resource, previous):
             if resource.get('state') == 'Z' else 'MEASURED'), 'resource memory state mismatch')
 
 
-def replay(root, *, payload_bytes):
+def replay(root, *, payload_bytes, diagnostic_seconds=None):
     require(digest(root / 'stdout') == digest(root / 'live-observed-stdout'),
             'observed/source stdout mismatch')
-    expected = source_records(root)
-    guard = LocalLiveGuard(role='source', payload_bytes=payload_bytes, max_progress=1024, max_resources=250)
+    limits = bounds(diagnostic_seconds)
+    expected = source_records(root, diagnostic_seconds=diagnostic_seconds)
+    guard = LocalLiveGuard(role='source', payload_bytes=payload_bytes, max_progress=limits['progress'], max_resources=limits['resources'])
     actual = []
     previous_resource = None
     with (root / 'live-events.ndjson').open('rb') as stream:
-        for index in range(1276):
+        for index in range(limits['progress'] + limits['resources'] + 2):
             wire = stream.readline(65537)
             if not wire:
                 break
-            require(index < 1275 and len(wire) <= 65536 and wire.endswith(b'\n'), 'local event replay bound')
+            require(index < limits['progress'] + limits['resources'] + 1 and len(wire) <= 65536 and wire.endswith(b'\n'), 'local event replay bound')
             row = decode_object(wire)
             kind = row.get('kind')
             require(set(row) == ({'kind', 'value', 'received_ns'} if kind == 'progress' else {'kind', 'value'}),

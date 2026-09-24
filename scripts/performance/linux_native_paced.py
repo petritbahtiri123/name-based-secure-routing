@@ -2,6 +2,7 @@
 
 import statistics
 
+from scripts.performance.linux_native_duration import bounds
 from scripts.performance.b5_grouped import ProgressValidator
 from scripts.performance.linux_b5_ceiling import require
 from scripts.performance.linux_native_lifecycle_control import decode_object
@@ -17,14 +18,15 @@ def validate_rate(rate):
 
 def read_paced(path, cell):
     validate_rate(cell['diagnostic_rate'])
+    limits = bounds(cell.get('diagnostic_seconds'))
     validator = ProgressValidator(1, cell['payload_bytes'])
     final, steady, failures = None, [], []
     with path.open('rb') as stream:
-        for index in range(1025):
+        for index in range(limits['progress'] + 1):
             wire = stream.readline(65537)
             if not wire:
                 break
-            require(index < 1024 and len(wire) <= 65536 and wire.endswith(b'\n'),
+            require(index < limits['progress'] and len(wire) <= 65536 and wire.endswith(b'\n'),
                     'paced stdout framing/bound failed')
             require(final is None, 'record after paced final')
             value = decode_object(wire)
@@ -43,7 +45,7 @@ def read_paced(path, cell):
                 require(value.get('event') == 'diagnostic'
                         and (not isinstance(schema, str) or not schema.startswith('nbsr-b5')),
                         'unknown paced stdout record')
-    require(final is not None and final['measurement_duration_ns'] == 20_000_000_000
+    require(final is not None and final['measurement_duration_ns'] == limits['duration'] * 1_000_000_000
             and final['streams_per_group'] == cell['streams']
             and final['outstanding_per_stream'] == cell['outstanding'], 'paced final shape/duration mismatch')
     require(final['offered'] > 0 and final['completed'] > 0, 'empty paced workload')

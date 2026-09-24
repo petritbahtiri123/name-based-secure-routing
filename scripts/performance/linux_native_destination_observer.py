@@ -5,6 +5,7 @@ import json
 import queue
 import time
 
+from scripts.performance.linux_native_duration import bounds
 from scripts.performance.linux_b5_ceiling import require
 from scripts.performance.linux_native_live import LocalLiveGuard
 from scripts.performance.linux_native_source_observer import read_records, source_records, validate_resource
@@ -15,14 +16,15 @@ class DestinationObserver:
     result_key = 'destination_live_resources'
 
     def __init__(self, root, *, pid, cpus, payload_bytes, deadline_ns,
-                 sampler_factory=LinuxResourceSampler, clock=time.monotonic_ns):
+                 diagnostic_seconds=None, sampler_factory=LinuxResourceSampler, clock=time.monotonic_ns):
         self.root, self.clock, self.deadline = root, clock, deadline_ns
         self.events_path = root.parent / 'destination-live-events.ndjson'
+        self.limits = bounds(diagnostic_seconds)
         self.guard = LocalLiveGuard(role='destination', payload_bytes=payload_bytes,
-                                    max_progress=1024, max_resources=250)
-        self.queue = queue.Queue(maxsize=250)
+                                    max_progress=self.limits['progress'], max_resources=self.limits['resources'])
+        self.queue = queue.Queue(maxsize=self.limits['resources'])
         self.sampler = sampler_factory({'destination': pid}, cpus, interval_seconds=.5,
-            max_records=250, record_sink=self.queue.put_nowait, terminal_roles=('destination',))
+            max_records=self.limits['resources'], record_sink=self.queue.put_nowait, terminal_roles=('destination',))
         self.stack = ExitStack()
         self.started = self.stopped = False
         self.resource_count = 0
@@ -92,12 +94,13 @@ class DestinationObserver:
             self.stack.close()
 
 
-def replay_destination(endpoint, source_peer, *, payload_bytes):
+def replay_destination(endpoint, source_peer, *, payload_bytes, diagnostic_seconds=None):
+    limits = bounds(diagnostic_seconds)
     peer = endpoint / 'peer'
-    guard = LocalLiveGuard(role='destination', payload_bytes=payload_bytes, max_progress=1024, max_resources=250)
+    guard = LocalLiveGuard(role='destination', payload_bytes=payload_bytes, max_progress=limits['progress'], max_resources=limits['resources'])
     resources, telemetry = [], []
     previous = None
-    for row in read_records(endpoint / 'destination-live-events.ndjson', 1275):
+    for row in read_records(endpoint / 'destination-live-events.ndjson', limits['progress'] + limits['resources'] + 1):
         kind = row.get('kind')
         require(set(row) == ({'kind', 'value'} if kind == 'resource' else {'kind', 'value', 'received_ns'}),
                 'invalid destination local event fields')
@@ -116,9 +119,9 @@ def replay_destination(endpoint, source_peer, *, payload_bytes):
             telemetry.append(row['value'])
         else:
             raise ValueError('unknown destination local event')
-    require(guard.final is not None and telemetry == source_records(source_peer),
+    require(guard.final is not None and telemetry == source_records(source_peer, diagnostic_seconds=diagnostic_seconds),
             'destination/source telemetry mismatch')
-    require(resources == list(read_records(peer / 'destination-live-resources.ndjson', 250)),
+    require(resources == list(read_records(peer / 'destination-live-resources.ndjson', limits['resources'])),
             'destination owned/local resource mismatch')
     result = guard.qualification()
     require(result == json.loads((endpoint / 'result.json').read_bytes())['destination_live_guard'],

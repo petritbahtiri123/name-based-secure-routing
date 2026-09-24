@@ -70,3 +70,34 @@ failures. `PAIRED_DIAGNOSTIC` is still not a capacity, observer-neutrality or so
 qualification. The workload and deadlines remain the original short diagnostic.
 Reference-bound long-duration execution and matched observer qualification remain
 separate unfinished requirements.
+
+## Explicit longer diagnostics
+
+The native finite coordinator additionally accepts `diagnostic_seconds` equal to
+60, 3600 or 7200 when `diagnostic_rate` and post-close reports are enabled. Omit
+the field for the unchanged 20-second workload. Direct and NBSR use the same
+duration. Example extension to a complete native coordinator configuration:
+
+```json
+{
+  "diagnostic_rate": [1000, 1],
+  "diagnostic_seconds": 60,
+  "post_close_reports": true,
+  "source_live_guard": true,
+  "paired_live_guards": true
+}
+```
+
+This is a diagnostic mode, not reference-bound B5 acceptance. The 60-second option
+is a functional preflight; 3600/7200 declare a genuinely different workload.
+Their control budget is duration plus the existing 120-second allowance. Existing
+short-mode 120-second, readiness-transfer 30-second, child cleanup and transfer
+deadlines remain unchanged. There is no automatic retry or timeout extension.
+
+One bounded contract controls command duration, process/management budgets,
+resource counts, telemetry framing and independent replay. Sampling remains
+0.5 seconds and progress windows remain 5 seconds. Final duration must exactly
+match the declared workload; a short transcript cannot pass as a long run.
+Synthetic two-hour replay verifies framing/ownership joins, not two hours of
+actual execution. Reference binding, observer timing qualification and a genuine
+near-ceiling soak remain separate open gates.

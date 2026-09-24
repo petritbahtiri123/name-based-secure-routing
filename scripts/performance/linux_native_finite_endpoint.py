@@ -9,6 +9,7 @@ import threading
 import time
 
 from scripts.performance import linux_native_peer as native
+from scripts.performance.linux_native_duration import bounds
 from scripts.performance.linux_b5_ceiling import require
 from scripts.performance.linux_b5_placement import seal_output
 from scripts.performance.linux_loopback import ROOT, write_json
@@ -38,11 +39,14 @@ def execute_endpoint(args, *, input_stream=None, output_stream=None, delegate=na
     args.ready_input = output / 'transferred-readiness.json' if args.role == 'source' else None
     stop, messages = threading.Event(), queue.Queue(maxsize=8)
     reader = None
-    controller_deadline = time.monotonic() + 120
+    limits = bounds(getattr(args, 'diagnostic_seconds', None))
+    controller_deadline = time.monotonic() + limits['controller_seconds']
     try:
         write_json(output / 'controller.json', dict(schema=SCHEMA, role=args.role,
-            paired_live_guards=paired,
-            workload='existing finite 3s warmup/20s timed or fixed-work native peer',
+            paired_live_guards=paired, diagnostic_seconds=getattr(args, 'diagnostic_seconds', None),
+            workload=(f"paced diagnostic: 3s warmup/{limits['duration']}s issue"
+                      if getattr(args, 'diagnostic_seconds', None) is not None
+                      else 'existing finite 3s warmup/20s timed or fixed-work native peer'),
             ownership='owned event proves fresh root, not completed peer preparation',
             ack_scope='Direct peer completion gate' if args.path == 'direct' else 'controller-only; NBSR peer may exit first'))
         # NBSR finite mode already completes after stream ACKs; it does not wait
@@ -91,7 +95,7 @@ def execute_endpoint(args, *, input_stream=None, output_stream=None, delegate=na
                     if isinstance(wire, BaseException):
                         raise wire
                     received += 1
-                    require(received <= (1027 if paired else 3) and isinstance(wire, bytes) and wire.endswith(b'\n'), 'invalid bounded control frame')
+                    require(received <= (limits['progress'] + 3 if paired else 3) and isinstance(wire, bytes) and wire.endswith(b'\n'), 'invalid bounded control frame')
                     value = decode_object(wire)
                     if paired and value.get('op') in ('paced_progress', 'paced_final'):
                         require(args.role == 'destination' and control.ready and set(value) == {'op', 'value'},

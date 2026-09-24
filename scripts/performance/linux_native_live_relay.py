@@ -2,6 +2,7 @@
 
 from copy import deepcopy
 
+from scripts.performance.linux_native_duration import bounds
 from scripts.performance.b5_grouped import ProgressValidator
 from scripts.performance.linux_b5_ceiling import require
 from scripts.performance.linux_native_finite_control import FiniteLedger, SCHEMA
@@ -9,9 +10,10 @@ from scripts.performance.linux_native_lifecycle_control import decode_object
 
 
 class LiveLedger(FiniteLedger):
-    def __init__(self, *, payload_bytes):
+    def __init__(self, *, payload_bytes, diagnostic_seconds=None):
         super().__init__()
         self.validator = ProgressValidator(1, payload_bytes)
+        self.limit = bounds(diagnostic_seconds)['progress']
         self.telemetry = []
         self.final_received = False
 
@@ -24,7 +26,7 @@ class LiveLedger(FiniteLedger):
             return super().accept(role, wire)
         require(role == 'source' and self.positions['source'] == 2 and not self.final_received,
                 'telemetry outside source measurement phase')
-        require(len(self.telemetry) < 1024, 'telemetry frame bound exceeded')
+        require(len(self.telemetry) < self.limit, 'telemetry frame bound exceeded')
         require(set(value) == {'schema', 'role', 'event', 'timestamp_ns', 'value'}
                 and value['schema'] == SCHEMA and value['role'] == role,
                 'invalid telemetry fields/schema/role')

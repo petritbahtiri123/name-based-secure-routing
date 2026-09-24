@@ -18,6 +18,7 @@ import socket
 import subprocess
 import time
 
+from scripts.performance.linux_native_duration import bounds
 from scripts.performance.b3_linux import environment
 from scripts.performance.linux_b5_ceiling import NAMES, require
 from scripts.performance.linux_b5_placement import seal_output
@@ -54,11 +55,14 @@ def readiness_endpoint(path, expected_address):
 
 def measurement_contract(cell):
     """Keep historical timed cells separate from equal-work packet fixtures."""
+    if 'diagnostic_seconds' in cell:
+        require('diagnostic_rate' in cell, 'long diagnostic requires pacing')
+        bounds(cell['diagnostic_seconds'])
     if 'diagnostic_rate' in cell:
         validate_rate(cell['diagnostic_rate'])
         require('operations_per_stream' not in cell, 'paced and fixed work are exclusive')
     if 'operations_per_stream' not in cell:
-        return 3, 20
+        return 3, bounds(cell.get('diagnostic_seconds'))['duration']
     count = cell['operations_per_stream']
     require(type(count) is int and 1 <= count <= 10000 and cell['outstanding'] == 1,
             'fixed work requires 1..10000 operations per stream at depth one')
@@ -90,7 +94,7 @@ def native_command(cell, role, binaries, authority, output, *, bind, endpoint, p
     warmup, duration = measurement_contract(cell)
     if 'diagnostic_rate' in cell:
         require(post_close_reports and phase_control is None, 'paced mode requires reports and no phase observer')
-    server, client, env = build_commands(cell, binaries, authority, output, endpoint, warmup, 20)
+    server, client, env = build_commands(cell, binaries, authority, output, endpoint, warmup, duration if duration is not None else 20)
     if 'diagnostic_rate' in cell:
         numerator, denominator = cell['diagnostic_rate']
         client += ['--p2a-groups', '1', '--p2a-progress-seconds', '5',
@@ -223,6 +227,9 @@ def execute(args, *, check_cancelled=not_cancelled, live_events=None, destinatio
         cell['operations_per_stream'] = args.operations_per_stream
     if getattr(args, 'diagnostic_rate', None) is not None:
         cell['diagnostic_rate'] = args.diagnostic_rate
+    if getattr(args, 'diagnostic_seconds', None) is not None:
+        cell['diagnostic_seconds'] = args.diagnostic_seconds
+    limits = bounds(cell.get('diagnostic_seconds'))
     warmup, duration = measurement_contract(cell)
     phase_control = getattr(args, 'phase_control', None)
     post_close_reports = getattr(args, 'post_close_reports', False)
@@ -255,7 +262,7 @@ def execute(args, *, check_cancelled=not_cancelled, live_events=None, destinatio
     try:
         write_json(output / 'environment.json', dict(repository_sha=sha, cell=cell, role=args.role,
             bind=args.bind, endpoint=endpoint, linux_environment=host, uid=os.getuid(),
-            controller_deadline_seconds=120, warmup_seconds=warmup, duration_seconds=duration,
+            controller_deadline_seconds=limits['controller_seconds'], warmup_seconds=warmup, duration_seconds=duration,
             live_socket_observer=bool(getattr(args, 'observe_socket_ownership', False)),
             phase_control_endpoint=phase_control,
             post_close_reports=post_close_reports, output_root=str(output),
@@ -275,17 +282,17 @@ def execute(args, *, check_cancelled=not_cancelled, live_events=None, destinatio
                 stdout=stdout, stderr=stderr, start_new_session=True)
             write_json(output / 'pid.json', dict(pid=child.pid, owns_process_group=True))
             check_cancelled()
-            deadline = time.monotonic() + 120
+            deadline = time.monotonic() + limits['controller_seconds']
             wait_target_exec(child, executable, check_cancelled=check_cancelled)
             socket_identity = ((str(executable), bind_ip)
                                if getattr(args, 'observe_socket_ownership', False) else None)
             observer = (SourceObserver(output, pid=child.pid, cpus=cpus, payload_bytes=cell['payload_bytes'],
-                                       deadline_ns=int(deadline * 1e9), on_record=live_events)
+                                       deadline_ns=int(deadline * 1e9), on_record=live_events, diagnostic_seconds=cell.get('diagnostic_seconds'))
                         if source_live_guard else nullcontext())
             if destination_observer_factory is not None:
                 require(args.role == 'destination', 'destination observer role mismatch')
                 observer = destination_observer_factory(output, pid=child.pid, cpus=cpus,
-                    payload_bytes=cell['payload_bytes'], deadline_ns=int(deadline * 1e9))
+                    payload_bytes=cell['payload_bytes'], deadline_ns=int(deadline * 1e9), diagnostic_seconds=cell.get('diagnostic_seconds'))
             with observer as live:
                 result = observe_child(child, cpus, output, deadline=deadline,
                     check_cancelled=check_cancelled, socket_identity=socket_identity, live_observer=live)
@@ -339,6 +346,7 @@ def argument_parser():
                         help='Short diagnostic B5 ops/s rate; requires post-close reports, never a stable reference')
     parser.add_argument('--source-live-guard', action='store_true',
                         help='Opt-in source-only paced private-memory diagnostic; observer unqualified')
+    parser.add_argument('--diagnostic-seconds', type=int, choices=(60, 3600, 7200))
     parser.add_argument('--paired-live-guards', action='store_true',
                         help='Private endpoint-only paired paced telemetry; never a standalone capacity claim')
     parser.add_argument('--path', choices=('direct', 'nbsr'), required=True)
