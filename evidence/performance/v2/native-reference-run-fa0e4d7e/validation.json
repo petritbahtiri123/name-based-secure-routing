@@ -1,0 +1,12 @@
+{
+  "source_sha": "fa0e4d7eff2c75dfda485c41c069db10446fbc63",
+  "real_validation": {
+    "classification": "PASS_REJECTED_UNQUALIFIED_REFERENCE",
+    "child_output_created": false,
+    "successful_real_reference_bound_run": "NOT_PROVEN"
+  },
+  "initial_affected_tests": 36,
+  "final_runner_reference_tests": 24,
+  "review": "PASS",
+  "production_change": false
+}

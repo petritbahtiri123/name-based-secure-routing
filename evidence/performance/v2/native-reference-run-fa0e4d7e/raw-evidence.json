@@ -1,0 +1,22 @@
+[
+  {
+    "root": "C:\\NBSR-build\\native-reference-run-tests-20260924",
+    "index_sha256": "1d1eb0b08de59e526519cfb86f034f0d73b207d8cc8ffa55e394611cc61c489f"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-reference-run-validation-20260924",
+    "index_sha256": "cb15efda6513fcc41a2eefdcad6c0a39bd794ded413ff8a3ab404c9295060a39"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-reference-gates-validation-20260924",
+    "index_sha256": "b54ac7573146fc6dd7c172a44045a8aa90a12395afa1a3c82511112284649651"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-post-close-ac40740c",
+    "index_sha256": "8f8330df2ea7be7175ccc9052b5713e6a3f280a243886b40395b658ea2e3dd2a"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-post-close-observer-ac40740c",
+    "index_sha256": "d7899ec2bf440ddf0555864f7a622098d55be5929172e6e92933b2e356ee3470"
+  }
+]

@@ -146,3 +146,12 @@ Default short contracts remain unchanged. 147 affected tests/Ruff, synthetic
 two-hour replay and review/re-review PASS. Package
 `evidence/performance/v2/native-long-4144d8fa`. Three inactive Cargo caches were
 cleaned with measured 743,329,792-byte recovery; inventory retained in the package.
+
+Reference-bound native diagnostic orchestration is implemented at fa0e4d7e.
+Exact 70–80% rate and current source/shape/stable-depth/bind checks precede launch;
+actual placement/build and unchanged reference evidence gate publication after
+collection. Live observer and sustained-capacity labels remain NOT_ESTABLISHED.
+Initial 36 affected tests, final 24 runner/reference tests, Ruff and focused review
+PASS. The real retained ac40740c reference rejects before child output, as required.
+Package `evidence/performance/v2/native-reference-run-fa0e4d7e`. This closes the
+orchestration prerequisite, not qualified native reference or actual B5 acceptance.
