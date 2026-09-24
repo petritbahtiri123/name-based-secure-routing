@@ -21,7 +21,7 @@ from scripts.performance.linux_b5_ceiling import NAMES, require
 from scripts.performance.linux_b5_placement import seal_output
 from scripts.performance.linux_b5_reference import git_state
 from scripts.performance.linux_loopback import ROOT, digest, physical_cpu_sets, write_json
-from scripts.performance.linux_native_lifecycle_control import BUNDLE_COUNTS
+from scripts.performance.linux_native_lifecycle_control import BUNDLE_COUNTS, CYCLE_COUNTS
 from scripts.performance.linux_native_peer import observe_child, readiness_endpoint, validate_endpoint, wait_target_exec
 from scripts.performance.linux_udp_failure import capture_owned_udp
 from scripts.performance.post_close_cleanup import FIELDS
@@ -79,6 +79,32 @@ def command(*, role, count, shards, rate, binaries, authority, lifecycle, output
              NBSR_PERF_STREAMS_PER_SERVICE='1', NBSR_PERF_CONCURRENT_STREAMS='1',
              NBSR_PERF_CONCURRENT_SESSIONS='1', NBSR_PERF_LIFECYCLE_SERIAL_ACCEPT='1',
              NBSR_PERF_LIFECYCLE_OFFERED_RATE=str(rate)))
+
+
+
+def cycle_command(*, role, cycles, binaries, authority, lifecycle, output, bind, endpoint):
+    """Separate sequential workload; private cycle barriers must drive each start.
+
+    This command builder does not make the bundle endpoint cycle-aware. A cycle
+    coordinator must retain both peer process epochs and release the source's
+    final gate only after the final cooldown.
+    """
+    require(type(cycles) is int and cycles in CYCLE_COUNTS, 'invalid cycle count')
+    argv, overrides = command(role=role, count=16, shards=1, rate=100,
+        binaries=binaries, authority=authority, lifecycle=lifecycle, output=output,
+        bind=bind, endpoint=endpoint)
+    if role == 'source':
+        argv[argv.index('--connections') + 1] = str(cycles)
+        for flag in ('--lifecycle-clients', '--lifecycle-source-shards', '--lifecycle-offered-rate'):
+            position = argv.index(flag)
+            del argv[position:position + 2]
+        argv.extend(['--lifecycle-final-release', str(lifecycle / 'source.final-release')])
+    else:
+        overrides['NBSR_PERF_LIFECYCLE_CONNECTIONS'] = str(cycles)
+        for key in ('NBSR_PERF_CONCURRENT_SESSIONS', 'NBSR_PERF_LIFECYCLE_SERIAL_ACCEPT',
+                    'NBSR_PERF_LIFECYCLE_OFFERED_RATE'):
+            del overrides[key]
+    return argv, overrides
 
 
 def validate_result(role, count, rows, server):

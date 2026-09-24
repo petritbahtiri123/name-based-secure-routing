@@ -161,3 +161,10 @@ three focused matrix tests PASS after literal RED. Existing native phase/socket
 coverage is distinguished from physical/continuous ownership gaps. Full matrix
 remains PARTIAL_REQUIRED_PORTING, with per-axis remote same-process lifecycle
 cycles and full executor still open. Evidence: external-capability-refresh-20260924.
+
+Native same-process cycles: bounded sequential command/barrier/ledger/driver
+prerequisites implemented; 114 affected tests/Ruff/re-review PASS. Review exposed
+and RED/GREEN fixed premature completion markers accepted between polls. Existing
+bundle behavior retained. Endpoint integration, collected-evidence/process-epoch
+validation and actual cycle runs remain OPEN; no measured cycle claim from helpers.
+Raw prerequisite tests: C:/NBSR-build/native-cycle-contract-tests-20260924 (sealed).

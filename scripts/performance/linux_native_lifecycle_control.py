@@ -8,6 +8,7 @@ from scripts.performance.linux_b5_ceiling import require
 from scripts.performance.linux_loopback import write_json
 
 BUNDLE_COUNTS = (16, 32, 64, 128, 256, 512, 1024)
+CYCLE_COUNTS = (1, 2, 4, 8, 16)
 
 
 class LifecycleBarrier:
@@ -124,3 +125,103 @@ def decode_control(wire):
     require(set(value) == expected and (value['op'] != 'readiness' or isinstance(value['value'], dict)),
             'invalid control fields')
     return value
+
+
+class CycleBarrier:
+    """Sequential diagnostic barriers; ACK is not a resource-reclamation proof."""
+
+    def __init__(self, *, role, cycles, root, output, capture, clock=time.monotonic_ns):
+        require(role in ('source', 'destination') and type(cycles) is int
+                and cycles in CYCLE_COUNTS, 'invalid role/cycle count')
+        require(root.is_dir() and not root.is_symlink() and output.is_dir(), 'invalid barrier directories')
+        self.role, self.cycles, self.root, self.output = role, cycles, root, output
+        self.capture, self.clock = capture, clock
+        self.cycle = -1
+        self.active_ns = self.released_ns = self.acked_ns = self.report_ns = None
+        self.final_released = False
+        self.retained = set()
+
+    def _inventory(self):
+        names = set()
+        with os.scandir(self.root) as entries:
+            for entry in entries:
+                if entry.name.endswith(('.active', '.ack', '.failed')):
+                    require(entry.is_file(follow_symlinks=False), 'invalid marker entry')
+                    names.add(entry.name)
+        require(not any(n.endswith('.failed') for n in names), 'failed marker prevents progress')
+        require(self.retained <= names, 'previous markers must be retained')
+        prefix = 'connection' if self.role == 'source' else 'destination'
+        allowed = {f'{prefix}-{i}.active' for i in range(self.cycle + 1)}
+        if self.role == 'source':
+            allowed |= {f'connection-{i}.ack' for i in range(self.cycle + 1)}
+        require(names <= allowed, 'unexpected cycle marker')
+        if self.role == 'source' and f'connection-{self.cycle}.ack' in names:
+            require(self.released_ns is not None, 'ACK before release')
+        ready = self.root / 'destination.report-ready'
+        require(not ready.is_symlink(), 'invalid report marker')
+        if self.role == 'destination' and ready.exists():
+            require(ready.is_file() and self.cycle == self.cycles - 1
+                    and self.released_ns is not None, 'premature final report')
+        self.retained = names
+        return names
+
+    def _write(self, name, value='release'):
+        with (self.root / name).open('x', encoding='utf-8', newline='\n') as stream:
+            stream.write(value + '\n')
+
+    def poll(self):
+        names = self._inventory()
+        events = []
+        prefix = 'connection' if self.role == 'source' else 'destination'
+        if f'{prefix}-{self.cycle}.active' in names and self.active_ns is None:
+            binding = self.capture()
+            require(binding.get('status') == 'MEASURED_LIVE_SOCKET_SNAPSHOT'
+                    and len(binding.get('sockets', [])) == 1, 'one live socket required')
+            write_json(self.output / f'socket-binding-{self.cycle}.json', binding)
+            self.active_ns = self.clock()
+            events.append(dict(event='active', cycle=self.cycle))
+        if self.role == 'source' and f'connection-{self.cycle}.ack' in names:
+            require(self.released_ns is not None, 'ACK before release')
+            if self.acked_ns is None:
+                self.acked_ns = self.clock()
+                events.append(dict(event='acked', cycle=self.cycle))
+        ready = self.root / 'destination.report-ready'
+        require(not ready.is_symlink(), 'invalid report marker')
+        if self.role == 'destination' and ready.exists():
+            require(ready.is_file() and self.cycle == self.cycles - 1
+                    and self.released_ns is not None, 'premature final report')
+            if self.report_ns is None:
+                self.report_ns = self.clock()
+                events.append(dict(event='report_ready', cycle=self.cycle))
+        return events
+
+    def request(self, operation, cycle):
+        require(type(cycle) is int and 0 <= cycle < self.cycles, 'invalid cycle index')
+        self._inventory()
+        require(not self.final_released, 'cycle barrier already complete')
+        if operation == 'start':
+            require(cycle == self.cycle + 1, 'next cycle required')
+            if self.cycle >= 0:
+                origin = self.acked_ns if self.role == 'source' else self.released_ns
+                require(origin is not None and self.clock() - origin >= 2_000_000_000,
+                        'completed cycle and two-second cooldown required')
+            if self.role == 'source':
+                self._write(f'connection-{cycle}.start', 'start')
+            self.cycle = cycle
+            self.active_ns = self.released_ns = self.acked_ns = None
+            return [dict(event='started', cycle=cycle)]
+        require(cycle == self.cycle, 'current cycle required')
+        if operation == 'release':
+            require(self.active_ns is not None and self.released_ns is None,
+                    'unreleased active cycle required')
+            require(self.clock() - self.active_ns >= 2_000_000_000, 'two-second hold required')
+            self._write(f'connection-{cycle}.release')
+            self.released_ns = self.clock()
+            return [dict(event='released', cycle=cycle)]
+        require(operation == 'final_release' and cycle == self.cycles - 1, 'final cycle operation required')
+        origin = self.acked_ns if self.role == 'source' else self.report_ns
+        require(origin is not None and self.clock() - origin >= 2_000_000_000,
+                'final two-second cooldown required')
+        self._write('source.final-release' if self.role == 'source' else 'destination.report-release')
+        self.final_released = True
+        return [dict(event='final_released', cycle=cycle)]
