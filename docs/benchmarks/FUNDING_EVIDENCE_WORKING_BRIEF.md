@@ -1,6 +1,6 @@
 # NBSR technical evidence: working brief
 
-**DRAFT â€” NOT a final funding freeze.** This is a navigation and claims brief
+**DRAFT — NOT a final funding freeze.** This is a navigation and claims brief
 for the ongoing campaign. Each measurement belongs to its recorded source,
 workload and host; different stages are not one final-SHA scoreboard.
 
