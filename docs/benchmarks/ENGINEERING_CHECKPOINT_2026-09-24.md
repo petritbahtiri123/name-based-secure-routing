@@ -92,3 +92,9 @@ commands and before/after values are retained in `native-observer-cleanup-202609
 Another 76 stopped fixtures were removed after complete raw/endpoint index checks:
 2,368,540,672 logical writable bytes, no measured host SSD recovery. Inventory is
 in `native-closed-fixture-cleanup-20260924`, referenced by the paced package.
+
+Native local live-guard prerequisite implemented at 7d5cbcf1: bounded per-host
+resource/progress accounting, existing drift/growth thresholds, no cross-host
+monotonic comparison. 68 affected tests and Ruff PASS, scoped review clean.
+Package `evidence/performance/v2/native-local-live-7d5cbcf1` retains synthetic
+RED/GREEN evidence. Not integrated into peers yet; observer and soak unqualified.
