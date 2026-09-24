@@ -15,7 +15,7 @@ from scripts.performance.linux_loopback import digest, validate_matrix
 from scripts.performance.linux_native_peer import measurement_contract, validate_endpoint, validate_fixed_work, validate_post_close
 from scripts.performance.p2a_established import validate_repeat
 from scripts.performance.linux_native_paced import read_paced
-from scripts.performance.linux_native_source_observer import replay
+from scripts.performance.linux_native_source_observer import replay, read_records, validate_resource
 
 
 def read(root, name):
@@ -85,7 +85,11 @@ def check_peer(root, role, source_sha):
                 and argv[argv.index(key) + 1] == str(expected), 'command mismatch: ' + key)
     option('--p2a-runtime-workers', cell['cores'])
     paced = 'diagnostic_rate' in cell
+    paired_live = env.get('paired_live_guards', False)
+    require(type(paired_live) is bool and (not paired_live or (paced
+            and not env.get('live_socket_observer', False))), 'invalid paired live mode')
     observed = env.get('source_live_guard', False)
+    require(not paired_live or observed == (role == 'source'), 'paired source observer mismatch')
     require(type(observed) is bool and (not observed or (role == 'source' and paced
             and not env.get('live_socket_observer', False))), 'invalid source observer mode')
     if observed:
@@ -94,6 +98,20 @@ def check_peer(root, role, source_sha):
     else:
         require('source_live_guard' not in result and not any((root / name).exists() for name in
                 ('live-events.ndjson', 'live-observed-stdout', 'live-result.json')), 'undeclared source live observer')
+    if paired_live and role == 'destination':
+        samples = list(read_records(root / 'destination-live-resources.ndjson', 250))
+        previous = None
+        for sample in samples:
+            require(sample.get('role') == 'destination', 'owned destination resource role mismatch')
+            validate_resource(root, sample, previous)
+            previous = sample
+        report = result.get('destination_live_resources', {})
+        require(samples and report.get('resource_collection_complete') is True
+                and type(report.get('samples')) is int and report['samples'] == len(samples),
+                'destination resource collection incomplete')
+    else:
+        require('destination_live_resources' not in result
+                and not (root / 'destination-live-resources.ndjson').exists(), 'undeclared destination resources')
     if paced:
         require(env.get('post_close_reports') is True and env.get('phase_control_endpoint') is None,
                 'paced mode requires reports without phase observer')
@@ -180,6 +198,7 @@ def analyze_pair(source, destination, *, source_sha):
         src, result, src_index = check_peer(source, 'source', source_sha)
         dst, _, dst_index = check_peer(destination, 'destination', source_sha)
         require(src['cell'] == dst['cell'] and src['binary_sha256'] == dst['binary_sha256']
+                and src.get('paired_live_guards', False) == dst.get('paired_live_guards', False)
                 and src.get('post_close_reports', False) == dst.get('post_close_reports', False)
                 and src.get('live_socket_observer', False) == dst.get('live_socket_observer', False)
                 and src['certificates_sha256']['ca.der'] == dst['certificates_sha256']['ca.der'],

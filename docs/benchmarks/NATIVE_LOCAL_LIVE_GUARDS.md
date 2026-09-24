@@ -43,6 +43,30 @@ observed stdout equals original stdout. Sampling stops before the child is reape
 Failures in sampling/framing/accounting invalidate the run; measured drift/growth
 failures remain visible as diagnostic results. Numerical success is not stability.
 
-Destination memory and live cross-host progress forwarding remain unimplemented.
-The observer effect has not been qualified. Do not combine observed and unobserved
-cells into one supposedly equivalent performance cohort.
+The source-only option leaves destination memory unmeasured. The observer effect
+has not been qualified. Do not combine observed and unobserved cells into one
+supposedly equivalent performance cohort.
+
+## Paired short diagnostic
+
+The finite coordinator also accepts `paired_live_guards: true`, requiring
+`source_live_guard: true`, `post_close_reports: true` and `diagnostic_rate`.
+Only the endpoint adapter may launch this mode. Source progress/final records are
+validated and forwarded in order over the private management stream. The manager
+does not dispatch further callbacks while a control write is pending, preventing
+reentrant writes from reordering records; deadlines/cancellation remain active.
+
+Each destination records receipt time on its own monotonic clock. Its sampler
+starts inside owned-peer lifetime and stops before reaping (or when source final
+arrives first). NBSR may naturally exit before final telemetry; endpoint evidence
+therefore joins late telemetry outside the already-sealed peer directory. This
+management join does not alter NBSR ACK/send completion semantics. The endpoint
+refuses its management ACK until the source telemetry final is validated.
+
+Pair collection checks both observer modes, retained/live source control equality,
+source stdout equality, destination resource identity/counters and exact agreement
+between owned samples and local receipt events. Both guards retain numerical
+failures. `PAIRED_DIAGNOSTIC` is still not a capacity, observer-neutrality or soak
+qualification. The workload and deadlines remain the original short diagnostic.
+Reference-bound long-duration execution and matched observer qualification remain
+separate unfinished requirements.

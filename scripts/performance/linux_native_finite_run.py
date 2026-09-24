@@ -15,6 +15,9 @@ from scripts.performance.linux_native_lifecycle_run import collect
 from scripts.performance.linux_native_pair import analyze_pair, read, verify_index
 from scripts.performance.linux_native_peer import validate_endpoint
 from scripts.performance.linux_native_paced import validate_rate
+from scripts.performance.linux_native_live_relay import LiveLedger
+from scripts.performance.linux_native_source_observer import source_records
+from scripts.performance.linux_native_destination_observer import replay_destination
 from scripts.performance.process_cancellation import Cancellation, not_cancelled
 
 
@@ -22,11 +25,14 @@ ROLES = ('source', 'destination')
 
 
 def validate_config(value):
-    require(isinstance(value, dict) and set(value) - {'post_close_reports', 'diagnostic_rate', 'source_live_guard'} == {'schema', 'source_sha', 'path', 'payload', 'streams', 'depth', *ROLES},
+    require(isinstance(value, dict) and set(value) - {'post_close_reports', 'diagnostic_rate', 'source_live_guard', 'paired_live_guards'} == {'schema', 'source_sha', 'path', 'payload', 'streams', 'depth', *ROLES},
             'invalid finite configuration fields')
     require(type(value.get('post_close_reports', False)) is bool, 'boolean post-close mode required')
     require(type(value.get('source_live_guard', False)) is bool
             and (not value.get('source_live_guard') or 'diagnostic_rate' in value), 'paced source guard required')
+    require(type(value.get('paired_live_guards', False)) is bool
+            and (not value.get('paired_live_guards') or value.get('source_live_guard') is True),
+            'paired guards require observed source')
     if 'diagnostic_rate' in value:
         validate_rate(value['diagnostic_rate'])
         require(value.get('post_close_reports') is True, 'paced diagnostic requires post-close mode')
@@ -70,6 +76,8 @@ def endpoint_arguments(config, role):
         argv += ['--post-close-reports']
     if 'diagnostic_rate' in config:
         argv += ['--diagnostic-rate', *map(str, config['diagnostic_rate'])]
+    if config.get('paired_live_guards', False):
+        argv += ['--paired-live-guards']
     if role == 'source':
         if config.get('source_live_guard', False):
             argv += ['--source-live-guard']
@@ -83,13 +91,20 @@ def check_endpoint(root, role):
     result, controller = read(root, 'result.json'), read(root, 'controller.json')
     require(result['status'] == 'PASS_FINITE_ENDPOINT' and result['role'] == role
             and controller['role'] == role and controller['schema'] == SCHEMA, 'endpoint identity/status mismatch')
-    ledger = FiniteLedger()
+    env = read(root / 'peer', 'environment.json')
+    paired = controller.get('paired_live_guards', False)
+    require(type(paired) is bool and env.get('paired_live_guards', False) == paired, 'endpoint/peer live mode mismatch')
+    ledger = LiveLedger(payload_bytes=env['cell']['payload_bytes']) if paired else FiniteLedger()
     with (root / 'events.ndjson').open('rb') as stream:
         for wire in stream:
             require(len(wire) <= 65536 and wire.endswith(b'\n'), 'invalid retained frame')
             ledger.accept(role, wire)
     ledger.eof(role)
-    return dict(index_sha256=index, events={name: value for (r, name), value in ledger.received.items() if r == role})
+    telemetry = ledger.telemetry if paired else []
+    if paired and role == 'source':
+        require([row['value'] for row in telemetry] == source_records(root / 'peer'), 'source control/stdout mismatch')
+    return dict(index_sha256=index, events={name: value for (r, name), value in ledger.received.items() if r == role},
+                telemetry=telemetry)
 
 
 def execute(config, output, *, check_cancelled=not_cancelled):
@@ -99,7 +114,14 @@ def execute(config, output, *, check_cancelled=not_cancelled):
     problem = None
     try:
         write_json(output / 'config.json', config)
-        manager = Manager(None, output, check_cancelled=check_cancelled, ledger=FiniteLedger())
+        paired = config.get('paired_live_guards', False)
+        ledger = LiveLedger(payload_bytes=config['payload']) if paired else FiniteLedger()
+        manager = Manager(None, output, check_cancelled=check_cancelled, ledger=ledger)
+        if paired:
+            def forward(role, value):
+                if role == 'source' and value['event'] in ('paced_progress', 'paced_final'):
+                    manager.send('destination', dict(op=value['event'], value=value['value']))
+            manager.on_receive = forward
         try:
             drive(lambda role: manager.start_command(role, remote_command(config[role], endpoint_arguments(config, role))),
                   manager.wait, manager.send, manager.finish)
@@ -128,6 +150,8 @@ def execute(config, output, *, check_cancelled=not_cancelled):
         for role, checked in endpoints.items():
             for name, event in checked['events'].items():
                 require(event == manager.ledger.received[role, name], 'retained/live event mismatch')
+        if paired:
+            require(endpoints['source']['telemetry'] == ledger.telemetry, 'retained/live source telemetry mismatch')
         result = analyze_pair(output / 'source' / 'peer', output / 'destination' / 'peer', source_sha=config['source_sha'])
         expected = dict(path=config['path'], payload_bytes=config['payload'], streams=config['streams'],
                         outstanding=config['depth'], cores=config['source']['cores'])
@@ -142,6 +166,11 @@ def execute(config, output, *, check_cancelled=not_cancelled):
                     'requested/actual cleanup mode mismatch')
             require(environment.get('source_live_guard', False) ==
                     (role == 'source' and config.get('source_live_guard', False)), 'requested/actual live guard mismatch')
+            require(environment.get('paired_live_guards', False) == paired, 'requested/actual paired mode mismatch')
+        if paired:
+            result.update(live_private_growth='PAIRED_DIAGNOSTIC', destination_private_growth='DIAGNOSTIC',
+                destination_live_guard=replay_destination(output / 'destination', output / 'source' / 'peer',
+                                                         payload_bytes=config['payload']))
         result.update(status='PASS_CONTROLLED_FINITE_PAIR',
             endpoint_indexes={role: value['index_sha256'] for role, value in endpoints.items()},
             sustained_capacity='NOT_ESTABLISHED')

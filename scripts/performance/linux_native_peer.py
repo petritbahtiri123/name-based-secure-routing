@@ -146,7 +146,7 @@ def observe_child(child, cpus, output, *, deadline, check_cancelled=not_cancelle
                     raise RuntimeError('peer exited unsuccessfully; see retained stderr')
                 require(socket_identity is None or socket_observed, 'requested live UDP ownership not observed')
                 if live_observer is not None:
-                    result['source_live_guard'] = live_observer.finish(result['exit_code'])
+                    result[getattr(live_observer, 'result_key', 'source_live_guard')] = live_observer.finish(result['exit_code'])
                 return result
             if time.monotonic() >= deadline:
                 raise TimeoutError('finite peer controller deadline')
@@ -191,7 +191,7 @@ def wait_target_exec(child, binary, *, check_cancelled=not_cancelled):
         time.sleep(.001)
 
 
-def execute(args, *, check_cancelled=not_cancelled):
+def execute(args, *, check_cancelled=not_cancelled, live_events=None, destination_observer_factory=None):
     require(platform.system() == 'Linux', 'Linux required')
     require(not any(k.startswith('NBSR_') for k in os.environ), 'remove inherited NBSR experiment settings')
     sha, dirty = git_state()
@@ -227,6 +227,14 @@ def execute(args, *, check_cancelled=not_cancelled):
     phase_control = getattr(args, 'phase_control', None)
     post_close_reports = getattr(args, 'post_close_reports', False)
     source_live_guard = getattr(args, 'source_live_guard', False)
+    paired_live_guards = getattr(args, 'paired_live_guards', False)
+    require(type(paired_live_guards) is bool and (not paired_live_guards or
+        ('diagnostic_rate' in cell and post_close_reports and phase_control is None
+         and ((args.role == 'source' and source_live_guard and callable(live_events))
+              or (args.role == 'destination' and callable(destination_observer_factory))))),
+        'paired live guards require endpoint-owned telemetry')
+    require((live_events is None and destination_observer_factory is None) or paired_live_guards,
+            'undeclared paired observer callbacks')
     require(type(source_live_guard) is bool and (not source_live_guard or
         (args.role == 'source' and 'diagnostic_rate' in cell and post_close_reports
          and phase_control is None and not getattr(args, 'observe_socket_ownership', False))),
@@ -252,6 +260,7 @@ def execute(args, *, check_cancelled=not_cancelled):
             phase_control_endpoint=phase_control,
             post_close_reports=post_close_reports, output_root=str(output),
             source_live_guard=source_live_guard,
+            paired_live_guards=paired_live_guards,
             binary_sha256=hashes, certificates_sha256=certificate_hashes,
             scope='finite native-address peer; external/physical hardware unqualified',
             cpu_scope='whole peer lifetime including startup/warmup/drain; not steady CPU ns/op',
@@ -271,7 +280,12 @@ def execute(args, *, check_cancelled=not_cancelled):
             socket_identity = ((str(executable), bind_ip)
                                if getattr(args, 'observe_socket_ownership', False) else None)
             observer = (SourceObserver(output, pid=child.pid, cpus=cpus, payload_bytes=cell['payload_bytes'],
-                                       deadline_ns=int(deadline * 1e9)) if source_live_guard else nullcontext())
+                                       deadline_ns=int(deadline * 1e9), on_record=live_events)
+                        if source_live_guard else nullcontext())
+            if destination_observer_factory is not None:
+                require(args.role == 'destination', 'destination observer role mismatch')
+                observer = destination_observer_factory(output, pid=child.pid, cpus=cpus,
+                    payload_bytes=cell['payload_bytes'], deadline_ns=int(deadline * 1e9))
             with observer as live:
                 result = observe_child(child, cpus, output, deadline=deadline,
                     check_cancelled=check_cancelled, socket_identity=socket_identity, live_observer=live)
@@ -325,6 +339,8 @@ def argument_parser():
                         help='Short diagnostic B5 ops/s rate; requires post-close reports, never a stable reference')
     parser.add_argument('--source-live-guard', action='store_true',
                         help='Opt-in source-only paced private-memory diagnostic; observer unqualified')
+    parser.add_argument('--paired-live-guards', action='store_true',
+                        help='Private endpoint-only paired paced telemetry; never a standalone capacity claim')
     parser.add_argument('--path', choices=('direct', 'nbsr'), required=True)
     for name in ('binaries', 'build-manifest', 'authority', 'output'):
         parser.add_argument('--' + name, type=Path, required=True)

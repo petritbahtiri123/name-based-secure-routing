@@ -131,9 +131,12 @@ class EventLedger:
 class Manager:
     """Own local management relays; remote cleanup requires endpoint evidence."""
 
-    def __init__(self, count, output, *, timeout=120, cleanup_timeout=15, check_cancelled=not_cancelled, ledger=None):
+    def __init__(self, count, output, *, timeout=120, cleanup_timeout=15, check_cancelled=not_cancelled,
+                 ledger=None, on_receive=None):
         require(0 < timeout <= 120 and 0 < cleanup_timeout <= 15, 'invalid management deadline')
         self.ledger = EventLedger(count) if ledger is None else ledger
+        require(on_receive is None or callable(on_receive), 'invalid event callback')
+        self.on_receive = on_receive
         self.output = output
         self.deadline = time.monotonic() + timeout
         self.cleanup_timeout = cleanup_timeout
@@ -203,6 +206,8 @@ class Manager:
         require(len(wire) <= 65536 and wire.endswith(b'\n'), 'bounded newline event required')
         value = self.ledger.accept(role, wire)
         self.record(action='receive', role=role, value=value)
+        if self.on_receive is not None:
+            self.on_receive(role, value)
 
     def wait(self, role, event):
         while (role, event) not in self.ledger.received:
@@ -236,7 +241,11 @@ class Manager:
                 error = result.get(timeout=.02)
                 break
             except queue.Empty:
-                self.pump(0)
+                # pump() may forward telemetry through send(). Do not start a
+                # second writer while this ordered control frame is pending.
+                # Deadlines/cancellation remain checked on every bounded wait;
+                # the bounded reader queue retains incoming frames until return.
+                continue
         if error is not None:
             raise InterruptedError('control write failed') from error
         self.record(action='send', role=role, value=value)
