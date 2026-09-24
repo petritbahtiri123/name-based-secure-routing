@@ -1,0 +1,470 @@
+{
+  "schema": "nbsr-native-observer-qualification-v1",
+  "source_sha": "ac40740c73c70c3661140ed613f61b693abbf1a9",
+  "manifest_sha256": "7f43990c1299dd0f6250635459867199a699d71ac7f253ef605b6cb8e9ed1ff6",
+  "shape": {
+    "cores": 1,
+    "outstanding": 1,
+    "path": "nbsr",
+    "payload_bytes": 16384,
+    "streams": 8
+  },
+  "identities": {
+    "source": {
+      "linux": {
+        "kernel": "Linux-6.6.114.1-microsoft-standard-WSL2-x86_64-with-glibc2.36",
+        "python": "3.14.6",
+        "taskset_version": "taskset from util-linux 2.38.1",
+        "lscpu_version": "lscpu from util-linux 2.38.1",
+        "topology": {
+          "cpus": [
+            {
+              "core": 0,
+              "cpu": 0,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            },
+            {
+              "core": 0,
+              "cpu": 1,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            },
+            {
+              "core": 1,
+              "cpu": 2,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            },
+            {
+              "core": 1,
+              "cpu": 3,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            },
+            {
+              "core": 2,
+              "cpu": 4,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            },
+            {
+              "core": 2,
+              "cpu": 5,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            },
+            {
+              "core": 3,
+              "cpu": 6,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            },
+            {
+              "core": 3,
+              "cpu": 7,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            }
+          ]
+        },
+        "inherited_cpus": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "selected_cpus": [
+          0
+        ],
+        "cgroup_limits": {
+          "cpu.max": "max 100000",
+          "cpuset.cpus.effective": "0-7",
+          "memory.max": "max",
+          "pids.max": "max"
+        }
+      },
+      "bind": "192.168.240.2:0",
+      "binary_sha256": {
+        "perf_direct_peer": "bb5e928d925c795360df1a137cbf985f3485f2e90b27bdff550adc41147937f8",
+        "perf_rust_source": "3510c8d54bd9fb3e9e4775bc577bbbc4ce739017c636c773bbf2429db85a3c46",
+        "wp8_interop_server": "f70771b708dfa8608fbc2325303109a60ce797e37e6e7a3b4d1cd773467097c3"
+      }
+    },
+    "destination": {
+      "linux": {
+        "kernel": "Linux-6.6.114.1-microsoft-standard-WSL2-x86_64-with-glibc2.36",
+        "python": "3.14.6",
+        "taskset_version": "taskset from util-linux 2.38.1",
+        "lscpu_version": "lscpu from util-linux 2.38.1",
+        "topology": {
+          "cpus": [
+            {
+              "core": 0,
+              "cpu": 0,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            },
+            {
+              "core": 0,
+              "cpu": 1,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            },
+            {
+              "core": 1,
+              "cpu": 2,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            },
+            {
+              "core": 1,
+              "cpu": 3,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            },
+            {
+              "core": 2,
+              "cpu": 4,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            },
+            {
+              "core": 2,
+              "cpu": 5,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            },
+            {
+              "core": 3,
+              "cpu": 6,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            },
+            {
+              "core": 3,
+              "cpu": 7,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            }
+          ]
+        },
+        "inherited_cpus": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "selected_cpus": [
+          0
+        ],
+        "cgroup_limits": {
+          "cpu.max": "max 100000",
+          "cpuset.cpus.effective": "0-7",
+          "memory.max": "max",
+          "pids.max": "max"
+        }
+      },
+      "bind": "192.168.240.3:0",
+      "binary_sha256": {
+        "perf_direct_peer": "bb5e928d925c795360df1a137cbf985f3485f2e90b27bdff550adc41147937f8",
+        "perf_rust_source": "3510c8d54bd9fb3e9e4775bc577bbbc4ce739017c636c773bbf2429db85a3c46",
+        "wp8_interop_server": "f70771b708dfa8608fbc2325303109a60ce797e37e6e7a3b4d1cd773467097c3"
+      }
+    }
+  },
+  "qualified": false,
+  "effect_gate_pass": false,
+  "dispersion_gate_pass": false,
+  "interruptions": [
+    "Disk-reserve stop between off-r3 and on-r3; all six pairs retained"
+  ],
+  "pairs": 6,
+  "attempts": [
+    {
+      "repeat": 1,
+      "observer": "off",
+      "gbps": 1.9320553373231482,
+      "p99_ns": 2800047,
+      "source_index_sha256": "f26a3743f0db5125f33abef4283988e36099056b8f9a9056262965d9892f9de1",
+      "destination_index_sha256": "92216aec56d2ab3be4c1ae8ca6278199785393cbbc3a3f86e57f22065e1a79f4",
+      "certificates": {
+        "source": {
+          "ca.der": "43eee0a0066a21db44eacf7fb19c52d1638e37fc6dfdb67167f58da7bcb7c905",
+          "source.der": "ecac49221aa3050ff84abf21f4dca9a39ea0f2b3855077cd833d210787b311ce"
+        },
+        "destination": {
+          "ca.der": "43eee0a0066a21db44eacf7fb19c52d1638e37fc6dfdb67167f58da7bcb7c905",
+          "destination.der": "257c0cf5e0a98a712bf8b68f3a9755cdba266a5d4d8250fe0651b0c13a3485ec"
+        }
+      }
+    },
+    {
+      "repeat": 1,
+      "observer": "on",
+      "gbps": 0.8224051435055489,
+      "p99_ns": 13795793,
+      "source_index_sha256": "22c5316323ea65d7550ea3a787ac4dce1c3c08a84f6e49524bffab7a50ded139",
+      "destination_index_sha256": "94d7262060f74eb5469e33724fdd1b7495a37be23e67eb43788ecd0c2f56c85c",
+      "certificates": {
+        "source": {
+          "ca.der": "43eee0a0066a21db44eacf7fb19c52d1638e37fc6dfdb67167f58da7bcb7c905",
+          "source.der": "ecac49221aa3050ff84abf21f4dca9a39ea0f2b3855077cd833d210787b311ce"
+        },
+        "destination": {
+          "ca.der": "43eee0a0066a21db44eacf7fb19c52d1638e37fc6dfdb67167f58da7bcb7c905",
+          "destination.der": "257c0cf5e0a98a712bf8b68f3a9755cdba266a5d4d8250fe0651b0c13a3485ec"
+        }
+      }
+    },
+    {
+      "repeat": 2,
+      "observer": "on",
+      "gbps": 1.2632539442382917,
+      "p99_ns": 5708300,
+      "source_index_sha256": "bf44f8c1ecc7adaef7ffe0856ef335548d9bc455ef6fd086ab3392ca6e01b79b",
+      "destination_index_sha256": "d4ac27c6aefadda784032f76b9ec2e039f1813351938bfcbb6e1b4d018d230e6",
+      "certificates": {
+        "source": {
+          "ca.der": "503f4199d9f2ffef10724b14909a1be9fbf41eea1e579682a123af0773fd3d22",
+          "source.der": "3bf58b5863352edfe841845c179d839d129fa978cb7617251f5efe9ad9d27037"
+        },
+        "destination": {
+          "ca.der": "503f4199d9f2ffef10724b14909a1be9fbf41eea1e579682a123af0773fd3d22",
+          "destination.der": "54a6c13e4bb7ee7e98b05d0515e608fc6d8f84f7d3d0ef743908eda0575a6db8"
+        }
+      }
+    },
+    {
+      "repeat": 2,
+      "observer": "off",
+      "gbps": 1.1358328305201113,
+      "p99_ns": 12439344,
+      "source_index_sha256": "a980949487190cd4bfd4199c3b50e17216a8acc1a20336e270c98ef065ce069b",
+      "destination_index_sha256": "c83915ce945a2fbf94bf1aa2e336b5c0e838e3943ba25cbadb4dc4a8d2127d57",
+      "certificates": {
+        "source": {
+          "ca.der": "503f4199d9f2ffef10724b14909a1be9fbf41eea1e579682a123af0773fd3d22",
+          "source.der": "3bf58b5863352edfe841845c179d839d129fa978cb7617251f5efe9ad9d27037"
+        },
+        "destination": {
+          "ca.der": "503f4199d9f2ffef10724b14909a1be9fbf41eea1e579682a123af0773fd3d22",
+          "destination.der": "54a6c13e4bb7ee7e98b05d0515e608fc6d8f84f7d3d0ef743908eda0575a6db8"
+        }
+      }
+    },
+    {
+      "repeat": 3,
+      "observer": "off",
+      "gbps": 1.4735109669715196,
+      "p99_ns": 4815591,
+      "source_index_sha256": "b9f9bba0db1a51983720c150d353b2dbc63943b22bc29a87c5c1f510918bf224",
+      "destination_index_sha256": "852d85d33ca929394c06a1011b1550124d2448a1d28e3ef2d4120ce6e6e23a6a",
+      "certificates": {
+        "source": {
+          "ca.der": "21114e1fd5f5b511e99cad4097a5fc493f27f49a0223c0b71e1232b852cf7ddb",
+          "source.der": "122ba78158c48e0df3120454b25b1539547c168bbfa45142d52211ef950d3cc3"
+        },
+        "destination": {
+          "ca.der": "21114e1fd5f5b511e99cad4097a5fc493f27f49a0223c0b71e1232b852cf7ddb",
+          "destination.der": "128d5267f095273d0808c6835015e1aeead96edf4ca572be08229d267b9310bd"
+        }
+      }
+    },
+    {
+      "repeat": 3,
+      "observer": "on",
+      "gbps": 1.5782212614561748,
+      "p99_ns": 5713763,
+      "source_index_sha256": "1fad59f394bd204be328b019b09e51a42d19d1388bafeacf00a3bd23bbee4964",
+      "destination_index_sha256": "c2f27bfca40366fad458ad8be9e03f65818f3d24b8a258fe4b4bb1a772cd3946",
+      "certificates": {
+        "source": {
+          "ca.der": "21114e1fd5f5b511e99cad4097a5fc493f27f49a0223c0b71e1232b852cf7ddb",
+          "source.der": "122ba78158c48e0df3120454b25b1539547c168bbfa45142d52211ef950d3cc3"
+        },
+        "destination": {
+          "ca.der": "21114e1fd5f5b511e99cad4097a5fc493f27f49a0223c0b71e1232b852cf7ddb",
+          "destination.der": "128d5267f095273d0808c6835015e1aeead96edf4ca572be08229d267b9310bd"
+        }
+      }
+    },
+    {
+      "repeat": 4,
+      "observer": "on",
+      "gbps": 1.3133424077303097,
+      "p99_ns": 12517929,
+      "source_index_sha256": "d455e09b708b44af79325faaba76cf9067fd5204fdb27265f8145075f37e1551",
+      "destination_index_sha256": "1e1fe32475b3c0e07da81303f3844c3b8409696c8bacea8fe31c1b06383940e7",
+      "certificates": {
+        "source": {
+          "ca.der": "9f00fd7e9d549ef04a39fac9b6b1f454246f0c8b50f669dbda849894f4609118",
+          "source.der": "1f54fbf5ab8bfcfbdfa25872bf417061d8ac2e7b03e4da76a4f66c745912f483"
+        },
+        "destination": {
+          "ca.der": "9f00fd7e9d549ef04a39fac9b6b1f454246f0c8b50f669dbda849894f4609118",
+          "destination.der": "b80a5ad35eb96ab54c9dcb32f87d2a2fb805441f71f58221c5a5423d647dd881"
+        }
+      }
+    },
+    {
+      "repeat": 4,
+      "observer": "off",
+      "gbps": 1.331870470897587,
+      "p99_ns": 7678098,
+      "source_index_sha256": "6cf33915ba6066ade2e643e613f28d799637ad76fb7b71dcff7abcd0c2761dc2",
+      "destination_index_sha256": "b0aa40f67a17b0155823e1936169f439c21eb1edad8446bce8d134164fee0027",
+      "certificates": {
+        "source": {
+          "ca.der": "9f00fd7e9d549ef04a39fac9b6b1f454246f0c8b50f669dbda849894f4609118",
+          "source.der": "1f54fbf5ab8bfcfbdfa25872bf417061d8ac2e7b03e4da76a4f66c745912f483"
+        },
+        "destination": {
+          "ca.der": "9f00fd7e9d549ef04a39fac9b6b1f454246f0c8b50f669dbda849894f4609118",
+          "destination.der": "b80a5ad35eb96ab54c9dcb32f87d2a2fb805441f71f58221c5a5423d647dd881"
+        }
+      }
+    },
+    {
+      "repeat": 5,
+      "observer": "off",
+      "gbps": 2.0974270779623176,
+      "p99_ns": 2684068,
+      "source_index_sha256": "df31c793292be536573721ece77723258dbccfbeb1d0f8aa281c0eaba7241014",
+      "destination_index_sha256": "784926f9c3da3c43a470e0f05604aceed165330ec24f217e4591e4a32b4a7884",
+      "certificates": {
+        "source": {
+          "ca.der": "bd1d1c5c549ce6c8ab9148beb137448d9d0936a21f02329d040a1d49aa2e454c",
+          "source.der": "b5be416d271eb114eb3bec60c4f5804d043961c16a333c0ae1e1000f42790723"
+        },
+        "destination": {
+          "ca.der": "bd1d1c5c549ce6c8ab9148beb137448d9d0936a21f02329d040a1d49aa2e454c",
+          "destination.der": "44efa7ca0255461940b227f2019258407014677b559e15cac103189baf85606a"
+        }
+      }
+    },
+    {
+      "repeat": 5,
+      "observer": "on",
+      "gbps": 1.9856911971354638,
+      "p99_ns": 2985585,
+      "source_index_sha256": "b6e182c74f01c8472dc09de1079d2518851705ec71b1b1503982818cd652a5ac",
+      "destination_index_sha256": "893e660768820f314ac77205fa8a0af5545a093a7874ab1abb4c207a99479cc6",
+      "certificates": {
+        "source": {
+          "ca.der": "bd1d1c5c549ce6c8ab9148beb137448d9d0936a21f02329d040a1d49aa2e454c",
+          "source.der": "b5be416d271eb114eb3bec60c4f5804d043961c16a333c0ae1e1000f42790723"
+        },
+        "destination": {
+          "ca.der": "bd1d1c5c549ce6c8ab9148beb137448d9d0936a21f02329d040a1d49aa2e454c",
+          "destination.der": "44efa7ca0255461940b227f2019258407014677b559e15cac103189baf85606a"
+        }
+      }
+    },
+    {
+      "repeat": 6,
+      "observer": "on",
+      "gbps": 1.1693914844522764,
+      "p99_ns": 11744078,
+      "source_index_sha256": "dd14a815dae3834bba30ae6184ef270c66bd0f815e36bb4d6479dc04617a3779",
+      "destination_index_sha256": "d7f2111d030ec48ebd8a4cbf21b70466f248fabaffc177c3ae9fb299ab69f48f",
+      "certificates": {
+        "source": {
+          "ca.der": "a80d7e022a11b0e354444f251253b1fd1651050e01b78c0a2fbb737de0018790",
+          "source.der": "173cee80299f785aa7930d9f411d6a3530b292b500c81623cb46cdbe3dd06f7e"
+        },
+        "destination": {
+          "ca.der": "a80d7e022a11b0e354444f251253b1fd1651050e01b78c0a2fbb737de0018790",
+          "destination.der": "6023944884111549fe37983af7e33c9efb2977e3b7a723bd777dbb5ad81553e7"
+        }
+      }
+    },
+    {
+      "repeat": 6,
+      "observer": "off",
+      "gbps": 1.491713052529737,
+      "p99_ns": 5099018,
+      "source_index_sha256": "940de416efc42216d577469ec074c1c8ba369363347769471cb567c9ee0f85f2",
+      "destination_index_sha256": "75086effea137255a1739b9d0eb773dba89f1f7b9e88608ab378fd1baf77a3f6",
+      "certificates": {
+        "source": {
+          "ca.der": "a80d7e022a11b0e354444f251253b1fd1651050e01b78c0a2fbb737de0018790",
+          "source.der": "173cee80299f785aa7930d9f411d6a3530b292b500c81623cb46cdbe3dd06f7e"
+        },
+        "destination": {
+          "ca.der": "a80d7e022a11b0e354444f251253b1fd1651050e01b78c0a2fbb737de0018790",
+          "destination.der": "6023944884111549fe37983af7e33c9efb2977e3b7a723bd777dbb5ad81553e7"
+        }
+      }
+    }
+  ],
+  "paired_changes": [
+    {
+      "repeat": 1,
+      "goodput_percent": -57.43366519485996,
+      "p99_percent": 392.6986225588356
+    },
+    {
+      "repeat": 2,
+      "goodput_percent": 11.218298176839347,
+      "p99_percent": -54.11092417735212
+    },
+    {
+      "repeat": 3,
+      "goodput_percent": 7.106176800289754,
+      "p99_percent": 18.651334799819995
+    },
+    {
+      "repeat": 4,
+      "goodput_percent": -1.3911310125218623,
+      "p99_percent": 63.03424363690071
+    },
+    {
+      "repeat": 5,
+      "goodput_percent": -5.327283222423496,
+      "p99_percent": 11.2335827557275
+    },
+    {
+      "repeat": 6,
+      "goodput_percent": -21.60747789468278,
+      "p99_percent": 130.32038718043358
+    }
+  ],
+  "median_changes_percent": {
+    "goodput_percent": -3.359207117472679,
+    "p99_percent": 40.84278921836035
+  },
+  "throughput_cv": {
+    "off": 0.2320466335577694,
+    "on": 0.2906323084216594
+  },
+  "strict_stable_capacity": "NOT_PROVEN",
+  "external_hardware": "NOT_PROVEN",
+  "coverage": "all listed attempts; undeclared attempts and interruptions cannot be detected",
+  "ordering": "declared counterbalanced order; not independently timestamp-attested",
+  "authenticity": "checksums and observed placement are not remote host attestation"
+}

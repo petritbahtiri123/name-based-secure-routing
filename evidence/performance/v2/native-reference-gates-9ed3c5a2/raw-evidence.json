@@ -1,0 +1,22 @@
+[
+  {
+    "root": "C:\\NBSR-build\\native-reference-gates-validation-20260924",
+    "index_sha256": "b54ac7573146fc6dd7c172a44045a8aa90a12395afa1a3c82511112284649651"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-reference-gates-tests-20260924",
+    "index_sha256": "d1860556c8ba7b09da1123dbff6b4b95d6a56da10663d9d45d75835bb9f16bd8"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-post-close-ac40740c",
+    "index_sha256": "8f8330df2ea7be7175ccc9052b5713e6a3f280a243886b40395b658ea2e3dd2a"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-post-close-observer-ac40740c",
+    "index_sha256": "d7899ec2bf440ddf0555864f7a622098d55be5929172e6e92933b2e356ee3470"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-current-ac40740c",
+    "index_sha256": "c7182bc0ff6be19517635952379d65fa5cada371c3da6c982f57d8344420982b"
+  }
+]

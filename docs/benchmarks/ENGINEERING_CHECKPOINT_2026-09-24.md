@@ -59,8 +59,14 @@ Package: `evidence/performance/v2/native-paced-5595e45f` (600 raw files verified
 b2bd7141 binds cohort comparison identity to post-close mode (RED/GREEN,
 21 affected tests and scoped re-review). No production changes.
 
-Observer/reference qualification and full paced B5 orchestration with live
-resource guards remain open; short diagnostic integration does not close them.
+Reusable observer/reference qualification gates are implemented at 9ed3c5a2.
+Retrospective validation correctly rejects the retained ac40740c observer and
+reference cohorts; both finite ladders remain UNRESOLVED. Package:
+`evidence/performance/v2/native-reference-gates-9ed3c5a2`. Initial 65 affected
+tests and final 24 gate tests, Ruff and focused review passed. No new performance
+run or production change. Qualified native reference evidence and full paced B5
+orchestration with live resource guards remain open; short diagnostic integration
+and read-only gates do not close them.
 Same-process memory observer qualification, current
 qualified physical-core forwarding/admission references, actual near-ceiling
 60/120-minute soak and final whole-package acceptance remain open. Historical
