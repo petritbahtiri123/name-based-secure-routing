@@ -26,3 +26,11 @@ No stable/soak classification follows merely from functional orchestration.
 The existing private management channel is benchmark control, not public protocol.
 Approval gates for routine design/test execution are superseded by the user's
 explicit campaign autonomy. No external SSH/hardware result is fabricated.
+
+
+Scoped result complete: implementation 0866ca47, early NBSR controller-only ACK
+fix f3814929, 115 focused tests and independent review/scoped fix review. Retained
+initial 5 Direct passes/5 NBSR controller failures; corrected 5+5 passes; 3+3
+live-PID EOF cleanup controls. Exact release hashes unchanged. Evidence and
+limitations: evidence/performance/v2/native-finite-coordinator-f3814929. This does
+not finish the native post-close reference or paced B5 program.

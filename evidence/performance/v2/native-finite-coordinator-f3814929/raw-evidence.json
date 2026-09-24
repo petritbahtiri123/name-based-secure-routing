@@ -1,0 +1,30 @@
+[
+  {
+    "root": "C:\\NBSR-build\\native-finite-0866ca47",
+    "index_sha256": "1a3f79c47a56d42a8b3b68bf0a93816eda31123f77a5571cd9eaf1e154acaafb"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-finite-f3814929",
+    "index_sha256": "a348d54dfd8c1fbac214c3a9ce4a6c04ff22f2ed2ebff0eee7813ef7ddd15258"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-finite-eof-f3814929",
+    "index_sha256": "1a2334feca136a8d0e57ff69a4ba1c89c5cf858176bdda1f2bf15d43dc830fea"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-current-0866ca47",
+    "index_sha256": "4127be450648200837230d6ed5592cab6ac4ce42d354095a358dac554c65fdc3"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-current-f3814929",
+    "index_sha256": "5fb9edd5565a8172d43553664124dff048bda923ca1397684bbe8ff2fc8a5f66"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-finite-tests-20260924",
+    "index_sha256": "cb5e30a6e756241becef5841fb42e544814c8fcb89bd4f2909612271b6fa759d"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-finite-cleanup-20260924",
+    "index_sha256": "2e85b2eaf538b51efe8455a0ba576be4235d79a0bd704b30a9be33361f071084"
+  }
+]
