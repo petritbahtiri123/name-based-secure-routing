@@ -208,3 +208,10 @@ RSS repeat CV<2.16%; no5-repeat extension required. Canonical native-streams-b9a
 retains all raw evidence and independent replay. Diagnostic RSS totals only;
 no qualified bytes/stream, allocator, throughput or physical-hardware claim.
 Channel scale and qualified memory/B3/B5 closure remain open. No production change.
+
+September25: native channel-axis scale09b36ece completes3 repeats each16/32
+channels,1stream/channel,4cycles:24/24 cycles and576/576 operations PASS.
+12 owned PIDs absent; source per-cycle/both final ownership zero; FD/thread6/1,
+8/2. Final RSS CV<1.12%. Package native-channels-09b36ece. This closes native
+channel workload execution; private-memory/bytes-resource/observer qualification
+and full B3/B5 remain open. No production change or new capacity claim.

@@ -1,0 +1,18 @@
+[
+  {
+    "root": "C:\\NBSR-build\\native-channels-09b36ece",
+    "index_sha256": "a12c4baead9cba82002da91df9a1c7f25df8bd9ec4aadd7ac3c683f4f55ed8ff"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-current-09b36ece",
+    "index_sha256": "695d8d628677e0f396a89cbbe4da6909fc4d56e71d7733618748afa9b3f574ad"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-cycle-channel-tests-20260925",
+    "index_sha256": "03567309db9b91f66f9251129a7e8b37c25d03908e8adca93c06f5508eaa5917"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-channel-cargo-cleanup-20260925",
+    "index_sha256": "e543e903f358faef7808a7f1a254adf1e9a76730810a59bf9c520f7d23e807d9"
+  }
+]
