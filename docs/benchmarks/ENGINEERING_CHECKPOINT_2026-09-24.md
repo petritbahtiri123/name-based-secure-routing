@@ -49,7 +49,18 @@ uninterrupted comparison. High variance prevents causal attribution to the
 observer or production code. Package:
 `evidence/performance/v2/native-post-close-observer-ac40740c` (718 raw files).
 
-Observer/reference qualification and paced B5 orchestration remain open.
+Short paced native integration is complete at 5595e45f: 5/5 Direct and 5/5 NBSR
+functional passes at 1,000 offered ops/s, 16 KiB / eight streams / depth one.
+Achieved/offered: Direct 99.75–99.93%, NBSR 99.70–99.99%; median goodput including
+drain 0.261677 / 0.261822 Gbit/s. Zero errors/timeouts, all requested reports clean.
+Retained p99 drift violations in 3/5 Direct and 1/5 NBSR prevent a stability claim.
+Package: `evidence/performance/v2/native-paced-5595e45f` (600 raw files verified).
+122 affected tests, Ruff and focused independent review passed; follow-up
+b2bd7141 binds cohort comparison identity to post-close mode (RED/GREEN,
+21 affected tests and scoped re-review). No production changes.
+
+Observer/reference qualification and full paced B5 orchestration with live
+resource guards remain open; short diagnostic integration does not close them.
 Same-process memory observer qualification, current
 qualified physical-core forwarding/admission references, actual near-ceiling
 60/120-minute soak and final whole-package acceptance remain open. Historical
@@ -71,3 +82,7 @@ Subsequent disk-reserve stop triggered safe Cargo cleanup of five verified inact
 targets, recovering 4,635,074,560 bytes across the measured maintenance interval.
 The interrupted observer run was resumed without deleting any result. Inventory,
 commands and before/after values are retained in `native-observer-cleanup-20260924`.
+
+Another 76 stopped fixtures were removed after complete raw/endpoint index checks:
+2,368,540,672 logical writable bytes, no measured host SSD recovery. Inventory is
+in `native-closed-fixture-cleanup-20260924`, referenced by the paced package.

@@ -31,3 +31,11 @@ Implementation verification: 21 literal RED failures, then two integration RED
 failures; 122 affected tests and scoped Ruff PASS. One independent focused review
 found no Important/Critical issues; requested minor error/timeout and retained
 drift tests were added. Exact-source real runs follow the implementation commit.
+
+Exact-source 5595e45f release cohort complete: five matched Direct/NBSR pairs
+at 1,000 offered ops/s, all functional/accounting/cleanup checks pass. P99 drift
+violations remain visible in three Direct and one NBSR cell; no stability claim.
+Package `evidence/performance/v2/native-paced-5595e45f` retains all runs.
+Follow-up b2bd7141 closes the post-close comparison-identity omission with one
+literal RED/GREEN, 21 affected tests and clean scoped review. Full live resource
+guards/reference qualification remain explicitly outside this completed step.

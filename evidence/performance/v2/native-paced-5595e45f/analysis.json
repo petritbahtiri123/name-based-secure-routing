@@ -1,0 +1,996 @@
+{
+  "source_sha": "5595e45f4ea11d065e0cfb42022712f3746a2961",
+  "summary": {
+    "direct": {
+      "functional_passes": 5,
+      "failures": 0,
+      "median_gbps": 0.2616766437448579,
+      "cv_percent": 0.07872226476947054,
+      "achieved_offered_ratios": [
+        0.9993,
+        0.99805,
+        0.99925,
+        0.9975,
+        0.99825
+      ],
+      "cells_with_drift_failure": 3,
+      "median_cell_window_quantiles_ns": {
+        "p50": 831364,
+        "p95": 1940597,
+        "p99": 4364754
+      },
+      "errors": 0,
+      "timeouts": 0
+    },
+    "nbsr": {
+      "functional_passes": 5,
+      "failures": 0,
+      "median_gbps": 0.26182156654419875,
+      "cv_percent": 0.11800066109611929,
+      "achieved_offered_ratios": [
+        0.9999,
+        0.9994,
+        0.997,
+        0.9978,
+        0.9988
+      ],
+      "cells_with_drift_failure": 1,
+      "median_cell_window_quantiles_ns": {
+        "p50": 849465,
+        "p95": 1905236,
+        "p99": 3043603
+      },
+      "errors": 0,
+      "timeouts": 0
+    }
+  },
+  "cells": [
+    {
+      "label": "direct-r1",
+      "path": "direct",
+      "controller_status": "PASS_FUNCTIONAL",
+      "index_sha256": "c3a7f0c6b4b2ae04d09a41a53315fa523550881d97936873fd584d81190a847d",
+      "peer": {
+        "status": "PASS_FINITE_PAIR_INTEGRITY",
+        "source_sha": "5595e45f4ea11d065e0cfb42022712f3746a2961",
+        "cell": {
+          "cores": 1,
+          "diagnostic_rate": [
+            1000,
+            1
+          ],
+          "outstanding": 1,
+          "path": "direct",
+          "payload_bytes": 16384,
+          "streams": 8
+        },
+        "source_index_sha256": "05fa21f0b844f6e69a6aab7bf7e74974f721d2e2f387c6943fe5509ddd40a67f",
+        "destination_index_sha256": "61da9bd4e292e313b962ccb5d042c6028e19cae2ee2ffd36dc748db20426bd4e",
+        "application_gbps": 0.2619512201150274,
+        "strict_stable_capacity": "NOT_PROVEN",
+        "external_hardware": "NOT_PROVEN",
+        "observer_qualification": "NOT_PROVEN",
+        "runtime_ownership_cleanup": "NOT_APPLICABLE_DIRECT",
+        "authenticity": "checksums are not signatures or remote attestation",
+        "workload_mode": "PACED_DIAGNOSTIC",
+        "achieved_offered_ratio": 0.9993,
+        "drift_failures": [
+          {
+            "reason": "p99",
+            "window": 3
+          }
+        ],
+        "live_private_growth": "NOT_MEASURED"
+      },
+      "source": {
+        "achieved_offered_ratio": 0.9993,
+        "completed_operations": 19986,
+        "diagnostic_rate": [
+          1000,
+          1
+        ],
+        "drift_failures": [
+          {
+            "reason": "p99",
+            "window": 3
+          }
+        ],
+        "final": {
+          "all_groups_joined": true,
+          "collector_overflow_count": 0,
+          "completed": 19986,
+          "drain_duration_ns": 708459,
+          "errors": 0,
+          "evidence_valid": true,
+          "group_counters": [
+            {
+              "completed": 19986,
+              "group_id": 0,
+              "issued": 19986,
+              "missed": 14,
+              "offered": 20000,
+              "reserved": 19986,
+              "unreserved_current": 0
+            }
+          ],
+          "groups": 1,
+          "issued": 19986,
+          "max_outstanding_observed": 8,
+          "measurement_duration_ns": 20000000000,
+          "missed": 14,
+          "offered": 20000,
+          "outstanding_per_stream": 1,
+          "payload_bytes": 16384,
+          "reserved": 19986,
+          "schema": "nbsr-b5-grouped-final-v1",
+          "source_cleanup": {
+            "status": "NOT_MEASURED"
+          },
+          "streams_per_group": 8,
+          "timeouts": 0,
+          "unreserved_current": 0
+        },
+        "latency_scope": "median of steady-window quantiles, not pooled quantiles",
+        "live_private_growth": "NOT_MEASURED",
+        "measured_ns": 20000708459,
+        "outstanding_per_stream": 1,
+        "p50_latency_ns": 841385,
+        "p95_latency_ns": 1940597,
+        "p99_latency_ns": 7294641,
+        "path": "direct",
+        "payload_bytes": 16384,
+        "schema": "nbsr-native-paced-diagnostic-v1",
+        "steady_windows": 3,
+        "streams": 8,
+        "strict_stable_capacity": "NOT_ESTABLISHED"
+      }
+    },
+    {
+      "label": "nbsr-r1",
+      "path": "nbsr",
+      "controller_status": "PASS_FUNCTIONAL",
+      "index_sha256": "0a0c790571acba2e69a28c11ddec8b954629252e81c888b25cc7a992407a8849",
+      "peer": {
+        "status": "PASS_FINITE_PAIR_INTEGRITY",
+        "source_sha": "5595e45f4ea11d065e0cfb42022712f3746a2961",
+        "cell": {
+          "cores": 1,
+          "diagnostic_rate": [
+            1000,
+            1
+          ],
+          "outstanding": 1,
+          "path": "nbsr",
+          "payload_bytes": 16384,
+          "streams": 8
+        },
+        "source_index_sha256": "df41e986de54497d616b9862755832a53aa295b517801795461d46609026863e",
+        "destination_index_sha256": "d8f232f4cdba6393f6e4e0110adeb941bbbfc59af1883fa143f7fbdd897c1a0e",
+        "application_gbps": 0.2621085871481372,
+        "strict_stable_capacity": "NOT_PROVEN",
+        "external_hardware": "NOT_PROVEN",
+        "observer_qualification": "NOT_PROVEN",
+        "runtime_ownership_cleanup": "ALL_11_ZERO",
+        "authenticity": "checksums are not signatures or remote attestation",
+        "workload_mode": "PACED_DIAGNOSTIC",
+        "achieved_offered_ratio": 0.9999,
+        "drift_failures": [
+          {
+            "reason": "p99",
+            "window": 3
+          }
+        ],
+        "live_private_growth": "NOT_MEASURED"
+      },
+      "source": {
+        "achieved_offered_ratio": 0.9999,
+        "completed_operations": 19998,
+        "diagnostic_rate": [
+          1000,
+          1
+        ],
+        "drift_failures": [
+          {
+            "reason": "p99",
+            "window": 3
+          }
+        ],
+        "final": {
+          "all_groups_joined": true,
+          "collector_overflow_count": 0,
+          "completed": 19998,
+          "drain_duration_ns": 701881,
+          "errors": 0,
+          "evidence_valid": true,
+          "group_counters": [
+            {
+              "completed": 19998,
+              "group_id": 0,
+              "issued": 19998,
+              "missed": 2,
+              "offered": 20000,
+              "reserved": 19998,
+              "unreserved_current": 0
+            }
+          ],
+          "groups": 1,
+          "issued": 19998,
+          "max_outstanding_observed": 8,
+          "measurement_duration_ns": 20000000000,
+          "missed": 2,
+          "offered": 20000,
+          "outstanding_per_stream": 1,
+          "payload_bytes": 16384,
+          "reserved": 19998,
+          "schema": "nbsr-b5-grouped-final-v1",
+          "source_cleanup": {
+            "status": "SEPARATE_REPORT_REQUIRED"
+          },
+          "streams_per_group": 8,
+          "timeouts": 0,
+          "unreserved_current": 0
+        },
+        "latency_scope": "median of steady-window quantiles, not pooled quantiles",
+        "live_private_growth": "NOT_MEASURED",
+        "measured_ns": 20000701881,
+        "outstanding_per_stream": 1,
+        "p50_latency_ns": 936694,
+        "p95_latency_ns": 1851084,
+        "p99_latency_ns": 3043603,
+        "path": "nbsr",
+        "payload_bytes": 16384,
+        "schema": "nbsr-native-paced-diagnostic-v1",
+        "steady_windows": 3,
+        "streams": 8,
+        "strict_stable_capacity": "NOT_ESTABLISHED"
+      }
+    },
+    {
+      "label": "nbsr-r2",
+      "path": "nbsr",
+      "controller_status": "PASS_FUNCTIONAL",
+      "index_sha256": "0bd7975988a99076e39b54ff4e1ec0609e59268fc7b5433f8e84cd1809d9d93f",
+      "peer": {
+        "status": "PASS_FINITE_PAIR_INTEGRITY",
+        "source_sha": "5595e45f4ea11d065e0cfb42022712f3746a2961",
+        "cell": {
+          "cores": 1,
+          "diagnostic_rate": [
+            1000,
+            1
+          ],
+          "outstanding": 1,
+          "path": "nbsr",
+          "payload_bytes": 16384,
+          "streams": 8
+        },
+        "source_index_sha256": "d084981bf4050c7c76cd3f36dd52e918a44ec2c1263eb7170582c889eb4f5784",
+        "destination_index_sha256": "df7029649ace8034228d4028e9386b255aa2fc5718c737a79a7a99d49de485d7",
+        "application_gbps": 0.2619787424906927,
+        "strict_stable_capacity": "NOT_PROVEN",
+        "external_hardware": "NOT_PROVEN",
+        "observer_qualification": "NOT_PROVEN",
+        "runtime_ownership_cleanup": "ALL_11_ZERO",
+        "authenticity": "checksums are not signatures or remote attestation",
+        "workload_mode": "PACED_DIAGNOSTIC",
+        "achieved_offered_ratio": 0.9994,
+        "drift_failures": [],
+        "live_private_growth": "NOT_MEASURED"
+      },
+      "source": {
+        "achieved_offered_ratio": 0.9994,
+        "completed_operations": 19988,
+        "diagnostic_rate": [
+          1000,
+          1
+        ],
+        "drift_failures": [],
+        "final": {
+          "all_groups_joined": true,
+          "collector_overflow_count": 0,
+          "completed": 19988,
+          "drain_duration_ns": 608531,
+          "errors": 0,
+          "evidence_valid": true,
+          "group_counters": [
+            {
+              "completed": 19988,
+              "group_id": 0,
+              "issued": 19988,
+              "missed": 12,
+              "offered": 20000,
+              "reserved": 19988,
+              "unreserved_current": 0
+            }
+          ],
+          "groups": 1,
+          "issued": 19988,
+          "max_outstanding_observed": 8,
+          "measurement_duration_ns": 20000000000,
+          "missed": 12,
+          "offered": 20000,
+          "outstanding_per_stream": 1,
+          "payload_bytes": 16384,
+          "reserved": 19988,
+          "schema": "nbsr-b5-grouped-final-v1",
+          "source_cleanup": {
+            "status": "SEPARATE_REPORT_REQUIRED"
+          },
+          "streams_per_group": 8,
+          "timeouts": 0,
+          "unreserved_current": 0
+        },
+        "latency_scope": "median of steady-window quantiles, not pooled quantiles",
+        "live_private_growth": "NOT_MEASURED",
+        "measured_ns": 20000608531,
+        "outstanding_per_stream": 1,
+        "p50_latency_ns": 840883,
+        "p95_latency_ns": 1499348,
+        "p99_latency_ns": 2130710,
+        "path": "nbsr",
+        "payload_bytes": 16384,
+        "schema": "nbsr-native-paced-diagnostic-v1",
+        "steady_windows": 3,
+        "streams": 8,
+        "strict_stable_capacity": "NOT_ESTABLISHED"
+      }
+    },
+    {
+      "label": "direct-r2",
+      "path": "direct",
+      "controller_status": "PASS_FUNCTIONAL",
+      "index_sha256": "151cc0cc903c34839bd310ea0779b76ac87938b12c57e2d1d45faa189b2d5a1f",
+      "peer": {
+        "status": "PASS_FINITE_PAIR_INTEGRITY",
+        "source_sha": "5595e45f4ea11d065e0cfb42022712f3746a2961",
+        "cell": {
+          "cores": 1,
+          "diagnostic_rate": [
+            1000,
+            1
+          ],
+          "outstanding": 1,
+          "path": "direct",
+          "payload_bytes": 16384,
+          "streams": 8
+        },
+        "source_index_sha256": "25ba6bf1842995efdef5178e5055c0d9bcfd129a1e5e6f5cfeb6ef71933c9bc6",
+        "destination_index_sha256": "452abe486fb18f277463c19ef5fc36a0d76c6a932cfae7e34abf6f26e6bf9db7",
+        "application_gbps": 0.26162586650567893,
+        "strict_stable_capacity": "NOT_PROVEN",
+        "external_hardware": "NOT_PROVEN",
+        "observer_qualification": "NOT_PROVEN",
+        "runtime_ownership_cleanup": "NOT_APPLICABLE_DIRECT",
+        "authenticity": "checksums are not signatures or remote attestation",
+        "workload_mode": "PACED_DIAGNOSTIC",
+        "achieved_offered_ratio": 0.99805,
+        "drift_failures": [],
+        "live_private_growth": "NOT_MEASURED"
+      },
+      "source": {
+        "achieved_offered_ratio": 0.99805,
+        "completed_operations": 19961,
+        "diagnostic_rate": [
+          1000,
+          1
+        ],
+        "drift_failures": [],
+        "final": {
+          "all_groups_joined": true,
+          "collector_overflow_count": 0,
+          "completed": 19961,
+          "drain_duration_ns": 531499,
+          "errors": 0,
+          "evidence_valid": true,
+          "group_counters": [
+            {
+              "completed": 19961,
+              "group_id": 0,
+              "issued": 19961,
+              "missed": 39,
+              "offered": 20000,
+              "reserved": 19961,
+              "unreserved_current": 0
+            }
+          ],
+          "groups": 1,
+          "issued": 19961,
+          "max_outstanding_observed": 8,
+          "measurement_duration_ns": 20000000000,
+          "missed": 39,
+          "offered": 20000,
+          "outstanding_per_stream": 1,
+          "payload_bytes": 16384,
+          "reserved": 19961,
+          "schema": "nbsr-b5-grouped-final-v1",
+          "source_cleanup": {
+            "status": "NOT_MEASURED"
+          },
+          "streams_per_group": 8,
+          "timeouts": 0,
+          "unreserved_current": 0
+        },
+        "latency_scope": "median of steady-window quantiles, not pooled quantiles",
+        "live_private_growth": "NOT_MEASURED",
+        "measured_ns": 20000531499,
+        "outstanding_per_stream": 1,
+        "p50_latency_ns": 818181,
+        "p95_latency_ns": 2087151,
+        "p99_latency_ns": 10939817,
+        "path": "direct",
+        "payload_bytes": 16384,
+        "schema": "nbsr-native-paced-diagnostic-v1",
+        "steady_windows": 3,
+        "streams": 8,
+        "strict_stable_capacity": "NOT_ESTABLISHED"
+      }
+    },
+    {
+      "label": "direct-r3",
+      "path": "direct",
+      "controller_status": "PASS_FUNCTIONAL",
+      "index_sha256": "fe9c1a533613e8fd584a594d13943c197c53b6ac745845a3eef44bfc3d0cf030",
+      "peer": {
+        "status": "PASS_FINITE_PAIR_INTEGRITY",
+        "source_sha": "5595e45f4ea11d065e0cfb42022712f3746a2961",
+        "cell": {
+          "cores": 1,
+          "diagnostic_rate": [
+            1000,
+            1
+          ],
+          "outstanding": 1,
+          "path": "direct",
+          "payload_bytes": 16384,
+          "streams": 8
+        },
+        "source_index_sha256": "d79cabcda8ade26500478a1652fc41a272b0bd43c030703dcc9a7eb3824cf66f",
+        "destination_index_sha256": "b588355d52d7a661118a1a958e771cb9ff46042c9c6733fa21124d18c91eb2f2",
+        "application_gbps": 0.2619395713749933,
+        "strict_stable_capacity": "NOT_PROVEN",
+        "external_hardware": "NOT_PROVEN",
+        "observer_qualification": "NOT_PROVEN",
+        "runtime_ownership_cleanup": "NOT_APPLICABLE_DIRECT",
+        "authenticity": "checksums are not signatures or remote attestation",
+        "workload_mode": "PACED_DIAGNOSTIC",
+        "achieved_offered_ratio": 0.99925,
+        "drift_failures": [
+          {
+            "reason": "p99",
+            "window": 3
+          }
+        ],
+        "live_private_growth": "NOT_MEASURED"
+      },
+      "source": {
+        "achieved_offered_ratio": 0.99925,
+        "completed_operations": 19985,
+        "diagnostic_rate": [
+          1000,
+          1
+        ],
+        "drift_failures": [
+          {
+            "reason": "p99",
+            "window": 3
+          }
+        ],
+        "final": {
+          "all_groups_joined": true,
+          "collector_overflow_count": 0,
+          "completed": 19985,
+          "drain_duration_ns": 597132,
+          "errors": 0,
+          "evidence_valid": true,
+          "group_counters": [
+            {
+              "completed": 19985,
+              "group_id": 0,
+              "issued": 19985,
+              "missed": 15,
+              "offered": 20000,
+              "reserved": 19985,
+              "unreserved_current": 0
+            }
+          ],
+          "groups": 1,
+          "issued": 19985,
+          "max_outstanding_observed": 8,
+          "measurement_duration_ns": 20000000000,
+          "missed": 15,
+          "offered": 20000,
+          "outstanding_per_stream": 1,
+          "payload_bytes": 16384,
+          "reserved": 19985,
+          "schema": "nbsr-b5-grouped-final-v1",
+          "source_cleanup": {
+            "status": "NOT_MEASURED"
+          },
+          "streams_per_group": 8,
+          "timeouts": 0,
+          "unreserved_current": 0
+        },
+        "latency_scope": "median of steady-window quantiles, not pooled quantiles",
+        "live_private_growth": "NOT_MEASURED",
+        "measured_ns": 20000597132,
+        "outstanding_per_stream": 1,
+        "p50_latency_ns": 831364,
+        "p95_latency_ns": 1866643,
+        "p99_latency_ns": 3206545,
+        "path": "direct",
+        "payload_bytes": 16384,
+        "schema": "nbsr-native-paced-diagnostic-v1",
+        "steady_windows": 3,
+        "streams": 8,
+        "strict_stable_capacity": "NOT_ESTABLISHED"
+      }
+    },
+    {
+      "label": "nbsr-r3",
+      "path": "nbsr",
+      "controller_status": "PASS_FUNCTIONAL",
+      "index_sha256": "fc3b108c26568f77123a876327e80f2ca1fa1c2d371a938c1798430c2dad1126",
+      "peer": {
+        "status": "PASS_FINITE_PAIR_INTEGRITY",
+        "source_sha": "5595e45f4ea11d065e0cfb42022712f3746a2961",
+        "cell": {
+          "cores": 1,
+          "diagnostic_rate": [
+            1000,
+            1
+          ],
+          "outstanding": 1,
+          "path": "nbsr",
+          "payload_bytes": 16384,
+          "streams": 8
+        },
+        "source_index_sha256": "d497b7bb87ff5d2f6ea4826811cd1cae1c11d9ee1c209bcbb9636c6ea3cdfb04",
+        "destination_index_sha256": "5379a932519d975354228173168ef40f23e0d99bc237b43d29d647eb7917fe3d",
+        "application_gbps": 0.2613484619008791,
+        "strict_stable_capacity": "NOT_PROVEN",
+        "external_hardware": "NOT_PROVEN",
+        "observer_qualification": "NOT_PROVEN",
+        "runtime_ownership_cleanup": "ALL_11_ZERO",
+        "authenticity": "checksums are not signatures or remote attestation",
+        "workload_mode": "PACED_DIAGNOSTIC",
+        "achieved_offered_ratio": 0.997,
+        "drift_failures": [],
+        "live_private_growth": "NOT_MEASURED"
+      },
+      "source": {
+        "achieved_offered_ratio": 0.997,
+        "completed_operations": 19940,
+        "diagnostic_rate": [
+          1000,
+          1
+        ],
+        "drift_failures": [],
+        "final": {
+          "all_groups_joined": true,
+          "collector_overflow_count": 0,
+          "completed": 19940,
+          "drain_duration_ns": 696855,
+          "errors": 0,
+          "evidence_valid": true,
+          "group_counters": [
+            {
+              "completed": 19940,
+              "group_id": 0,
+              "issued": 19940,
+              "missed": 60,
+              "offered": 20000,
+              "reserved": 19940,
+              "unreserved_current": 0
+            }
+          ],
+          "groups": 1,
+          "issued": 19940,
+          "max_outstanding_observed": 8,
+          "measurement_duration_ns": 20000000000,
+          "missed": 60,
+          "offered": 20000,
+          "outstanding_per_stream": 1,
+          "payload_bytes": 16384,
+          "reserved": 19940,
+          "schema": "nbsr-b5-grouped-final-v1",
+          "source_cleanup": {
+            "status": "SEPARATE_REPORT_REQUIRED"
+          },
+          "streams_per_group": 8,
+          "timeouts": 0,
+          "unreserved_current": 0
+        },
+        "latency_scope": "median of steady-window quantiles, not pooled quantiles",
+        "live_private_growth": "NOT_MEASURED",
+        "measured_ns": 20000696855,
+        "outstanding_per_stream": 1,
+        "p50_latency_ns": 789273,
+        "p95_latency_ns": 1928078,
+        "p99_latency_ns": 2993976,
+        "path": "nbsr",
+        "payload_bytes": 16384,
+        "schema": "nbsr-native-paced-diagnostic-v1",
+        "steady_windows": 3,
+        "streams": 8,
+        "strict_stable_capacity": "NOT_ESTABLISHED"
+      }
+    },
+    {
+      "label": "nbsr-r4",
+      "path": "nbsr",
+      "controller_status": "PASS_FUNCTIONAL",
+      "index_sha256": "48ce9a12b48050c5ebc802b17a402a09399db1201bf6d583b9965d1ab7e1c9de",
+      "peer": {
+        "status": "PASS_FINITE_PAIR_INTEGRITY",
+        "source_sha": "5595e45f4ea11d065e0cfb42022712f3746a2961",
+        "cell": {
+          "cores": 1,
+          "diagnostic_rate": [
+            1000,
+            1
+          ],
+          "outstanding": 1,
+          "path": "nbsr",
+          "payload_bytes": 16384,
+          "streams": 8
+        },
+        "source_index_sha256": "289e74cd5820f70fe3bc2aa7df9961f0a4193b0a6e7612a6b41865be7dc49a0b",
+        "destination_index_sha256": "fc1ad8c291d6acb7ccb2d31e065e72df51c71ea8e63332ffe951911d224d3bf4",
+        "application_gbps": 0.26156202300462394,
+        "strict_stable_capacity": "NOT_PROVEN",
+        "external_hardware": "NOT_PROVEN",
+        "observer_qualification": "NOT_PROVEN",
+        "runtime_ownership_cleanup": "ALL_11_ZERO",
+        "authenticity": "checksums are not signatures or remote attestation",
+        "workload_mode": "PACED_DIAGNOSTIC",
+        "achieved_offered_ratio": 0.9978,
+        "drift_failures": [],
+        "live_private_growth": "NOT_MEASURED"
+      },
+      "source": {
+        "achieved_offered_ratio": 0.9978,
+        "completed_operations": 19956,
+        "diagnostic_rate": [
+          1000,
+          1
+        ],
+        "drift_failures": [],
+        "final": {
+          "all_groups_joined": true,
+          "collector_overflow_count": 0,
+          "completed": 19956,
+          "drain_duration_ns": 402214,
+          "errors": 0,
+          "evidence_valid": true,
+          "group_counters": [
+            {
+              "completed": 19956,
+              "group_id": 0,
+              "issued": 19956,
+              "missed": 44,
+              "offered": 20000,
+              "reserved": 19956,
+              "unreserved_current": 0
+            }
+          ],
+          "groups": 1,
+          "issued": 19956,
+          "max_outstanding_observed": 8,
+          "measurement_duration_ns": 20000000000,
+          "missed": 44,
+          "offered": 20000,
+          "outstanding_per_stream": 1,
+          "payload_bytes": 16384,
+          "reserved": 19956,
+          "schema": "nbsr-b5-grouped-final-v1",
+          "source_cleanup": {
+            "status": "SEPARATE_REPORT_REQUIRED"
+          },
+          "streams_per_group": 8,
+          "timeouts": 0,
+          "unreserved_current": 0
+        },
+        "latency_scope": "median of steady-window quantiles, not pooled quantiles",
+        "live_private_growth": "NOT_MEASURED",
+        "measured_ns": 20000402214,
+        "outstanding_per_stream": 1,
+        "p50_latency_ns": 849465,
+        "p95_latency_ns": 2037479,
+        "p99_latency_ns": 6155437,
+        "path": "nbsr",
+        "payload_bytes": 16384,
+        "schema": "nbsr-native-paced-diagnostic-v1",
+        "steady_windows": 3,
+        "streams": 8,
+        "strict_stable_capacity": "NOT_ESTABLISHED"
+      }
+    },
+    {
+      "label": "direct-r4",
+      "path": "direct",
+      "controller_status": "PASS_FUNCTIONAL",
+      "index_sha256": "5b671576b09259eb436e30a7bd5ea652a6e5e8c087fb82556d7f795128841a96",
+      "peer": {
+        "status": "PASS_FINITE_PAIR_INTEGRITY",
+        "source_sha": "5595e45f4ea11d065e0cfb42022712f3746a2961",
+        "cell": {
+          "cores": 1,
+          "diagnostic_rate": [
+            1000,
+            1
+          ],
+          "outstanding": 1,
+          "path": "direct",
+          "payload_bytes": 16384,
+          "streams": 8
+        },
+        "source_index_sha256": "a7b9f8933ec9e432956b77c4e270ae85a5d4da1653f50d972641bf8811054fd3",
+        "destination_index_sha256": "328236eb2c327363d322d20f8f5bdf0f493019c9606fff96a9e9d789cb2a535d",
+        "application_gbps": 0.26147828743397866,
+        "strict_stable_capacity": "NOT_PROVEN",
+        "external_hardware": "NOT_PROVEN",
+        "observer_qualification": "NOT_PROVEN",
+        "runtime_ownership_cleanup": "NOT_APPLICABLE_DIRECT",
+        "authenticity": "checksums are not signatures or remote attestation",
+        "workload_mode": "PACED_DIAGNOSTIC",
+        "achieved_offered_ratio": 0.9975,
+        "drift_failures": [
+          {
+            "reason": "p99",
+            "window": 3
+          }
+        ],
+        "live_private_growth": "NOT_MEASURED"
+      },
+      "source": {
+        "achieved_offered_ratio": 0.9975,
+        "completed_operations": 19950,
+        "diagnostic_rate": [
+          1000,
+          1
+        ],
+        "drift_failures": [
+          {
+            "reason": "p99",
+            "window": 3
+          }
+        ],
+        "final": {
+          "all_groups_joined": true,
+          "collector_overflow_count": 0,
+          "completed": 19950,
+          "drain_duration_ns": 791849,
+          "errors": 0,
+          "evidence_valid": true,
+          "group_counters": [
+            {
+              "completed": 19950,
+              "group_id": 0,
+              "issued": 19950,
+              "missed": 50,
+              "offered": 20000,
+              "reserved": 19950,
+              "unreserved_current": 0
+            }
+          ],
+          "groups": 1,
+          "issued": 19950,
+          "max_outstanding_observed": 8,
+          "measurement_duration_ns": 20000000000,
+          "missed": 50,
+          "offered": 20000,
+          "outstanding_per_stream": 1,
+          "payload_bytes": 16384,
+          "reserved": 19950,
+          "schema": "nbsr-b5-grouped-final-v1",
+          "source_cleanup": {
+            "status": "NOT_MEASURED"
+          },
+          "streams_per_group": 8,
+          "timeouts": 0,
+          "unreserved_current": 0
+        },
+        "latency_scope": "median of steady-window quantiles, not pooled quantiles",
+        "live_private_growth": "NOT_MEASURED",
+        "measured_ns": 20000791849,
+        "outstanding_per_stream": 1,
+        "p50_latency_ns": 873350,
+        "p95_latency_ns": 2279333,
+        "p99_latency_ns": 4364754,
+        "path": "direct",
+        "payload_bytes": 16384,
+        "schema": "nbsr-native-paced-diagnostic-v1",
+        "steady_windows": 3,
+        "streams": 8,
+        "strict_stable_capacity": "NOT_ESTABLISHED"
+      }
+    },
+    {
+      "label": "direct-r5",
+      "path": "direct",
+      "controller_status": "PASS_FUNCTIONAL",
+      "index_sha256": "3e0d1bd138d88435783feee57efcbc18cfa66341fac23d6bc02039322e140c6d",
+      "peer": {
+        "status": "PASS_FINITE_PAIR_INTEGRITY",
+        "source_sha": "5595e45f4ea11d065e0cfb42022712f3746a2961",
+        "cell": {
+          "cores": 1,
+          "diagnostic_rate": [
+            1000,
+            1
+          ],
+          "outstanding": 1,
+          "path": "direct",
+          "payload_bytes": 16384,
+          "streams": 8
+        },
+        "source_index_sha256": "d5429e5549d6c8aa7a8775bdae5d2c45fed92de955aaad53249052000256475f",
+        "destination_index_sha256": "c364e49673f68832ec945e4d0a27ebf82398a74584704b92aa7c850c745c4925",
+        "application_gbps": 0.2616766437448579,
+        "strict_stable_capacity": "NOT_PROVEN",
+        "external_hardware": "NOT_PROVEN",
+        "observer_qualification": "NOT_PROVEN",
+        "runtime_ownership_cleanup": "NOT_APPLICABLE_DIRECT",
+        "authenticity": "checksums are not signatures or remote attestation",
+        "workload_mode": "PACED_DIAGNOSTIC",
+        "achieved_offered_ratio": 0.99825,
+        "drift_failures": [],
+        "live_private_growth": "NOT_MEASURED"
+      },
+      "source": {
+        "achieved_offered_ratio": 0.99825,
+        "completed_operations": 19965,
+        "diagnostic_rate": [
+          1000,
+          1
+        ],
+        "drift_failures": [],
+        "final": {
+          "all_groups_joined": true,
+          "collector_overflow_count": 0,
+          "completed": 19965,
+          "drain_duration_ns": 657625,
+          "errors": 0,
+          "evidence_valid": true,
+          "group_counters": [
+            {
+              "completed": 19965,
+              "group_id": 0,
+              "issued": 19965,
+              "missed": 35,
+              "offered": 20000,
+              "reserved": 19965,
+              "unreserved_current": 0
+            }
+          ],
+          "groups": 1,
+          "issued": 19965,
+          "max_outstanding_observed": 8,
+          "measurement_duration_ns": 20000000000,
+          "missed": 35,
+          "offered": 20000,
+          "outstanding_per_stream": 1,
+          "payload_bytes": 16384,
+          "reserved": 19965,
+          "schema": "nbsr-b5-grouped-final-v1",
+          "source_cleanup": {
+            "status": "NOT_MEASURED"
+          },
+          "streams_per_group": 8,
+          "timeouts": 0,
+          "unreserved_current": 0
+        },
+        "latency_scope": "median of steady-window quantiles, not pooled quantiles",
+        "live_private_growth": "NOT_MEASURED",
+        "measured_ns": 20000657625,
+        "outstanding_per_stream": 1,
+        "p50_latency_ns": 812583,
+        "p95_latency_ns": 1720932,
+        "p99_latency_ns": 2526457,
+        "path": "direct",
+        "payload_bytes": 16384,
+        "schema": "nbsr-native-paced-diagnostic-v1",
+        "steady_windows": 3,
+        "streams": 8,
+        "strict_stable_capacity": "NOT_ESTABLISHED"
+      }
+    },
+    {
+      "label": "nbsr-r5",
+      "path": "nbsr",
+      "controller_status": "PASS_FUNCTIONAL",
+      "index_sha256": "622cfac939b76cce6dd6fa78014de67124104ec50d9a8687bcf59745de25f66e",
+      "peer": {
+        "status": "PASS_FINITE_PAIR_INTEGRITY",
+        "source_sha": "5595e45f4ea11d065e0cfb42022712f3746a2961",
+        "cell": {
+          "cores": 1,
+          "diagnostic_rate": [
+            1000,
+            1
+          ],
+          "outstanding": 1,
+          "path": "nbsr",
+          "payload_bytes": 16384,
+          "streams": 8
+        },
+        "source_index_sha256": "bf1fb43c68544380eb9558dec5f089e9d01d2dbf20ddc1437ed4a9d569fc013c",
+        "destination_index_sha256": "8be6fd500f9d266312fb29048a73630caac1465f619382cce3e7b318f1854f6f",
+        "application_gbps": 0.26182156654419875,
+        "strict_stable_capacity": "NOT_PROVEN",
+        "external_hardware": "NOT_PROVEN",
+        "observer_qualification": "NOT_PROVEN",
+        "runtime_ownership_cleanup": "ALL_11_ZERO",
+        "authenticity": "checksums are not signatures or remote attestation",
+        "workload_mode": "PACED_DIAGNOSTIC",
+        "achieved_offered_ratio": 0.9988,
+        "drift_failures": [],
+        "live_private_growth": "NOT_MEASURED"
+      },
+      "source": {
+        "achieved_offered_ratio": 0.9988,
+        "completed_operations": 19976,
+        "diagnostic_rate": [
+          1000,
+          1
+        ],
+        "drift_failures": [],
+        "final": {
+          "all_groups_joined": true,
+          "collector_overflow_count": 0,
+          "completed": 19976,
+          "drain_duration_ns": 600459,
+          "errors": 0,
+          "evidence_valid": true,
+          "group_counters": [
+            {
+              "completed": 19976,
+              "group_id": 0,
+              "issued": 19976,
+              "missed": 24,
+              "offered": 20000,
+              "reserved": 19976,
+              "unreserved_current": 0
+            }
+          ],
+          "groups": 1,
+          "issued": 19976,
+          "max_outstanding_observed": 8,
+          "measurement_duration_ns": 20000000000,
+          "missed": 24,
+          "offered": 20000,
+          "outstanding_per_stream": 1,
+          "payload_bytes": 16384,
+          "reserved": 19976,
+          "schema": "nbsr-b5-grouped-final-v1",
+          "source_cleanup": {
+            "status": "SEPARATE_REPORT_REQUIRED"
+          },
+          "streams_per_group": 8,
+          "timeouts": 0,
+          "unreserved_current": 0
+        },
+        "latency_scope": "median of steady-window quantiles, not pooled quantiles",
+        "live_private_growth": "NOT_MEASURED",
+        "measured_ns": 20000600459,
+        "outstanding_per_stream": 1,
+        "p50_latency_ns": 886163,
+        "p95_latency_ns": 1905236,
+        "p99_latency_ns": 5169870,
+        "path": "nbsr",
+        "payload_bytes": 16384,
+        "schema": "nbsr-native-paced-diagnostic-v1",
+        "steady_windows": 3,
+        "streams": 8,
+        "strict_stable_capacity": "NOT_ESTABLISHED"
+      }
+    }
+  ],
+  "classification": "SHORT_PACED_DIAGNOSTIC",
+  "strict_stable": "NOT_ESTABLISHED",
+  "near_ceiling": "NOT_ESTABLISHED",
+  "soak": "NOT_RUN",
+  "live_private_growth": "NOT_MEASURED",
+  "observer_qualification": "REJECTED_IN_SEPARATE_AC40740C_COHORT",
+  "hardware_ceiling": "NOT_PROVEN"
+}

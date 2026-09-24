@@ -1,0 +1,18 @@
+[
+  {
+    "root": "C:\\NBSR-build\\native-paced-5595e45f",
+    "index_sha256": "bda219569c9486653a30a3d1e3a065b9bef82615e98e4c7dd5ac7c3345c9ca6f"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-current-5595e45f",
+    "index_sha256": "07f26f4d7bdf39834994b460fee12f2deee22d738a3984687377988ea5d942b5"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-paced-tests-20260924",
+    "index_sha256": "6b574155c6e2214a1a5e6e837068b6524444076dc11f759c3cc98d36a952aa11"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-closed-fixture-cleanup-20260924",
+    "index_sha256": "136ec416878a75f9d3474df00b52f2570b4d5f808bac1f71cd8be320374350de"
+  }
+]
