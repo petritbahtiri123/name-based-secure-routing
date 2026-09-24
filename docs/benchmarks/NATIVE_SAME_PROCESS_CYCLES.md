@@ -40,3 +40,15 @@ channels,1stream/channel,4cycles:24/24 cycles and576/576 operations PASS.
 8/2. Final RSS CV<1.12%. Package native-channels-09b36ece. This closes native
 channel workload execution; private-memory/bytes-resource/observer qualification
 and full B3/B5 remain open. No production change or new capacity claim.
+
+Optional `"memory_observer":true` enables at-most-one-Hz identity/lifetime-bound smaps_rollup observations on both roles. Defaults remain off. Record private resident/PSS as diagnostic totals; observer neutrality and marginal cost are not established.
+
+September25: opt-in one-Hz private-resident/PSS observer04866375 completes15/15
+namespace trials across baseline,16/32channels and16/64streams,4cycles each:
+60/60 cycles,1548/1548 operations,30 owned PIDs absent. Source per-cycle and both
+final ownership zero; private-memory repeat CV<1.63%. Samples bind process epoch,
+lifetime/CPU and active/cooldown windows. Maximum capture13.23ms is not neutrality
+proof. Package native-memory-04866375; private totals diagnostic, not qualified
+bytes/resource, allocator cause or long-run leak freedom.298 affected tests/Ruff
+and review/re-review PASS. No production change. Next:50-cycle private-memory
+observation to distinguish long retention from earlier RSS-only results.

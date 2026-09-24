@@ -431,7 +431,7 @@
         "docs/benchmarks/EXTERNAL_NATIVE_LIFECYCLE_COORDINATOR.md"
       ],
       "scope": "prepared source, readiness/active/release/ACK/cooldown coordination and owned EOF cleanup; finite native 512/1024 namespace evidence, not sustainable admission",
-      "missing": "physical-host SSH validation, per-axis remote channel/stream scaling, Go-to-Rust coverage and sustained multihost admission"
+      "missing": "physical-host SSH validation, Go-to-Rust coverage and sustained multihost admission; separate native cycle coordinator covers bounded channel/stream axes"
     },
     "native_reference_gates": {
       "status": "PARTIAL",
@@ -461,10 +461,11 @@
       "sources": [
         "scripts/performance/linux_native_cycle_run.py",
         "scripts/performance/linux_native_cycle_gate.py",
-        "docs/benchmarks/NATIVE_SAME_PROCESS_CYCLES.md"
+        "docs/benchmarks/NATIVE_SAME_PROCESS_CYCLES.md",
+        "scripts/performance/linux_native_cycle_memory.py"
       ],
-      "scope": "bounded native sequential same-process coordination; three four-cycle, three sixteen-cycle and three fifty-cycle namespace trials plus six catchable EOF controls; exact process epochs/final ownership verified; diagnostic RSS only",
-      "missing": "per-axis channel/stream scaling, qualified private-memory measurement and material retention attribution, independent physical-host validation"
+      "scope": "bounded native sequential same-process coordination; three four/sixteen/fifty-cycle namespace cohorts and six catchable EOF controls; per-axis16/32-channel and16/32/64-stream functional cohorts; exact epochs/final ownership; optional one-Hz private-resident/PSS diagnostic observer",
+      "missing": "qualified private-memory observer neutrality, marginal resource-cost and material retention attribution, independent physical-host validation"
     }
   }
 }
