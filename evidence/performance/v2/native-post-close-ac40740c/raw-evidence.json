@@ -1,0 +1,14 @@
+[
+  {
+    "root": "C:\\NBSR-build\\native-post-close-ac40740c",
+    "index_sha256": "8f8330df2ea7be7175ccc9052b5713e6a3f280a243886b40395b658ea2e3dd2a"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-current-ac40740c",
+    "index_sha256": "c7182bc0ff6be19517635952379d65fa5cada371c3da6c982f57d8344420982b"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-post-close-tests-20260924",
+    "index_sha256": "d4a214b708cc01643c446cdccffc3ce5f04380b5ef726bfe14f4ae74c76c3eaa"
+  }
+]

@@ -36,8 +36,16 @@ The canonical summary/checksum were corrected without changing raw evidence.
 
 ## Remaining work
 
-Native post-close reports/reference qualification and paced B5 orchestration are
-next safe engineering steps. Same-process memory observer qualification, current
+Native post-close report binding is complete at ac40740c: 5/5 NBSR and 5/5
+Direct finite pairs pass, all requested NBSR reports show eleven zero counters,
+and all twenty owned PIDs are absent before fixture stop. Evidence:
+`evidence/performance/v2/native-post-close-ac40740c`, 592 raw files verified.
+Diagnostic medians 2.395090 Direct / 2.496439 NBSR Gbit/s; CV 16.12% / 12.17%.
+These are not strict-stable references. The next paired on/off experiment tests
+observer influence without changing production code or timeout semantics.
+
+Observer/reference qualification and paced B5 orchestration remain open.
+Same-process memory observer qualification, current
 qualified physical-core forwarding/admission references, actual near-ceiling
 60/120-minute soak and final whole-package acceptance remain open. Historical
 Windows throughput/admission results remain as previously scoped; none are

@@ -18,3 +18,8 @@ valid source/destination reports pass; default historical fixtures still pass.
 Focused tests and one review, then atomic commit and exact-source real validation.
 No production/wire/security/ACK/timeout changes. This closes only the native
 reference cleanup prerequisite; paced drift/resource classification remains open.
+
+Completed at ac40740c with 75 focused tests and five real paired Direct/NBSR
+repeats. All ten finite pairs and ten NBSR role reports pass. Retained package:
+`evidence/performance/v2/native-post-close-ac40740c`. Timing remains diagnostic;
+paired observer qualification is a separate predeclared experiment.

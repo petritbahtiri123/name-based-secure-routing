@@ -1,0 +1,333 @@
+{
+  "source_sha": "ac40740c73c70c3661140ed613f61b693abbf1a9",
+  "cells": [
+    {
+      "label": "direct-r1",
+      "path": "direct",
+      "index_sha256": "5c595c77908205cbc44deef84118c40db19e744143e752fa9c91024aea5a14c9",
+      "peer": {
+        "status": "PASS_FINITE_PAIR_INTEGRITY",
+        "source_sha": "ac40740c73c70c3661140ed613f61b693abbf1a9",
+        "cell": {
+          "cores": 1,
+          "outstanding": 1,
+          "path": "direct",
+          "payload_bytes": 16384,
+          "streams": 8
+        },
+        "source_index_sha256": "12788ed4a0fa5e1161d217a3599239fd250cb3b4febdbd5f6d3c98f695cf81bd",
+        "destination_index_sha256": "ac9c3f90b96e9f8a118cf3b88e37e553f73be58ce2c7e1b3fe5e5254041a4f70",
+        "application_gbps": 2.271837164545067,
+        "strict_stable_capacity": "NOT_PROVEN",
+        "external_hardware": "NOT_PROVEN",
+        "observer_qualification": "NOT_PROVEN",
+        "runtime_ownership_cleanup": "NOT_APPLICABLE_DIRECT",
+        "authenticity": "checksums are not signatures or remote attestation"
+      },
+      "runtime_ownership": "NOT_APPLICABLE_DIRECT",
+      "latency_ns": {
+        "p50": 780553,
+        "p95": 1515614,
+        "p99": 2547284
+      }
+    },
+    {
+      "label": "nbsr-r1",
+      "path": "nbsr",
+      "index_sha256": "68889fd7bd3053b19ecb94e2fdb5af761fba0d78572ac9948a6be8a874f01978",
+      "peer": {
+        "status": "PASS_FINITE_PAIR_INTEGRITY",
+        "source_sha": "ac40740c73c70c3661140ed613f61b693abbf1a9",
+        "cell": {
+          "cores": 1,
+          "outstanding": 1,
+          "path": "nbsr",
+          "payload_bytes": 16384,
+          "streams": 8
+        },
+        "source_index_sha256": "72c5986726eebf2d8414fee6ec8a28d9d77094af2dc4c8fa47b09be98fb6f54f",
+        "destination_index_sha256": "842b99597cb04f169ed4fc9aea22c314dcaed67c4c68a3589e788e05df139c08",
+        "application_gbps": 2.352908280294244,
+        "strict_stable_capacity": "NOT_PROVEN",
+        "external_hardware": "NOT_PROVEN",
+        "observer_qualification": "NOT_PROVEN",
+        "runtime_ownership_cleanup": "ALL_11_ZERO",
+        "authenticity": "checksums are not signatures or remote attestation"
+      },
+      "runtime_ownership": "ALL_11_ZERO",
+      "latency_ns": {
+        "p50": 798558,
+        "p95": 1457807,
+        "p99": 2296868
+      }
+    },
+    {
+      "label": "nbsr-r2",
+      "path": "nbsr",
+      "index_sha256": "7b9be17dd82c03b84005d32d284645c6aa3cfb16cece9899bc5c33b463e52a22",
+      "peer": {
+        "status": "PASS_FINITE_PAIR_INTEGRITY",
+        "source_sha": "ac40740c73c70c3661140ed613f61b693abbf1a9",
+        "cell": {
+          "cores": 1,
+          "outstanding": 1,
+          "path": "nbsr",
+          "payload_bytes": 16384,
+          "streams": 8
+        },
+        "source_index_sha256": "a742f42b4ad6012f5c5e113513a04592c8d411f960781547d2acd1daeaed708f",
+        "destination_index_sha256": "e77592569ff2a960e3daac1df1bd1ca9c24dd987f6c57e25cd909effde13163b",
+        "application_gbps": 2.6346625604593776,
+        "strict_stable_capacity": "NOT_PROVEN",
+        "external_hardware": "NOT_PROVEN",
+        "observer_qualification": "NOT_PROVEN",
+        "runtime_ownership_cleanup": "ALL_11_ZERO",
+        "authenticity": "checksums are not signatures or remote attestation"
+      },
+      "runtime_ownership": "ALL_11_ZERO",
+      "latency_ns": {
+        "p50": 728953,
+        "p95": 1069277,
+        "p99": 1878138
+      }
+    },
+    {
+      "label": "direct-r2",
+      "path": "direct",
+      "index_sha256": "745eddb77900db372241946fd665f0cf791754876efd8bff8bd6a6b4235aa8d0",
+      "peer": {
+        "status": "PASS_FINITE_PAIR_INTEGRITY",
+        "source_sha": "ac40740c73c70c3661140ed613f61b693abbf1a9",
+        "cell": {
+          "cores": 1,
+          "outstanding": 1,
+          "path": "direct",
+          "payload_bytes": 16384,
+          "streams": 8
+        },
+        "source_index_sha256": "cb852903967168ef74b0f5e4dfdd9035be16cf9b5a2629575eac5a6385a3495c",
+        "destination_index_sha256": "0538eb01c9080efea1597c747517a36aee560485c0094ef7af5732b93c2d3e1a",
+        "application_gbps": 2.518882564074971,
+        "strict_stable_capacity": "NOT_PROVEN",
+        "external_hardware": "NOT_PROVEN",
+        "observer_qualification": "NOT_PROVEN",
+        "runtime_ownership_cleanup": "NOT_APPLICABLE_DIRECT",
+        "authenticity": "checksums are not signatures or remote attestation"
+      },
+      "runtime_ownership": "NOT_APPLICABLE_DIRECT",
+      "latency_ns": {
+        "p50": 759355,
+        "p95": 1108875,
+        "p99": 1946241
+      }
+    },
+    {
+      "label": "direct-r3",
+      "path": "direct",
+      "index_sha256": "f7026a49da75d17c55d9379c0a014ab7a8393f657e036563e8716a46fcab8402",
+      "peer": {
+        "status": "PASS_FINITE_PAIR_INTEGRITY",
+        "source_sha": "ac40740c73c70c3661140ed613f61b693abbf1a9",
+        "cell": {
+          "cores": 1,
+          "outstanding": 1,
+          "path": "direct",
+          "payload_bytes": 16384,
+          "streams": 8
+        },
+        "source_index_sha256": "dba636a79fc8be25cb8b8a469d4ebfc6d47bdc4a79226c58d1180f436b8b36c5",
+        "destination_index_sha256": "97c47071c8a8c05e853533043694eeb2279f1083f8119b5d0a751827bb8077d4",
+        "application_gbps": 2.636122615810729,
+        "strict_stable_capacity": "NOT_PROVEN",
+        "external_hardware": "NOT_PROVEN",
+        "observer_qualification": "NOT_PROVEN",
+        "runtime_ownership_cleanup": "NOT_APPLICABLE_DIRECT",
+        "authenticity": "checksums are not signatures or remote attestation"
+      },
+      "runtime_ownership": "NOT_APPLICABLE_DIRECT",
+      "latency_ns": {
+        "p50": 734452,
+        "p95": 994672,
+        "p99": 1808428
+      }
+    },
+    {
+      "label": "nbsr-r3",
+      "path": "nbsr",
+      "index_sha256": "55d4111112069d95d50f3add5f3fd9d21ea76cc4eb38bd3d7121bed9e0420ca8",
+      "peer": {
+        "status": "PASS_FINITE_PAIR_INTEGRITY",
+        "source_sha": "ac40740c73c70c3661140ed613f61b693abbf1a9",
+        "cell": {
+          "cores": 1,
+          "outstanding": 1,
+          "path": "nbsr",
+          "payload_bytes": 16384,
+          "streams": 8
+        },
+        "source_index_sha256": "17820f815acd403c634c366c916eb882918f71087207715b828316bac8ef5e23",
+        "destination_index_sha256": "e84edc71579b0ea08064a1321f8d1b0ed0ae14f36f0e7bd9453bd78b6145a217",
+        "application_gbps": 2.4964386626333583,
+        "strict_stable_capacity": "NOT_PROVEN",
+        "external_hardware": "NOT_PROVEN",
+        "observer_qualification": "NOT_PROVEN",
+        "runtime_ownership_cleanup": "ALL_11_ZERO",
+        "authenticity": "checksums are not signatures or remote attestation"
+      },
+      "runtime_ownership": "ALL_11_ZERO",
+      "latency_ns": {
+        "p50": 735152,
+        "p95": 1344196,
+        "p99": 2124653
+      }
+    },
+    {
+      "label": "nbsr-r4",
+      "path": "nbsr",
+      "index_sha256": "4b41325c385255bc3010725a69b9804f94e76949575df2b1a3a498887203e055",
+      "peer": {
+        "status": "PASS_FINITE_PAIR_INTEGRITY",
+        "source_sha": "ac40740c73c70c3661140ed613f61b693abbf1a9",
+        "cell": {
+          "cores": 1,
+          "outstanding": 1,
+          "path": "nbsr",
+          "payload_bytes": 16384,
+          "streams": 8
+        },
+        "source_index_sha256": "162bb86d78860544234e32ff450780c6470dd59723128b05c36ef1cb75398e50",
+        "destination_index_sha256": "4f0bf0b1ce1f30c13d6a6d43a5a2a6c8b5eea51bf9d864632e522da8132db570",
+        "application_gbps": 2.668267571895242,
+        "strict_stable_capacity": "NOT_PROVEN",
+        "external_hardware": "NOT_PROVEN",
+        "observer_qualification": "NOT_PROVEN",
+        "runtime_ownership_cleanup": "ALL_11_ZERO",
+        "authenticity": "checksums are not signatures or remote attestation"
+      },
+      "runtime_ownership": "ALL_11_ZERO",
+      "latency_ns": {
+        "p50": 719952,
+        "p95": 1020373,
+        "p99": 1865035
+      }
+    },
+    {
+      "label": "direct-r4",
+      "path": "direct",
+      "index_sha256": "08cd89f8ab1199acefc90f557f2dd67100e0442c12ef82c15d7a94f9fe2f5d80",
+      "peer": {
+        "status": "PASS_FINITE_PAIR_INTEGRITY",
+        "source_sha": "ac40740c73c70c3661140ed613f61b693abbf1a9",
+        "cell": {
+          "cores": 1,
+          "outstanding": 1,
+          "path": "direct",
+          "payload_bytes": 16384,
+          "streams": 8
+        },
+        "source_index_sha256": "2c7581e046d9f05c93db58d6441d220e5f1bab4b42eb313dfc0882752c653eb1",
+        "destination_index_sha256": "660f5f9f57dd1468626b6578ac7ad438315599f43e06e7ade0ddf8bb01083c70",
+        "application_gbps": 1.683779170886113,
+        "strict_stable_capacity": "NOT_PROVEN",
+        "external_hardware": "NOT_PROVEN",
+        "observer_qualification": "NOT_PROVEN",
+        "runtime_ownership_cleanup": "NOT_APPLICABLE_DIRECT",
+        "authenticity": "checksums are not signatures or remote attestation"
+      },
+      "runtime_ownership": "NOT_APPLICABLE_DIRECT",
+      "latency_ns": {
+        "p50": 1067675,
+        "p95": 2029537,
+        "p99": 3414030
+      }
+    },
+    {
+      "label": "direct-r5",
+      "path": "direct",
+      "index_sha256": "6877ddd8b14e3ec970a740a23901ad69399e99d3f0142f0f7bdd7bd1d5478ee1",
+      "peer": {
+        "status": "PASS_FINITE_PAIR_INTEGRITY",
+        "source_sha": "ac40740c73c70c3661140ed613f61b693abbf1a9",
+        "cell": {
+          "cores": 1,
+          "outstanding": 1,
+          "path": "direct",
+          "payload_bytes": 16384,
+          "streams": 8
+        },
+        "source_index_sha256": "2c0823842c511bbed8a3e7158665b6da8b9ca0a47f23231cc842f607ab1dfd12",
+        "destination_index_sha256": "a61fec6581aabe1ea423ae977377c37aafcb605675a6af93369f6c57711fe97d",
+        "application_gbps": 2.3950898278115536,
+        "strict_stable_capacity": "NOT_PROVEN",
+        "external_hardware": "NOT_PROVEN",
+        "observer_qualification": "NOT_PROVEN",
+        "runtime_ownership_cleanup": "NOT_APPLICABLE_DIRECT",
+        "authenticity": "checksums are not signatures or remote attestation"
+      },
+      "runtime_ownership": "NOT_APPLICABLE_DIRECT",
+      "latency_ns": {
+        "p50": 789757,
+        "p95": 1238889,
+        "p99": 2161256
+      }
+    },
+    {
+      "label": "nbsr-r5",
+      "path": "nbsr",
+      "index_sha256": "8d301a2ccdee3a0a04e995bf97c9d2521cd864af37c89f689b1e8e074920211e",
+      "peer": {
+        "status": "PASS_FINITE_PAIR_INTEGRITY",
+        "source_sha": "ac40740c73c70c3661140ed613f61b693abbf1a9",
+        "cell": {
+          "cores": 1,
+          "outstanding": 1,
+          "path": "nbsr",
+          "payload_bytes": 16384,
+          "streams": 8
+        },
+        "source_index_sha256": "0c603ed937192f7137bbb0313025c60fdd13928979cc86f05f41ab987b3dbb16",
+        "destination_index_sha256": "42e0c2ebb43588184630c3facf59f0fa0592a00afad22760213e48ad88efee65",
+        "application_gbps": 1.9417016815871637,
+        "strict_stable_capacity": "NOT_PROVEN",
+        "external_hardware": "NOT_PROVEN",
+        "observer_qualification": "NOT_PROVEN",
+        "runtime_ownership_cleanup": "ALL_11_ZERO",
+        "authenticity": "checksums are not signatures or remote attestation"
+      },
+      "runtime_ownership": "ALL_11_ZERO",
+      "latency_ns": {
+        "p50": 902963,
+        "p95": 1868434,
+        "p99": 3091825
+      }
+    }
+  ],
+  "summary": {
+    "direct": {
+      "passes": 5,
+      "median_gbps": 2.3950898278115536,
+      "cv_percent": 16.120682325983243,
+      "median_cell_latency_ns": {
+        "p50": 780553,
+        "p95": 1238889,
+        "p99": 2161256
+      }
+    },
+    "nbsr": {
+      "passes": 5,
+      "median_gbps": 2.4964386626333583,
+      "cv_percent": 12.173760482080327,
+      "median_cell_latency_ns": {
+        "p50": 735152,
+        "p95": 1344196,
+        "p99": 2124653
+      }
+    }
+  },
+  "timing": "DIAGNOSTIC_ONLY",
+  "observer_qualification": "NOT_ESTABLISHED",
+  "strict_stable": "NOT_ESTABLISHED",
+  "soak": "NOT_RUN",
+  "production_changes": "NONE",
+  "hardware_ceiling": "NOT_PROVEN"
+}

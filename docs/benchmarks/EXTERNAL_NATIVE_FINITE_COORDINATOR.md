@@ -64,8 +64,15 @@ forbidden without a validated live ownership event. Independent peer gates check
 release build/SHA/hashes, workload, readiness, certificate hashes, process identity,
 affinity and terminal samples. Checksums detect corruption, not remote attestation.
 
-Finite process exit is not an eleven-counter lifecycle/retention measurement.
+Optional config `"post_close_reports": true` requests existing NBSR post-close
+reports on both roles. The coordinator independently binds each report to its
+owned PID and requires all eleven live/entry counters zero. Direct retains its
+process-exit scope. Omission preserves the original process-only mode. Five
+matched Direct/NBSR functional repeats at ac40740c passed this gate; observer
+qualification and long-run retention are not established by those trials.
+
+Finite process exit alone is not an eleven-counter lifecycle/retention measurement.
 CPU observations are lifetime totals, not steady CPU ns/op. Observer overhead and
 host physical-core allocation remain unqualified. Do not load this package as a
-B5 ceiling reference: native post-close counters, reference classification, paced
+B5 ceiling reference: observer qualification, reference classification, paced
 coordination and its drift/resource gates remain separate unfinished work.
