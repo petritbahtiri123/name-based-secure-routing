@@ -23,7 +23,7 @@ from scripts.performance.linux_b5_placement import seal_output
 from scripts.performance.linux_b5_reference import git_state
 from scripts.performance.linux_loopback import ROOT, digest, physical_cpu_sets, write_json
 from scripts.performance.linux_native_lifecycle_control import BUNDLE_COUNTS, CYCLE_COUNTS
-from scripts.performance.linux_native_cycle_limits import cycle_bounds, stream_count, validate_active_shape
+from scripts.performance.linux_native_cycle_limits import cycle_bounds, validate_shape, validate_active_shape
 from scripts.performance.linux_native_peer import observe_child, readiness_endpoint, validate_endpoint, wait_target_exec
 from scripts.performance.linux_udp_failure import capture_owned_udp
 from scripts.performance.post_close_cleanup import FIELDS
@@ -84,7 +84,7 @@ def command(*, role, count, shards, rate, binaries, authority, lifecycle, output
 
 
 
-def cycle_command(*, role, cycles, binaries, authority, lifecycle, output, bind, endpoint, streams=1):
+def cycle_command(*, role, cycles, binaries, authority, lifecycle, output, bind, endpoint, streams=1, channels=1):
     """Separate sequential workload; private cycle barriers must drive each start.
 
     This command builder does not make the bundle endpoint cycle-aware. A cycle
@@ -92,13 +92,14 @@ def cycle_command(*, role, cycles, binaries, authority, lifecycle, output, bind,
     final gate only after the final cooldown.
     """
     require(type(cycles) is int and cycles in CYCLE_COUNTS, 'invalid cycle count')
-    stream_count(streams)
+    validate_shape(streams, channels)
     argv, overrides = command(role=role, count=16, shards=1, rate=100,
         binaries=binaries, authority=authority, lifecycle=lifecycle, output=output,
         bind=bind, endpoint=endpoint)
     if role == 'source':
         argv[argv.index('--connections') + 1] = str(cycles)
         argv[argv.index('--streams-per-service') + 1] = str(streams)
+        argv[argv.index('--services') + 1] = str(channels)
         for flag in ('--lifecycle-clients', '--lifecycle-source-shards', '--lifecycle-offered-rate'):
             position = argv.index(flag)
             del argv[position:position + 2]
@@ -106,6 +107,7 @@ def cycle_command(*, role, cycles, binaries, authority, lifecycle, output, bind,
     else:
         overrides['NBSR_PERF_LIFECYCLE_CONNECTIONS'] = str(cycles)
         overrides['NBSR_PERF_STREAMS_PER_SERVICE'] = str(streams)
+        overrides['NBSR_PERF_LIFECYCLE_SERVICES'] = str(channels)
         for key in ('NBSR_PERF_CONCURRENT_SESSIONS', 'NBSR_PERF_LIFECYCLE_SERIAL_ACCEPT',
                     'NBSR_PERF_LIFECYCLE_OFFERED_RATE'):
             del overrides[key]
@@ -117,27 +119,27 @@ def workload_command(args, **paths):
     if cycles is not None:
         require(args.count == cycles and args.rate is None and args.shards is None,
                 'sequential cycles have no offered-rate/fanout contract')
-        return cycle_command(role=args.role, cycles=cycles, streams=getattr(args, 'streams', 1), **paths)
+        return cycle_command(role=args.role, cycles=cycles, streams=getattr(args, 'streams', 1), channels=getattr(args, 'channels', 1), **paths)
     return command(role=args.role, count=args.count, shards=args.shards, rate=args.rate, **paths)
 
 
-def validate_result(role, count, rows, server, *, streams=1):
-    stream_count(streams)
+def validate_result(role, count, rows, server, *, streams=1, channels=1):
+    total = validate_shape(streams, channels)
     require(role in ('source', 'destination') and rows, 'missing lifecycle result')
     if role == 'source':
         require(not any(row.get('success') is False or row.get('error') for row in rows), 'source failure')
         completed = [row for row in rows if row.get('success') is True]
         ids = [row.get('logical_client_id') for row in completed]
-        require(len(completed) == count * streams and all(type(i) is int for i in ids)
-                and Counter(ids) == dict.fromkeys(range(count), streams), 'source client cardinality mismatch')
-        if streams > 1:
-            require([row.get('sample_id') for row in completed] == list(range(count * streams))
+        require(len(completed) == count * total and all(type(i) is int for i in ids)
+                and Counter(ids) == dict.fromkeys(range(count), total), 'source client cardinality mismatch')
+        if total > 1:
+            require([row.get('sample_id') for row in completed] == list(range(count * total))
                     and all(type(row.get('sample_id')) is int for row in completed)
-                    and ids == [i // streams for i in range(count * streams)], 'source stream sample identity mismatch')
+                    and ids == [i // total for i in range(count * total)], 'source stream sample identity mismatch')
             active = [row for row in rows if row.get('phase') == 'b3_materialized_streams_ready']
             require(len(active) == count, 'source active cycle cardinality mismatch')
             for row in active:
-                validate_active_shape(row, streams)
+                validate_active_shape(row, streams, channels)
         require(all(type(row.get(key)) is int and row[key] == 1024 for row in completed
                     for key in ('bytes_transmitted', 'bytes_received')), 'source payload mismatch')
         final = [row for row in rows if row.get('phase') == 'lifecycle_cleanup']
@@ -146,11 +148,11 @@ def validate_result(role, count, rows, server, *, streams=1):
     else:
         require(isinstance(server, dict) and server.get('status') == 'PASS'
                 and type(server.get('connections')) is int and server['connections'] == count
-                and isinstance(server.get('samples'), list) and len(server['samples']) == count * streams,
+                and isinstance(server.get('samples'), list) and len(server['samples']) == count * total,
                 'destination cardinality mismatch')
-        if streams > 1:
+        if total > 1:
             require(type(server.get('streams_per_service')) is int and server['streams_per_service'] == streams
-                    and type(server.get('services_per_connection')) is int and server['services_per_connection'] == 1,
+                    and type(server.get('services_per_connection')) is int and server['services_per_connection'] == channels,
                     'destination stream shape mismatch')
         final = rows[-1]
     require(all(type(final.get(field)) is int and final[field] == 0 for field in FIELDS),
@@ -159,12 +161,13 @@ def validate_result(role, count, rows, server, *, streams=1):
                 ownership={field: final[field] for field in FIELDS})
 
 
-def immutable_fixture(authority, lifecycle, role):
+def immutable_fixture(authority, lifecycle, role, channels=1):
     names = ('name.txt', 'route-open-body.cbor', 'federation-context.cbor', 'source.cose',
              'destination.cose', 'request-id.bin', 'channel-id.bin', 'route-id.bin', 'grant-digest.bin')
     require((authority / f'{role}-key.der').is_file(), 'role private key required')
     return dict(certificates={n: digest(authority / n) for n in ('ca.der', 'source.der', 'destination.der')},
-                service={n: digest(lifecycle / '00' / n) for n in names})
+                service={(n if channels == 1 else f'{i:02}/{n}'): digest(lifecycle / f'{i:02}' / n)
+                         for i in range(channels) for n in names})
 
 
 def wait_readiness(path, address, *, check_cancelled=not_cancelled):
@@ -192,7 +195,9 @@ def execute(args, *, check_cancelled=not_cancelled):
         require(not private.is_relative_to(output) and not output.is_relative_to(private),
                 'private fixture and evidence must be disjoint')
     require(lifecycle.is_dir(), 'existing fresh lifecycle fixture required')
-    require(all(p.name == '00' or (p.is_file() and p.name in
+    channels = getattr(args, 'channels', 1)
+    validate_shape(getattr(args, 'streams', 1), channels)
+    require(all((p.is_dir() and p.name in {f'{i:02}' for i in range(channels)}) or (p.is_file() and p.name in
                 {f'connection-{i}.start' for i in range(args.count)}) for p in lifecycle.iterdir()),
             'lifecycle fixture contains stale or unexpected markers')
     bind_ip, _ = validate_endpoint(args.bind, allow_zero=True)
@@ -214,7 +219,7 @@ def execute(args, *, check_cancelled=not_cancelled):
             and build.get('binary_sha256') == hashes and build.get('build_commands')
             and build.get('toolchains'), 'exact current release build manifest required')
     controller_seconds = cycle_bounds(args.cycles)['controller_seconds'] if getattr(args, 'cycles', None) is not None else 120
-    fixture = immutable_fixture(authority, lifecycle, args.role)
+    fixture = immutable_fixture(authority, lifecycle, args.role, channels)
     # Validate the declared workload before advertising preparation. The real
     # endpoint is validated again after transfer; this placeholder is never run.
     workload_command(args,
@@ -240,7 +245,7 @@ def execute(args, *, check_cancelled=not_cancelled):
             count=args.count, offered_rate=args.rate, source_shards=args.shards, linux_environment=host,
             uid=os.getuid(), binary_sha256=hashes, fixture_sha256=fixture,
             controller_deadline_seconds=controller_seconds, timing='DIAGNOSTIC_ONLY', physical_host='NOT_PROVEN',
-            **({'cycles': args.cycles, 'streams': getattr(args, 'streams', 1), 'workload_mode': 'same_process_sequential'}
+            **({'cycles': args.cycles, 'streams': getattr(args, 'streams', 1), 'channels': channels, 'workload_mode': 'same_process_sequential'}
                if getattr(args, 'cycles', None) is not None else {})))
         write_json(output / 'command.json', dict(argv=argv, environment_overrides=overrides))
         write_json(output / 'build-manifest.json', build)
@@ -258,13 +263,13 @@ def execute(args, *, check_cancelled=not_cancelled):
         rows = [json.loads(line) for line in (output / ('stdout' if args.role == 'source'
                     else 'diagnostics.ndjson')).read_text().splitlines() if line.strip()]
         server = json.loads((output / 'server-result.json').read_bytes()) if args.role == 'destination' else None
-        result = validate_result(args.role, args.count, rows, server, streams=getattr(args, 'streams', 1))
+        result = validate_result(args.role, args.count, rows, server, streams=getattr(args, 'streams', 1), channels=channels)
         require(not list(lifecycle.glob('*.failed')), 'failed lifecycle marker')
         require(git_state() == (sha, '') and json.loads(args.build_manifest.read_bytes()) == build,
                 'source or build manifest changed')
         require(all(digest(binaries / n) == h for n, h in hashes.items())
                 and digest(output / 'executed-binary') == hashes[binary.name], 'binary changed')
-        require(immutable_fixture(authority, lifecycle, args.role) == fixture, 'public fixture changed')
+        require(immutable_fixture(authority, lifecycle, args.role, channels) == fixture, 'public fixture changed')
         check_cancelled()
         write_json(output / 'result.json', dict(status='PASS_FUNCTIONAL_PEER', role=args.role,
             **result, process=observed, timing='DIAGNOSTIC_ONLY', paired_active_hold='COORDINATOR_REQUIRED',
@@ -304,6 +309,7 @@ def argument_parser(*, sequential=False):
     if sequential:
         parser.add_argument('--cycles', type=int, choices=CYCLE_COUNTS, required=True)
         parser.add_argument('--streams', type=int, default=1)
+        parser.add_argument('--channels', type=int, default=1)
         parser.set_defaults(count=None, shards=None, rate=None)
     else:
         parser.add_argument('--count', type=int, choices=BUNDLE_COUNTS, default=16)

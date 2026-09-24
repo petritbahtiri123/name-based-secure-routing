@@ -17,7 +17,7 @@ from scripts.performance.linux_b5_placement import seal_output
 from scripts.performance.linux_loopback import ROOT, write_json
 from scripts.performance.linux_native_lifecycle_control import LifecycleBarrier, decode_control
 from scripts.performance.linux_native_peer import validate_endpoint
-from scripts.performance.linux_native_cycle_limits import stream_count
+from scripts.performance.linux_native_cycle_limits import validate_shape
 from scripts.performance.linux_socket_ownership import snapshot, validate_binding
 from scripts.performance.process_cancellation import Cancellation
 
@@ -195,7 +195,7 @@ def execute_endpoint(args, *, input_stream=None, output_stream=None, delegate=na
     if cycles is not None:
         require(type(cycles) is int and cycles in native.CYCLE_COUNTS, 'invalid cycle count')
         args.count = cycles
-        stream_count(getattr(args, 'streams', 1))
+        validate_shape(getattr(args, 'streams', 1), getattr(args, 'channels', 1))
     schema = 'nbsr-native-cycle-control-v1' if cycles is not None else 'nbsr-native-lifecycle-control-v1'
     require(args.ready_input is None, 'control endpoint manages readiness input')
     require(args.role == 'source' or not args.prepare_before_readiness, 'source only preparation')
@@ -206,7 +206,7 @@ def execute_endpoint(args, *, input_stream=None, output_stream=None, delegate=na
         require(not private.is_relative_to(output) and not output.is_relative_to(private),
                 'private fixture and public output must be disjoint')
     require(args.lifecycle.is_dir() and not args.lifecycle.is_symlink()
-            and {p.name for p in args.lifecycle.iterdir()} == {'00'}, 'fresh lifecycle fixture required')
+            and {p.name for p in args.lifecycle.iterdir()} == {f'{i:02}' for i in range(getattr(args, 'channels', 1))}, 'fresh lifecycle fixture required')
     input_stream = input_stream if input_stream is not None else sys.stdin.buffer
     output_stream = output_stream if output_stream is not None else sys.stdout
     output.mkdir(parents=False, exist_ok=False)
@@ -223,7 +223,7 @@ def execute_endpoint(args, *, input_stream=None, output_stream=None, delegate=na
             role=args.role, count=args.count, peer_output=str(args.output),
             control_input='bounded private stdin JSON lines', timing='DIAGNOSTIC_ONLY',
             hold_seconds=2, cooldown_seconds=2, child_ownership='delegated to linux_native_lifecycle.execute',
-            **({'streams': getattr(args, 'streams', 1)} if cycles is not None else {})))
+            **({'streams': getattr(args, 'streams', 1), 'channels': getattr(args, 'channels', 1)} if cycles is not None else {})))
         control = control_factory(args, output)
         messages = queue.Queue(maxsize=8)
         with (output / 'events.ndjson').open('x', encoding='utf-8', newline='\n') as log:

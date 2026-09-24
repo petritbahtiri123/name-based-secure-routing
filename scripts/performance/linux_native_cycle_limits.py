@@ -15,10 +15,22 @@ def stream_count(value):
     return value
 
 
-def validate_active_shape(value, streams):
+def channel_count(value):
+    require(type(value) is int and 1 <= value <= 32, 'invalid channel count')
+    return value
+
+
+def validate_shape(streams, channels):
     stream_count(streams)
+    channel_count(channels)
+    require(channels == 1 or streams == 1, 'combined axes are not a declared workload')
+    return streams * channels
+
+
+def validate_active_shape(value, streams, channels=1):
+    total = validate_shape(streams, channels)
     require(value.get('phase') == 'b3_materialized_streams_ready', 'materialized phase required')
-    expected = dict(transport_sessions_current_live=1, service_channels_current_live=1,
-                    application_streams_current_live=streams, quic_streams_current_live=streams)
+    expected = dict(transport_sessions_current_live=1, service_channels_current_live=channels,
+                    application_streams_current_live=total, quic_streams_current_live=total)
     require(all(type(value.get(key)) is int and value[key] == count for key, count in expected.items()),
             'materialized stream ownership cardinality mismatch')

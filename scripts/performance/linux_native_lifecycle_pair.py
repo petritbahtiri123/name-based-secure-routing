@@ -19,7 +19,7 @@ from scripts.performance.linux_native_pair import read, verify_index
 from scripts.performance.linux_native_peer import validate_endpoint
 
 
-def check_peer(root, role, source_sha, count, *, cycles=None, streams=1):
+def check_peer(root, role, source_sha, count, *, cycles=None, streams=1, channels=1):
     index = verify_index(root)
     require(not any((root / name).exists() for name in ("failure.json", "forced-cleanup.json")), "failed or forced peer cannot pass")
     env, result, build = (read(root, n) for n in ("environment.json", "result.json", "build-manifest.json"))
@@ -42,10 +42,11 @@ def check_peer(root, role, source_sha, count, *, cycles=None, streams=1):
                 and type(env.get('cycles')) is int and env['cycles'] == cycles
                 and env.get('workload_mode') == 'same_process_sequential'
                 and env['offered_rate'] is None and env['source_shards'] is None
+                and type(env.get('channels', 1)) is int and env.get('channels', 1) == channels
                 and type(env.get('streams', 1)) is int and env.get('streams', 1) == streams,
                 'sequential cycle contract mismatch')
     else:
-        require(streams == 1 and 'cycles' not in env and 'workload_mode' not in env, 'unexpected cycle mode')
+        require(channels == streams == 1 and 'cycles' not in env and 'workload_mode' not in env, 'unexpected cycle mode')
     hashes = env["binary_sha256"]
     require(set(hashes) == set(NAMES.values()) and all(re.fullmatch("[0-9a-f]{64}", h) for h in hashes.values()), "invalid binary hashes")
     require(
@@ -70,6 +71,8 @@ def check_peer(root, role, source_sha, count, *, cycles=None, streams=1):
         "route-id.bin",
         "grant-digest.bin",
     }
+    if channels > 1:
+        expected_service = {f'{i:02}/{n}' for i in range(channels) for n in expected_service}
     require(
         set(fixture) == {"certificates", "service"}
         and set(fixture["certificates"]) == {"ca.der", "source.der", "destination.der"}
@@ -98,7 +101,7 @@ def check_peer(root, role, source_sha, count, *, cycles=None, streams=1):
     lifecycle = option("--lifecycle-authority-dir" if role == "source" else "--b3-report-gate")
     output = PurePosixPath(option("--ready")).parent if role == "destination" else PurePosixPath("/unused")
     expected, overrides = workload_command(
-        SimpleNamespace(role=role, count=count, cycles=cycles, streams=streams, shards=env["source_shards"], rate=env["offered_rate"]),
+        SimpleNamespace(role=role, count=count, cycles=cycles, streams=streams, channels=channels, shards=env["source_shards"], rate=env["offered_rate"]),
         binaries=binary.parent,
         authority=PurePosixPath(option("--authority-dir")),
         lifecycle=PurePosixPath(lifecycle),
@@ -153,7 +156,7 @@ def check_peer(root, role, source_sha, count, *, cycles=None, streams=1):
         closed = [row for row in rows if str(row.get('phase', '')).startswith('lifecycle_cycle_')]
         require([row.get('phase') for row in closed] == [f'lifecycle_cycle_{i}_closed' for i in range(cycles)],
                 'missing/duplicate/out-of-order cycle cleanup observations')
-    outcome = validate_result(role, count, rows, read(root, "server-result.json") if role == "destination" else None, streams=streams)
+    outcome = validate_result(role, count, rows, read(root, "server-result.json") if role == "destination" else None, streams=streams, channels=channels)
     require(all(result.get(k) == v for k, v in outcome.items()), "summary/raw outcome mismatch")
     return dict(index_sha256=index, environment=env, readiness=ready, outcome=outcome)
 
