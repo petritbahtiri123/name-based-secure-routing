@@ -24,3 +24,11 @@ does not enable these NBSR counters and is covered by functional equivalence tes
 Seal the raw cohort, independently revalidate pair packages and executed mode,
 publish the calculated verdict and preserve the failed gate if any. No production,
 wire, security, timeout or ACK changes are part of this measurement.
+
+Execution note: the disk reserve stopped the driver between off-r3 and on-r3.
+Preserve pair 3 and report its measurements, but mark its paired causal comparison
+interrupted by infrastructure maintenance. Add exactly one sixth pair (on/off,
+matching the even-repeat order) to obtain five uninterrupted pairs. Publish all
+six pairs and both all-run and uninterrupted statistics; qualification uses the
+five uninterrupted pairs, not a favorable-result selection. No further adaptive
+repeats are authorized by this note to chase the observer gate.

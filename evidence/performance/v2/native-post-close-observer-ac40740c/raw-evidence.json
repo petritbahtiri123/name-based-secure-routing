@@ -1,0 +1,14 @@
+[
+  {
+    "root": "C:\\NBSR-build\\native-post-close-observer-ac40740c",
+    "index_sha256": "d7899ec2bf440ddf0555864f7a622098d55be5929172e6e92933b2e356ee3470"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-current-ac40740c",
+    "index_sha256": "c7182bc0ff6be19517635952379d65fa5cada371c3da6c982f57d8344420982b"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-observer-cleanup-20260924",
+    "index_sha256": "fade81aa6d406a53a4905e4b3b9450665af1d6677625d2690a5acb6adf825c58"
+  }
+]

@@ -41,8 +41,13 @@ Direct finite pairs pass, all requested NBSR reports show eleven zero counters,
 and all twenty owned PIDs are absent before fixture stop. Evidence:
 `evidence/performance/v2/native-post-close-ac40740c`, 592 raw files verified.
 Diagnostic medians 2.395090 Direct / 2.496439 NBSR Gbit/s; CV 16.12% / 12.17%.
-These are not strict-stable references. The next paired on/off experiment tests
-observer influence without changing production code or timeout semantics.
+These are not strict-stable references. The paired on/off experiment is now
+REJECTED_OBSERVER_GATE: five uninterrupted pairs show median -5.3273% goodput,
++63.0342% p99, off/on CV 25.36% / 32.28%. All twelve cells pass functional
+cleanup; interrupted pair 3 is retained and one sixth pair supplies the fifth
+uninterrupted comparison. High variance prevents causal attribution to the
+observer or production code. Package:
+`evidence/performance/v2/native-post-close-observer-ac40740c` (718 raw files).
 
 Observer/reference qualification and paced B5 orchestration remain open.
 Same-process memory observer qualification, current
@@ -61,3 +66,8 @@ Safe cleanup removed only 20 stopped verified campaign fixtures and one empty
 owned network after raw retention. Logical Docker space freed 617,537,536 bytes;
 no measured host SSD recovery (delta -344,064 bytes). No source/Git/raw evidence,
 images, credentials or unrelated data deleted.
+
+Subsequent disk-reserve stop triggered safe Cargo cleanup of five verified inactive
+targets, recovering 4,635,074,560 bytes across the measured maintenance interval.
+The interrupted observer run was resumed without deleting any result. Inventory,
+commands and before/after values are retained in `native-observer-cleanup-20260924`.
