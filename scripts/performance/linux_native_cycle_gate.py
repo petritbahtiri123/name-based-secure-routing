@@ -4,6 +4,7 @@ import json
 
 from scripts.performance.linux_b5_ceiling import require
 from scripts.performance.linux_native_cycle_coordinator import CycleLedger, sequence
+from scripts.performance.linux_native_cycle_limits import stream_count, validate_active_shape
 from scripts.performance.linux_native_lifecycle_pair import check_peer
 from scripts.performance.linux_native_pair import read, verify_index
 from scripts.performance.linux_socket_ownership import validate_binding
@@ -32,13 +33,15 @@ def check_events(path, role, cycles):
     return values
 
 
-def check_endpoint(root, role, cycles):
+def check_endpoint(root, role, cycles, *, streams=1):
+    stream_count(streams)
     index = verify_index(root)
     require(not any((root / n).exists() for n in ('failure.json', 'marker-preservation-error.json')), 'failed cycle endpoint')
     controller, result = read(root, 'controller.json'), read(root, 'result.json')
     require(controller['schema'] == 'nbsr-native-cycle-control-v1' and controller['role'] == result['role'] == role
             and type(controller['count']) is int and controller['count'] == cycles
             and controller['hold_seconds'] == controller['cooldown_seconds'] == 2
+            and type(controller.get('streams', 1)) is int and controller.get('streams', 1) == streams
             and result['status'] == 'PASS_FUNCTIONAL_ENDPOINT', 'cycle endpoint contract mismatch')
     events = check_events(root / 'events.ndjson', role, cycles)
     prefix = 'connection' if role == 'source' else 'destination'
@@ -51,6 +54,9 @@ def check_endpoint(root, role, cycles):
         expected |= {'destination.report-ready', 'destination.report-release'}
     require({p.name for p in (root / 'markers').iterdir()} == expected
             and all((root / 'markers' / n).is_file() for n in expected), 'cycle marker set mismatch')
+    if role == 'destination' and streams > 1:
+        for cycle in range(cycles):
+            validate_active_shape(read(root / 'markers', f'destination-{cycle}.active'), streams)
     peer = root / 'peer'
     pid, command = read(peer, 'pid.json'), read(peer, 'command.json')
     with (peer / 'resources.ndjson').open() as stream:
@@ -67,9 +73,10 @@ def check_endpoint(root, role, cycles):
     return dict(index_sha256=index, events=events)
 
 
-def analyze(source, destination, *, source_sha, count):
+def analyze(source, destination, *, source_sha, count, streams=1):
+    stream_count(streams)
     require(source.resolve() != destination.resolve(), 'distinct cycle peer roots required')
-    peers = {role: check_peer(root, role, source_sha, count, cycles=count)
+    peers = {role: check_peer(root, role, source_sha, count, cycles=count, streams=streams)
              for role, root in (('source', source), ('destination', destination))}
     for field in ('count', 'cycles', 'binary_sha256', 'fixture_sha256'):
         require(peers['source']['environment'][field] == peers['destination']['environment'][field], 'cycle paired identity mismatch')
@@ -77,4 +84,5 @@ def analyze(source, destination, *, source_sha, count):
     return dict(status='PASS_FUNCTIONAL_CYCLE_PEERS', source_sha=source_sha, cycles=count,
         successful_connections=count, same_process_epochs='VERIFIED_FROM_RETAINED_RESOURCE_SAMPLES',
         source_cleanup=peers['source']['outcome']['ownership'], destination_cleanup=peers['destination']['outcome']['ownership'],
-        memory_cost='NOT_QUALIFIED', sustainable_capacity='NOT_ESTABLISHED', physical_hardware='NOT_PROVEN')
+        memory_cost='NOT_QUALIFIED', sustainable_capacity='NOT_ESTABLISHED', physical_hardware='NOT_PROVEN',
+        **({'streams_per_channel': streams, 'successful_operations': count * streams} if streams > 1 else {}))

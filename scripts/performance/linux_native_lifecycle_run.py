@@ -33,6 +33,7 @@ def execute(config, output, *, check_cancelled=not_cancelled):
     cycles = config.get('cycles') if isinstance(config, dict) and config.get('schema') == 'nbsr-native-cycle-coordinator-v1' else None
     validate, arguments, replay, endpoint_gate, run_driver = validate_config, endpoint_arguments, analyze, check_endpoint, drive
     ledger_options = {}
+    cycle_shape = {}
     if cycles is not None:
         from scripts.performance import linux_native_cycle_run as cycle_run
         from scripts.performance import linux_native_cycle_gate as cycle_gate
@@ -43,6 +44,7 @@ def execute(config, output, *, check_cancelled=not_cancelled):
             return drive_cycles(cycles, *args, **kwargs)
         ledger_options['ledger'] = CycleLedger(cycles)
         ledger_options['lifecycle_cycles'] = cycles
+        cycle_shape['streams'] = config.get('streams', 1)
     validate(config)
     count = cycles if cycles is not None else config['count']
     require(not output.is_symlink() and not output.resolve().is_relative_to(ROOT), 'external evidence directory required')
@@ -77,12 +79,12 @@ def execute(config, output, *, check_cancelled=not_cancelled):
                     problem = error
         if problem is not None:
             raise problem
-        endpoints = {role: endpoint_gate(output / role, role, count) for role in ('source', 'destination')}
+        endpoints = {role: endpoint_gate(output / role, role, count, **cycle_shape) for role in ('source', 'destination')}
         for role, checked in endpoints.items():
             for name, value in checked['events'].items():
                 require(value == manager.ledger.received[role, name], 'retained/control event mismatch')
         result = replay(output / 'source' / 'peer', output / 'destination' / 'peer',
-                        source_sha=config['source_sha'], count=count)
+                        source_sha=config['source_sha'], count=count, **cycle_shape)
         for role in ('source', 'destination'):
             environment = json.loads((output / role / 'peer' / 'environment.json').read_bytes())
             require(environment['offered_rate'] == config.get('rate') and environment['source_shards'] == config.get('shards'),
