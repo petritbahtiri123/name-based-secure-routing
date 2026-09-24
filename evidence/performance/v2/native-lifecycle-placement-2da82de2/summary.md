@@ -12,11 +12,16 @@ Fresh namespaces and native local TLS/control storage are used for every cell.
 | Split guest CPUs | 5/5 | 0/5 |
 
 All passing cells complete 1024 bundles and all eleven ownership counters return
-to zero. Independent scans found no owned Rust processes before every container
-stop, including failures. Failure cleanup is not proof of graceful zero counters.
-Shared repeats 2/3 fail after activation during close/ACK with failed markers and
-timeout diagnostics; repeat 5 reports destination cardinality mismatch and
-ApplicationStreamFailed. These unfavorable valid workload outcomes remain in
+to zero. Post-run namespace scans returned empty, but skipped PermissionError entries;
+therefore those scans alone do not independently prove absence of owned processes.
+Use retained owned-child terminal/reap and group-cleanup records for cleanup scope.
+Failure cleanup is not proof of graceful zero counters.
+Shared repeat 2 fails after activation during close/ACK with failed markers and
+timeout diagnostics. Shared repeat 3 fails BEFORE active: its source transcript
+ends at readiness_transferred and destination stderr reports HandshakeFailed.
+Repeat 5 reports destination cardinality mismatch and ApplicationStreamFailed.
+This phase correction was verified against retained raw events on 2026-09-24;
+the previous grouping of repeats 2/3 as post-activation was incorrect. These unfavorable valid workload outcomes remain in
 the denominator, even though their incomplete endpoint package says INVALID_PARTIAL.
 
 DIAGNOSTIC: split median-cell cold-handshake p50/p95/p99 =
