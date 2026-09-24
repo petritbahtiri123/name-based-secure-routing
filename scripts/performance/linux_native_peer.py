@@ -260,7 +260,7 @@ def execute(args, *, check_cancelled=not_cancelled):
         seal_output(output)
 
 
-def main():
+def argument_parser():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--phase-control', help='Source-only local capture phase control IPv4:port')
     parser.add_argument('--role', choices=('source', 'destination'), required=True)
@@ -278,7 +278,11 @@ def main():
     parser.add_argument('--depth', type=int, choices=(1, 2, 4, 8, 16), default=1)
     parser.add_argument('--operations-per-stream', type=int,
                         help='Distinct fixed-work mode: 1..10000 operations, zero warmup, depth one; both peers must agree')
-    args = parser.parse_args()
+    return parser
+
+
+def main():
+    args = argument_parser().parse_args()
     with Cancellation() as cancellation:
         execute(args, check_cancelled=cancellation.check)
 

@@ -131,9 +131,9 @@ class EventLedger:
 class Manager:
     """Own local management relays; remote cleanup requires endpoint evidence."""
 
-    def __init__(self, count, output, *, timeout=120, cleanup_timeout=15, check_cancelled=not_cancelled):
+    def __init__(self, count, output, *, timeout=120, cleanup_timeout=15, check_cancelled=not_cancelled, ledger=None):
         require(0 < timeout <= 120 and 0 < cleanup_timeout <= 15, 'invalid management deadline')
-        self.ledger = EventLedger(count)
+        self.ledger = EventLedger(count) if ledger is None else ledger
         self.output = output
         self.deadline = time.monotonic() + timeout
         self.cleanup_timeout = cleanup_timeout
