@@ -1,5 +1,15 @@
 # Maximum-quality campaign: current state
 
+## September 24 continuation
+
+Use [the current checkpoint](ENGINEERING_CHECKPOINT_2026-09-24.md) for the latest
+native harness work. Earlier dated sections below retain their historical scope.
+Finite coordination, post-close ownership binding, paired live collection and
+controlled EOF cleanup are verified. Matched live-observer timing qualification
+is rejected; no current native strict-stable reference or near-ceiling soak is
+established. Longer diagnostic execution is not itself B5 acceptance. This is
+still an engineering campaign, not a final funding freeze.
+
 ## September 9 checkpoint
 
 See [the consolidated checkpoint](ENGINEERING_CHECKPOINT_2026-09-09.md).

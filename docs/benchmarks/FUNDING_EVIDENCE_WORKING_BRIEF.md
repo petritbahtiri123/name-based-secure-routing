@@ -4,7 +4,17 @@
 for the ongoing campaign. Each measurement belongs to its recorded source,
 workload and host; different stages are not one final-SHA scoreboard.
 
-Latest budgeted continuation: [September 21 engineering/evidence checkpoint](ENGINEERING_CHECKPOINT_2026-09-21.md).
+Latest continuation: [September 24 engineering/evidence checkpoint](ENGINEERING_CHECKPOINT_2026-09-24.md).
+Native finite coordination, eleven-counter post-close binding and paired live
+resource/progress collection now have functional and controlled-EOF evidence.
+The paired live observer fails the agreed timing gate: five on/off pairs at
+1,000 offered ops/s show median goodput effect -0.049127% and p99 +29.339579%.
+All ten cells complete, but this is not observer-qualified timing or a new
+strict-stable ceiling. [Retained observer rejection](../../evidence/performance/v2/native-paired-observer-94209a9c/summary.md).
+The new explicit longer diagnostic runner is separate from qualified near-ceiling
+soak acceptance. No new production optimization or final funding freeze is claimed.
+
+Previous continuation: [September 21 engineering/evidence checkpoint](ENGINEERING_CHECKPOINT_2026-09-21.md).
 The prepared-source startup fix has matched failure/pass attribution. A bounded
 native lifecycle coordinator now automates readiness, hold, release/ACK,
 cleanup and evidence transfer. At 3c3f784a, five 512 and five 1024 native-address

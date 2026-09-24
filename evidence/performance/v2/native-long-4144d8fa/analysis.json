@@ -1,0 +1,1062 @@
+{
+  "source_sha": "4144d8fa226b1cbee3c8e2227d8d357b73584434",
+  "raw_index_sha256": "51cc065db6545d8a0d3651397a8a986d2ef2218df8ff4d7ff3811ca199b66b05",
+  "classification": "DIAGNOSTIC_ONLY",
+  "workload": "1000 offered ops/s, 16KiB, eight streams, depth one, 3s warmup/60s issue, guest CPU0 per peer",
+  "observer_qualification": "NOT_ESTABLISHED",
+  "destination_private_growth": "SHORT_DIAGNOSTIC",
+  "sustained_capacity": "NOT_ESTABLISHED",
+  "external_hardware": "NOT_PROVEN",
+  "summary": {
+    "direct": {
+      "repeats": 3,
+      "median_gbps": 0.26153098808862163,
+      "throughput_cv": 0.00031389903048848015,
+      "achieved_offered_ratio_range": [
+        0.9972666666666666,
+        0.9978833333333333
+      ],
+      "p99_drift_failure_runs": 2,
+      "private_growth_failure_runs": 1,
+      "destination_private_growth_failure_runs": 1,
+      "median_window_quantiles": {
+        "p50_latency_ns": 838047,
+        "p95_latency_ns": 1747003,
+        "p99_latency_ns": 5811542
+      },
+      "source_peak_private_bytes_range": [
+        5132288,
+        5222400
+      ]
+    },
+    "nbsr": {
+      "repeats": 3,
+      "median_gbps": 0.2613717292803118,
+      "throughput_cv": 0.0009520001873987588,
+      "achieved_offered_ratio_range": [
+        0.9957,
+        0.9975333333333334
+      ],
+      "p99_drift_failure_runs": 3,
+      "private_growth_failure_runs": 2,
+      "destination_private_growth_failure_runs": 0,
+      "median_window_quantiles": {
+        "p50_latency_ns": 813450,
+        "p95_latency_ns": 1836007,
+        "p99_latency_ns": 3196288
+      },
+      "source_peak_private_bytes_range": [
+        6029312,
+        6082560
+      ]
+    }
+  },
+  "rows": [
+    {
+      "label": "direct-r1",
+      "path": "direct",
+      "gbps": 0.26158776740498363,
+      "achieved_offered_ratio": 0.9978833333333333,
+      "latency": {
+        "p50_latency_ns": 837550,
+        "p95_latency_ns": 1747003,
+        "p99_latency_ns": 5811542
+      },
+      "source_guard": {
+        "failures": [],
+        "final_received": true,
+        "latency_comparison_available": true,
+        "local_phase_origin_ns": 11742309120650,
+        "observer_qualification": "NOT_ESTABLISHED",
+        "resource_phase_clock": "first local progress receipt minus source elapsed duration; approximate relay-delay uncertainty",
+        "resource_samples_evaluated": 110,
+        "resource_series_available": true,
+        "role": "source",
+        "steady_windows": 11,
+        "sustained_capacity": "NOT_ESTABLISHED"
+      },
+      "destination_guard": {
+        "role": "destination",
+        "final_received": true,
+        "steady_windows": 11,
+        "latency_comparison_available": true,
+        "resource_series_available": true,
+        "resource_samples_evaluated": 110,
+        "local_phase_origin_ns": 11742357527986,
+        "resource_phase_clock": "first local progress receipt minus source elapsed duration; approximate relay-delay uncertainty",
+        "failures": [],
+        "sustained_capacity": "NOT_ESTABLISHED",
+        "observer_qualification": "NOT_ESTABLISHED"
+      },
+      "source_private_resident_peak_bytes": 5222400,
+      "source_max_fd_count": 10,
+      "source_max_threads": 3,
+      "source_sampled_lifetime_effective_cores": 0.11574828060886408,
+      "source_cleanup": "NOT_APPLICABLE_DIRECT"
+    },
+    {
+      "label": "nbsr-r1",
+      "path": "nbsr",
+      "gbps": 0.26149441624273767,
+      "achieved_offered_ratio": 0.9975333333333334,
+      "latency": {
+        "p50_latency_ns": 806948,
+        "p95_latency_ns": 1598186,
+        "p99_latency_ns": 3159531
+      },
+      "source_guard": {
+        "failures": [
+          {
+            "reason": "p99",
+            "window": 4
+          },
+          {
+            "reason": "p99",
+            "window": 9
+          },
+          {
+            "reason": "p99",
+            "window": 10
+          },
+          {
+            "reason": "p99",
+            "window": 11
+          }
+        ],
+        "final_received": true,
+        "latency_comparison_available": true,
+        "local_phase_origin_ns": 11825223614800,
+        "observer_qualification": "NOT_ESTABLISHED",
+        "resource_phase_clock": "first local progress receipt minus source elapsed duration; approximate relay-delay uncertainty",
+        "resource_samples_evaluated": 109,
+        "resource_series_available": true,
+        "role": "source",
+        "steady_windows": 11,
+        "sustained_capacity": "NOT_ESTABLISHED"
+      },
+      "destination_guard": {
+        "role": "destination",
+        "final_received": true,
+        "steady_windows": 11,
+        "latency_comparison_available": true,
+        "resource_series_available": true,
+        "resource_samples_evaluated": 110,
+        "local_phase_origin_ns": 11825272540440,
+        "resource_phase_clock": "first local progress receipt minus source elapsed duration; approximate relay-delay uncertainty",
+        "failures": [
+          {
+            "window": 4,
+            "reason": "p99"
+          },
+          {
+            "window": 9,
+            "reason": "p99"
+          },
+          {
+            "window": 10,
+            "reason": "p99"
+          },
+          {
+            "window": 11,
+            "reason": "p99"
+          }
+        ],
+        "sustained_capacity": "NOT_ESTABLISHED",
+        "observer_qualification": "NOT_ESTABLISHED"
+      },
+      "source_private_resident_peak_bytes": 6074368,
+      "source_max_fd_count": 11,
+      "source_max_threads": 3,
+      "source_sampled_lifetime_effective_cores": 0.11748296120532004,
+      "source_cleanup": "ALL_11_ZERO"
+    },
+    {
+      "label": "nbsr-r2",
+      "path": "nbsr",
+      "gbps": 0.26101552832568786,
+      "achieved_offered_ratio": 0.9957,
+      "latency": {
+        "p50_latency_ns": 814946,
+        "p95_latency_ns": 1836007,
+        "p99_latency_ns": 3196288
+      },
+      "source_guard": {
+        "failures": [
+          {
+            "reason": "p99",
+            "window": 4
+          },
+          {
+            "reason": "private_growth",
+            "window": 4
+          },
+          {
+            "reason": "private_growth",
+            "window": 5
+          },
+          {
+            "reason": "p99",
+            "window": 7
+          },
+          {
+            "reason": "p99",
+            "window": 8
+          },
+          {
+            "reason": "p99",
+            "window": 9
+          },
+          {
+            "reason": "p99",
+            "window": 10
+          },
+          {
+            "reason": "p99",
+            "window": 11
+          }
+        ],
+        "final_received": true,
+        "latency_comparison_available": true,
+        "local_phase_origin_ns": 11906709351923,
+        "observer_qualification": "NOT_ESTABLISHED",
+        "resource_phase_clock": "first local progress receipt minus source elapsed duration; approximate relay-delay uncertainty",
+        "resource_samples_evaluated": 109,
+        "resource_series_available": true,
+        "role": "source",
+        "steady_windows": 11,
+        "sustained_capacity": "NOT_ESTABLISHED"
+      },
+      "destination_guard": {
+        "role": "destination",
+        "final_received": true,
+        "steady_windows": 11,
+        "latency_comparison_available": true,
+        "resource_series_available": true,
+        "resource_samples_evaluated": 110,
+        "local_phase_origin_ns": 11906757254330,
+        "resource_phase_clock": "first local progress receipt minus source elapsed duration; approximate relay-delay uncertainty",
+        "failures": [
+          {
+            "window": 4,
+            "reason": "p99"
+          },
+          {
+            "window": 7,
+            "reason": "p99"
+          },
+          {
+            "window": 8,
+            "reason": "p99"
+          },
+          {
+            "window": 9,
+            "reason": "p99"
+          },
+          {
+            "window": 10,
+            "reason": "p99"
+          },
+          {
+            "window": 11,
+            "reason": "p99"
+          }
+        ],
+        "sustained_capacity": "NOT_ESTABLISHED",
+        "observer_qualification": "NOT_ESTABLISHED"
+      },
+      "source_private_resident_peak_bytes": 6082560,
+      "source_max_fd_count": 10,
+      "source_max_threads": 3,
+      "source_sampled_lifetime_effective_cores": 0.11936057776040514,
+      "source_cleanup": "ALL_11_ZERO"
+    },
+    {
+      "label": "direct-r2",
+      "path": "direct",
+      "gbps": 0.26153098808862163,
+      "achieved_offered_ratio": 0.9976666666666667,
+      "latency": {
+        "p50_latency_ns": 838047,
+        "p95_latency_ns": 1583992,
+        "p99_latency_ns": 2792262
+      },
+      "source_guard": {
+        "failures": [
+          {
+            "reason": "p99",
+            "window": 4
+          },
+          {
+            "reason": "p99",
+            "window": 5
+          },
+          {
+            "reason": "p99",
+            "window": 10
+          }
+        ],
+        "final_received": true,
+        "latency_comparison_available": true,
+        "local_phase_origin_ns": 11988312282817,
+        "observer_qualification": "NOT_ESTABLISHED",
+        "resource_phase_clock": "first local progress receipt minus source elapsed duration; approximate relay-delay uncertainty",
+        "resource_samples_evaluated": 109,
+        "resource_series_available": true,
+        "role": "source",
+        "steady_windows": 11,
+        "sustained_capacity": "NOT_ESTABLISHED"
+      },
+      "destination_guard": {
+        "role": "destination",
+        "final_received": true,
+        "steady_windows": 11,
+        "latency_comparison_available": true,
+        "resource_series_available": true,
+        "resource_samples_evaluated": 110,
+        "local_phase_origin_ns": 11988384277589,
+        "resource_phase_clock": "first local progress receipt minus source elapsed duration; approximate relay-delay uncertainty",
+        "failures": [
+          {
+            "window": 4,
+            "reason": "p99"
+          },
+          {
+            "window": 5,
+            "reason": "p99"
+          },
+          {
+            "window": 10,
+            "reason": "p99"
+          }
+        ],
+        "sustained_capacity": "NOT_ESTABLISHED",
+        "observer_qualification": "NOT_ESTABLISHED"
+      },
+      "source_private_resident_peak_bytes": 5193728,
+      "source_max_fd_count": 10,
+      "source_max_threads": 3,
+      "source_sampled_lifetime_effective_cores": 0.12003368017156206,
+      "source_cleanup": "NOT_APPLICABLE_DIRECT"
+    },
+    {
+      "label": "direct-r3",
+      "path": "direct",
+      "gbps": 0.2614259684905044,
+      "achieved_offered_ratio": 0.9972666666666666,
+      "latency": {
+        "p50_latency_ns": 853249,
+        "p95_latency_ns": 1772202,
+        "p99_latency_ns": 8336080
+      },
+      "source_guard": {
+        "failures": [
+          {
+            "reason": "p99",
+            "window": 4
+          },
+          {
+            "reason": "private_growth",
+            "window": 6
+          },
+          {
+            "reason": "private_growth",
+            "window": 7
+          },
+          {
+            "reason": "p99",
+            "window": 8
+          },
+          {
+            "reason": "private_growth",
+            "window": 8
+          },
+          {
+            "reason": "private_growth",
+            "window": 9
+          },
+          {
+            "reason": "private_growth",
+            "window": 10
+          },
+          {
+            "reason": "private_growth",
+            "window": 11
+          }
+        ],
+        "final_received": true,
+        "latency_comparison_available": true,
+        "local_phase_origin_ns": 12070065294811,
+        "observer_qualification": "NOT_ESTABLISHED",
+        "resource_phase_clock": "first local progress receipt minus source elapsed duration; approximate relay-delay uncertainty",
+        "resource_samples_evaluated": 109,
+        "resource_series_available": true,
+        "role": "source",
+        "steady_windows": 11,
+        "sustained_capacity": "NOT_ESTABLISHED"
+      },
+      "destination_guard": {
+        "role": "destination",
+        "final_received": true,
+        "steady_windows": 11,
+        "latency_comparison_available": true,
+        "resource_series_available": true,
+        "resource_samples_evaluated": 110,
+        "local_phase_origin_ns": 12070136439236,
+        "resource_phase_clock": "first local progress receipt minus source elapsed duration; approximate relay-delay uncertainty",
+        "failures": [
+          {
+            "window": 4,
+            "reason": "p99"
+          },
+          {
+            "window": 6,
+            "reason": "private_growth"
+          },
+          {
+            "window": 7,
+            "reason": "private_growth"
+          },
+          {
+            "window": 8,
+            "reason": "p99"
+          },
+          {
+            "window": 8,
+            "reason": "private_growth"
+          },
+          {
+            "window": 9,
+            "reason": "private_growth"
+          },
+          {
+            "window": 10,
+            "reason": "private_growth"
+          },
+          {
+            "window": 11,
+            "reason": "private_growth"
+          }
+        ],
+        "sustained_capacity": "NOT_ESTABLISHED",
+        "observer_qualification": "NOT_ESTABLISHED"
+      },
+      "source_private_resident_peak_bytes": 5132288,
+      "source_max_fd_count": 10,
+      "source_max_threads": 3,
+      "source_sampled_lifetime_effective_cores": 0.1232181249496213,
+      "source_cleanup": "NOT_APPLICABLE_DIRECT"
+    },
+    {
+      "label": "nbsr-r3",
+      "path": "nbsr",
+      "gbps": 0.2613717292803118,
+      "achieved_offered_ratio": 0.9970666666666667,
+      "latency": {
+        "p50_latency_ns": 813450,
+        "p95_latency_ns": 2027925,
+        "p99_latency_ns": 3309505
+      },
+      "source_guard": {
+        "failures": [
+          {
+            "reason": "p99",
+            "window": 3
+          },
+          {
+            "reason": "p99",
+            "window": 5
+          },
+          {
+            "reason": "private_growth",
+            "window": 5
+          },
+          {
+            "reason": "p99",
+            "window": 6
+          },
+          {
+            "reason": "private_growth",
+            "window": 6
+          },
+          {
+            "reason": "private_growth",
+            "window": 7
+          },
+          {
+            "reason": "p99",
+            "window": 8
+          },
+          {
+            "reason": "private_growth",
+            "window": 8
+          },
+          {
+            "reason": "p99",
+            "window": 9
+          },
+          {
+            "reason": "p99",
+            "window": 10
+          },
+          {
+            "reason": "p99",
+            "window": 11
+          }
+        ],
+        "final_received": true,
+        "latency_comparison_available": true,
+        "local_phase_origin_ns": 12152739285160,
+        "observer_qualification": "NOT_ESTABLISHED",
+        "resource_phase_clock": "first local progress receipt minus source elapsed duration; approximate relay-delay uncertainty",
+        "resource_samples_evaluated": 109,
+        "resource_series_available": true,
+        "role": "source",
+        "steady_windows": 11,
+        "sustained_capacity": "NOT_ESTABLISHED"
+      },
+      "destination_guard": {
+        "role": "destination",
+        "final_received": true,
+        "steady_windows": 11,
+        "latency_comparison_available": true,
+        "resource_series_available": true,
+        "resource_samples_evaluated": 110,
+        "local_phase_origin_ns": 12152834027621,
+        "resource_phase_clock": "first local progress receipt minus source elapsed duration; approximate relay-delay uncertainty",
+        "failures": [
+          {
+            "window": 3,
+            "reason": "p99"
+          },
+          {
+            "window": 5,
+            "reason": "p99"
+          },
+          {
+            "window": 6,
+            "reason": "p99"
+          },
+          {
+            "window": 8,
+            "reason": "p99"
+          },
+          {
+            "window": 9,
+            "reason": "p99"
+          },
+          {
+            "window": 10,
+            "reason": "p99"
+          },
+          {
+            "window": 11,
+            "reason": "p99"
+          }
+        ],
+        "sustained_capacity": "NOT_ESTABLISHED",
+        "observer_qualification": "NOT_ESTABLISHED"
+      },
+      "source_private_resident_peak_bytes": 6029312,
+      "source_max_fd_count": 10,
+      "source_max_threads": 3,
+      "source_sampled_lifetime_effective_cores": 0.12151189411163371,
+      "source_cleanup": "ALL_11_ZERO"
+    }
+  ],
+  "checked_pairs": [
+    {
+      "status": "PASS_FINITE_PAIR_INTEGRITY",
+      "source_sha": "4144d8fa226b1cbee3c8e2227d8d357b73584434",
+      "cell": {
+        "cores": 1,
+        "diagnostic_rate": [
+          1000,
+          1
+        ],
+        "diagnostic_seconds": 60,
+        "outstanding": 1,
+        "path": "direct",
+        "payload_bytes": 16384,
+        "streams": 8
+      },
+      "source_index_sha256": "4f52efa199d2bd71374239ea7b60d6efac4dc1b3c7ab3bf918baf8ed0f773aae",
+      "destination_index_sha256": "1effbeea710c8fad465fe7e8500bb0ad483692bad60b8243195bc53414c1a437",
+      "application_gbps": 0.26158776740498363,
+      "strict_stable_capacity": "NOT_PROVEN",
+      "external_hardware": "NOT_PROVEN",
+      "observer_qualification": "NOT_PROVEN",
+      "runtime_ownership_cleanup": "NOT_APPLICABLE_DIRECT",
+      "authenticity": "checksums are not signatures or remote attestation",
+      "workload_mode": "PACED_DIAGNOSTIC",
+      "achieved_offered_ratio": 0.9978833333333333,
+      "drift_failures": [],
+      "live_private_growth": "SOURCE_ONLY_DIAGNOSTIC",
+      "source_live_guard": {
+        "failures": [],
+        "final_received": true,
+        "latency_comparison_available": true,
+        "local_phase_origin_ns": 11742309120650,
+        "observer_qualification": "NOT_ESTABLISHED",
+        "resource_phase_clock": "first local progress receipt minus source elapsed duration; approximate relay-delay uncertainty",
+        "resource_samples_evaluated": 110,
+        "resource_series_available": true,
+        "role": "source",
+        "steady_windows": 11,
+        "sustained_capacity": "NOT_ESTABLISHED"
+      },
+      "destination_private_growth": "NOT_MEASURED"
+    },
+    {
+      "status": "PASS_FINITE_PAIR_INTEGRITY",
+      "source_sha": "4144d8fa226b1cbee3c8e2227d8d357b73584434",
+      "cell": {
+        "cores": 1,
+        "diagnostic_rate": [
+          1000,
+          1
+        ],
+        "diagnostic_seconds": 60,
+        "outstanding": 1,
+        "path": "nbsr",
+        "payload_bytes": 16384,
+        "streams": 8
+      },
+      "source_index_sha256": "64edc85cbfb1cccc828ec5f1e3233ccca98ae93ac22a47786ef2c8b53c6a4f49",
+      "destination_index_sha256": "2b3ce7a5ddf3918a124021fdf47dee25847a4c85578730f9ea6d4d7148349f5b",
+      "application_gbps": 0.26149441624273767,
+      "strict_stable_capacity": "NOT_PROVEN",
+      "external_hardware": "NOT_PROVEN",
+      "observer_qualification": "NOT_PROVEN",
+      "runtime_ownership_cleanup": "ALL_11_ZERO",
+      "authenticity": "checksums are not signatures or remote attestation",
+      "workload_mode": "PACED_DIAGNOSTIC",
+      "achieved_offered_ratio": 0.9975333333333334,
+      "drift_failures": [
+        {
+          "reason": "p99",
+          "window": 4
+        },
+        {
+          "reason": "p99",
+          "window": 9
+        },
+        {
+          "reason": "p99",
+          "window": 10
+        },
+        {
+          "reason": "p99",
+          "window": 11
+        }
+      ],
+      "live_private_growth": "SOURCE_ONLY_DIAGNOSTIC",
+      "source_live_guard": {
+        "failures": [
+          {
+            "reason": "p99",
+            "window": 4
+          },
+          {
+            "reason": "p99",
+            "window": 9
+          },
+          {
+            "reason": "p99",
+            "window": 10
+          },
+          {
+            "reason": "p99",
+            "window": 11
+          }
+        ],
+        "final_received": true,
+        "latency_comparison_available": true,
+        "local_phase_origin_ns": 11825223614800,
+        "observer_qualification": "NOT_ESTABLISHED",
+        "resource_phase_clock": "first local progress receipt minus source elapsed duration; approximate relay-delay uncertainty",
+        "resource_samples_evaluated": 109,
+        "resource_series_available": true,
+        "role": "source",
+        "steady_windows": 11,
+        "sustained_capacity": "NOT_ESTABLISHED"
+      },
+      "destination_private_growth": "NOT_MEASURED"
+    },
+    {
+      "status": "PASS_FINITE_PAIR_INTEGRITY",
+      "source_sha": "4144d8fa226b1cbee3c8e2227d8d357b73584434",
+      "cell": {
+        "cores": 1,
+        "diagnostic_rate": [
+          1000,
+          1
+        ],
+        "diagnostic_seconds": 60,
+        "outstanding": 1,
+        "path": "nbsr",
+        "payload_bytes": 16384,
+        "streams": 8
+      },
+      "source_index_sha256": "ff3d9320a6eb4473244587959d07c122468034de1169e79ed6442c762182f5d4",
+      "destination_index_sha256": "29cf0a95c610c1b41363681edb7643a2e8b63640f752c488380cc8d23d7d914f",
+      "application_gbps": 0.26101552832568786,
+      "strict_stable_capacity": "NOT_PROVEN",
+      "external_hardware": "NOT_PROVEN",
+      "observer_qualification": "NOT_PROVEN",
+      "runtime_ownership_cleanup": "ALL_11_ZERO",
+      "authenticity": "checksums are not signatures or remote attestation",
+      "workload_mode": "PACED_DIAGNOSTIC",
+      "achieved_offered_ratio": 0.9957,
+      "drift_failures": [
+        {
+          "reason": "p99",
+          "window": 4
+        },
+        {
+          "reason": "p99",
+          "window": 7
+        },
+        {
+          "reason": "p99",
+          "window": 8
+        },
+        {
+          "reason": "p99",
+          "window": 9
+        },
+        {
+          "reason": "p99",
+          "window": 10
+        },
+        {
+          "reason": "p99",
+          "window": 11
+        }
+      ],
+      "live_private_growth": "SOURCE_ONLY_DIAGNOSTIC",
+      "source_live_guard": {
+        "failures": [
+          {
+            "reason": "p99",
+            "window": 4
+          },
+          {
+            "reason": "private_growth",
+            "window": 4
+          },
+          {
+            "reason": "private_growth",
+            "window": 5
+          },
+          {
+            "reason": "p99",
+            "window": 7
+          },
+          {
+            "reason": "p99",
+            "window": 8
+          },
+          {
+            "reason": "p99",
+            "window": 9
+          },
+          {
+            "reason": "p99",
+            "window": 10
+          },
+          {
+            "reason": "p99",
+            "window": 11
+          }
+        ],
+        "final_received": true,
+        "latency_comparison_available": true,
+        "local_phase_origin_ns": 11906709351923,
+        "observer_qualification": "NOT_ESTABLISHED",
+        "resource_phase_clock": "first local progress receipt minus source elapsed duration; approximate relay-delay uncertainty",
+        "resource_samples_evaluated": 109,
+        "resource_series_available": true,
+        "role": "source",
+        "steady_windows": 11,
+        "sustained_capacity": "NOT_ESTABLISHED"
+      },
+      "destination_private_growth": "NOT_MEASURED"
+    },
+    {
+      "status": "PASS_FINITE_PAIR_INTEGRITY",
+      "source_sha": "4144d8fa226b1cbee3c8e2227d8d357b73584434",
+      "cell": {
+        "cores": 1,
+        "diagnostic_rate": [
+          1000,
+          1
+        ],
+        "diagnostic_seconds": 60,
+        "outstanding": 1,
+        "path": "direct",
+        "payload_bytes": 16384,
+        "streams": 8
+      },
+      "source_index_sha256": "408d842555904670f2d29a4b2ecfa9358a14a2302619bf28e1f0071e05103996",
+      "destination_index_sha256": "263c9b41b89fb8a06460a448f10ff7f02d6b07a7bfea10fc8d516e3aa43957a9",
+      "application_gbps": 0.26153098808862163,
+      "strict_stable_capacity": "NOT_PROVEN",
+      "external_hardware": "NOT_PROVEN",
+      "observer_qualification": "NOT_PROVEN",
+      "runtime_ownership_cleanup": "NOT_APPLICABLE_DIRECT",
+      "authenticity": "checksums are not signatures or remote attestation",
+      "workload_mode": "PACED_DIAGNOSTIC",
+      "achieved_offered_ratio": 0.9976666666666667,
+      "drift_failures": [
+        {
+          "reason": "p99",
+          "window": 4
+        },
+        {
+          "reason": "p99",
+          "window": 5
+        },
+        {
+          "reason": "p99",
+          "window": 10
+        }
+      ],
+      "live_private_growth": "SOURCE_ONLY_DIAGNOSTIC",
+      "source_live_guard": {
+        "failures": [
+          {
+            "reason": "p99",
+            "window": 4
+          },
+          {
+            "reason": "p99",
+            "window": 5
+          },
+          {
+            "reason": "p99",
+            "window": 10
+          }
+        ],
+        "final_received": true,
+        "latency_comparison_available": true,
+        "local_phase_origin_ns": 11988312282817,
+        "observer_qualification": "NOT_ESTABLISHED",
+        "resource_phase_clock": "first local progress receipt minus source elapsed duration; approximate relay-delay uncertainty",
+        "resource_samples_evaluated": 109,
+        "resource_series_available": true,
+        "role": "source",
+        "steady_windows": 11,
+        "sustained_capacity": "NOT_ESTABLISHED"
+      },
+      "destination_private_growth": "NOT_MEASURED"
+    },
+    {
+      "status": "PASS_FINITE_PAIR_INTEGRITY",
+      "source_sha": "4144d8fa226b1cbee3c8e2227d8d357b73584434",
+      "cell": {
+        "cores": 1,
+        "diagnostic_rate": [
+          1000,
+          1
+        ],
+        "diagnostic_seconds": 60,
+        "outstanding": 1,
+        "path": "direct",
+        "payload_bytes": 16384,
+        "streams": 8
+      },
+      "source_index_sha256": "b6e45e3eee0acf17df78040f7a273f3844fdc39c40526b8b197e39accf692925",
+      "destination_index_sha256": "4e9dfc7f692bb28a881d1cd71dda954959b5691b7cd2f3977b3c93f6050e94f2",
+      "application_gbps": 0.2614259684905044,
+      "strict_stable_capacity": "NOT_PROVEN",
+      "external_hardware": "NOT_PROVEN",
+      "observer_qualification": "NOT_PROVEN",
+      "runtime_ownership_cleanup": "NOT_APPLICABLE_DIRECT",
+      "authenticity": "checksums are not signatures or remote attestation",
+      "workload_mode": "PACED_DIAGNOSTIC",
+      "achieved_offered_ratio": 0.9972666666666666,
+      "drift_failures": [
+        {
+          "reason": "p99",
+          "window": 4
+        },
+        {
+          "reason": "p99",
+          "window": 8
+        }
+      ],
+      "live_private_growth": "SOURCE_ONLY_DIAGNOSTIC",
+      "source_live_guard": {
+        "failures": [
+          {
+            "reason": "p99",
+            "window": 4
+          },
+          {
+            "reason": "private_growth",
+            "window": 6
+          },
+          {
+            "reason": "private_growth",
+            "window": 7
+          },
+          {
+            "reason": "p99",
+            "window": 8
+          },
+          {
+            "reason": "private_growth",
+            "window": 8
+          },
+          {
+            "reason": "private_growth",
+            "window": 9
+          },
+          {
+            "reason": "private_growth",
+            "window": 10
+          },
+          {
+            "reason": "private_growth",
+            "window": 11
+          }
+        ],
+        "final_received": true,
+        "latency_comparison_available": true,
+        "local_phase_origin_ns": 12070065294811,
+        "observer_qualification": "NOT_ESTABLISHED",
+        "resource_phase_clock": "first local progress receipt minus source elapsed duration; approximate relay-delay uncertainty",
+        "resource_samples_evaluated": 109,
+        "resource_series_available": true,
+        "role": "source",
+        "steady_windows": 11,
+        "sustained_capacity": "NOT_ESTABLISHED"
+      },
+      "destination_private_growth": "NOT_MEASURED"
+    },
+    {
+      "status": "PASS_FINITE_PAIR_INTEGRITY",
+      "source_sha": "4144d8fa226b1cbee3c8e2227d8d357b73584434",
+      "cell": {
+        "cores": 1,
+        "diagnostic_rate": [
+          1000,
+          1
+        ],
+        "diagnostic_seconds": 60,
+        "outstanding": 1,
+        "path": "nbsr",
+        "payload_bytes": 16384,
+        "streams": 8
+      },
+      "source_index_sha256": "57e3508fcdad7899af8eb8154774ceb4b5c9e7218aede8ab5ddf2a375c01b664",
+      "destination_index_sha256": "87c4b08c3186e08872d5f4baea580ff9bc3b9910b7a3ab46552910d126640dcd",
+      "application_gbps": 0.2613717292803118,
+      "strict_stable_capacity": "NOT_PROVEN",
+      "external_hardware": "NOT_PROVEN",
+      "observer_qualification": "NOT_PROVEN",
+      "runtime_ownership_cleanup": "ALL_11_ZERO",
+      "authenticity": "checksums are not signatures or remote attestation",
+      "workload_mode": "PACED_DIAGNOSTIC",
+      "achieved_offered_ratio": 0.9970666666666667,
+      "drift_failures": [
+        {
+          "reason": "p99",
+          "window": 3
+        },
+        {
+          "reason": "p99",
+          "window": 5
+        },
+        {
+          "reason": "p99",
+          "window": 6
+        },
+        {
+          "reason": "p99",
+          "window": 8
+        },
+        {
+          "reason": "p99",
+          "window": 9
+        },
+        {
+          "reason": "p99",
+          "window": 10
+        },
+        {
+          "reason": "p99",
+          "window": 11
+        }
+      ],
+      "live_private_growth": "SOURCE_ONLY_DIAGNOSTIC",
+      "source_live_guard": {
+        "failures": [
+          {
+            "reason": "p99",
+            "window": 3
+          },
+          {
+            "reason": "p99",
+            "window": 5
+          },
+          {
+            "reason": "private_growth",
+            "window": 5
+          },
+          {
+            "reason": "p99",
+            "window": 6
+          },
+          {
+            "reason": "private_growth",
+            "window": 6
+          },
+          {
+            "reason": "private_growth",
+            "window": 7
+          },
+          {
+            "reason": "p99",
+            "window": 8
+          },
+          {
+            "reason": "private_growth",
+            "window": 8
+          },
+          {
+            "reason": "p99",
+            "window": 9
+          },
+          {
+            "reason": "p99",
+            "window": 10
+          },
+          {
+            "reason": "p99",
+            "window": 11
+          }
+        ],
+        "final_received": true,
+        "latency_comparison_available": true,
+        "local_phase_origin_ns": 12152739285160,
+        "observer_qualification": "NOT_ESTABLISHED",
+        "resource_phase_clock": "first local progress receipt minus source elapsed duration; approximate relay-delay uncertainty",
+        "resource_samples_evaluated": 109,
+        "resource_series_available": true,
+        "role": "source",
+        "steady_windows": 11,
+        "sustained_capacity": "NOT_ESTABLISHED"
+      },
+      "destination_private_growth": "NOT_MEASURED"
+    }
+  ],
+  "authority_scope": "fresh certificates per repeat, exact certificate equality within each Direct/NBSR pair",
+  "first_three_throughput_cv": {
+    "direct": 0.00031389903048848015,
+    "nbsr": 0.0009520001873987588
+  },
+  "cpu_scope": "derived sampled source lifetime cores including startup/warmup/drain, not steady ns/op",
+  "memory_scope": "both roles use local-clock Linux private-resident samples, approximate receipt-based phase; not leak/per-object cost",
+  "latency_scope": "median of cell medians of steady-window quantiles; not pooled quantiles"
+}

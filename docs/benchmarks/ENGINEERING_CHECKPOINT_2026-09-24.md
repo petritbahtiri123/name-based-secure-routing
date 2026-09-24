@@ -135,3 +135,14 @@ caches. Their proposed deletion was blocked by automatic policy; the two .pyc
 files were instead preserved outside the evidence package under
 `C:/NBSR-build/paired-observer-analysis-cache-20260924`, then the new package was
 sealed and verified. No raw evidence was deleted. Qualified timing remains open.
+
+Explicit longer diagnostic support at 4144d8fa now passes three matched 60-second
+Direct/NBSR pairs (six functional cells, zero errors/timeouts, twelve owned PIDs
+absent, NBSR eleven-counter cleanup zero). Medians 0.261531/0.261372 Gbit/s at
+1,000 offered ops/s are diagnostic only. p99 drift fails 2/3 Direct and 3/3 NBSR;
+source private-growth predicates fail 1/3 and 2/3, destination 1/3 and 0/3.
+These are retained numerical failures, not established leaks or stable capacity.
+Default short contracts remain unchanged. 147 affected tests/Ruff, synthetic
+two-hour replay and review/re-review PASS. Package
+`evidence/performance/v2/native-long-4144d8fa`. Three inactive Cargo caches were
+cleaned with measured 743,329,792-byte recovery; inventory retained in the package.
