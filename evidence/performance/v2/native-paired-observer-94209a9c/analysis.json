@@ -1,0 +1,168 @@
+{
+  "source_sha": "94209a9c97b9fbf0442e0423f14f1ca23f5bfbb8",
+  "raw_index_sha256": "ea9c7424a4077d6bcec3ad569dd25732f4a72587a0451e91e51fc4f6a820100e",
+  "rows": [
+    {
+      "repeat": 1,
+      "observer": "off",
+      "gbps": 0.2616239996587535,
+      "p99_ns": 9810485,
+      "achieved_offered_ratio": 0.99805,
+      "drift_failures": [
+        {
+          "reason": "p99",
+          "window": 3
+        }
+      ],
+      "source_index_sha256": "3ed8dae75b91a13a88a8b9aa9ef0a9f160a8e92a70b18f017baf03dd851ce029",
+      "destination_index_sha256": "69d1ae571802c6ca272830017a46b6a10c72238d6dc96fe6641f72356b783549"
+    },
+    {
+      "repeat": 1,
+      "observer": "on",
+      "gbps": 0.26182549632218477,
+      "p99_ns": 1896513,
+      "achieved_offered_ratio": 0.9988,
+      "drift_failures": [],
+      "source_index_sha256": "4c35126ae0eb237f92b4a86f57e1faab5937fd29649322eec397e34f8b4f0ea2",
+      "destination_index_sha256": "3ce8ada0c883c427f4ab873ffb73b7f09a040b840dee07e9b23219965cd89604"
+    },
+    {
+      "repeat": 2,
+      "observer": "on",
+      "gbps": 0.2610385585233997,
+      "p99_ns": 4128121,
+      "achieved_offered_ratio": 0.9958,
+      "drift_failures": [],
+      "source_index_sha256": "dbc0f47109ef1bd96e2f179319991135b004908c94fe97c6291c8faa5520c870",
+      "destination_index_sha256": "278c20fcee7c81a9bbeb382a8266578652aef736de5c345731d7f3f7b622f11f"
+    },
+    {
+      "repeat": 2,
+      "observer": "off",
+      "gbps": 0.2613361748883058,
+      "p99_ns": 3191692,
+      "achieved_offered_ratio": 0.99695,
+      "drift_failures": [],
+      "source_index_sha256": "c88ee18deff57168176975f37d3d565301b12075f59e65242ecd7bd580facc00",
+      "destination_index_sha256": "7a04e1f533f5ea357671150d8f85bdd247a834ba737146a2e7c4439a43744e42"
+    },
+    {
+      "repeat": 3,
+      "observer": "off",
+      "gbps": 0.2618480820196873,
+      "p99_ns": 2242331,
+      "achieved_offered_ratio": 0.9989,
+      "drift_failures": [
+        {
+          "reason": "p99",
+          "window": 3
+        }
+      ],
+      "source_index_sha256": "83cd34d684b177bc8ea3358e57879b7dffe5b0345b09d25dd0e87522684954ee",
+      "destination_index_sha256": "1c29fc66211a4d03286976cca7230280a8ca96f79065e10f6fe934e27545a63d"
+    },
+    {
+      "repeat": 3,
+      "observer": "on",
+      "gbps": 0.26115278091688154,
+      "p99_ns": 5085697,
+      "achieved_offered_ratio": 0.99625,
+      "drift_failures": [],
+      "source_index_sha256": "f0ef7aaac5ac271a96499480a6dfbc9309ee639b64e3a92e6d0d0ae62302442a",
+      "destination_index_sha256": "9349a123117ccf259afe5899b54fd062ef436491c6dd1d5ab359e92ac081479e"
+    },
+    {
+      "repeat": 4,
+      "observer": "on",
+      "gbps": 0.2613916575976511,
+      "p99_ns": 9801012,
+      "achieved_offered_ratio": 0.99715,
+      "drift_failures": [
+        {
+          "reason": "p99",
+          "window": 3
+        }
+      ],
+      "source_index_sha256": "57870e83578df74d14a9abbb97f46ff3f5b3d375e2526b106c6bdf863704e47c",
+      "destination_index_sha256": "f8ce325b6d2f23a287eec74dfe9f0b116a3cdfdcb68e70b5caddef328283eb8a"
+    },
+    {
+      "repeat": 4,
+      "observer": "off",
+      "gbps": 0.2615201347731025,
+      "p99_ns": 4329163,
+      "achieved_offered_ratio": 0.99765,
+      "drift_failures": [],
+      "source_index_sha256": "aa1c02da020c71d730f9f3a5637469891bb46eaf4df8925861e2ddd7289dde52",
+      "destination_index_sha256": "983619223b5cd9b398f9e380874dbba5e4f283cc5d82fa8eb66d68a83ed0f605"
+    },
+    {
+      "repeat": 5,
+      "observer": "off",
+      "gbps": 0.26122013852875653,
+      "p99_ns": 3024979,
+      "achieved_offered_ratio": 0.9965,
+      "drift_failures": [],
+      "source_index_sha256": "d16aae6618147275fbefa90d8a91e71c778a691904a649f585653e11711b0015",
+      "destination_index_sha256": "6227db94154d9274f916c0552c8b996b296d0becca114657dab700ebe21cdbf7"
+    },
+    {
+      "repeat": 5,
+      "observer": "on",
+      "gbps": 0.2616762159706457,
+      "p99_ns": 2826949,
+      "achieved_offered_ratio": 0.99825,
+      "drift_failures": [],
+      "source_index_sha256": "e55ecc3b3869dd7f5e1450f2b455783e6f6765ed194c043c7fcda2d47f22972a",
+      "destination_index_sha256": "3473d8476250670c323aa9697645d1946506695185cc21bcad6c2b89e3fea3fd"
+    }
+  ],
+  "paired_changes": [
+    {
+      "repeat": 1,
+      "gbps_percent": 0.07701765269780836,
+      "p99_ns_percent": -80.66850925311032
+    },
+    {
+      "repeat": 2,
+      "gbps_percent": -0.11388257482275455,
+      "p99_ns_percent": 29.339579132322303
+    },
+    {
+      "repeat": 3,
+      "gbps_percent": -0.26553606864054835,
+      "p99_ns_percent": 126.80402670256976
+    },
+    {
+      "repeat": 4,
+      "gbps_percent": -0.04912706838533509,
+      "p99_ns_percent": 126.39507914116423
+    },
+    {
+      "repeat": 5,
+      "gbps_percent": 0.17459505398700337,
+      "p99_ns_percent": -6.546491727711167
+    }
+  ],
+  "median_changes_percent": {
+    "gbps_percent": -0.04912706838533509,
+    "p99_ns_percent": 29.339579132322303
+  },
+  "throughput_cv": {
+    "off": 0.0009398528514216434,
+    "on": 0.0012798124811590843
+  },
+  "p99_window_summary_cv": {
+    "off": 0.6748455114179698,
+    "on": 0.647945672494988
+  },
+  "effect_gate_pass": false,
+  "dispersion_gate_pass": true,
+  "classification": "REJECTED_OBSERVER_GATE",
+  "scope": "this short paced NBSR workload only; post-close reports enabled in both arms",
+  "limitations": "no higher-load, unpaced, long-run, stable-capacity or physical-core qualification; five-pair estimate is not a confidence bound",
+  "authority_scope": "fresh per repeat; exact within each observer pair",
+  "latency_scope": "median of steady-window p99 values, not pooled p99",
+  "coverage": "all ten declared attempts; no undisclosed-attempt detection or remote attestation"
+}

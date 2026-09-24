@@ -1,0 +1,14 @@
+[
+  {
+    "root": "C:\\NBSR-build\\native-paired-observer-94209a9c",
+    "index_sha256": "ea9c7424a4077d6bcec3ad569dd25732f4a72587a0451e91e51fc4f6a820100e"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-post-close-ac40740c",
+    "index_sha256": "8f8330df2ea7be7175ccc9052b5713e6a3f280a243886b40395b658ea2e3dd2a"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-current-94209a9c",
+    "index_sha256": "48b37307c13c8ea24ba460f542e44086d6398aae7c525ab4878d83b63b85f40c"
+  }
+]

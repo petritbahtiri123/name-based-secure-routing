@@ -1,0 +1,85 @@
+{
+  "source_sha": "ac40740c73c70c3661140ed613f61b693abbf1a9",
+  "raw_index_sha256": "8f8330df2ea7be7175ccc9052b5713e6a3f280a243886b40395b658ea2e3dd2a",
+  "classification": "HISTORICAL_DERIVED_DIAGNOSTIC",
+  "rows": [
+    {
+      "label": "direct-r1",
+      "path": "direct",
+      "summed_cpu_ns": 22970000000,
+      "union_lifetime_ns": 24049696673,
+      "allocated_guest_cpu_percent": 95.51056012189896
+    },
+    {
+      "label": "nbsr-r1",
+      "path": "nbsr",
+      "summed_cpu_ns": 22970000000,
+      "union_lifetime_ns": 23582140315,
+      "allocated_guest_cpu_percent": 97.40422070760629
+    },
+    {
+      "label": "nbsr-r2",
+      "path": "nbsr",
+      "summed_cpu_ns": 22960000000,
+      "union_lifetime_ns": 23499707656,
+      "allocated_guest_cpu_percent": 97.70334310579307
+    },
+    {
+      "label": "direct-r2",
+      "path": "direct",
+      "summed_cpu_ns": 22960000000,
+      "union_lifetime_ns": 23930234666,
+      "allocated_guest_cpu_percent": 95.94556978006361
+    },
+    {
+      "label": "direct-r3",
+      "path": "direct",
+      "summed_cpu_ns": 22970000000,
+      "union_lifetime_ns": 23913092970,
+      "allocated_guest_cpu_percent": 96.05616483328546
+    },
+    {
+      "label": "nbsr-r3",
+      "path": "nbsr",
+      "summed_cpu_ns": 22980000000,
+      "union_lifetime_ns": 23494770534,
+      "allocated_guest_cpu_percent": 97.80899952500043
+    },
+    {
+      "label": "nbsr-r4",
+      "path": "nbsr",
+      "summed_cpu_ns": 22970000000,
+      "union_lifetime_ns": 23465662596,
+      "allocated_guest_cpu_percent": 97.88771105877704
+    },
+    {
+      "label": "direct-r4",
+      "path": "direct",
+      "summed_cpu_ns": 22970000000,
+      "union_lifetime_ns": 23994552161,
+      "allocated_guest_cpu_percent": 95.73006341553949
+    },
+    {
+      "label": "direct-r5",
+      "path": "direct",
+      "summed_cpu_ns": 22960000000,
+      "union_lifetime_ns": 23939427528,
+      "allocated_guest_cpu_percent": 95.90872619299503
+    },
+    {
+      "label": "nbsr-r5",
+      "path": "nbsr",
+      "summed_cpu_ns": 22950000000,
+      "union_lifetime_ns": 23509710780,
+      "allocated_guest_cpu_percent": 97.61923579053064
+    }
+  ],
+  "medians": {
+    "direct": 95.90872619299503,
+    "nbsr": 97.70334310579307
+  },
+  "formula": "sum of both peer CPU deltas divided by union of their overlapping sampled lifetime intervals",
+  "clock_scope": "same retained local Docker/WSL engine with ordinary unprivileged runc containers; never valid for independent host clocks",
+  "conclusion": "combined peers occupy over 90% of their single allocated guest CPU over sampled lifetimes",
+  "limitations": "includes startup/warmup/drain; excludes harness CPU; no steady CPU ns/op, physical-core proof, whole-host ceiling, stable capacity or production call-stack attribution"
+}

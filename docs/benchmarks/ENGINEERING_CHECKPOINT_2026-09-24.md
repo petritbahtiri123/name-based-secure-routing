@@ -120,3 +120,18 @@ trials PASS after both guards were active; 12 owned PIDs absent. Package
 Short paired integration is complete; matched observer qualification, qualified
 reference and genuine reference-bound near-ceiling long-duration execution remain
 open. Do not promote these short diagnostic results to B5 acceptance.
+
+Matched paired-live observer qualification at the same 94209a9c release now
+REJECTED_OBSERVER_GATE: all ten NBSR cells functional/cleanup PASS, median paired
+goodput effect -0.049127%, p99 +29.339579%; throughput CV off/on 0.093985/0.127981%.
+Window-p99 summary CV is 67.48/64.79%, so causal observer attribution is not
+defensible. Preserve the rejection; no repeat-until-PASS or production change.
+Package `evidence/performance/v2/native-paired-observer-94209a9c` also retains a
+historical ac40740c CPU calculation: both peers together occupied median
+95.91/97.70% of their allocated guest CPU over overlapping sampled lifetimes.
+This is not a physical-core/whole-host ceiling or steady CPU ns/op.
+During package construction, the privacy gate rejected generated binary Python
+caches. Their proposed deletion was blocked by automatic policy; the two .pyc
+files were instead preserved outside the evidence package under
+`C:/NBSR-build/paired-observer-analysis-cache-20260924`, then the new package was
+sealed and verified. No raw evidence was deleted. Qualified timing remains open.
