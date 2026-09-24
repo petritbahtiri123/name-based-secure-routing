@@ -120,7 +120,8 @@ def test_coordinator_declares_same_diagnostic_rate_on_both_roles():
 
 
 @pytest.mark.parametrize('fault', [None, 'command', 'summary', 'asymmetric', 'undeclared'])
-def test_collected_paced_pair_validates_raw_accounting_and_executed_rate(tmp_path, fault):
+@pytest.mark.parametrize('observed', [False, True])
+def test_collected_paced_pair_validates_raw_accounting_and_executed_rate(tmp_path, fault, observed):
     from scripts.performance.linux_b5_placement import seal_output
     from scripts.performance.linux_native_paced import read_paced
     from scripts.performance.linux_native_pair import analyze_pair
@@ -145,6 +146,16 @@ def test_collected_paced_pair_validates_raw_accounting_and_executed_rate(tmp_pat
                                 '--b5-rate-numerator', '99' if fault == 'command' else '100',
                                 '--b5-rate-denominator', '1']
             put(root, 'command.json', command)
+            if observed:
+                from scripts.performance.linux_native_source_observer import SourceObserver
+                from tests.performance.test_linux_native_source_observer import Sampler
+                env['source_live_guard'] = True
+                put(root, 'environment.json', env)
+                with SourceObserver(root, pid=123, cpus=[0], payload_bytes=1024,
+                    deadline_ns=100_000_000_000, sampler_factory=Sampler, clock=lambda: 25_000_000_000) as live:
+                    live.poll()
+                    live.stop()
+                    result['source_live_guard'] = live.finish(0)
             if fault == 'summary':
                 put(root, 'validated-result.json', summary | {'achieved_offered_ratio': .5})
         if fault == 'undeclared' or (fault == 'asymmetric' and role == 'destination'):
@@ -160,3 +171,6 @@ def test_collected_paced_pair_validates_raw_accounting_and_executed_rate(tmp_pat
         assert result['workload_mode'] == 'PACED_DIAGNOSTIC'
         assert result['achieved_offered_ratio'] == 1
         assert result['strict_stable_capacity'] == 'NOT_PROVEN'
+        if observed:
+            assert result['live_private_growth'] == 'SOURCE_ONLY_DIAGNOSTIC'
+            assert result['destination_private_growth'] == 'NOT_MEASURED'

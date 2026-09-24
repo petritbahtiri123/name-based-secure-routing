@@ -22,9 +22,11 @@ ROLES = ('source', 'destination')
 
 
 def validate_config(value):
-    require(isinstance(value, dict) and set(value) - {'post_close_reports', 'diagnostic_rate'} == {'schema', 'source_sha', 'path', 'payload', 'streams', 'depth', *ROLES},
+    require(isinstance(value, dict) and set(value) - {'post_close_reports', 'diagnostic_rate', 'source_live_guard'} == {'schema', 'source_sha', 'path', 'payload', 'streams', 'depth', *ROLES},
             'invalid finite configuration fields')
     require(type(value.get('post_close_reports', False)) is bool, 'boolean post-close mode required')
+    require(type(value.get('source_live_guard', False)) is bool
+            and (not value.get('source_live_guard') or 'diagnostic_rate' in value), 'paced source guard required')
     if 'diagnostic_rate' in value:
         validate_rate(value['diagnostic_rate'])
         require(value.get('post_close_reports') is True, 'paced diagnostic requires post-close mode')
@@ -69,6 +71,8 @@ def endpoint_arguments(config, role):
     if 'diagnostic_rate' in config:
         argv += ['--diagnostic-rate', *map(str, config['diagnostic_rate'])]
     if role == 'source':
+        if config.get('source_live_guard', False):
+            argv += ['--source-live-guard']
         argv += ['--destination-address', validate_endpoint(config['destination']['bind'], allow_zero=True)[0]]
     return argv
 
@@ -136,6 +140,8 @@ def execute(config, output, *, check_cancelled=not_cancelled):
                     'requested/actual bind mismatch')
             require(environment.get('post_close_reports', False) == config.get('post_close_reports', False),
                     'requested/actual cleanup mode mismatch')
+            require(environment.get('source_live_guard', False) ==
+                    (role == 'source' and config.get('source_live_guard', False)), 'requested/actual live guard mismatch')
         result.update(status='PASS_CONTROLLED_FINITE_PAIR',
             endpoint_indexes={role: value['index_sha256'] for role, value in endpoints.items()},
             sustained_capacity='NOT_ESTABLISHED')

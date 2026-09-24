@@ -6,6 +6,7 @@ Lifetime CPU is not steady-state CPU and process exit is not runtime ownership.
 """
 
 import argparse
+from contextlib import nullcontext
 import ipaddress
 import json
 import os
@@ -28,6 +29,7 @@ from scripts.performance.post_close_cleanup import validate_report
 from scripts.performance.process_cancellation import Cancellation, not_cancelled
 from scripts.performance.linux_socket_ownership import snapshot
 from scripts.performance.linux_native_paced import read_paced, validate_rate
+from scripts.performance.linux_native_source_observer import SourceObserver
 
 
 def validate_endpoint(value, *, allow_zero):
@@ -107,7 +109,7 @@ def native_command(cell, role, binaries, authority, output, *, bind, endpoint, p
             else (server + ['--benchmark-listen', bind], env))
 
 
-def observe_child(child, cpus, output, *, deadline, check_cancelled=not_cancelled, socket_identity=None):
+def observe_child(child, cpus, output, *, deadline, check_cancelled=not_cancelled, socket_identity=None, live_observer=None):
     identity = None
     previous_cpu = None
     socket_observed = False
@@ -125,6 +127,8 @@ def observe_child(child, cpus, output, *, deadline, check_cancelled=not_cancelle
             previous_cpu = sample.get('cpu_ns')
             stream.write(json.dumps(sample) + '\n')
             stream.flush()
+            if live_observer is not None:
+                live_observer.poll()
             if socket_identity is not None and not socket_observed and socket_attempts < 20 and sample['state'] != 'Z':
                 observation = snapshot(child.pid, sample['start_ticks'], *socket_identity)
                 socket_attempts += 1
@@ -134,11 +138,15 @@ def observe_child(child, cpus, output, *, deadline, check_cancelled=not_cancelle
                     write_json(output / 'socket-ownership.json', observation)
                     socket_observed = True
             if sample['state'] == 'Z':
+                if live_observer is not None:
+                    live_observer.stop()
                 result = dict(exit_code=child.wait(timeout=5), final_sample=sample)
                 write_json(output / 'exit.json', result)
                 if result['exit_code'] != 0:
                     raise RuntimeError('peer exited unsuccessfully; see retained stderr')
                 require(socket_identity is None or socket_observed, 'requested live UDP ownership not observed')
+                if live_observer is not None:
+                    result['source_live_guard'] = live_observer.finish(result['exit_code'])
                 return result
             if time.monotonic() >= deadline:
                 raise TimeoutError('finite peer controller deadline')
@@ -218,6 +226,11 @@ def execute(args, *, check_cancelled=not_cancelled):
     warmup, duration = measurement_contract(cell)
     phase_control = getattr(args, 'phase_control', None)
     post_close_reports = getattr(args, 'post_close_reports', False)
+    source_live_guard = getattr(args, 'source_live_guard', False)
+    require(type(source_live_guard) is bool and (not source_live_guard or
+        (args.role == 'source' and 'diagnostic_rate' in cell and post_close_reports
+         and phase_control is None and not getattr(args, 'observe_socket_ownership', False))),
+        'source live guard requires paced source without other live observers')
     command, overrides = native_command(cell, args.role, binaries, authority, output, bind=args.bind,
                                        endpoint=endpoint, phase_control=phase_control, post_close_reports=post_close_reports)
     executable = Path(command[0])
@@ -238,6 +251,7 @@ def execute(args, *, check_cancelled=not_cancelled):
             live_socket_observer=bool(getattr(args, 'observe_socket_ownership', False)),
             phase_control_endpoint=phase_control,
             post_close_reports=post_close_reports, output_root=str(output),
+            source_live_guard=source_live_guard,
             binary_sha256=hashes, certificates_sha256=certificate_hashes,
             scope='finite native-address peer; external/physical hardware unqualified',
             cpu_scope='whole peer lifetime including startup/warmup/drain; not steady CPU ns/op',
@@ -256,8 +270,11 @@ def execute(args, *, check_cancelled=not_cancelled):
             wait_target_exec(child, executable, check_cancelled=check_cancelled)
             socket_identity = ((str(executable), bind_ip)
                                if getattr(args, 'observe_socket_ownership', False) else None)
-            result = observe_child(child, cpus, output, deadline=deadline,
-                                   check_cancelled=check_cancelled, socket_identity=socket_identity)
+            observer = (SourceObserver(output, pid=child.pid, cpus=cpus, payload_bytes=cell['payload_bytes'],
+                                       deadline_ns=int(deadline * 1e9)) if source_live_guard else nullcontext())
+            with observer as live:
+                result = observe_child(child, cpus, output, deadline=deadline,
+                    check_cancelled=check_cancelled, socket_identity=socket_identity, live_observer=live)
         if args.role == 'source':
             row = validate_source(output, cell)
             result.update(completed_operations=row['completed_operations'],
@@ -306,6 +323,8 @@ def argument_parser():
                         help='Require existing NBSR eleven-counter post-close reports; Direct remains process-exit only')
     parser.add_argument('--diagnostic-rate', type=int, nargs=2, metavar=('NUMERATOR', 'DENOMINATOR'),
                         help='Short diagnostic B5 ops/s rate; requires post-close reports, never a stable reference')
+    parser.add_argument('--source-live-guard', action='store_true',
+                        help='Opt-in source-only paced private-memory diagnostic; observer unqualified')
     parser.add_argument('--path', choices=('direct', 'nbsr'), required=True)
     for name in ('binaries', 'build-manifest', 'authority', 'output'):
         parser.add_argument('--' + name, type=Path, required=True)

@@ -29,3 +29,20 @@ sustained capacity and observer qualification even when no failure was seen.
 Integration must additionally validate offered/completed ratio, requested cleanup,
 relay cancellation, process ownership, current reference, live observer effect and
 the genuine 60/120-minute run. None of those is completed by synthetic unit tests.
+
+The finite native coordinator now accepts optional `source_live_guard: true`
+alongside `diagnostic_rate` and `post_close_reports: true`. It enables the observer
+only on the source. The workload remains 3-second warmup and 20-second issue
+duration, with unchanged 120-second controller bounds. Both Direct and NBSR use
+the same observer when selected; cohort identity includes this mode.
+
+Source sampling uses the existing Linux private-resident sampler every 0.5 seconds.
+The source retains `live-events.ndjson`, `live-observed-stdout` and
+`live-result.json`; pair verification replays these records and verifies the
+observed stdout equals original stdout. Sampling stops before the child is reaped.
+Failures in sampling/framing/accounting invalidate the run; measured drift/growth
+failures remain visible as diagnostic results. Numerical success is not stability.
+
+Destination memory and live cross-host progress forwarding remain unimplemented.
+The observer effect has not been qualified. Do not combine observed and unobserved
+cells into one supposedly equivalent performance cohort.

@@ -15,6 +15,7 @@ from scripts.performance.linux_loopback import digest, validate_matrix
 from scripts.performance.linux_native_peer import measurement_contract, validate_endpoint, validate_fixed_work, validate_post_close
 from scripts.performance.p2a_established import validate_repeat
 from scripts.performance.linux_native_paced import read_paced
+from scripts.performance.linux_native_source_observer import replay
 
 
 def read(root, name):
@@ -84,6 +85,15 @@ def check_peer(root, role, source_sha):
                 and argv[argv.index(key) + 1] == str(expected), 'command mismatch: ' + key)
     option('--p2a-runtime-workers', cell['cores'])
     paced = 'diagnostic_rate' in cell
+    observed = env.get('source_live_guard', False)
+    require(type(observed) is bool and (not observed or (role == 'source' and paced
+            and not env.get('live_socket_observer', False))), 'invalid source observer mode')
+    if observed:
+        require(result.get('source_live_guard') == replay(root, payload_bytes=cell['payload_bytes']),
+                'source live guard summary mismatch')
+    else:
+        require('source_live_guard' not in result and not any((root / name).exists() for name in
+                ('live-events.ndjson', 'live-observed-stdout', 'live-result.json')), 'undeclared source live observer')
     if paced:
         require(env.get('post_close_reports') is True and env.get('phase_control_endpoint') is None,
                 'paced mode requires reports without phase observer')
@@ -191,6 +201,9 @@ def analyze_pair(source, destination, *, source_sha):
             require(row == read_paced(source / 'stdout', cell), 'paced source summary mismatch')
             extra = dict(workload_mode='PACED_DIAGNOSTIC', achieved_offered_ratio=row['achieved_offered_ratio'],
                          drift_failures=row['drift_failures'], live_private_growth='NOT_MEASURED')
+            if src.get('source_live_guard', False):
+                extra.update(live_private_growth='SOURCE_ONLY_DIAGNOSTIC',
+                             source_live_guard=result['source_live_guard'], destination_private_growth='NOT_MEASURED')
         else:
             require(row == json.loads((source / 'stdout').read_text().strip().splitlines()[-1])
                     and validate_repeat(row), 'source result mismatch/invalid')

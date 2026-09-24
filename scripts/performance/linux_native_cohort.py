@@ -20,6 +20,7 @@ def comparison_identity(env):
     return dict(binary_sha256=env['binary_sha256'], certificates_sha256=env['certificates_sha256'],
         live_socket_observer=env.get('live_socket_observer', False),
         post_close_reports=env.get('post_close_reports', False),
+        source_live_guard=env.get('source_live_guard', False),
         phase_observer=env.get('phase_control_endpoint') is not None,
         bind=env['bind'], source_sha256=env.get('source_sha256'),
         placement={k: linux.get(k) for k in ('kernel', 'python', 'topology', 'selected_cpus',
