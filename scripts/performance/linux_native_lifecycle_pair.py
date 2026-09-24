@@ -15,11 +15,13 @@ from scripts.performance.linux_loopback import digest
 from scripts.performance.linux_native_lifecycle import workload_command, select_cpu_pool, validate_result
 from scripts.performance.linux_native_lifecycle_control import BUNDLE_COUNTS, CYCLE_COUNTS
 from scripts.performance.linux_native_cycle_limits import cycle_bounds
+from scripts.performance.linux_native_cycle_memory import verify_memory
 from scripts.performance.linux_native_pair import read, verify_index
 from scripts.performance.linux_native_peer import validate_endpoint
 
 
-def check_peer(root, role, source_sha, count, *, cycles=None, streams=1, channels=1):
+def check_peer(root, role, source_sha, count, *, cycles=None, streams=1, channels=1, memory_observer=False):
+    require(type(memory_observer) is bool and (not memory_observer or cycles is not None), 'invalid memory observer mode')
     index = verify_index(root)
     require(not any((root / name).exists() for name in ("failure.json", "forced-cleanup.json")), "failed or forced peer cannot pass")
     env, result, build = (read(root, n) for n in ("environment.json", "result.json", "build-manifest.json"))
@@ -41,6 +43,7 @@ def check_peer(root, role, source_sha, count, *, cycles=None, streams=1, channel
         require(type(cycles) is int and cycles in CYCLE_COUNTS and count == cycles
                 and type(env.get('cycles')) is int and env['cycles'] == cycles
                 and env.get('workload_mode') == 'same_process_sequential'
+                and type(env.get('memory_observer', False)) is bool and env.get('memory_observer', False) == memory_observer
                 and env['offered_rate'] is None and env['source_shards'] is None
                 and type(env.get('channels', 1)) is int and env.get('channels', 1) == channels
                 and type(env.get('streams', 1)) is int and env.get('streams', 1) == streams,
@@ -131,9 +134,12 @@ def check_peer(root, role, source_sha, count, *, cycles=None, streams=1, channel
         "exit contract failed",
     )
     first = last = None
+    first_resource = None
     with (root / "resources.ndjson").open() as stream:
         for line in stream:
             row = json.loads(line)
+            if first_resource is None:
+                first_resource = row
             identity = row["pid"], row["start_ticks"]
             first = identity if first is None else first
             require(identity == first and row["pid"] == pid["pid"], "resource PID epoch changed")
@@ -147,6 +153,11 @@ def check_peer(root, role, source_sha, count, *, cycles=None, streams=1, channel
             )
             last = row
     require(last is not None and last["state"] == "Z" and last == exited["final_sample"], "terminal sample mismatch")
+    if memory_observer:
+        memory = verify_memory(root, pid=last['pid'], start_ticks=last['start_ticks'], cpus=cpus, cycles=cycles, lifetime=(first_resource, last))
+        require(exited.get('cycle_memory') == memory, 'memory summary/raw mismatch')
+    else:
+        require(not (root / 'memory.ndjson').exists() and 'cycle_memory' not in exited, 'unexpected memory observer evidence')
     rows = [
         json.loads(line)
         for line in (root / ("stdout" if role == "source" else "diagnostics.ndjson")).read_text().splitlines()

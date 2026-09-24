@@ -6,6 +6,7 @@ existing authenticated management channel; this module does not implement SSH.
 """
 
 import argparse
+from contextlib import nullcontext
 from collections import Counter
 import json
 import os
@@ -21,7 +22,8 @@ from scripts.performance.b3_linux import environment
 from scripts.performance.linux_b5_ceiling import NAMES, require
 from scripts.performance.linux_b5_placement import seal_output
 from scripts.performance.linux_b5_reference import git_state
-from scripts.performance.linux_loopback import ROOT, digest, physical_cpu_sets, write_json
+from scripts.performance.linux_loopback import ROOT, digest, physical_cpu_sets, write_json, sample_process
+from scripts.performance.linux_native_cycle_memory import CycleMemoryObserver
 from scripts.performance.linux_native_lifecycle_control import BUNDLE_COUNTS, CYCLE_COUNTS
 from scripts.performance.linux_native_cycle_limits import cycle_bounds, validate_shape, validate_active_shape
 from scripts.performance.linux_native_peer import observe_child, readiness_endpoint, validate_endpoint, wait_target_exec
@@ -195,6 +197,9 @@ def execute(args, *, check_cancelled=not_cancelled):
         require(not private.is_relative_to(output) and not output.is_relative_to(private),
                 'private fixture and evidence must be disjoint')
     require(lifecycle.is_dir(), 'existing fresh lifecycle fixture required')
+    memory_observer = getattr(args, 'memory_observer', False)
+    require(type(memory_observer) is bool and (not memory_observer or getattr(args, 'cycles', None) is not None),
+            'memory observer requires sequential cycle mode')
     channels = getattr(args, 'channels', 1)
     validate_shape(getattr(args, 'streams', 1), channels)
     require(all((p.is_dir() and p.name in {f'{i:02}' for i in range(channels)}) or (p.is_file() and p.name in
@@ -245,7 +250,7 @@ def execute(args, *, check_cancelled=not_cancelled):
             count=args.count, offered_rate=args.rate, source_shards=args.shards, linux_environment=host,
             uid=os.getuid(), binary_sha256=hashes, fixture_sha256=fixture,
             controller_deadline_seconds=controller_seconds, timing='DIAGNOSTIC_ONLY', physical_host='NOT_PROVEN',
-            **({'cycles': args.cycles, 'streams': getattr(args, 'streams', 1), 'channels': channels, 'workload_mode': 'same_process_sequential'}
+            **({'cycles': args.cycles, 'streams': getattr(args, 'streams', 1), 'channels': channels, 'memory_observer': memory_observer, 'workload_mode': 'same_process_sequential'}
                if getattr(args, 'cycles', None) is not None else {})))
         write_json(output / 'command.json', dict(argv=argv, environment_overrides=overrides))
         write_json(output / 'build-manifest.json', build)
@@ -258,8 +263,16 @@ def execute(args, *, check_cancelled=not_cancelled):
             check_cancelled()
             deadline = time.monotonic() + controller_seconds
             wait_target_exec(child, binary, check_cancelled=check_cancelled)
-            observed = observe_child(child, host['selected_cpus'], output, deadline=deadline,
-                                     check_cancelled=check_cancelled)
+            observer = nullcontext(None)
+            if memory_observer:
+                initial = sample_process(child.pid, host['selected_cpus'])
+                observer = CycleMemoryObserver(output, pid=child.pid, start_ticks=initial['start_ticks'],
+                                               cpus=host['selected_cpus'], cycles=args.cycles)
+            with observer as memory:
+                observed = observe_child(child, host['selected_cpus'], output, deadline=deadline,
+                    check_cancelled=check_cancelled, **({'live_observer': memory} if memory_observer else {}))
+            if memory_observer:
+                write_json(output / 'exit.json', observed)
         rows = [json.loads(line) for line in (output / ('stdout' if args.role == 'source'
                     else 'diagnostics.ndjson')).read_text().splitlines() if line.strip()]
         server = json.loads((output / 'server-result.json').read_bytes()) if args.role == 'destination' else None
@@ -310,6 +323,7 @@ def argument_parser(*, sequential=False):
         parser.add_argument('--cycles', type=int, choices=CYCLE_COUNTS, required=True)
         parser.add_argument('--streams', type=int, default=1)
         parser.add_argument('--channels', type=int, default=1)
+        parser.add_argument('--memory-observer', action='store_true')
         parser.set_defaults(count=None, shards=None, rate=None)
     else:
         parser.add_argument('--count', type=int, choices=BUNDLE_COUNTS, default=16)

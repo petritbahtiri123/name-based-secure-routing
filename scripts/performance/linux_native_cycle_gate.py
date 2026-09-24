@@ -33,7 +33,8 @@ def check_events(path, role, cycles):
     return values
 
 
-def check_endpoint(root, role, cycles, *, streams=1, channels=1):
+def check_endpoint(root, role, cycles, *, streams=1, channels=1, memory_observer=False):
+    require(type(memory_observer) is bool, 'boolean memory observer required')
     total = validate_shape(streams, channels)
     index = verify_index(root)
     require(not any((root / n).exists() for n in ('failure.json', 'marker-preservation-error.json')), 'failed cycle endpoint')
@@ -41,6 +42,7 @@ def check_endpoint(root, role, cycles, *, streams=1, channels=1):
     require(controller['schema'] == 'nbsr-native-cycle-control-v1' and controller['role'] == result['role'] == role
             and type(controller['count']) is int and controller['count'] == cycles
             and controller['hold_seconds'] == controller['cooldown_seconds'] == 2
+            and type(controller.get('memory_observer', False)) is bool and controller.get('memory_observer', False) == memory_observer
             and type(controller.get('channels', 1)) is int and controller.get('channels', 1) == channels
             and type(controller.get('streams', 1)) is int and controller.get('streams', 1) == streams
             and result['status'] == 'PASS_FUNCTIONAL_ENDPOINT', 'cycle endpoint contract mismatch')
@@ -74,10 +76,11 @@ def check_endpoint(root, role, cycles, *, streams=1, channels=1):
     return dict(index_sha256=index, events=events)
 
 
-def analyze(source, destination, *, source_sha, count, streams=1, channels=1):
+def analyze(source, destination, *, source_sha, count, streams=1, channels=1, memory_observer=False):
+    require(type(memory_observer) is bool, 'boolean memory observer required')
     total = validate_shape(streams, channels)
     require(source.resolve() != destination.resolve(), 'distinct cycle peer roots required')
-    peers = {role: check_peer(root, role, source_sha, count, cycles=count, streams=streams, channels=channels)
+    peers = {role: check_peer(root, role, source_sha, count, cycles=count, streams=streams, channels=channels, memory_observer=memory_observer)
              for role, root in (('source', source), ('destination', destination))}
     for field in ('count', 'cycles', 'binary_sha256', 'fixture_sha256'):
         require(peers['source']['environment'][field] == peers['destination']['environment'][field], 'cycle paired identity mismatch')
@@ -87,4 +90,5 @@ def analyze(source, destination, *, source_sha, count, streams=1, channels=1):
         source_cleanup=peers['source']['outcome']['ownership'], destination_cleanup=peers['destination']['outcome']['ownership'],
         memory_cost='NOT_QUALIFIED', sustainable_capacity='NOT_ESTABLISHED', physical_hardware='NOT_PROVEN',
         **({'streams_per_channel': streams, 'successful_operations': count * total} if total > 1 else {}),
-        **({'channels_per_session': channels} if channels > 1 else {}))
+        **({'channels_per_session': channels} if channels > 1 else {}),
+        **({'private_memory': 'MEASURED_DIAGNOSTIC_ONLY_OBSERVER_NOT_QUALIFIED'} if memory_observer else {}))

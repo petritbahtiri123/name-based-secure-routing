@@ -46,6 +46,7 @@ def execute(config, output, *, check_cancelled=not_cancelled):
         ledger_options['lifecycle_cycles'] = cycles
         cycle_shape['streams'] = config.get('streams', 1)
         cycle_shape['channels'] = config.get('channels', 1)
+        cycle_shape['memory_observer'] = config.get('memory_observer', False)
     validate(config)
     count = cycles if cycles is not None else config['count']
     require(not output.is_symlink() and not output.resolve().is_relative_to(ROOT), 'external evidence directory required')
