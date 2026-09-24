@@ -150,7 +150,7 @@ def read_commands(stream, messages, stop=None):
             os.set_blocking(fd, blocking)
 
 
-def watch_control(control, messages, emit, stop, errors):
+def watch_control(control, messages, emit, stop, errors, *, decoder=decode_control, command_limit=8):
     received = 0
     try:
         while not stop.wait(.01):
@@ -165,9 +165,9 @@ def watch_control(control, messages, emit, stop, errors):
             if isinstance(wire, BaseException):
                 raise wire
             received += 1
-            require(received <= 8, 'control command count exceeded')
+            require(received <= command_limit, 'control command count exceeded')
             require(isinstance(wire, bytes) and wire.endswith(b'\n'), 'unterminated control frame')
-            for event in control.request(decode_control(wire)):
+            for event in control.request(decoder(wire)):
                 emit(event)
     except BaseException as error:
         errors.append(error)
@@ -177,7 +177,7 @@ def preserve_markers(lifecycle, output):
     output.mkdir()
     for path in lifecycle.iterdir():
         if not re.fullmatch(r'(?:connection|destination)-[0-9]+\.(?:start|active|release|ack|failed)'
-                            r'|destination\.report-(?:ready|release)', path.name):
+                            r'|destination\.report-(?:ready|release)|source\.final-release', path.name):
             continue
         require(path.is_file() and not path.is_symlink(), 'invalid public marker')
         with path.open('rb') as stream:
@@ -186,9 +186,15 @@ def preserve_markers(lifecycle, output):
         (output / path.name).write_bytes(wire)
 
 
-def execute_endpoint(args, *, input_stream=None, output_stream=None, delegate=native.execute):
+def execute_endpoint(args, *, input_stream=None, output_stream=None, delegate=native.execute,
+                     control_factory=EndpointControl, decoder=decode_control):
     require(platform.system() == 'Linux', 'Linux required')
     args = copy.copy(args)
+    cycles = getattr(args, 'cycles', None)
+    if cycles is not None:
+        require(type(cycles) is int and cycles in native.CYCLE_COUNTS, 'invalid cycle count')
+        args.count = cycles
+    schema = 'nbsr-native-cycle-control-v1' if cycles is not None else 'nbsr-native-lifecycle-control-v1'
     require(args.ready_input is None, 'control endpoint manages readiness input')
     require(args.role == 'source' or not args.prepare_before_readiness, 'source only preparation')
     require(not args.output.is_symlink(), 'symlink output root')
@@ -207,19 +213,19 @@ def execute_endpoint(args, *, input_stream=None, output_stream=None, delegate=na
     args.ready_input = output / 'transferred-readiness.json' if args.role == 'source' else None
     stop, errors, watcher, reader = threading.Event(), [], None, None
     try:
-        if args.role == 'source':
+        if args.role == 'source' and cycles is None:
             for i in range(args.count):
                 with (args.lifecycle / f'connection-{i}.start').open('x') as stream:
                     stream.write('start\n')
-        write_json(output / 'controller.json', dict(schema='nbsr-native-lifecycle-control-v1',
+        write_json(output / 'controller.json', dict(schema=schema,
             role=args.role, count=args.count, peer_output=str(args.output),
             control_input='bounded private stdin JSON lines', timing='DIAGNOSTIC_ONLY',
             hold_seconds=2, cooldown_seconds=2, child_ownership='delegated to linux_native_lifecycle.execute'))
-        control = EndpointControl(args, output)
+        control = control_factory(args, output)
         messages = queue.Queue(maxsize=8)
         with (output / 'events.ndjson').open('x', encoding='utf-8', newline='\n') as log:
             def emit(value):
-                event = dict(schema='nbsr-native-lifecycle-control-v1', role=args.role,
+                event = dict(schema=schema, role=args.role,
                              timestamp_ns=time.monotonic_ns(), **value)
                 wire = json.dumps(event, sort_keys=True, allow_nan=False) + '\n'
                 log.write(wire)
@@ -229,7 +235,8 @@ def execute_endpoint(args, *, input_stream=None, output_stream=None, delegate=na
 
             reader = threading.Thread(target=read_commands, args=(input_stream, messages, stop), daemon=True)
             reader.start()
-            watcher = threading.Thread(target=watch_control, args=(control, messages, emit, stop, errors), daemon=True)
+            watcher = threading.Thread(target=watch_control, args=(control, messages, emit, stop, errors),
+                kwargs=dict(decoder=decoder, command_limit=2 * cycles + 3 if cycles is not None else 8), daemon=True)
             watcher.start()
             try:
                 with Cancellation() as cancellation:
@@ -245,12 +252,13 @@ def execute_endpoint(args, *, input_stream=None, output_stream=None, delegate=na
                 check_cancelled()
                 for event in control.poll():
                     emit(event)
-                require(control.barrier.acked if args.role == 'source' else control.barrier.report_released,
+                require(control.barrier.final_released if cycles is not None else
+                        (control.barrier.acked if args.role == 'source' else control.barrier.report_released),
                         'delegate completed before control barriers')
                 preserve_markers(args.lifecycle, output / 'markers')
                 write_json(output / 'result.json', dict(status='PASS_FUNCTIONAL_ENDPOINT', role=args.role,
                     peer=outcome, sustainable_capacity='NOT_ESTABLISHED', physical_hardware='NOT_PROVEN'))
-                emit(dict(event='complete', count=args.count))
+                emit(dict(event='complete', **({'count': args.count} if cycles is None else {})))
                 return outcome
             finally:
                 stop.set()

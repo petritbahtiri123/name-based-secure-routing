@@ -168,3 +168,10 @@ and RED/GREEN fixed premature completion markers accepted between polls. Existin
 bundle behavior retained. Endpoint integration, collected-evidence/process-epoch
 validation and actual cycle runs remain OPEN; no measured cycle claim from helpers.
 Raw prerequisite tests: C:/NBSR-build/native-cycle-contract-tests-20260924 (sealed).
+
+Native same-process endpoint/runner integration now implemented: separate cycle
+schema, no offered-rate/fanout controls, shared bounded cleanup/collection, exact
+sequential command and process-epoch checks, retained per-cycle socket/events and
+final eleven-counter cleanup. 19 literal RED cases preceded integration; 133
+affected tests/Ruff and focused independent review PASS. Actual release namespace
+trials are next; no measured cycle result yet. Runbook: NATIVE_SAME_PROCESS_CYCLES.md.

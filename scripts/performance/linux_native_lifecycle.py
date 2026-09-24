@@ -107,6 +107,15 @@ def cycle_command(*, role, cycles, binaries, authority, lifecycle, output, bind,
     return argv, overrides
 
 
+def workload_command(args, **paths):
+    cycles = getattr(args, 'cycles', None)
+    if cycles is not None:
+        require(args.count == cycles and args.rate is None and args.shards is None,
+                'sequential cycles have no offered-rate/fanout contract')
+        return cycle_command(role=args.role, cycles=cycles, **paths)
+    return command(role=args.role, count=args.count, shards=args.shards, rate=args.rate, **paths)
+
+
 def validate_result(role, count, rows, server):
     require(role in ('source', 'destination') and rows, 'missing lifecycle result')
     if role == 'source':
@@ -189,7 +198,7 @@ def execute(args, *, check_cancelled=not_cancelled):
     fixture = immutable_fixture(authority, lifecycle, args.role)
     # Validate the declared workload before advertising preparation. The real
     # endpoint is validated again after transfer; this placeholder is never run.
-    command(role=args.role, count=args.count, shards=args.shards, rate=args.rate,
+    workload_command(args,
         binaries=binaries, authority=authority, lifecycle=lifecycle, output=output,
         bind=args.bind, endpoint=f'{args.destination_address}:1' if prepared else endpoint)
     binary = binaries / ('perf_rust_source' if args.role == 'source' else 'wp8_interop_server')
@@ -204,14 +213,16 @@ def execute(args, *, check_cancelled=not_cancelled):
             write_json(output / 'source-prepared.json', dict(status='PREPARED_NOT_CONNECTED',
                 repository_sha=sha, timestamp_ns=time.monotonic_ns(), readiness_deadline_seconds=30))
             endpoint = wait_readiness(args.ready_input, args.destination_address, check_cancelled=check_cancelled)
-        argv, overrides = command(role=args.role, count=args.count, shards=args.shards, rate=args.rate,
+        argv, overrides = workload_command(args,
             binaries=binaries, authority=authority, lifecycle=lifecycle, output=output,
             bind=args.bind, endpoint=endpoint)
         argv = [host['taskset'], '--cpu-list', ','.join(map(str, host['selected_cpus'])), *argv]
         write_json(output / 'environment.json', dict(repository_sha=sha, role=args.role,
             count=args.count, offered_rate=args.rate, source_shards=args.shards, linux_environment=host,
             uid=os.getuid(), binary_sha256=hashes, fixture_sha256=fixture,
-            controller_deadline_seconds=120, timing='DIAGNOSTIC_ONLY', physical_host='NOT_PROVEN'))
+            controller_deadline_seconds=120, timing='DIAGNOSTIC_ONLY', physical_host='NOT_PROVEN',
+            **({'cycles': args.cycles, 'workload_mode': 'same_process_sequential'}
+               if getattr(args, 'cycles', None) is not None else {})))
         write_json(output / 'command.json', dict(argv=argv, environment_overrides=overrides))
         write_json(output / 'build-manifest.json', build)
         if args.ready_input is not None:
@@ -261,7 +272,7 @@ def execute(args, *, check_cancelled=not_cancelled):
         seal_output(output)
 
 
-def argument_parser():
+def argument_parser(*, sequential=False):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--role', choices=('source', 'destination'), required=True)
     for name in ('binaries', 'build-manifest', 'authority', 'lifecycle', 'output'):
@@ -271,9 +282,13 @@ def argument_parser():
     parser.add_argument('--destination-address')
     parser.add_argument('--prepare-before-readiness', action='store_true',
                         help='source: finish preflight/copy, publish prepared marker, then await fresh readiness')
-    parser.add_argument('--count', type=int, choices=BUNDLE_COUNTS, default=16)
-    parser.add_argument('--shards', type=int, choices=(1, 2), default=2)
-    parser.add_argument('--rate', type=int, default=100)
+    if sequential:
+        parser.add_argument('--cycles', type=int, choices=CYCLE_COUNTS, required=True)
+        parser.set_defaults(count=None, shards=None, rate=None)
+    else:
+        parser.add_argument('--count', type=int, choices=BUNDLE_COUNTS, default=16)
+        parser.add_argument('--shards', type=int, choices=(1, 2), default=2)
+        parser.add_argument('--rate', type=int, default=100)
     parser.add_argument('--cores', type=int, choices=(1, 2, 4), default=1)
     parser.add_argument('--cpu-pool', type=parse_cpu_pool,
                         help='Optional canonical logical CPU IDs; requires distinct advertised cores on one NUMA node')

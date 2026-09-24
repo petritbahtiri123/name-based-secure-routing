@@ -30,15 +30,28 @@ def collect(target, role, output, *, check_cancelled=not_cancelled):
 
 
 def execute(config, output, *, check_cancelled=not_cancelled):
-    validate_config(config)
+    cycles = config.get('cycles') if isinstance(config, dict) and config.get('schema') == 'nbsr-native-cycle-coordinator-v1' else None
+    validate, arguments, replay, endpoint_gate, run_driver = validate_config, endpoint_arguments, analyze, check_endpoint, drive
+    ledger_options = {}
+    if cycles is not None:
+        from scripts.performance import linux_native_cycle_run as cycle_run
+        from scripts.performance import linux_native_cycle_gate as cycle_gate
+        from scripts.performance.linux_native_cycle_coordinator import CycleLedger, drive_cycles
+        validate, arguments = cycle_run.validate_config, cycle_run.endpoint_arguments
+        replay, endpoint_gate = cycle_gate.analyze, cycle_gate.check_endpoint
+        def run_driver(*args, **kwargs):
+            return drive_cycles(cycles, *args, **kwargs)
+        ledger_options['ledger'] = CycleLedger(cycles)
+    validate(config)
+    count = cycles if cycles is not None else config['count']
     require(not output.is_symlink() and not output.resolve().is_relative_to(ROOT), 'external evidence directory required')
     output.mkdir(parents=False, exist_ok=False)
     manager, problem = None, None
     try:
         write_json(output / 'config.json', config)
-        manager = Manager(config['count'], output, check_cancelled=check_cancelled)
+        manager = Manager(count, output, check_cancelled=check_cancelled, **ledger_options)
         try:
-            drive(lambda role: manager.start_command(role, remote_command(config[role], endpoint_arguments(config, role))),
+            run_driver(lambda role: manager.start_command(role, remote_command(config[role], arguments(config, role))),
                   manager.wait, manager.send, manager.finish, sleep=manager.sleep)
         except BaseException as error:
             problem = error
@@ -63,20 +76,21 @@ def execute(config, output, *, check_cancelled=not_cancelled):
                     problem = error
         if problem is not None:
             raise problem
-        endpoints = {role: check_endpoint(output / role, role, config['count']) for role in ('source', 'destination')}
+        endpoints = {role: endpoint_gate(output / role, role, count) for role in ('source', 'destination')}
         for role, checked in endpoints.items():
             for name, value in checked['events'].items():
                 require(value == manager.ledger.received[role, name], 'retained/control event mismatch')
-        result = analyze(output / 'source' / 'peer', output / 'destination' / 'peer',
-                         source_sha=config['source_sha'], count=config['count'])
+        result = replay(output / 'source' / 'peer', output / 'destination' / 'peer',
+                        source_sha=config['source_sha'], count=count)
         for role in ('source', 'destination'):
             environment = json.loads((output / role / 'peer' / 'environment.json').read_bytes())
-            require(environment['offered_rate'] == config['rate'] and environment['source_shards'] == config['shards'],
+            require(environment['offered_rate'] == config.get('rate') and environment['source_shards'] == config.get('shards'),
                     'requested/actual workload mismatch')
             cpus = environment['linux_environment']['selected_cpus']
             require(len(cpus) == config[role]['cores'] and ('cpu_pool' not in config[role]
                     or cpus == config[role]['cpu_pool']), 'requested/actual CPU allocation mismatch')
-        result.update(status='PASS_FUNCTIONAL_CONTROLLED_PAIR', paired_active_hold='COORDINATED_TWO_SECONDS',
+        result.update(status='PASS_FUNCTIONAL_SAME_PROCESS_CYCLES' if cycles is not None else 'PASS_FUNCTIONAL_CONTROLLED_PAIR',
+                      paired_active_hold='COORDINATED_TWO_SECONDS',
                       endpoint_indexes={role: value['index_sha256'] for role, value in endpoints.items()})
         write_json(output / 'result.json', result)
         return result
