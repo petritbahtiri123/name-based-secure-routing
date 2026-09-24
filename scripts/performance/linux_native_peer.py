@@ -24,6 +24,7 @@ from scripts.performance.linux_b5_reference import git_state
 from scripts.performance.linux_exit import observe_owned_exit
 from scripts.performance.linux_loopback import ROOT, build_commands, digest, sample_process, validate_matrix, write_json
 from scripts.performance.p2a_established import validate_repeat
+from scripts.performance.post_close_cleanup import validate_report
 from scripts.performance.process_cancellation import Cancellation, not_cancelled
 from scripts.performance.linux_socket_ownership import snapshot
 
@@ -66,7 +67,8 @@ def validate_fixed_work(row, cell):
                 'fixed operation count differs from declared workload')
 
 
-def native_command(cell, role, binaries, authority, output, *, bind, endpoint, phase_control=None):
+def native_command(cell, role, binaries, authority, output, *, bind, endpoint, phase_control=None, post_close_reports=False):
+    require(type(post_close_reports) is bool, 'boolean post-close mode required')
     require(role in ('source', 'destination'), 'invalid role')
     _, port = validate_endpoint(bind, allow_zero=True)
     if role == 'source':
@@ -81,6 +83,9 @@ def native_command(cell, role, binaries, authority, output, *, bind, endpoint, p
     require(cell['path'] in ('direct', 'nbsr'), 'invalid path')
     warmup, duration = measurement_contract(cell)
     server, client, env = build_commands(cell, binaries, authority, output, endpoint, warmup, 20)
+    if post_close_reports and cell['path'] == 'nbsr':
+        server += ['--p2a-cleanup-report', str(output / 'cleanup.json')]
+        client += ['--p2a-cleanup-report', str(output / 'cleanup.json')]
     if duration is None:
         pos = client.index('--p2a-duration-seconds')
         client[pos:pos + 2] = ['--p2a-operations-per-stream', str(cell['operations_per_stream'])]
@@ -128,6 +133,17 @@ def observe_child(child, cpus, output, *, deadline, check_cancelled=not_cancelle
             if time.monotonic() >= deadline:
                 raise TimeoutError('finite peer controller deadline')
             time.sleep(.1)
+
+
+def validate_post_close(output, cell, role, pid, requested):
+    require(type(requested) is bool, 'boolean post-close mode required')
+    if not requested:
+        return 'NOT_MEASURED'
+    if cell['path'] == 'direct':
+        return 'NOT_APPLICABLE_DIRECT'
+    value = json.loads((output / 'cleanup.json').read_bytes())
+    require(validate_report(value, role, pid), 'owned post-close report failed')
+    return 'ALL_11_ZERO'
 
 
 def validate_source(output, cell=None):
@@ -185,8 +201,9 @@ def execute(args, *, check_cancelled=not_cancelled):
         cell['operations_per_stream'] = args.operations_per_stream
     warmup, duration = measurement_contract(cell)
     phase_control = getattr(args, 'phase_control', None)
+    post_close_reports = getattr(args, 'post_close_reports', False)
     command, overrides = native_command(cell, args.role, binaries, authority, output, bind=args.bind,
-                                       endpoint=endpoint, phase_control=phase_control)
+                                       endpoint=endpoint, phase_control=phase_control, post_close_reports=post_close_reports)
     executable = Path(command[0])
     require(os.access(executable, os.X_OK), 'executable peer required')
     cert_names = ('ca.der', f'{args.role}.der')
@@ -204,10 +221,11 @@ def execute(args, *, check_cancelled=not_cancelled):
             controller_deadline_seconds=120, warmup_seconds=warmup, duration_seconds=duration,
             live_socket_observer=bool(getattr(args, 'observe_socket_ownership', False)),
             phase_control_endpoint=phase_control,
+            post_close_reports=post_close_reports, output_root=str(output),
             binary_sha256=hashes, certificates_sha256=certificate_hashes,
             scope='finite native-address peer; external/physical hardware unqualified',
             cpu_scope='whole peer lifetime including startup/warmup/drain; not steady CPU ns/op',
-            cleanup_scope='owned process exit, not eleven-counter runtime cleanup'))
+            cleanup_scope='explicit requested report plus owned exit; otherwise process exit only'))
         write_json(output / 'build-manifest.json', build)
         write_json(output / 'command.json', dict(argv=command, environment_overrides=overrides))
         shutil.copyfile(executable, output / 'executed-binary')
@@ -232,6 +250,8 @@ def execute(args, *, check_cancelled=not_cancelled):
             row = json.loads((output / 'server-result.json').read_bytes())
             require(row.get('status') == 'PASS' and row.get('streams') == args.streams,
                     'destination validity contract failed')
+        cleanup = validate_post_close(output, cell, args.role, child.pid, post_close_reports)
+        result['runtime_ownership_cleanup'] = cleanup
         require(git_state() == (sha, ''), 'source changed during cell')
         require(all(digest(binaries / n) == h for n, h in hashes.items())
                 and digest(output / 'executed-binary') == hashes[executable.name], 'binary changed')
@@ -240,7 +260,7 @@ def execute(args, *, check_cancelled=not_cancelled):
         check_cancelled()
         write_json(output / 'result.json', dict(status='PASS_FINITE_PEER', role=args.role, **result,
             strict_stable_capacity='NOT_ESTABLISHED', steady_cpu_ns_per_operation=None,
-            runtime_ownership_cleanup='NOT_MEASURED', external_hardware='NOT_PROVEN'))
+            external_hardware='NOT_PROVEN'))
         success = True
         return result
     except BaseException as error:
@@ -266,6 +286,8 @@ def argument_parser():
     parser.add_argument('--role', choices=('source', 'destination'), required=True)
     parser.add_argument('--observe-socket-ownership', action='store_true',
                         help='Opt-in bounded live FD observer; timing is diagnostic only')
+    parser.add_argument('--post-close-reports', action='store_true',
+                        help='Require existing NBSR eleven-counter post-close reports; Direct remains process-exit only')
     parser.add_argument('--path', choices=('direct', 'nbsr'), required=True)
     for name in ('binaries', 'build-manifest', 'authority', 'output'):
         parser.add_argument('--' + name, type=Path, required=True)

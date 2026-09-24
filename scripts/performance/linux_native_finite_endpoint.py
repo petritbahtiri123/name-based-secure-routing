@@ -89,7 +89,8 @@ def execute_endpoint(args, *, input_stream=None, output_stream=None, delegate=na
                 require(control.transferred if args.role == 'source' else control.acked,
                         'peer completed before control handshake')
                 write_json(output / 'result.json', dict(status='PASS_FINITE_ENDPOINT', role=args.role,
-                    peer=outcome, sustained_capacity='NOT_ESTABLISHED', runtime_ownership='NOT_MEASURED'))
+                    peer=outcome, sustained_capacity='NOT_ESTABLISHED',
+                    runtime_ownership=outcome.get('runtime_ownership_cleanup', 'NOT_MEASURED')))
                 emit(dict(event='complete'))
                 return outcome
     except BaseException as error:

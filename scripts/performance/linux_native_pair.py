@@ -12,7 +12,7 @@ import re
 
 from scripts.performance.linux_b5_ceiling import NAMES, require
 from scripts.performance.linux_loopback import digest, validate_matrix
-from scripts.performance.linux_native_peer import measurement_contract, validate_endpoint, validate_fixed_work
+from scripts.performance.linux_native_peer import measurement_contract, validate_endpoint, validate_fixed_work, validate_post_close
 from scripts.performance.p2a_established import validate_repeat
 
 
@@ -107,6 +107,15 @@ def check_peer(root, role, source_sha):
     elif cell['path'] == 'direct':
         option('--p2a-streams', cell['streams'])
     exit_record, pid = read(root, 'exit.json'), read(root, 'pid.json')
+    requested = env.get('post_close_reports', False)
+    cleanup = validate_post_close(root, cell, role, pid['pid'], requested)
+    if requested and cell['path'] == 'nbsr':
+        original = PurePosixPath(env['output_root'])
+        require(original.is_absolute() and '..' not in original.parts, 'invalid original output root')
+        option('--p2a-cleanup-report', str(original / 'cleanup.json'))
+    else:
+        require('--p2a-cleanup-report' not in argv, 'undeclared cleanup observer')
+    require(result.get('runtime_ownership_cleanup', 'NOT_MEASURED') == cleanup, 'cleanup claim mismatch')
     require(result['status'] == 'PASS_FINITE_PEER' and result['exit_code'] == exit_record['exit_code'] == 0
             and result['final_sample'] == exit_record['final_sample'] and pid['owns_process_group'] is True,
             'peer exit contract failed')
@@ -150,6 +159,7 @@ def analyze_pair(source, destination, *, source_sha):
         src, result, src_index = check_peer(source, 'source', source_sha)
         dst, _, dst_index = check_peer(destination, 'destination', source_sha)
         require(src['cell'] == dst['cell'] and src['binary_sha256'] == dst['binary_sha256']
+                and src.get('post_close_reports', False) == dst.get('post_close_reports', False)
                 and src.get('live_socket_observer', False) == dst.get('live_socket_observer', False)
                 and src['certificates_sha256']['ca.der'] == dst['certificates_sha256']['ca.der'],
                 'peer workload/build/authority mismatch')
@@ -182,7 +192,7 @@ def analyze_pair(source, destination, *, source_sha):
         return dict(status='PASS_FINITE_PAIR_INTEGRITY', source_sha=source_sha, cell=cell,
             source_index_sha256=src_index, destination_index_sha256=dst_index, application_gbps=gbps,
             strict_stable_capacity='NOT_PROVEN', external_hardware='NOT_PROVEN',
-            observer_qualification='NOT_PROVEN', runtime_ownership_cleanup='NOT_MEASURED',
+            observer_qualification='NOT_PROVEN', runtime_ownership_cleanup=result.get('runtime_ownership_cleanup', 'NOT_MEASURED'),
             authenticity='checksums are not signatures or remote attestation')
     except (KeyError, IndexError, TypeError, OSError) as error:
         raise ValueError('incomplete/malformed native pair: ' + str(error)) from error

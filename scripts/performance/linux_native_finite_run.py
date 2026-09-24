@@ -21,8 +21,9 @@ ROLES = ('source', 'destination')
 
 
 def validate_config(value):
-    require(isinstance(value, dict) and set(value) == {'schema', 'source_sha', 'path', 'payload', 'streams', 'depth', *ROLES},
+    require(isinstance(value, dict) and set(value) - {'post_close_reports'} == {'schema', 'source_sha', 'path', 'payload', 'streams', 'depth', *ROLES},
             'invalid finite configuration fields')
+    require(type(value.get('post_close_reports', False)) is bool, 'boolean post-close mode required')
     require(value['schema'] == 'nbsr-native-finite-coordinator-v1'
             and isinstance(value['source_sha'], str) and re.fullmatch('[0-9a-f]{40}', value['source_sha']), 'invalid schema/SHA')
     require(value['path'] in ('direct', 'nbsr'), 'invalid path')
@@ -59,6 +60,8 @@ def endpoint_arguments(config, role):
         argv += ['--' + field.replace('_', '-'), str(target[field])]
     for field in ('path', 'payload', 'streams', 'depth'):
         argv += ['--' + field, str(config[field])]
+    if config.get('post_close_reports', False):
+        argv += ['--post-close-reports']
     if role == 'source':
         argv += ['--destination-address', validate_endpoint(config['destination']['bind'], allow_zero=True)[0]]
     return argv
@@ -120,11 +123,14 @@ def execute(config, output, *, check_cancelled=not_cancelled):
                         outstanding=config['depth'], cores=config['source']['cores'])
         require(result['cell'] == expected, 'requested/actual workload mismatch')
         for role in ROLES:
-            require(read(output / role / 'peer', 'environment.json')['bind'] == config[role]['bind'],
+            environment = read(output / role / 'peer', 'environment.json')
+            require(environment['bind'] == config[role]['bind'],
                     'requested/actual bind mismatch')
+            require(environment.get('post_close_reports', False) == config.get('post_close_reports', False),
+                    'requested/actual cleanup mode mismatch')
         result.update(status='PASS_CONTROLLED_FINITE_PAIR',
             endpoint_indexes={role: value['index_sha256'] for role, value in endpoints.items()},
-            sustained_capacity='NOT_ESTABLISHED', runtime_ownership_cleanup='NOT_MEASURED')
+            sustained_capacity='NOT_ESTABLISHED')
         write_json(output / 'result.json', result)
         return result
     except BaseException as error:
