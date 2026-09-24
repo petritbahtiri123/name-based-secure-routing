@@ -463,8 +463,8 @@
         "scripts/performance/linux_native_cycle_gate.py",
         "docs/benchmarks/NATIVE_SAME_PROCESS_CYCLES.md"
       ],
-      "scope": "bounded native sequential same-process cycle coordination; three four-cycle and three sixteen-cycle namespace trials plus six catchable EOF controls; exact process epochs and final ownership verified",
-      "missing": "50-cycle authoritative native workload, per-axis channel/stream scaling, qualified memory-cost/retention attribution and independent physical-host validation"
+      "scope": "bounded native sequential same-process coordination; three four-cycle, three sixteen-cycle and three fifty-cycle namespace trials plus six catchable EOF controls; exact process epochs/final ownership verified; diagnostic RSS only",
+      "missing": "per-axis channel/stream scaling, qualified private-memory measurement and material retention attribution, independent physical-host validation"
     }
   }
 }

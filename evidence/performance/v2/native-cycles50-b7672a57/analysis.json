@@ -1,0 +1,3245 @@
+{
+  "first_three_resource_cv": {
+    "source": 0.0136986301369863,
+    "destination": 0.02
+  },
+  "classification": "PASS_FUNCTIONAL_SAME_PROCESS_CYCLES",
+  "trials": 3,
+  "successful_cycles": 150,
+  "all_source_per_cycle_closed_ownership_zero": true,
+  "scope": "Docker/WSL namespaces; diagnostic observer; sampled process epochs; no physical/server or bytes/resource claim",
+  "memory_classification": "DIAGNOSTIC_RSS_ONLY_NO_ALLOCATOR_ATTRIBUTION",
+  "rows": [
+    {
+      "label": "cycles50-r1",
+      "result": {
+        "status": "PASS_FUNCTIONAL_CYCLE_PEERS",
+        "source_sha": "b7672a5708b4890cdcc719a97f17b0435121e8ab",
+        "cycles": 50,
+        "successful_connections": 50,
+        "same_process_epochs": "VERIFIED_FROM_RETAINED_RESOURCE_SAMPLES",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "memory_cost": "NOT_QUALIFIED",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN"
+      },
+      "resources": {
+        "source": {
+          "process_epoch": [
+            96,
+            1597697
+          ],
+          "cycles": [
+            {
+              "cycle": 0,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 1,
+              "active_samples": 21,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6684672,
+              "cooldown_last_rss_bytes": 6684672,
+              "cooldown_median_rss_bytes": 6684672.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 2,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 3,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 4,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 5,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 6,
+              "active_samples": 21,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 7,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 8,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 9,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 10,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 11,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 12,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 13,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 14,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 15,
+              "active_samples": 21,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 16,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 17,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 18,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 19,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 20,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 21,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 22,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 23,
+              "active_samples": 21,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 24,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 25,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9699328,
+              "cooldown_last_rss_bytes": 9699328,
+              "cooldown_median_rss_bytes": 9699328.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 26,
+              "active_samples": 21,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9699328,
+              "cooldown_last_rss_bytes": 9699328,
+              "cooldown_median_rss_bytes": 9699328.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 27,
+              "active_samples": 21,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9699328,
+              "cooldown_last_rss_bytes": 9699328,
+              "cooldown_median_rss_bytes": 9699328.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 28,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9699328,
+              "cooldown_last_rss_bytes": 9699328,
+              "cooldown_median_rss_bytes": 9699328.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 29,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9699328,
+              "cooldown_last_rss_bytes": 9699328,
+              "cooldown_median_rss_bytes": 9699328.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 30,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9699328,
+              "cooldown_last_rss_bytes": 9699328,
+              "cooldown_median_rss_bytes": 9699328.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 31,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9699328,
+              "cooldown_last_rss_bytes": 9699328,
+              "cooldown_median_rss_bytes": 9699328.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 32,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9699328,
+              "cooldown_last_rss_bytes": 9699328,
+              "cooldown_median_rss_bytes": 9699328.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 33,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9699328,
+              "cooldown_last_rss_bytes": 9699328,
+              "cooldown_median_rss_bytes": 9699328.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 34,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 9699328,
+              "cooldown_last_rss_bytes": 9699328,
+              "cooldown_median_rss_bytes": 9699328,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 35,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9699328,
+              "cooldown_last_rss_bytes": 9699328,
+              "cooldown_median_rss_bytes": 9699328.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 36,
+              "active_samples": 21,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9699328,
+              "cooldown_last_rss_bytes": 9699328,
+              "cooldown_median_rss_bytes": 9699328.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 37,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9699328,
+              "cooldown_last_rss_bytes": 9699328,
+              "cooldown_median_rss_bytes": 9699328.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 38,
+              "active_samples": 21,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9699328,
+              "cooldown_last_rss_bytes": 9699328,
+              "cooldown_median_rss_bytes": 9699328.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 39,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 9699328,
+              "cooldown_last_rss_bytes": 9699328,
+              "cooldown_median_rss_bytes": 9699328,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 40,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9699328,
+              "cooldown_last_rss_bytes": 9699328,
+              "cooldown_median_rss_bytes": 9699328.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 41,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9699328,
+              "cooldown_last_rss_bytes": 9699328,
+              "cooldown_median_rss_bytes": 9699328.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 42,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9699328,
+              "cooldown_last_rss_bytes": 9699328,
+              "cooldown_median_rss_bytes": 9699328.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 43,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9699328,
+              "cooldown_last_rss_bytes": 9699328,
+              "cooldown_median_rss_bytes": 9699328.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 44,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9699328,
+              "cooldown_last_rss_bytes": 9699328,
+              "cooldown_median_rss_bytes": 9699328.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 45,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9699328,
+              "cooldown_last_rss_bytes": 9699328,
+              "cooldown_median_rss_bytes": 9699328.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 46,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9699328,
+              "cooldown_last_rss_bytes": 9699328,
+              "cooldown_median_rss_bytes": 9699328.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 47,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9699328,
+              "cooldown_last_rss_bytes": 9699328,
+              "cooldown_median_rss_bytes": 9699328.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 48,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9699328,
+              "cooldown_last_rss_bytes": 9699328,
+              "cooldown_median_rss_bytes": 9699328.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 49,
+              "active_samples": 20,
+              "cooldown_samples": 40,
+              "active_peak_rss_bytes": 9699328,
+              "cooldown_last_rss_bytes": 9699328,
+              "cooldown_median_rss_bytes": 9699328.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            }
+          ],
+          "rss_slope_bytes_per_cycle": 17535.010420168066,
+          "second_half_rss_slope_bytes_per_cycle": 0.0,
+          "last_ten_rss_slope_bytes_per_cycle": 0.0,
+          "last_ten_rss_range_bytes": 0.0,
+          "first_to_last_cooldown_median_rss_delta_bytes": 3145728.0,
+          "last_fd_delta": 0,
+          "last_thread_delta": 0
+        },
+        "destination": {
+          "process_epoch": [
+            96,
+            1597695
+          ],
+          "cycles": [
+            {
+              "cycle": 0,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6160384,
+              "cooldown_last_rss_bytes": 6291456,
+              "cooldown_median_rss_bytes": 6291456.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 1,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6291456,
+              "cooldown_last_rss_bytes": 6291456,
+              "cooldown_median_rss_bytes": 6291456.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 2,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 3,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 4,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 5,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 6,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 7,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 8,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 9,
+              "active_samples": 19,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 10,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 11,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 12,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 13,
+              "active_samples": 19,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 14,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 15,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 16,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 17,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 18,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 19,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 20,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 21,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 22,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 23,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 24,
+              "active_samples": 21,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 25,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 26,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 27,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 28,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 29,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 30,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 31,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 32,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 33,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 34,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 35,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 36,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 37,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 38,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 39,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 40,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 41,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 42,
+              "active_samples": 19,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 43,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 44,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 45,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6684672,
+              "cooldown_last_rss_bytes": 6684672,
+              "cooldown_median_rss_bytes": 6684672.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 46,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6684672,
+              "cooldown_last_rss_bytes": 6684672,
+              "cooldown_median_rss_bytes": 6684672.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 47,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6684672,
+              "cooldown_last_rss_bytes": 6684672,
+              "cooldown_median_rss_bytes": 6684672.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 48,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6684672,
+              "cooldown_last_rss_bytes": 6684672,
+              "cooldown_median_rss_bytes": 6684672.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 49,
+              "active_samples": 20,
+              "cooldown_samples": 40,
+              "active_peak_rss_bytes": 6684672,
+              "cooldown_last_rss_bytes": 6684672,
+              "cooldown_median_rss_bytes": 6684672.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            }
+          ],
+          "rss_slope_bytes_per_cycle": 5047.766818727491,
+          "second_half_rss_slope_bytes_per_cycle": 5041.2307692307695,
+          "last_ten_rss_slope_bytes_per_cycle": 19859.39393939394,
+          "last_ten_rss_range_bytes": 131072.0,
+          "first_to_last_cooldown_median_rss_delta_bytes": 393216.0,
+          "last_fd_delta": 0,
+          "last_thread_delta": 0
+        }
+      },
+      "source_per_cycle_eleven_counters_zero": true,
+      "destination_per_cycle_closed_ownership": "NOT_MEASURED",
+      "owned_pids_absent_before_stop": {
+        "source": true,
+        "destination": true
+      }
+    },
+    {
+      "label": "cycles50-r2",
+      "result": {
+        "status": "PASS_FUNCTIONAL_CYCLE_PEERS",
+        "source_sha": "b7672a5708b4890cdcc719a97f17b0435121e8ab",
+        "cycles": 50,
+        "successful_connections": 50,
+        "same_process_epochs": "VERIFIED_FROM_RETAINED_RESOURCE_SAMPLES",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "memory_cost": "NOT_QUALIFIED",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN"
+      },
+      "resources": {
+        "source": {
+          "process_epoch": [
+            96,
+            1620737
+          ],
+          "cycles": [
+            {
+              "cycle": 0,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 1,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 2,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 3,
+              "active_samples": 21,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 4,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 5,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 6,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 7,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 8,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 9,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 10,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 11,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 12,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 13,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 14,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 15,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 16,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 17,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 18,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 19,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 20,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 21,
+              "active_samples": 21,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 22,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 23,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 24,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 25,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 26,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 27,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 28,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 29,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 30,
+              "active_samples": 21,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 31,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 32,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 33,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 34,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 35,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 36,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 37,
+              "active_samples": 21,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 38,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 39,
+              "active_samples": 21,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 40,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 41,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 42,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 43,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 44,
+              "active_samples": 21,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 45,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 46,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 47,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 48,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 49,
+              "active_samples": 21,
+              "cooldown_samples": 40,
+              "active_peak_rss_bytes": 9568256,
+              "cooldown_last_rss_bytes": 9568256,
+              "cooldown_median_rss_bytes": 9568256.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            }
+          ],
+          "rss_slope_bytes_per_cycle": 15716.05205282113,
+          "second_half_rss_slope_bytes_per_cycle": 0.0,
+          "last_ten_rss_slope_bytes_per_cycle": 0.0,
+          "last_ten_rss_range_bytes": 0.0,
+          "first_to_last_cooldown_median_rss_delta_bytes": 3145728.0,
+          "last_fd_delta": 0,
+          "last_thread_delta": 0
+        },
+        "destination": {
+          "process_epoch": [
+            96,
+            1620734
+          ],
+          "cycles": [
+            {
+              "cycle": 0,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6291456,
+              "cooldown_last_rss_bytes": 6291456,
+              "cooldown_median_rss_bytes": 6291456.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 1,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 6291456,
+              "cooldown_last_rss_bytes": 6291456,
+              "cooldown_median_rss_bytes": 6291456,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 2,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 3,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 4,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 5,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 6,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 7,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 8,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 9,
+              "active_samples": 19,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 10,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 11,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 12,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 13,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 14,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 15,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 16,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 17,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 18,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 19,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 20,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 21,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 22,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 23,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 24,
+              "active_samples": 21,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 25,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 26,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 27,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 28,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 29,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 30,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 31,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 32,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 33,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 34,
+              "active_samples": 21,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 35,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 36,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 37,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 38,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 39,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 40,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 41,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 42,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 43,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 44,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 45,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 46,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 47,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 48,
+              "active_samples": 19,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 49,
+              "active_samples": 20,
+              "cooldown_samples": 40,
+              "active_peak_rss_bytes": 6553600,
+              "cooldown_last_rss_bytes": 6553600,
+              "cooldown_median_rss_bytes": 6553600.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            }
+          ],
+          "rss_slope_bytes_per_cycle": 4028.1430972388957,
+          "second_half_rss_slope_bytes_per_cycle": 0.0,
+          "last_ten_rss_slope_bytes_per_cycle": 0.0,
+          "last_ten_rss_range_bytes": 0.0,
+          "first_to_last_cooldown_median_rss_delta_bytes": 262144.0,
+          "last_fd_delta": 0,
+          "last_thread_delta": 0
+        }
+      },
+      "source_per_cycle_eleven_counters_zero": true,
+      "destination_per_cycle_closed_ownership": "NOT_MEASURED",
+      "owned_pids_absent_before_stop": {
+        "source": true,
+        "destination": true
+      }
+    },
+    {
+      "label": "cycles50-r3",
+      "result": {
+        "status": "PASS_FUNCTIONAL_CYCLE_PEERS",
+        "source_sha": "b7672a5708b4890cdcc719a97f17b0435121e8ab",
+        "cycles": 50,
+        "successful_connections": 50,
+        "same_process_epochs": "VERIFIED_FROM_RETAINED_RESOURCE_SAMPLES",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "memory_cost": "NOT_QUALIFIED",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN"
+      },
+      "resources": {
+        "source": {
+          "process_epoch": [
+            96,
+            1643691
+          ],
+          "cycles": [
+            {
+              "cycle": 0,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6291456,
+              "cooldown_last_rss_bytes": 6291456,
+              "cooldown_median_rss_bytes": 6291456.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 1,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 2,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 9306112,
+              "cooldown_last_rss_bytes": 9306112,
+              "cooldown_median_rss_bytes": 9306112,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 3,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9306112,
+              "cooldown_last_rss_bytes": 9306112,
+              "cooldown_median_rss_bytes": 9306112.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 4,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 5,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 6,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 7,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 8,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 9,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 10,
+              "active_samples": 21,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 11,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 12,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 13,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 14,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 15,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 16,
+              "active_samples": 21,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 17,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 18,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 19,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 20,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 21,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 22,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 23,
+              "active_samples": 21,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 24,
+              "active_samples": 21,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 25,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 26,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 27,
+              "active_samples": 21,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 28,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 29,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 30,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 31,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 32,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 33,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 34,
+              "active_samples": 21,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 35,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 36,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 37,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 38,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 39,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 40,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 41,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 42,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 43,
+              "active_samples": 20,
+              "cooldown_samples": 22,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 44,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 45,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 46,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 47,
+              "active_samples": 21,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 48,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            },
+            {
+              "cycle": 49,
+              "active_samples": 20,
+              "cooldown_samples": 40,
+              "active_peak_rss_bytes": 9437184,
+              "cooldown_last_rss_bytes": 9437184,
+              "cooldown_median_rss_bytes": 9437184.0,
+              "cooldown_last_fd_count": 6,
+              "cooldown_last_threads": 1
+            }
+          ],
+          "rss_slope_bytes_per_cycle": 14759.368067226891,
+          "second_half_rss_slope_bytes_per_cycle": 0.0,
+          "last_ten_rss_slope_bytes_per_cycle": 0.0,
+          "last_ten_rss_range_bytes": 0.0,
+          "first_to_last_cooldown_median_rss_delta_bytes": 3145728.0,
+          "last_fd_delta": 0,
+          "last_thread_delta": 0
+        },
+        "destination": {
+          "process_epoch": [
+            96,
+            1643687
+          ],
+          "cycles": [
+            {
+              "cycle": 0,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6160384,
+              "cooldown_last_rss_bytes": 6160384,
+              "cooldown_median_rss_bytes": 6160384.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 1,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6160384,
+              "cooldown_last_rss_bytes": 6160384,
+              "cooldown_median_rss_bytes": 6160384.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 2,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6291456,
+              "cooldown_last_rss_bytes": 6291456,
+              "cooldown_median_rss_bytes": 6291456.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 3,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6291456,
+              "cooldown_last_rss_bytes": 6291456,
+              "cooldown_median_rss_bytes": 6291456.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 4,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 6291456,
+              "cooldown_last_rss_bytes": 6291456,
+              "cooldown_median_rss_bytes": 6291456,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 5,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6291456,
+              "cooldown_last_rss_bytes": 6291456,
+              "cooldown_median_rss_bytes": 6291456.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 6,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6291456,
+              "cooldown_last_rss_bytes": 6291456,
+              "cooldown_median_rss_bytes": 6291456.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 7,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6291456,
+              "cooldown_last_rss_bytes": 6291456,
+              "cooldown_median_rss_bytes": 6291456.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 8,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6291456,
+              "cooldown_last_rss_bytes": 6291456,
+              "cooldown_median_rss_bytes": 6291456.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 9,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6291456,
+              "cooldown_last_rss_bytes": 6291456,
+              "cooldown_median_rss_bytes": 6291456.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 10,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6291456,
+              "cooldown_last_rss_bytes": 6291456,
+              "cooldown_median_rss_bytes": 6291456.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 11,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6291456,
+              "cooldown_last_rss_bytes": 6291456,
+              "cooldown_median_rss_bytes": 6291456.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 12,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6291456,
+              "cooldown_last_rss_bytes": 6291456,
+              "cooldown_median_rss_bytes": 6291456.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 13,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 6291456,
+              "cooldown_last_rss_bytes": 6291456,
+              "cooldown_median_rss_bytes": 6291456,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 14,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6291456,
+              "cooldown_last_rss_bytes": 6291456,
+              "cooldown_median_rss_bytes": 6291456.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 15,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6291456,
+              "cooldown_last_rss_bytes": 6291456,
+              "cooldown_median_rss_bytes": 6291456.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 16,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6291456,
+              "cooldown_last_rss_bytes": 6291456,
+              "cooldown_median_rss_bytes": 6291456.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 17,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6291456,
+              "cooldown_last_rss_bytes": 6291456,
+              "cooldown_median_rss_bytes": 6291456.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 18,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6291456,
+              "cooldown_last_rss_bytes": 6291456,
+              "cooldown_median_rss_bytes": 6291456.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 19,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 6291456,
+              "cooldown_last_rss_bytes": 6291456,
+              "cooldown_median_rss_bytes": 6291456,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 20,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6291456,
+              "cooldown_last_rss_bytes": 6291456,
+              "cooldown_median_rss_bytes": 6291456.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 21,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 6291456,
+              "cooldown_last_rss_bytes": 6291456,
+              "cooldown_median_rss_bytes": 6291456,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 22,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6291456,
+              "cooldown_last_rss_bytes": 6291456,
+              "cooldown_median_rss_bytes": 6291456.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 23,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 24,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 25,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 26,
+              "active_samples": 19,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 27,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 28,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 29,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 30,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 31,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 32,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 33,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 34,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 35,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 36,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 37,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 38,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 39,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 40,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 41,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 42,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 43,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 44,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 45,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 46,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 47,
+              "active_samples": 20,
+              "cooldown_samples": 21,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 48,
+              "active_samples": 20,
+              "cooldown_samples": 20,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528.0,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            },
+            {
+              "cycle": 49,
+              "active_samples": 20,
+              "cooldown_samples": 41,
+              "active_peak_rss_bytes": 6422528,
+              "cooldown_last_rss_bytes": 6422528,
+              "cooldown_median_rss_bytes": 6422528,
+              "cooldown_last_fd_count": 8,
+              "cooldown_last_threads": 2
+            }
+          ],
+          "rss_slope_bytes_per_cycle": 4512.77906362545,
+          "second_half_rss_slope_bytes_per_cycle": 0.0,
+          "last_ten_rss_slope_bytes_per_cycle": 0.0,
+          "last_ten_rss_range_bytes": 0.0,
+          "first_to_last_cooldown_median_rss_delta_bytes": 262144.0,
+          "last_fd_delta": 0,
+          "last_thread_delta": 0
+        }
+      },
+      "source_per_cycle_eleven_counters_zero": true,
+      "destination_per_cycle_closed_ownership": "NOT_MEASURED",
+      "owned_pids_absent_before_stop": {
+        "source": true,
+        "destination": true
+      }
+    }
+  ]
+}

@@ -317,3 +317,12 @@ do not close the 50-cycle external memory gate. Canonical package
 `evidence/performance/v2/native-cycles-4375d7ac`: 5 canonical/privacy6/raw1318 PASS.
 No production/security change or new throughput/capacity claim. Next: bounded
 50-cycle workload to investigate whether cooldown retention keeps growing.
+
+September 25: native 50-cycle workload at b7672a57 completes three repetitions,
+150/150 cycles, six owned PIDs absent, both final/source per-cycle eleven-counter
+ownership zero. FD/thread counts remain constant. Final RSS CV 1.37%/2.0% keeps
+three repeats per the declared rule. Source second-half RSS is flat in all three;
+destination is flat in two and retains one 128 KiB late step. Cause INCONCLUSIVE,
+not a leak or allocator claim. Native workload-length gap closed; qualified
+private-memory/per-axis/full B3 closure remains open. Package native-cycles50-b7672a57
+passes 5 canonical/privacy6/raw1411 integrity checks. No production change.

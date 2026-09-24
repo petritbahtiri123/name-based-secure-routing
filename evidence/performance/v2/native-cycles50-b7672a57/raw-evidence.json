@@ -1,0 +1,18 @@
+[
+  {
+    "root": "C:\\NBSR-build\\native-cycles50-b7672a57",
+    "index_sha256": "4b421e54153b3388d81baa9845f7655e62d9e9db3ef3c544924ea3e4212cced3"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-current-b7672a57",
+    "index_sha256": "3bf88e19bc9c9556be6d9a9ed0a60534aa62b917249d42393a29a61cadb0af5b"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-cycle-length-tests-20260925",
+    "index_sha256": "5a4499206abf954d67b2df7fd356b337ba962e0e8df7d65ef723c53d8b3553ac"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-cycle50-cargo-cleanup-20260925",
+    "index_sha256": "aae02c5acb5435609e3c9b06b13df028b242df8135ce9d71e571793816b2434b"
+  }
+]
