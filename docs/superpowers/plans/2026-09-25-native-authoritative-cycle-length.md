@@ -1,0 +1,7 @@
+# Native authoritative cycle length
+
+All three 16-cycle trials pass; source RSS rises during early cycles while FD/thread and explicit owned resources remain bounded in that observed interval. The external validation contract requires 50 same-process cycles. Extend the explicitly declared workload to 10/25/50/100 cycles, preserving the existing 1/2/4/8/16 contracts and all transport/readiness/cleanup/transfer deadlines. This is not a retry or timeout extension of a failed 16-cycle run.
+
+Use one shared bounded cycle limit: legacy lengths <=16 retain the 120-second controller budget. Longer workloads declare 4 seconds per cycle (two-second active hold plus cooldown) plus the existing 120-second control allowance. Both peer and manager and independent replay derive the same bound. Private control frames remain bounded; exact cycle ordinal checks remain fail-closed. No production Rust/Go or frozen semantics change.
+
+RED first for accepted/rejected lengths, unchanged old bounds, mutually exclusive finite-duration/cycle controller modes, parser and remote message bounds, and retained budget mismatches. Focused tests and review. Fresh release three 50-cycle repetitions, five if final-resource repeat CV exceeds5%. Preserve failures. Analyze every cooldown and the last ten cycles separately; do not erase warmup growth or call RSS an allocator cause. No qualified bytes/resource or general leak-free claim. Independent per-axis native scaling remains subsequent work.

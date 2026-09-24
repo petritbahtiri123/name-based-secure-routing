@@ -14,6 +14,7 @@ from scripts.performance.linux_b5_ceiling import NAMES, require
 from scripts.performance.linux_loopback import digest
 from scripts.performance.linux_native_lifecycle import workload_command, select_cpu_pool, validate_result
 from scripts.performance.linux_native_lifecycle_control import BUNDLE_COUNTS, CYCLE_COUNTS
+from scripts.performance.linux_native_cycle_limits import cycle_bounds
 from scripts.performance.linux_native_pair import read, verify_index
 from scripts.performance.linux_native_peer import validate_endpoint
 
@@ -32,7 +33,7 @@ def check_peer(root, role, source_sha, count, *, cycles=None):
     require(
         type(env["uid"]) is int
         and env["uid"] > 0
-        and env["controller_deadline_seconds"] == 120
+        and env["controller_deadline_seconds"] == (120 if cycles is None else cycle_bounds(cycles)["controller_seconds"])
         and env["timing"] == result["timing"] == "DIAGNOSTIC_ONLY",
         "peer execution scope mismatch",
     )

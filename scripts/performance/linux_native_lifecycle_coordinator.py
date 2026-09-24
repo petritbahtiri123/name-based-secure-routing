@@ -9,6 +9,7 @@ import threading
 import time
 
 from scripts.performance.linux_native_duration import bounds
+from scripts.performance.linux_native_cycle_limits import cycle_bounds
 from scripts.performance.linux_b5_ceiling import require
 from scripts.performance.linux_native_lifecycle import validate_cpu_pool
 from scripts.performance.linux_native_lifecycle_control import BUNDLE_COUNTS, decode_object
@@ -133,15 +134,23 @@ class Manager:
     """Own local management relays; remote cleanup requires endpoint evidence."""
 
     def __init__(self, count, output, *, timeout=120, cleanup_timeout=15, check_cancelled=not_cancelled,
-                 ledger=None, on_receive=None, diagnostic_seconds=None):
+                 ledger=None, on_receive=None, diagnostic_seconds=None, lifecycle_cycles=None):
         require(0 < timeout <= 120 and 0 < cleanup_timeout <= 15, 'invalid management deadline')
+        cycle_limits = None
+        if lifecycle_cycles is not None:
+            cycle_limits = cycle_bounds(lifecycle_cycles)
+            require(diagnostic_seconds is None and timeout == 120 and type(count) is int
+                    and count == lifecycle_cycles and ledger is not None, 'invalid mixed cycle controller mode')
         self.ledger = EventLedger(count) if ledger is None else ledger
         require(on_receive is None or callable(on_receive), 'invalid event callback')
         self.on_receive = on_receive
         self.output = output
         limits = bounds(diagnostic_seconds)
         require(diagnostic_seconds is None or timeout == 120, 'long workload keeps fixed control allowance')
-        self.deadline = time.monotonic() + (timeout if diagnostic_seconds is None else limits['controller_seconds'])
+        controller_seconds = timeout if diagnostic_seconds is None else limits['controller_seconds']
+        if cycle_limits is not None:
+            controller_seconds = cycle_limits['controller_seconds']
+        self.deadline = time.monotonic() + controller_seconds
         self.cleanup_timeout = cleanup_timeout
         self.check_cancelled = check_cancelled
         self.children, self.readers, self.errors = {}, {}, {}

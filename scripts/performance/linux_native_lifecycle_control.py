@@ -6,9 +6,9 @@ import time
 
 from scripts.performance.linux_b5_ceiling import require
 from scripts.performance.linux_loopback import write_json
+from scripts.performance.linux_native_cycle_limits import CYCLE_COUNTS
 
 BUNDLE_COUNTS = (16, 32, 64, 128, 256, 512, 1024)
-CYCLE_COUNTS = (1, 2, 4, 8, 16)
 
 
 class LifecycleBarrier:

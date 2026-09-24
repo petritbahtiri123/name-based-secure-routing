@@ -1,6 +1,6 @@
 # Native same-process sequential lifecycle diagnostic
 
-The separate cycle schema controls one source process and one destination process across 1, 2, 4, 8 or 16 sequential connections. Each connection has one authenticated session, channel and materialized stream carrying the existing 1024-byte round trip. Concurrent bundle and offered-rate semantics are not used. All transport deadlines and the 120-second controller budget remain unchanged.
+The separate cycle schema controls one source process and one destination process across 1, 2, 4, 8, 10, 16, 25, 50 or 100 sequential connections. Each connection has one authenticated session, channel and materialized stream carrying the existing 1024-byte round trip. Concurrent bundle and offered-rate semantics are not used. All transport/readiness/cleanup/transfer deadlines remain unchanged. Cycle lengths through16 retain the 120-second controller budget. Longer declared workloads use four seconds per cycle (hold plus cooldown) plus the existing120-second control allowance; peer, manager and retained replay share this exact bound. This extension follows successful16-cycle trials, not a retry of a failed short cell.
 
 Use the role objects from `EXTERNAL_NATIVE_LIFECYCLE_COORDINATOR.md` with fresh disjoint private lifecycle/output roots and an exact clean release build. Replace the top-level schema/count/rate/shards fields with:
 

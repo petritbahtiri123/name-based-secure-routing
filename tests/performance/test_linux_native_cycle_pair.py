@@ -10,13 +10,13 @@ from scripts.performance.post_close_cleanup import FIELDS
 from tests.performance.test_linux_native_lifecycle_pair import peers, SHA, write
 
 
-def cycle_peers(tmp_path):
+def cycle_peers(tmp_path, cycles=2):
     roots = peers(tmp_path)
     for role, root in zip(('source', 'destination'), roots, strict=True):
         env = json.loads((root / 'environment.json').read_bytes())
-        env.update(count=2, cycles=2, offered_rate=None, source_shards=None, workload_mode='same_process_sequential')
+        env.update(count=cycles, cycles=cycles, offered_rate=None, source_shards=None, workload_mode='same_process_sequential')
         write(root, 'environment.json', env)
-        argv, overrides = cycle_command(role=role, cycles=2, binaries=PurePosixPath('/bins'),
+        argv, overrides = cycle_command(role=role, cycles=cycles, binaries=PurePosixPath('/bins'),
             authority=PurePosixPath('/private/tls'), lifecycle=PurePosixPath('/private/lifecycle'),
             output=PurePosixPath('/output'), bind='192.0.2.1:0' if role == 'source' else '192.0.2.2:0',
             endpoint='192.0.2.2:4444' if role == 'source' else None)
@@ -25,16 +25,16 @@ def cycle_peers(tmp_path):
         rows = []
         server = None
         if role == 'source':
-            for cycle in range(2):
+            for cycle in range(cycles):
                 rows.extend([dict(success=True, logical_client_id=cycle, bytes_transmitted=1024, bytes_received=1024),
                     dict(phase=f'lifecycle_cycle_{cycle}_closed', **dict.fromkeys(FIELDS, 0))])
         else:
-            server = dict(status='PASS', connections=2, samples=[{}, {}])
+            server = dict(status='PASS', connections=cycles, samples=[{} for _ in range(cycles)])
             write(root, 'server-result.json', server)
         rows.append(final)
         (root / ('stdout' if role == 'source' else 'diagnostics.ndjson')).write_text(''.join(json.dumps(r) + '\n' for r in rows))
         result = json.loads((root / 'result.json').read_bytes())
-        result.update(validate_result(role, 2, rows, server))
+        result.update(validate_result(role, cycles, rows, server))
         write(root, 'result.json', result)
         seal_output(root)
     return roots
@@ -68,3 +68,14 @@ def test_cycle_peer_rejects_incomplete_or_replaced_process(tmp_path, mutation):
     seal_output(source)
     with pytest.raises(ValueError):
         pair.check_peer(source, 'source', SHA, 2, cycles=2)
+
+
+def test_long_cycle_peer_gate_requires_exact_declared_controller_budget(tmp_path):
+    source, _ = cycle_peers(tmp_path, 50)
+    env = json.loads((source / 'environment.json').read_bytes())
+    with pytest.raises(ValueError, match='scope'):
+        pair.check_peer(source, 'source', SHA, 50, cycles=50)
+    env['controller_deadline_seconds'] = 320
+    write(source, 'environment.json', env)
+    seal_output(source)
+    assert pair.check_peer(source, 'source', SHA, 50, cycles=50)['outcome']['successful'] == 50

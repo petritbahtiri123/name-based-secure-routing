@@ -76,7 +76,7 @@ def test_cycle_workload_dispatch_retains_explicit_mode(tmp_path):
     assert '--lifecycle-clients' not in argv and not env
 
 
-@pytest.mark.parametrize('wire', [b'{"op":"start","cycle":true}', b'{"op":"start","cycle":16}',
+@pytest.mark.parametrize('wire', [b'{"op":"start","cycle":true}', b'{"op":"start","cycle":100}',
     b'{"op":"release"}', b'{"op":"cancel","cycle":0}', b'{"op":"readiness","value":[]}'])
 def test_cycle_control_bad_frames_reject(wire):
     module = importlib.import_module('scripts.performance.linux_native_cycle_endpoint')

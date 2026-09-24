@@ -22,6 +22,7 @@ from scripts.performance.linux_b5_placement import seal_output
 from scripts.performance.linux_b5_reference import git_state
 from scripts.performance.linux_loopback import ROOT, digest, physical_cpu_sets, write_json
 from scripts.performance.linux_native_lifecycle_control import BUNDLE_COUNTS, CYCLE_COUNTS
+from scripts.performance.linux_native_cycle_limits import cycle_bounds
 from scripts.performance.linux_native_peer import observe_child, readiness_endpoint, validate_endpoint, wait_target_exec
 from scripts.performance.linux_udp_failure import capture_owned_udp
 from scripts.performance.post_close_cleanup import FIELDS
@@ -195,6 +196,7 @@ def execute(args, *, check_cancelled=not_cancelled):
     require(build.get('source_sha') == sha and build.get('build_profile') == 'release'
             and build.get('binary_sha256') == hashes and build.get('build_commands')
             and build.get('toolchains'), 'exact current release build manifest required')
+    controller_seconds = cycle_bounds(args.cycles)['controller_seconds'] if getattr(args, 'cycles', None) is not None else 120
     fixture = immutable_fixture(authority, lifecycle, args.role)
     # Validate the declared workload before advertising preparation. The real
     # endpoint is validated again after transfer; this placeholder is never run.
@@ -220,7 +222,7 @@ def execute(args, *, check_cancelled=not_cancelled):
         write_json(output / 'environment.json', dict(repository_sha=sha, role=args.role,
             count=args.count, offered_rate=args.rate, source_shards=args.shards, linux_environment=host,
             uid=os.getuid(), binary_sha256=hashes, fixture_sha256=fixture,
-            controller_deadline_seconds=120, timing='DIAGNOSTIC_ONLY', physical_host='NOT_PROVEN',
+            controller_deadline_seconds=controller_seconds, timing='DIAGNOSTIC_ONLY', physical_host='NOT_PROVEN',
             **({'cycles': args.cycles, 'workload_mode': 'same_process_sequential'}
                if getattr(args, 'cycles', None) is not None else {})))
         write_json(output / 'command.json', dict(argv=argv, environment_overrides=overrides))
@@ -232,7 +234,7 @@ def execute(args, *, check_cancelled=not_cancelled):
                 stdout=stdout, stderr=stderr, start_new_session=True)
             write_json(output / 'pid.json', dict(pid=child.pid, owns_process_group=True))
             check_cancelled()
-            deadline = time.monotonic() + 120
+            deadline = time.monotonic() + controller_seconds
             wait_target_exec(child, binary, check_cancelled=check_cancelled)
             observed = observe_child(child, host['selected_cpus'], output, deadline=deadline,
                                      check_cancelled=check_cancelled)

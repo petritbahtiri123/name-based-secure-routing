@@ -3,7 +3,7 @@
 from scripts.performance import linux_native_lifecycle as native
 from scripts.performance import linux_native_lifecycle_endpoint as endpoint
 from scripts.performance.linux_b5_ceiling import require
-from scripts.performance.linux_native_lifecycle_control import CycleBarrier, decode_control, decode_object
+from scripts.performance.linux_native_lifecycle_control import CYCLE_COUNTS, CycleBarrier, decode_control, decode_object
 
 
 def decode_cycle_control(wire):
@@ -11,7 +11,7 @@ def decode_cycle_control(wire):
     if value.get('op') in ('readiness', 'cancel'):
         return decode_control(wire)
     require(set(value) == {'op', 'cycle'} and value['op'] in ('start', 'release', 'final_release')
-            and type(value['cycle']) is int and 0 <= value['cycle'] < 16, 'invalid cycle control')
+            and type(value['cycle']) is int and 0 <= value['cycle'] < max(CYCLE_COUNTS), 'invalid cycle control')
     return value
 
 

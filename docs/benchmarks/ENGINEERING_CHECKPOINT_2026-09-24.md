@@ -185,3 +185,9 @@ do not close the 50-cycle external memory gate. Canonical package
 `evidence/performance/v2/native-cycles-4375d7ac`: 5 canonical/privacy6/raw1318 PASS.
 No production/security change or new throughput/capacity claim. Next: bounded
 50-cycle workload to investigate whether cooldown retention keeps growing.
+
+September25: declared native cycle lengths10/25/50/100 supported for external
+50-cycle validation. Existing<=16 controller budgets stay120seconds; longer
+workloads use4seconds/cycle plus120seconds control allowance. Transport and
+readiness/cleanup/transfer deadlines unchanged. 19 literal RED,168 affected
+tests/Ruff and scoped review PASS. Actual50-cycle namespace trials are next.

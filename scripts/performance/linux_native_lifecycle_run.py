@@ -42,6 +42,7 @@ def execute(config, output, *, check_cancelled=not_cancelled):
         def run_driver(*args, **kwargs):
             return drive_cycles(cycles, *args, **kwargs)
         ledger_options['ledger'] = CycleLedger(cycles)
+        ledger_options['lifecycle_cycles'] = cycles
     validate(config)
     count = cycles if cycles is not None else config['count']
     require(not output.is_symlink() and not output.resolve().is_relative_to(ROOT), 'external evidence directory required')
