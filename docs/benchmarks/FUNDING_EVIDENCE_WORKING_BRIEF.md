@@ -307,3 +307,13 @@ reported above. Neither update proves a host or production ceiling.
 Current campaign recommendation: **MORE ENGINEERING REQUIRED**. This brief is
 not a readiness endorsement and must be rewritten around the final accepted
 state before a funding evidence freeze.
+
+September 25: native same-process cycle integration at 4375d7ac passes three
+four-cycle and three sixteen-cycle namespace trials (60/60 cycles), plus six
+catchable control-EOF trials. Positive source per-cycle and both final ownership
+reports are zero; cooldown FD/thread counts remain source6/1 and destination8/2.
+Initial RSS growth is retained without allocator/leak attribution. Sixteen cycles
+do not close the 50-cycle external memory gate. Canonical package
+`evidence/performance/v2/native-cycles-4375d7ac`: 5 canonical/privacy6/raw1318 PASS.
+No production/security change or new throughput/capacity claim. Next: bounded
+50-cycle workload to investigate whether cooldown retention keeps growing.

@@ -431,7 +431,7 @@
         "docs/benchmarks/EXTERNAL_NATIVE_LIFECYCLE_COORDINATOR.md"
       ],
       "scope": "prepared source, readiness/active/release/ACK/cooldown coordination and owned EOF cleanup; finite native 512/1024 namespace evidence, not sustainable admission",
-      "missing": "physical-host SSH validation, per-axis remote same-process cycles, Go-to-Rust coverage and sustained multihost admission"
+      "missing": "physical-host SSH validation, per-axis remote channel/stream scaling, Go-to-Rust coverage and sustained multihost admission"
     },
     "native_reference_gates": {
       "status": "PARTIAL",
@@ -454,6 +454,17 @@
       ],
       "scope": "exact 70-80 percent reference-bound native diagnostic orchestration with actual placement/build and unchanged-reference checks; real unqualified reference rejects before launch",
       "missing": "successful actual reference-bound execution, live-observer qualification and genuine near-ceiling sustained acceptance; NOT_ESTABLISHED is never a B5 PASS"
+    },
+    "native_same_process_cycles": {
+      "status": "PARTIAL",
+      "command": "python3 -m scripts.performance.linux_native_cycle_run --help",
+      "sources": [
+        "scripts/performance/linux_native_cycle_run.py",
+        "scripts/performance/linux_native_cycle_gate.py",
+        "docs/benchmarks/NATIVE_SAME_PROCESS_CYCLES.md"
+      ],
+      "scope": "bounded native sequential same-process cycle coordination; three four-cycle and three sixteen-cycle namespace trials plus six catchable EOF controls; exact process epochs and final ownership verified",
+      "missing": "50-cycle authoritative native workload, per-axis channel/stream scaling, qualified memory-cost/retention attribution and independent physical-host validation"
     }
   }
 }

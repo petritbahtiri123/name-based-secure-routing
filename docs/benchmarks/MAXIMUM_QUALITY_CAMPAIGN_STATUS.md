@@ -179,3 +179,13 @@ corrected cohort retains5 valid rows then an NBSR /proc/230/fd PermissionError.
 All6 post-close reports have11 zero counters, but missing telemetry still
 invalidates the cohort. No accepted Linux reference or soak. See
 `linux-current-edc0f96d` (365 indexed raw files) and NEXT_SESSION_HANDOFF.md.
+
+September 25: native same-process cycle integration at 4375d7ac passes three
+four-cycle and three sixteen-cycle namespace trials (60/60 cycles), plus six
+catchable control-EOF trials. Positive source per-cycle and both final ownership
+reports are zero; cooldown FD/thread counts remain source6/1 and destination8/2.
+Initial RSS growth is retained without allocator/leak attribution. Sixteen cycles
+do not close the 50-cycle external memory gate. Canonical package
+`evidence/performance/v2/native-cycles-4375d7ac`: 5 canonical/privacy6/raw1318 PASS.
+No production/security change or new throughput/capacity claim. Next: bounded
+50-cycle workload to investigate whether cooldown retention keeps growing.
