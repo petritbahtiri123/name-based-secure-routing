@@ -41,3 +41,24 @@ def test_missing_backends_cannot_be_reported_as_executed_or_complete():
     assert value["acceptance"]["definition_pass_requires_all_commands_executable"] is True
     assert value["acceptance"]["server_claim_requires_external_raw_results"] is True
     assert value["evidence"]["preserve_failed_and_partial"] is True
+
+
+def test_native_capability_inventory_tracks_implemented_diagnostic_routes():
+    value = json.loads(MATRIX.read_text(encoding="utf-8"))
+    coverage = value['coverage']
+    expected = {
+        'native_finite_coordinator': 'scripts.performance.linux_native_finite_run',
+        'native_lifecycle_coordinator': 'scripts.performance.linux_native_lifecycle_run',
+        'native_reference_gates': 'scripts.performance.linux_native_reference',
+        'native_reference_diagnostic': 'scripts.performance.linux_native_reference_run',
+    }
+    for key, module in expected.items():
+        row = coverage[key]
+        assert row['status'] == 'PARTIAL'
+        assert row['command'] == f'python3 -m {module} --help'
+        assert module.replace('.', '/') + '.py' in row['sources']
+        assert row['missing']
+    assert value['definition_status'] == 'PARTIAL_REQUIRED_PORTING'
+    assert coverage['full_matrix_executor']['status'] == 'NOT_IMPLEMENTED'
+    assert 'docs/benchmarks/EXTERNAL_NATIVE_PHASE_ACCOUNTING.md' in coverage['linux_wire_matrix']['sources']
+    assert 'continuous ownership' in coverage['linux_wire_matrix']['missing']

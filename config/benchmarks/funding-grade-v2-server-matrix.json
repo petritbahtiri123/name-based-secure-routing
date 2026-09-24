@@ -371,10 +371,12 @@
       "sources": [
         "scripts/performance/linux_native_capture.py",
         "scripts/performance/linux_native_packet_accounting.py",
-        "docs/benchmarks/EXTERNAL_NATIVE_CAPTURE.md"
+        "docs/benchmarks/EXTERNAL_NATIVE_CAPTURE.md",
+        "docs/benchmarks/EXTERNAL_NATIVE_SOCKET_OWNERSHIP.md",
+        "docs/benchmarks/EXTERNAL_NATIVE_PHASE_ACCOUNTING.md"
       ],
-      "missing": "physical-interface/offload qualification, exact process/socket ownership, phase accounting and complete equivalent paired byte acceptance",
-      "scope": "bounded owned native capture with start/end markers and zero-loss inventory; no hardware or full B1 claim"
+      "missing": "physical-interface/offload qualification, NIC-counter correlation and continuous ownership where required; point-in-time socket ownership and scoped phase-byte joins are already implemented with namespace evidence",
+      "scope": "bounded owned native capture, point-in-time socket joins and independently checked setup/established-with-postflight accounting; these do not prove continuous ownership, physical wire or observer-neutral timing"
     },
     "linux_loopback_wire": {
       "status": "PARTIAL",
@@ -407,6 +409,51 @@
         "docs/benchmarks/EXTERNAL_NATIVE_PACKET_ACCOUNTING.md"
       ],
       "scope": "Read-only exact native IPv4/UDP pcapng accounting; complete bidirectional inventory and loss rejection. No capture lifecycle, phase/ownership/observer qualification or physical-wire claim."
+    },
+    "native_finite_coordinator": {
+      "status": "PARTIAL",
+      "command": "python3 -m scripts.performance.linux_native_finite_run --help",
+      "sources": [
+        "scripts/performance/linux_native_finite_run.py",
+        "scripts/performance/linux_native_finite_endpoint.py",
+        "docs/benchmarks/EXTERNAL_NATIVE_FINITE_COORDINATOR.md",
+        "docs/benchmarks/NATIVE_LOCAL_LIVE_GUARDS.md"
+      ],
+      "scope": "bounded private-stream readiness/completion, explicit eleven-counter post-close binding, paired endpoint-local telemetry and 60/3600/7200-second diagnostic contracts; Docker finite, 60-second and controlled EOF evidence retained",
+      "missing": "independent SSH/server execution, qualified observer timing and complete multigroup matrix"
+    },
+    "native_lifecycle_coordinator": {
+      "status": "PARTIAL",
+      "command": "python3 -m scripts.performance.linux_native_lifecycle_run --help",
+      "sources": [
+        "scripts/performance/linux_native_lifecycle_run.py",
+        "scripts/performance/linux_native_lifecycle_coordinator.py",
+        "docs/benchmarks/EXTERNAL_NATIVE_LIFECYCLE_COORDINATOR.md"
+      ],
+      "scope": "prepared source, readiness/active/release/ACK/cooldown coordination and owned EOF cleanup; finite native 512/1024 namespace evidence, not sustainable admission",
+      "missing": "physical-host SSH validation, per-axis remote same-process cycles, Go-to-Rust coverage and sustained multihost admission"
+    },
+    "native_reference_gates": {
+      "status": "PARTIAL",
+      "command": "python3 -m scripts.performance.linux_native_reference --help",
+      "sources": [
+        "scripts/performance/linux_native_reference.py",
+        "scripts/performance/linux_native_observer.py",
+        "docs/benchmarks/NATIVE_REFERENCE_GATES.md"
+      ],
+      "scope": "read-only exact-source finite ladder and matched observer gates; retained unqualified evidence rejects",
+      "missing": "qualified actual native reference and physical/server calibration"
+    },
+    "native_reference_diagnostic": {
+      "status": "PARTIAL",
+      "command": "python3 -m scripts.performance.linux_native_reference_run --help",
+      "sources": [
+        "scripts/performance/linux_native_reference_run.py",
+        "scripts/performance/linux_native_duration.py",
+        "docs/benchmarks/NATIVE_REFERENCE_GATES.md"
+      ],
+      "scope": "exact 70-80 percent reference-bound native diagnostic orchestration with actual placement/build and unchanged-reference checks; real unqualified reference rejects before launch",
+      "missing": "successful actual reference-bound execution, live-observer qualification and genuine near-ceiling sustained acceptance; NOT_ESTABLISHED is never a B5 PASS"
     }
   }
 }

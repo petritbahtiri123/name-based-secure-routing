@@ -155,3 +155,9 @@ Initial 36 affected tests, final 24 runner/reference tests, Ruff and focused rev
 PASS. The real retained ac40740c reference rejects before child output, as required.
 Package `evidence/performance/v2/native-reference-run-fa0e4d7e`. This closes the
 orchestration prerequisite, not qualified native reference or actual B5 acceptance.
+
+External capability inventory refreshed: four real Linux CLI interfaces PASS;
+three focused matrix tests PASS after literal RED. Existing native phase/socket
+coverage is distinguished from physical/continuous ownership gaps. Full matrix
+remains PARTIAL_REQUIRED_PORTING, with per-axis remote same-process lifecycle
+cycles and full executor still open. Evidence: external-capability-refresh-20260924.
