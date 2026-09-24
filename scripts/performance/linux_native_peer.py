@@ -27,6 +27,7 @@ from scripts.performance.p2a_established import validate_repeat
 from scripts.performance.post_close_cleanup import validate_report
 from scripts.performance.process_cancellation import Cancellation, not_cancelled
 from scripts.performance.linux_socket_ownership import snapshot
+from scripts.performance.linux_native_paced import read_paced, validate_rate
 
 
 def validate_endpoint(value, *, allow_zero):
@@ -51,6 +52,9 @@ def readiness_endpoint(path, expected_address):
 
 def measurement_contract(cell):
     """Keep historical timed cells separate from equal-work packet fixtures."""
+    if 'diagnostic_rate' in cell:
+        validate_rate(cell['diagnostic_rate'])
+        require('operations_per_stream' not in cell, 'paced and fixed work are exclusive')
     if 'operations_per_stream' not in cell:
         return 3, 20
     count = cell['operations_per_stream']
@@ -82,7 +86,13 @@ def native_command(cell, role, binaries, authority, output, *, bind, endpoint, p
     validate_matrix(matrix)
     require(cell['path'] in ('direct', 'nbsr'), 'invalid path')
     warmup, duration = measurement_contract(cell)
+    if 'diagnostic_rate' in cell:
+        require(post_close_reports and phase_control is None, 'paced mode requires reports and no phase observer')
     server, client, env = build_commands(cell, binaries, authority, output, endpoint, warmup, 20)
+    if 'diagnostic_rate' in cell:
+        numerator, denominator = cell['diagnostic_rate']
+        client += ['--p2a-groups', '1', '--p2a-progress-seconds', '5',
+                   '--b5-rate-numerator', str(numerator), '--b5-rate-denominator', str(denominator)]
     if post_close_reports and cell['path'] == 'nbsr':
         server += ['--p2a-cleanup-report', str(output / 'cleanup.json')]
         client += ['--p2a-cleanup-report', str(output / 'cleanup.json')]
@@ -147,6 +157,10 @@ def validate_post_close(output, cell, role, pid, requested):
 
 
 def validate_source(output, cell=None):
+    if cell is not None and 'diagnostic_rate' in cell:
+        row = read_paced(output / 'stdout', cell)
+        write_json(output / 'validated-result.json', row)
+        return row
     row = json.loads((output / 'stdout').read_text().strip().splitlines()[-1])
     require(validate_repeat(row) and type(row.get('measured_ns')) is int and row['measured_ns'] > 0,
             'source validity contract failed')
@@ -199,6 +213,8 @@ def execute(args, *, check_cancelled=not_cancelled):
                 streams=args.streams, outstanding=args.depth)
     if getattr(args, 'operations_per_stream', None) is not None:
         cell['operations_per_stream'] = args.operations_per_stream
+    if getattr(args, 'diagnostic_rate', None) is not None:
+        cell['diagnostic_rate'] = args.diagnostic_rate
     warmup, duration = measurement_contract(cell)
     phase_control = getattr(args, 'phase_control', None)
     post_close_reports = getattr(args, 'post_close_reports', False)
@@ -288,6 +304,8 @@ def argument_parser():
                         help='Opt-in bounded live FD observer; timing is diagnostic only')
     parser.add_argument('--post-close-reports', action='store_true',
                         help='Require existing NBSR eleven-counter post-close reports; Direct remains process-exit only')
+    parser.add_argument('--diagnostic-rate', type=int, nargs=2, metavar=('NUMERATOR', 'DENOMINATOR'),
+                        help='Short diagnostic B5 ops/s rate; requires post-close reports, never a stable reference')
     parser.add_argument('--path', choices=('direct', 'nbsr'), required=True)
     for name in ('binaries', 'build-manifest', 'authority', 'output'):
         parser.add_argument('--' + name, type=Path, required=True)

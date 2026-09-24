@@ -76,3 +76,17 @@ CPU observations are lifetime totals, not steady CPU ns/op. Observer overhead an
 host physical-core allocation remain unqualified. Do not load this package as a
 B5 ceiling reference: observer qualification, reference classification, paced
 coordination and its drift/resource gates remain separate unfinished work.
+
+For a short **diagnostic only** paced pair, add `"diagnostic_rate": [1000, 1]`
+and `"post_close_reports": true` to the configuration. The rational rate is total
+offered operations per second for the single group, equal on Direct and NBSR.
+Warmup remains three seconds, issue duration twenty seconds, progress windows five
+seconds and controller cap 120 seconds. Use the same requested rate for matched
+paths; this option does not derive or claim 70–80% of a qualified ceiling.
+
+The transferred B5 transcript is bounded and independently checked with the
+existing grouped accounting validator. `PACED_DIAGNOSTIC` reports achieved/offered,
+goodput including drain, and retained drift failures; quantiles are medians of
+steady-window quantiles, not pooled quantiles. Accounting validity does not mean
+the offered load was sustainable. Live private-memory drift qualification and
+qualified reference binding are absent, so this mode cannot replace a B5 soak.

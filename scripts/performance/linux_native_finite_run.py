@@ -14,6 +14,7 @@ from scripts.performance.linux_native_lifecycle_remote import remote_command, re
 from scripts.performance.linux_native_lifecycle_run import collect
 from scripts.performance.linux_native_pair import analyze_pair, read, verify_index
 from scripts.performance.linux_native_peer import validate_endpoint
+from scripts.performance.linux_native_paced import validate_rate
 from scripts.performance.process_cancellation import Cancellation, not_cancelled
 
 
@@ -21,9 +22,12 @@ ROLES = ('source', 'destination')
 
 
 def validate_config(value):
-    require(isinstance(value, dict) and set(value) - {'post_close_reports'} == {'schema', 'source_sha', 'path', 'payload', 'streams', 'depth', *ROLES},
+    require(isinstance(value, dict) and set(value) - {'post_close_reports', 'diagnostic_rate'} == {'schema', 'source_sha', 'path', 'payload', 'streams', 'depth', *ROLES},
             'invalid finite configuration fields')
     require(type(value.get('post_close_reports', False)) is bool, 'boolean post-close mode required')
+    if 'diagnostic_rate' in value:
+        validate_rate(value['diagnostic_rate'])
+        require(value.get('post_close_reports') is True, 'paced diagnostic requires post-close mode')
     require(value['schema'] == 'nbsr-native-finite-coordinator-v1'
             and isinstance(value['source_sha'], str) and re.fullmatch('[0-9a-f]{40}', value['source_sha']), 'invalid schema/SHA')
     require(value['path'] in ('direct', 'nbsr'), 'invalid path')
@@ -62,6 +66,8 @@ def endpoint_arguments(config, role):
         argv += ['--' + field, str(config[field])]
     if config.get('post_close_reports', False):
         argv += ['--post-close-reports']
+    if 'diagnostic_rate' in config:
+        argv += ['--diagnostic-rate', *map(str, config['diagnostic_rate'])]
     if role == 'source':
         argv += ['--destination-address', validate_endpoint(config['destination']['bind'], allow_zero=True)[0]]
     return argv
@@ -121,6 +127,8 @@ def execute(config, output, *, check_cancelled=not_cancelled):
         result = analyze_pair(output / 'source' / 'peer', output / 'destination' / 'peer', source_sha=config['source_sha'])
         expected = dict(path=config['path'], payload_bytes=config['payload'], streams=config['streams'],
                         outstanding=config['depth'], cores=config['source']['cores'])
+        if 'diagnostic_rate' in config:
+            expected['diagnostic_rate'] = config['diagnostic_rate']
         require(result['cell'] == expected, 'requested/actual workload mismatch')
         for role in ROLES:
             environment = read(output / role / 'peer', 'environment.json')

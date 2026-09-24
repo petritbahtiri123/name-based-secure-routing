@@ -14,6 +14,7 @@ from scripts.performance.linux_b5_ceiling import NAMES, require
 from scripts.performance.linux_loopback import digest, validate_matrix
 from scripts.performance.linux_native_peer import measurement_contract, validate_endpoint, validate_fixed_work, validate_post_close
 from scripts.performance.p2a_established import validate_repeat
+from scripts.performance.linux_native_paced import read_paced
 
 
 def read(root, name):
@@ -82,6 +83,16 @@ def check_peer(root, role, source_sha):
         require(argv.count(key) == 1 and argv.index(key) + 1 < len(argv)
                 and argv[argv.index(key) + 1] == str(expected), 'command mismatch: ' + key)
     option('--p2a-runtime-workers', cell['cores'])
+    paced = 'diagnostic_rate' in cell
+    if paced:
+        require(env.get('post_close_reports') is True and env.get('phase_control_endpoint') is None,
+                'paced mode requires reports without phase observer')
+    paced_flags = ('--p2a-groups', '--p2a-progress-seconds', '--b5-rate-numerator', '--b5-rate-denominator')
+    if paced and role == 'source':
+        for flag, value in zip(paced_flags, (1, 5, *cell['diagnostic_rate'])):
+            option(flag, value)
+    else:
+        require(not any(flag in argv for flag in paced_flags), 'undeclared paced command')
     phase_control = env.get('phase_control_endpoint')
     if phase_control is not None:
         require(role == 'source' and validate_endpoint(phase_control, allow_zero=False)[0] == '127.0.0.1',
@@ -173,10 +184,16 @@ def analyze_pair(source, destination, *, source_sha):
             require(any(row['local'] == [address, port]
                         for row in read(destination, 'socket-ownership.json')['sockets']),
                     'destination readiness socket was not observed')
-        row = read(source, 'validated-result.json')
-        require(row == json.loads((source / 'stdout').read_text().strip().splitlines()[-1])
-                and validate_repeat(row), 'source result mismatch/invalid')
         cell = src['cell']
+        row = read(source, 'validated-result.json')
+        extra = {}
+        if 'diagnostic_rate' in cell:
+            require(row == read_paced(source / 'stdout', cell), 'paced source summary mismatch')
+            extra = dict(workload_mode='PACED_DIAGNOSTIC', achieved_offered_ratio=row['achieved_offered_ratio'],
+                         drift_failures=row['drift_failures'], live_private_growth='NOT_MEASURED')
+        else:
+            require(row == json.loads((source / 'stdout').read_text().strip().splitlines()[-1])
+                    and validate_repeat(row), 'source result mismatch/invalid')
         validate_fixed_work(row, cell)
         require(all(row[k] == cell[k] for k in ('path', 'payload_bytes', 'streams'))
                 and row['outstanding_per_stream'] == cell['outstanding']
@@ -193,7 +210,7 @@ def analyze_pair(source, destination, *, source_sha):
             source_index_sha256=src_index, destination_index_sha256=dst_index, application_gbps=gbps,
             strict_stable_capacity='NOT_PROVEN', external_hardware='NOT_PROVEN',
             observer_qualification='NOT_PROVEN', runtime_ownership_cleanup=result.get('runtime_ownership_cleanup', 'NOT_MEASURED'),
-            authenticity='checksums are not signatures or remote attestation')
+            authenticity='checksums are not signatures or remote attestation', **extra)
     except (KeyError, IndexError, TypeError, OSError) as error:
         raise ValueError('incomplete/malformed native pair: ' + str(error)) from error
 
