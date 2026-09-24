@@ -1,0 +1,14 @@
+[
+  {
+    "root": "C:\\NBSR-build\\native-source-live-55e83c2e",
+    "index_sha256": "dec6f4021a7c208d61117fcbbe74f85838dcfdbcc12032f6ae4831b2a0ecc035"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-current-55e83c2e",
+    "index_sha256": "f5cac6ce7641bfb2b75f30ca8b482394a7fcd7fd71591b131b05bb87a944df12"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-source-live-tests-20260924",
+    "index_sha256": "df43d568906cb4614e495fa8dbd7fd8421602c7ecdb79f19a64cae2d7cca5436"
+  }
+]

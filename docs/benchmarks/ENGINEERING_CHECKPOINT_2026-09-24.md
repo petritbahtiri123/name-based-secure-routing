@@ -98,3 +98,14 @@ resource/progress accounting, existing drift/growth thresholds, no cross-host
 monotonic comparison. 68 affected tests and Ruff PASS, scoped review clean.
 Package `evidence/performance/v2/native-local-live-7d5cbcf1` retains synthetic
 RED/GREEN evidence. Not integrated into peers yet; observer and soak unqualified.
+
+Source-only live observer integrated at 55e83c2e, with unchanged short workload
+and deadlines. Five Direct/five NBSR cells functional PASS, zero errors/timeouts,
+20 owned PIDs absent and requested NBSR counters clean. Median goodput
+0.261742/0.261612 Gbit/s at 1,000 offered ops/s; p99 drift fails 3/5 each.
+29–30 evaluated private-resident samples/source, no short-run growth predicate
+failure. Observer neutrality and destination memory NOT_ESTABLISHED/NOT_MEASURED.
+138 affected tests and Ruff, review/re-review PASS. Package
+`evidence/performance/v2/native-source-live-55e83c2e`. This remains pairwise
+diagnostic evidence with fresh-per-repeat authority; generic cohort authority
+gate is not weakened. Full native relay/destination live guards remain open.
