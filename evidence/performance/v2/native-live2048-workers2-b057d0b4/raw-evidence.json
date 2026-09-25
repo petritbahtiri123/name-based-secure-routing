@@ -1,0 +1,18 @@
+[
+  {
+    "root": "C:\\NBSR-build\\native-live2048-workers2-b057d0b4",
+    "index_sha256": "a19df082277a4b22acc9e4a6dce0a9a9fff16d43219dc8d225ffac1f204142bc"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-current-b057d0b4",
+    "index_sha256": "230c695c68b385df2b2a77d4398d351ad159578feccd63fb7ffac5a95e964a12"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-workers-tests-20260925",
+    "index_sha256": "fe86c51e40c489300e813c432fd1f770f1fe577ab5faca435d8be675bf78d378"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-workers-compat-20260925",
+    "index_sha256": "2d44cd94e22e38f8a56f88bbee0aca00d815c1f4cec58a2e2ebce92b8e1f47d4"
+  }
+]

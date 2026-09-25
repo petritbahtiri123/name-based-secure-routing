@@ -1,0 +1,156 @@
+{
+  "classification": "DESTINATION_RUNTIME_ALLOCATION_DIAGNOSTIC",
+  "attempted_trials": 3,
+  "successful_trials": 3,
+  "failed_trials": 0,
+  "capacity_gate": "NOT_EVALUATED: diagnostic control, all outcomes retained",
+  "successful_connections_in_passed_trials": 6144,
+  "successful_trials_final_ownership": "ZERO",
+  "private_memory": "NOT_MEASURED: optional observer OFF",
+  "observer_neutrality": "NOT_ESTABLISHED",
+  "marginal_cost": "NOT_QUALIFIED: connection/session/channel/stream co-vary",
+  "scope": "Docker/WSL split advertised guest cores sourceCPU0+4/destinationCPU2+6 with two destination runtime workers; no physical/server/capacity claim",
+  "cpu_basis": "DERIVED tick-quantized contained-sample estimates on common Docker clock; not strict lower bounds or physical-core proof",
+  "attribution": "All-pass cohort: failure-only UDP snapshots are NOT_MEASURED; pre-active CPU estimates are diagnostic, and causal/observer effects remain unresolved",
+  "rows": [
+    {
+      "label": "n2048-r1",
+      "count": 2048,
+      "result": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "b057d0b4cacb673b27af53ac42ae028ef3eda728",
+        "successful_connections": 2048,
+        "source_index_sha256": "09586ae0551b839cddfb0f60b337c5480b6982fc1cafe9f93a76f7766a5440af",
+        "destination_index_sha256": "74176f1c69a636bed325dd2763aea2dcf65930173324daffe0e6283475f88a0f",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "bundle_mode": "live-bundles",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "pre_active_ten_second_effective_core_estimates": {
+        "source": 0.901,
+        "destination": 1.187
+      }
+    },
+    {
+      "label": "n2048-r2",
+      "count": 2048,
+      "result": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "b057d0b4cacb673b27af53ac42ae028ef3eda728",
+        "successful_connections": 2048,
+        "source_index_sha256": "f4d3ff77f4f328c7d7fd58c3d15455c239614f902f56c51f128ff63fff8d04c7",
+        "destination_index_sha256": "f70df6d5d4c8b063729a43893f2c5a398c9c908709f37943080c732fca712294",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "bundle_mode": "live-bundles",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "pre_active_ten_second_effective_core_estimates": {
+        "source": 0.842,
+        "destination": 1.08
+      }
+    },
+    {
+      "label": "n2048-r3",
+      "count": 2048,
+      "result": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "b057d0b4cacb673b27af53ac42ae028ef3eda728",
+        "successful_connections": 2048,
+        "source_index_sha256": "f5a89785a1d1a310b302bd547e7fc7d6ed00fd00c9a1b8ef8d18c107aae65b0f",
+        "destination_index_sha256": "48336ef6f6364db124e86790ca2f1da720b3b36efd10ed2d55a211575ffe0eaf",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "bundle_mode": "live-bundles",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "pre_active_ten_second_effective_core_estimates": {
+        "source": 0.96,
+        "destination": 1.273
+      }
+    }
+  ],
+  "failures": []
+}
