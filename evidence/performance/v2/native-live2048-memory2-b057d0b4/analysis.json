@@ -1,0 +1,245 @@
+{
+  "classification": "PARTIAL_MEMORY_OBSERVER_COHORT",
+  "attempted_trials": 3,
+  "successful_trials": 2,
+  "failed_trials": 1,
+  "capacity_gate": "NOT_EVALUATED: diagnostic control, all outcomes retained",
+  "successful_connections_in_passed_trials": 4096,
+  "successful_trials_final_ownership": "ZERO",
+  "private_memory": "DIAGNOSTIC_RAW_ONLY: observer ON, failed cohort; no accepted scale statistic",
+  "observer_neutrality": "NOT_ESTABLISHED",
+  "marginal_cost": "NOT_QUALIFIED: connection/session/channel/stream co-vary",
+  "scope": "Docker/WSL split advertised guest cores sourceCPU0+4/destinationCPU2+6 with two destination runtime workers; no physical/server/capacity claim",
+  "cpu_basis": "DERIVED tick-quantized contained-sample estimates on common Docker clock; not strict lower bounds or physical-core proof",
+  "attribution": "Mixed cohort: see measured or unavailable per-role failure snapshots; no observer-neutrality or capacity claim",
+  "rows": [
+    {
+      "label": "n2048-r1",
+      "count": 2048,
+      "result": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "b057d0b4cacb673b27af53ac42ae028ef3eda728",
+        "successful_connections": 2048,
+        "source_index_sha256": "4dbc5338cf223095bdcb75abf101e049841276642d942ec63dae263d15601f08",
+        "destination_index_sha256": "acef357786a5a74721e16af18abf5aaffab8480224dbbee9c1f0a2bba0b32fbd",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "private_memory": "MEASURED_DIAGNOSTIC_ONLY_OBSERVER_NOT_QUALIFIED",
+        "bundle_mode": "live-bundles",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "pre_active_ten_second_effective_core_estimates": {
+        "source": 1.076,
+        "destination": 1.224
+      }
+    },
+    {
+      "label": "n2048-r2",
+      "count": 2048,
+      "result": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "b057d0b4cacb673b27af53ac42ae028ef3eda728",
+        "successful_connections": 2048,
+        "source_index_sha256": "7c97a34e41f0c71ab406072b34f02521d839e5b21572af6edc4b63448d1b6f3a",
+        "destination_index_sha256": "4ab4065133e9ad29e7a484246a9801ed1559329dfe824d2bbdc0d5df278912fe",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "private_memory": "MEASURED_DIAGNOSTIC_ONLY_OBSERVER_NOT_QUALIFIED",
+        "bundle_mode": "live-bundles",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "pre_active_ten_second_effective_core_estimates": {
+        "source": 0.775,
+        "destination": 0.986
+      }
+    }
+  ],
+  "failures": [
+    {
+      "label": "n2048-r3",
+      "status": "FAIL_RETAINED",
+      "requested": 2048,
+      "source_materialized_observation_rows": 2048,
+      "source_errors": {},
+      "source_recorded_successes": 2048,
+      "final_ownership": "NOT_ACCEPTED_FOR_PAIR: see individually verified role, failed role remains unmeasured",
+      "owned_processes_absent_before_stop": {
+        "source": true,
+        "destination": true
+      },
+      "cpu_windows": {
+        "1": {
+          "per_role_effective_core_estimate": {
+            "source": 1.42,
+            "destination": 1.24
+          },
+          "allocated_four_guest_core_fraction_estimate": 0.665,
+          "contained_sample_bounds": {
+            "source": [
+              2998415595697,
+              2999342174656
+            ],
+            "destination": [
+              2998356135060,
+              2999293067640
+            ]
+          }
+        },
+        "2": {
+          "per_role_effective_core_estimate": {
+            "source": 0.92,
+            "destination": 1.015
+          },
+          "allocated_four_guest_core_fraction_estimate": 0.48375,
+          "contained_sample_bounds": {
+            "source": [
+              2997414132528,
+              2999342174656
+            ],
+            "destination": [
+              2997432164882,
+              2999293067640
+            ]
+          }
+        },
+        "5": {
+          "per_role_effective_core_estimate": {
+            "source": 0.8,
+            "destination": 1.148
+          },
+          "allocated_four_guest_core_fraction_estimate": 0.487,
+          "contained_sample_bounds": {
+            "source": [
+              2994424578054,
+              2999342174656
+            ],
+            "destination": [
+              2994433653285,
+              2999293067640
+            ]
+          }
+        },
+        "10": {
+          "per_role_effective_core_estimate": {
+            "source": 1.078,
+            "destination": 1.257
+          },
+          "allocated_four_guest_core_fraction_estimate": 0.58375,
+          "contained_sample_bounds": {
+            "source": [
+              2989433360025,
+              2999342174656
+            ],
+            "destination": [
+              2989352071138,
+              2999293067640
+            ]
+          }
+        }
+      },
+      "roles": {
+        "source": {
+          "peak_rss_bytes": 843448320,
+          "forced_cleanup": null,
+          "failure_udp": {
+            "status": "NOT_MEASURED: process already exited"
+          },
+          "failure": null,
+          "individually_verified_peer": {
+            "successful": 2048,
+            "ownership_all_zero": true,
+            "ownership": {
+              "transport_sessions_current_live": 0,
+              "service_channels_current_live": 0,
+              "application_streams_current_live": 0,
+              "nbsr_tasks_current_live": 0,
+              "quic_connections_current_live": 0,
+              "quic_streams_current_live": 0,
+              "pending_routes_current_entries": 0,
+              "channel_registry_current_entries": 0,
+              "stream_registry_current_entries": 0,
+              "replay_state_current_entries": 0,
+              "audit_queue_current_entries": 0
+            }
+          },
+          "server_recorded_sample_count": null
+        },
+        "destination": {
+          "peak_rss_bytes": 575725568,
+          "forced_cleanup": {
+            "exit_code": 0,
+            "group_killed": true,
+            "valid": false
+          },
+          "failure_udp": {
+            "error": "[Errno 13] Permission denied: '/proc/96/fd'",
+            "error_type": "PermissionError",
+            "pid": 96,
+            "status": "UNAVAILABLE"
+          },
+          "failure": {
+            "error": "[Errno 13] Permission denied: '/proc/96/fd'",
+            "error_type": "PermissionError",
+            "status": "INVALID_PARTIAL"
+          },
+          "individually_verified_peer": null,
+          "server_recorded_sample_count": 2048
+        }
+      }
+    }
+  ]
+}
