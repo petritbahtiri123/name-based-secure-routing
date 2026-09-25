@@ -12,7 +12,7 @@ from types import SimpleNamespace
 
 from scripts.performance.linux_b5_ceiling import NAMES, require
 from scripts.performance.linux_loopback import digest
-from scripts.performance.linux_native_lifecycle import workload_command, select_cpu_pool, validate_result
+from scripts.performance.linux_native_lifecycle import workload_command, select_cpu_pool, validate_result, validate_bundle_mode
 from scripts.performance.linux_native_lifecycle_control import BUNDLE_COUNTS, CYCLE_COUNTS
 from scripts.performance.linux_native_cycle_limits import cycle_bounds
 from scripts.performance.linux_native_cycle_memory import verify_memory
@@ -20,7 +20,8 @@ from scripts.performance.linux_native_pair import read, verify_index
 from scripts.performance.linux_native_peer import validate_endpoint
 
 
-def check_peer(root, role, source_sha, count, *, cycles=None, streams=1, channels=1, memory_observer=False):
+def check_peer(root, role, source_sha, count, *, cycles=None, streams=1, channels=1, memory_observer=False, bundle_mode='idle-bundles'):
+    validate_bundle_mode(bundle_mode, cycles)
     require(type(memory_observer) is bool, 'invalid memory observer mode')
     index = verify_index(root)
     require(not any((root / name).exists() for name in ("failure.json", "forced-cleanup.json")), "failed or forced peer cannot pass")
@@ -41,6 +42,7 @@ def check_peer(root, role, source_sha, count, *, cycles=None, streams=1, channel
     )
     require(type(env.get('memory_observer', False)) is bool and env.get('memory_observer', False) == memory_observer,
             'memory observer mode mismatch')
+    require(env.get('bundle_mode', 'idle-bundles') == bundle_mode, 'bundle mode mismatch')
     if cycles is not None:
         require(type(cycles) is int and cycles in CYCLE_COUNTS and count == cycles
                 and type(env.get('cycles')) is int and env['cycles'] == cycles
@@ -105,7 +107,7 @@ def check_peer(root, role, source_sha, count, *, cycles=None, streams=1, channel
     lifecycle = option("--lifecycle-authority-dir" if role == "source" else "--b3-report-gate")
     output = PurePosixPath(option("--ready")).parent if role == "destination" else PurePosixPath("/unused")
     expected, overrides = workload_command(
-        SimpleNamespace(role=role, count=count, cycles=cycles, streams=streams, channels=channels, shards=env["source_shards"], rate=env["offered_rate"]),
+        SimpleNamespace(role=role, count=count, cycles=cycles, streams=streams, channels=channels, bundle_mode=bundle_mode, shards=env["source_shards"], rate=env["offered_rate"]),
         binaries=binary.parent,
         authority=PurePosixPath(option("--authority-dir")),
         lifecycle=PurePosixPath(lifecycle),
@@ -173,14 +175,14 @@ def check_peer(root, role, source_sha, count, *, cycles=None, streams=1, channel
     return dict(index_sha256=index, environment=env, readiness=ready, outcome=outcome)
 
 
-def analyze(source, destination, *, source_sha, count, memory_observer=False):
+def analyze(source, destination, *, source_sha, count, memory_observer=False, bundle_mode='idle-bundles'):
     require(
         re.fullmatch("[0-9a-f]{40}", source_sha) and type(count) is int and count in BUNDLE_COUNTS,
         "invalid expected source/count",
     )
     require(source.resolve() != destination.resolve(), "distinct peer roots required")
-    source_peer = check_peer(source, "source", source_sha, count, memory_observer=memory_observer)
-    destination_peer = check_peer(destination, "destination", source_sha, count, memory_observer=memory_observer)
+    source_peer = check_peer(source, "source", source_sha, count, memory_observer=memory_observer, bundle_mode=bundle_mode)
+    destination_peer = check_peer(destination, "destination", source_sha, count, memory_observer=memory_observer, bundle_mode=bundle_mode)
     for field in ("count", "offered_rate", "source_shards", "binary_sha256", "fixture_sha256"):
         require(source_peer["environment"][field] == destination_peer["environment"][field], "paired workload/fixture mismatch: " + field)
     require(source_peer["readiness"] == destination_peer["readiness"], "transferred readiness mismatch")
@@ -196,6 +198,7 @@ def analyze(source, destination, *, source_sha, count, memory_observer=False):
         sustainable_capacity="NOT_ESTABLISHED",
         physical_hardware="NOT_PROVEN",
         **({"private_memory": "MEASURED_DIAGNOSTIC_ONLY_OBSERVER_NOT_QUALIFIED"} if memory_observer else {}),
+        **({"bundle_mode": bundle_mode} if bundle_mode == 'live-bundles' else {}),
         scope="Checksummed trusted benchmark artifacts; not signatures or remote attestation",
     )
 
@@ -207,12 +210,13 @@ def main():
     parser.add_argument("--source-sha", required=True)
     parser.add_argument("--count", type=int, required=True)
     parser.add_argument("--memory-observer", action="store_true")
+    parser.add_argument('--bundle-mode', choices=('idle-bundles', 'live-bundles'), default='idle-bundles')
     args = parser.parse_args()
     require(
         not any(args.output.resolve().is_relative_to(p.resolve()) for p in (args.source, args.destination)),
         "analysis output must not modify peer evidence",
     )
-    result = analyze(args.source, args.destination, source_sha=args.source_sha, count=args.count, memory_observer=args.memory_observer)
+    result = analyze(args.source, args.destination, source_sha=args.source_sha, count=args.count, memory_observer=args.memory_observer, bundle_mode=args.bundle_mode)
     with args.output.open("x") as stream:
         json.dump(result, stream, indent=2)
         stream.write("\n")

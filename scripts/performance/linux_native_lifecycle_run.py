@@ -50,6 +50,8 @@ def execute(config, output, *, check_cancelled=not_cancelled):
     validate(config)
     if config.get('memory_observer', False):
         cycle_shape['memory_observer'] = True
+    if 'bundle_mode' in config:
+        cycle_shape['bundle_mode'] = config['bundle_mode']
     count = cycles if cycles is not None else config['count']
     require(not output.is_symlink() and not output.resolve().is_relative_to(ROOT), 'external evidence directory required')
     output.mkdir(parents=False, exist_ok=False)

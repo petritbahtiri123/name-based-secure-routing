@@ -4,6 +4,7 @@ import json
 
 from scripts.performance.linux_b5_ceiling import require
 from scripts.performance.linux_native_lifecycle_coordinator import EventLedger
+from scripts.performance.linux_native_lifecycle import validate_bundle_mode
 from scripts.performance.linux_native_pair import read, verify_index
 from scripts.performance.linux_socket_ownership import validate_binding
 
@@ -28,7 +29,8 @@ def check_events(path, role, count):
     return values
 
 
-def check_endpoint(root, role, count, *, memory_observer=False):
+def check_endpoint(root, role, count, *, memory_observer=False, bundle_mode='idle-bundles'):
+    validate_bundle_mode(bundle_mode)
     require(type(memory_observer) is bool, 'boolean memory observer required')
     index = verify_index(root)
     require(not any((root / name).exists() for name in ('failure.json', 'marker-preservation-error.json')),
@@ -36,6 +38,7 @@ def check_endpoint(root, role, count, *, memory_observer=False):
     controller, result = read(root, 'controller.json'), read(root, 'result.json')
     require(controller['schema'] == 'nbsr-native-lifecycle-control-v1'
             and controller['role'] == result['role'] == role and type(controller['count']) is int
+            and controller.get('bundle_mode', 'idle-bundles') == bundle_mode
             and type(controller.get('memory_observer', False)) is bool and controller.get('memory_observer', False) == memory_observer
             and controller['count'] == count and controller['hold_seconds'] == controller['cooldown_seconds'] == 2
             and result['status'] == 'PASS_FUNCTIONAL_ENDPOINT', 'endpoint contract mismatch')

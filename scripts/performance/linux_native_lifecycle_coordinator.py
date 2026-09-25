@@ -11,7 +11,7 @@ import time
 from scripts.performance.linux_native_duration import bounds
 from scripts.performance.linux_native_cycle_limits import cycle_bounds
 from scripts.performance.linux_b5_ceiling import require
-from scripts.performance.linux_native_lifecycle import validate_cpu_pool
+from scripts.performance.linux_native_lifecycle import validate_cpu_pool, validate_bundle_mode
 from scripts.performance.linux_native_lifecycle_control import BUNDLE_COUNTS, decode_object
 from scripts.performance.linux_native_lifecycle_remote import remote_command, remote_path
 from scripts.performance.linux_native_peer import validate_endpoint
@@ -34,12 +34,15 @@ def endpoint_arguments(config, role):
     if role == 'source':
         address, _ = validate_endpoint(config['destination']['bind'], allow_zero=True)
         argv.extend(['--destination-address', address])
+    if 'bundle_mode' in config:
+        argv.extend(['--bundle-mode', config['bundle_mode']])
     return argv + (['--memory-observer'] if config.get('memory_observer', False) else [])
 
 
 def validate_config(value):
-    require(isinstance(value, dict) and set(value) - {'memory_observer'} == {'schema', 'source_sha', 'count', 'rate', 'shards', 'source', 'destination'},
+    require(isinstance(value, dict) and set(value) - {'memory_observer', 'bundle_mode'} == {'schema', 'source_sha', 'count', 'rate', 'shards', 'source', 'destination'},
             'invalid coordinator fields')
+    validate_bundle_mode(value.get('bundle_mode', 'idle-bundles'))
     require(type(value.get('memory_observer', False)) is bool, 'boolean memory observer required')
     require(value['schema'] == 'nbsr-native-lifecycle-coordinator-v1'
             and isinstance(value['source_sha'], str) and re.fullmatch('[0-9a-f]{40}', value['source_sha']), 'invalid source/schema')

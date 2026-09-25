@@ -56,7 +56,14 @@ def select_cpu_pool(host, cores, pool):
     return dict(host, selected_cpus=selected, requested_cpu_pool=list(pool))
 
 
-def command(*, role, count, shards, rate, binaries, authority, lifecycle, output, bind, endpoint):
+def validate_bundle_mode(mode, cycles=None):
+    require(type(mode) is str and mode in ('idle-bundles', 'live-bundles'), 'invalid bundle mode')
+    require(cycles is None or mode == 'idle-bundles', 'sequential cycles cannot use live bundle mode')
+    return mode
+
+
+def command(*, role, count, shards, rate, binaries, authority, lifecycle, output, bind, endpoint, bundle_mode='idle-bundles'):
+    validate_bundle_mode(bundle_mode)
     require(role in ('source', 'destination'), 'invalid lifecycle role')
     require(type(count) is int and count in BUNDLE_COUNTS, 'invalid bundle count')
     require(type(shards) is int and shards in (1, 2), 'invalid source shards')
@@ -72,7 +79,7 @@ def command(*, role, count, shards, rate, binaries, authority, lifecycle, output
                  '--concurrent-streams', '--hold-for-release', '--connection-offset', '0',
                  '--diagnostics', '1', '--lifecycle-clients', str(count),
                  '--lifecycle-source-shards', str(shards), '--lifecycle-offered-rate', str(rate),
-                 '--benchmark-client-bind', bind], {})
+                 '--benchmark-client-bind', bind] + (['--b3-keep-alive-seconds', '1'] if bundle_mode == 'live-bundles' else []), {})
     require(endpoint is None, 'destination has no remote endpoint')
     return ([str(binaries / 'wp8_interop_server'), *common, '--ready', str(output / 'ready.json'),
              '--result', str(output / 'server-result.json'), '--completion-ack', str(output / 'completion.ack'),
@@ -118,11 +125,12 @@ def cycle_command(*, role, cycles, binaries, authority, lifecycle, output, bind,
 
 def workload_command(args, **paths):
     cycles = getattr(args, 'cycles', None)
+    bundle_mode = validate_bundle_mode(getattr(args, 'bundle_mode', 'idle-bundles'), cycles)
     if cycles is not None:
         require(args.count == cycles and args.rate is None and args.shards is None,
                 'sequential cycles have no offered-rate/fanout contract')
         return cycle_command(role=args.role, cycles=cycles, streams=getattr(args, 'streams', 1), channels=getattr(args, 'channels', 1), **paths)
-    return command(role=args.role, count=args.count, shards=args.shards, rate=args.rate, **paths)
+    return command(role=args.role, count=args.count, shards=args.shards, rate=args.rate, bundle_mode=bundle_mode, **paths)
 
 
 def validate_result(role, count, rows, server, *, streams=1, channels=1):
@@ -199,6 +207,7 @@ def execute(args, *, check_cancelled=not_cancelled):
     require(lifecycle.is_dir(), 'existing fresh lifecycle fixture required')
     memory_observer = getattr(args, 'memory_observer', False)
     require(type(memory_observer) is bool, 'boolean memory observer required')
+    bundle_mode = validate_bundle_mode(getattr(args, 'bundle_mode', 'idle-bundles'), getattr(args, 'cycles', None))
     channels = getattr(args, 'channels', 1)
     validate_shape(getattr(args, 'streams', 1), channels)
     require(all((p.is_dir() and p.name in {f'{i:02}' for i in range(channels)}) or (p.is_file() and p.name in
@@ -248,7 +257,7 @@ def execute(args, *, check_cancelled=not_cancelled):
         write_json(output / 'environment.json', dict(repository_sha=sha, role=args.role,
             count=args.count, offered_rate=args.rate, source_shards=args.shards, linux_environment=host,
             uid=os.getuid(), binary_sha256=hashes, fixture_sha256=fixture,
-            controller_deadline_seconds=controller_seconds, memory_observer=memory_observer, timing='DIAGNOSTIC_ONLY', physical_host='NOT_PROVEN',
+            controller_deadline_seconds=controller_seconds, memory_observer=memory_observer, bundle_mode=bundle_mode, timing='DIAGNOSTIC_ONLY', physical_host='NOT_PROVEN',
             **({'cycles': args.cycles, 'streams': getattr(args, 'streams', 1), 'channels': channels, 'workload_mode': 'same_process_sequential'}
                if getattr(args, 'cycles', None) is not None else {})))
         write_json(output / 'command.json', dict(argv=argv, environment_overrides=overrides))
@@ -325,6 +334,7 @@ def argument_parser(*, sequential=False):
         parser.set_defaults(count=None, shards=None, rate=None)
     else:
         parser.add_argument('--count', type=int, choices=BUNDLE_COUNTS, default=16)
+        parser.add_argument('--bundle-mode', choices=('idle-bundles', 'live-bundles'), default='idle-bundles')
         parser.add_argument('--shards', type=int, choices=(1, 2), default=2)
         parser.add_argument('--rate', type=int, default=100)
     parser.add_argument('--memory-observer', action='store_true')
