@@ -31,6 +31,9 @@ use rustls::pki_types::{CertificateDer, PrivateKeyDer, PrivatePkcs8KeyDer};
 use sha2::{Digest, Sha256};
 
 #[cfg(feature = "benchmark-harness")]
+#[path = "benchmark_support/b3_peer_completion.rs"]
+mod b3_peer_completion;
+#[cfg(feature = "benchmark-harness")]
 #[path = "benchmark_support/batch_release.rs"]
 mod batch_release;
 #[path = "benchmark_support/handshake_timeline.rs"]
@@ -2608,6 +2611,19 @@ async fn run_lifecycle(
     #[cfg(feature = "benchmark-harness")] release_gate: Option<batch_release::BatchRelease>,
 ) -> Vec<(u128, u128)> {
     let concurrent_sessions = env::var_os("NBSR_PERF_CONCURRENT_SESSIONS").is_some();
+    #[cfg(feature = "benchmark-harness")]
+    let completion_markers = b3_peer_completion::enabled(
+        env::var_os("NBSR_PERF_LIFECYCLE_COMPLETION_MARKERS")
+            .map(|value| value.into_string().expect("UTF-8 completion-marker mode"))
+            .as_deref(),
+        concurrent_sessions,
+    )
+    .expect("valid B3 completion-marker mode");
+    #[cfg(not(feature = "benchmark-harness"))]
+    assert!(
+        env::var_os("NBSR_PERF_LIFECYCLE_COMPLETION_MARKERS").is_none(),
+        "B3 completion markers require benchmark-harness"
+    );
     let materialized = optional_cli_value("--b3-materialized-streams").is_some();
     if !concurrent_sessions {
         let mut measurements = Vec::new();
@@ -2624,6 +2640,11 @@ async fn run_lifecycle(
                 )
                 .await,
             );
+            #[cfg(feature = "benchmark-harness")]
+            if completion_markers {
+                // Published only after every existing send-ACK wait and local cleanup.
+                b3_peer_completion::publish(root, _connection_ordinal).unwrap();
+            }
         }
         return measurements;
     }

@@ -31,6 +31,8 @@ SOURCE_FILES = (
     "crates/nbsr-transport/src/bin/perf_rust_source.rs",
     "crates/nbsr-transport/src/bin/wp8_interop_server.rs",
     "interop/nbsr-go-peer/cmd/nbsr-go-peer/main.go",
+    "interop/nbsr-go-peer/cmd/nbsr-go-peer/lifecycle_completion.go",
+    "crates/nbsr-transport/src/bin/benchmark_support/b3_peer_completion.rs",
     "scripts/performance/session_lifecycle_closure.py",
     "scripts/run_b3_session_lifecycle.py",
     "tests/performance/test_session_lifecycle_closure.py",
@@ -167,7 +169,7 @@ def capture(resources: list[dict[str, Any]], destination: subprocess.Popen[str],
         time.sleep(cadence)
 
 
-def client_command(path: str, binaries: dict[str, Path], ready: Path, authority: Path, lifecycle: Path, *, connections: int, services: int, streams: int, offset: int, runtime_path: Path) -> tuple[list[str], Path]:
+def client_command(path: str, binaries: dict[str, Path], ready: Path, authority: Path, lifecycle: Path, *, connections: int, services: int, streams: int, offset: int, runtime_path: Path, destination_completion=False) -> tuple[list[str], Path]:
     if path == "rust-rust":
         return ([
             str(binaries["rust"]), "--authority-dir", str(authority), "--endpoint",
@@ -186,6 +188,7 @@ def client_command(path: str, binaries: dict[str, Path], ready: Path, authority:
         "lifecycle_streams_per_service": streams, "lifecycle_concurrent": True,
         "lifecycle_connection_offset": offset, "lifecycle_report_connections": True,
         "lifecycle_hold_for_release": True, "runtime_series_path": str(runtime_path),
+        **({"lifecycle_wait_destination_complete": True} if destination_completion else {}),
         "runtime_sampling_cadence_ms": 1000,
     })
     return ([str(binaries["go"]), "--config", str(config)], GO_PEER)
@@ -235,11 +238,29 @@ def diagnostic_accept_environment(path, spec):
     return {'NBSR_PERF_LIFECYCLE_ACCEPT_WINDOW': str(window)}
 
 
+def completed_destination_markers(root, cycles):
+    records = []
+    for ordinal in range(cycles):
+        if (root / f'destination-{ordinal}.complete').read_bytes() != b'complete\n':
+            raise ValueError('invalid destination completion marker')
+        records.append(ordinal)
+    return records
+
+
+def completion_environment(path, spec):
+    if 'NBSR_PERF_LIFECYCLE_COMPLETION_MARKERS' in os.environ:
+        raise ValueError('completion markers must be an explicit workload setting')
+    enabled = spec.get('destination_completion', False)
+    if type(enabled) is not bool or (enabled and (path != 'go-rust' or spec.get('sessions') != 1)):
+        raise ValueError('destination completion requires one sequential Go source')
+    return {'NBSR_PERF_LIFECYCLE_COMPLETION_MARKERS': '1'} if enabled else {}
+
+
 def run_cell(path: str, spec: dict[str, int | str], binaries: dict[str, Path], root: Path, *, idle_seconds: float, active_seconds: float, cooldown_seconds: float, cadence: float, capture_backend=None) -> dict[str, Any]:
     if capture_backend is not None and path != "rust-rust":
         raise ValueError("explicit capture backend supports Rust B3 only")
     capture_options = {"capture_backend": capture_backend} if capture_backend is not None else {}
-    accept_environment = diagnostic_accept_environment(path, spec)
+    accept_environment = {**diagnostic_accept_environment(path, spec), **completion_environment(path, spec)}
     name = str(spec["name"])
     allocator_snapshots = spec.get('allocator_snapshots', False)
     if allocator_snapshots:
@@ -287,12 +308,13 @@ def run_cell(path: str, spec: dict[str, int | str], binaries: dict[str, Path], r
         commands: list[list[str]] = []
         resources: list[dict[str, Any]] = []
         failure_detail = ""
+        completion_records = []
         try:
             wait_ready(ready, server)
             client_specs = source_plan(path, sessions, cycles)
             for index, (connections, offset, logical_clients) in enumerate(client_specs):
                 runtime_path = temporary_root / f"go-runtime-{offset}.ndjson"
-                argv, cwd = client_command(path, binaries, ready, authority, lifecycle, connections=connections, services=services, streams=streams, offset=offset, runtime_path=runtime_path)
+                argv, cwd = client_command(path, binaries, ready, authority, lifecycle, connections=connections, services=services, streams=streams, offset=offset, runtime_path=runtime_path, **({"destination_completion": True} if spec.get("destination_completion") else {}))
                 if path == "rust-rust":
                     argv.extend(["--diagnostics", "1"])
                     if allocator_snapshots:
@@ -368,6 +390,8 @@ def run_cell(path: str, spec: dict[str, int | str], binaries: dict[str, Path], r
             if report_phase is not None:
                 report_phase["ended_unix_ns"] = time.time_ns()
                 write_json(cell_dir / "report-phase.json", report_phase)
+            if spec.get("destination_completion"):
+                completion_records = completed_destination_markers(lifecycle, cycles)
         except Exception as error:
             snapshot = getattr(capture_backend, "failure_snapshot", None)
             if snapshot is not None:
@@ -400,6 +424,9 @@ def run_cell(path: str, spec: dict[str, int | str], binaries: dict[str, Path], r
         cleanup.update(source_processes_exited=all(client.poll() is not None for client in clients),
                        destination_exited=server.poll() is not None)
         cell = {**spec, "active_count": int(spec["active_count"]), "samples": resources, "cleanup": cleanup, "commands": {"server": public_command(server_argv, temporary_root), "clients": [public_command(command, temporary_root) for command in commands]}, "client_results": outputs}
+        if spec.get("destination_completion"):
+            cell["destination_completion_records"] = completion_records
+            cell["completion_environment"] = completion_environment(path, spec)
         if allocator_snapshots:
             from scripts.performance.b3_allocator_snapshot import parse_snapshot
             expected = {f'allocator-{i}.xml' for i in range(cycles + 1)}

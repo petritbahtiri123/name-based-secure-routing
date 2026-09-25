@@ -32,24 +32,25 @@ import (
 const maxBenchmarkPayload = 1 << 20
 
 type config struct {
-	ReadinessPath              string   `json:"readiness_path"`
-	F75Package                 string   `json:"f75_package"`
-	LocalAttestationPackage    string   `json:"local_attestation_package"`
-	SafePayload                string   `json:"safe_payload"`
-	BenchmarkSamples           int      `json:"benchmark_samples,omitempty"`
-	OfferedRate                float64  `json:"offered_rate,omitempty"`
-	RuntimeSeriesPath          string   `json:"runtime_series_path,omitempty"`
-	RuntimeSamplingCadenceMS   int      `json:"runtime_sampling_cadence_ms,omitempty"`
-	LifecycleAuthorityDir      string   `json:"lifecycle_authority_dir,omitempty"`
-	LifecycleConnections       int      `json:"lifecycle_connections,omitempty"`
-	LifecycleServices          int      `json:"lifecycle_services,omitempty"`
-	LifecycleStreamsPerService int      `json:"lifecycle_streams_per_service,omitempty"`
-	LifecycleConcurrent        bool     `json:"lifecycle_concurrent,omitempty"`
-	LifecycleConnectionOffset  int      `json:"lifecycle_connection_offset,omitempty"`
-	LifecycleReportConnections bool     `json:"lifecycle_report_connections,omitempty"`
-	LifecycleHoldForRelease    bool     `json:"lifecycle_hold_for_release,omitempty"`
-	StreamCreditProfile        string   `json:"stream_credit_profile,omitempty"`
-	RotationReadinessPaths     []string `json:"rotation_readiness_paths,omitempty"`
+	LifecycleWaitDestinationComplete bool     `json:"lifecycle_wait_destination_complete,omitempty"`
+	ReadinessPath                    string   `json:"readiness_path"`
+	F75Package                       string   `json:"f75_package"`
+	LocalAttestationPackage          string   `json:"local_attestation_package"`
+	SafePayload                      string   `json:"safe_payload"`
+	BenchmarkSamples                 int      `json:"benchmark_samples,omitempty"`
+	OfferedRate                      float64  `json:"offered_rate,omitempty"`
+	RuntimeSeriesPath                string   `json:"runtime_series_path,omitempty"`
+	RuntimeSamplingCadenceMS         int      `json:"runtime_sampling_cadence_ms,omitempty"`
+	LifecycleAuthorityDir            string   `json:"lifecycle_authority_dir,omitempty"`
+	LifecycleConnections             int      `json:"lifecycle_connections,omitempty"`
+	LifecycleServices                int      `json:"lifecycle_services,omitempty"`
+	LifecycleStreamsPerService       int      `json:"lifecycle_streams_per_service,omitempty"`
+	LifecycleConcurrent              bool     `json:"lifecycle_concurrent,omitempty"`
+	LifecycleConnectionOffset        int      `json:"lifecycle_connection_offset,omitempty"`
+	LifecycleReportConnections       bool     `json:"lifecycle_report_connections,omitempty"`
+	LifecycleHoldForRelease          bool     `json:"lifecycle_hold_for_release,omitempty"`
+	StreamCreditProfile              string   `json:"stream_credit_profile,omitempty"`
+	RotationReadinessPaths           []string `json:"rotation_readiness_paths,omitempty"`
 }
 
 func isCreditMutation(value string) bool {
@@ -139,6 +140,9 @@ func runMutatedCreditCase(ctx context.Context, peer *wirepeer.Client, configurat
 }
 
 func (value config) validate() error {
+	if value.LifecycleWaitDestinationComplete && (value.LifecycleAuthorityDir == "" || !value.LifecycleHoldForRelease || value.LifecycleConnectionOffset != 0 || value.BenchmarkSamples < 1) {
+		return errors.New("destination completion requires one sequential held benchmark source")
+	}
 	if value.ReadinessPath == "" || value.F75Package == "" || value.LocalAttestationPackage == "" || value.SafePayload == "" || len(value.SafePayload) > maxBenchmarkPayload {
 		return errors.New("configuration fields are missing or out of bounds")
 	}
@@ -832,6 +836,11 @@ func runLifecycle(ctx context.Context, configuration config) (result, error) {
 	clientBody := map[uint64]any{0: uint64(1), 1: "nbsr12df4x56n2df4x56n2df4x56n2df4x56n2df4x56n2df4x56n2dfsk5743r", 2: "source.edge", 3: "nbsr1g3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zqel9ufg", 4: "destination.edge", 5: clientNonce[:], 6: []byte(sessionPublic), 7: uint64(1_893_456_000)}
 	observed := make([]sample, 0, configuration.LifecycleConnections*configuration.LifecycleServices)
 	for connectionOrdinal := 0; connectionOrdinal < configuration.LifecycleConnections; connectionOrdinal++ {
+		if configuration.LifecycleWaitDestinationComplete {
+			if err := requireFreshLifecycleCompletion(configuration.LifecycleAuthorityDir, connectionOrdinal); err != nil {
+				return result{}, err
+			}
+		}
 		if configuration.LifecycleHoldForRelease {
 			ordinal := configuration.LifecycleConnectionOffset + connectionOrdinal
 			start := filepath.Join(configuration.LifecycleAuthorityDir, fmt.Sprintf("connection-%d.start", ordinal))
@@ -1124,10 +1133,7 @@ func runLifecycle(ctx context.Context, configuration config) (result, error) {
 				processed.Add(1)
 			}
 		}
-		if err := os.WriteFile(filepath.Join(configuration.LifecycleAuthorityDir, fmt.Sprintf("connection-%d.ack", configuration.LifecycleConnectionOffset+connectionOrdinal)), []byte("complete\n"), 0o600); err != nil {
-			return result{}, err
-		}
-		if err := peer.Close(); err != nil {
+		if err := finishLifecycleConnection(ctx, configuration.LifecycleAuthorityDir, configuration.LifecycleConnectionOffset+connectionOrdinal, configuration.LifecycleWaitDestinationComplete, peer.Close); err != nil {
 			return result{}, err
 		}
 	}
