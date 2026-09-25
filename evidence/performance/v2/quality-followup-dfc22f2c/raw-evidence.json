@@ -1,0 +1,26 @@
+[
+  {
+    "root": "C:\\NBSR-build\\quality-be07f67c-20260925",
+    "index_sha256": "d63ddfc58b4464da7d62ba8de1dc0f1b8f7776d6b5e39273540393def2fe1434"
+  },
+  {
+    "root": "C:\\NBSR-build\\go-quality-be07f67c",
+    "index_sha256": "fac60448a49e950449fe7654c2794282c2476d8d1ead29df82244537f72be969"
+  },
+  {
+    "root": "C:\\NBSR-build\\clippy-quality-be07f67c",
+    "index_sha256": "545050de467ee657ad8666764e57ccfda09f543d3f41dc1fe63f0d89f76b7a19"
+  },
+  {
+    "root": "C:\\NBSR-build\\windows-durable-job-tests-20260925",
+    "index_sha256": "44b89b40f374e785907cc1f8870d165e78db73653dd19121ef4c5ef269712477"
+  },
+  {
+    "root": "C:\\NBSR-build\\retained-native-compression-20260925",
+    "index_sha256": "dcaecfcf111c6a92b6dfe37700b53f9cd0ccd5cfffaea9b5b7bdc83d6d44a329"
+  },
+  {
+    "root": "C:\\NBSR-build\\retained-native-compression-20260925-part2",
+    "index_sha256": "78315e2dac0fbb16f8b95bf6c7d0d84f8d198af88f76a38af1fac2eb6d40ccf5"
+  }
+]

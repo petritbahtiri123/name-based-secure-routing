@@ -1,0 +1,24 @@
+{
+  "scope": "QUALITY_FOLLOWUP_NOT_FINAL_FUNDING_FREEZE",
+  "python": {
+    "passed": 1612,
+    "skipped": 3,
+    "initial_failed": 5
+  },
+  "rust_isolated": {
+    "passed": 406,
+    "ignored": 2,
+    "initial_close_timeout_retained": true
+  },
+  "go_race_followup": {
+    "four_modules": "PASS",
+    "federation": "BLOCKED_ARCHITECTURAL"
+  },
+  "production_changed": false,
+  "storage": {
+    "files": 1061,
+    "allocated_bytes_saved": 2290399694,
+    "all_logical_bytes_and_hashes_unchanged": true,
+    "deleted_files": 0
+  }
+}
