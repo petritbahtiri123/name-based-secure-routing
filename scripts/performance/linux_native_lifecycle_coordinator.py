@@ -34,12 +34,13 @@ def endpoint_arguments(config, role):
     if role == 'source':
         address, _ = validate_endpoint(config['destination']['bind'], allow_zero=True)
         argv.extend(['--destination-address', address])
-    return argv
+    return argv + (['--memory-observer'] if config.get('memory_observer', False) else [])
 
 
 def validate_config(value):
-    require(isinstance(value, dict) and set(value) == {'schema', 'source_sha', 'count', 'rate', 'shards', 'source', 'destination'},
+    require(isinstance(value, dict) and set(value) - {'memory_observer'} == {'schema', 'source_sha', 'count', 'rate', 'shards', 'source', 'destination'},
             'invalid coordinator fields')
+    require(type(value.get('memory_observer', False)) is bool, 'boolean memory observer required')
     require(value['schema'] == 'nbsr-native-lifecycle-coordinator-v1'
             and isinstance(value['source_sha'], str) and re.fullmatch('[0-9a-f]{40}', value['source_sha']), 'invalid source/schema')
     for field, choices in [('count', BUNDLE_COUNTS), ('shards', (1, 2))]:

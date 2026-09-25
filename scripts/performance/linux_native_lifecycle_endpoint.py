@@ -192,8 +192,7 @@ def execute_endpoint(args, *, input_stream=None, output_stream=None, delegate=na
     require(platform.system() == 'Linux', 'Linux required')
     args = copy.copy(args)
     cycles = getattr(args, 'cycles', None)
-    require(type(getattr(args, 'memory_observer', False)) is bool
-            and (not getattr(args, 'memory_observer', False) or cycles is not None), 'invalid memory observer mode')
+    require(type(getattr(args, 'memory_observer', False)) is bool, 'invalid memory observer mode')
     if cycles is not None:
         require(type(cycles) is int and cycles in native.CYCLE_COUNTS, 'invalid cycle count')
         args.count = cycles
@@ -224,9 +223,8 @@ def execute_endpoint(args, *, input_stream=None, output_stream=None, delegate=na
         write_json(output / 'controller.json', dict(schema=schema,
             role=args.role, count=args.count, peer_output=str(args.output),
             control_input='bounded private stdin JSON lines', timing='DIAGNOSTIC_ONLY',
-            hold_seconds=2, cooldown_seconds=2, child_ownership='delegated to linux_native_lifecycle.execute',
-            **({'streams': getattr(args, 'streams', 1), 'channels': getattr(args, 'channels', 1),
-                'memory_observer': getattr(args, 'memory_observer', False)} if cycles is not None else {})))
+            hold_seconds=2, cooldown_seconds=2, memory_observer=getattr(args, 'memory_observer', False), child_ownership='delegated to linux_native_lifecycle.execute',
+            **({'streams': getattr(args, 'streams', 1), 'channels': getattr(args, 'channels', 1)} if cycles is not None else {})))
         control = control_factory(args, output)
         messages = queue.Queue(maxsize=8)
         with (output / 'events.ndjson').open('x', encoding='utf-8', newline='\n') as log:

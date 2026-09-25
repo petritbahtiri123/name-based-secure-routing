@@ -48,6 +48,8 @@ def execute(config, output, *, check_cancelled=not_cancelled):
         cycle_shape['channels'] = config.get('channels', 1)
         cycle_shape['memory_observer'] = config.get('memory_observer', False)
     validate(config)
+    if config.get('memory_observer', False):
+        cycle_shape['memory_observer'] = True
     count = cycles if cycles is not None else config['count']
     require(not output.is_symlink() and not output.resolve().is_relative_to(ROOT), 'external evidence directory required')
     output.mkdir(parents=False, exist_ok=False)

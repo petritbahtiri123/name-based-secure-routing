@@ -28,13 +28,15 @@ def check_events(path, role, count):
     return values
 
 
-def check_endpoint(root, role, count):
+def check_endpoint(root, role, count, *, memory_observer=False):
+    require(type(memory_observer) is bool, 'boolean memory observer required')
     index = verify_index(root)
     require(not any((root / name).exists() for name in ('failure.json', 'marker-preservation-error.json')),
             'failed endpoint cannot pass')
     controller, result = read(root, 'controller.json'), read(root, 'result.json')
     require(controller['schema'] == 'nbsr-native-lifecycle-control-v1'
             and controller['role'] == result['role'] == role and type(controller['count']) is int
+            and type(controller.get('memory_observer', False)) is bool and controller.get('memory_observer', False) == memory_observer
             and controller['count'] == count and controller['hold_seconds'] == controller['cooldown_seconds'] == 2
             and result['status'] == 'PASS_FUNCTIONAL_ENDPOINT', 'endpoint contract mismatch')
     events = check_events(root / 'events.ndjson', role, count)

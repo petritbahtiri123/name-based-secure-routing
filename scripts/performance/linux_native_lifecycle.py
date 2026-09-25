@@ -198,8 +198,7 @@ def execute(args, *, check_cancelled=not_cancelled):
                 'private fixture and evidence must be disjoint')
     require(lifecycle.is_dir(), 'existing fresh lifecycle fixture required')
     memory_observer = getattr(args, 'memory_observer', False)
-    require(type(memory_observer) is bool and (not memory_observer or getattr(args, 'cycles', None) is not None),
-            'memory observer requires sequential cycle mode')
+    require(type(memory_observer) is bool, 'boolean memory observer required')
     channels = getattr(args, 'channels', 1)
     validate_shape(getattr(args, 'streams', 1), channels)
     require(all((p.is_dir() and p.name in {f'{i:02}' for i in range(channels)}) or (p.is_file() and p.name in
@@ -249,8 +248,8 @@ def execute(args, *, check_cancelled=not_cancelled):
         write_json(output / 'environment.json', dict(repository_sha=sha, role=args.role,
             count=args.count, offered_rate=args.rate, source_shards=args.shards, linux_environment=host,
             uid=os.getuid(), binary_sha256=hashes, fixture_sha256=fixture,
-            controller_deadline_seconds=controller_seconds, timing='DIAGNOSTIC_ONLY', physical_host='NOT_PROVEN',
-            **({'cycles': args.cycles, 'streams': getattr(args, 'streams', 1), 'channels': channels, 'memory_observer': memory_observer, 'workload_mode': 'same_process_sequential'}
+            controller_deadline_seconds=controller_seconds, memory_observer=memory_observer, timing='DIAGNOSTIC_ONLY', physical_host='NOT_PROVEN',
+            **({'cycles': args.cycles, 'streams': getattr(args, 'streams', 1), 'channels': channels, 'workload_mode': 'same_process_sequential'}
                if getattr(args, 'cycles', None) is not None else {})))
         write_json(output / 'command.json', dict(argv=argv, environment_overrides=overrides))
         write_json(output / 'build-manifest.json', build)
@@ -267,7 +266,7 @@ def execute(args, *, check_cancelled=not_cancelled):
             if memory_observer:
                 initial = sample_process(child.pid, host['selected_cpus'])
                 observer = CycleMemoryObserver(output, pid=child.pid, start_ticks=initial['start_ticks'],
-                                               cpus=host['selected_cpus'], cycles=args.cycles)
+                                               cpus=host['selected_cpus'], cycles=getattr(args, 'cycles', None))
             with observer as memory:
                 observed = observe_child(child, host['selected_cpus'], output, deadline=deadline,
                     check_cancelled=check_cancelled, **({'live_observer': memory} if memory_observer else {}))
@@ -323,12 +322,12 @@ def argument_parser(*, sequential=False):
         parser.add_argument('--cycles', type=int, choices=CYCLE_COUNTS, required=True)
         parser.add_argument('--streams', type=int, default=1)
         parser.add_argument('--channels', type=int, default=1)
-        parser.add_argument('--memory-observer', action='store_true')
         parser.set_defaults(count=None, shards=None, rate=None)
     else:
         parser.add_argument('--count', type=int, choices=BUNDLE_COUNTS, default=16)
         parser.add_argument('--shards', type=int, choices=(1, 2), default=2)
         parser.add_argument('--rate', type=int, default=100)
+    parser.add_argument('--memory-observer', action='store_true')
     parser.add_argument('--cores', type=int, choices=(1, 2, 4), default=1)
     parser.add_argument('--cpu-pool', type=parse_cpu_pool,
                         help='Optional canonical logical CPU IDs; requires distinct advertised cores on one NUMA node')

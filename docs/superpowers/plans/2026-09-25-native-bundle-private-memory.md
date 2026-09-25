@@ -1,0 +1,5 @@
+# Native concurrent-bundle private memory
+
+Reuse the validated one-Hz private/PSS observer for the existing native concurrent-bundle workload. Keep16..1024 connection counts,100offered/s,two source shards,one advertised core/role,one channel/stream per connection,existing120-second controller and all security/transport/cleanup semantics. No production changes. Opt-in boolean binds config, endpoint, peer and independent replay; off remains compatible. Reuse the identity/lifetime/CPU checks and121-record bound for bundle mode.
+
+RED tests for config/commands/CLI and raw/summary/mode binding. Focused affected tests/Ruff/review. Fresh release3repeats each16,32,64,128,256,512,1024; extend5 when active or destination-cooldown private CV>5%. Retain failures and stop to attribute. Active phase must contain measured memory on both roles. Destination cooldown measured under existing report gate; source exits after ACK so source cooldown is NOT_MEASURED, never zero. Final ownership and process absence remain required. No sustainable-admission, observer-neutrality or qualified marginal-cost claim.

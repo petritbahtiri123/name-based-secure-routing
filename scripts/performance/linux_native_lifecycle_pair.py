@@ -21,7 +21,7 @@ from scripts.performance.linux_native_peer import validate_endpoint
 
 
 def check_peer(root, role, source_sha, count, *, cycles=None, streams=1, channels=1, memory_observer=False):
-    require(type(memory_observer) is bool and (not memory_observer or cycles is not None), 'invalid memory observer mode')
+    require(type(memory_observer) is bool, 'invalid memory observer mode')
     index = verify_index(root)
     require(not any((root / name).exists() for name in ("failure.json", "forced-cleanup.json")), "failed or forced peer cannot pass")
     env, result, build = (read(root, n) for n in ("environment.json", "result.json", "build-manifest.json"))
@@ -39,11 +39,12 @@ def check_peer(root, role, source_sha, count, *, cycles=None, streams=1, channel
         and env["timing"] == result["timing"] == "DIAGNOSTIC_ONLY",
         "peer execution scope mismatch",
     )
+    require(type(env.get('memory_observer', False)) is bool and env.get('memory_observer', False) == memory_observer,
+            'memory observer mode mismatch')
     if cycles is not None:
         require(type(cycles) is int and cycles in CYCLE_COUNTS and count == cycles
                 and type(env.get('cycles')) is int and env['cycles'] == cycles
                 and env.get('workload_mode') == 'same_process_sequential'
-                and type(env.get('memory_observer', False)) is bool and env.get('memory_observer', False) == memory_observer
                 and env['offered_rate'] is None and env['source_shards'] is None
                 and type(env.get('channels', 1)) is int and env.get('channels', 1) == channels
                 and type(env.get('streams', 1)) is int and env.get('streams', 1) == streams,
@@ -172,14 +173,14 @@ def check_peer(root, role, source_sha, count, *, cycles=None, streams=1, channel
     return dict(index_sha256=index, environment=env, readiness=ready, outcome=outcome)
 
 
-def analyze(source, destination, *, source_sha, count):
+def analyze(source, destination, *, source_sha, count, memory_observer=False):
     require(
         re.fullmatch("[0-9a-f]{40}", source_sha) and type(count) is int and count in BUNDLE_COUNTS,
         "invalid expected source/count",
     )
     require(source.resolve() != destination.resolve(), "distinct peer roots required")
-    source_peer = check_peer(source, "source", source_sha, count)
-    destination_peer = check_peer(destination, "destination", source_sha, count)
+    source_peer = check_peer(source, "source", source_sha, count, memory_observer=memory_observer)
+    destination_peer = check_peer(destination, "destination", source_sha, count, memory_observer=memory_observer)
     for field in ("count", "offered_rate", "source_shards", "binary_sha256", "fixture_sha256"):
         require(source_peer["environment"][field] == destination_peer["environment"][field], "paired workload/fixture mismatch: " + field)
     require(source_peer["readiness"] == destination_peer["readiness"], "transferred readiness mismatch")
@@ -194,6 +195,7 @@ def analyze(source, destination, *, source_sha, count):
         paired_active_hold="NOT_VERIFIED_BY_THIS_GATE",
         sustainable_capacity="NOT_ESTABLISHED",
         physical_hardware="NOT_PROVEN",
+        **({"private_memory": "MEASURED_DIAGNOSTIC_ONLY_OBSERVER_NOT_QUALIFIED"} if memory_observer else {}),
         scope="Checksummed trusted benchmark artifacts; not signatures or remote attestation",
     )
 
@@ -204,12 +206,13 @@ def main():
         parser.add_argument("--" + name, type=Path, required=True)
     parser.add_argument("--source-sha", required=True)
     parser.add_argument("--count", type=int, required=True)
+    parser.add_argument("--memory-observer", action="store_true")
     args = parser.parse_args()
     require(
         not any(args.output.resolve().is_relative_to(p.resolve()) for p in (args.source, args.destination)),
         "analysis output must not modify peer evidence",
     )
-    result = analyze(args.source, args.destination, source_sha=args.source_sha, count=args.count)
+    result = analyze(args.source, args.destination, source_sha=args.source_sha, count=args.count, memory_observer=args.memory_observer)
     with args.output.open("x") as stream:
         json.dump(result, stream, indent=2)
         stream.write("\n")
