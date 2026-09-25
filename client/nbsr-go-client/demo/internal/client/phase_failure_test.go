@@ -230,10 +230,9 @@ func (h *phaseHarness) assertClean(t *testing.T) {
 	if usage.PendingSessions != 0 || usage.PendingChannels != 0 || usage.PendingAdmissions != 0 || usage.ApplicationStreams != 0 || usage.Sessions != 0 || usage.Channels != 0 {
 		t.Fatalf("session leak: %+v", usage)
 	}
-	authorityUsage := h.authority.Manager().Usage()
-	if authorityUsage.PendingCalls != 0 || authorityUsage.PendingWaiters != 0 {
-		t.Fatalf("authority leak: %+v", authorityUsage)
-	}
+	// Acquire returns on waiter cancellation before the provider worker finishes.
+	// Observe its bounded idle barrier before asserting the same zero counters.
+	assertAcquisitionIdle(t, h.authority.Manager())
 }
 
 type phaseTransport struct{ closed atomic.Int32 }
