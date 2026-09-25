@@ -36,13 +36,14 @@ def remote_command(target, argv):
     return ['docker', 'exec', '-i', '--user', '65532', host, 'sh', '-c', command]
 
 
-def extract_public_archive(archive, output, *, maximum_bytes=536870912):
+def extract_public_archive(archive, output, *, maximum_bytes=536870912, maximum_entries=10000):
+    require(type(maximum_entries) is int and 0 < maximum_entries <= 20000, "invalid archive entry bound")
     require(not output.exists() and not output.is_symlink(), 'fresh collection directory required')
     require(type(maximum_bytes) is int and 0 < maximum_bytes <= 536870912, 'invalid archive bound')
     seen, members, total = set(), [], 0
     with tarfile.open(archive, 'r:') as stream:
         for index, member in enumerate(stream):
-            require(index < 10000, 'archive entry count exceeded')
+            require(index < maximum_entries, 'archive entry count exceeded')
             require((member.isfile() or member.isdir()) and member.sparse is None, 'archive links/special entries rejected')
             name = member.name
             while name.startswith('./'):

@@ -16,12 +16,12 @@ from scripts.performance.linux_native_pair import verify_index
 from scripts.performance.process_cancellation import Cancellation, not_cancelled
 
 
-def collect(target, role, output, *, check_cancelled=not_cancelled):
+def collect(target, role, output, *, check_cancelled=not_cancelled, maximum_entries=10000):
     archive = output / (role + '.tar')
     result = download_archive(remote_command(target, ['tar', '-C', target['output'], '-cf', '-', '.']),
         archive, output / (role + '-transfer-stderr.log'), check_cancelled=check_cancelled)
     destination = output / role
-    extract_public_archive(archive, destination)
+    extract_public_archive(archive, destination, **({"maximum_entries": maximum_entries} if maximum_entries != 10000 else {}))
     result['index_sha256'] = verify_index(destination)
     # Verified canonical extraction retains every archive member; remove only this duplicate.
     archive.unlink()
@@ -78,7 +78,8 @@ def execute(config, output, *, check_cancelled=not_cancelled):
                                 retained='local management/stderr; remote path left untouched'))
                 continue
             try:
-                collect(config[role], role, output, check_cancelled=check_cancelled)
+                collect(config[role], role, output, check_cancelled=check_cancelled,
+                        **({'maximum_entries': 20000} if cycles is None and count == 4096 and role == 'source' else {}))
             except (OSError, ValueError, TimeoutError, InterruptedError) as error:
                 write_json(output / (role + '-collection-failure.json'), dict(error_type=type(error).__name__, error=str(error)))
                 if problem is None:
