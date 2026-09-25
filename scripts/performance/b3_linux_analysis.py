@@ -121,7 +121,7 @@ def analyze_scale(cells):
     return results
 
 
-def load_input(root):
+def load_input(root, peer_path="rust-rust"):
     root = Path(root).resolve()
     index = (root / 'checksums.sha256').read_bytes()
     verified = {}
@@ -151,10 +151,13 @@ def load_input(root):
     for key in ('source_sha', 'binary_source_sha'):
         if not re.fullmatch(r'[0-9a-f]{40}', str(env.get(key, ''))):
             raise ValueError('missing source provenance')
+    if peer_path not in ('rust-rust', 'go-rust') or env.get('peer_path', 'rust-rust') != peer_path:
+        raise ValueError('B3 peer path mismatch')
+    names = {'rust': 'perf_rust_source', 'server': 'wp8_interop_server'} if peer_path == 'rust-rust' else {'go': 'nbsr-go-peer', 'server': 'wp8_interop_server'}
     binaries = env.get('binary_sha256', {})
-    if set(binaries) != {'rust', 'server'} or build.get('source_sha') != env['binary_source_sha']:
+    if set(binaries) != set(names) or build.get('source_sha') != env['binary_source_sha']:
         raise ValueError('inconsistent binary provenance')
-    for role, name in (('rust', 'perf_rust_source'), ('server', 'wp8_interop_server')):
+    for role, name in names.items():
         digest = verified[required('binaries/' + name)]
         if binaries[role] != digest or build.get('binary_sha256', {}).get(name) != digest:
             raise ValueError('binary byte binding mismatch')
@@ -164,6 +167,12 @@ def load_input(root):
     for name in ('run_b3_v2.py', 'run_b3_session_lifecycle.py', 'performance/b3_linux.py',
                  'performance/b3_linux_analysis.py', 'performance/linux_resources.py', 'performance/linux_loopback.py'):
         controllers[name] = verified[required('source/scripts/' + name)]
+    if peer_path == 'go-rust':
+        for name in ('interop/nbsr-go-peer/cmd/nbsr-go-peer/main.go',
+                     'interop/nbsr-go-peer/cmd/nbsr-go-peer/lifecycle_completion.go',
+                     'crates/nbsr-transport/src/bin/benchmark_support/b3_peer_completion.rs',
+                     'scripts/performance/b3_go_linux_analysis.py'):
+            controllers[name] = verified[required('source/' + name)]
     linux = env.get('linux_environment', {})
     stable_fields = ('topology', 'selected_cpus', 'inherited_cpus', 'kernel', 'python', 'taskset_version', 'lscpu_version')
     if any(key not in linux for key in stable_fields) or not env.get('memory_scope'):

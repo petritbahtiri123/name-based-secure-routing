@@ -18,19 +18,22 @@ from scripts.run_b4b_task4k import checksums
 from scripts.performance.process_cancellation import Cancellation, not_cancelled
 
 
-def binary_names(platform_name):
+def binary_names(platform_name, path="rust-rust"):
     if platform_name not in ('windows', 'linux'):
         raise ValueError('explicit supported platform required')
     suffix = '.exe' if platform_name == 'windows' else ''
-    return {'rust': 'perf_rust_source' + suffix, 'server': 'wp8_interop_server' + suffix}
+    if path not in ('rust-rust', 'go-rust'):
+        raise ValueError('explicit supported peer path required')
+    source = {'rust': 'perf_rust_source' + suffix} if path == 'rust-rust' else {'go': 'nbsr-go-peer' + suffix}
+    return {**source, 'server': 'wp8_interop_server' + suffix}
 
 
-def validate_linux_manifest(path, binaries):
+def validate_linux_manifest(path, binaries, peer_path="rust-rust"):
     if path is None:
         raise ValueError('Linux build manifest required')
     manifest = json.loads(Path(path).read_text())
     expected = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in binaries.values()}
-    if (set(binaries) != {'rust', 'server'} or not re.fullmatch(r'[0-9a-f]{40}', str(manifest.get('source_sha', '')))
+    if (set(binaries) != set(binary_names('linux', peer_path)) or not re.fullmatch(r'[0-9a-f]{40}', str(manifest.get('source_sha', '')))
             or manifest.get('build_profile') != 'release' or not manifest.get('build_commands')
             or not manifest.get('toolchains') or not isinstance(manifest.get('binary_sha256'), dict)
             or any(manifest['binary_sha256'].get(name) != digest for name, digest in expected.items())):
@@ -92,6 +95,15 @@ def spec_for(axis, count, repeat, *, materialized_streams=False, fixed_channels=
     return spec
 
 
+def go_specs(args, specs):
+    if (args.axis not in ('channels', 'streams', 'cycles') or args.materialized_streams
+            or getattr(args, 'allocator_snapshots', False)):
+        raise ValueError('Go B3 supports sequential channels/streams/cycles without Rust-only observers')
+    return [dict(spec, destination_completion=True, start_rate=0,
+                 resource_scope=spec.get('resource_scope', '') + '; Go local handles, not destination materialization')
+            for spec in specs]
+
+
 def execute(args, *, check_cancelled=not_cancelled):
     source_sha = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
     source_status = subprocess.check_output(
@@ -99,6 +111,8 @@ def execute(args, *, check_cancelled=not_cancelled):
     if source_status:
         raise ValueError('B3 requires a clean checkout before evidence creation')
     platform_name = getattr(args, 'platform', 'windows')
+    peer_path = getattr(args, 'path', 'rust-rust')
+    binary_names(platform_name, peer_path)
     linux = None
     if platform_name == 'linux':
         from scripts.performance.b3_linux import LinuxCapture, environment
@@ -106,18 +120,20 @@ def execute(args, *, check_cancelled=not_cancelled):
     specs = [spec_for(args.axis, count, repeat, materialized_streams=args.materialized_streams,
                       fixed_channels=args.fixed_channels, accept_window=getattr(args, 'accept_window', None))
              for count in args.counts for repeat in range(1, args.repeats + 1)]
+    if peer_path == 'go-rust':
+        specs = go_specs(args, specs)
     from scripts.performance.b3_allocator_snapshot import observer_spec
     specs = [observer_spec(spec, platform=platform_name,
                            enabled=getattr(args, 'allocator_snapshots', False)) for spec in specs]
     args.output.mkdir(parents=True, exist_ok=False)
     (args.output / "binaries").mkdir()
     binaries = {}
-    for role, name in binary_names(platform_name).items():
+    for role, name in binary_names(platform_name, peer_path).items():
         original = args.target / "release" / name
         retained = args.output / "binaries" / name
         shutil.copy2(original, retained)
         binaries[role] = original if linux else retained
-    build = validate_linux_manifest(args.build_manifest, binaries) if linux else None
+    build = validate_linux_manifest(args.build_manifest, binaries, peer_path) if linux else None
     metadata = {"schema": "nbsr-b3-v2-raw-v1", "classification": "DIAGNOSTIC" if args.repeats < 3 else "MEASURED_PENDING_ANALYSIS",
                 "source_sha": source_sha, "git_status": source_status,
                 "binary_sha256": {k: hashlib.sha256(v.read_bytes()).hexdigest() for k, v in binaries.items()},
@@ -128,6 +144,12 @@ def execute(args, *, check_cancelled=not_cancelled):
                 "acceptance_scope": f"B3-only {specs[0].get('accept_window', 1)} armed accepts, concurrent held sessions; not the B4 admission-capacity workload",
                 "memory_scope": "private bytes/working set/handles/threads and ownership, not allocator heap attribution",
                 "live_resource_proof": "all named .active markers observed before active sampling and before any release"}
+    metadata.update(peer_path=peer_path, ownership_scope='rust-all-11-current-fields' if peer_path == 'rust-rust' else 'historical-go-destination-8-fields; source process exit only')
+    if peer_path == 'go-rust':
+        metadata.update(scope='Windows loopback; Go to Rust; diagnostic resource totals only',
+                        source_runtime_shards='one sequential Go source',
+                        acceptance_scope='local held-resource lifecycle, not sustainable admission',
+                        final_source_cooldown='unavailable after natural exit; no zero substitution')
     if linux:
         metadata.update(platform='linux', linux_environment=linux, build_manifest=build,
                         benchmark_udp_receive_buffer_request=os.environ.get('NBSR_BENCH_UDP_RECEIVE_BUFFER_BYTES'),
@@ -154,6 +176,11 @@ def execute(args, *, check_cancelled=not_cancelled):
                    "crates/nbsr-transport/src/bin/b3_support/marker_monitor.rs",
                    "crates/nbsr-transport/src/bin/b3_support/marker_notifications.rs",
                    "crates/nbsr-transport/src/bin/benchmark_support/lifecycle_accept_window.rs"]
+    if peer_path == 'go-rust':
+        sources += ['interop/nbsr-go-peer/cmd/nbsr-go-peer/main.go',
+                    'interop/nbsr-go-peer/cmd/nbsr-go-peer/lifecycle_completion.go',
+                    'crates/nbsr-transport/src/bin/benchmark_support/b3_peer_completion.rs',
+                    'scripts/performance/b3_go_linux_analysis.py']
     if linux:
         sources += ['scripts/performance/b3_linux.py', 'scripts/performance/b3_linux_analysis.py',
                     'scripts/performance/process_cancellation.py',
@@ -175,7 +202,7 @@ def execute(args, *, check_cancelled=not_cancelled):
                 cap = 2 * (rounds + 1) * (3 * (math.ceil(2 / .5) + 2))
                 options['capture_backend'] = LinuxCapture(linux['selected_cpus'], linux['taskset'], max_records=cap,
                                                          check_cancelled=check_cancelled)
-            row = b3.run_cell("rust-rust", spec, binaries, args.output,
+            row = b3.run_cell(peer_path, spec, binaries, args.output,
                               idle_seconds=2, active_seconds=2, cooldown_seconds=2, cadence=0.5, **options)
             check_cancelled()
             records.append(row)
@@ -194,6 +221,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--target", type=Path, default=Path(r"C:\NBSR-build\b4b-task4k"))
+    parser.add_argument('--path', choices=('rust-rust', 'go-rust'), default='rust-rust')
     parser.add_argument('--platform', choices=('windows', 'linux'), default='windows')
     parser.add_argument('--cores', type=int, choices=(1, 2, 4), default=1,
                         help='Linux only: shared physical-core-selected logical pool')

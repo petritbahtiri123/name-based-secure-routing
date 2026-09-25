@@ -256,9 +256,17 @@ def completion_environment(path, spec):
     return {'NBSR_PERF_LIFECYCLE_COMPLETION_MARKERS': '1'} if enabled else {}
 
 
+def capture_contract(path, spec, linux):
+    if path not in ('rust-rust', 'go-rust'):
+        raise ValueError('unsupported B3 peer path')
+    if linux and path == 'go-rust' and (spec.get('sessions') != 1 or spec.get('destination_completion') is not True):
+        raise ValueError('Linux Go B3 requires one source and destination completion')
+    return (path == 'rust-rust' or linux,
+            linux and (path == 'go-rust' or spec.get('sessions', 0) > 1))
+
+
 def run_cell(path: str, spec: dict[str, int | str], binaries: dict[str, Path], root: Path, *, idle_seconds: float, active_seconds: float, cooldown_seconds: float, cadence: float, capture_backend=None) -> dict[str, Any]:
-    if capture_backend is not None and path != "rust-rust":
-        raise ValueError("explicit capture backend supports Rust B3 only")
+    report_gate, final_source_exit = capture_contract(path, spec, capture_backend is not None)
     capture_options = {"capture_backend": capture_backend} if capture_backend is not None else {}
     accept_environment = {**diagnostic_accept_environment(path, spec), **completion_environment(path, spec)}
     name = str(spec["name"])
@@ -296,7 +304,6 @@ def run_cell(path: str, spec: dict[str, int | str], binaries: dict[str, Path], r
         diagnostics = cell_dir / "destination-diagnostics.ndjson"
         server_argv = [str(binaries["server"]), "--ready", str(ready), "--result", str(result), "--authority-dir", str(authority), "--completion-ack", str(completion_ack), "--destination-diagnostics-file", str(diagnostics), "--diagnostic-drain-seconds", str(max(1, round(cooldown_seconds)))]
         total_connections = sessions if sessions > 1 else cycles
-        report_gate = path == "rust-rust"
         if report_gate:
             server_argv.extend(["--b3-report-gate", str(lifecycle)])
         if materialized:
@@ -369,7 +376,7 @@ def run_cell(path: str, spec: dict[str, int | str], binaries: dict[str, Path], r
                                                   cycle=final_cycle, seconds=cooldown_seconds,
                                                   cadence=cadence, report_gate=report_gate,
                                                   **(dict(capture_options, allow_exited_sources=True)
-                                                     if capture_backend is not None and sessions > 1 else capture_options))
+                                                     if final_source_exit else capture_options))
             if path == "rust-rust":
                 (lifecycle / "source.final-release").write_text("release\n", encoding="ascii")
             outputs = []
