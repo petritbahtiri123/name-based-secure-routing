@@ -1,0 +1,375 @@
+{
+  "classification": "FIXED_OBSERVER_OFF_DIAGNOSTIC",
+  "attempted_trials": 3,
+  "successful_trials": 0,
+  "failed_trials": 3,
+  "capacity_gate": "NOT_EVALUATED: diagnostic control, all outcomes retained",
+  "successful_connections_in_passed_trials": 0,
+  "successful_trials_final_ownership": "NO_SUCCESSFUL_TRIALS",
+  "private_memory": "NOT_MEASURED: optional observer OFF",
+  "observer_neutrality": "NOT_ESTABLISHED",
+  "marginal_cost": "NOT_QUALIFIED: connection/session/channel/stream co-vary",
+  "scope": "Docker/WSL split advertised guest cores sourceCPU0/destinationCPU2; no physical/server/capacity claim",
+  "cpu_basis": "DERIVED tick-quantized contained-sample estimates on common Docker clock; not strict lower bounds or physical-core proof",
+  "attribution": "Cumulative socket drops and tail CPU pressure are measured; per-timeout causation and observer effect remain unresolved",
+  "rows": [],
+  "failures": [
+    {
+      "label": "n2048-r1",
+      "status": "FAIL_RETAINED",
+      "requested": 2048,
+      "source_materialized_observation_rows": 1355,
+      "source_errors": {
+        "HandshakeTimeout": 56
+      },
+      "source_recorded_successes": 0,
+      "final_ownership": "NOT_MEASURED: cancelled after failure",
+      "owned_processes_absent_before_stop": {
+        "source": true,
+        "destination": true
+      },
+      "cpu_windows": {
+        "1": {
+          "per_role_effective_core_estimate": {
+            "source": 0.91,
+            "destination": 0.78
+          },
+          "allocated_two_guest_core_fraction_estimate": 0.845,
+          "contained_sample_bounds": {
+            "source": [
+              280180820948,
+              281112746403
+            ],
+            "destination": [
+              280184217075,
+              281011803270
+            ]
+          }
+        },
+        "2": {
+          "per_role_effective_core_estimate": {
+            "source": 0.91,
+            "destination": 0.85
+          },
+          "allocated_two_guest_core_fraction_estimate": 0.88,
+          "contained_sample_bounds": {
+            "source": [
+              279230198147,
+              281112746403
+            ],
+            "destination": [
+              279203762683,
+              281011803270
+            ]
+          }
+        },
+        "5": {
+          "per_role_effective_core_estimate": {
+            "source": 0.888,
+            "destination": 0.952
+          },
+          "allocated_two_guest_core_fraction_estimate": 0.9199999999999999,
+          "contained_sample_bounds": {
+            "source": [
+              276169925742,
+              281112746403
+            ],
+            "destination": [
+              276128132255,
+              281011803270
+            ]
+          }
+        },
+        "10": {
+          "per_role_effective_core_estimate": {
+            "source": 0.885,
+            "destination": 0.95
+          },
+          "allocated_two_guest_core_fraction_estimate": 0.9175,
+          "contained_sample_bounds": {
+            "source": [
+              271183893494,
+              281112746403
+            ],
+            "destination": [
+              271146137477,
+              281011803270
+            ]
+          }
+        }
+      },
+      "roles": {
+        "source": {
+          "peak_rss_bytes": 715915264,
+          "forced_cleanup": {
+            "exit_code": -9,
+            "group_killed": true,
+            "valid": false
+          },
+          "failure_udp": {
+            "error": "duplicate inode or invalid drops",
+            "error_type": "ValueError",
+            "pid": 96,
+            "status": "UNAVAILABLE"
+          }
+        },
+        "destination": {
+          "peak_rss_bytes": 435290112,
+          "forced_cleanup": {
+            "exit_code": -9,
+            "group_killed": true,
+            "valid": false
+          },
+          "failure_udp": {
+            "all_socket_inode_count": 1,
+            "cpu_sample_monotonic_ns": 283244720254,
+            "cpu_ticks": 1651,
+            "live_socket_drops": 33,
+            "pid": 96,
+            "start_ticks": 26194,
+            "status": "MEASURED_FAILURE_SNAPSHOT",
+            "udp_socket_count": 1
+          }
+        }
+      }
+    },
+    {
+      "label": "n2048-r2",
+      "status": "FAIL_RETAINED",
+      "requested": 2048,
+      "source_materialized_observation_rows": 1032,
+      "source_errors": {
+        "HandshakeTimeout": 4
+      },
+      "source_recorded_successes": 0,
+      "final_ownership": "NOT_MEASURED: cancelled after failure",
+      "owned_processes_absent_before_stop": {
+        "source": true,
+        "destination": true
+      },
+      "cpu_windows": {
+        "1": {
+          "per_role_effective_core_estimate": {
+            "source": 0.86,
+            "destination": 0.8
+          },
+          "allocated_two_guest_core_fraction_estimate": 0.8300000000000001,
+          "contained_sample_bounds": {
+            "source": [
+              378194433621,
+              379156989729
+            ],
+            "destination": [
+              378248170630,
+              379126724128
+            ]
+          }
+        },
+        "2": {
+          "per_role_effective_core_estimate": {
+            "source": 0.94,
+            "destination": 0.86
+          },
+          "allocated_two_guest_core_fraction_estimate": 0.8999999999999999,
+          "contained_sample_bounds": {
+            "source": [
+              377162313160,
+              379156989729
+            ],
+            "destination": [
+              377187192243,
+              379126724128
+            ]
+          }
+        },
+        "5": {
+          "per_role_effective_core_estimate": {
+            "source": 0.92,
+            "destination": 0.922
+          },
+          "allocated_two_guest_core_fraction_estimate": 0.921,
+          "contained_sample_bounds": {
+            "source": [
+              374178574793,
+              379156989729
+            ],
+            "destination": [
+              374218056323,
+              379126724128
+            ]
+          }
+        },
+        "10": {
+          "per_role_effective_core_estimate": {
+            "source": 0.922,
+            "destination": 0.903
+          },
+          "allocated_two_guest_core_fraction_estimate": 0.9125000000000001,
+          "contained_sample_bounds": {
+            "source": [
+              369270643703,
+              379156989729
+            ],
+            "destination": [
+              369193975657,
+              379126724128
+            ]
+          }
+        }
+      },
+      "roles": {
+        "source": {
+          "peak_rss_bytes": 614072320,
+          "forced_cleanup": {
+            "exit_code": -9,
+            "group_killed": true,
+            "valid": false
+          },
+          "failure_udp": {
+            "error": "duplicate inode or invalid drops",
+            "error_type": "ValueError",
+            "pid": 96,
+            "status": "UNAVAILABLE"
+          }
+        },
+        "destination": {
+          "peak_rss_bytes": 334888960,
+          "forced_cleanup": {
+            "exit_code": -9,
+            "group_killed": true,
+            "valid": false
+          },
+          "failure_udp": {
+            "all_socket_inode_count": 1,
+            "cpu_sample_monotonic_ns": 381339396758,
+            "cpu_ticks": 1373,
+            "live_socket_drops": 0,
+            "pid": 96,
+            "start_ticks": 36374,
+            "status": "MEASURED_FAILURE_SNAPSHOT",
+            "udp_socket_count": 1
+          }
+        }
+      }
+    },
+    {
+      "label": "n2048-r3",
+      "status": "FAIL_RETAINED",
+      "requested": 2048,
+      "source_materialized_observation_rows": 1496,
+      "source_errors": {
+        "HandshakeTimeout": 9
+      },
+      "source_recorded_successes": 0,
+      "final_ownership": "NOT_MEASURED: cancelled after failure",
+      "owned_processes_absent_before_stop": {
+        "source": true,
+        "destination": true
+      },
+      "cpu_windows": {
+        "1": {
+          "per_role_effective_core_estimate": {
+            "source": 0.64,
+            "destination": 0.78
+          },
+          "allocated_two_guest_core_fraction_estimate": 0.71,
+          "contained_sample_bounds": {
+            "source": [
+              467097800380,
+              468054899485
+            ],
+            "destination": [
+              467147832129,
+              467961329046
+            ]
+          }
+        },
+        "2": {
+          "per_role_effective_core_estimate": {
+            "source": 0.755,
+            "destination": 0.89
+          },
+          "allocated_two_guest_core_fraction_estimate": 0.8225,
+          "contained_sample_bounds": {
+            "source": [
+              466119296955,
+              468054899485
+            ],
+            "destination": [
+              466123152829,
+              467961329046
+            ]
+          }
+        },
+        "5": {
+          "per_role_effective_core_estimate": {
+            "source": 0.876,
+            "destination": 0.948
+          },
+          "allocated_two_guest_core_fraction_estimate": 0.9119999999999999,
+          "contained_sample_bounds": {
+            "source": [
+              463058469187,
+              468054899485
+            ],
+            "destination": [
+              463081121081,
+              467961329046
+            ]
+          }
+        },
+        "10": {
+          "per_role_effective_core_estimate": {
+            "source": 0.842,
+            "destination": 0.943
+          },
+          "allocated_two_guest_core_fraction_estimate": 0.8925,
+          "contained_sample_bounds": {
+            "source": [
+              458157008501,
+              468054899485
+            ],
+            "destination": [
+              458108933118,
+              467961329046
+            ]
+          }
+        }
+      },
+      "roles": {
+        "source": {
+          "peak_rss_bytes": 769916928,
+          "forced_cleanup": {
+            "exit_code": -9,
+            "group_killed": true,
+            "valid": false
+          },
+          "failure_udp": {
+            "error": "duplicate inode or invalid drops",
+            "error_type": "ValueError",
+            "pid": 97,
+            "status": "UNAVAILABLE"
+          }
+        },
+        "destination": {
+          "peak_rss_bytes": 476659712,
+          "forced_cleanup": {
+            "exit_code": -9,
+            "group_killed": true,
+            "valid": false
+          },
+          "failure_udp": {
+            "all_socket_inode_count": 1,
+            "cpu_sample_monotonic_ns": 470317956947,
+            "cpu_ticks": 1783,
+            "live_socket_drops": 752,
+            "pid": 96,
+            "start_ticks": 44808,
+            "status": "MEASURED_FAILURE_SNAPSHOT",
+            "udp_socket_count": 1
+          }
+        }
+      }
+    }
+  ]
+}
