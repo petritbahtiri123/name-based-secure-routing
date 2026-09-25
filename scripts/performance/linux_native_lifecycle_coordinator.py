@@ -11,7 +11,7 @@ import time
 from scripts.performance.linux_native_duration import bounds
 from scripts.performance.linux_native_cycle_limits import cycle_bounds
 from scripts.performance.linux_b5_ceiling import require
-from scripts.performance.linux_native_lifecycle import validate_cpu_pool, validate_bundle_mode, bundle_counts
+from scripts.performance.linux_native_lifecycle import validate_cpu_pool, validate_bundle_mode, bundle_counts, validate_runtime_workers
 from scripts.performance.linux_native_lifecycle_control import LIVE_BUNDLE_COUNTS, decode_object
 from scripts.performance.linux_native_lifecycle_remote import remote_command, remote_path
 from scripts.performance.linux_native_peer import validate_endpoint
@@ -29,6 +29,8 @@ def endpoint_arguments(config, role):
         argv.extend(['--' + field.replace('_', '-'), str(target[field])])
     for field in ('count', 'rate', 'shards'):
         argv.extend(['--' + field, str(config[field])])
+    if 'runtime_workers' in target:
+        argv.extend(['--runtime-workers', str(target['runtime_workers'])])
     if 'cpu_pool' in target:
         argv.extend(['--cpu-pool', ','.join(map(str, target['cpu_pool']))])
     if role == 'source':
@@ -51,12 +53,15 @@ def validate_config(value):
     require(type(value['rate']) is int and 1 <= value['rate'] <= 1000, 'invalid offered rate')
     for role in SEQUENCES:
         target = value[role]
-        require(isinstance(target, dict) and set(target) - {'cpu_pool'} == {'transport', 'host', 'checkout', 'binaries',
+        require(isinstance(target, dict) and set(target) - {'cpu_pool', 'runtime_workers'} == {'transport', 'host', 'checkout', 'binaries',
             'build_manifest', 'authority', 'lifecycle', 'output', 'bind', 'cores'}, 'invalid role configuration')
         remote_command(target, ['true'])  # Validation only; no remote operation.
         for field in ('binaries', 'build_manifest', 'authority', 'lifecycle', 'output'):
             remote_path(target[field])
         require(type(target['cores']) is int and target['cores'] in (1, 2, 4), 'invalid cores')
+        if 'runtime_workers' in target:
+            require(role == 'destination', 'explicit runtime workers supported only for destination')
+            validate_runtime_workers(target['runtime_workers'], target['cores'])
         if 'cpu_pool' in target:
             validate_cpu_pool(target['cpu_pool'], target['cores'])
         _, port = validate_endpoint(target['bind'], allow_zero=True)

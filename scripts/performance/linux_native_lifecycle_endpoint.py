@@ -223,6 +223,7 @@ def execute_endpoint(args, *, input_stream=None, output_stream=None, delegate=na
                     stream.write('start\n')
         write_json(output / 'controller.json', dict(schema=schema,
             role=args.role, count=args.count, peer_output=str(args.output),
+            **({'runtime_workers': args.runtime_workers} if getattr(args, 'runtime_workers', None) is not None else {}),
             control_input='bounded private stdin JSON lines', timing='DIAGNOSTIC_ONLY',
             hold_seconds=2, cooldown_seconds=2, bundle_mode=bundle_mode, memory_observer=getattr(args, 'memory_observer', False), child_ownership='delegated to linux_native_lifecycle.execute',
             **({'streams': getattr(args, 'streams', 1), 'channels': getattr(args, 'channels', 1)} if cycles is not None else {})))

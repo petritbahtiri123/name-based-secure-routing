@@ -93,6 +93,8 @@ def execute(config, output, *, check_cancelled=not_cancelled):
                         source_sha=config['source_sha'], count=count, **cycle_shape)
         for role in ('source', 'destination'):
             environment = json.loads((output / role / 'peer' / 'environment.json').read_bytes())
+            require(config[role].get('runtime_workers') == environment.get('runtime_workers'),
+                    'requested/actual runtime worker mismatch')
             require(environment['offered_rate'] == config.get('rate') and environment['source_shards'] == config.get('shards'),
                     'requested/actual workload mismatch')
             cpus = environment['linux_environment']['selected_cpus']

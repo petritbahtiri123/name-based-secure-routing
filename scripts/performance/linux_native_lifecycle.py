@@ -127,14 +127,26 @@ def cycle_command(*, role, cycles, binaries, authority, lifecycle, output, bind,
     return argv, overrides
 
 
+def validate_runtime_workers(workers, cores):
+    require(type(workers) is int and workers in (1, 2, 4)
+            and type(cores) is int and cores in (1, 2, 4) and workers <= cores, 'invalid runtime workers/allocation')
+    return workers
+
+
 def workload_command(args, **paths):
     cycles = getattr(args, 'cycles', None)
     bundle_mode = validate_bundle_mode(getattr(args, 'bundle_mode', 'idle-bundles'), cycles)
+    workers = getattr(args, 'runtime_workers', None)
+    if workers is not None:
+        require(args.role == 'destination', 'explicit runtime workers supported only for destination')
+        validate_runtime_workers(workers, args.cores)
+        require(cycles is None, 'explicit runtime workers only supported for bundles')
     if cycles is not None:
         require(args.count == cycles and args.rate is None and args.shards is None,
                 'sequential cycles have no offered-rate/fanout contract')
         return cycle_command(role=args.role, cycles=cycles, streams=getattr(args, 'streams', 1), channels=getattr(args, 'channels', 1), **paths)
-    return command(role=args.role, count=args.count, shards=args.shards, rate=args.rate, bundle_mode=bundle_mode, **paths)
+    argv, overrides = command(role=args.role, count=args.count, shards=args.shards, rate=args.rate, bundle_mode=bundle_mode, **paths)
+    return argv + (['--p2a-runtime-workers', str(workers)] if workers is not None else []), overrides
 
 
 def validate_result(role, count, rows, server, *, streams=1, channels=1):
@@ -260,6 +272,7 @@ def execute(args, *, check_cancelled=not_cancelled):
         argv = [host['taskset'], '--cpu-list', ','.join(map(str, host['selected_cpus'])), *argv]
         write_json(output / 'environment.json', dict(repository_sha=sha, role=args.role,
             count=args.count, offered_rate=args.rate, source_shards=args.shards, linux_environment=host,
+            **({'runtime_workers': args.runtime_workers} if getattr(args, 'runtime_workers', None) is not None else {}),
             uid=os.getuid(), binary_sha256=hashes, fixture_sha256=fixture,
             controller_deadline_seconds=controller_seconds, memory_observer=memory_observer, bundle_mode=bundle_mode, timing='DIAGNOSTIC_ONLY', physical_host='NOT_PROVEN',
             **({'cycles': args.cycles, 'streams': getattr(args, 'streams', 1), 'channels': channels, 'workload_mode': 'same_process_sequential'}
@@ -341,6 +354,8 @@ def argument_parser(*, sequential=False):
         parser.add_argument('--bundle-mode', choices=('idle-bundles', 'live-bundles'), default='idle-bundles')
         parser.add_argument('--shards', type=int, choices=(1, 2), default=2)
         parser.add_argument('--rate', type=int, default=100)
+    if not sequential:
+        parser.add_argument('--runtime-workers', type=int, choices=(1, 2, 4), help='Explicit benchmark runtime workers; cannot exceed allocated cores')
     parser.add_argument('--memory-observer', action='store_true')
     parser.add_argument('--cores', type=int, choices=(1, 2, 4), default=1)
     parser.add_argument('--cpu-pool', type=parse_cpu_pool,

@@ -42,6 +42,9 @@ def check_endpoint(root, role, count, *, memory_observer=False, bundle_mode='idl
             and type(controller.get('memory_observer', False)) is bool and controller.get('memory_observer', False) == memory_observer
             and controller['count'] == count and controller['hold_seconds'] == controller['cooldown_seconds'] == 2
             and result['status'] == 'PASS_FUNCTIONAL_ENDPOINT', 'endpoint contract mismatch')
+    env = read(root / 'peer', 'environment.json')
+    require(controller.get('runtime_workers') == env.get('runtime_workers')
+            and ('runtime_workers' not in controller or type(controller['runtime_workers']) is int), 'runtime worker controller/peer mismatch')
     events = check_events(root / 'events.ndjson', role, count)
     expected = {f'connection-{i}.release' for i in range(count)}
     prefix = 'connection' if role == 'source' else 'destination'

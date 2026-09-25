@@ -23,6 +23,8 @@ def validate_config(value):
     require(type(value.get('memory_observer', False)) is bool, 'boolean memory observer required')
     validate_shape(value.get('streams', 1), value.get('channels', 1))
     bundle.validate_config(bundle_shape(value))
+    require(all('runtime_workers' not in value[role] for role in ('source', 'destination')),
+            'explicit runtime workers only supported for bundles')
     return value
 
 

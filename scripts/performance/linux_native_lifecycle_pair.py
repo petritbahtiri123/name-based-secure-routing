@@ -99,6 +99,7 @@ def check_peer(root, role, source_sha, count, *, cycles=None, streams=1, channel
     if 'requested_cpu_pool' in env['linux_environment']:
         selected = select_cpu_pool(env['linux_environment'], len(cpus), env['linux_environment']['requested_cpu_pool'])
         require(selected['selected_cpus'] == cpus, 'requested/observed CPU pool mismatch')
+    require('runtime_workers' not in env or type(env['runtime_workers']) is int, 'invalid runtime worker declaration')
     binary = PurePosixPath(argv[3])
     require(binary.name == name, "wrong role binary")
     bind = option("--benchmark-client-bind" if role == "source" else "--benchmark-listen")
@@ -107,7 +108,7 @@ def check_peer(root, role, source_sha, count, *, cycles=None, streams=1, channel
     lifecycle = option("--lifecycle-authority-dir" if role == "source" else "--b3-report-gate")
     output = PurePosixPath(option("--ready")).parent if role == "destination" else PurePosixPath("/unused")
     expected, overrides = workload_command(
-        SimpleNamespace(role=role, count=count, cycles=cycles, streams=streams, channels=channels, bundle_mode=bundle_mode, shards=env["source_shards"], rate=env["offered_rate"]),
+        SimpleNamespace(role=role, count=count, cycles=cycles, streams=streams, channels=channels, bundle_mode=bundle_mode, cores=len(cpus), runtime_workers=env.get('runtime_workers'), shards=env["source_shards"], rate=env["offered_rate"]),
         binaries=binary.parent,
         authority=PurePosixPath(option("--authority-dir")),
         lifecycle=PurePosixPath(lifecycle),
