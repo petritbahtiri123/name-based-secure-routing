@@ -1,0 +1,22 @@
+[
+  {
+    "root": "C:\\NBSR-build\\native-live4096-memory2-530ecac9",
+    "index_sha256": "c56261973c1783366c107be0b71a2b2749a07b6ef076976ca6e356137af2ef05"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-live4096-followup-530ecac9",
+    "index_sha256": "e5a9c52d7a1235491d6beb1520a11ae4747568b51f1ddf4bde06ac498d4a26df"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-current-530ecac9",
+    "index_sha256": "877bd6964cf78ca03f5cb753f90a8956c840eea25f31ea9a42272d0663941002"
+  },
+  {
+    "root": "C:\\NBSR-build\\native4096-tests-20260925",
+    "index_sha256": "09ac3e1c506f7adb5b81abce4ab03b3ecc43751eb4565addc0c6d04715b71d3e"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-2048-fixture-cleanup-20260925",
+    "index_sha256": "2f3a4bd0ed7cdeb6d4d08ae968d4f16a738e8b46c35108350d379ed88faf691c"
+  }
+]
