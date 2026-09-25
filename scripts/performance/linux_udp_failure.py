@@ -57,6 +57,23 @@ def parse_udp(text, inodes, *, family):
     return result
 
 
+def parse_udp_mib(text):
+    """Parse IPv4 UDP namespace counters; these are not socket-local drops."""
+    if len(text) > 65536:
+        raise ValueError("UDP MIB observation bound exceeded")
+    rows = [line.split()[1:] for line in text.splitlines() if line.startswith("Udp:")]
+    if len(rows) != 2:
+        raise ValueError("missing or duplicate UDP MIB pair")
+    names, values = rows
+    required = {"InDatagrams", "NoPorts", "InErrors", "OutDatagrams", "RcvbufErrors", "SndbufErrors"}
+    if (len(names) != len(values) or len(set(names)) != len(names)
+            or not required.issubset(names) or len(names) > 64
+            or any(not re.fullmatch(r"[A-Za-z][A-Za-z0-9]*", name) for name in names)
+            or any(not re.fullmatch(r"[0-9]{1,20}", value) or int(value) >= 2**64 for value in values)):
+        raise ValueError("invalid UDP MIB counters")
+    return dict(zip(names, map(int, values)))
+
+
 def capture_owned_udp(processes, expected_starts, *, proc_root=Path("/proc")):
     result = dict(
         schema="nbsr-linux-udp-failure-v1",
@@ -96,6 +113,15 @@ def capture_owned_udp(processes, expected_starts, *, proc_root=Path("/proc")):
             rows = []
             for family in ("udp", "udp6"):
                 rows.extend(parse_udp(read_bounded(base / "net" / family), inodes, family=family))
+            try:
+                namespace_mib = dict(
+                    status="MEASURED_NAMESPACE_CUMULATIVE",
+                    scope="IPv4 UDP network-namespace cumulative counters, not per-socket; "
+                    "no baseline, event timestamps or per-timeout attribution.",
+                    counters=parse_udp_mib(read_bounded(base / "net" / "snmp", 65536)),
+                )
+            except (OSError, ValueError) as error:
+                namespace_mib = dict(status="UNAVAILABLE", error_type=type(error).__name__, error=str(error)[:256])
             final = identity()
             cpu_sample_monotonic_ns = time.monotonic_ns()
             if initial["state"] == "Z" or final["state"] == "Z" or final["flags"] & 4:
@@ -111,6 +137,7 @@ def capture_owned_udp(processes, expected_starts, *, proc_root=Path("/proc")):
                 udp_socket_count=len(rows),
                 live_socket_drops=sum(row["drops"] for row in rows),
                 sockets=rows,
+                namespace_udp_mib=namespace_mib,
             )
         except (OSError, ValueError, RuntimeError) as error:
             result["roles"][role] = dict(status="UNAVAILABLE", pid=process.pid, error_type=type(error).__name__, error=str(error)[:256])

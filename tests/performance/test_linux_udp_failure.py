@@ -73,3 +73,57 @@ def test_bounded_reader_rejects_truncation(tmp_path):
     p.write_bytes(b'12345')
     with pytest.raises(ValueError, match='bound'):
         module().read_bounded(p, 4)
+
+SNMP = 'Ip: Forwarding DefaultTTL\nIp: 1 64\nUdp: InDatagrams NoPorts InErrors OutDatagrams RcvbufErrors SndbufErrors InCsumErrors IgnoredMulti MemErrors\nUdp: 12 0 7 15 6 0 1 0 0\n'
+
+
+def test_parse_udp_namespace_mib():
+    value = module().parse_udp_mib(SNMP)
+    assert value['RcvbufErrors'] == 6 and value['InErrors'] == 7
+    assert value['InCsumErrors'] == 1
+
+
+@pytest.mark.parametrize('text', [
+    'Ip: A\nIp: 1\n',
+    SNMP + 'Udp: A\nUdp: 1\n',
+    SNMP.replace('12 0 7', '12 0 -7'),
+    SNMP.replace('12 0 7', '12 0'),
+    SNMP.replace('NoPorts', 'InDatagrams'),
+    SNMP.replace('12 0 7', '12 0 18446744073709551616'),
+])
+def test_udp_mib_rejects_ambiguous_or_malformed(text):
+    with pytest.raises(ValueError):
+        module().parse_udp_mib(text)
+
+
+def test_failure_snapshot_attaches_namespace_not_socket_mib(tmp_path, monkeypatch):
+    udp = module()
+    base = tmp_path / '11'
+    (base / 'fd').mkdir(parents=True)
+    (base / 'net').mkdir()
+    (base / 'fd' / '3').touch()
+    (base / 'stat').write_text(stat())
+    (base / 'net' / 'udp').write_text(HEADER + ROW)
+    (base / 'net' / 'udp6').write_text(HEADER.replace('rem_address', 'remote_address'))
+    (base / 'net' / 'snmp').write_text(SNMP)
+    monkeypatch.setattr(os, 'readlink', lambda path: 'socket:[99]')
+    children = {'destination': SimpleNamespace(pid=11, poll=lambda: None)}
+    result = udp.capture_owned_udp(children, {11: 3}, proc_root=tmp_path)['roles']['destination']
+    assert result['live_socket_drops'] == 42
+    mib = result['namespace_udp_mib']
+    assert mib['status'] == 'MEASURED_NAMESPACE_CUMULATIVE'
+    assert mib['counters']['RcvbufErrors'] == 6
+    assert 'not per-socket' in mib['scope']
+    (base / 'net' / 'snmp').unlink()
+    result = udp.capture_owned_udp(children, {11: 3}, proc_root=tmp_path)['roles']['destination']
+    assert result['status'] == 'MEASURED_FAILURE_SNAPSHOT'
+    assert result['namespace_udp_mib']['status'] == 'UNAVAILABLE'
+    # Reading MIB must remain inside the owned-process epoch guard.
+    original = udp.read_bounded
+    def switched(path, limit=8 * 1024 * 1024):
+        if path.name == 'snmp':
+            (base / 'stat').write_text(stat(4))
+            return SNMP
+        return original(path, limit)
+    monkeypatch.setattr(udp, 'read_bounded', switched)
+    assert udp.capture_owned_udp(children, {11: 3}, proc_root=tmp_path)['roles']['destination']['status'] == 'UNAVAILABLE'
