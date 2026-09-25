@@ -134,7 +134,9 @@ def sample_process(pid, cpus, proc_root=Path("/proc"), ticks=None, page_size=Non
             if (task / "children").read_text().strip():
                 raise RuntimeError("unexpected untracked child process")
             tids.append(int(task.name))
-        except FileNotFoundError:
+        except (FileNotFoundError, ProcessLookupError):
+            # A nonleader may exit after enumeration: proc reads can return
+            # ENOENT or ESRCH. Missing leaders and access errors remain fatal.
             if task.name == str(pid):
                 raise
     if pid not in tids:
