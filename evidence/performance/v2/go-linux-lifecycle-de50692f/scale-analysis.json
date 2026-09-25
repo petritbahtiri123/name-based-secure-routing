@@ -1,0 +1,2521 @@
+{
+  "schema": "nbsr-go-b3-linux-analysis-v1",
+  "classification": "DIAGNOSTIC_SCOPED",
+  "inputs": [
+    {
+      "root": "C:\\NBSR-build\\go-linux-scale-startup-gate\\large-streams",
+      "checksums_sha256": "ac867bebaafaf03299072e2ecebd45f7c432c39b413be833ff6904aa15793126",
+      "environment_sha256": "156cfef04ccb62ced9bfe4610817e4d5482f0c98d67f73a836601efb620ad293",
+      "records_sha256": "6cb3eb978b2d6f7efc966ec7ee2907a531b07d554be4339b84a4c39eb0a39e9c",
+      "build_manifest_sha256": "e8594674138d7b35103f22768ca1eb47178fcd0583680ab5022ba4fe81b4c1c7",
+      "classification": "DIAGNOSTIC_BINARY_SOURCE_MISMATCH",
+      "source_sha": "de50692f57aed233ec80888eaa2111f3a0e1a29c",
+      "binary_source_sha": "d88663afd86b9496290957fff7ec22558d7bf4ed",
+      "binary_sha256": {
+        "go": "ed80dd10ff5655629633b48886f17b881865f6a029283c3c24e14e4c4ad30881",
+        "server": "36015f5af2445e055b27403acc9bf424041283ddfe0775170aa408bddde453f8"
+      },
+      "controller_hashes": {
+        "run_b3_v2.py": "368cd06ff24031887f2eea4df54e1c1600c60f2b3b5eaccf6943d534fdaf78d5",
+        "run_b3_session_lifecycle.py": "ca014db7c916aad11a116c1fcc25119f22843f015f3f13c8cad2a3168b8de915",
+        "performance/b3_linux.py": "40d7249342d63c061deefe8e9f4b9bebbb3e439d29f0db9af7289232e7d55c28",
+        "performance/b3_linux_analysis.py": "8799a29f52a2f46076b36e54fc4999dc083430ba7bf25cf7e2af8d09f51f3ea3",
+        "performance/linux_resources.py": "ebb356e5af274d6d865a989484caf423100b668a52a909e9d7f0064375b5dcdf",
+        "performance/linux_loopback.py": "58429171ac36d3a1002aae1b2e282f0c8b525cf00b67ad5e4d2d968949550d91",
+        "interop/nbsr-go-peer/cmd/nbsr-go-peer/main.go": "b457e86f469d7e74128dc1cfe83e7e9a0cf05251677ad1c9efb300579093e6d9",
+        "interop/nbsr-go-peer/cmd/nbsr-go-peer/lifecycle_completion.go": "e8bd22e60eb4ae3e1d4b09724ddf1fdf6f785e0019b29b6627fbe6fbdb540c01",
+        "crates/nbsr-transport/src/bin/benchmark_support/b3_peer_completion.rs": "942373cf65cffc461ea21880ba5dcade8a12c33c623ed0253d91598bcdfa6181",
+        "scripts/performance/b3_go_linux_analysis.py": "fd30642b97ba73d47311e8d188831568202403c9c736a074ed4d7bb8674fa964"
+      },
+      "memory_scope": "Linux smaps private resident/RSS/PSS/separate hugetlb, FD/thread counts; no Windows commit/handle aliases",
+      "platform": {
+        "topology": {
+          "cpus": [
+            {
+              "core": 0,
+              "cpu": 0,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            },
+            {
+              "core": 0,
+              "cpu": 1,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            },
+            {
+              "core": 1,
+              "cpu": 2,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            },
+            {
+              "core": 1,
+              "cpu": 3,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            },
+            {
+              "core": 2,
+              "cpu": 4,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            },
+            {
+              "core": 2,
+              "cpu": 5,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            },
+            {
+              "core": 3,
+              "cpu": 6,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            },
+            {
+              "core": 3,
+              "cpu": 7,
+              "node": 0,
+              "online": true,
+              "socket": 0
+            }
+          ]
+        },
+        "selected_cpus": [
+          0
+        ],
+        "inherited_cpus": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "kernel": "Linux-6.6.114.1-microsoft-standard-WSL2-x86_64-with-glibc2.36",
+        "python": "3.14.6",
+        "taskset_version": "taskset from util-linux 2.38.1",
+        "lscpu_version": "lscpu from util-linux 2.38.1"
+      },
+      "cgroup_limits": {
+        "/sys/fs/cgroup/cpu.max": "max 100000\n",
+        "/sys/fs/cgroup/cpuset.cpus.effective": "0-7\n",
+        "/sys/fs/cgroup/memory.max": "max\n",
+        "/sys/fs/cgroup/pids.max": "max\n"
+      }
+    }
+  ],
+  "cells": [
+    {
+      "name": "streams-c32-64-r1",
+      "roles": {
+        "source": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 6053888,
+              "rss_bytes": 7376896,
+              "pss_bytes": 6403072,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 7,
+              "thread_count": 4
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 9461760,
+              "rss_bytes": 10784768,
+              "pss_bytes": 9810944,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 4
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": null,
+              "rss_bytes": null,
+              "pss_bytes": null,
+              "private_hugetlb_bytes": null,
+              "fd_count": null,
+              "thread_count": null
+            }
+          ]
+        },
+        "destination": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 3174400,
+              "rss_bytes": 4968448,
+              "pss_bytes": 3747840,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 4296704,
+              "rss_bytes": 6090752,
+              "pss_bytes": 4870144,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 5836800,
+              "rss_bytes": 7630848,
+              "pss_bytes": 6535168,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ]
+        }
+      },
+      "source_ownership": "NOT_MEASURED",
+      "destination_ownership": "CLEAN_8_COUNTERS",
+      "memory_cause": "INCONCLUSIVE",
+      "completed_operations": 64,
+      "classification": "DIAGNOSTIC_SCOPED"
+    },
+    {
+      "name": "streams-c32-64-r2",
+      "roles": {
+        "source": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 5902336,
+              "rss_bytes": 7254016,
+              "pss_bytes": 6258688,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 7,
+              "thread_count": 4
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 9457664,
+              "rss_bytes": 10809344,
+              "pss_bytes": 9814016,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 4
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": null,
+              "rss_bytes": null,
+              "pss_bytes": null,
+              "private_hugetlb_bytes": null,
+              "fd_count": null,
+              "thread_count": null
+            }
+          ]
+        },
+        "destination": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 3002368,
+              "rss_bytes": 4820992,
+              "pss_bytes": 3581952,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 4214784,
+              "rss_bytes": 6033408,
+              "pss_bytes": 4794368,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 5812224,
+              "rss_bytes": 7630848,
+              "pss_bytes": 6524928,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ]
+        }
+      },
+      "source_ownership": "NOT_MEASURED",
+      "destination_ownership": "CLEAN_8_COUNTERS",
+      "memory_cause": "INCONCLUSIVE",
+      "completed_operations": 64,
+      "classification": "DIAGNOSTIC_SCOPED"
+    },
+    {
+      "name": "streams-c32-64-r3",
+      "roles": {
+        "source": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 5906432,
+              "rss_bytes": 7262208,
+              "pss_bytes": 6273024,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 7,
+              "thread_count": 4
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 9408512,
+              "rss_bytes": 10764288,
+              "pss_bytes": 9775104,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 4
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": null,
+              "rss_bytes": null,
+              "pss_bytes": null,
+              "private_hugetlb_bytes": null,
+              "fd_count": null,
+              "thread_count": null
+            }
+          ]
+        },
+        "destination": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 3145728,
+              "rss_bytes": 4964352,
+              "pss_bytes": 3741696,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 4288512,
+              "rss_bytes": 6107136,
+              "pss_bytes": 4884480,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 5849088,
+              "rss_bytes": 7667712,
+              "pss_bytes": 6561792,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ]
+        }
+      },
+      "source_ownership": "NOT_MEASURED",
+      "destination_ownership": "CLEAN_8_COUNTERS",
+      "memory_cause": "INCONCLUSIVE",
+      "completed_operations": 64,
+      "classification": "DIAGNOSTIC_SCOPED"
+    },
+    {
+      "name": "streams-c32-64-r4",
+      "roles": {
+        "source": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 5906432,
+              "rss_bytes": 7229440,
+              "pss_bytes": 6261760,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 7,
+              "thread_count": 4
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 9408512,
+              "rss_bytes": 10731520,
+              "pss_bytes": 9763840,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 4
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": null,
+              "rss_bytes": null,
+              "pss_bytes": null,
+              "private_hugetlb_bytes": null,
+              "fd_count": null,
+              "thread_count": null
+            }
+          ]
+        },
+        "destination": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 3129344,
+              "rss_bytes": 4923392,
+              "pss_bytes": 3710976,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 4300800,
+              "rss_bytes": 6094848,
+              "pss_bytes": 4882432,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 5869568,
+              "rss_bytes": 7663616,
+              "pss_bytes": 6562816,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ]
+        }
+      },
+      "source_ownership": "NOT_MEASURED",
+      "destination_ownership": "CLEAN_8_COUNTERS",
+      "memory_cause": "INCONCLUSIVE",
+      "completed_operations": 64,
+      "classification": "DIAGNOSTIC_SCOPED"
+    },
+    {
+      "name": "streams-c32-64-r5",
+      "roles": {
+        "source": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 5992448,
+              "rss_bytes": 7344128,
+              "pss_bytes": 6345728,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 7,
+              "thread_count": 4
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 9388032,
+              "rss_bytes": 10739712,
+              "pss_bytes": 9741312,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 4
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": null,
+              "rss_bytes": null,
+              "pss_bytes": null,
+              "private_hugetlb_bytes": null,
+              "fd_count": null,
+              "thread_count": null
+            }
+          ]
+        },
+        "destination": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 3211264,
+              "rss_bytes": 5095424,
+              "pss_bytes": 3810304,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 4333568,
+              "rss_bytes": 6217728,
+              "pss_bytes": 4932608,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 5902336,
+              "rss_bytes": 7786496,
+              "pss_bytes": 6629376,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ]
+        }
+      },
+      "source_ownership": "NOT_MEASURED",
+      "destination_ownership": "CLEAN_8_COUNTERS",
+      "memory_cause": "INCONCLUSIVE",
+      "completed_operations": 64,
+      "classification": "DIAGNOSTIC_SCOPED"
+    },
+    {
+      "name": "streams-c32-128-r1",
+      "roles": {
+        "source": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 6074368,
+              "rss_bytes": 7430144,
+              "pss_bytes": 6439936,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 7,
+              "thread_count": 4
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 9924608,
+              "rss_bytes": 11280384,
+              "pss_bytes": 10290176,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 4
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": null,
+              "rss_bytes": null,
+              "pss_bytes": null,
+              "private_hugetlb_bytes": null,
+              "fd_count": null,
+              "thread_count": null
+            }
+          ]
+        },
+        "destination": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 3129344,
+              "rss_bytes": 4947968,
+              "pss_bytes": 3722240,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 4354048,
+              "rss_bytes": 6172672,
+              "pss_bytes": 4946944,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 7196672,
+              "rss_bytes": 9015296,
+              "pss_bytes": 7907328,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ]
+        }
+      },
+      "source_ownership": "NOT_MEASURED",
+      "destination_ownership": "CLEAN_8_COUNTERS",
+      "memory_cause": "INCONCLUSIVE",
+      "completed_operations": 128,
+      "classification": "DIAGNOSTIC_SCOPED"
+    },
+    {
+      "name": "streams-c32-128-r2",
+      "roles": {
+        "source": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 6070272,
+              "rss_bytes": 7421952,
+              "pss_bytes": 6435840,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 7,
+              "thread_count": 4
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 9994240,
+              "rss_bytes": 11345920,
+              "pss_bytes": 10357760,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 5
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": null,
+              "rss_bytes": null,
+              "pss_bytes": null,
+              "private_hugetlb_bytes": null,
+              "fd_count": null,
+              "thread_count": null
+            }
+          ]
+        },
+        "destination": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 3162112,
+              "rss_bytes": 4947968,
+              "pss_bytes": 3733504,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 4354048,
+              "rss_bytes": 6205440,
+              "pss_bytes": 4950016,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 7163904,
+              "rss_bytes": 9015296,
+              "pss_bytes": 7884800,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ]
+        }
+      },
+      "source_ownership": "NOT_MEASURED",
+      "destination_ownership": "CLEAN_8_COUNTERS",
+      "memory_cause": "INCONCLUSIVE",
+      "completed_operations": 128,
+      "classification": "DIAGNOSTIC_SCOPED"
+    },
+    {
+      "name": "streams-c32-128-r3",
+      "roles": {
+        "source": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 6049792,
+              "rss_bytes": 7385088,
+              "pss_bytes": 6410240,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 7,
+              "thread_count": 4
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 9945088,
+              "rss_bytes": 11280384,
+              "pss_bytes": 10305536,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 4
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": null,
+              "rss_bytes": null,
+              "pss_bytes": null,
+              "private_hugetlb_bytes": null,
+              "fd_count": null,
+              "thread_count": null
+            }
+          ]
+        },
+        "destination": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 3162112,
+              "rss_bytes": 5046272,
+              "pss_bytes": 3783680,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 4382720,
+              "rss_bytes": 6266880,
+              "pss_bytes": 5004288,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 7204864,
+              "rss_bytes": 9089024,
+              "pss_bytes": 7946240,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ]
+        }
+      },
+      "source_ownership": "NOT_MEASURED",
+      "destination_ownership": "CLEAN_8_COUNTERS",
+      "memory_cause": "INCONCLUSIVE",
+      "completed_operations": 128,
+      "classification": "DIAGNOSTIC_SCOPED"
+    },
+    {
+      "name": "streams-c32-128-r4",
+      "roles": {
+        "source": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 6008832,
+              "rss_bytes": 7364608,
+              "pss_bytes": 6363136,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 7,
+              "thread_count": 4
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 9920512,
+              "rss_bytes": 11276288,
+              "pss_bytes": 10274816,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 4
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": null,
+              "rss_bytes": null,
+              "pss_bytes": null,
+              "private_hugetlb_bytes": null,
+              "fd_count": null,
+              "thread_count": null
+            }
+          ]
+        },
+        "destination": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 3153920,
+              "rss_bytes": 5038080,
+              "pss_bytes": 3751936,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 4378624,
+              "rss_bytes": 6262784,
+              "pss_bytes": 4976640,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 7172096,
+              "rss_bytes": 9056256,
+              "pss_bytes": 7899136,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ]
+        }
+      },
+      "source_ownership": "NOT_MEASURED",
+      "destination_ownership": "CLEAN_8_COUNTERS",
+      "memory_cause": "INCONCLUSIVE",
+      "completed_operations": 128,
+      "classification": "DIAGNOSTIC_SCOPED"
+    },
+    {
+      "name": "streams-c32-128-r5",
+      "roles": {
+        "source": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 5992448,
+              "rss_bytes": 7356416,
+              "pss_bytes": 6349824,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 7,
+              "thread_count": 4
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 9887744,
+              "rss_bytes": 11251712,
+              "pss_bytes": 10245120,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 4
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": null,
+              "rss_bytes": null,
+              "pss_bytes": null,
+              "private_hugetlb_bytes": null,
+              "fd_count": null,
+              "thread_count": null
+            }
+          ]
+        },
+        "destination": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 3182592,
+              "rss_bytes": 5009408,
+              "pss_bytes": 3760128,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 4382720,
+              "rss_bytes": 6209536,
+              "pss_bytes": 4960256,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 7229440,
+              "rss_bytes": 9056256,
+              "pss_bytes": 7938048,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ]
+        }
+      },
+      "source_ownership": "NOT_MEASURED",
+      "destination_ownership": "CLEAN_8_COUNTERS",
+      "memory_cause": "INCONCLUSIVE",
+      "completed_operations": 128,
+      "classification": "DIAGNOSTIC_SCOPED"
+    },
+    {
+      "name": "streams-c32-256-r1",
+      "roles": {
+        "source": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 6004736,
+              "rss_bytes": 7327744,
+              "pss_bytes": 6372352,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 7,
+              "thread_count": 4
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 10911744,
+              "rss_bytes": 12234752,
+              "pss_bytes": 11279360,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 4
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": null,
+              "rss_bytes": null,
+              "pss_bytes": null,
+              "private_hugetlb_bytes": null,
+              "fd_count": null,
+              "thread_count": null
+            }
+          ]
+        },
+        "destination": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 3162112,
+              "rss_bytes": 5025792,
+              "pss_bytes": 3772416,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 4497408,
+              "rss_bytes": 6361088,
+              "pss_bytes": 5107712,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 9662464,
+              "rss_bytes": 11526144,
+              "pss_bytes": 10380288,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ]
+        }
+      },
+      "source_ownership": "NOT_MEASURED",
+      "destination_ownership": "CLEAN_8_COUNTERS",
+      "memory_cause": "INCONCLUSIVE",
+      "completed_operations": 256,
+      "classification": "DIAGNOSTIC_SCOPED"
+    },
+    {
+      "name": "streams-c32-256-r2",
+      "roles": {
+        "source": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 5935104,
+              "rss_bytes": 7286784,
+              "pss_bytes": 6298624,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 7,
+              "thread_count": 4
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 10940416,
+              "rss_bytes": 12292096,
+              "pss_bytes": 11303936,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 4
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": null,
+              "rss_bytes": null,
+              "pss_bytes": null,
+              "private_hugetlb_bytes": null,
+              "fd_count": null,
+              "thread_count": null
+            }
+          ]
+        },
+        "destination": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 3059712,
+              "rss_bytes": 4853760,
+              "pss_bytes": 3633152,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 4403200,
+              "rss_bytes": 6197248,
+              "pss_bytes": 4976640,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 9572352,
+              "rss_bytes": 11366400,
+              "pss_bytes": 10270720,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ]
+        }
+      },
+      "source_ownership": "NOT_MEASURED",
+      "destination_ownership": "CLEAN_8_COUNTERS",
+      "memory_cause": "INCONCLUSIVE",
+      "completed_operations": 256,
+      "classification": "DIAGNOSTIC_SCOPED"
+    },
+    {
+      "name": "streams-c32-256-r3",
+      "roles": {
+        "source": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 5906432,
+              "rss_bytes": 7286784,
+              "pss_bytes": 6281216,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 7,
+              "thread_count": 4
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 10911744,
+              "rss_bytes": 12292096,
+              "pss_bytes": 11286528,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 4
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": null,
+              "rss_bytes": null,
+              "pss_bytes": null,
+              "private_hugetlb_bytes": null,
+              "fd_count": null,
+              "thread_count": null
+            }
+          ]
+        },
+        "destination": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 3100672,
+              "rss_bytes": 4874240,
+              "pss_bytes": 3664896,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 4464640,
+              "rss_bytes": 6238208,
+              "pss_bytes": 5028864,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 9625600,
+              "rss_bytes": 11399168,
+              "pss_bytes": 10313728,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ]
+        }
+      },
+      "source_ownership": "NOT_MEASURED",
+      "destination_ownership": "CLEAN_8_COUNTERS",
+      "memory_cause": "INCONCLUSIVE",
+      "completed_operations": 256,
+      "classification": "DIAGNOSTIC_SCOPED"
+    },
+    {
+      "name": "streams-c32-256-r4",
+      "roles": {
+        "source": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 5967872,
+              "rss_bytes": 7299072,
+              "pss_bytes": 6337536,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 7,
+              "thread_count": 4
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 10928128,
+              "rss_bytes": 12259328,
+              "pss_bytes": 11297792,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 4
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": null,
+              "rss_bytes": null,
+              "pss_bytes": null,
+              "private_hugetlb_bytes": null,
+              "fd_count": null,
+              "thread_count": null
+            }
+          ]
+        },
+        "destination": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 3141632,
+              "rss_bytes": 5005312,
+              "pss_bytes": 3750912,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 4497408,
+              "rss_bytes": 6361088,
+              "pss_bytes": 5106688,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 9551872,
+              "rss_bytes": 11415552,
+              "pss_bytes": 10269696,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ]
+        }
+      },
+      "source_ownership": "NOT_MEASURED",
+      "destination_ownership": "CLEAN_8_COUNTERS",
+      "memory_cause": "INCONCLUSIVE",
+      "completed_operations": 256,
+      "classification": "DIAGNOSTIC_SCOPED"
+    },
+    {
+      "name": "streams-c32-256-r5",
+      "roles": {
+        "source": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 5976064,
+              "rss_bytes": 7331840,
+              "pss_bytes": 6337536,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 7,
+              "thread_count": 4
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 10977280,
+              "rss_bytes": 12333056,
+              "pss_bytes": 11338752,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 4
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": null,
+              "rss_bytes": null,
+              "pss_bytes": null,
+              "private_hugetlb_bytes": null,
+              "fd_count": null,
+              "thread_count": null
+            }
+          ]
+        },
+        "destination": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 3166208,
+              "rss_bytes": 5005312,
+              "pss_bytes": 3760128,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 4472832,
+              "rss_bytes": 6311936,
+              "pss_bytes": 5066752,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 9617408,
+              "rss_bytes": 11456512,
+              "pss_bytes": 10333184,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ]
+        }
+      },
+      "source_ownership": "NOT_MEASURED",
+      "destination_ownership": "CLEAN_8_COUNTERS",
+      "memory_cause": "INCONCLUSIVE",
+      "completed_operations": 256,
+      "classification": "DIAGNOSTIC_SCOPED"
+    },
+    {
+      "name": "streams-c32-512-r1",
+      "roles": {
+        "source": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 5943296,
+              "rss_bytes": 7323648,
+              "pss_bytes": 6318080,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 7,
+              "thread_count": 5
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 13103104,
+              "rss_bytes": 14483456,
+              "pss_bytes": 13477888,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 5
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": null,
+              "rss_bytes": null,
+              "pss_bytes": null,
+              "private_hugetlb_bytes": null,
+              "fd_count": null,
+              "thread_count": null
+            }
+          ]
+        },
+        "destination": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 3096576,
+              "rss_bytes": 4915200,
+              "pss_bytes": 3683328,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 4636672,
+              "rss_bytes": 6455296,
+              "pss_bytes": 5223424,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 14442496,
+              "rss_bytes": 16261120,
+              "pss_bytes": 15153152,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ]
+        }
+      },
+      "source_ownership": "NOT_MEASURED",
+      "destination_ownership": "CLEAN_8_COUNTERS",
+      "memory_cause": "INCONCLUSIVE",
+      "completed_operations": 512,
+      "classification": "DIAGNOSTIC_SCOPED"
+    },
+    {
+      "name": "streams-c32-512-r2",
+      "roles": {
+        "source": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 5844992,
+              "rss_bytes": 7225344,
+              "pss_bytes": 6235136,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 7,
+              "thread_count": 5
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 13090816,
+              "rss_bytes": 14471168,
+              "pss_bytes": 13480960,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 5
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": null,
+              "rss_bytes": null,
+              "pss_bytes": null,
+              "private_hugetlb_bytes": null,
+              "fd_count": null,
+              "thread_count": null
+            }
+          ]
+        },
+        "destination": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 3158016,
+              "rss_bytes": 4968448,
+              "pss_bytes": 3740672,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 4714496,
+              "rss_bytes": 6524928,
+              "pss_bytes": 5297152,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 14708736,
+              "rss_bytes": 16519168,
+              "pss_bytes": 15398912,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ]
+        }
+      },
+      "source_ownership": "NOT_MEASURED",
+      "destination_ownership": "CLEAN_8_COUNTERS",
+      "memory_cause": "INCONCLUSIVE",
+      "completed_operations": 512,
+      "classification": "DIAGNOSTIC_SCOPED"
+    },
+    {
+      "name": "streams-c32-512-r3",
+      "roles": {
+        "source": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 5898240,
+              "rss_bytes": 7233536,
+              "pss_bytes": 6251520,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 7,
+              "thread_count": 4
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 12738560,
+              "rss_bytes": 14073856,
+              "pss_bytes": 13091840,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 4
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": null,
+              "rss_bytes": null,
+              "pss_bytes": null,
+              "private_hugetlb_bytes": null,
+              "fd_count": null,
+              "thread_count": null
+            }
+          ]
+        },
+        "destination": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 3162112,
+              "rss_bytes": 4980736,
+              "pss_bytes": 3744768,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 4681728,
+              "rss_bytes": 6500352,
+              "pss_bytes": 5264384,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 14368768,
+              "rss_bytes": 16187392,
+              "pss_bytes": 15079424,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ]
+        }
+      },
+      "source_ownership": "NOT_MEASURED",
+      "destination_ownership": "CLEAN_8_COUNTERS",
+      "memory_cause": "INCONCLUSIVE",
+      "completed_operations": 512,
+      "classification": "DIAGNOSTIC_SCOPED"
+    },
+    {
+      "name": "streams-c32-512-r4",
+      "roles": {
+        "source": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 5931008,
+              "rss_bytes": 7208960,
+              "pss_bytes": 6268928,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 7,
+              "thread_count": 5
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 12996608,
+              "rss_bytes": 14274560,
+              "pss_bytes": 13334528,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 5
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": null,
+              "rss_bytes": null,
+              "pss_bytes": null,
+              "private_hugetlb_bytes": null,
+              "fd_count": null,
+              "thread_count": null
+            }
+          ]
+        },
+        "destination": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 3145728,
+              "rss_bytes": 4964352,
+              "pss_bytes": 3750912,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 4648960,
+              "rss_bytes": 6467584,
+              "pss_bytes": 5254144,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 14528512,
+              "rss_bytes": 16347136,
+              "pss_bytes": 15239168,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ]
+        }
+      },
+      "source_ownership": "NOT_MEASURED",
+      "destination_ownership": "CLEAN_8_COUNTERS",
+      "memory_cause": "INCONCLUSIVE",
+      "completed_operations": 512,
+      "classification": "DIAGNOSTIC_SCOPED"
+    },
+    {
+      "name": "streams-c32-512-r5",
+      "roles": {
+        "source": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 5898240,
+              "rss_bytes": 7254016,
+              "pss_bytes": 6252544,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 7,
+              "thread_count": 4
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 12779520,
+              "rss_bytes": 14135296,
+              "pss_bytes": 13133824,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 4
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": null,
+              "rss_bytes": null,
+              "pss_bytes": null,
+              "private_hugetlb_bytes": null,
+              "fd_count": null,
+              "thread_count": null
+            }
+          ]
+        },
+        "destination": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 3088384,
+              "rss_bytes": 4972544,
+              "pss_bytes": 3686400,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 4644864,
+              "rss_bytes": 6529024,
+              "pss_bytes": 5242880,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 14438400,
+              "rss_bytes": 16322560,
+              "pss_bytes": 15165440,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ]
+        }
+      },
+      "source_ownership": "NOT_MEASURED",
+      "destination_ownership": "CLEAN_8_COUNTERS",
+      "memory_cause": "INCONCLUSIVE",
+      "completed_operations": 512,
+      "classification": "DIAGNOSTIC_SCOPED"
+    },
+    {
+      "name": "streams-c32-1024-r1",
+      "roles": {
+        "source": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 5898240,
+              "rss_bytes": 7221248,
+              "pss_bytes": 6253568,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 7,
+              "thread_count": 4
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 14688256,
+              "rss_bytes": 16011264,
+              "pss_bytes": 15043584,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 4
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": null,
+              "rss_bytes": null,
+              "pss_bytes": null,
+              "private_hugetlb_bytes": null,
+              "fd_count": null,
+              "thread_count": null
+            }
+          ]
+        },
+        "destination": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 3002368,
+              "rss_bytes": 4841472,
+              "pss_bytes": 3606528,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 4980736,
+              "rss_bytes": 6819840,
+              "pss_bytes": 5584896,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 23904256,
+              "rss_bytes": 25743360,
+              "pss_bytes": 24620032,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ]
+        }
+      },
+      "source_ownership": "NOT_MEASURED",
+      "destination_ownership": "CLEAN_8_COUNTERS",
+      "memory_cause": "INCONCLUSIVE",
+      "completed_operations": 1024,
+      "classification": "DIAGNOSTIC_SCOPED"
+    },
+    {
+      "name": "streams-c32-1024-r2",
+      "roles": {
+        "source": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 5902336,
+              "rss_bytes": 7237632,
+              "pss_bytes": 6255616,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 7,
+              "thread_count": 4
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 14430208,
+              "rss_bytes": 15765504,
+              "pss_bytes": 14783488,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 5
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": null,
+              "rss_bytes": null,
+              "pss_bytes": null,
+              "private_hugetlb_bytes": null,
+              "fd_count": null,
+              "thread_count": null
+            }
+          ]
+        },
+        "destination": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 3096576,
+              "rss_bytes": 4915200,
+              "pss_bytes": 3679232,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 5050368,
+              "rss_bytes": 6868992,
+              "pss_bytes": 5633024,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 23867392,
+              "rss_bytes": 25686016,
+              "pss_bytes": 24578048,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ]
+        }
+      },
+      "source_ownership": "NOT_MEASURED",
+      "destination_ownership": "CLEAN_8_COUNTERS",
+      "memory_cause": "INCONCLUSIVE",
+      "completed_operations": 1024,
+      "classification": "DIAGNOSTIC_SCOPED"
+    },
+    {
+      "name": "streams-c32-1024-r3",
+      "roles": {
+        "source": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 5894144,
+              "rss_bytes": 7331840,
+              "pss_bytes": 6289408,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 7,
+              "thread_count": 4
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 14372864,
+              "rss_bytes": 15810560,
+              "pss_bytes": 14768128,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 4
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": null,
+              "rss_bytes": null,
+              "pss_bytes": null,
+              "private_hugetlb_bytes": null,
+              "fd_count": null,
+              "thread_count": null
+            }
+          ]
+        },
+        "destination": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 3137536,
+              "rss_bytes": 5120000,
+              "pss_bytes": 3786752,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 5087232,
+              "rss_bytes": 7069696,
+              "pss_bytes": 5736448,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 23826432,
+              "rss_bytes": 25808896,
+              "pss_bytes": 24602624,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ]
+        }
+      },
+      "source_ownership": "NOT_MEASURED",
+      "destination_ownership": "CLEAN_8_COUNTERS",
+      "memory_cause": "INCONCLUSIVE",
+      "completed_operations": 1024,
+      "classification": "DIAGNOSTIC_SCOPED"
+    },
+    {
+      "name": "streams-c32-1024-r4",
+      "roles": {
+        "source": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 5898240,
+              "rss_bytes": 7254016,
+              "pss_bytes": 6268928,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 7,
+              "thread_count": 4
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 14524416,
+              "rss_bytes": 15880192,
+              "pss_bytes": 14895104,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 4
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": null,
+              "rss_bytes": null,
+              "pss_bytes": null,
+              "private_hugetlb_bytes": null,
+              "fd_count": null,
+              "thread_count": null
+            }
+          ]
+        },
+        "destination": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 3145728,
+              "rss_bytes": 5009408,
+              "pss_bytes": 3751936,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 5058560,
+              "rss_bytes": 6922240,
+              "pss_bytes": 5664768,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 24190976,
+              "rss_bytes": 26054656,
+              "pss_bytes": 24908800,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ]
+        }
+      },
+      "source_ownership": "NOT_MEASURED",
+      "destination_ownership": "CLEAN_8_COUNTERS",
+      "memory_cause": "INCONCLUSIVE",
+      "completed_operations": 1024,
+      "classification": "DIAGNOSTIC_SCOPED"
+    },
+    {
+      "name": "streams-c32-1024-r5",
+      "roles": {
+        "source": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 6168576,
+              "rss_bytes": 7548928,
+              "pss_bytes": 6544384,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 7,
+              "thread_count": 5
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 14430208,
+              "rss_bytes": 15810560,
+              "pss_bytes": 14806016,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 5
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": null,
+              "rss_bytes": null,
+              "pss_bytes": null,
+              "private_hugetlb_bytes": null,
+              "fd_count": null,
+              "thread_count": null
+            }
+          ]
+        },
+        "destination": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 3170304,
+              "rss_bytes": 5054464,
+              "pss_bytes": 3775488,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 5132288,
+              "rss_bytes": 7016448,
+              "pss_bytes": 5737472,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 24096768,
+              "rss_bytes": 25980928,
+              "pss_bytes": 24823808,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ]
+        }
+      },
+      "source_ownership": "NOT_MEASURED",
+      "destination_ownership": "CLEAN_8_COUNTERS",
+      "memory_cause": "INCONCLUSIVE",
+      "completed_operations": 1024,
+      "classification": "DIAGNOSTIC_SCOPED"
+    },
+    {
+      "name": "streams-c32-2048-r1",
+      "roles": {
+        "source": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 5898240,
+              "rss_bytes": 7168000,
+              "pss_bytes": 6234112,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 7,
+              "thread_count": 4
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 20144128,
+              "rss_bytes": 21413888,
+              "pss_bytes": 20480000,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 4
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": null,
+              "rss_bytes": null,
+              "pss_bytes": null,
+              "private_hugetlb_bytes": null,
+              "fd_count": null,
+              "thread_count": null
+            }
+          ]
+        },
+        "destination": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 3149824,
+              "rss_bytes": 4956160,
+              "pss_bytes": 3749888,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 5906432,
+              "rss_bytes": 7712768,
+              "pss_bytes": 6506496,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 43212800,
+              "rss_bytes": 45019136,
+              "pss_bytes": 43917312,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ]
+        }
+      },
+      "source_ownership": "NOT_MEASURED",
+      "destination_ownership": "CLEAN_8_COUNTERS",
+      "memory_cause": "INCONCLUSIVE",
+      "completed_operations": 2048,
+      "classification": "DIAGNOSTIC_SCOPED"
+    },
+    {
+      "name": "streams-c32-2048-r2",
+      "roles": {
+        "source": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 5894144,
+              "rss_bytes": 7217152,
+              "pss_bytes": 6252544,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 7,
+              "thread_count": 4
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 20025344,
+              "rss_bytes": 21348352,
+              "pss_bytes": 20383744,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 5
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": null,
+              "rss_bytes": null,
+              "pss_bytes": null,
+              "private_hugetlb_bytes": null,
+              "fd_count": null,
+              "thread_count": null
+            }
+          ]
+        },
+        "destination": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 3166208,
+              "rss_bytes": 5029888,
+              "pss_bytes": 3780608,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 5885952,
+              "rss_bytes": 7749632,
+              "pss_bytes": 6500352,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 43175936,
+              "rss_bytes": 45039616,
+              "pss_bytes": 43907072,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ]
+        }
+      },
+      "source_ownership": "NOT_MEASURED",
+      "destination_ownership": "CLEAN_8_COUNTERS",
+      "memory_cause": "INCONCLUSIVE",
+      "completed_operations": 2048,
+      "classification": "DIAGNOSTIC_SCOPED"
+    },
+    {
+      "name": "streams-c32-2048-r3",
+      "roles": {
+        "source": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 5898240,
+              "rss_bytes": 7168000,
+              "pss_bytes": 6225920,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 7,
+              "thread_count": 4
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 20209664,
+              "rss_bytes": 21479424,
+              "pss_bytes": 20537344,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 5
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": null,
+              "rss_bytes": null,
+              "pss_bytes": null,
+              "private_hugetlb_bytes": null,
+              "fd_count": null,
+              "thread_count": null
+            }
+          ]
+        },
+        "destination": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 3174400,
+              "rss_bytes": 4988928,
+              "pss_bytes": 3751936,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 5861376,
+              "rss_bytes": 7675904,
+              "pss_bytes": 6438912,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 43159552,
+              "rss_bytes": 44974080,
+              "pss_bytes": 43849728,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ]
+        }
+      },
+      "source_ownership": "NOT_MEASURED",
+      "destination_ownership": "CLEAN_8_COUNTERS",
+      "memory_cause": "INCONCLUSIVE",
+      "completed_operations": 2048,
+      "classification": "DIAGNOSTIC_SCOPED"
+    },
+    {
+      "name": "streams-c32-2048-r4",
+      "roles": {
+        "source": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 5808128,
+              "rss_bytes": 7245824,
+              "pss_bytes": 6200320,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 7,
+              "thread_count": 4
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 20176896,
+              "rss_bytes": 21614592,
+              "pss_bytes": 20569088,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 5
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": null,
+              "rss_bytes": null,
+              "pss_bytes": null,
+              "private_hugetlb_bytes": null,
+              "fd_count": null,
+              "thread_count": null
+            }
+          ]
+        },
+        "destination": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 3182592,
+              "rss_bytes": 5009408,
+              "pss_bytes": 3760128,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 5885952,
+              "rss_bytes": 7712768,
+              "pss_bytes": 6463488,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 43012096,
+              "rss_bytes": 44838912,
+              "pss_bytes": 43720704,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ]
+        }
+      },
+      "source_ownership": "NOT_MEASURED",
+      "destination_ownership": "CLEAN_8_COUNTERS",
+      "memory_cause": "INCONCLUSIVE",
+      "completed_operations": 2048,
+      "classification": "DIAGNOSTIC_SCOPED"
+    },
+    {
+      "name": "streams-c32-2048-r5",
+      "roles": {
+        "source": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 5931008,
+              "rss_bytes": 7294976,
+              "pss_bytes": 6307840,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 7,
+              "thread_count": 5
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 20135936,
+              "rss_bytes": 21499904,
+              "pss_bytes": 20512768,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 5
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": null,
+              "rss_bytes": null,
+              "pss_bytes": null,
+              "private_hugetlb_bytes": null,
+              "fd_count": null,
+              "thread_count": null
+            }
+          ]
+        },
+        "destination": {
+          "idle": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 3080192,
+              "rss_bytes": 4890624,
+              "pss_bytes": 3659776,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "active": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 5836800,
+              "rss_bytes": 7647232,
+              "pss_bytes": 6416384,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ],
+          "cooldown": [
+            {
+              "cycle": 0,
+              "private_resident_bytes": 43110400,
+              "rss_bytes": 44920832,
+              "pss_bytes": 43800576,
+              "private_hugetlb_bytes": 0,
+              "fd_count": 8,
+              "thread_count": 2
+            }
+          ]
+        }
+      },
+      "source_ownership": "NOT_MEASURED",
+      "destination_ownership": "CLEAN_8_COUNTERS",
+      "memory_cause": "INCONCLUSIVE",
+      "completed_operations": 2048,
+      "classification": "DIAGNOSTIC_SCOPED"
+    }
+  ],
+  "limitation": "No source ownership, observer qualification, isolated cost or capacity claim."
+}

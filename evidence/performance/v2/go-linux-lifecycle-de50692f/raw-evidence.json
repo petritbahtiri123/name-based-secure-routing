@@ -1,0 +1,46 @@
+[
+  {
+    "root": "C:\\NBSR-build\\go-linux-build-4843c751",
+    "index_sha256": "e8d8d847d6cbc7383a98757fe750997c488e119c56008fcf551037bf0ce21c33"
+  },
+  {
+    "root": "C:\\NBSR-build\\go-linux-build2-4843c751",
+    "index_sha256": "2c0fa99fd6a5292459c10337a7749b9f8cb85688cbd652e948b616947295249f"
+  },
+  {
+    "root": "C:\\NBSR-build\\go-linux-build-d88663af",
+    "index_sha256": "d5c6b3bbcf3e3e6e07dc542663d830b28365dcd93550908f56678e00bb023cc6"
+  },
+  {
+    "root": "C:\\NBSR-build\\go-linux-b3-d88663af",
+    "index_sha256": "4a74ef843031ad16104ac9089c8dedeed6f561eb76cee659e7bc7f853a35c568"
+  },
+  {
+    "root": "C:\\NBSR-build\\go-linux-b3-7255c9d6",
+    "index_sha256": "e47e2c12de4ed787816ddf38088253c2fe7ec51ada3de02ce67455675e97b309"
+  },
+  {
+    "root": "C:\\NBSR-build\\go-linux-scale-7255c9d6",
+    "index_sha256": "ad5a7469a66674599d95fc12783adb08a8b57a9e85e36203571650760ba31fbe"
+  },
+  {
+    "root": "C:\\NBSR-build\\go-linux-trace-7255c9d6",
+    "index_sha256": "99c8d7eb22d886af21591afc2200f387598b1a04e4cc38555d7e3a4c719f1ce9"
+  },
+  {
+    "root": "C:\\NBSR-build\\go-linux-scale-startup-gate",
+    "index_sha256": "cb909063d041a5b949a8ad7bb318492800e520e12195cd82a93f272a2ce701a1"
+  },
+  {
+    "root": "C:\\NBSR-build\\go-linux-b3-tests-20260925",
+    "index_sha256": "c8aec67f6f0a04e051e0355d279120a7b1e6750de9253bb5818d0e7c65d45393"
+  },
+  {
+    "root": "C:\\NBSR-build\\retained-go-compression-20260925",
+    "index_sha256": "fe905572e59b4f0af4e8d7edc256f80adf92a5e6caae639719fac563513173c7"
+  },
+  {
+    "root": "C:\\NBSR-build\\checkpoint-20260925-final",
+    "index_sha256": "ef86d3653bf39e2ac6f2068cadc5fc290c9256f31b14a41099e4afa767e57a4f"
+  }
+]
