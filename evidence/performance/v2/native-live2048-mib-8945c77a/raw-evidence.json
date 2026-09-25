@@ -1,0 +1,18 @@
+[
+  {
+    "root": "C:\\NBSR-build\\native-live2048-mib-8945c77a",
+    "index_sha256": "0847b1fb84feda4580bec8771d030981b02455196ed39cb940dd46c350a0e88a"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-current-8945c77a",
+    "index_sha256": "31128ec0c929f4447c6a85ba28a1f2bb46c7a9608efb407bd16516b20e7e44cd"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-udp-mib-tests-20260925",
+    "index_sha256": "15e7894ea9ecfa9952a779db4cd3051097a9902d452f698b672840b0fb8bcdc2"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-mib-review-tests-20260925",
+    "index_sha256": "222acca36679dec097f7c5cbe386525a08bcb97368089ebd24c4f36062322409"
+  }
+]
