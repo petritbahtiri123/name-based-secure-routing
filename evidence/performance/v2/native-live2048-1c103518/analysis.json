@@ -1,0 +1,163 @@
+{
+  "classification": "FAILED_PARTIAL_SHARED_GUEST_CORE_PRESSURE",
+  "requested": 2048,
+  "source_materialized_observation_rows": 1211,
+  "source_errors": {
+    "HandshakeTimeout": 10
+  },
+  "source_recorded_successes": 0,
+  "final_ownership": "NOT_MEASURED: cancelled after failure",
+  "owned_processes_absent_before_stop": {
+    "source": true,
+    "destination": true
+  },
+  "shared_cpu_windows": {
+    "1": {
+      "window_start_ns": 23980371744486,
+      "window_end_ns": 23981371744486,
+      "fully_contained_sample_bounds": {
+        "source": [
+          23980407599642,
+          23981371744486
+        ],
+        "destination": [
+          23980445474393,
+          23981319462417
+        ]
+      },
+      "cpu_ns": {
+        "source": 520000000,
+        "destination": 400000000
+      },
+      "shared_guest_cpu_fraction_estimate": 0.92
+    },
+    "2": {
+      "window_start_ns": 23979371744486,
+      "window_end_ns": 23981371744486,
+      "fully_contained_sample_bounds": {
+        "source": [
+          23979407942083,
+          23981371744486
+        ],
+        "destination": [
+          23979406771616,
+          23981319462417
+        ]
+      },
+      "cpu_ns": {
+        "source": 1040000000,
+        "destination": 890000000
+      },
+      "shared_guest_cpu_fraction_estimate": 0.965
+    },
+    "5": {
+      "window_start_ns": 23976371744486,
+      "window_end_ns": 23981371744486,
+      "fully_contained_sample_bounds": {
+        "source": [
+          23976408297505,
+          23981371744486
+        ],
+        "destination": [
+          23976452666321,
+          23981319462417
+        ]
+      },
+      "cpu_ns": {
+        "source": 2430000000,
+        "destination": 2460000000
+      },
+      "shared_guest_cpu_fraction_estimate": 0.978
+    },
+    "10": {
+      "window_start_ns": 23971371744486,
+      "window_end_ns": 23981371744486,
+      "fully_contained_sample_bounds": {
+        "source": [
+          23971456261577,
+          23981371744486
+        ],
+        "destination": [
+          23971377230296,
+          23981319462417
+        ]
+      },
+      "cpu_ns": {
+        "source": 4780000000,
+        "destination": 5100000000
+      },
+      "shared_guest_cpu_fraction_estimate": 0.988
+    }
+  },
+  "roles": {
+    "source": {
+      "samples": 164,
+      "peak_rss_bytes": 678559744,
+      "forced_cleanup": {
+        "exit_code": -9,
+        "group_killed": true,
+        "valid": false
+      },
+      "failure_udp": {
+        "roles": {
+          "source": {
+            "error": "duplicate inode or invalid drops",
+            "error_type": "ValueError",
+            "pid": 97,
+            "status": "UNAVAILABLE"
+          }
+        },
+        "schema": "nbsr-linux-udp-failure-v1",
+        "scope": "After workload failure, before cleanup; live socket cumulative counters only. Closed sockets and precise drop timestamps are not observed.",
+        "timestamp_ns": 23981480202744
+      },
+      "events": [
+        "prepared",
+        "readiness_transferred"
+      ]
+    },
+    "destination": {
+      "samples": 200,
+      "peak_rss_bytes": 383647744,
+      "forced_cleanup": {
+        "exit_code": -9,
+        "group_killed": true,
+        "valid": false
+      },
+      "failure_udp": {
+        "roles": {
+          "destination": {
+            "all_socket_inode_count": 1,
+            "cpu_sample_monotonic_ns": 23984054531112,
+            "cpu_ticks": 951,
+            "live_socket_drops": 20,
+            "pid": 96,
+            "sockets": [
+              {
+                "drops": 20,
+                "family": "udp",
+                "inode": 1776760,
+                "local_address": "03F0A8C0:8E42",
+                "remote_address": "00000000:0000",
+                "rx_queue_bytes": 0,
+                "tx_queue_bytes": 0
+              }
+            ],
+            "start_ticks": 2396353,
+            "status": "MEASURED_FAILURE_SNAPSHOT",
+            "udp_socket_count": 1
+          }
+        },
+        "schema": "nbsr-linux-udp-failure-v1",
+        "scope": "After workload failure, before cleanup; live socket cumulative counters only. Closed sockets and precise drop timestamps are not observed.",
+        "timestamp_ns": 23984052888018
+      },
+      "events": [
+        "ready"
+      ]
+    }
+  },
+  "cpu_basis": "DERIVED contained-sample estimates using tick-quantized process CPU deltas on common Docker/WSL monotonic clock; both roles pinned guestCPU0; excludes observer/kernel work outside owned processes",
+  "attribution": "Shared allocated guestCPU pressure is measured; cumulative destination socket drops lack event timing. No claim every timeout is caused by CPU or drops.",
+  "limits": "One failed diagnostic; no repeatable boundary, throughput/admission ceiling, physical-core/server proof, memory pressure proof or production optimization claim"
+}

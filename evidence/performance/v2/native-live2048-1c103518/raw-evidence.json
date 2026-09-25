@@ -1,0 +1,18 @@
+[
+  {
+    "root": "C:\\NBSR-build\\native-live2048-1c103518",
+    "index_sha256": "a744eca6476d5098aec79fc8b1ad91e08456bdfe0fd34f7b106bf440b1a4e9d9"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-current-1c103518",
+    "index_sha256": "921ade8649634c775e8d8d4fcceb43982b102a1c939ac5a14ae973ab8ff5fa43"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-live2048-tests-20260925",
+    "index_sha256": "9bb659f1d52e6adef6ffc371e9f312d09625a6462f22f9ff19e2632acbbfa12a"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-live-pip-cache-cleanup-20260925",
+    "index_sha256": "9e466cb6db174950e82875f7273a8f82da07cd8856dcb93cf33080d37b52f594"
+  }
+]
