@@ -26,36 +26,36 @@ def parse_smaps_rollup(text: str) -> dict:
                 private_hugetlb_bytes=fields['Private_Hugetlb'], memory_basis='linux_smaps_rollup')
 
 
-def sample_linux_process(pid, cpus, *, proc_root=Path('/proc'), ticks=None, page_size=None):
+def sample_linux_process(pid, cpus, *, proc_root=Path('/proc'), ticks=None, page_size=None, allow_exiting=False):
     base = proc_root / str(pid)
     initial_text = (base / 'stat').read_text()
     if int(initial_text.split(' ', 1)[0]) != pid:
         raise RuntimeError('process identity changed')
     initial = parse_proc_stat(initial_text, 1, 1)
     try:
-        first = sample_process(pid, cpus, proc_root, ticks, page_size)
+        first = sample_process(pid, cpus, proc_root, ticks, page_size, **({"allow_exiting": True} if allow_exiting is True else {}))
     except PermissionError as error:
         error.add_note('sample_linux_process phase=before_smaps')
         raise
     if initial['start_ticks'] != first['start_ticks']:
         raise RuntimeError('process identity changed')
     memory, failure = None, None
-    if first['state'] != 'Z':
+    if first['state'] != 'Z' and not (allow_exiting is True and first['flags'] & 4):
         try:
             memory = parse_smaps_rollup((base / 'smaps_rollup').read_text())
         except OSError as error:
             failure = error
     try:
-        final = sample_process(pid, cpus, proc_root, ticks, page_size)
+        final = sample_process(pid, cpus, proc_root, ticks, page_size, **({"allow_exiting": True} if allow_exiting is True else {}))
     except PermissionError as error:
         error.add_note('sample_linux_process phase=after_smaps')
         raise
     if final['start_ticks'] != first['start_ticks']:
         raise RuntimeError('process identity changed')
-    if final['state'] == 'Z':
+    if final['state'] == 'Z' or (allow_exiting is True and final['flags'] & 4):
         memory = dict.fromkeys(('rss_bytes', 'pss_bytes', 'private_resident_bytes', 'private_hugetlb_bytes'))
         memory['memory_basis'] = 'linux_smaps_rollup'
-        state = 'UNAVAILABLE_ZOMBIE'
+        state = 'UNAVAILABLE_ZOMBIE' if final['state'] == 'Z' else 'UNAVAILABLE_EXITING'
     else:
         if failure is not None:
             raise failure

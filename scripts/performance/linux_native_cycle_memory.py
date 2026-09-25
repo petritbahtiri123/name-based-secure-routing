@@ -10,6 +10,10 @@ from scripts.performance.linux_resources import sample_linux_process
 FIELDS = ("rss_bytes", "pss_bytes", "private_resident_bytes", "private_hugetlb_bytes")
 
 
+def sample_owned_memory(pid, cpus):
+    return sample_linux_process(pid, cpus, allow_exiting=True)
+
+
 def verify_memory(root, *, pid, start_ticks, cpus, cycles, lifetime=None):
     cap = (120 if cycles is None else cycle_bounds(cycles)["controller_seconds"]) + 1
     last = None
@@ -49,6 +53,7 @@ def verify_memory(root, *, pid, start_ticks, cpus, cycles, lifetime=None):
                     and start >= last["capture_finished_ns"]
                     and value["cpu_ns"] >= last["value"]["cpu_ns"]
                     and last["value"]["state"] != "Z"
+                    and last["value"].get("memory_state") != "UNAVAILABLE_EXITING"
                 ),
                 "memory rate/order regression",
             )
@@ -60,7 +65,12 @@ def verify_memory(root, *, pid, start_ticks, cpus, cycles, lifetime=None):
                 )
                 require(value.get("state") == "Z" or end <= terminal["timestamp_ns"], "live memory after terminal sample")
                 require(value.get("state") != "Z" or value["cpu_ns"] == terminal["cpu_ns"], "terminal memory CPU mismatch")
-            if value.get("state") == "Z":
+            if value.get("memory_state") == "UNAVAILABLE_EXITING":
+                require(value.get("state") in ("R", "S", "D", "T", "t", "I")
+                        and type(value.get("flags")) is int and value["flags"] & 4
+                        and all(key in value and value[key] is None for key in FIELDS),
+                        "unverified exiting memory gap")
+            elif value.get("state") == "Z":
                 require(
                     value.get("memory_state") == "UNAVAILABLE_ZOMBIE" and all(key in value and value[key] is None for key in FIELDS),
                     "invented terminal memory",
@@ -92,7 +102,7 @@ def verify_memory(root, *, pid, start_ticks, cpus, cycles, lifetime=None):
 class CycleMemoryObserver:
     result_key = "cycle_memory"
 
-    def __init__(self, root, *, pid, start_ticks, cpus, cycles, sample=sample_linux_process, clock=time.monotonic_ns):
+    def __init__(self, root, *, pid, start_ticks, cpus, cycles, sample=sample_owned_memory, clock=time.monotonic_ns):
         self.root, self.pid, self.epoch, self.cpus, self.cycles = root, pid, start_ticks, cpus, cycles
         self.sample, self.clock = sample, clock
         self.cap = (120 if cycles is None else cycle_bounds(cycles)["controller_seconds"]) + 1
@@ -121,7 +131,7 @@ class CycleMemoryObserver:
         self.stream.flush()
         self.count += 1
         self.next_sample = start + 1_000_000_000
-        if value["state"] == "Z":
+        if value["state"] == "Z" or value.get("memory_state") == "UNAVAILABLE_EXITING":
             self.stopped = True
 
     def stop(self):

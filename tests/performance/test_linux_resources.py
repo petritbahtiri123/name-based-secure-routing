@@ -311,3 +311,23 @@ def test_role_specific_affinity_is_checked_without_widening(wrong_affinity):
 def test_invalid_role_cpu_plan_is_rejected(mapping):
     with pytest.raises(ValueError, match='per-role CPU'):
         sampler(role_cpus=mapping)
+
+@pytest.mark.parametrize('allowed', [False, True])
+def test_owned_exiting_fd_memory_is_explicitly_unavailable(tmp_path, monkeypatch, allowed):
+    base = proc(tmp_path)
+    fields = stat('R').split()
+    fields[8] = '4'  # /proc stat field9 PF_EXITING
+    (base/'stat').write_text(' '.join(fields))
+    original = Path.iterdir
+    def denied(path):
+        if path == base/'fd':
+            raise PermissionError('exiting FD table')
+        return original(path)
+    monkeypatch.setattr(Path, 'iterdir', denied)
+    if not allowed:
+        with pytest.raises(PermissionError):
+            sample(tmp_path)
+    else:
+        value = resources.sample_linux_process(123,[0],proc_root=tmp_path,ticks=100,page_size=4096,allow_exiting=True)
+        assert value['memory_state']=='UNAVAILABLE_EXITING' and value['state']=='R'
+        assert value['private_resident_bytes'] is None and value['rss_bytes'] is None

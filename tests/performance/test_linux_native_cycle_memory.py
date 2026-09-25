@@ -159,3 +159,37 @@ def test_final_zombie_can_follow_terminal_clock_without_inventing_memory(tmp_pat
             m.verify_memory(tmp_path, pid=7, start_ticks=9, cpus=[0], cycles=2, lifetime=(live, terminal))
     else:
         assert m.verify_memory(tmp_path, pid=7, start_ticks=9, cpus=[0], cycles=2, lifetime=(live, terminal))["measured_samples"] == 1
+
+
+def test_memory_observer_preserves_exiting_gap_until_owned_zombie(tmp_path):
+    now = [100]
+    first = sample(100)
+    terminal = sample(3_000_000_000) | dict(state='Z')
+    (tmp_path/'resources.ndjson').write_text(json.dumps(first)+'\n'+json.dumps(terminal)+'\n')
+    def capture(pid, cpus):
+        if now[0]==100:
+            return first
+        return sample(now[0]) | dict(state='R',flags=4,memory_state='UNAVAILABLE_EXITING', **dict.fromkeys(module().FIELDS))
+    with module().CycleMemoryObserver(tmp_path,pid=7,start_ticks=9,cpus=[0],cycles=None,sample=capture,clock=lambda:now[0]) as observer:
+        observer.poll()
+        now[0] += 1_000_000_000
+        observer.poll()
+        assert observer.stopped
+        assert observer.finish(0)['measured_samples']==1
+    rows=[json.loads(v) for v in (tmp_path/'memory.ndjson').read_text().splitlines()]
+    rows[-1]['value']['flags']=0
+    (tmp_path/'memory.ndjson').write_text(''.join(json.dumps(v)+'\n' for v in rows))
+    with pytest.raises(ValueError):
+        module().verify_memory(tmp_path,pid=7,start_ticks=9,cpus=[0],cycles=None)
+
+
+@pytest.mark.parametrize('next_state', ['MEASURED', 'UNAVAILABLE_EXITING'])
+def test_memory_cannot_resume_after_verified_exit_gap(tmp_path, next_state):
+    values=[sample(100), sample(1_000_000_100) | dict(state='R', flags=4, memory_state='UNAVAILABLE_EXITING', **dict.fromkeys(module().FIELDS))]
+    last = sample(2_000_000_100)
+    if next_state=='UNAVAILABLE_EXITING':
+        last |= dict(state='R', flags=4, memory_state=next_state, **dict.fromkeys(module().FIELDS))
+    values.append(last)
+    (tmp_path/'memory.ndjson').write_text(''.join(json.dumps(dict(capture_started_ns=v['timestamp_ns'],capture_finished_ns=v['timestamp_ns'],value=v))+'\n' for v in values))
+    with pytest.raises(ValueError, match='order'):
+        module().verify_memory(tmp_path,pid=7,start_ticks=9,cpus=[0],cycles=None)
