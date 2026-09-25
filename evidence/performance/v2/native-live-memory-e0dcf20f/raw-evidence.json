@@ -1,0 +1,22 @@
+[
+  {
+    "root": "C:\\NBSR-build\\native-live-memory-e0dcf20f",
+    "index_sha256": "feecb4185cc38cfec300d3d9f54ff75d0936be616bcb3eb8d1ea6e3381f68e99"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-current-e0dcf20f",
+    "index_sha256": "55e62c2f9920d40fb9e7264624652e1e3ceeab3bade9a2a0de9afc4b131dff86"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-live-bundle-tests-20260925",
+    "index_sha256": "c0e9ded6f9b40a705646c3af774b9d0f70f846ab8e83eb2fd651dab06109b326"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-live-idle-compat-20260925",
+    "index_sha256": "fd28d01b443f6d6673541366aed7be8cd321ba0df55777b883bd099611e61dac"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-live-go-cache-cleanup-20260925",
+    "index_sha256": "84538d363c6cd69f9c57c6a0d23d08f1e577e1efd6b80ee1f010c717ffbd50c0"
+  }
+]
