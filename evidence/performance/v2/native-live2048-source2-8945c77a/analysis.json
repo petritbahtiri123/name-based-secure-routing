@@ -1,0 +1,500 @@
+{
+  "classification": "SOURCE_ALLOCATION_DIAGNOSTIC",
+  "attempted_trials": 3,
+  "successful_trials": 0,
+  "failed_trials": 3,
+  "capacity_gate": "NOT_EVALUATED: diagnostic control, all outcomes retained",
+  "successful_connections_in_passed_trials": 0,
+  "successful_trials_final_ownership": "NO_SUCCESSFUL_TRIALS",
+  "private_memory": "NOT_MEASURED: optional observer OFF",
+  "observer_neutrality": "NOT_ESTABLISHED",
+  "marginal_cost": "NOT_QUALIFIED: connection/session/channel/stream co-vary",
+  "scope": "Docker/WSL split advertised guest cores sourceCPU0+4/destinationCPU2; no physical/server/capacity claim",
+  "cpu_basis": "DERIVED tick-quantized contained-sample estimates on common Docker clock; not strict lower bounds or physical-core proof",
+  "attribution": "Cumulative socket drops and tail CPU pressure are measured; per-timeout causation and observer effect remain unresolved",
+  "rows": [],
+  "failures": [
+    {
+      "label": "n2048-r1",
+      "status": "FAIL_RETAINED",
+      "requested": 2048,
+      "source_materialized_observation_rows": 1490,
+      "source_errors": {
+        "HandshakeTimeout": 19
+      },
+      "source_recorded_successes": 0,
+      "final_ownership": "NOT_ACCEPTED_FOR_PAIR: see individually verified role, failed role remains unmeasured",
+      "owned_processes_absent_before_stop": {
+        "source": true,
+        "destination": true
+      },
+      "cpu_windows": {
+        "1": {
+          "per_role_effective_core_estimate": {
+            "source": 0.72,
+            "destination": 0.85
+          },
+          "allocated_three_guest_core_fraction_estimate": 0.5233333333333333,
+          "contained_sample_bounds": {
+            "source": [
+              1224631699574,
+              1225569334514
+            ],
+            "destination": [
+              1224597962867,
+              1225516772896
+            ]
+          }
+        },
+        "2": {
+          "per_role_effective_core_estimate": {
+            "source": 0.845,
+            "destination": 0.865
+          },
+          "allocated_three_guest_core_fraction_estimate": 0.57,
+          "contained_sample_bounds": {
+            "source": [
+              1223603204744,
+              1225569334514
+            ],
+            "destination": [
+              1223575775343,
+              1225516772896
+            ]
+          }
+        },
+        "5": {
+          "per_role_effective_core_estimate": {
+            "source": 1.152,
+            "destination": 0.916
+          },
+          "allocated_three_guest_core_fraction_estimate": 0.6893333333333334,
+          "contained_sample_bounds": {
+            "source": [
+              1220629672138,
+              1225569334514
+            ],
+            "destination": [
+              1220593393827,
+              1225516772896
+            ]
+          }
+        },
+        "10": {
+          "per_role_effective_core_estimate": {
+            "source": 1.013,
+            "destination": 0.926
+          },
+          "allocated_three_guest_core_fraction_estimate": 0.6463333333333333,
+          "contained_sample_bounds": {
+            "source": [
+              1215650427382,
+              1225569334514
+            ],
+            "destination": [
+              1215618673484,
+              1225516772896
+            ]
+          }
+        }
+      },
+      "roles": {
+        "source": {
+          "peak_rss_bytes": 774111232,
+          "forced_cleanup": {
+            "exit_code": -9,
+            "group_killed": true,
+            "valid": false
+          },
+          "failure_udp": {
+            "all_socket_inode_count": 2004,
+            "cpu_sample_monotonic_ns": 1225732639618,
+            "cpu_ticks": 1815,
+            "live_socket_drops": 0,
+            "namespace_udp_mib": {
+              "counters": {
+                "IgnoredMulti": 0,
+                "InCsumErrors": 0,
+                "InDatagrams": 38941,
+                "InErrors": 0,
+                "MemErrors": 0,
+                "NoPorts": 0,
+                "OutDatagrams": 48888,
+                "RcvbufErrors": 0,
+                "SndbufErrors": 0
+              },
+              "scope": "IPv4 UDP network-namespace cumulative counters, not per-socket; no baseline, event timestamps or per-timeout attribution.",
+              "status": "MEASURED_NAMESPACE_CUMULATIVE"
+            },
+            "pid": 96,
+            "start_ticks": 120563,
+            "status": "MEASURED_FAILURE_SNAPSHOT",
+            "udp_socket_count": 2004
+          },
+          "failure": {
+            "error": "failed marker prevents progress",
+            "error_type": "InterruptedError",
+            "status": "INVALID_PARTIAL"
+          },
+          "individually_verified_peer": null,
+          "server_recorded_sample_count": null
+        },
+        "destination": {
+          "peak_rss_bytes": 480411648,
+          "forced_cleanup": {
+            "exit_code": -9,
+            "group_killed": true,
+            "valid": false
+          },
+          "failure_udp": {
+            "all_socket_inode_count": 1,
+            "cpu_sample_monotonic_ns": 1227037689339,
+            "cpu_ticks": 1663,
+            "live_socket_drops": 2274,
+            "namespace_udp_mib": {
+              "counters": {
+                "IgnoredMulti": 0,
+                "InCsumErrors": 0,
+                "InDatagrams": 46690,
+                "InErrors": 2274,
+                "MemErrors": 0,
+                "NoPorts": 0,
+                "OutDatagrams": 39131,
+                "RcvbufErrors": 2274,
+                "SndbufErrors": 0
+              },
+              "scope": "IPv4 UDP network-namespace cumulative counters, not per-socket; no baseline, event timestamps or per-timeout attribution.",
+              "status": "MEASURED_NAMESPACE_CUMULATIVE"
+            },
+            "pid": 96,
+            "start_ticks": 120560,
+            "status": "MEASURED_FAILURE_SNAPSHOT",
+            "udp_socket_count": 1
+          },
+          "failure": {
+            "error": "control EOF before completion",
+            "error_type": "InterruptedError",
+            "status": "INVALID_PARTIAL"
+          },
+          "individually_verified_peer": null,
+          "server_recorded_sample_count": null
+        }
+      }
+    },
+    {
+      "label": "n2048-r2",
+      "status": "FAIL_RETAINED",
+      "requested": 2048,
+      "source_materialized_observation_rows": 906,
+      "source_errors": {
+        "HandshakeTimeout": 15
+      },
+      "source_recorded_successes": 0,
+      "final_ownership": "NOT_ACCEPTED_FOR_PAIR: see individually verified role, failed role remains unmeasured",
+      "owned_processes_absent_before_stop": {
+        "source": true,
+        "destination": true
+      },
+      "cpu_windows": {
+        "1": {
+          "per_role_effective_core_estimate": {
+            "source": 1.32,
+            "destination": 0.9
+          },
+          "allocated_three_guest_core_fraction_estimate": 0.7400000000000001,
+          "contained_sample_bounds": {
+            "source": [
+              1308368844735,
+              1309324787383
+            ],
+            "destination": [
+              1308358507927,
+              1309276080574
+            ]
+          }
+        },
+        "2": {
+          "per_role_effective_core_estimate": {
+            "source": 1.32,
+            "destination": 0.945
+          },
+          "allocated_three_guest_core_fraction_estimate": 0.755,
+          "contained_sample_bounds": {
+            "source": [
+              1307432676979,
+              1309324787383
+            ],
+            "destination": [
+              1307332886417,
+              1309276080574
+            ]
+          }
+        },
+        "5": {
+          "per_role_effective_core_estimate": {
+            "source": 1.504,
+            "destination": 0.904
+          },
+          "allocated_three_guest_core_fraction_estimate": 0.8026666666666666,
+          "contained_sample_bounds": {
+            "source": [
+              1304326954305,
+              1309324787383
+            ],
+            "destination": [
+              1304340181734,
+              1309276080574
+            ]
+          }
+        },
+        "10": {
+          "per_role_effective_core_estimate": {
+            "source": 1.472,
+            "destination": 0.811
+          },
+          "allocated_three_guest_core_fraction_estimate": 0.761,
+          "contained_sample_bounds": {
+            "source": [
+              1299421935555,
+              1309324787383
+            ],
+            "destination": [
+              1299386615226,
+              1309276080574
+            ]
+          }
+        }
+      },
+      "roles": {
+        "source": {
+          "peak_rss_bytes": 581828608,
+          "forced_cleanup": {
+            "exit_code": -9,
+            "group_killed": true,
+            "valid": false
+          },
+          "failure_udp": {
+            "error": "duplicate inode or invalid drops",
+            "error_type": "ValueError",
+            "pid": 95,
+            "status": "UNAVAILABLE"
+          },
+          "failure": {
+            "error": "failed marker prevents progress",
+            "error_type": "InterruptedError",
+            "status": "INVALID_PARTIAL"
+          },
+          "individually_verified_peer": null,
+          "server_recorded_sample_count": null
+        },
+        "destination": {
+          "peak_rss_bytes": 299630592,
+          "forced_cleanup": {
+            "exit_code": -9,
+            "group_killed": true,
+            "valid": false
+          },
+          "failure_udp": {
+            "all_socket_inode_count": 1,
+            "cpu_sample_monotonic_ns": 1313548275128,
+            "cpu_ticks": 1362,
+            "live_socket_drops": 0,
+            "namespace_udp_mib": {
+              "counters": {
+                "IgnoredMulti": 0,
+                "InCsumErrors": 0,
+                "InDatagrams": 23732,
+                "InErrors": 0,
+                "MemErrors": 0,
+                "NoPorts": 0,
+                "OutDatagrams": 19332,
+                "RcvbufErrors": 0,
+                "SndbufErrors": 0
+              },
+              "scope": "IPv4 UDP network-namespace cumulative counters, not per-socket; no baseline, event timestamps or per-timeout attribution.",
+              "status": "MEASURED_NAMESPACE_CUMULATIVE"
+            },
+            "pid": 96,
+            "start_ticks": 129521,
+            "status": "MEASURED_FAILURE_SNAPSHOT",
+            "udp_socket_count": 1
+          },
+          "failure": {
+            "error": "control EOF before completion",
+            "error_type": "InterruptedError",
+            "status": "INVALID_PARTIAL"
+          },
+          "individually_verified_peer": null,
+          "server_recorded_sample_count": null
+        }
+      }
+    },
+    {
+      "label": "n2048-r3",
+      "status": "FAIL_RETAINED",
+      "requested": 2048,
+      "source_materialized_observation_rows": 1167,
+      "source_errors": {
+        "HandshakeTimeout": 13
+      },
+      "source_recorded_successes": 0,
+      "final_ownership": "NOT_ACCEPTED_FOR_PAIR: see individually verified role, failed role remains unmeasured",
+      "owned_processes_absent_before_stop": {
+        "source": true,
+        "destination": true
+      },
+      "cpu_windows": {
+        "1": {
+          "per_role_effective_core_estimate": {
+            "source": 0.84,
+            "destination": 0.73
+          },
+          "allocated_three_guest_core_fraction_estimate": 0.5233333333333333,
+          "contained_sample_bounds": {
+            "source": [
+              1392195448800,
+              1393149387980
+            ],
+            "destination": [
+              1392231937383,
+              1393055576567
+            ]
+          }
+        },
+        "2": {
+          "per_role_effective_core_estimate": {
+            "source": 0.855,
+            "destination": 0.815
+          },
+          "allocated_three_guest_core_fraction_estimate": 0.5566666666666666,
+          "contained_sample_bounds": {
+            "source": [
+              1391239143933,
+              1393149387980
+            ],
+            "destination": [
+              1391209711207,
+              1393055576567
+            ]
+          }
+        },
+        "5": {
+          "per_role_effective_core_estimate": {
+            "source": 1.13,
+            "destination": 0.888
+          },
+          "allocated_three_guest_core_fraction_estimate": 0.6726666666666666,
+          "contained_sample_bounds": {
+            "source": [
+              1388261015201,
+              1393149387980
+            ],
+            "destination": [
+              1388156736249,
+              1393055576567
+            ]
+          }
+        },
+        "10": {
+          "per_role_effective_core_estimate": {
+            "source": 1.08,
+            "destination": 0.93
+          },
+          "allocated_three_guest_core_fraction_estimate": 0.67,
+          "contained_sample_bounds": {
+            "source": [
+              1383246788721,
+              1393149387980
+            ],
+            "destination": [
+              1383168234205,
+              1393055576567
+            ]
+          }
+        }
+      },
+      "roles": {
+        "source": {
+          "peak_rss_bytes": 652083200,
+          "forced_cleanup": {
+            "exit_code": -9,
+            "group_killed": true,
+            "valid": false
+          },
+          "failure_udp": {
+            "all_socket_inode_count": 1677,
+            "cpu_sample_monotonic_ns": 1393292699105,
+            "cpu_ticks": 2100,
+            "live_socket_drops": 0,
+            "namespace_udp_mib": {
+              "counters": {
+                "IgnoredMulti": 0,
+                "InCsumErrors": 0,
+                "InDatagrams": 24846,
+                "InErrors": 0,
+                "MemErrors": 0,
+                "NoPorts": 0,
+                "OutDatagrams": 31208,
+                "RcvbufErrors": 0,
+                "SndbufErrors": 0
+              },
+              "scope": "IPv4 UDP network-namespace cumulative counters, not per-socket; no baseline, event timestamps or per-timeout attribution.",
+              "status": "MEASURED_NAMESPACE_CUMULATIVE"
+            },
+            "pid": 96,
+            "start_ticks": 137648,
+            "status": "MEASURED_FAILURE_SNAPSHOT",
+            "udp_socket_count": 1677
+          },
+          "failure": {
+            "error": "failed marker prevents progress",
+            "error_type": "InterruptedError",
+            "status": "INVALID_PARTIAL"
+          },
+          "individually_verified_peer": null,
+          "server_recorded_sample_count": null
+        },
+        "destination": {
+          "peak_rss_bytes": 387051520,
+          "forced_cleanup": {
+            "exit_code": -9,
+            "group_killed": true,
+            "valid": false
+          },
+          "failure_udp": {
+            "all_socket_inode_count": 1,
+            "cpu_sample_monotonic_ns": 1394779383083,
+            "cpu_ticks": 1352,
+            "live_socket_drops": 1116,
+            "namespace_udp_mib": {
+              "counters": {
+                "IgnoredMulti": 0,
+                "InCsumErrors": 0,
+                "InDatagrams": 30099,
+                "InErrors": 1116,
+                "MemErrors": 0,
+                "NoPorts": 0,
+                "OutDatagrams": 24873,
+                "RcvbufErrors": 1116,
+                "SndbufErrors": 0
+              },
+              "scope": "IPv4 UDP network-namespace cumulative counters, not per-socket; no baseline, event timestamps or per-timeout attribution.",
+              "status": "MEASURED_NAMESPACE_CUMULATIVE"
+            },
+            "pid": 96,
+            "start_ticks": 137642,
+            "status": "MEASURED_FAILURE_SNAPSHOT",
+            "udp_socket_count": 1
+          },
+          "failure": {
+            "error": "control EOF before completion",
+            "error_type": "InterruptedError",
+            "status": "INVALID_PARTIAL"
+          },
+          "individually_verified_peer": null,
+          "server_recorded_sample_count": null
+        }
+      }
+    }
+  ]
+}
