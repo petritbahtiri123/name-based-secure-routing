@@ -1,6 +1,7 @@
 package perfclock
 
 import (
+	"math/bits"
 	"reflect"
 	"syscall"
 )
@@ -31,6 +32,20 @@ func Now() int64 {
 }
 
 func Since(start int64) int64 {
-	delta := Now() - start
-	return delta * 1_000_000_000 / performanceCounterFrequency
+	return counterNanoseconds(Now()-start, performanceCounterFrequency)
+}
+
+func counterNanoseconds(delta, frequency int64) int64 {
+	ticks := uint64(delta)
+	if delta < 0 {
+		ticks = uint64(-delta)
+	}
+	// Widen the intermediate product: even a representable elapsed duration
+	// can overflow delta*1e9 before division by the QPC frequency.
+	hi, lo := bits.Mul64(ticks, 1_000_000_000)
+	nanoseconds, _ := bits.Div64(hi, lo, uint64(frequency))
+	if delta < 0 {
+		return -int64(nanoseconds)
+	}
+	return int64(nanoseconds)
 }
