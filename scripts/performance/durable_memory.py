@@ -15,26 +15,11 @@ import threading
 import time
 from typing import Any, Iterable, TextIO
 
+from scripts.performance.windows_job import spawn_owned
 
-TH32CS_SNAPPROCESS = 0x00000002
-INVALID_HANDLE_VALUE = ctypes.c_void_p(-1).value
+
 PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
 STILL_ACTIVE = 259
-
-
-class PROCESSENTRY32W(ctypes.Structure):
-    _fields_ = [
-        ("dwSize", wintypes.DWORD),
-        ("cntUsage", wintypes.DWORD),
-        ("th32ProcessID", wintypes.DWORD),
-        ("th32DefaultHeapID", ctypes.c_size_t),
-        ("th32ModuleID", wintypes.DWORD),
-        ("cntThreads", wintypes.DWORD),
-        ("th32ParentProcessID", wintypes.DWORD),
-        ("pcPriClassBase", ctypes.c_long),
-        ("dwFlags", wintypes.DWORD),
-        ("szExeFile", wintypes.WCHAR * 260),
-    ]
 
 
 class DurableEvidenceOverflow(RuntimeError):
@@ -92,35 +77,6 @@ class DurableNdjsonWriter:
             self._handle.close()
 
 
-def _windows_process_table() -> dict[int, int]:
-    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
-    snapshot = kernel32.CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0)
-    if snapshot == INVALID_HANDLE_VALUE:
-        raise ctypes.WinError(ctypes.get_last_error())
-    entry = PROCESSENTRY32W()
-    entry.dwSize = ctypes.sizeof(entry)
-    table: dict[int, int] = {}
-    try:
-        found = kernel32.Process32FirstW(snapshot, ctypes.byref(entry))
-        while found:
-            table[int(entry.th32ProcessID)] = int(entry.th32ParentProcessID)
-            found = kernel32.Process32NextW(snapshot, ctypes.byref(entry))
-    finally:
-        kernel32.CloseHandle(snapshot)
-    return table
-
-
-def _descendants(root_pid: int, table: dict[int, int]) -> list[int]:
-    found: list[int] = []
-    frontier = [root_pid]
-    while frontier:
-        parent = frontier.pop()
-        children = sorted(pid for pid, parent_pid in table.items() if parent_pid == parent and pid not in found)
-        found.extend(children)
-        frontier.extend(children)
-    return found
-
-
 def _windows_process_active(pid: int) -> bool:
     kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
     handle = kernel32.OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, False, pid)
@@ -136,24 +92,13 @@ def _windows_process_active(pid: int) -> bool:
 
 
 def _terminate_process_tree(process: subprocess.Popen[str]) -> tuple[list[int], bool]:
+    job = getattr(process, "nbsr_job", None)
+    if job is not None:
+        process_ids, verified = job.terminate()
+        process.wait(timeout=10)
+        return process_ids, verified
     if os.name == "nt":
-        table = _windows_process_table()
-        process_ids = [process.pid, *_descendants(process.pid, table)]
-        subprocess.run(
-            ["taskkill", "/PID", str(process.pid), "/T", "/F"],
-            capture_output=True,
-            check=False,
-            text=True,
-        )
-        try:
-            process.wait(timeout=10)
-        except subprocess.TimeoutExpired:
-            process.kill()
-            process.wait(timeout=5)
-        deadline = time.monotonic() + 5
-        while time.monotonic() < deadline and any(_windows_process_active(pid) for pid in process_ids):
-            time.sleep(0.02)
-        return process_ids, not any(_windows_process_active(pid) for pid in process_ids)
+        raise RuntimeError("owned Windows job required for cleanup verification")
     process_ids = [process.pid]
     try:
         os.killpg(os.getpgid(process.pid), signal.SIGKILL)
@@ -269,7 +214,7 @@ def run_durable_memory_child(
     reader: threading.Thread | None = None
     try:
         with stderr_path.open("w", encoding="utf-8", newline="\n") as stderr:
-            process = subprocess.Popen(
+            process = spawn_owned(
                 command,
                 cwd=cwd,
                 stdout=subprocess.PIPE,
@@ -328,11 +273,38 @@ def run_durable_memory_child(
     except BaseException as error:
         runner_error = f"{type(error).__name__}: {error}"
         if process is not None and process.poll() is None:
-            terminated_process_ids, cleanup_verified = _terminate_process_tree(process)
+            try:
+                terminated_process_ids, cleanup_verified = _terminate_process_tree(process)
+            except BaseException as cleanup_error:
+                cleanup_verified = False
+                runner_error += f"; cleanup: {type(cleanup_error).__name__}: {cleanup_error}"
         if process is not None:
             child_return_code = process.returncode
+        else:
+            cleanup_verified = False
         terminal_state = "failed"
     finally:
+        job = getattr(process, "nbsr_job", None)
+        if job is not None:
+            try:
+                if job.members():
+                    extra_ids, verified = job.terminate()
+                    terminated_process_ids = sorted(set(terminated_process_ids + extra_ids))
+                    cleanup_verified = cleanup_verified and verified
+                    if terminal_state == "completed":
+                        terminal_state = "failed"
+                        runner_error = "owned descendants remained after parent completion"
+            except BaseException as error:
+                cleanup_verified = False
+                terminal_state = "failed"
+                runner_error = f"job cleanup: {type(error).__name__}: {error}"
+            finally:
+                try:
+                    job.close()
+                except OSError as error:
+                    cleanup_verified = False
+                    terminal_state = "failed"
+                    runner_error = f"job close: {error}"
         close_errors = _close_writers(writers.values())
         if close_errors and runner_error is None:
             runner_error = f"{type(close_errors[0]).__name__}: {close_errors[0]}"
@@ -365,6 +337,9 @@ def run_durable_memory_child(
         "partial_but_durable": terminal_state != "completed" and any(writer.written > 0 for writer in writers.values()),
         "authoritative_pass_eligible": authoritative,
         "cleanup_verified": cleanup_verified,
+        "cleanup_basis": ("UNAVAILABLE: child launch failed" if process is None else
+                          ("windows_job_zero_active_members" if cleanup_verified else
+                           "UNVERIFIED: Windows job cleanup") if os.name == "nt" else "owned_process_group"),
         "terminated_process_ids": terminated_process_ids,
         "counters_reconciled": reconciled,
         "counters": {

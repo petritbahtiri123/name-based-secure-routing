@@ -18,7 +18,10 @@ def main() -> None:
     parser.add_argument("--mode", choices=("completed", "failed", "empty-failed", "timeout"), required=True)
     parser.add_argument("--descendant-pid", type=Path)
     parser.add_argument("--self-pid", type=Path)
+    parser.add_argument("--ready-file", type=Path)
+    parser.add_argument("--startup-delay", type=float, default=0)
     args = parser.parse_args()
+    time.sleep(args.startup_delay)
 
     if args.self_pid is not None:
         args.self_pid.write_text(str(os.getpid()), encoding="ascii")
@@ -67,6 +70,9 @@ def main() -> None:
             }
         )
         time.sleep(0.05)
+
+    if args.ready_file is not None:
+        args.ready_file.write_text("ready", encoding="ascii")
 
     if args.mode == "failed":
         raise SystemExit(7)

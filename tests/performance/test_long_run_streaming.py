@@ -12,6 +12,7 @@ import pytest
 from scripts.performance.durable_memory import _windows_process_active
 from scripts.run_performance_load_cell import durable_request_event, resource_phase, validate_memory_duration
 from scripts.run_performance_validation import dirty_paths_outside, measured_client
+from tests.performance.process_test_support import wait_ready
 
 
 FIXTURE = Path(__file__).parent / "fixtures" / "long_run_child.py"
@@ -108,13 +109,14 @@ def test_measured_client_timeout_terminates_the_client(tmp_path: Path) -> None:
     pid_path = tmp_path / "client.pid"
     with pytest.raises(subprocess.TimeoutExpired):
         measured_client(
-            [sys.executable, str(FIXTURE), "--mode", "timeout", "--self-pid", str(pid_path)],
+            [sys.executable, str(FIXTURE), "--mode", "timeout", "--self-pid", str(pid_path), "--startup-delay", "0.6"],
             cwd=tmp_path,
             server=SimpleNamespace(pid=os.getpid()),
             timeout=0.4,
             stdout_path=tmp_path / "client.ndjson",
             output_line_sink=lambda _line: None,
             sampling_interval_seconds=0.01,
+            client_started=lambda _pid: wait_ready(pid_path),
         )
     pid = int(pid_path.read_text(encoding="ascii"))
     deadline = time.monotonic() + 2

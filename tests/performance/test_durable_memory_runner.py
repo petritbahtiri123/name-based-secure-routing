@@ -8,6 +8,7 @@ import sys
 import time
 
 from scripts.performance.durable_memory import _windows_process_active, run_durable_memory_child
+from tests.performance.process_test_support import prepare_durable_child
 
 
 FIXTURE = Path(__file__).parent / "fixtures" / "long_run_child.py"
@@ -70,10 +71,11 @@ def test_completed_run_flushes_incremental_request_resource_and_runtime_evidence
     assert json.loads((output / "terminal-manifest.json").read_text(encoding="utf-8")) == result
 
 
-def test_timeout_retains_partial_series_reconciles_counts_and_denies_authority(tmp_path: Path) -> None:
+def test_timeout_retains_partial_series_reconciles_counts_and_denies_authority(tmp_path: Path, monkeypatch) -> None:
+    prepare_durable_child(monkeypatch, tmp_path / "ready")
     output = tmp_path / "timeout"
     result = run_durable_memory_child(
-        command("timeout"),
+        [*command("timeout"), "--startup-delay", "0.6"],
         output=output,
         timeout_seconds=0.4,
         offered_requests=5,
@@ -162,10 +164,11 @@ def test_completed_validation_profile_cannot_be_authoritative(tmp_path: Path) ->
     assert result["authoritative_pass_eligible"] is False
 
 
-def test_timeout_terminates_and_verifies_descendant_process_cleanup(tmp_path: Path) -> None:
+def test_timeout_terminates_and_verifies_descendant_process_cleanup(tmp_path: Path, monkeypatch) -> None:
+    prepare_durable_child(monkeypatch, tmp_path / "ready")
     descendant_pid_path = tmp_path / "descendant.pid"
     result = run_durable_memory_child(
-        command("timeout", descendant_pid_path),
+        [*command("timeout", descendant_pid_path), "--startup-delay", "0.6"],
         output=tmp_path / "tree-timeout",
         timeout_seconds=0.4,
         offered_requests=5,
