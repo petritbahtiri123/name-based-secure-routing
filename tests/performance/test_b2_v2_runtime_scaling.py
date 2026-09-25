@@ -5,6 +5,7 @@ import importlib
 import pytest
 import subprocess
 import sys
+import tomllib
 
 import scripts.run_p2a_established as p2a
 
@@ -29,7 +30,9 @@ def test_runtime_scaling_manifest_preserves_exact_command() -> None:
 
 def test_benchmark_feature_alone_enables_multithread_runtime() -> None:
     cargo = (ROOT / "crates/nbsr-transport/Cargo.toml").read_text(encoding="utf-8")
-    assert 'benchmark-harness = ["tokio/rt-multi-thread"]' in cargo
+    manifest = tomllib.loads(cargo)
+    assert 'tokio/rt-multi-thread' in manifest['features']['benchmark-harness']
+    assert 'rt-multi-thread' not in manifest['dependencies']['tokio']['features']
 
 
 def test_all_peers_use_the_same_benchmark_runtime_worker_flag() -> None:

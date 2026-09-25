@@ -25,14 +25,16 @@ def test_batched_release_supplies_exact_pair():
 
 def test_partial_release_configuration_is_rejected():
     import pytest
-    with pytest.raises(ValueError): command(8,None)
+    with pytest.raises(ValueError):
+        command(8,None)
 
 
 def test_rate_release_is_mutually_exclusive_and_exact():
     argv=command(rate=125)
     assert argv[argv.index('--lifecycle-offered-rate')+1]=='125'
     import pytest
-    with pytest.raises(ValueError): command(8,25,125)
+    with pytest.raises(ValueError):
+        command(8,25,125)
 
 
 def test_disabled_rate_does_not_set_destination_schedule_environment():

@@ -88,6 +88,9 @@ def test_linux_cli_records_explicit_diagnostic_retention(monkeypatch):
     monkeypatch.setattr(sys, 'argv', ['b5', '--binaries', 'bins', '--build-manifest', 'build.json',
         '--output', 'out', '--duration', '600', '--diagnostic', '--rate', '1', '1',
         '--retain-failed-diagnostic'])
-    monkeypatch.setattr(linux_b5_campaign, 'execute', captured.append)
+    def execute(args, *, check_cancelled):
+        check_cancelled()
+        captured.append(args)
+    monkeypatch.setattr(linux_b5_campaign, 'execute', execute)
     linux_b5_campaign.main()
     assert captured[0].retain_failed_diagnostic is True
