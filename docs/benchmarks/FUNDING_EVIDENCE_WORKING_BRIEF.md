@@ -4,6 +4,12 @@
 for the ongoing campaign. Each measurement belongs to its recorded source,
 workload and host; different stages are not one final-SHA scoreboard.
 
+Current snapshot: [September25 consolidated checkpoint](ENGINEERING_CHECKPOINT_2026-09-25.md).
+It includes the physical-core scoreboard, native2048/4096 outcomes, corrected
+Go lifecycle repeats, security/isolation scope and an explicit remaining-work
+ledger. Recommendation: technical outreach with limitations, not a completed
+pilot qualification or final funding-grade performance freeze.
+
 Latest continuation: [September 24 engineering/evidence checkpoint](ENGINEERING_CHECKPOINT_2026-09-24.md).
 Native finite coordination, eleven-counter post-close binding and paired live
 resource/progress collection now have functional and controlled-EOF evidence.

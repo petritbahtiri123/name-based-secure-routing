@@ -1,5 +1,16 @@
 # Maximum-quality campaign: current state
 
+## September 25 continuation
+
+Use the [current consolidated checkpoint](ENGINEERING_CHECKPOINT_2026-09-25.md).
+Native 2048 private-memory trials pass three times; all three 4096 failures are
+retained without a production ceiling claim. Windows owned-child cleanup and Go
+lifecycle completion ordering have regression and before/after evidence. The
+corrected Go cohort passes18/18 cells. Scoped Linux Go lifecycle support and its
+monotonic clock are implemented; thirty Linux cells and 250 same-process cycles pass; see the [Linux subset runbook](GO_LINUX_LIFECYCLE_VALIDATION.md).
+Qualified near-ceiling soak, external server results and live federation remain
+unproven. Earlier dated sections are history, not a current all-complete claim.
+
 ## September 24 continuation
 
 Use [the current checkpoint](ENGINEERING_CHECKPOINT_2026-09-24.md) for the latest

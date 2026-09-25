@@ -154,3 +154,24 @@ IDs/topology are not proof of physical host core allocation.
 Optional diagnostic private memory (c5b53c66): add top-level `"memory_observer":true` to the coordinator config. Both endpoint commands and retained replay bind this boolean; default remains off and historical off evidence stays compatible. Sampling uses identity/lifetime-bound Linux smaps_rollup at most once per second, with the existing120-second controller. Use private/PSS samples wholly contained in active windows on both roles and destination report-gate cooldown. Source exits after ACK: source cooldown is NOT_MEASURED, never an inferred zero. Independent pair CLI requires `--memory-observer` for these artifacts. This opt-in observer has no neutrality qualification and its timings cannot support capacity claims. Bundle axes co-vary; no isolated bytes/connection/session/channel/stream claim.
 
 Explicit live bundles (e0dcf20f): optional top-level `"bundle_mode":"live-bundles"` uses the existing benchmark-only source QUIC keepalive at one second. Default `idle-bundles` remains unchanged. Both endpoints, controller metadata and exact peer replay bind the mode; standalone pair replay requires `--bundle-mode live-bundles`. Sequential-cycle configs do not accept this mode. This is the separate B3_LIVE_BUNDLES workload, not an idle-timeout fix or production optimization. Keep counts,rate,shards,cores,hold/cooldown and observer mode in every retained config. Never pool live and idle results.
+
+## September25 live-resource boundary
+
+Live-bundle mode now permits2048 and4096 in addition to the earlier counts;
+idle-bundle mode remains bounded at1024. Only4096 live source collection gets
+the explicitly bounded20000-entry archive allowance; the byte/path/link guards
+remain enforced. This is not authorization to reinterpret a partial activation
+as a successful4096 cell.
+
+For bundles only, the destination may declare `"runtime_workers":2` (allowed
+values1/2/4, no greater than its allocated core count). Source fanout remains
+the separately declared shard count. Controller, actual argv, retained metadata
+and replay bind this destination field; omission preserves the existing default.
+
+At8e0b28a2, three2048 live-bundle memory trials pass with two source shards,
+two destination runtime workers,100offered/s and the explicit1skeepalive. At
+530ecac9, all three4096 trials fail before common active hold. Measured socket
+drops and incomplete activation are retained; neither a production ceiling nor
+a sole packet-level cause is established. See the [September25 checkpoint](ENGINEERING_CHECKPOINT_2026-09-25.md).
+The optional memory observer remains unqualified for timing, and guest placement
+does not prove exclusive physical-host cores.

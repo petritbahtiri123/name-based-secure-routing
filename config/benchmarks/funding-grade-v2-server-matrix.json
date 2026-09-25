@@ -337,6 +337,18 @@
       ],
       "scope": "backend compatibility exists; independently isolated resource axes and full server matrix unqualified"
     },
+    "linux_go_lifecycle": {
+      "status": "PARTIAL",
+      "command": "python3 scripts/run_b3_v2.py --platform linux --path go-rust --help",
+      "sources": [
+        "scripts/run_b3_v2.py",
+        "scripts/performance/b3_go_linux_analysis.py",
+        "interop/nbsr-go-peer/internal/perfclock/clock_linux.go",
+        "docs/benchmarks/GO_LINUX_LIFECYCLE_VALIDATION.md"
+      ],
+      "scope": "sequential Go-to-Rust Linux loopback channels, streams and repeated lifecycle; destination completion barrier, eight destination counters, source process exit and unavailable final source memory",
+      "missing": "full Go source ownership, remote Go roles, isolated resource costs, observer qualification and external hardware validation"
+    },
     "linux_admission": {
       "status": "PARTIAL",
       "command": "python3 scripts/run_b4b_linux.py --help",
@@ -430,7 +442,7 @@
         "scripts/performance/linux_native_lifecycle_coordinator.py",
         "docs/benchmarks/EXTERNAL_NATIVE_LIFECYCLE_COORDINATOR.md"
       ],
-      "scope": "prepared source, readiness/active/release/ACK/cooldown coordination and owned EOF cleanup; finite native 512/1024 namespace evidence, not sustainable admission; optional private/PSS diagnostic observer: native16..512 three repeats pass,1024 idle-hold failure retained separately",
+      "scope": "prepared source, readiness/active/release/ACK/cooldown coordination and owned EOF cleanup; native2048 live-bundle memory trials pass three repeats with explicit keepalive/two destination workers, all three4096 trials fail before common active hold; idle-mode evidence remains separate; not sustainable admission or observer-qualified timing",
       "missing": "physical-host SSH validation, Go-to-Rust coverage and sustained multihost admission; separate native cycle coordinator covers bounded channel/stream axes"
     },
     "native_reference_gates": {
