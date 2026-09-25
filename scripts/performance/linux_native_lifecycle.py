@@ -24,7 +24,7 @@ from scripts.performance.linux_b5_placement import seal_output
 from scripts.performance.linux_b5_reference import git_state
 from scripts.performance.linux_loopback import ROOT, digest, physical_cpu_sets, write_json, sample_process
 from scripts.performance.linux_native_cycle_memory import CycleMemoryObserver
-from scripts.performance.linux_native_lifecycle_control import BUNDLE_COUNTS, CYCLE_COUNTS
+from scripts.performance.linux_native_lifecycle_control import BUNDLE_COUNTS, LIVE_BUNDLE_COUNTS, CYCLE_COUNTS
 from scripts.performance.linux_native_cycle_limits import cycle_bounds, validate_shape, validate_active_shape
 from scripts.performance.linux_native_peer import observe_child, readiness_endpoint, validate_endpoint, wait_target_exec
 from scripts.performance.linux_udp_failure import capture_owned_udp
@@ -62,10 +62,14 @@ def validate_bundle_mode(mode, cycles=None):
     return mode
 
 
+def bundle_counts(mode):
+    return LIVE_BUNDLE_COUNTS if validate_bundle_mode(mode) == 'live-bundles' else BUNDLE_COUNTS
+
+
 def command(*, role, count, shards, rate, binaries, authority, lifecycle, output, bind, endpoint, bundle_mode='idle-bundles'):
     validate_bundle_mode(bundle_mode)
     require(role in ('source', 'destination'), 'invalid lifecycle role')
-    require(type(count) is int and count in BUNDLE_COUNTS, 'invalid bundle count')
+    require(type(count) is int and count in bundle_counts(bundle_mode), 'invalid bundle count')
     require(type(shards) is int and shards in (1, 2), 'invalid source shards')
     require(type(rate) is int and 1 <= rate <= 1000, 'invalid offered rate')
     _, port = validate_endpoint(bind, allow_zero=True)
@@ -333,7 +337,7 @@ def argument_parser(*, sequential=False):
         parser.add_argument('--channels', type=int, default=1)
         parser.set_defaults(count=None, shards=None, rate=None)
     else:
-        parser.add_argument('--count', type=int, choices=BUNDLE_COUNTS, default=16)
+        parser.add_argument('--count', type=int, choices=LIVE_BUNDLE_COUNTS, default=16)
         parser.add_argument('--bundle-mode', choices=('idle-bundles', 'live-bundles'), default='idle-bundles')
         parser.add_argument('--shards', type=int, choices=(1, 2), default=2)
         parser.add_argument('--rate', type=int, default=100)

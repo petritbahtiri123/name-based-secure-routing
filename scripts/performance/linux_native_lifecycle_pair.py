@@ -12,8 +12,8 @@ from types import SimpleNamespace
 
 from scripts.performance.linux_b5_ceiling import NAMES, require
 from scripts.performance.linux_loopback import digest
-from scripts.performance.linux_native_lifecycle import workload_command, select_cpu_pool, validate_result, validate_bundle_mode
-from scripts.performance.linux_native_lifecycle_control import BUNDLE_COUNTS, CYCLE_COUNTS
+from scripts.performance.linux_native_lifecycle import workload_command, select_cpu_pool, validate_result, validate_bundle_mode, bundle_counts
+from scripts.performance.linux_native_lifecycle_control import CYCLE_COUNTS
 from scripts.performance.linux_native_cycle_limits import cycle_bounds
 from scripts.performance.linux_native_cycle_memory import verify_memory
 from scripts.performance.linux_native_pair import read, verify_index
@@ -177,7 +177,7 @@ def check_peer(root, role, source_sha, count, *, cycles=None, streams=1, channel
 
 def analyze(source, destination, *, source_sha, count, memory_observer=False, bundle_mode='idle-bundles'):
     require(
-        re.fullmatch("[0-9a-f]{40}", source_sha) and type(count) is int and count in BUNDLE_COUNTS,
+        re.fullmatch("[0-9a-f]{40}", source_sha) and type(count) is int and count in bundle_counts(bundle_mode),
         "invalid expected source/count",
     )
     require(source.resolve() != destination.resolve(), "distinct peer roots required")

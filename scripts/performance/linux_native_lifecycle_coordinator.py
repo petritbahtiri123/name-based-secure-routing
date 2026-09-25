@@ -11,8 +11,8 @@ import time
 from scripts.performance.linux_native_duration import bounds
 from scripts.performance.linux_native_cycle_limits import cycle_bounds
 from scripts.performance.linux_b5_ceiling import require
-from scripts.performance.linux_native_lifecycle import validate_cpu_pool, validate_bundle_mode
-from scripts.performance.linux_native_lifecycle_control import BUNDLE_COUNTS, decode_object
+from scripts.performance.linux_native_lifecycle import validate_cpu_pool, validate_bundle_mode, bundle_counts
+from scripts.performance.linux_native_lifecycle_control import LIVE_BUNDLE_COUNTS, decode_object
 from scripts.performance.linux_native_lifecycle_remote import remote_command, remote_path
 from scripts.performance.linux_native_peer import validate_endpoint
 from scripts.performance.process_cancellation import not_cancelled
@@ -46,7 +46,7 @@ def validate_config(value):
     require(type(value.get('memory_observer', False)) is bool, 'boolean memory observer required')
     require(value['schema'] == 'nbsr-native-lifecycle-coordinator-v1'
             and isinstance(value['source_sha'], str) and re.fullmatch('[0-9a-f]{40}', value['source_sha']), 'invalid source/schema')
-    for field, choices in [('count', BUNDLE_COUNTS), ('shards', (1, 2))]:
+    for field, choices in [('count', bundle_counts(value.get('bundle_mode', 'idle-bundles'))), ('shards', (1, 2))]:
         require(type(value[field]) is int and value[field] in choices, 'invalid ' + field)
     require(type(value['rate']) is int and 1 <= value['rate'] <= 1000, 'invalid offered rate')
     for role in SEQUENCES:
@@ -101,7 +101,7 @@ def drive(start, wait, send, finish, *, sleep):
 
 class EventLedger:
     def __init__(self, count):
-        require(type(count) is int and count in BUNDLE_COUNTS, 'invalid event count')
+        require(type(count) is int and count in LIVE_BUNDLE_COUNTS, 'invalid event count')
         self.count = count
         self.positions = dict.fromkeys(SEQUENCES, 0)
         self.last_time = dict.fromkeys(SEQUENCES, -1)
