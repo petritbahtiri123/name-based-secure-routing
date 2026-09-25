@@ -1,0 +1,2555 @@
+{
+  "baseline": {
+    "source_sha": "dfc22f2c02dac3148c5fe45abe3d0fd3e666d149",
+    "completion_gate": false,
+    "attempts": 18,
+    "passed": 17,
+    "completed_operations_in_accepted_cells": 1648,
+    "shapes": {
+      "streams-16": {
+        "attempts": 3,
+        "passed": 3,
+        "rows": [
+          {
+            "repeat": 1,
+            "status": "PASS_SCOPED",
+            "completed_operations": 16,
+            "roles": {
+              "source": {
+                "phase_private_bytes": {
+                  "idle": 47024128.0,
+                  "active": 48820224.0
+                },
+                "handles_range": [
+                  55,
+                  125
+                ],
+                "threads_range": [
+                  6,
+                  7
+                ]
+              },
+              "destination": {
+                "phase_private_bytes": {
+                  "idle": 1470464.0,
+                  "active": 1847296.0,
+                  "cooldown": 2146304.0
+                },
+                "handles_range": [
+                  89,
+                  91
+                ],
+                "threads_range": [
+                  5,
+                  5
+                ]
+              }
+            },
+            "go_runtime": {
+              "heap_alloc_bytes": [
+                300720,
+                745112
+              ],
+              "heap_sys_bytes": [
+                8028160,
+                8257536
+              ],
+              "goroutines": [
+                2,
+                22
+              ],
+              "num_gc": [
+                0,
+                0
+              ],
+              "mallocs": [
+                1282,
+                6007
+              ],
+              "frees": [
+                33,
+                238
+              ],
+              "total_alloc_bytes": [
+                300720,
+                745112
+              ]
+            }
+          },
+          {
+            "repeat": 2,
+            "status": "PASS_SCOPED",
+            "completed_operations": 16,
+            "roles": {
+              "source": {
+                "phase_private_bytes": {
+                  "idle": 46649344.0,
+                  "active": 49025024.0
+                },
+                "handles_range": [
+                  88,
+                  119
+                ],
+                "threads_range": [
+                  6,
+                  7
+                ]
+              },
+              "destination": {
+                "phase_private_bytes": {
+                  "idle": 1441792.0,
+                  "active": 1835008.0,
+                  "cooldown": 1847296.0
+                },
+                "handles_range": [
+                  83,
+                  85
+                ],
+                "threads_range": [
+                  5,
+                  5
+                ]
+              }
+            },
+            "go_runtime": {
+              "heap_alloc_bytes": [
+                300096,
+                738968
+              ],
+              "heap_sys_bytes": [
+                3833856,
+                4063232
+              ],
+              "goroutines": [
+                2,
+                22
+              ],
+              "num_gc": [
+                0,
+                0
+              ],
+              "mallocs": [
+                1274,
+                5944
+              ],
+              "frees": [
+                33,
+                237
+              ],
+              "total_alloc_bytes": [
+                300096,
+                738968
+              ]
+            }
+          },
+          {
+            "repeat": 3,
+            "status": "PASS_SCOPED",
+            "completed_operations": 16,
+            "roles": {
+              "source": {
+                "phase_private_bytes": {
+                  "idle": 46911488.0,
+                  "active": 48607232.0
+                },
+                "handles_range": [
+                  88,
+                  119
+                ],
+                "threads_range": [
+                  6,
+                  7
+                ]
+              },
+              "destination": {
+                "phase_private_bytes": {
+                  "idle": 1431552.0,
+                  "active": 1835008.0,
+                  "cooldown": 2002944.0
+                },
+                "handles_range": [
+                  83,
+                  85
+                ],
+                "threads_range": [
+                  5,
+                  5
+                ]
+              }
+            },
+            "go_runtime": {
+              "heap_alloc_bytes": [
+                300408,
+                742416
+              ],
+              "heap_sys_bytes": [
+                8060928,
+                8257536
+              ],
+              "goroutines": [
+                2,
+                22
+              ],
+              "num_gc": [
+                0,
+                0
+              ],
+              "mallocs": [
+                1278,
+                5964
+              ],
+              "frees": [
+                33,
+                238
+              ],
+              "total_alloc_bytes": [
+                300408,
+                742416
+              ]
+            }
+          }
+        ],
+        "active_private_cv": {
+          "source": 0.004279395989581354,
+          "destination": 0.003857574181667878
+        }
+      },
+      "streams-32": {
+        "attempts": 3,
+        "passed": 3,
+        "rows": [
+          {
+            "repeat": 1,
+            "status": "PASS_SCOPED",
+            "completed_operations": 32,
+            "roles": {
+              "source": {
+                "phase_private_bytes": {
+                  "idle": 46821376.0,
+                  "active": 49147904.0
+                },
+                "handles_range": [
+                  87,
+                  119
+                ],
+                "threads_range": [
+                  6,
+                  7
+                ]
+              },
+              "destination": {
+                "phase_private_bytes": {
+                  "idle": 1431552.0,
+                  "active": 1830912.0,
+                  "cooldown": 1916928.0
+                },
+                "handles_range": [
+                  83,
+                  85
+                ],
+                "threads_range": [
+                  5,
+                  5
+                ]
+              }
+            },
+            "go_runtime": {
+              "heap_alloc_bytes": [
+                299936,
+                824744
+              ],
+              "heap_sys_bytes": [
+                3735552,
+                4030464
+              ],
+              "goroutines": [
+                2,
+                38
+              ],
+              "num_gc": [
+                0,
+                0
+              ],
+              "mallocs": [
+                1273,
+                7146
+              ],
+              "frees": [
+                33,
+                318
+              ],
+              "total_alloc_bytes": [
+                299936,
+                824744
+              ]
+            }
+          },
+          {
+            "repeat": 2,
+            "status": "PASS_SCOPED",
+            "completed_operations": 32,
+            "roles": {
+              "source": {
+                "phase_private_bytes": {
+                  "idle": 46891008.0,
+                  "active": 49364992.0
+                },
+                "handles_range": [
+                  88,
+                  119
+                ],
+                "threads_range": [
+                  6,
+                  7
+                ]
+              },
+              "destination": {
+                "phase_private_bytes": {
+                  "idle": 1437696.0,
+                  "active": 1835008.0,
+                  "cooldown": 2043904.0
+                },
+                "handles_range": [
+                  83,
+                  85
+                ],
+                "threads_range": [
+                  5,
+                  5
+                ]
+              }
+            },
+            "go_runtime": {
+              "heap_alloc_bytes": [
+                300000,
+                826424
+              ],
+              "heap_sys_bytes": [
+                3997696,
+                7929856
+              ],
+              "goroutines": [
+                2,
+                38
+              ],
+              "num_gc": [
+                0,
+                0
+              ],
+              "mallocs": [
+                1274,
+                7156
+              ],
+              "frees": [
+                33,
+                318
+              ],
+              "total_alloc_bytes": [
+                300000,
+                826424
+              ]
+            }
+          },
+          {
+            "repeat": 3,
+            "status": "PASS_SCOPED",
+            "completed_operations": 32,
+            "roles": {
+              "source": {
+                "phase_private_bytes": {
+                  "idle": 46649344.0,
+                  "active": 49115136.0
+                },
+                "handles_range": [
+                  88,
+                  119
+                ],
+                "threads_range": [
+                  6,
+                  7
+                ]
+              },
+              "destination": {
+                "phase_private_bytes": {
+                  "idle": 1439744.0,
+                  "active": 1839104.0,
+                  "cooldown": 1863680.0
+                },
+                "handles_range": [
+                  83,
+                  85
+                ],
+                "threads_range": [
+                  5,
+                  5
+                ]
+              }
+            },
+            "go_runtime": {
+              "heap_alloc_bytes": [
+                299936,
+                829032
+              ],
+              "heap_sys_bytes": [
+                3702784,
+                4063232
+              ],
+              "goroutines": [
+                2,
+                38
+              ],
+              "num_gc": [
+                0,
+                0
+              ],
+              "mallocs": [
+                1273,
+                7156
+              ],
+              "frees": [
+                33,
+                318
+              ],
+              "total_alloc_bytes": [
+                299936,
+                829032
+              ]
+            }
+          }
+        ],
+        "active_private_cv": {
+          "source": 0.002759378134551486,
+          "destination": 0.002232142857142857
+        }
+      },
+      "streams-64": {
+        "attempts": 3,
+        "passed": 3,
+        "rows": [
+          {
+            "repeat": 1,
+            "status": "PASS_SCOPED",
+            "completed_operations": 64,
+            "roles": {
+              "source": {
+                "phase_private_bytes": {
+                  "idle": 46657536.0,
+                  "active": 49373184.0
+                },
+                "handles_range": [
+                  87,
+                  119
+                ],
+                "threads_range": [
+                  6,
+                  7
+                ]
+              },
+              "destination": {
+                "phase_private_bytes": {
+                  "idle": 1429504.0,
+                  "active": 1871872.0,
+                  "cooldown": 2605056.0
+                },
+                "handles_range": [
+                  83,
+                  85
+                ],
+                "threads_range": [
+                  5,
+                  5
+                ]
+              }
+            },
+            "go_runtime": {
+              "heap_alloc_bytes": [
+                300112,
+                997160
+              ],
+              "heap_sys_bytes": [
+                7667712,
+                8257536
+              ],
+              "goroutines": [
+                2,
+                70
+              ],
+              "num_gc": [
+                0,
+                0
+              ],
+              "mallocs": [
+                1274,
+                9568
+              ],
+              "frees": [
+                33,
+                484
+              ],
+              "total_alloc_bytes": [
+                300112,
+                997160
+              ]
+            }
+          },
+          {
+            "repeat": 2,
+            "status": "PASS_SCOPED",
+            "completed_operations": 64,
+            "roles": {
+              "source": {
+                "phase_private_bytes": {
+                  "idle": 46661632.0,
+                  "active": 49487872.0
+                },
+                "handles_range": [
+                  87,
+                  119
+                ],
+                "threads_range": [
+                  6,
+                  7
+                ]
+              },
+              "destination": {
+                "phase_private_bytes": {
+                  "idle": 1429504.0,
+                  "active": 1875968.0,
+                  "cooldown": 2248704.0
+                },
+                "handles_range": [
+                  83,
+                  85
+                ],
+                "threads_range": [
+                  5,
+                  5
+                ]
+              }
+            },
+            "go_runtime": {
+              "heap_alloc_bytes": [
+                299776,
+                1002568
+              ],
+              "heap_sys_bytes": [
+                4063232,
+                8224768
+              ],
+              "goroutines": [
+                2,
+                70
+              ],
+              "num_gc": [
+                0,
+                0
+              ],
+              "mallocs": [
+                1272,
+                9617
+              ],
+              "frees": [
+                33,
+                485
+              ],
+              "total_alloc_bytes": [
+                299776,
+                1002568
+              ]
+            }
+          },
+          {
+            "repeat": 3,
+            "status": "PASS_SCOPED",
+            "completed_operations": 64,
+            "roles": {
+              "source": {
+                "phase_private_bytes": {
+                  "idle": 47343616.0,
+                  "active": 49790976.0
+                },
+                "handles_range": [
+                  53,
+                  119
+                ],
+                "threads_range": [
+                  7,
+                  8
+                ]
+              },
+              "destination": {
+                "phase_private_bytes": {
+                  "idle": 1429504.0,
+                  "active": 1875968.0,
+                  "cooldown": 2564096.0
+                },
+                "handles_range": [
+                  83,
+                  85
+                ],
+                "threads_range": [
+                  5,
+                  5
+                ]
+              }
+            },
+            "go_runtime": {
+              "heap_alloc_bytes": [
+                301152,
+                1002400
+              ],
+              "heap_sys_bytes": [
+                3997696,
+                7634944
+              ],
+              "goroutines": [
+                2,
+                70
+              ],
+              "num_gc": [
+                0,
+                0
+              ],
+              "mallocs": [
+                1286,
+                9611
+              ],
+              "frees": [
+                33,
+                484
+              ],
+              "total_alloc_bytes": [
+                301152,
+                1002400
+              ]
+            }
+          }
+        ],
+        "active_private_cv": {
+          "source": 0.004356365959213418,
+          "destination": 0.0012615082356656061
+        }
+      },
+      "channels-16": {
+        "attempts": 3,
+        "passed": 3,
+        "rows": [
+          {
+            "repeat": 1,
+            "status": "PASS_SCOPED",
+            "completed_operations": 16,
+            "roles": {
+              "source": {
+                "phase_private_bytes": {
+                  "idle": 46657536.0,
+                  "active": 48877568.0
+                },
+                "handles_range": [
+                  93,
+                  111
+                ],
+                "threads_range": [
+                  6,
+                  6
+                ]
+              },
+              "destination": {
+                "phase_private_bytes": {
+                  "idle": 1433600.0,
+                  "active": 1851392.0,
+                  "cooldown": 1937408.0
+                },
+                "handles_range": [
+                  83,
+                  85
+                ],
+                "threads_range": [
+                  5,
+                  5
+                ]
+              }
+            },
+            "go_runtime": {
+              "heap_alloc_bytes": [
+                303880,
+                1084608
+              ],
+              "heap_sys_bytes": [
+                8060928,
+                8257536
+              ],
+              "goroutines": [
+                2,
+                22
+              ],
+              "num_gc": [
+                0,
+                0
+              ],
+              "mallocs": [
+                1288,
+                10357
+              ],
+              "frees": [
+                33,
+                546
+              ],
+              "total_alloc_bytes": [
+                303880,
+                1084608
+              ]
+            }
+          },
+          {
+            "repeat": 2,
+            "status": "PASS_SCOPED",
+            "completed_operations": 16,
+            "roles": {
+              "source": {
+                "phase_private_bytes": {
+                  "idle": 46653440.0,
+                  "active": 49795072.0
+                },
+                "handles_range": [
+                  87,
+                  119
+                ],
+                "threads_range": [
+                  6,
+                  7
+                ]
+              },
+              "destination": {
+                "phase_private_bytes": {
+                  "idle": 1433600.0,
+                  "active": 1843200.0,
+                  "cooldown": 1902592.0
+                },
+                "handles_range": [
+                  83,
+                  85
+                ],
+                "threads_range": [
+                  5,
+                  5
+                ]
+              }
+            },
+            "go_runtime": {
+              "heap_alloc_bytes": [
+                303928,
+                1120520
+              ],
+              "heap_sys_bytes": [
+                3833856,
+                4063232
+              ],
+              "goroutines": [
+                2,
+                22
+              ],
+              "num_gc": [
+                0,
+                0
+              ],
+              "mallocs": [
+                1289,
+                10654
+              ],
+              "frees": [
+                33,
+                552
+              ],
+              "total_alloc_bytes": [
+                303928,
+                1120520
+              ]
+            }
+          },
+          {
+            "repeat": 3,
+            "status": "PASS_SCOPED",
+            "completed_operations": 16,
+            "roles": {
+              "source": {
+                "phase_private_bytes": {
+                  "idle": 46653440.0,
+                  "active": 48947200.0
+                },
+                "handles_range": [
+                  87,
+                  111
+                ],
+                "threads_range": [
+                  6,
+                  6
+                ]
+              },
+              "destination": {
+                "phase_private_bytes": {
+                  "idle": 1437696.0,
+                  "active": 1859584.0,
+                  "cooldown": 2043904.0
+                },
+                "handles_range": [
+                  83,
+                  85
+                ],
+                "threads_range": [
+                  5,
+                  5
+                ]
+              }
+            },
+            "go_runtime": {
+              "heap_alloc_bytes": [
+                301048,
+                1102976
+              ],
+              "heap_sys_bytes": [
+                3866624,
+                4063232
+              ],
+              "goroutines": [
+                2,
+                22
+              ],
+              "num_gc": [
+                0,
+                0
+              ],
+              "mallocs": [
+                1258,
+                10546
+              ],
+              "frees": [
+                33,
+                546
+              ],
+              "total_alloc_bytes": [
+                301048,
+                1102976
+              ]
+            }
+          }
+        ],
+        "active_private_cv": {
+          "source": 0.01038088190317046,
+          "destination": 0.004424778761061947
+        }
+      },
+      "channels-32": {
+        "attempts": 3,
+        "passed": 2,
+        "rows": [
+          {
+            "repeat": 1,
+            "status": "PASS_SCOPED",
+            "completed_operations": 32,
+            "roles": {
+              "source": {
+                "phase_private_bytes": {
+                  "idle": 46645248.0,
+                  "active": 50282496.0
+                },
+                "handles_range": [
+                  63,
+                  119
+                ],
+                "threads_range": [
+                  6,
+                  7
+                ]
+              },
+              "destination": {
+                "phase_private_bytes": {
+                  "idle": 1437696.0,
+                  "active": 1937408.0,
+                  "cooldown": 2455552.0
+                },
+                "handles_range": [
+                  83,
+                  85
+                ],
+                "threads_range": [
+                  5,
+                  5
+                ]
+              }
+            },
+            "go_runtime": {
+              "heap_alloc_bytes": [
+                306568,
+                1567688
+              ],
+              "heap_sys_bytes": [
+                7897088,
+                8257536
+              ],
+              "goroutines": [
+                2,
+                38
+              ],
+              "num_gc": [
+                0,
+                0
+              ],
+              "mallocs": [
+                1288,
+                16448
+              ],
+              "frees": [
+                33,
+                958
+              ],
+              "total_alloc_bytes": [
+                306568,
+                1567688
+              ]
+            }
+          },
+          {
+            "repeat": 2,
+            "status": "FAIL_RETAINED",
+            "error": "udp_receive_buffer_bytes=1048576\n\nthread 'main' (14504) panicked at src\\bin\\wp8_interop_server.rs:2500:55:\ncalled `Result::unwrap()` on an `Err` value: ApplicationStreamFailed\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\nthread 'main' (14504) panicked at src\\bin\\wp8_interop_server.rs:2553:75:\ncalled `Result::unwrap()` on an `Err` value: JoinError::Panic(Id(14), \"called `Result::unwrap()` on an `Err` value: ApplicationStreamFailed\", ...)\n"
+          },
+          {
+            "repeat": 3,
+            "status": "PASS_SCOPED",
+            "completed_operations": 32,
+            "roles": {
+              "source": {
+                "phase_private_bytes": {
+                  "idle": 46860288.0,
+                  "active": 49180672.0
+                },
+                "handles_range": [
+                  87,
+                  119
+                ],
+                "threads_range": [
+                  6,
+                  7
+                ]
+              },
+              "destination": {
+                "phase_private_bytes": {
+                  "idle": 1433600.0,
+                  "active": 1941504.0,
+                  "cooldown": 2146304.0
+                },
+                "handles_range": [
+                  83,
+                  85
+                ],
+                "threads_range": [
+                  5,
+                  5
+                ]
+              }
+            },
+            "go_runtime": {
+              "heap_alloc_bytes": [
+                307360,
+                1584504
+              ],
+              "heap_sys_bytes": [
+                4030464,
+                7929856
+              ],
+              "goroutines": [
+                2,
+                38
+              ],
+              "num_gc": [
+                0,
+                0
+              ],
+              "mallocs": [
+                1297,
+                16635
+              ],
+              "frees": [
+                33,
+                960
+              ],
+              "total_alloc_bytes": [
+                307360,
+                1584504
+              ]
+            }
+          }
+        ]
+      },
+      "cycles-50": {
+        "attempts": 3,
+        "passed": 3,
+        "rows": [
+          {
+            "repeat": 1,
+            "status": "PASS_SCOPED",
+            "completed_operations": 400,
+            "roles": {
+              "source": {
+                "phase_private_bytes": {
+                  "idle": 46948352.0,
+                  "active": 53788672.0,
+                  "cooldown": 53788672.0
+                },
+                "handles_range": [
+                  89,
+                  151
+                ],
+                "threads_range": [
+                  5,
+                  10
+                ],
+                "cooldown": {
+                  "observed_cycles": 49,
+                  "first_private_bytes": 49070080.0,
+                  "last_private_bytes": 54026240.0,
+                  "last10_range_bytes": 794624.0,
+                  "last10_slope_bytes_per_cycle": -48804.46060606061,
+                  "second_half_range_bytes": 1073152.0
+                }
+              },
+              "destination": {
+                "phase_private_bytes": {
+                  "idle": 1433600.0,
+                  "active": 2174976.0,
+                  "cooldown": 1863680.0
+                },
+                "handles_range": [
+                  83,
+                  85
+                ],
+                "threads_range": [
+                  2,
+                  5
+                ],
+                "cooldown": {
+                  "observed_cycles": 50,
+                  "first_private_bytes": 1548288.0,
+                  "last_private_bytes": 2101248.0,
+                  "last10_range_bytes": 385024.0,
+                  "last10_slope_bytes_per_cycle": -2110.060606060606,
+                  "second_half_range_bytes": 507904.0
+                }
+              }
+            },
+            "go_runtime": {
+              "heap_alloc_bytes": [
+                318032,
+                3055048
+              ],
+              "heap_sys_bytes": [
+                7897088,
+                12025856
+              ],
+              "goroutines": [
+                2,
+                14
+              ],
+              "num_gc": [
+                0,
+                8
+              ],
+              "mallocs": [
+                1293,
+                235922
+              ],
+              "frees": [
+                33,
+                214748
+              ],
+              "total_alloc_bytes": [
+                318032,
+                22859728
+              ]
+            }
+          },
+          {
+            "repeat": 2,
+            "status": "PASS_SCOPED",
+            "completed_operations": 400,
+            "roles": {
+              "source": {
+                "phase_private_bytes": {
+                  "idle": 46678016.0,
+                  "active": 54038528.0,
+                  "cooldown": 54042624.0
+                },
+                "handles_range": [
+                  87,
+                  151
+                ],
+                "threads_range": [
+                  6,
+                  10
+                ],
+                "cooldown": {
+                  "observed_cycles": 49,
+                  "first_private_bytes": 49438720.0,
+                  "last_private_bytes": 54009856.0,
+                  "last10_range_bytes": 393216.0,
+                  "last10_slope_bytes_per_cycle": 29938.036363636365,
+                  "second_half_range_bytes": 630784.0
+                }
+              },
+              "destination": {
+                "phase_private_bytes": {
+                  "idle": 1425408.0,
+                  "active": 2183168.0,
+                  "cooldown": 1859584.0
+                },
+                "handles_range": [
+                  83,
+                  85
+                ],
+                "threads_range": [
+                  2,
+                  5
+                ],
+                "cooldown": {
+                  "observed_cycles": 50,
+                  "first_private_bytes": 1531904.0,
+                  "last_private_bytes": 2066432.0,
+                  "last10_range_bytes": 301056.0,
+                  "last10_slope_bytes_per_cycle": 1055.030303030303,
+                  "second_half_range_bytes": 385024.0
+                }
+              }
+            },
+            "go_runtime": {
+              "heap_alloc_bytes": [
+                316368,
+                3098648
+              ],
+              "heap_sys_bytes": [
+                8060928,
+                12255232
+              ],
+              "goroutines": [
+                2,
+                14
+              ],
+              "num_gc": [
+                0,
+                8
+              ],
+              "mallocs": [
+                1275,
+                236041
+              ],
+              "frees": [
+                33,
+                227931
+              ],
+              "total_alloc_bytes": [
+                316368,
+                22856568
+              ]
+            }
+          },
+          {
+            "repeat": 3,
+            "status": "PASS_SCOPED",
+            "completed_operations": 400,
+            "roles": {
+              "source": {
+                "phase_private_bytes": {
+                  "idle": 46657536.0,
+                  "active": 53772288.0,
+                  "cooldown": 53776384.0
+                },
+                "handles_range": [
+                  99,
+                  151
+                ],
+                "threads_range": [
+                  6,
+                  10
+                ],
+                "cooldown": {
+                  "observed_cycles": 49,
+                  "first_private_bytes": 49082368.0,
+                  "last_private_bytes": 54820864.0,
+                  "last10_range_bytes": 241664.0,
+                  "last10_slope_bytes_per_cycle": 11568.09696969697,
+                  "second_half_range_bytes": 1134592.0
+                }
+              },
+              "destination": {
+                "phase_private_bytes": {
+                  "idle": 1425408.0,
+                  "active": 2105344.0,
+                  "cooldown": 1830912.0
+                },
+                "handles_range": [
+                  83,
+                  85
+                ],
+                "threads_range": [
+                  2,
+                  5
+                ],
+                "cooldown": {
+                  "observed_cycles": 50,
+                  "first_private_bytes": 1523712.0,
+                  "last_private_bytes": 2150400.0,
+                  "last10_range_bytes": 466944.0,
+                  "last10_slope_bytes_per_cycle": 40972.412121212124,
+                  "second_half_range_bytes": 475136.0
+                }
+              }
+            },
+            "go_runtime": {
+              "heap_alloc_bytes": [
+                311664,
+                3074464
+              ],
+              "heap_sys_bytes": [
+                4030464,
+                11403264
+              ],
+              "goroutines": [
+                2,
+                14
+              ],
+              "num_gc": [
+                0,
+                8
+              ],
+              "mallocs": [
+                1225,
+                236629
+              ],
+              "frees": [
+                33,
+                223804
+              ],
+              "total_alloc_bytes": [
+                311664,
+                22926240
+              ]
+            }
+          }
+        ],
+        "active_private_cv": {
+          "source": 0.002769980320901374,
+          "destination": 0.01984849146180713
+        }
+      }
+    },
+    "scope": "DIAGNOSTIC: no source ownership/observer qualification/isolated resource cost/soak claim"
+  },
+  "corrected": {
+    "source_sha": "97e0ca062b61cf54f4d67e4768bff40458c9a321",
+    "completion_gate": true,
+    "attempts": 18,
+    "passed": 18,
+    "completed_operations_in_accepted_cells": 1680,
+    "shapes": {
+      "streams-16": {
+        "attempts": 3,
+        "passed": 3,
+        "rows": [
+          {
+            "repeat": 1,
+            "status": "PASS_SCOPED",
+            "completed_operations": 16,
+            "roles": {
+              "source": {
+                "phase_private_bytes": {
+                  "idle": 46710784.0,
+                  "active": 48758784.0
+                },
+                "handles_range": [
+                  55,
+                  125
+                ],
+                "threads_range": [
+                  6,
+                  7
+                ]
+              },
+              "destination": {
+                "phase_private_bytes": {
+                  "idle": 1474560.0,
+                  "active": 1855488.0,
+                  "cooldown": 2043904.0
+                },
+                "handles_range": [
+                  89,
+                  91
+                ],
+                "threads_range": [
+                  5,
+                  5
+                ]
+              }
+            },
+            "go_runtime": {
+              "heap_alloc_bytes": [
+                303064,
+                749304
+              ],
+              "heap_sys_bytes": [
+                4030464,
+                8028160
+              ],
+              "goroutines": [
+                2,
+                22
+              ],
+              "num_gc": [
+                0,
+                0
+              ],
+              "mallocs": [
+                1307,
+                6038
+              ],
+              "frees": [
+                34,
+                238
+              ],
+              "total_alloc_bytes": [
+                303064,
+                749304
+              ]
+            }
+          },
+          {
+            "repeat": 2,
+            "status": "PASS_SCOPED",
+            "completed_operations": 16,
+            "roles": {
+              "source": {
+                "phase_private_bytes": {
+                  "idle": 46940160.0,
+                  "active": 48705536.0
+                },
+                "handles_range": [
+                  87,
+                  119
+                ],
+                "threads_range": [
+                  6,
+                  7
+                ]
+              },
+              "destination": {
+                "phase_private_bytes": {
+                  "idle": 1441792.0,
+                  "active": 1863680.0,
+                  "cooldown": 2097152.0
+                },
+                "handles_range": [
+                  83,
+                  85
+                ],
+                "threads_range": [
+                  5,
+                  5
+                ]
+              }
+            },
+            "go_runtime": {
+              "heap_alloc_bytes": [
+                302720,
+                751480
+              ],
+              "heap_sys_bytes": [
+                8060928,
+                8224768
+              ],
+              "goroutines": [
+                2,
+                22
+              ],
+              "num_gc": [
+                0,
+                0
+              ],
+              "mallocs": [
+                1304,
+                6040
+              ],
+              "frees": [
+                33,
+                238
+              ],
+              "total_alloc_bytes": [
+                302720,
+                751480
+              ]
+            }
+          },
+          {
+            "repeat": 3,
+            "status": "PASS_SCOPED",
+            "completed_operations": 16,
+            "roles": {
+              "source": {
+                "phase_private_bytes": {
+                  "idle": 46817280.0,
+                  "active": 48640000.0
+                },
+                "handles_range": [
+                  88,
+                  119
+                ],
+                "threads_range": [
+                  6,
+                  7
+                ]
+              },
+              "destination": {
+                "phase_private_bytes": {
+                  "idle": 1421312.0,
+                  "active": 1822720.0,
+                  "cooldown": 1863680.0
+                },
+                "handles_range": [
+                  83,
+                  85
+                ],
+                "threads_range": [
+                  5,
+                  5
+                ]
+              }
+            },
+            "go_runtime": {
+              "heap_alloc_bytes": [
+                301808,
+                745152
+              ],
+              "heap_sys_bytes": [
+                4063232,
+                8224768
+              ],
+              "goroutines": [
+                2,
+                22
+              ],
+              "num_gc": [
+                0,
+                0
+              ],
+              "mallocs": [
+                1293,
+                5996
+              ],
+              "frees": [
+                34,
+                239
+              ],
+              "total_alloc_bytes": [
+                301808,
+                745152
+              ]
+            }
+          }
+        ],
+        "active_private_cv": {
+          "source": 0.0012216853697505424,
+          "destination": 0.011732821778556944
+        }
+      },
+      "streams-32": {
+        "attempts": 3,
+        "passed": 3,
+        "rows": [
+          {
+            "repeat": 1,
+            "status": "PASS_SCOPED",
+            "completed_operations": 32,
+            "roles": {
+              "source": {
+                "phase_private_bytes": {
+                  "idle": 46833664.0,
+                  "active": 49061888.0
+                },
+                "handles_range": [
+                  88,
+                  119
+                ],
+                "threads_range": [
+                  6,
+                  7
+                ]
+              },
+              "destination": {
+                "phase_private_bytes": {
+                  "idle": 1437696.0,
+                  "active": 1839104.0,
+                  "cooldown": 2066432.0
+                },
+                "handles_range": [
+                  83,
+                  85
+                ],
+                "threads_range": [
+                  5,
+                  5
+                ]
+              }
+            },
+            "go_runtime": {
+              "heap_alloc_bytes": [
+                300632,
+                828584
+              ],
+              "heap_sys_bytes": [
+                7929856,
+                8224768
+              ],
+              "goroutines": [
+                2,
+                38
+              ],
+              "num_gc": [
+                0,
+                0
+              ],
+              "mallocs": [
+                1283,
+                7163
+              ],
+              "frees": [
+                34,
+                319
+              ],
+              "total_alloc_bytes": [
+                300632,
+                828584
+              ]
+            }
+          },
+          {
+            "repeat": 2,
+            "status": "PASS_SCOPED",
+            "completed_operations": 32,
+            "roles": {
+              "source": {
+                "phase_private_bytes": {
+                  "idle": 46823424.0,
+                  "active": 49483776.0
+                },
+                "handles_range": [
+                  87,
+                  119
+                ],
+                "threads_range": [
+                  6,
+                  7
+                ]
+              },
+              "destination": {
+                "phase_private_bytes": {
+                  "idle": 1427456.0,
+                  "active": 1830912.0,
+                  "cooldown": 1994752.0
+                },
+                "handles_range": [
+                  83,
+                  85
+                ],
+                "threads_range": [
+                  5,
+                  5
+                ]
+              }
+            },
+            "go_runtime": {
+              "heap_alloc_bytes": [
+                300792,
+                828320
+              ],
+              "heap_sys_bytes": [
+                7897088,
+                8224768
+              ],
+              "goroutines": [
+                2,
+                38
+              ],
+              "num_gc": [
+                0,
+                0
+              ],
+              "mallocs": [
+                1284,
+                7185
+              ],
+              "frees": [
+                34,
+                319
+              ],
+              "total_alloc_bytes": [
+                300792,
+                828320
+              ]
+            }
+          },
+          {
+            "repeat": 3,
+            "status": "PASS_SCOPED",
+            "completed_operations": 32,
+            "roles": {
+              "source": {
+                "phase_private_bytes": {
+                  "idle": 46948352.0,
+                  "active": 49119232.0
+                },
+                "handles_range": [
+                  82,
+                  127
+                ],
+                "threads_range": [
+                  5,
+                  8
+                ]
+              },
+              "destination": {
+                "phase_private_bytes": {
+                  "idle": 1425408.0,
+                  "active": 1822720.0,
+                  "cooldown": 2052096.0
+                },
+                "handles_range": [
+                  83,
+                  85
+                ],
+                "threads_range": [
+                  5,
+                  5
+                ]
+              }
+            },
+            "go_runtime": {
+              "heap_alloc_bytes": [
+                300872,
+                832928
+              ],
+              "heap_sys_bytes": [
+                7897088,
+                8257536
+              ],
+              "goroutines": [
+                2,
+                38
+              ],
+              "num_gc": [
+                0,
+                0
+              ],
+              "mallocs": [
+                1286,
+                7160
+              ],
+              "frees": [
+                34,
+                319
+              ],
+              "total_alloc_bytes": [
+                300872,
+                832928
+              ]
+            }
+          }
+        ],
+        "active_private_cv": {
+          "source": 0.004648906623437937,
+          "destination": 0.0044742729306487695
+        }
+      },
+      "streams-64": {
+        "attempts": 3,
+        "passed": 3,
+        "rows": [
+          {
+            "repeat": 1,
+            "status": "PASS_SCOPED",
+            "completed_operations": 64,
+            "roles": {
+              "source": {
+                "phase_private_bytes": {
+                  "idle": 46669824.0,
+                  "active": 49078272.0
+                },
+                "handles_range": [
+                  88,
+                  111
+                ],
+                "threads_range": [
+                  6,
+                  6
+                ]
+              },
+              "destination": {
+                "phase_private_bytes": {
+                  "idle": 1441792.0,
+                  "active": 1880064.0,
+                  "cooldown": 2486272.0
+                },
+                "handles_range": [
+                  83,
+                  85
+                ],
+                "threads_range": [
+                  5,
+                  5
+                ]
+              }
+            },
+            "go_runtime": {
+              "heap_alloc_bytes": [
+                301328,
+                990928
+              ],
+              "heap_sys_bytes": [
+                7667712,
+                8257536
+              ],
+              "goroutines": [
+                2,
+                70
+              ],
+              "num_gc": [
+                0,
+                0
+              ],
+              "mallocs": [
+                1290,
+                9558
+              ],
+              "frees": [
+                34,
+                485
+              ],
+              "total_alloc_bytes": [
+                301328,
+                990928
+              ]
+            }
+          },
+          {
+            "repeat": 2,
+            "status": "PASS_SCOPED",
+            "completed_operations": 64,
+            "roles": {
+              "source": {
+                "phase_private_bytes": {
+                  "idle": 46833664.0,
+                  "active": 49344512.0
+                },
+                "handles_range": [
+                  87,
+                  119
+                ],
+                "threads_range": [
+                  6,
+                  7
+                ]
+              },
+              "destination": {
+                "phase_private_bytes": {
+                  "idle": 1431552.0,
+                  "active": 1867776.0,
+                  "cooldown": 2269184.0
+                },
+                "handles_range": [
+                  83,
+                  85
+                ],
+                "threads_range": [
+                  5,
+                  5
+                ]
+              }
+            },
+            "go_runtime": {
+              "heap_alloc_bytes": [
+                301016,
+                999136
+              ],
+              "heap_sys_bytes": [
+                3997696,
+                7634944
+              ],
+              "goroutines": [
+                2,
+                70
+              ],
+              "num_gc": [
+                0,
+                0
+              ],
+              "mallocs": [
+                1286,
+                9577
+              ],
+              "frees": [
+                34,
+                485
+              ],
+              "total_alloc_bytes": [
+                301016,
+                999136
+              ]
+            }
+          },
+          {
+            "repeat": 3,
+            "status": "PASS_SCOPED",
+            "completed_operations": 64,
+            "roles": {
+              "source": {
+                "phase_private_bytes": {
+                  "idle": 46675968.0,
+                  "active": 49958912.0
+                },
+                "handles_range": [
+                  88,
+                  119
+                ],
+                "threads_range": [
+                  6,
+                  7
+                ]
+              },
+              "destination": {
+                "phase_private_bytes": {
+                  "idle": 1435648.0,
+                  "active": 1875968.0,
+                  "cooldown": 2091008.0
+                },
+                "handles_range": [
+                  83,
+                  85
+                ],
+                "threads_range": [
+                  5,
+                  5
+                ]
+              }
+            },
+            "go_runtime": {
+              "heap_alloc_bytes": [
+                300792,
+                1001608
+              ],
+              "heap_sys_bytes": [
+                7634944,
+                8257536
+              ],
+              "goroutines": [
+                2,
+                70
+              ],
+              "num_gc": [
+                0,
+                0
+              ],
+              "mallocs": [
+                1284,
+                9590
+              ],
+              "frees": [
+                34,
+                485
+              ],
+              "total_alloc_bytes": [
+                300792,
+                1001608
+              ]
+            }
+          }
+        ],
+        "active_private_cv": {
+          "source": 0.009131411089837735,
+          "destination": 0.003337637068431056
+        }
+      },
+      "channels-16": {
+        "attempts": 3,
+        "passed": 3,
+        "rows": [
+          {
+            "repeat": 1,
+            "status": "PASS_SCOPED",
+            "completed_operations": 16,
+            "roles": {
+              "source": {
+                "phase_private_bytes": {
+                  "idle": 46665728.0,
+                  "active": 49270784.0
+                },
+                "handles_range": [
+                  88,
+                  119
+                ],
+                "threads_range": [
+                  6,
+                  7
+                ]
+              },
+              "destination": {
+                "phase_private_bytes": {
+                  "idle": 1433600.0,
+                  "active": 1847296.0,
+                  "cooldown": 2056192.0
+                },
+                "handles_range": [
+                  83,
+                  85
+                ],
+                "threads_range": [
+                  5,
+                  5
+                ]
+              }
+            },
+            "go_runtime": {
+              "heap_alloc_bytes": [
+                303368,
+                1095808
+              ],
+              "heap_sys_bytes": [
+                4030464,
+                8028160
+              ],
+              "goroutines": [
+                2,
+                22
+              ],
+              "num_gc": [
+                0,
+                0
+              ],
+              "mallocs": [
+                1285,
+                10447
+              ],
+              "frees": [
+                34,
+                547
+              ],
+              "total_alloc_bytes": [
+                303368,
+                1095808
+              ]
+            }
+          },
+          {
+            "repeat": 2,
+            "status": "PASS_SCOPED",
+            "completed_operations": 16,
+            "roles": {
+              "source": {
+                "phase_private_bytes": {
+                  "idle": 46786560.0,
+                  "active": 49442816.0
+                },
+                "handles_range": [
+                  88,
+                  119
+                ],
+                "threads_range": [
+                  6,
+                  7
+                ]
+              },
+              "destination": {
+                "phase_private_bytes": {
+                  "idle": 1449984.0,
+                  "active": 1855488.0,
+                  "cooldown": 1847296.0
+                },
+                "handles_range": [
+                  83,
+                  85
+                ],
+                "threads_range": [
+                  5,
+                  5
+                ]
+              }
+            },
+            "go_runtime": {
+              "heap_alloc_bytes": [
+                303480,
+                1106024
+              ],
+              "heap_sys_bytes": [
+                4063232,
+                8224768
+              ],
+              "goroutines": [
+                2,
+                22
+              ],
+              "num_gc": [
+                0,
+                0
+              ],
+              "mallocs": [
+                1285,
+                10534
+              ],
+              "frees": [
+                34,
+                547
+              ],
+              "total_alloc_bytes": [
+                303480,
+                1106024
+              ]
+            }
+          },
+          {
+            "repeat": 3,
+            "status": "PASS_SCOPED",
+            "completed_operations": 16,
+            "roles": {
+              "source": {
+                "phase_private_bytes": {
+                  "idle": 46661632.0,
+                  "active": 48955392.0
+                },
+                "handles_range": [
+                  88,
+                  119
+                ],
+                "threads_range": [
+                  6,
+                  7
+                ]
+              },
+              "destination": {
+                "phase_private_bytes": {
+                  "idle": 1445888.0,
+                  "active": 1871872.0,
+                  "cooldown": 2179072.0
+                },
+                "handles_range": [
+                  83,
+                  85
+                ],
+                "threads_range": [
+                  5,
+                  5
+                ]
+              }
+            },
+            "go_runtime": {
+              "heap_alloc_bytes": [
+                303208,
+                1104784
+              ],
+              "heap_sys_bytes": [
+                4030464,
+                8060928
+              ],
+              "goroutines": [
+                2,
+                22
+              ],
+              "num_gc": [
+                0,
+                0
+              ],
+              "mallocs": [
+                1284,
+                10522
+              ],
+              "frees": [
+                34,
+                546
+              ],
+              "total_alloc_bytes": [
+                303208,
+                1104784
+              ]
+            }
+          }
+        ],
+        "active_private_cv": {
+          "source": 0.0050220581434951145,
+          "destination": 0.006734130337921881
+        }
+      },
+      "channels-32": {
+        "attempts": 3,
+        "passed": 3,
+        "rows": [
+          {
+            "repeat": 1,
+            "status": "PASS_SCOPED",
+            "completed_operations": 32,
+            "roles": {
+              "source": {
+                "phase_private_bytes": {
+                  "idle": 46661632.0,
+                  "active": 49938432.0
+                },
+                "handles_range": [
+                  87,
+                  119
+                ],
+                "threads_range": [
+                  6,
+                  7
+                ]
+              },
+              "destination": {
+                "phase_private_bytes": {
+                  "idle": 1417216.0,
+                  "active": 1933312.0,
+                  "cooldown": 2420736.0
+                },
+                "handles_range": [
+                  83,
+                  85
+                ],
+                "threads_range": [
+                  5,
+                  5
+                ]
+              }
+            },
+            "go_runtime": {
+              "heap_alloc_bytes": [
+                306864,
+                1577616
+              ],
+              "heap_sys_bytes": [
+                4030464,
+                7897088
+              ],
+              "goroutines": [
+                2,
+                38
+              ],
+              "num_gc": [
+                0,
+                0
+              ],
+              "mallocs": [
+                1292,
+                16549
+              ],
+              "frees": [
+                34,
+                959
+              ],
+              "total_alloc_bytes": [
+                306864,
+                1577616
+              ]
+            }
+          },
+          {
+            "repeat": 2,
+            "status": "PASS_SCOPED",
+            "completed_operations": 32,
+            "roles": {
+              "source": {
+                "phase_private_bytes": {
+                  "idle": 46825472.0,
+                  "active": 49963008.0
+                },
+                "handles_range": [
+                  87,
+                  117
+                ],
+                "threads_range": [
+                  6,
+                  7
+                ]
+              },
+              "destination": {
+                "phase_private_bytes": {
+                  "idle": 1433600.0,
+                  "active": 1945600.0,
+                  "cooldown": 2420736.0
+                },
+                "handles_range": [
+                  83,
+                  85
+                ],
+                "threads_range": [
+                  5,
+                  5
+                ]
+              }
+            },
+            "go_runtime": {
+              "heap_alloc_bytes": [
+                307824,
+                1590952
+              ],
+              "heap_sys_bytes": [
+                4030464,
+                8192000
+              ],
+              "goroutines": [
+                2,
+                38
+              ],
+              "num_gc": [
+                0,
+                0
+              ],
+              "mallocs": [
+                1302,
+                16701
+              ],
+              "frees": [
+                34,
+                959
+              ],
+              "total_alloc_bytes": [
+                307824,
+                1590952
+              ]
+            }
+          },
+          {
+            "repeat": 3,
+            "status": "PASS_SCOPED",
+            "completed_operations": 32,
+            "roles": {
+              "source": {
+                "phase_private_bytes": {
+                  "idle": 46962688.0,
+                  "active": 49852416.0
+                },
+                "handles_range": [
+                  88,
+                  119
+                ],
+                "threads_range": [
+                  6,
+                  7
+                ]
+              },
+              "destination": {
+                "phase_private_bytes": {
+                  "idle": 1449984.0,
+                  "active": 1949696.0,
+                  "cooldown": 1892352.0
+                },
+                "handles_range": [
+                  83,
+                  85
+                ],
+                "threads_range": [
+                  5,
+                  5
+                ]
+              }
+            },
+            "go_runtime": {
+              "heap_alloc_bytes": [
+                306944,
+                1583328
+              ],
+              "heap_sys_bytes": [
+                4030464,
+                7929856
+              ],
+              "goroutines": [
+                2,
+                38
+              ],
+              "num_gc": [
+                0,
+                0
+              ],
+              "mallocs": [
+                1294,
+                16629
+              ],
+              "frees": [
+                34,
+                961
+              ],
+              "total_alloc_bytes": [
+                306944,
+                1583328
+              ]
+            }
+          }
+        ],
+        "active_private_cv": {
+          "source": 0.0011633254187870539,
+          "destination": 0.0043886141942364
+        }
+      },
+      "cycles-50": {
+        "attempts": 3,
+        "passed": 3,
+        "rows": [
+          {
+            "repeat": 1,
+            "status": "PASS_SCOPED",
+            "completed_operations": 400,
+            "roles": {
+              "source": {
+                "phase_private_bytes": {
+                  "idle": 46673920.0,
+                  "active": 53981184.0,
+                  "cooldown": 53981184.0
+                },
+                "handles_range": [
+                  87,
+                  151
+                ],
+                "threads_range": [
+                  6,
+                  10
+                ],
+                "cooldown": {
+                  "observed_cycles": 49,
+                  "first_private_bytes": 49319936.0,
+                  "last_private_bytes": 54710272.0,
+                  "last10_range_bytes": 344064.0,
+                  "last10_slope_bytes_per_cycle": 36094.448484848486,
+                  "second_half_range_bytes": 737280.0
+                }
+              },
+              "destination": {
+                "phase_private_bytes": {
+                  "idle": 1433600.0,
+                  "active": 2228224.0,
+                  "cooldown": 1904640.0
+                },
+                "handles_range": [
+                  83,
+                  85
+                ],
+                "threads_range": [
+                  2,
+                  5
+                ],
+                "cooldown": {
+                  "observed_cycles": 50,
+                  "first_private_bytes": 1929216.0,
+                  "last_private_bytes": 2248704.0,
+                  "last10_range_bytes": 548864.0,
+                  "last10_slope_bytes_per_cycle": 20504.82424242424,
+                  "second_half_range_bytes": 552960.0
+                }
+              }
+            },
+            "go_runtime": {
+              "heap_alloc_bytes": [
+                317336,
+                3115632
+              ],
+              "heap_sys_bytes": [
+                8028160,
+                12189696
+              ],
+              "goroutines": [
+                2,
+                14
+              ],
+              "num_gc": [
+                0,
+                8
+              ],
+              "mallocs": [
+                1286,
+                236717
+              ],
+              "frees": [
+                34,
+                223795
+              ],
+              "total_alloc_bytes": [
+                317336,
+                22974200
+              ]
+            }
+          },
+          {
+            "repeat": 2,
+            "status": "PASS_SCOPED",
+            "completed_operations": 400,
+            "roles": {
+              "source": {
+                "phase_private_bytes": {
+                  "idle": 46845952.0,
+                  "active": 54206464.0,
+                  "cooldown": 54214656.0
+                },
+                "handles_range": [
+                  87,
+                  151
+                ],
+                "threads_range": [
+                  6,
+                  10
+                ],
+                "cooldown": {
+                  "observed_cycles": 49,
+                  "first_private_bytes": 49037312.0,
+                  "last_private_bytes": 54525952.0,
+                  "last10_range_bytes": 638976.0,
+                  "last10_slope_bytes_per_cycle": 36715.05454545454,
+                  "second_half_range_bytes": 786432.0
+                }
+              },
+              "destination": {
+                "phase_private_bytes": {
+                  "idle": 1425408.0,
+                  "active": 2162688.0,
+                  "cooldown": 1843200.0
+                },
+                "handles_range": [
+                  83,
+                  85
+                ],
+                "threads_range": [
+                  2,
+                  5
+                ],
+                "cooldown": {
+                  "observed_cycles": 50,
+                  "first_private_bytes": 1523712.0,
+                  "last_private_bytes": 2162688.0,
+                  "last10_range_bytes": 581632.0,
+                  "last10_slope_bytes_per_cycle": -10798.545454545454,
+                  "second_half_range_bytes": 626688.0
+                }
+              }
+            },
+            "go_runtime": {
+              "heap_alloc_bytes": [
+                317288,
+                3095648
+              ],
+              "heap_sys_bytes": [
+                3899392,
+                8093696
+              ],
+              "goroutines": [
+                2,
+                14
+              ],
+              "num_gc": [
+                0,
+                8
+              ],
+              "mallocs": [
+                1287,
+                236750
+              ],
+              "frees": [
+                34,
+                223435
+              ],
+              "total_alloc_bytes": [
+                317288,
+                22968632
+              ]
+            }
+          },
+          {
+            "repeat": 3,
+            "status": "PASS_SCOPED",
+            "completed_operations": 400,
+            "roles": {
+              "source": {
+                "phase_private_bytes": {
+                  "idle": 46690304.0,
+                  "active": 54116352.0,
+                  "cooldown": 54116352.0
+                },
+                "handles_range": [
+                  87,
+                  151
+                ],
+                "threads_range": [
+                  6,
+                  10
+                ],
+                "cooldown": {
+                  "observed_cycles": 49,
+                  "first_private_bytes": 49278976.0,
+                  "last_private_bytes": 54644736.0,
+                  "last10_range_bytes": 319488.0,
+                  "last10_slope_bytes_per_cycle": -7223.854545454546,
+                  "second_half_range_bytes": 614400.0
+                }
+              },
+              "destination": {
+                "phase_private_bytes": {
+                  "idle": 1441792.0,
+                  "active": 2183168.0,
+                  "cooldown": 1863680.0
+                },
+                "handles_range": [
+                  83,
+                  85
+                ],
+                "threads_range": [
+                  2,
+                  5
+                ],
+                "cooldown": {
+                  "observed_cycles": 50,
+                  "first_private_bytes": 1552384.0,
+                  "last_private_bytes": 2138112.0,
+                  "last10_range_bytes": 286720.0,
+                  "last10_slope_bytes_per_cycle": 11121.260606060607,
+                  "second_half_range_bytes": 360448.0
+                }
+              }
+            },
+            "go_runtime": {
+              "heap_alloc_bytes": [
+                317080,
+                3096288
+              ],
+              "heap_sys_bytes": [
+                7897088,
+                11993088
+              ],
+              "goroutines": [
+                2,
+                14
+              ],
+              "num_gc": [
+                0,
+                8
+              ],
+              "mallocs": [
+                1285,
+                236311
+              ],
+              "frees": [
+                34,
+                223033
+              ],
+              "total_alloc_bytes": [
+                317080,
+                22918800
+              ]
+            }
+          }
+        ],
+        "active_private_cv": {
+          "source": 0.002095853092441091,
+          "destination": 0.015299724807238225
+        }
+      }
+    },
+    "scope": "DIAGNOSTIC: no source ownership/observer qualification/isolated resource cost/soak claim"
+  }
+}
