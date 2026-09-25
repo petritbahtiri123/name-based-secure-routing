@@ -1,0 +1,18 @@
+[
+  {
+    "root": "C:\\NBSR-build\\native-live2048-memory2-8e0b28a2",
+    "index_sha256": "54130bd38931ba1ea1b847d78e3d9efbbd63d8be9c958f6d56e001f951df2da3"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-current-8e0b28a2",
+    "index_sha256": "4576f762bf2eeb0eb6f92f3f04bdfe498744cde728dd1bce6365d521942ceed1"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-memory-exit-tests-20260925",
+    "index_sha256": "3a9c363e9d6e40babbab75e789cc5b1627d5303fdf7a01fd0dff923713da4e1d"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-memory-placement-tests-20260925",
+    "index_sha256": "c5cac0269e2093dd93bd9f0ce12ecb2f653eabb84d263d50db6ec4b25591505f"
+  }
+]
