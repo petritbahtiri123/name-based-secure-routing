@@ -92,6 +92,16 @@ def wait_paths(paths: list[Path], processes: list[subprocess.Popen[str]], timeou
         time.sleep(0.01)
 
 
+def wait_source_initialization(path, linux, runtime_paths, clients):
+    """Sample Linux Go only after exec has created its exclusive runtime file.
+
+    This precedes the first connection start marker; it changes no network gate.
+    An open proc smaps handle can return ESRCH across exec even for a live PID.
+    """
+    if linux and path == 'go-rust':
+        wait_paths(runtime_paths, clients, 30)
+
+
 def wait_json_paths(paths, processes, timeout):
     """Wait for readable atomic JSON publications within one original deadline.
 
@@ -316,11 +326,13 @@ def run_cell(path: str, spec: dict[str, int | str], binaries: dict[str, Path], r
         resources: list[dict[str, Any]] = []
         failure_detail = ""
         completion_records = []
+        runtime_paths = []
         try:
             wait_ready(ready, server)
             client_specs = source_plan(path, sessions, cycles)
             for index, (connections, offset, logical_clients) in enumerate(client_specs):
                 runtime_path = temporary_root / f"go-runtime-{offset}.ndjson"
+                runtime_paths.append(runtime_path)
                 argv, cwd = client_command(path, binaries, ready, authority, lifecycle, connections=connections, services=services, streams=streams, offset=offset, runtime_path=runtime_path, **({"destination_completion": True} if spec.get("destination_completion") else {}))
                 if path == "rust-rust":
                     argv.extend(["--diagnostics", "1"])
@@ -340,6 +352,7 @@ def run_cell(path: str, spec: dict[str, int | str], binaries: dict[str, Path], r
                     argv = capture_backend.command(argv)
                 commands.append(argv)
                 clients.append(subprocess.Popen(argv, cwd=cwd, stdout=log(f"source-{index}", "stdout"), stderr=log(f"source-{index}", "stderr"), text=True))
+            wait_source_initialization(path, capture_backend is not None, runtime_paths, clients)
             rounds = 1 if sessions > 1 else cycles
             for cycle in range(rounds):
                 cycle_index = int(spec.get("cycle_index", cycle))
